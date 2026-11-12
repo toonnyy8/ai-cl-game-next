@@ -1,5 +1,5 @@
 ;;;; fx.lisp — the fx pools: camera shake, particles (mist, sparks, dust, homing orbs, feathers, glow, flame), rings,
-;;;; rigid debris, sword-trail buffers (and the drawn smear captured from them), screen-edge vignettes and debug
+;;;; sword-trail buffers (and the drawn smear captured from them) and debug
 ;;;; outlines of hit volumes. The stateless drawing kit (toon shapes, envelope, ribbons, sectors) is fx-shapes.lisp,
 ;;;; loaded before this file. All real-time or sim-time driven by the caller; the colors / presets a game uses live in the game.
 (in-package :engine)
@@ -44,7 +44,7 @@
 ;;;   flame        additive ball, mild drag, shrinks; its color runs from the emit color (give a
 ;;;                white-yellow hot core) through orange to dark red over its life, and only the
 ;;;                first 10 % of its life gets the additive batch's white center. It rises when the
-;;;                caller passes a negative GRAV (FX-BURST uses -2). Its peak alpha is 0.8; FX-EMIT's
+;;;                caller passes a negative GRAV (for example -2). Its peak alpha is 0.8; FX-EMIT's
 ;;;                ALPHA scales that (additive: brightness), e.g. 0.3-0.5 so flames do not saturate
 ;;;                to white over a bright sky.
 ;;; Every kind's alpha is multiplied by the particle's ALPHA (default 1 = unchanged).
@@ -103,24 +103,6 @@ call compiles in place (compiler macro): unboxed float arguments cost no consing
   (%fx-put type x y z vx vy vz life size grav r g b (f32 alpha)))
 (eval-when (:compile-toplevel :load-toplevel :execute)   ; ECL: else not seen by the compiler
   (define-compiler-macro fx-emit (&rest args) `(%fx-put ,@args)))
-
-(defun-fast fx-burst (type n x y z dx dy dz spread smin smax life size r g b)
-  "N particles from (x y z): direction (dx dy dz) (zero = omni) jittered by SPREAD, speed
-SMIN..SMAX, LIFE s (±25 %), SIZE radius (0.5x..1x)."
-  (declare (single-float type x y z dx dy dz spread smin smax life size r g b) (fixnum n))
-  (let* ((grav (cond ((= type +p-spark+) 9.8f0) ((= type +p-mist+) -0.4f0) ((= type +p-dust+) -0.3f0)
-                     ((= type +p-feather+) 1.2f0) ((= type +p-glow+) 0f0) ((= type +p-flame+) -2f0)
-                     (t 2.5f0))))
-    (declare (single-float grav))
-    (dotimes (k n)
-      (let* ((rx (+ dx (* spread (rnd-range -1f0 1f0)))) (ry (+ dy (* spread (rnd-range -1f0 1f0))))
-             (rz (+ dz (* spread (rnd-range -1f0 1f0))))
-             (l (f-hypot rx ry rz)) (sp (rnd-range smin smax)))
-        (declare (single-float rx ry rz l sp))
-        (when (< l 1f-4) (setf rx 0f0 ry 1f0 rz 0f0 l 1f0))
-        (setf sp (/ sp l))
-        (fx-emit type x y z (* rx sp) (* ry sp) (* rz sp) (* life (rnd-range 0.75f0 1.25f0))
-                 (* size (rnd-range 0.5f0 1f0)) grav r g b)))))
 
 (defun-fast fx-update (dt)
   "Advance particles by DT (real seconds). Orbs home to *ORB-TARGET* and call *ON-ORB-ABSORBED*."
@@ -312,94 +294,19 @@ TOON-A): drawn as a toon shape instead (the band's two edges inked, eroding as i
                                 (progn (vtx x0 y0 z0 0f0 1f0 r g b a) (vtx x1 y1 z1 0f0 0f0 r g b a) (vtx x2 y2 z2 0f0 0f0 r g b a)
                                        (vtx x0 y0 z0 0f0 1f0 r g b a) (vtx x2 y2 z2 0f0 0f0 r g b a) (vtx x3 y3 z3 0f0 1f0 r g b a)))))))))))))))))
 
-;;; ---------------------------------------------------------------- rigid debris (limbs, death parts)
-;;; Slot stride 32: [0-15] rotation*scale (no translation) [16-18] pos [19-21] vel [22-24] euler
-;;; [25-27] angular velocity [28] age [29] bounced
-(defconstant +deb-n+ 128)
-(declaim (type f32vec *deb* *deb-m* *deb-t*) (type simple-vector *deb-mesh*) (type fixnum *deb-cursor*))
-(defvar *deb* (make-f32 (* 32 +deb-n+)))
-(defvar *deb-mesh* (make-array +deb-n+ :initial-element nil))
-(defvar *deb-cursor* 0)
-(defvar *deb-m* (make-f32 16))
-(defvar *deb-t* (make-f32 16))
-(defparameter *debris-life* 2.4 "s before a debris part is gone (shrinks over the last 0.4 s)")
-
-(defun-fast fx-debris (mesh m mo vx vy vz spin)
-  "Detach MESH drawn with the world matrix at M[MO..MO+15] as a physics piece with velocity
-(vx vy vz) and random angular velocity up to SPIN rad/s."
-  (declare (type f32vec m) (fixnum mo) (single-float vx vy vz spin))
-  (let* ((d *deb*) (i *deb-cursor*) (o (* i 32)))
-    (declare (type f32vec d) (fixnum i o))
-    (setf (svref *deb-mesh* i) mesh)
-    (replace d m :start1 o :start2 mo :end2 (+ mo 12))
-    (setf (aref d (+ o 12)) 0f0 (aref d (+ o 13)) 0f0 (aref d (+ o 14)) 0f0 (aref d (+ o 15)) 1f0
-          (aref d (+ o 16)) (aref m (+ mo 12)) (aref d (+ o 17)) (aref m (+ mo 13)) (aref d (+ o 18)) (aref m (+ mo 14))
-          (aref d (+ o 19)) vx (aref d (+ o 20)) vy (aref d (+ o 21)) vz
-          (aref d (+ o 22)) 0f0 (aref d (+ o 23)) 0f0 (aref d (+ o 24)) 0f0
-          (aref d (+ o 25)) (rnd-range (- spin) spin) (aref d (+ o 26)) (rnd-range (- spin) spin)
-          (aref d (+ o 27)) (rnd-range (- spin) spin) (aref d (+ o 28)) 0f0 (aref d (+ o 29)) 0f0)
-    (incf i) (when (>= i +deb-n+) (setf i 0))
-    (setf *deb-cursor* i)
-    nil))
-
-(defun-fast fx-debris-update (dt)
-  "Integrate and draw debris (DT = sim seconds: debris freezes with hitstop)."
-  (declare (single-float dt))
-  (let* ((d *deb*) (m *deb-m*) (tm *deb-t*) (life (the single-float *debris-life*)))
-    (declare (type f32vec d m tm) (single-float life))
-    (dotimes (i +deb-n+)
-      (let* ((mesh (svref *deb-mesh* i)) (o (* i 32)))
-        (declare (fixnum o))
-        (when mesh
-          (let* ((age (+ (aref d (+ o 28)) dt)))
-            (declare (single-float age))
-            (setf (aref d (+ o 28)) age)
-            (if (> age life)
-                (setf (svref *deb-mesh* i) nil)
-                (progn
-                  (setf (aref d (+ o 20)) (- (aref d (+ o 20)) (* 18f0 dt)))
-                  (dotimes (k 3)
-                    (setf (aref d (+ o 16 k)) (+ (aref d (+ o 16 k)) (* dt (aref d (+ o 19 k))))
-                          (aref d (+ o 22 k)) (+ (aref d (+ o 22 k)) (* dt (aref d (+ o 25 k))))))
-                  (when (< (aref d (+ o 17)) 0.08f0)
-                    (setf (aref d (+ o 17)) 0.08f0)
-                    (if (< (aref d (+ o 29)) 0.5f0)
-                        (setf (aref d (+ o 20)) (* -0.3f0 (aref d (+ o 20))) (aref d (+ o 29)) 1f0)
-                        (setf (aref d (+ o 20)) 0f0))
-                    (setf (aref d (+ o 19)) (* 0.8f0 (aref d (+ o 19))) (aref d (+ o 21)) (* 0.8f0 (aref d (+ o 21)))
-                          (aref d (+ o 25)) (* 0.9f0 (aref d (+ o 25))) (aref d (+ o 26)) (* 0.9f0 (aref d (+ o 26)))
-                          (aref d (+ o 27)) (* 0.9f0 (aref d (+ o 27)))))
-                  (let* ((s (if (> age (- life 0.4f0)) (f-max 0.001f0 (/ (- life age) 0.4f0)) 1f0)))
-                    (declare (single-float s))
-                    (%euler! tm 0 (aref d (+ o 16)) (aref d (+ o 17)) (aref d (+ o 18))
-                             (aref d (+ o 23)) (aref d (+ o 22)) (aref d (+ o 24)) s)
-                    (%affine-mul! m 0 tm 0 d o)
-                    (draw-mesh mesh m))))))))))
-
-(defun fx-clear-debris () (fill *deb-mesh* nil))
-
 (defun fx-clear ()
-  "Remove every particle, ring and debris piece and stop the shake (a new round / scene)."
+  "Remove every particle and ring and stop the shake (a new round / scene)."
   (let ((p *parts*) (s *rings*))
     (declare (type f32vec p s))
     (dotimes (i +pmax+) (setf (aref p (+ (* i +pstride+) 6)) 0f0))
     (dotimes (i +ring-n+) (setf (aref s (+ (* i +ring-stride+) 6)) 0f0))    ; dur 0: age >= dur = finished
     (setf *plive* 0))
   (fill *shake* 0f0)
-  (fill (camera-shake *camera*) 0f0)
-  (fx-clear-debris))
-
-(defun fx-clear-orbs ()
-  "Kill in-flight orb particles (e.g. a retry must not collect pickups after a checkpoint restore)."
-  (let ((p *parts*))
-    (declare (type f32vec p))
-    (dotimes (i +pmax+)
-      (let* ((o (* i +pstride+)) (ty (aref p (+ o 13))))
-        (when (or (= ty +p-orb-a+) (= ty +p-orb-b+)) (setf (aref p (+ o 6)) 0f0))))))
+  (fill (camera-shake *camera*) 0f0))
 
 ;;; ---------------------------------------------------------------- sword trails
 ;;; A trail is an f32vec: +TRAIL-N+ samples x (base xyz, tip xyz), oldest first, count at [60].
-;;; Push a blade's base/tip each sim step while it swings, decay otherwise, draw it with FX-TRAIL.
+;;; Push a blade's base/tip each sim step while it swings, decay otherwise and draw it as a smear (FX-SMEAR-CAPTURE!).
 ;;; %TRAIL-PUSH / %TRAIL-DROP are the 0 B macro forms (a DEFUN-FAST call boxes its float arguments; REPLACE of a
 ;;; vector onto itself allocates, so the samples move with an explicit forward copy).
 (defconstant +trail-n+ 10)
@@ -467,16 +374,6 @@ variables; U WIDTH K: single-float forms. The caller draws SM (FX-CRESCENT ... :
                        (aref ,sm 11) ,k))
               `(setf (aref ,sm 9) ,width                ; (LEN unused: not computed, an unread float binding boxes)
                      (aref ,sm 11) ,k))))))
-
-;;; ---------------------------------------------------------------- screen effects (UI layer)
-(defun edge-vignette (r g b a frac)
-  "Darken toward the screen edges with color (r g b) at alpha A; FRAC = band size."
-  (let* ((w (window-width)) (h (window-height)) (bw (* w frac)) (bh (* h frac))
-         (c1 (list r g b a)) (c0 (list r g b 0)))
-    (ui-gradient 0 0 w bh c1 c0)
-    (ui-gradient 0 (- h bh) w bh c0 c1)
-    (ui-gradient 0 0 bw h c1 c0 :vertical nil)
-    (ui-gradient (- w bw) 0 bw h c0 c1 :vertical nil)))
 
 ;;; ---------------------------------------------------------------- debug drawing: hit volumes
 ;;; Overlays for tuning hits (a debug key / command): hurt cylinders as two circles, attack

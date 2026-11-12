@@ -3,13 +3,10 @@
 Everything lives in package `ENGINE` (the export list in `engine/lisp/package.lisp` is the public
 API, grouped by file); a game is its own package with `(:use :cl :engine)`. Sources: `engine/lisp/*.lisp`
 (C: `engine/c/`, shaders: `engine/shaders/`). Rendering is SDL_GPU (WebGPU backend, WGSL); see
-ARCHITECTURE.md for the pipeline. The smallest complete game is `examples/hello/hello.lisp`
-(walkthrough: TUTORIAL.zh-TW.md step 2); `examples/engine-demo/demo.lisp` uses most of the
-rendering, meshgen and UI calls. Names written `engine::x` below are internal (not exported).
-Two games use it: RAVEN EDGE (`game/`, package RAVEN) and SOUL DUEL (`duel/`, package DUEL); "used
-by" notes below say which game calls an API when only one does. Harvested from the games (the
-"harvest", DEVLOG): the vpad, hit volumes, facing helpers, the fixed-step accumulator, the
-rigid-part body builder, the cinematic director, ribbons / sectors / bitmaps and a few helpers.
+ARCHITECTURE.md for the pipeline. The engine knows no game; SOUL DUEL (`duel/`, package DUEL) is the one
+game on it (the RAVEN EDGE game and the `examples/` that once used it are gone). Names written `engine::x`
+below are internal (not exported). The sections follow the export list's groups in `package.lisp`; a name
+is public only if it is exported there.
 
 ## Conventions
 
@@ -56,6 +53,9 @@ MSAA is 4 or 1 (WebGPU has no 2/8).
 | `(pointer-locked-p)` | real browser lock state. With `*pointer-lock*` T (default) any click requests the lock (Esc releases it) and a click that (re)acquires it is not reported as a press |
 | `*pointer-lock*` | T (default): mouse-look games, as above. NIL: clicks are ordinary presses and the lock is never requested (menus, a fighter) |
 | `(focus-lost-p)` | T in the frame the window lost focus / was hidden |
+| `(pixel-density)` | window pixels per CSS pixel (the device pixel ratio) |
+| `(page-get k)` `(page-set k v)` | ask / tell the page's `globalThis.gamePage` service K (integers; `page-get` is 0 without the service) |
+| `(page-set-str k s)` | tell the page K = the string S (first 255 characters, ASCII, 0 B; call on a change only) |
 | `(pad-count)` | open gamepads, 0..4 |
 | `(pad-connected-p &optional (pad 0))` | a gamepad is in slot PAD (0..3). A pad takes the first free slot when connected and keeps it until unplugged; the others never move |
 | `(pad-lx &optional (pad 0))` `pad-ly` `pad-rx` `pad-ry` | sticks −1..1, radial deadzone 0.2, **+Y = up** |
@@ -80,7 +80,11 @@ nine buttons, command table and bindings); no device is touched here.
 * Read: `(vpad-down vp a)`, `(vpad-held vp a)` → steps held (0 = up), `(vpad-pressed vp a
   &optional within)` → buffered and not consumed, `(vpad-modded-p vp a)`, `(vpad-consume! vp a)`,
   `vpad-sx` `vpad-sy`; `(vpad-flush! vp)` forgets presses but keeps holds (end of a cutscene),
-  `(vpad-clear! vp)` releases everything.
+  `(vpad-clear! vp)` releases everything. `(vpad-stamp! vp action &optional modded)` presses ACTION this step even
+  when it is down already (a press made for the player, which `vpad-set!` would see as no edge), `(vpad-hold! vp
+  action)` keeps it down without a new press. The struct's own readers are exported too: `vpad-p`, `vpad-actions`,
+  `vpad-tick`, `vpad-reader`, `vpad-downs`, `vpad-press`, `vpad-modded` (the raw step counter, the button list, the
+  device reader and the per-button down / press / modified arrays; read-only in practice).
 * Commands: a table `((command button mod) …)`, highest priority first, MOD `t` / `nil` / `:any`
   (needs the modifier / needs it up / ignores it). `(vpad-command vp table &optional allowed)` →
   values command button (then `vpad-consume!` the button); a game whose top command may be refused
@@ -98,7 +102,24 @@ The one-thumb gesture recogniser (design: `docs/duel/DUEL_MOBILE_DESIGN.md` §3.
 and the chips ((cx cy r) list); `(touch-poll tr)` (platform.lisp, once per frame after `platform-poll`) feeds it the frame's
 finger events. Reads: `(touch-take! tr)` once per vpad read, then `(touch-pulse-p tr +tp-tap+ / +tp-flick+ / +tp-tap-hi+ /
 +tp-hoho+)`, `touch-resting-p` (guard), `touch-step-held-p`, `touch-sx` / `touch-sy` (the drag stick), `touch-chip-down-p`,
-`touch-tapped-p` (menus). Knobs: `gesture-config` (`gc-*`, CSS px and ms). No consing per event or per frame.
+`touch-tapped-p` (menus; the tap's point `touch-tap-x` / `touch-tap-y`). Knobs: `gesture-config`
+(`(make-gesture-config)`, accessors `gc-tap-ms gc-slop gc-flick-min gc-flick-window gc-flick-reads gc-up-cone gc-tap-split
+gc-stick-r gc-run-ring gc-run-release gc-recenter gc-chip-slop gc-menu-tap-ms`, CSS px and ms; the touch recogniser's `touch-cfg`).
+No consing per event or per frame.
+
+| call | notes |
+|---|---|
+| `(touch-feed! tr n)` | process the first N queued events, then the clock (`touch-poll` calls it) |
+| `(touch-active-p tr)` | a gesture contact is down |
+| `(touch-flick-down-p tr)` | the last flick went down (within 45 degrees); its stroke is `touch-fx` / `touch-fy` (px, y down) |
+| `(touch-spend! tr)` | the game took this read's flick for itself: the contact gives nothing more until it lifts |
+| `(touch-split-y tr)` `(touch-split! tr x0 y0 x1 y1 fl fr)` `(touch-hi-at-p tr x y)` | the tap zones' line: level (the pad's `gc-tap-split`) or slanted over a rect; is a window point in the high zone |
+| `(touch-chip-hit-p tr i)` `(touch-chip-tap-p tr i)` `(touch-chip-hold! tr i ms)` | chip I touched this frame / let go before its hold (a latched pulse) / needs MS held from its next press; `touch-chip-hold` and `touch-chip-slot` are the raw per-chip arrays |
+| `touch-rest-up-ok` `touch-up-hoho` `touch-press-tap` | game-set predicates (slots, set to a value each frame): may a rested up-flick be a Hoho, is any up-flick a Hoho now, does a tap fire on the press |
+| `touch-ox` `touch-oy` `touch-rested` `touch-flick-hold` | the stick origin, the rest latch and the flick-hold latch (recogniser state, read by the game's tests) |
+| `touch-glyph` `touch-glyph-t` `touch-glyph-x` `touch-glyph-y` | the last gesture glyph to draw: kind, time (ms) and place |
+| `touch-dpx` | window px per CSS px |
+
 
 ## Math (`math.lisp`, pure CL, tested by `tests/test-math.lisp`)
 
@@ -115,7 +136,7 @@ float order is kept (SOUL DUEL's native sim and wasm compile the same operations
 `(countdown! place dt)` (macro) → `(setf place (f32 (max 0.0 (- place dt))))`, a timer run down to 0 (PLACE is
 evaluated twice: keep it free of side effects).
 
-Facing (both games): `(fwd-x yaw)` `(fwd-z yaw)` → the forward direction of YAW (inline, single-float
+Facing: `(fwd-x yaw)` `(fwd-z yaw)` → the forward direction of YAW (inline, single-float
 YAW), `(yaw-to dx dz)` → the yaw facing direction (dx dz) (float `atan2f`, no consing; SOUL DUEL's
 sim keeps its own `dir-yaw`, CL's double-precision ATAN, which its seeded replays were recorded
 with), `(turn-toward cur target step)` → CUR turned toward TARGET by at most STEP radians, the short
@@ -124,9 +145,9 @@ way. `(weighted-pick r key weight …)` → the key whose share of the total wei
 `package.lisp` + `math.lisp` (+ `hitvol.lisp`, `input.lisp`, `cine.lisp`) natively; `yaw-to` is the one
 C-inline call and must not run there.
 
-## Hit volumes (`hitvol.lisp`, plain CL, tested by `tests/rules-test.lisp`, `tests/duel-rules-test.lisp`)
+## Hit volumes (`hitvol.lisp`, plain CL, tested by `tests/duel-rules-test.lisp`)
 
-Hurt volumes are vertical cylinders (radius TR, height TH) on the target's feet (TX TY TZ). Both games.
+Hurt volumes are vertical cylinders (radius TR, height TH) on the target's feet (TX TY TZ).
 * Attacker-relative (melee): `(make-vol kind args)` → a 5-float vector: `(:arc r deg y0 y1)` pie
   slice (full angle in degrees) from height y0 to y1, `(:cap a b h r)` capsule along the facing from
   a to b m at height h, `(:sph fwd up r)` sphere, `(:tsph r)` sphere at the target point.
@@ -166,7 +187,7 @@ strength for this draw (0 = matte and skips the specular math; default/negative 
 f32vec of 3 **linear** rgb floats (strength baked in, e.g. `(rim-vec #xBFD8FF 0.22)`, meshgen.lisp) added as `rim·(1−N·V)³` (character silhouettes);
 `env-rim` (1.0) multiplies the environment rim (`env-rim-*`) for this draw: 0 = none (a stage floor or
 wall that must not glow at grazing angles), the draw's own `rim` is added either way.
-`toon` = NIL (the lit shader, RAVEN) or an f32vec of 4 toon lanes `(mode feet-y fog-scale spare)`: mode 1 =
+`toon` = NIL (the lit shader) or an f32vec of 4 toon lanes `(mode feet-y fog-scale spare)`: mode 1 =
 toon stage (lit by the moon, the per-pixel lights as flat 2-step pools, lighter shadows), 2 = toon
 character (the camera-space key light, a darker-toward-the-feet gradient from `feet-y`, the strongest
 fx light within 4 m warms only the shadow side); `fog-scale` multiplies the fog (e.g. 0.2 keeps
@@ -218,7 +239,12 @@ moon), `moon-color`, `moon-intensity`, `sun-size` (1.0: the sky disc's radius mu
 is ~1.6°), `sun-glow` (0.25: strength of the halo around it; both only change the sky — use them for
 a big dusk sun), `rim-color`, `rim-intensity`, `rim-power`, `specular`
 (wet highlight strength, 0 = matte), `shininess`, `exposure`, `bloom` (T/NIL), `bloom-threshold`,
-`bloom-strength`, `vignette`. Colors are vec3s: `(v3-set! (env-fog-color *env*) 0.2 0.1 0.3)`.
+`bloom-strength`, `vignette`. Colors are vec3s: `(v3-set! (env-fog-color *env*) 0.2 0.1 0.3)`. Every accessor is `env-` + the slot:
+`env-sky-top env-fog-color env-fog-density env-fog-base env-fog-falloff env-fog-max env-ambient-sky env-ambient-ground
+env-ambient-intensity env-moon-dir env-moon-color env-moon-intensity env-sun-size env-sun-glow env-rim-color
+env-rim-intensity env-rim-power env-specular env-shininess env-exposure env-bloom env-bloom-threshold env-bloom-strength
+env-vignette env-toon env-key-light env-toon-threshold env-toon-band env-toon-gradient env-toon-gradient-height
+env-toon-light-gain env-shade-value env-shade-saturation env-shade-hue env-shade-lift env-cin-rim env-cin-width`.
 The toon look (SOUL DUEL): `toon` (NIL) T draws the sky with `fs_sky_toon` (the same gradient,
 palette-exact, a flat `moon-color` disc of `sun-size` with two flat halo rings of strength `sun-glow`),
 fills the frame's toon lanes and shades 2 point lights per pixel on toon stage draws (so
@@ -229,7 +255,7 @@ flips it), `toon-threshold` (0.5), `toon-band` (0.02, half-width of the soft ter
 `shade-value` (0.72), `shade-saturation` (1.25), `shade-hue` (8°), `shade-lift` (0.25, stage shadows
 toward the lit tone), `cin-rim` (vec3 sRGB, 0 = off: a hard back-rim on toon characters, for
 silhouette shots; with `toon-threshold` 1.5 the whole body is in its shadow tone) of width
-`cin-width` (0.16). NIL leaves every frame exactly as before (RAVEN).
+`cin-width` (0.16). NIL leaves every frame exactly as before.
 `*render-scale*` (offscreen resolution factor, 1.0).
 `*grade-desat*` (0.0): the composite pass mixes the final scene color toward its luma by this
 amount; 0 leaves the image exactly unchanged, 1 is greyscale (KO / flashback grading). The UI is
@@ -256,18 +282,20 @@ drawn after it and keeps its colours.
 * `*perf-log*` (NIL): T logs `perf: first frame at N ms after page load` once and
   `perf: startup … | frame … ms avg (fps) max … | render-scale … pixel-lights … | draws … tris …`
   every ~5 s.
+* `*scene-scale-cap*` (1.0): upper bound on the scene resolution factor (a phone at DPR 3 sets it so the scene stays near
+  1.6 MP; the UI stays native). 1 = no cap.
 * `*auto-render-scale*` (NIL): T enables dynamic quality. Frames are averaged in 1 s windows; a
   window over 1.25 × `*frame-budget-ms*` (18) steps down one level, 3 windows under budget step up.
   Levels: `*render-scale*` 1.0 → `*render-scale-min*` (0.7) in 0.1 steps, then `*pixel-lights*`
   3, then 1. A step down right after a step up locks step-ups for 10 s, doubling to 120 s, so it
   settles instead of flickering. Turning it off restores scale 1.0 / 8 pixel lights. It is off by
-  default so headless screenshots stay deterministic; RAVEN turns it on in its `:start` function (`start-game`, game/lisp/main.lisp).
+  default so headless screenshots stay deterministic.
 
 ### FX batch (particles, trails, decals)
 Drawn after meshes with depth test, no depth write, unlit, faded by fog. `mode` is `:add`
 (glow, default) or `:alpha`, or `:toon` (the toon batch, see "Toon effects" under FX: its colour lanes
 mean heat, seed, wobble, `toon-a`). Alpha fades with the soft UV falloff (round sprites, soft edges).
-Batches hold 16384 vertices each per frame; a call that does not fit is skipped and increments
+Batches (`*fx-alpha*`, `*fx-add*`, `*fx-toon*`) hold 16384 vertices each per frame; a call that does not fit is skipped and increments
 `*fx-dropped*` (a running total, also at the end of the stats line). In the additive batch a
 sprite's center is whitened (hot core); a **negative vertex alpha** means |alpha| without that
 white core (`+p-flame+` uses it after its hot phase).
@@ -276,7 +304,6 @@ white core (`+p-flame+` uses it after its hot phase).
 |---|---|
 | `(fx-billboard x y z size r g b a &key mode rot)` | camera-facing round sprite, `size` = radius (m) |
 | `(fx-line x0 y0 z0 x1 y1 z1 width r g b a &key mode end-width end-alpha)` | camera-facing soft segment (sparks, slashes, rain), `width` = half-width |
-| `(fx-trail samples n r g b a &key mode)` | sword ribbon: `samples` f32vec of n × (base xyz, tip xyz), oldest first; fades out toward the oldest and toward the base |
 | `(fx-decal x y z radius r g b a &key (mode :alpha))` | soft disc lying at height y (+2 cm). Blob shadow: `(fx-decal x 0 z 0.6 0 0 0 0.55)` |
 | `(fx-ribbon x y z ax ay az w0 w1 r0 g0 b0 a0 r1 g1 b1 a1 ph sway &key (segs 6) (mode :add))` | macro: a camera-facing strip from (x y z) along the axis (ax ay az), half-width W0 → W1, colour base → tip, flickering width and sideways SWAY with phase PH. Single-float argument forms, 0 bytes consed. SOUL DUEL builds its flames, pillars and auras from layers of it (in the toon batch: `toon-ribbon`, `%tongue`, "Toon kit" under FX) |
 | `(fx-sector x y z r0 r1 yaw half r g b a &key (mode :add) (segs 16))` | flat annular sector at height y (+3 cm) between radii R0 and R1, centred on facing YAW, ±HALF radians (≥ π = a full ring), soft toward both radii: telegraph cones, fire-wave fronts (SOUL DUEL). Its 0 B macro form: `%sector-verts` ("Toon kit") |
@@ -295,7 +322,7 @@ Every primitive is centered on the current origin; `with-xform` composes a matri
 builder transform (nests; mirroring flips winding automatically). Flat normals. `:jitter` varies
 each face's brightness ±jitter (low-poly look).
 
-`(make-mesh-builder)`, `(mb-color mb r g b)`, `(with-xform (mb matrix) ...)`, `(mb-build mb)`,
+`(make-mesh-builder)` (a `mesh-builder`; its slots read as `mb-…`), `(mb-color mb r g b)`, `(with-xform (mb matrix) ...)`, `(mb-build mb)`,
 `(setf (mb-jitter mb) 0.1)`. `(mb-at (mb xform-args…) body…)` = `(with-xform (mb (xform xform-args…)) body…)`,
 e.g. `(mb-at (mb :y 0.57 :roll 0.4) (mb-cylinder mb 0.05 0.3))` (SOUL DUEL's stage).
 Primitives (sizes are full extents, meters):
@@ -303,8 +330,7 @@ Primitives (sizes are full extents, meters):
 `(mb-bevel-box mb w h d bevel &key colors)`;
 `(mb-cylinder mb radius height &key segments top-radius caps top-color smooth)` along Y;
 `(mb-cone mb radius height &key segments)`; `(mb-prism mb radius height sides)`;
-`(mb-sphere mb radius &key segments rings stretch smooth)`; `(mb-capsule mb radius height &key segments rings)`
-(height includes the caps); `(mb-wedge mb w h d)` (full height at −Z, sloping to +Z);
+`(mb-sphere mb radius &key segments rings stretch smooth)`;  `(mb-wedge mb w h d)` (full height at −Z, sloping to +Z);
 `(mb-plane mb w d &key nx nz color2)` (XZ grid facing +Y, checker `color2`);
 `(mb-blade mb &key length width thickness curve segments blade-color edge-color guard-color
 handle-color wrap-color blade hilt)` — katana, origin at the guard, blade toward +Y with the
@@ -318,10 +344,9 @@ recomputed; E = K·ŝ / max(min ŝ·n, C): a box corner gets (±1 ±1 ±1)·K; C
 shapes, 0.8 caps the spike at cone / blade tips). Draw the built mesh with DRAW-MESH toon mode 3.
 `(mb-quad mb a b c d &optional color)` (CCW = front),
 `(mb-poly-out mb points &key color center)` (convex polygon, auto-oriented away from `center`).
-`(mb-tube mb x0 y0 z0 x1 y1 z1 r &key sides caps)` (prism around a segment: pipes, beams, cables),
-`(mb-flat-quad mb x0 z0 x1 z1 y &optional color)` (upward-facing rectangle at height y).
+`(mb-tube mb x0 y0 z0 x1 y1 z1 r &key sides caps)` (prism around a segment: pipes, beams, cables).
 Colors from hex: `(hexc #xRRGGBB &optional k)` → `(r g b)`, `(rim-vec #xRRGGBB k)` → the linear-rgb
-f32vec DRAW-MESH `:rim` wants (both games), `(mbc mb #xRRGGBB &optional k)` sets the
+f32vec DRAW-MESH `:rim` wants (SOUL DUEL), `(mbc mb #xRRGGBB &optional k)` sets the
 builder color; `(mb-cur-color mb)` is the current color (vec3). `(mb-xform mb)` is the builder's
 current local→mesh transform (mat4, the product of the enclosing `with-xform`s): read it, e.g.
 `(m4-transform-point! out (mb-xform mb) p)` to know where a local point lands in the mesh (attach
@@ -330,7 +355,8 @@ points, emitter positions); change it only through `with-xform` (which also trac
 ## UI / text (`ui.lisp`)
 
 Drawn after everything (no depth, alpha blended), reset each frame by `begin-frame`.
-Built-in 5×7 bitmap font (`+font-5x7+`), ASCII 32–126, glyph cell 6×8 px × `scale`.
+Built-in 5×7 bitmap font (`+font-5x7+`), ASCII 32–126, glyph cell 6×8 px × `scale`. `*ui-min-css*` (0): a text floor, `ui-scale`
+is at least enough for a 7-px glyph to be this many CSS px tall (0 = none; a phone in portrait wants about 11).
 
 `(ui-text str x y &key (scale 2) color (align :left) shadow)` → width. `y` = top edge; `align`
 `:left/:center/:right` relative to `x`; `#\Newline` starts a new line (10 px × scale);
@@ -338,7 +364,7 @@ Built-in 5×7 bitmap font (`+font-5x7+`), ASCII 32–126, glyph cell 6×8 px × 
 glyph (~64 B for a 26-character line). `(text-width str &optional scale)`.
 `(ui-big-text str x y scale color shadow s &key (shear 0.18))` → a title: centred block text
 (UI-BLOCK-TEXT, SCALE px blocks, italic SHEAR) with a SHADOW colour offset 2 px × UI scale S, Y its
-vertical centre, shrunk to fit the window width (both games' titles, banners, big words).
+vertical centre, shrunk to fit the window width (titles, banners, big words).
 `(ui-bitmap rows x y px &key color color2 shear width)` → width: any bitmap (ROWS = a list of
 integers, one per row, MSB = leftmost column) as solid PX-pixel blocks, top-left at (x y), colour
 top → bottom, italic SHEAR. Pass the same (EQ) list every frame: its merged rectangles are cached,
@@ -400,7 +426,7 @@ framebuffer pixels before the current transform. Every float argument is a singl
 - Text runs (`paint.lisp`, phase 0, completed at the phase 1 merge, DUEL_LISP_HUD §12): `(paint-pen! x y size &key spacing edge
   soft skew outline)` (Y the baseline; OUTLINE = pen [8], an SDF band: only a ring that wide inside the edge, lower the edge to grow
   it outward); `(paint-text s face col)`, `(paint-measure s face)` (→ pen [7]), `(paint-int n face col)`, `(paint-measure-int n
-  face)`; faces 0 display, 1 mono, 2 Mincho, 3 sans. Every glyph quad (runs, paragraphs, columns) goes through the current transform
+  face)`; faces 0 display, 1 mono, 2 Mincho, 3 sans; `(face-ascent face)` / `(face-descent face)` (macros) are a face's metrics in em; `*paint-pen*` and `*paint-xf*` are the pen lanes and the current transform (f32vecs, read-only for callers); `(paint-font-init bytes)` reads the baked `metrics.bin` into the glyph table at load; `*ui-clock*` is the HUD's clock, `(paint-clock-advance)` adds the frame's unclamped dt once a frame. Every glyph quad (runs, paragraphs, columns) goes through the current transform
   and opacity, is cut to the scissor, and takes the halftone dots of `paint-dots!` (not stripes). Above `+big-px+` (40 px) the
   display tier is used; the display face's is upper case only, so a-z draw there as A-Z (no string made). Easing: tween.lisp's
   `ease` (phase 0's `ease-curve` folded into it; the same curve numbers 0-4).
@@ -418,7 +444,7 @@ pure parts (layout, line breaking, tweens, hot boxes) are host-tested: `$ECL_HOS
   `(css-clamp lo pref hi)`, `(lay-safe side a b)` = max(a, inset + b), `(lay-anchor edge off size extent)`, `(lay-mirror x w bx bw)`,
   `(lay-split! out x w gap weights n)` (fr tracks), `(lay-stack! out sizes n start gap align extent)` → length. `(fl-floor x)` /
   `(fl-round x)` / `(fl-abs x)` / `(i->f* n)`: float ↔ fixnum without consing (C under COMPILE-FILE, plain CL on the host).
-  `(wrap-lines codes adv n width)` → start / end pairs: greedy breaks, CJK between any two characters, Latin at spaces, kinsoku
+  `(wide-char-p code)` (CJK / kana / full-width: a break is allowed either side), `(break-ok-p codes i)` (may a line break before index I: kinsoku), `(wrap-lines codes adv n width)` → start / end pairs: greedy breaks, CJK between any two characters, Latin at spaces, kinsoku
   (`*kinsoku-no-start*`, `*kinsoku-no-end*`), hanging spaces, newlines, an overflow cut when there is no break.
 - **Tweens** (`tween.lisp`, plain CL): `(ease k u)` with `+ease-linear+ +ease+ +ease-out+` (the page's .16,1,.3,1) `+ease-cut+
   +ease-snap+ +ease-in+ +ease-in-out+ +ease-out-css+`, and `(+ +ease-steps+ n)` = steps(n). `(make-tween keys &key dur delay iter dir
@@ -452,7 +478,7 @@ pure parts (layout, line breaking, tweens, hot boxes) are host-tested: `$ECL_HOS
 
 A `stream-buffer` is a CPU vertex batch (`stream-buffer-data` f32vec, `stream-buffer-fill` in
 floats, `stream-buffer-stride`, `(stream-room-p sb nverts)`). `*fx-alpha*` / `*fx-add*` (9 floats per
-vertex: pos, uv, rgba) are uploaded and drawn by `end-frame`; hot C code (game/c/world.c) may write
+vertex: pos, uv, rgba) are uploaded and drawn by `end-frame`; hot C code may write
 them directly. `(with-fx-verts (data o mode nverts) …)` reserves NVERTS vertices in the batch for
 MODE; inside BODY `(vtx x y z u v r g b a)` appends one vertex (when the batch is full, BODY is
 skipped and `*fx-dropped*` counts it). Internal:
@@ -473,14 +499,13 @@ Details, the mixer design and the autoplay handling: AUDIO.md.
   sounds per build: the 129th DEFSOUND signals an error when the module loads.
 * Playback: `(play-sfx key &key gain pitch pan pitch-jitter)`, `(play-sfx-at key x y z listener-x
   listener-z listener-yaw &key gain pitch pitch-jitter)`, `(sfx-at key x y z &key gain pitch)` = the
-  same with `*camera*` as the listener (both games' in-world sounds), `(start-loop key &key gain)` → id,
-  `(stop-loop id &optional fade)`, `(set-loop-gain id g)`; music (one track at a time, on the
+  same with `*camera*` as the listener (in-world sounds), `(start-loop key &key gain)` → id,
+  `(stop-loop id &optional fade)`, music (one track at a time, on the
   music bus): `(music-play &optional (key :music))` starts the loop KEY unless music is playing
   (switch tracks with `(music-stop fade)` first), `(music-stop &optional fade)`, `music-playing-p`,
-  `(music-intensify &optional (key :music))` restarts KEY 12 % faster/higher, `(set-music-volume v)` (the music bus,
+  `(music-intensify &optional (key :music))` restarts KEY 12 % faster/higher, `(set-master-volume v)` (every sound, 0..2, default 1), `(set-music-volume v)` (the music bus,
   0..2, default 0.55), `(set-sfx-volume v)` (the sfx bus: every sound but the music, 0..2, default 1; SOUL DUEL's
-  silence beat mutes it); `(audio-locked-p)` (browser hasn't
-  allowed audio yet), `(audio-stats)`. Voice ids are integers, -1 = not played.
+  silence beat mutes it); `(audio-stats)` (debug counters). Voice ids are integers, -1 = not played.
 * `RUN-GAME`'s startup steps open the device and synthesize every DEFSOUND, one sound per browser
   frame (`audio-init-begin` / `-sound` / `-end`). `*audio-debug*` T logs per-sound stats (peak,
   rms, dc; the pass conses ~10 KB per sound whatever its length).
@@ -495,11 +520,12 @@ Details, the mixer design and the autoplay handling: AUDIO.md.
 
 ## Animation (`anim.lisp`)
 
-A 21-joint humanoid rig (`+nj+`), poses and keyframe clips; GAMEPLAY.md "Rig & animation" has the
+A 21-joint humanoid rig (`+nj+`), poses and keyframe clips; docs/duel/DUEL_GAMEPLAY.md "Rig & animation" has the
 conventions. `*key-ease*` (0): 1 eases between non-`:snap` keys with an ease-out cubic (poses snap into a
 key and settle; SOUL DUEL) instead of smoothstep.
 * `(ji :hand-r)` → joint index at compile time; `(joint-index name)`, `(joint-mask &rest names)`
   (bitmask). A pose is an f32vec of `+pose-n+` (68) floats; `+root+` is the root's offset in it.
+* `(defclip-mirror name src)` makes clip NAME from clip SRC mirrored left to right, key for key (times, snaps, marks, loop kept).
 * `(defpose name (&key base) specs…)`, `(defclip name (dur &key loop base fps marks) keys…)`,
   `(find-pose name)`, `(find-clip name &optional (errorp t))` (NIL for an unknown name when ERRORP
   is NIL), `(list-clips)` → every clip name, sorted; `clip` accessors `clip-name clip-dur
@@ -522,7 +548,7 @@ key and settle; SOUL DUEL) instead of smoothstep.
   move's frame data (`(:s :snap …) (:a …) (:end :my-stance)`; SOUL DUEL's attack art).
 * Playback: `(make-anim)`, `(anim-play an clip &key blend speed time restart)` (BLEND in 60 Hz
   frames), `(anim-advance an dt)`, `(anim-eval an)` → fills `(anim-pose an)`; accessors `anim-clip
-  anim-time anim-speed anim-blend anim-pose`. `anim-blend` = seconds of crossfade left:
+  anim-time anim-speed anim-blend anim-blend-dur anim-pose` (`anim-blend-dur` = the crossfade's full length, s). `anim-blend` = seconds of crossfade left:
   `(setf (anim-blend an) 0.0)` cuts a running crossfade (a freeze-frame / viewer shows the clip's
   own pose); with `(setf (anim-speed an) 0.0)` the clip is frozen.
 * FK: `(pose-fk! jm pose px py pz yaw scale hunch &optional props)` writes one world mat4 per joint
@@ -543,8 +569,8 @@ key and settle; SOUL DUEL) instead of smoothstep.
 ## Bodies (`body.lisp`): rigid-part characters
 
 A character's look is data: shapes per rig joint, built once into one mesh per joint (plus
-separate glowing / tagged parts) and drawn with the joint matrices POSE-FK! fills. Both games keep
-their own body struct (RAVEN: stats, katana / raven blade, scarf; DUEL: rig proportions, DEFWEAPON
+separate glowing / tagged parts) and drawn with the joint matrices POSE-FK! fills. A game keeps
+its own body struct (DUEL: rig proportions, DEFWEAPON
 weapons) and build / draw through these:
 * The spec: `((joint shape …) …)`, shapes in the joint frame (unscaled rig metres, the bone hangs
   along −up): `(:box w h d)` `(:bevel w h d bevel)` `(:cyl r h)` `(:cone r h)` `(:sphere r)`
@@ -555,18 +581,18 @@ weapons) and build / draw through these:
 * `(build-parts spec palette width &key ink)` → values PARTS (simple-vector: a mesh or NIL per joint),
   EXTRAS (list of `#(joint mesh tint emissive tag)`: glows, tint = their colour; tagged solid parts,
   tint NIL) and HULLS (list of `#(joint mesh tag)`, the ink outlines; NIL without INK). WIDTH scales
-  the girth (x and z). INK (NIL = no hulls, RAVEN) = `((key . #xRRGGBB) … (t . #xRRGGBB))`, the ink
+  the girth (x and z). INK (NIL = no hulls) = `((key . #xRRGGBB) … (t . #xRRGGBB))`, the ink
   colour of a shape by its `:c` key, T for the rest; each solid shape's hull is built from its own
   vertex range (`mb-hull`), K = the shape's `:ink k` option or by size (its middle extent: 0 = no hull
   under 4 cm, e.g. strokes and eye shapes; 0.6 under 10 cm; else 1); glows get none. At load time
   (needs the GPU device; the hulls allocate a few MB of scratch, so give each body its own `:load` step).
 * `*part-jitter*` (0.06): per-face random brightness of the built parts; `*part-smooth*` (NIL): T gives
-  `:sphere` and `:cyl` shapes smooth normals. Read at build time; a toon game sets 0 and T (SOUL DUEL's
-  body.lisp), RAVEN keeps the defaults.
+  `:sphere` and `:cyl` shapes smooth normals. Read at build time; SOUL DUEL's
+  body.lisp sets 0 and T.
 * `(draw-parts parts extras joints &key (hidden 0) hide recolor tint rim (emissive 0) (flash 0) (alpha 1) toon
   hulls ink-tint (ink-px 1.8) (ink-push 0.012))`
   — HIDDEN a joint bitmask (`joint-mask`), HIDE a tag or list of tags, RECOLOR `(tag . rgb)` draws
-  that tag's glows in RGB (RAVEN's red visor in Raven Form); TINT / RIM / EMISSIVE / FLASH / ALPHA
+  that tag's glows in RGB (a glowing visor in another form); TINT / RIM / EMISSIVE / FLASH / ALPHA
   as DRAW-MESH, for the solid parts (glows keep their colour; ALPHA applies); TOON: DRAW-MESH's toon
   lanes for every part. HULLS (BUILD-PARTS' third value) are queued after all solids (2 pipeline
   switches) when TOON is set and ALPHA is 1: INK-PX pixels wide at 720 lines, tinted INK-TINT, pushed
@@ -576,7 +602,7 @@ weapons) and build / draw through these:
 
 ## Time (`time.lisp`)
 
-Fixed steps for a game that wants frame-exact gameplay (both games do; hello doesn't).
+Fixed steps for a game that wants frame-exact gameplay (SOUL DUEL does).
 * `+step+` = 1/60 s. `*tick*` counts steps (also during hitstop).
 * `(time-step)` — call once per fixed step; NIL means "hitstop: skip the simulation this step".
 * `(hitstop frames)` — freeze the sim for FRAMES steps; concurrent requests take the max
@@ -589,7 +615,7 @@ Fixed steps for a game that wants frame-exact gameplay (both games do; hello doe
   `*step-acc*` and calls STEP (a function of no arguments) once per whole `+step+`, at most
   MAX-STEPS per frame (a longer backlog is dropped); WHILE (NIL or a function) is asked before each
   step and stops early on NIL. Returns the steps run. Set `*step-acc*` to 0.0 while the sim pauses.
-  Both games: `(run-fixed-steps rdt #'sim-step)`, `(run-fixed-steps rdt #'sim-step :while #'sim-running-p)`.
+  `(run-fixed-steps rdt #'sim-step)`, `(run-fixed-steps rdt #'sim-step :while #'sim-running-p)`.
 
 ## Cinematics (`cine.lisp`, tested by `tests/cine-test.lisp`)
 
@@ -622,27 +648,23 @@ Real-time or sim-time effects that live in flat float pools (no entities, no con
   — ALPHA multiplies the kind's own alpha (for additive kinds: brightness); a direct call compiles
   in place (compiler macro), so unboxed float arguments cost 0 bytes (a call through `#'fx-emit`
   boxes them, ~16 B each);
-  `(fx-burst type n x y z dx dy dz spread smin smax life size r g b)` (all floats except N),
   `(fx-update dt)` and `(fx-draw-particles)` once per frame, `*plive*` = live count. Types:
   `+p-mist+ +p-dust+` (soft alpha puffs), `+p-spark+` (stretched additive streak), `+p-glow+`,
   `+p-feather+`, `+p-orb-a+ +p-orb-b+` (home to `*orb-target*` after 0.4 s and call
-  `*on-orb-absorbed*` with `:a` / `:b`); `(fx-clear-orbs)`.
+  `*on-orb-absorbed*` with `:a` / `:b`).
   `+p-flame+`: additive, mild drag, shrinks to 30 % over its life; color runs from the emit color
   (give the hot core, e.g. `1 0.9 0.55`) to orange by 20 % of its life and to dark red by 55 %, with
-  the white center only in the first 10 %. It rises with a negative GRAV (`fx-burst` passes −2).
+  the white center only in the first 10 %. It rises with a negative GRAV (for example −2).
   Flame column (tests/engine-check.lisp): per frame `(fx-emit +p-flame+ x 0.15 z vx (rnd-range 1.0 1.8)
   vz (rnd-range 0.6 1.0) (rnd-range 0.16 0.26) -3.0 1.0 0.9 0.55)` at ~55 particles/s, jittered
   ±0.15 m. Additive fire reads best on a dark, warm background; over a bright sky pass ALPHA
   ~0.3–0.5 (the 13th argument) so the columns do not saturate to white.
-* `(fx-clear)` — remove every particle, ring and debris piece and stop the shake (new round / scene).
+* `(fx-clear)` — remove every particle and ring and stop the shake (new round / scene).
 * **Rings:** `(fx-ring x y z r0 r1 dur r g b &key flat width)` (camera-facing, or FLAT on the
   ground), `(fx-rings-update dt)` once per frame advances and draws them.
-* **Debris:** `(fx-debris mesh m mo vx vy vz spin)` throws a copy of MESH drawn with the matrix at
-  M[MO..MO+15]; `(fx-debris-update dt)` (sim seconds) integrates and draws; `*debris-life*`;
-  `(fx-clear-debris)`.
 * **Trails:** `(make-trail)` → buffer of `+trail-n+` base/tip samples; `(trail-push tr bx by bz tx ty
   tz)`, `(trail-decay tr)`; `(trail-count tr)` → samples (a float, SETF-able: 0 drops the trail);
-  draw with `(fx-trail tr (f->i (trail-count tr)) r g b a)`. The 0 B macro forms (a DEFUN-FAST call boxes
+  draw it as a smear (below). The 0 B macro forms (a DEFUN-FAST call boxes
   its six floats): `(%trail-push tr bx by bz tx ty tz)`, `(%trail-drop tr n)` (drop the oldest of N samples);
   samples move with an explicit forward copy (REPLACE of a vector onto itself allocates).
 * **Smear** (the drawn sword smear, SOUL DUEL): `(fx-smear-capture! tr sm n dr u (len width) k)` (macro, 0 B)
@@ -653,7 +675,6 @@ Real-time or sim-time effects that live in flat float pools (no entities, no con
   `(when (> (aref sm 11) 0f0) (fx-crescent (aref sm 0) … (aref sm 9) :comet … (aref sm 11)))`.
 * **Ribbons, sectors** (`fx-ribbon`, `fx-sector`) and **debug outlines** (`draw-circle`, `draw-vol`):
   see the FX batch table and "Hit volumes".
-* `(edge-vignette r g b a frac)` — UI-space darkening toward the screen edges.
 * `*shake-hz*` (30.0): how often the shake offsets change; 12 reads as a drawn, stepped shake.
 
 ### Toon effects (docs/style/STYLE_STORM_DESIGN.md §3; SOUL DUEL)
@@ -736,10 +757,10 @@ Plain CL (tested by `tests/ecs-test.lisp`). Background: ARCHITECTURE.md "Game st
   (do-events (kind)
     (:hit (att def dmg) (show-hit def dmg))
     (:died (e) (sfx :death e))
-    (t (error "unknown event ~s" kind)))      ; RAVEN keeps its ECASE this way
+    (t (error "unknown event ~s" kind)))
   ```
 * `transform` — the one component every game shares: `pos` (f32vec3, feet / origin, metres, y up) and
-  `yaw` (single-float, 0 faces −Z); `(pos-of e)` / `(yaw-of e)` (inline) read them. Both games build on it.
+  `yaw` (single-float, 0 faces −Z); `make-transform`, `transform-pos`, `transform-yaw`; `(pos-of e)` / `(yaw-of e)` (inline) read them.
 
 ## App (`app.lisp`)
 
@@ -756,8 +777,10 @@ Plain CL (tested by `tests/ecs-test.lisp`). Background: ARCHITECTURE.md "Game st
 ## Package helpers (`package.lisp`)
 
 * Types `f32` (= single-float; `(f32 x)` coerces) and `f32vec`; `(f32vec-p x)`; `clamp`, `lerp`;
-  `(log-msg fmt args…)` prints a console line. `(with-floats (vars…) body…)` rebinds VARS as declared
+  `(log-msg fmt args…)` prints a console line (nothing while `*log-mute*` is T: a search's rollouts). `(with-floats (vars…) body…)` rebinds VARS as declared
   single-floats (callers may pass fixnums or doubles).
+* `(inline-readers name)` — give every reader of struct NAME a compiler macro (ECL 24.5 never inlines a DEFSTRUCT reader);
+  `(plist-get plist key &optional default)` — GETF in one walk, for the hot paths.
 * `(defun-fast name args …)` — DEFUN for hot numeric code: checks declared argument types on entry,
   runs the body at `(safety 0)` (see ARCHITECTURE.md Gotchas). Declare every float local.
 * `(defun-fast-inline name args …)` — a `defun-fast` plus a compiler macro: a direct call expands in place (no entry
@@ -775,6 +798,15 @@ Plain CL (tested by `tests/ecs-test.lisp`). Background: ARCHITECTURE.md "Game st
   particle). A seed is any fixnum (hashed in C, so 1, 2, 3 start far apart). The state is the raw
   generator word, an integer 1..2^32−1 (a bignum above 2^29: read it for save/restore or
   determinism checks, not per frame); `(setf (sim-rnd-state) s)` / `(setf (rnd-state) s)` restore it.
+
+## Sim snapshot (`snapshot.lisp`)
+
+The sim's state saved and put back in place, for an in-game search's rollouts (docs/duel/DUEL_AI_TEACHER.md §5).
+* `(snapshot-roots &rest symbols)` registers special variables as sim state (everything mutable reachable from them is saved);
+  `(snapshot-shared &rest types)` registers struct types the game never writes while it runs (kits, moves, clips): kept by
+  reference, never walked.
+* `(sim-snapshot)` → a snapshot (also saves the sim RNG); `(sim-restore s)` puts every saved object's contents back in the
+  same objects (EQ and aliasing survive); `(simsnap-count s)` → how many objects S saved. A snapshot restores any number of times.
 
 ## Snippets
 

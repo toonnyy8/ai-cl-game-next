@@ -587,26 +587,6 @@ END-WIDTH/END-ALPHA at the end (taper sparks / slashes)."
         (vtx (+ x1 (* sx w1)) (+ y1 (* sy w1)) (+ z1 (* sz w1)) 0f0 1f0 r g b a1)
         (vtx (- x1 (* sx w1)) (- y1 (* sy w1)) (- z1 (* sz w1)) 0f0 -1f0 r g b a1)))))
 
-(defun-fast fx-trail (samples n r g b a &key (mode :add))
-  "Sword-trail ribbon. SAMPLES: f32vec of N samples, 6 floats each (base xyz, tip xyz), oldest
-first. Alpha ramps 0 (oldest) → A (newest); soft toward the base, solid at the tip."
-  (declare (type f32vec samples) (fixnum n))
-  (let* ((r (f32 r)) (g (f32 g)) (b (f32 b)) (a (f32 a)))
-    (declare (single-float r g b a))
-    (when (>= n 2)
-      (with-fx-verts (d o mode (* 6 (1- n)))
-        (loop for i fixnum from 0 below (1- n)
-              for p = (* i 6) and q = (* (1+ i) 6)
-              for a0 single-float = (* a (/ (float i 1f0) (float (1- n) 1f0)))
-              for a1 single-float = (* a (/ (float (1+ i) 1f0) (float (1- n) 1f0)))
-              do (macrolet ((s (k) `(aref samples ,k)))
-                   (vtx (s p) (s (+ p 1)) (s (+ p 2)) 0f0 1f0 r g b a0)
-                   (vtx (s (+ p 3)) (s (+ p 4)) (s (+ p 5)) 0f0 0f0 r g b a0)
-                   (vtx (s (+ q 3)) (s (+ q 4)) (s (+ q 5)) 0f0 0f0 r g b a1)
-                   (vtx (s p) (s (+ p 1)) (s (+ p 2)) 0f0 1f0 r g b a0)
-                   (vtx (s (+ q 3)) (s (+ q 4)) (s (+ q 5)) 0f0 0f0 r g b a1)
-                   (vtx (s q) (s (+ q 1)) (s (+ q 2)) 0f0 1f0 r g b a1)))))))
-
 (defun-fast fx-decal (x y z radius r g b a &key (mode :alpha))
   "Soft horizontal disc lying at height Y (+2 cm). Blob shadow: (fx-decal x 0 z 0.6 0 0 0 0.55)."
   (let* ((x (f32 x)) (y (+ (f32 y) 0.02f0)) (z (f32 z)) (s (f32 radius)) (r (f32 r)) (g (f32 g)) (b (f32 b)) (a (f32 a)))

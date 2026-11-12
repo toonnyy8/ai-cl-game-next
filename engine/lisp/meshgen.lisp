@@ -243,10 +243,6 @@ SMOOTH: analytic normals (round shading)."
     (setf (mb-smooth mb) nil)
     mb))
 
-(defun mb-capsule (mb radius height &key (segments 8) (rings 4))
-  "Capsule along Y, total HEIGHT including the rounded ends."
-  (mb-sphere mb radius :segments segments :rings rings :stretch (max 0 (- height (* 2 radius)))))
-
 (defun mb-wedge (mb w h d)
   "Ramp: W x D footprint, full height H at the back (-Z), sloping down to the front (+Z)."
   (let* ((hx (* .5 w)) (hy (* .5 h)) (hz (* .5 d))
@@ -347,10 +343,6 @@ Use :hilt nil / :blade nil to build the parts as separate meshes (e.g. to make t
         (loop for k below sides for k2 = (mod (1+ k) sides)
               do (mb-poly-out mb (list (nth k ra) (nth k2 ra) (nth k2 rb) (nth k rb)) :center c))
         (when caps (mb-poly-out mb ra :center c) (mb-poly-out mb rb :center c))))))
-
-(defun mb-flat-quad (mb x0 z0 x1 z1 y &optional color)
-  "Upward-facing rectangle at height Y."
-  (mb-quad mb (v3 x0 y z1) (v3 x1 y z1) (v3 x1 y z0) (v3 x0 y z0) color))
 
 (defun mb-hull (dst src &key (start 0) end (k 1.0) (c 0.55) (color '(0.06 0.06 0.09)))
   "Append to builder DST the ink hull of SRC's triangles in floats [START, END) (default: all of them;

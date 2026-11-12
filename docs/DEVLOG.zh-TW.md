@@ -8690,3 +8690,14 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 主對話覆核 diff、合併後在 main 重跑冒煙測試（啟動 175 步，正常截圖）。
 
 分工：Opus 子代理：找原因、修正、驗證；主對話 Opus 5.5：覆核、合併。
+
+## 733. R9：引擎的死匯出重做、ENGINE_API 同步（2026-11-12）
+
+使用者：「按你建議的做」（§730 的開工決定）
+
+- 依今天的程式重新找死匯出（舊 B1 補丁作廢），刪 12 個：`fx-burst`、整個剛體碎片池（`fx-debris` 等）、`fx-clear-orbs`、`edge-vignette`、`fx-trail`、`mb-capsule`、`mb-flat-quad`、`set-loop-gain`、`audio-locked-p`；引擎 −152／+13 行，index.wasm 12,771,527 → 12,760,456 B。介面完整但目前沒人用的（滑鼠、音訊統計、幾個參數）保留。
+- `docs/engine/ENGINE_API.md`：拿掉 RAVEN EDGE 時代的條目，補上 117 個缺的匯出（703 個匯出全部有條目），新增「Sim snapshot」一節。
+- 證明：美術比對閘門 113 張截圖對改動前的 BASE 位元相同（R0 修好後第一次實戰）；G2 三組相同；主機測試 10440 全過；引擎測試全過。
+- 待查（與本批無關，改動前就存在）：`tests/engine-check.sh` 有兩項「每幀零配置」失敗：`%ui-poly4`（14400 B／100 次）與 `ui-rect`（4800 B／100 次），在 `ui.lisp`。
+
+分工：Sonnet 子代理：R9；主對話 Opus 5.5：覆核、合併、重跑主機測試／pkgcheck／建置。

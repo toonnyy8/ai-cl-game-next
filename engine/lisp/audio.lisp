@@ -415,10 +415,6 @@ right. Gain falls off as 1/(1+d/8); pan follows the listener's right vector."
   (ffi:c-inline ((the fixnum id) (max 1 (round (* fade +au-rate+)))) (:int :int) :void
                 "au_stop(#0,#1)" :one-liner t))
 
-(defun set-loop-gain (id g)
-  "Change the gain of running loop voice ID (from START-LOOP) without restarting it."
-  (ffi:c-inline ((the fixnum id) (float g 1.0)) (:int :float) :void "au_gain(#0,#1)" :one-liner t))
-
 (defun set-master-volume (v)
   "Master gain, 0..2 (default 1): every sound, after the bus gains (a game's volume setting)."
   (ffi:c-inline ((float (clamp v 0.0 2.0) 1.0)) (:float) :void "au_set_volume(0,#0)" :one-liner t))
@@ -460,7 +456,3 @@ context-state: 0 none, 1 suspended (autoplay), 2 running."
           (ffi:c-inline () () :int "au_frames_mixed()" :one-liner t)
           (ffi:c-inline () () :float "au_take_peak()" :one-liner t)
           (ffi:c-inline () () :int "au_ctx_state()" :one-liner t)))
-
-(defun audio-locked-p ()
-  "T while the browser keeps the AudioContext suspended (no user gesture yet): show a click hint."
-  (and *au-ok* (= 1 (ffi:c-inline () () :int "au_ctx_state()" :one-liner t))))
