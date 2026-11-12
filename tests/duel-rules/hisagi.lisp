@@ -459,6 +459,7 @@
                   (eq :hs-r-n1b (getf (mv-params (m :hs-r-n1a)) :ns-next)) (eq :hs-r-n1c (getf (mv-params (m :hs-r-n1b)) :ns-next))
                   (~= 7.0 (mv-reach (m :hs-r-as3))) (null (hw-min (w :hs-r-as3)))
                   (eql 36 (hw-stun (w :hs-r-as2)))                                 ; (§28.22: AS2a holds him for AS2b)
+                  (eql 38 (hw-stun (w :hs-r-n2a))) (eql 40 (hw-stun (w :hs-r-n2b)))   ; (§30: NS2a / b hold him for the next segment's earliest hit, 7 f to spare)
                   (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3b))) (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3c)))
                   (eq 'hs-b-hook-seg (hw-seg (w :hs-b-n1a))) (eq 'hs-b-hook-seg (hw-seg (w :hs-b-as1)))
                   (~= 3.0 (edge :hs-b-as3b))                                        ; (§28.13: SAN reaches J5's 2.3 m push)

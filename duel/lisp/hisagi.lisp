@@ -659,12 +659,14 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; 2026-10-29: 「聚都以 2.5-4.5 m 為基礎調整範圍」): every one K1's 2.5-4.5 m (*HS-R-K-DEAD* / *HS-R-K-REACH*), the tip 4-4.5
 (defmove-copy :hs-r-n2c :hs-r-k3g :callout "OMEGURI" :enter 7 :startup 30 :recovery 37 :dmg 86 :reach *hs-r-k-reach* :arc 360
   :min-reach *hs-r-k-dead* :on-hit :knockdown :flags (:ranged) :hits ((30 35)) :params (:melee-range 2.0 :gather t))
+;; §30 (the user 2026-11-12: 「他卍解遠距的 NS2 a, b, c 三段連接不起來」): a / b's stagger 26 -> 38 / 40 f (:stun), frames unchanged: the earliest
+;; latched next segment hits 39 / 41 f after (a segment starts 10 f after the hit's frame + the 8 f hitstop), he was free at +34
 ;; §28.8 (the user 2026-10-29: 「NS2b 改成近身推開敵人用的招式」): 叩 TATAKI close in (0-3 m, 90 deg, no tip of its own), a hit pushes
 ;; him out to *HS-R-TATAKI-PUSH* (inside ŌMEGURI's 2.5-4.5 m)
-(defmove-copy :hs-r-n2b :hs-r-k2 :clip :hs-k-tataki :clip-s 30 :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach 3.0 :arc 90 :hits ((30 34)) :on-land hs-r-tataki-push
+(defmove-copy :hs-r-n2b :hs-r-k2 :clip :hs-k-tataki :clip-s 30 :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach 3.0 :arc 90 :hits ((30 34 :stun 40)) :on-land hs-r-tataki-push
   :params (:melee-range 2.0 :ns-next :hs-r-n2c :sa :hs-r-sa-g :gather t :no-tip t))
 (defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :startup 30 :recovery 27 :dmg 50 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15
-  :min-reach *hs-r-k-dead* :hits ((30 34)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
+  :min-reach *hs-r-k-dead* :hits ((30 34 :stun 38)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
 (defmove-copy :hs-r-as2b :hs-r-k2 :clip :hs-k-jibashiri :clip-s 30 :kind :sp :callout "JIBASHIRI" :enter 12 :startup 30 :recovery 27 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35)
   :reach 4.15 :min-reach *hs-r-k-dead* :hits ((36 40 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
 ;; §28.22 (the user 2026-10-29: 「遠距的 AS2a 跟 AS2b 好像無法連成 combo？」): §28.10's +3 / +3 left him free 3 f before JIBASHIRI's hit;
@@ -1365,6 +1367,12 @@ KAKE really hitting (a hit, not a block, an absorb or a cancel: those never reac
 link NEXT is its gathered copy (*HS-R-GATHER-SWAP*), else NIL (NEXT as it is)."
   (let ((g (and (hss-gather (hs e)) (cdr (assoc (mv-name next) *hs-r-gather-swap*)))))
     (and g (kit-move (fighter-kit (fighter e)) g))))
+(defvar *hs-trace* nil
+  "A scene's per-tick trace (debug 83048 / 83050-83099, DUEL_HISAGI §30): one `duel trace` line a step from HS-BK-TICK; NIL in a match.")
+(defun hs-trace-line (e)
+  (let ((f (fighter e)) (o (opp-of e)))
+    (log-msg "duel trace t ~d p1 ~a ~a sf ~d | p2 ~a sf ~d | d ~,2f" *match-tick* (state-of e)
+             (if (eq (fighter-state f) :move) (mv-name (fighter-move f)) "-") (fighter-sf f) (state-of o) (fighter-sf (fighter o)) (fighter-dist f))))
 (defun hs-bk-tick (e f g)
   "The Bankai's :tick hook (every step, after the hits and SETTLE-SOULS): the 聚 combo flag (set while a :gather segment runs,
 cleared in neutral: 「看這一串連段」), the bind armed by KAKE starts and a running bind AS3c ends once he is out of that move (never
@@ -1382,6 +1390,7 @@ mid-move), the mode = the bind (a SET-FORM only out of a move and a cinematic), 
     (let ((want (if (hss-bound st) :bankai-bind :bankai)))
       (unless (or (eq (fighter-form f) want) (member s '(:move :cine)))
         (set-form e want)))
+    (when *hs-trace* (hs-trace-line e))
     (when *pacing-log*
       (let ((d (fighter-dist f)))
         (if (hss-bound st)
@@ -1465,6 +1474,7 @@ cancel's unlock (the comment above); any other k the probe line only."
            (unless (eq (fighter-form (fighter *p1*)) :base)                                            ;  unbound, in the Shikai;
              (set-form *p1* :base) (setf (gauges-awakened (gauges *p1*)) nil))                         ;  the Bankai's awaken next)
            (full-gauges! *p1*) (full-gauges! *p2*)))
+    (setf *hs-trace* nil)
     (case k
       (0 (setup :kenpachi 2.0))
       (1 (setup :kenpachi 6.0))
@@ -1510,12 +1520,17 @@ cancel's unlock (the comment above); any other k the probe line only."
        (let ((f1 (fighter *p1*)) (f2 (fighter *p2*)))
          (setf (fighter-sf f1) (- (mv-s (fighter-move f1)) (mv-s (fighter-move f2))))))
       (46 (place *p1* *p2* 2.0))
+      ;; §30 (NS2's a > b > c): 83050+k the ranged mode at pointer 2, 2.0 + k / 10 m from an idle Kenpachi (k 0-49); 83048 3.0 m from
+      ;; an idle Ichigo; P1's NS2a TABA is pressed by the script
+      (48 (setup :ichigo 3.0) (hs-awaken-now! *p1*) (setf (fighter-ptr (fighter *p1*)) 2 *hs-trace* t))
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)
       ((20 21) (setup (if (= k 20) :barro :kenpachi) 6.0 :cpu t)
        (when (= k 21) (hs-awaken-now! *p1*))
-       (setf (brain-habit (brain *p1*)) :dumb (brain-delay (brain *p1*)) (getf *ai-delay* :easy) *assist-debug* (list 2 t t))))
+       (setf (brain-habit (brain *p1*)) :dumb (brain-delay (brain *p1*)) (getf *ai-delay* :easy) *assist-debug* (list 2 t t)))
+      (t (when (<= 50 k 99)
+           (setup :kenpachi (+ 2.0 (/ (- k 50) 10.0))) (hs-awaken-now! *p1*) (setf (fighter-ptr (fighter *p1*)) 2 *hs-trace* t))))
     (hisagi-probe-line (format nil "test ~d" k))))
 
 (defun hs-awaken-now! (e)

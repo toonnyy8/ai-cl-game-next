@@ -1007,3 +1007,21 @@ def practice_cancel_script():
     ev.append(cmd(t, 2815))
     return sorted(ev, key=lambda x: x["at"])
 write("practice-cancel", practice_cancel_script())
+# Hisagi's ranged NS2 a > b > c (DUEL_HISAGI §30; --fixed-dt 16.666667 --secs 45): the ranged mode at pointer 2 from an idle Kenpachi at
+# 2.6 / 3.0 / 3.5 / 4.0 m (83056 / 83060 / 83065 / 83070) and from an idle Ichigo at 3.0 m (83048), SP mashed every 0.1 s (the earliest
+# latch); the per-tick `duel trace` lines (his move, both states, the distance) and the combat log's hit ticks give every link's margin
+# (the next hit's tick against the first IDLE tick of the victim). The last two scenes press the second SP late (0.75 s: b hits 5 f
+# inside the stun; 0.85 s: 1 f after he is free).
+def hisagi_ns2_script():
+    ev = []
+    t = T0
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    for name, c, presses in (("A2.6", 83056, None), ("A3.0", 83060, None), ("A3.5", 83065, None), ("A4.0", 83070, None),
+                             ("Ichigo3.0", 83048, None), ("slow0.75", 83060, (0, 0.75)), ("slow0.85", 83060, (0, 0.85))):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.append(cmd(t, c))
+        for p in (presses or [0.1 * i for i in range(13)]): sp(t + 0.3 + p)
+        t += 3.8
+    return sorted(ev, key=lambda x: x["at"])
+write("hisagi-ns2", hisagi_ns2_script())

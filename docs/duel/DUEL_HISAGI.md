@@ -5193,3 +5193,81 @@ What the push and the rule itself leave:
    on his move's startup (he defends: scenes A, C1, C2) or a cancel of a move that reaches close (the J string, WA, TATAKI, 刈). After
    WA's / TATAKI's hit the route is at 4.5 / 3.5 m anyway (their pushes).
 4. Every CPU (his and the opponent's) does not seek cancels on purpose: it plays the rule only where it already reads dead zones (29.6).
+
+## 30. The ranged NS2 a > b > c does not connect (the user, 2026-11-12)
+
+The user: 「我發現檜佐木最大的問題了，他卍解遠距的 NS2 a, b, c 三段連接不起來」
+
+Two causes, found with scripted scenes (`tests/scripts/duel-hisagi-ns2.json`, debug 83048 / 83050–83099, a per-tick `duel trace`; the ranged
+mode at pointer 2, P2 an idle dummy, SP mashed every 0.1 s = the earliest latch). Moves: NS2a 束 TABA (S 30, enter 5, window 30–34, a line to
+4.15 m, dead zone 2.5), NS2b 叩 TATAKI (S 30, enter 9, window 30–34, reach 3.0, 90°, push to 3.5 m), NS2c 大旋 ŌMEGURI (S 30, enter 7, window
+30–35, 2.5–4.5 m, 360°, knockdown). All three have `:active 10` (inherited from the base K2), so the next segment starts at frame S + A = 40,
+which is 10 f after the hit's frame plus the attacker's 8 f hitstop = **18 f after the hit tick H**, and its own hit comes `S - enter` = 21
+(b) / 23 (c) f later: **b hits at H + 39, c at H_b + 41**, whatever the press (a later press only delays them). The victim's stagger is 26 f
+after the 8 f hitstop = free at **H + 34**.
+
+### 30.1 Diagnosis, before the change (ticks; margin = the next hit's tick minus the victim's first IDLE tick, negative = he is free first)
+
+| Start d (m) | Link | Hit tick (a) | Free tick | Next hit tick | Margin | d at the next hit | Band of the next segment | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| 2.5 / 2.6 / 3.0 / 3.2 (Kenpachi) | a > b | 45 | 79 | 84 | -5 | 2.5–3.2 | 0–3.0 (+ body: to 3.4) | hits, but he was free 5 f: **he recovers first** |
+| same | b > c | 84 | 118 | 125 | -7 | 3.5 (b's push) | 2.5–4.5 | in range, **he recovers first** |
+| Ichigo 3.0 | a > b / b > c | 46 / 85 | 80 / 119 | 85 / 126 | -5 / -7 | 3.0 / 3.5 | as above | the same (the body makes no difference) |
+| 3.5 / 4.0 / 4.3 | a > b | 957 / 1185 / 1413 | 991 / 1219 / 1447 | b starts, its volume never reaches | | 3.5 / 4.0 / 4.3 | 0–3.0 | **out of range: TATAKI whiffs** |
+| same | a > c (b whiffed) | 957 | 991 | 1029 (a + 72) | -38 | 3.5–4.3 | 2.5–4.5 | in range, **he recovers first** (26 f of IDLE before it) |
+| 2.4 | (TABA whiffs: the dead zone) | | | b 76 hit, c 117 hit | | | | not a link: a is the opener only from 2.5 m |
+
+Reach facts (centre to centre, measured: hit at / not at): TABA hits to at least 4.8 m (line 4.15 + capsule 0.35 + the victim's body, about 4.95), not
+inside 2.5; TATAKI hits to 3.4 m, whiffs at 3.5 (3.0 + the body 0.4); ŌMEGURI hits 2.4–4.8. So a landed at 3.5–4.95 m (TABA's own band, most of it) always
+skips b, and then c arrives 72 f after a with him 26 f free. A landed at 2.5–3.4 m reaches b, but never on time.
+
+### 30.2 The fix of the time part (this batch)
+
+The precedent's method (§28.22): `:stun` on the hitting windows, frames and damage untouched. NS2a's window `:stun 38` (stagger 26 -> 38), NS2b's `:stun 40`
+(26 -> 40): free at H + 46 / H_b + 48, the earliest next hit at H + 39 / H_b + 41 = **7 f to spare on each link**, the chosen slack (the same as §28.22's 7).
+Hit-tick arithmetic: free tick = H + 8 (hitstop) + stun.
+
+After (the same scenes, the earliest press): a > b > c connects at 2.5 / 2.6 / 3.0 / 3.2 m for Kenpachi and 3.0 m for Ichigo, the victim in STUN from tick 45 to
+c's hit at 125 with no IDLE tick in between (2.6 m: 45 / 84 / 125; 3.0 m: 273 / 312 / 353 in the script's second scene). A press need not be early: the next segment
+starts at max(H + 18, press), and the link holds while it starts by H + 24 (b / c hit by H + 45 / H_b + 47): the second SP is accepted from the first frame of the
+move, so a press before about H + 22 connects every time (measured with the second SP latched at 0.75 s: b starts H + 20, hits H + 41, 5 f inside the stun; at 0.85 s:
+b starts H + 26, hits H + 47, he was free at H + 46: -1; for c, b's SP at 1.45 s: c hits H_b + 46, +2; at 1.55 s: H_b + 52 against free H_b + 48: -4). That is the human
+slack: roughly 22 f (0.37 s) after the hit, or any time before it.
+
+| Check (the earliest press, d = 3.0 m) | before | after |
+|---|---|---|
+| a > b margin | -5 | **+7** |
+| b > c margin | -7 | **+7** |
+| gathered SA in the a / b gap (starts H + 18, hit H + 31, 45) vs his free tick | free H + 34: +3 | free H + 46: **+15** (b's gap: +17); SA > J2 > J3 still chains (hits 1900 / 1926 / 1952) |
+| TABA > TABA from neutral (a ends H + 37, the second hit at the earliest H + 62, measured H + 72) | free H + 34: -28 at the best, -38 measured | free H + 46: **-16 at the best, -26 measured**: no loop |
+| b ends, then TABA (measured: b hit 768, his second TABA hit 840) | free 802 (b + 34): -38 | free 816 (b + 48): **-24** |
+| Reach / dead zones / pushes / damage / frames | | unchanged |
+
+The loop check: a victim stays held 8 + 38 = 46 f after TABA, TABA from neutral hits at best 62 f after the previous one, so he is free 16 f first; a TABA > TABA infinite
+would need a stun of 54+ f. The same for TATAKI's 48 f against a TABA 62 f after. So 38 / 40 leaves 16+ f of margin before a loop appears.
+
+Tests: `tests/duel-rules/hisagi.lisp` pins `hw-stun` of `:hs-r-n2a` 38 and `:hs-r-n2b` 40 (10295 checks ALL PASS). `tests/scripts/duel-hisagi-ns2.json` (generated by
+`tests/scripts/duel.py`): 2.6 / 3.0 / 3.5 / 4.0 m, Ichigo 3.0 m, two late presses. Debug 83048 / 83050–83099 and `*hs-trace*` (DUEL_GAMEPLAY).
+
+### 30.3 The space part: facts and candidates (open for the user; nothing changed)
+
+After 30.2, a landed at 2.5–3.4 m is a full route. A landed at 3.5–4.95 m skips b (TATAKI reaches 3.0 + body 0.4 = 3.4 m) and ŌMEGURI comes 72 f after a, long after he is
+free. Since TABA is a 2.5–4.5 m move (the 聚 band), that is where it is used from, so most real TABA hits have this problem. A gap fact: ŌMEGURI reaches 4.95, so
+after a TABA hit the only segment out of range is b. The candidates (the numbers are the move's reach / what b would do; none built):
+
+| # | Change | Numbers | Cost in the design |
+|---|---|---|---|
+| 1 | TABA's hit drags him in (the 聚 gather: `hs-pull-to`, already used by the bind's KAGIYOSE and ICHIGO-PULL-TO) to about 3.0 m over 8 f | d at b's hit: 3.0 whenever a landed beyond 3.0 (2.5–3.0: unchanged); b's reach to 3.4 covers it with 0.4 m of room; b's push to 3.5 and ŌMEGURI 2.5–4.95 then as today; the drag ends at H + 8, b hits at H + 39 | TABA stops being a pure spacing move: the victim ends 1.0–1.9 m closer after it, so NS2 as a whole is "gather him, slam him close, push him out to 3.5 m, spin" (a closing route, at odds with the 2.5–4.5 m poke it is from the first hit); 3.0 m stays outside TABA's own 2.5 m dead zone |
+| 2 | TATAKI's reach 3.0 -> 4.5 m (its 90° arc kept, the push to 3.5 unchanged, off beyond 3.5 because it only ever pushes out) | b hits wherever a did (to 4.95 with the body); the push moves him only when d < 3.5 | b stops being the "close-in answer" the user asked for in §28.8 (NS2's close-in push): it becomes the same band as AS2a 叩 (2.5–4.5, 90°) and overlaps ŌMEGURI; its clip (a slam at 3 m) would be drawn short of the reach unless redrawn (the host FK test, ±0.15 m) |
+| 3 | TATAKI follows the chain to him (a `:seg-fn` like the J links, `hs-r-link-seg`, up to 4.5–7 m) | b always lands where he stands, no volume; his place is the chain's | the J links already do this; but b then has no volume and no tip read, the clip is a fixed slam, and a victim far away is hit by a move drawn short (the art mismatch §28.7 accepted for the links); the push to 3.5 then takes him from 4.5 m to 3.5 m: it pulls him in instead |
+| 4 | Leave b the close answer; an SP after a far TABA starts ŌMEGURI | one hook decides the next segment by the distance; b is then used only at 2.5–3.4 m, c from 3.5 m | `:ns-next` is static per move (core-latch-step reads `mv-ns-next`); this needs a new per-move hook in core-sim (`:ns-pick`, like `:as-pick` for the AS), a shared-code change, and a 4th grammar rule the player has to learn (「SP 近遠不同」); the three-segment route is two segments from far |
+| 5 | b gets a step in: TATAKI's startup moves him forward 1.0–1.5 m (an own move lunge) | brings d from up to 4.95 to 3.5 by b's hit; b reaches | hidden movement (§Regressions): the dead zone of c and the push rules change with his position; the draw / look must follow |
+
+My pick: **1**, for the narrowest, data-only change (`:on-land` on TABA with an existing helper; one number, no reach or band touched; the chain drags him in is already the
+聚 theme the bundle name says, 束 = gather) and it keeps b the close push the user asked for. Its cost (TABA no longer a pure poke) is the thing to put to the user; if he
+does not want TABA to move the victim, 4 is the clean alternative and 2 the cheap one.
+
+### 30.4 Open for the user
+
+1. Space candidates 1–5 above (nothing built; the time part alone leaves a hit at 3.5–4.95 m as `a`, whiff, `c`).
+2. The slack: 7 f on each link; the 22 f press window follows from it (a bigger stun widens it, up to the loop at 54+ f).
