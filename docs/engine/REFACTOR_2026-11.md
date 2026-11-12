@@ -542,6 +542,8 @@ gauge rules. So:
 - **Cut line if the user wants the SP playtest sooner**: R4 and R6 may move to after S5. The price: S1-S3 edit around the 22 run-mods
   sites and the Reiatsu argument, S1 needs the frozen CPU readers left compiling, and R4 / R6 then rebase over SP. R1-R3 stay before
   SP in either case (the retired kits' tests cannot survive S1).
+- **Decided 2026-11-12** (the user: 「按你建議的做」, DEVLOG §730): **removals first**, the timeline of 11.4 as written; the cut line is not
+  used.
 
 ### 11.3 Batches
 

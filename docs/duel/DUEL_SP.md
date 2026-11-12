@@ -215,6 +215,18 @@ Each scene sets both gauges, places the fighters and prints a `duel sp t .. p1 f
 | Q16 | The PRACTICE dummy's and the CPU's costs | They pay like a player; S9's GAUGES row is the practice answer |
 | Q17 | An NS route's first segment reached by a route restart inside a combo (not from neutral) | "First" = the route's first segment (`mv-ns-next` has no predecessor), wherever it starts |
 
+**Decided 2026-11-12** (the user: 「按你建議的做」, on the main session's recommendations; DEVLOG §730):
+
+- **Order: the removals first** (REFACTOR §11.2): R1-R6 before S1; the first SP playtest waits for M1. S0 runs in parallel at step 1.
+- **Q3 changed from the default: +10 / +15 per damaging hit window**, not once per move (the user's 「J 命中 +10」 read literally): every hit
+  window of a J link or an SA that deals damage pays its gain; a multi-hit SA pays per hit. The cancel's +30 stays once per move per
+  exchange (guarded by `sp-gain-t`), and a move that cancels gets no hit gain from that verdict (no damage was dealt).
+- **Q4** kept (+100 back per Kikon; watched at the playtest). **Q9** as the default (a blade that beats a wave removes it, no refund, no
+  exchange; only a cancel refunds). **Q12** as the default (the Kikon follow-up's cancel is a cancel: +30, an exchange opens).
+- The other thirteen questions: the defaults above.
+- Before cutting, R1 checks Kenpachi's arm meter (printed in the hash line, gate.lisp:20) and R6 checks Hisagi's reads of the Reiatsu
+  gauge (hisagi.lisp:1354, 1378): only what nothing live consumes is removed.
+
 ### 8.7 Risks
 
 1. **`core-nohit!` / `core-verdicts` are rewritten three times** (S2 refund, S4 exchange, S5 hazards). Serial, one Opus agent each, the
