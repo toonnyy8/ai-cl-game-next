@@ -8,7 +8,7 @@
 /tests/shots/duel-view-*
 /tests/shots/duel-vfx-*
 /tests/scripts/pt-*
-# restyle review stills (tests/style-shots.py, tests/style-2-shots.py regenerate them); keep the sheets
+# restyle review stills (docs/research/style-history/style-shots.py, docs/research/style-history/style-2-shots.py regenerate them); keep the sheets
 /tests/shots/style-*
 !/tests/shots/style-1a-proportions-*.png
 !/tests/shots/style-2-gallery.png
@@ -18,3 +18,6 @@
 *.pyc
 /.claude/*
 !/.claude/skills/
+# batch sheets and WebGL-era stills: kept on disk, no longer tracked (R8, D6)
+/tests/shots/batch-*
+/tests/shots/webgl-*

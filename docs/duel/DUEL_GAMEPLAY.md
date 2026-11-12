@@ -188,7 +188,7 @@ encoded in the integer.
 | 2120+k | toggle drawing part k off (0 HUD, 1 fighters, 2 stage, 3 hazards + cinematic looks): perf bisection |
 | 2200+k | force cinematic k now and hold it at its hold frame: 0 Bankai, 1 Nozarashi, 2 Jokaku Enjo, 3 Tenchi Kaijin, 6 Soul Break, 7 intro, 8 K.O. (4 / 5 / 10 / 19, Kenpachi's old Kikons, removed 2026-11-05, DUEL_KEN_V3 §43: they do nothing) |
 | 2209 | a K.O. of P2 (Yamamoto vs Kenpachi): the K.O. cinematic, then the results screen (the 勝 card) |
-| 10000+1000k+f | stills: cinematic k (as 2200+k) held at frame f with the effects frozen there (impact frames, particles, stamps); a later command for the same k continues it to its new f (`tests/style-4-shots.py`) |
+| 10000+1000k+f | stills: cinematic k (as 2200+k) held at frame f with the effects frozen there (impact frames, particles, stamps); a later command for the same k continues it to its new f (`docs/research/style-history/style-4-shots.py`) |
 | 2300+k | force a special now: 0 Hellfire + Ennetsu, 1 full Shiranui, 2 fire wave, 3 South (the bind) on Kenpachi 5 m away, 4 KYOKUJITSUJIN (the down-cut) at 6 m, 5 Split the Meteor, 6 Guard Break, 7 perfect Hoho, 8 Kenpachi's stance, 9 Buttagiru, 10 Kenpachi's SP2 flurry, 11 EVOLUTION for both, 12 Bankai (East) form, 13 Nozarashi form (cup 1), 14 P2 red (Reishi 200), 15 Nozarashi cup 2 (RYOTE, NOME 70), 16 cup 3 (NOMIHOSE, NOME 100) |
 | 2315+k | frame probe, YY at 2 m: P1's move k (0 J1, 1 K3 (−20, entered at f8), 2 J3 (−4), 3 Taimatsu) into P2's held guard → `duel probe … advantage A (table T)` |
 | 2319 | trade probe: both J1 on the same step → `duel probe trade …` hash line 40 steps later |
@@ -331,7 +331,7 @@ broken ward back in East): `tests/shots/duel-yama-*.png`, from `duel-stances.jso
 `guard3-*.png` were removed with the garb.)
 
 Stills of the Kenpachi batch (the awakening without an eyepatch, the three cups, DRINK, the rift, the cash-out, West's
-hold-U armour, the run facing the opponent): `python3 tests/batch-shots.py` → `tests/shots/batch-*.png` and the contact
+hold-U armour, the run facing the opponent): `python3 docs/research/style-history/batch-shots.py` → `tests/shots/batch-*.png` and the contact
 sheet `batch-sheet.png`.
 
 Galleries (test targets, not the game; build lines in their headers): `tests/duel-view.lisp`
@@ -339,8 +339,8 @@ Galleries (test targets, not the game; build lines in their headers): `tests/due
 fighters' three expressions, 6300+k sets every actor's face: 0 neutral, 1 shout, 2 hurt; 7000+k shows grip clip k's four
 worst-drift frames, each as a pair: keys only, then with the game's left-hand grip) and
 `tests/duel-vfx.lisp` (every effect plus a worst-case scene; `tests/scripts/duel-vfx.py`).
-Restyle Phase 5 stills: `python3 tests/style-5-shots.py` (the redone effects, the kendo and re-authored clips, the
-expressions, before / after the previous build), `python3 tests/style-5-checks.py --run dist/duel` (3 expressions per
+Restyle Phase 5 stills: `python3 docs/research/style-history/style-5-shots.py` (the redone effects, the kendo and re-authored clips, the
+expressions, before / after the previous build), `python3 docs/research/style-history/style-5-checks.py --run dist/duel` (3 expressions per
 fighter, the Jokaku manga page, callouts clear of the HUD at 1280x720 and 800x450, 0 B for the new looks).
 
 ## Determinism

@@ -1248,7 +1248,7 @@ rain on the results screen, and the fog bands rejected. The restyle (Phases 0-6)
   *world saturation* is **chroma** (max − min channel), because HSV saturation flags the design's own
   cold greys (V1 #3A3E4C has S 0.24); *sky ≤ V1* is "≥ 80 % of the sky pixels are V0/V1", because
   the moon is V4 by design.
-- **`tests/style-shots.py`**: the review still set, after and before, under the virtual clock.
+- **`docs/research/style-history/style-shots.py`**: the review still set, after and before, under the virtual clock.
 - `tests/engine-check.lisp`: the 1a engine checks (below) and a toon scene (`ec-toon.png`) that draws
   every new pipeline, including a mirrored toon draw (`RP_TOON_CW`).
 - Gates on the unchanged copy: G1 stills identical (noise 0), C 716/716 identical, G2 3/3, smoke 3/3,
@@ -1447,7 +1447,7 @@ is still the soft additive `fx-trail` (the comet smear is Phase 3's cleave row).
   Kikon auras, 100 soul flames (duel-vfx 3020); SOUL DUEL fight frame 28.8 → 28.9 ms (1.003×, CvC A B A B A B);
   startup heap 103.1 → 57.3 MB (both games); page to first frame 2940 → 2870 ms; cons/frame in a fight ~9–10 KB
   (unchanged); WGSL smoke green on duel, game, duelvfx, echeck, duelview.
-- ACs (`tests/style-2-checks.py`): `spot` — 0 spot pixels in the cut / heavy (outside its droplets) / guard /
+- ACs (`docs/research/style-history/style-2-checks.py`): `spot` — 0 spot pixels in the cut / heavy (outside its droplets) / guard /
   clash / burst / Konpaku / Hoho stills at their 3 moments (fighters off); `ticks` — the Kikon aura changes on 7
   of 35 frame steps, 4–6 frames apart (twos = every 5th frame; the drawing boundaries fall exactly on frame times,
   so float rounding moves some by a frame), never in between; `pause` — 0 px differ over 1 s of pause right after
@@ -1509,7 +1509,7 @@ look ends without its 18-frame erosion.
   (1.033×, CvC A B A B A B, noise); startup heap 57.3 → 55.1 MB; page to first frame 3270 → 3460 ms (+5.8 %);
   cons/frame in a fight ~9.4 KB (unchanged); live particles ≤ 56 in the worst gallery scene, ≤ 26 in the still
   runs (budget 500); WGSL smoke green on duel, game, duelvfx, echeck.
-- Spot share (`tests/style-3-checks.py`, HUD rows left out): neutral stills with Yamamoto's blade fire and
+- Spot share (`docs/research/style-history/style-3-checks.py`, HUD rows left out): neutral stills with Yamamoto's blade fire and
   Kenpachi's base aura 0.1–1.2 % (≤ 15 %; the frozen duel still with both looks, duel-vfx 3007: 0.43 %); during the
   fire wave 2.7–4.8 % with FIRE dominant; the Nozarashi idle 3.2 %; in Bankai only the ember hue (0.1–0.4 %). The
   ≤ 15 % rule needed no change for the user's yellow-in-every-form decision.
@@ -1530,7 +1530,7 @@ look ends without its 18-frame erosion.
 - **Measured.** G1: RAVEN title and wave stills byte-identical to a copy of dist/game made before the change (noise
   floor 0 px), cons/frame 17 369 B = base. G2: yy / yk / kk results and hash lines identical to
   `tests/style-cvc-ref.txt`. G3: 0 B for every phase-2 (duel-vfx 3020) and phase-3 (3021) per-frame path. duel, game and
-  duelvfx build with 0 warnings; pkgcheck clean. Spot share (`tests/style-3-checks.py`): all PASS, neutral 0.2–1.4 %;
+  duelvfx build with 0 warnings; pkgcheck clean. Spot share (`docs/research/style-history/style-3-checks.py`): all PASS, neutral 0.2–1.4 %;
   Bankai now shows Kenpachi's yellow (bankai-side-3: 0.51 % yellow).
 - Stills: `tests/shots/style-3-*.png`, `style-3-gallery.png`, `style-3-pairs.png` re-shot. The Phase-2 stills
   (`style-2-*`) were not re-shot; their hits and dust now have the same edges.
@@ -1543,7 +1543,7 @@ Built as §4.4 and §5. **No engine change** (G1 holds by construction: engine/ 
 script), `yama.lisp` / `ken.lisp` (their scripts), `hud.lisp` (captions, the brush callouts, the 勝 results card; the old
 pixel-kanji words removed), `main.lisp` (card beats, frozen effects), `camera.lisp` (dutch), `vfx.lisp` (awakening bursts,
 Tenchi slash, sky-split band; the 24×24 bitmap kanji deleted), `hazards.lisp` / `yama-art.lisp` (South's hands), `debug.lisp`
-(10000 + 1000 k + f, 2209, 2329). Tools: `tools/glyph-bake.py`, `tests/style-4-shots.py`, `tests/style-4-checks.py`; licence
+(10000 + 1000 k + f, 2209, 2329). Tools: `tools/glyph-bake.py`, `docs/research/style-history/style-4-shots.py`, `docs/research/style-history/style-4-checks.py`; licence
 `duel/FONT-LICENSE-YujiSyuku.txt`. Differences:
 
 | Design text | Built | Why |
@@ -1597,7 +1597,7 @@ The scripts (all `:len` unchanged; only `FACE-EACH-OTHER` touches the sim, at it
   callout; results), the impact splash, the dutch roll and a brush Latin line (debug 2329); fight frame 29.3 → 29.0 ms (0.99×, A B A B A B vs
   the Phase-3/bankai-kikon build; 1.029 / 0.970 after the review-3 passes, noise); startup heap 55.2 → 57.3 MB (≤ 110); page to first
   frame 3460 → 2840–3190 ms (noise; brush-init 22 ms); WGSL smoke green; duel builds with 0 warnings, pkgcheck clean.
-- §9 row 4 (`tests/style-4-checks.py --run`, 52 PASS: the row-4 items, every `:len`, the pacing rule, the held caption
+- §9 row 4 (`docs/research/style-history/style-4-checks.py --run`, 52 PASS: the row-4 items, every `:len`, the pacing rule, the held caption
   close-ups, the Bankai grade, the bounds at 1280x720 and 800x450): every Kikon has beat 0, a card, ≥ 3 cuts (3–7), a negative + a manga
   page, a silence ≥ 8 f (10–17) and a brush caption; every `:len` unchanged; the Bankai stills (the reveal card, the wide
   after it): 0.0 % of the saturated pixels off the ember / yellow hues.
@@ -1630,13 +1630,13 @@ beat 0 (12 f, the gameplay freeze) and the 1–3 f negative / impact flashes (no
 caption card (26–28 f), the Bankai silhouette reveal (28 f), the Nozarashi yellow pillar (30 f) and the pre-final-hit
 freeze (20–22 f), and the impact frames themselves as sharp as before (2 f negative, then a 10–12 f manga page). The
 actors' clips play slower to keep their hits on the new beats (`:speed` old frame / new frame); the dome, the Tenchi
-slash and the sky split run on longer lives. `tests/style-4-checks.py pacing` checks every shot ≥ 12 f and the mean ≥ 20 f.
+slash and the sky split run on longer lives. `docs/research/style-history/style-4-checks.py pacing` checks every shot ≥ 12 f and the mean ≥ 20 f.
 
 **User decision (review 3, 2026-09-26): caption close-ups held longer.** The rest approved; the caption close-up (the
 card shot with the brush caption and the character close) of the Bankai and of every Kikon holds **+30 f** (0.5 s); no
 other shot stretched; the caption stays up through it (the Kikon rule: up to the second cut after the wind-up); the
 card's silence and back-rim cover it; the attacker's clip plays slower so his hit still lands on the (later) impact
-beat. `tests/style-4-checks.py` checks the card shot's length (`caption close-up held`) with the pacing rule.
+beat. `docs/research/style-history/style-4-checks.py` checks the card shot's length (`caption close-up held`) with the pacing rule.
 
 | Cinematic | :len original | review 3 (×1.45) | final | Shots (frames), final |
 |---|---|---|---|---|
@@ -1669,7 +1669,7 @@ pacing rule and the brush captions untouched: `style-4-checks.py --run`, 52 PASS
 (`defrun`: forward run, side slides, back-skate; Kenpachi's set with the blade on his shoulder), Nozarashi's cup looks
 (§4.2's new row) and West's garb flaring while his U armour holds (since guard v3: while he guards). G2 re-baselined (the sim changed: DUEL_GAMEPLAY
 "Determinism"); the YK reference is now `duel -> RESULTS winner P1 konpaku 7-0 ticks 7351 secs 122.5`. Stills:
-`tests/shots/batch-*.png`, `batch-sheet.png` (`tests/batch-shots.py`).
+`tests/shots/batch-*.png`, `batch-sheet.png` (`docs/research/style-history/batch-shots.py`).
 
 ### After the Kenpachi batch: guard v3 (2026-09-26, DUEL_DESIGN §12)
 

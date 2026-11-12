@@ -232,7 +232,7 @@ INK: black glyphs (on a white card), else white; HANKO: the red Kikon seal; MARK
     (bcap-splash c)))
 
 (defun bcap-off-screen (c w h)
-  "Log once that caption C drew a glyph outside the W x H screen (*BCAP-BOX*; tests/style-4-checks.py greps it)."
+  "Log once that caption C drew a glyph outside the W x H screen (*BCAP-BOX*; docs/research/style-history/style-4-checks.py greps it)."
   (unless (bcap-warned c)
     (setf (bcap-warned c) t)
     (log-msg "brush: caption ~a off the ~dx~d screen: ~{~,1f~^ ~}" (bcap-kanji c) w h (coerce *bcap-box* 'list))))
@@ -350,7 +350,7 @@ inside them, the reading and the chapter line shrink to fit their half of the sc
     (when (or (< (aref bb 0) -0.5f0) (< (aref bb 1) -0.5f0) (> (aref bb 2) (+ ww 0.5f0)) (> (aref bb 3) (+ hh 0.5f0)))
       (bcap-off-screen c w h))
     (when (and (eq layout :callout) (not (bcap-hud-warned c)) (panel-hit (aref bb 0) (aref bb 1) (aref bb 2) (aref bb 3)))
-      (setf (bcap-hud-warned c) t)                                        ; tests/style-5-checks.py greps it
+      (setf (bcap-hud-warned c) t)                                        ; docs/research/style-history/style-5-checks.py greps it
       (log-msg "brush: caption ~a over the HUD on the ~dx~d screen" (bcap-kanji c) w h))
     t))
 

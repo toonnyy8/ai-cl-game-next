@@ -588,11 +588,11 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
   an older frame than the state (the virtual clock waits for the GPU); headless windows can lose focus,
   and both games pause on focus loss (focus emulation is on); a fixed debugging port could be taken by
   a leftover Chrome, which then served its own page (Chrome now picks the port).
-* Phase 2 of the restyle adds `tests/style-2-shots.py` (every universal toon effect at 3 moments from
+* Phase 2 of the restyle adds `docs/research/style-history/style-2-shots.py` (every universal toon effect at 3 moments from
   duel-vfx scenes 18–31, the impact-frame modes, a gallery sheet, in-game stills) and
-  `tests/style-2-checks.py` (`ticks`: toon shapes change only on new drawings; `pause`: 0 px change
+  `docs/research/style-history/style-2-checks.py` (`ticks`: toon shapes change only on new drawings; `pause`: 0 px change
   over a second of pause; `manga`: mode 3 keeps the spot pixels; `spot`: hits are mono).
 * The restyle harness: `tests/style-gates.py` (G2 CvC
   hash lines vs `tests/style-cvc-ref.txt`, G3 perf A/B / heap / startup, WGSL smoke, the frozen duel
-  still), `tests/style-shots.py` (the user-review stills, before / after), `tools/toon_check.py`
+  still), `docs/research/style-history/style-shots.py` (the user-review stills, before / after), `tools/toon_check.py`
   (value steps, chroma, spot share, sky / ground, palette tones of a still).

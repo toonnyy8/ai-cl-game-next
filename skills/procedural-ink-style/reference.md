@@ -237,7 +237,7 @@ Main evidence: `docs/style/STYLE_STORM_DESIGN.md` (SD), `docs/style/STYLE_STORM_
 - **Debug commands encode scenes as integers** (debug.lisp): `10000+1000k+f` = cinematic k held at frame f with the
   effects frozen; `2200+k` = force a cinematic; `2300+k` = force a special; `2700+k` = mobile probes. Any still can be
   reproduced from one number.
-- Shot scripts build **contact sheets** for review (`tests/batch-shots.py`, `style-N-shots.py` →
+- Shot scripts build **contact sheets** for review (`docs/research/style-history/batch-shots.py`, `style-N-shots.py` →
   `tests/shots/*-sheet.png`, `style-final-gallery.png`; 1137 committed PNGs). The user approved the whole restyle from
   `style-final-gallery.png`.
 

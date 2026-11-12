@@ -981,7 +981,7 @@ is recorded as it is drawn; a callout over a fighter's head that would overlap o
 Kenpachi's KUKAN-GIRI / NOMIHOSE covered the P2 labels with the side camera), a word over a panel (RYOTE,
 NOMIHOSE! ...) or a centred small word crossing one is set under it, and a brush callout column starts under
 both panels. A callout, word or column still drawn over a panel is logged once (`hud: … over the P2 panel`,
-`brush: caption … over the HUD`; `tests/style-5-checks.py --run`, at 1280x720 and 800x450).
+`brush: caption … over the HUD`; `docs/research/style-history/style-5-checks.py --run`, at 1280x720 and 800x450).
 
 **Cinematic lengths** (60 Hz frames; at user review 3 the Kikons and awakenings were slowed ~1.45× (fewer, longer
 shots, longer holds, sharp impacts), then the caption close-ups (the card shot with the brush caption) of the Kikons and

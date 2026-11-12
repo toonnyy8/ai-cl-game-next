@@ -81,7 +81,7 @@ the first 0.08 s; a long word shrinks to 92 % of the width). A word whose box wo
 
 (defvar *hud-warned* nil "Strings already logged as drawn over a HUD panel (HUD-OVER-PANEL).")
 (defun hud-over-panel (what str x0 y0 x1 y1 w h)
-  "Log once per string that the WHAT (callout / word) STR at (X0 Y0 X1 Y1) overlaps a HUD panel (tests/style-5-checks.py
+  "Log once per string that the WHAT (callout / word) STR at (X0 Y0 X1 Y1) overlaps a HUD panel (docs/research/style-history/style-5-checks.py
 greps \"over the P\")."
   (let ((side (panel-hit (f32 x0) (f32 y0) (f32 x1) (f32 y1))))
     (when (and side (not (member str *hud-warned* :test #'equal)))
