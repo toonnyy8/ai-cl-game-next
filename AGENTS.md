@@ -36,13 +36,15 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   shell and never end). Put this rule in every subagent brief.
 - Big work: fan out independent batches, one git worktree + branch + fresh subagent each, a compact brief; the lead
   re-runs the tests/gates, merges, pushes. Subagents never push or deploy.
-- **Roles by model** (the user, 2026-11-10: 「請作為顧問模型來規劃與管理專案、指派工作與覆核結果，並指派 opus 5.5 與 sonnet 5.5 進行實際的編程與其他細項工作」,
-  DEVLOG §696): the main session (Fable 5.2) is the advisor. It plans and manages the project, writes the briefs, reviews every
-  hand-back against its files and logs, merges, commits / pushes, publishes the Artifact and asks the user. Opus 5.5 and
-  Sonnet 5.5 subagents do the programming and the other detail work (code, searches, gates, doc drafts): Opus for the
-  hardest, Sonnet for the complex, Haiku 5.5 for the simple (2026-11-08).
-  A dream-rsi round keeps an Opus 5.5 coordinator, which hands back after the held-out rescoring; the main session reviews it before the
-  split test and the refit run (the user, 2026-11-10: 「好」, DEVLOG §698).
+- **Roles by model** (the user, 2026-11-12: 「我將萊醬你的模型改回 opus 5.5 了，以後如果高難度的任務（像是程式碼重構、AI 策略規劃等等，只是舉例不表示一定要用）請自行呼叫新版的 fable 作為顧問或監督，簡單的工作一樣指派 sonnet 或 haiku 處理，其餘任務就看你要自己來還是拆分給 opus subagent 處理了。」,
+  DEVLOG §719; it replaces 2026-11-10's Fable-as-advisor rule, §696): the main session is Opus 5.5. It plans, briefs, reviews every
+  hand-back against its files and logs, merges, commits / pushes, publishes the Artifact and asks the user, and may do work itself or
+  split it to Opus 5.5 subagents as it judges. For hard work (a refactor, AI strategy planning, a subtle sim / determinism bug, an
+  open design question: examples, not a fixed list) it calls the newer Fable model as advisor or supervisor: the `advisor` tool (it
+  sees the whole session) before committing to an approach and before declaring done, or an Agent with `model: "fable"` for a review
+  or plan that must not be anchored on its own. Simple work goes to Sonnet 5.5 or Haiku 5.5 subagents. A dream-rsi round keeps an
+  Opus 5.5 coordinator that hands back after the held-out rescoring; the main session reviews it before the split test and the refit
+  (the user, 2026-11-10: 「好」, DEVLOG §698).
 - **Design principles** (the user, 2026-11-11: 「這份程式碼庫屬於你：它的用途和建構方式由你決定，你也將在此基礎上持續開發。請保持『低耦合、高內聚』的設計要點，與 Entity-Component-System + 務實化的 functional programming 作為核心理念。」,
   DEVLOG §709): the main session owns the codebase's purpose and construction and decides design questions itself (asking only
   what the user alone can judge: looks, feel, direction). Every module has one job and reaches others through a small interface
