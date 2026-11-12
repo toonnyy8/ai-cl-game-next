@@ -120,7 +120,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (as-done nil)                         ; this combo already used its AS
   (sp-held nil)                         ; the SP button held, never let go, since this NS / AS segment started (CORE-HOLD-STEP)
   (bk-out nil)                          ; Kenpachi's Bankai special AS started: back to the Shikai when it is over (KEN-BK-TICK)
-  (steal-taken 0f0 :type single-float)  ; flash-step the current stealing AS took so far (CORE-ON-HIT!, *STEAL-FS-MAX*; reset when one starts)
   (charge-mult 1f0 :type single-float)  ; a charged SA's damage x on the rest of its string (J2 / J3 / the AS: CORE-CHARGE-MULT)
   (cancelled nil)                       ; the move was cancelled this step (a bounce)
   (clash-t -1 :type fixnum)             ; *MATCH-TICK* of his last clash (a cancel): the kit's :clash hook once a step (CORE-CLASH!)

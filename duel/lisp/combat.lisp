@@ -502,7 +502,7 @@ result (NIL = no effect)."
                               (let ((pull (- (sqrt d2) *string-pull-to*)))         ; point-blank, so the string's links
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
                                   (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz)))))))))   ; no chase)
-               (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv))
+               (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv 1.0 hw))
                (when (and follow wave) (core-wave-follow! att wave))   ; a wave's: he flash-steps in to its strike
                (when (and follow (or own wave))           ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
                  (setf (fighter-kikon-undo fa)            ; a core SP's: a let-go in the confirm makes this hit an ordinary

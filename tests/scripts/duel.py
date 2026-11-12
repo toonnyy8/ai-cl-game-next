@@ -1048,7 +1048,7 @@ write("hisagi-j1-cancel", hisagi_j1_cancel_script())
 # One use of a stealing AS takes at most one cell of flash-step (DUEL_CORE §2.2, the user 2026-11-12: 「當前角色吸取對手閃步量表的能力改成最多
 # 削減一格的量」; --fixed-dt 16.666667 --secs 40): P1's flash-step 100, P2's 300, then J, 0.5 s later Shift+J (J1 then the AS): Hisagi's TSUMUJI (83815),
 # Ichigo's RAKUGA (74000), KESSA's KUSARI-BIKI without clones (74001) and with two NS3 clones (74001 + 74904); 74908 / 83815 set the gauges, 74909 / 83816
-# print the `duel steal` fs line; the combat log's `STEAL fs` lines give each hit's take and the use's running total.
+# print the `duel steal` fs line; the combat log's `STEAL fs` lines give each hit's take and the attacker's gain.
 def steal_cap_script():
     ev = []
     t = T0

@@ -141,31 +141,26 @@ reference line for line (II 33, IK 35, KK 26); on, regenerated (native = browser
 IK 35 → 33 (P2 0-2 351.9 s → P2 0-5 330.5 s), KK 26 → 28 (P1 3-0 261.5 s → P2 0-5 275.4 s). snaptest / fulltest on G2's IK clean. No
 balance gates.
 
-### 2.2 One use of a stealing AS takes at most one cell of flash-step (the user, 2026-11-12)
+### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 
-Request: 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」. Reading (the lead's): one use of an AS with `:steal-fs` takes at most one HUD
-cell (100, `*fs-hoho*`'s size) from the victim in total, over all its hits and the KESSA clones' replays of it; the attacker gains exactly
-what was taken. Per-hit values stay as written (RAKUGA 120, KUSARI-BIKI 30 x 4, TSUMUJI 120 x 4); the cap is on the running total.
+Requests (verbatim, 2026-11-12): 「檜佐木始解 AS1「旋」改 10/20/30/40」, 「一護始解 AS1「落牙」改 80」, 「一護血鎖 AS1「鎖引」改 30/30/30/30」,
+「不限制吸取上限，然後吸取的轉換率設為 50%」. Current rule: each landed hit of an AS with a steal value takes that value from the victim's
+flash-step (never more than he has); the attacker gains `*steal-fs-gain*` = **0.5** of what was taken (capped by `*fs-max*`). No per-use cap.
 
-- **Knob**: `*steal-fs-max*` (tuning.lisp) unbounded -> **100.0**. **Pure rule**: `steal-take want victim-fs taken` (rules.lisp) =
-  `max 0 (min want victim-fs (- *steal-fs-max* taken))`; `core-on-hit!` (core-sim.lisp) only applies it and logs `P1 STEAL fs 30.0 (use total
-  90.0 / 100)` (a clog, no hash line).
-- **State**: `fighter-steal-taken` (components.lisp), the use's running total; `core-note-start!` zeroes it whenever a move with `:steal-fs`
-  starts, so a new use has a fresh budget. A clone's replayed hit (`clone-replay-hit!` -> `core-on-hit!`, x0.1) draws from the attacker's
-  current budget (a clone does not know which use it replays; if he has started another stealing AS since, it draws from that one's).
-  The field is part of the fighter component, so the snapshot / restore carries it; the hash line is unchanged.
-- **Users**: Ichigo's Shikai AS1 RAKUGA (120), KESSA's AS1 KUSARI-BIKI (30 x 4 + clone replays), Hisagi's AS1 TSUMUJI (120 x 4); Kenpachi
-  and the retired kits have no `:steal-fs`, so the cap touches only these three.
-- **Scenes** (`tests/scripts/duel-steal-cap.json`, debug 83815 / 83816, 74904, 74908 / 74909; P1's flash-step 100, P2's 300, J1 then SP):
-  TSUMUJI took 100 / 0 / 0 / 0 over its four hits (before: 120 / 120 / 60 / 0, the victim's 300 emptied; now P2 300 -> 200 and P1
-  100 -> 200 from the steal); RAKUGA 100 (was 120); KUSARI-BIKI 30 / 30 / 30 / 10 = 100 (was 120).
-  Regen and damage gains of the 6 s afterwards are in the `duel steal end` lines (P2 223.9-225.2, P1 227-246).
-  The two NS3 clones' replays did not land in this scene, so the clone path is by construction (one function), not by a scene.
-- **Host tests**: `tests/duel-rules/triangle.lisp` (budget full / partly spent / spent, a victim with less, the 4-hit totals, the knob, the
-  per-hit values pinned): ALL PASS 10326 (10315 before).
-- **G2**: with the knob set to 1e6 (the old behaviour) native `--cvc` matched the reference (II 40, IK 33, KK 28 lines); on, II and IK
-  moved (the CPUs' ASes steal less), KK did not: regenerated from the browser, native = browser: II 40 lines (P2 1-2, 397.9 s -> P1 6-1,
-  392.3 s), IK 33 (P2 0-5, 330.5 s -> P2 0-3, 329.8 s), KK 28 (P2 0-5, 275.4 s). snaptest / fulltest clean. No balance gates.
+- **Per-hit values**: a hit window's own `:steal-fs` (kit.lisp, `hitwin-steal`), else the move's `:params :steal-fs`. Hisagi's Shikai AS1
+  TSUMUJI `:hs-as1` 10 / 20 / 30 / 40 on its 1st-4th window; Ichigo's Shikai AS1 RAKUGA `:ic-as1` 80; KESSA's AS1 KUSARI-BIKI `:ic-k-as1`
+  30 x 4 (unchanged). A KESSA clone's replay (x0.1, `clone-replay-hit!`) uses the move-level value (no window passed; KUSARI-BIKI is uniform).
+- **Pure rule**: `steal-take want victim-fs` (rules.lisp) -> `(values take gain)`; `core-on-hit!` (core-sim.lisp) only applies it and logs
+  `P1 STEAL fs 30.0 from P2, gains 15.0` (a clog, no hash line). Knob `*steal-fs-gain*` (tuning.lisp).
+- **History**: earlier the same day (commit 683979c2) a per-use cap `*steal-fs-max*` = 100 (one HUD cell; 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」,
+  values RAKUGA 120, KUSARI-BIKI 30 x 4, TSUMUJI 120 x 4, the attacker gaining all of it) with the fighter slot `steal-taken` and its reset
+  in `core-note-start!`; all removed by the requests above (before the cap: unbounded, RAKUGA / TSUMUJI 120).
+- **Scenes** (`tests/scripts/duel-steal-cap.json`, debug 83815 / 83816, 74904, 74908 / 74909; P1's flash-step 100, P2's 300, J1 then SP): measured: TSUMUJI 10 / 20 / 30 / 40 (gains 5 / 10 / 15 / 20; P2 300 -> 200, P1 100 -> 150), RAKUGA 80 (gains 40; P2 -> 220, P1 -> 140),
+  KUSARI-BIKI 30 x 4 (gains 15 each; P2 -> 180, P1 -> 160), the same with two NS3 clones (their replays did not land). Six seconds later
+  (regen, damage gains): P1 189.7 / 167.0 / 205.8 / 205.9, P2 225.2 / 240.7 / 203.9 / 203.9.
+- **Host tests**: `tests/duel-rules/triangle.lisp` (the knob, `steal-take`'s cases, the per-window values of the three moves).
+- **G2**: with the old values and the cap switched on temporarily native `--cvc` matched the reference (II 40, IK 33, KK 28 lines); the new
+  rule moves it: regenerated (tests/style-cvc-ref.txt header). No balance gates.
 
 ## 3. The SP pointer
 
@@ -309,7 +304,7 @@ reworked. Then (§433, the user: 「幫我為聯動製作新的動畫與動作�
 
 | Form | Pointer | NS | AS | Kikon cinematic (`:core :kikon-cines`) |
 |---|---|---|---|---|
-| Shikai | 1 the cleaver's weight | the cleaver overhead, the K string | AS1 RAKUGA's drop (50, steals 120 flash-step; 40 of 100 before 2026-10-29; at most 100 per use since 2026-11-12, §2.2) | `ic-heavy-kikon-cine` (new) |
+| Shikai | 1 the cleaver's weight | the cleaver overhead, the K string | AS1 RAKUGA's drop (50, steals 80 flash-step, the attacker gaining 50 %; 120 before 2026-11-12, 40 of 100 before 2026-10-29, §2.2) | `ic-heavy-kikon-cine` (new) |
 | Shikai | 2 the Getsuga | two charges > JUJISHO | AS2 SOGA > a point-blank yellow-white Getsuga (6 m, 60, the launch) | `ic-kikon-cine` (the Cero Getsuga) |
 | Shikai | 3 the rush | RANGETSU > TSUKI-OTOSHI | AS3 SOSEN-GIRI > RANGETSU > TSUKI-OTOSHI | `ic-rush-kikon-cine` (new) |
 | KESSA | 1 the blood chains | three lashes | AS1 the four-lash whip | `ic-chain-kikon-cine` (new) |
@@ -446,7 +441,7 @@ follow-up links keep their speed).
 - **No Reiatsu gauge** (2026-10-27, the user: 「原本的 SP 量表已經沒有作用，可以拿掉了」): no core SP spends Reiatsu (`core-sp-start!` /
   `core-as-start!` check no cost); its last use was AS1's steal (`:steal-rei 100`), which fed nothing. The HUD's REIATSU row is not drawn for a
   kit with `:core` (FLASH STEP and AWAKEN move up into its place, hud.lisp); `:steal-rei` is gone from `core-on-hit!` and the three AS1s
-  (they steal 120 flash-step since the 0–300 gauge, 2026-10-29; 40 before; one use takes at most 100 in all since 2026-11-12, §2.2). The gauge itself still fills in the sim (KOSEI, hits, regen) and the frozen modes still read it.
+  (they steal flash-step since the 0–300 gauge, 2026-10-29 (120, 40 before); per-hit values and a 50 % gain since 2026-11-12, no cap, §2.2). The gauge itself still fills in the sim (KOSEI, hits, regen) and the frozen modes still read it.
 - **No guard gauge** (the same day: 「防禦量表也一樣沒用了，可以移除」): there is no guard, so the bar under the Reishi and the KOSEI tag at
   its end are not drawn for a `:core` kit, in the landscape and the portrait (phone) panels; the portrait's last row is then FLASH STEP +
   AWAKEN at half width each (+ the kit meter where there is one). Shots: 1280x720 and 390x844 (DEVLOG §420). The sim still keeps the gauge

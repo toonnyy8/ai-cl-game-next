@@ -37,6 +37,7 @@
   (frost 0 :type fixnum)        ; frames of frost a real hit sets (FROST-NEXT; Rukia's ice)
   (seg nil)                     ; :seg-fn: a kit function (e) -> the world capsule this frame, in place of VOLS (WINDOW-TOUCHES-P)
   (min nil)                     ; :min-reach: no hit on a victim nearer than this (m, centre to centre; NIL = none: COLLECT-MELEE)
+  (steal nil)                   ; :steal-fs: flash-step this window's hit takes (NIL = the move's :params :steal-fs: CORE-ON-HIT!)
   (flags nil))
 (inline-readers hitwin)                  ; :breaker :guard-crush :unguardable :ranged :ice
 
@@ -185,7 +186,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
            (guard (guard-value kind adv-block guard)))
       (flet ((window (from to &key (dmg dmg) (on-hit react) (kb kb) ((:vol hit-vol)) ((:reach hit-reach)) ((:vols hit-vols) vols)
                                    (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost) ((:seg-fn seg))
-                                   ((:min-reach wmin) min-reach))
+                                   ((:min-reach wmin) min-reach) steal-fs)
                ;; a window's own :reach / :vol (scaled like the move's), else the move's volume; :vols (a window's, else
                ;; the move's): several volumes in one window, which still hits once (a fan of lines)
                (let ((v (cond (hit-reach (list* :arc (* reach-mult hit-reach) arc height))
@@ -193,7 +194,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
                               (hit-vols nil)
                               (t vol))))
                  (make-hitwin :from (+ from startup-add) :to (+ to startup-add) :dmg dmg :react on-hit
-                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg :min wmin
+                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg :min wmin :steal steal-fs
                               :vols (cond (seg nil)   ; (a :seg-fn window: its capsule is the kit function's, no fixed volume)
                                           (v (list (make-vol (first v) (rest v))))
                                           (t (loop for spec in hit-vols
@@ -274,7 +275,8 @@ new button."
   :min-reach  m: the move's windows (a window's own :min-reach in its place) miss a victim nearer than this, centre to
             centre (COLLECT-MELEE; a Kikon's follow-up strike excepted): a dead zone (Hisagi's ranged mode, DUEL_HISAGI §22.2;
             the kit's :min-reach hook may lift it, §29)
-  hits: :stun  hitstun override (frames); :seg-fn SYMBOL  a kit function (e) -> (values ax ay az bx by bz r), this frame's
+  hits: :steal-fs  flash-step a stealing AS takes on this window's hit (else its :params :steal-fs; CORE-ON-HIT!, 2026-11-12);
+        :stun  hitstun override (frames); :seg-fn SYMBOL  a kit function (e) -> (values ax ay az bx by bz r), this frame's
             world capsule, tested in place of the window's volumes (WINDOW-TOUCHES-P; the CPU: SEG-GAP); the window is
             the move's own, so its contact counts as the move's (strings, O ender, SP cancels, :on-land, ender push)
   flags also: :rend (armour and a stance don't stop it: RESOLVE-CONTACT) :grab (a grab: the CPU never guards it)

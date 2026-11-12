@@ -1002,7 +1002,7 @@ Dealing damage resets it to 0 (combat.lisp DEAL-DAMAGE). (Single-floats, the sim
             v))
         (+ heat (* (if far 2.0 1.0) (/ rate 60.0))))))
 
-(defun steal-take (want victim-fs taken)
-  "Flash-step one hit of a stealing AS takes: WANT (its :steal-fs x the replay's mult), never more than VICTIM-FS has, and never past
-the use's budget *STEAL-FS-MAX* (TAKEN = what this use took so far). Pure; CORE-ON-HIT! applies it."
-  (max 0.0 (min want victim-fs (- *steal-fs-max* taken))))
+(defun steal-take (want victim-fs)
+  "Flash-step one hit of a stealing AS takes: (values TAKE GAIN). The victim loses TAKE = WANT (the hit's :steal-fs x the replay's mult),
+never more than VICTIM-FS has; the attacker gains GAIN = TAKE x *STEAL-FS-GAIN* (CORE-ON-HIT! caps it by *FS-MAX*). Pure."
+  (let ((take (max 0.0 (min want victim-fs)))) (values take (* take *steal-fs-gain*))))

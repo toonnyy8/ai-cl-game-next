@@ -180,7 +180,7 @@
              (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0))) (and (null (hw-seg w)) (equalp (hw-vols w) v))))
                     '(:hs-n1b :hs-n1c))))
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
-                (= 120 (getf (mv-params (m :hs-as1)) :steal-fs))))
+                (= 10 (getf (mv-params (m :hs-as1)) :steal-fs))))
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
     (check (and (eq (getf (mv-params (m :hs-n3a)) :sa) :hs-sa) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))
@@ -219,16 +219,17 @@
                                      (and (null (getf (kit-core k) :as-writes))
                                           (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))
 
-;; ---- one use of a stealing AS takes at most one cell (the user, 2026-11-12: 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」)
-(check (= *steal-fs-max* *fs-hoho* 100.0))
-(check (= (steal-take 120.0 300.0 0.0) 100.0))             ; budget full: capped at one cell (RAKUGA / one TSUMUJI hit)
-(check (= (steal-take 30.0 300.0 60.0) 30.0))              ; partly spent, the hit fits
-(check (= (steal-take 120.0 300.0 60.0) 40.0))             ; partly spent: only the rest
-(check (= (steal-take 120.0 300.0 100.0) 0.0))             ; spent
-(check (= (steal-take 12.0 300.0 99.0) 1.0))
-(check (= (steal-take 120.0 25.0 0.0) 25.0))               ; a victim with less than asked
-(check (= (steal-take 30.0 0.0 0.0) 0.0))
-(check (let ((tot 0.0)) (dotimes (i 4) (incf tot (steal-take 120.0 300.0 tot))) (= tot 100.0)))   ; TSUMUJI's four hits
-(check (let ((tot 0.0)) (dotimes (i 4) (incf tot (steal-take 30.0 300.0 tot))) (= tot 100.0)))    ; KUSARI-BIKI's 4 x 30 = 120 (the clones' x0.1 replays: nothing left)
-(check (let ((k (kit :ichigo :base)) (h (kit :hisagi :base)))   ; per-hit values as written
-         (and (= 120 (getf (mv-params (kit-move k :ic-as1)) :steal-fs)) (= 120 (getf (mv-params (kit-move h :hs-as1)) :steal-fs)))))
+;; ---- a stealing AS's per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12: 「不限制吸取上限，然後吸取的轉換率設為 50%」)
+(check (= *steal-fs-gain* 0.5))
+(check (not (boundp '*steal-fs-max*)))
+(check (equal (multiple-value-list (steal-take 30.0 300.0)) '(30.0 15.0)))           ; full take, half gained
+(check (equal (multiple-value-list (steal-take 80.0 300.0)) '(80.0 40.0)))
+(check (equal (multiple-value-list (steal-take 120.0 25.0)) '(25.0 12.5)))           ; a victim with less than asked
+(check (equal (multiple-value-list (steal-take 30.0 0.0)) '(0.0 0.0)))
+(check (equal (multiple-value-list (steal-take 3.0 300.0)) '(3.0 1.5)))              ; a KESSA clone's x0.1 replay of a 30
+(check (let ((tot 0.0)) (dolist (w '(10.0 20.0 30.0 40.0)) (incf tot (steal-take w 300.0))) (= tot 100.0)))   ; TSUMUJI's four hits, no budget
+(let ((k (kit :ichigo :base)) (kk (kit :ichigo :kessa)) (h (kit :hisagi :base)))   ; per-hit values as written
+  (flet ((vals (kit n) (let ((mv (kit-move kit n))) (map 'list (lambda (w) (or (hw-steal w) (getf (mv-params mv) :steal-fs))) (mv-hits mv)))))
+    (check (equal (vals h :hs-as1) '(10 20 30 40)))
+    (check (equal (vals k :ic-as1) '(80)))
+    (check (equal (vals kk :ic-k-as1) '(30 30 30 30)))))

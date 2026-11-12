@@ -144,7 +144,7 @@ HARD 0.8).")
   :hits ((18 19) (21 22) (24 25) (27 30 :on-hit :stagger)))
 ;; the pointer's theme on its AS and its Kikon too (DUEL_CORE §5b, the user 2026-10-28: 「幫我為聯動製作新的動畫與動作模組」): 1 the
 ;; cleaver's weight (AS1 RAKUGA's drop, stealing), 2 the Getsuga (AS2 SOGA > a point-blank crescent), 3 the rush (AS3 SOSEN > RANGETSU > TSUKI-OTOSHI)
-(defmove-copy :ic-as1 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 50 :on-hit :knockdown :flags nil :params (:steal-fs 120))   ; (no Reiatsu: unused since the core system)
+(defmove-copy :ic-as1 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 50 :on-hit :knockdown :flags nil :params (:steal-fs 80))   ; (no Reiatsu: unused since the core system)
 ;; AS n has n segments, each on a fresh SP press, hit or not (the user, 2026-10-27: 「希望 AS 也能設計成不同段數的連擊」, 「每段再按 SP」,
 ;; 「AS1=1 AS2=2 AS3=3」); only the last one knocks down (or launches); a hold kept through any segment's hit is the Kikon
 ;; AS2: SOGA's flash-step lunge X (stagger) > SHOGA's rising cut (the launch)
