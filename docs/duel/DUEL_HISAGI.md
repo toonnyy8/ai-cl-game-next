@@ -5167,7 +5167,7 @@ What the push and the rule itself leave:
 
 - The bind's Reishi balance, once an exchange (§28.6): the bind's hook runs it after the unlock, as before (host test: 400 / 1300 →
   512 / 1188).
-- Outer reach, arcs, frames, damage, the tip (×1.71, no combo scaling) and the reactions; pushes; every other kit (no hook).
+- Outer reach, arcs, frames, damage (but §29.8: x0.5 on a hit only the unlock let in), the tip (×1.71, no combo scaling) and the reactions; pushes; every other kit (no hook).
 - The CPU's chances, thresholds, tables, strategies (29.6).
 
 ### 29.6 What the CPU sees
@@ -5193,6 +5193,33 @@ What the push and the rule itself leave:
    on his move's startup (he defends: scenes A, C1, C2) or a cancel of a move that reaches close (the J string, WA, TATAKI, 刈). After
    WA's / TATAKI's hit the route is at 4.5 / 3.5 m anyway (their pushes).
 4. Every CPU (his and the opponent's) does not seek cancels on purpose: it plays the rule only where it already reads dead zones (29.6).
+
+### 29.8 The unlocked close hits deal 50% (the user, 2026-11-12)
+
+The user: 「之前不是讓相消後就解鎖近身範圍的攻擊判斷嗎？我希望讓解鎖的近身傷害降為原本的 50%」
+
+- **Rule**: a hit of one of his windows whose written `:min-reach` is M, landing on a victim nearer than M (centre to centre, the same
+  hypot of the two positions COLLECT-MELEE's dead-zone check reads) while the unlock is on, deals `*hs-kin-dmg*` (0.5, new) of the damage
+  it would otherwise deal. A hit outside the dead zone (even while KIN is on) and a move without a dead zone are unchanged.
+- **Where**: one pure predicate `hs-kin-hit-p kin mn d` (hisagi.lisp, with the knob and `hs-kin-d`, `hs-kin-mult`), used by the damage
+  and by `hs-kin-note`'s log line, so the two cannot disagree. The `:dmg-mult` hooks keep their names and are now thin wrappers:
+  `hs-core-dmg-mult` (Shikai) and `hs-dmg-mult` (ranged and bind modes) = the old bodies (`hs-core-dmg-base`, `hs-dmg-base`) x
+  `hs-kin-mult`. The hook is handed the attacker and the window, so the distance is recomputed from the positions at the hit (the
+  :min-reach check's own); no new state. No shared file touched.
+- **Only damage**: the multiplier is the move's damage x in APPLY-HIT's `atk` (before combo scaling), so what moves with it is the damage
+  alone; the Reiatsu / flash-step / awakening gains, KOSEI, hitstun and reactions are computed from the move kind and the combo index
+  and are unchanged (the Reishi gain Kenpachi gets from the damage taken follows the lower damage, as for any damage). A dead-zone
+  hit is never a tip: the tip is the volume's outer 0.5 m band, the dead zone the inner 2.5 / 3.0 m.
+- **Log**: `KIN: HIT inside its 3.0 m dead zone at d 1.50, dmg 62 -> 31 (x0.50)` (the window's written damage before and after the x,
+  before the combo scaling and the bonuses, as the combat log's own number).
+- **Scene** (`duel-hisagi-kin.json`, the same scenes on the parent build with the knob at 1.0 vs 0.5; the victim's Reishi lost, the
+  log's written damage -> after the x): A, Shikai 83040: NS1a 62 -> 31, NS1b 56 -> 28, NS1c 80 -> 40, P2 1300 -> 1137 before, 1219 after
+  (163 -> 81 lost); C1, ranged pointer 1 (83042): ŌGI 31 -> 16, ISSEI 48 -> 24, P2 1244 before, 1272 after (56 -> 28); C2, pointer 2
+  (83043): TABA 50 -> 25, the gathered SA 45 -> 22, J2 29 -> 14, J3 39 -> 20, P2 1187 before, 1244 after (113 -> 56). The scenes'
+  hits are all inside the dead zone (d 1.50), so no normal-range hit to compare; the host test pins the x1.0 outside M and with no
+  dead zone. Every other scene line (B, C3, C4, D: no hit) is identical.
+- **Tests**: host 10300 ALL PASS (10295 + 5: the knob, the predicate's edges just inside / outside M, KIN on / off, M NIL; the hooks'
+  x on a 2.0 m stand-in: 0.5 with the unlock on for NS1a, 1.0 off, 1.0 for J1 (no dead zone), 1.0 past M).
 
 ## 30. The ranged NS2 a > b > c does not connect (the user, 2026-11-12)
 

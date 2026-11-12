@@ -927,6 +927,9 @@ him where he is within the chain's length."
   (let ((k (/ (- (min (max d *hs-hoden-near*) *hs-core-chain*) *hs-hoden-near*) (- *hs-core-chain* *hs-hoden-near*))))
     (+ *hs-hoden-near-x* (* k (- 1.0 *hs-hoden-near-x*)))))
 (defun hs-core-dmg-mult (att def hw mv hazard d2)
+  "His Shikai's :dmg-mult hook: HS-CORE-DMG-BASE x the unlock's (HS-KIN-MULT, §29.8)."
+  (* (hs-core-dmg-base att def hw mv hazard d2) (hs-kin-mult att hw)))
+(defun hs-core-dmg-base (att def hw mv hazard d2)
   "His Shikai's :dmg-mult hook (combat.lisp APPLY-HIT, §27): 放電 at its distance x, x*HS-ZAN-HODEN* on 餘電; while 餘電 lasts his J / NS
 / AS hits +*HS-ZAN-BONUS* (as a x on the window's damage)."
   (declare (ignore def d2))
@@ -1246,13 +1249,28 @@ switch inside it; the bind starts / ends only in neutral, so it never carries ov
   (when (and (hss-kin st) (not (hs-kin-after t mv)))
     (setf (hss-kin st) nil)
     (clog "~a KIN off (neutral) d ~,2f" (side-name e) (fighter-dist (fighter e)))))
+(defparameter *hs-kin-dmg* 0.5
+  "The damage x of a hit that lands only because of the cancel unlock: a window's written :min-reach M, the victim nearer than M, the
+unlock on (HS-KIN-HIT-P). Only the damage; gains, combo scaling, hitstun, reactions and the tip are unchanged (none -> 0.5, 2026-11-12,
+the user: 「之前不是讓相消後就解鎖近身範圍的攻擊判斷嗎？我希望讓解鎖的近身傷害降為原本的 50%」, DUEL_HISAGI §29.8).")
+(defun hs-kin-hit-p (kin mn d)
+  "Does a hit of a window with the written dead zone MN (m, NIL = none) at the centre distance D land only by the unlock KIN? (§29.8)
+One test for the damage (HS-KIN-MULT) and the log (HS-KIN-NOTE)."
+  (and kin mn (< d mn) t))
+(defun hs-kin-d (att)
+  "ATT's centre-to-centre distance to its opponent, as COLLECT-MELEE's dead-zone check reads it."
+  (let ((p (pos-of att)) (q (pos-of (opp-of att))))
+    (hypot (- (aref q 0) (aref p 0)) (- (aref q 2) (aref p 2)))))
+(defun hs-kin-mult (att hw)
+  "The damage x of ATT's hit of window HW: *HS-KIN-DMG* when the unlock alone let it in, else 1.0 (§29.8)."
+  (if (and hw (hss-kin (hs att)) (hs-kin-hit-p t (hw-min hw) (hs-kin-d att))) *hs-kin-dmg* 1.0))   ; (the distance only while it is on)
 (defun hs-kin-note (att res hw)
   "His :hit hooks: a contact RES of window HW nearer than its dead zone while the unlock is on (one the unlock let in) is counted and
-logged with the distance (§29)."
-  (let ((mn (and hw res (hw-min hw))))
-    (when (and mn (hss-kin (hs att)) (< (fighter-dist (fighter att)) mn))
-      (pace att :kin-hit)
-      (clog "~a KIN: ~a inside its ~,1f m dead zone at d ~,2f" (side-name att) res mn (fighter-dist (fighter att))))))
+logged with the distance and the window's written damage before / after the x (before scaling; §29, §29.8)."
+  (when (and res hw (hss-kin (hs att)) (hs-kin-hit-p t (hw-min hw) (hs-kin-d att)))
+    (pace att :kin-hit)
+    (clog "~a KIN: ~a inside its ~,1f m dead zone at d ~,2f, dmg ~d -> ~d (x~,2f)" (side-name att) res (hw-min hw) (hs-kin-d att)
+          (hw-dmg hw) (round (* (hw-dmg hw) *hs-kin-dmg*)) *hs-kin-dmg*)))
 (defun hs-clash (e o)
   "The Shikai's and the ranged mode's :clash hook (CORE-CLASH!, once a step for the pair): the unlock (§29)."
   (declare (ignore o))
@@ -1298,6 +1316,9 @@ number: the middle of the gathered band 2.5-4.5, §28.8).")
   (hs-push-to e *hs-r-j3-push* *ender-push-frames*) (pace e :j3-push))
 
 (defun hs-dmg-mult (att def hw mv hazard d2)
+  "The Bankai's :dmg-mult hook: HS-DMG-BASE x the unlock's (HS-KIN-MULT, §29.8)."
+  (* (hs-dmg-base att def hw mv hazard d2) (hs-kin-mult att hw)))
+(defun hs-dmg-base (att def hw mv hazard d2)
   "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
 volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; in the ranged mode
 by class (§28.7, the user 2026-10-29): an SA its own read, an AS the combo's last hit's (HSS-ROUTE-TIP), any other the last hit's

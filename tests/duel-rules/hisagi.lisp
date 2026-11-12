@@ -1244,6 +1244,23 @@
   ;; the pure rules: the dead zone with the unlock (none) and without (as built); kept in a move, off in neutral
   (check (and (eql 3.0 (hs-dead-zone nil 3.0)) (null (hs-dead-zone t 3.0)) (null (hs-dead-zone nil nil)) (null (hs-dead-zone t nil))
               (hs-kin-after t (find-move :hs-n1a)) (null (hs-kin-after t nil)) (null (hs-kin-after nil (find-move :hs-n1a)))))
+  ;; §29.8 (the user, 2026-11-12: 「我希望讓解鎖的近身傷害降為原本的 50%」): the knob, and the one predicate's edges (just inside / outside
+  ;; M, the unlock on / off, no dead zone)
+  (check (and (eql 0.5 *hs-kin-dmg*) (hs-kin-hit-p t 3.0 2.99) (null (hs-kin-hit-p t 3.0 3.0)) (null (hs-kin-hit-p t 3.0 3.01))
+              (null (hs-kin-hit-p nil 3.0 1.0)) (null (hs-kin-hit-p t nil 1.0)) (null (hs-kin-hit-p nil nil 1.0))))
+  ;; the multiplier on a stand-in (the pair 2.0 m apart): NS1a's 3.0 m dead zone halves with the unlock on, not off; a window with no
+  ;; dead zone (his J1) and a victim past M are x1.0 with it on; the ranged hook the same
+  (multiple-value-bind (h o) (t-pair kb0 (kit :kenpachi :base))
+    (let* ((st (hs h)) (n1 (svref (mv-hits (find-move :hs-n1a)) 0)) (j1 (svref (mv-hits (find-move :hs-j1)) 0)) (p (pos-of h)) (q (pos-of o)))
+      (setf (aref q 0) (aref p 0) (aref q 2) (+ (aref p 2) 2.0))
+      (flet ((x (hk w) (funcall hk h o w (find-move :hs-n1a) nil 4.0)))
+        (check (and (hw-min n1) (> (hw-min n1) 2.0) (null (hw-min j1))))
+        (setf (hss-kin st) nil)
+        (check (and (~= 1.0 (x 'hs-core-dmg-mult n1)) (~= 1.0 (x 'hs-dmg-mult n1))))
+        (setf (hss-kin st) t)
+        (check (and (~= 0.5 (x 'hs-core-dmg-mult n1)) (~= 0.5 (x 'hs-dmg-mult n1)) (~= 1.0 (x 'hs-core-dmg-mult j1))))
+        (setf (aref q 2) (+ (aref p 2) (hw-min n1) 0.1))
+        (check (~= 1.0 (x 'hs-core-dmg-mult n1))))))
   ;; every form's hooks: the unlock on a clash, the dead zone asked of the kit, the tag; the bind's clash still balances
   (check (and (every (lambda (k) (eq 'hs-min-reach (kit-hook k :min-reach))) (list kb0 kr kb))
               (eq 'hs-hud-tag (kit-hook kb0 :hud-tag)) (eq 'hs-bk-hud-tag (kit-hook kr :hud-tag)) (eq 'hs-bk-hud-tag (kit-hook kb :hud-tag))))
