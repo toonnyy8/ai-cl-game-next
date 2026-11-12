@@ -1429,6 +1429,10 @@ CPU, and where it is now:
   `rukia-hud-meter`, `hud-temp`, `%hud-temp`, `hud-temp-label`; senjumaru.lisp's `senju-hud-meter` (and its consing probe); barro-draw.lisp's
   `br-hud-meter`; hud.lisp's `*refused-t*`, `refused-flash`, `hud-refused` (feedback.lisp's `:refused` handler) serve only them;
   `hud-stick`'s frost arc (a `:temp` meter: Rukia's).
+- **D1 leftovers, done (refactor R5, 2026-11-12, REFACTOR_2026-11 §11.3 R5):** `*refused-t*` / `refused-flash` / `hud-refused` (the `:refused`
+  event keeps its dud tick, nothing else), `hud-stick`'s frost arc, `*brush-callouts*` (never read: brush.lisp's table and Ichigo's
+  append), the retired kits' `*brush-names*` entries, the `*hurt-cines*` Yamamoto entries, `hud-pulse`, `bcap-restart`, `push-in-on`, flow.lisp's
+  `*mode-menu*` / `settings-items` / `settings-note` / `*results-menu*` (canvas menu data, no reader). The D2 half (ENDLESS / DANGAI screens) stays R4's.
 - engine/lisp/ui.lisp is untouched (engine API; its now-unused exports are refactor batch B1's), as `page-set-str` (§16.1).
 
 **Proof.** Host tests: duel-rules 10260 (tests/duel-rules/hisagi.lisp's label check follows `*ic-bunshin-labels*`; sim.lisp's `kosei!`

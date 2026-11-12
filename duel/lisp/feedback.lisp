@@ -7,7 +7,7 @@
 ;;;;   (:swing e kind)  (:super e)  (:breaker e) (:breaker-end e)  (:rush e) (:rush-dash e) (:kikon-follow att def)  (:step e)
 ;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (the attacker's kit hook :hit-fx sees it after the spark)  (:blocked att def x y z)  (:armored def x y z)
 ;;;;   (:absorbed def x y z)  (:guard-crush att def x y z) (:guard-back e)  (:guard-break att def x y z)  (:stance-break att def x y z)  (:clash x y z)
-;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:cold-crack e)  (:refused e cmd)  (:kosei att m x y z)
+;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:refused e cmd)  (:kosei att m x y z)
 ;;;;   (:hazard-cut x y z)  (:hoho-out e x z) (:hoho-in e x z) (:perfect e victim)  (:burst e attacker mode) (:burst-end e)
 ;;;;   (:launch e) (:land e)
 ;;;;   (:konpaku victim lost) (:kikon att victim) (:soul-break att victim)  (:awaken e) (:form e form)
@@ -38,13 +38,12 @@
   "A hit (docs/style/STYLE_STORM_DESIGN.md §4.3): the drawn spark; a heavy hit also holds the attacker's pose 3 f
 and smears the victim along the hit; a counter turns the frame to a manga page for 2 f (red stays)."
   (multiple-value-bind (dx dz) (hit-dir att def)
-    (let* ((blade (first (kit-blade (kit-of att))))
-           (look (cond (counter :counter) ((eq kind :breaker) :breaker) ((eq kind :fire) :fire) ((eq kind :bind) :cut)
-                       ((eq blade :fire) (if (eq kind :quick) :fire :heavy)) ((eq kind :quick) :cut) (t :heavy))))
+    (let ((look (cond (counter :counter) ((eq kind :breaker) :breaker) ((eq kind :fire) :fire) ((eq kind :bind) :cut)
+                      ((eq kind :quick) :cut) (t :heavy))))
       (vfx-hit x y z look :dx dx :dz dz)
       (when (member look '(:heavy :counter :breaker))
         (hold-pose att 3) (smear def dx dz))
-      (sfx-at (cond ((eq kind :breaker) :punch) ((eq kind :fire) :explode) ((eq kind :bind) :bones) ((eq kind :ice) :freeze) ((member blade '(:embers :charcoal)) :sizzle)
+      (sfx-at (cond ((eq kind :breaker) :punch) ((eq kind :fire) :explode) ((eq kind :bind) :bones) ((eq kind :ice) :freeze)
                     ((eq kind :quick) :cut) (t :cut-heavy))
               x y z :gain (if (eq kind :quick) 0.8 1.0))))
   (setf (model-flash (model def)) (max 0.06 (/ hs 60.0)))
@@ -55,9 +54,6 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
   (when counter
     (impact-frame :manga 2)
     (announce "COUNTER" :color '(0.82 0.06 0.11 1) :secs 0.6 :small t)))
-
-(declaim (type f32vec *crack-t*))
-(defvar *crack-t* (make-f32 2) "Per side: FX-CLOCK of her last CRACK (the cold gauge's BLOOD hairline).")
 
 (defun feedback-system ()
   "Show every event emitted since the last call, oldest first."
@@ -97,24 +93,14 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
         (when (passive-p att :pierce)                ; East's pierce: a white spark out of his back
           (vfx-hit (+ x (* 0.7 dx)) y (+ z (* 0.7 dz)) :cut :dx dx :dz dz)))
       (sfx-at :clang x y z))
-    (:armored (def x y z)     ; the owner's spot colour: fire / ember, else REIATSU (+ his absorb sound)
-      (case (first (kit-blade (kit-of def)))
-        ((:embers :charcoal) (vfx-ember x y z) (sfx-at :sizzle x y z))
-        (:fire (vfx-hit x y z :fire) (sfx-at :sizzle x y z))
-        (t
-         (vfx-hit x y z :reiatsu) (sfx-at :cut x y z :gain 0.7)
-         (let ((k (kit-absorb-sfx (kit-of def)))) (when k (sfx-on k def :gain 0.8))))))
+    (:armored (def x y z)     ; the owner's spot colour: REIATSU (+ his absorb sound)
+      (vfx-hit x y z :reiatsu) (sfx-at :cut x y z :gain 0.7)
+      (let ((k (kit-absorb-sfx (kit-of def)))) (when k (sfx-on k def :gain 0.8))))
     (:parried (att def x y z)   ; a parry caught it: an ember star, a 1 f negative frame
       (multiple-value-bind (dx dz) (hit-dir att def) (vfx-ember x y z :dx (- dx) :dz (- dz) :scale 1.3))
       (sfx-at :clang x y z) (sfx-at :sizzle x y z) (shake 0.12 0.2) (impact-frame :negative 1)
       (announce "PARRY" :color '(1 0.55 0.2 1) :secs 0.7 :small t))
-    (:cold-crack args (let ((e (first args)))               ; Rukia's hand cracked at zero: the gauge's BLOOD hairline
-                        (setf (aref *crack-t* (fighter-side (fighter e))) (f32 (fx-clock)))
-                        (sfx-on :hand-crack e)
-                        (announce "CRACK" :color '(0.82 0.06 0.11 1) :secs 0.8 :small t :side (fighter-side (fighter e)))))
-    (:refused (e cmd)          ; still cooling: a dud tick, its HUD bar flashes
-      (sfx-on :clang e :gain 0.35 :pitch 1.6)
-      (hud-refused e cmd))
+    (:refused args (sfx-on :clang (first args) :gain 0.35 :pitch 1.6))      ; still cooling: a dud tick
     (:absorbed (def x y z)
       (vfx-hit x y z :guard) (sfx-at :cut x y z :gain 0.7)
       (let ((k (kit-absorb-sfx (kit-of def)))) (when (and k (< (rnd01) 0.5)) (sfx-on k def :gain 0.8))))

@@ -1,17 +1,16 @@
 ;;;; vfx.lisp — SOUL DUEL's shared visual effects: the fx helpers and lights, the smear, auras, ground cuts, sky split,
 ;;;; awakening bursts and the K.O. / Nozarashi accents. Split since refactor round 2 (the user 2026-10-21): the universal
-;;;; one-shot STAMP system (hit sparks, Hoho, shatters, shockwaves) is vfx-stamps.lisp; Yamamoto's fire (blade, wave,
-;;;; fireball, charge, pillars, dome, Tenchi's slash and ash, Taimatsu, the garb and Bankai stamp looks) is yama-vfx.lisp.
+;;;; one-shot STAMP system (hit sparks, Hoho, shatters, shockwaves) is vfx-stamps.lisp; the retired Yamamoto's fire looks
+;;;; (yama-vfx.lisp) left with him (refactor R2/R5; branch retired-kits), the ember look kept is vfx-ember.lisp.
 ;;;; Everything is cosmetic: RND01 only (never SIM-RND01), no gameplay state.
 ;;;; Units: x y z metres (y up), YAW radians with forward = (-sin yaw, -cos yaw) (the duel
 ;;;; convention), AGE seconds since the effect started, LIFE its total seconds, DT real seconds of
 ;;;; this frame (particles are emitted at RATE x DT x *FIRE-DENSITY*).
 ;;;; Kinds of calls:
-;;;;   per-frame looks  VFX-SMEAR … VFX-SOUL-FLAME (and yama-vfx.lisp's VFX-BLADE-FIRE …): call every rendered frame while the thing
+;;;;   per-frame looks  VFX-SMEAR … VFX-SOUL-FLAME: call every rendered frame while the thing
 ;;;;                    exists (after the camera is set, before END-FRAME). Bodies are fx quads
 ;;;;                    written with WITH-FX-VERTS (0 bytes consed); a few particles top them up.
-;;;;   one-shots        VFX-AWAKEN-BURST here; yama-vfx.lisp: VFX-FIRE-CONE, VFX-ASH-BURST, VFX-SKELETON-DUST, VFX-GARB-BLOCK,
-;;;;                    VFX-SCORCH, VFX-GARB-FLARE, VFX-BURNOUT, VFX-NADEGIRI; vfx-stamps.lisp: VFX-RIFT-GASH: stamps and toon particles once.
+;;;;   one-shots        VFX-AWAKEN-BURST here; vfx-stamps.lisp: VFX-RIFT-GASH: stamps and toon particles once.
 ;;;;   Every look is a drawn toon shape since Phase 5 of the restyle (docs/style/STYLE_STORM_DESIGN.md §14): the last soft
 ;;;;   additive ones (Shiranui, the charge, Taimatsu, the Ennetsu pillars, the Jokaku dome, the Hellfire / Evolution /
 ;;;;   Breaker auras, Tenchi's ash, the rift) were redrawn; since Phase 6 the only additive shapes left are the thin T光
@@ -22,11 +21,11 @@
 ;;;;                    (docs/style/STYLE_STORM_DESIGN.md §4.3: mono + the BLOOD spot, stepped on the fx clock).
 ;;;;   lights           effects call ADD-POINT-LIGHT with a priority; LIGHTS-FLUSH once per
 ;;;;                    frame adds the hit flash.
-;;;;   UI               UI-BITMAP, UI-KANJI, VFX-TENCHI-SLASH, VFX-SKY-SPLIT (screen space).
+;;;;   UI               UI-BITMAP, UI-KANJI, VFX-SKY-SPLIT (screen space).
 ;;;; The frame still needs the engine's FX-UPDATE / FX-DRAW-PARTICLES / FX-RINGS-UPDATE.
 ;;;; Budgets (design §14): ≤ 1200 live particles (emission stops at +LIVE-CAP+), flame half-size
 ;;;; ≤ 0.35 m, bodies as quads; worst scene (Ennetsu + fire wave + Hellfire + blade + stage) is
-;;;; measured by tests/duel-vfx.lisp.
+;;;; measured in the gallery tests/duel-vfx.lisp until it left with the retired kits' looks (R5; git history).
 (in-package :duel)
 
 (defvar *fire-density* 1.0 "0..1: scales every VFX emission (tuning.lisp owns the value).")
@@ -163,12 +162,9 @@ fighters stand within ~3 m, where two auras (or one over the other fighter) summ
 
 (defun-fast vfx-aura (x y z height kind age dt &key (k 1.0))
   "Body aura at the feet (x y z) of a fighter HEIGHT m tall, every kind a drawn toon look (Phase 5 redrew the last soft
-ones). KIND: :hellfire (a bonfire of FIRE tongues + a ring at the feet), :heat (Bankai East: 4 charcoal wisps),
-:garb (Bankai West wrapped in orange flame, winged at the shoulders; K > 1 flares it taller and wider), :evolution
-(mono STEEL tongues), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
-awakened / cup 3's pillar: %REIATSU-AURA), :bound (ash at the held feet), :kikon (the BLOOD rush aura), :breaker /
-:breaker-fire / :breaker-ember (the owner's colour over an INK backing; K 0.5..2 grows it over the strike's startup).
-K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is within ~4 m. AGE is unused (kept: 22 callers)."
+ones). KIND: :evolution (mono STEEL tongues), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
+awakened / cup 3's pillar: %REIATSU-AURA), :bound (ash at the held feet), :kikon (the BLOOD rush aura), :breaker (Kenpachi's shoulder charge), :burst-white / -blue / -orange (a running burst).
+K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the camera is within ~4 m. AGE is unused (kept: 22 callers)."
   (declare (ignorable age))
   (with-floats (x y z height dt k)
     (let* ((h height) (eye (camera-eye *camera*))
@@ -177,74 +173,6 @@ K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is 
            (ka (* near (the single-float (f32 *aura-cap*)) (f-clamp k 0f0 1f0))))
       (declare (type f32vec eye) (single-float h ex ey ez near ka))
       (case kind
-        (:hellfire                                       ; Hellfire (Gokuen, §4 mapping, Phase 5): a bonfire round him — 7 FIRE
-                                                         ; brush tongues behind and at the sides (0.8 x his height), a ring of 8
-                                                         ; short FIRE tongues licking at his feet, an EMBER scorch ring, scraps
-         (let* ((kc (f-clamp k 0f0 1f0)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))))
-           (declare (single-float kc dr sd))
-           (%brush-aura x y z (* 0.8f0 h) kc +pal-fire+ 7 0.38f0 0.17f0 0)
-           (dotimes (j 8)
-             (let* ((f (i->f j)) (an (+ (* 0.7854f0 f) (* 0.3f0 (hash01 f 7.1f0)))) (hh (* 0.3f0 (+ 0.7f0 (* 0.7f0 (hash01 (+ f dr) 2.9f0))))))
-               (declare (single-float f an hh))
-               (%tongue (+ x (* 0.55f0 (f-cos an))) (+ y 0.02f0) (+ z (* 0.55f0 (f-sin an))) 0f0 hh 0f0 0.09f0 +pal-fire+ (* 0.95f0 kc)
-                        (+ 70f0 f (* 8f0 sd)) (+ dr f) 0.02f0 :segs 3)))
-           (%tring x y z 0.55f0 0.07f0 +pal-ember+ (* 0.9f0 kc) sd 24)
-           (dotimes (i (n-of (* 16f0 kc) dt))
-             (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.35f0 0.35f0))
-                      (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
-                      (rnd-range 0.05f0 0.1f0) -1f0 0.3f0 +pal-fire+))
-           (%light x (+ y 0.6f0) z 1f0 0.4f0 0.1f0 4.5f0 (* 0.8f0 kc) 8)))
-        (:garb                                           ; Bankai West, Zanjitsu Gokui (canon manga colour, DUEL_YAMA_TYBW §3.1,
-                                                         ; canon-looks §4.3; red until 2026-10-13): orange FLAME tongues from the
-                                                         ; feet up round the body (behind and at the sides: the silhouette stays
-                                                         ; readable), flaring at the shoulders into two wings (a fan of 3 tongues
-                                                         ; each, to the camera's left and right so the shape reads from any camera:
-                                                         ; out ~30 deg from the shoulders, the tips ~0.5 m over his head and
-                                                         ; ~0.6 m out to each side), a molten ring
-                                                         ; at his feet, flame scraps rising, a warm light; K > 1 flares it all
-         (let* ((kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
-                (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))
-           (declare (single-float kc fl fr dr sd pk))
-           (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0)
-           (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0)
-           (with-cam (rx ry rz ux uy uz)
-             (let* ((rl (f-max 1f-3 (f-hypot rx rz))) (hx (/ rx rl)) (hz (/ rz rl)))
-               (declare (single-float rl hx hz))
-               (dotimes (sg 2)
-                 (dotimes (j 3)                          ; (base out, base up, tip out, tip up, half-width) x h / m
-                   (let* ((sgn (if (= sg 0) 1f0 -1f0)) (jf (i->f j))
-                          (b-out (case j (0 0.12f0) (1 0.1f0) (t 0.16f0))) (b-up (case j (0 0.7f0) (1 0.62f0) (t 0.66f0)))
-                          (t-out (case j (0 0.55f0) (1 0.36f0) (t 0.66f0))) (t-up (case j (0 1.2f0) (1 1.27f0) (t 1.0f0)))
-                          (w (* fr (case j (0 0.17f0) (1 0.12f0) (t 0.13f0))))
-                          (vary (+ 0.92f0 (* 0.16f0 (hash01 (+ jf (* 3f0 (i->f sg)) dr) 4.7f0))))
-                          (bx (+ x (* sgn b-out fr hx))) (by (+ y (* b-up h))) (bz (+ z (* sgn b-out fr hz)))
-                          (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
-                          (wsd (- -40f0 jf (* 3f0 (i->f sg)) (* 7f0 sd))))
-                     (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
-                     (%away-from-eye (bx by bz) 0.22f0
-                       (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ dr jf) :sway 0.07f0
-                                    :segs 6)))))))
-           (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) sd 24)   ; the plaza melting under him
-           (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) (+ sd 2f0) 24)
-           (dotimes (i (n-of (* 14f0 kc) dt))
-             (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
-                      (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
-                      (rnd-range 0.06f0 0.11f0) -1f0 0.3f0 +pal-flame+))
-           (%light x (+ y 1.0f0) z 1f0 0.58f0 0.28f0 5f0 (* 1.2f0 kc fl) 8)))
-        (:heat                                           ; Bankai East: the heat as 4 slow charcoal ink-wash wisps (threes)
-         (let* ((e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))
-                (d3 (drawing-no 8f0)))
-           (declare (type f32vec e) (single-float ex ez el d3))
-           (dotimes (j 4)
-             (let* ((f (i->f j)) (ang (+ (* 1.5708f0 f) 0.785f0 (* 0.4f0 (f-sin (+ (* 0.0375f0 (i->f (f->i (* 8f0 (clock))))) f)))))
-                    (c (f-cos ang)) (sn (f-sin ang)))
-               (declare (single-float f ang c sn))
-               (when (< (/ (+ (* ex c) (* ez sn)) el) 0.3f0)
-                 (let* ((hh (* h (+ 0.75f0 (* 0.3f0 (hash01 (+ f d3) 2.9f0))))) (lean (* 0.35f0 (- (hash01 (+ f d3) 6.1f0) 0.5f0)))
-                        (sd (- -1001f0 f (* 4f0 (i->f (mod (f->i d3) 3))))))
-                   (declare (single-float hh lean sd))
-                   (toon-ribbon ((+ x (* 0.42f0 c)) (+ y (* 0.25f0 h)) (+ z (* 0.42f0 sn))) ((* lean c) hh (* lean sn)) (0.15f0 0.01f0) :seed sd
-                                :wob 0.35f0 :pal +pal-black-smoke+ :k (* 0.9f0 ka) :ph (+ f d3) :sway 0.3f0 :segs 7)))))))
         ((:burst-white :burst-blue :burst-orange)        ; a running burst (docs/duel/DUEL_DESIGN.md "Burst modes"): 8 brush
                                                          ; tongues in its colour (white HIT / BLUE / orange FIRE) with white
                                                          ; cores, a ring at the feet, flecks rising
@@ -292,20 +220,18 @@ K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is 
            (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
                     0f0 (rnd-range 1f0 2f0) 0f0 (rnd-range 0.4f0 0.7f0) (rnd-range 0.025f0 0.045f0) 0f0 0.2f0 +pal-blood+))
          (add-point-light x (+ y 1.0) z 1.0 0.15 0.2 4.5 1.0 6))
-        ((:breaker :breaker-fire :breaker-ember)          ; the Breaker (§4 mapping, Phase 5): the owner's colour (REIATSU / FIRE /
-                                                         ; EMBER) over an INK backing (7 black tongues, taller, behind), the
-                                                         ; BLOOD edge is the ring (VFX-BREAKER-RING); K 0.5 aura, 1 dash, 1..2
-                                                         ; the strike's startup (it grows)
-         (let* ((pal (case kind (:breaker-fire +pal-fire+) (:breaker-ember +pal-ember+) (t +pal-reiatsu+)))
-                (pk (f-clamp (+ 0.55f0 (* 0.45f0 k)) 0f0 1f0)) (gr (+ 1f0 (* 0.25f0 (f-clamp (- k 1f0) 0f0 1f0)))))
-           (declare (single-float pal pk gr))
+        (:breaker                                        ; the Breaker (§4 mapping, Phase 5): Kenpachi's REIATSU over an INK backing
+                                                         ; (7 black tongues, taller, behind), the BLOOD edge is the ring
+                                                         ; (VFX-BREAKER-RING); K 0.5 aura, 1 dash, 1..2 the strike's startup (it grows)
+         (let* ((pk (f-clamp (+ 0.55f0 (* 0.45f0 k)) 0f0 1f0)) (gr (+ 1f0 (* 0.25f0 (f-clamp (- k 1f0) 0f0 1f0)))))
+           (declare (single-float pk gr))
            (%brush-aura x y z (* 1.1f0 h gr) pk +pal-ink+ 7 0.5f0 0.2f0 0)
-           (%brush-aura x y z (* 0.9f0 h gr) pk pal 7 0.4f0 0.16f0 1)
+           (%brush-aura x y z (* 0.9f0 h gr) pk +pal-reiatsu+ 7 0.4f0 0.16f0 1)
            (dotimes (i (n-of (* 14f0 pk) dt))
              (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
                       0f0 (rnd-range 1f0 2f0) 0f0 (rnd-range 0.3f0 0.6f0) (rnd-range 0.03f0 0.05f0) 0f0 0.2f0 +pal-blood+))
            (%light x (+ y 1f0) z 1f0 0.3f0 0.2f0 5f0 (* 1.2f0 pk) 5)))
-        (t (when (and kind (fboundp kind)) (funcall kind x y z h ka dt))))   ; a draw function (Rukia's ice auras)
+        (t (when (and kind (fboundp kind)) (funcall kind x y z h ka dt))))   ; a draw function (Ichigo's auras)
       nil)))
 
 (defun-fast vfx-breaker-ring (x z age)
@@ -495,37 +421,11 @@ END-CINE also resets it). Shoot it down the cut (camera on the cut line) so seam
 
 ;;; ---------------------------------------------------------------- one-shots
 (defun-fast vfx-awaken-burst (x y z kind)
-  "Awakening one-shots at the feet (x y z), drawn toon (docs/style/STYLE_STORM_DESIGN.md §4.1 / §4.2). KIND :bankai (every
-flame within 6 m pulled into the blade: FIRE flames and EMBER shards rushing in to the hands, ~0.45 s), :bankai-burst
-(the reveal: a charcoal double ring with an ember line, charcoal puffs, ash shards: no fire), :nozarashi (the
-yellow reiatsu pillar: REIATSU flames shooting up, a flat ring), :nozarashi-half (a later cup 3's: half as tall)."
+  "Awakening one-shots at the feet (x y z), drawn toon (docs/style/STYLE_STORM_DESIGN.md §4.1 / §4.2). KIND :nozarashi (the
+yellow reiatsu pillar: REIATSU flames shooting up, a flat ring), :oni (Kenpachi's Bankai: the BLOOD pillar), :arm-burst /
+:arm-crack (his Bankai arm: BLOOD spray, ink shards)."
   (with-floats (x y z)
     (case kind
-      (:bankai
-       (dotimes (i 36)
-         (let* ((a (rnd-range 0f0 6.2832f0)) (r (rnd-range 2.5f0 6f0)) (h (rnd-range 0.2f0 3.2f0))
-                (px (* r (f-cos a))) (pz (* r (f-sin a))) (k (rnd-range 2f0 2.4f0)))
-           (declare (single-float a r h px pz k))
-           (%t-blob (+ x px) (+ y h) (+ z pz) (* (- k) px) (* k (- 1.4f0 h)) (* (- k) pz) (/ 1f0 k) (rnd-range 0.2f0 0.35f0)
-                    0f0 0.3f0 +pal-fire+)))
-       (dotimes (i 16)
-         (let* ((a (rnd-range 0f0 6.2832f0)) (r (rnd-range 3f0 6f0)) (h (rnd-range 0.3f0 3f0))
-                (px (* r (f-cos a))) (pz (* r (f-sin a))))
-           (declare (single-float a r h px pz))
-           (%t-shard (+ x px) (+ y h) (+ z pz) (* -2.4f0 px) (* 2.4f0 (- 1.4f0 h)) (* -2.4f0 pz) 0.4f0 0.12f0 0f0 +pal-ember+))))
-      (:bankai-burst
-       (stamp :garb x y z :scale 1.2)
-       (dotimes (i 6)
-         (let* ((a (+ (* 1.047f0 (i->f i)) (rnd-range -0.3f0 0.3f0))) (sp (rnd-range 1.2f0 2.2f0)))
-           (declare (single-float a sp))
-           (%t-blob (+ x (* 0.6f0 (f-cos a))) (+ y (rnd-range 0.3f0 1.4f0)) (+ z (* 0.6f0 (f-sin a))) (* sp (f-cos a)) (rnd-range 0.5f0 1.2f0)
-                    (* sp (f-sin a)) (rnd-range 0.9f0 1.3f0) (rnd-range 0.35f0 0.55f0) -0.3f0 0.3f0 +pal-black-smoke+)))
-       (dotimes (i 10)
-         (let* ((a (rnd-range 0f0 6.2832f0)) (sp (rnd-range 3f0 6f0)))
-           (declare (single-float a sp))
-           (%t-shard x (+ y (rnd-range 0.5f0 1.8f0)) z (* sp (f-cos a)) (rnd-range 0.5f0 2.5f0) (* sp (f-sin a))
-                     (rnd-range 0.6f0 1.0f0) (rnd-range 0.1f0 0.2f0) 4f0 +pal-ash+)))
-       (flash-light x (+ y 1.0) z 1.0 0.4 0.12))
       (:oni                                            ; Kenpachi's Bankai: the BLOOD pillar shooting up over INK flames
        (dotimes (i 28)
          (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (rnd-range 0f0 1f0)) (+ z (rnd-range -0.35f0 0.35f0))
@@ -548,14 +448,12 @@ yellow reiatsu pillar: REIATSU flames shooting up, a flat ring), :nozarashi-half
        (dotimes (i 6)
          (%t-shard x y z (rnd-range -1.5f0 1.5f0) (rnd-range 0.5f0 2f0) (rnd-range -1.5f0 1.5f0) (rnd-range 0.2f0 0.35f0)
                    (rnd-range 0.03f0 0.05f0) 4f0 +pal-blood+)))
-      ((:nozarashi :nozarashi-half)                    ; (half: a later cup 3's flare, half as tall: Phase 6)
-       (let ((vk (if (eq kind :nozarashi) 1f0 0.5f0)))
-         (declare (single-float vk))
-         (dotimes (i (if (eq kind :nozarashi) 28 18))
-           (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (rnd-range 0f0 1f0)) (+ z (rnd-range -0.35f0 0.35f0))
-                    (rnd-range -0.3f0 0.3f0) (* vk (rnd-range 10f0 20f0)) (rnd-range -0.3f0 0.3f0)
-                    (rnd-range 0.35f0 0.6f0) (rnd-range 0.3f0 0.5f0) 0f0 0.3f0 +pal-reiatsu+))
-         (stamp :land x y z :scale (* 2.4f0 vk)))       ; (no dust puffs: on the black card they hid him)
+      (:nozarashi
+       (dotimes (i 28)
+         (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (rnd-range 0f0 1f0)) (+ z (rnd-range -0.35f0 0.35f0))
+                  (rnd-range -0.3f0 0.3f0) (rnd-range 10f0 20f0) (rnd-range -0.3f0 0.3f0)
+                  (rnd-range 0.35f0 0.6f0) (rnd-range 0.3f0 0.5f0) 0f0 0.3f0 +pal-reiatsu+))
+       (stamp :land x y z :scale 2.4f0)                 ; (no dust puffs: on the black card they hid him)
        (flash-light x (+ y 1.0) z 1.0 0.85 0.3)))
     nil))
 

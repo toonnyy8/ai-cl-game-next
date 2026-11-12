@@ -42,7 +42,7 @@
   "DRAW-MESH :toon lanes of the ruins: mode 1 (moonlit), less fog than the plaza's (body.lisp *TOON-GROUND*: full fog), so
 their silhouettes still read against the sky.")
 (defvar *st-floor* nil) (defvar *st-walls* nil) (defvar *st-town* nil) (defvar *st-burnt* nil)
-(defvar *stage-fx* t "NIL: no stage particles (frozen test stills, tests/duel-vfx.lisp 3004).")
+(defvar *stage-fx* t "NIL: no stage particles (frozen test stills).")
 
 ;;; cracks: +CRACK-MAX+ decals, each a center + radius and +CRACK-SEGS+ ground segments (x0 z0 x1 z1)
 (defconstant +crack-max+ 8)

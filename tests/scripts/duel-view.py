@@ -9,7 +9,7 @@
 # this script rebuilds by reading the DEFCLIP / DEFSTRIKE forms of the art files.
 import json, re
 T0 = 9.0                     # startup (meshes + sound synthesis) is done by then
-SRC = ["duel/lisp/body.lisp", "duel/lisp/yama-art.lisp", "duel/lisp/ken-art.lisp"]
+SRC = ["duel/lisp/body.lisp", "duel/lisp/ken-art.lisp", "duel/lisp/ichigo-art.lisp"]
 clips = set({m.group(2).upper() for f in SRC for m in re.finditer(r"^\((defclip|defstrike) :([a-z0-9-]+)", open(f).read(), re.M)}
                | {n.upper() for f in SRC for m in re.finditer(r"^\(defrun :[a-z0-9-]+ ((?::[a-z0-9-]+ ?)+)\)", open(f).read(), re.M)
                   for n in m.group(1).replace(":", "").split()})    # (DEFRUN base run skate-b slide-r slide-l)
@@ -27,13 +27,12 @@ def script(name, build):
     print(f"duel-view-{name}.json: {len(ev)} steps, ends at {t[0]:.0f} s")
 
 def looks(cmd, shot, t):
-    for scene, who in ((0, ("yama", "ken")), (1, ("yama-bankai", "ken-nozarashi"))):
+    for scene, who in ((0, ("ichigo", "ken")), (1, ("ichigo-kessa", "ken-nozarashi"))):
         cmd(2000 + scene)
         for i, w in enumerate(who):
             for deg, view in ((0, "front"), (90, "side"), (180, "back"), (35, "34")):
                 cmd(3000 + deg); cmd(6000 + i); shot(f"{w}-{view}")
             cmd(3000); cmd(6100 + i); shot(f"{w}-face")
-    cmd(2002); shot("cane-skeletons")
     cmd(2003); shot("mirror")
     cmd(2000); cmd(3035); shot("lineup")
 
@@ -50,7 +49,7 @@ def stage(cmd, shot, t):
 def sounds(cmd, shot, t):
     for i in range(44): cmd(5000 + i, 0.8)
 
-NEW = ("ya-tsuka", "ya-e-drop", "ke-kick")   # the strings' new clips (docs/duel/DUEL_STRINGS.md §3)
+NEW = ("ke-kick",)   # the strings' new clips (docs/duel/DUEL_STRINGS.md §3)
 
 def strings(cmd, shot, t):
     # their strips (0, S, S+A, end) as tests/shots/duel-string-*.png

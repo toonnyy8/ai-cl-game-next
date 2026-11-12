@@ -1,9 +1,9 @@
 ;;;; vfx-stamps.lisp — SOUL DUEL's universal one-shot effects, the STAMP system (moved out of vfx.lisp, refactor round 2, the
 ;;;; user 2026-10-21): the slot array and its envelope (STAMP, WITH-STAMP, %STAR %FLASH %STREAK %SHARDS-OUT), the drawings every
-;;;; character shares (%ST-HIT ... %ST-RING, %ST-GASH), STAMPS-DRAW (the dispatch over the kind numbers, which calls
-;;;; yama-vfx.lisp's looks by name), and the VFX-* calls the game makes (VFX-HIT, -HOHO, -BURST, -KONPAKU-SHATTER, -KIKON-RUSH,
-;;;; -RUSH-DASH, -RIFT, -RIFT-GASH, -SMOKE-PUFFS, -STEP-DUST, -SHOCKWAVE). Cosmetic only (RND01, never SIM-RND01).
-;;;; vfx.lisp (fx helpers, lights, auras, ground cuts, awaken burst) loads first, yama-vfx.lisp after this file.
+;;;; character shares (%ST-HIT ... %ST-RING, %ST-GASH), STAMPS-DRAW (the dispatch over the kind numbers),
+;;;; and the VFX-* calls the game makes (VFX-HIT, -HOHO, -BURST, -KONPAKU-SHATTER, -KIKON-RUSH, -RUSH-DASH, -RIFT, -RIFT-GASH,
+;;;; -SMOKE-PUFFS, -STEP-DUST, -SHOCKWAVE). Cosmetic only (RND01, never SIM-RND01).
+;;;; vfx.lisp (fx helpers, lights, auras, ground cuts, awaken burst) loads first.
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- universal effects (toon, §4.3)
@@ -20,9 +20,8 @@
   "Live drawn one-shots: kind x y z dx dy dz age scale seed n flag (kind 0 = a free slot).")
 (defparameter *stamp-kinds*
   '(:cut 1 :heavy 2 :fire 3 :counter 4 :guard 5 :guard-break 6 :clash 7 :hoho-out 8 :hoho-in 9 :burst 10
-    :konpaku 11 :rush 12 :land 13 :guard-crush 14 :reiatsu 15 :ember 16 :slit 17 :garb 18 :wisps 20
-    :cone 21 :boom 22 :ring 23 :gash 24 :garb-guard 25 :scorch 26 :flare 27 :gutter 28 :nade 29 :tip 30)
-  "Stamp kind -> its code in *STAMPS*.")
+    :konpaku 11 :rush 12 :land 13 :guard-crush 14 :reiatsu 15 :ember 16 :ring 23 :gash 24 :tip 30)
+  "Stamp kind -> its code in *STAMPS* (codes 17-22, 25-29 were the retired Yamamoto's looks: free).")
 (defvar *stamp-seed* 0.0 "Advances per stamp: every one-shot draws its own irregular shape.")
 
 (defun stamp (kind x y z &key (dx 0.0) (dy 0.0) (dz -1.0) (scale 1.0) (n 0))
@@ -322,8 +321,8 @@ gash (a black lens with a white edge) hanging in the air along the rift, a white
           (setf (aref s (+ o 7)) (+ (aref s (+ o 7)) dt))
           (when (case kind
                   ((1 2 3 4 15) (%st-hit o)) (5 (%st-guard o)) (6 (%st-guard-break o)) (7 (%st-clash o)) (14 (%st-guard-crush o))
-                  ((8 9) (%st-hoho o)) (10 (%st-burst o)) (11 (%st-konpaku o)) ((12 13 18) (%st-ring o))
-                  (16 (%st-ember o)) (23 (%st-ring o)) (24 (%st-gash o)) (30 (%st-tip o)) (t t))   ; (17 20-22 25-29: the retired Yamamoto's)
+                  ((8 9) (%st-hoho o)) (10 (%st-burst o)) (11 (%st-konpaku o)) ((12 13) (%st-ring o))
+                  (16 (%st-ember o)) (23 (%st-ring o)) (24 (%st-gash o)) (30 (%st-tip o)) (t t))
             (setf (aref s o) 0f0)))))
     nil))
 

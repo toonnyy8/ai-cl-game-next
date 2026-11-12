@@ -18,12 +18,12 @@ from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import BasePen
 import pathops
 
-CHARS = ("卍解残火の太刀野晒呑め、鬼魂城郭炎上天地灰尽旭日刃獄衣十万億死大葬陣東西南北撫斬勝"
-         "山本元柳斎重國更木剣八不知松明俺斬決着時間切光焦熱攻"
+CHARS = ("卍解残火の太刀野晒呑め、鬼魂上天地灰尽旭日刃衣十万億死大葬陣東西南北斬勝"
+         "山本元柳斎重國更木剣八不知明俺斬決着時間切光攻"
          "腕片盾殴飛噛千切真二草鹿"
-         "朽ルキア月白初舞霞罸絶対零度漣這縄霜閃氷震凍結次参縛柱"
+         "朽ルキア月白初舞霞罸絶対零度這縄霜閃凍結次縛柱"
          "ぶったるてみろよにれねえもんは"
-         "リジェ・バロ物貫通三連廉脚翼斉射四孔裁き筋神喇叭跳退"   # Lille Barro (docs/duel/DUEL_LILLE.md; 跳射 退射: §23.1)
+         "リジェ・バロ物通三連翼斉射四き神跳退"   # Lille Barro (docs/duel/DUEL_LILLE.md; 跳射 退射: §23.1)
          "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,!-:'")
 OUT = "duel/lisp/glyphs.lisp"
 FLAT, SIMPLIFY = 1.0, 2.5         # font units (1000 per em): ~0.5 px on a 200 px glyph

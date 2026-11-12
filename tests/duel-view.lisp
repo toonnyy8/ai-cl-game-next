@@ -1,17 +1,14 @@
-;;;; duel-view.lisp — SOUL DUEL art viewer: both characters (every form and weapon), the skeleton,
-;;;; clip strips, the stage, and every sound. A test target, not part of the game:
-;;;;   ./build.sh duelview duel/lisp/package.lisp duel/lisp/body.lisp duel/lisp/yama-art.lisp \
-;;;;     duel/lisp/ken-art.lisp duel/lisp/sounds.lisp duel/lisp/stage.lisp tests/duel-view.lisp
-;;;;   With Rukia's clips (her RU-S- strips, DUEL_RUKIA_TYBW §13.3) her art's dependencies come first:
+;;;; duel-view.lisp — SOUL DUEL art viewer: Ichigo and Kenpachi (every form and weapon), clip strips, the stage, and every
+;;;; sound. A test target, not part of the game (repointed from the retired kits' art by refactor R5, 2026-11-12):
 ;;;;   ./build.sh duelview duel/lisp/{package,tuning,rules,control,learn,sounds,components,body,kit,glyphs,glyphs-extra,brush,
-;;;;     cinema,stage,vfx,vfx-stamps,yama-vfx,yama-art,ken-art,rukia-art}.lisp tests/duel-view.lisp
+;;;;     cinema,stage,vfx,vfx-stamps,hem-spring,tip-track,vfx-ember,ken-art,ichigo-art}.lisp tests/duel-view.lisp
 ;;;;   python3 tests/scripts/duel-view.py   (writes tests/scripts/duel-view-*.json, see its header)
 ;;;;   node tools/run.mjs dist/duelview --secs 60 --script tests/scripts/duel-view-looks.json
 ;;;; Keys: 1-5 scenes, LEFT/RIGHT turn, SPACE spin, N/P next/previous clip strip, G stage on/off.
 ;;;; Debug commands (Module._debug_cmd):
-;;;;   2000+k  scene k: 0 base forms, 1 awakened forms, 2 cane + skeletons, 3 mirror match, 4 duel on the stage,
-;;;;           9 Ichigo's Shikai / KESSA (DUEL_ICHIGO_TYBW), 6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8), 8 Yamamoto's Hellfire (bared, DUEL_YAMA_TYBW),
-;;;;           5 the expressions: actors 0-2 Yamamoto neutral / shout / hurt, 3-5 Kenpachi (6200+i: each face)
+;;;;   2000+k  scene k: 0 base forms, 1 awakened forms, 3 mirror match, 4 duel on the stage,
+;;;;           9 Ichigo's Shikai / KESSA (DUEL_ICHIGO_TYBW), 6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8),
+;;;;           5 the expressions: actors 0-2 Ichigo neutral / shout / hurt, 3-5 Kenpachi (6200+i: each face)
 ;;;;   6000+i / 6100+i / 6200+i  camera on actor i: full body / head and chest / face (0.7 m, eye level);
 ;;;;   6210+i  the face from 35 degrees to its left
 ;;;;   6300+k  every actor's expression: 0 neutral, 1 shout, 2 hurt (DRAW-BODY :face; scene 5 shows all three)
@@ -66,14 +63,8 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
 
 (defun clip-owners (name)
   "((body weapon hide) ...) that show clip NAME."
-  (let ((awake-ya '(:ya-kyoku :ya-kaka :ya-tenchi :ya-bankai))
-        (awake-ke '(:ke-nome :ke-n-stance)))
-    (cond ((or (member name awake-ya) (eq name :ya-shonetsu) (prefix-p name "YA-E-") (prefix-p name "YA-W-"))
-           '((:yamamoto-tybw :zanka (:haori))))                          ; (the Bankai's robe and own clips, DUEL_YAMA_TYBW §3.1-§3.2)
-          ((eq name :ya-intro) '((:yamamoto :ya-cane nil)))
-          ((eq name :ya-ikkotsu) '((:yamamoto nil nil)))
-          ((prefix-p name "YA-") '((:yamamoto :ryujin-jakka nil)))
-          ((prefix-p name "KE-X-") '((:kenpachi-nomi :nozarashi nil)))   ; (cup 3's set and lifted hair, DUEL_KEN_REWORK §6.2)
+  (let ((awake-ke '(:ke-nome :ke-n-stance)))
+    (cond ((prefix-p name "KE-X-") '((:kenpachi-nomi :nozarashi nil)))   ; (cup 3's set and lifted hair, DUEL_KEN_REWORK §6.2)
           ((or (member name awake-ke) (prefix-p name "KE-K-") (prefix-p name "KE-S-"))   ; (the V3 Shikai's: DUEL_KEN_V3)
            '((:kenpachi :nozarashi nil)))     ; (cup 1's own clips, DUEL_KEN_REWORK §6.2)
           ((or (prefix-p name "KE-B-") (prefix-p name "KE-KR-") (prefix-p name "KE-ZH-"))   ; (+ V3's Bankai J, DUEL_KEN_V3 §28)
@@ -83,12 +74,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((or (prefix-p name "IC-K-") (member name '(:ic-c-light :ic-c-heavy)))
            '((:ichigo :tensa (:shikai :mark))))                          ; KESSA (DUEL_ICHIGO_TYBW)
           ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
-          ((prefix-p name "RU-S-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))   ; Rukia's Shikai (DUEL_RUKIA_TYBW §13.3)
-          ((prefix-p name "RU-18-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))  ; her -18 (§13.4)
-          ((prefix-p name "RU-50-") '((:rukia :ru-rime (:hand-crack))))                      ; her -50 (§13.4)
-          ((prefix-p name "RU-0-") '((:rukia-zero :ru-ice (:ice-trim :hand-crack))))         ; her -273 (§13.4)
-          ((prefix-p name "SK-") '((:skeleton nil nil)))
-          (t '((:yamamoto :ryujin-jakka nil) (:kenpachi :ken-katana nil))))))
+          (t '((:ichigo :zangetsu-long (:kessa :mark)) (:kenpachi :ken-katana nil))))))
 
 (defun look-at (ex ey ez tx ty tz) (setf *v-cam* (list ex ey ez tx ty tz)))
 
@@ -97,25 +83,21 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
   (look-at 0 1.25 5.6 0 1.0 0)
   (setf *actors*
         (ecase k
-          (0 (setf *v-label* "BASE FORMS: RYUJIN JAKKA / KATANA")
-           (list (make-actor :yamamoto :ryujin-jakka :ya-stance :x -1.1 :yaw pi)
+          (0 (setf *v-label* "BASE FORMS: ICHIGO SHIKAI / KATANA")
+           (list (make-actor :ichigo :zangetsu-long :ic-stance :x -1.1 :yaw pi :hide '(:kessa :mark))
                  (make-actor :kenpachi :ken-katana :ke-stance :x 1.1 :yaw pi)))
-          (1 (setf *v-label* "AWAKENED: BANKAI ZANKA NO TACHI / NOZARASHI")
-           (list (make-actor :yamamoto-tybw :zanka :ya-stance :x -1.1 :yaw pi :hide '(:haori))
+          (1 (setf *v-label* "AWAKENED: ICHIGO KESSA / NOZARASHI")
+           (list (make-actor :ichigo :tensa :ic-k-stance :x -1.1 :yaw pi :hide '(:shikai :mark))
                  (make-actor :kenpachi :nozarashi (if (find-clip :ke-n-stance nil) :ke-n-stance :ke-stance) :x 1.1 :yaw pi)))
-          (2 (setf *v-label* "CANE / SKELETONS")
-           (list (make-actor :yamamoto :ya-cane (if (find-clip :ya-intro nil) :ya-intro :ya-stance) :x -1.2 :yaw pi :frame 0)
-                 (make-actor :skeleton nil (if (find-clip :sk-grab nil) :sk-grab :ya-stance) :x 0.3 :yaw pi :frame 20)
-                 (make-actor :skeleton nil (if (find-clip :sk-grab nil) :sk-grab :ya-stance) :x 1.5 :yaw pi :frame 60)))
           (3 (setf *v-label* "MIRROR MATCH: P2 TINT + RIM")
            (look-at 0 1.4 7.5 0 1.0 0)
-           (list (make-actor :yamamoto :ryujin-jakka :ya-stance :x -2.7 :yaw pi)
-                 (make-actor :yamamoto :ryujin-jakka :ya-stance :x -1.0 :yaw pi :tint *mirror-tint* :rim *mirror-rim*)
+           (list (make-actor :ichigo :zangetsu-long :ic-stance :x -2.7 :yaw pi :hide '(:kessa :mark))
+                 (make-actor :ichigo :zangetsu-long :ic-stance :x -1.0 :yaw pi :hide '(:kessa :mark) :tint *mirror-tint* :rim *mirror-rim*)
                  (make-actor :kenpachi :ken-katana :ke-stance :x 0.9 :yaw pi)
                  (make-actor :kenpachi :ken-katana :ke-stance :x 2.8 :yaw pi :tint *mirror-tint* :rim *mirror-rim*)))
           (5 (setf *v-label* "EXPRESSIONS: NEUTRAL / SHOUT / HURT")
            (look-at 0 1.5 7.5 0 1.3 0)
-           (loop for (body weapon clip) in '((:yamamoto :ryujin-jakka :ya-stance) (:kenpachi :ken-katana :ke-stance))
+           (loop for (body weapon clip) in '((:ichigo :zangetsu-long :ic-stance) (:kenpachi :ken-katana :ke-stance))
                  for row from 0
                  nconc (loop for face in '(:neutral :shout :hurt) for col from 0
                              collect (let ((a (make-actor body weapon clip :x (+ (* 1.3 col) (* 4.2 row) -3.4) :yaw pi)))
@@ -125,9 +107,6 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
                              :hide '(:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))
                  (make-actor :kenpachi-oni :ke-broken :ke-b-zh-stance :x 1.1 :yaw pi
                              :hide '(:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))))
-          (8 (setf *v-label* "YAMAMOTO HELLFIRE (BARED TO THE WAIST)")
-           (list (make-actor :yamamoto-bare :ryujin-jakka :ya-stance :x -1.1 :yaw pi :hide '(:haori :kosode))
-                 (make-actor :kenpachi :ken-katana :ke-stance :x 1.1 :yaw pi)))
           (9 (setf *v-label* "ICHIGO: SHIKAI / KESSA")
            (list (make-actor :ichigo :zangetsu-long :ic-stance :x -1.1 :yaw pi :hide '(:kessa :mark))
                  (make-actor :ichigo :tensa :ic-k-stance :x 1.1 :yaw pi :hide '(:shikai :mark))))
@@ -136,11 +115,11 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
                              :hide '(:haori :crack-1 :crack-2 :crack-3 :crack-4))))
           (4 (setf *v-label* "SEIREITEI RUINS AT NIGHT")
            (look-at 7.5 2.6 7.0 0 1.1 -0.5)
-           (list (make-actor :yamamoto :ryujin-jakka :ya-stance :x -2.5 :z 0 :yaw (/ pi -2))
+           (list (make-actor :ichigo :zangetsu-long :ic-stance :x -2.5 :z 0 :yaw (/ pi -2) :hide '(:kessa :mark))
                  (make-actor :kenpachi :ken-katana :ke-stance :x 2.5 :z 0 :yaw (/ pi 2)))))))
 
 (defun strip (i &optional (mode 0))
-  "Clip I posed at 4 frames side by side (8 actors for shared clips: Yama row, Ken row). MODE 1: 8 frames (0, the
+  "Clip I posed at 4 frames side by side (8 actors for shared clips: Ichigo row, Ken row). MODE 1: 8 frames (0, the
 anticipation at S/3, 2S/3 and S-2, S, S+A, mid-recovery, end) from the side; MODE 2: the same 8 from 33 degrees off
 the front (the strike reworks' stills, DUEL_KEN_REWORK §5.2)."
   (let* ((names (clip-names)) (i (mod i (length names))) (name (nth i names))
@@ -263,7 +242,7 @@ fingertips ~,3f m (~,2f of height), hips ~,3f m (legs ~,2f of height), neck gap 
            (setf *v-weapon* w *v-hide-actors* t *v-stage* nil *v-label* (format nil "WEAPON ~a~:[~; (OTHER FACE)~]" w back))
            (look-at 0 1.0 3.3 0 1.0 0)))
         ((= c 4004) (setf *v-hide-actors* (not *v-hide-actors*)))
-        ((= c 4005) (dolist (k '(:yamamoto :kenpachi)) (measure-body k)))
+        ((= c 4005) (dolist (k '(:ichigo :kenpachi)) (measure-body k)))
         ((= c 4003) (stage-clear-cracks))
         ((= c 4002) (stage-crack-add -2.5 0.5 2.2) (stage-crack-add 1.0 -1.5 3.0) (stage-crack-add 3.5 2.0 1.6))
         ((= c 4001) (setf *v-spin* (not *v-spin*)))

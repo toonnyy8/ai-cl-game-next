@@ -40,7 +40,7 @@ file paths otherwise. G = generalizable lesson, D = SOUL DUEL / RAVEN-specific d
   `(run-game :title T :load (list #'step1 #'step2) :start #'start :frame #'frame :debug #'debug-cmd :stats #'tail)`.
   [engine/lisp/app.lisp header, API "App"]
 - G: Test target without a MANIFEST: `./build.sh NAME a.lisp b.c` = engine + those files -> dist/NAME (use a unique NAME
-  per agent so parallel builds don't collide; e.g. duel-view / duel-vfx browsers, tests/engine-check.lisp). [build.sh,
+  per agent so parallel builds don't collide; e.g. the duel-view browser, tests/engine-check.lisp). [build.sh,
   ARCH, DL §9, tests/engine-check.sh]
 - G: Run `tools/pkgcheck.sh mygame` after every edit batch (see §3.3). [tools/pkgcheck.sh]
 - G: Start by copying examples/hello/hello.lisp (one file: defsound, build-meshes load step, defcomponents, a pure rule,

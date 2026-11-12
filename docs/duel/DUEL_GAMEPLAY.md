@@ -344,8 +344,8 @@ sheet `batch-sheet.png`.
 Galleries (test targets, not the game; build lines in their headers): `tests/duel-view.lisp`
 (bodies, weapons, clip strips, stage, every sound; `tests/scripts/duel-view.py`; scene 5 = 2005 lines up both
 fighters' three expressions, 6300+k sets every actor's face: 0 neutral, 1 shout, 2 hurt; 7000+k shows grip clip k's four
-worst-drift frames, each as a pair: keys only, then with the game's left-hand grip) and
-`tests/duel-vfx.lisp` (every effect plus a worst-case scene; `tests/scripts/duel-vfx.py`).
+worst-drift frames, each as a pair: keys only, then with the game's left-hand grip); since refactor R5 (2026-11-12) it shows Ichigo and
+Kenpachi (the retired kits' art left main) and `tests/duel-vfx.lisp` (the VFX gallery over the retired Yamamoto's looks) is gone (git history).
 Restyle Phase 5 stills: `python3 docs/research/style-history/style-5-shots.py` (the redone effects, the kendo and re-authored clips, the
 expressions, before / after the previous build), `python3 docs/research/style-history/style-5-checks.py --run dist/duel` (3 expressions per
 fighter, the Jokaku manga page, callouts clear of the HUD at 1280x720 and 800x450, 0 B for the new looks).

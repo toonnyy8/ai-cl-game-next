@@ -411,7 +411,6 @@ GAUGES INFINITE: P1's gauges full."
                             (:settings "SETTINGS") (:controls "CONTROLS") (:manual "MANUAL"))
   "MODE's rows. ENDLESS and DANGAI are hidden since the HTML menus (frozen with the core system; the user, 2026-10-28: 「隱藏」,
 DUEL_WEBUI §1): their debug commands still start them.")
-(defparameter *mode-menu* (mapcar #'second *mode-rows*))
 (defun mode-row (key) "MODE's row of KEY." (position key *mode-rows* :key #'first))
 
 (defparameter *settings-hidden* '(:tap-split :auto-guard :auto-combo :auto-break)
@@ -419,16 +418,6 @@ DUEL_WEBUI §1): their debug commands still start them.")
 2026-10-28: 「隱藏」, DUEL_WEBUI §1). LEARNING CPU shows again, with RESET LEARNING after the rows (the user, 2026-11-09:
 「Show it and add a reset (Recommended)」, DUEL_AI_STRATEGY §8.14). *SETTINGS* keeps its order (the page saves rows by it).")
 (defun settings-shown () "The SETTINGS rows shown, in order." (remove-if (lambda (r) (member (first r) *settings-hidden*)) *settings*))
-(defun settings-items ()
-  "The SETTINGS rows as shown (label and chosen option), then RESET LEARNING and BACK."
-  (append (loop for (key label opts) in (settings-shown) collect (format nil "~a  ~a" label (nth (setting key) opts)))
-          '("RESET LEARNING" "BACK")))
-(defun settings-note ()
-  "The selected SETTINGS row's note (ONE-HAND MODE: whether it is in effect here)."
-  (let ((row (nth *menu* (settings-shown))))
-    (cond ((null row) (if (= *menu* (length (settings-shown))) "FORGET WHAT THE CPU LEARNED FROM YOU" ""))
-          ((eq (first row) :one-hand) (format nil "~a. HERE: ~:[OFF~;ON~]" (sixth row) (one-hand-effective-p)))
-          (t (sixth row)))))
 (defun settings-step (i dir)
   "Move shown SETTINGS row I's option by DIR (it wraps)."
   (let ((row (nth i (settings-shown)))) (set-setting (first row) (mod (+ (setting (first row)) dir) (length (third row))))))
@@ -497,7 +486,6 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
   (setf *pause-dirty* t)
   (when (member k *practice-option-keys*) (log-msg "duel practice ~a" (pause-label k))))
 (defun option-dir () "Left / right this frame: -1 / 1, else NIL (an option row's value)." (cond ((menu-left-p) -1) ((menu-right-p) 1)))
-(defparameter *results-menu* '("REMATCH" "CHARACTER SELECT" "TITLE"))
 
 (defun flow-update (rdt)
   "Menus, pause and screen timers (once per frame, real time). The Lisp menus and pause: their pointer presses first

@@ -19,14 +19,8 @@
 ;;;;   :perfect          perfect Hoho chime
 ;;;;   :launch           body launched into the air
 ;;;;   :land             body hits the ground
-;;;;   :fire-whoosh      flame ignites along the blade
-;;;;   :fire-roar        big roaring flames (Hellfire, Taimatsu, Ennetsu pillars)
-;;;;   :fire-crackle     burning crackle (loop: stage fires, Shiranui charge, Hellfire aura)
-;;;;   :fire-wave        the Signature flame wave travelling
 ;;;;   :explode          fireball / fire dome detonation
 ;;;;   :sizzle           Bankai blade hit: heat erasing what it touches
-;;;;   :heat-flare       Bankai: the garb flaring (U to West, SHONETSU's tell), the heat sheet, a broken ward (low pitch):
-;;;;                     a thump + a long hiss
 ;;;;   :ground-crack     ground split (Buttagiru, Split the Meteor, Bankai cracks)
 ;;;;   :bones            skeleton rattle (Bankai South)
 ;;;;   :kikon-slash      Kikon finishing cut (reverse swell into a heavy slash)
@@ -40,11 +34,7 @@
 ;;;;   :arm-crack        Kenpachi's Bankai: a pip of the arm spent / cracked (a bone creak and a crack)
 ;;;;   :arm-burst        the arm bursting (a wet crack, a thump, spray)
 ;;;;   :yachiru-call     the Bankai cinematic's forest: a detuned, doubled chirp chord (the call; no voice)
-;;;;   :frost-tick       Rukia: a crystalline tick (a temperature step reached, a stab, the ring's tell)
 ;;;;   :freeze           a crackle that locks (freeze-touch, TSUKISHIRO, REIDO, an ice hit)
-;;;;   :ice-rise         a rising shimmer over a low bell (the pillars, the wave of cold)
-;;;;   :ice-shatter      a glassy break (the pillar shattering, NADARE, the ice dust)
-;;;;   :hand-crack       a small brittle crack (the CRACK, the hand in 白霞罸)
 ;;;;   :rift-open        KUKAN-GIRI's rift opening in the air (a thin rising shimmer)
 ;;;;   :rift-cut         the rift cutting (a bright slash, no reverse swell)
 ;;;;   :tier-up          a cup up the NOME ladder (a drum hit under a rising sweep)
@@ -183,31 +173,6 @@
       (setf m (+ m (* 0.002 (- target m)))
             (aref b i) (* m (aref b i))))))
 
-(defsound :fire-whoosh (:peak 0.75)
-  (let ((b (au-whoosh 0.6 200 2500 :q 0.8 :peak 0.2)))
-    (au-mix! b (snd-fire-noise 0.6 80 900 :attack 0.08 :decay 0.2) 0.0 0.8)))
-
-(defsound :fire-roar (:peak 0.9)
-  (let ((b (snd-fire-noise 1.4 50 1400 :attack 0.15 :hold 0.4 :decay 0.35)))
-    (au-mix! b (au-whoosh 1.3 150 700 :q 0.8 :peak 0.4) 0.0 0.8)
-    (dotimes (i 40) (au-mix! b (au-fnoise 0.03 :hp 2500 :decay 0.004) (au-rrange 0.0 1.2) (au-rrange 0.1 0.35)))
-    (au-drive! b 1.6)))
-
-(defsound :fire-crackle (:peak 0.45 :loop t)
-  ;; 2 s loop (+0.5 s for the crossfade): soft roar bed + random pops
-  (let ((b (au-buf 2.5)))
-    (au-mix! b (au-normalize! (snd-fire-noise 2.5 60 700 :hold 2.5 :decay 1.0) 0.35) 0.0 1.0)
-    (dotimes (i 70)
-      (au-mix! b (au-fnoise 0.03 :bp (au-rrange 1500 6000) :q 1.5 :decay (au-rrange 0.002 0.008))
-               (au-rrange 0.0 2.45) (au-rrange 0.15 0.6)))
-    (au-fold b (* 2 +au-rate+) t)))
-
-(defsound :fire-wave (:peak 0.9)
-  (let ((b (snd-fire-noise 1.3 40 1000 :attack 0.05 :hold 0.3 :decay 0.35)))
-    (au-mix! b (au-whoosh 1.2 120 1800 :q 0.9 :peak 0.25) 0.0 0.9)
-    (au-thump! b 0.0 70 35 0.2 0.3 0.5)
-    (au-drive! b 1.5)))
-
 (defsound :explode (:peak 0.95)
   (let ((b (au-buf 1.5)))
     (au-thump! b 0.0 70 22 0.25 0.45 1.0)
@@ -221,12 +186,6 @@
   (let ((b (au-fnoise 0.8 :hp 3500 :to 6000 :attack 0.005 :hold 0.1 :decay 0.2)))
     (au-thump! b 0.0 200 90 0.03 0.05 0.5)
     (au-mix! b (au-fnoise 0.6 :bp 1200 :q 4 :decay 0.1) 0.0 0.3)))
-
-(defsound :heat-flare (:peak 0.85)
-  (let ((b (au-fnoise 1.2 :hp 2200 :to 5000 :attack 0.02 :hold 0.25 :decay 0.55)))
-    (au-thump! b 0.0 90 35 0.12 0.3 1.0)
-    (au-mix! b (snd-fire-noise 0.9 60 600 :attack 0.04 :decay 0.35) 0.0 0.45)
-    (au-drive! b 1.3)))
 
 (defsound :ground-crack (:peak 0.95)
   (let ((b (au-buf 1.3)))
@@ -346,14 +305,6 @@
           do (au-ping! b at f 0.18 0.5 :attack 0.02))
     (au-reverb! b 0.45 :size 1.4)))
 
-;;; ---------------------------------------------------------------- Rukia's ice (docs/duel/DUEL_RUKIA.md §10)
-(defsound :frost-tick (:peak 0.6)
-  (let ((b (au-buf 0.5)))
-    (au-ping! b 0.0 3520 0.08 0.7 :attack 0.001)
-    (au-ping! b 0.01 5270 0.05 0.4 :attack 0.001)
-    (au-mix! b (au-fnoise 0.06 :hp 7000 :decay 0.02) 0.0 0.4)
-    (au-reverb! b 0.3 :size 1.2)))
-
 (defsound :freeze (:peak 0.85)
   (let ((b (au-buf 0.8)))
     (dotimes (i 26)                                    ; the crackle, tightening
@@ -362,29 +313,6 @@
     (au-partials! b 0.3 '((2093 0.5 0.3) (3136 0.4 0.25) (4186 0.3 0.2)))   ; the lock: a hard glassy chord
     (au-thump! b 0.3 180 90 0.02 0.08 0.5)
     (au-reverb! b 0.25)))
-
-(defsound :ice-rise (:peak 0.85)
-  (let ((b (au-buf 1.4)))
-    (au-mix! b (au-whoosh 1.0 400 9000 :q 1.4 :peak 0.9) 0.0 0.6)
-    (loop for f in '(1760 2637 3520) for i from 0
-          do (au-ping! b (* 0.12 i) f 0.5 0.35 :attack 0.05))
-    (au-gong! b 0.0 196 0.4 1.2)
-    (au-reverb! b 0.35 :size 1.3)))
-
-(defsound :ice-shatter (:peak 0.9)
-  (let ((b (au-buf 1.0)))
-    (au-mix! b (au-fnoise 0.12 :hp 3000 :decay 0.04) 0.0 0.9)
-    (dotimes (i 40)
-      (au-ping! b (au-rrange 0.0 0.5) (au-rrange 2500 10000) (au-rrange 0.01 0.05) (* 0.4 (- 1.0 (/ i 45.0)))))
-    (au-thump! b 0.0 120 50 0.05 0.12 0.6)
-    (au-reverb! b 0.3)))
-
-(defsound :hand-crack (:peak 0.7)
-  (let ((b (au-buf 0.4)))
-    (au-mix! b (au-fnoise 0.05 :bp 3200 :q 2 :decay 0.012) 0.0 1.0)
-    (au-mix! b (au-fnoise 0.04 :bp 1800 :q 3 :decay 0.01) 0.05 0.6)
-    (au-ping! b 0.02 4700 0.03 0.3)
-    b))
 
 (defsound :rift-open (:peak 0.6)
   (let ((b (au-buf 0.7)))

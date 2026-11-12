@@ -5,7 +5,7 @@
 },
 {
 "at": 10.15,
-"shot": "tests/shots/duel-view-strip-ke-a-f1.png"
+"shot": "tests/shots/duel-view-strip-ic-awaken.png"
 },
 {
 "at": 10.35,
@@ -13,7 +13,7 @@
 },
 {
 "at": 11.5,
-"shot": "tests/shots/duel-view-strip-ke-a-f2.png"
+"shot": "tests/shots/duel-view-strip-ic-breaker.png"
 },
 {
 "at": 11.7,
@@ -21,7 +21,7 @@
 },
 {
 "at": 12.85,
-"shot": "tests/shots/duel-view-strip-ke-a-flurry.png"
+"shot": "tests/shots/duel-view-strip-ic-cero-raise.png"
 },
 {
 "at": 13.05,
@@ -29,7 +29,7 @@
 },
 {
 "at": 14.2,
-"shot": "tests/shots/duel-view-strip-ke-a-haymaker.png"
+"shot": "tests/shots/duel-view-strip-ic-chg1.png"
 },
 {
 "at": 14.4,
@@ -37,7 +37,7 @@
 },
 {
 "at": 15.55,
-"shot": "tests/shots/duel-view-strip-ke-a-q1.png"
+"shot": "tests/shots/duel-view-strip-ic-chg2.png"
 },
 {
 "at": 15.75,
@@ -45,7 +45,7 @@
 },
 {
 "at": 16.9,
-"shot": "tests/shots/duel-view-strip-ke-a-q2.png"
+"shot": "tests/shots/duel-view-strip-ic-cross.png"
 },
 {
 "at": 17.1,
@@ -53,7 +53,7 @@
 },
 {
 "at": 18.25,
-"shot": "tests/shots/duel-view-strip-ke-a-spin.png"
+"shot": "tests/shots/duel-view-strip-ic-cross-j.png"
 },
 {
 "at": 18.45,
@@ -61,7 +61,7 @@
 },
 {
 "at": 19.6,
-"shot": "tests/shots/duel-view-strip-ke-a-stance.png"
+"shot": "tests/shots/duel-view-strip-ic-drop.png"
 },
 {
 "at": 19.8,
@@ -69,7 +69,7 @@
 },
 {
 "at": 20.95,
-"shot": "tests/shots/duel-view-strip-ke-a-stomp.png"
+"shot": "tests/shots/duel-view-strip-ic-f1.png"
 },
 {
 "at": 21.15,
@@ -77,7 +77,7 @@
 },
 {
 "at": 22.3,
-"shot": "tests/shots/duel-view-strip-ke-b-bite.png"
+"shot": "tests/shots/duel-view-strip-ic-f2.png"
 },
 {
 "at": 22.5,
@@ -85,7 +85,7 @@
 },
 {
 "at": 23.65,
-"shot": "tests/shots/duel-view-strip-ke-b-cut.png"
+"shot": "tests/shots/duel-view-strip-ic-getsuga.png"
 },
 {
 "at": 23.85,
@@ -93,7 +93,7 @@
 },
 {
 "at": 25.0,
-"shot": "tests/shots/duel-view-strip-ke-b-f1.png"
+"shot": "tests/shots/duel-view-strip-ic-intro.png"
 },
 {
 "at": 25.2,
@@ -101,7 +101,7 @@
 },
 {
 "at": 26.35,
-"shot": "tests/shots/duel-view-strip-ke-b-f2.png"
+"shot": "tests/shots/duel-view-strip-ic-juji.png"
 },
 {
 "at": 26.55,
@@ -109,7 +109,7 @@
 },
 {
 "at": 27.7,
-"shot": "tests/shots/duel-view-strip-ke-b-f3.png"
+"shot": "tests/shots/duel-view-strip-ic-juji-x.png"
 },
 {
 "at": 27.9,
@@ -117,7 +117,7 @@
 },
 {
 "at": 29.05,
-"shot": "tests/shots/duel-view-strip-ke-b-fist.png"
+"shot": "tests/shots/duel-view-strip-ic-k-back.png"
 },
 {
 "at": 29.25,
@@ -125,7 +125,7 @@
 },
 {
 "at": 30.4,
-"shot": "tests/shots/duel-view-strip-ke-b-guard.png"
+"shot": "tests/shots/duel-view-strip-ic-k-chg1.png"
 },
 {
 "at": 30.6,
@@ -133,7 +133,7 @@
 },
 {
 "at": 31.75,
-"shot": "tests/shots/duel-view-strip-ke-b-guard-hit.png"
+"shot": "tests/shots/duel-view-strip-ic-k-chg2.png"
 },
 {
 "at": 31.95,
@@ -141,7 +141,7 @@
 },
 {
 "at": 33.1,
-"shot": "tests/shots/duel-view-strip-ke-b-hook.png"
+"shot": "tests/shots/duel-view-strip-ic-k-cut.png"
 },
 {
 "at": 33.3,
@@ -149,7 +149,7 @@
 },
 {
 "at": 34.45,
-"shot": "tests/shots/duel-view-strip-ke-b-kikon.png"
+"shot": "tests/shots/duel-view-strip-ic-k-f1.png"
 },
 {
 "at": 34.65,
@@ -157,7 +157,7 @@
 },
 {
 "at": 35.8,
-"shot": "tests/shots/duel-view-strip-ke-b-leap.png"
+"shot": "tests/shots/duel-view-strip-ic-k-f2.png"
 },
 {
 "at": 36.0,
@@ -165,7 +165,7 @@
 },
 {
 "at": 37.15,
-"shot": "tests/shots/duel-view-strip-ke-b-q1.png"
+"shot": "tests/shots/duel-view-strip-ic-k-f3.png"
 },
 {
 "at": 37.35,
@@ -173,7 +173,7 @@
 },
 {
 "at": 38.5,
-"shot": "tests/shots/duel-view-strip-ke-b-q2.png"
+"shot": "tests/shots/duel-view-strip-ic-k-gaeshi.png"
 },
 {
 "at": 38.7,
@@ -181,7 +181,7 @@
 },
 {
 "at": 39.85,
-"shot": "tests/shots/duel-view-strip-ke-b-roar.png"
+"shot": "tests/shots/duel-view-strip-ic-k-jab.png"
 },
 {
 "at": 40.05,
@@ -189,7 +189,7 @@
 },
 {
 "at": 41.2,
-"shot": "tests/shots/duel-view-strip-ke-b-run.png"
+"shot": "tests/shots/duel-view-strip-ic-k-lash-a.png"
 },
 {
 "at": 41.4,
@@ -197,7 +197,7 @@
 },
 {
 "at": 42.55,
-"shot": "tests/shots/duel-view-strip-ke-b-skate-b.png"
+"shot": "tests/shots/duel-view-strip-ic-k-lash-b.png"
 },
 {
 "at": 42.75,
@@ -205,7 +205,7 @@
 },
 {
 "at": 43.9,
-"shot": "tests/shots/duel-view-strip-ke-b-slide-l.png"
+"shot": "tests/shots/duel-view-strip-ic-k-lash-c.png"
 },
 {
 "at": 44.1,
@@ -213,7 +213,7 @@
 },
 {
 "at": 45.25,
-"shot": "tests/shots/duel-view-strip-ke-b-slide-r.png"
+"shot": "tests/shots/duel-view-strip-ic-k-parry.png"
 },
 {
 "at": 45.45,
@@ -221,7 +221,7 @@
 },
 {
 "at": 46.6,
-"shot": "tests/shots/duel-view-strip-ke-b-split.png"
+"shot": "tests/shots/duel-view-strip-ic-k-pass.png"
 },
 {
 "at": 46.8,
@@ -229,7 +229,7 @@
 },
 {
 "at": 47.95,
-"shot": "tests/shots/duel-view-strip-ke-b-stance.png"
+"shot": "tests/shots/duel-view-strip-ic-k-st-chain.png"
 },
 {
 "at": 48.15,
@@ -237,7 +237,7 @@
 },
 {
 "at": 49.3,
-"shot": "tests/shots/duel-view-strip-ke-b-step-b.png"
+"shot": "tests/shots/duel-view-strip-ic-k-st-haste.png"
 },
 {
 "at": 49.5,
@@ -245,7 +245,7 @@
 },
 {
 "at": 50.65,
-"shot": "tests/shots/duel-view-strip-ke-b-strafe-l.png"
+"shot": "tests/shots/duel-view-strip-ic-k-stance.png"
 },
 {
 "at": 50.85,
@@ -253,7 +253,7 @@
 },
 {
 "at": 52.0,
-"shot": "tests/shots/duel-view-strip-ke-b-strafe-r.png"
+"shot": "tests/shots/duel-view-strip-ic-k-summon.png"
 },
 {
 "at": 52.2,
@@ -261,7 +261,7 @@
 },
 {
 "at": 53.35,
-"shot": "tests/shots/duel-view-strip-ke-b-walk-b.png"
+"shot": "tests/shots/duel-view-strip-ic-k-uchi.png"
 },
 {
 "at": 53.55,
@@ -269,7 +269,7 @@
 },
 {
 "at": 54.7,
-"shot": "tests/shots/duel-view-strip-ke-b-walk-f.png"
+"shot": "tests/shots/duel-view-strip-ic-k-whip.png"
 },
 {
 "at": 54.9,
@@ -277,7 +277,7 @@
 },
 {
 "at": 56.05,
-"shot": "tests/shots/duel-view-strip-ke-breaker.png"
+"shot": "tests/shots/duel-view-strip-ic-k-wrap.png"
 },
 {
 "at": 56.25,
@@ -285,7 +285,7 @@
 },
 {
 "at": 57.4,
-"shot": "tests/shots/duel-view-strip-ke-buttagiru.png"
+"shot": "tests/shots/duel-view-strip-ic-k-wrap-j.png"
 },
 {
 "at": 57.6,
@@ -293,7 +293,7 @@
 },
 {
 "at": 58.75,
-"shot": "tests/shots/duel-view-strip-ke-charge.png"
+"shot": "tests/shots/duel-view-strip-ic-k-xa.png"
 },
 {
 "at": 58.95,
@@ -301,7 +301,7 @@
 },
 {
 "at": 60.1,
-"shot": "tests/shots/duel-view-strip-ke-drink.png"
+"shot": "tests/shots/duel-view-strip-ic-k-yank.png"
 },
 {
 "at": 60.3,
@@ -309,7 +309,7 @@
 },
 {
 "at": 61.45,
-"shot": "tests/shots/duel-view-strip-ke-f1.png"
+"shot": "tests/shots/duel-view-strip-ic-k-zanzo.png"
 },
 {
 "at": 61.65,
@@ -317,7 +317,7 @@
 },
 {
 "at": 62.8,
-"shot": "tests/shots/duel-view-strip-ke-f2.png"
+"shot": "tests/shots/duel-view-strip-ic-mine.png"
 },
 {
 "at": 63.0,
@@ -325,7 +325,7 @@
 },
 {
 "at": 64.15,
-"shot": "tests/shots/duel-view-strip-ke-flurry.png"
+"shot": "tests/shots/duel-view-strip-ic-na1.png"
 },
 {
 "at": 64.35,
@@ -333,7 +333,7 @@
 },
 {
 "at": 65.5,
-"shot": "tests/shots/duel-view-strip-ke-intro.png"
+"shot": "tests/shots/duel-view-strip-ic-ns1.png"
 },
 {
 "at": 65.7,
@@ -341,7 +341,7 @@
 },
 {
 "at": 66.85,
-"shot": "tests/shots/duel-view-strip-ke-k-f1.png"
+"shot": "tests/shots/duel-view-strip-ic-ns3.png"
 },
 {
 "at": 67.05,
@@ -349,7 +349,7 @@
 },
 {
 "at": 68.2,
-"shot": "tests/shots/duel-view-strip-ke-k-f2.png"
+"shot": "tests/shots/duel-view-strip-ic-q1.png"
 },
 {
 "at": 68.4,
@@ -357,7 +357,7 @@
 },
 {
 "at": 69.55,
-"shot": "tests/shots/duel-view-strip-ke-k-meteor.png"
+"shot": "tests/shots/duel-view-strip-ic-q2.png"
 },
 {
 "at": 69.75,
@@ -365,7 +365,7 @@
 },
 {
 "at": 70.9,
-"shot": "tests/shots/duel-view-strip-ke-k-q1.png"
+"shot": "tests/shots/duel-view-strip-ic-rangetsu.png"
 },
 {
 "at": 71.1,
@@ -373,7 +373,7 @@
 },
 {
 "at": 72.25,
-"shot": "tests/shots/duel-view-strip-ke-k-q2.png"
+"shot": "tests/shots/duel-view-strip-ic-soga.png"
 },
 {
 "at": 72.45,
@@ -381,7 +381,7 @@
 },
 {
 "at": 73.6,
-"shot": "tests/shots/duel-view-strip-ke-k-spin.png"
+"shot": "tests/shots/duel-view-strip-ic-spin.png"
 },
 {
 "at": 73.8,
@@ -389,7 +389,7 @@
 },
 {
 "at": 74.95,
-"shot": "tests/shots/duel-view-strip-ke-kick.png"
+"shot": "tests/shots/duel-view-strip-ic-st-heavy.png"
 },
 {
 "at": 75.15,
@@ -397,7 +397,7 @@
 },
 {
 "at": 76.3,
-"shot": "tests/shots/duel-view-strip-ke-kikon.png"
+"shot": "tests/shots/duel-view-strip-ic-st-rush.png"
 },
 {
 "at": 76.5,
@@ -405,7 +405,7 @@
 },
 {
 "at": 77.65,
-"shot": "tests/shots/duel-view-strip-ke-kikon-n.png"
+"shot": "tests/shots/duel-view-strip-ic-stance.png"
 },
 {
 "at": 77.85,
@@ -413,7 +413,7 @@
 },
 {
 "at": 79.0,
-"shot": "tests/shots/duel-view-strip-ke-meteor.png"
+"shot": "tests/shots/duel-view-strip-ic-tsuki.png"
 },
 {
 "at": 79.2,
@@ -421,7 +421,7 @@
 },
 {
 "at": 80.35,
-"shot": "tests/shots/duel-view-strip-ke-n-f1.png"
+"shot": "tests/shots/duel-view-strip-ic-tsuki-otoshi.png"
 },
 {
 "at": 80.55,
@@ -429,7 +429,7 @@
 },
 {
 "at": 81.7,
-"shot": "tests/shots/duel-view-strip-ke-n-leap.png"
+"shot": "tests/shots/duel-view-strip-ic-win.png"
 },
 {
 "at": 81.9,
@@ -437,7 +437,7 @@
 },
 {
 "at": 83.05,
-"shot": "tests/shots/duel-view-strip-ke-n-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-b-guard.png"
 },
 {
 "at": 83.25,
@@ -445,7 +445,7 @@
 },
 {
 "at": 84.4,
-"shot": "tests/shots/duel-view-strip-ke-nome.png"
+"shot": "tests/shots/duel-view-strip-ke-b-guard-hit.png"
 },
 {
 "at": 84.6,
@@ -453,7 +453,7 @@
 },
 {
 "at": 85.75,
-"shot": "tests/shots/duel-view-strip-ke-q1.png"
+"shot": "tests/shots/duel-view-strip-ke-b-kikon.png"
 },
 {
 "at": 85.95,
@@ -461,7 +461,7 @@
 },
 {
 "at": 87.1,
-"shot": "tests/shots/duel-view-strip-ke-q2.png"
+"shot": "tests/shots/duel-view-strip-ke-b-kr-stance.png"
 },
 {
 "at": 87.3,
@@ -469,7 +469,7 @@
 },
 {
 "at": 88.45,
-"shot": "tests/shots/duel-view-strip-ke-q3.png"
+"shot": "tests/shots/duel-view-strip-ke-b-roar.png"
 },
 {
 "at": 88.65,
@@ -477,7 +477,7 @@
 },
 {
 "at": 89.8,
-"shot": "tests/shots/duel-view-strip-ke-r-f1.png"
+"shot": "tests/shots/duel-view-strip-ke-b-run.png"
 },
 {
 "at": 90.0,
@@ -485,7 +485,7 @@
 },
 {
 "at": 91.15,
-"shot": "tests/shots/duel-view-strip-ke-r-f2.png"
+"shot": "tests/shots/duel-view-strip-ke-b-skate-b.png"
 },
 {
 "at": 91.35,
@@ -493,7 +493,7 @@
 },
 {
 "at": 92.5,
-"shot": "tests/shots/duel-view-strip-ke-r-kote.png"
+"shot": "tests/shots/duel-view-strip-ke-b-slide-l.png"
 },
 {
 "at": 92.7,
@@ -501,7 +501,7 @@
 },
 {
 "at": 93.85,
-"shot": "tests/shots/duel-view-strip-ke-r-q1.png"
+"shot": "tests/shots/duel-view-strip-ke-b-slide-r.png"
 },
 {
 "at": 94.05,
@@ -509,7 +509,7 @@
 },
 {
 "at": 95.2,
-"shot": "tests/shots/duel-view-strip-ke-r-q3.png"
+"shot": "tests/shots/duel-view-strip-ke-b-stance.png"
 },
 {
 "at": 95.4,
@@ -517,7 +517,7 @@
 },
 {
 "at": 96.55,
-"shot": "tests/shots/duel-view-strip-ke-r-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-b-step-b.png"
 },
 {
 "at": 96.75,
@@ -525,7 +525,7 @@
 },
 {
 "at": 97.9,
-"shot": "tests/shots/duel-view-strip-ke-r-tsuki.png"
+"shot": "tests/shots/duel-view-strip-ke-b-strafe-l.png"
 },
 {
 "at": 98.1,
@@ -533,7 +533,7 @@
 },
 {
 "at": 99.25,
-"shot": "tests/shots/duel-view-strip-ke-release.png"
+"shot": "tests/shots/duel-view-strip-ke-b-strafe-r.png"
 },
 {
 "at": 99.45,
@@ -541,7 +541,7 @@
 },
 {
 "at": 100.6,
-"shot": "tests/shots/duel-view-strip-ke-run.png"
+"shot": "tests/shots/duel-view-strip-ke-b-walk-b.png"
 },
 {
 "at": 100.8,
@@ -549,7 +549,7 @@
 },
 {
 "at": 101.95,
-"shot": "tests/shots/duel-view-strip-ke-shoulder.png"
+"shot": "tests/shots/duel-view-strip-ke-b-walk-f.png"
 },
 {
 "at": 102.15,
@@ -557,7 +557,7 @@
 },
 {
 "at": 103.3,
-"shot": "tests/shots/duel-view-strip-ke-skate-b.png"
+"shot": "tests/shots/duel-view-strip-ke-b-zh-stance.png"
 },
 {
 "at": 103.5,
@@ -565,7 +565,7 @@
 },
 {
 "at": 104.65,
-"shot": "tests/shots/duel-view-strip-ke-slide-l.png"
+"shot": "tests/shots/duel-view-strip-ke-breaker.png"
 },
 {
 "at": 104.85,
@@ -573,7 +573,7 @@
 },
 {
 "at": 106.0,
-"shot": "tests/shots/duel-view-strip-ke-slide-r.png"
+"shot": "tests/shots/duel-view-strip-ke-buttagiru.png"
 },
 {
 "at": 106.2,
@@ -581,7 +581,7 @@
 },
 {
 "at": 107.35,
-"shot": "tests/shots/duel-view-strip-ke-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-charge.png"
 },
 {
 "at": 107.55,
@@ -589,7 +589,7 @@
 },
 {
 "at": 108.7,
-"shot": "tests/shots/duel-view-strip-ke-stance-cut.png"
+"shot": "tests/shots/duel-view-strip-ke-f1.png"
 },
 {
 "at": 108.9,
@@ -597,7 +597,7 @@
 },
 {
 "at": 110.05,
-"shot": "tests/shots/duel-view-strip-ke-stance-hold.png"
+"shot": "tests/shots/duel-view-strip-ke-f2.png"
 },
 {
 "at": 110.25,
@@ -605,7 +605,7 @@
 },
 {
 "at": 111.4,
-"shot": "tests/shots/duel-view-strip-ke-win.png"
+"shot": "tests/shots/duel-view-strip-ke-flurry.png"
 },
 {
 "at": 111.6,
@@ -613,7 +613,7 @@
 },
 {
 "at": 112.75,
-"shot": "tests/shots/duel-view-strip-ke-x-drink.png"
+"shot": "tests/shots/duel-view-strip-ke-intro.png"
 },
 {
 "at": 112.95,
@@ -621,7 +621,7 @@
 },
 {
 "at": 114.1,
-"shot": "tests/shots/duel-view-strip-ke-x-f1.png"
+"shot": "tests/shots/duel-view-strip-ke-kick.png"
 },
 {
 "at": 114.3,
@@ -629,7 +629,7 @@
 },
 {
 "at": 115.45,
-"shot": "tests/shots/duel-view-strip-ke-x-f2.png"
+"shot": "tests/shots/duel-view-strip-ke-kikon-n.png"
 },
 {
 "at": 115.65,
@@ -637,7 +637,7 @@
 },
 {
 "at": 116.8,
-"shot": "tests/shots/duel-view-strip-ke-x-kote.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-chigiri.png"
 },
 {
 "at": 117.0,
@@ -645,7 +645,7 @@
 },
 {
 "at": 118.15,
-"shot": "tests/shots/duel-view-strip-ke-x-meteor.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-cut1.png"
 },
 {
 "at": 118.35,
@@ -653,7 +653,7 @@
 },
 {
 "at": 119.5,
-"shot": "tests/shots/duel-view-strip-ke-x-q1.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-cut2.png"
 },
 {
 "at": 119.7,
@@ -661,7 +661,7 @@
 },
 {
 "at": 120.85,
-"shot": "tests/shots/duel-view-strip-ke-x-q3.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-cut3.png"
 },
 {
 "at": 121.05,
@@ -669,7 +669,7 @@
 },
 {
 "at": 122.2,
-"shot": "tests/shots/duel-view-strip-ke-x-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-cut4.png"
 },
 {
 "at": 122.4,
@@ -677,7 +677,7 @@
 },
 {
 "at": 123.55,
-"shot": "tests/shots/duel-view-strip-ke-x-tsuki.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-cut5.png"
 },
 {
 "at": 123.75,
@@ -685,7 +685,7 @@
 },
 {
 "at": 124.9,
-"shot": "tests/shots/duel-view-strip-sh-bound.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-fin.png"
 },
 {
 "at": 125.1,
@@ -693,7 +693,7 @@
 },
 {
 "at": 126.25,
-"shot": "tests/shots/duel-view-strip-sh-clash.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-ns-a.png"
 },
 {
 "at": 126.45,
@@ -701,7 +701,7 @@
 },
 {
 "at": 127.6,
-"shot": "tests/shots/duel-view-strip-sh-crumple.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-ns-b.png"
 },
 {
 "at": 127.8,
@@ -709,7 +709,7 @@
 },
 {
 "at": 128.95,
-"shot": "tests/shots/duel-view-strip-sh-down.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-ns-c.png"
 },
 {
 "at": 129.15,
@@ -717,7 +717,7 @@
 },
 {
 "at": 130.3,
-"shot": "tests/shots/duel-view-strip-sh-flinch.png"
+"shot": "tests/shots/duel-view-strip-ke-kr-ns-d.png"
 },
 {
 "at": 130.5,
@@ -725,7 +725,7 @@
 },
 {
 "at": 131.65,
-"shot": "tests/shots/duel-view-strip-sh-guard.png"
+"shot": "tests/shots/duel-view-strip-ke-n-stance.png"
 },
 {
 "at": 131.85,
@@ -733,7 +733,7 @@
 },
 {
 "at": 133.0,
-"shot": "tests/shots/duel-view-strip-sh-guard-break.png"
+"shot": "tests/shots/duel-view-strip-ke-nome.png"
 },
 {
 "at": 133.2,
@@ -741,7 +741,7 @@
 },
 {
 "at": 134.35,
-"shot": "tests/shots/duel-view-strip-sh-guard-hit.png"
+"shot": "tests/shots/duel-view-strip-ke-q1.png"
 },
 {
 "at": 134.55,
@@ -749,7 +749,7 @@
 },
 {
 "at": 135.7,
-"shot": "tests/shots/duel-view-strip-sh-hoho-in.png"
+"shot": "tests/shots/duel-view-strip-ke-q2.png"
 },
 {
 "at": 135.9,
@@ -757,7 +757,7 @@
 },
 {
 "at": 137.05,
-"shot": "tests/shots/duel-view-strip-sh-kikon-victim.png"
+"shot": "tests/shots/duel-view-strip-ke-q3.png"
 },
 {
 "at": 137.25,
@@ -765,7 +765,7 @@
 },
 {
 "at": 138.4,
-"shot": "tests/shots/duel-view-strip-sh-knockback.png"
+"shot": "tests/shots/duel-view-strip-ke-release.png"
 },
 {
 "at": 138.6,
@@ -773,7 +773,7 @@
 },
 {
 "at": 139.75,
-"shot": "tests/shots/duel-view-strip-sh-launch.png"
+"shot": "tests/shots/duel-view-strip-ke-run.png"
 },
 {
 "at": 139.95,
@@ -781,7 +781,7 @@
 },
 {
 "at": 141.1,
-"shot": "tests/shots/duel-view-strip-sh-lose.png"
+"shot": "tests/shots/duel-view-strip-ke-s-bankai.png"
 },
 {
 "at": 141.3,
@@ -789,7 +789,7 @@
 },
 {
 "at": 142.45,
-"shot": "tests/shots/duel-view-strip-sh-run.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut-sa.png"
 },
 {
 "at": 142.65,
@@ -797,7 +797,7 @@
 },
 {
 "at": 143.8,
-"shot": "tests/shots/duel-view-strip-sh-skate-b.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut1.png"
 },
 {
 "at": 144.0,
@@ -805,7 +805,7 @@
 },
 {
 "at": 145.15,
-"shot": "tests/shots/duel-view-strip-sh-slide-l.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut2.png"
 },
 {
 "at": 145.35,
@@ -813,7 +813,7 @@
 },
 {
 "at": 146.5,
-"shot": "tests/shots/duel-view-strip-sh-slide-r.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut3.png"
 },
 {
 "at": 146.7,
@@ -821,7 +821,7 @@
 },
 {
 "at": 147.85,
-"shot": "tests/shots/duel-view-strip-sh-stagger.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut4.png"
 },
 {
 "at": 148.05,
@@ -829,7 +829,7 @@
 },
 {
 "at": 149.2,
-"shot": "tests/shots/duel-view-strip-sh-step-b.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut5.png"
 },
 {
 "at": 149.4,
@@ -837,7 +837,7 @@
 },
 {
 "at": 150.55,
-"shot": "tests/shots/duel-view-strip-sh-step-f.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut6.png"
 },
 {
 "at": 150.75,
@@ -845,7 +845,7 @@
 },
 {
 "at": 151.9,
-"shot": "tests/shots/duel-view-strip-sh-step-l.png"
+"shot": "tests/shots/duel-view-strip-ke-s-cut7.png"
 },
 {
 "at": 152.1,
@@ -853,7 +853,7 @@
 },
 {
 "at": 153.25,
-"shot": "tests/shots/duel-view-strip-sh-step-r.png"
+"shot": "tests/shots/duel-view-strip-ke-s-flick.png"
 },
 {
 "at": 153.45,
@@ -861,7 +861,7 @@
 },
 {
 "at": 154.6,
-"shot": "tests/shots/duel-view-strip-sh-strafe-l.png"
+"shot": "tests/shots/duel-view-strip-ke-s-issen.png"
 },
 {
 "at": 154.8,
@@ -869,7 +869,7 @@
 },
 {
 "at": 155.95,
-"shot": "tests/shots/duel-view-strip-sh-strafe-r.png"
+"shot": "tests/shots/duel-view-strip-ke-s-jab.png"
 },
 {
 "at": 156.15,
@@ -877,7 +877,7 @@
 },
 {
 "at": 157.3,
-"shot": "tests/shots/duel-view-strip-sh-wakeup.png"
+"shot": "tests/shots/duel-view-strip-ke-s-meteor.png"
 },
 {
 "at": 157.5,
@@ -885,7 +885,7 @@
 },
 {
 "at": 158.65,
-"shot": "tests/shots/duel-view-strip-sh-walk-b.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p1a.png"
 },
 {
 "at": 158.85,
@@ -893,7 +893,7 @@
 },
 {
 "at": 160.0,
-"shot": "tests/shots/duel-view-strip-sh-walk-f.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p1b.png"
 },
 {
 "at": 160.2,
@@ -901,7 +901,7 @@
 },
 {
 "at": 161.35,
-"shot": "tests/shots/duel-view-strip-sk-grab.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p1c.png"
 },
 {
 "at": 161.55,
@@ -909,7 +909,7 @@
 },
 {
 "at": 162.7,
-"shot": "tests/shots/duel-view-strip-ya-bankai.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p1d.png"
 },
 {
 "at": 162.9,
@@ -917,7 +917,7 @@
 },
 {
 "at": 164.05,
-"shot": "tests/shots/duel-view-strip-ya-breaker.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p1e.png"
 },
 {
 "at": 164.25,
@@ -925,7 +925,7 @@
 },
 {
 "at": 165.4,
-"shot": "tests/shots/duel-view-strip-ya-e-drop.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p2c.png"
 },
 {
 "at": 165.6,
@@ -933,7 +933,7 @@
 },
 {
 "at": 166.75,
-"shot": "tests/shots/duel-view-strip-ya-e-f1.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p2d.png"
 },
 {
 "at": 166.95,
@@ -941,7 +941,7 @@
 },
 {
 "at": 168.1,
-"shot": "tests/shots/duel-view-strip-ya-e-f2.png"
+"shot": "tests/shots/duel-view-strip-ke-s-p2e.png"
 },
 {
 "at": 168.3,
@@ -949,7 +949,7 @@
 },
 {
 "at": 169.45,
-"shot": "tests/shots/duel-view-strip-ya-e-kyokko.png"
+"shot": "tests/shots/duel-view-strip-ke-s-st-1.png"
 },
 {
 "at": 169.65,
@@ -957,7 +957,7 @@
 },
 {
 "at": 170.8,
-"shot": "tests/shots/duel-view-strip-ya-e-q1.png"
+"shot": "tests/shots/duel-view-strip-ke-s-st-2.png"
 },
 {
 "at": 171.0,
@@ -965,7 +965,7 @@
 },
 {
 "at": 172.15,
-"shot": "tests/shots/duel-view-strip-ya-e-q2.png"
+"shot": "tests/shots/duel-view-strip-ke-s-wheel.png"
 },
 {
 "at": 172.35,
@@ -973,7 +973,7 @@
 },
 {
 "at": 173.5,
-"shot": "tests/shots/duel-view-strip-ya-e-q3.png"
+"shot": "tests/shots/duel-view-strip-ke-s-zangaeshi.png"
 },
 {
 "at": 173.7,
@@ -981,7 +981,7 @@
 },
 {
 "at": 174.85,
-"shot": "tests/shots/duel-view-strip-ya-e-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-shoulder.png"
 },
 {
 "at": 175.05,
@@ -989,7 +989,7 @@
 },
 {
 "at": 176.2,
-"shot": "tests/shots/duel-view-strip-ya-e-tenchi.png"
+"shot": "tests/shots/duel-view-strip-ke-skate-b.png"
 },
 {
 "at": 176.4,
@@ -997,7 +997,7 @@
 },
 {
 "at": 177.55,
-"shot": "tests/shots/duel-view-strip-ya-enjo.png"
+"shot": "tests/shots/duel-view-strip-ke-slide-l.png"
 },
 {
 "at": 177.75,
@@ -1005,7 +1005,7 @@
 },
 {
 "at": 178.9,
-"shot": "tests/shots/duel-view-strip-ya-f1.png"
+"shot": "tests/shots/duel-view-strip-ke-slide-r.png"
 },
 {
 "at": 179.1,
@@ -1013,7 +1013,7 @@
 },
 {
 "at": 180.25,
-"shot": "tests/shots/duel-view-strip-ya-f2.png"
+"shot": "tests/shots/duel-view-strip-ke-stance.png"
 },
 {
 "at": 180.45,
@@ -1021,7 +1021,7 @@
 },
 {
 "at": 181.6,
-"shot": "tests/shots/duel-view-strip-ya-f3.png"
+"shot": "tests/shots/duel-view-strip-ke-stance-cut.png"
 },
 {
 "at": 181.8,
@@ -1029,7 +1029,7 @@
 },
 {
 "at": 182.95,
-"shot": "tests/shots/duel-view-strip-ya-hellfire.png"
+"shot": "tests/shots/duel-view-strip-ke-stance-hold.png"
 },
 {
 "at": 183.15,
@@ -1037,7 +1037,7 @@
 },
 {
 "at": 184.3,
-"shot": "tests/shots/duel-view-strip-ya-ikkotsu.png"
+"shot": "tests/shots/duel-view-strip-ke-win.png"
 },
 {
 "at": 184.5,
@@ -1045,7 +1045,7 @@
 },
 {
 "at": 185.65,
-"shot": "tests/shots/duel-view-strip-ya-intro.png"
+"shot": "tests/shots/duel-view-strip-ke-z-as1.png"
 },
 {
 "at": 185.85,
@@ -1053,7 +1053,7 @@
 },
 {
 "at": 187.0,
-"shot": "tests/shots/duel-view-strip-ya-kaka.png"
+"shot": "tests/shots/duel-view-strip-ke-z-cut1.png"
 },
 {
 "at": 187.2,
@@ -1061,7 +1061,7 @@
 },
 {
 "at": 188.35,
-"shot": "tests/shots/duel-view-strip-ya-kikon.png"
+"shot": "tests/shots/duel-view-strip-ke-z-cut2.png"
 },
 {
 "at": 188.55,
@@ -1069,7 +1069,7 @@
 },
 {
 "at": 189.7,
-"shot": "tests/shots/duel-view-strip-ya-kyoku.png"
+"shot": "tests/shots/duel-view-strip-ke-z-cut3.png"
 },
 {
 "at": 189.9,
@@ -1077,7 +1077,7 @@
 },
 {
 "at": 191.05,
-"shot": "tests/shots/duel-view-strip-ya-nadegiri.png"
+"shot": "tests/shots/duel-view-strip-ke-z-cut4.png"
 },
 {
 "at": 191.25,
@@ -1085,7 +1085,7 @@
 },
 {
 "at": 192.4,
-"shot": "tests/shots/duel-view-strip-ya-q1.png"
+"shot": "tests/shots/duel-view-strip-ke-z-cut5.png"
 },
 {
 "at": 192.6,
@@ -1093,7 +1093,7 @@
 },
 {
 "at": 193.75,
-"shot": "tests/shots/duel-view-strip-ya-q2.png"
+"shot": "tests/shots/duel-view-strip-ke-z-kote.png"
 },
 {
 "at": 193.95,
@@ -1101,7 +1101,7 @@
 },
 {
 "at": 195.1,
-"shot": "tests/shots/duel-view-strip-ya-shiranui.png"
+"shot": "tests/shots/duel-view-strip-ke-z-men.png"
 },
 {
 "at": 195.3,
@@ -1109,7 +1109,7 @@
 },
 {
 "at": 196.45,
-"shot": "tests/shots/duel-view-strip-ya-shiranui-throw.png"
+"shot": "tests/shots/duel-view-strip-ke-z-open.png"
 },
 {
 "at": 196.65,
@@ -1117,7 +1117,7 @@
 },
 {
 "at": 197.8,
-"shot": "tests/shots/duel-view-strip-ya-shonetsu.png"
+"shot": "tests/shots/duel-view-strip-ke-z-p1a.png"
 },
 {
 "at": 198.0,
@@ -1125,7 +1125,7 @@
 },
 {
 "at": 199.15,
-"shot": "tests/shots/duel-view-strip-ya-sig.png"
+"shot": "tests/shots/duel-view-strip-ke-z-p1b.png"
 },
 {
 "at": 199.35,
@@ -1133,7 +1133,7 @@
 },
 {
 "at": 200.5,
-"shot": "tests/shots/duel-view-strip-ya-stance.png"
+"shot": "tests/shots/duel-view-strip-ke-z-p1c.png"
 },
 {
 "at": 200.7,
@@ -1141,7 +1141,7 @@
 },
 {
 "at": 201.85,
-"shot": "tests/shots/duel-view-strip-ya-taimatsu.png"
+"shot": "tests/shots/duel-view-strip-ke-z-p2a.png"
 },
 {
 "at": 202.05,
@@ -1149,7 +1149,7 @@
 },
 {
 "at": 203.2,
-"shot": "tests/shots/duel-view-strip-ya-tenchi.png"
+"shot": "tests/shots/duel-view-strip-ke-z-p2b.png"
 },
 {
 "at": 203.4,
@@ -1157,7 +1157,7 @@
 },
 {
 "at": 204.55,
-"shot": "tests/shots/duel-view-strip-ya-tsuka.png"
+"shot": "tests/shots/duel-view-strip-ke-z-ram.png"
 },
 {
 "at": 204.75,
@@ -1165,7 +1165,7 @@
 },
 {
 "at": 205.9,
-"shot": "tests/shots/duel-view-strip-ya-w-counter.png"
+"shot": "tests/shots/duel-view-strip-ke-z-scoop.png"
 },
 {
 "at": 206.1,
@@ -1173,7 +1173,7 @@
 },
 {
 "at": 207.25,
-"shot": "tests/shots/duel-view-strip-ya-w-parry.png"
+"shot": "tests/shots/duel-view-strip-ke-z-shove.png"
 },
 {
 "at": 207.45,
@@ -1181,6 +1181,366 @@
 },
 {
 "at": 208.6,
-"shot": "tests/shots/duel-view-strip-ya-win.png"
+"shot": "tests/shots/duel-view-strip-ke-z-st-1.png"
+},
+{
+"at": 208.8,
+"eval": "Module._debug_cmd(1148000)"
+},
+{
+"at": 209.95,
+"shot": "tests/shots/duel-view-strip-ke-z-st-2.png"
+},
+{
+"at": 210.15,
+"eval": "Module._debug_cmd(1149000)"
+},
+{
+"at": 211.3,
+"shot": "tests/shots/duel-view-strip-ke-z-st-3.png"
+},
+{
+"at": 211.5,
+"eval": "Module._debug_cmd(1150000)"
+},
+{
+"at": 212.65,
+"shot": "tests/shots/duel-view-strip-ke-z-tame.png"
+},
+{
+"at": 212.85,
+"eval": "Module._debug_cmd(1151000)"
+},
+{
+"at": 214.0,
+"shot": "tests/shots/duel-view-strip-ke-z-tsuki.png"
+},
+{
+"at": 214.2,
+"eval": "Module._debug_cmd(1152000)"
+},
+{
+"at": 215.35,
+"shot": "tests/shots/duel-view-strip-ke-z-tsuki2.png"
+},
+{
+"at": 215.55,
+"eval": "Module._debug_cmd(1153000)"
+},
+{
+"at": 216.7,
+"shot": "tests/shots/duel-view-strip-ke-z-wound.png"
+},
+{
+"at": 216.9,
+"eval": "Module._debug_cmd(1154000)"
+},
+{
+"at": 218.05,
+"shot": "tests/shots/duel-view-strip-ke-zh-cut1.png"
+},
+{
+"at": 218.25,
+"eval": "Module._debug_cmd(1155000)"
+},
+{
+"at": 219.4,
+"shot": "tests/shots/duel-view-strip-ke-zh-cut2.png"
+},
+{
+"at": 219.6,
+"eval": "Module._debug_cmd(1156000)"
+},
+{
+"at": 220.75,
+"shot": "tests/shots/duel-view-strip-ke-zh-cut3.png"
+},
+{
+"at": 220.95,
+"eval": "Module._debug_cmd(1157000)"
+},
+{
+"at": 222.1,
+"shot": "tests/shots/duel-view-strip-ke-zh-cut4.png"
+},
+{
+"at": 222.3,
+"eval": "Module._debug_cmd(1158000)"
+},
+{
+"at": 223.45,
+"shot": "tests/shots/duel-view-strip-ke-zh-cut5.png"
+},
+{
+"at": 223.65,
+"eval": "Module._debug_cmd(1159000)"
+},
+{
+"at": 224.8,
+"shot": "tests/shots/duel-view-strip-ke-zh-fin.png"
+},
+{
+"at": 225.0,
+"eval": "Module._debug_cmd(1160000)"
+},
+{
+"at": 226.15,
+"shot": "tests/shots/duel-view-strip-ke-zh-ns-a.png"
+},
+{
+"at": 226.35,
+"eval": "Module._debug_cmd(1161000)"
+},
+{
+"at": 227.5,
+"shot": "tests/shots/duel-view-strip-ke-zh-ns-b.png"
+},
+{
+"at": 227.7,
+"eval": "Module._debug_cmd(1162000)"
+},
+{
+"at": 228.85,
+"shot": "tests/shots/duel-view-strip-ke-zh-ns-c.png"
+},
+{
+"at": 229.05,
+"eval": "Module._debug_cmd(1163000)"
+},
+{
+"at": 230.2,
+"shot": "tests/shots/duel-view-strip-ke-zh-ns-d.png"
+},
+{
+"at": 230.4,
+"eval": "Module._debug_cmd(1164000)"
+},
+{
+"at": 231.55,
+"shot": "tests/shots/duel-view-strip-ke-zh-tategoto.png"
+},
+{
+"at": 231.75,
+"eval": "Module._debug_cmd(1165000)"
+},
+{
+"at": 232.9,
+"shot": "tests/shots/duel-view-strip-sh-bound.png"
+},
+{
+"at": 233.1,
+"eval": "Module._debug_cmd(1166000)"
+},
+{
+"at": 234.25,
+"shot": "tests/shots/duel-view-strip-sh-clash.png"
+},
+{
+"at": 234.45,
+"eval": "Module._debug_cmd(1167000)"
+},
+{
+"at": 235.6,
+"shot": "tests/shots/duel-view-strip-sh-crumple.png"
+},
+{
+"at": 235.8,
+"eval": "Module._debug_cmd(1168000)"
+},
+{
+"at": 236.95,
+"shot": "tests/shots/duel-view-strip-sh-down.png"
+},
+{
+"at": 237.15,
+"eval": "Module._debug_cmd(1169000)"
+},
+{
+"at": 238.3,
+"shot": "tests/shots/duel-view-strip-sh-flinch.png"
+},
+{
+"at": 238.5,
+"eval": "Module._debug_cmd(1170000)"
+},
+{
+"at": 239.65,
+"shot": "tests/shots/duel-view-strip-sh-guard.png"
+},
+{
+"at": 239.85,
+"eval": "Module._debug_cmd(1171000)"
+},
+{
+"at": 241.0,
+"shot": "tests/shots/duel-view-strip-sh-guard-break.png"
+},
+{
+"at": 241.2,
+"eval": "Module._debug_cmd(1172000)"
+},
+{
+"at": 242.35,
+"shot": "tests/shots/duel-view-strip-sh-guard-hit.png"
+},
+{
+"at": 242.55,
+"eval": "Module._debug_cmd(1173000)"
+},
+{
+"at": 243.7,
+"shot": "tests/shots/duel-view-strip-sh-hoho-in.png"
+},
+{
+"at": 243.9,
+"eval": "Module._debug_cmd(1174000)"
+},
+{
+"at": 245.05,
+"shot": "tests/shots/duel-view-strip-sh-kikon-victim.png"
+},
+{
+"at": 245.25,
+"eval": "Module._debug_cmd(1175000)"
+},
+{
+"at": 246.4,
+"shot": "tests/shots/duel-view-strip-sh-knockback.png"
+},
+{
+"at": 246.6,
+"eval": "Module._debug_cmd(1176000)"
+},
+{
+"at": 247.75,
+"shot": "tests/shots/duel-view-strip-sh-launch.png"
+},
+{
+"at": 247.95,
+"eval": "Module._debug_cmd(1177000)"
+},
+{
+"at": 249.1,
+"shot": "tests/shots/duel-view-strip-sh-lose.png"
+},
+{
+"at": 249.3,
+"eval": "Module._debug_cmd(1178000)"
+},
+{
+"at": 250.45,
+"shot": "tests/shots/duel-view-strip-sh-roll.png"
+},
+{
+"at": 250.65,
+"eval": "Module._debug_cmd(1179000)"
+},
+{
+"at": 251.8,
+"shot": "tests/shots/duel-view-strip-sh-run.png"
+},
+{
+"at": 252.0,
+"eval": "Module._debug_cmd(1180000)"
+},
+{
+"at": 253.15,
+"shot": "tests/shots/duel-view-strip-sh-skate-b.png"
+},
+{
+"at": 253.35,
+"eval": "Module._debug_cmd(1181000)"
+},
+{
+"at": 254.5,
+"shot": "tests/shots/duel-view-strip-sh-slide-l.png"
+},
+{
+"at": 254.7,
+"eval": "Module._debug_cmd(1182000)"
+},
+{
+"at": 255.85,
+"shot": "tests/shots/duel-view-strip-sh-slide-r.png"
+},
+{
+"at": 256.05,
+"eval": "Module._debug_cmd(1183000)"
+},
+{
+"at": 257.2,
+"shot": "tests/shots/duel-view-strip-sh-stagger.png"
+},
+{
+"at": 257.4,
+"eval": "Module._debug_cmd(1184000)"
+},
+{
+"at": 258.55,
+"shot": "tests/shots/duel-view-strip-sh-step-b.png"
+},
+{
+"at": 258.75,
+"eval": "Module._debug_cmd(1185000)"
+},
+{
+"at": 259.9,
+"shot": "tests/shots/duel-view-strip-sh-step-f.png"
+},
+{
+"at": 260.1,
+"eval": "Module._debug_cmd(1186000)"
+},
+{
+"at": 261.25,
+"shot": "tests/shots/duel-view-strip-sh-step-l.png"
+},
+{
+"at": 261.45,
+"eval": "Module._debug_cmd(1187000)"
+},
+{
+"at": 262.6,
+"shot": "tests/shots/duel-view-strip-sh-step-r.png"
+},
+{
+"at": 262.8,
+"eval": "Module._debug_cmd(1188000)"
+},
+{
+"at": 263.95,
+"shot": "tests/shots/duel-view-strip-sh-strafe-l.png"
+},
+{
+"at": 264.15,
+"eval": "Module._debug_cmd(1189000)"
+},
+{
+"at": 265.3,
+"shot": "tests/shots/duel-view-strip-sh-strafe-r.png"
+},
+{
+"at": 265.5,
+"eval": "Module._debug_cmd(1190000)"
+},
+{
+"at": 266.65,
+"shot": "tests/shots/duel-view-strip-sh-wakeup.png"
+},
+{
+"at": 266.85,
+"eval": "Module._debug_cmd(1191000)"
+},
+{
+"at": 268.0,
+"shot": "tests/shots/duel-view-strip-sh-walk-b.png"
+},
+{
+"at": 268.2,
+"eval": "Module._debug_cmd(1192000)"
+},
+{
+"at": 269.35,
+"shot": "tests/shots/duel-view-strip-sh-walk-f.png"
 }
 ]

@@ -213,11 +213,6 @@ INK: black glyphs (on a white card), else white; HANKO: the red Kikon seal; MARK
           (aref f 4) (f32 (if reading (brush-width reading 0.25) 0.0)) (aref f 5) (f32 (if sub (brush-width sub 0.3) 0.0)))
     c))
 
-(defun bcap-restart (c)
-  "Stamp caption C in again from now."
-  (setf (aref (bcap-f c) 0) (fx-clock) (aref (bcap-f c) 7) 0f0)
-  c)
-
 (defun bcap-exit (c)
   "Caption C slices out from now (DRAW-BCAP: a brush cut through the column, the halves slide apart and fade, 0.3 s)."
   (when (<= (aref (bcap-f c) 7) 0f0) (setf (aref (bcap-f c) 7) (fx-clock)))
@@ -391,21 +386,5 @@ LINE-WIDTH of STR. 0 B."
   (brush-line str))
 
 ;;; ---------------------------------------------------------------- names
-(defparameter *brush-callouts*
-  ;; move -> (kanji reading mark): the gameplay SP / technique names shown as a brush column at the user's side
-  ;; (instead of the pixel callout over his head). The Bankai compass (DUEL_DESIGN §6.1) carries its direction.
-  '((:ya-shiranui "不知火" "SHIRANUI" nil) (:ya-taimatsu "松明" "TAIMATSU" nil) (:ya-nadegiri "撫斬" "NADEGIRI" nil)
-    (:ya-e-kyokko "旭光" "KYOKKO" "東") (:ya-w-shonetsu "焦熱地獄" "SHONETSU JIGOKU" "西")
-    (:ya-kyoku "旭日刃" "KYOKUJITSUJIN" "東") (:ya-kaka "火火十万億死大葬陣" "MINAMI: KAKA JUMANOKUSHI DAISOJIN" "南")
-    (:ya-tenchi "" "KITA" "北")
-    (:ke-buttagiru "ぶった斬る" "BUTTAGIRU" nil) (:ke-charge "俺に斬れねえもんはねえ" "ORE NI KIRENEE MON WA NEE" nil)
-    (:ru-tsukishiro "月白" "SOME NO MAI: TSUKISHIRO" "初") (:ru-hakuren "白漣" "TSUGI NO MAI: HAKUREN" "次")
-    (:ru-shirafune "白刀" "SAN NO MAI: SHIRAFUNE" "参") (:ru-breaker "這縄" "BAKUDO NO YON: HAINAWA" "縛")
-    (:ru-hakuren-50 "白漣" "TSUGI NO MAI: HAKUREN" "次") (:ru-hakuren-0 "白漣" "TSUGI NO MAI: HAKUREN" "次")
-    (:ru-shirafune-50 "白刀" "SAN NO MAI: SHIRAFUNE" "参") (:ru-shirafune-0 "白刀" "SAN NO MAI: SHIRAFUNE" "参")
-    (:ru-shimobashira "霜柱" "SHIMOBASHIRA" nil) (:ru-hyoshin "氷震" "HYOSHIN" nil) (:ru-reido "零度凍結" "REIDO TOKETSU" nil))
-  "Move name -> (kanji reading mark) of its brush callout.")
-
-(defparameter *brush-names* '((:yamamoto "山本元柳斎重國" "YAMAMOTO GENRYUSAI SHIGEKUNI") (:kenpachi "更木剣八" "ZARAKI KENPACHI")
-                              (:rukia "朽木ルキア" "KUCHIKI RUKIA"))
+(defparameter *brush-names* '((:kenpachi "更木剣八" "ZARAKI KENPACHI"))
   "Character -> his name in kanji and its reading (the intro's columns).")

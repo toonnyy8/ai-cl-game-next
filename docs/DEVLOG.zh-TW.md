@@ -8723,3 +8723,15 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 留給 R3／R7：仍點名退役角色的除錯場景會停在 `unknown kit`；`spawn-hand`、殘留的 vfx 印章名、DANGAI 卡片、`tests/duel-view.lisp`／`duel-vfx.lisp`、美術比對閘門的 cine-yama／rukia／senju 場景、幾支研究工具的預設角色。
 
 分工：Sonnet 子代理：B3 與 B8a；主對話 Opus 5.5：覆核、合併、重跑全部檢查、推分支。
+
+## 736. R5：只服務退役角色的畫面程式移除（2026-11-12）
+
+使用者：「按你建議的做」（§730 的開工決定；REFACTOR_2026-11 §11.4 第三步）
+
+- 移除（每項先確認沒有現役呼叫者）：筆刷標註表與山本／露琪亞的筆刷名、火焰／餘燼的刀光與命中火花分支（現役角色沒有 `:blade`）、`vfx-aura` 的五種退役外觀與 `vfx-awaken-burst` 三種（現役的 `:nozarashi` 算式相同）、退役印章、`:cold-crack` 與 L 鍵「冷卻中」HUD 閃爍（悶響保留）、`push-in-on`、沒有讀者的畫布選單資料、九個沒人播的音效、59 個不再出現在任何原始檔的筆刷字形（`glyph-bake.py` 同步）、`model` 的 `flare` 欄位。
+- 測試：`tests/duel-vfx.lisp`（山本外觀的特效圖庫）移除；`tests/duel-view.lisp` 改指一護與劍八，重新產生三支腳本，可建置、出圖正確。
+- 音效：合成用的雜訊流是全域的一條，刪掉九個音效後，後面音效的雜訊取樣會位移；統計性質相同，但音訊不再逐位元相同（純外觀）。
+- 證明：主機測試 3188、hud-engine 121 全過；pkgcheck 乾淨；除錯區段 115 段 0 錯；engine-check 73/73；冒煙測試桌機與手機；G2 native 三組相同（II 39、IK 36、KK 28 行）；美術比對閘門以改動前的 c389ea08 為基準，選單 11、cvc-kh/hk/ii/ik 29、cine-ichigo 3、endless 4、手機 6 張逐位元相同，另以腳本比對劍八兩段鬼魂電影 6 張相同。cine-ken／yama／rukia／senju／barro 五個場景在基準上也會卡住（它們的除錯電影會開退役角色），留給 R7 重新指定。index.wasm 10,895,616 → 10,773,555 B（−122 KB）。
+- 留給 R3：`spawn-hand`、`:freeze`／`:hand` 危險物、`:freeze-touch`、`:scorch`、`kit-blade-chip`、露琪亞的冰凍欄位。留給 R7：`duelstill` 與 `toon_check.py --bg`（依賴已移除的 duelvfx，原本就無法建置）、lhud-data 的角色表、退役角色的除錯場景。
+
+分工：Sonnet 子代理：R5；主對話 Opus 5.5：覆核差異、合併、重跑檢查。

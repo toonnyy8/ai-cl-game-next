@@ -315,19 +315,9 @@ read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held 
 (defun-fast hud-stick ()
   "The floating stick of the one-hand deck (the deck itself, its chips, 爆 and the touch ink are the Lisp HUD's, lhud-deck.lisp /
 lhud-fx.lisp): an ink ring at the thumb's origin while it is down, a form's own ring (its kit's :deck hook: Hisagi's sickle dot,
-KESSA's clone dots) and, for the retired Rukia, the frost arc of her cold gauge round it."
+KESSA's clone dots)."
   (let* ((tr *touch*) (d (touch-dpx tr)))
     (declare (single-float d))
     (when (touch-active-p tr)
       (%ring (touch-ox tr) (touch-oy tr) (* d 48f0) (* 2f0 d) 1.0 1.0 1.0 (if (touch-resting-p tr) 0.35 0.6))
-      (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d)))   ; a form's own ring
-      (let ((m (and *p1* (kit-meter (kit-of *p1*)))))      ; Rukia: resting cools her: the frost arc = C / 200 (the two
-        (when (getf m :temp)                                 ; bars round the ring, a notch at the half), grey in the THAW
-          (let* ((g (gauges *p1*)) (k (/ (gauges-meter g) *cold-max*)) (lock (plusp (gauges-meter-idle g)))   ; lock;
-                 (zero (eq (fighter-form (fighter *p1*)) :zero)) (r (* d 52f0)))                       ; white ring at zero
-            (declare (single-float r))
-            (when zero (%ring (touch-ox tr) (touch-oy tr) r (* 3f0 d) 1.0 1.0 1.0 0.35))
-            (if lock
-                (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.55 0.56 0.6 0.8)
-                (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.92 0.96 1.0 (if zero (+ 0.6 (* 0.4 (hud-pulse 3.0))) 0.9)))
-            (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0)))))))   ; the half: bar 1 full
+      (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d))))))   ; a form's own ring

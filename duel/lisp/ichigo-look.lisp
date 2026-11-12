@@ -541,14 +541,8 @@ point in RANGETSU). Each must be 0."
     (loop for f in '(2093 2637 3136) for i from 0 do (au-ping! b (* 0.06 i) f 0.18 0.2 :attack 0.02))
     (au-reverb! b 0.25)))
 
-;;; ---------------------------------------------------------------- brush names, callouts and glyphs
-(setf *brush-names* (append *brush-names* '((:ichigo "黒崎一護" "KUROSAKI ICHIGO")))
-      *brush-callouts*
-      (append *brush-callouts*
-              '((:ic-tsuki-l "月牙天衝" "GETSUGA TENSHO" nil)
-                (:ic-juji "月牙十字衝" "GETSUGA JUJISHO" nil) (:ic-soga "双牙" "SOGA" nil)
-                (:ic-k-hiki "鎖引" "KUSARI-BIKI" "血") (:ic-k-gaeshi "鎖盾" "KUSARI-TATE" "血")
-                (:ic-k-zanzo "残像" "ZANZO" "血"))))
+;;; ---------------------------------------------------------------- brush name and glyphs
+(setf *brush-names* (append *brush-names* '((:ichigo "黒崎一護" "KUROSAKI ICHIGO"))))
 
 ;; his extra brush glyphs (黒 崎 一 護 牙 衝 字 血 鎖 双 引 垣 王 虚 漆 影 待 分 身 像): glyphs-extra.lisp
 

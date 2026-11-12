@@ -678,7 +678,7 @@ left-hand grip (its step and the IK), and a caption slicing out."
 the auras redrawn in toon, the rift, a spent wave's erosion, the new stamps (all live at once), and the face / beat /
 move-beat choices of DRAW-FIGHTER."
   (let* ((e *p1*) (f (fighter e)) (m (model e)) (mv (fighter-move f)))
-    (dolist (k '(:cone :boom :ring :gash :garb-guard :scorch :flare :gutter :nade)) (stamp k 1.0 1.0 0.0 :dx 1.0 :dz 0.0 :scale 2.0 :n 0.7))
+    (dolist (k '(:ring :gash)) (stamp k 1.0 1.0 0.0 :dx 1.0 :dz 0.0 :scale 2.0 :n 0.7))
     (setf (model-beat m) 0.5)
     (log-msg "vfx5 consing (10 draws, B): ~{~a~^, ~}"
              (list (cons-per "charge" (vfx-charge 0f0 1.2f0 0f0 0.6f0 0.016f0))

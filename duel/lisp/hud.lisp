@@ -2,7 +2,7 @@
 ;;;; lhud-*.lisp, DUEL_LISP_HUD §16; the canvas battle HUD, its plates and gauges, left 2026-11-11): the big words (ANNOUNCE), the
 ;;;; world overlays (Kikon rush speed lines, the red soul flame over a Kikon-able fighter, PERFECT HINT's HOHO! and ASSIST's AUTO),
 ;;;; the canvas text helpers the frozen modes' screens use (HUD-TEXT; endless.lisp, rogue.lisp, hud-screens.lisp's ENDLESS SELECT),
-;;;; the portrait block geometry the one-hand deck and those screens lay out by, and the refused-L clock the retired kits' meters read.
+;;;; the portrait block geometry the one-hand deck and those screens lay out by.
 ;;;; Cosmetic only: the fx clock (it stops while paused), RND01.
 (in-package :duel)
 
@@ -13,10 +13,6 @@
 (defparameter *shade* '(0 0 0 0.75) "HUD-TEXT's drop shadow.")
 
 (defmacro hud-dt () "This frame's HUD seconds: 0 while the effects are frozen (paused: nothing moves under the pause menu)." `(if (fx-frozen-p) 0.0 (frame-dt)))
-
-(defun hud-pulse (hz)
-  "0..1, HZ times a second (real time)."
-  (+ 0.5 (* 0.5 (sin (* 6.2831855 (f32 hz) (the single-float (fx-clock)))))))
 
 (defun alpha! (color a)
   "COLOR (a preallocated, mutable 4-list) with its alpha set to A: a pulsing colour without a
@@ -102,7 +98,7 @@ greps \"over the P\")."
           (let ((se (max (* 0.032 h) (* 0.36 em))))
             (brush-text (word-sub x) cx (+ cy (* 0.55 em) (* 0.5 se)) se col fade)))))))
 
-;;; ---------------------------------------------------------------- the Konpaku shatter, the refused L
+;;; ---------------------------------------------------------------- the Konpaku shatter
 (declaim (type f32vec *hud-v*))
 (defvar *hud-v* (make-f32 3) "WORLD-TO-SCREEN's out lane for the world overlays.")
 
@@ -110,14 +106,6 @@ greps \"over the P\")."
   "LOST of V's Konpaku pips break: the glass burst in the world and its sound (the plate's flames are the Lisp HUD's)."
   (multiple-value-bind (x y z) (actor-point v 1.6) (vfx-konpaku-shatter x y z lost))
   (play-sfx :konpaku-shatter))
-
-(declaim (type f32vec *refused-t*))
-(defvar *refused-t* (make-f32 2) "Per side: FX-CLOCK of the last refused L press (its bar, or the cold gauge's cost, flashes).")
-(defun refused-flash (side tm) "SIDE's refused-press flash at fx time TM: 1 at the press, 0 after 0.25 s." (f32 (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side)))))))
-
-(defun hud-refused (e cmd)
-  "E pressed CMD while it was cooling or short of cold (the :refused event): L's bar flashes."
-  (when (eq cmd :sig) (setf (aref *refused-t* (fighter-side (fighter e))) (f32 (fx-clock)))))
 
 ;;; ---------------------------------------------------------------- portrait blocks (docs/duel/DUEL_MOBILE_DESIGN.md §4.2)
 ;;; The portrait screen's bands: the opponent's block across the top under the safe-area inset, the player's across the bottom

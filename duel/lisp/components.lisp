@@ -41,7 +41,6 @@
   (face :neutral)                       ; a held expression (:neutral :shout :hurt) while FACE-T > 0 (else chosen by state)
   (face-t 0f0 :type single-float)       ; effect seconds the held FACE lasts
   (beat 0f0 :type single-float)         ; effect seconds left of the head-thrown-back overlay (cup 3's entry: the grin)
-  (flare 0f0 :type single-float)        ; effect seconds left of the garb's flare (a warded hit, SHONETSU's tell)
   (last-sf -1 :type fixnum)             ; the move frame the last draw saw (draw-side move beats: Nadegiri's cut)
   ;; Phase 6 looks (cosmetic)
   (face-was :neutral)                   ; the expression drawn last frame (FACE-ACCENT)

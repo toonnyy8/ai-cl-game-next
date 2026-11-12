@@ -76,7 +76,7 @@ ground): up over the first 8 f of the dash (or the dash-in), down over the strik
            (* h (- 1.0 (/ (fighter-sf f) (float (mv-s mv))))))
           (t 0.0))))
 
-(defparameter *hurt-cines* '(yama-kikon-cine yama-tenchi-cine ken-kr-kikon-cine ken-zh-kikon-cine soul-break-cine
+(defparameter *hurt-cines* '(ken-kr-kikon-cine ken-zh-kikon-cine soul-break-cine
                              ko-cine)
   "The cinematics whose victim (V) shows the hurt face; their attacker (A) shouts (every cinematic's A does but the intro's,
 TIME's and the K.O.'s winner).")
@@ -191,8 +191,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
     (countdown! (model-hold m) rdt)
     (when (> rdt 0)                                       ; the Phase 5 look timers (effect seconds)
       (progn (countdown! (model-face-t m) rdt)
-             (countdown! (model-beat m) rdt)
-             (countdown! (model-flare m) rdt)))
+             (countdown! (model-beat m) rdt)))
     (move-beats e f m mv x y z yaw)
     (when (> (model-smear m) 0)
       (let ((v (model-smear-dir m)))
@@ -227,14 +226,13 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (if (and mv (eq (fighter-phase f) :main) (>= (fighter-sf f) (- (mv-s mv) 4)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv) 3)))
             (trail-push tr (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2))
             (trail-decay tr))
-        (vfx-smear tr (blade-smear (blade e)) (case (first (kit-blade kit)) (:fire 0) ((:embers :charcoal) 2) (t 1)))))
+        (vfx-smear tr (blade-smear (blade e)) 1)))
     ;; auras: the form's, EVOLUTION ready, the Breaker (brightens over the strike startup), the Kikon rush
     (let ((age (fx-clock)))
       (unless (or flashing (<= (model-alpha m) 0f0) (eql e *aura-off*))   ; the form's aura, crossfaded; none round a body
                                                           ; turned to ash (Tenchi Kaijin) or before a cinematic bursts it on
         (draw-aura f (kit-aura kit) x y z (* 1.1 (body-hurt-h b)) age rdt
-                   (cond ((> (model-flare m) 0f0) (+ 1.0 (* 2.0 (model-flare m))))   ; West's garb flaring (a warded hit, SHONETSU)
-                         ((and (eq look :charge) (not (eq (fighter-phase f) :main))) 1.5)
+                   (cond ((and (eq look :charge) (not (eq (fighter-phase f) :main))) 1.5)
                          ((and mv (getf (mv-params mv) :aura-k)) (getf (mv-params mv) :aura-k))   ; a charge stance's reiatsu (Kenpachi NS3)
                          ((and mv (eq (mv-kind mv) :kikon) (eq (kit-aura kit) :oni)) 0.15)   ; the oni pillar smoulders in
                          ((eq (kit-aura kit) :oni) (oni-aura-k f (and mv (eq (fighter-phase f) :main) (member (mv-kind mv) '(:quick :flash :sp))) rdt))
@@ -248,7 +246,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (when (and (not bm) (plusp (gauges-awake-regen (gauges e))) (> (model-alpha m) 0f0) (not (eq (fighter-state f) :cine)))
           (vfx-aura x y z (body-hurt-h b) :burst-white age rdt :k 0.6)))   ; the awakening's regen: a fainter white
       (when (and mv (eq (mv-kind mv) :breaker))            ; the owner's colour over ink (§4 mapping)
-        (let ((bk (case (first (kit-blade kit)) (:fire :breaker-fire) ((:embers :charcoal) :breaker-ember) (t :breaker))))
+        (let ((bk :breaker))
           (unless (eq (fighter-phase f) :main)
             (vfx-aura x y z (body-hurt-h b) bk age rdt :k (if (eq (fighter-phase f) :dash) 1.0 0.5))
             (vfx-breaker-ring x z age))
