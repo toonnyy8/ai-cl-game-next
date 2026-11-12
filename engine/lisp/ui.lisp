@@ -73,7 +73,7 @@ px tall (0 = no floor, the desktop default; a phone in portrait wants about 11).
 
 ;;; ---------------------------------------------------------------- primitives
 (declaim (inline col-a))
-(defun col-a (c) (if (> (length c) 3) (f32 (elt c 3)) 1f0))
+(defun col-a (c) (if (> (length c) 3) (coerce (elt c 3) 'single-float) 1f0))
 
 (defconstant +white-u+ (/ (+ (* 15 6) 3f0) 96))  ; center of the solid cell
 (defconstant +white-v+ (/ (+ (* 5 8) 4f0) 48))
@@ -101,7 +101,9 @@ locals it conses nothing. 6 vertices = one quad (two triangles)."
 (defmacro %col-floats ((r g b a) c &body body)
   "Bind R G B A (single-floats) to color C, a list or vector of 3-4 numbers."
   (let ((cv (gensym)))
-    `(let* ((,cv ,c) (,r (f32 (elt ,cv 0))) (,g (f32 (elt ,cv 1))) (,b (f32 (elt ,cv 2))) (,a (col-a ,cv)))
+    ;; COERCE, not F32: for an untyped list element (a fixnum 1) F32's typep branch boxes the result (48 B per ui-rect).
+    `(let* ((,cv ,c) (,r (coerce (elt ,cv 0) 'single-float)) (,g (coerce (elt ,cv 1) 'single-float))
+            (,b (coerce (elt ,cv 2) 'single-float)) (,a (col-a ,cv)))
        (declare (single-float ,r ,g ,b ,a))
        ,@body)))
 
@@ -153,7 +155,7 @@ bottom/right (VERTICAL chooses the axis). Corners TL TR BR / TL BR BL."
 
 (defmacro %ui-poly4-inline (x0 y0 x1 y1 x2 y2 x3 y3 c0 c1)
   (let ((vs (loop repeat 8 collect (gensym "P"))) (k0 (gensym "C")) (k1 (gensym "C")))
-    `(let* (,@(mapcar (lambda (v e) `(,v (f32 ,e))) vs (list x0 y0 x1 y1 x2 y2 x3 y3)) (,k0 ,c0) (,k1 ,c1))
+    `(let* (,@(mapcar (lambda (v e) `(,v (coerce ,e 'single-float))) vs (list x0 y0 x1 y1 x2 y2 x3 y3)) (,k0 ,c0) (,k1 ,c1))
        (declare (single-float ,@vs))
        (%col-floats (r0 g0 b0 a0) ,k0
          (%col-floats (r1 g1 b1 a1) ,k1
