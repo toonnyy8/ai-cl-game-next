@@ -32,18 +32,10 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
          (fighter-cls f))))
 
 ;;; ---------------------------------------------------------------- starting moves
-(defun core-pips-ok-p (e mv)
-  "Can E pay MV's :params :pips (pips of the kit's arm meter: Kenpachi's Bankai pointer 3, DUEL_KEN_CORE §8)? A move without one: T."
-  (let ((n (getf (mv-params mv) :pips)))
-    (or (null n) (>= (round (gauges-meter (gauges e))) n)
-        (progn (emit :refused e :sp) (clog "~a refused ~a: no pip" (side-name e) (mv-name mv)) nil))))
-
 (defun core-start! (e mv)
-  "Start core move MV (CORE-PIPS-OK-P first) and pay its pips (ARM-SPEND!, one each). T when it started."
-  (when (core-pips-ok-p e mv)
-    (start-move e mv :quick)
-    (dotimes (i (getf (mv-params mv) :pips 0)) (arm-spend! e mv))
-    t))
+  "Start core move MV. T."
+  (start-move e mv :quick)
+  t)
 
 (defun core-snap-lv! (e f)
   "A new NS route or AS starts: its unlock level is the kit's :lv hook now (Kenpachi's Shikai, DUEL_KEN_V3 §4: its segments' :params :lv;
@@ -57,15 +49,12 @@ a level gained in the route opens segments from the next route on). No hook: 99 
   (<= (getf (mv-params mv) :lv 0) (fighter-lv-cap f)))
 
 (defun core-sp-start! (e f)
-  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it took the press (started, or refused
-for want of a pip: the press is eaten, not retried every frame)."
+  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it started."
   (let ((mv (kit-core-move (fighter-kit f) :ns (fighter-ptr f))))
     (when mv
-      (if (core-pips-ok-p e mv)
-          (progn (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
-                 (core-snap-lv! e f)
-                 (core-start! e mv))
-          t))))
+      (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
+      (core-snap-lv! e f)
+      (core-start! e mv))))
 
 (defun core-next-as (f)
   "The AS an SP pressed now would start in F's combo: the one the move he is in names (its :params :as-ptr: Hisagi's gathered
@@ -74,18 +63,7 @@ route, DUEL_HISAGI §28.20: SA > AS1, J2 > AS2, J3 > AS3), else the attack press
          (n (or (and mv (getf (mv-params mv) :as-ptr))
                 (core-as-pointer (fighter-presses f) (getf core :as-by-press)))))
     (setf n (min n (max 1 (length (getf core :as)))))                  ; (no AS of that number in this kit: the last it has)
-    (loop while (and (> n 1) (core-pointer-locked-p f n)) do (decf n))   ; (a sealed pointer: the one below it)
     n))
-
-(defun core-pointer-locked-p (f n)
-  "Is pointer N sealed for fighter F (a kit's :core :locks, an alist pointer . rule)? :awaken-full: until the awakening gauge is full
-(the Shikai's Getsuga, DUEL_SUBLIMATION §9); :drive-full: until SPIRIT DRIVE is full (KESSA's)."
-  (let ((rule (cdr (assoc n (getf (kit-core (fighter-kit f)) :locks)))))
-    (and rule
-         (let ((g (gauges (if (zerop (fighter-side f)) *p1* *p2*))))
-           (ecase rule
-             (:awaken-full (not (or (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*))))
-             (:drive-full (not (and (gauges-awakened g) (>= (gauges-drive g) *drive-max*)))))))))
 
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
@@ -100,7 +78,7 @@ itself), else NIL (Kenpachi's Shikai: the burst, the special AS, the Bankai; DUE
       (when (eq pm :taken) (setf (fighter-as-done f) t) (return-from core-as-start! t))
       (let ((mv (or pm (kit-core-move (fighter-kit f) :as n)))
             (w (if pm pw (nth (1- n) writes))))
-        (when (and mv (core-pips-ok-p e mv))
+        (when mv
           (setf (fighter-sp-ptr f) (fighter-ptr f))
           (core-start! e mv)
           (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
@@ -325,7 +303,6 @@ a let-go drops it (CORE-KIKON-UNDO!)."
         (run-velocity e (kikon-follow-speed (fighter-dist f) left (or (getf (mv-params mv) :follow-cap) 22.0))))   ; (a wave's: far)
       (when (<= left 0)
         (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
-        (when (kit-pips (fighter-kit f)) (arm-spend! e mv))   ; the Kikon's strike burns a pip of the arm (none left: it strikes anyway; §8)
         (enter-main e f mv)))))
 
 (defun core-kikon-knock! (e f)

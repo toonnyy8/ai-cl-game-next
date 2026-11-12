@@ -490,7 +490,7 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
       (:awaken (let ((free (awaken-state-p e f)))
                  (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
                        ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
-                       ((and (kit-bankai-form kit) (bankai-allowed-p free (drive-full-p e)) (bankai-ok-p e))
+                       ((and (kit-bankai-form kit) (bankai-allowed-p free) (bankai-ok-p e))
                         (bankai! e) t)
                        ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
@@ -506,8 +506,6 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
              (when (plusp (mv-cooldown mv))
                (setf (aref (fighter-cd f) (position cmd *kit-commands*)) (mv-cooldown mv)))
              (when (eq cmd :kikon) (setf (fighter-kikon-n f) (kit-kikon-konpaku kit)))   ; its worth, fixed now
-             (when (kit-pip-cmd-p kit cmd)                                       ; the arm meter (Kenpachi's Bankai):
-               (if (or (eq cmd :f) ender) (setf (gauges-arm-owed g) t) (arm-spend! e mv)))   ; a string owes one pip
              (cold-spend! e kit cmd)                                             ; Rukia's cold
              (start-move e mv button)
              t))))))

@@ -114,10 +114,6 @@ by XS only (AWAKEN-OVERFLOW)."
   "Walk / run speed x (1 + *SUB-SPEED* x SUB-OF)."
   (+ 1.0 (* *sub-speed* (sub-of e))))
 
-(defun drive-full-p (e)
-  "Is E's SPIRIT DRIVE full (awakened, the gauge at *DRIVE-MAX*)? Opens Kenpachi's Bankai."
-  (let ((g (gauges e))) (and (gauges-awakened g) (>= (gauges-drive g) *drive-max*))))
-
 (defun pay-gauges (e r fs)
   "E gains R Reiatsu (REIATSU-GAIN!) and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN; the
 flash-step x (1 + *SUB-FS* x SUB-OF))."
@@ -873,24 +869,6 @@ awakening regen and no Reishi refill. CINE NIL: no cinematic, straight to idle i
         (start-cine (kit-cine (kit-of e)) e o :after (lambda () (to-idle e 0) (to-idle o 0)))
         (to-idle e 0))))
 
-(defun arm-spend! (e mv)
-  "A pip command starts MV (or a J / K string's pip is charged as it ends: MV the move running then, NIL none): one pip of
-the arm spent, the crack clock restarted, *ARM-SELF* burnt
-(BURN: never below 1). The last one: the burst is pending until MV is over (ken-meter.lisp KEN-ARM-STEP). The DANGAI
-boss (*RUN-BOSS*) never spends one (DUEL_ROGUE §5: ken-meter.lisp KEN-BOSS), nor P1 holding the 無手臂限制 card (§4.3)."
-  (let ((g (gauges e)))
-    (when (or (eq e *run-boss*) (rmod e :no-arm nil))   ; (the boss, DANGAI's 無手臂限制 card)
-      (log-msg "duel ~:[runmod no-arm~;boss kenpachi~] pip kept ~a" (eq e *run-boss*) (if mv (mv-name mv) ""))
-      (return-from arm-spend! nil))
-    (multiple-value-bind (n ok) (pip-spend (round (gauges-meter g)))
-      (when ok
-        (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) 0 (gauges-reishi g) (burn (gauges-reishi g) *arm-self*))
-        (when (zerop n) (setf (gauges-arm-pending g) (or mv :none)))
-        (refresh-look e)
-        (emit :arm-spend e n)
-        (clog "~a UDE -~a ~d left" (side-name e) (if mv (mv-name mv) "") n)))))
-
-
 ;;; ---------------------------------------------------------------- Kikon, Soul Break, reset
 (defun bankai-ok-p (e)
   "The form's own condition on its :bankai-form (its kit's :bankai-ok, a function of E: e.g. a beheading and a free state;
@@ -903,7 +881,7 @@ Konpaku and Reishi, which a release would half undo; DUEL_HISAGI §17.3 B11)."
 kit's :bankai-ok: BANKAI-OK-P)? (The HUD's P BANKAI prompt, the phone's AWAKEN chip.)"
   (let ((f (fighter e)))
     (and (kit-bankai-form (fighter-kit f))
-         (bankai-allowed-p (awaken-state-p e f) (drive-full-p e))
+         (bankai-allowed-p (awaken-state-p e f))
          (bankai-ok-p e))))
 
 (defun kikon-worth (e)

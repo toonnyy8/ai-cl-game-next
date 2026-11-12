@@ -569,12 +569,12 @@ Konpaku taken from the opponent at *AWAKEN-PER-KONPAKU* (DUEL_SUBLIMATION §18).
   "DMODS (the defender plist) with its :mult x (1 - *SUB-TAKEN* x FRAC)."
   (if (zerop frac) dmods (list* :mult (* (getf dmods :mult 1.0) (- 1.0 (* *sub-taken* frac))) dmods)))
 
-(defun bankai-allowed-p (free drive-full)
+(defun bankai-allowed-p (free)
   "Kenpachi's Bankai (docs/duel/DUEL_KEN_BANKAI.md §1.1): P in a form with :bankai-form (cup 3), FREE as for the first
 awakening (fighter.lisp AWAKEN-STATE-P: idle, guard, blockstun, a combo reaction past the Burst's hit; DRINK included;
-the user 2026-10-09, DUEL_KEN_REWORK §7) with his SPIRIT DRIVE full (DRIVE-FULL; the user 2026-10-31, DUEL_SUBLIMATION §3; it was
-at most *BANKAI-KONPAKU* of his own Konpaku, 2026-09-28). Once a match by construction (no later form has :bankai-form)."
-  (and free drive-full t))
+the user 2026-10-09, DUEL_KEN_REWORK §7). (The SPIRIT DRIVE-full gate, 2026-10-31, DUEL_SUBLIMATION §3, went with the last
+kit that had a :bankai-form, R1 of REFACTOR_2026-11 §11.3.) Once a match by construction (no later form has :bankai-form)."
+  (and free t))
 
 ;;; ---------------------------------------------------------------- the arm meter UDE (Kenpachi's Bankai)
 (defun pip-spend (pips)

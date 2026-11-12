@@ -18,7 +18,7 @@
 ;;; ================================================================ Kenpachi's Bankai and 片腕 (docs/duel/DUEL_KEN_BANKAI.md, the user's decisions 2026-09-28)
 (let ((b (kit :kenpachi :bankai)) (b2 (kit :kenpachi :bankai-2)))
   ;; 1. entry: no form's P (V3: the Shikai's J7 + SP, KEN-AS-PICK, the Bankai of his pointer: 狂嵐 :bankai / 斬壞 :bankai-2)
-  (check (and (bankai-allowed-p t t) (not (bankai-allowed-p nil t)) (not (bankai-allowed-p t nil))))
+  (check (and (bankai-allowed-p t) (not (bankai-allowed-p nil))))
   (check (null (loop for cf in *forms* when (kit-bankai-form (apply #'kit cf)) collect cf)))
   (check (every (lambda (k) (and (eq (kit-cine k) 'ken-bankai-cine) (kit-awakening k) (eq :kenpachi-oni (kit-body k)) (eq :ke-broken (kit-weapon k))
                                  (eq :oni (kit-aura k)) (member :arm-wreck (kit-hide k)) (~= 1.2 (kit-mult k)) (null (kit-pips k)) (null (kit-meter k))
