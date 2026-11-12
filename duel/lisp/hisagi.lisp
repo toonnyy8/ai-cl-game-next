@@ -1503,7 +1503,7 @@ cancel's unlock (the comment above); any other k the probe line only."
          (let ((st (hs *p1*)) (p (pos-of *p1*)))
            (setf (hss-state st) :out (hss-out-t st) 0 (hss-throw-t st) *match-tick*)
            (multiple-value-bind (x z) (hs-anchor-point (aref p 0) (aref p 2) (yaw-of *p1*) 3.0) (hs-anchor! *p1* x z))))
-      (3 (setup :yamamoto 8.0) (force-cmd *p2* :sig) (force-cmd *p1* :sig))
+      (3 (setup :ichigo 8.0) (force-cmd *p2* :sig) (force-cmd *p1* :sig))
       (4 (setup :kenpachi 5.0) (force-cmd *p1* :f))
       (5 (setup :hisagi 6.0 :cpu t))
       (6 (setup :kenpachi 2.0) (force-cmd *p1* :q))
@@ -1522,7 +1522,7 @@ cancel's unlock (the comment above); any other k the probe line only."
       (15 (setup :hisagi 6.0 :cpu t) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))
       (16 (setup :kenpachi 2.5) (hs-awaken-now! *p1*))
       (17 (setup :kenpachi 3.5) (hs-awaken-now! *p1*))
-      (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
+      (18 (setup :ichigo 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
       ((22 23) (setup :kenpachi (if (= k 22) 4.25 5.75)) (hs-awaken-now! *p1*))    ; §25.26: on K1's / J1's tip (the cues; §25.35's)
       (24 (setup :hisagi 4.25) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))         ; §25.27: the mirror on K1's tip (both flows)
       ;; §29 (the cancel's unlock): 40 / 41 the Shikai 2.0 m from Kenpachi at pointer 1, P1's NS1a NAGI started with / without P2's J1
@@ -1547,7 +1547,7 @@ cancel's unlock (the comment above); any other k the probe line only."
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)
-      ((20 21) (setup (if (= k 20) :barro :kenpachi) 6.0 :cpu t)
+      ((20 21) (setup (if (= k 20) :ichigo :kenpachi) 6.0 :cpu t)
        (when (= k 21) (hs-awaken-now! *p1*))
        (setf (brain-habit (brain *p1*)) :dumb (brain-delay (brain *p1*)) (getf *ai-delay* :easy) *assist-debug* (list 2 t t)))
       (t (when (<= 50 k 99)

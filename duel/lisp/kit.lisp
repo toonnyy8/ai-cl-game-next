@@ -343,13 +343,15 @@ new button."
 (inline-readers kit)
 
 (defvar *kits* (make-hash-table :test 'eq) "Character -> alist (form . KIT) (no consing to look one up).")
-(defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (its index: the saved data's,
-the gates' pairings; the select screen plays PLAYABLE-ROSTER).")
+(defvar *roster* (list :yamamoto :kenpachi :rukia :ichigo :senjumaru :lille :barro)
+  "Every character, by its index (the saved data's, the gates' pairings; the select screen plays PLAYABLE-ROSTER). The seven
+slots of the retired kits (*RETIRED*: their code left main on 2026-11-12, branch `retired-kits`) and of the playing ones before
+Hisagi are fixed here, no kit behind the retired ones; a later character's first :base DEFKIT appends it (Hisagi, 7).")
 (defparameter *retired* '(:lille :yamamoto :rukia :senjumaru :barro)
   "Roster slots kept for their index (the saved learning tables and records, the gates' pairing numbers) with no character:
 never on the select screen, a random or Endless opponent, or a default seed gate. Since 2026-10-27 (the core system,
 docs/duel/DUEL_CORE.md: 「先只做 2 到 3 個差異大的角色」, the user's 「妥」) also the four characters waiting to be ported to it
-(:yamamoto :rukia :senjumaru :barro: code and clips stay); only Kenpachi, Ichigo and Hisagi play. :lille, index 5: the old Lille, out of the
+(:yamamoto :rukia :senjumaru :barro: their code left main on 2026-11-12, REFACTOR_2026-11 R2 / B8a, and lives on the branch `retired-kits`); only Kenpachi, Ichigo and Hisagi play. :lille, index 5: the old Lille, out of the
 game since 2026-10-12 (「幫我將舊版的 lille 從遊戲中移除」, DEVLOG §208), his code removed 2026-10-13 (「幫我移除舊版的 lille」:
 barro.lisp reserves the slot; Lille, kit :barro, is 6).")
 (defun playable-roster () "*ROSTER* without the *RETIRED* characters." (remove-if (lambda (c) (member c *retired*)) *roster*))

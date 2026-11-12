@@ -149,21 +149,13 @@ accent over the head for a few drawings (VFX-FACE-ACCENT: the faces are too smal
   face)
 
 (defun move-beats (e f m mv x y z yaw)
-  "Draw-side looks keyed on a move frame (the sim's on-frame hooks stay as they are): Nadegiri's cut at its S, the
-focus lines as Shiranui's charge starts, Kenpachi's SP2 dash leaving an afterimage every 10 f (§4.2 SP2 dash). Each fires
+  "Draw-side looks keyed on a move frame (the sim's on-frame hooks stay as they are): Kenpachi's SP2 dash leaving an
+afterimage every 10 f (§4.2 SP2 dash). Each fires
 once, on the draw that first sees the frame (MODEL-LAST-SF)."
   (let ((prev (model-last-sf m)) (now (if (and mv (eq (fighter-state f) :move)) (fighter-sf f) -1)))
     (setf (model-last-sf m) now)
     (when (and mv (/= now prev))
       (case (mv-name mv)
-        (:ya-nadegiri (when (and (eq (fighter-phase f) :main) (< prev (mv-s mv)) (<= (mv-s mv) now))
-                        (vfx-nadegiri x z (fwd-x yaw) (fwd-z yaw))))
-        (:ya-shiranui (when (and (eq (fighter-phase f) :hold) (= (fighter-hold f) 2)) (focus-lines 14 x (+ y 1.2) z)))
-        (:ya-e-k3 (when (and (eq (fighter-phase f) :main) (< prev (mv-s mv)) (<= (mv-s mv) now))   ; RAKUJITSU: the plaza
-                    (let ((ex (+ x (* 1.6 (fwd-x yaw)))) (ez (+ z (* 1.6 (fwd-z yaw)))))           ; takes the setting sun
-                                                                                    ; (where its tip lands, f23)
-                      (vfx-ember ex 0.1 ez :dx (fwd-x yaw) :dz (fwd-z yaw) :scale 1.4)
-                      (stage-mark :scorch ex ez 0.7))))
         (:ke-charge (when (and (eq (fighter-phase f) :main) (<= (mv-s mv) now) (< now (+ (mv-s mv) (mv-a mv)))
                                (zerop (mod (- now (mv-s mv)) 10)))
                       (start-ghost e)))))))
@@ -172,28 +164,6 @@ once, on the draw that first sees the frame (MODEL-LAST-SF)."
   "The drawn height of KIT's :lift for body B: the lift while B is the form's own body (a cinematic that still shows the
 form before, e.g. an awakening's first beats, stands on the ground)."
   (let ((h (kit-lift kit))) (if (and (/= h 0) (kit-body kit) (eq b (find-body (kit-body kit)))) h 0.0)))
-
-(defun-fast fire-sheet (f mv px pz tip dt power)
-  "Ryujin Jakka's fire outruns the blade (docs/duel/DUEL_YAMA_TYBW.md §3.3): through each arc hit window of a :fire blade's
-Flash or Signature (from 3 f before it), a flame from the drawn TIP out along its bearing from his feet (PX PZ) to the
-volume's edge, its far end slanted to 0.15-1.4 m up; grown over those 3 f (the edge reached on the hit frame), dying 4 f
-after the window. Cosmetic (VFX-BLADE-FIRE's drawing, inline); 0 B."
-  (declare (single-float px pz dt power) (type f32vec tip))
-  (let ((sf (fighter-sf f)))
-    (declare (fixnum sf))
-    (loop for hw across (the simple-vector (mv-hits mv))
-          do (let ((from (hw-from hw)) (to (hw-to hw)) (v (first (hw-vols hw))))
-               (declare (fixnum from to))
-               (when (and v (< (aref (the f32vec v) 0) 0.5f0) (<= (- from 3) sf) (< sf (+ to 4)))
-                 (let* ((grow (f-min 1f0 (/ (i->f (- sf (- from 3))) 3f0)))
-                        (fade (if (< sf to) 1f0 (/ (i->f (- (+ to 4) sf)) 4f0)))
-                        (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2)) (dx (- tx px)) (dz (- tz pz))
-                        (k (* grow (- (/ (aref (the f32vec v) 1) (f-max 0.05f0 (f-hypot dx dz))) 1f0)))
-                        (ey (+ ty (* grow (- (f-max 0.15f0 (f-min ty 1.4f0)) ty)))))
-                   (declare (single-float grow fade tx ty tz dx dz k ey))
-                   (when (> k 0f0)
-                     (%blade-fire tx ty tz (+ tx (* k dx)) ey (+ tz (* k dz)) dt (* 1.5f0 power fade))))))))
-  nil)
 
 (defun draw-fighter (e rdt)
   "Pose and queue fighter E: body, weapon (or the planted one), blade look, aura, trail. RDT = this
@@ -241,23 +211,11 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                                               :shadow (= sc 1f0))
         (unless (= sc 1f0) (draw-shadow x y z (* 1.2 sc (body-hurt-r b))))))   ; (the giant's shadow)
     (let ((h (kit-hook kit :draw))) (when h (funcall h e rdt)))   ; a character's own looks on the posed body (KIT-HOOK)
-    (when (and mv (eq (mv-clip mv) :ya-tsuka) (eq (fighter-phase f) :main)   ; TSUKABI: the fist and pommel burn
-               (< (- (mv-s mv) 4) (fighter-sf f) (+ (mv-s mv) (mv-a mv) 10)))
-      (joint-point! *base* (model-joints m) (ji :lower-arm-r) 0f0 -0.1f0 0f0)
-      (joint-point! *tip* (model-joints m) (ji :weapon-r) 0f0 0.16f0 0f0)
-      (vfx-blade-fire (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2) rdt :power 1.4))
     (when (and planted (model-weapon m))
       (draw-planted-weapon (model-weapon m) (+ x (* 0.7 (fwd-x yaw))) (+ z (* 0.7 (fwd-z yaw))) yaw))
     (when (and weapon (> (model-alpha m) 0.5))
       (body-weapon-tip b weapon (model-joints m) *tip*)
       (body-weapon-base b weapon (model-joints m) *base*)
-      (let ((look (kit-blade kit)))
-        (case (first look)
-          (:fire (vfx-blade-fire (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2)
-                                 rdt :power (second look))
-                 (when (and mv (eq (fighter-phase f) :main) (member (mv-kind mv) '(:flash :sig)))   ; the fire sheet
-                   (fire-sheet f mv (f32 x) (f32 z) *tip* (f32 rdt) (f32 (second look)))))
-          (:embers (vfx-blade-embers (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2) rdt))))
       (when (and mv (eq (fighter-phase f) :hold) (not (member :stance (mv-flags mv))))
         (let ((ch (kit-hook kit :charge)))                 ; a form's own charge look replaces the fire one
           (if ch
@@ -281,12 +239,8 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                          ((and mv (eq (mv-kind mv) :kikon) (eq (kit-aura kit) :oni)) 0.15)   ; the oni pillar smoulders in
                          ((eq (kit-aura kit) :oni) (oni-aura-k f (and mv (eq (fighter-phase f) :main) (member (mv-kind mv) '(:quick :flash :sp))) rdt))
                          (t 1.0))))                                                           ; his rush (its trail is the tell)
-      (when (plusp (fighter-layers f))                     ; 霜の層 (Rukia's Shikai): the crust up his legs by layers
-        (vfx-ru-layers x z (body-hurt-h b) (fighter-layers f) rdt))
-      (if (plusp (fighter-frost f))                        ; frosted (Rukia's ice): the crust at his feet
-          (vfx-frost x z (/ (fighter-frost f) 60.0) rdt)
-          (when (and (eq (fighter-state f) :stun) (eq (fighter-phase f) :bind))   ; bound by South: ash drifting at the feet
-            (vfx-aura x y z (body-hurt-h b) :bound age rdt)))
+      (when (and (eq (fighter-state f) :stun) (eq (fighter-phase f) :bind))   ; bound by South: ash drifting at the feet
+        (vfx-aura x y z (body-hurt-h b) :bound age rdt))
       (when (gauges-evolution (gauges e)) (vfx-aura x y z (body-hurt-h b) :evolution age rdt :k 0.5))
       (let ((bm (gauges-burst (gauges e))))              ; a running burst: its colour (docs/duel/DUEL_DESIGN.md "Burst modes")
         (when (and bm (> (model-alpha m) 0f0) (not (eq (fighter-state f) :cine)))

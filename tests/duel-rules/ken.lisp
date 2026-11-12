@@ -3,17 +3,14 @@
 ;;; ================================================================ the Kikon counts, the ranged hits (what stayed of the cups' block; the
 ;;; cups KATATE / RYOTE / NOMIHOSE and their NOME went 2026-11-03, DUEL_KEN_V3 §8)
 (flet ((rw (name i) (member :ranged (hw-flags (svref (mv-hits (find-move name)) i)))))
-  (check (and (rw :ke-buttagiru 0) (rw :ya-kyoku 1) (rw :ya-taimatsu 0) (rw :ya-nadegiri 0)   ; (the meteor and LEAP CLEAVE went 2026-11-05)
-              (not (rw :ya-kyoku 0)) (not (rw :ya-kikon 0)))))
-(check (and (= 2 (kit-kikon-konpaku (kit :kenpachi :nozarashi))) (= 2 (kit-kikon-konpaku (kit :kenpachi :base)))
-            (= 3 (kit-kikon-konpaku (kit :yamamoto :bankai-east))) (= 2 (kit-kikon-konpaku (kit :yamamoto :hellfire)))))
+  (check (rw :ke-buttagiru 0)))   ; (the meteor and LEAP CLEAVE went 2026-11-05; Yamamoto's rows with his code, 2026-11-12)
+(check (and (= 2 (kit-kikon-konpaku (kit :kenpachi :nozarashi))) (= 2 (kit-kikon-konpaku (kit :kenpachi :base)))))
 (check (and (= 2 (nth-value 1 (kikon-result 9 2 nil))) (= 3 (nth-value 1 (kikon-result 9 2 t)))
             (= 3 (nth-value 1 (kikon-result 9 3 nil))) (= 4 (nth-value 1 (kikon-result 9 3 t)))
             (= 4 (nth-value 1 (kikon-result 9 4 nil))) (= 5 (nth-value 1 (kikon-result 9 4 t)))
             (= 4 (nth-value 1 (kikon-result 9 5 nil))) (= 5 (nth-value 1 (kikon-result 9 5 t)))
             (= 5 *soul-break-max-event*) (= 4 *kikon-max-event*)))
-(check (and (loop for (nil . k) in (gethash :kenpachi *kits*) always (eq 'soul-break-cine (kit-kikon-cine k)))   ; (no O rush since 2026-11-05: his
-            (eq 'yama-kikon-cine (kit-kikon-cine (kit :yamamoto :base))) (eq 'yama-tenchi-cine (kit-kikon-cine (kit :yamamoto :bankai-east)))))
+(check (loop for (nil . k) in (gethash :kenpachi *kits*) always (eq 'soul-break-cine (kit-kikon-cine k))))   ; (no O rush since 2026-11-05: his
 
 ;;; ================================================================ Kenpachi's Bankai and 片腕 (docs/duel/DUEL_KEN_BANKAI.md, the user's decisions 2026-09-28)
 (let ((b (kit :kenpachi :bankai)) (b2 (kit :kenpachi :bankai-2)))

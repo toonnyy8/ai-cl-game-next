@@ -1,11 +1,6 @@
 (in-package :duel)
 (setf *core-on* nil)   ; (the checks below quote the damage numbers of before the core system's scale, 2026-10-27; TRIANGLE turns it back on)
 
-(defvar *br-tip-print* nil)   ; (t: print the awakened stances' drawn tips, *BR-W-TIPS*)
-(defvar *br-w-stretch* nil)   ; (barro-art.lisp's whips, read with the art files below)
-(defvar *br-squash* nil)      ; (barro-art.lisp's squash and stretch, R8)
-(defvar *lb-wall-jl* nil)     ; (lille-art.lisp's wing wall rows: Lille II's awakened guard)
-(defvar *lb-wall-owl* nil)
 (defvar *fails* 0)
 (defvar *checks* 0)
 (defmacro check (form)
@@ -13,26 +8,16 @@
 (defun ~= (a b &optional (eps 1e-3)) (< (abs (- a b)) eps))
 (defun kit (c f) (find-kit c f))
 (defun mv (c f name) (kit-move (kit c f) name))
-(defparameter *forms* '((:yamamoto :base) (:yamamoto :hellfire) (:yamamoto :bankai-east) (:yamamoto :bankai-west)
-                        (:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)   ; (the cups and KATAUDE went 2026-11-03;
+(defparameter *forms* '((:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)   ; (the cups and KATAUDE went 2026-11-03;
                                                                                                 ;  V3's two Bankai, DUEL_KEN_V3 §26)
-                        (:rukia :base) (:rukia :m18) (:rukia :m50) (:rukia :zero) (:ichigo :base) (:ichigo :kessa)
-                        (:senjumaru :base) (:senjumaru :tsuji1) (:senjumaru :tsuji2) (:senjumaru :tsuji3) (:senjumaru :tsuji4)
-                        (:senjumaru :tsuji5) (:senjumaru :tsuji6)
-                        (:barro :base) (:barro :jilliel-kin) (:barro :jilliel) (:barro :shin-kin) (:barro :shin)
+                        (:ichigo :base) (:ichigo :kessa)
                         (:hisagi :base) (:hisagi :bankai) (:hisagi :bankai-bind)))   ; (Hisagi's Shikai, B2a: DUEL_HISAGI §8;
-                                                                ;  his Bankai's two modes, B2b: §17; Lille II
-                                                                ;  v3: MUJITTAI gone, DUEL_LILLE_V3 R1)
-(defun owl-adv (cf)
-  "The frame advantage CF's J / K add to DUEL_STRINGS's budget: the owl's *SHIN-ADV* (decision 36: each recovery 1 f
-shorter, its :adv-block 1 higher), else 0."
-  (cond ((and (eq (first cf) :barro) (br-owl-form-p (second cf))) *br-owl-adv*)   ; (Lille II's owl: the same +1)
-        (t 0)))
+                                                                ;  his Bankai's two modes, B2b: §17; the four retired kits' forms
+                                                                ;  left with their code, 2026-11-12: branch `retired-kits`)
+(defun owl-adv (cf) "The frame advantage CF's J / K add to DUEL_STRINGS's budget (the owl's +1 left with Lille, 2026-11-12): 0." (declare (ignore cf)) 0)
 (defun trace-form-p (cf)
-  "Is CF a form whose J / K strings lay traces instead of hitting (Lille's JILLIEL EN, DUEL_LILLE §22.2): its J1 has no hit
-window? The hit-based string checks skip it (its own block below checks its frames)."
-  (or (zerop (length (mv-hits (kit-command-move (apply #'kit cf) :q))))
-      (and (eq (first cf) :barro) (member (second cf) '(:jilliel :shin)) t)))   ; (Lille II v3: his stance EN's strings,
+  "Is CF a form whose J / K strings lay traces instead of hitting: its J1 has no hit window? The hit-based string checks skip it."
+  (zerop (length (mv-hits (kit-command-move (apply #'kit cf) :q)))))   ; (Lille II v3: his stance EN's strings,
                                                                                   ;  DUEL_LILLE_V3 R2: own block below)
 
 ;;; ================================================================ the triangle / clash matrix
@@ -66,8 +51,7 @@ window? The hit-based string checks skip it (its own block below checks its fram
 (check (and (ranged-hit-p t nil nil 0.0) (not (ranged-hit-p nil nil nil 100.0)) (ranged-hit-p nil '(:ranged) nil 1.0)
             (not (ranged-hit-p nil '(:ranged) 3.4 (* 3.4 3.4))) (ranged-hit-p nil '(:ranged) 3.4 (* 3.5 3.5))))
 (flet ((mr (name) (getf (mv-params (find-move name)) :melee-range)))
-  (check (and (~= (mr :ke-buttagiru) 2.6) (~= (mr :ya-nadegiri) 2.4)        ; (the old meteor's 3.4 went 2026-11-05, DUEL_KEN_V3 §43)
-              (null (mr :ya-kyoku)) (null (mr :ya-taimatsu)))))
+  (check (~= (mr :ke-buttagiru) 2.6)))        ; (the old meteor's 3.4 went 2026-11-05, DUEL_KEN_V3 §43; Nadegiri's 2.4 with Yamamoto, 2026-11-12)
 ;; the contact rule: only a real hit is a hit for the attacker (armour, absorb, parry, block are :block)
 (check (every (lambda (r) (eq (contact-of r) :hit)) '(:hit :counter :guard-break :stance-break :kikon)))
 (check (every (lambda (r) (eq (contact-of r) :block)) '(:blocked :armored :absorbed :parried)))
@@ -84,12 +68,8 @@ window? The hit-based string checks skip it (its own block below checks its fram
 (check (eq (breaker-next-phase :dash 12 nil 9.0) :strike))
 (check (eq (breaker-next-phase :dash 45 t 9.0) :strike))
 (check (and (~= (breaker-speed 0) 9.0) (~= (breaker-speed 45) 10.0)))
-(let ((b (mv :yamamoto :base :ya-breaker)))
-  (check (and (= (mv-s b) 8) (= (mv-a b) 4) (= (mv-r b) 18) (= (mv-whiff b) 30) (= (mv-dmg b) 150)
-              (eq (mv-adv-block b) :guard-break) (member :breaker (hw-flags (svref (mv-hits b) 0)))
-              (~= (mv-track b) *track-breaker*) (= (hw-hs (svref (mv-hits b) 0)) 10))))
 ;; a Q1 thrown on seeing the aura beats the fastest Breaker (aura 12 + strike startup 8)
-(check (< (mv-s (mv :yamamoto :base :ya-j1)) (+ *breaker-aura* *breaker-startup*)))
+(check (< (mv-s (mv :kenpachi :base :ke-j1)) (+ *breaker-aura* *breaker-startup*)))   ; (Kenpachi's J1 now; Yamamoto's before)
 ;; 防 > J > I > 防 (the user, 2026-09-29; docs/duel/DUEL_STRINGS.md §14): guard blocks J (above), a Breaker breaks the guard
 ;; (above), and J beats the grab: in every form with a Breaker its strike reaches less far than J1, and J1 has a press
 ;; window against the dash: the Breaker's aura, dash and strike startup are :breaker (any hit counters it), so J1 connects
@@ -194,113 +174,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (member cf '((:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)) :test #'equal))) *forms*))   ; (Kenpachi V3: his own J strings)   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
-  (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
-         (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
-         (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
-         (hs1 (equal cf '(:hisagi :base)))   ; (Hisagi's Shikai since S2, DUEL_HISAGI §23.5: a J after a K leaps in, J2K / J3K)
-         (hr (equal cf '(:hisagi :bankai))))   ; (Hisagi's ranged mode, DUEL_HISAGI §17.1: 「前搖大」; B4a, §22.2: J1 S 14;
-                                               ;  B4c, §22.4: the route links' S -3 (spread) / +3 (gathered), K1 綁束 S 16;
-                                               ;  its own block below pins the rest)
-    ;; the shape: exactly the six full routes JJJ JJK JKK KKK KKJ KJJ (J / K switch at most once), every link 3 an ender
-    (check (equal (sort (loop for (nil n seq) in links when (= n 3) collect (format nil "~{~a~}" (mapcar (lambda (c) (if (eq c :q) "J" "K")) seq)))
-                        #'string<)
-                  '("JJJ" "JJK" "JKK" "KJJ" "KKJ" "KKK")))
-    (check (every (lambda (l) (eq (and (member :ender (mv-flags (first l))) t) (= 3 (second l)))) links))
-    (check (every (lambda (l) (eq (string-link-p k (mv-name (first l))) (< (second l) 3))) links))
-    ;; the budget (§2.1): J1 S 7-10 A 3 R 12 flinch -2; K1 S 16-20 A 4 R 20-22 stagger -3, no armour (cup 3's K1 is
-    ;; KUKAN-GIRI, -4); J beats K: S(K1) - S(J1) >= 7
-    ;; (the owl's +1, decision 36: R 1 f shorter, :adv-block 1 higher on every J / K)
-    (if v8   ; (decision V8: J S - 2 / R - 2 / adv + 2, K S + 2 / R + 2 / adv - 4 over the budget's numbers)
-        (check (and (if (eq (second cf) :base)   ; (decision R3: the awakened J strings at the standard speed, route :JN)
-                        (and (= 6 (mv-s j1)) (= (- 10 a) (mv-r j1)))
-                        (and (<= 7 (mv-s j1) 10) (= (- 12 a) (mv-r j1))))
-                    (= 3 (mv-a j1)) (= a (mv-adv-block j1))
-                    (eq :flinch (hw-react (svref (mv-hits j1) 0)))
-                    (= 19 (mv-s k1)) (= 4 (mv-a k1)) (= (- 23 a) (mv-r k1)) (= (+ a -7) (mv-adv-block k1))
-                    (zerop (mv-armor-hits k1)) (eq :stagger (hw-react (svref (mv-hits k1) 0)))))
-        (progn
-    (check (and (cond (hr (= 14 (mv-s j1))) ((equal cf '(:ichigo :base)) (= 14 (mv-s j1))) (t (<= 7 (mv-s j1) 10))) (= 3 (mv-a j1)) (= (- 12 a) (mv-r j1)) (= (+ -2 a) (mv-adv-block j1))
-                (eq :flinch (hw-react (svref (mv-hits j1) 0)))))
-    (check (and (<= 16 (mv-s k1) 20) (= 4 (mv-a k1)) (<= (- 20 a) (mv-r k1) 22) (= (+ a (if cup3 -4 -3)) (mv-adv-block k1))
-                (zerop (mv-armor-hits k1)) (eq :stagger (hw-react (svref (mv-hits k1) 0)))))))
-    (unless (or hr (equal cf '(:ichigo :base))) (check (>= (- (mv-s k1) (mv-s j1)) 7)))   ; (Ichigo's NA1 S 14 since the core tells, DUEL_CORE §9)   ; (his ranged J1 S 14 / K1 S 16: §17.1's exception, B4c)
-    (dolist (l (remove-if (lambda (l) (zerop (length (mv-hits (first l))))) links))
-      (destructuring-bind (m n seq) l
-        (let ((kk (eq (car (last seq)) :f)) (w (svref (mv-hits m) 0)))
-          ;; every K at link 2 / 3 enters at S_eff 14; J links 2 / 3 -2 / -4, K links -3 / -20; enders stagger / crumple
-          (when (and kk (> n 1)) (check (= (cond (hr (if (member (mv-name m) *hs-r-gather-links*) 21 15))   ; (B4c: 24 -/+ 3, enter 6)
-                                                 ((and v8 (eq (second cf) :base)) 15) (t 14))
-                                           (- (mv-s m) (mv-enter m)))))   ; (V8: *BR-K-LINK-SLOW* 1; R12: the awakened :KN 14)
-          (when (> n 1)
-            (check (= (mv-adv-block m) (+ a (cond ((and hs1 (member (mv-name m) '(:hs-j2k :hs-j3k))) *hs-leap-block*)   ; (S2's leap)
-                                                  (v8 (cond ((and (= n 2) kk) -7) ((= n 2) 0) (kk -24) (t -2)))
-                                                  (t (cond ((and (= n 2) kk) -3) ((= n 2) -2) (kk -20) (t -4)))))))
-            (check (eq (hw-react w) (cond ((and (= n 3) kk) :crumple) ((or kk (= n 3)) :stagger) (t :flinch)))))
-          ;; the whiff: one swing, R + 8 (J) / R + 12 (K)
-          (check (= (mv-whiff m) (+ (mv-r m) (if kk *whiff-extra-k* *whiff-extra-j*))))
-          (check (= (move-end-frame (mv-s m) (mv-a m) (mv-r m) (mv-whiff m) nil nil)
-                    (+ (mv-s m) (mv-a m) (mv-r m) (if kk *whiff-extra-k* *whiff-extra-j*))))
-          ;; every follow-up combos on hit (after a J and after a K link alike); on block (the gap is S_eff - 1 -
-          ;; *CHAIN-LEAD* - adv: S_eff - 2 after a -2 link, S_eff - 1 after a -3 one) a K link leaves >= 11 f (any J1
-          ;; <= 10 f interrupts it; after KUKAN-GIRI the rift closes it) and a J link 3 .. S(J1) f (Step / Hoho fit;
-          ;; his own J1 at best trades: Kenpachi's and KATATE's K2 -> J3 leave exactly S(J1))
-          (dolist (c '(:q :f))
-            (let ((nx (kit-next k (mv-name m) c)))
-              (when (and nx (plusp (length (mv-hits nx))))
-                (unless (and hr (> (length (mv-hits m)) 1))   ; (his gathered K2's two hits, its launch: his block below)
-                  (check (< (hit-gap m nx) 0)))
-                (let ((g (blocked-gap m nx)))
-                  (cond ((eq c :f) (check (>= g (if v8 (if (eq (second cf) :base) 10 9) 11))))   ; (V8: the owl's J +1 over ±0: J -> K 10 f, base 12; R12: the awakened K links S_eff 14, 9 f)
-                        (v8 (check (>= g 0)))   ; (V8: his J links block-safe up to ±0: no gap to Step into, by design)
-                        ((or hr (and hs1 (intersection (list (mv-name m) (mv-name nx)) '(:hs-j2k :hs-j3k))))   ; (B4c: the gathered
-                         (check (>= g (first *step-iframes*))))   ; J S 16 leave 14-15 f: his block; S2: the leap's 14 f, a Step /
-                                                                  ; Hoho / his ranged K fits; after J2K's -6 his J1 punishes)
-                        (t (check (and (>= g (first *step-iframes*)) (<= g (mv-s j1)))))))))))))
-    ;; the switched link 2 (J2s, K2s) is a copy: the same data as J2 / K2 but its name
-    (let ((j2 (kit-next k (mv-name j1) :q)) (j2s (kit-next k (mv-name k1) :q))
-          (k2 (kit-next k (mv-name k1) :f)) (k2s (kit-next k (mv-name j1) :f)))
-      (unless (or cup3 (eq (first cf) :hisagi))   ; (Hisagi: K2s MAKI is its own move, J2s the one-handed x0.8: DUEL_HISAGI §7.2)
-        ;; (Ichigo's Shikai: the copies are the CROSS, both blades: they may differ only in :guard and the clip)
-        (flet ((core (m) (if (equal cf '(:ichigo :base))
-                             (loop for (key v) on (mv-spec m) by #'cddr unless (member key '(:guard :clip :clip-s)) append (list key v))
-                             (mv-spec m))))
-          (check (and (not (eq j2 j2s)) (not (eq k2 k2s))
-                      (equal (core j2) (core j2s)) (equal (core k2) (core k2s))
-                      (= (mv-enter k2) (mv-enter k2s)) (= (mv-s j2) (mv-s j2s))
-                      (or (equal cf '(:ichigo :base)) (eq (mv-clip k2) (mv-clip k2s))))))))
-    ;; K3 on block -20: every J1 and every base K1 punishes it; J3 -4 is safe
-    (check (every (lambda (l) (or (/= 3 (second l)) (< (max (mv-s (mv :yamamoto :base :ya-j1)) (mv-s (mv :kenpachi :base :ke-j1))
-                                                             (mv-s (mv :yamamoto :base :ya-k1)) (mv-s (mv :kenpachi :base :ke-k1)))
-                                                        (- (mv-adv-block (first l))))
-                                  (= (+ (if v8 -2 -4) a) (mv-adv-block (first l)))
-                                  (and hs1 (eq (mv-name (first l)) :hs-j3k))))   ; (S2's leap J3K: -6, his J1 punishes it, below)
-                  links))
-    ;; the O ender always combos off a link-3 hit: the module's dash from the ender's reach to *KIKON-TRIGGER* + its
-    ;; strike's startup inside the ender's stagger / crumple
-    (let* ((o (kit-command-move k :kikon)) (pa (and o (mv-params o))))   ; (Kenpachi has no O rush since 2026-11-05)
-      (dolist (l (and o links))
-        (when (= 3 (second l))
-          (let* ((m (first l)) (dash (if (zerop (getf pa :dash-max)) 0
-                                        (ceiling (* 60 (/ (max 0.0 (- (mv-reach m) *kikon-trigger*)) (getf pa :speed)))))))
-            (check (< (+ (- (mv-total m) (hw-from (svref (mv-hits m) 0)) (mv-r m)) dash (mv-s o))
-                      (hitstun (hw-react (svref (mv-hits m) 0)))))))))
-    (unless (= fails0 *fails*) (format t "  string budget fails in ~s~%" cf))))
-;; route resolution (the latch, §2.1 / §2.3), Yamamoto Shikai (Kenpachi RYOTE's rows went with the cups, 2026-11-03)
-(let ((y (kit :yamamoto :base)))
-  (check (equal (route y :q '((:q) (:q))) '(:ya-j1 :ya-j2 :ya-j3)))
-  (check (equal (route y :q '((:q) (:f))) '(:ya-j1 :ya-j2 :ya-k3)))
-  (check (equal (route y :q '((:f) (:f))) '(:ya-j1 :ya-k2s :ya-k3)))
-  (check (equal (route y :f '((:f) (:f))) '(:ya-k1 :ya-k2 :ya-k3)))
-  (check (equal (route y :f '((:f) (:q))) '(:ya-k1 :ya-k2 :ya-j3)))
-  (check (equal (route y :f '((:q) (:q))) '(:ya-k1 :ya-j2s :ya-j3)))
-  (check (equal (route y :q '((:f) (:q))) '(:ya-j1 :ya-k2s)))              ; JKJ: switched back, eaten: the string ends
-  (check (equal (route y :f '((:q) (:f))) '(:ya-k1 :ya-j2s)))              ; KJK
-  (check (equal (route y :q '((:q :f) (:f :q))) '(:ya-j1 :ya-k2s :ya-k3)))   ; the last allowed press wins; the eaten J
-  (check (equal (route y :q '((:q) (:q) (:q))) '(:ya-j1 :ya-j2 :ya-j3)))   ; link 3 latches nothing: no link 4
-  (check (equal (route y :q '(() (:q))) '(:ya-j1)))                       ; nothing pressed: it stops at link 1
-  (check (and (eq (string-latch y :ya-k2s :q :f) :f) (eq (string-latch y :ya-k2s :q nil) nil)
-              (eq (string-latch y :ya-j1 :f :q) :f) (not (string-link-p y :ya-j3)) (not (string-link-p y :ya-sig)))))
 ;; the Shikai derives nothing since V3 (startup +0, reach x1.0, DUEL_KEN_V3 §9): the base moves it inherits are the base's (KATATE's +2 / x1.3
 ;; went with the cups, 2026-11-03)
 (let ((t1 (kit :kenpachi :nozarashi)))
@@ -310,10 +183,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (mv :kenpachi :base n)) nil nil i nil))))
   (check (and (= 112 (dmg :ke-j1 :ke-j2 :ke-j3)) (= 210 (dmg :ke-k1 :ke-k2 :ke-k3)) (= 147 (dmg :ke-k1 :ke-j2s :ke-j3))
               (= 60 (hit-damage 70 nil nil 4 nil)))))
-;; Yama's J1 -> J2 on block: exactly the 6 f gap (free on step 23, J2 hits on step 21 + 8)
-(let ((q1 (mv :yamamoto :base :ya-j1)) (q2 (mv :yamamoto :base :ya-j2)))
-  (check (= 23 (nth-value 1 (free-steps q1))))
-  (check (= 6 (- (+ (- (mv-total q1) *chain-lead*) (mv-s q2)) (nth-value 1 (free-steps q1))))))
 (check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) 1.0))  ; its own clip, authored at its startup 9 (DUEL_KEN_V3 §15)
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
 ;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
@@ -332,21 +201,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (~= (combo-scale 20 t) 0.5) (= 50 (hit-damage 100 nil nil 20 nil t))))
 ;; every SP ignores the combo scaling (the user 2026-10-24: 「所有角色的 SP 也都設置成不受傷害減免影響」): kind :sp, or the
 ;; form's SP1 / SP2 command of another kind (Hisagi's ranged KUBIKAKE, Lille's SHIN recall); never a J / K / L
-(check (and (sp-move-p (kit :rukia :base) (find-move :ru-shirafune-s)) (sp-move-p (kit :ichigo :kessa) (find-move :ic-k-zanzo))
-            (sp-move-p (kit :barro :shin) (kit-command-move (kit :barro :shin) :sp2))
-            (not (sp-move-p (kit :rukia :base) (find-move :ru-k1))) (not (sp-move-p (kit :hisagi :bankai) (find-move :hs-r-k1)))
-            (not (sp-move-p (kit :rukia :base) (find-move :ru-byakurai)))))
+(check (and (sp-move-p (kit :ichigo :kessa) (find-move :ic-k-zanzo))
+            (not (sp-move-p (kit :hisagi :bankai) (find-move :hs-r-k1)))))
 ;; Hisagi's Bankai ranged mode: a chain-tip hit ignores the combo scaling (the user 2026-10-25: 「修兵卍解遠距的尖端判定也設成
 ;; 不受連擊衰減的影響」): its :unscaled hook, after :dmg-mult read the tip (HS-TIP-NOW-P); no other kit has the hook
 (check (and (eq 'hs-tip-now-p (kit-hook (kit :hisagi :bankai) :unscaled))
             (every (lambda (k) (or (eq (kit-character k) :hisagi) (null (kit-hook k :unscaled))))
                    (loop for al being the hash-values of *kits* append (mapcar #'cdr al)))))
-;; Lille's awakened stance K > L wing spends (the user 2026-10-24: 「不受減免補正影響」): :unscaled on KL1-3 of EN and the
-;; owl's stance, never on the base stance's
-(check (and (every (lambda (n) (every (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))
-                   '(:br-e-kl1 :br-e-kl2 :br-e-kl3 :br-oe-kl1 :br-oe-kl2 :br-oe-kl3))
-            (notany (lambda (n) (some (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))
-                    '(:br-s-kl1 :br-s-kl3 :br-e-k3 :br-e-jl1))))
 (check (= (hit-damage 100 nil nil 1 nil) 100))
 (check (= (hit-damage 100 '(:mult 1.3) nil 1 nil) 130))                 ; Hellfire
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 2) nil 1 nil) 110))
@@ -355,7 +216,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (= (hit-damage 100 nil nil 20 nil) 20))                          ; floor 20 % (40 % until 2026-10-24)
 (check (= (hit-damage 1 nil nil 12 nil) 1))                             ; a hit always does 1
 (check (= (hit-damage 0 '(:mult 2.0) nil 1 t) 0))
-(check (= (hit-damage 100 (kit-atk-mods (kit :yamamoto :bankai-east) 4) nil 1 nil) 100))     ; East x1.0 (the rework)
+     ; East x1.0 (the rework)
 (check (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nozarashi) 4) nil 1 nil) 120))   ; the Shikai x1.0 x Cornered 1.20
 (check (= (chip-damage 110 *chip-fire* 500) 13))
 (check (and (= (chip-damage 110 0.12 5) 4) (= (chip-damage 110 0.12 1) 0)))   ; chip never kills
@@ -504,7 +365,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; BLUE: the guard gauge refills with no delay, x2 when free, x0.5 even while guarding (GUARD HOLD otherwise)
 (check (and (~= (gg-regen 50.0 999 nil nil nil 0.25) (+ 50.0 (/ (* 0.25 *gg-regen*) 60)))   ; a form's :gg-regen (Bankai East)
             (~= (gg-regen 50.0 999 t nil nil 0.25) (+ 50.0 (/ *gg-regen-guardless* 60)))   ; (guardless: unchanged)
-            (= 0.25 (kit-gg-regen (find-kit :yamamoto :bankai-east))) (= 1.0 (kit-gg-regen (find-kit :yamamoto :base)))))
+            ))
 (check (and (~= (gg-regen 50.0 0 nil nil :blue) (+ 50.0 (/ 11.0 60))) (~= (gg-regen 50.0 0 nil t :blue) (+ 50.0 (/ 2.75 60)))
             (~= (gg-regen 50.0 0 t nil :blue) (+ 50.0 (/ 13.0 60))) (~= (gg-regen 99.99 0 nil t :blue) 100.0)
             (~= (gg-regen 50.0 999 nil t) 50.0)))                            ; outside BLUE: GUARD HOLD as ever
@@ -553,8 +414,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (= (guard-value :sig -6 10) 10)))
 (check (and (= (hw-guard (svref (mv-hits (mv :kenpachi :base :ke-j3)) 0)) 8)             ; J3 (-4) 8
             (= (hw-guard (svref (mv-hits (mv :kenpachi :base :ke-k3)) 0)) 18)            ; K3 ender (-20) 18
-            (= (hw-guard (svref (mv-hits (mv :yamamoto :base :ya-sig)) 0)) 10)           ; the Signature's cuts 10 each
-            (= 15 (getf (mv-params (find-move :ya-sig)) :guard))))                       ; ... its wave 15
+            ))
 ;; Kenpachi base J J J blocked = 24, K K K = 46 (DUEL_STRINGS §3.5): a full gauge falls on the 5th J string, the 3rd K
 (flet ((gv (name) (hw-guard (svref (mv-hits (mv :kenpachi :base name)) 0))))
   (check (= 24 (+ (gv :ke-j1) (gv :ke-j2) (gv :ke-j3))))
@@ -581,15 +441,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (let ((*pierce-max* 0.5))                                                  ; the spec's arithmetic at 0.5
  (check (and (~= (pierce-rate 100.0) 0.5) (~= (pierce-rate 0.0) 0.1)
              (~= (pierce-rate 50.0) 0.3) (~= (pierce-rate 100.0 2.0) 1.0) (~= (pierce-rate 0.0 2.0) 0.2)))
- (let ((east (kit :yamamoto :bankai-east)))
-  (flet ((hit (dmg gg &optional (m 1.0)) (hit-damage dmg (kit-atk-mods east 0 (+ 1.0 (pierce-rate gg m))) nil 1 nil))
-         (through (dmg gg &optional (m 1.0)) (chip-damage dmg (pierce-rate gg m) 1300)))
-    (check (= 190 (+ (hit 34 100.0) (hit 38 100.0) (hit 55 100.0))))
-    (check (= 165 (+ (hit 34 50.0) (hit 38 50.0) (hit 55 50.0))))
-    (check (= 64 (+ (through 34 100.0) (through 38 100.0) (through 55 100.0))))
-    (check (= 13 (+ (through 34 0.0) (through 38 0.0) (through 55 0.0))))
-    (check (and (= 170 (hit 85 100.0 2.0)) (= 85 (through 85 100.0 2.0)) (= 102 (hit 85 0.0 2.0)) (= 17 (through 85 0.0 2.0))))
-    (check (= 49 (chip-damage 85 1.0 50))))))                                  ; the pierce never kills: it leaves 1
+ (flet ((through (dmg gg &optional (m 1.0)) (chip-damage dmg (pierce-rate gg m) 1300)))   ; (the pure half of Bankai East's table)
+   (check (= 64 (+ (through 34 100.0) (through 38 100.0) (through 55 100.0))))
+   (check (= 13 (+ (through 34 0.0) (through 38 0.0) (through 55 0.0))))
+   (check (and (= 85 (through 85 100.0 2.0)) (= 17 (through 85 0.0 2.0))))
+   (check (= 49 (chip-damage 85 1.0 50)))))                                  ; the pierce never kills: it leaves 1
 (check (and (~= (pierce-rate 100.0) 0.45) (~= (pierce-rate 100.0 2.0) 0.9)))    ; as tuned: KYOKKO 162 / 77 at full
 ;; the ward never refills: GUARD HOLD counts it as guarding (combat.lisp GAUGE-SYSTEM), so the gauge stands still and
 ;; the delay is frozen; West's drain is x*WARD-MULT*; Kenpachi's base Q string (28) crushes it on the 4th string
@@ -632,10 +488,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (not (stun-over-p 16.0 16.0)) (stun-over-p 16.5 16.0)))       ; past it, not at it
 (check (= (stun-tolerance-of (kit :ichigo :base)) 16.0))                  ; per kit
 (check (= (stun-tolerance-of (kit :kenpachi :base)) 26.0))
-(check (= (stun-tolerance-of (kit :rukia :base)) 13.0))
 (check (= (stun-tolerance-of (kit :kenpachi :bankai)) 26.0))              ; derived forms inherit it
 (check (= (stun-tolerance-of (kit :ichigo :kessa)) 16.0))
-(check (= (stun-tolerance-of (kit :senjumaru :tsuji6)) 13.0))
 (check (every (lambda (cf) (plusp (stun-tolerance-of (apply #'kit cf)))) *forms*))
 (check (= (stun-tolerance-of (make-kit)) *stun-tolerance*))              ; no key: the default
 ;; a re-pin loop with gaps: a J string (flinch flinch stagger), 20 f of neutral, again ... it still blows him away
@@ -655,13 +509,15 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
          (not over)))
 
 ;;; ================================================================ perfect Hoho
-;; Yama's Q1 (window [9,12), 1.4 m arc: the J floor) from the origin facing -Z; our cylinder r 0.4 h 1.8
-(let* ((q1 (mv :yamamoto :base :ya-j1)) (w (svref (mv-hits q1) 0)))
-  (flet ((perfect (sf z) (perfect-hoho-p sf (hw-from w) (hw-to w) (hw-vols w)
+;;; ================================================================ perfect Hoho
+;; A J-like window ([9,12), a 1.4 m arc: the J floor; Yamamoto's Q1 until his code left main, 2026-11-12, now the same numbers
+;; inline) from the origin facing -Z; our cylinder r 0.4 h 1.8
+(let ((from 9) (to 12) (vols (list (make-vol :arc '(1.4 100 -0.5 2.5)))))
+  (flet ((perfect (sf z) (perfect-hoho-p sf from to vols
                                          0f0 0f0 0f0 0f0 -1f0 0f0 0f0 (float z 1f0) 0.4f0 1.8f0)))
     (check (perfect 3 -2.0))                  ; active in 6 f: perfect
     (check (perfect 0 -2.0))                  ; 9 f away: inside the 12 f lead (8 until 2026-10-01)
-    (check (not (perfect-hoho-p 0 (+ (hw-from w) 4) (+ (hw-to w) 4) (hw-vols w)   ; 13 f away: too early
+    (check (not (perfect-hoho-p 0 (+ from 4) (+ to 4) vols   ; 13 f away: too early
                                 0f0 0f0 0f0 0f0 -1f0 0f0 0f0 -2f0 0.4f0 1.8f0)))
     (check (perfect 10 -2.0))                 ; active now
     (check (not (perfect 12 -2.0)))           ; over
@@ -696,21 +552,16 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (not (run-stop-p 1.0 -1.0 8.0)) (not (run-stop-p 1.25 0.0 10.0))))   ; running away / sideways
 (check (and (~= (run-carry 5.0) 1.0) (~= (run-carry 1.7) 0.5) (~= (run-carry 1.0) 0.0)))
 (check (and (~= (brake-speed 9.0 3) 4.5) (~= (brake-speed 9.0 6) 0.0) (~= (brake-speed 9.0 9) 0.0)))
-(check (and (~= (kit-run (kit :yamamoto :base)) 8.0) (~= (kit-run (kit :kenpachi :base)) 10.0)
-            (~= (kit-run (kit :kenpachi :nozarashi)) 10.0) (~= (kit-run (kit :yamamoto :bankai-east)) 8.0)))
+(check (and (~= (kit-run (kit :kenpachi :base)) 10.0) (~= (kit-run (kit :kenpachi :nozarashi)) 10.0)))
 ;; the run faces the opponent: one clip set per character (every Kenpachi form shares his)
-(check (and (equal (kit-run-clips (kit :yamamoto :bankai-west)) '(:sh-run :sh-skate-b :sh-slide-r :sh-slide-l))
-            (equal (kit-run-clips (kit :kenpachi :nozarashi)) (kit-run-clips (kit :kenpachi :base)))
+(check (and (equal (kit-run-clips (kit :kenpachi :nozarashi)) (kit-run-clips (kit :kenpachi :base)))
             (eq (first (kit-run-clips (kit :kenpachi :base))) :ke-run)))
-(check (and (> (getf (kit-ai (kit :kenpachi :base)) :dash) (getf (kit-ai (kit :yamamoto :base)) :dash))   ; Ken dashes more
-            (getf (kit-ai (kit :yamamoto :base)) :dash-back)))                                          ; Yama backs off to zone
+                                          ; Yama backs off to zone
 
 ;;; ================================================================ AI helpers
 (check (and (eq (weighted-pick 0.0 :a 1 :b 1) :a) (eq (weighted-pick 0.5 :a 1 :b 1) :b)
             (eq (weighted-pick 0.1 :a 0 :b 1) :b) (null (weighted-pick 0.5 :a 0))))
-(let ((bands (getf (kit-ai (kit :yamamoto :base)) :moves)))
-  (check (eq (apply #'weighted-pick 0.0 (band-weights bands 6.0)) :sig))   ; Signature at 5-8 m
-  (check (eq (apply #'weighted-pick 0.0 (band-weights bands 9.0)) :sp1)))  ; Shiranui beyond 8 m
+  ; Shiranui beyond 8 m
 (check (equal (multiple-value-list (heat-range 6.0 8.0 10.0)) '(3.0 5.0)))
 (check (equal (multiple-value-list (heat-range 6.0 8.0 30.0)) '(1.0 1.0)))
 (check (and (= (heat-breaker-mult 7.9) 1) (= (heat-breaker-mult 8.0) 2)))
@@ -749,15 +600,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;;; ================================================================ kit sanity
 ;;; The §5 tables, copied independently of yama.lisp / ken.lisp: move S A R dmg block (? = no value in §5)
 (defparameter *table*
-  '((:ya-j1 9 3 12 38 -2) (:ya-j2 8 3 13 38 -2) (:ya-j3 9 3 18 45 -4) (:ya-k1 18 4 20 75 -3)
-    (:ya-k2 22 4 24 64 -3) (:ya-k3 22 5 34 88 -20) (:ya-sig 16 ? 26 30 -6) (:ya-taimatsu 16 8 24 120 -14)
-    (:ya-nadegiri 20 4 30 240 -16) (:ya-breaker 8 4 18 150 :guard-break) (:ya-kyoku 18 5 26 90 -16)
-    (:ya-kaka 20 1 34 0 nil)
-    ;; Bankai East / West (DUEL_STRINGS §3.2; the rework's L moves)
-    (:ya-e-j1 8 3 12 34 -2) (:ya-e-j2 7 3 13 38 -2) (:ya-e-j3 8 3 18 42 -4) (:ya-e-k1 16 4 20 70 -3)
-    (:ya-e-k2 19 4 24 60 -3) (:ya-e-k3 21 5 34 84 -20) (:ya-e-kyokko 15 3 26 85 -12) (:ya-w-shonetsu 16 0 24 0 nil)
-    (:ya-w-parry 2 24 20 0 nil) (:ya-w-counter 6 3 24 150 -12)
-    (:ke-j1 7 3 12 35 -2) (:ke-j2 7 3 13 35 -2) (:ke-j3 8 3 18 42 -4) (:ke-k1 16 4 20 70 -3)
+  '((:ke-j1 7 3 12 35 -2) (:ke-j2 7 3 13 35 -2) (:ke-j3 8 3 18 42 -4) (:ke-k1 16 4 20 70 -3)
     (:ke-k2 20 4 24 60 -3) (:ke-k3 20 5 34 80 -20) (:ke-stance 8 4 24 100 -14) (:ke-buttagiru 22 4 26 180 -14)
     (:ke-charge 14 ? ? 25 -16) (:ke-breaker 8 4 18 150 :guard-break)))   ; (RYOTE's / NOMIHOSE's rows went with the cups, the meteor 2026-11-05)
 (dolist (row *table*)
@@ -769,11 +612,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
           (format t "  table mismatch ~s~%" name))
         (check (and (same s (mv-s m)) (same a (mv-a m)) (same r (mv-r m)) (same dmg (mv-dmg m))
                     (same adv (mv-adv-block m))))))))
-(check (equal (map 'list (lambda (w) (list (hw-from w) (hw-dmg w))) (mv-hits (find-move :ya-sig)))
-              '((16 30) (28 30))))                                        ; hits f16, f28, 30 each
-(check (= 110 (getf (mv-params (find-move :ya-sig)) :dmg)))              ; the wave
 (check (equal (mv-hold (find-move :ke-stance)) '(6 60)))
-(check (equal (mv-hold (find-move :ya-shiranui)) '(12 60)))
 
 ;;; every form: all commands mapped, strings resolve, frames consistent, hooks are symbols
 (defparameter *kinds* '(:quick :flash :sig :sp :breaker :kikon))
@@ -799,15 +638,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
          (check ok)))
      (kit-moves k))))
 ;; costs
-(check (and (= (kit-command-cost (kit :yamamoto :base) :sp2) 1) (= (kit-command-cost (kit :yamamoto :base) :sp1) 1)
-            (= (kit-command-cost (kit :yamamoto :hellfire) :sp2) 2) (= (kit-command-cost (kit :yamamoto :bankai-east) :sp2) 2)
-            (= (kit-command-cost (kit :kenpachi :nozarashi) :sp2) 2) (= (kit-command-cost (kit :kenpachi :base) :q) 0)))
+(check (and (= (kit-command-cost (kit :kenpachi :nozarashi) :sp2) 2) (= (kit-command-cost (kit :kenpachi :base) :q) 0)))
 ;; forms: multipliers, inheritance, the Hellfire / Bankai swaps
-(check (and (~= (kit-mult (kit :yamamoto :hellfire)) 1.3) (~= (kit-mult (kit :yamamoto :bankai-east)) 1.0)
-            (~= (kit-mult (kit :kenpachi :nozarashi)) 1.0) (~= (kit-mult (kit :kenpachi :base)) 1.0)))
-(check (eq (mv-name (kit-command-move (kit :yamamoto :hellfire) :sp2)) :ya-nadegiri))
-(check (eq (mv-name (kit-command-move (kit :yamamoto :hellfire) :sp1)) :ya-shiranui))  ; inherited
-(check (eq (mv-name (kit-command-move (kit :yamamoto :bankai-east) :kikon)) :ya-tenchi))
+(check (and (~= (kit-mult (kit :kenpachi :nozarashi)) 1.0) (~= (kit-mult (kit :kenpachi :base)) 1.0)))
+  ; inherited
 ;; the Kikon rush of every form: a strike with a cinematic, clearly punishable on block (-14; K1 of either character
 ;; reaches it after the block pushback from the trigger range: J1 did until the J cut of 2026-09-29, now it walks in),
 ;; reach beyond the trigger
@@ -816,45 +650,20 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (check (or (and (null m) (eq (first cf) :kenpachi))          ; (Kenpachi: no O rush since 2026-11-05, DUEL_KEN_V3 §43)
                (and (eq (mv-kind m) :kikon) (mv-cine m) (= 1 (length (mv-hits m))) (<= (mv-adv-block m) -12)
                 (> (mv-reach m) *kikon-trigger*) (plusp (mv-dmg m))
-                (<= (+ *kikon-trigger* *block-pushback*) (min (mv-reach (mv :yamamoto :base :ya-k1))
-                                                              (mv-reach (mv :kenpachi :base :ke-k1)))))))))
-;; the O modules (design v2 §B): cooldown 90, a melee strike with its cinematic, reach and press -> hit,
-;; aura >= 5 (>= 8 for a locked dash), armour <= 1 hit; the melee ones strike from *KIKON-TRIGGER* (a
-;; blocked strike stays punishable); ENJO has no dash (a lane, locked)
-(defparameter *modules* '((:yamamoto :base :ya-kikon 9.0 26) (:yamamoto :bankai-east :ya-tenchi 10.0 30) (:yamamoto :bankai-west :ya-tenchi 10.0 30)))
-                          ; (Kenpachi's CHARGE and LEAP CLEAVE went 2026-11-05, DUEL_KEN_V3 §43)
-(dolist (row *modules*)
-  (destructuring-bind (c f name reach press) row
-    (let* ((m (mv c f name)) (p (mv-params m)))
-      (flet ((pa (k) (getf p k)))
-        (check (and (eq (mv-name (kit-command-move (kit c f) :kikon)) name) (= (mv-cooldown m) 90) (mv-cine m)
-                    (= 70 (mv-dmg m)) (= -14 (mv-adv-block m)) (>= (pa :aura) 5) (<= (mv-armor-hits m) 1)
-                    (or (plusp (pa :dash-track)) (zerop (pa :dash-max)) (>= (pa :aura) 8))))
-        (check (~= reach (max (mv-reach m) (kikon-rush-reach (pa :speed) (pa :dash-max))) 0.01))
-        (check (= press (+ (pa :aura) (pa :dash-max) (mv-s m))))))))
-(check (zerop (mv-armor-hits (find-move :ya-tenchi))))
-(check (and (~= 0.0 (mv-track (find-move :ya-kikon))) (~= 0.0 (getf (mv-params (find-move :ya-tenchi)) :dash-track))))
-(check (~= (mv-clip-speed (mv :yamamoto :bankai-east :ya-tenchi)) 1.0))    ; clips reach their hit pose on frame S
-                                                                                 ; (TENCHI's own clip since DUEL_YAMA_TYBW §3.2)
+                (<= (+ *kikon-trigger* *block-pushback*) (mv-reach (mv :kenpachi :base :ke-k1))))))))
 ;; cooldowns: every command slot of the fighter's CD vector
 (check (= 7 (length *kit-commands*)))
-(check (and (null (kit-meter (kit :yamamoto :bankai-east))) (kit-meter (kit :yamamoto :hellfire))))  ; no Hellfire in Bankai
-(check (and (kit-awakening (kit :yamamoto :bankai-east)) (not (kit-awakening (kit :yamamoto :hellfire)))
-            (null (kit-duration (kit :kenpachi :nozarashi))) (null (kit-duration (kit :yamamoto :bankai-east)))))   ; both awakenings last the match
-(check (and (member :ward (kit-passives (kit :yamamoto :bankai-west)))
-            (not (member :ward (kit-passives (kit :yamamoto :bankai-east))))))
-(check (and (~= (kit-walk (kit :yamamoto :base)) 3.2) (~= (kit-walk (kit :kenpachi :nozarashi)) 4.4)))
+  ; no Hellfire in Bankai
+(check (null (kit-duration (kit :kenpachi :nozarashi))))   ; the awakening lasts the match
+(check (~= (kit-walk (kit :kenpachi :nozarashi)) 4.4))
 (check (~= (kit-reset-reiatsu (kit :kenpachi :base)) 10.0))
 ;; the Shikai's own J string (DUEL_KEN_V3 §9)
 (check (eq (kit-next (kit :kenpachi :nozarashi) :ke-s-j1 :q) (mv :kenpachi :nozarashi :ke-s-j2)))
 ;; clip names: exactly the §5 contract, and every §5 clip is used
 (defparameter *clips-5*
- '(:ya-stance :ya-q1 :ya-q2 :ya-f1 :ya-f2 :ya-f3 :ya-sig :ya-shiranui :ya-shiranui-throw :ya-taimatsu
- :ya-nadegiri :ya-breaker :ya-ikkotsu :ya-intro :ya-win :ya-hellfire :ya-bankai :ya-kyoku
- :ya-kaka :sh-run :ya-enjo ; the O modules (TENCHI runs in :sh-run)
- :ya-shonetsu :ya-w-parry :ya-w-counter ; the Bankai stances
- :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi ; East's own (DUEL_YAMA_TYBW §3.2)
- :ya-tsuka :ya-e-drop :ke-kick ; the strings' new clips (DUEL_STRINGS §3)
+ '(
+  :sh-run ; the O modules (TENCHI runs in :sh-run)
+   :ke-kick ; the strings' new clips (DUEL_STRINGS §3)
  :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome
  :ke-s-st-1
@@ -874,24 +683,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-s-bankai ; the Bankai's burst AS (§32)
  :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
  :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
- :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
- :ru-breaker :ru-hainawa :ru-palm :ru-flower ; Rukia (the shared moves' clips a form's table still names unmapped;
- ;; every form plays its own since -273's, DUEL_RUKIA_TYBW §13.4: :ru-q1 / :ru-ring are Senjumaru's Divine Soldier's
- ;; (*SHINPEI-COMBO*), :ru-hakka the 白霞罸 cinematic's, the :ru-shirafune / :ru-cold-stance clips are gone (the moves'
  ;; names stay, every form maps them))
- :ru-s-stance :ru-s-walk-f :ru-s-walk-b :ru-s-strafe-r :ru-s-strafe-l :ru-s-run :ru-s-j1 :ru-s-j2 :ru-s-j3 ; the Shikai's
- :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa ; own (§13.3; the old
- ; :ru-stance clip retired with zero's own, §13.4)
- :ru-s-shimochiri :ru-s-setsuen :ru-s-sojin :ru-s-hyoreki :ru-s-tsurara :ru-s-hakuren ; the new Shikai's bursts and kido
- :ru-s-byakurai :ru-s-tsukishiro :ru-s-kido :ru-s-sokatsui :ru-s-rikujo :ru-s-rikujo-cast ; (DUEL_RUKIA_TYBW §13.3)
- :ru-18-stance :ru-18-walk-f :ru-18-walk-b :ru-18-strafe-r :ru-18-strafe-l :ru-18-run :ru-18-j1 :ru-18-j2 :ru-18-j3 ; -18's own
- :ru-18-k1 :ru-18-k2 :ru-18-k3 :ru-18-shimobashira :ru-18-hakuren-hold :ru-18-hakuren :ru-18-shirafune ; (§13.4)
- :ru-18-hakka :ru-18-hainawa
- :ru-50-stance :ru-50-walk-f :ru-50-walk-b :ru-50-strafe-r :ru-50-strafe-l :ru-50-run :ru-50-j1 :ru-50-j2 :ru-50-j3 ; -50's own
- :ru-50-k1 :ru-50-k2 :ru-50-k3 :ru-50-hyoshin :ru-50-hakuren-hold :ru-50-hakuren :ru-50-shirafune ; (§13.4)
- :ru-50-hakka :ru-50-hainawa
- :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune ; -273's own
- :ru-0-hakka ; (§13.4)
  :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3 :hs-na1 ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
  :hs-kr-tan :hs-kr-ren :hs-kr-sen :hs-kr-ko :hs-kr-age ; (Hisagi's pointer 2 刈, its NS and AS2: DUEL_HISAGI §27.5)
  :hs-chikuden :hs-hoden ; (his pointer 3 縛雷's CHIKUDEN and 放電: DUEL_HISAGI §27.6)
@@ -903,24 +695,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo ; Ichigo (DUEL_ICHIGO §10, v2)
  :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
  :ic-k-f1 :ic-k-f2 :ic-k-f3 :ic-k-gaeshi :ic-k-uchi ; KESSA's own K, counter and O strike (DUEL_ICHIGO_TYBW §3.2)
- :sj-stance :sj-q1 :sj-q2 :sj-spin :sj-f1 :sj-f2 :sj-drop :sj-yank :sj-summon :sj-kasa :sj-breaker :sj-saidan :sj-intro
- :sj-win :sj-loom-stance :sj-weave :sj-unravel :sj-tanmono :sj-makitori :sj-snip ; Senjumaru (:sj-awaken is the cine's)
- :lb-stance :lb-intro :lb-win :lb-q1 :lb-q2 :lb-aim :lb-fire :lb-sanren :lb-hiren :lb-breaker :lb-butt ; Lille's shared
- :lb-w-stance :lb-w-q1 :lb-w-q2 :lb-w-q3 :lb-w-f1 :lb-w-f2 :lb-w-f3 :lb-w-sanren :lb-w-kikon :lb-w-kikon-fire ; art (the
- :lb-w-nijushi :lb-w-breaker :lb-w-ram :lb-o-stance :lb-o-q1 :lb-o-q2 :lb-o-q3 :lb-o-f1 :lb-o-f2 :lb-o-f3 :lb-o-chop ; old
- :lb-o-trompete :lb-o-breaker :lb-o-stamp :lb-kamae :lb-k-dash :lb-oe-stance ; Lille's, DUEL_LILLE §12, §22, §23)
- :br-f1 :br-f2 :br-f3 ; the base form's attack-state K string (the user 2026-10-12: bold)
- :br-sk-l1 :br-sk-l1s :br-sk-lc :br-jab :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3 ; the base stance's strings
- :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3 ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
- :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3 ; the awakened stance EN's openers,
- :br-en-lc :br-oen-lc ; (R10, DUEL_LILLE_V3 §15: the L charge's pose while held)
- :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3 ; JILLIEL's and the owl's (§8)
- :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
- ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
- :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
- :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
- :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
-            
  ; the Bankai's own (§8)
  ; KATAUDE's (§8)
  :hs-intro :hs-win ; Hisagi's B2a intro / win (the Bankai's forms)
@@ -941,15 +715,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :hs-k-na3 :hs-k-na4 ; the five J's own J3 / J4 (§28.15)
  :hs-k-g-sa ; the gathered SA's own (§28.21)
  :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
-;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
-;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
-;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi, are played by their
-;; DEFCINEs, which the host stubs; KESSA's clones play :ic-k-cut / :ic-k-wrap, ICHIGO-CLONE-STEP)
+;; (the Kikon cinematics' own clips are played by their DEFCINEs, which the host stubs; KESSA's clones play :ic-k-cut / :ic-k-wrap, ICHIGO-CLONE-STEP)
 (let ((used (remove-duplicates (append (loop for cf in *forms* append (kit-clips (apply #'kit cf)))
-                                        ;; (moves started outside every kit's tables: Lille II's base snipe's level 2 / 3
-                                        ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
-                                        ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
-                                        (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
+                                        ;; (moves started outside every kit's tables: Hisagi's MODOSHI, started by his
+                                        ;;  :command hook while the sickle is out)
+                                        (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
                                                                        :hs-r-k2s :hs-r-k3)  ; (§28.11: spread K2 / K3's clips, strips 27 / 28;
@@ -961,17 +731,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (check (and (null extra) (null unused)))))
 ;; phase 2: art names, roster, form looks, the flurry, hazard hits
 (check (equal (mapcar #'kit-weapon (mapcar (lambda (cf) (apply #'kit cf)) *forms*))
-              '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :ke-broken :ke-broken
-                :sode-no-shirayuki :sode-no-shirayuki :ru-rime :ru-ice :zangetsu-long :tensa
-                :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami
-                :diagramm nil nil nil nil :kazeshini :kazeshini :kazeshini)))     ; (+ Lille II's five forms, DUEL_LILLE_V3: MUJITTAI gone; Hisagi)
-(check (equal *roster* '(:yamamoto :kenpachi :rukia :ichigo :senjumaru :lille :barro :hisagi)))   ; index 5 reserved (the old Lille, removed 2026-10-13), 6 Lille, 7 Hisagi
-(check (equal (kit-intro-weapon (kit :yamamoto :base)) '(:ya-cane 81)))              ; cane until 1.35 s
-(check (and (eq (kit-cine (kit :yamamoto :bankai-east)) 'yama-bankai-cine) (eq (kit-cine (kit :kenpachi :nozarashi)) 'ken-nozarashi-cine)
-            (null (kit-cine (kit :yamamoto :hellfire)))))
-(check (and (equal (kit-blade (kit :yamamoto :hellfire)) '(:fire 1.3)) (eq (kit-grade (kit :yamamoto :bankai-east)) :spot)
-            (null (kit-blade (kit :kenpachi :base)))))
-(check (and (mv-planted (find-move :ya-breaker)) (~= (mv-blend (find-move :ke-stance)) 6)))
+              '(:ken-katana :nozarashi :ke-broken :ke-broken
+                :zangetsu-long :tensa :kazeshini :kazeshini :kazeshini)))     ; (Kenpachi, Ichigo, Hisagi)
+(check (equal *roster* '(:yamamoto :kenpachi :rukia :ichigo :senjumaru :lille :barro :hisagi)))   ; the retired slots keep their index (no kit behind them since 2026-11-12), Hisagi is 7
+              ; cane until 1.35 s
+(check (eq (kit-cine (kit :kenpachi :nozarashi)) 'ken-nozarashi-cine))
+(check (null (kit-blade (kit :kenpachi :base))))
+(check (~= (mv-blend (find-move :ke-stance)) 6))
 (let ((fl (find-move :ke-flurry)))                                          ; 4 more cuts + the launcher
   (check (and (= 5 (length (mv-hits fl))) (= 60 (hw-dmg (svref (mv-hits fl) 4))) (eq :launch (hw-react (svref (mv-hits fl) 4)))
               (= (+ 25 (* 4 25) 60) (+ (mv-dmg (find-move :ke-charge)) (loop for w across (mv-hits fl) sum (hw-dmg w)))))))

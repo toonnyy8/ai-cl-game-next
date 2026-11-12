@@ -1,17 +1,15 @@
 # title: SOUL DUEL NEXT
 # SOUL DUEL sources in compile order, relative to this directory (the engine's come first, see
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
-# users. tuning / rules / control / learn / kit are plain CL (host-tested); yama / ken / rukia / ichigo are the characters
+# users. tuning / rules / control / learn / kit are plain CL (host-tested); ken / ichigo / hisagi are the characters
 # (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
 # scripted.lisp (the learning / ASSIST gates' scripted players: ai.lisp calls them from the sim) loads right before ai.lisp.
-# ken-meter / rukia-meter (Kenpachi's NOME / UDE, Rukia's cold gauge: each meter's step, reached by the kit's :tick hook, and its
+# ken-meter (Kenpachi's NOME / UDE meter: its step, reached by the kit's :tick hook, and its
 # HUD widgets, the meter's :draw / :label) load right after hud.lisp: they use components' CLOG and hud's HUD-TEXT.
-# senjumaru.lisp loads after hud / onehand: its HUD meter calls their functions (hud-text ...); the quad drawing macros are the engine's (ui.lisp), docs/duel/DUEL_SENJUMARU.md.
-# Lille's art loads after senjumaru.lisp: lille-art (bodies, props) / lille-clips / lille-draw / lille-cine (Lille's shared art and
-# cinematics), then barro-art (clips) / barro-draw / barro-stills, barro.lisp and barro-ai.lisp (Lille, kit :barro, roster index 6:
-# index 5 is the removed old Lille's slot, docs/duel/DUEL_LILLE_V3.md): the roster is append-only.
+# hem-spring / tip-track / vfx-ember (shared looks that stayed when the retired kits left: Ichigo's cloak spring, the weapon-tip tracker Ichigo's and Kenpachi's looks use, the ember star and the hold charge the dispatch calls) load before the characters.
 # hisagi.lisp / hisagi-ai.lisp, then hisagi-art / hisagi-draw / hisagi-cine / hisagi-stills (Hisagi, kit :hisagi, roster index 7,
-# docs/duel/DUEL_HISAGI.md) after Lille's. A character's files all carry its prefix (<name>.lisp the kit, <name>-ai the CPU, <name>-art
+# docs/duel/DUEL_HISAGI.md). The retired kits' files (Yamamoto, Rukia, Senjumaru, Lille) left on 2026-11-12: branch `retired-kits`; their
+# roster slots are fixed in kit.lisp *ROSTER* (the roster is append-only). A character's files all carry its prefix (<name>.lisp the kit, <name>-ai the CPU, <name>-art
 # the clips, <name>-draw / -cine / -stills by role).
 lisp/package.lisp
 lisp/tuning.lisp
@@ -33,17 +31,13 @@ lisp/cinema.lisp
 lisp/stage.lisp
 lisp/vfx.lisp
 lisp/vfx-stamps.lisp
-lisp/yama-vfx.lisp
-lisp/yama-art.lisp
+lisp/hem-spring.lisp
+lisp/tip-track.lisp
+lisp/vfx-ember.lisp
 lisp/ken-art.lisp
-lisp/rukia-art.lisp
 lisp/ichigo-art.lisp
 lisp/ichigo-look.lisp
-lisp/senjumaru-art.lisp
-lisp/yama.lisp
 lisp/ken.lisp
-lisp/rukia-ai.lisp
-lisp/rukia.lisp
 lisp/ichigo.lisp
 lisp/endless-rules.lisp
 lisp/rogue-rules.lisp
@@ -70,7 +64,6 @@ lisp/flow.lisp
 lisp/hud.lisp
 lisp/ken-meter.lisp
 lisp/ken-look.lisp
-lisp/rukia-meter.lisp
 lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/webui.lisp
@@ -92,16 +85,6 @@ lisp/lhud-menu.lisp
 lisp/lhud-menu-front.lisp
 lisp/lhud-menu-set.lisp
 lisp/lhud-menu-select.lisp
-lisp/senjumaru.lisp
-lisp/lille-art.lisp
-lisp/lille-clips.lisp
-lisp/lille-draw.lisp
-lisp/lille-cine.lisp
-lisp/barro-art.lisp
-lisp/barro-draw.lisp
-lisp/barro-stills.lisp
-lisp/barro.lisp
-lisp/barro-ai.lisp
 lisp/hisagi.lisp
 lisp/hisagi-ai.lisp
 lisp/hisagi-art.lisp

@@ -967,7 +967,7 @@
 (check (and (equal '(:q :f) (getf (mv-params (find-move :hs-r-l)) :r-cancel))
             (equal '(:q) (getf (mv-params (find-move :hs-b-sj)) :r-cancel))
             (loop for mv being the hash-values of *moves*
-                  always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj :ru-shimobashira :ru-hyoshin :ru-reido))   ; (+ Rukia's awakened L, 2026-10-26)
+                  always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj))
                              (null (getf (mv-params mv) :r-cancel))))))
 
 ;;; §25.5 (the user, 2026-10-18: 「卍解遠距的鎖鏈尾端除了傷害加成以外也增加 SP 恢復量的加成」): a tip hit (HS-DMG-MULT x1.3) marks his
@@ -1148,8 +1148,7 @@
 ;; ... its chances (HARD 1.0 / 0.9, EASY <= NORMAL <= HARD), BRAIN-ROLL (no draw at 0 or 1), the bind's bands without a neutral
 ;; K1 or Step (the walk-in)
 ;; the HUD labels made once (refactor round 2 K1, 2026-10-21) are the strings the FORMAT calls made every frame
-(check (and (every (lambda (m) (equal (svref *sj-hari-labels* m) (format nil "HARI ~d" m))) '(0 1 2 3 4 5 6))
-            (loop for n below 4 always (equal (svref *ic-bunshin-labels* n) (format nil "BUNSHIN x~d" n)))))   ; (the tag's; the KONPAKU flash labels left with the canvas row, 2026-11-11)
+(check (loop for n below 4 always (equal (svref *ic-bunshin-labels* n) (format nil "BUNSHIN x~d" n))))   ; (the tag's; the KONPAKU flash labels left with the canvas row, 2026-11-11)
 ;; round01 cell b2a2's 縛口 SHIBARI-GUCHI the bind's bite (merged by the b3a2+b2a2 combination): its chance (EASY <= NORMAL <=
 ;; HARD, HARD 1.0: no roll), the window; HS-B-BITE-CMD: J1 (S 8) once its startup fits the reel after his guard-cancel lock
 ;; and the victim is within the generic follow-up's reach (1.5 + 0.6), :wait while the yank brings him in, else nothing yet
@@ -1190,31 +1189,6 @@
 ;; the keys: AUTO GUARD's windmill in the Shikai only, AUTO COMBO's routes in his every form; no other character's kit
 ;; names his; his CPU's own keys as shipped (the :move-reflex per form, HISAGI-CPU-TESTS)
 
-
-;;; DANGAI's boss Lille (DUEL_ROGUE §5, batch 3; barro.lisp BR-BOSS; here for sim.lisp's stand-ins, loaded after barro):
-;;; JILLIEL refills a wing every *BR-OWL-WING-EVERY* f, his first Konpaku lost sets the owl for good (no burst); no run:
-;;; JILLIEL gains none. His file loaded again now that the components are (PACE a macro), his BRS through the stand-in table
-(load (merge-pathnames "../../duel/lisp/barro.lisp" *load-truename*))
-(defun brs (e) (let ((c (gethash e *t-hss*))) (and (typep c 'brs) c)))
-(multiple-value-bind (l o) (t-pair (kit :barro :jilliel-kin) (kit :kenpachi :base))
-  (declare (ignore o))
-  (let ((f (fighter l)) (g (gauges l)))
-    (setf (fighter-character f) :barro (fighter-form f) :jilliel-kin (fighter-state f) :idle (gauges-konpaku g) 9)
-    (loop repeat 240 do (barro-tick l f g))
-    (check (= 0 (brs-ammo (br l))))                                 ; (no run: JILLIEL's wings don't refill)
-    (let ((*run-boss* l))
-      (loop repeat 240 do (barro-tick l f g))
-      (check (and (= 2 (brs-ammo (br l))) (= 2 (brs-boss-wings (br l))) (eq :jilliel-kin (fighter-form f))))
-      (br-boss-settled l 0 9)
-      (check (not (brs-boss-owl (br l))))
-      (br-boss-settled l 2 7)
-      (check (brs-boss-owl (br l)))
-      (barro-tick l f g)
-      (check (and (eq :shin-kin (fighter-form f)) (null (gauges-burst g))))
-      (loop repeat 600 do (barro-tick l f g))
-      (check (eq :shin-kin (fighter-form f))))                      ; (the owl stays with no burst)
-    (barro-tick l f g)
-    (check (eq :jilliel-kin (fighter-form f)))))                    ; (no run: an owl without a burst goes back)
 
 ;; §25.32 (the user, 2026-10-23: 「選 1 但改成長度在 1.75~2.5 之間自動調整」): the ranged mode's Step lands on a chain tip:
 ;; forward the nearest band inward, back the nearest outward, the hop 1.75-2.5 m; a side Step or no band in reach 2.5

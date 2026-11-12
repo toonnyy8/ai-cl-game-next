@@ -38,9 +38,6 @@ defender's next step. Values: the attacker's and the defender's first actionable
           (multiple-value-bind (att def) (locked-free-steps m (string-link-p k (mv-name m)))
             (check (or (= (- def att) (if (string-link-p k (mv-name m)) (max 0 (mv-adv-block m)) (mv-adv-block m)))
                        (format t "~a ~a: lock ~d, adv ~d~%" cf (mv-name m) (- def att) (mv-adv-block m))))))))))
-(let* ((k (kit :yamamoto :base)) (j1 (kit-command-move k :q)) (j3 (kit-next k (mv-name (kit-next k (mv-name j1) :q)) :q)))
-  (check (and (string-link-p k (mv-name j1)) (not (string-link-p k (mv-name j3))) (< (mv-adv-block j3) -2)
-              (= (mv-adv-block j3) (multiple-value-bind (a d) (locked-free-steps j3 nil) (- d a))))))
 
 ;;; ================================================================ :x-axis lines: the CPU's threat perception (DUEL_LILLE §11.3,
 ;;; gap G1 / G8; ai.lisp SNAP-LIVE-P / SNAP-NEAR-P, AI-OPP-AIM, AI-OPP-REFLECT; the moves here are fakes, no kit has the flag yet)

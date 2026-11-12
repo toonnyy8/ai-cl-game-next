@@ -93,10 +93,7 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
         (when h (apply h args))))
     (:blocked (att def x y z)
       (multiple-value-bind (dx dz) (hit-dir att def)
-        (if (and (passive-p def :ward) (not (passive-p def :freeze-touch)))   ; West's ward (not the ice one): the hexagon in fire,
-            (progn (vfx-garb-block x y z (- dx) (- dz)) (sfx-at :sizzle x y z)   ; the garb flares
-                   (setf (model-flare (model def)) (f32 (max (model-flare (model def)) 0.25))))
-            (vfx-hit x y z :guard :dx dx :dz dz))
+        (vfx-hit x y z :guard :dx dx :dz dz)
         (when (passive-p att :pierce)                ; East's pierce: a white spark out of his back
           (vfx-hit (+ x (* 0.7 dx)) y (+ z (* 0.7 dz)) :cut :dx dx :dz dz)))
       (sfx-at :clang x y z))
@@ -111,13 +108,6 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
       (multiple-value-bind (dx dz) (hit-dir att def) (vfx-ember x y z :dx (- dx) :dz (- dz) :scale 1.3))
       (sfx-at :clang x y z) (sfx-at :sizzle x y z) (shake 0.12 0.2) (impact-frame :negative 1)
       (announce "PARRY" :color '(1 0.55 0.2 1) :secs 0.7 :small t))
-    (:scorch args (let* ((e (first args)) (v *fb-v*))       ; the attacker's sword arm burns: a white flash, black smoke
-                    (joint-point! v (model-joints (model e)) (ji :hand-r) 0f0 0f0 0f0)
-                    (vfx-scorch (aref v 0) (aref v 1) (aref v 2)) (vfx-smoke-puffs (aref v 0) (aref v 1) (aref v 2) 1)
-                    (sfx-on :sizzle e :gain 0.5 :pitch 1.3)))
-    (:ward-crush args (let* ((e (first args)) (p (pos-of e)))   ; West's ward broken (crush / Guard Break): the garb
-                        (vfx-burnout (aref p 0) (aref p 2) t)          ; gutters out (smoke, an ash ring), he is East
-                        (sfx-on :sizzle e :pitch 0.6) (sfx-on :heat-flare e :pitch 0.6 :gain 0.8)))
     (:cold-crack args (let ((e (first args)))               ; Rukia's hand cracked at zero: the gauge's BLOOD hairline
                         (setf (aref *crack-t* (fighter-side (fighter e))) (f32 (fx-clock)))
                         (sfx-on :hand-crack e)
@@ -191,7 +181,6 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
     (:hellfire args (let* ((e (first args)) (p (pos-of e)))
                       (vfx-shockwave (aref p 0) (aref p 2) 6.0 0.5 :rgb '(1.0 0.5 0.15)) (shake 0.2 0.4)
                       (stage-mark :scorch (aref p 0) (aref p 2) 2.0)))
-    (:skeleton-rise (x z) (vfx-skeleton-dust x z) (sfx-at :bones x 0.5 z))
     (:sfx (key e) (sfx-on key e))
     (:reset _ (play-sfx :bell :gain 0.6) (stage-clear-marks))   ; a new round: a clean page
     (:rung (e up)               ; a cup up (or down) the NOME ladder

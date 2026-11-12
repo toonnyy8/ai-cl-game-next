@@ -30,7 +30,7 @@
                                             *bind-hooks*)))))
 (check (and (member :awaken *run-commands-p*) (not (member :awaken *run-commands*))
             (equal (rest *run-commands-p*) *run-commands*)))
-(multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :kenpachi :base))
+(multiple-value-bind (a b) (t-pair (kit :ichigo :base) (kit :kenpachi :base))
   (let ((ga (gauges a)) (gb (gauges b)))
     (check (and (null (bind-of a)) (null (bind-of b))))
     (setf (gauges-reiatsu ga) 250f0)
@@ -89,7 +89,7 @@
                                           :bind-step tb-step :bind-resolve tb-resolve :bind-snapshot tb-snapshot
                                           :p tp :p-label tp-label)))
 (check (not (member :t-bind *roster*)))
-(multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :t-bind :t-binder))   ; B binds A (Yamamoto)
+(multiple-value-bind (a b) (t-pair (kit :ichigo :base) (kit :t-bind :t-binder))   ; B binds A (Ichigo)
   (let ((ga (gauges a)) (gb (gauges b)))
     (setf (gauges-reiatsu ga) 150f0 (gauges-reiatsu gb) 250f0 (gauges-reishi ga) 1000 (gauges-konpaku ga) 9)
     (check (null (bind-of a)))
@@ -174,7 +174,7 @@
 ;; 2026-10-27 (the core system, docs/duel/DUEL_CORE.md; the user 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」, 「沒必要其他手段，只留攻擊抵銷」):
 ;; in the reel, lock 1 (not red) an ATTACK cancels the follow-up (CORE-KICKON-CANCEL!: both bounce to neutral; U no longer exists),
 ;; lock 2 (red) nothing does, and no Burst / awakening is read under either
-(multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :kenpachi :base))
+(multiple-value-bind (a b) (t-pair (kit :ichigo :base) (kit :kenpachi :base))
   (let* ((fa (fighter a)) (fb (fighter b)) (held nil) (cancelled nil)
          (og (fdefinition 'vpad-command-pressed-p)) (oc (fdefinition 'play-clip)) (ok (fdefinition 'core-kikon-cancel!))
          (ov (fdefinition 'vpad-consume!)))
@@ -184,7 +184,7 @@
           (fdefinition 'play-clip) (lambda (&rest r) (declare (ignore r)) nil))
     (unwind-protect
          (flet ((reel (lock) (setf (fighter-state fb) :stun (fighter-stun fb) 40 (fighter-sf fb) 0 (fighter-kikon-lock fb) lock cancelled nil)))
-           (setf (fighter-state fa) :move (fighter-move fa) (kit-command-move (kit :yamamoto :base) :kikon)
+           (setf (fighter-state fa) :move (fighter-move fa) (kit-command-move (kit :ichigo :base) :kikon)
                  (fighter-follow fa) t (fighter-phase fa) :follow)
            (check (kikon-lock-holds-p fb))
            (setf (fighter-phase fa) :main (fighter-sf fa) 0 (fighter-contact fa) :hit)

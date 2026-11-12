@@ -942,7 +942,7 @@ zanshin, a short laugh; wide."
 the keys): 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai with 1 pip, 2.2 m: the 4th strike,
 then the burst. (0, the cup-3 entry, and 3, 片腕, went with the cups and KATAUDE: DUEL_KEN_V3 §8.)"
   (setf *probe* nil)
-  (ensure-battle :kenpachi :yamamoto)
+  (ensure-battle :kenpachi :ichigo)
   (force-form *p1* :nozarashi)
   (place *p1* *p2* (if (zerop k) 3.0 2.2))
   (full-gauges! *p1* 100f0)
@@ -1056,7 +1056,7 @@ DUEL_KEN_V3 §8.)"
         ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
                            (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
                                '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
-        ((member c '(71001 71004)) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
+        ((member c '(71001 71004)) (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
                                    (force-form *p1* (if (= c 71001) :nozarashi :bankai))
                                    (setf (gauges-meter (gauges *p1*)) (f32 (if (= c 71001) 0 4)) (gauges-meter-idle (gauges *p1*)) 0))))
 (dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (71000 71004 ken-debug)))

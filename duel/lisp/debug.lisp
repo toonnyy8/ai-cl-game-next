@@ -216,8 +216,8 @@ Reishi at its cap; with METER also the kit meter set to it and its idle timer cl
 
 (defun burst-burn-test (k)
   "2610+k: the burst's burning budget (docs/duel/DUEL_DESIGN.md \"BLUE burns one cell\"): human P1 3.5 m from an idle Kenpachi bursts at once,
-k 0 BLUE with the flash-step full (300), 1 BLUE from 230, 2 WHITE from 300 (drains to 0). The `BURST` / `BURST END` log lines carry the gauge."
-  (ensure-battle :yamamoto :kenpachi)
+k 0 BLUE with the flash-step full (300), 1 BLUE from 230, 2 WHITE from 300 (drains to 0). The `BURST` / `BURST END` log lines carry the gauge. (P1 was Yamamoto until his code left main, 2026-11-12: any kit has the gauge.)"
+  (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 3.5)
   (setf (gauges-fs (gauges *p1*)) (if (= k 1) 230f0 *fs-max*) (gauges-burst (gauges *p1*)) nil)
   (burst! *p1* (if (= k 2) :white :blue)))
@@ -504,9 +504,7 @@ measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16.)"
                  (cons-per "rift" (vfx-rift 1f0 0f0 4.4f0 0f0 nil))
                  (cons-per "ya hem pose" (%ya-hem-pose (model-joints (model *p1*)) *ya-hem* 0 1))   ; Yamamoto's looks
                  (cons-per "ya hem step" (%ya-hem-step *ya-hem* 0 0.016f0))                         ; (DUEL_YAMA_TYBW §3.1)
-                 (cons-per "ya smoke" (%ya-smoke 0f0 1f0 0f0))
                  (cons-per "heat(old)" (vfx-aura 0f0 0f0 0f0 1.8f0 :heat 1f0 0.016f0))
-                 (cons-per "blade(old)" (vfx-blade-embers 0f0 1f0 0f0 0f0 1.8f0 -0.5f0 0.016f0))
                  (cons-per "kyoku" (vfx-line-cut 0f0 0f0 0f0 -9f0 0.2f0 0.67f0 :kyoku :dt 0.016f0))
                  (cons-per "kyokko" (vfx-line-cut 0f0 0f0 0f0 -4.6f0 0.1f0 0.23f0 :kyokko :dt 0.016f0))
                  (cons-per "south" (vfx-line-cut 0f0 0f0 0f0 -1.2f0 0.1f0 0.93f0 :south :dt 0.016f0))
@@ -588,8 +586,7 @@ deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6
      (force-form *p1* (if (= k 11) :base :m18))
      (start-cine (nth (- k 11) '(ru-kikon-cine ru-hakka-cine ru-awaken-cine)) *p1* *p2*))
     ((14 15) (ensure-battle :rukia :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :zero)   ; the white Rukia's face
-     (start-cine (if (= k 14) 'ru-face-cine 'ru-face-bankai-cine) *p1* *p2*))
-    ((16 17 18) (senju-force-cine (- k 16))))                ; Senjumaru's (senjumaru.lisp); 4 / 5 / 10 / 19 Kenpachi's old Kikons, gone 2026-11-05
+     (start-cine (if (= k 14) 'ru-face-cine 'ru-face-bankai-cine) *p1* *p2*)))   ; (16 17 18 Senjumaru's cinematics left with the retired kits, 2026-11-12; 4 / 5 / 10 / 19 Kenpachi's old Kikons, gone 2026-11-05)
   (setf *cine-hold* t)
   (when *cine* (setf (cine-hold *cine*) (cine-hold-frame (cine-name *cine*)))))
 
@@ -667,8 +664,6 @@ left-hand grip (its step and the IK), and a caption slicing out."
     (log-msg "vfx6 consing (10 draws, B): ~{~a~^, ~}"
              (list (cons-per "marks" (st-draw-marks))
                    (cons-per "chips" (st-chips 0.016f0))
-                   (cons-per "pillar-near" (vfx-fire-pillar px ez 0.3f0 0.8f0 0.016f0))
-                   (cons-per "wave-near" (vfx-fire-wave wx ez 0f0 0.3f0 9f0 0.016f0))
                    (cons-per "skull" (vfx-skull 0f0 3f0 0f0 0.98f0))
                    (cons-per "rain" (vfx-rain 0f0 0f0 0.5f0 0.9f0))
                    (cons-per "shout" (vfx-face-accent (model-joints m) 1 100))
@@ -684,28 +679,19 @@ the auras redrawn in toon, the rift, a spent wave's erosion, the new stamps (all
 move-beat choices of DRAW-FIGHTER."
   (let* ((e *p1*) (f (fighter e)) (m (model e)) (mv (fighter-move f)))
     (dolist (k '(:cone :boom :ring :gash :garb-guard :scorch :flare :gutter :nade)) (stamp k 1.0 1.0 0.0 :dx 1.0 :dz 0.0 :scale 2.0 :n 0.7))
-    (wave-ghost-start 3.0 0.0 0.0 3.5 0.3)
     (setf (model-beat m) 0.5)
     (log-msg "vfx5 consing (10 draws, B): ~{~a~^, ~}"
-             (list (cons-per "fireball" (vfx-fireball 0f0 1.2f0 0f0 0.5f0 1f0 0f0 0.016f0))
-                   (cons-per "charge" (vfx-charge 0f0 1.2f0 0f0 0.6f0 0.016f0))
-                   (cons-per "pillar" (vfx-fire-pillar 0f0 0f0 0.3f0 0.8f0 0.016f0))
-                   (cons-per "dome" (vfx-fire-dome 0f0 0f0 1.7f0 1.2f0 1.96f0 0.016f0))
+             (list (cons-per "charge" (vfx-charge 0f0 1.2f0 0f0 0.6f0 0.016f0))
                    (cons-per "hellfire" (vfx-aura 0f0 0f0 0f0 1.8f0 :hellfire 1f0 0.016f0))
                    (cons-per "evolution" (vfx-aura 0f0 0f0 0f0 1.8f0 :evolution 1f0 0.016f0 :k 0.5f0))
                    (cons-per "breaker" (vfx-aura 0f0 0f0 0f0 1.8f0 :breaker-fire 1f0 0.016f0 :k 1.5f0))
                    (cons-per "breaker-ring" (vfx-breaker-ring 0f0 0f0 0.3f0))
                    (cons-per "garb-flare" (vfx-aura 0f0 0f0 0f0 1.8f0 :garb 1f0 0.016f0 :k 1.9f0))
                    (cons-per "rift" (vfx-rift 1f0 0f0 4.4f0 0f0 nil))
-                   (cons-per "wave-ghost" (wave-ghosts-draw 0.001f0))
                    (cons-per "stamps" (stamps-draw 0f0))
                    (cons-per "face" (face-of e f m mv))
                    (cons-per "beat-pose" (beat-pose! (anim-pose (model-anim m)) 0.5f0))
-                   (cons-per "move-beats" (move-beats e f m mv 0f0 0f0 0f0 0f0))
-                   (let ((sf (fighter-sf f)) (tip (make-f32 3)))   ; Ryujin Jakka's fire sheet (K1's hit frame, f18)
-                     (setf (fighter-sf f) 18 (aref tip 0) 0.3f0 (aref tip 1) 1f0 (aref tip 2) -1.2f0)
-                     (prog1 (cons-per "fire-sheet" (fire-sheet f (find-move :ya-k1) 0f0 0f0 tip 0.016f0 1f0))
-                       (setf (fighter-sf f) sf)))))
+                   (cons-per "move-beats" (move-beats e f m mv 0f0 0f0 0f0 0f0))))
     (setf (model-beat m) 0f0)))
 
 

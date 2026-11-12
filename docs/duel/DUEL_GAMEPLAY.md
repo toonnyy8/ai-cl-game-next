@@ -167,6 +167,13 @@ range keeps a held cinematic (`cine-still-command-p`). The gates' machinery (`st
 gate) is `gate.lisp`, its scripted players (the habits, the masher: ai.lisp calls them) `scripted.lisp`; the commands that start
 them are dispatched here.
 
+**Archived rows (2026-11-12, refactor R2 / B8a, REFACTOR_2026-11 §11.3).** The four retired kits' files left `main` (branch
+`retired-kits`), so every row below that runs through `rukia-debug`, `rukia-look-debug`, `senju-debug`, `barro-debug` /
+`barro-art-debug` (2410–2426, 2450–2491, 43000–68001, 72000–73100, 76000–78999, 82000–82999, 85000–85999, 90000–99999) is
+**archived**: the code is gone, the command falls through to nothing. The scenarios in `debug.lisp` that still name `:yamamoto`,
+`:rukia`, `:senjumaru` or `:barro` (the 2xxx probes, 2362+k, 2394+k, the HUD review, the stance tests, the module test) compile
+but stop with `unknown kit` when run: they are R3's list (B8b: debug scenarios). The row text is kept as the record until then.
+
 The first command turns on the combat log (`*combat-log*`) and the 2 s stats line. Arguments are
 encoded in the integer.
 

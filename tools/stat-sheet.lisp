@@ -1,5 +1,5 @@
 ;;;; stat-sheet.lisp — one character's forms against the roster's averages, from the kits (host only, no build):
-;;;;   $ECL_HOST --norc --load tools/stat-sheet.lisp -- rukia > stats.md
+;;;;   $ECL_HOST --norc --load tools/stat-sheet.lisp -- kenpachi > stats.md
 ;;;; Columns: each form of the character, then the other characters' awakened forms' average and all their forms' average
 ;;;; (the retired Lille out). Damage is the hit windows' damage x the form's dealt multiplier; a string sums its links (J1 J2
 ;;;; J3 / K1 K2 K3 by the :q / :f follow-ups); a hazard move (no hit window) has no damage here. Frame data as written in
@@ -9,8 +9,8 @@
 (defpackage :duel (:use :cl :engine))
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia-ai" "rukia" "ichigo" "endless-rules" "rogue-rules" "run-mods" "senjumaru"
-             "barro" "barro-ai" "hisagi" "hisagi-ai"))
+(dolist (f '("tuning" "rules" "learn" "kit" "ken" "ichigo" "endless-rules" "rogue-rules" "run-mods"
+             "hisagi" "hisagi-ai"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 (setf *print-pretty* nil)
@@ -66,7 +66,7 @@
 (defun st-avg (kits fn)
   (let ((l (remove nil (mapcar fn kits)))) (and l (/ (reduce #'+ l) (float (length l))))))
 
-(let* ((ch (intern (string-upcase (or (second (member "--" ext:*command-args* :test #'string=)) "rukia")) :keyword))
+(let* ((ch (intern (string-upcase (or (second (member "--" ext:*command-args* :test #'string=)) "kenpachi")) :keyword))
        (mine (mapcar #'cdr (reverse (gethash ch *kits*))))
        (others (loop for c in *roster* unless (or (eq c ch) (member c *retired*))
                      append (mapcar #'cdr (reverse (gethash c *kits*)))))

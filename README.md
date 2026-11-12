@@ -121,8 +121,8 @@ python3 tests/style-gates.py looks BASE dist/duel  # 重構用：115 張畫面�
 ```
 duel/        SOUL DUEL（DUEL 套件）
   lisp/        規則與調校（rules、tuning、kit、control、learn）、系統（fighter、combat、hazards、ai、assist、camera、
-               hud、flow、endless、rogue……）、每個角色一組同前綴的檔案（yama*、ken*、rukia*、ichigo*、senjumaru*、
-               barro*、hisagi*：招式、AI、動作、繪圖、過場、特效）、共用的畫風（body、brush、vfx、stage、cinema、glyphs、sounds）
+               hud、flow、endless、rogue……）、每個角色一組同前綴的檔案（ken*、ichigo*、hisagi*：招式、AI、動作、繪圖、過場、特效；
+               已封存的山本、露琪亞、千手丸、Lille 的檔案在分支 `retired-kits`）、共用的畫風（body、brush、vfx、stage、cinema、glyphs、sounds）
   web/         HTML 外殼、說明書 manual.html、PWA（manifest、service worker、圖示）
   MANIFEST     原始檔的編譯順序，第一行 `# title: SOUL DUEL`
 engine/      可重複使用的引擎（ENGINE 套件），不知道任何一款遊戲的存在

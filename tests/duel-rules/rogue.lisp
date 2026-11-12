@@ -183,37 +183,21 @@
 ;; batch 4: the 解 move cards (*ROGUE-KAI-EDITS*): every named move is in some kit of its character, the copies carry the
 ;; edit, the stock moves and kits never change, forms that shared a move share its copy, nothing held = no copies
 (check (loop for (id . eds) in *rogue-kai-edits*
-             always (loop for ed in eds
+             always (or (member (rogue-kai-char id) *retired*)   ; (the retired kits' cards name moves that left main, 2026-11-12)
+                        (loop for ed in eds
                           always (loop for n in (getf ed :moves)
                                        always (or (member n '(:hs-r-l :hs-r-sp1    ; (Hisagi's old Bankai L / SP1: in no kit
                                                               :ke-kikon-n :ke-b-kikon))   ;  since DUEL_HISAGI §28.4; Kenpachi's O rushes
                                                                                     ;  since DUEL_KEN_V3 §43; ROGUE is frozen)
-                                               (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*)))))))
-(check (null (rogue-run-kits :yamamoto nil)))
+                                               (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*))))))))
 (check (null (rogue-run-kits :kenpachi '((101 . 0) (102 . 0)))))     ; the twins edit no move
-(let* ((stock (gethash :ya-tenchi (kit-moves (find-kit :yamamoto :bankai-east))))
-       (rk (rogue-run-kits :yamamoto '((112 . 0) (113 . 0))))
-       (k (cdr (assoc :bankai-east rk))) (mv (gethash :ya-tenchi (kit-moves k))))
-  (check (and (= (mv-armor-hits mv) 1) (= (mv-armor-hits stock) 0) (not (eq mv stock))))
-  (check (= (mv-cooldown (gethash :ya-e-kyokko (kit-moves k))) 40))
-  (check (= (mv-cooldown (gethash :ya-e-kyokko (kit-moves (find-kit :yamamoto :bankai-east)))) 100))
-  (check (not (eq k (find-kit :yamamoto :bankai-east))))
-  (let ((kw (cdr (assoc :bankai-west rk))))                            ; East and West share TENCHI: they share its copy
-    (check (or (null (gethash :ya-tenchi (kit-moves kw))) (eq (gethash :ya-tenchi (kit-moves kw)) mv)))))
 (let ((rk (rogue-run-kits :hisagi '((127 . 0) (129 . 0)))))
   (check (= 2 (length (mv-hits (gethash :hs-kaza (kit-moves (cdr (assoc :base rk))))))))
   (check (= 1 (length (mv-hits (find-move :hs-kaza)))))
   (check (= 64 (hw-stun (svref (mv-hits (gethash :hs-raiden (kit-moves (cdr (assoc :base rk))))) 0))))   ; (the Shikai's; the
   (check (= 40 (hw-stun (svref (mv-hits (find-move :hs-raiden)) 0)))))                                     ;  Bankai's SP1 in no kit, §28.4)
-(let ((rk (rogue-run-kits :barro '((126 . 0)))))
-  (check (= 5 (length (mv-hits (gethash :br-w-sanren (kit-moves (cdr (assoc :jilliel-kin rk))))))))
-  (check (= 3 (length (mv-hits (find-move :br-w-sanren))))))
-(let ((rk (rogue-run-kits :rukia '((118 . 0)))))
-  (check (equal (kit-cold (cdr (assoc :m18 rk))) '(:sig 0)))
-  (check (equal (kit-cold (find-kit :rukia :m18)) *ru-cold-m18*)))
 (check (every #'rogue-kai-note (loop for (id) in *rogue-kai-edits* collect id)))
 (check (notany #'rogue-tierable-p (loop for id from 111 to 129 collect id)))
-(check (= 2 (getf (rogue-mods '((125 . 0))) :br-armor-wings)))
 ;; batch 5 (DUEL_ROGUE §6): 靈壓階 effects, unlocks, the rank record's packing
 (check (equal (rogue-ramp 4 0) (rogue-ramp 4)))
 (check (= (fifth (rogue-ramp 4 1)) (round (* (fifth (rogue-ramp 4)) 11) 10)))

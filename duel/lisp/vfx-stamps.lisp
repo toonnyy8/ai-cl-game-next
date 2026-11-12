@@ -323,9 +323,7 @@ gash (a black lens with a white edge) hanging in the air along the rift, a white
           (when (case kind
                   ((1 2 3 4 15) (%st-hit o)) (5 (%st-guard o)) (6 (%st-guard-break o)) (7 (%st-clash o)) (14 (%st-guard-crush o))
                   ((8 9) (%st-hoho o)) (10 (%st-burst o)) (11 (%st-konpaku o)) ((12 13 18) (%st-ring o))
-                  (16 (%st-ember o)) (17 (%st-slit o)) (20 (%st-wisps o))
-                  (21 (%st-cone o)) (22 (%st-boom o)) (23 (%st-ring o)) (24 (%st-gash o)) (25 (%st-garb-guard o)) (26 (%st-scorch o))
-                  (27 (%st-flare o)) (28 (%st-gutter o)) (29 (%st-nade o)) (30 (%st-tip o)) (t t))
+                  (16 (%st-ember o)) (23 (%st-ring o)) (24 (%st-gash o)) (30 (%st-tip o)) (t t))   ; (17 20-22 25-29: the retired Yamamoto's)
             (setf (aref s o) 0f0)))))
     nil))
 

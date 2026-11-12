@@ -3,7 +3,7 @@
 ;;;; drawn only (the hit volumes never grow): L0 the plain smear (draw.lisp's REIATSU comet); L1 wind streaks peeling off the edge behind
 ;;;; the tip; L2 + a wind crescent thrown along the cut past his reach and a dust line along the floor; L3 + a second, wider crescent, the
 ;;;; floor cracked under the far point with rubble and a camera shake. The level a cut shows is L now, a burst's the route's (L went back
-;;;; to 0 as it started). The tip tracking and the far point are Ichigo's helpers (ichigo-look.lisp %IC-HELD-TIP / %IC-TRACK / %IC-FAR).
+;;;; to 0 as it started). The tip tracking and the far point are Ichigo's helpers (tip-track.lisp %IC-HELD-TIP / %IC-TRACK / %IC-FAR).
 (in-package :duel)
 
 (declaim (type f32vec *ke-look* *ke-tip* *ke-far*))
