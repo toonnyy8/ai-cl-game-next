@@ -6,7 +6,7 @@
 (dolist (f '("package" "math" "hitvol" "input" "touch"))
   (load (merge-pathnames (format nil "../engine/lisp/~a.lisp" f) *load-truename*)))
 (defpackage :duel (:use :cl :engine))
-(dolist (f '("tuning" "rules" "control"))
+(dolist (f '("tuning" "rules" "core" "control"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
@@ -281,6 +281,41 @@
 (check (let ((left *dummy-guard-hold*) (n 0))
          (loop while (plusp left) do (setf left (dummy-guard-left :guard-hit :guard left)) (incf n))
          (= n *dummy-guard-hold*)))
+
+;;; ---------------------------------------------------------------- GUARD ALL with a :core dummy (DUMMY-CANCEL-PRESS, DUEL_CORE §9)
+;; free: J (NA1 S6 A3) and SP (NS S14 A4), each on the next step; his hit due in HIT-IN frames, his window GAP frames past it
+(defparameter *free* '((:j :na 1 999999 9 6) (:sp :ns 1 999999 18 14)))
+(defun dc (hit-in gap p-cls &key own (own-left 0) (starts *free*)) (dummy-cancel-press hit-in gap p-cls own own-left starts))
+;; the answer table: his NA / SA -> NS (SP), his NS / AS -> NA (J); pressed with his hit 1 frame away
+(check (equal (mapcar (lambda (c) (dc 1 3 c)) '(:na :sa :ns :as)) '(:sp :sp :j :j)))
+;; nothing when no hit is coming (idle, recovery, a hazard, out of reach: HIT-IN NIL) or his move has no class
+(check (null (dc nil 3 :na)))
+(check (null (dc 5 3 nil)))
+;; the lead: against his NA (NS's own hit, 14 f, can't land inside his 3-frame window) it starts *DUMMY-CANCEL-LEAD* frames before his hit:
+;; pressed with the hit 3 frames away (it starts on the next frame: 2 before), not at 4
+(check (and (null (dc 4 3 :na)) (eq (dc 3 3 :na) :sp) (eq (dc 2 3 :na) :sp) (eq (dc 1 3 :na) :sp)))
+;; against his NS (4 active frames after its hit frame) J1's own hit (6 f) fits inside his window: it starts 3 frames before his hit
+;; (pressed 4 away: J1 hits 2 frames after his hit frame, still in his window); one frame earlier waits
+(check (and (null (dc 5 4 :ns)) (eq (dc 4 4 :ns) :j)))
+;; too late: a hit due now can still be met (it starts on the hit frame, its first window frame); a press that can't start in time: nothing
+(check (null (dc 1 3 :na :starts '((:sp :ns 2 999999 18 14)))))
+;; too early for a latched segment that starts when the current active frames end: it would be over before his hit (LEN), nothing yet
+(check (null (dc 30 3 :na :own :ns :own-left 5 :starts '((:sp :ns 5 20 18 14)))))
+;; its latch's last frame: pressed even before the lead (it can't wait), when it still covers the hit
+(check (eq (dc 10 3 :na :own :ns :own-left 1 :starts '((:sp :ns 1 1 18 14))) :sp))
+;; its own window already covers the hit: no press
+(check (null (dc 5 3 :na :own :ns :own-left 6)))
+(check (eq (dc 6 3 :na :own :ns :own-left 6 :starts '((:sp :ns 6 20 18 14))) :sp))   ; (it ends on the hit frame: the latched segment starts on it)
+;; never his own class (a tie cancels only on the same frame): NA against his NA, NS against his NS
+(check (null (dc 1 3 :na :starts '((:j :na 1 999999 9 6)))))
+(check (null (dc 1 3 :ns :starts '((:sp :ns 1 999999 18 14)))))
+;; inside its NS: against his NS the SA (J), never the next NS segment; against his NA the next segment, not the SA (SA vs NA is armour)
+(check (eq (dc 1 3 :ns :own :ns :own-left 1 :starts '((:sp :ns 1 10 14 10) (:j :sa 1 10 11 8))) :j))
+(check (eq (dc 1 3 :na :own :ns :own-left 1 :starts '((:sp :ns 1 10 14 10) (:j :sa 1 10 11 8))) :sp))
+;; a non-turn move over a turn move when both would do (his NS: NA link over the SA)
+(check (eq (dc 1 3 :ns :starts '((:j :sa 1 10 11 8) (:sp :na 1 10 9 6))) :sp))
+;; a retired kit's dummy keeps the guard (DUMMY-GUARD-LEFT is unchanged: flow.lisp asks DUMMY-CANCEL-PRESS only for a :core kit)
+(check (= 999 (dummy-guard-left :guard-all :idle 0)))
 
 ;;; ---------------------------------------------------------------- PRACTICE's HP / KONPAKU rows
 (check (and (= (practice-reishi 1300 100) 1300) (= (practice-reishi 1300 50) 650) (= (practice-reishi 1300 10) 130)

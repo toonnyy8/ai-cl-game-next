@@ -282,15 +282,55 @@ for the pre-awakening levels; a :drive level takes effect as soon as he is awake
   (let ((b (brain *p2*)))
     (setf (brain-off b) (not (eq *dummy* :cpu)) (brain-press-left b) 0 (brain-act b) nil)))
 
+(defun dummy-starts (f)
+  "What a press could start for the PRACTICE dummy's fighter F now, as DUMMY-CANCEL-PRESS takes them: (PRESS CLASS D-MIN D-MAX LEN HF).
+Free: J (NA1) and SP (its pointer's NS) on the next step. In a move whose latch is empty: in an NS segment the next segment (SP) and the
+SA (J); in an AS segment the next one; in an NA link or the SA that touched him (its chain open) the next J link: each starts when the
+current move's active frames end, until its recovery does. (No AS: the dummy's own attack seldom lands first.)"
+  (let ((kit (fighter-kit f)) (mv (fighter-move f)) (sf (fighter-sf f)))
+    (flet ((opt (press m dmin dmax)
+             (when m
+               (list press (kit-class kit m) dmin dmax (- (+ (mv-s m) (mv-a m)) (mv-enter m))
+                     (if (plusp (length (mv-hits m))) (- (mv-first-hit m) (mv-enter m)) 999)))))   ; (no melee hit of its own: never in his window)
+      (cond ((and (member (fighter-state f) '(:idle :run)) (zerop (fighter-lock f)) (zerop (fighter-guard-exit f)))
+             (remove nil (list (opt :j (kit-move kit (getf (kit-commands kit) :q)) 1 most-positive-fixnum)
+                               (opt :sp (kit-core-move kit :ns (fighter-ptr f)) 1 most-positive-fixnum))))
+            ((and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (null (fighter-queued f)))
+             (let ((dmin (max 1 (- (+ (mv-s mv) (mv-a mv)) sf))) (dmax (- (mv-total mv) sf 1))
+                   (nx (mv-ns-next kit mv)))
+               (when (<= dmin dmax)
+                 (case (fighter-cls f)
+                   (:ns (remove nil (list (and nx (core-seg-ok-p f nx) (opt :sp nx dmin dmax))
+                                          (opt :j (or (fighter-csa f) (mv-sa-move kit mv) (kit-sa-move kit)) dmin dmax))))
+                   (:as (and nx (list (opt :sp nx dmin dmax))))
+                   ((:na :sa) (and (eq (fighter-contact f) :hit) (list (opt :j (kit-next kit (mv-name mv) :q) dmin dmax))))))))))))
+
+(defun dummy-cancel-input (f pf)
+  "GUARD ALL with a :core dummy (fighter F) against the player's fighter PF: this frame's press (DUMMY-CANCEL-PRESS: :J, :SP or NIL).
+His hit counts only from a move's main phase (not a Kikon's follow-up) within its reach + slide + *DUMMY-CANCEL-REACH* (a swing at the air
+is no threat)."
+  (let* ((pm (fighter-move pf)) (psf (fighter-sf pf))
+         (h (and (eq (fighter-state pf) :move) (eq (fighter-phase pf) :main)
+                 (<= (fighter-dist f) (+ (mv-reach pm) (mv-slide pm) *dummy-cancel-reach*))   ; ponytail: one slack; a chase / dash table if a move outruns it
+                 (next-window-lead pm psf (fighter-hits pf))))
+         (own (core-window-class f)))
+    (and h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf)
+                               own (if own (- (+ (mv-s (fighter-move f)) (mv-a (fighter-move f))) (fighter-sf f)) 0)
+                               (dummy-starts f)))))
+
 (defun practice-step ()
-  "PRACTICE, each sim frame (MATCH-SYSTEM): the dummy's guard; its Konpaku always full (after a Kikon's reset: no match
-end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions; GAUGES INFINITE: P1's gauges full."
+  "PRACTICE, each sim frame (MATCH-SYSTEM): the dummy's guard (GUARD ALL with a :core dummy: its cancelling press, DUMMY-CANCEL-INPUT);
+its Konpaku always full (after a Kikon's reset: no match end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions;
+GAUGES INFINITE: P1's gauges full."
   (let* ((f (fighter *p2*)) (g (gauges *p2*)) (b (brain *p2*)))
     (unless (eq *dummy* :cpu)
-      (setf (brain-press b) :guard (brain-press-mod b) nil
-            (brain-press-left b) (dummy-guard-left *dummy* (fighter-state f) (brain-press-left b)))
-      (when (and *dummy-counter* (dummy-counter-now-p (fighter-state f) (fighter-sf f) (fighter-stun f) (fighter-glock f)))
-        (setf (brain-press b) :quick (brain-press-left b) 1)))   ; COUNTER: J1 (BRAIN-STEP writes it, the guard let go)
+      (let ((cancel (and (eq *dummy* :guard-all) (kit-core (fighter-kit f)) (dummy-cancel-input f (fighter *p1*)))))
+        (cond (cancel (setf (brain-press b) :quick (brain-press-mod b) (eq cancel :sp) (brain-press-left b) 1))   ; J or SP, one step
+              ((and (eq *dummy* :guard-all) (kit-core (fighter-kit f))) (setf (brain-press-left b) 0))           ; (a core kit: no guard)
+              (t (setf (brain-press b) :guard (brain-press-mod b) nil
+                       (brain-press-left b) (dummy-guard-left *dummy* (fighter-state f) (brain-press-left b)))))
+        (when (and *dummy-counter* (not cancel) (dummy-counter-now-p (fighter-state f) (fighter-sf f) (fighter-stun f) (fighter-glock f)))
+          (setf (brain-press b) :quick (brain-press-mod b) nil (brain-press-left b) 1))))   ; COUNTER: J1 (BRAIN-STEP writes it, the guard let go)
     (setf (gauges-konpaku g) (svref *practice-rows* 3))
     (when (and *hp-refill* (not (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))))
       (setf (gauges-reishi g) (practice-hp *p2*))))

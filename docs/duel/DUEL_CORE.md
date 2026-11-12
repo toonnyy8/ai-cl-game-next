@@ -381,3 +381,40 @@ NS 段（推薦）」** (rejected: J only; J, NS and AS).
   Hoho > J → the SA KIRI. The CPU never Hohos off a hit, so the sim gates and G2 are identical to before: KK 167.2, IK 192.6, II 231.6,
   HK 183.8, HI 190.4, HH 295.7 s (10 seeds; HH's 4 time-outs are §27.9's, Hisagi's), cvc ii / ik / kk PASS. Teaching the CPU this is
   left for later.
+
+## 9. PRACTICE's GUARD ALL cancels (the user, 2026-11-12)
+
+Request: 「練習模式 DUMMY 的「GUARD ALL」會自動使出能跟對手相消的攻擊」. A `:core` kit never guards, so GUARD ALL held a guard that did
+nothing for the three live kits; it now means "cancel all": the dummy answers each incoming hit with a press that puts it inside the
+startup / active frames of a move the triangle (§2) cancels that hit with. A retired, non-core dummy keeps the old guard; STAND,
+GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: 自動出招與你相消).
+
+- **The rule** (`dummy-cancel-press`, control.lisp, pure and host-tested; flow.lisp `dummy-cancel-input` gathers its inputs each sim frame
+  and presses J or SP on P2's pad for one step, nothing else). Only presses a player could make: from neutral J (NA1) or SP (the pointer's
+  NS) on the next step; inside its own move the latched continuation (the next NS segment, the SA in an NS gap, the next J link once its
+  attack touched him, the next AS segment), which starts when the current segment's active frames end and can be latched until its
+  recovery ends. No invulnerability, no state edits. Nothing when no hit is coming (the player idle, in recovery, every window spent,
+  out of reach + slide + 1 m), so the dummy never starts a fight.
+- **The answer** (`core-verdict` with the dummy's move starting later): his NA → NS (SP), his SA → NS, his NS → NA (J) or, inside its
+  own NS, the SA (J), his AS → NA. Never his own class (a same-class tie cancels only on the same frame); a non-turn move (NA / NS) over a
+  turn move; no press while its own window already covers his hit.
+- **When**: as late as it still works, `*dummy-cancel-lead*` = 2 frames before his hit is due, or on the latest frame that also lets its
+  own hit land inside his window (then his move is cancelled even when his hit whiffs: a dead zone, a step out of reach), or on its
+  latch's last frame. So against a J string it rides its NS segments, each started just before the J it answers; its own hit lands on him
+  only once he stops attacking.
+- **What cannot be cancelled** (the hit lands, as the rules say): a hazard (Ichigo's wave, a clone's strike: never judged; scene h
+  `WAVE -> P2 HIT 150`); a Kikon's follow-up (not a main-phase move); the SA after his NS (the dummy answered the NS with NA, and from an NA
+  only J links or an AS start: NA takes an SA's hit, the AS's armour only absorbs it; `KE-Z-SA1 -> P2 HIT 30`); his AS after a J it
+  cancelled (only NA cancels an AS, and the dummy is in its NS: `KE-Z-AS1 -> P2 HIT 90`, against Ichigo its NS's hit `ABSORBED` by the
+  AS's armour); a J string longer than the dummy's NS route (Kenpachi's three segments cover four of Hisagi's five J: `HS-J3 -> P2 HIT
+  38`); a hit too far away (scene i: no answer); a hit while the dummy is in recovery or a reaction.
+- **Hisagi's trait** (§29 of DUEL_HISAGI): a cancel turns `KIN` on, but GUARD ALL then cancels the route that follows too, so his NS1b /
+  c reach the dummy inside the 3 m dead zone (`P1 HS-N1B x P2: CANCEL` at d 1.70; against DUMMY STAND the same presses make no contact at
+  all) without landing. J1 → cancel → `KIN on` works, but J1 → SP is an AS (rule 5) and neutral turns KIN off, so "J1, then NS1" cannot
+  carry it.
+- **Tests**: 16 host checks in `tests/duel-control-test.lisp` (the table, the lead's edges one frame each side, the double-cover frame,
+  nothing when idle / no class, a latch's last frame, no press while covered, never the same class, NS segment vs SA inside an NS, a
+  retired kit's guard); debug 2800-2815 (DUEL_GAMEPLAY) and `tests/scripts/duel-practice-cancel.json`. Cancelled / total of the
+  player's hits (native = browser): J1 1/1 in all six pairs (KK KI IK IH HK HI); the five J 5/5 (HK 4/5); NS x3 3/3 (Hisagi's NS1a whiffs
+  in its dead zone, cancelled by the dummy's J1, then 2/2); NS then SA 1/2 (0/1 for Hisagi); J then AS 1/2 (Hisagi's four-hit AS1: 1/5);
+  the dummy's own hit landed on the player 4 times in 30 scenes, all after a lone J1 (KK, KI, IH, HI). Idle 3 s: no press. G2 identical.

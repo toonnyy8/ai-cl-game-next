@@ -319,6 +319,24 @@ plays the intro (the card, READY / 斬); PICKS other fighters."
   (setf (brain-off (brain *p2*)) t)
   (when (brain *p1*) (setf (brain-off (brain *p1*)) t)))
 
+(defun practice-cancel-scene (c)
+  "PRACTICE's GUARD ALL with a :core dummy (DUEL_CORE §9): 2800 + 3a + b (a / b 0-2: Kenpachi, Ichigo, Hisagi) a PRACTICE with human P1 a
+against dummy b set to GUARD ALL, cinematics skipped; 2809 both 2.2 m apart, idle (a fresh scene in the same match); 2810+k
+(k 0-3) the DUMMY option STAND / GUARD ALL / GUARD AFTER HIT / CPU now; 2814 both 6 m apart, idle; 2815 COUNTER J1 / OFF toggled. Every one
+but 2814 / 2815 ends 2.2 m apart, idle."
+  (cond ((<= c 2808)
+         (let ((cs '(:kenpachi :ichigo :hisagi)))
+           (setf *picks* (list (nth (floor (- c 2800) 3) cs) (nth (mod (- c 2800) 3) cs)) *mode* :practice *match-seed* 1 *probe* nil
+                 *dummy* :guard-all))
+         (let ((*skip-cines* t)) (start-match))
+         (when (brain *p1*) (setf (brain-off (brain *p1*)) t)))
+        ((<= 2810 c 2813) (setf *dummy* (car (nth (- c 2810) *dummies*))))
+        ((= c 2815) (setf *dummy-counter* (not *dummy-counter*))))
+  (practice-dummy!)
+  (unless (= c 2815) (place *p1* *p2* (if (= c 2814) 6.0 2.2)))
+  (log-msg "duel practice scene ~a vs ~a DUMMY ~a COUNTER ~a" (fighter-character (fighter *p1*)) (fighter-character (fighter *p2*))
+           (cdr (assoc *dummy* *dummies*)) (if *dummy-counter* "J1" "OFF")))
+
 (defun lhud-p2-form ()
   "2508: P2 (Kenpachi in 2505 / 2506) to his next form: sealed -> the Shikai with KAIHO L2 -> the Bankai KYORAN -> ZANKAI -> sealed
 (DUEL_LISP_HUD §13: the top plate's form seals 旋 墜 / 狂 / 壞, the form tag, the KAIHO strip)."
@@ -812,6 +830,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2516) (let ((q (pos-of *p2*))) (set-reaction *p1* :knockdown 0 (aref q 0) (aref q 2) 0.0)))   ; P1 knocked down (the wake-up roll, DEVLOG §614)
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
         ((<= 2505 c 2506) (lhud-scene (= c 2506)))       ; the Lisp HUD's phone scenes (DUEL_LISP_HUD §13)
+        ((<= 2800 c 2815) (practice-cancel-scene c))      ; PRACTICE's GUARD ALL cancelling dummy (DUEL_CORE §9)
         ((= c 2495) (lhud-scene nil :intro t))            ; the same with the intro played (DUEL_LISP_HUD §14: the card, READY / 斬)
         ((= c 2496) (lhud-scene nil :picks '(:kenpachi :ichigo))   ; human Kenpachi in his Shikai vs Ichigo (the KAIHO strip on the left plate)
          (force-form *p1* :nozarashi) (setf (gauges-meter (gauges *p1*)) 2f0 (gauges-meter-idle (gauges *p1*)) 0))

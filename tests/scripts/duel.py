@@ -254,7 +254,8 @@ write("flow", ev)
 # SETTINGS / CONTROLS / MANUAL; SETTINGS: ONE-HAND / HAND / SENSITIVITY / CAMERA / LEARNING CPU / PERFECT HINT / VOLUME / RESET LEARNING / BACK). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
 # duel camera CAMERA  SIDE (the pause menu flips it back: BEHIND), duel -> MODE, duel -> SELECT, the match seed line with
 # PRACTICE, duel -> BATTLE; J J J on the standing dummy: YA-J1 / J2 / J3 -> P2 HIT (the dump after it: P2 r1300, the
-# HP refilled); duel practice DUMMY  GUARD ALL, then J1 / J2 -> P2 BLOCKED; DUMMY  GUARD AFTER HIT: J1 -> HIT, then a J1
+# HP refilled); duel practice DUMMY  GUARD ALL, then J1 / J2 -> P2 BLOCKED (a :core dummy, Ichigo vs Kenpachi since 2026-11-12: J1 / J2
+# x P2: CANCEL, DUEL_CORE §9); DUMMY  GUARD AFTER HIT: J1 -> HIT, then a J1
 # 0.5 s later -> BLOCKED; GAUGES  INFINITE (the dump: P1 a300 f100 w100); the HP / KONPAKU rows (P1 r650 k4, P2 r325
 # k8, again after a hit and after duel practice reset). No RESULTS line.
 # Shots: practice-mode, practice-settings, practice-combo (the counter stays up), practice-pause.
@@ -963,3 +964,46 @@ def blue_burn_script():
         t += 8.0
     return sorted(ev, key=lambda x: x["at"])
 write("blue-burn", blue_burn_script())
+
+
+def practice_cancel_script():
+    """PRACTICE's GUARD ALL with a :core dummy (DUEL_CORE §9, 2026-11-12: 「練習模式 DUMMY 的「GUARD ALL」會自動使出能跟對手相消的攻擊」;
+    --fixed-dt 16.666667 --secs 230): P1's keys written out (frames after the scene command; each press lands inside the link before it), the
+    dummy's presses its own. 2800 + 3a + b: P1 a against dummy b (0 Kenpachi, 1 Ichigo, 2 Hisagi), 2.2 m, GUARD ALL; per pair (a) J1, (b) the
+    five J, (c) NS x3, (d) NS then the SA, (e) J then SP (the AS), (f) idle 3 s on KK / IH. Then (g) Hisagi's NS1 x3 at 2.2 m against DUMMY
+    STAND (the control: no contact without a cancel's unlock), (h) Ichigo's pointer 2 (the wave: a hazard, it lands), (i) J1 at 6 m (out of
+    reach: no answer), (j) STAND / GUARD AFTER HIT / CPU as before, (k) COUNTER J1 with GUARD ALL: J1 once the SA's stun ends. Read the
+    combat log's `CANCEL` / `HIT` lines per `===` scene."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def press(t, kind):
+        if kind == "j": ev.extend(tap(t, "KeyJ", 0.05))
+        else: ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", 0.05)); ev.append(key(t + 0.09, "ShiftLeft", False))
+    t = T0
+    def scene(label, cmds, presses, ticks):
+        nonlocal t
+        say(t, label)
+        ev.extend(cmd(t + 0.02 * i, c) for i, c in enumerate(cmds))
+        for off, kind in presses: press(t + 0.05 + off / 60, kind)
+        t += ticks / 60 + 0.6
+    names = "KIH"
+    pairs = {(0, 0): ([23, 43, 81, 135], 59, 21), (0, 1): ([23, 43, 81, 127], 59, 21), (1, 0): ([23, 54, 103, 155], 67, 29),
+             (1, 2): ([23, 51, 90, 144], 67, 29), (2, 0): ([23, 54, 102, 161], 50, 29), (2, 1): ([23, 51, 91, 146], 50, 29)}
+    for (a, b), (js, ns3, as_) in pairs.items():
+        c, pr = 2800 + 3 * a + b, names[a] + names[b]
+        scene(f"{pr} a J1", [c], [(10, "j")], 200)
+        scene(f"{pr} b J x5", [c], [(10, "j")] + [(o, "j") for o in js], 400)
+        scene(f"{pr} c NS x3", [c], [(10, "sp"), (23, "sp"), (ns3, "sp")], 400)
+        scene(f"{pr} d NS then SA", [c], [(10, "sp"), (23, "j")], 300)
+        scene(f"{pr} e J then SP (AS)", [c], [(10, "j"), (as_, "sp")], 300)
+        if (a, b) in ((0, 0), (1, 2)): scene(f"{pr} f idle 3 s", [c], [], 180)
+    scene("g HK NS1 x3 at 2.2 m, DUMMY STAND (control)", [2806, 2810], [(10, "sp"), (23, "sp"), (43, "sp")], 300)
+    scene("h IK pointer 2 x3 (the wave)", [2803, 2511], [(10, "sp"), (23, "sp"), (39, "sp")], 400)
+    scene("i KK J1 at 6 m", [2800, 2814], [(10, "j")], 120)
+    scene("j KK STAND J1", [2800, 2810], [(10, "j")], 120)
+    scene("j KK GUARD AFTER HIT J x2", [2800, 2812], [(10, "j"), (23, "j")], 160)
+    scene("j KK CPU, P1 idle", [2800, 2813], [], 240)
+    scene("k KK COUNTER J1 + GUARD ALL: NS then SA", [2800, 2815], [(10, "sp"), (23, "j")], 300)
+    ev.append(cmd(t, 2815))
+    return sorted(ev, key=lambda x: x["at"])
+write("practice-cancel", practice_cancel_script())

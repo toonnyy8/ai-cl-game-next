@@ -6,7 +6,8 @@
 ;;;;   (new-vpad &key reader)                a vpad with these buttons (:MOD = the Reiatsu modifier)
 ;;;;   (vpad-command vp *commands* allowed)  buttons + modifier -> one command keyword
 ;;;;   (vpad-command-pressed-p vp button mod)   is one *COMMANDS* entry's button buffered?
-;;;; Also the SETTINGS rows (*SETTINGS*, ONE-HAND-ON-P) and the PRACTICE dummy's guard rule (DUMMY-GUARD-LEFT).
+;;;; Also the SETTINGS rows (*SETTINGS*, ONE-HAND-ON-P) and the PRACTICE dummy's guard rule (DUMMY-GUARD-LEFT; GUARD ALL with a :core
+;;;; dummy: DUMMY-CANCEL-PRESS).
 ;;;; Plain CL, host-tested (tests/duel-control-test.lisp).
 (in-package :duel)
 
@@ -204,7 +205,7 @@ Burst), Mod + P once held through the hold (the awakening)."
   "Frames the PRACTICE dummy goes on holding guard, for its DUMMY option, its fighter STATE and LEFT (frames still
 held). :GUARD-ALL always; :GUARD-HIT from a hit landing on it (a hit state) or a blocked one, until *DUMMY-GUARD-HOLD*
 frames after that (a string's first hit lands, the rest is blocked unless it combos); :STAND / :CPU never (the CPU
-guards by itself)."
+guards by itself). (A :core dummy never guards: its GUARD ALL is DUMMY-CANCEL-PRESS, flow.lisp PRACTICE-STEP.)"
   (case dummy
     (:guard-all 999)
     (:guard-hit (if (member state '(:stun :air :down :wakeup :guard-hit)) *dummy-guard-hold* (max 0 (1- left))))
@@ -219,6 +220,41 @@ press starts J1 on its first free frame."
   (case state
     ((:stun :guard-hit) (and (>= (1+ sf) stun) (not (and (eq state :guard-hit) glock)) t))
     (:wakeup (>= (1+ sf) (getf *reaction-frames* :wakeup)))))
+
+;;; GUARD ALL with a :core dummy (the user, 2026-11-12: 「練習模式 DUMMY 的「GUARD ALL」會自動使出能跟對手相消的攻擊」, DUEL_CORE §9): a core
+;;; kit never guards, so the dummy answers each incoming hit with a press that puts it inside the startup / active frames of a move the
+;;; triangle cancels that hit with (core.lisp CORE-VERDICT): only presses a player could make, nothing when no hit is coming.
+(defparameter *dummy-cancel-lead* 2
+  "GUARD ALL (a :core dummy): its cancelling move starts at least this many frames before the player's hit is due (a hit landing a frame or
+two late, a chase, stays inside its window). New 2026-11-12 (the lead's default).")
+(defparameter *dummy-cancel-reach* 1.0
+  "GUARD ALL (a :core dummy): a player's hit counts as coming only within its move's reach + slide + this many metres (a swing at the air
+draws no answer; flow.lisp DUMMY-CANCEL-INPUT). New 2026-11-12 (the lead's default).")
+
+(defun dummy-cancel-press (hit-in gap p-cls own-cls own-left starts)
+  "GUARD ALL with a :core dummy: the press (:J, :SP or NIL) the dummy makes at the end of this sim frame so the player's next hit lands on it
+inside a move the triangle cancels it with. HIT-IN: frames until his next unused hit window opens (1 = the next frame), NIL: no hit coming
+(idle, recovery, every window spent, out of reach, a move that hits by a hazard alone: nothing cancels a hazard). GAP: frames his classed
+window lasts after that hit frame (his move is still in startup / active then, so the dummy's own hit landing in it cancels too). P-CLS:
+his move's class. OWN-CLS / OWN-LEFT: the class of the dummy's window now (NIL: none) and the frames it still lasts. STARTS: what a press
+could start now, each (PRESS CLASS D-MIN D-MAX LEN HF): it starts D-MIN frames on (1 from neutral; a latched segment, SA or link when the
+current move's active frames end), D-MAX the latest it still could (a latch closes with the recovery), LEN its startup + active frames,
+HF the frames from its start to its own first hit. Rules: only a class the table cancels his with (NA, SA -> NS; NS -> NA, SA; AS -> NA;
+never his own class, whose tie only cancels on the same frame); nothing while its own window already covers the hit; a non-turn move
+(NA / NS) over a turn move; pressed as late as it still works: it starts *DUMMY-CANCEL-LEAD* frames before the hit, or on the latest frame that lets its own hit
+land inside his window too (his move cancelled even if his hit whiffs: a dead zone, a step out of reach), or on its latch's last frame."
+  (flet ((cancels-p (c) (and p-cls c (eq (core-verdict p-cls c :att-t 0 :def-t 1) :cancel))))   ; (the dummy's move starts later)
+    (when (and hit-in (not (and (cancels-p own-cls) (< hit-in own-left))))
+      (let ((best nil) (best-turn t))
+        (loop for o in starts
+              do (destructuring-bind (press cls dmin dmax len hf) o
+                   (let* ((r (- hit-in dmin))                                ; its frame (from its start) at his hit, pressed now
+                          (dbl (+ (- hf gap) 1))                             ; the least R whose own hit lands inside his window
+                          (turn (member cls '(:as :sa))))
+                     (when (and (cancels-p cls) (<= 0 r) (< r len) (or (<= r *dummy-cancel-lead*) (= r dbl) (>= dmin dmax))
+                                (or (null best) (and best-turn (not turn))))
+                       (setf best press best-turn turn)))))
+        best))))
 
 ;;; PRACTICE's HP / KONPAKU rows (the user's request 2026-09-28): the values RESET POSITION and every refill restore
 (defparameter *practice-hp* '(100 75 50 25 10) "The P1 HP / DUMMY HP steps, % of the fighter's Reishi maximum.")
