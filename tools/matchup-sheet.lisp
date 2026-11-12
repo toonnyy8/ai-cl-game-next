@@ -9,8 +9,8 @@
 (defpackage :duel (:use :cl :engine))
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "ken" "ichigo" "endless-rules" "rogue-rules" "run-mods"
-             "hisagi" "hisagi-ai"))
+(dolist (f '("tuning" "rules" "kit" "ken" "ichigo"
+             "hisagi"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 (setf *print-pretty* nil)

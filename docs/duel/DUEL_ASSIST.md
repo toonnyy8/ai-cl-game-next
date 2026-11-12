@@ -1,5 +1,9 @@
 # ASSIST: AUTO GUARD / AUTO COMBO / AUTO BREAK (the user, 2026-10-01)
 
+> **Removed from `main` on 2026-11-13** (refactor R4, decision D2, the user 2026-11-10: 「全部封存後移除 (Recommended)」,
+> docs/engine/REFACTOR_2026-11.md §6 / §11.3): the code this document describes lives on the branch `frozen-modes` (main at
+> 77de43f8). The record below is kept as written.
+
 The user: "I can't beat the CPU — perfect dodges, parries, guard breaks and flashy combos one after another. Plan an AI
 assist so I can pull those off easily."
 

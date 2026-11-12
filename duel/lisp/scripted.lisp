@@ -1,9 +1,8 @@
-;;;; scripted.lisp — the trial player (tools/simgate/trial.lisp, tools/combo-trial.py: the CPU work's combo trials) and the
-;;;; learning gate's masher delay (gate.lisp). The habit players the old AI ran (HABIT-FIRE, HABIT-NEUTRAL, DUMB-STEP) left with it
+;;;; scripted.lisp — the trial player (tools/simgate/trial.lisp, tools/combo-trial.py: the CPU work's combo trials). (The learning
+;;;; gate's masher delay *DUMB-DELAY* left with that gate on 2026-11-13, REFACTOR_2026-11 R4.) The habit players the old AI ran (HABIT-FIRE, HABIT-NEUTRAL, DUMB-STEP) left with it
 ;;;; on 2026-11-12 (REFACTOR_2026-11 R3): a :core kit's CPU never read a habit. Out of gate.lisp in refactor round 3 N10.
 (in-package :duel)
 
-(defparameter *dumb-delay* 24 "The learning gate's button-masher sees as late as an EASY CPU (frames; gate.lisp LEARN-GATE-SETUP).")
 (defvar *trial-script* nil
   "debug, the trial player (tools/simgate/trial.lisp drives it, tools/combo-trial.py; the CPU work's step 2, skill duel-character-cpu \"Order\"):
 its presses in order, each (button frames &key modded wait on stick): BUTTON held FRAMES steps (:walk: no button), the stick

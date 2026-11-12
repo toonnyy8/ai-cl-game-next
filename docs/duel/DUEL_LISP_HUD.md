@@ -1433,6 +1433,15 @@ CPU, and where it is now:
   event keeps its dud tick, nothing else), `hud-stick`'s frost arc, `*brush-callouts*` (never read: brush.lisp's table and Ichigo's
   append), the retired kits' `*brush-names*` entries, the `*hurt-cines*` Yamamoto entries, `hud-pulse`, `bcap-restart`, `push-in-on`, flow.lisp's
   `*mode-menu*` / `settings-items` / `settings-note` / `*results-menu*` (canvas menu data, no reader). The D2 half (ENDLESS / DANGAI screens) stays R4's.
+- **D2 leftovers, done (refactor R4, 2026-11-13, REFACTOR_2026-11 §11.3 R4):** with ENDLESS / DANGAI (endless.lisp, rogue.lisp: their
+  screens `hud-endless-results` / `-clear` / `-tag`, `hud-rogue-doors`) went hud-screens.lisp's `hud-menu`, `hud-select`,
+  `hud-select-portrait`, `results-card` and `hud-draw`'s `:select` / `:results` / `:clear` / `:doors` clauses (it draws the battle's
+  world overlays alone now), hud.lisp's `hud-text`, `*dim*`, `*dim-ink*`, `*ember*`, `*shade*`, `alpha!` and `hud-battle`'s ENDLESS tag
+  (`*white*` stays: ANNOUNCE's default; `hud-dt` stays: the flash's countdown), onehand.lisp's `note-menu-row`, `tapped-row`,
+  `tap-third`, `*menu-rows*`, `touch-tap-zones-p`, flow.lisp's `menu-tap-p` / `menu-tap-third` and `menu-nav`'s `tapped-row`, webhud.lisp's
+  `*menu-rows*` reset, webui.lisp's ENDLESS branch of `webui-screen` and `webui-on-screen-p`, camera.lisp's canvas SELECT pair camera
+  (`menu-camera` frames the Lisp SELECT only); ASSIST's AUTO tag (`hud-hint`) with ASSIST. (The portrait block geometry stays: the deck
+  uses it.)
 - engine/lisp/ui.lisp is untouched (engine API; its now-unused exports are refactor batch B1's), as `page-set-str` (§16.1).
 
 **Proof.** Host tests: duel-rules 10260 (tests/duel-rules/hisagi.lisp's label check follows `*ic-bunshin-labels*`; sim.lisp's `kosei!`

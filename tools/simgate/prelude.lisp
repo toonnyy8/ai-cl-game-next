@@ -1,5 +1,5 @@
-;;;; prelude.lisp — what every native-sim runner starts with (tools/simgate/*.lisp, tools/roguegate/run.lisp):
-;;;;   (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/roguegate/ uses "../simgate/prelude.lisp"
+;;;; prelude.lisp — what every native-sim runner starts with (tools/simgate/*.lisp):
+;;;;   (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
 ;;;;   (in-package :duel)                                                               ; (a package switch stays in the loading file)
 ;;;; Reads the args after "--" (*SG-ARGS*: the duel.fas path, then the runner's own), loads the native SOUL DUEL and defines
 ;;;; CL-USER::SG-INIT (every startup step, as the page would; exit 2 on a failed step) and CL-USER::SG-QUEUE [ARGS] (queue the debug

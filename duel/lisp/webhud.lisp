@@ -196,8 +196,7 @@ running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour
       (loop for it in items for i from 0 below 20 do (webhud-put-str (+ 10 i) it))
       (webhud-put 18 (min 20 (length items)))
       (webhud-put 19 (logand 1023 (1+ (aref *hud-sent* 19))))))
-  (webhud-put 17 *menu*)
-  (setf (svref *menu-rows* 0) nil))                      ; the engine's rows are not drawn: no tap lands on a stale one
+  (webhud-put 17 *menu*))
 
 (defun webhud-intro-phase ()
   "The intro's phase (30114): 1 P1's name, 2 P2's, 3 READY, 4 斬 (the FIGHT! beat, frame 250), 0 none."

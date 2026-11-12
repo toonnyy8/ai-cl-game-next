@@ -10,7 +10,7 @@
 ;;;;               menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo). (The retired kits'
 ;;;;               scenes, the frame / stance / module probes and the HUD review left with their code, 2026-11-12.)
 ;;;;   22000-27999, 30000-31199   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc), the gates' seeds
-;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 200000+ the learning gate
+;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 81020+i the gates' CPU difficulty, 200000+ the pairing gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 ;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
@@ -156,7 +156,7 @@ B): …; ms a call: …; verts: …` (0 B wanted)."
 numbers on the results (P1: Konpaku 6, best combo 12, 2 Kikons, 3 perfect Hohos; P2: 4, 7, 1, 0), then k: 0 P1 wins, 1 P2 wins, 2 a
 draw; the K.O. cinematic plays (skip it with a key) and RESULTS follows. k 3: SELECT with P1 Hisagi and P2 Ichigo (VS CPU), each
 card focused without cycling the picks."
-  (when (= w 3) (setf *picks* (list :hisagi :ichigo) *mode* :vs-cpu *rogue* nil) (go-select) (return-from lm-results-scene))
+  (when (= w 3) (setf *picks* (list :hisagi :ichigo) *mode* :vs-cpu) (go-select) (return-from lm-results-scene))
   (setf *cine-hold* nil)
   (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 3.0)
@@ -299,13 +299,9 @@ screen punctuation with an impact splash and of a brush Latin line (callouts, bi
     (setf (aref *screen-fx* 7) 0f0)))
 
 (defun hud-cons-check ()
-  "2328: bytes consed by 10 HUD-TEXT draws of a literal and of a run-time string (the frozen modes' canvas screens) and by
-10 draws of each Bankai stance look (0 B each; the crossfade only while it runs). (The canvas battle HUD's gauge bars it
-measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16.)"
-  ;; HUD-TEXT: a literal and a string made at run time
-  (let ((fresh (format nil "~d" 12345)))
-    (log-msg "hud-text consing (10 draws, B): ~a, ~a" (cons-per "const" (hud-text "REIATSU" 10 10 2 *white*))
-             (cons-per "fresh" (hud-text fresh 10 10 2 *white*))))
+  "2328: bytes consed by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs). (The canvas battle HUD's
+gauge bars it measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16; HUD-TEXT's line with the frozen modes' screens,
+2026-11-13, REFACTOR_2026-11 R4.)"
   ;; the Bankai stances' per-frame looks (10 draws each; particles emitted too): West's flame garb, the bound ash,
   ;; the heat sheet, KYOKKO's ray, South's crack, the aura crossfade (DRAW-AURA); and the Phase-3 :heat aura for
   ;; comparison
@@ -473,14 +469,6 @@ move-beat choices of DRAW-FIGHTER."
     (setf (model-beat m) 0f0)))
 
 
-(defun run-mods-debug (k)
-  "Debug 84800-84899: K < (length *RUN-MODS-TESTS*) installs that one-key table on P1 (now, and on every match START-MATCH
-starts: *RUN-MODS-TEST*); 99 clears it. A plain VS CPU / CPU VS CPU match then runs with P1 under the key."
-  (let ((row (nth k *run-mods-tests*)))
-    (setf *run-mods-test* (and (/= k 99) row (copy-list row))
-          *run-mods* *run-mods-test* *run-mods-who* (and *run-mods-test* *p1*))
-    (log-msg "duel runmod test ~d ~s" k *run-mods-test*)))
-
 (defun cine-still-command-p (c)
   "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
 checks every such clause of DEBUG-COMMAND is listed here)."
@@ -488,13 +476,12 @@ checks every such clause of DEBUG-COMMAND is listed here)."
 
 (defun debug-command (c)
   "Module._debug_cmd(C): see the file header."
-  (setf *combat-log* t *stats-log* t *learn-debug-off* t)   ; (no learner in any debug run: LEARN-GATE attaches its own)
+  (setf *combat-log* t *stats-log* t *learn-debug-off* t)   ; (no CPU learns in a debug run: fq-online.lisp FQ-ATTACH!)
   (log-msg "debug cmd ~d" c)
   (unless (cine-still-command-p c)
     (setf *cine-hold* nil))
   (cond ((<= 2000 c 2099) (start-cvc (- c 2000) nil))
-        ((<= 200000 c 209999) (start-learn-gate (floor (- c 200000) 1000) (mod (floor c 100) 10) (mod (floor c 10) 10) (mod c 10)))
-                                                            ; (habit h 0-9, roster c1 / c2 0-9)
+        ((<= 200000 c 209999) (start-pair-gate (mod (floor c 100) 10) (mod (floor c 10) 10)))   ; (roster c1 / c2 0-9; h, m: no more read)
         ((<= 3000 c 3999) (start-cvc (- c 3000) '(:ichigo :ichigo)))
         ((<= 4000 c 4999) (start-cvc (- c 4000) '(:ichigo :kenpachi)))
         ((<= 5000 c 5999) (start-cvc (- c 5000) '(:kenpachi :kenpachi)))
@@ -540,16 +527,6 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 2300 c 2399) (force-special (- c 2300)))
         ((= c 2400) (setf *god* (not *god*)))
         ((<= 2600 c 2699) (setf *red-threshold* (/ (- c 2600) 100.0)))
-        ((<= 80000 c 80999) (endless-debug (- c 80000) nil))    ; ENDLESS (endless.lisp)
-        ((<= 84800 c 84899) (run-mods-debug (- c 84800)))      ; DANGAI's run table: one key on P1 (run-mods.lisp)
-        ((<= 84501 c 84528) (rogue-debug (- c 84500)))         ; DANGAI: grant a reward (rogue.lisp)
-        ((or (<= 84550 c 84558) (<= 84560 c 84567) (<= 84570 c 84598)) (rogue-debug (- c 84500)))   ; DANGAI: the stage's reward type; a boss run
-        ((<= 84000 c 84999) (endless-debug (- c 84000) t))      ; DANGAI (rogue.lisp: an ENDLESS run)
-        ((<= 81000 c 81011) (let ((k (- c 81000)))          ; ASSIST for the :dumb player (guard + 3 combo + 6 break)
-                              (setf *assist-debug* (list (mod k 3) (oddp (floor k 3)) (>= k 6)))))
-        ((<= 81100 c 81200) (setf *assist-mult* (/ (- c 81100) 100.0)))   ; ASSIST's x0.8 (its gate)
-        ((<= 81040 c 81041) (setf *dumb-p2* (= c 81041)))   ; ASSIST's gate: P2 a button-masher too (never assisted)
-        ((<= 81030 c 81031) (setf *assist-learn* (= c 81031)))   ; ASSIST's learner off / on (its gate A/B)
         ((<= 81020 c 81022) (setf *gate-difficulty* (nth (- c 81020) '(:easy :normal :hard))))
         ((<= 22000 c 22999) (setf *gg-regen* (/ (- c 22000) 10.0)))
         ((<= 23000 c 23999) (setf *gg-regen-guardless* (/ (- c 23000) 10.0)))

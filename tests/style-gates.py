@@ -14,7 +14,7 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
                                                     pixel): 105 fixed stills of SOUL DUEL under run.mjs --fixed-dt
                                                     (menus, select of all six fighters, four CPU-vs-CPU matches at
                                                     several times, Kikon / awakening / form-change cinematics, HUD
-                                                    in every form, VFX, ENDLESS, the portrait touch layout, results)
+                                                    in every form, VFX, the portrait touch layout, results; ENDLESS's 4 left 2026-11-13)
                                                     from BASE twice (noise floor) and NEW once; per still the max abs
                                                     channel diff and the differing pixels, a diff image in
                                                     build/style/looks/diff/ for any that differ, and the sim's
@@ -202,13 +202,7 @@ def looks_scenarios():
             ev(s, t, c); shot(s, t + d, still); t0 = t; t += d + 0.3
         sc[name] = (s, done(s), ())
 
-    # ENDLESS: its select, then a debug run (Kenpachi from stage 3), its HUD, and the stage clear
-    s, t = [], LOOKS_START
-    key(s, t, "Enter"); key(s, t + 0.5, "ArrowDown"); key(s, t + 0.8, "Enter"); shot(s, t + 1.5, "select")
-    key(s, t + 1.7, "Enter"); shot(s, t + 2.3, "start")
-    ev(s, t + 2.5, 80103); key(s, t + 3.5, "Enter"); shot(s, t + 5.0, "hud")
-    ev(s, t + 5.2, 80980); shot(s, t + 9.0, "clear")
-    sc["endless"] = (s, done(s), ())
+    # (the ENDLESS scenario, its 4 stills, left with the frozen modes on 2026-11-13: REFACTOR_2026-11 R4)
 
     # the portrait touch layout (390 x 844, one-handed: the taps of tests/scripts/duel-mobile.py)
     s, t = [], LOOKS_START

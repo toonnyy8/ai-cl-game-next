@@ -105,10 +105,6 @@ instead (true combos); on a whiff never (the contact gate, §2.2).")
   "The guard cancel (the user, 2026-10-01): a move whose own hit landed may end in a guard (Guard held) once only this
 share of its recovery is left, so a hit doesn't leave its owner open (GUARD-CANCEL-OPEN-P); a J / K / O also blocked or
 whiffed since 2026-10-23 (0.5 -> 0.75, 2026-10-23, the user: 「將防禦取消提早」: the last three quarters).")
-(defparameter *assist-mult* 0.8
-  "ASSIST (the user, 2026-10-01; docs/duel/DUEL_ASSIST.md): a move the assist pressed deals this x its damage (its Hoho is never
-perfect): playing it by hand still pays.")
-(defparameter *assist-tag-frames* 45 "Frames the AUTO tag shows over a fighter after the assist pressed for him.")
 (defparameter *ender-push* 0.05
   "A J / K string's ender (J3 / K3) that hits pushes its victim at once out of the attacker's J1 (J3) / K1 (K3) reach:
 that move's far edge (its reach, + a capsule's radius since 2026-10-24, the user: 「請修改推開規則，要將半徑也計算進去」,
@@ -429,26 +425,10 @@ only the debug scene's cap.")
 
 ;;; ================================================================ §8 CPU AI
 (defparameter *ai-delay* '(:easy 24 :normal 14 :hard 8) "Perception delay (frames) per difficulty.")
-(defparameter *ai-think* '(:easy 56 :normal 40 :hard 20)
-  "Frames (+ 0..40 random) between two neutral decisions (attack / guard / wait): the CPU's tempo.")
 (defparameter *ai-strafe-time* '(40 80) "The strafe direction is re-rolled every this + 0..that frames.")
-(defparameter *ai-string-flash-p* 0.3
-  "On hit, a string that can go on with J or K takes K this often (the design's 0.5; 0.3 at the seed gate: K links
-are the heavy ones).")
 (defparameter *ai-mash-window* 120 "J mashing (the user 2026-10-02): his J starts seen within this many frames ...")
 (defparameter *ai-mash-starts* 4 "... at least this many (a J string is 3): he mashes J (AI-MASH-P).")
-(defparameter *ai-sp-cancel-p* 0.3
-  "A string that ends on a hit with no link left (link 3, or a link the CPU doesn't go on from) is cancelled into SP2
-with this chance, one roll (the kit's :sp-cancel-bars permitting). Link 3 staggers / crumples, so SP2 always combos
-off it (Kenpachi's flurry): a seed-gate pacing knob (docs/duel/DUEL_STRINGS.md §9).")
-(defparameter *ai-guard-break-hold* 24 "Breaker a guard held longer than this (0.4 s) ...")
-(defparameter *ai-guard-break-range* 3.0 "... within this range ...")
-(defparameter *ai-threat-margin* 1.5 "A committed opponent move is a threat within its reach + this.")
 (defparameter *ai-burst-low* 0.5 "Burst is worth it below this fraction of Reishi ...")
-(defparameter *ai-orange-p* '(:easy 0.1 :normal 0.25 :hard 0.4)
-  "Chance a CPU whose string hit and can't go on (no further link) CHAIN-REVERSEs (ORANGE) and restarts it with Q1.")
-(defparameter *ai-sb-finish* 0.08
-  "Under this fraction of his max Reishi the CPU finishes with hits (the Soul Break: the Kikon count + 1), no Kikon rush\n(2026-09-30, the base AI learning the newer rules; AI-SB-FINISH-P).")
 (defparameter *ai-dash-frames* 70 "Longest the CPU holds a dash.")
 
 ;;; ================================================================ §14 budgets

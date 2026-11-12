@@ -313,15 +313,15 @@ distance and midpoint smoothed (SNAP or *CAM-CUT*: no smoothing). 0 B but the tw
     nil))
 
 ;;; ---------------------------------------------------------------- the menus' camera (main.lisp GAME-FRAME)
-(declaim (special *flow* *winner*))   ; (flow.lisp's)
+(declaim (special *flow* *winner* *select-phase*))   ; (flow.lisp's)
 (defun menu-camera ()
   "Title: a slow orbit of the burning plaza; results: the winner from his front-right, on the right
-of the screen (the stats take the left third); select: both fighters from the front. Portrait: see below."
+of the screen (the stats take the left third); select: the fighter being picked from his front. Portrait: see below."
   (landscape-lens)
-  (case (if (and (eq *flow* :select) (webui-on-screen-p)) :select-web *flow*)
+  (case *flow*
     ((:title :mode :settings :controls) (let ((a (* 0.05 (elapsed-time))))
                                 (camera-look-at (* 11 (sin a)) 3.2 (* 11 (cos a)) 0 1.4 0)))
-    ((:results :clear :doors :reward) (let* ((w (if (eql *winner* 1) *p2* *p1*)) (p (pos-of w)) (yaw (yaw-of w))
+    (:results (let* ((w (if (eql *winner* 1) *p2* *p1*)) (p (pos-of w)) (yaw (yaw-of w))
                      (fx (fwd-x yaw)) (fz (fwd-z yaw)) (rx (- fz)) (rz fx))   ; his forward, his right
                 (if (portrait-p)                         ; portrait: from his front, in the top part (the card below)
                     (progn (camera-look-at (+ (aref p 0) (* 5.2 fx) (* 1.2 rx)) 1.6 (+ (aref p 2) (* 5.2 fz) (* 1.2 rz))
@@ -329,7 +329,7 @@ of the screen (the stats take the left third); select: both fighters from the fr
                            (portrait-lens 60 0.5))
                     (camera-look-at (+ (aref p 0) (* 3.6 fx) (* 2.4 rx)) 1.7 (+ (aref p 2) (* 3.6 fz) (* 2.4 rz))
                                     (+ (aref p 0) (* 0.9 rx)) 1.15 (+ (aref p 2) (* 0.9 rz))))))
-    (:select-web (let* ((e (if (plusp *select-phase*) *p2* *p1*)) (p (pos-of e)) (yaw (yaw-of e))
+    (:select (let* ((e (if (plusp *select-phase*) *p2* *p1*)) (p (pos-of e)) (yaw (yaw-of e))
                         (fx (fwd-x yaw)) (fz (fwd-z yaw))
                         (sx (/ (max 1 (lm-select-spot 0)) 1000.0)) (sy (/ (max 1 (lm-select-spot 1)) 1000.0))   ; (the Lisp menus' layout)
                         (d (if (portrait-p) 4.2 3.9)))   ; (portrait 7.2 -> 4.2: larger than his card, over the others' text, 2026-10-28)
@@ -337,9 +337,4 @@ of the screen (the stats take the left third); select: both fighters from the fr
                    ;; Lisp menus draw the card in the back layer and its text over the transparent scene, DUEL_LISP_HUD §15)
                    (camera-look-at (+ (aref p 0) (* d fx)) 1.25 (+ (aref p 2) (* d fz)) (aref p 0) 0.95 (aref p 2))
                    (setf (camera-fov *camera*) (f32 (deg 60)) (camera-shift-x *camera*) (f32 (- (* 2 sx) 1))
-                         (camera-shift-y *camera*) (f32 (- 1 (* 2 sy))) *pt-lens* t)))
-    (t (let* ((p (pos-of *p1*)) (q (pos-of *p2*))
-              (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
-         (if (portrait-p)                                 ; portrait select: farther, the pair above the names
-             (progn (camera-look-at (- mx 11.5) 2.4 (+ mz 9.0) mx 1.0 mz) (portrait-lens 60 0.35))   ; a diagonal: the pair overlaps
-             (camera-look-at mx 1.6 (+ mz 6.8) mx 1.15 mz))))))
+                         (camera-shift-y *camera*) (f32 (- 1 (* 2 sy))) *pt-lens* t)))))

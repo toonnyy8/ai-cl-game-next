@@ -1,5 +1,9 @@
 # SOUL DUEL: a roguelite run built on ENDLESS (working name DANGAI 斷界行)
 
+> **Removed from `main` on 2026-11-13** (refactor R4, decision D2, the user 2026-11-10: 「全部封存後移除 (Recommended)」,
+> docs/engine/REFACTOR_2026-11.md §6 / §11.3): the code this document describes lives on the branch `frozen-modes` (main at
+> 77de43f8). The record below is kept as written.
+
 Status: **design, 2026-10-22; batch 1 (the skeleton) built the same day** ("Built: batch 1" at the end). The user's request and decisions are in §0; the research behind them is
 `docs/research/roguelike/digest.md`. The existing ENDLESS mode (`DUEL_ENDLESS.md`) stays as it is; this is a new MODE
 row that reuses its run machinery. Open items for the user are in §11.

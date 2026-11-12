@@ -185,7 +185,7 @@
             (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)
             (:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
-  :hooks (:boss ken-boss :armor ken-armor :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
+  :hooks (:armor ken-armor :dmg-mult ken-dmg-mult)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.0 2.6) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.3 :q 5 :f 2 :breaker 1 :sp2 1 :sig 2 nil 3)    ; J up close only (DUEL_STRINGS §13), K beyond
@@ -199,12 +199,11 @@
 (defkit :kenpachi :nozarashi :inherit :base    ; the Shikai (DUEL_KEN_V3 §3-§9): two pointers by grip, the unlock level L (the kit meter)
   :awakening t :mult *nozarashi-mult* :startup-add 0 :reach-mult 1.0 :open-s nil   ; (as written: §9's figures; the base's cadence off)
   :passives (:projectile-cut) :form-name "SHIKAI" :kikon-konpaku 2
-  :endless-form :nozarashi                      ; ENDLESS (frozen): the Shikai
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
   :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label)   ; L 0-3 (KEN-HIT raises it)
-  :hooks (:p ken-card-bankai :armor ken-armor :dmg-mult ken-dmg-mult
-          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: DANGAI's 隨時卍解 card, frozen;
+  :hooks (:p ken-p :armor ken-armor :dmg-mult ken-dmg-mult
+          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: a no-op, ken-meter.lisp KEN-P;
                                                                                               ;  :draw the sword wind by L, ken-look.lisp)
   :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil)   ; (the core system: J and SP only; the Breaker the base's)
   :strings ((:ke-s-j1 :q :ke-s-j2) (:ke-s-j2 :q :ke-s-j3) (:ke-s-j3 :q :ke-s-j4) (:ke-s-j4 :q :ke-s-j5) (:ke-s-j5 :q :ke-s-j6)
@@ -307,7 +306,7 @@
   "One of his two Bankai kits (DUEL_KEN_V3 §26): one pointer, its own J string, NS, five AS entries (Jn + SP, n 1-5) and Kikon."
   `(defkit :kenpachi ,form :inherit :base
      :hooks (:tick ken-bk-tick :armor ken-armor :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
-     :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
+     :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
      :awakening t :mult *bankai-ken-mult* :form-name ,name :kikon-konpaku 4 :open-s nil
      :passives (:projectile-cut)
      :body :kenpachi-oni :weapon :ke-broken :stance ,stance :aura :oni

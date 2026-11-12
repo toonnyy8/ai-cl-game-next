@@ -66,7 +66,7 @@ def run_job(c1, c2, spec1, spec2, diff, seed0, n):
         elif spec != '@cpu':
             env['STRAT_' + seat] = os.path.abspath(spec)
     env['DESC_GENERIC'] = ','.join(gen)
-    cmds = [30000 + seed0, 31100 + n, 81000, 81020 + diff, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
+    cmds = [30000 + seed0, 31100 + n, 81020 + diff, 200000 + 100 * c1 + 10 * c2]
     r = run_lisp('simgate/strat-desc.lisp', cmds, env, timeout=7200)
     if r.returncode:
         sys.exit(f'strategy-eval: sim exited {r.returncode}\n' + (r.stdout + r.stderr)[-2000:])

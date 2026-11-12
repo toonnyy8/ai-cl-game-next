@@ -12,7 +12,7 @@ character's CPU as it reads in the same checkout.
 The parts (seeds 1..N, fixed; the mirror is never played: C vs C is 0.5 by symmetry and tells nothing):
   strength  HARD, C vs each other character in both seats (learning gate runner, plain CPUs): C's win share
   masher    HARD, the button-masher (debug habit :dumb, every character, C's own included) as P1 vs C as P2: C's win share
-            (N * 4 // 5 seeds each)
+            (N * 4 // 5 seeds each). Since 2026-11-13 (REFACTOR_2026-11 R4) the gate reads no habit (200000's h): P1 is a plain CPU
   signature the share of C's dealt damage (written damage of its hits, strength runs) that is the character's own:
             Yamamoto .. Senjumaru: anything but its J / K links (move names -J1 / -K2S ...); Lille: SIG_BARRO (below)
   pacing    NORMAL, C vs each other character (C as P1): every match a K.O. and the median <= PACE_MAX (220 s), else the
@@ -87,7 +87,7 @@ def matches(job):
     side's hit just before it)."""
     c1, c2, h, n, d = job
     kos = []
-    out = sim([30000, 31100 + n, 81000, 81020 + d, 81030, 81040, 200000 + 1000 * h + 100 * c1 + 10 * c2])
+    out = sim([30000, 31100 + n, 81020 + d, 200000 + 1000 * h + 100 * c1 + 10 * c2])
     res, hits, ko = [], {0: [], 1: []}, False
     for line in out.splitlines():
         m = re.match(r'duel -> RESULTS winner \S+ konpaku (\d+)-(\d+)', line)

@@ -33,7 +33,7 @@ BAND_HALF, FALL = 0.10, 0.15
 
 def run(job):
     c1, c2, n, d, generic = job
-    cmds = [30000, 31100 + n, 81000, 81020 + d, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
+    cmds = [30000, 31100 + n, 81020 + d, 200000 + 100 * c1 + 10 * c2]
     r = run_lisp('simgate/run-situ.lisp', cmds, dict(os.environ, SITU_GENERIC=generic or ''), timeout=3600)
     if r.returncode:
         sys.exit(f'matchup-eval: sim exited {r.returncode}\n' + (r.stdout + r.stderr)[-2000:])

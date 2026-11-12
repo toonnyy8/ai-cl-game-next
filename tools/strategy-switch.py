@@ -159,7 +159,7 @@ def run_job(c1, c2, comp, diff, seed0, n, opp=None):
         env['STRAT_' + comp[0]] = comp[1]
     if opp:
         env['STRAT_' + opp[0]] = opp[1]
-    cmds = [30000 + seed0, 31100 + n, 81000, 81020 + diff, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
+    cmds = [30000 + seed0, 31100 + n, 81020 + diff, 200000 + 100 * c1 + 10 * c2]
     r = run_lisp('simgate/strat-run.lisp', cmds, env, timeout=7200)
     if r.returncode:
         sys.exit(f'strategy-switch: sim exited {r.returncode} (chars {c1}/{c2}, seeds {seed0 + 1}-{seed0 + n})\n' + (r.stdout + r.stderr)[-2000:])

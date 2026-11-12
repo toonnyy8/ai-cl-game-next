@@ -2,20 +2,12 @@
 ;;;; removed 2026-11-11): what the Lisp menus (lhud-menu*.lisp) show and what their pointer presses do. The flow (flow.lisp) owns
 ;;;; every decision; WEBUI-SYNC writes TITLE / MODE / SETTINGS / CONTROLS / SELECT / RESULTS into *UI-SENT* once a frame (the one place
 ;;;; that writes it) and WEBUI-COMMANDS turns the Lisp menus' queued pointer commands into this frame's presses (*UI-PRESS*) or direct
-;;;; choices. The frozen ENDLESS / DANGAI screens (WEBUI-SCREEN 0) are
-;;;; still the canvas's (hud-screens.lisp, endless.lisp, rogue.lisp). Cosmetic and outside the sim step.
+;;;; choices. Cosmetic and outside the sim step.
 (in-package :duel)
 
 (defun webui-screen ()
-  "The screen code for *FLOW* (DUEL_WEBUI §3, V0): 0 none (battle, cinematics, the frozen ENDLESS / DANGAI screens, which the canvas
-still draws)."
-  (if (eq *mode* :endless)
-      (case *flow* (:title 1) (:mode 2) (:settings 3) (:controls 4) (t 0))
-      (case *flow* (:title 1) (:mode 2) (:settings 3) (:controls 4) (:select 5) (:results 6) (t 0))))
-
-(defun webui-on-screen-p ()
-  "Is this screen drawn by the Lisp menus (not a frozen mode's canvas screen: HUD-DRAW and FLOW's raw tap readers leave it alone)?"
-  (plusp (webui-screen)))
+  "The screen code for *FLOW* (DUEL_WEBUI §3, V0): 0 none (battle, cinematics)."
+  (case *flow* (:title 1) (:mode 2) (:settings 3) (:controls 4) (:select 5) (:results 6) (t 0)))
 
 (defvar *ui-sent* (make-array 64 :element-type 'fixnum :initial-element -1)
   "The menus' model (DUEL_WEBUI §3: V k), read by the Lisp menus.")

@@ -33,9 +33,8 @@
         (check (or (null o) (> (mv-reach o) (+ *kikon-trigger* 0.3))))))))
 
 
-;; the DANGAI boss (DUEL_ROGUE §5): the base kit's :boss hook (ken-meter.lisp KEN-BOSS); the Bankai keeps the arm's tick
-(check (and (eq (kit-hook (kit :kenpachi :base) :boss) 'ken-boss)
-            (every (lambda (f) (eq (kit-hook (kit :kenpachi f) :tick) 'ken-bk-tick)) '(:bankai :bankai-2))))   ; (V3: the way back, no arm)
+;; the Bankai keeps the arm's tick (the DANGAI boss's :boss hook, KEN-BOSS, left with the frozen modes, 2026-11-13)
+(check (every (lambda (f) (eq (kit-hook (kit :kenpachi f) :tick) 'ken-bk-tick)) '(:bankai :bankai-2)))   ; (V3: the way back, no arm)
 
 (setf *core-on* t)
 

@@ -116,7 +116,7 @@ fuzzy Q, §8.19: a group with no rule firing adds 0)."
 ;;; selector plays a per-player copy of it; each judgement of the match is recorded (firing vector, arm, health balance), and only at the match's
 ;;; end the copy takes Glorennec & Jouffe's TD updates, q_r(a) += eta x alpha_r x delta, delta = r + gamma x V(s') - Q(s, a), V(s) = sum_r
 ;;; alpha_r max_a q_r(a), each q clamped within the offline value +- cap and kept at the storage's resolution. Nothing changes during a match.
-;;; The glue (who learns, the record, the page) is ai-learn.lisp.
+;;; The glue (who learns, the record, the page) is fq-online.lisp.
 (defparameter *fq-online-eta* 0.05
   "The online fuzzy Q's learning rate per transition (the user, 2026-11-09: 「對玩家的線上學習」, DUEL_AI_STRATEGY §8.14; new). Training seeds
 against proxy 1 at cap 0.05: eta 0.05 187 wins of 599, 0.02 171, the offline table 89.")

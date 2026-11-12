@@ -1161,6 +1161,15 @@ user, 2026-10-23: 「降低流光的頻率」; 1.8 the lead's number; 1.8 -> 1.0
   "The chain-tip cue this draw (DUEL_HISAGI §25.26-§25.28; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the
 flow down the hanging chains), 2 on J1's (the hanging chains' free ends glint; the right crescent's glint gone since
 §25.28).")
+(defun-fast hs-tip-band (v)
+  "The chain tip holding the opponent at the distance V [0] (an f32vec: *HS-G*, his distance) without boxing it: 1 K1's tip
+(4.0-4.7 m), 2 J1's (5.5-6.2), else NIL: J1's / K1's reach less *HS-R-TIP* to that reach + 0.2 of hurt radius (the moves'
+tip, HS-DIST-MULT). 0 B. (Out of hisagi-ai.lisp on 2026-11-13, verbatim, when that file left main: REFACTOR_2026-11 R4.)"
+  (declare (type f32vec v))
+  (let ((d (aref v 0)) (tip (the single-float *hs-r-tip*))
+        (jr (the single-float *hs-r-j-reach*)) (kr (the single-float *hs-r-k-reach*)))
+    (declare (single-float d tip jr kr))
+    (cond ((and (<= (- jr tip) d) (<= d (+ jr 0.2f0))) 2) ((and (<= (- kr tip) d) (<= d (+ kr 0.2f0))) 1))))
 (defun-fast %hs-curve! (cz o tp e e2 pos)
   "CZ[O..O+11] := a chain's cubic from TP (its top under the orb) to E (its free end, as *HS-LT*: [3] the bend, [4] the
 lash weight): at rest a straight line; lashing (weight 1) down from the orb past a knee near him (0.3 of the way out, 0.9 m

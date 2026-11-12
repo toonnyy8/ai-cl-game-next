@@ -10,7 +10,7 @@
 ;;;; Most of his mechanics run in his :tick hook (after the hits of the step): the stance's follow-ups, the parry from
 ;;;; blockstun, the clones' answers (a J / K press edge), the Hoho clone, the O charge, the afterimages.
 (in-package :duel)
-(declaim (special *mode* *gate* *gate-seed0* *pairs* *match-seed* *run-boss*))   ; (flow.lisp's, debug.lisp's, run-mods.lisp's)
+(declaim (special *mode* *gate* *gate-seed0* *pairs* *match-seed*))   ; (flow.lisp's, debug.lisp's)
 
 ;;; ================================================================ knobs (debug 74000-75599, ICHIGO-DEBUG)
 (defparameter *walk-ichigo* 4.2 "Ichigo's walk (Shikai).")
@@ -330,8 +330,7 @@ HARD 0.8).")
   "The stance's follow-ups: non-button strings (KIT-NEXT) the :tick hook starts (TSUKI-STEP).")
 (defparameter *ic-strings* (append '((:ic-j2 :q :ic-na3) (:ic-na3 :q :ic-na4) (:ic-na4 :q :ic-j3)) *tsuki-strings*)
   "The Shikai's strings: the five-J links (2026-10-28; ahead of the grid's J2 > J3), then the stance's.")
-(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
-                               :boss ichigo-boss))
+(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
                               :kikon-worth ichigo-kikon-worth :draw ichigo-draw :hud-tag ichigo-hud-tag))
@@ -634,17 +633,12 @@ made again where it stood."
   "NS3's X: the black X mark where the two cuts cross (a look)."
   (multiple-value-bind (x z) (ahead e 1.9) (spawn-look e 'ichigo-kx-look :x x :z z :yaw (yaw-of e) :size 1.4 :life 18)))
 
-(defun clone-free-p (e) "The DANGAI boss rule (DUEL_ROGUE §5): the boss's clones cost nothing (ICHIGO-BOSS)." (eq e *run-boss*))
 (defun clone-affordable-p (e)
-  "Can E make a clone now: free (CLONE-FREE-P), else *CLONE-COST* of the guard gauge in hand and not guardless."
-  (or (clone-free-p e) (let ((g (gauges e))) (and (not (gauges-guardless g)) (>= (gauges-gg g) *clone-cost*)))))
-(defvar *boss-ic-clones* 0 "The DANGAI boss's free clones this stage (ICHIGO-BOSS's log lines).")
-(defvar *boss-ic-echoes* 0 "... and his afterimages.")
+  "Can E make a clone now: *CLONE-COST* of the guard gauge in hand and not guardless."
+  (let ((g (gauges e))) (and (not (gauges-guardless g)) (>= (gauges-gg g) *clone-cost*))))
 (defun clone-pay! (e)
-  "Pay *CLONE-COST* of E's guard gauge for a clone: T when paid; NIL (no clone, nothing spent) below it or guardless. The
-DANGAI boss pays nothing, guardless or not (CLONE-FREE-P)."
-  (cond ((clone-free-p e) (incf *boss-ic-clones*) t)
-        ((clone-affordable-p e) (gg-spend! e *clone-cost*) t)))
+  "Pay *CLONE-COST* of E's guard gauge for a clone: T when paid; NIL (no clone, nothing spent) below it or guardless."
+  (when (clone-affordable-p e) (gg-spend! e *clone-cost*) t))
 
 (defun ichigo-step-clone (e)
   "KESSA's :step hook: every Step's take-off point leaves a clone, paid (CLONE-PAY!; the user 2026-09-29: no gap between
@@ -865,10 +859,6 @@ bonus); the Kikon is worth CLONE-KONPAKU N."
   (do-entities (h (hz hazard))
     (when (and (eql (hazard-owner hz) e) (eq (hazard-look hz) 'ichigo-zanzo-look)) (return-from zanzo-p t)))
   nil)
-(defun ichigo-boss-zanzo (e)
-  "The DANGAI boss rule: ZANZO always on. Its state (the look-only timer) re-armed whenever it is missing (the stage start,
-after a reset's CLEAR-HAZARDS): every attack echoed, SP2 refused (ICHIGO-OK) so the CPU never spends its 2 bars on it."
-  (unless (zanzo-p e) (spawn-look e 'ichigo-zanzo-look :life 1000000)))
 (defun ichigo-zanzo-on (e)
   "ZANZO f12: the state for *ZANZO-LIFE* frames."
   (spawn-look e 'ichigo-zanzo-look :life *zanzo-life*)
@@ -890,7 +880,6 @@ after a reset's CLEAR-HAZARDS): every attack echoed, SP2 refused (ICHIGO-OK) so 
       (setf (ics-seen st) mv (ics-seen-main st) main)
       (when (and main (plusp (length (mv-hits mv))) (not (eq (mv-kind mv) :breaker)) (zanzo-p e))
         (let ((p (pos-of e)))
-          (when (eq e *run-boss*) (incf *boss-ic-echoes*))
           (spawn-hazard :fx e :x (aref p 0) :z (aref p 2) :yaw (yaw-of e) :size 0.5 :life 99999 :look 'ichigo-echo-look
                               :hook 'ichigo-echo-hz
                               :data (make-ice :mv mv :sf (- (fighter-sf f) *zanzo-lag*) :end (mv-total mv))))))))
@@ -909,17 +898,6 @@ hit windows at *ZANZO-MULT*."
             (loop for w across (mv-hits mv)
                   when (= sf (hw-from w)) do (ichigo-strike e x z yaw w *zanzo-mult* :echo)))))
     t))
-
-;;; ================================================================ the DANGAI boss (DUEL_ROGUE §5)
-(defun ichigo-boss (e)
-  "The base kit's :boss hook (ROGUE-STAGE-START: E is *RUN-BOSS*, already KESSA, HARD): the user's rule 「BOSS 一護改成分身
-不扣除量表，且常駐 SP2 的分身殘影」: a clone never spends the guard gauge (CLONE-PAY!), ZANZO always on (ICHIGO-BOSS-ZANZO,
-re-armed by the :tick hook). The CPU banks 3 clones without the gauge's limit and never casts SP2 (refused while ZANZO
-runs)."
-  (setf *boss-ic-clones* 0 *boss-ic-echoes* 0)
-  (ichigo-boss-zanzo e)
-  (log-msg "duel boss ichigo form ~(~a~) clones free (gg ~d kept), zanzo always on" (fighter-form (fighter e))
-           (round (gauges-gg (gauges e)))))
 
 ;;; ================================================================ KESSA: the parry
 (defun ichigo-ok (e cmd combo)
@@ -1056,12 +1034,6 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
     (if (eq (fighter-form f) :kessa)
         (let* ((vp (pilot-vpad (pilot e))) (state (fighter-state f)) (mv (and (eq state :move) (fighter-move f))))
           (hist-push st e)
-          (when (eq e *run-boss*)                     ; DANGAI's boss: ZANZO always on, an evidence line every 10 s
-            (ichigo-boss-zanzo e)
-            (when (zerop (mod *match-tick* 600))
-              (log-msg "duel boss ichigo t ~d gg ~d clones ~d zanzo ~:[off~;on~] free-clones ~d echoes ~d"
-                       (floor *match-tick* 60) (round (gauges-gg (gauges e))) (clone-count e) (zanzo-p e)
-                       *boss-ic-clones* *boss-ic-echoes*)))
           (unless (member state '(:stun :air :down :wakeup :cine))
             (dolist (bt '(:quick :flash))
               (when (and (= 1 (vpad-held vp bt))

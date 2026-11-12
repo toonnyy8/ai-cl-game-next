@@ -2,7 +2,7 @@
 ;;;; It perceives the opponent through the same delayed SNAP ring as the old CPU (cpu-perceive.lisp BRAIN-PERCEIVE), walks to a range, starts
 ;;;; an NA or an NS, and its depth is the READ: when what he is doing is beaten by a turn (an NS against my NA link: AS; an NA
 ;;;; against my NS segment: SA), it turns with a chance by difficulty. Every chance is rolled once per event (his move's start, my
-;;;; move's start), never per step. The old kit-specific tables are not read. The learner, ASSIST and the rest are frozen.
+;;;; move's start), never per step. The old kit-specific tables are not read.
 (in-package :duel)
 
 (defparameter *cai-think* '(:easy 34 :normal 22 :hard 12)
@@ -236,7 +236,7 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
                (feats (if fq (list* :prev (or (position (brain-sw-sub b) (getf fq :arms)) 0) feats) feats)))   ; (the previous arm)
           (multiple-value-bind (sub i) (strat-judge sw feats)
             (multiple-value-bind (sub i) (if (and *strat-judge-hook* (not *in-rollout*)) (funcall *strat-judge-hook* e b sw sub i feats) (values sub i))
-              (when (and fq (brain-fql b) (not *in-rollout*))   ; (the online fuzzy Q: its exploration and record, ai-learn.lisp)
+              (when (and fq (brain-fql b) (not *in-rollout*))   ; (the online fuzzy Q: its exploration and record, fq-online.lisp)
                 (multiple-value-setq (sub i) (fq-explore e sw sub i))
                 (fq-note e b feats i))
               (values sub i))))

@@ -1,34 +1,14 @@
 ;;;; hud.lisp — what the canvas UI stream still draws in a battle and around it (the HUD and the menus are the Lisp HUD's,
 ;;;; lhud-*.lisp, DUEL_LISP_HUD §16; the canvas battle HUD, its plates and gauges, left 2026-11-11): the big words (ANNOUNCE), the
-;;;; world overlays (Kikon rush speed lines, the red soul flame over a Kikon-able fighter, PERFECT HINT's HOHO! and ASSIST's AUTO),
-;;;; the canvas text helpers the frozen modes' screens use (HUD-TEXT; endless.lisp, rogue.lisp, hud-screens.lisp's ENDLESS SELECT),
-;;;; the portrait block geometry the one-hand deck and those screens lay out by.
+;;;; world overlays (Kikon rush speed lines, the red soul flame over a Kikon-able fighter, PERFECT HINT's HOHO!),
+;;;; the portrait block geometry the one-hand deck lays out by. (HUD-TEXT and its colours left with the frozen modes' canvas screens,
+;;;; 2026-11-13, REFACTOR_2026-11 R4.)
 ;;;; Cosmetic only: the fx clock (it stops while paused), RND01.
 (in-package :duel)
 
 (defparameter *white* '(1 1 1 1))
-(defparameter *dim* '(0.72 0.7 0.78 1))
-(defparameter *dim-ink* '(0.14 0.15 0.19 1) "Select screen: the unselected entries, dark ink on the mid-grey plaza (*DIM* vanished there).")
-(defparameter *ember* '(1 0.55 0.2 1))
-(defparameter *shade* '(0 0 0 0.75) "HUD-TEXT's drop shadow.")
 
 (defmacro hud-dt () "This frame's HUD seconds: 0 while the effects are frozen (paused: nothing moves under the pause menu)." `(if (fx-frozen-p) 0.0 (frame-dt)))
-
-(defun alpha! (color a)
-  "COLOR (a preallocated, mutable 4-list) with its alpha set to A: a pulsing colour without a
-fresh list every frame."
-  (setf (fourth color) a)
-  color)
-
-(defun hud-text (str x y scale color &key (align :left) (shadow *shade*))
-  "UI-TEXT's look (the 5x7 font at integer SCALE, top edge Y, ALIGN relative to X) drawn as block
-text on whole pixels: 16 B a call whatever the length (two UI-BLOCK-TEXT calls, 8 B each: the returned width; ~200 B before refactor round 3, 2026-10-21). SHADOW: colour or NIL. (The engine's
-UI-TEXT no longer conses per glyph either; the HUD keeps its block look.)"
-  (let* ((s (max 1 (round scale)))
-         (x0 (round (ecase align (:left x) (:center (- x (/ (text-width str s) 2))) (:right (- x (text-width str s))))))
-         (y0 (round y)))
-    (when shadow (ui-block-text str (+ x0 s) (+ y0 s) s :color shadow))
-    (ui-block-text str x0 y0 s :color color)))
 
 ;;; DEFUN-FAST callers (the model, webhud.lisp; the stick ring): ROUND of a single float on unboxed floats.
 (defmacro %hround (x) "(ROUND X) of a single float, 0 B: lrintf (nearest, ties to even, as ROUND; ROUND conses its remainder)."
@@ -109,8 +89,7 @@ greps \"over the P\")."
 
 ;;; ---------------------------------------------------------------- portrait blocks (docs/duel/DUEL_MOBILE_DESIGN.md §4.2)
 ;;; The portrait screen's bands: the opponent's block across the top under the safe-area inset, the player's across the bottom
-;;; over the home indicator, 29 S tall each. The one-hand deck (onehand.lisp DECK-LAYOUT) and the frozen modes' screens
-;;; (endless.lisp, rogue.lisp) lay out by them.
+;;; over the home indicator, 29 S tall each. The one-hand deck (onehand.lisp DECK-LAYOUT) lays out by them.
 (defvar *safe-top* 0 "The safe-area inset at the top, CSS px (onehand.lisp DECK-UPDATE; 0 off a notched phone).")
 (defvar *safe-bot* 0 "The safe-area inset at the bottom (the home indicator), CSS px (DECK-UPDATE).")
 (defun portrait-block-h (s) "A portrait HUD block's height, px." (* 29 s))
@@ -127,17 +106,12 @@ greps \"over the P\")."
     (when (gauges-red-p (gauges e))
       (vfx-soul-flame (aref p 0) top (aref p 2) (fx-clock)))))
 
-(defvar *c-auto* (list 1.0 0.72 0.3 1.0) "ASSIST's AUTO tag.")
 (defvar *c-hint* (list 0.6 0.95 1.0 1.0) "PERFECT HINT's HOHO!.")
 
 (defun hud-hint (e h)
   "PERFECT HINT (SETTINGS, the user 2026-10-01): HOHO! at human fighter E's head while a Hoho started now would be
-perfect (PERFECT-UP-P: a free state, the Hoho affordable, PERFECT-NOW-P). ASSIST: AUTO at his feet for *ASSIST-TAG-FRAMES*
-after the assist pressed for him."
+perfect (PERFECT-UP-P: a free state, the Hoho affordable, PERFECT-NOW-P). (ASSIST's AUTO tag left with ASSIST, 2026-11-13.)"
   (let ((p (pos-of e)) (v *hud-v*))
-    (when (and (plusp (svref *assist-tag* (fighter-side (fighter e))))
-               (world-to-screen v (aref p 0) (- (aref p 1) 0.25) (aref p 2)))   ; at his feet (move callouts own the space over heads)
-      (brush-text "AUTO" (aref v 0) (aref v 1) (* (if (portrait-p) 0.03 0.038) h) *c-auto*))
     (when (and (= 1 (setting :hint)) (not (cpu-p e)) (perfect-up-p e (state-of e))
                (world-to-screen v (aref p 0) (+ (aref p 1) (body-hurt-h (model-body (model e))) 0.15) (aref p 2)))
       (brush-text "HOHO!" (aref v 0) (aref v 1) (* (if (portrait-p) 0.035 0.045) h) *c-hint*))))
@@ -161,7 +135,6 @@ facing."
           (ui-speed-lines (f32 (atan (- (aref b 1) (aref a 1)) (- (aref b 0) (aref a 0)))) 14 '(1 1 1 0.55)
                           (f->i (* 12f0 (fx-clock)))))))))
 
-(defun hud-battle (w h s)
-  "What the canvas draws in a battle under the Lisp HUD: the speed lines, the red soul flame, HOHO! / AUTO, ENDLESS's tag."
-  (do-sides (e) (when (entity-alive-p e) (hud-rush-lines e) (hud-world e) (hud-hint e h)))
-  (when (eq *mode* :endless) (hud-endless-tag w h s)))   ; STAGE n (endless.lisp, frozen)
+(defun hud-battle (h)
+  "What the canvas draws in a battle under the Lisp HUD: the speed lines, the red soul flame, HOHO!."
+  (do-sides (e) (when (entity-alive-p e) (hud-rush-lines e) (hud-world e) (hud-hint e h))))

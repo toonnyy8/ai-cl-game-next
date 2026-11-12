@@ -204,7 +204,7 @@ shows it (hud.lisp HUD-HINT). Free states that take a Hoho, the Hoho affordable 
 (defun awaken-hold-ready-p (e)
   "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused)
 from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
-hold (RV-READY-P). (A form's :p hook is left out: Kenpachi's is DANGAI's frozen card, NIL outside it, and Hisagi's FREE sits in
+hold (RV-READY-P). (A form's :p hook is left out: Kenpachi's Shikai's does nothing, ken-meter.lisp KEN-P, and Hisagi's FREE sits in
 his Bankai, a :no-awaken form.)"
   (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
     (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
@@ -248,7 +248,6 @@ frame's finger events."
 
 
 (defun tap-p () "A tap ended this frame (menus)." (touch-tapped-p *touch*))
-(defun touch-tap-zones-p () "Menus note their rows as tap targets (a touch device, or a portrait window)." (one-hand-offered-p))
 
 ;;; ---------------------------------------------------------------- touch -> vpad (G3)
 (defun touch-read-begin ()
@@ -291,24 +290,6 @@ read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held 
                              a)))))))
 
 (defun touch-pause-p () "The pause chip was touched this frame." (and *one-hand* (touch-chip-hit-p *touch* 6)))
-
-;;; ---------------------------------------------------------------- menus (G9)
-(defvar *menu-rows* (make-array 16 :initial-element nil) "HUD-MENU's rows last drawn: #(x0 y0 x1 y1) each, NIL after.")
-(defun note-menu-row (i x0 y0 x1 y1)
-  (when (< i 15)
-    (let ((r (or (svref *menu-rows* i) (setf (svref *menu-rows* i) (make-array 4)))))
-      (setf (svref r 0) x0 (svref r 1) y0 (svref r 2) x1 (svref r 3) y1)
-      (setf (svref *menu-rows* (1+ i)) nil))))
-(defun tapped-row (n)
-  "The menu row (< N) a tap landed on this frame, or NIL."
-  (when (tap-p)
-    (let ((x (touch-tap-x *touch*)) (y (touch-tap-y *touch*)))
-      (loop for i below n for r = (svref *menu-rows* i) while r
-            when (and (<= (svref r 0) x (svref r 2)) (<= (svref r 1) y (svref r 3))) do (return i)))))
-(defun tap-third ()
-  "A tap this frame: -1 left third of the screen, 1 right third, 0 the middle; NIL without a tap."
-  (when (tap-p)
-    (let ((u (/ (touch-tap-x *touch*) (max 1 (window-width))))) (cond ((< u 0.33) -1) ((> u 0.67) 1) (t 0)))))
 
 ;;; ---------------------------------------------------------------- drawing (%RING %ARC: engine/lisp/ui.lisp)
 (defun-fast hud-stick ()

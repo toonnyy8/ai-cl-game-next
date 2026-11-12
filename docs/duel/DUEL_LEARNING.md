@@ -1,5 +1,9 @@
 # SOUL DUEL: the learning CPU
 
+> **Removed from `main` on 2026-11-13** (refactor R4, decision D2, the user 2026-11-10: 「全部封存後移除 (Recommended)」,
+> docs/engine/REFACTOR_2026-11.md §6 / §11.3): the code this document describes lives on the branch `frozen-modes` (main at
+> 77de43f8). The record below is kept as written. (The online fuzzy Q learner against a human, LEARNING CPU, is a different one and stays: fq-online.lisp, DUEL_AI_STRATEGY §8.14.)
+
 The user, 2026-09-29: 「簡單的學習演算法，能快速從與玩家的對戰中學習」, applied to the fighting game. The plan was approved
 with 「好，幫我開分支實作！」. This document covers the design as built, its constants, the fairness rules, the storage
 format and the measurements.

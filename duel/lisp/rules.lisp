@@ -555,7 +555,7 @@ Konpaku taken from the opponent at *AWAKEN-PER-KONPAKU* (DUEL_SUBLIMATION §18).
 
 
 (defun hoho-allowed-p (stunned fs lockout-left &optional bursting (need *fs-hoho*))
-  "Hoho needs NEED flash-step (FS; *FS-HOHO*, a DANGAI run's :hoho-cost scales it; during a burst, BURSTING, any FS > 0:
+  "Hoho needs NEED flash-step (FS; *FS-HOHO*; during a burst, BURSTING, any FS > 0:
 the burst modes), no block/hitstun (STUNNED) and the *HOHO-LOCKOUT* over."
   (and (not stunned) (if bursting (> fs 0.0) (>= fs need)) (<= lockout-left 0)))
 
@@ -622,7 +622,7 @@ clamped. Values: fs reiatsu."
   (values (gauge-add fs *kikon-fs-refund* *fs-max*) (gauge-add reiatsu *kikon-reiatsu-refund* *reiatsu-max*)))
 
 (defun fs-regen (fs idle &optional (rate *fs-regen*))
-  "Flash-step one frame later: +RATE/s (*FS-REGEN*; a DANGAI run's :fs-regen scales it) once IDLE (frames since the last
+  "Flash-step one frame later: +RATE/s (*FS-REGEN*) once IDLE (frames since the last
 spend) reaches *FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
   (let ((mx *fs-max*))
     (if (and (typep fs 'single-float) (typep rate 'single-float) (typep mx 'single-float))
@@ -654,7 +654,7 @@ advantage ADV <= *GG-ENDER-ADV*)."
 drain (IDLE), then *GG-REGEN*/s (*GG-REGEN-GUARDLESS*/s while GUARDLESS), capped at *GG-MAX*. Bankai West's ward
 counts as guarding (combat.lisp GAUGE-SYSTEM): he refills only in East. In a BLUE burst there is no delay and the rate
 is x*BLUE-GG-MULT*, x*BLUE-GG-GUARDING* while guarding. MULT: the form's :gg-regen (Bankai East's *EAST-GG-REGEN*), not while guardless.
-CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)."
+CAP: the fighter's max (*GG-MAX*)."
   (let ((rg *gg-regen*) (rgl *gg-regen-guardless*) (bg *blue-gg-guarding*) (bm *blue-gg-mult*))
     (if (and (typep gg 'single-float) (typep mult 'single-float) (typep cap 'single-float) (typep rg 'single-float)
              (typep rgl 'single-float) (typep bg 'single-float) (typep bm 'single-float))

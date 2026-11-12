@@ -1,7 +1,6 @@
 ;;;; gate.lisp — the seed gates' machinery (docs/duel/DUEL_GAMEPLAY.md "Gate policy"; tools/simgate.py drives it natively):
 ;;;; the determinism hash line, the gate's pacing companion (Kenpachi's cups; the other characters keep theirs in their own
-;;;; files), seeded CPU vs CPU, the seed gate and its pairings (ROSTER-PAIRS), the learning gate (its
-;;;; habit knobs *HABITS* / *DUMB-P2*; the scripted players themselves, which the sim calls, are scripted.lisp).
+;;;; files), seeded CPU vs CPU, the seed gate and its pairings (ROSTER-PAIRS), the pairing gate (the research tools' seeded matches).
 ;;;; The debug commands that start them are dispatched in debug.lisp (DEBUG-COMMAND). Out of debug.lisp 2026-10-21.
 (in-package :duel)
 
@@ -78,7 +77,7 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
                                    (gauges-reishi g) (round (gauges-gg g)) (gauges-guardless g) (gauges-konpaku g)
                                    (round (gauges-awaken g)))))))
 
-(defvar *gate-difficulty* :normal "Debug 81020+i: the gates' CPU difficulty (0 EASY 1 NORMAL 2 HARD; ASSIST's gate).")
+(defvar *gate-difficulty* :normal "Debug 81020+i: the gates' CPU difficulty (0 EASY 1 NORMAL 2 HARD).")
 
 (defun start-cvc (seed pair)
   "Seeded CPU vs CPU (*GATE-DIFFICULTY*, NORMAL): PAIR = (c1 c2), or NIL to draw both from SEED."
@@ -132,7 +131,6 @@ pairings (CHAR-PAIRS). A pairing that doesn't exist: a log line, no gate."
   (gate-update))
 
 (defvar *gate-busy* nil "A gate match is running.")
-(defvar *learn-gate* nil "The learning gate running (START-LEARN-GATE): (habit learn-p).")
 
 (defun gate-update ()
   "Per frame: record a finished gate match, start the next, summarise at the end."
@@ -147,11 +145,9 @@ pairings (CHAR-PAIRS). A pairing that doesn't exist: a log line, no gate."
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
     (cup-acc-line)
     (ichigo-acc-line) (hisagi-acc-line)
-    (when *learn-gate* (learn-gate-line))
     (setf *gate-busy* nil))
   (unless *gate-busy*
-    (cond (*gate* (destructuring-bind (seed pair) (pop *gate*) (start-cvc seed pair)) (setf *gate-busy* t)
-                  (when *learn-gate* (learn-gate-setup)))
+    (cond (*gate* (destructuring-bind (seed pair) (pop *gate*) (start-cvc seed pair)) (setf *gate-busy* t))
           (*gate-results*
            (dolist (pair *pairs*)
              (let* ((rs (remove pair *gate-results* :key #'first :test-not #'equal))
@@ -160,50 +156,14 @@ pairings (CHAR-PAIRS). A pairing that doesn't exist: a log line, no gate."
                  (log-msg "duel gate ~a ~a: ~d matches, KOs ~d, median ~,1f s, min ~,1f, max ~,1f | ~{~,0f~^ ~}"
                           (first pair) (second pair) (length secs) (count-if #'third rs)
                           (nth (floor (length secs) 2) secs) (first secs) (car (last secs)) secs))))
-           (setf *gate-results* nil *turbo* nil *learn-gate* nil)))))
+           (setf *gate-results* nil *turbo* nil)))))
 
-;;; ---------------------------------------------------------------- the learning CPU's gate (docs/duel/DUEL_LEARNING.md)
-(defvar *dumb-p2* nil "Debug 81040+i: P2 of the learning gate is a button-masher too (ASSIST's anti-mash check).")
-(defparameter *habits* #(nil :wake-j :block-guard :grab :hoho :burst :dumb)
-  "The scripted players (debug 200000+): 0 a plain CPU, 1 J on every wake-up, 2 guard after every block, 3 grab-happy
-(the Breaker at every close neutral decision), 4 Hoho-happy (Hoho at neutral decisions and into every committed move),
-5 burst-happy (BLUE at every chance: AI-BURST-ROLL's chance 1), 6 the button-masher (DUMB-STEP: ASSIST's gate). (7-9, the
-habits against the old Lille, went with him: 2026-10-13.)")
-
-(defun start-learn-gate (h c1 c2 on)
-  "200000 + 1000 H + 100 C1 + 10 C2 + ON: seeds *GATE-SEED0* + 1 .. + *GATE-SEEDS* back to back, P1 (roster C1) a CPU with
-habit H (*HABITS*), P2 (roster C2) the CPU, learning when ON (its table fresh at the start, kept in memory across the
-matches; 4: model + bandit without its character's own situations, LRN-KIT, DUEL_LILLE §24.9); a \"duel learn row\" per
-match."
-  (fill *learn-tables* nil)
+;;; ---------------------------------------------------------------- the pairing gate (the research tools' seeded matches)
+(defun start-pair-gate (c1 c2)
+  "200000 + 100 C1 + 10 C2: seeds *GATE-SEED0* + 1 .. + *GATE-SEEDS* of P1 (roster C1) against P2 (roster C2), CPU vs CPU at
+*GATE-DIFFICULTY*, back to back (tools/strategy-eval.py, strategy-switch.py, matchup-eval.py, aieval.py). It was the old learner's gate
+(habit h, learning m: 200000 + 1000 h + ... + m) until 2026-11-13 (REFACTOR_2026-11 R4): h and m are no longer read."
   (let ((pair (list (nth c1 *roster*) (nth c2 *roster*))))
     (setf *turbo* t *skip-cines* nil *combat-log* nil *gate-log* nil *gate-results* nil *gate-busy* nil
-          *gate* (loop for seed from (1+ *gate-seed0*) to (+ *gate-seed0* *gate-seeds*) collect (list seed pair))
-          *learn-gate* (list (svref *habits* h) (plusp on) on)
-          *learn-use* (case on (2 '(:model)) (3 '(:bandit)) (t '(:model :bandit)))))   ; (4: no kit situations)
+          *gate* (loop for seed from (1+ *gate-seed0*) to (+ *gate-seed0* *gate-seeds*) collect (list seed pair))))
   (gate-update))
-
-(defun learn-gate-setup ()
-  "A learning-gate match began: P1's habit, P2's learner."
-  (setf (brain-habit (brain *p1*)) (first *learn-gate*))
-  (when (eq (first *learn-gate*) :dumb) (setf (brain-delay (brain *p1*)) *dumb-delay*))
-  (when *dumb-p2* (setf (brain-habit (brain *p2*)) :dumb (brain-delay (brain *p2*)) *dumb-delay*))
-  (when (second *learn-gate*)
-    (learn-attach! *p2*)
-    (when (eql (third *learn-gate*) 4) (setf (lrn-kit (brain-learn (brain *p2*))) nil))))   ; (the kit situations' A/B)
-
-(defun learn-gate-line ()
-  "The learning gate's row: the result, damage, P2's counter-hits, its reads (and those that paid), p_exploit, the form."
-  (let* ((l (brain-learn (brain *p2*))) (tab (and l (lrn-tab l))))
-    (log-msg "duel learn row seed ~d habit ~a ~a ~a learn ~:[off~;on~] winner ~a dealt ~d ~d counters ~d ~d reads ~d paid ~d pexp ~,2f form ~,2f~@[ model~{ ~a~}~]~@[ by~{ ~{~(~a~)~* ~d/~d~}~}~]~@[ kit~{ ~a~}~]"
-             *match-seed* (first *learn-gate*) (first *picks*) (second *picks*) l (case *winner* (0 "P1") (1 "P2") (t "DRAW"))
-             (gauges-dealt (gauges *p1*)) (gauges-dealt (gauges *p2*)) (gauges-counters (gauges *p1*)) (gauges-counters (gauges *p2*))
-             (if l (lrn-reads l) 0) (if l (lrn-paid l) 0) (if tab (learn-p-exploit (ltab-form tab)) 0.0) (if tab (ltab-form tab) 0.0)
-             (and tab (loop for k across *learn-situations* for i from 0    ; the model's prediction per situation
-                            collect (multiple-value-bind (act p n) (learn-predict tab i)
-                                      (format nil "~(~a~)=~:[-~;~:*~(~a~)~]~,2f/~,1f" k (and act (aref *learn-actions* act)) p n))))
-             (and l (mapcar (lambda (x) (list (first x) nil (second x) (third x))) (lrn-stats l)))
-             (and tab (lrn-kit l)                                  ; its character's own situations' predictions (§24.9)
-                  (loop for k across (getf (lrn-kit l) :situations) for i from 0
-                        collect (multiple-value-bind (act p n) (learn-kit-predict tab i)
-                                  (format nil "~(~a~)=~:[-~;~:*~(~a~)~]~,2f/~,1f" k (and act (aref (getf (lrn-kit l) :actions) act)) p n)))))))

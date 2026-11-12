@@ -72,71 +72,16 @@ bits already: it keeps its box, and no new one is made. PLACE is read before it 
   "rules TRACK-STEP: degrees per second as radians per frame (the engine's DEG of /60)."
   `(* (/ ,deg-per-second 60f0) #.(float (/ pi 180) 1f0)))
 
-;;; ---------------------------------------------------------------- small helpers (pure reads; the kits, ai and assist use them)
+;;; ---------------------------------------------------------------- small helpers (pure reads; the kits and the CPU use them)
 (defun hoho-ready-p (e)
   "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst)?"
   (let ((f (fighter e)) (g (gauges e)))
-    (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g) (rmod-x e :hoho-cost *fs-hoho*))))
+    (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g))))
 (defun current-move (f) "The move fighter F is in (his MOVE while his state is :move), else NIL." (and (eq (fighter-state f) :move) (fighter-move f)))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
 (defun reiatsu-bars (e) "E's full Reiatsu bars (REIATSU-OF: a bind's shared pool)." (floor (reiatsu-of e) *reiatsu-bar*))
 (defun halt! (e) "Stop E's motion (velocity zeroed)." (fill (motion-vel (motion e)) 0f0))
-;;; ---------------------------------------------------------------- DANGAI's run modifiers (run-mods.lisp, DUEL_ROGUE §4.4)
-;;; The fighter-side rule points' glue; every caller is behind (WHEN *RUN-MODS* ...) or RMOD's own test.
-(defun rm-of (e)
-  "Fighter E's run state (RMST), made on first use (once a match: a fresh fighter every match)."
-  (let ((f (fighter e))) (or (fighter-rm f) (setf (fighter-rm f) (make-rmst)))))
-
-(defun run-armor-p (e)
-  "Has E a run armour hit up now: a timed one (:armor-on-soul-loss / :armor-on-awaken running), or :red-armor's while he
-is red and it is back?"
-  (and (run-mods-on-p e)
-       (let ((st (rm-of e)))
-         (or (plusp (rmst-armor-t st))
-             (and (rmod e :red-armor nil) (zerop (rmst-red-cd st)) (gauges-red-p (gauges e)))))))
-
-(defun run-armor-spend! (e)
-  "E's run armour took a hit (APPLY-HIT :armored): the timed one first (gone), else the red one (back in :red-armor s)."
-  (let ((st (rm-of e)))
-    (if (plusp (rmst-armor-t st))
-        (setf (rmst-armor-t st) 0)
-        (setf (rmst-red-cd st) (seconds->frames (rmod e :red-armor 0))))
-    (log-msg "duel runmod armor hit side ~d" (fighter-side (fighter e)))))
-
-(defun run-armor-give! (e key)
-  "E's timed armour hit for KEY's seconds (:armor-on-soul-loss, :armor-on-awaken), when he holds KEY."
-  (let ((s (rmod e key nil)))
-    (when s
-      (setf (rmst-armor-t (rm-of e)) (max (rmst-armor-t (rm-of e)) (seconds->frames s)))
-      (log-msg "duel runmod ~(~a~) ~,1f s" key s))))
-
-(defun run-move-start! (e mv)
-  "E starts MV: an SP inside the window after his link-3 ender's hit is marked (:ender-sp-dmg)."
-  (when (run-mods-on-p e)
-    (let ((st (rm-of e)))
-      (setf (rmst-ender-sp st) (and (eq (mv-kind mv) :sp) (plusp (rmst-ender-left st)))))))
-
-(defun run-perfect! (e g)
-  "E's perfect Hoho (gauges G): :perfect-fs (of max) and :perfect-reiatsu (bars) back, the :perfect-taken window opens."
-  (when (run-mods-on-p e)
-    (let ((fs (rmod e :perfect-fs nil)) (r (rmod e :perfect-reiatsu nil)))
-      (when fs (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (* fs *fs-max*) *fs-max*))))
-      (when r (reiatsu-gain! e (* r *reiatsu-bar*)))
-      (setf (rmst-perfect-left (rm-of e)) *run-perfect-window*)
-      (log-msg "duel runmod perfect fs ~,1f reiatsu ~,1f" (gauges-fs g) (gauges-reiatsu g)))))
-
-(defun run-post-burst! (e)
-  "E Hohos or bursts: his next hit that lands is the first after it (:post-burst-dmg / :post-burst-fs)."
-  (when (run-mods-on-p e)
-    (setf (rmst-post-burst (rm-of e)) t)
-    (log-msg "duel runmod post-burst armed fs ~,1f" (gauges-fs (gauges e)))))
-
-(defun run-no-guard-p (e g vp)
-  "DANGAI's :red-no-guard: E (gauges G, vpad VP) is red and may not guard (a log line every 30 frames he tries)."
-  (and (rmod e :red-no-guard nil) (gauges-red-p g)
-       (progn (when (and (vpad-down vp :guard) (zerop (mod *match-tick* 30))) (log-msg "duel runmod red-no-guard"))
-              t)))
 
 (defun world-dir (e f to st)
   "The world XZ direction (two values) of stick TO / ST relative to E's opponent (fighter F's OX OZ): TOWARD-STRAFE-DIR."
@@ -306,7 +251,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   "Back to neutral: stance clip, combo over (a victim leaving his reaction ends the combo)."
   (let ((f (fighter e)))
     (setf (fighter-state f) :idle (fighter-sf f) 0 (fighter-phase f) nil (fighter-move f) nil
-          (fighter-crush f) nil (fighter-dmg-bonus f) 0 (fighter-assist-next f) nil
+          (fighter-crush f) nil (fighter-dmg-bonus f) 0
           (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0 (fighter-combo-from f) 0
           (fighter-cls f) nil (fighter-presses f) 0 (fighter-as-done f) nil (fighter-charge-mult f) 1f0
           (fighter-tmp f) 0 (fighter-csa f) nil)   ; (a DRIVE switch's temporary pointer ends in neutral, DUEL_SUBLIMATION §17.4)
@@ -325,16 +270,12 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
                         (and old (eq (mv-kind old) :breaker) (eq (fighter-contact f) :hit)))))   ; J1 / K1 off a Breaker
                                                                 ; that landed (pushed away: it chases him, MAIN-PHASE-STEP)
     (setf (fighter-end-chase f) off-ender)
-    (when *run-mods* (run-move-start! e mv))
     (setf (fighter-state f) :move (fighter-move f) mv (fighter-sf f) enter (fighter-hits f) 0
           (fighter-contact f) nil (fighter-hz-hit f) nil (fighter-queued f) nil (fighter-chained f) nil (fighter-land-sf f) -1 (fighter-dmg-bonus f) 0 (fighter-crush f) nil
           (fighter-stored f) 0                           ; an interrupted stance keeps nothing
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
-          (fighter-assisted f) (fighter-assist-next f) (fighter-assist-next f) nil   ; ASSIST: pressed for him
           (fighter-follow f) nil (fighter-hoho-hold f) nil   ; (a resumed combo's hold: HOHO-RESUME! sets it after)
-          (fighter-armor-left f) (if (and *run-foe-mods* (eq (mv-kind mv) :sp) (rmod e :sp-armor nil))   ; DANGAI's FOE SP
-                                     (max 1 (mv-armor-hits mv))                                          ; ARMOR (§5)
-                                     (mv-armor-hits mv))
+          (fighter-armor-left f) (mv-armor-hits mv)
           (fighter-phase f) (cond ((member (mv-kind mv) '(:breaker :kikon)) :aura) ((mv-hold mv) :hold) (t :main)))
     (core-note-start! f mv old)
     (halt! e)
@@ -416,17 +357,15 @@ back-skate, or a side slide (the kit's :run-clips)."
 
 (defun start-hoho (e f)
   "Hoho: spend *FS-HOHO* flash-step (during a burst what is left, if less: HOHO-COST), vanish, reappear behind the
-opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfect; no flash-step refund since 2026-10-18)."
+opponent (HOHO-STEP). Checks PERFECT now (no flash-step refund since 2026-10-18)."
   (let ((g (gauges e)))
-    (spend-fs g (rmod-x e :hoho-cost (hoho-cost (gauges-fs g) (gauges-burst g) (gauges-burn g))))
+    (spend-fs g (hoho-cost (gauges-fs g) (gauges-burst g) (gauges-burn g)))
     (when (eq (gauges-burst g) :blue) (burst-end! e))   ; BLUE's Hoho used up the burning cell: the burst is over
-    (when *run-mods* (run-post-burst! e))
     (let ((mv (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member (fighter-cls f) '(:na :sa :ns))
                    (fighter-move f))))
       (setf (fighter-hoho-from f) mv (fighter-hoho-cls f) (fighter-cls f) (fighter-hoho-presses f) (fighter-presses f)
             (fighter-hoho-mult f) (fighter-charge-mult f) (fighter-hoho-left f) 0 (fighter-queued f) nil))   ; (DUEL_CORE §8)
-    (setf (fighter-perfect f) (and (not (fighter-assist-next f)) (perfect-now-p e))   ; (before leaving the move: a cancel
-          (fighter-assist-next f) nil                                                ; Hoho; an assisted one: never)
+    (setf (fighter-perfect f) (perfect-now-p e)                                     ; (before leaving the move: a cancel Hoho)
           (fighter-state f) :hoho (fighter-sf f) 0 (fighter-move f) nil
           (fighter-hoho-lock f) (+ *hoho-frames* *hoho-lockout*))
     (halt! e)
@@ -435,7 +374,6 @@ opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfec
     (when (fighter-perfect f)
       (let ((o (opp-of e)))
         (incf (gauges-perfects g))
-        (when *run-mods* (run-perfect! e g))
         (setf (fighter-lock-next (fighter o)) *perfect-lock*)
         (respect o)
         (slowmo *perfect-slowmo-scale* *perfect-slowmo-seconds*)
@@ -447,7 +385,6 @@ opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfec
 form's :ok hook (COMBO: a chained follow-up)? (The bars: REIATSU-OF, a bind's shared pool.)"
   (let ((i (position command *kit-commands*)))
     (and (>= (reiatsu-of e) (* (kit-command-cost kit command) *reiatsu-bar*))
-         (not (and (eq command :kikon) (rmod *run-mods-who* :kikon-seal nil)))   ; DANGAI's :kikon-seal: no side's O
          (or (null i) (zerop (aref (fighter-cd (fighter e)) i)))
          (let ((h (kit-hook kit :ok))) (or (null h) (funcall h e command combo))))))   ; the form's own price / refusal
 
@@ -528,7 +465,6 @@ the :refused event (a flash of its HUD bar, a dud tick). NIL: the commands below
   "Guard is held and E may guard (the guard gauge: CAN-GUARD-P). Guardless, holding it does nothing."
   (let ((g (gauges e)))
     (and (vpad-down vp :guard) (can-guard-p (gauges-gg g) (gauges-guardless g))
-         (not (and *run-mods* (run-no-guard-p e g vp)))   ; DANGAI's :red-no-guard
          (not (kit-hook (kit-of e) :u))                ; a form whose U is a move never guards (U-PRESS!)
          (not (kit-core (kit-of e))))))                ; the core system has no guard (U unbound, DUEL_CORE §2): no input guards,
                                                        ; the CPU's neither (the user, 2026-11-08: 「CPU 也不能防禦」, DUEL_AI_MCTS §10)
@@ -1062,9 +998,9 @@ its startup's end, or a Kikon rush's dash), or a kit's :armor hook (Lille II's w
 
 (defun defender-state (e)
   "E's side of the triangle for RESOLVE-CONTACT (rules.lisp): :neutral :guard :breaker :stance-in
-:stance :armor :parry :invuln; DANGAI's run armour (RUN-ARMOR-P) is :armor wherever he would be :neutral."
+:stance :armor :parry :invuln."
   (let* ((f (fighter e)) (sf (fighter-sf f)) (mv (fighter-move f)) (open :neutral))
-    (let ((s (case (if (> (fighter-invuln f) 0) :invuln (fighter-state f))
+    (case (if (> (fighter-invuln f) 0) :invuln (fighter-state f))
       ((:idle :run) open)
       (:invuln :invuln)                                  ; after a Burst
       (:guard (if (and (>= (fighter-guard-t f) *guard-raise*) (can-guard-p (gauges-gg (gauges e)) (gauges-guardless (gauges e))))
@@ -1082,7 +1018,6 @@ its startup's end, or a Kikon rush's dash), or a kit's :armor hook (Lille II's w
                    ((and (member :parry (mv-flags mv)) (eq (fighter-phase f) :main) (parry-frame-p sf (getf (mv-params mv) :window))) :parry)
                    (t open)))
       (t :neutral))))
-      (if (and (eq s :neutral) *run-mods* (run-armor-p e)) :armor s))))   ; DANGAI's run armour (one hit, any open state)
 
 (defun breaker-phase (e)
   "E's Breaker phase for BREAKER-CLASH-P: :aura :dash :strike (strike startup / active) or NIL."

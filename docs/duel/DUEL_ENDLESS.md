@@ -1,5 +1,9 @@
 # SOUL DUEL: ENDLESS 無限連戰 (a gauntlet of CPU stages)
 
+> **Removed from `main` on 2026-11-13** (refactor R4, decision D2, the user 2026-11-10: 「全部封存後移除 (Recommended)」,
+> docs/engine/REFACTOR_2026-11.md §6 / §11.3): the code this document describes lives on the branch `frozen-modes` (main at
+> 77de43f8). The record below is kept as written.
+
 Status: **built 2026-09-29.** The design of 2026-09-29 with the user's decisions of the same day ("User decisions" below),
 which override the body where they differ. Code: `duel/lisp/endless-rules.lisp` (pure rules, host-tested) and
 `duel/lisp/endless.lisp` (the run, its screens, the record, the debug entries); the shared files only carry hook lines

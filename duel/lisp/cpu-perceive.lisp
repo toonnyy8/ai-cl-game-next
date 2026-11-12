@@ -2,8 +2,8 @@
 ;;;; perception of the opponent (a ring of SNAPs; reaction time is the difficulty: EASY 24, NORMAL 14, HARD 8 frames), the
 ;;;; readers over a SNAP, and its button presses (the brain's held press, written to its vpad by CORE-BRAIN-STEP). Every random
 ;;;; number comes from SIM-RND01: a seed replays the same match. Out of ai.lisp on 2026-11-12 (REFACTOR_2026-11 R3): the old AI
-;;;; v2 (the generic reflex / intent / decide stack the retired kits played) left with them; its last section is only what the
-;;;; frozen ASSIST and old learner still call (assist.lisp, ai-learn.lisp: refactor batch R4 removes it with them).
+;;;; v2 (the generic reflex / intent / decide stack the retired kits played) left with them; what only the frozen ASSIST and old
+;;;; learner still called (AI-COMMAND, STRING-REFLEX, AI-TABLE / *AI-STEPS*, RANGED-THREAT-IN ...) left with those on 2026-11-13 (R4).
 (in-package :duel)
 
 ;;; (EXPT X 2) without boxing, beside fighter.lisp's zero-cons twins (here: fighter.lisp is loaded by the host tests, and the
@@ -84,8 +84,6 @@ until the distance passes TO (CORE-BRAIN-STEP lets go)."
   (ai-press b :step *ai-dash-frames* :act :dash)
   (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to)))
 
-(defun why (b reason cmd) "Note REASON (debug) and return CMD." (setf (brain-why b) reason) cmd)
-
 (defun ai-event-rolls (b s)
   "One roll per opponent action (his SNAP S starts a new one): brain B's guard / Hoho / reaction rolls."
   (when (/= (snap-start s) (brain-roll-key b))
@@ -107,7 +105,7 @@ until the distance passes TO (CORE-BRAIN-STEP lets go)."
 ;;; ---------------------------------------------------------------- perception
 (defun brain-perceive (e b o)
   "Brain B of E sees opponent O this step: his SNAP goes into the ring; values the SNAP of BRAIN-DELAY steps ago and the
-distance to it (the assist's learner perceives the same way: assist.lisp)."
+distance to it."
   (let* ((ring (brain-ring b)) (n (length ring))
          (cur (or (svref ring (brain-head b)) (setf (svref ring (brain-head b)) (make-snap)))))
     (snap-take! cur o)
@@ -145,209 +143,3 @@ NOW, in order (L destroyed)."
   "Every CPU fighter decides this step (before FIGHTER-SYSTEM reads the vpads): the core CPU (core-ai.lisp CORE-BRAIN-STEP;
 every playing kit has a :core)."
   (do-entities (e (b brain) (f fighter)) (core-brain-step e b)))
-
-;;; ================================================================ kept only for the frozen ASSIST and old learner
-;;; (assist.lisp, ai-learn.lisp, hisagi-ai.lisp's ASSIST routes call these; neither runs for a :core kit). Refactor batch R4
-;;; removes this section with them.
-(defun ai-table (e key &optional default) (plist-get (kit-ai (kit-of e)) key default))
-
-(defparameter *ai-steps* '(:learn-plan learn-plan :learn-press learn-press :learn-neutral learn-neutral :burst-chance ai-burst-chance
-                           :auto-guard auto-guard :auto-combo auto-combo :auto-break auto-break :auto-sp auto-sp :auto-read auto-read
-                           :string-queued ai-string-queued :string-bait ai-string-bait :l-link ai-l-link :k-link ai-k-link :j-link ai-j-link
-                           :k-only ai-k-only :l-cancel ai-l-cancel :sp-cancel ai-sp-cancel :end-orange ai-end-orange)
-  "The frozen ASSIST's and old learner's replaceable steps and their generic defaults; a kit's :ai :steps names its own.")
-
-(defun ai-step (e name)
-  "The function E's CPU runs for step NAME: its kit's own (the :ai plist's :steps sub-plist), else *AI-STEPS*'s default."
-  (or (plist-get (ai-table e :steps) name) (plist-get *ai-steps* name)))
-
-(defvar *ai-brain* nil
-  "The brain deciding for a fighter that has none (a human): the ASSIST's borrowed brain while ASSIST-STEP runs for him.")
-
-(defun ai-command (b kit cmd d &optional e)
-  "Press the buttons of kit command CMD at distance D: KIT's own :command step (its :ai :steps, given the fighter E), else
-AI-COMMAND-PRESS."
-  (let ((h (and e (getf (getf (kit-ai kit) :steps) :command))))
-    (if h (funcall h b kit cmd d e) (ai-command-press b kit cmd d e))))
-
-(defun ai-command-press (b kit cmd d &optional e)
-  "The generic :command step: press the buttons of kit command CMD at distance D (holding charge / stance / Breaker moves a
-while: a charge move is held to its full charge from beyond 7 m, where it has the time)."
-  (let ((r (sim-rnd01)))
-    (flet ((hold-for (mv lo spread) (if (and mv (mv-hold mv)) (+ lo (floor (* r spread))) 1)))   ; (NIL: a form without it)
-      (case cmd
-        (:q (ai-press b :quick 1))
-        (:f (ai-press b :flash 1))
-        (:sig (ai-press b :sig (let ((h (getf (kit-ai kit) :sig-hold)))   ; a kit's own hold length (its :sig-hold function)
-                                 (if h (funcall h kit d e) (hold-for (kit-command-move kit :sig) 12 40)))))
-        ((:sp1 :sp1-full)                                 ; :sp1-full: a charge move held to its end
-         (let ((mv (kit-command-move kit :sp1)) (h (getf (kit-ai kit) :sp1-hold)))
-           (ai-press b :flash (cond (h (funcall h kit d e))
-                                    ((and mv (mv-hold mv) (or (eq cmd :sp1-full) (> d 7.0))) (+ 2 (second (mv-hold mv))))
-                                    (t (hold-for mv 14 46)))
-                     :modded t :act :sp1)))
-        (:sp2 (ai-press b :sig (if (< r 0.4) 20 1) :modded t :act :sp2))
-        (:breaker (ai-press b :breaker (+ 12 (floor (* r 30)))))
-        (:step (ai-press b :step 1))
-        (:side-step (ai-press b :step 1 :act :side-step))
-        (:hoho (ai-press b :step 1 :modded t :act :hoho))
-        (:guard (ai-press b :guard (+ 10 (floor (* r 20)))))
-        (:guard-long (ai-press b :guard 60 :act :guard))
-        (:guard-cancel (ai-press b :guard 4))
-        (:kikon (let ((mv (kit-command-move kit :kikon)))                ; held through the strike (aura + dash + S)
-                  (ai-press b :kikon (+ (rush-param mv :aura) (rush-param mv :dash-max) (mv-s mv) 4))))
-        (:awaken (ai-press b :awaken 1))
-        (:burst (ai-press b :quick 1 :modded t :act :burst))))))
-
-(defun ai-guard-k (e)
-  "How much of its guard chance E's CPU uses (AI-GUARD-MULT); none in a form whose U is a move (a :u hook)."
-  (if (kit-hook (kit-of e) :u) 0.0 (ai-guard-mult (gauges-gg (gauges e)) (gauges-guardless (gauges e)))))
-
-(defun guarding-p (e) "E holds a guard (:guard / :guard-hit)." (member (state-of e) '(:guard :guard-hit)))
-
-(defun j-beats-open-p (e b)
-  "J beats K's window (docs/duel/DUEL_STRINGS.md §4; the assist's AUTO GUARD presses J in it): on the first free step after
-our blockstun, his string's next link is a K link still S(J1) + 2 frames from its hit, or his blocked J still recovers,
-inside our J1's reach."
-  (let* ((f (fighter e)) (o (fighter-opp f)) (fo (fighter o)) (om (fighter-move fo)) (q (kit-command-move (fighter-kit f) :q)))
-    (and (eq (brain-was b) :guard-hit) (member (fighter-state f) '(:idle :guard)) (zerop (fighter-lock f))
-         (eq (fighter-state fo) :move) (eq (fighter-phase fo) :main)
-         (or (and (eq (mv-kind om) :flash) (>= (- (mv-s om) (fighter-sf fo)) (+ (mv-s q) 2)))
-             (and (eq (mv-kind om) :quick) (>= (fighter-sf fo) (+ (mv-s om) (mv-a om)))))   ; his blocked J still recovering
-         (< (fighter-dist f) (+ (mv-reach q) 0.2)))))
-
-(defun ai-kikon-futile-p (e)
-  "Is E's Kikon futile in this DANGAI stage (DUEL_ROGUE §4.4): his opponent's Kikon is always guarded (:kikon-guard), or
-the Kikon is sealed for both sides (:kikon-seal)? NIL outside a run."
-  (and *run-mods* (or (rmod (opp-of e) :kikon-guard nil) (rmod *run-mods-who* :kikon-seal nil)) t))
-
-(defun ai-sb-finish-p (e)
-  "E's opponent is nearly out of Reishi (under *AI-SB-FINISH* of his max): finish him with hits, the Soul Break, not the
-Kikon rush he might still guard or dodge. Always, when the Kikon is futile (AI-KIKON-FUTILE-P)."
-  (or (ai-kikon-futile-p e)
-      (let ((go (gauges (opp-of e)))) (< (gauges-reishi go) (* *ai-sb-finish* (gauges-reishi-max go))))))
-(defun ai-o-ender-ok-p (e kit)
-  "May E's CPU press the O ender now: no Soul Break finish due (AI-SB-FINISH-P) and KIT's Kikon command open?"
-  (and (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit)))
-
-(defun ranged-threat-in (e b s d lo hi)
-  "Does a ranged hit reach E within LO..HI frames, as brain B perceives it (Hisagi's assist guard, DUEL_HISAGI §12.4)? One of
-his hazards with hits left (moving: its distance over its speed, after its delay; standing: its delay, touching E), or his
-perceived move S's next :ranged window (KIT.LISP RANGED-WINDOW-LEAD, less the perception delay) with E in its reach
-(SNAP-NEAR-P) beyond its :melee-range (nearer it is the blade)."
-  (or (let ((o (opp-of e)) (q (pos-of e)) (bd (model-body (model e))) (hit nil))
-        (do-entities (h (hz hazard))
-          (when (and (not hit) (eql (hazard-owner hz) o) (hazard-hw hz) (> (hazard-hits-left hz) 0))
-            (let ((fr (if (> (hazard-speed hz) 0.1)
-                          (+ (max 0 (hazard-delay hz))
-                             (/ (* 60 (max 0.0 (- (hypot (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz))) 1.0)))
-                                (hazard-speed hz)))
-                          (and (hazard-touches-p hz (aref q 0) (aref q 1) (aref q 2) (body-hurt-r bd) (body-hurt-h bd))
-                               (max 0 (hazard-delay hz))))))
-              (when (and fr (<= lo fr hi)) (setf hit t)))))
-        hit)
-      (let ((mv (snap-move s)))
-        (and mv (eq (snap-state s) :move) (eq (snap-phase s) :main)
-             (let ((lead (ranged-window-lead mv (snap-sf s)))) (and lead (<= lo (- lead (brain-delay b)) hi)))
-             (let ((r (getf (mv-params mv) :melee-range))) (or (null r) (> d r)))
-             (snap-near-p s e d *ai-threat-margin*)))))
-
-(defun ai-cancel-p (e kit)
-  "End a landed string with the kit's :cancel command (L, a :cancel Signature) now? Its chance, and it may start."
-  (let* ((c (ai-table e :cancel)) (p (getf c :sig)) (mv (kit-command-move kit :sig)))
-    (and p mv (member :cancel (mv-flags mv)) (kit-command-ok-p e :sig) (< (sim-rnd01) p))))
-
-(defun ai-orange-p (e b f)
-  "CHAIN REVERSE (ORANGE) out of a string link that hit and has no link after it? Allowed (BURST-OK-P :orange), the victim
-reeling on the ground within Q1's reach, and healthy (AI-BURST-WANTED-P): one roll (*AI-ORANGE-P* by difficulty)."
-  (let ((g (gauges e)) (o (opp-of e)))
-    (and (eq (burst-ok-p e) :orange) (eq (state-of o) :stun)
-         (< (fighter-dist f) (+ (mv-reach (kit-command-move (fighter-kit f) :q)) 0.2))
-         (not (ai-burst-wanted-p (gauges-reishi g) (gauges-reishi-max g) 0))
-         (ai-burst-rolled e b :orange (getf *ai-orange-p* (brain-difficulty b) 0.25)))))
-
-(defun ai-string-claim (e name b f mv)
-  "STRING-REFLEX's step NAME (e b f mv): :PASS (not this one) or its command (NIL included)."
-  (let ((h (ai-step e name))) (if h (funcall h e b f mv) :pass)))
-
-(defmacro def-string-step (name doc test &body body)
-  "A claiming STRING-REFLEX step NAME (e b f mv): BODY's value when TEST holds, else :PASS; STRING-REFLEX's locals bound: KIT,
-NQ / NF (the J / K links KIT-NEXT allows), BARS (his Reiatsu bars)."
-  `(defun ,name (e b f mv)
-     ,doc
-     (let* ((kit (fighter-kit f))
-            (nq (kit-next kit (mv-name mv) :q))
-            (nf (kit-next kit (mv-name mv) :f))
-            (bars (reiatsu-bars e)))
-       (declare (ignorable kit nq nf bars))
-       (if ,test (progn ,@body) :pass))))
-
-(def-string-step ai-string-queued
-  "the next link is latched already: nothing more"
-  (fighter-queued f)
-  nil)
-
-(def-string-step ai-string-bait
-  "a learner baits his predicted burst: the string ends at its 2nd hit (then a guard: LEARN-FIRE)"
-  (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait)
-       (>= (fighter-combo-hits (fighter (opp-of e))) 2))
-  (why b :bait nil))
-
-(def-string-step ai-l-link
-  "L after a K link (a J link: :l-after-j; a kit function (e link L) gives its chance), one roll per hit"
-  (let* ((p (ai-table e (if (kit-k-link-p kit (mv-name mv)) :l-after-k :l-after-j) 0.0))
-         (l (kit-l-link kit (mv-name mv)))
-         (p (if (and p (symbolp p)) (if l (funcall p e mv l) 0.0) p)))   ; (a kit function (e link L): its chance)
-    (and (plusp p) (= (fighter-sf f) (fighter-land-sf f)) l (kit-command-ok-p e :sig kit l)   ; one roll per hit
-         (< (sim-rnd01) p)))
-  (why b :l-after-k :sig))
-
-(def-string-step ai-k-link
-  "the next K link, the kit's :string-k share of the time"
-  (and nf (< (sim-rnd01) (ai-table e :string-k *ai-string-flash-p*)))
-  :f)
-
-(def-string-step ai-j-link
-  "else the next J link"
-  nq
-  :q)
-
-(def-string-step ai-k-only
-  "else the K link when it's the only one"
-  nf
-  :f)
-
-(def-string-step ai-l-cancel
-  "the string's last link: end it with L (the kit's :cancel, AI-CANCEL-P)"
-  (and (>= (fighter-sf f) (fighter-land-sf f)) (ai-cancel-p e kit))
-  (why b :cancel :sig))
-
-(def-string-step ai-sp-cancel
-  "SP2 off the last link's hit when the victim is on the ground and the kit's :sp-cancel-bars are there, *AI-SP-CANCEL-P* of the time"
-  (and (>= bars (ai-table e :sp-cancel-bars 1)) (kit-command-ok-p e :sp2)
-       (= (fighter-sf f) (fighter-land-sf f)) (not (eq (state-of (opp-of e)) :air))
-       (< (sim-rnd01) *ai-sp-cancel-p*))              ; one roll, on the first step we see the hit
-  :sp2)
-
-(def-string-step ai-end-orange
-  "the string's end: ORANGE off it (AI-ORANGE-P)"
-  (and (not nq) (not nf) (= (fighter-sf f) (fighter-land-sf f)) (ai-orange-p e b f))
-  (why b :orange :burst))
-
-(defun string-reflex (e b f mv)
-  "Our link hit: go on with the string (the next link K *AI-STRING-FLASH-P* of the time, among the links KIT-NEXT allows), or
-end it with L (the kit's :cancel), else SP2 when the victim is on the ground and the kit's :sp-cancel-bars are there."
-  (let ((kit (fighter-kit f)) (r nil))
-    (setf (brain-why b) :string)
-    (cond ((not (eq (setq r (ai-string-claim e :string-queued b f mv)) :pass)) r)   ; its steps in order (*AI-STEPS*)
-          ((not (eq (setq r (ai-string-claim e :string-bait b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :l-link b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :k-link b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :j-link b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :k-only b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :l-cancel b f mv)) :pass)) r)
-          ((let ((h (ai-table e :sp-ender)))            ; the kit's own SP ender (its function picks it, or NIL)
-             (and h (= (fighter-sf f) (fighter-land-sf f)) (not (eq (state-of (opp-of e)) :air))
-                  (let ((c (funcall h e kit))) (and c (why b :sp-ender c))))))
-          ((not (eq (setq r (ai-string-claim e :sp-cancel b f mv)) :pass)) r)
-          ((not (eq (setq r (ai-string-claim e :end-orange b f mv)) :pass)) r))))

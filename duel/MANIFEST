@@ -1,13 +1,13 @@
 # title: SOUL DUEL NEXT
 # SOUL DUEL sources in compile order, relative to this directory (the engine's come first, see
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
-# users. tuning / rules / control / learn / kit are plain CL (host-tested); ken / ichigo / hisagi are the characters
+# users. tuning / rules / control / kit are plain CL (host-tested); ken / ichigo / hisagi are the characters
 # (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
 # scripted.lisp (the trial player tools/simgate/trial.lisp drives) loads right before cpu-perceive.lisp (the CPUs' perception and presses).
-# ken-meter (Kenpachi's NOME / UDE meter: its step, reached by the kit's :tick hook, and its
-# HUD widgets, the meter's :draw / :label) load right after hud.lisp: they use components' CLOG and hud's HUD-TEXT.
+# ken-meter (Kenpachi's Shikai :p and the meter's :label) loads right after hud.lisp.
+# fq-online.lisp (the online fuzzy Q against a human: LEARNING CPU) loads after the CPUs it records (core-ai, cpu-mcts).
 # hem-spring / tip-track / vfx-ember (shared looks that stayed when the retired kits left: Ichigo's cloak spring, the weapon-tip tracker Ichigo's and Kenpachi's looks use, the ember star and the hold charge the dispatch calls) load before the characters.
-# hisagi.lisp / hisagi-ai.lisp, then hisagi-art / hisagi-draw / hisagi-cine / hisagi-stills (Hisagi, kit :hisagi, roster index 7,
+# hisagi.lisp, then hisagi-art / hisagi-draw / hisagi-cine / hisagi-stills (Hisagi, kit :hisagi, roster index 7,
 # docs/duel/DUEL_HISAGI.md). The retired kits' files (Yamamoto, Rukia, Senjumaru, Lille) left on 2026-11-12: branch `retired-kits`; their
 # roster slots are fixed in kit.lisp *ROSTER* (the roster is append-only). A character's files all carry its prefix (<name>.lisp the kit, <name>-ai the CPU, <name>-art
 # the clips, <name>-draw / -cine / -stills by role).
@@ -19,7 +19,6 @@ lisp/sp.lisp
 lisp/fuzzy.lisp
 lisp/strategy.lisp
 lisp/control.lisp
-lisp/learn.lisp
 lisp/sounds.lisp
 lisp/components.lisp
 lisp/body.lisp
@@ -39,9 +38,6 @@ lisp/ichigo-art.lisp
 lisp/ichigo-look.lisp
 lisp/ken.lisp
 lisp/ichigo.lisp
-lisp/endless-rules.lisp
-lisp/rogue-rules.lisp
-lisp/run-mods.lisp
 lisp/fighter.lisp
 lisp/combat.lisp
 lisp/core-sim.lisp
@@ -56,8 +52,7 @@ lisp/cpu-kh-ken.lisp
 lisp/cpu-hk-hisagi.lisp
 lisp/mcts-lite.lisp
 lisp/cpu-mcts.lisp
-lisp/ai-learn.lisp
-lisp/assist.lisp
+lisp/fq-online.lisp
 lisp/camera.lisp
 lisp/feedback.lisp
 lisp/flow.lisp
@@ -86,7 +81,6 @@ lisp/lhud-menu-front.lisp
 lisp/lhud-menu-set.lisp
 lisp/lhud-menu-select.lisp
 lisp/hisagi.lisp
-lisp/hisagi-ai.lisp
 lisp/hisagi-art.lisp
 lisp/hisagi-draw.lisp
 lisp/hisagi-cine.lisp
@@ -94,8 +88,6 @@ lisp/hisagi-stills.lisp
 lisp/gate.lisp
 lisp/debug.lisp
 lisp/sim-state.lisp
-lisp/endless.lisp
-lisp/rogue.lisp
 lisp/draw.lisp
 lisp/main.lisp
 hud-font/lhud-font.c

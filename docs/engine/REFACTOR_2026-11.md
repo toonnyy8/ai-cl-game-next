@@ -621,6 +621,78 @@ every :core kit, so guard / blockstun / guard lock / crush are unreachable in pl
 modes), SIPHON-OF / HIT-GAINS' siphoned (the SP batch rewrites those gains), the :u / :hoho / :settled hooks, KIT-RESET-FORM
 (endless-rules reads it), Kenpachi's cup pacing lines (gate.lisp CUP-ACC), hisagi-ai.lisp's old CPU functions (host-tested).
 | **R4** | B9 + §16.6's D2 leftovers | endless / rogue / run-mods files and every `*run-mods*` / `rmod` / `rmod-x` site (combat 16, fighter 6, hisagi.lisp's `:hs-tip-*` cards, flow.lisp:136-154); ASSIST; the old learner (the FQ online learner stays, in `fq-online.lisp`); the frozen screens (`hud-menu`, `hud-select`, `results-card`, `hud-text`, the `:select` / `:results` / `:clear` / `:doors` clauses, `hud-endless-*`, `hud-rogue-doors`); roguegate.py / assistgate.py; tests rogue / runmods / learn-test; debug ranges 80000-80999, 81000-81200, 84000-84999 (saved-data keys stay reserved) | G2 + hash, host tests, pkgcheck, smoke of every menu path | −3.5k lines, medium | **Opus** | after R3 (same files) |
+**R4 done on branch `worktree-agent-ac875e6523b45938c`** (2026-11-13, Opus subagent; four commits; the archive is the branch `frozen-modes` at
+77de43f8): duel/ −3,703 / +284 lines (the build unit 48,711 → 45,292 lines), tests and tools −882 / +36; wasm 10,563,058 → 10,264,852 B
+(−298 KB), startup heap 74.7 → 74.8 MB (every run of each build; the Lisp heap holds data, not code). **ENDLESS / DANGAI**: endless.lisp, endless-rules.lisp, rogue.lisp (with its card data), rogue-rules.lisp,
+run-mods.lisp (1,316 lines) and every site: combat (GG-CAP inlined to *GG-MAX*, the run's atk / def mods, :kikon-guarded, the run
+armour, :guard-drain / :chip-taken, the revive, RUN-MODS-STEP!, the :awaken-heal / :reiatsu-regen / :fs-regen / :gg-regen factors, the
+konpaku counts), fighter (the DANGAI helpers RM-OF ... RUN-NO-GUARD-P, :hoho-cost, :sp-armor, :kikon-seal, DEFENDER-STATE's run armour),
+ichigo.lisp (the boss's free clones, ZANZO, ICHIGO-BOSS), hisagi.lisp (the 尖端 cards in HS-DMG-BASE, which reduce to X and *HS-R-TIP-SP-MULT*
+exactly; the boss's regen, HS-BK-STRUCK, the boss-unhit slot), ken (KEN-BOSS, the :endless-form keys; KEN-CARD-BANKAI became KEN-P, a no-op
+:p hook kept on purpose: a form with a :p hook takes P in its run (fighter.lisp *RUN-COMMANDS-P*), so dropping it would have taken the
+awakening-from-a-run away from Kenpachi's Shikai), kit.lisp's :endless-form slot, flow.lisp (*ROGUE*, *TIMER-CUT*, the :clear / :doors /
+:reward / ENDLESS-results states, the ENDLESS branches of SELECT and the pause), components' rm slot, debug (80000-80999 and DANGAI's
+84000+100c+n / 84501-84598 / 84800-84899 / 84980-84999: the 84000 double claim is gone, Kenpachi keeps 84000-84099). **The frozen screens**
+(DUEL_LISP_HUD §16.6, "D2 leftovers, done"): hud-screens.lisp's HUD-MENU / HUD-SELECT (+ portrait) / RESULTS-CARD and HUD-DRAW's clauses,
+hud.lisp's HUD-TEXT and its colours, ALPHA!, the ENDLESS tag; the canvas menus' taps (onehand.lisp *MENU-ROWS* / NOTE-MENU-ROW /
+TAPPED-ROW / TAP-THIRD / TOUCH-TAP-ZONES-P, flow.lisp MENU-TAP-P / MENU-TAP-THIRD and MENU-NAV's tapped row: no menu drew rows any more),
+webui.lisp's ENDLESS screen codes and WEBUI-ON-SCREEN-P, camera.lisp's canvas SELECT camera; debug 2328's HUD-TEXT line. **ASSIST**:
+assist.lisp, the fighter's assist-next / assisted, the x*ASSIST-MULT* factor, the AUTO tag, *ASSIST-MULT* / *ASSIST-TAG-FRAMES*, the
+assist system's call. The SETTINGS rows AUTO GUARD / COMBO / BREAK stay in *SETTINGS* as hidden placeholders, read by nothing: the page
+saves rows by place (`+pg-setting+` 10 + i, pwa.js' `settings` array). **The old learner**: learn.lisp, ai-learn.lisp's LRN learner, its
+tables and page storage, the ASSIST's learner; the brain's learn slot; flow.lisp LEARN-MATCH-START / -END. **The learner split**: what
+LEARNING CPU and RESET LEARNING drive is the online fuzzy Q (`fq-online.lisp`, ai-learn.lisp's lines 64-141 verbatim plus
+*LEARN-DEBUG-OFF*, which FQ-ATTACH! reads; the file is now named, R12's question settled); LEARN-ATTACH! read SIM-RND-STATE without a
+draw and CORE-BRAIN-STEP never read the learner, so VS CPU plays bit for bit as before. **cpu-perceive.lisp's last section** (AI-TABLE,
+*AI-STEPS*, AI-STEP, *AI-BRAIN*, AI-COMMAND(-PRESS), AI-GUARD-K, GUARDING-P, J-BEATS-OPEN-P, AI-KIKON-FUTILE-P, AI-SB-FINISH-P, AI-O-ENDER-OK-P,
+RANGED-THREAT-IN, AI-CANCEL-P, AI-ORANGE-P, STRING-REFLEX and its steps) and WHY; 8 knobs only they read (*AI-THINK*, *AI-STRING-FLASH-P*,
+*AI-SP-CANCEL-P*, *AI-GUARD-BREAK-HOLD* / -RANGE, *AI-THREAT-MARGIN*, *AI-ORANGE-P*, *AI-SB-FINISH*). **hisagi-ai.lisp** (477 lines) whole:
+past R3 its old CPU (HS-AI-PLAN, HS-R-AI-MOVE, HS-B-AI-MOVE, the styles and fences), his learner situations (LEARN-DEF-KIT) and his ASSIST
+routes were reached only from ASSIST (HS-AS-DECIDE, HS-ASSIST-COMBO) and the host tests; HS-AI-KAZA-K, the one call from hisagi.lisp, was
+NIL at run time (nothing set HSS-AI-KZ), so HS-KAZA-TICK lost its CPU / assist branches; HS-TIP-BAND (the tip glint's, live) moved verbatim to
+hisagi-draw.lisp; the 46 hss fields only the old CPU / ASSIST touched (none hashed) and *HS-FORMS* went. **The learning gate**: its habits
+(*HABITS*, *DUMB-P2*, LEARN-GATE-SETUP / -LINE, scripted.lisp's *DUMB-DELAY*, gauges' counters slot) left; 200000+ stays as the pairing gate
+(START-PAIR-GATE: seeds of one pairing at 81020+i's difficulty), because strategy-eval.py, strategy-switch.py, matchup-eval.py and aieval.py
+start their matches with it (h and m no longer read); 81020-81022 stay; 81000 / 81030 / 81040 / 81100 (ASSIST's) were freed and dropped
+from those tools' command lists. Hisagi's ASSIST scenes 83020 / 83021 out. **Tests and tools**: tests/duel-rules/rogue.lisp (113 checks),
+runmods.lisp (30), learn-test.lisp (131), Hisagi's old CPU / learner / ASSIST checks (12; one HS-DIST-MULT tip check added in place of the
+HS-TIP-BAND sweep, which can no longer load on the host), the ENDLESS looks scenario (4 stills: the looks gate is 109 stills now),
+tools/roguegate.py + tools/roguegate/, assistgate.py, tests/endless-sheet.py; the load lists of duel-rules-test and the three sheets.
+**Proof**: host tests 3114 → 2960 (rogue 113, runmods 30, hisagi 11 net), control 116, input 33, touch 100, cine 18, hud-engine 121
+(learn-test gone); pkgcheck only DUEL::APP, 0 undefined functions; the build's undefined-variable warnings *FLOW* / *WINNER* as before;
+debug-ranges 84 ranges, 0 errors; unit-names passes; G2 identical native after each code commit and in the browser (II 39, IK 36, KK 28
+lines; the state-hash line unchanged, no column left); snaptest straight = pollute but for the timing lines (171 duel lines, 1,735 rollouts);
+fulltest 102 + 45 checks, 0 differ; the pairing gate (200310: Ichigo vs Kenpachi, 2 seeds, NORMAL) gives the same `duel gate row` lines as
+the seed gate's pairing 7 (2132) and simlib's ROW parses them; move-sheet, stat-sheet and matchup-sheet run. Browser scripts: every `tests/scripts/duel-*.json` on the
+same-session BASE (77de43f8) and the new build, fixed dt, the log's sim / combat / hash lines compared (timing and stats stripped; the
+runs that timed out under load re-run alone): 35 identical (bankai, blue-burn, cvc-ii / ik / kk, drive-switch and its phone run, extras,
+flow, gauges, hisagi-bankai / j1-cancel / kin / ns2, ichigo, ichigo-portrait, ken-armburst / bankai / core / sealed / shikai, keys, kikon,
+practice, practice-cancel, probe, shikai-dswitch, shots, stances, steal-cap, strings, sublimation, switch-routes, touch, touch-left);
+mobile / mobile-insets identical, both builds stopping at debug 2700's division by NIL (PORTRAIT-TEST, before R3); endless,
+endless-portrait and rogue differ from the first removed command on (their JSONs leave with R7); rukia / rukia-kl / rukia-portrait out of
+scope (retired kit); gate, perf, endless-gate and the view targets not run. Looks (a BASE built at 77de43f8 in the same session, noise floor 0): 53 stills of
+the scenarios that render on both (cvc-kh / hk / ii / ik 29, menus 11, fx-b 10, cine-ichigo 3) bytes identical, their sim lines equal; the
+ENDLESS scenario left; cine-yama / ken / rukia / senju / barro, fx-a and mobile still stop at a retired kit on BASE (R7). Every menu path by
+keyboard (TITLE → MODE → SETTINGS: LEARNING CPU off / on, RESET LEARNING, BACK → CONTROLS → back → the MANUAL row → VS CPU → SELECT: P1, P2,
+difficulty, camera → INTRO skipped → BATTLE → pause / RESUME → K.O. → RESULTS → REMATCH → RESULTS → CHARACTER SELECT → MODE → TITLE →
+PRACTICE: pause, DUMMY → the pause's TITLE / CHARACTER SELECT → CPU VS CPU → pause → TITLE), desktop and `--mobile --size 390x844`, on
+both builds: every `duel ->`, setting, fq and combat line identical (93 / 68 lines). **Saved data**: a page holding a save written before
+the cut (every SETTINGS row off its default, AUTO GUARD / COMBO / BREAK included, soulduel.endless.* / rogue.0, the old learner's and the
+ASSIST's tables, a foreign soulduel.fq.3.1) loads the same `duel page: … settings (2 0 4 3 1 0 1 2 1 1 3)` on both builds, plays debug 2504
+to a K.O. with the same `duel fq load 3 1 fresh` / `duel fq learn 3 1 …` and writes the same fq table; the one difference: the new build no
+longer rewrites soulduel.learn.3 (the old learner). `*SETTINGS*`, pwa.js and the page indices are unchanged; *ROSTER*, *RETIRED* and
+simgate's RETIRED / PAIRS untouched.
+**Left for later**: tests/scripts/duel.py's ENDLESS / DANGAI sections and their JSONs (duel-endless, duel-endless-portrait, duel-endless-gate,
+duel-rogue), DUEL_GAMEPLAY's script rows and the manual's ENDLESS / ASSIST lines (R7, D5); the kits' :ai plists (data nothing live reads:
+R10 / R12); pwa.js keeps serving the reserved soulduel.endless.* / rogue.* / learn.* / learn.a* keys (saved-data keys stay); KEN-P (a
+design call: should Kenpachi's Shikai keep the awakening from a run?); ichigo.lisp PARRY-FROM-BLOCKSTUN's (not (brain-habit b)) (guard
+only: unreachable for a :core kit); pre-existing orphans *HS-R-GATHER-LINKS*, +C-WORLD0+, +TWO-PI+; simgate.py's COMPANION regex still
+names learn / endless (harmless); engine exports with no duel caller any more (`fit-scale`, `ui-big-text`, the 5x7 `ui-block-text` path:
+B1 candidates). **Beyond the row's list, for the lead to accept or undo**: hisagi-ai.lisp went whole (R3 had kept it because ASSIST still
+reached it; the reachability argument above), which also ends the Hisagi dream-rsi workflow: `docs/research/hisagi-ai-drsi/splice-tests.py`
+spliced cells into the `>>> BEGIN / <<< END HISAGI-CPU-TESTS` section of tests/duel-rules/hisagi.lisp, which is gone (the archive keeps it).
+learn-test.lisp (131 checks) went whole: every check was of learn.lisp, which nothing live calls.
+
 | **R5** | B8c + §16.6's D1 leftovers | draw / feedback / vfx-stamps branches to the retired kits' VFX, `*hurt-cines*` / `*brush-names*` entries, the never-drawn `*brush-callouts*` data, R-d widgets, the canvas pieces §16.6 lists for D1 | fast; surviving scenarios' stills identical against a BASE rendered in the same session (or R0's gate if it is ready) | −1.5k lines, low-medium | Sonnet | after R2; parallel to R3 / R4 / SP (presentation files only) |
 
 **R5 done on branch** (2026-11-12, Sonnet 5.5 subagent; one commit): presentation code only the retired kits reached, each piece grepped to zero live callers (Kenpachi / Ichigo / Hisagi and the shared paths) before the cut. brush.lisp: `*brush-callouts*` (never read since 2026-10-28; its append in ichigo-look.lisp too), the Yamamoto / Rukia `*brush-names*` entries, `bcap-restart`. draw.lisp: the Yamamoto `*hurt-cines*`, `model-flare` (never set; slot out of components.lisp), the `kit-blade` smear / breaker-colour cases (no live kit has a `:blade`). vfx.lisp: `vfx-aura`'s `:hellfire` / `:garb` / `:heat` / `:breaker-fire` / `:breaker-ember` looks, `vfx-awaken-burst`'s `:bankai` / `:bankai-burst` / `:nozarashi-half` (the live `:nozarashi` is the same arithmetic with vk = 1), and the headers. vfx-stamps.lisp: the keyword table's `:slit :wisps :cone :boom :garb :garb-guard :scorch :flare :gutter :nade` (codes 17-22, 25-29 free; a kind with no draw arm was already a no-op). feedback.lisp: `*crack-t*` and the never-emitted `:cold-crack`, the `:refused` HUD flash (the dud tick stays), the `kit-blade` branches of `show-hit` / `:armored`. hud.lisp: `*refused-t*`, `refused-flash`, `hud-refused`, `hud-pulse`. onehand.lisp: `hud-stick`'s frost arc (Rukia's `:temp` meter). cinema.lisp `push-in-on`; flow.lisp `*mode-menu*`, `settings-items`, `settings-note`, `*results-menu*` (canvas menu rows, no reader). sounds.lisp: nine sounds nothing plays (`:fire-whoosh :fire-roar :fire-crackle :fire-wave :heat-flare :frost-tick :ice-rise :ice-shatter :hand-crack`; the synthesis noise stream `au_rand` is one global, so every later sound's noise draws shift: same statistics, different samples, not bit-identical audio). glyphs.lisp / glyphs-extra.lisp: 59 brush glyphs whose character appears in no live source file (`tools/glyph-bake.py`'s CHARS pruned to match). debug.lisp: 2390's stamp list. Tests: `tests/duel-vfx.lisp` (the VFX gallery over the retired Yamamoto's looks) and its generator / JSON removed; `tests/duel-view.lisp` repointed to Ichigo and Kenpachi (scenes 0 1 3 4 5 6 7 9; the cane / skeleton and Hellfire scenes and the Yama / Rukia clip owners out; `duel-view.py` reads ken-art + ichigo-art and the three JSONs were regenerated; builds with the line in its header and renders). Proof: wasm 10,895,616 -> 10,773,555 bytes (-122 KB); about -1,030 / +90 lines over duel/ tests/ tools/ (without the regenerated JSON); host tests 3188 ALL PASS, hud-engine 121, pkgcheck only `DUEL::APP`, debug-ranges 115 ranges 0 errors; looks gate against a BASE built at c389ea08 (renders deterministic): menus 11, cvc-kh / hk / ii / ik 29, cine-ichigo 3, endless 4 stills byte-identical, noise floor 0; the scenarios that start a retired kit (`cine-yama`, `cine-rukia`, `cine-senju`, `cine-barro` and `cine-ken`, whose debug 11000 / 35000 ensure-battle a retired opponent) hang on BASE as well and are R7's re-pin. Left: `tests/style-gates.py`'s `duelstill` (needs the removed duelvfx build; R7), `toon_check.py --bg`'s doc, `vfx-smear` look 2 (black smoke) and `*reiatsu-glass*`' `:nomihose` (no live caller, kept: tiny), hazards.lisp's `spawn-hand` and `:freeze` / `:hand` hazards, combat.lisp's `:freeze-touch` / `:scorch` and `kit-blade-chip` (sim: R3), the roster table in lhud-data.lisp (R7), `components.lisp`'s Rukia frost / layers fields (sim state: R3).

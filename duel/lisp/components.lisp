@@ -101,8 +101,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (stored 0 :type fixnum)               ; stance: damage absorbed
   (charge 0 :type fixnum)               ; hold frames when a charge move was released (Shiranui)
   (perfect nil)                         ; this Hoho was perfect: its counter strike is pending
-  (assist-next nil)                     ; the assist pressed for him: the next move / Hoho he starts is assisted (assist.lisp)
-  (assisted nil)                        ; the current move is assisted: x*ASSIST-MULT* damage
   (end-chase nil)                       ; this move started off a J / K ender's hit (or ORANGE's restart): it chases (ENDER-PUSH)
   (gc-left 0 :type fixnum)              ; frames a guard cancel still keeps attacks out (COMMAND!: its recovery's rest)
   (guard-exit 0 :type fixnum)           ; frames after letting go of a guard: only Step / Hoho, no walk (*GUARD-EXIT*)
@@ -139,7 +137,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (combo-from 0 :type fixnum)           ; combo-hits when the attacker's ORANGE started: its damage scaling counts from there
   (combo-dmg 0 :type fixnum)
   (seal 0 :type fixnum)                 ; frames a bind (RIKUJOKORO) still seals him: a Kikon follow-up treats him as red
-  (rm nil)                              ; DANGAI's run state (run-mods.lisp RMST: RM-OF makes it while *RUN-MODS* applies to him)
   ;; HUD (sim frames)
   (callout nil) (callout-t 0 :type fixnum))
 
@@ -176,7 +173,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   ;; results
   (dealt 0 :type fixnum) (kikons 0 :type fixnum) (perfects 0 :type fixnum) (best-combo 0 :type fixnum)
   (grey 0 :type fixnum)                 ; the part of DEALT dealt inside a bind and still grey or released (DEALT-REAL)
-  (counters 0 :type fixnum)             ; counter-hits dealt (the learning CPU's gate rows)
   (evo-t -1 :type fixnum))              ; *MATCH-TICK* of the first EVOLUTION (-1 none; the gate's "duel evo" line)
 
 (defcomponent pilot
@@ -210,8 +206,7 @@ is holding. Identity comes from the kit's :AI tables."
                                         ; its answer (:hoho :rush :step NIL) and a pre-Step's tick (-1: on the perceived lock)
   (reflect-key -1 :type fixnum) (reflect-go nil)   ; :opp-reflect: the move rolled for (its start tick), the roll said yes
   (act nil) (why nil)                   ; the last thing it decided and why (debug overlay, log)
-  (learn nil)                           ; the learning CPU (ai-learn.lisp LRN; NIL = off: nothing of it runs)
-  (habit nil)                           ; debug: a scripted player's habit (scripted.lisp HABIT-FIRE)
+  (habit nil)                           ; debug: the trial player's :trial (tools/simgate/trial.lisp; scripted.lisp TRIAL-STEP)
   (jkey -1 :type fixnum) (jstarts nil)  ; his last perceived J's start; the ticks his J's started (AI-MASH-P)
   (own-key -1 :type fixnum)            ; the core CPU (core-ai.lisp): the tick of his own move the rolls below were made for
   (r-turn 1f0 :type single-float) (r-cont 1f0 :type single-float) (r-kikon 1f0 :type single-float)   ; ... and the rolls
@@ -226,7 +221,7 @@ is holding. Identity comes from the kit's :AI tables."
   (ev-on nil)                          ; ... it has the step now (the event arm's plist, else NIL)
   (ev-style nil)                       ; ... the event arm's style state, kept between takeovers (swapped into STYLE while it plays)
   (ev-n 0 :type fixnum) (ev-steps 0 :type fixnum)   ; ... takeovers and steps under it this match, outside rollouts (strat-run.lisp)
-  (fql nil)                            ; the online fuzzy Q's record this match (ai-learn.lisp FQ-ATTACH!; NIL = not learning)
+  (fql nil)                            ; the online fuzzy Q's record this match (fq-online.lisp FQ-ATTACH!; NIL = not learning)
   (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (cpu-mcts.lisp): the tick of its next selection, its last free tick
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)

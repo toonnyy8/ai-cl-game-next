@@ -280,7 +280,6 @@ new button."
   (l-after-j nil)                       ; ... after a J link (J1 / J2 / J2s / J3): T its L, or a move
   (hooks nil)                           ; plist hook point -> the character file's function (KIT-HOOK; docs/duel/DUEL_DESIGN.md
                                         ; "Character code layout")
-  (endless-form nil)                    ; ENDLESS: the form a stay-awakened carry starts the next stage in (endless-rules.lisp)
   (clip-map nil)                        ; plist clip -> clip: the form plays its moves' clips as these (a look: KIT-MOVE-CLIP)
   (push-reach nil)                      ; NIL, or the reach a K ender's push is measured from in place of K1's (ENDER-PUSH-REACH)
   (look-clips nil)                      ; plist shared clip -> clip: the form plays these generic clips (its guard) as its own
@@ -302,7 +301,7 @@ slots of the retired kits (*RETIRED*: their code left main on 2026-11-12, branch
 Hisagi are fixed here, no kit behind the retired ones; a later character's first :base DEFKIT appends it (Hisagi, 7).")
 (defparameter *retired* '(:lille :yamamoto :rukia :senjumaru :barro)
   "Roster slots kept for their index (the saved learning tables and records, the gates' pairing numbers) with no character:
-never on the select screen, a random or Endless opponent, or a default seed gate. Since 2026-10-27 (the core system,
+never on the select screen, a random opponent, or a default seed gate. Since 2026-10-27 (the core system,
 docs/duel/DUEL_CORE.md: 「先只做 2 到 3 個差異大的角色」, the user's 「妥」) also the four characters waiting to be ported to it
 (:yamamoto :rukia :senjumaru :barro: their code left main on 2026-11-12, REFACTOR_2026-11 R2 / B8a, and lives on the branch `retired-kits`); only Kenpachi, Ichigo and Hisagi play. :lille, index 5: the old Lille, out of the
 game since 2026-10-12 (「幫我將舊版的 lille 從遊戲中移除」, DEVLOG §208), his code removed 2026-10-13 (「幫我移除舊版的 lille」:
@@ -624,8 +623,6 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      DUEL_LILLE_V3: the wing wall); no state, timer or volume reads a clip
   :push-reach M                      a K ender's (K3's) push is measured from M m instead of K1's reach (ENDER-PUSH-REACH;
                                      Hisagi's 6 m throw: 6.0, DUEL_HISAGI Q6 B), default NIL
-  :endless-form FORM                 ENDLESS: staying awakened starts the next stage in FORM, its meter at FORM's :start
-                                     (docs/duel/DUEL_ENDLESS.md §4)
   :meter (... :draw fn :label fn :bankai-prompt (:key :right :pad :one-hand strings :rgb colour))  a character's own meter
                                      row / portrait label / BANKAI prompt words
   :blade (look power)                blade look drawn along the held weapon: (:fire 1.0) (:embers 1.0)

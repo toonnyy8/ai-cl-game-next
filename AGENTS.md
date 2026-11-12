@@ -59,7 +59,7 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   pkgcheck, build, smoke), publish the playtest Artifact, then run the sim gates, so the user's playtest and the automated
   gates run at the same time; report the gates when they finish.
 - **No balance gates from now on** (the user, 2026-10-29: 「以後不用跑平衡測試」, DEVLOG §468): don't run the seed / pacing gate, the
-  awaken A/B, `aieval`, `assistgate` or `roguegate` unless the user asks. Still run the fast checks (host tests, pkgcheck, build,
+  awaken A/B or `aieval` unless the user asks (`assistgate` / `roguegate` left with ASSIST / DANGAI, 2026-11-13). Still run the fast checks (host tests, pkgcheck, build,
   smoke) and the G2 `--cvc` reference check, which proves a shared hook stays off for the other kits.
 - **Test a move with a written control script** (the user, 2026-10-29: 「以後要測什麼招式就直接寫好指定的控制腳本，如非必要就不再依賴 CPU 賭機率」):
   `tools/run.mjs --script` key steps or a debug setup that drives both sides' inputs, never a CPU match hoping the move comes up.
@@ -108,14 +108,13 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 
 | Layer | Command | Pass |
 |---|---|---|
-| Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (a runner over `tests/duel-rules/*.lisp`, one file per character / topic) (also `duel-control-test`, `learn-test`, `input-test`, `touch-test`, `cine-test`) | ALL PASS |
+| Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (a runner over `tests/duel-rules/*.lisp`, one file per character / topic) (also `duel-control-test`, `input-test`, `touch-test`, `cine-test`; `learn-test` left with the old learner, 2026-11-13) | ALL PASS |
 | Seed / pacing gate | `python3 tools/simgate.py --summary` (native sim of the same sources; `--pairs`, `--seeds`, `--seed0`, `--cmd`); the match time leaves every cinematic out since 2026-10-08 (DEVLOG §134; earlier quotes include them) | every match K.O.; cross-pairing medians 125–210 s; mirrors may exceed 210. Quick first pass `--seeds 10`: passes at once only if all K.O. and median 135–200 s, else 20 seeds = verdict |
 | Edge rerun | a 20-seed median outside the window → `--pairs k --seeds 60`; still outside → **report to the user**, don't retune other knobs | |
 | Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; **void since 2026-11-12 (REFACTOR_2026-11 R3): the core CPU never read the old awakening modes, and debug 39000+ left with the old AI**; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |
-| ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
 | G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`; pairs II IK KK since the core system, 2026-10-27) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
-| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 113 stills byte-identical to BASE (noise floor 0; BASE built at or after refactor round 3's merge, whose 9 accepted Senjumaru stills moved by ulps; 115 before Kenpachi's old `ken-kikon` cinematic left, 2026-11-05; 110 before round 3 added five portrait / thumb-ring stills, 105 before round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel. Since 2026-11-10 the gate's scenarios are re-pinned to the live roster (KH HK II IK) and the menus script is fixed; the run-to-run nondeterminism (DEVLOG §704) was run.mjs's virtual clock running while the page waited for its GPU device, fixed 2026-11-12 (R0, `docs/engine/REFACTOR_2026-11.md` §10.2): renders of one build are byte-identical again, noise floor 0; use `--keep-base` only with a BASE rendered from the same base build |
+| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 109 stills byte-identical to BASE (noise floor 0; BASE built at or after refactor round 3's merge, whose 9 accepted Senjumaru stills moved by ulps; 113 before the ENDLESS scenario's 4 left with the frozen modes, 2026-11-13; 115 before Kenpachi's old `ken-kikon` cinematic left, 2026-11-05; 110 before round 3 added five portrait / thumb-ring stills, 105 before round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel. Since 2026-11-10 the gate's scenarios are re-pinned to the live roster (KH HK II IK) and the menus script is fixed; the run-to-run nondeterminism (DEVLOG §704) was run.mjs's virtual clock running while the page waited for its GPU device, fixed 2026-11-12 (R0, `docs/engine/REFACTOR_2026-11.md` §10.2): renders of one build are byte-identical again, noise floor 0; use `--keep-base` only with a BASE rendered from the same base build |
 | Shipping build | `./build.sh duel` last | |
 
 - Engine tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
@@ -149,7 +148,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   Mod+J SP; Space Step / Mod+Space Hoho; P Burst / Mod+P awaken), the NA / NS / AS / SA triangle (`core.lisp` pure + host-tested,
   `core-sim.lisp` the sim side, `core-ai.lisp` the CPU), the SP pointer 1–3, the Kikon as a hold after an SP. Only **Kenpachi,
   Ichigo, Hisagi** play (`*retired*` lists the other four; **their code left `main` on 2026-11-12** (refactor R2 / B8a) and lives on the branch `retired-kits`: `git show retired-kits:duel/lisp/<file>`; their roster slots stay). A kit gets the system through `:core` in its `defkit`.
-  K / L / U / I / O are unbound. ASSIST, the learner, ENDLESS and ROGUE are frozen.
+  K / L / U / I / O are unbound. ENDLESS, DANGAI (ROGUE), ASSIST and the old learner left `main` on 2026-11-13 (refactor R4, decision D2) and
+  live on the branch `frozen-modes`; the online fuzzy Q learner (LEARNING CPU, `fq-online.lisp`) stays.
 - **Roster** (`*roster*` is fixed in kit.lisp: no kit behind a retired slot; the retired ones' files `yama*` / `rukia*` / `senjumaru*` / `barro*` / `lille-*` are on the branch `retired-kits`): index 0 Yamamoto (retired), 1 Kenpachi (`ken*`), 2 Rukia (retired), 3 Ichigo (`ichigo*`),
   4 Senjumaru (retired), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (retired; was `barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
   functions (a `:core` kit's CPU is `core-ai.lisp` + the MCTS, DUEL_AI_MCTS §13; the old AI v2 and its kit hooks left main
@@ -158,8 +158,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   DUEL_DESIGN "Character code layout: split by role").
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
   sit in its file under the same rule),
-  `rules.lisp`, `control.lisp`, `learn.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
-  `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW; the frozen modes' canvas screens), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `endless`, `gate` (the gate
+  `rules.lisp`, `control.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
+  `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `fq-online` (the online fuzzy Q learner), `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `gate` (the gate
   machinery), `debug` (debug commands, scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `vfx-stamps`, `stage`,
   `cinema`, `glyphs`, `sounds`. Compile order:
   `duel/MANIFEST`.
@@ -169,8 +169,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - **CPU**: a `:core` kit: `core-ai.lisp` (fuzzy rules) + the in-game MCTS (`mcts-lite.lisp`, `cpu-mcts.lisp`: the light model, the full sim,
   DUEL_AI_MCTS), over `cpu-perceive.lisp` (the SNAP ring of the opponent seen BRAIN-DELAY steps late, the presses; the old AI v2,
   `docs/duel/DUEL_AI_V2.md`, left with the retired kits, R3); every chance scales by difficulty
-  EASY ≤ NORMAL ≤ HARD; roll once per event, never per step. Learning CPU `learn.lisp` (`DUEL_LEARNING.md`); ASSIST /
-  AUTO modes `assist.lisp` (`DUEL_ASSIST.md`).
+  EASY ≤ NORMAL ≤ HARD; roll once per event, never per step. The online fuzzy Q learner against a human `fq-online.lisp`
+  (DUEL_AI_STRATEGY §8.14; the old learner, `DUEL_LEARNING.md`, and ASSIST, `DUEL_ASSIST.md`, are on the branch `frozen-modes`).
 - **Performance rules** (engine-wide): GC only between frames; 0 B/frame for new draw paths; split heavy startup work into
   `:load` steps; `defun-fast` / f32vecs to avoid float boxing. Details: `docs/engine/ARCHITECTURE.md`.
 
@@ -218,12 +218,10 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/simlib.py`, `tools/simgate/prelude.lisp` | what every native-sim tool shares: simlib = paths, `build()`, `run_lisp(runner, cmds, env)`, `build_hash`, `gate_rows` / `ROW`, `pool` (every tool that runs `build/simgate/duel.fas` calls `build()` first); the prelude = the Lisp runners' start (`cl-user::sg-init`, `cl-user::sg-queue`); a new tool or runner uses them, never a copy |
 | `tools/strategy-eval.py`, `strategy-switch.py`, `strategy-matrix.py`, `combo-trial.py`, `teach-*.py`, `mc-*.py` (+ `tools/simgate/{strat-run,strat-desc,trial,teacher,contact,litefit}.lisp`) | research tools (dream-rsi, DUEL_AI_STRATEGY / DUEL_AI_TEACHER): strategy scoring, the counter-strategy switch test, the payoff matrix and admission test, combo trials, the offline teacher and its tables; frozen per search round, outputs cached in `build/strategy-eval-cache/` |
 | `tools/aieval.py` | one character's CPU score (strength / masher / signature) |
-| `tools/assistgate.py` | the ASSIST masher gate |
 | `tools/matchup-eval.py` (+ `tools/simgate/situ.lisp`, `run-situ.lisp`) | a matchup style CPU's score: strength + situation success rates x the NORMAL band (DUEL_MATCHUP_AI; Kenpachi vs Ichigo) |
 | `tools/simgate/snaptest.lisp` | the sim snapshot's pollution test: seeded gate matches straight and with a rollout every 40 ticks (snapshot, reseeded play, restore); the two outputs must be equal, but for the `duel mcfull` cost line's milliseconds (DUEL_AI_TEACHER §5; `digest FILE` for a per-tick hash to find a divergence) |
 | `tools/simgate/fulltest.lisp` | the in-game full-sim rollouts leave nothing behind: an extra rollout of each CPU job, the state hash line and every DUEL / ENGINE special variable compared before and after (DUEL_AI_MCTS §12; `FT_VS=1` with debug 2500-2503 for a human P1) |
 | `tools/simgate/contact.lisp`, `tools/mc-outcomes.py`, `tools/mc-fidelity.py` | the in-game MCTS (DUEL_AI_TEACHER §9): what a neutral contact is worth in real CPU matches (its outcome tables), and the light model against the full sim (`teacher.lisp` with `TEACH_LITE=N`) |
-| `tools/roguegate.py` | the DANGAI autopilot gate: per character clears / median steps, each reward's runs and clears (`--pick first\|random\|greedy`) |
 | `tools/toon_check.py` | pixel checks of the ink style rules |
 | `tools/glyph-bake.py`, `tools/pwa-icons.py`, `tools/pose-solve.py` | offline generators (glyph polygons, app icons, arm pose solving) |
 | `tools/sdf-bake.py` | the Lisp HUD's SDF text atlas from the tag forms of `duel/lisp/lhud-*.lisp` (`--fetch` the faces into build/font-cache/; writes duel/hud-font/; DUEL_LISP_HUD §9, §16; the charset test is `tests/duel-rules/lhud-charset.lisp`) |

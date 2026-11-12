@@ -8749,3 +8749,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 已知舊問題（非本批）：手機腳本在 debug 2700 的 `portrait-test 0` 於 `fighter-screen-box` 回傳空值時除以 NIL，改動前後相同。
 
 分工：Opus 子代理：R3；主對話 Opus 5.5：覆核（參數位置、SP 參數存留）、合併、重跑檢查。
+
+## 738. R4：凍結模式封存到 `frozen-modes` 分支、移出 main（2026-11-13）
+
+使用者：「按你建議的做」（§730 的開工決定；D2 是 2026-11-10 的「全部封存後移除 (Recommended)」）
+
+- 封存：分支 `frozen-modes` 指向 R4 之前的 77de43f8（已推上 GitHub）。D2 原寫「同一個分支」，但 `retired-kits` 停在 R2 之前、不在 main 的歷史上，所以另開一支；兩支合起來就是移除前的全部程式。
+- 移除：ENDLESS／DANGAI（endless、endless-rules、rogue、rogue-rules 含卡片、run-mods）、ASSIST、舊學習器 `learn.lisp`、`hisagi-ai.lisp`（舊 AI v2 的檜佐木反應函式，R3 後只剩 ASSIST 與主機測試會走到；其中唯一現役的刀尖光芒 `hs-tip-band` 原樣搬到 hisagi-draw.lisp）、`cpu-perceive.lisp` 的凍結段（353 → 147 行）、combat／fighter／flow／hisagi／ichigo／ken 的 run-mods 與魔王分支、凍結畫面（`hud-menu`、`hud-select`、`results-card`、`hud-text` 等）、roguegate.py／assistgate.py、測試 rogue／runmods／learn-test、除錯區段 80000–80999、84100–84999（84000 的重複登記一併解除）與 ASSIST 的 81000／81030／81040／81100。duel/ −3,703／+284 行。
+- 保留：設定裡的 LEARNING CPU／RESET LEARNING 驅動的是線上模糊 Q 學習，`ai-learn.lisp` 的那一段原樣改名為 `fq-online.lisp`（87 行）。SETTINGS 的 AUTO GUARD／COMBO／BREAK 留作隱藏列（頁面以列序存檔，刪掉會讓後面的設定錯位）。`*roster*`、存檔鍵不變。主對話決定：劍八始解的空 `:p` 掛鉤 KEN-P 保留（它讓始解跑動中仍可按 P 覺醒，行為不變）；以掛鉤的存在表達這件事不夠直接，留給 R11 的 defkit 掛鉤表改成明確的資料。200000 起的學習閘門改為單一配對的 CPU 對戰閘門（研究工具在用）。
+- 存檔：子代理把一份改動前寫的存檔（每個設定都不在預設值、含 ENDLESS／DANGAI 紀錄與舊學習器表）注入兩版：兩版讀到相同的設定列、打到 K.O. 寫出相同的 fq 表；唯一差別是新版不再改寫舊學習器的 `soulduel.learn.3`。
+- 證明（主對話在合併後的 main 重跑）：主機測試 3114 → 2960 全過（rogue −113、runmods −30、檜佐木淨 −11；learn-test 131 項整檔移除），其他五組全過，pkgcheck 乾淨，除錯區段 84 段 0 錯，建置，冒煙桌機與手機，G2 native 三組相同。子代理另做：瀏覽器 G2 相同、snaptest／fulltest 0 差異、35 支現役腳本紀錄相同、所有現役選單路徑的腳本兩版相同（桌機 93 行、手機 68 行）、美術比對閘門 53 張逐位元相同（閘門從 113 張變 109 張，ENDLESS 的 4 張離開）。index.wasm 10,563,019 → 10,264,814 B；啟動記憶體 74.8 MB 沒降。
+- 影響：檜佐木的 dream-rsi 研究腳本 `docs/research/hisagi-ai-drsi/splice-tests.py` 依賴已移除的測試段，只能在封存分支上跑。
+- 留給 R7：`tests/scripts/duel.py` 的 ENDLESS／DANGAI 段與 JSON、DUEL_GAMEPLAY 腳本表、手冊。留給 R10／R12：各角色沒人讀的 `:ai` 資料。
+
+分工：Opus 子代理：R4；主對話 Opus 5.5：覆核（學習器的分界、KEN-P、存檔）、合併、重跑檢查。
