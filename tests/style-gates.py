@@ -19,7 +19,8 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
                                                     channel diff and the differing pixels, a diff image in
                                                     build/style/looks/diff/ for any that differ, and the sim's
                                                     `duel hash` lines; PASS only when NEW matches BASE within the
-                                                    noise floor (0 on a quiet machine)
+                                                    noise floor (0, under load too, since run.mjs's clock waits
+                                                    for the GPU device: REFACTOR_2026-11 §10.2)
   python3 tests/style-gates.py duelstill DIST OUT [--flat]
                                                     the frozen duel still (dist/duelvfx scene 17): OUT.png, OUT-bg.png
                                                     (no fighters = the mask for tools/toon_check.py --bg), OUT-ink.png

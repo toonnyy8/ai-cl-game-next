@@ -231,7 +231,9 @@ Main evidence: `docs/style/STYLE_STORM_DESIGN.md` (SD), `docs/style/STYLE_STORM_
   waits for the GPU, script times are virtual, and the page is held while a screenshot is taken. **The same binary and
   script give byte-identical PNGs (noise floor 0 px).** Three causes of flaky stills were found and fixed: SDL skipping
   a frame whose swapchain texture was not ready (so the shot showed an older frame), headless focus loss pausing the
-  game, and a fixed debug port hitting a leftover Chrome.
+  game, and a fixed debug port hitting a leftover Chrome. A fourth (2026-11-12, REFACTOR_2026-11 §10.2): the clock advanced
+  while main.c waited for the page's GPU device (a wall-time race, 1-7 frames), shifting the whole game against the
+  script; the clock now starts with the first frame after the device exists. Check: every log says `gpu device at 0 ms`.
 - Scripts are JSON steps: `key`, `eval "Module._debug_cmd(N)"`, `shot`, `size`, touch (`--mobile --dpr 3`). It exits 1
   on JS exceptions **and on WebGPU validation errors or failed pipelines**, which makes it a WGSL smoke test for free.
 - **Debug commands encode scenes as integers** (debug.lisp): `10000+1000k+f` = cinematic k held at frame f with the

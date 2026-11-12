@@ -7,7 +7,8 @@
 // --fixed-dt MS: virtual clock (deterministic frames and frozen stills). performance.now / Date.now read a
 //   clock that advances exactly MS per animation frame; "at" and --secs are then VIRTUAL seconds: before each
 //   step the page is held at that time (no frame runs), the step is applied, then it resumes. The same binary
-//   and script give byte-identical screenshots; --timeout SEC (default 900) bounds the wall time.
+//   and script give byte-identical screenshots; --timeout SEC (default 900) bounds the wall time. The clock starts with the
+//   first frame after the page's GPU device exists (Module.preinitializedWebGPUDevice, engine/web/shell.html).
 // --mobile [--dpr N]: a phone: device pixel ratio N (default 3), mobile viewport, touch emulation ((pointer: coarse)),
 //   kept through "size" steps. Touch steps: {"at":1,"touch":"start","x":100,"y":700,"id":0} (CSS px; "move", "end",
 //   "cancel" likewise; several ids = several fingers) -> Input.dispatchTouchEvent (the page sees touch pointer events).
@@ -76,7 +77,10 @@ if (fixed) await send('Page.addScriptToEvaluateOnNewDocument', { source: `(() =>
   window.requestAnimationFrame = cb => raf(function tick(ts) {   // one step per browser frame, shared by every rAF user
     // a frame waits until the GPU finished the previous one: SDL skips drawing a frame whose swapchain
     // texture is not ready, and the canvas would then show an older frame than the state
-    if (ts !== last) { last = ts; held = busy || vt + DT > hold + 1e-6; if (held) idle += !busy; else vt += DT; }
+    // no frame runs (and the clock stays) until the page's GPU device exists: the device arrives after a wall-time race, and
+    // the frames main.c waited for it shifted the whole game against the script's virtual times (R0, REFACTOR_2026-11 §10.2)
+    const nodev = !(window.Module && Module.preinitializedWebGPUDevice);
+    if (ts !== last) { last = ts; held = nodev || busy || vt + DT > hold + 1e-6; if (held) idle += !busy && !nodev; else vt += DT; }
     if (held) { raf(tick); return; }
     cb(vt);
     const d = window.Module && Module.preinitializedWebGPUDevice;

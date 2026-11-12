@@ -487,6 +487,31 @@ So the two-BASE noise floor is unreliable (a third render can differ where two a
 floor 0" cannot be met today. G2 (`--cvc`, native and browser: II 32, IK 34, KK 33), host tests (10149 ALL PASS), pkgcheck and the
 smoke passed for the merged state; the main session reran them after the merge.
 
+**Found and fixed by R0 (2026-11-12, Opus 5.5).** The cause was the test driver's virtual clock, not the game. Under
+`run.mjs --fixed-dt` the clock advanced one DT per browser frame from the main loop's first frame, but main.c's first frames
+return at once while the page's GPU device is still pending (`engine/c/main.c:70`, `m_gpu_ready`; the device comes from
+shell.html's `requestAdapter` / `requestDevice` promise, a wall-time race with the wasm download). So startup (`pf_init`, the
+title) began 1-7 frames late in virtual time, a different number each run, and every scripted key, debug command and still
+landed that many frames off. The menu orbit, for one, is `(* 0.05 (elapsed-time))` (camera.lisp:322), seconds since `pf_init`.
+Evidence, on one build (6 serial-ish renders at `--jobs 3` of menus, cvc-kh, cine-ken): the still md5 classes followed the
+page's `load: gpu device at N ms` line (virtual) exactly: cvc-kh 17 ms gave one hash in all three runs that had 17, and 33,
+50 and 67 ms each their own; menus 17 / 50 / 117 ms three hashes; cine-ken 17 / 83 / 100 ms three; 22 of the 24 stills
+differed. §10.2's "80 / 20 %" was the device usually arriving on the same frame. The startup steps themselves are
+deterministic: the clock does not move inside a frame, so all 175 `%INIT-STEP`s run in the first frame ("wall 0 ms").
+
+The fix (tools/run.mjs, the fixed-dt rAF wrapper): no frame runs and the clock stays at 0 until `Module.preinitializedWebGPUDevice`
+exists, so startup always runs at virtual 16.67 ms; every log now reads `gpu device at 0 ms`. No game, engine or sim code
+changed (G2 identical, native and browser). After it, on the same build: the 3 scenarios x 6 renders, 24 of 24 stills identical;
+the whole looks set (15 scenarios, **113 stills**) x 3 at `--jobs 4`: 0 differ; again x 3 at `--jobs 6` with a `./build.sh duel`
+running beside it: 0 differ, and the two sets equal each other (six renders, one md5 per still). A rebuild of the same sources
+differs from the first in 8 bytes of index.wasm (same size, 12,773,467 B): two ECL module init tags
+(`_eclLwPWfIS6_G5kGyT81` / `..._XszLyT81`, `init_lib__ECLNE0OTKR6_...`), names only; `style-gates.py looks` BASE (the first build) vs that rebuild at `--jobs 4`: 113 of 113 bytes identical, noisy
+between the two BASE runs 0, every scenario exit 0, sim lines equal, 531 s wall (and both equal the six renders above: nine
+renders, one md5 per still). **Noise floor 0 again**; the still count stays 113 (15 scenarios). For R7: menus select-1 and
+select-4 are the same image (P1's cycle over the playable roster); cine-rukia, cine-senju, cine-barro, part of fx-b and endless
+still drive retired kits and frozen modes. Checks: G2 native and browser identical (II 39, IK 36, KK 28 lines), host tests
+10326 ALL PASS, pkgcheck clean, smoke PASS.
+
 ### 10.3 Next (after the pause; nothing is running)
 
 1. Find the rendering nondeterminism and restore a zero noise floor (a prerequisite for every "must not move a pixel" batch);
@@ -519,7 +544,8 @@ numbers are main 172e65a4.
   `tests/duel-rules/unit-names.lisp` now catches duplicate names: every "pure move" batch runs it.
 - Dead code found on 2026-11-12 (DUEL_SP §7): the DRIVE-full Bankai gate, pointer locks, arm pips; and the Reiatsu gauge's internals,
   which nothing in the core path spends.
-- The looks gate still cannot prove byte-identity (10.2), and after the Lisp HUD every still changed: the old BASE is void.
+- The looks gate still cannot prove byte-identity (10.2; fixed by R0 the same day), and after the Lisp HUD every still changed:
+  the old BASE is void.
 - **B1's held patch is stale** (two days of engine edits for the Lisp HUD: paint stream, SDF text, layout, tweens in engine/lisp). It is
   not rebased: B1 is redone from the list in 10.1 against the current exports (R9), and the old patch and worktree are discarded.
 
@@ -553,7 +579,7 @@ simgate's state-hash lines for those pairs unchanged; **unit-forms** = `tools/un
 
 | # | Batch (old name) | Scope | Proof | Size / risk | Model | When |
 |---|---|---|---|---|---|---|
-| **R0** | The looks gate's nondeterminism | Find why two renders of one build differ (10.2: the menu backdrop's two states, the cinematic stills, the w*-0 match stills; suspects: an unseeded cosmetic `rnd01` path, frame timing against `--fixed-dt`, startup `:load` step order); fix or pin it; then render a whole new BASE over the Lisp HUD and record the still count | three renders of one build byte-identical, twice; then BASE vs a rebuild of the same sources | unknown (timebox two sessions; if not found, the gate is redefined as "per-scenario stills identical in 3 of 3 same-session renders" and the doc says so) | **Opus** | at once, parallel to everything (it edits tests/style-gates.py and cosmetic paths only; a cosmetic fix merges between sim batches) |
+| **R0** | The looks gate's nondeterminism | Find why two renders of one build differ (10.2: the menu backdrop's two states, the cinematic stills, the w*-0 match stills; suspects: an unseeded cosmetic `rnd01` path, frame timing against `--fixed-dt`, startup `:load` step order); fix or pin it; then render a whole new BASE over the Lisp HUD and record the still count | three renders of one build byte-identical, twice; then BASE vs a rebuild of the same sources | unknown (timebox two sessions; if not found, the gate is redefined as "per-scenario stills identical in 3 of 3 same-session renders" and the doc says so) | **Opus** | at once, parallel to everything (it edits tests/style-gates.py and cosmetic paths only; a cosmetic fix merges between sim batches). **Done 2026-11-12** (10.2's last paragraph): the cause was run.mjs's virtual clock running while main.c waited for the GPU device; fixed in run.mjs alone; 113 stills, 0 differ in 3 + 3 renders (`--jobs` 4 and 6 under a build), noise floor 0; BASE vs a rebuild of the same sources 113 of 113 bytes identical |
 | **R1** | Dead core code (new) | `core-pips-ok-p`, `arm-spend!` and `:pips`; `core-pointer-locked-p`, `:locks` and the loop in `core-next-as`; `drive-full-p` and `bankai-allowed-p`'s DRIVE argument with `kit-bankai-form`'s dead callers (fighter.lisp:493, combat.lisp:906, onehand.lisp:212, ai.lisp:789); first a grep that no live kit's data carries `:pips` / `:locks` and that no live path reaches the gate. **Not assumed dead**: the arm meter itself (`kit-pips`, `gauges-meter`, `gauges-arm-pending`, the plate's UDE) is still printed in the hash line (gate.lisp:20) and may be live on Kenpachi; R1 removes only the per-move `:pips` price unless the grep shows the whole meter is unreachable, and then reports before cutting | fast, G2 (a hash-line column that leaves: compared with it stripped, as R6), snaptest / fulltest | ~120 lines, low | Sonnet | first; before S2 (`core-start!` is rebuilt there) |
 
 **R1 done on branch** (2026-11-12): removed `core-pips-ok-p`, `arm-spend!` (and its two callers in fighter.lisp / core-sim.lisp), `core-pointer-locked-p` and the loop in `core-next-as`, `drive-full-p` and `bankai-allowed-p`'s second argument (callers in fighter, combat, onehand, ai; three tests adjusted); `core-start!` is now `start-move` + T, `core-sp-start!` lost its refuse branch, webhud slot 24 (the seals bitmask) is a constant 0. Grep findings: no kit anywhere (live or retired) carries `:pips`, `:locks`, or a non-nil `:bankai-form` (ken.lisp:312 is `nil`), so `kit-pips` and `kit-bankai-form` are always NIL. **The arm (pip) meter is therefore dead**; `gauges-meter` itself is live, but as the kit-meter's storage (Kenpachi's KAIHO level, ken.lisp:205, raised by KEN-HIT; Ichigo's BUNSHIN tag, ichigo.lisp:379), not as pips. Left in place: `bankai!`'s pip fill, `refresh-look`'s cracks, ai.lisp:466/1151/1162, fighter.lisp:473/896/903, webhud.lisp:126, ken-meter.lisp, `kit-pip-cmd-p`, `gauges-arm-owed` / `-arm-pending`, the hash line's `kit-pips` test (untouched); candidates for a follow-up cut together with `bankai!` / `:bankai-form` / `:bankai-ok` and the HUD seal slot.
