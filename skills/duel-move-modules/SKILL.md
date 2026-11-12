@@ -23,7 +23,9 @@ change after a playtest: `duel-character-rework`; the CPU: `duel-character-cpu`;
 | SA | J in an NS gap (after the segment's active frames) | one, then the J string goes on (`SA :q J2`) | a segment may name its own SA (`:params :sa`) |
 
 The triangle judges a hit only while the defender is in a classed move's startup or active frames; a hazard (a wave) is never judged.
-A cancel is a mutual no-damage bounce with a slow motion. **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
+A cancel is a mutual no-damage bounce with a slow motion, and it is symmetric: both fighters' moves count as landed (links, AS, SP /
+Hoho cancels open for both; the side still in its startup only from its own first hit frame; DUEL_CORE §2.1, the user 2026-11-12:
+「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」). **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
 2026-10-28, DUEL_CORE §5b).
 
 ## ⚠ Restate before building (a segment table, then AskUserQuestion)

@@ -266,6 +266,12 @@ circle (0 when it is already on or outside it): the arena's room for a push (PUS
   (let* ((b (+ (* x ux) (* z uz))) (c (- (+ (* x x) (* z z)) (* r r))) (disc (- (* b b) c)))
     (if (or (>= c 0) (< disc 0)) 0.0 (max 0.0 (+ (- b) (sqrt disc))))))
 
+(defun first-land-p (contact hits)
+  "Is a real hit of a move its first (its :on-land runs, combat.lisp APPLY-HIT)? The move's CONTACT so far is not :hit, or it is :hit
+only from a cancel he was the other side of, so no window of his own touched (HITS, the move's window bits, 0; a cancel is symmetric,
+DUEL_CORE §2.1). A cancel of his own hit sets that window's bit: a later window's hit is not the first (as before 2026-11-12)."
+  (or (not (eq contact :hit)) (zerop hits)))
+
 (defun cancel-open-p (sf hit-frame total landed)
   "On-hit cancel window (SP1 / SP2 / Hoho / a :cancel L from any J / K link, the O ender from a link-3 hit): the move
 LANDED, from its first hit frame HIT-FRAME until its recovery ends (TOTAL)."

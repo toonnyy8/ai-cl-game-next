@@ -11,7 +11,8 @@
 
 (defun core-verdict (att def &key simul att-t def-t)
   "What the hit of a move of class ATT does to a defender who is inside the startup or active frames of a move of class DEF
-(the note's table, 判定表): :HIT it lands; :CANCEL no damage, both go on (the attacker's chain opens as if it hit); :ABSORB
+(the note's table, 判定表): :HIT it lands; :CANCEL no damage, both go on (both moves count as landed:
+their chains open, DUEL_CORE §2.1); :ABSORB
 the defender's super armour takes it (nothing happens, the defender goes on). SIMUL: the defender's own hit lands in the
 same step: same-class ties cancel (「先打到的贏，如果同時打中就相消」). ATT-T / DEF-T: the frames the two moves started on
 (AS against SA: the later start wins, the same frame cancels). A DEF of NIL (not in a classed move) is a clean hit."
@@ -29,6 +30,14 @@ same frame (or an unknown start) cancels."
   (cond ((or (null att-t) (null def-t) (= att-t def-t)) :cancel)
         ((> att-t def-t) :hit)
         (t :absorb)))
+
+
+(defun core-cancel-land-sf (land-sf sf first-hit)
+  "A fighter's FIGHTER-LAND-SF (his cancel windows open from it, CANCEL-OPEN-P) after a cross-class cancel he took part in, either side
+(DUEL_CORE §2.1): one already set (>= 0) is kept; else his move frame SF, but not before his move's first hit frame FIRST-HIT (MV-FIRST-HIT:
+S for a move with no hit window). The side whose hit was judged is on that hit's frame (SF); the other is often still in his startup,
+and a real hit never opens his AS / SP / Hoho / guard cancels before his own hit frame, so neither does a cancel."
+  (if (>= land-sf 0) land-sf (max sf first-hit)))
 
 
 ;;; ---------------------------------------------------------------- the sequence (what a press means)

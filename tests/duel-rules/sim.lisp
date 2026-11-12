@@ -199,3 +199,35 @@
            (check (and (not cancelled) (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb)))))   ; (no attack: he reels on)
       (setf (fdefinition 'vpad-command-pressed-p) og (fdefinition 'vpad-consume!) ov
             (fdefinition 'core-kikon-cancel!) ok (fdefinition 'play-clip) oc))))
+
+;; 2026-11-12 (the user: 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」, DUEL_CORE §2.1): CORE-NOHIT!'s :cancel counts as landed for both
+;; fighters. Kenpachi's NS1 hit, judged, lands on Hisagi in his ranged J1's startup (his dead zone: J1 has no hit of its own); both get
+;; contact :hit, Kenpachi's land frame his hit frame, Hisagi's his J1's first hit frame (not before); a defender out of his classed
+;; window gets nothing; a same-class tie sets both before the bounce
+(multiple-value-bind (a b) (t-pair (kit :kenpachi :base) (kit :hisagi :bankai))
+  (let* ((fa (fighter a)) (fb (fighter b)) (bounced nil) (names '(pos-of hitstop slowmo core-clash! core-bounce!))
+         (old (mapcar (lambda (n) (and (fboundp n) (fdefinition n))) names))
+         (ns (kit-core-move (kit :kenpachi :base) :ns 1)) (j1 (kit-move (kit :hisagi :bankai) :hs-r-j1))
+         (kj1 (kit-command-move (kit :kenpachi :base) :q)))
+    (setf (fdefinition 'pos-of) (lambda (e) (declare (ignore e)) (make-array 3 :initial-element 0f0))
+          (fdefinition 'hitstop) (lambda (&rest r) (declare (ignore r)) nil)
+          (fdefinition 'slowmo) (lambda (&rest r) (declare (ignore r)) nil)
+          (fdefinition 'core-clash!) (lambda (&rest r) (declare (ignore r)) nil)
+          (fdefinition 'core-bounce!) (lambda (x y) (setf bounced (list (fighter-contact (fighter x)) (fighter-contact (fighter y))))))
+    (unwind-protect
+         (flet ((in (f mv cls sf) (setf (fighter-state f) :move (fighter-phase f) :main (fighter-move f) mv (fighter-cls f) cls
+                                        (fighter-sf f) sf (fighter-contact f) nil (fighter-land-sf f) -1))
+                (cancel () (core-nohit! (make-pending :att a :def b :mv (fighter-move fa)) :cancel)))
+           (in fa ns :ns (mv-first-hit ns)) (in fb j1 :na 5)
+           (cancel)
+           (check (and (eq (fighter-contact fa) :hit) (= (fighter-land-sf fa) (mv-first-hit ns))))
+           (check (and (eq (fighter-contact fb) :hit) (= (fighter-land-sf fb) (mv-first-hit j1)) (> (mv-first-hit j1) 5)))
+           (check (null bounced))                                                  ; (cross-class: both go on)
+           (in fa ns :ns (mv-first-hit ns)) (in fb j1 :na (+ (mv-s j1) (mv-a j1)))   ; (he is in his recovery: no cancel for him)
+           (cancel)
+           (check (and (eq (fighter-contact fa) :hit) (null (fighter-contact fb)) (= (fighter-land-sf fb) -1)))
+           (setf (fighter-kit fb) (kit :kenpachi :base))                            ; a same-class tie (J1 x J1): both landed, then the bounce
+           (in fa kj1 :na (mv-first-hit kj1)) (in fb kj1 :na (mv-first-hit kj1))
+           (cancel)
+           (check (equal bounced '(:hit :hit))))
+      (loop for n in names for f in old do (if f (setf (fdefinition n) f) (fmakunbound n))))))

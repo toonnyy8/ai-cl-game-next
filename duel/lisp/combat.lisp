@@ -421,7 +421,7 @@ result (NIL = no effect)."
           (progn (setf res :kikon)
                  (unless (find def *kikons* :key #'second) (push (list att def mv) *kikons*)))))
     (when res
-      (let ((first (and own (not (eq (fighter-contact fa) :hit)) (eq (contact-of res) :hit))))   ; its first real hit
+      (let ((first (and own (eq (contact-of res) :hit) (first-land-p (fighter-contact fa) (fighter-hits fa)))))   ; its first real hit
         (when own                                       ; only a real hit counts as one (CONTACT-OF)
           (setf (fighter-contact fa) (if (eq (contact-of res) :hit) :hit (or (fighter-contact fa) :block)))
           (when (< (fighter-land-sf fa) 0) (setf (fighter-land-sf fa) (fighter-sf fa))))

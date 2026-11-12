@@ -53,7 +53,9 @@ Table (note's table, unchanged except where marked):
   note's open item "two turn moves on the same frame" is void.
 - Turn moves carry **super armor from move frame 6 to the end of their own startup** (the existing `:armor-hits` window): 「可以」.
 - "Later start" = the move whose startup began on the later frame; the same frame cancels. 「可以」.
-- A **cancel** (note rule 1) is a mutual no-damage bounce; the attacker's chain opens as if the hit landed ("treated as a hit").
+- A **cancel** (note rule 1) is a mutual no-damage bounce, and it is symmetric: both fighters' classed moves count as landed, their
+  links, AS and SP / Hoho cancels open, the side still in its startup only from its own first hit frame (§2.1, the user 2026-11-12:
+  「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」; before: only the attacker's chain opened, "treated as a hit").
   A same-class same-frame tie cancels to neutral (no continuation).
 
 ### Defaults I chose where the note is silent
@@ -68,6 +70,76 @@ Table (note's table, unchanged except where marked):
    AS landing = **hard knockdown**; the attacker gets the initiative at the wake-up (「可以」).
 6. The pointer is per fighter, starts at 1 each match, survives Kikon / Soul Break resets, shows 1-2-3 on the HUD.
 7. A Soul Break uses the attacker's **current** pointer's profile (the one that struck).
+
+### 2.1 A cancel is symmetric (the user, 2026-11-12)
+
+Question: 「為什麼檜佐木遠距 J1 相消後接不了 J2 與 AS？」. Ruling: 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」.
+
+This supersedes rule 1 of the user's own note (docs/duel/DUEL_CORE_DOC.zh-TW.md, kept verbatim: 「攻擊方視同命中，可以接下一下」): both sides now
+count as landed.
+
+**Cause.** `core-nohit!` (core-sim.lisp) set contact `:hit` and the land frame only for the fighter whose hit the step's pending hit
+belonged to. In PRACTICE with GUARD ALL at 2.2 m, Hisagi's ranged J1 has no hit of its own (its 3 m dead zone); the dummy's NS hit lands
+on him in J1 and is the one judged (`P2 KE-Z-N1A x P1: CANCEL`), so his contact stayed NIL and J2 (`chain-open-p`) and the AS
+(`core-move-sp!`: contact `:hit` + `cancel-open-p`) never started, while KIN turned on (the `:clash` hook runs for both). At 4.5 m his J1
+is the one judged (`P1 HS-R-J1 x P2: CANCEL`) and both started.
+
+**The rule.** A cross-class cancel counts as landed for both fighters: the side whose hit was judged and the side in whose classed window
+it was. Each gets contact `:hit` and a land frame from the pure `core-cancel-land-sf` (core.lisp): one already set is kept; else his move
+frame, but not before his move's first hit frame (`mv-first-hit`, S for a move without a hit window). The judged side is on its hit frame,
+as before; the other is often still in his startup, and a real hit never opens his AS / SP / Hoho / guard cancels or ORANGE out of a
+startup, so neither does a cancel (the mirror, not a copy). J links need nothing more: `chain-open-p` with `:hit` waits for the end of the
+active frames. The other side gets it only while he is still in a classed move's startup / active frames when the verdict is applied
+(`core-window-class`, re-read: an earlier hit of the same step may have moved him). A same-class tie sets both before `core-bounce!`;
+`to-idle` keeps contact / land frame (as it always did for the judged side), but every sim reader is gated on a move in progress and
+`start-move` clears both, so nothing stale reaches the next move (the stale value is read only by Hisagi's chain drawing). `:absorb`
+and the AS / SA later-start rule are not cancels: unchanged. One build-unit change besides: `apply-hit`'s "first real hit" (its
+`:on-land`: WA / TATAKI / J3 pushes, the bind hooks) is now the pure `first-land-p` (rules.lisp): contact not `:hit`, or `:hit` with no
+window of his own touched (window bits 0), so the other side's later real hit still runs its `:on-land`; after a cancel of his own hit
+(that window's bit set) a later window's is not the first, as before. Host tests: 10310 (5 + 4 in triangle.lisp: the land frame, every
+move's windows in order so the judged side's value is unchanged, `first-land-p`; 5 in sim.lisp: both sides after a cross-class cancel,
+the other side out of his window gets nothing, a same-class tie sets both before the bounce).
+
+**Audit** (every reader of `fighter-contact` / `fighter-land-sf` and of "the attacker of a cancel"):
+
+| Reader | Verdict |
+|---|---|
+| J links (`chain-open-p` in `move-commands`) | now also for the other side, intended (from the end of its active frames) |
+| `core-move-sp!` NA / SA → AS | now also for the other side, intended (from its first hit frame) |
+| `cancel-into` (SP / Hoho / `:cancel` L), the O ender, the Breaker's J1 / K1 (`cancel-open-p`) | now also, from its first hit frame; Hoho's combo resume (`start-hoho`, §8) too |
+| `guard-cancel-open-p`, `move-end-frame` / `recovery-pace` | now also: his move ends after R, not its whiff recovery (Hisagi's dead-zone J1 at 2.2 m: KIN off 95 → 115-138 because J2 / the AS follow); a core kit never guards, so the guard cancel stays unread |
+| ORANGE (`burst-mode-of`: `cancel-open-p`) | now also, from its first hit frame (never out of a startup) |
+| `string-opener-p` dash-in, `ender-push`, `combo-hits` / damage scaling, KOSEI, the Kikon counts, `core-on-hit!` | unchanged: only a real hit (`apply-hit`) touches them; a cancel is no hit |
+| `:on-land` (`apply-hit`'s first real hit) | changed to `first-land-p`, so the other side keeps it (see above); the judged side as before |
+| `start-move`'s off-ender chase (contact `:hit` on an `:ender` J / K: the next move chases) | now also for the other side, as for the judged side |
+| the guard lock (`chain-more-p`, `guard-lock-of`) | unread: a core kit never guards |
+| Kenpachi's SP2 `ke-charge` dash (`(null (fighter-contact f))`), `ken-flurry` | unchanged: a move without a class is never in a classed window, so never a cancel's other side (and :sp2 is not bound in the core system) |
+| `kikon-lock-p` (the rusher's contact) | unchanged in practice: only a Kikon follow-up holds the lock, and its victim cannot start a classed move under it |
+| `core-clash!` / kit `:clash` hooks (Hisagi's KIN `hs-clash`, the bind's Reishi `hs-bind-clash`), `core-kikon-cancel!`, `core-bounce!` | unchanged: already both sides |
+| the CANCEL log line | unchanged: it names whose hit was judged (a fact of the step, not a side of the rule) |
+| `dummy-starts` (flow.lisp, GUARD ALL) | now also: the dummy's NA / SA link opens after a cancel of its J1 by the player's hit (§9) |
+| core-ai `cai-move-step` (NA / SA → AS or the next J; NS / AS going on: the fuzzy `:hit` input) | now also for the CPU on the other side, intended; no chance, threshold, table or strategy retuned |
+| cpu-hisagi-range (WA / TABA routes, `hr-home`), cpu-ki-ken, cpu-ki-ichigo route reads | now also, intended, untuned |
+| mcts-lite's light model (`(:cancel 0)`), cpu-mcts | unchanged: a cancel ends the rollout at 0 for both sides, already symmetric |
+| webhud's AS cue, scripted.lisp `:on :hit`, ichigo.lisp's pacing counter | now also count the other side's cancel as landed (cue / test / stats) |
+| ai.lisp, hisagi-ai.lisp, assist.lisp `(= sf land-sf)` hit-step reads | unchanged: the old CPU / ASSIST, never run for a `:core` kit (`brain-step` hands a core kit to `core-brain-step`) |
+| Hisagi's draw (`hs-kb-lk!`, chain wraps) | presentation: a cancel's other side now draws as touched |
+
+**Scenes** (debug 83811-83814, `tests/scripts/duel-hisagi-j1-cancel.json`: Hisagi's ranged J1, then J or SP 0.2 / 0.35 / 0.5 / 0.7 s
+later, PRACTICE vs Kenpachi; ticks from the scene command, J1 starts at 18 in a page's first scene and 19 after):
+
+| Scene | Before | After |
+|---|---|---|
+| 2.2 m GUARD ALL, J1 then J | `P2 KE-Z-N1A x P1: CANCEL` 34-35, KIN on, no J2 at any offset, KIN off 95-96 | the same CANCEL 34-35, `P1 move HS-R-J2` 42 / 43 / 53 / 63; the dummy's NS1b answers it (`P1 HS-R-J2 x P2: CANCEL` 77-82), at +0.2 / +0.35 its NS1b then lands (`HIT 55`); KIN off 115-138 |
+| 2.2 m GUARD ALL, J1 then SP | CANCEL 34-35, no AS, KIN off 95-96 | CANCEL 35, `P1 move HS-R-AS1` 43 / 43 / 53 / 63, `HS-R-AS1 -> P2 HIT 43` 83-87 (KIN: inside the 3 m dead zone at d 1.09), KIN off 130-134 |
+| 4.5 m GUARD ALL, J1 then J / SP | `P1 HS-R-J1 x P2: CANCEL` 32 / 33, J2 50 / 51 / 51 / 61, AS1 40 / 46 / 51 / 66 | identical (relative to J1's start) |
+| 2.2 m STAND | no contact, no J2 / AS (SP at +0.7: a fresh NS1a, `HIT 26`) | identical |
+| 4.5 m STAND | J1 `HIT 19` 32-33, J2 39-61, AS1 37-63 | identical |
+
+**G2** (`tests/style-cvc-ref.txt`): with the other side's half switched off (a temporary special, removed) the native `--cvc` matched the
+reference line for line (II 33, IK 35, KK 26); on, regenerated (native = browser): II 33 → 40 lines (P1 6-0 329.6 s → P2 1-2 397.9 s),
+IK 35 → 33 (P2 0-2 351.9 s → P2 0-5 330.5 s), KK 26 → 28 (P1 3-0 261.5 s → P2 0-5 275.4 s). snaptest / fulltest on G2's IK clean. No
+balance gates.
 
 ## 3. The SP pointer
 
@@ -418,3 +490,8 @@ GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: �
   player's hits (native = browser): J1 1/1 in all six pairs (KK KI IK IH HK HI); the five J 5/5 (HK 4/5); NS x3 3/3 (Hisagi's NS1a whiffs
   in its dead zone, cancelled by the dummy's J1, then 2/2); NS then SA 1/2 (0/1 for Hisagi); J then AS 1/2 (Hisagi's four-hit AS1: 1/5);
   the dummy's own hit landed on the player 4 times in 30 scenes, all after a lone J1 (KK, KI, IH, HI). Idle 3 s: no press. G2 identical.
+- **After the symmetric cancel** (§2.1, 2026-11-12): the dummy's move counts as landed when the player's hit is the one cancelled too, so
+  its J link / AS / SP cancels open (`dummy-starts` offers the next J at once). Rerun of `duel-practice-cancel.json` (no before log per
+  scene, only the counts above): every count above unchanged, all six pairs and scenes g-k (39 scenes; the wave lands, 6 m: no answer, STAND / GUARD AFTER HIT / CPU / COUNTER as before) (after a lone J1 the dummy's NS still
+  goes on and lands, `KE-Z-N1A -> P1 HIT 65` in KK; the SA after the player's NS still lands, NA cannot cancel an SA; idle 3 s: no press). The dummy presses only to cancel, so it
+  never uses the AS that now opens for it.

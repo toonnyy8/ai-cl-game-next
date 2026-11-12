@@ -24,6 +24,28 @@
 ;; a gap insert: the attacker's AS against the defender's NA cancels, against his NS wins; SA the other way round
 (check (and (eq (core-verdict :as :na) :cancel) (eq (core-verdict :as :ns) :hit)
             (eq (core-verdict :sa :na) :hit) (eq (core-verdict :sa :ns) :cancel)))
+;; a cancel is symmetric (DUEL_CORE §2.1, the user 2026-11-12: 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」): each side's land frame
+;; after it (CORE-CANCEL-LAND-SF land-sf sf first-hit): the judged side on its hit frame; the other in its startup waits for its own first hit
+;; frame (no AS / SP / Hoho cancel out of a startup); in its active frames it is now; one already set is kept
+(check (= (core-cancel-land-sf -1 14 14) 14))                     ; (the judged hit: on its frame)
+(check (= (core-cancel-land-sf -1 6 14) 14))                      ; (the other side in its startup: its first hit frame)
+(check (= (core-cancel-land-sf -1 16 14) 16))                     ; (in its active frames: now)
+(check (= (core-cancel-land-sf 9 20 14) 9))                       ; (an earlier hit or cancel of the move: kept)
+(check (= (core-cancel-land-sf -1 0 22) 22))                      ; (no hit window: MV-FIRST-HIT is its startup S)
+;; ... and the judged side's value is still its frame: every move's hit windows open in order, so a window active now opens at or after
+;; MV-FIRST-HIT (window 0)
+(check (loop for alist being the hash-values of *kits*
+             always (loop for (nil . k) in alist
+                          always (loop for mv being the hash-values of (kit-moves k)
+                                       always (let ((w (mv-hits mv)))
+                                                (loop for i from 1 below (length w)
+                                                      always (>= (hw-from (svref w i)) (hw-from (svref w 0)))))))))
+;; ... and a real hit after a cancel he was the other side of is still his move's first (its :on-land runs: WA's / TATAKI's push, the
+;; bind hooks); after a cancel of his own hit (that window's bit set) a later window's is not, as before
+(check (first-land-p nil 0))
+(check (first-land-p :block 1))
+(check (first-land-p :hit 0))                                     ; (contact :hit from the other side of a cancel: no bit)
+(check (not (first-land-p :hit 1)))                               ; (a real hit, or his own cancelled hit, on window 0)
 ;; the pointer
 (check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)

@@ -196,15 +196,21 @@ triangle, so the parry catches it (COMBAT :parried)."
                       :hit))))
 
 (defun core-nohit! (h verdict)
-  "Apply a :cancel or :absorb verdict of pending hit H: no damage. A cancel counts as a hit for the attacker (his chain, cancels
-and AS open: 「視同命中」); a same-class tie also ends both moves and bounces the fighters apart; an absorb is a block for him."
+  "Apply a :cancel or :absorb verdict of pending hit H: no damage. A cancel counts as landed for both fighters, the one whose hit
+was judged and the one in whose classed window it was (the user, 2026-11-12: 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」,
+DUEL_CORE §2.1): each one's chain, cancels and AS open (contact :hit, CORE-CANCEL-LAND-SF), the other side only while he is still in
+a classed move's startup / active frames; a same-class tie also ends both moves and bounces the fighters apart; an absorb is a block
+for the attacker."
   (let* ((att (pending-att h)) (def (pending-def h)) (fa (fighter att)) (fd (fighter def))
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
       (ecase verdict
         (:cancel
-         (setf (fighter-contact fa) :hit)
-         (when (< (fighter-land-sf fa) 0) (setf (fighter-land-sf fa) (fighter-sf fa)))
+         (flet ((landed! (f)
+                  (setf (fighter-contact f) :hit
+                        (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))))
+           (landed! fa)
+           (when (core-window-class fd) (landed! fd)))   ; (re-read: an earlier hit this step may have moved him)
          (hitstop *hitstop-block*)
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)

@@ -1025,3 +1025,23 @@ def hisagi_ns2_script():
         t += 3.8
     return sorted(ev, key=lambda x: x["at"])
 write("hisagi-ns2", hisagi_ns2_script())
+# A cancel is symmetric (DUEL_CORE §2.1, the user 2026-11-12: 「為什麼檜佐木遠距 J1 相消後接不了 J2 與 AS？」, then 「相消不該有所謂的攻擊方與
+# 受擊方，是一個平等的狀態」; --fixed-dt 16.666667 --secs 130): Hisagi's ranged J1, then J (J2) or SP (the AS) 0.2 / 0.35 / 0.5 / 0.7 s
+# after it, in PRACTICE vs Kenpachi at 2.2 / 4.5 m against GUARD ALL (83811 / 83812) and STAND (83813 / 83814). Read the combat log's
+# `CANCEL` / `HIT` lines, the J2 / AS start lines and `KIN on / off` per `===` scene.
+def hisagi_j1_cancel_script():
+    ev = []
+    t = T0
+    for c, dist, dummy in ((83811, 2.2, "GUARD ALL"), (83812, 4.5, "GUARD ALL"), (83813, 2.2, "STAND"), (83814, 4.5, "STAND")):
+        for second in ("J", "SP"):
+            for off in (0.2, 0.35, 0.5, 0.7):
+                ev.append({"at": round(t, 2), "eval": f"console.log('=== {dist} m {dummy} J1 then {second} +{off}')"})
+                ev.append(cmd(t, c))
+                ev.extend(tap(t + 0.3, "KeyJ", 0.05))
+                a = t + 0.3 + off
+                if second == "J": ev.extend(tap(a, "KeyJ", 0.05))
+                else: ev.append(key(a, "ShiftLeft")); ev.extend(tap(a + 0.01, "KeyJ", 0.05)); ev.append(key(a + 0.09, "ShiftLeft", False))
+                t += 3.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("hisagi-j1-cancel", hisagi_j1_cancel_script())

@@ -1539,10 +1539,20 @@ cancel's unlock (the comment above); any other k the probe line only."
   (set-form e :bankai)
   (to-idle e 0))
 
+(defun hs-j1-cancel-scene (k)
+  "Debug 83811-83814 (DUEL_CORE §2.1, the user 2026-11-12: 「為什麼檜佐木遠距 J1 相消後接不了 J2 與 AS？」): PRACTICE vs Kenpachi, P1 in the
+ranged mode, idle; K 0 / 1 the dummy on GUARD ALL 2.2 / 4.5 m apart, 2 / 3 on STAND 2.2 / 4.5 m (the script presses J1, then J or SP)."
+  (setf *picks* (list :hisagi :kenpachi) *mode* :practice *match-seed* 1 *probe* nil *dummy* (if (>= k 2) :stand :guard-all))
+  (let ((*skip-cines* t)) (start-match))
+  (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
+  (practice-dummy!)
+  (place *p1* *p2* (if (evenp k) 2.2 4.5))
+  (hs-reset *p1*) (full-gauges! *p1*) (full-gauges! *p2*) (hs-awaken-now! *p1*))
+
 (defun hisagi-debug (c)
   "His debug commands (debug.lisp *CHAR-DEBUG*, 83000-83999, docs/duel/DUEL_GAMEPLAY.md): 83000+k HISAGI-TEST k; 83100+k /
-83200+k the Shikai's damage dealt / taken x (0.5 + k / 100); 83300+k / 83400+k the ranged mode's (B2b); 83900 the probe
-lines."
+83200+k the Shikai's damage dealt / taken x (0.5 + k / 100); 83300+k / 83400+k the ranged mode's (B2b); 83811-83814
+HS-J1-CANCEL-SCENE; 83900 the probe lines."
   (cond ((< c 83100) (hisagi-test (- c 83000)))
         ((< c 83200) (setf (kit-mult (find-kit :hisagi :base)) (+ 0.5 (/ (- c 83100) 100.0))))
         ((< c 83300) (setf (kit-taken (find-kit :hisagi :base)) (+ 0.5 (/ (- c 83200) 100.0))))
@@ -1558,6 +1568,7 @@ lines."
          (setf (fighter-ptr (fighter *p1*)) 1)
          (hisagi-probe-line (format nil "switch ~d" c)))
         ((< c 83811) (hisagi-range-scene (- c 83800)))   ; (the ranged mode's distance control, cpu-hisagi-range.lisp; DUEL_AI_STRATEGY §8.16, §8.19)
+        ((< c 83815) (hs-j1-cancel-scene (- c 83811)))   ; (a cancel is symmetric: DUEL_CORE §2.1)
         ((= c 83900) (hisagi-probe-line "probe"))
         (t (log-msg "duel hisagi: no debug command ~d" c))))
 (pushnew '(83000 83999 hisagi-debug) *char-debug* :test #'equal)
