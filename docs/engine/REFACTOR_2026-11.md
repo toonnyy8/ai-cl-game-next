@@ -501,3 +501,108 @@ smoke passed for the merged state; the main session reran them after the merge.
    DEVLOG §709): how much of `duel/` uses the engine's ECS today (components.lisp and the kits' DEFCOMPONENTs against the state
    kept in specials and per-fighter structs), where state hides in specials, which logic could be pure and host-tested; fold the
    result into the batches.
+
+## 11. Re-plan, 2026-11-12
+
+The user (2026-11-12): 「規劃實作的同時也幫我重新安排之前為完成的程式優化與整合」: the SP design (docs/duel/DUEL_SP.md, its plan §8, batches
+S0-S9) is to be built, and what this round left is re-sequenced around it. A plan by the Fable advisor; nothing here is built. Line
+numbers are main 172e65a4.
+
+### 11.1 What changed since the pause
+
+- **D4 is done** and the HTML UI is gone (DUEL_LISP_HUD §16): `duel/web/` holds only head.html, pwa.js, sw.js, manual.html and the
+  icons. **B6 shrinks** to sw.js's `FILES` written by build.sh and one command decoder for webui.lisp / webhud.lisp (114 + 265 lines);
+  B7's E7 (the page-put helper for B6's JS) is dropped.
+- DUEL_LISP_HUD §16.6 lists the canvas pieces that stayed only for the frozen modes and the retired kits: they leave with D2 / D1 in the
+  same cuts (R4 / R5 below), not as a batch of their own.
+- The sim's shared paths moved (the symmetric cancel DUEL_CORE §2.1, the steal §2.2, GUARD ALL §9, Hisagi §29-§30) and
+  `tests/duel-rules/unit-names.lisp` now catches duplicate names: every "pure move" batch runs it.
+- Dead code found on 2026-11-12 (DUEL_SP §7): the DRIVE-full Bankai gate, pointer locks, arm pips; and the Reiatsu gauge's internals,
+  which nothing in the core path spends.
+- The looks gate still cannot prove byte-identity (10.2), and after the Lisp HUD every still changed: the old BASE is void.
+- **B1's held patch is stale** (two days of engine edits for the Lisp HUD: paint stream, SDF text, layout, tweens in engine/lisp). It is
+  not rebased: B1 is redone from the list in 10.1 against the current exports (R9), and the old patch and worktree are discarded.
+
+### 11.2 The ordering argument
+
+SP rewrites the shared gauge and hit paths: `rules.lisp` (`fs-regen`, `burst-allowed-p`, `hit-gains`, `kosei-gain`), `combat.lisp`
+(`pay-gauges`, `gain-gauges`, `kosei!`, `apply-hit`, `burst-*`, `gauge-system`), `fighter.lisp` (`spend-fs`, `start-hoho`) and
+`core-sim.lisp`. The same functions carry what D1 / D2 remove: the Reiatsu half of every gain (`reiatsu-gain!`, `pay-gauges`' R, the bind
+pool combat.lisp:76-89), 16 `*run-mods*` sites in combat.lisp and 6 in fighter.lisp, `rmod-x :fs-regen / :hoho-cost`, the old AI's
+readers of `*fs-burst*` / `*fs-hoho*` (ai.lisp, ai-learn.lisp, scripted.lisp), and ~500 host checks of the retired kits that pin the old
+gauge rules. So:
+
+- **Before SP (it shrinks SP's surface, and its proof is cleaner without a sim change in flight)**: the dead core code (R1), the retired
+  kits (R2, R3), the frozen modes (R4), the Reiatsu internals (R6). All are proven by **G2 identical + host tests + the state-hash
+  lines**, none needs the looks gate. With them gone no SP rule needs a `core-kit-p` branch and S3 edits a `pay-gauges` with one gauge.
+- **In parallel with SP (disjoint files)**: the looks nondeterminism hunt (R0), the presentation cut (R5), the gates / scripts / docs
+  re-pin (R7), the stills (R8), the ECS + FP audit (R10, read-only), S0 itself during the removals.
+- **After SP (same files as SP, or worth doing only on the settled code)**: the kit plug-in consistency + the debug registry (R11), the
+  CPU file boundaries (R12), the engine moves (R13), the small bridge (R14), the audit's findings (R15), wave 4.
+- **Cut line if the user wants the SP playtest sooner**: R4 and R6 may move to after S5. The price: S1-S3 edit around the 22 run-mods
+  sites and the Reiatsu argument, S1 needs the frozen CPU readers left compiling, and R4 / R6 then rebase over SP. R1-R3 stay before
+  SP in either case (the retired kits' tests cannot survive S1).
+
+### 11.3 Batches
+
+Proof words: **G2** = `tests/style-gates.py cvc` identical to `tests/style-cvc-ref.txt` (II IK KK, native and browser); **hash** =
+simgate's state-hash lines for those pairs unchanged; **unit-forms** = `tools/unit-forms.lisp` (moves EQUAL, only-in-base / only-in-new
+0); **fast** = host tests, pkgcheck, build, smoke, `debug-ranges-check`, `unit-names`. No balance gates.
+
+| # | Batch (old name) | Scope | Proof | Size / risk | Model | When |
+|---|---|---|---|---|---|---|
+| **R0** | The looks gate's nondeterminism | Find why two renders of one build differ (10.2: the menu backdrop's two states, the cinematic stills, the w*-0 match stills; suspects: an unseeded cosmetic `rnd01` path, frame timing against `--fixed-dt`, startup `:load` step order); fix or pin it; then render a whole new BASE over the Lisp HUD and record the still count | three renders of one build byte-identical, twice; then BASE vs a rebuild of the same sources | unknown (timebox two sessions; if not found, the gate is redefined as "per-scenario stills identical in 3 of 3 same-session renders" and the doc says so) | **Opus** | at once, parallel to everything (it edits tests/style-gates.py and cosmetic paths only; a cosmetic fix merges between sim batches) |
+| **R1** | Dead core code (new) | `core-pips-ok-p`, `arm-spend!` and `:pips`; `core-pointer-locked-p`, `:locks` and the loop in `core-next-as`; `drive-full-p` and `bankai-allowed-p`'s DRIVE argument with `kit-bankai-form`'s dead callers (fighter.lisp:493, combat.lisp:906, onehand.lisp:212, ai.lisp:789); first a grep that no live kit's data carries `:pips` / `:locks` and that no live path reaches the gate. **Not assumed dead**: the arm meter itself (`kit-pips`, `gauges-meter`, `gauges-arm-pending`, the plate's UDE) is still printed in the hash line (gate.lisp:20) and may be live on Kenpachi; R1 removes only the per-move `:pips` price unless the grep shows the whole meter is unreachable, and then reports before cutting | fast, G2 (a hash-line column that leaves: compared with it stripped, as R6), snaptest / fulltest | ~120 lines, low | Sonnet | first; before S2 (`core-start!` is rebuilt there) |
+| **R2** | B3 then B8a | **B3 first** (D1's prerequisite): Ichigo's hem spring out of yama-art.lisp and his weapon-tip tracker to shared duel files, verbatim. Then branch `retired-kits` at the parent and the 18 retired files, ai-v2 pieces that are whole files, rukia-ai / barro-ai, their four host test files and the runner's list leave main; stub kits keep the roster indices | B3: unit-forms, G2, same-session stills of two Ichigo scenes; B8a: pkgcheck (its dangling list is R3's work list), build, host tests, G2 | −20k lines, low (mechanical) | Sonnet (two agents, serial) | after R1 |
+| **R3** | B8b + the old AI | The old mechanics in rules / fighter / combat / kit / tuning §5 / gate / debug scenarios / hazards' fire waves; kit slots only retired kits used; ai.lisp cut to the live perception (~350 lines, renamed `cpu-perceive.lisp`: B4's first half done here because the cut forces it); scripted.lisp's players nobody calls | **G2 + hash (decisive)**, host tests, pkgcheck | −2.5k to −3k lines, medium | **Opus** | after R2 |
+| **R4** | B9 + §16.6's D2 leftovers | endless / rogue / run-mods files and every `*run-mods*` / `rmod` / `rmod-x` site (combat 16, fighter 6, hisagi.lisp's `:hs-tip-*` cards, flow.lisp:136-154); ASSIST; the old learner (the FQ online learner stays, in `fq-online.lisp`); the frozen screens (`hud-menu`, `hud-select`, `results-card`, `hud-text`, the `:select` / `:results` / `:clear` / `:doors` clauses, `hud-endless-*`, `hud-rogue-doors`); roguegate.py / assistgate.py; tests rogue / runmods / learn-test; debug ranges 80000-80999, 81000-81200, 84000-84999 (saved-data keys stay reserved) | G2 + hash, host tests, pkgcheck, smoke of every menu path | −3.5k lines, medium | **Opus** | after R3 (same files) |
+| **R5** | B8c + §16.6's D1 leftovers | draw / feedback / vfx-stamps branches to the retired kits' VFX, `*hurt-cines*` / `*brush-names*` entries, the never-drawn `*brush-callouts*` data, R-d widgets, the canvas pieces §16.6 lists for D1 | fast; surviving scenarios' stills identical against a BASE rendered in the same session (or R0's gate if it is ready) | −1.5k lines, low-medium | Sonnet | after R2; parallel to R3 / R4 / SP (presentation files only) |
+| **R6** | The Reiatsu internals (new) | `gauges-reiatsu`, `reiatsu-gain!`, the R of `pay-gauges` / `hit-gains` / `kosei-gain` / `kikon-refund`, `burst-gain-mult`'s Reiatsu use, WHITE's Reiatsu, the reset's `kit-reset-reiatsu`, the knobs, the debug setters, the hash line's column (gate.lisp:20). **Check first**: Hisagi's tip reads the gauge to measure a gain (hisagi.lisp:1354, 1378 `hss-tip-r`) and prints it (1447, 1462): if anything live consumes that number it is rewritten to its real source, else removed | fast; G2 identical **with the Reiatsu column stripped from both sides**, then the reference regenerated for the format (header note); snaptest / fulltest | ~300 lines, medium | **Opus** | after R4, before S1 |
+| **R7** | B8d + D5 | The looks scenario list re-pinned to what remains (needs R0's BASE); tests/scripts/duel.py sections and JSONs of retired kits and frozen modes; DUEL_GAMEPLAY's debug table; manual.html's old-system / retired / frozen sections (D5; **before S9**, which writes the SP chapter); AGENTS / README / skills mentions; every quote of the still count | the new still set recorded; wasm size and startup heap before / after reported | docs + scripts, low | Sonnet | after R4 and R5; parallel to SP S1-S5 |
+| **R8** | B11 (D6) | untrack the 37 batch-* / webgl-* stills, move the style-2..6 / batch scripts to docs/research/style-history/, fix citations; decide `.gitattributes` (untracked today) with it | docs grep | low | Haiku | anytime |
+| **R9** | B1 redone | dead engine exports re-derived against today's engine/lisp (10.1's list as the start), ENGINE_API.md synced (RAVEN lines, the missing exports, the Lisp HUD's new exports) | pkgcheck, build, engine tests, engine-check, **R0's gate** | −150 lines, low | Sonnet | after R0 |
+| **R10** | ECS + pragmatic-FP audit (10.3 item 4) | Read-only, on the lean main (after R4): per file, state by home (component slot / struct / special), every special written inside the step and whether it is a snapshot root, logic that is pure today vs could be, the hidden channels (`*core-on*`, `*in-rollout*`, `*skip-cines*`, `*gauges-inf*`, `*dummy*`), what of `duel/` the ECS does not hold. Output: a § in this file with a ranked list; no code | review by the main session | a report | **Opus** | parallel to SP S1-S2 |
+| **R11** | B2 + D7 | One batch because both rewrite each kit's debug hookup: the `define-debug-range` registry in the engine (overlap fails at load) replacing debug.lisp's `cond` and `*char-debug*`, the doc checker kept; the `defkit` hook-point table; shared knobs to tuning.lisp; `*core-on*` / `core-kit-p` removed (every kit is a core kit after R2: a hidden channel gone); `ichigo-pull-to` -> a generic pull | unit-forms (knob moves EQUAL), G2, fast, every debug command of the scripts still dispatches (the scripts' logs identical) | ~400 lines, medium (dispatch order) | **Opus** | after S9 (debug.lisp, kit.lisp, tuning.lisp, core-sim.lisp are SP's files) |
+| **R12** | B4's remainder | `fq-online.lisp` naming settled by R4; core-ai's `strat-*` glue -> `strategy-glue.lisp`; `*in-rollout*` defined once; the rollout's bindings in one macro for `sim-rollout` and `mc-full-rollout`; the cross-style reads named in one file | unit-forms, G2, snaptest, fulltest | ~1.5k lines moved, medium | **Opus** | after S7 (same CPU files) |
+| **R13** | B7 less E6 / E7 | E1 the fuzzy core, E2 the hem spring -> anim.lisp `spring-chain-*`, E3 rebinding, E4 the settings table, E5 `resolve-tuning` | G2, host tests (duel-control, fuzzy, input), R0's gate | ~300 lines, medium | Opus | after S9 (fuzzy.lisp is S7's, control.lisp S9's) |
+| **R14** | B6's remainder | one command decoder for webui / webhud; sw.js `FILES` from build.sh | smoke, duel-flow / duel-touch / duel-mobile scripts, an offline / install check by hand | ~80 lines, low | Sonnet | after S8 (webhud.lisp) |
+| **R15** | The audit's findings + wave 4 | What R10 ranks first (expected: specials written in the step moved into components or passed as arguments; pure cores split out of `apply-hit` and `gauge-system`), then wave 4's items only where the next feature needs them | per item: unit-forms or G2, snaptest / fulltest | open | Opus | last; the main session picks |
+
+Dropped: B10 (D3), B7's E6 (now R11) and E7, B6's JS bridge, the old B1 patch.
+
+### 11.4 The combined timeline (both tracks)
+
+Serial lane = one agent at a time on the shared sim files; side lanes are separate worktrees. The lead (main session) re-runs the proof
+on each merged head, commits, pushes; subagents never push. `/graphify --update` after each merge point.
+
+| Step | Serial lane (sim files) | Side lanes (parallel) | Merge point / release |
+|---|---|---|---|
+| 1 | **R1** dead core code | **S0** sp.lisp (pure, new file) · **R0** looks hunt · **R8** stills | |
+| 2 | **R2** B3, then B8a | R0 continues | |
+| 3 | **R3** old mechanics + old AI | **R5** presentation cut | |
+| 4 | **R4** frozen modes | | |
+| 5 | **R6** Reiatsu internals | **R10** ECS + FP audit starts | **M1 "lean main"**: G2 identical through R1-R5, format-only regeneration at R6; wasm size and heap reported. **Artifact A0** (nothing should play differently) |
+| 6 | **S1** gauge rules | **R7** gates / scripts / manual D5 (after R0's BASE) · **R9** B1 redone (after R0) | G2 regenerated |
+| 7 | **S2** costs | R10 hands back | **M2. Artifact A1**: the SP loop (costs, refunds, scaling, one-cell bursts) |
+| 8 | **S3** ATK gains ∥ **S6** switch + awakening (two worktrees, merged S3 then S6) | **S8** HUD cues starts | |
+| 9 | **S4** breakthrough | | |
+| 10 | **S5** projectiles | | **M3. Artifact A2**: the whole rule set |
+| 11 | **S7** CPU statements | S8 merges | **Artifact A3**: with cues |
+| 12 | **S9** PRACTICE + manual | | **M4**: SP done; DUEL_SP status "built" |
+| 13 | **R11** kit plug-in + debug registry | **R12** CPU boundaries · **R14** bridge | |
+| 14 | **R13** engine moves | | |
+| 15 | **R15** audit findings, wave 4 if wanted | | **M5**: a new looks BASE recorded on the final tree; round 4 closed |
+
+Merge serialization points as in §7 (MANIFEST, kit.lisp, debug.lisp, tuning.lisp, the test runner's list, style-gates.py), plus
+`tests/style-cvc-ref.txt` (regenerated only by the lead), `tests/scripts/duel.py` and DUEL_GAMEPLAY's debug table.
+
+### 11.5 Risks
+
+1. **R3 is the hard cut**: old and live mechanics are interleaved in `apply-hit` and the fighter step; the only proof is G2 + hash,
+   which cover three pairings' CPU matches, not every scripted scene. R3 also re-runs every `tests/scripts/duel-*.json` of the live
+   kits and compares their logs before / after.
+2. **R0 may not converge.** Nothing before M4 depends on it except R7's re-pin and R9; the fallback gate is written in R0's row.
+3. **The removals delay the SP playtest** by steps 1-5. The cut line in 11.2 trades that for more conflict work; the main session
+   decides at step 3, when R3's real size is known.
+4. **Saved data**: roster indices, stub kits, `RETIRED` / `PAIRS` and the saved-data keys stay (D1 / D2); R2-R4 each state in their
+   hand-back that a save written before the cut still loads.
