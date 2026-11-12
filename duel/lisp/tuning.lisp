@@ -207,7 +207,7 @@ SP 27.3 O 20, a Breaker's 0).")
 (defparameter *fs-max* 300.0 "Flash-step gauge maximum (100 -> 300); full at the match start, kept through Kikon resets.")
 (defparameter *fs-hoho* 100.0 "Flash-step a Hoho costs (30 -> 100).")
 (defparameter *fs-burst* 200.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; the drain is the cost).")
-(defparameter *fs-regen* 9.0 "Flash-step per second (3 -> 9) ...")
+(defparameter *fs-regen* 4.5 "Flash-step per second (3 -> 9 -> 4.5: 2026-11-12, the user: 「閃步量表的自然恢復速度減半」; a Hoho from empty in 23.2 s) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
 (defparameter *fs-taken* 0.135
   "Flash-step per point of damage taken, x the combo bonus (a full 1300 Reishi bar = +175.5 before it); 0.045 -> 0.135 with the

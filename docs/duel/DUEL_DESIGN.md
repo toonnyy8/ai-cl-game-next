@@ -276,7 +276,7 @@ West's ward too, ×1.1: the 2nd K K K crushes it).
 
 **Flash-step gauge** (0–300 since 2026-10-29, "Flash-step gauge 0-300" at the end; 0–100 before; full at the start, kept
 through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst modes" at the end) needs 200 and then drains it
-(WHITE / ORANGE to 0; BLUE only one cell, 100, since 2026-11-12), gaining nothing meanwhile; +9/s once 60 f pass after the last spend, +0.135 per damage taken × the combo bonus; a perfect
+(WHITE / ORANGE to 0; BLUE only one cell, 100, since 2026-11-12), gaining nothing meanwhile; +4.5/s once 60 f pass after the last spend (9/s before 2026-11-12), +0.135 per damage taken × the combo bonus; a perfect
 Hoho refunds nothing (15 of 100 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: three cells (one a Hoho); on the phone
 the ink standing in the 爆 seal, white marks at 100 and 200, the seal armed (lit) from 200 (DUEL_WEBUI §11).
 
@@ -1992,3 +1992,10 @@ span still to burn is blue (`+c-burst-b+`): a second cut of the level polygon fr
 the span's lower end as a fraction of the dial's height: gauge - burn left, clamped; 1 = no band). From 300 it is the top third (above the 2/3 tick), from 230
 the band 130..230, it shrinks from the top as the gauge drains and is gone the frame the burn slot (`V75`, P1) is 0. WHITE and ORANGE keep the whole level in
 their colour. Kept in a BLUE burst: the rim, ticks, ring, labels and the inked face (none of them were tied to a blue level); armed is off in any burst as before.
+
+### The flash-step's natural regen halved (the user, 2026-11-12)
+
+The user: 「閃步量表的自然恢復速度減半」. `*fs-regen*` (the regen after `*fs-delay*` 60 f without a spend) 9 -> **4.5 / s**: a Hoho
+from empty takes 23.2 s (22.2 + the 1 s delay; was 12.1 s), a full gauge from empty 67.7 s. Unchanged: the delay, the gains from damage
+taken (`*fs-taken*`) and from KOSEI (`*kosei-fs*` 0.15, halved earlier the same day), the costs, the Kikon refund, the bursts. Tests:
+tests/duel-rules/core.lisp's regen pins (4.5 per second, a Hoho from empty). G2 regenerated (the sim changed): DEVLOG §723.

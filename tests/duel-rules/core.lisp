@@ -543,9 +543,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (equal (multiple-value-list (kikon-refund 250.0 250.0)) '(300.0 300.0))))
 ;; the flash-step gauge (design v3 G.1; 0-300 since 2026-10-29): Hoho 100, Burst 200, no Reiatsu; 9 / s after 60 f; +0.135 per damage taken
 (check (and (= *fs-hoho* 100) (= *fs-burst* 200) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
-(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.15) (~= (fs-regen 299.99 600) 300.0)))
-(check (~= 9.0 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 9 per second
-(check (~= 667 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                     ; ... a Hoho from empty in 12.1 s (11.1 + the 1 s delay)
+(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.075) (~= (fs-regen 299.99 600) 300.0)))
+(check (~= 4.5 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 4.5 per second (9 before 2026-11-12)
+(check (~= 1333 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                    ; ... a Hoho from empty in 23.2 s (22.2 + the 1 s delay; 12.1 s before 2026-11-12)
 ;; the guard gauge (G.2): values by kind, +4 for an ender, overrides; the drain, the crush, the regen, guardless
 (check (and (= (guard-value :quick -2) 8) (= (guard-value :quick -12) 12) (= (guard-value :flash -4) 14)
             (= (guard-value :flash -14) 18) (= (guard-value :sig -6) 18) (= (guard-value :sig -14) 22)
