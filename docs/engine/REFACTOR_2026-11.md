@@ -736,7 +736,296 @@ on each merged head, commits, pushes; subagents never push. `/graphify --update`
 Merge serialization points as in §7 (MANIFEST, kit.lisp, debug.lisp, tuning.lisp, the test runner's list, style-gates.py), plus
 `tests/style-cvc-ref.txt` (regenerated only by the lead), `tests/scripts/duel.py` and DUEL_GAMEPLAY's debug table.
 
-### 11.5 Risks
+### 11.5 R10: the ECS + FP audit (2026-11-13)
+
+Read-only (Opus subagent), on the lean main **581df983** (after R4); **line numbers in this section are 581df983's**. The yardstick is
+the user's (2026-11-11, AGENTS.md "Design principles", DEVLOG §709): one job per module behind a small interface; state in data
+(entities as ids, components as plain data, systems as functions over them); logic pure where the hot path allows; mutation kept to
+named places; no hidden channels through specials. R6 (the Reiatsu internals) runs in parallel: what it removes (`gauges-reiatsu`,
+`reiatsu-gain!`, the bind pool, `kikon-refund`'s Reiatsu argument, `*kosei-reiatsu*`, the R half of `pay-gauges` / `hit-gains`) is
+marked "(R6)" where it shows and is not ranked. (This section was inserted as 11.5; the risks below it moved to 11.6.)
+
+**Method and limits.** A small reader over every file of `engine/MANIFEST` and `duel/MANIFEST` (5,506 top-level forms) built a static
+call graph: an edge is a distinct caller → callee pair (not a call site), from every symbol in a function's body that names a function.
+"In the step" = reachable from `sim-step` (main.lisp:29) plus the functions named in kit / move data (`:hooks`, `:on-frame`, `:on-land`,
+`:tick`, style `:fn`), but not the draw keys (`:draw :pose :body-alpha :charge :hit-fx :hud-tag :deck :look :label`); that reaches
+~1,000 of duel's 1,664 functions and macros and over-counts (load-time `register-kit` / `register-move` / `build-clip` and the debug
+scenes a data form names are in it). Writes = `setf` / `setq` / `incf` / `decf` / `push` / `pop` of a special, or of a place whose
+arguments name one, or `fill` / `clrhash` / `replace` on one; `%set-float` writes (fighter.lisp:235-237) were added by hand. "Pure" =
+no write outside its own bindings, no component read, no `emit` / `sim-rnd01` / `rnd01` / log / `funcall`, no special that any function
+writes, and every callee pure (a fixpoint); macros count as pure, `funcall` as impure. Every row below that calls a slot or a branch
+dead was checked with a whole-accessor grep over duel/ tests/ tools/ and the hash line (gate.lisp:10-27). Scratch scripts are not in
+the repo.
+
+#### 11.5.1 Where state lives, per file
+
+The engine's ECS (ecs.lisp: 256 slots, one store per component kind) holds **11 components**: TRANSFORM (engine), MOTION, MODEL, BLADE,
+FIGHTER (81 slots), GAUGES (35), PILOT, BRAIN (56), HAZARD (23) in components.lisp, HSS in hisagi.lisp, ICS in ichigo.lisp. duel/ has
+1,449 `defvar` / `defparameter`; 230 of them are written by some function at run time (the rest are knobs and tables). Pure today: 374 of
+1,664 functions (rules.lisp 97 of 101, strategy 25 / 33, kit 22 / 53, hisagi 21 / 90, control 17 / 22, core 7 / 7, sp 9 / 9, fuzzy 4 / 4).
+"Mixed" in the last column = more than one job in the file.
+
+| File | Job | State lives in | Mixed |
+|---|---|---|---|
+| package | the package | — | |
+| tuning | shared knobs | 231 knobs; 5 set at run time by debug-command (debug.lisp:529-534: `*red-threshold*`, `*gg-regen*`, `*gg-regen-guardless*`, `*kosei-fs*`, `*kosei-reiatsu*` (R6)) | |
+| rules | the rules, pure | none (97 / 101 pure; reads knobs only) | |
+| core | the triangle, pure | none | |
+| sp | SP rules, pure (S0, no caller yet) | none | |
+| fuzzy | fuzzy terms, pure | knobs | |
+| strategy | strategies as data, the selector's math | 30 specials; 4 written in the step by the strategy layer (`*strat-jobs*` 227, `*strat-stats*` 228, `*strat-picks*` 229, `*strat-library*` 539) + `*strat-now*` (48, bound per brain step) | yes: the library data, the pure math, and the job queue the CPU writes |
+| control | controls, bindings, PRACTICE row helpers | data; `*prompt-cache*`, `*setting-ix*` | |
+| sounds | the SFX bank | load-time only | |
+| components | the component definitions + small helpers | 8 DEFCOMPONENTs; `*match-tick*` (293), `*pacing*` (274, per side), `*touch*` (296), `*one-hand*` (297), `*hand*`, `*coarse*`, `*back-press*`, `*pose-at*` | yes: the ONE-HAND device globals and the pacing log live here because fighter / flow read them |
+| body | rigs, weapons, drawing a body | registries (`*bodies*`, `*weapons*`) + BODY / WEAPON structs (snapshot-shared) | |
+| kit | DEFMOVE / DEFKIT, kit queries | load-time registries `*kits*` `*moves*` `*roster*`; MOVE / HITWIN / KIT structs (shared); memo `*cadence-moves*` (418) | |
+| glyphs, glyphs-extra | generated glyph data | data | |
+| brush | brush typography | glyph cache, draw scratch | |
+| cinema | the cinematic grammar | ~20 specials, all snapshot roots (sim-state.lisp:18-21) | |
+| stage | the plaza, its marks / cracks / debris | f32 rings + counters (`*st-nmarks*` 266, `*st-chips*` 267, `*st-chip-i*` 268, `*st-ncracks*` 52); not roots | |
+| vfx, vfx-stamps, vfx-ember | shared looks | aura caches, the stamp ring, `*stamp-seed*` (vfx-stamps 25) | |
+| hem-spring, tip-track | shared looks | knobs; per-draw scratch | |
+| ken-art, ichigo-art, hisagi-art | clips and bodies | data | |
+| ichigo-look | Ichigo's looks, hooks, sounds, cinematics, a consing probe | presentation specials; the probe writes FIGHTER slots (ichigo-look.lisp:489, 495; debug 74906) | yes (by design, round 2), plus debug |
+| ken | Kenpachi's moves, kits, hooks, cinematics, debug scenes | FIGHTER / GAUGES slots (54 slot writes); no mutable special | yes: data + mechanics + cines + debug (84000-84099) |
+| ken-look, ken-meter | his Shikai looks; two hooks | `*ke-kk*` scratch; none | |
+| ichigo | moves, kits, the clone mechanics, debug | ICS component + ICC / ICE structs in it; memo `*ic-keys*` (445), `*parry-rims*` (953); 4 knobs set by `ichigo-debug` | yes: data + clones + debug |
+| hisagi | kit, mechanics, debug scenes | HSS component; 107 specials (knobs); `*hs-trace*` (1336, debug, read by the :tick hook 1359) | yes: data + mechanics + debug |
+| hisagi-draw | his looks | 14 mutable draw scratch specials; **sets `kit-meter` of three kits at load (1870-1875)** | yes: a draw file writes kit data |
+| hisagi-cine, hisagi-stills | cinematics; debug stills / probes | none; stills write 94 FIGHTER slots (debug setups) | |
+| fighter | FIGHTER-SYSTEM: vpad → command → state machine → physics; the human's camera-relative stick | FIGHTER / MOTION slots (165 slot writes); `*view-x/-z/-side*`, `*behind-yaw*` (212-215, roots); memos `*hide-sets*` (122), `*missing-clips*` (143) | yes: the view frame (220-250) is the camera's input math |
+| combat | hits (collect, judge, apply), gauges, bursts, forms (awaken / Bankai / `set-form`), the round's settle and reset | GAUGES (66) / FIGHTER (32) slots; `*blow-aways*` 10, `*kikons*` 11, `*soul-breaks*` 15, `*pending*` 425 | **yes: four jobs** |
+| core-sim | the core system's sim side | FIGHTER (42) / GAUGES (6) slots; no special; reads `*touch*` / `*one-hand*` (240-253) | |
+| hazards | HAZARD-SYSTEM | HAZARD component | |
+| scripted | the trial player | `*trial-script*`, `*trial-state*` | |
+| cpu-perceive | the SNAP ring, presses, BRAIN-SYSTEM | BRAIN slots (ring of SNAP structs) | |
+| core-ai | the generic core CPU + the strategy glue | BRAIN slots (43 writes); registry `*cai-styles*` (25); counter `*cai-switch-counts*` (218) | yes: CPU + the strategy layer's glue (R12) |
+| cpu-ki-ken, cpu-ki-ichigo, cpu-kh-ken, cpu-hk-hisagi, cpu-hisagi-range | matchup / strategy style CPUs | their state structs in BRAIN-STYLE (KKS, IKST, KHS, KSO, HKS, HRS, HMS); knobs; `*hr-counts*` (cpu-hisagi-range 49) | |
+| mcts-lite | the light model and search | preallocated buffers (`*mc-g*` 120, `*mc-w*` 122, `*mc-slots*` 115, `*mc-legal*` 125, `*mc-legal2*` 128), memo `*mc-recs*` (79) | |
+| cpu-mcts | the in-game MCTS, full-sim jobs, the strategy layer's rollouts | `*mc-plan*` (45, per side, root), `*mc-jobs*` (48), `*mc-full-stats*` (49), `*mc-next*` (114, root), `*in-rollout*` (44) | yes: action jobs + strategy jobs (R12) |
+| fq-online | the online fuzzy Q | `*fq-tables*`; BRAIN-FQL | |
+| camera | the two cameras | `*pcam*`, `*cam-ang*`, `*cam-dist*`, `*pt-lens*`, `*punch-t*` (20), `*cam-cut*` (19, root) | |
+| feedback | events → sounds, sparks, words | `*hums*` (29, per side) | |
+| flow | screens, match start / end, **the PRACTICE sim** (`practice-step` 291, from MATCH-SYSTEM), the pause menu | 27 mutable specials: `*flow*` `*timer*` `*winner*` (roots), `*p1*` `*p2*`, `*mode*`, the PRACTICE options (`*dummy*` 212, `*dummy-counter*` 213, `*hp-refill*` 215, `*gauges-inf*` 216, `*practice-rows*` 218, `*practice-aw*` 227, `*practice-aw-done*` 228) | **yes: screens + a sim system** |
+| hud, hud-screens | canvas words; the frame's UI entry | `*words*` (hud 22) | |
+| onehand | the touch deck's input, geometry, page saves | `*deck*`, `*deck-rect*`, `*touch-burst*`, `*wake*` ... | yes: input + layout + storage |
+| webui, webhud | the menus' / battle screens' models | `*ui-sent*`; `*hud-sent*`, `*hud-strs*` (fixnum / string vectors) | |
+| lhud-data, -geom, -charset, -menu-data, -menu-geom | HUD tables and pure layout | data (mostly pure) | |
+| lhud-model, -plate, -fx, -deck, -clock, -overlay, -battle, -shapes, -menu, -menu-front, -menu-set, -menu-select | the Lisp HUD and menus | the model (webhud's vectors) + preallocated tween / clock specials per element (`*lhud-*`, `*lm-*`) | |
+| gate | the hash line, the seed gate, Kenpachi's cup pacing | `*gate*` ... (9 mutable), `*cup-acc*` | yes: hash line + gate + one character's pacing |
+| debug | debug commands, scenarios, probes | `*probe*` (29, written by `probe-update` in the step), `*god*` (21) ... | debug by nature (R11) |
+| sim-state | snapshot roots, the two rollout runners | none | |
+| draw | the scene and the fighters | MODEL slots; `*form-grade*`, `*oni-k*` | |
+| main | entry, the fixed step, slow-motion drawn smooth | `*slow-acc*` (12, root), `*slow-was*` / `*slow-now*` / `*slow-drawn*` (63-65) | yes: the step + a look |
+
+Engine files the duel step reaches (lean step; `sim-step` adds feedback's audio / fx): **ecs** (the stores, roots; `*events*` 163,
+drained each step), **time** (`*hitstop*` 14, `*tick*` 15, `*slowmo*` 17: roots), **cine** (`*cine*` 28 root; `*cine-cam*` 34 and
+render's `*grade-split*` / `*grade-desat*` written by `start-cine` / `end-cine`, not roots), **input** (the vpad inside PILOT), **anim**
+(the ANIM inside MODEL), **hitvol** and **math** (pure), package's `sim-rnd01` (C state, saved by the snapshot), and **touch**
+(`touch-active-p` / `touch-hi-at-p`, read by core-sim: 11.5.3).
+
+#### 11.5.2 Specials written inside the step, by consequence
+
+Roots = `snapshot-roots` (sim-state.lisp:11-21, snapshot.lisp:24-26). The snapshot is taken only in battle, outside a cinematic and
+unpaused (`sim-snapshot-ok-p`, sim-state.lisp:25), at the end of `sim-step` (`mc-full-step`, main.lisp:42), after `feedback-system` has
+drained `*events*`. In-game rollouts run `sim-step-lean` (no feedback, no hash log, no full-sim step) under `mc-full-rollout`'s bindings
+(cpu-mcts.lisp:212-213).
+
+**A. Sim state, rooted (fine).**
+
+| Special (defined) | Written at |
+|---|---|
+| `*match-tick*` (components 293) | main 31, sim-state 42 |
+| `*slow-acc*` (main 12) | main 34, 36; sim-state 45, 47 |
+| `*timer*` / `*winner*` / `*flow*` (flow 30 / 37 / 19) | match-system 206; match-over 170, time-up 181; set-flow 48 |
+| `*pending*` / `*kikons*` / `*blow-aways*` (combat 425 / 11 / 10) | collect-melee 433, 446, hit-apply 497-499, hazards 88; apply-hit 276, settle-souls 719; apply-hit 332 |
+| `*mc-plan*` / `*mc-next*` (cpu-mcts 45 / 114) | cpu-mcts 161, 174, 231, 246, 262, cpu-hisagi-range 72; cpu-mcts 138 |
+| `*view-x*` `*view-z*` `*view-side*` `*behind-yaw*` (fighter 212-215) | view-step 234-237 |
+| engine: ECS stores, `*hitstop*` `*tick*` `*slowmo*`, `*cine*` | ecs 108-132; time 22-59; cine 72, 84 |
+| cinema's roots (`*cine-placed-e*`, `*screen-fx*`, `*impact-next*`, `*cam-cut*`, `*caption*`, `*card*`, `*cine-close*`, `*cine-subject*`, `*lens-fov*`, `*dutch*`, `*silhouette*`, `*splash-args*`, `*cine-grade*`, `*draw-scale-e*`, `*aura-off*` ...) | the cinema.lisp grammar (93-288) and the scripts' `at` forms |
+
+**B. Sim state, not rooted, drained before any snapshot (safe today; a consistency gap).**
+
+| Special | Why it is empty at a snapshot | Note |
+|---|---|---|
+| `*soul-breaks*` (combat 15) | pushed only by `queue-soul-break!` (191) from `deal-damage` (185), whose callers are `apply-hit` and `delay-hit-hook` (combat 159, a hazard of HAZARD-SYSTEM); settled in the same step by `settle-souls` (719). The one way to carry it over a step, a cinematic started between HAZARD-SYSTEM and HIT-SYSTEM (main 23-24), also forbids the snapshot until it ends | its siblings `*pending*` / `*kikons*` are roots; it is not |
+| `*events*` (ecs 163) | drained by `feedback-system` (live) / `take-events` (lean, sim-state 49) | |
+| `*mc-jobs*`, `*mc-full-stats*` (cpu-mcts 48-49), `*strat-jobs*` `*strat-stats*` `*strat-picks*` `*strat-library*` (strategy 227-229, 539) | written only outside rollouts: `mc-neutral` returns at once in one (cpu-mcts 126), `mc-full-step` / `strat-layer-step` test `*in-rollout*` (243-244, 310) | the jobs hold snapshots themselves |
+| `*cai-switch-counts*` (core-ai 218), `*hr-counts*` (cpu-hisagi-range 49) | the increments test `*in-rollout*` (core-ai 222, cpu-hisagi-range 52) | stats |
+| `*mc-g*` `*mc-w*` `*mc-slots*` `*mc-legal*` `*mc-legal2*` (mcts-lite 115-128) | scratch, rewritten by `mc-setup` before each search; no search inside a rollout | 0 B buffers |
+| memo caches `*hide-sets*` (fighter 122), `*missing-clips*` (143), `*mc-recs*` (mcts-lite 79), `*ic-keys*` (ichigo 445), `*parry-rims*` (953), `*cadence-moves*` (kit 418) | monotonic, value-identical whoever fills them | |
+
+**C. Presentation written by sim code (not restored; the one real leak).** `ground-scar` (ken.lisp:428-433) writes the stage's mark and
+debris rings (`stage-mark`, `stage-debris`: stage.lisp:276-295, cosmetic `rnd-range`) and is called from **move hooks**, not from
+feedback: Buttagiru's `:on-frame ((22 ken-ground-crack))` (ken.lisp:39 → 419; the sealed kit's `:sp1` command, ken.lisp:176, which a
+core match may never press: not verified), the Bankai J5's `((13 ken-bk-slam))` (281 → 425) and
+TATE-GOTO's `ken-tategoto-split` (364). They run inside `sim-step-lean`, so a CPU rollout that reaches those frames leaves a crack and
+chips on the live stage that the match never made (and draws the cosmetic stream). fulltest digests `*st-nmarks*` / `*st-chip-i*`
+(numbers), so its "0 differ" means the sampled jobs did not reach those frames, not that the path is safe. The other
+stage writers are feedback.lisp's (51-169) and the cinematics' (`stage-crack-add`): both outside rollouts. Also presentation, harmless:
+`set-flow` (flow 48) writes `*ft*` / `*menu*` at a rollout's K.O. (`*ft*` is read only on TITLE / RESULTS); `start-cine` / `end-cine`
+zero `*grade-split*` / `*grade-desat*` and `*cine-cam*` in a rollout (nil / 0 at any snapshot); `*practice-aw-done*` (flow 228) can flip
+inside a PRACTICE rollout with DUMMY CPU (P1's awakening; not verified).
+
+**D. Offline only.** `sim-rollout` (sim-state.lisp:29-37: snaptest, teacher) runs the full `sim-step`, so `feedback-system` (sounds,
+`*hums*`, `*punch-t*`, `*words*`, stage marks) runs inside those rollouts, and it does not bind `*cai-styles*` NIL as `mc-full-rollout`
+does (cpu-mcts.lisp:213). One shared binding form is R12's item.
+
+**Determinism greps.** `get-internal-real-time` in the step only feeds stats (cpu-mcts.lisp:247/265, 337/351: `*mc-full-stats*` /
+`*strat-stats*`, skipped by fulltest). `rnd01` / `rnd-range` in step-reachable code: only the cosmetic paths above and cinematic helpers
+(ken.lisp:707-825). No sim decision reads them.
+
+#### 11.5.3 Hidden channels
+
+Specials that change what a function does without being passed to it.
+
+| Channel | Defined | Set by | Read by (behaviour changed) | Verdict |
+|---|---|---|---|---|
+| `*core-on*` | tuning 458 | only host tests: tests/duel-rules/core.lisp:2, ken.lisp:2 / 39 (NIL: they quote pre-core damage numbers), triangle.lisp:3, mcts.lisp:3 | kit 395 (damage scale), combat 155, core-sim 262, 339, fighter 156, ichigo 648, 735, 815, 1043, 1048, ichigo-look 397, webhud 72, 142 | always T in the game: every NIL branch is dead in play. KESSA's `:step` hook `ichigo-step-clone` (ichigo 643) is a no-op (its first clause), `hoho-clone` (655) unreachable. R11 removes it; it must first restate the host checks that set it NIL (core.lisp, ken.lisp) in core-scaled numbers |
+| `*in-rollout*` | cpu-mcts 44 (re-declared core-ai 217) | bound by `sim-rollout` (sim-state 33), `mc-full-rollout` (cpu-mcts 212) | cpu-mcts 126, 243, 244, 310; core-ai 222, 238, 239, 254, 273; cpu-hisagi-range 52; flow 186 (`go-results`) | a legitimate mode flag (no search, no learning, no results inside a rollout); defined once and bound in one form by R12 |
+| `*skip-cines*` | engine cine 29 | gate 128, 167; debug 214, 227, 337, 494, 559, 564; ken 953; hisagi 1477; trial.lisp 21; both rollouts | `start-cine` (cine 77) | a debug / rollout switch with one reader; fine |
+| `*gauges-inf*`, `*dummy*`, `*dummy-counter*`, `*hp-refill*`, `*practice-rows*`, `*practice-aw*` | flow 212-227 | the pause menu `pause-do` (flow 436-438), debug 226, 229, hisagi 1476 | `practice-step` (flow 291-313): writes the dummy's BRAIN presses (298-303) and both sides' GAUGES every sim step | the PRACTICE options are a sim input kept in six specials; S9 adds a seventh (a GAUGES row) |
+| `*mode*` | flow 23 | menus, debug, gate | match-system 205, match-over 164, **ichigo-struck (ichigo 1022)** | a kit hook asking the game mode (PRACTICE's EARLY / LATE callout) |
+| `*touch*`, `*one-hand*`, `*p1*` | components 296-297, flow 29 | onehand's frame, the menus | `core-touch-p` (core-sim 240), `core-touch-sp-p` (244), `core-held-p` (250) → the Kikon hold (`core-hold-step` 230, `apply-hit` 270, `delay-hit-hook` 156) | **the sim reads a device outside the vpad.** A replay of the vpads cannot reproduce a phone Kikon, and a rollout's P1 (the stand-in brain of `mc-full-roll`, cpu-mcts 232) reads the human's live thumb |
+| `*strat-now*` | strategy 48 | bound per brain step (core-ai 298) | core-ai 45, 122, 311; cpu-mcts 120; cpu-hisagi-range 184, 186; strategy 52, 56 | an implicit argument of the strategy's cues |
+| `*mc-select*` | mcts-lite 133 | bound per decision (cpu-mcts 131) | mcts-lite 323 | an implicit argument of `mc-search` |
+| `*kk-meaty-p*`, `*kk-ns-safe-p*` | cpu-ki-ken 111, 214 (knobs) | **rebound** by cpu-kh-ken 47, 95 around `ken-ki-style` | cpu-ki-ken 352, 532, 597 | one style CPU reaches another's knobs to change its decisions |
+| `*cai-styles*` | core-ai 25 | `cai-defstyle` at load; bound NIL in `mc-full-rollout` (cpu-mcts 213); tools REMF it | `cai-style-fn` (core-ai 31) | registry; the two rollout runners disagree (11.5.2 D) |
+| the brain asked by a rule | — | — | `core-switch-ready-p` (core-sim 116-120): a switch is legal for a human, or for a CPU only while its press is a strategy's `:switch` | a rule that depends on who drives ("human vs CPU is only has-a-BRAIN", components.lisp header). S6 rewrites this function |
+| hooks used as flags | — | — | `(kit-hook kit :p)` picks `*run-commands-p*` (fighter 859, 432-435): KEN-P (ken-meter 9) exists only for this; `(kit-hook kit :u)` (fighter 468, 475, onehand 266): no live kit has a `:u` hook, so `u-press!` and both tests are dead | a presence test standing in for kit data |
+| debug-mutated knobs | tuning, ichigo 35-46 | debug-command (debug 529-534), `ichigo-debug` (`*clone-life*`, `*clone-burst-dmg*`, `*clone-scale*`, `*kessa-parry-catch*`) | their rules | never reset in the page: a debug command changes a later match |
+| tool hooks | gate 67, core-ai 223 | tools/simgate (`*step-hook*`, `*strat-judge-hook*`) | hash-log 70; core-ai 238 | observers; NIL in play; fine |
+| log switches | `*combat-log*`, `*pacing-log*`, `*gate-log*`, `*log-mute*` | debug, gate, rollouts | output only | fine |
+
+#### 11.5.4 Pure today, and the cores worth splitting
+
+Already pure (host-tested or testable as they stand): rules.lisp (97 / 101), core.lisp, sp.lisp, fuzzy.lisp, most of strategy.lisp,
+control.lisp's PRACTICE helpers (`dummy-cancel-press`, `dummy-guard-left`, `practice-reishi`), kit.lisp's queries (`kit-atk-mods`,
+`kit-def-mods`, `mv-total` ...), core-sim's `core-charge-mult`, `core-next-as`, `core-seg-ok-p`, `core-window-class`, Hisagi's 21
+(`hs-dist-mult`, `hs-charge-scale` ...), cpu-perceive's SNAP readers, `mc-est`. Untested pure functions are host-test candidates only
+where a rule hides in them (`core-next-as`, `hs-dist-mult`, `kit-atk-mods`).
+
+The functions the brief expected to split, as they are at 581df983:
+
+| Function | Pure core today | What is left | Split now? |
+|---|---|---|---|
+| `hit-gains` (rules 492) | **is pure** | — | no |
+| `core-on-hit!` (core-sim 359-368) | `steal-take` (rules) | two `setf`s of `gauges-fs` and a log line | no split; but see the fs writers below (S1) |
+| `pay-gauges` (combat 114-119) | `gauge-add`, `burst-fs-gain`, `sub-of`'s `sub-frac` | after R6: one `gauge-add` line | a named pure `(fs-gain fs gain burst sub-frac)` in rules.lisp would make S3's gains host-testable; S3's first commit |
+| `gauge-system` (combat 767-805) | `fs-regen`, `gg-regen`, `gg-idle-next`, `stun-decay`, `burn-amount` (all rules) | the per-step shell: burst step, the awakening's regen, form timers, the kit `:tick`, EVOLUTION's latch | no: the rules are already out; S1 changes `fs-regen`'s cap (pure) and passes it; S4 adds one step here |
+| `apply-hit` (combat 219-414, 196 lines) | `resolve-contact`, `kikon-outcome`, `combo-step`, `stun-add`, `hit-damage`, `hitstun`, `blockstun`, `chip-damage` | the gathering of their inputs from four components, then ~25 writes, 6 `emit`s, 4 hook calls | **one seam during S2** (below); the full split after S5 |
+| `deal-damage` (combat 169-186) | `soul-break-p` | Reishi, stats, the bind hook, a write into the CPU's BRAIN (`brain-heat` 180), combo damage, both sides' gains, the soul-break queue | after S5 |
+
+**The `gauges-fs` writers** (what S1-S3 rule on; no kit hook writes the gauge today, only a debug line, ichigo.lisp:1150):
+
+| Site | What | Through |
+|---|---|---|
+| fighter 356 `spend-fs` | the spend (Hoho 362, TSUKI's dash ichigo 536); resets `fs-idle` | the named spend |
+| combat 119 `pay-gauges` | every gain (hits, KOSEI): no gain in a burst, x (1 + `*sub-fs*` x SUB) | the named gain |
+| combat 603 `burst-step`, 777 `gauge-system` | the burst's drain; the regen | the per-step system |
+| **core-sim 366-367** `core-on-hit!` | the steal: the victim loses TAKE **without** `spend-fs` (his `fs-idle` is not reset), the attacker gains **without** `pay-gauges` (gains inside his own burst, no SUBLIMATION factor) | neither. S1 rewrites the steal's floor; the `fs-idle` and burst / SUBLIMATION points are not among DUEL_SP 8.6's questions (Q1 settles only paying and refunding): a question for S1 |
+| **combat 724** `settle-souls` | the Kikon / Soul Break refund (`kikon-refund`, its Reiatsu argument R6) | neither; kept by DUEL_SP Q4. Whether it should pass `pay-gauges` (no gain in a burst: the reset ends the burst first, combat 721, so the same today) is S3's to state |
+| flow 312 `practice-step`; debug 205, 259-260, 520; core-sim 372 | PRACTICE's infinite gauge; debug scenes | settings / debug |
+
+**The `apply-hit` damage seam for S2.** Today the damage is `(hit-damage base atk dmods scale counter orange)` (combat 307-313) with
+`atk = (kit-atk-mods kit lost px form-mult)` (259-266), where `px = core-charge-mult x (1 + *sub-dmg* x sub-of att) x the kit's
+:dmg-mult hook` (262-265). S2's `sp-scale` is one more factor of PX. Extract `(hit-px charge sub-frac dmg-mult &optional (sp-scale 1.0))`
+→ a single-float, pure, into rules.lisp (or sp.lisp) as S2's first commit: the impure side keeps gathering the four numbers (and S5's
+hazard keeps its frozen scale in its slot), and S2's "a scaled hit's reaction and stun equal the full hit's" is then a host check of
+the seam plus the scripted scene. The reaction, stun and combo fields stay on the other side of the seam (`combo-step`, `stun-add`),
+so damage-only scaling holds by construction.
+
+**Wait until after S5:** the outcome-record split of `apply-hit` (inputs: def-state, flags, ranged, ward, in-front, rush / held / fstrike,
+red, combo counters, burst; outputs: res, outcome, follow, react, dmg, stun, the stun gauge, blow), the `deal-damage` split, and moving
+gauges / bursts / forms and the round out of combat.lisp: S2, S3, S4 and S5 each edit `apply-hit`, `pay-gauges`, `core-nohit!` and
+`gauge-system`, so a move now only makes their diffs conflict.
+
+#### 11.5.5 What of duel/ the ECS does not hold
+
+| State | Lives in | Per | Note |
+|---|---|---|---|
+| the two fighters' handles | `*p1*` `*p2*` (flow 29) | match | fine (handles) |
+| the CPU's full-sim plan | `*mc-plan*` (cpu-mcts 45: 5 fixnums per side, root) | fighter | BRAIN-shaped state in a flat special indexed by side |
+| the CPU's jobs | `*mc-jobs*`, `*strat-jobs*` | fighter | lists of vectors / STJOBs holding snapshots; not roots by design |
+| per-side stats | `*pacing*` (components 274), `*cai-switch-counts*`, `*hr-counts*`, `*hums*` (feedback 29) | fighter | logs / sound handles |
+| the human's view frame | `*view-x*` `*view-z*` `*view-side*` `*behind-yaw*` (fighter 212-215, roots) | human | could be a slot of P1's PILOT |
+| P1's gesture recogniser | `*touch*` (components 296), `*one-hand*` | human | read by the sim (11.5.3) |
+| the step's hit queues | `*pending*`, `*kikons*`, `*soul-breaks*` (combat) | step | intra-step channels between `apply-hit` and `settle-souls` |
+| the match | `*match-tick*`, `*timer*`, `*winner*`, `*flow*`, `*blow-aways*`, `*slow-acc*`, `*mc-next*`; engine `*hitstop*` `*slowmo*` `*tick*` `*cine*` | match | roots; a "match" entity would hold them, but nothing needs that |
+| PRACTICE's options and latch | flow 212-228 (seven specials) | match | a sim input outside the ECS |
+| the cinematic's world | cinema.lisp's ~20 roots | match | presentation the sim's step sets |
+| the stage's marks | stage.lisp's rings | match | presentation (11.5.2 C) |
+
+Dead or write-only component slots (whole-accessor grep, duel/ tests/ tools/, the hash line): FIGHTER `cancelled` (0 uses), `seal`
+(read at combat 448 and decremented at fighter 1082, never set above 0), `step-open` (cleared at fighter 325, read at 1009, never set T),
+`block-adv` (written at fighter 985, never read); BRAIN `intent-t`, `break-key`, `bankai-rolled`, `aim-key`, `aim-plan`, `aim-t`,
+`reflect-key`, `reflect-go` (0 uses), `react-roll` (written at cpu-perceive 91, never read), `heat` (only ever set to 0, combat 180;
+**printed in the hash line**, gate.lisp:24), `intent` (read only by the debug overlay, debug 651); GAUGES `form-total` (written at combat
+623, never read); MODEL `t3` (0 uses). Kit data: the `:ai` plists of six kits (ken 3, ichigo 2, hisagi 1) have no game reader: `kit-ai` is
+read only by host tests (tests/duel-rules/hisagi.lisp:236, 608, 1006-1009; systems.lisp:53), which pin the data and go with it. The guard's slots (`glock`, `guard-t`, `ward-until`, `crush` / `stored` / `dmg-bonus` of the stance) are reachable only
+through paths R3 listed as unreachable for a `:core` kit; they go with the guard, not here.
+
+#### 11.5.6 Coupling hot spots
+
+Distinct caller → callee pairs from one duel file into others (fan-out), and slot writes by file (`setf` / `incf` / `decf` / `push` of a
+component accessor; a multi-pair `setf` counted once per place):
+
+| File | Pairs out | Files reached | Top targets | Component slot writes |
+|---|---|---|---|---|
+| combat | 172 | 8 | rules 59, components 43, fighter 23, kit 22, core-sim 16 | 105 (GAUGES 66, FIGHTER 32, MOTION 4, BRAIN 2) |
+| ichigo | 142 | 14 | components 38, fighter 27, ichigo-look 14, hazards 14, debug 13 | 39 |
+| fighter | 136 | 9 | rules 43, kit 34, components 30, combat 13, core-sim 9 | 165 (FIGHTER 150) |
+| debug | 122 | 30 | flow 11, brush 8, fighter 7, vfx 7 | 65 |
+| cpu-ki-ken | 105 | 7 | components 38, core-ai 27, kit 16, fighter 10 | 26 (BRAIN) |
+| hisagi | 104 | 11 | components 59, fighter 9, kit 8, debug 7 | 27 |
+| flow | 65 | 18 | kit 11, onehand 9, control 8, fighter 7 | 40 (GAUGES 19, BRAIN 14, FIGHTER 7) |
+| core-sim | 57 | 5 | kit 18, components 16, fighter 12, rules 6, core 5 | 48 |
+
+Fan-in: fighter, components 27 files each; kit 26; lhud-plate 24; rules 19. Read: the sim's coupling runs one way (systems → rules /
+kit / components), which is the intended shape; the hot spots are the cross-module **writes**:
+
+- **combat writes the CPU**: `deal-damage` zeroes `brain-heat` (combat 180), a dead anti-stall heat that the hash line still prints;
+  `reset-round` clears `brain-press-left` (761).
+- **flow writes the sim**: `practice-step` writes the dummy's BRAIN presses and both GAUGES every sim step (flow 295-313); 19 GAUGES and
+  14 BRAIN writes in a screens file.
+- **kit hooks write GAUGES directly** (ken 32, ichigo 14, hisagi 12 slot writes; the meter, Reishi, flags), not through a named place;
+  none writes `gauges-fs` (above), which is what the SP batches need.
+- **a draw file writes kit data**: hisagi-draw.lisp:1870-1875 sets `kit-meter` of three kits at load.
+- **a look file writes the sim's slots** for a probe (ichigo-look 489-495) and hisagi-stills 94 FIGHTER writes: debug code in art files
+  (R11's registry).
+- **hooks that are side effects or flags rather than data**: KEN-P (`:p`, a no-op kept so `*run-commands-p*` applies, fighter 859);
+  `:u`'s presence tests (fighter 468, 475; onehand 266) with no `:u` hook on any live kit; KESSA's `:step` hook, a no-op under
+  `*core-on*`; ken.lisp's `:on-frame` look hooks that write the stage (11.5.2 C) where the rest of the kit emits events
+  (`:ken-bk-burst`, `:sfx`).
+- **the sim reads the human's device** (core-sim 240-253) and **a rule reads the brain** (core-sim 116-120): 11.5.3.
+
+#### 11.5.7 Ranked changes for R15 (and for the SP batches)
+
+Ordered by value per risk; cheap fixes in files SP does not touch first. Proof words as in 11.3 (fast, G2, hash, unit-forms, snaptest /
+fulltest); "looks" = the looks gate's stills against a same-session BASE.
+
+| # | What | Why (principle) | Size | Risk | Proof | When |
+|---|---|---|---|---|---|---|
+| 1 | `ground-scar`'s three callers (ken 364, 419, 425) emit an event (`:ground-scar p yaw ds r`) and feedback.lisp makes the marks | rules never call code that shows (ecs.lisp header); stops the rollout leak (11.5.2 C) | ~15 lines (ken, feedback) | low | fast, G2 and fulltest identical; looks diffs expected and reviewed (`stage-debris` draws the cosmetic stream, so moving its call into feedback reorders those draws, and rollouts stop advancing it): only chips and marks may move | **now**, side lane; S2 also edits ken.lisp (`:sp-cost-mult` in four `:core` plists, DUEL_SP 8.2): other forms, a trivial merge |
+| 2 | add `*soul-breaks*` to `snapshot-roots` (sim-state 11-12) | one rule for the three hit queues; safe today only by an argument about cinematic timing | 1 line | none | fast, snaptest / fulltest, G2 | now (or with #1) |
+| 3 | remove the dead slots of 11.5.5 (FIGHTER `cancelled` `seal` `step-open` `block-adv`; BRAIN `intent-t` `break-key` `bankai-rolled` `aim-*` `reflect-*` `react-roll` `heat` `intent`; GAUGES `form-total`; MODEL `t3`) and the kits' `:ai` plists; `heat`'s hash column by R6's method (compared stripped, then the reference regenerated for the format) | data that means nothing; one fewer cross-module write (combat 180) | ~60 lines | low | fast, G2 stripped of `h`, snaptest / fulltest, pkgcheck | **after R6, before S2** (S2 / S4 add FIGHTER / GAUGES slots); the `h` column leaves inside S2's own hash regeneration (S2 adds `sp-paid`, DUEL_SP 8.3), so the format changes once there |
+| 4 | `hit-px` seam (11.5.4) | pure where the hot path allows; S2's scale becomes a host-tested argument | ~15 lines | low | unit-forms not applicable (a refactor inside S2): G2 identical before S2's knobs move | **during S2**, its first commit |
+| 5 | `fs-gain` pure core of `pay-gauges`; decide the steal's and the refund's path (spend-fs / pay-gauges or stated exceptions) | one named writer per gauge direction | ~10 lines + two rule answers | low (the answers may move G2) | host test; G2 identical for the pure move; the answers by S1 / S3's neutral-knob method | **S1** (the questions), **S3** (the core) |
+| 6 | `core-switch-ready-p` stops reading the brain: the CPU's gate moves to `cai-switch-press` (core-ai), the sim's legality reads only the vpad and the gauges | input-agnostic rules ("human vs CPU is only has-a-BRAIN") | ~10 lines | low (the shipped CPU never switches, DUEL_AI_STRATEGY §8.16) | G2, fulltest | **during S6** (it rewrites the function) |
+| 7 | PRACTICE's options into one struct (or the dummy's BRAIN + a PRACTICE component), `practice-step`'s gauge writes as a pure "practice refill" of gauge values; flow.lisp keeps only screens | a sim input in seven specials and a sim system in a screens file | ~80 lines | low-medium | the practice scripts' logs identical (duel-practice, practice-cancel), G2 (no practice), saved settings load | **during S9** (it adds the GAUGES row here), first commit |
+| 8 | the phone's SP hold into the vpad: onehand's reader sets a vpad button (and the tap / rearm flag in PILOT), `core-held-p` / `core-touch-p` read only the vpad | vpads for every input source (AGENTS determinism); no device read in the sim or a rollout | ~40 lines | medium (phone feel) | duel-touch / touch-left / mobile scripts' logs identical, G2, a phone playtest | after S6 (core-sim.lisp is S1-S6's), R15 |
+| 9 | `*core-on*` out (R11 already plans it), with the NIL branches: KESSA's `:step` hook, `hoho-clone`, ichigo 735 / 815 / 1043 / 1048, combat 155, kit 395; the host checks that set it NIL (core.lisp, ken.lisp) restated in core-scaled numbers first | a hidden channel that only tests flip | ~40 lines + test edits | low | fast, G2, unit-names | R11 (after S9) |
+| 10 | hooks as data: `:p`'s run rule as a kit key (`:run-awaken t` or `:run-commands`), KEN-P out; `:u`'s dead tests and `u-press!` out; hisagi-draw's `kit-meter` setfs moved into his `defkit` forms | kit data is data; a hook is called, never tested for presence | ~30 lines | low | unit-forms (the meter move), G2, the ken-shikai script (P from a run) | R11 (its hook-point table) |
+| 11 | the implicit arguments: `*strat-now*` and `*mc-select*` passed (or a field of the style state), `*kk-meaty-p*` / `*kk-ns-safe-p*` rebinding replaced by an argument of `ken-ki-style` | no hidden channels through specials | ~60 lines | medium (many readers, CPU files) | G2, snaptest / fulltest, `strategy-eval` cache hit unchanged | R12 (after S7) |
+| 12 | `apply-hit`'s outcome record (pure core + apply step), `deal-damage`'s split, the step's hit queues returned as values from `hit-apply` to `settle-souls` | pure core / imperative shell in the hit path | ~250 lines moved | medium-high | host tests of the core, G2 + hash, snaptest / fulltest, every live `duel-*.json` log identical | **after S5** (R15) |
+| 13 | combat.lisp's four jobs split: hits / gauges + bursts + forms / the round (settle, reset) | one job per module | ~500 lines moved | low (a pure move) | unit-forms EQUAL, G2 | **after S9** (R15; every S batch edits these functions) |
+| 14 | `*mc-plan*` and the jobs' owner as BRAIN slots (or a CPU component); `*view-*` as P1's PILOT slots | state in components, not in side-indexed specials | ~50 lines | medium (snapshot roots change) | snaptest / fulltest, G2, the camera scripts | R12 / R15, only if the next feature needs it |
+| 15 | debug-mutated knobs reset on `start-match` (or the debug commands bind instead of set) | a debug command must not change a later match silently | ~20 lines | low | the debug scripts' logs | R11 |
+
+Not ranked (no gain found): `hit-gains`, `core-on-hit!`, `gauge-system` (11.5.4); the rollout bindings' macro and `*in-rollout*` defined
+once (already R12); the guard's slots (with the guard).
+
+### 11.6 Risks
 
 1. **R3 is the hard cut**: old and live mechanics are interleaved in `apply-hit` and the fighter step; the only proof is G2 + hash,
    which cover three pairings' CPU matches, not every scripted scene. R3 also re-runs every `tests/scripts/duel-*.json` of the live
