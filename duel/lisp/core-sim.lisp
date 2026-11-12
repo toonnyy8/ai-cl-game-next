@@ -16,6 +16,7 @@ count the attack press (an NA link and an SA are attack presses: the pointer an 
                                     (cond (c (f32 c)) ((and old (member cls '(:na :as))) (fighter-charge-mult f)) (t 1f0))))
     (unless (eq cls :ns) (setf (fighter-tmp f) 0 (fighter-csa f) nil))   ; a temporary pointer lasts the NS route (DUEL_SUBLIMATION §17)
     (when (and (eq cls :ns) (not (eq (kit-class (fighter-kit f) old) :ns))) (setf (fighter-clash-n f) 0))   ; a fresh NS route counts its cancels from 0
+    (when (getf (mv-params mv) :steal-fs) (setf (fighter-steal-taken f) 0f0))   ; a new use of a stealing AS: a fresh budget
     (case cls ((:na :sa) (incf (fighter-presses f))))))
 
 (defun core-charge-mult (fa mv own hazard)
@@ -381,12 +382,23 @@ be a Kikon's first strike: the hold kept since that segment (the button still do
 
 (defun core-on-hit! (att def mv &optional (mult 1.0))
   "What a landed hit of a core AS does besides damage (its :params), at MULT (a KESSA clone's replay: 0.1): :steal-fs takes
-flash-step from DEF and gives it to ATT. (Its Reiatsu steal went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
+flash-step from DEF and gives it to ATT, at most *STEAL-FS-MAX* over the use (STEAL-TAKE; 2026-11-12). (Its Reiatsu steal went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
   (let ((fs (getf (mv-params mv) :steal-fs)))
     (when (and fs (plusp fs))
-      (let ((take (f32 (min (* mult fs) (gauges-fs (gauges def))))))
+      (let* ((f (fighter att)) (take (f32 (steal-take (* mult fs) (gauges-fs (gauges def)) (fighter-steal-taken f)))))
+        (setf (fighter-steal-taken f) (f32 (+ (fighter-steal-taken f) take)))
         (setf (gauges-fs (gauges def)) (f32 (- (gauges-fs (gauges def)) take)))
-        (setf (gauges-fs (gauges att)) (f32 (min *fs-max* (+ (gauges-fs (gauges att)) take))))))))
+        (setf (gauges-fs (gauges att)) (f32 (min *fs-max* (+ (gauges-fs (gauges att)) take))))
+        (clog "~a STEAL fs ~,1f (use total ~,1f / ~d)" (side-name att) take (fighter-steal-taken f) (round *steal-fs-max*))))))
+
+(defun steal-scene-fs! (tag)
+  "A steal scene's gauges (debug 83815 / 74908, DUEL_CORE §2.2): P1 flash-step 100 (room to gain 200), P2's full; a `duel steal` line."
+  (setf (gauges-fs (gauges *p1*)) 100f0 (gauges-fs (gauges *p2*)) *fs-max*)
+  (steal-fs-line tag))
+
+(defun steal-fs-line (tag)
+  "Debug 83816 / 74909: a `duel steal` line, both sides' flash-step now."
+  (log-msg "duel steal ~a t ~d fs p1 ~,1f p2 ~,1f" tag *match-tick* (gauges-fs (gauges *p1*)) (gauges-fs (gauges *p2*))))
 
 (defun core-konpaku-result (konpaku att soul-break)
   "Konpaku left / lost / ko-p after a Kikon or a Soul Break by ATT (a fighter of a core kit): a Kikon takes what CORE-SET-KIKON-N! fixed

@@ -1573,7 +1573,7 @@ ranged mode, idle; K 0 / 1 the dummy on GUARD ALL 2.2 / 4.5 m apart, 2 / 3 on ST
 (defun hisagi-debug (c)
   "His debug commands (debug.lisp *CHAR-DEBUG*, 83000-83999, docs/duel/DUEL_GAMEPLAY.md): 83000+k HISAGI-TEST k; 83100+k /
 83200+k the Shikai's damage dealt / taken x (0.5 + k / 100); 83300+k / 83400+k the ranged mode's (B2b); 83811-83814
-HS-J1-CANCEL-SCENE; 83900 the probe lines."
+HS-J1-CANCEL-SCENE; 83815 / 83816 the steal scene (HISAGI-TEST 0 with P1's flash-step 100, P2's 300) / its fs line; 83900 the probe lines."
   (cond ((< c 83100) (hisagi-test (- c 83000)))
         ((< c 83200) (setf (kit-mult (find-kit :hisagi :base)) (+ 0.5 (/ (- c 83100) 100.0))))
         ((< c 83300) (setf (kit-taken (find-kit :hisagi :base)) (+ 0.5 (/ (- c 83200) 100.0))))
@@ -1590,6 +1590,8 @@ HS-J1-CANCEL-SCENE; 83900 the probe lines."
          (hisagi-probe-line (format nil "switch ~d" c)))
         ((< c 83811) (hisagi-range-scene (- c 83800)))   ; (the ranged mode's distance control, cpu-hisagi-range.lisp; DUEL_AI_STRATEGY §8.16, §8.19)
         ((< c 83815) (hs-j1-cancel-scene (- c 83811)))   ; (a cancel is symmetric: DUEL_CORE §2.1)
+        ((= c 83815) (hisagi-test 0) (steal-scene-fs! "tsumuji"))   ; (one use of a stealing AS takes at most one cell: DUEL_CORE §2.2)
+        ((= c 83816) (steal-fs-line "end"))
         ((= c 83900) (hisagi-probe-line "probe"))
         (t (log-msg "duel hisagi: no debug command ~d" c))))
 (pushnew '(83000 83999 hisagi-debug) *char-debug* :test #'equal)

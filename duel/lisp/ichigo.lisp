@@ -1227,8 +1227,8 @@ now (the scripts time the presses)."
 (defun ichigo-debug (c)
   "74000+k ICHIGO-TEST k, 74080+k the 60-seed gate of pairing k (ICHIGO-AB-GATE); 74100+k .. 74400+k the forms' damage dealt / taken x (0.5 + k / 100) (Shikai dealt, taken,
 KESSA dealt, taken); 74500+k the parry window's length = k (from f2); 74600+k *KESSA-PARRY-CATCH* = k; 74700+k
-*CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo, 74906 the
-looks' consing probe (ICHIGO-LOOK-CONS-CHECK), 74907 the HUD's (ICHIGO-HUD-CONS-CHECK); 74910+k
+*CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k (74904: two NS3 clones, which replay his J / AS), 74905 log P2's combo, 74906 the
+looks' consing probe (ICHIGO-LOOK-CONS-CHECK), 74907 the HUD's (ICHIGO-HUD-CONS-CHECK), 74908 / 74909 the steal scene's gauges (P1 flash-step 100, P2's 300) / its fs line; 74910+k
 *CLONE-SCALE* = k / 20 (k < 40); 74950+k *AI-IC-PARRY-P* = k / 50 (k < 40); 74990+k a pose still (*ICHIGO-POSES*), 74989
 its camera turned 90 deg; 75000 + 80 i + k stills of cinematic i (0 the Shikai
 Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break, 4 the Shikai's cleaver Kikon, 5 his rush Kikon, 6 KESSA's chain Kikon;
@@ -1252,6 +1252,11 @@ the pointer-linked ones of 2026-10-28) held at frame 3k (150 i + 2k before)."
       (9 (cond ((< k 4) (ichigo-set-clones *p1* k))
                ((= k 89) (setf *ic-pose-ang* (mod (+ *ic-pose-ang* 90.0) 360.0)))
                ((= k 6) (ichigo-look-cons-check))
+               ((= k 4) (dolist (h (ichigo-clones *p1*)) (destroy-entity h))   ; two NS3 clones (they replay his J / AS: the steal scene)
+                (loop for (src side) in '((:ns-a 1) (:ns-b -1))
+                      do (multiple-value-bind (x z) (ichigo-ns-slot *p1* side) (ichigo-clone-spawn *p1* x z src))))
+               ((= k 8) (place *p1* *p2* 1.5) (steal-scene-fs! "ichigo"))   ; (after 74000 / 74001 / 74008: 1.5 m apart, P1 flash-step 100, P2's 300; DUEL_CORE §2.2)
+               ((= k 9) (steal-fs-line "end"))
                ((= k 7) (ichigo-hud-cons-check))
                ((= k 5) (let ((f (fighter *p2*)))
                           (log-msg "duel ichigo combo P2 hits ~d dmg ~d reishi ~d" (fighter-combo-hits f) (fighter-combo-dmg f)

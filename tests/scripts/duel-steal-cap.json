@@ -1,0 +1,190 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== TSUMUJI')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(83815)"
+},
+{
+"at": 9.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.0,
+"eval": "Module._debug_cmd(83816)"
+},
+{
+"at": 17.0,
+"eval": "console.log('=== RAKUGA')"
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(74000)"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 17.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 25.0,
+"eval": "console.log('=== KUSARI-BIKI')"
+},
+{
+"at": 25.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 25.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 25.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 31.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 33.0,
+"eval": "console.log('=== KUSARI-BIKI 2 NS3 clones')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 33.03,
+"eval": "Module._debug_cmd(74904)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 33.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 39.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 41.0,
+"eval": "console.log('=== END')"
+}
+]

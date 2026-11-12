@@ -206,6 +206,10 @@ SP 27.3 O 20, a Breaker's 0).")
 ;; the Hoho 30 -> 100 and the burst 70 -> 200 as asked, so a Hoho is 1/3 of the gauge (was 0.3) and a burst 2/3 (was 0.7))
 (defparameter *fs-max* 300.0 "Flash-step gauge maximum (100 -> 300); full at the match start, kept through Kikon resets.")
 (defparameter *fs-hoho* 100.0 "Flash-step a Hoho costs (30 -> 100).")
+(defparameter *steal-fs-max* 100.0
+  "Most flash-step one use of a stealing AS (:steal-fs) takes from the victim in total, over all its hits and its KESSA clones' replays
+(the attacker gains what was taken). Unbounded (Hisagi's TSUMUJI 4 x 120) -> 100, one HUD cell (= *FS-HOHO*): 2026-11-12, the user:
+「當前角色吸取對手閃步量表的能力改成最多削減一格的量」. A use ends the budget when the next stealing AS starts (CORE-NOTE-START!).")
 (defparameter *fs-burst* 200.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; the drain is the cost).")
 (defparameter *fs-regen* 4.5 "Flash-step per second (3 -> 9 -> 4.5: 2026-11-12, the user: 「閃步量表的自然恢復速度減半」; a Hoho from empty in 23.2 s) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")

@@ -218,3 +218,17 @@
                                                  '(:ke-s-bankai)))
                                      (and (null (getf (kit-core k) :as-writes))
                                           (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))
+
+;; ---- one use of a stealing AS takes at most one cell (the user, 2026-11-12: 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」)
+(check (= *steal-fs-max* *fs-hoho* 100.0))
+(check (= (steal-take 120.0 300.0 0.0) 100.0))             ; budget full: capped at one cell (RAKUGA / one TSUMUJI hit)
+(check (= (steal-take 30.0 300.0 60.0) 30.0))              ; partly spent, the hit fits
+(check (= (steal-take 120.0 300.0 60.0) 40.0))             ; partly spent: only the rest
+(check (= (steal-take 120.0 300.0 100.0) 0.0))             ; spent
+(check (= (steal-take 12.0 300.0 99.0) 1.0))
+(check (= (steal-take 120.0 25.0 0.0) 25.0))               ; a victim with less than asked
+(check (= (steal-take 30.0 0.0 0.0) 0.0))
+(check (let ((tot 0.0)) (dotimes (i 4) (incf tot (steal-take 120.0 300.0 tot))) (= tot 100.0)))   ; TSUMUJI's four hits
+(check (let ((tot 0.0)) (dotimes (i 4) (incf tot (steal-take 30.0 300.0 tot))) (= tot 100.0)))    ; KUSARI-BIKI's 4 x 30 = 120 (the clones' x0.1 replays: nothing left)
+(check (let ((k (kit :ichigo :base)) (h (kit :hisagi :base)))   ; per-hit values as written
+         (and (= 120 (getf (mv-params (kit-move k :ic-as1)) :steal-fs)) (= 120 (getf (mv-params (kit-move h :hs-as1)) :steal-fs)))))

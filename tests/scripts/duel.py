@@ -1045,3 +1045,24 @@ def hisagi_j1_cancel_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("hisagi-j1-cancel", hisagi_j1_cancel_script())
+# One use of a stealing AS takes at most one cell of flash-step (DUEL_CORE §2.2, the user 2026-11-12: 「當前角色吸取對手閃步量表的能力改成最多
+# 削減一格的量」; --fixed-dt 16.666667 --secs 40): P1's flash-step 100, P2's 300, then J, 0.5 s later Shift+J (J1 then the AS): Hisagi's TSUMUJI (83815),
+# Ichigo's RAKUGA (74000), KESSA's KUSARI-BIKI without clones (74001) and with two NS3 clones (74001 + 74904); 74908 / 83815 set the gauges, 74909 / 83816
+# print the `duel steal` fs line; the combat log's `STEAL fs` lines give each hit's take and the use's running total.
+def steal_cap_script():
+    ev = []
+    t = T0
+    for name, setup, prime, end, sp in (("TSUMUJI", 83815, None, 83816, 0.5), ("RAKUGA", 74000, 74908, 74909, 0.5),
+                                        ("KUSARI-BIKI", 74001, 74908, 74909, 0.25), ("KUSARI-BIKI 2 NS3 clones", 74001, 74908, 74909, 0.25)):
+        ev.append({"at": round(t, 2), "eval": f"console.log('=== {name}')"})
+        ev.append(cmd(t, setup))
+        if "NS3" in name: ev.append(cmd(t + 0.03, 74904))
+        if prime: ev.append(cmd(t + 0.05, prime))
+        ev.extend(tap(t + 0.5, "KeyJ", 0.05))                      # J1 (hits the idle dummy), then SP: the AS
+        a = t + 0.5 + sp                                           # (KESSA's J1 is shorter: SP inside its hit window)
+        ev.append(key(a, "ShiftLeft")); ev.extend(tap(a + 0.01, "KeyJ", 0.05)); ev.append(key(a + 0.1, "ShiftLeft", False))
+        ev.append(cmd(t + 6.0, end))
+        t += 8.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("steal-cap", steal_cap_script())
