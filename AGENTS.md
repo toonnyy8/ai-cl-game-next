@@ -111,7 +111,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (a runner over `tests/duel-rules/*.lisp`, one file per character / topic) (also `duel-control-test`, `learn-test`, `input-test`, `touch-test`, `cine-test`) | ALL PASS |
 | Seed / pacing gate | `python3 tools/simgate.py --summary` (native sim of the same sources; `--pairs`, `--seeds`, `--seed0`, `--cmd`); the match time leaves every cinematic out since 2026-10-08 (DEVLOG §134; earlier quotes include them) | every match K.O.; cross-pairing medians 125–210 s; mirrors may exceed 210. Quick first pass `--seeds 10`: passes at once only if all K.O. and median 135–200 s, else 20 seeds = verdict |
 | Edge rerun | a 20-seed median outside the window → `--pairs k --seeds 60`; still outside → **report to the user**, don't retune other knobs | |
-| Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |
+| Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; **void since 2026-11-12 (REFACTOR_2026-11 R3): the core CPU never read the old awakening modes, and debug 39000+ left with the old AI**; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |
 | ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
 | G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`; pairs II IK KK since the core system, 2026-10-27) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
@@ -152,14 +152,14 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   K / L / U / I / O are unbound. ASSIST, the learner, ENDLESS and ROGUE are frozen.
 - **Roster** (`*roster*` is fixed in kit.lisp: no kit behind a retired slot; the retired ones' files `yama*` / `rukia*` / `senjumaru*` / `barro*` / `lille-*` are on the branch `retired-kits`): index 0 Yamamoto (retired), 1 Kenpachi (`ken*`), 2 Rukia (retired), 3 Ichigo (`ichigo*`),
   4 Senjumaru (retired), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (retired; was `barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
-  functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`: the old AI's, left only on the retired kits since
-  2026-11-08; a `:core` kit's CPU is `core-ai.lisp` + the MCTS, DUEL_AI_MCTS §13), cinematics; art in `<char>-art.lisp`
+  functions (a `:core` kit's CPU is `core-ai.lisp` + the MCTS, DUEL_AI_MCTS §13; the old AI v2 and its kit hooks left main
+  2026-11-12, REFACTOR_2026-11 R3), cinematics; art in `<char>-art.lisp`
   (`defstrike` clips, bodies); big characters split by role under the same prefix (`-ai -clips -draw -cine -stills -vfx -look`,
   DUEL_DESIGN "Character code layout: split by role").
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
   sit in its file under the same rule),
   `rules.lisp`, `control.lisp`, `learn.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
-  `hazards`, `ai`, `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW; the frozen modes' canvas screens), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `endless`, `gate` (the gate
+  `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW; the frozen modes' canvas screens), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `endless`, `gate` (the gate
   machinery), `debug` (debug commands, scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `vfx-stamps`, `stage`,
   `cinema`, `glyphs`, `sounds`. Compile order:
   `duel/MANIFEST`.
@@ -167,7 +167,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   (`rnd01` for cosmetics), per-match reset, periodic state-hash lines. The native sim and the browser must agree bit for bit.
 - **Presentation is cosmetic**: the sim never reads art. Drawn reach must equal hit reach (host FK test, ±0.15 m).
 - **CPU**: a `:core` kit: `core-ai.lisp` (fuzzy rules) + the in-game MCTS (`mcts-lite.lisp`, `cpu-mcts.lisp`: the light model, the full sim,
-  DUEL_AI_MCTS); the retired kits: `ai.lisp` (generic) + each kit's reflexes (AI v2, `docs/duel/DUEL_AI_V2.md`); every chance scales by difficulty
+  DUEL_AI_MCTS), over `cpu-perceive.lisp` (the SNAP ring of the opponent seen BRAIN-DELAY steps late, the presses; the old AI v2,
+  `docs/duel/DUEL_AI_V2.md`, left with the retired kits, R3); every chance scales by difficulty
   EASY ≤ NORMAL ≤ HARD; roll once per event, never per step. Learning CPU `learn.lisp` (`DUEL_LEARNING.md`); ASSIST /
   AUTO modes `assist.lisp` (`DUEL_ASSIST.md`).
 - **Performance rules** (engine-wide): GC only between frames; 0 B/frame for new draw paths; split heavy startup work into

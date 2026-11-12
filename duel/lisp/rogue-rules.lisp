@@ -275,11 +275,9 @@ plays them)."
                         (maphash (lambda (n mv) (setf (gethash n h) mv)) (kit-moves kit))
                         (setf (kit-moves k) h)
                         (dolist (ed eds)
-                          (if (getf ed :moves)
-                              (dolist (n (getf ed :moves))
-                                (let ((mv (gethash n h)))
-                                  (when mv (setf (gethash n h) (or (gethash mv memo) (setf (gethash mv memo) (rogue-kai-edit-move mv ed)))))))
-                              (when (eq (getf ed :kit) form) (setf (kit-cold k) (getf ed :cold)))))
+                          (dolist (n (getf ed :moves))   ; (a :kit edit, Rukia's cold, left with her: 2026-11-12)
+                            (let ((mv (gethash n h)))
+                              (when mv (setf (gethash n h) (or (gethash mv memo) (setf (gethash mv memo) (rogue-kai-edit-move mv ed))))))))
                         (cons form k)))))))
 
 (defparameter *rogue-traits*

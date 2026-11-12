@@ -254,7 +254,7 @@ scripted habit."
   (let ((l (brain-learn b)))
     (and l (not (brain-habit b)) (<= (lrn-read-clock l) 0)
          (member (fighter-state (fighter e)) '(:idle :run)) (member (snap-state s) '(:idle :guard :run))
-         (not (kikon-ready-p e)) (not (ai-pip-hurry-p e)))))
+         (not (kikon-ready-p e)))))
 
 (defun learn-read-due (e b s d)
   "AI-REFLEX: the neutral read when due (LEARN-NEUTRAL-DUE-P; the clock's next interval *AI-THINK* + up to 40 from its own
@@ -291,8 +291,7 @@ predicted Hoho is only primed (the decision goes on: the bait)."
 out gets *LEARN-HOHO-W* first when it may go. Returns the plist."
   (let ((row (learn-row (learn-context e) (learn-bin d))) (tab (lrn-tab l)))
     (when (member :bandit *learn-use*)
-      (unless (or (getf weights :hoho) (kit-rooted (kit-of e))
-                  (not (hoho-ready-p e)))
+      (unless (or (getf weights :hoho) (not (hoho-ready-p e)))
         (setf weights (list* :hoho *learn-hoho-w* weights)))
       (loop for tail on weights by #'cddr
             for arm = (position (car tail) *learn-arms*)

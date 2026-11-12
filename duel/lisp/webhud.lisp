@@ -24,14 +24,13 @@
 (defvar *kit-hud* (make-hash-table :test 'eq) "KIT -> #(label meter u-tag): the plate's name label, the kit meter, U's tag (made once a kit).")
 
 (defun kit-hud (kit)
-  "The cached HUD data of KIT: the name label (\"YAMAMOTO  BANKAI\"), the kit meter (inherited
-from the base form when this form has none) and the tag of what U does in the form (\"U: WEST\", \"WARD\", \"U: DRINK\")."
+  "The cached HUD data of KIT: the name label (\"KENPACHI  SHIKAI\"), the kit meter (inherited from the base form when this
+form has none) and the tag of what U does in the form (none since the retired kits' U forms left, 2026-11-12: NIL)."
   (or (gethash kit *kit-hud*)
       (setf (gethash kit *kit-hud*)
             (vector (format nil "~a~@[  ~a~]" (kit-name kit) (and (not (eq (kit-form kit) :base)) (kit-form-name kit)))
                     (or (kit-meter kit) (kit-meter (find-kit (kit-character kit) :base)))
-                    (cond ((kit-u-tag kit)) ((kit-guard-to kit) "U: WEST") ((member :ward (kit-passives kit)) "WARD")
-                          ((member :drink (kit-passives kit)) "U: DRINK"))))))
+                    nil))))
 
 (defun at-stake (e)
   "E's Konpaku flames the opponent's Kikon would take if it landed now: its current worth (combat.lisp KIKON-WORTH:
@@ -117,12 +116,11 @@ the finish's best combo / Kikons, human 1, the BLUE burst's burn left ‰ (+ 25)
       (webhud-put (+ o 15) (if meter (%hround (the single-float (gauges-meter g))) 0))
       (webhud-put (+ o 16) (let ((mx (getf meter :max 0)))
                              (cond ((typep mx 'fixnum) mx) ((typep mx 'single-float) (%hround (the single-float mx))) (t 0))))
-      ;; Kenpachi's strip (DUEL_WEBUI §13): the cup (the NOME ladder's rung) and the arm pip's crack clock left, ‰
+      ;; Kenpachi's strip (DUEL_WEBUI §13): the cup (the NOME ladder's rung); 21, the arm pip's crack clock, is 0 since the arm
+      ;; meter left (2026-11-12, REFACTOR_2026-11 R3)
       (let ((ladder (getf meter :ladder)))
         (webhud-put (+ o 20) (if ladder (or (position (kit-form kit) ladder :key #'first) 0) 0)))
-      (webhud-put (+ o 21) (if (and (kit-pips kit) (getf (kit-pips kit) :crack t))   ; (-1: no crack clock, Kenpachi's Bankai since 2026-11-02)
-                               (truncate (* 1000 (max 0 (- (the fixnum *arm-crack*) (gauges-meter-idle g)))) (the fixnum *arm-crack*))
-                               (if (kit-pips kit) -1 0))))
+      (webhud-put (+ o 21) 0))
     (webhud-put (+ o 17) (gauges-best-combo g))
     (webhud-put (+ o 18) (gauges-kikons g))
     (webhud-put (+ o 19) (if (cpu-p e) 0 1))

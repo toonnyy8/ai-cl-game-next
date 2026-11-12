@@ -1,5 +1,5 @@
 ;;;; core-ai.lisp — the core system's CPU (docs/duel/DUEL_CORE.md §5): a generic player of the triangle for every kit with a :core.
-;;;; It perceives the opponent through the same delayed SNAP ring as the old CPU (ai.lisp BRAIN-PERCEIVE), walks to a range, starts
+;;;; It perceives the opponent through the same delayed SNAP ring as the old CPU (cpu-perceive.lisp BRAIN-PERCEIVE), walks to a range, starts
 ;;;; an NA or an NS, and its depth is the READ: when what he is doing is beaten by a turn (an NS against my NA link: AS; an NA
 ;;;; against my NS segment: SA), it turns with a chance by difficulty. Every chance is rolled once per event (his move's start, my
 ;;;; move's start), never per step. The old kit-specific tables are not read. The learner, ASSIST and the rest are frozen.
@@ -59,7 +59,7 @@ for anyone."
     (list :dj (/ d (max 0.5 rj)) :dn (/ d (max 0.5 rn)) :do (/ d (max 0.5 ro))
           :lead (- (gauges-konpaku g) (gauges-konpaku go))
           :mr (/ (gauges-reishi g) (float (gauges-reishi-max g))) :or (/ (gauges-reishi go) (float (gauges-reishi-max go)))
-          :ored (cai-bit (gauges-red-p go)) :hoho (cai-bit (hoho-open-p e))
+          :ored (cai-bit (gauges-red-p go)) :hoho (cai-bit (hoho-ready-p e))
           :ost (case (snap-state s) ((:idle :run :guard) 0) (:move (if (and (snap-move s) (< (snap-sf s) (snap-s s))) 1 2)) ((:step :hoho) 3) (t 4))
           :wave (cai-bit (nth (1- (mc-ptr f)) (getf (kit-core kit) :ns-range))) :awk (cai-bit (gauges-awakened g)))))
 (defun strat-form-index (f)
@@ -181,13 +181,13 @@ reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
          (nr (nth (1- (max 1 (min *core-pointer-max* (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
          (rg (getf (kit-core kit) :range *cai-range*)) (sc (strat-out :range nil))   ; (a strategy's range scale)
          (lo (if sc (* sc (first rg)) (first rg))) (hi (if sc (* sc (second rg)) (second rg))))
-    (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
-    (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)
+    (when (<= (decf (brain-strafe-t b)) 0) (ai-strafe e b))
+    (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-ready-p e)
                 (< (brain-hoho-roll b) (cai-fz b *fz-hoho* :skill :margin (- d (snap-reach s)) :frames (max 0 (- (snap-s s) (snap-sf s))))))
            (setf (brain-hoho-roll b) 1f0)
            (ai-press b :step 1 :modded t :act :hoho))
           (t (when (> d 7.0) (setf (brain-decide-t b) (min (brain-decide-t b) 1)))
-             (funcall (ai-step e :walk) e b vp d lo hi)
+             (ai-walk e b vp d lo hi)
              (when (<= (decf (brain-decide-t b)) 0)
                (setf (brain-decide-t b) (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01)))))
                (cond ((> d 7.0) (ai-dash b 1 4.5))

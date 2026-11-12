@@ -26,8 +26,6 @@
             (equal (sub-taken-mods '(:mult 1.0) 0.0) '(:mult 1.0))))
 ;; hit-damage with the multipliers as APPLY-HIT stacks them: 100 x 1.2 x 0.8 = 96
 (check (= 96 (hit-damage 100 (list :mult (* 1.0 (+ 1.0 (* *sub-dmg* 1.0)))) (sub-taken-mods '(:mult 1.0) 1.0) 1 nil)))
-;; Kenpachi's Bankai: free opens it (the DRIVE-full gate went, R1)
-(check (and (bankai-allowed-p t) (not (bankai-allowed-p nil))))
 ;; Ichigo's pointers: the seals, pointer 4 and the 超速連斬 of 2026-10-31 were taken out again (DUEL_SUBLIMATION §16): the original tables
 (let ((b (kit :ichigo :base)) (k (kit :ichigo :kessa)))
   (check (and (null (getf (kit-core b) :locks)) (null (getf (kit-core k) :locks))))

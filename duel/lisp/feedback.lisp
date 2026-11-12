@@ -14,7 +14,7 @@
 ;;;;   (:evolution e) (:hellfire e)  (:skeleton-rise x z)  (:sfx key e)  (:reset)
 ;;;;   (:ken-bk-burst e kind)   Kenpachi's special AS: 千切's beats (:chigiri-draw / -still / -quake / :chigiri), TATE-GOTO's split
 ;;;;   (:rung e up-p) (:drink att def x y z) (:rift-cut owner x z hx hz yaw) (:rift-close x z)   Nozarashi's NOME ladder
-;;;;   (:bankai e) (:arm-spend e left) (:arm-crack e left) (:arm-burst e)   Kenpachi's Bankai: the arm meter
+;;;;   (:bankai e)   Kenpachi's Bankai
 (in-package :duel)
 
 (defun sfx-on (key e &key (gain 1.0) (pitch 1.0))
@@ -206,17 +206,4 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
           (t
             (progn (vfx-ken-bk-burst (+ (aref p 0) (* 2.2 (fwd-x yaw))) (+ (aref p 2) (* 2.2 (fwd-z yaw))) kind)
                    (sfx-on :ground-crack e) (sfx-on :kikon-slash e :gain 0.7) (sfx-on :rift-open e) (shake 0.3 0.4))))))
-    (:bankai _ nil)                                        ; the cinematic says it
-    ((:arm-spend :arm-crack) args                             ; a pip: a BLOOD crack flash along the forearm, a bone creak
-     (let ((e (first args)) (v *fb-v*))                  ; (a crack by the clock: dimmer, an ink puff)
-       (joint-point! v (model-joints (model e)) (ji :lower-arm-r) 0f0 -0.12f0 0f0)
-       (vfx-awaken-burst (aref v 0) (aref v 1) (aref v 2) :arm-crack)
-       (sfx-on :arm-crack e :gain (if (eq kind :arm-spend) 0.9 0.6))
-       (when (eq kind :arm-crack) (vfx-smoke-puffs (aref v 0) (aref v 1) (aref v 2) 1))))
-    (:arm-burst args (let ((e (first args)) (v *fb-v*))       ; the arm bursts: a negative, a manga page, the BLOOD spray
-                       (joint-point! v (model-joints (model e)) (ji :lower-arm-r) 0f0 -0.12f0 0f0)
-                       (vfx-awaken-burst (aref v 0) (aref v 1) (aref v 2) :arm-burst)
-                       (impact-splash (aref v 0) (aref v 1) (aref v 2) 16 0.07)
-                       (impact-frame :negative 1) (setf *impact-next* '(:manga . 12))
-                       (face-beat e :hurt 0.9)
-                       (sfx-on :arm-burst e) (shake 0.2 0.3)))))   ; (Yachiru's apology is his callout: ARM-BURST!)
+    (:bankai _ nil)))                                      ; the cinematic says it

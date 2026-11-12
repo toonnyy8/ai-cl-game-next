@@ -1,6 +1,6 @@
 ;;;; gate.lisp — the seed gates' machinery (docs/duel/DUEL_GAMEPLAY.md "Gate policy"; tools/simgate.py drives it natively):
-;;;; the determinism hash line, the gate's pacing companions (Rukia's bands, Kenpachi's cups; the other characters keep
-;;;; theirs in their own files), seeded CPU vs CPU, the seed gate and its pairings (ROSTER-PAIRS), the learning gate (its
+;;;; the determinism hash line, the gate's pacing companion (Kenpachi's cups; the other characters keep theirs in their own
+;;;; files), seeded CPU vs CPU, the seed gate and its pairings (ROSTER-PAIRS), the learning gate (its
 ;;;; habit knobs *HABITS* / *DUMB-P2*; the scripted players themselves, which the sim calls, are scripted.lisp).
 ;;;; The debug commands that start them are dispatched in debug.lisp (DEBUG-COMMAND). Out of debug.lisp 2026-10-21.
 (in-package :duel)
@@ -10,61 +10,23 @@
 
 (defun state-hash-line ()
   "The determinism hash: positions quantized to cm, facing to 0.01 rad, every gauge (f flash-step,
-g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku the last Kikon rush was worth."
+g guard gauge, ! = guardless, m the kit meter), n the Konpaku the last Kikon rush was worth, h the CPU's heat (0 since the old
+AI left; the column kept), the kit's :hash, p the SP pointer. (The u / * / fr / sl columns, which printed only for the retired
+kits' arm meter, cold gauge and frost, left 2026-11-12, REFACTOR_2026-11 R3: a live kit never printed them.)"
   (with-output-to-string (s)
     (format s "duel hash t=~d" *match-tick*)
     (dolist (e (list *p1* *p2*))
       (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ sl~d~]~@[ h~d~]~@[ ~a~] p~d" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
+        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d n~d~@[ h~d~]~@[ ~a~] p~d" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
                 (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
                 (gauges-reishi g) (gauges-konpaku g) (round (gauges-reiatsu g)) (round (gauges-fs g)) (round (gauges-gg g))
                 (gauges-guardless g) (round (gauges-awaken g))
-                (round (gauges-meter g)) (and (or (kit-pips (fighter-kit f)) (getf (kit-meter (fighter-kit f)) :temp))   ; the arm's
-                                              (gauges-meter-idle g))                            ; crack clock / Rukia's warm clock,
-                (gauges-arm-pending g)                                                          ; * = its burst pending
-                (fighter-kikon-n f) (and (plusp (fighter-frost f)) (fighter-frost f))           ; fr = frost left (Rukia's ice)
-                (and (plusp (fighter-layers f)) (+ (* 1000 (fighter-layers f)) (fighter-thaw f)))   ; sl = her 霜の層 on him
+                (round (gauges-meter g)) (fighter-kikon-n f)
                 (and (brain e) (floor (brain-heat (brain e))))
                 (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e)))   ; a kit's own state (Hisagi's sickle)
                 (fighter-ptr f))))   ; the core system's SP pointer (2026-10-27)
     (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)
             (let ((n 0)) (do-entities (h hazard) (incf n)) n))))
-
-(defvar *band-acc* (vector (make-array 18 :element-type 'fixnum :initial-element 0)
-                           (make-array 18 :element-type 'fixnum :initial-element 0))
-  "Per side, the cold bands' pacing (debug only: never read by the sim): frames, damage dealt and taken per band (-18
--50 zero: 0-2, 3-5, 6-8), zero visits (9), exits by CRACK (10) and by spending / warming (11), bracing frames (12),
-freeze-touches (13), the last dealt / taken totals (14 15), the last band (16: -1 none) and freeze-touch flag (17).")
-
-(defun band-acc-reset ()
-  (dotimes (i 2) (let ((a (svref *band-acc* i))) (fill a 0) (setf (aref a 16) -1))))
-
-(defun band-acc-step ()
-  "Per battle step outside cinematics: every awakened Rukia side's band bookkeeping (BAND-ACC-LINE logs it)."
-  (when (and (eq *flow* :battle) (not *cine*) (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (dotimes (side 2) (let ((e (if (zerop side) *p1* *p2*)))   ; (no list a step)
-     (when (eq (fighter-character (fighter e)) :rukia)    ; (her forms only; another side's line never prints: DEVLOG §621)
-      (let* ((f (fighter e)) (a (svref *band-acc* (fighter-side f))) (g (gauges e)) (go (gauges (opp-of e)))
-             (b (position (fighter-form f) '(:m18 :m50 :zero))) (last (aref a 16))
-             (d (- (gauges-dealt g) (aref a 14))) (tk (- (gauges-dealt go) (aref a 15))))
-        (setf (aref a 14) (gauges-dealt g) (aref a 15) (gauges-dealt go))
-        (when b
-          (incf (aref a b)) (incf (aref a (+ 3 b)) d) (incf (aref a (+ 6 b)) tk)
-          (when (and (= b 2) (/= last 2)) (incf (aref a 9)))
-          (when (and (= last 2) (/= b 2)) (incf (aref a (if (and (= b 0) (plusp (gauges-meter-idle g))) 10 11))))
-          (when (and (= b 2) (vpad-down (pilot-vpad (pilot e)) :guard)) (incf (aref a 12)))
-          (when (and (gauges-froze g) (zerop (aref a 17))) (incf (aref a 13))))
-        (setf (aref a 16) (or b -1) (aref a 17) (if (gauges-froze g) 1 0))))))))
-
-(defun band-acc-line ()
-  "The gate row's companion: a \"duel band\" line per side that was awakened Rukia."
-  (dotimes (i 2)
-    (let ((a (svref *band-acc* i)))
-      (when (plusp (+ (aref a 0) (aref a 1) (aref a 2)))
-        (log-msg "duel band seed ~d P~d vs ~a frames ~d ~d ~d dealt ~d ~d ~d taken ~d ~d ~d visits ~d crack ~d exit ~d brace ~d ft ~d"
-                 *match-seed* (1+ i) (fighter-character (fighter (if (zerop i) *p2* *p1*)))
-                 (aref a 0) (aref a 1) (aref a 2) (aref a 3) (aref a 4) (aref a 5) (aref a 6) (aref a 7) (aref a 8)
-                 (aref a 9) (aref a 10) (aref a 11) (aref a 12) (aref a 13))))))
 
 (defvar *cup-acc* (vector (make-array 15 :element-type 'fixnum :initial-element 0)
                           (make-array 15 :element-type 'fixnum :initial-element 0))
@@ -105,7 +67,7 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
 
 (defvar *step-hook* nil "A tool's per-step observer (tools/simgate's matchup evaluator, DUEL_MATCHUP_AI): a function of no arguments, NIL in play.")
 (defun hash-log ()
-  (when *pacing-log* (band-acc-step) (cup-acc-step))   ; (the gate's lines only: off in play)
+  (when *pacing-log* (cup-acc-step))   ; (the gate's lines only: off in play)
   (when *step-hook* (funcall *step-hook*))             ; (reads the state only; never set by the game)
   (when (and (eq *flow* :battle) (plusp *match-tick*) (zerop (mod *match-tick* 600)))
     (log-msg "~a" (state-hash-line)))
@@ -121,8 +83,8 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
 (defun start-cvc (seed pair)
   "Seeded CPU vs CPU (*GATE-DIFFICULTY*, NORMAL): PAIR = (c1 c2), or NIL to draw both from SEED."
   (setf *match-seed* seed *mode* :cpu-cpu *difficulty* *gate-difficulty* *blow-aways* 0)
-  (band-acc-reset) (cup-acc-reset) (pacing-reset)
-  (setf *pacing-log* t)                                 ; (the pacing lines: PACE, BAND- / CUP-ACC-STEP)
+  (cup-acc-reset) (pacing-reset)
+  (setf *pacing-log* t)                                 ; (the pacing lines: PACE, CUP-ACC-STEP)
   (sim-rnd-seed seed)
   (setf *picks* (or pair (let ((r (playable-roster)))   ; (the retired out: 2026-10-12)
                            (list (nth (floor (* (length r) (sim-rnd01))) r) (nth (floor (* (length r) (sim-rnd01))) r)))))
@@ -130,13 +92,12 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
 
 (defvar *gate* nil "Seed gate: (seed pair) matches still to run.")
 (defvar *gate-results* nil "(pair secs ko-p) of the finished gate matches.")
-(defparameter *pairs-0* '((:yamamoto :yamamoto) (:yamamoto :kenpachi) (:kenpachi :kenpachi)
-                          (:rukia :yamamoto) (:rukia :kenpachi) (:rukia :rukia)
-                          (:ichigo :yamamoto) (:ichigo :kenpachi) (:ichigo :rukia) (:ichigo :ichigo)
-                          (:senjumaru :yamamoto) (:senjumaru :kenpachi) (:senjumaru :rukia) (:senjumaru :senjumaru)
-                          (:senjumaru :ichigo))
-  "The first five characters' fifteen pairings in their historical order (pairing k 0-14; YK has P1 Yamamoto, and SS comes
-before SI: Senjumaru's pairings were gated before Ichigo joined).")
+(defparameter *pairs-0*
+  (mapcar (lambda (ij) (mapcar (lambda (i) (nth i *roster*)) ij))
+          '((0 0) (0 1) (1 1) (2 0) (2 1) (2 2) (3 0) (3 1) (3 2) (3 3) (4 0) (4 1) (4 2) (4 4) (4 3)))
+  "The first five roster characters' fifteen pairings (by roster index) in their historical order (pairing k 0-14: YY YK KK RY RK
+RR IY IK IR II SY SK SR SS SI; YK has P1 Yamamoto, and SS comes before SI: Senjumaru's pairings were gated before Ichigo joined).
+The retired slots keep their numbers (tools/simgate.py builds the same list); START-GATE leaves their pairings out.")
 
 (defun roster-pairs ()
   "Every seed-gate pairing: *PAIRS-0*, then for each later roster character i (index 5 on) its pairings with every earlier
@@ -155,11 +116,11 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
 (defvar *gate-seed0* 0 "Debug 30000+k: the seed gate plays seeds k+1 .. k+N (the 60-seed A/B in three runs).")
 (defvar *gate-seeds* 20 "Debug 31100+n: seeds per pairing N (the quick pass plays 10; the user 2026-09-29: two-stage gates).")
 (defun start-gate (p)
-  "The seed gate of P: 0-2 pairing p, 3 every pairing, 4 Rukia's three (= 102), 5 RY and RK, 10+k pairing k alone,
-100+i roster character i's pairings (CHAR-PAIRS: 104 Senjumaru's five). A pairing that doesn't exist: a log line, no gate."
+  "The seed gate of P: 0-2 pairing p, 3 every pairing (the retired's out), 10+k pairing k alone, 100+i roster character i's
+pairings (CHAR-PAIRS). A pairing that doesn't exist: a log line, no gate."
   (setf *pairs* (roster-pairs))
   (let ((pairs (cond ((= p 3) (remove-if (lambda (pr) (or (member (first pr) *retired*) (member (second pr) *retired*)))
-                                         *pairs*))   ; (every pairing: the retired's out, 2026-10-12) ((= p 4) (char-pairs 2)) ((= p 5) (subseq *pairs* 3 5))
+                                         *pairs*))   ; (every pairing: the retired's out, 2026-10-12)
                      ((>= p 100) (and (< (- p 100) (length *roster*)) (char-pairs (- p 100))))
                      (t (let ((k (if (< p 10) p (- p 10))))   ; (10+k: pairing k alone)
                           (and (< k (length *pairs*)) (list (nth k *pairs*))))))))
@@ -184,7 +145,7 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
              (fighter-form (fighter *p1*)) (fighter-form (fighter *p2*)) *blow-aways*)   ; (the gamble A/B reads the final forms)
     (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
-    (band-acc-line) (cup-acc-line)
+    (cup-acc-line)
     (ichigo-acc-line) (hisagi-acc-line)
     (when *learn-gate* (learn-gate-line))
     (setf *gate-busy* nil))

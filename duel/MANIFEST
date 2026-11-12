@@ -3,7 +3,7 @@
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
 # users. tuning / rules / control / learn / kit are plain CL (host-tested); ken / ichigo / hisagi are the characters
 # (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
-# scripted.lisp (the learning / ASSIST gates' scripted players: ai.lisp calls them from the sim) loads right before ai.lisp.
+# scripted.lisp (the trial player tools/simgate/trial.lisp drives) loads right before cpu-perceive.lisp (the CPUs' perception and presses).
 # ken-meter (Kenpachi's NOME / UDE meter: its step, reached by the kit's :tick hook, and its
 # HUD widgets, the meter's :draw / :label) load right after hud.lisp: they use components' CLOG and hud's HUD-TEXT.
 # hem-spring / tip-track / vfx-ember (shared looks that stayed when the retired kits left: Ichigo's cloak spring, the weapon-tip tracker Ichigo's and Kenpachi's looks use, the ember star and the hold charge the dispatch calls) load before the characters.
@@ -47,7 +47,7 @@ lisp/combat.lisp
 lisp/core-sim.lisp
 lisp/hazards.lisp
 lisp/scripted.lisp
-lisp/ai.lisp
+lisp/cpu-perceive.lisp
 lisp/core-ai.lisp
 lisp/cpu-ki-ken.lisp
 lisp/cpu-ki-ichigo.lisp

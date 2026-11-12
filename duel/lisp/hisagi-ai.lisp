@@ -209,7 +209,7 @@ hits not above the last link hit's, or 90 f since it) clears it; its first J1 / 
       (:q (and (kit-next kit name :q) (why b :plan :q)))
       (:f (and (kit-next kit name :f) (why b :plan :f)))
       (:sig (let ((l (kit-l-link kit name)))
-              (and l (eq (hss-state st) :in) (kit-command-ok-p e :sig kit nil l) (progn (pace e :ai-bridge) (why b :plan-bridge :sig)))))
+              (and l (eq (hss-state st) :in) (kit-command-ok-p e :sig kit l) (progn (pace e :ai-bridge) (why b :plan-bridge :sig)))))
       (:sp1 (and (kit-command-ok-p e :sp1) (progn (pace e :ai-plan-sp) (why b :plan-sp :sp1)))))))
 
 ;;; ================================================================ the Bankai's CPU (§17.5 #16)

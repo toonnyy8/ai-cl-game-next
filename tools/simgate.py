@@ -8,13 +8,12 @@ gate's summary line, plus a wins / blow-aways line.
 
   python3 tools/simgate.py                         every pairing (15 for 5 characters), seeds 1-20 (= GATE_CMD(k) on the browser)
   python3 tools/simgate.py --pairs 0,1,2 --seeds 10         YY YK KK, seeds 1-10 (the quick pass)
-  python3 tools/simgate.py --pairs 9 --seed0 100 --seeds 60 --cmd 39020   an awaken A/B stream (seeds 101-160)
   python3 tools/simgate.py --summary               summary lines only (rows omitted)
   python3 tools/simgate.py --cvc                   self-check: G2's three CPU matches (tests/scripts/duel-cvc-*.json)
                                                    natively vs the browser's tests/style-cvc-ref.txt, line for line
 
 --cmd N (repeatable) queues debug command N before each process's gate command, as a run.mjs script would (knobs:
-39000+10a+b, 74385, ...). Pairing k is gate.lisp *PAIRS*' index (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II
+74385, ...; 39000+10a+b, the old awaken A/B, left with the old AI in R3). Pairing k is gate.lisp *PAIRS*' index (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II
 10 SY 11 SK 12 SR 13 SS 14 SI; then, per later character in ROSTER order, its pairings with every earlier one and its
 mirror: PAIRS, ROSTER-PAIRS in gate.lisp). A new character = its name appended to ROSTER, nothing else. The build (build/simgate/duel.fas, ~2 min) is redone when a source is newer.
 One process plays a pairing's seeds back to back, as the page does. --chunk N splits them over processes (faster for

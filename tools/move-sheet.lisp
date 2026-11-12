@@ -68,8 +68,8 @@ Hit adv: his stun − her frames left (NIL: down). Whiff / block R: the recovery
   (format t "## Kit~%~%| | |~%|---|---|~%")
   (format t "| walk / run | ~,2f / ~,2f m/s |~%| Reishi | ~d |~%| x dealt / taken | ~,2f / ~,2f |~%| stun tolerance | ~a |~%"
           (kit-walk kit) (kit-run kit) (kit-reishi kit) (kit-mult kit) (kit-taken kit) (kit-stun-tolerance kit))
-  (format t "| SP1 / SP2 cost | ~a / ~a bars |~%| awakens into | ~(~a~) |~%| rooted | ~a |~%~%"
-          (kit-command-cost kit :sp1) (kit-command-cost kit :sp2) (kit-awaken-form kit) (kit-rooted kit))
+  (format t "| SP1 / SP2 cost | ~a / ~a bars |~%| awakens into | ~(~a~) |~%~%"
+          (kit-command-cost kit :sp1) (kit-command-cost kit :sp2) (kit-awaken-form kit))
   (format t "## Moves~%~%| Input | Move | Kind | S/A/R | whiff / block R | hits (frame: dmg) | reaction / stun | hit adv | block adv | volume | slide / kb | cost | params |~%|---|---|---|---|---|---|---|---|---|---|---|---|---|~%")
   (flet ((row (mv tag) (when (and mv (not (member mv seen))) (push mv seen) (ms-row kit mv tag))))
     (dolist (c '(:q :f :sig :sp1 :sp2 :breaker :kikon)) (row (kit-command-move kit c) (string-upcase (symbol-name c))))

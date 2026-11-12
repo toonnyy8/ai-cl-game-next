@@ -410,8 +410,8 @@ red Kikon of 3 (a pointer-3 success) instead of AS3's capped Soul Break of 4 (a 
 
 (defun iks-walk (e b vp d lo hi)
   "Walk toward the band LO..HI (strafing inside it) this step; T (decided)."
-  (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
-  (funcall (ai-step e :walk) e b vp d lo hi)
+  (when (<= (decf (brain-strafe-t b)) 0) (ai-strafe e b))
+  (ai-walk e b vp d lo hi)
   t)
 
 (defun iks-new-episode-p (e st)
@@ -473,7 +473,7 @@ his recovery less the perception delay. T when pressed."
     (cond ((null pick) nil)
           ((<= d (- (third pick) 0.1)) (iks-confirm-press e b f st d pick))
           ((> *match-tick* (ikst-pend-until st)) (setf (ikst-pend st) nil))
-          (t (funcall (ai-step e :walk) e b (pilot-vpad (pilot e)) d 0.0 (- (third pick) 0.2)) t))))
+          (t (ai-walk e b (pilot-vpad (pilot e)) d 0.0 (- (third pick) 0.2)) t))))
 
 (defun iks-timed-hoho (e b st s d)
   "Hoho his perceived attack in reach, timed into the perfect-Hoho window (*IKS-HOHO-LEAD*). One roll per his move start. T when
@@ -484,7 +484,7 @@ pressed (b3_a1's IKS-KESSA-HOHO)."
     (unless (= (ikst-hkey st) (snap-start s))
       (setf (ikst-hkey st) (snap-start s) (ikst-hoho st) (brain-roll b *iks-hoho-p*)))
     (let ((lead (snap-lead-seen s b)) (g (gauges e)))
-      (when (and (ikst-hoho st) (<= (first *iks-hoho-lead*) lead (second *iks-hoho-lead*)) (hoho-open-p e)
+      (when (and (ikst-hoho st) (<= (first *iks-hoho-lead*) lead (second *iks-hoho-lead*)) (hoho-ready-p e)
                  (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g)))
         (setf (ikst-hoho st) nil (ikst-hoho-t st) *match-tick*)
         (iks-log e st :hoho d)
@@ -555,7 +555,7 @@ once his read comes beyond his back Step and the lunge still reaches him walking
 
 (defun iks-wake (e b f st d)
   "Her first free frame after a wake-up with him near (*IKS-WAKE-HOHO-NEAR*): the Hoho (one roll per wake-up, b3_a0). T when pressed."
-  (when (and (<= d *iks-wake-hoho-near*) (member (fighter-form f) *iks-wake-hoho-forms*) (hoho-open-p e)
+  (when (and (<= d *iks-wake-hoho-near*) (member (fighter-form f) *iks-wake-hoho-forms*) (hoho-ready-p e)
              (brain-roll b *iks-wake-hoho-p*))
     (iks-log e st :wake-hoho d)
     (ai-press b :step 1 :modded t :act :hoho)
@@ -620,7 +620,7 @@ decides."
       ((and (ikst-pend st) (iks-pend-step e b f st d)))
       ((iks-punish e b f st s d o))
       ;; his attack live and in reach: the generic's Hoho roll (the identical test) takes the step
-      ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)
+      ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-ready-p e)
             (< (brain-hoho-roll b) (brain-chance b *cai-hoho-p*)))
        nil)
       ;; KESSA: awaken once full at a free moment

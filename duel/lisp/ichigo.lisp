@@ -1139,14 +1139,14 @@ F-SIN, REFACTOR_NEXT N2; the double PI before moved the dots by float ulps)."
 (defparameter *ichigo-tests*
   ;; k: P1-form P2 P2-form distance P2's action P1's clones
   '((:base :kenpachi :base 3.0 nil 0) (:kessa :kenpachi :base 3.0 nil 0) (:kessa :kenpachi :base 2.6 :f 0)
-    (:kessa :yamamoto :base 7.0 :sig 0) (:kessa :kenpachi :base 2.6 :breaker 0) (:base :yamamoto :base 8.0 :sig 0)
+    (:kessa :kenpachi :base 7.0 nil 0) (:kessa :kenpachi :base 2.6 :breaker 0) (:base :kenpachi :base 8.0 nil 0)
     (:base :kenpachi :base 8.0 nil 0) (:kessa :kenpachi :base 8.0 nil 3) (:kessa :kenpachi :base 2.2 nil 3)
-    (:kessa :rukia :base 4.0 nil 0) (:kessa :kenpachi :base 2.4 :q 0))
+    (:kessa :kenpachi :base 4.0 nil 0) (:kessa :kenpachi :base 2.4 :q 0))
   "ICHIGO-TEST k (74000+k): 0 / 1 the forms 3 m from an idle Kenpachi, 2 Kenpachi's K1 into KESSA (press L: the catch),
-3 Yamamoto's L wave into KESSA at 7 m (press L: blocked, drained), 4 Kenpachi's Breaker (it breaks the parry), 5 the
-Shikai vs Yamamoto's wave at 8 m (Shift+K: JUJISHO cuts it), 6 the Shikai 8 m from Kenpachi (the stance's dash / Getsuga),
-7 KESSA with 3 clones 8 m out, 8 KESSA with 3 clones 2.2 m from an idle Kenpachi (a J string: the worst case), 9 KESSA
-4 m from Rukia, 10 Kenpachi's J1 into KESSA (block it, L from blockstun catches J2).")
+3 KESSA 7 m from an idle Kenpachi, 4 Kenpachi's Breaker (it breaks the parry), 5 / 6 the Shikai 8 m from Kenpachi (the
+stance's dash / Getsuga), 7 KESSA with 3 clones 8 m out, 8 KESSA with 3 clones 2.2 m from an idle Kenpachi (a J string: the
+worst case), 9 KESSA 4 m from him, 10 Kenpachi's J1 into KESSA (block it, L from blockstun catches J2). (3 / 5 / 9 faced
+Yamamoto's L wave and Rukia until their code left main, 2026-11-12: Kenpachi, idle, since.)")
 
 (defun ichigo-set-clones (e n)
   "E's clones: exactly N, on a ring 4 m round the opponent's side of him (stills, the worst-case probe)."

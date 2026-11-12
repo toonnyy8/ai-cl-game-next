@@ -197,19 +197,18 @@ the defaults)."
 would be a Step (the user 2026-10-01: the perfect timing is too hard to hit from a rest on a phone), and PERFECT HINT
 shows it (hud.lisp HUD-HINT). Free states that take a Hoho, the Hoho affordable (TRY-COMMAND's rule), PERFECT-NOW-P."
   (let ((f (fighter e)))
-    (and (member st '(:idle :guard :run)) (battle-p) (not (kit-rooted (fighter-kit f)))
+    (and (member st '(:idle :guard :run)) (battle-p)
          (hoho-ready-p e)
          (perfect-now-p e))))
 
 (defun awaken-hold-ready-p (e)
-  "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused) or
-the Bankai (BANKAI-READY-P) from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
+  "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused)
+from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
 hold (RV-READY-P). (A form's :p hook is left out: Kenpachi's is DANGAI's frozen card, NIL outside it, and Hisagi's FREE sits in
 his Bankai, a :no-awaken form.)"
   (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
     (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
-         (or (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
-             (and (kit-bankai-form kit) (bankai-allowed-p t) (bankai-ok-p e)))
+         (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
          t)))
 
 (defun rv-ready-p ()

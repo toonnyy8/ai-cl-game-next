@@ -264,13 +264,9 @@ DANGAI stage's conditions under it."
     (match-over *p1*)))
 
 (defun endless-debug-bankai ()
-  "Debug 80981: P1 into his kit's form with a :bankai-form (awakened, Konpaku 4), then that Bankai (BANKAI!)."
-  (let* ((e *p1*) (g (gauges e)) (cup (find-if #'kit-bankai-form (gethash (fighter-character (fighter e)) *kits*) :key #'cdr)))
-    (if (not cup)
-        (log-msg "duel endless debug: no bankai for ~(~a~)" (fighter-character (fighter e)))
-        (progn (set-form e (car cup))
-               (setf (gauges-awakened g) t (gauges-awaken g) 0f0 (gauges-konpaku g) 4 (gauges-meter g) 100f0)
-               (bankai! e)))))
+  "Debug 80981: was P1 into his kit's form with a :bankai-form, then that Bankai; no form has one since Kenpachi V3 (the slot
+left 2026-11-12, REFACTOR_2026-11 R3), so it only says so (as it did since V3)."
+  (log-msg "duel endless debug: no bankai for ~(~a~)" (fighter-character (fighter *p1*))))
 
 (defun endless-debug-form (k)
   "Debug 80982+k: P1 into his kit's K-th form (definition order: 0 the base) with its meter full, awakened as the form

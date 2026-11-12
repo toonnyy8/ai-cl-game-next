@@ -97,7 +97,7 @@ generic CPU in turn (K mod 3)."
   (let* ((f (fighter e)) (o (fighter-opp f)) (fo (fighter o)) (g (gauges e)) (go (gauges o)) (mv (fighter-move fo)))
     (list :char (fighter-character f) :ochar (fighter-character fo)
           :d (round (* 10 (fighter-dist f))) :st (fighter-state f) :ptr (fighter-ptr f) :form (fighter-form f)
-          :r (gauges-reishi g) :k (gauges-konpaku g) :fs (round (gauges-fs g)) :hoho (and (hoho-open-p e) t)
+          :r (gauges-reishi g) :k (gauges-konpaku g) :fs (round (gauges-fs g)) :hoho (and (hoho-ready-p e) t)
           :ost (fighter-state fo) :osf (fighter-sf fo) :omv (and (eq (fighter-state fo) :move) mv (mv-name mv))
           :ocls (and (eq (fighter-state fo) :move) (fighter-cls fo)) :ophase (fighter-phase fo)
           :optr (fighter-ptr fo) :oform (fighter-form fo) :or (gauges-reishi go) :ok (gauges-konpaku go) :ofs (round (gauges-fs go))

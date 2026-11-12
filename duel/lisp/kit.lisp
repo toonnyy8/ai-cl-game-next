@@ -31,15 +31,13 @@
   (kb 0.0)                      ; knockback slide, metres
   (hs 0 :type fixnum)           ; global hitstop frames
   (chip nil)                    ; chip fraction on block, NIL = none
-  (meter 0.0)                   ; the kit meter (Inferno) gained on hit
   (stun nil)                    ; hitstun override in frames (NIL = the reaction's, *REACTION-FRAMES*)
   (guard nil)                   ; guard gauge a block drains (GUARD-VALUE; NIL = a hazard's *GG-HAZARD*)
-  (frost 0 :type fixnum)        ; frames of frost a real hit sets (FROST-NEXT; Rukia's ice)
   (seg nil)                     ; :seg-fn: a kit function (e) -> the world capsule this frame, in place of VOLS (WINDOW-TOUCHES-P)
   (min nil)                     ; :min-reach: no hit on a victim nearer than this (m, centre to centre; NIL = none: COLLECT-MELEE)
   (steal nil)                   ; :steal-fs: flash-step this window's hit takes (NIL = the move's :params :steal-fs: CORE-ON-HIT!)
   (flags nil))
-(inline-readers hitwin)                  ; :breaker :guard-crush :unguardable :ranged :ice
+(inline-readers hitwin)                  ; :breaker :guard-crush :unguardable :ranged
 
 (defstruct (move (:conc-name mv-))
   "A move: frame data, hit windows and hooks. See DEFMOVE for the fields."
@@ -62,42 +60,11 @@
 (defun mv-first-hit (mv) "Frame of the first hit window (or S)."
   (if (plusp (length (mv-hits mv))) (hw-from (svref (mv-hits mv) 0)) (mv-s mv)))
 
-;;; ---------------------------------------------------------------- :x-axis lines: what the CPU perceives of one
-;;; (ai.lisp SNAP-LIVE-P / SNAP-NEAR-P; docs/duel/DUEL_LILLE.md §11.3, gap G1). A move flagged :x-axis is a long line hit
-;;; window (a :cap volume, 31 m): a distance test against its reach is true everywhere, so the CPU tests the line instead,
-;;; and only in the move's real threat window. Moves without the flag never come here.
-(defun move-lock (mv)
-  "An :x-axis move's lock frame (its line stops turning): its :params :lock, else a :hold move's minimum hold, else NIL. A
-:hold move's lock counts in its hold phase (move frame 0 = the press), any other move's in its move proper."
-  (or (getf (mv-params mv) :lock) (and (mv-hold mv) (first (mv-hold mv)))))
-
+;;; ---------------------------------------------------------------- a move's real active window (the CPU's light model)
 (defun move-active-end (mv)
   "The end of MV's real active window: its last hit window's TO (several lines in a row: all of them), else S + A."
   (let ((hits (mv-hits mv)))
     (if (plusp (length hits)) (loop for w across hits maximize (hw-to w)) (+ (mv-s mv) (mv-a mv)))))
-
-(defun x-live-p (mv phase hold sf)
-  "Is :x-axis move MV, seen in PHASE at hold frame HOLD / move frame SF, a threat now? A :hold aim only from its lock (before
-it the shot can't come: the fire is after the release, and the line still turns: no guard through the aim); the move
-proper until its active window ends (a move with a :params :lock: from that frame, its wind-up before it)."
-  (let ((lock (move-lock mv)))
-    (case phase
-      (:hold (and lock (>= hold lock)))
-      (:main (and (< sf (move-active-end mv)) (or (mv-hold mv) (null lock) (>= sf lock))))
-      (t nil))))
-
-(defun x-line-gap (mv ax az yaw tx tz)
-  "How far (TX TZ) is from :x-axis move MV's line(s), its own radius taken off, the attacker at (AX AZ) facing YAW: every
-:cap volume of its hit windows (from a to b along the facing; a 6th element, when a volume has one, turns that line by it,
-radians: a fan); no :cap volume: its reach along the facing, radius 0."
-  (let ((best nil))
-    (loop for w across (mv-hits mv)
-          do (loop for v in (hw-vols w)
-                   when (= (aref v 0) 1f0)
-                     do (let ((g (- (line-dist ax az (+ yaw (if (> (length v) 5) (aref v 5) 0f0)) (aref v 1) (aref v 2) tx tz)
-                                    (aref v 4))))
-                          (when (or (null best) (< g best)) (setf best g)))))
-    (or best (line-dist ax az yaw 0.0 (mv-reach mv) tx tz))))
 
 ;;; ---------------------------------------------------------------- :seg-fn windows (docs/duel/DUEL_HISAGI.md §12.4, hook 2)
 ;;; A hit window with :seg-fn names a kit function of the attacker entity giving this frame's world capsule: its two ends
@@ -163,9 +130,9 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
   "SPEC (a resolved DEFMOVE plist) -> MOVE. STARTUP-ADD / REACH-MULT derive a form's version
 (Nozarashi): every frame from the startup on shifts, every reach scales."
   (destructuring-bind (&key kind clip clip-2 callout startup active recovery whiff (dmg 0) adv-block
-                         track reach (arc 90) (height '(0.2 2.0)) vol vols on-hit (kb 0.0) hs chip (meter 0.0)
+                         track reach (arc 90) (height '(0.2 2.0)) vol vols on-hit (kb 0.0) hs chip
                          cost hold (slide 0.0) flags hits on-frame tick release on-land cine params
-                         (enter 0) (blend 0.0) planted clip-s guard (armor-hits 0) (cooldown 0) (frost 0) min-reach)
+                         (enter 0) (blend 0.0) planted clip-s guard (armor-hits 0) (cooldown 0) min-reach)
       spec
     (let* ((breaker (eq kind :breaker))
            (s (+ startup-add (or startup (if breaker *breaker-startup* 0))))
@@ -185,7 +152,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
            (flags (if breaker (adjoin :breaker flags) flags))
            (guard (guard-value kind adv-block guard)))
       (flet ((window (from to &key (dmg dmg) (on-hit react) (kb kb) ((:vol hit-vol)) ((:reach hit-reach)) ((:vols hit-vols) vols)
-                                   (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost) ((:seg-fn seg))
+                                   (chip chip) (flags flags) (hs hs) stun (guard guard) ((:seg-fn seg))
                                    ((:min-reach wmin) min-reach) steal-fs)
                ;; a window's own :reach / :vol (scaled like the move's), else the move's volume; :vols (a window's, else
                ;; the move's): several volumes in one window, which still hits once (a fan of lines)
@@ -194,7 +161,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
                               (hit-vols nil)
                               (t vol))))
                  (make-hitwin :from (+ from startup-add) :to (+ to startup-add) :dmg dmg :react on-hit
-                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg :min wmin :steal steal-fs
+                              :kb kb :hs hs :chip chip :flags flags :stun stun :guard guard :seg seg :min wmin :steal steal-fs
                               :vols (cond (seg nil)   ; (a :seg-fn window: its capsule is the kit function's, no fixed volume)
                                           (v (list (make-vol (first v) (rest v))))
                                           (t (loop for spec in hit-vols
@@ -249,7 +216,7 @@ new button."
   :track    deg/s turn during startup; :reach metres; :arc degrees; :height (y0 y1) of the arc;
   :vol      explicit volume (:arc r deg y0 y1 | :cap a b h r [yaw-deg] | :sph fwd up r) instead of reach/arc
   :vols     several volumes in one hit window (it still hits once: a fan of lines), (spec ...); the reach is the first's
-  :on-hit   reaction; :kb knockback m; :hs hitstop f; :chip block chip fraction; :meter kit meter gain
+  :on-hit   reaction; :kb knockback m; :hs hitstop f; :chip block chip fraction
   :guard    guard gauge a block drains (default by kind, GUARD-VALUE)
   :armor-hits  hits the move's armour takes (move frames *ARMOR-FROM* .. S-1; a Kikon rush: its dash)
   :cooldown frames before its command may start again (from the move start; kept through resets)
@@ -257,12 +224,11 @@ new button."
             is held before the move proper (charge / stance); :slide metres moved during the move
   :flags    :ender (a string's link 3, J3 / K3: a hit on it opens the O ender, docs/duel/DUEL_STRINGS.md §2.4)
             :breaker :guard-crush :stance :parry (a parry move: *PARRY-WINDOW*) :cancel (a Signature
-            that may cancel a landed Quick / Flash, like an SP) :bind (South: the CPU's trap reflex)
+            that may cancel a landed Quick / Flash, like an SP)
             :ranged (a hit delivered by fire / a ground line, not the blade: like a hazard, no parry catches it;
             with :params (:melee-range r) only beyond r of the attacker: nearer it is the blade, a melee hit;
             one window, so it still hits once)
-  :frost    frames of frost a real hit sets (the victim walks and runs x*FROST-SLOW*: Rukia's ice)
-  :hits     ((from to &key dmg on-hit kb vol vols reach chip meter flags hs guard frost) ...) multi-hit windows;
+  :hits     ((from to &key dmg on-hit kb vol vols reach chip flags hs guard) ...) multi-hit windows;
             default: one window [S, S+A) when the move has damage and a volume
   :on-frame ((frame hook) ...), :tick hook (every frame), :release hook (button released during
             :hold), :on-land hook (first hit connects), :cine hook (Kikon cinematic)
@@ -280,8 +246,7 @@ new button."
             world capsule, tested in place of the window's volumes (WINDOW-TOUCHES-P; the CPU: SEG-GAP); the window is
             the move's own, so its contact counts as the move's (strings, O ender, SP cancels, :on-land, ender push)
   flags also: :rend (armour and a stance don't stop it: RESOLVE-CONTACT) :grab (a grab: the CPU never guards it)
-            :uncatchable (a :shield move's :catch doesn't take it: blocked as by a guard) :x-axis (a line through guard,
-            docs/duel/DUEL_LILLE.md §8: the CPU's perception reads it) :step-branch (a stance whose :tick takes Step as a
+            :step-branch (a stance whose :tick takes Step as a
             follow-up: the one-hand up-flick stays a Step in it, never a Hoho: control.lisp UP-FLICK-HOHO-P)
             :no-close (a J1 / K1 whose hit takes no generic close-in: STRING-OPENER-P; Hisagi's 6 m throw)
             :ranged-ward (while the move runs, hazards and :ranged windows are guarded from every side: rules
@@ -296,7 +261,7 @@ new button."
   "One character in one form. See DEFKIT for the fields."
   (character nil) (form nil) (inherit nil) (name nil)
   (awakening nil) (awaken-form nil) (duration nil) (burn 0.0)
-  (mult 1.0) (taken 1.0) (guard-to nil) (drop-to nil) (keep nil) (cornered 0.0) (cornered-max 0.0) (passives nil) (blade-chip nil)
+  (mult 1.0) (taken 1.0) (cornered 0.0) (cornered-max 0.0) (passives nil)
   (walk 3.0) (run 8.0) (run-clips '(:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)) (reishi *reishi-max*) (body nil) (weapon nil) (stance nil) (hide nil) (aura nil)
   (lift 0.0)
   (intro nil) (win nil) (intro-callout nil) (intro-weapon nil) (callout nil)
@@ -304,21 +269,9 @@ new button."
   (enter-clips nil) (enter-hook nil) (exit-hook nil)
   (meter nil) (reset-reiatsu 0.0) (ai nil) (cine nil) (blade nil) (grade nil)
   (kikon-konpaku 2 :type fixnum)        ; Konpaku a Kikon of this form removes (read at rush start)
-  (meter-gain nil)                      ; NOME gains (:dealt :taken :drunk) per point
   (form-name nil)                       ; the form's name on the HUD (default its keyword)
-  (drink-clip nil)                      ; the clip of a drunk hit (DRINK)
   (respect-callout nil)                 ; said when the opponent outplays him (a counter-hit, a perfect Hoho, a parry, a Burst)
-  (bankai-form nil)                     ; P (red, free) in this form enters that form (Kenpachi's cup 3 -> :bankai)
-  (bankai-ok nil)                       ; NIL, or a function of the fighter entity: T when its :bankai-form entry may go now
-  (pips nil)                            ; the arm meter UDE (:n :cmds :to): a form whose heavy commands spend pips
-  (crush-hook nil)                      ; called instead of the :drop-to switch when the ward breaks (Rukia's CRACK)
-  (rooted nil)                          ; no Step, Hoho, run, move slide or string chase in this form (Rukia's zero)
-  (field nil)                           ; the cold field (:r :away :step) round this fighter (Rukia's awakened bands)
-  (warm 0.0)                            ; a :temp meter's warming, cold per second while not guarding
-  (cold nil)                            ; plist command -> cold it spends (a :temp meter); L is refused without it
-  (frost-touch 0 :type fixnum)          ; frames of frost every real hit of this form sets
   (reset-form nil)                      ; a Kikon / Soul Break reset puts the fighter in this form
-  (u-tag nil)                           ; the HUD's tag for what U does in the form (default by its passives)
   (calm nil)                            ; the face never shouts in this form (a look: MAIN.LISP FACE-OF)
   (face nil)                            ; the form's resting expression (NIL = :neutral; a look: DRAW.LISP FACE-OF)
   (stun-tolerance nil)                  ; the hidden stun it takes (NIL: *STUN-TOLERANCE*; STUN-TOLERANCE-OF)
@@ -429,9 +382,6 @@ it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."
   (plist-get (kit-hooks kit) point))                  ; (GETF's result, one walk: DEVLOG §621)
 (defvar *char-debug* nil "(lo hi fn): debug commands LO..HI a character file handles (debug.lisp calls FN with the command).")
-(defun kit-pip-cmd-p (kit command)
-  "Does COMMAND spend a pip of the arm meter in KIT (its :pips :cmds)?"
-  (and (member command (getf (kit-pips kit) :cmds)) t))
 (defun kit-kikon-cine (kit)
   "The cinematic a Soul Break by a fighter in KIT plays (the user's decision 2026-09-27): the form's own (its :hooks
 :soul-break-cine, a cinematic's name), else its Kikon cinematic, the one its O would play now (its :kikon move's :cine),
@@ -439,15 +389,11 @@ else the generic SOUL-BREAK-CINE."
   (let ((mv (kit-command-move kit :kikon)))
     (or (kit-hook kit :soul-break-cine) (and mv (mv-cine mv)) 'soul-break-cine)))
 (defun stun-tolerance-of (kit) "The hidden stun KIT's form takes (its :stun-tolerance, else *STUN-TOLERANCE*)." (or (kit-stun-tolerance kit) *stun-tolerance*))
-(defun kit-drop (kit cmd)
-  "The form a kit command CMD drops KIT's form to first (its :drop-to, unless CMD is in its :keep: Bankai West's
-attacks but SP1 / L go back to East), or NIL."
-  (and (kit-drop-to kit) (not (member cmd (kit-keep kit))) (kit-drop-to kit)))
 
-(defun kit-atk-mods (kit lost &optional (pierce 1.0) form-mult)
+(defun kit-atk-mods (kit lost &optional (hit-x 1.0) form-mult)
   "The attacker plist for HIT-DAMAGE: the form's multiplier (FORM-MULT in its place when given: a move's :params
-:form-mult; x PIERCE: 1 + Bankai East's pierce k on a hit) and Cornered with LOST Konpaku."
-  (list :mult (* (or form-mult (kit-mult kit)) pierce (if (and *core-on* (kit-core kit)) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
+:form-mult) x HIT-X (the hit's own factors: APPLY-HIT) and Cornered with LOST Konpaku."
+  (list :mult (* (or form-mult (kit-mult kit)) hit-x (if (and *core-on* (kit-core kit)) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
 (defun kit-def-mods (kit)
   "The defender plist for HIT-DAMAGE: the damage the form takes (:taken)."
   (list :mult (kit-taken kit)))
@@ -460,7 +406,7 @@ the base form's clips on his wings, barro.lisp's :clip-map)."
   "Every clip name the form uses (moves, stance, intro/win, entry cinematic, the run, its :look-clips' own), its moves'
 through its :clip-map."
   (remove-duplicates
-   (remove nil (append (list (kit-stance kit) (kit-intro kit) (kit-win kit)) (kit-enter-clips kit) (kit-run-clips kit) (list (kit-drink-clip kit))
+   (remove nil (append (list (kit-stance kit) (kit-intro kit) (kit-win kit)) (kit-enter-clips kit) (kit-run-clips kit)
                        (loop for (nil c) on (kit-look-clips kit) by #'cddr collect c)
                        (loop for mv being the hash-values of (kit-moves kit)
                              collect (kit-move-clip kit (mv-clip mv)) collect (kit-move-clip kit (mv-clip-2 mv)))))))
@@ -621,21 +567,12 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      button: J / K switch at most once); a non-button command (:land) names a
                                      follow-up a hook starts (KIT-NEXT), so derived forms derive it too
   :mult :cornered :cornered-max      §4 damage dealt (KIT-ATK-MODS)   :taken  damage x taken (KIT-DEF-MODS)
-  :passives (:ward :pierce :projectile-cut :scorch :cut :drink :intangible)   :blade-chip fraction
-                                     (:ward: Bankai West blocks 360 deg in his free states and own moves, with
-                                     no blockstun, drains x*WARD-MULT*, never refills; :pierce: Bankai East's
-                                     hits x(1 + k), k of a blocked hit goes through (PIERCE-RATE); :scorch: his
-                                     parry burns; :cut: his heavy hits drain guard x*CUT-MULT*; :drink: U drinks;
-                                     :intangible with :ward: a blocked hit passes through, x*MUJITTAI-MULT* of the
-                                     gauge, no push, no chip: combat.lisp)
-  :guard-to FORM                     U (held, from idle / walk / run) switches to FORM instead of guarding
-                                     (Bankai East -> West)
-  :drop-to FORM :keep (cmd ...)      any kit command not in :keep switches to FORM on its frame 0 and starts
-                                     FORM's move (Bankai West: every attack but SP1 / L goes back to East)
+  :passives (:projectile-cut :parry-block)   (:projectile-cut: his blade cuts a projectile; :parry-block: what his parry
+                                     can't catch is blocked from every side: combat.lisp)
   :awakening T (an awakened form)    :awaken-form FORM (what Awaken turns this character into)
   :duration seconds (NIL = permanent; then back to :inherit)   :burn Reishi fraction/s
   :startup-add :reach-mult           derive the inherited moves (not inherited themselves)
-  :meter (:name :max :full-form)     the character's meter (Inferno -> :hellfire)
+  :meter (:name :max)                the character's meter (the kit meter, GAUGES-METER)
   :enter-clips :enter-hook :exit-hook  form change presentation
   :swing-sfx :absorb-sfx             sounds of a non-Quick swing (default :whoosh-heavy) and of a
                                      hit the stance absorbs (Kenpachi's laugh)
@@ -645,18 +582,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :meter (... :start n :ladder ((form drain/s delay up-at down-below) ...))   a meter that picks the form
                                      (Nozarashi's NOME: rules LADDER-RUNG, ken-meter.lisp KEN-NOME-STEP); :start = its value
                                      at the awakening
-  :meter-gain (:dealt :taken :drunk) the meter per point dealt / lost / drunk (DRINK, the stance's absorb)
-  :form-name :drink-clip :respect-callout  the HUD's form name; the clip of a drunk hit; the callout when the
-                                     opponent outplays him
-  :bankai-form FORM                  P, red and free, enters FORM (Kenpachi's cup 3: the Bankai, docs/duel/DUEL_KEN_BANKAI.md)
-  :bankai-ok SYMBOL                  a function of the fighter entity: may the :bankai-form entry go now (NIL key: yes;
-                                     the CPU's Bankai reflex, ai.lisp, consults it too)
-  :pips (:n :cmds (cmd ...) :to FORM :crack T)  the arm meter (:crack NIL: no pip cracks by itself) (the kit meter holds the pips): each command in :cmds (and every
-                                     latched K link) spends one on its frame 0 (refused at 0); at 0 the arm bursts to
-                                     FORM, or stays in the form when FORM is NIL (ken-meter.lisp KEN-ARM-STEP)
-  :crush-hook SYMBOL                 a broken ward calls it instead of dropping to :drop-to (Rukia's CRACK)
-  :rooted T                          no Step / Hoho / run, no move slide or string chase   :reset-form FORM  the form
-                                     after a Kikon reset
+  :form-name :respect-callout        the HUD's form name; the callout when the opponent outplays him
+  :reset-form FORM                   the form after a Kikon reset
   :l-after-k T | MOVE                L latched during a K link (K1 / K2 / K2s / K3) starts when that link's chain opens
                                      (its own contact, docs/duel/DUEL_STRINGS.md §12): T the form's L, else MOVE, a combo copy
   :l-after-j T | MOVE                the same after a J link (J1 / J2 / J2s / J3); either may be a plist (link MOVE ...):
@@ -699,13 +626,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      Hisagi's 6 m throw: 6.0, DUEL_HISAGI Q6 B), default NIL
   :endless-form FORM                 ENDLESS: staying awakened starts the next stage in FORM, its meter at FORM's :start
                                      (docs/duel/DUEL_ENDLESS.md §4)
-  :u-tag STRING                      the HUD's tag for U   :meter (... :draw fn :label fn :bankai-prompt (:key :right
-                                     :pad :one-hand strings :rgb colour))  a character's own meter row / portrait label /
-                                     BANKAI prompt words   :meter (:name :max :temp t)  Rukia's cold gauge (rukia-meter.lisp
-                                     RUKIA-COLD-STEP: the kit meter holds the cold C, the band is the form, rules TEMP-BAND)
-  :warm n  :cold (cmd n ...)         a :temp form's warming per second; the cold each command spends (L refused without)
-  :field (:r :away :step)            the cold field: the opponent within :r m moves away from her x :away, Steps away x :step
-  :frost-touch n                     every real hit of the form frosts n frames
+  :meter (... :draw fn :label fn :bankai-prompt (:key :right :pad :one-hand strings :rgb colour))  a character's own meter
+                                     row / portrait label / BANKAI prompt words
   :blade (look power)                blade look drawn along the held weapon: (:fire 1.0) (:embers 1.0)
   :grade                             the world's grade while the form is on: NIL, or :SPOT (grey but the ember
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)

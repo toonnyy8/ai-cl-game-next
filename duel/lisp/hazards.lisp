@@ -1,54 +1,42 @@
 ;;;; hazards.lisp — every hit that isn't a fighter's melee is one HAZARD entity (design-v1 §12):
-;;;;   :wave      the Signature flame wave: a moving oriented box (WIDTH wide), hits once
-;;;;   :fireball  Shiranui: a homing sphere, swept from last step's position (no tunnelling)
-;;;;   :pillars   Ennetsu Jigoku: a ring of *ENNETSU-PILLARS* cylinders around where it erupted
-;;;;   :line      a ground line cut / crack: a look only (Kyokujitsujin, Buttagiru, the Meteor, South's crack)
-;;;;   :bind      South: a disc at the feet (radius SIZE, height Y) that grabs once its DELAY runs out
-;;;;   :freeze    Rukia's ice: the same disc (Tsukishiro's pillar, her quakes, the freeze-touch), out of reach of the
-;;;;              projectile cut (a blade can't cut the ground it stands on)
-;;;;   :hand      South: a skeleton's arm clawing out of the ground (transform + model), a look only
-;;;;   :rift      NOMIHOSE's KUKAN-GIRI: the blade's chord left in the air (its hitwin's volume, in the frame the owner
-;;;;              had at the cut, fixed in the world) that cuts once its DELAY runs out; closed if the owner is hit first
+;;;;   :wave      a moving oriented box (WIDTH wide) that hits once (Ichigo's Getsuga; drawn by its :look function)
+;;;;   :line      a ground line cut / crack: a look only (Kenpachi's floor splits)
+;;;;   :fx        a look only drawn by its :look function (SPAWN-LOOK), or a character's own hazard (its HOOK: Ichigo's
+;;;;              clones and their strikes, a :dmg-at hit's delay)
+;;;; (The retired kits' fireball, pillars, South's bind and hands, Rukia's ice and NOMIHOSE's rift left with them, 2026-11-12.)
 ;;;; HAZARD-SYSTEM moves them (sim steps, SIM randomness only), COLLECT-HAZARD-HITS hands their hits to
 ;;;; combat.lisp's HIT-SYSTEM (applied with the fighters' hits), HAZARD-DRAW shows them (vfx.lisp
 ;;;; looks, real time). Hazards of one kind never hit their owner.
 (in-package :duel)
 
-(defun spawn-hazard (kind owner &key (x 0.0) (y 0.0) (z 0.0) (yaw 0.0) (speed 0.0) (turn 0.0) (size 0.5)
-                                  (life 60) (delay 0) (hits 1) hw look src fragile hook data group
+(defun spawn-hazard (kind owner &key (x 0.0) (y 0.0) (z 0.0) (yaw 0.0) (speed 0.0) (size 0.5)
+                                  (life 60) (delay 0) (hits 1) hw look src hook data
                                   (sp (let ((f (and owner (fighter owner))))   ; (an SP's: its owner's move now)
                                         (and f (fighter-move f) (sp-move-p (fighter-kit f) (fighter-move f)) t)))
                                   (sp-mv (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))   ; (a wave's Kikon)
                                            (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv))))
   "A new hazard of KIND for fighter OWNER. LIFE / DELAY in frames; HW = the HITWIN it deals (NIL = look only). SRC: its
-hit comes from the owner's position; FRAGILE: it closes while it waits if the owner is hit (CLOSE-RIFTS). HOOK: a
-character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step), :close
-(CLOSE-RIFTS closed it) and :touches (the volume test of a kind this file doesn't know); DATA: what it keeps. GROUP: a
-hit group (MAKE-HIT-GROUP) shared with other hazards: together they deal its hits, at most one of them per step. SP: its hits
+hit comes from the owner's position. HOOK: a
+character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step) and :touches
+(the volume test of a kind this file doesn't know); DATA: what it keeps. SP: its hits
 ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P). Its hits pay the owner the Reiatsu of
 the owner's move now (HIT-RBASE; none: *REIATSU-KIND-OTHER*)."
   (spawn-entity (make-hazard :kind kind :owner owner :x (f32 x) :y (f32 y) :z (f32 z) :px (f32 x) :pz (f32 z)
-                             :yaw (f32 yaw) :speed (f32 speed) :turn (f32 turn) :size (f32 size)
-                             :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src :fragile fragile
-                             :hook hook :data data :group group :sp sp
+                             :yaw (f32 yaw) :speed (f32 speed) :size (f32 size)
+                             :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src
+                             :hook hook :data data :sp sp
                              :sp-mv sp-mv
                              :rbase (f32 (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))
                                            (if mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)) *reiatsu-kind-other*))))))
 
-(defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0)
-                               fragile data)
+(defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0) data)
   "A look-only hazard (kind :fx) of fighter E at X Z (default: E's feet) drawn by the function LOOK (the character's art
 file): no hit, no sim effect but its entity."
-  (spawn-hazard :fx e :x x :z z :yaw yaw :size size :life life :delay delay :look look :fragile fragile :data data))
+  (spawn-hazard :fx e :x x :z z :yaw yaw :size size :life life :delay delay :look look :data data))
 
 (defun spawn-ground-line (e size life look)
   "A look-only :line hazard of fighter E from his feet along his facing, SIZE m long, LIFE frames, drawn as LOOK."
   (let ((p (pos-of e))) (spawn-hazard :line e :x (aref p 0) :z (aref p 2) :yaw (yaw-of e) :size size :life life :look look)))
-
-(defun make-hit-group (&optional (hits 1))
-  "A hit group several hazards share (SPAWN-HAZARD :group): (hits-left . tick of the last pending hit). Three overlapping
-lines of one move hit a fighter once (docs/duel/DUEL_LILLE.md gap G12)."
-  (cons hits -1))
 
 (defun clear-hazards ()
   (do-entities (h hazard) (destroy-entity h)))
@@ -57,43 +45,16 @@ lines of one move hit a fighter once (docs/duel/DUEL_LILLE.md gap G12)."
   "The fighter a hazard of HZ's owner can hit (his opponent), or NIL."
   (let ((o (hazard-owner hz))) (and (entity-alive-p o) (fighter-opp (fighter o)))))
 
-;;; ---------------------------------------------------------------- South's hands (looks)
-(defparameter *hand-life* 92 "Frames a South hand stays out: 8 rising to the grab, the 60 f hold, 24 crumbling.")
-
-(defun spawn-hand (owner x z yaw delay)
-  "A charred skeleton's arm (the :skeleton body, its hips under the plaza) that claws out at (X Z) after DELAY
-frames, grabs at the ankles, holds and crumbles (:sk-grab): South's look; the :bind hazard is the hit."
-  (let ((h (spawn-hazard :hand owner :x x :z z :yaw yaw :size 0.5 :life *hand-life* :delay (max 0 delay))))
-    (add-component h (make-transform :yaw (f32 yaw)))
-    (add-component h (make-model :body (find-body :skeleton)))
-    (v3-set! (pos-of h) (f32 x) -5f0 (f32 z))            ; below the plaza until it appears
-    h))
-
 ;;; ---------------------------------------------------------------- per step
 (defun hazard-step (h hz)
   (let ((k (hazard-hook hz))) (when (and k (funcall k h hz :step)) (return-from hazard-step nil)))
   (when (> (hazard-delay hz) 0)
     (decf (hazard-delay hz))
-    (when (and (zerop (hazard-delay hz)) (eq (hazard-kind hz) :hand))
-      (v3-set! (pos-of h) (hazard-x hz) 0f0 (hazard-z hz))
-      (play-clip h :sk-grab :blend 0)
-      (emit :skeleton-rise (hazard-x hz) (hazard-z hz)))
-    (when (and (zerop (hazard-delay hz)) (eq (hazard-kind hz) :rift))
-      (emit :rift-cut (hazard-owner hz) (rift-mid-x hz) (rift-mid-z hz) (hazard-x hz) (hazard-z hz) (hazard-yaw hz)))   ; (+ its frame: the ink gash)
     (return-from hazard-step nil))
   (incf (hazard-age hz))
   (when (> (hazard-rehit hz) 0) (decf (hazard-rehit hz)))
   (setf (hazard-px hz) (hazard-x hz) (hazard-pz hz) (hazard-z hz))
-  (case (hazard-kind hz)
-    (:fireball                                          ; home on the target
-     (let ((tg (hazard-target hz)))
-       (when (entity-alive-p tg)
-         (let ((q (pos-of tg)))
-           (setf (hazard-yaw hz) (f32 (angle-wrap (turn-toward (hazard-yaw hz)
-                                                          (dir-yaw (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz)))
-                                                          (hazard-turn hz)))))))))
-    (:hand (anim-advance (model-anim (model h)) +step+)))
-  (when (member (hazard-kind hz) '(:wave :fireball))
+  (when (eq (hazard-kind hz) :wave)
     (let ((d (* (hazard-speed hz) +step+)))
       (setf (hazard-x hz) (f32 (+ (hazard-x hz) (* d (fwd-x (hazard-yaw hz)))))
             (hazard-z hz) (f32 (+ (hazard-z hz) (* d (fwd-z (hazard-yaw hz))))))
@@ -107,49 +68,23 @@ frames, grabs at the ankles, holds and crumbles (:sk-grab): South's look; the :b
 
 ;;; ---------------------------------------------------------------- volumes
 (defun hazard-active-p (hz)
-  (and (hazard-hw hz) (> (hazard-hits-left hz) 0) (<= (hazard-rehit hz) 0) (<= (hazard-delay hz) 0)
-       (let ((g (hazard-group hz))) (or (null g) (plusp (car g))))   ; (a spent hit group: none of its hazards hits)
-       (case (hazard-kind hz)
-         (:pillars (< (first *pillar-window*) (hazard-age hz) (- (hazard-life hz) (second *pillar-window*))))
-         (t t))))
+  (and (hazard-hw hz) (> (hazard-hits-left hz) 0) (<= (hazard-rehit hz) 0) (<= (hazard-delay hz) 0)))
 
 (defun hazard-touches-p (hz tx ty tz tr th)
   "Does HZ's world volume touch the hurt cylinder at (TX TY TZ), radius TR, height TH?"
   (let ((x (hazard-x hz)) (y (hazard-y hz)) (z (hazard-z hz)) (s (hazard-size hz)) (tr (f32 tr)) (th (f32 th)))
     (case (hazard-kind hz)
       (:wave (obox-cyl-hit-p x 1f0 z (hazard-yaw hz) s (f32 (first *wave-box*)) (f32 (second *wave-box*)) tx ty tz tr th))
-      (:fireball (capsule-cyl-hit-p (hazard-px hz) y (hazard-pz hz) x y z s tx ty tz tr th))
-      (:pillars (let ((pr (f32 (first *pillar-size*))) (ph (f32 (second *pillar-size*))))
-                  (loop for i below *ennetsu-pillars*
-                        for a of-type single-float = (+ (* i (/ +two-pi+ *ennetsu-pillars*)) (hazard-yaw hz))
-                        thereis (cyl-cyl-hit-p (+ x (* s (cos a))) 0f0 (+ z (* s (sin a))) pr ph tx ty tz tr th))))
-      ((:bind :freeze) (cyl-cyl-hit-p x 0f0 z s y tx ty tz tr th))       ; the feet: a disc SIZE x Y
-      (:rift (let ((yaw (hazard-yaw hz)))
-               (vol-hit-p (first (hw-vols (hazard-hw hz))) x 0f0 z (f32 (fwd-x yaw)) (f32 (fwd-z yaw)) tx ty tz tr th 0f0)))
       (t (let ((k (hazard-hook hz))) (and k (funcall k nil hz :touches tx ty tz tr th)))))))
-
-(defun rift-mid-x (hz) (f32 (+ (hazard-x hz) (* 2.7 (fwd-x (hazard-yaw hz))))))
-(defun rift-mid-z (hz) (f32 (+ (hazard-z hz) (* 2.7 (fwd-z (hazard-yaw hz))))))
-
-(defun close-rifts (e)
-  "E was hit: his rifts (and fragile hazards: Tsukishiro's circle) that haven't cut yet close (KUKAN-GIRI's rift: a
-parried or traded blade leaves none)."
-  (do-entities (h (hz hazard))
-    (when (and (or (eq (hazard-kind hz) :rift) (hazard-fragile hz)) (eql (hazard-owner hz) e) (> (hazard-delay hz) 0))
-      (emit :rift-close (rift-mid-x hz) (rift-mid-z hz))
-      (clog "~a RIFT CLOSED" (side-name e))
-      (let ((k (hazard-hook hz))) (when k (funcall k h hz :close)))
-      (destroy-entity h))))
 
 (defun collect-hazard-hits ()
   "Hand every active hazard's contact with its target to the HIT-SYSTEM's pending list."
   (do-entities (h (hz hazard))
-    (when (and (hazard-active-p hz) (let ((g (hazard-group hz))) (or (null g) (/= (cdr g) *match-tick*))))   ; (one of a
-      (let ((tg (hazard-target hz)))                                                                        ; group a step)
+    (when (hazard-active-p hz)
+      (let ((tg (hazard-target hz)))
         (when (entity-alive-p tg)
           (let ((q (pos-of tg)) (b (model-body (model tg))))
             (when (hazard-touches-p hz (aref q 0) (aref q 1) (aref q 2) (body-hurt-r b) (body-hurt-h b))
-              (let ((g (hazard-group hz))) (when g (setf (cdr g) *match-tick*)))
               (push (make-pending :att (hazard-owner hz) :def tg :hw (hazard-hw hz)
                                   :sx (if (hazard-src hz) (aref (pos-of (hazard-owner hz)) 0) (hazard-x hz))
                                   :sz (if (hazard-src hz) (aref (pos-of (hazard-owner hz)) 2) (hazard-z hz))
@@ -157,11 +92,10 @@ parried or traded blade leaves none)."
                     *pending*))))))))
 
 (defun hazard-connected (hz)
-  "HZ's hit took effect: one hit fewer (projectiles are spent), pillars wait before hitting again."
+  "HZ's hit took effect: one hit fewer (a wave is spent), a multi-hit one waits before hitting again."
   (decf (hazard-hits-left hz))
-  (let ((g (hazard-group hz))) (when g (decf (car g))))   ; its hit group's too
   (setf (hazard-rehit hz) *hazard-rehit*)
-  (when (and (<= (hazard-hits-left hz) 0) (member (hazard-kind hz) '(:wave :fireball)))
+  (when (and (<= (hazard-hits-left hz) 0) (eq (hazard-kind hz) :wave))
     (setf (hazard-life hz) (hazard-age hz))))            ; gone at the next step (its look fades)
 
 (defun hazard-threat-p (owner victim)
@@ -180,21 +114,11 @@ frames) and touches VICTIM's hurt cylinder grown by *PERFECT-INFLATE*."
 (defun hazard-draw (rdt)
   "Every hazard's look this frame."
   (do-entities (h (hz hazard))
-    (when (eq (hazard-kind hz) :rift)                    ; the rift shows while it waits (the tell), then cuts
-      (let ((l (hazard-size hz)) (yaw (hazard-yaw hz)))
-        (vfx-rift (+ (hazard-x hz) (* 1.0 (fwd-x yaw))) (+ (hazard-z hz) (* 1.0 (fwd-z yaw)))
-                  (+ (hazard-x hz) (* l (fwd-x yaw))) (+ (hazard-z hz) (* l (fwd-z yaw))) (<= (hazard-delay hz) 0))))
-    (if (and (hazard-look hz) (not (keywordp (hazard-look hz))))   ; a draw function (Rukia's ice): it draws its tell too
+    (if (and (hazard-look hz) (not (keywordp (hazard-look hz))))   ; a draw function (a wave's, a look's): it draws its tell too
         (funcall (hazard-look hz) hz (f32 rdt))
     (when (<= (hazard-delay hz) 0)
       (let ((x (hazard-x hz)) (z (hazard-z hz)) (age (/ (hazard-age hz) 60.0)) (life (/ (hazard-life hz) 60.0)))
         (case (hazard-kind hz)
           (:line (let ((l (hazard-size hz)) (yaw (hazard-yaw hz)))
                    (vfx-line-cut x z (+ x (* l (fwd-x yaw))) (+ z (* l (fwd-z yaw))) age life (hazard-look hz) :dt rdt)))
-          (:hand
-           (let ((m (model h)) (p (pos-of h)))
-             (pose-fk! (model-joints m) (anim-eval (model-anim m)) (aref p 0) (aref p 1) (aref p 2)
-                       (transform-yaw (transform h)) (body-scale (model-body m)) (body-hunch (model-body m)))
-             (draw-body (model-body m) (model-joints m) (aref p 0) (aref p 1) (aref p 2) 0.0 :shadow nil   ; no disc: it hid the pale bones
-                        :alpha (f32 (min 1.0 (max 0.0 (/ (- (hazard-life hz) (hazard-age hz)) 15.0)))))))
-          ((:bind :rift :freeze :wave :fireball :pillars) nil)))))))   ; (their looks: the :south crack and the hands; VFX-RIFT; a wave draws by its :look function)
+          (:wave nil)))))))   ; (a wave draws by its :look function)

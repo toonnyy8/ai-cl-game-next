@@ -106,7 +106,7 @@ and every other move: yes."
     (let ((kit (fighter-kit f)) (fo (fighter (opp-of e))))
       (or (and (eq (fighter-state fo) :move) (eq (fighter-phase fo) :main) (parry-command e kit))
           (and always (auto-guardable-p e) :guard)
-          (and (not (kit-rooted kit)) (hoho-ready-p e) :hoho)))))
+          (and (hoho-ready-p e) :hoho)))))
 
 (defun auto-combo (e f b side vp)
   "AUTO COMBO: on a J / K link's land frame, the CPU's next step (the O ender off a link-3 hit on a red opponent, else
@@ -154,7 +154,7 @@ and J's it (the gate, 2026-10-02: 404 of them in 40 matches, the masher's wins 5
                      (and act (learn-confident-p p n) (learn-roll-p l) (learn-counter act)))))
             (kit (fighter-kit f)))
         (case c
-          (:hoho (and (not (kit-rooted kit)) (hoho-ready-p e) :hoho))
+          (:hoho (and (hoho-ready-p e) :hoho))
           (:q (let ((mv (kit-command-move kit :f)))      ; J beats K / I: his J; a K reaching further than J, ours
                 (and mv (kit-command-ok-p e :f) (<= (mv-reach (kit-command-move kit :q)) d (+ (mv-reach mv) 0.4)) :f))))))))
 

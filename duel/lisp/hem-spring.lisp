@@ -10,7 +10,7 @@
 (defparameter *ya-hem-drag* 0.03 "The hem's trail per m/s of the obi's travel (rad): a run (~8 m/s) ~14 deg.")
 (defparameter *ya-hem-turn* 0.05 "Its yaw lag per rad/s of the pelvis's turn (rad).")
 (defparameter *ya-hem-max* 0.42 "The swing's cap (rad, ~24 deg) back / forward and sideways; the yaw lag's is 0.3.")
-(declaim (type f32vec *ya-hem* *ya-hem-m* *ya-tip*))
+(declaim (type f32vec *ya-hem* *ya-hem-m*))
 (defvar *ya-hem* (make-f32 32)
   "The hem spring per side (16 floats each): [0..2] the obi's world point at the last step, [3] the pelvis heading then,
 [4 5] the back swing (rad) and its rate, [6 7] the side swing and rate, [8 9] the yaw lag and rate, [10] 1 once primed,

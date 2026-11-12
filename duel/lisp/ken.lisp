@@ -202,7 +202,7 @@
   :endless-form :nozarashi                      ; ENDLESS (frozen): the Shikai
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
-  :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
+  :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label)   ; L 0-3 (KEN-HIT raises it)
   :hooks (:p ken-card-bankai :armor ken-armor :dmg-mult ken-dmg-mult
           :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: DANGAI's 隨時卍解 card, frozen;
                                                                                               ;  :draw the sword wind by L, ken-look.lisp)
@@ -309,7 +309,7 @@
      :hooks (:tick ken-bk-tick :armor ken-armor :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
      :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
      :awakening t :mult *bankai-ken-mult* :form-name ,name :kikon-konpaku 4 :open-s nil
-     :bankai-form nil :passives (:projectile-cut)
+     :passives (:projectile-cut)
      :body :kenpachi-oni :weapon :ke-broken :stance ,stance :aura :oni
      :hide (:haori :sleeve-long :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
      :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
@@ -939,21 +939,19 @@ zanshin, a short laugh; wide."
 
 (defun bankai-test (k)
   "Kenpachi's Bankai tests 2387+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
-the keys): 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai with 1 pip, 2.2 m: the 4th strike,
-then the burst. (0, the cup-3 entry, and 3, 片腕, went with the cups and KATAUDE: DUEL_KEN_V3 §8.)"
+the keys): 1 / 2 in the Bankai (KYORAN) at once (no cinematic), 2.2 m (2: was with 1 pip of the arm, gone with V3). (0, the cup-3 entry, and 3, 片腕, went with the cups and KATAUDE: DUEL_KEN_V3 §8.)"
   (setf *probe* nil)
   (ensure-battle :kenpachi :ichigo)
   (force-form *p1* :nozarashi)
   (place *p1* *p2* (if (zerop k) 3.0 2.2))
   (full-gauges! *p1* 100f0)
   (let ((g (gauges *p1*)))
-    (setf (gauges-reishi g) 300 (gauges-arm-pending g) nil
+    (setf (gauges-reishi g) 300
           (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)   ; (<= 4 Konpaku: the scene's, the entry was so until 2026-10-31)
           (gauges-awakened g) t (gauges-drive g) *drive-max*))     ; the entry: SPIRIT DRIVE full (2026-10-31)
   (setf (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
   (case k
-    ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
-     (when (= k 2) (setf (gauges-meter (gauges *p1*)) 1f0) (refresh-look *p1*))
+    ((1 2) (let ((*skip-cines* t)) (bankai! *p1* :bankai))
      (place *p1* *p2* 2.2))))
 
 (defparameter *grip-torso*
@@ -1044,22 +1042,18 @@ torso max …'. Returns the below-the-shoulders min (m)."
       (log-msg "grip front: below the shoulders min ~d mm" (round (* 1000 lo))))))
 
 (defun ken-debug (c)
-  "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2387 / 2388 BANKAI-TEST 1 / 2, 2392 GRIP-DRIFT-CHECK; the Bankai's
-knobs 32000+k *ARM-SELF*, 33000+k *ARM-BURST-SELF*, 34000+k *ARM-CRACK*; 71000 his reiatsu opaque / see-through, 71001 the Shikai, 71004
+  "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2387 / 2388 BANKAI-TEST 1 / 2, 2392 GRIP-DRIFT-CHECK; 71000 his reiatsu opaque / see-through, 71001 the Shikai, 71004
 the Bankai stills. (NOME-TEST 2380-2385, the cup-3 entry 2386, 片腕 2389 and the CPU's cup-3 Bankai knobs 37000 / 38000 went with the cups,
 DUEL_KEN_V3 §8.)"
   (cond ((<= 2387 c 2388) (bankai-test (- c 2386)))
         ((= c 2392) (grip-drift-check))
-        ((<= 32000 c 32999) (setf *arm-self* (- c 32000)))
-        ((<= 33000 c 33999) (setf *arm-burst-self* (- c 33000)))
-        ((<= 34000 c 34999) (setf *arm-crack* (- c 34000)))
         ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
                            (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
                                '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
         ((member c '(71001 71004)) (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
                                    (force-form *p1* (if (= c 71001) :nozarashi :bankai))
                                    (setf (gauges-meter (gauges *p1*)) (f32 (if (= c 71001) 0 4)) (gauges-meter-idle (gauges *p1*)) 0))))
-(dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (71000 71004 ken-debug)))
+(dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (71000 71004 ken-debug)))
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
@@ -1154,7 +1148,7 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
                ((<= 84090 c 84093)                                ; 84090+k: the Shikai's unlock level L = k (DUEL_KEN_V3 §4)
                 (setf (gauges-meter g) (f32 (- c 84090))))
                ((<= 84080 c 84084)                                ; 84080+k: the Bankai's arm at k pips (DUEL_KEN_CORE §8)
-                (setf (gauges-meter g) (f32 (- c 84080)) (gauges-arm-pending g) nil) (refresh-look *p1*))
+                (setf (gauges-meter g) (f32 (- c 84080))) (refresh-look *p1*))
                ((= c 84060)                                       ; the real awakening with SUBLIMATION at 50 %
                 (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) 50f0)
                 (awaken! *p1*))

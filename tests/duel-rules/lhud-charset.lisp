@@ -101,7 +101,7 @@ body) and DEFVAR / DEFPARAMETER / DEFCONSTANT (the fourth element): what the cod
                               (declare (ignore ch))
                               (dolist (f forms)
                                 (let ((k (cdr f)))
-                                  (dolist (s (list (kit-name k) (kit-form-name k) (kit-u-tag k) (kit-intro-callout k)))
+                                  (dolist (s (list (kit-name k) (kit-form-name k) (kit-intro-callout k)))
                                     (when (stringp s) (push s acc)))
                                   (loop for mv being the hash-values of (kit-moves k)
                                         when (stringp (mv-callout mv)) do (push (mv-callout mv) acc)))))

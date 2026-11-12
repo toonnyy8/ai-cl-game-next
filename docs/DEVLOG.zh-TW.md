@@ -8735,3 +8735,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 留給 R3：`spawn-hand`、`:freeze`／`:hand` 危險物、`:freeze-touch`、`:scorch`、`kit-blade-chip`、露琪亞的冰凍欄位。留給 R7：`duelstill` 與 `toon_check.py --bg`（依賴已移除的 duelvfx，原本就無法建置）、lhud-data 的角色表、退役角色的除錯場景。
 
 分工：Sonnet 子代理：R5；主對話 Opus 5.5：覆核差異、合併、重跑檢查。
+
+## 737. R3：舊機制與舊 AI 移出共用模擬（2026-11-13）
+
+使用者：「按你建議的做」（§730 的開工決定；REFACTOR_2026-11 §11.4 第三步）
+
+- 舊 AI：`ai.lisp`（−1,361 行）換成 `cpu-perceive.lisp`（353 行），只留現役 CPU 用到的感知部分（SNAP 環、`ai-press`／`ai-dash`／`ai-strafe`／`ai-walk`、`brain-perceive`、直接呼叫 `core-brain-step` 的 `brain-system`）；最後一節只放凍結的 ASSIST 與舊學習器會呼叫的函式，R4 可整節刪除。`scripted.lisp` 的習慣玩家移除（試驗玩家保留，`trial.lisp` 在用）。
+- 腕力格點數殘骸：`kit-pip-cmd-p`、三個 kit 欄位、`gauges-arm-*`、`bankai-ok-p`／`bankai-ready-p`／`bankai-allowed-p`、`pip-spend`、四個 `*arm-*` 參數、`:arm-*` 事件、劍八 32000–34999 的除錯參數；`bankai!` 改以型態為參數；`kit-command-ok-p`／`try-command` 拿掉 `ender` 參數（主對話逐一核對所有呼叫者的參數位置）。`gauges-meter` 保留（解放等級、分身標記）。
+- 舊機制：combat（−184 行：結界、冷氣、灼燒、凍結、NOME、Hellfire 等）、fighter（−165：冷氣代價、扎根型態、護盾窗口、霜層；`guard-p` 併入 `guard-held-p`、`hoho-open-p` 併入 `hoho-ready-p`）、hazards（−122：火球、柱、束縛、凍結、手、裂隙）、kit（13 個只有退役角色設定的欄位）、rules（33 個純函式）、tuning（116 個沒人讀的參數；SP 參數保留）、debug（−340：退役場景移除或改指一護；BANKAI-TEST 在改動前會當掉，現在進得去）。
+- 狀態雜湊行：拿掉 u／*／fr／sl 四個條件欄位，現役角色從未印出，現役行逐位元相同，參考檔不用重產。
+- 證明（主對話在合併 R5 後的 main 重跑）：主機測試 3188 → 3114 全過（少的 74 項都在測被刪的函式），其他六組測試數量不變全過，pkgcheck 乾淨，除錯區段 92 段 0 錯，建置，冒煙桌機與手機，G2 native 與瀏覽器三組相同（II 39、IK 36、KK 28 行）。子代理另做：snaptest 與 fulltest 0 差異；29 支瀏覽器腳本的模擬紀錄與改動前相同，10 支在改動前就停在退役角色、新版跑到底且前段相同；美術比對閘門 10 個在兩版都能出圖的場景 63 張逐位元相同，其餘 50 張的場景在改動前就停在退役角色，留給 R7。index.wasm 10,773,555（R5 後）→ 10,563,019 B。
+- 刻意保留：K／L 連段、Breaker、防禦機制（`:core` 角色走不到，但與三角判定和凍結模式交錯，之後單獨一批）、吸收（SP 批次會重寫）、`kit-reset-form`、檜佐木舊 CPU 函式（有主機測試）。
+- 已知舊問題（非本批）：手機腳本在 debug 2700 的 `portrait-test 0` 於 `fighter-screen-box` 回傳空值時除以 NIL，改動前後相同。
+
+分工：Opus 子代理：R3；主對話 Opus 5.5：覆核（參數位置、SP 參數存留）、合併、重跑檢查。

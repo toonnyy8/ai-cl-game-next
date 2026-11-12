@@ -43,7 +43,6 @@
     (heal! a 500)
     (check (= (gauges-reishi ga) (gauges-reishi-max ga)))
     (check (and (null (bind-snapshot-of a)) (= (bind-grey-frac a) 0f0) (= (bind-grey-souls a) 0)))
-    (check (bankai-ok-p b))
     (setf (gauges-reishi ga) 5)
     (check (deal-damage b a 7))                                   ; Reishi 0: the Soul Break, queued
     (check (equal *soul-breaks* (list (cons b a))))
@@ -131,11 +130,10 @@
     (heal! a 100)
     (check (and (= (gauges-reishi ga) 100) (= (second (assoc a *tb-snap*)) 1100)))
     (check (and (= (bind-grey-frac a) (f32 (/ 1100 (float (gauges-reishi-max ga))))) (= (bind-grey-souls a) 9)))
-    ;; a Kikon inside plays: the Konpaku (grey) floors at 0, never a K.O.; Kenpachi's Bankai refused
+    ;; a Kikon inside plays: the Konpaku (grey) floors at 0, never a K.O.
     (setf (gauges-konpaku ga) 2 (fighter-kikon-n (fighter b)) 3)
     (check (null (settle-konpaku b a nil)))
     (check (and (= (gauges-konpaku ga) 0) (= (gauges-reishi ga) (gauges-reishi-max ga)) (= (bind-grey-souls a) 9)))
-    (check (not (bankai-ok-p a)))
     ;; :p takes P (with the awakening's free test) once nothing else does
     (setf (gauges-awakened gb) t (gauges-awaken ga) 0f0)
     (check (and (try-command b (fighter b) :awaken) (eq (first *tp-call*) b) (second *tp-call*)))   ; (free: idle)

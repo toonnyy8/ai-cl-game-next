@@ -433,22 +433,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (~= (gg-regen 50.0 999 nil t) 50.0) (= (gg-idle-next 40 t) 40) (= (gg-idle-next 40 nil) 41) (= (gg-idle-next 9999 nil) 9999)))
 (check (= 60 (let ((idle 0)) (dotimes (i 40) (setf idle (gg-idle-next idle nil))) (dotimes (i 30) (setf idle (gg-idle-next idle t)))
                (dotimes (i 20) (setf idle (gg-idle-next idle nil))) idle)))
-;; East's pierce (the rework): k = 0.1 .. 0.5 by his guard gauge (full = sharpest, the user's decision 2026-09-27), x a
-;; move's :pierce-mult (KYOKKO 2: 0.2 .. 1.0). On hit x(1 + k) (KIT-ATK-MODS' pierce factor): E-Q1 Q2 E-Q3 (34 38 55)
-;; at full = 51 + 57 + 82 = 190 (82.5 rounds to even); blocked, k x the damage goes through as chip (never kills): 17 + 19 + 28 = 64 at
-;; full, 3 + 4 + 6 = 13 empty; KYOKKO at full: 170 on hit, all 85 through a guard
-(check (and (~= *pierce-min* 0.1) (~= *pierce-max* 0.45) (~= *ward-mult* 1.1)))   ; the gate's values (2026-09-27)
-(let ((*pierce-max* 0.5))                                                  ; the spec's arithmetic at 0.5
- (check (and (~= (pierce-rate 100.0) 0.5) (~= (pierce-rate 0.0) 0.1)
-             (~= (pierce-rate 50.0) 0.3) (~= (pierce-rate 100.0 2.0) 1.0) (~= (pierce-rate 0.0 2.0) 0.2)))
- (flet ((through (dmg gg &optional (m 1.0)) (chip-damage dmg (pierce-rate gg m) 1300)))   ; (the pure half of Bankai East's table)
-   (check (= 64 (+ (through 34 100.0) (through 38 100.0) (through 55 100.0))))
-   (check (= 13 (+ (through 34 0.0) (through 38 0.0) (through 55 0.0))))
-   (check (and (= 85 (through 85 100.0 2.0)) (= 17 (through 85 0.0 2.0))))
-   (check (= 49 (chip-damage 85 1.0 50)))))                                  ; the pierce never kills: it leaves 1
-(check (and (~= (pierce-rate 100.0) 0.45) (~= (pierce-rate 100.0 2.0) 0.9)))    ; as tuned: KYOKKO 162 / 77 at full
-;; the ward never refills: GUARD HOLD counts it as guarding (combat.lisp GAUGE-SYSTEM), so the gauge stands still and
-;; the delay is frozen; West's drain is x*WARD-MULT*; Kenpachi's base Q string (28) crushes it on the 4th string
+;; chip never kills: it leaves 1 (East's pierce, which fed it, left with Yamamoto, 2026-11-12)
+(check (= 49 (chip-damage 85 1.0 50)))
+;; guarding: the gauge stands still and the delay is frozen (combat.lisp GAUGE-SYSTEM's GUARD HOLD)
 (check (and (~= (gg-regen 40.0 9999 nil t) 40.0) (= (gg-idle-next 30 t) 30)))
 (check (and (can-guard-p 1.0 nil) (not (can-guard-p 0.0 nil)) (not (can-guard-p 99.0 t))))
 ;; a guard crush: Kenpachi's Q1 blocked into an empty gauge -> the attacker acts 25 frames first
@@ -562,10 +549,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (eq (weighted-pick 0.0 :a 1 :b 1) :a) (eq (weighted-pick 0.5 :a 1 :b 1) :b)
             (eq (weighted-pick 0.1 :a 0 :b 1) :b) (null (weighted-pick 0.5 :a 0))))
   ; Shiranui beyond 8 m
-(check (equal (multiple-value-list (heat-range 6.0 8.0 10.0)) '(3.0 5.0)))
-(check (equal (multiple-value-list (heat-range 6.0 8.0 30.0)) '(1.0 1.0)))
-(check (and (= (heat-breaker-mult 7.9) 1) (= (heat-breaker-mult 8.0) 2)))
-(check (and (~= (heat-after 1.0 nil) (+ 1.0 (/ *ai-heat-rate* 60))) (~= (heat-after 1.0 t) (+ 1.0 (/ *ai-heat-rate* 30)))))
 
 ;;; ================================================================ hit volumes
 (flet ((hits (v x z &key (y 0f0))

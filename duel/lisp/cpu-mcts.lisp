@@ -74,7 +74,7 @@ their full-sim values (x 1000). Sim state (sim-state.lisp): MC-NEUTRAL reads it 
             when mv do (setf (svref *mc-slots* (+ k (* 8 side))) (mc-move-rec kit mv))))
     (loop for v in (mc-outcomes-of (fighter-character f) (fighter-form f) dif) for i from 0 do (setf (aref vals i) (round (* 1000 v))))
     (mc-init-fighter (svref *mc-i* side) +k-free+ 0 0 (round (* 1000 (body-hurt-r (model-body (model e))))) (round (* 1000 (kit-walk kit)) 60)
-                     (if (hoho-open-p e) 1 0) (1- (mc-ptr f)))))
+                     (if (hoho-ready-p e) 1 0) (1- (mc-ptr f)))))
 
 (defun mc-setup (e f kit s d &optional (dif :normal))
   "Fill the light model's start from E's view (his SNAP S of the opponent at distance D). NIL when the opponent's perceived state is not
@@ -106,8 +106,8 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
                                                                       (- (aref v +f-len+) (aref v +f-t+)) 0))))
         (loop for x in *mc-prior* for i from 0 do (setf (aref *mc-w* i) x))
         (dotimes (a 10)
-          (setf (aref *mc-legal* a) (if (case a (0 (svref *mc-slots* 0)) (1 (svref *mc-slots* 1)) (2 (hoho-open-p e)) (6 nil) (t t)) 1 0)
-                (aref *mc-legal2* a) (if (case a (0 (svref *mc-slots* 8)) (1 (svref *mc-slots* 9)) (2 (hoho-open-p o)) (6 nil) (t t)) 1 0)))
+          (setf (aref *mc-legal* a) (if (case a (0 (svref *mc-slots* 0)) (1 (svref *mc-slots* 1)) (2 (hoho-ready-p e)) (6 nil) (t t)) 1 0)
+                (aref *mc-legal2* a) (if (case a (0 (svref *mc-slots* 8)) (1 (svref *mc-slots* 9)) (2 (hoho-ready-p o)) (6 nil) (t t)) 1 0)))
         t))))
 
 (defvar *mc-ws* (make-array 10 :element-type 'single-float :initial-element 0f0))

@@ -2,14 +2,15 @@
 ;;;; (arguments are encoded in the integer); the first call turns the combat log and stats lines on.
 ;;;; The full command table (every range, with its arguments and the probe lines it prints) is in
 ;;;; docs/duel/DUEL_GAMEPLAY.md "Debug commands"; claim a new range THERE before using it. In brief:
-;;;;   2000-8000+s   seeded CPU vs CPU now (2000+s random pairing, 3000+ II, 4000+ IK, 5000+ KK (YY / YK until the core system, 2026-10-27); 6000-8000+s the Rukia pairings)
+;;;;   2000-5000+s   seeded CPU vs CPU now (2000+s random pairing, 3000+ II, 4000+ IK, 5000+ KK (YY / YK until the core system, 2026-10-27))
 ;;;;   2100-2109     toggles: skip cinematics, turbo, hitbox / intent overlays, CPUs off, perf log, dump, fill Reiatsu, camera
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
-;;;;   2300-2399, 2410-2430, 2450+k, 2610+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
-;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru, 2401+k the Lisp menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo)
-;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
-;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
+;;;;   2300-2399, 2401+k, 2610+k   scenarios and probes (2300+k specials, 2320 the mash probe, 2386+k Bankai tests, 2401+k the Lisp
+;;;;               menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo). (The retired kits'
+;;;;               scenes, the frame / stance / module probes and the HUD review left with their code, 2026-11-12.)
+;;;;   22000-27999, 30000-31199   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc), the gates' seeds
+;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 ;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
@@ -176,36 +177,18 @@ Reishi at its cap; with METER also the kit meter set to it and its idle timer cl
           (gauges-reishi g) (gauges-reishi-max g))
     (when meter (setf (gauges-meter g) meter (gauges-meter-idle g) 0))))
 
-(defun hold-guard! (b left)
-  "Brain B (switched off) presses Guard for LEFT more steps (a large LEFT holds it; 0 releases)."
-  (setf (brain-press b) :guard (brain-press-mod b) nil (brain-press-left b) left))
-
-(defun probe-block (name)
-  "Frame probe: P1 (YY, 2 m) starts move NAME into P2's held guard; PROBE-UPDATE logs the advantage."
-  (ensure-battle :yamamoto :yamamoto)
-  (place *p1* *p2* 2.0)
-  (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30
-        (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 999)   ; off: held
-  (start-move *p1* (kit-move (kit-of *p1*) name))
-  (set-probe :block name))
-
-(defun probe-trade ()
-  "Trade probe: YY at 2 m, both start Q1 on the same step; 40 steps later the hash line."
-  (ensure-battle :yamamoto :yamamoto)
-  (place *p1* *p2* 2.0)
-  (dolist (e (list *p1* *p2*)) (start-move e (kit-move (kit-of e) :ya-j1)))
-  (set-probe :trade :ya-j1))
 
 (defun probe-mash ()
-  "Burst test (2320): human P1 at 2 m from P2, whose (switched off) CPU mashes Quick (PROBE-UPDATE)."
-  (ensure-battle :yamamoto :kenpachi)
+  "Burst test (2320): human P1 Ichigo at 2 m from Kenpachi, whose (switched off) CPU mashes Quick (PROBE-UPDATE). (P1 was
+Yamamoto until his code left main, 2026-11-12.)"
+  (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 2.0)
   (setf (gauges-reiatsu (gauges *p1*)) *reiatsu-max*)
   (set-probe :mash :quick))
 
 (defun force-burst ()
-  "P1 Yamamoto, 2 hits into Kenpachi's string, bursts out now."
-  (ensure-battle :yamamoto :kenpachi)
+  "P1 Ichigo (Yamamoto until 2026-11-12), 2 hits into Kenpachi's string, bursts out now."
+  (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 2.0)
   (setf (gauges-reiatsu (gauges *p1*)) *reiatsu-max*)
   (start-move *p2* (kit-move (kit-of *p2*) :ke-j2))
@@ -221,93 +204,6 @@ k 0 BLUE with the flash-step full (300), 1 BLUE from 230, 2 WHITE from 300 (drai
   (place *p1* *p2* 3.5)
   (setf (gauges-fs (gauges *p1*)) (if (= k 1) 230f0 *fs-max*) (gauges-burst (gauges *p1*)) nil)
   (burst! *p1* (if (= k 2) :white :blue)))
-
-(defparameter *module-tests* '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :nozarashi))
-  "The O (Kikon rush) modules by form: ENJO, TENCHI, CHARGE, LEAP CLEAVE.")
-
-(defun module-test (k)
-  "O module test (2330+k): human P1 with module (mod K 4) (0 ENJO, 1 TENCHI, 2 CHARGE, 3 LEAP) 1 m inside
-its reach from a Yamamoto CPU who, by (floor K 4): 0 stands (a held O hits: the knockback, the dash-in,
-the Kikon), 1 holds guard (blocked), 2 stands red (the same, the Kikon), 3 holds guard red (the first strike
-blocked: no Kikon), 4 is
-switched on at HARD (it guards the follow-up by its roll), 5 as 0 in 0.1x slow motion for 8 s (shots),
-6 stands and holds guard from the moment the strike hits him (the dash-in's strike is BLOCKED), 7 the same
-red (it can't be guarded: the Kikon).
-The script holds O (or taps it)."
-  (destructuring-bind (c form) (nth (mod k 4) *module-tests*)
-    (ensure-battle c :yamamoto)
-    (force-form *p1* form)
-    (let* ((mv (kit-command-move (kit-of *p1*) :kikon))
-           (reach (max (mv-reach mv) (kikon-rush-reach (rush-param mv :speed) (rush-param mv :dash-max)))))
-      (place *p1* *p2* (- reach 1.0)))
-    (fill (fighter-cd (fighter *p1*)) 0)
-    (when (<= 20 k 23) (slowmo 0.1 14.0))
-    (when (>= k 24) (set-probe :guard-after nil))
-    (let ((v (floor k 4)) (g (gauges *p2*)) (b (brain *p2*)))
-      (setf (gauges-reishi g) (if (member v '(2 3 7)) 200 (gauges-reishi-max g))
-            (gauges-gg g) *gg-max* (gauges-guardless g) nil
-            (brain-off b) (/= v 4) (brain-difficulty b) :hard (brain-delay b) (getf *ai-delay* :hard))
-      (hold-guard! b (if (member v '(1 3)) 999 0)))))
-
-(defun probe-pressure ()
-  "Guard gauge test (2327): human P1 Yamamoto 2 m from Kenpachi, whose switched-off CPU presses Quick
-every other step for 20 s (Q strings into the guard), both put back 2 m apart whenever Kenpachi is free
-beyond 2.6 m (PROBE-UPDATE). Hold Guard (U) throughout: the gauge drains 28 per blocked Q string, the
-4th string GUARD CRUSHes, the next hits land although U is held, and the guard comes back only when the
-gauge is full again (60 f + 7.1 s)."
-  (ensure-battle :yamamoto :kenpachi)
-  (place *p1* *p2* 2.0)
-  (setf (gauges-gg (gauges *p1*)) *gg-max* (gauges-guardless (gauges *p1*)) nil)
-  (set-probe :pressure :quick))
-
-(defparameter *stance-tests*
-  ;; k: P1 P1-form P2 P2-form distance
-  '((:yamamoto :bankai-east :kenpachi :base 3.0) (:yamamoto :bankai-east :kenpachi :base 2.0)
-    (:yamamoto :bankai-west :kenpachi :base 2.0) (:yamamoto :bankai-east :kenpachi :base 2.0)
-    (:yamamoto :bankai-east :kenpachi :base 6.0) (:yamamoto :bankai-west :kenpachi :base 2.5)
-    (:yamamoto :bankai-east :kenpachi :base 3.0) (:kenpachi :base :yamamoto :bankai-east 5.0)
-    (:kenpachi :base :yamamoto :bankai-east 5.0) (:yamamoto :bankai-west :kenpachi :nozarashi 4.8)))   ; (cup 3 until the cups went, 2026-11-03)
-
-(defun stance-test (k)
-  "Bankai stance test 2370+K (*STANCE-TESTS*: the pair, forms, distance): human P1, P2's CPU off. 1, 2 and 9 run
-a probe (:wall, :ward, :ranged: PROBE-UPDATE); 3 and 4 hold P2's guard; 5 baits the parry (:parry-bait, P1's guard
-gauge at 40); 7 / 8 make P2 cast South at once; 9: P2 is a cup-3 Kenpachi (NOME 100)."
-  (destructuring-bind (c1 f1 c2 f2 d) (nth k *stance-tests*)
-    (ensure-battle c1 c2)
-    (force-form *p1* f1) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e))
-    (let ((b (brain *p2*)))
-      (hold-guard! b (if (member k '(1 3 4)) 999 0)))
-    (case k
-      (1 (set-probe :wall nil))
-      (2 (set-probe :ward :quick))
-      (9 (setf (gauges-meter (gauges *p2*)) 100f0 (gauges-meter-idle (gauges *p2*)) 0)
-         (set-probe :ranged nil))
-      (5 (set-probe :parry-bait nil) (setf (gauges-gg (gauges *p1*)) 40f0))
-      ((7 8) (when (= k 8) (slowmo 0.25 6.0)) (force-cmd *p2* :sp2)))))
-
-(defparameter *hud-review*
-  ;; P1 (character form meter) P2 (character form meter) low-gauge: the portrait HUD's last row in every form (stills)
-  '(((:yamamoto :base 60) (:kenpachi :base 0) nil) ((:yamamoto :hellfire 0) (:kenpachi :nozarashi 20) t)
-    ((:yamamoto :bankai-east 0) (:kenpachi :nozarashi 2) nil) ((:yamamoto :bankai-west 0) (:kenpachi :nozarashi 3) t)   ; (the cups' rows: the Shikai's L)
-    ((:kenpachi :bankai 3) (:yamamoto :base 100) nil) ((:kenpachi :bankai 0) (:rukia :base 0) t)   ; (KATAUDE's row: the Bankai, no pip)
-    ((:rukia :base 0) (:rukia :m18 60) nil) ((:rukia :m50 150) (:rukia :zero 200) t) ((:rukia :m18 30) (:kenpachi :base 0) :evo)))
-
-(defun hud-review (k)
-  "2430+k: *HUD-REVIEW* k: P1 and P2 in those forms with those kit meters, CPUs off, 3 m apart, the gauges part-full
-(LOW: the guard gauges at 30, the KOSEI tag; :EVO P1's EVOLUTION announced)."
-  (destructuring-bind ((c1 f1 m1) (c2 f2 m2) low) (nth k *hud-review*)
-    (setf *probe* nil)
-    (ensure-battle c1 c2)
-    (place *p1* *p2* 3.0)
-    (loop for e in (list *p1* *p2*) for f in (list f1 f2) for m in (list m1 m2)
-          do (let ((g (gauges e)))
-               (unless (eq (fighter-form (fighter e)) f) (force-form e f))
-               (setf (gauges-meter g) (f32 m) (gauges-meter-idle g) 0 (gauges-reiatsu g) (* 1.6 *reiatsu-bar*)
-                     (gauges-fs g) (* 0.6 *fs-max*) (gauges-awaken g) (if (kit-awakening (kit-of e)) 0f0 45f0)
-                     (gauges-gg g) (if low 30f0 80f0) (gauges-reishi g) (round (* 0.7 (gauges-reishi-max g))))
-               (when (eq low :evo) (setf (gauges-evolution (gauges *p1*)) t (gauges-awaken (gauges *p1*)) 100f0))))))
 
 (defun lhud-scene (practice &key intro (picks '(:ichigo :kenpachi)))
   "2505 / 2506: the handheld battle screen's scene (DUEL_LISP_HUD §13): human Ichigo (P1) vs Kenpachi with his CPU off, one-handed
@@ -370,99 +266,17 @@ at 9 s (VS CPU)."
     (9 (setf *timer* (* 9 60)))))
 
 (defun probe-update ()
-  "Per step: finish a running probe (the first tick each side is free again = both idle; the
-difference is the frame advantage, measured the way the fighters really step); the mash test's
-presses (J down every other step: the switched-off brain still writes its held button)."
+  "Per step: the mash test's presses (2320: J down every other step; the switched-off brain still writes its held button).
+(The block / trade / wall / ward / ranged / parry / drink / cut / Rukia / pressure / guard-after probes left with the retired
+kits' scenes, 2026-11-12, REFACTOR_2026-11 R3.)"
   (when *probe*
-    (destructuring-bind (kind name t0 af df blocked) *probe*
+    (destructuring-bind (kind name t0 &rest more) *probe*
+      (declare (ignore name more))
       (let ((dt (- *match-tick* t0)))
         (case kind
           (:mash (let ((b (brain *p2*)))
                    (setf (brain-press b) :quick (brain-press-mod b) nil (brain-press-left b) (if (evenp dt) 1 0))
-                   (when (> dt 60) (setf (brain-press-left b) 0 *probe* nil))))
-          (:trade
-            (when (>= dt 40) (log-msg "duel probe trade ~a: ~a" name (state-hash-line)) (setf *probe* nil)))
-          (:wall (let ((b (brain *p2*)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))   ; P2's guard kept full: East's pierce
-                   (setf (gauges-gg g2) *gg-max* (gauges-guardless g2) nil)      ; chips through it
-                   (when (and (member (state-of *p2*) '(:idle :guard)) (> (fighter-dist (fighter *p2*)) 2.6)
-                              (member (state-of *p1*) '(:idle :guard)))
-                     (place *p1* *p2* 2.0)
-                     (setf (brain-press b) :guard (fighter-guard-t (fighter *p2*)) 30)
-                     (log-msg "duel probe wall t=~d P1 gg ~d P2 r~d" dt (round (gauges-gg g1)) (gauges-reishi g2)))
-                   (when (> dt 900) (setf (brain-press-left b) 0 *probe* nil))))
-          (:ward (let ((b (brain *p2*)) (g1 (gauges *p1*)))   ; Kenpachi mashes Quick into West's ward
-                   (setf (brain-press b) :quick (brain-press-mod b) nil (brain-press-left b) (if (evenp dt) 1 0))
-                   (when (and (eq (state-of *p2*) :idle) (> (fighter-dist (fighter *p2*)) 2.6) (member (state-of *p1*) '(:idle :guard)))
-                     (place *p1* *p2* 2.0)
-                     (log-msg "duel probe ward t=~d P1 gg ~d~:[~; guardless~] ~a r~d P2 r~d" dt (round (gauges-gg g1))
-                              (gauges-guardless g1) (fighter-form (fighter *p1*)) (gauges-reishi g1) (gauges-reishi (gauges *p2*))))
-                   (when (> dt 900) (setf (brain-press-left b) 0 *probe* nil))))
-          (:ranged (let ((g1 (gauges *p1*)))              ; cup-3 Kenpachi's ranged hits on West (KUKAN-GIRI's rift x2,
-                     (case dt                              ; the cash-out, then cup 1's Meteor at 4.8 m, then at 3 m:
-                       ((20 120) (force-cmd *p2* :f))      ; its cleaver, a melee hit)
-                       ((220 340 470) (force-cmd *p2* :sp1))
-                       (440 (place *p1* *p2* 3.0)))
-                     (when (member dt '(90 190 300 420 560))
-                       (log-msg "duel probe ranged t=~d P1 r~d gg ~d ~a P2 ~a" dt (gauges-reishi g1) (round (gauges-gg g1))
-                                (state-of *p1*) (fighter-form (fighter *p2*)))
-                       (when (= dt 560) (setf *probe* nil)))))
-          (:parry-bait (let ((f1 (fighter *p1*)))       ; P1's parry starts: Kenpachi's F1 is already on its way
-                         (when (and (eq (fighter-state f1) :move) (member :parry (mv-flags (fighter-move f1))) (<= (fighter-sf f1) 1)
-                                    (not (eq (state-of *p2*) :move)))
-                           (start-move *p2* (kit-command-move (kit-of *p2*) :f))
-                           (setf (fighter-sf (fighter *p2*)) 10))
-                         (when (> dt 1200) (setf *probe* nil))))
-          ((:drink :cut)                                         ; P2 presses Quick (drink) / Flash (cut) every other step
-           (let ((b (brain *p2*)) (g1 (gauges *p1*)))
-             (setf (brain-press b) (if (eq kind :drink) :quick :flash) (brain-press-mod b) nil
-                   (brain-press-left b) (if (evenp dt) 1 0))
-             (when (and (eq (state-of *p2*) :idle) (> (fighter-dist (fighter *p2*)) 2.9) (member (state-of *p1*) '(:idle :guard)))
-               (place *p1* *p2* (if (eq kind :drink) 2.0 2.5))
-               (log-msg "duel probe ~(~a~) t=~d P1 gg ~d~:[~; guardless~] r~d m~d ~a" kind dt (round (gauges-gg g1))
-                        (gauges-guardless g1) (gauges-reishi g1) (round (gauges-meter g1)) (fighter-form (fighter *p1*))))
-             (when (> dt 900) (setf (brain-press-left b) 0 *probe* nil))))
-          (:rukia (let ((f1 (fighter *p1*)))                  ; Rukia's tests: 6 answers the Breaker with REIDO at 5.5 m
-                    (when (and (= name 6) (eq (fighter-form f1) :zero) (member (state-of *p1*) '(:idle))
-                               (eq (state-of *p2*) :move) (< (fighter-dist f1) 5.5))
-                      (try-command *p1* f1 :sig))
-
-                    (when (zerop (mod dt 10))
-                      (log-msg "duel probe rukia ~d t=~d P1 ~a ~a ~(~a~) r~d ra~d gg ~d m~d fr~d | P2 ~a ~a r~d fr~d sl~d th~d | d ~,2f"
-                               name dt (fighter-form f1) (state-of *p1*) (let ((mv (fighter-move f1))) (and mv (mv-name mv)))
-                               (gauges-reishi (gauges *p1*)) (round (gauges-reiatsu (gauges *p1*))) (round (gauges-gg (gauges *p1*)))
-                               (round (gauges-meter (gauges *p1*))) (fighter-frost f1)
-                               (state-of *p2*) (fighter-form (fighter *p2*)) (gauges-reishi (gauges *p2*)) (fighter-frost (fighter *p2*))
-                               (fighter-layers (fighter *p2*)) (fighter-thaw (fighter *p2*)) (fighter-dist f1)))   ; (霜の層: 85000+k)
-                    (when (> dt (if (>= name 100) 600 420)) (setf *probe* nil))))
-          (:kl (let* ((f2 (fighter *p2*)) (f1 (fighter *p1*)) (n (fighter-combo-hits f2)) (st (state-of *p2*)))
-                 (when (or (/= n af) (and (eq st :guard-hit) (not blocked)))   ; a hit (the combo count moved) or a block
-                   (log-msg "duel probe kl ~d t=~d P2 ~a ~a left-before ~d combo ~d | P1 ~a sf ~d m~d" name dt st
-                            (fighter-phase f2) df n (let ((mv (fighter-move f1))) (and mv (mv-name mv))) (fighter-sf f1)
-                            (round (gauges-meter (gauges *p1*)))))
-                 (setf *probe* (list :kl name t0 n (if (member st '(:stun :guard-hit)) (- (fighter-stun f2) (fighter-sf f2)) 0)
-                                     (eq st :guard-hit)))
-                 (when (> dt 240) (setf *probe* nil))))
-          (:guard-after (when (eq (state-of *p2*) :stun)          ; hit: hold guard from now on
-                          (let ((b (brain *p2*))) (setf (brain-press b) :guard (brain-press-left b) 999 *probe* nil))))
-          (:pressure (let ((b (brain *p2*)))
-                       (setf (brain-press b) :quick (brain-press-mod b) nil (brain-press-left b) (if (evenp dt) 1 0))
-                       (when (and (eq (state-of *p2*) :idle) (> (fighter-dist (fighter *p2*)) 2.6)
-                                  (member (state-of *p1*) '(:idle :guard)))
-                         (let ((g1 (gauges *p1*)))
-                           (place *p1* *p2* 2.0)
-                           (log-msg "duel probe pressure t=~d gg ~d~:[~; guardless~]" dt (round (gauges-gg g1)) (gauges-guardless g1))))
-                       (when (> dt 1200) (setf (brain-press-left b) 0 *probe* nil))))
-          (t
-            (progn
-              (when (eq (state-of *p2*) :guard-hit) (setf blocked t))
-              (when (and (not af) (member (state-of *p1*) '(:idle :guard))) (setf af dt))
-              (when (and blocked (not df) (member (state-of *p2*) '(:idle :guard))) (setf df dt))
-              (setf *probe* (list kind name t0 af df blocked))
-              (cond ((and af df)
-                     (log-msg "duel probe ~a blocked: attacker free at +~d, defender at +~d, advantage ~@d (table ~@d)"
-                              name af df (- df af) (mv-adv-block (kit-move (kit-of *p1*) name)))
-                     (setf *probe* nil))
-                    ((> dt 300) (log-msg "duel probe ~a: no block" name) (setf *probe* nil))))))))))
+                   (when (> dt 60) (setf (brain-press-left b) 0 *probe* nil)))))))))
 
 (defun brush-cons-check ()
   "2329: bytes consed by 100 draws of each brush caption layout (drawn past their stamp: the steady state), of the
@@ -542,11 +356,11 @@ measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16.)"
   (let ((f (fighter e))) (to-idle e 0) (try-command e f cmd (getf '(:sp1 :flash :sp2 :sig :sig :sig :breaker :breaker) cmd))))
 
 (defun string-test (k)
-  "2394+k: human P1 in form K (Yamamoto Shikai, Bankai East, Kenpachi base, RYOTE) 2.2 m from an idle Kenpachi."
-  (destructuring-bind (c form) (nth k '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :nozarashi)))
+  "2394+k: human P1 in form K (Ichigo's Shikai, KESSA, Kenpachi base, his Shikai) 2.2 m from an idle Kenpachi. (0 / 1 were
+Yamamoto's Shikai and Bankai East until his code left main, 2026-11-12.)"
+  (destructuring-bind (c form) (nth k '((:ichigo :base) (:ichigo :kessa) (:kenpachi :base) (:kenpachi :nozarashi)))
     (ensure-battle c :kenpachi)
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
-    (when (eq form :bankai-east) (setf (gauges-gg (gauges *p1*)) 30f0))   ; a low gauge: KOSEI x2.4 (the HUD tag)
     (place *p1* *p2* 2.2)))
 
 (defun scale-k-links (pct)
@@ -567,43 +381,24 @@ deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6
   (when (kit-awakening (kit-of e)) (setf (gauges-awakened (gauges e)) t)))
 
 (defun force-cine (k)
+  "Debug 2200+K: cinematic K of *CINE-NAMES* now, held (Kenpachi's, the generic ones; Ichigo the partner, Yamamoto until his
+code left main, 2026-11-12, with his and Rukia's cinematics 0 2 3 11-15)."
   (setf *cine-hold* nil)
   (case k
-    (0 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 5.0) (force-form *p1* :bankai-east)
-       (start-cine 'yama-bankai-cine *p1* *p2*))
-    (1 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 5.0) (force-form *p1* :nozarashi)
+    (1 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 5.0) (force-form *p1* :nozarashi)
        (start-cine 'ken-nozarashi-cine *p1* *p2*))
-    (2 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (start-cine 'yama-kikon-cine *p1* *p2*))
-    (3 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :bankai-east)
-       (start-cine 'yama-tenchi-cine *p1* *p2*))
-    (6 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (start-cine 'soul-break-cine *p1* *p2*))
+    (6 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.0) (start-cine 'soul-break-cine *p1* *p2*))
     (7 (start-match))
-    (8 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (start-cine 'ko-cine *p1* *p2*))
-    (9 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 5.0) (force-form *p1* :bankai)
-     (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*)) (refresh-look *p1*)
-     (start-cine 'ken-bankai-cine *p1* *p2*))
-    ((11 12 13) (ensure-battle :rukia :kenpachi) (place *p1* *p2* (if (= k 13) 5.0 3.0))   ; Rukia's (docs/duel/DUEL_RUKIA.md §5, §6)
-     (force-form *p1* (if (= k 11) :base :m18))
-     (start-cine (nth (- k 11) '(ru-kikon-cine ru-hakka-cine ru-awaken-cine)) *p1* *p2*))
-    ((14 15) (ensure-battle :rukia :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :zero)   ; the white Rukia's face
-     (start-cine (if (= k 14) 'ru-face-cine 'ru-face-bankai-cine) *p1* *p2*)))   ; (16 17 18 Senjumaru's cinematics left with the retired kits, 2026-11-12; 4 / 5 / 10 / 19 Kenpachi's old Kikons, gone 2026-11-05)
+    (8 (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 3.0) (start-cine 'ko-cine *p1* *p2*))
+    (9 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 5.0) (force-form *p1* :bankai)
+     (start-cine 'ken-bankai-cine *p1* *p2*)))
   (setf *cine-hold* t)
   (when *cine* (setf (cine-hold *cine*) (cine-hold-frame (cine-name *cine*)))))
 
-(defparameter *cine-names* '(yama-bankai-cine ken-nozarashi-cine yama-kikon-cine yama-tenchi-cine nil
-                               nil soul-break-cine intro-cine ko-cine ken-bankai-cine nil
-                               ru-kikon-cine ru-hakka-cine ru-awaken-cine ru-face-cine ru-face-bankai-cine
-                               sj-kikon-cine sj-hata-cine sj-tsuji-cine nil)
-  "FORCE-CINE's numbering (the NILs: Kenpachi's old Kikon cinematics, removed 2026-11-05, DUEL_KEN_V3 §43; the numbers kept).")
-
-(defcine ru-face-cine (a v :len 60 :hold 30)
-  "Debug stills (69000+f): close on the white Rukia's face (absolute zero): the brows and the ice keyline."
-  (at 0 (face-each-other a v 3.0) (shot-on a 20 1.3 1.45 :look 1.4) (lens 28)))
-
-(defcine ru-face-bankai-cine (a v :len 60 :hold 30)
-  "Debug stills (70000+f): the same close-up in the 白霞罸 costume."
-  (at 0 (face-each-other a v 3.0) (setf (model-body (model a)) (find-body :rukia-bankai)) (face-beat a :neutral 2.0)
-      (shot-on a 20 1.3 1.45 :look 1.4) (lens 28)))
+(defparameter *cine-names* '(nil ken-nozarashi-cine nil nil nil
+                               nil soul-break-cine intro-cine ko-cine ken-bankai-cine)
+  "FORCE-CINE's numbering (the NILs: Yamamoto's 0 2 3, Kenpachi's old Kikon cinematics 4 5 10 (removed 2026-11-05, DUEL_KEN_V3
+§43) and the retired kits' 11-19 (left 2026-11-12); the numbers kept).")
 
 (defun cine-at (k f)
   "Debug 10000 + 1000 K + F (stills): cinematic K held at frame F (MAIN.LISP CINE-HELD-P freezes the effects there);
@@ -614,42 +409,25 @@ when K already runs, it continues to F."
   (when *cine* (setf *cine-hold* t (cine-hold *cine*) f)))
 
 (defun force-special (k)
+  "Debug 2300+K: a scenario now (Kenpachi's commands and looks, 11 the awakening gauges full, 14 P2 at 200 Reishi). Yamamoto's
+scenes (0-4 12 62-64 66) left with his code, 2026-11-12; Ichigo takes his place as the partner since (7 his Hoho)."
   (setf *cine-hold* nil)
   (case k
-    (0 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 5.0)
-       (setf (gauges-meter (gauges *p1*)) *inferno-max*))               ; the gauge step turns it into Hellfire
-    (1 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 10.0) (force-cmd *p1* :sp1))
-    (2 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 9.0) (force-cmd *p1* :sig))
-    (3 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 5.0) (force-form *p1* :bankai-east) (force-cmd *p1* :sp2))
-    (4 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 6.0) (force-form *p1* :bankai-east) (force-cmd *p1* :sp1))
-    (5 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 7.0) (force-form *p1* :nozarashi) (force-cmd *p1* :sp1))
-    (6 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.5)
+    (5 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 7.0) (force-form *p1* :nozarashi) (force-cmd *p1* :sp1))
+    (6 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.5)
        (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30)
        (setf (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 120)   ; off: held
        (force-cmd *p1* :breaker))
-    (7 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 2.4) (force-cmd *p2* :f)
+    (7 (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 2.4) (force-cmd *p2* :f)   ; a Hoho out of Kenpachi's K
        (let ((f (fighter *p1*))) (setf (fighter-sf (fighter *p2*)) 9) (start-hoho *p1* f)))
-    (8 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 4.0) (force-cmd *p1* :sig))
-    (9 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 5.0) (force-cmd *p1* :sp1))
-    (10 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 5.0) (force-cmd *p1* :sp2))
+    (8 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 4.0) (force-cmd *p1* :sig))
+    (9 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 5.0) (force-cmd *p1* :sp1))
+    (10 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 5.0) (force-cmd *p1* :sp2))
     (11 (dolist (e (list *p1* *p2*)) (setf (gauges-awaken (gauges e)) *awaken-max*)))
-    (12 (ensure-battle :yamamoto :kenpachi) (force-form *p1* :bankai-east)            ; + the reveal's cracks (yama-bankai-cine)
-        (let ((p (pos-of *p1*)))
-          (stage-crack-add (aref p 0) (aref p 2) 3.0) (stage-crack-add (+ (aref p 0) 3.5) (- (aref p 2) 2.0) 2.2)))
-    (13 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :nozarashi))
+    (13 (ensure-battle :kenpachi :ichigo) (force-form *p1* :nozarashi))
     (14 (setf (gauges-reishi (gauges *p2*)) 200))
-    (15 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :nozarashi) (setf (gauges-meter (gauges *p1*)) 3f0))   ; (cup 2 until 2026-11-03: the Shikai at L3)
-    (16 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :bankai))   ; (cup 3 until 2026-11-03: the Bankai)
-    (62 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 4.5) (force-cmd *p1* :sp2))
-    (63 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 5.0) (force-form *p1* :hellfire) (force-cmd *p1* :sp2))
-    (64 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 6.0) (force-cmd *p1* :breaker))
-    (65 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 4.0) (force-form *p1* :nozarashi)   ; (cup 3's pillar until 2026-11-03)
-        (emit :rung *p1* t))
-    (66 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 4.0)            ; looks only: the marks and chips
-        (let ((q (pos-of *p2*)))
-          (stage-mark :scorch (aref q 0) (+ (aref q 2) 0.6) 1.0)
-          (stage-mark :crack (- (aref q 0) 1.2) (- (aref q 2) 1.4) 1.1) (stage-debris (- (aref q 0) 1.2) (- (aref q 2) 1.4) 5))
-        (face-beat *p1* :shout 0.6) (face-beat *p2* :hurt 0.6))))                ; and both face accents
+    (65 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 4.0) (force-form *p1* :nozarashi)   ; (cup 3's pillar until 2026-11-03)
+        (emit :rung *p1* t))))
 
 (defun vfx6-cons-check ()
   "2391: bytes consed by 10 draws of each Phase 6 per-frame look (docs/style/STYLE_STORM_DESIGN.md §14 Phase 6): the marks and
@@ -706,7 +484,7 @@ starts: *RUN-MODS-TEST*); 99 clears it. A plain VS CPU / CPU VS CPU match then r
 (defun cine-still-command-p (c)
   "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
 checks every such clause of DEBUG-COMMAND is listed here)."
-  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 35999) (<= 40000 c 42999) (<= 69000 c 70999)))
+  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 35999)))
 
 (defun debug-command (c)
   "Module._debug_cmd(C): see the file header."
@@ -720,18 +498,12 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 3000 c 3999) (start-cvc (- c 3000) '(:ichigo :ichigo)))
         ((<= 4000 c 4999) (start-cvc (- c 4000) '(:ichigo :kenpachi)))
         ((<= 5000 c 5999) (start-cvc (- c 5000) '(:kenpachi :kenpachi)))
-        ((<= 6000 c 6999) (start-cvc (- c 6000) '(:rukia :yamamoto)))
-        ((<= 7000 c 7999) (start-cvc (- c 7000) '(:rukia :kenpachi)))
-        ((<= 8000 c 8999) (start-cvc (- c 8000) '(:rukia :rukia)))
-        ((= c 2118) (start-gate 4))
-        ((= c 2119) (start-gate 5))
         ((<= 2125 c 2139) (start-gate (+ 10 (- c 2125))))   ; one pairing alone: 0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR
                                                             ; 9 II 10 SY 11 SK 12 SR 13 SS 14 SI
         ((<= 2140 c 2149) (start-gate (+ 100 (- c 2136))))  ; 2136+i: roster character i's pairings (i 4-13; 2140 Senjumaru's
                                                             ; five SY SK SR SS SI, 2141 the 6th character's six)
         ((<= 2150 c 2199) (start-gate (+ 10 (- c 2135))))   ; 2135+k: pairing k alone, k 15-64 (ROSTER-PAIRS; ten characters)
         ((loop for (lo hi fn) in *char-debug* thereis (and (<= lo c hi) (progn (funcall fn c) t))))   ; a character's own
-        ((= c 2124) (start-gate 4) (setf *combat-log* t *gate-log* t))   ; her three pairings with the combat log (pacing)
         ((= c 2100) (setf *skip-cines* (not *skip-cines*)) (when *skip-cines* (skip-cine)))
         ((= c 2101) (setf *konpaku-start* 2))
         ((= c 2102) (setf *turbo* (not *turbo*)))
@@ -745,27 +517,19 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 2110 c 2113) (start-gate (- c 2110)))
         ((<= 2114 c 2117) (start-gate (- c 2114)) (setf *combat-log* t *gate-log* t))
         ((<= 2120 c 2123) (setf (svref *no-draw* (- c 2120)) (not (svref *no-draw* (- c 2120)))))
-        ((= c 2209) (setf *cine-hold* nil) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (match-over *p1*))
+        ((= c 2209) (setf *cine-hold* nil) (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 3.0) (match-over *p1*))
         ((<= 2200 c 2299) (force-cine (- c 2200)))
         ((<= 10000 c 19999) (cine-at (floor (- c 10000) 1000) (mod c 1000)))
         ((<= 35000 c 35999) (cine-at (+ 9 (floor (- c 35000) 1000)) (mod c 1000)))
-        ((<= 40000 c 42999) (cine-at (+ 11 (floor (- c 40000) 1000)) (mod c 1000)))
-        ((<= 69000 c 70999) (cine-at (+ 14 (floor (- c 69000) 1000)) (mod c 1000)))   ; the white Rukia's face
-        ((<= 2315 c 2318) (probe-block (nth (- c 2315) '(:ya-j1 :ya-k3 :ya-j3 :ya-taimatsu))))
-        ((= c 2319) (probe-trade))
         ((= c 2320) (probe-mash))
         ((= c 2321) (force-burst))
         ((<= 2610 c 2612) (burst-burn-test (- c 2610)))
-        ((= c 2327) (probe-pressure))
         ((= c 2328) (hud-cons-check))
         ((= c 2329) (brush-cons-check))
         ((= c 2390) (vfx5-cons-check))
         ((= c 2391) (vfx6-cons-check))
-        ((<= 2330 c 2361) (module-test (- c 2330)))
-        ((<= 2370 c 2379) (stance-test (- c 2370)))
-        ((<= 2430 c 2438) (hud-review (- c 2430)))
-        ((= c 2326) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (clash! *p1* *p2*))
-        ((<= 2322 c 2325) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.5)
+        ((= c 2326) (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 3.0) (clash! *p1* *p2*))
+        ((<= 2322 c 2325) (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 3.5)
          (setf (gauges-fs (gauges *p1*)) *fs-max* (gauges-burst (gauges *p1*)) nil *one-hand* (one-hand-effective-p))   ; (the deck)
          (when (< c 2325) (burst! *p1* (nth (- c 2322) '(:white :blue :orange)))))
         ((= c 2393) (place *p1* *p2* 2.2)
@@ -787,24 +551,12 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 81040 c 81041) (setf *dumb-p2* (= c 81041)))   ; ASSIST's gate: P2 a button-masher too (never assisted)
         ((<= 81030 c 81031) (setf *assist-learn* (= c 81031)))   ; ASSIST's learner off / on (its gate A/B)
         ((<= 81020 c 81022) (setf *gate-difficulty* (nth (- c 81020) '(:easy :normal :hard))))
-        ((<= 20000 c 20999) (setf *ward-mult* (/ (- c 20000) 100.0)))
-        ((<= 21000 c 21999) (setf *pierce-max* (/ (- c 21000) 100.0)))
         ((<= 22000 c 22999) (setf *gg-regen* (/ (- c 22000) 10.0)))
         ((<= 23000 c 23999) (setf *gg-regen-guardless* (/ (- c 23000) 10.0)))
-        ((<= 24000 c 24999) (setf *ai-o-ender* (/ (- c 24000) 100.0)))
-        ((<= 25000 c 25999) (setf (getf *ai-follow-guard-p* :normal) (/ (- c 25000) 100.0)))
         ((<= 26000 c 26999) (scale-k-links (- c 26000)))
         ((<= 27000 c 27999) (setf *kosei-reiatsu* (/ (- c 27000) 100.0) *kosei-fs* (/ (- c 27000) 200.0)))
-        ((<= 28000 c 28999) (setf *ai-string-flash-p* (/ (- c 28000) 100.0)))
-        ((<= 29000 c 29999) (setf *ai-sp-cancel-p* (/ (- c 29000) 100.0)))
         ((<= 30000 c 30999) (setf *gate-seed0* (- c 30000)))
         ((<= 31101 c 31199) (setf *gate-seeds* (- c 31100)))
-        ((<= 31000 c 31033) (let ((m '(nil :always :never :sure)))
-                              (setf (svref *ai-bankai-mode* 0) (nth (floor (- c 31000) 10) m)
-                                    (svref *ai-bankai-mode* 1) (nth (mod (- c 31000) 10) m))))
-        ((<= 39000 c 39022) (let ((m '(nil :always :never)))
-                              (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
-                                    (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
         ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth, so 2513 below is reachable)
         ((= c 2513) (slowmo *core-clash-slowmo-scale* 3.0))                 ; 3 s of the cancel's slow motion (the smooth-draw check)
         ((= c 2514) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)

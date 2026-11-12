@@ -340,18 +340,7 @@ DEF-MODS: :mult on the defender's side (1 in v1). COMBO-INDEX: this hit's number
                        (combo-scale combo-index orange)
                        (if counter-hit *counter-mult* 1.0))))))
 
-;;; ---------------------------------------------------------------- Bankai East's pierce (docs/duel/DUEL_YAMA_REWORK.md)
-(defun pierce-rate (gg &optional (mult 1.0))
-  "East's pierce k at guard gauge GG: *PIERCE-MIN* (empty) .. *PIERCE-MAX* (full), x a move's :pierce-mult MULT
-(KYOKKO 2.0). A hit deals x(1 + k); a blocked hit lets k x its damage through as chip (CHIP-DAMAGE: never kills)."
-  (* mult (+ *pierce-min* (* (- *pierce-max* *pierce-min*) (/ gg *gg-max*)))))
-
-(defun cast-point (px pz tx tz range)
-  "Where a cast aimed from (PX PZ) at a target at (TX TZ) lands: on the target, or RANGE along the line
-when he is farther (South's bind). Values: x z."
-  (let* ((dx (- tx px)) (dz (- tz pz)) (d (hypot dx dz)))
-    (if (<= d range) (values tx tz) (values (+ px (* dx (/ range d))) (+ pz (* dz (/ range d)))))))
-
+;;; ---------------------------------------------------------------- chip, burns
 (defun chip-damage (dmg rate reishi)
   "Chip of a blocked hit worth DMG at chip fraction RATE (NIL = none) on a defender with REISHI:
 chip never kills (leaves at least 1)."
@@ -512,11 +501,6 @@ BURST-GAIN-MULT)."
         (values 0.0 0.0 0.0 r fs)
         (values r fs (+ (* mult (awakening-gain dealt 0 0)) (awakening-gain 0 taken 0)) 0.0 0.0))))
 
-(defun gauge-move (from amount to max)
-  "Take up to AMOUNT out of gauge FROM (never below 0) into gauge TO (kept at most MAX): values FROM and TO after. TO gets
-what was really taken, not AMOUNT."
-  (let ((took (max 0.0 (min from amount))))
-    (values (- from took) (gauge-add to took max))))
 
 (defun bind-drain (pool dmg &optional (rate 0.5))
   "A bind's shared Reiatsu POOL after DMG damage (the nominal) drained it, RATE a point (DUEL_HISAGI §17.3 B3: 1 per 2;
@@ -569,109 +553,6 @@ Konpaku taken from the opponent at *AWAKEN-PER-KONPAKU* (DUEL_SUBLIMATION §18).
   "DMODS (the defender plist) with its :mult x (1 - *SUB-TAKEN* x FRAC)."
   (if (zerop frac) dmods (list* :mult (* (getf dmods :mult 1.0) (- 1.0 (* *sub-taken* frac))) dmods)))
 
-(defun bankai-allowed-p (free)
-  "Kenpachi's Bankai (docs/duel/DUEL_KEN_BANKAI.md §1.1): P in a form with :bankai-form (cup 3), FREE as for the first
-awakening (fighter.lisp AWAKEN-STATE-P: idle, guard, blockstun, a combo reaction past the Burst's hit; DRINK included;
-the user 2026-10-09, DUEL_KEN_REWORK §7). (The SPIRIT DRIVE-full gate, 2026-10-31, DUEL_SUBLIMATION §3, went with the last
-kit that had a :bankai-form, R1 of REFACTOR_2026-11 §11.3.) Once a match by construction (no later form has :bankai-form)."
-  (and free t))
-
-;;; ---------------------------------------------------------------- the arm meter UDE (Kenpachi's Bankai)
-(defun pip-spend (pips)
-  "Spend one of PIPS (a pip command's frame 0). Values: pips-after ok (NIL at 0: the command is refused)."
-  (if (>= pips 1) (values (1- pips) t) (values pips nil)))
-
-
-
-
-;;; ---------------------------------------------------------------- Rukia (docs/duel/DUEL_RUKIA.md): frost, the temperature
-(defun frost-next (cur n)
-  "The frost timer after a real hit that frosts N frames: max(CUR, N), capped at *FROST-CAP* (it never stacks)."
-  (min *frost-cap* (max cur n)))
-
-(defun frost-speed (speed frost)
-  "Walk / run SPEED of a fighter with FROST frames of frost left: x *FROST-SLOW* while it lasts."
-  (if (plusp frost) (* speed *frost-slow*) speed))
-
-;;; 霜の層, the Shikai's frost layers on him (docs/duel/DUEL_RUKIA_TYBW.md §4.4): 0-3, a thaw timer; separate from the frost timer
-(defun layers-add (cur n) "The layers after N more on CUR, capped at *RU-LAYER-MAX*." (min *ru-layer-max* (+ cur n)))
-
-(defun layers-thaw (layers thaw &optional (chill 0))
-  "One step of the thaw: values the layers, the thaw timer and the chill after it (one layer per *RU-THAW* frames, the
-timer back to 0 at each; with no layer left a lone chill point thaws the same way; nothing left: 0 0 0)."
-  (cond ((and (<= layers 0) (<= chill 0)) (values 0 0 0))
-        ((>= (1+ thaw) *ru-thaw*) (if (plusp layers) (values (1- layers) 0 chill) (values 0 0 0)))
-        (t (values layers (1+ thaw) chill))))
-
-(defun chill-add (layers chill n)
-  "Values the layers and the chill after N more 冰凍值 points on LAYERS + CHILL: every *RU-CHILL-PER* points make a
-layer (the user 2026-10-24: 「每次 K 能累積 1 點冰凍值，兩點冰凍值提升一層」), capped at *RU-LAYER-MAX* layers (no chill
-kept at the cap)."
-  (let ((pts (+ (* layers *ru-chill-per*) chill n)) (top (* *ru-layer-max* *ru-chill-per*)))
-    (if (>= pts top) (values *ru-layer-max* 0) (floor pts *ru-chill-per*))))
-
-(defun layer-speed (speed layers)
-  "Walk / run SPEED of a fighter with LAYERS frost layers on him: x the layer's *RU-LAYER-SLOW* (0 layers: SPEED itself)."
-  (if (plusp layers) (* speed (nth (min layers *ru-layer-max*) *ru-layer-slow*)) speed))
-
-(defun layer-burst-ok-p (contact layers)
-  "May a burst follow a string link whose CONTACT is NIL (not yet: the press waits for the chain), :hit or :block, with
-LAYERS on him? Never on a block; at the chain (a hit) only with >= 1 layer: 0 layers, the L is not taken (§4.3)."
-  (and (not (eq contact :block)) (or (null contact) (plusp layers))))
-
-(defun burst-count (link layers)
-  "Layers a burst off string link LINK (1-3) bursts with LAYERS on him: link n up to n, link 3 all (§4.3)."
-  (if (>= link 3) layers (min link layers)))
-
-(defun optic-p (ward optic ranged)
-  "Does a hit bypass the defender's ward (Rukia's absolute zero, passive :optic)? A RANGED hit (a hazard, a :ranged window
-beyond its :melee-range) on a WARD with OPTIC: it lands as on an open defender (the canon's optical loophole)."
-  (and ward optic ranged t))
-
-(defun temp-next (c guarding warm)
-  "Her cold C one frame later, clamped to 0 .. *COLD-MAX*: GUARDING (the GUARD HOLD test, or bracing at zero) cools her
-*RU-COOL-RATE* per second, else she warms WARM per second (the band's)."
-  (max 0.0 (min *cold-max* (if guarding (+ c (/ *ru-cool-rate* 60.0)) (- c (/ warm 60.0))))))
-
-(defun temp-band (c band)
-  "The band cold C asks for, from BAND (:m18 :m50 :zero): two stacked bars with hysteresis by bars (the user's decision
-2026-09-28). -18 -> -50 at C >= *COLD-BAR*; -50 -> -18 at C <= 0; -50 -> zero at C >= *COLD-MAX*; zero -> -50 at C <=
-*COLD-BAR* (several steps at once when C jumped)."
-  (ecase band
-    (:m18 (cond ((>= c *cold-max*) :zero) ((>= c *cold-bar*) :m50) (t :m18)))
-    (:m50 (cond ((>= c *cold-max*) :zero) ((<= c 0) :m18) (t :m50)))
-    (:zero (cond ((<= c 0) :m18) ((<= c *cold-bar*) :m50) (t :zero)))))
-
-(defun temp-band-at (c band state)
-  "The band after this step (the combo band lock, the user's decision 2026-09-28): while she is in a combo (any STATE but
-free: :idle :guard :run) BAND holds, so every link, the K -> L chain, the O ender and an SP cancel play the band the
-string began in; once free, the band cold C asks for (TEMP-BAND: several at once, -273 with C 0 -> -18)."
-  (if (member state '(:idle :guard :run)) (temp-band c band) band))
-
-(defun cold-ok-p (c cost combo)
-  "May a move costing COST cold start at cold C? Outside a combo only with the cost in hand; inside one (COMBO: a chained
-follow-up) on credit while any cold is left (the overdraft: C > 0, the spend clamps at 0)."
-  (or (>= c cost) (and combo (> c 0))))
-
-(defun temp-cool-frames (c)
-  "Frames of guarding from cold C to the next band's entry (a full bar)."
-  (ceiling (- (if (< c *cold-bar*) *cold-bar* *cold-max*) c) (/ *ru-cool-rate* 60.0)))
-
-(defun field-k (away frosted)
-  "The cold field's factor on the away part of a walk / run (already x*FROST-SLOW* when FROSTED): AWAY, but the two
-together never below *FIELD-FLOOR*."
-  (if frosted (max away (/ *field-floor* *frost-slow*)) away))
-
-(defun field-velocity (vx vz ux uz k)
-  "A walk / run velocity (VX VZ) inside her field: only its part along (UX UZ), the unit vector from her to him (moving
-away), is scaled by K; approaching and strafing are untouched. Values vx vz."
-  (let ((a (* (- 1.0 k) (max 0.0 (+ (* vx ux) (* vz uz))))))
-    (values (- vx (* a ux)) (- vz (* a uz)))))
-
-(defun field-step (dist toward s)
-  "A Step's DIST inside her field: TOWARD = cos of the angle between the hop and the way to her; a straight back Step x
-S, a diagonal one part of it, a side Step (TOWARD 0) or one toward her untouched."
-  (* dist (- 1.0 (* (- 1.0 s) (max 0.0 (- toward))))))
 
 (defun hoho-allowed-p (stunned fs lockout-left &optional bursting (need *fs-hoho*))
   "Hoho needs NEED flash-step (FS; *FS-HOHO*, a DANGAI run's :hoho-cost scales it; during a burst, BURSTING, any FS > 0:
@@ -798,14 +679,7 @@ CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)
   "May a fighter guard? Not at gauge 0, and not while GUARDLESS (from 0 until the gauge is full again)."
   (and (> gg 0.0) (not guardless)))
 
-;;; ---------------------------------------------------------------- NOME: Nozarashi's three-cup ladder (v2)
-;;; A kit meter with a :ladder: ((form drain/s delay-f up-at down-below) ...), one rung per kit form, cup 1 first.
-(defun nome-gain (dealt taken drunk gains)
-  "NOME from DEALT, TAKEN and DRUNK damage points at the kit's GAINS plist (:dealt :taken :drunk)."
-  (+ (* dealt (getf gains :dealt 0.0)) (* taken (getf gains :taken 0.0)) (* drunk (getf gains :drunk 0.0))))
-
-
-
+;;; ---------------------------------------------------------------- ranged hits
 (defun ranged-hit-p (hazard flags melee-range d2)
   "Is a hit ranged (not the attacker's own blade: a parry can't catch it)? A HAZARD's always; a window with :ranged in FLAGS unless its move's
 MELEE-RANGE covers the defender (D2: his squared distance from the attacker): the blade near, the line / crack beyond.
@@ -819,21 +693,6 @@ One window decides it per hit, so a hit never lands twice."
 passes (RESOLVE-CONTACT), a crush drops the move."
   (and warding ranged can-guard (not (eq def-state :invuln)) t))
 
-(defun drink-split (dmg)
-  "DRINK: a drunk hit worth DMG. Values: the half he takes (rounded up: real damage) and the half the
-cleaver drinks."
-  (values (ceiling dmg 2) (floor dmg 2)))
-
-(defun drink-adv (adv)
-  "The attacker's advantage after a drunk melee hit of block advantage ADV: ADV - *DRINK-ADV* (Q1 -2 -> -6,
-enders -12 -> -16): the drinker's blockstun is shorter, so a drunk string leaves gaps and every ender is
-punishable, but his own 10 f R-Q1 only trades into the next hit."
-  (- adv *drink-adv*))
-
-(defun cut-value (v kind &optional (mult *cut-mult*))
-  "The cut: the guard gauge a blocked hit of move KIND drains when its attacker has the :cut passive: V x MULT
-(rounded) for :flash :sig :sp, else V."
-  (if (member kind '(:flash :sig :sp)) (round (* v mult)) v))
 
 ;;; ---------------------------------------------------------------- stance (a Signature kind)
 (defun stance-store (stored taken)
@@ -900,29 +759,7 @@ uses THREAT-WINDOW-P and a world-space test with the inflated cylinder. Floats: 
          (loop for v in vols thereis (vol-hit-p v ax ay az fx fz tx ty tz r h 0f0)))))
 
 ;;; ================================================================ CPU AI helpers (§8)
-(defun band-weights (bands d)
-  "The weight plist of the first distance band (LO HI . weights) of a kit's AI table with
-LO <= D < HI, or NIL."
-  (loop for (lo hi . weights) in bands
-        when (and (>= d lo) (< d hi)) return weights))
 
-(defun heat-range (lo hi heat)
-  "Preferred range (LO HI) shrunk by anti-stall HEAT: -*AI-HEAT-RANGE* m per point, never below
-*AI-MIN-RANGE*. Values: lo hi. (Single-floats, the sim's: typed, MAX as ECL compiles it; only the values are boxed.)"
-  (let ((k *ai-heat-range*) (mn *ai-min-range*))
-    (if (and (typep lo 'single-float) (typep hi 'single-float) (typep heat 'single-float) (typep k 'single-float)
-             (typep mn 'single-float))
-        (locally (declare (optimize (speed 3) (safety 0)))
-          (let* ((m mn) (cut (* (the single-float heat) (the single-float k)))
-                 (a (- (the single-float lo) cut)) (b (- (the single-float hi) cut)))
-            (declare (single-float m cut a b))
-            (values (if (or (/= a a) (>= m a)) mn a) (if (or (/= b b) (>= m b)) mn b))))   ; (a tie: the minimum itself)
-        (let ((cut (* heat k)))
-          (values (max mn (- lo cut)) (max mn (- hi cut)))))))
-
-(defun heat-breaker-mult (heat)
-  "Breaker weight factor: 2 once HEAT reaches *AI-HEAT-BREAKER*."
-  (if (>= heat *ai-heat-breaker*) 2 1))
 
 (defun ai-burst-wanted-p (reishi reishi-max next-hit)
   "Is a Burst worth its bars to the CPU? Below *AI-BURST-LOW* of its Reishi, or the NEXT-HIT
@@ -962,45 +799,6 @@ fixnum Reishi, the sim's: the same compares in typed floats; exact for |Reishi| 
               (>= (the single-float fs) need))))
         (>= fs (+ h (if (< reishi (* bl reishi-max)) fb 0.0))))))
 
-;;; ---------------------------------------------------------------- :x-axis lines (DUEL_LILLE §11.3, gap G1 / G8)
-(defun line-dist (ax az yaw a b tx tz)
-  "Distance on the ground from (TX TZ) to the segment A .. B metres along facing YAW from (AX AZ): a :cap volume's axis
-(hitvol.lisp CAP without its height), so how far a fighter's feet are from a line hit."
-  (let* ((fx (fwd-x (float yaw 1f0))) (fz (fwd-z (float yaw 1f0))) (dx (- tx ax)) (dz (- tz az))
-         (along (+ (* dx fx) (* dz fz))) (s (max a (min b along)))
-         (ex (- tx (+ ax (* fx s)))) (ez (- tz (+ az (* fz s)))))
-    (hypot ex ez)))
-
-(defun line-off-strafe (ax az yaw px pz ox oz)
-  "The strafe (+1.0 / -1.0: the CPU stick's x, relative to the opponent at (OX OZ), TOWARD-STRAFE-DIR) that takes a fighter
-at (PX PZ) off the line through (AX AZ) along facing YAW, away from it: to the side he is on already (exactly on it: +1)."
-  (let* ((fx (fwd-x (float yaw 1f0))) (fz (fwd-z (float yaw 1f0))) (dx (- px ax)) (dz (- pz az))
-         (along (+ (* dx fx) (* dz fz))) (lx (- dx (* along fx))) (lz (- dz (* along fz))))
-    (if (>= (+ (* lx (- pz oz)) (* lz (- ox px))) 0) 1.0 -1.0)))   ; (lateral . strafe direction (-uz, ux), u to him)
-
-(defun opp-chance (p difficulty)
-  "A chance P read off the opponent's kit (:opp-aim, :opp-reflect) at DIFFICULTY: x *AI-OPP-DIFF*, at most 1."
-  (min 1.0 (* p (getf *ai-opp-diff* difficulty 1.0))))
-
-(defun reflect-action (now blast guard)
-  "The planned reflect (:opp-reflect) at his move frame NOW (as perceived) of a blast at frame BLAST: :guard (GUARD: a guard
-is up to it) pressed *AI-REFLECT-GUARD-LEAD* before the blast, else :hoho *AI-REFLECT-HOHO-LEAD* before; :wait in the
-*AI-REFLECT-QUIET* frames before that press; :late past the blast; else NIL (not yet)."
-  (let ((at (- blast (if guard *ai-reflect-guard-lead* *ai-reflect-hoho-lead*))))
-    (cond ((> now blast) :late)
-          ((>= now at) (if guard :guard :hoho))
-          ((>= now (- at *ai-reflect-quiet*)) :wait))))
-
-(defun heat-after (heat far)
-  "Heat one frame later: +*AI-HEAT-RATE* per second, twice that when FAR (beyond *AI-HEAT-FAR*).
-Dealing damage resets it to 0 (combat.lisp DEAL-DAMAGE). (Single-floats, the sim's: typed, one boxed result.)"
-  (let ((rate *ai-heat-rate*))
-    (if (and (typep heat 'single-float) (typep rate 'single-float))
-        (locally (declare (optimize (speed 3) (safety 0)))
-          (let* ((h heat) (r rate) (k (if far 2.0 1.0)) (v (+ h (* k (/ r 60.0)))))
-            (declare (single-float h r k v))
-            v))
-        (+ heat (* (if far 2.0 1.0) (/ rate 60.0))))))
 
 (defun steal-take (want victim-fs)
   "Flash-step one hit of a stealing AS takes: (values TAKE GAIN). The victim loses TAKE = WANT (the hit's :steal-fs x the replay's mult),

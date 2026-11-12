@@ -14,8 +14,7 @@ spent (ARM-SPEND!) and none cracks (KEN-TICK), so no KATAUDE: the Bankai the who
 :pip-hurry never fires."
   (let ((g (gauges e)) (was (fighter-form (fighter e))))
     (set-form e :bankai)
-    (setf (gauges-meter g) (f32 (or (getf (kit-pips (kit-of e)) :n) 0)) (gauges-meter-idle g) 0 (gauges-arm-pending g) nil   ; (V3's Bankai: no arm)
-          (gauges-arm-owed g) nil (gauges-reishi g) (gauges-reishi-max g))
+    (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0 (gauges-reishi g) (gauges-reishi-max g))   ; (V3's Bankai: no arm)
     (refresh-look e)
     (log-msg "duel boss kenpachi ~(~a~)->~(~a~) ude ~d konpaku ~d reishi ~d" was (fighter-form (fighter e))
              (round (gauges-meter g)) (gauges-konpaku g) (gauges-reishi g))))

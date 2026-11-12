@@ -4,7 +4,7 @@
 ;;;; holds a guard, from a set distance and resources, for a set number of 1/60 s frames. Output: the combat log between
 ;;;; "trial begin" and a "trial end" summary line per trial (combo-trial.py reads them).
 ;;;; Usage: ecl-host --norc --load tools/simgate/trial.lisp -- <duel.fas> <trials.lisp>
-;;;; A trial: (:name S :p1 C :form F :p2 C :p2-form F :dist M :layers N :chill N :dummy :stand|:guard :frames N
+;;;; A trial: (:name S :p1 C :form F :p2 C :p2-form F :dist M :layers N :chill N (ignored since 2026-11-12) :dummy :stand|:guard :frames N
 ;;;;           :script ((button frames &key modded wait on) ...) :bars N :fs N :meter X): the presses in order (scripted.lisp TRIAL-STEP)
 ;;;; Optional (2026-11-06, the KI matchup search): :ptr N P1's SP pointer, :p2-ptr N his; :awaken X P1's awakening gauge;
 ;;;; :p2-press ((frame button frames &optional modded stick) ...) P2 presses BUTTON for FRAMES steps from trial frame FRAME (the opponent
@@ -44,9 +44,10 @@ from that act)."
           (setf (brain-act b) :dash (brain-dash b) st (brain-dash-to b) (if (plusp st) -1f0 99f0)))))))
 
 (defun trial-run (tr)
-  (destructuring-bind (&key name (p1 :rukia) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
+  (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 3) (fs 100) (meter 0.0)
                          ptr p2-ptr awaken p2-press p2-reishi p2-at) tr
+    (declare (ignore layers chill))   ; (Rukia's layers, gone 2026-11-12: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
@@ -63,8 +64,7 @@ from that act)."
     (when awaken (setf (gauges-awaken (gauges *p1*)) (f32 awaken)))
     (when p2-reishi (setf (gauges-reishi (gauges *p2*)) (f32 p2-reishi)))   ; (under 30 %: red, his Kikon can't be cancelled)
     (let ((f2 (fighter *p2*)) (b1 (brain *p1*)) (b2 (brain *p2*)))
-      (setf (fighter-layers f2) layers (fighter-chill f2) chill (fighter-thaw f2) 0
-            (brain-off b1) nil (brain-habit b1) :trial (brain-press-left b1) 0
+      (setf (brain-off b1) nil (brain-habit b1) :trial (brain-press-left b1) 0
             (brain-off b2) t (brain-press-left b2) 0)
       (when (eq dummy :guard)
         (setf (fighter-state f2) :guard (fighter-guard-t f2) 30 (brain-press b2) :guard (brain-press-left b2) 9999)))
@@ -104,7 +104,7 @@ from that act)."
                  name (round (- r0 (gauges-reishi g2))) hits cmax (rest (reverse gaps)) last-hit free1 free2
                  (if (and free1 free2) (- free2 free1) "?")
                  (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2)))
-                 (round (- (gauges-reiatsu g1) ra0)) (round (- (gauges-fs g1) fs0)) (fighter-layers f2) (fighter-chill f2)
+                 (round (- (gauges-reiatsu g1) ra0)) (round (- (gauges-fs g1) fs0)) 0 0   ; (layers / chill: Rukia's, 0 since 2026-11-12)
                  (fighter-state (fighter *p1*)) (fighter-state f2) (- (gauges-konpaku g2) k0)
                  (round (- (gauges-reishi g1) s0)) (- (gauges-konpaku g1) k1) (- (gauges-konpaku g2) k0)
                  (fighter-form (fighter *p1*)) (fighter-ptr (fighter *p1*)) (round (gauges-meter g1)))))

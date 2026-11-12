@@ -77,7 +77,6 @@ bits already: it keeps its box, and no new one is made. PLACE is read before it 
   "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst)?"
   (let ((f (fighter e)) (g (gauges e)))
     (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g) (rmod-x e :hoho-cost *fs-hoho*))))
-(defun hoho-open-p (e) "May E Hoho at all: his form is not rooted and HOHO-READY-P?" (and (not (kit-rooted (kit-of e))) (hoho-ready-p e)))
 (defun current-move (f) "The move fighter F is in (his MOVE while his state is :move), else NIL." (and (eq (fighter-state f) :move) (fighter-move f)))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
@@ -190,15 +189,10 @@ tags added, since a non-NIL :hide replaces the face list): a vector made once pe
   (let ((h (model-hide m))) (and h (svref h (case face (:shout 1) (:hurt 2) (t 0))))))
 
 (defun refresh-look (e)
-  "Body, weapon and hidden parts of E's current form (the kit's :body, :weapon, :hide; a form with the arm meter shows
-one forearm crack per spent pip: :crack-1 .. :crack-4)."
-  (let* ((kit (kit-of e)) (m (model e)) (hide (kit-hide kit)))
-    (when (kit-pips kit)
-      (let ((spent (- (getf (kit-pips kit) :n) (round (gauges-meter (gauges e))))))
-        (setf hide (remove-if (lambda (tag) (let ((k (position tag '(:crack-1 :crack-2 :crack-3 :crack-4)))) (and k (< k spent))))
-                              hide))))
+  "Body, weapon and hidden parts of E's current form (the kit's :body, :weapon, :hide)."
+  (let ((kit (kit-of e)) (m (model e)))
     (setf (model-body m) (find-body (kit-body kit))
-          (model-weapon m) (kit-weapon kit) (model-hide m) (hide-set hide) (model-alpha m) 1f0)))
+          (model-weapon m) (kit-weapon kit) (model-hide m) (hide-set (kit-hide kit)) (model-alpha m) 1f0)))
 
 ;;; ---------------------------------------------------------------- animation
 (defvar *missing-clips* nil "Clip names already reported missing.")
@@ -383,12 +377,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   (multiple-value-bind (to st) (stick-relative e f)
     (multiple-value-bind (to st) (step-direction to st)
       (multiple-value-bind (dx dz) (world-dir e f to st)
-        (set-slide e (let ((len (multiple-value-bind (k ux uz) (opp-field e f)   ; her cold field shortens a Step away from her
-                                  (if k
-                                      (field-step *step-distance* (/ (- (+ (* dx ux) (* dz uz))) (max 1e-4 (hypot dx dz)))
-                                                  (getf k :step))
-                                      *step-distance*)))
-                           (h (kit-hook (fighter-kit f) :step-dist)))   ; a form's own landing (Hisagi's chain tips)
+        (set-slide e (let ((len *step-distance*) (h (kit-hook (fighter-kit f) :step-dist)))   ; a form's own landing (Hisagi's chain tips)
                        (if h (funcall h e f to st len) len))
                    12 dx dz))
       (setf (fighter-state f) :step (fighter-sf f) 0 (fighter-move f) nil (fighter-queued f) nil   ; (the J latch)
@@ -453,60 +442,40 @@ opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfec
         (emit :perfect e o)
         (clog "~a PERFECT HOHO" (side-name e))))))
 
-(defun cold-cost (kit command) "The cold COMMAND spends in KIT (its :cold; 0 without)." (getf (kit-cold kit) command 0))
-
-(defun cold-spend! (e kit command)
-  "COMMAND starts in KIT: its cold is spent (Rukia's cold gauge, the kit meter; never below 0)."
-  (let ((c (cold-cost kit command)))
-    (when (plusp c)
-      (let ((g (gauges e))) (countdown! (gauges-meter g) c)))))
-
-(defun kit-command-ok-p (e command &optional (kit (kit-of e)) ender combo)
-  "Can E start COMMAND's move (of KIT, default his form's) now: Reiatsu bars, not cooling down (its :cooldown), a pip of
-the arm meter left when the command spends one (Kenpachi's Bankai: KIT-PIP-CMD-P; one more while the string he is in
-owes its pip, unless it is that string's O ENDER), and L's cold (Rukia: only L is refused by cold; COMBO, a chained
-follow-up, overdraws while any cold is left: rules COLD-OK-P)? (The bars: REIATSU-OF, a bind's shared pool.)"
-  (let ((i (position command *kit-commands*)) (g (gauges e)))
+(defun kit-command-ok-p (e command &optional (kit (kit-of e)) combo)
+  "Can E start COMMAND's move (of KIT, default his form's) now: Reiatsu bars, not cooling down (its :cooldown), and the
+form's :ok hook (COMBO: a chained follow-up)? (The bars: REIATSU-OF, a bind's shared pool.)"
+  (let ((i (position command *kit-commands*)))
     (and (>= (reiatsu-of e) (* (kit-command-cost kit command) *reiatsu-bar*))
          (not (and (eq command :kikon) (rmod *run-mods-who* :kikon-seal nil)))   ; DANGAI's :kikon-seal: no side's O
          (or (null i) (zerop (aref (fighter-cd (fighter e)) i)))
-         (or (not (kit-pip-cmd-p kit command)) (>= (gauges-meter g) (if (and (gauges-arm-owed g) (not ender)) 2f0 1f0)))
-         (or (not (eq command :sig)) (cold-ok-p (gauges-meter g) (cold-cost kit :sig) combo))
          (let ((h (kit-hook kit :ok))) (or (null h) (funcall h e command combo))))))   ; the form's own price / refusal
 
-(defun try-command (e f cmd &optional button ender with)
+(defun try-command (e f cmd &optional button with)
   "Start command CMD (pressed with vpad BUTTON: a hold / Breaker move watches it) if the rules allow
-it now. A command the form drops (KIT-DROP) switches the form first, on the move's frame 0, and starts that
-form's move; a refused one doesn't switch. ENDER: the O ender of a string (its pip is the string's). WITH: the move
+it now. WITH: the move
 to start instead of the command's own (L after a K link, KIT-L-LINK), under the command's checks and costs. T when
 something started (a :command hook's non-move answer, :HOLD: nothing starts and, unrefused, the press stays buffered:
 Hisagi's K while his sickle returns). P (:awaken): the awakening, Kenpachi's Bankai, else the form's :p hook (e free), which decides,
 starts its own move or refuses with the cue (T when it took the press; Hisagi's bind throw and release)."
   (let ((g (gauges e)) (kit (fighter-kit f)))
     (case cmd
-      (:step (unless (kit-rooted kit) (cold-spend! e kit :step) (start-step e f) t))   ; a rooted form (Rukia's zero) refuses
-      (:hoho (when (and (not (kit-rooted kit)) (hoho-ready-p e))   ; Step and Hoho
-               (start-hoho e f) t))
+      (:step (start-step e f) t)
+      (:hoho (when (hoho-ready-p e) (start-hoho e f) t))
       (:awaken (let ((free (awaken-state-p e f)))
                  (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
                        ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
-                       ((and (kit-bankai-form kit) (bankai-allowed-p free) (bankai-ok-p e))
-                        (bankai! e) t)
                        ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
       (:sp (core-sp-start! e f))                        ; the core system: NS n from neutral (core-sim.lisp)
-      (t (let* ((to (kit-drop kit cmd))
-                (kit (if to (fighter-find-kit e to) kit))
-                (mv (if (and with (not to)) with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
-           (when (and (move-p mv) (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo; a
+      (t (let ((mv (or with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
+           (when (and (move-p mv) (kit-command-ok-p e cmd kit with))   ; (WITH: a chained L, inside a combo; a
                                                                              ;  :command hook's :hold: nothing, the press stays)
-             (when to (set-form e to))
              (let ((cost (kit-command-cost kit cmd)))
                (when (plusp cost) (reiatsu-spend! e cost)))
              (when (plusp (mv-cooldown mv))
                (setf (aref (fighter-cd f) (position cmd *kit-commands*)) (mv-cooldown mv)))
              (when (eq cmd :kikon) (setf (fighter-kikon-n f) (kit-kikon-konpaku kit)))   ; its worth, fixed now
-             (cold-spend! e kit cmd)                                             ; Rukia's cold
              (start-move e mv button)
              t))))))
 
@@ -541,44 +510,22 @@ buffered): the cancel is a guard, never a faster restart (the user 2026-10-02: J
                      (progn (vpad-consume! vp button) t))))
 
 (defun refused-cue (e f cmd vp button &optional combo)
-  "A kit command pressed while it cools down (its :cooldown: L, South, the O module), or L without its cold (Rukia), or
-one its kit's :ok hook refuses (COMBO: the chained L link, as KIT-COMMAND-OK-P got it): the press is eaten with a cue,
+  "A kit command pressed while it cools down (its :cooldown), or one its kit's :ok hook refuses (COMBO: the chained L link, as KIT-COMMAND-OK-P got it): the press is eaten with a cue,
 the :refused event (a flash of its HUD bar, a dud tick). NIL: the commands below it may still start."
   (let ((i (position cmd *kit-commands*)) (kit (fighter-kit f)))
     (cond ((and i (plusp (aref (fighter-cd f) i)))
            (vpad-consume! vp button)
            (emit :refused e cmd)
            (clog "~a refused ~a: cooling ~d" (side-name e) cmd (aref (fighter-cd f) i)))
-          ((and (eq cmd :sig) (kit-command-move kit :sig) (< (gauges-meter (gauges e)) (cold-cost kit :sig)))
-           (vpad-consume! vp button)
-           (emit :refused e cmd)
-           (clog "~a refused ~a: cold ~d" (side-name e) cmd (round (gauges-meter (gauges e)))))
           ((let ((h (kit-hook kit :ok))) (and h (kit-command-move kit cmd) (not (funcall h e cmd combo))))
            (vpad-consume! vp button)
            (emit :refused e cmd)
            (clog "~a refused ~a: kit" (side-name e) cmd))))
   nil)
 
-(defun opp-field (e f)
-  "The opponent's cold field acting on E now (the :field of her form, she upright, E within its :r): values the field
-plist and the unit vector (UX UZ) from her to E; NIL without one."
-  (let* ((o (fighter-opp f)) (fo (and o (entity-alive-p o) (fighter o))) (k (and fo (kit-field (fighter-kit fo)))))
-    (when (and k (<= (fighter-dist f) (getf k :r)) (not (member (fighter-state fo) '(:stun :air :down :wakeup :cine))))
-      (let ((p (pos-of e)) (d (max 1e-3 (fighter-dist f))))
-        (values k (/ (- (aref p 0) (fighter-ox f)) d) (/ (- (aref p 2) (fighter-oz f)) d))))))
-
-(defun field-slow! (e f v)
-  "E's walk / run velocity V inside the opponent's cold field: its part away from her x the field's :away (FIELD-K)."
-  (multiple-value-bind (k ux uz) (opp-field e f)
-    (when k
-      (multiple-value-bind (vx vz) (field-velocity (aref v 0) (aref v 2) ux uz (field-k (getf k :away) (plusp (fighter-frost f))))
-        (setf (aref v 0) (f32 vx) (aref v 2) (f32 vz))))))
-
 ;;; ---------------------------------------------------------------- per-state steps
 (defun guard-held-p (e vp)
-  "Guard is held and E may guard (the guard gauge: CAN-GUARD-P). Guardless, holding it does nothing. U is a guard
-in most forms; cup 3's guard drinks (DRINK: combat.lisp); Bankai East's U switches to West (the kit's :guard-to),
-and West's ward is always up, so there U does nothing more (GUARD-P)."
+  "Guard is held and E may guard (the guard gauge: CAN-GUARD-P). Guardless, holding it does nothing."
   (let ((g (gauges e)))
     (and (vpad-down vp :guard) (can-guard-p (gauges-gg g) (gauges-guardless g))
          (not (and *run-mods* (run-no-guard-p e g vp)))   ; DANGAI's :red-no-guard
@@ -592,17 +539,10 @@ something."
   (let ((h (kit-hook (fighter-kit f) :u)))
     (and h (vpad-command-pressed-p vp :guard :any) (funcall h e) (progn (vpad-consume! vp :guard) t))))
 
-(defun guard-p (e vp)
-  "Does U raise a guard now (held, allowed: GUARD-HELD-P)? Not in a form whose U switches (:guard-to) or whose ward
-is always up (:ward)."
-  (and (guard-held-p e vp) (not (kit-guard-to (kit-of e))) (not (passive-p e :ward))))
-
 (defun neutral-step (e f vp)
   "Idle / walk / strafe / guard: commands, then guard or walk, auto-facing. While guarding, and for *GUARD-EXIT* frames
 after a guard is let go, no attack starts (Step, Hoho, the burst and the awakening do; the attack's press stays buffered)
-and after the guard he stands (a guard may go up again). A form with :guard-to (Bankai East)
-switches to that form while U is held instead of guarding (from idle / walk; a run stops into this step too): its
-ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps counting while he walks in it). Under a
+and after the guard he stands (a guard may go up again). Under a
 Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard only, 2 not even that."
   (unless (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))         ; (a Kikon lock: no command, 2026-10-24)
                (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
@@ -610,10 +550,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
                                                                         ;  the press stays buffered)
                    (or (hoho-resume-press! e f vp) (command! e f vp *neutral-commands*) (u-press! e f vp))))
     (let ((v (motion-vel (motion e))))
-      (when (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (kit-guard-to (fighter-kit f)) (guard-held-p e vp))
-        (set-form e (kit-guard-to (fighter-kit f)))
-        (setf (fighter-guard-t f) 0))
-      (if (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (guard-p e vp))   ; (a red Kikon lock: no guard)
+      (if (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (guard-held-p e vp))   ; (a red Kikon lock: no guard)
           (progn
             (unless (eq (fighter-state f) :guard)
               (setf (fighter-state f) :guard (fighter-guard-t f) 0)
@@ -626,7 +563,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
             (when (eq (fighter-state f) :guard)
               (to-idle e 4)
               (setf (fighter-guard-exit f) *guard-exit*))
-            (setf (fighter-guard-t f) (if (passive-p e :ward) (min 9999 (1+ (fighter-guard-t f))) 0))
+            (setf (fighter-guard-t f) 0)
             (neutral-walk! e f v to st)))
       (turn-to-opp e f (%deg *face-rate*)))))
 
@@ -635,12 +572,12 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
 velocity V and the clip. Single-float sticks and speed (the sim's): typed, nothing boxed (the twins: bit-identical);
 else the generic code."
   (let* ((kit (fighter-kit f))
-         (speed (* (sub-speed-mult e) (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f)))))
+         (speed (* (sub-speed-mult e) (kit-walk kit))))
     (if (and (typep to 'single-float) (typep st 'single-float) (typep (kit-walk kit) 'single-float) (typep speed 'single-float))
         (sim-fast
           (let* ((a to) (b st) (m (%sqrt (+ (* a a) (* b b)))) (walk (kit-walk kit)))
             (declare (single-float a b m walk))
-            (if (or (< m 0.2) (<= walk 0f0))   ; (absolute zero: rooted where she stands)
+            (if (or (< m 0.2) (<= walk 0f0))
                 (progn (fill v 0f0) (play-clip e (fighter-stance-clip f) :blend 6 :restart nil))
                 (let* ((p (pos-of e)) (vv v) (sp speed))
                   (declare (type f32vec p vv) (single-float sp))
@@ -648,7 +585,6 @@ else the generic code."
                     (let* ((s (* (* sp (%min 1.0 m)) (/ 1.0 m))))
                       (declare (single-float s))
                       (setf (aref vv 0) (* s dx) (aref vv 2) (* s dz))))
-                  (field-slow! e f v)
                   (play-clip e (if (> (f-abs b) (f-abs a)) (if (> b 0f0) :sh-strafe-r :sh-strafe-l) (if (> a 0f0) :sh-walk-f :sh-walk-b))
                              :blend 6 :restart nil)))))
         (let ((m (hypot to st)))
@@ -656,8 +592,7 @@ else the generic code."
               (progn (fill v 0f0) (play-clip e (fighter-stance-clip f) :blend 6 :restart nil))
               (multiple-value-bind (dx dz) (world-dir e f to st)
                 (let ((s (* speed (min 1.0 m) (/ 1.0 m))))
-                  (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz)))
-                  (field-slow! e f v))
+                  (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz))))
                 (play-clip e (cond ((> (abs st) (abs to)) (if (> st 0) :sh-strafe-r :sh-strafe-l))
                                    ((> to 0) :sh-walk-f) (t :sh-walk-b))
                            :blend 6 :restart nil)))))))
@@ -730,14 +665,13 @@ the end (MOVE-END-FRAME)."
   (let ((sf (incf (fighter-sf f))) (s (mv-s mv)) (v (motion-vel (motion e))))
     (fill v 0f0)
     (when (< sf s)
-      (let* ((chained (fighter-chained f)) (rooted (kit-rooted (fighter-kit f)))   ; (rooted: her reach is the ice's)
-             (chase (if (and (not rooted)
-                             (or (fighter-end-chase f)                                            ; off a pushing ender
-                                 (and chained (not (member (mv-kind mv) '(:quick :flash))))))    ; J / K links: no chase
+      (let* ((chained (fighter-chained f))
+             (chase (if (or (fighter-end-chase f)                                                ; off a pushing ender
+                            (and chained (not (member (mv-kind mv) '(:quick :flash)))))         ; J / K links: no chase
                         (string-chase-speed (fighter-dist f) (mv-reach mv) (- s sf)               ; (the user 2026-10-02)
                                             (if (fighter-end-chase f) *ender-chase-max* *chase-max*))
                         0.0))
-             (slide (if (and (> (mv-slide mv) 0) (> (fighter-dist f) *lunge-stop*) (not rooted)) (* 60.0 (/ (mv-slide mv) s)) 0.0))
+             (slide (if (and (> (mv-slide mv) 0) (> (fighter-dist f) *lunge-stop*)) (* 60.0 (/ (mv-slide mv) s)) 0.0))
              (sp (max chase slide)))                  ; a lunge stopping at the opponent; a follow-up link's chase
         (turn-to-opp e f (track-step (if chained (max (mv-track mv) *chase-track*) (mv-track mv))))
         (when (> sp 0)
@@ -752,11 +686,11 @@ the end (MOVE-END-FRAME)."
             ((and (zerop (fighter-lock f)) (guard-cancel-open-p sf s (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv) (getf (mv-params mv) :gc-from))
                   (guard-held-p e vp))                  ; the guard cancel: U held late in its recovery (a hit; a J / K / O
              (clog "~a guard cancel ~a f~d" (side-name e) (mv-name mv) sf)   ;  blocked or whiffed too)
-             (to-idle e)                                ; (a :guard-to / :ward form: neutral, whose U does the rest)
+             (to-idle e)
              (setf (fighter-gc-left f) (- (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)   ; no attack before
                                                           (zerop (length (mv-hits mv))) (mv-kind mv))           ;  its recovery
                                           sf))                                                                  ;  would have ended
-             (when (guard-p e vp)
+             (when (guard-held-p e vp)
                (setf (fighter-state f) :guard (fighter-guard-t f) 0)
                (play-clip e :sh-guard :blend 3)))
             ((>= sf (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
@@ -852,7 +786,7 @@ action started."
                              (:sp (core-move-sp! e f vp mv sf button))   ; AS off a landed attack, the next NS segment (core-sim.lisp)
                              (:kikon (and (member :ender (mv-flags mv))   ; the O ender: a completed string
                                           (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))
-                                          (try-command e f cmd button t)
+                                          (try-command e f cmd button)
                                           (progn (skip-aura e f) t)))
                              ((:q :f) (cond ((eq (fighter-cls f) :ns)    ; an attack in an NS gap: the SA (core-sim.lisp)
                                              (core-sa-start! e f vp mv sf button))
@@ -872,7 +806,7 @@ action started."
                                                                                      ; §25.5 / §25.8)
                              (:sig (let ((l (kit-l-link kit name)))   ; L after a J / K link: latched like a link
                                      (if l
-                                         (progn (if (kit-command-ok-p e :sig (fighter-kit f) nil l)
+                                         (progn (if (kit-command-ok-p e :sig (fighter-kit f) l)
                                                     (progn (setf (fighter-queued f) :sig)
                                                            (vpad-consume! vp button))
                                                     (refused-cue e f :sig vp button l))   ; refused: the cue, eaten
@@ -887,20 +821,14 @@ action started."
           (when (and q (not (member q '(:ns :sa :sw))) (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
             (if (eq q :sig)                             ; L after a K link: its own checks and costs, a follow-up
                 (progn (setf (fighter-queued f) nil)
-                       (when (try-command e f :sig nil nil (kit-l-link kit name))
+                       (when (try-command e f :sig nil (kit-l-link kit name))
                          (setf (fighter-chained f) t)))
             (let ((next (let ((n (kit-next kit name q)) (h (kit-hook kit :link-move)))   ; (a kit's :link-move may swap the link:
-                          (or (and n h (funcall h e n)) n)))                                   ;  Hisagi's gathered J, DUEL_HISAGI §28.4)
-                  (pip (kit-pip-cmd-p kit q)))
-              (cond ((and pip (< (gauges-meter (gauges e)) 1f0))   ; a K link with no pip left: the string ends here
-                     (setf (fighter-queued f) nil)
-                     nil)
-                    ((let ((h (kit-hook kit :link-ok))) (and h (not (funcall h e next))))   ; the kit refuses this link
+                          (or (and n h (funcall h e n)) n))))                                  ;  Hisagi's gathered J, DUEL_HISAGI §28.4)
+              (cond ((let ((h (kit-hook kit :link-ok))) (and h (not (funcall h e next))))   ; the kit refuses this link
                      (setf (fighter-queued f) nil)                                      ;  (Hisagi: one leap a combo): it ends
                      nil)
-                    (t (when pip (setf (gauges-arm-owed (gauges e)) t))   ; the string's one pip, charged when it ends
-                       (cold-spend! e kit q)                             ; each link's cold (Rukia)
-                       (start-move e next (if (eq q :q) :quick :flash))
+                    (t (start-move e next (if (eq q :q) :quick :flash))
                        (setf (fighter-chained f) t)
                        t)))))))))
 
@@ -931,14 +859,14 @@ awakening; lock 1 (not red): U cancels the reel into a guard (the follow-up's st
   (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f)))
              (not (hoho-holds-p f)))
     (to-idle e)
-    (when (guard-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise*) (play-clip e :sh-guard :blend 3))))
+    (when (guard-held-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise*) (play-clip e :sh-guard :blend 3))))
 
 (defun chain-more-p (e f mv)
   "Can E's move MV still go on into a follow-up (the guard lock's MORE): a next J / K link, an L link L may start, the
 on-hit cancels (its hit landed: SP, Hoho, a :cancel L, the O ender), or ORANGE (BURST-OK-P, a blocked L / O included)?"
   (let ((kit (fighter-kit f)) (name (mv-name mv)))
     (or (string-link-p kit name)
-        (let ((l (kit-l-link kit name))) (and l (kit-command-ok-p e :sig kit nil l)))
+        (let ((l (kit-l-link kit name))) (and l (kit-command-ok-p e :sig kit l)))
         (and (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:quick :flash)))
         (eq (burst-ok-p e) :orange))))
 
@@ -987,7 +915,7 @@ direction relative to the opponent (neutral = at him), the heading turning at *R
 *RUN-STOP* from him (RUN-STOP-P). He faces the opponent throughout (as in neutral, *FACE-RATE*), so the
 clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
   (let* ((v (motion-vel (motion e))) (vx (aref v 0)) (vz (aref v 2))
-         (speed (* (sub-speed-mult e) (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f)))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
+         (speed (* (sub-speed-mult e) (kit-run (fighter-kit f)))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
     (cond ((eq (fighter-phase f) :brake)
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
              (turn-to-opp e f (%deg *face-rate*))
@@ -996,7 +924,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
            (when (eq (fighter-state f) :move)
              (set-slide e (run-carry (fighter-dist f)) *run-carry-frames* vx vz)
              (clog "~a run -> ~a, carry ~,1f m" (side-name e) (mv-name (fighter-move f)) (run-carry (fighter-dist f)))))
-          ((and free (guard-held-p e vp) (not (passive-p e :ward))) (to-idle e 3) (neutral-step e f vp))
+          ((and free (guard-held-p e vp)) (to-idle e 3) (neutral-step e f vp))
           ((not (and free (vpad-down vp :step)))
            (setf (fighter-phase f) :brake (fighter-sf f) 0)
            (play-clip e (fighter-stance-clip f) :blend 6))
@@ -1005,7 +933,6 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
              (if (run-stop-p (fighter-dist f) (run-closing e f) speed)
                  (to-idle e 4)
                  (progn (run-velocity e speed (fighter-run-yaw f))
-                        (field-slow! e f (motion-vel (motion e)))
                         (play-clip e (run-clip e f) :blend 5 :speed (/ speed 8.0) :restart nil)))))))
 
 (defun hoho-press (vp)
@@ -1060,7 +987,7 @@ startup / active frames?"
           (setf (aref p 0) (f32 x) (aref p 2) (f32 z) (transform-yaw (transform e)) (f32 yaw))))
       (play-clip e :sh-hoho-in :blend 0)
       (let ((p (pos-of e))) (emit :hoho-in e (aref p 0) (aref p 2)))
-      (let ((h (kit-hook (fighter-kit f) :hoho))) (when h (funcall h e))))   ; the form's own arrival (Rukia's cold)
+      (let ((h (kit-hook (fighter-kit f) :hoho))) (when h (funcall h e))))   ; the form's own arrival
     (when (and (= sf *hoho-counter-pose*) (fighter-perfect f))
       (play-clip e (kit-move-clip (fighter-kit f) (mv-clip (kit-command-move (fighter-kit f) :q))) :blend 0 :time 0.1))
     (when (>= sf *hoho-frames*)
@@ -1135,12 +1062,8 @@ its startup's end, or a Kikon rush's dash), or a kit's :armor hook (Lille II's w
 
 (defun defender-state (e)
   "E's side of the triangle for RESOLVE-CONTACT (rules.lisp): :neutral :guard :breaker :stance-in
-:stance :armor :parry :invuln. Bankai West's ward (passive :ward, up *GUARD-RAISE* frames after U) is :guard in his
-free states (idle, walk, run), the non-invulnerable frames of Step / Hoho and his own moves (a parry's window is
-still :parry); never in a reaction (a bind, a Guard Break, a crush reel: no armoured combos) -- except DANGAI's run
-armour (RUN-ARMOR-P: :armor wherever he would be :neutral)."
-  (let* ((f (fighter e)) (sf (fighter-sf f)) (mv (fighter-move f))
-         (open (if (and (passive-p e :ward) (>= (fighter-guard-t f) *guard-raise*)) :guard :neutral)))
+:stance :armor :parry :invuln; DANGAI's run armour (RUN-ARMOR-P) is :armor wherever he would be :neutral."
+  (let* ((f (fighter e)) (sf (fighter-sf f)) (mv (fighter-move f)) (open :neutral))
     (let ((s (case (if (> (fighter-invuln f) 0) :invuln (fighter-state f))
       ((:idle :run) open)
       (:invuln :invuln)                                  ; after a Burst
@@ -1157,8 +1080,6 @@ armour (RUN-ARMOR-P: :armor wherever he would be :neutral)."
                    ((and (member :stance (mv-flags mv)) (eq (fighter-phase f) :hold))
                     (if (< (fighter-hold f) *stance-in*) :stance-in :stance))
                    ((and (member :parry (mv-flags mv)) (eq (fighter-phase f) :main) (parry-frame-p sf (getf (mv-params mv) :window))) :parry)
-                   ((and (member :shield (mv-flags mv)) (eq (fighter-phase f) :main) (<= (mv-s mv) sf) (< sf (+ (mv-s mv) (mv-a mv))))
-                    :guard)                                        ; a :shield move's window is a guard (its catch: APPLY-HIT)
                    (t open)))
       (t :neutral))))
       (if (and (eq s :neutral) *run-mods* (run-armor-p e)) :armor s))))   ; DANGAI's run armour (one hit, any open state)
@@ -1223,11 +1144,7 @@ cinematic or a :through move."
   (when (and (plusp (fighter-kikon-lock f)) (not (kikon-lock-holds-p f))) (setf (fighter-kikon-lock f) 0))
   (when (> (fighter-invuln f) 0) (decf (fighter-invuln f)))
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
-  (when (> (fighter-frost f) 0) (decf (fighter-frost f)))
   (when (> (fighter-seal f) 0) (decf (fighter-seal f)))
-  (when (or (plusp (fighter-layers f)) (plusp (fighter-chill f)))   ; 霜の層 thaw (Rukia's Shikai: rules LAYERS-THAW)
-    (multiple-value-bind (l th c) (layers-thaw (fighter-layers f) (fighter-thaw f) (fighter-chill f))
-      (setf (fighter-layers f) l (fighter-thaw f) th (fighter-chill f) c)))
   (let ((cd (fighter-cd f))) (dotimes (i (length cd)) (when (plusp (aref cd i)) (decf (aref cd i)))))
   (let ((vp (pilot-vpad (pilot e))))
     (case (fighter-state f)

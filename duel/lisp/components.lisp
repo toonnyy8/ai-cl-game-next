@@ -97,7 +97,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (hoho-hold nil)                       ; the resumed move: it holds the victim's reaction through its startup / active
   (guard-t 0 :type fixnum)              ; frames Guard has been held (raised at *GUARD-RAISE*)
                                         ; (Bankai West: frames in the ward, which is up at *GUARD-RAISE*)
-  (warded -1 :type fixnum)              ; the tick his ward (Bankai West) last blocked a hit (the CPU's reversal)
   (ward-until 0 :type fixnum)           ; a :ranged-ward move's last catch: the tick a plain guard's blockstun would end (0 none)
   (stored 0 :type fixnum)               ; stance: damage absorbed
   (charge 0 :type fixnum)               ; hold frames when a charge move was released (Shiranui)
@@ -139,10 +138,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (combo-hits 0 :type fixnum) (combo-launches 0 :type fixnum) (combo-air 0 :type fixnum)
   (combo-from 0 :type fixnum)           ; combo-hits when the attacker's ORANGE started: its damage scaling counts from there
   (combo-dmg 0 :type fixnum)
-  (frost 0 :type fixnum)                ; frames of frost left: walk and run x*FROST-SLOW* (Rukia's ice, rules FROST-NEXT)
-  (layers 0 :type fixnum)               ; 霜の層 on him, 0-3 (Rukia's Shikai: walk / run x*RU-LAYER-SLOW*, rules LAYERS-ADD)
-  (thaw 0 :type fixnum)                 ; frames since his last layer (one thaws at *RU-THAW*: rules LAYERS-THAW)
-  (chill 0 :type fixnum)                ; 冰凍值 toward his next layer, 0-1 (two make a layer: rules CHILL-ADD; the user 2026-10-24)
   (seal 0 :type fixnum)                 ; frames a bind (RIKUJOKORO) still seals him: a Kikon follow-up treats him as red
   (rm nil)                              ; DANGAI's run state (run-mods.lisp RMST: RM-OF makes it while *RUN-MODS* applies to him)
   ;; HUD (sim frames)
@@ -174,12 +169,8 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (form-left 0 :type fixnum)            ; frames left in a timed form (Hellfire)
   (form-total 0 :type fixnum)
   (burn-step 0 :type fixnum)            ; frames of the current form's burn so far
-  (arm-pending nil)                     ; Kenpachi's Bankai: the arm's last pip went: the move running then (:NONE = none),
-                                        ; until the burst fires (rules BURST-DUE-P); NIL = none pending
-  (arm-owed nil)                        ; Kenpachi's Bankai: the J / K string he is in owes its one pip (charged when it ends)
   (taken-melee 0 :type fixnum) (taken-ranged 0 :type fixnum)   ; damage taken from blades / ranged hits (the CPU's
                                         ; :awaken rule: Rukia awakens against a melee opponent, ai.lisp AI-AWAKEN-P)
-  (froze nil)                           ; this absolute-zero visit's freeze-touch is spent (Rukia; cleared entering zero)
   (stun 0f0 :type single-float)         ; the hidden hit-stun (rules STUN-ADD / STUN-DECAY; no HUD)
   (stun-idle 0 :type fixnum)            ; frames since it last grew
   ;; results
@@ -247,23 +238,20 @@ no sim stream)."
   (let ((p (brain-chance b plist))) (and (plusp p) (or (>= p 1.0) (< (sim-rnd01) p)))))
 
 (defcomponent hazard
-  "A hit that is not a fighter's melee: fire wave, Shiranui, Ennetsu pillars, line cuts (looks only),
-South's bind and hands. World-space volume + a HITWIN (kit.lisp) for the hit itself. KIND picks its update,
-its volume test and its look (hazards.lisp)."
+  "A hit that is not a fighter's melee: a wave, a character's own hazard, line cuts and looks (looks only). World-space
+volume + a HITWIN (kit.lisp) for the hit itself. KIND picks its update, its volume test and its look (hazards.lisp)."
   (kind nil)
   (owner nil)                           ; the fighter whose hit this is
   (x 0f0 :type single-float) (y 0f0 :type single-float) (z 0f0 :type single-float)
   (px 0f0 :type single-float) (pz 0f0 :type single-float)   ; position last step (projectile sweep)
   (yaw 0f0 :type single-float)
-  (speed 0f0 :type single-float) (turn 0f0 :type single-float)   ; m/s, homing rad/frame
+  (speed 0f0 :type single-float)        ; m/s
   (size 0f0 :type single-float)         ; radius / half-width / length, per kind
   (age 0 :type fixnum) (life 0 :type fixnum) (delay 0 :type fixnum)   ; frames
   (hits-left 1 :type fixnum) (rehit 0 :type fixnum)   ; hits it may still deal; frames to the next
   (hw nil)                              ; the HITWIN it deals (NIL = a look only)
   (src nil)                             ; T: a hit comes from the owner's position (a guard facing him blocks it)
-  (fragile nil)                         ; T: it closes while it waits if its owner is hit (CLOSE-RIFTS)
   (hook nil) (data nil)                 ; a character's own hazard: HOOK (h hz event ...) and the DATA it keeps (hazards.lisp)
-  (group nil)                           ; NIL, or a hit group shared by several hazards (MAKE-HIT-GROUP): they hit once together
   (sp nil)                              ; T: spawned by its owner's SP (SP-MOVE-P): its hits ignore the combo scaling
   (sp-mv nil)                           ; the core NS / AS segment with a :kikon-strike that fired it (CORE-WAVE-STRIKE)
   (rbase 0f0 :type single-float)        ; the Reiatsu its hits pay the owner (HIT-RBASE): its owner's move's at its spawn
@@ -277,7 +265,7 @@ its volume test and its look (hazards.lisp)."
 (defun side-name (e) (if (zerop (fighter-side (fighter e))) "P1" "P2"))
 (defun cpu-p (e) (and (brain e) t))
 (defun passive-p (e p)
-  "Does E's current form have passive P (:ward :pierce :projectile-cut :scorch :cut :drink)?"
+  "Does E's current form have passive P (:projectile-cut :parry-block)?"
   (and (member p (kit-passives (kit-of e))) t))
 
 (declaim (special *p1* *p2*))                           ; (flow.lisp's)
