@@ -8665,3 +8665,15 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 第一步開工：R1 死碼（Sonnet）、S0 `sp.lisp` 純函式（Sonnet）、R0 美術比對閘門的不確定性（Opus）、R8 舊截圖整理（Haiku），各自一個 worktree。
 
 分工：主對話 Opus 5.5：記錄決定、派工、覆核、合併。
+
+## 731. 第一步合併：R8 舊截圖、R1 死碼、S0 SP 純函式與消耗表更正（2026-11-12）
+
+使用者：「按你建議的做」（§730 的開工決定）
+
+- R8（Haiku）：37 張 batch-*／webgl-* 截圖不再追蹤（留在磁碟、加入 .gitignore），12 支舊風格腳本移到 `docs/research/style-history/`，引用路徑改好；`.gitattributes` 是 graphify 給忽略目錄用的本機設定，留在本機（.git/info/exclude）。
+- R1（Sonnet）：刪掉每招扣腕力格（`core-pips-ok-p`、`arm-spend!`）、指針封鎖（`core-pointer-locked-p`）、DRIVE 滿才能卍解（`drive-full-p` 與 `bankai-allowed-p` 的參數）。查證：沒有任何角色資料帶 `:pips`／`:locks`／`:bankai-form`。劍八腕力格的查證結果：格子的儲存欄位 `gauges-meter` 仍在用（劍八的解放等級、一護的分身標記），只有「腕力格點數」那套是死的，剩下的殘骸併入 R3 一起清。G2 三組不變（II 39、IK 36、KK 28 行）。
+- S0（Sonnet）：新檔 `duel/lisp/sp.lisp`（九個純函式）、`tuning.lisp` 九個新參數、`tests/duel-rules/sp.lisp`（主機測試 10326 → 10440）。尚無呼叫點，模擬不變（G2 相同）。
+- 消耗表更正：S0 的測試從角色實際招式資料算出 DUEL_SP §4 的表，劍八有 10 格對不上。原因是主對話當初算表時乘倍率後又捨入一次，並把始解／卍解 NS1 的兩下 ND 算成一下。規則不變（傷害 × 0.4 × 倍率，一次取 5 的倍數，10–60），表改成照資料：劍八封印 NS 55／55／60、AS3 75；始解 NS1 100、NS2 120、AS1 85；卍解 NS1 90、AS2–AS4 55／75／95。劍八表外的 AS 指針（始解 AS4–7、卍解 AS5）同樣照規則定價，留給 S2 列出。
+- 主對話在合併後的 main 重跑：主機測試 ALL PASS、pkgcheck、建置、G2 native 三組相同。
+
+分工：Haiku／Sonnet 子代理：R8、R1、S0；主對話 Opus 5.5：覆核、更正消耗表與測試、合併、重跑檢查。

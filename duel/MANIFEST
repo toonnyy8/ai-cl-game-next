@@ -17,6 +17,7 @@ lisp/package.lisp
 lisp/tuning.lisp
 lisp/rules.lisp
 lisp/core.lisp
+lisp/sp.lisp
 lisp/fuzzy.lisp
 lisp/strategy.lisp
 lisp/control.lisp

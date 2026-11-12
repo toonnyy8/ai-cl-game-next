@@ -48,16 +48,19 @@ The user, asked whether the flash-step gauge could be the SP gauge, proposed the
 - Default per segment: cost = its total damage x 0.4, rounded to 5, clamped 10-60 (multi-hit: the sum; a wave: the wave's damage; a setup
   segment with no hit of its own, e.g. Ichigo's NS2a / b, KESSA's clone summons, Kenpachi's NS3a: 10). A move may override it in its data.
 - Kenpachi pays Reishi for his SP attacks, so his costs come back to the roster's mean (the user: 「劍八的 SP 攻擊會扣除自身血量，作為交換，請將他 SP
-  造成的消耗降回平均水準」): a per-form multiplier on his kits making each form's mean segment cost equal Ichigo's and Hisagi's (23.2):
+  造成的消耗降回平均水準」): a per-form multiplier on his kits bringing each form's mean segment cost to about Ichigo's and Hisagi's (23.2; set before the table's correction, kept):
   base x0.76, Shikai (NOZARASHI) x0.68, Bankai x0.71, Bankai-2 x0.51.
 
-Route totals of the first table (Hoho = 100):
+Route totals (Hoho = 100). Corrected 2026-11-12 by S0's host test (the table is computed from the kits' move data by the rule above, one
+rounding, multi-hit segments summed): ten Kenpachi cells of the first version had been rounded twice (after x0.4 and again after the
+multiplier) and his Shikai / Bankai NS1's two-hit ND counted once. The rule stands; the numbers follow the data. His AS pointers past
+the table (the Shikai's AS4-7, the Bankai's AS5: bursts, special, Bankai) are priced by the same rule (no damage: 10); S2 lists them.
 
 | Kit / form | NS1 | NS2 | NS3 | AS1 | AS2 | AS3 | AS4 |
 |---|---|---|---|---|---|---|---|
-| Kenpachi base | 60 | 55 | 65 | 25 | 50 | 70 | — |
-| Kenpachi Shikai | 85 | 125 | — | 80 | 110 | 25 | 25 |
-| Kenpachi Bankai | 70 | — | — | 30 | 50 | 70 | 90 |
+| Kenpachi base | 55 | 55 | 60 | 25 | 50 | 75 | — |
+| Kenpachi Shikai | 100 | 120 | — | 85 | 110 | 25 | 25 |
+| Kenpachi Bankai | 90 | — | — | 30 | 55 | 75 | 95 |
 | Kenpachi Bankai-2 | 85 | — | — | 30 | 50 | 70 | 90 |
 | Ichigo Shikai | 85 | 80 | 70 | 20 | 45 | 90 | — |
 | Ichigo KESSA | 75 | 80 | 30 | 20 | 45 | 80 | — |
@@ -177,6 +180,8 @@ Each scene sets both gauges, places the fighters and prints a `duel sp t .. p1 f
 | **S7** | CPU statements | Statements, no weights retuned: `core-ai.lisp` does not press a later NS segment the sim would refuse (reads `sp-start-p`; else it stalls on an eaten press); the SP press's fuzzy input "fs cells" available (fuzzy.lisp term, unused by the shipped rules unless a rule needs it to stop a refused press); `cai-switch-press` reads the new gate; the full-sim rollouts (`cpu-mcts.lisp`) see costs for free; **the light model (`mcts-lite.lisp`) ignores SP** (its `+f-hoho+` is a 0 / 1 flag, no gauge): stated in DUEL_AI_MCTS, with a `mc-fidelity.py` run reported, not gated; strategy tables untouched | a CPU at fs 0 in an NS route (scripted opponent, CPU side fixed by seed and `39000` rule): no refused-press loop in the log; `fulltest` | DUEL_AI_MCTS, skill `duel-character-cpu` | Opus |
 | **S8** | HUD cues | `webhud.lisp` publishes cost-of-next (the pointer's NSa cost), `sp-paid` / scale and the `:sp-break` / refund events into the model (`lhud-model`); `lhud-plate.lisp`: a spend tick and a refund flash on the cells, a "x0.5-x0.9" dim mark on a scaled segment's callout, the steal's cell fly-over; `lhud-deck.lisp`: the dial arms at one cell, the SP button shows "short" / "empty". Preallocated, 0 B / frame (measured with the HUD's existing allocation probe); `lhud-charset` test if a new glyph is used | `tests/lhud-compare.py` sheets of four states (full, short, empty, break) for the user; no byte gate | DUEL_LISP_HUD (a new §), the manual | Sonnet |
 | **S9** | PRACTICE + docs | a GAUGES row (FS: FULL / ONE CELL / EMPTY / KEEP, both sides; `control.lisp` settings row + `flow.lisp` `practice-step`, beside `*gauges-inf*`); the dummy pays like a player (Q19); manual.html, TUTORIAL.zh-TW, DUEL_DESIGN's move tables gain a cost column (generated from `sp-cost`, checked by S0's test), skills `duel-move-modules` / `sim-balance-gates` one paragraph each; the dead-code list of §7 handed to REFACTOR §11 R1 / R6 | the row's four settings (`duel-practice-*.json`) | as listed | Sonnet (docs: Haiku for the tables) |
+
+**Status:** S0 done on branch worktree-agent-abefea47b36f0d068 (sp.lisp, nine knobs in tuning.lisp, tests/duel-rules/sp.lisp; no call site). The test reproduces §4 from the kits' data: Ichigo's and Hisagi's cells agree; ten Kenpachi cells differ (reported to the main session, pinned in the test).
 
 ### 8.5 Order and parallelism
 

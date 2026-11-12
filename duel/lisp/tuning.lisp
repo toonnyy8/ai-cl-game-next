@@ -209,6 +209,18 @@ SP 27.3 O 20, a Breaker's 0).")
 (defparameter *steal-fs-gain* 0.5
   "Share of the flash-step a stealing AS (:steal-fs, per hit) takes that the attacker gains (the victim loses all of it). New 2026-11-12, the
 user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this replaced a per-use cap of 100, `*steal-fs-max*`, 2026-11-12, 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」, removed the same day).")
+(defparameter *fs-cell* 100.0
+  "One cell of the flash-step gauge (the HUD's three cells; the Hoho's price). New 2026-11-12, the user's SP design (DUEL_SP §2): the last cell is never taken by a steal and regen stops at one cell; the literal 100 lived in `*fs-hoho*` and lhud-deck's `+fs-burst+`.")
+(defparameter *sp-cost-rate* 0.4
+  "SP an NS / AS segment costs per point of its damage (cost = damage x this x the kit's multiplier, rounded to 5, clamped `*sp-cost-min*` .. `*sp-cost-max*`). New 2026-11-12, the user: 「依據每段 NS 的強度調整消耗量」 (DUEL_SP §3-§4).")
+(defparameter *sp-cost-min* 10.0 "Cheapest SP segment (also a setup segment with no damage). New 2026-11-12, the user's SP design, DUEL_SP §4.")
+(defparameter *sp-cost-max* 60.0 "Dearest SP segment. New 2026-11-12, the user's SP design, DUEL_SP §4.")
+(defparameter *sp-gain-j* 10.0 "SP a J hit (each damaging hit window) earns. New 2026-11-12, the user: 「J 命中 +10」, DUEL_SP §5, §8.6 Q3.")
+(defparameter *sp-gain-sa* 15.0 "SP an SA hit (each damaging hit window) earns. New 2026-11-12, the user's SP design, DUEL_SP §5.")
+(defparameter *sp-gain-cancel* 30.0 "SP an ATK (J / SA) that takes part in a cancel earns, instead of its hit gain. New 2026-11-12, the user's SP design, DUEL_SP §5.")
+(defparameter *sp-break-share* 0.5
+  "Share of the victim's flash-step above the last cell a breakthrough after a cancel takes. New 2026-11-12, the user: 「50%」, DUEL_SP §6.")
+(defparameter *sp-break-gain* 0.5 "Share of a breakthrough's take the attacker gains (the victim loses all of it). New 2026-11-12, the user's SP design, DUEL_SP §6.")
 (defparameter *fs-burst* 200.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; the drain is the cost).")
 (defparameter *fs-regen* 4.5 "Flash-step per second (3 -> 9 -> 4.5: 2026-11-12, the user: 「閃步量表的自然恢復速度減半」; a Hoho from empty in 23.2 s) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
