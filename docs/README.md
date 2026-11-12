@@ -68,6 +68,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_ROGUE_B1_PLAN.md](duel/DUEL_ROGUE_B1_PLAN.md) | 斷界行第 1 批（骨架）的實作計畫：純規則、疊在 ENDLESS 上的一輪、門的畫面、MODE 列、測試與文件（英文，2026-10-22） |
 | [DUEL_WEBUI.md](duel/DUEL_WEBUI.md) | HTML／CSS／SVG 的選單（§1–§5）與對戰畫面（HUD、手機操作區、暫停、開場與結算，§6–§7）的設計紀錄：2026-11-11 HTML 版已移除，Lisp HUD 照這份設計重現（英文，2026-10-28） |
 | [DUEL_LISP_HUD.md](duel/DUEL_LISP_HUD.md) | 用 Lisp 畫的 HUD 與選單：還原標準、HTML 介面盤點、引擎有什麼缺什麼、離線烘焙的 SDF 圖集、繪製流、版面、補間、分階段計畫與各階段結果；2026-11-11 起是唯一的繪製方式，HTML 版移除（§16，英文，2026-11-10） |
+| [DUEL_SP.md](duel/DUEL_SP.md) | SP 消耗改由閃步量表支付：每段依強度消耗、相消退還、ATK 恢復、相消後突破奪取（2026-11-12 規則定案，尚未實作） |
 | [DUEL_MOBILE_DESIGN.md](duel/DUEL_MOBILE_DESIGN.md) | 單手（片手）直式手機模式的設計 v2：預設右手、FULL 輔助不打折、不做本機直式雙人、日後藍牙／Wi-Fi 對戰；§12 是 2026-09-26 已做好的簡單版（P0 + PWA）與偏離之處 |
 
 ## 畫風（`style/`）
