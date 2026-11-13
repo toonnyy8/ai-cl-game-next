@@ -7,7 +7,10 @@ FILE is a strategy plist (duel/lisp/strategy.lisp) with an extra :own, the situa
 the list). The character plays the COMPOSITE (:id :switch-<id> :switch ((OWN . the strategy without :own))) -- the shipped CPU, with its
 lookup and style CPU, except while OWN fires (re-judged every 90 steps in neutral) -- against the opponent's shipped CPU, both seats, seeds
 seed0+1..seed0+n; the INCUMBENT (no strategy on either seat) plays the same seeds (cached: measured once per build).
-  comp_share / inc_share  the character's win shares (a draw / time-out counts 0);  gain = comp - inc
+  comp_share / inc_share  the character's win shares: a draw counts 0; a time-out the character leads counts 1 (the winner by the
+                          lead), or 0 with --ko-only (a win counts only if it was a K.O.: the row's `ko 1`; both arms alike);  gain = comp - inc
+  comp_ko / inc_ko ...    per arm, both seats summed: the character's K.O. wins and K.O. losses, the time-outs and the draws
+                          (whatever --ko-only says); the search's (K.O. wins + 1) / (matches + 2) is sp/eval.py's, not this score
   b / c                   paired counts on the same seed and seat: composite won and incumbent lost / the reverse;  z = (b - c) / sqrt(b + c)
   own_share               the candidate's judgements / all the composite's judgements (the share of windows it held)
   score                   max(0.005, comp_share), or the incumbent's share when own_share > --max-own (capped)
@@ -24,7 +27,7 @@ strategy texts). At most 8 sim processes.
 import argparse, json, math, os, re, sys, tempfile, time
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW
+from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW, row_win, row_ko
 
 ROSTER = {'kenpachi': 1, 'ichigo': 3, 'hisagi': 7}      # roster indices (kit.lisp *ROSTER*)
 DIFF = {'easy': 0, 'normal': 1, 'hard': 2}
@@ -172,21 +175,27 @@ def run_job(c1, c2, comp, diff, seed0, n, opp=None):
     return out
 
 
-def parse(outs, seat):
-    """-> ({seed: 1 if `seat` won}, judged, [held per entry])."""
+def parse(outs, seat, ko_only=False):
+    """-> ({seed: 1 if `seat` won (KO_ONLY: by a K.O.)}, judged, [held per entry], {ko_wins, ko_losses, timeouts, draws})."""
     wins, judged, held = {}, 0, None
+    cnt = dict(ko_wins=0, ko_losses=0, timeouts=0, draws=0)
     for out in outs:
         for line in out.splitlines():
             m = ROW.search(line)
             if m:
-                wins[int(m.group(1))] = int(m.group(2) == seat)
+                wins[int(m.group(1))] = row_win(line, m, seat, ko_only)
+                ko = row_ko(line)
+                cnt['draws'] += m.group(2) == 'DRAW'
+                cnt['timeouts'] += ko == 0
+                cnt['ko_wins'] += ko == 1 and m.group(2) == seat
+                cnt['ko_losses'] += ko == 1 and m.group(2) not in (seat, 'DRAW')
                 continue
             m = re.match(r'switch ' + seat + r' \S+ judged (\d+) held ?(.*)', line)
             if m:
                 judged += int(m.group(1))
                 h = [int(x) for x in m.group(2).split()]
                 held = h if held is None else [a + b for a, b in zip(held, h)]
-    return wins, judged, held or []
+    return wins, judged, held or [], cnt
 
 
 def hrange(outs, seat):
@@ -217,6 +226,7 @@ def main():
     ap.add_argument('--max-own', type=float, help='over this own_share the candidate scores as the incumbent (round 2: 0.6)')
     ap.add_argument('--raw', action='store_true', help='pass FILE through unwrapped (a composite or a Q selector)')
     ap.add_argument('--vs-strat', help='the opponent seat\'s fixed strategy in both arms: FILE, a frozen id, none, or a comma list (a pool)')
+    ap.add_argument('--ko-only', action='store_true', help='a win counts only if it was a K.O. (a time-out lead scores 0)')
     ap.add_argument('--out')
     a = ap.parse_args()
     t0 = time.time()
@@ -251,9 +261,12 @@ def main():
     hr = {t: [hrange(got[(t, sd)], sd) for sd in ('P1', 'P2')] for t in ('comp', 'inc')}
     cw = iw = m = b = c = judged = own = 0
     held_all = []
+    arm = {t: dict(ko_wins=0, ko_losses=0, timeouts=0, draws=0) for t in ('comp', 'inc')}
     for seat in ('P1', 'P2'):
-        w_c, j, held = parse(got[('comp', seat)], seat)
-        w_i, _, _ = parse(got[('inc', seat)], seat)
+        w_c, j, held, k_c = parse(got[('comp', seat)], seat, a.ko_only)
+        w_i, _, _, k_i = parse(got[('inc', seat)], seat, a.ko_only)
+        for t, k in (('comp', k_c), ('inc', k_i)):
+            arm[t] = {x: arm[t][x] + k[x] for x in k}
         judged += j
         own += sum(held)
         held_all = held if not held_all else [x + y for x, y in zip(held_all, held)]
@@ -270,7 +283,8 @@ def main():
                comp_wins=cw, comp_matches=m, inc_wins=iw, inc_matches=m, comp_share=round(comp, 4), inc_share=round(inc, 4),
                gain=round(comp - inc, 4), b=int(b), c=int(c), z=round((b - c) / math.sqrt(b + c), 3) if b + c else 0.0,
                own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped,
-               judged=judged, held=held_all, raw=a.raw, **({'hrange': hr} if any(x for v in hr.values() for x in v) else {}),
+               judged=judged, held=held_all, raw=a.raw, ko_only=a.ko_only,
+               **{f'{t}_{x}': v for t in ('comp', 'inc') for x, v in arm[t].items()}, **({'hrange': hr} if any(x for v in hr.values() for x in v) else {}),
                vs_strat=[os.path.relpath(x, ROOT) if x != 'none' else x for x in vs[0].split(',')] if vs else None)
     print(json.dumps(res, indent=1))
     if a.out:

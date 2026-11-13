@@ -8,7 +8,8 @@ FROZEN for a search round: record the commit that last touched this file and too
 A strategy file is one plist (duel/lisp/strategy.lisp); tools/simgate/strat-desc.lisp plays native matches (the simgate build of THIS checkout,
 which is never rebuilt here) with the character's CPU on it and observes behaviour descriptors. Fixed seeds s0+1..s0+n, BOTH seats (common random numbers).
   strength  HARD, the character on FILE against the opponent's CURRENT CPU (its style CPU kept), or against --opp (files / dirs, equal weights; a
-            name '@cpu' = the current CPU, '@generic' = its generic CPU): the character's win share (a draw / time-out counts 0)
+            name '@cpu' = the current CPU, '@generic' = its generic CPU): the character's win share (a draw counts 0; a time-out counts for
+            the side ahead, or 0 with --ko-only: a win counts only if it was a K.O., in every share below, NORMAL's and its BASE's too)
   descript. the character's behaviour in those HARD matches, averaged over matches (see strat-desc.lisp: distance bands, attack / Hoho / Kikon rates ...)
   style     distinctness of the descriptor vector from every entry of --library DIR (its *.desc.json, same character): the mean over the descriptors
             of |a-b| / (|a|+|b|+floor) to the NEAREST entry, divided by --style-full (0.25) and clipped to 0-1; an empty library gives 1
@@ -21,7 +22,7 @@ build/strategy-eval-cache/ by (files' hashes, seats, difficulty, seeds, build ha
 import argparse, glob, json, os, re, sys
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW
+from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW, row_win
 
 ROSTER = {'kenpachi': 1, 'ichigo': 3, 'hisagi': 7}      # roster indices (kit.lisp *ROSTER*)
 DEFAULT_VS = {'kenpachi': 'ichigo', 'ichigo': 'kenpachi', 'hisagi': 'kenpachi'}
@@ -77,15 +78,15 @@ def run_job(c1, c2, spec1, spec2, diff, seed0, n):
     return out
 
 
-def parse(out, seat):
-    """-> (wins, matches, [descriptor dict of `seat`'s lines])."""
+def parse(out, seat, ko_only=False):
+    """-> (wins (KO_ONLY: K.O. wins), matches, [descriptor dict of `seat`'s lines])."""
     wins = matches = 0
     desc = []
     for line in out.splitlines():
         m = ROW.search(line)
         if m:
             matches += 1
-            wins += m.group(2) == seat
+            wins += row_win(line, m, seat, ko_only)
             continue
         m = re.match(r'desc (P[12]) (\S+) (\d+) (.*)', line)
         if m and m.group(1) == seat:
@@ -144,7 +145,9 @@ def main():
     ap.add_argument('--no-normal', action='store_true')
     ap.add_argument('--save-desc', action='store_true')
     ap.add_argument('-j', type=int, default=4)
+    ap.add_argument('--ko-only', action='store_true', help='a win counts only if it was a K.O. (a time-out lead scores 0)')
     a = ap.parse_args()
+    parse_ = lambda out, seat: parse(out, seat, a.ko_only)
     vs = a.vs or DEFAULT_VS[a.char]
     me, op = ROSTER[a.char], ROSTER[vs]
     opps = expand(a.opp)
@@ -162,21 +165,21 @@ def main():
     ds = []
     per_opp = {}
     for i in range(0, nh, 2):
-        w1, m1, d1 = parse(outs[i], 'P1'); w2, m2, d2 = parse(outs[i + 1], 'P2')
+        w1, m1, d1 = parse_(outs[i], 'P1'); w2, m2, d2 = parse_(outs[i + 1], 'P2')
         per_opp[os.path.basename(opps[i // 2])] = f'{w1 + w2}/{m1 + m2}'
         w += (w1 + w2) / max(1, m1 + m2) / len(opps); m += 1
         ds += d1 + d2
     strength = w / m
     desc = mean_desc(ds)
     style, nearest, dist = style_of(desc, a.char, a.library, a.style_full)
-    res = {'char': a.char, 'vs': vs, 'strat': a.strat, 'seeds': n, 'seed0': s0, 'strength': round(strength, 4), 'hard': per_opp,
+    res = {'char': a.char, 'vs': vs, 'strat': a.strat, 'seeds': n, 'seed0': s0, 'ko_only': a.ko_only, 'strength': round(strength, 4), 'hard': per_opp,
            'desc': desc, 'style': round(style, 4), 'nearest': nearest, 'nearest_dist': dist}
     factor = 1.0
     if not a.no_normal:
-        wn1, mn1, _ = parse(outs[nh], 'P1'); wn2, mn2, _ = parse(outs[nh + 1], 'P2')
+        wn1, mn1, _ = parse_(outs[nh], 'P1'); wn2, mn2, _ = parse_(outs[nh + 1], 'P2')
         share_n = (wn1 + wn2) / max(1, mn1 + mn2)
         if a.base is None:
-            wb1, mb1, _ = parse(outs[nh + 2], 'P1'); wb2, mb2, _ = parse(outs[nh + 3], 'P2')
+            wb1, mb1, _ = parse_(outs[nh + 2], 'P1'); wb2, mb2, _ = parse_(outs[nh + 3], 'P2')
             base = (wb1 + wb2) / max(1, mb1 + mb2)
         else:
             base = a.base

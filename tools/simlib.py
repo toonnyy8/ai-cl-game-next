@@ -13,6 +13,26 @@ MUSL_MATH = ('sinf cosf tanf __sindf __cosdf __tandf __rem_pio2f __rem_pio2_larg
              'exp exp_data pow pow_data log log_data __math_oflowf __math_uflowf __math_xflowf __math_invalidf '
              '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero')
 ROW = re.compile(r'duel gate row seed (\d+) \S+ \S+ secs [\d.]+ winner (\S+)')   # a gate row: (seed, winner)
+ROW_KO = re.compile(r' ko ([01])$')   # the row's last field since 2026-11-14: 1 = ended before the bell (a K.O.), 0 = the time-out bell
+
+
+def row_win(line, m, seat, ko_only=False):
+    """A gate row LINE (M = its ROW match) -> 1 if SEAT won it, else 0; KO_ONLY: a win counts only if it was a K.O. (a time-out
+    lead scores 0, as a draw always does). A row without the ko field under KO_ONLY exits (a sim build older than the field)."""
+    if m[2] != seat:
+        return 0
+    if not ko_only:
+        return 1
+    k = ROW_KO.search(line)
+    if not k:
+        sys.exit(f'simlib: --ko-only on a gate row without its ko field (an old build?): {line}')
+    return int(k[1])
+
+
+def row_ko(line):
+    """A gate row -> 1 (ended before the bell), 0 (the time-out bell) or None (no ko field)."""
+    k = ROW_KO.search(line)
+    return int(k[1]) if k else None
 
 
 def sources():
