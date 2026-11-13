@@ -8913,3 +8913,15 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 證明：主機測試 2969 全過（steal-take、sp-break-take、各招奪取量的檢查改為新值），pkgcheck 乾淨，`sp-costs-check.py` 112 項全過（突破：J1 相消後 AS1 奪 200 得 100；RAKUGA 先奪 40，再突破奪 160；對方 100 時只奪走受擊多出的 4.9）。G2 依預期改變、參照重產：II 40 行（P1 5-3，398.3 秒）→ 36 行（P2 4-7，356.7 秒）；IK 39（P1 3-2，384.0 秒）→ 38（P1 2-0，374.3 秒）；KK 32（P2 0-3，317.9 秒）→ 38（P1 1-0，375.3 秒）。
 
 分工：主對話 Opus 5.5：修改、測試、重產參照、記錄。
+
+## 751. S7：CPU 不再按會被拒絕的 NS 後段（2026-11-13）
+
+使用者：「手感沒問題，繼續」
+
+- 規則只有一處：新函式 `kit-sp-start-p`（kit.lisp，純函式：招式資料＋量表＋爆氣）是 `core-start!` 拒絕出招的唯一判斷，CPU 出手前也問同一個（core-ai 的 `cai-next-ok-p`）。CPU 讀自己的量表是即時的，只有對手經過延遲感知。
+- 被擋下的按鍵：通用 CPU 的 NS 空檔「繼續」、一護 KI 風格的月牙蓄力、劍八風格的 `kk-link`（改走它原本的後備：SA）、檜佐木遠距的空檔。量表 0 時記一行 `cpu holds <段>`，不按，這串就在這裡結束。AS 從不被拒，不擋；切換本來就經過 `sp-switch-ok-p`。不加模糊輸入「量表格數」（不需要）；不調任何權重。
+- 結果：三場 G2 裡 CPU 被拒的 SP 按鍵 67／44／15 → 0／0／0。G2：II、KK 完全相同；IK 38 行（P1 2-0，374.3 秒）→ 40 行（P1 3-2，398.3 秒），只因 `kk-link` 改出 SA（1 → 6 次，已逐條驗證）。參照重產，native 與瀏覽器一致。
+- 輕量模型（mcts-lite）不看 SP，寫進 DUEL_AI_MCTS §14；mc-fidelity 單一種子回報（不當閘門）：regret 0.100 對隨機 0.145，與 SP 之前相當。
+- 證明：主機測試 2979 全過（+10 項 `kit-sp-start-p`），control 124、input 33、touch 100、cine 18、hud-engine 121，pkgcheck 乾淨，`sp-costs-check.py` 114 項（新增：HARD CPU 在 NSa 命中後量表 0 時停手，同一種子量表 300 時照按），snaptest／fulltest 0 差異。
+
+分工：S7 由 Opus 5.5 子代理實作（Fable 先審過計畫）；主對話 Opus 5.5 審查、合併、重驗、記錄。

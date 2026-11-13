@@ -555,7 +555,7 @@ not one: free), SP-COST of its damage x the kit's :core :sp-cost-mult (default 1
   "May MV start for a fighter of KIT whose flash-step gauge is FS (BURSTING: in a burst; DUEL_SP §3)? A move with no SP cost (an NA link,
 the SA, a Kikon strike): always; an NS / AS segment by SP-START-P, its FIRST = MV is a route's first segment (in the kit's :core :ns,
 wherever it starts: §8.6 Q17). The one test CORE-START! refuses by (every start: a press, the pointer switch's NS1, HOHO-RESUME!'s
-segment, a parry's catch) and the CPU reads before it presses (core-ai CAI-NEXT-NS, DUEL_SP S7): pure, of the kit's data and two numbers."
+segment, a parry's catch) and the CPU reads before it presses (core-ai CAI-NEXT-OK-P, DUEL_SP S7): pure, of the kit's data and two numbers."
   (or (null (kit-sp-cost kit mv))
       (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) fs bursting)))
 (defun kit-core-move (kit role n)
