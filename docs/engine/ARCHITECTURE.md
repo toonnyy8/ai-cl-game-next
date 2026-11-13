@@ -339,8 +339,8 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/math.lisp    | scalars (HYPOT, COUNTDOWN!), facing (FWD-X / YAW-TO / TURN-TOWARD), WEIGHTED-PICK, vec3 / mat4 on single-float arrays (plain CL, host-loadable) |
 | lisp/hitvol.lisp  | hit volumes vs hurt cylinders: MAKE-VOL / VOL-HIT-P, capsule / box / cylinder tests (plain CL, host-loadable) |
 | lisp/input.lisp   | the virtual controller (vpad): buttons, buffer, modifier, stick, command tables, device bindings (plain CL, host-loadable) |
-| lisp/fuzzy.lisp   | zero-order Sugeno fuzzy inference over named trapezoid sets: FZ-SETS! / FZ-MU / FZ-INFER (plain CL, host-loadable; R13) |
 | lisp/touch.lisp   | the one-thumb gesture recogniser (TOUCH-FEED!, TOUCH-TAKE!, ...; plain CL, host-loadable; docs/duel/DUEL_MOBILE_DESIGN.md §3.2) |
+| lisp/fuzzy.lisp   | zero-order Sugeno fuzzy inference over named trapezoid sets: FZ-SETS! / FZ-MU / FZ-INFER (plain CL, host-loadable; R13) |
 | lisp/platform.lisp| SDL3 window, time, events → input state (C: c/platform.c)    |
 | lisp/render.lisp  | SDL_GPU pipelines, WGSL loader, camera, lights, meshes, draw queue, fx batch (C: c/render.c, shaders/*.wgsl) |
 | lisp/meshgen.lisp | procedural mesh builders (box, cylinder, cone, blade, tube…), WITH-XFORM / MB-AT |

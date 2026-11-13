@@ -94,6 +94,9 @@ nine buttons, command table and bindings); no device is touched here.
   `(vpad-read! vp bindings down-p &optional ax ay)` sets every button and the stick asking the
   game's `(down-p device name)`; `(inputs-down-p inputs down-p)`. Reader example:
   `(make-vpad :actions *my-actions* :reader (lambda (vp) (vpad-read! vp *p1-bindings* #'my-down-p (pad-lx 0) (pad-ly 0))))`.
+* Rebinding reads: `(binding-input bindings action device)` → ACTION's first one-name input of DEVICE (`(:key :j)`), or
+  NIL; `(binding-name bindings action device)` → its name. A rebind writes the name in place (`(setf (second input) name)`);
+  the swap rule and the saved form are the game's (SOUL DUEL: control.lisp REBIND, BIND-CODE).
 
 ## Fuzzy inference (`fuzzy.lisp`, plain CL, tested by `tests/duel-rules/fuzzy.lisp`)
 

@@ -59,6 +59,7 @@ live *P1-BINDINGS* is a copy CONTROLS rebinds.")
 ;;; ---------------------------------------------------------------- CONTROLS: rebinding (the user, 2026-10-01)
 ;;; Keyboard and pad only (the touch deck is the gestures'). Each player's binding of an action on a device is its first
 ;;; one-name input of that device ((:key :j), (:pad :x)); chords ((:pad :ls :rs)) and touch inputs stay as they are.
+;;; (BINDING-INPUT / BINDING-NAME, the readers of that, are the engine's: input.lisp, beside VPAD-READ!.)
 (defvar *p1-bindings* (copy-tree *p1-default-bindings*) "Player 1's live bindings (CONTROLS changes them in place).")
 (defvar *p2-bindings* (copy-tree *p2-default-bindings*) "Player 2's live bindings.")
 (defvar *bind-pair* (vector *p1-bindings* *p2-bindings*) "Both players' live bindings (REBIND's PAIR).")
@@ -89,11 +90,6 @@ live *P1-BINDINGS* is a copy CONTROLS rebinds.")
         ((getf *bind-labels* name))
         ((and (> (length (symbol-name name)) 3) (string= "KP-" (symbol-name name) :end2 3)) (remove #\- (symbol-name name)))
         (t (symbol-name name))))
-
-(defun binding-input (bindings action device)
-  "ACTION's first one-name input of DEVICE in BINDINGS (a list (device name)), or NIL."
-  (find-if (lambda (in) (and (eq (first in) device) (null (cddr in)))) (getf bindings action)))
-(defun binding-name (bindings action device) "ACTION's bound name on DEVICE (:key / :pad), or NIL." (second (binding-input bindings action device)))
 
 (defvar *prompt-cache* (make-array 4 :initial-element nil)
   "KEY-PROMPT's texts per side x device (:key, :pad), rebuilt after a rebind (NIL).")

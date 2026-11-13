@@ -26,7 +26,7 @@
    #:vpad-downs #:vpad-press #:vpad-modded
    #:vpad-begin-step! #:vpad-set! #:vpad-stick! #:vpad-clear! #:vpad-flush! #:vpad-down #:vpad-held
    #:vpad-pressed #:vpad-modded-p #:vpad-consume! #:vpad-stamp! #:vpad-hold! #:vpad-command-pressed-p #:vpad-command
-   #:inputs-down-p #:vpad-read!
+   #:inputs-down-p #:vpad-read! #:binding-input #:binding-name
    ;; touch.lisp: the one-thumb gesture recogniser (plain CL); platform.lisp feeds it (TOUCH-POLL)
    #:make-touch #:touch #:touch-layout! #:touch-feed! #:touch-take! #:touch-pulse-p #:touch-resting-p
    #:touch-step-held-p #:touch-flick-down-p #:touch-sx #:touch-sy #:touch-chip-down-p #:touch-chip-hit-p

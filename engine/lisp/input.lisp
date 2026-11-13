@@ -189,3 +189,10 @@ READER, e.g. (lambda (vp) (vpad-read! vp *p1-bindings* #'my-down-p (pad-lx) (pad
            (- (if (inputs-down-p (getf bindings plus) down-p) 1f0 0f0)
               (if (inputs-down-p (getf bindings minus) down-p) 1f0 0f0))))
     (vpad-stick! vp (+ ax (dir :right :left)) (+ ay (dir :up :down)))))
+
+;;; Rebinding reads a binding as an action's first one-name input of a device ((:key :j), (:pad :x)); chords and other
+;;; inputs are left as they are. A rebind writes the name in place: (SETF (SECOND (BINDING-INPUT b a :key)) :k).
+(defun binding-input (bindings action device)
+  "ACTION's first one-name input of DEVICE in BINDINGS (a list (device name)), or NIL."
+  (find-if (lambda (in) (and (eq (first in) device) (null (cddr in)))) (getf bindings action)))
+(defun binding-name (bindings action device) "ACTION's bound name on DEVICE (:key / :pad), or NIL." (second (binding-input bindings action device)))
