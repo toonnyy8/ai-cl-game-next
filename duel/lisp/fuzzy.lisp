@@ -27,7 +27,7 @@
     (:low -1 0 0.25 0.5) (:high 0.5 0.75 1 2)
     (:free -0.5 0 0 0.5) (:startup 0.5 1 1 1.5) (:active 1.5 2 2 2.5) (:evade 2.5 3 3 3.5) (:down 3.5 4 4 4.5)
     (:busy 0.5 1 99 99)                                               ; his state class not free (a Q selector's rules, strategy.lisp)
-    ;; a Q selector's extra cues (DUEL_AI_STRATEGY §8.19, core-ai.lisp STRAT-XFEATS): an index (form, previous arm) as points beside :no (0) / :yes (1)
+    ;; a Q selector's extra cues (DUEL_AI_STRATEGY §8.19, strategy-glue.lisp STRAT-XFEATS): an index (form, previous arm) as points beside :no (0) / :yes (1)
     (:k2 1.5 2 2 2.5) (:k3 2.5 3 3 3.5) (:p2up 1.5 2 99 99)
     ;; the distance in metres: close inside 2.9 (J1's / every ranged volume's 3.0 m dead zone, the ranged rule's close), gone by 3.4 (its
     ;; closing-in edge); far from 4.5 (where NS1a WA's hit puts him) to 6.0 (the 3-6 m bands of RANSA / OGI)

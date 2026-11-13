@@ -4,7 +4,7 @@
 ;;;; A strategy is a plist (:ID id :BASE (key value ...) :RULES ((((cue set) ...) (key value ...)) ...)): never code, so a search writes a data
 ;;;; file the evaluator loads into the shared build. Each output KEY is a zero-order Sugeno over the rules that name it (AND = min of the
 ;;;; cues' memberships, the values averaged by strength), its :BASE value when none fires, NIL when neither names it (the CPU's own value
-;;;; then: no strategy changes nothing). The cues are relative to the kits (core-ai.lisp STRAT-FEATS), so a strategy runs for any character.
+;;;; then: no strategy changes nothing). The cues are relative to the kits (strategy-glue.lisp STRAT-FEATS), so a strategy runs for any character.
 ;;;; Outputs: :B-<action> a bias (value units) added to that macro action's estimate before the action layer ranks them; :RANGE the walk-to
 ;;;; range's scale; :NS the in-range NS share; :HOHO :TURN :CONT :KIKON :AWAKEN scales of the reactive layer's chances. + - x / only.
 ;;;; :FN (the user, 2026-11-08: 「策略可以包含程式」, DUEL_AI_STRATEGY §9): a function (e b f kit s d) -> T when it decided this step, run
@@ -209,7 +209,7 @@ when CODES is empty, another format, another offline table's or the wrong size (
 
 ;;; ---------------------------------------------------------------- the strategy layer's library and its pure parts (DUEL_AI_STRATEGY §5, §8.4)
 ;;; The prototype of step 5: a few strategies in the build, an offline payoff matrix per pairing to seed the statistics, Decoupled UCT
-;;; (one PUCT a side) over (my applicable strategies) x (his) refined by full-sim rollouts (cpu-mcts.lisp STRAT-...), a fuzzy prior per
+;;; (one PUCT a side) over (my applicable strategies) x (his) refined by full-sim rollouts (strategy-glue.lisp STRAT-...), a fuzzy prior per
 ;;; strategy (its key :P, a zero-order Sugeno over the same cues as its outputs; 1 when it names none). Nothing here runs unless
 ;;; *STRAT-LAYER* (cpu-mcts.lisp) is on. :APPLY (me vs): only for that character against that one (NIL = anyone).
 (defparameter *strat-layer* nil
@@ -224,7 +224,7 @@ only as one of the strategies (:FN ken-ki-style ...).")
 (defparameter *strat-c* 1.0 "PUCT's exploration constant.")
 (defparameter *strat-swing* 2.0 "Health units (mc-full-health) of half the 0-1 score's range: a rollout scores 0.5 + swing / (2 x this), clipped.")
 (defparameter *strat-lambda* '(:easy 0.7 :normal 0.35 :hard 0.1) "The final pick's weight on the prior (the rest on the values) per difficulty.")
-(defvar *strat-jobs* nil "The selections whose rollouts are running, oldest first (cpu-mcts.lisp STRAT-FULL-STEP; dropped at a match start).")
+(defvar *strat-jobs* nil "The selections whose rollouts are running, oldest first (strategy-glue.lisp STRAT-FULL-STEP; dropped at a match start).")
 (defvar *strat-stats* (make-array 4 :initial-element 0) "This match: selections, rollouts, internal time in them, the worst step's.")
 (defvar *strat-picks* nil "This match: per side (a slot per library entry, side 1 after side 0), how often each library entry was picked; sized from *STRAT-LIBRARY* below.")
 
@@ -494,7 +494,7 @@ only as one of the strategies (:FN ken-ki-style ...).")
         ((keywordp a) (strat-unit-find a *strat-units-expanded*))
         (t (strat-compose a))))
 
-;;; The event layer's window (DUEL_AI_STRATEGY §8.19 round 5, step 6; §10's :EVENT-ARMS); core-ai.lisp STRAT-EVENT-STEP keeps its brain state.
+;;; The event layer's window (DUEL_AI_STRATEGY §8.19 round 5, step 6; §10's :EVENT-ARMS); strategy-glue.lisp STRAT-EVENT-STEP keeps its brain state.
 (defparameter *strat-event-grace* 4
   "Frames after the brain's perception delay past the last perceived knockdown step that a :KNOCKDOWN event arm still holds the step: the
 wake-up bait's own window (*KHF-BAIT-AFTER*), during which his wake-up Hoho is pressed but not yet perceived. 2026-11-10, mine (§8.19 step 6).")

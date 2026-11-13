@@ -205,7 +205,7 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)) (kit (fighter-kit f)))
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)
-     (when *strat-layer* (strat-layer-step e b f s d))                    ; (the strategy layer's selection, cpu-mcts.lisp)
+     (when *strat-layer* (strat-layer-step e b f s d))                    ; (the strategy layer's selection, strategy-glue.lisp)
      (let* ((sw (let ((st (brain-strat b))) (and st (or (getf st :switch) (getf st :fq)) st)))   ; (a composite: its active sub, else the lookup's strategy; a Q selector: its arm)
             (cur (if sw
                      (or (strat-switch-step e b f s d sw)

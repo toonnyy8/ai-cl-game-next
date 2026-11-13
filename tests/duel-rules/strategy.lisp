@@ -285,7 +285,7 @@
         (let ((p (second v)))
           (when (every (lambda (k) (let ((x (getf p k))) (and (realp x) (<= 0 x 1)))) '(:easy :normal :hard))
             (check (<= (getf p :easy) (getf p :normal) (getf p :hard))))))))))
-;; §8.19 round 5 step 6: the event layer's window (STRAT-EVENT-ARM; core-ai.lisp STRAT-EVENT-STEP keeps LAST in the brain). It fires when the
+;; §8.19 round 5 step 6: the event layer's window (STRAT-EVENT-ARM; strategy-glue.lisp STRAT-EVENT-STEP keeps LAST in the brain). It fires when the
 ;; opponent is perceived down (launched / down / waking up), holds the brain's perception delay + *STRAT-EVENT-GRACE* frames after, then hands
 ;; back; a table without :EVENT-ARMS never fires (and leaves LAST alone).
 (let* ((arm '(:id :ev-test :fn ken-kh-style)) (fq (list :arms '(nil) :event-arms (list (list :knockdown arm)))) (delay 8))

@@ -208,12 +208,12 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (sw-n 0 :type fixnum) (sw-won nil)   ; ... judgements made, and per :SWITCH entry the ones it won (a vector, made at the first)
   (sw-fn nil)                          ; ... the style function that owns STYLE's state (another one taking over starts afresh)
   (sw-keep nil)                        ; ... a Q selector with :KEEP-STATE: ((style function . its state) ...) of the styles not playing now
-  (ev-t -1 :type fixnum)               ; a Q selector's event layer (:EVENT-ARMS, core-ai.lisp STRAT-EVENT-STEP): the last tick its trigger was seen
+  (ev-t -1 :type fixnum)               ; a Q selector's event layer (:EVENT-ARMS, strategy-glue.lisp STRAT-EVENT-STEP): the last tick its trigger was seen
   (ev-on nil)                          ; ... it has the step now (the event arm's plist, else NIL)
   (ev-style nil)                       ; ... the event arm's style state, kept between takeovers (swapped into STYLE while it plays)
   (ev-n 0 :type fixnum) (ev-steps 0 :type fixnum)   ; ... takeovers and steps under it this match, outside rollouts (strat-run.lisp)
   (fql nil)                            ; the online fuzzy Q's record this match (fq-online.lisp FQ-ATTACH!; NIL = not learning)
-  (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (cpu-mcts.lisp): the tick of its next selection, its last free tick
+  (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (strategy-glue.lisp): the tick of its next selection, its last free tick
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."

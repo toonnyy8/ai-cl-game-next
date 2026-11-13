@@ -3,7 +3,7 @@
 ;;;; default: only a strategy that names it plays it: the §10 style unit :st-ken-kh (arm :a-ken-kh, Kenpachi vs Hisagi's Q table). Written by
 ;;;; the dream-rsi search in docs/research/strategy-drsi/khfn/: kept cell b0_a0 (round 1), one job, the wake-up bait, on his KI style CPU
 ;;;; (cpu-ki-ken.lisp). Held-out (seed0 400, 1,900 matches) 0.892 against Hisagi's pool; his KI code alone 0.429. Since step 6 it plays as
-;;;; the KH table's :KNOCKDOWN event layer (core-ai.lisp STRAT-EVENT-STEP). The file's second style, KEN-KH-STANDOFF-STYLE (below), is the
+;;;; the KH table's :KNOCKDOWN event layer (strategy-glue.lisp STRAT-EVENT-STEP). The file's second style, KEN-KH-STANDOFF-STYLE (below), is the
 ;;;; stand-off breaker (:st-ken-kh-standoff), step 6.
 (in-package :duel)
 
