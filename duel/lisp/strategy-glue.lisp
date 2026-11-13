@@ -130,6 +130,15 @@ snapshot it starts from (taken by its first rollout) and the seed of its rollout
 
 (defun strat-layer-p (f) "Is fighter F's CPU under the strategy layer?" (and *strat-layer* (or (eq *strat-layer* t) (member (fighter-character f) *strat-layer*))))
 
+(defun brain-set-strat! (b st)
+  "The strategy layer gives brain B strategy ST (a pick, a rollout's arm). Another strategy than his starts its per-strategy state afresh:
+the style state (BRAIN-STYLE, the event arm's EV-STYLE), the composite's / Q selector's SW- slots (SW-T -1: judged on the next step, not the
+old table's sub) and its counts; so a style function never sees another's struct (R15d, 2026-11-14: a plain arm's style ran without
+taking SW-FN, and Kenpachi's Q table then gave Ichigo's KI style his KKS, the FT_LAYER fulltest crash). The same strategy: nothing changes."
+  (unless (eq st (brain-strat b))
+    (setf (brain-strat b) st (brain-style b) nil (brain-sw-fn b) nil (brain-sw-sub b) nil (brain-sw-t b) -1 (brain-sw-keep b) nil
+          (brain-sw-n b) 0 (brain-sw-won b) nil (brain-ev-style b) nil (brain-ev-on b) nil (brain-ev-t b) -1)))
+
 (defun strat-request (e b f s d)
   "A selection for E: its arms seeded, a job queued; with no strategy yet, the seeds' and the prior's pick at once."
   (let* ((me (fighter-character f)) (vs (fighter-character (fighter (fighter-opp f)))) (dif (brain-difficulty b))
@@ -141,7 +150,7 @@ snapshot it starts from (taken by its first rollout) and the seed of its rollout
          (hns (make-array (length his) :initial-element (float *strat-n0*)))
          (hsums (map 'simple-vector (lambda (st) (* *strat-n0* (strat-seed-value vs me (getf st :id)))) his))
          (hprior (make-array (length his) :initial-element (/ 1.0 (max 1 (length his))))))
-    (unless (brain-strat b) (setf (brain-strat b) (nth (strat-final sums ns prior (getf *strat-lambda* dif 0.35)) mine)))
+    (unless (brain-strat b) (brain-set-strat! b (nth (strat-final sums ns prior (getf *strat-lambda* dif 0.35)) mine)))
     (setf *strat-jobs* (append *strat-jobs* (list (make-stjob e (fighter-side f) dif mine his prior sums ns hsums hns hprior))))
     (incf (svref *strat-stats* 0))))
 
@@ -166,7 +175,8 @@ lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing (
     (unless (brain o)                                                     ; (the human, as MC-FULL-ROLL: the stand-in plays his strategy)
       (add-component o (make-brain :difficulty dif :delay (getf *ai-delay* dif 14)))
       (setf (pilot-cam-relative (pilot o)) nil))
-    (setf (brain-strat (brain e)) (nth i (stjob-mine j)) (brain-strat (brain o)) (nth k (stjob-his j)))
+    (brain-set-strat! (brain e) (nth i (stjob-mine j)))
+    (brain-set-strat! (brain o) (nth k (stjob-his j)))
     (let ((sw (mc-full-rollout e o *strat-h* dif nil)))
       (values i k (max 0.0 (min 1.0 (+ 0.5 (/ sw (* 2.0 *strat-swing*)))))))))
 
@@ -187,7 +197,7 @@ lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing (
           (let* ((e (stjob-e j)) (b (brain e))
                  (a (strat-final (stjob-sums j) (stjob-ns j) (stjob-prior j) (getf *strat-lambda* (stjob-dif j) 0.35))))
             (when b
-              (setf (brain-strat b) (nth a (stjob-mine j)))
+              (brain-set-strat! b (nth a (stjob-mine j)))
               (incf (svref *strat-picks* (+ (* (length *strat-library*) (stjob-side j)) (position (getf (brain-strat b) :id) *strat-library* :key (lambda (st) (getf st :id)))))))))
         (let ((dt (- (get-internal-real-time) t0)))
           (incf (svref *strat-stats* 2) dt) (setf (svref *strat-stats* 3) (max (svref *strat-stats* 3) dt))))))
