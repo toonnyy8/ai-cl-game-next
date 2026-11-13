@@ -2416,7 +2416,7 @@ PLAN §4 / §7 step 3. A new rule base for the step 8 tables; no table names it 
     - A hand-written 2-arm test table on `:rb-sp` (not shipped) expands, and its pick switches on `:mcell` alone and on `:xch` alone.
       `strat-judge` returns its arm, its page holds 87 integers, and it is refused without `:xfeats`.
   - **Determinism, shipped HARD lookup on both seats:** all 9 ordered pairings, seeds 601-608 (72 matches, `strategy-switch.py`'s
-    `run_job`). The gate rows and the `duel hash` lines (2123) are byte-identical before and after.
+    `run_job`). The gate rows and the `duel hash` lines (2123) are identical before and after (sim builds 0aa1f9bd -> 481c8065).
   - **G2** `--cvc`: identical. `pkgcheck`: only DUEL::APP.
 - **For step 8 (the fit):**
   - `sw.py`'s `rules()` / `GROUPS` hard-code `:rb-switch89`'s 89 rules, and it writes inline `:rules`. It needs a `:rb-sp` mirror: these
