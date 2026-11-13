@@ -806,6 +806,8 @@ The game's `:debug` handler (App) hands each `Module._debug_cmd(N)` to a registr
   single-floats (callers may pass fixnums or doubles).
 * `(inline-readers name)` — give every reader of struct NAME a compiler macro (ECL 24.5 never inlines a DEFSTRUCT reader);
   `(plist-get plist key &optional default)` — GETF in one walk, for the hot paths.
+* `(resolve-tuning tree)` — TREE (a data DSL's spec, e.g. a DEFMOVE plist) with every `*earmuffed*` symbol replaced by its
+  value, so the knobs stay in one file; `(tuning-ref-p x)` — is X such a symbol (not a keyword, NIL or T). Load time only.
 * `(defun-fast name args …)` — DEFUN for hot numeric code: checks declared argument types on entry,
   runs the body at `(safety 0)` (see ARCHITECTURE.md Gotchas). Declare every float local.
 * `(defun-fast-inline name args …)` — a `defun-fast` plus a compiler macro: a direct call expands in place (no entry
