@@ -67,6 +67,8 @@ stdin is set to /dev/null, so an ECL error never waits in its debugger.
 
 The default of 100 seeds a seat gives 3 groups x 2 seats x 100 = **600 matches**, exactly one block. More than 100 needs `--spill`.
 
+**Noise.** Each group share rests on 200 matches (SE about 0.03), so the score's SE is about 0.02. Treat a difference under about 0.04 as a tie (`none` 0.345 vs `a-ken-zoner` 0.347 below is one).
+
 **Cost.** One evaluation takes about 70-130 CPU-s (0.12-0.2 CPU-s a match): 10-18 s wall at `-j 6` on this machine. That is under PLAN §5's 3 CPU-min.
 
 **Cache.** The matches are `strategy-switch.py --raw --ko-only`'s candidate arm: its `run_job`, `parse` and cache (`build/strategy-eval-cache/`), keyed by the sim build hash, the candidate's text, the characters, the seeds and the pool's texts. The incumbent arm (the shipped lookup) is left out because the score never reads it. A repeated call costs no sim (0.1 s). Every call runs simlib's `build()` first.
@@ -98,7 +100,7 @@ python3 docs/research/strategy-drsi/sp/pop.py selftest
 - **Admission rule:** an arm is admitted if its K.O. rate (matches ended before the bell, either side) is at least 0.5 **and** its score is at least none's score + 0.05.
 - The margin of 0.05 is about one standard error of a share at 80 matches. It is a seeding bar, not an admission test: the 400 block's held-out test comes later.
 - `b`, `c` and `z` give the paired comparison against `none` on the same seed and seat.
-- It writes `pop/<pair>-<C>.json` with `none`, `a-generic` and the admitted arms.
+- It writes `pop/<pair>-<C>.json` with `none`, `a-generic` and the admitted arms. It refuses an existing file unless given `--force`, because reseeding would drop members a round added.
 
 **`matrix`** plays every member of A's population against every member of B's, both seats.
 - Each cell keeps both sides' K.O. wins, the time-outs and the draws.

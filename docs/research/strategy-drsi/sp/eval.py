@@ -106,7 +106,7 @@ def check_cand(path):
     text = ss.strip_lisp(open(path).read()).strip()
     if not text.startswith('(') or ss.form_end(text, 0) != len(text):
         sys.exit(f'eval: {path}: not exactly one plist (a form starting with an open parenthesis, balanced, nothing after it)')
-    body = re.sub(r':id\s+[^\s()]+', '', text, count=1, flags=re.I)
+    body = re.sub(r':id\s+[^\s()]+', '', text, flags=re.I)   # (every :id: an inline arm keeps its own)
     m = UNIT_IDS.search(body)
     if m:
         sys.exit(f'eval: {path}: names {m[0]}: a raw file is not expanded (no :style / :data / :rule-base, no unit ids); '

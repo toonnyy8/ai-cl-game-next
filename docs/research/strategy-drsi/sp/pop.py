@@ -56,6 +56,8 @@ def screen(a):
                dict(id=name(GENERIC), file=GENERIC, why='the generic arm (:st-generic: the generic CPU + MCTS, no style CPU)')]
     members += [dict(id=k, file=r['file'], why='an old arm that still K.O.s (screen)') for k, r in list(rows.items())[2:] if r['admitted']]
     path = os.path.join(HERE, 'pop', f'{ev.pair(a.me, a.vs)}-{ev.LETTER[a.me]}.json')
+    if os.path.exists(path) and not a.force:
+        sys.exit(f'pop: {rel(path)} exists: screen would drop members a round added (PLAN §2 never deletes one); --force to reseed')
     os.makedirs(os.path.dirname(path), exist_ok=True)
     doc = dict(pair=ev.pair(a.me, a.vs), side=a.me, vs=a.vs, anchor='none', members=members,
                screen=dict(vs="the opponent's none", seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds}', both_seats=True, margin=a.margin,
@@ -138,7 +140,7 @@ def main():
     s = sub.add_parser('screen')
     s.add_argument('--me', required=True, choices=list(ss.ROSTER)); s.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     s.add_argument('--margin', type=float, default=0.05); s.add_argument('--seed0', type=int, default=300); s.add_argument('--seeds', type=int, default=40)
-    s.add_argument('-j', type=int, default=6); s.add_argument('arms', nargs='+')
+    s.add_argument('-j', type=int, default=6); s.add_argument('--force', action='store_true'); s.add_argument('arms', nargs='+')
     m = sub.add_parser('matrix')
     m.add_argument('--a', required=True, choices=list(ss.ROSTER)); m.add_argument('--b', required=True, choices=list(ss.ROSTER))
     m.add_argument('--seed0', type=int, default=200); m.add_argument('--seeds', type=int, default=100)
