@@ -98,7 +98,10 @@ and the HARD margin gate (`*mc-sure*`): the stage-5 goal the user chose (「全�
   New fuzzy sets for the cues (`:in :reach :out :afar`, `:low :high`, the state classes `:free :startup :active :evade :down`).
 - The brain's `strat` slot; `core-brain-step` binds `*strat-now*` (the strategy and `strat-feats`, its cues this step) when it has one.
   Read by `cai-fz` (the reactive layer's scales), `cai-neutral` (the range, the NS share, the awakening) and the action layer's ranking
-  (`mc-est`: the light estimate plus the strategy's bias, in the light pick and the full sim's top two).
+  (`mc-est`: the light estimate plus the strategy's bias, in the light pick and the full sim's top two). (Since 2026-11-13, REFACTOR_2026-11
+  R12: the brain's `now` slot holds it instead of the special, and `strat-out` / `strat-scale` / `mc-est` take it as an argument; the glue,
+  `strat-feats` / `strat-xfeats`, `strat-hold-awaken-p`, `strat-switch-step`, the event layer and the strategy layer of §8.4, moved from
+  core-ai.lisp / cpu-mcts.lisp to `strategy-glue.lisp`, which also names the cross-style reads.)
 - No strategy anywhere yet: host tests ALL PASS (9849), pkgcheck, G2 identical (II 32, IK 34, KK 33 lines).
 
 ### 8.2 Step 4: the evaluator (2026-11-08)

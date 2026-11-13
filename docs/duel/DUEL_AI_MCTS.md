@@ -74,7 +74,8 @@ wake-up handover (DUEL_AI_TEACHER §9.3); the literature favours decoupled UCT (
 (robust), EXP3 the weakest; at 48-160 rollouts the tree's 10 x 10 reply level is mostly single visits, decoupled UCT needs 10 + 10.
 - `*mc-select*` (mcts-lite.lisp): `:tree`, `:duct` (one UCB per side over its own first action), `:rm` (SM-MCTS with regret matching,
   outcome sampling, fixnum regrets, per-mille strategies mixed with `*mc-rm-gamma*` 0.1). EXP3 not offered (it needs EXP, which the native sim
-  and wasm may round apart). Host-tested (every rollout played, the same seed the same values).
+  and wasm may round apart). Host-tested (every rollout played, the same seed the same values). (Since 2026-11-13, REFACTOR_2026-11 R12:
+  `mc-search`'s required SELECT argument, no longer a special.)
 - 80 IK seeds, the MCTS side's wins (tree / DUCT / RM): Kenpachi HARD 51 / 63 / 53 (his CPU under it 60); Kenpachi NORMAL 76 / 71 / 71;
   Ichigo NORMAL 64 / 59 / 51; Hisagi NORMAL (HK) 13 / 5 / 11. DUCT at HARD by the margin gate: 0 -> 4, 0.08 -> 47, 0.16 -> 63. Ichigo HARD on
   DUCT 14 / 2 at 0.16 / 0.08 against 20 on her CPU: still off.
