@@ -99,15 +99,15 @@ for the pre-awakening levels; a :drive level takes effect as soon as he is awake
   (let ((b (brain *p2*)))
     (setf (brain-off b) (not (eq (po-dummy *practice*) :cpu)) (brain-press-left b) 0 (brain-act b) nil)))
 
-(defun dummy-starts (f)
-  "What a press could start for the PRACTICE dummy's fighter F now, as DUMMY-CANCEL-PRESS takes them: (PRESS CLASS D-MIN D-MAX LEN HF).
+(defun dummy-starts (f g)
+  "What a press could start for the PRACTICE dummy's fighter F (gauges G) now, as DUMMY-CANCEL-PRESS takes them: (PRESS CLASS D-MIN D-MAX LEN HF).
 Free: J (NA1) and SP (its pointer's NS) on the next step. In a move whose latch is empty: in an NS segment the next segment (SP) and the
 SA (J); in an AS segment the next one; in an NA link or the SA that touched him (its chain open) the next J link: each starts when the
-current move's active frames end, until its recovery does. (No AS: the dummy's own attack seldom lands first.)
-Known (left for a later batch, R15c 2026-11-14): the free SP is offered without the SP-START-P check the real press goes through."
+current move's active frames end, until its recovery does. (No AS: the dummy's own attack seldom lands first.) Only what CORE-START!
+would start is offered: KIT-SP-START-P over G's flash-step and burst (R15d, 2026-11-14: a later NS segment at 0 was offered, then refused)."
   (let ((kit (fighter-kit f)) (mv (fighter-move f)) (sf (fighter-sf f)))
     (flet ((opt (press m dmin dmax)
-             (when m
+             (when (and m (kit-sp-start-p kit m (gauges-fs g) (gauges-burst g)))
                (list press (kit-class kit m) dmin dmax (- (+ (mv-s m) (mv-a m)) (mv-enter m))
                      (if (plusp (length (mv-hits m))) (- (mv-first-hit m) (mv-enter m)) 999)))))   ; (no melee hit of its own: never in his window)
       (cond ((and (member (fighter-state f) '(:idle :run)) (zerop (fighter-lock f)) (zerop (fighter-guard-exit f)))
@@ -144,8 +144,8 @@ is no threat), or one of his classed waves on its way (DUMMY-WAVE-THREAT, the so
          (own (core-window-class f))
          (own-left (if own (- (+ (mv-s (fighter-move f)) (mv-a (fighter-move f))) (fighter-sf f)) 0)))
     (multiple-value-bind (wk wc) (dummy-wave-threat *p2* *p1*)
-      (cond ((and wk (or (null h) (< wk h))) (dummy-cancel-press wk 0 wc own own-left (dummy-starts f)))
-            (h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf) own own-left (dummy-starts f)))))))
+      (cond ((and wk (or (null h) (< wk h))) (dummy-cancel-press wk 0 wc own own-left (dummy-starts f (gauges *p2*))))
+            (h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf) own own-left (dummy-starts f (gauges *p2*))))))))
 
 (defun dummy-press! (f b)
   "The dummy's (fighter F, brain B) press this frame for the DUMMY and COUNTER options (none with DUMMY CPU: its brain plays): GUARD ALL with

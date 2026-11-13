@@ -393,7 +393,13 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   only rise (a refund, the regen's trickle after its 60 f wait), so the CPU may skip a segment that would have started, never the reverse
   (a burst ending inside that window is the one exception; none happened in G2). Not covered: a neutral SP press (an NSa by intent)
   inside a Hoho resume window starts the next segment instead (`hoho-resume!`), and no CPU gate reads that path. G2 never hit it (0
-  refusals); it waits for a case.
+  refusals); it waits for a case. **Closed 2026-11-14 (REFACTOR_2026-11 R15d)**: `cai-hoho-hold-p` (core-ai.lisp), asked once in
+  `core-brain-step` before the brain's press reaches the vpad, drops an SP press that a Hoho off an NS segment (pressed in the Hoho,
+  latched for its end, or neutral in the resume window) would resume into a segment `core-start!` refuses; it asks `cai-next-ok-p`, so the
+  same `cpu holds <seg> (fs F)` line and no random draw. A switched-off brain (trial.lisp's scripted presses, the practice dummy) and a
+  human are not gated: the sim still reads no brain. Proof: `tests/sp-costs-check.py` 114 -> 116, P2's CPU at 0 after its NSa and a Hoho
+  with an SP written in the Hoho and in the window: 1 / 1 `refused` before, 0 / 0 after with `P2 cpu holds IC-N1B (fs 0.0)` each. G2
+  identical (no CPU resumed a Hoho in II / IK / KK: refused 0 / 0 / 0 and held 67 / 32 / 18 before and after).
 - **The MCTS**: the full-sim rollouts (`cpu-mcts.lisp` `mc-full-rollout`) run `sim-step-lean`, the real sim, through the same
   `core-start!`, so they see costs, refusals and scaling for free. The light model ignores SP (DUEL_AI_MCTS §14).
 - **Tests**: host 2969 -> 2979 (`kit-sp-start-p` on IC-N1A / N1B / NS2's first at 0, 0.5, a burst; KE-Z-N3B the tame's catch at 0 / 20; an

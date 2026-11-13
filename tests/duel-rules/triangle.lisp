@@ -57,6 +57,13 @@
 (check (equal (mapcar (lambda (b) (core-soul-break-count b 2)) '(2 3 4)) '(3 4 5)))
 (check (equal (mapcar (lambda (b) (core-soul-break-count b 3)) '(2 3 4)) '(5 5 5)))          ; the finisher style, capped at 5
 (check (= (core-kikon-count 2 2 t) (core-soul-break-count 2 2)))                             ; pointer 2: red = zero
+;; the plate's hint (CORE-KIKON-STAKE, webhud AT-STAKE, R15d): the pointer of the SP in play, the victim's red, the follow-up's fixed count
+(check (equal (list (core-kikon-ptr :ns 2 3) (core-kikon-ptr :as 1 3) (core-kikon-ptr :na 1 3) (core-kikon-ptr nil 1 2)) '(2 1 3 2)))
+(check (equal (mapcar (lambda (p) (core-kikon-stake 9 2 nil 1 p nil)) '(1 2 3)) '(1 2 1)))   ; neutral: his pointer, base 2
+(check (equal (mapcar (lambda (p) (core-kikon-stake 9 2 nil 1 p t)) '(1 2 3)) '(1 3 1)))     ; red: pointer 2 takes a Soul Break's
+(check (= (core-kikon-stake 9 2 :ns 2 3 nil) 2))                                             ; in an NS: its own pointer, not the next
+(check (equal (list (core-kikon-stake 9 4 nil 1 2 t) (core-kikon-stake 2 4 nil 1 2 t)) '(5 2)))   ; Bankai red on 2: 5, capped by what is left
+(check (= (core-kikon-stake 9 2 nil 1 1 nil 3) 3))                                           ; the follow-up's fixed count wins
 ;; Ichigo's core moves (DUEL_CORE §9, 2026-10-27): every opening strike has a readable coil, NS2 is the ranged one, each pointer its stance
 (let ((k (kit :ichigo :base)))
   (check (every (lambda (n) (>= (mv-s (kit-move k n)) 14)) '(:ic-j1 :ic-n1a :ic-n2a :ic-n3a)))   ; the tells (>= 14 f, 0.23 s)

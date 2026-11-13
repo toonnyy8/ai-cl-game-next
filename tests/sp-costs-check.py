@@ -16,6 +16,9 @@ in that segment: the refund only). P2's moves at the wave's range are started by
 S7 (the CPU, DUEL_SP §8.4): P2's CPU plays (trial.lisp :p2-cpu, :seed) from a written NSa (:p2-start) that hits at flash-step 0: it never
 presses the segment the sim would refuse (no `P2 SP <NSb> refused`, a `P2 cpu holds <NSb>` line: core-ai CAI-NEXT-OK-P); the same seed
 at 300 presses it (`P2 SP <NSb> fs ...`), so the roll did fire. The generic CPU (Ichigo vs Ichigo) and a matchup style (Kenpachi's KK-LINK).
+R15d (S7's gap): the same CPU Hohos out of its NSa at 0 and an SP is written into its press, in the Hoho and in the resume window: the
+Hoho's resume (fighter.lisp HOHO-RESUME!) would start NSb, which the sim refuses; the CPU drops the press (`P2 cpu holds IC-N1B`, core-ai
+CAI-HOHO-HOLD-P), no `refused` line (before R15d: one `P2 SP IC-N1B refused (fs 0.0)` each).
 
   python3 tests/sp-costs-check.py           PASS / FAIL per check, exit 1 on a failure
   python3 tests/sp-costs-check.py --log     and every trial's SP / dealt / CANCEL lines
@@ -101,6 +104,11 @@ def trials():
                    ':p2-start ((0 :ic-n1a)) :frames 90)')
         out.append(f'(:name "CPU kenpachi style fs{fs}" :p1 :ichigo :p2 :kenpachi :p2-ptr 1 :dist 1.6 :fs 300 :p2-fs {fs} :p2-cpu :hard :seed 4242 '
                    ':p2-start ((0 :ke-z-n1a)) :frames 90)')
+    # R15d (S7's gap): P2's CPU Hohos out of its NSa that hit (125 - 25 - 100: at 0), then an SP is written into its press, in the Hoho
+    # (latched, resumed at its end) or neutral in the resume window: HOHO-RESUME!'s segment NSb, which the sim would refuse at 0
+    for at in (36, 50):
+        out.append(f'(:name "CPU hoho resume sp{at}" :p1 :ichigo :p2 :ichigo :p2-ptr 1 :dist 2.0 :fs 300 :p2-fs 125 :p2-cpu :hard :seed 4242 '
+                   f':p2-start ((0 :ic-n1a)) :p2-press ((26 :step 3 t)) :p2-at (({at} :sp 2)) :frames 90)')
     return out
 
 
@@ -121,7 +129,7 @@ def run():
             cur = line.split('trial begin ', 1)[1].strip(); logs[cur] = []
         elif 'trial end ' in line:
             cur = None
-        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |beats |blade x |[^:\]]* x P[12]: CANCEL)|exchange over|clone \S+ replays|P2 cpu holds |P2 kk link )', line):
+        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |beats |blade x |[^:\]]* x P[12]: CANCEL)|exchange over|clone \S+ replays|P2 cpu holds |P2 kk link |P2 hoho)', line):
             logs[cur].append(re.sub(r'^.*?\[\s*(\d+)\] ', r'[\1] ', line))
     return logs
 
@@ -300,6 +308,12 @@ def main():
         check(not ref and hold and ctl and has(z, r'P2 dealt|P2 \S+ -> P1 HIT'),
               f'the CPU ({who}) at 0 after its NSa hit: {len(ref)} refused, {hold[0].split("] ", 1)[1] if hold else "no hold line"}; '
               f'at 300 the same seed presses {nb} ({len(ctl)} start(s))')
+    # R15d: the CPU's SP that a Hoho's resume would turn into NSb at 0 is dropped (core-ai CAI-HOHO-HOLD-P), in the Hoho and in the window
+    for at, where in ((36, 'in the Hoho'), (50, 'in the resume window')):
+        z = f'CPU hoho resume sp{at}'
+        ref = has(z, r'P2 SP IC-N1B refused'); hold = has(z, r'P2 cpu holds IC-N1B \(fs 0\.0\)')
+        check(has(z, r'P2 hoho$') and not ref and hold,
+              f'the CPU at 0 after its NSa and a Hoho, SP {where}: {len(ref)} refused, {hold[0].split("] ", 1)[1] if hold else "no hold line"}')
     sys.exit(1 if bad else 0)
 
 

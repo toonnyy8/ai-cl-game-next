@@ -67,3 +67,15 @@ Break would (BASE + 1). 3: the finisher style, one less."
   "Konpaku a Soul Break takes: BASE + 1 (the old rule), + 2 more for the finisher style (POINTER 3), at most 5."
   (min *core-soul-break-max* (+ base 1 (if (= (core-clamp-pointer pointer) 3) 2 0))))
 
+(defun core-kikon-ptr (cls sp-ptr ptr)
+  "The pointer whose style the SP in play has: in an NS / AS (CLS) the one it started under (SP-PTR: an AS's is the pointer before
+its write, DUEL_CORE §4), else his pointer PTR (the next SP's). (core-sim.lisp CORE-KONPAKU-RESULT's Soul Break, webhud AT-STAKE.)"
+  (if (member cls '(:ns :as)) sp-ptr ptr))
+
+(defun core-kikon-stake (konpaku base cls sp-ptr ptr red &optional fixed)
+  "Of KONPAKU flames, how many a core Kikon would take if it struck now (the plate's red hint, webhud AT-STAKE; R15d, 2026-11-14:
+it showed the form's BASE and ignored the pointer): FIXED (the count his SP's hit fixed, FIGHTER-KIKON-N, while its follow-up runs),
+else CORE-KIKON-COUNT of BASE, the pointer of the SP in play (CORE-KIKON-PTR) and RED (the victim's); capped only by what is left,
+as CORE-KONPAKU-RESULT settles it."
+  (min konpaku (or fixed (core-kikon-count base (core-kikon-ptr cls sp-ptr ptr) red))))
+
