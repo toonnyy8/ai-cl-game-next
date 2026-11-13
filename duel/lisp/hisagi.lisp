@@ -848,7 +848,7 @@ him where he is within the chain's length."
   (hs-chain-seg-to e *hs-core-chain*))
 (defun hs-yose (e)
   "The SA 引寄 YOSE's frame 0 (§26.2): the chain drags E's opponent to *HS-YOSE-TO* m, from within *HS-CORE-CHAIN*."
-  (when (<= (fighter-dist (fighter e)) *hs-core-chain*) (ichigo-pull-to e *hs-yose-to* 6)))
+  (when (<= (fighter-dist (fighter e)) *hs-core-chain*) (pull-opp-to e *hs-yose-to* 6)))
 (defun hs-as1-hop (e)
   "AS1 TSUMUJI's frame 0 (§27.10): E leaps back from his opponent to *HS-AS1-HOP-TO* m (NAGI's band) over *HS-AS1-HOP-FRAMES*."
   (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2))) (d (hypot dx dz)))
@@ -934,14 +934,6 @@ else NAGI's far end along E's facing (the user: 「沒打中時直接揮到最�
   (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil
                            (hss-charge st) 0 (hss-kstr st) nil (hss-leapt st) nil
                            (hss-zan st) 0 (hss-zan-pend st) nil (hss-gather st) nil (hss-kin st) nil)))   ; (the bind goes on, §28.1)
-(defun hs-pull-to (e to frames)
-  "E's chain drags his victim to TO m over FRAMES (his slide replaced; ICHIGO-PULL-TO's rule); T when it moved him."
-  (let* ((v (opp-of e)) (p (pos-of e)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
-         (dist (hypot dx dz)))
-    (when (> dist to)
-      (set-slide v (- dist to) frames dx dz)
-      (emit :sfx :chain-snap e)
-      t)))
 (defun hs-kaza-up (e) "The windmill's up frame (f6): counted." (declare (ignorable e)) (pace e :windmill))
 (defun hs-kaza-start (e)
   "The windmill's frame 0 (both copies; not a :hold move, so it runs): no charge yet, no K string (S1)."
@@ -1213,11 +1205,11 @@ logged with the distance and the window's written damage before / after the x (b
   (pace e :unbinds)
   (emit :sfx :chain-snap e)
   (clog "~a BIND END reishi ~d / ~d" (side-name e) (gauges-reishi (gauges e)) (gauges-reishi (gauges (opp-of e)))))
-(defun hs-b-yose (e) "The bind SA HIKIYOSE's frame 0: the chain drags him to *HS-B-PULL-TO* m, wherever he is." (ichigo-pull-to e *hs-b-pull-to* 6))
-(defun hs-b-hook (e) "KAGIYOSE's first real hit (:on-land): the hook drags him to *HS-B-PULL-TO* m." (ichigo-pull-to e *hs-b-pull-to* 8))
+(defun hs-b-yose (e) "The bind SA HIKIYOSE's frame 0: the chain drags him to *HS-B-PULL-TO* m, wherever he is." (pull-opp-to e *hs-b-pull-to* 6))
+(defun hs-b-hook (e) "KAGIYOSE's first real hit (:on-land): the hook drags him to *HS-B-PULL-TO* m." (pull-opp-to e *hs-b-pull-to* 8))
 (defun hs-b-drag (e)
   "MATOI's first real hit (:on-land): the wrapped chain drags him 1 m in (not inside *HS-B-PULL-TO*)."
-  (ichigo-pull-to e (max *hs-b-pull-to* (- (fighter-dist (fighter e)) 1.0)) 8))
+  (pull-opp-to e (max *hs-b-pull-to* (- (fighter-dist (fighter e)) 1.0)) 8))
 (defun hs-b-hook-seg (e) "KAGIYOSE's :seg-fn: the chain to the victim within *HS-B-HOOK-REACH* (HS-CHAIN-SEG-TO)." (hs-chain-seg-to e *hs-b-hook-reach*))
 (defun hs-push-to (e to frames)
   "Push E's opponent out to TO m from E over FRAMES (PUSH-APART: the wall pushes E back instead)."
@@ -1295,7 +1287,7 @@ those never reach here) arms the bind and yanks him to *HS-KUBI-YANK* m (§28.4;
     (when (and mv res (eq (contact-of res) :hit) (getf (mv-params mv) :bind-start) (eq (fighter-move (fighter att)) mv)
                (eq (fighter-form (fighter att)) :bankai) (not (hss-bound st)))
       (setf (hss-bind-arm st) t)
-      (hs-pull-to att *hs-kubi-yank* *hs-kubi-yank-frames*)
+      (pull-opp-to att *hs-kubi-yank* *hs-kubi-yank-frames*)
       (pace att :bind-arm)
       (clog "~a KAKE: the bind armed" (side-name att)))))
 (defun hs-r-link-move (e next)

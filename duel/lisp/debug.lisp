@@ -356,6 +356,19 @@ Yamamoto's Shikai and Bankai East until his code left main, 2026-11-12.)"
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
     (place *p1* *p2* 2.2)))
 
+(defvar *k-link-pct* 100 "The last SCALE-K-LINKS percentage (100: the written damage), for DEBUG-KNOBS-LINE.")
+(defparameter *debug-knobs*
+  (list (cons '*red-threshold* *red-threshold*) (cons '*gg-regen* *gg-regen*) (cons '*gg-regen-guardless* *gg-regen-guardless*)
+        (cons '*k-link-pct* *k-link-pct*))
+  "The rule knobs a debug command sets for the CPU matches after it (2600+k, 22000+k, 23000+k, 26000+k: a gate's levers without a
+rebuild) with their values at load. They hold for the rest of the run (a gate's every match), so START-MATCH names each one that
+differs (DEBUG-KNOBS-LINE): a debug command never changes a later match silently (REFACTOR_2026-11 R10 item 15, R11).")
+(defun debug-knobs-line ()
+  "The `duel match knobs` log line of the knobs in *DEBUG-KNOBS* that differ from their load-time values; nothing when none does."
+  (let ((changed (loop for (s . v) in *debug-knobs* unless (eql (symbol-value s) v) collect (list s (symbol-value s) v))))
+    (when changed
+      (log-msg "duel match knobs:~:{ ~a ~a (written ~a)~}" changed))))
+
 (defun scale-k-links (pct)
   "Debug 26000+k: every K link entered mid-wind-up (a :flash move with :enter: K2, K3 and their copies) of every kit
 deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6, without a rebuild)."
@@ -367,7 +380,8 @@ deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6
                                  (when (and (eq (mv-kind m) :flash) (plusp (mv-enter m)))
                                    (loop for w across (mv-hits m) do (setf (hw-dmg w) (round (* (mv-dmg m) pct) 100)))))
                                (kit-moves kit))))
-           *kits*))
+           *kits*)
+  (setf *k-link-pct* pct))
 
 (defun force-form (e form)
   (set-form e form)

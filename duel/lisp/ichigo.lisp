@@ -443,15 +443,8 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
   "E spends N of the guard gauge (the regen waits *GG-DELAY* again; never guardless by it)."
   (let ((g (gauges e))) (setf (gauges-gg g) (f32 (max 0.0 (- (gauges-gg g) n))) (gauges-gg-idle g) 0)))
 
-(defun ichigo-pull-to (att d frames)
-  "The chain drags ATT's opponent toward him to D metres over FRAMES (after the hit's own reaction: its slide replaced)."
-  (let* ((v (opp-of att)) (p (pos-of att)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
-         (dist (hypot dx dz)))
-    (when (> dist d)
-      (set-slide v (- dist d) frames dx dz)
-      (emit :sfx :chain-snap att))))
-(defun ichigo-pull (e) "KUSARI-BIKI's hit: pulled to :pull m (and bound)." (ichigo-pull-to e (move-param e :pull) 10))
-(defun ichigo-gaeshi-pull (e) "ZANGETSU-GAESHI f0: the staggered attacker dragged to :pull m, so the cut reaches." (ichigo-pull-to e (move-param e :pull) 6))
+(defun ichigo-pull (e) "KUSARI-BIKI's hit: pulled to :pull m (and bound)." (pull-opp-to e (move-param e :pull) 10))
+(defun ichigo-gaeshi-pull (e) "ZANGETSU-GAESHI f0: the staggered attacker dragged to :pull m, so the cut reaches." (pull-opp-to e (move-param e :pull) 6))
 
 (defun ichigo-wave (e look &key (ahead 1.0) (yaw (yaw-of e)))
   "A crescent :wave from the move's :params (:width :speed :range :dmg :react :kb :guard), AHEAD m in front of E, drawn by

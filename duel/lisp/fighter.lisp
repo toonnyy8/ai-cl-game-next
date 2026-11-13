@@ -198,6 +198,16 @@ come can be read from afar (the user, 2026-10-27); any other kit rests in its :s
   "Slide E DIST metres over FRAMES along (DX DZ) (knockback, pushback, Step, clash)."
   (let* ((mo (motion e)) (kb (motion-kb mo)) (l (max 1e-4 (hypot dx dz))) (k (/ dist (max 1 frames) l)))
     (setf (aref kb 0) (f32 (* dx k)) (aref kb 2) (f32 (* dz k)) (motion-kb-left mo) frames)))
+(defun pull-opp-to (att d frames)
+  "A chain (or a hook) drags ATT's opponent toward him to D metres over FRAMES (after the hit's own reaction: its slide replaced,
+SET-SLIDE), with the chain's snap; T when it moved him (he was farther than D). Ichigo's KUSARI-BIKI and ZANGETSU-GAESHI,
+Hisagi's YOSE, KAKE and the bind's hooks (ICHIGO-PULL-TO and HS-PULL-TO until REFACTOR_2026-11 R11)."
+  (let* ((v (opp-of att)) (p (pos-of att)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
+         (dist (hypot dx dz)))
+    (when (> dist d)
+      (set-slide v (- dist d) frames dx dz)
+      (emit :sfx :chain-snap att)
+      t)))
 
 ;;; ---------------------------------------------------------------- the view humans steer by
 ;;; A human's stick is camera-relative. The sim must not read the render camera (it lags on real
