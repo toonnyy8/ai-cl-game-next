@@ -19,8 +19,6 @@
 ;;;; Every roll once per event (sim-rnd01, by difficulty); the state in BRAIN-STYLE.
 (in-package :duel)
 
-(defvar *mc-plan*)                                       ; (cpu-mcts.lisp gives it its value)
-
 (defparameter *hr-p* '(:easy 0.25 :normal 0.6 :hard 1.0)
   "Per close event (the opponent perceived inside *HR-CLOSE* while he is free in the ranged mode; a new one each time he is free again):
 take it (the back Step, WA, TABA). Else the MCTS / generic CPU decides that event. 2026-11-09, mine (DUEL_AI_STRATEGY §8.16).")
@@ -69,7 +67,7 @@ side Steps, switches, TATAKI. Reset and printed by tools/simgate/strat-run.lisp 
 
 (defun hr-taken (b f)
   "He pressed: the MCTS plan made a reaction time ago is dropped (its job ends), the event is over."
-  (setf (aref *mc-plan* (* 5 (fighter-side f))) 0)
+  (mc-plan-drop f)
   (setf (brain-decide-t b) (max (brain-decide-t b) 2)))
 
 (defun hr-sp (b f s)
@@ -116,7 +114,7 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
         (setf (hrs-seg st) (fighter-cls-t f))
         (let ((d (fighter-dist f)) (hit (eq (fighter-contact f) :hit)))
           (if (eq name :hs-r-n1a)
-              (let ((p (strat-out :dswitch nil)))
+              (let ((p (strat-out (brain-now b) :dswitch nil)))
                 (cond ((and hit p (plusp p) (core-switch-open-p e f) (kit-core-move kit :ns 2)
                             (< (sim-rnd01) (* p (brain-chance b *cai-dswitch-dif*))))
                        (hr-count f 6) (cai-switch-press e b f 2))
@@ -181,9 +179,9 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
     (when ranged
       (setf (brain-style b) (hms-range st))
       (setf r (hisagi-range-style e b f kit s d) (hms-range st) (brain-style b)))
-    (when (and (not r) (not ranged) (getf (car *strat-now*) :shikai-dswitch))   ; (the Shikai's DRIVE switch, off without the key)
+    (when (and (not r) (not ranged) (getf (car (brain-now b)) :shikai-dswitch))   ; (the Shikai's DRIVE switch, off without the key)
       (setf r (hms-shikai-switch e b f kit st)))
-    (when (and (not r) (or (not ranged) (getf (car *strat-now*) :ken-ranged)))
+    (when (and (not r) (or (not ranged) (getf (car (brain-now b)) :ken-ranged)))
       (setf (brain-style b) (hms-ken st))
       (setf r (ken-ki-style e b f kit s d) (hms-ken st) (brain-style b)))
     (setf (brain-style b) st)

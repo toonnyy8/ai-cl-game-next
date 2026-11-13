@@ -12,9 +12,9 @@
   ;; halfway on a slope: weighted toward the base? no: one rule firing at any strength gives its value alone
   (check (~= 0.9 (strat-value st :ns '(:dj 0.9))))
   ;; no active strategy: the CPU's own value, and a chance unchanged
-  (let ((*strat-now* nil)) (check (and (= 0.3 (strat-out :ns 0.3)) (= 0.3 (strat-scale :hoho 0.3)))))
-  (let ((*strat-now* (cons '(:base (:hoho 2.0 :ns 0.1)) nil)))
-    (check (and (~= 0.1 (strat-out :ns 0.3)) (~= 0.6 (strat-scale :hoho 0.3)) (~= 1.0 (strat-scale :hoho 0.7)))))
+  (check (and (= 0.3 (strat-out nil :ns 0.3)) (= 0.3 (strat-scale nil :hoho 0.3))))
+  (let ((now (cons '(:base (:hoho 2.0 :ns 0.1)) nil)))
+    (check (and (~= 0.1 (strat-out now :ns 0.3)) (~= 0.6 (strat-scale now :hoho 0.3)) (~= 1.0 (strat-scale now :hoho 0.7)))))
   ;; fingerprints: a strategy is the same as itself, and a changed output lowers the similarity
   (let* ((grid '((:dj 0.5) (:dj 3.0 :ost 0) (:dj 1.1 :ost 2))) (keys '(:b-j1 :range :ns))
          (fa (strat-fingerprint st keys grid))
@@ -285,7 +285,7 @@
         (let ((p (second v)))
           (when (every (lambda (k) (let ((x (getf p k))) (and (realp x) (<= 0 x 1)))) '(:easy :normal :hard))
             (check (<= (getf p :easy) (getf p :normal) (getf p :hard))))))))))
-;; §8.19 round 5 step 6: the event layer's window (STRAT-EVENT-ARM; core-ai.lisp STRAT-EVENT-STEP keeps LAST in the brain). It fires when the
+;; §8.19 round 5 step 6: the event layer's window (STRAT-EVENT-ARM; strategy-glue.lisp STRAT-EVENT-STEP keeps LAST in the brain). It fires when the
 ;; opponent is perceived down (launched / down / waking up), holds the brain's perception delay + *STRAT-EVENT-GRACE* frames after, then hands
 ;; back; a table without :EVENT-ARMS never fires (and leaves LAST alone).
 (let* ((arm '(:id :ev-test :fn ken-kh-style)) (fq (list :arms '(nil) :event-arms (list (list :knockdown arm)))) (delay 8))
@@ -319,6 +319,6 @@
                 '(:fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-wake 1.0 :hk-pot 1.0 :hk-kite 1.0))))
   (check (equal (plays (strat-arm :a-hk-wake)) '(:fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-wake 1.0)))))
 (dolist (r '((:a-hk-wake t nil nil) (:a-hk-pot nil t nil) (:a-hk-kite nil nil t) (:a-hk-all t t t)))
-  (let ((*strat-now* (cons (strat-arm (first r)) '(:lead 0))))
-    (check (equal (rest r) (mapcar (lambda (k) (and (strat-out k nil) t)) '(:hk-wake :hk-pot :hk-kite))))))
-(let ((*strat-now* nil)) (check (null (strat-out :hk-wake nil))))   ; (no strategy: every rule off, the style = his merged style)
+  (let ((now (cons (strat-arm (first r)) '(:lead 0))))
+    (check (equal (rest r) (mapcar (lambda (k) (and (strat-out now k nil) t)) '(:hk-wake :hk-pot :hk-kite))))))
+(check (null (strat-out nil :hk-wake nil)))   ; (no strategy: every rule off, the style = his merged style)

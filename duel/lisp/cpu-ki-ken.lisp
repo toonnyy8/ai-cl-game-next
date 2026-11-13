@@ -334,9 +334,9 @@ with a Hoho open, :cut not sealed, :close not beyond *KK-WAVE-CLOSE-MAX*, :step 
       (let ((r (* sum (sim-rnd01))))
         (cond ((< r wc) :close) ((< r (+ wc wk)) :cut) ((< r (+ wc wk wl)) :late) (t :step))))))
 
-(defun kk-track (e b f kit s d st)
-  "The events, once each: a new form stay (the climb roll), L3 reached (the Bankai roll), her knockdown (the meaty roll), her Getsuga
-route (the answer's roll)."
+(defun kk-track (e b f kit s d st meaty)
+  "The events, once each: a new form stay (the climb roll), L3 reached (the Bankai roll), her knockdown (the meaty roll, MEATY's chance:
+*KK-MEATY-P* unless KEN-KI-STYLE's caller gives another), her Getsuga route (the answer's roll)."
   (let ((form (fighter-form f)) (ss (snap-state s)))
     (unless (eq form (kks-form st))
       (setf (kks-form st) form (kks-l3 st) nil (kks-bankai st) nil (kks-bk-n st) 0
@@ -349,7 +349,7 @@ route (the answer's roll)."
             (when (kks-bankai st) (clog "~a kk bankai-plan" (side-name e))))
           (setf (kks-l3 st) nil (kks-bankai st) nil)))
     (when (and (member ss '(:air :down)) (not (member (kks-was st) '(:air :down :wakeup))))
-      (setf (kks-meaty st) (brain-roll b *kk-meaty-p*))
+      (setf (kks-meaty st) (brain-roll b meaty))
       (when (kks-meaty st) (clog "~a kk meaty armed" (side-name e))))
     (unless (member ss '(:air :down :wakeup)) (setf (kks-meaty st) nil))
     (when (eq ss :hoho)                                         ; her Hoho seen: its start = now - delay - her frame (b3_a0 r3)
@@ -525,11 +525,12 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
               (kk-stick e 0)
               t)))))))
 
-(defun kk-decide (e b f s d st)
-  "A neutral decision the generic CPU would make this step, taken by the style when a roll says so. T when it decided."
+(defun kk-decide (e b f s d st safe)
+  "A neutral decision the generic CPU would make this step, taken by the style when a roll says so (SAFE: the Hoho-safety roll's chance,
+*KK-NS-SAFE-P* unless KEN-KI-STYLE's caller gives another). T when it decided."
   (let* ((form (fighter-form f)) (vp-free (member (fighter-state f) '(:idle :run)))
          (ns (kit-core-move (fighter-kit f) :ns (fighter-ptr f)))
-         (q (kit-command-move (fighter-kit f) :q)) (safe (brain-roll b *kk-ns-safe-p*))
+         (q (kit-command-move (fighter-kit f) :q)) (safe (brain-roll b safe))
          (ns-ok (or (null ns) (not safe) (kk-ns-open-p b s st ns)))   ; (b0_a0 r3: not into her timed Hoho)
          (j-ok (or (null q) (not safe) (kk-ns-open-p b s st q))))
     (when vp-free
@@ -583,7 +584,7 @@ decided."
   "MV's reach + slide less *KK-REACH-MARGIN* (m): the farthest it starts from; 0 for a move that reaches nothing (the tame)."
   (if (and mv (plusp (mv-reach mv))) (- (+ (mv-reach mv) (mv-slide mv)) *kk-reach-margin*) 0.0))
 
-(defun kk-pick (e b f kit s d st)
+(defun kk-pick (e b f kit s d st safe)
   "封印肉搏's discipline at a neutral decision inside the generic CPU's attack zone: J1 or the pointer's NS only where it reaches (the
 generic's NS / J odds between them), else :walk (in, and decide again in *KK-REACH-RETRY* frames) or, sealed, one Hoho in. The rolls
 (*KK-REACH-P*, *KK-HOHO-IN-P*) are made once per approach: it starts at the first such decision and ends when he attacks, leaves the
@@ -594,7 +595,7 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
         (progn
           (unless (kks-appr st)
             (setf (kks-appr st) t (kks-reach st) (or bk (brain-roll b *kk-reach-p*)) (kks-hin st) (brain-roll b *kk-hoho-in-p*)
-                  (kks-safe st) (brain-roll b *kk-ns-safe-p*) (kks-sin st) (brain-roll b *kk-step-in-p*)))
+                  (kks-safe st) (brain-roll b safe) (kks-sin st) (brain-roll b *kk-step-in-p*)))
           (if (not (kks-reach st))
               (setf (kks-appr st) nil)                         ; (this decision is the generic CPU's)
               (let* ((ns (kit-core-move kit :ns (fighter-ptr f))) (q (kit-command-move kit :q))
@@ -621,8 +622,9 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
                        (ai-press b :step 1) (kk-stick e 1) :walk)
                       (t (kk-stick e 1) :walk))))))))
 
-(defun kk-neutral (e b f kit s d st)
-  "Free: her Getsuga route's answer, the meaty chase, the read, then the decision hook. T when the style decided."
+(defun kk-neutral (e b f kit s d st safe)
+  "Free: her Getsuga route's answer, the meaty chase, the read, then the decision hook (SAFE: KK-DECIDE's and KK-PICK's). T when the style
+decided."
   (when (and (eq (fighter-form f) :base) (gauges-awakened-ok-p e) (not (kks-aw st)))
     (setf (kks-aw st) (if (brain-roll b *kk-awaken-p*) :go :no)))
   (cond ((and (eq (kks-aw st) :go) (eq (fighter-form f) :base) (gauges-awakened-ok-p e)
@@ -635,7 +637,7 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
         ((kk-pf-step e b f kit s d st))
         ((kk-read e b f kit s d st))
         ((<= (brain-decide-t b) 1)                              ; the generic CPU decides this step: the style may take it
-         (let ((how (or (and (not (kks-appr st)) (kk-decide e b f s d st)) (kk-pick e b f kit s d st))))   ; (no re-rolls on a retry)
+         (let ((how (or (and (not (kks-appr st)) (kk-decide e b f s d st safe)) (kk-pick e b f kit s d st safe))))   ; (no re-rolls on a retry)
            (when how
              (setf (brain-decide-t b) (if (eq how :walk) *kk-reach-retry*
                                           (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01))))))
@@ -767,8 +769,10 @@ the SP's knockdown (the meaty loop's start)."
                  (brain-roll b *kk-kikon-red-p*)))
     (setf (brain-press-left b) 1)))
 
-(defun ken-ki-style (e b f kit s d)
-  "Kenpachi's style against Ichigo (DUEL_MATCHUP_AI §4): T when it decided this step, NIL for the generic core CPU."
+(defun ken-ki-style (e b f kit s d &key (meaty *kk-meaty-p*) (safe *kk-ns-safe-p*))
+  "Kenpachi's style against Ichigo (DUEL_MATCHUP_AI §4): T when it decided this step, NIL for the generic core CPU. MEATY / SAFE: the meaty
+roll's and the Hoho-safety roll's chances by difficulty, the knobs unless a style built on this one passes others (cpu-kh-ken.lisp: its
+wake-up bait and stand-off breaker; they rebound the two knobs until 2026-11-13, REFACTOR_2026-11 R12)."
   (let ((st (brain-style b)))
     (when (or (null st) (< *match-tick* (kks-tick st))) (setf st (make-kks) (brain-style b) st))
     (when (and (> (- *match-tick* (kks-tick st)) *kk-cine-gap*) (brain-chance b *kk-cine-wait*))   ; (a cinematic just ended: b0_a1 r3)
@@ -782,7 +786,7 @@ the SP's knockdown (the meaty loop's start)."
               (setf (kks-fresh st) (max (kks-fresh st) (+ *match-tick* *kk-repel-wait*))))
             (setf (kks-mend st) 0))))
     (setf (kks-tick st) *match-tick*)
-    (kk-track e b f kit s d st)
+    (kk-track e b f kit s d st meaty)
     (when (and (< *match-tick* (kks-fresh st)) (member (fighter-state f) '(:idle :run)))
       (kk-stick e 0)
       (return-from ken-ki-style t))
@@ -803,7 +807,7 @@ the SP's knockdown (the meaty loop's start)."
       (when (member state '(:idle :run :move))
         (or (if (eq state :move) (or (kk-l3-sa e b f kit d st) (kk-move e b f s st) (kk-link e b f kit s d) (kk-as-on e b f kit)
                                          (kk-ns-whiff e b f kit s))
-                (kk-neutral e b f kit s d st))
+                (kk-neutral e b f kit s d st safe))
             (if (eq state :move) (cai-move-step e b f kit s) (cai-neutral e b f kit s d)))   ; (the generic CPU's step, as CORE-BRAIN-STEP)
         (kk-kikon-rule b f)
         t))))

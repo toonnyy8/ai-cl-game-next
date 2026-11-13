@@ -119,7 +119,7 @@ recovery ends?"
 
 (defun hkb-gated (e b s d st)
   "The Reishi pot under its key :HK-POT. Off: its episode tracking still runs (re-armed when the condition ends, disarmed when it opens)."
-  (if (strat-out :hk-pot nil)
+  (if (strat-out (brain-now b) :hk-pot nil)
       (hkb-step e b s d st)
       (progn (unless (and (eq (burst-ok-p e) :white) (<= (reishi-frac (gauges e)) *hkb-below*)) (setf (hks-hk-armed st) t))
              nil)))
@@ -127,7 +127,7 @@ recovery ends?"
 (defun hkk-gated (e b f kit s d st)
   "The kite under its key :HK-KITE (Hisagi idle / running). Off: its perceived-distance tracking still runs."
   (when (member (fighter-state f) '(:idle :run))
-    (if (strat-out :hk-kite nil)
+    (if (strat-out (brain-now b) :hk-kite nil)
         (hkk-step e b f kit s d st)
         (progn (setf (hks-k-pd st) (f32 d) (hks-k-on st) nil (hks-k-go st) nil) nil))))
 
@@ -137,7 +137,7 @@ recovery ends?"
     (when (or (not (hks-p st)) (< *match-tick* (hks-hk-tick st)))
       (setf st (make-hks) (brain-style b) st))
     (setf (hks-hk-tick st) *match-tick*)
-    (prog1 (or (and (strat-out :hk-wake nil) (hkw-step e b f kit s d st))
+    (prog1 (or (and (strat-out (brain-now b) :hk-wake nil) (hkw-step e b f kit s d st))
                (hkb-gated e b s d st)
                (hkk-gated e b f kit s d st)
                (hisagi-merged-style e b f kit s d))

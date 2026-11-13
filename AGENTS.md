@@ -168,7 +168,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   (`rnd01` for cosmetics), per-match reset, periodic state-hash lines. The native sim and the browser must agree bit for bit.
 - **Presentation is cosmetic**: the sim never reads art. Drawn reach must equal hit reach (host FK test, ±0.15 m).
 - **CPU**: a `:core` kit: `core-ai.lisp` (fuzzy rules) + the in-game MCTS (`mcts-lite.lisp`, `cpu-mcts.lisp`: the light model, the full sim,
-  DUEL_AI_MCTS), over `cpu-perceive.lisp` (the SNAP ring of the opponent seen BRAIN-DELAY steps late, the presses; the old AI v2,
+  DUEL_AI_MCTS; `rollout.lisp` the rollout mode, `strategy-glue.lisp` the strategies' glue and the cross-style reads table, R12), over `cpu-perceive.lisp` (the SNAP ring of the opponent seen BRAIN-DELAY steps late, the presses; the old AI v2,
   `docs/duel/DUEL_AI_V2.md`, left with the retired kits, R3); every chance scales by difficulty
   EASY ≤ NORMAL ≤ HARD; roll once per event, never per step. The online fuzzy Q learner against a human `fq-online.lisp`
   (DUEL_AI_STRATEGY §8.14; the old learner, `DUEL_LEARNING.md`, and ASSIST, `DUEL_ASSIST.md`, are on the branch `frozen-modes`).

@@ -748,6 +748,60 @@ their only target; whether DUEL_SP §5's ATK gains take them is open.
 | **R10** | ECS + pragmatic-FP audit (10.3 item 4) | Read-only, on the lean main (after R4): per file, state by home (component slot / struct / special), every special written inside the step and whether it is a snapshot root, logic that is pure today vs could be, the hidden channels (`*core-on*`, `*in-rollout*`, `*skip-cines*`, `*gauges-inf*`, `*dummy*`), what of `duel/` the ECS does not hold. Output: a § in this file with a ranked list; no code | review by the main session | a report | **Opus** | parallel to SP S1-S2 |
 | **R11** | B2 + D7 | One batch because both rewrite each kit's debug hookup: the `define-debug-range` registry in the engine (overlap fails at load) replacing debug.lisp's `cond` and `*char-debug*`, the doc checker kept; the `defkit` hook-point table; shared knobs to tuning.lisp; `*core-on*` / `core-kit-p` removed (every kit is a core kit after R2: a hidden channel gone); `ichigo-pull-to` -> a generic pull | unit-forms (knob moves EQUAL), G2, fast, every debug command of the scripts still dispatches (the scripts' logs identical) | ~400 lines, medium (dispatch order) | **Opus** | after S9 (debug.lisp, kit.lisp, tuning.lisp, core-sim.lisp are SP's files) |
 | **R12** | B4's remainder | `fq-online.lisp` naming settled by R4; core-ai's `strat-*` glue -> `strategy-glue.lisp`; `*in-rollout*` defined once; the rollout's bindings in one macro for `sim-rollout` and `mc-full-rollout`; the cross-style reads named in one file | unit-forms, G2, snaptest, fulltest | ~1.5k lines moved, medium | **Opus** | after S7 (same CPU files) |
+**R12 done on branch `worktree-agent-a6da18b1309bdc4db`** (2026-11-13, Opus subagent; seven commits on 315f18b6, a-f and the docs). **fq-online**: nothing
+left to do. R4 already named the file (ai-learn.lisp is gone, `fq-online.lisp` holds the online fuzzy Q). **a. `*in-rollout*` once**: new
+`rollout.lisp` (15 lines, loaded before core-ai) holds the one valued `defvar` and `with-rollout ((extra ...) body)`. That macro expands to
+the seven bindings both lets had, in the same order. `sim-rollout` calls `(with-rollout () ...)`; `mc-full-rollout` passes its own
+`(*cai-styles* nil)` and locals as extras. The bare `(defvar *in-rollout*)` in core-ai left. unit-forms with WITH-ROLLOUT expanded: only
+that defvar out and the macro in. Trap kept as it was: `*gate-log*` and `*step-hook*` are defined in gate.lisp, after cpu-mcts, so in
+`mc-full-rollout` they bind lexically. That is harmless, because a lean step never calls HASH-LOG; the macro's docstring says so. **b. The
+glue** moved verbatim to `strategy-glue.lisp` (203 lines, loaded right after core-ai). From core-ai: STRAT-REACH, -FEATS, -FORM-INDEX,
+-XFEATS, STRAT-HOLD-AWAKEN-P, *STRAT-JUDGE-HOOK*, STRAT-SWITCH-STEP and the event layer (STRAT-EVENT-STEP / -CALL). From cpu-mcts: the
+whole strategy layer (STJOB ... STRAT-LOG). The DRIVE switch's presses (CAI-DSWITCH, CAI-SWITCH-PRESS / -TARGET, *CAI-SWITCH-COUNTS*)
+stay in core-ai, renamed nothing. core-ai 349 -> 258 lines, cpu-mcts 362 -> 276. About 190 lines moved, not the row's 1.5k (B4's
+estimate included ai.lisp's split, which R3 did). unit-forms: no form changed. The compiler's warnings and notes are identical to the
+base's (21). **c.** Comments and *STRAT-JOBS*' docstring now point at strategy-glue. **d. Item 11**:
+- `*strat-now*` became the brain's `now` slot. It is set where the binding was (after `sw` / `cur` / `ev`) and set back to NIL at the end
+  of that body, so every step-end snapshot holds NIL as before. The state hash line does not walk BRAIN.
+- STRAT-OUT and STRAT-SCALE take NOW as their first argument, which makes them pure. MC-EST takes it too. Every caller passes
+  `(brain-now b)`.
+- `*mc-select*` is gone: it is now MC-SEARCH's required SELECT argument (cpu-mcts, tools/simgate/litefit.lisp and teacher.lisp, the mcts
+  host test).
+- cpu-kh-ken's rebinding of `*kk-meaty-p*` / `*kk-ns-safe-p*` became KEN-KI-STYLE's keywords `:meaty` / `:safe`. Their defaults are the
+  knobs, read at the call, so a tool that sets them still works. They are threaded to KK-TRACK / KK-NEUTRAL / KK-DECIDE / KK-PICK.
+
+**e. The cross-style reads**: a table in strategy-glue.lisp's header. Rescanned on code only (strings and comments stripped), three remain:
+- Hisagi's merged style calls KEN-KI-STYLE, the one call across characters.
+- cpu-kh-ken uses KEN-KI-STYLE, KKS (`:include`), KKS-TICK / -PLAN / -APPR and KK-STICK.
+- cpu-hk-hisagi uses HISAGI-MERGED-STYLE, HMS (`:include`), HR-SP and HR-TAKEN.
+
+Ichigo's KI style reads no other style; B4's "K2's `kk-*` from Ichigo's file" and `*kk-hend-p*` now appear only in docstrings. HR-TAKEN
+wrote `*mc-plan*` directly, through a second bare `(defvar *mc-plan*)` in cpu-hisagi-range. It now calls cpu-mcts's new MC-PLAN-DROP, and
+that defvar left. **f. 11.5.2 D**: `sim-rollout` (offline: the teacher, snaptest) runs SIM-STEP-LEAN, as `mc-full-rollout` does, so no
+feedback, sound or stage marks run inside it. It still keeps `*cai-styles*` (the teacher's semantics; `mc-full-rollout` turns them off).
+The lead decides whether to unify that. Item 14 skipped (its row: "only if the next feature needs it").
+
+**Proof**:
+- G2 `simgate.py --cvc`: identical to tests/style-cvc-ref.txt (II 36, IK 40, KK 38 lines), not regenerated.
+- Full native stdout, base fas against each new fas (only timing / heap lines filtered), identical for the three cvc matches, snaptest
+  straight and pollute (IK gate, 4 seeds: 2008 rollouts), fulltest IK (148 checks, 0 differ) and FT_VS=1 (54, 0 differ), and
+  strat-desc.lisp HARD KH and HK, 2 seeds a seat, `duel hash` lines included.
+- HARD random-pairing matches (81022 2102 2000+s, s = 1 2 3 5 8, combat log on) identical to the base at R12e (f touches only the offline
+  `sim-rollout`). Seeds 1 KH and 3 HK reach the wake-up bait
+  (`khf bait armed` 28), the meaty roll, the merged style's `kk *` lines and the strategy tables. The stand-off breaker and the CPU's
+  DRIVE switch did not fire in them.
+- D's own check: a scratch harness ran full vs lean steps from one snapshot under WITH-ROLLOUT, every 40 ticks, comparing the state hash
+  line and the sim RNG. IK gate: 2008 checks. HARD KH: 470. HARD HK: 465. 0 differ.
+- strategy-eval: its cache key holds the build's hash, so a new build always misses; the proof is that the base and the new build give the
+  same output. `--char kenpachi --vs hisagi --seeds 2 --no-normal` on `khfn/cand-standoff.lisp` and `cand-khfn.lisp` (the stand-off
+  breaker's and the bait's styles, whose knobs item 11 touched): the printed results are identical (4/4 each), and so are the four cached
+  raw outputs.
+- FT_LAYER=t crashes on the base as on the new build, identically (`STRUCTURE-SET ... KKS ... not of the expected type IKST` at tick
+  3430). This is a bug in the off-by-default strategy layer, not R12's: a layer pick changes BRAIN-STRAT without resetting BRAIN-STYLE.
+  Left for R15.
+- Host 2979 ALL PASS, duel-control 124, input 33, touch 100, cine 18, hud-engine 121; pkgcheck only DUEL::APP; debug-ranges 86 ranges, 0
+  errors; sp-costs-check 114 PASS. `./build.sh duel`: index.wasm 10,286,727 B. Smoke (`run.mjs --fixed-dt 16.666667 --secs 8`): exit 0,
+  startup heap 74.8 MB.
 | **R13** | B7 less E6 / E7 | E1 the fuzzy core, E2 the hem spring -> anim.lisp `spring-chain-*`, E3 rebinding, E4 the settings table, E5 `resolve-tuning` | G2, host tests (duel-control, fuzzy, input), R0's gate | ~300 lines, medium | Opus | after S9 (fuzzy.lisp is S7's, control.lisp S9's) |
 | **R14** | B6's remainder | one command decoder for webui / webhud; sw.js `FILES` from build.sh | smoke, duel-flow / duel-touch / duel-mobile scripts, an offline / install check by hand | ~80 lines, low | Sonnet | after S8 (webhud.lisp) | **R14 done on branch** (2026-11-13): `ui-press-cmd` (webui.lisp) is the one decoder of the pointer commands both dispatchers share (1 cursor, 2 confirm, 4 left, 5 right); `webui-command` calls it and keeps 3 back / 6-8 (menu-only), `webhud-pause-cmd` is its guarded call. sw.js `FILES` is `@FILES@`, filled by build.sh with `./` plus every file of `dist/<target>` but sw.js (a new page file needs no list edit); the built list is the same 11 entries as the old hand list (order differs: `./` then alphabetical). Offline / install check for a human: open the built page over http, wait for the worker, go offline (DevTools Network), reload: the game and `manual.html` must load; a rebuild must install a new cache and reload once.
 | **R15** | The audit's findings + wave 4 | What R10 ranks first (expected: specials written in the step moved into components or passed as arguments; pure cores split out of `apply-hit` and `gauge-system`), then wave 4's items only where the next feature needs them | per item: unit-forms or G2, snaptest / fulltest | open | Opus | last; the main session picks |

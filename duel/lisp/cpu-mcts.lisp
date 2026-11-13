@@ -14,7 +14,7 @@
 (defparameter *mc-tau* '(:easy 0.05 :normal 0.03 :hard 0.015) "Softmax temperature per difficulty (value units: Konpaku), the teacher's.")
 (defparameter *mc-budget* '(:easy 0.10 :normal 0.05 :hard 0.02) "Mistake budget per difficulty: actions worse than the best by more are never drawn.")
 (defparameter *mc-select-by* '(:easy :tree :normal :tree :hard :duct)
-  "The search's selection per difficulty (*MC-SELECT*). 80 IK seeds each, the MCTS side's wins, tree / decoupled UCT / regret matching
+  "The search's selection per difficulty (MC-SEARCH's SELECT). 80 IK seeds each, the MCTS side's wins, tree / decoupled UCT / regret matching
 (the user asked why not DUCT or SM-MCTS with EXP3 / regret matching, 2026-11-08): Kenpachi HARD 51 / 63 / 53 (his CPU under it 60),
 Kenpachi NORMAL 76 / 71 / 71, Ichigo NORMAL 64 / 59 / 51, Hisagi NORMAL (HK) 13 / 5 / 11 (DUEL_AI_MCTS §5).")
 (defparameter *mc-far* 7.0 "Beyond this (m) the generic CPU closes in (its run), as before.")
@@ -41,7 +41,6 @@ at 0.08 / 0.12 / 0.16 / 0.25, his style CPU 50 (§9).")
 (defparameter *mc-full-lite* '(:easy 16 :normal 16 :hard 16)
   "The light search's rollouts per difficulty when it only ranks for the full sim (§11: 16 kept NORMAL's strength of 96).")
 (defparameter *mc-full-h* 40 "A full-sim rollout's steps after the hold (it stops at the first contact before; §11).")
-(defvar *in-rollout* nil "T inside a search's rollout (SIM-ROLLOUT, MC-FULL-STEP): no search, no job, no match end (GO-RESULTS).")
 (defvar *mc-plan* (mc-fv 10)
   "Per side, 5 slots: the state (0 none, 1 its rollouts running, 2 scored), the light model's best and second action codes (-1 none),
 their full-sim values (x 1000). Sim state (sim-state.lisp): MC-NEUTRAL reads it when his hold is over.")
@@ -114,10 +113,10 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
 (defvar *mc-next* (mc-fv 2) "Per side, the match tick before which a search that deferred (*MC-SURE*) is not run again (sim state: sim-state.lisp).")
 (defparameter *mc-defer-gap* 6 "Steps after a deferral before the next search (the CPU under it walks without a press: a search a step otherwise).")
 
-(defun mc-est (a)
-  "Root action A's light estimate plus the active strategy's bias for it (strategy.lisp :B-...; none: the estimate), or NIL."
+(defun mc-est (now a)
+  "Root action A's light estimate plus the active strategy's bias for it (strategy.lisp :B-...; NOW: the brain's, none: the estimate), or NIL."
   (let ((m (mc-mean a)) (k (svref *strat-bias-keys* a)))
-    (if (and m *strat-now* k) (+ m (strat-out k 0)) m)))
+    (if (and m now k) (+ m (strat-out now k 0)) m)))
 
 (defun mc-neutral (e b f kit s d)
   "The MCTS neutral: T when it pressed (see the file header)."
@@ -128,20 +127,20 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
              (not (member (list (fighter-character f) (brain-difficulty b)) *mc-off-at* :test #'equal))
              (not (< *match-tick* (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap* 1))) (<= d *mc-far*) (not (gauges-awakened-ok-p e)) (mc-setup e f kit s d (brain-difficulty b)))
     (mc-seed (logxor (sim-rnd-state) (+ (* 7919 *match-tick*) (fighter-side f) 1)))   ; (its own stream: the sim's is only read)
-    (let ((*mc-select* (getf *mc-select-by* (brain-difficulty b) :tree)))
-      (mc-search (if *mc-full* (getf *mc-full-lite* (brain-difficulty b) 16) (getf *mc-iters* (brain-difficulty b) 96))))
+    (mc-search (if *mc-full* (getf *mc-full-lite* (brain-difficulty b) 16) (getf *mc-iters* (brain-difficulty b) 96))
+               (getf *mc-select-by* (brain-difficulty b) :tree))
     (let* ((dif (brain-difficulty b)) (tau (getf *mc-tau* dif 0.03))
-           (best (loop for a below 10 for m = (mc-est a) when m maximize m))
-           (second (loop for a below 10 for m = (mc-est a) when (and m (< m best)) maximize m))
+           (best (loop for a below 10 for m = (mc-est (brain-now b) a) when m maximize m))
+           (second (loop for a below 10 for m = (mc-est (brain-now b) a) when (and m (< m best)) maximize m))
            (lo (- best (getf *mc-budget* dif 0.05))) (ws *mc-ws*) (tot 0.0))
       (when (and second (< (- best second) (getf *mc-sure* dif 0.0)))   ; not decided enough: the CPU under it decides
         (setf (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap*))
         (return-from mc-neutral nil))
       (when *mc-full* (return-from mc-neutral (mc-full-request e b f)))
       (dotimes (a 10)
-        (let ((m (mc-est a))) (setf (aref ws a) (if (and m (>= m lo)) (exp (/ (- m lo) tau)) 0f0)) (incf tot (aref ws a))))
+        (let ((m (mc-est (brain-now b) a))) (setf (aref ws a) (if (and m (>= m lo)) (exp (/ (- m lo) tau)) 0f0)) (incf tot (aref ws a))))
       (let ((r (* tot (sim-rnd01))))
-        (dotimes (a 10 (mc-press b (nth (loop for a below 10 when (eql (mc-est a) best) return a) *mc-actions*)))
+        (dotimes (a 10 (mc-press b (nth (loop for a below 10 when (eql (mc-est (brain-now b) a) best) return a) *mc-actions*)))
           (when (plusp (aref ws a))
             (decf r (aref ws a))
             (when (<= r 0) (mc-press b (nth a *mc-actions*)) (return)))))
@@ -152,7 +151,7 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
   "After the light search: the best two go to the full sim (a job), he holds for his reaction time. T (he pressed)."
   (let* ((side (fighter-side f)) (k (* 5 side)) (a1 -1) (a2 -1) (m1 0.0) (m2 0.0))
     (dotimes (a 10)
-      (let ((m (mc-est a)))
+      (let ((m (mc-est (brain-now b) a)))
         (when m
           (cond ((or (< a1 0) (> m m1)) (setf a2 a1 m2 m1 a1 a m1 m))
                 ((or (< a2 0) (> m m2)) (setf a2 a m2 m))))))
@@ -182,6 +181,11 @@ the light model's best), if he is still free. The plan is cleared either way. T 
         (mc-press b (nth a *mc-actions*))
         t))))
 
+(defun mc-plan-drop (f)
+  "F's plan made a reaction time ago is dropped (a style pressed instead: cpu-hisagi-range.lisp HR-TAKEN); its job ends at the next
+MC-FULL-STEP. The one way a style CPU touches *MC-PLAN*."
+  (setf (aref *mc-plan* (* 5 (fighter-side f))) 0))
+
 (defun mc-full-reset ()
   "A match starts: no plan, no job, no stats (START-MATCH); the strategy layer's selections too."
   (fill *mc-plan* 0) (setf *mc-jobs* nil) (fill *mc-full-stats* 0)
@@ -209,10 +213,9 @@ the light model's best), if he is still free. The plan is cleared either way. T 
 (defun mc-full-rollout (e o steps dif &optional (stop t))
   "One rollout from the state now (lean steps): E's score, the health swing to the first contact (or STEPS) plus the table's value of it.
 STOP NIL: no stop at a contact, the swing over all STEPS (the strategy layer's rollouts)."
-  (let ((*in-rollout* t) (*log-mute* t) (*pacing-log* nil) (*combat-log* nil) (*gate-log* nil) (*step-hook* nil) (*skip-cines* t)
-        (*cai-styles* nil)
-        (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
-        (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
+  (with-rollout ((*cai-styles* nil)                                     ; (the generic CPUs play the rest; SIM-ROLLOUT keeps the styles)
+                 (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
+                 (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
     (loop repeat steps while (and (eq *flow* :battle) (not *cine*))
           do (sim-step-lean)
              (let ((se (fighter-state (fighter e))) (so (fighter-state (fighter o))))
@@ -271,92 +274,3 @@ is not), so the two share the one rollout a step."
     (when (plusp (svref st 0))
       (log-msg "duel mcfull decisions ~d rollouts ~d ms ~,3f a decision, worst step ~,2f"
                (svref st 0) (svref st 1) (/ (* ms (svref st 2)) (svref st 0)) (* ms (svref st 3))))))
-
-;;; ---------------------------------------------------------------- the strategy layer (DUEL_AI_STRATEGY §5, §8.4; a prototype, off by default)
-;;; With *STRAT-LAYER* (strategy.lisp) a core CPU in neutral re-selects its strategy every *STRAT-PERIOD* steps and on coming back to
-;;; neutral: Decoupled UCT over (his applicable strategies) x (the opponent's), one PUCT a side, each arm's statistics seeded from the
-;;; offline payoff matrix (*STRAT-PAYOFF*: its value against the opponent's equilibrium mix, *STRAT-N0* pseudo-visits) and refined by
-;;; *STRAT-ROLLS* full-sim rollouts sliced as the action layer's (MC-FULL-STEP: one a step at the steps' end, when no action rollout is
-;;; due; the live state snapshotted and put back; lean steps; *IN-ROLLOUT*). In a rollout both CPUs play their sampled strategies (BRAIN-STRAT;
-;;; a brainless human gets the stand-in brain with his), *STRAT-H* steps, scored by the health swing mapped to 0-1. His prior: the fuzzy :P
-;;; of each strategy for the cues now; the opponent's arms: a flat prior. The pick: (1 - lambda) x value + lambda x prior. Until the first
-;;; selection's rollouts are done he plays the pick from the seeds and the prior alone.
-(defstruct (stjob (:constructor make-stjob (e side dif mine his prior sums ns hsums hns hprior)))
-  "A selection: E's side, difficulty, his arms (plists) and the opponent's, the prior and the statistics of both PUCTs (simple-vectors), the
-snapshot it starts from (taken by its first rollout) and the seed of its rollouts (common random numbers), rollouts done."
-  e side dif mine his prior sums ns hsums hns hprior (snap nil) (rng 0) (n 0))
-(inline-readers stjob)
-
-(defun strat-layer-p (f) "Is fighter F's CPU under the strategy layer?" (and *strat-layer* (or (eq *strat-layer* t) (member (fighter-character f) *strat-layer*))))
-
-(defun strat-request (e b f s d)
-  "A selection for E: its arms seeded, a job queued; with no strategy yet, the seeds' and the prior's pick at once."
-  (let* ((me (fighter-character f)) (vs (fighter-character (fighter (fighter-opp f)))) (dif (brain-difficulty b))
-         (mine (strat-arms me vs)) (his (strat-arms vs me)) (feats (strat-feats e f s d))
-         (p (map 'simple-vector (lambda (st) (strat-prior st feats)) mine)) (ptot (reduce #'+ p))
-         (prior (map 'simple-vector (lambda (x) (/ x ptot)) p))
-         (ns (make-array (length mine) :initial-element (float *strat-n0*)))
-         (sums (map 'simple-vector (lambda (st) (* *strat-n0* (strat-seed-value me vs (getf st :id)))) mine))
-         (hns (make-array (length his) :initial-element (float *strat-n0*)))
-         (hsums (map 'simple-vector (lambda (st) (* *strat-n0* (strat-seed-value vs me (getf st :id)))) his))
-         (hprior (make-array (length his) :initial-element (/ 1.0 (max 1 (length his))))))
-    (unless (brain-strat b) (setf (brain-strat b) (nth (strat-final sums ns prior (getf *strat-lambda* dif 0.35)) mine)))
-    (setf *strat-jobs* (append *strat-jobs* (list (make-stjob e (fighter-side f) dif mine his prior sums ns hsums hns hprior))))
-    (incf (svref *strat-stats* 0))))
-
-(defun strat-layer-step (e b f s d)
-  "In CORE-BRAIN-STEP, outside rollouts: a selection when he is free and one is due (the period is over, or he comes back to neutral
-after *STRAT-REGAIN* steps out of it) and none of his is running."
-  (when (and (strat-layer-p f) (not *in-rollout*) (member (fighter-state f) '(:idle :run)))
-    (when (and (or (>= *match-tick* (brain-st-next b)) (> (- *match-tick* (brain-st-free b)) *strat-regain*))
-               (not (find (fighter-side f) *strat-jobs* :key #'stjob-side)))
-      (setf (brain-st-next b) (+ *match-tick* *strat-period*))
-      (strat-request e b f s d))
-    (setf (brain-st-free b) *match-tick*)))
-
-(defun strat-roll (j)
-  "Job J's next rollout from its snapshot: both arms by their PUCT, both CPUs on them (a stand-in brain for a brainless opponent), *STRAT-H*
-lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing (STRAT-FULL-STEP does; the pollution test runs it bare)."
-  (let* ((e (stjob-e j)) (o (fighter-opp (fighter e))) (dif (stjob-dif j))
-         (i (strat-puct (stjob-sums j) (stjob-ns j) (stjob-prior j) *strat-c*))
-         (k (strat-puct (stjob-hsums j) (stjob-hns j) (stjob-hprior j) *strat-c*)))
-    (sim-restore (stjob-snap j))
-    (setf (sim-rnd-state) (logior 1 (logand #xFFFFFFF (+ (stjob-rng j) 7919))))   ; (common random numbers: one seed for every rollout)
-    (unless (brain o)                                                     ; (the human, as MC-FULL-ROLL: the stand-in plays his strategy)
-      (add-component o (make-brain :difficulty dif :delay (getf *ai-delay* dif 14)))
-      (setf (pilot-cam-relative (pilot o)) nil))
-    (setf (brain-strat (brain e)) (nth i (stjob-mine j)) (brain-strat (brain o)) (nth k (stjob-his j)))
-    (let ((sw (mc-full-rollout e o *strat-h* dif nil)))
-      (values i k (max 0.0 (min 1.0 (+ 0.5 (/ sw (* 2.0 *strat-swing*)))))))))
-
-(defun strat-full-step ()
-  "One rollout of the oldest selection (MC-FULL-STEP, when no action rollout is due); its first takes the live state as its start. After
-*STRAT-ROLLS* the pick goes into his brain (after the live state is back: a restore would undo it)."
-  (if (not (sim-snapshot-ok-p))
-      (setf *strat-jobs* nil)                                             ; (a cinematic, the match's end: asked again on coming back)
-      (let* ((t0 (get-internal-real-time)) (j (first *strat-jobs*)) (live (sim-snapshot)))
-        (unless (stjob-snap j) (setf (stjob-snap j) live (stjob-rng j) (sim-rnd-state)))
-        (multiple-value-bind (i k v) (strat-roll j)
-          (sim-restore live)
-          (incf (svref (stjob-sums j) i) v) (incf (svref (stjob-ns j) i))
-          (incf (svref (stjob-hsums j) k) (- 1.0 v)) (incf (svref (stjob-hns j) k)))
-        (incf (svref *strat-stats* 1))
-        (when (>= (incf (stjob-n j)) *strat-rolls*)
-          (pop *strat-jobs*)
-          (let* ((e (stjob-e j)) (b (brain e))
-                 (a (strat-final (stjob-sums j) (stjob-ns j) (stjob-prior j) (getf *strat-lambda* (stjob-dif j) 0.35))))
-            (when b
-              (setf (brain-strat b) (nth a (stjob-mine j)))
-              (incf (svref *strat-picks* (+ (* (length *strat-library*) (stjob-side j)) (position (getf (brain-strat b) :id) *strat-library* :key (lambda (st) (getf st :id)))))))))
-        (let ((dt (- (get-internal-real-time) t0)))
-          (incf (svref *strat-stats* 2) dt) (setf (svref *strat-stats* 3) (max (svref *strat-stats* 3) dt))))))
-
-(defun strat-log ()
-  "The match's strategy-layer line (RESULTS, beside MC-FULL-LOG; not one of G2's lines): selections, rollouts, ms a selection, the worst
-step's ms, and per side how often each library entry was picked."
-  (let ((st *strat-stats*) (ms (/ 1000.0 internal-time-units-per-second)))
-    (when (plusp (svref st 0))
-      (log-msg "duel stratlayer selections ~d rollouts ~d ms ~,3f a selection, worst step ~,2f picks P1 ~{~a~^ ~} P2 ~{~a~^ ~}"
-               (svref st 0) (svref st 1) (/ (* ms (svref st 2)) (svref st 0)) (* ms (svref st 3))
-               (loop for k below (length *strat-library*) collect (svref *strat-picks* k))
-               (loop with n = (length *strat-library*) for k below n collect (svref *strat-picks* (+ n k)))))))
