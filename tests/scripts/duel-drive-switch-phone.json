@@ -97,7 +97,7 @@
 },
 {
 "at": 16.0,
-"eval": "console.log('=== DP no DRIVE: SP tap, flick right (a Step)')"
+"eval": "console.log('=== DP gauge never full: SP tap, flick right (a Step)')"
 },
 {
 "at": 16.0,

@@ -2,18 +2,32 @@
 ;;; ================================================================ SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION, the user 2026-10-31)
 ;; the knobs
 (check (and (~= *sub-dmg* 0.20) (~= *sub-taken* 0.20) (~= *sub-speed* 0.10) (~= *sub-fs* 0.30) (~= *sub-keep* 0.5) (~= *drive-add* 0.5)))
-(check (~= *drive-switch* 0.25))   ; the temporary pointer switch costs 0.25 B (DUEL_SUBLIMATION §17)
+(check (let ((s (find-symbol "*DRIVE-SWITCH*" :duel))) (or (null s) (not (boundp s)))))   ; the switch costs SP only since S6 (DUEL_SUBLIMATION §17.8): the DRIVE price is gone
 ;; fill (DUEL_SUBLIMATION §18): the awakening gauge by every source (X), then SUBLIMATION / DRIVE by attacking only (XS)
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 50.0 0.0 0.0 20.0 5.0) (and (~= aw 70.0) (~= sub 0.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 90.0 0.0 0.0 25.0 25.0) (and (~= aw 100.0) (~= sub 0.0) (~= dr 0.0))))   ; the overflow is dropped
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 0.0) (and (~= aw 100.0) (~= sub 30.0) (~= dr 0.0))))  ; taken: nothing
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 6.0) (and (~= aw 100.0) (~= sub 42.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 6.0) (and (~= aw 100.0) (~= sub 36.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 95.0 0.0 10.0 10.0) (declare (ignore aw)) (and (~= sub 100.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 0.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 24.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 12.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 95.0 12.0 12.0) (declare (ignore aw sub)) (~= dr 100.0)))
-;; *SUB-GAIN* x2 on SUB / DRIVE (2026-11-07, §20): the overflow lines above
-(check (~= *sub-gain* 2.0))
+;; *SUB-GAIN* x2 on SUB / DRIVE (2026-11-07, §20), halved again 2.0 -> 1.0 by S6 (2026-11-13, §17.8): the overflow lines above read 30 + 6 = 36 (SUB)
+;; and 12 (DRIVE); per hit the fill is half of what 2026-11-11 gave (the same XS through 2.0 and through 1.0)
+(check (~= *sub-gain* 1.0))
+(check (let ((xs (sub-attack-gain 100 0 1.0)))
+         (multiple-value-bind (a s d1) (awaken-overflow t 0.0 0.0 0.0 0.0 xs) (declare (ignore a s))
+           (multiple-value-bind (a sub1 d) (awaken-overflow nil 100.0 0.0 0.0 0.0 xs) (declare (ignore a d))
+             (and (~= d1 xs) (~= sub1 xs) )))))   ; (one knob, both gauges: the fill equals XS now, 2 x XS with the 2.0 of 2026-11-07)
+;; aw-full (DUEL_SP §8.3): latched by AWAKEN-FILL! the moment the awakening gauge is full, kept after; an awakened fighter counts; a gauge
+;; set full directly (practice rows, debug scenes) counts through AW-FULL-P
+(let ((g (make-gauges)))
+  (check (not (aw-full-p g)))
+  (awaken-fill! g 60.0 0.0) (check (not (gauges-aw-full g)))
+  (awaken-fill! g 60.0 0.0) (check (and (gauges-aw-full g) (aw-full-p g) (~= (gauges-awaken g) *awaken-max*)))
+  (setf (gauges-awaken g) 0f0) (check (and (gauges-aw-full g) (aw-full-p g))))   ; (kept after it drops)
+(let ((g (make-gauges))) (setf (gauges-awakened g) t) (check (aw-full-p g)) (awaken-fill! g 0.0 0.0) (check (gauges-aw-full g)))
+(let ((g (make-gauges))) (setf (gauges-awaken g) *awaken-max*) (check (and (aw-full-p g) (not (gauges-aw-full g)))))
 ;; attacking: 0.035 x 1.5 per point (about 1905 to fill before x *SUB-GAIN*, §18.1), ORANGE x1.5 on top, 10.5 per Konpaku taken
 (check (and (~= *sub-attack-mult* 1.5) (~= (sub-attack-gain 100 0 1.0) 5.25) (~= (sub-attack-gain 100 0 *orange-gain*) 7.875)
             (~= (sub-attack-gain 0 2 1.0) 21.0) (< 1904 (/ 100.0 (sub-attack-gain 1 0 1.0)) 1906)))

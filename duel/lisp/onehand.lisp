@@ -271,7 +271,7 @@ attack) with the flick's direction as the stick, not a Step: the thumb's version
   (let ((tr *touch*))
     (and *one-hand* *p1* (entity-alive-p *p1*) (touch-pulse-p tr +tp-flick+)
          (> (abs (touch-fx tr)) (* 1.73f0 (abs (touch-fy tr))))
-         (let ((f (fighter *p1*))) (and f (eq (fighter-cls f) :ns) (eq (fighter-state f) :move) (core-switch-ready-p *p1* f))))))
+         (let ((f (fighter *p1*))) (and f (eq (fighter-cls f) :ns) (eq (fighter-state f) :move) (core-switch-open-p *p1* f))))))
 
 (defun touch-button (name)
   "Is vpad button NAME down from the thumb deck (design §3.2 / §3.4; the core system, 2026-10-27: a tap = the attack, the SP

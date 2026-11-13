@@ -50,5 +50,6 @@ attacker gains `*sp-break-gain*` of the take (DUEL_SP §6)."
   (and (>= xch-a 0) (= xch-a xch-b)))
 
 (defun sp-switch-ok-p (fs was-full switched routes)
-  "The pointer switch's gate (DUEL_SP §3): not SWITCHED yet, ROUTES > 1 NS routes, the awakening gauge WAS-FULL at some time, and FS > 0."
+  "The pointer switch's gate (DUEL_SP §3, Q14): not SWITCHED yet, ROUTES > 1 NS routes, the awakening gauge WAS-FULL at some time, and FS > 0
+(0 < FS < cost still starts, scaled, through CORE-START!)."
   (and (not switched) (> routes 1) was-full (> fs 0)))

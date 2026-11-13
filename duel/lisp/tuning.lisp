@@ -257,19 +257,17 @@ Nozarashi healed, 150).")
 (defparameter *sub-attack-mult* 1.5
   "SUBLIMATION / SPIRIT DRIVE per point of damage dealt = *AWAKEN-DEALT* x this (x ORANGE's gain): 0.0525, about 1905 damage to fill (the
 user, 2026-11-01: 「幫我將 3 倍改成 1.5 倍」, DUEL_SUBLIMATION §18.1; 3.0 (0.105, about 950) from 「×3（約 950 點滿）」 the same day, §18; before, x1.0 of every awakening source, damage taken and lost Konpaku included).")
-(defparameter *sub-gain* 2.0
+(defparameter *sub-gain* 1.0
   "Every SUBLIMATION / SPIRIT DRIVE gain x this (AWAKEN-OVERFLOW: damage dealt, Konpaku taken, WHITE's; the awakening gauge itself
 unchanged): 1.0 -> 2.0 (the user, 2026-11-07: 「並幫我將 sublimation 跟 drive 的累積速度改成目前的 2 倍」, DUEL_SUBLIMATION §20 / DEVLOG §616):
-about 952 damage dealt fills one.")
+about 952 damage dealt fills one. 2.0 -> 1.0 (the user, 2026-11-12: 「還要把 DRIVE 跟 SUBLIMATION 的恢復速率減半。」, DUEL_SP §3, S6; the one knob halves both gauges' fill):
+about 1905 damage dealt fills one again.")
 (defparameter *drive-max* 100.0 "SPIRIT DRIVE gauge maximum (after the awakening).")
 (defparameter *sub-dmg* 0.20 "Damage dealt x (1 + this x the bonus fraction).")
 (defparameter *sub-taken* 0.20 "Damage taken x (1 - this x the bonus fraction).")
 (defparameter *sub-speed* 0.10 "Walk / run speed x (1 + this x the bonus fraction).")
 (defparameter *sub-fs* 0.30 "Flash-step gauge gained from hits x (1 + this x the bonus fraction) (the Reiatsu gauge is gone: DUEL_CORE §6).")
 (defparameter *sub-keep* 0.5 "The share of the pre-awakening SUBLIMATION fraction the awakening keeps.")
-(defparameter *drive-switch* 0.25
-  "The share of the full SPIRIT DRIVE one temporary pointer switch costs (an NS gap's stick left / right + SP, DUEL_SUBLIMATION §17;
-the user, 2026-11-01: 「可以，我挺中意這個設定的」, 「既然要消耗 DRIVE，那就不需要 DRIVE 滿了」): 0.25 B, so it needs at least that much left.")
 (defparameter *drive-add* 0.5 "What a full SPIRIT DRIVE adds on top, as a share of B (not of the kept fraction).")
 
 ;;; ---------------------------------------------------------------- hit reactions, combos, hitstop

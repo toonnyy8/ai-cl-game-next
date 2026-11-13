@@ -1145,18 +1145,19 @@ it already runs it continues to F."
 (defun ichigo-sub-debug (c)
   "86100 / 86101 (DUEL_SUBLIMATION §9): human P1 Ichigo in his Shikai, awakening gauge empty / full, 2.2 m from an idle Kenpachi (both CPUs
 off, gauges full); 86102 / 86103: KESSA with SPIRIT DRIVE empty / full; 86104 / 86105 / 86106 the same on the phone's deck: the Shikai with
-the gauge full and SUBLIMATION 60, KESSA with DRIVE 60, KESSA with DRIVE full; 86110 the 超速連斬 Kikon cinematic at frame 40 (a still), 86120 P2's J1
+the gauge full and SUBLIMATION 60, KESSA with DRIVE 60, KESSA with DRIVE full; 86107 KESSA never awakened, the awakening gauge empty (the switch is refused: it never was full, S6); 86111 / 86112 KESSA with DRIVE 60 and SP 15 / 0 (the switch starts scaled / is refused at 0; its NS1 pays too); 86110 the 超速連斬 Kikon cinematic at frame 40 (a still), 86120 P2's J1
 now (the scripts time the presses)."
   (case c
-    ((86100 86101 86102 86103 86104 86105 86106 86107 86108)
+    ((86100 86101 86102 86103 86104 86105 86106 86107 86108 86111 86112)
      (ensure-battle :ichigo :kenpachi :cpu nil)
      (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
      (force-form *p1* (if (member c '(86100 86101 86104 86108)) :base :kessa))
      (place *p1* *p2* (if (member c '(86100 86101 86104 86108)) 2.2 1.4)) (full-gauges! *p1*) (full-gauges! *p2*)   ; (KESSA's J reaches 1.56 m)
      (let ((g (gauges *p1*)))
-       (setf (gauges-awakened g) (member c '(86102 86103 86105 86106 86107)) (gauges-awaken g) (if (member c '(86101 86104 86108)) *awaken-max* 0f0)
-             (gauges-sub g) (if (member c '(86104 86108)) 60f0 0f0) (gauges-sub-s g) 0f0
-             (gauges-drive g) (case c (86103 *drive-max*) (86106 *drive-max*) (86105 60f0) (86107 20f0) (t 0f0))))
+       (setf (gauges-awakened g) (member c '(86102 86103 86105 86106 86111 86112)) (gauges-awaken g) (if (member c '(86101 86104 86108)) *awaken-max* 0f0)
+             (gauges-sub g) (if (member c '(86104 86108)) 60f0 0f0) (gauges-sub-s g) 0f0 (gauges-aw-full g) nil   ; (the latch: a scene starts fresh)
+             (gauges-drive g) (case c (86103 *drive-max*) (86106 *drive-max*) ((86105 86111 86112) 60f0) (t 0f0)))
+       (case c (86111 (setf (gauges-fs g) 15f0)) (86112 (setf (gauges-fs g) 0f0))))   ; 86111 / 86112: SP 15 (the switch starts scaled) / 0 (refused)
      (when (<= 86104 c 86106) (setf *one-hand* (one-hand-effective-p))))                ; (86104-86106: the phone's deck, run with --mobile --size 390x844)
     (86110 (ichigo-cine-at 'ic-haste-kikon-cine 40))
     (86130 (abort-cine) (setf *cine-hold* nil)                      ; the Getsuga flame preview (ichigo-look.lisp IC-FLAME-CINE), running

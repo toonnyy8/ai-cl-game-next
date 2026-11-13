@@ -251,7 +251,7 @@ at 9 s (VS CPU)."
     (let ((g (gauges e)) (f (fighter e)))
       (full-gauges! e)
       (setf (fighter-ptr f) (case k (1 2) (2 3) (t 1)) (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-awakened g) nil
-            (gauges-drive g) 0f0)
+            (gauges-aw-full g) nil (gauges-drive g) 0f0)
       (case k
         (3 (setf (gauges-reishi g) (round (* 0.15 (gauges-reishi-max g)))))
         (4 (setf (gauges-fs g) 0f0))

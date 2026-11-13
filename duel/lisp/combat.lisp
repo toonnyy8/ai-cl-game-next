@@ -81,9 +81,15 @@ his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
 
 (defun awaken-fill! (g x &optional (xs 0.0))
   "X more awakening for G's owner (XS of it from attacking): the awakening gauge by X, then SUBLIMATION, or SPIRIT DRIVE once awakened,
-by XS only (AWAKEN-OVERFLOW)."
+by XS only (AWAKEN-OVERFLOW). Latches GAUGES-AW-FULL once the awakening gauge is full (an awakened fighter counts)."
   (multiple-value-bind (aw sub drive) (awaken-overflow (gauges-awakened g) (gauges-awaken g) (gauges-sub g) (gauges-drive g) x xs)
-    (setf (gauges-awaken g) (f32 aw) (gauges-sub g) (f32 sub) (gauges-drive g) (f32 drive))))
+    (setf (gauges-awaken g) (f32 aw) (gauges-sub g) (f32 sub) (gauges-drive g) (f32 drive))
+    (when (or (gauges-awakened g) (>= aw *awaken-max*)) (setf (gauges-aw-full g) t))))
+
+(defun aw-full-p (g)
+  "Has G's awakening gauge been full this match (DUEL_SP §3 「量表滿過就能開」)? The latch, or an awakened fighter, or a gauge set full
+directly (PRACTICE's rows, the debug scenes write the gauge without AWAKEN-FILL!)."
+  (or (gauges-aw-full g) (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*)))
 
 (defun sub-of (e)
   "E's SUBLIMATION / SPIRIT DRIVE bonus fraction 0..1 (SUB-FRAC)."

@@ -496,7 +496,7 @@ cinematic stops the timer). The user, 2026-10-08: 「毀魂技演出不計入對
 (defun awaken-overflow (awakened aw sub drive x xs)
   "The three gauges after X more awakening (every source) and XS of it from attacking (SUB-ATTACK-GAIN): before the awakening AW fills to
 *AWAKEN-MAX* by X; once AW is full only XS fills SUB, and after the awakening only XS fills DRIVE (the user, 2026-11-01: 「進入 SUBLIMATION
-跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」, DUEL_SUBLIMATION §18; X's overflow past *AWAKEN-MAX* is dropped), XS x *SUB-GAIN* (§20).
+跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」, DUEL_SUBLIMATION §18; X's overflow past *AWAKEN-MAX* is dropped), XS x *SUB-GAIN* (§20, §17.8: 1.0 since S6).
 Values: aw sub drive."
   (cond (awakened (values aw sub (gauge-add drive (* xs *sub-gain*) *drive-max*)))
         ((>= aw *awaken-max*) (values aw (gauge-add sub (* xs *sub-gain*) *sub-max*) drive))

@@ -153,7 +153,7 @@ the whole target route, left = previous / right = next, cyclic.
   latches `:sw`; once the segment's active frames are over, the previous / next pointer's NS from segment 1 starts (`fighter-sp-ptr` = it, so its Kikon is that
   pointer's). `fighter-ptr` is never changed, so the pointer is back by itself; `fighter-tmp` marks the route and blocks a second switch until the route ends
   (an SA / AS / neutral clears it). Not from neutral (a held stick would spend it by accident).
-- **Cost / condition**: `*drive-switch*` 0.25 x the gauge max; SPIRIT DRIVE after the awakening, SUBLIMATION before it; at least that much left. A human only (`(not (brain e))`: the CPU never, so `--cvc` is untouched). **Since 2026-11-09 a CPU may switch too, only through a strategy** (the user: 「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」, DUEL_AI_STRATEGY §8.16): a strategy's `:dswitch` (the chance per NS gap) and `:dswitch-map`, or a strategy's code (Hisagi's `:h1-range`), press SP with the stick sideways (`cai-switch-press`, act `:switch`); `core-switch-ready-p` takes a CPU for that press only, and the rest (`core-switch-open-p`: the cost, the gauge, no second switch; `core-switch-target`; `core-latch-step`) is the human's code path. No strategy names the key in the shipped CPU, so `--cvc` is unchanged.
+- **Cost / condition** (replaced by §17.8, 2026-11-13: SP only, the awakening gauge full once): `*drive-switch*` 0.25 x the gauge max; SPIRIT DRIVE after the awakening, SUBLIMATION before it; at least that much left. A human only (`(not (brain e))`: the CPU never, so `--cvc` is untouched). **Since 2026-11-09 a CPU may switch too, only through a strategy** (the user: 「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」, DUEL_AI_STRATEGY §8.16): a strategy's `:dswitch` (the chance per NS gap) and `:dswitch-map`, or a strategy's code (Hisagi's `:h1-range`), press SP with the stick sideways (`cai-switch-press`, act `:switch`); `core-switch-ready-p` takes a CPU for that press only, and the rest (`core-switch-open-p`: the cost, the gauge, no second switch; `core-switch-target`; `core-latch-step`) is the human's code path. No strategy names the key in the shipped CPU, so `--cvc` is unchanged.
 - **HUD**: the pointer slot shows the temporary pointer. The phone uses the joystick's left / right + the SP tap.
 - **Debug**: 86107 KESSA with DRIVE 20, 86108 Shikai with SUBLIMATION 60 (86105: KESSA DRIVE 60).
 - **Checks**: host tests 11295; pkgcheck; scripted `duel-drive-switch.json`: D+SP in KESSA's NS1 gap -> NS2 (pointer 1 -> 2), A+SP -> NS3 (1 -> 3), a second D+SP is the plain next segment, no stick the plain next segment, Shikai SUBLIMATION 60 switches, DRIVE 20 refused.
@@ -189,7 +189,7 @@ User: 「幫我改回只要有 25% 就能使用」. Reverses §17.5's condition:
 
 ### 17.7 Routes the switch opens (the user, 2026-11-01)
 
-User: 「透過切換系統可以組合出更多有趣的連動技能，像一護就能將分身與月牙蓄力結合。而修兵始解能在 NS1 打完遠程後用 NS3a+SA 拉到近身攻擊，或是使用 NS3b + SA 補足遠程傷害，卍解也能直接用 NS1a 控制距離再切換成 NS2 的聚拉高輸出。」, then 「幫我紀錄並用腳本測試」. These are the intended routes. Script `tests/scripts/duel-switch-routes.json` (Hisagi; debug 83600+d Shikai with SUBLIMATION 60, 83700+d the Bankai's ranged mode with DRIVE 60, d / 10 m from an idle Kenpachi; 83099 logs the distance) and `duel-drive-switch.json` (Ichigo, debug 86105). Damage as logged:
+User: 「透過切換系統可以組合出更多有趣的連動技能，像一護就能將分身與月牙蓄力結合。而修兵始解能在 NS1 打完遠程後用 NS3a+SA 拉到近身攻擊，或是使用 NS3b + SA 補足遠程傷害，卍解也能直接用 NS1a 控制距離再切換成 NS2 的聚拉高輸出。」, then 「幫我紀錄並用腳本測試」. These are the intended routes. Script `tests/scripts/duel-switch-routes.json` (Hisagi; debug 83600+d Shikai with SUBLIMATION 60, 83700+d the Bankai's ranged mode with DRIVE 60, d / 10 m from an idle Kenpachi; 83900 logs the distance) and `duel-drive-switch.json` (Ichigo, debug 86105). Damage as logged:
 
 | Route | Start | Hits (damage) | Total | Note |
 |---|---|---|---|---|
@@ -209,6 +209,32 @@ User: 「透過切換系統可以組合出更多有趣的連動技能，像一�
 
 Every route connects. Two whiffs follow from the reaches, not from the switch: NS3a SHIBARI (4.5 m) against a victim NS1 left at 6 m, and the Bankai's TATAKI (0-3 m) against one WA pushed to 4.5 m. Nothing was changed.
 
+
+### 17.8 The switch pays SP, not DRIVE (the user, 2026-11-12, DUEL_SP §3; built as batch S6, 2026-11-13)
+
+DUEL_SP's table: 「The pointer switch: costs only SP: the first segment of the pointer switched to, as an ordinary NS segment; refused at 0 (「拒絕」);
+opens once the awakening gauge has been full (「量表滿過就能開」), the DRIVE threshold goes」, and 「DRIVE / SUBLIMATION gains: halved」. This replaces §17's cost and
+condition (§17.5 / §17.6 included); the route rules, the temporary pointer, the HUD and the thumb's flick are unchanged.
+
+- **Gate** (`sp-switch-ok-p fs was-full switched routes`, sp.lisp, pure and host-tested; `core-switch-open-p` in core-sim.lisp feeds it from the gauges):
+  not switched yet (`fighter-tmp`), a second NS route, the awakening gauge has been full once (`aw-full-p`: the `aw-full` latch of `awaken-fill!`, or an
+  awakened fighter, or a gauge a practice row / debug scene set full without it), and SP above 0. Neither SUBLIMATION nor SPIRIT DRIVE is read or spent
+  any more (before or after the awakening); `*drive-switch*` is gone.
+- **Cost**: `core-latch-step`'s `:sw` branch starts the target route's NS segment 1 through `core-start!`, the one place an SP segment pays (§3 of DUEL_SP):
+  a gauge between 0 and the segment's cost starts it scaled (Q14: damage x (0.5 + 0.5 paid / cost)), exactly like any NS segment; at 0 the gate refuses
+  the press (a route's NSa would start free there, but the gate comes first). The log line is `NS pointer a -> b (SP; DRIVE d SUB s unchanged)` followed
+  by the `SP <seg> fs .. cost .. paid ..` line.
+- **Who may press**: `core-switch-ready-p` (which let a CPU through only while its brain's act was `:switch`) is gone: the sim's legality reads only the
+  vpad (the stick and SP) and the gauges (REFACTOR_2026-11 §11.5.7 item 6). Whether a CPU presses is core-ai's decision (`cai-dswitch`, `cai-switch-press`, and
+  Hisagi's range scene, each checking `core-switch-open-p` first); the shipped CPU never does (DUEL_AI_STRATEGY §8.16), and G2 is identical to its reference
+  (the hash lines differ only in the new `^`).
+- **Gains halved**: `*sub-gain*` 2.0 -> 1.0 (the one knob multiplying the SUBLIMATION and the DRIVE fill, §20): about 1905 damage dealt fills one again
+  (0.0525 a point; §18.1's `*sub-attack-mult*`, the maxima, the bonuses and `*sub-keep*` untouched). A pre-awakening player at SUBLIMATION 60 or an
+  awakened one at DRIVE 20 no longer matters for the switch; what matters is SP.
+- **Hash line**: the `w` column prints `^` after the awakening gauge once it has been full (`w100^`), DUEL_SP §8.3's `aw-full`.
+- Tests: `tests/duel-rules/sublimation.lisp` (the knob, the overflow lines 30 + 6 = 36 / 12, the fill per hit equal to XS, the latch, the derived reader),
+  `tests/duel-rules/sp.lisp` (the gate); scripted `duel-drive-switch.json` / `duel-drive-switch-phone.json` / `duel-switch-routes.json` (debug 86107 never full
+  refused, 86111 SP 15 scaled, 86112 SP 0 refused).
 
 ## 18. SUBLIMATION and DRIVE filled by attacking (the user, 2026-11-01)
 

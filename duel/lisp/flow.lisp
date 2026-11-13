@@ -233,7 +233,7 @@ for the pre-awakening levels; a :drive level takes effect as soon as he is awake
     (declare (ignore label))
     (let ((g (gauges *p1*)))
       (case kind
-        (:gauge (unless (gauges-awakened g) (setf (gauges-awaken g) (f32 (* v 0.01 *awaken-max*)) (gauges-sub g) 0f0)) (setf *practice-aw-done* t))
+        (:gauge (unless (gauges-awakened g) (setf (gauges-awaken g) (f32 (* v 0.01 *awaken-max*)) (gauges-sub g) 0f0 (gauges-aw-full g) nil)) (setf *practice-aw-done* t))   ; (a row below full clears the switch's latch too)
         (:sub (unless (gauges-awakened g) (setf (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* v 0.01 *sub-max*)))) (setf *practice-aw-done* t))
         (:drive (if (gauges-awakened g)
                     (setf (gauges-drive g) (f32 (* v 0.01 *drive-max*)) *practice-aw-done* t)

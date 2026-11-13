@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S3 built (S3 on a branch, 2026-11-13).** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S3, S6 and S8 built and merged (2026-11-13); S4, S5, S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -41,7 +41,7 @@ The user, asked whether the flash-step gauge could be the SP gauge, proposed the
 | Damage scaling | a segment that paid P of its cost C deals damage x (0.5 + 0.5 x P / C) (the floor 50 %: the user 「可以」); only the damage: reactions, stun, knockdowns, the Kikon hold unchanged; a refunded (cancelled) segment dealt no damage anyway |
 | The Kikon hold | free (「接毀魂不用花」) |
 | The pointer switch | costs only SP: the first segment of the pointer switched to, as an ordinary NS segment; refused at 0 (「拒絕」); opens once the awakening gauge **has been** full (「量表滿過就能開」), the DRIVE threshold `*drive-switch*` goes |
-| DRIVE / SUBLIMATION gains | halved (the user) |
+| DRIVE / SUBLIMATION gains | halved (the user: 「還要把 DRIVE 跟 SUBLIMATION 的恢復速率減半。」) |
 
 ## 4. Costs by segment strength (「依據每段 NS 的強度調整消耗量」)
 
@@ -250,7 +250,7 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   the last segment's payment while idle or reeling; damage and refunds read it only inside that segment (`own`, `cls`). For S3: once KOSEI's
   flash-step leaves, tighten `sp-costs-check.py`'s at-30 and AS3-from-0 asserts to exact refusals / x0.50.
 
-**S3 done (2026-11-13, branch worktree-agent-adb967ac06c89e34d, not merged).**
+**S3 done (2026-11-13, merged; DEVLOG §745).**
 - **The gains** (DUEL_CORE §11): `apply-hit` calls `sp-atk-hit!` (combat.lisp) for every damaging hit window of the attacker's own move (`own`, not a hazard,
   dealt > 0) whose class is `:na` / `:sa`: `sp-atk-gain` x the kit's `:sp-gain-mult` hook, through `pay-gauges` (nothing in a burst, x SUBLIMATION). Per hit window
   (Q3 as the user changed it), so a multi-hit SA pays per hit; a :dmg-at move (Kenpachi's delayed cuts) pays at the hit, not when the damage lands. A log line
@@ -273,6 +273,33 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   segment at x0.5": its J string's five +10 (plus the first second's regen trickle) put AS3a at 54.2, so AS3a / b pay in full (20, 30) and AS3c the 4.2 left (x0.55: 30 of 55 damage, reaction and stun equal).
 - **G2**: native `--cvc` regenerated, browser `style-gates.py cvc` PASS (= native, 37 / 41 / 36 lines): II 37 lines (P1 7-6, 371.5 s), IK 41 (P2 1-3, 403.5 s), KK 36 (P1 3-0, 361.0 s); before II 37 (P2 7-7, 367.9 s), IK 37 (P2 0-5, 371.5 s),
   KK 43 (P1 3-1, 426.0 s). No balance gates. Not done here: `core-kikon-cancel!`'s victim J / SA +30 (Q12) waits for S4 with the exchange.
+
+**S6 done (2026-11-13, merged; DEVLOG §747; DUEL_SUBLIMATION §17.8).**
+- **Built** (all of the §8.4 row): `aw-full` is a GAUGES slot latched in `awaken-fill!` (an awakened fighter counts); `aw-full-p g` (combat.lisp) is the one reader:
+  the latch, or awakened, or `awaken >= *awaken-max*` (PRACTICE's rows and the debug scenes write the gauge without `awaken-fill!`; the three scene setters and the
+  practice row below full clear the latch). `core-switch-open-p e f` (core-sim.lisp, kept as the sim-side feeder: the CPU's `cai-dswitch` / `cpu-hisagi-range`
+  call it) is now `sp-switch-ok-p` over `(gauges-fs)`, `(aw-full-p)`, `(plusp fighter-tmp)` and the NS route count; the DRIVE / SUBLIMATION price is gone and
+  `*drive-switch*` with it. `core-latch-step`'s `:sw` branch starts the target route's NS1 through `core-start!` (the one paying place; Q14: a gauge between 0 and
+  the cost starts it scaled, at 0 the gate refuses before) and logs `NS pointer a -> b (SP; DRIVE d SUB s unchanged)`. **Item 6**: `core-switch-ready-p` (the brain's
+  act `:switch` let a CPU through) is deleted; `core-switch-target` and the thumb's flick (onehand.lisp) read `core-switch-open-p`; the sim reads only the vpad and the
+  gauges, and whether a CPU presses is core-ai's (`cai-switch-press`'s docstring says so). `*sub-gain*` 2.0 -> 1.0 (the one knob multiplies both the SUBLIMATION and the
+  DRIVE fill, so "the two gain knobs" is one; maxima, bonuses, `*sub-keep*`, `*sub-attack-mult*` untouched): about 1905 damage dealt fills one again.
+- **Hash**: cheap, so in: the `w` column prints `^` after the awakening gauge has been full (`w100^`; `aw-full-p`, not the raw slot, so a scene-set gauge shows it too).
+- **Defaults taken** (beyond §8.6): the gate is also evaluated only when the press latches (not again when the segment starts: between them nothing spends SP);
+  at SP 0 the plain next-segment press that the failed switch falls back to is itself refused (a later NS segment at 0), the same as without a stick; the gain
+  halving is the single knob `*sub-gain*` (§20's doubling reverted), not a second DRIVE-only knob (none exists: `awaken-overflow` multiplies both).
+- **Tests**: host 2960 -> 2968 (sublimation.lisp: `*drive-switch*` gone, `*sub-gain*` 1.0, the overflow lines 36 / 12, the fill per hit equal to XS, the latch and the
+  derived reader; sp.lisp had the gate); control 116, input 33, touch 100, cine 18, hud-engine 121; pkgcheck only `DUEL::APP`; debug ranges 0 errors. Scripts
+  (`duel-drive-switch.json`, `duel-drive-switch-phone.json`, `duel-switch-routes.json`; debug 86107 now "gauge never full", new 86111 SP 15 / 86112 SP 0):
+  D+SP in KESSA's NS1 gap, fs 300, `NS pointer 1 -> 2 (SP; DRIVE 61.7 SUB 0.0 unchanged)` (DRIVE rose from 60 by hits only, never paid), A+SP `1 -> 3`; a second
+  switch inside the route: plain `IC-K-N2B`; SUBLIMATION 60 Shikai (gauge full) `1 -> 2 (DRIVE 0.0 SUB 62.2 unchanged)`; never full (86107): plain next
+  segment, no switch, also on the phone (the flick stays a STEP); SP 15 (86111): `SP IC-K-N3A fs 16.5 paid 10.0`, then the switch `SP IC-K-N1A fs 6.5 cost 25.0
+  paid 6.5 x0.63` (`NS pointer 3 -> 1 (SP; ...)`); SP 0 (86112): `SP IC-K-N3B refused (fs 0.0)`, no switch. Phone: both flicks switch (`1 -> 2`, `1 -> 3`) after a
+  gesture STEP. The routes script was stale before this batch (its distance log, debug 83099, became a Bankai trace scene and turned the Shikai into the Bankai on
+  main too: nothing switched): it logs with 83900 now and all nine switches of the routes run (`1 -> 3` x7 with SUB 63-70 unchanged, the Bankai's `1 -> 2` x2 with DRIVE 61.0).
+- **G2**: with `*sub-gain*` held at 2.0 the three matches are identical to the S2 reference but for the `^` in the hash (the switch rule and item 6 move nothing: the
+  shipped CPU never switches); with 1.0 (the awakened fighters' bonus is half) II 37 -> 38 lines (P2 7-7, 367.9 s -> P1 6-5, 372.5 s), IK 37 -> 40 (P2 0-5, 371.5 s ->
+  P1 4-2, 401.0 s), KK 43 -> 40 (P1 3-1, 426.0 s -> P1 4-0, 401.9 s); native = browser (below), reference regenerated; the lead regenerates on the merged head. No balance gate run.
 
 ### 8.5 Order and parallelism
 

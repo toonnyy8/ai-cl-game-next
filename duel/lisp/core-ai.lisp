@@ -109,7 +109,8 @@ gives now (Hisagi's cancel unlock: 0 inside the route out of a cancel, DUEL_HISA
 
 (defun cai-switch-press (e b f to)
   "Press SP with the stick sideways toward pointer TO: the human's own switch (CORE-MOVE-SP! -> CORE-SWITCH-TARGET, its gauge and its
-rules); the act :SWITCH lets CORE-SWITCH-READY-P take this CPU for this press only (CORE-BRAIN-STEP writes the stick)."
+rules); the act :SWITCH marks the press (CORE-BRAIN-STEP writes the stick). The CPU's gate is CAI-DSWITCH's / the strategy's own
+check of CORE-SWITCH-OPEN-P; the sim's legality reads only the vpad and the gauges."
   (ai-press b :quick 1 :modded t :act :switch)
   (setf (brain-strafe b) (f32 (strat-switch-dir (fighter-ptr f) to (length (getf (kit-core (fighter-kit f)) :ns)))))
   (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to)

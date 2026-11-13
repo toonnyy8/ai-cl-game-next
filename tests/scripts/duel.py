@@ -565,7 +565,9 @@ write("sublimation", sublimation_script())
 
 def drive_switch_script():
     """The temporary pointer switch (DUEL_SUBLIMATION §17): KESSA with DRIVE 60 (debug 86105): SP, then D (right) / A (left) held + SP in the gap;
-    a second switch inside the temporary route (refused); DRIVE 20 (< 25: refused)."""
+    a second switch inside the temporary route (refused); the awakening gauge never full (86107: refused); SP 15 (86111: the switch starts scaled,
+    S6, DUEL_SP §3 / Q14) and SP 0 (86112: refused, only a route's first NS segment starts at 0). Each switch logs `NS pointer a -> b (SP; DRIVE d SUB s
+    unchanged)` and the `SP <seg> fs .. cost .. paid .. x..` line of the segment it starts."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
@@ -584,7 +586,9 @@ def drive_switch_script():
             ("DS NS2 > NS3 keeps the charge: ptr 2, SP, D+SP, J (charged SA), J2", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), sw(s + 0.3, "KeyD"), jt(s + 0.85), jt(s + 1.15)]),
             ("DS NS3 > NS1: clones replay the cuts: ptr 3, SP, D+SP", 86105, lambda s: [ev.append(cmd(s - 0.2, 2512)), sp(s), sw(s + 0.3, "KeyD")]),
             ("DS plain SA: ptr 1, SP, J (the SA is J1's motion)", 86105, lambda s: [sp(s), jt(s + 0.45)]),
-            ("DS drive 20: SP, D+SP (refused)", 86107, lambda s: [sp(s), sw(s + 0.3, "KeyD")])):
+            ("DS gauge never full (86107): SP, D+SP (refused)", 86107, lambda s: [sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS SP 15 (86111): SP, D+SP (starts scaled)", 86111, lambda s: [sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS SP 0 (86112): SP, D+SP (refused)", 86112, lambda s: [sp(s), sw(s + 0.3, "KeyD")])):
         say(t, label)
         ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])
         body(t + 0.3)
@@ -595,13 +599,13 @@ write("drive-switch", drive_switch_script())
 def switch_routes_script():
     """The switch routes the user named (DUEL_SUBLIMATION §17.7): Hisagi's Shikai with SUBLIMATION 60 (debug 83600+d, d / 10 m from an idle
     Kenpachi): NS1 at range, then A (left: pointer 3) + SP for NS3a, J for its SA 引寄 or SP for NS3b and J for its SA 放電; the Bankai's
-    ranged mode with DRIVE 60 (83700+d): NS1a 環 WA, then D + SP for 聚 NS2a and its route. 83099 logs the distance (`| d`)."""
+    ranged mode with DRIVE 60 (83700+d): NS1a 環 WA, then D + SP for 聚 NS2a and its route. 83900 logs the distance (`| d`; 83099 did before the trace scenes took 83050-83099: it set up a Bankai trace and turned this script's Shikai into the Bankai, S6)."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
     def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
     def sw(t, k): ev.append(key(t - 0.05, k)); sp(t); ev.append(key(t + 0.15, k, False))
-    def d(t): ev.append(cmd(t, 83099))
+    def d(t): ev.append(cmd(t, 83900))
     t = T0
     for label, setup, body in (
             ("SR shikai 6.0 m: NS1a, A+SP (NS3a), J (SA YOSE), J2", 83660, lambda s: [sp(s), sw(s + 0.3, "KeyA"), jt(s + 0.8), jt(s + 1.3)]),
@@ -638,7 +642,7 @@ write("shikai-dswitch", shikai_dswitch_script())
 
 def drive_switch_phone_script():
     """The thumb's switch (DUEL_SUBLIMATION §17.3; --mobile --size 390x844): KESSA with DRIVE 60 (debug 86105): an SP tap in the upper pad, then a
-    sideways flick (right / left) in the NS gap = the pointer switch; a flick with no DRIVE (86107) stays a Step."""
+    sideways flick (right / left) in the NS gap = the pointer switch; a flick with the awakening gauge never full (86107) stays a Step (S6: the gate is SP > 0 and the gauge full once, not DRIVE)."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def tap(t, x, y): return [{"at": round(t, 2), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 2), "touch": "end", "x": x, "y": y}]
@@ -648,7 +652,7 @@ def drive_switch_phone_script():
     for label, setup, body in (
             ("DP right flick: SP tap, flick right", 86105, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 150, 260)]),
             ("DP left flick: SP tap, flick left", 86105, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 260, 150)]),
-            ("DP no DRIVE: SP tap, flick right (a Step)", 86107, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 150, 260)])):
+            ("DP gauge never full: SP tap, flick right (a Step)", 86107, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 150, 260)])):
         say(t, label)
         ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])
         ev.extend(body(t + 0.3))

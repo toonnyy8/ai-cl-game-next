@@ -124,25 +124,16 @@ T when something started."
          nil)))
 
 (defun core-switch-open-p (e f)
-  "The switch's own rules (DUEL_SUBLIMATION §17): not already switched, a second pointer, and DRIVE (awakened) or SUBLIMATION (before) of
-at least *DRIVE-SWITCH* x its maximum."
-  (let ((g (gauges e)))
-    (and (zerop (fighter-tmp f)) (> (length (getf (kit-core (fighter-kit f)) :ns)) 1)
-         (if (gauges-awakened g)
-             (>= (gauges-drive g) (* *drive-max* *drive-switch*))
-             (>= (gauges-sub g) (* *sub-max* *drive-switch*))))))   ; (before the awakening only SUBLIMATION is spent, DUEL_SUBLIMATION §17.6)
-
-(defun core-switch-ready-p (e f)
-  "Can E switch pointer now (DUEL_SUBLIMATION §17): a human, or a CPU whose press in progress is a strategy's switch (its act :SWITCH,
-core-ai.lisp CAI-SWITCH-PRESS; DUEL_AI_STRATEGY §8.16: the shipped CPU never presses one), and CORE-SWITCH-OPEN-P."
-  (let ((b (brain e)))
-    (and (or (not b) (eq (brain-act b) :switch)) (core-switch-open-p e f))))
+  "May E (fighter F) switch pointer now (DUEL_SP §3, DUEL_SUBLIMATION §17.8)? SP-SWITCH-OK-P over his gauges and route: not switched yet
+(FIGHTER-TMP), a second NS route, the awakening gauge full once (AW-FULL-P), and SP above 0. Reads no brain: a human's stick, or a CPU's
+press (CORE-AI's CAI-SWITCH-PRESS decides whether a CPU presses one), reach it through the vpad alone (REFACTOR_2026-11 §11.5.7 item 6)."
+  (sp-switch-ok-p (gauges-fs (gauges e)) (aw-full-p (gauges e)) (plusp (fighter-tmp f)) (length (getf (kit-core (fighter-kit f)) :ns))))
 
 (defun core-switch-target (e f)
-  "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: the CPU never, once a route, gauge
-under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
+  "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: once a route, before the awakening
+gauge was full, at SP 0, or no other pointer (CORE-SWITCH-OPEN-P; DUEL_SUBLIMATION §17, §17.8)."
   (let* ((n (length (getf (kit-core (fighter-kit f)) :ns))))
-    (when (core-switch-ready-p e f)
+    (when (core-switch-open-p e f)
       (let ((st (nth-value 1 (stick-relative e f))))
         (when (> (abs st) 0.5f0)
           (let ((to (1+ (mod (+ (1- (fighter-ptr f)) (if (> st 0f0) 1 -1)) n))))
@@ -161,15 +152,14 @@ under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
   (let ((q (fighter-queued f)))
     (when (and (member q '(:ns :sa :sw)) (>= sf (+ (mv-s mv) (mv-a mv))) (< sf (mv-total mv)))
       (setf (fighter-queued f) nil)
-      (when (eq q :sw)                                  ; the temporary pointer: its NS route from segment 1, DRIVE paid
-        (let ((to (fighter-sw f)) (g (gauges e)))
-          (if (gauges-awakened g) (decf (gauges-drive g) (* *drive-max* *drive-switch*)) (decf (gauges-sub g) (* *sub-max* *drive-switch*)))
+      (when (eq q :sw)                                  ; the temporary pointer: its NS route from segment 1, paid in SP like any NS segment
+        (let ((to (fighter-sw f)) (from (fighter-ptr f)))
           (let ((sa (mv-sa-move (fighter-kit f) mv)))   ; a charge on the segment he leaves stays for his next SA
             (when (and sa (getf (mv-params sa) :charge-mult)) (setf (fighter-csa f) sa)))
           (setf (fighter-sp-ptr f) to)
-          (start-move e (kit-core-move (fighter-kit f) :ns to) :quick)
-          (setf (fighter-tmp f) to)                     ; (after START-MOVE, which clears it for a non-NS)
-          (clog "~a NS pointer ~d -> ~d (DRIVE)" (side-name e) (fighter-ptr f) to)
+          (when (core-start! e (kit-core-move (fighter-kit f) :ns to) :quick)   ; (the one paying place: scaled at a short gauge, Q14)
+            (setf (fighter-tmp f) to)                   ; (after START-MOVE, which clears it for a non-NS)
+            (clog "~a NS pointer ~d -> ~d (SP; DRIVE ~,1f SUB ~,1f unchanged)" (side-name e) from to (gauges-drive (gauges e)) (gauges-sub (gauges e))))
           (return-from core-latch-step t)))
       (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (fighter-csa f) (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
         (when (and next (or (not (eq q :ns)) (core-seg-ok-p f next))) (core-start! e next))))))

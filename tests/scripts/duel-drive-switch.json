@@ -773,7 +773,7 @@
 },
 {
 "at": 47.5,
-"eval": "console.log('=== DS drive 20: SP, D+SP (refused)')"
+"eval": "console.log('=== DS gauge never full (86107): SP, D+SP (refused)')"
 },
 {
 "at": 47.5,
@@ -831,6 +831,130 @@
 },
 {
 "at": 50.5,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 51.0,
+"eval": "console.log('=== DS SP 15 (86111): SP, D+SP (starts scaled)')"
+},
+{
+"at": 51.0,
+"eval": "Module._debug_cmd(86111)"
+},
+{
+"at": 51.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.55,
+"key": "KeyD",
+"down": true
+},
+{
+"at": 51.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.75,
+"key": "KeyD",
+"down": false
+},
+{
+"at": 54.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 54.5,
+"eval": "console.log('=== DS SP 0 (86112): SP, D+SP (refused)')"
+},
+{
+"at": 54.5,
+"eval": "Module._debug_cmd(86112)"
+},
+{
+"at": 54.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 54.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 54.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 55.05,
+"key": "KeyD",
+"down": true
+},
+{
+"at": 55.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 55.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 55.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 55.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 55.25,
+"key": "KeyD",
+"down": false
+},
+{
+"at": 57.5,
 "eval": "Module._debug_cmd(2107)"
 }
 ]

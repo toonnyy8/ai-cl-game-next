@@ -1098,7 +1098,7 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
-           (let ((g (gauges *p1*))) (setf (gauges-awakened g) nil (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0))
+           (let ((g (gauges *p1*))) (setf (gauges-awakened g) nil (gauges-aw-full g) nil (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0))
            (case c                                                  ; 84001: the same, in the Shikai (awakened, L 0)
              (84001 (force-form *p1* :nozarashi) (setf (gauges-awakened (gauges *p1*)) t (gauges-meter (gauges *p1*)) 0f0))
              ((84004 84005) (force-form *p1* (if (= c 84004) :bankai :bankai-2))   ; 84004 / 84005: V3's Bankai from pointer 1 / 2 (§26)

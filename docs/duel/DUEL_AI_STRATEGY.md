@@ -522,7 +522,7 @@ not a registered style CPU: the shipped CPU is unchanged** (G2 `--cvc` identical
   chance per NS segment's gap (its HARD value, x `*cai-dswitch-dif*`), one roll when the switch is open and a target reaches; the target from
   `:dswitch-map ((form from to) ...)`, else the first other pointer (next, then the rest) whose NS opener reaches the distance (its dead zone to
   its reach + slide + 0.4 m). The press is the human's: SP with the stick sideways (`cai-switch-press`, act `:switch`), through
-  `core-move-sp!` / `core-switch-target` / `core-latch-step`; `core-switch-ready-p` takes a CPU only for that press, its rules
+  `core-move-sp!` / `core-switch-target` / `core-latch-step`; `core-switch-ready-p` takes a CPU only for that press, its rules  (Since DUEL_SP S6, 2026-11-13, `core-switch-ready-p` is gone: the sim reads only the vpad and the gauges, DUEL_SUBLIMATION §17.8.)
   (`core-switch-open-p`: 0.25 of the gauge, SPIRIT DRIVE awakened, SUBLIMATION before, no second switch) shared with the human. No `:dswitch`:
   no roll (every shipped CPU). `:h1-range` carries `:dswitch 1.0` and `:dswitch-map ((:base 1 3))` (the Shikai's NS1 > NS3a, §17.7).
 - Shared edits: `*strat-picks*` 16 -> 32 slots (a ninth library entry wrote out of bounds in the strategy layer's counter); `strat-arms` takes
