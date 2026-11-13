@@ -41,7 +41,6 @@ at 0.08 / 0.12 / 0.16 / 0.25, his style CPU 50 (§9).")
 (defparameter *mc-full-lite* '(:easy 16 :normal 16 :hard 16)
   "The light search's rollouts per difficulty when it only ranks for the full sim (§11: 16 kept NORMAL's strength of 96).")
 (defparameter *mc-full-h* 40 "A full-sim rollout's steps after the hold (it stops at the first contact before; §11).")
-(defvar *in-rollout* nil "T inside a search's rollout (SIM-ROLLOUT, MC-FULL-STEP): no search, no job, no match end (GO-RESULTS).")
 (defvar *mc-plan* (mc-fv 10)
   "Per side, 5 slots: the state (0 none, 1 its rollouts running, 2 scored), the light model's best and second action codes (-1 none),
 their full-sim values (x 1000). Sim state (sim-state.lisp): MC-NEUTRAL reads it when his hold is over.")
@@ -209,10 +208,9 @@ the light model's best), if he is still free. The plan is cleared either way. T 
 (defun mc-full-rollout (e o steps dif &optional (stop t))
   "One rollout from the state now (lean steps): E's score, the health swing to the first contact (or STEPS) plus the table's value of it.
 STOP NIL: no stop at a contact, the swing over all STEPS (the strategy layer's rollouts)."
-  (let ((*in-rollout* t) (*log-mute* t) (*pacing-log* nil) (*combat-log* nil) (*gate-log* nil) (*step-hook* nil) (*skip-cines* t)
-        (*cai-styles* nil)
-        (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
-        (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
+  (with-rollout ((*cai-styles* nil)                                     ; (the generic CPUs play the rest; SIM-ROLLOUT keeps the styles)
+                 (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
+                 (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
     (loop repeat steps while (and (eq *flow* :battle) (not *cine*))
           do (sim-step-lean)
              (let ((se (fighter-state (fighter e))) (so (fighter-state (fighter o))))

@@ -30,7 +30,7 @@
   "Run up to STEPS sim steps as a search's rollout: every log off, cinematics skipped (*SKIP-CINES*: one ends at once with its AFTER,
 so a Kikon's Konpaku is settled and the rollout goes on), stopping when the flow leaves the battle. Returns the steps run. The caller
 restores the snapshot it took before."
-  (let ((*in-rollout* t) (*log-mute* t) (*pacing-log* nil) (*combat-log* nil) (*gate-log* nil) (*step-hook* nil) (*skip-cines* t))
+  (with-rollout ()
     (loop for i below steps
           while (and (eq *flow* :battle) (not *cine*))
           do (sim-step)

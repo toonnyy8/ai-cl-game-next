@@ -226,7 +226,6 @@ No :HOLD-AWAKEN (every shipped strategy) or no active strategy (a human): NIL."
   (let ((h (strat-out :hold-awaken nil)))
     (and h (< (/ (gauges-sub (gauges e)) *sub-max*) h))))
 
-(defvar *in-rollout*)                                    ; (cpu-mcts.lisp gives it its value)
 (defvar *cai-switch-counts* (make-array 6 :element-type 'fixnum :initial-element 0)
   "A tool's counters (not sim state, never read in play; outside rollouts only): the CPU's DRIVE switches per side (3 each) by its form
 index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by tools/simgate/strat-run.lisp STRAT_HRANGE (DUEL_AI_STRATEGY §8.19).")
