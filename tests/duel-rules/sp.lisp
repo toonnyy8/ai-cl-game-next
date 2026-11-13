@@ -59,25 +59,31 @@
 (check (not (sp-switch-ok-p 50.0 t t 2)))                          ; already switched
 (check (not (sp-switch-ok-p 50.0 t nil 1)))                        ; one route only
 
+;; hit-px (rules.lisp, the APPLY-HIT damage seam, REFACTOR_2026-11 §11.5.4): the old inline product bit for bit, SP-SCALE one more factor
+(check (loop for (c s h) in '((1f0 0f0 1.0) (1.3f0 0.5f0 1.0) (1f0 1f0 0.8) (1.25f0 0.35f0 1.15) (2f0 0.1f0 0.6d0))
+             always (let ((old (let ((px (* c (+ 1.0 (* *sub-dmg* s))))) (if (= h 1.0) px (* px h)))))
+                      (and (eql (hit-px c s h) old) (eql (hit-px c s h 1.0) old)))))
+(check (~= (hit-px 1f0 0f0 1.0 0.5) 0.5))
+(check (~= (hit-px 1.3f0 0f0 1.0 (sp-scale 30.0 60.0)) (* 1.3 0.75)))
+
 ;; ---------------------------------------------------------------- DUEL_SP §4's table, from the kits' real move data
-;; A segment's damage: the sum of its hit windows, else a wave's :params :dmg (its Kikon strike is free), else 0 (a setup segment).
-;; A route's cost: the sum of its segments' costs (each rounded). Kenpachi's multipliers are the doc's (a :sp-cost-mult on his kits, S2).
-(defun sp-seg-damage (mv)
-  (let ((h (reduce #'+ (map 'list #'hw-dmg (mv-hits mv)))))
-    (cond ((plusp h) h) ((getf (mv-params mv) :dmg)) (t 0))))
-(defun sp-route-cost (kit first mult)
-  (reduce #'+ (mapcar (lambda (n) (sp-cost (sp-seg-damage (kit-move kit n)) mult nil)) (core-segments first))))
-(defun sp-kit-costs (character form mult)
+;; The kits' own SP cost tables (kit.lisp BUILD-SP-COSTS, batch S2): a segment's damage is the sum of its hit windows, else a wave's
+;; :params :dmg (its Kikon strike is free), else 0 (a setup segment); a route's cost is the sum of its segments' costs (each rounded once,
+;; after the kit's :core :sp-cost-mult). Every row lists every pointer the kit has: the table's columns and, past them, Kenpachi's
+;; Shikai AS5-AS7 (DAISHARIN, INSEKI-GIRI, the Bankai burst) and his two Bankai's AS5 (CHIGIRI, TATE-GOTO), priced by the same rule.
+(defun sp-route-cost (kit first)
+  (reduce #'+ (mapcar (lambda (n) (kit-sp-cost kit (kit-move kit n))) (core-segments first))))
+(defun sp-kit-costs (character form)
   "((:ns c1 c2 ..) (:as c1 c2 ..)): the route costs of a kit's :core grammar, in order."
   (let* ((k (kit character form)) (core (kit-core k)))
-    (list (cons :ns (mapcar (lambda (n) (sp-route-cost k n mult)) (getf core :ns)))
-          (cons :as (mapcar (lambda (n) (sp-route-cost k n mult)) (getf core :as))))))
-;; (character form mult NS... | AS... as §4 prints them; NIL = a dash)
+    (list (cons :ns (mapcar (lambda (n) (sp-route-cost k n)) (getf core :ns)))
+          (cons :as (mapcar (lambda (n) (sp-route-cost k n)) (getf core :as))))))
+;; (character form :sp-cost-mult NS... | AS...: §4's cells, then the extra AS pointers)
 (defparameter *sp-table*
   '((:kenpachi :base 0.76 (55 55 60) (25 50 75))
-    (:kenpachi :nozarashi 0.68 (100 120) (85 110 25 25))
-    (:kenpachi :bankai 0.71 (90) (30 55 75 95))
-    (:kenpachi :bankai-2 0.51 (85) (30 50 70 90))
+    (:kenpachi :nozarashi 0.68 (100 120) (85 110 25 25 60 60 25))
+    (:kenpachi :bankai 0.71 (90) (30 55 75 95 60))
+    (:kenpachi :bankai-2 0.51 (85) (30 50 70 90 60))
     (:ichigo :base 1.0 (85 80 70) (20 45 90))
     (:ichigo :kessa 1.0 (75 80 30) (20 45 80))
     (:hisagi :base 1.0 (75 75 25) (25 45 80))
@@ -86,15 +92,25 @@
 (let ((mism 0))
   (dolist (row *sp-table*)
     (destructuring-bind (c f mult ns as) row
-      (let* ((got (sp-kit-costs c f mult))
+      (let* ((got (sp-kit-costs c f))
              (gns (cdr (assoc :ns got))) (gas (cdr (assoc :as got))))
+        (check (~= (getf (kit-core (kit c f)) :sp-cost-mult 1.0) mult))   ; the kit's multiplier is the doc's
         (loop for role in '(:ns :as) for want in (list ns as) for have in (list gns gas)
-              do (loop for w in want for h in have for i from 1
+              do (check (= (length want) (length have)))                  ; every pointer the kit has is pinned
+                 (loop for w in want for h in have for i from 1
                        do (if (= w h)
                               (check t)
                               (progn (incf mism)
                                      (format t "SP-TABLE MISMATCH ~s ~s ~a~d: doc ~d, data ~d~%" c f role i w h)
-                                     (check nil))))
-                 ;; the table lists the kit's pointers only: the row's width must not exceed the kit's
-                 (check (<= (length want) (length have)))))))
+                                     (check nil))))))))
   (format t "sp cost table: ~d mismatches against DUEL_SP §4~%" mism))
+;; every NS / AS classed move of every core kit has a cost, but a wave's Kikon strike (free, as the Kikon hold is); nothing else has one
+(check (loop for row in *sp-table*
+             always (let* ((k (kit (first row) (second row)))
+                           (strikes (loop for mv being the hash-keys of (kit-cls k)
+                                          for s = (getf (mv-params mv) :kikon-strike) when s collect s)))
+                      (loop for mv being the hash-keys of (kit-cls k) using (hash-value cls)
+                            always (if (and (member cls '(:ns :as)) (not (member (mv-name mv) strikes)))
+                                       (typep (kit-sp-cost k mv) 'single-float)
+                                       (null (kit-sp-cost k mv)))))))
+(check (null (kit-sp-cost (kit :ichigo :base) (kit-move (kit :ichigo :base) (getf (kit-core (kit :ichigo :base)) :sa)))))   ; an SA: free

@@ -189,3 +189,21 @@ The first form of the redesign (「卍解」, asked which form first). Asked (As
   AS3 55 → 60 → 200 (UDE -1); the Kikon off AS1 (held SP) burns one (3 left) and plays the oni cinematic. Found by the scene: AS3b's punch
   (2.0 m) whiffed after AS3a's push: lunge 2.0 m added. `duel-ken-armburst.json` now burns the last pip on NS3a (the crack clock is gone).
   G2 `--cvc` identical in all three pairs (no CPU match reaches the Bankai).
+
+## 9. His SP costs (DUEL_SP §4, batch S2, 2026-11-13)
+
+The user (2026-11-12): 「劍八的 SP 攻擊會扣除自身血量，作為交換，請將他 SP 造成的消耗降回平均水準」. Each of his four kits carries a
+`:core :sp-cost-mult` that brings its mean segment cost to about Ichigo's and Hisagi's: base **0.76**, Shikai **0.68**, Bankai 狂嵐
+**0.71**, Bankai 斬壞 **0.51** (ken.lisp; `def-ken-bankai` takes it as a key). A segment's cost = its damage x 0.4 x the multiplier, rounded
+once to 5, clamped 10-60. Route totals (host-pinned in tests/duel-rules/sp.lisp, from the kits' own tables):
+
+| Form | NS | AS |
+|---|---|---|
+| base | 55 / 55 / 60 (NS3a the tame: 10) | 25 / 50 / 75 |
+| Shikai | 100 / 120 | 85 / 110, bursts 25 / 25, DAISHARIN 60, INSEKI-GIRI 60, the Bankai burst 25 |
+| 狂嵐 | 90 | 30 / 55 / 75 / 95, CHIGIRI 60 |
+| 斬壞 | 85 | 30 / 50 / 70 / 90, TATE-GOTO 60 |
+
+The tame's catch (a parry answering with the thrust, NS3b) pays its 20 like a pressed segment and is refused at 0 like one. His Bankai
+segments still burn `*ken-bk-cost*` Reishi on top (a price, not scaled by the SP damage scale).
+

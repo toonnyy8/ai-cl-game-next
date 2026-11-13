@@ -140,17 +140,16 @@ with its SP held since the segment began (a core SP's Kikon hold), the Kikon's k
   nil)
 
 (defun deal-damage (att def dmg &optional (n 1))
-  "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets); N the hit's combo index (both sides' gains
+  "DEF loses DMG Reishi (ATT dealt it); N the hit's combo index (both sides' gains
 x COMBO-GAIN-MULT: GAIN-GAUGES). Reishi at 0 is an automatic Soul
 Break, settled at the end of the step (*SOUL-BREAKS*): returns T then. In a bind (BIND-OF) the loss is grey: Reishi
 floors at 0 with no Soul Break, the nominal DMG goes to the binder's :bind-damage (the pool's drain) and to ATT's grey
 count (DEALT-REAL)."
-  (let* ((ga (gauges att)) (gd (gauges def)) (b (brain att)) (bd (bind-of def)) (h (bind-hook bd :bind-damage)))
+  (let* ((ga (gauges att)) (gd (gauges def)) (bd (bind-of def)) (h (bind-hook bd :bind-damage)))
     (setf (gauges-reishi gd) (max 0 (- (gauges-reishi gd) dmg)))
     (incf (gauges-dealt ga) dmg)
     (when bd (incf (gauges-grey ga) dmg))
     (when h (funcall h bd att def dmg))
-    (when b (setf (brain-heat b) 0f0))
     (incf (fighter-combo-dmg (fighter def)) dmg)
     (gain-gauges att dmg 0 n)
     (gain-gauges def 0 dmg n)
@@ -231,10 +230,13 @@ result (NIL = no effect)."
          (atk (if flat
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
-                                (let ((px (* (core-charge-mult fa mv own hazard)
-                                             (+ 1.0 (* *sub-dmg* (sub-of att)))))   ; a charged SA's string (core-sim.lisp); SUBLIMATION / DRIVE
-                                      (h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
-                                  (if h (* px (funcall h att def hw mv hazard d2)) px))
+                                (hit-px (core-charge-mult fa mv own hazard)   ; a charged SA's string (core-sim.lisp)
+                                        (sub-of att)                          ; SUBLIMATION / DRIVE
+                                        (let ((h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
+                                          (if h (funcall h att def hw mv hazard d2) 1.0))
+                                        (if (and own (not hazard))            ; an SP segment short of its cost (DUEL_SP §3; a
+                                            (sp-scale (fighter-sp-paid fa) (fighter-sp-cost fa))   ;  hazard's waits for S5)
+                                            1.0))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
          (dmods (if flat '(:mult 1.0) (sub-taken-mods (kit-def-mods (kit-of def)) (sub-of def))))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
@@ -287,6 +289,7 @@ result (NIL = no effect)."
                                 ((and (hw-stun hw) (eq react (hw-react hw))) (hw-stun hw))   ; (a bind in a combo: a flinch)
                                 (t (hitstun react (eq res :counter))))))
                (setf (gauges-stun gd) (if blow 0f0 (f32 st)) (gauges-stun-idle gd) 0)
+               (clog "~a dealt ~d: ~(~a~) stun ~d" (side-name att) dmg react stun)   ; (the scaled hit's reaction = the full one's: DUEL_SP S2)
                (if ranged (incf (gauges-taken-ranged (gauges def)) dmg) (incf (gauges-taken-melee (gauges def)) dmg))
                (setf (gauges-best-combo (gauges att)) (max hits (gauges-best-combo (gauges att))))
                (hitstop (hw-hs hw))
@@ -343,7 +346,7 @@ result (NIL = no effect)."
            (let ((h (kit-hook (kit-of def) :parried))) (when (and h (not (siphon-of def))) (funcall h def att)))   ; its own catch
            (emit :parried att def x y z)
            (let ((c (and (fighter-move fd) (kit-next (kit-of def) (mv-name (fighter-move fd)) :land))))
-             (when c (start-move def c))))
+             (when c (core-start! def c nil))))         ; (an NS segment's catch, Kenpachi's tame -> thrust, pays as any segment: DUEL_SP §3)
           (:absorbed
            (let ((dmg (hit-damage base atk dmods 1 nil)))
              (setf (fighter-stored fd) (stance-store (fighter-stored fd) dmg))

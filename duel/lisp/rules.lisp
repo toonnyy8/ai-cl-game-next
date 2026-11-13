@@ -320,6 +320,13 @@ escapes (a BLUE burst, the awakening) leave blockstun, so the lock is over. Haza
       (max (if orange *orange-combo-floor* *combo-floor*)
            (- 1.0 (* (if orange *orange-combo-decay* *combo-decay*) (- n *combo-full-hits*))))))
 
+(defun hit-px (charge sub-frac dmg-mult &optional (sp-scale 1.0))
+  "A hit's own damage factor (APPLY-HIT's HIT-X for KIT-ATK-MODS): CHARGE (a charged SA's string, CORE-CHARGE-MULT) x (1 + *SUB-DMG* x
+SUB-FRAC) (SUBLIMATION / DRIVE) x DMG-MULT (the kit's :dmg-mult hook, 1.0 without one) x SP-SCALE (an SP segment short of its cost,
+SP-SCALE: DUEL_SP §3). The damage only: the reaction, stun and combo fields are read beside it (COMBO-STEP, STUN-ADD), never from it
+(REFACTOR_2026-11 §11.5.4). No coercion: a factor exactly 1.0 leaves the product's bits as they were."
+  (* charge (+ 1.0 (* *sub-dmg* sub-frac)) dmg-mult sp-scale))
+
 (defun cornered-mult (per lost cap)
   "Cornered passive: 1 + PER per Konpaku LOST, the bonus capped at CAP."
   (+ 1.0 (min cap (* per lost))))

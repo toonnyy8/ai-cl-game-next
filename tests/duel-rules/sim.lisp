@@ -107,6 +107,13 @@
     (check (= (gauges-fs ga) 165f0))
     (spend-fs ga 30.0)
     (check (and (= (gauges-fs ga) 135f0) (= (gauges-fs-idle ga) 0)))
+    ;; S2 / Q18: a refund returns exactly what was paid, capped at the maximum, also in a burst, no SUBLIMATION factor, the regen's wait untouched
+    (setf (gauges-fs-idle ga) 17 (gauges-burst ga) :orange (gauges-sub ga) *sub-max*)
+    (refund-fs ga 40.0)
+    (check (and (= (gauges-fs ga) 175f0) (= (gauges-fs-idle ga) 17)))
+    (refund-fs ga 200.0)
+    (check (= (gauges-fs ga) *fs-max*))
+    (setf (gauges-burst ga) nil (gauges-sub ga) 0f0 (gauges-fs ga) 135f0)
     (setf (gauges-fs ga) 60f0)
     ;; a real heal raises the snapshot too; the grey band and souls read the snapshot
     (setf (gauges-reishi ga) 0 (second (assoc a *tb-snap*)) 1000)

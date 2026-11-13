@@ -275,6 +275,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
           (fighter-follow f) nil (fighter-hoho-hold f) nil   ; (a resumed combo's hold: HOHO-RESUME! sets it after)
           (fighter-armor-left f) (mv-armor-hits mv)
+          (fighter-sp-paid f) 0f0 (fighter-sp-cost f) 0f0 (fighter-sp-back f) nil   ; (no SP paid: CORE-START! sets them after for an SP segment)
           (fighter-phase f) (cond ((member (mv-kind mv) '(:breaker :kikon)) :aura) ((mv-hold mv) :hold) (t :main)))
     (core-note-start! f mv old)
     (halt! e)
@@ -350,8 +351,13 @@ back-skate, or a side slide (the kit's :run-clips)."
   (emit :step e))
 
 (defun spend-fs (g amount)
-  "Spend AMOUNT of flash-step (the regen waits *FS-DELAY* again)."
+  "Spend AMOUNT of flash-step (the regen waits *FS-DELAY* again): every flash-step loss but a burst's own drain (DUEL_SP Q18)."
   (setf (gauges-fs g) (f32 (max 0.0 (- (gauges-fs g) amount))) (gauges-fs-idle g) 0))
+
+(defun refund-fs (g amount)
+  "Give back AMOUNT of flash-step an SP segment paid (a cancel, CORE-NOHIT!): exactly that, capped at *FS-MAX* (SP-REFUND); no SUBLIMATION
+factor, nothing withheld in a burst, the regen's wait untouched (DUEL_SP Q1, Q18: the third writer, beside SPEND-FS and PAY-GAUGES)."
+  (setf (gauges-fs g) (f32 (sp-refund (gauges-fs g) amount))))
 
 (defun start-hoho (e f)
   "Hoho: spend *FS-HOHO* flash-step (during a burst what is left, if less: HOHO-COST), vanish, reappear behind the
@@ -882,11 +888,12 @@ SA's x carry over; the resumed move holds the victim through its startup / activ
     (setf (fighter-hoho-from f) nil (fighter-hoho-left f) 0 (fighter-queued f) nil)
     (when (or next as)
       (setf (fighter-cls f) cls (fighter-presses f) (fighter-hoho-presses f))
-      (when (if next (progn (start-move e next :quick) t) (core-as-start! e f))
-        (when (member (fighter-cls f) '(:na :as)) (setf (fighter-charge-mult f) (fighter-hoho-mult f)))
-        (setf (fighter-hoho-hold f) t (fighter-chained f) t)
-        (clog "~a HOHO -> ~a" (side-name e) (mv-name (fighter-move f)))
-        t))))
+      (cond ((if next (core-start! e next) (core-as-start! e f))   ; (an NS segment pays: CORE-START!)
+             (when (member (fighter-cls f) '(:na :as)) (setf (fighter-charge-mult f) (fighter-hoho-mult f)))
+             (setf (fighter-hoho-hold f) t (fighter-chained f) t)
+             (clog "~a HOHO -> ~a" (side-name e) (mv-name (fighter-move f)))
+             t)
+            (next (setf (fighter-cls f) nil) t)))))     ; (a later NS segment refused at 0, DUEL_SP §3: the press eaten)
 (defun hoho-resume-press! (e f vp)
   "Neutral, inside the resume window after a combo's Hoho: J / SP resumes it (HOHO-RESUME!). T when a move started."
   (when (and (plusp (fighter-hoho-left f)) (fighter-hoho-from f) (zerop (fighter-lock f)))

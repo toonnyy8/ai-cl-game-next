@@ -179,6 +179,9 @@
   ;; V3's sealed form (DUEL_KEN_V3 §6 / §35): J1-J5, three pointers by grip (the drag / the shoulder / chūdan), AS n by press
   :core (:ns (:ke-z-n1a :ke-z-n2a :ke-z-n3a) :as (:ke-z-as1 :ke-z-as2 :ke-z-as3) :sa :ke-z-sa1 :mult 1.2
          :as-by-press (1 1 2 2 3)
+         ;; his SP segments cost x this (DUEL_SP §4, the user 2026-11-12: 「劍八的 SP 攻擊會扣除自身血量，作為交換，請將他 SP 造成的消耗降回平均水準」;
+         ;; each form's mean segment cost brought to about Ichigo's and Hisagi's): base 0.76, Shikai 0.68, Bankai 0.71, Bankai-2 0.51
+         :sp-cost-mult 0.76
          :stances (:ke-z-st-1 :ke-z-st-2 :ke-z-st-3)             ; the drag / the shoulder / chūdan (DUEL_KEN_V3 §36)
          :kikon-cines (ken-z-kikon1-cine ken-z-kikon2-cine ken-z-kikon3-cine))   ; 鈴 / 斬ってみろよ / 両断 (§39)
   :strings ((:ke-z-j1 :q :ke-z-j2) (:ke-z-j2 :q :ke-z-j3) (:ke-z-j3 :q :ke-z-j4) (:ke-z-j4 :q :ke-z-j5)
@@ -203,6 +206,7 @@
   ;; (:as entries 3 / 4) and J4-J6 / J7 into the special AS (5 / 6) / the Bankai
   :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2 :ke-s-bankai) :sa :ke-s-sa :mult 1.2
          :as-by-press (1 1 2)
+         :sp-cost-mult 0.68                                             ; (DUEL_SP §4: the base form's note)
          :stances (:ke-s-st-1 :ke-s-st-2)                               ; the slung hilt low / the shoulder (§14)
          :kikon-cines (ken-s-kikon1-cine ken-s-kikon2-cine)))   ; KAITENZAN / TSUITENZAN (ken-look.lisp, DUEL_KEN_V3 §19)
 
@@ -284,7 +288,7 @@
   :on-frame ((0 ken-bk-special) (20 ken-tategoto-split) (34 ken-tategoto-cut)))                       ;  damage as its rift cuts (§30.2)
 
 ;;; the Bankai kits: the oni's body and the broken cleaver, ×*BANKAI-KEN-MULT*; no meter, no arm (the arm's pips went with V3)
-(defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
+(defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine sp-cost-mult)
   "One of his two Bankai kits (DUEL_KEN_V3 §26): one pointer, its own J string, NS, five AS entries (Jn + SP, n 1-5) and Kikon."
   `(defkit :kenpachi ,form :inherit :base
      :hooks (:tick ken-bk-tick :armor ken-armor :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
@@ -297,12 +301,12 @@
      :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
      :commands (:q ,(first (first strings)) :f nil :sig nil :sp1 nil :sp2 nil)
      :strings ,strings
-     :core (:ns (,ns) :as ,as :sa ,sa :mult 1.2 :as-writes (1 1 1 1 1)
+     :core (:ns (,ns) :as ,as :sa ,sa :mult 1.2 :as-writes (1 1 1 1 1) :sp-cost-mult ,sp-cost-mult   ; (DUEL_SP §4: the base form's note)
             :stances (,stance) :kikon-cines (,kikon-cine))))
-(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-kr-kikon-cine
+(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-kr-kikon-cine :sp-cost-mult 0.71
   :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
   :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
-(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-zh-stance :kikon-cine ken-zh-kikon-cine
+(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-zh-stance :kikon-cine ken-zh-kikon-cine :sp-cost-mult 0.51
   :as (:ke-zh-as1 :ke-zh-as2 :ke-zh-as3 :ke-zh-as4 :ke-zh-sp)
   :strings ((:ke-zh-j1 :q :ke-zh-j2) (:ke-zh-j2 :q :ke-zh-j3) (:ke-zh-j3 :q :ke-zh-j4) (:ke-zh-j4 :q :ke-zh-j5)))
 

@@ -11,7 +11,7 @@
 ;;;;               scenes, the frame / stance / module probes and the HUD review left with their code, 2026-11-12.)
 ;;;;   22000-27999, 30000-31199   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc), the gates' seeds
 ;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 81020+i the gates' CPU difficulty, 200000+ the pairing gate
-;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
+;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (s = SP paid),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 ;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
 (in-package :duel)
@@ -647,7 +647,7 @@ every 30th battle frame (no cinematic, not paused) whether each fighter's box si
     (dolist (e (list *p1* *p2*))
       (let ((b (brain e)) (v *hud-v*) (p (pos-of e)))
         (when (and b (world-to-screen v (aref p 0) 2.7 (aref p 2)))
-          (ui-text (format nil "~a H~d" (or (brain-act b) "") (floor (brain-heat b)))
+          (ui-text (format nil "~a" (or (brain-act b) ""))
                    (aref v 0) (aref v 1) :scale s :align :center :color '(0.5 1 0.6 1) :shadow t)))))
   (when *turbo*
     (ui-text (format nil "TURBO  T ~d  ~a" *match-tick* *flow*) (* 0.5 w) (* 40 s) :scale (* 2 s) :align :center :color '(0.5 1 0.6 1))))

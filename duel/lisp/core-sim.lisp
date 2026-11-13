@@ -32,10 +32,29 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
          (fighter-cls f))))
 
 ;;; ---------------------------------------------------------------- starting moves
-(defun core-start! (e mv)
-  "Start core move MV. T."
-  (start-move e mv :quick)
-  t)
+(defun core-start! (e mv &optional (button :quick))
+  "Start core move MV (START-MOVE with BUTTON): the one place an SP segment pays (DUEL_SP §3, §8.4 S2). An NS / AS segment (one with a
+cost, KIT-SP-COST) starts by SP-START-P: an AS always; an NS segment when it is a route's first (NSa, wherever it starts: Q17), the gauge
+is above 0, or in a burst; refused, nothing starts (the :refused cue; its press was eaten at the latch) and NIL. Started, it pays SP-PAY
+through SPEND-FS (the regen waits again, Q1, also when it paid nothing at 0: else the regen's trickle would open every later segment; in
+a burst nothing is paid and SPEND-FS is not called) and records what it paid and cost (FIGHTER-SP-PAID / -SP-COST; free in a burst: cost
+0, so full damage, Q7) for its damage scale (APPLY-HIT, SP-SCALE) and a cancel's refund (CORE-NOHIT!). Any other move (an NA link, the
+SA, a Kikon strike): started as it is. T when it started."
+  (let* ((f (fighter e)) (g (gauges e)) (kit (fighter-kit f)) (cost (kit-sp-cost kit mv)))
+    (cond ((null cost) (start-move e mv button) t)
+          ((not (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) (gauges-fs g) (gauges-burst g)))
+           (emit :refused e :sp)
+           (clog "~a SP ~a refused (fs ~,1f)" (side-name e) (mv-name mv) (gauges-fs g))
+           nil)
+          (t (let ((fs (gauges-fs g)) (burst (gauges-burst g)))
+               (multiple-value-bind (left paid) (sp-pay fs cost burst)
+                 (declare (ignore left))
+                 (start-move e mv button)
+                 (unless burst (spend-fs g paid))        ; (at 0 too: the regen waits again, so a route at 0 stays at 0)
+                 (setf (fighter-sp-paid f) (f32 paid) (fighter-sp-cost f) (if burst 0f0 cost))
+                 (clog "~a SP ~a fs ~,1f cost ~,1f paid ~,1f x~,2f" (side-name e) (mv-name mv) fs cost paid
+                       (sp-scale (fighter-sp-paid f) (fighter-sp-cost f)))
+                 t))))))
 
 (defun core-snap-lv! (e f)
   "A new NS route or AS starts: its unlock level is the kit's :lv hook now (Kenpachi's Shikai, DUEL_KEN_V3 §4: its segments' :params :lv;
@@ -178,17 +197,23 @@ triangle, so the parry catches it (COMBAT :parried)."
 was judged and the one in whose classed window it was (the user, 2026-11-12: 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」,
 DUEL_CORE §2.1): each one's chain, cancels and AS open (contact :hit, CORE-CANCEL-LAND-SF), the other side only while he is still in
 a classed move's startup / active frames; a same-class tie also ends both moves and bounces the fighters apart; an absorb is a block
-for the attacker."
+for the attacker (no refund: not a cancel, DUEL_SP Q5). Each side of a cancel in an NS / AS segment gets back what that segment paid,
+once however many verdicts it takes part in (FIGHTER-SP-BACK; DUEL_SP §3 「只要這段 SP 發生相消就不扣除量表」, Q6: also after its own hits),
+through REFUND-FS."
   (let* ((att (pending-att h)) (def (pending-def h)) (fa (fighter att)) (fd (fighter def))
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
       (ecase verdict
         (:cancel
-         (flet ((landed! (f)
+         (flet ((landed! (e f)
                   (setf (fighter-contact f) :hit
-                        (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))))
-           (landed! fa)
-           (when (core-window-class fd) (landed! fd)))   ; (re-read: an earlier hit this step may have moved him)
+                        (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))
+                  (when (and (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
+                    (setf (fighter-sp-back f) t)
+                    (refund-fs (gauges e) (fighter-sp-paid f))
+                    (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))))
+           (landed! att fa)
+           (when (core-window-class fd) (landed! def fd)))   ; (re-read: an earlier hit this step may have moved him)
          (hitstop *hitstop-block*)
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)

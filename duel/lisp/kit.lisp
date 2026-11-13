@@ -287,6 +287,7 @@ new button."
   (open-s nil)                          ; NIL, or the startup of every NS first segment that hits (the form's tier: KIT-CADENCE)
   (hs-dmg nil)                          ; NIL, or (base per min max): every hit's hitstop from its damage (HS-BY-DAMAGE)
   (cls (make-hash-table :test 'eq))     ; MOVE -> :na :ns :as :sa (the triangle's class; built by REGISTER-KIT)
+  (sp (make-hash-table :test 'eq))      ; move name -> the SP an NS / AS segment costs (BUILD-SP-COSTS; DUEL_SP §4)
   (commands nil)                ; plist command -> move name
   (strings nil)                 ; ((from-move command to-move) ...)
   (moves (make-hash-table :test 'eq))   ; move name -> this form's MOVE
@@ -491,6 +492,7 @@ later frame shift by the difference."
                       (t (parse-move m (mv-spec mv) :startup-add startup-add :reach-mult reach-mult))))))
       (kit-cadence kit)
       (build-core-classes kit)
+      (build-sp-costs kit)
       (when (and (eq form :base) (not (member character *roster*)))
         (setf *roster* (append *roster* (list character))))
       (let ((forms (remove form (gethash character *kits*) :key #'car)))
@@ -532,6 +534,22 @@ the string ((SA :q J2)) follows every SA (the kit's and the segments' own) with 
       (loop for n in (getf core :as) do (dolist (m (core-segments n)) (tag m :as)))
       (when (getf core :sa) (tag (getf core :sa) :sa))
       (dolist (m (core-segment-sas core)) (tag m :sa)))))
+;; The SP costs (DUEL_SP §4, §8.2, batch S2). Kept per kit and by move name, not in a MOVE slot: a kit's :sp-cost-mult (Kenpachi's forms)
+;; is not known when a move is parsed, the rule rounds once (after the multiplier), and KIT-CADENCE puts copies of a form's moves in its table.
+(defun mv-sp-damage (mv)
+  "A segment's damage for its SP cost: the sum of its hit windows, else a wave's :params :dmg (its Kikon strike is free), else 0 (a setup
+segment: the minimum cost)."
+  (let ((h (loop for w across (mv-hits mv) sum (hw-dmg w))))
+    (cond ((plusp h) h) ((getf (mv-params mv) :dmg)) (t 0))))
+(defun build-sp-costs (kit)
+  "Fill KIT's SP cost table once, at registration: every segment of its :core NS and AS sequences (CORE-SEGMENTS; a wave's Kikon strike is
+not one: free), SP-COST of its damage x the kit's :core :sp-cost-mult (default 1), or its own :params :sp-cost."
+  (let* ((core (kit-core kit)) (mult (getf core :sp-cost-mult 1.0)) (h (kit-sp kit)))
+    (dolist (n (append (getf core :ns) (getf core :as)))
+      (dolist (m (core-segments n))
+        (let ((mv (gethash m (kit-moves kit))))
+          (when mv (setf (gethash m h) (f32 (sp-cost (mv-sp-damage mv) mult (getf (mv-params mv) :sp-cost))))))))))
+(defun kit-sp-cost (kit mv) "What NS / AS segment MV costs in KIT (single-float), else NIL (not an SP segment: free)." (and mv (values (gethash (mv-name mv) (kit-sp kit)))))
 (defun kit-class (kit mv) "The triangle class of MV in KIT (:na :ns :as :sa), or NIL." (and mv (gethash mv (kit-cls kit))))
 (defun kit-core-move (kit role n)
   "The core move of ROLE (:ns or :as) number N (1 .. 3) of KIT, or NIL."

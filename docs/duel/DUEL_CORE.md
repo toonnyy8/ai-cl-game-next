@@ -520,3 +520,28 @@ GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: �
   scene, only the counts above): every count above unchanged, all six pairs and scenes g-k (39 scenes; the wave lands, 6 m: no answer, STAND / GUARD AFTER HIT / CPU / COUNTER as before) (after a lone J1 the dummy's NS still
   goes on and lands, `KE-Z-N1A -> P1 HIT 65` in KK; the SA after the player's NS still lands, NA cannot cancel an SA; idle 3 s: no press). The dummy presses only to cancel, so it
   never uses the AS that now opens for it.
+
+## 10. SP: segments pay the flash-step gauge (DUEL_SP, batch S2, 2026-11-13)
+
+The user (2026-11-12): 「讓 SP 攻擊會消耗 SP 量表，當量表不足時還是能強行發出一段攻擊……當用 NS 打出相消時會停止消耗 SP 量表。」 The rules are
+DUEL_SP §3-§4; what the core system does with them:
+
+- **Who pays**: every NS and AS segment (one with a cost in its kit's table, `kit-sp-cost`; built once per kit at registration,
+  `build-sp-costs`: the segment's damage x 0.4 x the kit's `:core :sp-cost-mult`, rounded to 5, 10-60, or a `:params :sp-cost`). Free:
+  NA links, the SA, the Kikon hold and a wave's Kikon strike, the pointer switch's DRIVE path (until S6).
+- **Where**: `core-start!` (core-sim.lisp) is the one paying place. It is reached by the neutral SP (NSa), the latch (the next NS / AS
+  segment), the AS (an `:as-pick` move pays as the move it names; `:taken` pays nothing), a Hoho's resume (`hoho-resume!`, now through
+  `core-start!`) and a parry's catch (combat.lisp `:parried`: Kenpachi's tame -> thrust is an NS segment and pays like one).
+- **Refused**: a later NS segment at 0 (`sp-start-p`: an AS always starts; NSa, a route's first segment wherever it starts, always): nothing
+  starts, the press was already eaten at its latch, `(emit :refused e :sp)` (feedback.lisp plays its dud tick; no HUD cue yet: S8).
+- **Paid**: min(cost, gauge) through `spend-fs`, which restarts the 60 f regen wait, also when it paid nothing at 0 (else the regen's
+  trickle opens every later segment of a route at 0); nothing in a burst (`spend-fs` not called; the segment's cost is recorded as 0, so
+  full damage, Q7). The fighter keeps `sp-paid` / `sp-cost` of his last segment until his next move starts (`start-move` clears them for any move; idle, Hoho, Step and a reaction keep them, so a reader of the scale checks `cls` and the move, as `apply-hit` does with `own`; S8's HUD mark must too).
+- **Scaled**: `apply-hit`'s damage factor is the pure `hit-px` (rules.lisp: charge x SUBLIMATION x the kit's `:dmg-mult` x `sp-scale`),
+  so only the damage scales (0.5 + 0.5 x paid / cost); reaction, stun, knockback, combo counts are read beside it. A hazard's hit is
+  unscaled until S5 (Ichigo's waves and KESSA's clones). The damage-keyed readers follow the dealt damage (gains, SUBLIMATION fill, the
+  victim's `*fs-taken*`); the prices (Kenpachi's Bankai Reishi cost) and the hitstop (from move data) do not.
+- **Refunded**: `core-nohit!`'s `:cancel` gives each side whose segment is NS / AS what it paid, once (`sp-back`), through `refund-fs`
+  (capped at 300, no SUBLIMATION factor, nothing withheld in a burst, the regen wait untouched). An `:absorb` is not a cancel (Q5).
+- **The hash line**: `s<sp-paid>` per side replaced the dead `h<heat>` (DUEL_GAMEPLAY "Log lines").
+

@@ -9,20 +9,20 @@
 
 (defun state-hash-line ()
   "The determinism hash: positions quantized to cm, facing to 0.01 rad, every gauge (r Reishi, k Konpaku, f flash-step,
-g guard gauge, ! = guardless, w the awakening gauge, m the kit meter), n the Konpaku the last Kikon rush was worth, h the CPU's heat (0 since the old
-AI left; the column kept), the kit's :hash, p the SP pointer. (The u / * / fr / sl columns, which printed only for the retired
+g guard gauge, ! = guardless, w the awakening gauge, m the kit meter), n the Konpaku the last Kikon rush was worth, s the SP the segment he is in paid (DUEL_SP
+§8.3; it replaced h, the dead CPU heat, 2026-11-13, S2), the kit's :hash, p the SP pointer. (The u / * / fr / sl columns, which printed only for the retired
 kits' arm meter, cold gauge and frost, left 2026-11-12, REFACTOR_2026-11 R3: a live kit never printed them. The a column, the
 Reiatsu, left with the gauge 2026-11-13, R6.)"
   (with-output-to-string (s)
     (format s "duel hash t=~d" *match-tick*)
     (dolist (e (list *p1* *p2*))
       (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d f~d g~d~:[~;!~] w~d m~d n~d~@[ h~d~]~@[ ~a~] p~d" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
+        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d f~d g~d~:[~;!~] w~d m~d n~d s~d~@[ ~a~] p~d" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
                 (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
                 (gauges-reishi g) (gauges-konpaku g) (round (gauges-fs g)) (round (gauges-gg g))
                 (gauges-guardless g) (round (gauges-awaken g))
                 (round (gauges-meter g)) (fighter-kikon-n f)
-                (and (brain e) (floor (brain-heat (brain e))))
+                (round (fighter-sp-paid f))
                 (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e)))   ; a kit's own state (Hisagi's sickle)
                 (fighter-ptr f))))   ; the core system's SP pointer (2026-10-27)
     (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)

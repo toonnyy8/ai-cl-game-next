@@ -109,6 +109,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | Layer | Command | Pass |
 |---|---|---|
 | Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (a runner over `tests/duel-rules/*.lisp`, one file per character / topic) (also `duel-control-test`, `input-test`, `touch-test`, `cine-test`; `learn-test` left with the old learner, 2026-11-13) | ALL PASS |
+| SP costs (native) | `python3 tests/sp-costs-check.py` (drives `tools/simgate/trial.lisp`: every NS route's §4 total at 300, the refusals at 0, AS3 from 0, scaled vs full hits, the cancel refunds; DUEL_SP §8.4 S2) | all checks pass |
 | Seed / pacing gate | `python3 tools/simgate.py --summary` (native sim of the same sources; `--pairs`, `--seeds`, `--seed0`, `--cmd`); the match time leaves every cinematic out since 2026-10-08 (DEVLOG §134; earlier quotes include them) | every match K.O.; cross-pairing medians 125–210 s; mirrors may exceed 210. Quick first pass `--seeds 10`: passes at once only if all K.O. and median 135–200 s, else 20 seeds = verdict |
 | Edge rerun | a 20-seed median outside the window → `--pairs k --seeds 60`; still outside → **report to the user**, don't retune other knobs | |
 | Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; **void since 2026-11-12 (REFACTOR_2026-11 R3): the core CPU never read the old awakening modes, and debug 39000+ left with the old AI**; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |

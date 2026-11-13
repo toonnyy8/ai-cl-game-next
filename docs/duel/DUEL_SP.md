@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12), not built.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S2 built (S2 on a branch, 2026-11-13).** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -54,7 +54,9 @@ The user, asked whether the flash-step gauge could be the SP gauge, proposed the
 Route totals (Hoho = 100). Corrected 2026-11-12 by S0's host test (the table is computed from the kits' move data by the rule above, one
 rounding, multi-hit segments summed): ten Kenpachi cells of the first version had been rounded twice (after x0.4 and again after the
 multiplier) and his Shikai / Bankai NS1's two-hit ND counted once. The rule stands; the numbers follow the data. His AS pointers past
-the table (the Shikai's AS4-7, the Bankai's AS5: bursts, special, Bankai) are priced by the same rule (no damage: 10); S2 lists them.
+the table are priced by the same rule from their damage (S2, 2026-11-13; the note's earlier "no damage: 10" was wrong, they all hit):
+the Shikai's AS5 DAISHARIN 60 (240 x 0.4 x 0.68, clamped), AS6 INSEKI-GIRI 60 (260), AS7 the Bankai burst 25 (100); the Bankai's AS5
+CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 of the Shikai are its two bursts (100 each).
 
 | Kit / form | NS1 | NS2 | NS3 | AS1 | AS2 | AS3 | AS4 |
 |---|---|---|---|---|---|---|---|
@@ -201,6 +203,52 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
 (unchanged). G2 moved as expected (the CPUs read the gauge and the burst price): II 39 lines (P1 3-1, 389.6 s) -> 28 (P1 6-0, 273.3 s), IK 36 (P1 2-0,
 354.0 s) -> 25 (P1 3-0, 247.3 s), KK 28 (P2 0-5, 275.4 s) -> 38 (P1 1-0, 380.6 s); `tests/style-cvc-ref.txt` regenerated, native `--cvc` and the browser
 `style-gates.py cvc` both PASS against it. No balance gates run. wasm 10.25 MB, smoke (desktop and `--mobile 390x844`) exit 0.
+
+**S2 done (2026-11-13, merged to main; DEVLOG §743; reviewed by the main session, which kept the defaults below).** Three commits.
+1. **The seam** (REFACTOR_2026-11 §11.5.4 / §11.5.7 item 4): `apply-hit`'s damage factor is the pure `(hit-px charge sub-frac dmg-mult
+   &optional (sp-scale 1.0))` in rules.lisp, host-checked bit for bit against the old inline product; G2 identical natively.
+2. **The data**: costs live in a per-kit table by move name (`kit-sp`, filled by `build-sp-costs` at registration; `kit-sp-cost kit mv`),
+   not in a MOVE slot as §8.2 planned: a kit's `:sp-cost-mult` is unknown when a move is parsed, the rule rounds once after it, and
+   `kit-cadence` copies a form's moves. `mv-sp-damage` (kit.lisp) is the segment's damage (its windows' sum, else a wave's `:params :dmg`,
+   else 0). Kenpachi's `:sp-cost-mult` in his four `:core` plists (0.76 / 0.68 / 0.71 / 0.51). The host test pins every pointer of every
+   form from the kits' own tables (§4's cells plus the five extra AS above), each kit's multiplier, and a cost on every NS / AS move but a
+   wave's Kikon strike (free), none on anything else.
+3. **The sim** (slots of §8.3: FIGHTER `sp-paid`, `sp-cost` single-float and `sp-back`; `sp-gain-t`, `xch` and GAUGES `aw-full` wait for
+   S3 / S4 / S6): `core-start! (e mv &optional (button :quick))` is the one paying place (`sp-start-p`, `sp-pay`, `spend-fs`, the slots,
+   a `SP <seg> fs F cost C paid P xS` log line; refused: `(emit :refused e :sp)`, `SP <seg> refused`, NIL). Starts that bypassed it now go
+   through it: `hoho-resume!`'s NS segment (a refusal there eats the press too) and combat.lisp's `:parried` catch (Kenpachi's tame ->
+   thrust). `start-move` clears the three slots for any move. `refund-fs` (fighter.lisp, beside `spend-fs`) is the refund writer;
+   `core-nohit!`'s `:cancel` refunds each NS / AS side once. `apply-hit` passes `(sp-scale paid cost)` to `hit-px` for the attacker's own
+   hit (a hazard: 1.0 until S5), and logs `dealt D: <reaction> stun N` per hit. The hash line: `h<heat>` out, `s<sp-paid>` in; BRAIN `heat`,
+   its write in `deal-damage` and the debug 2104 overlay's H column out; `ai-event-rolls`' leftover third `sim-rnd01` out (the CPU stream
+   moved once, with the format).
+- **Defaults taken** (beyond §8.6): paying 0 at 0 still goes through `spend-fs` (the regen waits again; with only paid > 0 the regen's trickle
+  gave 2.0 within 26 frames and opened every later segment at 0); in a burst `spend-fs` is not called. The tame's catch pays and is refused at 0
+  like a pressed segment (§3: every NS segment, charged when it starts). Q14's switch keeps its DRIVE path until S6 (it would pay twice).
+  Q5-Q8, Q16, Q17 as the defaults: an absorb neither refunds nor gains; a multi-hit segment refunds once; the price is fixed at the start (a
+  burst's free segment records cost 0: full damage); hazards wait for S5; the CPU and the dummy pay like a player; "first" = in the kit's
+  `:core :ns` list, wherever it starts. Feedback still plays `:refused` (a dud tick); no HUD cue (S8).
+- **Readers keyed on damage** (§8.7 risk 2): the gains follow the scaled, dealt damage (`gain-gauges`, the SUBLIMATION / DRIVE fill, the
+  victim's `*fs-taken*`, `combo-dmg`); prices (Kenpachi's Bankai Reishi, `*ken-bk-cost*`) and the hitstop (`:hs-dmg`, from move data) do not.
+  A blocked hit's chip uses the base damage (unchanged); an armoured / absorbed hit uses the scaled one.
+- **Tests**: host 2939 -> 2960 (hit-px 3; the cost table 16 more: the extra pointers, the multipliers, the row widths, the coverage and SA checks; refund-fs 2); control 116,
+  input 33, touch 100, cine 18, hud-engine 121; pkgcheck only `DUEL::APP`; debug ranges 0 errors; snaptest IK straight = pollute (stats and
+  timings only); fulltest IK 144 / FT_VS 57 / KK 61 checks, 0 differ. `tests/sp-costs-check.py` (native trials, 65 checks, all pass): every NS
+  route of the nine forms at 300 pays its §4 total in full; at 30 the first segment pays (scaled when it costs more), the rest pay what is left
+  (the hits' KOSEI flash-step, until S3, refills 2.4-2.9 between segments, so most routes go on at x0.53-0.69 instead of being refused;
+  Hisagi's NS1 and ranged NS2 show "full, the rest, refused"); at 0 (whiffed, so no KOSEI) NSa x0.50 and NSb refused in all 22 routes; AS3 from
+  0: AS3a 12.3 (the J string's KOSEI) x0.81, AS3b / c at 0 x0.50; the six AS hits at x0.5-0.81 vs x1: damage 20/25, 5/10 x4, 27/55, every
+  reaction and stun equal; NS1a vs NS1a tie: one CANCEL, P1 and P2 each refunded 25 once; J1 vs NS1a: two CANCEL verdicts, P2 refunded 25 once;
+  the tame's catch pays NS3b's 20. The cost-0 diagnostic (§8.1's neutral knobs: rate 0, minimum 0, the draw kept): II and KK identical to the
+  S1 reference, IK left it at its first refused segment (t 3469), so nothing but the refusal moved.
+- **G2** (native = browser, reference regenerated with a header note): II 28 lines (P1 6-0, 273.3 s) -> 38 (P1 5-5 on time, 380.3 s), IK 25
+  (P1 3-0, 247.3 s) -> 41 (P1 4-4 on time, 402.9 s), KK 38 (P1 1-0, 380.6 s) -> 14 (P2 0-8, 139.2 s). **Watch**: II and IK now go to the timer:
+  the CPUs know nothing of costs (S7) and run their gauges low (SP starts at full price 119 / 162 / 87 of 348 / 344 / 119, mean scale 0.76 /
+  0.81 / 0.91; refused presses 28 / 19 / 1, so no stall loop). No balance gate run; nothing retuned.
+- The browser G2 ran on the build before a comment / docstring reflow (code identical); rebuilt after: index.wasm 10,252,128 B, smoke desktop
+  and `--mobile 390x844` exit 0. `sp-paid` stays on the fighter after his route ends (only `start-move` clears it), so the hash's `s` shows
+  the last segment's payment while idle or reeling; damage and refunds read it only inside that segment (`own`, `cls`). For S3: once KOSEI's
+  flash-step leaves, tighten `sp-costs-check.py`'s at-30 and AS3-from-0 asserts to exact refusals / x0.50.
 
 ### 8.5 Order and parallelism
 
