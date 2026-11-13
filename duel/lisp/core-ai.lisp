@@ -119,6 +119,16 @@ the press's own roll). No next segment: NIL."
           ((kit-sp-start-p kit nx (gauges-fs g) (gauges-burst g)) t)
           (t (clog "~a cpu holds ~a (fs ~,1f)" (side-name e) (mv-name nx) (gauges-fs g)) nil))))
 
+(defun cai-hoho-hold-p (e b f kit)
+  "Is brain B's pending press an SP that would resume F's Hoho'd NS route (pressed in the Hoho, or neutral in its resume window:
+fighter.lisp HOHO-RESUME!, DUEL_CORE §8) into a segment the sim refuses? Asked through CAI-NEXT-OK-P (which logs `cpu holds`), so the
+press is dropped as S7 drops the NS gap's (DUEL_SP S7's gap, closed by REFACTOR_2026-11 R15d, 2026-11-14). A switched-off brain's press
+(written by a script: trial.lisp, the practice dummy) is left as it is."
+  (let ((from (fighter-hoho-from f)))
+    (and from (not (brain-off b)) (> (brain-press-left b) 0) (eq (brain-press b) :quick) (brain-press-mod b)
+         (eq (fighter-hoho-cls f) :ns) (or (eq (fighter-state f) :hoho) (plusp (fighter-hoho-left f)))
+         (not (cai-next-ok-p e kit from)))))
+
 (defun cai-move-step (e b f kit s)
   "Inside his own move: continue, turn or end it (once per move)."
   (declare (ignorable e))
@@ -249,6 +259,7 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
                              (cai-press b :awaken 1))))))))
       (setf (brain-now b) nil)))                                         ; (its step is over: a step-end snapshot holds NIL, as the special did)
     (setf (brain-was b) (fighter-state f))
+    (when (cai-hoho-hold-p e b f kit) (setf (brain-press-left b) 0))   ; (an SP the Hoho's resume would have refused: dropped, R15d)
     (loop for a across *vpad-actions*
           do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))
                                  (and (eq a :mod) (> (brain-press-left b) 0) (brain-press-mod b)))))
