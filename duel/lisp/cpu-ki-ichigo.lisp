@@ -355,6 +355,22 @@ spacing 0.237, kessa 0.725; in neither 0.170, 0.925).")
           when (< r acc) return k
           finally (return (car (last plist 2))))))
 
+(defparameter *iks-mix-keys* '(:generic :iks-mix-generic :space :iks-mix-space :whiff :iks-mix-whiff :ptr3 :iks-mix-ptr3 :kessa :iks-mix-kessa)
+  "Each mode of *IKS-MIX* and the arm key (STYLE-KNOB) that replaces its weight at the brain's difficulty (a mode that difficulty lacks: 0).")
+(defun iks-mode-pick (b r)
+  "This episode's mode for roll R: IKS-PICK over *IKS-MIX* at B's difficulty, its weights replaced by the arm's :IKS-MIX-<MODE> keys when
+it names any (no arm key: IKS-PICK on the plist itself; all weights 0: :generic)."
+  (let ((mix (brain-chance b *iks-mix*)))
+    (if (loop for (nil k) on *iks-mix-keys* by #'cddr never (style-knob b k nil))
+        (iks-pick mix r)
+        (let ((sum (loop for (m k) on *iks-mix-keys* by #'cddr sum (style-knob b k (getf mix m 0.0)))) (acc 0.0))
+          (if (plusp sum)
+              (loop for (m k) on *iks-mix-keys* by #'cddr
+                    do (incf acc (/ (style-knob b k (getf mix m 0.0)) sum))
+                    when (< r acc) return m
+                    finally (return :generic))
+              :generic)))))
+
 (defun iks-form-get (table o)
   "TABLE's entry for opponent O's form (his visible form), else :nozarashi's."
   (or (getf table (fighter-form (fighter o))) (getf table :nozarashi)))
@@ -376,8 +392,8 @@ Konpaku), :tap (the Soul Break takes 5: a pointer-3 kill with >= 5 left), :even 
 IKS-KIKON-VALUE: held at :ko / :even (*IKS-KIKON-P*), tapped at :tap, :costly with *IKS-KIKON-COSTLY-P*. Held = 40, else a tap."
   (if (and (gauges-red-p (gauges (fighter-opp f)))
            (case (iks-kikon-value f profile)
-             ((:ko :even) (brain-roll b *iks-kikon-p*))
-             (:costly (brain-roll b *iks-kikon-costly-p*))
+             ((:ko :even) (style-roll b :iks-kikon-p *iks-kikon-p*))
+             (:costly (style-roll b :iks-kikon-costly-p *iks-kikon-costly-p*))
              (t nil)))
       40 1))
 
@@ -426,11 +442,11 @@ J, after *IKS-NS-WAIT* against an NS. One roll per his move start. T when presse
           (unless (= (ikst-pkey st) (snap-start s))
             (setf (ikst-pkey st) (snap-start s)
                   (ikst-punish st) (let ((reach (getf (iks-form-get *iks-his-reach* o) oc)))
-                                     (if (and reach (> d reach) (brain-roll b *iks-punish-p*)) :go :no))))
+                                     (if (and reach (> d reach) (style-roll b :iks-punish-p *iks-punish-p*)) :go :no))))
           (when (and (eq (ikst-punish st) :go)
                      (if (eq oc :na)
                          (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))   ; (his J's whiff: only within her punisher's reach)
-                         (and (>= (- *match-tick* (snap-start s)) (brain-chance b *iks-ns-wait*))   ; (his NS's slide brings him in: M20)
+                         (and (>= (- *match-tick* (snap-start s)) (style-dif b :iks-ns-wait *iks-ns-wait*))   ; (his NS's slide brings him in: M20)
                               (or (not *iks-punish-ns-reach*) (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))))))
             (setf (ikst-punish st) :done)
             (iks-sp e b f st (if (eq oc :na) :punish-j :punish-ns) d (and (= (fighter-ptr f) 3) :lunge))))
@@ -452,7 +468,7 @@ his recovery less the perception delay. T when pressed."
             (when (and (<= tot left) (case what (:j t) (:ns1 (= ptr 1)) (:ns2 (= ptr 2)) (:ns3 (= ptr 3)))
                        (or (null pick) (< tot pick-t)))
               (setf pick p pick-t tot pick-w walk)))))
-      (when (and pick (brain-roll b *iks-confirm-p*))
+      (when (and pick (style-roll b :iks-confirm-p *iks-confirm-p*))
         (setf (ikst-pkey st) (snap-start s) (ikst-punish st) :done)
         (if (plusp pick-w)
             (progn (setf (ikst-pend st) pick (ikst-pend-until st) (+ *match-tick* pick-w 2))
@@ -482,7 +498,7 @@ pressed (b3_a1's IKS-KESSA-HOHO)."
              (or (snap-near-p s e d 1.0)
                  (and *iks-hoho-slide* (snap-move s) (< d (+ (snap-reach s) (mv-slide (snap-move s)) 1.0)))))
     (unless (= (ikst-hkey st) (snap-start s))
-      (setf (ikst-hkey st) (snap-start s) (ikst-hoho st) (brain-roll b *iks-hoho-p*)))
+      (setf (ikst-hkey st) (snap-start s) (ikst-hoho st) (style-roll b :iks-hoho-p *iks-hoho-p*)))
     (let ((lead (snap-lead-seen s b)) (g (gauges e)))
       (when (and (ikst-hoho st) (<= (first *iks-hoho-lead*) lead (second *iks-hoho-lead*)) (hoho-ready-p e)
                  (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g)))
@@ -493,7 +509,7 @@ pressed (b3_a1's IKS-KESSA-HOHO)."
 
 (defun iks-hoho-follow (e b st s d vp)
   "Just after her timed Hoho: J1 on his seen recovery / reeling from behind him (walk in to *IKS-HOHO-J-REACH* first). T when decided."
-  (when (and (>= (ikst-hoho-t st) 0) (<= (- *match-tick* (ikst-hoho-t st)) *iks-hoho-follow*))
+  (when (and (>= (ikst-hoho-t st) 0) (<= (- *match-tick* (ikst-hoho-t st)) (style-knob b :iks-hoho-follow *iks-hoho-follow*)))
     (cond ((not (snap-punishable-p s)) nil)
           ((<= d *iks-hoho-j-reach*) (setf (ikst-hoho-t st) -1 (ikst-mode-mv st) :kessa) (iks-j e b st :hoho-j d))
           ((< d 3.0) (iks-walk e b vp d 0.0 *iks-hoho-j-reach*)))))
@@ -504,17 +520,17 @@ Only perceived distances are used (b0_a0)."
   (let ((v (max (- *iks-lead-vmax*) (min *iks-lead-vmax* (- d (ikst-last-d st))))))
     (+ d (* v (brain-delay b)))))
 
-(defun iks-his-hoho-shut-p (o st)
-  "Is opponent O's Hoho shut: his flash-step (HUD) under *IKS-GAP-FS*, or his last Hoho seen started within *IKS-GAP-LOCKOUT*?"
+(defun iks-his-hoho-shut-p (o st fs)
+  "Is opponent O's Hoho shut: his flash-step (HUD) under FS (*IKS-GAP-FS* or the arm's), or his last Hoho seen started within *IKS-GAP-LOCKOUT*?"
   (let ((g (gauges o)))
-    (or (and (< (gauges-fs g) *iks-gap-fs*) (not (gauges-burst g)))   ; (a Burst's end gives the gauge back: B0 BURST END, then his Hoho)
+    (or (and (< (gauges-fs g) fs) (not (gauges-burst g)))   ; (a Burst's end gives the gauge back: B0 BURST END, then his Hoho)
         (< (- *match-tick* (ikst-his-hoho st)) *iks-gap-lockout*))))
 
-(defun iks-his-shut-left (o st)
-  "Frames his Hoho stays shut (IKS-HIS-HOHO-SHUT-P) at the least: the longer of his flash-step's climb to *IKS-GAP-FS* (0 in a Burst)
-and his lockout's rest."
+(defun iks-his-shut-left (o st fs)
+  "Frames his Hoho stays shut (IKS-HIS-HOHO-SHUT-P) at the least: the longer of his flash-step's climb to FS (0 in a Burst) and his
+lockout's rest."
   (let ((g (gauges o)))
-    (max (if (gauges-burst g) 0 (/ (- *iks-gap-fs* (gauges-fs g)) (/ *fs-regen* 60.0)))
+    (max (if (gauges-burst g) 0 (/ (- fs (gauges-fs g)) (/ *fs-regen* 60.0)))
          (- *iks-gap-lockout* (- *match-tick* (ikst-his-hoho st))))))
 
 (defun iks-closing (e b d)
@@ -530,33 +546,34 @@ to -0.1..0.12."
 is to his position BRAIN-DELAY steps ago; seen walking in C a step (*IKS-GAP-CMIN*), the true distance is D - C*delay and his read of
 her start (another delay later) D - 2C*delay. So: back off to *IKS-GAP-WAIT* and stand; as he walks in, NS3a (KESSA: NS3a then its SA)
 once his read comes beyond his back Step and the lunge still reaches him walking in (*IKS-GAP-BAND*). T when decided."
-  (when (and (= (fighter-ptr f) 3) (iks-his-hoho-shut-p (fighter-opp f) st)
-             (progn (unless (ikst-gap st) (setf (ikst-gap st) (if (brain-roll b *iks-gap-p*) :go :no) (ikst-gap-t st) 0))
-                    (eq (ikst-gap st) :go))
-             (<= (incf (ikst-gap-t st)) *iks-gap-max*))
-    (let* ((kessa (eq (fighter-form f) :kessa)) (c0 (iks-closing e b d)) (c (or c0 0.0)) (dl (brain-delay b))
-           (walking (and c0 (>= c *iks-gap-cmin*))))
-      (destructuring-bind (lo hi hitf) (getf *iks-gap-band* (if kessa :kessa :base))
-        (let ((plo (+ lo (* 2 c dl))) (phi (+ hi (* c (+ hitf dl)))))
-          (cond ((and walking (member (snap-state s) '(:idle :run)) (< plo d) (<= d phi) (<= (ikst-dt st) 0)
-                      (eq (fighter-state f) :idle))            ; (not out of her own dash-out's run: its carry is away from him)
-                 (iks-sp e b f st :gap-lunge d (if kessa :k-lunge :lunge)))
-                ((eq (snap-state s) :move) nil)                ; (his move live: no dash, the Hoho / punish / confirm keep it)
-                ((< d (if walking plo *iks-gap-wait*))         ; (he follows a walk back at her pace: dash out, then stand)
-                 (when (or (>= d *iks-gap-wait*)               ; (a shut about to reopen, or his form's lunge on the step: no dash,
-                           (and (>= (iks-his-shut-left (fighter-opp f) st) *iks-gap-dash-need*)   ;  the patient play keeps the step)
-                                (member (fighter-form (fighter (fighter-opp f)))
-                                        (getf *iks-gap-dash-his-forms* (if kessa :kessa :base)))))
-                   (iks-log e st :gap-dash d)
-                   (ai-dash b -1 (+ *iks-gap-wait* *iks-gap-dash-over*))
-                   (when *iks-gap-dash-dt* (setf (ikst-dt st) *iks-gap-dash-dt*))   ; (the lunge is this plan's own next press)
-                   t))
-                (t t)))))))                                   ; (out there: stand and let him come)
+  (let ((fs (style-knob b :iks-gap-fs *iks-gap-fs*)) (gw (style-knob b :iks-gap-wait *iks-gap-wait*)))
+    (when (and (= (fighter-ptr f) 3) (iks-his-hoho-shut-p (fighter-opp f) st fs)
+               (progn (unless (ikst-gap st) (setf (ikst-gap st) (if (style-roll b :iks-gap-p *iks-gap-p*) :go :no) (ikst-gap-t st) 0))
+                      (eq (ikst-gap st) :go))
+               (<= (incf (ikst-gap-t st)) *iks-gap-max*))
+      (let* ((kessa (eq (fighter-form f) :kessa)) (c0 (iks-closing e b d)) (c (or c0 0.0)) (dl (brain-delay b))
+             (walking (and c0 (>= c *iks-gap-cmin*))))
+        (destructuring-bind (lo hi hitf) (getf *iks-gap-band* (if kessa :kessa :base))
+          (let ((plo (+ lo (* 2 c dl))) (phi (+ hi (* c (+ hitf dl)))))
+            (cond ((and walking (member (snap-state s) '(:idle :run)) (< plo d) (<= d phi) (<= (ikst-dt st) 0)
+                        (eq (fighter-state f) :idle))            ; (not out of her own dash-out's run: its carry is away from him)
+                   (iks-sp e b f st :gap-lunge d (if kessa :k-lunge :lunge)))
+                  ((eq (snap-state s) :move) nil)                ; (his move live: no dash, the Hoho / punish / confirm keep it)
+                  ((< d (if walking plo gw))         ; (he follows a walk back at her pace: dash out, then stand)
+                   (when (or (>= d gw)               ; (a shut about to reopen, or his form's lunge on the step: no dash,
+                             (and (>= (iks-his-shut-left (fighter-opp f) st fs) *iks-gap-dash-need*)   ;  the patient play keeps the step)
+                                  (member (fighter-form (fighter (fighter-opp f)))
+                                          (getf *iks-gap-dash-his-forms* (if kessa :kessa :base)))))
+                     (iks-log e st :gap-dash d)
+                     (ai-dash b -1 (+ gw *iks-gap-dash-over*))
+                     (when *iks-gap-dash-dt* (setf (ikst-dt st) *iks-gap-dash-dt*))   ; (the lunge is this plan's own next press)
+                     t))
+                  (t t))))))))                                  ; (out there: stand and let him come)
 
 (defun iks-wake (e b f st d)
   "Her first free frame after a wake-up with him near (*IKS-WAKE-HOHO-NEAR*): the Hoho (one roll per wake-up, b3_a0). T when pressed."
   (when (and (<= d *iks-wake-hoho-near*) (member (fighter-form f) *iks-wake-hoho-forms*) (hoho-ready-p e)
-             (brain-roll b *iks-wake-hoho-p*))
+             (style-roll b :iks-wake-hoho-p *iks-wake-hoho-p*))
     (iks-log e st :wake-hoho d)
     (ai-press b :step 1 :modded t :act :hoho)
     t))
@@ -572,7 +589,7 @@ decides."
                    (:down (- (+ (getf rf :down 30) (getf rf :wakeup 30)) sf))
                    (:wakeup (- (getf rf :wakeup 30) sf))
                    (t 999))))
-      (cond ((> d *iks-meaty-far*) (setf (ikst-meaty st) nil))   ; (he flew off: the style plays on)
+      (cond ((> d (style-knob b :iks-meaty-far *iks-meaty-far*)) (setf (ikst-meaty st) nil))   ; (he flew off: the style plays on)
             ((and q (<= left (+ (mv-s q) *iks-meaty-lead*)))
              (setf (ikst-meaty st) nil)
              (if (<= d (+ (mv-reach q) (mv-slide q)))
@@ -584,27 +601,28 @@ decides."
 (defun iks-pointer-2 (e b f st s d vp)
   "Pointer 2 (either form): the Getsuga from *IKS-GETSUGA-MIN*, a J string inside her J reach, no charge in between: back dash
 (one roll per episode) or hover back. T when decided, NIL to hand over (the generic shoots from 3.6–6.6 m against a walk-in)."
-  (cond ((and (getf *iks-p2-wait* (brain-difficulty b)) (> d *iks-j-reach*)
-              (not (member (fighter-form (fighter (fighter-opp f))) *iks-getsuga-his-forms*)))   ; his released form: no Getsuga, wait
-         (destructuring-bind (hlo hhi) (iks-form-get *iks-hover* (fighter-opp f)) (iks-walk e b vp d hlo hhi)))
-        ((>= d *iks-getsuga-min*)
-         (when (<= (ikst-dt st) 0)
-           (setf (ikst-dt st) *iks-shot-gap*)
-           (iks-sp e b f st :getsuga d :shot))
-         t)
-        ((<= d *iks-j-reach*)
-         (if (<= (ikst-dt st) 0) (iks-j e b st :p2-j d) (iks-walk e b vp d 0.0 *iks-j-reach*)))
-        (t (when (and *iks-retreat-rearm* (eq (snap-state s) :move) (/= (ikst-rkey st) (snap-start s)))   ; his move: a new roll
-             (setf (ikst-rkey st) (snap-start s) (ikst-retreat st) nil))
-           (unless (ikst-retreat st)
-             (setf (ikst-retreat st) (if (brain-roll b *iks-retreat-p*) :go t)))
-           (cond ((eq (ikst-retreat st) :go)
-                  (setf (ikst-retreat st) t)
-                  (iks-log e st :retreat d)
-                  (ai-dash b -1 *iks-retreat-to*)
-                  t)
-                 ((< d *iks-ns2-min*) (iks-walk e b vp d *iks-ns2-min* *iks-getsuga-min*))   ; never charge in his face
-                 (t nil)))))
+  (let ((gmin (style-knob b :iks-getsuga-min *iks-getsuga-min*)))
+    (cond ((and (getf *iks-p2-wait* (brain-difficulty b)) (> d *iks-j-reach*)
+                (not (member (fighter-form (fighter (fighter-opp f))) *iks-getsuga-his-forms*)))   ; his released form: no Getsuga, wait
+           (destructuring-bind (hlo hhi) (iks-form-get *iks-hover* (fighter-opp f)) (iks-walk e b vp d hlo hhi)))
+          ((>= d gmin)
+           (when (<= (ikst-dt st) 0)
+             (setf (ikst-dt st) *iks-shot-gap*)
+             (iks-sp e b f st :getsuga d :shot))
+           t)
+          ((<= d *iks-j-reach*)
+           (if (<= (ikst-dt st) 0) (iks-j e b st :p2-j d) (iks-walk e b vp d 0.0 *iks-j-reach*)))
+          (t (when (and *iks-retreat-rearm* (eq (snap-state s) :move) (/= (ikst-rkey st) (snap-start s)))   ; his move: a new roll
+               (setf (ikst-rkey st) (snap-start s) (ikst-retreat st) nil))
+             (unless (ikst-retreat st)
+               (setf (ikst-retreat st) (if (style-roll b :iks-retreat-p *iks-retreat-p*) :go t)))
+             (cond ((eq (ikst-retreat st) :go)
+                    (setf (ikst-retreat st) t)
+                    (iks-log e st :retreat d)
+                    (ai-dash b -1 *iks-retreat-to*)
+                    t)
+                   ((< d *iks-ns2-min*) (iks-walk e b vp d *iks-ns2-min* gmin))   ; never charge in his face
+                   (t nil))))))
 
 (defun iks-neutral (e b f kit s d)
   "A style mode's neutral step. T when decided."
@@ -613,7 +631,7 @@ decides."
          (patient (and (getf *iks-patient-p* (brain-difficulty b)) (member (fighter-form f) *iks-patient-forms*))))
     (declare (ignorable kit))
     (decf (ikst-dt st))
-    (when (and (not *iks-untimed-hoho*) (member (fighter-form f) *iks-hoho-forms*) (plusp (brain-chance b *iks-hoho-p*)))
+    (when (and (not *iks-untimed-hoho*) (member (fighter-form f) *iks-hoho-forms*) (plusp (style-dif b :iks-hoho-p *iks-hoho-p*)))
       (setf (brain-hoho-roll b) 1f0))                  ; (the generic's untimed Hoho off: only the timed one)
     (cond
       ((and (member (fighter-form f) *iks-hoho-forms*) (iks-timed-hoho e b st s d)))
@@ -624,9 +642,9 @@ decides."
             (< (brain-hoho-roll b) (brain-chance b *cai-hoho-p*)))
        nil)
       ;; KESSA: awaken once full at a free moment
-      ((and (member mode *iks-awaken-modes*) (not (and *iks-break-awaken* (plusp (brain-chance b *iks-break-p*))))
+      ((and (member mode *iks-awaken-modes*) (not (and *iks-break-awaken* (plusp (style-dif b :iks-break-p *iks-break-p*))))
             (gauges-awakened-ok-p e) (or calm (> d (+ (snap-reach s) 1.5)))
-            (progn (unless (ikst-awaken st) (setf (ikst-awaken st) (if (brain-roll b *iks-awaken-p*) :go :no)))
+            (progn (unless (ikst-awaken st) (setf (ikst-awaken st) (if (style-roll b :iks-awaken-p *iks-awaken-p*) :go :no)))
                    (eq (ikst-awaken st) :go)))
        (setf (ikst-awaken st) :no)
        (iks-log e st :awaken d)
@@ -634,7 +652,7 @@ decides."
        t)
       ((= ptr 2) (iks-pointer-2 e b f st s d vp))               ; (before the wait's end: never a charge in his face)
       ((iks-gap e b f st s d vp))                               ; (pointer 3, his Hoho shut: the lunge beyond his back Step)
-      ((and (> (ikst-ep-t st) (brain-chance b *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
+      ((and (> (ikst-ep-t st) (style-dif b :iks-wait-max *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
       ((and kessa (eq mode :kessa) (/= ptr 3) (null *iks-kessa-chain-band*))   ; (no chains: wait for his whiff)
        (if (< d 1.7) nil
            (destructuring-bind (hlo hhi) (iks-hover-band b o mode *iks-hover-p1*) (iks-walk e b vp d hlo hhi))))
@@ -674,7 +692,7 @@ decides."
         ((:na :sa)
          (when (and (<= (fighter-presses f) 1) (/= (ikst-skey st) (fighter-cls-t f)))   ; a string's first link: its steer roll
            (setf (ikst-skey st) (fighter-cls-t f)
-                 (ikst-steer st) (and (brain-roll b *iks-steer-p*)
+                 (ikst-steer st) (and (style-roll b :iks-steer-p *iks-steer-p*)
                                       (if (and kessa (eq (ikst-mode-mv st) :kessa))
                                           (if (gauges-red-p (gauges o)) (second *iks-kessa-as*) (first *iks-kessa-as*))
                                           5))))
@@ -749,7 +767,7 @@ pressed."
                      (>= (gauges-awaken g) *awaken-max*)))
             (bu (burst-ok-p e)))
         (when (and (or aw bu) (null (ikst-brk st)))
-          (setf (ikst-brk st) (if (brain-roll b *iks-break-p*) :go :no)))
+          (setf (ikst-brk st) (if (style-roll b :iks-break-p *iks-break-p*) :go :no)))
         (when (and (eq (ikst-brk st) :go) (or aw bu))
           (setf (ikst-brk st) :no (brain-burst-rolled b) t)
           (clog "~a ki-style break ~a hits ~d" (side-name e) (if aw "awaken" "burst") (fighter-combo-hits f))
@@ -762,7 +780,7 @@ pressed."
     (if (member (snap-state s) '(:air :down :wakeup))           ; his knockdown: the meaty's roll, once as he goes down
         (unless (ikst-down st)
           (setf (ikst-down st) t
-                (ikst-meaty st) (and (<= d *iks-meaty-far*) (member (fighter-form f) *iks-meaty-forms*) (brain-roll b *iks-meaty-p*)))
+                (ikst-meaty st) (and (<= d (style-knob b :iks-meaty-far *iks-meaty-far*)) (member (fighter-form f) *iks-meaty-forms*) (style-roll b :iks-meaty-p *iks-meaty-p*)))
           (when (ikst-meaty st) (clog "~a ki-style meaty armed d ~,1f" (side-name e) d)))
         (setf (ikst-down st) nil (ikst-meaty st) nil))
     (when (eq (snap-state s) :hoho)                     ; (his Hoho seen: its start tick, for IKS-HIS-HOHO-SHUT-P)
@@ -773,7 +791,7 @@ pressed."
         (case state
           ((:idle :run)
            (when (iks-new-episode-p e st)
-             (setf (ikst-mode st) (iks-pick (brain-chance b *iks-mix*) (sim-rnd01))
+             (setf (ikst-mode st) (iks-mode-pick b (sim-rnd01))
                    (ikst-mode-mv st) (ikst-mode st) (ikst-plan st) nil
                    (ikst-ep-t st) 0 (ikst-pend st) nil (ikst-retreat st) nil (ikst-awaken st) nil (ikst-dt st) 0
                    (ikst-gap st) nil))

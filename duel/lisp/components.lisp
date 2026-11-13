@@ -219,10 +219,12 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."
   (getf plist (brain-difficulty b) (getf plist :normal 0.0)))
+(defun chance-roll (p)
+  "One roll of chance P: no SIM-RND01 drawn at 0 or 1 (a sure answer; the host tests have no sim stream)."
+  (and (plusp p) (or (>= p 1.0) (< (sim-rnd01) p))))
 (defun brain-roll (b plist)
-  "One roll of PLIST's chance at brain B's difficulty: no SIM-RND01 drawn at 0 or 1 (a sure answer; the host tests have
-no sim stream)."
-  (let ((p (brain-chance b plist))) (and (plusp p) (or (>= p 1.0) (< (sim-rnd01) p)))))
+  "One roll (CHANCE-ROLL) of PLIST's chance at brain B's difficulty."
+  (chance-roll (brain-chance b plist)))
 
 (defcomponent hazard
   "A hit that is not a fighter's melee: a wave, a character's own hazard, line cuts and looks (looks only). World-space

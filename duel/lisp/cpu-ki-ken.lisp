@@ -319,7 +319,7 @@ with a Hoho open, :cut not sealed, :close not beyond *KK-WAVE-CLOSE-MAX*, :step 
 *KK-WAVE-FAR*): :close by a Hoho, else :cut, else (sealed) :step."
   (when (> d (second *kk-wave-band*))                          ; (from afar: Hoho in at once, else the cut; b3_a1)
     (return-from kk-wave-plan
-      (cond ((not (brain-roll b *kk-wave-p*)) nil)
+      (cond ((not (style-roll b :kk-wave-p *kk-wave-p*)) nil)
             ((hoho-ready-p e) :close)
             ((not (eq (fighter-form f) :base)) :cut)
             ((plusp (getf *kk-wave-mix* :step 0.0)) :step))))
@@ -330,26 +330,26 @@ with a Hoho open, :cut not sealed, :close not beyond *KK-WAVE-CLOSE-MAX*, :step 
          (wl (if (and far (not lunge) (hoho-ready-p e)) (getf *kk-wave-mix* :late 0.0) 0.0))
          (ws (if (and far (not lunge) (not (hoho-ready-p e)) (eq (fighter-form f) :base)) (getf *kk-wave-mix* :step 0.0) 0.0))
          (sum (+ wc wk wl ws)))
-    (when (and (plusp sum) (brain-roll b *kk-wave-p*))
+    (when (and (plusp sum) (style-roll b :kk-wave-p *kk-wave-p*))
       (let ((r (* sum (sim-rnd01))))
         (cond ((< r wc) :close) ((< r (+ wc wk)) :cut) ((< r (+ wc wk wl)) :late) (t :step))))))
 
 (defun kk-track (e b f kit s d st meaty)
-  "The events, once each: a new form stay (the climb roll), L3 reached (the Bankai roll), her knockdown (the meaty roll, MEATY's chance:
-*KK-MEATY-P* unless KEN-KI-STYLE's caller gives another), her Getsuga route (the answer's roll)."
+  "The events, once each: a new form stay (the climb roll), L3 reached (the Bankai roll), her knockdown (the meaty roll, chance MEATY:
+KEN-KI-STYLE's), her Getsuga route (the answer's roll)."
   (let ((form (fighter-form f)) (ss (snap-state s)))
     (unless (eq form (kks-form st))
       (setf (kks-form st) form (kks-l3 st) nil (kks-bankai st) nil (kks-bk-n st) 0
-            (kks-climb st) (and (eq form :nozarashi) (brain-roll b *kk-climb-p*)))
+            (kks-climb st) (and (eq form :nozarashi) (style-roll b :kk-climb-p *kk-climb-p*)))
       (when (kks-climb st) (clog "~a kk climb" (side-name e))))
     (when (eq form :nozarashi)
       (if (>= (ken-lv e) *ken-lv-max*)
           (unless (kks-l3 st)
-            (setf (kks-l3 st) t (kks-bankai st) (brain-roll b *kk-bankai-p*))
+            (setf (kks-l3 st) t (kks-bankai st) (style-roll b :kk-bankai-p *kk-bankai-p*))
             (when (kks-bankai st) (clog "~a kk bankai-plan" (side-name e))))
           (setf (kks-l3 st) nil (kks-bankai st) nil)))
     (when (and (member ss '(:air :down)) (not (member (kks-was st) '(:air :down :wakeup))))
-      (setf (kks-meaty st) (brain-roll b meaty))
+      (setf (kks-meaty st) (chance-roll meaty))
       (when (kks-meaty st) (clog "~a kk meaty armed" (side-name e))))
     (unless (member ss '(:air :down :wakeup)) (setf (kks-meaty st) nil))
     (when (eq ss :hoho)                                         ; her Hoho seen: its start = now - delay - her frame (b3_a0 r3)
@@ -494,16 +494,16 @@ move started, the situation lost). Once per Step (its one frame). T when it pres
   "封印肉搏's read on her new move start. Sealed within *KK-READ-RANGE*: the tame, J1 or NS1a (*KK-BRAWL-P*). Else (beyond it, the
 Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DODGE-P*, one roll per her move start), timed by
 *KK-DODGE-LEAD*. T when it pressed or planned."
-  (let* ((form (fighter-form f)) (mv (snap-move s))
+  (let* ((form (fighter-form f)) (mv (snap-move s)) (rr (style-knob b :kk-read-range *kk-read-range*))
          (clone (and mv (eq (snap-state s) :move) (eq (cai-class-of (fighter-opp f) s) :ns) (zerop (length (mv-hits mv)))
                      (not (kk-route-p s)))))                    ; (KESSA's NS3 a-c: no hit of its own, a clone strikes on f15)
     (when (and (eq (snap-state s) :move) mv (/= (snap-start s) (kks-ev st))
-               (<= d (if clone *kk-clone-reach* (max *kk-read-range* (+ (mv-reach mv) (mv-slide mv) *kk-dodge-reach*)))))
+               (<= d (if clone *kk-clone-reach* (max rr (+ (mv-reach mv) (mv-slide mv) *kk-dodge-reach*)))))
       (setf (kks-ev st) (snap-start s))
       (let ((cls (cai-class-of (fighter-opp f) s)) (left (- (snap-s s) (snap-sf s) (brain-delay b)))   ; frames to her hit
             (q (kit-command-move kit :q)) (ptr (fighter-ptr f)))
         (when (and q (member cls '(:na :ns)))
-          (let ((how (and (eq form :base) (not clone) (<= d *kk-read-range*) (brain-roll b *kk-brawl-p*)
+          (let ((how (and (eq form :base) (not clone) (<= d rr) (style-roll b :kk-brawl-p *kk-brawl-p*)
                           (progn
                             (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                             (cond ((and (= ptr 3) (<= 3 left 27) (not (kk-route-p s))) (cai-sp b f s) :tame)                  ; the tame catches it (F7-F9)
@@ -511,11 +511,11 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
                                   ((and (= ptr 1) (eq cls :ns) (> left 14)) (cai-sp b f s) :ns1a))))))   ; NS1a first (F3)
             (when (and (not how) (not (kk-route-p s)) (>= left 0))   ; (her hit already past as seen: no dodge; b0_a0 r3)
               (cond ((hoho-ready-p e)
-                     (when (brain-roll b *kk-dodge-p*)
+                     (when (style-roll b :kk-dodge-p *kk-dodge-p*)
                        (if (<= 0 left *kk-dodge-lead*)        ; (due now: pressed on this step, not the next; b0_a0 r3)
                            (progn (clog "~a kk dodge now at ~,1f" (side-name e) d) (kk-hoho b) (setf how :dodge))
                            (setf (kks-plan st) :dodge (kks-at st) (+ *match-tick* (max 0 (- left *kk-dodge-lead*))) how :dodge))))
-                    ((and (<= d *kk-step-max*) (brain-roll b *kk-step-p*))   ; (no Hoho open: the back Step)
+                    ((and (<= d (style-knob b :kk-step-max *kk-step-max*)) (style-roll b :kk-step-p *kk-step-p*))   ; (no Hoho open: the back Step)
                      (let ((sl (if clone (- left (- (snap-s s) *kk-clone-strike*)) left)))
                        (if (<= 0 sl *kk-step-lead*)
                            (progn (clog "~a kk step-dodge now at ~,1f" (side-name e) d) (ai-press b :step 1) (setf how :sdodge))
@@ -527,10 +527,10 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
 
 (defun kk-decide (e b f s d st safe)
   "A neutral decision the generic CPU would make this step, taken by the style when a roll says so (SAFE: the Hoho-safety roll's chance,
-*KK-NS-SAFE-P* unless KEN-KI-STYLE's caller gives another). T when it decided."
+KEN-KI-STYLE's). T when it decided."
   (let* ((form (fighter-form f)) (vp-free (member (fighter-state f) '(:idle :run)))
          (ns (kit-core-move (fighter-kit f) :ns (fighter-ptr f)))
-         (q (kit-command-move (fighter-kit f) :q)) (safe (brain-roll b safe))
+         (q (kit-command-move (fighter-kit f) :q)) (safe (chance-roll safe))
          (ns-ok (or (null ns) (not safe) (kk-ns-open-p b s st ns)))   ; (b0_a0 r3: not into her timed Hoho)
          (j-ok (or (null q) (not safe) (kk-ns-open-p b s st q))))
     (when vp-free
@@ -538,7 +538,7 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
         (:nozarashi
          (let ((lv (ken-lv e)))
            (cond ((and ns-ok (kks-climb st) (< lv *ken-lv-max*) (= (fighter-ptr f) 1)
-                       (<= (first *kk-lunge-band*) d (second *kk-lunge-band*)) (brain-roll b *kk-lunge-p*))
+                       (<= (first *kk-lunge-band*) d (second *kk-lunge-band*)) (style-roll b :kk-lunge-p *kk-lunge-p*))
                   (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                   (cai-sp b f s) t)
                  ((and (>= lv *ken-lv-max*) (or (kks-climb st) (kks-bankai st)) (<= d *kk-l3-range*)   ; at L3 with a plan: the J string
@@ -547,7 +547,7 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
                   (cai-press b :quick 1) t))))
         ((:bankai :bankai-2)
          (let ((spare (> (reishi-frac (gauges e)) (+ *kk-bk-floor* *kk-bk-ns-spare*))))
-           (cond ((and ns-ok spare (<= d *kk-bk-ns-range*) (brain-roll b *kk-bk-ns-p*))
+           (cond ((and ns-ok spare (<= d *kk-bk-ns-range*) (style-roll b :kk-bk-ns-p *kk-bk-ns-p*))
                   (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                   (cai-sp b f s) t))))))))   ; (else KK-PICK: J1 in reach, a Hoho or a walk in; no generic NS at 40 a segment)
 
@@ -580,9 +580,9 @@ decided."
              (cai-press b :quick 1) (kk-stick e 0) t)
             (t (kk-stick e 1) t)))))
 
-(defun kk-reach-of (mv)
-  "MV's reach + slide less *KK-REACH-MARGIN* (m): the farthest it starts from; 0 for a move that reaches nothing (the tame)."
-  (if (and mv (plusp (mv-reach mv))) (- (+ (mv-reach mv) (mv-slide mv)) *kk-reach-margin*) 0.0))
+(defun kk-reach-of (mv margin)
+  "MV's reach + slide less MARGIN (m; *KK-REACH-MARGIN* or the arm's): the farthest it starts from; 0 for a move that reaches nothing (the tame)."
+  (if (and mv (plusp (mv-reach mv))) (- (+ (mv-reach mv) (mv-slide mv)) margin) 0.0))
 
 (defun kk-pick (e b f kit s d st safe)
   "封印肉搏's discipline at a neutral decision inside the generic CPU's attack zone: J1 or the pointer's NS only where it reaches (the
@@ -594,15 +594,16 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
         (setf (kks-appr st) nil)
         (progn
           (unless (kks-appr st)
-            (setf (kks-appr st) t (kks-reach st) (or bk (brain-roll b *kk-reach-p*)) (kks-hin st) (brain-roll b *kk-hoho-in-p*)
-                  (kks-safe st) (brain-roll b safe) (kks-sin st) (brain-roll b *kk-step-in-p*)))
+            (setf (kks-appr st) t (kks-reach st) (or bk (style-roll b :kk-reach-p *kk-reach-p*)) (kks-hin st) (style-roll b :kk-hoho-in-p *kk-hoho-in-p*)
+                  (kks-safe st) (chance-roll safe) (kks-sin st) (style-roll b :kk-step-in-p *kk-step-in-p*)))
           (if (not (kks-reach st))
               (setf (kks-appr st) nil)                         ; (this decision is the generic CPU's)
               (let* ((ns (kit-core-move kit :ns (fighter-ptr f))) (q (kit-command-move kit :q))
                      (v (min 0.0 (ken-closing e b s d)))       ; her perceived speed away (m/f, <= 0): only ever stricter
-                     (can-j (and q (<= (- d (* v (+ (brain-delay b) (mv-s q)))) (kk-reach-of q))
+                     (rm (style-knob b :kk-reach-margin *kk-reach-margin*))
+                     (can-j (and q (<= (- d (* v (+ (brain-delay b) (mv-s q)))) (kk-reach-of q rm))
                                  (or (not (kks-safe st)) (kk-ns-open-p b s st q))))   ; (the Shikai J1 is S9: b0_a0 r3)
-                     (can-n (and ns (not bk) (<= (- d (* v (+ (brain-delay b) (mv-s ns)))) (kk-reach-of ns))   ; (a Bankai NS: KK-DECIDE's roll)
+                     (can-n (and ns (not bk) (<= (- d (* v (+ (brain-delay b) (mv-s ns)))) (kk-reach-of ns rm))   ; (a Bankai NS: KK-DECIDE's roll)
                                  (or (not (kks-safe st)) (kk-ns-open-p b s st ns)))))   ; (not into her timed Hoho: b0_a0 r3)
                 (cond ((and can-n (or (not can-j) (< (sim-rnd01) (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                        (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01) (kks-appr st) nil)
@@ -610,8 +611,8 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
                        (cai-sp b f s) t)
                       (can-j (setf (brain-own-key b) -1 (kks-appr st) nil) (clog "~a kk pick J1 at ~,1f" (side-name e) d)
                              (cai-press b :quick 1) t)
-                      ((and (kks-hin st) (not (eq (fighter-form f) :nozarashi)) (<= d *kk-hoho-in-max*) (hoho-ready-p e)
-                            (>= (gauges-fs (gauges e)) *kk-hin-fs*))      ; (one Hoho kept in reserve: b0_a1)
+                      ((and (kks-hin st) (not (eq (fighter-form f) :nozarashi)) (<= d (style-knob b :kk-hoho-in-max *kk-hoho-in-max*)) (hoho-ready-p e)
+                            (>= (gauges-fs (gauges e)) (style-knob b :kk-hin-fs *kk-hin-fs*)))      ; (one Hoho kept in reserve: b0_a1)
                        (setf (kks-hin st) nil)                 ; (one Hoho an approach)
                        (clog "~a kk hoho-in at ~,1f" (side-name e) d)
                        (kk-hoho b) :walk)                      ; (behind her, 1.6 m: the next decision comes as he is free)
@@ -626,7 +627,7 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
   "Free: her Getsuga route's answer, the meaty chase, the read, then the decision hook (SAFE: KK-DECIDE's and KK-PICK's). T when the style
 decided."
   (when (and (eq (fighter-form f) :base) (gauges-awakened-ok-p e) (not (kks-aw st)))
-    (setf (kks-aw st) (if (brain-roll b *kk-awaken-p*) :go :no)))
+    (setf (kks-aw st) (if (style-roll b :kk-awaken-p *kk-awaken-p*) :go :no)))
   (cond ((and (eq (kks-aw st) :go) (eq (fighter-form f) :base) (gauges-awakened-ok-p e)
               (not (kks-plan st)) (not (kk-route-p s)))        ; (not into her live Getsuga route: the cinematic left the wave on him; b3_a1)
          (setf (kks-meaty st) nil)
@@ -694,7 +695,7 @@ it decided (waits or stops)."
                (/= (brain-decided b) (fighter-cls-t f)) (>= (fighter-sf f) (mv-s mv))
                (not (eq (cai-class-of (fighter-opp f) s) :na)))
       (cai-own-rolls b f)
-      (when (< (brain-r-turn b) (brain-chance b *kk-ns-stop-p*))  ; (the move's own roll, made once at its start)
+      (when (< (brain-r-turn b) (style-dif b :kk-ns-stop-p *kk-ns-stop-p*))  ; (the move's own roll, made once at its start)
         (when (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv)))
           (setf (brain-decided b) (fighter-cls-t f)))
         t))))
@@ -712,7 +713,7 @@ stop (+2 or better on a hit, never a whiff). Her NA in his gap (the SA's read) s
   (let ((mv (fighter-move f)))
     (when (and mv (eq (fighter-form f) :base) (eq (fighter-cls f) :ns) (eq (fighter-contact f) :hit) (plusp (mv-reach mv))
                (/= (brain-decided b) (fighter-cls-t f)) (>= (fighter-sf f) (mv-s mv))
-               (not (eq (cai-class-of (fighter-opp f) s) :na)) (brain-roll b *kk-link-p*))
+               (not (eq (cai-class-of (fighter-opp f) s) :na)) (style-roll b :kk-link-p *kk-link-p*))
       (let ((nx (mv-ns-next kit mv)) (sa (or (mv-sa-move kit mv) (kit-sa-move kit))))
         (setf (brain-decided b) (fighter-cls-t f))
         (cond ((and nx (<= d (kk-link-reach nx)) (cai-next-ok-p e kit mv)) (clog "~a kk link NS at ~,1f" (side-name e) d) (cai-press b :quick 1 t))
@@ -731,7 +732,7 @@ contact, or stops)."
     (when (and mv (eq (fighter-form f) :base) (eq (fighter-cls f) :as) (mv-ns-next kit mv) (>= (fighter-sf f) (mv-s mv))
                (/= (brain-decided b) (fighter-cls-t f)) (not (vpad-down (pilot-vpad (pilot e)) :quick)))
       (cai-own-rolls b f)
-      (when (< (brain-r-cont b) (brain-chance b *kk-as-on-p*))
+      (when (< (brain-r-cont b) (style-dif b :kk-as-on-p *kk-as-on-p*))
         (cond ((eq (fighter-contact f) :hit) (setf (brain-decided b) (fighter-cls-t f)) (cai-press b :quick 1 t))
               ((>= (fighter-sf f) (+ (mv-s mv) (mv-a mv))) (setf (brain-decided b) (fighter-cls-t f))))   ; (a whiff: no more)
         t))))
@@ -765,15 +766,18 @@ the SP's knockdown (the meaty loop's start)."
   (when (and (eq (brain-press b) :quick) (brain-press-mod b) (> (brain-press-left b) 1)
              (if (gauges-red-p (gauges (fighter-opp f)))
                  (and (not (and (eql (kk-kikon-ptr f) 2) (member (fighter-form f) '(:base :nozarashi))))
-                      (brain-roll b *kk-kikon-ptr-p*))           ; (red: only pointer 2 pays, b1_a0)
-                 (brain-roll b *kk-kikon-red-p*)))
+                      (style-roll b :kk-kikon-ptr-p *kk-kikon-ptr-p*))           ; (red: only pointer 2 pays, b1_a0)
+                 (style-roll b :kk-kikon-red-p *kk-kikon-red-p*)))
     (setf (brain-press-left b) 1)))
 
-(defun ken-ki-style (e b f kit s d &key (meaty *kk-meaty-p*) (safe *kk-ns-safe-p*))
+(defun ken-ki-style (e b f kit s d &key meaty safe)
   "Kenpachi's style against Ichigo (DUEL_MATCHUP_AI §4): T when it decided this step, NIL for the generic core CPU. MEATY / SAFE: the meaty
-roll's and the Hoho-safety roll's chances by difficulty, the knobs unless a style built on this one passes others (cpu-kh-ken.lisp: its
-wake-up bait and stand-off breaker; they rebound the two knobs until 2026-11-13, REFACTOR_2026-11 R12)."
-  (let ((st (brain-style b)))
+roll's and the Hoho-safety roll's chances by difficulty, which a style built on this one may pass (cpu-kh-ken.lisp: its wake-up bait and
+stand-off breaker; they rebound the two knobs until 2026-11-13, REFACTOR_2026-11 R12); NIL: *KK-MEATY-P* / *KK-NS-SAFE-P*, or the arm's
+:KK-MEATY-P / :KK-NS-SAFE-P (STYLE-DIF). A chance passed beats the arm's key."
+  (let ((st (brain-style b))
+        (meaty (if meaty (brain-chance b meaty) (style-dif b :kk-meaty-p *kk-meaty-p*)))   ; (the two chances, once a step)
+        (safe (if safe (brain-chance b safe) (style-dif b :kk-ns-safe-p *kk-ns-safe-p*))))
     (when (or (null st) (< *match-tick* (kks-tick st))) (setf st (make-kks) (brain-style b) st))
     (when (and (> (- *match-tick* (kks-tick st)) *kk-cine-gap*) (brain-chance b *kk-cine-wait*))   ; (a cinematic just ended: b0_a1 r3)
       (setf (kks-fresh st) (+ *match-tick* (brain-delay b))))
@@ -797,7 +801,7 @@ wake-up bait and stand-off breaker; they rebound the two knobs until 2026-11-13,
         (setf (kks-pfw st) p))
       (unless (member state '(:idle :run)) (setf (kks-appr st) nil))
       (when (and (eq (kks-mine st) :wakeup) (member state '(:idle :run)) (<= d *kk-wake-hoho-near*) (hoho-ready-p e)
-                 (not (eq (snap-state s) :hoho)) (brain-roll b *kk-wake-hoho-p*))
+                 (not (eq (snap-state s) :hoho)) (style-roll b :kk-wake-hoho-p *kk-wake-hoho-p*))
         (setf (kks-mine st) state)
         (clog "~a kk wake-hoho at ~,1f" (side-name e) d)
         (kk-hoho b)

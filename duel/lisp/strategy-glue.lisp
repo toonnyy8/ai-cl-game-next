@@ -53,6 +53,22 @@ No :HOLD-AWAKEN (every shipped strategy) or no active strategy (a human): NIL."
   (let ((h (strat-out (let ((b (brain e))) (and b (brain-now b))) :hold-awaken nil)))
     (and h (< (/ (gauges-sub (gauges e)) *sub-max*) h))))
 
+;;; Style knobs (DUEL_AI_STRATEGY §11.6, 2026-11-14): a matchup style CPU (cpu-ki-ken, cpu-kh-ken, cpu-ki-ichigo) reads its
+;;; decision tunables through STYLE-KNOB, so an arm (a strategy whose :FN is that style) may set them as data under the special's name
+;;; without its stars (:KK-HIN-FS for *KK-HIN-FS*; the keys in docs/research/strategy-drsi/sp/KNOBS.md §6). No strategy, or one that
+;;; leaves the key alone (every arm before these keys): the style's own value, the same play.
+(defun style-knob (b key default)
+  "Brain B's style tunable KEY: the active strategy's value (STRAT-OUT on B's NOW: its :BASE, or the average of its :RULES that fire),
+else DEFAULT (the style's own value; a per-difficulty knob comes resolved, see STYLE-DIF). No strategy or no such key: DEFAULT, no float
+math, 0 B. Read once per decision."
+  (strat-out (brain-now b) key default))
+(defun style-dif (b key plist)
+  "STYLE-KNOB over the per-difficulty PLIST (:easy :normal :hard): the arm's KEY replaces PLIST's value at B's difficulty (BRAIN-CHANCE)."
+  (style-knob b key (brain-chance b plist)))
+(defun style-roll (b key plist)
+  "BRAIN-ROLL of the per-difficulty chance PLIST, the arm's KEY replacing its value (STYLE-DIF)."
+  (chance-roll (style-dif b key plist)))
+
 (defvar *strat-judge-hook* nil
   "NIL in the game; a tool's function (e b sw sub index feats) -> (values sub index) run on each composite judgement outside rollouts (the
 Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and may explore the other arm).")
