@@ -276,12 +276,7 @@ reading and its line (strings 30 / 31; the kanji are the Lisp HUD's)."
   "One pause command from the Lisp HUD's pointer (LHUD-PAUSE-POINTER): 1 the cursor to row ARG, 2 confirm, 4 left, 5 right (as the
 menus' commands, WEBUI-COMMAND); dropped unless the pause is up."
   (declare (fixnum cmd arg))
-  (when (and *paused* (eq *flow* :battle))
-    (case cmd
-      (1 (setf *menu* arg))
-      (2 (setf *ui-press* (logior *ui-press* 16)))
-      (4 (setf *ui-press* (logior *ui-press* 4)))
-      (5 (setf *ui-press* (logior *ui-press* 8)))))
+  (when (and *paused* (eq *flow* :battle)) (ui-press-cmd cmd arg))
   nil)
 
 (defun webhud-commands ()

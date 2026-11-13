@@ -52,6 +52,8 @@ if [ -n "$WEB" ] && [ -d "$WEB" ]; then
   for f in "$WEB"/*; do [ "$(basename "$f")" = head.html ] || cp "$f" "$DIST/"; done
   # a service worker's cache name carries the hash of the build and the page files (e.g. a manual edit alone):
   # every change installs a fresh cache
+  # and its precache list is every file the build serves (index.* and the page files), so a new page file needs no list edit
+  [ -f "$DIST/sw.js" ] && sed -i "s|@FILES@|[$(cd "$DIST" && printf "'./'"; for f in *; do [ -f "$f" ] && [ "$f" != sw.js ] && printf ",'%s'" "$f"; done)]|" "$DIST/sw.js"
   [ -f "$DIST/sw.js" ] && sed -i "s/@VERSION@/$(cat "$DIST"/index.html "$DIST"/index.js "$DIST"/index.wasm "$WEB"/* | sha1sum | cut -c1-12)/" "$DIST/sw.js"
 fi
 echo "built $DIST/index.html"
