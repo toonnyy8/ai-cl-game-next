@@ -3,7 +3,7 @@
 routes at flash-step 300 / 30 / 0 (at 0 whiffed, so no hit refills it), a full AS3 from 0, NS vs NS tie and J vs NS cancel (both refunds once), and a scaled hit's reaction and stun
 equal to the full one's. Both sides' inputs are written (P1 the trial script, P2 :p2-at); the asserts read the combat log's `SP` lines
 (core-sim.lisp CORE-START!: `SP <segment> fs F cost C paid P xS` / `SP <segment> refused`, CORE-NOHIT!: `SP refund P`) and `dealt` lines
-(combat.lisp APPLY-HIT: `dealt D: <reaction> stun N`). S3 (the ATK gains): `SP hit gain G (fs F)` (combat.lisp SP-ATK-HIT!, a J / SA hit
+(combat.lisp APPLY-HIT: `dealt D: <reaction> stun N`). S3 (the ATK gains): `SP hit gain G (fs F)` (gauges.lisp SP-ATK-HIT!, a J / SA hit
 window that dealt damage) and `SP cancel gain G (fs F)` (CORE-NOHIT!, a J / SA in a cancel, once per move); G is what the gauge really gained.
 Since KOSEI's flash-step left, only a J / SA ever refills the gauge: an NS / AS hit pays nothing, so a route's starts follow each other
 exactly (fs' = fs - paid) and a segment at 0 is refused.

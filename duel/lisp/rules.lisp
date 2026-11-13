@@ -424,6 +424,15 @@ of the wait run out, never faster than the module's CAP."
 
 (defun soul-break-p (reishi) "Reishi reached 0: automatic Soul Break." (<= reishi 0))
 
+(defun broken-souls (kikons soul-breaks)
+  "The souls a step broke, in the order queued (both queues are pushed, newest first): KIKONS ((attacker victim move) ...)
+as they are, SOUL-BREAKS ((attacker . victim) ...) without a Kikon's victim (the Kikon refills his Reishi: no Soul Break on
+top). Values: kikons soul-breaks (fresh lists; the queues are not changed). Conses nothing when both are empty."
+  (let ((kk (reverse kikons)))
+    (values kk
+            (and soul-breaks                     ; (a loop, not REMOVE-IF's closure: no consing on a quiet step)
+                 (loop for s in (reverse soul-breaks) unless (find (cdr s) kk :key #'second) collect s)))))
+
 (defun kikon-result (konpaku count soul-break)
   "Konpaku settled at connect time: a Kikon removes COUNT (the attacker's kit :kikon-konpaku, read when his
 rush started: *KIKON-KONPAKU* 2, awakened *KIKON-KONPAKU-AWAKENED* 3, Nozarashi's cups 2 / 3 / 4); a SOUL-BREAK

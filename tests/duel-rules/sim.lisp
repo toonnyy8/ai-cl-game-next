@@ -4,7 +4,7 @@
 ;; default off. combat / fighter / flow are loaded here over stand-in entities (a struct holding the fighter and gauges
 ;; components) with stubs for the engine's entity check, events, log and cinematics; nothing else of theirs is run.
 (load (merge-pathnames "../../engine/lisp/touch.lisp" *load-truename*))
-(dolist (f '("components" "combat" "core-sim" "fighter" "flow"))
+(dolist (f '("components" "gauges" "combat" "round" "core-sim" "fighter" "flow"))
   (load (merge-pathnames (format nil "../../duel/lisp/~a.lisp" f) *load-truename*)))
 (defstruct (tent (:constructor tent (f g))) f g)
 (defun fighter (e) (tent-f e))

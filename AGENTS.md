@@ -124,7 +124,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   tests/hud-engine-test.lisp`), `tests/paint-shapes-test.lisp` (SVG path flattening, the display tier's upper case: `$E --norc --load
   engine/lisp/package.lisp --load engine/lisp/math.lisp --load tests/paint-shapes-test.lisp`), `tests/debug-ranges-test.lisp` (the debug range registry), `tests/engine-check.sh` (browser).
 - Scope: a change inside one character's files → its pairings and its A/B (Lille II: not against the old Lille, no BL
-  pairing, the user 2026-10-10); shared files (combat, fighter, rules, ai,
+  pairing, the user 2026-10-10); shared files (gauges, combat, round, fighter, rules, ai,
   tuning, kit) → all fifteen. Attribute a shift with a baseline on the parent commit (`git worktree add`). A character's rework
   whose shared-file edits only serve that character (a hook, a move param no other kit uses) still gates only its pairings
   (the user, 2026-10-27: 「現在只有改一護，只測他的對戰結果就好」; Ichigo: IK, II, HI; DEVLOG §424).
@@ -160,7 +160,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   DUEL_DESIGN "Character code layout: split by role").
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
   sit in its file under the same rule),
-  `rules.lisp`, `control.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
+  `rules.lisp`, `control.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `gauges` (the gains, bursts, forms, GAUGE-SYSTEM), `combat` (the hits), `round` (the souls' settling, the reset),
   `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `fq-online` (the online fuzzy Q learner), `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `gate` (the gate
   machinery), `debug` (debug commands, scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `vfx-stamps`, `stage`,
   `cinema`, `glyphs`, `sounds`. Compile order:

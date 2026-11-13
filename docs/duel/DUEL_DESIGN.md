@@ -89,7 +89,7 @@ rules.lisp):
   readable dash in the module's own style: TENCHI's flash-step afterimages, CHARGE's charge, LEAP CLEAVE's
   leap, ENJO a straight dash; the red rush aura, speed lines, a "KIKON" word) and strikes again: the
   follow-up. Its hit is the **Kikon** (no damage, the Konpaku are settled at the end of that step's hit
-  resolution, `settle-souls`, combat.lisp; the character's Kikon cinematic plays, 2.7–3.2 s, not skippable).
+  resolution, `settle-souls`, round.lisp; the character's Kikon cinematic plays, 2.7–3.2 s, not skippable).
   - **The lock** (2026-10-24, the user: 「請把所有角色 O 到毀魂技的空檔延長，然後只要被 O 打中，非紅血狀態就鎖定防禦（此狀態可防禦
     取消硬直並擋下毀魂技）以外的一切行為，紅血狀態則連同防禦都鎖定。」): the follow-up lands 41 f after the O's hit
     (`*kikon-follow-stun*` 16 + 1 + `*kikon-follow-gap*` 24; 29 f with the gap's 12 before), and every victim reels
@@ -313,7 +313,7 @@ has not connected yet is escaped; a strike that connected first has already star
 neutral at once (put on the ground if airborne), his combo over, invulnerable 20 f; the attacker's
 move (or Hoho, step, run) ends and he slides 5 m away over 20 f, not stunned; 8 f of global
 hitstop; a blue shockwave, "BURST REVERSE" and a human's HUD prompt (SHIFT+J BURST) while it is
-possible. Rules: `burst-allowed-p` (rules.lisp), `burst-ok-p` / `burst!` (combat.lisp).
+possible. Rules: `burst-allowed-p` (rules.lisp), `burst-ok-p` / `burst!` (gauges.lisp).
 
 **Fighting Spirit** (Awakening gauge, 0–100): +0.035 per damage dealt, +0.049 per damage taken,
 +10.5 per Konpaku lost (×0.7 since 2026-09-30, "Slower awakening gauge" at the end; it was 0.05 / 0.07 / 15). Full → "EVOLUTION" blinks and a faint aura shows. Awaken from idle, walk,
@@ -1232,7 +1232,7 @@ stream is not enough: the knobs overfit the stream they are tuned on.
 ## Playtest decision: the awakening breaks his attack (the user, 2026-09-29)
 
 「將覺醒瞬間增加與 shift+J 的爆氣相同，能打斷對手攻擊的效果」. The moment of awakening now does what a Burst Reverse
-does (`repel!`, split out of `burst!` in combat.lisp): the attacker's move / Hoho / step / run ends and he slides
+does (`repel!`, split out of `burst!`, now in gauges.lisp): the attacker's move / Hoho / step / run ends and he slides
 `*burst-push*` away, the awakener is neutral and invulnerable `*burst-invuln*` f; then the cinematic. To make that
 reachable under pressure, the awakening (and Kenpachi's Bankai, the second awakening) may be pressed where a Burst could
 (`awaken-state-p`, fighter.lisp: free, blockstun, or a reaction / airborne past the combo's 2nd hit, inputs not locked;
@@ -1375,7 +1375,7 @@ live list of every kit hook point, its arguments, its caller and its users is th
 | kit `:hooks` | `:draw (e rdt)` | looks on the posed body (`draw-fighter`) | Senjumaru |
 | kit `:hooks` | `:pose (e)` | right after the body's FK, before it is drawn (`draw-fighter`): a deformation of the posed joint matrices (a look; the sim never reads it) | Lille Barro II (R8 squash and stretch, DUEL_LILLE_V3 §13) |
 | kit `:hooks` | `:hud-guard (e x y w h right s tm)` | over the guard bar, both HUDs | Ichigo |
-| kit `:hooks` | `:kikon-worth (e)` | the Konpaku its Kikon would take now, when that follows the fighter's state (`kikon-worth`, combat.lisp: a running rush's fixed worth first, else this hook, else `:kikon-konpaku`): the red Konpaku hint, the rush still reads its worth at O (the user 2026-09-29); a Soul Break takes it + 1 (`settle-konpaku`, the user 2026-09-30) | Ichigo (KESSA: 千影 by live clones, 2/2/3/4) |
+| kit `:hooks` | `:kikon-worth (e)` | the Konpaku its Kikon would take now, when that follows the fighter's state (`kikon-worth`, round.lisp: a running rush's fixed worth first, else this hook, else `:kikon-konpaku`): the red Konpaku hint, the rush still reads its worth at O (the user 2026-09-29); a Soul Break takes it + 1 (`settle-konpaku`, the user 2026-09-30) | Ichigo (KESSA: 千影 by live clones, 2/2/3/4) |
 | kit `:hooks` | `:deck (e x y d)` | the one-hand thumb ring | Ichigo, Senjumaru |
 | kit `:hooks` | `:siphon (o e)` | read off the **opponent's** kit at every gain of E (`siphon-of`): true while something of O's takes E's gains (E gains nothing from a hit, block, parry or his blade; his Reiatsu / flash-step go to O) | Senjumaru (星) |
 | kit `:meter` | `:draw`, `:label` | the kit-meter row / portrait slot, the portrait label | Senjumaru, Ichigo, Lille; Kenpachi, Rukia (round 3 N8: hud.lisp lost their NOME / UDE / cold branches) |
@@ -2071,7 +2071,7 @@ secs 292.4` (29 lines), IK `winner P1 konpaku 2-0 ticks 20137 secs 335.6` (34, w
   last as long as the shorter burst. If the gauge hits 0 before the budget is spent (a debug / run-mod value), the burst ends as before.
 
 **Code.** rules.lisp: `burst-budget` (mode -> budget), `burst-burn` (fs, burn -> fs', burn': pure; the gauge never loses more than is left to burn, so the
-cell is exact), `hoho-cost` takes the burn left (optional); combat.lisp `burst!` sets `gauges-burn`, `burst-step` calls `burst-burn` and ends the burst when
+cell is exact), `hoho-cost` takes the burn left (optional); gauges.lisp `burst!` sets `gauges-burn`, `burst-step` calls `burst-burn` and ends the burst when
 the gauge or the budget is 0, `burst-end!` logs `fs`; fighter.lisp `start-hoho` ends a BLUE burst after the spend. State: `gauges-burn` (single-float,
 components.lisp), a plain component slot: the ECS snapshot / restore takes it, nothing to add to the roots.
 

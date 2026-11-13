@@ -39,7 +39,9 @@ lisp/ichigo-look.lisp
 lisp/ken.lisp
 lisp/ichigo.lisp
 lisp/fighter.lisp
+lisp/gauges.lisp
 lisp/combat.lisp
+lisp/round.lisp
 lisp/core-sim.lisp
 lisp/hazards.lisp
 lisp/scripted.lisp
