@@ -3,12 +3,13 @@
  "b": "ichigo",
  "seeds": "201-300",
  "both_seats": true,
- "build": "14e22d37105e586d",
+ "build": "e7f62c5a31c29efc",
  "rows": [
   "none",
   "a-generic",
   "a-ken-press",
-  "a-ken-kh-standoff"
+  "a-ken-kh-standoff",
+  "c-ki-k-pilot-b0a0"
  ],
  "cols": [
   "none",
@@ -35,6 +36,11 @@
    0.41,
    1.0,
    0.36
+  ],
+  [
+   0.645,
+   1.0,
+   0.59
   ]
  ],
  "b_ko_share": [
@@ -57,6 +63,11 @@
    0.585,
    0.0,
    0.64
+  ],
+  [
+   0.355,
+   0.0,
+   0.41
   ]
  ],
  "cells": [
@@ -167,21 +178,49 @@
    "timeouts": 0,
    "draws": 0,
    "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "none",
+   "a_ko": 129,
+   "b_ko": 71,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-ichigo-press",
+   "a_ko": 118,
+   "b_ko": 82,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
   }
  ],
  "a_mix": {
   "none": 0.0,
   "a-generic": 0.0,
   "a-ken-press": 0.0,
-  "a-ken-kh-standoff": 1.0
+  "a-ken-kh-standoff": 0.0,
+  "c-ki-k-pilot-b0a0": 1.0
  },
  "b_mix": {
   "none": 0.0,
   "a-generic": 0.0,
   "a-ichigo-press": 1.0
  },
- "a_value": 0.36,
- "b_value": 0.64,
+ "a_value": 0.59,
+ "b_value": 0.41,
  "a_gap": 0.0,
  "b_gap": 0.0
 }

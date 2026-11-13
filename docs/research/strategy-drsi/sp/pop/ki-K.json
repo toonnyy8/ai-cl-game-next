@@ -23,6 +23,11 @@
    "id": "a-ken-kh-standoff",
    "file": "docs/research/strategy-drsi/sp/arms/a-ken-kh-standoff.lisp",
    "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "c-ki-k-pilot-b0a0",
+   "file": "docs/research/strategy-drsi/sp/arms/pilot/c-ki-k-pilot-b0a0.lisp",
+   "why": "pilot cell (2026-11-14): ken-kh-standoff-style with a-ken-press's :base / :rules; admission block 400: 0.7013 vs a-ken-press 0.4736, a-ken-kh-standoff 0.4686, none 0.3334 (DUEL_AI_STRATEGY \u00a711.5)"
   }
  ],
  "screen": {
@@ -199,7 +204,7 @@
   }
  },
  "mix": {
-  "a-ken-kh-standoff": 1.0
+  "c-ki-k-pilot-b0a0": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }
