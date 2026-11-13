@@ -157,7 +157,8 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 ### Runtime knobs instead of rebuilds
 - Integer-encoded debug commands set knobs before the gate: `24000+k … 29000+k` (string knobs = k/100), `2600+k`
   (`*red-threshold*`), `32000–38000` (Bankai), `39000+10a+b` (awaken mode per side), per-character ranges
-  (`74000+`, `90000+` via `*char-debug*`). `simgate.py --cmd N` queues any of them. → a sweep is N gate runs, no build.
+  (`74000+`, `83000+` via `define-debug-range`). `simgate.py --cmd N` queues any of them; a rule knob set so is named on every
+  match start (`duel match knobs: …`, since 2026-11-13). → a sweep is N gate runs, no build.
 - Sweeps documented with numbers: DUEL_STRINGS §10 (K2/K3 at 100/90/80/70 % → medians 116/120/124/125 s, seed noise
   ±5 s; chosen set = "every median ≥ 129 s and YK within 8–12", not the argmax).
 

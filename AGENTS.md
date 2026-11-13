@@ -100,7 +100,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - Toolchain paths (overridable by env, see `README.md` 需求): host ECL `ECL_HOST`
   (`/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl`, 32-bit), `EMSDK_DIR` (`/media/8tsp/projects/emsdk`, 4.0.12).
 - `Module._debug_cmd(n)` drives debug scenarios; SOUL DUEL's integer ranges are in `docs/duel/DUEL_GAMEPLAY.md`
-  "Debug commands" (claim a new range there before using it).
+  "Debug commands" (claim a new range there before using it, then a `define-debug-range` form next to its handler: the engine's
+  registry, `engine/lisp/debug-ranges.lisp`; a range inside another wins, a partial overlap fails at load).
 
 ## Tests and gates (SOUL DUEL)
 
@@ -121,7 +122,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - Engine tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
   `tests/cine-test.lisp`, `tests/hud-engine-test.lisp` (the paint stream's layout, line breaking, tweens, hot boxes: `$E --norc --load
   tests/hud-engine-test.lisp`), `tests/paint-shapes-test.lisp` (SVG path flattening, the display tier's upper case: `$E --norc --load
-  engine/lisp/package.lisp --load engine/lisp/math.lisp --load tests/paint-shapes-test.lisp`), `tests/engine-check.sh` (browser).
+  engine/lisp/package.lisp --load engine/lisp/math.lisp --load tests/paint-shapes-test.lisp`), `tests/debug-ranges-test.lisp` (the debug range registry), `tests/engine-check.sh` (browser).
 - Scope: a change inside one character's files → its pairings and its A/B (Lille II: not against the old Lille, no BL
   pairing, the user 2026-10-10); shared files (combat, fighter, rules, ai,
   tuning, kit) → all fifteen. Attribute a shift with a baseline on the parent commit (`git worktree add`). A character's rework
@@ -214,7 +215,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/run.mjs` | headless Chrome driver: `--script`, `--shot`, `--fixed-dt`, exit code on errors (a 404 included) |
 | `tools/pkgcheck.sh` / `.lisp` | undefined / unexported / shadowed symbols |
 | `tools/unit-forms.lisp` | refactor proof: two build units (`build/<t>/game-all.lisp`) compared as read forms (pure moves EQUAL, macro sweeps expanded) |
-| `tests/debug-ranges-check.py` | every debug command range is in DUEL_GAMEPLAY "Debug commands", no silent overlap |
+| `tests/debug-ranges-check.py` | every `define-debug-range` is in DUEL_GAMEPLAY "Debug commands", no partial overlap (without a build; the engine refuses one at load) |
 | `tools/simgate.py` (+ `tools/simgate/`) | native SOUL DUEL sim: seed gate, A/B, `--cvc` |
 | `tools/simlib.py`, `tools/simgate/prelude.lisp` | what every native-sim tool shares: simlib = paths, `build()`, `run_lisp(runner, cmds, env)`, `build_hash`, `gate_rows` / `ROW`, `pool` (every tool that runs `build/simgate/duel.fas` calls `build()` first); the prelude = the Lisp runners' start (`cl-user::sg-init`, `cl-user::sg-queue`); a new tool or runner uses them, never a copy |
 | `tools/strategy-eval.py`, `strategy-switch.py`, `strategy-matrix.py`, `combo-trial.py`, `teach-*.py`, `mc-*.py` (+ `tools/simgate/{strat-run,strat-desc,trial,teacher,contact,litefit}.lisp`) | research tools (dream-rsi, DUEL_AI_STRATEGY / DUEL_AI_TEACHER): strategy scoring, the counter-strategy switch test, the payoff matrix and admission test, combo trials, the offline teacher and its tables; frozen per search round, outputs cached in `build/strategy-eval-cache/` |

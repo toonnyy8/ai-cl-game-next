@@ -1359,7 +1359,9 @@ both: one `kit-hook` (kit.lisp); `:tick` (her `:step` was his `:tick`; his `:ste
 both files register with (her ranges were hard-coded, and her knobs moved 80000+ → 90000+ because ENDLESS owns
 80000–80999). The mechanics stayed in the character files; only their signatures were adapted.
 
-**The unified hook points** (every one inert for a character that doesn't name it):
+**The unified hook points** (every one inert for a character that doesn't name it). This table is the 2026-09-29 record; the
+live list of every kit hook point, its arguments, its caller and its users is the `:hooks` entry of `defkit`'s docstring
+(kit.lisp, REFACTOR_2026-11 R11, 2026-11-13: `:u` left then, and `*char-debug*` became the engine's `define-debug-range`):
 
 | Where | Key (arguments) | Called | Users |
 |---|---|---|---|
