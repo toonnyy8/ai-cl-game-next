@@ -8,6 +8,7 @@
   (:export
    ;; package.lisp: types, compiler helpers, float math in C, random numbers, logging
    #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:*log-mute* #:defun-fast #:defun-fast-inline #:with-floats #:inline-readers #:plist-get
+   #:tuning-ref-p #:resolve-tuning
    #:f-min #:f-max #:f-abs #:f-sqrt #:f-hypot #:f-sin #:f-cos #:f-atan2 #:f-mod #:f-exp #:f-clamp
    #:i->f #:f->i #:f-wrap #:rnd01 #:rnd-range #:rnd-seed #:rnd-state
    #:sim-rnd01 #:sim-rnd-range #:sim-rnd-seed #:sim-rnd-state
@@ -255,6 +256,18 @@ same declarations and (safety 0): no entry checks, so pass the declared types. R
 (declaim (inline plist-get))
 (defun plist-get (plist key &optional default)
   (loop for l on plist by #'cddr when (eq (car l) key) return (cadr l) finally (return default)))
+;;; RESOLVE-TUNING: data that names a knob. A game's data DSL (SOUL DUEL's DEFMOVE / DEFKIT) may write a number as an *EARMUFFED*
+;;; special; resolving the tree at load puts each one's value in its place, so the knobs stay in one file. Plain CL.
+(defun tuning-ref-p (x)
+  (and (symbolp x) x (not (keywordp x)) (not (eq x t))
+       (let ((n (symbol-name x)))
+         (and (> (length n) 2) (char= (char n 0) #\*) (char= (char n (1- (length n))) #\*)))))
+
+(defun resolve-tuning (tree)
+  "TREE with every *EARMUFFED* symbol replaced by its value."
+  (cond ((tuning-ref-p tree) (symbol-value tree))
+        ((consp tree) (cons (resolve-tuning (car tree)) (resolve-tuning (cdr tree))))
+        (t tree)))
 
 ;;; ---------------------------------------------------------------- fast float helpers
 ;;; (ECL: float min/max/abs/sin are generic calls; these compile to plain C.)

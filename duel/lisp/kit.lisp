@@ -5,21 +5,10 @@
 ;;;; :enter-hook, :exit-hook), called with FUNCALL. Kits load before the hook DEFUNs (one
 ;;;; compilation unit), so #' would fail at load time: hooks stay symbols.
 ;;;; Numbers in the data may name a tuning knob: *EARMUFFED* symbols are replaced by their value
-;;;; at load (RESOLVE-TUNING), so tuning.lisp stays the one place for shared numbers.
+;;;; at load (the engine's RESOLVE-TUNING, package.lisp), so tuning.lisp stays the one place for shared numbers.
 ;;;; Frames: a move's frame SF counts from 0 (its first frame); startup S, active A, recovery R;
 ;;;; hit windows [from, to) in move frames. Plain CL: loaded on the host by the rules test.
 (in-package :duel)
-
-(defun tuning-ref-p (x)
-  (and (symbolp x) x (not (keywordp x)) (not (eq x t))
-       (let ((n (symbol-name x)))
-         (and (> (length n) 2) (char= (char n 0) #\*) (char= (char n (1- (length n))) #\*)))))
-
-(defun resolve-tuning (tree)
-  "TREE with every *EARMUFFED* symbol replaced by its value."
-  (cond ((tuning-ref-p tree) (symbol-value tree))
-        ((consp tree) (cons (resolve-tuning (car tree)) (resolve-tuning (cdr tree))))
-        (t tree)))
 
 ;;; ================================================================ moves
 (defstruct (hitwin (:conc-name hw-))
