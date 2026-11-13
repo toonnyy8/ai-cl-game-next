@@ -163,7 +163,9 @@ Each style reads the tunables below through `(style-knob b KEY default)` (strate
 special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 
 - **Only for an arm whose `:fn` is that style** (`ken-ki-style`, `ken-kh-style`, `ken-kh-standoff-style`, `ichigo-ki-style`). Under `none`
-  the style runs with no strategy and every key is inert; an arm without `:fn` runs no style.
+  the style runs with no strategy and every key is inert; an arm without `:fn` runs no style. Hisagi's `hisagi-merged-style` (and
+  `hisagi-hk-style` on it) plays `ken-ki-style` outside his ranged mode, so a Hisagi arm naming `:kk-*` keys changes that part of his play
+  too (none does today): a lever for the KH / IH searches.
 - **Per-difficulty knobs**: the arm's value REPLACES the value at the brain's difficulty (it is the same at every difficulty). The default
   column gives HARD (the eval's difficulty), then EASY / NORMAL in brackets where they differ.
 - **Chances** (`-p`): a number 0-1, rolled once per event as before (`style-roll`). A value at 0 or 1 draws no random number, so moving a
