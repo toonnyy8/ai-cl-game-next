@@ -94,4 +94,4 @@ Both seats summed:
 - A time-out-tolerant share would have scored that table 0.955 against Hisagi. Its K.O. score is 0.002.
 - This is the evaluator defect PLAN.md §1 names. `--ko-only` closes it.
 
-**The anchor for the search is `none`.** Every lookup cell except KI / IK scores at the floor (0.002-0.010). PLAN.md §7 step 4 (empty the HARD lookup of stalling tables) applies to those seven entries (KK KH HK IH HI HH II); KI / IK still K.O., but half their matches reach the bell.
+**The anchor for the search is `none`.** Every lookup cell except KI / IK scores at the floor (0.002-0.010). Candidates for PLAN.md §7 step 4 (emptying the HARD lookup of stalling tables, the user's call): the seven entries KK KH HK IH HI HH II. KI / IK still K.O., but about half their matches reach the bell.

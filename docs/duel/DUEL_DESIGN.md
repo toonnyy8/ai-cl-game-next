@@ -1299,7 +1299,7 @@ and `gauge-system`; the gauge is `gauges-stun`):
 - **The blow-away:** the hit that takes the gauge **past** the tolerance becomes a **knockdown** with `*stun-blow-kb*` 8
   (× `*air-slide*` 0.6: a ~5 m slide away from the attacker over 20 f; the existing knockdown / slide code), the gauge
   goes back to 0, and the normal fall / down / wake-up invulnerability follows, so the combo ends. The combat log says
-  `P2 BLOWN AWAY by P1 (stun tolerance 18.0, combo hit 8)`; the gate row ends in `blow N` (the match's count).
+  `P2 BLOWN AWAY by P1 (stun tolerance 18.0, combo hit 8)`; the gate row carries `blow N` (the match's count; `ko 0|1` follows it since 2026-11-14).
 - **It never steals a Kikon or a Soul Break:** a Kikon rush's strike adds its points but never triggers the blow-away
   (its Kikon, or its follow-up dash, resolves first; the next hit does); a hit that breaks the soul plays its cinematic
   and sets no reaction at all. A Kikon / Soul Break reset clears the gauge.
