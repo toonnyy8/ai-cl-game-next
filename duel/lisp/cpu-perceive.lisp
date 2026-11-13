@@ -85,10 +85,12 @@ until the distance passes TO (CORE-BRAIN-STEP lets go)."
   (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to)))
 
 (defun ai-event-rolls (b s)
-  "One roll per opponent action (his SNAP S starts a new one): brain B's guard / Hoho / reaction rolls."
+  "One roll per opponent action (his SNAP S starts a new one): brain B's guard / Hoho rolls."
   (when (/= (snap-start s) (brain-roll-key b))
-    (setf (brain-roll-key b) (snap-start s) (brain-guard-roll b) (sim-rnd01) (brain-hoho-roll b) (sim-rnd01)
-          (brain-react-roll b) (sim-rnd01))))
+    (setf (brain-roll-key b) (snap-start s) (brain-guard-roll b) (sim-rnd01) (brain-hoho-roll b) (sim-rnd01))
+    ;; ponytail: the old reaction roll's draw, read by nothing; kept so the sim RNG stream (G2, the state hash) stays put. It
+    ;; leaves with the next hash-format regeneration (S2).
+    (sim-rnd01)))
 
 (defun ai-strafe (e b)
   "The strafe's next side and how long it lasts (*AI-STRAFE-TIME*)."

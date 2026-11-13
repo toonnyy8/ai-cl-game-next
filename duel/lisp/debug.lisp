@@ -647,7 +647,7 @@ every 30th battle frame (no cinematic, not paused) whether each fighter's box si
     (dolist (e (list *p1* *p2*))
       (let ((b (brain e)) (v *hud-v*) (p (pos-of e)))
         (when (and b (world-to-screen v (aref p 0) 2.7 (aref p 2)))
-          (ui-text (format nil "~a ~a H~d" (brain-intent b) (or (brain-act b) "") (floor (brain-heat b)))
+          (ui-text (format nil "~a H~d" (or (brain-act b) "") (floor (brain-heat b)))
                    (aref v 0) (aref v 1) :scale s :align :center :color '(0.5 1 0.6 1) :shadow t)))))
   (when *turbo*
     (ui-text (format nil "TURBO  T ~d  ~a" *match-tick* *flow*) (* 0.5 w) (* 40 s) :scale (* 2 s) :align :center :color '(0.5 1 0.6 1))))

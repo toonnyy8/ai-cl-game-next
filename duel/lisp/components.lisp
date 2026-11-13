@@ -44,9 +44,8 @@
   (last-sf -1 :type fixnum)             ; the move frame the last draw saw (draw-side move beats: Nadegiri's cut)
   ;; Phase 6 looks (cosmetic)
   (face-was :neutral)                   ; the expression drawn last frame (FACE-ACCENT)
-  (looks (make-f32 2) :type f32vec)     ; [0] 0..1 the left fist held on the handle (GRIP-STEP), [1] the fx clock when
+  (looks (make-f32 2) :type f32vec))    ; [0] 0..1 the left fist held on the handle (GRIP-STEP), [1] the fx clock when
                                         ; FACE-WAS last changed (an f32vec: set every frame at 0 B)
-  (t3 0 :type fixnum))                  ; cup-3 entries this match (the first gets the full pillar, later ones half)
 
 (defcomponent blade
   "The sword ribbon (engine MAKE-TRAIL layout): sampled in the draw while a move is active.
@@ -85,7 +84,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (crush nil)                           ; this move now crushes guard (stance >= 150, SP2 held)
   (stun 0 :type fixnum)                 ; frames the reaction / blockstun lasts
   (glock nil)                           ; blockstun: the guard lock holds him (his attacker may still chain; GUARD-LOCK-OF)
-  (block-adv 0 :type fixnum)            ; block advantage of the last melee hit blocked (CPU punish)
   (freeze 0 :type fixnum)               ; frames this fighter alone is frozen (super freeze)
   (lock 0 :type fixnum)                 ; frames inputs are ignored (reset neutral, perfect Hoho victim)
   (freeze-next 0 :type fixnum) (lock-next 0 :type fixnum)   ; set by the opponent during FIGHTER-SYSTEM,
@@ -117,7 +115,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (sp-held nil)                         ; the SP button held, never let go, since this NS / AS segment started (CORE-HOLD-STEP)
   (bk-out nil)                          ; Kenpachi's Bankai special AS started: back to the Shikai when it is over (KEN-BK-TICK)
   (charge-mult 1f0 :type single-float)  ; a charged SA's damage x on the rest of its string (J2 / J3 / the AS: CORE-CHARGE-MULT)
-  (cancelled nil)                       ; the move was cancelled this step (a bounce)
   (clash-t -1 :type fixnum)             ; *MATCH-TICK* of his last clash (a cancel): the kit's :clash hook once a step (CORE-CLASH!)
   (clash-n 0 :type fixnum)              ; cancels (clashes) since this NS route began: Kenpachi's NS2 feeds its SA (ken-dmg-mult)
   (lv-cap 99 :type fixnum)              ; the unlock level of this NS route / AS, read at its start (a kit's :lv hook; a segment's :params :lv
@@ -128,7 +125,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)
   (chain 0 :type fixnum)                ; ORANGE: frames the next move started still has its startup cut
   (invuln 0 :type fixnum)               ; frames of invulnerability left (after a Burst)
-  (step-open nil)                       ; this Step's iframes ended early (a kit's shot from it: Lille II, DUEL_LILLE_V2 V9l)
   (ox 0f0 :type single-float) (oz 0f0 :type single-float)   ; the opponent at the start of this step
   (dist 0f0 :type single-float)         ; ... and the distance to him
   (run-yaw 0f0 :type single-float)      ; the run's heading (he faces the opponent; this is where he goes)
@@ -136,7 +132,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (combo-hits 0 :type fixnum) (combo-launches 0 :type fixnum) (combo-air 0 :type fixnum)
   (combo-from 0 :type fixnum)           ; combo-hits when the attacker's ORANGE started: its damage scaling counts from there
   (combo-dmg 0 :type fixnum)
-  (seal 0 :type fixnum)                 ; frames a bind (RIKUJOKORO) still seals him: a Kikon follow-up treats him as red
   ;; HUD (sim frames)
   (callout nil) (callout-t 0 :type fixnum))
 
@@ -163,7 +158,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (meter 0f0 :type single-float)        ; the kit meter (Inferno, NOME)
   (meter-idle 0 :type fixnum)           ; frames since NOME last grew (RYOTE's drain waits for it)
   (form-left 0 :type fixnum)            ; frames left in a timed form (Hellfire)
-  (form-total 0 :type fixnum)
   (burn-step 0 :type fixnum)            ; frames of the current form's burn so far
   (taken-melee 0 :type fixnum) (taken-ranged 0 :type fixnum)   ; damage taken from blades / ranged hits (the CPU's
                                         ; :awaken rule: Rukia awakens against a melee opponent, ai.lisp AI-AWAKEN-P)
@@ -182,28 +176,20 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (cam-relative t))
 
 (defcomponent brain
-  "The CPU player (ai.lisp): delayed perception, the current intent, anti-stall heat, the button it
-is holding. Identity comes from the kit's :AI tables."
+  "The CPU player (cpu-perceive.lisp, core-ai.lisp): delayed perception, its rolls, the button it is holding."
   (difficulty :normal)
   (delay 14 :type fixnum)               ; perception delay, frames
   (ring (make-array 32) :type simple-vector)   ; SNAPs of the opponent, one per step
   (head 0 :type fixnum)
-  (intent :approach) (intent-t 0 :type fixnum)
-  (heat 0f0 :type single-float)
+  (heat 0f0 :type single-float)         ; dead (only ever 0); kept for the hash line's h column until S2 regenerates the format
   (strafe 1f0 :type single-float) (strafe-t 0 :type fixnum)
   (press nil) (press-mod nil) (press-left 0 :type fixnum)  ; button being held and for how long
   (decide-t 0 :type fixnum)             ; frames until the next neutral decision
   (roll-key -1 :type fixnum)            ; the opponent move start the reflex rolls were made for
   (guard-roll 1f0 :type single-float) (hoho-roll 1f0 :type single-float)   ; this event's rolls
-  (react-roll 1f0 :type single-float)   ; (1 = never)
   (was :idle)                           ; its fighter's state at the previous step (block punish)
-  (break-key -1 :type fixnum)           ; the guard episode the Breaker roll was made for
   (burst-t 0 :type fixnum) (burst-rolled nil)   ; frames in a combo past its 2nd hit; the Burst roll made
   (dash 0f0 :type single-float) (dash-to 0f0 :type single-float)   ; a held dash: +1 toward / -1 away, until this distance
-  (bankai-rolled nil)                   ; the Bankai entry roll of this cup-3 stay is made (ai.lisp AI-BANKAI-P)
-  (aim-key -1 :type fixnum) (aim-plan nil) (aim-t -1 :type fixnum)   ; :opp-aim: the aim rolled for (his move's start tick),
-                                        ; its answer (:hoho :rush :step NIL) and a pre-Step's tick (-1: on the perceived lock)
-  (reflect-key -1 :type fixnum) (reflect-go nil)   ; :opp-reflect: the move rolled for (its start tick), the roll said yes
   (act nil) (why nil)                   ; the last thing it decided and why (debug overlay, log)
   (habit nil)                           ; debug: the trial player's :trial (tools/simgate/trial.lisp; scripted.lisp TRIAL-STEP)
   (jkey -1 :type fixnum) (jstarts nil)  ; his last perceived J's start; the ticks his J's started (AI-MASH-P)

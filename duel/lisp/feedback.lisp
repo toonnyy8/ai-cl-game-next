@@ -13,6 +13,7 @@
 ;;;;   (:konpaku victim lost) (:kikon att victim) (:soul-break att victim)  (:awaken e) (:form e form)
 ;;;;   (:evolution e) (:hellfire e)  (:skeleton-rise x z)  (:sfx key e)  (:reset)
 ;;;;   (:ken-bk-burst e kind)   Kenpachi's special AS: 千切's beats (:chigiri-draw / -still / -quake / :chigiri), TATE-GOTO's split
+;;;;   (:ground-scar x z yaw ds r)   Kenpachi's floor cracks (Buttagiru, 斬壞's J5, TATE-GOTO): GROUND-SCAR
 ;;;;   (:rung e up-p) (:drink att def x y z) (:rift-cut owner x z hx hz yaw) (:rift-close x z)   Nozarashi's NOME ladder
 ;;;;   (:bankai e)   Kenpachi's Bankai
 (in-package :duel)
@@ -54,6 +55,14 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
   (when counter
     (impact-frame :manga 2)
     (announce "COUNTER" :color '(0.82 0.06 0.11 1) :secs 0.6 :small t)))
+
+(defun ground-scar (x z yaw ds r)
+  "Crack marks R m wide at DS metres ahead of (X Z) along YAW, that stay for the round, and chips thrown up (stage.lisp
+STAGE-MARK / STAGE-DEBRIS; Phase 6 destruction). Shown here, never from the sim: a rollout's events are dropped, so a CPU's
+search leaves no crack on the live stage (REFACTOR_2026-11 §11.5.2 C)."
+  (dolist (d ds)
+    (let ((mx (+ x (* d (fwd-x yaw)))) (mz (+ z (* d (fwd-z yaw)))))
+      (stage-mark :crack mx mz r) (stage-debris mx mz 3))))
 
 (defun feedback-system ()
   "Show every event emitted since the last call, oldest first."
@@ -168,6 +177,7 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
                       (vfx-shockwave (aref p 0) (aref p 2) 6.0 0.5 :rgb '(1.0 0.5 0.15)) (shake 0.2 0.4)
                       (stage-mark :scorch (aref p 0) (aref p 2) 2.0)))
     (:sfx (key e) (sfx-on key e))
+    (:ground-scar (x z yaw ds r) (ground-scar x z yaw ds r))
     (:reset _ (play-sfx :bell :gain 0.6) (stage-clear-marks))   ; a new round: a clean page
     (:rung (e up)               ; a cup up (or down) the NOME ladder
       (let ((form (fighter-form (fighter e))) (side (fighter-side (fighter e))))

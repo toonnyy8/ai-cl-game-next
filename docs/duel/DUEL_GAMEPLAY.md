@@ -146,7 +146,7 @@ pressed this step, applied at the end of `fighter-system`), `fighter-invuln` (fr
 ## Characters as data (`kit.lisp`)
 
 `(defmove :name :kind … :startup :active :recovery :dmg :adv-block :reach :arc … :on-frame ((f
-hook)) :params (…))` and `(defkit :character :form :inherit … :commands (…) :grid (…) :strings (…) :ai (…))`
+hook)) :params (…))` and `(defkit :character :form :inherit … :commands (…) :grid (…) :strings (…) :core (…))`
 (the keys are documented in the two macros' docstrings; `:grid (J1 J2 J3 K1 K2 K3 J2s K2s)` is a form's J / K strings,
 `defmove-copy` makes the switched link 2, DUEL_STRINGS.md). A form may `:inherit` another and derive
 its moves (`:startup-add`, `:reach-mult`). Hooks are symbols called with FUNCALL (the kits load
@@ -177,7 +177,7 @@ encoded in the integer.
 | 2101 | the next match starts with 2 Konpaku each (smoke runs) |
 | 2102 | toggle turbo: up to 120 steps per frame, no scene drawn |
 | 2103 | toggle the hitbox overlay: hurt cylinders (green), open melee windows (the volumes + a reach line, red), hazards (orange) |
-| 2104 | toggle the CPU intent overlay (intent, current action, heat) |
+| 2104 | toggle the CPU overlay (current action, heat) |
 | 2105 | toggle both CPUs off |
 | 2106 | toggle the engine's perf log |
 | 2107 | log both fighters' state (a hash line) |

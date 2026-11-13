@@ -232,8 +232,7 @@
                 (null (kit-next k :hs-kaza-j :q)) (null (kit-next k :hs-kaza-j :f)) (not (string-link-p k :hs-kaza-j))
                 (not (string-link-p k :hs-kaza)) (eq kz (kit-command-move k :sig))
                 (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-na3)) (equal (route k :f '((:f) (:f))) '(:hs-k1 :hs-k2 :hs-k3))
-                (null (kit-l-after-j (kit :hisagi :bankai))) (null (kit-l-after-j (kit :hisagi :bankai-bind)))
-                (~= 0.3 (getf (kit-ai k) :l-after-j))))
+                (null (kit-l-after-j (kit :hisagi :bankai))) (null (kit-l-after-j (kit :hisagi :bankai-bind)))))
     ;; both windmills: no cooldown (「拿掉冷卻」), the same frames, ward, tick and frame-0 reset (the neutral one charges too:
     ;; 「中立的風車可以蓄力接 K」); the bridge's push a stagger, the neutral's 8 f
     (check (and (= 0 (mv-cooldown kz) (mv-cooldown kj)) (= (mv-s kz) (mv-s kj) 6) (= (mv-a kz) (mv-a kj) 60) (= (mv-r kz) (mv-r kj) 14)
@@ -596,14 +595,12 @@
                               (member (mv-name mv) '(:hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa :hs-r-n2a :hs-r-n2c :hs-r-as2
                                                      :hs-r-as2b :hs-r-sa-g :hs-r-j2 :hs-r-j3 :hs-r-na3 :hs-r-na4 :hs-r-j2s :hs-r-j3g))   ; (§28.7's bands, §28.10's J links)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
-    ;; ... and only his forms have the :dmg-mult hook (the Bankai's tip, since §27 the Shikai's 放電 / 餘電), only his forms the CPU's
-    ;; :move-reflex (which of his: HISAGI-CPU-TESTS)
+    ;; ... and only his forms have the :dmg-mult hook (the Bankai's tip, since §27 the Shikai's 放電 / 餘電)
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . k) in alist
-                              always (and (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
-                                              (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
-                                              (eq (kit-hook k :dmg-mult) (cond ((eq c :hisagi) 'hs-core-dmg-mult) ((eq c :kenpachi) 'ken-dmg-mult))))
-                                          (or (eq c :hisagi) (null (getf (kit-ai k) :move-reflex)))))))
+                              always (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
+                                         (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
+                                         (eq (kit-hook k :dmg-mult) (cond ((eq c :hisagi) 'hs-core-dmg-mult) ((eq c :kenpachi) 'ken-dmg-mult)))))))
     ;; the annulus (§25.3: J1 / J2 3.0-6.0 m 100 deg ahead, J3 3.0-6.0 m all round): a hurt cylinder r 0.36 at D m (ahead,
     ;; or behind); the window's dead zone first, then its volume (facing -Z)
     (flet ((reach-p (n d &optional behind)
@@ -990,16 +987,9 @@
       (check (try :hs-r-j1 25.0 1.0))                           ; (J1 at 5.0 m: none)
       (check (try :hs-r-k2s 9.0 1.0)))))                        ; (a spread link)
 
-;;; His CPU's shipped knobs on the Shikai's :ai (the kit data still carries them). His old CPU's pure functions (HS-AI-* / HS-R-* /
-;;; HS-B-*), his learner's situations and ASSIST's routes left main with hisagi-ai.lisp on 2026-11-13 (REFACTOR_2026-11 R4), and
-;;; their checks with them (branch `frozen-modes`).
-(let ((k (kit :hisagi :base)))
-  ;; the Shikai's :ai: the awakening gate (round01 cell b3a0: 4500 -> 3000 taken), no neutral / reeling Kikon rush (the O ender only), the generic string-k 0,
-  ;; no neutral SHIBARI or Breaker
-  (check (and (equal '(:min-taken 3000) (getf (kit-ai k) :awaken)) (eq (getf (kit-ai k) :awaken) *hs-ai-awaken*)
-              (~= 0.0 (getf (kit-ai k) :kikon-range)) (~= 0.0 *hs-ai-string-k*)
-              (~= 0.0 (getf (kit-ai k) :o-ender))
-              (notany (lambda (bd) (or (getf (cddr bd) :sp2) (getf (cddr bd) :breaker))) (getf (kit-ai k) :moves)))))
+;;; His old CPU's pure functions (HS-AI-* / HS-R-* / HS-B-*), his learner's situations and ASSIST's routes left main with
+;;; hisagi-ai.lisp on 2026-11-13 (REFACTOR_2026-11 R4), and their checks with them (branch `frozen-modes`); the kits' :ai data
+;;; and its checks left with R10's item 3 (2026-11-13).
 ;; the ranged mode's chain tip (HS-DIST-MULT: the outer *HS-R-TIP* of each volume): x1.71 on K1's 4.0 and J1's 5.5, x1.0 just inside
 ;; (HISAGI-DRAW's glint, HS-TIP-BAND in hisagi-draw.lisp, reads the same bands)
 (check (and (~= 1.71 (hs-dist-mult :bankai nil 6.0 5.5 0.0)) (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.0 0.0))

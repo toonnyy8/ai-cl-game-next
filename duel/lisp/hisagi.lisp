@@ -70,21 +70,6 @@ the spec's bound) toward the victim's position each frame, to J's chase goal (1.
 (defparameter *hs-leap-block* -6
   "... and their block advantage (J2's -2 / J3's -4 -> -6, -9 for the defender with the J's +3: his J1 punishes a blocked
 leap; S2's pick, the spec: 「punishable sensibly on block」).")
-;; the CPU (DUEL_HISAGI §10; every chance EASY <= NORMAL <= HARD, rolled once per event)
-(defparameter *hs-ai-string-k* 0.0
-  "His CPU's K after a link the generic string reflex picks for (the kit's :string-k, §10: 0.7 -> 0.0, cell b0a0: HS-AI-MOVE picks
-every J / K link; this one only opens a string off a Breaker hit, where K1's 3.0 m dead zone whiffs: J1 there).")
-(defparameter *hs-ai-l-after-j* 0.3
-  "His CPU's L off a J link that hit (the kit's :l-after-j, one roll per hit; S1 §23.1, 2026-10-18): the bridge into the
-windmill.")
-(defparameter *hs-ai-awaken* '(:min-taken 3000)
-  "His Shikai's :awaken gate (AI-AWAKEN-P, a kit gate; cell b0a0): the awakening waits until he has taken this much damage
-in the match: the Shikai's chain is the fight, the Bankai his last stand (its combo break, the 20 % heal, KUBIKAKE into
-the bind). (None -> 3000: the shipped CPU awoke at once and its ranged mode dealt 5 a second against 38 taken at HARD.)
-(Cell b3a0, with b1a0's fence in the Bankai: 3000 -> HARD 0.37 -> 0.31, 2000 -> 0.24 at 10 seeds; 4500 kept.) Round01 cell
-b3a0 on §25.13's rules, with round01 b1a0's route styles, the waking noose and the bind's ledger: 4500 -> 3000 (HARD over
-1200 matches, seeds 1-40 + 101-160: 2000 0.419 / 0.460, 2500 0.446 / 0.463, 3000 0.490 / 0.467, 3500 0.467 / 0.440, 4500
-0.465 / 0.444 before the reap's 3 steps; the ranged + bind share of his damage 0.01 -> 0.12).")
 ;;; ---------------------------------------------------------------- the Bankai 風死絞縄 (§17, batch B2b)
 (defparameter *hs-r-walk* 2.8
   "Walk m/s, the Bankai's ranged mode (the lead's proposal 2026-10-17, §17.1: Lille's base 3.4; 3.4 -> 2.8, 2026-10-18, the
@@ -427,24 +412,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
             (:hs-j1-1h :q :hs-j2-1h) (:hs-j2-1h :q :hs-j3-1h))
   :awaken-form :bankai                          ; the Bankai's ranged mode (§17.1; batch B2b)
   :l-after-j :hs-kaza-j                         ; L off a J1 / J2 / J3 link: the windmill bridge (S1, §23.1)
-  :hooks *hs-hooks*
-  ;; an all-rounder at 2-6 m (§6): the throw at 3.5-6.2 m, J strings up close, the windmill against projectiles (his
-  ;; :reflex), SP2 / the Breaker at mid range
-  :ai (:intents (:approach 2 :pressure 2 :zone 3 :defend 1)
-       :ranges (:approach (3.0 5.5) :pressure (1.2 2.2) :zone (3.5 6.0) :defend (4.0 6.0))
-       ;; (cell b0a0: SHIBARI only as an ender (its neutral whiffs fed the counters), K1 rarer from neutral (its 18 f
-       ;; startup is Hoho'd: HS-AI-REFLEX's punish K1 instead), the windmill's charge at K range too)
-       :moves ((0.0 2.0 :q 5)                          ; (S1: K1 has a 2.0 m dead zone, §23.3; 3.0 since §24.4)
-               (2.0 3.0 :step 1 nil 2)
-               (3.0 3.5 :f 1 :step 1 nil 2)
-               (3.5 6.2 :f 2 nil 3)     ; (cell b3a0: no neutral windmill: its charge stood still in his reach, punished
-               (6.2 9.0 nil 3)          ; by every rushdown and zoner: HARD 0.37 -> 0.39-0.44; the bridge and the ward keep it)
-               (9.0 99.0 nil 2))
-       ;; (cell b0a0 on §25.15 tried :hoho 0.3 -> 0.15, its counter being plain damage (1.4 -> 0.8 % of his at HARD): the
-       ;; key is every difficulty's, and NORMAL's never-awaken HK / HB A/B rows fell to 14-18 / 12-16 of 60; 0.3 kept)
-       :guard 0.35 :neutral-guard 0.1 :hoho 0.3 :dash 0.25 :dash-back 0.3 :block-string 0.25 :sp-cancel-bars 1 :string-k *hs-ai-string-k*
-       :l-after-j *hs-ai-l-after-j* :awaken *hs-ai-awaken*
-       :kikon-range 0.0 :o-ender 0.0))                ; (S2: KJJ / KKJ, the leap, §23.5)
+  :hooks *hs-hooks*)
 
 ;;; ================================================================ the Bankai 風死絞縄 (§17; batch B2b)
 ;;; Two modes, each a kit form: :bankai the ranged mode (the default after the awakening; prefix hs-r-), :bankai-bind the

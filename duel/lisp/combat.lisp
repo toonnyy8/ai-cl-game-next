@@ -367,7 +367,7 @@ result (NIL = no effect)."
                     (when rward (setf (fighter-ward-until fd) (+ *match-tick* *hitstop-block* stun)))   ; the windmill: a guard's wait (+ its hitstop)
                     (hitstop *hitstop-block*)
                     (emit :blocked att def x y z))
-                   (t (set-blockstun def stun sx sz adv)
+                   (t (set-blockstun def stun sx sz)
                       (hitstop *hitstop-block*)
                       (emit :blocked att def x y z)))
              (when (plusp chip) (deal-damage att def chip))))
@@ -417,7 +417,7 @@ Hoho's counter strike on its frame (it always connects)."
                                             (body-hurt-r ob) (body-hurt-h ob)))   ; (its volumes, or its :seg-fn capsule)
                   do (push (make-pending :att e :def o :hw w :i i :sx (aref p 0) :sz (aref p 2)
                                          :state (defender-state o) :mv mv
-                                         :red (or (gauges-red-p go) (plusp (fighter-seal (fighter o))))   ; (a sealing bind: as red)
+                                         :red (gauges-red-p go)
                                          :bonus (fighter-dmg-bonus f) :crush (fighter-crush f))
                            *pending*)))))))
 
@@ -588,8 +588,7 @@ and spends no flash-step (the user 2026-09-30)."
   (let* ((f (fighter e)) (g (gauges e)) (old (fighter-kit f)) (new (find-kit (fighter-character f) form)))
     (when (and (kit-exit-hook old) (not (eq old new))) (funcall (kit-exit-hook old) e))
     (setf (fighter-kit f) new (fighter-form f) form (gauges-burn-step g) 0
-          (gauges-form-left g) (if (kit-duration new) (seconds->frames (kit-duration new)) 0)
-          (gauges-form-total g) (gauges-form-left g))
+          (gauges-form-left g) (if (kit-duration new) (seconds->frames (kit-duration new)) 0))
     (let ((n (length (getf (kit-core new) :ns))))       ; the core system: the pointer within the form's NS (Hisagi's Bankai has two)
       (when (plusp n) (setf (fighter-ptr f) (min (fighter-ptr f) n))))
     (refresh-look e)

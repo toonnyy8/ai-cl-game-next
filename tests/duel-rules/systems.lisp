@@ -46,11 +46,9 @@ defender's next step. Values: the attacker's and the defender's first actionable
                                       :hits ((12 14) (22 24) (32 34)) :flags (:ranged)))))
   (check (= (move-active-end shot) 6))
   (check (= (move-active-end sanren) 34)))                       ; every window of it, not S + A
-;; inert for the first five characters: no move has :x-axis / :reflectable, no form the keys :opp-aim / :opp-reflect
-;; (Lille's forms have them: DUEL_LILLE §8, §11.3)
+;; inert for the first five characters: no move has :x-axis / :reflectable (Lille's had them: DUEL_LILLE §8, §11.3)
 (dolist (cf (remove-if (lambda (c) (member c '(:lille :barro))) *forms* :key #'first))
   (let ((k (apply #'kit cf)))
-    (check (not (or (getf (kit-ai k) :opp-aim) (getf (kit-ai k) :opp-reflect))))
     (loop for m being the hash-values of (kit-moves k)
           do (check (not (intersection '(:x-axis :reflectable) (mv-flags m)))))))
 

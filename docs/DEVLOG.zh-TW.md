@@ -8803,3 +8803,14 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 試玩頁等 S2（消耗）完成、到 M2 再發布 A1。
 
 分工：Sonnet 子代理：S1；主對話 Opus 5.5：Q18 決定、覆核、合併、重跑檢查。
+
+## 742. R10 第 1–3 項：劍八的地裂改成事件、`*soul-breaks*` 進快照根、清掉沒人讀的欄位（2026-11-13）
+
+使用者：「按你建議的做」（§730 的開工決定；這三項是 R10 審查 REFACTOR_2026-11 §11.5.7 排在 S2 之前的）
+
+- 地裂：劍八三個掛鉤（TATE-GOTO、BUTTAGIRU、斬壞 J5）原本在模擬步內直接畫地面裂痕與碎石；現在改發 `(:ground-scar x z yaw ds r)` 事件，由 feedback.lisp 畫。遊戲內的 MCTS 推演結束時會丟掉事件，所以 CPU 的搜尋不再在實際舞台上留裂痕（子代理實測：BUTTAGIRU 後做 90 步推演再還原，之前留下 2 道裂痕、6 塊碎石，之後 0；正常對戰照樣留痕）。離線推演（snaptest、teacher）仍會跑 feedback，留給 R12。
+- `*soul-breaks*` 補進 `snapshot-roots`，三個命中佇列同一條規則。
+- 刪掉沒人讀的欄位：FIGHTER 4 個、BRAIN 10 個、GAUGES `form-total`、MODEL `t3`，以及各角色的 `:ai` 資料（劍八 3、一護 2、檜佐木 1）、kit 的 `ai` 欄與只有它們在讀的 4 個旋鈕。BRAIN `heat`、雜湊行的 `h` 欄，以及原本填 `react-roll` 的那一次 `sim-rnd01` 抽取先保留（拿掉會讓亂數序列移位、G2 改變），等 S2 重產參照時一起拿掉。除錯 2104 的疊層改為只印動作與 heat。
+- 證明：子代理在 a5a75b0f 上：G2 native／瀏覽器相同、snaptest／fulltest 0 差異、美術 75 張逐位元相同（兩個 commit 各跑一次）。主對話在疊上 S1 的 main 重跑：主機測試 2949 → 2939 全過（移除 10 項 `:ai` 檢查），pkgcheck 乾淨，除錯區段 85 段 0 錯，建置，冒煙桌機與手機，G2 native 三組與 S1 的參照相同。index.wasm 10,253,9xx → 10,245,953 B。
+
+分工：Opus 子代理：R10 第 1–3 項；主對話 Opus 5.5：覆核、合併、重跑檢查。

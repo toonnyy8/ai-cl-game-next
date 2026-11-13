@@ -266,7 +266,7 @@ new button."
   (intro nil) (win nil) (intro-callout nil) (intro-weapon nil) (callout nil)
   (swing-sfx nil) (absorb-sfx nil)
   (enter-clips nil) (enter-hook nil) (exit-hook nil)
-  (meter nil) (ai nil) (cine nil) (blade nil) (grade nil)
+  (meter nil) (cine nil) (blade nil) (grade nil)
   (kikon-konpaku 2 :type fixnum)        ; Konpaku a Kikon of this form removes (read at rush start)
   (form-name nil)                       ; the form's name on the HUD (default its keyword)
   (respect-callout nil)                 ; said when the opponent outplays him (a counter-hit, a perfect Hoho, a parry, a Burst)
@@ -619,7 +619,5 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :grade                             the world's grade while the form is on: NIL, or :SPOT (grey but the ember
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)
   :intro :win :intro-callout :callout  clips / texts; :intro-weapon (key frame) = a prop held in the
-                                     intro clip until FRAME (Yamamoto's cane)
-  :ai (:intents plist :ranges plist :moves ((lo hi cmd w ...) ...) :guard p :hoho p :kikon-range m ...)
-                                     CPU identity (§8): every key the generic CPU reads is listed in ai.lisp's header"
+                                     intro clip until FRAME (Yamamoto's cane)"
   `(register-kit ,character ,form ',spec))

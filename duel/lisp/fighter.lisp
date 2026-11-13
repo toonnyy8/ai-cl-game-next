@@ -320,8 +320,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
         (set-slide e (let ((len *step-distance*) (h (kit-hook (fighter-kit f) :step-dist)))   ; a form's own landing (Hisagi's chain tips)
                        (if h (funcall h e f to st len) len))
                    12 dx dz))
-      (setf (fighter-state f) :step (fighter-sf f) 0 (fighter-move f) nil (fighter-queued f) nil   ; (the J latch)
-            (fighter-step-open f) nil)
+      (setf (fighter-state f) :step (fighter-sf f) 0 (fighter-move f) nil (fighter-queued f) nil)   ; (the J latch)
       (halt! e)
       (let ((h (kit-hook (fighter-kit f) :step))) (when h (funcall h e)))   ; the form's own take-off (a clone)
       (play-clip e (cond ((> (abs st) (abs to)) (if (> st 0) :sh-step-r :sh-step-l)) ((> to 0) :sh-step-f) (t :sh-step-b))
@@ -974,12 +973,10 @@ invulnerable)."
                                       (:crumple :sh-crumple) (:clash :sh-clash) (:bind :sh-bound) (t :sh-flinch))
                         :blend 0)))))
 
-(defun set-blockstun (e stun from-x from-z adv &optional clip)
-  "Blockstun of STUN frames, pushed back from (FROM-X FROM-Z); ADV = the blocked move's advantage. CLIP: its
-clip (a drunk hit's), else the guard's."
+(defun set-blockstun (e stun from-x from-z &optional clip)
+  "Blockstun of STUN frames, pushed back from (FROM-X FROM-Z). CLIP: its clip (a drunk hit's), else the guard's."
   (let* ((f (fighter e)) (p (pos-of e)))
-    (setf (fighter-state f) :guard-hit (fighter-sf f) 0 (fighter-stun f) stun (fighter-move f) nil
-          (fighter-block-adv f) adv)
+    (setf (fighter-state f) :guard-hit (fighter-sf f) 0 (fighter-stun f) stun (fighter-move f) nil)
     (halt! e)
     (set-slide e *block-pushback* 6 (- (aref p 0) from-x) (- (aref p 2) from-z))
     (play-clip e (or clip :sh-guard-hit) :blend 0)))
@@ -1003,7 +1000,7 @@ its startup's end, or a Kikon rush's dash), or a kit's :armor hook (Lille II's w
       (:guard (if (and (>= (fighter-guard-t f) *guard-raise*) (can-guard-p (gauges-gg (gauges e)) (gauges-guardless (gauges e))))
                   :guard :neutral))
       (:guard-hit :guard)
-      (:step (if (and (invulnerable-frame-p sf *step-iframes*) (not (fighter-step-open f))) :invuln open))
+      (:step (if (invulnerable-frame-p sf *step-iframes*) :invuln open))
       (:hoho (if (invulnerable-frame-p sf *hoho-iframes*) :invuln open))
       ((:down :wakeup :cine :intro :win :lose) :invuln)
       (:air (if (eq (fighter-phase f) :knockdown) :invuln :neutral))   ; the combo limits' forced knockdown
@@ -1076,7 +1073,6 @@ cinematic or a :through move."
   (when (and (plusp (fighter-kikon-lock f)) (not (kikon-lock-holds-p f))) (setf (fighter-kikon-lock f) 0))
   (when (> (fighter-invuln f) 0) (decf (fighter-invuln f)))
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
-  (when (> (fighter-seal f) 0) (decf (fighter-seal f)))
   (let ((cd (fighter-cd f))) (dotimes (i (length cd)) (when (plusp (aref cd i)) (decf (aref cd i)))))
   (let ((vp (pilot-vpad (pilot e))))
     (case (fighter-state f)

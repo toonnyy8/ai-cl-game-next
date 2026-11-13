@@ -50,7 +50,6 @@ one's (the user, 2026-10-28: 「一個慢 4f 一個慢 8f」).")
 (defparameter *zanzo-lag* 10 "An echo replays his move this many frames behind ...")
 (defparameter *zanzo-mult* 0.5 "... at this x of its damage and guard value.")
 ;; the CPU
-(defparameter *ai-ic-l-after-k* 0.3 "The Shikai CPU's stance after a K link that hit (per hit).")
 (defparameter *ai-ic-parry-p* 0.35 "KESSA's CPU parries a hit it sees coming into the window this often (74950+k: k / 50;
 NORMAL's: EASY 0.6x, HARD every one, the v2 layering) ...")
 (defparameter *ai-ic-parry-bs-p* 0.3 "... and parries from blockstun after a blocked K link this often (NORMAL's: EASY 0.6x,
@@ -351,18 +350,7 @@ HARD 0.8).")
   :strings *ic-strings*                         ; (five J ahead of the stance's follow-ups)
   :l-after-k :ic-tsuki-k2                       ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the stance at f4
   :awaken-form :kessa :aura ichigo-aura-base
-  :hooks *ichigo-hooks*
-  ;; rushdown: J pressure at 1.4-2.4 m, the cleaver's K links into a guard (:block-string), the stance and SOGA in the
-  ;; middle (the stance's branch: ICHIGO-AI-STANCE), JUJISHO against a projectile; he awakens once he has taken 150
-  :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.6 5.0) :pressure (1.0 1.8) :zone (5.0 7.0) :defend (3.0 5.0))
-       :moves ((0.0 1.6 :q 5 :f 2 :breaker 1 :sp2 1 :sig 1)            ; J up close only (DUEL_STRINGS §13), K beyond
-               (1.6 2.6 :f 4 :sig 2 :breaker 1 :sp2 1)                ; the stance from 1.6 m (RANGETSU's lunge reaches)
-               (2.6 5.0 :sig 4 :sp2 2 :f 1 :step 1)
-               (5.0 9.0 :sp2 2 :sig 2 :sp1 1 :kikon 1)
-               (9.0 99.0 :sp1 2 :kikon 1 nil 1))
-       :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.1 :block-string 0.8 :l-after-k *ai-ic-l-after-k* :sp-cancel-bars 1
-       :kikon-range 8.6 :react (:projectile :sp1) :awaken (:min-taken 150)))
+  :hooks *ichigo-hooks*)
 
 ;;; KESSA NO ICHIGO: permanent, no heal, Kikon 3 (O: 2-4 by the clones). A normal guard; L the parry (and from blockstun);
 ;;; a clone on a Step (:step) and a Hoho; the clones' answers, the O charge and the afterimages in his :tick hook
@@ -379,20 +367,7 @@ HARD 0.8).")
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)
   :grid (:ic-k-j1 :ic-k-j2 :ic-k-j3 :ic-k-k1 :ic-k-k2 :ic-k-k3 :ic-k-j2s :ic-k-k2s)
   :strings ((:ic-k-j2 :q :ic-k-na3) (:ic-k-na3 :q :ic-k-na4) (:ic-k-na4 :q :ic-k-j3) (:ic-k-parry :land :ic-k-gaeshi))   ; (five J)
-  :l-after-k nil
-  ;; a mid-close brawler with posts: every back hop and Hoho posts a clone; the parry and O by the clones in its
-  ;; :reflex (ICHIGO-AI-KESSA), from blockstun in the :tick hook
-  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.6 6.0) :pressure (1.0 2.0) :zone (3.0 4.0) :defend (3.5 5.5))
-       ;; the clones swing in place (the user, 2026-09-29): a Step posts one where he took off, so at 2.8-5 m the Hoho
-       ;; (a clone 1.6 m in front of him, Ichigo behind him) takes half the Step's share
-       :moves ((0.0 1.8 :q 5 :f 3 :breaker 1 :step 1)
-               (1.8 2.8 :f 5 :breaker 1 :step 1)
-               (2.8 5.0 :f 2 :step 1 :hoho 1 :sp2 1 :q 1)
-               (5.0 9.0 :sp1 2 :hoho 2 :kikon 1 :step 1)
-               (9.0 99.0 :kikon 1 :hoho 2 nil 1))
-       :guard 0.4 :hoho 0.4 :dash 0.6 :dash-back 0.2 :o-ender 0.6 :attack 0.15 :l-after-k 0.0 :sp-cancel-bars 9
-       :kikon-range 8.6 :stun-follow (:sp1 3.8 7.0)))
+  :l-after-k nil)
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules-test.lisp)
 (defun ichigo-haste-dash (e)

@@ -9,7 +9,7 @@
 
 ;;; The game's sim globals (the ECS stores and the sim RNG are the engine's).
 (snapshot-roots '*match-tick* '*flow* '*timer* '*winner* '*paused*                ; flow.lisp, components.lisp
-                '*pending* '*kikons* '*blow-aways*                                 ; combat.lisp
+                '*pending* '*kikons* '*soul-breaks* '*blow-aways*                  ; combat.lisp (the step's three hit queues)
                 '*slow-acc*                                                        ; main.lisp
                 '*mc-next* '*mc-plan*                                              ; cpu-mcts.lisp (a deferred search's gap, the plans)
                 '*view-x* '*view-z* '*view-side* '*behind-yaw*                     ; fighter.lisp VIEW-STEP (a human's stick, the camera)

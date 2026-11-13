@@ -1064,6 +1064,27 @@ fulltest); "looks" = the looks gate's stills against a same-session BASE.
 | 14 | `*mc-plan*` and the jobs' owner as BRAIN slots (or a CPU component); `*view-*` as P1's PILOT slots | state in components, not in side-indexed specials | ~50 lines | medium (snapshot roots change) | snaptest / fulltest, G2, the camera scripts | R12 / R15, only if the next feature needs it |
 | 15 | debug-mutated knobs reset on `start-match` (or the debug commands bind instead of set) | a debug command must not change a later match silently | ~20 lines | low | the debug scripts' logs | R11 |
 
+**R10 items 1-3 done on branch (2026-11-13; two commits, items 2-3 first so the looks gate could tell them apart).**
+Item 1: the three ken.lisp hooks (`ken-tategoto-split`, `ken-ground-crack`, `ken-bk-slam`) emit `(:ground-scar x z yaw ds r)` (the
+feet's numbers captured at the hook, not the live position vector) in the place their `ground-scar` call stood; `ground-scar` moved
+to feedback.lisp with that signature and the event's handler, so the sim step no longer writes the stage. A lean rollout drops its
+events (`sim-step-lean` ends in `take-events`); the offline `sim-rollout` still runs `feedback-system` (11.5.2 D, R12's). Proven
+directly with a scratch native check (debug 2309, Buttagiru: snapshot, 90 lean steps, restore): before, the rollout left 2 marks and 6
+chips on the live stage; after, 0 and 0, and the live step still makes them. Item 2: `*soul-breaks*` in `snapshot-roots` beside
+`*pending*` / `*kikons*`. Item 3: FIGHTER `cancelled` `seal` `step-open` `block-adv`, BRAIN `intent` `intent-t` `break-key`
+`bankai-rolled` `aim-key` `aim-plan` `aim-t` `reflect-key` `reflect-go` `react-roll`, GAUGES `form-total`, MODEL `t3` out with their
+writers and their always-constant reads (combat's `:red` is `gauges-red-p` alone, the Step's iframes no longer test `step-open`,
+`set-blockstun` lost its ADV argument); the kits' six `:ai` plists, the kit's `ai` slot and the four knobs only they read
+(`*ai-ic-l-after-k*`, `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`); debug 2104's overlay prints action + heat. BRAIN
+`heat` and the hash line's `h` column stay for S2's format regeneration, and so does the old reaction roll's `sim-rnd01` draw in
+`ai-event-rolls` (now read by nothing): removing it would move the sim RNG stream and G2. Proof: host tests 2939 -> 2929 (the
+removed checks pinned the `:ai` data: hisagi.lisp's `:ai` knob check, systems.lisp's `:opp-aim` / `:opp-reflect` check over 9 forms;
+two `kit-ai` clauses dropped from live checks), control 116, input 33, touch 100, cine 18, hud-engine 121 all pass; pkgcheck only
+`DUEL::APP`; debug ranges 84, 0 errors; G2 identical (II 39, IK 36, KK 28 lines; native after each commit, the browser on the final
+build), reference not regenerated; snaptest IK straight = pollute, fulltest IK 102 / FT_VS 45 / KK 102 checks, 0 differ (both commits); smoke desktop and
+phone 0; looks 75 / 75 bytes identical to a BASE built at a5a75b0f after items 2-3 **and** after item 1
+(likely none of its stills reaches a Kenpachi crack: not checked)). index.wasm 10,254,002 -> 10,246,780 B.
+
 Not ranked (no gain found): `hit-gains`, `core-on-hit!`, `gauge-system` (11.5.4); the rollout bindings' macro and `*in-rollout*` defined
 once (already R12); the guard's slots (with the guard).
 

@@ -185,16 +185,7 @@
             (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)
             (:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
-  :hooks (:armor ken-armor :dmg-mult ken-dmg-mult)
-  :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.0 4.0) :pressure (1.0 2.6) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.3 :q 5 :f 2 :breaker 1 :sp2 1 :sig 2 nil 3)    ; J up close only (DUEL_STRINGS §13), K beyond
-               (1.3 3.0 :f 4 :breaker 1 :sp2 1 :sig 2 nil 3)
-               (3.0 4.0 :f 1 :sp1 2 :step 1 nil 2)
-               (4.0 6.0 :sp1 4 :sp2 2 nil 1)
-               (6.0 99.0 :step 1 :kikon 1 nil 1))                      ; the charge / leap as a poke
-       :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 0.8 :kikon-range 9.0
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.8))   ; a blocked string goes on (guard pressure)
+  :hooks (:armor ken-armor :dmg-mult ken-dmg-mult))
 
 (defkit :kenpachi :nozarashi :inherit :base    ; the Shikai (DUEL_KEN_V3 §3-§9): two pointers by grip, the unlock level L (the kit meter)
   :awakening t :mult *nozarashi-mult* :startup-add 0 :reach-mult 1.0 :open-s nil   ; (as written: §9's figures; the base's cadence off)
@@ -213,16 +204,7 @@
   :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2 :ke-s-bankai) :sa :ke-s-sa :mult 1.2
          :as-by-press (1 1 2)
          :stances (:ke-s-st-1 :ke-s-st-2)                               ; the slung hilt low / the shoulder (§14)
-         :kikon-cines (ken-s-kikon1-cine ken-s-kikon2-cine))   ; KAITENZAN / TSUITENZAN (ken-look.lisp, DUEL_KEN_V3 §19)
-  :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.0 4.0) :pressure (1.2 3.0) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.6 :q 5 :f 2 :sig 3 :breaker 1 :sp2 1 nil 3)
-               (1.6 3.4 :f 4 :sig 3 :breaker 1 :sp2 1 nil 3)
-               (3.4 4.2 :f 1 :sp1 2 :step 1 nil 2)
-               (4.2 6.0 :sp1 4 :sp2 2 nil 1)
-               (6.0 99.0 :step 1 :kikon 1 nil 1))
-       :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 0.8 :kikon-range 5.0 :kikon-p 0.25 :o-ender 0.25
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.8))
+         :kikon-cines (ken-s-kikon1-cine ken-s-kikon2-cine)))   ; KAITENZAN / TSUITENZAN (ken-look.lisp, DUEL_KEN_V3 §19)
 
 ;;; ---------------------------------------------------------------- the two Bankai (DUEL_KEN_V3 §26, 2026-11-04)
 ;;; SP after the Shikai's J7 (KEN-AS-PICK, combat.lisp BANKAI!): the Bankai of the pointer he was on: 狂嵐 KYORAN from pointer 1 (fast,
@@ -316,12 +298,7 @@
      :commands (:q ,(first (first strings)) :f nil :sig nil :sp1 nil :sp2 nil)
      :strings ,strings
      :core (:ns (,ns) :as ,as :sa ,sa :mult 1.2 :as-writes (1 1 1 1 1)
-            :stances (,stance) :kikon-cines (,kikon-cine))
-     :ai (:intents (:approach 3 :pressure 6 :zone 0 :defend 0)
-          :ranges (:approach (1.8 3.6) :pressure (1.0 2.4) :zone (4.0 6.0) :defend (3.0 5.0))
-          :moves ((0.0 1.6 :q 5 :breaker 1 nil 2) (1.6 3.4 :breaker 1 :step 1 nil 2) (3.4 99.0 :step 1 nil 1))
-          :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :kikon-range 5.0 :kikon-p 0.4 :o-ender 0.3
-          :block-string 0.85)))
+            :stances (,stance) :kikon-cines (,kikon-cine))))
 (def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-kr-kikon-cine
   :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
   :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
@@ -361,7 +338,7 @@ KEN-TATEGOTO-CUT), the sword wave racing 16 m down the floor and the floor split
     (spawn-look e 'ken-tategoto-look :x (+ (aref p 0) (* 2.2 (fwd-x yaw))) :z (+ (aref p 2) (* 2.2 (fwd-z yaw))) :life (+ *tategoto-cut* 2))
     (spawn-look e 'ken-tategoto-wave :yaw yaw :life 14)                       ; the sword wave down the floor (§30.4)
     (spawn-ground-line e *tategoto-wave-len* 70 :meteor)                       ; the floor split behind it
-    (ground-scar p yaw '(1.9 4.0 6.5 9.0 11.5 14.0) 0.9)
+    (emit :ground-scar (aref p 0) (aref p 2) yaw '(1.9 4.0 6.5 9.0 11.5 14.0) 0.9)
     (emit :ken-bk-burst e :tategoto)))
 
 (defparameter *ken-tategoto-stop* 10 "Frames TATE-GOTO's rift cutting freezes the fight (HITSTOP; DUEL_KEN_V3 §30.2, mine).")
@@ -416,21 +393,14 @@ the pointer he came from (狂嵐 1, 斬壞 2), L 0, -1 Konpaku unless it is his 
   "Buttagiru lands: a 3 m crack in the ground (a look)."
   (let ((p (pos-of e)))
     (spawn-ground-line e 3.5 50 :crack)
-    (ground-scar p (yaw-of e) '(1.2 2.8) 0.9))
+    (emit :ground-scar (aref p 0) (aref p 2) (yaw-of e) '(1.2 2.8) 0.9))
   (emit :sfx :ground-crack e))
 
 (defun ken-bk-slam (e)
   "斬壞's J5 lands (DUEL_KEN_V3 §28): a short crack ahead where the head bit in (a look)."
   (spawn-ground-line e 2.4 40 :crack)
-  (ground-scar (pos-of e) (yaw-of e) '(1.9) 0.7)
+  (let ((p (pos-of e))) (emit :ground-scar (aref p 0) (aref p 2) (yaw-of e) '(1.9) 0.7))
   (emit :sfx :ground-crack e))
-
-(defun ground-scar (p yaw ds r)
-  "A look: crack marks R m wide at DS metres ahead of P along YAW, that stay for the round, and chips thrown up
-(stage.lisp STAGE-MARK / STAGE-DEBRIS; Phase 6 destruction)."
-  (dolist (d ds)
-    (let ((x (+ (aref p 0) (* d (fwd-x yaw)))) (z (+ (aref p 2) (* d (fwd-z yaw)))))
-      (stage-mark :crack x z r) (stage-debris x z 3))))
 
 (defun ken-charge-tick (e)
   "SP2 dash: 14 m/s during the active frames until it touches; still holding the button when the
