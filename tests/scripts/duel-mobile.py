@@ -25,7 +25,7 @@ if insets: s.append({"at": 6.8, "eval": "globalThis.gamePage.testInsets = [47, 3
 ev(6.9, 2106)
 if not base: ev(6.95, 2700)                               # the framing / text probe on
 tap(7.0, 195, 500); shot(7.6, "mode")                        # title -> MODE
-tap(8.0, 195, mode_y + (6 if base else 7) * row_h); shot(8.6, "gestures")   # CONTROLS (row 7 since DANGAI): the gesture card
+tap(8.0, 195, mode_y + (6 if base else 5) * row_h); shot(8.6, "gestures")   # CONTROLS (row 5: VS CPU, PRACTICE, VS PLAYER, CPU VS CPU, SETTINGS): the gesture card
 tap(9.2, 195, 600)                                           # back to MODE
 tap(10.0, 195, mode_y)                                       # ONE-HAND VS CPU
 shot(10.6, "select")
@@ -48,18 +48,16 @@ tap(24.0, 195, resume)
 ev(25.0, 2394 + 1)                                           # Bankai East string test: KOSEI x2.4 on P1's panel
 ev(25.1, 2105)
 for t in (25.6, 25.8, 26.05): tap(t, PX, PY)
-shot(26.3, "kosei")
+shot(26.3, "kosei")        # (2395: the string test's second form)
 if not base: ev(27.0, 2700)                                  # the framing / text probe line of this frame
-ev(28.0, 12030); shot(29.0, "cine-kikon")                    # Jokaku Enjo: the caption on the black card
-ev(29.5, 12080); shot(30.5, "cine-kikon-b")                  # its pair shot
-ev(31.0, 10110); shot(32.0, "cine-bankai")                   # Bankai: 卍解 / 残火の太刀 on the white card
-ev(32.5, 14030); shot(33.5, "cine-ken")                      # Ken's Kikon: the caption + chapter line
-ev(34.0, 11100); shot(35.0, "cine-nozarashi")
-ev(35.5, 16010); shot(36.5, "cine-soul")
+ev(28.0, 11030); shot(29.0, "cine-nozarashi")                # Kenpachi's Nozarashi: the caption on the card (CINE-AT 1; the Yamamoto
+ev(29.5, 11100); shot(30.5, "cine-nozarashi-b")              # and Ken Kikons of the first review left, 2026-11-12)
+ev(31.0, 35030); shot(32.0, "cine-bankai")                   # Bankai: the caption on the white card
+ev(34.0, 16010); shot(35.0, "cine-soul")
 ev(37.0, 2100); ev(37.1, 2100)                               # release the hold
 ev(38.0, 2209); shot(46.0, "results")                        # K.O. of P2, then RESULTS
 if not base: ev(46.5, 2704); ev(46.6, 2700)                  # consing; the probe's line
-if insets: s = [x for x in s if "shot" not in x or any(k in x["shot"] for k in ("neutral", "kosei", "cine-kikon.png", "results"))]
+if insets: s = [x for x in s if "shot" not in x or any(k in x["shot"] for k in ("neutral", "kosei", "cine-nozarashi.png", "results"))]
 name = "tests/scripts/duel-mobile" + ("-insets" if insets else "") + ".json"
 json.dump(s, open(name, "w"), indent=0)
 print(f"{name}: {len(s)} steps -> {out}")

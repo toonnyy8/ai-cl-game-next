@@ -2,7 +2,7 @@
 """combo-trial.py — play a trial file in the native sim and print each trial's result (the CPU work's step 2: every combo
 and means of a fighter's catalogue verified against a dummy; skill duel-character-cpu "Order").
 
-  python3 tools/combo-trial.py docs/research/rukia-cpu/trials-shikai.lisp          a Markdown table
+  python3 tools/combo-trial.py docs/research/ki-ai/kenpachi/trials.lisp            a Markdown table
   python3 tools/combo-trial.py FILE --log                                          and every trial's combat log
 
 Columns: dmg dealt, hits, the combo counter's top, gaps (per hit after the first: the frames he could act before it; 0 = a

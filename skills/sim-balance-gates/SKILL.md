@@ -14,8 +14,8 @@ gate.lisp `ROSTER-PAIRS`): count his indices from there, and his core pairings a
 `reference.md`; the project's current policy text: `docs/duel/DUEL_GAMEPLAY.md` "Gate policy".
 
 ## Since 2026-10-29: no balance gates unless the user asks
-- The user: 「以後不用跑平衡測試」 (DEVLOG §468). The seed / pacing gate, the edge rerun, the awaken A/B, `aieval`, `assistgate` and
-  `roguegate` below run **only on request**. Every change still runs the host tests, `pkgcheck`, the build, a smoke and `--cvc`.
+- The user: 「以後不用跑平衡測試」 (DEVLOG §468). The seed / pacing gate, the edge rerun, the awaken A/B and `aieval` (`assistgate` and
+  `roguegate` left with their modes, 2026-11-13) below run **only on request**. Every change still runs the host tests, `pkgcheck`, the build, a smoke and `--cvc`.
 - The user: 「以後要測什麼招式就直接寫好指定的控制腳本，如非必要就不再依賴 CPU 賭機率」. Test a move with a **scripted scene**: both sides'
   inputs are keys in `tests/scripts/duel.py` (e.g. `duel-hisagi-bankai.json`, run with `tools/run.mjs --script`), or a debug setup.
   Each scene puts the distance and pointer in place, presses, and reads the combat log (`[tick] P1 … HIT n`, the kit's own log lines).
@@ -51,7 +51,7 @@ to a baseline saved before it (before 2026-10-29: `--seeds 10 --summary`).
 Scope: a change inside one character's files, or a shared hook only he uses → his pairings (Ichigo `7,9,31`; the user,
 2026-10-27, DEVLOG §424); shared rules (combat, fighter, core-sim, core-ai, rules, tuning, kit) → all six. A touch-only change
 (the recogniser, the phone's mapping) moves no sim gate: the native sim has no touch; check it with `touch-test` and `run.mjs --mobile`.
-ASSIST (`assistgate.py`), the learner and AI v2's `aieval.py` are frozen with the old system. Take a baseline on the parent commit (`git worktree add` → run the same gate) whenever
+ASSIST (`assistgate.py`) and the old learner left `main` with R4 (branch `frozen-modes`); AI v2's `aieval.py` serves the core CPU only. Take a baseline on the parent commit (`git worktree add` → run the same gate) whenever
 you need to attribute a shift.
 
 ## When a gate fails

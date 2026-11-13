@@ -98,7 +98,7 @@ e55304e:skills/duel-move-modules/reference.md`.
   - Start from the user's note.
   - Hold a grilling session; record a scope table with verbatim answers, and a list "defaults I chose where the note is silent".
   - Build in this order: docs → pure rules with host tests → one character → the others → input / phone / HUD → CPU → gates.
-  - Retire what doesn't fit (`*retired*`) and freeze side modes (ASSIST, the learner, ENDLESS, ROGUE); keep their code.
+  - Retire what doesn't fit (`*retired*`) and freeze side modes (ASSIST, the learner, ENDLESS, ROGUE; later cut from `main` into a branch: R4, 2026-11-13).
 - **Stacked special cases are still the redesign signal.** About 20 rules in 2 days on the old Lille's traces led to a rebuild. Write
   an animation inventory and a proposal from the part that works (`git show e55304e:skills/duel-move-modules/reference.md` §3).
 - **Feel numbers churn; intent holds.** Expose the numbers as knobs with docstrings (old → new, date, who decided):

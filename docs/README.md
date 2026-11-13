@@ -60,12 +60,12 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_AI_STRATEGY.md](duel/DUEL_AI_STRATEGY.md) | 用 dream-rsi 找出跨角色的策略庫，再由 fuzzy + Decoupled UCT 在動作層之上挑策略（2026-11-08 起，進行中；英文） |
 | [DUEL_AI_TEACHER.md](duel/DUEL_AI_TEACHER.md) | 離線 MCTS 老師與遊戲中的即時 MCTS（2026-11-07 起）：「像人、讀得懂」的 CPU；模擬存檔、離線搜尋、老師表，§9 起所有組合的中立改用輕量模型上的即時 MCTS（英文） |
 | [DUEL_KEN_NOMIHOSE.md](duel/DUEL_KEN_NOMIHOSE.md) | 劍八第三杯飲み干し（NOMIHOSE）的核心系統重設計（2026-10-30）：瘋狂失控、KUKAN-GIRI 收進 NS2、AS2 結尾的飲酒、快拔刀 BATTOU（英文） |
-| [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | 每個角色的 AI v2（2026-10-02，已實作）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
-| [DUEL_LEARNING.md](duel/DUEL_LEARNING.md) | 學習型 CPU：從對戰中學玩家習慣的讀心與反制、學習 gate（英文） |
-| [DUEL_ASSIST.md](duel/DUEL_ASSIST.md) | ASSIST：AUTO GUARD／AUTO COMBO／AUTO BREAK 輔助模式與它的代價、assistgate（英文） |
-| [DUEL_ENDLESS.md](duel/DUEL_ENDLESS.md) | ENDLESS 無限連戰：CPU 關卡、規則與 gate（英文） |
-| [DUEL_ROGUE.md](duel/DUEL_ROGUE.md) | 疊在 ENDLESS 上的 roguelite 新模式（暫名斷界行）：10 步一輪、兩扇門、分類格數的獎勵、精英與頭目、靈壓階（設計中，英文，2026-10-22） |
-| [DUEL_ROGUE_B1_PLAN.md](duel/DUEL_ROGUE_B1_PLAN.md) | 斷界行第 1 批（骨架）的實作計畫：純規則、疊在 ENDLESS 上的一輪、門的畫面、MODE 列、測試與文件（英文，2026-10-22） |
+| [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | （已移除 2026-11-13：舊 AI 與每個角色的反應函式隨退場角色和 ai.lisp 離開 main，核心系統的 CPU 見 DUEL_AI_MCTS；存檔在分支 `retired-kits`，歷史紀錄）每個角色的 AI v2（2026-10-02）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
+| [DUEL_LEARNING.md](duel/DUEL_LEARNING.md) | （已移除 2026-11-13：習慣學習器隨 R4 離開 main，存檔在分支 `frozen-modes`；留下的是 `fq-online.lisp` 的線上模糊 Q，見 DUEL_AI_STRATEGY §8）學習型 CPU：從對戰中學玩家習慣的讀心與反制、學習 gate（英文） |
+| [DUEL_ASSIST.md](duel/DUEL_ASSIST.md) | （已移除 2026-11-13：ASSIST 隨 R4 離開 main，存檔在分支 `frozen-modes`）ASSIST：AUTO GUARD／AUTO COMBO／AUTO BREAK 輔助模式與它的代價、assistgate（英文） |
+| [DUEL_ENDLESS.md](duel/DUEL_ENDLESS.md) | （已移除 2026-11-13：ENDLESS 隨 R4 離開 main，存檔在分支 `frozen-modes`）ENDLESS 無限連戰：CPU 關卡、規則與 gate（英文） |
+| [DUEL_ROGUE.md](duel/DUEL_ROGUE.md) | （已移除 2026-11-13：斷界行隨 R4 離開 main，存檔在分支 `frozen-modes`）疊在 ENDLESS 上的 roguelite 新模式（暫名斷界行）：10 步一輪、兩扇門、分類格數的獎勵、精英與頭目、靈壓階（設計中，英文，2026-10-22） |
+| [DUEL_ROGUE_B1_PLAN.md](duel/DUEL_ROGUE_B1_PLAN.md) | （已移除 2026-11-13：同上）斷界行第 1 批（骨架）的實作計畫：純規則、疊在 ENDLESS 上的一輪、門的畫面、MODE 列、測試與文件（英文，2026-10-22） |
 | [DUEL_WEBUI.md](duel/DUEL_WEBUI.md) | HTML／CSS／SVG 的選單（§1–§5）與對戰畫面（HUD、手機操作區、暫停、開場與結算，§6–§7）的設計紀錄：2026-11-11 HTML 版已移除，Lisp HUD 照這份設計重現（英文，2026-10-28） |
 | [DUEL_LISP_HUD.md](duel/DUEL_LISP_HUD.md) | 用 Lisp 畫的 HUD 與選單：還原標準、HTML 介面盤點、引擎有什麼缺什麼、離線烘焙的 SDF 圖集、繪製流、版面、補間、分階段計畫與各階段結果；2026-11-11 起是唯一的繪製方式，HTML 版移除（§16，英文，2026-11-10） |
 | [DUEL_SP.md](duel/DUEL_SP.md) | SP 消耗改由閃步量表支付：每段依強度消耗、相消退還、ATK 恢復、相消後突破奪取（2026-11-12 規則定案，尚未實作） |

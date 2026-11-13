@@ -21,12 +21,10 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
                                                     `duel hash` lines; PASS only when NEW matches BASE within the
                                                     noise floor (0, under load too, since run.mjs's clock waits
                                                     for the GPU device: REFACTOR_2026-11 §10.2)
-  python3 tests/style-gates.py duelstill DIST OUT [--flat]
-                                                    the frozen duel still (dist/duelvfx scene 17): OUT.png, OUT-bg.png
-                                                    (no fighters = the mask for tools/toon_check.py --bg), OUT-ink.png
-                                                    (no shadow discs: toon_check --outline against OUT-bg) and with
-                                                    --flat OUT-flat.png + OUT-flat-bg.png (duel-vfx 3005: no gradient,
-                                                    character fog or vignette: palette-exact tones)
+  python3 tests/style-gates.py duelstill DIST OUT   a frozen duel still of the art viewer (dist/duelview, tests/duel-view.lisp
+                                                    scene 4, the duel on the stage): OUT.png, and OUT-bg.png without the
+                                                    actors (the fighter mask for tools/toon_check.py --bg). The old duelvfx
+                                                    build's flat / ink variants left with it (REFACTOR_2026-11 R7)
 Every command prints PASS / FAIL lines and exits 1 on a FAIL. Temporary files go to build/style/.
 """
 import json, os, re, statistics, subprocess, sys, time
@@ -120,18 +118,16 @@ LOOKS_START = 4.0          # virtual s of the first event: the title stands from
 # Re-pinned 2026-11-10 over the three that play since the core system (K I H; the draw is no longer over seven): 1 KH, 3 HK, 7 II, 10 IK.
 LOOKS_SEEDS = ((1, "KH"), (3, "HK"), (7, "II"), (10, "IK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
-# the cinematics at their key frames (rukia-hakka 132: HAKKA's sheet, a toon-ground-seg site, refactor round 2,
-# 2026-10-21): (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
-# others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 82300 + k: Lille's at frame 10k)
+# the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's CINE-AT
+# (35000 + f: Kenpachi's Bankai), 75300 + k Ichigo's awakening at frame 2k. Re-pinned 2026-11-13 (REFACTOR_2026-11 R7) to the
+# cinematics that exist: Yamamoto's, Rukia's, Senjumaru's and Lille's left with their kits (their commands were no-ops that
+# stilled the title or an idle fight; cine-senju and cine-barro rendered one image under two names)
 LOOKS_CINES = {
-    "cine-yama": [("yama-kikon", 12000, (20, 112)), ("yama-bankai", 10000, (30, 74, 128)), ("ko", 18000, (12, 60))],
     "cine-ken": [("ken-nozarashi", 11000, (26, 96)), ("ken-bankai", 35000, (30, 80, 120))],   # (ken-kikon's two went with it, 2026-11-05)
-    "cine-rukia": [("rukia-kikon", 40000, (60, 112)), ("rukia-awaken", 42000, (20, 60, 110)), ("rukia-hakka", 41000, (60, 120, 132))],
+    "cine-ko": [("soul-break", 16000, (30, 90)), ("ko", 18000, (12, 60))],
     "cine-ichigo": [("ichigo-awaken", 75300, (10, 30, 55))],
-    "cine-senju": [("senju-awaken", 78000, (30, 90, 150))],
-    "cine-barro": [("barro-awaken", 82300, (3, 9, 15))],
 }
-LOOKS_FRAMES = {75300: 2, 82300: 10}      # cinematic frames per unit of the command's last digits
+LOOKS_FRAMES = {75300: 2}      # cinematic frames per unit of the command's last digits
 
 
 def looks_scenarios():
@@ -143,7 +139,8 @@ def looks_scenarios():
     def tap(s, t, x, y): s.extend([{"at": round(t, 3), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 3), "touch": "end", "x": x, "y": y}])
     def done(s): return max(e["at"] for e in s) + 0.3
 
-    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the seven fighters (P1's cycle)
+    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the three fighters that play (P1's cycle wraps
+    # every 3: seven presses showed select-0 / 3 / 6, 1 / 4 and 2 / 5 as the same three images)
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
@@ -152,7 +149,7 @@ def looks_scenarios():
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU
     t += 4.5
-    for i in range(7):
+    for i in range(3):
         shot(s, t, f"select-{i}"); key(s, t + 0.1, "ArrowRight"); t += 0.6
     sc["menus"] = (s, done(s), ())
 
@@ -180,27 +177,21 @@ def looks_scenarios():
                 cf = f * LOOKS_FRAMES.get(base, 1)                       # the cinematic frame
                 t += (1.0 if last == 0 else 0.35) + (cf - last) / 60.0
                 shot(s, t, f"{cname}-{cf:03d}"); t += 0.1; last = cf
-        if name == "cine-yama": ev(s, t, 2209); shot(s, t + 3.5, "results")                 # the K.O., then RESULTS
+        if name == "cine-ko": ev(s, t, 2209); shot(s, t + 3.5, "results")                 # the K.O., then RESULTS
         sc[name] = (s, done(s), ())
 
-    # looks that are not on screen at a chosen tick: the HUD in every form (2430+k), sword smears, the Bankai's cracks and
-    # impact stamps (2312, 2366), Yamamoto's KYOKUJITSUJIN gash and South ring cracks (2304, 2303: toon-ground-seg's
-    # line-cut sites, refactor round 2, 2026-10-21), Rukia's ice, Senjumaru's bolts of cloth, stitches, umbrella and drapes
-    # (2450+k), her Bankai meter on a cross pair (2471) and KESSA's meter with three clones (74007, refactor round 2 K1)
-    # (the old Lille's wings and claws, 79197 / 79198, went with him, 2026-10-13): (command, seconds to the still, still name)
-    for name, lst in (("fx-a", [(2430, 0.6, "hud-0"), (2433, 0.6, "hud-3"), (2434, 0.6, "hud-4"), (2437, 0.6, "hud-7"),
-                                (2309, 0.4, "smear-a"), (None, 0.55, "smear-b"), (2312, 0.8, "bankai-crack"), (2366, 0.8, "destruction"),
-                                (2302, 0.9, "fire-wave"), (2306, 0.67, "guard-break"),
-                                (2304, 0.6, "kyoku"), (2303, 0.7, "south")]),
-                      ("fx-b", [(2412, 1.0, "rukia-m50"), (2413, 0.3, "rukia-freeze-touch"), (2418, 1.0, "rukia-zero"),
-                                (2470, 0.8, "senju-hank1"), (2473, 0.8, "senju-hank4"), (2476, 0.8, "senju-stitches"),
-                                (2477, 0.7, "senju-umbrella"), (2481, 0.8, "senju-drapes"),
-                                (2471, 0.8, "senju-hank2"), (74007, 0.8, "ichigo-clones")])):
-        s, t = [], LOOKS_START
-        for c, d, still in lst:
-            if c is None: shot(s, t0 + d, still); continue                 # a second still of the same command
-            ev(s, t, c); shot(s, t + d, still); t0 = t; t += d + 0.3
-        sc[name] = (s, done(s), ())
+    # looks that are not on screen at a chosen tick (re-pinned 2026-11-13, REFACTOR_2026-11 R7: the retired kits' effects and
+    # the old HUD forms 2430+k are gone): the Lisp HUD's review states on a running Ichigo-Kenpachi battle (2505, then 2440+k:
+    # DUEL_LISP_HUD §13), Kenpachi's sword smears and moves (2309 BUTTAGIRU, 2305 SPLIT THE METEOR, 2306 a guard break, 2308
+    # his SIG, 2310 his SP2 flurry) and KESSA's meter with three clones (74007): (command, seconds to the still, still name)
+    lst = [(2505, 1.2, "hud-battle"), (2440, 0.6, "hud-0"), (2443, 0.6, "hud-3"), (2444, 0.6, "hud-4"), (2447, 0.6, "hud-7"),
+           (2309, 0.4, "smear-a"), (None, 0.55, "smear-b"), (2305, 0.9, "meteor"), (2306, 0.67, "guard-break"),
+           (2308, 0.7, "sig"), (2310, 0.7, "sp2"), (74007, 0.8, "ichigo-clones")]
+    s, t = [], LOOKS_START
+    for c, d, still in lst:
+        if c is None: shot(s, t0 + d, still); continue                 # a second still of the same command
+        ev(s, t, c); shot(s, t + d, still); t0 = t; t += d + 0.3
+    sc["fx-a"] = (s, done(s), ())
 
     # (the ENDLESS scenario, its 4 stills, left with the frozen modes on 2026-11-13: REFACTOR_2026-11 R4)
 
@@ -211,20 +202,15 @@ def looks_scenarios():
     shot(s, t + 4.9, "intro"); tap(s, t + 5.5, 195, 400); ev(s, t + 6.0, 2105); shot(s, t + 7.0, "neutral")
     ev(s, t + 7.5, 2393); shot(s, t + 8.0, "close")
     tap(s, t + 8.5, 358, 200); shot(s, t + 9.2, "paused"); tap(s, t + 10.0, 195, 392)
-    ev(s, t + 11.0, 10110); shot(s, t + 12.0, "cine")
+    ev(s, t + 11.0, 11060); shot(s, t + 12.0, "cine")
     ev(s, t + 12.4, 2100); ev(s, t + 12.5, 2100)                                        # release the held cinematic
-    for i, k in enumerate((0, 3, 4, 7)): ev(s, t + 13.0 + 1.2 * i, 2430 + k); shot(s, t + 13.7 + 1.2 * i, f"hud-{k}")     # the portrait HUD
-    # the kit meters in portrait and the one-hand thumb ring's :deck hooks (a finger held on the pad, no end until the
-    # still: the stick only draws while touched): KESSA's three clones (74007), Senjumaru's Bankai cross pair (2471) and
-    # her Shikai stitches (2451) (refactor round 3, 2026-10-21: the N2 / N4 float-path batches' stills)
+    for i, k in enumerate((0, 3, 4, 6)): ev(s, t + 13.0 + 1.2 * i, 2440 + k); shot(s, t + 13.7 + 1.2 * i, f"hud-{k}")     # the portrait HUD (k 7 needs P1 Ichigo: force-form :kessa on Kenpachi stops the game)
+    # KESSA's three clones (74007) and the one-hand thumb ring's :deck hooks (a finger held on the pad, no end until the still: the
+    # stick only draws while touched) (refactor round 3, 2026-10-21: the N2 float-path batch's stills; Senjumaru's two went with her)
     ev(s, t + 18.0, 74007); shot(s, t + 18.8, "ichigo-clones")
     s.append({"at": round(t + 19.0, 3), "touch": "start", "x": 146, "y": 697}); shot(s, t + 19.5, "deck-ichigo")
     s.append({"at": round(t + 19.6, 3), "touch": "end", "x": 146, "y": 697})
-    ev(s, t + 20.0, 2471); shot(s, t + 20.8, "senju-hank2")
-    ev(s, t + 21.2, 2451); shot(s, t + 22.0, "senju-stitches")
-    s.append({"at": round(t + 22.2, 3), "touch": "start", "x": 146, "y": 697}); shot(s, t + 22.7, "deck-senju")
-    s.append({"at": round(t + 22.8, 3), "touch": "end", "x": 146, "y": 697})
-    ev(s, t + 23.5, 2209); shot(s, t + 30.0, "results")
+    ev(s, t + 20.5, 2209); shot(s, t + 27.0, "results")
     sc["mobile"] = (s, done(s), ("--mobile", "--dpr", "1"))
     return sc
 
@@ -295,12 +281,8 @@ def looks(base, new, jobs=3, size="640x360", only=None, once=False, keep_base=Fa
           f"noisy between the two BASE runs: {len(noisy)}" + (" (" + ", ".join(noisy) + ")" if noisy else "") + f"; diff images: {root}/diff/")
 
 
-def duelstill(dist, out, flat):
-    steps = [cmd(3.0, 2017), cmd(3.02, 3003), cmd(3.04, 3004), cmd(3.06, 4500), {"at": 4.0, "shot": f"{out}.png"},
-             cmd(4.02, 3002), {"at": 4.1, "shot": f"{out}-bg.png"}]
-    if flat: steps += [cmd(4.12, 3005), {"at": 4.2, "shot": f"{out}-flat-bg.png"}, cmd(4.22, 3002), {"at": 4.3, "shot": f"{out}-flat.png"},
-                       cmd(4.32, 3005), cmd(4.34, 3002)]
-    steps += [cmd(4.36, 3002), cmd(4.38, 3006), {"at": 4.46, "shot": f"{out}-ink.png"}]     # no shadow discs: toon_check --outline
+def duelstill(dist, out):
+    steps = [cmd(3.0, 2004), {"at": 4.0, "shot": f"{out}.png"}, cmd(4.02, 4004), {"at": 4.2, "shot": f"{out}-bg.png"}]
     check("duel frozen still", run(dist, script("duelstill", steps), 4.6, f"{TMP}/duelstill.log").wait() == 0, out)
 
 
@@ -314,6 +296,6 @@ if __name__ == "__main__":
     if not a: print(__doc__); sys.exit(2)
     {"cvc": lambda: cvc(a[1]),
      "perf": lambda: perf(a[1], a[2], a[3]), "smoke": lambda: smoke(a[1:]),
-     "duelstill": lambda: duelstill(a[1], a[2], "--flat" in a),
+     "duelstill": lambda: duelstill(a[1], a[2]),
      "looks": lambda: looks(a[1], a[2], int(opt("--jobs", 3)), opt("--size", "640x360"), opt("--only"), "--once" in a, "--keep-base" in a)}[a[0]]()
     sys.exit(1 if fails else 0)

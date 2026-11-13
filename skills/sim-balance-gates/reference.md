@@ -41,7 +41,7 @@ Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wa
   - side systems get **their own RNG** seeded *from* the sim stream state without drawing (learner `learn-rnd`,
     DUEL_LEARNING §7) → full gate row-identical with the learner present-but-off (691/691 lines);
   - instrumentation is **counters only, no rolls** (Ichigo `duel ichigo` counters: 100/100 matches identical, DEVLOG §40);
-  - rolls are **one per event**, keyed on the opponent's action start (`ai-event-rolls`, ai.lisp:169), never per step.
+  - rolls are **one per event**, keyed on the opponent's action start (`ai-event-rolls`, in the old ai.lisp), never per step.
 - **Real-time input on a loaded host** drops presses in browser scripts → run scripts with `--fixed-dt 16.666667`
   (DUEL_GAMEPLAY test-script table, duel-practice.json).
 - Process structure matters when state leaks: one process plays a pairing's seeds back to back "as the page does";
@@ -199,7 +199,7 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 - A hold is a press length: the Kikon is SP held 40 frames; a held press is kept through the Kikon confirm (§440). A rule that
   changes how long a press must be down changes the CPU's outcomes: check this first when a timing rule moves the gates.
 - Kit hints only for what the table can't see: `:core :ns-range` (a ranged band) with `*cai-ranged-gap*` after each shot.
-- The old `ai.lisp` (intents, distance bands, heat, kit reflex hooks) still drives the four frozen characters.
+- The old `ai.lisp` (intents, distance bands, heat, kit reflex hooks) drove the four retired characters; it is `cpu-perceive.lisp` (the shared perception, 353 lines) since R3 (2026-11-13) and they left `main` with R2 (branch `retired-kits`).
 
 ### Difficulty = perception + probabilities
 - **Perception delay** is the main difficulty axis: snap ring buffer, `*ai-delay*` EASY 24 / NORMAL 14 / HARD 8 f.

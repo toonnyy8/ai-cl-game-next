@@ -5,7 +5,7 @@
   python3 tools/toon_check.py STILL.png [--bg NOFIGHTERS.png] [--horizon ROW] [--palette HEX,HEX,...]
                               [--haori F0F0EC] [--robe 16161E] [--outline] [--ac] [--exclude x0,y0,x1,y1 ...]
 
-STILL is a frame with the HUD off. --bg is the same frozen frame without the fighters (duel-vfx 3002):
+STILL is a frame with the HUD off. --bg is the same frozen frame without the fighters (duelview 4004: `style-gates.py duelstill`):
 the pixels that differ are the FIGHTER MASK, everything else is WORLD. Without --bg the whole frame is
 world. --horizon: the screen row of the horizon (default: estimated, the row that best splits dark sky
 rows from light ground rows). --exclude: rectangles (pixels) left out of every measure (e.g. a label).

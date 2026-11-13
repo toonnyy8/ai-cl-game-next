@@ -27,13 +27,13 @@
 "at": 8.0,
 "touch": "start",
 "x": 195,
-"y": 671
+"y": 634
 },
 {
 "at": 8.05,
 "touch": "end",
 "x": 195,
-"y": 671
+"y": 634
 },
 {
 "at": 9.2,
@@ -269,30 +269,22 @@
 },
 {
 "at": 28.0,
-"eval": "Module._debug_cmd(12030)"
+"eval": "Module._debug_cmd(11030)"
 },
 {
 "at": 29.0,
-"shot": "tests/shots/mobile-insets-cine-kikon.png"
+"shot": "tests/shots/mobile-insets-cine-nozarashi.png"
 },
 {
 "at": 29.5,
-"eval": "Module._debug_cmd(12080)"
-},
-{
-"at": 31.0,
-"eval": "Module._debug_cmd(10110)"
-},
-{
-"at": 32.5,
-"eval": "Module._debug_cmd(14030)"
-},
-{
-"at": 34.0,
 "eval": "Module._debug_cmd(11100)"
 },
 {
-"at": 35.5,
+"at": 31.0,
+"eval": "Module._debug_cmd(35030)"
+},
+{
+"at": 34.0,
 "eval": "Module._debug_cmd(16010)"
 },
 {

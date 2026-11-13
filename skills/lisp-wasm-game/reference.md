@@ -137,7 +137,7 @@ file paths otherwise. G = generalizable lesson, D = SOUL DUEL / RAVEN-specific d
   game's :debug fn). Games use integer RANGES as a namespace: scenario setups, runtime tuning knobs "without a rebuild"
   (e.g. 32000+k sets `*arm-self*` = k), still frames of cinematics, seeded gates (2000+s CvC). Keep a registry table
   in the gameplay doc and let each module register its own range (`*char-debug*`) — hard-coded ranges collided
-  (80000+ vs ENDLESS). [main.c debug_cmd, docs/duel/DUEL_GAMEPLAY.md debug table, DL §30]
+  (80000+ was ENDLESS's; free since 2026-11-13). [main.c debug_cmd, docs/duel/DUEL_GAMEPLAY.md debug table, DL §30]
 - G: Dev log channels: `*combat-log*`/CLOG prints state changes/hits/damage to console; tests assert on those lines;
   F3 overlay (dev mode only after a `_debug_cmd`) shows FPS, cons/frame, hitboxes. [DL §9, README controls]
 - G: Engine self-test: `tests/engine-check.sh` builds `echeck` from tests/engine-check.lisp, runs it headless, greps

@@ -8763,3 +8763,16 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 留給 R7：`tests/scripts/duel.py` 的 ENDLESS／DANGAI 段與 JSON、DUEL_GAMEPLAY 腳本表、手冊。留給 R10／R12：各角色沒人讀的 `:ai` 資料。
 
 分工：Opus 子代理：R4；主對話 Opus 5.5：覆核（學習器的分界、KEN-P、存檔）、合併、重跑檢查。
+
+## 739. R7：美術比對閘門、瀏覽器腳本與文件跟上現役陣容；R10 的 ECS／FP 審查（2026-11-13）
+
+使用者：「按你建議的做」（§730 的開工決定；D5 是 2026-11-10 決定的手冊整理）
+
+- 美術比對閘門（`tests/style-gates.py looks`）重新指定場景：109 → 75 張。山本、露琪亞、千手丸、莉爾的過場與 `fx-b` 呼叫的除錯指令已不存在，原本是默默無效、拍到標題或閒置對戰（`cine-senju` 與 `cine-barro` 甚至是同一張圖兩個名字），一併移除。新增 `cine-ko`（Soul Break、K.O.、RESULTS）；`fx-a` 改用現役指令重建（Lisp HUD 檢視狀態 2505 + 2440+k、劍八的刀痕與招式、KESSA 分身）；選角畫面只剩三位角色，7 張變 3 張（P1 每 3 次循環一輪）；手機場景換掉退役角色的過場。發現 `2447`（k 7）在 P1 是劍八時會因 `force-form :kessa` 讓遊戲停下、run.mjs 無限等待，場景改用 k 6，並寫進 AGENTS.md。證明：以 581df983 建的 BASE 對新版，75／75 張逐位元相同、雜訊 0。
+- 修正除錯 2700 的 PORTRAIT-TEST：角色框有一角在鏡頭後方時 `fighter-screen-box` 回傳 NIL，原本會除以 NIL，現在印 0（純顯示，wasm +81 B）。`duel-mobile.json`／`duel-mobile-insets.json` 因此能跑到 RESULTS。
+- `tests/scripts/duel.py`：移除 rukia／endless／rogue 系列，以及所有指令自 R3 起已無效的 probe／kikon／stances／gauges；其餘 JSON 重新產生後逐位元相同（只有手機兩支換了過場指令）。28／35 支跑完、無錯誤；drive-switch-phone、ken-bankai、ken-shikai、practice-cancel、shots 因主機負載過高未跑完（部分紀錄無錯誤，它們用到的東西本批沒動）。
+- 文件：manual.html 1,091 → 615 行（ENDLESS／DANGAI、AUTO 設定列、舊戰鬥系統的 `#strings` `#triangle` `#guard` `#kikon`、四位退役角色）。`#move`、`#burst`、`#awaken`、`#kosei`、`#blow` 與三位角色的招式表仍是舊系統內容，由 S9 的 SP 章節改寫。DUEL_GAMEPLAY、AGENTS.md、README.md（退役角色截圖取消連結，三位現役角色的新截圖待補）、docs/README.md、五個技能、研究工具預設值同步更新。
+- R10（31f52172，唯讀審查，REFACTOR_2026-11 §11.5）：排名前兩項是劍八的地裂／碎石在模擬步內寫入（推演可能在實際舞台留下裂痕，改成事件）與 `*soul-breaks*` 補進快照根；接著是 S2 前清除沒人讀的欄位、S2 的純函式 `hit-px` 接縫、S1／S3 的 `gauges-fs` 寫入路徑（奪取繞過 `spend-fs`／`pay-gauges`，S1 前由主對話決定）。第 1、2 項會改變裝飾用亂數順序，排在 M1 之後、S2 之前。
+- 證明（主對話在合併後的 main 重跑）：主機測試 2960 全過，pkgcheck 乾淨，除錯區段 84 段 0 錯，建置，冒煙桌機與手機 exit 0，啟動記憶體 74.8 MB，G2 native 三組相同（II 39、IK 36、KK 28 行）。index.wasm 10,264,814 → 10,264,895 B。
+
+分工：Sonnet 子代理：R7；Opus 子代理：R10；主對話 Opus 5.5：覆核、合併、重跑檢查。

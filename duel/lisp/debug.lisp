@@ -626,7 +626,8 @@ every 30th battle frame (no cinematic, not paused) whether each fighter's box si
     (0 (if *frame-probe* (frame-probe-line) (setf *frame-probe* t))
        (when (and *p1* (entity-alive-p *p1*))
          (let ((d (pixel-density)))
-           (flet ((b (e) (multiple-value-list (fighter-screen-box e))))
+           (flet ((b (e) (let ((l (multiple-value-list (fighter-screen-box e))))   ; (NIL when a corner is behind the camera:
+                           (if (car l) l (list 0.0 0.0 0.0 0.0)))))                ; the title's demo; zeros, not a division by NIL)
              (log-msg "duel frame boxes (css): p1 ~{~,0f~^ ~} p2 ~{~,0f~^ ~} fov ~,1f shift ~,3f eye ~{~,2f~^ ~} at ~{~,2f~^ ~}"
                       (mapcar (lambda (v) (/ v d)) (b *p1*)) (mapcar (lambda (v) (/ v d)) (b *p2*))
                       (/ (camera-fov *camera*) (deg 1)) (camera-shift-y *camera*) (coerce *cam-eye* 'list) (coerce *cam-at* 'list))))))

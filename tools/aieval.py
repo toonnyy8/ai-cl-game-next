@@ -7,7 +7,7 @@ character's CPU as it reads in the same checkout.
 
   python3 tools/aieval.py --char 3                 Ichigo: JSON with the parts and the score
   python3 tools/aieval.py --char 3 --seeds 6       a quicker, noisier pass
-  python3 tools/aieval.py --char 6 --seeds 40 -j 2 Lille, as a dream-rsi cell is scored (DUEL_LILLE_V3 §22)
+  python3 tools/aieval.py --char 7 --seeds 40 -j 2 Hisagi, as a dream-rsi cell is scored
 
 The parts (seeds 1..N, fixed; the mirror is never played: C vs C is 0.5 by symmetry and tells nothing):
   strength  HARD, C vs each other character in both seats (learning gate runner, plain CPUs): C's win share

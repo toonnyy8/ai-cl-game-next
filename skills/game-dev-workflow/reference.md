@@ -22,7 +22,7 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
 4. **Tests + gates** (§1.3): host unit tests, build with 0 warnings, determinism refs, seed gate, A/B, scripted browser.
 5. **Docs in the same pass** (§2): design doc section (EN), DEVLOG section (zh-TW), DUEL_DESIGN as-built line, manual
    (zh-TW) if player-facing, TUTORIAL/GAMEPLAY quote lines if the reference match changed. Example: commit 590f099
-   touched DEVLOG, DUEL_DESIGN, DUEL_GAMEPLAY, DUEL_STRINGS, TUTORIAL, ai.lisp, tuning.lisp, manual.html,
+   touched DEVLOG, DUEL_DESIGN, DUEL_GAMEPLAY, DUEL_STRINGS, TUTORIAL, core-ai.lisp, tuning.lisp, manual.html,
    tests/scripts/duel.py, tests/style-cvc-ref.txt: code is 2 of 10 files.
 6. **Commit + push at each gated milestone** without asking (~/.claude/.../feedback-autocommit.md, the user 2026-09-28:
    「你以後每實作一個進度就可以自行 commit & push，甚至依據需求開 branch 與 worktree」). Never commit a half-finished batch.
@@ -52,7 +52,7 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
   checker for undefined functions, a "character-name check" (shared files must contain no character names), G1/G2
   bit-exact reference logs (tests/style-cvc-ref.txt: rewrite on purpose, quote the new line in docs), a statistical
   **seed gate** (CPU vs CPU, all K.O., median 125–210 s), an **awaken A/B** (≥ 20/60 on 3 streams), a **masher/"dumb
-  player" gate** for the CPU and assist (tools/assistgate.py), headless browser scripts with screenshots.
+  player" gate** for the CPU and assist (tools/assistgate.py, gone with ASSIST, 2026-11-13), headless browser scripts with screenshots.
 - **Gate cost is a design problem.** With 5 characters the browser gate took ~1 h (each Chrome ~6 cores). Fixes:
   gate policy (feedback-gate-policy.md: only affected pairings; 10 seeds first, 20 only if near the window edge) and a
   headless native sim runner built from the *same* sources (DEVLOG §38: 300 matches in 14 s vs ~1 h), validated

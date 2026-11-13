@@ -9,8 +9,8 @@ description: Use when SOUL DUEL's CPU must take a fighter's new NS / AS / SA, wa
 The core system's CPU is generic (`duel/lisp/core-ai.lisp`, DUEL_CORE §5): it plays any kit with a `:core` from the class table, the
 pointer and the kit's few hints. Core principle: **the CPU follows the rules, never leads them; it acts by one roll per event and by press
 lengths; measure what a rule actually fires, and read every gate shift for a CPU cause first.** Generic gate and CPU rules:
-`sim-balance-gates`; the move grammar: `duel-move-modules`. ASSIST, the learner and AI v2's per-kit reflexes are frozen with the old
-system: `git show e55304e:skills/duel-character-cpu/SKILL.md`.
+`sim-balance-gates`; the move grammar: `duel-move-modules`. ASSIST, the old learner and AI v2's per-kit reflexes left `main` (2026-11-12 / 11-13: branches `retired-kits`, `frozen-modes`); the old
+version of this skill: `git show e55304e:skills/duel-character-cpu/SKILL.md`.
 
 ## How the core CPU decides (core-ai.lisp)
 | Where | What | Knob |

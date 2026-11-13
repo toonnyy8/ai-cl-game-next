@@ -27,13 +27,13 @@
 "at": 8.0,
 "touch": "start",
 "x": 195,
-"y": 708
+"y": 634
 },
 {
 "at": 8.05,
 "touch": "end",
 "x": 195,
-"y": 708
+"y": 634
 },
 {
 "at": 8.6,
@@ -309,50 +309,34 @@
 },
 {
 "at": 28.0,
-"eval": "Module._debug_cmd(12030)"
+"eval": "Module._debug_cmd(11030)"
 },
 {
 "at": 29.0,
-"shot": "tests/shots/mobile-cine-kikon.png"
+"shot": "tests/shots/mobile-cine-nozarashi.png"
 },
 {
 "at": 29.5,
-"eval": "Module._debug_cmd(12080)"
+"eval": "Module._debug_cmd(11100)"
 },
 {
 "at": 30.5,
-"shot": "tests/shots/mobile-cine-kikon-b.png"
+"shot": "tests/shots/mobile-cine-nozarashi-b.png"
 },
 {
 "at": 31.0,
-"eval": "Module._debug_cmd(10110)"
+"eval": "Module._debug_cmd(35030)"
 },
 {
 "at": 32.0,
 "shot": "tests/shots/mobile-cine-bankai.png"
 },
 {
-"at": 32.5,
-"eval": "Module._debug_cmd(14030)"
-},
-{
-"at": 33.5,
-"shot": "tests/shots/mobile-cine-ken.png"
-},
-{
 "at": 34.0,
-"eval": "Module._debug_cmd(11100)"
-},
-{
-"at": 35.0,
-"shot": "tests/shots/mobile-cine-nozarashi.png"
-},
-{
-"at": 35.5,
 "eval": "Module._debug_cmd(16010)"
 },
 {
-"at": 36.5,
+"at": 35.0,
 "shot": "tests/shots/mobile-cine-soul.png"
 },
 {

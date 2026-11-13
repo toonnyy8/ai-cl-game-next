@@ -6,11 +6,7 @@
 
 **線上試玩：<https://toonnyy8.github.io/ai-cl-game-next/>**（電腦用 Chrome／Edge；手機直拿可以單手玩，也能「加到主畫面」當 App 離線開）。完整的遊戲說明在遊戲內的 MANUAL，原始檔是 [duel/web/manual.html](duel/web/manual.html)。
 
-![電腦對戰：卍解・西的山本（火柱「天地灰尽」）對上卍解的千手丸，上方是雙方的靈子、魂魄與量表](docs/duel/readme/fight.png)
-
-| 卍解・殘火の太刀 | 劍八的卍解 |
-|---|---|
-| ![山本發動卍解，字幕「卍解 殘火の太刀」](docs/duel/readme/yama-bankai.png) | ![劍八開卍解的演出：全身染紅的鬼神型態](docs/duel/readme/ken-bankai.png) |
+![劍八開卍解的演出：全身染紅的鬼神型態](docs/duel/readme/ken-bankai.png)
 
 截圖由無頭 Chrome（SwiftShader 軟體算圖）在 1280×720 下自動拍攝。
 
@@ -18,18 +14,12 @@
 
 ## 角色
 
-七名角色，每人有自己的招式表、覺醒型態、角色量表、覺醒演出和電腦 AI。
-
-![選角畫面上的七名角色：山本、劍八、露琪亞、一護、千手丸、利傑、檜佐木](docs/duel/readme/roster.png)
+目前可玩的三名角色（山本、露琪亞、千手丸、利傑的程式碼已於 2026-11-12 移到封存分支 `retired-kits`），每人有自己的招式表、覺醒型態、角色量表、覺醒演出和電腦 AI。
 
 | 角色 | 打法 | 覺醒 |
 |---|---|---|
-| 山本元柳齋重國 | 用火焰控場的老將，INFERNO 量表滿時變身限時的獄炎 | 卍解・殘火の太刀：在「東・旭日刃」與「西・殘日獄衣」兩個架式之間切換 |
 | 更木劍八 | 吃招換招、越打越強的血戰狂人 | 呑め、野晒（一杯 片手 → 二杯 両手 → 三杯 飲み干せ）；三杯且魂魄剩 4 顆以下時，可以拿魂魄換卍解 |
-| 朽木露琪亞 | 在對手身上疊霜再震碎，遠近都能打 | 絶対零度：−18 °C → −50 °C → −273 °C，越冷越強、也越走不動 |
 | 黑崎一護 | 雙刀近身猛攻 | 血鎖の一護（KESSA），帶著分身圍毆 |
-| 修多羅千手丸 | 先縫針、後引爆的裁縫師 | 卍解・娑闥迦羅骸刺絡辻：用織機在場上佈陣 |
-| 利傑·巴羅 | 所有型態共用一個架勢：L 連段收資源、K 連段重擊、J 連段回復，SP2 一口氣花光 | 神の裁き（Jilliel）：近距的攻擊態與遠距的架勢 |
 | 檜佐木修兵 | 始解風死：鎖鏈連著兩把鐮刀，2–6 公尺最強，風車擋飛行道具 | 卍解・風死絞縄：遠距靠鏈尖命中，首掛把兩人綁在一起 |
 
 設計與數值的正本是 [docs/duel/DUEL_DESIGN.md](docs/duel/DUEL_DESIGN.md)，每個角色另有自己的設計文件（[docs/README.md](docs/README.md) 有索引）。
@@ -39,8 +29,6 @@
 | 模式 | 內容 |
 |---|---|
 | VS CPU | 對電腦，難度 EASY／NORMAL／HARD。電腦預設會學習你的習慣（見下方） |
-| ENDLESS | 無限連戰：連續打電腦，對手越來越強，每個角色各存一筆最佳紀錄 |
-| DANGAI 斷界行（製作中） | 10 關一輪的 roguelite：每關後選門、選獎勵卡（斬／守／瞬／靈／契／角色專屬的解），第 10 關是頭目 |
 | PRACTICE | 對假人練習：假人可以站著、全防、被打中後才防、交給電腦，或在硬直結束時用 J1 反擊；可以鎖血、量表無限 |
 | VS PLAYER | 兩人同機對戰（鍵盤左右兩半，或兩支手把） |
 | CPU VS CPU | 看兩個電腦對打 |
@@ -74,7 +62,7 @@
 
 ## 會學習的電腦
 
-電腦的 AI 由共用的判斷（[duel/lisp/ai.lisp](duel/lisp/ai.lisp)）加上每個角色自己的反應與連段路線組成，部分角色的風格是用 dream-rsi 在原生模擬裡搜尋出來的（[docs/guides/DREAM_RSI.zh-TW.md](docs/guides/DREAM_RSI.zh-TW.md)）。VS CPU 和 ENDLESS 的電腦會記下你在起身、擋完連段、揮空、對峙等情況下的習慣，照「防 > J > I > 防」準備對策；它不讀你的按鍵，有反應延遲，你一直輸它就少猜你一點。每個電腦角色的學習紀錄各自存在瀏覽器裡，SETTINGS 的 RESET LEARNING 可以清掉。細節在 [docs/duel/DUEL_AI_V2.md](docs/duel/DUEL_AI_V2.md) 與 [docs/duel/DUEL_LEARNING.md](docs/duel/DUEL_LEARNING.md)。
+核心系統角色的電腦由 [duel/lisp/core-ai.lisp](duel/lisp/core-ai.lisp)（模糊規則）加上遊戲中的 MCTS（[duel/lisp/mcts-lite.lisp](duel/lisp/mcts-lite.lisp)、[duel/lisp/cpu-mcts.lisp](duel/lisp/cpu-mcts.lisp)）組成，風格是用 dream-rsi 在原生模擬裡搜尋出來的（[docs/guides/DREAM_RSI.zh-TW.md](docs/guides/DREAM_RSI.zh-TW.md)）。HARD 的一護對劍八會在 VS CPU 裡依每場結果小幅修正自己的打法選擇表（SETTINGS 的 LEARNING CPU，RESET LEARNING 可以清掉，存在瀏覽器裡）；它不讀你的按鍵，有反應延遲。細節在 [docs/duel/DUEL_AI_MCTS.md](docs/duel/DUEL_AI_MCTS.md) 與 [docs/duel/DUEL_AI_STRATEGY.md](docs/duel/DUEL_AI_STRATEGY.md)。
 
 ## 建置與執行
 
