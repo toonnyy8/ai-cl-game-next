@@ -372,7 +372,6 @@ it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."
   "The character file's function for hook POINT in KIT (its :hooks plist), or NIL: the generic code calls it where the
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."
   (plist-get (kit-hooks kit) point))                  ; (GETF's result, one walk: DEVLOG §621)
-(defvar *char-debug* nil "(lo hi fn): debug commands LO..HI a character file handles (debug.lisp calls FN with the command).")
 (defun kit-kikon-cine (kit)
   "The cinematic a Soul Break by a fighter in KIT plays (the user's decision 2026-09-27): the form's own (its :hooks
 :soul-break-cine, a cinematic's name), else its Kikon cinematic, the one its O would play now (its :kikon move's :cine),

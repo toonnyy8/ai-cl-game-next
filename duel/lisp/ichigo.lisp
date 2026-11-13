@@ -1027,7 +1027,7 @@ F-SIN, REFACTOR_NEXT N2; the double PI before moved the dots by float ulps)."
                   (if lit 0.82f0 0.3f0) (if lit 0.06f0 0.3f0) (if lit 0.11f0 0.32f0) (if lit 1f0 0.6f0)))))))
 
 ;;; ================================================================ debug (74000-75599, docs/duel/DUEL_ICHIGO.md "Knobs")
-(pushnew '(74000 75599 ichigo-debug) *char-debug* :test #'equal)
+(define-debug-range (74000 75599) ichigo-debug)
 
 (defparameter *ichigo-tests*
   ;; k: P1-form P2 P2-form distance P2's action P1's clones
@@ -1116,7 +1116,7 @@ now (the scripts time the presses)."
               (start-cine 'ic-clip-cine *p1* *p2*))
              ((<= 86190 c 86199)                                     ; 86190+n: the clip n of (jab back wrap-j cut uchi f1 f2 f3)
               (setf *ic-clip-test* (nth (- c 86190) '(:ic-k-jab :ic-k-back :ic-k-wrap-j :ic-k-cut :ic-k-uchi :ic-k-f1 :ic-k-f2 :ic-k-f3))))))))
-(pushnew '(86100 86199 ichigo-sub-debug) *char-debug* :test #'equal)
+(define-debug-range (86100 86199) ichigo-sub-debug)
 
 (defun ichigo-debug (c)
   "74000+k ICHIGO-TEST k, 74080+k the 60-seed gate of pairing k (ICHIGO-AB-GATE); 74100+k .. 74400+k the forms' damage dealt / taken x (0.5 + k / 100) (Shikai dealt, taken,

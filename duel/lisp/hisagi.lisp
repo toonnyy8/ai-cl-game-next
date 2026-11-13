@@ -1474,4 +1474,4 @@ HS-J1-CANCEL-SCENE; 83815 / 83816 the steal scene (HISAGI-TEST 0 with P1's flash
         ((= c 83816) (steal-fs-line "end"))
         ((= c 83900) (hisagi-probe-line "probe"))
         (t (log-msg "duel hisagi: no debug command ~d" c))))
-(pushnew '(83000 83999 hisagi-debug) *char-debug* :test #'equal)
+(define-debug-range (83000 83999) hisagi-debug)

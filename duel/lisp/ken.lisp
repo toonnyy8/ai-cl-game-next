@@ -1026,8 +1026,9 @@ DUEL_KEN_V3 §8.)"
         ((member c '(71001 71004)) (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
                                    (force-form *p1* (if (= c 71001) :nozarashi :bankai))
                                    (setf (gauges-meter (gauges *p1*)) (f32 (if (= c 71001) 0 4)) (gauges-meter-idle (gauges *p1*)) 0))))
-(dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (71000 71004 ken-debug)))
-  (pushnew r *char-debug* :test #'equal))
+(define-debug-range (2387 2388) ken-debug)
+(define-debug-range (2392 2392) ken-debug)
+(define-debug-range (71000 71004) ken-debug)
 
 ;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
 (defun ken-armor (e f mv)
@@ -1131,4 +1132,4 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
                     (log-msg "duel sub ~a awakened ~a awaken ~,1f sub ~,1f s ~,2f drive ~,1f frac ~,3f fs ~,1f speed x~,3f"
                              (side-name e) (and (gauges-awakened g) t) (gauges-awaken g) (gauges-sub g) (gauges-sub-s g)
                              (gauges-drive g) (sub-of e) (gauges-fs g) (sub-speed-mult e))))))))))
-(pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)
+(define-debug-range (84000 84099) ken-core-debug)
