@@ -1,0 +1,4 @@
+x1 :iks-meaty-p 0.0 :: 0.9059 [('anchor', 188, 4, 8), ('mix', 170, 29, 1), ('rest', 188, 11, 1)]
+x2 :iks-wake-hoho-p 0.0 :: 0.7871 [('anchor', 171, 26, 3), ('mix', 141, 59, 0), ('rest', 162, 38, 0)]
+x3 :iks-meaty-p 0.0 :iks-wake-hoho-p 0.0 :iks-hoho-p 0.6 :: 0.9026 [('anchor', 186, 5, 9), ('mix', 169, 29, 2), ('rest', 189, 9, 2)]
+x4 :iks-meaty-p 0.0 :iks-wake-hoho-p 0.0 :iks-mix-whiff 0.5 :: 0.9175 [('anchor', 185, 4, 11), ('mix', 181, 18, 1), ('rest', 187, 11, 2)]

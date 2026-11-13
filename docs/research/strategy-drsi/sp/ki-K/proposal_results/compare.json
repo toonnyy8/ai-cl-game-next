@@ -1,0 +1,116 @@
+{
+  "worlds": [
+    "ki-K/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "8a836b9057c4",
+  "ranking": [
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v1_rank_keep.py",
+      "sha1": "5b176ebd32a3",
+      "pareto": {
+        "auc": 0.4856569744736749,
+        "parallel_penalty": 0.34500000000000003,
+        "parallelism_weight": 0.05,
+        "reward": 0.4684069744736749,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9389,
+            "n_evaluated": 12,
+            "auc": 0.4856569744736749,
+            "parallel_penalty": 0.34500000000000003,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 0.9455746085845139
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 8.0,
+                "attain": 0.9683672382575355
+              },
+              {
+                "beta": 0.5,
+                "total_budget": 10.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v2_halving.py",
+      "sha1": "94c557363b16",
+      "pareto": {
+        "auc": 0.4023236411403415,
+        "parallel_penalty": 0.32359307359307354,
+        "parallelism_weight": 0.05,
+        "reward": 0.38614398746068784,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9389,
+            "n_evaluated": 12,
+            "auc": 0.4023236411403415,
+            "parallel_penalty": 0.32359307359307354,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 7.0,
+                "attain": 0.9455746085845139
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 9.0,
+                "attain": 0.9683672382575355
+              },
+              {
+                "beta": 0.75,
+                "total_budget": 11.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/ki-K/policy/current.py",
+      "sha1": "8a836b9057c4",
+      "pareto": {
+        "auc": 0.0,
+        "parallel_penalty": 0.25,
+        "parallelism_weight": 0.05,
+        "reward": -0.0125,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9389,
+            "n_evaluated": 12,
+            "auc": 0.0,
+            "parallel_penalty": 0.25,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 12.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": false
+          }
+        ]
+      },
+      "non_degenerate": false
+    }
+  ],
+  "disqualified": []
+}

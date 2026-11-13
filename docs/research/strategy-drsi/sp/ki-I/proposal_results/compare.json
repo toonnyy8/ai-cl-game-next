@@ -1,0 +1,101 @@
+{
+  "worlds": [
+    "ki-I/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "8a836b9057c4",
+  "ranking": [
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v1_rank_keep.py",
+      "sha1": "5b176ebd32a3",
+      "pareto": {
+        "auc": 0.5,
+        "parallel_penalty": 0.34500000000000003,
+        "parallelism_weight": 0.05,
+        "reward": 0.48275,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9488,
+            "n_evaluated": 12,
+            "auc": 0.5,
+            "parallel_penalty": 0.34500000000000003,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v2_halving.py",
+      "sha1": "94c557363b16",
+      "pareto": {
+        "auc": 0.37261101742551994,
+        "parallel_penalty": 0.32965367965367964,
+        "parallelism_weight": 0.05,
+        "reward": 0.35612833344283595,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9488,
+            "n_evaluated": 12,
+            "auc": 0.37261101742551994,
+            "parallel_penalty": 0.32965367965367964,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 7.0,
+                "attain": 0.8678330522765599
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 11.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/ki-I/policy/current.py",
+      "sha1": "8a836b9057c4",
+      "pareto": {
+        "auc": 0.0,
+        "parallel_penalty": 0.25,
+        "parallelism_weight": 0.05,
+        "reward": -0.0125,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9488,
+            "n_evaluated": 12,
+            "auc": 0.0,
+            "parallel_penalty": 0.25,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 12.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": false
+          }
+        ]
+      },
+      "non_degenerate": false
+    }
+  ],
+  "disqualified": []
+}

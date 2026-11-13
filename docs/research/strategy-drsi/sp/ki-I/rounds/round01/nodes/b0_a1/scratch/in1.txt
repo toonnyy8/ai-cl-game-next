@@ -1,0 +1,6 @@
+w1|:iks-ns-wait 24 :iks-retreat-p 0.5
+w2|:iks-ns-wait 20 :iks-mix-kessa 0.3
+w3|:iks-ns-wait 24 :iks-hoho-p 1.0 :iks-wake-hoho-p 1.0
+w4|:iks-ns-wait 24 :iks-mix-ptr3 0.9 :iks-mix-space 0.0
+w5|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200
+w6|:iks-ns-wait 24 :iks-kikon-costly-p 1.0 :iks-break-p 0.5

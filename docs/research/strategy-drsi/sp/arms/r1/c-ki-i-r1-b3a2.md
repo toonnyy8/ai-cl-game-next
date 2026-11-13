@@ -1,0 +1,6 @@
+# b3_a2: b3_a1's arm with the meaty J1 off and the episode mix tilted to whiff-punish
+Mechanism: b3_a1 arm (0.7888) + `:iks-meaty-p 0.0` (no meaty J1 chase on Kenpachi's knockdown) + `:iks-mix-whiff 1.5` (whiff-punish episodes dominate: weights ptr3 .6, whiff 1.5, space .1, kessa .16, generic .04, normalised).
+Evidence (seed0 300, on b3_a1's arm): hoho-p 1.0 + meaty 1.0 0.7673; hoho-p 0.6 0.7838; awaken-p 0 0.4356 (awakening is essential); hold-awaken 0.3 0.6881; kessa 0.4 0.7706; steer 0.6 + punish 1.0 0.6254; whiff 0.5 0.7855; kikon 0.3 0.7888 (inert); other 0 0.4703; break 0.5 0.7673; meaty 0 + wake-hoho 0 0.9059; meaty 0 alone 0.9059, wake-hoho 0 alone 0.7871 (so the meaty is the lever); meaty 0 + whiff 0.5 0.9175, 0.8 0.929, 1.5 0.9488, 4 0.9455, pure whiff 0.934; + hoho-p 0.6 lower.
+Not a repeat: b3_a0/a1 searched mix-ptr3/space, hover, gap, ns-wait, getsuga-min, break, hoho-follow, kikon-costly; meaty-p, wake-hoho-p, hoho-p, awaken-p, steer, whiff weight were untried. Different mechanism: stop chasing Kenpachi's wake-up (it feeds him a reversal) and punish his whiffs.
+Risk: seed-300 overfit (screened on the same seeds); whiff plateau 0.93-0.95 so the exact weight is noise.
+Measured: score 0.9488; anchor 193W/3L/4TO, mix 186/12/2, rest 193/7/0.

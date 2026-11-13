@@ -1,0 +1,3 @@
+y1|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-mix-whiff 0.4
+y2|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-punish-p 1.0 :iks-confirm-p 1.0
+y3|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-steer-p 1.0 :iks-kikon-p 1.0

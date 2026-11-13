@@ -1,0 +1,3 @@
+z1 :iks-meaty-p 0.0 :iks-mix-whiff 1.5 :: 0.9488 [('anchor', 193, 3, 4), ('mix', 186, 12, 2), ('rest', 193, 7, 0)]
+z2 :iks-meaty-p 0.0 :iks-mix-whiff 0.8 :iks-wait-max 80 :: 0.929 [('anchor', 193, 2, 5), ('mix', 180, 19, 1), ('rest', 187, 12, 1)]
+z3 :iks-meaty-p 0.0 :iks-mix-whiff 0.8 :iks-mix-ptr3 0.3 :: 0.929 [('anchor', 193, 2, 5), ('mix', 180, 19, 1), ('rest', 187, 12, 1)]

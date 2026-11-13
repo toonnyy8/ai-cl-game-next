@@ -18,6 +18,12 @@
    "id": "a-ichigo-press",
    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-press.lisp",
    "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "c-ki-i-r1-b3a2",
+   "file": "docs/research/strategy-drsi/sp/arms/r1/c-ki-i-r1-b3a2.lisp",
+   "why": "KI round 1 candidate: no meaty chase, whiff-punish mix; block 400 0.9323 (admitted: in the KI equilibrium mix, block-200 matrix 2026-11-14)",
+   "status": "admitted r1"
   }
  ],
  "screen": {
@@ -166,7 +172,8 @@
   }
  },
  "mix": {
-  "a-ichigo-press": 1.0
+  "a-ichigo-press": 0.122,
+  "c-ki-i-r1-b3a2": 0.878
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

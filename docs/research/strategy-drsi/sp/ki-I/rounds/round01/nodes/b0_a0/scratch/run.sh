@@ -1,0 +1,2 @@
+cd /media/8tsp/projects/ai-cl-game-next
+for i in "$@"; do echo "v$i"; SP_BUILD=29a3fe99 python3 docs/research/strategy-drsi/sp/eval.py --me ichigo --vs kenpachi --cand $PWD/docs/research/strategy-drsi/sp/ki-I/rounds/round01/nodes/b0_a0/scratch/v$i.lisp --seed0 300 -j 3 | python3 -c "import sys,json;d=json.load(sys.stdin);print(d['score'],{k:(v['ko_wins'],v['ko_losses'],v['timeouts']) for k,v in d['groups'].items()})"; done; echo ALLDONE

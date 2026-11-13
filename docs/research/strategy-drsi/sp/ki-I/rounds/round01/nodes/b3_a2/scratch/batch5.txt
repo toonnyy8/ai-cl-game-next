@@ -1,0 +1,4 @@
+y1 :iks-meaty-p 0.0 :iks-mix-whiff 0.8 :: 0.929 [('anchor', 193, 2, 5), ('mix', 180, 19, 1), ('rest', 187, 12, 1)]
+y2 :iks-meaty-p 0.0 :iks-mix-whiff 0.5 :iks-mix-kessa 0.3 :: 0.9059 [('anchor', 181, 5, 14), ('mix', 172, 28, 0), ('rest', 193, 7, 0)]
+y3 :iks-meaty-p 0.0 :iks-mix-whiff 0.5 :iks-wait-max 80 :: 0.9224 [('anchor', 186, 4, 10), ('mix', 181, 17, 2), ('rest', 189, 10, 1)]
+y4 :iks-meaty-p 0.0 :iks-mix-whiff 0.5 :iks-mix-space 0.3 :: 0.9224 [('anchor', 186, 4, 10), ('mix', 181, 17, 2), ('rest', 189, 10, 1)]

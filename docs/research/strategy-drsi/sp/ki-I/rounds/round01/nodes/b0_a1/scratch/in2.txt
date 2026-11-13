@@ -1,0 +1,5 @@
+x1|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 300
+x2|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-mix-ptr3 0.9 :iks-mix-space 0.0
+x3|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-gap-max 99
+x4|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-wait-max 25
+x5|:iks-ns-wait 24 :iks-gap-wait 5.5 :iks-gap-fs 200 :iks-mix-whiff 0.0 :iks-mix-kessa 0.0
