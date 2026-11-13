@@ -22,12 +22,12 @@
     (values a b)))
 (defparameter *bind-hooks* '(:bind :bind-damage :bind-heal :bind-step :bind-resolve :bind-snapshot :p :p-label))   ; (:bind-pool, the shared
 ;; Reiatsu, left with the gauge, 2026-11-13, REFACTOR_2026-11 R6)
-;; inert: no kit but Hisagi's Bankai (B2b) holds a bind hook or :p (Kenpachi's Shikai's :p, KEN-P, does nothing: it keeps P in
-;; his run); every reader then does what the old code did
+;; inert: no kit but Hisagi's Bankai (B2b) holds a bind hook or :p (Kenpachi's Shikai keeps P in his run through the kit key
+;; :RUN-AWAKEN since R11, not a :p hook); every reader then does what the old code did
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
              never (loop for (f . k) in alist
                          thereis (and (not (and (eq c :hisagi) (member f '(:bankai :bankai-bind))))
-                                      (some (lambda (h) (and (kit-hook k h) (not (eq (kit-hook k h) 'ken-p))))
+                                      (some (lambda (h) (kit-hook k h))
                                             *bind-hooks*)))))
 (check (and (member :awaken *run-commands-p*) (not (member :awaken *run-commands*))
             (equal (rest *run-commands-p*) *run-commands*)))

@@ -482,7 +482,7 @@ move-beat choices of DRAW-FIGHTER."
 
 (defun cine-still-command-p (c)
   "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
-checks every such clause of DEBUG-COMMAND is listed here)."
+checks every such DEFINE-DEBUG-RANGE is listed here)."
   (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 35999)))
 
 (defun debug-command (c)
@@ -549,7 +549,7 @@ engine/lisp/debug-ranges.lisp; a command no range claims does nothing)."
 (define-debug-range (26000 26999) (c) (scale-k-links (- c 26000)))
 (define-debug-range (30000 30999) (c) (setf *gate-seed0* (- c 30000)))
 (define-debug-range (31101 31199) (c) (setf *gate-seeds* (- c 31100)))
-(define-debug-range (2510 2512) (c) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth, so 2513 below is reachable)
+(define-debug-range (2510 2512) (c) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth)
 (define-debug-range (2513 2513) (c) (slowmo *core-clash-slowmo-scale* 3.0))                 ; 3 s of the cancel's slow motion (the smooth-draw check)
 (define-debug-range (2514 2514) (c) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)
 (define-debug-range (2515 2515) (c) (webhud-consing))                                         ; the battle screens' sync (DUEL_WEBUI §7)

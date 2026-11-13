@@ -420,10 +420,6 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
   "The pacing log's keyword PARTS joined by -; cached (FORMAT + INTERN on every logged event was ~1 % of a gate, 2026-11-07)."
   (or (gethash parts *ic-keys*)
       (setf (gethash (copy-list parts) *ic-keys*) (intern (format nil "~{~a~^-~}" parts) :keyword))))
-(defun ic-reach-key (x z e)
-  "The pacing log's reach bucket of a point (X Z) to E's opponent: IN (<= 2.4 m, a light's), MID (<= 3.0, a heavy's), OUT."
-  (let* ((q (pos-of (opp-of e))) (d (sqrt (+ (expt (- (aref q 0) x) 2) (expt (- (aref q 2) z) 2)))))
-    (cond ((<= d 2.4) "IN") ((<= d 3.0) "MID") (t "OUT"))))
 
 ;;; hazard data: a clone (ICC), an afterimage (ICE); their hits are :ic-hit hazards whose data is the clone / :echo
 (defstruct (icc (:conc-name icc-))
@@ -582,11 +578,6 @@ press's; with the lag NS3[2]'s cut came 4 frames after NS3[3] could start, so a 
       (setf (icc-sf c) 0
             (icc-sscale c) (f32 (sp-scale (fighter-sp-paid f) (fighter-sp-cost f))))   ; (the summon segment's: DUEL_SP Q8)
       c)))
-(defun ichigo-ns-regroup (e h c)
-  "An NS3 clone answering a press flashes back to its place by E first, so it cuts with him wherever his lunge took him."
-  (multiple-value-bind (x z) (ichigo-ns-slot e (if (eq (icc-src c) :ns-a) 1 -1))
-    (let ((hz (hazard h)))
-      (setf (hazard-x hz) (f32 x) (hazard-z hz) (f32 z)))))
 (defun ichigo-ns-clone-a (e) "NS3 f8: the first clone, on his right." (ichigo-ns-clone e 1 :ns-a))
 (defun ichigo-ns-clone-b (e) "NS3's second press: the second clone, on his left." (ichigo-ns-clone e -1 :ns-b))
 (defun ichigo-ns-clone-x (e)
