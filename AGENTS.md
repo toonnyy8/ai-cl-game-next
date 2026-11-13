@@ -161,7 +161,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
   sit in its file under the same rule),
   `rules.lisp`, `control.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `gauges` (the gains, bursts, forms, GAUGE-SYSTEM), `combat` (the hits), `round` (the souls' settling, the reset),
-  `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `fq-online` (the online fuzzy Q learner), `camera`, `feedback`, `flow`, `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `gate` (the gate
+  `hazards`, `cpu-perceive` (the CPUs' delayed perception and presses), `fq-online` (the online fuzzy Q learner), `camera`, `feedback`, `flow`, `practice` (PRACTICE's options record and its sim step), `hud` (the canvas words and world overlays), `hud-screens` (HUD-DRAW), `onehand` (the touch deck's input and geometry), `webhud` / `webui` (the HUD's and the menus' models), `lhud-*` (the HUD and menus, drawn by Lisp: DUEL_LISP_HUD), `gate` (the gate
   machinery), `debug` (debug commands, scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `vfx-stamps`, `stage`,
   `cinema`, `glyphs`, `sounds`. Compile order:
   `duel/MANIFEST`.

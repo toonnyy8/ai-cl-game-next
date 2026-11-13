@@ -1435,7 +1435,7 @@ cancel's unlock (the comment above); any other k the probe line only."
 (defun hs-j1-cancel-scene (k)
   "Debug 83811-83814 (DUEL_CORE §2.1, the user 2026-11-12: 「為什麼檜佐木遠距 J1 相消後接不了 J2 與 AS？」): PRACTICE vs Kenpachi, P1 in the
 ranged mode, idle; K 0 / 1 the dummy on GUARD ALL 2.2 / 4.5 m apart, 2 / 3 on STAND 2.2 / 4.5 m (the script presses J1, then J or SP)."
-  (setf *picks* (list :hisagi :kenpachi) *mode* :practice *match-seed* 1 *probe* nil *dummy* (if (>= k 2) :stand :guard-all))
+  (setf *picks* (list :hisagi :kenpachi) *mode* :practice *match-seed* 1 *probe* nil (po-dummy *practice*) (if (>= k 2) :stand :guard-all))
   (let ((*skip-cines* t)) (start-match))
   (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
   (practice-dummy!)

@@ -221,15 +221,15 @@ but 2814 / 2815 ends 2.2 m apart, idle."
   (cond ((<= c 2808)
          (let ((cs '(:kenpachi :ichigo :hisagi)))
            (setf *picks* (list (nth (floor (- c 2800) 3) cs) (nth (mod (- c 2800) 3) cs)) *mode* :practice *match-seed* 1 *probe* nil
-                 *dummy* :guard-all))
+                 (po-dummy *practice*) :guard-all))
          (let ((*skip-cines* t)) (start-match))
          (when (brain *p1*) (setf (brain-off (brain *p1*)) t)))
-        ((<= 2810 c 2813) (setf *dummy* (car (nth (- c 2810) *dummies*))))
-        ((= c 2815) (setf *dummy-counter* (not *dummy-counter*))))
+        ((<= 2810 c 2813) (setf (po-dummy *practice*) (car (nth (- c 2810) *dummies*))))
+        ((= c 2815) (setf (po-counter *practice*) (not (po-counter *practice*)))))
   (practice-dummy!)
   (unless (= c 2815) (place *p1* *p2* (if (= c 2814) 6.0 2.2)))
   (log-msg "duel practice scene ~a vs ~a DUMMY ~a COUNTER ~a" (fighter-character (fighter *p1*)) (fighter-character (fighter *p2*))
-           (cdr (assoc *dummy* *dummies*)) (if *dummy-counter* "J1" "OFF")))
+           (cdr (assoc (po-dummy *practice*) *dummies*)) (if (po-counter *practice*) "J1" "OFF")))
 
 (defun lhud-p2-form ()
   "2508: P2 (Kenpachi in 2505 / 2506) to his next form: sealed -> the Shikai with KAIHO L2 -> the Bankai KYORAN -> ZANKAI -> sealed

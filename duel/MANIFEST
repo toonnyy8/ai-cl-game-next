@@ -59,6 +59,7 @@ lisp/cpu-mcts.lisp
 lisp/fq-online.lisp
 lisp/camera.lisp
 lisp/feedback.lisp
+lisp/practice.lisp
 lisp/flow.lisp
 lisp/hud.lisp
 lisp/ken-meter.lisp
