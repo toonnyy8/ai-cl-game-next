@@ -424,7 +424,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                (dotimes (i 20) (setf idle (gg-idle-next idle nil))) idle)))
 ;; chip never kills: it leaves 1 (East's pierce, which fed it, left with Yamamoto, 2026-11-12)
 (check (= 49 (chip-damage 85 1.0 50)))
-;; guarding: the gauge stands still and the delay is frozen (combat.lisp GAUGE-SYSTEM's GUARD HOLD)
+;; guarding: the gauge stands still and the delay is frozen (gauges.lisp GAUGE-SYSTEM's GUARD HOLD)
 (check (and (~= (gg-regen 40.0 9999 nil t) 40.0) (= (gg-idle-next 30 t) 30)))
 (check (and (can-guard-p 1.0 nil) (not (can-guard-p 0.0 nil)) (not (can-guard-p 99.0 t))))
 ;; a guard crush: Kenpachi's Q1 blocked into an empty gauge -> the attacker acts 25 frames first

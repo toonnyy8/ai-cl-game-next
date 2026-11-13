@@ -221,7 +221,7 @@ SOUL DUEL uses them this way:
   Arguments in, values or small structs out, randomness passed in as a number. Plain CL over the
   engine's plain-CL files (math.lisp: facing, WEIGHTED-PICK; hitvol.lisp: hit volumes), so
   `tests/duel-rules-test.lisp` loads them all on the host.
-* The imperative shell (systems in fighter.lisp, combat.lisp, hazards.lisp, ai.lisp,
+* The imperative shell (systems in fighter.lisp, gauges.lisp, combat.lisp, round.lisp, hazards.lisp, ai.lisp,
   flow.lisp) gathers a rule's inputs from components, calls it, and applies the result **in
   place**. Components are mutated, not copied, because ECL boxes floats in structs and lists
   (see below): copying per step would multiply consing and GC pauses.
@@ -377,7 +377,9 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/<name>-art.lisp (+ -clips -draw -cine -stills -look) | a character's bodies, weapons, clips (DEFSTRIKE), draw code, cinematics (DUEL_DESIGN "Character code layout: split by role") |
 | lisp/<name>.lisp (+ -ai -meter) | its moves, forms, hooks, debug range; its CPU; its kit meter's step and HUD widgets (`ken-meter`, `rukia-meter`: loaded after hud.lisp, reached by the `:tick` hook and the meter's `:draw` / `:label`) |
 | lisp/fighter.lisp     | FIGHTER-SYSTEM: vpad → commands → state machine → physics   |
-| lisp/combat.lisp      | HIT-SYSTEM (clash, collect then apply every hit, blocks, Kikon, soul break), forms / awakening, GAUGE-SYSTEM |
+| lisp/gauges.lisp      | the gauges' writers (gains, heals, the guard drain, the bind's readers), Burst Reverse, forms / awakening, GAUGE-SYSTEM |
+| lisp/combat.lisp      | HIT-SYSTEM (clash, collect then apply every hit, blocks, the Kikon and Soul Break queues), DEAL-DAMAGE |
+| lisp/round.lisp       | the souls a step broke settled together (SETTLE-SOULS), the reset (RESET-ROUND) |
 | lisp/hazards.lisp     | projectiles, pillars, skeletons, cuts as HAZARD entities    |
 | lisp/scripted.lisp    | the scripted players the sim calls (the learning gate's habits, ASSIST's button-masher), before ai.lisp |
 | lisp/ai.lisp          | BRAIN-SYSTEM: the CPU player (writes its vpad)              |
