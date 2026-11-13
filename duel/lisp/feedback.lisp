@@ -109,7 +109,8 @@ search leaves no crack on the live stage (REFACTOR_2026-11 §11.5.2 C)."
       (multiple-value-bind (dx dz) (hit-dir att def) (vfx-ember x y z :dx (- dx) :dz (- dz) :scale 1.3))
       (sfx-at :clang x y z) (sfx-at :sizzle x y z) (shake 0.12 0.2) (impact-frame :negative 1)
       (announce "PARRY" :color '(1 0.55 0.2 1) :secs 0.7 :small t))
-    (:refused args (sfx-on :clang (first args) :gain 0.35 :pitch 1.6))      ; still cooling: a dud tick
+    (:refused args (sfx-on :clang (first args) :gain 0.35 :pitch 1.6)      ; still cooling: a dud tick
+                   (when (eq (second args) :sp) (webhud-refused! (first args))))   ; an SP segment refused: the HUD's cue (DUEL_SP §8.4 S8)
     (:absorbed (def x y z)
       (vfx-hit x y z :guard) (sfx-at :cut x y z :gain 0.7)
       (let ((k (kit-absorb-sfx (kit-of def)))) (when (and k (< (rnd01) 0.5)) (sfx-on k def :gain 0.8))))

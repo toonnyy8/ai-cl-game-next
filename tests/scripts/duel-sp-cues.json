@@ -1,0 +1,126 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== SP cues')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(2800)"
+},
+{
+"at": 9.4,
+"eval": "Module._debug_cmd(2823)"
+},
+{
+"at": 10.0,
+"shot": "tests/shots/sp-cues-full.png"
+},
+{
+"at": 10.2,
+"eval": "Module._debug_cmd(2825)"
+},
+{
+"at": 10.6,
+"shot": "tests/shots/sp-cues-short.png"
+},
+{
+"at": 10.8,
+"eval": "Module._debug_cmd(2826)"
+},
+{
+"at": 11.2,
+"shot": "tests/shots/sp-cues-empty.png"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(2800)"
+},
+{
+"at": 11.9,
+"eval": "Module._debug_cmd(2823)"
+},
+{
+"at": 12.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 12.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 12.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 12.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.12,
+"shot": "tests/shots/sp-cues-reserve.png"
+},
+{
+"at": 12.3,
+"shot": "tests/shots/sp-cues-cancel.png"
+},
+{
+"at": 14.5,
+"eval": "Module._debug_cmd(2800)"
+},
+{
+"at": 14.9,
+"eval": "Module._debug_cmd(2826)"
+},
+{
+"at": 15.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.54,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.8,
+"shot": "tests/shots/sp-cues-refused.png"
+},
+{
+"at": 15.95,
+"shot": "tests/shots/sp-cues-refused2.png"
+}
+]

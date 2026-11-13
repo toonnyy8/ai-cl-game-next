@@ -10,12 +10,13 @@
 
 (defconstant +tr-side+ 40 "Transition slots per side in *LHUD-TR*.")
 ;; slots (+ (* side +tr-side+) k): 0 the ghost, 1 the fill's cut, 2-10 the flames' fade, 11-19 the spent flames' dots, 20-22 the flash
-;; step's cells, 23 the awakening bar, 24 SUBLIMATION, 25 the awakening label's opacity, 26-29 the seals' on (0 / 1); the burning span (V25, a BLUE burst) is read from the model, not tweened
+;; step's cells, 23 the awakening bar, 24 SUBLIMATION, 25 the awakening label's opacity, 26-29 the seals' on (0 / 1), 30-32 the flash step's cells with the SP reserve stacked on (DUEL_LISP_HUD §17); the burning span (V25, a BLUE burst) is read from the model, not tweened
 (declaim (type f32vec *lhud-tr* *lhud-pl* *lhud-a* *lhud-pts*) (type (simple-array fixnum (*)) *lhud-pli*))
 (defvar *lhud-tr* (make-transitions (* 2 +tr-side+)) "The plates' transitions (tween.lisp): see +TR-SIDE+.")
 (defvar *lhud-pl* (make-array 24 :element-type 'single-float :initial-element -1f30)
-  "Per side at 12 s: [0..8] each flame's shatter start, [9] when the plate went low (hd-stake's start).")
-(defvar *lhud-pli* (make-array 4 :element-type 'fixnum :initial-element -1) "Per side at 2 s: [0] the Konpaku last seen, [1] low last seen.")
+  "Per side at 12 s: [0..8] each flame's shatter start, [9] when the plate went low (hd-stake's start), [10] a refused SP press's start.")
+(defvar *lhud-pli* (make-array 6 :element-type 'fixnum :initial-element -1)
+  "Per side at 2 s: [0] the Konpaku last seen, [1] low last seen; [4 + side] the refused serial last seen.")
 (defvar *lhud-a* (make-f32 8) "The row drawers' float arguments (LANE!).")
 (defvar *lhud-pts* (make-f32 32) "Polygon scratch (16 points: the trail takes 11).")
 (defmacro lane! (&rest vals)
@@ -52,6 +53,14 @@
     (when (and (= low 1) (/= (aref pli (1+ (* 2 side))) 1)) (setf (aref pl (+ (* 12 side) 9)) now))
     (setf (aref pli (* 2 side)) kon (aref pli (1+ (* 2 side))) low)
     (dotimes (i 3) (trans-to trs (+ b 20 i) (f-max 0f0 (f-min 1f0 (- fs (i->f i)))) now 0.25f0 +ease-out+))
+    ;; the SP reserve (V o+26) rides on top: the cells' total (lit + reserve) holds still when a segment pays or a cancel refunds, so the
+    ;; lit part sinks into / grows out of the dim one with no jump; it shrinks to the lit part when the segment ends (.35 s)
+    (let* ((tot (+ fs (* 0.003f0 (i->f (max 0 (hv (+ o 26)))))))
+           (ser (hv (+ o 29))) (prev (aref pli (+ 4 side))))
+      (declare (single-float tot) (fixnum ser prev))
+      (dotimes (i 3) (trans-to trs (+ b 30 i) (f-max 0f0 (f-min 1f0 (- tot (i->f i)))) now 0.35f0 +ease-out+))
+      (when (and (>= prev 0) (> ser 0) (/= ser prev)) (setf (aref pl (+ (* 12 side) 10)) now))   ; a refused SP press: the cells flash blood
+      (setf (aref pli (+ 4 side)) ser))
     (trans-to trs (+ b 23) (* 0.001f0 (i->f (max 0 (hv (+ o 7))))) now 0.4f0 +ease-out+)
     (trans-to trs (+ b 24) (* 0.001f0 (i->f (max 0 (hv (+ o 22))))) now 0.4f0 +ease-out+)
     (trans-to trs (+ b 25) (if (or (= 1 (hv (+ o 8))) (> (hv (+ o 23)) 0)) 1f0 0f0) now 0.3f0 +ease+)
@@ -178,6 +187,7 @@ paper with an ink stroke 1.2, at stake a blood stroke 2.4 (bobbing while low), s
             (paint-pop)))))
     nil))
 
+(defparameter +c-reserve+ (rgba #xbcc1cc 0.3)) (defparameter +c-reserve-tick+ (rgba #xeeeeea 0.6))   ; the SP reserve (dim steel on the cell), the price tick
 (defparameter +c-cell+ (rgba #x2c303d)) (defparameter +c-pink+ (rgba #xff7ab8)) (defparameter +c-drive+ (rgba #xe0353b))
 (defparameter +c-redlab+ (rgba #xff4b5c))
 
@@ -196,10 +206,24 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
              (cx (if mir (- (+ fsx fw) (* (i->f (1+ i)) cw) (* (i->f i) 0.22f0 u)) (+ fsx (* (i->f i) (+ cw (* 0.22f0 u)))))))
         (declare (single-float k cx))
         (paint-rect cx y cw h +c-cell+)
+        (let* ((kt (trans-value trs (tr side (+ 30 i)) now)))   ; the SP reserve: dim ink from the lit end to the total
+          (declare (single-float kt))
+          (when (> (- kt k) 0.002f0) (paint-rect (if mir (+ cx (* cw (- 1f0 kt))) (+ cx (* cw k))) y (* cw (- kt k)) h +c-reserve+)))
         (when (> k 0.001f0) (paint-rect (if mir (+ cx (* cw (- 1f0 k))) cx) y (* cw k) h +c-steel+))
         (let* ((a (lhud-cell-burn lo i k)))                ; a BLUE burst: the span still to burn, in the burst's blue
           (declare (single-float a))
           (when (> (- k a) 0.001f0) (paint-rect (if mir (+ cx (* cw (- 1f0 k))) (+ cx (* cw a))) y (* cw (- k a)) h +c-burst-b+)))))
+    (let* ((c (* 0.003f0 (i->f (max 0 (hv (+ o 27)))))) (ci (cond ((<= c 1f0) 0) ((<= c 2f0) 1) (t 2))) (fl (f-max 0f0 (- 1f0 (/ (- now (aref *lhud-pl* (+ (* 12 side) 10))) 0.4f0)))))
+      (declare (single-float c fl) (fixnum ci))
+      (when (> c 0.01f0)                                   ; the next NSa's price: a tick on the cell it falls in (full damage above it)
+        (let* ((f (- c (i->f ci))) (cx (if mir (- (+ fsx fw) (* (i->f (1+ ci)) cw) (* (i->f ci) 0.22f0 u)) (+ fsx (* (i->f ci) (+ cw (* 0.22f0 u))))))
+               (tw (* 1.5f0 (lay-dpr))) (tx (- (if mir (+ cx (* cw (- 1f0 f))) (+ cx (* cw f))) (* 0.5f0 tw))))
+          (declare (single-float f cx tw tx))
+          (paint-rect tx (- y (* 0.12f0 u)) tw (+ h (* 0.24f0 u)) +c-reserve-tick+)))
+      (when (> fl 0.01f0)                                  ; a refused SP press (hd-deny's cousin): the cells flash blood and fade
+        (with-col (cc +c-blood+) (col-alpha! cc (* 0.6f0 fl))
+          (dotimes (i 3)
+            (paint-rect (if mir (- (+ fsx fw) (* (i->f (1+ i)) cw) (* (i->f i) 0.22f0 u)) (+ fsx (* (i->f i) (+ cw (* 0.22f0 u))))) y cw h cc)))))
     (paint-rect awx y aw h +c-cell+)
     (let* ((k (trans-value trs (tr side 23) now)) (sb (trans-value trs (tr side 24) now))
           (pulse (if full (- 0.5f0 (* 0.5f0 (f-cos (* 6.2832f0 now)))) 0f0)) (col (if (>= m 2) +c-drive+ +c-reiatsu+)))

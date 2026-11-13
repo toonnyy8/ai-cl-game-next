@@ -227,7 +227,7 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   like a pressed segment (§3: every NS segment, charged when it starts). Q14's switch keeps its DRIVE path until S6 (it would pay twice).
   Q5-Q8, Q16, Q17 as the defaults: an absorb neither refunds nor gains; a multi-hit segment refunds once; the price is fixed at the start (a
   burst's free segment records cost 0: full damage); hazards wait for S5; the CPU and the dummy pay like a player; "first" = in the kit's
-  `:core :ns` list, wherever it starts. Feedback still plays `:refused` (a dud tick); no HUD cue (S8).
+  `:core :ns` list, wherever it starts. Feedback still plays `:refused` (a dud tick); the HUD cue is S8's (done, below).
 - **Readers keyed on damage** (§8.7 risk 2): the gains follow the scaled, dealt damage (`gain-gauges`, the SUBLIMATION / DRIVE fill, the
   victim's `*fs-taken*`, `combo-dmg`); prices (Kenpachi's Bankai Reishi, `*ken-bk-cost*`) and the hitstop (`:hs-dmg`, from move data) do not.
   A blocked hit's chip uses the base damage (unchanged); an armoured / absorbed hit uses the scaled one.
@@ -334,6 +334,12 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   by R6): asked whether §5's new ATK gains take them; the user: **「沿用 ×1.3」**: a tip hit's J / SA gain x1.3, a spread-route hit's x1.3,
   both x1.69. Built in **S3** (a `:sp-gain-mult` hook beside `hs-dmg-mult`'s tip read; the knobs return as `*hs-r-tip-sp-mult*` /
   `*hs-r-spread-sp-mult*` 1.3).
+- **S8 done (2026-11-13; the HUD cues, DUEL_LISP_HUD §17).** The A1 playtest's 「預扣顯示」 replaced the row's "spend tick and refund flash": the
+  model publishes the reserve (`sp-paid` while the fighter is in an NS / AS segment and `sp-back` is not set), the next NSa's price, the running
+  scale and a refused-press serial (o+26..29); the plate's cells and the phone's dial draw the reserve as dim ink on the gauge (it does not
+  drop when a segment pays, it turns lit when a cancel refunds, it fades at the segment's end); a price tick on the cells; "x0.5-x0.9" on a
+  scaled callout; the SP button's SHORT / EMPTY words and a refused-press cue (the label's shake and flash, the cells' blood flash). The
+  breakthrough event and the steal's fly-over wait for S4. Presentation only: G2 identical; 0 B / frame.
 - **Q18 (the main session, 2026-11-13, from REFACTOR_2026-11 §11.5.7 item 5): one named writer per gauge direction.** Every flash-step
   loss but the burst's own drain goes through `spend-fs` (the regen waits again): the SP payment, Hoho, the AS1 steal's and the
   breakthrough's victim side (today the steal writes the slot directly; under S1's regen cap and steal floor the idle reset changes

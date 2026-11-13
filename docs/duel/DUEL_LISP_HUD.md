@@ -1467,3 +1467,41 @@ REMATCH -> RESULTS -> CHARACTER SELECT -> TITLE; PRACTICE's pause list; CPU VS C
 held touch): exit 0, no console error, no 404, the same `duel ->` lines as the first commit's walks. The looks gate's scripts walk as
 before (their menu keys are the desk walk's); its baseline changes wholesale with this batch (every menu and battle still), so it
 needs a fresh BASE.
+
+## 17. The SP cues (DUEL_SP §8.4 S8, 2026-11-13)
+
+The SP rules (DUEL_SP: a segment pays at its start, the gauge refunds a cancel, a short gauge scales the damage, an empty one refuses a
+later NS segment) get their HUD cues. The model (webhud.lisp, `webhud-side`) gained four values a side, at o + 26..29 (o = 50 + 30 side):
+
+| V | What | Source |
+|---|---|---|
+| o+26 | the **reserve**: what the running NS / AS segment paid and has not got back, in ‰ of `*fs-max*` | `fighter-sp-paid` while the fighter is in state :move, class :ns / :as and `sp-back` is not set (SP-PAID stays on the fighter after a route, so the move and class are checked here, not by the HUD) |
+| o+27 | the **price of the next NSa** (the current pointer's first NS segment), ‰ of `*fs-max*`; 0 in a burst or without a pointer | `kit-core-move kit :ns ptr`, `kit-sp-cost` |
+| o+28 | the running segment's **damage scale** in ‰ (`0.5 + 0.5 paid / cost`; 1000 when full or none) | the formula of `sp-scale`, inline in single-floats (no boxed call) |
+| o+29 | a **refused press's serial** (1..1023) | feedback's `:refused` event with cmd `:sp` calls `webhud-refused!`; the sound is unchanged |
+
+What is drawn (the user chose 「預扣顯示」, 2026-11-13, DUEL_SP §8.6 "A1 playtest": nothing is removed from the gauge visually while a segment
+runs; its price is a dim reserve, so a refund is not a drop and a refill):
+
+- **The plate's flash-step cells** (`lhud-meters`): per cell, lit steel up to the lit level (the existing tween, slots 20-22) and **dim steel
+  (`+c-reserve+`, steel at .3) from the lit end to the total** (lit + reserve; new tween slots 30-32, .35 s). The total does not move when a
+  segment pays (the lit part sinks into the dim one) or when a cancel refunds (the lit part grows into the dim one: the sim's fs rises by exactly the
+  reserve), and shrinks to the lit part when the segment ends (the reserve fades out). A thin paper tick (`+c-reserve-tick+`) marks the **price of
+  the next NSa** on the cell it falls in (full damage with the lit ink at or above it). A refused SP press flashes the three cells blood for .4 s
+  (`*lhud-pl*` [10]).
+- **The phone's 爆 dial** (`lhud-dial`): the reserve is a dim polygon above the ink level (tween slot 9 of `*lhud-dk-tr*`, the same total).
+  The dial still arms from the lit level only (a reserved cell cannot be burst on).
+- **The SP button** (the deck's SP 技 label, `lhud-deck`): a small mono word under it, **SHORT** (steel; the lit gauge is below the next NSa's
+  price: a hit would be scaled) or **EMPTY** (blood; a later NS segment would be refused); a refused press shakes the label with hd-deny and
+  flashes it blood (.45 s; `*lhud-dk-t*` [5]). No word in a burst (cost 0). Reduced motion drops the shake and the flash.
+- **The callout** (`lhud-callout`): a scaled segment's move name carries a dim mono **x0.5 .. x0.9** (steel .5), the scale latched with the
+  callout's serial (`*lhud-cl-i*` [6 + side]); nothing at 0.95 and over.
+
+0 B / frame: the model's four values are fixnums (`webhud-put`), the strings are the constants of `*lhud-scale-marks*`, the new tweens are
+slots of the existing f32vec tables; no new allocation in the views. Not built (S4's, YAGNI): the breakthrough's `:sp-break` event and the
+steal's cell fly-over; S4 adds the event name to the model beside o+29.
+
+Stills (`tests/scripts/duel-sp-cues.json`, debug 2823-2826 set P1's flash-step 300 / 100 / 10 / 0): full, short, empty, a reserve mid-segment, the
+reserve after a cancel (the lit part growing into the dim one), the refused flash; desktop 1280 x 720 and `--mobile --size 390x844`. The looks gate
+moves wherever the HUD shows a flash-step cell with a price tick (every battle still: the tick is always drawn) and the deck's labels.
+

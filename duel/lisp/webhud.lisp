@@ -11,6 +11,14 @@
 (defvar *hud-sent* (make-array 200 :element-type 'fixnum :initial-element -1) "The model's value i (DUEL_WEBUI §7's 30100 + i).")
 (defvar *hud-strs* (make-array 64 :initial-element nil) "The model's string i (DUEL_WEBUI §7's 30220 + i).")
 
+(declaim (type (simple-array fixnum (*)) *web-refused*))
+(defvar *web-refused* (make-array 2 :element-type 'fixnum :initial-element 0)
+  "Per side: the serial of the last refused SP press (WEBHUD-REFUSED!, from feedback's :refused; published as o+29: the HUD's cue).")
+(defun webhud-refused! (e)
+  "E's SP press was refused (core-sim.lisp CORE-START!): bump its serial for the model."
+  (let ((side (fighter-side (fighter e))))
+    (setf (aref *web-refused* side) (logand 1023 (1+ (aref *web-refused* side))))))
+
 (defmacro webhud-put (i v)
   "Set the model's value I to V (fixnum forms; 0 B)."
   `(let ((i ,i) (v ,v))
@@ -88,6 +96,19 @@ the finish's best combo / Kikons, human 1, the BLUE burst's burn left ‰ (+ 25)
     (webhud-put (+ o 25) (if (eq (gauges-burst g) :blue)   ; the flash step a BLUE burst has left to burn, ‰ of the gauge (0 otherwise: the plate tints that span)
                              (%hround (/ (* 1000f0 (the single-float (gauges-burn g))) (the single-float *fs-max*)))
                              0))
+    ;; the SP cues (DUEL_SP §8.4 S8): the reserve (+ 26: what the running NS / AS segment paid and has not got back, ‰ of the gauge; a
+    ;; route's end or a refund (sp-back) leaves it 0: SP-PAID stays on the fighter), the next NSa's cost (+ 27: 0 in a burst or without a
+    ;; pointer), the running segment's damage scale (+ 28: 1000 when full or none), the refused press's serial (+ 29)
+    (let* ((mv-on (and core (eq (fighter-state f) :move) (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f))))
+           (paid (if mv-on (the single-float (fighter-sp-paid f)) 0f0)) (cost (if mv-on (the single-float (fighter-sp-cost f)) 0f0))
+           (ptr (if core (core-clamp-pointer (fighter-ptr f)) 0))
+           (nmv (and core (> ptr 0) (not (gauges-burst g)) (kit-core-move kit :ns ptr)))
+           (nc (if nmv (let ((c (kit-sp-cost kit nmv))) (if c (the single-float c) 0f0)) 0f0)))
+      (declare (single-float paid cost nc) (fixnum ptr))
+      (webhud-put (+ o 26) (%hround (/ (* 1000f0 paid) (the single-float *fs-max*))))
+      (webhud-put (+ o 27) (%hround (/ (* 1000f0 nc) (the single-float *fs-max*))))
+      (webhud-put (+ o 28) (if (> cost 0f0) (%hround (* 1000f0 (+ 0.5f0 (* 0.5f0 (min 1f0 (/ paid cost)))))) 1000))
+      (webhud-put (+ o 29) (aref *web-refused* side)))
     (let ((sub (the single-float (gauges-sub g))) (dr (the single-float (gauges-drive g))))   ; the bar's second stage: 1 SUBLIMATION (pink), 2 / 3 DRIVE (red, full)
       (declare (single-float sub dr))
       (webhud-put (+ o 22) (if (gauges-awakened g) 0 (%hround (/ (* 1000f0 sub) (the single-float *sub-max*)))))

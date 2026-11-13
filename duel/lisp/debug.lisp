@@ -542,6 +542,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
         ((<= 2505 c 2506) (lhud-scene (= c 2506)))       ; the Lisp HUD's phone scenes (DUEL_LISP_HUD §13)
         ((<= 2820 c 2822) (setf (gauges-fs (gauges *p2*)) (f32 (nth (- c 2820) '(100.0 130.0 300.0)))) (steal-fs-line "victim"))   ; (SP scenes, S1: P2's flash-step 100 / 130 / 300, after a steal scene's setup)
+        ((<= 2823 c 2826) (setf (gauges-fs (gauges *p1*)) (f32 (nth (- c 2823) '(300.0 100.0 10.0 0.0)))))   ; (S8: P1's flash-step 300 / 100 / 10 / 0, for the HUD's SP cues: full, one cell, short, empty)
         ((<= 2800 c 2815) (practice-cancel-scene c))      ; PRACTICE's GUARD ALL cancelling dummy (DUEL_CORE §9)
         ((= c 2495) (lhud-scene nil :intro t))            ; the same with the intro played (DUEL_LISP_HUD §14: the card, READY / 斬)
         ((= c 2496) (lhud-scene nil :picks '(:kenpachi :ichigo))   ; human Kenpachi in his Shikai vs Ichigo (the KAIHO strip on the left plate)
