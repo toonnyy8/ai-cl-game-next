@@ -288,7 +288,25 @@
 (defun dc (hit-in gap p-cls &key own (own-left 0) (starts *free*)) (dummy-cancel-press hit-in gap p-cls own own-left starts))
 ;; the answer table: his NA / SA -> NS (SP), his NS / AS -> NA (J); pressed with his hit 1 frame away
 (check (equal (mapcar (lambda (c) (dc 1 3 c)) '(:na :sa :ns :as)) '(:sp :sp :j :j)))
-;; nothing when no hit is coming (idle, recovery, a hazard, out of reach: HIT-IN NIL) or his move has no class
+;; a wave (DUEL_SP §6, S5): its HIT-IN is WAVE-ARRIVAL's, its GAP 0, its class the segment's: J against his NS2c's JUJISHO (NS), at the lead
+(check (and (null (dc 4 0 :ns)) (eq (dc 3 0 :ns) :j) (eq (dc 1 0 :ns) :j) (eq (dc 2 0 :as) :j)))
+;; WAVE-ARRIVAL: frames until a wave's box first touches a standing cylinder, the same touch as OBOX-CYL-HIT-P stepped frame by frame
+;; (yaw 0 flies to -z; JUJISHO: 14 m/s, half-width 1.8, half-length 0.5; hurt radius 0.4)
+(let ((st (/ 14f0 60f0)))
+  (flet ((brute (dx dz yaw hw)                         ; the first frame k >= 1 whose box touches, stepping the box (NIL: none in 120)
+           (loop for k from 1 to 120
+                 for cx = (* k st (fwd-x yaw)) for cz = (* k st (fwd-z yaw))
+                 when (obox-cyl-hit-p cx 1f0 cz yaw hw 1.2f0 0.5f0 dx 0f0 dz 0.4f0 1.8f0) return k)))
+    (check (= 22 (wave-arrival 0f0 -6f0 0f0 st 1.8f0 0.5f0 0.4f0)))
+    (check (loop for (dx dz yaw hw) in '((0f0 -6f0 0f0 1.8f0) (1.9f0 -8f0 0f0 1.8f0) (-2.1f0 -5f0 0f0 1.8f0) (3f0 -3f0 -0.785398f0 1.5f0)
+                                         (5f0 1f0 1.5708f0 1.2f0) (0.3f0 -1.2f0 0f0 1.8f0))
+                 always (eql (wave-arrival dx dz yaw st hw 0.5f0 0.4f0) (brute dx dz yaw hw))))
+    (check (null (wave-arrival 2.3f0 -6f0 0f0 st 1.8f0 0.5f0 0.4f0)))   ; beside it
+    (check (null (wave-arrival 0f0 2f0 0f0 st 1.8f0 0.5f0 0.4f0)))      ; behind it
+    (check (null (wave-arrival 0f0 -0.8f0 0f0 st 1.8f0 0.5f0 0.4f0)))   ; touching already (it hit this frame)
+    (check (null (wave-arrival 0f0 -6f0 0f0 st 1.8f0 0.5f0 0.4f0 21)))  ; its life ends first
+    (check (= 22 (wave-arrival 0f0 -6f0 0f0 st 1.8f0 0.5f0 0.4f0 22)))))
+;; nothing when no hit is coming (idle, recovery, out of reach: HIT-IN NIL) or his move has no class
 (check (null (dc nil 3 :na)))
 (check (null (dc 5 3 nil)))
 ;; the lead: against his NA (NS's own hit, 14 f, can't land inside his 3-frame window) it starts *DUMMY-CANCEL-LEAD* frames before his hit:

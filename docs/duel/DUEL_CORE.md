@@ -57,6 +57,17 @@ Table (note's table, unchanged except where marked):
   links, AS and SP / Hoho cancels open, the side still in its startup only from its own first hit frame (§2.1, the user 2026-11-12:
   「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」; before: only the attacker's chain opened, "treated as a hit").
   A same-class same-frame tie cancels to neutral (no continuation).
+- **Projectiles are in the triangle** (DUEL_SP §6, batch S5, 2026-11-13; the user: 「將飛行道具回歸相消的攻擊體系中」, 「OK」 on the lead's
+  definitions; it overturns "a wave beats every class at range", §6 below): a hit hazard carries the class of the segment that fired it
+  (`spawn-hazard`'s `cls`, with what the segment paid, its damage scale frozen at the fire frame and its start tick), and `core-verdicts`
+  judges its hit like that segment's blade. A **cancel** removes it (`core-hazard-nohit!`): the owner gets back what the segment paid,
+  once, even after the move ended; still in that segment it also counts as landed for him, else only the refund; the defender's move
+  counts as landed (his refund or +30); an exchange opens (§2.1); no bounce. A class that **beats** it (`:absorb`: an AS against an NS
+  wave) spends it: no refund, no exchange (Q9). A **win** for the wave (an NS against an NS wave, the first hit) lets it through. Against
+  JUJISHO (NS2c, `:ns`): J and SA cancel, AS beats it, NS is hit. A NOZARASHI blade (`:projectile-cut`, `cut-hazards`) touching a wave is
+  judged the same way (a classless blade or wave keeps cutting). Wave vs wave (`ichigo-cut`) is unchanged. KESSA's clone replays carry the
+  replayed move's class and the summon segment's scale, pay nothing (a cancelled replay refunds nothing); NS3 / AS3's own clone cuts and
+  ZANZO's echoes stay classless (clean hits: not projectiles).
 
 ### Defaults I chose where the note is silent
 
@@ -431,6 +442,9 @@ follow-up links keep their speed).
   J J J SP SP SP → 45 + 18, 45, X 38 + 38 (the X knocks him down first, so the drop's 100 whiffs).
 - **The wave is a hazard**: the triangle never judges it (`core-verdicts`: a hazard's hit is a clean hit), so it beats NA / NS / AS in their
   startup at range; the counters are a side Step, a Hoho or closing in. No Kikon off a wave (`apply-hit`'s `(not hazard)`), no AS.
+  **Overturned 2026-11-13** (DUEL_SP §6, S5; §2 "Projectiles are in the triangle"): the wave is judged as the segment that fired it, so
+  JUJISHO (NS2c) is cancelled by a J or an SA meeting it (Ichigo refunded its 60), beaten by an AS, and hits an NS; AS2b's wave (`:as`) is
+  cancelled by a J, hits an NS, and against an AS / SA the later start wins. The Kikon off a wave (§4, 2026-10-28) stands.
 - **Tells**: NA1 (`:ic-j1`) S 7 → 14 with a new coil clip `:ic-na1` (the short blade drawn far to his left and held); NS first segments S 22 / 22 / 18.
   The SA keeps S 8 and the old `:ic-q1` clip (`:clip :ic-q1`, `:clip-s 7`). A move's clip plays at `clip-s / S` speed, so a new clip is authored
   at the new S (`clip-s` = S: speed 1).
@@ -513,8 +527,8 @@ GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: �
   own hit land inside his window (then his move is cancelled even when his hit whiffs: a dead zone, a step out of reach), or on its
   latch's last frame. So against a J string it rides its NS segments, each started just before the J it answers; its own hit lands on him
   only once he stops attacking.
-- **What cannot be cancelled** (the hit lands, as the rules say): a hazard (Ichigo's wave, a clone's strike: never judged; scene h
-  `WAVE -> P2 HIT 150`); a Kikon's follow-up (not a main-phase move); the SA after his NS (the dummy answered the NS with NA, and from an NA
+- **What cannot be cancelled** (the hit lands, as the rules say): a classless hazard (NS3 / AS3's own clone cuts; until S5 every hazard,
+  scene h `WAVE -> P2 HIT 150`); a Kikon's follow-up (not a main-phase move); the SA after his NS (the dummy answered the NS with NA, and from an NA
   only J links or an AS start: NA takes an SA's hit, the AS's armour only absorbs it; `KE-Z-SA1 -> P2 HIT 30`); his AS after a J it
   cancelled (only NA cancels an AS, and the dummy is in its NS: `KE-Z-AS1 -> P2 HIT 90`, against Ichigo its NS's hit `ABSORBED` by the
   AS's armour); a J string longer than the dummy's NS route (Kenpachi's three segments cover four of Hisagi's five J: `HS-J3 -> P2 HIT
@@ -523,7 +537,7 @@ GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: �
   c reach the dummy inside the 3 m dead zone (`P1 HS-N1B x P2: CANCEL` at d 1.70; against DUMMY STAND the same presses make no contact at
   all) without landing. J1 → cancel → `KIN on` works, but J1 → SP is an AS (rule 5) and neutral turns KIN off, so "J1, then NS1" cannot
   carry it.
-- **Tests**: 16 host checks in `tests/duel-control-test.lisp` (the table, the lead's edges one frame each side, the double-cover frame,
+- **Tests**: 16 host checks in `tests/duel-control-test.lisp` (24 since S5's waves, 2026-11-13; the table, the lead's edges one frame each side, the double-cover frame,
   nothing when idle / no class, a latch's last frame, no press while covered, never the same class, NS segment vs SA inside an NS, a
   retired kit's guard); debug 2800-2815 (DUEL_GAMEPLAY) and `tests/scripts/duel-practice-cancel.json`. Cancelled / total of the
   player's hits (native = browser): J1 1/1 in all six pairs (KK KI IK IH HK HI); the five J 5/5 (HK 4/5); NS x3 3/3 (Hisagi's NS1a whiffs
@@ -534,6 +548,12 @@ GUARD AFTER HIT and CPU are unchanged; the label stays GUARD ALL (the manual: �
   scene, only the counts above): every count above unchanged, all six pairs and scenes g-k (39 scenes; the wave lands, 6 m: no answer, STAND / GUARD AFTER HIT / CPU / COUNTER as before) (after a lone J1 the dummy's NS still
   goes on and lands, `KE-Z-N1A -> P1 HIT 65` in KK; the SA after the player's NS still lands, NA cannot cancel an SA; idle 3 s: no press). The dummy presses only to cancel, so it
   never uses the AS that now opens for it.
+- **Waves** (DUEL_SP §6, S5, 2026-11-13: the dummy tries to cancel waves too): `dummy-wave-threat` (flow.lisp) finds the soonest of the
+  player's classed waves to reach the standing dummy (`wave-arrival`, control.lisp, pure, host-tested against `obox-cyl-hit-p`) and
+  `dummy-cancel-input` answers the sooner of that and his melee hit (gap 0, the wave's class: J against JUJISHO's NS). Browser rerun of
+  `duel-practice-cancel.json` (40 scenes, exit 0): scene h (2.2 m) `P2 move KE-Z-J1` and `P1 wave ns x P2: CANCEL` on the same tick (the wave
+  is spawned 1 m ahead and arrives a frame later; the dummy's J1 then lands on Ichigo's recovery, `KE-Z-J1 -> P1 HIT 35`), new scene h2
+  (6 m) J1 five frames before the wave, `P1 SP refund 60.0 (fs 280.0)`, `P1 wave ns x P2: CANCEL`; every other count above unchanged.
 
 ## 10. SP: segments pay the flash-step gauge (DUEL_SP, batch S2, 2026-11-13)
 
@@ -553,7 +573,7 @@ DUEL_SP §3-§4; what the core system does with them:
   full damage, Q7). The fighter keeps `sp-paid` / `sp-cost` of his last segment until his next move starts (`start-move` clears them for any move; idle, Hoho, Step and a reaction keep them, so a reader of the scale checks `cls` and the move, as `apply-hit` does with `own`; S8's HUD mark must too).
 - **Scaled**: `apply-hit`'s damage factor is the pure `hit-px` (rules.lisp: charge x SUBLIMATION x the kit's `:dmg-mult` x `sp-scale`),
   so only the damage scales (0.5 + 0.5 x paid / cost); reaction, stun, knockback, combo counts are read beside it. A hazard's hit is
-  unscaled until S5 (Ichigo's waves and KESSA's clones). The damage-keyed readers follow the dealt damage (gains, SUBLIMATION fill, the
+  unscaled until S5; since S5 (2026-11-13) a hazard's damage uses the scale frozen when it was fired (`hazard-sp-scale`; a KESSA replay the summon segment's). The damage-keyed readers follow the dealt damage (gains, SUBLIMATION fill, the
   victim's `*fs-taken*`); the prices (Kenpachi's Bankai Reishi cost) and the hitstop (from move data) do not.
 - **Refunded**: `core-nohit!`'s `:cancel` gives each side whose segment is NS / AS what it paid, once (`sp-back`), through `refund-fs`
   (capped at 300, no SUBLIMATION factor, nothing withheld in a burst, the regen wait untouched). An `:absorb` is not a cancel (Q5).

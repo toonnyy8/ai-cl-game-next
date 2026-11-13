@@ -6,7 +6,8 @@
 ;;;; (The retired kits' fireball, pillars, South's bind and hands, Rukia's ice and NOMIHOSE's rift left with them, 2026-11-12.)
 ;;;; HAZARD-SYSTEM moves them (sim steps, SIM randomness only), COLLECT-HAZARD-HITS hands their hits to
 ;;;; combat.lisp's HIT-SYSTEM (applied with the fighters' hits), HAZARD-DRAW shows them (vfx.lisp
-;;;; looks, real time). Hazards of one kind never hit their owner.
+;;;; looks, real time). Hazards of one kind never hit their owner. A hit hazard carries the class of the segment that fired it
+;;;; (DUEL_SP §6, S5: 「將飛行道具回歸相消的攻擊體系中」): the triangle judges its hit like that segment's blade (CORE-VERDICTS).
 (in-package :duel)
 
 (defun spawn-hazard (kind owner &key (x 0.0) (y 0.0) (z 0.0) (yaw 0.0) (speed 0.0) (size 0.5)
@@ -14,17 +15,26 @@
                                   (sp (let ((f (and owner (fighter owner))))   ; (an SP's: its owner's move now)
                                         (and f (fighter-move f) (sp-move-p (fighter-kit f) (fighter-move f)) t)))
                                   (sp-mv (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))   ; (a wave's Kikon)
-                                           (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv))))
+                                           (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv)))
+                                  ;; the triangle (DUEL_SP §6, S5): the segment that fires a hit hazard, as its owner is now
+                                  (cls (let ((f (and hw owner (fighter owner)))) (and f (eq (fighter-state f) :move) (fighter-cls f))))
+                                  (sp-paid (let ((f (and cls (fighter owner)))) (if (and f (not (fighter-sp-back f))) (fighter-sp-paid f) 0f0)))
+                                  (sp-scale (let ((f (and cls (fighter owner)))) (if f (sp-scale (fighter-sp-paid f) (fighter-sp-cost f)) 1f0)))
+                                  (sp-src (let ((f (and cls (fighter owner)))) (if f (fighter-cls-t f) -1))))
   "A new hazard of KIND for fighter OWNER. LIFE / DELAY in frames; HW = the HITWIN it deals (NIL = look only). SRC: its
 hit comes from the owner's position. HOOK: a
 character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step) and :touches
 (the volume test of a kind this file doesn't know); DATA: what it keeps. SP: its hits
-ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P)."
+ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P). CLS SP-PAID SP-SCALE SP-SRC (DUEL_SP §6, S5): a hit
+hazard's place in the triangle, by default the classed move its owner is in now: its class (judged by CORE-VERDICTS like a blade of
+that class; NIL: a clean hit), what that segment paid (0 once refunded: FIGHTER-SP-BACK), its damage scale frozen now (SP-SCALE, Q8)
+and the segment's start tick (CORE-HAZARD-NOHIT!: the owner still in it counts the cancel as landed). A caller passes them for a hit
+that is not its owner's current move (a KESSA clone's replay)."
   (spawn-entity (make-hazard :kind kind :owner owner :x (f32 x) :y (f32 y) :z (f32 z) :px (f32 x) :pz (f32 z)
                              :yaw (f32 yaw) :speed (f32 speed) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src
                              :hook hook :data data :sp sp
-                             :sp-mv sp-mv)))
+                             :sp-mv sp-mv :cls cls :sp-paid (f32 sp-paid) :sp-scale (f32 sp-scale) :sp-src sp-src)))
 
 (defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0) data)
   "A look-only hazard (kind :fx) of fighter E at X Z (default: E's feet) drawn by the function LOOK (the character's art

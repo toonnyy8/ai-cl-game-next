@@ -14,7 +14,10 @@
 ;;;; :p2-fs N P2's flash-step gauge (default full).
 ;;;; :p2-reishi X his Reishi (red under 30 %). The end line also gives his Konpaku change.
 ;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
-;;;; slow-motion frames don't count; Kenpachi's file). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
+;;;; slow-motion frames don't count; Kenpachi's file).
+;;;; :p2-start ((sim-frame move-name) ...) (DUEL_SP S5, 2026-11-13): P2 starts MOVE-NAME (a move of his kit) through CORE-START! on that SIM
+;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
+;;;; :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
@@ -48,12 +51,13 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
     (place *p1* *p2* dist)
+    (clear-hazards)                                     ; (no wave or clone carried from the last trial)
     (when *cine* (skip-cine))
     (setf *timer* 36000)                                ; (no time-up mid-file: one match carries every trial)
     (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*)
@@ -74,6 +78,7 @@ from that act)."
       (when (eq dummy :guard)
         (setf (fighter-state f2) :guard (fighter-guard-t f2) 30 (brain-press b2) :guard (brain-press-left b2) 9999)))
     (when (kit-core (kit-of *p1*)) (setf (brain-off (brain *p1*)) t))   ; (driven by TRIAL-CORE-DRIVE)
+    (dolist (c p1-cmd) (debug-command c))
     (trial-reset script) (setf *combat-log* t)
     (log-msg "trial begin ~a" name)
     (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (fs0 (gauges-fs g1))
@@ -87,11 +92,13 @@ from that act)."
             (when (= i at)
               (ai-press b2 btn n :modded md :act (if st :dash :hold))
               (when st (setf (brain-dash b2) (f32 st) (brain-dash-to b2) (if (plusp st) -1f0 99f0))))))
-        (when (and p2-at (/= tick2 (vpad-tick vp2)))     ; (:p2-at: once per sim frame, by his vpad clock)
+        (when (and (or p2-at p2-start) (/= tick2 (vpad-tick vp2)))     ; (:p2-at / :p2-start: once per sim frame, by his vpad clock)
           (setf tick2 (vpad-tick vp2))
           (when (plusp (brain-press-left b2)) (decf (brain-press-left b2)))
           (dolist (a p2-at)
             (when (= (first a) simf) (ai-press b2 :quick (or (third a) 1) :modded (eq (second a) :sp) :act :hold)))
+          (dolist (a p2-start)
+            (when (= (first a) simf) (core-start! *p2* (gethash (second a) (kit-moves (kit-of *p2*))))))
           (incf simf))
         (engine::%frame)
         (when (and p2-press (trial-sim-frame-p *p2* 1) (plusp (brain-press-left b2))) (decf (brain-press-left b2)))   ; (his brain is off)

@@ -234,10 +234,10 @@ draws no answer; flow.lisp DUMMY-CANCEL-INPUT). New 2026-11-12 (the lead's defau
 
 (defun dummy-cancel-press (hit-in gap p-cls own-cls own-left starts)
   "GUARD ALL with a :core dummy: the press (:J, :SP or NIL) the dummy makes at the end of this sim frame so the player's next hit lands on it
-inside a move the triangle cancels it with. HIT-IN: frames until his next unused hit window opens (1 = the next frame), NIL: no hit coming
-(idle, recovery, every window spent, out of reach, a move that hits by a hazard alone: nothing cancels a hazard). GAP: frames his classed
-window lasts after that hit frame (his move is still in startup / active then, so the dummy's own hit landing in it cancels too). P-CLS:
-his move's class. OWN-CLS / OWN-LEFT: the class of the dummy's window now (NIL: none) and the frames it still lasts. STARTS: what a press
+inside a move the triangle cancels it with. HIT-IN: frames until his next unused hit window opens (1 = the next frame), or until his
+classed wave reaches the dummy (WAVE-ARRIVAL; DUEL_SP §6, S5: a wave is judged as the segment that fired it), NIL: no hit coming (idle,
+recovery, every window spent, out of reach). GAP: frames his classed window lasts after that hit frame (his move is still in startup /
+active then, so the dummy's own hit landing in it cancels too; a wave: 0). P-CLS: his move's (or wave's) class. OWN-CLS / OWN-LEFT: the class of the dummy's window now (NIL: none) and the frames it still lasts. STARTS: what a press
 could start now, each (PRESS CLASS D-MIN D-MAX LEN HF): it starts D-MIN frames on (1 from neutral; a latched segment, SA or link when the
 current move's active frames end), D-MAX the latest it still could (a latch closes with the recovery), LEN its startup + active frames,
 HF the frames from its start to its own first hit. Rules: only a class the table cancels his with (NA, SA -> NS; NS -> NA, SA; AS -> NA;
@@ -256,6 +256,17 @@ land inside his window too (his move cancelled even if his hit whiffs: a dead zo
                                 (or (null best) (and best-turn (not turn))))
                        (setf best press best-turn turn)))))
         best))))
+
+(defun wave-arrival (dx dz yaw step hw hl tr &optional (left most-positive-fixnum))
+  "Frames (1 = the next one) until a wave moving STEP m a frame along YAW, a box of half-width HW and half-length HL, reaches a standing
+hurt cylinder of radius TR whose centre is (DX DZ) from the box's (the same touch as OBOX-CYL-HIT-P, flat); NIL when it passes beside
+him, already touches or is past him, or comes after its LEFT frames of life. GUARD ALL's answer to a wave (flow.lisp DUMMY-CANCEL-INPUT)."
+  (let* ((fx (fwd-x yaw)) (fz (fwd-z yaw))
+         (lx (abs (+ (* dx (- fz)) (* dz fx)))) (lz (+ (* dx fx) (* dz fz)))   ; across / along its flight
+         (ex (max 0.0 (- lx hw))))
+    (when (and (<= ex tr) (> step 0.0))
+      (let ((k (ceiling (- lz hl (sqrt (- (* tr tr) (* ex ex)))) step)))
+        (and (>= k 1) (<= k left) k)))))
 
 ;;; PRACTICE's HP / KONPAKU rows (the user's request 2026-09-28): the values RESET POSITION and every refill restore
 (defparameter *practice-hp* '(100 75 50 25 10) "The P1 HP / DUMMY HP steps, % of the fighter's Reishi maximum.")

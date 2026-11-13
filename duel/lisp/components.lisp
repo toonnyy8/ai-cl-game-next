@@ -240,6 +240,9 @@ volume + a HITWIN (kit.lisp) for the hit itself. KIND picks its update, its volu
   (hook nil) (data nil)                 ; a character's own hazard: HOOK (h hz event ...) and the DATA it keeps (hazards.lisp)
   (sp nil)                              ; T: spawned by its owner's SP (SP-MOVE-P): its hits ignore the combo scaling
   (sp-mv nil)                           ; the core NS / AS segment with a :kikon-strike that fired it (CORE-WAVE-STRIKE)
+  ;; its place in the triangle (DUEL_SP §6, S5): the class of the segment that fired it (NIL: a clean hit, as before), what that
+  ;; segment paid (a cancel's refund, once), its damage scale frozen at the fire frame (Q8), the segment's start tick (CLS-T)
+  (cls nil) (sp-paid 0f0 :type single-float) (sp-scale 1f0 :type single-float) (sp-src -1 :type fixnum)
   (look nil))                           ; a look keyword, or a draw function symbol (HAZARD-DRAW)
 
 ;;; ---------------------------------------------------------------- small helpers every file uses

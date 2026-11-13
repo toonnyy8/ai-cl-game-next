@@ -1401,3 +1401,18 @@ awakens, got the better KESSA. Lifting it is a damage decision (`*ichigo-mult*` 
   slide 3.0 → **4.0 m**, just past TSUKIWATARI's 3.5 m dash; its reach from the stance 5.6 → 6.6 m, and the CPU's
   TSUKI-OTOSHI band 5.4 → 6.4 m. Native gate: IY 164.2 s (Ichigo 14 / 20), IK 171.6 (14), IR 193.6 (7), II 202.9,
   SI 197.2 (10), all K.O.; G2 unchanged.
+
+## Core system: pointer 2's waves join the triangle (DUEL_SP §6, batch S5, 2026-11-13)
+
+The user: 「將飛行道具回歸相消的攻擊體系中」 (「OK」 on the lead's definitions). His core moves live in DUEL_CORE §6; this note records the
+change to pointer 2 (NS2 = two charges > GETSUGA JUJISHO; AS2 = SOGA > the point-blank Getsuga). Until now a wave was a clean hit that
+beat every class at range; now it is judged as the segment that fired it (DUEL_CORE §2 "Projectiles are in the triangle"):
+
+- **JUJISHO (NS2c, cost 60, class NS)**: a J or an SA meeting it **cancels** it (gone, Ichigo refunded its 60, the defender +30, an
+  exchange opens; still in NS2c it also counts as landed for him), an **AS beats it** (spent, nothing back), an **NS is hit** (150).
+  Fired short of its price its damage is scaled when it leaves the blade (paid 30 of 60: x0.75, 82 -> 61 on a standing Kenpachi).
+- **AS2b's Getsuga (class AS)**: a J cancels it, an NS is hit, an AS or SA: the later start wins.
+- **KESSA's NS3 clones**: their replays of his J / AS carry the replayed move's class and the summon segment's scale and pay nothing;
+  NS3 / AS3's own clone cuts stay classless.
+- Counters at range besides a Step, a Hoho or closing in: a J pressed into the wave's arrival. PRACTICE's GUARD ALL dummy does it
+  (`dummy-wave-threat`, flow.lisp). Wave vs wave (JUJISHO cutting a wave, `ichigo-cut`) is unchanged.

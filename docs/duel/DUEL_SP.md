@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S3, S6 and S8 built and merged (2026-11-13); S4 built (2026-11-13, branch); S5, S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S4, S6 and S8 built and merged (2026-11-13); S5 built (2026-11-13, branch); S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -330,6 +330,50 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   carried an open exchange); shipped: II 38 -> 40 lines (P1 7-6, 373.1 s -> P1 5-3, 398.3 s), IK 41 -> 39 (P2 1-3, 403.6 s -> P1 3-2, 384.0 s), KK 44 -> 32 (P1 2-0,
   439.7 s -> P2 0-3, 317.9 s); native `--cvc` and the browser `style-gates.py cvc` PASS against the regenerated reference. No balance gates. wasm 10,271,254 B;
   smoke desktop and `--mobile 390x844` exit 0.
+
+**S5 done (2026-11-13, branch, not merged).**
+- **Built** (the §8.4 row; DUEL_CORE §2 "Projectiles are in the triangle"): HAZARD slots `cls`, `sp-paid`, `sp-scale`, `sp-src`; `spawn-hazard` fills them
+  for a hit hazard (one with a HITWIN) from its owner's classed move now (`sp-paid` 0 once that segment was refunded, `fighter-sp-back`, so a J
+  that cancels NS2c in its startup and the wave it still fires at f20 cannot refund twice). `core-verdicts` judges a hazard's hit with its
+  class and start tick (a classless hazard stays a clean hit). `core-nohit!` hands a hazard's verdict to `core-hazard-nohit!` (core-sim.lisp, new):
+  **cancel**: the owner refunded `sp-paid` once (`refund-fs`; still in the segment, `fighter-cls-t` = `sp-src`, through the lifted
+  `core-cancel-landed!`, so also "landed" and the `sp-back` guard; else `SP refund P (fs F), out of the move`), the other side's move landed
+  (his refund or +30), the exchange opened with the owner, `core-clash!`, the cancel's hitstop / slow motion / `:clash` at the wave, no
+  bounce, log `P1 wave ns x P2: CANCEL`; **absorb** (his class beats it): spent, nothing else, log `P2 beats P1's wave ns`. hit-apply's
+  `hazard-connected` spends it after either verdict. `cut-hazards` (NOZARASHI's `:projectile-cut`: the "blade removes a wave" site, combat.lisp:652
+  in the plan) asks `core-verdict` the same way (the wave's class against the blade's window): `:hit` the wave flies on; a cancel or absorb goes
+  through `core-hazard-nohit!` and the wave is destroyed; a classless side keeps today's cut (Q9); log `P2 blade x P1's wave ns: cancel / absorb / passes`. `apply-hit`'s damage reads the hazard's frozen
+  `sp-scale` (Q8). KESSA: `icc-sscale` (the summon segment's scale, set in `ichigo-ns-clone`) and `icc-rt` (the replayed move's start tick, kept by
+  `clone-replay-next`); `clone-replay-sp` passes class / 0 paid / scale / tick to the replay's `ichigo-strike` and `clone-wave`. PRACTICE:
+  `wave-arrival` (control.lisp, pure: frames until a moving wave box first touches a standing cylinder) and `dummy-wave-threat` (flow.lisp);
+  `dummy-cancel-input` answers the sooner of the melee hit and a classed wave (gap 0, the wave's class).
+- **Defaults taken** (beyond §8.6): **JUJISHO's cut of other waves (`ichigo-cut`) is wave vs wave** and stays (§6), so the only blade site is
+  `cut-hazards`; the plan's `collect-melee` cut had already moved there. **NS3 / AS3's own clone cuts and ZANZO's echoes stay classless**
+  (`ichigo-strike` passes `:cls nil`: they are not projectiles, §6 names only the waves and the replays). **A replay pays nothing** (`sp-paid` 0:
+  the summon paid for the clone, so a cancelled replay refunds nothing), and its `sp-src` is the replayed move's tick, so a replay cancelled
+  while Ichigo is still in that J counts as landed for him (the literal rule). **`core-clash!` fires** on a hazard cancel (a cancel is a
+  cancel: each kit's :clash hook). **No bounce** (a wave is no body). **A beaten wave is cut without a hitstop** (as the old cut). The
+  :simul of a wave's same-class tie is the defender's own hit on the owner that step (rarely true at range: an NS wave hits an NS).
+  Ponytail: one refund per hazard (one segment fires one wave today); a segment refunded after its hazard spawned inside its own window, then
+  the hazard cancelled after the segment ended, would refund twice (no wave segment fires inside its window: NS2c / AS2b fire at f = S).
+- **Tests**: host 2969 (unchanged), control 116 -> 124 (`wave-arrival` against `obox-cyl-hit-p` stepped frame by frame, six offsets; beside,
+  behind, touching, out of life; the dummy's J against an NS / AS wave at the lead); input 33, touch 100, cine 18, hud-engine 121; pkgcheck only
+  `DUEL::APP`; debug ranges 0 errors. `tests/sp-costs-check.py` 102 -> 112 checks, all pass (trial.lisp gained `:p2-start` (P2 starts a move by
+  name through `core-start!`, a written debug drive), `:p1-cmd` and a per-trial `clear-hazards`): JUJISHO (NS2c, paid 60) at 6 m on a standing
+  Kenpachi `dealt 82`; vs J1 started 3 frames before it arrives: `P1 SP refund 60.0 (fs 280.0)`, `P2 SP cancel gain 30.0 (fs 130.0)`, `P1 wave
+  ns x P2: CANCEL`, `exchange over`; vs SA the same; vs NS1a `P1 WAVE -> P2 HIT 150`, `dealt 82`; vs AS1 `P2 beats P1's wave ns` (no refund, no
+  exchange); from 10 m after NS2c ended `P1 SP refund 60.0 (fs 280.0), out of the move`; fired at fs 30 `SP IC-N2C fs 30.0 cost 60.0 paid 30.0
+  x0.75` then `dealt 61`; NOZARASHI's J1 started 15 frames early meets it in front of him through `cut-hazards` (`P2 blade x P1's wave ns: cancel`, then CANCEL, refunded) and his NS1a blade lets it through (`... : passes` x3, NS vs NS, then `dealt 82`); KESSA with two NS3 clones (74904): `P1 IC-K-J1 x P2: CANCEL` then the replay
+  `P1 ic-hit na x P2: CANCEL`, one refund (P2's NS1a, 20). snaptest IK / KK straight = pollute (stats and timings only); fulltest IK 152, FT_VS
+  83, KK 122 checks, 0 differ.
+- **G2**: II and KK identical (KK has no classed hazard; in II no wave met a classed window); IK moved only in its Reishi columns: its JUJISHO
+  at t 4128 paid 31.9 of 60 (x0.77) and dealt 63 instead of 82 at t 4152; the same lines and result: II 40 (P1 5-3, 398.3 s), IK 39 (P1 3-2,
+  384.0 s), KK 32 (P2 0-3, 317.9 s); in none of the three did a wave meet a classed window (no hazard CANCEL / beats line). Native `--cvc`
+  PASS on the regenerated reference; the browser `style-gates.py cvc` PASS against it (= native). wasm 10,282,312 B; smoke desktop and `--mobile 390x844` exit 0. No balance gates.
+- **Evidence scope**: no hazard cancel or beat happened in the three G2 matches, so snaptest / fulltest prove the new slots ride the
+  snapshot, not the cancel path's writes; the cancel path is proven by the native trials above and the practice-cancel browser run. AS2b's
+  `:as` wave and a scaled summon's replay follow from the table and the same code, untested by a scene.
+- **PRACTICE** (`duel-practice-cancel.json`, browser): 40 scenes, exit 0; scene h (2.2 m): the dummy's J1 starts on the tick the wave reaches it, `P1 SP refund 60.0 (fs 280.0)`, `P1 wave ns x P2: CANCEL` (then its J1 lands on Ichigo's recovery, 35); new scene h2 (6 m): J1 five ticks before, the same two lines; the six pairs' counts as DUEL_CORE §9 lists them.
 
 ### 8.5 Order and parallelism
 

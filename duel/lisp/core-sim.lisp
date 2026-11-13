@@ -167,19 +167,20 @@ gauge was full, at SP 0, or no other pointer (CORE-SWITCH-OPEN-P; DUEL_SUBLIMATI
 ;;; ---------------------------------------------------------------- judging a step's hits
 (defun core-verdicts (hits)
   "The triangle's verdict on each pending hit of this step, all judged against the states they were collected in (so a pair of
-simultaneous hits is seen as a pair): a list of :hit / :cancel / :absorb in HITS' order. A hazard's hit, a hit of a move with no
-class, or on a defender outside a classed window is a clean hit; a hit on a defender in a parry's window (:parry) skips the
-triangle, so the parry catches it (COMBAT :parried)."
+simultaneous hits is seen as a pair): a list of :hit / :cancel / :absorb in HITS' order. A hazard's hit is judged as the segment
+that fired it (its HAZARD-CLS and start tick HAZARD-SP-SRC: DUEL_SP §6, S5, 「將飛行道具回歸相消的攻擊體系中」; until 2026-11-13 every
+hazard was a clean hit). A hit of a move (or hazard) with no class, or on a defender outside a classed window is a clean hit; a hit on
+a defender in a parry's window (:parry) skips the triangle, so the parry catches it (COMBAT :parried)."
   (loop for h in hits
-        collect (let* ((mv (pending-mv h)) (att (pending-att h)) (def (pending-def h))
+        collect (let* ((mv (pending-mv h)) (att (pending-att h)) (def (pending-def h)) (hz (pending-hazard h))
                        (fa (fighter att)) (fd (fighter def))
-                       (ca (and mv (not (pending-hazard h)) (eq mv (fighter-move fa)) (fighter-cls fa)))
+                       (ca (if hz (hazard-cls hz) (and mv (eq mv (fighter-move fa)) (fighter-cls fa))))
                        (cd (core-window-class fd)))
                   (if (and ca cd (not (eq (pending-state h) :parry)))   ; a parry's window catches first (Kenpachi's tame, DUEL_KEN_V3 §35.1)
                       (core-verdict ca cd
                                     :simul (loop for h2 in hits thereis (and (eq (pending-att h2) def) (eq (pending-def h2) att)
                                                                              (pending-mv h2) (not (pending-hazard h2))))
-                                    :att-t (fighter-cls-t fa) :def-t (fighter-cls-t fd))
+                                    :att-t (if hz (hazard-sp-src hz) (fighter-cls-t fa)) :def-t (fighter-cls-t fd))
                       :hit))))
 
 (defun core-nohit! (h verdict)
@@ -190,26 +191,16 @@ a classed move's startup / active frames; a same-class tie also ends both moves 
 for the attacker (no refund: not a cancel, DUEL_SP Q5). Each side of a cancel in an NS / AS segment gets back what that segment paid,
 once however many verdicts it takes part in (FIGHTER-SP-BACK; DUEL_SP §3 「只要這段 SP 發生相消就不扣除量表」, Q6: also after its own hits),
 through REFUND-FS. Each side whose move is a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T; a same-class tie pays
-both, no hit gain comes of the verdict: DUEL_SP §5, Q3). A cancel opens an exchange on both (CORE-XCH-OPEN!: the breakthrough, DUEL_SP §6)."
+both, no hit gain comes of the verdict: DUEL_SP §5, Q3). A cancel opens an exchange on both (CORE-XCH-OPEN!: the breakthrough, DUEL_SP §6).
+A hazard's verdict: CORE-HAZARD-NOHIT!."
   (let* ((att (pending-att h)) (def (pending-def h)) (fa (fighter att)) (fd (fighter def))
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
+    (when (pending-hazard h) (return-from core-nohit! (core-hazard-nohit! (pending-hazard h) def verdict)))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
       (ecase verdict
         (:cancel
-         (flet ((landed! (e f)
-                  (setf (fighter-contact f) :hit
-                        (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))
-                  (when (and (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
-                    (setf (fighter-sp-back f) t)
-                    (refund-fs (gauges e) (fighter-sp-paid f))
-                    (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
-                  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f)))   ; a J / SA in a cancel: +30,
-                    (setf (fighter-sp-gain-t f) (fighter-cls-t f))                                                ;  once per move (DUEL_SP §5)
-                    (let ((fs0 (gauges-fs (gauges e))))
-                      (pay-gauges e (sp-atk-gain (fighter-cls f) t))
-                      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name e) (- (gauges-fs (gauges e)) fs0) (gauges-fs (gauges e)))))))
-           (landed! att fa)
-           (when (core-window-class fd) (landed! def fd)))   ; (re-read: an earlier hit this step may have moved him)
+         (core-cancel-landed! att fa)
+         (when (core-window-class fd) (core-cancel-landed! def fd))   ; (re-read: an earlier hit this step may have moved him)
          (hitstop *hitstop-block*)
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)
@@ -223,6 +214,51 @@ both, no hit gain comes of the verdict: DUEL_SP §5, Q3). A cancel opens an exch
          (hitstop *hitstop-block*)
          (emit :armored def mx 1.2 mz)
          (clog "~a ~a x ~a: ABSORBED" (side-name att) (mv-name (pending-mv h)) (side-name def)))))))
+
+(defun core-cancel-landed! (e f &optional (refund t))
+  "E (fighter F) took part in a cancel in his classed move (CORE-NOHIT!, CORE-HAZARD-NOHIT!): it counts as landed (contact :hit, his
+cancel windows from CORE-CANCEL-LAND-SF); an NS / AS segment gets back what it paid, once (FIGHTER-SP-BACK; REFUND NIL: not this time, a
+KESSA replay paid nothing), through REFUND-FS; a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T)."
+  (setf (fighter-contact f) :hit
+        (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))
+  (when (and refund (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
+    (setf (fighter-sp-back f) t)
+    (refund-fs (gauges e) (fighter-sp-paid f))
+    (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
+  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f)))   ; a J / SA in a cancel: +30,
+    (setf (fighter-sp-gain-t f) (fighter-cls-t f))                                                ;  once per move (DUEL_SP §5)
+    (let ((fs0 (gauges-fs (gauges e))))
+      (pay-gauges e (sp-atk-gain (fighter-cls f) t))
+      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name e) (- (gauges-fs (gauges e)) fs0) (gauges-fs (gauges e))))))
+
+(defun core-hazard-nohit! (hz other verdict)
+  "A :cancel or :absorb verdict between hazard HZ (its owner's, judged as the segment that fired it: HAZARD-CLS) and fighter OTHER: struck in
+his classed window (CORE-VERDICTS) or cutting it with his blade (COMBAT CUT-HAZARDS). The caller removes the hazard (DUEL_SP §6, S5:
+「將飛行道具回歸相消的攻擊體系中」). A cancel: the owner gets back what the segment paid (HAZARD-SP-PAID), once, even after the move ended;
+still in that move (FIGHTER-CLS-T = HAZARD-SP-SRC) it also counts as landed for him (CORE-CANCEL-LANDED!: the SP-BACK guard, a J's +30),
+else the refund only; OTHER's move counts as landed (his refund or +30); an exchange opens (CORE-XCH-OPEN!), each kit's :clash hook
+(CORE-CLASH!), the cancel's hitstop and slow motion; no bounce (a wave is no body to push apart). An absorb (OTHER's class beats the
+wave's, or a classless blade cuts it, Q9): it is spent, nothing refunded, no exchange."
+  (let* ((owner (hazard-owner hz)) (fo (fighter owner)) (fd (fighter other)) (x (hazard-x hz)) (z (hazard-z hz)))
+    (ecase verdict
+      (:cancel
+       (let ((paid (hazard-sp-paid hz)))
+         (setf (hazard-sp-paid hz) 0f0)                 ; ponytail: one refund per hazard; one segment fires one wave today (a replay pays 0)
+         (if (and (eq (fighter-state fo) :move) (= (fighter-cls-t fo) (hazard-sp-src hz)))
+             (core-cancel-landed! owner fo (plusp paid))
+             (when (plusp paid)
+               (refund-fs (gauges owner) paid)
+               (clog "~a SP refund ~,1f (fs ~,1f), out of the move" (side-name owner) paid (gauges-fs (gauges owner))))))
+       (when (core-window-class fd) (core-cancel-landed! other fd))
+       (hitstop *hitstop-block*)
+       (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
+       (emit :clash x 1.2 z)
+       (clog "~a ~(~a ~a~) x ~a: CANCEL" (side-name owner) (hazard-kind hz) (hazard-cls hz) (side-name other))
+       (core-xch-open! owner other)
+       (core-clash! owner other))
+      (:absorb
+       (emit :hazard-cut x (f32 (+ 1.0 (hazard-y hz))) z)
+       (clog "~a beats ~a's ~(~a ~a~)" (side-name other) (side-name owner) (hazard-kind hz) (hazard-cls hz))))))
 
 (defun core-clash! (a b)
   "A clash between A and B (攻擊抵銷: a triangle cancel, CORE-NOHIT!, or a cancelled Kikon follow-up, CORE-KIKON-CANCEL!): each

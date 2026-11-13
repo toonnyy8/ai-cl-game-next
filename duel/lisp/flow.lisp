@@ -275,18 +275,29 @@ current move's active frames end, until its recovery does. (No AS: the dummy's o
                    (:as (and nx (list (opt :sp nx dmin dmax))))
                    ((:na :sa) (and (eq (fighter-contact f) :hit) (list (opt :j (kit-next kit (mv-name mv) :q) dmin dmax))))))))))))
 
+(defun dummy-wave-threat (e o)
+  "The soonest of O's classed waves to reach E standing (WAVE-ARRIVAL): values its frames and class, or NIL (GUARD ALL, DUEL_SP §6, S5)."
+  (let ((best nil) (cls nil) (q (pos-of e)) (r (body-hurt-r (model-body (model e)))))
+    (do-entities (h (hz hazard))
+      (when (and (eql (hazard-owner hz) o) (eq (hazard-kind hz) :wave) (hazard-cls hz) (hazard-active-p hz))
+        (let ((k (wave-arrival (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz)) (hazard-yaw hz) (* (hazard-speed hz) +step+)
+                               (hazard-size hz) (second *wave-box*) r (- (hazard-life hz) (hazard-age hz)))))
+          (when (and k (or (null best) (< k best))) (setf best k cls (hazard-cls hz))))))
+    (values best cls)))
+
 (defun dummy-cancel-input (f pf)
   "GUARD ALL with a :core dummy (fighter F) against the player's fighter PF: this frame's press (DUMMY-CANCEL-PRESS: :J, :SP or NIL).
 His hit counts only from a move's main phase (not a Kikon's follow-up) within its reach + slide + *DUMMY-CANCEL-REACH* (a swing at the air
-is no threat)."
+is no threat), or one of his classed waves on its way (DUMMY-WAVE-THREAT, the sooner of the two; DUEL_SP §6, S5: the dummy tries to cancel waves too)."
   (let* ((pm (fighter-move pf)) (psf (fighter-sf pf))
          (h (and (eq (fighter-state pf) :move) (eq (fighter-phase pf) :main)
                  (<= (fighter-dist f) (+ (mv-reach pm) (mv-slide pm) *dummy-cancel-reach*))   ; ponytail: one slack; a chase / dash table if a move outruns it
                  (next-window-lead pm psf (fighter-hits pf))))
-         (own (core-window-class f)))
-    (and h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf)
-                               own (if own (- (+ (mv-s (fighter-move f)) (mv-a (fighter-move f))) (fighter-sf f)) 0)
-                               (dummy-starts f)))))
+         (own (core-window-class f))
+         (own-left (if own (- (+ (mv-s (fighter-move f)) (mv-a (fighter-move f))) (fighter-sf f)) 0)))
+    (multiple-value-bind (wk wc) (dummy-wave-threat *p2* *p1*)
+      (cond ((and wk (or (null h) (< wk h))) (dummy-cancel-press wk 0 wc own own-left (dummy-starts f)))
+            (h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf) own own-left (dummy-starts f)))))))
 
 (defun practice-step ()
   "PRACTICE, each sim frame (MATCH-SYSTEM): the dummy's guard (GUARD ALL with a :core dummy: its cancelling press, DUMMY-CANCEL-INPUT);

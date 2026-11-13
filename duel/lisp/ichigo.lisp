@@ -129,8 +129,8 @@ HARD 0.8).")
 ;; NS2, the Getsuga's charge (the user, 2026-10-27: 「NS[1]: 一階段（短刀）續力 -> 接 SA 時短刀攻擊會帶有額外的月牙靈壓特效並提高傷害 /
 ;; NS[2]: 二階段（短刀+長刀）續力 -> 接 SA 時短刀+長刀攻擊會帶有額外的月牙靈壓特效並提高傷害 / NS[3]: 月牙十字衝」): two charges and the
 ;; cross. A charge hits nothing; an attack in its gap is its own SA (:params :sa): the short blade with a crescent, or both blades with
-;; the cross. The third press is GETSUGA JUJISHO, the long-range wave (3.6 m wide, 14 m/s over 12 m; a hazard: the triangle never
-;; judges it; a side Step clears it). The first charge starts slowly (the tell).
+;; the cross. The third press is GETSUGA JUJISHO, the long-range wave (3.6 m wide, 14 m/s over 12 m; a hazard of NS2c's class since
+;; DUEL_SP S5, 2026-11-13: a J or an SA meeting it cancels it (refunded), an AS beats it, an NS is hit; a side Step clears it). The first charge starts slowly (the tell).
 (defmove :ic-n2a :kind :flash :clip :ic-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ichigo-charge-1))
   :params (:ns-next :ic-n2b :sa :ic-sa-g1))                                ; charge 1: the short blade
 (defmove :ic-n2b :kind :flash :clip :ic-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ichigo-charge-2))
@@ -433,8 +433,10 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
   (link 0 :type fixnum) (mv nil) (sf 0 :type fixnum) (queued nil)   ; (the presses waiting for its next links)
   (hit nil)                                   ; this link's own contact (:hit / :block)
   (touched nil)                               ; any link of this string touched him: the carried gate; spent at its end
-  (rq nil) (rmult 1f0 :type single-float))
-(inline-readers icc)    ; the core system's replay: his moves to play back (tick mv mult), the one's x
+  (rq nil) (rmult 1f0 :type single-float)
+  (rt -1 :type fixnum) (sscale 1f0 :type single-float))
+(inline-readers icc)    ; the core system's replay: his moves to play back (tick mv mult), the one's x, its move's start tick; the
+                        ; summon segment's SP damage scale (DUEL_SP Q8: a replay's hits and waves carry it, CLONE-REPLAY-SP)
 (defstruct (ice (:conc-name ice-)) (mv nil) (sf 0 :type fixnum) (end 0 :type fixnum))
 (inline-readers ice)
 
@@ -584,9 +586,10 @@ Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul B
 press's; with the lag NS3[2]'s cut came 4 frames after NS3[3] could start, so a quick third press took it for the X, the user,
 2026-10-28: 「如果點太快的話，NS3[2] 的斬擊會直接被跳過接成 NS3[3]」)."
   (multiple-value-bind (x z) (ichigo-ns-slot e side)
-    (let ((c (ichigo-clone-spawn e x z src)))
+    (let ((c (ichigo-clone-spawn e x z src)) (f (fighter e)))
       (clone-link c :f 1)
-      (setf (icc-sf c) 0)
+      (setf (icc-sf c) 0
+            (icc-sscale c) (f32 (sp-scale (fighter-sp-paid f) (fighter-sp-cost f))))   ; (the summon segment's: DUEL_SP Q8)
       c)))
 (defun ichigo-ns-regroup (e h c)
   "An NS3 clone answering a press flashes back to its place by E first, so it cuts with him wherever his lunge took him."
@@ -666,12 +669,14 @@ link, in order, 3 links at most: the clone plays his whole string back, *CLONE-L
           (:answer (when (< (+ (icc-link c) (length (icc-queued c))) 3)   ; each press one link, in order
                      (setf (icc-queued c) (append (icc-queued c) (list w))))))))))
 
-(defun ichigo-strike (e x z yaw hw mult data)
+(defun ichigo-strike (e x z yaw hw mult data &rest sp)
   "A clone's / an echo's hit: an :ic-hit hazard with HW at MULT (ECHO-HITWIN) in the frame (X Z YAW), for its active
-frames; guarded facing Ichigo (:src); a hazard: no KOSEI, it counts in his combo."
-  (spawn-hazard :ic-hit e :x x :z z :yaw yaw :size 0.5 :life (max 1 (- (hw-to hw) (hw-from hw))) :hw (echo-hitwin hw mult)
+frames; guarded facing Ichigo (:src); a hazard: no KOSEI, it counts in his combo. SP: its triangle keys (a replay's, CLONE-REPLAY-SP);
+none: classless, a clean hit (NS3 / AS3's own clone cuts and the echoes are not projectiles, DUEL_SP §6: only the replays join)."
+  (apply #'spawn-hazard :ic-hit e :x x :z z :yaw yaw :size 0.5 :life (max 1 (- (hw-to hw) (hw-from hw))) :hw (echo-hitwin hw mult)
                           :src t :hook 'ichigo-strike-hz :data data
-                          :sp (eq data :echo)))   ; (SP2 ZANZO's afterimage echoes ignore the combo scaling, the user 2026-10-24)
+                          :sp (eq data :echo)   ; (SP2 ZANZO's afterimage echoes ignore the combo scaling, the user 2026-10-24)
+                          (or sp '(:cls nil))))
 
 (defun ichigo-strike-hz (h hz ev &optional tx ty tz tr th)
   "The :ic-hit hazards' hook: their volume is the hit window's own (in the frame they were struck in)."
@@ -729,18 +734,25 @@ string's end it fades if it touched him, else it idles where it stands."
     (when (and q (>= *match-tick* (+ (first q) (clone-replay-lag c))))
       (pop (icc-rq c))
       (destructuring-bind (tick mv mult) q
-        (declare (ignore tick))
-        (setf (icc-state c) :replay (icc-mv c) mv (icc-rmult c) mult (icc-sf c) (1- (mv-enter mv)) (icc-hit c) nil)
+        (setf (icc-state c) :replay (icc-mv c) mv (icc-rmult c) mult (icc-rt c) tick (icc-sf c) (1- (mv-enter mv)) (icc-hit c) nil)
         (clog "clone ~a replays ~a x~,2f" (icc-src c) (mv-name mv) mult)))))
 
-(defun clone-wave (e x z yaw mv mult)
-  "A clone's replay of his wave (MV's :params, as ICHIGO-WAVE) from (X Z) facing YAW, at MULT; never a Kikon's first strike."
+(defun clone-replay-sp (e c)
+  "The triangle keys of clone C's replayed hits and waves (SPAWN-HAZARD; DUEL_SP §6, S5, Q8): the replayed move's class, its start tick,
+the summon segment's damage scale on top of the replay's own x (ICC-SSCALE), nothing paid (a cancel refunds nothing: the summon paid for the
+clone, not for each replay)."
+  (list :cls (kit-class (kit-of e) (icc-mv c)) :sp-paid 0f0 :sp-scale (icc-sscale c) :sp-src (icc-rt c)))
+
+(defun clone-wave (e x z yaw mv mult &rest sp)
+  "A clone's replay of his wave (MV's :params, as ICHIGO-WAVE) from (X Z) facing YAW, at MULT; never a Kikon's first strike. SP: its
+triangle keys (CLONE-REPLAY-SP)."
   (let ((p (mv-params mv)) (fx (fwd-x yaw)) (fz (fwd-z yaw)))
     (flet ((k (key) (getf p key)))
-      (spawn-hazard :wave e :x (+ x fx) :z (+ z fz) :yaw yaw :speed (k :speed) :size (* 0.5 (k :width))
+      (apply #'spawn-hazard :wave e :x (+ x fx) :z (+ z fz) :yaw yaw :speed (k :speed) :size (* 0.5 (k :width))
                             :life (round (* 60 (/ (k :range) (k :speed)))) :look (k :look) :sp-mv nil
                             :hw (make-hitwin :dmg (max 1 (round (* mult (k :dmg)))) :react (k :react) :kb (k :kb)
-                                             :hs *hitstop-heavy* :guard (* mult (k :guard)) :flags '(:blade))))
+                                             :hs *hitstop-heavy* :guard (* mult (k :guard)) :flags '(:blade))
+                            sp))
     (emit :sfx :getsuga e)))
 
 (defun clone-replay-step (e hz c)
@@ -752,9 +764,9 @@ fires each wave of it (ICHIGO-GETSUGA / ICHIGO-JUJI on-frames) on his frames, at
         (let ((q (pos-of (opp-of e))))                   ; (it strikes at him from its side: the chain's line reaches him)
           (setf yaw (dir-yaw (- (aref q 0) x) (- (aref q 2) z))))
         (setf (hazard-x hz) (f32 x) (hazard-z hz) (f32 z) (hazard-yaw hz) (f32 yaw))
-        (loop for w across (mv-hits mv) when (= sf (hw-from w)) do (ichigo-strike e x z yaw w mult c))
+        (loop for w across (mv-hits mv) when (= sf (hw-from w)) do (apply #'ichigo-strike e x z yaw w mult c (clone-replay-sp e c)))
         (loop for (fr fn) in (mv-on-frame mv)
-              when (and (= sf fr) (member fn '(ichigo-getsuga ichigo-juji))) do (clone-wave e x z yaw mv mult))))
+              when (and (= sf fr) (member fn '(ichigo-getsuga ichigo-juji))) do (apply #'clone-wave e x z yaw mv mult (clone-replay-sp e c)))))
     (when (>= sf (mv-total mv)) (setf (icc-state c) :idle))))
 
 (defun clone-replay-hit! (att def c)

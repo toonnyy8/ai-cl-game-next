@@ -10,6 +10,9 @@ exactly (fs' = fs - paid) and a segment at 0 is refused.
 S4 (the breakthrough, DUEL_SP §6): `BREAK fs T from P2 (fs V), gains G (fs F)` (core-sim.lisp CORE-BREAK!: T taken, V the victim after it, G what
 the attacker's gauge really took), `STEAL fs ...` (an AS1's own steal, before it: Q10), `cancels the Kikon follow-up` (Q12) and `exchange over`
 (CORE-XCH-STEP: both back in neutral, Q11).
+S5 (projectiles, DUEL_SP §6): `P1 wave ns x P2: CANCEL` / `P1 ic-hit na x P2: CANCEL` (core-sim.lisp CORE-HAZARD-NOHIT!: a hazard judged as the
+segment that fired it), `P2 beats P1's wave ns` (his class beats it: spent, no refund), `SP refund P (fs F), out of the move` (the owner no longer
+in that segment: the refund only). P2's moves at the wave's range are started by trial.lisp's :p2-start (CORE-START!, a written debug drive).
 
   python3 tests/sp-costs-check.py           PASS / FAIL per check, exit 1 on a failure
   python3 tests/sp-costs-check.py --log     and every trial's SP / dealt / CANCEL lines
@@ -74,6 +77,19 @@ def trials():
                ':script ((:quick 1 :wait 8) (:quick 1 :on :hit) (:quick 1 :modded t :on :hit)) :frames 200)')
     out.append('(:name "BREAK ichigo neutral then J1" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 100 :p2-fs 300 :p2-at ((0 :sp)) '
                ':script ((:quick 1 :wait 8) (:quick 1 :on :free :wait 30)) :frames 200)')
+    # S5: Ichigo's JUJISHO (NS2c, cost 60) at 6 m meets P2's J / NS / AS / SA started 3-5 frames before it arrives (f73 on a standing P2);
+    # at 10 m it arrives after NS2c is over (the refund only); fired at fs 50 (paid 30 of 60: x0.75); NOZARASHI's blade cuts it (CUT-HAZARDS);
+    # KESSA's two NS3 clones (74904) replay his J1 into P2's NS1a window
+    ns2 = ':p1 :ichigo :ptr 2 :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 160'
+    out.append(f'(:name "WAVE stand" :p2 :kenpachi :dist 6.0 :fs 300 {ns2})')
+    for nm, at, mv in (('J', 70, 'ke-z-j1'), ('NS', 68, 'ke-z-n1a'), ('AS', 68, 'ke-z-as1'), ('SA', 70, 'ke-z-sa1')):
+        out.append(f'(:name "WAVE vs {nm}" :p2 :kenpachi :dist 6.0 :fs 300 :p2-fs 100 :p2-start (({at} :{mv})) {ns2})')
+    out.append(f'(:name "WAVE idle owner" :p2 :kenpachi :dist 10.0 :fs 300 :p2-fs 100 :p2-start ((88 :ke-z-j1)) {ns2})')
+    out.append(f'(:name "WAVE scaled" :p2 :kenpachi :dist 6.0 :fs 50 {ns2})')
+    out.append(f'(:name "WAVE cut" :p2 :kenpachi :p2-form :nozarashi :dist 6.0 :fs 300 :p2-fs 100 :p2-start ((58 :ke-s-j1)) {ns2})')
+    out.append(f'(:name "WAVE passes" :p2 :kenpachi :p2-form :nozarashi :dist 6.0 :fs 300 :p2-fs 300 :p2-start ((40 :ke-s-n1a)) {ns2})')
+    out.append('(:name "WAVE clone replay" :p1 :ichigo :form :kessa :p2 :kenpachi :dist 2.0 :fs 300 :p1-cmd (74904) :p2-start ((0 :ke-z-n1a)) '
+               ':script ((:quick 1)) :frames 100)')
     out.append('(:name "BREAK kikon cancel then hisagi J1" :p1 :ichigo :p2 :hisagi :p2-form :bankai :ptr 1 :dist 2.0 :fs 300 :p2-fs 100 :p2-at ((24 :j) (28 :j)) '
                ':script ((:quick 60 :modded t)) :frames 220)')
     return out
@@ -96,7 +112,7 @@ def run():
             cur = line.split('trial begin ', 1)[1].strip(); logs[cur] = []
         elif 'trial end ' in line:
             cur = None
-        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |\S+ x P[12]: CANCEL)|exchange over)', line):
+        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |beats |blade x |[^:\]]* x P[12]: CANCEL)|exchange over|clone \S+ replays)', line):
             logs[cur].append(re.sub(r'^.*?\[\s*(\d+)\] ', r'[\1] ', line))
     return logs
 
@@ -235,6 +251,35 @@ def main():
     g30 = [l for l in logs[n] if 'P2 SP cancel gain 30.0' in l]; ov = [i for i, l in enumerate(logs[n]) if 'exchange over' in l]
     check(len(b) == 1 and kc and g30 and b[0][0] == '2' and b[0][2] == '1' and rule(b[0]) and kc[0] < b[0][6] and not any(kc[0] < i < b[0][6] for i in ov),
           f"the Kikon follow-up cancelled (Q12) at {tick(n, kc[0]) if kc else '?'}: P2 +30 ({len(g30)}), the exchange lives through the bounce, Hisagi's J1 from 5 m: {bfmt(b)}")
+    # S5: projectiles in the triangle
+    def has(n, pat): return [l for l in logs[n] if re.search(pat, l)]
+    def dealt(n): return [int(m[1]) for l in logs[n] for m in [re.search(r'P1 dealt (\d+)', l)] if m]
+    full = dealt('WAVE stand')
+    check(len(full) == 1 and not has('WAVE stand', 'CANCEL'), f'JUJISHO on a standing P2: dealt {full}')
+    for nm in ('J', 'SA'):
+        n = f'WAVE vs {nm}'; bk = has(n, r'P1 SP refund 60\.0 \(fs 280\.0\)$'); g = gains(n, '2')
+        check(has(n, r'P1 wave ns x P2: CANCEL') and bk and g == [('cancel', 30.0, 130.0)] and not dealt(n) and has(n, 'exchange over'),
+              f'JUJISHO vs {nm} at the hit frame: CANCEL, P1 refunded 60 in his NS2c (landed), P2 {fmt(g)}, no damage, an exchange')
+    n = 'WAVE vs NS'
+    check(dealt(n) == full and not has(n, 'CANCEL|refund'), f'JUJISHO vs NS1a: the wave hits (dealt {dealt(n)}, NS vs NS: the first hit wins), no refund')
+    n = 'WAVE vs AS'
+    check(has(n, r"P2 beats P1's wave ns") and not dealt(n) and not has(n, 'CANCEL|P1 SP refund|exchange over'),
+          'JUJISHO vs AS1: the AS beats it (spent, no refund, no exchange)')
+    n = 'WAVE idle owner'
+    check(has(n, r'P1 SP refund 60\.0 \(fs 280\.0\), out of the move') and has(n, 'P1 wave ns x P2: CANCEL') and gains(n, '2') == [('cancel', 30.0, 130.0)],
+          'JUJISHO from 10 m cancelled by J1 after NS2c ended: the refund only (out of the move), P2 +30')
+    n = 'WAVE scaled'; sc = sp(n)
+    check(sc and sc[-1][0] == 'IC-N2C' and abs(sc[-1][4] - 0.75) < 0.001 and dealt(n) and abs(dealt(n)[0] - 0.75 * full[0]) <= 1,
+          f'JUJISHO fired at fs 30 (paid {sc[-1][3]:g}/{sc[-1][2]:g} x{sc[-1][4]:.2f}): dealt {dealt(n)} = x0.75 of {full} (frozen when fired, Q8)')
+    n = 'WAVE cut'; bl = has(n, r"P2 blade x P1's wave ns: cancel")
+    check(bl and has(n, 'P1 wave ns x P2: CANCEL') and has(n, r'P1 SP refund 60\.0') and not dealt(n),
+          f"NOZARASHI's J1 blade meets JUJISHO in front of him (CUT-HAZARDS, J vs NS): {bl[0] if bl else 'no blade line'}, CANCEL, refunded")
+    n = 'WAVE passes'; bl = has(n, r"P2 blade x P1's wave ns: passes")
+    check(bl and dealt(n) == full and not has(n, 'CANCEL|refund'),
+          f"NOZARASHI's NS1a blade meets JUJISHO (NS vs NS, the wave first): {len(bl)} x passes, then it hits, dealt {dealt(n)}")
+    n = 'WAVE clone replay'; rc = has(n, r'P1 ic-hit na x P2: CANCEL'); bk = has(n, 'SP refund')
+    check(has(n, 'clone NS-A replays IC-K-J1') and has(n, r'P1 IC-K-J1 x P2: CANCEL') and rc and len(bk) == 1 and bk[0].count('P2 SP refund 20.0'),
+          f"KESSA's clone replays J1 into P2's NS1a: {rc[0].split('] ', 1)[1] if rc else 'no replay CANCEL'} (class na, nothing paid: no second refund)")
     ct = sp('CATCH kenpachi tame thrust')
     check([x[0] for x in ct] == ['KE-Z-N3A', 'KE-Z-N3B'] and ct[1][3] == ct[1][2] == 20,
           'the tame\'s catch starts the thrust through CORE-START!: ' + ', '.join(f'{x[0].lower()} paid {x[3]:g}/{x[2]:g}' for x in ct))

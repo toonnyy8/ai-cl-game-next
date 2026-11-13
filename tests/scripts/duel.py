@@ -683,7 +683,8 @@ def practice_cancel_script():
     --fixed-dt 16.666667 --secs 230): P1's keys written out (frames after the scene command; each press lands inside the link before it), the
     dummy's presses its own. 2800 + 3a + b: P1 a against dummy b (0 Kenpachi, 1 Ichigo, 2 Hisagi), 2.2 m, GUARD ALL; per pair (a) J1, (b) the
     five J, (c) NS x3, (d) NS then the SA, (e) J then SP (the AS), (f) idle 3 s on KK / IH. Then (g) Hisagi's NS1 x3 at 2.2 m against DUMMY
-    STAND (the control: no contact without a cancel's unlock), (h) Ichigo's pointer 2 (the wave: a hazard, it lands), (i) J1 at 6 m (out of
+    STAND (the control: no contact without a cancel's unlock), (h) Ichigo's pointer 2 at 2.2 m and (h2) at 6 m (DUEL_SP S5: the wave is judged as NS2c,
+    GUARD ALL presses J into its arrival, `P1 wave ns x P2: CANCEL`; before S5 it landed), (i) J1 at 6 m (out of
     reach: no answer), (j) STAND / GUARD AFTER HIT / CPU as before, (k) COUNTER J1 with GUARD ALL: J1 once the SA's stun ends. Read the
     combat log's `CANCEL` / `HIT` lines per `===` scene."""
     ev = []
@@ -711,6 +712,7 @@ def practice_cancel_script():
         if (a, b) in ((0, 0), (1, 2)): scene(f"{pr} f idle 3 s", [c], [], 180)
     scene("g HK NS1 x3 at 2.2 m, DUMMY STAND (control)", [2806, 2810], [(10, "sp"), (23, "sp"), (43, "sp")], 300)
     scene("h IK pointer 2 x3 (the wave)", [2803, 2511], [(10, "sp"), (23, "sp"), (39, "sp")], 400)
+    scene("h2 IK pointer 2 x3 at 6 m (the wave cancelled)", [2803, 2814, 2511], [(10, "sp"), (23, "sp"), (39, "sp")], 400)
     scene("i KK J1 at 6 m", [2800, 2814], [(10, "j")], 120)
     scene("j KK STAND J1", [2800, 2810], [(10, "j")], 120)
     scene("j KK GUARD AFTER HIT J x2", [2800, 2812], [(10, "j"), (23, "j")], 160)

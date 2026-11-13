@@ -243,9 +243,9 @@ result (NIL = no effect)."
                                         (sub-of att)                          ; SUBLIMATION / DRIVE
                                         (let ((h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
                                           (if h (funcall h att def hw mv hazard d2) 1.0))
-                                        (if (and own (not hazard))            ; an SP segment short of its cost (DUEL_SP §3; a
-                                            (sp-scale (fighter-sp-paid fa) (fighter-sp-cost fa))   ;  hazard's waits for S5)
-                                            1.0))
+                                        (cond (hazard (hazard-sp-scale hazard))   ; an SP segment short of its cost (DUEL_SP §3); a hazard:
+                                              (own (sp-scale (fighter-sp-paid fa) (fighter-sp-cost fa)))   ;  frozen when fired (Q8, S5)
+                                              (t 1.0)))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
          (dmods (if flat '(:mult 1.0) (sub-taken-mods (kit-def-mods (kit-of def)) (sub-of def))))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
@@ -432,7 +432,10 @@ Hoho's counter strike on its frame (it always connects)."
                            *pending*)))))))
 
 (defun cut-hazards (e f)
-  "Nozarashi (:projectile-cut): an open window of E's move destroys the opponent's hazards it touches."
+  "Nozarashi (:projectile-cut): an open window of E's move judges each opponent hazard it touches by the triangle (DUEL_SP §6, S5, Q9),
+as the hazard's own hit on him would be (CORE-VERDICT of its class against his window's): his class beats it (:absorb) or either side
+has no class: it is cut, nothing more; a cancel: CORE-HAZARD-NOHIT! (the owner refunded, an exchange) and it is gone; the wave's class
+wins (:hit): it flies on."
   (let ((mv (fighter-move f)))
     (when (and (passive-p e :projectile-cut) (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
       (let* ((sf (fighter-sf f)) (p (pos-of e)) (yaw (yaw-of e)) (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))))
@@ -445,9 +448,13 @@ Hoho's counter strike on its frame (it always connects)."
                                       thereis (vol-hit-p v (aref p 0) (aref p 1) (aref p 2) fx fz
                                                          (hazard-x hz) 0f0 (hazard-z hz) (f32 (max 0.5 (hazard-size hz)))
                                                          1.8f0 0f0)))
-                       (emit :hazard-cut (hazard-x hz) (f32 (+ 1.0 (hazard-y hz))) (hazard-z hz))
-                       (clog "~a cuts ~a" (side-name e) (hazard-kind hz))
-                       (destroy-entity h))))))))
+                       (let* ((wc (hazard-cls hz)) (bc (core-window-class f))
+                              (v (if (and wc bc) (core-verdict wc bc :att-t (hazard-sp-src hz) :def-t (fighter-cls-t f)) :absorb)))
+                         (clog "~a blade x ~a's ~(~a ~a~): ~(~a~)" (side-name e) (side-name (hazard-owner hz)) (hazard-kind hz) wc
+                               (case v (:hit "passes") (t v)))
+                         (unless (eq v :hit)                     ; (the wave wins: not cut)
+                           (core-hazard-nohit! hz e v)
+                           (destroy-entity h))))))))))
 
 (defun clash! (a b)
   "Breaker vs Breaker: both pushed *CLASH-PUSH* apart and stunned *CLASH-STUN*, no damage."
