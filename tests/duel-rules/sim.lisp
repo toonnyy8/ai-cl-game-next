@@ -98,6 +98,16 @@
     (setf (gauges-fs ga) 50f0)
     (pay-gauges a 10.0)
     (check (= (gauges-fs ga) 60f0))
+    ;; S1 / Q18: the Kikon bar and a steal's gain are PAY-GAUGES gains, so nothing during a burst; a steal's victim loses through SPEND-FS
+    (setf (gauges-burst ga) :white)
+    (pay-gauges a *kikon-fs-refund*) (pay-gauges a 50.0)
+    (check (= (gauges-fs ga) 60f0))
+    (setf (gauges-burst ga) nil)
+    (pay-gauges a *kikon-fs-refund*)
+    (check (= (gauges-fs ga) 165f0))
+    (spend-fs ga 30.0)
+    (check (and (= (gauges-fs ga) 135f0) (= (gauges-fs-idle ga) 0)))
+    (setf (gauges-fs ga) 60f0)
     ;; a real heal raises the snapshot too; the grey band and souls read the snapshot
     (setf (gauges-reishi ga) 0 (second (assoc a *tb-snap*)) 1000)
     (heal! a 100)

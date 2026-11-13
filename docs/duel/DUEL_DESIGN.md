@@ -275,8 +275,8 @@ guard value (`cut-value`, `*cut-mult*`); his J links don't (a blocked RYOTE J J 
 West's ward too, ×1.1: the 2nd K K K crushes it).
 
 **Flash-step gauge** (0–300 since 2026-10-29, "Flash-step gauge 0-300" at the end; 0–100 before; full at the start, kept
-through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst modes" at the end) needs 200 and then drains it
-(WHITE / ORANGE to 0; BLUE only one cell, 100, since 2026-11-12), gaining nothing meanwhile; +4.5/s once 60 f pass after the last spend (9/s before 2026-11-12), +0.135 per damage taken × the combo bonus; a perfect
+through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst modes" at the end) needs **100** (one cell; 200 before 2026-11-13, S1 of DUEL_SP) and then drains it
+(WHITE / ORANGE to 0; BLUE only one cell, 100, since 2026-11-12), gaining nothing meanwhile; +4.5/s once 60 f pass after the last spend, **stopping at the last cell, 100** (9/s before 2026-11-12; the cap since 2026-11-13, S1: a gauge above 100 is never lowered, only gains fill it), +0.135 per damage taken × the combo bonus; a perfect
 Hoho refunds nothing (15 of 100 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: three cells (one a Hoho); on the phone
 the ink standing in the 爆 seal, white marks at 100 and 200, the seal armed (lit) from 200 (DUEL_WEBUI §11).
 
@@ -1351,7 +1351,7 @@ the Kikon refund.
 
 ### Which mode (rules `burst-mode`, combat `burst-mode-of`)
 
-Inputs not locked (`fighter-lock` 0), not in a cinematic, no burst already running, flash-step ≥ `*fs-burst*` **200** (of 300; 70 of 100 before 2026-10-29)
+Inputs not locked (`fighter-lock` 0), not in a cinematic, no burst already running, flash-step ≥ `*fs-burst*` **100** (of 300; 200 until 2026-11-12, S1 of DUEL_SP §2: one cell for all three colours; 70 of 100 before 2026-10-29)
 (the user's "two bars", every mode; the user's decision 2026-09-30: no lower floor for WHITE / ORANGE):
 
 | State at the press | Mode |
@@ -1366,7 +1366,7 @@ A projectile / hazard hit never opens ORANGE (like KOSEI, only the fighter's own
 ### Cost, drain, end
 
 - **Nothing is spent up front** (the user's default 2026-09-30); the drain is the cost: `*burst-drain*` **54** flash-step
-  per second from the press (18 on the 0–100 gauge). Started at 200 it lasts 3.7 s, at 300 5.6 s.
+  per second from the press (18 on the 0–100 gauge). Started at 100 it lasts 1.85 s, at 200 3.7 s, at 300 5.6 s.
 - During a burst the flash-step gauge **gains nothing**: no regen, no damage-taken gain, no KOSEI flash-step (no perfect-
   Hoho refund at all since 2026-10-18), nothing a siphon would pay (`pay-gauges`, rules `burst-fs-gain`).
 - **Hoho below one bar:** during a burst a Hoho needs only flash-step > 0 (not `*fs-hoho*` 100); it spends 100 or what is

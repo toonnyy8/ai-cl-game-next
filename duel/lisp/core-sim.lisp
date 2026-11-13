@@ -358,13 +358,14 @@ be a Kikon's first strike: the hold kept since that segment (the button still do
 
 (defun core-on-hit! (att def mv &optional (mult 1.0) hw)
   "What a landed hit of a core AS does besides damage (its :params), at MULT (a KESSA clone's replay: 0.1): :steal-fs (the hit window HW's
-own, else the move's) takes flash-step from DEF and gives *STEAL-FS-GAIN* of it to ATT (STEAL-TAKE; no cap, 2026-11-12). (Its Reiatsu steal
+own, else the move's) takes flash-step from DEF, never below the last cell (STEAL-TAKE, S1 2026-11-13), and gives *STEAL-FS-GAIN* of it to ATT
+(PAY-GAUGES: nothing in ATT's burst; DUEL_SP Q18). (Its Reiatsu steal
 went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
   (let ((fs (or (and hw (hw-steal hw)) (getf (mv-params mv) :steal-fs))))
     (when (and fs (plusp fs))
       (multiple-value-bind (take gain) (steal-take (* mult fs) (gauges-fs (gauges def)))
-        (setf (gauges-fs (gauges def)) (f32 (- (gauges-fs (gauges def)) take)))
-        (setf (gauges-fs (gauges att)) (f32 (min *fs-max* (+ (gauges-fs (gauges att)) gain))))
+        (when (plusp take) (spend-fs (gauges def) take))   ; (Q18: the victim's loss and the attacker's gain each go through their one writer)
+        (pay-gauges att gain)
         (clog "~a STEAL fs ~,1f from ~a, gains ~,1f" (side-name att) take (side-name def) gain)))))
 
 (defun steal-scene-fs! (tag)

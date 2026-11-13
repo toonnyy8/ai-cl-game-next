@@ -185,6 +185,23 @@ Each scene sets both gauges, places the fighters and prints a `duel sp t .. p1 f
 
 **Status:** S0 done on branch worktree-agent-abefea47b36f0d068 (sp.lisp, nine knobs in tuning.lisp, tests/duel-rules/sp.lisp; no call site). The test reproduces §4 from the kits' data: Ichigo's and Hisagi's cells agree; ten Kenpachi cells differ (reported to the main session, pinned in the test).
 
+**S1 done (2026-11-13, branch worktree-agent-a3a3efe73cef5c998, not merged):** knobs and rules, old -> new: `*fs-burst*` 200 -> 100 (the user: 「三色爆氣皆改成一格可放」;
+`burst-allowed-p` reads it; `burst-drain` / `burst-budget` / `burst-burn` / `hoho-cost` needed no change: BLUE burns one cell, WHITE / ORANGE drain
+to 0, so a burst from 100 lasts 1.85 s); `fs-regen` stops at `*fs-cell*` (40 -> 100; a gauge at or above 100, 180 or 300, is never lowered);
+`steal-take` = `min(want, victim - *fs-cell*)`; `*kosei-kind*` :sp 27 -> 0 and :kikon 20 -> 0; lhud-deck's `+fs-burst+` constant (2/3) is gone, the dial
+arms at `*fs-burst* / *fs-max*` (1/3). Q18 applied: `core-on-hit!` pays the victim through `spend-fs` (only when something is taken) and the
+attacker through `pay-gauges`; the Kikon / Soul Break bar is `(pay-gauges att *kikon-fs-refund*)` (`kikon-refund` removed). The round reset already
+kept the gauge (no reset path writes `gauges-fs`; PRACTICE's `*gauges-inf*` refill unchanged). CPU readers (`ai-hoho-spare-p`, `cpu-ki-*`) follow the
+knob untouched. Debug range 2820-2859 claimed; 2820-2822 set P2's flash-step to 100 / 130 / 300. Tests: host runner 2939 -> 2949 checks ALL PASS
+(burst at exactly 100 for each colour, regen 40 -> 100 and 180 unchanged, steal at 100 / 130 / 300, pay-gauges in a burst, KOSEI kinds), control 116,
+input 33, touch 100, cine 18, hud-engine 121, pkgcheck only `DUEL::APP`, debug ranges 0 errors. `duel-steal-cap.json` (110 s) runs the three steals
+at a victim of 100 / 130 / 300 (the victim is first fed by the J1's damage-taken gain, so the first hits at 100 take only that excess and leave P2 at
+exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI 3.2 / 1.1 / 1.2 / 1.3, P2 ends 100.0; victim 130: TSUMUJI 10.0 / 20.0 /
+9.2 / 2.3, RAKUGA 35.9, KUSARI-BIKI 30.0 / 4.3 / 1.2 / 1.3 (the last cell kept); victim 300: TSUMUJI 10 / 20 / 30 / 40, RAKUGA 80, KUSARI-BIKI 30 x 4
+(unchanged). G2 moved as expected (the CPUs read the gauge and the burst price): II 39 lines (P1 3-1, 389.6 s) -> 28 (P1 6-0, 273.3 s), IK 36 (P1 2-0,
+354.0 s) -> 25 (P1 3-0, 247.3 s), KK 28 (P2 0-5, 275.4 s) -> 38 (P1 1-0, 380.6 s); `tests/style-cvc-ref.txt` regenerated, native `--cvc` and the browser
+`style-gates.py cvc` both PASS against it. No balance gates run. wasm 10.25 MB, smoke (desktop and `--mobile 390x844`) exit 0.
+
 ### 8.5 Order and parallelism
 
 - **S0 -> S1 -> S2** serial (S2 needs S1's cell knob; both edit `core-on-hit!` / rules.lisp). S0 may start at once, in parallel with the

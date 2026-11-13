@@ -689,8 +689,7 @@ and frozen through the cinematic their looks would hang in its shots."
     (when (or kk sb)
       (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
       (dolist (att (remove-duplicates (append (mapcar #'first kk) (mapcar #'car sb))))   ; a Kikon that connected, or
-        (let ((g (gauges att)))                         ; a Soul Break (the user 2026-09-30): a flash-step bar back
-          (setf (gauges-fs g) (f32 (kikon-refund (gauges-fs g))))))
+        (pay-gauges att *kikon-fs-refund*))              ; a Soul Break (the user 2026-09-30): a flash-step bar back (Q18: a gain)
       (let ((kos (append (loop for (att def nil) in kk when (settle-konpaku att def nil) collect def)
                          (loop for (att . def) in sb when (settle-konpaku att def t) collect def)))
             (a (if kk (first (first kk)) (car (first sb))))

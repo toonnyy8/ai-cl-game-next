@@ -309,7 +309,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (multiple-value-bind (ft) (hit-gains 0 100 nil 1.0 6)                 ; taking 100 at the combo's 6th hit: flash-step 13.5 x 1.5
     (check (and (~= ft 20.25) (zerop fs) (plusp aw)))))
 ;; KOSEI by its move's kind (x the combo bonus at the call, x m), not the guard value (2026-10-26: 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」)
-(check (and (equal '(9.0 16.0 36.0 27.0 20.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
+(check (and (equal '(9.0 16.0 36.0 0.0 0.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
             (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
             (multiple-value-bind (fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
               (and (~= fs (* 0.15 16 1.2 3)) (~= m 3.0)))))
@@ -327,13 +327,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (eq (burst-mode :idle nil 0 nil) :white) (eq (burst-mode :guard nil 0 nil) :white) (eq (burst-mode :run nil 0 nil) :white)
             (null (burst-mode :step nil 0 nil)) (null (burst-mode :hoho nil 0 nil)) (null (burst-mode :down nil 5 nil))
             (null (burst-mode :cine nil 0 nil)) (null (burst-mode :idle t 0 nil)) (null (burst-mode :stun t 5 nil))))   ; locked
-(check (and (burst-allowed-p :white 200.0 nil) (burst-allowed-p :orange 200.0 nil) (burst-allowed-p :blue 300.0 nil)   ; 200 for every mode
-            (not (burst-allowed-p :white 199.9 nil)) (not (burst-allowed-p :blue 199.0 nil)) (not (burst-allowed-p :orange 170.0 nil))
+(check (and (burst-allowed-p :white 100.0 nil) (burst-allowed-p :orange 100.0 nil) (burst-allowed-p :blue 100.0 nil)   ; one cell for every mode (S1, 2026-11-13)
+            (burst-allowed-p :blue 300.0 nil)
+            (not (burst-allowed-p :white 99.9 nil)) (not (burst-allowed-p :blue 99.0 nil)) (not (burst-allowed-p :orange 70.0 nil))
             (not (burst-allowed-p nil 300.0 nil)) (not (burst-allowed-p :white 300.0 :blue))))   ; no mode / one running
 ;; the drain: 54 / s, to 0 then it ends; from 200 3.7 s, from 300 5.6 s
 (check (and (= *burst-drain* 54) (~= (burst-drain 50.0) (- 50.0 0.9)) (~= (burst-drain 0.1) 0.0)))
 (flet ((frames (fs) (loop for n from 1 do (setf fs (burst-drain fs)) when (<= fs 0.0) return n)))
-  (check (and (<= 221 (frames 200.0) 223) (<= 332 (frames 300.0) 334))))
+  (check (and (<= 110 (frames 100.0) 112) (<= 221 (frames 200.0) 223) (<= 332 (frames 300.0) 334))))   ; from one cell 1.85 s
 ;; no flash-step gain during a burst; Hoho below one bar spends what is left
 (check (and (~= (burst-fs-gain 12.0 nil) 12.0) (~= (burst-fs-gain 12.0 :white) 0.0) (~= (burst-fs-gain 15.0 :orange) 0.0)))
 (check (and (hoho-allowed-p nil 12.0 0 :white) (hoho-allowed-p nil 0.1 0 :blue) (not (hoho-allowed-p nil 0.0 0 :blue))
@@ -343,6 +344,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (= *blue-burn* 100) (= *kosei-fs* 0.15) (~= (burst-budget :blue) 100.0) (~= (burst-budget :white) 300.0) (~= (burst-budget :orange) 300.0)))
 (flet ((run (fs burn) (loop for n from 1 do (multiple-value-setq (fs burn) (burst-burn fs burn))
                             when (or (<= fs 0.0) (<= burn 0.0)) return (list n fs burn))))
+  (check (let ((r (run 100.0 100.0))) (and (<= 110 (first r) 112) (= (second r) 0.0) (<= (third r) 0.01))))        ; BLUE from exactly one cell: 100 -> 0
+  (check (let ((r (run 100.0 300.0))) (and (<= 110 (first r) 112) (= (second r) 0.0) (~= (third r) 200.0 0.01))))   ; WHITE / ORANGE from one cell: to 0
   (check (let ((r (run 300.0 100.0))) (and (<= 111 (first r) 113) (~= (second r) 200.0) (= (third r) 0.0))))   ; 300 -> 200 in 1.85 s
   (check (let ((r (run 230.0 100.0))) (and (<= 111 (first r) 113) (~= (second r) 130.0) (= (third r) 0.0))))   ; 230 -> 130
   (check (let ((r (run 300.0 300.0))) (and (<= 332 (first r) 334) (= (second r) 0.0))))                        ; WHITE / ORANGE: to 0
@@ -392,11 +395,15 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (~= (nth-value 1 (hit-gains 100 0 nil 1.5)) 5.25)                   ; x1.5 dealt
             (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) (nth-value 0 (hit-gains 0 100 nil 1.0)))))   ; taken untouched
 ;; the Kikon refund: a flash-step bar (105 of 300, 2026-10-29), clamped (its Reiatsu bar left, R6)
-(check (and (equal (multiple-value-list (kikon-refund 10.0)) '(115.0))
-            (equal (multiple-value-list (kikon-refund 250.0)) '(300.0))))
+(check (and (= *kikon-fs-refund* 105.0) (~= (burst-fs-gain *kikon-fs-refund* nil) 105.0) (~= (burst-fs-gain *kikon-fs-refund* :white) 0.0)))
+;; (S1 2026-11-13, Q18: the bar is a gain paid by PAY-GAUGES, so nothing during a burst; KOSEI's :sp / :kikon kinds pay 0)
+(check (and (= (kosei-base :sp) 0.0) (= (kosei-base :kikon) 0.0) (= (kosei-base :quick) 9.0) (= (kosei-base :sp 12.0) 12.0)))
 ;; the flash-step gauge (design v3 G.1; 0-300 since 2026-10-29): Hoho 100, Burst 200, no Reiatsu; 9 / s after 60 f; +0.135 per damage taken
-(check (and (= *fs-hoho* 100) (= *fs-burst* 200) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
-(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.075) (~= (fs-regen 299.99 600) 300.0)))
+(check (and (= *fs-hoho* 100) (= *fs-burst* 100) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
+(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.075) (~= (fs-regen 99.99 600) 100.0)))
+;; regen stops at the last cell (S1, 2026-11-13): 40 -> 100 and no further; a gauge above it is never lowered
+(check (let ((f 40.0)) (dotimes (i 2000) (setf f (fs-regen f 600))) (~= f 100.0)))
+(check (and (= (fs-regen 100.0 600) 100.0) (= (fs-regen 180.0 600) 180.0) (= (fs-regen 300.0 600) 300.0) (= (fs-regen 180.0 0) 180.0)))
 (check (~= 4.5 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 4.5 per second (9 before 2026-11-12)
 (check (~= 1333 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                    ; ... a Hoho from empty in 23.2 s (22.2 + the 1 s delay; 12.1 s before 2026-11-12)
 ;; the guard gauge (G.2): values by kind, +4 for an ender, overrides; the drain, the crush, the regen, guardless
@@ -437,7 +444,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; the CPU's guard: all at >= 50 %, half at 25-50 %, 0.15 below, none guardless; flash-step budgeting
 (check (and (~= (ai-guard-mult 50.0 nil) 1.0) (~= (ai-guard-mult 30.0 nil) 0.5) (~= (ai-guard-mult 10.0 nil) 0.15)
             (~= (ai-guard-mult 100.0 t) 0.0) (~= (ai-guard-mult 0.0 nil) 0.0)))
-(check (and (ai-hoho-spare-p 100.0 1000 1100) (not (ai-hoho-spare-p 290.0 400 1100)) (ai-hoho-spare-p 300.0 400 1100)))
+(check (and (ai-hoho-spare-p 100.0 1000 1100) (not (ai-hoho-spare-p 190.0 400 1100)) (ai-hoho-spare-p 200.0 400 1100)))
 (check (= *reishi-max* 1300))                                               ; guard v3, the user's decision 2026-09-26
 ;; the CPU's Burst: below half its Reishi, or the next hit would put it in red (30 % of 1100 = 330)
 (check (and (ai-burst-wanted-p 540 1100 10) (not (ai-burst-wanted-p 600 1100 10))

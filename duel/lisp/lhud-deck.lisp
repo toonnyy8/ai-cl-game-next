@@ -1,12 +1,11 @@
 ;;;; lhud-deck.lisp — the phone's deck and what sits on it (docs/duel/DUEL_LISP_HUD.md §13; hud.css "the deck" / .dbtn.rv / .rvc /
 ;;;; hud.js renderDeck): the thumb's paper (gradient and dot screen up to the pad's top), the SP 技 / ATK 斬 labels, the
-;;;; 爆 dial (the flash step as the ink standing in it with its 1/3 and 2/3 ticks, armed at 2/3, the awakening ring, the hold ring,
+;;;; 爆 dial (the flash step as the ink standing in it with its 1/3 and 2/3 ticks, armed at one burst cell (`*fs-burst*`, 1/3 since 2026-11-13), the awakening ring, the hold ring,
 ;;;; 覺; arm / deny / slosh / press), your stance seals around it (the clock tab on the deck: lhud-clock.lisp).
 ;;;; LHUD-DECK-UPDATE is the system (V4's bits and the flash step's edges -> the dial's animations and words); the views only read the
 ;;;; model, that state and the UI clock. Places come from the model's permille numbers (V30-V43) as hud.js reads them (lhud-geom.lisp).
 (in-package :duel)
 
-(defconstant +fs-burst+ (/ 2f0 3f0) "hud.js FS_BURST: the dial arms at 2/3 of the flash step (a Burst's cost).")
 (declaim (type f32vec *lhud-dk-tr* *lhud-dk-t*) (type (simple-array fixnum (*)) *lhud-dk-i*))
 (defvar *lhud-dk-tr* (make-transitions 10 0f0)
   "The dial's transitions: [0] the level (.45 s ease-out), [1] armed (0 / 1: 爆's colour .25 s, the rim .2 s), [2] the awakening arc
@@ -30,11 +29,11 @@
 (defun-fast lhud-deck-update ()
   "The dial's state from V4 (1 ready, 2 holding, 4 pressed, 8 a burst possible, 16 / 32 / 64 your burst's colour) and P1's flash
 step (V56): the level, armed and its hd-arm, a Hoho's slosh (a drop of more than a quarter), holding's hd-awfill, the press's
-words (BURST at 2/3, else NO BURST and hd-deny; 覺醒 AWAKEN on a held release), ready's hd-kak; the stance seals' on; the ∞."
+words (BURST at *fs-burst* / *fs-max*, 1/3 since S1 2026-11-13, else NO BURST and hd-deny; 覺醒 AWAKEN on a held release), ready's hd-kak; the stance seals' on; the ∞."
   (let* ((now (aref *ui-clock* 0)) (tr *lhud-dk-tr*) (ts *lhud-dk-t*) (iv *lhud-dk-i*) (b (hv 4)) (pb (max 0 (aref iv 0)))
-         (fs (* 0.001f0 (i->f (max 0 (min 1000 (hv 56)))))) (mode (logand b 112)) (armed (and (= mode 0) (>= fs (- +fs-burst+ 0.0005f0))))
+         (fs (* 0.001f0 (i->f (max 0 (min 1000 (hv 56)))))) (mode (logand b 112)) (fb (/ (the single-float *fs-burst*) (the single-float *fs-max*))) (armed (and (= mode 0) (>= fs (- fb 0.0005f0))))
          (ready (logtest b 1)) (o 50) (n (hv (+ o 9))) (red (not *reduced-motion*)))
-    (declare (single-float now fs) (fixnum b pb mode o n) (type f32vec tr ts) (type (simple-array fixnum (*)) iv))
+    (declare (single-float now fs fb) (fixnum b pb mode o n) (type f32vec tr ts) (type (simple-array fixnum (*)) iv))
     (trans-to tr 0 fs now 0.45f0 +ease-out+)
     (trans-to tr 1 (if armed 1f0 0f0) now 0.25f0 +ease+)
     (trans-to tr 2 (* 0.001f0 (i->f (max 0 (min 1000 (hv (+ o 7)))))) now 0.4f0 +ease-out+)
@@ -47,7 +46,7 @@ words (BURST at 2/3, else NO BURST and hd-deny; 覺醒 AWAKEN on a held release)
     (when (hv-deck-p)
       (macrolet ((press ()
                    `(when (= mode 0)
-                      (if (>= fs (- +fs-burst+ 0.0005f0))
+                      (if (>= fs (- fb 0.0005f0))
                           (lhud-dial-word 6)
                           (progn (when red (setf (aref ts 1) now)) (lhud-dial-word 7))))))
         (when (and (logtest b 2) (not (logtest pb 2))) (setf (aref ts 3) now))

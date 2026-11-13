@@ -1,11 +1,15 @@
 [
 {
 "at": 9.0,
-"eval": "console.log('=== TSUMUJI')"
+"eval": "console.log('=== TSUMUJI victim 100')"
 },
 {
 "at": 9.0,
 "eval": "Module._debug_cmd(83815)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(2820)"
 },
 {
 "at": 9.5,
@@ -43,7 +47,7 @@
 },
 {
 "at": 17.0,
-"eval": "console.log('=== RAKUGA')"
+"eval": "console.log('=== RAKUGA victim 100')"
 },
 {
 "at": 17.0,
@@ -52,6 +56,10 @@
 {
 "at": 17.05,
 "eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(2820)"
 },
 {
 "at": 17.5,
@@ -89,7 +97,7 @@
 },
 {
 "at": 25.0,
-"eval": "console.log('=== KUSARI-BIKI')"
+"eval": "console.log('=== KUSARI-BIKI victim 100')"
 },
 {
 "at": 25.0,
@@ -98,6 +106,10 @@
 {
 "at": 25.05,
 "eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 25.1,
+"eval": "Module._debug_cmd(2820)"
 },
 {
 "at": 25.5,
@@ -135,7 +147,7 @@
 },
 {
 "at": 33.0,
-"eval": "console.log('=== KUSARI-BIKI 2 NS3 clones')"
+"eval": "console.log('=== KUSARI-BIKI 2 NS3 clones victim 100')"
 },
 {
 "at": 33.0,
@@ -148,6 +160,10 @@
 {
 "at": 33.05,
 "eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 33.1,
+"eval": "Module._debug_cmd(2820)"
 },
 {
 "at": 33.5,
@@ -185,6 +201,406 @@
 },
 {
 "at": 41.0,
+"eval": "console.log('=== TSUMUJI victim 130')"
+},
+{
+"at": 41.0,
+"eval": "Module._debug_cmd(83815)"
+},
+{
+"at": 41.1,
+"eval": "Module._debug_cmd(2821)"
+},
+{
+"at": 41.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 41.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 42.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 47.0,
+"eval": "Module._debug_cmd(83816)"
+},
+{
+"at": 49.0,
+"eval": "console.log('=== RAKUGA victim 130')"
+},
+{
+"at": 49.0,
+"eval": "Module._debug_cmd(74000)"
+},
+{
+"at": 49.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 49.1,
+"eval": "Module._debug_cmd(2821)"
+},
+{
+"at": 49.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 50.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 50.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 55.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 57.0,
+"eval": "console.log('=== KUSARI-BIKI victim 130')"
+},
+{
+"at": 57.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 57.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 57.1,
+"eval": "Module._debug_cmd(2821)"
+},
+{
+"at": 57.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 57.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 57.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 57.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 57.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 57.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 63.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 65.0,
+"eval": "console.log('=== KUSARI-BIKI 2 NS3 clones victim 130')"
+},
+{
+"at": 65.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 65.03,
+"eval": "Module._debug_cmd(74904)"
+},
+{
+"at": 65.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 65.1,
+"eval": "Module._debug_cmd(2821)"
+},
+{
+"at": 65.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 65.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 65.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 65.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 65.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 65.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 71.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 73.0,
+"eval": "console.log('=== TSUMUJI victim 300')"
+},
+{
+"at": 73.0,
+"eval": "Module._debug_cmd(83815)"
+},
+{
+"at": 73.1,
+"eval": "Module._debug_cmd(2822)"
+},
+{
+"at": 73.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 73.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 74.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 74.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 74.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 74.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 79.0,
+"eval": "Module._debug_cmd(83816)"
+},
+{
+"at": 81.0,
+"eval": "console.log('=== RAKUGA victim 300')"
+},
+{
+"at": 81.0,
+"eval": "Module._debug_cmd(74000)"
+},
+{
+"at": 81.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 81.1,
+"eval": "Module._debug_cmd(2822)"
+},
+{
+"at": 81.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 81.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 82.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 82.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 82.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 82.1,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 87.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 89.0,
+"eval": "console.log('=== KUSARI-BIKI victim 300')"
+},
+{
+"at": 89.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 89.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 89.1,
+"eval": "Module._debug_cmd(2822)"
+},
+{
+"at": 89.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 89.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 89.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 89.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 89.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 89.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 95.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 97.0,
+"eval": "console.log('=== KUSARI-BIKI 2 NS3 clones victim 300')"
+},
+{
+"at": 97.0,
+"eval": "Module._debug_cmd(74001)"
+},
+{
+"at": 97.03,
+"eval": "Module._debug_cmd(74904)"
+},
+{
+"at": 97.05,
+"eval": "Module._debug_cmd(74908)"
+},
+{
+"at": 97.1,
+"eval": "Module._debug_cmd(2822)"
+},
+{
+"at": 97.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 97.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 97.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 97.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 97.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 97.85,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 103.0,
+"eval": "Module._debug_cmd(74909)"
+},
+{
+"at": 105.0,
 "eval": "console.log('=== END')"
 }
 ]

@@ -175,11 +175,12 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 (defparameter *kosei-fs* 0.15 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
 0-300 gauge (*FS-MAX*); 0.30 -> 0.15 on 2026-11-12 (the user: 「幫我將閃步量表的攻擊恢復量減半」: the attack's recovery halved; the
 damage-taken gain *FS-TAKEN* is not part of it).")
-(defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 27.0 :kikon 20.0 :breaker 0.0)
+(defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 0.0 :kikon 0.0 :breaker 0.0)
   "KOSEI: a paying contact's points by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT: the combo's
 nth hit, a block 1) and x m; a move's :kosei param overrides its kind's (the user 2026-10-26: 「閃步量表也做一樣的修改」,
 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」; before: the hit's guard value, whose roster mean per hit was J 8.8 K 16.2 L 35.6
-SP 27.3 O 20, a Breaker's 0).")
+SP 27.3 O 20, a Breaker's 0). 2026-11-13, S1 of DUEL_SP: :sp 27 -> 0 and :kikon 20 -> 0, the user's SP design (DUEL_SP §5's table: SP
+moves pay SP, ATK earns it, DUEL_SP §5; the other kinds follow in S3).")
 (defparameter *kosei-kind-other* 16.0 "... a kind not in the table.")
 
 ;;; ---------------------------------------------------------------- flash-step gauge (design v3 G.1): Hoho, Burst
@@ -191,7 +192,7 @@ SP 27.3 O 20, a Breaker's 0).")
   "Share of the flash-step a stealing AS (:steal-fs, per hit) takes that the attacker gains (the victim loses all of it). New 2026-11-12, the
 user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this replaced a per-use cap of 100, `*steal-fs-max*`, 2026-11-12, 「當前角色吸取對手閃步量表的能力改成最多削減一格的量」, removed the same day).")
 (defparameter *fs-cell* 100.0
-  "One cell of the flash-step gauge (the HUD's three cells; the Hoho's price). New 2026-11-12, the user's SP design (DUEL_SP §2): the last cell is never taken by a steal and regen stops at one cell; the literal 100 lived in `*fs-hoho*` and lhud-deck's `+fs-burst+`.")
+  "One cell of the flash-step gauge (the HUD's three cells; the Hoho's price). New 2026-11-12, the user's SP design (DUEL_SP §2): the last cell is never taken by a steal (`steal-take`, S1 2026-11-13) and regen stops at one cell (`fs-regen`); the literal 100 lived in `*fs-hoho*` and lhud-deck's `+fs-burst+`.")
 (defparameter *sp-cost-rate* 0.4
   "SP an NS / AS segment costs per point of its damage (cost = damage x this x the kit's multiplier, rounded to 5, clamped `*sp-cost-min*` .. `*sp-cost-max*`). New 2026-11-12, the user: 「依據每段 NS 的強度調整消耗量」 (DUEL_SP §3-§4).")
 (defparameter *sp-cost-min* 10.0 "Cheapest SP segment (also a setup segment with no damage). New 2026-11-12, the user's SP design, DUEL_SP §4.")
@@ -202,7 +203,7 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
 (defparameter *sp-break-share* 0.5
   "Share of the victim's flash-step above the last cell a breakthrough after a cancel takes. New 2026-11-12, the user: 「50%」, DUEL_SP §6.")
 (defparameter *sp-break-gain* 0.5 "Share of a breakthrough's take the attacker gains (the victim loses all of it). New 2026-11-12, the user's SP design, DUEL_SP §6.")
-(defparameter *fs-burst* 200.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; the drain is the cost).")
+(defparameter *fs-burst* 100.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; 200 -> 100 on 2026-11-13, S1 of DUEL_SP §2, the user: 「三色爆氣皆改成一格可放」; the drain is the cost).")
 (defparameter *fs-regen* 4.5 "Flash-step per second (3 -> 9 -> 4.5: 2026-11-12, the user: 「閃步量表的自然恢復速度減半」; a Hoho from empty in 23.2 s) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
 (defparameter *fs-taken* 0.135

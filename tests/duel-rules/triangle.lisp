@@ -224,10 +224,16 @@
 (check (not (boundp '*steal-fs-max*)))
 (check (equal (multiple-value-list (steal-take 30.0 300.0)) '(30.0 15.0)))           ; full take, half gained
 (check (equal (multiple-value-list (steal-take 80.0 300.0)) '(80.0 40.0)))
-(check (equal (multiple-value-list (steal-take 120.0 25.0)) '(25.0 12.5)))           ; a victim with less than asked
+(check (equal (multiple-value-list (steal-take 120.0 25.0)) '(0.0 0.0)))             ; a victim below the last cell loses nothing (S1, 2026-11-13)
 (check (equal (multiple-value-list (steal-take 30.0 0.0)) '(0.0 0.0)))
 (check (equal (multiple-value-list (steal-take 3.0 300.0)) '(3.0 1.5)))              ; a KESSA clone's x0.1 replay of a 30
 (check (let ((tot 0.0)) (dolist (w '(10.0 20.0 30.0 40.0)) (incf tot (steal-take w 300.0))) (= tot 100.0)))   ; TSUMUJI's four hits, no budget
+;; the last cell is never taken: a victim at 100 loses 0, at 130 up to 30, at 300 up to 200 (S1, 2026-11-13)
+(check (and (equal (multiple-value-list (steal-take 120.0 100.0)) '(0.0 0.0))
+            (equal (multiple-value-list (steal-take 120.0 130.0)) '(30.0 15.0))
+            (equal (multiple-value-list (steal-take 120.0 300.0)) '(120.0 60.0))
+            (equal (multiple-value-list (steal-take 500.0 300.0)) '(200.0 100.0))))
+(check (let ((v 300.0) (tot 0.0)) (dolist (w '(120.0 120.0 120.0)) (let ((tk (steal-take w v))) (decf v tk) (incf tot tk))) (and (= v 100.0) (= tot 200.0))))
 (let ((k (kit :ichigo :base)) (kk (kit :ichigo :kessa)) (h (kit :hisagi :base)))   ; per-hit values as written
   (flet ((vals (kit n) (let ((mv (kit-move kit n))) (map 'list (lambda (w) (or (hw-steal w) (getf (mv-params mv) :steal-fs))) (mv-hits mv)))))
     (check (equal (vals h :hs-as1) '(10 20 30 40)))

@@ -158,6 +158,10 @@ flash-step (never more than he has); the attacker gains `*steal-fs-gain*` = **0.
 - **Scenes** (`tests/scripts/duel-steal-cap.json`, debug 83815 / 83816, 74904, 74908 / 74909; P1's flash-step 100, P2's 300, J1 then SP): measured: TSUMUJI 10 / 20 / 30 / 40 (gains 5 / 10 / 15 / 20; P2 300 -> 200, P1 100 -> 150), RAKUGA 80 (gains 40; P2 -> 220, P1 -> 140),
   KUSARI-BIKI 30 x 4 (gains 15 each; P2 -> 180, P1 -> 160), the same with two NS3 clones (their replays did not land). Six seconds later
   (regen, damage gains): P1 189.7 / 167.0 / 205.8 / 205.9, P2 225.2 / 240.7 / 203.9 / 203.9.
+- **S1 of DUEL_SP, 2026-11-13: the last cell is never taken.** `steal-take` now takes `min(want, victim - *fs-cell*)` (0 at a victim of 100 or less, 30 at 130,
+  up to 200 at 300). `core-on-hit!` routes the victim's loss through `spend-fs` (only when something is taken) and the attacker's gain through
+  `pay-gauges` (nothing during a burst, x the SUBLIMATION bonus; DUEL_SP Q18). The Kikon / Soul Break flash-step bar is `pay-gauges` too.
+  Scenes: `duel-steal-cap.json` runs each steal against a victim at 100 / 130 / 300 (debug 2820-2822, "SP scenes"); numbers in DUEL_SP §8.4 "S1 done".
 - **Host tests**: `tests/duel-rules/triangle.lisp` (the knob, `steal-take`'s cases, the per-window values of the three moves).
 - **G2**: with the old values and the cap switched on temporarily native `--cvc` matched the reference (II 40, IK 33, KK 28 lines); the new
   rule moves it: regenerated (tests/style-cvc-ref.txt header). No balance gates.

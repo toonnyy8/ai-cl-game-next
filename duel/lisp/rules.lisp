@@ -550,7 +550,7 @@ guard, run)."
 (defun burst-allowed-p (mode fs active)
   "May a burst start: a MODE (BURST-MODE), none ACTIVE, *FS-BURST* flash-step (FS: every mode, the user's two bars). A
 Kikon connecting on the same step wins (the shell applies a burst only when no cinematic started)."
-  (and mode (not active) (>= fs *fs-burst*)))
+  (and mode (not active) (>= fs *fs-burst*)))   ; (one cell since 2026-11-13, DUEL_SP §2: 200 before)
 
 (defun burst-drain (fs)
   "Flash-step one frame into a running burst: -*BURST-DRAIN*/s, never below 0 (at 0 the burst ends)."
@@ -581,22 +581,19 @@ below 0 and never by more than BURN is left (the burst ends when either is 0)."
 startup, leaving at least 1 f."
   (max 0 (min (floor (* *chain-cut* (- s enter))) (- s enter 1))))
 
-(defun kikon-refund (fs)
-  "A Kikon connected (or a Soul Break, since 2026-09-30): its user's flash-step after the refund (*KIKON-FS-REFUND*), clamped."
-  (gauge-add fs *kikon-fs-refund* *fs-max*))
-
 (defun fs-regen (fs idle &optional (rate *fs-regen*))
   "Flash-step one frame later: +RATE/s (*FS-REGEN*) once IDLE (frames since the last
-spend) reaches *FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
-  (let ((mx *fs-max*))
+spend) reaches *FS-DELAY*, stopping at the last cell (*FS-CELL*, DUEL_SP §2; 2026-11-13: it never lowers a gauge already above it, which
+only gains fill). (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
+  (let ((mx *fs-cell*))
     (if (and (typep fs 'single-float) (typep rate 'single-float) (typep mx 'single-float))
-        (if (>= idle *fs-delay*)
+        (if (and (>= idle *fs-delay*) (< (the single-float fs) (the single-float mx)))
             (locally (declare (optimize (speed 3) (safety 0)))   ; (typed: MIN as ECL compiles it, a tie keeps the max:
               (let* ((m mx) (s (+ (the single-float fs) (/ (the single-float rate) 60.0))))   ; the max itself, unboxed)
                 (declare (single-float m s))
                 (if (or (/= s s) (<= m s)) mx s)))
             fs)
-        (if (>= idle *fs-delay*) (min mx (+ fs (/ rate 60.0))) fs))))
+        (if (and (>= idle *fs-delay*) (< fs mx)) (min mx (+ fs (/ rate 60.0))) fs))))
 
 ;;; ---------------------------------------------------------------- the guard gauge (design v3 G.2)
 (defun guard-value (kind adv &optional override)
@@ -766,5 +763,6 @@ fixnum Reishi, the sim's: the same compares in typed floats; exact for |Reishi| 
 
 (defun steal-take (want victim-fs)
   "Flash-step one hit of a stealing AS takes: (values TAKE GAIN). The victim loses TAKE = WANT (the hit's :steal-fs x the replay's mult),
-never more than VICTIM-FS has; the attacker gains GAIN = TAKE x *STEAL-FS-GAIN* (CORE-ON-HIT! caps it by *FS-MAX*). Pure."
-  (let ((take (max 0.0 (min want victim-fs)))) (values take (* take *steal-fs-gain*))))
+never more than VICTIM-FS has above the last cell (*FS-CELL*: the last cell is never taken, DUEL_SP §2, 2026-11-13); the attacker gains
+GAIN = TAKE x *STEAL-FS-GAIN* (CORE-ON-HIT! pays it through PAY-GAUGES). Pure."
+  (let ((take (max 0.0 (min want (- victim-fs *fs-cell*))))) (values take (* take *steal-fs-gain*))))
