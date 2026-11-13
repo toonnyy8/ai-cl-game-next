@@ -1,7 +1,9 @@
 ;;;; hem-spring.lisp — the lag spring that swings a pelvis-hung cloth (a haori hem, a cloak) about the obi, a look shared by
 ;;;; Ichigo's cloak (ichigo-look.lisp ICHIGO-CLOAK-POSE) and, until it left, Yamamoto's haori (DUEL_YAMA_TYBW §3.1). Moved
 ;;;; verbatim, names kept (%YA-HEM-*, *YA-HEM-*), out of yama-art.lisp by refactor batch B3 (REFACTOR_2026-11 §11.3 R2) so the
-;;;; retired kits' files could leave main; the engine half is B7's E2 (anim.lisp spring-chain-*). A look: nothing here is read by
+;;;; retired kits' files could leave main. It stays in the game: refactor R13 skipped the planned engine move (E2, anim.lisp
+;;;; spring-chain-*): one live caller (Ichigo's cloak), and the pose bakes in the look (the obi's 0.06 m offset, the breath on
+;;;; the fx clock, the swing's axis order), so an engine API would be ~8 arguments for one user. A look: nothing here is read by
 ;;;; the sim, no random number, 0 B a frame.
 (in-package :duel)
 
