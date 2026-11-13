@@ -28,7 +28,6 @@
 ;;;; measured in the gallery tests/duel-vfx.lisp until it left with the retired kits' looks (R5; git history).
 (in-package :duel)
 
-(defvar *fire-density* 1.0 "0..1: scales every VFX emission (tuning.lisp owns the value).")
 (defconstant +live-cap+ 1150 "No new VFX particles while the pool holds this many (budget 1200).")
 
 ;;; ---------------------------------------------------------------- small hot-path helpers

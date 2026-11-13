@@ -406,7 +406,7 @@ only the debug scene's cap.")
 (defparameter *ai-dash-frames* 70 "Longest the CPU holds a dash.")
 
 ;;; ================================================================ §14 budgets
-(defparameter *fire-density* 1.0 "Scales every fire emitter's rate (0.5 if the perf gate fails).")
+(defparameter *fire-density* 1.0 "0..1: scales every VFX emission (every fire emitter's rate; 0.5 if the perf gate fails).")
 
 ;;; ---------------------------------------------------------------- the core system (docs/duel/DUEL_CORE.md, 2026-10-27)
 (defparameter *core-clash-slowmo-scale* 0.2 "Time scale of the slow motion on a cancel (the triangle's mutual no-damage clash): a beat to read the next move

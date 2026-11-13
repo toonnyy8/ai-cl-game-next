@@ -310,8 +310,6 @@ gauge bars it measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16; HUD-T
                  (cons-per "oni" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0))                 ; Kenpachi's Bankai pillar
                  (cons-per "oni smoulder" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0 :k 0.15f0))
                  (cons-per "rift" (vfx-rift 1f0 0f0 4.4f0 0f0 nil))
-                 (cons-per "ya hem pose" (%ya-hem-pose (model-joints (model *p1*)) *ya-hem* 0 1))   ; Yamamoto's looks
-                 (cons-per "ya hem step" (%ya-hem-step *ya-hem* 0 0.016f0))                         ; (DUEL_YAMA_TYBW §3.1)
                  (cons-per "heat(old)" (vfx-aura 0f0 0f0 0f0 1.8f0 :heat 1f0 0.016f0))
                  (cons-per "kyoku" (vfx-line-cut 0f0 0f0 0f0 -9f0 0.2f0 0.67f0 :kyoku :dt 0.016f0))
                  (cons-per "kyokko" (vfx-line-cut 0f0 0f0 0f0 -4.6f0 0.1f0 0.23f0 :kyokko :dt 0.016f0))
@@ -356,11 +354,9 @@ Yamamoto's Shikai and Bankai East until his code left main, 2026-11-12.)"
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
     (place *p1* *p2* 2.2)))
 
-(defvar *k-link-pct* 100 "The last SCALE-K-LINKS percentage (100: the written damage), for DEBUG-KNOBS-LINE.")
 (defparameter *debug-knobs*
-  (list (cons '*red-threshold* *red-threshold*) (cons '*gg-regen* *gg-regen*) (cons '*gg-regen-guardless* *gg-regen-guardless*)
-        (cons '*k-link-pct* *k-link-pct*))
-  "The rule knobs a debug command sets for the CPU matches after it (2600+k, 22000+k, 23000+k, 26000+k: a gate's levers without a
+  (list (cons '*red-threshold* *red-threshold*) (cons '*gg-regen* *gg-regen*) (cons '*gg-regen-guardless* *gg-regen-guardless*))
+  "The rule knobs a debug command sets for the CPU matches after it (2600+k, 22000+k, 23000+k: a gate's levers without a
 rebuild) with their values at load. They hold for the rest of the run (a gate's every match), so START-MATCH names each one that
 differs (DEBUG-KNOBS-LINE): a debug command never changes a later match silently (REFACTOR_2026-11 R10 item 15, R11).")
 (defun debug-knobs-line ()
@@ -368,20 +364,6 @@ differs (DEBUG-KNOBS-LINE): a debug command never changes a later match silently
   (let ((changed (loop for (s . v) in *debug-knobs* unless (eql (symbol-value s) v) collect (list s (symbol-value s) v))))
     (when changed
       (log-msg "duel match knobs:~:{ ~a ~a (written ~a)~}" changed))))
-
-(defun scale-k-links (pct)
-  "Debug 26000+k: every K link entered mid-wind-up (a :flash move with :enter: K2, K3 and their copies) of every kit
-deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6, without a rebuild)."
-  (maphash (lambda (c forms)
-             (declare (ignore c))
-             (loop for (nil . kit) in forms
-                   do (maphash (lambda (n m)
-                                 (declare (ignore n))
-                                 (when (and (eq (mv-kind m) :flash) (plusp (mv-enter m)))
-                                   (loop for w across (mv-hits m) do (setf (hw-dmg w) (round (* (mv-dmg m) pct) 100)))))
-                               (kit-moves kit))))
-           *kits*)
-  (setf *k-link-pct* pct))
 
 (defun force-form (e form)
   (set-form e form)
@@ -546,7 +528,6 @@ engine/lisp/debug-ranges.lisp; a command no range claims does nothing)."
 (define-debug-range (81020 81022) (c) (setf *gate-difficulty* (nth (- c 81020) '(:easy :normal :hard))))
 (define-debug-range (22000 22999) (c) (setf *gg-regen* (/ (- c 22000) 10.0)))
 (define-debug-range (23000 23999) (c) (setf *gg-regen-guardless* (/ (- c 23000) 10.0)))
-(define-debug-range (26000 26999) (c) (scale-k-links (- c 26000)))
 (define-debug-range (30000 30999) (c) (setf *gate-seed0* (- c 30000)))
 (define-debug-range (31101 31199) (c) (setf *gate-seeds* (- c 31100)))
 (define-debug-range (2510 2512) (c) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth)
