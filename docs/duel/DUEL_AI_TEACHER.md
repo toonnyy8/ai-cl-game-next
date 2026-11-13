@@ -75,7 +75,9 @@ the answers in the session of 2026-11-07).
 
 - `engine/lisp/snapshot.lisp` (the walker; engine roots: the ECS stores and bookkeeping, `*hitstop*` / `*tick*` / `*slowmo*`, `*cine*`; the
   C sim RNG), `duel/lisp/sim-state.lisp` (the shared types, the game's roots, `sim-snapshot-ok-p`, `sim-rollout`), `*log-mute*` in the
-  engine's `log-msg` (a rollout prints nothing), `tools/simgate/snaptest.lisp` (the pollution test).
+  engine's `log-msg` (a rollout prints nothing), `tools/simgate/snaptest.lisp` (the pollution test). (Since 2026-11-13, REFACTOR_2026-11
+  R12: `sim-rollout` binds through `rollout.lisp`'s `with-rollout`, as `mc-full-rollout` does, and runs `sim-step-lean`: no feedback inside
+  a rollout, the same sim end state.)
 - The struct slot count is read in C (`instance.length`): compiled, `si:instancep` is only a predicate.
 - **What the test found**: only one missing piece, the cinematic's start-up state. A rollout ends in the step that starts a cinematic,
   and that step already set `*cine-placed*` / `*cine-placed-e*` (where CINE-END gives the actors back): after the restore, the next

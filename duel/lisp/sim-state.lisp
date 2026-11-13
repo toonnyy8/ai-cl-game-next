@@ -27,13 +27,14 @@
   (and (eq *flow* :battle) (not *cine*) (not *paused*)))
 
 (defun sim-rollout (steps)
-  "Run up to STEPS sim steps as a search's rollout: every log off, cinematics skipped (*SKIP-CINES*: one ends at once with its AFTER,
-so a Kikon's Konpaku is settled and the rollout goes on), stopping when the flow leaves the battle. Returns the steps run. The caller
-restores the snapshot it took before."
+  "Run up to STEPS sim steps as a search's rollout (WITH-ROLLOUT: every log off, cinematics skipped, so a Kikon's Konpaku is settled and
+the rollout goes on), stopping when the flow leaves the battle. Returns the steps run. The caller restores the snapshot it took before.
+Lean steps, as MC-FULL-ROLLOUT's (no feedback, sound or stage marks inside a rollout: REFACTOR_2026-11 11.5.2 D, R12; the full SIM-STEP
+before, the same sim end state). Unlike MC-FULL-ROLLOUT it keeps the matchup styles (*CAI-STYLES*): the offline teacher's rollouts."
   (with-rollout ()
     (loop for i below steps
           while (and (eq *flow* :battle) (not *cine*))
-          do (sim-step)
+          do (sim-step-lean)
           finally (return i))))
 
 (defun sim-step-lean ()
