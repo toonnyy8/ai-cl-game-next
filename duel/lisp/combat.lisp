@@ -257,7 +257,9 @@ result (NIL = no effect)."
               (side-name def) res base)
         (when (and hazard (eq (contact-of res) :hit)) (setf (fighter-hz-hit fa) t))   ; (his move's :r-cancel-from; ponytail:
                                                         ;  any hazard of his counts, scope it to the spawning move if one needs)
-        (when (and own (not ranged) (not (member res '(:parried :kikon))))   ; KOSEI: his own blade touched him
+        (when (and own (not ranged) (not (member res '(:parried :kikon)))   ; KOSEI: his own blade touched him; an SP segment's
+                   (not (member (fighter-cls fa) '(:ns :as))))                ;  contact pays none (DUEL_SP §5; the user 2026-11-13:
+                                                                               ;  「NS 如果量表已歸 0 不足要被拒絕出招，但現在打中對手還是能強行接續」)
           (kosei! att (* (kosei-base (mv-kind mv) (getf (mv-params mv) :kosei))   ; its kind's points x the combo bonus
                          (combo-gain-mult (if (eq (contact-of res) :hit)            ;  (this hit's index; a block 1)
                                               (- (1+ (fighter-combo-hits fd)) (fighter-combo-from fd))

@@ -296,6 +296,20 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
 - **Q4** kept (+100 back per Kikon; watched at the playtest). **Q9** as the default (a blade that beats a wave removes it, no refund, no
   exchange; only a cancel refunds). **Q12** as the default (the Kikon follow-up's cancel is a cancel: +30, an exchange opens).
 - The other thirteen questions: the defaults above.
+- **A1 playtest (the user, 2026-11-13).** (1) 「設定上 NS 如果量表已歸 0 不足要被拒絕出招，但現在打中對手還是能強行接續」: the cause was KOSEI's flash-step
+  (by move kind, +2.4-2.9 a hit) on an NS segment's contact, lifting the gauge above 0 so the next segment passed `sp-start-p`; S2's check
+  only tried whiffs. Fixed at once (S3's §5 rule pulled forward for SP segments): an NS / AS segment's contact pays no KOSEI flash-step
+  (combat.lisp `apply-hit`); `tests/sp-costs-check.py` gained "at 0, NSa hits: NSb refused" for every route (86 checks); G2 regenerated.
+  (2) 「我覺得應該要出完招式再確認要不要扣量表，目前扣完又退回視覺上挺異常的，但這部份需要更多討論」: asked with three options (a reserve
+  shown on the gauge / pay at the move's end / pay at its verdict); the user chose **「預扣顯示」**: the rule stays (a segment reserves its
+  price at its start, so its scale is known and the reserve cannot be spent on a Hoho or a burst or stolen), the HUD draws the reserved part
+  as a dim reserve on the gauge while the segment runs, it fades at the segment's end, and on a cancel it turns back to lit ink with no drop
+  and refill. Presentation only (G2 unchanged); built in **S8** (the reserve = `sp-paid` while the fighter is in that NS / AS segment and
+  `sp-back` is not set: `sp-paid` stays on the fighter after a route, so the HUD must check the move and class).
+  (3) Hisagi's Bankai tip / spread-route bonuses (DUEL_HISAGI §25.5 / §25.11, x1.3 / x1.3 on the old Reiatsu "SP recovery", removed with it
+  by R6): asked whether §5's new ATK gains take them; the user: **「沿用 ×1.3」**: a tip hit's J / SA gain x1.3, a spread-route hit's x1.3,
+  both x1.69. Built in **S3** (a `:sp-gain-mult` hook beside `hs-dmg-mult`'s tip read; the knobs return as `*hs-r-tip-sp-mult*` /
+  `*hs-r-spread-sp-mult*` 1.3).
 - **Q18 (the main session, 2026-11-13, from REFACTOR_2026-11 §11.5.7 item 5): one named writer per gauge direction.** Every flash-step
   loss but the burst's own drain goes through `spend-fs` (the regen waits again): the SP payment, Hoho, the AS1 steal's and the
   breakthrough's victim side (today the steal writes the slot directly; under S1's regen cap and steal floor the idle reset changes

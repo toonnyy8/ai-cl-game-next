@@ -32,10 +32,10 @@ def trials():
     out = []
     for c, form, meter, routes, _ in KITS:
         for ptr, n, dist in routes:
-            for fs in (300, 30, 0):                               # (at 0: out of reach, two presses: no hit's KOSEI refills the gauge)
-                d, k = (12.0, 2) if fs == 0 else (dist, n)
+            for fs in (300, 30, 0, 'h0'):                         # (at 0: out of reach, two presses; h0: at 0 in reach, the NSa hits)
+                d, k = (12.0, 2) if fs == 0 else (dist, 2) if fs == 'h0' else (dist, n)
                 out.append(f'(:name "NS {c} {form} {ptr} fs{fs}" :p1 :{c} :form :{form} :meter {meter} :p2 :ichigo :ptr {ptr} '
-                           f':dist {d} :fs {fs} :script ({" ".join([SP] * k)}) :frames {60 + 60 * k})')
+                           f':dist {d} :fs {0 if fs == "h0" else fs} :script ({" ".join([SP] * k)}) :frames {60 + 60 * k})')
     # a full AS3 at 0 (Ichigo: J1-J5, then the three segments)
     j = '(:quick 1) ' + ' '.join(['(:quick 1 :on :hit)'] * 4)
     for fs in (300, 0):
@@ -104,12 +104,21 @@ def main():
                   f'NS {k} at 300: {n} segments paid in full, total {sum(s[2] for s in full):g} (§4 {total}) '
                   f'[{" ".join(f"{s[0].lower()} {s[2]:g}" for s in full)}]')
             low = sp(f'NS {k} fs30'); ref30 = [l for l in logs[f'NS {k} fs30'] if REF.search(l)]
-            check(low and low[0][1] == 30 and all(s[1] > 0 for s in low[1:]) and (len(low) == n or ref30),
+            # (a start at 0 after the refusal is a new route's NSa from neutral, at x0.5: NS1 can always be pressed, §3)
+            lines30 = logs[f'NS {k} fs30']; iref = next((i for i, l in enumerate(lines30) if REF.search(l)), len(lines30))
+            late0 = [l for l in lines30[:iref] if (m := SPL.search(l)) and m[1] == '1' and float(m[3]) == 0 and lines30.index(l) > 0]
+            check(low and low[0][1] == 30 and not late0 and all(s[3] == 0 and abs(s[4] - 0.5) < 0.001 for s in low if s[1] == 0)
+                  and (len(low) == n or ref30),
                   f'NS {k} at 30: ' + ', '.join(f'{s[0].lower()} fs {s[1]:g} paid {s[3]:g}/{s[2]:g} x{s[4]:.2f}' for s in low) +
                   (', next refused' if ref30 else ''))
             zero = sp(f'NS {k} fs0'); ref0 = [l for l in logs[f'NS {k} fs0'] if REF.search(l)]
             check(len(zero) == 1 and zero[0][3] == 0 and abs(zero[0][4] - 0.5) < 0.001 and len(ref0) == 1,
                   f'NS {k} at 0 (whiffed): NSa paid 0 x{zero[0][4]:.2f}' + (', NSb refused' if ref0 else ', NSb NOT refused'))
+            hz = sp(f'NS {k} fsh0'); refh = [l for l in logs[f'NS {k} fsh0'] if REF.search(l)]
+            hits = [l for l in logs[f'NS {k} fsh0'] if DEALT.search(l)]
+            check(len(hz) == 1 and hz[0][3] == 0 and len(refh) == 1,          # (the user 2026-11-13: a hit at 0 must not open NSb;
+                                                                                #  a wave / late hit may land after the second press)
+                  f'NS {k} at 0 (NSa hits, {len(hits)} hit(s)): ' + (', NSb refused' if refh else ', NSb NOT refused'))
     a0 = sp('AS3 ichigo base fs0')
     # (the J string's KOSEI, until S3, refills a little before the AS: every segment starts, the ones at 0 at x0.5)
     check(len(a0) == 3 and a0[-1][1] == 0 and all(abs(s[4] - 0.5) < 0.001 for s in a0 if s[1] == 0),
