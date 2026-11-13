@@ -5,8 +5,7 @@
 // index.js and index.wasm always come from the same build (a network-first index.html could pair a new page with an old
 // index.js / index.wasm until the reload).
 var VERSION = 'soulduel-@VERSION@';
-var FILES = ['./', 'index.html', 'index.js', 'index.wasm', 'pwa.js', 'manifest.webmanifest', 'manual.html',
-             'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+var FILES = @FILES@;   // build.sh: './' plus every file in the build's dist directory except sw.js
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION)
     .then(function (c) { return c.addAll(FILES.map(function (f) { return new Request(f, { cache: 'reload' }); })); })

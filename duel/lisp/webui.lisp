@@ -72,15 +72,22 @@ menus' back layer (the user, 2026-10-28: 「選角畫面現在會在廣場上畫
                       (ui-put (+ o 4) (round (gauges-konpaku g)))))))
            (side *p1* 22) (side *p2* 27)))))))
 
+(defun ui-press-cmd (cmd arg)
+  "The commands both pointer dispatchers share (menus: WEBUI-COMMAND, pause: WEBHUD-PAUSE-CMD): 1 the cursor to ARG, 2 confirm,
+4 left, 5 right. True when CMD was one of them."
+  (declare (fixnum cmd arg))
+  (case cmd
+    (1 (setf *menu* arg) t)
+    (2 (setf *ui-press* (logior *ui-press* 16)) t)
+    (4 (setf *ui-press* (logior *ui-press* 4)) t)
+    (5 (setf *ui-press* (logior *ui-press* 8)) t)))
+
 (defun webui-command (cmd arg)
   "One pointer command from the Lisp menus' queue, on this screen: 1 cursor, 2 confirm, 3 back,
 4 left, 5 right, 6 SELECT's pick, 7 a SETTINGS row's option, 8 CONTROLS' column."
-  (case cmd
-    (1 (setf *menu* arg))
-    (2 (setf *ui-press* (logior *ui-press* 16)))
+  (unless (ui-press-cmd cmd arg)
+   (case cmd
     (3 (setf *ui-press* (logior *ui-press* 32)))
-    (4 (setf *ui-press* (logior *ui-press* 4)))
-    (5 (setf *ui-press* (logior *ui-press* 8)))
     (6 (let ((c (nth arg *roster*)))
          (when (and c (< *select-phase* 2) (member c (playable-roster))
                     (not (eq c (nth (min 1 *select-phase*) *picks*))))
@@ -90,7 +97,7 @@ menus' back layer (the user, 2026-10-28: 「選角畫面現在會在廣場上畫
          (let ((row (nth r (settings-shown))))
            (when (and row (< o (length (third row))))
              (setf *menu* r) (play-sfx :select) (set-setting (first row) o)))))
-    (8 (when (and (< arg 4) (not *capture*)) (setf *bind-col* arg) (play-sfx :select)))))
+    (8 (when (and (< arg 4) (not *capture*)) (setf *bind-col* arg) (play-sfx :select))))))
 
 (defun webui-commands ()
   "This frame's pointer presses from the Lisp menus' queue (*UI-QUEUE*): SCREEN x 100000 + CMD x 1000 + ARG; one sent from another
