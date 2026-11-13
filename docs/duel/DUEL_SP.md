@@ -231,6 +231,17 @@ Each scene sets both gauges, places the fighters and prints a `duel sp t .. p1 f
 - **Q4** kept (+100 back per Kikon; watched at the playtest). **Q9** as the default (a blade that beats a wave removes it, no refund, no
   exchange; only a cancel refunds). **Q12** as the default (the Kikon follow-up's cancel is a cancel: +30, an exchange opens).
 - The other thirteen questions: the defaults above.
+- **Q18 (the main session, 2026-11-13, from REFACTOR_2026-11 §11.5.7 item 5): one named writer per gauge direction.** Every flash-step
+  loss but the burst's own drain goes through `spend-fs` (the regen waits again): the SP payment, Hoho, the AS1 steal's and the
+  breakthrough's victim side (today the steal writes the slot directly; under S1's regen cap and steal floor the idle reset changes
+  nothing for a victim left at or above the last cell). Every earned gain goes through `pay-gauges` (nothing during a burst, x the
+  SUBLIMATION bonus): §5's ATK gains (Q2), damage taken, KOSEI, the AS1 steal's and the breakthrough's attacker side (today the steal
+  bypasses both), and Q4's +100 Kikon bar (a flat gain, not a return of what was paid; today it bypasses both). A **refund** returns
+  exactly what a segment paid: a third writer `refund-fs` (cap `*fs-max*`, no SUBLIMATION factor, `fs-idle` untouched as Q1 says;
+  a segment started free in a burst paid nothing, so nothing returns). S1 moves the steal and the Kikon bar onto these paths (G2 moves
+  with S1 anyway); S2 adds `refund-fs`; S3 splits `pay-gauges`' pure core (`fs-gain`); S4's breakthrough uses the two writers.
+  Why: the principle's "mutation kept to named places"; a transfer that skipped the burst rule would refuel a burst, which §2's
+  "no gain of any kind during a burst" (`burst-fs-gain`) rules out.
 - Before cutting, R1 checks Kenpachi's arm meter (printed in the hash line, gate.lisp:20) and R6 checks Hisagi's reads of the Reiatsu
   gauge (hisagi.lisp:1354, 1378): only what nothing live consumes is removed.
 
