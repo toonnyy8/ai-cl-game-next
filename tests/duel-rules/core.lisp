@@ -288,6 +288,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (equal (multiple-value-list (kikon-result 2 2 nil)) '(0 2 t)))
 (check (equal (multiple-value-list (kikon-result 1 3 t)) '(0 1 t)))
 (check (and (soul-break-p 0) (not (soul-break-p 1))))
+;; the step's soul queues as SETTLE-SOULS takes them (BROKEN-SOULS; R15b): the order queued (the queues are pushed, newest
+;; first), a Kikon's victim without a Soul Break on top, the queues themselves untouched
+(check (equal (multiple-value-list (broken-souls nil nil)) '(nil nil)))
+(let ((kq (list (list :x :y :m2) (list :a :b :m1))) (sq (list (cons :b :a) (cons :a :b))))
+  (check (equal (multiple-value-list (broken-souls kq nil)) '(((:a :b :m1) (:x :y :m2)) nil)))
+  (check (equal (multiple-value-list (broken-souls nil sq)) '(nil ((:a . :b) (:b . :a)))))   ; a lethal trade: both, P1's first
+  (check (equal (multiple-value-list (broken-souls (list (list :a :b :m1)) sq)) '(((:a :b :m1)) ((:b . :a)))))   ; :b took the Kikon
+  (check (and (equal kq '((:x :y :m2) (:a :b :m1))) (equal sq '((:b . :a) (:a . :b))))))
 (check (eql (time-up-winner 3 100 1000 2 900 1000) 0))                   ; Konpaku first
 (check (eql (time-up-winner 2 900 1000 3 100 1000) 1))
 (check (eql (time-up-winner 2 600 1000 2 500 1000) 0))                   ; then Reishi %

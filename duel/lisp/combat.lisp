@@ -71,6 +71,18 @@ count (DEALT-REAL)."
 picks the cinematic); once per victim. (A bind's drained end queues its own: DUEL_HISAGI §17.3 B7.)"
   (unless (rassoc def *soul-breaks*) (push (cons att def) *soul-breaks*)))
 
+(defun queue-kikon! (att def mv)
+  "ATT's Kikon on DEF (move MV: its :cine and :callout) confirmed (APPLY-HIT), settled with the step's Soul Breaks
+(SETTLE-SOULS: in the order queued, the first picks the cinematic); once per victim."
+  (unless (find def *kikons* :key #'second) (push (list att def mv) *kikons*)))
+
+(defun take-broken-souls ()
+  "The step's two soul queues emptied for SETTLE-SOULS: BROKEN-SOULS of *KIKONS* and *SOUL-BREAKS* (values kikons
+soul-breaks), both queues set to NIL. Nothing else reads or clears them in the step."
+  (multiple-value-bind (kk sb) (broken-souls *kikons* *soul-breaks*)
+    (setf *kikons* nil *soul-breaks* nil)
+    (values kk sb)))
+
 (defun respect (e)
   "The opponent outplayed E (his counter-hit, perfect Hoho, parry or Burst against E): E's :respect-callout
 (Nozarashi: \"OMOSHIREE!\", a callout only: no meter)."
@@ -137,7 +149,7 @@ result (NIL = no effect)."
                       (not (and own (not hazard) mv (getf (mv-params mv) :dmg-at) (not fstrike))))))   ; hit: once its damage lands, DELAY-HIT)
     (when (eq outcome :kikon)
       (setf res :kikon)
-      (unless (find def *kikons* :key #'second) (push (list att def mv) *kikons*)))
+      (queue-kikon! att def mv))
     (when res
       (let ((first (and own (eq (contact-of res) :hit) (first-land-p (fighter-contact fa) (fighter-hits fa)))))   ; its first real hit
         (when own                                       ; only a real hit counts as one (CONTACT-OF)
@@ -348,7 +360,8 @@ wins (:hit): it flies on."
 
 (defun hit-system ()
   "Clash first; then collect every melee and hazard hit of this step; then apply them all; then
-settle the souls they broke (the bind's drained check first: BIND-STEP! :hits)."
+settle the souls they broke (the bind's drained check first: BIND-STEP! :hits), handed to round.lisp as values
+(TAKE-BROKEN-SOULS: a delayed hit's Soul Break, queued during HAZARD-SYSTEM, waits in *SOUL-BREAKS* until here)."
   (let ((a nil) (b nil))
     (do-entities (e (f fighter)) (if a (setf b e) (setf a e)))
     (when (and a b)
@@ -357,7 +370,7 @@ settle the souls they broke (the bind's drained check first: BIND-STEP! :hits)."
           (clash! a b))))
     (hit-apply)
     (bind-step! a :hits))
-  (settle-souls))
+  (multiple-value-bind (kk sb) (take-broken-souls) (settle-souls kk sb)))
 
 (defun hit-apply ()
   "Every hit of this step (HIT-SYSTEM): Nozarashi's cuts, then the melee and hazard hits collected, then applied together."

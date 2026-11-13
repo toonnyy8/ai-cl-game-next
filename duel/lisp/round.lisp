@@ -1,5 +1,5 @@
 ;;;; round.lisp — the round's end (split from combat.lisp, 2026-11-14, REFACTOR_2026-11 R15b): the souls the step's hits broke
-;;;; (*KIKONS*, *SOUL-BREAKS*: combat.lisp) settled together at connect time (SETTLE-KONPAKU, SETTLE-SOULS; cinema.lisp only
+;;;; (handed over as values by combat.lisp TAKE-BROKEN-SOULS) settled together at connect time (SETTLE-KONPAKU, SETTLE-SOULS; cinema.lisp only
 ;;;; presents them), then the reset (RESET-ROUND) or the finish (flow.lisp MATCH-OVER).
 (in-package :duel)
 
@@ -41,35 +41,31 @@ Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the 
             (fighter-form (fighter att)))
       (and ko (not bound)))))
 
-(defun settle-souls ()
-  "The souls broken during this step's HIT-SYSTEM, settled together so no side goes first: every
-confirmed Kikon (*KIKONS*: the Kikon count) and every Reishi that reached 0 (*SOUL-BREAKS*: the
-count + 1; a Kikon's victim has no Soul Break on top, the Kikon refills his Reishi). Then one
+(defun settle-souls (kk sb)
+  "The souls broken during this step, settled together so no side goes first: KK every confirmed Kikon ((attacker victim
+move), the Kikon count) and SB every Reishi that reached 0 ((attacker . victim), the count + 1; a Kikon's victim has no Soul
+Break on top, the Kikon refills his Reishi), both in the order queued (combat.lisp TAKE-BROKEN-SOULS). Then one
 cinematic (the first Kikon's move :cine, else the first Soul Break's attacker's Kikon cinematic: KIT-KIKON-CINE),
 then the reset, or the finish (a draw when both souls ran out). The hazards still out are cleared first: the reset clears them anyway,
 and frozen through the cinematic their looks would hang in its shots."
-  (let* ((kk (reverse *kikons*))
-         (sb (and *soul-breaks*                     ; (a loop, not REMOVE-IF's closure: no consing on a quiet step)
-                  (loop for s in (reverse *soul-breaks*) unless (find (cdr s) kk :key #'second) collect s))))
-    (setf *kikons* nil *soul-breaks* nil)
-    (when (or kk sb)
-      (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
-      (dolist (att (remove-duplicates (append (mapcar #'first kk) (mapcar #'car sb))))   ; a Kikon that connected, or
-        (pay-gauges att *kikon-fs-refund*))              ; a Soul Break (the user 2026-09-30): a flash-step bar back (Q18: a gain)
-      (let ((kos (append (loop for (att def nil) in kk when (settle-konpaku att def nil) collect def)
-                         (loop for (att . def) in sb when (settle-konpaku att def t) collect def)))
-            (a (if kk (first (first kk)) (car (first sb))))
-            (v (if kk (second (first kk)) (cdr (first sb)))))
-        (loop for (att def mv) in kk
-              do (when (mv-callout mv) (callout att (mv-callout mv)))
-                 (emit :kikon att def))
-        (loop for (att . def) in sb do (emit :soul-break att def))
-        (clear-hazards)
-        (cine-stage a v)                                ; (both set down mid-stage for its shots, given back at its end)
-        (start-cine (if kk (or (mv-cine (third (first kk))) (core-kikon-cine a) (kit-kikon-cine (kit-of a))) (core-soul-break-cine a)) a v
-                    :after (lambda () (cond ((null kos) (reset-round a v))
-                                            ((rest kos) (match-over nil))
-                                            (t (match-over (opp-of (first kos)))))))))))
+  (when (or kk sb)
+    (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
+    (dolist (att (remove-duplicates (append (mapcar #'first kk) (mapcar #'car sb))))   ; a Kikon that connected, or
+      (pay-gauges att *kikon-fs-refund*))              ; a Soul Break (the user 2026-09-30): a flash-step bar back (Q18: a gain)
+    (let ((kos (append (loop for (att def nil) in kk when (settle-konpaku att def nil) collect def)
+                       (loop for (att . def) in sb when (settle-konpaku att def t) collect def)))
+          (a (if kk (first (first kk)) (car (first sb))))
+          (v (if kk (second (first kk)) (cdr (first sb)))))
+      (loop for (att def mv) in kk
+            do (when (mv-callout mv) (callout att (mv-callout mv)))
+               (emit :kikon att def))
+      (loop for (att . def) in sb do (emit :soul-break att def))
+      (clear-hazards)
+      (cine-stage a v)                                ; (both set down mid-stage for its shots, given back at its end)
+      (start-cine (if kk (or (mv-cine (third (first kk))) (core-kikon-cine a) (kit-kikon-cine (kit-of a))) (core-soul-break-cine a)) a v
+                  :after (lambda () (cond ((null kos) (reset-round a v))
+                                          ((rest kos) (match-over nil))
+                                          (t (match-over (opp-of (first kos))))))))))
 
 (defun reset-round (a v)
   "After a Kikon / Soul Break (§1): both placed *RESET-DISTANCE* apart facing, *RESET-NEUTRAL* frames
