@@ -36,7 +36,7 @@ to the arena's wall."
   "The active strategy's :HOLD-AWAKEN H (DUEL_AI_STRATEGY §8.19 round 4; the user, 2026-11-09: 「試「延後覺醒」」): the CPU keeps from awakening
 while its SUBLIMATION is below H of its maximum (it fills once the awakening gauge is full), so the Shikai's DRIVE switch has a gauge to spend.
 No :HOLD-AWAKEN (every shipped strategy) or no active strategy (a human): NIL."
-  (let ((h (strat-out :hold-awaken nil)))
+  (let ((h (strat-out (let ((b (brain e))) (and b (brain-now b))) :hold-awaken nil)))
     (and h (< (/ (gauges-sub (gauges e)) *sub-max*) h))))
 
 (defvar *strat-judge-hook* nil

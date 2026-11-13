@@ -130,10 +130,6 @@ opponent's answer delay (frames), 5 / 6 the chances (per mille) an NS goes on to
   "The tree's second level: the opponent's reply to each root action by its own UCB (he answers with his best response), else his first
 pick is the policy's. (A decoupled bandit at the root, the replies blind to the root action, won HARD 5-6 of 40 against the matchup style
 CPUs where this tree ...: §9.)")
-(defparameter *mc-select* :tree   ; (bound per decision from *MC-SELECT-BY*, cpu-mcts.lisp)
-  "How a search picks the two sides' first actions: :TREE (my action by UCB, then his reply to it by its own UCB: a 10 x 10 second level),
-:DUCT (decoupled UCT: one UCB per side over its own actions, blind to the other's: 10 + 10 statistics). (Regret matching and a deeper
-event-driven tree were tried and dropped: DUEL_AI_MCTS §5-§6.)")
 (defparameter *mc-opp-delay* '(:easy 20 :normal 14 :hard 8)
   "Frames a free opponent takes to answer (his reply starts then), by the searcher's difficulty: what it expects of him (the CPUs' own
 perception delays, *AI-DELAY*).")
@@ -299,10 +295,13 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
 ;;; ---------------------------------------------------------------- the search
 (defvar *mc-sqrt* (let ((v (mc-fv 4096))) (dotimes (i 4096 v) (setf (aref v i) (isqrt i)))) "ISQRT 0-4095 (UCB in fixnums: no float boxing).")
 
-(defun mc-search (iters)
+(defun mc-search (iters select)
   "ITERS rollouts down a two-level tree: side 0's action A by UCB over *MC-LEGAL* (its value), then the opponent's reply B to A by UCB over
 *MC-LEGAL2* (minus that value) when *MC-OPP-SEARCH*, else his policy's first pick; a rollout below. *MC-N* / *MC-SUM* per action of side 0.
-UCB in milli-units and fixnums: mean + C x isqrt(N + 1) / (1 + n)."
+UCB in milli-units and fixnums: mean + C x isqrt(N + 1) / (1 + n). SELECT, how the two sides' first actions are picked (the caller's,
+cpu-mcts.lisp *MC-SELECT-BY*; the special *MC-SELECT* until 2026-11-13, REFACTOR_2026-11 R12): :TREE (my action by UCB, then his reply to
+it by its own UCB: a 10 x 10 second level), :DUCT (decoupled UCT: one UCB per side over its own actions, blind to the other's: 10 + 10
+statistics). (Regret matching and a deeper event-driven tree were tried and dropped: DUEL_AI_MCTS §5-§6.)"
   (declare (fixnum iters) (optimize (speed 3) (safety 0)))
   (let ((n *mc-n*) (sum *mc-sum*) (legal *mc-legal*) (n2 *mc-n2*) (sum2 *mc-sum2*) (legal2 *mc-legal2*) (sq *mc-sqrt*)
         (c (round (* 1000 *mc-ucb-c*))) (opp *mc-opp-search*))
@@ -320,7 +319,7 @@ UCB in milli-units and fixnums: mean + C x isqrt(N + 1) / (1 + n)."
                           (declare (fixnum k s))
                           (when (> s bs) (setf bs s best a)))))
                     best)))
-      (case *mc-select*
+      (case select
         (:duct                                                  ; one bandit per side, his blind to mine
          (dotimes (it iters)
            (let* ((a (ucb n sum legal 1 0 it)) (b (if opp (ucb n2 sum2 legal2 -1 0 it) -1)))

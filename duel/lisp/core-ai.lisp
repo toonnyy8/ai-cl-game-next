@@ -42,8 +42,8 @@
   "RULES' chance (fuzzy.lisp) at brain B's difficulty for the cue plist FEATS (KIND :SKILL or :CHOICE), times the active strategy's scale
 for it (strategy.lisp: :HOHO :TURN :CONT :KIKON)."
   (let ((p (fz-chance rules feats (brain-difficulty b) kind)))
-    (if *strat-now*
-        (strat-scale (cond ((eq rules *fz-hoho*) :hoho) ((or (eq rules *fz-as-now*) (eq rules *fz-ns-turn*)) :turn)
+    (if (brain-now b)
+        (strat-scale (brain-now b) (cond ((eq rules *fz-hoho*) :hoho) ((or (eq rules *fz-as-now*) (eq rules *fz-ns-turn*)) :turn)
                            ((eq rules *fz-ns-cont*) :cont) ((eq rules *fz-kikon*) :kikon) (t :other))
                      p)
         p)))
@@ -90,11 +90,11 @@ check of CORE-SWITCH-OPEN-P; the sim's legality reads only the vpad and the gaug
   (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to)
   (cai-switch-count f))
 
-(defun cai-switch-target (e f kit d)
+(defun cai-switch-target (e b f kit d)
   "The pointer the active strategy's switch goes to from F's (E's) NS gap at distance D (its :DSWITCH-MAP for his form and pointer, else
 STRAT-SWITCH-TO's band rule), or NIL."
   (let* ((n (length (getf (kit-core kit) :ns)))
-         (row (find-if (lambda (r) (and (eq (first r) (fighter-form f)) (eql (second r) (fighter-ptr f)))) (getf (car *strat-now*) :dswitch-map))))
+         (row (find-if (lambda (r) (and (eq (first r) (fighter-form f)) (eql (second r) (fighter-ptr f)))) (getf (car (brain-now b)) :dswitch-map))))
     (strat-switch-to (fighter-ptr f) n d
                      (loop for p from 1 to n collect (let ((mv (kit-core-move kit :ns p))) (and mv (list (mv-min-reach mv e) (+ (strat-reach mv) *cai-dswitch-slack*)))))
                      (third row))))
@@ -102,9 +102,9 @@ STRAT-SWITCH-TO's band rule), or NIL."
 (defun cai-dswitch (e b f kit)
   "In an NS segment's gap (once per segment, CAI-MOVE-STEP): the active strategy's :DSWITCH, one roll when the switch is open and a target
 reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
-  (let ((p (strat-out :dswitch nil)))
+  (let ((p (strat-out (brain-now b) :dswitch nil)))
     (when (and p (plusp p) (core-switch-open-p e f))
-      (let ((to (cai-switch-target e f kit (fighter-dist f))))
+      (let ((to (cai-switch-target e b f kit (fighter-dist f))))
         (when (and to (< (sim-rnd01) (* p (brain-chance b *cai-dswitch-dif*))))
           (cai-switch-press e b f to)
           t)))))
@@ -165,7 +165,7 @@ the press's own roll). No next segment: NIL."
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
   (let* ((vp (pilot-vpad (pilot e)))
          (nr (nth (1- (max 1 (min *core-pointer-max* (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
-         (rg (getf (kit-core kit) :range *cai-range*)) (sc (strat-out :range nil))   ; (a strategy's range scale)
+         (rg (getf (kit-core kit) :range *cai-range*)) (sc (strat-out (brain-now b) :range nil))   ; (a strategy's range scale)
          (lo (if sc (* sc (first rg)) (first rg))) (hi (if sc (* sc (second rg)) (second rg))))
     (when (<= (decf (brain-strafe-t b)) 0) (ai-strafe e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-ready-p e)
@@ -177,14 +177,14 @@ the press's own roll). No next segment: NIL."
              (when (<= (decf (brain-decide-t b)) 0)
                (setf (brain-decide-t b) (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01)))))
                (cond ((> d 7.0) (ai-dash b 1 4.5))
-                     ((and (gauges-awakened-ok-p e) (< (sim-rnd01) (strat-scale :awaken *cai-awaken-p*))) (ai-press b :awaken 1 :modded t))
+                     ((and (gauges-awakened-ok-p e) (< (sim-rnd01) (strat-scale (brain-now b) :awaken *cai-awaken-p*))) (ai-press b :awaken 1 :modded t))
                      ((and nr (> d (+ hi 0.6)) (<= (first nr) d (second nr)) (< (sim-rnd01) *cai-ranged-p*))   ; a shot from where he would walk in
                       (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0 (brain-decide-t b) *cai-ranged-gap*)
                       (cai-sp b f s))
                      ((<= d (+ hi 0.6))
                       (setf (brain-own-key b) -1)
                       (let ((roll (sim-rnd01)) (ns (kit-core-move kit :ns (fighter-ptr f))))
-                        (if (and ns (< roll (strat-out :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
+                        (if (and ns (< roll (strat-out (brain-now b) :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                             (progn (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
                             (cai-press b :quick 1))))))))))
 
@@ -213,7 +213,8 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
                               (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b))))
                      (brain-strat b)))
             (ev (and sw (getf sw :fq) (strat-event-step b s sw)))       ; (the event layer: its arm over the table's pick)
-            (*strat-now* (let ((st (or ev cur))) (and st (cons st (strat-feats e f s d))))))   ; (its strategy, DUEL_AI_STRATEGY)
+            (now (let ((st (or ev cur))) (and st (cons st (strat-feats e f s d))))))   ; (its strategy, DUEL_AI_STRATEGY)
+      (setf (brain-now b) now)                                             ; (read by STRAT-OUT's callers this step; NIL again below)
       (vpad-stick! vp 0f0 0f0)
       (ai-event-rolls b s)
       (if (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
@@ -226,7 +227,7 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
         (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
-              ((let ((fn (and *strat-now* (getf (car *strat-now*) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
+              ((let ((fn (and now (getf (car now) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
                  (and fn (if ev (strat-event-call fn e b f kit s d) (funcall fn e b f kit s d)))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)
               ((let ((st (and (not (strat-layer-p f)) (not cur) (not ev) (cai-style-fn f)))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI; under the strategy layer only as its strategy; not while a strategy is active: a composite's sub, the lookup's)
@@ -245,7 +246,8 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
                     (when (and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                       (setf (brain-burst-rolled b) t)
                       (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
-                             (cai-press b :awaken 1))))))))))
+                             (cai-press b :awaken 1))))))))
+      (setf (brain-now b) nil)))                                         ; (its step is over: a step-end snapshot holds NIL, as the special did)
     (setf (brain-was b) (fighter-state f))
     (loop for a across *vpad-actions*
           do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))

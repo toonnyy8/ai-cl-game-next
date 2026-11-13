@@ -143,8 +143,8 @@ generic CPU in turn (K mod 3)."
               do (progv (loop for (v nil) on vars by #'cddr collect v) (loop for (nil x) on vars by #'cddr collect x)   ; lines lite, lite1 ...)
                    (format t "lite~[~:;~:*~d~]~{ ~,3f~}~%" k
                            (if (mc-setup e f (fighter-kit f) sn (fighter-dist f) (brain-difficulty (brain e)))
-                               (let ((*mc-select* (getf *mc-select-by* (brain-difficulty (brain e)) :tree)))
-                                 (mc-seed seed0) (mc-search *teach-lite*) (loop for a below 10 collect (or (mc-mean a) -9.0)))
+                               (progn (mc-seed seed0) (mc-search *teach-lite* (getf *mc-select-by* (brain-difficulty (brain e)) :tree))
+                                      (loop for a below 10 collect (or (mc-mean a) -9.0)))
                                (make-list 10 :initial-element -9.0)))))))))
 (defparameter *teach-lite-variants* (let ((v (ext:getenv "TEACH_LITE_VARIANTS"))) (and v (read-from-string v))))
 (defparameter *teach-dump* (let ((f (ext:getenv "TEACH_DUMP"))) (and f (open f :direction :output :if-exists :supersede))))

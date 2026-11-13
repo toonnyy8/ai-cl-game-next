@@ -45,15 +45,14 @@ of the next, then the other pointers (cyclic) whose opener does; BANDS = a (lo h
   "The stick's strafe sign that switches pointer PTR (of N) to TO: +1 the next (cyclic), -1 the previous (CORE-SWITCH-TARGET)."
   (if (= to (1+ (mod ptr n))) 1 -1))
 
-(defvar *strat-now* nil "While a core CPU with a strategy steps: (strategy . its cue plist this step) (CORE-BRAIN-STEP), else NIL.")
+(defun strat-out (now key default)
+  "The active strategy's KEY now, or DEFAULT (no strategy, or it leaves KEY alone). NOW: (strategy . its cue plist this step), the brain's
+NOW slot while its core CPU steps (CORE-BRAIN-STEP; was the special *STRAT-NOW* until 2026-11-13, REFACTOR_2026-11 R12), or NIL."
+  (or (and now (strat-value (car now) key (cdr now))) default))
 
-(defun strat-out (key default)
-  "The active strategy's KEY now, or DEFAULT (no strategy, or it leaves KEY alone)."
-  (or (and *strat-now* (strat-value (car *strat-now*) key (cdr *strat-now*))) default))
-
-(defun strat-scale (key p)
-  "Chance P times the active strategy's scale KEY (none: P), kept within 0-1."
-  (let ((k (and *strat-now* (strat-value (car *strat-now*) key (cdr *strat-now*)))))
+(defun strat-scale (now key p)
+  "Chance P times the active strategy's scale KEY (none: P), kept within 0-1. NOW as STRAT-OUT's."
+  (let ((k (and now (strat-value (car now) key (cdr now)))))
     (if k (max 0.0 (min 1.0 (* p k))) p)))
 
 ;;; A composite (DUEL_AI_STRATEGY §8.7): (:ID id :SWITCH ((OWN . STRATEGY) ...) [:ELSE STRATEGY]). OWN = a list of antecedents (OR = the maximum

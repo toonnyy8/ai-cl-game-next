@@ -44,7 +44,7 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
     (when (or (null st) (not (khs-p st)) (< *match-tick* (kks-tick st)))
       (setf st (make-khs) (brain-style b) st))
     (cond ((khf-bait-step e b f s d st) (setf (kks-tick st) *match-tick*) t)
-          ((khs-bait st) (let ((*kk-meaty-p* '(:easy 0.0 :normal 0.0 :hard 0.0))) (ken-ki-style e b f kit s d)))
+          ((khs-bait st) (ken-ki-style e b f kit s d :meaty '(:easy 0.0 :normal 0.0 :hard 0.0)))   ; (no meaty roll while the bait holds)
           (t (ken-ki-style e b f kit s d)))))
 
 ;;; ---------------------------------------------------------------- the stand-off breaker (KEN-KH-STANDOFF-STYLE, §8.19 round 5, step 6)
@@ -92,5 +92,4 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
           (t (unless (kso-so-on st)
                (setf (kso-so-on st) t (kks-appr st) nil)            ; (the approach's Hoho-safety roll is made again)
                (clog "~a kh stand-off breaker at ~,1f" (side-name e) d))
-             (let ((*kk-ns-safe-p* '(:easy 0.0 :normal 0.0 :hard 0.0)))
-               (ken-ki-style e b f kit s d))))))
+             (ken-ki-style e b f kit s d :safe '(:easy 0.0 :normal 0.0 :hard 0.0))))))   ; (the Hoho-safety discipline off)

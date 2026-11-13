@@ -204,6 +204,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs
   (strat nil)                           ; its strategy (strategy.lisp, DUEL_AI_STRATEGY): NIL plays as before
+  (now nil)                             ; while its core CPU steps: (the active strategy . its cues this step) (CORE-BRAIN-STEP, STRAT-OUT), else NIL
   (sw-sub nil) (sw-t -1 :type fixnum)  ; a composite strategy (strategy.lisp :SWITCH): the active sub (NIL: none), the tick it was judged
   (sw-n 0 :type fixnum) (sw-won nil)   ; ... judgements made, and per :SWITCH entry the ones it won (a vector, made at the first)
   (sw-fn nil)                          ; ... the style function that owns STYLE's state (another one taking over starts afresh)

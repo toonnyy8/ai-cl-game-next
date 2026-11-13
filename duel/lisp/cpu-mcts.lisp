@@ -14,7 +14,7 @@
 (defparameter *mc-tau* '(:easy 0.05 :normal 0.03 :hard 0.015) "Softmax temperature per difficulty (value units: Konpaku), the teacher's.")
 (defparameter *mc-budget* '(:easy 0.10 :normal 0.05 :hard 0.02) "Mistake budget per difficulty: actions worse than the best by more are never drawn.")
 (defparameter *mc-select-by* '(:easy :tree :normal :tree :hard :duct)
-  "The search's selection per difficulty (*MC-SELECT*). 80 IK seeds each, the MCTS side's wins, tree / decoupled UCT / regret matching
+  "The search's selection per difficulty (MC-SEARCH's SELECT). 80 IK seeds each, the MCTS side's wins, tree / decoupled UCT / regret matching
 (the user asked why not DUCT or SM-MCTS with EXP3 / regret matching, 2026-11-08): Kenpachi HARD 51 / 63 / 53 (his CPU under it 60),
 Kenpachi NORMAL 76 / 71 / 71, Ichigo NORMAL 64 / 59 / 51, Hisagi NORMAL (HK) 13 / 5 / 11 (DUEL_AI_MCTS §5).")
 (defparameter *mc-far* 7.0 "Beyond this (m) the generic CPU closes in (its run), as before.")
@@ -113,10 +113,10 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
 (defvar *mc-next* (mc-fv 2) "Per side, the match tick before which a search that deferred (*MC-SURE*) is not run again (sim state: sim-state.lisp).")
 (defparameter *mc-defer-gap* 6 "Steps after a deferral before the next search (the CPU under it walks without a press: a search a step otherwise).")
 
-(defun mc-est (a)
-  "Root action A's light estimate plus the active strategy's bias for it (strategy.lisp :B-...; none: the estimate), or NIL."
+(defun mc-est (now a)
+  "Root action A's light estimate plus the active strategy's bias for it (strategy.lisp :B-...; NOW: the brain's, none: the estimate), or NIL."
   (let ((m (mc-mean a)) (k (svref *strat-bias-keys* a)))
-    (if (and m *strat-now* k) (+ m (strat-out k 0)) m)))
+    (if (and m now k) (+ m (strat-out now k 0)) m)))
 
 (defun mc-neutral (e b f kit s d)
   "The MCTS neutral: T when it pressed (see the file header)."
@@ -127,20 +127,20 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
              (not (member (list (fighter-character f) (brain-difficulty b)) *mc-off-at* :test #'equal))
              (not (< *match-tick* (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap* 1))) (<= d *mc-far*) (not (gauges-awakened-ok-p e)) (mc-setup e f kit s d (brain-difficulty b)))
     (mc-seed (logxor (sim-rnd-state) (+ (* 7919 *match-tick*) (fighter-side f) 1)))   ; (its own stream: the sim's is only read)
-    (let ((*mc-select* (getf *mc-select-by* (brain-difficulty b) :tree)))
-      (mc-search (if *mc-full* (getf *mc-full-lite* (brain-difficulty b) 16) (getf *mc-iters* (brain-difficulty b) 96))))
+    (mc-search (if *mc-full* (getf *mc-full-lite* (brain-difficulty b) 16) (getf *mc-iters* (brain-difficulty b) 96))
+               (getf *mc-select-by* (brain-difficulty b) :tree))
     (let* ((dif (brain-difficulty b)) (tau (getf *mc-tau* dif 0.03))
-           (best (loop for a below 10 for m = (mc-est a) when m maximize m))
-           (second (loop for a below 10 for m = (mc-est a) when (and m (< m best)) maximize m))
+           (best (loop for a below 10 for m = (mc-est (brain-now b) a) when m maximize m))
+           (second (loop for a below 10 for m = (mc-est (brain-now b) a) when (and m (< m best)) maximize m))
            (lo (- best (getf *mc-budget* dif 0.05))) (ws *mc-ws*) (tot 0.0))
       (when (and second (< (- best second) (getf *mc-sure* dif 0.0)))   ; not decided enough: the CPU under it decides
         (setf (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap*))
         (return-from mc-neutral nil))
       (when *mc-full* (return-from mc-neutral (mc-full-request e b f)))
       (dotimes (a 10)
-        (let ((m (mc-est a))) (setf (aref ws a) (if (and m (>= m lo)) (exp (/ (- m lo) tau)) 0f0)) (incf tot (aref ws a))))
+        (let ((m (mc-est (brain-now b) a))) (setf (aref ws a) (if (and m (>= m lo)) (exp (/ (- m lo) tau)) 0f0)) (incf tot (aref ws a))))
       (let ((r (* tot (sim-rnd01))))
-        (dotimes (a 10 (mc-press b (nth (loop for a below 10 when (eql (mc-est a) best) return a) *mc-actions*)))
+        (dotimes (a 10 (mc-press b (nth (loop for a below 10 when (eql (mc-est (brain-now b) a) best) return a) *mc-actions*)))
           (when (plusp (aref ws a))
             (decf r (aref ws a))
             (when (<= r 0) (mc-press b (nth a *mc-actions*)) (return)))))
@@ -151,7 +151,7 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
   "After the light search: the best two go to the full sim (a job), he holds for his reaction time. T (he pressed)."
   (let* ((side (fighter-side f)) (k (* 5 side)) (a1 -1) (a2 -1) (m1 0.0) (m2 0.0))
     (dotimes (a 10)
-      (let ((m (mc-est a)))
+      (let ((m (mc-est (brain-now b) a)))
         (when m
           (cond ((or (< a1 0) (> m m1)) (setf a2 a1 m2 m1 a1 a m1 m))
                 ((or (< a2 0) (> m m2)) (setf a2 a m2 m))))))
