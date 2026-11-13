@@ -8984,3 +8984,16 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 計畫由 Fable 擬稿；開跑前會和使用者確認評分方式、每輪預算與平行數（dream-rsi 的規定）。
 
 分工：主對話 Opus 5.5 記錄；計畫交給 Fable。
+
+## 757. 策略重新收集：計畫與使用者的三個決定（2026-11-14）
+
+使用者（AskUserQuestion）：「Fable's plan (Recommended)」、「NORMAL too」、「Keep it for now」
+
+- Fable 擬的計畫全文在 `docs/research/strategy-drsi/sp/PLAN.md`，摘要在 DUEL_AI_STRATEGY §11.1：每個對戰組合雙方各一個策略群體，同一輪裡各自對著對方凍結的群體搜尋（PSRO 簡化版）；dream-rsi 每格是一次子代理寫或改一個策略；評分只算 K.O. 勝（時間到算 0）；最後用新的模糊規則（加入雙方瞬步格數、爆氣中、相消後的空檔）擬合 Q table，時間到的終局獎勵雙方都是 -1。
+- 探測（SP 之後的 main、HARD）：雙方都用現在的策略表時 9 組有 8 組中位數 300 秒（時間到），II 20 場全平手；不用策略表時都能打完（168–272 秒）。`strategy-switch.py` 把時間到領先算成勝，新的評分只算 K.O.。
+- 決定一，規模照 Fable 的計畫：三個交叉組合 KI、KH、IH，最多約 144 次子代理呼叫（鏡像最多再 36 次，只在需要時跑），每組最多 2 輪，平行 4；先做完第一組檢查再做其他組。
+- 決定二，NORMAL 也用策略表：依難度縮放（EASY ≤ NORMAL ≤ HARD）。G2 跑 NORMAL，所以新表上線時要重產 `tests/style-cvc-ref.txt` 並更新所有引用；NORMAL 怎麼縮放在擬合那一步決定並記錄。
+- 決定三，現在的 HARD 策略表先保留，等新表取代。
+- 時程：M5 之後開始。
+
+分工：計畫由 Fable 擬稿（含探測）；主對話 Opus 5.5 問使用者、記錄。
