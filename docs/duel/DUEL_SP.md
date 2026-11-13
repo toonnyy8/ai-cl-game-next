@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S4, S6 and S8 built and merged (2026-11-13); S5 built (2026-11-13, branch); S7 built (2026-11-13, branch); S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S6 and S8 built and merged (2026-11-13); S7 built (2026-11-13, branch); S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -391,7 +391,9 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   documented fallback, the SA where it reaches. The plan's **"fs cells" fuzzy term was not added**: the refusals went to 0 without it.
   The decision reads the gauge when the segment comes out, and the latch starts the next one at its active end. In between the gauge can
   only rise (a refund, the regen's trickle after its 60 f wait), so the CPU may skip a segment that would have started, never the reverse
-  (a burst ending inside that window is the one exception; none happened in G2).
+  (a burst ending inside that window is the one exception; none happened in G2). Not covered: a neutral SP press (an NSa by intent)
+  inside a Hoho resume window starts the next segment instead (`hoho-resume!`), and no CPU gate reads that path. G2 never hit it (0
+  refusals); it waits for a case.
 - **The MCTS**: the full-sim rollouts (`cpu-mcts.lisp` `mc-full-rollout`) run `sim-step-lean`, the real sim, through the same
   `core-start!`, so they see costs, refusals and scaling for free. The light model ignores SP (DUEL_AI_MCTS §14).
 - **Tests**: host 2969 -> 2979 (`kit-sp-start-p` on IC-N1A / N1B / NS2's first at 0, 0.5, a burst; KE-Z-N3B the tame's catch at 0 / 20; an
@@ -403,7 +405,10 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   0 differ. mc-fidelity (light model, reported): DUEL_AI_MCTS §14.
 - **G2**: the CPU sides' `SP ... refused` lines, II / IK / KK: 67 / 44 / 15 on main 224608bb (S2's 28 / 19 / 1 were counted under S2's
   rules) -> **0 / 0 / 0**; held presses 67 / 32 / 18. A refused press was eaten anyway, so skipping it moves nothing. II and KK are
-  identical. IK moved only through `kk-link`'s SA fallback (`kk link SA` 1 -> 6): II 36 lines (P2 4-7, 356.7 s), IK 38 (P1 2-0, 374.3 s)
+  identical. In II each hold stands where main had a refusal (67 = 67). KK's three extra holds (KE-S-N2D x2, KE-S-N1B) are NOZARASHI segments
+  above the route's unlock level (`core-seg-ok-p`): the sim never latched those presses, so main logged nothing for them, and holding them
+  changes nothing either. IK moved only through `kk-link`'s SA fallback (`kk link SA` 1 -> 6). Proof: with that one clause ungated and every
+  other gate kept, IK's hash and RESULTS lines are identical to main's, with 5 refusals, all `kk-link`'s. II 36 lines (P2 4-7, 356.7 s), IK 38 (P1 2-0, 374.3 s)
   -> 40 (P1 3-2, 398.3 s), KK 38 (P1 1-0, 375.3 s). Nothing retuned, no balance gates. Native `--cvc`
   PASS on the regenerated reference.
 
