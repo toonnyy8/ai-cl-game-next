@@ -24,7 +24,7 @@ candidate and the other seat SPEC; without --vs-strat a mirror's other seat is t
 Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block, the opponent seat's
 strategy texts). At most 8 sim processes.
 """
-import argparse, json, math, os, re, sys, tempfile, time
+import argparse, json, math, os, re, sys, tempfile, threading, time
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW, row_win, row_ko
@@ -169,9 +169,10 @@ def run_job(c1, c2, comp, diff, seed0, n, opp=None):
     out = '\n'.join(l for l in r.stdout.splitlines() if l.startswith(KEEP))
     if not re.search(r'duel gate row ', out) or len(re.findall(r'duel gate row ', out)) != n:
         sys.exit(f'strategy-switch: expected {n} gate rows, got {len(re.findall("duel gate row ", out))}\n' + (r.stdout + r.stderr)[-2000:])
-    with open(path + '.tmp', 'w') as f:
+    tmp = f'{path}.{os.getpid()}.{threading.get_ident()}.tmp'   # (two identical jobs at once, parallel dream-rsi cells: no shared temp file)
+    with open(tmp, 'w') as f:
         f.write(out + '\n')
-    os.replace(path + '.tmp', path)
+    os.replace(tmp, path)
     return out
 
 
