@@ -818,3 +818,19 @@ def practice_fs_script(first=2800):
     return sorted(ev, key=lambda x: x["at"])
 write("practice-fs", practice_fs_script())
 write("practice-fs-phone", practice_fs_script(2506))
+
+# the plates' red Konpaku hint follows the pointer (REFACTOR_2026-11 R15d, 2026-11-14): human P1 Ichigo vs Kenpachi's idle CPU (2500),
+# P1's pointer 1 / 2 / 3 (2510-2512), then P2 red (2314: P2 at 200 Reishi): a `webhud stake P1 a P2 b ...` line each (2515).
+# P2's plate shows what P1's Kikon would take: base 2 -> 1 / 2 / 1, red 1 / 3 / 1 (was 2 for all six before R15d);
+# P1's (Kenpachi on pointer 1): 1.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --script tests/scripts/duel-stake.json
+def stake_script():
+    ev, t = [cmd(T0, 2500)], T0 + 1.0
+    for red in (False, True):
+        if red: ev.append(cmd(t, 2314)); t += 0.2
+        for p in (2510, 2511, 2512):
+            ev += [cmd(t, p), cmd(t + 0.1, 2515)]
+            t += 0.3
+    ev.append({"at": round(t + 0.5, 2), "eval": "console.log('=== END')"})
+    return ev
+write("stake", stake_script())

@@ -483,6 +483,6 @@ went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
 when its SP struck, a Soul Break CORE-SOUL-BREAK-COUNT in the style of the SP in play (the pointer, else the SP that killed him: the
 attacker's current pointer)."
   (let* ((f (fighter att)) (base (kit-kikon-konpaku (fighter-kit f)))
-         (ptr (if (member (fighter-cls f) '(:ns :as)) (fighter-sp-ptr f) (fighter-ptr f)))
+         (ptr (core-kikon-ptr (fighter-cls f) (fighter-sp-ptr f) (fighter-ptr f)))
          (lost (min konpaku (if soul-break (core-soul-break-count base ptr) (fighter-kikon-n f)))))
     (values (- konpaku lost) lost (<= (- konpaku lost) 0))))

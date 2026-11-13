@@ -6,7 +6,7 @@
 ;;; ---------------------------------------------------------------- Kikon, Soul Break, reset
 (defun kikon-worth (e)
   "Konpaku E's Kikon would take now: a running rush's worth (fixed at its start), else the kit's :kikon-worth hook (E) (a
-worth that follows the fighter's state), else the kit's :kikon-konpaku. (The red Konpaku hint: hud.lisp AT-STAKE; a Soul Break takes this + 1: SETTLE-KONPAKU.)"
+worth that follows the fighter's state), else the kit's :kikon-konpaku. (An older kit's red Konpaku hint: webhud.lisp AT-STAKE, a core kit's reads CORE-KIKON-STAKE; a Soul Break takes this + 1: SETTLE-KONPAKU.)"
   (let* ((f (fighter e)) (mv (fighter-move f)) (h (kit-hook (kit-of e) :kikon-worth)))
     (cond ((and mv (eq (fighter-state f) :move) (eq (mv-kind mv) :kikon)) (fighter-kikon-n f))
           (h (funcall h e))

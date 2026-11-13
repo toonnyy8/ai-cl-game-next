@@ -38,7 +38,11 @@ nothing changes: the steady state of a frame): a `webhud consing` line, B (DUEL_
              (cons-per "prompt" (webhud-prompt *p1*) 100) (cons-per "deck" (webhud-deck) 100)
              (cons-per "tag" (webhud-tag *p1* (fighter-kit (fighter *p1*))) 100)
              (cons-per "stake" (at-stake *p1*) 100)
-             (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100))))
+             (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100))
+    (log-msg "webhud stake P1 ~d P2 ~d (P1 ptr ~d red ~a konpaku ~d, P2 ptr ~d red ~a konpaku ~d)"   ; (the plates' red hint, R15d)
+             (at-stake *p1*) (at-stake *p2*)
+             (fighter-ptr (fighter *p1*)) (gauges-red-p (gauges *p1*)) (gauges-konpaku (gauges *p1*))
+             (fighter-ptr (fighter *p2*)) (gauges-red-p (gauges *p2*)) (gauges-konpaku (gauges *p2*)))))
 
 (defun-fast lhud-flames-ab (glyph)
   "2519's flame A/B (DUEL_LISP_HUD §14): 18 soul flames at a phone plate's size, as phase 2 drew them (GLYPH nil: the polygon fill

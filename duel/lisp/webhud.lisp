@@ -49,10 +49,17 @@ form has none) and the tag of what U does in the form (none since the retired ki
                     nil))))
 
 (defun at-stake (e)
-  "E's Konpaku flames the opponent's Kikon would take if it landed now: its current worth (combat.lisp KIKON-WORTH:
-the running rush's, a kit's :kikon-worth hook, else its :kikon-konpaku), capped (control.lisp KONPAKU-AT-STAKE)."
-  (let ((o (fighter-opp (fighter e))))
-    (if (and o (entity-alive-p o)) (konpaku-at-stake (gauges-konpaku (gauges e)) (kikon-worth o)) 0)))
+  "E's Konpaku flames the opponent's Kikon would take if it landed now. A core kit's: what the sim's Kikon takes (core.lisp
+CORE-KIKON-STAKE: the form's count by the pointer of the SP in play and E's red, or the count fixed while its follow-up runs; R15d);
+an older kit's: its current worth (round.lisp KIKON-WORTH: the running rush's, a kit's :kikon-worth hook, else its :kikon-konpaku),
+capped (control.lisp KONPAKU-AT-STAKE)."
+  (let ((o (fighter-opp (fighter e))) (k (gauges-konpaku (gauges e))))
+    (cond ((not (and o (entity-alive-p o))) 0)
+          ((kit-core (kit-of o))
+           (let ((fo (fighter o)))
+             (core-kikon-stake k (kit-kikon-konpaku (fighter-kit fo)) (fighter-cls fo) (fighter-sp-ptr fo) (fighter-ptr fo)
+                               (gauges-red-p (gauges e)) (and (fighter-follow fo) (fighter-kikon-n fo)))))
+          (t (konpaku-at-stake k (kikon-worth o))))))
 
 ;;; ---------------------------------------------------------------- the cinematics whose 2D layer is the Lisp HUD's
 (defun webhud-cine-p (c)
