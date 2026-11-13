@@ -141,6 +141,20 @@ reference line for line (II 33, IK 35, KK 26); on, regenerated (native = browser
 IK 35 → 33 (P2 0-2 351.9 s → P2 0-5 330.5 s), KK 26 → 28 (P1 3-0 261.5 s → P2 0-5 275.4 s). snaptest / fulltest on G2's IK clean. No
 balance gates.
 
+**The exchange and its breakthrough** (DUEL_SP §6, batch S4, 2026-11-13; the user: 「當相消後突破對手防線將會奪取對方全數 SP」, then 「50%」,
+「都算」). A cancel opens an **exchange** between the two fighters, still with no attacker and no defender: `core-nohit!`'s `:cancel` and
+`core-kikon-cancel!` (Q12: the victim's attack against a non-red Kikon follow-up; it also pays him the cancel's +30, nothing is refunded)
+stamp both fighters' `xch` with the tick (`core-xch-open!`; a later cancel restamps). The **first real hit** of either side in it (`apply-hit`,
+result `:hit` / `:counter`, J included, a hazard's or a clone's too) is the **breakthrough** (`core-break!`): `sp-break-take` takes 50 % of
+the victim's flash-step above the last cell (`*sp-break-share*`) through `spend-fs`, the attacker gains half of that (`*sp-break-gain*`)
+through `pay-gauges` (nothing in his burst, x SUBLIMATION; Q18); once per exchange (`xch-done` on both), also when it takes nothing (a
+victim at or under 100). It runs after the hit's own effects, so an AS1's steal comes first and the breakthrough takes from what is left
+(Q10). The exchange ends at the first step both fighters are back in neutral (`core-xch-step`, the last of `sim-systems`, the pure `sp-neutral-p`:
+no move, no reel / blockstun / air / down / wake-up, and not standing in a clash's bounce push, so a tie's or a Kikon cancel's exchange
+lives through the push; a Step, a run, a Hoho, a guard count as neutral, Q11), on the frame a cinematic begins, and at a reset (`reset-round`). A parry and Hisagi's bind
+clash are not cancels (Q13). Log: `P1 BREAK fs T from P2 (fs V), gains G (fs F)`; event `:sp-break att def take gain` (only when T > 0: the
+HUD's cue, DUEL_LISP_HUD §17); the hash line's ` x<tick>` (`*` once taken).
+
 ### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 
 Requests (verbatim, 2026-11-12): 「檜佐木始解 AS1「旋」改 10/20/30/40」, 「一護始解 AS1「落牙」改 80」, 「一護血鎖 AS1「鎖引」改 30/30/30/30」,

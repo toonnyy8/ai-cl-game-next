@@ -1498,8 +1498,17 @@ runs; its price is a dim reserve, so a refund is not a drop and a refill):
   callout's serial (`*lhud-cl-i*` [6 + side]); nothing at 0.95 and over.
 
 0 B / frame: the model's four values are fixnums (`webhud-put`), the strings are the constants of `*lhud-scale-marks*`, the new tweens are
-slots of the existing f32vec tables; no new allocation in the views. Not built (S4's, YAGNI): the breakthrough's `:sp-break` event and the
-steal's cell fly-over; S4 adds the event name to the model beside o+29.
+slots of the existing f32vec tables; no new allocation in the views. Not built (YAGNI): the steal's cell fly-over.
+
+**The breakthrough's cue** (DUEL_SP §6, batch S4, 2026-11-13). The sim's `:sp-break att def take gain` event (core-sim.lisp `core-break!`,
+only when something was taken) bumps the victim's serial (feedback.lisp -> `webhud-break!`, `*web-break*`, the `*web-refused*` pattern),
+published as **o+5** (free since the HUD's model was laid out; o+30 would be the other side's o+0). The plate (`lhud-plate-update`:
+`*lhud-pli*` [6 + side] the serial last seen, `*lhud-pl*` [12 side + 11] the start): the victim's three cells flash **white past their
+edges** (.14u, alpha .85, fading over .7 s) while the lit part drops through its own tween, and a small mono **BREAK** (.6u, paper, the same
+fade) sits under the cells, at their outer end. On the phone your own plate has no cells, so P1's cue is the deck's word: **BREAK** (paper)
+under the SP label for .7 s, ahead of SHORT / EMPTY (`*lhud-dk-t*` [7], `*lhud-dk-i*` [4], V55). The opponent's top plate shows the plate cue.
+No sound. 0 B / frame by construction, not measured (the pattern of S8's refused cue: two fixnum serials, slots of the existing tables, the constant "BREAK" in the mono face's ASCII). Stills:
+`tests/scripts/duel-sp-break.json` (debug 2827 / 2828: a breakthrough on P2 / P1 at 300), desktop and phone.
 
 Stills (`tests/scripts/duel-sp-cues.json`, debug 2823-2826 set P1's flash-step 300 / 100 / 10 / 0): full, short, empty, a reserve mid-segment, the
 reserve after a cancel (the lit part growing into the dim one), the refused flash; desktop 1280 x 720 and `--mobile --size 390x844`. The looks gate

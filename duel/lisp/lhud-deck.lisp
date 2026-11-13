@@ -12,9 +12,9 @@
 (.4 s ease-out), [3] SUBLIMATION's arc, [4..7] the stance seals' on (.25 s ease-out), [8] pressed (scale .9, .15 s ease-snap), [9] the level with the SP reserve on top (.35 s).")
 (defvar *lhud-dk-t* (make-array 8 :element-type 'single-float :initial-element -1f30)
   "Animation starts: [0] hd-arm, [1] hd-deny, [2] hd-dip (slosh), [3] hd-awfill (holding), [4] hd-kak (ready), [5] a refused SP press (the SP label's shake and flash),
-[6] the previous flash step (a fraction; -1 none yet).")
-(defvar *lhud-dk-i* (make-array 4 :element-type 'fixnum :initial-element -1)
-  "[0] V4 last frame, [1] armed last frame (1 / 0), [2] ready last frame, [3] the refused serial last seen (V79).")
+[6] the previous flash step (a fraction; -1 none yet), [7] a breakthrough on you (the SP label's BREAK word, DUEL_SP §6).")
+(defvar *lhud-dk-i* (make-array 5 :element-type 'fixnum :initial-element -1)
+  "[0] V4 last frame, [1] armed last frame (1 / 0), [2] ready last frame, [3] the refused serial last seen (V79), [4] the breakthrough serial (V55).")
 (defparameter *lhud-arm* (make-tween '((0 nil 1 0) (0.4 nil 1.1 1) (1 nil 1 0)) :dur 0.42 :curve +ease-snap+ :base '(1 0))
   "hd-arm: scale 1 -> 1.1 at 40 % -> 1 and a 3 px blood ring at 40 %, .42 s ease-snap.")
 (defparameter *lhud-deny* (make-tween '((0 nil 0) (0.25 nil -0.4) (0.6 nil 0.3) (1 nil 0)) :dur 0.3 :curve +ease-out+ :base '(0))
@@ -45,6 +45,10 @@ words (BURST at *fs-burst* / *fs-max*, 1/3 since S1 2026-11-13, else NO BURST an
       (declare (fixnum ser))
       (when (and (>= (aref iv 3) 0) (> ser 0) (/= ser (aref iv 3)) (not *reduced-motion*)) (setf (aref ts 5) now))
       (setf (aref iv 3) ser))
+    (let ((ser (hv 55)))                                   ; a breakthrough took your flash-step: BREAK under the SP label (your plate has no cells here)
+      (declare (fixnum ser))
+      (when (and (>= (aref iv 4) 0) (> ser 0) (/= ser (aref iv 4))) (setf (aref ts 7) now))
+      (setf (aref iv 4) ser))
     (when (and red (>= (aref ts 6) 0f0) (hv-deck-p))
       (when (and armed (/= (aref iv 1) 1)) (setf (aref ts 0) now))
       (when (and (= mode 0) (< fs (- (aref ts 6) 0.25f0))) (setf (aref ts 2) now)))   ; a Hoho: the ink drops a third
@@ -83,7 +87,8 @@ a 7 px dot screen at .5 over it; SP 技 at 5 % from the thumb's edge, 1.8 cm ove
 16 % over the bottom (800 1.6u display, .3em, .42; the kanji 1.5u Mincho, .3). The left hand swaps the edges."
   (let* ((u (lay-u 1f0)) (dpr (lay-dpr)) (g *lhud-g*) (left (hv-left-p)) (op (layer-op 1)) (now (aref *ui-clock* 0)) (ts *lhud-dk-t*)
          (fl (f-max 0f0 (- 1f0 (/ (- now (aref ts 5)) 0.45f0)))) (dn (* u (twv *lhud-deny* (aref ts 5) now 0)))   ; a refused SP press
-         (fs (hv 56)) (cost (hv 77)) (word (cond ((<= cost 0) nil) ((<= fs 0) "EMPTY") ((< fs cost) "SHORT"))))   ; the SP button's state: the next NSa is short of its price / the gauge is empty (a later NS segment would be refused)
+         (fs (hv 56)) (cost (hv 77)) (bk (< (- now (aref ts 7)) 0.7f0))
+         (word (cond (bk "BREAK") ((<= cost 0) nil) ((<= fs 0) "EMPTY") ((< fs cost) "SHORT"))))   ; the SP button's state: the next NSa is short of its price / the gauge is empty (a later NS segment would be refused)
     (declare (single-float u dpr op now fl dn) (type f32vec g ts) (fixnum fs cost))
     (when (> op 0.002f0)
       (lhud-deck-line! g (lay-w) (lay-h) (hv 30) (hv 31) (hv 32) (hv 33) (hv 34) (hv 35) left)
@@ -110,7 +115,7 @@ a 7 px dot screen at .5 over it; SP 技 at 5 % from the thumb's edge, 1.8 cm ove
             (let* ((wz (* 0.8f0 u)))
               (declare (single-float wz))
               (paint-pen! (f-floor+ spx) (f-floor+ (+ spy (* 1.5f0 u))) wz :spacing 0.2f0)
-              (paint-text word +f-mono+ (if (<= fs 0) +c-sp-empty+ +c-sp-short+))))
+              (paint-text word +f-mono+ (cond (bk +c-paper+) ((<= fs 0) +c-sp-empty+) (t +c-sp-short+)))))
           (paint-pen! (f-floor+ atx) (f-floor+ aty) sz :spacing 0.3f0) (paint-text "ATK" +f-display+ +c-zl+)
           (paint-pen! (f-floor+ (+ atx aw gap)) (f-floor+ aty) kz) (paint-text (kj "斬") +f-kanji+ +c-zlk+))
         (paint-reset)))

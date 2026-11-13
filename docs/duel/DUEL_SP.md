@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S3, S6 and S8 built and merged (2026-11-13); S4, S5, S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S3, S6 and S8 built and merged (2026-11-13); S4 built (2026-11-13, branch); S5, S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -300,6 +300,36 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
 - **G2**: with `*sub-gain*` held at 2.0 the three matches are identical to the S2 reference but for the `^` in the hash (the switch rule and item 6 move nothing: the
   shipped CPU never switches); with 1.0 (the awakened fighters' bonus is half) II 37 -> 38 lines (P2 7-7, 367.9 s -> P1 6-5, 372.5 s), IK 37 -> 40 (P2 0-5, 371.5 s ->
   P1 4-2, 401.0 s), KK 43 -> 40 (P1 3-1, 426.0 s -> P1 4-0, 401.9 s); native = browser (below), reference regenerated; the lead regenerates on the merged head. No balance gate run.
+
+**S4 done (2026-11-13, branch worktree-agent-a589f59909b73bb9e, not merged).**
+- **Built** (the §8.4 row; DUEL_CORE §2.1 "The exchange and its breakthrough"): FIGHTER `xch` (fixnum, -1) and `xch-done`. `core-xch-open!` (core-sim.lisp)
+  stamps both fighters from `core-nohit!`'s `:cancel` and from `core-kikon-cancel!`, which also pays the victim the cancel's +30 (`sp-atk-gain :na t`
+  through `pay-gauges`: he presses J in his reel, so no move class to read; Q12, S3's leftover). `core-break!` runs in `apply-hit` on a `:hit` / `:counter`
+  after the `:hit` / `:struck` hooks, so both an own AS's steal (`core-on-hit!`) and a KESSA clone replay's (`clone-replay-hit!`, from Ichigo's `:hit` hook)
+  come first (Q10); `sp-break-take` through `spend-fs` (only when take > 0), the gain through `pay-gauges`, `xch-done` on both, a `BREAK` log line, `:sp-break`
+  (only when take > 0). `core-xch-step` (the last of `sim-systems`, run on a cinematic's first frame too) ends it when both are `sp-neutral-p` (sp.lisp, new, host-tested) or a cinematic has begun (Q11); `reset-round`
+  clears it; `trial.lisp` clears it per trial. Hash: ` x<tick>` after `s` while open, `*` once taken (DUEL_GAMEPLAY). HUD: o+5, DUEL_LISP_HUD §17. Debug 2827 / 2828.
+- **Defaults taken** (beyond §8.6): **neutral** (Q11's "no move, no reaction") = not `:move` / `:stun` / `:guard-hit` / `:air` / `:down` / `:wakeup`, **and not
+  standing while still sliding** (`motion-kb-left` > 0 in `:idle`): `core-bounce!` sends both to `:idle` in the cancel's own step, so without this every tie's and
+  every Kikon cancel's exchange closed at once (Q12 would be empty); the 12-frame push (plus the hitstop and the clash slow motion: about 44 ticks in the
+  scenes) is "a reaction the exchange caused". A Step, a run, a Hoho and a guard are neutral (Q11 literally). **The first real hit is the breakthrough even when it
+  takes nothing** (a victim at or under 100), and later hits of that exchange take nothing (once per exchange). The victim's gauge is read **after** the hit's own
+  damage-taken gain (`*fs-taken*`, applied in `deal-damage` before), as S1's steal does, so a victim at exactly 100 loses half of that excess (2.4 of 4.8 in the
+  scene). Every real hit counts, a hazard's or a clone's too (§6 「都算」; S5 adds the hazards' own cancels). A cancel inside an open exchange or after its
+  breakthrough restamps (a fresh exchange).
+- **Tests**: host 2965 -> 2969 (`sp-neutral-p`), control 116, input 33, touch 100, cine 18, hud-engine 121; pkgcheck only `DUEL::APP`; debug ranges 0 errors.
+  `tests/sp-costs-check.py` 94 -> 102 checks, all pass (P1 at 100 so the cap hides nothing; `BREAK fs T from P2 (fs V), gains G (fs F)`):
+  J1 vs NS1a then Kenpachi's AS1: `P1 BREAK fs 100.0 from P2 (fs 200.0), gains 50.0 (fs 155.0)`; Ichigo's AS1 RAKUGA (Q10): `P1 STEAL fs 80.0 from P2, gains 40.0`
+  then `P1 BREAK fs 60.0 from P2 (fs 160.0), gains 30.0 (fs 180.0)` (on 300 - 80); NS1a cancelled by P2's J1, its SA beats J2: `P1 SP hit gain 15.0` then
+  `P1 BREAK fs 100.0 from P2 (fs 200.0), gains 50.0 (fs 265.0)`; two cancels (ticks 173, 215) then AS1: one BREAK (60); victim at 100: `BREAK fs 2.4 ... (fs 102.4)`;
+  at 80: `BREAK fs 0.0 from P2 (fs 84.9), gains 0.0`; cancel, `exchange over` (both neutral), then a J1 hit: no BREAK; the Kikon follow-up cancelled (Q12): `P2
+  cancels the Kikon follow-up`, `P2 SP cancel gain 30.0 (fs 135.0)`, no `exchange over` through the bounce, Hisagi's Bankai J1 from 5 m: `P2 BREAK fs 88.8 from P1
+  (fs 188.8), gains 44.5 (fs 196.4)` (x his SUBLIMATION / DRIVE bonus). snaptest IK / KK straight = pollute (46 / 39 lines, 0 differ); fulltest IK 152, FT_VS 83, KK 122
+  checks, 0 differ.
+- **G2**: with `*sp-break-share*` 0 and the Kikon cancel's +30 at 0, the native matches were identical to the S6 reference with the x column stripped (42 hash lines
+  carried an open exchange); shipped: II 38 -> 40 lines (P1 7-6, 373.1 s -> P1 5-3, 398.3 s), IK 41 -> 39 (P2 1-3, 403.6 s -> P1 3-2, 384.0 s), KK 44 -> 32 (P1 2-0,
+  439.7 s -> P2 0-3, 317.9 s); native `--cvc` and the browser `style-gates.py cvc` PASS against the regenerated reference. No balance gates. wasm 10,271,254 B;
+  smoke desktop and `--mobile 390x844` exit 0.
 
 ### 8.5 Order and parallelism
 

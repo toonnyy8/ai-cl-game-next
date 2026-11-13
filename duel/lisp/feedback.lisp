@@ -7,7 +7,7 @@
 ;;;;   (:swing e kind)  (:super e)  (:breaker e) (:breaker-end e)  (:rush e) (:rush-dash e) (:kikon-follow att def)  (:step e)
 ;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (the attacker's kit hook :hit-fx sees it after the spark)  (:blocked att def x y z)  (:armored def x y z)
 ;;;;   (:absorbed def x y z)  (:guard-crush att def x y z) (:guard-back e)  (:guard-break att def x y z)  (:stance-break att def x y z)  (:clash x y z)
-;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:refused e cmd)  (:kosei att m x y z)
+;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:refused e cmd)  (:sp-break att def take gain)  (:kosei att m x y z)
 ;;;;   (:hazard-cut x y z)  (:hoho-out e x z) (:hoho-in e x z) (:perfect e victim)  (:burst e attacker mode) (:burst-end e)
 ;;;;   (:launch e) (:land e)
 ;;;;   (:konpaku victim lost) (:kikon att victim) (:soul-break att victim)  (:awaken e) (:form e form)
@@ -111,6 +111,7 @@ search leaves no crack on the live stage (REFACTOR_2026-11 §11.5.2 C)."
       (announce "PARRY" :color '(1 0.55 0.2 1) :secs 0.7 :small t))
     (:refused args (sfx-on :clang (first args) :gain 0.35 :pitch 1.6)      ; still cooling: a dud tick
                    (when (eq (second args) :sp) (webhud-refused! (first args))))   ; an SP segment refused: the HUD's cue (DUEL_SP §8.4 S8)
+    (:sp-break args (webhud-break! (second args)))   ; (att def take gain) a breakthrough took the victim's flash-step: his plate's cue (DUEL_SP §6, S4)
     (:absorbed (def x y z)
       (vfx-hit x y z :guard) (sfx-at :cut x y z :gain 0.7)
       (let ((k (kit-absorb-sfx (kit-of def)))) (when (and k (< (rnd01) 0.5)) (sfx-on k def :gain 0.8))))

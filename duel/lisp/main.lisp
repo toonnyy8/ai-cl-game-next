@@ -24,7 +24,8 @@ rest of the frame then waits for it)."
   (unless *cine* (hazard-system))       ; projectiles, pillars, South's grab and hands
   (unless *cine* (hit-system))          ; collect every hit, then apply them together
   (unless *cine* (gauge-system))        ; regen, burns, form timers, Hellfire, EVOLUTION
-  (unless *cine* (match-system)))       ; timer, time-up
+  (unless *cine* (match-system))        ; timer, time-up
+  (core-xch-step))                      ; an exchange after a cancel ends in neutral or at a cinematic (DUEL_SP Q11)
 
 (defun sim-step ()
   "One fixed 1/60 s step of a running match."

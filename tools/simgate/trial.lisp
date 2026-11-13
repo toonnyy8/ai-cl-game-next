@@ -57,6 +57,7 @@ from that act)."
     (when *cine* (skip-cine))
     (setf *timer* 36000)                                ; (no time-up mid-file: one match carries every trial)
     (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*)
+      (setf (fighter-xch (fighter e)) -1 (fighter-xch-done (fighter e)) nil)   ; (no exchange carried from the last trial: DUEL_SP §6)
       (let ((g (gauges e)))                             ; (SUBLIMATION / DRIVE scale the damage: none carried from the last trial)
         (setf (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0 (gauges-awaken g) 0f0)))
     (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)

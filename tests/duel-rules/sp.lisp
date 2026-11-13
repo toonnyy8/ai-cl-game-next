@@ -52,6 +52,11 @@
 (check (not (sp-exchange-open-p 120 121)))
 (check (not (sp-exchange-open-p -1 -1)))                           ; no exchange
 (check (sp-exchange-open-p 0 0))                                   ; tick 0 is a tick
+;; sp-neutral-p (Q11): no move, no reaction, not standing in a clash's push
+(check (every (lambda (s) (sp-neutral-p s nil)) '(:idle :guard :step :run :hoho)))
+(check (notany (lambda (s) (sp-neutral-p s nil)) '(:move :stun :guard-hit :air :down :wakeup)))
+(check (not (sp-neutral-p :idle t)))                               ; a tie's / a Kikon cancel's bounce: still in the exchange
+(check (sp-neutral-p :step t))                                     ; (a Step's own slide is movement, not the push)
 ;; sp-switch-ok-p: not switched, a second route, the awakening gauge was full, fs > 0
 (check (sp-switch-ok-p 50.0 t nil 2))
 (check (not (sp-switch-ok-p 0.0 t nil 2)))                         ; refused at 0

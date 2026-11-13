@@ -390,6 +390,8 @@ result (NIL = no effect)."
            (emit :stance-break att def x y z)))
         (let ((h (kit-hook (kit-of att) :hit))) (when h (funcall h att def res hw mv hazard ranged)))   ; a character's
         (let ((h (kit-hook (kit-of def) :struck))) (when h (funcall h def att res hw mv hazard ranged)))   ; own hit rules
+        (when (member res '(:hit :counter)) (core-break! att def))   ; a real hit in an exchange after a cancel: the breakthrough (DUEL_SP §6;
+                                                        ;  after the hit's own steal, CORE-ON-HIT! / a clone's :hit hook: Q10)
         (when (and first (mv-on-land mv) (not *cine*)) (funcall (mv-on-land mv) att)))
       res)))
 
@@ -724,7 +726,8 @@ everyone, the hidden stun cleared, the forms kept, flash-step kept, the kit's :r
   (clear-hazards)
   (dolist (e (list a v))
     (let ((f (fighter e)) (g (gauges e)) (mo (motion e)))
-      (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0)
+      (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0
+            (fighter-xch f) -1 (fighter-xch-done f) nil)   ; (the reset ends an exchange: DUEL_SP Q11)
       (setf (gauges-gg g) (f32 *gg-max*) (gauges-gg-idle g) 0 (gauges-guardless g) nil (gauges-stun g) 0f0)
       (let ((rf (kit-reset-form (kit-of e))))          ; Rukia: absolute zero never carries over the reset (-18, C 0)
         (when rf (set-form e rf) (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0)))

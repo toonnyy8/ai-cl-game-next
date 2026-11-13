@@ -119,6 +119,8 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (sp-cost 0f0 :type single-float)      ; ... what it cost (0: none, or free in a burst); the damage scale SP-SCALE is derived, never stored
   (sp-back nil)                         ; that payment was refunded (a cancel refunds once: CORE-NOHIT!)
   (sp-gain-t -1 :type fixnum)           ; FIGHTER-CLS-T of the J / SA move that already took its cancel's +30 (once per move: CORE-NOHIT!)
+  (xch -1 :type fixnum)                 ; the exchange a cancel opened: its *MATCH-TICK* (-1 none), on both fighters (DUEL_SP §6, CORE-XCH-OPEN!)
+  (xch-done nil)                        ; ... its breakthrough was taken (once per exchange: CORE-BREAK!)
   (clash-t -1 :type fixnum)             ; *MATCH-TICK* of his last clash (a cancel): the kit's :clash hook once a step (CORE-CLASH!)
   (clash-n 0 :type fixnum)              ; cancels (clashes) since this NS route began: Kenpachi's NS2 feeds its SA (ken-dmg-mult)
   (lv-cap 99 :type fixnum)              ; the unlock level of this NS route / AS, read at its start (a kit's :lv hook; a segment's :params :lv

@@ -1,7 +1,6 @@
 ;;;; sp.lisp — SP spending on the flash-step gauge (docs/duel/DUEL_SP.md §2-§6, §8.2), as plain CL (host-tested,
 ;;;; tests/duel-rules/sp.lisp). Every rule is a pure function of numbers; the sim's mutation places (core-sim, combat, fighter)
 ;;;; call these. Knobs (`*sp-...*`, `*fs-cell*`, `*fs-max*`) are in tuning.lisp and are only default arguments / read values.
-;;;; Batch S0: no call site yet.
 (in-package :duel)
 
 (defun sp-cost (damage &optional (mult 1.0) override)
@@ -49,7 +48,13 @@ attacker gains `*sp-break-gain*` of the take (DUEL_SP §6)."
   "Do two fighters carry the same live exchange id (the cancel's tick; negative = none)?"
   (and (>= xch-a 0) (= xch-a xch-b)))
 
-(defun sp-switch-ok-p (fs was-full switched routes)
+(defun sp-neutral-p (state sliding)
+  "Is a fighter in STATE back in neutral for the exchange (DUEL_SP §6, Q11: in no move and no reaction)? Not in a move, a reel, a blockstun,
+the air, down or getting up; and not standing while still SLIDING (a clash's bounce sends both to :idle pushed apart: the exchange's own
+reaction, so a Kikon cancel's or a tie's exchange lives through the push). Standing, walking, guarding, a Step, a run, a Hoho: neutral."
+  (and (not (member state '(:move :stun :guard-hit :air :down :wakeup))) (not (and (eq state :idle) sliding)) t))
+
+(defun sp-switch-ok-p(fs was-full switched routes)
   "The pointer switch's gate (DUEL_SP §3, Q14): not SWITCHED yet, ROUTES > 1 NS routes, the awakening gauge WAS-FULL at some time, and FS > 0
 (0 < FS < cost still starts, scaled, through CORE-START!)."
   (and (not switched) (> routes 1) was-full (> fs 0)))

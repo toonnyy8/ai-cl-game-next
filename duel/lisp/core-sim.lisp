@@ -190,7 +190,7 @@ a classed move's startup / active frames; a same-class tie also ends both moves 
 for the attacker (no refund: not a cancel, DUEL_SP Q5). Each side of a cancel in an NS / AS segment gets back what that segment paid,
 once however many verdicts it takes part in (FIGHTER-SP-BACK; DUEL_SP §3 「只要這段 SP 發生相消就不扣除量表」, Q6: also after its own hits),
 through REFUND-FS. Each side whose move is a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T; a same-class tie pays
-both, no hit gain comes of the verdict: DUEL_SP §5, Q3)."
+both, no hit gain comes of the verdict: DUEL_SP §5, Q3). A cancel opens an exchange on both (CORE-XCH-OPEN!: the breakthrough, DUEL_SP §6)."
   (let* ((att (pending-att h)) (def (pending-def h)) (fa (fighter att)) (fd (fighter def))
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
@@ -214,6 +214,7 @@ both, no hit gain comes of the verdict: DUEL_SP §5, Q3)."
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)
          (clog "~a ~a x ~a: CANCEL" (side-name att) (mv-name (pending-mv h)) (side-name def))
+         (core-xch-open! att def)
          (core-clash! att def)
          (when (and (eq (fighter-cls fa) (core-window-class fd)) (eq (fighter-state fd) :move))   ; a same-class tie: both to neutral
            (core-bounce! att def)))
@@ -232,6 +233,42 @@ Hisagi's bind evens the Reishi once a clash, DUEL_HISAGI §28.4). No kit with th
       (setf (fighter-clash-t fa) *match-tick* (fighter-clash-t fb) *match-tick*)
       (dolist (x (list a b))
         (let ((h (kit-hook (kit-of x) :clash))) (when h (funcall h x (opp-of x))))))))
+
+;;; ---------------------------------------------------------------- the exchange after a cancel and its breakthrough (DUEL_SP §6)
+(defun core-xch-open! (a b)
+  "A cancel between A and B (CORE-NOHIT!, CORE-KIKON-CANCEL!) opens an exchange: both carry this step's tick, its breakthrough not taken
+(a cancel inside an open exchange, or after its breakthrough, opens a fresh one: a step's two verdicts stamp the same tick)."
+  (dolist (e (list a b))
+    (let ((f (fighter e))) (setf (fighter-xch f) *match-tick* (fighter-xch-done f) nil))))
+
+(defun core-break! (att def)
+  "ATT's real hit on DEF (APPLY-HIT, after the hit's own effects: an AS1 steal first, DUEL_SP Q10) inside their open exchange whose
+breakthrough is not taken yet: the breakthrough (DUEL_SP §6, 「50%」). SP-BREAK-TAKE of what DEF has above the last cell leaves him through
+SPEND-FS (only when there is something to take: else his regen's wait stays), ATT gains its share through PAY-GAUGES (nothing in his burst,
+x SUBLIMATION; Q18). The first real hit is the breakthrough even when it takes nothing (a victim at the last cell): once per exchange,
+on both (FIGHTER-XCH-DONE). Logs `BREAK` with the gain the gauge really took; :sp-break (the HUD's cue) only when something was taken."
+  (let ((fa (fighter att)) (fd (fighter def)))
+    (when (and (sp-exchange-open-p (fighter-xch fa) (fighter-xch fd)) (not (fighter-xch-done fa)))
+      (setf (fighter-xch-done fa) t (fighter-xch-done fd) t)
+      (multiple-value-bind (take gain) (sp-break-take (gauges-fs (gauges def)))
+        (when (plusp take) (spend-fs (gauges def) take))
+        (let ((fs0 (gauges-fs (gauges att))))
+          (pay-gauges att gain)
+          (clog "~a BREAK fs ~,1f from ~a (fs ~,1f), gains ~,1f (fs ~,1f)" (side-name att) take (side-name def) (gauges-fs (gauges def))
+                (- (gauges-fs (gauges att)) fs0) (gauges-fs (gauges att))))
+        (when (plusp take) (emit :sp-break att def take gain))))))
+
+(defun core-xch-step ()
+  "The last of each sim frame's systems (SIM-SYSTEMS, also on the frame a cinematic starts): an open exchange ends at the first step both
+fighters are back in neutral (SP-NEUTRAL-P: no move, no reel, no clash push) or when a cinematic has begun (DUEL_SP Q11). (A Kikon / Soul
+Break's reset clears it too: RESET-ROUND.)"
+  (let ((a (fighter *p1*)) (b (fighter *p2*)))
+    (when (and (sp-exchange-open-p (fighter-xch a) (fighter-xch b))
+               (or *cine*
+                   (and (sp-neutral-p (fighter-state a) (plusp (motion-kb-left (motion *p1*))))
+                        (sp-neutral-p (fighter-state b) (plusp (motion-kb-left (motion *p2*)))))))
+      (setf (fighter-xch a) -1 (fighter-xch-done a) nil (fighter-xch b) -1 (fighter-xch-done b) nil)
+      (clog "exchange over"))))
 
 (defun core-bounce! (a b)
   "A and B back to neutral, pushed apart (a cancelled tie, a cancelled Kikon follow-up)."
@@ -368,9 +405,16 @@ be a Kikon's first strike: the hold kept since that segment (the button still do
   (start-move att strike :quick))
 
 (defun core-kikon-cancel! (victim f)
-  "The victim (VICTIM, fighter F) attacked while the Kikon's follow-up was coming (not red): it is cancelled, both bounce to neutral."
+  "The victim (VICTIM, fighter F) attacked while the Kikon's follow-up was coming (not red): it is cancelled, both bounce to neutral. A
+cancel (DUEL_SP Q12): the victim's attack (a J press, in his reel: no move whose class could be read) takes the cancel's +30 through
+PAY-GAUGES, and an exchange opens (CORE-XCH-OPEN!; it lives through the bounce's push, SP-NEUTRAL-P). Nothing is refunded: the rusher's
+segment already hit."
   (let ((o (fighter-opp f)))
     (clog "~a cancels the Kikon follow-up" (side-name victim))
+    (let ((fs0 (gauges-fs (gauges victim))))
+      (pay-gauges victim (sp-atk-gain :na t))
+      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name victim) (- (gauges-fs (gauges victim)) fs0) (gauges-fs (gauges victim))))
+    (core-xch-open! victim o)
     (core-clash! victim o)
     (hitstop *hitstop-block*)
     (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)

@@ -19,6 +19,14 @@
   (let ((side (fighter-side (fighter e))))
     (setf (aref *web-refused* side) (logand 1023 (1+ (aref *web-refused* side))))))
 
+(declaim (type (simple-array fixnum (*)) *web-break*))
+(defvar *web-break* (make-array 2 :element-type 'fixnum :initial-element 0)
+  "Per side: the serial of the last breakthrough that took his flash-step (WEBHUD-BREAK!, from feedback's :sp-break; published as o+5).")
+(defun webhud-break! (def)
+  "DEF lost flash-step to a breakthrough (core-sim.lisp CORE-BREAK!, DUEL_SP §6): bump his serial for the model."
+  (let ((side (fighter-side (fighter def))))
+    (setf (aref *web-break* side) (logand 1023 (1+ (aref *web-break* side))))))
+
 (defmacro webhud-put (i v)
   "Set the model's value I to V (fixnum forms; 0 B)."
   `(let ((i ,i) (v ,v))
@@ -108,7 +116,8 @@ the finish's best combo / Kikons, human 1, the BLUE burst's burn left ‰ (+ 25)
       (webhud-put (+ o 26) (%hround (/ (* 1000f0 paid) (the single-float *fs-max*))))
       (webhud-put (+ o 27) (%hround (/ (* 1000f0 nc) (the single-float *fs-max*))))
       (webhud-put (+ o 28) (if (> cost 0f0) (%hround (* 1000f0 (+ 0.5f0 (* 0.5f0 (min 1f0 (/ paid cost)))))) 1000))
-      (webhud-put (+ o 29) (aref *web-refused* side)))
+      (webhud-put (+ o 29) (aref *web-refused* side))
+      (webhud-put (+ o 5) (aref *web-break* side)))     ; a breakthrough took his flash-step (DUEL_SP §6, S4): its serial (o+30 is the other side's o+0)
     (let ((sub (the single-float (gauges-sub g))) (dr (the single-float (gauges-drive g))))   ; the bar's second stage: 1 SUBLIMATION (pink), 2 / 3 DRIVE (red, full)
       (declare (single-float sub dr))
       (webhud-put (+ o 22) (if (gauges-awakened g) 0 (%hround (/ (* 1000f0 sub) (the single-float *sub-max*)))))

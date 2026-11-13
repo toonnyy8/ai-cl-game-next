@@ -1,0 +1,30 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== SP breakthrough cue')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(2800)"
+},
+{
+"at": 9.5,
+"eval": "Module._debug_cmd(2827)"
+},
+{
+"at": 9.62,
+"shot": "tests/shots/sp-break-p2.png"
+},
+{
+"at": 10.5,
+"eval": "Module._debug_cmd(2828)"
+},
+{
+"at": 10.62,
+"shot": "tests/shots/sp-break-p1.png"
+},
+{
+"at": 11.6,
+"shot": "tests/shots/sp-break-after.png"
+}
+]

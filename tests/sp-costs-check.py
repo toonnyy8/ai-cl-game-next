@@ -7,6 +7,9 @@ equal to the full one's. Both sides' inputs are written (P1 the trial script, P2
 window that dealt damage) and `SP cancel gain G (fs F)` (CORE-NOHIT!, a J / SA in a cancel, once per move); G is what the gauge really gained.
 Since KOSEI's flash-step left, only a J / SA ever refills the gauge: an NS / AS hit pays nothing, so a route's starts follow each other
 exactly (fs' = fs - paid) and a segment at 0 is refused.
+S4 (the breakthrough, DUEL_SP §6): `BREAK fs T from P2 (fs V), gains G (fs F)` (core-sim.lisp CORE-BREAK!: T taken, V the victim after it, G what
+the attacker's gauge really took), `STEAL fs ...` (an AS1's own steal, before it: Q10), `cancels the Kikon follow-up` (Q12) and `exchange over`
+(CORE-XCH-STEP: both back in neutral, Q11).
 
   python3 tests/sp-costs-check.py           PASS / FAIL per check, exit 1 on a failure
   python3 tests/sp-costs-check.py --log     and every trial's SP / dealt / CANCEL lines
@@ -57,6 +60,22 @@ def trials():
     out.append('(:name "GAIN hisagi bankai J1 at the tip" :p1 :hisagi :form :bankai :p2 :ichigo :dist 5.75 :fs 100 :script ((:quick 1)) :frames 120)')
     out.append('(:name "GAIN hisagi bankai J1 off the tip" :p1 :hisagi :form :bankai :p2 :ichigo :dist 4.0 :fs 100 :script ((:quick 1)) :frames 120)')
     out.append('(:name "GAIN hisagi shikai J1" :p1 :hisagi :p2 :ichigo :dist 2.0 :fs 100 :script ((:quick 1)) :frames 120)')
+    # S4, the breakthrough: J vs NS1a cancels, then the J side's AS beats the NS (Kenpachi: no steal; Ichigo: RAKUGA steals first, Q10); NS1a
+    # cancelled by a J, then its SA beats the J2; two cancels then one AS hit; the victim at 100 / 80; both back in neutral before the hit;
+    # the Kikon follow-up cancelled (Q12) and Hisagi's Bankai J1 from 5 m in the bounce's exchange
+    jns = ':p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 100 :p2-at ((0 :sp)) :script ((:quick 1 :wait 8) (:quick 1 :modded t :on :hit)) :frames 150'
+    out.append(f'(:name "BREAK kenpachi cancel then AS1" :p1 :kenpachi :p2-fs 300 {jns})')
+    out.append(f'(:name "BREAK ichigo cancel then AS1 steal" :p1 :ichigo :p2-fs 300 {jns})')
+    out.append(f'(:name "BREAK kenpachi victim at 100" :p1 :kenpachi :p2-fs 100 {jns})')
+    out.append(f'(:name "BREAK kenpachi victim at 80" :p1 :kenpachi :p2-fs 80 {jns})')
+    out.append('(:name "BREAK ichigo SA beats J" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 200 :p2-fs 300 :p2-at ((6 :j) (20 :j) (24 :j) (28 :j)) '
+               ':script ((:quick 1 :modded t) (:quick 1 :on :hit)) :frames 150)')
+    out.append('(:name "BREAK ichigo two cancels then AS1" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 100 :p2-fs 300 :p2-at ((0 :sp) (20 :sp) (24 :sp) (28 :sp)) '
+               ':script ((:quick 1 :wait 8) (:quick 1 :on :hit) (:quick 1 :modded t :on :hit)) :frames 200)')
+    out.append('(:name "BREAK ichigo neutral then J1" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 100 :p2-fs 300 :p2-at ((0 :sp)) '
+               ':script ((:quick 1 :wait 8) (:quick 1 :on :free :wait 30)) :frames 200)')
+    out.append('(:name "BREAK kikon cancel then hisagi J1" :p1 :ichigo :p2 :hisagi :p2-form :bankai :ptr 1 :dist 2.0 :fs 300 :p2-fs 100 :p2-at ((24 :j) (28 :j)) '
+               ':script ((:quick 60 :modded t)) :frames 220)')
     return out
 
 
@@ -77,7 +96,7 @@ def run():
             cur = line.split('trial begin ', 1)[1].strip(); logs[cur] = []
         elif 'trial end ' in line:
             cur = None
-        elif cur and re.search(r'\] P[12] (SP |dealt |\S+ x P[12]: CANCEL)', line):
+        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |\S+ x P[12]: CANCEL)|exchange over)', line):
             logs[cur].append(re.sub(r'^.*?\[\s*(\d+)\] ', r'[\1] ', line))
     return logs
 
@@ -87,6 +106,7 @@ REF = re.compile(r'P(\d) SP (\S+) refused')
 BACK = re.compile(r'P(\d) SP refund ([\d.]+)')
 GAIN = re.compile(r'P(\d) SP (hit|cancel) gain ([\d.]+) \(fs ([\d.]+)\)')
 DEALT = re.compile(r'P1 dealt (\d+): (\S+) stun (\d+)')
+BRK = re.compile(r'P(\d) BREAK fs ([\d.]+) from P(\d) \(fs ([\d.]+)\), gains ([\d.]+) \(fs ([\d.]+)\)')
 
 
 def main():
@@ -179,6 +199,42 @@ def main():
     g = gains('GAIN hisagi bankai J1 at the tip'); h = gains('GAIN hisagi bankai J1 off the tip'); k = gains('GAIN hisagi shikai J1')
     check(len(g) == 1 and abs(g[0][1] - 16.9) < 0.05 and len(h) == 1 and abs(h[0][1] - 13.0) < 0.05 and len(k) == 1 and k[0][1] == 10.0,
           f'Hisagi J1: Bankai at the tip {fmt(g)} (x1.3 tip x1.3 spread route), off the tip {fmt(h)} (spread route), Shikai {fmt(k)}')
+    # S4: the breakthrough
+    def brk(name):
+        return [(m[1], float(m[2]), m[3], float(m[4]), float(m[5]), float(m[6]), i) for i, l in enumerate(logs[name]) for m in [BRK.search(l)] if m]
+
+    def rule(b):                                                   # take = 50 % of the victim's flash-step above 100 (before it), gain = half
+        att, take, vic, after, gain, fs, _ = b                     # (x his SUBLIMATION / DRIVE bonus: Hisagi's Bankai is an awakened form)
+        return (abs(take - 0.5 * max(0.0, after + take - 100.0)) < 0.06
+                and (0.5 * take - 0.06 <= gain <= 0.5 * take * 1.05 + 0.06 or fs >= 299.95))
+
+    def bfmt(bs):
+        return '; '.join(f'P{a} takes {t:g} from P{v} (left {af:g}), gains {g:g} (fs {f:g})' for a, t, v, af, g, f, _ in bs) or 'no BREAK'
+
+    def tick(name, i):
+        return logs[name][i].split(']')[0] + ']'
+    n = 'BREAK kenpachi cancel then AS1'; b = brk(n)
+    check(len(b) == 1 and b[0][0] == '1' and b[0][2] == '2' and rule(b[0]) and b[0][1] > 99 and any('CANCEL' in l for l in logs[n][:b[0][6]]),
+          f'cancel then AS (the AS side breaks through): {bfmt(b)}')
+    n = 'BREAK ichigo cancel then AS1 steal'; b = brk(n); st = [i for i, l in enumerate(logs[n]) if 'STEAL' in l]
+    check(len(b) == 1 and rule(b[0]) and st == [b[0][6] - 1] and abs(b[0][1] - 60.0) < 0.05,
+          f'AS1 steal on the same hit (Q10): {logs[n][st[0]].split("] ", 1)[1] if st else "no STEAL"}, then {bfmt(b)} (on 300 - 80 = 220)')
+    n = 'BREAK kenpachi victim at 100'; b = brk(n)
+    check(len(b) == 1 and rule(b[0]) and b[0][1] < 5 and abs(b[0][3] - b[0][1] - 100.0) < 0.06,
+          f"victim at 100: {bfmt(b)} (only the hit's own damage-taken gain is above the last cell)")
+    n = 'BREAK kenpachi victim at 80'; b = brk(n)
+    check(len(b) == 1 and b[0][1] == 0.0 and b[0][4] == 0.0 and b[0][3] < 100, f'victim at 80: {bfmt(b)} (nothing above the last cell)')
+    n = 'BREAK ichigo SA beats J'; b = brk(n)
+    check(len(b) == 1 and b[0][0] == '1' and rule(b[0]) and b[0][1] > 99 and any('SP hit gain 15.0' in l for l in logs[n][:b[0][6]]),
+          f'NS1a cancelled by J1, then its SA beats J2: {bfmt(b)}')
+    n = 'BREAK ichigo two cancels then AS1'; b = brk(n); ct = sorted({tick(n, i) for i, l in enumerate(logs[n]) if 'CANCEL' in l})
+    check(len(b) == 1 and rule(b[0]) and len(ct) >= 2, f'two cancels (at {" ".join(ct)}) then the AS: one take, {bfmt(b)}')
+    n = 'BREAK ichigo neutral then J1'; ov = [i for i, l in enumerate(logs[n]) if 'exchange over' in l]; hit = [i for i, l in enumerate(logs[n]) if 'SP hit gain' in l]
+    check(not brk(n) and ov and hit and ov[0] < hit[0], f'both back in neutral (exchange over at {tick(n, ov[0]) if ov else "?"}), then a J1 hit at {tick(n, hit[0]) if hit else "?"}: no BREAK')
+    n = 'BREAK kikon cancel then hisagi J1'; b = brk(n); kc = [i for i, l in enumerate(logs[n]) if 'cancels the Kikon' in l]
+    g30 = [l for l in logs[n] if 'P2 SP cancel gain 30.0' in l]; ov = [i for i, l in enumerate(logs[n]) if 'exchange over' in l]
+    check(len(b) == 1 and kc and g30 and b[0][0] == '2' and b[0][2] == '1' and rule(b[0]) and kc[0] < b[0][6] and not any(kc[0] < i < b[0][6] for i in ov),
+          f"the Kikon follow-up cancelled (Q12) at {tick(n, kc[0]) if kc else '?'}: P2 +30 ({len(g30)}), the exchange lives through the bounce, Hisagi's J1 from 5 m: {bfmt(b)}")
     ct = sp('CATCH kenpachi tame thrust')
     check([x[0] for x in ct] == ['KE-Z-N3A', 'KE-Z-N3B'] and ct[1][3] == ct[1][2] == 20,
           'the tame\'s catch starts the thrust through CORE-START!: ' + ', '.join(f'{x[0].lower()} paid {x[3]:g}/{x[2]:g}' for x in ct))
