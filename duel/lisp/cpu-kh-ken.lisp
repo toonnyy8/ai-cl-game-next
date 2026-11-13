@@ -27,14 +27,15 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
   "Hisagi down or just up with the bait roll yes: hold at *KHF-BAIT-D*. T when it decided."
   (let ((ss (snap-state s)) (now *match-tick*))
     (when (and (member ss '(:air :down :wakeup)) (not (member (khs-hw st) '(:air :down :wakeup))))
-      (setf (khs-bait st) (brain-roll b *khf-bait-p*))
+      (setf (khs-bait st) (style-roll b :khf-bait-p *khf-bait-p*))
       (when (khs-bait st) (clog "~a khf bait armed" (side-name e))))
     (setf (khs-hw st) ss)
     (when (member ss '(:down :wakeup)) (setf (khs-last st) now))
     (when (and (khs-bait st) (member (fighter-state f) '(:idle :run)) (null (kks-plan st)))
       (cond ((or (member ss '(:down :wakeup))
                  (and (not (eq ss :hoho)) (<= (- now (khs-last st)) (+ (brain-delay b) *khf-bait-after*))))
-             (cond ((> d (+ *khf-bait-d* 0.15)) (kk-stick e 1)) ((< d (- *khf-bait-d* 0.3)) (kk-stick e -1)) (t (kk-stick e 0)))
+             (let ((bd (style-knob b :khf-bait-d *khf-bait-d*)))
+               (cond ((> d (+ bd 0.15)) (kk-stick e 1)) ((< d (- bd 0.3)) (kk-stick e -1)) (t (kk-stick e 0))))
              t)
             (t (setf (khs-bait st) nil) nil)))))
 
@@ -69,10 +70,10 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
   (so-on nil))                                          ; the breaker is on (its onset makes the approach roll again)
 (inline-readers kso)
 
-(defun kso-winning-p (g0 g1)
-  "Does the bell favour gauges G0 over G1 now (Konpaku, then Reishi % by more than *KSO-LEAD*)?"
+(defun kso-winning-p (g0 g1 lead)
+  "Does the bell favour gauges G0 over G1 now (Konpaku, then Reishi % by more than LEAD: *KSO-LEAD* or the arm's)?"
   (or (> (gauges-konpaku g0) (gauges-konpaku g1))
-      (and (= (gauges-konpaku g0) (gauges-konpaku g1)) (> (- (reishi-frac g0) (reishi-frac g1)) *kso-lead*))))
+      (and (= (gauges-konpaku g0) (gauges-konpaku g1)) (> (- (reishi-frac g0) (reishi-frac g1)) lead))))
 
 (defun kso-old-p (e b f st)
   "Tick the clock (any change of the four gauges restarts it); T when the stand-off is older than *KSO-STALE* and the bell is not his."
@@ -80,8 +81,8 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
          (r0 (f32 (gauges-reishi g0))) (r1 (f32 (gauges-reishi g1))) (k0 (gauges-konpaku g0)) (k1 (gauges-konpaku g1)))
     (unless (and (= r0 (kso-so-r0 st)) (= r1 (kso-so-r1 st)) (= k0 (kso-so-k0 st)) (= k1 (kso-so-k1 st)))
       (setf (kso-so-r0 st) r0 (kso-so-r1 st) r1 (kso-so-k0 st) k0 (kso-so-k1 st) k1 (kso-so-at st) *match-tick*))
-    (and (> (- *match-tick* (kso-so-at st)) (getf *kso-stale* (brain-difficulty b) 300))
-         (not (kso-winning-p g0 g1)))))
+    (and (> (- *match-tick* (kso-so-at st)) (style-knob b :kso-stale (getf *kso-stale* (brain-difficulty b) 300)))
+         (not (kso-winning-p g0 g1 (style-knob b :kso-lead *kso-lead*))))))
 
 (defun ken-kh-standoff-style (e b f kit s d)
   "Kenpachi's stand-off breaker against Hisagi: T when it decided this step, NIL for the MCTS / the generic core CPU."

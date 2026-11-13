@@ -14,7 +14,7 @@
 (dolist (f '("tuning" "rules" "core" "sp" "fuzzy" "strategy" "kit" "ken" "ichigo" "hisagi" "mcts-lite" "lhud-data" "lhud-geom"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 ;; the checks live in tests/duel-rules/*.lisp, loaded in order into this one image (CHECK, *CHECKS* and the shared helpers are in core)
-(dolist (f '("core" "ken" "art" "systems" "sim" "practice" "hisagi" "triangle" "sp" "sublimation" "mcts" "fuzzy" "strategy" "lhud-charset" "lhud-geom" "lhud-menu" "unit-names"))
+(dolist (f '("core" "ken" "art" "systems" "sim" "practice" "hisagi" "triangle" "sp" "sublimation" "mcts" "fuzzy" "strategy" "lhud-charset" "lhud-geom" "lhud-menu" "unit-names" "style-knob"))
   (load (merge-pathnames (format nil "duel-rules/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
