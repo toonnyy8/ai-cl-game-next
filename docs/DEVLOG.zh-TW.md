@@ -9011,3 +9011,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 證明（三批合在一起）：主機測試 3014 全過（2979 + 5 + 30），control 124、input 33、touch 100、cine 18、hud-engine 121、登記表 16；pkgcheck 乾淨；除錯範圍 85、0 錯誤；`sp-costs-check.py` 114。G2 native 與瀏覽器都和參照相同（II 36、IK 40、KK 38）；外觀閘門 75 張與 315f18b6 逐位元組相同；practice-cancel（1034 行）與 practice（111 行）的腳本記錄和合併前完全相同；smoke 桌面／手機通過（R15a 回報的手機逾時是當時機器負載 150–300 造成的，負載降下來後重跑就過了）。試玩 Artifact v413（雜湊已核對）。
 
 分工：R15a 由 Sonnet 5.5、R15b 與 R15c 由 Opus 5.5 子代理完成；Fable 審計畫與 R15b 的 apply-hit 部分；主對話 Opus 5.5 合併、解衝突、重驗、記錄、發布。
+
+## 759. 重構第四輪第 15 步之二：R15d 四個行為修正（2026-11-14）
+
+使用者：「繼續」
+
+R15 會改行為的四個修正，每個各自一次提交、各自有證明（REFACTOR_2026-11 的 R15d 段落有完整數字）。
+
+- **名牌上的紅色魂魄提示**（玩家看得到）：核心角色的提示原本固定顯示型態的基礎值（2），但核心 Kikon 實際削的是依指針計算的數量：指針 1／3 是基礎 −1，指針 2 打在紅血的對手身上是基礎 +1。新增兩個純函式 `core-kikon-ptr`、`core-kikon-stake`（core.lisp，+6 項主機測試），結算端 `core-konpaku-result` 也改呼叫同一個函式；`kikon-worth` 沒動。新腳本 `duel-stake.json`：一護在指針 1／2／3 時，P2 的提示是 1／2／1，P2 紅血時是 1／3／1（修正前六個都是 2）。說明書那行沒寫數字，現在變成正確的，不用改。外觀閘門因此有 43 張和 315f18b6 不同，每張都只差名牌上一顆火焰；另外 32 張逐位元組相同。這版合併後舊的外觀基準作廢，M5 會重錄。
+- **CPU 在步法（Hoho）後的 SP**：`hoho-resume!` 會把 CPU 的 SP 接成一段 SP 不足、會被拒絕的 NS。新增 `cai-hoho-hold-p`，在按鍵送進 vpad 前先檢查，不夠就丟掉這次按鍵並記一行 `cpu holds`（沒有隨機抽籤；人和腳本的按鍵不受影響）。`sp-costs-check.py` 114 → 116。
+- **練習模式 GUARD ALL 的假人**：只挑 SP 足夠、真的出得來的招。三份練習腳本的記錄和合併前相同（假人的量表在這些腳本裡沒歸零過，所以只證明沒退步）。
+- **FT_LAYER 當掉**：策略層換策略時沒清掉上一個策略的狀態，Kenpachi 的 Q 表把他的狀態交給了一護的策略函式。新增 `brain-set-strat!`，換策略時清空；修好後 fulltest 又抓到 `*grade-impact*` 在預演後沒還原，它和 `*impact-params*` 一起加進快照。FT_LAYER=t fulltest：II 893／IK 758／KK 809 項，0 差異。
+- 證明（合併後的 main）：主機測試 3020 全過（+6），control 124、input 33、touch 100、cine 18、hud-engine 121、登記表 16；pkgcheck 乾淨；除錯範圍 85、0 錯誤；`sp-costs-check.py` 116。G2 native 與瀏覽器都和參照相同（II 36、IK 40、KK 38；P2 4-7 356.7 s、P1 3-2 398.3 s、P1 1-0 375.3 s），參照不用重產：G2 裡沒有 CPU 從步法接 SP。smoke 桌面／手機通過。試玩 Artifact v414（雜湊已核對）。
+
+分工：四個修正由 Opus 5.5 子代理完成；主對話 Opus 5.5 審 diff、合併、重驗、記錄、發布。
