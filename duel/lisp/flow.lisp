@@ -2,7 +2,7 @@
 ;;;; SETTINGS / CONTROLS / MANUAL (the page's manual.html, onehand.lisp OPEN-MANUAL); the frozen ENDLESS / DANGAI left main on 2026-11-13,
 ;;;; branch `frozen-modes`, REFACTOR_2026-11 R4) → SELECT (P1, then P2 / the CPU, then difficulty and, VS CPU / PRACTICE, the camera; both models on the
 ;;;; plaza) → INTRO → BATTLE (pause: RESUME / RESTART / CHARACTER SELECT / TITLE, VS CPU also CAMERA; PRACTICE: RESUME /
-;;;; RESET POSITION / DUMMY / COUNTER / HP REFILL / GAUGES / P1 HP / P1 KONPAKU / DUMMY HP / DUMMY KONPAKU / CHARACTER SELECT /
+;;;; RESET POSITION / DUMMY / COUNTER / HP REFILL / GAUGES / FLASH STEP / P1 AWAKEN / P1 HP / P1 KONPAKU / DUMMY HP / DUMMY KONPAKU / CHARACTER SELECT /
 ;;;; TITLE / CAMERA) → FINISH (K.O. / TIME) → RESULTS
 ;;;; (REMATCH / SELECT / TITLE). SETTINGS (2026-09-28): ONE-HAND MODE (AUTO / ON / OFF), HAND, TAP SPLIT, SENSITIVITY,
 ;;;; CAMERA, LEARNING CPU (control.lisp *SETTINGS*, saved by onehand.lisp), then RESET LEARNING (fq-online.lisp FQ-RESET-ALL). VS CPU and PRACTICE are one-handed (the thumb deck,
@@ -215,6 +215,14 @@ but CPU; control.lisp DUMMY-COUNTER-NOW-P) / OFF.")
 (defvar *hp-refill* t "PRACTICE's HP REFILL: AUTO (T: the dummy's Reishi is full again once a combo on it ends) / OFF.")
 (defvar *gauges-inf* nil "PRACTICE's GAUGES: INFINITE (T: P1's Reishi at its P1 HP row; guard, flash step, Awakening
 full) / NORMAL.")
+(defparameter *practice-fs-levels* '("KEEP" "FULL" "ONE CELL" "EMPTY")
+  "PRACTICE's FLASH STEP row (DUEL_SP §8.4 S9): KEEP (normal play) / FULL (*FS-MAX*) / ONE CELL (*FS-CELL*) / EMPTY (0), both sides.")
+(defvar *practice-fs* 0
+  "The index of PRACTICE's FLASH STEP row in *PRACTICE-FS-LEVELS*. Not KEEP: both fighters' flash-step held at that value every sim frame
+(PRACTICE-STEP, after GAUGES INFINITE, so it overrides the flash-step INFINITE sets for P1); a running burst is left to drain.")
+(defun practice-fs-value ()
+  "The flash-step PRACTICE's FLASH STEP row holds both sides at, or NIL (KEEP)."
+  (case *practice-fs* (1 *fs-max*) (2 *fs-cell*) (3 0f0)))
 (defvar *practice-rows* (vector 100 *konpaku-max* 100 *konpaku-max*)
   "PRACTICE's P1 HP (%), P1 KONPAKU, DUMMY HP (%), DUMMY KONPAKU: what RESET POSITION and the refills restore (full by
 default: the rows only change what \"full\" means). Indexed by side * 2 (+ 1 for the Konpaku).")
@@ -302,7 +310,7 @@ is no threat), or one of his classed waves on its way (DUMMY-WAVE-THREAT, the so
 (defun practice-step ()
   "PRACTICE, each sim frame (MATCH-SYSTEM): the dummy's guard (GUARD ALL with a :core dummy: its cancelling press, DUMMY-CANCEL-INPUT);
 its Konpaku always full (after a Kikon's reset: no match end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions;
-GAUGES INFINITE: P1's gauges full."
+GAUGES INFINITE: P1's gauges full; FLASH STEP not KEEP: both sides' flash-step at its value (PRACTICE-FS-VALUE)."
   (let* ((f (fighter *p2*)) (g (gauges *p2*)) (b (brain *p2*)))
     (unless (eq *dummy* :cpu)
       (let ((cancel (and (eq *dummy* :guard-all) (kit-core (fighter-kit f)) (dummy-cancel-input f (fighter *p1*)))))
@@ -323,7 +331,10 @@ GAUGES INFINITE: P1's gauges full."
       (unless (gauges-burst g) (setf (gauges-fs g) *fs-max*))   ; a burst burns it down first (the user 2026-09-30)
       (if (gauges-awakened g)
           (setf (gauges-drive g) *drive-max*)               ; SUBLIMATION / SPIRIT DRIVE too (DUEL_SUBLIMATION §17.4)
-          (setf (gauges-awaken g) *awaken-max* (gauges-sub g) *sub-max*)))))
+          (setf (gauges-awaken g) *awaken-max* (gauges-sub g) *sub-max*))))
+  (let ((v (practice-fs-value)))                          ; FLASH STEP (after INFINITE: it wins), both sides
+    (when v
+      (do-sides (e) (let ((g (gauges e))) (unless (gauges-burst g) (setf (gauges-fs g) (f32 v))))))))
 
 (defun practice-reset ()
   "RESET POSITION: a fresh pair at the start (full resources, first forms), straight into the fight (no intro)."
@@ -422,7 +433,7 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
 
 (defun pause-keys ()
   "The pause menu's rows: PRACTICE's options replace RESTART; VS CPU / PRACTICE with two hands add the CAMERA toggle."
-  (append (case *mode* (:practice '(:resume :reset :dummy :counter :refill :gauges :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon))
+  (append (case *mode* (:practice '(:resume :reset :dummy :counter :refill :gauges :fs :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon))
                 (t '(:resume :restart)))
           '(:select :title)
           (when (and (vs-cpu-p) (not *one-hand*)) '(:camera))))
@@ -432,11 +443,12 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
     (:reset "RESET POSITION") (:dummy (format nil "DUMMY  ~a" (cdr (assoc *dummy* *dummies*))))
     (:counter (if *dummy-counter* "COUNTER  J1" "COUNTER  OFF"))
     (:refill (if *hp-refill* "HP REFILL  AUTO" "HP REFILL  OFF")) (:gauges (if *gauges-inf* "GAUGES  INFINITE" "GAUGES  NORMAL"))
+    (:fs (format nil "FLASH STEP  ~a" (nth *practice-fs* *practice-fs-levels*)))
     (:p1-aw (format nil "P1 AWAKEN  ~a" (first (nth *practice-aw* *practice-aw-levels*))))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)
      (let ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))))
        (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
-(defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
+(defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :fs :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
 (defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the model's pause rows are written again (webhud.lisp).")
 (defun pause-do (k dir)
@@ -447,6 +459,7 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
     (:dummy (setf *dummy* (cycle *dummy* (mapcar #'car *dummies*) dir)) (practice-dummy!))
     (:counter (setf *dummy-counter* (not *dummy-counter*)))
     (:refill (setf *hp-refill* (not *hp-refill*))) (:gauges (setf *gauges-inf* (not *gauges-inf*)))
+    (:fs (setf *practice-fs* (mod (+ *practice-fs* (if (and dir (minusp dir)) -1 1)) (length *practice-fs-levels*))))
     (:p1-aw (setf *practice-aw* (mod (+ *practice-aw* (if (and dir (minusp dir)) -1 1)) (length *practice-aw-levels*))) (practice-aw-apply!))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)                      ; the new value in force at once
      (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (v (svref *practice-rows* i)))

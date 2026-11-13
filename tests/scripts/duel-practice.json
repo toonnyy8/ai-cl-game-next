@@ -502,72 +502,82 @@
 "down": false
 },
 {
-"at": 38.8,
+"at": 38.78,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 38.88,
+"at": 38.86,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 39.0,
+"at": 38.96,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 39.08,
+"at": 39.04,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 39.2,
+"at": 39.14,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 39.28,
+"at": 39.22,
 "key": "ArrowDown",
 "down": false
+},
+{
+"at": 39.32,
+"key": "ArrowDown",
+"down": true
 },
 {
 "at": 39.4,
 "key": "ArrowDown",
-"down": true
-},
-{
-"at": 39.48,
-"key": "ArrowDown",
 "down": false
 },
 {
-"at": 39.6,
+"at": 39.5,
 "key": "ArrowDown",
 "down": true
+},
+{
+"at": 39.58,
+"key": "ArrowDown",
+"down": false
 },
 {
 "at": 39.68,
 "key": "ArrowDown",
-"down": false
-},
-{
-"at": 39.8,
-"key": "ArrowDown",
 "down": true
 },
 {
-"at": 39.88,
+"at": 39.76,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 40.0,
+"at": 39.86,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 40.08,
+"at": 39.94,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 40.04,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 40.12,
 "key": "ArrowDown",
 "down": false
 },
@@ -616,22 +626,32 @@
 "down": false
 },
 {
-"at": 42.7,
+"at": 42.65,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 42.78,
+"at": 42.73,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 42.9,
+"at": 42.8,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 42.98,
+"at": 42.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.95,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 43.03,
 "key": "ArrowDown",
 "down": false
 },
@@ -646,32 +666,32 @@
 "down": false
 },
 {
-"at": 43.3,
+"at": 43.25,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 43.38,
+"at": 43.33,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 43.5,
+"at": 43.4,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 43.58,
+"at": 43.48,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 43.7,
+"at": 43.55,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 43.78,
+"at": 43.63,
 "key": "ArrowDown",
 "down": false
 },
@@ -952,6 +972,16 @@
 },
 {
 "at": 57.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 57.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 57.28,
 "key": "ArrowDown",
 "down": false
 },

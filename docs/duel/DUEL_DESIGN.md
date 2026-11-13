@@ -363,6 +363,121 @@ the result is rounded (to even), at least 1. A string's three links deal full da
 K2 / K3 deal **80 %** of the strings design's numbers (the seed gate, DUEL_STRINGS §9): Kenpachi's routes on hit JJJ
 112, KJJ 147, JJK 150, KKJ 172, JKK 175, KKK 210, + 63 for the O ender.
 
+## 5.1 SP costs per segment (the core kits, DUEL_SP §4)
+
+Every NS and AS segment pays its price from the flash-step gauge when it starts (DUEL_SP §3; the rules, refusals, refunds and gains are
+there and in the manual). The price is the segment's damage in its move data (the sum of its hit windows, else a wave's `:params :dmg`,
+else 0 for a setup segment) x 0.4 x the kit's `:core :sp-cost-mult` (Kenpachi's four forms only), rounded once to 5 and clamped 10-60,
+unless the move sets `:params :sp-cost` (kit.lisp `mv-sp-damage`, `build-sp-costs`, `kit-sp-cost`; sp.lisp `sp-cost`). The damage column is
+the move data, before the form's dealt multiplier, combo scaling or the SP scale. A wave's Kikon strike, the Kikon hold, NA links and the SA
+cost nothing. The core move tables of §6 are pre-core (J / K / L), so the costs stand here, one table per form, generated: rerun
+`$ECL_HOST --norc --load tools/sp-cost-table.lisp` after a cost or a damage changes (the host test `tests/duel-rules/sp.lisp` pins the
+route totals and fails first).
+
+<!-- sp-cost-table begin (generated: tools/sp-cost-table.lisp; do not edit by hand) -->
+
+**Kenpachi base** (`(find-kit :kenpachi :base)`, cost multiplier 0.76)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | KE-Z-N1A 65 / 20, KE-Z-N1B 55 / 15, KE-Z-N1C 70 / 20 | 55 |
+| NS2 | KE-Z-N2A 85 / 25, KE-Z-N2B 95 / 30 | 55 |
+| NS3 | KE-Z-N3A 0 / 10, KE-Z-N3B 70 / 20, KE-Z-N3C 95 / 30 | 60 |
+| AS1 | KE-Z-AS1 90 / 25 | 25 |
+| AS2 | KE-Z-AS2 60 / 20, KE-Z-AS2B 100 / 30 | 50 |
+| AS3 | KE-Z-AS3 50 / 15, KE-Z-AS3B 50 / 15, KE-Z-AS3C 140 / 45 | 75 |
+
+**Kenpachi Shikai (NOZARASHI)** (`(find-kit :kenpachi :nozarashi)`, cost multiplier 0.68)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | KE-S-N1A 70 / 20, KE-S-N1B 60 / 15, KE-S-N1C 65 / 20, KE-S-N1D 70 / 20, KE-S-N1E 100 / 25 | 100 |
+| NS2 | KE-S-N2A 45 / 10, KE-S-N2B 50 / 15, KE-S-N2C 110 / 30, KE-S-N2D 100 / 25, KE-S-N2E 140 / 40 | 120 |
+| AS1 | KE-S-AS1 70 / 20, KE-S-AS1B 60 / 15, KE-S-AS1C 65 / 20, KE-S-AS1D 110 / 30 | 85 |
+| AS2 | KE-S-AS2 50 / 15, KE-S-AS2B 110 / 30, KE-S-AS2C 100 / 25, KE-S-AS2D 150 / 40 | 110 |
+| AS3 | KE-S-BURST1 100 / 25 | 25 |
+| AS4 | KE-S-BURST2 100 / 25 | 25 |
+| AS5 | KE-S-SP1 240 / 60 | 60 |
+| AS6 | KE-S-SP2 260 / 60 | 60 |
+| AS7 | KE-S-BANKAI 100 / 25 | 25 |
+
+**Kenpachi Bankai** (`(find-kit :kenpachi :bankai)`, cost multiplier 0.71)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | KE-KR-NA 80 / 25, KE-KR-NB 70 / 20, KE-KR-NC 70 / 20, KE-KR-ND 80 / 25 | 90 |
+| AS1 | KE-KR-AS1 110 / 30 | 30 |
+| AS2 | KE-KR-AS2 80 / 25, KE-KR-FIN 110 / 30 | 55 |
+| AS3 | KE-KR-AS3 80 / 25, KE-KR-AS3B 70 / 20, KE-KR-FIN 110 / 30 | 75 |
+| AS4 | KE-KR-AS4 80 / 25, KE-KR-AS4B 70 / 20, KE-KR-AS4C 70 / 20, KE-KR-FIN 110 / 30 | 95 |
+| AS5 | KE-KR-SP 300 / 60 | 60 |
+
+**Kenpachi Bankai-2** (`(find-kit :kenpachi :bankai-2)`, cost multiplier 0.51)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | KE-ZH-NA 100 / 20, KE-ZH-NB 90 / 20, KE-ZH-NC 100 / 20, KE-ZH-ND 130 / 25 | 85 |
+| AS1 | KE-ZH-AS1 150 / 30 | 30 |
+| AS2 | KE-ZH-AS2 100 / 20, KE-ZH-FIN 150 / 30 | 50 |
+| AS3 | KE-ZH-AS3 100 / 20, KE-ZH-AS3B 90 / 20, KE-ZH-FIN 150 / 30 | 70 |
+| AS4 | KE-ZH-AS4 100 / 20, KE-ZH-AS4B 90 / 20, KE-ZH-AS4C 100 / 20, KE-ZH-FIN 150 / 30 | 90 |
+| AS5 | KE-ZH-SP 320 / 60 | 60 |
+
+**Ichigo Shikai** (`(find-kit :ichigo :base)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | IC-N1A 68 / 25, IC-N1B 60 / 25, IC-N1C 84 / 35 | 85 |
+| NS2 | IC-N2A 0 / 10, IC-N2B 0 / 10, IC-N2C 150 / 60 | 80 |
+| NS3 | IC-N3A 72 / 30, IC-N3B 100 / 40 | 70 |
+| AS1 | IC-AS1 50 / 20 | 20 |
+| AS2 | IC-AS2 50 / 20, IC-AS2B 60 / 25 | 45 |
+| AS3 | IC-AS3 45 / 20, IC-AS3B 72 / 30, IC-AS3C 100 / 40 | 90 |
+
+**Ichigo KESSA** (`(find-kit :ichigo :kessa)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | IC-K-N1A 60 / 25, IC-K-N1B 55 / 20, IC-K-N1C 80 / 30 | 75 |
+| NS2 | IC-K-N2A 0 / 10, IC-K-N2B 0 / 10, IC-K-N2C 150 / 60 | 80 |
+| NS3 | IC-K-N3A 0 / 10, IC-K-N3B 0 / 10, IC-K-N3C 0 / 10 | 30 |
+| AS1 | IC-K-AS1 56 / 20 | 20 |
+| AS2 | IC-K-AS2 50 / 20, IC-K-AS2B 60 / 25 | 45 |
+| AS3 | IC-K-AS3 45 / 20, IC-K-AS3B 45 / 20, IC-K-AS3C 100 / 40 | 80 |
+
+**Hisagi Shikai** (`(find-kit :hisagi :base)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | HS-N1A 62 / 25, HS-N1B 56 / 20, HS-N1C 80 / 30 | 75 |
+| NS2 | HS-N2A 45 / 20, HS-N2B 50 / 20, HS-N2C 85 / 35 | 75 |
+| NS3 | HS-N3A 40 / 15, HS-N3B 25 / 10 | 25 |
+| AS1 | HS-AS1 64 / 25 | 25 |
+| AS2 | HS-AS2 45 / 20, HS-AS2B 60 / 25 | 45 |
+| AS3 | HS-AS3 45 / 20, HS-AS3B 35 / 15, HS-AS3C 110 / 45 | 80 |
+
+**Hisagi Bankai, ranged** (`(find-kit :hisagi :bankai)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | HS-R-N1A 26 / 10, HS-R-N1B 31 / 10, HS-R-N1C 48 / 20 | 40 |
+| NS2 | HS-R-N2A 50 / 20, HS-R-N2B 57 / 25, HS-R-N2C 86 / 35 | 80 |
+| AS1 | HS-R-AS1 43 / 15 | 15 |
+| AS2 | HS-R-AS2 57 / 25, HS-R-AS2B 70 / 30 | 55 |
+| AS3 | HS-R-AS3 30 / 10, HS-R-AS3B 30 / 10, HS-R-AS3C 40 / 15 | 35 |
+
+**Hisagi Bankai, bind** (`(find-kit :hisagi :bankai-bind)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | HS-B-N1A 35 / 15, HS-B-N1B 45 / 20, HS-B-N1C 75 / 30 | 65 |
+| NS2 | HS-B-N2A 40 / 15, HS-B-N2B 60 / 25, HS-B-N2C 95 / 40 | 80 |
+| AS1 | HS-B-AS1 55 / 20 | 20 |
+| AS2 | HS-B-AS2 55 / 20, HS-B-AS2B 70 / 30 | 50 |
+| AS3 | HS-B-AS3 40 / 15, HS-B-AS3B 40 / 15, HS-B-AS3C 100 / 40 | 70 |
+
+<!-- sp-cost-table end -->
+
 ## 6. Characters
 
 A character is data: `defmove` (one plist per move) and `defkit` (one plist per form) in its own

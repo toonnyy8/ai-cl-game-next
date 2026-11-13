@@ -22,11 +22,19 @@ change after a playtest: `duel-character-rework`; the CPU: `duel-character-cpu`;
 | AS n | SP after an attack hit | n segments (`:as-by-press`: J1-2 → AS1, J3-4 → AS2, J5 → AS3) | ends the combo; writes the pointer n; only the last segment knocks down / launches |
 | SA | J in an NS gap (after the segment's active frames) | one, then the J string goes on (`SA :q J2`) | a segment may name its own SA (`:params :sa`) |
 
-The triangle judges a hit only while the defender is in a classed move's startup or active frames; a hazard (a wave) is never judged.
+The triangle judges a hit only while the defender is in a classed move's startup or active frames; a hazard (a wave, a KESSA clone's replay) is judged with the class of the segment that fired it (since 2026-11-13, DUEL_SP §6: a cancel removes it and refunds its owner, a beaten wave is spent).
 A cancel is a mutual no-damage bounce with a slow motion, and it is symmetric: both fighters' moves count as landed (links, AS, SP /
 Hoho cancels open for both; the side still in its startup only from its own first hit frame; DUEL_CORE §2.1, the user 2026-11-12:
 「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」). **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
 2026-10-28, DUEL_CORE §5b).
+
+**SP** (DUEL_SP, 2026-11-13): every NS and AS segment pays from the flash-step gauge when it starts, at a price computed once at kit
+registration from its damage (`kit-sp-cost`, kit.lisp: the segment's hit windows summed, else a wave's `:params :dmg`, else 0; x 0.4,
+rounded to 5, clamped 10-60, x the kit's `:core :sp-cost-mult`; `:params :sp-cost` overrides). So a new or retuned segment's damage
+moves its price: rerun `tools/sp-cost-table.lisp` (DUEL_DESIGN §5.1) and update `tests/duel-rules/sp.lisp`'s `*sp-table*`. A short gauge
+scales the damage (x0.5 + 0.5 paid / cost); at 0 a route's first NS segment still starts (x0.5), a later one is refused (the press is
+eaten), an AS never is; a cancel refunds once; a burst makes them free. A setup segment with no hit of its own costs the minimum 10, a
+wave's Kikon strike nothing. Prove a route's costs and refusals with `python3 tests/sp-costs-check.py` (native trials).
 
 ## ⚠ Restate before building (a segment table, then AskUserQuestion)
 | Pointer | Theme | Stance | NS segments (S, hit, reaction) | Its SA | AS n segments | Kikon cinematic |

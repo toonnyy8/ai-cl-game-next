@@ -1,0 +1,946 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(2506)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(2810)"
+},
+{
+"at": 10.0,
+"eval": "console.log('=== FULL')"
+},
+{
+"at": 10.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 10.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 10.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 10.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 10.6,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 10.68,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 10.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 10.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 11.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 11.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 11.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.8,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 11.88,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 12.3,
+"shot": "tests/shots/duel-practice-fs-pause-phone.png"
+},
+{
+"at": 13.4,
+"key": "Escape",
+"down": true
+},
+{
+"at": 13.48,
+"key": "Escape",
+"down": false
+},
+{
+"at": 13.8,
+"eval": "Module._debug_cmd(2809)"
+},
+{
+"at": 14.02,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.03,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.08,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.11,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.23,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.24,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.29,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.32,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.83,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.84,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.89,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.92,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.8,
+"eval": "console.log('=== ONE CELL')"
+},
+{
+"at": 16.8,
+"key": "Escape",
+"down": true
+},
+{
+"at": 16.88,
+"key": "Escape",
+"down": false
+},
+{
+"at": 17.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 17.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 17.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 17.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 17.6,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 17.68,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 17.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 17.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 18.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 18.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 18.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 18.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 18.6,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 18.68,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 20.2,
+"key": "Escape",
+"down": true
+},
+{
+"at": 20.28,
+"key": "Escape",
+"down": false
+},
+{
+"at": 20.6,
+"eval": "Module._debug_cmd(2809)"
+},
+{
+"at": 20.82,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 20.83,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.88,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.91,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.03,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.04,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.09,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.12,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.63,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.64,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.69,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.72,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.6,
+"eval": "console.log('=== EMPTY')"
+},
+{
+"at": 23.6,
+"key": "Escape",
+"down": true
+},
+{
+"at": 23.68,
+"key": "Escape",
+"down": false
+},
+{
+"at": 24.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 24.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 24.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 24.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 24.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 24.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 24.6,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 24.68,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 24.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 24.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 25.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 25.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 25.4,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 25.48,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 27.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 27.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 27.4,
+"eval": "Module._debug_cmd(2809)"
+},
+{
+"at": 27.62,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 27.63,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.68,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.71,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 27.83,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 27.84,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.89,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.92,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.43,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.44,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.49,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.52,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.4,
+"eval": "console.log('=== KEEP')"
+},
+{
+"at": 30.4,
+"key": "Escape",
+"down": true
+},
+{
+"at": 30.48,
+"key": "Escape",
+"down": false
+},
+{
+"at": 30.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 30.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 31.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 31.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 31.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 31.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 31.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 31.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 31.6,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 31.68,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 31.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 31.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 32.2,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 32.28,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 33.8,
+"key": "Escape",
+"down": true
+},
+{
+"at": 33.88,
+"key": "Escape",
+"down": false
+},
+{
+"at": 34.2,
+"eval": "Module._debug_cmd(2506)"
+},
+{
+"at": 34.25,
+"eval": "Module._debug_cmd(2810)"
+},
+{
+"at": 34.7,
+"eval": "Module._debug_cmd(2809)"
+},
+{
+"at": 34.92,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 34.93,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.98,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.01,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 35.13,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 35.14,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.19,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.22,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 35.73,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 35.74,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.79,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.82,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 37.7,
+"eval": "console.log('=== EMPTY vs GUARD ALL, J1')"
+},
+{
+"at": 37.7,
+"key": "Escape",
+"down": true
+},
+{
+"at": 37.78,
+"key": "Escape",
+"down": false
+},
+{
+"at": 38.1,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.18,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 38.3,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.38,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 38.5,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.58,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 38.7,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.78,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 38.9,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.98,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 39.1,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 39.18,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 39.5,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 39.58,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 41.1,
+"key": "Escape",
+"down": true
+},
+{
+"at": 41.18,
+"key": "Escape",
+"down": false
+},
+{
+"at": 41.5,
+"key": "Escape",
+"down": true
+},
+{
+"at": 41.58,
+"key": "Escape",
+"down": false
+},
+{
+"at": 41.9,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 41.98,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.1,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 42.18,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.3,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 42.38,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.5,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 42.58,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.7,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 42.78,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.9,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 42.98,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 43.3,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 43.38,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 44.9,
+"key": "Escape",
+"down": true
+},
+{
+"at": 44.98,
+"key": "Escape",
+"down": false
+},
+{
+"at": 45.3,
+"key": "Escape",
+"down": true
+},
+{
+"at": 45.38,
+"key": "Escape",
+"down": false
+},
+{
+"at": 45.7,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 45.78,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 45.9,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 45.98,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 46.1,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 46.18,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 46.3,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 46.38,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 46.5,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 46.58,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 46.7,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 46.78,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 47.1,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 47.18,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 48.7,
+"key": "Escape",
+"down": true
+},
+{
+"at": 48.78,
+"key": "Escape",
+"down": false
+},
+{
+"at": 49.1,
+"eval": "Module._debug_cmd(2811)"
+},
+{
+"at": 49.32,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.37,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.1,
+"eval": "console.log('=== END')"
+}
+]
