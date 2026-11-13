@@ -394,7 +394,7 @@ fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a
 
 (defun ichigo-chain-rest (e f)
   "KESSA resting under pointer 1: a blood chain out of each wrist and each ankle, curling round him and swaying (two links of arc each)."
-  (when (and *core-on* (= (fighter-ptr f) 1) (member (fighter-state f) '(:idle :guard)))
+  (when (and (= (fighter-ptr f) 1) (member (fighter-state f) '(:idle :guard)))
     (let ((p (pos-of e)) (tm (fx-clock)) (w *ic-ct*))
       (loop for (j lx ly lz) in *ic-chain-roots* for i from 0
             do (let* ((v (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))

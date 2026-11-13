@@ -196,9 +196,9 @@
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
   :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label)   ; L 0-3 (KEN-HIT raises it)
-  :hooks (:p ken-p :armor ken-armor :dmg-mult ken-dmg-mult
-          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: a no-op, ken-meter.lisp KEN-P;
-                                                                                              ;  :draw the sword wind by L, ken-look.lisp)
+  :run-awaken t                      ; (P from a run, as with the :p hook KEN-P it replaces: REFACTOR_2026-11 R11)
+  :hooks (:armor ken-armor :dmg-mult ken-dmg-mult
+          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (:draw the sword wind by L, ken-look.lisp)
   :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil)   ; (the core system: J and SP only; the Breaker the base's)
   :strings ((:ke-s-j1 :q :ke-s-j2) (:ke-s-j2 :q :ke-s-j3) (:ke-s-j3 :q :ke-s-j4) (:ke-s-j4 :q :ke-s-j5) (:ke-s-j5 :q :ke-s-j6)
             (:ke-s-j6 :q :ke-s-j7))                                      ; (J4-J7: L3, KEN-LINK-OK)

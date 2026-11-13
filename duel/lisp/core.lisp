@@ -41,9 +41,7 @@ and a real hit never opens his AS / SP / Hoho / guard cancels before his own hit
 
 
 ;;; ---------------------------------------------------------------- the sequence (what a press means)
-
-
-(defparameter *core-pointer-max* 4 "The pointer runs 1 .. this: the NA link an AS followed (a kit with four :core :as entries, KESSA, has a fourth: SPIRIT DRIVE's, DUEL_SUBLIMATION §9).")
+;;; (*CORE-POINTER-MAX*, *CORE-KIKON-MAX* and *CORE-SOUL-BREAK-MAX* are shared knobs: tuning.lisp, the core system's block)
 
 (defun core-clamp-pointer (n) "N clamped to 1 .. *CORE-POINTER-MAX*." (max 1 (min *core-pointer-max* n)))
 
@@ -56,9 +54,6 @@ clamped; with BY-PRESS (a kit's :core :as-by-press, the pointer after press 1, 2
       (core-clamp-pointer presses)))
 
 ;;; ---------------------------------------------------------------- the pointer's Kikon / Soul Break profiles
-(defparameter *core-kikon-max* 4 "Konpaku one Kikon takes at most (the old *KIKON-MAX-EVENT*).")
-(defparameter *core-soul-break-max* 5 "Konpaku one Soul Break takes at most (the old *SOUL-BREAK-MAX-EVENT*).")
-
 (defun core-kikon-count (base pointer red)
   "Konpaku a Kikon of a fighter whose form is worth BASE takes, struck by an SP of POINTER's style (DUEL_CORE.md §3). 1: the
 heavy-damage style, one less (at least 1). 2: red and zero are the same line: against a RED victim the Kikon takes what a Soul

@@ -1,5 +1,4 @@
 (in-package :duel)
-(setf *core-on* nil)   ; (the checks below quote the damage numbers of before the core system's scale, 2026-10-27; TRIANGLE turns it back on)
 
 (defvar *fails* 0)
 (defvar *checks* 0)
@@ -213,7 +212,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (= (hit-damage 1 nil nil 12 nil) 1))                             ; a hit always does 1
 (check (= (hit-damage 0 '(:mult 2.0) nil 1 t) 0))
      ; East x1.0 (the rework)
-(check (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nozarashi) 4) nil 1 nil) 120))   ; the Shikai x1.0 x Cornered 1.20
+(check (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nozarashi) 4) nil 1 nil) 60))   ; the Shikai x1.0 x the core scale (*CORE-DAMAGE* 0.42 x his :core :mult 1.2) x Cornered 1.20 = 60.48 (120 before the scale, the old *CORE-ON* NIL)
 (check (= (chip-damage 110 *chip-fire* 500) 13))
 (check (and (= (chip-damage 110 0.12 5) 4) (= (chip-damage 110 0.12 1) 0)))   ; chip never kills
 (check (= (chip-damage 110 nil 500) 0))                                  ; no chip by default

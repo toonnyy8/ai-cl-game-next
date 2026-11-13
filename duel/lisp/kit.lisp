@@ -277,6 +277,7 @@ new button."
   (gg-regen 1.0)                        ; x the guard gauge's refill rate in this form, not guardless (rules GG-REGEN)
   (l-after-k nil)                       ; L chained after a K link (docs/duel/DUEL_STRINGS.md §12): T its L, or a move (a combo copy)
   (l-after-j nil)                       ; ... after a J link (J1 / J2 / J2s / J3): T its L, or a move
+  (run-awaken nil)                      ; T: P (the awakening) cancels a run too (FIGHTER.LISP *RUN-COMMANDS-P*; Kenpachi's Shikai)
   (hooks nil)                           ; plist hook point -> the character file's function (KIT-HOOK; docs/duel/DUEL_DESIGN.md
                                         ; "Character code layout")
   (clip-map nil)                        ; plist clip -> clip: the form plays its moves' clips as these (a look: KIT-MOVE-CLIP)
@@ -383,7 +384,7 @@ else the generic SOUL-BREAK-CINE."
 (defun kit-atk-mods (kit lost &optional (hit-x 1.0) form-mult)
   "The attacker plist for HIT-DAMAGE: the form's multiplier (FORM-MULT in its place when given: a move's :params
 :form-mult) x HIT-X (the hit's own factors: APPLY-HIT) and Cornered with LOST Konpaku."
-  (list :mult (* (or form-mult (kit-mult kit)) hit-x (if (and *core-on* (kit-core kit)) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
+  (list :mult (* (or form-mult (kit-mult kit)) hit-x (if (kit-core kit) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
 (defun kit-def-mods (kit)
   "The defender plist for HIT-DAMAGE: the damage the form takes (:taken)."
   (list :mult (kit-taken kit)))
@@ -609,28 +610,55 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :gg-regen x                        x the guard gauge's refill rate in this form (default 1.0)
   :stun-tolerance n                  the hidden stun the form takes before the blow-away (default *STUN-TOLERANCE*;
                                      a derived form inherits it)
-  :hooks (point fn ...)              the character's own mechanics (KIT-HOOK; DUEL_DESIGN.md, Character code
-                                     layout): :u (e: U pressed; the form never guards), :step (e: a Step's frame 0), :hoho (e: a Hoho reappears),
-                                     :ok (e cmd combo: may the command start; NIL refuses it with the :refused cue),
-                                     :command (e cmd: the MOVE a neutral command starts, NIL = the :commands entry, :HOLD
-                                     = nothing starts, the press stays buffered; KIT-COMMAND-MOVE),
-                                     :tick (e f g: every sim step), :hit / :struck (e other res hw mv hazard ranged: after
-                                     a hit it dealt / took), :parried (e att: a catch by its parry), :draw (e rdt: looks
-                                     on the posed body), :hud-guard (drawn over its guard bar), :deck (e x y d: the
-                                     one-hand thumb ring), :settled (e lost left: a Kikon / Soul Break settled
-                                     on it, SETTLE-KONPAKU), :body-alpha (e: the body's draw alpha, a constant
-                                     float: a see-through form), :charge (e rdt: drawn instead of the fire charge
-                                     look of a held move), :p (e free: P once neither the awakening nor a Bankai
-                                     takes it, from a run too; T = the press taken), :p-label (e: the AWAKEN chip's
-                                     label, the chip then always shown), :reset (e: a Kikon / Soul Break reset put
-                                     him back, RESET-ROUND), :hash (e: a string added to his part of the state-hash
-                                     line, or NIL), :link-move (e next: the MOVE a latched J / K link starts instead
-                                     of NEXT, NIL = NEXT; fighter.lisp), :clash (e other: a clash, once a step for the
-                                     pair, CORE-CLASH!), :min-reach (e m: the dead zone, m or NIL, of his window whose
-                                     :min-reach is M, now: COLLECT-MELEE, MV-MIN-REACH; Hisagi's cancel unlock,
-                                     DUEL_HISAGI §29; no hook: M), the bind's :bind :bind-damage :bind-pool
-                                     :bind-heal :bind-step :bind-resolve :bind-snapshot (combat.lisp BIND-OF; Hisagi,
-                                     DUEL_HISAGI §17.4)
+  :hooks (point fn ...)              the character's own mechanics: KIT-HOOK finds POINT's function, the generic code calls
+                                     it where the point is (no hook: the generic rule). Every hook point (REFACTOR_2026-11 R11,
+                                     2026-11-13; point (arguments) where it is called: users among the live kits):
+    the sim (rules: called inside the step)
+      :tick (e f g)                  every sim step, after the hits (combat GAUGE-SYSTEM): Ichigo, Kenpachi's Bankai, Hisagi
+      :hit / :struck (e other res hw mv hazard ranged)   the end of APPLY-HIT, the attacker's / the defender's kit: Ichigo,
+                                     Kenpachi's Shikai (:hit), Hisagi
+      :parried (def att)             a catch by the form's parry (APPLY-HIT): Ichigo's KESSA
+      :dmg-mult (att def hw mv hazard d) -> x   a hit's damage factor (APPLY-HIT): Kenpachi, Hisagi
+      :unscaled (att)                true: his hit skips the combo scaling (APPLY-HIT): Hisagi's Bankai
+      :armor (e f mv)                true: DEFENDER-STATE reports :armor while E is in MV (OWN-ARMOR-P): Kenpachi
+      :ok (e cmd combo)              may the command start (KIT-COMMAND-OK-P; NIL at a press: REFUSED-CUE's :refused cue):
+                                     Ichigo's KESSA, Hisagi's Shikai
+      :command (e cmd)               the MOVE a neutral command starts, NIL = the :commands entry, :HOLD = nothing starts and
+                                     the press stays buffered (KIT-COMMAND-MOVE): Hisagi's Shikai
+      :link-move (e next)            the MOVE a latched J / K link starts instead of NEXT (MOVE-COMMANDS): Hisagi's Bankai
+      :link-ok (e next)              NIL: the kit refuses that link, the string ends (MOVE-COMMANDS): Kenpachi's Shikai, Hisagi
+      :step-dist (e f to st len)     a Step's distance (START-STEP): Hisagi's Bankai
+      :as-pick (e f n)               the AS press N starts (CORE-AS-START!): Kenpachi's Shikai
+      :lv (e)                        his level cap (CORE-SNAP-LV!): Kenpachi's Shikai
+      :clash (e other)               a clash, once a step for the pair (CORE-CLASH!): Hisagi
+      :min-reach (e m)               the dead zone, m or NIL, of his window whose :min-reach is M, now (COLLECT-MELEE; the
+                                     CPU's MV-MIN-REACH; no hook: M): Hisagi (his cancel unlock, DUEL_HISAGI §29)
+      :sp-gain-mult (att)            x his flash-step gain on a hit (SP-ATK-HIT!): Hisagi's Bankai
+      :kikon-worth (e)               the Konpaku his Kikon would take now (KIKON-WORTH): Ichigo's KESSA
+      :reset (e)                     a Kikon / Soul Break reset put him back (RESET-ROUND): Hisagi
+      :hash (e)                      a string added to his part of the state-hash line, or NIL (STATE-HASH-LINE): Hisagi
+      :p (e free)                    P when the awakening does not take it, from a run only with :run-awaken (TRY-COMMAND;
+                                     T = the press taken): none (the host tests' binder kit)
+      :step (e)                      a Step's frame 0 (START-STEP): none (KESSA's Step clone left 2026-11-13, R11)
+      :hoho (e)                      a Hoho's arrival (HOHO-STEP): none
+      :settled (def lost left)       a Kikon / Soul Break settled on him (SETTLE-KONPAKU): none
+      :siphon (o e)                  read off the OPPONENT's kit at every gain of E: true, O takes it (SIPHON-OF): none
+      the bind (combat.lisp BIND-OF; DUEL_HISAGI §17.4): :bind (e), :bind-damage (binder att def dmg), :bind-heal (b e n),
+                                     :bind-step (b phase), :bind-resolve (b), :bind-snapshot (b e): none (the host tests'
+                                     binder kit)
+    the looks and the HUD (the sim never reads them)
+      :draw (e rdt)                  looks on the posed body (DRAW-FIGHTER): every live form but Kenpachi's base
+      :pose (e m)                    a deformation of the posed joints right after the FK (DRAW-FIGHTER): Ichigo's Shikai, Hisagi
+      :body-alpha (e)                the body's draw alpha, a constant float: a see-through form (DRAW-FIGHTER): none
+      :charge (e rdt)                drawn instead of the fire charge look of a held move (DRAW-FIGHTER): none
+      :hit-fx (att def ...)          a kit's own mark on its hit (FEEDBACK-SYSTEM's :hit event): Kenpachi's Bankai, Hisagi's Bankai
+      :hud-tag (e)                   the plate's tag (WEBHUD-TAG): Ichigo's KESSA, Hisagi
+      :deck (e x y d)                the one-hand thumb ring (HUD-STICK): Ichigo's KESSA, Hisagi
+      :soul-break-cine               a cinematic's name, not a function: the form's Soul Break cinematic (KIT-KIKON-CINE):
+                                     Ichigo's KESSA
+                                     (:u, U as a move, U-PRESS!, left 2026-11-13, R11: no kit had it; :hud-guard and :p-label
+                                     were named here with no caller left)
+  :run-awaken T                      P (the awakening) cancels a run too (FIGHTER.LISP *RUN-COMMANDS-P*): Kenpachi's Shikai
   :clip-map (clip clip ...)          a look: the form plays a move's clip (or clip 2) as the mapped one (KIT-MOVE-CLIP:
                                      Jilliel KIN's SANREN on his wings; the move, shared with the base form, is unchanged)
   :look-clips (clip clip ...)        a look: the form plays a shared clip the generic code starts (the guard's :sh-guard /

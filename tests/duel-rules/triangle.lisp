@@ -1,6 +1,5 @@
 ;; ================================================================ the core triangle (duel/lisp/core.lisp, docs/duel/DUEL_CORE.md)
 (in-package :duel)
-(setf *core-on* t)
 ;; the note's table (判定表), attacker's view: row = the attacker's class, column = the defender's
 (dolist (r '((:na :na :hit) (:na :ns :cancel) (:na :as :cancel) (:na :sa :absorb)
              (:ns :na :cancel) (:ns :ns :hit) (:ns :as :absorb) (:ns :sa :cancel)
@@ -72,7 +71,7 @@
               (< (mv-dmg (kit-move k :ic-sa)) (mv-dmg (kit-move k :ic-sa-g1)) (mv-dmg (kit-move k :ic-sa-g2)))
               (every (lambda (n) (kit-next k n :q)) '(:ic-sa :ic-sa-g1 :ic-sa-g2))))
   (check (equal (getf (kit-core k) :stances) '(:ic-st-heavy :ic-tsuki :ic-st-rush)))
-  (let ((*core-on* t) (f (make-fighter :kit k)))
+  (let ((f (make-fighter :kit k)))
     (setf (fighter-ptr f) 1) (check (eq (fighter-stance-clip f) :ic-st-heavy))
     (setf (fighter-ptr f) 2) (check (eq (fighter-stance-clip f) :ic-tsuki))
     (setf (fighter-ptr f) 3) (check (eq (fighter-stance-clip f) :ic-st-rush))

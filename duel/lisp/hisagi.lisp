@@ -405,6 +405,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :clip-map *hs-shikai-clips* :look-clips *hs-shikai-looks* :run-clips (:hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l)
   :walk *hs-walk* :run *hs-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-mult* :taken *hs-taken*
   :push-reach *hs-push-reach*
+  :meter (:name "KAZESHINI" :max 1 :label hs-hud-label)   ; (the portrait label, hisagi-draw.lisp; its canvas row HS-HUD-METER left 2026-11-11)
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa-kiri   ; (YOSE: NS3a's gap, §27.7)
          :stances (:hs-s-stance :hs-st-kari :hs-st-raiden)       ; by pointer: the reveal / 刈's wound chain (§27.5) / the taut chain
@@ -705,6 +706,10 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :clip-map *hs-bk-clips* :look-clips *hs-bk-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
   :walk *hs-r-walk* :run *hs-r-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-r-mult* :taken *hs-r-taken*
   :push-reach *hs-r-push-reach*
+  ;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
+  ;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)
+  ;; (§28.15: the name tells the two modes apart on the plate's tag, and the Lisp HUD's pointer seals by it: 散 / 聚, 鎌 / 絞)
+  :meter (:name "RANGED" :max 1)
   :commands (:q :hs-r-j1 :f nil :sig nil :sp1 nil :sp2 nil :breaker :hs-breaker :kikon :hs-r-kikon)   ; (:kikon: its cinematic
                                                                 ;  the Soul Break's fallback; K / L / SP1 / SP2 none, §28.4)
   :strings *hs-r-core-strings*
@@ -720,7 +725,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-kb-stance
   :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"   ; (A2, §24.2: its own stance and walk, a look)
   :clip-map *hs-bk-clips* :look-clips *hs-kb-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
-  :push-reach *hs-b-push-reach*
+  :push-reach *hs-b-push-reach* :meter (:name "BIND" :max 1)   ; (the meter: as the Bankai's above)
   :walk *hs-b-walk* :run *hs-b-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult 1.0 :taken 1.0
   :commands (:q :hs-b-na1 :f nil :sig nil :sp1 nil :sp2 nil :breaker :hs-breaker :kikon :hs-b-kikon)
   :strings ((:hs-b-na1 :q :hs-b-na2) (:hs-b-na2 :q :hs-b-na3) (:hs-b-na3 :q :hs-b-na4) (:hs-b-na4 :q :hs-b-na5))
