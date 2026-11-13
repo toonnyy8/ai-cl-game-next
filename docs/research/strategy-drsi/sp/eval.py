@@ -142,6 +142,9 @@ def main():
     gs = groups(pop)
     cand = mine(a.cand)
     ss.build()
+    want = os.environ.get('SP_BUILD')   # (a round pins its sim build: a source edited under running cells rebuilt duel.fas, PLAN §7 risks)
+    if want and not ss.build_hash().startswith(want):
+        sys.exit(f'eval: sim build {ss.build_hash()[:12]} is not the round\'s SP_BUILD {want}: sources changed under the round')
     specs = {}                                           # (identical pools played once)
     for _, members in gs:
         specs.setdefault(','.join(members), None)

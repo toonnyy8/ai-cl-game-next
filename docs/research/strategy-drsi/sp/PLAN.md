@@ -48,7 +48,7 @@ Probes: main's `build/simgate/duel.fas` (post-SP), HARD, seeds 601-620, one seat
 
 - **Workspace:** one per (pairing, side), six for KI, KH, IH, under `docs/research/strategy-drsi/sp/<pair>-<side>/`.
 - **Cell:** one agent attempt writing or mutating one arm: a data plist (no build), or a `:fn` in the cell's own worktree and native build (§9, about 2.5 min).
-- **Initial program:** `(:id :s0-generic)`.
+- **Initial program:** `(:id :s0-generic)`. *Changed 2026-11-14 (DUEL_AI_STRATEGY §11.4): each side's strongest seed member, since in KI `none` plays the matchup style CPUs and `:s0-generic` is the floor.*
 - **Grid:** 4 branches x 3 attempts, W = 4 (khfn's).
 - **World pool:** every closed round of all six workspaces, one shared policy (§8.10's one world was weak evidence).
 - **Scoring command:** a new `docs/research/strategy-drsi/sp/eval.py`, khfn's `eval.py` generalised:
