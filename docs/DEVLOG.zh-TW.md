@@ -8936,3 +8936,15 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 證明：主機測試 2979 全過、control 124、pkgcheck 乾淨、`sp-costs-check.py` 114；瀏覽器腳本 `duel-practice-fs.json`／`-phone.json`：FULL 三段都在 fs 300 付全額，ONE CELL 在 100，EMPTY 時 NSa 以 0 出（×0.50）、NSb 被拒，KEEP 照一般扣；GUARD ALL 假人在 0 時也是 ×0.50。G2 與 §751 的參照完全相同（PRACTICE 不進 CvC）。
 
 分工：S9 由 Opus 5.5 子代理實作；主對話 Opus 5.5 審查、解衝突、重驗、記錄。
+
+## 753. 說明書與教學：清掉核心系統之前的舊內容（2026-11-13）
+
+使用者：「繼續」
+
+- 說明書：靈壓、防禦量表、防禦硬直／鎖定／削血、舊的提示標籤與大字（GUARD BREAK、PARRY、COUNTER 等）拿掉；三種爆氣、Kikon 回收（只剩 105）、覺醒條件、連段遞減（每下 15 %、最低 20 %；橘色 10 %／50 %）照程式碼重寫；劍八卍解的「紅色全滿」條件和檜佐木「卍解暫時不能開」刪掉。
+- 三個角色的 K／L／Shift+K 招式表全部換成現在的寫法（J、NS1–3 依指針、SA、AS、Kikon），每段附傷害與 SP 價錢（取自 DUEL_DESIGN §5.1），並註明各型態的實際傷害倍率。
+- 修正 S9 留下的按鍵錯誤：爆氣是 P（不是 Shift+J），覺醒是 Shift+P。PRACTICE 表補上 P1 AWAKEN、刪掉已不用的 TAP SPLIT；手機按鍵表換成現在的手勢表。
+- 教學：只更正對現況的描述；舊系統的歷史段落加上日期註記，ENDLESS／學習 CPU／ASSIST 註明 2026-11-13 已移到 `frozen-modes` 分支。
+- 發現一個程式問題（未改）：名牌上「對手 Kikon 會拿走幾顆魂魄」的提示用的是角色基本值，實際 Kikon 會依指針 ±1，兩者可能不一致。
+
+分工：Opus 5.5 子代理改寫；主對話 Opus 5.5 抽查按鍵與截圖、合併、記錄。
