@@ -46,6 +46,7 @@ lisp/scripted.lisp
 lisp/cpu-perceive.lisp
 lisp/rollout.lisp
 lisp/core-ai.lisp
+lisp/strategy-glue.lisp
 lisp/cpu-ki-ken.lisp
 lisp/cpu-ki-ichigo.lisp
 lisp/cpu-hisagi-range.lisp
