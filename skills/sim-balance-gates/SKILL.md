@@ -41,6 +41,7 @@ gate.lisp `ROSTER-PAIRS`): count his indices from there, and his core pairings a
 | Edge rerun | `--pairs k --seeds 60` | a 20-seed median outside the window is rerun at 60 seeds; that is the verdict |
 | Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` | when awakening rules change: the "never awaken" side wins ≥ 20/60 on **every** stream |
 | G2 reference | `simgate.py --cvc` (native) or `tests/style-gates.py cvc dist/duel`; pairs II IK KK | identical lines; on an intended change rewrite `tests/style-cvc-ref.txt` with a header note "after X (the user, date). Before: …" and update every place the reference line is quoted |
+| SP costs (native) | `python3 tests/sp-costs-check.py` (drives `tools/simgate/trial.lisp`) | every check passes (112 on 2026-11-13) |
 | Shipping build | `./build.sh duel` last | `dist/*/index.wasm` newer than every edited source |
 
 Match time excludes every cinematic since 2026-10-08 (`MATCH-PLAY-TICKS`, the frames the match timer ran; simgate sorts
@@ -53,6 +54,13 @@ Scope: a change inside one character's files, or a shared hook only he uses → 
 (the recogniser, the phone's mapping) moves no sim gate: the native sim has no touch; check it with `touch-test` and `run.mjs --mobile`.
 ASSIST (`assistgate.py`) and the old learner left `main` with R4 (branch `frozen-modes`); AI v2's `aieval.py` serves the core CPU only. Take a baseline on the parent commit (`git worktree add` → run the same gate) whenever
 you need to attribute a shift.
+
+SP (DUEL_SP, since 2026-11-13): NS / AS segments pay from the flash-step gauge at start, priced from their damage (`kit-sp-cost`, kit.lisp:
+damage x 0.4, rounded to 5, 10-60, x the kit's `:sp-cost-mult`), so a damage change is also a price change. The host test
+(`tests/duel-rules/sp.lisp` `*sp-table*`) pins every route total and fails first; regenerate DUEL_DESIGN §5.1 with `tools/sp-cost-table.lisp`.
+The sim's SP rules (a short gauge scales the damage, a later NS segment at 0 is refused, refunds, gains, the breakthrough, waves in the
+triangle) are proved by `tests/sp-costs-check.py`'s native trials (one trial per rule, exact `SP` / `BREAK` / `refund` log lines), not by
+CPU matches; G2 moves with any SP rule (the CPUs read the gauge), the reference is regenerated, no balance gate.
 
 ## When a gate fails
 1. Measure where the time/wins go (counters, logged runs: one log file per process).

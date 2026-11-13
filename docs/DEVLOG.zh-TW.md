@@ -8925,3 +8925,14 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 證明：主機測試 2979 全過（+10 項 `kit-sp-start-p`），control 124、input 33、touch 100、cine 18、hud-engine 121，pkgcheck 乾淨，`sp-costs-check.py` 114 項（新增：HARD CPU 在 NSa 命中後量表 0 時停手，同一種子量表 300 時照按），snaptest／fulltest 0 差異。
 
 分工：S7 由 Opus 5.5 子代理實作（Fable 先審過計畫）；主對話 Opus 5.5 審查、合併、重驗、記錄。
+
+## 752. S9：PRACTICE 的 FLASH STEP 設定、SP 說明書與消耗表；SP 系統完成（2026-11-13）
+
+使用者：「手感沒問題，繼續」
+
+- PRACTICE 暫停選單在 GAUGES 下面多一列 `FLASH STEP  KEEP／FULL／ONE CELL／EMPTY`（預設 KEEP＝一般規則）。非 KEEP 時每幀把雙方的瞬步量表固定在 300／100／0，蓋過 GAUGES INFINITE 的瞬步；爆氣中的一方不改，讓爆氣照常燒完。之後的列往下移一格（P1 AWAKEN 第 7 列、CAMERA 第 14 列），`duel-practice.json` 已跟著改。假人出招和玩家一樣經過 `core-start!` 付錢（確認過，不用改）。
+- 說明書：攻勢 KŌSEI 一節換成「SP 量表（瞬步）」：價錢（傷害 ×0.4、取 5 的倍數、10–60，劍八打折）、量表不夠時打折出招、0 時後段被拒、AS 不被拒、爆氣免費、相消退錢、J／SA／相消的回收、突破、AS1 搶奪、飛行道具進入相剋、切換付 SP，以及 HUD 提示。爆氣一格、自然回復只到一格、昇華回收減半等過時句子一併改掉。與 SP 無關的舊內容（靈壓、防禦量表、K／L／Shift+K 招式表等）沒有改，列成清單待決定。
+- DUEL_DESIGN 新增 §5.1，列出九個型態每段的 SP 消耗，由 `tools/sp-cost-table.lisp` 從 `kit-sp-cost` 產生（不是手打；總數與 DUEL_SP §4 和主機測試一致）。技能 `duel-move-modules`／`sim-balance-gates` 各補一段 SP；DUEL_SP §7 的死碼清單交給 REFACTOR_2026-11 §11（只剩 `bankai!` 的常數 `keep t` 分支）。
+- 證明：主機測試 2979 全過、control 124、pkgcheck 乾淨、`sp-costs-check.py` 114；瀏覽器腳本 `duel-practice-fs.json`／`-phone.json`：FULL 三段都在 fs 300 付全額，ONE CELL 在 100，EMPTY 時 NSa 以 0 出（×0.50）、NSb 被拒，KEEP 照一般扣；GUARD ALL 假人在 0 時也是 ×0.50。G2 與 §751 的參照完全相同（PRACTICE 不進 CvC）。
+
+分工：S9 由 Opus 5.5 子代理實作；主對話 Opus 5.5 審查、解衝突、重驗、記錄。

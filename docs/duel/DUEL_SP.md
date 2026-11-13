@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S6 and S8 built and merged (2026-11-13); S7 built (2026-11-13, branch); S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S9 built and merged (2026-11-13).** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -374,7 +374,7 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   `:as` wave and a scaled summon's replay follow from the table and the same code, untested by a scene.
 - **PRACTICE** (`duel-practice-cancel.json`, browser): 40 scenes, exit 0; scene h (2.2 m): the dummy's J1 starts on the tick the wave reaches it, `P1 SP refund 60.0 (fs 280.0)`, `P1 wave ns x P2: CANCEL` (then its J1 lands on Ichigo's recovery, 35); new scene h2 (6 m): J1 five ticks before, the same two lines; the six pairs' counts as DUEL_CORE §9 lists them.
 
-**S7 done (2026-11-13, branch, not merged).**
+**S7 done (2026-11-13, merged; DEVLOG §751).**
 - **Built** (statements, no weight retuned): the refusal test is one pure function, `kit-sp-start-p kit mv fs bursting` (kit.lisp; host-loaded,
   so tested on the kits' own moves): a costless move always, an NS / AS segment by `sp-start-p` with "first" = in the kit's `:core :ns`.
   `core-start!` refuses by it, so every start goes through the same test: a press, the S6 switch's target NS1, `hoho-resume!`'s segment,
@@ -411,6 +411,33 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   other gate kept, IK's hash and RESULTS lines are identical to main's, with 5 refusals, all `kk-link`'s. II 36 lines (P2 4-7, 356.7 s), IK 38 (P1 2-0, 374.3 s)
   -> 40 (P1 3-2, 398.3 s), KK 38 (P1 1-0, 375.3 s). Nothing retuned, no balance gates. Native `--cvc`
   PASS on the regenerated reference.
+
+**S9 done (2026-11-13, merged after S7; DEVLOG §752; G2 identical to S7's reference on the merged head).**
+- **PRACTICE's FLASH STEP row** (the §8.4 row's "GAUGES row (FS ...)"): a separate pause row after GAUGES, `FLASH STEP  KEEP / FULL / ONE CELL /
+  EMPTY` (`*practice-fs-levels*`, `*practice-fs*`, `practice-fs-value` in flow.lisp; the plan's `control.lisp` settings row was wrong: the pause rows
+  live in flow.lisp's `pause-keys` / `pause-label` / `pause-do` / `*practice-option-keys*`, which the Lisp HUD draws as they are). Not KEEP: both
+  fighters' flash-step held at `*fs-max*` / `*fs-cell*` / 0 every sim frame in `practice-step`, after the GAUGES INFINITE block (so it overrides the
+  flash-step INFINITE gives P1), skipped while that fighter's burst runs (as INFINITE: a burst drains, the value returns when it ends). Default KEEP
+  (normal play). ASCII label, no new glyph (a value row never shows its zh). The rows after GAUGES move down one: `duel-practice.json`'s key counts
+  (P1 AWAKEN 7, P1 HP 8, CAMERA 14) follow.
+- **Q19 verified, nothing built**: the dummy's presses are `practice-step` writing its BRAIN press, which the brain step writes into its vpad also
+  when `brain-off` is set (core-ai.lisp, the `vpad-set!` loop at its end); the fighter reads the vpad as a player's (`core-sp-start!` /
+  `core-move-sp!` / `core-latch-step` -> `core-start!`), so it pays, is scaled and is refused like a player. Proof below (`P2 SP ... x0.50`). Not
+  changed: GUARD ALL's `dummy-starts` lists an NS next segment without `sp-start-p`, so at 0 the dummy may plan a cancel press the sim then refuses
+  (the press is eaten, as a player's would be).
+- **Docs**: DUEL_DESIGN §5.1 "SP costs per segment" (one table per form, every segment's move name, damage and cost, the route totals; generated
+  between markers by `tools/sp-cost-table.lisp` from `kit-sp-cost`, idempotent; the §6 move tables are pre-core J / K / L tables, so no column
+  there); the manual (the `#kosei` § replaced by `#sp` "SP 量表（瞬步）", the 瞬步 row, the burst §, the AS1 amounts, JUJISHO's wave in the triangle,
+  the DUMMY row, SUBLIMATION's fill, Kenpachi's 臨時切換, the new PRACTICE row); TUTORIAL (the PRACTICE row, one dated SP note under 9.6.1);
+  DUEL_GAMEPLAY (the pause list, the PRACTICE table row, the scripts table); skills `duel-move-modules` (SP paragraph; the "a hazard is never
+  judged" line made true again) and `sim-balance-gates` (SP paragraph, the sp-costs-check row); §7's dead-code list handed to REFACTOR_2026-11
+  §11 (after R1's note: everything on it is gone but `bankai!`'s constant `keep`).
+- **Tests**: host 2969, control 124, input 33, touch 100, cine 18, hud-engine 121 (all unchanged); pkgcheck only `DUEL::APP`; debug ranges 0 errors;
+  `tests/sp-costs-check.py` 112 checks, all pass (unchanged). `duel-practice-fs.json` (browser, KK on DUMMY STAND, the row set by keyboard): FULL `P1 SP KE-Z-N1A / B / C
+  fs 300.0`, paid 20 / 15 / 20 x1.00; ONE CELL the same at `fs 100.0`; EMPTY `P1 SP KE-Z-N1A fs 0.0 cost 20.0 paid 0.0 x0.50`, `P1 SP KE-Z-N1B
+  refused (fs 0.0)`; KEEP (a fresh match) `fs 300.0`, `280.0`, `265.0`; EMPTY on GUARD ALL with P1's J1: `P2 SP KE-Z-N1A fs 0.0 cost 20.0 paid 0.0
+  x0.50` (the dummy pays). `duel-practice-fs-phone.json` (`--mobile --size 390x844`, 2506: Ichigo vs Kenpachi): FULL `P1 SP IC-N1A / B / C fs 300.0` paid 25 / 25 / 35; ONE CELL the same at `fs 100.0`; EMPTY `P1 SP IC-N1A fs 0.0 cost 25.0 paid 0.0 x0.50`, `P1 SP IC-N1B refused (fs 0.0)`; KEEP 300.0 / 275.0 / 250.0; GUARD ALL: `P2 SP KE-Z-N1A fs 0.0 cost 20.0 paid 0.0 x0.50`, `P2 SP refund 0.0 (fs 0.0)`, `P1 IC-J1 x P2: CANCEL`. The pause shows all 14 rows on the phone and 15 on the desktop (stills checked by eye). `duel-practice.json` after the row shift: every row lands as before (`GAUGES  INFINITE`, `CAMERA  BEHIND`, the HP / KONPAKU rows, dumps P1 `r650 k4`, P2 `r325 k8`, `P1 AWAKEN  SUBLIMATION 50` / `FULL`). Smoke desktop and `--mobile 390x844` exit 0, startup heap 74.8 MB; wasm 10,283,780 B.
+- **G2**: identical (PRACTICE never runs in CvC; the default is KEEP): native `--cvc` PASS against `tests/style-cvc-ref.txt`, II 36 lines (P2 4-7, 356.7 s), IK 38 (P1 2-0, 374.3 s), KK 38 (P1 1-0, 375.3 s); no reference change. No balance gates.
 
 ### 8.5 Order and parallelism
 

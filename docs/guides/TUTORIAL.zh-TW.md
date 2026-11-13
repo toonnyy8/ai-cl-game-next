@@ -644,6 +644,8 @@ duel -> RESULTS winner P2 konpaku 0-9 ticks 5474 secs 91.2
 
 三種都要瞬步量表 70 以上（使用者：「一樣維持要兩格才能爆氣」），開的時候不扣，之後每秒掉 18，到 0 結束；期間瞬步量表不會回，但不滿一格也能 Hoho（花掉剩下的）。Kikon 打中時攻擊方拿回 35 瞬步和 1 格靈壓（2026-09-30 起，打出 Soul Break 也一樣，`combat.lisp` 的 `settle-souls`）。
 
+（上面是 2026-09-30 的數字。2026-10-29 量表改成 0–300；**2026-11-13 起瞬步量表同時是 SP 量表**，三種爆氣都只要一格（100）就能開、爆氣中 NS／AS 不花 SP，自然回復只回到一格。NS、AS 每一段出手時依它的傷害付錢（傷害 ×0.4，取到 5，10～60；表在 [DUEL_DESIGN.md](../duel/DUEL_DESIGN.md) §5.1，由 `tools/sp-cost-table.lisp` 產生），不夠付就打折傷害，0 時 NS 第二段起被拒絕；相消退錢、J／SA 打中和相消賺回來，相消後第一個打中的人奪走對方一格以上的瞬步。玩家看的規則在遊戲說明的「SP 量表」一節，設計和實作在 [DUEL_SP.md](../duel/DUEL_SP.md)。）
+
 **覺醒先回兩成血**（使用者 2026-09-30：「統一幫我覺醒先恢復 20% 血量」）：每個角色覺醒的那一刻都先回最大靈子的 20%（1300 的 260），之後才是和白色爆氣一樣的持續回復。以前這是每個型態自己的 kit 鍵 `:heal`（只有野晒回 150，其他都是 0）；現在改成一個共用的數字 `*awaken-heal*`（`tuning.lisp`），在 `combat.lisp` 的 `awaken!` 裡加上去，`:heal` 這個鍵就刪掉了。劍八的卍解本來就回滿，不受影響。
 
 讀程式的順序：選模式是純函式 `burst-mode`、`burst-allowed-p`（`rules.lisp`），`combat.lisp` 的 `burst-mode-of` 把戰士的狀態餵給它；`burst!` 開始、`burst-step`（在 `gauge-system` 裡）每格扣量表和白色的回復、`burst-end!` 結束；橙色的前搖縮短在 `fighter.lisp` 的 `start-move`（`fighter-chain` 是剩下的格數）。量表和光環的顏色在 `vfx.lisp` 的 `burst-color`，藍色是新加的第 13 個卡通調色盤（`engine/shaders/fx-toon-pal.wgsl` 的 12 號）。設計和數字在 [DUEL_DESIGN.md](../duel/DUEL_DESIGN.md) 的「Burst modes」。
@@ -706,6 +708,7 @@ duel -> RESULTS winner P2 konpaku 0-9 ticks 5474 secs 91.2
 | COUNTER | **OFF**／J1 | 假人每次被打中或擋下後，第一個能動的幀就用 J1 反擊（DUMMY 是 CPU 時不作用） |
 | HP REFILL | **AUTO**／OFF | AUTO：連段一結束假人的血就回到 DUMMY HP 的值；OFF：不補，可以把它打到紅血練 Kikon |
 | GAUGES | **NORMAL**／INFINITE | INFINITE：自己的血維持在 P1 HP 的值，防禦量表、靈壓、瞬步、覺醒量表一直是滿的，覺醒和 SP 隨便試（爆氣時瞬步量表照樣燒到 0、爆氣結束才回滿） |
+| FLASH STEP | **KEEP**／FULL／ONE CELL／EMPTY | 雙方的瞬步量表（也就是 SP 量表）每幀固定在 300／100／0，KEEP 照一般規則；不是 KEEP 時蓋過 GAUGES INFINITE 的瞬步，爆氣中照樣燒完（2026-11-13 起，`flow.lisp` 的 `practice-fs-value`） |
 | P1 HP／DUMMY HP | **100%**／75／50／25／10% | 自己／假人的血，改了立刻生效；重置、補血、K.O. 之後也回到這個值。25% 就是紅血 |
 | P1 KONPAKU／DUMMY KONPAKU | 1～**9** | 自己／假人的魂魄數，改了立刻生效。劍八的卍解條件正在改成「三杯而且自己的魂魄 ≤ 4」（另一批工作），之後把 P1 KONPAKU 調到 4 以下就能試卍解 |
 | RESET POSITION | — | 兩人回到開場位置、型態回到最初、量表全滿，血和魂魄是上面四項的值 |
