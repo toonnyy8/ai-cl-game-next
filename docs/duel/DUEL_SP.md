@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S2 built (S2 on a branch, 2026-11-13).** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S3 built (S3 on a branch, 2026-11-13).** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -249,6 +249,30 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   and `--mobile 390x844` exit 0. `sp-paid` stays on the fighter after his route ends (only `start-move` clears it), so the hash's `s` shows
   the last segment's payment while idle or reeling; damage and refunds read it only inside that segment (`own`, `cls`). For S3: once KOSEI's
   flash-step leaves, tighten `sp-costs-check.py`'s at-30 and AS3-from-0 asserts to exact refusals / x0.50.
+
+**S3 done (2026-11-13, branch worktree-agent-adb967ac06c89e34d, not merged).**
+- **The gains** (DUEL_CORE §11): `apply-hit` calls `sp-atk-hit!` (combat.lisp) for every damaging hit window of the attacker's own move (`own`, not a hazard,
+  dealt > 0) whose class is `:na` / `:sa`: `sp-atk-gain` x the kit's `:sp-gain-mult` hook, through `pay-gauges` (nothing in a burst, x SUBLIMATION). Per hit window
+  (Q3 as the user changed it), so a multi-hit SA pays per hit; a :dmg-at move (Kenpachi's delayed cuts) pays at the hit, not when the damage lands. A log line
+  `SP hit gain G (fs F)` shows what the gauge really gained. `core-nohit!`'s `:cancel` pays `sp-atk-gain :cancel` (+30) to each side whose class is `:na` / `:sa`,
+  once per move (`fighter-sp-gain-t` = the move's `cls-t`; not in the hash, a fighter is made fresh each match), log `SP cancel gain`; the move that cancels
+  earns no hit gain from that verdict. `pay-gauges`' pure core is `fs-gain` (rules.lisp, Q18).
+- **KOSEI is gone, not just its flash-step**: after the A1 fix (SP segments) and S1 (:sp / :kikon kinds) the remaining :quick / :flash / :sig kinds left too, and
+  KOSEI paid nothing else, so `kosei!`, `kosei-mult` / `-base` / `-gain`, the four `*kosei-...*` knobs, debug 27000+k and their tests are removed (not zeros left in a
+  table). Q15's "KOSEI's guard-gauge multiplier no longer applies to flash-step" is then simply true. `*fs-taken*` and its combo bonus stay. The manual's 攻勢 KŌSEI §
+  (manual.html `#kosei`) still describes the old rule: the lead's to rewrite.
+- **Hisagi** (A1 playtest (3), 「沿用 ×1.3」): a kit hook `:sp-gain-mult` (both Bankai modes' hook lists): `hs-dmg-base` marks the hit's factor on `hss-sp-x`
+  (tip x1.3 when the hit's tip read says so, x1.3 more for a move of `*hs-r-spread-moves*`: J1, J2, J3, J4, J5, K2s, K3), `hs-sp-gain-mult` returns it; knobs
+  `*hs-r-tip-sp-mult*` / `*hs-r-spread-sp-mult*` 1.3 in hisagi.lisp. Not a Hisagi branch in combat. Default taken: the spread list is the J1-opened chain's moves by name (the
+  doc's "J1 and its links J2 / K2s / J3 / K3" predates the J1 > J2 > J3 > J4 > J5 string, so `na3` / `na4` are in); the gathered links and the Shikai get x1.
+  Measured: J1 at the tip +16.9, off the tip in the spread band +13.0, Shikai J1 +10.
+- **Tests**: host 2960 -> 2957 (KOSEI's checks out, `fs-gain` and the hook's marks in), control 116, input 33, touch 100, cine 18,
+  hud-engine 121; pkgcheck only `DUEL::APP`; debug ranges 0 errors. `tests/sp-costs-check.py` (trial.lisp gained `:burst` and `:p2-fs`) 94 checks pass (86 before): J1-J3 +10 each
+  (110 / 120 / 130), NS1a then its SA +15 only, J vs J tie +30 each (no refund), J vs NS1a +30 and the NS side's 25 back, J1-J3 in ORANGE / WHITE / BLUE +0 each,
+  Hisagi 16.9 / 13.0 / 10. The at-30 asserts are exact: each start is the last one's fs - paid and a gauge at 0 refuses the next (no KOSEI income); AS3 from 0 is no longer "every
+  segment at x0.5": its J string's five +10 (plus the first second's regen trickle) put AS3a at 54.2, so AS3a / b pay in full (20, 30) and AS3c the 4.2 left (x0.55: 30 of 55 damage, reaction and stun equal).
+- **G2**: native `--cvc` regenerated, browser `style-gates.py cvc` PASS (= native, 37 / 41 / 36 lines): II 37 lines (P1 7-6, 371.5 s), IK 41 (P2 1-3, 403.5 s), KK 36 (P1 3-0, 361.0 s); before II 37 (P2 7-7, 367.9 s), IK 37 (P2 0-5, 371.5 s),
+  KK 43 (P1 3-1, 426.0 s). No balance gates. Not done here: `core-kikon-cancel!`'s victim J / SA +30 (Q12) waits for S4 with the exchange.
 
 ### 8.5 Order and parallelism
 

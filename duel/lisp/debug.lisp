@@ -528,7 +528,6 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 22000 c 22999) (setf *gg-regen* (/ (- c 22000) 10.0)))
         ((<= 23000 c 23999) (setf *gg-regen-guardless* (/ (- c 23000) 10.0)))
         ((<= 26000 c 26999) (scale-k-links (- c 26000)))
-        ((<= 27000 c 27999) (setf *kosei-fs* (/ (- c 27000) 200.0)))   ; (its *KOSEI-REIATSU* = k / 100 left, R6)
         ((<= 30000 c 30999) (setf *gate-seed0* (- c 30000)))
         ((<= 31101 c 31199) (setf *gate-seeds* (- c 31100)))
         ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth, so 2513 below is reachable)

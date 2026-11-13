@@ -219,6 +219,11 @@ in `:move` is already F (never Hoho). The O chip's LIGHT Kikon latch holds O thr
 
 ## 5. KŌSEI 攻勢, the aggression reward
 
+> **Removed 2026-11-13 (DUEL_SP S3, DUEL_CORE §11).** KOSEI's last output, the flash-step of a contact, is replaced by the SP design's ATK
+> gains: a J hit +10, an SA hit +15 (per damaging hit window), +30 for a J / SA in a cancel; NS / AS contacts, Kikons and hazards pay
+> nothing (their KOSEI flash-step left earlier: SP segments 2026-11-13 after the A1 playtest, `:sp` / `:kikon` kinds 2026-11-13 S1). Its code
+> (`kosei!`, `kosei-mult`, the `*kosei-...*` knobs, debug 27000+k) is gone; below is the record of the rule as it was.
+
 **What pays**: every resolved contact of the attacker's **own melee hit window** (the `own` test that sets
 `fighter-contact`): hit, counter, blocked by a guard / ward / DRINK, armoured, absorbed. That covers J / K links, the O
 ender and the neutral O strike, the Breaker, SP blades and West's counter. **What doesn't**: whiffs, iframes, parried

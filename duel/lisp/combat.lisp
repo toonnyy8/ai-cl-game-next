@@ -1,7 +1,7 @@
 ;;;; combat.lisp — what happens when fighters touch (design-v1 §1, §3, §4): HIT-SYSTEM (clash check,
 ;;;; then COLLECT every fighter's and hazard's hits, then APPLY them all: a trade is a trade, no side
 ;;;; goes first; then settle the souls they broke), APPLY-HIT (the triangle, damage, reactions, chip,
-;;;; gauges, hitstop, KOSEI; the Kikon rush's strike becomes the Kikon here; the parry), Kikon / Soul Break / awakening
+;;;; gauges, hitstop; the Kikon rush's strike becomes the Kikon here; the parry), Kikon / Soul Break / awakening
 ;;;; / form changes (all settled here, at connect time; cinema.lisp only presents them), the perfect-Hoho test and GAUGE-SYSTEM (regen, GUARD HOLD, burns,
 ;;;; form timers, EVOLUTION). (The retired kits' ward, pierce, drink, cut, cold, frost and the Hellfire meter left 2026-11-12.) Decisions are rules.lisp's; effects are EMITted for feedback.lisp.
 (in-package :duel)
@@ -19,7 +19,7 @@ at its end (SETTLE-SOULS), so a lethal trade breaks both souls and no side goes 
 (defun siphon-of (e)
   "The fighter taking E's gains now, or NIL: the opponent's kit's :siphon hook (o e) is true while something of his drains
 E (a zone he stands in). Asked at every gain, so it ends the frame the zone ends or E leaves it. Siphoned, E gains nothing
-from a hit, a block, a parry or his own blade (GAIN-GAUGES, KOSEI!, the parry's
+from a hit, a block, a parry or his own blade (GAIN-GAUGES, SP-ATK-HIT!, the parry's
 refill, SETTLE-KONPAKU's Fighting Spirit); his flash-step gains go to that fighter, the rest is lost."
   (let* ((o (opp-of e)) (h (and (entity-alive-p o) (kit-hook (kit-of o) :siphon))))
     (and h (funcall h o e) o)))
@@ -97,7 +97,18 @@ by XS only (AWAKEN-OVERFLOW)."
   "E gains FS flash-step (kept at its max; nothing during a burst: BURST-FS-GAIN; x (1 + *SUB-FS* x SUB-OF)). (Its Reiatsu
 half left with the gauge, 2026-11-13, REFACTOR_2026-11 R6.)"
   (let ((g (gauges e)))
-    (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (* (burst-fs-gain fs (gauges-burst g)) (+ 1.0 (* *sub-fs* (sub-of e)))) *fs-max*)))))
+    (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (fs-gain fs (gauges-burst g) (sub-of e)) *fs-max*)))))
+
+(defun sp-atk-hit! (att fa)
+  "ATT's J / SA hit window just dealt damage (APPLY-HIT): the flash-step it earns, SP-ATK-GAIN of his move's class x his kit's :sp-gain-mult
+hook (Hisagi's Bankai tip / spread route, DUEL_SP §8.6 A1 playtest), through PAY-GAUGES (nothing in a burst, x SUBLIMATION; Q2, Q18). Once per
+damaging hit window (the user's Q3 change: a multi-hit SA pays per hit); NS / AS / Kikon segments earn nothing. Logs `SP hit gain` with what
+was actually added."
+  (let ((g (sp-atk-gain (fighter-cls fa) nil)))
+    (when (> g 0.0)
+      (let* ((h (kit-hook (kit-of att) :sp-gain-mult)) (fs0 (gauges-fs (gauges att))))
+        (pay-gauges att (if h (* g (funcall h att)) g))
+        (clog "~a SP hit gain ~,1f (fs ~,1f)" (side-name att) (- (gauges-fs (gauges att)) fs0) (gauges-fs (gauges att)))))))
 
 (defun gain-gauges (e dealt taken &optional (n 1))
   "Flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage at the combo's Nth hit (HIT-GAINS; siphoned:
@@ -166,14 +177,6 @@ picks the cinematic); once per victim. (A bind's drained end queues its own: DUE
   "The opponent outplayed E (his counter-hit, perfect Hoho, parry or Burst against E): E's :respect-callout
 (Nozarashi: \"OMOSHIREE!\", a callout only: no meter)."
   (let ((c (kit-respect-callout (kit-of e)))) (when c (callout e c))))
-
-(defun kosei! (att g)
-  "KOSEI (docs/duel/DUEL_STRINGS.md §5): a contact of ATT's own melee hit window worth G points (KOSEI-BASE x the combo
-bonus, since 2026-10-26; before: its guard value) pays him flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3
-empty). Siphoned (SIPHON-OF), it pays the siphoning side. (Its Reiatsu half, x1.5 in ORANGE, left with the gauge,
-2026-11-13, R6. Its :kosei event, the canvas HUD's ember mote, left with that HUD, 2026-11-11.)"
-  (let ((to (or (siphon-of att) att)))
-    (pay-gauges to (kosei-gain g (gauges-gg (gauges att))))))
 
 ;;; ---------------------------------------------------------------- one hit
 (defun drain-guard (e v &optional (why :block))
@@ -257,13 +260,6 @@ result (NIL = no effect)."
               (side-name def) res base)
         (when (and hazard (eq (contact-of res) :hit)) (setf (fighter-hz-hit fa) t))   ; (his move's :r-cancel-from; ponytail:
                                                         ;  any hazard of his counts, scope it to the spawning move if one needs)
-        (when (and own (not ranged) (not (member res '(:parried :kikon)))   ; KOSEI: his own blade touched him; an SP segment's
-                   (not (member (fighter-cls fa) '(:ns :as))))                ;  contact pays none (DUEL_SP §5; the user 2026-11-13:
-                                                                               ;  「NS 如果量表已歸 0 不足要被拒絕出招，但現在打中對手還是能強行接續」)
-          (kosei! att (* (kosei-base (mv-kind mv) (getf (mv-params mv) :kosei))   ; its kind's points x the combo bonus
-                         (combo-gain-mult (if (eq (contact-of res) :hit)            ;  (this hit's index; a block 1)
-                                              (- (1+ (fighter-combo-hits fd)) (fighter-combo-from fd))
-                                              1)))))
         (when (eq res :counter) (respect def))
         (ecase res
           (:kikon nil)                                  ; settled at the end of the step (SETTLE-SOULS)
@@ -294,6 +290,7 @@ result (NIL = no effect)."
                (clog "~a dealt ~d: ~(~a~) stun ~d" (side-name att) dmg react stun)   ; (the scaled hit's reaction = the full one's: DUEL_SP S2)
                (if ranged (incf (gauges-taken-ranged (gauges def)) dmg) (incf (gauges-taken-melee (gauges def)) dmg))
                (setf (gauges-best-combo (gauges att)) (max hits (gauges-best-combo (gauges att))))
+               (when (and own (not hazard) (> dmg 0)) (sp-atk-hit! att fa))   ; a J / SA hit window that dealt damage: +10 / +15 (DUEL_SP §5)
                (hitstop (hw-hs hw))
                (emit :hit att def x y z (hw-hs hw) (eq res :counter) dmg
                      (cond ((member :ice flags) :ice) ((eq react :bind) :bind) ((member :blade flags) :flash)

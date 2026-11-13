@@ -545,3 +545,22 @@ DUEL_SP §3-§4; what the core system does with them:
   (capped at 300, no SUBLIMATION factor, nothing withheld in a burst, the regen wait untouched). An `:absorb` is not a cancel (Q5).
 - **The hash line**: `s<sp-paid>` per side replaced the dead `h<heat>` (DUEL_GAMEPLAY "Log lines").
 
+## 11. SP: the ATK gains, KOSEI gone (DUEL_SP, batch S3, 2026-11-13)
+
+The user (2026-11-12): 「使用 ATK（包含 J 與 SA）造成傷害會恢復 SP，ATK 相消則會恢復更多 SP」, 「J 命中 +10」; Q3 changed to per hit window (DUEL_SP §8.6).
+
+- **A hit** (combat.lisp `apply-hit` -> `sp-atk-hit!`): every damaging hit window of the attacker's own J link (class `:na`) pays +10 and of
+  his SA (`:sa`) +15 (`sp-atk-gain`, sp.lisp; `*sp-gain-j*` / `*sp-gain-sa*`), through `pay-gauges` (nothing in a burst, x the SUBLIMATION
+  bonus: its pure core is `fs-gain`, rules.lisp, Q2 / Q18). A multi-hit SA pays per hit window; a block, a whiff, a hazard, a Kikon strike
+  and every NS / AS contact pay nothing. A kit may scale it with a `:hooks :sp-gain-mult` function of the attacker (Hisagi's Bankai: the tip
+  and spread-route x1.3, below); no hook: x1.
+- **A cancel** (`core-nohit!`'s `:cancel`): each side whose move is a J / SA takes +30 (`*sp-gain-cancel*`), once per move (`fighter-sp-gain-t`
+  = the move's `cls-t`, so a tie's two verdicts pay once each), instead of any hit gain (a cancel deals no damage); an NS / AS side is
+  refunded (S2). A tie of two J's: both +30; J vs NS: the J side +30, the NS side its payment back.
+- **KOSEI is gone**: its only output was flash-step, which the table above replaces (the user's design: SP moves pay SP, ATK earns it).
+  `kosei!`, `kosei-mult` / `kosei-base` / `kosei-gain`, `*kosei-bonus*` / `*kosei-fs*` / `*kosei-kind*` / `*kosei-kind-other*` and debug
+  27000+k left; the combo bonus (`combo-gain-mult`) still scales the damage-taken gain. `*fs-taken*` (damage taken) is kept. DUEL_STRINGS §5 is the record of the old rule.
+- **Tests**: `tests/sp-costs-check.py` (native scripts, both sides' inputs): J1-J3 on a dummy +10 each; NS1a then its SA +15 (the NS hit nothing); J tie
+  +30 both, once; J vs NS1a +30 / refund; J1-J3 in ORANGE / WHITE / BLUE +0 (the gauge only drains); Hisagi's Bankai J1 at the tip +16.9, off
+  the tip +13.0, Shikai +10; AS3 from 0 refills by its J string's five +10; a route at 30 follows exactly (fs' = fs - paid) and the segment at 0 is refused. Host: `fs-gain`, the hook's marks.
+

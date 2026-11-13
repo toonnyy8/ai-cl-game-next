@@ -150,6 +150,10 @@ r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the 
 加成提高到能讓 K 串傷害能到平均值的 1.3 倍」, 「共用 1.71」: K1 -> K2 -> K3G all on the tip 313, 1.3 x the 21 awakened forms'
 K string mean 240.3, DUEL_HISAGI §25.13). A route link (links 2-3) takes its opener's (J1 / K1's) tip read, not its own
 distance (§25.13: 「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀態」; HSS-ROUTE-TIP) ...")
+(defparameter *hs-r-tip-sp-mult* 1.3
+  "... and the SP that J / SA hit earns him is x this on top (none -> x1.3, 2026-10-18, the user: 「卍解遠距的鎖鏈尾端除了傷害加成以外也增加
+SP 恢復量的加成」, §25.5; it went with the Reiatsu gauge, 2026-11-13, R6; back on the flash-step gauge's ATK gains the same day, the user: 「沿用 ×1.3」,
+DUEL_SP §8.6 A1 playtest (3): a tip hit's J +10 -> +13). HS-SP-GAIN-MULT.")
 (defparameter *hs-b-close* 1.2 "A bind-mode hit within this many m (centre to centre) ...")
 (defparameter *hs-b-close-mult* 1.3
   "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1; 1.2 -> 1.3, 2026-10-19, the user: 「近身加成升到
@@ -184,6 +188,13 @@ user: 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍�
 ;;; 聚合的鎖鏈攻擊更痛」; 「身旁旋轉會打到」, 「拿掉落點」 (B4a's placed marks gone), 「散 −3 幀×0.85／聚 +3 幀×1.3」, 「可以」 to
 ;;; the segment table (§22.4). The opener decides the route of links 2-3: J1-opened = spread (the thin hanging chains),
 ;;; K1-opened = gathered (K1 binds them into one bundle). The moves carry the numbers (host-pinned against these).
+(defparameter *hs-r-spread-sp-mult* 1.3
+  "The spread route's hits (J1 and its links: J2 - J5, K2s, K3; `*hs-r-spread-moves*`) earn their SP x this, on top of the tip's (x1.69 a tip
+hit of the route) (none -> x1.3, 2026-10-19, the user: 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量」, 「×1.3」, 「起手也加」, §25.11; gone with the
+Reiatsu gauge 2026-11-13, R6; back on the ATK gains the same day, the user: 「沿用 ×1.3」, DUEL_SP §8.6 A1 playtest (3)).")
+(defparameter *hs-r-spread-moves* '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-k2s :hs-r-k3)
+  "The ranged mode's spread route's moves (the J1-opened thin chains: J1 > J2 > J3 > J4 > J5 and the spread K2 / K3), which take `*hs-r-spread-sp-mult*`;
+the gathered links (:hs-r-j2s, :hs-r-j3g, the gathered SA, K1's links) do not.")
 (defparameter *hs-r-gather-guard-mult* 1.3
   "The gathered route's guard damage (K1 and its links K2 / J2s / K3G / J3G): their :guard x this, rounded, written into the
 moves (none -> x1.3, 2026-10-19, the user: 「K1 起手的聚路線增加削防值」, 「×1.3」, 「起手也加」, §25.11: K1 / K2 14 -> 18,
@@ -669,11 +680,11 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 
 (defparameter *hs-r-hooks* '(:tick hs-bk-tick :hit hs-bk-hit :reset hs-reset :hash hs-hash :draw hisagi-draw :pose hs-pose
                              :deck hs-deck :dmg-mult hs-dmg-mult :hit-fx hs-tip-fx :step-dist hs-step-dist
-                             :unscaled hs-tip-now-p :link-move hs-r-link-move :clash hs-clash :min-reach hs-min-reach :hud-tag hs-bk-hud-tag)
+                             :unscaled hs-tip-now-p :sp-gain-mult hs-sp-gain-mult :link-move hs-r-link-move :clash hs-clash :min-reach hs-min-reach :hud-tag hs-bk-hud-tag)
   "The ranged mode's hooks (§28.4): no :bind / :bind-* (§17's bookkeeping gone, BIND-OF NIL), no :ok / :command (KUBIKAKE's SP2,
 SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move); §29's cancel unlock (:clash, :min-reach) and its tag.")
 (defparameter *hs-bk-hooks* '(:tick hs-bk-tick :hit hs-bk-hit :reset hs-reset :hash hs-hash :draw hisagi-draw :pose hs-pose
-                              :deck hs-deck :dmg-mult hs-dmg-mult :hit-fx hs-tip-fx :clash hs-bk-clash
+                              :deck hs-deck :dmg-mult hs-dmg-mult :sp-gain-mult hs-sp-gain-mult :hit-fx hs-tip-fx :clash hs-bk-clash
                               :min-reach hs-min-reach :hud-tag hs-bk-hud-tag)
   "The bind mode's hooks (§28.4): the ranged mode's without the gathered J and the Step's chain tip, with the clash's balance (and §29's unlock).")
 (defparameter *hs-bk-clips* (append '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer) *hs-r-clip-stand-ins*)
@@ -780,6 +791,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (route-tip nil)                             ; §28.7: his last ranged hit of this combo was on the tip (cleared in neutral, HS-BK-TICK)
   (tip-hit nil)                               ; §25.26: his last hit was on the tip (a look: HS-TIP-FX's flash; no sim reads it)
   (tip-now nil)                               ; the hit HS-DMG-MULT just read is a ranged-mode tip hit: no combo scaling
+  (sp-x 1.0)                                  ; ... and its SP-gain factor (tip x spread route: HS-SP-GAIN-MULT)
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   ;; the Bankai (§28.4): the bind is his own state (no :bind hook since §17's bookkeeping went)
   (bound nil)                                 ; he binds now: the bind mode (HS-BK-TICK), its clashes even the Reishi
@@ -1231,7 +1243,7 @@ tip or spread-route hit for a Reiatsu gain x1.3 / x1.3, §25.5 / §25.11, left w
 x1.0 for L SAHARAI (unchanged, §22.1), the bind's SP2
 KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other :seg-fn window (no volume)."
   (declare (ignore hazard))
-  (setf (hss-tip-now (hs att)) nil)
+  (setf (hss-tip-now (hs att)) nil (hss-sp-x (hs att)) 1.0)
   (if (or (null mv) (eq (mv-kind mv) :breaker) (member (mv-name mv) '(:hs-r-l :hs-b-sp2)))   ; (KAIBAKU-GEKI: its 120 exact)
       1.0
       (let* ((st (hs att)) (bk (eq (fighter-form (fighter att)) :bankai))
@@ -1251,7 +1263,14 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
              (tip (> x 1.0)))
         (when bk (setf (hss-route-tip st) tip))
         (setf (hss-tip-hit st) (and bk tip) (hss-tip-now st) (and bk tip))
+        (when bk                                   ; the hit's SP-gain factor, read by HS-SP-GAIN-MULT (DUEL_SP §8.6 A1 playtest (3))
+          (setf (hss-sp-x st) (* (if tip *hs-r-tip-sp-mult* 1.0)
+                                 (if (member (mv-name mv) *hs-r-spread-moves*) *hs-r-spread-sp-mult* 1.0))))
         x)))
+(defun hs-sp-gain-mult (att)
+  "The Bankai's :sp-gain-mult hook (combat.lisp SP-ATK-HIT!): the factor HS-DMG-BASE just marked for this hit, x1.3 on the tip, x1.3 on a
+spread-route link, x1.69 both (DUEL_HISAGI §25.5, §25.11; back on the new ATK gains 2026-11-13, the user: 「沿用 ×1.3」)."
+  (hss-sp-x (hs att)))
 (defun hs-tip-now-p (att)
   "The ranged mode's :unscaled hook (combat.lisp APPLY-HIT, after its :dmg-mult): is this hit on the chain tip (HS-DMG-MULT's
 read)? Then it ignores the combo scaling (the user 2026-10-25: 「修兵卍解遠距的尖端判定也設成不受連擊衰減的影響」)."

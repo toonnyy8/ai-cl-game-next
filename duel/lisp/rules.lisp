@@ -365,20 +365,6 @@ spread over 60 steps in whole points, so a whole second burns exactly the rate (
   "REISHI after a self-burn of AMOUNT (Hellfire, Ennetsu): never below 1."
   (if (<= reishi 1) reishi (max 1 (- reishi amount))))
 
-;;; ---------------------------------------------------------------- KOSEI (攻勢), the aggression reward (docs/duel/DUEL_STRINGS.md §5)
-(defun kosei-mult (gg)
-  "KOSEI's multiplier at the attacker's guard gauge GG: 1 + *KOSEI-BONUS* x (1 - GG / *GG-MAX*), x1 full .. x3 empty."
-  (+ 1.0 (* *kosei-bonus* (- 1.0 (/ gg *gg-max*)))))
-
-(defun kosei-base (kind &optional override)
-  "KOSEI's points for a contact of a move of KIND before the combo bonus and m (*KOSEI-KIND*; OVERRIDE: the move's :kosei)."
-  (or override (getf *kosei-kind* kind *kosei-kind-other*)))
-
-(defun kosei-gain (g gg)
-  "What one paying contact of G points earns an attacker at guard gauge GG. Values: flash-step, the multiplier."
-  (let ((m (kosei-mult gg)))
-    (values (* *kosei-fs* g m) m)))
-
 ;;; ================================================================ Kikon, Konpaku, time-up (§1)
 (defun red-p (reishi max-reishi)
   "Red: Reishi below *RED-THRESHOLD* of max. (Fixnum Reishi and a single-float threshold, the sim's: the same compare
@@ -576,6 +562,11 @@ below 0 and never by more than BURN is left (the burst ends when either is 0)."
 (defun burst-fs-gain (gain mode)
   "The flash-step a GAIN pays while burst MODE runs: nothing (no gain of any kind during a burst)."
   (if mode 0.0 gain))
+
+(defun fs-gain (gain mode sub)
+  "The flash-step an earned GAIN adds to a gauge in burst MODE (nil: none) at SUBLIMATION level SUB: BURST-FS-GAIN x (1 + *SUB-FS* x SUB).
+The pure core of PAY-GAUGES, the one writer of every earned gain (DUEL_SP Q18)."
+  (* (burst-fs-gain gain mode) (+ 1.0 (* *sub-fs* sub))))
 
 (defun burst-heal (n rate)
   "Integer points a per-second RATE pays on frame N (1-based) of a burst: the whole points crossed on that frame."

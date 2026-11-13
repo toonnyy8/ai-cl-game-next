@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""sp-costs-check.py — DUEL_SP S2's scripted scenes in the native sim (tools/simgate/trial.lisp, the combo trials' runner): each kit's NS
+"""sp-costs-check.py — DUEL_SP S2's and S3's scripted scenes in the native sim (tools/simgate/trial.lisp, the combo trials' runner): each kit's NS
 routes at flash-step 300 / 30 / 0 (at 0 whiffed, so no hit refills it), a full AS3 from 0, NS vs NS tie and J vs NS cancel (both refunds once), and a scaled hit's reaction and stun
 equal to the full one's. Both sides' inputs are written (P1 the trial script, P2 :p2-at); the asserts read the combat log's `SP` lines
 (core-sim.lisp CORE-START!: `SP <segment> fs F cost C paid P xS` / `SP <segment> refused`, CORE-NOHIT!: `SP refund P`) and `dealt` lines
-(combat.lisp APPLY-HIT: `dealt D: <reaction> stun N`). The KOSEI flash-step of a hit (until S3) moves the gauge between segments, so every
-check is made against the `fs` the segment started with, never a net change.
+(combat.lisp APPLY-HIT: `dealt D: <reaction> stun N`). S3 (the ATK gains): `SP hit gain G (fs F)` (combat.lisp SP-ATK-HIT!, a J / SA hit
+window that dealt damage) and `SP cancel gain G (fs F)` (CORE-NOHIT!, a J / SA in a cancel, once per move); G is what the gauge really gained.
+Since KOSEI's flash-step left, only a J / SA ever refills the gauge: an NS / AS hit pays nothing, so a route's starts follow each other
+exactly (fs' = fs - paid) and a segment at 0 is refused.
 
   python3 tests/sp-costs-check.py           PASS / FAIL per check, exit 1 on a failure
   python3 tests/sp-costs-check.py --log     and every trial's SP / dealt / CANCEL lines
@@ -45,6 +47,16 @@ def trials():
     out.append('(:name "CANCEL ichigo J1 vs NS1a" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 300 :p2-at ((0 :sp)) :script ((:quick 1 :wait 8)) :frames 90)')
     # Kenpachi's tame catches Ichigo's J1 and answers with the thrust (combat.lisp :parried): an NS segment, paid like any
     out.append('(:name "CATCH kenpachi tame thrust" :p1 :kenpachi :p2 :ichigo :ptr 3 :p2-ptr 1 :dist 1.2 :fs 300 :p2-at ((2 :j)) :script ((:quick 1 :modded t)) :frames 120)')
+    # S3, the ATK gains (P1 starts at 100 so the cap never hides one): J1-J3 on a standing dummy, an SA, a J tie, J vs NS, bursts, Hisagi's Bankai
+    out.append(f'(:name "GAIN ichigo J1-J3" :p1 :ichigo :dist 1.6 :fs 100 :script ((:quick 1) (:quick 1 :on :hit) (:quick 1 :on :hit)) :frames 120)')
+    out.append('(:name "GAIN ichigo SA" :p1 :ichigo :dist 2.0 :fs 100 :script ((:quick 1 :modded t) (:quick 1 :on :hit)) :frames 120)')
+    out.append('(:name "GAIN ichigo J tie" :p1 :ichigo :p2 :ichigo :dist 1.4 :fs 100 :p2-fs 100 :p2-at ((0 :j)) :script ((:quick 1)) :frames 90)')
+    out.append('(:name "GAIN ichigo J vs NS1a" :p1 :ichigo :p2 :ichigo :ptr 1 :p2-ptr 1 :dist 1.8 :fs 100 :p2-fs 100 :p2-at ((0 :sp)) :script ((:quick 1 :wait 8)) :frames 90)')
+    for b in ('orange', 'white', 'blue'):
+        out.append(f'(:name "GAIN ichigo J1-J3 in {b.upper()}" :p1 :ichigo :dist 1.6 :fs 200 :burst :{b} :script ((:quick 1) (:quick 1 :on :hit) (:quick 1 :on :hit)) :frames 120)')
+    out.append('(:name "GAIN hisagi bankai J1 at the tip" :p1 :hisagi :form :bankai :p2 :ichigo :dist 5.75 :fs 100 :script ((:quick 1)) :frames 120)')
+    out.append('(:name "GAIN hisagi bankai J1 off the tip" :p1 :hisagi :form :bankai :p2 :ichigo :dist 4.0 :fs 100 :script ((:quick 1)) :frames 120)')
+    out.append('(:name "GAIN hisagi shikai J1" :p1 :hisagi :p2 :ichigo :dist 2.0 :fs 100 :script ((:quick 1)) :frames 120)')
     return out
 
 
@@ -73,6 +85,7 @@ def run():
 SPL = re.compile(r'P(\d) SP (\S+) fs ([\d.]+) cost ([\d.]+) paid ([\d.]+) x([\d.]+)')
 REF = re.compile(r'P(\d) SP (\S+) refused')
 BACK = re.compile(r'P(\d) SP refund ([\d.]+)')
+GAIN = re.compile(r'P(\d) SP (hit|cancel) gain ([\d.]+) \(fs ([\d.]+)\)')
 DEALT = re.compile(r'P1 dealt (\d+): (\S+) stun (\d+)')
 
 
@@ -107,8 +120,10 @@ def main():
             # (a start at 0 after the refusal is a new route's NSa from neutral, at x0.5: NS1 can always be pressed, §3)
             lines30 = logs[f'NS {k} fs30']; iref = next((i for i, l in enumerate(lines30) if REF.search(l)), len(lines30))
             late0 = [l for l in lines30[:iref] if (m := SPL.search(l)) and m[1] == '1' and float(m[3]) == 0 and lines30.index(l) > 0]
+            # (no income between segments, so each start is the last one's fs - paid; a gauge at 0 refuses the next one)
             check(low and low[0][1] == 30 and not late0 and all(s[3] == 0 and abs(s[4] - 0.5) < 0.001 for s in low if s[1] == 0)
-                  and (len(low) == n or ref30),
+                  and all(abs(low[i + 1][1] - (low[i][1] - low[i][3])) < 0.5 for i in range(len(low) - 1))
+                  and (len(low) == n or ref30) and (len(low) == n or abs(low[-1][1] - low[-1][3]) < 0.5),
                   f'NS {k} at 30: ' + ', '.join(f'{s[0].lower()} fs {s[1]:g} paid {s[3]:g}/{s[2]:g} x{s[4]:.2f}' for s in low) +
                   (', next refused' if ref30 else ''))
             zero = sp(f'NS {k} fs0'); ref0 = [l for l in logs[f'NS {k} fs0'] if REF.search(l)]
@@ -120,15 +135,19 @@ def main():
                                                                                 #  a wave / late hit may land after the second press)
                   f'NS {k} at 0 (NSa hits, {len(hits)} hit(s)): ' + (', NSb refused' if refh else ', NSb NOT refused'))
     a0 = sp('AS3 ichigo base fs0')
-    # (the J string's KOSEI, until S3, refills a little before the AS: every segment starts, the ones at 0 at x0.5)
-    check(len(a0) == 3 and a0[-1][1] == 0 and all(abs(s[4] - 0.5) < 0.001 for s in a0 if s[1] == 0),
-          'AS3 from 0: every segment starts: ' + ', '.join(f'{s[0].lower()} fs {s[1]:g} paid {s[3]:g} x{s[4]:.2f}' for s in a0))
-    # a scaled hit's reaction and stun equal the full hit's, its damage about half (AS3 at 0 vs at 300, hit by hit)
+    # (the five J hits' +10 each, and the natural regen trickle of the first second, lift the gauge to 50-60 before the AS: AS3a and b pay in
+    #  full, AS3c the little that is left; an AS is never refused)
+    jg = [float(m[3]) for l in logs['AS3 ichigo base fs0'] for m in [GAIN.search(l)] if m and m[1] == '1']
+    check(len(a0) == 3 and jg == [10.0] * 5 and 50.0 <= a0[0][1] < 60.0 and a0[0][3] == a0[0][2] and a0[1][3] == a0[1][2] and 0 < a0[2][3] < a0[2][2] and all(abs(a0[i + 1][1] - (a0[i][1] - a0[i][3])) < 0.5 for i in range(2)),
+          f'AS3 from 0: five J hits +10 each, so AS3a starts at fs {a0[0][1]:g} (50 + the regen trickle), and the segments follow exactly: ' +
+          ', '.join(f'{s[0].lower()} fs {s[1]:g} paid {s[3]:g}/{s[2]:g} x{s[4]:.2f}' for s in a0))
+    # a scaled hit's reaction and stun equal the full hit's, its damage less (AS3 from 0 vs at 300, hit by hit: AS3a / b paid in full, AS3c short)
     def as_hits(name):                                             # the dealt lines after the AS's first segment started
         ls = logs[name]; i = next(i for i, l in enumerate(ls) if SPL.search(l))
         return [DEALT.search(l) for l in ls[i:] if DEALT.search(l)]
     pairs = list(zip(as_hits('AS3 ichigo base fs300'), as_hits('AS3 ichigo base fs0')))
-    check(len(pairs) == 6 and all(a[2] == b[2] and a[3] == b[3] and int(b[1]) < int(a[1]) for a, b in pairs),
+    check(len(pairs) == 6 and all(a[2] == b[2] and a[3] == b[3] and int(b[1]) <= int(a[1]) for a, b in pairs) and int(pairs[-1][1][1]) < int(pairs[-1][0][1])
+          and all(int(b[1]) == int(a[1]) for a, b in pairs[:-1]),
           'AS3 hits scaled vs full (dealt, reaction, stun): ' + ', '.join(f'{b[1]}/{a[1]} {b[2]} {b[3]}/{a[3]}' for a, b in pairs))
     for name in ('TIE ichigo NS1a vs NS1a', 'CANCEL ichigo J1 vs NS1a'):
         backs = [BACK.search(l) for l in logs[name] if BACK.search(l)]
@@ -139,6 +158,27 @@ def main():
         check(canc and sorted(got) == sorted(want) and all(abs(float(b[2]) - paid[b[1]][-1][3]) < 0.05 for b in backs),
               f'{name}: {len(canc)} CANCEL verdict(s), refunds ' + ', '.join(f'P{b[1]} {b[2]}' for b in backs) +
               f' (paid: ' + ', '.join(f'P{s} {paid[s][-1][3]:g}' for s in '12' if paid[s]) + ')')
+    def gains(name, side='1'):
+        return [(m[2], float(m[3]), float(m[4])) for l in logs[name] for m in [GAIN.search(l)] if m and m[1] == side]
+
+    def fmt(g):
+        return ', '.join(f'{k} +{v:g} (fs {f:g})' for k, v, f in g) or 'none'
+    g = gains('GAIN ichigo J1-J3')
+    check([x[1] for x in g] == [10.0] * 3 and [x[2] for x in g] == [110.0, 120.0, 130.0], f'J1-J3 on a dummy: {fmt(g)}')
+    g = gains('GAIN ichigo SA')
+    check(len(g) == 1 and g[0][:2] == ('hit', 15.0), f'NS1a then its SA hit (the NS hit pays nothing): {fmt(g)}')
+    g1, g2 = gains('GAIN ichigo J tie', '1'), gains('GAIN ichigo J tie', '2')
+    check(g1 == [('cancel', 30.0, 130.0)] and g2 == [('cancel', 30.0, 130.0)] and not any(BACK.search(l) for l in logs['GAIN ichigo J tie']),
+          f'J vs J tie: P1 {fmt(g1)}, P2 {fmt(g2)} (once each however many verdicts)')
+    n = 'GAIN ichigo J vs NS1a'; g1, g2 = gains(n, '1'), gains(n, '2'); bk = [b for b in map(BACK.search, logs[n]) if b]
+    check(g1 == [('cancel', 30.0, 130.0)] and not g2 and len(bk) == 1 and bk[0][1] == '2' and float(bk[0][2]) == 25.0,
+          f'J vs NS1a: P1 {fmt(g1)}, P2 gains {fmt(g2)} and is refunded {[b[2] for b in bk]}')
+    for b in ('ORANGE', 'WHITE', 'BLUE'):
+        n = f'GAIN ichigo J1-J3 in {b}'; g = gains(n)
+        check(len(g) == 3 and all(x[1] == 0.0 for x in g) and g[0][2] > g[1][2] > g[2][2], f'J1-J3 in {b}: {fmt(g)} (the burst drains, nothing is earned)')
+    g = gains('GAIN hisagi bankai J1 at the tip'); h = gains('GAIN hisagi bankai J1 off the tip'); k = gains('GAIN hisagi shikai J1')
+    check(len(g) == 1 and abs(g[0][1] - 16.9) < 0.05 and len(h) == 1 and abs(h[0][1] - 13.0) < 0.05 and len(k) == 1 and k[0][1] == 10.0,
+          f'Hisagi J1: Bankai at the tip {fmt(g)} (x1.3 tip x1.3 spread route), off the tip {fmt(h)} (spread route), Shikai {fmt(k)}')
     ct = sp('CATCH kenpachi tame thrust')
     check([x[0] for x in ct] == ['KE-Z-N3A', 'KE-Z-N3B'] and ct[1][3] == ct[1][2] == 20,
           'the tame\'s catch starts the thrust through CORE-START!: ' + ', '.join(f'{x[0].lower()} paid {x[3]:g}/{x[2]:g}' for x in ct))

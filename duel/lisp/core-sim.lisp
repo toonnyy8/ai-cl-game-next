@@ -199,7 +199,8 @@ DUEL_CORE §2.1): each one's chain, cancels and AS open (contact :hit, CORE-CANC
 a classed move's startup / active frames; a same-class tie also ends both moves and bounces the fighters apart; an absorb is a block
 for the attacker (no refund: not a cancel, DUEL_SP Q5). Each side of a cancel in an NS / AS segment gets back what that segment paid,
 once however many verdicts it takes part in (FIGHTER-SP-BACK; DUEL_SP §3 「只要這段 SP 發生相消就不扣除量表」, Q6: also after its own hits),
-through REFUND-FS."
+through REFUND-FS. Each side whose move is a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T; a same-class tie pays
+both, no hit gain comes of the verdict: DUEL_SP §5, Q3)."
   (let* ((att (pending-att h)) (def (pending-def h)) (fa (fighter att)) (fd (fighter def))
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
@@ -211,7 +212,12 @@ through REFUND-FS."
                   (when (and (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
                     (setf (fighter-sp-back f) t)
                     (refund-fs (gauges e) (fighter-sp-paid f))
-                    (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))))
+                    (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
+                  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f)))   ; a J / SA in a cancel: +30,
+                    (setf (fighter-sp-gain-t f) (fighter-cls-t f))                                                ;  once per move (DUEL_SP §5)
+                    (let ((fs0 (gauges-fs (gauges e))))
+                      (pay-gauges e (sp-atk-gain (fighter-cls f) t))
+                      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name e) (- (gauges-fs (gauges e)) fs0) (gauges-fs (gauges e)))))))
            (landed! att fa)
            (when (core-window-class fd) (landed! def fd)))   ; (re-read: an earlier hit this step may have moved him)
          (hitstop *hitstop-block*)

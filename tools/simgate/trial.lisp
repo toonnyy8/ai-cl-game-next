@@ -10,6 +10,8 @@
 ;;;; :p2-press ((frame button frames &optional modded stick) ...) P2 presses BUTTON for FRAMES steps from trial frame FRAME (the opponent
 ;;;; acting, through the real input path). A core kit's P1 (its BRAIN-STEP goes to CORE-BRAIN-STEP, which never reads the :trial
 ;;;; habit) is driven here: its brain off, TRIAL-STEP called once per sim frame (the vpad is still written from the brain's press).
+;;;; :burst M (2026-11-13) P1 begins in burst mode M (:white / :blue / :orange).
+;;;; :p2-fs N P2's flash-step gauge (default full).
 ;;;; :p2-reishi X his Reishi (red under 30 %). The end line also gives his Konpaku change.
 ;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
 ;;;; slow-motion frames don't count; Kenpachi's file). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
@@ -46,7 +48,7 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
@@ -59,6 +61,8 @@ from that act)."
         (setf (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0 (gauges-awaken g) 0f0)))
     (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)
     (setf (gauges-fs (gauges *p1*)) (f32 fs))
+    (when p2-fs (setf (gauges-fs (gauges *p2*)) (f32 p2-fs)))
+    (when burst (setf (gauges-burst (gauges *p1*)) burst (gauges-burn (gauges *p1*)) 300f0))   ; (:burst :white|:blue|:orange: P1 starts the trial in that burst, DUEL_SP S3's "no gain")
     (when ptr (setf (fighter-ptr (fighter *p1*)) ptr))
     (when p2-ptr (setf (fighter-ptr (fighter *p2*)) p2-ptr))
     (when awaken (setf (gauges-awaken (gauges *p1*)) (f32 awaken)))

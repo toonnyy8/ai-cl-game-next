@@ -167,22 +167,6 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 (its HIT-DAMAGE index) ... (the user 2026-10-26: 「每多一下 +10%，上限 ×2」; named *REIATSU-COMBO-STEP* until 2026-11-13, R6)")
 (defparameter *combo-gain-max* 2.0 "... at most this (the 11th hit on; *REIATSU-COMBO-MAX* until 2026-11-13).")
 
-;;; ---------------------------------------------------------------- KOSEI (攻勢), the aggression reward (docs/duel/DUEL_STRINGS.md §5)
-;;; Every contact of the attacker's own melee hit window (hit, block, ward, DRINK, armour, absorb; not a parry, a
-;;; hazard, a :ranged window or a Kikon) pays flash-step, g x rate x m, g = the hit's guard value and
-;;; m = 1 + *KOSEI-BONUS* x (1 - his own guard gauge / max): x1 at a full gauge ... x3 at an empty one.
-(defparameter *kosei-bonus* 2.0 "KOSEI: the multiplier's range above 1 (x1 full gauge .. x(1 + this) empty).")
-(defparameter *kosei-fs* 0.15 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
-0-300 gauge (*FS-MAX*); 0.30 -> 0.15 on 2026-11-12 (the user: 「幫我將閃步量表的攻擊恢復量減半」: the attack's recovery halved; the
-damage-taken gain *FS-TAKEN* is not part of it).")
-(defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 0.0 :kikon 0.0 :breaker 0.0)
-  "KOSEI: a paying contact's points by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT: the combo's
-nth hit, a block 1) and x m; a move's :kosei param overrides its kind's (the user 2026-10-26: 「閃步量表也做一樣的修改」,
-「攻勢整個改成基礎值×combo×防禦量表越空乘越多」; before: the hit's guard value, whose roster mean per hit was J 8.8 K 16.2 L 35.6
-SP 27.3 O 20, a Breaker's 0). 2026-11-13, S1 of DUEL_SP: :sp 27 -> 0 and :kikon 20 -> 0, the user's SP design (DUEL_SP §5's table: SP
-moves pay SP, ATK earns it, DUEL_SP §5; the other kinds follow in S3).")
-(defparameter *kosei-kind-other* 16.0 "... a kind not in the table.")
-
 ;;; ---------------------------------------------------------------- flash-step gauge (design v3 G.1): Hoho, Burst
 ;; (the gauge x3, the user 2026-10-29: 「幫我將閃步量表改成 0-300，並且將 hoho 消費改成 100，爆氣設為 200，其他恢復量也做對應的提昇」; DUEL_DESIGN "Flash-step gauge 0-300", DEVLOG §504: the max, every gain and the drain x3,
 ;; the Hoho 30 -> 100 and the burst 70 -> 200 as asked, so a Hoho is 1/3 of the gauge (was 0.3) and a burst 2/3 (was 0.7))

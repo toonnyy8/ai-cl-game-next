@@ -185,10 +185,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
               (= 60 (hit-damage 70 nil nil 4 nil)))))
 (check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) 1.0))  ; its own clip, authored at its startup 9 (DUEL_KEN_V3 §15)
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
-;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 3.6 FS full, 10.8 empty (its Reiatsu left, R6)
-(check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
-(multiple-value-bind (fs m) (kosei-gain 24 100.0) (check (and (~= fs 3.6) (~= m 1.0))))
-(multiple-value-bind (fs m) (kosei-gain 24 0.0) (check (and (~= fs 10.8) (~= m 3.0))))
 (check (= 24 (loop for n in '(:ke-j1 :ke-j2 :ke-j3) sum (hw-guard (svref (mv-hits (mv :kenpachi :base n)) 0)))))
 (check (= (move-end-frame 9 3 12 18 nil nil) 30))                      ; whiff: R + 6
 (check (and (= (move-end-frame 9 3 12 18 :block nil) 24) (= (move-end-frame 2 1 20 26 nil t) 23)))
@@ -308,11 +304,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (multiple-value-bind (fs aw) (hit-gains 500 0 nil 1.0 1)                ; dealing: no flash-step, Fighting Spirit
   (multiple-value-bind (ft) (hit-gains 0 100 nil 1.0 6)                 ; taking 100 at the combo's 6th hit: flash-step 13.5 x 1.5
     (check (and (~= ft 20.25) (zerop fs) (plusp aw)))))
-;; KOSEI by its move's kind (x the combo bonus at the call, x m), not the guard value (2026-10-26: 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」)
-(check (and (equal '(9.0 16.0 36.0 0.0 0.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
-            (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
-            (multiple-value-bind (fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
-              (and (~= fs (* 0.15 16 1.2 3)) (~= m 3.0)))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
@@ -341,7 +332,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (not (hoho-allowed-p nil 12.0 0)) (not (hoho-allowed-p nil 12.0 5 :white)) (not (hoho-allowed-p t 50.0 0 :white))))
 (check (and (~= (hoho-cost 12.0 :white) 12.0) (~= (hoho-cost 180.0 :white) 100.0) (~= (hoho-cost 180.0 nil) 100.0)))
 ;; BLUE burns ONE cell (2026-11-12: 「將藍色爆氣改成只燃燒一格的量，期間發動閃步就將那燃燒中的格子用完…」); the others still drain to 0
-(check (and (= *blue-burn* 100) (= *kosei-fs* 0.15) (~= (burst-budget :blue) 100.0) (~= (burst-budget :white) 300.0) (~= (burst-budget :orange) 300.0)))
+(check (and (= *blue-burn* 100) (~= (burst-budget :blue) 100.0) (~= (burst-budget :white) 300.0) (~= (burst-budget :orange) 300.0)))
 (flet ((run (fs burn) (loop for n from 1 do (multiple-value-setq (fs burn) (burst-burn fs burn))
                             when (or (<= fs 0.0) (<= burn 0.0)) return (list n fs burn))))
   (check (let ((r (run 100.0 100.0))) (and (<= 110 (first r) 112) (= (second r) 0.0) (<= (third r) 0.01))))        ; BLUE from exactly one cell: 100 -> 0
@@ -394,10 +385,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))
 (check (and (~= (nth-value 1 (hit-gains 100 0 nil 1.5)) 5.25)                   ; x1.5 dealt
             (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) (nth-value 0 (hit-gains 0 100 nil 1.0)))))   ; taken untouched
-;; the Kikon refund: a flash-step bar (105 of 300, 2026-10-29), clamped (its Reiatsu bar left, R6)
+;; (S3 2026-11-13: KOSEI left, the ATK gains replace it: tests/duel-rules/sp.lisp) the Kikon refund: a flash-step bar (105 of 300, 2026-10-29), clamped (its Reiatsu bar left, R6)
+;; FS-GAIN, PAY-GAUGES' pure core (S3, Q18): nothing in a burst, x (1 + *sub-fs* x sub) otherwise
+(check (and (~= (fs-gain 10.0 nil 0.0) 10.0) (~= (fs-gain 10.0 :blue 0.5) 0.0) (~= (fs-gain 10.0 nil 1.0) (* 10.0 (+ 1.0 *sub-fs*)))))
 (check (and (= *kikon-fs-refund* 105.0) (~= (burst-fs-gain *kikon-fs-refund* nil) 105.0) (~= (burst-fs-gain *kikon-fs-refund* :white) 0.0)))
-;; (S1 2026-11-13, Q18: the bar is a gain paid by PAY-GAUGES, so nothing during a burst; KOSEI's :sp / :kikon kinds pay 0)
-(check (and (= (kosei-base :sp) 0.0) (= (kosei-base :kikon) 0.0) (= (kosei-base :quick) 9.0) (= (kosei-base :sp 12.0) 12.0)))
 ;; the flash-step gauge (design v3 G.1; 0-300 since 2026-10-29): Hoho 100, Burst 200, no Reiatsu; 9 / s after 60 f; +0.135 per damage taken
 (check (and (= *fs-hoho* 100) (= *fs-burst* 100) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
 (check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.075) (~= (fs-regen 99.99 600) 100.0)))

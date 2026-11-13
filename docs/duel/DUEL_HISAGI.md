@@ -2995,6 +2995,10 @@ The re-opened round 1 (§25.4: b0a0, b1a0, minutes in) was stopped again; the se
   4–5 m): the J (3–6) and the K overlap on 3–5 m, the 3.5 m placement inside both. The CPU's SAHARAI band `*hs-ai-close*`
   1.0 → 2.0, its bands 0–2 L, 2–3 K1, 3–5 K1 / J1, 5–6 J1. The art's K (K1's spin, the spread K2s / K3, the gathered K2 / K3G)
   drawn to 5.0 m.
+- **Back on the flash-step gauge's ATK gains (2026-11-13, DUEL_SP S3; the user: 「沿用 ×1.3」)**: the Reiatsu gain went with R6, and a tip hit's J / SA
+  gain x1.3 returns (`*hs-r-tip-sp-mult*` 1.3), as a kit hook `:sp-gain-mult` (`hs-sp-gain-mult`, read by combat.lisp `sp-atk-hit!`): HS-DMG-BASE
+  marks the factor on the new `hss-sp-x` slot (the tip's, x the spread route's §25.11), no Hisagi branch in combat. J1 at the tip +10 x1.3 x1.3 =
+  +16.9, J1 off the tip in the spread band +13.0, Shikai +10 (`tests/sp-costs-check.py`). The original mechanism, as built 2026-10-18:
 - **The tip's SP gain** (`*hs-r-tip-sp-mult*` **1.3**, the lead's number, the damage's): HS-DMG-MULT marks a tip hit (the
   ranged mode, x1.3) with his Reiatsu before the hit's gains (HSS-TIP-R); his :hit hook (HS-BK-HIT) pays the gain since the
   mark x0.3 more (with the tip's damage x1.3: x1.69 a non-tip hit's Reiatsu); a non-tip hit clears the mark. A `duel hisagi`
@@ -3113,7 +3117,9 @@ Asked, the user chose: 「×1.3（推薦）」 for both; 「起手也加」 (J1 
   - HS-DMG-MULT marks his Reiatsu on a tip hit or a spread-route hit, with the extra factor (a new HSS slot, `tip-x`, not
     hashed);
   - HS-BK-HIT pays the gain since the mark x that extra (the `tip-sp` counter counts both).
-  - (The spread gain went with §25.5's mark and the Reiatsu gauge, 2026-11-13, REFACTOR_2026-11 R6; the gathered guard x1.3 stays.)
+  - (The spread gain went with §25.5's mark and the Reiatsu gauge, 2026-11-13, REFACTOR_2026-11 R6; the gathered guard x1.3 stays. It came back the same day on the
+    flash-step gauge's ATK gains, the user: 「沿用 ×1.3」: `*hs-r-spread-sp-mult*` 1.3 on `*hs-r-spread-moves*` (J1 - J5, K2s, K3), x the tip's
+    1.3 = x1.69; DUEL_SP S3, §25.5 above.)
 - The damage multipliers are unchanged (the spread x0.85, the gathered x1.3, the tip x1.3).
 
 **Host tests**: duel-rules 9880 ALL PASS (the Bankai table's gathered guard values; the knobs and the guard x1.3 of the
