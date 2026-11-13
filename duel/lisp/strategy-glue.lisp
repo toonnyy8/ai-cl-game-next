@@ -3,6 +3,18 @@
 ;;;; :HOLD-AWAKEN read, the composite / Q selector's judgement (STRAT-SWITCH-STEP) and its event layer (STRAT-EVENT-STEP), and the strategy
 ;;;; layer's selections by full-sim rollouts (STRAT-REQUEST ... STRAT-LOG, DUEL_AI_STRATEGY §5). Out of core-ai.lisp and cpu-mcts.lisp on
 ;;;; 2026-11-13 (REFACTOR_2026-11 R12), verbatim; loads right after core-ai.lisp.
+;;;;
+;;;; The cross-style reads, named here once (R12). A style CPU is a strategy's :FN (strategy.lisp *STRAT-STYLES*); it reaches into another
+;;;; style's file only through what this table lists (a new one goes in the table):
+;;;;   reader                                        reads                                                           from
+;;;;   cpu-hisagi-range HISAGI-MERGED-STYLE          KEN-KI-STYLE (Hisagi plays Kenpachi's KI code outside the       cpu-ki-ken
+;;;;                                                 ranged mode: the one call across characters)
+;;;;   cpu-kh-ken KEN-KH-STYLE, -STANDOFF-STYLE      KEN-KI-STYLE with :MEATY / :SAFE, the KKS struct (:INCLUDE),    cpu-ki-ken
+;;;;                                                 KKS-TICK / -PLAN / -APPR, KK-STICK
+;;;;   cpu-hk-hisagi HISAGI-HK-STYLE                 HISAGI-MERGED-STYLE, the HMS struct (:INCLUDE), HR-SP, HR-TAKEN  cpu-hisagi-range
+;;;; Every style also uses the shared CPU: core-ai's presses and generic steps (CAI-PRESS, CAI-SP, CAI-MOVE-STEP, CAI-NEUTRAL ...),
+;;;; cpu-mcts's MC-PRESS / MC-PTR / MC-PLAN-DROP, STRAT-OUT over its brain's NOW. Ichigo's KI style (cpu-ki-ichigo) reads no other style:
+;;;; its KK-* and *KK-HEND-P* names are in docstrings only.
 (in-package :duel)
 
 (defun strat-reach (mv) "MV's reach plus its forward slide (m), 1 when there is no move." (if mv (+ (mv-reach mv) (max 0.0 (mv-slide mv))) 1.0))

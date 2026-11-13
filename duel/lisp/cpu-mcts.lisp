@@ -181,6 +181,11 @@ the light model's best), if he is still free. The plan is cleared either way. T 
         (mc-press b (nth a *mc-actions*))
         t))))
 
+(defun mc-plan-drop (f)
+  "F's plan made a reaction time ago is dropped (a style pressed instead: cpu-hisagi-range.lisp HR-TAKEN); its job ends at the next
+MC-FULL-STEP. The one way a style CPU touches *MC-PLAN*."
+  (setf (aref *mc-plan* (* 5 (fighter-side f))) 0))
+
 (defun mc-full-reset ()
   "A match starts: no plan, no job, no stats (START-MATCH); the strategy layer's selections too."
   (fill *mc-plan* 0) (setf *mc-jobs* nil) (fill *mc-full-stats* 0)

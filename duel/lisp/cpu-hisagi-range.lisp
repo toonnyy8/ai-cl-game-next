@@ -19,8 +19,6 @@
 ;;;; Every roll once per event (sim-rnd01, by difficulty); the state in BRAIN-STYLE.
 (in-package :duel)
 
-(defvar *mc-plan*)                                       ; (cpu-mcts.lisp gives it its value)
-
 (defparameter *hr-p* '(:easy 0.25 :normal 0.6 :hard 1.0)
   "Per close event (the opponent perceived inside *HR-CLOSE* while he is free in the ranged mode; a new one each time he is free again):
 take it (the back Step, WA, TABA). Else the MCTS / generic CPU decides that event. 2026-11-09, mine (DUEL_AI_STRATEGY §8.16).")
@@ -69,7 +67,7 @@ side Steps, switches, TATAKI. Reset and printed by tools/simgate/strat-run.lisp 
 
 (defun hr-taken (b f)
   "He pressed: the MCTS plan made a reaction time ago is dropped (its job ends), the event is over."
-  (setf (aref *mc-plan* (* 5 (fighter-side f))) 0)
+  (mc-plan-drop f)
   (setf (brain-decide-t b) (max (brain-decide-t b) 2)))
 
 (defun hr-sp (b f s)
