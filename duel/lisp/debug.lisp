@@ -310,8 +310,6 @@ gauge bars it measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16; HUD-T
                  (cons-per "oni" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0))                 ; Kenpachi's Bankai pillar
                  (cons-per "oni smoulder" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0 :k 0.15f0))
                  (cons-per "rift" (vfx-rift 1f0 0f0 4.4f0 0f0 nil))
-                 (cons-per "ya hem pose" (%ya-hem-pose (model-joints (model *p1*)) *ya-hem* 0 1))   ; Yamamoto's looks
-                 (cons-per "ya hem step" (%ya-hem-step *ya-hem* 0 0.016f0))                         ; (DUEL_YAMA_TYBW §3.1)
                  (cons-per "heat(old)" (vfx-aura 0f0 0f0 0f0 1.8f0 :heat 1f0 0.016f0))
                  (cons-per "kyoku" (vfx-line-cut 0f0 0f0 0f0 -9f0 0.2f0 0.67f0 :kyoku :dt 0.016f0))
                  (cons-per "kyokko" (vfx-line-cut 0f0 0f0 0f0 -4.6f0 0.1f0 0.23f0 :kyokko :dt 0.016f0))
