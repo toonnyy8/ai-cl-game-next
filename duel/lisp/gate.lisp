@@ -141,9 +141,13 @@ pairings (CHAR-PAIRS). A pairing that doesn't exist: a log line, no gate."
     (push (list *picks* (/ (match-play-ticks) 60.0)          ; (the length without the cinematics: MATCH-PLAY-TICKS)
                 (or (zerop (gauges-konpaku (gauges *p1*))) (zerop (gauges-konpaku (gauges *p2*)))))
           *gate-results*)
-    (log-msg "duel gate row seed ~d ~a ~a secs ~,1f winner ~a forms ~a ~a blow ~d" *match-seed* (first *picks*) (second *picks*)
+    ;; ko 1 = the match ended before the bell (its timer still running: a K.O. or a lethal trade's draw), 0 = the time-out bell
+    ;; (a bind drained to 0 Konpaku at the bell included). The last field, so every parser of the older line still reads it
+    ;; (DUEL_AI_STRATEGY §11: the search scores K.O. wins only, 2026-11-14).
+    (log-msg "duel gate row seed ~d ~a ~a secs ~,1f winner ~a forms ~a ~a blow ~d ko ~d" *match-seed* (first *picks*) (second *picks*)
              (/ (match-play-ticks) 60.0) (case *winner* (0 "P1") (1 "P2") (t "DRAW"))
-             (fighter-form (fighter *p1*)) (fighter-form (fighter *p2*)) *blow-aways*)   ; (the gamble A/B reads the final forms)
+             (fighter-form (fighter *p1*)) (fighter-form (fighter *p2*)) *blow-aways*   ; (the gamble A/B reads the final forms)
+             (if (plusp (match-frames-left)) 1 0))
     (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
     (cup-acc-line)

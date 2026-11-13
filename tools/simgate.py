@@ -85,7 +85,7 @@ def summary(k, rows):
     sec = lambda r: re.search(r' secs (\S+) ', r[3])[1]      # the row's ~,1f: the match without its cinematics (2026-10-08)
     rows = sorted(rows, key=lambda r: (float(sec(r)), r[1]))
     wins = {w: sum(f' winner {w} ' in r[3] for r in rows) for w in ('P1', 'P2', 'DRAW')}
-    blow = sum(int(r[3].split()[-1]) for r in rows)
+    blow = sum(int(re.search(r' blow (\d+)', r[3])[1]) for r in rows)   # (not the last field: " ko N" follows since 2026-11-14)
     return (f'duel gate {PAIRS[k]}: {len(rows)} matches, KOs {sum(r[2] for r in rows)}, median {sec(rows[len(rows) // 2])} s, '
             f'min {sec(rows[0])}, max {sec(rows[-1])} | ' + ' '.join(f'{math.floor(float(sec(r)) + 0.5)}.' for r in rows) +
             f' | with the cinematics median {sorted(r[1] for r in rows)[len(rows) // 2] / 60:.1f} s' +
