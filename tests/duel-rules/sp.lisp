@@ -119,3 +119,19 @@
                                        (typep (kit-sp-cost k mv) 'single-float)
                                        (null (kit-sp-cost k mv)))))))
 (check (null (kit-sp-cost (kit :ichigo :base) (kit-move (kit :ichigo :base) (getf (kit-core (kit :ichigo :base)) :sa)))))   ; an SA: free
+;; kit-sp-start-p (kit.lisp, S7): the one test CORE-START! refuses by and the CPU reads before it presses (core-ai CAI-NEXT-OK-P),
+;; through the kits' own moves: NSa at 0 (also a switch's target NS1), a later NS at 0 refused, above 0 or in a burst started, Kenpachi's
+;; tame -> thrust catch (KE-Z-N3B: an NS segment) refused at 0, an AS and a costless move (J1, the SA) always
+(let* ((ic (kit :ichigo :base)) (ke (kit :kenpachi :base))
+       (n1a (kit-move ic :ic-n1a)) (n1b (kit-move ic :ic-n1b)) (n2a (kit-core-move ic :ns 2)))
+  (check (kit-sp-start-p ic n1a 0.0 nil))                           ; NSa from neutral at 0
+  (check (kit-sp-start-p ic n2a 0.0 nil))                           ; the pointer switch's target NS1: first, so the helper passes it
+                                                                    ;  (the switch's own gate SP-SWITCH-OK-P refuses at 0 before)
+  (check (not (kit-sp-start-p ic n1b 0.0 nil)))                     ; NSb at 0 (a press, HOHO-RESUME!'s segment): refused
+  (check (kit-sp-start-p ic n1b 0.5 nil))                           ; above 0: starts (scaled)
+  (check (kit-sp-start-p ic n1b 0.0 :orange))                       ; in a burst: free
+  (check (not (kit-sp-start-p ke (kit-move ke :ke-z-n3b) 0.0 nil))) ; the tame's catch at 0 (combat.lisp :parried): refused
+  (check (kit-sp-start-p ke (kit-move ke :ke-z-n3b) 20.0 nil))
+  (check (kit-sp-start-p ic (kit-core-move ic :as 3) 0.0 nil))      ; an AS: always
+  (check (kit-sp-start-p ic (kit-move ic :ic-j1) 0.0 nil))          ; no cost: always
+  (check (kit-sp-start-p ic (kit-sa-move ic) 0.0 nil)))

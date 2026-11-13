@@ -17,6 +17,8 @@
 ;;;; slow-motion frames don't count; Kenpachi's file).
 ;;;; :p2-start ((sim-frame move-name) ...) (DUEL_SP S5, 2026-11-13): P2 starts MOVE-NAME (a move of his kit) through CORE-START! on that SIM
 ;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
+;;;; :p2-cpu DIF (DUEL_SP S7, 2026-11-13): P2's CPU plays (CORE-BRAIN-STEP at difficulty DIF, no strategy: the generic CPU or the
+;;;; pairing's matchup style), e.g. after a :p2-start; :seed N reseeds the sim's random stream first (one seed, the same rolls in two trials).
 ;;;; :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
@@ -51,7 +53,7 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
@@ -74,7 +76,10 @@ from that act)."
     (when p2-reishi (setf (gauges-reishi (gauges *p2*)) (f32 p2-reishi)))   ; (under 30 %: red, his Kikon can't be cancelled)
     (let ((f2 (fighter *p2*)) (b1 (brain *p1*)) (b2 (brain *p2*)))
       (setf (brain-off b1) nil (brain-habit b1) :trial (brain-press-left b1) 0
-            (brain-off b2) t (brain-press-left b2) 0)
+            (brain-off b2) (not p2-cpu) (brain-press-left b2) 0)
+      (when p2-cpu (setf (brain-difficulty b2) p2-cpu (brain-strat b2) nil (brain-decided b2) -1)))   ; (:p2-cpu: his CPU plays, S7)
+    (when seed (setf (sim-rnd-state) seed))
+    (let ((f2 (fighter *p2*)) (b2 (brain *p2*)))
       (when (eq dummy :guard)
         (setf (fighter-state f2) :guard (fighter-guard-t f2) 30 (brain-press b2) :guard (brain-press-left b2) 9999)))
     (when (kit-core (kit-of *p1*)) (setf (brain-off (brain *p1*)) t))   ; (driven by TRIAL-CORE-DRIVE)
@@ -94,7 +99,7 @@ from that act)."
               (when st (setf (brain-dash b2) (f32 st) (brain-dash-to b2) (if (plusp st) -1f0 99f0))))))
         (when (and (or p2-at p2-start) (/= tick2 (vpad-tick vp2)))     ; (:p2-at / :p2-start: once per sim frame, by his vpad clock)
           (setf tick2 (vpad-tick vp2))
-          (when (plusp (brain-press-left b2)) (decf (brain-press-left b2)))
+          (when (and (not p2-cpu) (plusp (brain-press-left b2))) (decf (brain-press-left b2)))   ; (a live CPU counts its own)
           (dolist (a p2-at)
             (when (= (first a) simf) (ai-press b2 :quick (or (third a) 1) :modded (eq (second a) :sp) :act :hold)))
           (dolist (a p2-start)

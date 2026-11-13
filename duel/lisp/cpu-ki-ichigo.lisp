@@ -699,7 +699,7 @@ decides."
                   t)
                  ((and (eq (ikst-plan st) :shot) (mv-ns-next kit mv) (zerop (length (mv-hits mv))))   ; the Getsuga's charges: on
                   (setf (brain-decided b) (fighter-cls-t f))
-                  (cai-press b :quick 1 t)
+                  (when (cai-next-ok-p e kit mv) (cai-press b :quick 1 t))   ; (refused at 0: the branch still decides, no press, S7)
                   t)
                  ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3)) *iks-k-sa-dodge-stop*
                        (member (snap-state s) '(:hoho :step)))   ; his dodge seen: no SA into it, NS3a ends here (b2_a0)

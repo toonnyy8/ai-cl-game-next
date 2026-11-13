@@ -13,6 +13,9 @@ the attacker's gauge really took), `STEAL fs ...` (an AS1's own steal, before it
 S5 (projectiles, DUEL_SP §6): `P1 wave ns x P2: CANCEL` / `P1 ic-hit na x P2: CANCEL` (core-sim.lisp CORE-HAZARD-NOHIT!: a hazard judged as the
 segment that fired it), `P2 beats P1's wave ns` (his class beats it: spent, no refund), `SP refund P (fs F), out of the move` (the owner no longer
 in that segment: the refund only). P2's moves at the wave's range are started by trial.lisp's :p2-start (CORE-START!, a written debug drive).
+S7 (the CPU, DUEL_SP §8.4): P2's CPU plays (trial.lisp :p2-cpu, :seed) from a written NSa (:p2-start) that hits at flash-step 0: it never
+presses the segment the sim would refuse (no `P2 SP <NSb> refused`, a `P2 cpu holds <NSb>` line: core-ai CAI-NEXT-OK-P); the same seed
+at 300 presses it (`P2 SP <NSb> fs ...`), so the roll did fire. The generic CPU (Ichigo vs Ichigo) and a matchup style (Kenpachi's KK-LINK).
 
   python3 tests/sp-costs-check.py           PASS / FAIL per check, exit 1 on a failure
   python3 tests/sp-costs-check.py --log     and every trial's SP / dealt / CANCEL lines
@@ -92,6 +95,12 @@ def trials():
                ':script ((:quick 1)) :frames 100)')
     out.append('(:name "BREAK kikon cancel then hisagi J1" :p1 :ichigo :p2 :hisagi :p2-form :bankai :ptr 1 :dist 2.0 :fs 300 :p2-fs 100 :p2-at ((24 :j) (28 :j)) '
                ':script ((:quick 60 :modded t)) :frames 220)')
+    # S7: the CPU at 0 in an NS route (P2's CPU from a written NSa that hits), the same seed at 300 as the control
+    for fs in (0, 300):
+        out.append(f'(:name "CPU ichigo fs{fs}" :p1 :ichigo :p2 :ichigo :p2-ptr 1 :dist 2.0 :fs 300 :p2-fs {fs} :p2-cpu :hard :seed 4242 '
+                   ':p2-start ((0 :ic-n1a)) :frames 90)')
+        out.append(f'(:name "CPU kenpachi style fs{fs}" :p1 :ichigo :p2 :kenpachi :p2-ptr 1 :dist 1.6 :fs 300 :p2-fs {fs} :p2-cpu :hard :seed 4242 '
+                   ':p2-start ((0 :ke-z-n1a)) :frames 90)')
     return out
 
 
@@ -112,7 +121,7 @@ def run():
             cur = line.split('trial begin ', 1)[1].strip(); logs[cur] = []
         elif 'trial end ' in line:
             cur = None
-        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |beats |blade x |[^:\]]* x P[12]: CANCEL)|exchange over|clone \S+ replays)', line):
+        elif cur and re.search(r'\] (P[12] (SP |dealt |BREAK |STEAL |cancels |beats |blade x |[^:\]]* x P[12]: CANCEL)|exchange over|clone \S+ replays|P2 cpu holds |P2 kk link )', line):
             logs[cur].append(re.sub(r'^.*?\[\s*(\d+)\] ', r'[\1] ', line))
     return logs
 
@@ -284,6 +293,13 @@ def main():
     ct = sp('CATCH kenpachi tame thrust')
     check([x[0] for x in ct] == ['KE-Z-N3A', 'KE-Z-N3B'] and ct[1][3] == ct[1][2] == 20,
           'the tame\'s catch starts the thrust through CORE-START!: ' + ', '.join(f'{x[0].lower()} paid {x[3]:g}/{x[2]:g}' for x in ct))
+    # S7: the CPU never presses the refused segment; the control at 300 shows the same roll pressing it
+    for who, nb in (('ichigo', 'IC-N1B'), ('kenpachi style', 'KE-Z-N1B')):
+        z, f = f'CPU {who} fs0', f'CPU {who} fs300'
+        ref = has(z, rf'P2 SP {nb} refused'); hold = has(z, rf'P2 cpu holds {nb} \(fs 0\.0\)'); ctl = [x for x in sp(f, '2') if x[0] == nb]
+        check(not ref and hold and ctl and has(z, r'P2 dealt|P2 \S+ -> P1 HIT'),
+              f'the CPU ({who}) at 0 after its NSa hit: {len(ref)} refused, {hold[0].split("] ", 1)[1] if hold else "no hold line"}; '
+              f'at 300 the same seed presses {nb} ({len(ctl)} start(s))')
     sys.exit(1 if bad else 0)
 
 

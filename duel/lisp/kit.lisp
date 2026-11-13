@@ -551,6 +551,13 @@ not one: free), SP-COST of its damage x the kit's :core :sp-cost-mult (default 1
           (when mv (setf (gethash m h) (f32 (sp-cost (mv-sp-damage mv) mult (getf (mv-params mv) :sp-cost))))))))))
 (defun kit-sp-cost (kit mv) "What NS / AS segment MV costs in KIT (single-float), else NIL (not an SP segment: free)." (and mv (values (gethash (mv-name mv) (kit-sp kit)))))
 (defun kit-class (kit mv) "The triangle class of MV in KIT (:na :ns :as :sa), or NIL." (and mv (gethash mv (kit-cls kit))))
+(defun kit-sp-start-p (kit mv fs bursting)
+  "May MV start for a fighter of KIT whose flash-step gauge is FS (BURSTING: in a burst; DUEL_SP §3)? A move with no SP cost (an NA link,
+the SA, a Kikon strike): always; an NS / AS segment by SP-START-P, its FIRST = MV is a route's first segment (in the kit's :core :ns,
+wherever it starts: §8.6 Q17). The one test CORE-START! refuses by (every start: a press, the pointer switch's NS1, HOHO-RESUME!'s
+segment, a parry's catch) and the CPU reads before it presses (core-ai CAI-NEXT-NS, DUEL_SP S7): pure, of the kit's data and two numbers."
+  (or (null (kit-sp-cost kit mv))
+      (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) fs bursting)))
 (defun kit-core-move (kit role n)
   "The core move of ROLE (:ns or :as) number N (1 .. 3) of KIT, or NIL."
   (let ((name (nth (1- n) (getf (kit-core kit) role)))) (and name (gethash name (kit-moves kit)))))

@@ -135,6 +135,16 @@ reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
           (cai-switch-press e b f to)
           t)))))
 
+(defun cai-next-ok-p (e kit mv)
+  "Would an SP pressed now in NS segment MV start the next one (DUEL_SP §3, S7)? KIT-SP-START-P, the test CORE-START! refuses by, over
+E's OWN gauge read live (GAUGES-FS, the burst: his HUD shows it); only the opponent is perceived late (BRAIN-PERCEIVE's SNAP ring).
+Refused (a later NS segment at 0 outside a burst): logs `cpu holds <seg>` and NIL, so the caller skips the press (asked last, after
+the press's own roll). No next segment: NIL."
+  (let ((nx (mv-ns-next kit mv)) (g (gauges e)))
+    (cond ((null nx) nil)
+          ((kit-sp-start-p kit nx (gauges-fs g) (gauges-burst g)) t)
+          (t (clog "~a cpu holds ~a (fs ~,1f)" (side-name e) (mv-name nx) (gauges-fs g)) nil))))
+
 (defun cai-move-step (e b f kit s)
   "Inside his own move: continue, turn or end it (once per move)."
   (declare (ignorable e))
@@ -167,7 +177,8 @@ reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
                                                    :ownsa (cai-bit (mv-sa-move kit mv)))))
                   (cai-press b :quick 1))
                  ((and (mv-ns-next kit mv)
-                       (< (brain-r-cont b) (cai-fz b *fz-ns-cont* :choice :hit (cai-bit (fighter-contact f)) :d (fighter-dist f))))
+                       (< (brain-r-cont b) (cai-fz b *fz-ns-cont* :choice :hit (cai-bit (fighter-contact f)) :d (fighter-dist f)))
+                       (cai-next-ok-p e kit mv))                       ; (refused at 0: no press, the route ends here, S7)
                   (cai-press b :quick 1 t)))))
         (:as                                                   ; the AS's next segment (AS n has n), unless he holds for the Kikon
          (when (and (>= (fighter-sf f) (mv-s mv)) (mv-ns-next kit mv))

@@ -280,3 +280,19 @@ characters). **The user: 「(1)+(2)，保留退役角色」.** ~1,900 lines out,
   (`kit-clips`, `stamps-clear`, the dummy binder's `bind-drain`) stay.
 - Checks: host tests ALL PASS (9839 checks, the removed code's tests out); pkgcheck; G2 identical (II 32, IK 34, KK 33 lines); HARD and EASY
   IK, 20 seeds each, every hash and gate row identical to before; build, smoke.
+
+## 14. SP costs: the full sim sees them, the light model does not (2026-11-13, DUEL_SP S7)
+
+A statement, nothing retuned. Since DUEL_SP S2 every NS / AS segment pays from the flash-step gauge, and a later NS segment at 0 is
+refused.
+- **The full-sim rollouts** (§12, `mc-full-rollout`) step the real sim (`sim-step-lean`), so their segments pay, scale and are refused
+  through the same `core-start!`. They see costs for free.
+- **The light model** (`mcts-lite.lisp`) **ignores SP**. It has no gauge: `+f-hoho+` is a 0 / 1 flag (Hoho ready). Its NS route goes on
+  by the `+f-cont+` roll alone, every segment at full damage, so a CPU at 0 is ranked as if its route would run. The full-sim pass
+  corrects only the best two it hands on.
+- The CPU's own presses obey the rule (DUEL_SP S7: core-ai `cai-next-ok-p` asks the sim's `kit-sp-start-p` over its live gauge).
+- **Fidelity** (reported, not gated; `TEACH_LITE=400` teacher.lisp, IK seed 1, the doc's usage example `30000 31101 2132`, 627 points,
+  100,320 rollouts; `tools/mc-fidelity.py`): all 527 points with two or more legal actions, rank r +0.16, best agrees 25 %, regret 0.100
+  against a uniform pick's 0.145. By the opponent's state: idle 281, 0.092 / 0.136; move 167, 0.107 / 0.150; step 40, 0.134 / 0.150; stun
+  32, 0.089 / 0.188. These are about §9.2's NORMAL figures before SP (regret 0.099 against 0.156, rank r 0.21, IK seeds 21-32), from one
+  seed only, so no conclusion beyond "not visibly worse" is drawn. A gauge in the light model waits until a measurement shows it matters.

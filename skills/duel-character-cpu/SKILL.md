@@ -21,6 +21,7 @@ version of this skill: `git show e55304e:skills/duel-character-cpu/SKILL.md`.
 | `cai-move-step` | after an NA hit: AS or the next link; in an NS gap: the SA (turn) or the next segment; in an AS: the next segment unless holding | `*cai-turn-p*`, `*cai-cont-p*` |
 | `cai-sp` | SP as a tap (1 frame) or a hold (40 frames) for the Kikon; red victims raise the chance | `*cai-kikon-p*` |
 | `:stun` | cancel a coming Kikon follow-up by an attack | `*cai-cancel-p*` |
+| `cai-next-ok-p` | before any SP press for the next NS segment (generic or a style's): the sim's own refusal test `kit-sp-start-p` over the CPU's live gauge; refused at 0: no press, a `cpu holds` log line (DUEL_SP S7). A new press site asks it too | — |
 
 Every chance is a plist by difficulty, EASY ≤ NORMAL ≤ HARD, rolled once per event (never per step).
 

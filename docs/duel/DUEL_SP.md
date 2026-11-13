@@ -1,6 +1,6 @@
 # DUEL_SP — SP spending on the flash-step gauge (design, 2026-11-12)
 
-Status: **rules final (the user, 2026-11-12); S0-S4, S6 and S8 built and merged (2026-11-13); S5 built (2026-11-13, branch); S7, S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
+Status: **rules final (the user, 2026-11-12); S0-S4, S6 and S8 built and merged (2026-11-13); S5 built (2026-11-13, branch); S7 built (2026-11-13, branch); S9 to come.** Implementation plan: §8 (written 2026-11-12, batches S0-S9, open rule questions in §8.6).
 
 ## 1. The request and its intent
 
@@ -373,6 +373,39 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   snapshot, not the cancel path's writes; the cancel path is proven by the native trials above and the practice-cancel browser run. AS2b's
   `:as` wave and a scaled summon's replay follow from the table and the same code, untested by a scene.
 - **PRACTICE** (`duel-practice-cancel.json`, browser): 40 scenes, exit 0; scene h (2.2 m): the dummy's J1 starts on the tick the wave reaches it, `P1 SP refund 60.0 (fs 280.0)`, `P1 wave ns x P2: CANCEL` (then its J1 lands on Ichigo's recovery, 35); new scene h2 (6 m): J1 five ticks before, the same two lines; the six pairs' counts as DUEL_CORE §9 lists them.
+
+**S7 done (2026-11-13, branch, not merged).**
+- **Built** (statements, no weight retuned): the refusal test is one pure function, `kit-sp-start-p kit mv fs bursting` (kit.lisp; host-loaded,
+  so tested on the kits' own moves): a costless move always, an NS / AS segment by `sp-start-p` with "first" = in the kit's `:core :ns`.
+  `core-start!` refuses by it, so every start goes through the same test: a press, the S6 switch's target NS1, `hoho-resume!`'s segment,
+  Kenpachi's tame -> thrust catch. The CPU asks it through `cai-next-ok-p e kit mv` (core-ai.lisp) before an SP press for the next NS
+  segment, over **its own gauge read live** (`gauges-fs`, the burst: its HUD shows them); only the opponent is seen late (the SNAP ring),
+  stated in the docstring. Refused: no press and a `P2 cpu holds <seg> (fs F)` log line. Asked last, after the press's own roll, so the
+  random stream does not move. The four press sites: the generic `cai-move-step` (NS gap, the "go on" branch), KI Ichigo's Getsuga charges
+  (`:shot`), KI Kenpachi's `kk-link`, Hisagi's ranged WA / TABA gap (`hr-gap`, ŌGI and TATAKI). Not gated: every AS segment (never refused).
+  The CPU's switch (`cai-dswitch`, `hr-gap`'s switch) already reads `core-switch-open-p` -> `sp-switch-ok-p` (fs > 0), stricter than the
+  helper at the switch's NS1, so nothing was added there (and no shipped strategy has a `:dswitch`).
+- **Defaults taken**: **in place of a refused press the generic CPU presses nothing**: the route ends at that segment, as when its
+  "go on" roll fails. J (the gap's SA) was not chosen: the SA branch above it has already had its own read roll, so a J there would add
+  SAs that the read turned down. The style sites keep their branch (it still decides, with no press), but `kk-link` takes its own
+  documented fallback, the SA where it reaches. The plan's **"fs cells" fuzzy term was not added**: the refusals went to 0 without it.
+  The decision reads the gauge when the segment comes out, and the latch starts the next one at its active end. In between the gauge can
+  only rise (a refund, the regen's trickle after its 60 f wait), so the CPU may skip a segment that would have started, never the reverse
+  (a burst ending inside that window is the one exception; none happened in G2).
+- **The MCTS**: the full-sim rollouts (`cpu-mcts.lisp` `mc-full-rollout`) run `sim-step-lean`, the real sim, through the same
+  `core-start!`, so they see costs, refusals and scaling for free. The light model ignores SP (DUEL_AI_MCTS §14).
+- **Tests**: host 2969 -> 2979 (`kit-sp-start-p` on IC-N1A / N1B / NS2's first at 0, 0.5, a burst; KE-Z-N3B the tame's catch at 0 / 20; an
+  AS, J1 and the SA at 0); control 124, input 33, touch 100, cine 18, hud-engine 121; pkgcheck only `DUEL::APP`; debug ranges 0 errors.
+  `tests/sp-costs-check.py` 112 -> 114 (trial.lisp gained `:p2-cpu DIF`, P2's CPU playing with no strategy, and `:seed N`): P2's HARD
+  CPU from a written NSa that hits at fs 0: Ichigo (the generic CPU) `P2 cpu holds IC-N1B (fs 0.0)`, 0 refused, and Kenpachi (KI's
+  `kk-link`) `P2 cpu holds KE-Z-N1B (fs 0.0)`, then `kk link SA` and its J string (+15, +10 x3). The same seed at 300 presses IC-N1B /
+  KE-Z-N1B, so the roll did fire. snaptest IK / KK straight = pollute (stats and timings only); fulltest IK 148, FT_VS 54, KK 124 checks,
+  0 differ. mc-fidelity (light model, reported): DUEL_AI_MCTS §14.
+- **G2**: the CPU sides' `SP ... refused` lines, II / IK / KK: 67 / 44 / 15 on main 224608bb (S2's 28 / 19 / 1 were counted under S2's
+  rules) -> **0 / 0 / 0**; held presses 67 / 32 / 18. A refused press was eaten anyway, so skipping it moves nothing. II and KK are
+  identical. IK moved only through `kk-link`'s SA fallback (`kk link SA` 1 -> 6): II 36 lines (P2 4-7, 356.7 s), IK 38 (P1 2-0, 374.3 s)
+  -> 40 (P1 3-2, 398.3 s), KK 38 (P1 1-0, 375.3 s). Nothing retuned, no balance gates. Native `--cvc`
+  PASS on the regenerated reference.
 
 ### 8.5 Order and parallelism
 

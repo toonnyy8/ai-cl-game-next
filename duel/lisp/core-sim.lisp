@@ -34,15 +34,15 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
 ;;; ---------------------------------------------------------------- starting moves
 (defun core-start! (e mv &optional (button :quick))
   "Start core move MV (START-MOVE with BUTTON): the one place an SP segment pays (DUEL_SP §3, §8.4 S2). An NS / AS segment (one with a
-cost, KIT-SP-COST) starts by SP-START-P: an AS always; an NS segment when it is a route's first (NSa, wherever it starts: Q17), the gauge
-is above 0, or in a burst; refused, nothing starts (the :refused cue; its press was eaten at the latch) and NIL. Started, it pays SP-PAY
+cost, KIT-SP-COST) starts by KIT-SP-START-P (the CPU reads the same test before it presses, S7): an AS always; an NS segment when it is a
+route's first (NSa, wherever it starts: Q17), the gauge is above 0, or in a burst; refused, nothing starts (the :refused cue; its press was eaten at the latch) and NIL. Started, it pays SP-PAY
 through SPEND-FS (the regen waits again, Q1, also when it paid nothing at 0: else the regen's trickle would open every later segment; in
 a burst nothing is paid and SPEND-FS is not called) and records what it paid and cost (FIGHTER-SP-PAID / -SP-COST; free in a burst: cost
 0, so full damage, Q7) for its damage scale (APPLY-HIT, SP-SCALE) and a cancel's refund (CORE-NOHIT!). Any other move (an NA link, the
 SA, a Kikon strike): started as it is. T when it started."
   (let* ((f (fighter e)) (g (gauges e)) (kit (fighter-kit f)) (cost (kit-sp-cost kit mv)))
     (cond ((null cost) (start-move e mv button) t)
-          ((not (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) (gauges-fs g) (gauges-burst g)))
+          ((not (kit-sp-start-p kit mv (gauges-fs g) (gauges-burst g)))
            (emit :refused e :sp)
            (clog "~a SP ~a refused (fs ~,1f)" (side-name e) (mv-name mv) (gauges-fs g))
            nil)
