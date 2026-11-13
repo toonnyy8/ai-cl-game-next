@@ -2435,6 +2435,13 @@ PLAN §4 / §7 step 3. A new rule base for the step 8 tables; no table names it 
 - **A round pins its sim build**: `eval.py` refuses to score when `SP_BUILD` is set and the build hash differs (a source edited under running cells rebuilt `duel.fas`, and the step-3 agent saw the reverse: edits made while a build read the sources, an older build newer than them). Main's Lisp sources stay frozen while a round runs; code cells build in their own worktrees. `strategy-switch.py`'s cache temp names are unique per process and thread (parallel identical jobs).
 - **`:rb-sp`'s cue list** (§11.3 left out `:ored`, `:awk`, `:oawk`, `:wall`): decided before step 8's fit from the arms the rounds admit; `:ored` first in line (the victim's red changes what a pointer-2 Kikon takes, R15d).
 
+### 11.5 The KI pilot and its admitted arm (2026-11-14)
+
+- **Pilot**: one Sonnet data cell a side in throw-away workspaces (1 x 1 grid), from the initial programs of §11.4. The mechanics held: eval.py, recording from the lead's own re-score, the cache, the `SP_BUILD` guard.
+- **Kenpachi**: `c-ki-k-pilot-b0a0` = `ken-kh-standoff-style` (the stand-off breaker) with `a-ken-press`'s `:base` / `:rules`: 0.7096 (block 300), 0.6617 (block 200) against `a-ken-kh-standoff`'s 0.4588 / 0.4852. Admission (§4): block 400 0.7013 against `a-ken-press` 0.4736, `a-ken-kh-standoff` 0.4686, `none` 0.3334; a best response to every Ichigo column; its matrix row unlike the others' (against `a-ichigo-press` 0.590 against 0.325 / 0.360). The params fingerprint (§3) cannot tell it from `a-ken-press` (only `:fn` differs), so the behaviour filter decided. Added to `pop/ki-K.json`; the KI matrix (block 200) recomputed: Kenpachi's mix pure on it (value 0.59), Ichigo's still pure on `a-ichigo-press` (0.41). The workspaces' baselines: Kenpachi 0.7096, Ichigo 0.6122.
+- **Ichigo**: no gain (0.7492 = the baseline); its `:lead` rules changed no match, which led to KNOBS.md: the KI style CPUs read almost no arm keys (`:b-*` inert under a style), hence §11.6.
+- **Coordinator**: a subagent cannot spawn agents here, so the main session dispatches the cells itself and records from its own re-score (a deviation from AGENTS.md's Opus coordinator).
+
 ### 11.6 Style knobs: the KI / KH style CPUs' tunables as arm keys (2026-11-14)
 
 The KI search writes arms as data, but the style CPUs read almost no arm key (sp/KNOBS.md §0-§3): their play lived in ~155 `*kk-*` / `*kso-*` / `*khf-*` / `*iks-*` specials, so every idea needed a code cell and its own build. Now the 53 decision tunables that matter most are read through one accessor in strategy-glue.lisp:
