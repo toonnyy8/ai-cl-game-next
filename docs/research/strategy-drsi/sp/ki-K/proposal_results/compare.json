@@ -6,7 +6,7 @@
   "ranking": [
     {
       "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v1_rank_keep.py",
-      "sha1": "5b176ebd32a3",
+      "sha1": "adc53ac1e4ca",
       "pareto": {
         "auc": 0.4856569744736749,
         "parallel_penalty": 0.34500000000000003,

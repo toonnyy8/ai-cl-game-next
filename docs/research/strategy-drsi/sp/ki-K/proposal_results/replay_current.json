@@ -10,32 +10,42 @@
     1.0
   ],
   "pareto": {
-    "auc": 0.0,
-    "parallel_penalty": 0.25,
+    "auc": 0.4856569744736749,
+    "parallel_penalty": 0.34500000000000003,
     "parallelism_weight": 0.05,
-    "reward": -0.0125,
+    "reward": 0.4684069744736749,
     "n_traces_scored": 1,
     "per_trace": [
       {
         "name": "r01",
         "run_best": 0.9389,
         "n_evaluated": 12,
-        "auc": 0.0,
-        "parallel_penalty": 0.25,
+        "auc": 0.4856569744736749,
+        "parallel_penalty": 0.34500000000000003,
         "front": [
           {
             "beta": 0.0,
-            "total_budget": 12.0,
+            "total_budget": 6.0,
+            "attain": 0.9455746085845139
+          },
+          {
+            "beta": 0.25,
+            "total_budget": 8.0,
+            "attain": 0.9683672382575355
+          },
+          {
+            "beta": 0.5,
+            "total_budget": 10.0,
             "attain": 1.0
           }
         ],
-        "varies": false
+        "varies": true
       }
     ]
   },
   "qualified": true,
   "disqualified_reason": null,
-  "non_degenerate": false,
+  "non_degenerate": true,
   "grid": [
     {
       "beta": 0.0,
@@ -46,27 +56,32 @@
           "n_evaluated": 12,
           "beta": 0.0,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 2,
-              "reason": "fallback grid",
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
-          "best": 0.9389,
-          "total_budget": 12,
+          "best": 0.8878,
+          "total_budget": 6,
           "decision_rounds": 3,
           "effective_sequential_rounds": 3,
           "batch_sizes": [
             4,
-            4,
-            4
+            1,
+            1
           ],
           "events": [
             {
@@ -120,10 +135,7 @@
                 "legal": 4
               },
               "batch": [
-                "b0_a1",
-                "b1_a1",
-                "b2_a1",
-                "b3_a1"
+                "b0_a1"
               ],
               "outcomes": [
                 {
@@ -131,24 +143,6 @@
                   "score": 0.8746,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.038000000000000034
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.1634
-                },
-                {
-                  "cell": "b2_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.16010000000000002
-                },
-                {
-                  "cell": "b3_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.09079999999999999
                 }
               ],
               "best_after": 0.8746
@@ -156,16 +150,13 @@
             {
               "round": 3,
               "before": {
-                "observed": 8,
-                "budget": 8,
+                "observed": 5,
+                "budget": 5,
                 "best": 0.8746,
                 "legal": 4
               },
               "batch": [
-                "b0_a2",
-                "b1_a2",
-                "b2_a2",
-                "b3_a2"
+                "b0_a2"
               ],
               "outcomes": [
                 {
@@ -173,27 +164,9 @@
                   "score": 0.8878,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.01319999999999999
-                },
-                {
-                  "cell": "b1_a2",
-                  "score": 0.8779,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.0032999999999999696
-                },
-                {
-                  "cell": "b2_a2",
-                  "score": 0.9389,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.06429999999999991
-                },
-                {
-                  "cell": "b3_a2",
-                  "score": 0.9092,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.034599999999999964
                 }
               ],
-              "best_after": 0.9389
+              "best_after": 0.8878
             }
           ]
         }
@@ -209,27 +182,32 @@
           "n_evaluated": 12,
           "beta": 0.25,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 2,
-              "reason": "fallback grid",
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
-          "best": 0.9389,
-          "total_budget": 12,
+          "best": 0.9092,
+          "total_budget": 8,
           "decision_rounds": 3,
           "effective_sequential_rounds": 3,
           "batch_sizes": [
             4,
-            4,
-            4
+            2,
+            2
           ],
           "events": [
             {
@@ -284,8 +262,6 @@
               },
               "batch": [
                 "b0_a1",
-                "b1_a1",
-                "b2_a1",
                 "b3_a1"
               ],
               "outcomes": [
@@ -294,18 +270,6 @@
                   "score": 0.8746,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.038000000000000034
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.1634
-                },
-                {
-                  "cell": "b2_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.16010000000000002
                 },
                 {
                   "cell": "b3_a1",
@@ -319,15 +283,13 @@
             {
               "round": 3,
               "before": {
-                "observed": 8,
-                "budget": 8,
+                "observed": 6,
+                "budget": 6,
                 "best": 0.8746,
                 "legal": 4
               },
               "batch": [
                 "b0_a2",
-                "b1_a2",
-                "b2_a2",
                 "b3_a2"
               ],
               "outcomes": [
@@ -338,25 +300,13 @@
                   "delta_vs_parent": 0.01319999999999999
                 },
                 {
-                  "cell": "b1_a2",
-                  "score": 0.8779,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.0032999999999999696
-                },
-                {
-                  "cell": "b2_a2",
-                  "score": 0.9389,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.06429999999999991
-                },
-                {
                   "cell": "b3_a2",
                   "score": 0.9092,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.034599999999999964
                 }
               ],
-              "best_after": 0.9389
+              "best_after": 0.9092
             }
           ]
         }
@@ -372,27 +322,32 @@
           "n_evaluated": 12,
           "beta": 0.5,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 2,
-              "reason": "fallback grid",
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
           "best": 0.9389,
-          "total_budget": 12,
+          "total_budget": 10,
           "decision_rounds": 3,
           "effective_sequential_rounds": 3,
           "batch_sizes": [
             4,
-            4,
-            4
+            3,
+            3
           ],
           "events": [
             {
@@ -447,7 +402,6 @@
               },
               "batch": [
                 "b0_a1",
-                "b1_a1",
                 "b2_a1",
                 "b3_a1"
               ],
@@ -457,12 +411,6 @@
                   "score": 0.8746,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.038000000000000034
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.1634
                 },
                 {
                   "cell": "b2_a1",
@@ -482,14 +430,13 @@
             {
               "round": 3,
               "before": {
-                "observed": 8,
-                "budget": 8,
+                "observed": 7,
+                "budget": 7,
                 "best": 0.8746,
                 "legal": 4
               },
               "batch": [
                 "b0_a2",
-                "b1_a2",
                 "b2_a2",
                 "b3_a2"
               ],
@@ -499,12 +446,6 @@
                   "score": 0.8878,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.01319999999999999
-                },
-                {
-                  "cell": "b1_a2",
-                  "score": 0.8779,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.0032999999999999696
                 },
                 {
                   "cell": "b2_a2",
@@ -535,27 +476,32 @@
           "n_evaluated": 12,
           "beta": 0.75,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 2,
-              "reason": "fallback grid",
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
           "best": 0.9389,
-          "total_budget": 12,
+          "total_budget": 10,
           "decision_rounds": 3,
           "effective_sequential_rounds": 3,
           "batch_sizes": [
             4,
-            4,
-            4
+            3,
+            3
           ],
           "events": [
             {
@@ -610,7 +556,6 @@
               },
               "batch": [
                 "b0_a1",
-                "b1_a1",
                 "b2_a1",
                 "b3_a1"
               ],
@@ -620,12 +565,6 @@
                   "score": 0.8746,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.038000000000000034
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.8746,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.1634
                 },
                 {
                   "cell": "b2_a1",
@@ -645,14 +584,13 @@
             {
               "round": 3,
               "before": {
-                "observed": 8,
-                "budget": 8,
+                "observed": 7,
+                "budget": 7,
                 "best": 0.8746,
                 "legal": 4
               },
               "batch": [
                 "b0_a2",
-                "b1_a2",
                 "b2_a2",
                 "b3_a2"
               ],
@@ -662,12 +600,6 @@
                   "score": 0.8878,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.01319999999999999
-                },
-                {
-                  "cell": "b1_a2",
-                  "score": 0.8779,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.0032999999999999696
                 },
                 {
                   "cell": "b2_a2",
@@ -698,15 +630,20 @@
           "n_evaluated": 12,
           "beta": 1.0,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 2,
-              "reason": "fallback grid",
+              "reason": "0 completed live round(s): no trend yet; hold the fallback grid within the hard caps",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
