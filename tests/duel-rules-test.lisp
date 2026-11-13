@@ -3,7 +3,7 @@
 ;;;;   $ECL_HOST --norc --load tests/duel-rules-test.lisp
 ;;;; The files are plain Common Lisp over the engine's plain-CL math, hit volumes and vpad, so they
 ;;;; load here after engine/lisp/{package,math,hitvol,input}.lisp.
-(dolist (f '("package" "math" "hitvol" "input" "layout" "debug-ranges"))
+(dolist (f '("package" "math" "hitvol" "input" "fuzzy" "layout" "debug-ranges"))
   (load (merge-pathnames (format nil "../engine/lisp/~a.lisp" f) *load-truename*)))
 (defpackage :duel (:use :cl :engine))
 ;; the character files also hold their hook functions and cinematics: those need the engine, so the

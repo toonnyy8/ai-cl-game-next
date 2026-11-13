@@ -339,6 +339,7 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/math.lisp    | scalars (HYPOT, COUNTDOWN!), facing (FWD-X / YAW-TO / TURN-TOWARD), WEIGHTED-PICK, vec3 / mat4 on single-float arrays (plain CL, host-loadable) |
 | lisp/hitvol.lisp  | hit volumes vs hurt cylinders: MAKE-VOL / VOL-HIT-P, capsule / box / cylinder tests (plain CL, host-loadable) |
 | lisp/input.lisp   | the virtual controller (vpad): buttons, buffer, modifier, stick, command tables, device bindings (plain CL, host-loadable) |
+| lisp/fuzzy.lisp   | zero-order Sugeno fuzzy inference over named trapezoid sets: FZ-SETS! / FZ-MU / FZ-INFER (plain CL, host-loadable; R13) |
 | lisp/touch.lisp   | the one-thumb gesture recogniser (TOUCH-FEED!, TOUCH-TAKE!, ...; plain CL, host-loadable; docs/duel/DUEL_MOBILE_DESIGN.md §3.2) |
 | lisp/platform.lisp| SDL3 window, time, events → input state (C: c/platform.c)    |
 | lisp/render.lisp  | SDL_GPU pipelines, WGSL loader, camera, lights, meshes, draw queue, fx batch (C: c/render.c, shaders/*.wgsl) |
@@ -482,8 +483,8 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
   function in game code compiles silently and fails when that line runs. `tools/pkgcheck.sh DIR`
   catches all three (it walks every form: calls and `#'` references must be defined somewhere) and
   exits 1 when it reports anything.
-* **Engine files the host tests load are plain CL:** math.lisp, hitvol.lisp, input.lisp (and
-  cine.lisp with two stubs). Keep C-inline macros (F-SIN …) out of what the games' rules call there;
+* **Engine files the host tests load are plain CL:** math.lisp, hitvol.lisp, input.lisp, fuzzy.lisp, layout.lisp,
+  debug-ranges.lisp (and cine.lisp with two stubs). Keep C-inline macros (F-SIN …) out of what the games' rules call there;
   defining a function that uses one is fine, calling it on the host is not.
 * **DEFCINE's AT / DURING / CF / U / STEP-P** are interned in the script's own package (local
   macros and variables of the script function), so they don't clash with a game's own `at` macro

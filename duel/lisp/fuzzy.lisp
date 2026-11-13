@@ -5,8 +5,8 @@
 ;;;; memberships); OUTPUT the chance the rule asks for. The answer is the rules' outputs averaged by their strengths (a zero-order Sugeno
 ;;;; inference, as the FightingICE fuzzy agent whose memberships were its chances: docs/research/ai-mcts-fuzzy-learning/report.md §2.2),
 ;;;; DEFAULT when no rule fires; a :MUST rule that holds at least half way answers alone (the rank step: one decisive rule is not averaged away
-;;;; by weak ones). The sets' breakpoints are resolved onto their symbols at load; only + - x / (nothing the native sim and wasm may round
-;;;; apart). Features are a plist the CPU fills with what it sees (core-ai.lisp); sets are trapezoids
+;;;; by weak ones). That arithmetic (FZ-SETS!, FZ-MU, FZ-INFER) is the engine's since refactor R13 (engine/lisp/fuzzy.lisp); this file
+;;;; keeps the sets, the difficulty scaling and the rule bases. Features are a plist the CPU fills with what it sees (core-ai.lisp); sets are trapezoids
 ;;;; (A B C D) in *FZ-SETS*. The answer is a chance, rolled once per event as every CPU chance (AI v2), and scaled by difficulty: a :SKILL
 ;;;; chance (a read, a Hoho, a hold) x *FZ-SKILL*, a :CHOICE (one option or another, both fine) pulled toward 1/2 as the skill falls. The
 ;;;; outputs are the HARD player's; the learning stages (DUEL_AI_MCTS §2.3-2.4) tune them.
@@ -36,24 +36,7 @@
     (:w-near -99 -99 2.0 3.0) (:w-open 2.0 3.0 99 99))                ; metres to the arena's wall (the ranged rule's cornered: 2.0)
   "The fuzzy sets: name -> trapezoid (A B C D): 0 below A and above D, 1 from B to C.")
 
-(dolist (e *fz-sets*) (setf (get (first e) 'fz-trap) (coerce (rest e) 'simple-vector)))   ; (resolved once: no ASSOC per membership)
-
-(defun fz-mu (x set)
-  "X's membership in SET (a name in *FZ-SETS*)."
-  (let* ((v (get set 'fz-trap)) (a (svref v 0)) (b (svref v 1)) (c (svref v 2)) (d (svref v 3)))
-    (cond ((or (< x a) (> x d)) 0.0)
-          ((< x b) (/ (- x a) (float (- b a))))
-          ((<= x c) 1.0)
-          (t (/ (- d x) (float (- d c)))))))
-
-(defun fz-infer (rules feats &optional (default 0.0))
-  "RULES' answer for the feature plist FEATS (a cue missing reads 0): a :MUST rule holding at least half way alone, else the outputs averaged
-by the rules' strengths, DEFAULT if none fires."
-  (let ((num 0.0) (den 0.0))
-    (dolist (r rules (if (plusp den) (/ num den) default))
-      (let ((w (loop for (f set) in (first r) minimize (fz-mu (plist-get feats f 0) set))))
-        (when (and (eq (third r) :must) (>= w 0.5)) (return (second r)))
-        (incf num (* w (second r))) (incf den w)))))
+(fz-sets! *fz-sets*)   ; (the engine's inference, engine/lisp/fuzzy.lisp: FZ-MU / FZ-INFER read them)
 
 (defun fz-scale (p dif kind)
   "Chance P of the HARD player at difficulty DIF: :SKILL x the skill, :CHOICE pulled toward 1/2."

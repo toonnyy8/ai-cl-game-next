@@ -3,7 +3,7 @@
 ;;;;   $ECL_HOST --norc --load tools/sp-cost-table.lisp            rewrites the block between the two markers in docs/duel/DUEL_DESIGN.md
 ;;;;   $ECL_HOST --norc --load tools/sp-cost-table.lisp -- print   prints it instead
 ;;;; The values are pinned by the host test (tests/duel-rules/sp.lisp, *SP-TABLE*); rerun this after a cost or a damage changes.
-(dolist (f '("package" "math" "hitvol" "input" "layout" "debug-ranges"))
+(dolist (f '("package" "math" "hitvol" "input" "fuzzy" "layout" "debug-ranges"))
   (load (merge-pathnames (format nil "../engine/lisp/~a.lisp" f) *load-truename*)))
 (defpackage :duel (:use :cl :engine))
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)

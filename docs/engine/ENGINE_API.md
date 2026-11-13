@@ -95,6 +95,18 @@ nine buttons, command table and bindings); no device is touched here.
   game's `(down-p device name)`; `(inputs-down-p inputs down-p)`. Reader example:
   `(make-vpad :actions *my-actions* :reader (lambda (vp) (vpad-read! vp *p1-bindings* #'my-down-p (pad-lx 0) (pad-ly 0))))`.
 
+## Fuzzy inference (`fuzzy.lisp`, plain CL, tested by `tests/duel-rules/fuzzy.lisp`)
+
+A zero-order Sugeno rule layer (REFACTOR_2026-11 R13; SOUL DUEL's CPU keeps its sets, rule bases and difficulty scaling in
+duel/lisp/fuzzy.lisp). Only + − × /, so the native sim and wasm agree.
+* `(fz-sets! sets)` — name the trapezoids: SETS a list of `(name a b c d)`, membership 0 below A and above D, 1 from B to C,
+  resolved onto the names once (a name given again is replaced).
+* `(fz-mu x set)` — X's membership in the named SET.
+* `(fz-infer rules feats &optional (default 0.0))` — a rule base's answer for the feature plist FEATS (a missing feature
+  reads 0). A rule is `(antecedents output [:must])`, ANTECEDENTS a list of `(feature set)` joined by AND (the min); the
+  answer is the outputs averaged by the rules' strengths, DEFAULT when none fires, and a `:must` rule holding at least half
+  way answers alone. E.g. `(fz-infer '((((:d :near)) 1.0) (((:d :mid)) 0.0)) '(:d 2.0))`.
+
 ## Touch gestures (`touch.lisp`, plain CL, tested by `tests/touch-test.lisp`)
 
 The one-thumb gesture recogniser (design: `docs/duel/DUEL_MOBILE_DESIGN.md` §3.2; the file header lists the reads).
