@@ -414,7 +414,7 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
 
 **S9 done (2026-11-13, merged after S7; DEVLOG §752; G2 identical to S7's reference on the merged head).**
 - **PRACTICE's FLASH STEP row** (the §8.4 row's "GAUGES row (FS ...)"): a separate pause row after GAUGES, `FLASH STEP  KEEP / FULL / ONE CELL /
-  EMPTY` (`*practice-fs-levels*`, `*practice-fs*`, `practice-fs-value` in flow.lisp; the plan's `control.lisp` settings row was wrong: the pause rows
+  EMPTY` (`*practice-fs-levels*`, `*practice-fs*`, `practice-fs-value` in flow.lisp; since REFACTOR_2026-11 R15c, 2026-11-14, `po-fs` of the record `*practice*` and `practice-refill` in practice.lisp; the plan's `control.lisp` settings row was wrong: the pause rows
   live in flow.lisp's `pause-keys` / `pause-label` / `pause-do` / `*practice-option-keys*`, which the Lisp HUD draws as they are). Not KEEP: both
   fighters' flash-step held at `*fs-max*` / `*fs-cell*` / 0 every sim frame in `practice-step`, after the GAUGES INFINITE block (so it overrides the
   flash-step INFINITE gives P1), skipped while that fighter's burst runs (as INFINITE: a burst drains, the value returns when it ends). Default KEEP
