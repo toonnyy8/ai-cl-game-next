@@ -8963,3 +8963,14 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 待人工：R14 的離線／安裝檢查（開頁、等 service worker、斷網重整、重建後換新快取）。留給 R15：`scale-k-links`（26000+，沒人用）、三個表格工具自 SP 起就壞了（載入清單缺 sp／core／debug-ranges）。
 
 分工：R11、R12、R14 各由一個 Opus 5.5 子代理在獨立 worktree 完成；Fable 唯讀審查 R12 與 R11（均未發現行為改變）；主對話 Opus 5.5 合併、清理、重驗、記錄、發布。
+
+## 755. 重構第四輪第 14 步：R13 把通用程式碼搬進引擎（2026-11-14）
+
+使用者：「繼續」
+
+- 搬了：模糊推論的算術（`fz-sets!`、`fz-mu`、`fz-infer`）成為引擎的新檔 engine/lisp/fuzzy.lisp，SOUL DUEL 只留模糊集合、難度縮放和規則；資料裡用 `*旋鈕*` 代數值的 `resolve-tuning`／`tuning-ref-p` 移到引擎的 package.lisp；按鍵綁定的讀取（`binding-input`／`binding-name`）移到 input.lisp，緊鄰 `vpad-read!`。函式本體逐字搬，名字不變，呼叫端不用改。
+- 沒搬（YAGNI）：衣襬彈簧（只有一護的披風在用，偏移量、呼吸和旋轉順序都是外觀本身，做成引擎 API 要八個參數給一個使用者）；設定列表（每個函式都讀遊戲的設定表，還綁著 pwa.js 的頁面約定）；重設按鍵的其餘部分（鍵盤共用、每人一支手把的規則和存檔代碼是這個遊戲的）。三項都寫進 REFACTOR_2026-11 的 Dropped。
+- 證明：主機測試 2979 全過（數量不變）、control 124、input 33、touch 100、cine 18、hud-engine 121、登記表 16、ecs 全過；pkgcheck 乾淨；`sp-costs-check.py` 114；搬動的函式以 unit-forms 比對 EQUAL。G2 native 與瀏覽器都和參照完全相同（II 36、IK 40、KK 38）；外觀閘門 75 張與 315f18b6 逐位元組相同；smoke 桌面／手機通過。試玩 Artifact v412（雜湊已核對）。
+- 備忘：一個名字搬進引擎後，`tools/unit-forms.lisp` 無法把新舊兩份程式碼載入同一個映像（新的匯出符號和舊的 duel 符號衝突），這次的做法是把舊版的套件改名再比；`*ya-hem*` 和 debug.lisp 的兩行 "ya hem" 量測只剩山本已退役的外觀在用，留給 R15。
+
+分工：R13 由 Opus 5.5 子代理完成；主對話 Opus 5.5 審查差異、合併、重驗、記錄、發布。
