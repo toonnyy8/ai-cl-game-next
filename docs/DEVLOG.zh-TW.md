@@ -8997,3 +8997,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 時程：M5 之後開始。
 
 分工：計畫由 Fable 擬稿（含探測）；主對話 Opus 5.5 問使用者、記錄。
+
+## 758. 重構第四輪第 15 步之一：R15 不改行為的三批（2026-11-14）
+
+使用者：「繼續」
+
+照 Fable 的建議，R15 先合只動結構、不改行為的三批，都先證明與基準逐位元組相同；會改行為的修正最後才合。
+
+- **R15a（清理）**：`*fire-density*` 只剩 tuning.lisp 一處定義。重名檢查器沒抓到它，是因為有一份「已知無害」的例外名單，名單整份拿掉後只抓出這一對。另外移除沒人用的除錯指令 26000+ 與 `scale-k-links`（除錯範圍 86 → 85）、只量山本舊外觀的兩行 ya-hem 量測，並刪掉自 SP 起就壞掉的三個表格工具（move／stat／matchup-sheet）。
+- **R15b（拆檔）**：combat.lisp 依職責拆成 gauges.lisp（量表、爆氣、型態）、combat.lisp（命中）、round.lisp（魂魄結算、重置），程式碼形式比對 5459 對 5459 全部 EQUAL。apply-hit 只做了最小、站得住的部分：抽出純函式 `broken-souls`（+5 項主機測試），佇列由 `take-broken-souls` 以多重值交給 `settle-souls`；其餘維持原樣，因為拆出來要 18 個參數、回傳 5 個值，比原本更難讀。Fable 單獨審過這部分，沒有行為改變。
+- **R15c（練習模式）**：PRACTICE 的八個全域選項收成一份 `*practice*` 紀錄；補滿量表改成純函式 `practice-refill`（+30 項主機測試），由 `practice-refill!` 一處寫入。新檔 practice.lisp，flow.lisp 只留畫面。合併時把 debug.lisp 的三行改成直接讀寫紀錄，拿掉過渡用的兩個 symbol macro。
+- 延後：手機 SP 長按改走 vpad（要手機試玩確認手感）、CPU 規劃狀態移進 BRAIN（等有功能需要再做），都記在 REFACTOR_2026-11 的待辦。
+- 證明（三批合在一起）：主機測試 3014 全過（2979 + 5 + 30），control 124、input 33、touch 100、cine 18、hud-engine 121、登記表 16；pkgcheck 乾淨；除錯範圍 85、0 錯誤；`sp-costs-check.py` 114。G2 native 與瀏覽器都和參照相同（II 36、IK 40、KK 38）；外觀閘門 75 張與 315f18b6 逐位元組相同；practice-cancel（1034 行）與 practice（111 行）的腳本記錄和合併前完全相同；smoke 桌面／手機通過（R15a 回報的手機逾時是當時機器負載 150–300 造成的，負載降下來後重跑就過了）。試玩 Artifact v413（雜湊已核對）。
+
+分工：R15a 由 Sonnet 5.5、R15b 與 R15c 由 Opus 5.5 子代理完成；Fable 審計畫與 R15b 的 apply-hit 部分；主對話 Opus 5.5 合併、解衝突、重驗、記錄、發布。
