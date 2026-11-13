@@ -353,7 +353,7 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
 
 (defun core-pointer-cine (att ptr)
   "Pointer PTR's Kikon cinematic in ATT's kit (:core :kikon-cines), or NIL."
-  (and *core-on* (nth (1- (max 1 (min *core-pointer-max* ptr))) (getf (kit-core (kit-of att)) :kikon-cines))))
+  (nth (1- (max 1 (min *core-pointer-max* ptr))) (getf (kit-core (kit-of att)) :kikon-cines)))
 
 (defun core-soul-break-cine (att)
   "The cinematic of ATT's Soul Break (the Reishi at zero): the current pointer's Kikon (the user, 2026-10-28: 「如果是血量歸零自動釋放到
@@ -430,7 +430,7 @@ the dash-in's first frame (the user, 2026-10-28: 「常態的 AS3 不知為何�
   "The follow-up strike (its :params :kikon-strike) of the wave HZ that ATT's NS / AS segment fired (HAZARD-SP-MV), when its hit may
 be a Kikon's first strike: the hold kept since that segment (the button still down: APPLY-HIT), ATT still in it or free again
 (the user, 2026-10-28: 「我發現月牙天衝揮出去後都無法打出毀魂技」; asked how, 「打中後瞬步衝過去補一刀」). Else NIL."
-  (let* ((f (fighter att)) (from (and *core-on* hz (hazard-sp-mv hz))))
+  (let* ((f (fighter att)) (from (and hz (hazard-sp-mv hz))))
     (and from (eq (fighter-sp-held f) t)
          (or (and (eq (fighter-state f) :move) (eq (fighter-move f) from)) (eq (fighter-state f) :idle))
          (gethash (getf (mv-params from) :kikon-strike) (kit-moves (fighter-kit f))))))

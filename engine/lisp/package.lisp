@@ -132,6 +132,8 @@
    #:+max-entities+ #:defcomponent #:spawn-entity #:destroy-entity #:entity-alive-p #:add-component
    #:remove-component #:clear-entities #:do-entities #:emit #:take-events #:do-events
    #:transform #:make-transform #:transform-pos #:transform-yaw #:pos-of #:yaw-of
+   ;; debug-ranges.lisp: the debug command ranges' registry (overlap fails at load; the narrowest range wins)
+   #:define-debug-range #:debug-dispatch #:debug-range-find #:*debug-ranges*
    ;; app.lisp: game registration and the frame driver
    #:run-game #:perf-mark #:*stats-log* #:cons-per-frame #:cons-bytes #:now-ms
    ;; snapshot.lisp: the sim's state saved and put back in place (DUEL_AI_TEACHER §5)

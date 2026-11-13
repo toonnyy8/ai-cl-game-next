@@ -125,7 +125,6 @@ SIPHON-OF)."
       (when to (pay-gauges to sfs))
       (awaken-fill! g aw (if to 0.0 (sub-attack-gain dealt 0 (burst-gain-mult (gauges-burst g))))))))
 
-(defparameter *delay-hit-hold* 6 "Frames past a :dmg-at hit's own frame the victim's hold lasts (DELAY-HIT), so he reels into it.")
 (defun delay-hit (att def dmg n react stun sx sz kb later mv red)
   "A hit whose damage and reaction come LATER frames after it (a move's :params :dmg-at, its move frame: 千切's cuts bursting,
 DUEL_KEN_V3 §30; the user, 2026-11-04: 「命中判定給 12f，但實際扣血留到斬痕爆開」): DEF held where he stands (a stagger, no push)
@@ -142,7 +141,7 @@ with its SP held since the segment began (a core SP's Kikon hold), the Kikon's k
   (when (and (eq event :step) (= (hazard-delay hz) 1))   ; (the generic step counts it to 0 after this)
     (destructuring-bind (def dmg n react stun sx sz kb mv red) (hazard-data hz)
       (let* ((att (hazard-owner hz)) (fa (fighter att))
-             (kikon (and *core-on* (eq (fighter-state fa) :move) (eq (fighter-move fa) mv) (core-kikon-p fa mv)
+             (kikon (and (eq (fighter-state fa) :move) (eq (fighter-move fa) mv) (core-kikon-p fa mv)
                          (eq (fighter-sp-held fa) t) (core-held-p att))))
         (when (entity-alive-p def)
           (clog "~a delayed hit on ~a ~d~:[~; (Kikon hold)~]" (side-name att) (side-name def) dmg kikon)

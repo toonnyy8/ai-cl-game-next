@@ -4,7 +4,7 @@
 # users. tuning / rules / control / kit are plain CL (host-tested); ken / ichigo / hisagi are the characters
 # (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
 # scripted.lisp (the trial player tools/simgate/trial.lisp drives) loads right before cpu-perceive.lisp (the CPUs' perception and presses).
-# ken-meter (Kenpachi's Shikai :p and the meter's :label) loads right after hud.lisp.
+# ken-meter (Kenpachi's meter :label) loads right after hud.lisp.
 # fq-online.lisp (the online fuzzy Q against a human: LEARNING CPU) loads after the CPUs it records (core-ai, cpu-mcts).
 # hem-spring / tip-track / vfx-ember (shared looks that stayed when the retired kits left: Ichigo's cloak spring, the weapon-tip tracker Ichigo's and Kenpachi's looks use, the ember star and the hold charge the dispatch calls) load before the characters.
 # hisagi.lisp, then hisagi-art / hisagi-draw / hisagi-cine / hisagi-stills (Hisagi, kit :hisagi, roster index 7,

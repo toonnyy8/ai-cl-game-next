@@ -50,6 +50,8 @@ KIKON-LOCK-P, FIGHTER-KIKON-LOCK.")
 
 ;;; ================================================================ §2 controls
 (defparameter *input-buffer* 10 "Frames a button press stays buffered in the vpad.")
+(defparameter *behind-turn* 300.0
+  "Degrees per second the behind view turns toward P1->P2: a Hoho behind P1 swings it round in ~0.6 s.")
 
 ;;; ================================================================ §3 universal mechanics
 ;;; ---------------------------------------------------------------- facing, walk, step, guard
@@ -330,6 +332,7 @@ the tolerances and the pure rules stay for a later return.")
 (defparameter *hitstop-block* 3 "Global hitstop of a blocked, armoured or absorbed hit.")
 (defparameter *super-flash* 6 "SP start: frames of the rim-light super flash...")
 (defparameter *super-freeze* 4 "... and frames the opponent alone is frozen.")
+(defparameter *delay-hit-hold* 6 "Frames past a :dmg-at hit's own frame the victim's hold lasts (DELAY-HIT), so he reels into it.")
 
 ;;; ---------------------------------------------------------------- arena, Burst Reverse
 (defparameter *arena-radius* 15.0 "Circular arena; fighters are clamped inside (invisible wall).")
@@ -426,4 +429,6 @@ frame count. 12 -> :dash, 2026-11-04, the user: 「目前手持模式很容易�
 (defparameter *core-damage* 0.42
   "x every hit of a fighter whose kit has a :core (KIT-ATK-MODS). The first core build ended matches in ~55 s median (Ichigo mirror 43 s,
 KI 61 s, HK 57 s; target 125-210 s): the pointer-3 Soul Break takes up to 5 of 9 Konpaku, so the Reishi (1300) is the pace. 1.0 before.")
-(defvar *core-on* t "NIL: KIT-ATK-MODS leaves the core system's damage scale (*CORE-DAMAGE* x the kit's :core :mult) out (the host tests of the old damage numbers).")
+(defparameter *core-pointer-max* 4 "The pointer runs 1 .. this: the NA link an AS followed (a kit with four :core :as entries, KESSA, has a fourth: SPIRIT DRIVE's, DUEL_SUBLIMATION §9).")
+(defparameter *core-kikon-max* 4 "Konpaku one Kikon takes at most (the old *KIKON-MAX-EVENT*).")
+(defparameter *core-soul-break-max* 5 "Konpaku one Soul Break takes at most (the old *SOUL-BREAK-MAX-EVENT*).")

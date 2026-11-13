@@ -152,7 +152,7 @@ tags added, since a non-NIL :hide replaces the face list): a vector made once pe
 (defun fighter-stance-clip (f)
   "F's idle clip. Under the core system a kit with :core :stances rests in the stance of its SP pointer (1 / 2 / 3), so the NS to
 come can be read from afar (the user, 2026-10-27); any other kit rests in its :stance."
-  (let ((st (and *core-on* (getf (kit-core (fighter-kit f)) :stances))))
+  (let ((st (getf (kit-core (fighter-kit f)) :stances)))
     (if st (nth (1- (max 1 (min (length st) (fighter-ptr f)))) st) (kit-stance (fighter-kit f)))))
 
 (defun play-clip (e clip &key (blend 4) (speed 1.0) (time 0.0) (restart t))
@@ -198,6 +198,16 @@ come can be read from afar (the user, 2026-10-27); any other kit rests in its :s
   "Slide E DIST metres over FRAMES along (DX DZ) (knockback, pushback, Step, clash)."
   (let* ((mo (motion e)) (kb (motion-kb mo)) (l (max 1e-4 (hypot dx dz))) (k (/ dist (max 1 frames) l)))
     (setf (aref kb 0) (f32 (* dx k)) (aref kb 2) (f32 (* dz k)) (motion-kb-left mo) frames)))
+(defun pull-opp-to (att d frames)
+  "A chain (or a hook) drags ATT's opponent toward him to D metres over FRAMES (after the hit's own reaction: its slide replaced,
+SET-SLIDE), with the chain's snap; T when it moved him (he was farther than D). Ichigo's KUSARI-BIKI and ZANGETSU-GAESHI,
+Hisagi's YOSE, KAKE and the bind's hooks (ICHIGO-PULL-TO and HS-PULL-TO until REFACTOR_2026-11 R11)."
+  (let* ((v (opp-of att)) (p (pos-of att)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
+         (dist (hypot dx dz)))
+    (when (> dist d)
+      (set-slide v (- dist d) frames dx dz)
+      (emit :sfx :chain-snap att)
+      t)))
 
 ;;; ---------------------------------------------------------------- the view humans steer by
 ;;; A human's stick is camera-relative. The sim must not read the render camera (it lags on real
@@ -213,8 +223,6 @@ come can be read from afar (the user, 2026-10-27); any other kit rests in its :s
 (defvar *view-side* 1f0 "+1: the view shows P1 on the left of the screen; -1: on the right.")
 (defvar *behind-yaw* 0f0 "The behind camera's view yaw: from P1 toward P2, rate-limited.")
 (defvar *view-behind* nil "Humans steer by the behind camera (else the pair camera).")
-(defparameter *behind-turn* 300.0
-  "Degrees per second the behind view turns toward P1->P2: a Hoho behind P1 swings it round in ~0.6 s.")
 
 (defun view-step (a b &optional reset)
   "Keep the pair view on its side of the A (P1) -> B axis: of the two perpendiculars take the one
@@ -435,7 +443,8 @@ Kikon is decided when its strike connects: combat.lisp APPLY-HIT).")
   "Commands a run cancels into at once (neutral's, without Awaken); Step again = a new hop.")
 
 (defparameter *run-commands-p* (cons :awaken *run-commands*)
-  "A run's commands for a form with a :p hook: P too (Hisagi's bind throw from a run, DUEL_HISAGI §17.2).")
+  "A run's commands for a form whose kit says :run-awaken: P too (Kenpachi's Shikai; a form with a :p hook that should take P from a
+run, as Hisagi's bind throw did, DUEL_HISAGI §17.2, says it too).")
 
 (defun command! (e f vp allowed)
   "The highest-priority buffered command among ALLOWED that can start now; consumes its press. A
@@ -467,15 +476,8 @@ the :refused event (a flash of its HUD bar, a dud tick). NIL: the commands below
   "Guard is held and E may guard (the guard gauge: CAN-GUARD-P). Guardless, holding it does nothing."
   (let ((g (gauges e)))
     (and (vpad-down vp :guard) (can-guard-p (gauges-gg g) (gauges-guardless g))
-         (not (kit-hook (kit-of e) :u))                ; a form whose U is a move never guards (U-PRESS!)
          (not (kit-core (kit-of e))))))                ; the core system has no guard (U unbound, DUEL_CORE §2): no input guards,
                                                        ; the CPU's neither (the user, 2026-11-08: 「CPU 也不能防禦」, DUEL_AI_MCTS §10)
-
-(defun u-press! (e f vp)
-  "A form with a :u hook (its U is a move, not a guard): a buffered U press calls it; T (the press used) when it started
-something."
-  (let ((h (kit-hook (fighter-kit f) :u)))
-    (and h (vpad-command-pressed-p vp :guard :any) (funcall h e) (progn (vpad-consume! vp :guard) t))))
 
 (defun neutral-step (e f vp)
   "Idle / walk / strafe / guard: commands, then guard or walk, auto-facing. While guarding, and for *GUARD-EXIT* frames
@@ -486,7 +488,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
                (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
                    (command! e f vp '(:awaken :burst :hoho :step))      ;  no attack (*GUARD-EXIT*, the user 2026-10-23;
                                                                         ;  the press stays buffered)
-                   (or (hoho-resume-press! e f vp) (command! e f vp *neutral-commands*) (u-press! e f vp))))
+                   (or (hoho-resume-press! e f vp) (command! e f vp *neutral-commands*))))
     (let ((v (motion-vel (motion e))))
       (if (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (guard-held-p e vp))   ; (a red Kikon lock: no guard)
           (progn
@@ -858,7 +860,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
              (turn-to-opp e f (%deg *face-rate*))
              (if (or (<= s 0) (>= sf *run-brake*)) (to-idle e) (run-velocity e s (fighter-run-yaw f)))))
-          ((and free (or (command! e f vp (if (kit-hook (fighter-kit f) :p) *run-commands-p* *run-commands*)) (u-press! e f vp)))
+          ((and free (command! e f vp (if (kit-run-awaken (fighter-kit f)) *run-commands-p* *run-commands*)))
            (when (eq (fighter-state f) :move)
              (set-slide e (run-carry (fighter-dist f)) *run-carry-frames* vx vz)
              (clog "~a run -> ~a, carry ~,1f m" (side-name e) (mv-name (fighter-move f)) (run-carry (fighter-dist f)))))

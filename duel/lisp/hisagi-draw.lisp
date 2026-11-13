@@ -1867,12 +1867,6 @@ returning; \" KIN\" after it while a cancel's unlock is on (DUEL_HISAGI §29: LH
 after it while a cancel's unlock is on (§29). Constants: 0 B."
   (let ((bind (eq (fighter-form (fighter e)) :bankai-bind)) (kin (hss-kin (hs e))))
     (if bind (if kin "BIND KIN" "BIND") (if kin "RANGED KIN" "RANGED"))))
-(setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :label 'hs-hud-label))   ; (its canvas row HS-HUD-METER left 2026-11-11)
-;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
-;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)
-;; (§28.15: the name tells the two modes apart on the plate's tag, and the Lisp HUD's pointer seals by it: 散 / 聚, 鎌 / 絞)
-(setf (kit-meter (find-kit :hisagi :bankai)) (list :name "RANGED" :max 1)
-      (kit-meter (find-kit :hisagi :bankai-bind)) (list :name "BIND" :max 1))
 (defun hs-deck (e cx cy d)
   "His :deck hook (one hand): a dot above the thumb, lit while the sickle is in hand."
   (let ((r (* d 52.0)))

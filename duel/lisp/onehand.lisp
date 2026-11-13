@@ -12,8 +12,8 @@
 ;; *TOUCH* *ONE-HAND* *HAND* *COARSE* *BACK-PRESS*: components.lisp (read by fighter.lisp and flow.lisp)
 (defvar *touch-burst* nil "This vpad read: the live flick is a burst (down, P1 in hit / stun / air: BLUE; his move's hit
 landed: ORANGE).")
-(defvar *deck-key* (list 0 0 0 nil nil 0 0 0 nil) "Window w, h, density, hand, one-hand, safe top / bottom, UI scale, the U chip of the
-last TOUCH-LAYOUT!.")
+(defvar *deck-key* (list 0 0 0 nil nil 0 0 0) "Window w, h, density, hand, one-hand, safe top / bottom, UI scale of the last
+TOUCH-LAYOUT!.")
 (defvar *wake* nil "Wake lock requested (battle).")
 (defparameter *glyph-names* #("" "Q" "STEP" "F" "HOHO" "" "DASH" "BURST")
   "TOUCH-GLYPH kinds (7: the duel's Burst). 5, the rest, is no longer named GUARD (the user, 2026-10-28: 「請將長按時是防禦的手勢偵測給移除」):
@@ -90,7 +90,6 @@ end 1 cm over the deck's top (in the pad, unclamped since), the thumb's 3 cm ove
   "The portrait battle frame's centre moved up this many CSS px (the lens shift, *PCAM* [1]; the user, 2026-10-28: 「戰鬥畫面中心向上偏移約
 0.5 cm」, then 「戰鬥畫面中心再次向上偏移約 0.5 cm」: 18.9 -> 37.8, and once more on 2026-10-29: -> 56.7). Before: 0.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0) "Each chip's hold, ms (爆's is set every frame: RV-READY-P, ONEHAND-FRAME).")
-(defparameter *u-chip-holds* '(0 0 0 0 0 0 0 0) "... with the AWAKEN chip as U (U-CHIP-P): a tap.")
 
 (defun deck-layout ()
   "Values: pad (x0 y0 x1 y1), chips ((cx cy r) ...) and the deck (x0 y0 x1 y1, *DECK-FRAC* of the window from its bottom), window
@@ -125,11 +124,11 @@ one for the right hand)."
   "Re-lay the deck when the window, the density, the hand or the mode changed (conses: not every frame).
 Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu taps."
   (let ((k *deck-key*) (w (window-width)) (h (window-height)) (d (pixel-density)) (s (ui-scale))
-        (st (page-get +pg-safe-top+)) (sb (page-get +pg-safe-bottom+)) (u (u-chip-p)))
+        (st (page-get +pg-safe-top+)) (sb (page-get +pg-safe-bottom+)))
     (unless (and (= (first k) w) (= (second k) h) (= (third k) d) (eq (fourth k) *hand*) (eq (fifth k) *one-hand*)
-                 (= (sixth k) st) (= (seventh k) sb) (= (eighth k) s) (eq (ninth k) u))
+                 (= (sixth k) st) (= (seventh k) sb) (= (eighth k) s))
       (setf (first k) w (second k) h (third k) d (fourth k) *hand* (fifth k) *one-hand* (sixth k) st (seventh k) sb (eighth k) s
-            (ninth k) u *safe-top* st *safe-bot* sb)
+            *safe-top* st *safe-bot* sb)
       (multiple-value-bind (pad chips deck) (deck-layout)
         (replace *deck* (mapcar #'f32 (append pad (reduce #'append chips))))
         (replace *deck-rect* (mapcar #'f32 deck))
@@ -143,7 +142,7 @@ Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu tap
                 (aref *pcam* 1) (f32 (/ (* 2 *pt-center-lift* d) (max 1 h)))))   ; NDC spans 2 over the height
         (if *one-hand*
             (multiple-value-bind (fl fr) (deck-split-ends)
-              (touch-layout! *touch* d pad chips (if u *u-chip-holds* *chip-holds*))
+              (touch-layout! *touch* d pad chips *chip-holds*)
               (apply #'touch-split! *touch* (append deck (list fl fr))))
             (progn (touch-layout! *touch* d '(0 0 -1 -1) nil)
                    (touch-split! *touch* 0 0 0 0 0 0))))
@@ -204,8 +203,7 @@ shows it (hud.lisp HUD-HINT). Free states that take a Hoho, the Hoho affordable 
 (defun awaken-hold-ready-p (e)
   "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused)
 from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
-hold (RV-READY-P). (A form's :p hook is left out: Kenpachi's Shikai's does nothing, ken-meter.lisp KEN-P, and Hisagi's FREE sits in
-his Bankai, a :no-awaken form.)"
+hold (RV-READY-P)."
   (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
     (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
          (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
@@ -259,11 +257,6 @@ frame's finger events."
     (when *touch-burst*                                   ; the contact is spent: no stick, no Step held after a Burst (the
       (touch-spend! tr)                                   ; thumb running on past the run ring held Step: ORANGE's freed
       (setf (touch-glyph tr) 7))))                        ; recovery back-stepped; the user 2026-09-30)
-
-(defun u-chip-p ()
-  "P1's form has a :u hook (its U is a move, not a guard: a parry): a resting thumb does nothing and the spent
-AWAKEN chip is U (the user's default, DUEL_MOBILE_DESIGN §15.1)."
-  (and *one-hand* *p1* (entity-alive-p *p1*) (fighter *p1*) (kit-hook (kit-of *p1*) :u) t))
 
 (defun switch-flick-p ()
   "Is the live flick a sideways one in an NS gap that can switch the pointer (DUEL_SUBLIMATION §17)? Then it is the SP press (Mod + the

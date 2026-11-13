@@ -196,9 +196,9 @@
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
   :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label)   ; L 0-3 (KEN-HIT raises it)
-  :hooks (:p ken-p :armor ken-armor :dmg-mult ken-dmg-mult
-          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: a no-op, ken-meter.lisp KEN-P;
-                                                                                              ;  :draw the sword wind by L, ken-look.lisp)
+  :run-awaken t                      ; (P from a run, as with the :p hook KEN-P it replaces: REFACTOR_2026-11 R11)
+  :hooks (:armor ken-armor :dmg-mult ken-dmg-mult
+          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (:draw the sword wind by L, ken-look.lisp)
   :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil)   ; (the core system: J and SP only; the Breaker the base's)
   :strings ((:ke-s-j1 :q :ke-s-j2) (:ke-s-j2 :q :ke-s-j3) (:ke-s-j3 :q :ke-s-j4) (:ke-s-j4 :q :ke-s-j5) (:ke-s-j5 :q :ke-s-j6)
             (:ke-s-j6 :q :ke-s-j7))                                      ; (J4-J7: L3, KEN-LINK-OK)
@@ -1026,8 +1026,9 @@ DUEL_KEN_V3 §8.)"
         ((member c '(71001 71004)) (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
                                    (force-form *p1* (if (= c 71001) :nozarashi :bankai))
                                    (setf (gauges-meter (gauges *p1*)) (f32 (if (= c 71001) 0 4)) (gauges-meter-idle (gauges *p1*)) 0))))
-(dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (71000 71004 ken-debug)))
-  (pushnew r *char-debug* :test #'equal))
+(define-debug-range (2387 2388) ken-debug)
+(define-debug-range (2392 2392) ken-debug)
+(define-debug-range (71000 71004) ken-debug)
 
 ;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
 (defun ken-armor (e f mv)
@@ -1131,4 +1132,4 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
                     (log-msg "duel sub ~a awakened ~a awaken ~,1f sub ~,1f s ~,2f drive ~,1f frac ~,3f fs ~,1f speed x~,3f"
                              (side-name e) (and (gauges-awakened g) t) (gauges-awaken g) (gauges-sub g) (gauges-sub-s g)
                              (gauges-drive g) (sub-of e) (gauges-fs g) (sub-speed-mult e))))))))))
-(pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)
+(define-debug-range (84000 84099) ken-core-debug)

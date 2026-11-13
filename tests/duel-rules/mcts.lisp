@@ -1,6 +1,5 @@
 ;; ================================================================ the in-game MCTS's light model (duel/lisp/mcts-lite.lisp, DUEL_AI_TEACHER §9)
 (in-package :duel)
-(setf *core-on* t)
 (let* ((kk (kit :kenpachi :base)) (ik (kit :ichigo :base))
        (kj1 (mc-move-rec kk (kit-command-move kk :q))) (kns (mc-move-rec kk (kit-core-move kk :ns 1)))
        (ij1 (mc-move-rec ik (kit-command-move ik :q))) (ins1 (mc-move-rec ik (kit-core-move ik :ns 1)))

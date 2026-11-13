@@ -774,6 +774,16 @@ Plain CL (tested by `tests/ecs-test.lisp`). Background: ARCHITECTURE.md "Game st
   … render …[game :stats tail] | fx-dropped N` every 2 s. `(perf-mark)` called twice inside `:frame` splits "sim" from "queue".
   `(cons-per-frame)`, `(cons-bytes)` (since the last GC), `(now-ms)`.
 
+## Debug command ranges (`debug-ranges.lisp`, plain CL, tested by `tests/debug-ranges-test.lisp`)
+
+The game's `:debug` handler (App) hands each `Module._debug_cmd(N)` to a registry (REFACTOR_2026-11 R11, 2026-11-13).
+* `(define-debug-range (lo hi) handler)` — claim commands LO..HI for HANDLER, a function name called with the command; or
+  `(define-debug-range (lo hi) (c) body…)`, BODY run with C bound to it. At load: a range may sit inside another (the narrower
+  one wins, whatever the load order) but never overlap one in part, and a span is claimed once; either is an error then (the
+  same handler on the same span again replaces it: a file loaded twice).
+* `(debug-dispatch n)` → T after N's handler ran, NIL when no range claims N (nothing runs). `(debug-range-find n)` → the
+  narrowest `(lo hi name fn)` holding N, or NIL; `*debug-ranges*` the claimed list.
+
 ## Package helpers (`package.lisp`)
 
 * Types `f32` (= single-float; `(f32 x)` coerces) and `f32vec`; `(f32vec-p x)`; `clamp`, `lerp`;

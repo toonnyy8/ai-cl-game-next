@@ -1,5 +1,4 @@
 (in-package :duel)
-(setf *core-on* nil)   ; (these checks quote the damage numbers of before the core system's scale, 2026-10-27)
 ;;; ================================================================ the Kikon counts, the ranged hits (what stayed of the cups' block; the
 ;;; cups KATATE / RYOTE / NOMIHOSE and their NOME went 2026-11-03, DUEL_KEN_V3 §8)
 (flet ((rw (name i) (member :ranged (hw-flags (svref (mv-hits (find-move name)) i)))))
@@ -36,7 +35,6 @@
 ;; the Bankai keeps the arm's tick (the DANGAI boss's :boss hook, KEN-BOSS, left with the frozen modes, 2026-11-13)
 (check (every (lambda (f) (eq (kit-hook (kit :kenpachi f) :tick) 'ken-bk-tick)) '(:bankai :bankai-2)))   ; (V3: the way back, no arm)
 
-(setf *core-on* t)
 
 ;;; ---- V3's sealed form (DUEL_KEN_V3 §6 / §35, 2026-11-05): J1-J5, three pointers by grip, AS n = n segments, one SA a pointer
 (let* ((k (kit :kenpachi :base)))

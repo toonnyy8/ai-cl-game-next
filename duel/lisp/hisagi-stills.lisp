@@ -266,7 +266,7 @@ crawl) / 50 (its fade, gone in under a second); the match camera, the sim runnin
   (place *p1* *p2* 2.5)
   (full-gauges! *p1*) (full-gauges! *p2*)
   (setf (hss-zan (hs *p1*)) (if (= c 83903) *hs-zan-frames* 50)))
-(pushnew '(83901 83904 hisagi-art-debug) *char-debug* :test #'equal)
+(define-debug-range (83901 83904) hisagi-art-debug)
 (defun hisagi-look-cons-2a ()
   "Debug 83901's second line (batch 2a, DUEL_HISAGI §28.11): bytes consed by 10 calls of HS-POSE and HISAGI-DRAW in the ranged
 mode's 聚 stance (the bundle held) and on the core ranged clips' hit frames (UCHI and the gathered SA, §28.21's own clip,
@@ -445,10 +445,10 @@ the match camera, frozen); 83964 lets go."
              (if (< v 2)
                  (progn (setf *cine-hold* t) (start-cine 'hs-strip-cine *p1* *p2*))
                  (progn (hs-strip-pose *p1* *p2*) (hitstop 100000)))))))
-(pushnew '(83910 83964 hisagi-strip) *char-debug* :test #'equal)
-(pushnew '(83500 83549 hisagi-strip) *char-debug* :test #'equal)
-(pushnew '(83560 83579 hisagi-strip) *char-debug* :test #'equal)   ; (batch 2a, §28.11: *HS-R2-STRIPS*)
-(pushnew '(83580 83589 hisagi-strip) *char-debug* :test #'equal)   ; (batch 2b: *HS-KB-STRIPS*)
+(define-debug-range (83910 83964) hisagi-strip)
+(define-debug-range (83500 83549) hisagi-strip)
+(define-debug-range (83560 83579) hisagi-strip)   ; (batch 2a, §28.11: *HS-R2-STRIPS*)
+(define-debug-range (83580 83589) hisagi-strip)   ; (batch 2b: *HS-KB-STRIPS*)
 
 ;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83978, 83995-83996)
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
@@ -499,7 +499,7 @@ also log the ranged Kikons' looks' consing, HS-RANGED-CINE-CONS); 83970-83975: t
              (hisagi-cine-scene *hs-cine-k*)
              (when *cine* (setf (cine-hold *cine*) f)))))
         (t (abort-cine) (setf *cine-hold* nil))))
-(pushnew '(83965 83978 hisagi-cine-debug) *char-debug* :test #'equal)
+(define-debug-range (83965 83978) hisagi-cine-debug)
 (defun hs-ranged-cine-cons (k)
   "83995 / 83996 (§28.16): a `duel hisagi cine consing` line: bytes consed by 10 calls of 鎖雨's (K 9) or 降鎖's (K 2) looks
 (HS-KA-LOOK / HS-KS-LOOK) at a frame of each beat, each measured twice (the second: past the fx buffers' first growth);
@@ -511,8 +511,8 @@ also log the ranged Kikons' looks' consing, HS-RANGED-CINE-CONS); 83970-83975: t
           (dotimes (i 10) (funcall fn *p1* *p2* f))
           (when (= pass 1) (push (format nil "f~d ~d" f (- (cons-bytes) c0)) out)))))
     (clog "duel hisagi cine consing ~a ~{~a~^ ~}" (if (= k 9) "KUSARI-AME" "KOSA") (nreverse out))))
-(pushnew '(83995 83996 hisagi-cine-debug) *char-debug* :test #'equal)   ; (§28.16)
-(pushnew '(83997 83998 hisagi-cine-debug) *char-debug* :test #'equal)   ; (batch 3b, §28.17: the bind kit's two Kikons)
+(define-debug-range (83995 83996) hisagi-cine-debug)   ; (§28.16)
+(define-debug-range (83997 83998) hisagi-cine-debug)   ; (batch 3b, §28.17: the bind kit's two Kikons)
 
 ;;; ---------------------------------------------------------------- the model sheet (debug 83980-83985: stills, a look)
 ;; Him alone on a white card (CARD, as Kenpachi's black robe) in the stance, the camera a cinematic shot: the front, his
@@ -539,7 +539,7 @@ also log the ranged Kikons' looks' consing, HS-RANGED-CINE-CONS); 83970-83975: t
   (ensure-battle :hisagi :kenpachi)
   (place *p1* *p2* 8.0)
   (start-cine 'hs-look-cine *p1* *p2*))
-(pushnew '(83980 83985 hisagi-look-debug) *char-debug* :test #'equal)
+(define-debug-range (83980 83985) hisagi-look-debug)
 (defun hisagi-look-debug (c) (hisagi-look-scene (- c 83980)))
 
 ;;; ---------------------------------------------------------------- the Bankai's model sheet (debug 83986-83994: stills, a look)
@@ -571,4 +571,4 @@ match, 8 a bind 2 m from him; P1 Hisagi awakened (HS-AWAKEN-NOW!), P2's CPU off.
     (hs-awaken-now! *p1*)
     (cond ((< k 6) (setf *hs-bk-look-k* k) (start-cine 'hs-bk-look-cine *p1* *p2*))
           ((= k 8) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind)))))
-(pushnew '(83986 83994 hisagi-bankai-look) *char-debug* :test #'equal)
+(define-debug-range (83986 83994) hisagi-bankai-look)

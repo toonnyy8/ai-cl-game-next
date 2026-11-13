@@ -145,6 +145,7 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
   (when (eq *mode* :practice) (practice-dummy!) (practice-set! *p1*) (practice-set! *p2*))
   (play-music :music 0.2)
   (log-msg "duel match seed ~d ~a ~a vs ~a ~a" *match-seed* *mode* (first *picks*) (second *picks*) *difficulty*)
+  (debug-knobs-line)                                      ; (a rule knob a debug command changed: named, never silent)
   (set-flow :intro)
   (start-cine 'intro-cine *p1* *p2* :after #'begin-battle))
 
