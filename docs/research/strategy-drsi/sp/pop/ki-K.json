@@ -1,0 +1,205 @@
+{
+ "pair": "ki",
+ "side": "kenpachi",
+ "vs": "ichigo",
+ "anchor": "none",
+ "members": [
+  {
+   "id": "none",
+   "file": "none",
+   "why": "the anchor (no strategy: the shipped CPU, its matchup style CPU kept)"
+  },
+  {
+   "id": "a-generic",
+   "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+   "why": "the generic arm (:st-generic: the generic CPU + MCTS, no style CPU)"
+  },
+  {
+   "id": "a-ken-press",
+   "file": "docs/research/strategy-drsi/sp/arms/a-ken-press.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-ken-kh-standoff",
+   "file": "docs/research/strategy-drsi/sp/arms/a-ken-kh-standoff.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  }
+ ],
+ "screen": {
+  "vs": "the opponent's none",
+  "seeds": "301-340",
+  "both_seats": true,
+  "margin": 0.05,
+  "rule": "K.O. rate >= 0.5 and score >= none + margin",
+  "build": "14e22d37105e586d",
+  "rows": {
+   "none": {
+    "file": "none",
+    "ko_wins": 19,
+    "ko_losses": 56,
+    "timeouts": 5,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9375,
+    "score": 0.2439
+   },
+   "a-generic": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 19,
+    "z": -4.359
+   },
+   "a-ken-ki": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-ki.lisp",
+    "ko_wins": 11,
+    "ko_losses": 59,
+    "timeouts": 10,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.875,
+    "score": 0.1463,
+    "b": 5,
+    "c": 13,
+    "z": -1.886,
+    "admitted": false
+   },
+   "a-ken-press": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-press.lisp",
+    "ko_wins": 36,
+    "ko_losses": 44,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.4512,
+    "b": 28,
+    "c": 11,
+    "z": 2.722,
+    "admitted": true
+   },
+   "a-ken-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-kite.lisp",
+    "ko_wins": 4,
+    "ko_losses": 62,
+    "timeouts": 14,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.825,
+    "score": 0.061,
+    "b": 3,
+    "c": 18,
+    "z": -3.273,
+    "admitted": false
+   },
+   "a-ken-zoner": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-zoner.lisp",
+    "ko_wins": 17,
+    "ko_losses": 39,
+    "timeouts": 24,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.7,
+    "score": 0.2195,
+    "b": 14,
+    "c": 16,
+    "z": -0.365,
+    "admitted": false
+   },
+   "a-ken-kh": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-kh.lisp",
+    "ko_wins": 4,
+    "ko_losses": 60,
+    "timeouts": 16,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.8,
+    "score": 0.061,
+    "b": 3,
+    "c": 18,
+    "z": -3.273,
+    "admitted": false
+   },
+   "a-ken-kh-standoff": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-kh-standoff.lisp",
+    "ko_wins": 32,
+    "ko_losses": 47,
+    "timeouts": 1,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9875,
+    "score": 0.4024,
+    "b": 21,
+    "c": 8,
+    "z": 2.414,
+    "admitted": true
+   },
+   "a-ichigo-ki": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-ki.lisp",
+    "ko_wins": 0,
+    "ko_losses": 0,
+    "timeouts": 80,
+    "draws": 76,
+    "matches": 80,
+    "ko_rate": 0.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 19,
+    "z": -4.359,
+    "admitted": false
+   },
+   "a-zoner": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-zoner.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 19,
+    "z": -4.359,
+    "admitted": false
+   },
+   "s1-brawler": {
+    "file": "docs/research/strategy-drsi/sp/arms/s1-brawler.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 19,
+    "z": -4.359,
+    "admitted": false
+   },
+   "s7-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
+    "ko_wins": 0,
+    "ko_losses": 48,
+    "timeouts": 32,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.6,
+    "score": 0.0122,
+    "b": 0,
+    "c": 19,
+    "z": -4.359,
+    "admitted": false
+   }
+  }
+ },
+ "mix": {
+  "a-ken-kh-standoff": 1.0
+ },
+ "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
+}

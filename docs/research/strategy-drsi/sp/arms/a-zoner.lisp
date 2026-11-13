@@ -1,0 +1,2 @@
+;; a-zoner as expanded in strategy.lisp (sp/arms/dump.lisp)
+(:id :a-zoner :base (:range 1.5 :ns 0.9 :hoho 1.1 :kikon 0.4 :cont 0.8 :p 1.0 :b-walk-out 0.02 :b-wait 0.02 :b-j1 -0.08 :b-walk-in -0.04) :rules ((((:dn :reach)) (:b-sp 0.15 :b-walk-in -0.05)) (((:dn :out)) (:b-sp 0.1 :b-walk-in 0.04)) (((:dn :afar) (:wave :yes)) (:b-sp 0.18 :b-walk-in -0.04)) (((:do :in)) (:b-walk-out 0.12 :b-step-out 0.1 :b-j1 -0.05)) (((:dj :in)) (:b-step-out 0.08 :b-j1 0.05)) (((:ored :yes)) (:kikon 1.6)) (((:lead :ahead)) (:p 1.4)) (((:lead :behind)) (:p 0.6)) (((:mr :low)) (:p 1.3))))
