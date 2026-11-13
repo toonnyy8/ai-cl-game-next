@@ -93,7 +93,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
 
 (defun next-window-lead (mv sf used)
   "Frames from move frame SF until move MV's next hit window not yet USED (the fighter's FIGHTER-HITS bits) is open on a step to come
-(1: the next step), or NIL: none left. PRACTICE's GUARD ALL dummy (flow.lisp DUMMY-CANCEL-INPUT)."
+(1: the next step), or NIL: none left. PRACTICE's GUARD ALL dummy (practice.lisp DUMMY-CANCEL-INPUT)."
   (loop for w across (mv-hits mv) for i from 0
         when (and (< (1+ sf) (hw-to w)) (not (logbitp i used)))
           minimize (max 1 (- (hw-from w) sf)) into lead and count t into n

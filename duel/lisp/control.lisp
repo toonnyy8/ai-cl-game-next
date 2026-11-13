@@ -195,14 +195,14 @@ let go before its hold (the recogniser's chip tap). Values: :MOD, :AWAKEN down. 
 Burst), Mod + P once held through the hold (the awakening)."
   (values (and down hold t) (and (or down tap) t)))
 
-;;; ---------------------------------------------------------------- the PRACTICE dummy (flow.lisp PRACTICE-STEP)
+;;; ---------------------------------------------------------------- the PRACTICE dummy (practice.lisp PRACTICE-STEP)
 (defparameter *dummy-guard-hold* 60 "PRACTICE, GUARD AFTER HIT: frames the dummy keeps its guard once it is free again.")
 
 (defun dummy-guard-left (dummy state left)
   "Frames the PRACTICE dummy goes on holding guard, for its DUMMY option, its fighter STATE and LEFT (frames still
 held). :GUARD-ALL always; :GUARD-HIT from a hit landing on it (a hit state) or a blocked one, until *DUMMY-GUARD-HOLD*
 frames after that (a string's first hit lands, the rest is blocked unless it combos); :STAND / :CPU never (the CPU
-guards by itself). (A :core dummy never guards: its GUARD ALL is DUMMY-CANCEL-PRESS, flow.lisp PRACTICE-STEP.)"
+guards by itself). (A :core dummy never guards: its GUARD ALL is DUMMY-CANCEL-PRESS, practice.lisp PRACTICE-STEP.)"
   (case dummy
     (:guard-all 999)
     (:guard-hit (if (member state '(:stun :air :down :wakeup :guard-hit)) *dummy-guard-hold* (max 0 (1- left))))
@@ -226,7 +226,7 @@ press starts J1 on its first free frame."
 two late, a chase, stays inside its window). New 2026-11-12 (the lead's default).")
 (defparameter *dummy-cancel-reach* 1.0
   "GUARD ALL (a :core dummy): a player's hit counts as coming only within its move's reach + slide + this many metres (a swing at the air
-draws no answer; flow.lisp DUMMY-CANCEL-INPUT). New 2026-11-12 (the lead's default).")
+draws no answer; practice.lisp DUMMY-CANCEL-INPUT). New 2026-11-12 (the lead's default).")
 
 (defun dummy-cancel-press (hit-in gap p-cls own-cls own-left starts)
   "GUARD ALL with a :core dummy: the press (:J, :SP or NIL) the dummy makes at the end of this sim frame so the player's next hit lands on it
@@ -256,7 +256,7 @@ land inside his window too (his move cancelled even if his hit whiffs: a dead zo
 (defun wave-arrival (dx dz yaw step hw hl tr &optional (left most-positive-fixnum))
   "Frames (1 = the next one) until a wave moving STEP m a frame along YAW, a box of half-width HW and half-length HL, reaches a standing
 hurt cylinder of radius TR whose centre is (DX DZ) from the box's (the same touch as OBOX-CYL-HIT-P, flat); NIL when it passes beside
-him, already touches or is past him, or comes after its LEFT frames of life. GUARD ALL's answer to a wave (flow.lisp DUMMY-CANCEL-INPUT)."
+him, already touches or is past him, or comes after its LEFT frames of life. GUARD ALL's answer to a wave (practice.lisp DUMMY-CANCEL-INPUT)."
   (let* ((fx (fwd-x yaw)) (fz (fwd-z yaw))
          (lx (abs (+ (* dx (- fz)) (* dz fx)))) (lz (+ (* dx fx) (* dz fz)))   ; across / along its flight
          (ex (max 0.0 (- lx hw))))

@@ -8,7 +8,8 @@
 ;;;; CAMERA, LEARNING CPU (control.lisp *SETTINGS*, saved by onehand.lisp), then RESET LEARNING (fq-online.lisp FQ-RESET-ALL). VS CPU and PRACTICE are one-handed (the thumb deck,
 ;;;; onehand.lisp) whenever ONE-HAND MODE is in effect there (ONE-HAND-EFFECTIVE-P); there is no separate one-hand entry.
 ;;;; PRACTICE: P1 against a dummy (P2's brain: switched off and guarding by DUMMY-GUARD-LEFT, or the CPU), no timer and
-;;;; no match end (PRACTICE-STEP refills the dummy to its HP / KONPAKU rows; a K.O. is a reset to both sides' rows). Menus read the devices directly (either
+;;;; no match end (practice.lisp PRACTICE-STEP refills the dummy to its HP / KONPAKU rows; a K.O. is a reset to both sides' rows);
+;;;; its options are one record there (*PRACTICE*), which the pause rows here read and write. Menus read the devices directly (either
 ;;;; player's keys / pads); fighters only ever read their vpad. MATCH-SYSTEM (the timer, time-up; PRACTICE-STEP) is
 ;;;; the last sim system; the KO comes from a Kikon / Soul Break (combat.lisp AFTER-KIKON → MATCH-OVER).
 ;;;; Log: "duel -> STATE" per change, "duel setting ..." / "duel practice ..." per option change.
@@ -206,137 +207,7 @@ then Reishi %)."
     (cond ((eq *mode* :practice) (practice-step))
           ((<= (decf *timer*) 0) (time-up)))))
 
-;;; ---------------------------------------------------------------- PRACTICE (P1 against a dummy)
-(defparameter *dummies* '((:stand . "STAND") (:guard-all . "GUARD ALL") (:guard-hit . "GUARD AFTER HIT") (:cpu . "CPU"))
-  "The DUMMY option: stands, guards everything, guards after a hit lands (control.lisp DUMMY-GUARD-LEFT), the CPU at
-the chosen difficulty.")
-(defvar *dummy* :stand "PRACTICE's DUMMY option.")
-(defvar *dummy-counter* nil "PRACTICE's COUNTER: J1 (T: the dummy hits back with J1 as each hit / block reaction ends, any DUMMY
-but CPU; control.lisp DUMMY-COUNTER-NOW-P) / OFF.")
-(defvar *hp-refill* t "PRACTICE's HP REFILL: AUTO (T: the dummy's Reishi is full again once a combo on it ends) / OFF.")
-(defvar *gauges-inf* nil "PRACTICE's GAUGES: INFINITE (T: P1's Reishi at its P1 HP row; guard, flash step, Awakening
-full) / NORMAL.")
-(defparameter *practice-fs-levels* '("KEEP" "FULL" "ONE CELL" "EMPTY")
-  "PRACTICE's FLASH STEP row (DUEL_SP §8.4 S9): KEEP (normal play) / FULL (*FS-MAX*) / ONE CELL (*FS-CELL*) / EMPTY (0), both sides.")
-(defvar *practice-fs* 0
-  "The index of PRACTICE's FLASH STEP row in *PRACTICE-FS-LEVELS*. Not KEEP: both fighters' flash-step held at that value every sim frame
-(PRACTICE-STEP, after GAUGES INFINITE, so it overrides the flash-step INFINITE sets for P1); a running burst is left to drain.")
-(defun practice-fs-value ()
-  "The flash-step PRACTICE's FLASH STEP row holds both sides at, or NIL (KEEP)."
-  (case *practice-fs* (1 *fs-max*) (2 *fs-cell*) (3 0f0)))
-(defvar *practice-rows* (vector 100 *konpaku-max* 100 *konpaku-max*)
-  "PRACTICE's P1 HP (%), P1 KONPAKU, DUMMY HP (%), DUMMY KONPAKU: what RESET POSITION and the refills restore (full by
-default: the rows only change what \"full\" means). Indexed by side * 2 (+ 1 for the Konpaku).")
-
-;; PRACTICE's P1 AWAKEN (the user, 2026-10-31: 「練習模式的數值調控增加覺醒量表等級」): the stage of P1's awakening gauge, SUBLIMATION and SPIRIT DRIVE
-(defparameter *practice-aw-levels*
-  '(("0" :gauge 0) ("50" :gauge 50) ("FULL" :gauge 100) ("SUBLIMATION 50" :sub 50) ("SUBLIMATION FULL" :sub 100) ("DRIVE 50" :drive 50) ("DRIVE FULL" :drive 100))
-  "(label kind value): :gauge the awakening gauge at VALUE (%); :sub the gauge full and SUBLIMATION at VALUE; :drive SPIRIT DRIVE at VALUE once he is awakened
-(awaken him with the gauge full first: it is set full until he is).")
-(defvar *practice-aw* 0 "The index of PRACTICE's P1 AWAKEN row in *PRACTICE-AW-LEVELS*.")
-(defvar *practice-aw-done* t "Has the current level been applied to P1 (a :drive level waits until he is awakened)?")
-(defun practice-aw-apply! ()
-  "P1's awakening gauge, SUBLIMATION and SPIRIT DRIVE to the P1 AWAKEN row (a row changed, RESET POSITION). A fighter already awakened keeps the gauge as it is
-for the pre-awakening levels; a :drive level takes effect as soon as he is awakened."
-  (destructuring-bind (label kind v) (nth *practice-aw* *practice-aw-levels*)
-    (declare (ignore label))
-    (let ((g (gauges *p1*)))
-      (case kind
-        (:gauge (unless (gauges-awakened g) (setf (gauges-awaken g) (f32 (* v 0.01 *awaken-max*)) (gauges-sub g) 0f0 (gauges-aw-full g) nil)) (setf *practice-aw-done* t))   ; (a row below full clears the switch's latch too)
-        (:sub (unless (gauges-awakened g) (setf (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* v 0.01 *sub-max*)))) (setf *practice-aw-done* t))
-        (:drive (if (gauges-awakened g)
-                    (setf (gauges-drive g) (f32 (* v 0.01 *drive-max*)) *practice-aw-done* t)
-                    (progn (setf (gauges-awaken g) *awaken-max*) (setf *practice-aw-done* nil)))))
-      (log-msg "duel practice awaken level ~a: awaken ~,0f sub ~,0f drive ~,0f awakened ~a" (first (nth *practice-aw* *practice-aw-levels*))
-               (gauges-awaken g) (gauges-sub g) (gauges-drive g) (and (gauges-awakened g) t)))))
-
-(defun practice-hp (e) "E's Reishi at its practice HP row." (practice-reishi (gauges-reishi-max (gauges e)) (svref *practice-rows* (* 2 (fighter-side (fighter e))))))
-(defun practice-set! (e)
-  "E's Reishi and Konpaku to its practice rows (a row changed, RESET POSITION, a K.O.)."
-  (setf (gauges-reishi (gauges e)) (practice-hp e)
-        (gauges-konpaku (gauges e)) (svref *practice-rows* (1+ (* 2 (fighter-side (fighter e)))))))
-
-(defun practice-dummy! ()
-  "P2's brain for the DUMMY option: the CPU, or switched off holding nothing (PRACTICE-STEP holds its guard)."
-  (let ((b (brain *p2*)))
-    (setf (brain-off b) (not (eq *dummy* :cpu)) (brain-press-left b) 0 (brain-act b) nil)))
-
-(defun dummy-starts (f)
-  "What a press could start for the PRACTICE dummy's fighter F now, as DUMMY-CANCEL-PRESS takes them: (PRESS CLASS D-MIN D-MAX LEN HF).
-Free: J (NA1) and SP (its pointer's NS) on the next step. In a move whose latch is empty: in an NS segment the next segment (SP) and the
-SA (J); in an AS segment the next one; in an NA link or the SA that touched him (its chain open) the next J link: each starts when the
-current move's active frames end, until its recovery does. (No AS: the dummy's own attack seldom lands first.)"
-  (let ((kit (fighter-kit f)) (mv (fighter-move f)) (sf (fighter-sf f)))
-    (flet ((opt (press m dmin dmax)
-             (when m
-               (list press (kit-class kit m) dmin dmax (- (+ (mv-s m) (mv-a m)) (mv-enter m))
-                     (if (plusp (length (mv-hits m))) (- (mv-first-hit m) (mv-enter m)) 999)))))   ; (no melee hit of its own: never in his window)
-      (cond ((and (member (fighter-state f) '(:idle :run)) (zerop (fighter-lock f)) (zerop (fighter-guard-exit f)))
-             (remove nil (list (opt :j (kit-move kit (getf (kit-commands kit) :q)) 1 most-positive-fixnum)
-                               (opt :sp (kit-core-move kit :ns (fighter-ptr f)) 1 most-positive-fixnum))))
-            ((and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (null (fighter-queued f)))
-             (let ((dmin (max 1 (- (+ (mv-s mv) (mv-a mv)) sf))) (dmax (- (mv-total mv) sf 1))
-                   (nx (mv-ns-next kit mv)))
-               (when (<= dmin dmax)
-                 (case (fighter-cls f)
-                   (:ns (remove nil (list (and nx (core-seg-ok-p f nx) (opt :sp nx dmin dmax))
-                                          (opt :j (or (fighter-csa f) (mv-sa-move kit mv) (kit-sa-move kit)) dmin dmax))))
-                   (:as (and nx (list (opt :sp nx dmin dmax))))
-                   ((:na :sa) (and (eq (fighter-contact f) :hit) (list (opt :j (kit-next kit (mv-name mv) :q) dmin dmax))))))))))))
-
-(defun dummy-wave-threat (e o)
-  "The soonest of O's classed waves to reach E standing (WAVE-ARRIVAL): values its frames and class, or NIL (GUARD ALL, DUEL_SP §6, S5)."
-  (let ((best nil) (cls nil) (q (pos-of e)) (r (body-hurt-r (model-body (model e)))))
-    (do-entities (h (hz hazard))
-      (when (and (eql (hazard-owner hz) o) (eq (hazard-kind hz) :wave) (hazard-cls hz) (hazard-active-p hz))
-        (let ((k (wave-arrival (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz)) (hazard-yaw hz) (* (hazard-speed hz) +step+)
-                               (hazard-size hz) (second *wave-box*) r (- (hazard-life hz) (hazard-age hz)))))
-          (when (and k (or (null best) (< k best))) (setf best k cls (hazard-cls hz))))))
-    (values best cls)))
-
-(defun dummy-cancel-input (f pf)
-  "GUARD ALL with a :core dummy (fighter F) against the player's fighter PF: this frame's press (DUMMY-CANCEL-PRESS: :J, :SP or NIL).
-His hit counts only from a move's main phase (not a Kikon's follow-up) within its reach + slide + *DUMMY-CANCEL-REACH* (a swing at the air
-is no threat), or one of his classed waves on its way (DUMMY-WAVE-THREAT, the sooner of the two; DUEL_SP §6, S5: the dummy tries to cancel waves too)."
-  (let* ((pm (fighter-move pf)) (psf (fighter-sf pf))
-         (h (and (eq (fighter-state pf) :move) (eq (fighter-phase pf) :main)
-                 (<= (fighter-dist f) (+ (mv-reach pm) (mv-slide pm) *dummy-cancel-reach*))   ; ponytail: one slack; a chase / dash table if a move outruns it
-                 (next-window-lead pm psf (fighter-hits pf))))
-         (own (core-window-class f))
-         (own-left (if own (- (+ (mv-s (fighter-move f)) (mv-a (fighter-move f))) (fighter-sf f)) 0)))
-    (multiple-value-bind (wk wc) (dummy-wave-threat *p2* *p1*)
-      (cond ((and wk (or (null h) (< wk h))) (dummy-cancel-press wk 0 wc own own-left (dummy-starts f)))
-            (h (dummy-cancel-press h (max 0 (- (+ (mv-s pm) (mv-a pm)) psf h)) (fighter-cls pf) own own-left (dummy-starts f)))))))
-
-(defun practice-step ()
-  "PRACTICE, each sim frame (MATCH-SYSTEM): the dummy's guard (GUARD ALL with a :core dummy: its cancelling press, DUMMY-CANCEL-INPUT);
-its Konpaku always full (after a Kikon's reset: no match end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions;
-GAUGES INFINITE: P1's gauges full; FLASH STEP not KEEP: both sides' flash-step at its value (PRACTICE-FS-VALUE)."
-  (let* ((f (fighter *p2*)) (g (gauges *p2*)) (b (brain *p2*)))
-    (unless (eq *dummy* :cpu)
-      (let ((cancel (and (eq *dummy* :guard-all) (kit-core (fighter-kit f)) (dummy-cancel-input f (fighter *p1*)))))
-        (cond (cancel (setf (brain-press b) :quick (brain-press-mod b) (eq cancel :sp) (brain-press-left b) 1))   ; J or SP, one step
-              ((and (eq *dummy* :guard-all) (kit-core (fighter-kit f))) (setf (brain-press-left b) 0))           ; (a core kit: no guard)
-              (t (setf (brain-press b) :guard (brain-press-mod b) nil
-                       (brain-press-left b) (dummy-guard-left *dummy* (fighter-state f) (brain-press-left b)))))
-        (when (and *dummy-counter* (not cancel) (dummy-counter-now-p (fighter-state f) (fighter-sf f) (fighter-stun f) (fighter-glock f)))
-          (setf (brain-press b) :quick (brain-press-mod b) nil (brain-press-left b) 1))))   ; COUNTER: J1 (BRAIN-STEP writes it, the guard let go)
-    (setf (gauges-konpaku g) (svref *practice-rows* 3))
-    (when (and *hp-refill* (not (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))))
-      (setf (gauges-reishi g) (practice-hp *p2*))))
-  (unless *practice-aw-done* (practice-aw-apply!))        ; a :drive level, once he is awakened
-  (when *gauges-inf*
-    (let ((g (gauges *p1*)))
-      (setf (gauges-reishi g) (practice-hp *p1*)
-            (gauges-gg g) *gg-max* (gauges-guardless g) nil)
-      (unless (gauges-burst g) (setf (gauges-fs g) *fs-max*))   ; a burst burns it down first (the user 2026-09-30)
-      (if (gauges-awakened g)
-          (setf (gauges-drive g) *drive-max*)               ; SUBLIMATION / SPIRIT DRIVE too (DUEL_SUBLIMATION §17.4)
-          (setf (gauges-awaken g) *awaken-max* (gauges-sub g) *sub-max*))))
-  (let ((v (practice-fs-value)))                          ; FLASH STEP (after INFINITE: it wins), both sides
-    (when v
-      (do-sides (e) (let ((g (gauges e))) (unless (gauges-burst g) (setf (gauges-fs g) (f32 v))))))))
-
+;;; ---------------------------------------------------------------- PRACTICE (P1 against a dummy; its sim side: practice.lisp)
 (defun practice-reset ()
   "RESET POSITION: a fresh pair at the start (full resources, first forms), straight into the fight (no intro)."
   (setf *paused* nil *pending* nil *soul-breaks* nil)
@@ -441,30 +312,30 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
 (defun pause-label (k)
   (case k
     (:resume "RESUME") (:restart "RESTART") (:select "CHARACTER SELECT") (:title "TITLE") (:camera (camera-label))
-    (:reset "RESET POSITION") (:dummy (format nil "DUMMY  ~a" (cdr (assoc *dummy* *dummies*))))
-    (:counter (if *dummy-counter* "COUNTER  J1" "COUNTER  OFF"))
-    (:refill (if *hp-refill* "HP REFILL  AUTO" "HP REFILL  OFF")) (:gauges (if *gauges-inf* "GAUGES  INFINITE" "GAUGES  NORMAL"))
-    (:fs (format nil "FLASH STEP  ~a" (nth *practice-fs* *practice-fs-levels*)))
-    (:p1-aw (format nil "P1 AWAKEN  ~a" (first (nth *practice-aw* *practice-aw-levels*))))
+    (:reset "RESET POSITION") (:dummy (format nil "DUMMY  ~a" (cdr (assoc (po-dummy *practice*) *dummies*))))
+    (:counter (if (po-counter *practice*) "COUNTER  J1" "COUNTER  OFF"))
+    (:refill (if (po-refill *practice*) "HP REFILL  AUTO" "HP REFILL  OFF")) (:gauges (if (po-inf *practice*) "GAUGES  INFINITE" "GAUGES  NORMAL"))
+    (:fs (format nil "FLASH STEP  ~a" (nth (po-fs *practice*) *practice-fs-levels*)))
+    (:p1-aw (format nil "P1 AWAKEN  ~a" (first (nth (po-aw *practice*) *practice-aw-levels*))))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)
      (let ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))))
-       (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
+       (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref (po-rows *practice*) i) (evenp i))))))
 (defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :fs :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
 (defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the model's pause rows are written again (webhud.lisp).")
 (defun pause-do (k dir)
-  "Pause row K chosen (DIR 1), or an option row moved by left / right (DIR -1 / 1)."
+  "Pause row K chosen (DIR 1), or an option row moved by left / right (DIR -1 / 1); PRACTICE's rows write *PRACTICE* (practice.lisp)."
   (case k
     (:resume (setf *paused* nil)) (:restart (start-match)) (:select (go-select)) (:title (go-title)) (:camera (toggle-cam))
     (:reset (practice-reset))
-    (:dummy (setf *dummy* (cycle *dummy* (mapcar #'car *dummies*) dir)) (practice-dummy!))
-    (:counter (setf *dummy-counter* (not *dummy-counter*)))
-    (:refill (setf *hp-refill* (not *hp-refill*))) (:gauges (setf *gauges-inf* (not *gauges-inf*)))
-    (:fs (setf *practice-fs* (mod (+ *practice-fs* (if (and dir (minusp dir)) -1 1)) (length *practice-fs-levels*))))
-    (:p1-aw (setf *practice-aw* (mod (+ *practice-aw* (if (and dir (minusp dir)) -1 1)) (length *practice-aw-levels*))) (practice-aw-apply!))
+    (:dummy (setf (po-dummy *practice*) (cycle (po-dummy *practice*) (mapcar #'car *dummies*) dir)) (practice-dummy!))
+    (:counter (setf (po-counter *practice*) (not (po-counter *practice*))))
+    (:refill (setf (po-refill *practice*) (not (po-refill *practice*)))) (:gauges (setf (po-inf *practice*) (not (po-inf *practice*))))
+    (:fs (setf (po-fs *practice*) (mod (+ (po-fs *practice*) (if (and dir (minusp dir)) -1 1)) (length *practice-fs-levels*))))
+    (:p1-aw (setf (po-aw *practice*) (mod (+ (po-aw *practice*) (if (and dir (minusp dir)) -1 1)) (length *practice-aw-levels*))) (practice-aw-apply!))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)                      ; the new value in force at once
-     (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (v (svref *practice-rows* i)))
-       (setf (svref *practice-rows* i) (if (evenp i) (cycle v *practice-hp* dir) (konpaku-step v dir *konpaku-max*)))
+     (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (rows (po-rows *practice*)) (v (svref rows i)))
+       (setf (svref rows i) (if (evenp i) (cycle v *practice-hp* dir) (konpaku-step v dir *konpaku-max*)))
        (practice-set! (if (< i 2) *p1* *p2*)))))
   (setf *pause-dirty* t)
   (when (member k *practice-option-keys*) (log-msg "duel practice ~a" (pause-label k))))
