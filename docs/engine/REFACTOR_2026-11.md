@@ -841,6 +841,8 @@ on each merged head, commits, pushes; subagents never push. `/graphify --update`
 | 14 | **R13** engine moves | | |
 | 15 | **R15** audit findings, wave 4 if wanted | | **M5**: a new looks BASE recorded on the final tree; round 4 closed |
 
+**M5 reached, round 4 closed (2026-11-14).** The looks BASE is re-pinned at **67a9ae7c** (R15d merged): against the old BASE 315f18b6 exactly the 43 stills R15d's plate hint moves fail (one flame per plate, the diffs checked by eye), the other 32 byte-identical; the new BASE against a second render of the same build: 75 of 75 byte-identical, noise 0. The next change's looks gate takes a dist built at 67a9ae7c (or later, if nothing visible changed since) as its BASE. Open past round 4: 11.5.7 items 8 and 14 (above), R14's manual offline / service-worker check by a human.
+
 Merge serialization points as in §7 (MANIFEST, kit.lisp, debug.lisp, tuning.lisp, the test runner's list, style-gates.py), plus
 `tests/style-cvc-ref.txt` (regenerated only by the lead), `tests/scripts/duel.py` and DUEL_GAMEPLAY's debug table.
 
