@@ -169,7 +169,7 @@
   :name "KENPACHI" :body :kenpachi :weapon :ken-katana :stance :ke-stance
   :intro :ke-intro :win :ke-win
   :walk *walk-kenpachi* :run *run-kenpachi* :run-clips (:ke-run :ke-skate-b :ke-slide-r :ke-slide-l) :reishi *reishi-max* :aura :reiatsu
-  :cornered *cornered-per-konpaku* :cornered-max *cornered-max* :reset-reiatsu *reset-reiatsu-bonus*
+  :cornered *cornered-per-konpaku* :cornered-max *cornered-max*
   :absorb-sfx :laugh
   :stun-tolerance 26.0                          ; the hidden stun (DUEL_DESIGN.md): he takes the most before he flies
   :open-s nil :hs-dmg *ken-hs-dmg*             ; V3's sealed form as written (§35); every form inherits :hs-dmg

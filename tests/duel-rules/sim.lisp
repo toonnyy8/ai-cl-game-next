@@ -20,7 +20,8 @@
   (let ((a (tent (make-fighter :kit ka :side 0) (make-gauges))) (b (tent (make-fighter :kit kb :side 1) (make-gauges))))
     (setf (fighter-opp (fighter a)) b (fighter-opp (fighter b)) a *p1* a *p2* b *soul-breaks* nil)
     (values a b)))
-(defparameter *bind-hooks* '(:bind :bind-damage :bind-pool :bind-heal :bind-step :bind-resolve :bind-snapshot :p :p-label))
+(defparameter *bind-hooks* '(:bind :bind-damage :bind-heal :bind-step :bind-resolve :bind-snapshot :p :p-label))   ; (:bind-pool, the shared
+;; Reiatsu, left with the gauge, 2026-11-13, REFACTOR_2026-11 R6)
 ;; inert: no kit but Hisagi's Bankai (B2b) holds a bind hook or :p (Kenpachi's Shikai's :p, KEN-P, does nothing: it keeps P in
 ;; his run); every reader then does what the old code did
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
@@ -33,12 +34,6 @@
 (multiple-value-bind (a b) (t-pair (kit :ichigo :base) (kit :kenpachi :base))
   (let ((ga (gauges a)) (gb (gauges b)))
     (check (and (null (bind-of a)) (null (bind-of b))))
-    (setf (gauges-reiatsu ga) 250f0)
-    (check (= (reiatsu-of a) 250f0))
-    (reiatsu-gain! a 70.0)                                        ; the old (f32 (gauge-add r n *reiatsu-max*))
-    (check (= (gauges-reiatsu ga) (f32 (gauge-add 250f0 70.0 *reiatsu-max*)) 300f0))
-    (reiatsu-spend! a 2)
-    (check (= (gauges-reiatsu ga) 100f0))
     (setf (gauges-reishi ga) 1200)
     (heal! a 500)
     (check (= (gauges-reishi ga) (gauges-reishi-max ga)))
@@ -53,26 +48,24 @@
     (check (null (try-command a (fighter a) :awaken)))            ; awakened, no :p: P does nothing (as before)
     (bind-step! a :hits) (bind-step! a :release) (bind-resolve! a) ; (no binder: nothing called)
     (check (null (bind-of a)))))
-;; ... and with a dummy binder (its kit holds the hooks; the bind's state lives here, as in Hisagi's file)
+;; ... and with a dummy binder (its kit holds the hooks; the bind's state lives here, as in Hisagi's file; its pool, once the two
+;; fighters' Reiatsu, is a plain number since the gauge left, R6)
 (defvar *tb-on* nil) (defvar *tb-pool* 0f0) (defvar *tb-snap* nil) (defvar *tb-log* nil) (defvar *tb-release* nil)
 (defun tb-bind (x) (and *tb-on* (eq (kit-of x) (kit :t-bind :t-binder))))
-(defun tb-damage (b a d n) (declare (ignore b a d)) (setf *tb-pool* (f32 (bind-drain *tb-pool* n))))
-(defun tb-pool (b &optional (n 0)) (declare (ignore b)) (setf *tb-pool* (f32 (max 0.0 (- *tb-pool* n)))))
+(defun tb-damage (b a d n) (declare (ignore b a d)) (setf *tb-pool* (f32 (max 0.0 (- *tb-pool* (* 0.5 n))))))   ; 1 per 2
 (defun tb-heal (b e n) (declare (ignore b))
   (let ((s (assoc e *tb-snap*))) (setf (second s) (min (gauges-reishi-max (gauges e)) (+ (second s) n)))))
 (defun tb-snapshot (b e) (declare (ignore b)) (let ((s (assoc e *tb-snap*))) (values (second s) (third s))))
 (defun tb-start (b)
   (let ((o (opp-of b)))
     (setf *tb-snap* (mapcar (lambda (x) (list x (gauges-reishi (gauges x)) (gauges-konpaku (gauges x)))) (list b o))
-          *tb-pool* (f32 (+ (gauges-reiatsu (gauges b)) (gauges-reiatsu (gauges o)))) *tb-on* t *tb-log* nil)))
+          *tb-pool* 400f0 *tb-on* t *tb-log* nil)))
 (defun tb-step (b phase)
   (push phase *tb-log*)
   (let ((o (opp-of b)))
-    (cond ((and (eq phase :release) *tb-release*)                 ; B8: the snapshot back, the pool to him first
+    (cond ((and (eq phase :release) *tb-release*)                 ; B8: the snapshot back
            (setf *tb-on* nil *tb-release* nil)
-           (dolist (s *tb-snap*) (setf (gauges-reishi (gauges (first s))) (second s) (gauges-konpaku (gauges (first s))) (third s)))
-           (multiple-value-bind (to-o to-b) (bind-release-split *tb-pool*)
-             (setf (gauges-reiatsu (gauges o)) (f32 to-o) (gauges-reiatsu (gauges b)) (f32 to-b))))
+           (dolist (s *tb-snap*) (setf (gauges-reishi (gauges (first s))) (second s) (gauges-konpaku (gauges (first s))) (third s))))
           ((and (eq phase :hits) (<= *tb-pool* 0))                ; B7: the grey turns real, his Soul Break queued first
            (setf *tb-on* nil)
            (dolist (x (list o b)) (when (soul-break-p (gauges-reishi (gauges x))) (queue-soul-break! (opp-of x) x)))))))
@@ -84,17 +77,16 @@
 (defvar *tp-call* nil)
 (defun tp (e free) (setf *tp-call* (list e free)) t)
 (defun tp-label (e) (declare (ignore e)) (if *tb-on* "FREE" "BIND"))
-(register-kit :t-bind :t-binder '(:hooks (:bind tb-bind :bind-damage tb-damage :bind-pool tb-pool :bind-heal tb-heal
+(register-kit :t-bind :t-binder '(:hooks (:bind tb-bind :bind-damage tb-damage :bind-heal tb-heal
                                           :bind-step tb-step :bind-resolve tb-resolve :bind-snapshot tb-snapshot
                                           :p tp :p-label tp-label)))
 (check (not (member :t-bind *roster*)))
 (multiple-value-bind (a b) (t-pair (kit :ichigo :base) (kit :t-bind :t-binder))   ; B binds A (Ichigo)
   (let ((ga (gauges a)) (gb (gauges b)))
-    (setf (gauges-reiatsu ga) 150f0 (gauges-reiatsu gb) 250f0 (gauges-reishi ga) 1000 (gauges-konpaku ga) 9)
+    (setf (gauges-reishi ga) 1000 (gauges-konpaku ga) 9)
     (check (null (bind-of a)))
     (tb-start b)
     (check (and (eq (bind-of a) b) (eq (bind-of b) b)))           ; either side: the binder
-    (check (= (reiatsu-of a) (reiatsu-of b) 400f0))                ; the shared pool
     ;; the drain: 1 per 2 (nominal) damage, exact on odd damage; grey Reishi floors at 0 with no Soul Break
     (check (null (deal-damage b a 7)))
     (check (= *tb-pool* 396.5f0))
@@ -102,31 +94,12 @@
     (check (null (deal-damage b a 2000)))                          ; past 0: grey, no Soul Break queued
     (check (and (= (gauges-reishi ga) 0) (null *soul-breaks*) (= *tb-pool* 0f0)))
     (setf *tb-pool* 396.5f0)
-    ;; every gain frozen, flash-step still paid; the pool spent by either side's SP
-    (reiatsu-gain! a 50.0)
-    (check (= (gauges-reiatsu ga) 150f0))
+    ;; flash-step still paid in a bind (its Reiatsu gains were frozen there until the gauge left, R6)
     (setf (gauges-fs ga) 50f0)
-    (pay-gauges a 50.0 10.0)
-    (check (and (= (gauges-reiatsu ga) 150f0) (= (gauges-fs ga) 60f0)))
-    (gain-gauges a 100 0)
-    (check (= (gauges-reiatsu ga) 150f0))
-    (kosei! a 14)
-    (check (= (gauges-reiatsu ga) 150f0))
-    (white-regen! a ga 1)
-    (check (= (gauges-reiatsu ga) 150f0))
-    ;; (combat.lisp writes Reiatsu only in REIATSU-GAIN! and REIATSU-SPEND!: the refund, BLUE, the regen, the reset too)
-    (check (let ((src (with-open-file (s (merge-pathnames "../../duel/lisp/combat.lisp" *load-truename*))
-                        (let ((str (make-string (file-length s)))) (subseq str 0 (read-sequence str s))))))
-             (loop with n = 0 for i = (search "(setf (gauges-reiatsu" src) then (search "(setf (gauges-reiatsu" src :start2 (1+ i))
-                   while i do (incf n) finally (return (= n 2)))))
-    (check (kit-command-ok-p a :sp1))                              ; his own 150 aside: the pool pays
-    (reiatsu-spend! a 1)
-    (check (and (= *tb-pool* 296.5f0) (= (gauges-reiatsu ga) 150f0)))
-    (setf *tb-pool* 50f0)
-    (check (not (kit-command-ok-p a :sp1)))
-    (setf *tb-pool* 296.5f0)
+    (pay-gauges a 10.0)
+    (check (= (gauges-fs ga) 60f0))
     ;; a real heal raises the snapshot too; the grey band and souls read the snapshot
-    (setf (gauges-reishi ga) 0 (second (assoc a *tb-snap*)) 1000)   ; (WHITE's frame above healed him too)
+    (setf (gauges-reishi ga) 0 (second (assoc a *tb-snap*)) 1000)
     (heal! a 100)
     (check (and (= (gauges-reishi ga) 100) (= (second (assoc a *tb-snap*)) 1100)))
     (check (and (= (bind-grey-frac a) (f32 (/ 1100 (float (gauges-reishi-max ga))))) (= (bind-grey-souls a) 9)))
@@ -141,11 +114,10 @@
     (check (and (try-command b (fighter b) :awaken) (null (second *tp-call*))))   ; in a combo before its 2nd hit: not free
     (setf (fighter-state (fighter b)) :idle (fighter-combo-hits (fighter b)) 0)
     (check (null (try-command a (fighter a) :awaken)))             ; (his own kit has no :p)
-    ;; the release (where a Burst is applied): the snapshot back, the pool left to the opponent first (<= 300)
+    ;; the release (where a Burst is applied): the snapshot back
     (setf *tb-release* t *tb-pool* 450f0)
     (bind-step! a :release)
     (check (and (null (bind-of a)) (= (gauges-reishi ga) 1100) (= (gauges-konpaku ga) 9)))
-    (check (and (= (gauges-reiatsu ga) 300f0) (= (gauges-reiatsu gb) 150f0)))
     ;; the drained end (after the step's hits, before SETTLE-SOULS): both at 0 Reishi, the opponent's Soul Break first
     (tb-start b)
     (setf (gauges-reishi ga) 1 (gauges-reishi gb) 1 *tb-pool* 2f0)
@@ -161,9 +133,6 @@
     (check (eql 0 (time-up-winner 3 0 1300 2 1300 1300)))
     (time-up)
     (check (and (null (bind-of a)) (= (gauges-konpaku ga) 0) (eql *winner* 1)))))
-(check (equal (loop for l in '(0.0 150.0 300.0 450.0 600.0) collect (multiple-value-list (bind-release-split l)))
-              '((0.0 0.0) (150.0 0.0) (300.0 0.0) (300.0 150.0) (300.0 300.0))))
-(check (and (= (bind-drain 300.0 7) 296.5) (= (bind-drain 3.0 7) 0.0)))
 
 
 ;; 2026-10-24 (the user: 「只要被 O 打中，非紅血狀態就鎖定防禦以外的一切行為（此狀態可防禦取消硬直並擋下毀魂技），紅血狀態則連同

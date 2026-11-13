@@ -96,6 +96,8 @@ the table (the Shikai's AS4-7, the Bankai's AS5: bursts, special, Bankai) are pr
 ## 7. Consequences and dead code
 
 - Dead once built: the Reiatsu gauge's internals in the core path (gains, regen, `kikon-refund`'s Reiatsu read), `*drive-switch*`.
+  (The Reiatsu half went before SP, 2026-11-13, REFACTOR_2026-11 R6: `pay-gauges (e fs)`, `hit-gains` -> fs aw sfs, `kosei-gain`
+  -> fs m, `kikon-refund (fs)`, `deal-damage (att def dmg &optional n)`; no `gauges-reiatsu`, no command cost check.)
   Already dead (found 2026-11-12, the user: those designs no longer exist): the DRIVE-full Bankai gate (`drive-full-p` through
   `kit-bankai-form`, nil on every live kit), pointer locks (`:locks`, `core-pointer-locked-p`), the arm meter pips (`:pips`,
   `core-pips-ok-p`, `arm-spend!`). For the refactor's cleanup.

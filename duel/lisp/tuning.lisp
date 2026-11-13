@@ -45,7 +45,6 @@ KIKON-LOCK-P, FIGHTER-KIKON-LOCK.")
 (defparameter *armor-from* 6 "A move's armour (:armor-hits) starts on this move frame (no frame-1 reversals).")
 (defparameter *reset-distance* 8.0 "After a Kikon / Soul Break both fighters are placed this far apart.")
 (defparameter *reset-neutral* 48 "Frames of neutral (inputs ignored) after the reset (0.8 s).")
-(defparameter *reset-reiatsu-bonus* 10.0 "Reiatsu a kit with :reset-reiatsu gets at each reset (Kenpachi).")
 (defparameter *match-seconds* 300 "Match timer. Time-up: more Konpaku wins, then higher Reishi %, else draw.")
 (defparameter *chip-fire* 0.12 "Chip-damage fraction of fire projectiles on block (never kills).")
 
@@ -158,33 +157,21 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 (defparameter *guard-break-kb* 0.8 "Slide of a guard-broken fighter.")
 (defparameter *stance-break-kb* 0.5 "Slide of a broken stance.")
 
-;;; ---------------------------------------------------------------- Reiatsu gauge (3 bars): SPs only
-(defparameter *reiatsu-max* 300.0 "Reiatsu gauge maximum (3 bars).")
-(defparameter *reiatsu-bar* 100.0 "One bar.")
-(defparameter *reiatsu-regen* 3.0
-  "Reiatsu per second, always (5 before the flash-step gauge took Hoho and Burst off it: design v3 G.3).")
-(defparameter *reiatsu-kind* '(:quick 3.0 :flash 5.0 :sig 4.0 :sp 4.0 :kikon 7.0 :breaker 14.0)
-  "Reiatsu a hit pays its attacker by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT); a move's
-:reiatsu param overrides its kind's; a hazard keeps its move's at its spawn (the user 2026-10-26: 「不再按傷害，改成依據每招式
-各自的基礎值 * combo 數加成」, 「依招式種類固定值」; before: *REIATSU-DEALT* 0.08 a point dealt, whose roster average per hit was
-J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays nothing; chip and a drink pay nothing.")
-(defparameter *reiatsu-kind-other* 4.0 "... a kind not in the table (a hazard spawned outside a move, the counter strike).")
-(defparameter *reiatsu-taken* 0.15
-  "Reiatsu per point of damage taken, x the combo bonus (2026-10-26: 「被打方改成受傷值 x combo 加成」; 0.10 -> 0.15 the same day:
-「提高被攻擊方的恢復量」, 「兩種都 ×1.5」).")
-(defparameter *reiatsu-combo-step* 0.1
-  "The combo bonus on hit gains (dealt and taken): x(1 + this x (n - 1)) at the combo's nth hit (its HIT-DAMAGE index) ...
-(the user 2026-10-26: 「每多一下 +10%，上限 ×2」)")
-(defparameter *reiatsu-combo-max* 2.0 "... at most this (the 11th hit on).")
-(defparameter *cost-sp* 1 "Bars an SP1 / SP2 costs.")
-(defparameter *cost-sp-awakened* 2 "Bars an SP2 costs in an awakened form.")
+;;; ---------------------------------------------------------------- the combo bonus on hit gains
+;;; (The Reiatsu gauge's knobs left 2026-11-13, REFACTOR_2026-11 R6: *REIATSU-MAX* 300, *REIATSU-BAR* 100, *REIATSU-REGEN* 3 / s,
+;;; *REIATSU-KIND*, *REIATSU-KIND-OTHER* 4, *REIATSU-TAKEN* 0.15, *COST-SP* 1, *COST-SP-AWAKENED* 2, *KOSEI-REIATSU* 0.20,
+;;; *WHITE-REIATSU* 15, *KIKON-REIATSU-REFUND* 100, *RESET-REIATSU-BONUS* 10: no SP had spent the gauge since the core system,
+;;; 2026-10-27, DUEL_CORE §6.)
+(defparameter *combo-gain-step* 0.1
+  "The combo bonus on hit gains (the flash-step of damage taken, KOSEI's points): x(1 + this x (n - 1)) at the combo's nth hit
+(its HIT-DAMAGE index) ... (the user 2026-10-26: 「每多一下 +10%，上限 ×2」; named *REIATSU-COMBO-STEP* until 2026-11-13, R6)")
+(defparameter *combo-gain-max* 2.0 "... at most this (the 11th hit on; *REIATSU-COMBO-MAX* until 2026-11-13).")
 
 ;;; ---------------------------------------------------------------- KOSEI (攻勢), the aggression reward (docs/duel/DUEL_STRINGS.md §5)
 ;;; Every contact of the attacker's own melee hit window (hit, block, ward, DRINK, armour, absorb; not a parry, a
-;;; hazard, a :ranged window or a Kikon) pays Reiatsu and flash-step, g x rate x m, g = the hit's guard value and
+;;; hazard, a :ranged window or a Kikon) pays flash-step, g x rate x m, g = the hit's guard value and
 ;;; m = 1 + *KOSEI-BONUS* x (1 - his own guard gauge / max): x1 at a full gauge ... x3 at an empty one.
 (defparameter *kosei-bonus* 2.0 "KOSEI: the multiplier's range above 1 (x1 full gauge .. x(1 + this) empty).")
-(defparameter *kosei-reiatsu* 0.20 "KOSEI: Reiatsu per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
 (defparameter *kosei-fs* 0.15 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
 0-300 gauge (*FS-MAX*); 0.30 -> 0.15 on 2026-11-12 (the user: 「幫我將閃步量表的攻擊恢復量減半」: the attack's recovery halved; the
 damage-taken gain *FS-TAKEN* is not part of it).")
@@ -376,16 +363,15 @@ gauge is kept; a Hoho in it spends what is left of it (BURST-BURN, HOHO-COST). N
 Before: BLUE drained the whole gauge like them (300 -> 0 in 5.6 s).")
 (defparameter *white-reishi* 70.0 "WHITE (and the awakening's regen): Reishi regenerated per second (integer points; 12 -> 24 -> 70, the user
 2026-09-30: a full-length run, 5.55 s, restores ~30 % of 1300).")
-(defparameter *white-reiatsu* 15.0 "WHITE: Reiatsu per second on top of *REIATSU-REGEN*.")
 (defparameter *white-awaken* 1.4 "WHITE: awakening gauge per second (2.0 x the slower gauge's 0.7).")
 (defparameter *blue-gg-mult* 2.0 "BLUE: the guard gauge's normal refill rate x this (no delay) when not guarding ...")
 (defparameter *blue-gg-guarding* 0.5 "... and x this even while guarding (GUARD HOLD stops it otherwise).")
 (defparameter *chain-window* 12 "ORANGE: frames after the cancel in which the next move started has its startup cut ...")
 (defparameter *chain-cut* 0.4 "... by this fraction (at least 1 f of startup left).")
-(defparameter *orange-gain* 1.5 "ORANGE: Reiatsu from hits dealt and KOSEI, awakening from hits dealt, x this.")
+(defparameter *orange-gain* 1.5 "ORANGE: awakening (and SUBLIMATION / SPIRIT DRIVE) from hits dealt x this (its Reiatsu from hits dealt and KOSEI
+left with the gauge, 2026-11-13, R6).")
 (defparameter *kikon-fs-refund* 105.0 "A Kikon that connects (or a Soul Break: the user 2026-09-30) gives its user this flash-step (35 -> 105 with the
-0-300 gauge) ...")
-(defparameter *kikon-reiatsu-refund* 100.0 "... and this Reiatsu (one bar); after any burst ended.")
+0-300 gauge), after any burst ended (and a Reiatsu bar until the gauge left, 2026-11-13, R6).")
 
 ;;; ================================================================ §4 damage multipliers
 (defparameter *nozarashi-mult* 1.0 "Damage x in Nozarashi's first cup, KATATE (v2: x1.15 before the ladder).")

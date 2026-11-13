@@ -185,10 +185,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
               (= 60 (hit-damage 70 nil nil 4 nil)))))
 (check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) 1.0))  ; its own clip, authored at its startup 9 (DUEL_KEN_V3 §15)
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
-;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
+;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 3.6 FS full, 10.8 empty (its Reiatsu left, R6)
 (check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
-(multiple-value-bind (r fs m) (kosei-gain 24 100.0) (check (and (~= r 4.8) (~= fs 3.6) (~= m 1.0))))
-(multiple-value-bind (r fs m) (kosei-gain 24 0.0) (check (and (~= r 14.4) (~= fs 10.8) (~= m 3.0))))
+(multiple-value-bind (fs m) (kosei-gain 24 100.0) (check (and (~= fs 3.6) (~= m 1.0))))
+(multiple-value-bind (fs m) (kosei-gain 24 0.0) (check (and (~= fs 10.8) (~= m 3.0))))
 (check (= 24 (loop for n in '(:ke-j1 :ke-j2 :ke-j3) sum (hw-guard (svref (mv-hits (mv :kenpachi :base n)) 0)))))
 (check (= (move-end-frame 9 3 12 18 nil nil) 30))                      ; whiff: R + 6
 (check (and (= (move-end-frame 9 3 12 18 :block nil) 24) (= (move-end-frame 2 1 20 26 nil t) 23)))
@@ -301,29 +301,21 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (check (and (~= ax -4.0) (~= az 0.0) (~= bx 4.0) (~= bz 0.0))))
 
 ;;; ================================================================ gauges
-(check (and (~= (reiatsu-gain 100) 15.0) (~= (reiatsu-gain 0 60) 3.0)))   ; SPs only: 3 / s
-;; a hit's Reiatsu by its move's kind x the combo bonus, not by its damage (the user 2026-10-26: 「不再按傷害，改成依據每招式各自的
-;; 基礎值 * combo 數加成」; the taken side 「受傷值 x combo 加成」; +10 % a hit, at most x2)
+;; the combo bonus on a hit's gains (the user 2026-10-26: the taken side 「受傷值 x combo 加成」; +10 % a hit, at most x2; the Reiatsu by
+;; the move's kind, 「依據每招式各自的基礎值 * combo 數加成」, left with the gauge, R6)
 (check (and (~= 1.0 (combo-gain-mult 1)) (~= 1.0 (combo-gain-mult 0)) (~= 1.1 (combo-gain-mult 2)) (~= 1.5 (combo-gain-mult 6))
-            (~= 2.0 (combo-gain-mult 11)) (~= 2.0 (combo-gain-mult 30))
-            (equal '(3.0 5.0 4.0 4.0 7.0 14.0) (mapcar #'hit-reiatsu-base '(:quick :flash :sig :sp :kikon :breaker)))
-            (~= *reiatsu-kind-other* (hit-reiatsu-base :stance)) (~= 9.0 (hit-reiatsu-base :quick 9.0))))
-(multiple-value-bind (r fs aw) (hit-gains 500 0 nil 1.0 3.0 1)          ; J1, 500 damage or 5: the same 3
-  (multiple-value-bind (r2) (hit-gains 5 0 nil 1.0 3.0 1)
-    (multiple-value-bind (r6) (hit-gains 5 0 nil 1.0 3.0 6)              ; the combo's 6th hit: x1.5
-      (multiple-value-bind (rt ft) (hit-gains 0 100 nil 1.0 0 6)         ; taking 100 at its 6th hit: 15 x 1.5, flash-step 13.5 x 1.5
-        (multiple-value-bind (ro) (hit-gains 5 0 nil *orange-gain* 3.0 1)   ; ORANGE x its gain
-          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 22.5) (~= ft 20.25) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
+            (~= 2.0 (combo-gain-mult 11)) (~= 2.0 (combo-gain-mult 30))))
+(multiple-value-bind (fs aw) (hit-gains 500 0 nil 1.0 1)                ; dealing: no flash-step, Fighting Spirit
+  (multiple-value-bind (ft) (hit-gains 0 100 nil 1.0 6)                 ; taking 100 at the combo's 6th hit: flash-step 13.5 x 1.5
+    (check (and (~= ft 20.25) (zerop fs) (plusp aw)))))
 ;; KOSEI by its move's kind (x the combo bonus at the call, x m), not the guard value (2026-10-26: 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」)
 (check (and (equal '(9.0 16.0 36.0 27.0 20.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
             (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
-            (multiple-value-bind (r fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
-              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.15 16 1.2 3)) (~= m 3.0)))))
+            (multiple-value-bind (fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
+              (and (~= fs (* 0.15 16 1.2 3)) (~= m 3.0)))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
-(check (equal (multiple-value-list (spend-bars 150.0 1)) '(50.0 t)))
-(check (equal (multiple-value-list (spend-bars 50.0 1)) '(50.0 nil)))
 (check (and (hoho-allowed-p nil 100.0 0) (not (hoho-allowed-p t 300.0 0))          ; flash-step 100 (of 300)
             (not (hoho-allowed-p nil 300.0 10)) (not (hoho-allowed-p nil 99.0 0))))
 (check (and (awaken-allowed-p t 100.0 nil) (not (awaken-allowed-p t 100.0 t)) (not (awaken-allowed-p nil 100.0 nil))
@@ -361,7 +353,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; WHITE: Reishi +12 / s in whole points (60 f pay exactly 12), no guard-gauge boost (gg-regen has no WHITE input)
 (check (and (= 70 (loop for n from 1 to 60 sum (burst-heal n *white-reishi*))) (= 66 (loop for n from 1 to 333 sum (burst-heal n 12.0)))
             (= 1 (burst-heal 5 12.0)) (= 0 (burst-heal 4 12.0))))
-(check (and (~= *white-reishi* 70.0) (~= *white-reiatsu* 15.0) (~= *white-awaken* 1.4)))
+(check (and (~= *white-reishi* 70.0) (~= *white-awaken* 1.4)))
 ;; BLUE: the guard gauge refills with no delay, x2 when free, x0.5 even while guarding (GUARD HOLD otherwise)
 (check (and (~= (gg-regen 50.0 999 nil nil nil 0.25) (+ 50.0 (/ (* 0.25 *gg-regen*) 60)))   ; a form's :gg-regen (Bankai East)
             (~= (gg-regen 50.0 999 t nil nil 0.25) (+ 50.0 (/ *gg-regen-guardless* 60)))   ; (guardless: unchanged)
@@ -397,11 +389,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (= (chain-startup-cut 10 0) 4) (= (chain-startup-cut 20 0) 8) (= (chain-startup-cut 2 0) 0) (= (chain-startup-cut 1 0) 0)
             (= (chain-startup-cut 3 0) 1) (= (chain-startup-cut 12 2) 4) (= *chain-window* 12)))
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))
-(check (and (~= (nth-value 0 (hit-gains 100 0 nil 1.5 8.0)) 12.0) (~= (nth-value 2 (hit-gains 100 0 nil 1.5)) 5.25)   ; x1.5 dealt
-            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 15.0) (~= (nth-value 0 (hit-gains 100 0 nil 1.0 8.0)) 8.0)))    ; taken untouched
-;; the Kikon refund: a flash-step bar (105 of 300, 2026-10-29) and a Reiatsu bar, clamped
-(check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(115.0 150.0))
-            (equal (multiple-value-list (kikon-refund 250.0 250.0)) '(300.0 300.0))))
+(check (and (~= (nth-value 1 (hit-gains 100 0 nil 1.5)) 5.25)                   ; x1.5 dealt
+            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) (nth-value 0 (hit-gains 0 100 nil 1.0)))))   ; taken untouched
+;; the Kikon refund: a flash-step bar (105 of 300, 2026-10-29), clamped (its Reiatsu bar left, R6)
+(check (and (equal (multiple-value-list (kikon-refund 10.0)) '(115.0))
+            (equal (multiple-value-list (kikon-refund 250.0)) '(300.0))))
 ;; the flash-step gauge (design v3 G.1; 0-300 since 2026-10-29): Hoho 100, Burst 200, no Reiatsu; 9 / s after 60 f; +0.135 per damage taken
 (check (and (= *fs-hoho* 100) (= *fs-burst* 200) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
 (check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.075) (~= (fs-regen 299.99 600) 300.0)))
@@ -620,8 +612,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
          (unless ok (format t "  bad move ~s in ~s~%" name cf))
          (check ok)))
      (kit-moves k))))
-;; costs
-(check (and (= (kit-command-cost (kit :kenpachi :nozarashi) :sp2) 2) (= (kit-command-cost (kit :kenpachi :base) :q) 0)))
 ;; forms: multipliers, inheritance, the Hellfire / Bankai swaps
 (check (and (~= (kit-mult (kit :kenpachi :nozarashi)) 1.0) (~= (kit-mult (kit :kenpachi :base)) 1.0)))
   ; inherited
@@ -639,7 +629,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   ; no Hellfire in Bankai
 (check (null (kit-duration (kit :kenpachi :nozarashi))))   ; the awakening lasts the match
 (check (~= (kit-walk (kit :kenpachi :nozarashi)) 4.4))
-(check (~= (kit-reset-reiatsu (kit :kenpachi :base)) 10.0))
 ;; the Shikai's own J string (DUEL_KEN_V3 §9)
 (check (eq (kit-next (kit :kenpachi :nozarashi) :ke-s-j1 :q) (mv :kenpachi :nozarashi :ke-s-j2)))
 ;; clip names: exactly the §5 contract, and every §5 clip is used

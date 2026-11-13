@@ -1147,7 +1147,7 @@ deck ring (ICHIGO-DECK) with three clones (ICHIGO-TEST 7). (The canvas meter row
     (dolist (e (list *p1* *p2*))
       (let ((g (gauges e)))
         (fill (fighter-cd (fighter e)) 0)
-        (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) *fs-max* (gauges-gg g) *gg-max* (gauges-guardless g) nil
+        (setf (gauges-fs g) *fs-max* (gauges-gg g) *gg-max* (gauges-guardless g) nil
               (gauges-reishi g) (gauges-reishi-max g))))
     (when (plusp n) (ichigo-set-clones *p1* n))
     (when act

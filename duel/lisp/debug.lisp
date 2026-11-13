@@ -3,7 +3,7 @@
 ;;;; The full command table (every range, with its arguments and the probe lines it prints) is in
 ;;;; docs/duel/DUEL_GAMEPLAY.md "Debug commands"; claim a new range THERE before using it. In brief:
 ;;;;   2000-5000+s   seeded CPU vs CPU now (2000+s random pairing, 3000+ II, 4000+ IK, 5000+ KK (YY / YK until the core system, 2026-10-27))
-;;;;   2100-2109     toggles: skip cinematics, turbo, hitbox / intent overlays, CPUs off, perf log, dump, fill Reiatsu, camera
+;;;;   2100-2109     toggles: skip cinematics, turbo, hitbox / intent overlays, CPUs off, perf log, dump, (2108 a no-op), camera
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
 ;;;;   2300-2399, 2401+k, 2610+k   scenarios and probes (2300+k specials, 2320 the mash probe, 2386+k Bankai tests, 2401+k the Lisp
@@ -169,11 +169,11 @@ card focused without cycling the picks."
   (setf *probe* (list kind name *match-tick* a b c)))
 
 (defun full-gauges! (e &optional meter)
-  "A scenario's preamble for fighter E: cooldowns cleared, Reiatsu / flash-step / guard gauge full, not guardless,
+  "A scenario's preamble for fighter E: cooldowns cleared, flash-step / guard gauge full, not guardless,
 Reishi at its cap; with METER also the kit meter set to it and its idle timer cleared."
   (let ((g (gauges e)))
     (fill (fighter-cd (fighter e)) 0)
-    (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) *fs-max* (gauges-gg g) *gg-max* (gauges-guardless g) nil
+    (setf (gauges-fs g) *fs-max* (gauges-gg g) *gg-max* (gauges-guardless g) nil
           (gauges-reishi g) (gauges-reishi-max g))
     (when meter (setf (gauges-meter g) meter (gauges-meter-idle g) 0))))
 
@@ -183,14 +183,12 @@ Reishi at its cap; with METER also the kit meter set to it and its idle timer cl
 Yamamoto until his code left main, 2026-11-12.)"
   (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 2.0)
-  (setf (gauges-reiatsu (gauges *p1*)) *reiatsu-max*)
   (set-probe :mash :quick))
 
 (defun force-burst ()
   "P1 Ichigo (Yamamoto until 2026-11-12), 2 hits into Kenpachi's string, bursts out now."
   (ensure-battle :ichigo :kenpachi)
   (place *p1* *p2* 2.0)
-  (setf (gauges-reiatsu (gauges *p1*)) *reiatsu-max*)
   (start-move *p2* (kit-move (kit-of *p2*) :ke-j2))
   (setf (fighter-sf (fighter *p2*)) 9)
   (set-reaction *p1* :flinch 18 (aref (pos-of *p2*) 0) (aref (pos-of *p2*) 2) 0.0)
@@ -348,7 +346,6 @@ gauge bars it measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16; HUD-T
 
 (defun force-cmd (e cmd)
   "Start kit command CMD on E now, whatever the gauges say."
-  (setf (gauges-reiatsu (gauges e)) *reiatsu-max*)
   (let ((f (fighter e))) (to-idle e 0) (try-command e f cmd (getf '(:sp1 :flash :sp2 :sig :sig :sig :breaker :breaker) cmd))))
 
 (defun string-test (k)
@@ -499,7 +496,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2105) (do-entities (e (b brain)) (setf (brain-off b) (not (brain-off b)))))
         ((= c 2106) (setf *perf-log* (not *perf-log*)))
         ((= c 2107) (when (entity-alive-p *p1*) (log-msg "~a" (state-hash-line))))
-        ((= c 2108) (dolist (e (list *p1* *p2*)) (setf (gauges-reiatsu (gauges e)) *reiatsu-max*)))
+        ((= c 2108))                                     ; a no-op: it filled the Reiatsu, which left 2026-11-13 (R6; scripts still send it)
         ((= c 2109) (toggle-cam))
         ((<= 2110 c 2113) (start-gate (- c 2110)))
         ((<= 2114 c 2117) (start-gate (- c 2114)) (setf *combat-log* t *gate-log* t))
@@ -531,7 +528,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 22000 c 22999) (setf *gg-regen* (/ (- c 22000) 10.0)))
         ((<= 23000 c 23999) (setf *gg-regen-guardless* (/ (- c 23000) 10.0)))
         ((<= 26000 c 26999) (scale-k-links (- c 26000)))
-        ((<= 27000 c 27999) (setf *kosei-reiatsu* (/ (- c 27000) 100.0) *kosei-fs* (/ (- c 27000) 200.0)))
+        ((<= 27000 c 27999) (setf *kosei-fs* (/ (- c 27000) 200.0)))   ; (its *KOSEI-REIATSU* = k / 100 left, R6)
         ((<= 30000 c 30999) (setf *gate-seed0* (- c 30000)))
         ((<= 31101 c 31199) (setf *gate-seeds* (- c 31100)))
         ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots; no kit has a fourth, so 2513 below is reachable)

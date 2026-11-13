@@ -23,7 +23,7 @@ The pointer is never locked (`*pointer-lock*` NIL): a keyboard-only game.
 | Breaker (hold) | I | KP5 | RB |
 | Kikon rush (hold through the strike: the Kikon on a red opponent) | O | KP6 | RT |
 | Step (hold = dash: run after the hop) | Space | KP0 | A |
-| Reiatsu modifier (hold) | Left Shift | KP Enter | LT |
+| SP modifier (hold) | Left Shift | KP Enter | LT |
 | Awaken | P | KP + | Back, or LS+RS |
 | SP1 / SP2 / Hoho | Shift+K / Shift+L / Shift+Space | KP Enter + KP2 / KP3 / KP0 | LT + Y / B / A |
 | Burst Reverse (in a combo, past its 2nd hit) | Shift+J | KP Enter + KP1 | LT + X |
@@ -86,7 +86,7 @@ left / right:
 | DUMMY | **STAND** / GUARD ALL / GUARD AFTER HIT / CPU | P2's brain switched off (STAND), holding guard always, or from the moment a hit lands on it until 60 f after its last hit or block (`dummy-guard-left`: a string's first hit lands, the rest is blocked unless it combos); CPU = the brain on, at the difficulty picked on the select screen. GUARD ALL with a `:core` dummy (the three live kits; 2026-11-12, the user: 「練習模式 DUMMY 的「GUARD ALL」會自動使出能跟對手相消的攻擊」): it holds no guard and cancels instead, pressing J or SP so each incoming hit lands inside a move the triangle cancels it with (`dummy-cancel-press`, DUEL_CORE §9; nothing when no hit is coming) |
 | COUNTER | **OFF** / J1 | J1 (2026-10-25, the user: 「幫我將練習模式的假人新增一個受傷後反擊的功能」, 「固定 J1」, 「被打中或擋下後都反擊」): on the last step of each hit / block reaction (or wake-up) the dummy lets Guard go and presses J1 (`dummy-counter-now-p`; not while a guard lock holds its blockstun), so J1 starts on its first free frame (measured: free f52 → KE-J1 f53 after a K1 hit; free f44 → f45 after a block); any DUMMY but CPU |
 | HP REFILL | **AUTO** / OFF | AUTO: the dummy's Reishi is back at its DUMMY HP row once it is out of its hit / block reactions (a combo ended); OFF: it stays, so it can be taken red, and a Soul Break (its Konpaku refilled) refills it |
-| GAUGES | **NORMAL** / INFINITE | INFINITE: P1's Reishi held at its P1 HP row, his guard gauge, Reiatsu, flash step and Awakening gauge full every frame (awakenings, SPs and Hohos are free to try). The kit meters (Inferno, NOME) keep their own play, so Hellfire and the cups still come from playing |
+| GAUGES | **NORMAL** / INFINITE | INFINITE: P1's Reishi held at its P1 HP row, his guard gauge, flash step and Awakening gauge full every frame (awakenings, SPs and Hohos are free to try). The kit meters (Inferno, NOME) keep their own play, so Hellfire and the cups still come from playing |
 | P1 HP, DUMMY HP | **100 %** / 75 / 50 / 25 / 10 % | that fighter's Reishi, at once; also what RESET POSITION, HP REFILL, INFINITE and a K.O. restore (`practice-reishi`; 25 % is red) |
 | P1 KONPAKU, DUMMY KONPAKU | 1 … **9** (wraps) | that fighter's Konpaku, at once; the dummy's is held there every frame (after a Kikon), P1's is restored by RESET POSITION and a K.O. (a Kikon on P1 still costs him Konpaku). Kenpachi's Bankai: the main-tree batch changes its condition to cup 3 with his own Konpaku ≤ 4, so set P1 KONPAKU ≤ 4 to try it (until that batch lands the old cup 3 + red rule applies: P1 HP 25 %) |
 | RESET POSITION | — | both fighters fresh at the start (first forms, full gauges), their Reishi and Konpaku at the four rows, straight into the fight |
@@ -141,7 +141,7 @@ hand (a skeleton's arm clawing out, a look) = `hazard transform model`. "Human o
 `fighter-phase` (a move's `:hold :aura :dash :main`), `fighter-move` (a MOVE of the current
 kit), `fighter-kit` / `fighter-form`, `fighter-contact` (`:hit` / `:block` / NIL), `fighter-burst` (a Burst
 pressed this step, applied at the end of `fighter-system`), `fighter-invuln` (frames);
-`gauges-reishi konpaku reiatsu awaken meter form-left` and the results stats.
+`gauges-reishi konpaku fs awaken meter form-left` and the results stats.
 
 ## Characters as data (`kit.lisp`)
 
@@ -181,7 +181,7 @@ encoded in the integer.
 | 2105 | toggle both CPUs off |
 | 2106 | toggle the engine's perf log |
 | 2107 | log both fighters' state (a hash line) |
-| 2108 | fill both fighters' Reiatsu |
+| 2108 | a no-op since 2026-11-13 (it filled both fighters' Reiatsu, which left with REFACTOR_2026-11 R6; scripts still send it) |
 | 2109 | toggle the CAMERA option (BEHIND / SIDE; the behind camera is VS CPU's): `duel camera …` line |
 | 2110+p | the seed gate: seeds 1–20 of pairing p (0 YY, 1 YK, 2 KK; 3 = 2113: every pairing of the playable roster, `*pairs*` without the retired, 28 since Hisagi joined) back to back, turbo, cinematics on, combat log off; then `duel gate …` lines |
 | 2120+k | toggle drawing part k off (0 HUD, 1 fighters, 2 stage, 3 hazards + cinematic looks): perf bisection |
@@ -207,7 +207,7 @@ encoded in the integer.
 | 2114+p | the seed gate of 2110+p with the combat log kept and a `pace t=… \| FORM m… r… g…[!] k… w…` line every 60 ticks per side (scratchpad `pace.py` reads it: cup times, stays, the Bankai gauge, scorches) |
 | 2393 | the string test: the running match's fighters 2.2 m apart, facing, idle, nothing held (a switched-off CPU lets go of its guard): the scripts' string + O ender (`duel-touch.json`) |
 | 2394+k | the string test (DUEL_STRINGS.md; `duel-strings.json`): human P1 in form k (0 Ichigo's Shikai, 1 KESSA (Yamamoto's Shikai / Bankai East until 2026-11-12, REFACTOR_2026-11 R3), 2 Kenpachi base, 3 his Shikai) 2.2 m from an idle Kenpachi (CPU off); the script presses J / K / O |
-| 26000+k / 27000+k | the strings' seed-gate knobs without a rebuild (before 2113): every K2 / K3 (and copy) deals k % of its written damage (26000), `*kosei-reiatsu*` = k / 100 and `*kosei-fs*` half that (27000) (24000 / 25000 / 28000 / 29000, the old AI's knobs, removed 2026-11-12, REFACTOR_2026-11 R3) |
+| 26000+k / 27000+k | the strings' seed-gate knobs without a rebuild (before 2113): every K2 / K3 (and copy) deals k % of its written damage (26000), `*kosei-fs*` = k / 200 (27000; its `*kosei-reiatsu*` = k / 100 left with the gauge, 2026-11-13) (24000 / 25000 / 28000 / 29000, the old AI's knobs, removed 2026-11-12, REFACTOR_2026-11 R3) |
 | 2400 | toggle god mode: each step both fighters' Reishi is raised to at least 400 |
 | 2500+k | human P1 vs an idle CPU, cinematics skipped: 0 Ichigo vs Kenpachi, 1 Kenpachi vs Ichigo, 2 II, 3 KK |
 | 2495 / 2496 / 2497 | the Lisp HUD's landscape and overlay scenes (DUEL_LISP_HUD §14; claimed 2026-11-11, `lhud-scene` in debug.lisp): 2495 the 2505 scene with the intro played (the card, READY / 斬; `--fixed-dt` stills at 8.1-12.9 s after it); 2496 human Kenpachi (P1) in his Shikai with KAIHO L2 (the kit strip and the form's seals on the left plate, mirrored) vs Ichigo with his CPU off, cinematics skipped, VS CPU; 2497 P2 K.O.'d now (`match-over`): the K.O. cinematic and the finish, then the results |
@@ -265,7 +265,7 @@ apart (`place`).
 |---|---|
 | `duel -> TITLE` … `duel -> RESULTS` | every flow change (`set-flow`) |
 | `duel match seed 7 CPU-CPU YAMAMOTO vs KENPACHI NORMAL` | a match starts |
-| `duel hash t=600 \| x y z yaw STATE FORM r<reishi> k<konpaku> a<reiatsu> f<flash-step> g<guard>[!] w<awaken> m<meter> n<kikon> h<heat> \| … \| cd <P1 cooldowns> <P2> \| haz N` | every 600 battle steps: positions in cm, yaw in 0.01 rad, gauges (`!` = guardless; m = Inferno or NOME, the FORM = Nozarashi's cup), n = the Konpaku the last Kikon rush was worth, CPU heat, each command slot's cooldown, hazard count (the determinism check) |
+| `duel hash t=600 \| x y z yaw STATE FORM r<reishi> k<konpaku> f<flash-step> g<guard>[!] w<awaken> m<meter> n<kikon> h<heat> \| … \| cd <P1 cooldowns> <P2> \| haz N` | every 600 battle steps: positions in cm, yaw in 0.01 rad, gauges (`!` = guardless; m = Inferno or NOME, the FORM = Nozarashi's cup), n = the Konpaku the last Kikon rush was worth, CPU heat, each command slot's cooldown, hazard count (the determinism check; an `a<reiatsu>` column stood between k and f until 2026-11-13, REFACTOR_2026-11 R6) |
 | `duel -> RESULTS winner P1 konpaku 7-0 ticks 7351 secs 122.5` | the match result (winner, Konpaku P1-P2, sim steps, seconds) |
 | `duel gate YAMAMOTO KENPACHI: 20 matches, KOs 20, median … s, min …, max … \| …` | the seed gate summary |
 | `duel gate row seed N P1CHAR P2CHAR secs … winner P1\|P2 forms F1 F2 blow N` | one per gate match: its final forms (BANKAI / KATAUDE: he entered the Bankai; the gamble A/B reads them) and the match's blow-aways (the hidden hit-stun tolerance, DUEL_DESIGN.md) |

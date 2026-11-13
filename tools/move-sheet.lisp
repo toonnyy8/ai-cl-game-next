@@ -38,14 +38,13 @@ attacker's frames left; both share the hitstop). NIL for a knockdown / launch (h
   (let* ((w (ms-hw0 mv)) (k (mv-kind mv))
          (wr (recovery-frames (mv-r mv) nil (and (plusp (mv-whiff mv)) (mv-whiff mv)) k))
          (br (recovery-frames (mv-r mv) :block nil k)))
-    (format t "| ~a | `~(~a~)` | ~(~a~) | ~d/~d/~d~@[ (enter ~d)~] | ~d / ~d | ~a | ~a | ~a | ~a | ~a | ~a | ~a | ~a |~%"
+    (format t "| ~a | `~(~a~)` | ~(~a~) | ~d/~d/~d~@[ (enter ~d)~] | ~d / ~d | ~a | ~a | ~a | ~a | ~a | ~a | ~a |~%"
             tag (mv-name mv) k (mv-s mv) (mv-a mv) (mv-r mv) (and (plusp (mv-enter mv)) (mv-enter mv)) wr br
             (if w (format nil "~{~a~^ ~}" (loop for h across (mv-hits mv) collect (format nil "~d–~d:~d" (hw-from h) (1- (hw-to h)) (hw-dmg h))))
                 "hazard")
             (if w (format nil "~(~a~) ~a" (hw-react w) (if (ms-down-p w) "down" (ms-stun w))) "—")
             (ms-cell (ms-hit-adv mv)) (ms-cell (mv-adv-block mv)) (ms-vol mv)
             (format nil "~@[slide ~,2f~]~@[ kb ~,2f~]" (and (plusp (mv-slide mv)) (mv-slide mv)) (and w (plusp (hw-kb w)) (hw-kb w)))
-            (let ((c (mv-cost mv))) (if c (format nil "~a bar" c) "—"))
             (format nil "~{~(~a~)~^ ~}~@[ hold ~a~]" (remove-if (lambda (x) (consp x)) (mv-params mv)) (mv-hold mv)))))
 
 (defun ms-edge (kit from to trigger)
@@ -68,9 +67,8 @@ Hit adv: his stun − her frames left (NIL: down). Whiff / block R: the recovery
   (format t "## Kit~%~%| | |~%|---|---|~%")
   (format t "| walk / run | ~,2f / ~,2f m/s |~%| Reishi | ~d |~%| x dealt / taken | ~,2f / ~,2f |~%| stun tolerance | ~a |~%"
           (kit-walk kit) (kit-run kit) (kit-reishi kit) (kit-mult kit) (kit-taken kit) (kit-stun-tolerance kit))
-  (format t "| SP1 / SP2 cost | ~a / ~a bars |~%| awakens into | ~(~a~) |~%~%"
-          (kit-command-cost kit :sp1) (kit-command-cost kit :sp2) (kit-awaken-form kit))
-  (format t "## Moves~%~%| Input | Move | Kind | S/A/R | whiff / block R | hits (frame: dmg) | reaction / stun | hit adv | block adv | volume | slide / kb | cost | params |~%|---|---|---|---|---|---|---|---|---|---|---|---|---|~%")
+  (format t "| awakens into | ~(~a~) |~%~%" (kit-awaken-form kit))
+  (format t "## Moves~%~%| Input | Move | Kind | S/A/R | whiff / block R | hits (frame: dmg) | reaction / stun | hit adv | block adv | volume | slide / kb | params |~%|---|---|---|---|---|---|---|---|---|---|---|---|~%")
   (flet ((row (mv tag) (when (and mv (not (member mv seen))) (push mv seen) (ms-row kit mv tag))))
     (dolist (c '(:q :f :sig :sp1 :sp2 :breaker :kikon)) (row (kit-command-move kit c) (string-upcase (symbol-name c))))
     (loop for n in (getf (kit-spec kit) :grid) for tag in '("J1" "J2" "J3" "K1" "K2" "K3" "J2s" "K2s") do (row (kit-move kit n) tag))
@@ -96,8 +94,8 @@ free = the frame he can act. Chains (J / K links, L after a link) open at S + A;
           (round *fs-max*) *fs-regen* *fs-delay* *fs-taken* (round *fs-burst*) *burst-drain* *burst-min-hits*)
   (format t "| ORANGE | the next move within ~d f starts ~d % sooner; scaling restarts, −~d %/hit to ~d % while it runs |~%"
           *chain-window* (round (* 100 *chain-cut*)) (round (* 100 *orange-combo-decay*)) (round (* 100 *orange-combo-floor*)))
-  (format t "| Reiatsu | 3 bars of ~d, +~,1f/s; a hit pays its kind's ~{~(~a~) ~,1f~^ ~} (+~,2f a point taken), x(1 + ~,1f (n − 1)) to x~,1f at the combo's nth hit |~%| Combo scaling | hits 1–~d full, −~d %/hit to ~d %; SPs and :unscaled windows full |~%"
-          (round *reiatsu-bar*) *reiatsu-regen* *reiatsu-kind* *reiatsu-taken* *reiatsu-combo-step* *reiatsu-combo-max*
+  (format t "| Combo gain bonus | x(1 + ~,1f (n − 1)) to x~,1f at the combo's nth hit (flash step taken, KOSEI) |~%| Combo scaling | hits 1–~d full, −~d %/hit to ~d %; SPs and :unscaled windows full |~%"
+          *combo-gain-step* *combo-gain-max*
           *combo-full-hits* (round (* 100 *combo-decay*)) (round (* 100 *combo-floor*)))
   (format t "| Ender push | out of the opener's far edge + slide + his body + ~,2f m, over ~d f |~%| Guard cancel | the last ~d % of a recovery |~%| Chain on block | the last ~d f of recovery |~%"
           *ender-push* *ender-push-frames* (round (* 100 *guard-cancel*)) *chain-lead*))

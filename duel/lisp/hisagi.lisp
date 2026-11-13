@@ -165,17 +165,10 @@ r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the 
 加成提高到能讓 K 串傷害能到平均值的 1.3 倍」, 「共用 1.71」: K1 -> K2 -> K3G all on the tip 313, 1.3 x the 21 awakened forms'
 K string mean 240.3, DUEL_HISAGI §25.13). A route link (links 2-3) takes its opener's (J1 / K1's) tip read, not its own
 distance (§25.13: 「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀態」; HSS-ROUTE-TIP) ...")
-(defparameter *hs-r-tip-sp-mult* 1.3
-  "... and the Reiatsu (SP) that hit earns him is x this on top (x1.0 -> x1.3, 2026-10-18, the user: 「卍解遠距的鎖鏈尾端除了
-傷害加成以外也增加 SP 恢復量的加成」, §25.5; the lead's number, the damage's: with it x1.69 a non-tip hit's).")
 (defparameter *hs-b-close* 1.2 "A bind-mode hit within this many m (centre to centre) ...")
 (defparameter *hs-b-close-mult* 1.3
   "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1; 1.2 -> 1.3, 2026-10-19, the user: 「近身加成升到
 1.3 倍」, §25.13).")
-(defparameter *hs-bind-drain-rate* (/ 1.0 3)
-  "The bind's pool loses this much per nominal damage of either fighter (rules BIND-DRAIN's rate; 0.5 -> 0.25, 2026-10-19,
-the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 then 「1:4」, §25.13; 0.25 -> 1/3 the same day: 「捆綁模式的 SP 血量
-互換率還是改成 1:3 好了」, §25.13); an SP still spends it 1:1.")
 (defparameter *hs-r-j-dead* 3.0
   "The ranged mode's J (J1 / J2 / J3, the gathered J2s / J3G) dead zone, m (the moves' :min-reach): an annulus out to
 *HS-R-J-REACH* (J1's 2.0 -> 3.0 and the other links' *HS-R-DEAD* 2.0 -> 3.0, 2026-10-18, the user: 「J 的範圍改 3~6」, §25.3;
@@ -206,10 +199,6 @@ user: 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍�
 ;;; 聚合的鎖鏈攻擊更痛」; 「身旁旋轉會打到」, 「拿掉落點」 (B4a's placed marks gone), 「散 −3 幀×0.85／聚 +3 幀×1.3」, 「可以」 to
 ;;; the segment table (§22.4). The opener decides the route of links 2-3: J1-opened = spread (the thin hanging chains),
 ;;; K1-opened = gathered (K1 binds them into one bundle). The moves carry the numbers (host-pinned against these).
-(defparameter *hs-r-spread-sp-mult* 1.3
-  "The spread route's hits (J1 and its links J2 / K2s / J3 / K3) earn their Reiatsu (SP) gain x this, on top of the tip's
-x1.3 (x1.69 a tip hit of the route) (none -> x1.3, 2026-10-19, the user: 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量」,
-「×1.3」, 「起手也加」, DUEL_HISAGI §25.11; HS-DMG-MULT marks, HS-BK-HIT pays).")
 (defparameter *hs-r-gather-guard-mult* 1.3
   "The gathered route's guard damage (K1 and its links K2 / J2s / K3G / J3G): their :guard x this, rounded, written into the
 moves (none -> x1.3, 2026-10-19, the user: 「K1 起手的聚路線增加削防值」, 「×1.3」, 「起手也加」, §25.11: K1 / K2 14 -> 18,
@@ -548,14 +537,14 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
   :on-hit :knockback :kb 2.0 :cooldown 90 :min-reach *hs-r-dead*                 ; (its follow-up strike: no dead zone)
   :params (:aura 6 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0))
 ;; SP2 首掛 KUBIKAKE, the binding throw (§17.2; on P until B4c, the user, 2026-10-18: 「把卍解捆綁給到 SP2，但發動不會消耗
-;; SP」): a 7 m line from his hand, no bars spent (:cost 0); his own 200 checked at the press (HS-BK-OK: refused with the
+;; SP」): a 7 m line from his hand, no bars spent; his own 200 checked at the press (HS-BK-OK: refused with the
 ;; cue under it, cooling, a bind up) and at contact (HS-KUBI-LAND); the cooldown set at its start (HS-KUBI-START); a hit
 ;; yanks him to 2.0 m into a 30 f reel, the recovery cut to 14, and the bind starts at the end of the step (HS-BK-TICK); a
 ;; block / whiff is punishable (-20 / R 42). Off a J / K string hit the cancel copy (「可以，命中確認後接」: :enter 6, S_eff
 ;; 18, so the hit-confirm combos off every link: HS-BK-COMMAND, SP2's copy pattern)
 (defmove :hs-r-kubikake :kind :flash :clip :hs-k-kubikake :callout "KUBIKAKE" :startup 24 :active 4 :recovery 30 :whiff *hs-kubi-whiff*
   :dmg 40 :adv-block -20 :guard 14 :vol (:cap 0.3 7.0 1.1 0.35) :track 30.0 :on-hit :stagger :hits ((24 28 :stun 30))
-  :flags (:ranged :no-close) :params (:melee-range 2.0) :min-reach *hs-r-dead* :cost 0)   ; (§28.4: its bind hooks gone; kept for its clip)
+  :flags (:ranged :no-close) :params (:melee-range 2.0) :min-reach *hs-r-dead*)   ; (§28.4: its bind hooks gone; kept for its clip)
 (defmove-copy :hs-r-kubikake-c :hs-r-kubikake :enter 6)
 
 ;;; The bind mode (§17.3, the user: 「攻擊模組切換成近戰，此時的 L 會將對手拉近」): the melee set at the §2.1 budget
@@ -595,7 +584,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
 ;; blockable (blocked or whiffed: the release, no damage). Frame data the lead's pick (§22.6); its own clip, drawn by batch
 ;; A3 (DUEL_HISAGI §24.3: the noose thrown off at S, the blow)
 (defmove :hs-b-sp2 :kind :sp :clip :hs-kb-kaibaku :callout "KAIBAKU" :startup 18 :active 4 :recovery 28 :dmg *hs-kaibaku-dmg*
-  :adv-block -14 :guard 22 :reach 3.0 :arc 140 :on-hit :knockback :kb 2.0 :cost 0)     ; 解縛擊 (§28.4: the bind AS3c's source)
+  :adv-block -14 :guard 22 :reach 3.0 :arc 140 :on-hit :knockback :kb 2.0)     ; 解縛擊 (§28.4: the bind AS3c's source)
 (defmove :hs-b-kikon :kind :kikon :clip :hs-kb-koshu-run :clip-2 :hs-kb-koshu :callout "KOSHU" :cine hs-koshu-cine
   :startup 8 :active 3 :recovery 24 :dmg 111 :adv-block -14 :reach 2.0 :arc 120 :on-hit :knockback :kb 2.5 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 14.0 :dash-max 30 :dash-track 0.0 :look :flash-step :sfx :hoho-out))      ; 絞首 KOSHU
@@ -705,7 +694,7 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 (defmove-copy :hs-b-as2 :hs-b-k2 :kind :sp :clip :hs-kb-shime :callout "SHIME" :enter 4 :dmg 55 :params (:ns-next :hs-b-as2b))
 ;; AS3 解縛 KAIBAKU, the release (no pointer, no Kikon): 解 > 散 > 放 HANATSU the chains burst off (knockdown); its last segment's end
 ;; returns to the ranged mode, hit, blocked or whiffed (HS-BK-TICK)
-(defmove-copy :hs-b-as3c :hs-b-sp2 :callout "HANATSU" :dmg 100 :on-hit :knockdown :kb 0.0 :cost nil :params (:no-kikon t :bind-end t))
+(defmove-copy :hs-b-as3c :hs-b-sp2 :callout "HANATSU" :dmg 100 :on-hit :knockdown :kb 0.0 :params (:no-kikon t :bind-end t))
 ;; §28.13 (the user 2026-10-29: 「散加長到 3.0 m」): SAN 1.5 -> 3.0 m, J5's ender push leaves him at 2.3 m (KAI 2.8, HANATSU 3.0)
 (defmove-copy :hs-b-as3b :hs-b-j3 :kind :sp :clip :hs-kb-san :callout "SAN" :dmg 40 :reach 3.0 :on-hit :stagger :flags nil :params (:ns-next :hs-b-as3c :no-kikon t))
 (defmove-copy :hs-b-as3 :hs-b-k2 :kind :sp :callout "KAI" :dmg 40 :params (:ns-next :hs-b-as3b :no-kikon t))
@@ -820,8 +809,6 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
   (leapt nil)                                 ; §24.4: he leapt (J2K / J3K) in the combo the victim is in now (HS-LINK-OK)
   (zan 0 :type fixnum) (zan-pend nil)         ; §27: 餘電's frames left on his opponent; CHIKUDEN hit, its 放電 not yet known
-  (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
-  (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
   (route-tip nil)                             ; §28.7: his last ranged hit of this combo was on the tip (cleared in neutral, HS-BK-TICK)
   (tip-hit nil)                               ; §25.26: his last hit was on the tip (a look: HS-TIP-FX's flash; no sim reads it)
   (tip-now nil)                               ; the hit HS-DMG-MULT just read is a ranged-mode tip hit: no combo scaling
@@ -1271,14 +1258,15 @@ number: the middle of the gathered band 2.5-4.5, §28.8).")
   "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
 volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; in the ranged mode
 by class (§28.7, the user 2026-10-29): an SA its own read, an AS the combo's last hit's (HSS-ROUTE-TIP), any other the last hit's
-or its own (an NS b / c carries a tip on; a J link has no volume: J1's / the SA's), each hit then the last; and marks a
-tip or a spread-route hit for its SP gain (HS-BK-HIT: §25.5, §25.11); x1.0 for L SAHARAI (unchanged, §22.1), the bind's SP2
+or its own (an NS b / c carries a tip on; a J link has no volume: J1's / the SA's), each hit then the last (its mark of a
+tip or spread-route hit for a Reiatsu gain x1.3 / x1.3, §25.5 / §25.11, left with the gauge, 2026-11-13, REFACTOR_2026-11 R6);
+x1.0 for L SAHARAI (unchanged, §22.1), the bind's SP2
 KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other :seg-fn window (no volume)."
   (declare (ignore hazard))
   (setf (hss-tip-now (hs att)) nil)
   (if (or (null mv) (eq (mv-kind mv) :breaker) (member (mv-name mv) '(:hs-r-l :hs-b-sp2)))   ; (KAIBAKU-GEKI: its 120 exact)
       1.0
-      (let* ((st (hs att)) (name (mv-name mv)) (bk (eq (fighter-form (fighter att)) :bankai))
+      (let* ((st (hs att)) (bk (eq (fighter-form (fighter att)) :bankai))
              (own (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att))
                          (q (pos-of def)))
                     (if (getf (mv-params mv) :no-tip)        ; (§28.8: the close-in pushes have no tip of their own)
@@ -1292,13 +1280,9 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
                           (t (or (hss-route-tip st) (> own 1.0))))
                         *hs-r-tip-mult* 1.0)
                     own))
-             (tip (> x 1.0))
-             (spread (and bk (member name '(:hs-r-j1 :hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3))))
-             (sx (* (if (and bk tip) *hs-r-tip-sp-mult* 1.0)
-                    (if spread *hs-r-spread-sp-mult* 1.0))))
+             (tip (> x 1.0)))
         (when bk (setf (hss-route-tip st) tip))
         (setf (hss-tip-hit st) (and bk tip) (hss-tip-now st) (and bk tip))
-        (setf (hss-tip-r st) (and (> sx 1.0) (gauges-reiatsu (gauges att))) (hss-tip-x st) (- sx 1.0))
         x)))
 (defun hs-tip-now-p (att)
   "The ranged mode's :unscaled hook (combat.lisp APPLY-HIT, after its :dmg-mult): is this hit on the chain tip (HS-DMG-MULT's
@@ -1311,17 +1295,11 @@ read)? Then it ignores the combo scaling (the user 2026-10-25: 「修兵卍解�
         (setf (hss-aim-yaw st) (transform-yaw tr))
         (setf (transform-yaw tr) (hss-aim-yaw st)))))
 (defun hs-bk-hit (att def res hw mv hazard ranged)
-  "The Bankai's :hit hook: a chain-tip hit (HS-DMG-MULT marked it) earns its Reiatsu gain x *HS-R-TIP-SP-MULT*, a spread-route hit
-x *HS-R-SPREAD-SP-MULT*, both multiplied (§25.5, §25.11: the gain since the mark, x the extra); the ranged AS3's last segment
-KAKE really hitting (a hit, not a block, an absorb or a cancel: those never reach here) arms the bind and yanks him to
-*HS-KUBI-YANK* m (§28.4; the bind starts when the move ends, HS-BK-TICK); §29's note of a hit the unlock let in."
+  "The Bankai's :hit hook: the ranged AS3's last segment KAKE really hitting (a hit, not a block, an absorb or a cancel:
+those never reach here) arms the bind and yanks him to *HS-KUBI-YANK* m (§28.4; the bind starts when the move ends, HS-BK-TICK); §29's note of a hit the unlock let in."
   (declare (ignore def hazard ranged))
   (hs-kin-note att res hw)
-  (let* ((st (hs att)) (r0 (hss-tip-r st)))
-    (when r0
-      (setf (hss-tip-r st) nil)
-      (let ((gain (- (gauges-reiatsu (gauges att)) r0)))
-        (when (> gain 0) (reiatsu-gain! att (* gain (hss-tip-x st))) (pace att :tip-sp))))
+  (let ((st (hs att)))
     (when (and mv res (eq (contact-of res) :hit) (getf (mv-params mv) :bind-start) (eq (fighter-move (fighter att)) mv)
                (eq (fighter-form (fighter att)) :bankai) (not (hss-bound st)))
       (setf (hss-bind-arm st) t)
@@ -1374,9 +1352,9 @@ windmill's holds / blocks / crushes, out frames, the time-at-range bands)."
 
 (defun hisagi-probe-line (tag)
   (let ((st (hs *p1*)) (g2 (gauges *p2*)))
-    (log-msg "duel probe hisagi ~a t ~d p1 ~a ~a sickle ~a anchor ~,2f ~,2f out ~d ret ~d rei ~,1f charge ~d~a | p2 ~a r~d gg ~d | d ~,2f"
+    (log-msg "duel probe hisagi ~a t ~d p1 ~a ~a sickle ~a anchor ~,2f ~,2f out ~d ret ~d charge ~d~a | p2 ~a r~d gg ~d | d ~,2f"
              tag *match-tick* (fighter-form (fighter *p1*)) (state-of *p1*) (hss-state st) (aref (hss-anchor st) 0) (aref (hss-anchor st) 1)
-             (hss-out-t st) (hss-ret-t st) (gauges-reiatsu (gauges *p1*)) (hss-charge st) (if (hss-kstr st) " K" "")
+             (hss-out-t st) (hss-ret-t st) (hss-charge st) (if (hss-kstr st) " K" "")
              (state-of *p2*) (gauges-reishi g2)
              (round (gauges-gg g2)) (fighter-dist (fighter *p1*))))
   (let ((st (hs *p1*)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
@@ -1385,7 +1363,7 @@ windmill's holds / blocks / crushes, out frames, the time-at-range bands)."
              (fighter-ptr (fighter *p1*)) (hss-kin st) (gauges-reishi g1) (gauges-konpaku g1) (gauges-reishi g2) (gauges-konpaku g2) (state-of *p2*))))
 
 (defun hisagi-test (k)
-  "83000+k (human P1 Hisagi, P2's CPU off unless noted, P1's Reiatsu full; a \"duel probe hisagi\" line): 0 2 m from an idle
+  "83000+k (human P1 Hisagi, P2's CPU off unless noted, P1's gauges full; a \"duel probe hisagi\" line): 0 2 m from an idle
 Kenpachi; 1 6 m from him; 2 4 m from him, the sickle out (anchored 3 m ahead, the timer at 0); 3 8 m from Yamamoto, his L
 wave started, the windmill started (blocked from every side); 4 5 m from Kenpachi, NAGE started (the throw); 5 the mirror,
 both CPUs, 6 m apart; 6 2 m from Kenpachi, J1 started (the JKK: K K for MAKI, HODOKI); S1 (§23.1): 7 2 m from him, J1

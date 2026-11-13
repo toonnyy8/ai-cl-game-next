@@ -19,15 +19,12 @@
 hit comes from the owner's position. HOOK: a
 character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step) and :touches
 (the volume test of a kind this file doesn't know); DATA: what it keeps. SP: its hits
-ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P). Its hits pay the owner the Reiatsu of
-the owner's move now (HIT-RBASE; none: *REIATSU-KIND-OTHER*)."
+ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P)."
   (spawn-entity (make-hazard :kind kind :owner owner :x (f32 x) :y (f32 y) :z (f32 z) :px (f32 x) :pz (f32 z)
                              :yaw (f32 yaw) :speed (f32 speed) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src
                              :hook hook :data data :sp sp
-                             :sp-mv sp-mv
-                             :rbase (f32 (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))
-                                           (if mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)) *reiatsu-kind-other*))))))
+                             :sp-mv sp-mv)))
 
 (defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0) data)
   "A look-only hazard (kind :fx) of fighter E at X Z (default: E's feet) drawn by the function LOOK (the character's art

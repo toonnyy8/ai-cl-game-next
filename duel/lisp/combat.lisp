@@ -20,7 +20,7 @@ at its end (SETTLE-SOULS), so a lethal trade breaks both souls and no side goes 
   "The fighter taking E's gains now, or NIL: the opponent's kit's :siphon hook (o e) is true while something of his drains
 E (a zone he stands in). Asked at every gain, so it ends the frame the zone ends or E leaves it. Siphoned, E gains nothing
 from a hit, a block, a parry or his own blade (GAIN-GAUGES, KOSEI!, the parry's
-refill, SETTLE-KONPAKU's Fighting Spirit); his Reiatsu and flash-step gains go to that fighter, the rest is lost."
+refill, SETTLE-KONPAKU's Fighting Spirit); his flash-step gains go to that fighter, the rest is lost."
   (let* ((o (opp-of e)) (h (and (entity-alive-p o) (kit-hook (kit-of o) :siphon))))
     (and h (funcall h o e) o)))
 
@@ -29,7 +29,6 @@ refill, SETTLE-KONPAKU's Fighting Spirit); his Reiatsu and flash-step gains go t
 ;;; own state, pool, snapshot and ends live in the binder's file, behind his kit hooks (binder first in every call):
 ;;;   :bind (x)              true while X binds (BIND-OF)
 ;;;   :bind-damage (b a d n) A dealt D N (nominal) inside the bind (DEAL-DAMAGE): the pool's drain
-;;;   :bind-pool (b &optional n)  the shared Reiatsu (REIATSU-OF), after spending N of it (REIATSU-SPEND!)
 ;;;   :bind-heal (b e n)     E was healed N for real (HEAL!): his snapshot follows
 ;;;   :bind-step (b phase)   :release after both fighters stepped (FIGHTER-SYSTEM, where a Burst is applied), :hits after
 ;;;                          the step's hits before SETTLE-SOULS (HIT-SYSTEM: the drained check; it may queue Soul Breaks)
@@ -68,23 +67,6 @@ user, 2026-10-19: 「如果在捆綁的狀態下受到毀魂技攻擊，那下�
   "E's grey souls drawn up to (hud.lisp: his Konpaku at a bind's start), else 0 (none)."
   (multiple-value-bind (r0 k0) (bind-snapshot-of e) (declare (ignore r0)) (or k0 0)))
 
-(defun reiatsu-of (e)
-  "The Reiatsu E has to spend: his gauge, or in a bind the shared pool (the binder's :bind-pool)."
-  (let* ((b (bind-of e)) (h (bind-hook b :bind-pool))) (if h (funcall h b) (gauges-reiatsu (gauges e)))))
-
-(defun reiatsu-spend! (e bars)
-  "E spends BARS of Reiatsu (an SP's cost): from his gauge, or in a bind from the shared pool."
-  (let* ((b (bind-of e)) (h (bind-hook b :bind-pool)) (g (gauges e)))
-    (if h
-        (funcall h b (* bars *reiatsu-bar*))
-        (setf (gauges-reiatsu g) (f32 (spend-bars (gauges-reiatsu g) bars))))))
-
-(defun reiatsu-gain! (e n)
-  "E's Reiatsu + N (kept in 0 .. *REIATSU-MAX*): every gain goes through here (hits, KOSEI, the regen, BLUE's bar, WHITE's,
-the Kikon refund, the reset's, a kit's own). In a bind every gain is frozen (DUEL_HISAGI §17.3 B4)."
-  (unless (bind-of e)
-    (let ((g (gauges e))) (setf (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) n *reiatsu-max*))))))
-
 (defun heal! (e n)
   "E's Reishi + N, at most his max (an awakening's heal, WHITE's and the awakening's regen). In a bind the heal is real:
 his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
@@ -111,52 +93,43 @@ by XS only (AWAKEN-OVERFLOW)."
   "Walk / run speed x (1 + *SUB-SPEED* x SUB-OF)."
   (+ 1.0 (* *sub-speed* (sub-of e))))
 
-(defun pay-gauges (e r fs)
-  "E gains R Reiatsu (REIATSU-GAIN!) and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN; the
-flash-step x (1 + *SUB-FS* x SUB-OF))."
+(defun pay-gauges (e fs)
+  "E gains FS flash-step (kept at its max; nothing during a burst: BURST-FS-GAIN; x (1 + *SUB-FS* x SUB-OF)). (Its Reiatsu
+half left with the gauge, 2026-11-13, REFACTOR_2026-11 R6.)"
   (let ((g (gauges e)))
-    (reiatsu-gain! e r)
     (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (* (burst-fs-gain fs (gauges-burst g)) (+ 1.0 (* *sub-fs* (sub-of e)))) *fs-max*)))))
 
-(defun gain-gauges (e dealt taken &optional (rbase 0) (n 1))
-  "Reiatsu, flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage, RBASE the hit's Reiatsu at the combo's
-Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
+(defun gain-gauges (e dealt taken &optional (n 1))
+  "Flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage at the combo's Nth hit (HIT-GAINS; siphoned:
+SIPHON-OF)."
   (let ((g (gauges e)) (to (siphon-of e)))
-    (multiple-value-bind (r fs aw sr sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)) rbase n)
-      (pay-gauges e r fs)
-      (when to (pay-gauges to sr sfs))
+    (multiple-value-bind (fs aw sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)) n)
+      (pay-gauges e fs)
+      (when to (pay-gauges to sfs))
       (awaken-fill! g aw (if to 0.0 (sub-attack-gain dealt 0 (burst-gain-mult (gauges-burst g))))))))
 
-(defun hit-rbase (mv hazard base)
-  "The Reiatsu a hit of MV (or HAZARD: its move's at its spawn) with BASE damage pays its attacker before the combo bonus
-(HIT-REIATSU-BASE; no damage: none)."
-  (cond ((<= base 0) 0)
-        (hazard (hazard-rbase hazard))
-        (mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)))
-        (t *reiatsu-kind-other*)))
-
 (defparameter *delay-hit-hold* 6 "Frames past a :dmg-at hit's own frame the victim's hold lasts (DELAY-HIT), so he reels into it.")
-(defun delay-hit (att def dmg rbase n react stun sx sz kb later mv red)
+(defun delay-hit (att def dmg n react stun sx sz kb later mv red)
   "A hit whose damage and reaction come LATER frames after it (a move's :params :dmg-at, its move frame: 千切's cuts bursting,
 DUEL_KEN_V3 §30; the user, 2026-11-04: 「命中判定給 12f，但實際扣血留到斬痕爆開」): DEF held where he stands (a stagger, no push)
 until then, a look-only hazard (:fx) of ATT carrying the rest (DELAY-HIT-HOOK; cleared with every hazard by a reset)."
   (let ((later (max 1 later)))
     (set-reaction def :stagger (+ later *delay-hit-hold*) sx sz 0.0)
     (spawn-hazard :fx att :x sx :z sz :life (1+ later) :delay later :hook 'delay-hit-hook
-                          :data (list def dmg rbase n react stun sx sz kb mv red))))
+                          :data (list def dmg n react stun sx sz kb mv red))))
 (defun delay-hit-hook (h hz event &rest args)
   "A DELAY-HIT's hazard: on the step its delay runs out, DEF takes the damage and the hit's own reaction; or, the attacker still in MV
 with its SP held since the segment began (a core SP's Kikon hold), the Kikon's knockback and his dash-in start now, not at the hit
 (the user, 2026-11-05: 「千切的毀魂技彈飛與接續必須要等到傷害爆開後才開始運作」, DUEL_KEN_V3 §30.6): the hold already outlasted any confirm."
   (declare (ignore h args))
   (when (and (eq event :step) (= (hazard-delay hz) 1))   ; (the generic step counts it to 0 after this)
-    (destructuring-bind (def dmg rbase n react stun sx sz kb mv red) (hazard-data hz)
+    (destructuring-bind (def dmg n react stun sx sz kb mv red) (hazard-data hz)
       (let* ((att (hazard-owner hz)) (fa (fighter att))
              (kikon (and *core-on* (eq (fighter-state fa) :move) (eq (fighter-move fa) mv) (core-kikon-p fa mv)
                          (eq (fighter-sp-held fa) t) (core-held-p att))))
         (when (entity-alive-p def)
           (clog "~a delayed hit on ~a ~d~:[~; (Kikon hold)~]" (side-name att) (side-name def) dmg kikon)
-          (unless (deal-damage att def dmg rbase n)
+          (unless (deal-damage att def dmg n)
             (if kikon
                 (progn (set-reaction def :stagger (kikon-follow-stun red (mv-s mv)) sx sz *kikon-follow-kb*)
                        (core-set-kikon-n! att red)
@@ -166,9 +139,9 @@ with its SP held since the segment began (a core SP's Kikon hold), the Kikon's k
                 (set-reaction def react stun sx sz kb)))))))
   nil)
 
-(defun deal-damage (att def dmg &optional (rbase 0) (n 1))
-  "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets); RBASE the hit's Reiatsu for ATT, N its
-combo index (both sides' gains x COMBO-GAIN-MULT: GAIN-GAUGES; chip, a drink: RBASE 0). Reishi at 0 is an automatic Soul
+(defun deal-damage (att def dmg &optional (n 1))
+  "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets); N the hit's combo index (both sides' gains
+x COMBO-GAIN-MULT: GAIN-GAUGES). Reishi at 0 is an automatic Soul
 Break, settled at the end of the step (*SOUL-BREAKS*): returns T then. In a bind (BIND-OF) the loss is grey: Reishi
 floors at 0 with no Soul Break, the nominal DMG goes to the binder's :bind-damage (the pool's drain) and to ATT's grey
 count (DEALT-REAL)."
@@ -179,8 +152,8 @@ count (DEALT-REAL)."
     (when h (funcall h bd att def dmg))
     (when b (setf (brain-heat b) 0f0))
     (incf (fighter-combo-dmg (fighter def)) dmg)
-    (gain-gauges att dmg 0 rbase n)
-    (gain-gauges def 0 dmg 0 n)
+    (gain-gauges att dmg 0 n)
+    (gain-gauges def 0 dmg n)
     (when (and (not bd) (soul-break-p (gauges-reishi gd)))
       (queue-soul-break! att def)
       t)))
@@ -197,12 +170,11 @@ picks the cinematic); once per victim. (A bind's drained end queues its own: DUE
 
 (defun kosei! (att g)
   "KOSEI (docs/duel/DUEL_STRINGS.md §5): a contact of ATT's own melee hit window worth G points (KOSEI-BASE x the combo
-bonus, since 2026-10-26; before: its guard value) pays him Reiatsu and
-flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3 empty). Siphoned (SIPHON-OF), it pays the siphoning side. (Its
-:kosei event, the canvas HUD's ember mote, left with that HUD, 2026-11-11.)"
+bonus, since 2026-10-26; before: its guard value) pays him flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3
+empty). Siphoned (SIPHON-OF), it pays the siphoning side. (Its Reiatsu half, x1.5 in ORANGE, left with the gauge,
+2026-11-13, R6. Its :kosei event, the canvas HUD's ember mote, left with that HUD, 2026-11-11.)"
   (let ((to (or (siphon-of att) att)))
-    (multiple-value-bind (r fs) (kosei-gain g (gauges-gg (gauges att)))
-      (pay-gauges to (* r (burst-gain-mult (gauges-burst (gauges att)))) fs))))   ; ORANGE: x1.5 Reiatsu
+    (pay-gauges to (kosei-gain g (gauges-gg (gauges att))))))
 
 ;;; ---------------------------------------------------------------- one hit
 (defun drain-guard (e v &optional (why :block))
@@ -323,9 +295,9 @@ result (NIL = no effect)."
                            ((member :thread flags) :quick) (hazard :fire)
                            (mv (mv-kind mv)) (t :counter)))
                (if (and own (not hazard) (not follow) (getf (mv-params mv) :dmg-at))   ; a :dmg-at move (千切): the hit holds him,
-                   (delay-hit att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd)))   ;  the damage and its
+                   (delay-hit att def dmg (max 1 (- hits (fighter-combo-from fd)))   ;  the damage and its
                               react stun sx sz (hw-kb hw) (- (getf (mv-params mv) :dmg-at) (fighter-sf fa)) mv red)  ;  reaction later
-               (unless (deal-damage att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd))))   ; (a broken
+               (unless (deal-damage att def dmg (max 1 (- hits (fighter-combo-from fd))))   ; (a broken
                                                         ;  soul crumples in its cinematic)
                  (if blow
                      (progn (set-reaction def react stun sx sz *stun-blow-kb*)   ; the blow-away
@@ -362,7 +334,7 @@ result (NIL = no effect)."
                                                         ;  :armor hook pays its own price: its :struck)
            (hitstop *hitstop-block*)
            (emit :armored def x y z)
-           (deal-damage att def (hit-damage base atk dmods 1 nil) (hit-rbase mv hazard base)))
+           (deal-damage att def (hit-damage base atk dmods 1 nil)))
           (:parried                                     ; the attacker staggers, the parry counters (its :land string)
            (hitstop *hitstop-breaker*)
            (respect att)
@@ -377,7 +349,7 @@ result (NIL = no effect)."
              (setf (fighter-stored fd) (stance-store (fighter-stored fd) dmg))
              (hitstop *hitstop-block*)
              (emit :absorbed def x y z)
-             (deal-damage att def dmg (hit-rbase mv hazard base))))
+             (deal-damage att def dmg)))
           (:blocked                                     ; blockstun, chip, the guard gauge (at 0: GUARD CRUSH); a
                                                         ; ward (WARD above): no blockstun
            (let* ((adv (- (if (and mv (integerp (mv-adv-block mv))) (mv-adv-block mv) 0)   ; (the attacker's advantage: a blocked
@@ -572,8 +544,7 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
   (let ((o (opp-of e)) (g (gauges e)) (f (fighter e)))
     (setf (gauges-burst g) mode (gauges-burst-t g) 0 (gauges-fs-idle g) 0 (gauges-burn g) (f32 (burst-budget mode)))
     (case mode
-      (:blue (repel! e)                                   ; + one Reiatsu bar, as RoS does (the user 2026-09-30)
-       (reiatsu-gain! e *reiatsu-bar*))
+      (:blue (repel! e))
       (:orange (to-idle e 0) (setf (fighter-chain f) *chain-window*)
        (setf (fighter-combo-from (fighter o)) (fighter-combo-hits (fighter o)))))   ; (his combo's scaling starts over)
     (hitstop *burst-hitstop*)
@@ -589,10 +560,8 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
       (emit :burst-end e))))
 
 (defun white-regen! (e g n)
-  "WHITE's regen on E's frame N (1-based): Reishi (HEAL!), Reiatsu (REIATSU-GAIN!) and (not yet awakened) the awakening
-gauge G."
+  "WHITE's regen on E's frame N (1-based): Reishi (HEAL!) and (not yet awakened) the awakening gauge G."
   (heal! e (burst-heal n *white-reishi*))
-  (reiatsu-gain! e (/ *white-reiatsu* 60.0))
   (awaken-fill! g (/ *white-awaken* 60.0) (/ *white-awaken* 60.0)))   ; a Burst counts as attacking (DUEL_SUBLIMATION §18)
 
 (defun burst-step (e g)
@@ -648,7 +617,7 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
 ;;; ---------------------------------------------------------------- Kenpachi's Bankai (DUEL_KEN_V3 §26)
 (defun bankai! (e form &optional (restore t) (cine t))
   "The Bankai: E into FORM, his Reishi refilled and, since 2026-10-31, his Konpaku KEPT (the user: 「改成不扣」; before: set to 1, the decisions of
-2026-09-28: all his remaining souls for one full bar); the guard gauge, Reiatsu and flash-step as
+2026-09-28: all his remaining souls for one full bar); the guard gauge and flash-step as
 they are; then the form's :cine (both fighters idle after it). FORM: the target. RESTORE NIL (Kenpachi V3's Bankai off the Shikai's
 J7, a special form, not an awakening: the user, 2026-11-04, 「進入卍解不回復狀態，劍八的卍解算特殊形態，不計入覺醒」, DUEL_KEN_V3 §26.3): no
 awakening regen and no Reishi refill. CINE NIL: no cinematic, straight to idle in the form (Kenpachi V3's Bankai burst AS: the user,
@@ -720,9 +689,8 @@ and frozen through the cinematic their looks would hang in its shots."
     (when (or kk sb)
       (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
       (dolist (att (remove-duplicates (append (mapcar #'first kk) (mapcar #'car sb))))   ; a Kikon that connected, or
-        (let ((g (gauges att)))                         ; a Soul Break (the user 2026-09-30): a flash-step bar and a Reiatsu bar back
-          (setf (gauges-fs g) (f32 (kikon-refund (gauges-fs g) (gauges-reiatsu g))))   ; (its Reiatsu: REIATSU-GAIN!)
-          (reiatsu-gain! att *kikon-reiatsu-refund*)))
+        (let ((g (gauges att)))                         ; a Soul Break (the user 2026-09-30): a flash-step bar back
+          (setf (gauges-fs g) (f32 (kikon-refund (gauges-fs g))))))
       (let ((kos (append (loop for (att def nil) in kk when (settle-konpaku att def nil) collect def)
                          (loop for (att . def) in sb when (settle-konpaku att def t) collect def)))
             (a (if kk (first (first kk)) (car (first sb))))
@@ -741,8 +709,7 @@ and frozen through the cinematic their looks would hang in its shots."
 (defun reset-round (a v)
   "After a Kikon / Soul Break (§1): both placed *RESET-DISTANCE* apart facing, *RESET-NEUTRAL* frames
 of neutral, P1 on the left of the view again, hazards cleared, the guard gauges full (and guardless cleared) for
-everyone, the hidden stun cleared, the forms kept, flash-step and Reiatsu kept, the kit's :reset-reiatsu (Kenpachi), the
-kit's :reset hook (e) (Hisagi's sickle)."
+everyone, the hidden stun cleared, the forms kept, flash-step kept, the kit's :reset hook (e) (Hisagi's sickle)."
   (let ((p (pos-of a)) (q (pos-of v)))
     (multiple-value-bind (ax az bx bz) (reset-placement (aref p 0) (aref p 2) (aref q 0) (aref q 2))
       (v3-set! p (f32 ax) 0f0 (f32 az)) (v3-set! q (f32 bx) 0f0 (f32 bz))))
@@ -752,7 +719,6 @@ kit's :reset hook (e) (Hisagi's sickle)."
   (dolist (e (list a v))
     (let ((f (fighter e)) (g (gauges e)) (mo (motion e)))
       (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0)
-      (reiatsu-gain! e (kit-reset-reiatsu (kit-of e)))
       (setf (gauges-gg g) (f32 *gg-max*) (gauges-gg-idle g) 0 (gauges-guardless g) nil (gauges-stun g) 0f0)
       (let ((rf (kit-reset-form (kit-of e))))          ; Rukia: absolute zero never carries over the reset (-18, C 0)
         (when rf (set-form e rf) (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0)))
@@ -765,13 +731,12 @@ kit's :reset hook (e) (Hisagi's sickle)."
 
 ;;; ---------------------------------------------------------------- gauges per step
 (defun gauge-system ()
-  "Regen (Reiatsu; flash-step and the guard gauge after their delays: a full guard gauge ends
+  "Regen (flash-step and the guard gauge after their delays: a full guard gauge ends
 guardless), timed forms (burn, drain, end), EVOLUTION. GUARD HOLD: one guarding test (:guard / :guard-hit, not guardless)
 gates both the guard gauge's refill and its delay counter (frozen)."
   (do-entities (e (f fighter) (g gauges))
     (let* ((kit (fighter-kit f))
            (guarding (and (member (fighter-state f) '(:guard :guard-hit)) (not (gauges-guardless g)))))
-      (reiatsu-gain! e (reiatsu-gain 0 1))
       (if (gauges-burst g)
           (burst-step e g)                               ; a burst: the gauge drains, no regen
           (setf (gauges-fs g) (f32 (fs-regen (gauges-fs g) (gauges-fs-idle g)))

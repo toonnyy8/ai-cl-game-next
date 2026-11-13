@@ -80,7 +80,6 @@ bits already: it keeps its box, and no new one is made. PLACE is read before it 
 (defun current-move (f) "The move fighter F is in (his MOVE while his state is :move), else NIL." (and (eq (fighter-state f) :move) (fighter-move f)))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
-(defun reiatsu-bars (e) "E's full Reiatsu bars (REIATSU-OF: a bind's shared pool)." (floor (reiatsu-of e) *reiatsu-bar*))
 (defun halt! (e) "Stop E's motion (velocity zeroed)." (fill (motion-vel (motion e)) 0f0))
 
 (defun world-dir (e f to st)
@@ -381,11 +380,11 @@ opponent (HOHO-STEP). Checks PERFECT now (no flash-step refund since 2026-10-18)
         (clog "~a PERFECT HOHO" (side-name e))))))
 
 (defun kit-command-ok-p (e command &optional (kit (kit-of e)) combo)
-  "Can E start COMMAND's move (of KIT, default his form's) now: Reiatsu bars, not cooling down (its :cooldown), and the
-form's :ok hook (COMBO: a chained follow-up)? (The bars: REIATSU-OF, a bind's shared pool.)"
+  "Can E start COMMAND's move (of KIT, default his form's) now: not cooling down (its :cooldown), and the form's :ok hook
+(COMBO: a chained follow-up)? (Its Reiatsu bars left with the gauge, 2026-11-13, REFACTOR_2026-11 R6: every command a live
+kit can press cost 0; only debug's force-cmd reached SP1 / SP2, after filling the gauge.)"
   (let ((i (position command *kit-commands*)))
-    (and (>= (reiatsu-of e) (* (kit-command-cost kit command) *reiatsu-bar*))
-         (or (null i) (zerop (aref (fighter-cd (fighter e)) i)))
+    (and (or (null i) (zerop (aref (fighter-cd (fighter e)) i)))
          (let ((h (kit-hook kit :ok))) (or (null h) (funcall h e command combo))))))   ; the form's own price / refusal
 
 (defun try-command (e f cmd &optional button with)
@@ -408,8 +407,6 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
       (t (let ((mv (or with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
            (when (and (move-p mv) (kit-command-ok-p e cmd kit with))   ; (WITH: a chained L, inside a combo; a
                                                                              ;  :command hook's :hold: nothing, the press stays)
-             (let ((cost (kit-command-cost kit cmd)))
-               (when (plusp cost) (reiatsu-spend! e cost)))
              (when (plusp (mv-cooldown mv))
                (setf (aref (fighter-cd f) (position cmd *kit-commands*)) (mv-cooldown mv)))
              (when (eq cmd :kikon) (setf (fighter-kikon-n f) (kit-kikon-konpaku kit)))   ; its worth, fixed now

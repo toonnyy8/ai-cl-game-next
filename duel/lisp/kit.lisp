@@ -45,7 +45,7 @@
   (s 0 :type fixnum) (a 0 :type fixnum) (r 0 :type fixnum) (whiff 0 :type fixnum)
   (dmg 0 :type fixnum) (adv-block nil) (track 0.0) (reach 0.0)
   (hits #() :type simple-vector)
-  (cost nil) (hold nil) (slide 0.0) (flags nil)
+  (hold nil) (slide 0.0) (flags nil)
   (armor-hits 0 :type fixnum) (cooldown 0 :type fixnum)
   (on-frame nil) (tick nil) (release nil) (on-land nil) (cine nil) (params nil)
   (enter 0 :type fixnum)        ; the move starts at this frame (its clip too): a faster string branch
@@ -131,7 +131,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
 (Nozarashi): every frame from the startup on shifts, every reach scales."
   (destructuring-bind (&key kind clip clip-2 callout startup active recovery whiff (dmg 0) adv-block
                          track reach (arc 90) (height '(0.2 2.0)) vol vols on-hit (kb 0.0) hs chip
-                         cost hold (slide 0.0) flags hits on-frame tick release on-land cine params
+                         hold (slide 0.0) flags hits on-frame tick release on-land cine params
                          (enter 0) (blend 0.0) planted clip-s guard (armor-hits 0) (cooldown 0) min-reach)
       spec
     (let* ((breaker (eq kind :breaker))
@@ -175,7 +175,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
          :hits (coerce (cond (hits (loop for h in hits collect (apply #'window h)))
                              ((and (plusp dmg) (or vol vols)) (list (window (- s startup-add) (+ (- s startup-add) a)))))
                        'simple-vector)
-         :cost cost :hold hold :slide slide :flags flags :armor-hits armor-hits :cooldown cooldown
+         :hold hold :slide slide :flags flags :armor-hits armor-hits :cooldown cooldown
          :on-frame (loop for (f hook) in on-frame collect (list (+ f startup-add) hook))
          :tick tick :release release :on-land on-land :cine cine :params params :spec spec
          :enter (if (plusp enter) (+ enter startup-add) 0) :blend blend :planted planted
@@ -220,8 +220,7 @@ new button."
   :guard    guard gauge a block drains (default by kind, GUARD-VALUE)
   :armor-hits  hits the move's armour takes (move frames *ARMOR-FROM* .. S-1; a Kikon rush: its dash)
   :cooldown frames before its command may start again (from the move start; kept through resets)
-  :cost     Reiatsu bars (default by command, KIT-COMMAND-COST); :hold (min max) frames the button
-            is held before the move proper (charge / stance); :slide metres moved during the move
+  :hold     (min max) frames the button is held before the move proper (charge / stance); :slide metres moved during the move
   :flags    :ender (a string's link 3, J3 / K3: a hit on it opens the O ender, docs/duel/DUEL_STRINGS.md §2.4)
             :breaker :guard-crush :stance :parry (a parry move: *PARRY-WINDOW*) :cancel (a Signature
             that may cancel a landed Quick / Flash, like an SP)
@@ -267,7 +266,7 @@ new button."
   (intro nil) (win nil) (intro-callout nil) (intro-weapon nil) (callout nil)
   (swing-sfx nil) (absorb-sfx nil)
   (enter-clips nil) (enter-hook nil) (exit-hook nil)
-  (meter nil) (reset-reiatsu 0.0) (ai nil) (cine nil) (blade nil) (grade nil)
+  (meter nil) (ai nil) (cine nil) (blade nil) (grade nil)
   (kikon-konpaku 2 :type fixnum)        ; Konpaku a Kikon of this form removes (read at rush start)
   (form-name nil)                       ; the form's name on the HUD (default its keyword)
   (respect-callout nil)                 ; said when the opponent outplays him (a counter-hit, a perfect Hoho, a parry, a Burst)
@@ -348,15 +347,6 @@ link its :l-after-j; the form's L (T) or the named copy of it, a MOVE; NIL when 
 QUEUED latched so far. The new latched command: COMMAND when the string may go on with it (the last press wins),
 else QUEUED: the press is eaten (after a switch the original button is ignored and overwrites nothing)."
   (if (kit-next kit move-name command) command queued))
-(defun kit-command-cost (kit command)
-  "Reiatsu bars COMMAND's move costs: its :cost, else SP1 / SP2 *COST-SP* (SP2 in an awakened form
-*COST-SP-AWAKENED*), else 0."
-  (let ((mv (kit-command-move kit command)))
-    (or (and mv (mv-cost mv))
-        (case command
-          (:sp1 *cost-sp*)
-          (:sp2 (if (kit-awakening kit) *cost-sp-awakened* *cost-sp*))
-          (t 0)))))
 (defun string-opener-p (kit mv &optional e)
   "Is MV a J / K string's opener in KIT (J1 / K1: the :q / :f command's move, E's :command hook consulted) that takes the
 generic close-in on a hit (combat.lisp: the attacker dashes to *STRING-PULL-TO*)? Not with the move flag :no-close."
@@ -629,7 +619,7 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :grade                             the world's grade while the form is on: NIL, or :SPOT (grey but the ember
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)
   :intro :win :intro-callout :callout  clips / texts; :intro-weapon (key frame) = a prop held in the
-                                     intro clip until FRAME (Yamamoto's cane)   :reset-reiatsu  bonus at each Kikon reset
+                                     intro clip until FRAME (Yamamoto's cane)
   :ai (:intents plist :ranges plist :moves ((lo hi cmd w ...) ...) :guard p :hoho p :kikon-range m ...)
                                      CPU identity (§8): every key the generic CPU reads is listed in ai.lisp's header"
   `(register-kit ,character ,form ',spec))

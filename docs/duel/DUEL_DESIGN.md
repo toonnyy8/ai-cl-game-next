@@ -50,7 +50,7 @@ Deliberate deviations:
 |---|---|---|
 | Yamamoto awakens into a stronger Shikai; Kenpachi removes his eyepatch | Yamamoto's awakening is **Bankai: Zanka no Tachi**; Kenpachi's is **Nozarashi** (the cleaver, released by "NOME"; **Kenpachi wears no eyepatch in any form**: in TYBW he has not worn it since the start of the arc, the user's decision 2026-09-26), then climbed in three cups (§6.2); both last to the end of the match | TYBW versions, as the user asked |
 | Guard gauge, guard break when it empties | A **guard gauge** (§4): each blocked hit drains its guard value; empty = GUARD CRUSH (40 f) and no guard until it is full again; the Breaker still breaks at once (and drains 35) | The user asked for it (design v3 G.2); the Breaker stays the "read" tool, the gauge the "pressure" tool |
-| Reverse gauge + Spiritual Power gauge | **Reiatsu** (3 bars) pays for SP1 / SP2 only; a **flash-step gauge** pays for Hoho and Burst Reverse | The user asked for it (design v3 G.1, G.3); two gauges with one job each |
+| Reverse gauge + Spiritual Power gauge | a **flash-step gauge** pays for Hoho and Burst Reverse (**Reiatsu**, 3 bars for SP1 / SP2, unused by the core system and removed 2026-11-13, REFACTOR_2026-11 R6; DUEL_SP makes the flash-step gauge pay SP) | The user asked for it (design v3 G.1, G.3); two gauges with one job each |
 | Reverse Actions (Soul / Chain / Burst), the game picks one | All three on mod + Quick, the state picks one (since 2026-09-30, "Burst modes" at the end): WHITE / BLUE / **orange** CHAIN; the flash-step gauge pays (≥ 70, drained to 0), no Reverse gauge | The user's decision 2026-09-30 (it was Burst Reverse only) |
 | Sublimation (Kikon Channel), Spirit Drive, Reawakening | None: one awakening per match, **with one exception: Kenpachi's Bankai**, a second awakening from Nozarashi's cup 3 (P with ≤ 4 of his own Konpaku, since 2026-09-28; it was red; no gauge; once a match by construction), paid with all his Konpaku but one (§6.2, [DUEL_KEN_BANKAI.md](DUEL_KEN_BANKAI.md)) | Scope; the exception is **the user's decision 2026-09-27** (the research report's question 1) **and 2026-09-28** (the entry's cost) |
 | Hakugeki, jump | None (Step, the dash and Hoho) | Scope |
@@ -66,7 +66,7 @@ Deliberate deviations:
 | Kikon | removes the attacker's form's count (kit `:kikon-konpaku`): 2, 3 in an awakened form; Nozarashi's cups 2 / 3 / 4 (§6.2). Read when the rush **starts** (`fighter-kikon-n`): a cup lost during the dash-in doesn't lower it, an O after the cash-out is cup 1's |
 | Soul Break | Reishi reaching 0 = automatic Kikon + 1: the **attacker's current form's** count + 1 (`kit-kikon-konpaku` of his form at settle time: NOMIHOSE 4 + 1 = 5, KATATE 2 + 1 = 3), and it **plays the attacker's current form's Kikon cinematic** (the one his O would play now: `kit-kikon-cine`; the generic `soul-break-cine` only for a form without one). **The user's decisions 2026-09-27** |
 | Per event | a Kikon never removes more than **4** Konpaku (`*kikon-max-event*`), a **Soul Break never more than 5** (`*soul-break-max-event*`, Soul Breaks only: the user's decision 2026-09-27). Two events can now take 9 (a cup-3 or Bankai Soul Break 5 + a 4) |
-| After a Kikon / Soul Break | victim's Reishi refilled; both placed 8 m apart facing; 48 f of neutral (inputs ignored); Kenpachi +10 Reiatsu; no rounds |
+| After a Kikon / Soul Break | victim's Reishi refilled; both placed 8 m apart facing; 48 f of neutral (inputs ignored); no rounds (Kenpachi's +10 Reiatsu left with the gauge, 2026-11-13, REFACTOR_2026-11 R6) |
 | Timer | 300 s. Time-up: more Konpaku wins, then the higher Reishi %, else a draw |
 | Chip | fire projectiles (12 %), NOMIHOSE's blade (20 %) and Bankai East's pierce (k = 0.1–0.45 of the hit, §6.1); chip never kills (leaves 1) |
 
@@ -280,20 +280,20 @@ through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst m
 Hoho refunds nothing (15 of 100 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: three cells (one a Hoho); on the phone
 the ink standing in the 爆 seal, white marks at 100 and 200, the seal armed (lit) from 200 (DUEL_WEBUI §11).
 
-**Reiatsu** (3 bars, 0–300): SPs only. +3/s; a hit pays its attacker its move kind's base (J 3, K 5, L 4, SP 4, O 7, Breaker
+**Reiatsu** (removed 2026-11-13, REFACTOR_2026-11 R6: no SP had spent it since the core system, DUEL_CORE §6, so its internals went; the hash line
+lost its `a` column. It was:) (3 bars, 0–300): SPs only. +3/s; a hit pays its attacker its move kind's base (J 3, K 5, L 4, SP 4, O 7, Breaker
 14) and its victim +0.15 per damage taken, both × the combo bonus (§ "Reiatsu by move kind × combo", 2026-10-26; before:
 +0.08 per damage dealt); and KŌSEI (below). SP1
 and SP2 cost 1 bar (SP2 in an awakened form 2; a move may name its own cost).
 
 **KŌSEI 攻勢, the aggression reward** (the user's decisions 2026-09-27, [DUEL_STRINGS.md](DUEL_STRINGS.md) §5): every
 contact of the attacker's **own melee hit window** (hit, counter, blocked by a guard / ward / DRINK, armoured,
-absorbed, a Guard Break; J / K links, the O strike, the Breaker, SP blades, West's counter) pays him **Reiatsu
-0.20 × g × m** and **flash-step 0.15 × g × m** (0.30 until 2026-11-12, 0.10 on the 0–100 gauge), g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
+absorbed, a Guard Break; J / K links, the O strike, the Breaker, SP blades, West's counter) pays him **flash-step 0.15 × g × m** (and Reiatsu 0.20 × g × m until the gauge left, 2026-11-13, REFACTOR_2026-11 R6) (0.30 until 2026-11-12, 0.10 on the 0–100 gauge), g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
 move kind × combo"; before: the hit's guard value), **m = 1 + 2 × (1 − his own guard gauge /
-100)**: ×1 full … ×3 empty (`kosei-mult`, `kosei-gain`, combat.lisp `kosei!`; `*kosei-bonus*` 2.0, `*kosei-reiatsu*`,
+100)**: ×1 full … ×3 empty (`kosei-mult`, `kosei-gain`, combat.lisp `kosei!`; `*kosei-bonus*` 2.0,
 `*kosei-fs*`). Whiffs, parried hits, hazards and `:ranged` windows (fire, lines, the cone, the rift), Kikons and
-scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 3.6 FS at a full
-gauge, 14.4 / 10.8 at an empty one (7.2 / 21.6 FS until 2026-11-12). HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
+scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 3.6 FS at a full
+gauge, 10.8 at an empty one (7.2 / 21.6 FS until 2026-11-12). HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
 contact sends one ember mote from the hit to the Reiatsu bars (sized by m).
 
 **Hoho** (100 flash-step of 300; 30 of 100 before 2026-10-29): vanish and reappear 1.6 m behind the opponent facing him on f6; invulnerable
@@ -478,7 +478,7 @@ grimacing grin; the gameplay accents as for Yamamoto), **both eyes open: no eyep
 since the start of the arc; the user's decision 2026-09-26), a scar down the left side of the face, a grin, a sleeveless
 tattered white haori over black, bare arms. A notched katana; he runs with it on his shoulder (every form).
 Identity: rushes in, eats hits, wins trades, gets stronger as he loses and the longer the fight lasts.
-Passives: **Cornered** (+5 % damage per Konpaku lost, max +25 %) and +10 Reiatsu at every reset.
+Passives: **Cornered** (+5 % damage per Konpaku lost, max +25 %) (and +10 Reiatsu at every reset until the gauge left, 2026-11-13, REFACTOR_2026-11 R6).
 
 Base form:
 
@@ -1378,9 +1378,9 @@ A projectile / hazard hit never opens ORANGE (like KOSEI, only the fighter's own
 
 | Mode | On the press | While it runs |
 | --- | --- | --- |
-| **WHITE** SOUL REVERSE | the shockwave, 8 f hitstop | Reishi **+70/s** (`*white-reishi*`, integer points, never past max; 12 → 24 → 70 by the user 2026-09-30: a full 5.55 s run restores ~30 % of 1300); Reiatsu **+15/s** on top of the normal 3/s (`*white-reiatsu*`); the awakening gauge **+1.4/s** (`*white-awaken*`, 2 × the slower gauge's 0.7; not once awakened). No guard-gauge boost (the user's decision 2026-09-30). |
+| **WHITE** SOUL REVERSE | the shockwave, 8 f hitstop | Reishi **+70/s** (`*white-reishi*`, integer points, never past max; 12 → 24 → 70 by the user 2026-09-30: a full 5.55 s run restores ~30 % of 1300); (Reiatsu **+15/s** on top of the normal 3/s, `*white-reiatsu*`, until the gauge left, 2026-11-13, REFACTOR_2026-11 R6); the awakening gauge **+1.4/s** (`*white-awaken*`, 2 × the slower gauge's 0.7; not once awakened). No guard-gauge boost (the user's decision 2026-09-30). |
 | **BLUE** BURST REVERSE | today's Burst: `repel!` (the attacker's move / Hoho / step / run ends, he slides `*burst-push*` 5 m away, not stunned; the user neutral at once, invulnerable `*burst-invuln*` 20 f), 8 f hitstop | the guard gauge refills with no delay: `*blue-gg-mult*` **×2** its normal rate when not guarding (11/s, 13/s guardless), and **×0.5** (`*blue-gg-guarding*`, 2.75/s) **even while guarding** (normally GUARD HOLD stops it) |
-| **ORANGE** CHAIN REVERSE | the current move's remaining recovery is cancelled at once (neutral), 8 f hitstop and the shockwave; for the next `*chain-window*` **12** f the next move started has its startup cut by `*chain-cut*` **40 %** (at least 1 f of startup left; the skipped frames' hooks still run), and it may be any command: a J / K string from its first link, L, an SP, I, O | Reiatsu gained from hits dealt and from KOSEI **×1.5**, awakening gauge from hits dealt **×1.5** (`*orange-gain*`); his victim's combo scaling starts over at the burst and runs at −10 % a hit to 50 % while it lasts (the user 2026-10-24) |
+| **ORANGE** CHAIN REVERSE | the current move's remaining recovery is cancelled at once (neutral), 8 f hitstop and the shockwave; for the next `*chain-window*` **12** f the next move started has its startup cut by `*chain-cut*` **40 %** (at least 1 f of startup left; the skipped frames' hooks still run), and it may be any command: a J / K string from its first link, L, an SP, I, O | awakening gauge from hits dealt **×1.5** (`*orange-gain*`; Reiatsu from hits dealt and KOSEI too until the gauge left, 2026-11-13, REFACTOR_2026-11 R6); his victim's combo scaling starts over at the burst and runs at −10 % a hit to 50 % while it lasts (the user 2026-10-24) |
 
 The combo's damage scaling, its launch / air-hit limits and the hidden hit-stun tolerance all still apply to an ORANGE
 extension, so the blow-away ends any loop.
@@ -1388,8 +1388,8 @@ extension, so the blow-away ends any loop.
 ### Kikon refund
 
 Every **Kikon** that connects (the rush's strike confirmed as the Kikon; not a Soul Break) gives its user one bar of
-flash-step, `*kikon-fs-refund*` **105** of 300 (35 of 100 before 2026-10-29; about half a burst's 200, so two Kikons pay for one), and one Reiatsu bar
-(`*kikon-reiatsu-refund*` 100), each clamped to its max. It lands after the burst ends (the Kikon's reset ends bursts
+flash-step, `*kikon-fs-refund*` **105** of 300 (35 of 100 before 2026-10-29; about half a burst's 200, so two Kikons pay for one), clamped to its max (and one Reiatsu bar,
+`*kikon-reiatsu-refund*` 100, until the gauge left, 2026-11-13, REFACTOR_2026-11 R6). It lands after the burst ends (the Kikon's reset ends bursts
 first), so it is never lost to the "no gains during a burst" rule.
 
 ### Interactions

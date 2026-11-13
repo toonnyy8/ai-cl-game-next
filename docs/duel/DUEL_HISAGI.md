@@ -2998,7 +2998,8 @@ The re-opened round 1 (§25.4: b0a0, b1a0, minutes in) was stopped again; the se
 - **The tip's SP gain** (`*hs-r-tip-sp-mult*` **1.3**, the lead's number, the damage's): HS-DMG-MULT marks a tip hit (the
   ranged mode, x1.3) with his Reiatsu before the hit's gains (HSS-TIP-R); his :hit hook (HS-BK-HIT) pays the gain since the
   mark x0.3 more (with the tip's damage x1.3: x1.69 a non-tip hit's Reiatsu); a non-tip hit clears the mark. A `duel hisagi`
-  counter `tip-sp`.
+  counter `tip-sp`. (Removed 2026-11-13 with the Reiatsu gauge, REFACTOR_2026-11 R6: the gauge was its only target and no live
+  rule read it; the knob, HSS-TIP-R / -X and the counter went. Whether the new SP gains of DUEL_SP §5 take a tip bonus is open.)
 
 **Host tests**: duel-rules 9874 (+4: the r-cancel key on SAHARAI only; the tip's mark, its pay x1.3, a non-tip hit's none),
 the volumes, dead zones, table reaches, tips and the CPU's reach reads re-pinned to K 2–5; control 89, learn 131, cine 18 ALL
@@ -3112,6 +3113,7 @@ Asked, the user chose: 「×1.3（推薦）」 for both; 「起手也加」 (J1 
   - HS-DMG-MULT marks his Reiatsu on a tip hit or a spread-route hit, with the extra factor (a new HSS slot, `tip-x`, not
     hashed);
   - HS-BK-HIT pays the gain since the mark x that extra (the `tip-sp` counter counts both).
+  - (The spread gain went with §25.5's mark and the Reiatsu gauge, 2026-11-13, REFACTOR_2026-11 R6; the gathered guard x1.3 stays.)
 - The damage multipliers are unchanged (the spread x0.85, the gathered x1.3, the tip x1.3).
 
 **Host tests**: duel-rules 9880 ALL PASS (the Bankai table's gathered guard values; the knobs and the guard x1.3 of the

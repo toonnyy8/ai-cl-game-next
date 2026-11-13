@@ -262,7 +262,7 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
   (and *core-on* (nth (1- (max 1 (min *core-pointer-max* ptr))) (getf (kit-core (kit-of att)) :kikon-cines))))
 
 (defun core-soul-break-cine (att)
-  "The cinematic of ATT's Soul Break (the Reiatsu at zero): the current pointer's Kikon (the user, 2026-10-28: 「如果是血量歸零自動釋放到
+  "The cinematic of ATT's Soul Break (the Reishi at zero): the current pointer's Kikon (the user, 2026-10-28: 「如果是血量歸零自動釋放到
 毀魂技，一樣選擇當前指針對應的毀魂技」), else the kit's (KIT-KIKON-CINE)."
   (or (core-pointer-cine att (fighter-ptr (fighter att))) (kit-kikon-cine (kit-of att))))
 

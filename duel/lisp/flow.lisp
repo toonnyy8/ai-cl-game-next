@@ -213,7 +213,7 @@ the chosen difficulty.")
 (defvar *dummy-counter* nil "PRACTICE's COUNTER: J1 (T: the dummy hits back with J1 as each hit / block reaction ends, any DUMMY
 but CPU; control.lisp DUMMY-COUNTER-NOW-P) / OFF.")
 (defvar *hp-refill* t "PRACTICE's HP REFILL: AUTO (T: the dummy's Reishi is full again once a combo on it ends) / OFF.")
-(defvar *gauges-inf* nil "PRACTICE's GAUGES: INFINITE (T: P1's Reishi at its P1 HP row; guard, Reiatsu, flash step, Awakening
+(defvar *gauges-inf* nil "PRACTICE's GAUGES: INFINITE (T: P1's Reishi at its P1 HP row; guard, flash step, Awakening
 full) / NORMAL.")
 (defvar *practice-rows* (vector 100 *konpaku-max* 100 *konpaku-max*)
   "PRACTICE's P1 HP (%), P1 KONPAKU, DUMMY HP (%), DUMMY KONPAKU: what RESET POSITION and the refills restore (full by
@@ -308,7 +308,7 @@ GAUGES INFINITE: P1's gauges full."
   (when *gauges-inf*
     (let ((g (gauges *p1*)))
       (setf (gauges-reishi g) (practice-hp *p1*)
-            (gauges-gg g) *gg-max* (gauges-guardless g) nil (gauges-reiatsu g) *reiatsu-max*)
+            (gauges-gg g) *gg-max* (gauges-guardless g) nil)
       (unless (gauges-burst g) (setf (gauges-fs g) *fs-max*))   ; a burst burns it down first (the user 2026-09-30)
       (if (gauges-awakened g)
           (setf (gauges-drive g) *drive-max*)               ; SUBLIMATION / SPIRIT DRIVE too (DUEL_SUBLIMATION §17.4)

@@ -5,7 +5,7 @@
 ;;;; "trial begin" and a "trial end" summary line per trial (combo-trial.py reads them).
 ;;;; Usage: ecl-host --norc --load tools/simgate/trial.lisp -- <duel.fas> <trials.lisp>
 ;;;; A trial: (:name S :p1 C :form F :p2 C :p2-form F :dist M :layers N :chill N (ignored since 2026-11-12) :dummy :stand|:guard :frames N
-;;;;           :script ((button frames &key modded wait on) ...) :bars N :fs N :meter X): the presses in order (scripted.lisp TRIAL-STEP)
+;;;;           :script ((button frames &key modded wait on) ...) :bars N (ignored since 2026-11-13) :fs N :meter X): the presses in order (scripted.lisp TRIAL-STEP)
 ;;;; Optional (2026-11-06, the KI matchup search): :ptr N P1's SP pointer, :p2-ptr N his; :awaken X P1's awakening gauge;
 ;;;; :p2-press ((frame button frames &optional modded stick) ...) P2 presses BUTTON for FRAMES steps from trial frame FRAME (the opponent
 ;;;; acting, through the real input path). A core kit's P1 (its BRAIN-STEP goes to CORE-BRAIN-STEP, which never reads the :trial
@@ -45,9 +45,9 @@ from that act)."
 
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
-                         (dummy :stand) (frames 150) script (bars 3) (fs 100) (meter 0.0)
+                         (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
                          ptr p2-ptr awaken p2-press p2-reishi p2-at) tr
-    (declare (ignore layers chill))   ; (Rukia's layers, gone 2026-11-12: a trial file may still name them)
+    (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
@@ -58,7 +58,7 @@ from that act)."
       (let ((g (gauges e)))                             ; (SUBLIMATION / DRIVE scale the damage: none carried from the last trial)
         (setf (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0 (gauges-awaken g) 0f0)))
     (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)
-    (setf (gauges-reiatsu (gauges *p1*)) (f32 (* bars *reiatsu-bar*)) (gauges-fs (gauges *p1*)) (f32 fs))
+    (setf (gauges-fs (gauges *p1*)) (f32 fs))
     (when ptr (setf (fighter-ptr (fighter *p1*)) ptr))
     (when p2-ptr (setf (fighter-ptr (fighter *p2*)) p2-ptr))
     (when awaken (setf (gauges-awaken (gauges *p1*)) (f32 awaken)))
@@ -71,7 +71,7 @@ from that act)."
     (when (kit-core (kit-of *p1*)) (setf (brain-off (brain *p1*)) t))   ; (driven by TRIAL-CORE-DRIVE)
     (trial-reset script) (setf *combat-log* t)
     (log-msg "trial begin ~a" name)
-    (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (ra0 (gauges-reiatsu g1)) (fs0 (gauges-fs g1))
+    (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (fs0 (gauges-fs g1))
            (k0 (gauges-konpaku g2)) (core1 (kit-core (kit-of *p1*))) (b1 (brain *p1*)) (b2 (brain *p2*))
            (prev r0) (hits 0) (cmax 0) (gaps nil) (run2 0) (last-hit nil) (free1 nil) (free2 nil)
            (s0 (gauges-reishi g1)) (k1 (gauges-konpaku g1)) (vp2 (pilot-vpad (pilot *p2*))) (tick2 -1) (simf 0))
@@ -100,11 +100,11 @@ from that act)."
             (if (trial-free-p *p1*) (unless free1 (setf free1 i)) (setf free1 nil))
             (if (trial-free-p *p2*) (unless free2 (setf free2 i)) (setf free2 nil)))))
       (let* ((p (pos-of *p1*)) (q (pos-of *p2*)) (f2 (fighter *p2*)))
-        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | reiatsu ~@d | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d | more self ~@d konpaku ~@d/~@d form ~(~a~) ptr ~d meter ~d"
+        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d | more self ~@d konpaku ~@d/~@d form ~(~a~) ptr ~d meter ~d"
                  name (round (- r0 (gauges-reishi g2))) hits cmax (rest (reverse gaps)) last-hit free1 free2
                  (if (and free1 free2) (- free2 free1) "?")
                  (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2)))
-                 (round (- (gauges-reiatsu g1) ra0)) (round (- (gauges-fs g1) fs0)) 0 0   ; (layers / chill: Rukia's, 0 since 2026-11-12)
+                 (round (- (gauges-fs g1) fs0)) 0 0   ; (layers / chill: Rukia's, 0 since 2026-11-12)
                  (fighter-state (fighter *p1*)) (fighter-state f2) (- (gauges-konpaku g2) k0)
                  (round (- (gauges-reishi g1) s0)) (- (gauges-konpaku g1) k1) (- (gauges-konpaku g2) k0)
                  (fighter-form (fighter *p1*)) (fighter-ptr (fighter *p1*)) (round (gauges-meter g1)))))

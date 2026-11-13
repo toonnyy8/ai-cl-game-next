@@ -3,7 +3,7 @@
 ;;;; bindings, all data. Fighter code reads only vpads; devices, the CPU brain and test scripts
 ;;;; write them the same way, once per fixed step (VPAD-SET!, VPAD-STICK!), so a replay or a CPU
 ;;;; press is indistinguishable from a key.
-;;;;   (new-vpad &key reader)                a vpad with these buttons (:MOD = the Reiatsu modifier)
+;;;;   (new-vpad &key reader)                a vpad with these buttons (:MOD = the SP modifier)
 ;;;;   (vpad-command vp *commands* allowed)  buttons + modifier -> one command keyword
 ;;;;   (vpad-command-pressed-p vp button mod)   is one *COMMANDS* entry's button buffered?
 ;;;; Also the SETTINGS rows (*SETTINGS*, ONE-HAND-ON-P) and the PRACTICE dummy's guard rule (DUMMY-GUARD-LEFT; GUARD ALL with a :core

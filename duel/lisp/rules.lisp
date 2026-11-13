@@ -368,10 +368,9 @@ spread over 60 steps in whole points, so a whole second burns exactly the rate (
   (or override (getf *kosei-kind* kind *kosei-kind-other*)))
 
 (defun kosei-gain (g gg)
-  "What one paying contact of guard value G earns an attacker at guard gauge GG. Values: Reiatsu, flash-step, the
-multiplier."
+  "What one paying contact of G points earns an attacker at guard gauge GG. Values: flash-step, the multiplier."
   (let ((m (kosei-mult gg)))
-    (values (* *kosei-reiatsu* g m) (* *kosei-fs* g m) m)))
+    (values (* *kosei-fs* g m) m)))
 
 ;;; ================================================================ Kikon, Konpaku, time-up (§1)
 (defun red-p (reishi max-reishi)
@@ -464,58 +463,24 @@ them, ties keeping the bound.)"
                 (t s))))
       (max 0.0 (min max (+ g n)))))
 
-(defun reiatsu-gain (taken &optional (frames 0))
-  "Reiatsu earned by taking TAKEN damage (outside a combo's bonus), plus FRAMES of regen. (Fixnum counts and single-float
-knobs, the sim's: typed, one boxed result.)"
-  (let ((k *reiatsu-taken*) (r *reiatsu-regen*))
-    (if (and (typep taken 'fixnum) (typep frames 'fixnum) (typep k 'single-float) (typep r 'single-float))
-        (locally (declare (optimize (speed 3) (safety 0)))
-          (let* ((tk taken) (fr frames))
-            (declare (fixnum tk fr))
-            (let* ((tf (float tk 1f0)) (ff (float fr 1f0)) (v (+ (* tf (the single-float k)) (* ff (/ (the single-float r) 60.0)))))
-              (declare (single-float tf ff v))
-              v)))
-        (+ (* taken k) (* frames (/ r 60.0))))))
-
 (defun combo-gain-mult (n)
-  "The combo bonus on a hit's Reiatsu at the combo's Nth hit (1-based): x1 .. x*REIATSU-COMBO-MAX*."
-  (min *reiatsu-combo-max* (+ 1.0 (* *reiatsu-combo-step* (1- (max 1 n))))))
-
-(defun hit-reiatsu-base (kind &optional override)
-  "Reiatsu a hit of a move of KIND pays its attacker before the combo bonus (*REIATSU-KIND*; OVERRIDE: the move's :reiatsu)."
-  (or override (getf *reiatsu-kind* kind *reiatsu-kind-other*)))
+  "The combo bonus on a hit's gains at the combo's Nth hit (1-based): x1 .. x*COMBO-GAIN-MAX*."
+  (min *combo-gain-max* (+ 1.0 (* *combo-gain-step* (1- (max 1 n))))))
 
 (defun awakening-gain (dealt taken lost)
   "Fighting Spirit earned by dealing / taking damage and losing LOST Konpaku."
   (+ (* dealt *awaken-dealt*) (* taken *awaken-taken*) (* lost *awaken-per-konpaku*)))
 
-(defun hit-gains (dealt taken siphoned &optional (mult 1.0) (rbase 0) (n 1))
-  "What dealing DEALT / taking TAKEN damage pays (combat.lisp GAIN-GAUGES). Values: his Reiatsu, flash-step and Fighting
-Spirit, then the Reiatsu and flash-step of the side SIPHONED says takes his gains (the opponent's kit's :siphon hook): he
-keeps none of them, his Reiatsu and flash-step go to that side, the Fighting Spirit is lost. The Reiatsu: the hit's RBASE
-(HIT-RBASE: its move's kind, not the damage, since 2026-10-26) + TAKEN x *REIATSU-TAKEN*, both x the combo bonus at the
-combo's Nth hit (COMBO-GAIN-MULT); the flash-step TAKEN x *FS-TAKEN* x the same bonus. MULT scales the Reiatsu of RBASE and the Fighting Spirit of DEALT (ORANGE:
-BURST-GAIN-MULT)."
-  (let ((r (* (combo-gain-mult n) (+ (* mult rbase) (reiatsu-gain taken)))) (fs (* (combo-gain-mult n) taken *fs-taken*)))
+(defun hit-gains (dealt taken siphoned &optional (mult 1.0) (n 1))
+  "What dealing DEALT / taking TAKEN damage pays (combat.lisp GAIN-GAUGES). Values: his flash-step and Fighting Spirit, then
+the flash-step of the side SIPHONED says takes his gains (the opponent's kit's :siphon hook): he keeps none of them, his
+flash-step goes to that side, the Fighting Spirit is lost. The flash-step: TAKEN x *FS-TAKEN* x the combo bonus at the
+combo's Nth hit (COMBO-GAIN-MULT). MULT scales the Fighting Spirit of DEALT (ORANGE: BURST-GAIN-MULT). (Its Reiatsu half,
+the hit's kind base + TAKEN x *REIATSU-TAKEN*, left with the gauge, 2026-11-13, REFACTOR_2026-11 R6.)"
+  (let ((fs (* (combo-gain-mult n) taken *fs-taken*)))
     (if siphoned
-        (values 0.0 0.0 0.0 r fs)
-        (values r fs (+ (* mult (awakening-gain dealt 0 0)) (awakening-gain 0 taken 0)) 0.0 0.0))))
-
-
-(defun bind-drain (pool dmg &optional (rate 0.5))
-  "A bind's shared Reiatsu POOL after DMG damage (the nominal) drained it, RATE a point (DUEL_HISAGI §17.3 B3: 1 per 2;
-exact halves in f32), never below 0."
-  (max 0.0 (- pool (* rate dmg))))
-
-(defun bind-release-split (left &optional (cap *reiatsu-max*))
-  "A released bind's pool LEFT given back (DUEL_HISAGI §17.3 B8): values the opponent's share, first and at most CAP, and
-the binder's, the rest at most CAP."
-  (let ((o (min cap (max 0.0 left)))) (values o (min cap (max 0.0 (- left o))))))
-
-(defun spend-bars (reiatsu bars)
-  "Spend BARS of Reiatsu. Values: reiatsu-after ok (NIL = not enough, nothing spent)."
-  (let ((cost (* bars *reiatsu-bar*)))
-    (if (>= reiatsu cost) (values (- reiatsu cost) t) (values reiatsu nil))))
+        (values 0.0 0.0 fs)
+        (values fs (+ (* mult (awakening-gain dealt 0 0)) (awakening-gain 0 taken 0)) 0.0))))
 
 (defun seconds->frames (s) (round (* s 60)))
 
@@ -609,17 +574,16 @@ below 0 and never by more than BURN is left (the burst ends when either is 0)."
   "Integer points a per-second RATE pays on frame N (1-based) of a burst: the whole points crossed on that frame."
   (- (floor (* n rate) 60) (floor (* (1- n) rate) 60)))
 
-(defun burst-gain-mult (mode) "Reiatsu / awakening from hits dealt x this in burst MODE (ORANGE's *ORANGE-GAIN*)." (if (eq mode :orange) *orange-gain* 1.0))
+(defun burst-gain-mult (mode) "Awakening from hits dealt x this in burst MODE (ORANGE's *ORANGE-GAIN*)." (if (eq mode :orange) *orange-gain* 1.0))
 
 (defun chain-startup-cut (s enter)
   "ORANGE's startup cut: frames skipped at the start of a move of startup S entered on frame ENTER: *CHAIN-CUT* of its
 startup, leaving at least 1 f."
   (max 0 (min (floor (* *chain-cut* (- s enter))) (- s enter 1))))
 
-(defun kikon-refund (fs reiatsu)
-  "A Kikon connected (or a Soul Break, since 2026-09-30): its user's flash-step and Reiatsu after the refund (*KIKON-FS-REFUND*, *KIKON-REIATSU-REFUND*),
-clamped. Values: fs reiatsu."
-  (values (gauge-add fs *kikon-fs-refund* *fs-max*) (gauge-add reiatsu *kikon-reiatsu-refund* *reiatsu-max*)))
+(defun kikon-refund (fs)
+  "A Kikon connected (or a Soul Break, since 2026-09-30): its user's flash-step after the refund (*KIKON-FS-REFUND*), clamped."
+  (gauge-add fs *kikon-fs-refund* *fs-max*))
 
 (defun fs-regen (fs idle &optional (rate *fs-regen*))
   "Flash-step one frame later: +RATE/s (*FS-REGEN*) once IDLE (frames since the last

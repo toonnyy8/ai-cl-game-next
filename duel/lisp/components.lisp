@@ -144,7 +144,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   "A fighter's numbers (design-v1 §1, §3, §5) and his match stats."
   (reishi *reishi-max* :type fixnum) (reishi-max *reishi-max* :type fixnum)
   (konpaku *konpaku-max* :type fixnum)
-  (reiatsu 0f0 :type single-float)      ; 0..300 (3 bars): SPs
   (fs *fs-max* :type single-float)      ; flash-step 0..100: Hoho, Burst (kept through resets)
   (fs-idle 0 :type fixnum)              ; frames since the last flash-step spend
   (burst nil)                           ; the running burst: :white :blue :orange, NIL = none (it drains FS to 0)
@@ -249,7 +248,6 @@ volume + a HITWIN (kit.lisp) for the hit itself. KIND picks its update, its volu
   (hook nil) (data nil)                 ; a character's own hazard: HOOK (h hz event ...) and the DATA it keeps (hazards.lisp)
   (sp nil)                              ; T: spawned by its owner's SP (SP-MOVE-P): its hits ignore the combo scaling
   (sp-mv nil)                           ; the core NS / AS segment with a :kikon-strike that fired it (CORE-WAVE-STRIKE)
-  (rbase 0f0 :type single-float)        ; the Reiatsu its hits pay the owner (HIT-RBASE): its owner's move's at its spawn
   (look nil))                           ; a look keyword, or a draw function symbol (HAZARD-DRAW)
 
 ;;; ---------------------------------------------------------------- small helpers every file uses
