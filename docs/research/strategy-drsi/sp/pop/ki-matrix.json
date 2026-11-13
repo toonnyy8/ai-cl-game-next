@@ -1,0 +1,187 @@
+{
+ "a": "kenpachi",
+ "b": "ichigo",
+ "seeds": "201-300",
+ "both_seats": true,
+ "build": "14e22d37105e586d",
+ "rows": [
+  "none",
+  "a-generic",
+  "a-ken-press",
+  "a-ken-kh-standoff"
+ ],
+ "cols": [
+  "none",
+  "a-generic",
+  "a-ichigo-press"
+ ],
+ "a_ko_share": [
+  [
+   0.23,
+   1.0,
+   0.19
+  ],
+  [
+   0.0,
+   0.955,
+   0.0
+  ],
+  [
+   0.395,
+   1.0,
+   0.325
+  ],
+  [
+   0.41,
+   1.0,
+   0.36
+  ]
+ ],
+ "b_ko_share": [
+  [
+   0.72,
+   0.0,
+   0.8
+  ],
+  [
+   1.0,
+   0.035,
+   1.0
+  ],
+  [
+   0.605,
+   0.0,
+   0.675
+  ],
+  [
+   0.585,
+   0.0,
+   0.64
+  ]
+ ],
+ "cells": [
+  {
+   "row": "none",
+   "col": "none",
+   "a_ko": 46,
+   "b_ko": 144,
+   "timeouts": 10,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-ichigo-press",
+   "a_ko": 38,
+   "b_ko": 160,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "none",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-generic",
+   "a_ko": 191,
+   "b_ko": 7,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-ichigo-press",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "none",
+   "a_ko": 79,
+   "b_ko": 121,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-ichigo-press",
+   "a_ko": 65,
+   "b_ko": 135,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "none",
+   "a_ko": 82,
+   "b_ko": 117,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-ichigo-press",
+   "a_ko": 72,
+   "b_ko": 128,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  }
+ ],
+ "a_mix": {
+  "none": 0.0,
+  "a-generic": 0.0,
+  "a-ken-press": 0.0,
+  "a-ken-kh-standoff": 1.0
+ },
+ "b_mix": {
+  "none": 0.0,
+  "a-generic": 0.0,
+  "a-ichigo-press": 1.0
+ },
+ "a_value": 0.36,
+ "b_value": 0.64,
+ "a_gap": 0.0,
+ "b_gap": 0.0
+}

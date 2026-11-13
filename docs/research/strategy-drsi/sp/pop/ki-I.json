@@ -1,0 +1,172 @@
+{
+ "pair": "ki",
+ "side": "ichigo",
+ "vs": "kenpachi",
+ "anchor": "none",
+ "members": [
+  {
+   "id": "none",
+   "file": "none",
+   "why": "the anchor (no strategy: the shipped CPU, its matchup style CPU kept)"
+  },
+  {
+   "id": "a-generic",
+   "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+   "why": "the generic arm (:st-generic: the generic CPU + MCTS, no style CPU)"
+  },
+  {
+   "id": "a-ichigo-press",
+   "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-press.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  }
+ ],
+ "screen": {
+  "vs": "the opponent's none",
+  "seeds": "301-340",
+  "both_seats": true,
+  "margin": 0.05,
+  "rule": "K.O. rate >= 0.5 and score >= none + margin",
+  "build": "14e22d37105e586d",
+  "rows": {
+   "none": {
+    "file": "none",
+    "ko_wins": 56,
+    "ko_losses": 19,
+    "timeouts": 5,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9375,
+    "score": 0.6951
+   },
+   "a-generic": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 56,
+    "z": -7.483
+   },
+   "a-ichigo-ki": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-ki.lisp",
+    "ko_wins": 55,
+    "ko_losses": 17,
+    "timeouts": 8,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9,
+    "score": 0.6829,
+    "b": 12,
+    "c": 13,
+    "z": -0.2,
+    "admitted": false
+   },
+   "a-ichigo-press": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-press.lisp",
+    "ko_wins": 63,
+    "ko_losses": 16,
+    "timeouts": 1,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9875,
+    "score": 0.7805,
+    "b": 19,
+    "c": 12,
+    "z": 1.257,
+    "admitted": true
+   },
+   "a-ichigo-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-kite.lisp",
+    "ko_wins": 35,
+    "ko_losses": 17,
+    "timeouts": 28,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.65,
+    "score": 0.439,
+    "b": 10,
+    "c": 31,
+    "z": -3.28,
+    "admitted": false
+   },
+   "a-ichigo-zoner": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ichigo-zoner.lisp",
+    "ko_wins": 44,
+    "ko_losses": 15,
+    "timeouts": 21,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.7375,
+    "score": 0.5488,
+    "b": 15,
+    "c": 27,
+    "z": -1.852,
+    "admitted": false
+   },
+   "a-ken-ki": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-ki.lisp",
+    "ko_wins": 0,
+    "ko_losses": 0,
+    "timeouts": 80,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 56,
+    "z": -7.483,
+    "admitted": false
+   },
+   "a-zoner": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-zoner.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 56,
+    "z": -7.483,
+    "admitted": false
+   },
+   "s1-brawler": {
+    "file": "docs/research/strategy-drsi/sp/arms/s1-brawler.lisp",
+    "ko_wins": 1,
+    "ko_losses": 79,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0244,
+    "b": 1,
+    "c": 56,
+    "z": -7.285,
+    "admitted": false
+   },
+   "s7-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
+    "ko_wins": 0,
+    "ko_losses": 80,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.0122,
+    "b": 0,
+    "c": 56,
+    "z": -7.483,
+    "admitted": false
+   }
+  }
+ },
+ "mix": {
+  "a-ichigo-press": 1.0
+ },
+ "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
+}
