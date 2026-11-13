@@ -4,8 +4,8 @@
   python3 tools/strategy-matrix.py --a kenpachi --b ichigo --rows DIR_OR_FILES... --cols DIR_OR_FILES... [--cand FILE] [--seeds 20] [--eps 0.02]
 
 rows = character A's strategies, columns = B's (files, dirs of *.lisp, or '@cpu' = the current CPU with its style, '@generic'); each cell = A's win
-share, HARD, fixed seeds s0+1..s0+n, both seats (draws / time-outs count 0 for A: the matrix is NOT constant-sum when matches draw, the game below
-takes B's payoff as 1 - A's). The meta-game's equilibrium is found by regret matching (--iters 20000): both mixes, the value (a lower bound = A's mix
+share, HARD, fixed seeds s0+1..s0+n, both seats (draws count 0 for A; a time-out counts for the side ahead, or 0 with --ko-only, a win then
+only a K.O.: the matrix is NOT constant-sum when matches draw or, with --ko-only, time out; the game below takes B's payoff as 1 - A's). The meta-game's equilibrium is found by regret matching (--iters 20000): both mixes, the value (a lower bound = A's mix
 against B's best column, an upper bound = B's mix against A's best row; a wide gap = not converged). With --cand FILE (a new row) the ADMISSION TEST:
   best response   the candidate's cell is the row's maximum (within --tie 0.0) in at least one column  -> "br_columns": [...]
   value           A's equilibrium value with the candidate minus without it >= --eps
@@ -39,7 +39,7 @@ def solve(M, iters=20000):
     return ax, ay, float((ax @ M).min()), float((M @ ay).max())
 
 
-def cells(a, b, rows, cols, n, s0, j):
+def cells(a, b, rows, cols, n, s0, j, ko_only=False):
     A, B = se.ROSTER[a], se.ROSTER[b]
     jobs = []
     for r in rows:
@@ -48,7 +48,7 @@ def cells(a, b, rows, cols, n, s0, j):
     outs = se.run_many(jobs, j)
     M = np.zeros((len(rows), len(cols)))
     for k in range(len(rows) * len(cols)):
-        w1, m1, _ = se.parse(outs[2 * k], 'P1'); w2, m2, _ = se.parse(outs[2 * k + 1], 'P2')
+        w1, m1, _ = se.parse(outs[2 * k], 'P1', ko_only); w2, m2, _ = se.parse(outs[2 * k + 1], 'P2', ko_only)
         M[k // len(cols), k % len(cols)] = (w1 + w2) / max(1, m1 + m2)
     return M
 
@@ -60,17 +60,18 @@ def main():
     ap.add_argument('--cand'); ap.add_argument('--seeds', type=int, default=20); ap.add_argument('--seed0', type=int, default=0)
     ap.add_argument('--eps', type=float, default=0.02); ap.add_argument('--tie', type=float, default=0.0)
     ap.add_argument('--iters', type=int, default=20000); ap.add_argument('-j', type=int, default=4)
+    ap.add_argument('--ko-only', action='store_true', help='a win counts only if it was a K.O. (a time-out lead scores 0)')
     a = ap.parse_args()
     se.build()   # (every sim below runs build/simgate/duel.fas: rebuilt first when a source is newer)
     rows, cols = se.expand(a.rows), se.expand(a.cols)
     nm = lambda s: os.path.basename(s)
-    M = cells(a.a, a.b, rows, cols, a.seeds, a.seed0, a.j)
+    M = cells(a.a, a.b, rows, cols, a.seeds, a.seed0, a.j, a.ko_only)
     x, y, lo, hi = solve(M, a.iters)
-    res = {'a': a.a, 'b': a.b, 'seeds': a.seeds, 'rows': [nm(r) for r in rows], 'cols': [nm(c) for c in cols],
+    res = {'a': a.a, 'b': a.b, 'seeds': a.seeds, 'ko_only': a.ko_only, 'rows': [nm(r) for r in rows], 'cols': [nm(c) for c in cols],
            'matrix': np.round(M, 4).tolist(), 'row_mix': dict(zip(map(nm, rows), np.round(x, 3).tolist())),
            'col_mix': dict(zip(map(nm, cols), np.round(y, 3).tolist())), 'value': round((lo + hi) / 2, 4), 'value_bounds': [round(lo, 4), round(hi, 4)]}
     if a.cand:
-        cr = cells(a.a, a.b, [a.cand], cols, a.seeds, a.seed0, a.j)[0]
+        cr = cells(a.a, a.b, [a.cand], cols, a.seeds, a.seed0, a.j, a.ko_only)[0]
         M2 = np.vstack([M, cr])
         x2, y2, lo2, hi2 = solve(M2, a.iters)
         br = [nm(c) for k, c in enumerate(cols) if cr[k] >= M[:, k].max() - a.tie]
