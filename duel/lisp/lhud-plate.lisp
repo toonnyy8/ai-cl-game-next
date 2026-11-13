@@ -257,7 +257,9 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
       (declare (single-float op))
       (when (> op 0.002f0)
         (let* ((s (case m (1 "SUBLIMATION") (2 "SPIRIT DRIVE") (3 "DRIVE MAX") (t (zh "覺醒 READY")))) (sz (* 0.8f0 u))
-               (lx (+ x w gap))   ; (left: 100%, also for rtl P2, as Chrome resolves it: off the plate to the right)
+               (lx (if mir           ; beside the awakening bar: after it (P1), before it on the mirrored side (the user 2026-11-13:
+                       (- awx gap (text-w s +f-display+ sz 0.2f0))   ;  「對手的覺醒提示應該要在覺醒量表旁邊才對」; Chrome's left: 100%
+                       (+ x w gap)))   ;  put rtl P2's after the flash-step cells, off the plate)
                (by (+ (- (+ y (* 0.5f0 h)) (* 0.5f0 sz)) (line-baseline +f-display+ sz 1f0))))
           (declare (single-float sz lx by))
           (with-col (c (case m (1 +c-pink+) ((2 3) +c-redlab+) (t +c-reiatsu+))) (col-alpha! c op)

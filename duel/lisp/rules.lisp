@@ -761,6 +761,6 @@ fixnum Reishi, the sim's: the same compares in typed floats; exact for |Reishi| 
 
 (defun steal-take (want victim-fs)
   "Flash-step one hit of a stealing AS takes: (values TAKE GAIN). The victim loses TAKE = WANT (the hit's :steal-fs x the replay's mult),
-never more than VICTIM-FS has above the last cell (*FS-CELL*: the last cell is never taken, DUEL_SP §2, 2026-11-13); the attacker gains
+never more than VICTIM-FS has: the last cell too (S1's floor at *FS-CELL* lifted, the user 2026-11-13: 「AS1 能奪取最後一格，不受影響」, DUEL_SP §6); the attacker gains
 GAIN = TAKE x *STEAL-FS-GAIN* (CORE-ON-HIT! pays it through PAY-GAUGES). Pure."
-  (let ((take (max 0.0 (min want (- victim-fs *fs-cell*))))) (values take (* take *steal-fs-gain*))))
+  (let ((take (max 0.0 (min want victim-fs)))) (values take (* take *steal-fs-gain*))))

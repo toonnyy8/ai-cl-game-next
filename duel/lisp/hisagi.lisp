@@ -310,9 +310,9 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
 (defmove-copy :hs-as1 :hs-k2 :kind :sp :clip :hs-tsumuji :callout "TSUMUJI" :enter 0 :startup 14 :clip-s 14 :active 16 :recovery 20 :dmg 16 :on-hit :flinch :flags nil
   :slide 0.0 :on-frame ((0 hs-as1-hop))
-  :hits ((14 15 :seg-fn hs-core-seg :steal-fs 10) (18 19 :seg-fn hs-core-seg :steal-fs 20) (22 23 :seg-fn hs-core-seg :steal-fs 30)
-         (26 29 :seg-fn hs-core-seg :on-hit :knockdown :steal-fs 40))   ; (the flash-step each hit takes: 10 / 20 / 30 / 40, §2.2)
-  :params (:melee-range 2.0 :steal-fs 10 :look-as :hs-k2))
+  :hits ((14 15 :seg-fn hs-core-seg :steal-fs 5) (18 19 :seg-fn hs-core-seg :steal-fs 10) (22 23 :seg-fn hs-core-seg :steal-fs 15)
+         (26 29 :seg-fn hs-core-seg :on-hit :knockdown :steal-fs 20))   ; (the flash-step each hit takes: 5 / 10 / 15 / 20; 10 / 20 / 30 / 40 until the user 2026-11-13: 「將現有 AS1 的奪取量減半」, DUEL_SP §6)
+  :params (:melee-range 2.0 :steal-fs 5 :look-as :hs-k2))
 ;; pointer 2 刈 KARI (§27.3, 「刈 短鎖貼身收割」: the chain wound short, 1-2.5 m): TAN-GARI's stepping cross cut > REN-GARI > SEN-GARI's
 ;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). Their own clips since
 ;; batch 2 (§27.5, presentation only), each authored at its S: hisagi-art.lisp :hs-kr-*

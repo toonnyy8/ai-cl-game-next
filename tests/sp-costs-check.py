@@ -219,9 +219,10 @@ def main():
     def brk(name):
         return [(m[1], float(m[2]), m[3], float(m[4]), float(m[5]), float(m[6]), i) for i, l in enumerate(logs[name]) for m in [BRK.search(l)] if m]
 
-    def rule(b):                                                   # take = 50 % of the victim's flash-step above 100 (before it), gain = half
+    def rule(b):                                                   # take = all of the victim's flash-step above 100 (before it), gain = half
+                                                                   # (the user 2026-11-13: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」)
         att, take, vic, after, gain, fs, _ = b                     # (x his SUBLIMATION / DRIVE bonus: Hisagi's Bankai is an awakened form)
-        return (abs(take - 0.5 * max(0.0, after + take - 100.0)) < 0.06
+        return (abs(take - max(0.0, after + take - 100.0)) < 0.06
                 and (0.5 * take - 0.06 <= gain <= 0.5 * take * 1.05 + 0.06 or fs >= 299.95))
 
     def bfmt(bs):
@@ -233,10 +234,10 @@ def main():
     check(len(b) == 1 and b[0][0] == '1' and b[0][2] == '2' and rule(b[0]) and b[0][1] > 99 and any('CANCEL' in l for l in logs[n][:b[0][6]]),
           f'cancel then AS (the AS side breaks through): {bfmt(b)}')
     n = 'BREAK ichigo cancel then AS1 steal'; b = brk(n); st = [i for i, l in enumerate(logs[n]) if 'STEAL' in l]
-    check(len(b) == 1 and rule(b[0]) and st == [b[0][6] - 1] and abs(b[0][1] - 60.0) < 0.05,
-          f'AS1 steal on the same hit (Q10): {logs[n][st[0]].split("] ", 1)[1] if st else "no STEAL"}, then {bfmt(b)} (on 300 - 80 = 220)')
+    check(len(b) == 1 and rule(b[0]) and st == [b[0][6] - 1] and abs(b[0][1] - 160.0) < 0.05,
+          f'AS1 steal on the same hit (Q10): {logs[n][st[0]].split("] ", 1)[1] if st else "no STEAL"}, then {bfmt(b)} (on 300 - 40 = 260)')
     n = 'BREAK kenpachi victim at 100'; b = brk(n)
-    check(len(b) == 1 and rule(b[0]) and b[0][1] < 5 and abs(b[0][3] - b[0][1] - 100.0) < 0.06,
+    check(len(b) == 1 and rule(b[0]) and b[0][1] < 10 and abs(b[0][3] - 100.0) < 0.06,
           f"victim at 100: {bfmt(b)} (only the hit's own damage-taken gain is above the last cell)")
     n = 'BREAK kenpachi victim at 80'; b = brk(n)
     check(len(b) == 1 and b[0][1] == 0.0 and b[0][4] == 0.0 and b[0][3] < 100, f'victim at 80: {bfmt(b)} (nothing above the last cell)')

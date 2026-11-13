@@ -86,14 +86,13 @@ CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 o
 
 - Any real hit after a cancel counts, J included (「都算」), by either side of it, until both are back in neutral (the exchange keyed on the
   two moves' start ticks, as `hs-bind-clash` does).
-- It takes **50 %** (「50%」) of the victim's flash-step above the last cell (the last cell is never taken): the victim loses that amount, the
-  attacker gains half of it, capped at 300. Once per exchange.
+- It takes **everything** of the victim's flash-step above the last cell (the last cell is never taken by a breakthrough) and the attacker gains **50 %** of it (the user, 2026-11-13: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」; built 2026-11-12/13 as 50 % taken, the lead having read 「50%」 as the share: `*sp-break-share*` 0.5 -> 1.0, `*sp-break-gain*` 0.5). Once per exchange.
 - Projectiles join the triangle (「將飛行道具回歸相消的攻擊體系中」, 「OK」 on the lead's definitions): a hazard's class is the segment that fired
   it; a cancel removes it and refunds that segment even after the move ended; an owner no longer in a move gets only the refund (no
   "landed"); wave vs wave stays as it is (ichigo.lisp); DUEL_CORE's "a wave beats every class at range" is overturned (Ichigo's pointer 2
   changes); PRACTICE's GUARD ALL dummy must try to cancel waves too. The live hazards: Ichigo's waves and KESSA's clone replays (Hisagi's
   chains are melee windows, already judged).
-- The AS1 flash-step steals (DUEL_CORE §2.2: per hit, 50 % conversion) keep their values but never take the last cell.
+- The AS1 flash-step steals (DUEL_CORE §2.2: per hit, 50 % conversion) **can take the last cell** (the user, 2026-11-13: 「AS1 能奪取最後一格，不受影響」; S1 had floored them at it) and are **halved** (「將現有 AS1 的奪取量減半」): Ichigo's RAKUGA 80 -> 40, KESSA's KUSARI-BIKI 30 -> 15 a hit, Hisagi's TSUMUJI 10 / 20 / 30 / 40 -> 5 / 10 / 15 / 20.
 
 ## 7. Consequences and dead code
 

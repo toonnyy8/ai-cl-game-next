@@ -180,7 +180,7 @@
              (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0))) (and (null (hw-seg w)) (equalp (hw-vols w) v))))
                     '(:hs-n1b :hs-n1c))))
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
-                (= 10 (getf (mv-params (m :hs-as1)) :steal-fs))))
+                (= 5 (getf (mv-params (m :hs-as1)) :steal-fs))))   ; (halved 2026-11-13)
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
     (check (and (eq (getf (mv-params (m :hs-n3a)) :sa) :hs-sa) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))
@@ -224,18 +224,15 @@
 (check (not (boundp '*steal-fs-max*)))
 (check (equal (multiple-value-list (steal-take 30.0 300.0)) '(30.0 15.0)))           ; full take, half gained
 (check (equal (multiple-value-list (steal-take 80.0 300.0)) '(80.0 40.0)))
-(check (equal (multiple-value-list (steal-take 120.0 25.0)) '(0.0 0.0)))             ; a victim below the last cell loses nothing (S1, 2026-11-13)
+(check (equal (multiple-value-list (steal-take 120.0 25.0)) '(25.0 12.5)))           ; the last cell too (the user 2026-11-13: 「AS1 能奪取最後一格，不受影響」)
 (check (equal (multiple-value-list (steal-take 30.0 0.0)) '(0.0 0.0)))
 (check (equal (multiple-value-list (steal-take 3.0 300.0)) '(3.0 1.5)))              ; a KESSA clone's x0.1 replay of a 30
-(check (let ((tot 0.0)) (dolist (w '(10.0 20.0 30.0 40.0)) (incf tot (steal-take w 300.0))) (= tot 100.0)))   ; TSUMUJI's four hits, no budget
-;; the last cell is never taken: a victim at 100 loses 0, at 130 up to 30, at 300 up to 200 (S1, 2026-11-13)
-(check (and (equal (multiple-value-list (steal-take 120.0 100.0)) '(0.0 0.0))
-            (equal (multiple-value-list (steal-take 120.0 130.0)) '(30.0 15.0))
-            (equal (multiple-value-list (steal-take 120.0 300.0)) '(120.0 60.0))
-            (equal (multiple-value-list (steal-take 500.0 300.0)) '(200.0 100.0))))
-(check (let ((v 300.0) (tot 0.0)) (dolist (w '(120.0 120.0 120.0)) (let ((tk (steal-take w v))) (decf v tk) (incf tot tk))) (and (= v 100.0) (= tot 200.0))))
+(check (let ((tot 0.0)) (dolist (w '(5.0 10.0 15.0 20.0)) (incf tot (steal-take w 300.0))) (= tot 50.0)))   ; TSUMUJI's four hits (halved 2026-11-13), no budget
+(check (and (equal (multiple-value-list (steal-take 120.0 100.0)) '(100.0 50.0))
+            (equal (multiple-value-list (steal-take 500.0 300.0)) '(300.0 150.0))))
+(check (let ((v 300.0) (tot 0.0)) (dolist (w '(120.0 120.0 120.0)) (let ((tk (steal-take w v))) (decf v tk) (incf tot tk))) (and (= v 0.0) (= tot 300.0))))
 (let ((k (kit :ichigo :base)) (kk (kit :ichigo :kessa)) (h (kit :hisagi :base)))   ; per-hit values as written
   (flet ((vals (kit n) (let ((mv (kit-move kit n))) (map 'list (lambda (w) (or (hw-steal w) (getf (mv-params mv) :steal-fs))) (mv-hits mv)))))
-    (check (equal (vals h :hs-as1) '(10 20 30 40)))
-    (check (equal (vals k :ic-as1) '(80)))
-    (check (equal (vals kk :ic-k-as1) '(30 30 30 30)))))
+    (check (equal (vals h :hs-as1) '(5 10 15 20)))   ; (halved, the user 2026-11-13: 「將現有 AS1 的奪取量減半」)
+    (check (equal (vals k :ic-as1) '(40)))
+    (check (equal (vals kk :ic-k-as1) '(15 15 15 15)))))   ; (halved 2026-11-13)
