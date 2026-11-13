@@ -34,7 +34,7 @@
   (when dups (format t "defined twice: ~s~%" dups)))
 
 ;; Variables too, anywhere in a line (several definitions can share one): the +c-dim+ case (2026-11-11), where the pause's
-;; dim rect drew the menus' slate colour. A name must be followed by a space, so a forward declaration (defvar *x*) is no definition.
+;; dim rect drew the menus' slate colour; and *fire-density* (defparameter in tuning.lisp + defvar in vfx.lisp, found 2026-11-14 once the old exemption list was dropped). A name must be followed by a space, so a forward declaration (defvar *x*) is no definition.
 (defun un-var-names (l kw &optional (from 0))
   "The names that the prefix KW (e.g. \"(defvar \") introduces in line L from FROM on (lower case)."
   (let ((p (search kw l :start2 from)))
@@ -55,8 +55,7 @@
 (let ((seen (make-hash-table :test 'equal)) (dups nil))
   (dolist (f (append (un-sources "engine/MANIFEST" "engine/") (un-sources "duel/MANIFEST" "duel/")))
     (dolist (n (un-vars f))
-      (unless (member n '("*fire-density*" "*weave-pass*") :test #'string=)   ; known harmless same-value pairs
-        (when (gethash n seen) (push (list n (gethash n seen) f) dups))
-        (setf (gethash n seen) f))))
+      (when (gethash n seen) (push (list n (gethash n seen) f) dups))
+      (setf (gethash n seen) f)))
   (check (null dups))
   (when dups (format t "defined twice: ~s~%" dups)))
