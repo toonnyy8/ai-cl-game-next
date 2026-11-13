@@ -1055,7 +1055,9 @@ K.O. cinematic brings rain (thin steel streaks, small splash rings) as the orbit
 **HUD** (`hud.lisp`, P2 mirrored): Reishi bar (red and pulsing below 30 %, a white damage trail),
 the guard gauge right under it (steel, a white drain trail; guardless: grey with a red fill climbing
 back), 9 Konpaku soul flames that shatter (the last N of them BLOOD red: what the opponent's Kikon would take if it
-landed now, N = his current form's `:kikon-konpaku` capped at the flames left, `konpaku-at-stake`; they pulse while the
+landed now, N = his current form's `:kikon-konpaku` capped at the flames left, `konpaku-at-stake`; a core kit's since 2026-11-14
+(REFACTOR_2026-11 R15d) the count its Kikon really takes, by the pointer of the SP in play and the victim's red, `core-kikon-stake`
+in core.lisp, DUEL_CORE §3; they pulse while the
 fighter is red, i.e. while that Kikon is live; the user's request 2026-09-28, which replaces "every flame red when red";
 the HP-0 Soul Break's + 1 is not shown), the REIATSU 3 bars, the FLASH STEP bar (steel-blue, ticks
 at 30 and 70, the part past 70 glowing while a Burst is possible), the AWAKEN bar (EVOLUTION blinks; shows the

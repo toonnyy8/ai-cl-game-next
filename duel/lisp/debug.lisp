@@ -245,7 +245,7 @@ but 2814 / 2815 ends 2.2 m apart, idle."
 
 (defun lhud-review (k)
   "2440+k: the handheld screen's states for the Lisp HUD's review stills (DUEL_LISP_HUD §13), on the running battle (2505 / 2506):
-both fighters 2.2 m apart (a J reaches), idle, full gauges, Konpaku 9 with 2 at stake (the user's screenshot), then by K: 0 that; 1 / 2 both SP
+both fighters 2.2 m apart (a J reaches), idle, full gauges, Konpaku 9 with 2 at stake (the user's screenshot; 1 on pointer 1 since R15d's hint, 2026-11-14), then by K: 0 that; 1 / 2 both SP
 pointers 2 / 3; 3 Reishi 15 % (red) and P1's Konpaku 6; 4 the flash step empty (the Burst spent); 5 the flash step at half (a Hoho,
 no Burst); 6 the awakening ready; 7 P1 awakened in KESSA with SPIRIT DRIVE 60; 8 SUBLIMATION 60 over a full awakening; 9 the clock
 at 9 s (VS CPU)."
