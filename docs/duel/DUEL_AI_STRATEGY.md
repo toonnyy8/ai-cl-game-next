@@ -2276,7 +2276,7 @@ The runtime sees exactly the plists it saw before, so nothing downstream changed
 | style (`*strat-styles*`) | a style function and its own keys; `:apply` = whose style it is | `:st-ken-ki`, `:st-ichigo-ki`, `:st-hisagi-merged` (+ `:ken-ranged t`), `:st-hisagi-range`, `:st-hisagi-hk` (three rules under keys), `:st-generic` (no function) |
 | data (`*strat-data*`) | outputs (`:base`), `:rules`, other keys (`:dswitch-map`); no code | `:d-brawler`, `:d-kite`, `:d-zoner`, `:d-dswitch`, `:d-no-far-ns`, and the extras `:d-brawler-prior`, `:d-zoner-extra`, `:d-red-kikon`; one rule each: `:d-hk-wake`, `:d-hk-pot`, `:d-hk-kite` |
 | arm (`*strat-units*`) | a named style + data units in order: what a Q table chooses among | `:a-ken-ki`, `:a-hisagi-pressd` = merged + `:d-dswitch` + `:d-brawler`, `:a-ichigo-kite`, `:a-hk-all` = `:st-hisagi-hk` + its three rule units |
-| rule base (`*strat-rule-bases*`) | a Q table's antecedents in order (+ `:groups`) | `:rb-crisp48` (fq.py's 48 cells), `:rb-switch89` (§8.19's 89 in 5 groups) |
+| rule base (`*strat-rule-bases*`) | a Q table's antecedents in order (+ `:groups`) | `:rb-crisp48` (fq.py's 48 cells), `:rb-switch89` (§8.19's 89 in 5 groups), `:rb-sp` (§11.3's 42 in 5 groups, SP cues) |
 
 - **A Q table** holds only `:arms` (arm ids; NIL = no strategy, the shipped CPU with its matchup style CPU), `:rule-base`, `:q` (a list of q
   per arm, one per antecedent) and its keys (`:xfeats :period :gamma :scale :keep-state ...`). A composite's `:switch` subs and `:else`
@@ -2370,3 +2370,60 @@ The user's answers (AskUserQuestion, 2026-11-14):
   - **No strategy** (`none` on both seats): K.O. rate 88.5-100 % but the Hisagi mirror (65.5 %, 69 time-outs); medians 165.6-260.8 s. The plain CPUs form a cycle, both seats summed: Ichigo beats Kenpachi 0.72 : 0.19, Kenpachi beats Hisagi 0.85 : 0.15, Hisagi beats Ichigo 0.74 : 0.19.
   - **The shipped HARD lookup** on both seats: KK, KH, HK, IH, HI, HH 200 time-outs of 200, II 198 (188 draws); only KI / IK reach K.O.s (102 and 116 of 200, about half still to the bell), and there the tables turn the cycle round (Kenpachi 0.36, Ichigo 0.19). Under the old count Kenpachi's `:qks5-hisagi` would score 0.955 (it leads 382 of 400 at the bell); K.O.-only it scores 0.002.
 - **Step 4** (empty the stalling lookup entries) is not done: the user kept the lookup until the new tables replace it (§11.1).
+
+### 11.3 Step 3: the SP cues and the rule base `:rb-sp`, off by default (2026-11-14)
+
+PLAN §4 / §7 step 3. A new rule base for the step 8 tables; no table names it yet, so nothing plays it.
+
+- **The cues** (strategy.lisp `strat-sp-cues`: pure, host-tested; strategy-glue.lisp `strat-xfeats` appends them, so they are read only at
+  a Q selector's judgements, never on the per-step path):
+
+| Cue | Value | Sets in `:rb-sp` |
+|---|---|---|
+| `:mcell` / `:ocell` | my / his full flash-step cells: floor(fs / `*fs-cell*`), 0-3 (100.0 = one cell, where regen stops) | `:no` 0, `:yes` 1, `:p2up` 2-3 (crisp on integers: no gap between bands) |
+| `:mburst` / `:oburst` | my / his burst running (`gauges-burst` non-NIL), 0 / 1: both kept, because mine means my SP attacks are free and his is a threat | `:no` / `:yes` |
+| `:xch` | an exchange open after a cancel (DUEL_SP §6: `sp-exchange-open-p` over both fighters' `fighter-xch`), 0 / 1 | `:no` / `:yes` |
+
+- **How the CPU perceives them:** it reads them the way the existing cues read the opponent's gauges. `:lead`, `:ored`, `:or` and `:oawk` read his
+  gauges live, because the HUD shows them, and only his motion state (`:ost`) comes through the delayed SNAP ring (cpu-perceive.lisp).
+  - The HUD also shows his cells and his burst (the three cells and the 爆 dial, DUEL_SP §7), so `:ocell` and `:oburst` read his gauges live too.
+  - The exchange is shared state that a visible clash opens; it is read from both fighters' slots.
+  - No random draw. No new state: every slot read is already in the sim snapshot, so snaptest and fulltest are not needed.
+- **`:rb-sp`** (`*strat-rule-bases*`): 42 rules in 5 additive groups `(18 9 9 4 2)`:
+  - G0 lead x his state (`:busy` / `:free`) x `:prev` (`:no` / `:yes` / `:p2up`)
+  - G1 my form x distance in metres (`:m-close` / `:m-mid` / `:m-far`)
+  - G2 my cells x his cells
+  - G3 my burst x his burst
+  - G4 the exchange
+  - Dropped from `:rb-switch89`: `:gauge` (the DRIVE threshold is gone under SP).
+  - Also left out, because PLAN §4's kept list does not name them: `:ored`, `:awk` (G0's other two cues there), `:wall`, `:oawk`. Each can
+    come back as a small group before the fit if step 8 wants it (2-4 rules each).
+- **Opting in:** a table names `:rule-base :rb-sp` and carries `:xfeats t`.
+  - The rule base says `:xfeats t`, and `strat-expand` refuses a table on it without the key. Without `:xfeats`, every SP cue would read 0
+    and the table would always see "no cells".
+  - `strat-expand` takes the groups from the rule base, as for `:rb-switch89`.
+  - `fq-checksum` hashes only the rule count and the q values, not the antecedents. A `:rb-sp` table therefore gets its own checksum from its
+    42-rule shape and its q, and the saved online copies of the old tables reset only when the lookup names the new tables (PLAN §4).
+    `fq-online.lisp` is unchanged.
+- **Off by default:** `strat-xfeats` now also returns the five SP cues to every `:xfeats` table. No existing antecedent names them, so every
+  firing vector, every pick and every checksum is unchanged.
+- **Proofs** (main fe859124 + this step):
+  - **Host checks** (tests/duel-rules/strategy.lisp, 3020 -> 3034, ALL PASS):
+    - The cell bands at 0 / 99.9 / 100 / 199.9 / 200 / 299.9 / 300 give 0 0 1 1 2 2 3.
+    - The burst and exchange cues are correct.
+    - `:rb-sp` has 42 antecedents, equal to the sum of its groups, and none reads `:gauge`.
+    - On a grid over every cue's points and the distance's ramps, each group's firing adds up to 1, so no band is dead.
+    - A hand-written 2-arm test table on `:rb-sp` (not shipped) expands, and its pick switches on `:mcell` alone and on `:xch` alone.
+      `strat-judge` returns its arm, its page holds 87 integers, and it is refused without `:xfeats`.
+  - **Determinism, shipped HARD lookup on both seats:** all 9 ordered pairings, seeds 601-608 (72 matches, `strategy-switch.py`'s
+    `run_job`). The gate rows and the `duel hash` lines (2123) are byte-identical before and after.
+  - **G2** `--cvc`: identical. `pkgcheck`: only DUEL::APP.
+- **For step 8 (the fit):**
+  - `sw.py`'s `rules()` / `GROUPS` hard-code `:rb-switch89`'s 89 rules, and it writes inline `:rules`. It needs a `:rb-sp` mirror: these
+    42 antecedents in this order, groups `(18 9 9 4 2)`, with `:xfeats t` kept in the written keys.
+  - Its log parser can stay as it is: strat-run.lisp's `fq` line carries the fire vector over the table's own rules, which is all the fit
+    reads. That line was left unchanged, because a field inserted before ` fire` would silently break the regex's optional tail. If the
+    SP cues' values are wanted in summaries, print them on a separate line.
+  - `strat-desc.lisp` names no rule base or cue, so it needs no change.
+  - `:xch` will fire rarely at a judgement. A judgement needs me in `:idle` / `:run`, and an exchange closes once both fighters are back in
+    neutral (`sp-neutral-p`). So it is 1 only during a clash's bounce slide or while he is still busy.

@@ -38,11 +38,13 @@ awakened form)."
 (defun strat-xfeats (e f d)
   "A Q selector's extra cues (its :XFEATS, DUEL_AI_STRATEGY §8.19), read only at its judgements: :DM the perceived distance (m), :FORM mine
 (STRAT-FORM-INDEX), :OAWK his awakening, :GAUGE the switch's gauge (DRIVE awakened, SUBLIMATION before, as a fraction), :WALL metres from me
-to the arena's wall."
-  (let* ((g (gauges e)) (o (fighter-opp f)) (p (pos-of e)) (x (aref p 0)) (z (aref p 2)))
-    (list :dm d :form (strat-form-index f) :oawk (cai-bit (gauges-awakened (gauges o)))
-          :gauge (if (gauges-awakened g) (/ (gauges-drive g) *drive-max*) (/ (gauges-sub g) *sub-max*))
-          :wall (- *arena-radius* (sqrt (+ (* x x) (* z z)))))))
+to the arena's wall; and the SP cues (STRAT-SP-CUES, :RB-SP, §11.3), his read live from his gauges as :OAWK / :ORED (the HUD shows the
+cells and the burst dial; only his state comes through the SNAP)."
+  (let* ((g (gauges e)) (o (fighter-opp f)) (go (gauges o)) (p (pos-of e)) (x (aref p 0)) (z (aref p 2)))
+    (list* :dm d :form (strat-form-index f) :oawk (cai-bit (gauges-awakened go))
+           :gauge (if (gauges-awakened g) (/ (gauges-drive g) *drive-max*) (/ (gauges-sub g) *sub-max*))
+           :wall (- *arena-radius* (sqrt (+ (* x x) (* z z))))
+           (strat-sp-cues (gauges-fs g) (gauges-fs go) (gauges-burst g) (gauges-burst go) (fighter-xch f) (fighter-xch (fighter o))))))
 
 (defun strat-hold-awaken-p (e)
   "The active strategy's :HOLD-AWAKEN H (DUEL_AI_STRATEGY §8.19 round 4; the user, 2026-11-09: 「試「延後覺醒」」): the CPU keeps from awakening

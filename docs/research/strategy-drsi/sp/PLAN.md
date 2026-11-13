@@ -100,7 +100,7 @@ Probes: main's `build/simgate/duel.fas` (post-SP), HARD, seeds 601-620, one seat
 
 1. Record the plan in §11 and the DEVLOG; ask §5's five questions.
 2. Fix the evaluator (`--ko-only`); re-measure the 3 x 3 baseline (`none`, the old lookup). **Done 2026-11-14** (`baseline/`, DUEL_AI_STRATEGY §11.2).
-3. The SP cues and `:rb-sp`, off by default; host tests, G2 identical.
+3. The SP cues and `:rb-sp`, off by default; host tests, G2 identical. **Done 2026-11-14** (DUEL_AI_STRATEGY §11.3: 42 rules in groups 18 9 9 4 2).
 4. Empty the HARD lookup of stalling tables (the user's call: the shipped HARD CPU times out today). **Not done**: the user kept it until the new tables replace it (2026-11-14, 「Keep it for now」).
 5. `sp/eval.py`, the seed populations, the matrices; a 2-cell pilot.
 6. Rounds for KI, KH, IH, a dream step between rounds.
