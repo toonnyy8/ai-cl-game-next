@@ -2336,3 +2336,13 @@ The runtime sees exactly the plists it saw before, so nothing downstream changed
 - Host tests: the old ≤ 32 check is replaced by checks that unit ids are unique, that no two arm units play the same, that every table's arms
   resolve once each with a q per arm and rule (and its groups add up), and that `*strat-picks*` is sized from the library.
 - The file shrinks from 180 KB to about 109 KB.
+
+## 11. Re-collecting the strategies for the SP system, both sides co-evolved, into fuzzy Q tables (requested 2026-11-14)
+
+The user, 2026-11-14: 「M5 完成後幫我以目前的新系統重新收集策略，一樣基於 /anthropic-skills:dream-rsi 並同時考量對戰組合中 雙方角色的互動策略要如何設計與演化。最終目標是要將這些策略建構成 fuzzy Q table。」
+
+- **When**: after refactor round 4's M5 (REFACTOR_2026-11 §11.4 step 15).
+- **What changes from §8**: §8's library, counter searches and Q tables (§8.12-§8.19) were found before the SP system (DUEL_SP, S0-S9 built 2026-11-13: costs, refusals at 0, refunds, gains, the steal). They are re-collected on the current rules for the three fighters that play (Kenpachi, Ichigo, Hisagi) and their pairings.
+- **Both sides together**: a pairing's strategies are designed and evolved as an interaction, each side's library searched against the other's current one, not against a fixed opponent.
+- **The end product**: a fuzzy Q table per pairing and side over the collected strategies (the §8.12 / §8.14 selector and the online learner, `fq-online.lisp`).
+- The plan, the evaluator, the per-round budget and the parallelism are settled with the user before round 1 (the dream-rsi skill's rule) and recorded here.
