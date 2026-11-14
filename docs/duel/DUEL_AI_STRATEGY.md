@@ -3029,9 +3029,12 @@ Proofs (build 9e3ac2ca5fae745d before, 01369399b4c02883 after: strategy-switch's
    | H `:awaken-break-p 0.0` | 40-0-0 | 2-38-0 | 12-23-5 | 0.4524 |
    | H `:awaken-kikon-p 0.0` | 39-0-1 | 8-30-2 | 10-27-3 | 0.4762 |
 
-   No count moved for K `:xch-sa-wait 0.0`, K / I `:awaken-kikon-p 0.0` or I `:xch-sa-wait 0.0` (the events are rare there: Kenpachi
-   awakens early in neutral under `:awaken 3.0`, so a full gauge in Ichigo's Kikon seldom comes); the awakening keys are the thinnest
-   levers on these arms (one or a few matches a key at 120).
+   `:xch-sa-wait`: k 0 (0 f) played exactly as the base (4 f) on all three arms (K, I, H; 360 matches), while k 2 (8 f) moved K's mix and
+   rest and k 4 (16 f) moved all three (I 0.9127, H 0.5238). So waits up to 4 frames act the same: the SA is not pressed before some
+   later condition anyway (cause unconfirmed; the cancel's 3-frame block hitstop and the perceived SNAP's delay are the candidates).
+   KNOBS.md's search range is k 1-4 (4-16 f) for that reason. `:awaken-kikon-p 0.0` moved nothing on K or I (likely: Kenpachi awakens
+   early in neutral under `:awaken 3.0`, so a full gauge in a Kikon's lock seldom comes) and one match of 120 on H: live, but the thinnest
+   lever on these arms, with `:awaken-break-p` next (one match on K, a few on H).
 6. With both seats on keyed arms (STRAT_P1 Ichigo r2-b2a2 + all eight keys at 0.5-3.0, STRAT_P2 Kenpachi r2-b1a2 + all eight at 1.1-2.0):
    snaptest straight = pollute on 30000 31104 2132 (185 lines equal; 1827 rollouts; only the brush timing and the `stats:` cons / heap
    lines differ, as the rollouts cons); fulltest on 2102 4007: 6 checks, 0 differ, and with `FT_LAYER=t` 726 checks (685 strategy

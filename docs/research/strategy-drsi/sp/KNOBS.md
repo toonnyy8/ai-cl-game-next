@@ -274,7 +274,7 @@ gives the knob at HARD (EASY / NORMAL in brackets). Search ranges are on k.
 | `:xch-j` | the J's weight in `*cai-xch-j*` (J side: AS at once or the next J) | the J's share J / (AS + J) x k within 0-1, the AS the rest (`xch-j-weights`) | J 0.4, AS 0.6 (0.1 / 0.3) | 0-2.5 |
 | `:clash-p` | `*cai-clash-p*` (積極相消: throw the cancelling move into his) | chance p x k, 0-1, one roll per move of his | 0.6 (0.15 / 0.35) | 0-1.7 |
 | `:clash-margin` | `*cai-clash-margin*` (m past his reach) | 1.0 x k m, >= 0, at **both** reads: the clash's distance test and the J side's AS reach test | 1.0 m | 0-2 |
-| `:xch-sa-wait` | `*cai-xch-sa-wait*` (frames after a cancel her own hit made before the SA) | round(4 x k) frames, half up, >= 0 (scripted wins at 4-8: k 1-2) | 4 | 0-2 |
+| `:xch-sa-wait` | `*cai-xch-sa-wait*` (frames after a cancel her own hit made before the SA) | round(4 x k) frames, half up, >= 0 (scripted wins at 4-8: k 1-2) | 4 | 1-4 (k <= 1 measured identical to k 1 on three arms at HARD: a dead zone, §11.23) |
 | `:awaken-break-p` | `*cai-awaken-break-p*` (awaken out of a combo at the Burst roll) | chance p x k, 0-1 | 0.55 (0.1 / 0.3) | 0-1.9 |
 | `:awaken-kikon-p` | `*cai-awaken-kikon-p*` (awaken on a Kikon's lock) | chance p x k, 0-1 | 0.85 (0.2 / 0.5) | 0-1.2 |
 
