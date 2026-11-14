@@ -40,6 +40,24 @@
    "id": "a-ken-kh-standoff",
    "file": "docs/research/strategy-drsi/sp/arms/a-ken-kh-standoff.lisp",
    "why": "an old arm that still K.O.s (screen); stage 0: kept (stage 0 brief: old member / shipped arm 0, PLAN3 \u00a73 never deletes one); screen 12:186:2, K.O. rate 0.99, score 0.0644 < floor 0.114"
+  },
+  {
+   "id": "x-ki-k-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-k-r1-b0a2.lisp",
+   "why": "PLAN3 stage 1 KI round 1 candidate (the J side always AS (:xch-j 0) + :clash-margin 1.6 + :clash-p 1.7); blocks 300/200 0.6766/0.6551; block 400 paired vs the incumbent r2-b1a2: pooled z -12.78 (KO 175 -> 396, TO 14 -> 9)",
+   "status": "admitted x1 (KI round 1: the mix pure on it, value 0.49 vs 0.51)"
+  },
+  {
+   "id": "x-ki-k-r1-b2a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-k-r1-b2a2.lisp",
+   "why": "PLAN3 stage 1 KI round 1 candidate (the clash: :clash-p 1.7 :clash-margin 2.0); blocks 300/200 0.4043/0.368; block 400 paired vs the incumbent r2-b1a2: pooled z -3.96 (KO 175 -> 232, TO 14 -> 7)",
+   "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-ki-k-r1-b3a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-k-r1-b3a2.lisp",
+   "why": "PLAN3 stage 1 KI round 1 candidate (style keys: :kk-ns-safe-p 0, :kk-reach-p 1, :kk-step-max 3.5, :kk-meaty-p 0, :kk-wave-p 0.5); blocks 300/200 0.4868/0.4753; block 400 paired vs the incumbent r2-b1a2: pooled z -5.99 (KO 175 -> 268, TO 14 -> 0)",
+   "status": "not admitted x1 (outside the support, no best response)"
   }
  ],
  "screen": {
@@ -146,7 +164,7 @@
   }
  },
  "mix": {
-  "c-ki-k-r2-b1a2": 1.0
+  "x-ki-k-r1-b0a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

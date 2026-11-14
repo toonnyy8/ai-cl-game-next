@@ -11,7 +11,10 @@
   "c-ki-k-r1-b2a2",
   "c-ki-k-r2-b1a2",
   "a-ken-press",
-  "a-ken-kh-standoff"
+  "a-ken-kh-standoff",
+  "x-ki-k-r1-b0a2",
+  "x-ki-k-r1-b2a2",
+  "x-ki-k-r1-b3a2"
  ],
  "cols": [
   "none",
@@ -69,6 +72,27 @@
    0.03,
    0.0,
    0.0
+  ],
+  [
+   0.705,
+   0.97,
+   0.63,
+   0.705,
+   0.49
+  ],
+  [
+   0.48,
+   0.97,
+   0.37,
+   0.405,
+   0.15
+  ],
+  [
+   0.44,
+   1.0,
+   0.38,
+   0.44,
+   0.43
   ]
  ],
  "b_ko_share": [
@@ -120,6 +144,27 @@
    0.965,
    1.0,
    1.0
+  ],
+  [
+   0.28,
+   0.03,
+   0.345,
+   0.275,
+   0.51
+  ],
+  [
+   0.47,
+   0.03,
+   0.615,
+   0.595,
+   0.85
+  ],
+  [
+   0.56,
+   0.0,
+   0.62,
+   0.555,
+   0.57
   ]
  ],
  "cells": [
@@ -437,6 +482,141 @@
    "timeouts": 0,
    "draws": 0,
    "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b0a2",
+   "col": "none",
+   "a_ko": 141,
+   "b_ko": 56,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b0a2",
+   "col": "a-generic",
+   "a_ko": 194,
+   "b_ko": 6,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b0a2",
+   "col": "a-ichigo-press",
+   "a_ko": 126,
+   "b_ko": 69,
+   "timeouts": 5,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b0a2",
+   "col": "c-ki-i-r1-b3a2",
+   "a_ko": 141,
+   "b_ko": 55,
+   "timeouts": 4,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b0a2",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 98,
+   "b_ko": 102,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b2a2",
+   "col": "none",
+   "a_ko": 96,
+   "b_ko": 94,
+   "timeouts": 10,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b2a2",
+   "col": "a-generic",
+   "a_ko": 194,
+   "b_ko": 6,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b2a2",
+   "col": "a-ichigo-press",
+   "a_ko": 74,
+   "b_ko": 123,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b2a2",
+   "col": "c-ki-i-r1-b3a2",
+   "a_ko": 81,
+   "b_ko": 119,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b2a2",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 30,
+   "b_ko": 170,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b3a2",
+   "col": "none",
+   "a_ko": 88,
+   "b_ko": 112,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b3a2",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b3a2",
+   "col": "a-ichigo-press",
+   "a_ko": 76,
+   "b_ko": 124,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b3a2",
+   "col": "c-ki-i-r1-b3a2",
+   "a_ko": 88,
+   "b_ko": 111,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-ki-k-r1-b3a2",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 86,
+   "b_ko": 114,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
   }
  ],
  "a_mix": {
@@ -444,9 +624,12 @@
   "a-generic": 0.0,
   "c-ki-k-pilot-b0a0": 0.0,
   "c-ki-k-r1-b2a2": 0.0,
-  "c-ki-k-r2-b1a2": 1.0,
+  "c-ki-k-r2-b1a2": 0.0,
   "a-ken-press": 0.0,
-  "a-ken-kh-standoff": 0.0
+  "a-ken-kh-standoff": 0.0,
+  "x-ki-k-r1-b0a2": 1.0,
+  "x-ki-k-r1-b2a2": 0.0,
+  "x-ki-k-r1-b3a2": 0.0
  },
  "b_mix": {
   "none": 0.0,
@@ -455,8 +638,8 @@
   "c-ki-i-r1-b3a2": 0.0,
   "c-ki-i-r2-b2a2": 1.0
  },
- "a_value": 0.115,
- "b_value": 0.885,
+ "a_value": 0.49,
+ "b_value": 0.51,
  "a_gap": 0.0,
  "b_gap": 0.0
 }

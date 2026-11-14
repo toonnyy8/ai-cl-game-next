@@ -3039,3 +3039,23 @@ Proofs (build 9e3ac2ca5fae745d before, 01369399b4c02883 after: strategy-switch's
    snaptest straight = pollute on 30000 31104 2132 (185 lines equal; 1827 rollouts; only the brush timing and the `stats:` cons / heap
    lines differ, as the rollouts cons); fulltest on 2102 4007: 6 checks, 0 differ, and with `FT_LAYER=t` 726 checks (685 strategy
    checks), 0 differ.
+
+### 11.24 Re-collection stage 1, KI round 1 (the pilot): Kenpachi's exchange arm (2026-11-15)
+
+Workspace `sp/x-ki-K` (4 x 3, W 4, `v1_rank_keep`, roots by PLAN3's mechanisms), 10 Sonnet data cells, SP_BUILD 949a94db54fe. Ichigo's
+incumbent scored 0.9604 on block 300 (>= 0.95: no cells). Kenpachi's incumbent `c-ki-k-r2-b1a2`: 0.3218 (block 300), 0.340 (200).
+
+| Branch | Best cell | Keys | 300 / 200 | Block 400 paired vs the incumbent (pooled) |
+|---|---|---|---|---|
+| b0 the J side | b0_a2 | `:xch-j 0` (always the AS) `:clash-margin 1.6` `:clash-p 1.7` | 0.677 / 0.655 | z -12.78; K.O. 175 -> 396 of 600; time-outs 14 -> 9 |
+| b1 the NS side | b1_a0 | `:xch-sa-p 1.6 :xch-carry-p 1.0` | 0.356 / 0.348 | z -3.14 but time-outs 14 -> 21: refused |
+| b2 the clash | b2_a2 | `:clash-p 1.7 :clash-margin 2.0` | 0.404 / 0.368 | z -3.96; time-outs 14 -> 7 |
+| b3 style keys | b3_a2 | `:kk-ns-safe-p 0 :kk-reach-p 1 :kk-step-max 3.5 :kk-meaty-p 0 :kk-wave-p 0.5` | 0.487 / 0.475 | z -5.99; time-outs 14 -> 0 |
+
+(Negative z: the candidate wins the discordant seeds.) The block-200 matrix with the three passing candidates puts Kenpachi's mix on
+**`x-ki-k-r1-b0a2` alone (admitted)**, value 0.49 against Ichigo's 0.51 (stage 0: 0.115 / 0.885); b2a2 and b3a2 are in no support and no
+best response, kept as members (`arms/x1/`). The finding: against Ichigo, Kenpachi's J side should always take the AS after a cancel
+(k 0 -> 2.0 is monotone, 0.513 -> 0.185), thrown from farther away (`:clash-margin` also scales the J side's AS reach test). The
+awakening breakers were inert in this pairing. The dream step kept `v1_rank_keep` (0.382 vs `v2_halving` 0.283 on the new world).
+Ichigo's side now sits at 0.51, so it searches in round 2. Cells spent: 10 of 90.
+

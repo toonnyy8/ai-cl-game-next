@@ -1,0 +1,96 @@
+{
+  "worlds": [
+    "docs/research/strategy-drsi/sp/x-ki-K/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "adc53ac1e4ca",
+  "ranking": [
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v1_rank_keep.py",
+      "sha1": "adc53ac1e4ca",
+      "pareto": {
+        "auc": 0.4,
+        "parallel_penalty": 0.355,
+        "parallelism_weight": 0.05,
+        "reward": 0.38225000000000003,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.6766,
+            "n_evaluated": 10,
+            "auc": 0.4,
+            "parallel_penalty": 0.355,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/x-ki-K/policy/current.py",
+      "sha1": "adc53ac1e4ca",
+      "pareto": {
+        "auc": 0.4,
+        "parallel_penalty": 0.355,
+        "parallelism_weight": 0.05,
+        "reward": 0.38225000000000003,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.6766,
+            "n_evaluated": 10,
+            "auc": 0.4,
+            "parallel_penalty": 0.355,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/policies/v2_halving.py",
+      "sha1": "94c557363b16",
+      "pareto": {
+        "auc": 0.3,
+        "parallel_penalty": 0.33904761904761904,
+        "parallelism_weight": 0.05,
+        "reward": 0.28304761904761905,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.6766,
+            "n_evaluated": 10,
+            "auc": 0.3,
+            "parallel_penalty": 0.33904761904761904,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 7.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    }
+  ],
+  "disqualified": []
+}
