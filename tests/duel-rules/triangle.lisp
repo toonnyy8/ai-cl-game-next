@@ -45,6 +45,15 @@
 (check (first-land-p :block 1))
 (check (first-land-p :hit 0))                                     ; (contact :hit from the other side of a cancel: no bit)
 (check (not (first-land-p :hit 1)))                               ; (a real hit, or his own cancelled hit, on window 0)
+;; the cancel's out (the user, 2026-11-14, DUEL_CORE §2.1.1): an NS segment that took part in a cancel (an exchange opened on or after its
+;; start tick) may start its SA at once; a whiff or a real hit opens no exchange, so its SA still waits for the active frames' end
+(check (core-cancelled-p 40 30))                                  ; (a cancel at tick 40 in a segment started at 30)
+(check (core-cancelled-p 30 30))                                  ; (on its first frame)
+(check (not (core-cancelled-p -1 30)))                            ; (no exchange: a whiff, or a real hit)
+(check (not (core-cancelled-p 20 30)))                            ; (an exchange from an earlier move: not this segment's)
+(check (core-sa-open-p 3 14 4 t))                                 ; (cancelled in its startup: open now)
+(check (not (core-sa-open-p 3 14 4 nil)))                         ; (no cancel: closed until 14 + 4)
+(check (and (not (core-sa-open-p 17 14 4 nil)) (core-sa-open-p 18 14 4 nil)))
 ;; the pointer
 (check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)

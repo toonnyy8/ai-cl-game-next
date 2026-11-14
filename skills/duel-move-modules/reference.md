@@ -32,7 +32,9 @@ e55304e:skills/duel-move-modules/reference.md`.
 - **The sim side** (`core-sim.lisp`):
   - `core-note-start!` records class, start tick, the hold (`fighter-sp-held`: `t`, or `:rearm` on the phone) and the charge x.
   - `core-move-sp!`, `core-sa-start!` and `core-latch-step` latch presses; the latched move starts when the segment's active
-    frames end.
+    frames end. Exception (2026-11-14, DUEL_CORE §2.1.1): once an NS segment took part in a cancel (`core-cancelled-p`: an exchange
+    opened in it), a J press starts its SA at once (`core-sa-open-p`); an SA latched before the cancel fires then, stamped with the
+    cancel's tick (a guess the J side's AS beats by `core-later`).
   - `core-verdicts` judges a step's hits as a set.
   - `core-follow-step` runs the Kikon's dash-in: the confirm, the undo, the cues.
 

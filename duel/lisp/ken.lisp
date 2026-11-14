@@ -57,7 +57,7 @@
 ;;; :parry, and the thrust answers it: the kit's :land string). J1-J5, AS n by press (the core's 1 1 2 2 3), one SA a pointer.
 ;;; Their own clips since the art round (DUEL_KEN_V3 §36-§38).
 ;; J1 startup 6 -> 9 (= the Shikai's J1) and AS1 12 -> 16 (the user, 2026-11-14: 「我發現劍八的壓制能力異常強大，跟其他角色相消後換攻擊時必勝」,
-;; 「尤其是 J1 到 AS 的切換」, 「好 1+2」; DUEL_KEN_V3 §45, DUEL_CORE §2.1.2). Their clips stay as authored (strike 6 / 12: :clip-s 6 / 12,
+;; 「尤其是 J1 到 AS 的切換」, 「好 1+2」; DUEL_KEN_V3 §48, DUEL_CORE §2.1.1). Their clips stay as authored (strike 6 / 12: :clip-s 6 / 12,
 ;; played at 6/9 and 12/16 speed so the strike pose still lands on the hit frame; AS1's Kikon cinematic times its clip frame 12).
 ;; J2 copies J1: its startup 6 pinned (only J1 and AS1 were approved).
 (defmove :ke-z-j1 :kind :quick :clip :ke-z-cut1 :clip-s 6 :startup 9 :active 3 :recovery 12 :dmg 35 :adv-block -2

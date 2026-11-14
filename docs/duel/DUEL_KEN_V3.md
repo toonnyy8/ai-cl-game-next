@@ -1117,12 +1117,12 @@ S ≥ 14 (the tell).
 
 | Move | S | dmg | reaction | reach / travel |
 |---|---|---|---|---|
-| J1–J5 (one-hand slashes, the kick-free street string) | 6 / 6 / 7 / 8 / 10 | 35 / 35 / 40 / 45 / 55 | flinch ×4, stagger | 1.8 |
+| J1–J5 (one-hand slashes, the kick-free street string) | 9 / 6 / 7 / 8 / 10 (J1 6 → 9, 2026-11-14, §48) | 35 / 35 / 40 / 45 / 55 | flinch ×4, stagger | 1.8 |
 | P1 NS a the drag-up cut (the tip scrapes forward) | 14 | 65 | stagger | 1.9, lunge 1.2 |
 | P1 NS b the back-hand chop | 10 | 55 | stagger | 1.8 |
 | P1 NS c the flat sweep | 12 | 70 | crumple | 1.9, 180° |
 | P1 SA the free-hand shove | 8 | 30 | stagger, kb 1.5 | 1.0 |
-| AS1 the drag-up cut | 12 | 90 | knockdown | 1.9 |
+| AS1 the drag-up cut | 16 (12 → 16, 2026-11-14, §48) | 90 | knockdown | 1.9 |
 | P2 NS a the shoulder drop, overhead | 16 | 85 | crumple | 1.8 |
 | P2 NS b the second drop | 14 | 95 | stagger | 1.8 |
 | (P2: both take one hit from frame 6 to the end of the active frames: `ken-armor`, `:armor-hits 1`, `:armor-act`) | | | | |
@@ -1205,7 +1205,7 @@ camera, the side, the phone (390×844). Host tests 9887 ALL PASS, pkgcheck clean
 ## 37. The sealed form's art round, part 2: J1–J5 (2026-11-05)
 
 The plan (asked; the user: 「同意」): one arc a link, one hand for J1–J4, both for J5; small wrist-and-arm cuts (the NS are the
-whole-body ones): J1 S6 the lazy diagonal, high right → low left; J2 S6 the backhand flat at the chest, left → right; J3 S7 the rising
+whole-body ones): J1 S6 (the clip's strike; the move's S 9 since §48, the clip at 6/9 speed) the lazy diagonal, high right → low left; J2 S6 the backhand flat at the chest, left → right; J3 S7 the rising
 cut, low left → high right; J4 S8 the one-hand overhead chop with a stamp; J5 S10 both hands, the big flat turn at the waist, right →
 left. The tip at about the 1.8 m volume's edge on each hit frame. Each link's frame 0 is the pose its predecessor lands in.
 
@@ -1232,7 +1232,7 @@ predecessor lands in (`:ke-z-pNx-a`), key poses solved by FK on the host:
 | NS1b (S10) | `:ke-z-p1b` | from high left drawn back over, down across to low right (backhand) | 1.86 / 1.8 |
 | NS1c (S12) | `:ke-z-p1c` | down in a crouch, the blade back at his right knee, then round at knee height to the left (one hand; J5 is both, at the waist) | 1.95 / 1.9 |
 | SA1 (S8) | `:ke-z-shove` | the left palm driven in, the katana left hanging | — / 1.0 |
-| AS1 (S12) | `:ke-z-as1` | NS1a's drag-up, quicker, the finish up on his toes | 2.02 / 1.9 |
+| AS1 (S12; the move's S 16 since §48, the clip at 12/16 speed) | `:ke-z-as1` | NS1a's drag-up, quicker, the finish up on his toes | 2.02 / 1.9 |
 | NS2a (S16) | `:ke-z-p2a` | the shoulder rolls, the blade lifted off it as the left fist joins, held trembling, then all of him straight down | 1.88 / 1.8 |
 | NS2b (S14) | `:ke-z-p2b` | heaved back onto the right shoulder, then a two-handed diagonal down to the left | 1.91 / 1.8 |
 | SA2 (S8) | `:ke-z-ram` | the blade kept on the shoulder, the right shoulder and forearm driven in | — / 1.0 |
@@ -1419,3 +1419,31 @@ The user (verbatim): 「然後劍八卍解感覺有時候會少一隻手。是�
 - **After** (2392 now runs GRIP-STEP's easing and the release): 斬壞 1 / 4 / 1 / 1 samples behind the back plane (the fade), the deepest
   arm point −0.166 to −0.213 m; the Shikai's four clips' rows unchanged (0 behind, the same minima). G2 identical, native and browser;
   host tests, pkgcheck. Stills from the match camera were too cluttered to show it: needs the user's eyes (playtest v354).
+
+## 48. Sealed J1 6 → 9, AS1 12 → 16 (the user, 2026-11-14)
+
+The user (verbatim): 「我發現劍八的壓制能力異常強大，跟其他角色相消後換攻擊時必勝，這是為何？」, 「尤其是 J1 到 AS 的切換」; shown the cause
+and two changes, 「好 1+2，然後再以此修改 AI 的策略，然後盡量讓 AI 積極相消互動」. This section is change 1 (his frames); change 2 is the
+shared rule, DUEL_CORE §2.1.1; the CPU's strategy is a later phase.
+
+- **Cause.** After a J × NS cancel both sides count as landed (DUEL_CORE §2.1); the J side may start its AS at once, the NS side was locked
+  to its segment until its active frames end, and AS × NS is a hit, AS vs SA the later start (`core-later`). The sealed J1 (S 6, the
+  quickest J of the roster) and AS1 (S 12, 90, knockdown) put him on the winning side every time: the J1 → AS matrix (both sides press on
+  the same frame at 1.5 m; P1 J1 then SP on contact, P2 J / NS n / NS n + a latched SA) gave the sealed form 21 / 0 / 0 against Ichigo's and
+  Hisagi's forms (the Shikai 15 / 6, Ichigo 8 / 10, KESSA 17 / 2, Hisagi 19 / 6).
+- **Knobs** (ken.lisp): `:ke-z-j1` `:startup` 6 → **9** (= the Shikai's J1); `:ke-z-as1` `:startup` 12 → **16**. `:ke-z-j2` is a
+  `defmove-copy` of J1: its startup 6 is now pinned (only J1 and AS1 were approved); J3 / J4 / SA3 already pinned theirs, AS3b copies SA3,
+  nothing copies AS1. **`:clip-s` stays 6 / 12** (a deliberate departure from the brief's "clip-s 9 / 16"): `:clip-s` is the startup the
+  clip was authored with (kit.lisp), and the strikes are `defstrike :ke-z-cut1 (6 3 12)` / `:ke-z-as1 (12 4 20)`; the clips now play at
+  6/9 and 12/16 speed, so the strike pose still lands on the hit frame (drawn = hit timing), and AS1's Kikon cinematic `ken-z-kikon1-cine` (鈴)
+  keeps timing its clip frame 12. The FK reach test passes unchanged.
+- **Probes** (written control scripts, trial runner, vs a standing Ichigo / Hisagi at 1.5 m): J1 hit (flinch, stun 18) → AS1 still
+  combos: AS1 starts on the first step after J1's hitstop and hits 16 frames later; its super freeze stops the victim's stun count 4 of
+  them, so about 5 of the 18 stun frames are left (combo 2, 50 / 63 damage). J1 J2 → AS1 (as-by-press 1 1): combo 3. J1–J3 → AS2: combo 4.
+  The meaty chase (`kk-meaty-step`, cpu-ki-ken.lisp) reads J1's startup (`mv-s`), no hard-coded 6: it now presses 9 frames before her
+  first free frame.
+- **Matrix after both changes** (the same scenes, plus a reactive SA: J pressed 8 frames after the AS starts): the sealed form against the
+  other characters 21 / 0 → 18 / 3 on the seven old answers (a latched SA is a guess now and loses), 9 / 0 → 0 / 9 against the reactive
+  SA; all answers 30 / 0 → 18 / 12. DUEL_CORE §2.1.1 has the full table.
+- **Tests**: `tests/duel-rules/ken.lisp` (J1–J5 S 9 / 6 / 7 / 8 / 10, the AS / SA startups, the clip speeds 6/9, 12/16, J2's 1.0). G2
+  regenerated with the rule (DUEL_CORE §2.1.1). No balance gates.

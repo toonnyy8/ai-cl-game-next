@@ -1962,7 +1962,8 @@ in his kit, unreachable in a core match, have their own: KE-CHARGE 40 f, the Bre
   the first `*recovery-linger*` (0.4) of the clip's recovery (S + A to its end) takes every extra frame, the follow-through
   lingering with the weight dragging, then the rest plays at the move's clip speed and lands on the stance on the real end frame.
   Never faster than the clip speed (a clip longer than its move is left alone), never in a cinematic or a looping clip. A whiffed
-  J1 (S 6, A 3, R 12, 37 f): the follow-through's first 4.8 clip frames over 21 steps, the return's 7.2 at speed 1.
+  J1 (S 6, A 3, R 12, 37 f): the follow-through's first 4.8 clip frames over 21 steps, the return's 7.2 at speed 1. (Measured then; the
+  sealed J1 is S 9 since 2026-11-14, its S6 clip at 6/9 speed: DUEL_KEN_V3 §48.)
 - **A look only**: the sim never reads a clip; G2 cvc II / IK / KK identical to `tests/style-cvc-ref.txt`.
 - **Revised the same day** (the user, after the playtest: 「我看劍八目前很多招都是卡在攻擊最後的姿勢，然後才迅速收刀。應該是要將『收刀』的動作繪製
   更多幀作為硬直演出才對，而不是卡在攻擊最後的姿勢」, DEVLOG §617). His clips start the return to the stance at the A mark (J1: the

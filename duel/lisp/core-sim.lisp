@@ -151,7 +151,7 @@ segment's :params :sa, else the kit's."
 (defun core-sa-start! (e f vp mv sf button)
   "An attack pressed inside an NS segment (MOVE-COMMANDS): latch the SA (it starts when the segment's active frames are over,
 CORE-LATCH-STEP); after the segment took part in a cancel, the SA starts at once (CORE-SA-OPEN-P: the cancel's out, the user
-2026-11-14, DUEL_CORE §2.1.2). T when it started."
+2026-11-14, DUEL_CORE §2.1.1). T when it started."
   (declare (ignore sf))
   (when (kit-sa-move (fighter-kit f))
     (vpad-consume! vp button)
@@ -163,7 +163,7 @@ CORE-LATCH-STEP); after the segment took part in a cancel, the SA starts at once
   "A latched NS continuation or SA starts once the segment's active frames are over (MOVE-COMMANDS); a latched SA also once the
 segment took part in a cancel (CORE-SA-OPEN-P). Such an SA was latched before the cancel (a press after it starts at once,
 CORE-SA-START!): a guess, so it counts as started on the cancel's tick (FIGHTER-CLS-T := FIGHTER-XCH; the cancel's hitstop runs no
-step), and a J side's AS started after the hitstop is the later start and beats it (CORE-LATER; DUEL_CORE §2.1.2). T when it started."
+step), and a J side's AS started after the hitstop is the later start and beats it (CORE-LATER; DUEL_CORE §2.1.1). T when it started."
   (let* ((q (fighter-queued f))
          (cancelled (and (eq q :sa) (core-seg-cancelled-p f))))
     (when (and (member q '(:ns :sa :sw))

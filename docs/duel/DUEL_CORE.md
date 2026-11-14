@@ -166,6 +166,74 @@ lives through the push; a Step, a run, a Hoho, a guard count as neutral, Q11), o
 clash are not cancels (Q13). Log: `P1 BREAK fs T from P2 (fs V), gains G (fs F)`; event `:sp-break att def take gain` (only when T > 0: the
 HUD's cue, DUEL_LISP_HUD §17); the hash line's ` x<tick>` (`*` once taken).
 
+#### 2.1.1 The cancel's out: an NS segment's SA opens at once (the user, 2026-11-14)
+
+The user (verbatim): 「我發現劍八的壓制能力異常強大，跟其他角色相消後換攻擊時必勝，這是為何？」, 「尤其是 J1 到 AS 的切換」; shown the cause
+and two changes (1: Kenpachi's sealed J1 / AS1 frames, DUEL_KEN_V3 §48; 2: this rule), 「好 1+2，然後再以此修改 AI 的策略，然後盡量讓 AI
+積極相消互動」. The CPU's strategy is a later phase; nothing in the CPU changed here.
+
+**Why.** After a J × NS cancel both moves count as landed (§2.1), but the two sides were not equal after it: the J side may start its AS
+on the first step after the cancel's hitstop (`core-move-sp!`: contact `:hit`, `cancel-open-p` from its hit frame), while the NS side was
+held in its segment: no Hoho before its own hit frame (`core-cancel-land-sf`) and a latched SA only after its active frames
+(`core-latch-step`). AS × NS is a hit, and AS vs SA is `core-later` (core.lisp: the later start wins), so the J side always had a free
+AS: Kenpachi's sealed J1 (S 6) → AS1 (S 12) swept the J1 → AS matrix 21 / 0 / 0. A pre-input SA that fired at once would not have helped:
+started on the cancel frame it starts before the AS, and the later start wins anyway.
+
+**The rule** (old → new). An NS segment's SA (an attack pressed in it) started once its active frames were over → **also at once from the
+frame the segment took part in a cancel**. "Took part" = an exchange opened on or after the segment's start tick: a cancel stamps both
+fighters' `xch` (`core-xch-open!`, §2.1's exchange), so `xch >= cls-t` (the pure `core-cancelled-p`, core.lisp) is true only for a segment
+that was in a cancel, either side of it (its own hit judged, the other's hit in its window, a wave it fired cancelled while it is still in
+the segment, its blade cutting a wave); a whiff or a real hit opens no exchange. `core-sa-open-p sf s a cancelled` (core.lisp) is the
+gate. In the sim (core-sim.lisp): a J press after the cancel starts the SA in `core-sa-start!` at once (no latch); `core-sa-move` is the
+one place that picks it (the carried charge, the segment's `:sa`, the kit's) for both paths.
+
+- **A latched SA from before the cancel** (chosen, the brief's simplest reading): it fires on the first step after the cancel's hitstop
+  and **counts as started on the cancel's tick** (`fighter-cls-t` := `fighter-xch`): a guess. A J side's AS started after the hitstop is
+  the later start and beats it. (Without that stamp it would start on the same step as an AS pressed at once, the same tick, a `core-later`
+  tie: the outcome left to the two moves' frames.) A fresh press on that same first step does start on that tick: the same tick as an
+  instant AS, a cancel between them.
+- **Scope**: only the NS segment's SA (the one class whose follow-up was gated on its own frames). An AS segment has no SA and is
+  unchanged; an NA's links and its AS are §2.1's. The Hoho lock after a cancel (`core-cancel-land-sf`: no cancel before the move's own hit
+  frame) stays: the SA is the NS's own follow-up, not a cancel. All three fighters, every form.
+- **The reaction window** (decisive scenes, sealed Kenpachi J1 → AS1 at 1.5 m; the AS's super freeze holds the NS side 4 frames and a
+  press inside it survives, the SA starting on the first free frame): AS1 starts 1 step after the cancel and hits on its frame 16; the SA
+  must start by then (in its startup / active window the AS's hit is absorbed, `core-later`): a J press from the AS's start up to its
+  frame 15 wins (16 frames, 4 of them inside the freeze), one on its frame 16 or later is too late (AS1 HIT 90).
+
+| Scene (both side orders checked) | Before | After |
+|---|---|---|
+| A: sealed Kenpachi J1 → AS1 vs Ichigo NS1, SA latched on frame 3 | AS1 HIT 90 | SA starts with AS1 (stamped at the cancel) → AS1 absorbs it, AS1 HIT 90 |
+| A: the same, J pressed 0 / 1 / 2 / 5 / 9 / 13 / 14 / 15 frames after AS1 starts (16, 17: too late) | (latched: SA after NS1's active end, AS1 HIT first) | `IC-SA -> HIT 34` every time (AS1 absorbed when it lands first) |
+| C: the same vs Hisagi NS1, SA latched on frame 3 | AS1 HIT 90 | AS1 absorbs the SA, AS1 HIT 90 |
+| C: J pressed 1 / 5 / 9 frames after AS1 starts | — | `HS-SA-KIRI -> HIT 40` every time |
+| Swapped (Ichigo / Hisagi as P1 with NS1 + SA, Kenpachi P2 J1 → AS1 at sim frame 9 / 10 / 11) | — | latched: AS1 wins all six; reacting (J 12 / 16 / 20 frames after NS1): the SA wins all six |
+
+**The J1 → AS matrix** (both press on the same frame at 1.5 m: P1 J1 then SP on contact; P2 J, NS n, NS n + an SA latched on frame 3
+(a guess), and new NS n + SAr: J pressed 8 frames after P1's AS starts (a reaction); first real hit, P1 / p2 / none against the other
+characters' forms; Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hisagi):
+
+| J1 → AS side | old seven answers, before → after | reactive SA, before → after | all, before → after |
+|---|---|---|---|
+| Kz | 21 / 0 / 0 → 18 / 3 / 0 | 9 / 0 → 0 / 9 | 30 / 0 → 18 / 12 |
+| Ks | 15 / 6 → 18 / 3 | 5 / 4 → 0 / 9 | 20 / 10 → 18 / 12 |
+| Ib | 8 / 10 / 1 → 15 / 3 / 1 | 1 / 7 → 1 / 7 | 9 / 17 / 1 → 16 / 10 / 1 |
+| Ik | 17 / 2 → 19 / 0 | 7 / 1 → 1 / 7 | 24 / 3 → 20 / 7 |
+| Hb | 19 / 6 / 1 → 19 / 6 / 1 | 10 / 1 → 10 / 1 | 29 / 7 / 1 → 29 / 7 / 1 |
+
+The sweep is gone against a reaction; a guessed SA (latched before the cancel) now loses where it used to win by firing after the AS's
+start (Ib's 10 → 3), as intended (「a guess too early is punished」). Hisagi's AS1 TSUMUJI (16 active frames, four hits) still beats the
+reactive SA: the SA absorbs two hits and its window ends before TSUMUJI's; a property of that move, not of the rule.
+
+**HARD CPU logs** (information; 10 seeds, pairings KK IK II HK HI HH, the next real hit after each cancel, `run.py` / `analyze.py` of the
+investigation): the CPU (unchanged) does not use the out yet: e.g. Kenpachi's J × Hisagi's NS 232 cancels (231 AS hits) → 94 (93), Ichigo's
+J × Hisagi's NS 47 (46) → 30 (30), Kenpachi's J × Kenpachi's NS 33 (AS 10, SA 19) → 34 (AS 20, SA 9).
+
+**Tests**: `tests/duel-rules/triangle.lisp` (`core-cancelled-p`: a cancel in the segment, on its first frame, none, an earlier move's;
+`core-sa-open-p`: open after a cancel in the startup, closed without one until S + A). G2 regenerated (`tests/style-cvc-ref.txt` header:
+II 36 → 37 lines, P1 2-0 355.6 s → P1 5-5 368.4 s; IK 31 → 39, P1 2-0 307.3 s → P2 0-1 382.8 s; KK 19 → 23, P1 6-0 188.0 s → P1 4-0
+232.1 s; native = browser); snaptest (seeded gate matches with rollouts: equal) and fulltest on G2's IK (80 checks, 0 differ) clean. No
+balance gates.
+
 ### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 
 Requests (verbatim, 2026-11-12): 「檜佐木始解 AS1「旋」改 10/20/30/40」, 「一護始解 AS1「落牙」改 80」, 「一護血鎖 AS1「鎖引」改 30/30/30/30」,
