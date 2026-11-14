@@ -1,0 +1,2293 @@
+{
+ "a": "kenpachi",
+ "b": "hisagi",
+ "seeds": "201-300",
+ "both_seats": true,
+ "build": "f0e2414019a27d35",
+ "rows": [
+  "none",
+  "a-generic",
+  "a-ken-ki",
+  "a-ken-press",
+  "a-ken-zoner",
+  "a-ken-kh",
+  "a-ken-kh-standoff",
+  "a-ichigo-ki",
+  "s1-brawler",
+  "c-ki-k-pilot-b0a0",
+  "c-ki-k-r1-b0a1",
+  "c-ki-k-r1-b2a2",
+  "c-ki-k-r2-b0a2",
+  "c-ki-k-r2-b1a2"
+ ],
+ "cols": [
+  "none",
+  "a-generic",
+  "a-hisagi-merged",
+  "a-hisagi-dswitch",
+  "a-hisagi-press",
+  "a-hisagi-pressd",
+  "a-hisagi-kite",
+  "a-hk-wake",
+  "a-hk-pot",
+  "a-hk-kite",
+  "a-hk-all",
+  "h1-range",
+  "a-ken-ki",
+  "s7-kite"
+ ],
+ "a_ko_share": [
+  [
+   0.87,
+   0.87,
+   0.04,
+   0.01,
+   0.03,
+   0.03,
+   0.01,
+   0.035,
+   0.04,
+   0.005,
+   0.005,
+   0.735,
+   0.06,
+   0.355
+  ],
+  [
+   0.87,
+   0.87,
+   0.04,
+   0.01,
+   0.03,
+   0.03,
+   0.01,
+   0.035,
+   0.04,
+   0.005,
+   0.005,
+   0.735,
+   0.06,
+   0.355
+  ],
+  [
+   1.0,
+   1.0,
+   0.375,
+   0.435,
+   0.19,
+   0.2,
+   0.41,
+   0.355,
+   0.37,
+   0.165,
+   0.355,
+   1.0,
+   0.0,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.53,
+   0.56,
+   0.265,
+   0.285,
+   0.53,
+   0.545,
+   0.53,
+   0.33,
+   0.39,
+   1.0,
+   0.0,
+   1.0
+  ],
+  [
+   0.995,
+   0.995,
+   0.09,
+   0.12,
+   0.19,
+   0.17,
+   0.145,
+   0.105,
+   0.05,
+   0.05,
+   0.035,
+   0.975,
+   0.0,
+   0.94
+  ],
+  [
+   1.0,
+   1.0,
+   0.07,
+   0.075,
+   0.04,
+   0.035,
+   0.16,
+   0.23,
+   0.055,
+   0.025,
+   0.16,
+   1.0,
+   0.0,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.46,
+   0.525,
+   0.235,
+   0.27,
+   0.44,
+   0.44,
+   0.46,
+   0.28,
+   0.425,
+   1.0,
+   0.0,
+   1.0
+  ],
+  [
+   0.955,
+   0.955,
+   0.01,
+   0.02,
+   0.02,
+   0.02,
+   0.005,
+   0.015,
+   0.015,
+   0.06,
+   0.07,
+   0.855,
+   0.0,
+   0.18
+  ],
+  [
+   0.985,
+   0.985,
+   0.6,
+   0.41,
+   0.595,
+   0.29,
+   0.57,
+   0.48,
+   0.54,
+   0.56,
+   0.315,
+   0.855,
+   0.845,
+   0.895
+  ],
+  [
+   1.0,
+   1.0,
+   0.54,
+   0.54,
+   0.325,
+   0.365,
+   0.58,
+   0.56,
+   0.585,
+   0.35,
+   0.435,
+   1.0,
+   0.0,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.945,
+   0.93,
+   0.97,
+   0.97,
+   0.945,
+   0.945,
+   0.93,
+   0.895,
+   0.91,
+   1.0,
+   0.91,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.895,
+   0.905,
+   0.925,
+   0.935,
+   0.83,
+   0.895,
+   0.885,
+   0.79,
+   0.815,
+   1.0,
+   0.685,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.955,
+   0.95,
+   0.985,
+   0.98,
+   0.955,
+   0.955,
+   0.975,
+   0.96,
+   0.955,
+   1.0,
+   0.915,
+   1.0
+  ],
+  [
+   1.0,
+   1.0,
+   0.255,
+   0.28,
+   0.58,
+   0.545,
+   0.385,
+   0.235,
+   0.175,
+   0.3,
+   0.225,
+   1.0,
+   0.005,
+   1.0
+  ]
+ ],
+ "b_ko_share": [
+  [
+   0.115,
+   0.115,
+   0.685,
+   0.865,
+   0.81,
+   0.935,
+   0.895,
+   0.8,
+   0.65,
+   0.78,
+   0.815,
+   0.265,
+   0.615,
+   0.33
+  ],
+  [
+   0.115,
+   0.115,
+   0.685,
+   0.865,
+   0.81,
+   0.935,
+   0.895,
+   0.8,
+   0.65,
+   0.78,
+   0.815,
+   0.265,
+   0.615,
+   0.33
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.005,
+   0.015,
+   0.015,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.005,
+   0.005,
+   0.02,
+   0.015,
+   0.045,
+   0.02,
+   0.14,
+   0.015,
+   0.02,
+   0.225,
+   0.2,
+   0.025,
+   0.0,
+   0.015
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.01,
+   0.01,
+   0.01,
+   0.0,
+   0.005,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.025,
+   0.005,
+   0.015,
+   0.01,
+   0.05,
+   0.02,
+   0.025,
+   0.04,
+   0.035,
+   0.0,
+   0.015,
+   0.0
+  ],
+  [
+   0.035,
+   0.035,
+   0.035,
+   0.035,
+   0.065,
+   0.065,
+   0.32,
+   0.04,
+   0.04,
+   0.03,
+   0.02,
+   0.125,
+   0.005,
+   0.0
+  ],
+  [
+   0.01,
+   0.01,
+   0.33,
+   0.565,
+   0.31,
+   0.68,
+   0.375,
+   0.455,
+   0.37,
+   0.38,
+   0.55,
+   0.145,
+   0.08,
+   0.08
+  ],
+  [
+   0.0,
+   0.0,
+   0.015,
+   0.005,
+   0.005,
+   0.0,
+   0.01,
+   0.015,
+   0.015,
+   0.025,
+   0.045,
+   0.0,
+   0.025,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.005,
+   0.005,
+   0.005,
+   0.0,
+   0.0,
+   0.005,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.005,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.01,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.005,
+   0.0,
+   0.0,
+   0.005,
+   0.0,
+   0.005,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "cells": [
+  {
+   "row": "none",
+   "col": "none",
+   "a_ko": 174,
+   "b_ko": 23,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-generic",
+   "a_ko": 174,
+   "b_ko": 23,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hisagi-merged",
+   "a_ko": 8,
+   "b_ko": 137,
+   "timeouts": 55,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 2,
+   "b_ko": 173,
+   "timeouts": 25,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hisagi-press",
+   "a_ko": 6,
+   "b_ko": 162,
+   "timeouts": 32,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hisagi-pressd",
+   "a_ko": 6,
+   "b_ko": 187,
+   "timeouts": 7,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hisagi-kite",
+   "a_ko": 2,
+   "b_ko": 179,
+   "timeouts": 19,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hk-wake",
+   "a_ko": 7,
+   "b_ko": 160,
+   "timeouts": 33,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hk-pot",
+   "a_ko": 8,
+   "b_ko": 130,
+   "timeouts": 62,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hk-kite",
+   "a_ko": 1,
+   "b_ko": 156,
+   "timeouts": 43,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-hk-all",
+   "a_ko": 1,
+   "b_ko": 163,
+   "timeouts": 36,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "h1-range",
+   "a_ko": 147,
+   "b_ko": 53,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "a-ken-ki",
+   "a_ko": 12,
+   "b_ko": 123,
+   "timeouts": 65,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "s7-kite",
+   "a_ko": 71,
+   "b_ko": 66,
+   "timeouts": 63,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "none",
+   "a_ko": 174,
+   "b_ko": 23,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-generic",
+   "a_ko": 174,
+   "b_ko": 23,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hisagi-merged",
+   "a_ko": 8,
+   "b_ko": 137,
+   "timeouts": 55,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 2,
+   "b_ko": 173,
+   "timeouts": 25,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hisagi-press",
+   "a_ko": 6,
+   "b_ko": 162,
+   "timeouts": 32,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hisagi-pressd",
+   "a_ko": 6,
+   "b_ko": 187,
+   "timeouts": 7,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hisagi-kite",
+   "a_ko": 2,
+   "b_ko": 179,
+   "timeouts": 19,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hk-wake",
+   "a_ko": 7,
+   "b_ko": 160,
+   "timeouts": 33,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hk-pot",
+   "a_ko": 8,
+   "b_ko": 130,
+   "timeouts": 62,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hk-kite",
+   "a_ko": 1,
+   "b_ko": 156,
+   "timeouts": 43,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-hk-all",
+   "a_ko": 1,
+   "b_ko": 163,
+   "timeouts": 36,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "h1-range",
+   "a_ko": 147,
+   "b_ko": 53,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "a-ken-ki",
+   "a_ko": 12,
+   "b_ko": 123,
+   "timeouts": 65,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "s7-kite",
+   "a_ko": 71,
+   "b_ko": 66,
+   "timeouts": 63,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hisagi-merged",
+   "a_ko": 75,
+   "b_ko": 0,
+   "timeouts": 125,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 87,
+   "b_ko": 0,
+   "timeouts": 113,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hisagi-press",
+   "a_ko": 38,
+   "b_ko": 0,
+   "timeouts": 162,
+   "draws": 2,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hisagi-pressd",
+   "a_ko": 40,
+   "b_ko": 0,
+   "timeouts": 160,
+   "draws": 2,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hisagi-kite",
+   "a_ko": 82,
+   "b_ko": 1,
+   "timeouts": 117,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hk-wake",
+   "a_ko": 71,
+   "b_ko": 0,
+   "timeouts": 129,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hk-pot",
+   "a_ko": 74,
+   "b_ko": 1,
+   "timeouts": 125,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hk-kite",
+   "a_ko": 33,
+   "b_ko": 3,
+   "timeouts": 164,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-hk-all",
+   "a_ko": 71,
+   "b_ko": 3,
+   "timeouts": 126,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hisagi-merged",
+   "a_ko": 106,
+   "b_ko": 0,
+   "timeouts": 94,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 112,
+   "b_ko": 0,
+   "timeouts": 88,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hisagi-press",
+   "a_ko": 53,
+   "b_ko": 0,
+   "timeouts": 147,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hisagi-pressd",
+   "a_ko": 57,
+   "b_ko": 0,
+   "timeouts": 143,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hisagi-kite",
+   "a_ko": 106,
+   "b_ko": 0,
+   "timeouts": 94,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hk-wake",
+   "a_ko": 109,
+   "b_ko": 0,
+   "timeouts": 91,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hk-pot",
+   "a_ko": 106,
+   "b_ko": 0,
+   "timeouts": 94,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hk-kite",
+   "a_ko": 66,
+   "b_ko": 0,
+   "timeouts": 134,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-hk-all",
+   "a_ko": 78,
+   "b_ko": 0,
+   "timeouts": 122,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 2,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "none",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-generic",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hisagi-merged",
+   "a_ko": 18,
+   "b_ko": 4,
+   "timeouts": 178,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 24,
+   "b_ko": 3,
+   "timeouts": 173,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hisagi-press",
+   "a_ko": 38,
+   "b_ko": 9,
+   "timeouts": 153,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hisagi-pressd",
+   "a_ko": 34,
+   "b_ko": 4,
+   "timeouts": 162,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hisagi-kite",
+   "a_ko": 29,
+   "b_ko": 28,
+   "timeouts": 143,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hk-wake",
+   "a_ko": 21,
+   "b_ko": 3,
+   "timeouts": 176,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hk-pot",
+   "a_ko": 10,
+   "b_ko": 4,
+   "timeouts": 186,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hk-kite",
+   "a_ko": 10,
+   "b_ko": 45,
+   "timeouts": 145,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-hk-all",
+   "a_ko": 7,
+   "b_ko": 40,
+   "timeouts": 153,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "h1-range",
+   "a_ko": 195,
+   "b_ko": 5,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "s7-kite",
+   "a_ko": 188,
+   "b_ko": 3,
+   "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hisagi-merged",
+   "a_ko": 14,
+   "b_ko": 0,
+   "timeouts": 186,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 15,
+   "b_ko": 0,
+   "timeouts": 185,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hisagi-press",
+   "a_ko": 8,
+   "b_ko": 0,
+   "timeouts": 192,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hisagi-pressd",
+   "a_ko": 7,
+   "b_ko": 0,
+   "timeouts": 193,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hisagi-kite",
+   "a_ko": 32,
+   "b_ko": 2,
+   "timeouts": 166,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hk-wake",
+   "a_ko": 46,
+   "b_ko": 2,
+   "timeouts": 152,
+   "draws": 2,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hk-pot",
+   "a_ko": 11,
+   "b_ko": 2,
+   "timeouts": 187,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hk-kite",
+   "a_ko": 5,
+   "b_ko": 0,
+   "timeouts": 195,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-hk-all",
+   "a_ko": 32,
+   "b_ko": 1,
+   "timeouts": 167,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hisagi-merged",
+   "a_ko": 92,
+   "b_ko": 5,
+   "timeouts": 103,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 105,
+   "b_ko": 1,
+   "timeouts": 94,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hisagi-press",
+   "a_ko": 47,
+   "b_ko": 3,
+   "timeouts": 150,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hisagi-pressd",
+   "a_ko": 54,
+   "b_ko": 2,
+   "timeouts": 144,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hisagi-kite",
+   "a_ko": 88,
+   "b_ko": 10,
+   "timeouts": 102,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hk-wake",
+   "a_ko": 88,
+   "b_ko": 4,
+   "timeouts": 108,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hk-pot",
+   "a_ko": 92,
+   "b_ko": 5,
+   "timeouts": 103,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hk-kite",
+   "a_ko": 56,
+   "b_ko": 8,
+   "timeouts": 136,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-hk-all",
+   "a_ko": 85,
+   "b_ko": 7,
+   "timeouts": 108,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 3,
+   "timeouts": 197,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "none",
+   "a_ko": 191,
+   "b_ko": 7,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-generic",
+   "a_ko": 191,
+   "b_ko": 7,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hisagi-merged",
+   "a_ko": 2,
+   "b_ko": 7,
+   "timeouts": 191,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 4,
+   "b_ko": 7,
+   "timeouts": 189,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hisagi-press",
+   "a_ko": 4,
+   "b_ko": 13,
+   "timeouts": 183,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hisagi-pressd",
+   "a_ko": 4,
+   "b_ko": 13,
+   "timeouts": 183,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hisagi-kite",
+   "a_ko": 1,
+   "b_ko": 64,
+   "timeouts": 135,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hk-wake",
+   "a_ko": 3,
+   "b_ko": 8,
+   "timeouts": 189,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hk-pot",
+   "a_ko": 3,
+   "b_ko": 8,
+   "timeouts": 189,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hk-kite",
+   "a_ko": 12,
+   "b_ko": 6,
+   "timeouts": 182,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-hk-all",
+   "a_ko": 14,
+   "b_ko": 4,
+   "timeouts": 182,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "h1-range",
+   "a_ko": 171,
+   "b_ko": 25,
+   "timeouts": 4,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 1,
+   "timeouts": 199,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "s7-kite",
+   "a_ko": 36,
+   "b_ko": 0,
+   "timeouts": 164,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "none",
+   "a_ko": 197,
+   "b_ko": 2,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-generic",
+   "a_ko": 197,
+   "b_ko": 2,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hisagi-merged",
+   "a_ko": 120,
+   "b_ko": 66,
+   "timeouts": 14,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 82,
+   "b_ko": 113,
+   "timeouts": 5,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hisagi-press",
+   "a_ko": 119,
+   "b_ko": 62,
+   "timeouts": 19,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hisagi-pressd",
+   "a_ko": 58,
+   "b_ko": 136,
+   "timeouts": 6,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hisagi-kite",
+   "a_ko": 114,
+   "b_ko": 75,
+   "timeouts": 11,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hk-wake",
+   "a_ko": 96,
+   "b_ko": 91,
+   "timeouts": 13,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hk-pot",
+   "a_ko": 108,
+   "b_ko": 74,
+   "timeouts": 18,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hk-kite",
+   "a_ko": 112,
+   "b_ko": 76,
+   "timeouts": 12,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-hk-all",
+   "a_ko": 63,
+   "b_ko": 110,
+   "timeouts": 27,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "h1-range",
+   "a_ko": 171,
+   "b_ko": 29,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "a-ken-ki",
+   "a_ko": 169,
+   "b_ko": 16,
+   "timeouts": 15,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "s7-kite",
+   "a_ko": 179,
+   "b_ko": 16,
+   "timeouts": 5,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hisagi-merged",
+   "a_ko": 108,
+   "b_ko": 3,
+   "timeouts": 89,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 108,
+   "b_ko": 1,
+   "timeouts": 91,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hisagi-press",
+   "a_ko": 65,
+   "b_ko": 1,
+   "timeouts": 134,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hisagi-pressd",
+   "a_ko": 73,
+   "b_ko": 0,
+   "timeouts": 127,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hisagi-kite",
+   "a_ko": 116,
+   "b_ko": 2,
+   "timeouts": 82,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hk-wake",
+   "a_ko": 112,
+   "b_ko": 3,
+   "timeouts": 85,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hk-pot",
+   "a_ko": 117,
+   "b_ko": 3,
+   "timeouts": 80,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hk-kite",
+   "a_ko": 70,
+   "b_ko": 5,
+   "timeouts": 125,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-hk-all",
+   "a_ko": 87,
+   "b_ko": 9,
+   "timeouts": 104,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "a-ken-ki",
+   "a_ko": 0,
+   "b_ko": 5,
+   "timeouts": 195,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hisagi-merged",
+   "a_ko": 189,
+   "b_ko": 1,
+   "timeouts": 10,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 186,
+   "b_ko": 0,
+   "timeouts": 14,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hisagi-press",
+   "a_ko": 194,
+   "b_ko": 0,
+   "timeouts": 6,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hisagi-pressd",
+   "a_ko": 194,
+   "b_ko": 0,
+   "timeouts": 6,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hisagi-kite",
+   "a_ko": 189,
+   "b_ko": 0,
+   "timeouts": 11,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hk-wake",
+   "a_ko": 189,
+   "b_ko": 1,
+   "timeouts": 10,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hk-pot",
+   "a_ko": 186,
+   "b_ko": 1,
+   "timeouts": 13,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hk-kite",
+   "a_ko": 179,
+   "b_ko": 1,
+   "timeouts": 20,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-hk-all",
+   "a_ko": 182,
+   "b_ko": 0,
+   "timeouts": 18,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "a-ken-ki",
+   "a_ko": 182,
+   "b_ko": 1,
+   "timeouts": 17,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hisagi-merged",
+   "a_ko": 179,
+   "b_ko": 0,
+   "timeouts": 21,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 181,
+   "b_ko": 0,
+   "timeouts": 19,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hisagi-press",
+   "a_ko": 185,
+   "b_ko": 0,
+   "timeouts": 15,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hisagi-pressd",
+   "a_ko": 187,
+   "b_ko": 0,
+   "timeouts": 13,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hisagi-kite",
+   "a_ko": 166,
+   "b_ko": 0,
+   "timeouts": 34,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hk-wake",
+   "a_ko": 179,
+   "b_ko": 0,
+   "timeouts": 21,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hk-pot",
+   "a_ko": 177,
+   "b_ko": 0,
+   "timeouts": 23,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hk-kite",
+   "a_ko": 158,
+   "b_ko": 0,
+   "timeouts": 42,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-hk-all",
+   "a_ko": 163,
+   "b_ko": 0,
+   "timeouts": 37,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "a-ken-ki",
+   "a_ko": 137,
+   "b_ko": 1,
+   "timeouts": 62,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hisagi-merged",
+   "a_ko": 191,
+   "b_ko": 0,
+   "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 190,
+   "b_ko": 1,
+   "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hisagi-press",
+   "a_ko": 197,
+   "b_ko": 0,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hisagi-pressd",
+   "a_ko": 196,
+   "b_ko": 0,
+   "timeouts": 4,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hisagi-kite",
+   "a_ko": 191,
+   "b_ko": 1,
+   "timeouts": 8,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hk-wake",
+   "a_ko": 191,
+   "b_ko": 0,
+   "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hk-pot",
+   "a_ko": 195,
+   "b_ko": 2,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hk-kite",
+   "a_ko": 192,
+   "b_ko": 0,
+   "timeouts": 8,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-hk-all",
+   "a_ko": 191,
+   "b_ko": 0,
+   "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "a-ken-ki",
+   "a_ko": 183,
+   "b_ko": 0,
+   "timeouts": 17,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "none",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hisagi-merged",
+   "a_ko": 51,
+   "b_ko": 1,
+   "timeouts": 148,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 56,
+   "b_ko": 0,
+   "timeouts": 144,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hisagi-press",
+   "a_ko": 116,
+   "b_ko": 1,
+   "timeouts": 83,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hisagi-pressd",
+   "a_ko": 109,
+   "b_ko": 0,
+   "timeouts": 91,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hisagi-kite",
+   "a_ko": 77,
+   "b_ko": 0,
+   "timeouts": 123,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hk-wake",
+   "a_ko": 47,
+   "b_ko": 1,
+   "timeouts": 152,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hk-pot",
+   "a_ko": 35,
+   "b_ko": 0,
+   "timeouts": 165,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hk-kite",
+   "a_ko": 60,
+   "b_ko": 1,
+   "timeouts": 139,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-hk-all",
+   "a_ko": 45,
+   "b_ko": 0,
+   "timeouts": 155,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-ken-ki",
+   "a_ko": 1,
+   "b_ko": 0,
+   "timeouts": 199,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "s7-kite",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  }
+ ],
+ "a_mix": {
+  "none": 0.0,
+  "a-generic": 0.0,
+  "a-ken-ki": 0.0,
+  "a-ken-press": 0.0,
+  "a-ken-zoner": 0.0,
+  "a-ken-kh": 0.0,
+  "a-ken-kh-standoff": 0.0,
+  "a-ichigo-ki": 0.0,
+  "s1-brawler": 0.0,
+  "c-ki-k-pilot-b0a0": 0.0,
+  "c-ki-k-r1-b0a1": 0.0,
+  "c-ki-k-r1-b2a2": 0.0,
+  "c-ki-k-r2-b0a2": 0.999,
+  "c-ki-k-r2-b1a2": 0.0
+ },
+ "b_mix": {
+  "none": 0.0,
+  "a-generic": 0.0,
+  "a-hisagi-merged": 0.0,
+  "a-hisagi-dswitch": 0.0,
+  "a-hisagi-press": 0.0,
+  "a-hisagi-pressd": 0.0,
+  "a-hisagi-kite": 0.0,
+  "a-hk-wake": 0.0,
+  "a-hk-pot": 0.999,
+  "a-hk-kite": 0.0,
+  "a-hk-all": 0.0,
+  "h1-range": 0.0,
+  "a-ken-ki": 0.0,
+  "s7-kite": 0.0
+ },
+ "a_value": 0.9749,
+ "b_value": 0.01,
+ "a_gap": 0.0001,
+ "b_gap": 0.0
+}
