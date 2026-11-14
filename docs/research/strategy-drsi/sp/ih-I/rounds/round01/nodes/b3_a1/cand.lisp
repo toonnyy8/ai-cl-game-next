@@ -1,0 +1,1 @@
+(:id :c-ih-i-r1-b3a1 :fn ichigo-ki-style :apply (:ichigo) :base (:range 0.25 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05 :iks-mix-ptr3 0.6 :iks-mix-space 0.1 :iks-gap-p 1.0 :iks-ns-wait 24 :iks-gap-fs 150 :iks-meaty-far 4.5 :iks-wait-max 40 :iks-gap-wait 5.5 ) :rules ())

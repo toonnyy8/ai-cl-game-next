@@ -8,7 +8,7 @@
     1.0
   ],
   "branches": 4,
-  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=db031584 python3 docs/research/strategy-drsi/sp/eval.py --me hisagi --vs ichigo --cand {node_dir}/cand.lisp --seed0 300 -j 3",
+  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=7005b10a python3 docs/research/strategy-drsi/sp/eval.py --me hisagi --vs ichigo --cand {node_dir}/cand.lisp --seed0 300 -j 3",
   "lambda": 0.05,
   "refines": 2,
   "task": "SOUL DUEL IH round 1: a strategy arm for hisagi against ichigo's frozen population (K.O.-only score)",
