@@ -91,7 +91,7 @@ CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 o
   it; a cancel removes it and refunds that segment even after the move ended; an owner no longer in a move gets only the refund (no
   "landed"); wave vs wave stays as it is (ichigo.lisp); DUEL_CORE's "a wave beats every class at range" is overturned (Ichigo's pointer 2
   changes); PRACTICE's GUARD ALL dummy must try to cancel waves too. The live hazards: Ichigo's waves and KESSA's clone replays (Hisagi's
-  chains are melee windows, already judged).
+  chains are melee windows, already judged); since 2026-11-14 also KESSA's NS3 / AS3 clone cuts, judged as the segment that summoned them (the user: 「一護卍解的 NS3 分身在練習模式中不會觸發對手進行相消」).
 - The AS1 flash-step steals (DUEL_CORE §2.2: per hit, 50 % conversion) **can take the last cell** (the user, 2026-11-13: 「AS1 能奪取最後一格，不受影響」; S1 had floored them at it) and are **halved** (「將現有 AS1 的奪取量減半」): Ichigo's RAKUGA 80 -> 40, KESSA's KUSARI-BIKI 30 -> 15 a hit, Hisagi's TSUMUJI 10 / 20 / 30 / 40 -> 5 / 10 / 15 / 20.
 
 ## 7. Consequences and dead code
@@ -348,7 +348,7 @@ exactly 100): victim 100: TSUMUJI 5.1 / 1.9 / 2.1 / 2.3, RAKUGA 5.9, KUSARI-BIKI
   `dummy-cancel-input` answers the sooner of the melee hit and a classed wave (gap 0, the wave's class).
 - **Defaults taken** (beyond §8.6): **JUJISHO's cut of other waves (`ichigo-cut`) is wave vs wave** and stays (§6), so the only blade site is
   `cut-hazards`; the plan's `collect-melee` cut had already moved there. **NS3 / AS3's own clone cuts and ZANZO's echoes stay classless**
-  (`ichigo-strike` passes `:cls nil`: they are not projectiles, §6 names only the waves and the replays). **A replay pays nothing** (`sp-paid` 0:
+  (`ichigo-strike` passes `:cls nil`: they are not projectiles, §6 names only the waves and the replays). *Overturned for the clone cuts 2026-11-14* (the user: 「一護卍解的 NS3 分身在練習模式中不會觸發對手進行相消」): `clone-answer-step` passes `:cls` of the segment Ichigo is in (NS3 a / b / c, AS3's), so the cut is judged, refunded and opens an exchange like a wave; GUARD ALL sees it through the kit's `:threat` hook (`ichigo-threat`, read by `dummy-wave-threat`: an answering clone's S, a replay's next window). KAGE-RENZAN's cuts and ZANZO's echoes stay classless. G2 II 38 lines P2 4-4 373.4 s -> 37 lines P1 4-3 366.4 s; IK, KK unchanged (DEVLOG §777). **A replay pays nothing** (`sp-paid` 0:
   the summon paid for the clone, so a cancelled replay refunds nothing), and its `sp-src` is the replayed move's tick, so a replay cancelled
   while Ichigo is still in that J counts as landed for him (the literal rule). **`core-clash!` fires** on a hazard cancel (a cancel is a
   cancel: each kit's :clash hook). **No bounce** (a wave is no body). **A beaten wave is cut without a hitstop** (as the old cut). The

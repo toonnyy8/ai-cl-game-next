@@ -330,7 +330,7 @@ HARD 0.8).")
 (defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
-                              :kikon-worth ichigo-kikon-worth :draw ichigo-draw :hud-tag ichigo-hud-tag))
+                              :kikon-worth ichigo-kikon-worth :draw ichigo-draw :hud-tag ichigo-hud-tag :threat ichigo-threat))
 
 (defkit :ichigo :base
   :name "ICHIGO" :body :ichigo :weapon :zangetsu-long :stance :ic-stance :hide (:kessa :mark)
@@ -601,8 +601,9 @@ made again where it stood."
 
 (defun ichigo-strike (e x z yaw hw mult data &rest sp)
   "A clone's / an echo's hit: an :ic-hit hazard with HW at MULT (ECHO-HITWIN) in the frame (X Z YAW), for its active
-frames; guarded facing Ichigo (:src); a hazard: no KOSEI, it counts in his combo. SP: its triangle keys (a replay's, CLONE-REPLAY-SP);
-none: classless, a clean hit (NS3 / AS3's own clone cuts and the echoes are not projectiles, DUEL_SP §6: only the replays join)."
+frames; guarded facing Ichigo (:src); a hazard: no KOSEI, it counts in his combo. SP: its triangle keys (a replay's, CLONE-REPLAY-SP;
+NS3 / AS3's own clone cuts: the segment he is in, CLONE-ANSWER-STEP, the user 2026-11-14: 「一護卍解的 NS3 分身在練習模式中不會觸發對手進行相消」);
+none: classless, a clean hit (KAGE-RENZAN's cuts and ZANZO's echoes)."
   (apply #'spawn-hazard :ic-hit e :x x :z z :yaw yaw :size 0.5 :life (max 1 (- (hw-to hw) (hw-from hw))) :hw (echo-hitwin hw mult)
                           :src t :hook 'ichigo-strike-hz :data data
                           :sp (eq data :echo)   ; (SP2 ZANZO's afterimage echoes ignore the combo scaling, the user 2026-10-24)
@@ -616,6 +617,26 @@ none: classless, a clean hit (NS3 / AS3's own clone cuts and the echoes are not 
       (vol-hit-p (first (hw-vols (hazard-hw hz))) (hazard-x hz) 0f0 (hazard-z hz) (f32 (fwd-x yaw)) (f32 (fwd-z yaw))
                  tx ty tz tr th 0f0))))
 
+(defun clone-answer-cls (e)
+  "The class an answering clone's cut is judged as: E's classed move now (NS3 / AS3's segment that made it), or NIL (clean)."
+  (let ((f (fighter e))) (and (eq (fighter-state f) :move) (fighter-cls f))))
+
+(defun ichigo-threat (e o slack)
+  "KESSA's :threat hook (PRACTICE's GUARD ALL dummy O, practice.lisp DUMMY-WAVE-THREAT): the soonest classed cut of E's clones still to
+come within its move's edge + SLACK m of O (an answering clone's before its S, a replaying clone's next hit window): values its frames
+(1 = the next step) and class, or NIL."
+  (let ((best nil) (cls nil) (q (pos-of o)))
+    (dolist (h (ichigo-live-clones e) (values best cls))
+      (let* ((hz (hazard h)) (c (hazard-data hz)) (mv (icc-mv c)) (sf (icc-sf c))
+             (k (case (icc-state c)
+                  (:answer (and (< sf (mv-s mv)) (- (mv-s mv) sf)))
+                  (:replay (loop for w across (mv-hits mv) when (> (hw-from w) sf) minimize (- (hw-from w) sf) into m
+                                 finally (return (and m (plusp m) m))))))
+             (kc (if (eq (icc-state c) :replay) (kit-class (kit-of e) mv) (clone-answer-cls e))))
+        (when (and k kc (or (null best) (< k best))
+                   (<= (hypot (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz))) (+ (move-edge mv) slack)))
+          (setf best k cls kc))))))
+
 (defun clone-answer-step (e hz c)
   "An answering clone, one frame: the lag; its hit, struck where it stands (no chase: the user, 2026-09-29), facing him;
 its next link once the chain opens (its own contact, CHAIN-OPEN-P; after a touch every latched press goes on); at the
@@ -623,7 +644,8 @@ string's end it fades if it touched him, else it idles where it stands."
   (let* ((mv (icc-mv c)) (sf (incf (icc-sf c))) (s (mv-s mv)))
     (cond ((< sf s) nil)
           (t (when (= sf s)
-               (ichigo-strike e (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (svref (mv-hits mv) 0) *clone-scale* c)
+               (ichigo-strike e (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (svref (mv-hits mv) 0) *clone-scale* c
+                              :cls (clone-answer-cls e))     ; (judged as his segment that summoned it: SPAWN-HAZARD's defaults)
                (emit :sfx :whoosh-heavy e))
              (cond ((and (icc-queued c) (< (icc-link c) 3)
                          (chain-open-p sf s (mv-a mv) (mv-r mv) (or (icc-hit c) (icc-touched c))))

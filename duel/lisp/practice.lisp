@@ -124,13 +124,17 @@ would start is offered: KIT-SP-START-P over G's flash-step and burst (R15d, 2026
                    ((:na :sa) (and (eq (fighter-contact f) :hit) (list (opt :j (kit-next kit (mv-name mv) :q) dmin dmax))))))))))))
 
 (defun dummy-wave-threat (e o)
-  "The soonest of O's classed waves to reach E standing (WAVE-ARRIVAL): values its frames and class, or NIL (GUARD ALL, DUEL_SP §6, S5)."
-  (let ((best nil) (cls nil) (q (pos-of e)) (r (body-hurt-r (model-body (model e)))))
+  "The soonest of O's classed waves to reach E standing (WAVE-ARRIVAL), or of the cuts his kit's :threat hook sees coming (KESSA's clones:
+ICHIGO-THREAT): values its frames and class, or NIL (GUARD ALL, DUEL_SP §6, S5)."
+  (let ((best nil) (cls nil) (q (pos-of e)) (r (body-hurt-r (model-body (model e)))) (th (kit-hook (fighter-kit (fighter o)) :threat)))
     (do-entities (h (hz hazard))
       (when (and (eql (hazard-owner hz) o) (eq (hazard-kind hz) :wave) (hazard-cls hz) (hazard-active-p hz))
         (let ((k (wave-arrival (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz)) (hazard-yaw hz) (* (hazard-speed hz) +step+)
                                (hazard-size hz) (second *wave-box*) r (- (hazard-life hz) (hazard-age hz)))))
           (when (and k (or (null best) (< k best))) (setf best k cls (hazard-cls hz))))))
+    (when th
+      (multiple-value-bind (k c) (funcall th o e *dummy-cancel-reach*)
+        (when (and k (or (null best) (< k best))) (setf best k cls c))))
     (values best cls)))
 
 (defun dummy-cancel-input (f pf)
