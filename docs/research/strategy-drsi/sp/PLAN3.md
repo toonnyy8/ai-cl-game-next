@@ -13,6 +13,8 @@ Guesses are marked.
 - **Probe B**, `strat-run.lisp` with `STRAT_SET` (the knob set for **both** seats), seeds 301-350, both seats, 100 matches a row: shipped
   table against shipped table under 8 settings of the shared exchange knobs.
 
+**Checkpoint 0 answered (2026-11-15):** the user chose 「標準 90 格 (Recommended)」 and 「先凍結 (Recommended)」 (the exchange rules frozen until the collection ships). DUEL_AI_STRATEGY §11.22, DEVLOG §780.
+
 ## 0. What the probes say
 
 **A. The old order is gone.** Counts are K.O. wins : K.O. losses : time-outs of 200, the row's side first.

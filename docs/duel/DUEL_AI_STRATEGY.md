@@ -2974,3 +2974,16 @@ Ichigo and Hisagi each `cpu clash na into his ns` on n3a's f13 and `P1 ic-hit ns
 pollute; fulltest on G2's IK 71 checks, 0 differ. G2 regenerated (native = browser): II 37 P2 5-8 369.5 s -> 39 P2 2-4 391.5 s, IK 40 P2 1-3
 395.8 s -> 35 P2 0-3 349.5 s, KK 22 P2 0-6 218.1 s -> 29 P1 4-0 283.5 s.
 
+### 11.22 The re-collection after the exchange rules: plan and the user's choices (2026-11-15)
+
+Plan: `docs/research/strategy-drsi/sp/PLAN3.md` (Fable, with two probes: the shipped tables' old order is gone, KH flipped to Hisagi
+101 : 10 with 89 time-outs; one exchange knob moves a pairing 15-35 points, in opposite directions by pairing). The budget goes to the shared
+exchange layer's knobs as arm keys (step X1: `:xch-sa-p :xch-carry-p :xch-j :clash-p :clash-margin :xch-sa-wait :awaken-break-p
+:awaken-kikon-p`, scales on the per-difficulty values), searched per pairing and side with the style knobs; tables stay the shipping format.
+
+The user's choices at checkpoint 0 (verbatim answers to the lead's two questions):
+- budget: 「標準 90 格 (Recommended)」: a cap of 90 cells (at most 6 Opus code cells), about 35 CPU-h (guess); KI the pilot, then KH and IH,
+  a second round where the first admitted, stage 2 bands on the pilot pairing;
+- the exchange rules frozen for the collection: 「先凍結 (Recommended)」: no change to the cancel, Hoho or awakening rules until it ships;
+  new feedback on them is recorded and handled after.
+
