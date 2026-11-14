@@ -177,10 +177,17 @@ r = SCALE x the change of H to the next judgement (to H-END at the last, plus WO
                      (setf (nth (1+ a) rule) (fq-quant (max (- q0 cap) (min (+ q0 cap) (+ (nth (1+ a) rule) (* eta x delta))))))))))))
 
 (defun fq-checksum (fq)
-  "A small checksum of the Q selector FQ's q values (a saved online table is kept only while its offline table is the same)."
+  "A small checksum of the Q selector FQ's arms and q values (a saved online table is kept only while its offline table is the same):
+each arm's id by its name's characters (NIL, the none arm, as 0; the arms may be ids or expanded plists), then every q. The arms since
+2026-11-14 (DUEL_AI_STRATEGY §11.17): a copy learned on other arms with the same q no longer loads."
   (let ((s (length (getf fq :rules))))
-    (dolist (r (getf fq :rules) s)
-      (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))   ; (a polynomial hash: a weighted sum let opposite moves cancel)
+    (flet ((mix (k) (setf s (mod (+ (* 31 s) k) 999983))))   ; (a polynomial hash: a weighted sum let opposite moves cancel)
+      (dolist (a (getf fq :arms))
+        (let ((id (if (consp a) (getf a :id) a)))
+          (mix 1)
+          (when id (loop for c across (symbol-name id) do (mix (char-code c))))))
+      (dolist (r (getf fq :rules) s)
+        (dolist (q (rest r)) (mix (round (* q *fq-unit*))))))))
 
 (defun fq-encode (fq base n)
   "The page's integers for the online table FQ grown from BASE over N matches: format, BASE's checksum, N, then every q x *FQ-UNIT*."

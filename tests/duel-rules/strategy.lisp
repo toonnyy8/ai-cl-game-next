@@ -375,4 +375,14 @@
                                                  :fq)))
         (check (= 2 (nth-value 1 (fq-decode codes fq))))                    ; (its own copy reads back, with its match count)
         (check (null (fq-decode (fq-encode old old 5) fq)))                 ; (the old table's saved copy: fresh)
-        (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))))))   ; (the right size, another checksum: fresh)
+        (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))   ; (the right size, another checksum: fresh)
+        ;; §11.17: the checksum covers the arms. A copy saved under the q-only checksum (before 2026-11-14) and a copy of the same q
+        ;; learned on other arms both load fresh
+        (let ((q-only (let ((s (length (getf fq :rules))))
+                        (dolist (r (getf fq :rules) s) (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))
+              (other (list* :arms (reverse (getf fq :arms)) fq)))
+          (check (/= q-only (second codes)))
+          (check (null (fq-decode (list* (first codes) q-only (cddr codes)) fq)))
+          (check (equal (getf other :rules) (getf fq :rules)))
+          (check (/= (fq-checksum other) (fq-checksum fq)))
+          (check (null (fq-decode (fq-encode other other 2) fq))))))))
