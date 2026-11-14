@@ -2959,3 +2959,18 @@ milliseconds differ). Fulltest on G2's IK: 65 checks, 0 differ. G2 regenerated (
 difficulty change); NORMAL's strength (K.O. 127 of 180, §11.19) and a dream-rsi re-collection (the KI tables' gain is gone) are budget
 decisions.
 
+### 11.21 NORMAL cancels the clones too; NORMAL's strength kept; the re-collection asked for (2026-11-15)
+
+The user (verbatim, on §11.20's three questions): 「要」 to "NORMAL 是否也要能相消分身？做法是縮短 NORMAL 的反應延遲"; 「目前先這樣」 to NORMAL's
+overall strength (K.O. 127 of 180, §11.19); 「要，請重新蒐集」 to a dream-rsi re-collection (planned in `sp/PLAN3.md`).
+
+**The clash's own reaction** (`*cai-clash-delay*` EASY 24 / NORMAL 10 / HARD 8; before: the brain's delay 24 / 14 / 8). `cai-clash` reads
+the SNAP that many steps old (`brain-snap-ago`, `snap-dist` factored out of `brain-perceive`), never older than the brain's own. Only the
+clash reads sooner, so NORMAL's other decisions keep their 14 frames (the strength the user kept). NORMAL now reaches n3b's and the X's cut
+(the summon's f11). Scripted (2829 the clash at 1, the practice CPU at NORMAL; 2833 is the HARD switch, split off 2829): against Kenpachi,
+Ichigo and Hisagi each `cpu clash na into his ns` on n3a's f13 and `P1 ic-hit ns x P2: CANCEL`, the exchange going on into n3b.
+
+**Checks.** Host tests 3390 ALL PASS (the delay's order, NORMAL's within n3b's `:hit-at`). pkgcheck, build, smoke. Snaptest straight =
+pollute; fulltest on G2's IK 71 checks, 0 differ. G2 regenerated (native = browser): II 37 P2 5-8 369.5 s -> 39 P2 2-4 391.5 s, IK 40 P2 1-3
+395.8 s -> 35 P2 0-3 349.5 s, KK 22 P2 0-6 218.1 s -> 29 P1 4-0 283.5 s.
+

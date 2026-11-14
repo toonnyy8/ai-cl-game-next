@@ -103,6 +103,20 @@ until the distance passes TO (CORE-BRAIN-STEP lets go)."
                (cond ((> d hi) 1f0) ((< d lo) -1f0) (t 0f0))))
 
 ;;; ---------------------------------------------------------------- perception
+(defun snap-dist (s e)
+  "The distance from E to the perceived SNAP S (SQRT of two EXPT 2s, as twins: bit-identical, no boxing)."
+  (let ((p (pos-of e)))
+    (sim-fast
+      (let* ((sx (snap-x s)) (sz (snap-z s)) (q p))
+        (declare (single-float sx sz) (type f32vec q))
+        (let* ((v (%sqrt (+ (%expt2 (- sx (aref q 0))) (%expt2 (- sz (aref q 2)))))))
+          (declare (single-float v))
+          v)))))
+
+(defun brain-snap-ago (b k)
+  "Brain B's SNAP of K steps ago (K < the ring's length), after this step's BRAIN-PERCEIVE (its head already moved on); NIL if none yet."
+  (let ((ring (brain-ring b))) (svref ring (mod (- (brain-head b) 1 k) (length ring)))))
+
 (defun brain-perceive (e b o)
   "Brain B of E sees opponent O this step: his SNAP goes into the ring; values the SNAP of BRAIN-DELAY steps ago and the
 distance to it."
@@ -110,13 +124,7 @@ distance to it."
          (cur (or (svref ring (brain-head b)) (setf (svref ring (brain-head b)) (make-snap)))))
     (snap-take! cur o)
     (let* ((s (or (svref ring (mod (- (brain-head b) (brain-delay b)) n)) cur))
-           (p (pos-of e))
-           (d (sim-fast                                     ; (SQRT of two EXPT 2s, as twins: bit-identical, no boxing)
-                (let* ((sx (snap-x s)) (sz (snap-z s)) (q p))
-                  (declare (single-float sx sz) (type f32vec q))
-                  (let* ((v (%sqrt (+ (%expt2 (- sx (aref q 0))) (%expt2 (- sz (aref q 2)))))))
-                    (declare (single-float v))
-                    v)))))
+           (d (snap-dist s e)))
       (setf (brain-head b) (mod (1+ (brain-head b)) n))
       (when (and (eq (snap-state s) :move) (eq (snap-kind s) :quick) (/= (snap-start s) (brain-jkey b)))   ; a J of his begins
         (setf (brain-jkey b) (snap-start s))

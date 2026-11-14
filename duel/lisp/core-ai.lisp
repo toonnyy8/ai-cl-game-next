@@ -218,16 +218,19 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
                 (:j (cai-press b :quick 1))))))
       t)))
 
-(defun cai-clash (e b f kit s d)
+(defun cai-clash (e b f kit s0 d0)
   "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry; or a summon whose clone cuts later, CLASH-WINDOW) still
 live after the CPU's delay and within his reach + *CAI-CLASH-MARGIN*: one roll per such move of his (BRAIN-CLASH-KEY), and the CPU throws
 CLASH-OPENER's move into it (a J into his NS / AS, its pointer's NS into his NA / SA): whichever hit lands first, a cancel. A plan the MCTS
-made a reaction ago is dropped. T when it pressed."
-  (let* ((mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))) (hits (if mv (length (mv-hits mv)) 0)))
+made a reaction ago is dropped. T when it pressed. Its own reaction: *CAI-CLASH-DELAY*, never slower than the brain's (S0 / D0: the
+brain's perceived SNAP and distance)."
+  (let* ((dl (min (brain-delay b) (brain-chance b *cai-clash-delay*)))
+         (s (if (< dl (brain-delay b)) (or (brain-snap-ago b dl) s0) s0)) (d (if (eq s s0) d0 (snap-dist s e)))
+         (mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))) (hits (if mv (length (mv-hits mv)) 0)))
     (multiple-value-bind (end reach)
         (and mv (clash-window hits (snap-active-end s) (snap-reach s) (getf (mv-params mv) :hit-at) (getf (mv-params mv) :hit-reach)))
      (when (and to end (/= (brain-clash-key b) (snap-start s)) (plusp reach)
-               (not (member :parry (snap-flags s))) (>= (- end (snap-sf s) (brain-delay b)) 1)
+               (not (member :parry (snap-flags s))) (>= (- end (snap-sf s) dl) 1)
                (if (plusp hits) (snap-near-p s e d *cai-clash-margin*) (< d (+ reach *cai-clash-margin*)))
                (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
       (setf (brain-clash-key b) (snap-start s))

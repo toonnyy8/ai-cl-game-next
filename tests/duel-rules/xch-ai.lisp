@@ -57,3 +57,7 @@
 (check (<= 4 *cai-xch-sa-wait* 8))                                   ; (the measured winning window)
 (check (<= (getf *cai-awaken-break-p* :easy) (getf *cai-awaken-break-p* :normal) (getf *cai-awaken-break-p* :hard)))
 (check (<= (getf *cai-awaken-kikon-p* :easy) (getf *cai-awaken-kikon-p* :normal) (getf *cai-awaken-kikon-p* :hard)))
+;; the clash's reaction: never slower at a harder difficulty; NORMAL's in time for n3b's / the X's cut (f11: pressed by f10)
+(check (>= (getf *cai-clash-delay* :easy) (getf *cai-clash-delay* :normal) (getf *cai-clash-delay* :hard)))
+(check (< (getf *cai-clash-delay* :normal) (getf (mv-params (find-move :ic-k-n3b)) :hit-at)))
+

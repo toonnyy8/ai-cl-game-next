@@ -479,4 +479,9 @@ chance when it may (AWAKEN-READY-P, no strategy holding it). New 2026-11-14 (the
 (defparameter *cai-awaken-kikon-p* '(:easy 0.2 :normal 0.5 :hard 0.85)
   "The same on a Kikon's lock (its first frame, once): the awakening repels him and the follow-up never lands, the Konpaku saved. New
 2026-11-14 (the lead). Before: 0.")
+(defparameter *cai-clash-delay* '(:easy 24 :normal 10 :hard 8)
+  "The clash's own reaction, frames (CAI-CLASH reads the SNAP this many steps old, never older than BRAIN-DELAY): NORMAL 14 -> 10 so it
+cancels KESSA's NS3 clone cuts in time too (n3b's and the X's land on the summon's f11; the user, 2026-11-15: 「要」 to 「NORMAL 是否也要能
+相消分身？…縮短 NORMAL 的反應延遲」, with NORMAL's overall strength left as it is: 「目前先這樣」, so only the clash reads sooner). New
+2026-11-15 (the lead). Before: the brain's delay (EASY 24, NORMAL 14, HARD 8).")
 (defparameter *cai-clash-margin* 1.0 "m past his move's reach within which the clash throws its opener (the generic CPU's Hoho test: reach + 1.0).")
