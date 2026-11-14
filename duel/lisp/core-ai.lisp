@@ -201,7 +201,9 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
                                                   (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) *cai-clash-margin*))))))))
       (unless (brain-xdone b)
         (if (eq (fighter-cls f) :ns)
-            (cond ((and (eq (brain-xpick b) :watch) (xch-turn-seen-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))))
+            (cond ((and (eq (brain-xpick b) :watch)
+                        (xch-sa-now-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))
+                                      *match-tick* *cai-xch-sa-wait*))
                    (setf (brain-xdone b) t)
                    (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))
                    (cai-press b :quick 1))
@@ -217,20 +219,24 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
       t)))
 
 (defun cai-clash (e b f kit s d)
-  "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry) still live after the CPU's delay and within his reach
-+ *CAI-CLASH-MARGIN*: one roll per such move of his (BRAIN-CLASH-KEY), and the CPU throws CLASH-OPENER's move into it (a J into his NS / AS,
-its pointer's NS into his NA / SA): whichever hit lands first, a cancel. A plan the MCTS made a reaction ago is dropped. T when it pressed."
-  (let* ((mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))))
-    (when (and to mv (/= (brain-clash-key b) (snap-start s)) (plusp (length (mv-hits mv))) (plusp (snap-reach s))
-               (not (member :parry (snap-flags s))) (>= (- (snap-active-end s) (snap-sf s) (brain-delay b)) 1)
-               (snap-near-p s e d *cai-clash-margin*) (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
+  "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry; or a summon whose clone cuts later, CLASH-WINDOW) still
+live after the CPU's delay and within his reach + *CAI-CLASH-MARGIN*: one roll per such move of his (BRAIN-CLASH-KEY), and the CPU throws
+CLASH-OPENER's move into it (a J into his NS / AS, its pointer's NS into his NA / SA): whichever hit lands first, a cancel. A plan the MCTS
+made a reaction ago is dropped. T when it pressed."
+  (let* ((mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))) (hits (if mv (length (mv-hits mv)) 0)))
+    (multiple-value-bind (end reach)
+        (and mv (clash-window hits (snap-active-end s) (snap-reach s) (getf (mv-params mv) :hit-at) (getf (mv-params mv) :hit-reach)))
+     (when (and to end (/= (brain-clash-key b) (snap-start s)) (plusp reach)
+               (not (member :parry (snap-flags s))) (>= (- end (snap-sf s) (brain-delay b)) 1)
+               (if (plusp hits) (snap-near-p s e d *cai-clash-margin*) (< d (+ reach *cai-clash-margin*)))
+               (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
       (setf (brain-clash-key b) (snap-start s))
       (when (brain-roll b *cai-clash-p*)
         (mc-plan-drop f)
         (clog "~a cpu clash ~(~a~) into his ~(~a~) at ~,1f" (side-name e) to (cai-class-of (fighter-opp f) s) d)
         (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0)        ; (its own rolls made afresh; no Kikon hold on a clash)
         (if (eq to :na) (cai-press b :quick 1) (cai-sp b f s))
-        t))))
+        t)))))
 
 (defun cai-neutral (e b f kit s d)
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
@@ -258,6 +264,14 @@ its pointer's NS into his NA / SA): whichever hit lands first, a cancel. A plan 
                         (if (and ns (< roll (strat-out (brain-now b) :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                             (progn (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
                             (cai-press b :quick 1))))))))))
+
+(defun cai-awaken-break (e b f p)
+  "The awakening out of his combo or Kikon (DUEL_AI_STRATEGY §11.20): when E may awaken now (AWAKEN-READY-P, no strategy holding it), one
+roll of P (by difficulty); T when it pressed Mod + P."
+  (when (and (awaken-ready-p e f) (not (strat-hold-awaken-p e)) (brain-roll b p))
+    (clog "~a cpu awakens out of ~a" (side-name e) (if (plusp (fighter-kikon-lock f)) "the Kikon" "the combo"))
+    (cai-press b :awaken 1 t)
+    t))
 
 (defun gauges-awakened-ok-p (e)
   "May E awaken now (the awakening gauge full, not yet awakened, free; a CPU's strategy may hold it, STRAT-HOLD-AWAKEN-P)?"
@@ -309,18 +323,21 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))
                    (:stun
-                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1)
+                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1) (cai-awaken-break e b f *cai-awaken-kikon-p*)))   ; (the Kikon's lock: §11.20)
+                          ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1)
                                 (< (brain-guard-roll b) (cai-fz b *fz-cancel* :skill :red (cai-bit (gauges-red-p (gauges e))))))
                            (cai-press b :quick 1))
                           ((and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                            (setf (brain-burst-rolled b) t)
-                           (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
-                             (cai-press b :awaken 1)))))
+                           (cond ((cai-awaken-break e b f *cai-awaken-break-p*))
+                                 ((and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
+                                  (cai-press b :awaken 1))))))
                    (:air
                     (when (and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                       (setf (brain-burst-rolled b) t)
-                      (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
-                             (cai-press b :awaken 1))))))))
+                      (cond ((cai-awaken-break e b f *cai-awaken-break-p*))
+                            ((and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
+                             (cai-press b :awaken 1)))))))))
       (setf (brain-now b) nil)))                                         ; (its step is over: a step-end snapshot holds NIL, as the special did)
     (setf (brain-was b) (fighter-state f))
     (when (cai-hoho-hold-p e b f kit) (setf (brain-press-left b) 0))   ; (an SP the Hoho's resume would have refused: dropped, R15d)

@@ -38,3 +38,19 @@ on tick OSTART)? His turn: an AS or a new NA link started after the cancel (AS v
   "The class a CPU throws into the opponent's classed move OCLS to cancel it whichever hit lands first (CORE-VERDICT :CANCEL both ways),
 of the two it can open with from neutral (:NA an attack, :NS an SP): :NA against his NS or AS, :NS against his NA or SA; NIL else."
   (and ocls (find-if (lambda (c) (and (eq (core-verdict c ocls) :cancel) (eq (core-verdict ocls c) :cancel))) '(:na :ns))))
+
+(defun clash-window (hits-n active-end reach hit-at hit-reach)
+  "Values the frame after which his perceived move's hit is spent and how far it reaches, for the clash: its own hit windows (HITS-N > 0:
+ACTIVE-END, REACH), else a hit it makes land later (:params :hit-at F frames into the move, :hit-reach m: KESSA's NS3 summons, whose clones
+cut; the user, 2026-11-14: 「請認 CPU 也學會相消分身」): F + 1 and HIT-REACH; NIL when neither."
+  (cond ((plusp hits-n) (values active-end reach))
+        (hit-at (values (1+ hit-at) hit-reach))))
+
+(defun xch-sa-now-p (ocls ostart xch own-hit now wait)
+  "Press the NS side's SA now (XCH-TURN-SEEN-P holds) on tick NOW? His new turn (an AS or NA link started after the cancel on tick XCH): at
+once (the later start wins). His J still coming, the cancel the segment's own hit (OWN-HIT): only WAIT frames after the cancel
+(*CAI-XCH-SA-WAIT*): scripted, an SA 4-8 frames after it beat his AS, his J2 and a hold (19-23 : 2-7 of 25), at once it lost to his AS (the
+later start), from 16 on to everything (DUEL_AI_STRATEGY §11.19's table, §11.20)."
+  (and (xch-turn-seen-p ocls ostart xch own-hit)
+       (or (and (member ocls '(:as :na)) (> ostart xch))
+           (>= (- now xch) wait))))

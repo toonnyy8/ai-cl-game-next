@@ -468,4 +468,15 @@ a J on his later turn still starts the SA over it); else the route stops there. 
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move
 with hits, not a parry, still live after the CPU's delay, the CPU within his reach + *CAI-CLASH-MARGIN*. Else the CPU decides as before (its
 style, the MCTS, the generic CPU: wait, walk, Hoho). New 2026-11-14 (the lead). Before: no such rule (0).")
+(defparameter *cai-xch-sa-wait* 4
+  "The NS side whose own hit was the cancel's (his J still coming): its SA this many frames after the cancel (XCH-SA-NOW-P; the user,
+2026-11-14: 「…以目前的系統設定繼續修正 CPU」): scripted 4-8 beat his AS, his J2 and a hold, 0 lost to his AS (DUEL_AI_STRATEGY §11.19,
+§11.20). New 2026-11-15 (the lead). Before: 0 (at once).")
+(defparameter *cai-awaken-break-p* '(:easy 0.1 :normal 0.3 :hard 0.55)
+  "The awakening as a combo breaker (the user, 2026-11-14: 「請認 CPU 也學會相消分身，並以目前的系統設定繼續修正 CPU」; the awakening from any state
+of play, DUEL_DESIGN, DEVLOG §776): the CPU in a combo of *BURST-MIN-HITS* or more, at its once-a-combo Burst roll, awakens instead with this
+chance when it may (AWAKEN-READY-P, no strategy holding it). New 2026-11-14 (the lead). Before: 0 (it awakened only when idle or running).")
+(defparameter *cai-awaken-kikon-p* '(:easy 0.2 :normal 0.5 :hard 0.85)
+  "The same on a Kikon's lock (its first frame, once): the awakening repels him and the follow-up never lands, the Konpaku saved. New
+2026-11-14 (the lead). Before: 0.")
 (defparameter *cai-clash-margin* 1.0 "m past his move's reach within which the clash throws its opener (the generic CPU's Hoho test: reach + 1.0).")

@@ -206,12 +206,15 @@ HARD 0.8).")
 ;; The NS clones stay after their strings (ICHIGO-NS-CLONE-P) for the J / AS presses to come, and fade the moment his attack is over
 ;; (ICHIGO-CLONE-STEP: idle while he is not in a move); an attack in a gap is his own flash-step lunge, alone (ICHIGO-TICK: the clones
 ;; answer no press that starts an SA). No Step or Hoho makes a clone under the core system (「Step 不再產生分身」)
+;; :hit-at / :hit-reach: the frame of the move its clone's cut lands on and how far from him it reaches (the CPU's clash reads them off
+;; the perceived summon, XCH-AI CLASH-WINDOW; the user, 2026-11-14: 「請認 CPU 也學會相消分身」; pinned to the on-frames + the clone moves' S
+;; in tests/duel-rules/xch-ai.lisp)
 (defmove :ic-k-n3a :kind :flash :clip :ic-k-summon :clip-s 14 :startup 18 :active 0 :recovery 16 :on-frame ((8 ichigo-ns-clone-a))
-  :params (:ns-next :ic-k-n3b :sa :ic-k-sa))
+  :params (:ns-next :ic-k-n3b :sa :ic-k-sa :hit-at 15 :hit-reach 2.6))
 (defmove :ic-k-n3b :kind :flash :clip :ic-k-summon :startup 14 :active 0 :recovery 16 :on-frame ((4 ichigo-ns-clone-b))
-  :params (:ns-next :ic-k-n3c :sa :ic-k-sa))
+  :params (:ns-next :ic-k-n3c :sa :ic-k-sa :hit-at 11 :hit-reach 2.6))
 (defmove :ic-k-n3c :kind :flash :clip :ic-k-summon :startup 14 :active 0 :recovery 22 :on-frame ((2 ichigo-ns-clone-x) (12 ichigo-ns-x-mark))
-  :params (:sa :ic-k-sa))
+  :params (:sa :ic-k-sa :hit-at 11 :hit-reach 3.0))
 (defmove :ic-c-xa :kind :flash :clip :ic-k-xa :startup 8 :active 3 :recovery 16 :dmg 55 :guard 12
   :reach 2.8 :arc 120 :on-hit :stagger)                                  ; the X: the right clone's forehand ↙
                                                                          ; (a stagger, not a knockdown: the SA after it connects, the user,

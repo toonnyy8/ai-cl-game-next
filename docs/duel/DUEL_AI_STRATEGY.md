@@ -2920,3 +2920,42 @@ both seats, 40 matches a cell, K.O. wins). After, then before (main a7341e13, id
 - **G2** regenerated (`tests/style-cvc-ref.txt`, native = browser): II 38 → 38 lines (P1 3-2, 377.3 s → P2 4-6, 374.5 s), IK 34 → 33 (P2
   0-4, 337.2 s → P2 0-1, 330.8 s), KK 26 → 23 (P2 0-5, 255.5 s → P2 0-6, 224.8 s).
 - No balance gates.
+
+### 11.20 The CPU cancels the clones, awakens out of a combo, and times its SA after its own hit (2026-11-15)
+
+The user (verbatim): 「請認 CPU 也學會相消分身，並以目前的系統設定繼續修正 CPU」 (after DEVLOG §777 put KESSA's NS3 / AS3 clone cuts in the
+triangle). Planned with the Fable advisor; built by the lead. Three changes, each a rule of the current system the CPU did not play yet.
+
+**1. The clash reads a summon** (`clash-window`, xch-ai.lisp). `cai-clash` needed a perceived move with hit windows, and KESSA's NS3
+segments have none (the clones cut). A move may now name the hit it makes land later: `:params :hit-at F :hit-reach m` (NS3 a / b / c: 15 /
+11 / 11, 2.6 / 2.6 / 3.0 m; host-pinned to the on-frames + the clone moves' S - 1, measured in the browser: n3a's cut on its f15). The clash
+then throws its opener while F + 1 - his perceived frame - its delay >= 1, within that reach + `*cai-clash-margin*`. Read through the
+perception, so the difficulty decides: HARD (8 frames) sees each cut in time; NORMAL (14) is 1 frame short of n3a's and never sees n3b's or
+the X's in time (a perceived summon, no peeking at the clones). The practice dummy keeps its own exact read (`:threat`, §777).
+Scripted (debug 2829: P2 at HARD, the clash at 1; P1 KESSA NS3 x3 against a CPU Kenpachi): `P1 ic-hit ns x P2: CANCEL` on the first
+cut, then `P2 KE-Z-J1 x P1: CANCEL`, `cpu xch j`, and the exchange goes on through the three segments.
+
+**2. The awakening as a breaker** (`cai-awaken-break`, core-ai.lisp; the awakening from any state, DEVLOG §776). At the CPU's once-a-combo
+Burst roll (a combo of `*burst-min-hits*`), and on a Kikon's lock (its first frame), it awakens instead when it may (`awaken-ready-p`, no
+strategy holding it): `*cai-awaken-break-p*` 0.1 / 0.3 / 0.55, `*cai-awaken-kikon-p*` 0.2 / 0.5 / 0.85 (EASY / NORMAL / HARD; before 0:
+it awakened only when idle or running, `*cai-awaken-p*`, which stays). Scripted (2830 P2's gauge full, 2831 the chances at 1, 2832 the
+CPU from mid-fight): after Ichigo's J2 `P2 cpu awakens out of the combo` / `AWAKEN from STUN`; on his NS1's Kikon `cpu awakens out of the
+Kikon` and the follow-up never lands. At the default NORMAL 0.3 it fired on the same scene too.
+
+**3. The NS side's SA after its own hit** (`xch-sa-now-p`). §11.19's leftover: with the NS hit first, XCH-TURN-SEEN-P's own-hit clause
+pressed the SA at once and it lost to his AS (the later start). It now waits `*cai-xch-sa-wait*` 4 frames after the cancel, the start of the
+window §11.19's script measured (an SA 4-8 frames after beats his AS, his J2 and a hold); his new turn (an AS / NA link seen to start after
+the cancel) is still answered at once. Not re-measured by cell (no balance gates; the user's decision).
+
+**Counts in G2's three matches** (the CPU at G2's difficulty): awakenings out of a combo II 1, KK 2 (IK 0); clashes II 12, IK 11, KK 2;
+NS-side SAs II 4, IK 7, KK 4; clone cuts cancelled in IK 4.
+
+**Checks.** Host tests 3388 ALL PASS (xch-ai.lisp: `clash-window`, the `:hit-at` pins, `xch-sa-now-p`, the knobs' difficulty order).
+pkgcheck clean; build; smoke. Snaptest straight = pollute (`30000 31104 2132`, 1,780 rollouts; only the cons statistics and the mcfull
+milliseconds differ). Fulltest on G2's IK: 65 checks, 0 differ. G2 regenerated (native = browser): II 37 P1 4-3 366.4 s -> 37 P2 5-8
+369.5 s, IK 39 P1 3-2 391.1 s -> 40 P2 1-3 395.8 s, KK 23 P2 0-6 224.8 s -> 22 P2 0-6 218.1 s.
+
+**Left for the user**: NORMAL cannot cancel the NS3 clones it only perceives in time at HARD (raising it means a shorter NORMAL delay, a
+difficulty change); NORMAL's strength (K.O. 127 of 180, §11.19) and a dream-rsi re-collection (the KI tables' gain is gone) are budget
+decisions.
+

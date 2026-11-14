@@ -37,3 +37,23 @@
 ;; the knobs keep EASY <= NORMAL <= HARD where a larger chance is the stronger play
 (check (<= (getf *cai-xch-sa-p* :easy) (getf *cai-xch-sa-p* :normal) (getf *cai-xch-sa-p* :hard)))
 (check (<= (getf *cai-clash-p* :easy) (getf *cai-clash-p* :normal) (getf *cai-clash-p* :hard)))
+;; the clash's window: a move's own hits, else a summon's later clone cut (:hit-at / :hit-reach), else none
+(check (equal (multiple-value-list (clash-window 1 14 2.0 nil nil)) '(14 2.0)))
+(check (equal (multiple-value-list (clash-window 0 18 0.0 16 2.6)) '(17 2.6)))
+(check (null (clash-window 0 18 0.0 nil nil)))
+;; KESSA's NS3 summons: :hit-at = the clone's on-frame + its cut's S - 1 (a clone steps on its spawn frame too; the X: its clones start 2
+;; frames early, ICHIGO-NS-CLONE-X); measured in the browser: n3a's cut on its f15, n3b's on f11
+(flet ((at (m) (getf (mv-params (find-move m)) :hit-at)) (on (m) (first (first (mv-on-frame (find-move m))))))
+  (check (= (at :ic-k-n3a) (+ (on :ic-k-n3a) (mv-s (find-move :ic-c-light)) -1)))
+  (check (= (at :ic-k-n3b) (+ (on :ic-k-n3b) (mv-s (find-move :ic-c-light)) -1)))
+  (check (= (at :ic-k-n3c) (+ (on :ic-k-n3c) 2 (mv-s (find-move :ic-c-xa)) -1)))
+  (check (every (lambda (m) (< (at m) (mv-s (find-move m)))) '(:ic-k-n3a :ic-k-n3b :ic-k-n3c))))   ; (inside the summon's startup)
+;; the NS side's SA: his new turn at once; his J still coming (own hit) only *CAI-XCH-SA-WAIT* frames after the cancel (tick 40)
+(check (xch-sa-now-p :as 41 40 nil 42 4))
+(check (xch-sa-now-p :na 45 40 nil 46 4))
+(check (not (xch-sa-now-p :na 35 40 t 42 4)))                        ; (2 frames after the cancel: his AS would start later and win)
+(check (xch-sa-now-p :na 35 40 t 44 4))
+(check (not (xch-sa-now-p :na 35 40 nil 50 4)))                      ; (not seen: no own hit, not his turn)
+(check (<= 4 *cai-xch-sa-wait* 8))                                   ; (the measured winning window)
+(check (<= (getf *cai-awaken-break-p* :easy) (getf *cai-awaken-break-p* :normal) (getf *cai-awaken-break-p* :hard)))
+(check (<= (getf *cai-awaken-kikon-p* :easy) (getf *cai-awaken-kikon-p* :normal) (getf *cai-awaken-kikon-p* :hard)))
