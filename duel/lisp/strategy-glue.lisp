@@ -69,17 +69,35 @@ math, 0 B. Read once per decision."
   "BRAIN-ROLL of the per-difficulty chance PLIST, the arm's KEY replacing its value (STYLE-DIF)."
   (chance-roll (style-dif b key plist)))
 
+(defun strat-window-step (b sw)
+  "The lookup table's windows (DUEL_AI_STRATEGY §11.17; tuning.lisp *STRAT-TABLE-CHANCE*): at the first step brain B takes in each window of
+*STRAT-TABLE-WINDOW* steps, one roll of its difficulty's chance decides whether the Q selector SW plays this window or its none arm
+(BRAIN-TW-OFF). Only when that chance is strictly between 0 and 1 (NORMAL): EASY and HARD draw nothing and write nothing. A change of
+on / off asks for a judgement this step (SW-T -1), so the swap of styles (:KEEP-STATE) runs through STRAT-SWITCH-STEP as for any arm."
+  (let ((p (brain-chance b *strat-table-chance*)))
+    (when (and (getf sw :fq) (< 0.0 p 1.0))
+      (let ((w (floor *match-tick* *strat-table-window*)))
+        (when (/= w (brain-tw b))
+          (setf (brain-tw b) w)
+          (let ((off (not (chance-roll p))))
+            (unless (eq off (brain-tw-off b))
+              (setf (brain-tw-off b) off (brain-sw-t b) -1))))))))
+
 (defvar *strat-judge-hook* nil
   "NIL in the game; a tool's function (e b sw sub index feats) -> (values sub index) run on each composite judgement outside rollouts (the
 Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and may explore the other arm).")
 (defun strat-switch-step (e b f s d sw)
   "The active sub-strategy of the composite or Q selector SW (strategy.lisp) for brain B: judged on the match's first step and every
-*STRAT-SWITCH-PERIOD* steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON)."
+*STRAT-SWITCH-PERIOD* steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON).
+In a window the table sits out (STRAT-WINDOW-STEP, NORMAL) the judgement is the none arm, with no judge and no online record."
+  (strat-window-step b sw)
   (when (or (< (brain-sw-t b) 0)
             (and (member (fighter-state f) '(:idle :run))
                  (>= (- *match-tick* (brain-sw-t b)) (or (getf (getf sw :fq) :period) *strat-switch-period*))))   ; (a Q selector's own :PERIOD, §8.19)
     (setf (brain-sw-t b) *match-tick*)
     (multiple-value-bind (sub i)
+        (if (brain-tw-off b)
+            (values nil (or (position nil (getf (getf sw :fq) :arms)) -1))   ; (the window's none arm, §11.17)
         (let* ((fq (getf sw :fq)) (feats (strat-feats e f s d))
                (feats (if (getf fq :xfeats) (append feats (strat-xfeats e f d)) feats))   ; (its extra cues, §8.19)
                (feats (if fq (list* :prev (or (position (brain-sw-sub b) (getf fq :arms)) 0) feats) feats)))   ; (the previous arm)
@@ -88,7 +106,7 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
               (when (and fq (brain-fql b) (not *in-rollout*))   ; (the online fuzzy Q: its exploration and record, fq-online.lisp)
                 (multiple-value-setq (sub i) (fq-explore e sw sub i))
                 (fq-note e b feats i))
-              (values sub i))))
+              (values sub i)))))
       (let* ((st (or sub (and (not (getf sw :fq)) (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f))) (brain-difficulty b)))))   ; (a Q selector's NIL arm: no strategy)
              (x (if st (getf st :fn) (cai-style-fn f))) (fn (if (and x (symbolp x)) (symbol-function x) x)))
         (when (and fn (not (eq fn (brain-sw-fn b))))      ; (another style function takes over: its own state, not the last one's struct)

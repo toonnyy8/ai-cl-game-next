@@ -45,6 +45,8 @@ was saved from this same offline table, else a fresh copy."
 *FQ-LEARN-FORCE*): its brain plays the player's copy and keeps the match's record (BRAIN-FQL: me vs offline-table records)."
   (let* ((b (brain e)) (f (fighter e)) (lib (brain-strat b)) (o (fighter-opp f)))
     (when (and lib (getf lib :fq)
+               ;; (a table played whole: NORMAL's windows would credit arms it never played, and its copy shares HARD's page slot; §11.17)
+               (>= (brain-chance b *strat-table-chance*) 1.0)
                (or *fq-learn-force* (and (eq *mode* :vs-cpu) (null (brain o)) (zerop (setting :learn)) (not *learn-debug-off*))))
       (let ((me (position (fighter-character f) *roster*)) (vs (position (fighter-character (fighter o)) *roster*)))
         (setf (brain-strat b) (car (fq-table me vs lib))

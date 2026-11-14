@@ -209,6 +209,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (sw-n 0 :type fixnum) (sw-won nil)   ; ... judgements made, and per :SWITCH entry the ones it won (a vector, made at the first)
   (sw-fn nil)                          ; ... the style function that owns STYLE's state (another one taking over starts afresh)
   (sw-keep nil)                        ; ... a Q selector with :KEEP-STATE: ((style function . its state) ...) of the styles not playing now
+  (tw -1 :type fixnum) (tw-off nil)    ; a Q selector's windows (strategy-glue.lisp STRAT-WINDOW-STEP, NORMAL only): the window last rolled, it plays the none arm
   (ev-t -1 :type fixnum)               ; a Q selector's event layer (:EVENT-ARMS, strategy-glue.lisp STRAT-EVENT-STEP): the last tick its trigger was seen
   (ev-on nil)                          ; ... it has the step now (the event arm's plist, else NIL)
   (ev-style nil)                       ; ... the event arm's style state, kept between takeovers (swapped into STYLE while it plays)

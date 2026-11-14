@@ -3271,12 +3271,15 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
                                 (:ichigo :hisagi :hard :f-ih-ichigo) (:hisagi :ichigo :hard :f-ih-hisagi)        ;  :qks3-ichigo, :qks5-hisagi, :qhs-ken,
                                 (:kenpachi :kenpachi :hard :f-kk-kenpachi) (:ichigo :ichigo :hard :f-ii-ichigo)  ;  :qis-hisagi, :qhs3-ichigo, :qks-ken,
                                 (:hisagi :hisagi :hard :f-hh-hisagi))                                            ;  :q1-ichigo-ichigo, :qhs4-mirror: §8.19)
-  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), HARD only (EASY / NORMAL keep their
-designed strength). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
+  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH). Every row is HARD's; since 2026-11-14 a
+difficulty whose *STRAT-TABLE-CHANCE* is above 0 plays the same row (NORMAL in windows, strategy-glue.lisp STRAT-WINDOW-STEP; EASY none:
+DUEL_AI_STRATEGY §11.17). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
 
 (defun strat-lookup (me vs dif)
-  "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."
-  (let ((r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
+  "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF (HARD's row at any difficulty whose table chance is
+above 0, *STRAT-TABLE-CHANCE*), or NIL."
+  (let* ((dif (if (plusp (getf *strat-table-chance* dif 0.0)) :hard dif))
+         (r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
     (and r (strat-by-id (fourth r)))))
 
 (defun strat-by-id (id) "The *STRAT-LIBRARY* entry ID, or NIL." (find id *strat-library* :key (lambda (st) (getf st :id))))

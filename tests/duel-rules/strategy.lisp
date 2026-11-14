@@ -57,7 +57,8 @@
   (let ((codes (fq-encode fq fq 3)))
     (check (= 448 (length codes)))                                        ; (the page's online copy: 3 + 5 x 89 integers)
     (check (equal (getf fq :rules) (getf (fq-decode codes fq) :rules)))))   ; (read back equal)
-(check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
+(check (null (strat-lookup :hisagi :ichigo :easy)))                    ; (EASY keeps its designed strength; NORMAL plays HARD's row in windows, §11.17)
+(check (eq (strat-lookup :hisagi :ichigo :normal) (strat-lookup :hisagi :ichigo :hard)))
 (let* ((fq (getf (strat-by-id :qhs4-mirror) :fq))               ; (ranged close: Kenpachi's KI style code, as the data put it, no pin:
        (fs '(:lead 0 :ored 0 :ost 0 :awk 1 :prev 1 :form 1 :dm 1.5 :gauge 0.0 :wall 9.0 :oawk 0)))   ;  「拿掉，照資料用 KI 風格」)
   (check (eq 'ken-ki-style (getf (nth (strat-fq-pick fq fs) (getf fq :arms)) :fn))))
@@ -130,7 +131,7 @@
       (check (equal (list me vs) (getf st :apply)))
       (check (and (= 2 (length (getf fq :arms))) (= 48 (length (getf fq :rules)))))
       (check (eq nil0 (null (first (getf fq :arms)))))
-      (check (null (strat-lookup me vs :normal))))))
+      (check (null (strat-lookup me vs :easy))))))
 (check (eq 'ichigo-ki-style (getf (second (getf (getf (strat-by-id :qks3-ichigo) :fq) :arms)) :fn)))   ; (KI's arm 1: the whole-game replacement, still in :qks-ichigo)
 (check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))
 ;; a composite (DUEL_AI_STRATEGY §8.7): the first entry whose OWN fires at >= 0.5, else :ELSE, else NIL; OR across antecedents, AND within
