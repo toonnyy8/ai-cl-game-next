@@ -2585,11 +2585,16 @@ which STRAT-SWITCH-STEP calls first:
 - A change of on / off sets `sw-t` -1, so the judgement runs at that step and the `:keep-state` swap of styles goes through the usual path.
 - In an off window, the judgement is the none arm: no judge, no online record.
 - The online learner (FQ-ATTACH!) attaches only where the chance is 1 (HARD). NORMAL's windows would credit arms that never played, and its
-  copy would share HARD's page slot (the page key has no difficulty). The lead's call, not the user's.
+  copy would share HARD's page slot (the page key has no difficulty). The lead's call, not the user's. Nothing a player sees changes: NORMAL had no table before, so it never
+  learned.
 
 **Proofs** (native sim):
 - EASY and HARD play bit-identical to 9d23be87. Pairing gate, seeds 601-603, all nine orderings (200110 ... 200770 and the three reversed
   seats) at 81020 and 81022: every `duel` line equal, hash lines included (`mcfull` ms excluded). NORMAL (81021) differs in all six runs.
+- The windows do sit out: in the table run below, NORMAL's judgements on the none arm are 0.44-0.52 of all, per side (KI Ichigo's table
+  has no none arm; its off judgements count to no arm: 0.46). HARD's are 0 on the eight fallback tables.
+- The tool: the pairing gate at 81021 equals 81022 with `STRAT_DIF_P1=normal STRAT_DIF_P2=normal` (200310, 200170, seeds 601-603: gate rows
+  and hash lines identical), so a seat set by `STRAT_DIF_P<n>` plays as the game's own difficulty.
 - Snaptest straight = pollute on a NORMAL KI match (`30600 31101 81021 200130`): 37 lines, 339 rollouts, 0 differ. Fulltest with `FT_LAYER=t`:
   659 checks, 0 differ.
 - Host tests ALL PASS (3320); `pkgcheck.sh duel`: only DUEL::APP; `debug-ranges-check.py`: 0 errors; `sp-costs-check.py`: 116 PASS, 0 FAIL.
