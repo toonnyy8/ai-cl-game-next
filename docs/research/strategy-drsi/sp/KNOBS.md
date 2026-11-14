@@ -258,3 +258,29 @@ counts 0); the weights are normalised; all 0 plays `:generic`. At HARD a `:gener
 - Located bug fixes at 1.0 everywhere (turning them off only re-opens the bug): `*kk-as-read-p*`, `*iks-read-p*`, `*iks-kessa-read-min*`. Since 2026-11-14 they act on real hits only: a link that took part in a cancel is answered by the shared CAI-XCH-STEP before the style runs (DUEL_AI_STRATEGY §11.18).
 - Move geometry and the Bankai's string plan (second tier, kept to 25 a style): `*kk-meaty-near*`, `*kk-meaty-min*`, `*kk-meaty-back*`, `*kk-chase-hoho*`, `*kk-wave-close-max*`, `*kk-wave-margin*`, `*kk-wave-carry*`, `*kk-wave-far*`, `*kk-wave-timeout*`, `*kk-chase-frames*`, `*kk-chase-dash*`, `*kk-link-margin*`, `*kk-dodge-reach*`, `*kk-clone-reach*`, `*kk-l3-range*`, `*kk-l3-sa-range*`, `*kk-bk-floor*`, `*kk-bk-ns-spare*`, `*kk-bk-ns-range*`, `*kk-bk-walk-range*`, `*kk-special-n*`, `*kk-bk-cashouts*`, `*kk-reach-retry*`, `*kk-wake-hoho-near*`, `*iks-j-reach*`, `*iks-ns2-min*`, `*iks-retreat-to*`, `*iks-shot-gap*`, `*iks-k-sa-reach*`, `*iks-k-sa-min*`, `*iks-meaty-near*`, `*iks-hoho-j-reach*`, `*iks-wake-hoho-near*`, `*iks-gap-cmin*`, `*iks-gap-dash-over*`, `*iks-gap-max*`, `*iks-gap-dash-need*`.
 - HARD-only follow-ups left for a next pass (one `style-roll` each to add): `*kk-pf-p*`, `*kk-hend-p*`, `*kk-l3-sa-p*`.
+
+### 6.5 The exchange keys: the shared exchange layer's knobs (2026-11-15, DUEL_AI_STRATEGY §11.23, PLAN3 X1): 8 keys
+
+Read in core-ai.lisp for **every** arm, with or without a `:fn` (CAI-XCH-STEP, CAI-CLASH and the awakening breaker run before any style,
+MCTS or generic step), through the brain's `now` like the style keys. Unlike them, each is a **scale k on the knob's per-difficulty value**
+(as `:turn` / `:cont` / `:awaken`), not a replacement: no key = the knob itself (k = 1 is the same play), and EASY <= NORMAL <= HARD holds for
+any one k. A chance becomes p x k within 0-1 (`strat-scale`; at 0 or 1 no random number is drawn, see §6's stream note). The default column
+gives the knob at HARD (EASY / NORMAL in brackets). Search ranges are on k.
+
+| Key | Scales | Definition after the scale | Default (k = 1) | Search range (k) |
+|---|---|---|---|---|
+| `:xch-sa-p` | `*cai-xch-sa-p*` (NS side: watch for his turn and SA it) | chance p x k, 0-1, rolled at the cancel | 0.65 (0.25 / 0.45) | 0-1.6 |
+| `:xch-carry-p` | `*cai-xch-carry-p*` (NS side, nothing seen: carry on into the next segment) | chance p x k, 0-1 | 0.2 (0.5 / 0.35) | 0-5 |
+| `:xch-j` | the J's weight in `*cai-xch-j*` (J side: AS at once or the next J) | the J's share J / (AS + J) x k within 0-1, the AS the rest (`xch-j-weights`) | J 0.4, AS 0.6 (0.1 / 0.3) | 0-2.5 |
+| `:clash-p` | `*cai-clash-p*` (積極相消: throw the cancelling move into his) | chance p x k, 0-1, one roll per move of his | 0.6 (0.15 / 0.35) | 0-1.7 |
+| `:clash-margin` | `*cai-clash-margin*` (m past his reach) | 1.0 x k m, >= 0, at **both** reads: the clash's distance test and the J side's AS reach test | 1.0 m | 0-2 |
+| `:xch-sa-wait` | `*cai-xch-sa-wait*` (frames after a cancel her own hit made before the SA) | round(4 x k) frames, half up, >= 0 (scripted wins at 4-8: k 1-2) | 4 | 0-2 |
+| `:awaken-break-p` | `*cai-awaken-break-p*` (awaken out of a combo at the Burst roll) | chance p x k, 0-1 | 0.55 (0.1 / 0.3) | 0-1.9 |
+| `:awaken-kikon-p` | `*cai-awaken-kikon-p*` (awaken on a Kikon's lock) | chance p x k, 0-1 | 0.85 (0.2 / 0.5) | 0-1.2 |
+
+- `:clash-margin` is one knob with two reads, so a J-side (b0) cell that moves it also moves the clash (b2), and back.
+- A cell's ranges stop where the HARD value clamps (1 / 0.65 ~ 1.5, ...); past that only EASY / NORMAL still move, which the eval (HARD) never
+  sees.
+- No shipped strategy, unit, table, seed arm or final table names one (host check `tests/duel-rules/style-knob.lisp`'s exchange block).
+- The awakening keys only act with a full awakening gauge at a combo's Burst roll or a Kikon's first locked frame, and `:hold-awaken` still
+  gates them (AWAKEN-READY-P, STRAT-HOLD-AWAKEN-P).

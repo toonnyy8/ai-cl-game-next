@@ -2987,3 +2987,52 @@ The user's choices at checkpoint 0 (verbatim answers to the lead's two questions
 - the exchange rules frozen for the collection: 「先凍結 (Recommended)」: no change to the cancel, Hoho or awakening rules until it ships;
   new feedback on them is recorded and handled after.
 
+
+### 11.23 X1: the exchange keys (2026-11-15)
+
+PLAN3 step X1 (§11.22): the shared exchange layer's eight knobs (§11.18-§11.20) as arm keys, so a search cell can move them per pairing
+and side. Read through the brain's `now` (the active arm, as the style keys of §11.6), but each is a **scale k on the knob's per-difficulty
+value**, the way `:turn` / `:cont` / `:awaken` are read, not a replacement: no key = the knob itself (EQ, no float math), and EASY <= NORMAL
+<= HARD holds for any one k. The rows (key, what it scales, range, default) are KNOBS.md §6.5.
+
+- **Chances** `:xch-sa-p :xch-carry-p :clash-p :awaken-break-p :awaken-kikon-p`: p x k within 0-1 (STRAT-SCALE), one roll per event as
+  before (core-ai.lisp CAI-ROLL). The awakening breaker takes its key from its caller (`:awaken-kikon-p` on the Kikon's lock,
+  `:awaken-break-p` at a combo's Burst roll, in the `:stun` and `:air` branches).
+- **`:xch-j`** (the J side's AS-or-J weights, a split, not a chance): the J's share J / (AS + J) x k within 0-1, the AS the rest
+  (xch-ai.lisp XCH-J-WEIGHTS, pure; HARD's 0.4 J reaches all-J at k 2.5, k 0 = always the AS). No key: the difficulty's own plist (EQ).
+- **`:clash-margin`** (m): 1.0 x k, >= 0 (strategy.lisp STRAT-MUL, pure: not clamped above), at **both** reads of `*cai-clash-margin*`,
+  the clash's distance test and the J side's AS reach test (one knob, one key; a b0 cell that moves it moves the clash too).
+- **`:xch-sa-wait`** (frames): round(4 x k) half up, >= 0, a fixnum (STRAT-MUL).
+- `brain-now` is set in CORE-BRAIN-STEP before the whole step's `cond` and cleared after it, so every reader (CAI-XCH-STEP, CAI-CLASH,
+  the breaker in `:stun` / `:air`) sees the arm: no plumbing, no special.
+
+Proofs (build 9e3ac2ca5fae745d before, 01369399b4c02883 after: strategy-switch's hash, the FAS plus its runner):
+1. Host tests ALL PASS (3486 checks). The 53-key style scan (`style-knob.lisp`) keeps its meaning (the style CPUs' own keys); the exchange
+   keys get their own block there: each read in core-ai.lisp, no key = the value itself (EQ), the clamps, the wait's rounding, EASY <=
+   NORMAL <= HARD for k 0-3, no shipped strategy / unit / table / seed arm / `sp/final` table names one, KNOBS.md documents each.
+   XCH-J-WEIGHTS in `xch-ai.lisp`'s tests.
+2. pkgcheck clean (its one line, `DUEL::APP`, predates X1: sim-state.lisp), `./build.sh duel` ok, smoke exit 0 (heap 75.3 MB).
+3. G2 identical to `tests/style-cvc-ref.txt`, not regenerated: II P2 2-4 391.5 s (39 lines), IK P2 0-3 349.5 s (35), KK P1 4-0 283.5 s (29).
+4. No key, no change on the scorer (`eval.py --seed0 300 --seeds 20`, after-pass under `SP_BUILD=01369399b4c0`): every group's counts
+   identical before / after for Kenpachi `c-ki-k-r2-b1a2` (anchor 16-22-2, mix 5-35-0, rest 18-21-1 as K.O. wins-losses-time-outs; 0.3334),
+   Ichigo `c-ki-i-r2-b2a2` (40-0-0, 35-5-0, 40-0-0; 0.9365), Hisagi `c-ih-h-r1-b2a2` (39-0-1, 7-31-2, 10-27-3; 0.4683).
+5. Each key live (the same arm plus one key, same seeds; counts as in 4):
+   | Arm + key | anchor | mix | rest | score |
+   |---|---|---|---|---|
+   | K `:xch-sa-p 0.0` | 10-30-0 | 1-39-0 | 15-25-0 | 0.2302 |
+   | K `:xch-carry-p 5.0` | 21-18-1 | 7-33-0 | 20-20-0 | 0.4048 |
+   | K `:xch-j 2.5` | 5-33-2 | 1-39-0 | 14-26-0 | 0.1825 |
+   | K `:clash-p 0.0` | 10-30-0 | 1-39-0 | 13-25-2 | 0.2143 |
+   | K `:clash-margin 0.0` | 13-25-2 | 1-39-0 | 19-20-1 | 0.2857 |
+   | K `:xch-sa-wait 4.0` (16 f) | 13-25-2 | 4-36-0 | 16-24-0 | 0.2857 |
+   | K `:awaken-break-p 0.0` | 16-22-2 | 5-35-0 | 19-20-1 | 0.3413 |
+   | H `:awaken-break-p 0.0` | 40-0-0 | 2-38-0 | 12-23-5 | 0.4524 |
+   | H `:awaken-kikon-p 0.0` | 39-0-1 | 8-30-2 | 10-27-3 | 0.4762 |
+
+   No count moved for K `:xch-sa-wait 0.0`, K / I `:awaken-kikon-p 0.0` or I `:xch-sa-wait 0.0` (the events are rare there: Kenpachi
+   awakens early in neutral under `:awaken 3.0`, so a full gauge in Ichigo's Kikon seldom comes); the awakening keys are the thinnest
+   levers on these arms (one or a few matches a key at 120).
+6. With both seats on keyed arms (STRAT_P1 Ichigo r2-b2a2 + all eight keys at 0.5-3.0, STRAT_P2 Kenpachi r2-b1a2 + all eight at 1.1-2.0):
+   snaptest straight = pollute on 30000 31104 2132 (185 lines equal; 1827 rollouts; only the brush timing and the `stats:` cons / heap
+   lines differ, as the rollouts cons); fulltest on 2102 4007: 6 checks, 0 differ, and with `FT_LAYER=t` 726 checks (685 strategy
+   checks), 0 differ.

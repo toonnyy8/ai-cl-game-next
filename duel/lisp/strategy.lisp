@@ -55,6 +55,14 @@ NOW slot while its core CPU steps (CORE-BRAIN-STEP; was the special *STRAT-NOW* 
   (let ((k (and now (strat-value (car now) key (cdr now)))))
     (if k (max 0.0 (min 1.0 (* p k))) p)))
 
+(defun strat-mul (now key v)
+  "V (a margin in m, a wait in frames) times the active strategy's scale KEY, kept >= 0, not clamped above; an integer V stays one (rounded
+half up). None: V itself (EQ). NOW as STRAT-OUT's. The exchange keys :CLASH-MARGIN, :XCH-SA-WAIT (DUEL_AI_STRATEGY §11.23)."
+  (let ((k (and now (strat-value (car now) key (cdr now)))))
+    (cond ((null k) v)
+          ((integerp v) (max 0 (floor (+ (* v k) 0.5))))
+          (t (max 0.0 (* v k))))))
+
 ;;; A composite (DUEL_AI_STRATEGY §8.7): (:ID id :SWITCH ((OWN . STRATEGY) ...) [:ELSE STRATEGY]). OWN = a list of antecedents (OR = the maximum
 ;;; over them, each as a :RULES entry's antecedent). The first entry whose OWN fires at >= 0.5 is the active sub-strategy, else :ELSE, else
 ;;; none (the shipped CPU, its lookup strategy and style CPU included). Re-judged every *STRAT-SWITCH-PERIOD* steps in neutral (core-ai.lisp

@@ -61,3 +61,16 @@
 (check (>= (getf *cai-clash-delay* :easy) (getf *cai-clash-delay* :normal) (getf *cai-clash-delay* :hard)))
 (check (< (getf *cai-clash-delay* :normal) (getf (mv-params (find-move :ic-k-n3b)) :hit-at)))
 
+;; the arm key :XCH-J (DUEL_AI_STRATEGY §11.23): the J's share x k within 0-1, the AS the rest; no key: the difficulty's plist itself (EQ)
+(let ((ws (getf *cai-xch-j* :hard)))
+  (check (eq ws (xch-j-weights ws nil)))
+  (check (and (~= 0.4 (getf (xch-j-weights ws 1.0) :j)) (~= 0.6 (getf (xch-j-weights ws 1.0) :as))))
+  (check (and (~= 0.8 (getf (xch-j-weights ws 2.0) :j)) (~= 0.2 (getf (xch-j-weights ws 2.0) :as))))
+  (check (and (~= 1.0 (getf (xch-j-weights ws 5.0) :j)) (~= 0.0 (getf (xch-j-weights ws 5.0) :as))))   ; (clamped: all J)
+  (check (eq :as (xch-j-answer 0.99 (xch-j-weights ws 0.0) t)))                                       ; (k 0: always the AS)
+  (check (eq :j (xch-j-answer 0.01 (xch-j-weights ws 3.0) t)))
+  (check (equal '(:as 0.0 :j 0.0) (xch-j-weights '(:as 0.0 :j 0.0) 2.0)))                                ; (no weight: unchanged)
+  ;; EASY <= NORMAL <= HARD on the J's share under any one k
+  (dolist (k '(0.0 0.5 1.0 1.5 3.0))
+    (flet ((j (d) (getf (xch-j-weights (getf *cai-xch-j* d) k) :j)))
+      (check (<= (j :easy) (j :normal) (j :hard))))))

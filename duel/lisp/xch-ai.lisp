@@ -25,6 +25,14 @@ before the cancel fires on it stamped with the cancel's tick (CORE-LATCH-STEP) a
 (the AS reaches him): WEIGHTED-PICK, NIL (hold) out of reach. No Hoho: an open exchange refuses it (DUEL_CORE §2.1.2)."
   (and reach-ok (weighted-pick r :as (getf ws :as 0.0) :j (getf ws :j 0.0))))
 
+(defun xch-j-weights (ws k)
+  "The J side's weight plist WS (:as :j) under a strategy's scale K on the J's share (the arm key :XCH-J, DUEL_AI_STRATEGY §11.23): the
+J's share J / (AS + J) times K, within 0-1, the AS the rest. K NIL (no key) or no weight at all: WS itself (EQ)."
+  (let* ((as (getf ws :as 0.0)) (j (getf ws :j 0.0)) (tot (+ as j)))
+    (if (and k (plusp tot))
+        (let ((j1 (max 0.0 (min 1.0 (* k (/ j tot)))))) (list :as (- 1.0 j1) :j j1))
+        ws)))
+
 (defun xch-turn-seen-p (ocls ostart xch own-hit)
   "Does the NS side see a J side's attack its SA beats, after their cancel on tick XCH, in the opponent's perceived move (class OCLS, begun
 on tick OSTART)? His turn: an AS or a new NA link started after the cancel (AS vs SA: the later start; NA vs SA: absorbed). Or, when OWN-HIT

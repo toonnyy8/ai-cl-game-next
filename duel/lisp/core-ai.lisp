@@ -52,6 +52,13 @@ for it (strategy.lisp: :HOHO :TURN :CONT :KIKON)."
   "One roll of RULES' chance (no SIM-RND01 drawn at 0 or 1, as BRAIN-ROLL)."
   (let ((p (apply #'cai-fz b rules kind feats))) (cond ((<= p 0) nil) ((>= p 1) t) (t (< (sim-rnd01) p)))))
 (defun cai-bit (x) "1 when X, else 0 (a crisp fuzzy cue)." (if x 1 0))
+(defun cai-roll (b key plist)
+  "One roll (CHANCE-ROLL) of PLIST's chance at brain B's difficulty times the active strategy's scale KEY (STRAT-SCALE: none, the chance
+itself; kept within 0-1): the exchange keys :XCH-SA-P :XCH-CARRY-P :CLASH-P :AWAKEN-BREAK-P :AWAKEN-KIKON-P (DUEL_AI_STRATEGY §11.23)."
+  (chance-roll (strat-scale (brain-now b) key (brain-chance b plist))))
+(defun cai-margin (b)
+  "*CAI-CLASH-MARGIN* times the active strategy's :CLASH-MARGIN (STRAT-MUL; none: the knob itself), at its every read (§11.23)."
+  (strat-mul (brain-now b) :clash-margin *cai-clash-margin*))
 
 (defun cai-own-rolls (b f)
   "The rolls of his own move: made once when it starts (its CLS-T), kept until the next one starts."
@@ -194,16 +201,16 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
     (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
       (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
         (if (eq (fighter-cls f) :ns)
-            (setf (brain-xpick b) (and (brain-roll b *cai-xch-sa-p*) :watch)
-                  (brain-xcarry b) (brain-roll b *cai-xch-carry-p*))
+            (setf (brain-xpick b) (and (cai-roll b :xch-sa-p *cai-xch-sa-p*) :watch)
+                  (brain-xcarry b) (cai-roll b :xch-carry-p *cai-xch-carry-p*))
             (let ((as (kit-core-move kit :as (core-next-as f))))
-              (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (brain-chance b *cai-xch-j*)
-                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) *cai-clash-margin*))))))))
+              (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (xch-j-weights (brain-chance b *cai-xch-j*) (strat-out (brain-now b) :xch-j nil))
+                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b)))))))))
       (unless (brain-xdone b)
         (if (eq (fighter-cls f) :ns)
             (cond ((and (eq (brain-xpick b) :watch)
                         (xch-sa-now-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))
-                                      *match-tick* *cai-xch-sa-wait*))
+                                      *match-tick* (strat-mul (brain-now b) :xch-sa-wait *cai-xch-sa-wait*)))
                    (setf (brain-xdone b) t)
                    (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))
                    (cai-press b :quick 1))
@@ -231,10 +238,10 @@ brain's perceived SNAP and distance)."
         (and mv (clash-window hits (snap-active-end s) (snap-reach s) (getf (mv-params mv) :hit-at) (getf (mv-params mv) :hit-reach)))
      (when (and to end (/= (brain-clash-key b) (snap-start s)) (plusp reach)
                (not (member :parry (snap-flags s))) (>= (- end (snap-sf s) dl) 1)
-               (if (plusp hits) (snap-near-p s e d *cai-clash-margin*) (< d (+ reach *cai-clash-margin*)))
+               (if (plusp hits) (snap-near-p s e d (cai-margin b)) (< d (+ reach (cai-margin b))))
                (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
       (setf (brain-clash-key b) (snap-start s))
-      (when (brain-roll b *cai-clash-p*)
+      (when (cai-roll b :clash-p *cai-clash-p*)
         (mc-plan-drop f)
         (clog "~a cpu clash ~(~a~) into his ~(~a~) at ~,1f" (side-name e) to (cai-class-of (fighter-opp f) s) d)
         (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0)        ; (its own rolls made afresh; no Kikon hold on a clash)
@@ -268,10 +275,10 @@ brain's perceived SNAP and distance)."
                             (progn (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
                             (cai-press b :quick 1))))))))))
 
-(defun cai-awaken-break (e b f p)
+(defun cai-awaken-break (e b f key p)
   "The awakening out of his combo or Kikon (DUEL_AI_STRATEGY §11.20): when E may awaken now (AWAKEN-READY-P, no strategy holding it), one
-roll of P (by difficulty); T when it pressed Mod + P."
-  (when (and (awaken-ready-p e f) (not (strat-hold-awaken-p e)) (brain-roll b p))
+roll of P (by difficulty) scaled by the strategy's KEY (CAI-ROLL; §11.23); T when it pressed Mod + P."
+  (when (and (awaken-ready-p e f) (not (strat-hold-awaken-p e)) (cai-roll b key p))
     (clog "~a cpu awakens out of ~a" (side-name e) (if (plusp (fighter-kikon-lock f)) "the Kikon" "the combo"))
     (cai-press b :awaken 1 t)
     t))
@@ -326,19 +333,19 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))
                    (:stun
-                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1) (cai-awaken-break e b f *cai-awaken-kikon-p*)))   ; (the Kikon's lock: §11.20)
+                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1) (cai-awaken-break e b f :awaken-kikon-p *cai-awaken-kikon-p*)))   ; (the Kikon's lock: §11.20)
                           ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1)
                                 (< (brain-guard-roll b) (cai-fz b *fz-cancel* :skill :red (cai-bit (gauges-red-p (gauges e))))))
                            (cai-press b :quick 1))
                           ((and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                            (setf (brain-burst-rolled b) t)
-                           (cond ((cai-awaken-break e b f *cai-awaken-break-p*))
+                           (cond ((cai-awaken-break e b f :awaken-break-p *cai-awaken-break-p*))
                                  ((and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
                                   (cai-press b :awaken 1))))))
                    (:air
                     (when (and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                       (setf (brain-burst-rolled b) t)
-                      (cond ((cai-awaken-break e b f *cai-awaken-break-p*))
+                      (cond ((cai-awaken-break e b f :awaken-break-p *cai-awaken-break-p*))
                             ((and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
                              (cai-press b :awaken 1)))))))))
       (setf (brain-now b) nil)))                                         ; (its step is over: a step-end snapshot holds NIL, as the special did)
