@@ -1,6 +1,6 @@
 # The SP strategy search: scorer, populations, matrices (PLAN.md §7 step 5, 2026-11-14)
 
-DUEL_AI_STRATEGY §11 re-collects the strategies for the SP system. This directory holds the plan (`PLAN.md`), step 2's baseline (`baseline/`) and step 5's machinery: the scorer every dream-rsi cell runs, the seed populations and their payoff matrices. This README covers the first pairing, Kenpachi vs Ichigo (KI).
+DUEL_AI_STRATEGY §11 re-collects the strategies for the SP system. This directory holds the plan (`PLAN.md`), step 2's baseline (`baseline/`) and step 5's machinery: the scorer every dream-rsi cell runs, the seed populations and their payoff matrices. This README's numbers cover the first pairing, Kenpachi vs Ichigo (KI). KH and IH (PLAN2 §2) are seeded the same way: their screen rows, members and mixes are in `pop/kh-*.json` and `pop/ih-*.json`.
 
 ## Layout
 
@@ -12,8 +12,8 @@ DUEL_AI_STRATEGY §11 re-collects the strategies for the SP system. This directo
 | `final/` | Each side's final table per pairing (`ship/README.md`). |
 | `pop.py` | `screen` seeds a side's population from old arms; `matrix` builds the payoff matrix and both sides' mixes; `selftest` checks the solver and the mix pool. |
 | `arms/*.lisp` | The arms written expanded, as raw files. `arms/dump.lisp` writes them from `*strat-units-expanded*` / `*strat-library*` and checks the round trip. |
-| `pop/<pair>-<X>.json` | X's population in the pairing (e.g. `ki-K.json` = Kenpachi's against Ichigo), with its screen numbers and its mix. |
-| `pop/<pair>-matrix.json` | The pairing's payoff matrix: every cell's counts, both mixes, the values and the convergence gaps. |
+| `pop/<pair>-<X>.json` | X's population in the pairing (e.g. `ki-K.json` = Kenpachi's against Ichigo; `kh-K`, `kh-H`, `ih-I`, `ih-H` likewise), with its screen numbers and its mix. |
+| `pop/<pair>-matrix.json` | The pairing's payoff matrix (`ki`, `kh`, `ih`): every cell's counts, both mixes, the values and the convergence gaps. |
 
 A pairing's letters are in roster order K I H: `ki`, `kh`, `ih` (a mirror later `kk`, `ii`, `hh`).
 
@@ -90,6 +90,7 @@ The default of 100 seeds a seat gives 3 groups x 2 seats x 100 = **600 matches**
 - `members[].file` is repo-relative, or `none`.
 - `id` is the file's base name, which is how `eval.py` and the matrix name a member.
 - A round appends admitted arms to `members` and reruns `pop.py matrix`, which rewrites `mix`. No member is ever deleted (PLAN §2).
+- `initial` (KH, IH): the side's initial program (the member with the highest `eval.py` score on block 300 against the opponent's population) and every member's score with its per-group counts.
 
 ## pop.py
 

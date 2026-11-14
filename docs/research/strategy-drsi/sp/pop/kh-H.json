@@ -1,0 +1,613 @@
+{
+ "pair": "kh",
+ "side": "hisagi",
+ "vs": "kenpachi",
+ "anchor": "none",
+ "members": [
+  {
+   "id": "none",
+   "file": "none",
+   "why": "the anchor (no strategy: the shipped CPU, its matchup style CPU kept)"
+  },
+  {
+   "id": "a-generic",
+   "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+   "why": "the generic arm (:st-generic: the generic CPU + MCTS, no style CPU)"
+  },
+  {
+   "id": "a-hisagi-merged",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-merged.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hisagi-dswitch",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-dswitch.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hisagi-press",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-press.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hisagi-pressd",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-pressd.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hisagi-kite",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-kite.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hk-wake",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hk-wake.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hk-pot",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hk-pot.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hk-kite",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hk-kite.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-hk-all",
+   "file": "docs/research/strategy-drsi/sp/arms/a-hk-all.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "h1-range",
+   "file": "docs/research/strategy-drsi/sp/arms/h1-range.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "a-ken-ki",
+   "file": "docs/research/strategy-drsi/sp/arms/a-ken-ki.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "s7-kite",
+   "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
+   "why": "an old arm that still K.O.s (screen)"
+  }
+ ],
+ "screen": {
+  "vs": "the opponent's none",
+  "seeds": "301-340",
+  "both_seats": true,
+  "margin": 0.05,
+  "rule": "K.O. rate >= 0.5 and score >= none + margin",
+  "build": "f0e2414019a27d35",
+  "rows": {
+   "none": {
+    "file": "none",
+    "ko_wins": 13,
+    "ko_losses": 67,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.1707
+   },
+   "a-generic": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-generic.lisp",
+    "ko_wins": 13,
+    "ko_losses": 67,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.1707,
+    "b": 0,
+    "c": 0,
+    "z": 0.0
+   },
+   "a-hisagi-merged": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-merged.lisp",
+    "ko_wins": 55,
+    "ko_losses": 2,
+    "timeouts": 23,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.7125,
+    "score": 0.6829,
+    "b": 46,
+    "c": 4,
+    "z": 5.94,
+    "admitted": true
+   },
+   "a-hisagi-dswitch": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-dswitch.lisp",
+    "ko_wins": 59,
+    "ko_losses": 2,
+    "timeouts": 19,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.7625,
+    "score": 0.7317,
+    "b": 50,
+    "c": 4,
+    "z": 6.26,
+    "admitted": true
+   },
+   "a-hisagi-press": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-press.lisp",
+    "ko_wins": 69,
+    "ko_losses": 2,
+    "timeouts": 9,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.8875,
+    "score": 0.8537,
+    "b": 57,
+    "c": 1,
+    "z": 7.353,
+    "admitted": true
+   },
+   "a-hisagi-pressd": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-pressd.lisp",
+    "ko_wins": 74,
+    "ko_losses": 3,
+    "timeouts": 3,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9625,
+    "score": 0.9146,
+    "b": 62,
+    "c": 1,
+    "z": 7.685,
+    "admitted": true
+   },
+   "a-hisagi-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hisagi-kite.lisp",
+    "ko_wins": 72,
+    "ko_losses": 1,
+    "timeouts": 7,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.9125,
+    "score": 0.8902,
+    "b": 62,
+    "c": 3,
+    "z": 7.318,
+    "admitted": true
+   },
+   "a-hk-wake": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hk-wake.lisp",
+    "ko_wins": 62,
+    "ko_losses": 4,
+    "timeouts": 14,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.825,
+    "score": 0.7683,
+    "b": 52,
+    "c": 3,
+    "z": 6.607,
+    "admitted": true
+   },
+   "a-hk-pot": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hk-pot.lisp",
+    "ko_wins": 52,
+    "ko_losses": 2,
+    "timeouts": 26,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.675,
+    "score": 0.6463,
+    "b": 45,
+    "c": 6,
+    "z": 5.461,
+    "admitted": true
+   },
+   "a-hk-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hk-kite.lisp",
+    "ko_wins": 68,
+    "ko_losses": 0,
+    "timeouts": 12,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.85,
+    "score": 0.8415,
+    "b": 58,
+    "c": 3,
+    "z": 7.042,
+    "admitted": true
+   },
+   "a-hk-all": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-hk-all.lisp",
+    "ko_wins": 65,
+    "ko_losses": 0,
+    "timeouts": 15,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.8125,
+    "score": 0.8049,
+    "b": 53,
+    "c": 1,
+    "z": 7.076,
+    "admitted": true
+   },
+   "h1-range": {
+    "file": "docs/research/strategy-drsi/sp/arms/h1-range.lisp",
+    "ko_wins": 20,
+    "ko_losses": 60,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.2561,
+    "b": 18,
+    "c": 11,
+    "z": 1.3,
+    "admitted": true
+   },
+   "a-ken-ki": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-ken-ki.lisp",
+    "ko_wins": 39,
+    "ko_losses": 3,
+    "timeouts": 38,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.525,
+    "score": 0.4878,
+    "b": 36,
+    "c": 10,
+    "z": 3.833,
+    "admitted": true
+   },
+   "a-zoner": {
+    "file": "docs/research/strategy-drsi/sp/arms/a-zoner.lisp",
+    "ko_wins": 17,
+    "ko_losses": 48,
+    "timeouts": 15,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.8125,
+    "score": 0.2195,
+    "b": 16,
+    "c": 12,
+    "z": 0.756,
+    "admitted": false
+   },
+   "s1-brawler": {
+    "file": "docs/research/strategy-drsi/sp/arms/s1-brawler.lisp",
+    "ko_wins": 13,
+    "ko_losses": 67,
+    "timeouts": 0,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 1.0,
+    "score": 0.1707,
+    "b": 11,
+    "c": 11,
+    "z": 0.0,
+    "admitted": false
+   },
+   "s7-kite": {
+    "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
+    "ko_wins": 30,
+    "ko_losses": 36,
+    "timeouts": 14,
+    "draws": 0,
+    "matches": 80,
+    "ko_rate": 0.825,
+    "score": 0.378,
+    "b": 25,
+    "c": 8,
+    "z": 2.959,
+    "admitted": true
+   }
+  }
+ },
+ "mix": {
+  "a-hk-pot": 0.999
+ },
+ "mix_source": "docs/research/strategy-drsi/sp/pop/kh-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)",
+ "initial": {
+  "program": "a-hisagi-kite",
+  "rule": "the highest eval.py score on block 300 (seeds 301-400, both seats) against the opponent population and its mix",
+  "build": "f0e2414019a27d35",
+  "vs_pop": "docs/research/strategy-drsi/sp/pop/kh-K.json",
+  "scores": {
+   "none": {
+    "score": 0.066,
+    "anchor": {
+     "ko_wins": 33,
+     "ko_losses": 167,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 200,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 4,
+     "ko_losses": 195,
+     "timeouts": 1,
+     "draws": 0
+    }
+   },
+   "a-generic": {
+    "score": 0.066,
+    "anchor": {
+     "ko_wins": 33,
+     "ko_losses": 167,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 200,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 4,
+     "ko_losses": 195,
+     "timeouts": 1,
+     "draws": 0
+    }
+   },
+   "a-hisagi-merged": {
+    "score": 0.2492,
+    "anchor": {
+     "ko_wins": 135,
+     "ko_losses": 8,
+     "timeouts": 57,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 197,
+     "timeouts": 3,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 13,
+     "ko_losses": 88,
+     "timeouts": 99,
+     "draws": 0
+    }
+   },
+   "a-hisagi-dswitch": {
+    "score": 0.2937,
+    "anchor": {
+     "ko_wins": 154,
+     "ko_losses": 7,
+     "timeouts": 39,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 197,
+     "timeouts": 3,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 21,
+     "ko_losses": 87,
+     "timeouts": 92,
+     "draws": 0
+    }
+   },
+   "a-hisagi-press": {
+    "score": 0.3136,
+    "anchor": {
+     "ko_wins": 167,
+     "ko_losses": 7,
+     "timeouts": 26,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 197,
+     "timeouts": 3,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 20,
+     "ko_losses": 84,
+     "timeouts": 96,
+     "draws": 0
+    }
+   },
+   "a-hisagi-pressd": {
+    "score": 0.3416,
+    "anchor": {
+     "ko_wins": 178,
+     "ko_losses": 6,
+     "timeouts": 16,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 195,
+     "timeouts": 5,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 26,
+     "ko_losses": 79,
+     "timeouts": 95,
+     "draws": 0
+    }
+   },
+   "a-hisagi-kite": {
+    "score": 0.3432,
+    "anchor": {
+     "ko_wins": 174,
+     "ko_losses": 1,
+     "timeouts": 25,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 190,
+     "timeouts": 10,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 31,
+     "ko_losses": 86,
+     "timeouts": 83,
+     "draws": 0
+    }
+   },
+   "a-hk-wake": {
+    "score": 0.2921,
+    "anchor": {
+     "ko_wins": 157,
+     "ko_losses": 4,
+     "timeouts": 39,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 197,
+     "timeouts": 3,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 17,
+     "ko_losses": 89,
+     "timeouts": 94,
+     "draws": 0
+    }
+   },
+   "a-hk-pot": {
+    "score": 0.2509,
+    "anchor": {
+     "ko_wins": 131,
+     "ko_losses": 9,
+     "timeouts": 60,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 197,
+     "timeouts": 3,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 18,
+     "ko_losses": 86,
+     "timeouts": 96,
+     "draws": 0
+    }
+   },
+   "a-hk-kite": {
+    "score": 0.3135,
+    "anchor": {
+     "ko_wins": 162,
+     "ko_losses": 0,
+     "timeouts": 38,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 191,
+     "timeouts": 9,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 25,
+     "ko_losses": 87,
+     "timeouts": 88,
+     "draws": 0
+    }
+   },
+   "a-hk-all": {
+    "score": 0.3284,
+    "anchor": {
+     "ko_wins": 169,
+     "ko_losses": 1,
+     "timeouts": 30,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 188,
+     "timeouts": 12,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 27,
+     "ko_losses": 78,
+     "timeouts": 95,
+     "draws": 0
+    }
+   },
+   "h1-range": {
+    "score": 0.1155,
+    "anchor": {
+     "ko_wins": 61,
+     "ko_losses": 138,
+     "timeouts": 1,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 200,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 6,
+     "ko_losses": 194,
+     "timeouts": 0,
+     "draws": 0
+    }
+   },
+   "a-ken-ki": {
+    "score": 0.1881,
+    "anchor": {
+     "ko_wins": 106,
+     "ko_losses": 10,
+     "timeouts": 84,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 187,
+     "timeouts": 13,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 5,
+     "ko_losses": 55,
+     "timeouts": 140,
+     "draws": 0
+    }
+   },
+   "s7-kite": {
+    "score": 0.1469,
+    "anchor": {
+     "ko_wins": 80,
+     "ko_losses": 75,
+     "timeouts": 45,
+     "draws": 0
+    },
+    "mix": {
+     "ko_wins": 0,
+     "ko_losses": 200,
+     "timeouts": 0,
+     "draws": 0
+    },
+    "rest": {
+     "ko_wins": 6,
+     "ko_losses": 178,
+     "timeouts": 16,
+     "draws": 0
+    }
+   }
+  }
+ }
+}
