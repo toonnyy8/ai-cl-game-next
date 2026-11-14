@@ -37,6 +37,7 @@
         (unless (equal (car d1) (car d2)) (pushnew (if (equal (caar d1) (caar d2)) :camera :state-hash-line) *ft-names*))
         (loop for (s . v) in (cdr d1) for (nil . w) in (cdr d2) unless (equal v w) do (pushnew s *ft-names*))))))
 (defun ft-hook ()
+  (cl-user::sg-strat-step)                                         ; (STRAT_P1 / STRAT_P2: prelude.lisp)
   (when (and (equal (ext:getenv "FT_VS") "1") (battle-p) (brain *p2*)) (setf (brain-off (brain *p2*)) nil))   ; (P2's CPU back on)
   (let ((j (first *mc-jobs*)))
     (when (and (sim-snapshot-ok-p) j (svref j 5) (< (svref j 6) 2))
