@@ -15,6 +15,8 @@
 ;;;; lookup's nor a file's; the shipped CPU with its style CPU, frozen against later lookup entries) or a comma list of files / none, a POOL:
 ;;;; the match with seed s plays member (s mod n) (DUEL_AI_STRATEGY §8.15: frozen opponents and the proxy pools). *CAI-STYLES* is restored at
 ;;;; every match's start before the strategies apply, so one match's plain strategy never strips another match's style CPU.
+;;;; STRAT_DIF_P1 / STRAT_DIF_P2=easy|normal|hard: that seat's CPU difficulty (its perception delay, its lookup strategy) over the gate's
+;;;; 81020+i, set at the match's first battle step before the strategies above (DUEL_AI_STRATEGY §11.17: EASY / NORMAL / HARD against HARD).
 ;;;; Usage: ecl-host --norc --load tools/simgate/strat-run.lisp -- <duel.fas> <cmd>...   e.g. 2102 81022 30000 31120 2132
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
@@ -177,7 +179,12 @@
     (setf *cai-styles* (copy-tree *sr-styles0*))
     (do-sides (e)
       (let* ((f (fighter e)) (b (brain e)) (ch (fighter-character f))
-             (st (or (sr-strat (if (zerop (fighter-side f)) "STRAT_P1" "STRAT_P2")) (sr-strat (format nil "STRAT_~:@(~a~)" ch)))))
+             (st (or (sr-strat (if (zerop (fighter-side f)) "STRAT_P1" "STRAT_P2")) (sr-strat (format nil "STRAT_~:@(~a~)" ch))))
+             (dv (ext:getenv (if (zerop (fighter-side f)) "STRAT_DIF_P1" "STRAT_DIF_P2"))))
+        (when (and b dv (plusp (length dv)))                       ; (STRAT_DIF_P<n>=easy|normal|hard: that seat's difficulty, its delay and
+          (let ((dif (intern (string-upcase dv) :keyword)))         ;  its lookup strategy as START-MATCH gives them; DUEL_AI_STRATEGY §11.17)
+            (setf (brain-difficulty b) dif (brain-delay b) (getf *ai-delay* dif 14))
+            (brain-set-strat! b (strat-lookup ch (fighter-character (fighter (fighter-opp f))) dif))))   ; (another strategy: its state afresh)
         (when (and b st)
           (setf (brain-strat b) (if (eq st :none) nil st))
           (unless (or (eq st :none) (getf st :switch) (getf st :fq)) (remf *cai-styles* ch))

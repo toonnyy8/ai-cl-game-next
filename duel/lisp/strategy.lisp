@@ -177,10 +177,17 @@ r = SCALE x the change of H to the next judgement (to H-END at the last, plus WO
                      (setf (nth (1+ a) rule) (fq-quant (max (- q0 cap) (min (+ q0 cap) (+ (nth (1+ a) rule) (* eta x delta))))))))))))
 
 (defun fq-checksum (fq)
-  "A small checksum of the Q selector FQ's q values (a saved online table is kept only while its offline table is the same)."
+  "A small checksum of the Q selector FQ's arms and q values (a saved online table is kept only while its offline table is the same):
+each arm's id by its name's characters (NIL, the none arm, as 0; the arms may be ids or expanded plists), then every q. The arms since
+2026-11-14 (DUEL_AI_STRATEGY §11.17): a copy learned on other arms with the same q no longer loads."
   (let ((s (length (getf fq :rules))))
-    (dolist (r (getf fq :rules) s)
-      (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))   ; (a polynomial hash: a weighted sum let opposite moves cancel)
+    (flet ((mix (k) (setf s (mod (+ (* 31 s) k) 999983))))   ; (a polynomial hash: a weighted sum let opposite moves cancel)
+      (dolist (a (getf fq :arms))
+        (let ((id (if (consp a) (getf a :id) a)))
+          (mix 1)
+          (when id (loop for c across (symbol-name id) do (mix (char-code c))))))
+      (dolist (r (getf fq :rules) s)
+        (dolist (q (rest r)) (mix (round (* q *fq-unit*))))))))
 
 (defun fq-encode (fq base n)
   "The page's integers for the online table FQ grown from BASE over N matches: format, BASE's checksum, N, then every q x *FQ-UNIT*."
@@ -3264,12 +3271,15 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
                                 (:ichigo :hisagi :hard :f-ih-ichigo) (:hisagi :ichigo :hard :f-ih-hisagi)        ;  :qks3-ichigo, :qks5-hisagi, :qhs-ken,
                                 (:kenpachi :kenpachi :hard :f-kk-kenpachi) (:ichigo :ichigo :hard :f-ii-ichigo)  ;  :qis-hisagi, :qhs3-ichigo, :qks-ken,
                                 (:hisagi :hisagi :hard :f-hh-hisagi))                                            ;  :q1-ichigo-ichigo, :qhs4-mirror: §8.19)
-  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), HARD only (EASY / NORMAL keep their
-designed strength). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
+  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH). Every row is HARD's; since 2026-11-14 a
+difficulty whose *STRAT-TABLE-CHANCE* is above 0 plays the same row (NORMAL in windows, strategy-glue.lisp STRAT-WINDOW-STEP; EASY none:
+DUEL_AI_STRATEGY §11.17). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
 
 (defun strat-lookup (me vs dif)
-  "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."
-  (let ((r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
+  "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF (HARD's row at any difficulty whose table chance is
+above 0, *STRAT-TABLE-CHANCE*), or NIL."
+  (let* ((dif (if (plusp (getf *strat-table-chance* dif 0.0)) :hard dif))
+         (r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
     (and r (strat-by-id (fourth r)))))
 
 (defun strat-by-id (id) "The *STRAT-LIBRARY* entry ID, or NIL." (find id *strat-library* :key (lambda (st) (getf st :id))))

@@ -9,8 +9,8 @@
   "A debug command ran: no CPU learns any more (DEBUG-COMMAND sets it; debug 2504 clears it to play as in a VS CPU match).")
 
 ;;; ---------------------------------------------------------------- the online fuzzy Q against a human (DUEL_AI_STRATEGY §8.14)
-;;; A CPU whose lookup strategy is a Q selector (:FQ) and whose opponent is a human (no brain), in VS CPU with LEARNING CPU on and no debug
-;;; command run, plays the player's own copy of the table (FQ-ATTACH!); STRAT-SWITCH-STEP records each judgement outside rollouts (FQ-NOTE);
+;;; A CPU whose lookup strategy is a Q selector (:FQ) played whole (its difficulty's *STRAT-TABLE-CHANCE* 1: HARD, §11.17) and whose
+;;; opponent is a human (no brain), in VS CPU with LEARNING CPU on and no debug command run, plays the player's own copy of the table (FQ-ATTACH!); STRAT-SWITCH-STEP records each judgement outside rollouts (FQ-NOTE);
 ;;; at the match's end FQ-MATCH-END applies the TD updates (strategy.lisp FQ-TD-UPDATE!) and saves the copy. CPU vs CPU never learns.
 (defconstant +pg-fq+ 40000 "Page get / set 40000 + 1000 (10 me + vs): CPU ME's online table against VS (count; + 1 + j entry j; pwa.js soulduel.fq.<me>.<vs>).")
 (defvar *fq-tables* nil "Per (me . vs) roster indices: (strategy . matches), the player's copy of the offline Q selector, loaded from the page on first use.")
@@ -41,10 +41,12 @@ was saved from this same offline table, else a fresh copy."
   (log-msg "duel fq reset"))
 
 (defun fq-attach! (e)
-  "CPU E learns this match when its strategy is a Q selector and it faces a human (VS CPU, LEARNING CPU on, no debug command; or a tool's
+  "CPU E learns this match when its strategy is a Q selector played whole (table chance 1: HARD, DUEL_AI_STRATEGY §11.17) and it faces a human (VS CPU, LEARNING CPU on, no debug command; or a tool's
 *FQ-LEARN-FORCE*): its brain plays the player's copy and keeps the match's record (BRAIN-FQL: me vs offline-table records)."
   (let* ((b (brain e)) (f (fighter e)) (lib (brain-strat b)) (o (fighter-opp f)))
     (when (and lib (getf lib :fq)
+               ;; (a table played whole: NORMAL's windows would credit arms it never played, and its copy shares HARD's page slot; §11.17)
+               (>= (brain-chance b *strat-table-chance*) 1.0)
                (or *fq-learn-force* (and (eq *mode* :vs-cpu) (null (brain o)) (zerop (setting :learn)) (not *learn-debug-off*))))
       (let ((me (position (fighter-character f) *roster*)) (vs (position (fighter-character (fighter o)) *roster*)))
         (setf (brain-strat b) (car (fq-table me vs lib))

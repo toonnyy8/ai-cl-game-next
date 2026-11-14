@@ -2566,3 +2566,61 @@ The KI search writes arms as data, but the style CPUs read almost no arm key (sp
 | KH | 40 | 40 | 144.8 | Kenpachi 40 |
 | IH | 40 | 40 | 106.5 | Ichigo 40 |
 | HH | 20 | 17 | 228.3 | — (3 time-outs) |
+
+### 11.17 The checksum covers the arms; NORMAL plays the tables in windows (2026-11-14)
+
+**The saved copy's checksum** (`strategy.lisp` FQ-CHECKSUM, the one implementation FQ-ENCODE and FQ-DECODE share): §11.16's caveat is closed.
+The hash now folds in the table's arms first (each arm's id by its name's characters, NIL the none arm; ids or expanded plists alike), then
+the rule count and every q as before. A copy learned on other arms with the same q no longer loads. No extra reset: §11.16 already reset
+every saved copy. Host checks per lookup row: a copy saved under the old q-only checksum decodes to NIL, so does a copy with the same q
+and the arms reversed (its checksum differs), and the table's own copy reads back with its match count.
+
+**NORMAL** (PLAN2 §4; the user's call to ship, §11.15). Each of the nine lookup rows now also plays at any difficulty whose table chance is
+above 0 (`strat-lookup`, the rows unchanged). The window logic sits in one place in the glue, `strategy-glue.lisp` STRAT-WINDOW-STEP,
+which STRAT-SWITCH-STEP calls first:
+- The knobs are in `tuning.lisp`: `*strat-table-chance*` `(:easy 0.0 :normal 0.5 :hard 1.0)` and `*strat-table-window*` 600 steps (10 s).
+- At the first step the brain takes in each window, one `sim-rnd01` roll (CHANCE-ROLL) decides whether the table plays that window or
+  its none arm. The roll happens only when the chance is strictly between 0 and 1, so EASY and HARD draw nothing and write nothing.
+- The state lives in two brain slots, `tw` (the window last rolled) and `tw-off`, snapshotted with the brain like every other slot.
+- A change of on / off sets `sw-t` -1, so the judgement runs at that step and the `:keep-state` swap of styles goes through the usual path.
+- In an off window, the judgement is the none arm: no judge, no online record.
+- The online learner (FQ-ATTACH!) attaches only where the chance is 1 (HARD). NORMAL's windows would credit arms that never played, and its
+  copy would share HARD's page slot (the page key has no difficulty). The lead's call, not the user's. Nothing a player sees changes: NORMAL had no table before, so it never
+  learned.
+
+**Proofs** (native sim):
+- EASY and HARD play bit-identical to 9d23be87. Pairing gate, seeds 601-603, all nine orderings (200110 ... 200770 and the three reversed
+  seats) at 81020 and 81022: every `duel` line equal, hash lines included (`mcfull` ms excluded). NORMAL (81021) differs in all six runs.
+- The windows do sit out: in the table run below, NORMAL's judgements on the none arm are 0.44-0.52 of all, per side (KI Ichigo's table
+  has no none arm; its off judgements count to no arm: 0.46). HARD's are 0 on the eight fallback tables.
+- The tool: the pairing gate at 81021 equals 81022 with `STRAT_DIF_P1=normal STRAT_DIF_P2=normal` (200310, 200170, seeds 601-603: gate rows
+  and hash lines identical), so a seat set by `STRAT_DIF_P<n>` plays as the game's own difficulty.
+- Snaptest straight = pollute on a NORMAL KI match (`30600 31101 81021 200130`): 37 lines, 339 rollouts, 0 differ. Fulltest with `FT_LAYER=t`:
+  659 checks, 0 differ.
+- Host tests ALL PASS (3320); `pkgcheck.sh duel`: only DUEL::APP; `debug-ranges-check.py`: 0 errors; `sp-costs-check.py`: 116 PASS, 0 FAIL.
+
+**EASY ≤ NORMAL ≤ HARD** (reported, not gated). Each side plays its lookup at one difficulty against the opponent's HARD `none` (no
+strategy, its style CPU kept). Blocks 200 + 300 (seeds 201-400), both seats, 400 matches a cell, K.O. wins only (TO = time-outs). The
+tool is the pairing gate under `tools/simgate/strat-run.lisp` at 81022, with the new `STRAT_DIF_P<n>` setting the candidate seat's
+difficulty, delay and lookup strategy (and `STRAT_P<other>=none`).
+
+| Side vs | EASY | NORMAL | HARD |
+|---|---|---|---|
+| Kenpachi vs Kenpachi | 0 (0.000) | 8 (0.020), TO 1 | 400 (1.000) |
+| Kenpachi vs Ichigo | 0 (0.000), TO 12 | 0 (0.000) | 382 (0.955) |
+| Kenpachi vs Hisagi | 21 (0.052), TO 1 | 161 (0.403), TO 8 | 400 (1.000) |
+| Ichigo vs Kenpachi | 0 (0.000) | 12 (0.030) | 397 (0.993) |
+| Ichigo vs Ichigo | 1 (0.003), TO 15 | 27 (0.068), TO 98 | 350 (0.875), TO 50 |
+| Ichigo vs Hisagi | 0 (0.000), TO 3 | 34 (0.085), TO 37 | 400 (1.000) |
+| Hisagi vs Kenpachi | 0 (0.000) | 6 (0.015) | 365 (0.912), TO 23 |
+| Hisagi vs Ichigo | 1 (0.003), TO 18 | 122 (0.305), TO 35 | 396 (0.990), TO 3 |
+| Hisagi vs Hisagi | 1 (0.003), TO 27 | 88 (0.220), TO 32 | 388 (0.970), TO 3 |
+
+- The order holds in all nine rows, with KI Kenpachi tied at 0 for EASY and NORMAL.
+- NORMAL sits much nearer EASY than HARD. Against a HARD opponent, NORMAL's slower perception (delay 14 vs 8) and its half of the windows
+  on `none` lose most matches. PLAN2 §4's "only the 0.5 moves" is the knob if NORMAL should be stronger.
+
+**G2** (G2's CvC is NORMAL, so it moved). `tests/style-cvc-ref.txt` was regenerated once, natively, with a header note. II 36 lines
+(P2 4-7, 356.7 s → P1 2-0, 355.6 s), IK 40 → 31 lines (P1 3-2, 398.3 s → P1 2-0, 307.3 s), KK 38 → 19 lines (P1 1-0, 375.3 s → P1 6-0,
+188.0 s). Native `simgate.py --cvc` PASS; browser `style-gates.py cvc dist/duel` PASS (bit for bit). The old lines are quoted only in
+dated records (DUEL_SP §8.4, REFACTOR_2026-11, §11.16, DEVLOG), which stay as written.

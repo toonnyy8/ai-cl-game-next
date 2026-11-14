@@ -57,7 +57,8 @@
   (let ((codes (fq-encode fq fq 3)))
     (check (= 448 (length codes)))                                        ; (the page's online copy: 3 + 5 x 89 integers)
     (check (equal (getf fq :rules) (getf (fq-decode codes fq) :rules)))))   ; (read back equal)
-(check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
+(check (null (strat-lookup :hisagi :ichigo :easy)))                    ; (EASY keeps its designed strength; NORMAL plays HARD's row in windows, §11.17)
+(check (eq (strat-lookup :hisagi :ichigo :normal) (strat-lookup :hisagi :ichigo :hard)))
 (let* ((fq (getf (strat-by-id :qhs4-mirror) :fq))               ; (ranged close: Kenpachi's KI style code, as the data put it, no pin:
        (fs '(:lead 0 :ored 0 :ost 0 :awk 1 :prev 1 :form 1 :dm 1.5 :gauge 0.0 :wall 9.0 :oawk 0)))   ;  「拿掉，照資料用 KI 風格」)
   (check (eq 'ken-ki-style (getf (nth (strat-fq-pick fq fs) (getf fq :arms)) :fn))))
@@ -130,7 +131,7 @@
       (check (equal (list me vs) (getf st :apply)))
       (check (and (= 2 (length (getf fq :arms))) (= 48 (length (getf fq :rules)))))
       (check (eq nil0 (null (first (getf fq :arms)))))
-      (check (null (strat-lookup me vs :normal))))))
+      (check (null (strat-lookup me vs :easy))))))
 (check (eq 'ichigo-ki-style (getf (second (getf (getf (strat-by-id :qks3-ichigo) :fq) :arms)) :fn)))   ; (KI's arm 1: the whole-game replacement, still in :qks-ichigo)
 (check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))
 ;; a composite (DUEL_AI_STRATEGY §8.7): the first entry whose OWN fires at >= 0.5, else :ELSE, else NIL; OR across antecedents, AND within
@@ -375,4 +376,14 @@
                                                  :fq)))
         (check (= 2 (nth-value 1 (fq-decode codes fq))))                    ; (its own copy reads back, with its match count)
         (check (null (fq-decode (fq-encode old old 5) fq)))                 ; (the old table's saved copy: fresh)
-        (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))))))   ; (the right size, another checksum: fresh)
+        (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))   ; (the right size, another checksum: fresh)
+        ;; §11.17: the checksum covers the arms. A copy saved under the q-only checksum (before 2026-11-14) and a copy of the same q
+        ;; learned on other arms both load fresh
+        (let ((q-only (let ((s (length (getf fq :rules))))
+                        (dolist (r (getf fq :rules) s) (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))
+              (other (list* :arms (reverse (getf fq :arms)) fq)))
+          (check (/= q-only (second codes)))
+          (check (null (fq-decode (list* (first codes) q-only (cddr codes)) fq)))
+          (check (equal (getf other :rules) (getf fq :rules)))
+          (check (/= (fq-checksum other) (fq-checksum fq)))
+          (check (null (fq-decode (fq-encode other other 2) fq))))))))
