@@ -111,7 +111,8 @@ The pick is the best mean K.O. share against the other candidate and against `no
 - **A host test now fails, by design.** `tests/duel-rules/style-knob.lisp` (§11.23 proof 4) asserts that no `sp/final/*.lisp` names an
   exchange key, and that no `*STRAT-UNITS*` entry does either.
   - The five shipped tables do: 3486 checks, 5 failed, one per file.
-  - It has to be relaxed when the tables go into the game.
+  - It has to be relaxed when the tables go into the game. Relaxed in §11.27: exchange keys allowed in the 13 `:x-*` units, the five `:f-*` entries that
+    name them and their five raw files; the other four tables and every older unit still checked.
 
 ## Commands
 
@@ -132,9 +133,11 @@ SP_BUILD=3ee0d8730831 python3 eval.py --me hisagi --vs hisagi --cand $X/x-kh-h-r
 
 The 2026-11-14 commands, and how those tables were chosen, are in this file's git history (commit 8b9a1665).
 
-## Into the game (DUEL_AI_STRATEGY §11.16)
+## Into the game (DUEL_AI_STRATEGY §11.16; again §11.27)
 
-Run from the repo root.
+Run from the repo root. On 2026-11-15 (§11.27) the 13 `x-*` units went in after `:c-ih-h-r1-b0a2`, `add.sh` re-added the five shipped
+tables (`add.py` now replaces an `:f-<file>` entry in place, so the names are reused without a duplicate), and `proofs.sh` gave 2 of 2
+chunks identical, b = c = 0, for all nine tables (`proofs-600.jsonl`). The relaxed host check is `tests/duel-rules/style-knob.lisp`.
 
 ```sh
 python3 docs/research/strategy-drsi/sp/final/units.py docs/research/strategy-drsi/sp/final/*-*.lisp   # the arm units *STRAT-UNITS* lacks: paste them in

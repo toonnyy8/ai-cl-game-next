@@ -3110,3 +3110,119 @@ Hisagi `x-ih-h-r1-b0a1` (0.617; the mix's top `a-hisagi-kite` scored 0.505).
 **Stage 2 (bands on KI) skipped** (the lead's call): KI ended in a pure dominance (Ichigo 0.91), where a band specialist for Kenpachi has
 the least to gain, and the shipping batch needs the context and the time. Cells spent: **81 of 90** (stage 1 only).
 
+
+### 11.27 The re-collection ships: five HARD tables replaced, IH Hisagi and the mirrors kept (2026-11-15)
+
+PLAN3 §3 "Shipping" and §6 steps 7-8 (the user's 「要，請重新蒐集」, §11.21; standing answers in PLAN3's head): the final tables of
+§11.24-§11.26, a held-out ship test per side, the mirrors' sufficiency check, the lookup rows, NORMAL reported (nothing tuned), G2
+regenerated. Records: `docs/research/strategy-drsi/sp/final/README.md` (the tables, the mirrors, the commands), `sp/ship/README.md` (the
+ship rows), `sp/ship/normal/` (the NORMAL tools and outputs).
+
+**The six cross-pairing tables** (`band.py fallback`: arm 0 at 0 in every rule, alternates and `none` at Q -0.05 for `fq-online.lisp`;
+each plays its arm 0 bit for bit, `band.py pair` b = c = 0, which also shows an arm's exchange keys are honoured inside an `:fq` table).
+KI Ichigo's gaining band table of §11.16 is replaced by a fallback table too, so every shipped table is now constant in play.
+
+| Side | Arm 0 | Alternates | Ship |
+|---|---|---|---|
+| KI Kenpachi | `x-ki-k-r1-b0a2` | `x-ki-k-r1-b3a2`, `x-ki-k-r1-b2a2`, `none` | shipped |
+| KI Ichigo | `x-ki-i-r1-b0a2` | `x-ki-i-r1-b1a1`, `x-ki-i-r1-b2a0`, `none` | shipped |
+| KH Kenpachi | `x-kh-k-r1-b0a2` | `x-kh-k-r1-b3a2`, `c-ki-k-r2-b1a2`, `none` | shipped |
+| KH Hisagi | `x-kh-h-r2-b3a1` | `x-kh-h-r2-b1a1`, `x-kh-h-r1-b3a2`, `none` | shipped |
+| IH Ichigo | `x-ih-i-r1-b2a1` (mix 0.515) | `x-ih-i-r1-b0a2`, `c-ki-i-r2-b2a2`, `none` | shipped |
+| IH Hisagi | `a-hisagi-kite` (mix 0.596) | `x-ih-h-r2-b0a1`, `x-ih-h-r2-b3a1`, `x-ih-h-r2-b1a0`, `none` | **rejected**: today's `c-ih-h-r1-b2a0` table kept |
+
+**The ship test** (`sp/ship.py`, seeds 601-800, both seats, 400 matches per opponent; `--arm0` the table shipped at 8b9a1665, `--opp`
+his new table and `none`; b = the new table K.O.s and today's does not, c the reverse; z = (b - c) / sqrt(b + c), positive for the new
+table). Bars: pooled z ≥ 1.96; K.O. rate ≥ 90 % (reported); the z against his `none` not ≤ -1.96.
+
+| Side | Pooled b / c, z | z vs his table | z vs `none` | K.O. rate (t/o of 800) | Verdict |
+|---|---|---|---|---|---|
+| KI Kenpachi | 185 / 50, **+8.81** | +5.39 | +7.39 | 98.62 % (11) | ship |
+| KI Ichigo | 182 / 13, **+12.10** | +12.10 | 0.00 (400 / 400 both) | 100 % (0) | ship |
+| KH Kenpachi | 397 / 1, **+19.85** | +14.56 | +13.49 | 97.50 % (20) | ship |
+| KH Hisagi | 175 / 4, **+12.78** | +12.92 | +1.15 | 97.00 % (24) | ship |
+| IH Ichigo | 139 / 90, **+3.24** | +2.08 | +4.15 | 98.75 % (10) | ship |
+| IH Hisagi | 171 / 85, +5.38 | +8.68 | **-4.99** | 92.87 % (57) | keep today's (bar 3) |
+
+- **IH Hisagi fails bar 3**: against Ichigo's `none`, `kite` K.O.s 350 of 400 with 47 time-outs, today's `c-ih-h-r1-b2a0` 387 with 4:
+  the stall that made the lead pick `b2a0` over `kite` on 2026-11-14 (§11.16). The rejected file is `sp/ship/rejected/ih-hisagi.lisp`.
+- **Not tested, left to the user**: by the IH matrix (block 200), `x-ih-h-r2-b0a1` scores higher than `kite` (full score 0.677 against
+  0.534) and K.O.s Ichigo's `none` in every match. Testing it would spend the held-out seeds 601-800 on that side a second time.
+- **IH Ichigo's row was played against the rejected `kite` table**, not the Hisagi that stays. By the block-200 matrix, Ichigo's new arm
+  against the kept `c-ih-h-r1-b2a0` scores 0.855, today's 0.78.
+- KH reaches the 90 % bar on both sides (97.5 %, 97.0 %); in today's row, Hisagi's `pressd` timed out 248 of 400 against Kenpachi's new
+  table.
+
+**The mirrors** (PLAN2 §2 sufficiency, sim only; `eval.py --me C --vs C` against a `{none, arm}` population, block 200; K.O. wins :
+losses : time-outs of 200 from the row's side). Report only: the three mirror tables and rows are unchanged.
+
+| Mirror | Pick (the best mean against the other candidate and `none`) | Self-play | vs `none` | Today's arm 0 |
+|---|---|---|---|---|
+| KK | `x-kh-k-r1-b0a2` | 100:100:0 (100 %) | 200:0:0 | `c-ki-k-r2-b0a2`: self-play 100 %, vs `none` 151:45:4; the pick beats it 200:0:0 |
+| II | `x-ki-i-r1-b0a2` | 5:5:190 (**5 %**, both always take the AS) | 157:0:43 | `c-ki-i-r2-b2a2`: self-play 70 % (54 % on 2026-11-14); the other candidate `x-ih-i-r1-b2a1` 66 % |
+| HH | `x-kh-h-r2-b3a1` | 0:0:200 (never ends) | 142:18:40 | `c-ih-h-r1-b2a0`: self-play 99 %, but vs `none` 123:71:6 (193:5:2 on 2026-11-14) |
+
+**Into the game** (§11.16's path, `sp/final/add.sh`, one implementation):
+- `sp/final/units.py` (bootstrapped from `hh-hisagi.lisp`, a table whose arms are all units) gave 13 arm units, pasted into
+  `*STRAT-UNITS*` after `:c-ih-h-r1-b0a2`: `:x-ih-i-r1-b2a1 :x-ih-i-r1-b0a2 :x-kh-h-r2-b3a1 :x-kh-h-r2-b1a1 :x-kh-h-r1-b3a2
+  :x-kh-k-r1-b0a2 :x-kh-k-r1-b3a2 :x-ki-i-r1-b0a2 :x-ki-i-r1-b1a1 :x-ki-i-r1-b2a0 :x-ki-k-r1-b0a2 :x-ki-k-r1-b3a2 :x-ki-k-r1-b2a2`
+  (styles `:st-ichigo-ki-r2b2a1`, `:st-hisagi-hk`, `:st-ken-kh-standoff`; their exchange keys as arm keys, §11.23).
+- **The names are reused** (`:f-ki-kenpachi` ... `:f-ih-ichigo`), and `fq/switch/library/add.py` only appended: a second entry of the
+  same id would have sat after the old one, and `strat-by-id` returns the first. `add.py` now replaces an existing `:f-<file>` entry and
+  its comment lines in place (the library's length and order kept); the lookup rows already named those ids, so they stay. One entry
+  per id checked after the run.
+- `add.sh` re-added only the five passing tables. The superseded §11.16 arms (`:c-ki-i-r3-b3a0-k`, `:c-ki-k-pilot-b0a0`, ...) stay as
+  units, as superseded tables always have (§11.16).
+- **Proofs** (`sp/final/proofs.sh`, raw file through `STRAT_P*` = the live lookup, seeds 601-610, both seats, against the other side's
+  final raw file, a mirror against itself): 2 of 2 chunks identical, 0 differing, b = c = 0, for **all nine** tables
+  (`sp/final/proofs-600.jsonl`).
+- **Saved online learning**: FQ-CHECKSUM covers the arms (§11.17), so a player's saved `fq-online` copy for the five changed rows (KI both
+  sides, KH both sides, IH Ichigo) loads fresh; IH Hisagi's and the three mirrors' copies keep loading.
+- **Build hash**: strategy-switch's (`SP_BUILD`) 3ee0d87308311ac5 → a27d7dfc717d5de3; simlib's plain `build_hash()` 737b21d5cf441e23
+  → 20004454433e6397. The round's `SP_BUILD=3ee0d8730831` pin no longer matches this tree.
+
+**The host check of §11.23 proof 4** (`tests/duel-rules/style-knob.lisp`) failed by design (the shipped units and tables carry exchange
+keys and style knobs). Relaxed to what still holds: the 53-key style scan allows knobs in units `:c-*` and now `:x-*`; the exchange keys
+are allowed only in the 13 `:x-*` units (counted, and checked to hold some), the five `:f-*` entries that name them (the library holds
+them expanded) and their five raw files in `sp/final/`. Every other unit, style, data unit, rule base and library entry, the four
+unchanged final tables, and the seed arms (`sp/arms/*.lisp`, `pilot/`) still name none. `tests/duel-rules/strategy.lisp`'s lookup rows:
+the five arm 0s and KI Ichigo's 4 arms (was 2).
+
+**NORMAL: nothing tuned** (the user left its strength, §11.21). §11.18's check, reproduced with its tool: `sp/ship/normal/ord.py TREE
+10` (the pairing gate under `tools/simgate/strat-run.lisp` at 81022, the candidate seat's difficulty by `STRAT_DIF_P<n>`, the other seat
+`STRAT_P<n>=none`; seeds 201-210 + 301-310, both seats, 40 matches a cell, K.O. wins of the candidate). Before = 8b9a1665's build.
+
+| Side vs (HARD `none`) | EASY | NORMAL | HARD | before: EASY / NORMAL / HARD |
+|---|---|---|---|---|
+| Kenpachi vs Kenpachi | 0 | 0 | 31 (TO 1) | 0 / 0 / 31 |
+| Kenpachi vs Ichigo | 0 | 0 (TO 1) | 26 | 0 / 0 / 17 |
+| Kenpachi vs Hisagi | 0 | 11 | 40 | 0 / 2 / 20 |
+| Ichigo vs Kenpachi | 0 | 0 | 40 | 0 / 0 / 40 |
+| Ichigo vs Ichigo | 0 (TO 1) | 0 (TO 4) | 36 (TO 4) | 0 / 0 / 36 |
+| Ichigo vs Hisagi | 0 | 0 (TO 2) | 39 | 0 / 0 / 38 |
+| Hisagi vs Kenpachi | 0 | 1 | 40 | 0 / 0 / 40 |
+| Hisagi vs Ichigo | 0 (TO 3) | 7 (TO 9) | 40 | 0 / 7 / 40 |
+| Hisagi vs Hisagi | 0 | 0 | 21 (TO 1) | 0 / 0 / 21 |
+
+- EASY ≤ NORMAL ≤ HARD holds in every row. The mirror rows and Hisagi vs Ichigo (tables unchanged) are identical to before.
+- The largest moves are Kenpachi's: vs Hisagi HARD 20 → 40, NORMAL 2 → 11; vs Ichigo HARD 17 → 26.
+
+**NORMAL's K.O.s of 180** (§11.19's measure: CvC at NORMAL, debug 81021, seeds 1-30, the six pairings KK IK II HK HI HH with the
+first-named character P1; §11.19's scratch `run.py`, now `sp/ship/normal/run.py TREE OUT 30 1 2,7,9,29,31,35` over
+`tools/simgate/run-log.lisp`, counted by `ko.py`): **140 of 180**, time-outs 40 (K.O.s KK 30, IK 23, II 9, HK 27, HI 28, HH 23).
+Today's build before this change also gives **140** (KK 30, IK 24, II 9, HK 29, HI 25, HH 23): the 127 of §11.19 was measured before
+§11.20-§11.21 moved NORMAL. So the tables leave NORMAL's CvC strength where it was.
+
+**G2** (G2's CvC is NORMAL, which plays the tables in windows, §11.17): only IK moved; II and KK are identical (their mirror tables are
+unchanged). `tests/style-cvc-ref.txt` regenerated once, natively, with a header note: II 39 lines (P2 2-4, 391.5 s), **IK 35 → 32
+lines (P2 0-3, 349.5 s → P2 0-3, 314.3 s)**, KK 29 lines (P1 4-0, 283.5 s). Native `simgate.py --cvc` PASS; browser `style-gates.py cvc
+dist/duel` PASS (bit for bit). The old lines are quoted only in dated records (§11.21, §11.23, DEVLOG), which stay as written.
+
+**Checks.**
+- Host tests ALL PASS (`duel-rules-test` 3484 checks; `duel-control-test` 124, `input-test` 33, `touch-test` 100, `cine-test` 18).
+- `pkgcheck.sh duel`: only DUEL::APP (predates this).
+- Snaptest straight = pollute: `30000 31104 2132` (KI at the default NORMAL: 186 lines, 138 hash lines, 1,933 rollouts, 0 differ), and at
+  HARD (`30600 31102 81022` + 2132 KI, 2164 HK, 2166 HI: 577 / 893 / 619 rollouts, 0 differ but the brush's millisecond line).
+- Fulltest on `2102 4007` (G2's IK): 45 checks, 0 differ; with `FT_LAYER=t` 683 checks (640 strategy checks), 0 differ.
+- `./build.sh duel`; smoke exit 0 (heap 75.3 MB).
+- No balance gates (the user, 2026-10-29).

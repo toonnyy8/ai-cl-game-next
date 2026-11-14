@@ -208,3 +208,6 @@ Wall time is not the limit (24 cores). Every option includes X1 (one Opus batch)
 6. Second rounds where a first admitted (standard). Stage 2 on the pilot pairing. Checkpoint 3.
 7. Final tables, ship tests, mirrors' sufficiency, the lookup rows, proofs.
 8. NORMAL's table, G2 regenerated, checks, the playtest Artifact. Checkpoint 4. Docs, commit, push.
+
+**Status (2026-11-15, DUEL_AI_STRATEGY §11.27):** steps 1-8 done (stage 2 skipped, §11.26), except step 8's playtest Artifact,
+checkpoint 4's report and the push to main, which the main session does.

@@ -1,0 +1,10 @@
+Side vs opp (HARD none) | EASY | NORMAL | HARD   (K.O. wins / matches, TO)
+  K vs K |   0/40 TO  0 |   0/40 TO  0 |  31/40 TO  1
+  K vs I |   0/40 TO  0 |   0/40 TO  1 |  26/40 TO  0
+  K vs H |   0/40 TO  0 |  11/40 TO  0 |  40/40 TO  0
+  I vs K |   0/40 TO  0 |   0/40 TO  0 |  40/40 TO  0
+  I vs I |   0/40 TO  1 |   0/40 TO  4 |  36/40 TO  4
+  I vs H |   0/40 TO  0 |   0/40 TO  2 |  39/40 TO  0
+  H vs K |   0/40 TO  0 |   1/40 TO  0 |  40/40 TO  0
+  H vs I |   0/40 TO  3 |   7/40 TO  9 |  40/40 TO  0
+  H vs H |   0/40 TO  0 |   0/40 TO  0 |  21/40 TO  1

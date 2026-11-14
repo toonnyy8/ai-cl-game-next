@@ -354,9 +354,10 @@
     (check (handler-case (progn (tbl :period 30) nil) (error () t)))))
 
 ;; DUEL_AI_STRATEGY §11.16: the HARD lookup plays the SP re-collection's nine final tables (sp/final/*.lisp, :rb-sp's 42 rules, keep-state)
-(dolist (r '((:ichigo :kenpachi :f-ki-ichigo 2 c-ki-i-r2-b2a2) (:kenpachi :ichigo :f-ki-kenpachi 4 c-ki-k-r2-b1a2)
-             (:kenpachi :hisagi :f-kh-kenpachi 4 c-ki-k-r2-b0a2) (:hisagi :kenpachi :f-kh-hisagi 4 a-hisagi-pressd)
-             (:ichigo :hisagi :f-ih-ichigo 4 c-ih-i-r1-b0a1) (:hisagi :ichigo :f-ih-hisagi 4 c-ih-h-r1-b2a0)
+;; (§11.27: five rows re-collected after the exchange rules, arm 0 an :x-* unit; IH Hisagi and the mirrors as §11.16)
+(dolist (r '((:ichigo :kenpachi :f-ki-ichigo 4 x-ki-i-r1-b0a2) (:kenpachi :ichigo :f-ki-kenpachi 4 x-ki-k-r1-b0a2)
+             (:kenpachi :hisagi :f-kh-kenpachi 4 x-kh-k-r1-b0a2) (:hisagi :kenpachi :f-kh-hisagi 4 x-kh-h-r2-b3a1)
+             (:ichigo :hisagi :f-ih-ichigo 4 x-ih-i-r1-b2a1) (:hisagi :ichigo :f-ih-hisagi 4 c-ih-h-r1-b2a0)
              (:kenpachi :kenpachi :f-kk-kenpachi 3 c-ki-k-r2-b0a2) (:ichigo :ichigo :f-ii-ichigo 3 c-ki-i-r2-b2a2)
              (:hisagi :hisagi :f-hh-hisagi 4 c-ih-h-r1-b2a0)))
   (destructuring-bind (me vs id na arm0) r
