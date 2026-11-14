@@ -6,9 +6,9 @@ import os, sys
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../fq/switch/library'))
 import contextlib, io  # noqa: E402
-_argv, sys.argv = sys.argv, [sys.argv[0], os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kh-hisagi.lisp'), ':x']
+_argv, sys.argv = sys.argv, [sys.argv[0], os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hh-hisagi.lisp'), ':x']
 with contextlib.redirect_stdout(io.StringIO()):
-    import entry  # noqa: E402  (entry.py runs on import: it reads strategy.lisp, then converts one table; kh-hisagi's arms are all units)
+    import entry  # noqa: E402  (entry.py runs on import: it reads strategy.lisp, then converts one table; hh-hisagi's arms are all units; a mirror table, not rewritten by a cross-pairing ship)
 sys.argv = _argv
 from sexp import read_all, show, pget, pkeys  # noqa: E402
 

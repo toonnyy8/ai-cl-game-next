@@ -1,0 +1,6 @@
+log-HISAGI-HISAGI-d1.txt     n=30 KO 23 TO  7  P1 12 P2 18  cancels 1514 (50.5/match) median 267.4s
+log-HISAGI-ICHIGO-d1.txt     n=30 KO 25 TO  5  P1 24 P2  6  cancels 1184 (39.5/match) median 239.8s
+log-HISAGI-KENPACHI-d1.txt   n=30 KO 29 TO  1  P1  4 P2 26  cancels 1408 (46.9/match) median 218.9s
+log-ICHIGO-ICHIGO-d1.txt     n=30 KO  9 TO 21  P1 14 P2 16  cancels 1139 (38.0/match) median 300.0s
+log-ICHIGO-KENPACHI-d1.txt   n=30 KO 24 TO  6  P1 15 P2 15  cancels 1085 (36.2/match) median 250.3s
+log-KENPACHI-KENPACHI-d1.txt n=30 KO 30 TO  0  P1 11 P2 19  cancels 1231 (41.0/match) median 202.7s

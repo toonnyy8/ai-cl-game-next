@@ -66,7 +66,7 @@
   },
   {
    "id": "ki-ichigo",
-   "file": "docs/research/strategy-drsi/sp/final/ki-ichigo.lisp",
+   "file": "docs/research/strategy-drsi/sp/ship/head-2026-11-14/ki-ichigo.lisp",
    "why": "an old arm that still K.O.s (screen)"
   },
   {
@@ -276,7 +276,7 @@
     "admitted": true
    },
    "ki-ichigo": {
-    "file": "docs/research/strategy-drsi/sp/final/ki-ichigo.lisp",
+    "file": "docs/research/strategy-drsi/sp/ship/head-2026-11-14/ki-ichigo.lisp",
     "ko_wins": 141,
     "ko_losses": 55,
     "timeouts": 4,
