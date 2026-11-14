@@ -53,7 +53,8 @@ Then ask what the table can't show:
 1. **Openers carry the tells**: NA1 and every NS first segment S ≥ 14 (Ichigo: NA1 14, NS 22 / 20 / 18), the anticipation held; links keep
    their speed. Author the clip at the new S (`:clip-s` = S).
 2. **A stance per pointer** (`:core :stances`) so the opponent reads the next NS before it starts.
-3. **Segments chain by `:params :ns-next`**; a latched press starts the next one once the current segment's active frames are over.
+3. **Segments chain by `:params :ns-next`**; a latched press starts the next one once the current segment's active frames are over
+   (an SA also at once after the segment took part in a cancel: DUEL_CORE §2.1.1).
    Anything a segment spawns late (a clone's swing, a wave) must land before that earliest start.
 4. **AS n = n segments**, the last one the knockdown / launch; the AS steals / launches / hurts by pointer (1 / 2 / 3).
 5. **Waves**: a hazard beats every class at range; to let it Kikon, give its segment `:params :kikon-strike` (a strike move the owner

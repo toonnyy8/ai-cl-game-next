@@ -44,7 +44,13 @@
     (check (every (lambda (n) (eq (cls n) :as)) '(:ke-z-as1 :ke-z-as2 :ke-z-as2b :ke-z-as3 :ke-z-as3b :ke-z-as3c)))
     (check (every (lambda (n) (eq (cls n) :sa)) '(:ke-z-sa1 :ke-z-sa2 :ke-z-sa3)))
     ;; §35's frames
-    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)) '(6 6 7 8 10)))
+    ;; J1 6 -> 9, AS1 12 -> 16 (the user, 2026-11-14, DUEL_KEN_V3 §48): J2 (a copy of J1) and the other copies keep theirs; the clips
+    ;; keep their authored strikes (clip-s 6 / 12: played at 6/9, 12/16 so the strike pose lands on the hit frame)
+    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)) '(9 6 7 8 10)))
+    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-as1 :ke-z-as2 :ke-z-as2b :ke-z-as3 :ke-z-as3b :ke-z-as3c :ke-z-sa1 :ke-z-sa3))
+                  '(16 14 12 12 10 14 8 7)))
+    (check (and (< (abs (- (mv-clip-speed (m :ke-z-j1)) (/ 6 9.0))) 1e-6) (< (abs (- (mv-clip-speed (m :ke-z-as1)) 0.75)) 1e-6)
+                (= 1.0 (mv-clip-speed (m :ke-z-j2)))))
     (check (equal (mapcar (lambda (n) (mv-dmg (m n))) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)) '(35 35 40 45 55)))
     (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c :ke-z-n2a :ke-z-n2b :ke-z-n3a :ke-z-n3b :ke-z-n3c))
                   '(14 10 12 16 14 14 12 14)))
