@@ -7,6 +7,9 @@ DUEL_AI_STRATEGY §11 re-collects the strategies for the SP system. This directo
 | Path | What |
 |---|---|
 | `eval.py` | The scorer: a candidate against the opponent's frozen population, K.O.s only. |
+| `band.py` | Band-specialist tables (`write`), PLAN2 §3's fallback table (`fallback`), paired runs off the held-out set (`pair`): `band/README.md`. |
+| `ship.py` | PLAN2 §3's ship test, the only tool that plays 601-800: `ship/README.md`. |
+| `final/` | Each side's final table per pairing (`ship/README.md`). |
 | `pop.py` | `screen` seeds a side's population from old arms; `matrix` builds the payoff matrix and both sides' mixes; `selftest` checks the solver and the mix pool. |
 | `arms/*.lisp` | The arms written expanded, as raw files. `arms/dump.lisp` writes them from `*strat-units-expanded*` / `*strat-library*` and checks the round trip. |
 | `pop/<pair>-<X>.json` | X's population in the pairing (e.g. `ki-K.json` = Kenpachi's against Ichigo), with its screen numbers and its mix. |
@@ -63,7 +66,7 @@ stdin is set to /dev/null, so an ECL error never waits in its debugger.
 | 200 | 201-300 | the coordinator's rescore (and `pop.py matrix`) |
 | 300 | 301-400 | the cells' dev runs (and `pop.py screen`, 301-340) |
 | 400 | 401-500 | held-out for admission |
-| — | 601-800 | the final gates' held-out set (PLAN §6): `eval.py` refuses any range that touches it |
+| — | 601-800 | the final gates' held-out set (PLAN §6): `eval.py` and `band.py pair` refuse any range that touches it; only `ship.py` plays it |
 
 The default of 100 seeds a seat gives 3 groups x 2 seats x 100 = **600 matches**, exactly one block. More than 100 needs `--spill`.
 
