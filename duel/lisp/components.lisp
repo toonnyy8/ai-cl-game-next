@@ -202,6 +202,9 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (own-key -1 :type fixnum)            ; the core CPU (core-ai.lisp): the tick of his own move the rolls below were made for
   (r-turn 1f0 :type single-float) (r-cont 1f0 :type single-float) (r-kikon 1f0 :type single-float)   ; ... and the rolls
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
+  (xkey -1 :type fixnum) (xmove -1 :type fixnum)   ; the cancel answered (core-ai.lisp CAI-XCH-NEW): its exchange tick, his move's start
+  (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch), the NS carry-on, acted
+  (clash-key -1 :type fixnum)           ; the start tick of his move the clash's roll was made for (CAI-CLASH)
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs
   (strat nil)                           ; its strategy (strategy.lisp, DUEL_AI_STRATEGY): NIL plays as before
   (now nil)                             ; while its core CPU steps: (the active strategy . its cues this step) (CORE-BRAIN-STEP, STRAT-OUT), else NIL
