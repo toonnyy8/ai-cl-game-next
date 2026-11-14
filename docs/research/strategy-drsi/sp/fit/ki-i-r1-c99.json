@@ -1,0 +1,178 @@
+{
+ "tag": "spfit/r1-i",
+ "seeds": "201-400",
+ "gamma": 0.966,
+ "scale": 0.1,
+ "lam": 3000.0,
+ "lam_v": 1.0,
+ "conf": 0.99,
+ "boot": 100,
+ "matches": 1600,
+ "judgements": 258239,
+ "behaviour_arms": [
+  186442,
+  23313,
+  23800,
+  24684
+ ],
+ "greedy_on_data": [
+  126093,
+  85259,
+  39857,
+  7030
+ ],
+ "kept": [
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ost :busy) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :p2up))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:form :no) (:dm :m-mid))",
+   0
+  ],
+  [
+   "((:form :no) (:dm :m-mid))",
+   1
+  ],
+  [
+   "((:form :no) (:dm :m-far))",
+   0
+  ],
+  [
+   "((:form :no) (:dm :m-far))",
+   1
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   0
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   1
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   3
+  ],
+  [
+   "((:mcell :no) (:ocell :yes))",
+   3
+  ],
+  [
+   "((:mcell :yes) (:ocell :no))",
+   0
+  ],
+  [
+   "((:mcell :yes) (:ocell :no))",
+   2
+  ],
+  [
+   "((:mcell :p2up) (:ocell :p2up))",
+   0
+  ],
+  [
+   "((:mcell :p2up) (:ocell :p2up))",
+   1
+  ],
+  [
+   "((:mcell :p2up) (:ocell :p2up))",
+   2
+  ],
+  [
+   "((:mburst :no) (:oburst :no))",
+   1
+  ],
+  [
+   "((:mburst :no) (:oburst :no))",
+   3
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   1
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   3
+  ],
+  [
+   "((:mburst :yes) (:oburst :yes))",
+   3
+  ],
+  [
+   "((:xch :no))",
+   1
+  ]
+ ]
+}
