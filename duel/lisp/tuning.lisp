@@ -454,34 +454,40 @@ New 2026-11-14 (the lead, DUEL_AI_STRATEGY §11.18): AS / J / Hoho EASY 0.8 / 0.
 Hoho left the same day with the rule that no Hoho starts in an open exchange (the user, 2026-11-14: 「要正面對決而不是比誰手速快。在相消的
 過程不該能進行閃步。」, DUEL_CORE §2.1.2; §11.19): its weight shared out between the AS and J in their old ratio, rounded, so the mix
 (the harder guess to read) still grows with the difficulty. Before §11.18: the AS at once whenever she was seen in an NS (CAI-MOVE-STEP's
-fuzzy AS-NOW; the style CPUs' KK-MOVE *KK-AS-READ-P* 1.0, the KI Ichigo style's read).")
+fuzzy AS-NOW; the style CPUs' KK-MOVE *KK-AS-READ-P* 1.0, the KI Ichigo style's read). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-J k sets the J's share to J / (AS + J)
+x k within 0-1 and the AS to the rest (XCH-J-WEIGHTS; no key: these weights).")
 (defparameter *cai-xch-sa-p* '(:easy 0.25 :normal 0.45 :hard 0.65)
   "The NS side of a cancel (its segment took part): the chance, rolled at the cancel, that it watches for his turn and presses J the step it
 sees his AS or a new NA link start (XCH-TURN-SEEN-P over the perceived SNAP, BRAIN-DELAY late): the SA starts at once and wins in time.
 New 2026-11-14 (the lead). Before: no watch; the generic CPU's SA read at the segment's first active frame (a guess the cancel fires on its
-own tick, which an AS beats).")
+own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-SA-P k, the chance x k within 0-1 (CAI-ROLL).")
 (defparameter *cai-xch-carry-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
-a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.")
+a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
+A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
 (defparameter *cai-clash-p* '(:easy 0.15 :normal 0.35 :hard 0.6)
   "積極相消 (the user, above): in neutral, the chance (one roll per move of his it applies to) that the CPU throws the move that cancels his
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move
 with hits, not a parry, still live after the CPU's delay, the CPU within his reach + *CAI-CLASH-MARGIN*. Else the CPU decides as before (its
-style, the MCTS, the generic CPU: wait, walk, Hoho). New 2026-11-14 (the lead). Before: no such rule (0).")
+style, the MCTS, the generic CPU: wait, walk, Hoho). New 2026-11-14 (the lead). Before: no such rule (0). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :CLASH-P k, the chance x k
+within 0-1 (CAI-ROLL).")
 (defparameter *cai-xch-sa-wait* 4
   "The NS side whose own hit was the cancel's (his J still coming): its SA this many frames after the cancel (XCH-SA-NOW-P; the user,
 2026-11-14: 「…以目前的系統設定繼續修正 CPU」): scripted 4-8 beat his AS, his J2 and a hold, 0 lost to his AS (DUEL_AI_STRATEGY §11.19,
-§11.20). New 2026-11-15 (the lead). Before: 0 (at once).")
+§11.20). New 2026-11-15 (the lead). Before: 0 (at once). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-SA-WAIT k, round(4 k) frames, >= 0 (STRAT-MUL).")
 (defparameter *cai-awaken-break-p* '(:easy 0.1 :normal 0.3 :hard 0.55)
   "The awakening as a combo breaker (the user, 2026-11-14: 「請認 CPU 也學會相消分身，並以目前的系統設定繼續修正 CPU」; the awakening from any state
 of play, DUEL_DESIGN, DEVLOG §776): the CPU in a combo of *BURST-MIN-HITS* or more, at its once-a-combo Burst roll, awakens instead with this
-chance when it may (AWAKEN-READY-P, no strategy holding it). New 2026-11-14 (the lead). Before: 0 (it awakened only when idle or running).")
+chance when it may (AWAKEN-READY-P, no strategy holding it). New 2026-11-14 (the lead). Before: 0 (it awakened only when idle or running).
+A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :AWAKEN-BREAK-P k, the chance x k within 0-1 (CAI-ROLL).")
 (defparameter *cai-awaken-kikon-p* '(:easy 0.2 :normal 0.5 :hard 0.85)
   "The same on a Kikon's lock (its first frame, once): the awakening repels him and the follow-up never lands, the Konpaku saved. New
-2026-11-14 (the lead). Before: 0.")
+2026-11-14 (the lead). Before: 0. A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :AWAKEN-KIKON-P k, the chance x k within 0-1 (CAI-ROLL).")
 (defparameter *cai-clash-delay* '(:easy 24 :normal 10 :hard 8)
   "The clash's own reaction, frames (CAI-CLASH reads the SNAP this many steps old, never older than BRAIN-DELAY): NORMAL 14 -> 10 so it
 cancels KESSA's NS3 clone cuts in time too (n3b's and the X's land on the summon's f11; the user, 2026-11-15: 「要」 to 「NORMAL 是否也要能
 相消分身？…縮短 NORMAL 的反應延遲」, with NORMAL's overall strength left as it is: 「目前先這樣」, so only the clash reads sooner). New
 2026-11-15 (the lead). Before: the brain's delay (EASY 24, NORMAL 14, HARD 8).")
-(defparameter *cai-clash-margin* 1.0 "m past his move's reach within which the clash throws its opener (the generic CPU's Hoho test: reach + 1.0).")
+(defparameter *cai-clash-margin* 1.0 "m past his move's reach within which the clash throws its opener (the generic CPU's Hoho test: reach + 1.0).
+Read by the clash and by the J side's AS reach test (CAI-XCH-STEP). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15):
+:CLASH-MARGIN k, 1.0 x k m, >= 0, at both reads (CAI-MARGIN).")
