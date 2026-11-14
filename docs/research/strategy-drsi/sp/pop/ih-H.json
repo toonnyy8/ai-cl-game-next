@@ -33,6 +33,11 @@
    "id": "s7-kite",
    "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
    "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "c-ih-h-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/ih-r1/c-ih-h-r1-b0a2.lisp",
+   "why": "IH round 1, admitted (in the block-200 equilibrium mix) (eval.py blocks 300 / 200 / 400: 0.7129 / 0.6683 / 0.6898)"
   }
  ],
  "screen": {
@@ -265,8 +270,8 @@
   }
  },
  "mix": {
-  "none": 0.5,
-  "a-generic": 0.5
+  "a-hisagi-kite": 0.839,
+  "c-ih-h-r1-b0a2": 0.161
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ih-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)",
  "initial": {
