@@ -95,7 +95,8 @@ rules.lisp):
     (`*kikon-follow-stun*` 16 + 1 + `*kikon-follow-gap*` 24; 29 f with the gap's 12 before), and every victim reels
     until it has landed (`kikon-follow-stun`), held by the **Kikon lock** (`fighter-kikon-lock`, set at the follow's
     start; `kikon-lock-p`: while the rusher dashes in and until his strike connected or its active frames ended): no
-    command (Burst, awakening, Hoho, Step, attacks) and no walk.
+    command (Burst, Hoho, Step, attacks) and no walk. The awakening breaks it since 2026-11-14 (the follow-up never lands;
+    "Awakening from any state of play" at the end).
   - **Not red** (lock 1): U cancels the reel into a guard (raised over `*guard-raise*`) that **blocks** the strike (no
     Konpaku, −14, −20 guard gauge; "KIKON / GUARD IT!" announces it); let go, he stands locked and may guard again; no
     U, the Kikon. (Until 2026-10-24: free after the 16 f stagger for the gap's 12 f: guard, Step or Hoho.)
@@ -316,9 +317,11 @@ hitstop; a blue shockwave, "BURST REVERSE" and a human's HUD prompt (SHIFT+J BUR
 possible. Rules: `burst-allowed-p` (rules.lisp), `burst-ok-p` / `burst!` (gauges.lisp).
 
 **Fighting Spirit** (Awakening gauge, 0–100): +0.035 per damage dealt, +0.049 per damage taken,
-+10.5 per Konpaku lost (×0.7 since 2026-09-30, "Slower awakening gauge" at the end; it was 0.05 / 0.07 / 15). Full → "EVOLUTION" blinks and a faint aura shows. Awaken from idle, walk,
-guard or blockstun, or wherever a Burst could be pressed (a reaction or airborne after the combo's 2nd
-hit, inputs not locked; no flash-step needed) → it breaks his attack exactly as a Burst does
++10.5 per Konpaku lost (×0.7 since 2026-09-30, "Slower awakening gauge" at the end; it was 0.05 / 0.07 / 15). Full → "EVOLUTION" blinks and a faint aura shows. Awaken (Mod + P) from any state of play since 2026-11-14
+("Awakening from any state of play" at the end): free, guarding, blockstun, any reaction or airborne from the combo's **first** hit, his own
+move (any class, a cancel exchange's included), a Step, a run, under a Kikon lock, down, waking up; never under the input lock (the
+perfect-Hoho victim's, the reset's), during a cinematic, in his own Hoho, the intro / win / lose (before: idle / walk / guard / blockstun,
+or a reaction / airborne after the combo's 2nd hit, not under a Kikon lock; no flash-step needed either way) → it breaks his attack exactly as a Burst does
 (`repel!`: his move ends, he slides 5 m away, she is invulnerable 20 f), then the form's cinematic
 (the sim is frozen). **Once per match** for each fighter; the gauge stops filling after it.
 Kenpachi's Bankai and Lille's revival (the second awakenings) follow the same state rule and break the attack too, for
@@ -1238,7 +1241,8 @@ does (`repel!`, split out of `burst!`, now in gauges.lisp): the attacker's move 
 `*burst-push*` away, the awakener is neutral and invulnerable `*burst-invuln*` f; then the cinematic. To make that
 reachable under pressure, the awakening (and Kenpachi's Bankai, the second awakening) may be pressed where a Burst could
 (`awaken-state-p`, fighter.lisp: free, blockstun, or a reaction / airborne past the combo's 2nd hit, inputs not locked;
-no flash-step spent) as well as from idle / walk / guard. The CPU uses it the same way: when its once-per-combo Burst
+no flash-step spent) as well as from idle / walk / guard (superseded 2026-11-14: any state of play from the first hit, "Awakening
+from any state of play" at the end). The CPU uses it the same way: when its once-per-combo Burst
 roll fires and a Burst is not possible (no flash-step) but its kit's awaken rule says awaken, it awakens out of the combo
 (`ai-awaken-break-p`, ai.lisp). No tuning number changed. Measured: see DEVLOG §34.
 The integrated seed gate after it (with Kenpachi's CPU, Senjumaru's batch and Ichigo v2; DUEL_GAMEPLAY's table): 300/300
@@ -2119,3 +2123,64 @@ The user: 「閃步量表的自然恢復速度減半」. `*fs-regen*` (the regen
 from empty takes 23.2 s (22.2 + the 1 s delay; was 12.1 s), a full gauge from empty 67.7 s. Unchanged: the delay, the gains from damage
 taken (`*fs-taken*`) and from KOSEI (`*kosei-fs*` 0.15, halved earlier the same day), the costs, the Kikon refund, the bursts. Tests:
 tests/duel-rules/core.lisp's regen pins (4.5 per second, a Hoho from empty). G2 regenerated (the sim changed): DEVLOG §723.
+
+## Awakening from any state of play (the user, 2026-11-14)
+
+The user: 「然後目前覺醒即便量表滿了，好像也無法在任何時間開啟覺醒打斷對手的攻勢？」. Asked which refused moments it should also work from, the
+user picked all four offered: 「挨第 1 下就能開」「自己出招中也能開」「Kikon 鎖定中也能開」「倒地／起身中也能開」.
+
+**Rule, old -> new.** With the gauge full and the awakening unused, Mod + P awakens from:
+
+| State | Before | Now |
+|---|---|---|
+| idle / walk / guard / blockstun | yes | yes |
+| a reaction (`:stun`) or airborne | from the combo's 2nd hit (`*burst-min-hits*`) | from the **first** hit (the Burst keeps `*burst-min-hits*` 2) |
+| his own move (NA / NS / AS / SA, a Kikon rush, a move still running in a cancel exchange) | no | yes: the move ends (`repel!`, as before) |
+| a Step / a run | the run only for a kit with `:run-awaken` | yes |
+| under a Kikon lock (`fighter-kikon-lock` 1 or 2, red or not) | no | yes: the follow-up never lands |
+| down / waking up (the roll included) | no | yes |
+| the input lock (`fighter-lock`: the perfect-Hoho victim's `*perfect-lock*` 40 f, the reset's `*reset-neutral*`) | no | no (a penalty: kept) |
+| any cinematic: a Kikon's, a Soul Break's, either fighter's awakening, Kenpachi's Bankai, the intro | no | no (the sim does not step during one: `cine-step` replaces the systems; the pure test refuses `*cine*` too, for the HUD) |
+| his own Hoho (mid-vanish) | no | no (the press stays buffered 10 steps; the Hoho is 24 f) |
+| intro / win / lose, already awakened, a `:no-awaken` form | no | no |
+
+**Code.** One pure test, `awaken-state-ok-p (state locked cine)` (rules.lisp, host-tested), read through `awaken-state-p` and
+`awaken-ready-p` (fighter.lisp: not `:no-awaken`, the state, the gauge full and unused). `awaken-press!` reads Mod + P once per step in
+`fighter-step`, before the state's own step (neutral, move, stun, air / down / wakeup, step, run), and skips that step when he awakened:
+no `:awaken` added to each state's command list. The awakening keeps the top priority it had (`:awaken` heads `*commands*`).
+`try-command`'s `:awaken` is now only a form's `:p` hook (no live kit has one since 2026-11-13: P is the Burst, Mod + P the awakening for
+Kenpachi, Ichigo and Hisagi; Kenpachi's Bankai is off the Shikai's J7 and untouched; `:run-awaken` no longer matters for the awakening).
+The HUD's awakening prompt (`webhud-prompt` kind 4, the AWAKEN pill / HOLD 爆 · 覺醒 READY) and the phone's 爆 hold and ring (`rv-ready-p`,
+the deck's ready bit) read the same `awaken-ready-p` (`awaken-hold-ready-p`, onehand.lisp), so the prompt shows whenever a press
+would awaken. The plate's `覺醒 READY` label beside the awakening bar keeps reading the gauge only (full, not `:no-awaken`:
+webhud.lisp slot 8): it says the gauge is ready and stays lit through the input lock, his own Hoho and a cinematic rather than
+blinking off for them.
+
+**The Kikon lock's cleanup.** `repel!` (the awakening's and BLUE's break-free) now ends a Kikon follow-up on both sides, as
+`core-bounce!` does: `fighter-follow` and `fighter-kikon-undo` cleared, `fighter-kikon-lock` 0 (the rusher is idled by `repel!` as
+before, the victim's lock would also lapse a step later through `kikon-lock-holds-p`). A Burst never fires under a Kikon lock, so BLUE
+is unchanged. The awakening's cinematic then plays (each live awakened form has one: `ken-nozarashi-cine`, `ic-kessa-cine`,
+`hs-awaken-cine`); its end idles both; an open exchange closes the frame a cinematic starts (`core-xch-step`).
+
+**The phone.** While the awakening is ready 爆 is a hold (300 ms) and a lift before it the Burst; that window now also covers his own
+moves and the first hit of a combo (an ORANGE on 爆 is a quick lift while the awakening is ready).
+
+**The CPUs.** No new behaviour: every CPU awakening press (`core-ai.lisp` CAI-NEUTRAL, `cpu-ki-ken.lisp`, `cpu-ki-ichigo.lisp`'s
+KESSA mode) is gated by `gauges-awakened-ok-p` (idle / run) and the in-combo break with the awakening is off (`*iks-break-awaken*`
+NIL); their in-combo presses are the unmodded P (the Burst). The one difference: a press from a run now awakens at once (before, for
+every kit but Kenpachi's Shikai, it waited in the buffer for neutral or expired). G2 identical.
+
+**Tests.** Host: `tests/duel-rules/core.lisp` (`awaken-state-ok-p`: each state allowed / refused, the lock, a cinematic),
+`tests/duel-rules/sim.lisp` (the free test from a combo's first hit, refused under the input lock). Scripted (tools/simgate/trial.lisp,
+both sides' inputs, the gauges full through debug 2311): P2 awakens on the first hit of Ichigo's J1 (`P2 AWAKEN from STUN`, combo 1);
+P1 in his own J2, NS1a, AS1 and in a J1 still running in a cancel exchange (`AWAKEN from MOVE`; `exchange over` the same frame); under
+Ichigo's and Kenpachi's Kikon lock (`AWAKEN from STUN` 38 / 31 f after `KIKON FOLLOW-UP`, no `KIKON on P2`, Konpaku +0, both idle
+after); airborne, down and waking up after Kenpachi's AS1 knockdown (`AWAKEN from AIR / DOWN / WAKEUP`); refused under the perfect-Hoho
+lock (a press 20 f into the trial: nothing; one at 100 f: `AWAKEN from IDLE`); a second press after the awakening refused; a red Kikon
+lock (`KIKON FOLLOW-UP on P2 (red)`, then `AWAKEN from STUN`, Konpaku +0); Hisagi's Shikai awakening in his NS1a and in J2, then a J
+(`form BANKAI`, `HS-R-J1` starts and hits); Ichigo awakening in Hisagi's bind-mode AS1, on its first hit and airborne after its
+knockdown (`AWAKEN from STUN / AIR`, Hisagi back in the ranged mode). During a cinematic the refusal is structural (`cine-step` replaces
+the sim systems, both actors are `:cine`): a trial with cinematics played shows the Kikon's cinematic running to its end and the Kikon
+landing (Konpaku -1) with P2's press made during it (the harness never delivered that press, so the trial does not itself separate
+"refused" from "not pressed"). Fast checks, sp-costs-check, snaptest
+(straight = pollute) and fulltest (0 differ) pass; G2 identical (II 38 lines P1 3-2 377.3 s, IK 34 P2 0-4 337.2 s, KK 26 P2 0-5 255.5 s).

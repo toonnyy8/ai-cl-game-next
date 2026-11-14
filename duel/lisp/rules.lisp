@@ -534,8 +534,19 @@ the burst); in BLUE exactly what is left of the burning cell, BURN (BURST-BURN),
         (t *fs-hoho*)))
 
 (defun awaken-allowed-p (free gauge used)
-  "Awaken: FREE (idle / walk / guard only), the gauge full, not USED yet this match."
+  "Awaken: FREE (a state that allows it, AWAKEN-STATE-OK-P), the gauge full, not USED yet this match."
   (and free (not used) (>= gauge *awaken-max*)))
+
+(defun awaken-state-ok-p (state locked cine)
+  "May a fighter in STATE awaken (the user, 2026-11-14: 「然後目前覺醒即便量表滿了，好像也無法在任何時間開啟覺醒打斷對手的攻勢？」, and all
+four of 「挨第 1 下就能開」「自己出招中也能開」「Kikon 鎖定中也能開」「倒地／起身中也能開」; DUEL_DESIGN \"Awakening: when\")? Any state of play:
+free, guarding, blockstun, any reaction or airborne from the first hit (the Burst keeps *BURST-MIN-HITS*), his own move (any class), a
+Step, a run, down, waking up, under a Kikon lock. Never while LOCKED (FIGHTER-LOCK: the perfect-Hoho victim's penalty, the reset's
+neutral lock), during a cinematic (CINE, or STATE :cine), in his own Hoho (mid-vanish), the intro / win / lose. Before: idle / guard /
+blockstun, or a reaction / airborne past the combo's 2nd hit, not under a Kikon lock."
+  (and (not locked) (not cine)
+       (member state '(:idle :guard :guard-hit :stun :air :down :wakeup :move :step :run))
+       t))
 
 (defun burst-mode (state locked combo-hits chain-open)
   "The burst a press would start from fighter STATE (docs/duel/DUEL_DESIGN.md \"Burst modes\"), or NIL: never while LOCKED;

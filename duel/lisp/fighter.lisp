@@ -405,16 +405,15 @@ kit can press cost 0; only debug's force-cmd reached SP1 / SP2, after filling th
 it now. WITH: the move
 to start instead of the command's own (L after a K link, KIT-L-LINK), under the command's checks and costs. T when
 something started (a :command hook's non-move answer, :HOLD: nothing starts and, unrefused, the press stays buffered:
-Hisagi's K while his sickle returns). P (:awaken): the awakening, Kenpachi's Bankai, else the form's :p hook (e free), which decides,
-starts its own move or refuses with the cue (T when it took the press; Hisagi's bind throw and release)."
-  (let ((g (gauges e)) (kit (fighter-kit f)))
+Hisagi's K while his sickle returns). P (:awaken): the form's :p hook (e free), which decides, starts its own move or refuses with
+the cue (T when it took the press; no live kit has one since 2026-11-13); the awakening itself is AWAKEN-PRESS!'s, before every state
+step (2026-11-14)."
+  (let ((kit (fighter-kit f)))
     (case cmd
       (:step (start-step e f) t)
       (:hoho (when (hoho-ready-p e) (start-hoho e f) t))
-      (:awaken (let ((free (awaken-state-p e f)))
-                 (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
-                       ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
-                       ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
+      (:awaken (and (not (getf (kit-core kit) :no-awaken))   ; (the awakening itself: AWAKEN-PRESS!, before every state step)
+                    (let ((h (kit-hook kit :p))) (and h (funcall h e (awaken-state-p e f)) t))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
       (:sp (core-sp-start! e f))                        ; the core system: NS n from neutral (core-sim.lisp)
       (t (let ((mv (or with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
@@ -427,13 +426,29 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
              t))))))
 
 (defun awaken-state-p (e f)
-  "May E awaken (or take Kenpachi's Bankai) from its state: free (idle / guard / blockstun), or where a Burst could be
-pressed (a reaction or airborne, inputs not locked, past the combo's *BURST-MIN-HITS*th hit), no flash-step needed: the
-awakening breaks his attack as a Burst does (REPEL!; the user 2026-09-29)."
+  "May E awaken from its state (rules AWAKEN-STATE-OK-P: any state of play from the first hit, his own move, a Kikon lock, down /
+wakeup; not under the input lock, in a cinematic, his own Hoho, the intro / win / lose; the user, 2026-11-14), no flash-step needed:
+the awakening breaks his attack as a Burst does (REPEL!; the user 2026-09-29)."
   (declare (ignore e))
-  (let ((s (fighter-state f)))
-    (or (member s '(:idle :guard :guard-hit))
-        (and (member s '(:stun :air)) (zerop (fighter-lock f)) (>= (fighter-combo-hits f) *burst-min-hits*)))))
+  (awaken-state-ok-p (fighter-state f) (plusp (fighter-lock f)) *cine*))
+
+(defun awaken-ready-p (e f)
+  "Would Mod + P awaken E now: a form ported to the core system (not :no-awaken), a state that allows it (AWAKEN-STATE-P), the gauge
+full and unused (AWAKEN-ALLOWED-P)? The one test of the sim (AWAKEN-PRESS!), the HUD's prompt and the phone's 爆 hold (AWAKEN-HOLD-READY-P)."
+  (let ((g (gauges e)))
+    (and (not (getf (kit-core (fighter-kit f)) :no-awaken))
+         (awaken-allowed-p (awaken-state-p e f) (gauges-awaken g) (gauges-awakened g)))))
+
+(defun awaken-press! (e f vp)
+  "The awakening (Mod + P) from any state that allows it (AWAKEN-READY-P), read once before the state's own step (FIGHTER-STEP) instead
+of an :awaken in each state's command list (the user, 2026-11-14: from the first hit, his own move, a Kikon lock, down / wakeup). It
+outranks every command, as :awaken heads *COMMANDS*. T when he awakened (that state's step is skipped)."
+  (let ((c (assoc :awaken *commands*)))
+    (when (and (vpad-command-pressed-p vp (second c) (third c)) (awaken-ready-p e f))
+      (vpad-consume! vp (second c))
+      (clog "~a AWAKEN from ~a" (side-name e) (fighter-state f))
+      (awaken! e)
+      t)))
 
 (defparameter *neutral-commands* '(:awaken :hoho :burst :step :sp :q)
   "Commands from idle / walk / guard (:burst: WHITE). :kikon starts the Kikon rush at any time (whether it becomes a
@@ -483,7 +498,8 @@ the :refused event (a flash of its HUD bar, a dud tick). NIL: the commands below
   "Idle / walk / strafe / guard: commands, then guard or walk, auto-facing. While guarding, and for *GUARD-EXIT* frames
 after a guard is let go, no attack starts (Step, Hoho, the burst and the awakening do; the attack's press stays buffered)
 and after the guard he stands (a guard may go up again). Under a
-Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard only, 2 not even that."
+Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard only, 2 not even that (the awakening, before this step:
+AWAKEN-PRESS!, 2026-11-14)."
   (unless (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))         ; (a Kikon lock: no command, 2026-10-24)
                (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
                    (command! e f vp '(:awaken :burst :hoho :step))      ;  no attack (*GUARD-EXIT*, the user 2026-10-23;
@@ -789,8 +805,8 @@ system (DUEL_CORE §8: it resumes the combo after)."
 (defun stun-step (e f vp)
   "A reaction / blockstun counts down (Burst Reverse may be pressed); then neutral (guard again if
 Guard is held). Blockstun past its end waits while the guard lock holds him (FIGHTER-GLOCK: his attacker may still
-chain); only BLUE and the awakening break it. Under a Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no Burst or
-awakening; lock 1 (not red): U cancels the reel into a guard (the follow-up's strike is then blocked)."
+chain); only BLUE and the awakening break it. Under a Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no Burst (the awakening breaks it
+since 2026-11-14: AWAKEN-PRESS!, before this step); lock 1 (not red): an attack cancels the follow-up (CORE-KIKON-CANCEL!)."
   (when (and (= (fighter-kikon-lock f) 1) (eq (fighter-state f) :stun) (vpad-command-pressed-p vp :quick nil))
     (vpad-consume! vp :quick)                           ; the core system: an attack cancels the Kikon's follow-up (core-sim.lisp)
     (core-kikon-cancel! e f)
@@ -1084,14 +1100,15 @@ cinematic or a :through move."
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
   (let ((cd (fighter-cd f))) (dotimes (i (length cd)) (when (plusp (aref cd i)) (decf (aref cd i)))))
   (let ((vp (pilot-vpad (pilot e))))
-    (case (fighter-state f)
-      ((:idle :guard) (neutral-step e f vp))
-      (:move (move-step e f vp))
-      ((:stun :guard-hit) (stun-step e f vp))
-      (:step (step-step e f vp))
-      (:run (run-step e f vp))
-      (:hoho (hoho-step e f))
-      ((:air :down :wakeup) (air-step e f vp))))
+    (unless (awaken-press! e f vp)                      ; the awakening first, from any state that allows it (2026-11-14)
+      (case (fighter-state f)
+        ((:idle :guard) (neutral-step e f vp))
+        (:move (move-step e f vp))
+        ((:stun :guard-hit) (stun-step e f vp))
+        (:step (step-step e f vp))
+        (:run (run-step e f vp))
+        (:hoho (hoho-step e f))
+        ((:air :down :wakeup) (air-step e f vp)))))
   (when (> (fighter-chain f) 0) (decf (fighter-chain f)))   ; ORANGE's window: *CHAIN-WINDOW* steps after the cancel
   (fighter-physics e)
   (anim-advance (model-anim (model e)) +step+))
