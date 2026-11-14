@@ -2864,8 +2864,21 @@ before = main a7341e13, which reproduced §11.18's "after" exactly):
 
 - **Cells over 0.70 (n ≥ 10): 5 → 3.** Gone: HK H:NA x K:NS (the Hoho counters were 49 of its 137 J wins) and HH H:NA x H:NS (136 of
   340), both §11.18's Hoho cells, and II I:NS x I:NA. Left:
-  - HK K:NS x H:NA J 0.75 (§11.18's (b): the NS-hit-first exchange, where his early SA loses to her AS and her unanswered J; its Hoho
-    counters, 26 of 138, are gone, but the share is not).
+  - HK K:NS x H:NA J 0.75, unchanged (§11.18's (b): the NS hit first; her Hoho counters, 26 of 138, are gone, the share is not). With the NS
+    hit first the NS side's SA **at once** loses to his AS (the later start), and that is what the CPU's own-hit clause in XCH-TURN-SEEN-P
+    presses (an SA on his J itself). A **delayed** SA wins: scripted (`mat2r.py`, P1 NS1, P2 J at frame 6 / 9 then AS / J2 / Hoho / hold, P1's
+    J 4-20 frames after contact; NS : J, 25 pairings), the same before and after the rule but for the Hoho column:
+
+    | P1's SA after contact | vs his AS (J at 6 / 9) | vs his J2 | vs his hold (and his Hoho, now refused) |
+    |---|---|---|---|
+    | 4 frames | 19 : 6 / 18 : 7 | 23 : 2 / 23 : 2 | 23 : 2 / 23 : 2 |
+    | 8 | 20 : 5 / 19 : 5 | 21 : 4 / 21 : 4 | 21 : 4 / 21 : 4 |
+    | 12 | 20 : 5 / 20 : 5 | 5 : 20 / 2 : 23 | 21 : 4 / 19 : 6 |
+    | 16 | 7 : 18 / 8 : 17 | 4 : 21 / 0 : 25 | 21 : 4 / 19 : 6 |
+    | 20 | 0 : 25 / 2 : 23 | 4 : 21 / 0 : 25 | 21 : 4 / 19 : 6 |
+
+    So the NS-hit-first exchange has a strong answer the CPU does not play (an SA 4-8 frames after the cancel beats his AS, his J2 and a
+    hold). A CPU leftover, not the rule's; no knob added here (the lead's call).
   - II I:NA x I:NS **NS 0.79** (was 0.69) and I:SA x I:NS NS 0.78 (23 cells): the Ichigo mirror's J side lost its Hoho out and has only
     the AS / J guess, which the HARD watch (0.65, 8 frames) reads. The other mirrors stay under 0.70. Not retuned (the brief: no search).
 - **Cancels a match**: KK 78.7 → 90.4, IK 22.4 → 26.6, II 14.8 → 18.8, HK 57.4 → 64.8, HI 32.5 → 35.7, HH 75.3 → 83.5 (the

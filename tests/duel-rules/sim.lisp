@@ -208,7 +208,7 @@
            (check (and (eq (fighter-contact fb) :hit) (= (fighter-land-sf fb) (mv-first-hit j1)) (> (mv-first-hit j1) 5)))
            (check (null bounced))                                                  ; (cross-class: both go on)
            ;; DUEL_CORE §2.1.2 (the user, 2026-11-14: 「在相消的過程不該能進行閃步」): the cancel's exchange, on both, bars the Hoho for
-           ;; both until it ends; a press is refused and eaten (no buffered Hoho fires the step it ends)
+           ;; both until it ends; a press that reaches TRY-COMMAND is refused and eaten (it cannot fire the step it ends)
            (let* ((eaten nil) (ns '(vpad-consume! pilot pilot-vpad)) (os (mapcar (lambda (n) (and (fboundp n) (fdefinition n))) ns)))
              (setf (fdefinition 'vpad-consume!) (lambda (vp btn) (declare (ignore vp)) (push btn eaten))
                    (fdefinition 'pilot) (lambda (e) e) (fdefinition 'pilot-vpad) (lambda (p) p))

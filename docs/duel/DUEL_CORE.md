@@ -252,9 +252,12 @@ AS1 TSUMUJI (it carries him to 3.3 m and beats the reactive SA)? The user: 「�
   `fighter-xch` is enough: every writer sets both sides together (`core-xch-open!`, `core-xch-step`, `reset-round`).
 - Where it is read: `hoho-ready-p` (fighter.lisp). So every CPU's Hoho test inherits it: the generic, the style CPUs, the MCTS's legal
   actions and light model, the strategy cue `:hoho`, the one-hand perfect hint.
-- The refusal: `try-command`'s `:hoho`, both from neutral (`command!`) and out of a move (`cancel-into`). The press is refused **and
-  eaten** with the `:refused` cue (the dud tick) and the log line `P1 refused hoho: exchange`. A refused Hoho used to stay buffered for
-  `*input-buffer*` (10 frames). Here it would then fire on the step the exchange ends, which brings the race back.
+- The refusal: `try-command`'s `:hoho`, both from neutral (`command!`) and out of a move (`cancel-into`, once its cancel window is open).
+  The press is refused **and eaten** with the `:refused` cue (the dud tick only; the SP HUD flash means "not enough SP" and is not reused)
+  and the log line `P1 refused hoho: exchange`. A refused Hoho used to stay buffered for `*input-buffer*` (10 frames); here it would then
+  fire on the step the exchange ends, which brings the race back. A press that never reaches `try-command` (during a reel, or in a
+  segment before its own hit frame) stays buffered as any press does, up to 10 frames, and may start the Hoho once the exchange is over:
+  allowed.
 - An MCTS plan picked a reaction before the cancel (`mc-plan-apply`) drops a Hoho that is no longer allowed.
 
 **Decided with it.**
@@ -279,7 +282,7 @@ pairings each: Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hisagi
 
 | Scene | Before | After |
 |---|---|---|
-| J hit first; P1 J1 → Hoho on contact, any NS answer | 19 : 0 : 6 (the perfect-Hoho counter) | refused (190 `refused hoho` lines); 0 : 21-25, exactly the "hold" row |
+| J hit first; P1 J1 → Hoho on contact, any NS answer | 19 : 0 : 6 (the perfect-Hoho counter) | refused (P1's press refused in all 125 trials); 0 : 21-25, exactly the "hold" row |
 | P1 J1 → AS on contact vs the reactive SA | 5 : 20 | 5 : 20 (unchanged; the 5 are TSUMUJI) |
 | P1 J1 → AS on contact vs P2 mashing Hoho after the cancel | 14 : 11 | 25 : 0 (her Hoho refused, the AS lands) |
 | NS hit first (P1 NS1, P2 J at frame 6 / 9); her Hoho vs his AS | J 8 : NS 17 / J 5 : NS 20 | J 25 : NS 0, both (refused, as "none") |

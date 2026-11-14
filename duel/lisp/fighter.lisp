@@ -413,7 +413,7 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
     (case cmd
       (:step (start-step e f) t)
       (:hoho (cond ((not (core-hoho-open-p (fighter-xch f)))   ; an open exchange (DUEL_CORE §2.1.2): refused, the press eaten with the
-                    (when button (vpad-consume! (pilot-vpad (pilot e)) button))   ;  cue, so no buffered Hoho fires the step it ends
+                    (when button (vpad-consume! (pilot-vpad (pilot e)) button))   ;  cue, so this press can't fire the step it ends
                     (emit :refused e :hoho)
                     (clog "~a refused hoho: exchange" (side-name e))
                     nil)
