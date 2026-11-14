@@ -15,11 +15,11 @@ Counts are K.O. wins : K.O. losses : time-outs of 200.
 | `ki-kenpachi.lisp` | KI Kenpachi | fallback | `r2-b1a2` | `r1-b2a2`, `pilot-b0a0`, `none` | KI matrix + round 3 (`../ship/README.md`) |
 | `kh-kenpachi.lisp` | KH Kenpachi | fallback | `c-ki-k-r2-b0a2` | `r1-b0a1`, `r1-b2a2`, `none` | vs Hisagi's pop 0.977 (`r1-b0a1` 0.959, `r1-b2a2` 0.924, `r2-b1a2` 0.546); vs `kh-hisagi` 196:0:4 (194:0:6, 187:0:13) |
 | `kh-hisagi.lisp` | KH Hisagi | fallback | `a-hisagi-pressd` | `a-hisagi-kite`, `a-hisagi-dswitch`, `none` | vs `kh-kenpachi` every arm ≤ 2 K.O. wins of 200 (a tie); score 0.314 (anchor 187:6:7) over `kite` 0.304, `dswitch` 0.294 |
-| `ih-ichigo.lisp` | IH Ichigo | fallback | `c-ih-i-r1-b0a1` | `r1-b1a1`, `c-ki-i-r1-b0a2`, `none` | vs Hisagi's pop 0.972 (`b1a1` 0.960, `ki-r1-b0a2` 0.746); vs `ih-hisagi` 200:0:0 (194:6:0, 166:31:3) |
-| `ih-hisagi.lisp` | IH Hisagi | fallback | `c-ih-h-r1-b2a0` | `c-ih-h-r1-b0a2`, `a-hisagi-kite`, `none` | vs `ih-ichigo` 0:200:0 (a tie, see below); score 0.332 (anchor 198:1:1) over `b0a2` 0.317, `kite` 0.304 |
+| `ih-ichigo.lisp` | IH Ichigo | fallback | `c-ih-i-r1-b0a1` | `r1-b1a1`, `c-ki-i-r1-b0a2`, `none` | vs Hisagi's pop 0.972 (`b1a1` 0.960, `ki-r1-b0a2` 0.746); vs `ih-hisagi` (kite) 186:7:7, `b1a1` 193:4:3, paired z -1.70 for `b0a1` (under 2: kept) |
+| `ih-hisagi.lisp` | IH Hisagi | fallback | `a-hisagi-kite` | `c-ih-h-r1-b0a2`, `a-zoner`, `none` | the only arm with K.O.s vs `ih-ichigo`: 7:186:7 against `b2a0`'s 0:200:0, paired 7 / 0, z +2.65 (others 0-1 of 200) |
 | `kk-kenpachi.lisp` | KK | fallback | `c-ki-k-r2-b0a2` | `c-ki-k-r2-b1a2`, `none` | beats `r2-b1a2` 143:57:0; both 200:0:0 vs `none` |
 | `ii-ichigo.lisp` | II | fallback | `c-ki-i-r2-b2a2` | `c-ih-i-r1-b0a1`, `none` | beats `ih-r1-b0a1` 186:3:11; vs `none` 171:0:29 (`b0a1` 200:0:0) |
-| `hh-hisagi.lisp` | HH | fallback | `c-ih-h-r1-b2a0` | `a-hisagi-pressd`, `none` | vs `pressd` 0:59:141, vs `none` 193:5:2; `pressd` vs `none` 60:0:140 |
+| `hh-hisagi.lisp` | HH | fallback | `a-hisagi-kite` | `a-hisagi-pressd`, `none` | vs `pressd` 0:0:200 (both ways), vs `none` 145:0:55; `pressd` vs `none` 60:0:140 |
 
 ## How the cross pairings were chosen
 
@@ -28,7 +28,10 @@ The order broke the loop between the two sides once:
 2. The other side was scored against that table.
 3. The ceiling side got one confirmation pass against the new table.
 
-The confirmation changed nothing: `r2-b0a2` and `ih-r1-b0a1` stay first.
+The confirmation changed nothing.
+- `r2-b0a2` stays first against `kh-hisagi`.
+- Against `ih-hisagi` (kite), `ih-r1-b1a1` got 7 more K.O. wins than `b0a1`. Paired, that is z -1.70 for `b0a1`, under the bar of 2, so
+  `b0a1` stays: it is the stronger one against Hisagi's population, and the IH matrix's equilibrium at 0.81.
 
 **Against a single table**, `eval.py --pop` takes a scratch population:
 
@@ -40,20 +43,21 @@ The confirmation changed nothing: `r2-b0a2` and `ih-r1-b0a1` stay first.
 
 With it, group `anchor` is his `none` and groups `mix` and `rest` are the table. The table's share is the primary measure.
 
-**Hisagi's tie rule.** Hisagi takes almost no K.O.s from either final table. Every KH arm got 0-2 of 200, and every IH arm 0-1, except
-`a-hisagi-kite` with 7.
-- So the primary measure ties: a difference under 0.04 counts as a tie.
-- The tie rule set in advance was "fewer time-outs against the table". It would pick arms that never time out only because they lose
-  every match: `none`, `h1-range` and `s7-kite` in KH, and `s7-kite` stalls 63 of 200 against `none`.
-- So the rule used instead is the full `eval.py` score. Its difference then comes only from the anchor group, where a time-out already
-  scores 0.
-- **Open point, IH:** `a-hisagi-kite` is the only arm that takes K.O.s off `ih-ichigo`: 7 : 186 : 7 against 0 : 200 : 0, paired 7 / 0.
-  But it stalls: 40 of 400 to the bell, against 2 for `b2a0`. It is an alternate, not arm 0.
+**Hisagi.** Hisagi takes almost no K.O.s from either final table.
+- **KH: a tie.** Every arm got 0-2 of 200 against `kh-kenpachi`. The best, `a-hk-pot` 2 against `pressd` 0, is paired z ≤ 1.41.
+  - The tie rule set in advance was "fewer time-outs against the table". It would pick arms that never time out only because they lose
+    every match: `none`, `h1-range` and `s7-kite`, and `s7-kite` stalls 63 of 200 against `none`.
+  - So the full `eval.py` score broke the tie instead. Its difference comes only from the anchor group (his `none`), where a time-out
+    already scores 0.
+  - `pressd` 0.314 (anchor 187:6:7) beats `kite` 0.304 (179:2:19).
+- **IH: not a tie.** `a-hisagi-kite` is the only arm that takes K.O.s off `ih-ichigo`: 7:186:7 against `c-ih-h-r1-b2a0`'s 0:200:0,
+  paired 7 / 0, z +2.65. So the primary measure picks it.
+  - It stalls: 33 of 200 to the bell against Ichigo's `none` (167:0:33), and its pooled K.O. rate is 360 / 400 = 90 %.
+  - `b2a0` would be the pick by the full score: 0.332 against 0.304, with anchor 198:1:1 and K.O. rate 398 / 400.
+  - A first pass took `b2a0` on the full score and was corrected to the brief's measure.
+  - `b2a0` is not an `ih-H.json` member, so it is not an alternate here.
 
-**`b2a0`** is not a member of `ih-H.json`. It is round 1's code-cell arm (`../arms/ih-r1/`), and `b0a2` is built on it. It tied with
-`b2a2` (0.3317 each) and was taken on time-outs (1 vs 2).
-
-**The alternates** are the next arms by the same score, and then `none`. Two kinds of member are excluded:
+**The alternates** are the next pop-file arms by the full score, and then `none`. Two kinds of member are excluded:
 - tables (`ki-ichigo` in `ih-I.json`);
 - `a-generic` in KH and IH, which is `none` there (§11.13).
 
@@ -70,9 +74,12 @@ The pick is the best mean of the K.O. share against the other candidate and agai
 |---|---|---|---|---|---|
 | KK | `r2-b0a2` | 100:100:0 | 100 % | pass | `r2-b1a2` 100:100:0, 100 % |
 | II | `r2-b2a2` | 54:54:92 | **54 %** | **under** | `ih-r1-b0a1` 79:79:42, 79 % |
-| HH | `ih-r1-b2a0` | 95:95:10 | 95 % | pass | `pressd` 0:0:200, 0 % |
+| HH | `a-hisagi-kite` | 3:3:194 | **3 %** | **under** | `pressd` 0:0:200, 0 % |
 
-The II mirror stalls under 90 % with either candidate. That is reported only: PLAN2 §2 allows ≤ 12 cells there, and §11.15 spends none.
+**II and HH stall under 90 % with every candidate.** This is reported only: PLAN2 §2 allows ≤ 12 cells a mirror, and §11.15 spends none.
+- HH's candidates never end a match against each other (0:0:200 both ways).
+- `c-ih-h-r1-b2a0` (not a candidate: neither cross pairing's pick) K.O.s 95 % in self-play (95:95:10), beats `none` 193:5:2, and loses
+  0:59:141 to `pressd`.
 
 ## Checks
 
@@ -94,9 +101,9 @@ A=arms
 python3 band.py fallback --me kenpachi --vs hisagi --inc $A/r2/c-ki-k-r2-b0a2.lisp --alt $A/r1/c-ki-k-r1-b0a1.lisp $A/r1/c-ki-k-r1-b2a2.lisp none --out final/kh-kenpachi.lisp
 python3 band.py fallback --me hisagi --vs kenpachi --inc $A/a-hisagi-pressd.lisp --alt $A/a-hisagi-kite.lisp $A/a-hisagi-dswitch.lisp none --out final/kh-hisagi.lisp
 python3 band.py fallback --me ichigo --vs hisagi --inc $A/ih-r1/c-ih-i-r1-b0a1.lisp --alt $A/ih-r1/c-ih-i-r1-b1a1.lisp $A/r1/c-ki-i-r1-b0a2.lisp none --out final/ih-ichigo.lisp
-python3 band.py fallback --me hisagi --vs ichigo --inc $A/ih-r1/c-ih-h-r1-b2a0.lisp --alt $A/ih-r1/c-ih-h-r1-b0a2.lisp $A/a-hisagi-kite.lisp none --out final/ih-hisagi.lisp
+python3 band.py fallback --me hisagi --vs ichigo --inc $A/a-hisagi-kite.lisp --alt $A/ih-r1/c-ih-h-r1-b0a2.lisp $A/a-zoner.lisp none --out final/ih-hisagi.lisp
 python3 band.py fallback --me kenpachi --vs kenpachi --inc $A/r2/c-ki-k-r2-b0a2.lisp --alt $A/r2/c-ki-k-r2-b1a2.lisp none --out final/kk-kenpachi.lisp
 python3 band.py fallback --me ichigo --vs ichigo --inc $A/r2/c-ki-i-r2-b2a2.lisp --alt $A/ih-r1/c-ih-i-r1-b0a1.lisp none --out final/ii-ichigo.lisp
-python3 band.py fallback --me hisagi --vs hisagi --inc $A/ih-r1/c-ih-h-r1-b2a0.lisp --alt $A/a-hisagi-pressd.lisp none --out final/hh-hisagi.lisp
+python3 band.py fallback --me hisagi --vs hisagi --inc $A/a-hisagi-kite.lisp --alt $A/a-hisagi-pressd.lisp none --out final/hh-hisagi.lisp
 python3 eval.py --me hisagi --vs kenpachi --cand $A/a-hisagi-pressd.lisp --pop POP.json --seed0 200   # POP.json: the shape above
 ```
