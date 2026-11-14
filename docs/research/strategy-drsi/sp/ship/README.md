@@ -82,9 +82,16 @@ table.
   1. `r1-b2a2`: the only other member with a K.O. share against Ichigo's equilibrium (her pure `r2-b2a2`): 0.165, against arm 0's 0.28.
   2. `pilot-b0a0`: every other member scores 0 there, so the next is the best by row mean over her five columns (0.46).
   3. `none`, last.
-- **Online, it stays arm 0 for good.** `fq-online.lisp` updates only the played arm's q, so an alternate's -0.05 never moves.
-  - Arm 0's Q can fall by at most 0.01 a group, so to -0.05 at worst.
-  - That ties the alternates, which is less than `:margin`, so arm 0 is kept.
+- **Online, it leaves arm 0 only at the cap's extreme, and only through `none`.**
+  - `fq-online.lisp` updates only the played arm's q, each within its offline value ± `*fq-online-cap*` (0.01). So an unplayed
+    alternate's Q stays at -0.05, and arm 0's Q can fall to -0.05 at worst (0.01 a group, five groups).
+  - Between `r1-b2a2` / `pilot-b0a0` and arm 0: the best they reach is a tie, which is under `:margin`, so arm 0 is kept. They never play.
+  - `none` is different because of `:prev`. `strategy-glue.lisp` sets `:prev` to the position of the current sub in `:arms`, and before the
+    first judgement the sub is NIL. That is the `none` arm's own entry, so `:prev` reads 3.
+    - So on a match's first judgement `none` is kept while Q(arm 0) - Q(none) < 0.02, i.e. once a human's results have pushed arm 0's Q
+      below -0.03. That needs arm 0's q near -0.01 in four or more groups.
+    - From then on `none` plays and its own q learns, until arm 0 leads it by the margin again.
+  - Offline (no learning) arm 0 always plays, as the proofs below show.
   - It is a fuzzy Q table in format only, and is **never counted as a gaining table**.
 
 **Identity proof:** `sw.py measure` against Ichigo's `r2-b2a2`, seeds 501-600, both seats.
