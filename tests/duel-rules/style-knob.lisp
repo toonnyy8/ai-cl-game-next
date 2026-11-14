@@ -35,10 +35,11 @@
                     (~= 3.0 (strat-out (cons arm '(:dj 0.5)) k 1.0))
                     (eq d (strat-out (cons '(:base (:range 0.7 :ns 0.3)) '(:dj 0.5)) k d))
                     (eq d (strat-out nil k d)))))))
-  ;; no shipped strategy names a knob (every library unit and table), and no arm file of the SP search: their play is unchanged
+  ;; no shipped strategy names a knob (every library unit and table), and no seed arm of the SP search (the library's arms written out,
+  ;; sp/arms/*.lisp, and the pilot's): their play is unchanged. The searched arms (sp/arms/r<n>/) name knobs by design.
   (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* *strat-units* *strat-rule-bases* *strat-library*)))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
-                     (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*/*.lisp" *load-truename*))))
+                     (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/pilot/*.lisp" *load-truename*))))
     (unless (string= "dump" (pathname-name f))          ; (the arm writer, a script)
       (with-open-file (s f :external-format :utf-8)
         (let ((*read-eval* nil))
