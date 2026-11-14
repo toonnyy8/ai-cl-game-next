@@ -58,6 +58,7 @@
 (check (core-hoho-open-p -1))                                       ; (no exchange)
 (check (not (core-hoho-open-p 40)))                                 ; (an exchange opened at tick 40)
 (check (not (core-hoho-open-p 0)))                                  ; (tick 0 is a tick)
+(check (core-hoho-open-p 40 t))                                     ; (its breakthrough taken: a combo won out of the clash keeps its Hoho)
 ;; the pointer
 (check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)

@@ -274,8 +274,11 @@ AS1 TSUMUJI (it carries him to 3.3 m and beats the reactive SA)? The user: 「�
   - Inside an exchange after its breakthrough: 634, 338 of them perfect.
   - Combo-Hoho resumes (`HOHO ->`) inside an exchange: 787.
 
-  This literal reading is the brief's. The narrower one ("open and its breakthrough not yet taken", `xch-done`) would still stop the
-  user's case, since the counter comes before any breakthrough. That one would be a second argument to `core-hoho-open-p`: the lead's call.
+  That was the first, literal build. **The lead chose the narrow reading (2026-11-14)**: 相消的過程 is the undecided clash, from the cancel
+  to its first real hit (the breakthrough, `fighter-xch-done`) or both back in neutral. It still stops the user's case (the J side's Hoho
+  out comes before any breakthrough), and a combo won out of the clash keeps §8's combo Hoho and the BLUE burst's Hoho, as a combo from a
+  clean hit does: `core-hoho-open-p (xch done)`. The scenes below (all before any breakthrough) are the same under both readings; the
+  measurements are the literal build's.
 
 **Scenes** (native, `tools/simgate/trial.lisp` copies driving both sides; first real hit after the cancel, J side : NS side : none, 25 form
 pairings each: Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hisagi):
