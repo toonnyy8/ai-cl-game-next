@@ -1,0 +1,9 @@
+n5 :kk-ns-safe-p 0.0 :kk-step-p 0.3
+0.6749 {'anchor': (182, 0), 'mix': (68, 0), 'rest': (156, 0)}
+n6 :kk-ns-safe-p 0.0 :kk-meaty-p 0.0
+0.6782 {'anchor': (176, 0), 'mix': (79, 0), 'rest': (153, 0)}
+n7 :kk-ns-safe-p 0.0 :kk-brawl-p 0.2
+0.6419 {'anchor': (180, 0), 'mix': (52, 0), 'rest': (154, 0)}
+n8 :kk-ns-safe-p 0.0 :kk-link-p 0.5
+0.6799 {'anchor': (183, 0), 'mix': (69, 0), 'rest': (157, 0)}
+n9 :kk-ns-safe-p 0.0 :kk-reach-margin 0.1

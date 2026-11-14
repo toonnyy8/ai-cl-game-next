@@ -1,0 +1,14 @@
+k1 :kikon 1.0
+0.6469 {'anchor': (185, 0), 'mix': (52, 0), 'rest': (152, 0)}
+k2 :kikon 0.0
+0.6568 {'anchor': (188, 0), 'mix': (52, 0), 'rest': (155, 0)}
+o2 :other 2.0
+0.6386 {'anchor': (192, 0), 'mix': (46, 0), 'rest': (146, 0)}
+hi :kk-hoho-in-p 1.0 :kk-hin-fs 100
+0.6518 {'anchor': (186, 0), 'mix': (57, 0), 'rest': (149, 0)}
+bk :kk-bankai-p 1.0
+0.6386 {'anchor': (186, 0), 'mix': (49, 0), 'rest': (149, 0)}
+kr :kk-kikon-red-p 0.0 :kk-kikon-ptr-p 0.0
+0.6254 {'anchor': (186, 1), 'mix': (42, 0), 'rest': (148, 0)}
+ns :kk-ns-safe-p 0.0
+0.6881 {'anchor': (183, 0), 'mix': (74, 0), 'rest': (157, 0)}

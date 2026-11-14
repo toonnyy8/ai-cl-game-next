@@ -1,0 +1,8 @@
+== x1 :iks-awaken-p 0.0
+0.8927 {'anchor': (199, 1, 0), 'mix': (148, 52, 0), 'rest': (191, 9, 0)}
+== x2 :iks-punish-p 0.0
+0.901 {'anchor': (199, 1, 0), 'mix': (150, 50, 0), 'rest': (194, 6, 0)}
+== x3 :iks-awaken-p 0.0 :iks-punish-p 0.0 :iks-confirm-p 0.0
+0.8944 {'anchor': (200, 0, 0), 'mix': (147, 53, 0), 'rest': (192, 8, 0)}
+== x4 :iks-awaken-p 0.0 :iks-punish-p 0.0 :iks-hoho-p 0.0 :iks-gap-p 0.0
+0.8911 {'anchor': (200, 0, 0), 'mix': (151, 49, 0), 'rest': (186, 14, 0)}

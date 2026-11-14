@@ -1,0 +1,8 @@
+== w1 :iks-gap-p 0.0 :iks-hoho-p 0.0
+0.8927 {'anchor': (200, 0, 0), 'mix': (151, 49, 0), 'rest': (187, 13, 0)}
+== w2 :iks-mix-whiff 0.1 :iks-mix-space 1.0 :iks-mix-ptr3 0.2
+0.835 {'anchor': (198, 1, 1), 'mix': (122, 78, 0), 'rest': (183, 16, 1)}
+== w3 :iks-awaken-p 0.0 :iks-punish-p 0.0
+0.901 {'anchor': (199, 1, 0), 'mix': (150, 50, 0), 'rest': (194, 6, 0)}
+== w4 :iks-mix-kessa 1.0 :iks-mix-whiff 0.3
+0.8465 {'anchor': (198, 2, 0), 'mix': (124, 76, 0), 'rest': (188, 12, 0)}

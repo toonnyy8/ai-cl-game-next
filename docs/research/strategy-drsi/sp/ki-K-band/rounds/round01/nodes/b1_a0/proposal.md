@@ -1,0 +1,7 @@
+# b1_a0: mycell band, Hoho-safety off (:kk-ns-safe-p 0.0)
+Band: `mycell` (G2 rules 30-35: Kenpachi holds >= 1 flash-step cell). Arm k = arm 0 (`c-ki-k-r2-b1a2`) with `:kk-ns-safe-p 0.0` prepended to `:base` (first occurrence wins; same `:fn`, so state is kept).
+Mechanism: with cells in the gauge the incumbent still waits until her timed Hoho cannot read the start of J1 / NS. With 0.0 he starts the string at once, converting the cell advantage into pressure; she is the one to answer.
+Evidence (block 300, mycell band, single knob screens on arm 0): kikon 1.0 0.6469, kikon 0 0.6568, other 2 0.6386, hoho-in 1 + hin-fs 100 0.6518 (= arm 0), bankai-p 1 0.6386, kikon-red/ptr 0 0.6254, **ns-safe 0 0.6881**, ns-safe 0.3 0.6584. On top of ns-safe 0: kikon 0 0.6898 (noise), step-in 1 0.6881, reach-p 0 0.6848, dodge 0.5 0.6386, step-p 0.3 0.6749, meaty 0 0.6782, brawl 0.2 0.6419, link 0.5 0.6799, reach-margin 0.1 0.6666. Plateau, kept the single knob.
+Measured (eval.py seed0 300, final cand.lisp): score 0.6881 (arm 0: 0.6518); anchor 183W/17L/0TO, mix 74/126/0, rest 157/43/0. Arm 0: anchor 187, mix 52, rest 153.
+band.py pair (--a arm 0, --b cand, seeds 301-400): anchor b 17 c 13 z 0.73; mix b 31 c 53 z -2.4; rest b 19 c 23 z -0.62; pooled b 67 c 89 z -1.76. Here b = arm 0 won and cand did not, so the negative z means the CAND is ahead (mix +22 K.O.); time-outs 0 / 0.
+Risk: seed-300 selected (one knob picked of ~20 screens); gain is entirely in the mix group (z 2.4), anchor -4. Admission block decides.

@@ -1,0 +1,9 @@
+n1 :kk-ns-safe-p 0.0 :kikon 0.0
+0.6898 {'anchor': (183, 0), 'mix': (74, 0), 'rest': (158, 0)}
+n2 :kk-ns-safe-p 0.0 :kk-step-in-p 1.0
+0.6881 {'anchor': (183, 0), 'mix': (74, 0), 'rest': (157, 0)}
+n3 :kk-ns-safe-p 0.0 :kk-reach-p 0.0
+0.6848 {'anchor': (190, 0), 'mix': (61, 0), 'rest': (161, 0)}
+n4 :kk-ns-safe-p 0.0 :kk-dodge-p 0.5
+0.6386 {'anchor': (179, 1), 'mix': (53, 0), 'rest': (152, 0)}
+n5 :kk-ns-safe-p 0.0 :kk-step-p 0.3

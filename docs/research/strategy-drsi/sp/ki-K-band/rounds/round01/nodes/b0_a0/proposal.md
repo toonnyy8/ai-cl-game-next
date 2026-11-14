@@ -1,0 +1,7 @@
+# b0_a0 (ki-K-band, round 1): nocell specialist = arm 0 with Hoho-safety off (:kk-ns-safe-p 0.0)
+Band: `nocell` (neither side holds a flash-step cell). Arm k = arm 0 (r2-b1a2) knob variant, same :fn, one key changed: `:kk-ns-safe-p 0.0` placed before the base's 0.8 (first occurrence wins), so in the band he starts J1 / NS without waiting for her timed Hoho to be unable to read it.
+Why in this band: with no cell on either side nobody can Hoho, so the Hoho-safety wait only stalls; it converts neutral into pressure. Same lever as the whole-game round 2 `:lead :ahead` rule, applied by band.
+Evidence (seed0 300, all via band.py write + eval.py; arm 0 band table = 0.6518): brawl 0 / dodge 0 0.6535; step-p 0 0.6237; hold-awaken 0 + reach-p 0 0.6848; meaty 0 + link-p .5 0.67; wake-hoho 0 + hin-fs 100 0.6518 (inert); ns-safe 0 0.7145; ns-safe 0 + hold-awaken 0 0.7145 (inert extra); + hold-awaken 0 + reach-p 0 0.67; + meaty 0 0.7096; + link-p .5 0.665.
+Measured (final cand.lisp, seed0 300): score 0.7145; anchor 189W/11L/0TO, mix 74/126/0, rest 167/33/0. (arm 0: anchor 187/13, mix 52/148, rest 153/47, 0 time-outs.)
+Paired vs arm 0 on 300 (band.py pair; b = arm 0 won only, c = cand won only): pooled b 48, c 86, z -3.28 (negative = cand better); anchor b 8 c 10 z -0.47; mix b 32 c 54 z -2.37; rest b 8 c 22 z -2.56; time-outs 0 / 0.
+Risk: seed-300 selected from ~12 variants (SE ~0.02, gain +0.063); the earlier whole-game ns-safe 0 gains were block-specific. Needs the admission block.
