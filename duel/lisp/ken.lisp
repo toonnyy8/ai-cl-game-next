@@ -56,9 +56,13 @@
 ;;; by grip: 1 the drag (rising cuts, pressure), 2 the shoulder (each segment takes one hit, KEN-ARMOR), 3 chūdan (the tame catches a melee hit,
 ;;; :parry, and the thrust answers it: the kit's :land string). J1-J5, AS n by press (the core's 1 1 2 2 3), one SA a pointer.
 ;;; Their own clips since the art round (DUEL_KEN_V3 §36-§38).
-(defmove :ke-z-j1 :kind :quick :clip :ke-z-cut1 :clip-s 6 :startup 6 :active 3 :recovery 12 :dmg 35 :adv-block -2
+;; J1 startup 6 -> 9 (= the Shikai's J1) and AS1 12 -> 16 (the user, 2026-11-14: 「我發現劍八的壓制能力異常強大，跟其他角色相消後換攻擊時必勝」,
+;; 「尤其是 J1 到 AS 的切換」, 「好 1+2」; DUEL_KEN_V3 §45, DUEL_CORE §2.1.2). Their clips stay as authored (strike 6 / 12: :clip-s 6 / 12,
+;; played at 6/9 and 12/16 speed so the strike pose still lands on the hit frame; AS1's Kikon cinematic times its clip frame 12).
+;; J2 copies J1: its startup 6 pinned (only J1 and AS1 were approved).
+(defmove :ke-z-j1 :kind :quick :clip :ke-z-cut1 :clip-s 6 :startup 9 :active 3 :recovery 12 :dmg 35 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :slide 0.6)
-(defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-z-cut2 :slide 0.0)
+(defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-z-cut2 :startup 6 :slide 0.0)
 (defmove-copy :ke-z-j3 :ke-z-j1 :clip :ke-z-cut3 :clip-s 7 :startup 7 :dmg 40)
 (defmove-copy :ke-z-j4 :ke-z-j1 :clip :ke-z-cut4 :clip-s 8 :startup 8 :recovery 13 :dmg 45 :slide 0.0)
 (defmove :ke-z-j5 :kind :quick :clip :ke-z-cut5 :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 55 :adv-block -4
@@ -72,7 +76,7 @@
   :reach 1.8 :arc 110 :on-hit :stagger :params (:ns-next :ke-z-n1c :sa :ke-z-sa1))
 (defmove :ke-z-n1a :kind :flash :clip :ke-z-p1a :clip-s 14 :callout "KIRIAGE" :startup 14 :active 4 :recovery 20 :dmg 65 :adv-block -4
   :reach 1.9 :arc 100 :on-hit :stagger :slide 1.2 :params (:ns-next :ke-z-n1b :sa :ke-z-sa1))
-(defmove-copy :ke-z-as1 :ke-z-n1a :kind :sp :clip :ke-z-as1 :clip-s 12 :callout "KITTE MIRO YO" :startup 12 :dmg 90 :on-hit :knockdown :params nil)
+(defmove-copy :ke-z-as1 :ke-z-n1a :kind :sp :clip :ke-z-as1 :clip-s 12 :callout "KITTE MIRO YO" :startup 16 :dmg 90 :on-hit :knockdown :params nil)
 ;; pointer 2, the shoulder: two drops, each through one hit from frame 6 to the end of its active frames; the forearm shove
 (defmove-copy :ke-z-sa2 :ke-z-sa1 :clip :ke-z-ram :dmg 35 :kb 1.0)
 (defmove :ke-z-n2b :kind :flash :clip :ke-z-p2b :clip-s 14 :startup 14 :active 4 :recovery 22 :dmg 95 :adv-block -4

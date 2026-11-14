@@ -39,6 +39,18 @@ S for a move with no hit window). The side whose hit was judged is on that hit's
 and a real hit never opens his AS / SP / Hoho / guard cancels before his own hit frame, so neither does a cancel."
   (if (>= land-sf 0) land-sf (max sf first-hit)))
 
+(defun core-cancelled-p (xch cls-t)
+  "Has the move in play (started on tick CLS-T) taken part in a cancel? An exchange (FIGHTER-XCH, -1 when none) opened on or after its
+start: a cancel opens one on both sides (CORE-XCH-OPEN!). A whiff or a real hit opens none."
+  (>= xch cls-t 0))
+
+(defun core-sa-open-p (sf s a cancelled)
+  "May an NS segment's SA start at move frame SF (S / A: the segment's startup / active frames)? Once its active frames are over, or at
+once from the frame the segment took part in a cancel (CANCELLED, CORE-CANCELLED-P): the cancel's out (the user, 2026-11-14:
+「我發現劍八的壓制能力異常強大，跟其他角色相消後換攻擊時必勝」, 「好 1+2」; DUEL_CORE §2.1.2). Before it the NS side was locked to its
+segment's active end while the J side's AS started at once (the later start wins: CORE-LATER), so the J side always had the free turn."
+  (or cancelled (>= sf (+ s a))))
+
 
 ;;; ---------------------------------------------------------------- the sequence (what a press means)
 ;;; (*CORE-POINTER-MAX*, *CORE-KIKON-MAX* and *CORE-SOUL-BREAK-MAX* are shared knobs: tuning.lisp, the core system's block)

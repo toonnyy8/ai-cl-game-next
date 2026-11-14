@@ -139,18 +139,42 @@ gauge was full, at SP 0, or no other pointer (CORE-SWITCH-OPEN-P; DUEL_SUBLIMATI
           (let ((to (1+ (mod (+ (1- (fighter-ptr f)) (if (> st 0f0) 1 -1)) n))))
             (and (/= to (fighter-ptr f)) (kit-core-move (fighter-kit f) :ns to) to)))))))
 
+(defun core-sa-move (f mv)
+  "The SA an attack in F's NS segment MV starts: a charge carried from the segment he switched away from (FIGHTER-CSA), else the
+segment's :params :sa, else the kit's."
+  (or (fighter-csa f) (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))
+
+(defun core-seg-cancelled-p (f)
+  "Has F's move in play taken part in a cancel (CORE-CANCELLED-P over his exchange and the move's start tick)?"
+  (core-cancelled-p (fighter-xch f) (fighter-cls-t f)))
+
 (defun core-sa-start! (e f vp mv sf button)
-  "An attack pressed inside an NS segment (MOVE-COMMANDS): latch the SA (it starts when the segment's active frames are over)."
-  (declare (ignore e sf mv))
+  "An attack pressed inside an NS segment (MOVE-COMMANDS): latch the SA (it starts when the segment's active frames are over,
+CORE-LATCH-STEP); after the segment took part in a cancel, the SA starts at once (CORE-SA-OPEN-P: the cancel's out, the user
+2026-11-14, DUEL_CORE §2.1.2). T when it started."
+  (declare (ignore sf))
   (when (kit-sa-move (fighter-kit f))
-    (setf (fighter-queued f) :sa)
-    (vpad-consume! vp button))
-  nil)
+    (vpad-consume! vp button)
+    (if (core-seg-cancelled-p f)
+        (progn (setf (fighter-queued f) nil) (core-start! e (core-sa-move f mv)))
+        (progn (setf (fighter-queued f) :sa) nil))))
 
 (defun core-latch-step (e f mv sf)
-  "A latched NS continuation or SA starts once the segment's active frames are over (MOVE-COMMANDS). T when it started."
-  (let ((q (fighter-queued f)))
-    (when (and (member q '(:ns :sa :sw)) (>= sf (+ (mv-s mv) (mv-a mv))) (< sf (mv-total mv)))
+  "A latched NS continuation or SA starts once the segment's active frames are over (MOVE-COMMANDS); a latched SA also once the
+segment took part in a cancel (CORE-SA-OPEN-P). Such an SA was latched before the cancel (a press after it starts at once,
+CORE-SA-START!): a guess, so it counts as started on the cancel's tick (FIGHTER-CLS-T := FIGHTER-XCH; the cancel's hitstop runs no
+step), and a J side's AS started after the hitstop is the later start and beats it (CORE-LATER; DUEL_CORE §2.1.2). T when it started."
+  (let* ((q (fighter-queued f))
+         (cancelled (and (eq q :sa) (core-seg-cancelled-p f))))
+    (when (and (member q '(:ns :sa :sw))
+               (if (eq q :sa) (core-sa-open-p sf (mv-s mv) (mv-a mv) cancelled) (>= sf (+ (mv-s mv) (mv-a mv))))
+               (< sf (mv-total mv)))
+      (when (and cancelled (< sf (+ (mv-s mv) (mv-a mv))))   ; (fired early by the cancel: a guess, started on the cancel's tick)
+        (let ((xch (fighter-xch f)))
+          (setf (fighter-queued f) nil)
+          (when (core-start! e (core-sa-move f mv))
+            (setf (fighter-cls-t f) xch))
+          (return-from core-latch-step t)))
       (setf (fighter-queued f) nil)
       (when (eq q :sw)                                  ; the temporary pointer: its NS route from segment 1, paid in SP like any NS segment
         (let ((to (fighter-sw f)) (from (fighter-ptr f)))
@@ -161,7 +185,7 @@ gauge was full, at SP 0, or no other pointer (CORE-SWITCH-OPEN-P; DUEL_SUBLIMATI
             (setf (fighter-tmp f) to)                   ; (after START-MOVE, which clears it for a non-NS)
             (clog "~a NS pointer ~d -> ~d (SP; DRIVE ~,1f SUB ~,1f unchanged)" (side-name e) from to (gauges-drive (gauges e)) (gauges-sub (gauges e))))
           (return-from core-latch-step t)))
-      (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (fighter-csa f) (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
+      (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (core-sa-move f mv))))
         (when (and next (or (not (eq q :ns)) (core-seg-ok-p f next))) (core-start! e next))))))
 
 ;;; ---------------------------------------------------------------- judging a step's hits
