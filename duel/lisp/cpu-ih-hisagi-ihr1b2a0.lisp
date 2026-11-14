@@ -5,7 +5,7 @@
 ;;;; while her Reishi is under *AI-BURST-LOW* (half), and HOHO-READY-P (lockout). Regen stops at one cell (FS-REGEN), so below half
 ;;;; Reishi she sits at 100 with the Hoho shut until a hit of hers fills it. In that window (her gauges as the HUD shows them, as
 ;;;; IKS-HIS-HOHO-SHUT-P reads his) Hisagi, free, presses the first of J1 / his pointer's NS that reaches her now (dead zone and reach,
-;;;; less :ihx-margin), else walks in from :ihx-chase m; one roll per window (:ihx-p). Everything else is HISAGI-RANGE-STYLE (h1-range's
+;;;; less :ihx-margin), else, she beyond its reach, walks in from :ihx-chase m; one roll per window (:ihx-p). Everything else is HISAGI-RANGE-STYLE (h1-range's
 ;;;; play), then the MCTS / generic CPU.
 (in-package :duel)
 
@@ -49,8 +49,10 @@ widened by :ihx-reishi)?"
                   ((ihx-fits-p e ns d m)
                    (clog "~a ihx NS at ~,1f" (side-name e) d)
                    (hr-sp b f s) (hr-taken b f) t)
-                  ((< d (style-knob b :ihx-chase *ihx-chase*))
-                   (ai-walk e b (pilot-vpad (pilot e)) d 0.0 (max 1.0 (- (strat-reach (or q ns)) m))) t)))))))
+                  ((let ((hi (max 1.0 (- (strat-reach (or q ns)) m))))   ; (beyond the move's reach only: inside its dead zone the
+                     (and (< hi d (style-knob b :ihx-chase *ihx-chase*))  ;  walk would only strafe and starve the range style)
+                          (ai-walk e b (pilot-vpad (pilot e)) d 0.0 hi)
+                          t)))))))))
 
 (defun hisagi-ihr1b2a0-style (e b f kit s d)
   "Attack into Ichigo's shut Hoho (IHX-STEP), else HISAGI-RANGE-STYLE. T when it decided."
