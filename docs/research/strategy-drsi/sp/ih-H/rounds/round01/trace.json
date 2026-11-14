@@ -19,6 +19,14 @@
       "note": "",
       "score": 0.6402
     },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.7129
+    },
     "b1_a0": {
       "error": null,
       "fail_class": "ok",
@@ -43,6 +51,14 @@
       "note": "",
       "score": 0.5247
     },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.5281
+    },
     "b3_a0": {
       "error": null,
       "fail_class": "ok",
@@ -58,6 +74,14 @@
       "n_valid": null,
       "note": "",
       "score": 0.4373
+    },
+    "b3_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.5016
     }
   },
   "directions": {},

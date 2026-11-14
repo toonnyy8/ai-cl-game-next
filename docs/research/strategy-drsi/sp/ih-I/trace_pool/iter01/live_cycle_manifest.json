@@ -1,0 +1,50 @@
+{
+  "completed_by_policy": false,
+  "cycle": 0,
+  "explore": {
+    "batch_sizes": [
+      4,
+      3
+    ],
+    "best_score": 0.9917,
+    "decision_rounds": 2,
+    "effective_sequential_rounds": 2,
+    "max_refine": 2,
+    "max_width": 4,
+    "max_workers": 4,
+    "probe_budget": 7
+  },
+  "grid_plan": {
+    "actual": {
+      "decision_rounds": 2,
+      "effective_sequential_rounds": 2,
+      "max_attempt_selected": 1,
+      "opened_branch_count": 4,
+      "probe_count": 7
+    },
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "policy": {
+    "beta_default": 0.6,
+    "config": {
+      "beta": 0.6
+    },
+    "name": "OptimalPolicy",
+    "sha256": "9e83a238a7726c7159a6175e1967c7f127aef3a147aedec321130ea0c366dcbd",
+    "source": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/ih-I/rounds/round01/policy.py"
+  },
+  "recorded_at": "2026-11-14T06:26:35.977768+00:00",
+  "round_index": 1,
+  "schema_version": 2,
+  "workspace": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/ih-I"
+}

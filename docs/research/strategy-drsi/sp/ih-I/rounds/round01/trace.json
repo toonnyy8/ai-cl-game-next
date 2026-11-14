@@ -75,7 +75,11 @@
     "source": "fallback"
   },
   "max_parallelism": 4,
-  "pending_batch": [],
+  "pending_batch": [
+    "b0_a2",
+    "b1_a2",
+    "b3_a2"
+  ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 2,
   "round_index": 1,
