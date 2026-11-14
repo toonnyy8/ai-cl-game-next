@@ -16,7 +16,7 @@ n = int(sys.argv[sys.argv.index('--seeds') + 1]) if '--seeds' in sys.argv else 1
 ref = os.path.abspath(sys.argv[sys.argv.index('--ref') + 1]) if '--ref' in sys.argv else None
 def run(cand):
     r = subprocess.run([sys.executable, 'tools/strategy-switch.py', '--char', me, '--vs', vs, '--vs-strat', vss, '--cand', cand, '--raw',
-                        '--seed0', str(seed0), '--seeds', str(n), '-j', '8'], cwd=ROOT, capture_output=True, text=True, check=True)
+                        '--seed0', str(seed0), '--seeds', str(n), '-j', sys.argv[sys.argv.index('-j') + 1] if '-j' in sys.argv else '8'], cwd=ROOT, capture_output=True, text=True, check=True)
     return json.loads(r.stdout)
 j = run(table)
 text = ss.strip_lisp(open(table).read()).strip() + '\n'

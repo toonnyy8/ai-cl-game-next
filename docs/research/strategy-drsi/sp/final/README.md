@@ -16,10 +16,10 @@ Counts are K.O. wins : K.O. losses : time-outs of 200.
 | `kh-kenpachi.lisp` | KH Kenpachi | fallback | `c-ki-k-r2-b0a2` | `r1-b0a1`, `r1-b2a2`, `none` | vs Hisagi's pop 0.977 (`r1-b0a1` 0.959, `r1-b2a2` 0.924, `r2-b1a2` 0.546); vs `kh-hisagi` 196:0:4 (194:0:6, 187:0:13) |
 | `kh-hisagi.lisp` | KH Hisagi | fallback | `a-hisagi-pressd` | `a-hisagi-kite`, `a-hisagi-dswitch`, `none` | vs `kh-kenpachi` every arm ≤ 2 K.O. wins of 200 (a tie); score 0.314 (anchor 187:6:7) over `kite` 0.304, `dswitch` 0.294 |
 | `ih-ichigo.lisp` | IH Ichigo | fallback | `c-ih-i-r1-b0a1` | `r1-b1a1`, `c-ki-i-r1-b0a2`, `none` | vs Hisagi's pop 0.972 (`b1a1` 0.960, `ki-r1-b0a2` 0.746); vs `ih-hisagi` (kite) 186:7:7, `b1a1` 193:4:3, paired z -1.70 for `b0a1` (under 2: kept) |
-| `ih-hisagi.lisp` | IH Hisagi | fallback | `a-hisagi-kite` | `c-ih-h-r1-b0a2`, `a-zoner`, `none` | the only arm with K.O.s vs `ih-ichigo`: 7:186:7 against `b2a0`'s 0:200:0, paired 7 / 0, z +2.65 (others 0-1 of 200) |
+| `ih-hisagi.lisp` | IH Hisagi | fallback | `c-ih-h-r1-b2a0` | `a-hisagi-kite`, `c-ih-h-r1-b0a2`, `none` | the lead's call (2026-11-14): full score 0.332 over `kite` 0.304, K.O. rate 398 / 400 (vs `ih-ichigo` 0:200:0, vs his `none` 198:1:1); `kite` stalls (167:0:33 vs `none`) |
 | `kk-kenpachi.lisp` | KK | fallback | `c-ki-k-r2-b0a2` | `c-ki-k-r2-b1a2`, `none` | beats `r2-b1a2` 143:57:0; both 200:0:0 vs `none` |
 | `ii-ichigo.lisp` | II | fallback | `c-ki-i-r2-b2a2` | `c-ih-i-r1-b0a1`, `none` | beats `ih-r1-b0a1` 186:3:11; vs `none` 171:0:29 (`b0a1` 200:0:0) |
-| `hh-hisagi.lisp` | HH | fallback | `a-hisagi-kite` | `a-hisagi-pressd`, `none` | vs `pressd` 0:0:200 (both ways), vs `none` 145:0:55; `pressd` vs `none` 60:0:140 |
+| `hh-hisagi.lisp` | HH | fallback | `c-ih-h-r1-b2a0` | `a-hisagi-kite`, `a-hisagi-pressd`, `none` | the lead's call (2026-11-14): self-play 95:95:10 (95 % K.O.), vs `none` 193:5:2; `kite` vs `pressd` 0:0:200 (both ways) |
 
 ## How the cross pairings were chosen
 
@@ -54,8 +54,8 @@ With it, group `anchor` is his `none` and groups `mix` and `rest` are the table.
   paired 7 / 0, z +2.65. So the primary measure picks it.
   - It stalls: 33 of 200 to the bell against Ichigo's `none` (167:0:33), and its pooled K.O. rate is 360 / 400 = 90 %.
   - `b2a0` would be the pick by the full score: 0.332 against 0.304, with anchor 198:1:1 and K.O. rate 398 / 400.
-  - A first pass took `b2a0` on the full score and was corrected to the brief's measure.
-  - `b2a0` is not an `ih-H.json` member, so it is not an alternate here.
+  - **The lead's call (2026-11-14): `b2a0` ships as arm 0**, `kite` as the first alternate. `kite`'s 7 K.O. wins of 200 cost 33
+    time-outs against her `none`; `b2a0` ends 398 of 400 matches and scores higher.
 
 **The alternates** are the next pop-file arms by the full score, and then `none`. Two kinds of member are excluded:
 - tables (`ki-ichigo` in `ih-I.json`);
@@ -74,9 +74,9 @@ The pick is the best mean of the K.O. share against the other candidate and agai
 |---|---|---|---|---|---|
 | KK | `r2-b0a2` | 100:100:0 | 100 % | pass | `r2-b1a2` 100:100:0, 100 % |
 | II | `r2-b2a2` | 54:54:92 | **54 %** | **under** | `ih-r1-b0a1` 79:79:42, 79 % |
-| HH | `a-hisagi-kite` | 3:3:194 | **3 %** | **under** | `pressd` 0:0:200, 0 % |
+| HH | `c-ih-h-r1-b2a0` (the lead's call) | 95:95:10 | 95 % | pass | `kite` 3:3:194, 3 %; `pressd` 0:0:200, 0 % |
 
-**II and HH stall under 90 % with every candidate.** This is reported only: PLAN2 §2 allows ≤ 12 cells a mirror, and §11.15 spends none.
+**II stalls under 90 % with every candidate (HH did, until the lead took `b2a0`, below).** This is reported only: PLAN2 §2 allows ≤ 12 cells a mirror, and §11.15 spends none.
 - HH's candidates never end a match against each other (0:0:200 both ways).
 - `c-ih-h-r1-b2a0` (not a candidate: neither cross pairing's pick) K.O.s 95 % in self-play (95:95:10), beats `none` 193:5:2, and loses
   0:59:141 to `pressd`.
@@ -86,6 +86,9 @@ The pick is the best mean of the K.O. share against the other candidate and agai
 - **Identity.** `band.py pair --a <table> --b <raw arm 0> --seed0 200` gives b = c = 0, with the same time-outs, for all seven new
   tables (600 matches each; `--pop` the scratch population of the other candidate for the mirrors).
   - This also shows that `:apply (:X :X)` is honoured in a mirror.
+  - The rewritten IH / HH Hisagi tables (arm 0 `b2a0`, the lead's call): b = c = 0 in every group, the same time-outs (IH vs a scratch
+    population of `ih-ichigo`: anchor 198 K.O. wins, 1 time-out; mix / rest 0 K.O. wins, 0 time-outs; HH vs `hh-hisagi`: anchor 193 / 2,
+    mix / rest 95 / 10).
 - **`:fn`.** Every `:fn` in the nine files is defined in `duel/lisp/` and listed in `duel/MANIFEST`:
   - `ken-kh-standoff-style` (`cpu-kh-ken.lisp`);
   - `ichigo-ki-style`, `ichigo-ki-r2b2a1-style` (`cpu-ki-ichigo*.lisp`);
@@ -101,9 +104,19 @@ A=arms
 python3 band.py fallback --me kenpachi --vs hisagi --inc $A/r2/c-ki-k-r2-b0a2.lisp --alt $A/r1/c-ki-k-r1-b0a1.lisp $A/r1/c-ki-k-r1-b2a2.lisp none --out final/kh-kenpachi.lisp
 python3 band.py fallback --me hisagi --vs kenpachi --inc $A/a-hisagi-pressd.lisp --alt $A/a-hisagi-kite.lisp $A/a-hisagi-dswitch.lisp none --out final/kh-hisagi.lisp
 python3 band.py fallback --me ichigo --vs hisagi --inc $A/ih-r1/c-ih-i-r1-b0a1.lisp --alt $A/ih-r1/c-ih-i-r1-b1a1.lisp $A/r1/c-ki-i-r1-b0a2.lisp none --out final/ih-ichigo.lisp
-python3 band.py fallback --me hisagi --vs ichigo --inc $A/a-hisagi-kite.lisp --alt $A/ih-r1/c-ih-h-r1-b0a2.lisp $A/a-zoner.lisp none --out final/ih-hisagi.lisp
+python3 band.py fallback --me hisagi --vs ichigo --inc $A/ih-r1/c-ih-h-r1-b2a0.lisp --alt $A/a-hisagi-kite.lisp $A/ih-r1/c-ih-h-r1-b0a2.lisp none --out final/ih-hisagi.lisp
 python3 band.py fallback --me kenpachi --vs kenpachi --inc $A/r2/c-ki-k-r2-b0a2.lisp --alt $A/r2/c-ki-k-r2-b1a2.lisp none --out final/kk-kenpachi.lisp
 python3 band.py fallback --me ichigo --vs ichigo --inc $A/r2/c-ki-i-r2-b2a2.lisp --alt $A/ih-r1/c-ih-i-r1-b0a1.lisp none --out final/ii-ichigo.lisp
-python3 band.py fallback --me hisagi --vs hisagi --inc $A/a-hisagi-kite.lisp --alt $A/a-hisagi-pressd.lisp none --out final/hh-hisagi.lisp
+python3 band.py fallback --me hisagi --vs hisagi --inc $A/ih-r1/c-ih-h-r1-b2a0.lisp --alt $A/a-hisagi-kite.lisp $A/a-hisagi-pressd.lisp none --out final/hh-hisagi.lisp
 python3 eval.py --me hisagi --vs kenpachi --cand $A/a-hisagi-pressd.lisp --pop POP.json --seed0 200   # POP.json: the shape above
+```
+
+## Into the game (DUEL_AI_STRATEGY §11.16)
+
+Run from the repo root.
+
+```sh
+python3 docs/research/strategy-drsi/sp/final/units.py docs/research/strategy-drsi/sp/final/*-*.lisp   # the arm units *STRAT-UNITS* lacks: paste them in
+OUT=/tmp/x sh docs/research/strategy-drsi/sp/final/add.sh      # entry.py + add.py per table: :f-<file> in *STRAT-LIBRARY*, the HARD lookup row
+sh docs/research/strategy-drsi/sp/final/proofs.sh              # raw file = the lookup, seeds 601-610 both seats -> proofs-600.jsonl
 ```
