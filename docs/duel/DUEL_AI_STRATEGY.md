@@ -3091,3 +3091,22 @@ went through admission like the others. x-kh-K b0_a1 wrote no cand.lisp (recorde
 
 Cells spent: 60 of 90 (KI 20, KH 20, IH 20).
 
+### 11.26 Re-collection stage 1, round 2: the trailing sides answer (2026-11-15)
+
+Three workspaces (`sp/x-ki-K2`, `x-kh-H2`, `x-ih-H2`), grid 4 x 2 (`v1_rank_keep`: 7 cells each, 21 in all), each from its side's
+round-1 incumbent: KI Kenpachi `x-ki-k-r1-b0a2` (0.454 on block 300 against Ichigo's new mix), KH Hisagi `x-kh-h-r1-b3a2` (0.569), IH
+Hisagi `x-ih-h-r1-b0a1` (0.617; the mix's top `a-hisagi-kite` scored 0.505).
+
+- **KI: nothing admitted.** Kenpachi's best `b0_a1` (`:xch-sa-p 1.5 :xch-carry-p 4` on the always-AS arm) passed block 400 at z -3.36
+  but with 13 time-outs to the incumbent's 12 (refused, the strict rule); `b1_a0` z -1.91, `b3_a1` z -0.62. Ichigo's
+  `x-ki-i-r1-b0a2` stays the pure answer (0.91 : 0.09). The pairing stops (PLAN3: a round admits nothing).
+- **KH: Hisagi `x-kh-h-r2-b3a1` admitted** (block 400 z -6.25; time-outs 110 -> 59): its round-1 style arm plus `:clash-p 1.7
+  :xch-sa-p 1.5 :awaken-break-p 1.9 :xch-carry-p 3 :clash-margin 1.6 :kk-reach-margin 0.5`. Matrix: K pure `x-kh-k-r1-b0a2` 0.595 : H
+  pure on it 0.355, time-outs **0.05** (round 1: 0.245; stage 0: 0.67). `b1_a1` (the SA keys alone, z -4.71) is outside the support.
+- **IH: Hisagi `x-ih-h-r2-b0a1` (z -4.74), `b3_a1` (-3.32) and `b1_a0` (-3.43) admitted** (in the support: 0.352 / 0.051 / 0.001 beside
+  `a-hisagi-kite` 0.596): always J plus `:xch-sa-p 1.6 :clash-margin 0 :xch-carry-p 3`; the range style's `:ihx-margin 0.9 :ihx-chase 6`;
+  the SA keys. Ichigo 0.587 : Hisagi 0.387 (round 1: 0.633 : 0.326).
+
+**Stage 2 (bands on KI) skipped** (the lead's call): KI ended in a pure dominance (Ichigo 0.91), where a band specialist for Kenpachi has
+the least to gain, and the shipping batch needs the context and the time. Cells spent: **81 of 90** (stage 1 only).
+

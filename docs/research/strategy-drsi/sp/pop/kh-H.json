@@ -91,6 +91,18 @@
    "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r1-b3a2.lisp",
    "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-H b3_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
    "status": "admitted x1 (KH round 1: the mix pure on it; values K 0.580 / H 0.175, time-outs 0.245)"
+  },
+  {
+   "id": "x-kh-h-r2-b1a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r2-b1a1.lisp",
+   "why": "PLAN3 stage 1 KH round 2 candidate (x-kh-H2 b1_a1); passed block 200 rescore and the block-400 paired test vs the round-1 incumbent",
+   "status": "not admitted x2 (outside the support, no best response)"
+  },
+  {
+   "id": "x-kh-h-r2-b3a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r2-b3a1.lisp",
+   "why": "PLAN3 stage 1 KH round 2 candidate (x-kh-H2 b3_a1); passed block 200 rescore and the block-400 paired test vs the round-1 incumbent",
+   "status": "admitted x2 (the mix pure on it; K 0.595 / H 0.355, time-outs 0.05)"
   }
  ],
  "screen": {
@@ -295,7 +307,7 @@
   }
  },
  "mix": {
-  "x-kh-h-r1-b3a2": 1.0
+  "x-kh-h-r2-b3a1": 0.999
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/kh-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

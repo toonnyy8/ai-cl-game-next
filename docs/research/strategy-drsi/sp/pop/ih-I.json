@@ -320,9 +320,9 @@
   }
  },
  "mix": {
-  "c-ki-i-r2-b2a2": 0.355,
-  "x-ih-i-r1-b0a2": 0.311,
-  "x-ih-i-r1-b2a1": 0.333
+  "ki-ichigo": 0.157,
+  "x-ih-i-r1-b0a2": 0.328,
+  "x-ih-i-r1-b2a1": 0.515
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ih-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

@@ -1,0 +1,1 @@
+(:id :x-kh-h-r2-b1a0 :fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :kk-reach-margin 1.0 :kk-lunge-p 1.0 :kk-step-in-p 0.0 :kk-hoho-in-p 1.0 :kk-hin-fs 100 :kk-hoho-in-max 6.0 :kk-kikon-ptr-p 0.0 :xch-sa-p 1.6 :xch-carry-p 1.0 :xch-sa-wait 1.75))

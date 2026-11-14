@@ -1,0 +1,1 @@
+cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=949a94db54fe python3 docs/research/strategy-drsi/sp/eval.py --me kenpachi --vs ichigo --cand /media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/x-ki-K2/rounds/round01/nodes/b3_a1/scratch/$1.lisp --seed0 300 -j 3

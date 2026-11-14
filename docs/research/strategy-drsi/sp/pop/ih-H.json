@@ -67,6 +67,24 @@
    "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r1-b3a0.lisp",
    "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-H b3_a0); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
    "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-ih-h-r2-b0a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r2-b0a1.lisp",
+   "why": "PLAN3 stage 1 IH round 2 candidate (x-ih-H2 b0_a1); passed block 200 rescore and the block-400 paired test vs the round-1 incumbent",
+   "status": "admitted x2 (in the mix 0.352)"
+  },
+  {
+   "id": "x-ih-h-r2-b1a0",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r2-b1a0.lisp",
+   "why": "PLAN3 stage 1 IH round 2 candidate (x-ih-H2 b1_a0); passed block 200 rescore and the block-400 paired test vs the round-1 incumbent",
+   "status": "admitted x2 (in the mix 0.001)"
+  },
+  {
+   "id": "x-ih-h-r2-b3a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r2-b3a1.lisp",
+   "why": "PLAN3 stage 1 IH round 2 candidate (x-ih-H2 b3_a1); passed block 200 rescore and the block-400 paired test vs the round-1 incumbent",
+   "status": "admitted x2 (in the mix 0.051)"
   }
  ],
  "screen": {
@@ -187,9 +205,10 @@
   }
  },
  "mix": {
-  "a-hisagi-kite": 0.454,
-  "x-ih-h-r1-b0a1": 0.289,
-  "x-ih-h-r1-b1a2": 0.257
+  "a-hisagi-kite": 0.596,
+  "x-ih-h-r2-b0a1": 0.352,
+  "x-ih-h-r2-b1a0": 0.001,
+  "x-ih-h-r2-b3a1": 0.051
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ih-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }
