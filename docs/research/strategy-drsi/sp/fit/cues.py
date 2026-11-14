@@ -37,14 +37,30 @@ def kept_per_group(arms):
     return dg, np.bincount([groups[r] for r in range(Xe.shape[1]) for k in range(sw.NA) if dg[r, k] != 0], minlength=len(names))
 
 
+def placebo(rng):
+    """The null that matches the exploration design: greedy rows keep their arm; each run of explored rows (arm != greedy, one arm, within
+    a match) gets an arm redrawn uniformly from the others, as STRAT_FQLOG draws them. The gate's false positives at the runs' noise."""
+    out, i = [], 0
+    for m in ms:
+        prev = None
+        for j in m['js']:
+            if j[1] == j[2]:
+                out.append(j[1]); prev = None
+                continue
+            if prev is None or prev[0] != j[1]:
+                prev = (j[1], rng.choice([k for k in range(sw.NA) if k != j[2]]))
+            out.append(prev[1])
+    return np.array(out)
+
+
 dg, kept = kept_per_group(A)
-_, null = kept_per_group(np.random.default_rng(7).permutation(A))   # (the placebo: the arm labels shuffled, the gate's false positives)
+nulls = np.array([kept_per_group(placebo(np.random.default_rng(seed)))[1] for seed in range(7, 12)])   # (five placebo draws)
 print(f'{a.tag} {a.seeds}: {len(ms)} matches, {len(Y)} judgements, arms played {np.bincount(A, minlength=sw.NA).tolist()}')
 print('share of judgements with the cue at 1: ' + ', '.join(f'{k} {c.mean():.3f}' for k, c in cols.items()))
 form = np.array([j[5] for m in ms if m['js'] for j in m['js']])
 print(f'awk agrees with G1 form >= 1 in {np.mean(cols["awk"] == (form >= 1)):.3f} of judgements')
-print('kept deltas per group (cells): ' + ', '.join(f'{n} {int(x)}/{int(np.sum(np.array(groups) == i)) * sw.NA} (placebo {int(z)})'
-                                                   for i, (n, x, z) in enumerate(zip(names, kept, null))))
+print('kept deltas per group (cells): ' + ', '.join(f'{n} {int(x)}/{int(np.sum(np.array(groups) == i)) * sw.NA} (placebo {lo}-{hi})'
+                                                   for i, (n, x, lo, hi) in enumerate(zip(names, kept, nulls.min(0), nulls.max(0)))))
 # the randomised runs' effect on the outcome: per match, the K.O. win on the share of judgements explored into arm k (+ the pool member,
 # seed mod 2), least squares; the runs start at random (sr-fq-u), so on a start-table log this is the effect of "a 3-9 s run of arm k".
 w = np.array([float(m['win'] > 0) for m in ms])

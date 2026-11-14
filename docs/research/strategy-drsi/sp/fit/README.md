@@ -6,7 +6,7 @@ worth building only if a table that switches between a side's admitted arms by s
 that question for KI only, HARD, K.O.-only.
 
 **Verdict: no.** On the held-out block 400 neither side's table beats its best pure arm. Every row is "too close" (|z| < 1.96), and the
-pooled direction is a loss for Ichigo (z -1.71) and a tie for Kenpachi (z -0.10). On the selection block 500, 28 table variants all scored at
+pooled direction (post hoc) is a loss for Ichigo (z -1.71) and a tie for Kenpachi (z -0.10); a run-level placebo shows the fit itself is mostly noise at this data size. On the selection block 500, 28 table variants all scored at
 or below the pure arm on the mean of the two opponents. The more a table switched, the worse it played.
 
 ## What changed in `fq/switch/sw.py` (one implementation, the old path kept)
@@ -26,7 +26,9 @@ or below the pure arm on the mean of the two opponents. The more a table switche
   - sets stdin to /dev/null (an ECL error no longer waits in its debugger);
   - keeps the `duel hash` lines for identity proofs.
   `--table none` plays my seat with no strategy (a reference run).
-- `log` / `measure` / `fit` take no default seeds, so the pilot's 1-599 / 701-800 cannot run by accident. `-j` defaults to 6.
+- `-j` defaults to 6. The seed defaults stay the pilot's (log / fit 1-599, measure 701-800), because the older scripts depend on them.
+  `run.sh` here always names its seeds. The old path was smoke-run end to end: `measure` without `--rb` / `--ko` on `hi/hi2-s0.lisp`, seeds
+  501-502.
 - `fit` changes:
   - `--margin M` writes `:margin`.
   - `--only 0,1` lets the table pick only those arms; the fit still uses every logged arm.
@@ -124,7 +126,7 @@ sits at 0.99 there.
 | Ichigo vs mix | 141, 0.703 | 126, 0.629 | 1.000 / 1.000 | 0 / 0 | 36 / 51 | -1.61 |
 | Ichigo vs none | 200, 0.995 | 199, 0.990 | 1.000 / 1.000 | 0 / 0 | 0 / 1 | -1.00 |
 
-- Pooled over both opponents: Kenpachi b / c 52 / 53 (z -0.10), Ichigo 36 / 52 (z -1.71).
+- Pooled over both opponents (post hoc, not pre-registered): Kenpachi b / c 52 / 53 (z -0.10), Ichigo 36 / 52 (z -1.71).
 - Every row is too close. None is a gain, and Ichigo's table leans toward a loss against the mix.
 - The summaries are in `results/`.
 
@@ -146,31 +148,33 @@ sits at 0.99 there.
 
 ## Do the `:rb-sp` groups carry signal? Are the left-out cues needed? (`cues.py`, offline, round-1 logs)
 
-The kept-delta counts per group come from the real fit and from a placebo (the arm labels shuffled, the gate's false positives). The gate is
-about a one-sided |z| > 1.65 test, and the groups are collinear (each group's firing sums to 1), so a count means something only against its
-placebo.
+The kept-delta counts per group come from the real fit and from five placebo fits (the gate's false positives). The gate is about a
+one-sided |z| > 1.65 test, and the groups are collinear (each group's firing sums to 1), so a count means something only against its placebo.
+The placebo matches the exploration design: greedy rows keep arm 0, and each explored run (6-18 judgements of one arm) gets its arm redrawn
+uniformly from the others. A first placebo that shuffled labels row by row scattered each arm over every match. It was far less noisy than
+real runs and made G0-G2 look well above noise; the run-level null below replaces it.
 
-| Group (cells = rules x arms) | Kenpachi kept / cells (placebo) | Ichigo kept / cells (placebo) |
+| Group (cells = rules x arms) | Kenpachi kept / cells (placebo range) | Ichigo kept / cells (placebo range) |
 |---|---|---|
-| G0 lead x ost x prev | 30 / 108 (14) | 27 / 72 (11) |
-| G1 form x distance | 11 / 54 (2) | 14 / 36 (7) |
-| G2 my x his cells | 20 / 54 (11) | 9 / 36 (5) |
-| G3 my x his burst | 11 / 24 (5) | 7 / 16 (5) |
-| G4 exchange open | 4 / 12 (4) | 1 / 8 (0) |
-| extra: `:ored` | 1 / 12 (2) | 6 / 8 (2) |
-| extra: `:awk` | 10 / 12 (2) | 4 / 8 (0) |
-| extra: `:oawk` | 2 / 12 (1) | 0 / 8 (1) |
-| extra: `:wall` (< 2.5 m) | 6 / 12 (2) | 3 / 8 (0) |
+| G0 lead x ost x prev | 30 / 108 (28-44) | 27 / 72 (22-34) |
+| G1 form x distance | 11 / 54 (10-16) | 14 / 36 (12-17) |
+| G2 my x his cells | 20 / 54 (11-20) | 9 / 36 (5-12) |
+| G3 my x his burst | 11 / 24 (9-13) | 7 / 16 (4-6) |
+| G4 exchange open | 4 / 12 (4-6) | 1 / 8 (0-2) |
+| extra: `:ored` | 1 / 12 (1-5) | 6 / 8 (1-4) |
+| extra: `:awk` | 10 / 12 (4-9) | 4 / 8 (3-5) |
+| extra: `:oawk` | 2 / 12 (1-4) | 0 / 8 (0-1) |
+| extra: `:wall` (< 2.5 m) | 6 / 12 (4-6) | 3 / 8 (2-6) |
 
 Reading the counts against their placebos:
-- G0, G1 and G2 carry more than the placebo on both sides. G3 does a little for Kenpachi only.
-- **G4 carries nothing.** `:xch` is 1 at about 5 % of judgements and is at the placebo level on both sides.
-- **`:awk` is not needed.** It equals G1's form >= 1 at every judgement for these two characters, so its "kept" deltas are G1's.
-- `:oawk` is at the placebo level.
-- `:wall` shows a little (6 vs 2, 3 vs 0). `:ored` shows a little for Ichigo (6 vs 2) and nothing for Kenpachi.
-
-"Signal in the fit" is not "useful to the table": the tables built from these deltas lost. So none of the four looks needed for these
-arms. `:wall` and Ichigo's `:ored` are the only candidates worth a small group if a later pairing's arms differ by situation.
+- **At 1,600 matches a round the gate cannot tell the fit from noise.** Almost every group's count sits inside its placebo range. This is
+  the main reason the tables lose: most of what they switch on is noise that passed the gate.
+- The only groups at or above the top of their range are Kenpachi's G2 (cells, 20 against 11-20), Ichigo's G3 (burst, 7 against 4-6) and
+  Ichigo's `:ored` (6 against 1-4). The first two match where the block-400 tables moved (below).
+- **G4 carries nothing.** `:xch` is 1 at about 5 % of judgements.
+- **`:awk` is not needed.** It equals G1's form >= 1 at every judgement for these two characters, so its deltas are G1's.
+- `:oawk` and `:wall` are inside the placebo range: not needed.
+- `:ored` is a weak candidate for Ichigo only, worth a 2-rule group if a later pairing's arms really differ by situation.
 
 **The randomised runs' effect on the outcome** (round 1: runs start at random, so this is causal for "a 3-9 s run of arm k, then arm 0"; match
 K.O. win on the share of judgements explored into arm k, per unit share):
@@ -189,14 +193,15 @@ K.O. win on the share of judgements explored into arm k, per unit share):
 
 ## Why the tables lose, as far as the data shows
 
-1. **What the fit estimates is not what the table plays.** The fit estimates "a 3-9 s run of arm k from here, then back to arm 0". The greedy
+1. **The fit is mostly noise** at this data size (the placebo table above): its deltas pass a gate that noise passes as often.
+2. **What the fit estimates is not what the table plays.** The fit estimates "a 3-9 s run of arm k from here, then back to arm 0". The greedy
    table plays a different policy: arm k wherever its delta wins, judged every 0.5 s, 50-90 changes a match. On-policy round 2 should
    correct that, but it made both sides worse (the arm picks are now confounded with state beyond the features).
-2. **The switching itself has a cost.** Losses track arm changes a match: the most-switching variants are the worst on both sides.
-3. **Ichigo's switches reset her style state.** Every switch away from arm 0 changes her style function. That shows up as time-outs
+3. **The switching itself has a cost.** Losses track arm changes a match: the most-switching variants are the worst on both sides.
+4. **Ichigo's switches reset her style state.** Every switch away from arm 0 changes her style function. That shows up as time-outs
    against `none`: r1 has 11 of 200 and r1-ks 0. `:keep-state` removes them, but it does not fix the mix row (0.579 vs 0.748).
    - This reopens §8.19's "drop `:keep-state`" for tables whose arms use different style functions. That decision is the user's.
-4. **The populations leave nothing to choose.** Against the opponent's newest arm, every older Kenpachi arm scores 0.00-0.17 (`ki-matrix.json`)
+5. **The populations leave nothing to choose.** Against the opponent's newest arm, every older Kenpachi arm scores 0.00-0.17 (`ki-matrix.json`)
    and every older Ichigo arm loses too. The newest arms are refinements of the older ones, not specialists.
 
 This negative result covers this fit method and this population. It does not show that no switching policy could gain.
@@ -216,6 +221,8 @@ worse whole-game styles to switch to. Instead:
   or my burst running: the bands where the tables here did move.
   - Kenpachi's split by cells (`r1-b2a2` without cells, `r2-b1a2` with them) is the one division of labour this probe found.
   - Specialists searched for such a band, judged with K.O.-only scoring, would give a table a real choice.
+- **A stricter gate for the fit.** Calibrate it against the run-level placebo (`cues.py`), not a fixed 0.95. Keep a group only where its
+  count clears the placebo's range, or log several times more matches for the arms that pass the run-effect test.
 - Keep PLAN §6's bar: a table ships only if it beats the best pure arm on held-out seeds. Otherwise the lookup plays the pure arm.
 
 ## Commands

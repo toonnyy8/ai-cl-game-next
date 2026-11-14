@@ -26,8 +26,8 @@ firing-weighted average, STRAT-FQ-Q :GROUPS). :rb-switch89 (the default, §8.19)
   G4   2  his awakening
 :rb-sp (§11.3, PLAN §4): G0 18 lead x ost x prev, G1 9 form x distance, G2 9 my x his flash-step cells, G3 4 my x his burst, G4 2 exchange.
 --ko (PLAN §4, §11): a K.O. pays +-1 at the end, a time-out -1 to both, a draw before the bell 0; measure's share / score / wins count K.O.
-wins only. Without it the old terminal (the winner at the bell +-1). Never log or measure on seeds 601-800 (the final gates) by default:
-pass --seeds.
+wins only. Without it the old terminal (the winner at the bell +-1). The seed defaults are the pilot's (log / fit 1-599, measure 701-800):
+a §11 run passes --seeds (sp/fit/run.sh), since 601-800 are its final gates and 401-500 its held-out block.
 """
 import argparse, concurrent.futures as cf, gzip, json, os, re, subprocess, sys
 import numpy as np
@@ -444,10 +444,10 @@ def main():
     p = sub.add_parser('log', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--salt', type=int, required=True)
     p.add_argument('--eps', type=float, default=0.03); p.add_argument('--runs', type=int, nargs=2, default=[6, 18])
-    p.add_argument('--seeds', required=True); p.add_argument('-j', type=int, default=6)   # (the pilot's 1-599 / 701-800 and -j 20: §11
-    # forbids 601-800 and 400 in a fit and AGENTS.md -j <= 6, so a run names its seeds)
+    p.add_argument('--seeds', default='1-599'); p.add_argument('-j', type=int, default=6)   # (the old scripts lean on these seed defaults;
+    # §11's runs touch neither 601-800 nor 401-500 in a fit, so sp/fit/run.sh always names its seeds; -j 6: AGENTS.md)
     p = sub.add_parser('fit', parents=[com])
-    p.add_argument('--tag', required=True); p.add_argument('--out', required=True); p.add_argument('--seeds', required=True)
+    p.add_argument('--tag', required=True); p.add_argument('--out', required=True); p.add_argument('--seeds', default='1-599')
     p.add_argument('--gamma', type=float, default=0.966); p.add_argument('--scale', type=float, default=0.1)
     p.add_argument('--lam', type=float, default=300.0); p.add_argument('--lam-v', type=float, default=1.0)
     p.add_argument('--conf', type=float, default=0.95); p.add_argument('--boot', type=int, default=20); p.add_argument('--period', type=int, default=30)
@@ -457,7 +457,7 @@ def main():
     p.add_argument('--prior', nargs=3, metavar=('FORM', 'ARM', 'B'), help='start ARM at bias B in FORM\'s G1 rows; the data moves it')
     p.add_argument('--prior-band', choices=('close', 'mid', 'far'), help='the prior only in that distance band\'s G1 row')
     p = sub.add_parser('measure', parents=[com])
-    p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', required=True)
+    p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', default='701-800')
     p.add_argument('-j', type=int, default=6)
     p = sub.add_parser('pin', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--out', required=True); p.add_argument('--form', type=int, default=0)
