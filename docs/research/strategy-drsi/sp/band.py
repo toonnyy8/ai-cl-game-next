@@ -9,6 +9,9 @@ in one pre-registered band's rules. One implementation of the rule base and the 
   python3 band.py pair --me C --vs D --a FILE --b FILE --seed0 N [--seeds 100] [--spill] [-j 6]
                                                           # eval.py's matches (same sim path and cache), paired: per group and pooled
                                                           # b (A won by K.O., B did not) / c / z = (b - c) / sqrt(b + c), time-outs
+  python3 band.py fallback --me C --vs D --inc ARM0 --alt ARM|none ... --out FILE [--q 0.05] [--margin 0.02] [--period 30]
+                                                          # PLAN2 §3's fallback: arm 0 everywhere, the --alt arms at -q in G0's rules
+                                                          # (Q = the groups' sum: each alternate at exactly -q), :keep-state on
 
 The q values (written, not fitted: PLAN2 §3): arm 0 = 0 everywhere; arm k = +q in the band's rules and -q in every other rule of the
 band's group, 0 in the other groups. The -q is needed: STRAT-FQ-PICK keeps the previous arm while it trails the best by less than :margin,
@@ -87,6 +90,34 @@ def cmd_write(a):
     print(f'{a.out}: band {a.band} G{g} rules {rs}')
 
 
+def cmd_fallback(a):
+    """PLAN2 §3's fallback table: arm 0 plays everywhere. The alternates sit at -q in every G0 rule (sw.py cmd_start's placement), so each
+    one's Q is exactly -q in every state; the online learner (fq-online.lisp) only moves the played arm's q, within +-*fq-online-cap*."""
+    assert a.q > (a.margin or 0), 'q must exceed :margin, or an alternate could hold once picked'
+    arms = [arm_text(a.inc)] + [arm_text(x) for x in a.alt]
+    q = np.zeros((sw.NR, len(arms)))
+    q[sw.GROUP_OF == 0, 1:] = -a.q
+    sw.ARMS, sw.NA, sw.MEN, sw.VSN, sw.RB, sw.EVENT = arms, len(arms), a.me, a.vs, ':rb-sp', None
+    sid = ':' + os.path.splitext(os.path.basename(a.out))[0]
+    note = (f'band.py fallback (PLAN2 §3): arm 0 {os.path.basename(a.inc)} everywhere; '
+            f'{", ".join(os.path.basename(x) for x in a.alt)} at -{a.q} in G0 (a fuzzy Q table in format only); keep-state on.')
+    sw.write_table(a.out, sid, q, note, period=a.period, keep=True, margin=a.margin)
+    with open(os.path.splitext(a.out)[0] + '.arms', 'w') as f:
+        f.write(f'; {os.path.basename(a.out)}\'s arms (band.py fallback)\n' + '\n'.join(arms) + '\n')
+    print(f'{a.out}: {len(arms)} arms, arm 0 everywhere')
+
+
+def paired(wa, wb):
+    """Two {(seat, seed): K.O. win 0/1} on the same seeds -> (b, c, z): b = A won by K.O. and B did not, c the reverse."""
+    b = sum(1 for k in wa if wa[k] and not wb[k])
+    c = sum(1 for k in wa if wb[k] and not wa[k])
+    return b, c, z(b, c)
+
+
+def z(b, c):
+    return round((b - c) / max(1, b + c) ** 0.5, 2)
+
+
 def cmd_pair(a):
     """Two candidates on the same seeds through eval.py's groups / jobs / play (its cache): paired b / c on K.O. wins, per group and pooled."""
     lo, hi = a.seed0 + 1, a.seed0 + a.seeds
@@ -100,13 +131,12 @@ def cmd_pair(a):
     out, B, C = {}, 0, 0
     for i, (g, _) in enumerate(gs):
         (ca, wa), (cb, wb) = res[i], res[len(gs) + i]
-        b = sum(1 for k in wa if wa[k] and not wb[k])
-        c = sum(1 for k in wa if wb[k] and not wa[k])
+        b, c, zz = paired(wa, wb)
         B, C = B + b, C + c
-        out[g] = dict(n=len(wa), a_ko_wins=ca['ko_wins'], b_ko_wins=cb['ko_wins'], b=b, c=c, z=round((b - c) / max(1, b + c) ** 0.5, 2),
+        out[g] = dict(n=len(wa), a_ko_wins=ca['ko_wins'], b_ko_wins=cb['ko_wins'], b=b, c=c, z=zz,
                       a_timeouts=ca['timeouts'], b_timeouts=cb['timeouts'])
     ta, tb = sum(v['a_timeouts'] for v in out.values()), sum(v['b_timeouts'] for v in out.values())
-    print(json.dumps(dict(a=a.a, b_=a.b, seeds=f'{lo}-{hi}', groups=out, pooled=dict(b=B, c=C, z=round((B - C) / max(1, B + C) ** 0.5, 2),
+    print(json.dumps(dict(a=a.a, b_=a.b, seeds=f'{lo}-{hi}', groups=out, pooled=dict(b=B, c=C, z=z(B, C),
                      a_timeouts=ta, b_timeouts=tb, n=sum(v['n'] for v in out.values())), build=ss.build_hash()[:12])))
 
 
@@ -120,12 +150,17 @@ def main():
     p.add_argument('--band', required=True, choices=list(BANDS)); p.add_argument('--out', required=True)
     p.add_argument('--q', type=float, default=0.05); p.add_argument('--margin', type=float, default=0.02); p.add_argument('--period', type=int, default=30)
     p.add_argument('--no-keep-state', action='store_true'); p.add_argument('--record', action='store_true')
+    p = sub.add_parser('fallback')
+    p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
+    p.add_argument('--inc', required=True, help='arm 0: the best pure arm'); p.add_argument('--alt', required=True, nargs='+', help='arm files or none')
+    p.add_argument('--out', required=True)
+    p.add_argument('--q', type=float, default=0.05); p.add_argument('--margin', type=float, default=0.02); p.add_argument('--period', type=int, default=30)
     p = sub.add_parser('pair')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--a', required=True); p.add_argument('--b', required=True); p.add_argument('--seed0', type=int, required=True)
     p.add_argument('--seeds', type=int, default=100); p.add_argument('--spill', action='store_true'); p.add_argument('--pop'); p.add_argument('-j', type=int, default=6)
     a = ap.parse_args()
-    {'bands': cmd_bands, 'write': cmd_write, 'pair': cmd_pair}[a.cmd](a)
+    {'bands': cmd_bands, 'write': cmd_write, 'fallback': cmd_fallback, 'pair': cmd_pair}[a.cmd](a)
 
 
 if __name__ == '__main__':
