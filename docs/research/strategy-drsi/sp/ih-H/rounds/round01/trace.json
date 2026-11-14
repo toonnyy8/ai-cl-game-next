@@ -1,0 +1,31 @@
+{
+  "baseline_score": 0.3647,
+  "beta": 0.6,
+  "branch_count": 4,
+  "cells": {},
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a0",
+    "b1_a0",
+    "b2_a0",
+    "b3_a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "SOUL DUEL IH round 1: a strategy arm for hisagi against ichigo's frozen population (K.O.-only score)"
+}
