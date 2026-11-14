@@ -121,7 +121,7 @@ Evidence from this repo:
   calls a cell, block 300.
 - **Grid**: 4 branches x 3 attempts, W = 4, `v1_rank_keep` (four roots, then the top three to full depth: 10 cells a side-round).
 - **Roots, pre-registered by mechanism** (so branches do not copy each other): b0 the J side (`:xch-j`), b1 the NS side (`:xch-sa-p`,
-  `:xch-carry-p`, `:xch-sa-wait`), b2 the clash and the awakening breakers, b3 the style keys re-tuned under the new rules.
+  `:xch-carry-p`, `:xch-sa-wait`), b2 the clash and the awakening breakers, b3 the style keys re-tuned under the new rules. (`:clash-margin` scales both the clash's distance and the J side's AS reach test, §11.23: it belongs to b2; b0 leaves it alone. `:xch-sa-wait` is flat at k <= 1: search k 1-4.)
 - **Who searches**: both sides in the same round against the other's frozen population. A side whose incumbent scores ≥ 0.95 gets no
   cells that round (§11.13's allocation); it searches again once the other's admission pulls it under 0.90.
 - **Seed blocks**: 300 the cells; 200 the lead's rescore and the matrices; 400 admission (cells never see it); 500 the spare; 801-1000
