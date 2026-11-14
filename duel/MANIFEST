@@ -51,6 +51,7 @@ lisp/core-ai.lisp
 lisp/strategy-glue.lisp
 lisp/cpu-ki-ken.lisp
 lisp/cpu-ki-ichigo.lisp
+lisp/cpu-ki-ichigo-r2b2a1.lisp
 lisp/cpu-hisagi-range.lisp
 lisp/cpu-kh-ken.lisp
 lisp/cpu-hk-hisagi.lisp
