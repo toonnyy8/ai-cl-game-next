@@ -43,6 +43,30 @@
    "id": "c-ih-h-r1-b2a0",
    "file": "docs/research/strategy-drsi/sp/arms/ih-r1/c-ih-h-r1-b2a0.lisp",
    "why": "kept (stage 0 brief: old member / shipped arm 0, PLAN3 \u00a73 never deletes one); screen 197:3:0, K.O. rate 1.0, score 0.9802 < floor 1.000"
+  },
+  {
+   "id": "x-ih-h-r1-b0a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r1-b0a1.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-H b0_a1); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: in the mix 0.289; values I 0.633 / H 0.326)"
+  },
+  {
+   "id": "x-ih-h-r1-b1a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r1-b1a2.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-H b1_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: in the mix 0.257; values I 0.633 / H 0.326)"
+  },
+  {
+   "id": "x-ih-h-r1-b2a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r1-b2a1.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-H b2_a1); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: best response to Ichigo's c-ki-i-r2-b2a2 (0.625); values I 0.633 / H 0.326)"
+  },
+  {
+   "id": "x-ih-h-r1-b3a0",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-h-r1-b3a0.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-H b3_a0); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "not admitted x1 (outside the support, no best response)"
   }
  ],
  "screen": {
@@ -163,8 +187,9 @@
   }
  },
  "mix": {
-  "a-hisagi-kite": 0.039,
-  "c-ih-h-r1-b0a2": 0.961
+  "a-hisagi-kite": 0.454,
+  "x-ih-h-r1-b0a1": 0.289,
+  "x-ih-h-r1-b1a2": 0.257
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ih-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

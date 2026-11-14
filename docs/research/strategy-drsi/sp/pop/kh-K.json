@@ -73,6 +73,18 @@
    "id": "c-ki-k-r2-b0a2",
    "file": "docs/research/strategy-drsi/sp/arms/r2/c-ki-k-r2-b0a2.lisp",
    "why": "an old arm that still K.O.s (screen); stage 0: kept (stage 0 brief: old member / shipped arm 0, PLAN3 \u00a73 never deletes one); screen 106:94:0, K.O. rate 1.0, score 0.5297 < floor 0.530"
+  },
+  {
+   "id": "x-kh-k-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-k-r1-b0a2.lisp",
+   "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-K b0_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (KH round 1: the mix pure on it; values K 0.580 / H 0.175, time-outs 0.245)"
+  },
+  {
+   "id": "x-kh-k-r1-b3a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-k-r1-b3a2.lisp",
+   "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-K b3_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "not admitted x1 (outside the support, no best response)"
   }
  ],
  "screen": {
@@ -277,8 +289,7 @@
   }
  },
  "mix": {
-  "c-ki-k-r2-b1a2": 0.723,
-  "c-ki-k-r2-b0a2": 0.277
+  "x-kh-k-r1-b0a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/kh-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

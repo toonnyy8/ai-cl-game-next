@@ -3059,3 +3059,35 @@ best response, kept as members (`arms/x1/`). The finding: against Ichigo, Kenpac
 awakening breakers were inert in this pairing. The dream step kept `v1_rank_keep` (0.382 vs `v2_halving` 0.283 on the new world).
 Ichigo's side now sits at 0.51, so it searches in round 2. Cells spent: 10 of 90.
 
+### 11.25 Re-collection stage 1: KI round 2, KH and IH round 1 (2026-11-15)
+
+Five workspaces (`sp/x-ki-I`, `x-kh-K`, `x-kh-H`, `x-ih-I`, `x-ih-H`), 10 Sonnet data cells each, run together (20 at once at first; cells
+told to run eval.py in the foreground with a long tool timeout). Admission as §11.24: block 200 rescore, block 400 paired vs the
+incumbent (negative z = candidate better; time-outs not above), then the block-200 matrix (in the support, or a best response to an admitted
+column). Incumbents' block-300 baselines: KI Ichigo `c-ki-i-r2-b2a2` 0.759 (vs Kenpachi's new mix), KH Kenpachi `c-ki-k-r2-b1a2` 0.436, KH
+Hisagi `a-hk-pot` 0.508, IH Ichigo `c-ih-i-r1-b0a1` 0.771 (stage 0's better-scoring of its two mix arms), IH Hisagi `c-ih-h-r1-b0a2` 0.540.
+
+| Side | Admitted (block 400 pooled z) | What it does | Matrix after |
+|---|---|---|---|
+| KI Ichigo | `x-ki-i-r1-b0a2` (z -9.80) | always the AS (`:xch-j 0`), `:clash-p 1.7 :clash-margin 1.5`, `:xch-sa-p 1.6 :xch-carry-p 3` | Ichigo pure on it, 0.91 : Kenpachi 0.09 |
+| KH Kenpachi | `x-kh-k-r1-b0a2` (z -5.91) | always the AS, `:clash-p 1.7`, `:xch-sa-p 1.6`, `:awaken-break-p 1.8` | K pure on it 0.580 : H 0.175, time-outs 0.245 (stage 0: 0.67) |
+| KH Hisagi | `x-kh-h-r1-b3a2` (z -10.69) | style keys: Hoho-in (`:kk-hoho-in-p 1 :kk-hin-fs 100 :kk-hoho-in-max 6`), reach / lunge, `:kk-kikon-ptr-p 0` | H pure on it |
+| IH Ichigo | `x-ih-i-r1-b0a2` (z -3.90), `b2a1` (-4.53), `b3a2` (-5.82, best response to H b0a1) | always the AS + `:clash-p 0.15`; clash off (`:clash-p 0`); style keys (mode mix, `:iks-gap-p 0`, `:iks-wait-max 150` ...) | I 0.633 : H 0.326 (stage 0: 0.62 : 0.29) |
+| IH Hisagi | `x-ih-h-r1-b0a1` (-5.66), `b1a2` (-6.52), `b2a1` (-3.17, best response to I r2-b2a2) | always J (`:xch-j 2.5`) + clash; SA at a cancel (`:xch-sa-p 1.5 :xch-carry-p 5 :xch-sa-wait 2.5`); clash 1.7 / 1.5 with the breakers down | mixed with `a-hisagi-kite` 0.454 |
+
+Not admitted (passed block 400 but in no support / best response): KI Ichigo `b1a1` (the NS side's SA 6 frames after the cancel, 0.914)
+and `b2a0`; KH Kenpachi `b3a2` (style: no Kikon hold, `:cont 1.8`, `:range 1.2`; 0.893 against the population and z -15.73 against the
+incumbent, but against Hisagi's new arm 0.35 : 0.65 where `b0a2` takes 0.58 : 0.175); IH Ichigo `b1a0`; IH Hisagi `b3a0`. Refused at block
+400: KI Ichigo `b3a0` (z -1.41); KH Kenpachi `b1a1`, `b2a0` (|z| < 1). Findings: each side wants the opposite J-side answer to the other
+(Kenpachi and Ichigo: always the AS; Hisagi against Ichigo: always J); Kenpachi against Hisagi gains most by giving up the Kikon hold; the
+clash helps Kenpachi and Hisagi and hurts Ichigo against Hisagi; the awakening breakers stay near inert.
+
+**KH stalls less but still stalls**: Kenpachi's admitted `b0a2` times out against Hisagi's older arms (0.135 / 0.015 against `a-hk-pot`)
+and wins the matrix only against Hisagi's new `b3a2`; KH goes to checkpoint 3 with the 90 % K.O. bar in question.
+
+**Bookkeeping slip**: the IH workspaces were closed before their last three cells were recorded (a shell word-splitting error in the
+lead's loop), so their replay worlds hold 7 of 10 cells (a prefix world, still valid for dreaming); the three cells' results are on disk and
+went through admission like the others. x-kh-K b0_a1 wrote no cand.lisp (recorded as a failure; its arm equalled b0_a0's).
+
+Cells spent: 60 of 90 (KI 20, KH 20, IH 20).
+

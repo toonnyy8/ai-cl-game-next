@@ -1,0 +1,1 @@
+(:id :x-kh-k-r1-b3a1 :fn ken-kh-standoff-style :apply (:kenpachi) :base (:range 0.7 :ns 0.35 :hoho 0.1 :cont 1.3 :awaken 3.0 :p 1.0 :kk-step-in-p 0.0 :kk-awaken-p 1.0 :kk-reach-margin 0.35 :kk-wave-p 0.0 :kk-lunge-p 1.0 :kso-stale 0 :kk-step-max 4.5 :kk-step-p 0.0 :kk-bankai-p 0.0 :kk-reach-p 0.0 :kk-ns-safe-p 0.0 :other 10.0 :kikon 0.3))

@@ -73,6 +73,24 @@
    "id": "s7-kite",
    "file": "docs/research/strategy-drsi/sp/arms/s7-kite.lisp",
    "why": "an old arm that still K.O.s (screen)"
+  },
+  {
+   "id": "x-kh-h-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r1-b0a2.lisp",
+   "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-H b0_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-kh-h-r1-b1a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r1-b1a2.lisp",
+   "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-H b1_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-kh-h-r1-b3a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-kh-h-r1-b3a2.lisp",
+   "why": "PLAN3 stage 1 KH round 1 candidate (x-kh-H b3_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (KH round 1: the mix pure on it; values K 0.580 / H 0.175, time-outs 0.245)"
   }
  ],
  "screen": {
@@ -277,9 +295,7 @@
   }
  },
  "mix": {
-  "a-hk-pot": 0.987,
-  "a-ken-ki": 0.001,
-  "s7-kite": 0.011
+  "x-kh-h-r1-b3a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/kh-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

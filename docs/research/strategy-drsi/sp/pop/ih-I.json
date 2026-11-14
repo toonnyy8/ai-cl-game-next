@@ -78,6 +78,30 @@
    "id": "c-ih-i-r1-b1a1",
    "file": "docs/research/strategy-drsi/sp/arms/ih-r1/c-ih-i-r1-b1a1.lisp",
    "why": "IH round 1, admitted (in the block-200 equilibrium mix) (eval.py blocks 300 / 200 / 400: 0.9769 / 0.9752 / 0.9868)"
+  },
+  {
+   "id": "x-ih-i-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-i-r1-b0a2.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-I b0_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: in the mix 0.311; values I 0.633 / H 0.326)"
+  },
+  {
+   "id": "x-ih-i-r1-b1a0",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-i-r1-b1a0.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-I b1_a0); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-ih-i-r1-b2a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-i-r1-b2a1.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-I b2_a1); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: in the mix 0.333; values I 0.633 / H 0.326)"
+  },
+  {
+   "id": "x-ih-i-r1-b3a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ih-i-r1-b3a2.lisp",
+   "why": "PLAN3 stage 1 IH round 1 candidate (x-ih-I b3_a2); passed block 200 rescore and the block-400 paired test vs the incumbent (z <= -2, time-outs not above)",
+   "status": "admitted x1 (IH round 1: best response to Hisagi's admitted x-ih-h-r1-b0a1 (0.780); values I 0.633 / H 0.326)"
   }
  ],
  "screen": {
@@ -296,8 +320,9 @@
   }
  },
  "mix": {
-  "c-ki-i-r2-b2a2": 0.548,
-  "c-ih-i-r1-b0a1": 0.452
+  "c-ki-i-r2-b2a2": 0.355,
+  "x-ih-i-r1-b0a2": 0.311,
+  "x-ih-i-r1-b2a1": 0.333
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ih-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

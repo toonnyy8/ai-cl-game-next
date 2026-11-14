@@ -30,6 +30,24 @@
    "file": "docs/research/strategy-drsi/sp/arms/r2/c-ki-i-r2-b2a2.lisp",
    "why": "KI round 2 candidate: r2: ichigo-ki-r2b2a1-style (45-degree wake-up roll, lunge off after his far back Step, stale breaker), no space mode; blocks 200/400 0.931/0.939 (admitted: the whole KI equilibrium mix, block-200 matrix 2026-11-14)",
    "status": "admitted r2"
+  },
+  {
+   "id": "x-ki-i-r1-b0a2",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-i-r1-b0a2.lisp",
+   "why": "PLAN3 stage 1 KI round 2 (Ichigo answers x-ki-k-r1-b0a2) candidate (always the AS (:xch-j 0), :clash-p 1.7 :clash-margin 1.5, :xch-sa-p 1.6 :xch-carry-p 3.0); blocks 300/200 0.9538/0.9587; block 400 paired vs the incumbent c-ki-i-r2-b2a2: pooled z -9.80 (KO 468 -> 578, TO 0 -> 0)",
+   "status": "admitted x1 (KI round 2: the mix pure on it, value 0.91 vs Kenpachi b0a2 0.09)"
+  },
+  {
+   "id": "x-ki-i-r1-b1a1",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-i-r1-b1a1.lisp",
+   "why": "PLAN3 stage 1 KI round 2 (Ichigo answers x-ki-k-r1-b0a2) candidate (the NS side: :xch-sa-p 1.5 :xch-carry-p 0 :xch-sa-wait 6); blocks 300/200 0.9142/0.9158; block 400 paired vs the incumbent c-ki-i-r2-b2a2: pooled z -5.94 (KO 468 -> 539, TO 0 -> 0)",
+   "status": "not admitted x1 (outside the support, no best response)"
+  },
+  {
+   "id": "x-ki-i-r1-b2a0",
+   "file": "docs/research/strategy-drsi/sp/arms/x1/x-ki-i-r1-b2a0.lisp",
+   "why": "PLAN3 stage 1 KI round 2 (Ichigo answers x-ki-k-r1-b0a2) candidate (the clash: :clash-p 1.7 :clash-margin 1.6); blocks 300/200 0.8449/0.7788; block 400 paired vs the incumbent c-ki-i-r2-b2a2: pooled z -2.81 (KO 468 -> 500, TO 0 -> 0)",
+   "status": "not admitted x1 (outside the support, no best response)"
   }
  ],
  "screen": {
@@ -108,7 +126,7 @@
   }
  },
  "mix": {
-  "c-ki-i-r2-b2a2": 1.0
+  "x-ki-i-r1-b0a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

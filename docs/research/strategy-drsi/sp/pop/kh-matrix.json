@@ -18,7 +18,9 @@
   "c-ki-k-r2-b1a2",
   "a-ichigo-ki",
   "s1-brawler",
-  "c-ki-k-r2-b0a2"
+  "c-ki-k-r2-b0a2",
+  "x-kh-k-r1-b0a2",
+  "x-kh-k-r1-b3a2"
  ],
  "cols": [
   "none",
@@ -34,7 +36,10 @@
   "a-hk-all",
   "h1-range",
   "a-ken-ki",
-  "s7-kite"
+  "s7-kite",
+  "x-kh-h-r1-b0a2",
+  "x-kh-h-r1-b1a2",
+  "x-kh-h-r1-b3a2"
  ],
  "a_ko_share": [
   [
@@ -51,7 +56,10 @@
    0.005,
    0.325,
    0.03,
-   0.12
+   0.12,
+   0.0,
+   0.005,
+   0.0
   ],
   [
    0.48,
@@ -67,7 +75,10 @@
    0.005,
    0.325,
    0.03,
-   0.12
+   0.12,
+   0.0,
+   0.005,
+   0.0
   ],
   [
    0.635,
@@ -83,7 +94,10 @@
    0.005,
    0.69,
    0.0,
-   0.465
+   0.465,
+   0.0,
+   0.0,
+   0.0
   ],
   [
    0.74,
@@ -99,7 +113,10 @@
    0.0,
    0.77,
    0.0,
-   0.525
+   0.525,
+   0.0,
+   0.0,
+   0.015
   ],
   [
    0.815,
@@ -115,7 +132,10 @@
    0.01,
    0.79,
    0.0,
-   0.625
+   0.625,
+   0.005,
+   0.0,
+   0.025
   ],
   [
    0.745,
@@ -131,7 +151,10 @@
    0.0,
    0.71,
    0.0,
-   0.47
+   0.47,
+   0.0,
+   0.0,
+   0.01
   ],
   [
    0.685,
@@ -147,7 +170,10 @@
    0.02,
    0.71,
    0.01,
-   0.48
+   0.48,
+   0.005,
+   0.01,
+   0.055
   ],
   [
    0.685,
@@ -163,7 +189,10 @@
    0.09,
    0.81,
    0.04,
-   0.59
+   0.59,
+   0.015,
+   0.02,
+   0.05
   ],
   [
    0.75,
@@ -179,7 +208,10 @@
    0.1,
    0.79,
    0.045,
-   0.645
+   0.645,
+   0.015,
+   0.035,
+   0.06
   ],
   [
    0.695,
@@ -195,7 +227,10 @@
    0.015,
    0.85,
    0.01,
-   0.52
+   0.52,
+   0.0,
+   0.005,
+   0.03
   ],
   [
    0.98,
@@ -211,7 +246,10 @@
    0.085,
    0.97,
    0.005,
-   0.86
+   0.86,
+   0.045,
+   0.045,
+   0.14
   ],
   [
    0.435,
@@ -227,7 +265,10 @@
    0.0,
    0.35,
    0.0,
-   0.105
+   0.105,
+   0.0,
+   0.0,
+   0.0
   ],
   [
    0.23,
@@ -243,7 +284,10 @@
    0.025,
    0.205,
    0.15,
-   0.075
+   0.075,
+   0.0,
+   0.005,
+   0.0
   ],
   [
    0.53,
@@ -259,7 +303,48 @@
    0.145,
    0.805,
    0.095,
-   0.385
+   0.385,
+   0.005,
+   0.0,
+   0.01
+  ],
+  [
+   0.995,
+   0.995,
+   0.2,
+   0.22,
+   0.395,
+   0.445,
+   0.375,
+   0.2,
+   0.135,
+   0.305,
+   0.255,
+   1.0,
+   0.015,
+   0.995,
+   0.155,
+   0.2,
+   0.58
+  ],
+  [
+   0.995,
+   0.995,
+   0.885,
+   0.86,
+   0.8,
+   0.845,
+   0.905,
+   0.885,
+   0.805,
+   0.925,
+   0.875,
+   0.975,
+   0.815,
+   0.905,
+   0.5,
+   0.55,
+   0.35
   ]
  ],
  "b_ko_share": [
@@ -277,7 +362,10 @@
    0.65,
    0.665,
    0.92,
-   0.835
+   0.835,
+   0.995,
+   0.985,
+   0.985
   ],
   [
    0.5,
@@ -293,7 +381,10 @@
    0.65,
    0.665,
    0.92,
-   0.835
+   0.835,
+   0.995,
+   0.985,
+   0.985
   ],
   [
    0.365,
@@ -309,7 +400,10 @@
    0.015,
    0.31,
    0.0,
-   0.535
+   0.535,
+   0.0,
+   0.0,
+   0.18
   ],
   [
    0.26,
@@ -325,7 +419,10 @@
    0.0,
    0.23,
    0.0,
-   0.475
+   0.475,
+   0.0,
+   0.0,
+   0.1
   ],
   [
    0.185,
@@ -341,7 +438,10 @@
    0.115,
    0.21,
    0.0,
-   0.375
+   0.375,
+   0.02,
+   0.04,
+   0.485
   ],
   [
    0.255,
@@ -357,7 +457,10 @@
    0.0,
    0.29,
    0.0,
-   0.53
+   0.53,
+   0.0,
+   0.0,
+   0.095
   ],
   [
    0.315,
@@ -373,7 +476,10 @@
    0.325,
    0.29,
    0.195,
-   0.52
+   0.52,
+   0.44,
+   0.495,
+   0.875
   ],
   [
    0.315,
@@ -389,7 +495,10 @@
    0.38,
    0.19,
    0.235,
-   0.41
+   0.41,
+   0.75,
+   0.77,
+   0.94
   ],
   [
    0.25,
@@ -405,7 +514,10 @@
    0.515,
    0.21,
    0.305,
-   0.355
+   0.355,
+   0.77,
+   0.69,
+   0.86
   ],
   [
    0.305,
@@ -421,7 +533,10 @@
    0.325,
    0.145,
    0.295,
-   0.48
+   0.48,
+   0.81,
+   0.77,
+   0.845
   ],
   [
    0.02,
@@ -437,7 +552,10 @@
    0.1,
    0.03,
    0.175,
-   0.14
+   0.14,
+   0.455,
+   0.45,
+   0.655
   ],
   [
    0.235,
@@ -453,7 +571,10 @@
    0.02,
    0.49,
    0.195,
-   0.325
+   0.325,
+   0.225,
+   0.245,
+   0.005
   ],
   [
    0.74,
@@ -469,7 +590,10 @@
    0.705,
    0.775,
    0.76,
-   0.89
+   0.89,
+   0.985,
+   0.97,
+   0.98
   ],
   [
    0.47,
@@ -485,7 +609,48 @@
    0.455,
    0.195,
    0.52,
-   0.605
+   0.605,
+   0.92,
+   0.91,
+   0.93
+  ],
+  [
+   0.005,
+   0.005,
+   0.005,
+   0.01,
+   0.0,
+   0.0,
+   0.0,
+   0.005,
+   0.015,
+   0.0,
+   0.0,
+   0.0,
+   0.01,
+   0.005,
+   0.04,
+   0.045,
+   0.175
+  ],
+  [
+   0.005,
+   0.005,
+   0.115,
+   0.14,
+   0.2,
+   0.155,
+   0.095,
+   0.115,
+   0.195,
+   0.075,
+   0.12,
+   0.025,
+   0.185,
+   0.095,
+   0.5,
+   0.45,
+   0.65
   ]
  ],
  "cells": [
@@ -616,6 +781,33 @@
    "matches": 200
   },
   {
+   "row": "none",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 199,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 1,
+   "b_ko": 197,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "none",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 0,
+   "b_ko": 197,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-generic",
    "col": "none",
    "a_ko": 96,
@@ -738,6 +930,33 @@
    "a_ko": 24,
    "b_ko": 167,
    "timeouts": 9,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 199,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 1,
+   "b_ko": 197,
+   "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-generic",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 0,
+   "b_ko": 197,
+   "timeouts": 3,
    "draws": 0,
    "matches": 200
   },
@@ -868,6 +1087,33 @@
    "matches": 200
   },
   {
+   "row": "a-ken-ki",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-ki",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 0,
+   "b_ko": 36,
+   "timeouts": 164,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-ken-press",
    "col": "none",
    "a_ko": 148,
@@ -990,6 +1236,33 @@
    "a_ko": 105,
    "b_ko": 95,
    "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 3,
+   "b_ko": 20,
+   "timeouts": 177,
    "draws": 0,
    "matches": 200
   },
@@ -1120,6 +1393,33 @@
    "matches": 200
   },
   {
+   "row": "a-ken-zoner",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 1,
+   "b_ko": 4,
+   "timeouts": 195,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 8,
+   "timeouts": 192,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-zoner",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 5,
+   "b_ko": 97,
+   "timeouts": 98,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-ken-kh",
    "col": "none",
    "a_ko": 149,
@@ -1242,6 +1542,33 @@
    "a_ko": 94,
    "b_ko": 106,
    "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 1,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 0,
+   "timeouts": 200,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 2,
+   "b_ko": 19,
+   "timeouts": 179,
    "draws": 0,
    "matches": 200
   },
@@ -1372,6 +1699,33 @@
    "matches": 200
   },
   {
+   "row": "a-ken-kh-standoff",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 1,
+   "b_ko": 88,
+   "timeouts": 111,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 2,
+   "b_ko": 99,
+   "timeouts": 99,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-kh-standoff",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 11,
+   "b_ko": 175,
+   "timeouts": 14,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "c-ki-k-pilot-b0a0",
    "col": "none",
    "a_ko": 137,
@@ -1494,6 +1848,33 @@
    "a_ko": 118,
    "b_ko": 82,
    "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 3,
+   "b_ko": 150,
+   "timeouts": 47,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 4,
+   "b_ko": 154,
+   "timeouts": 42,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 10,
+   "b_ko": 188,
+   "timeouts": 2,
    "draws": 0,
    "matches": 200
   },
@@ -1624,6 +2005,33 @@
    "matches": 200
   },
   {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 3,
+   "b_ko": 154,
+   "timeouts": 43,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 7,
+   "b_ko": 138,
+   "timeouts": 55,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b0a1",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 12,
+   "b_ko": 172,
+   "timeouts": 16,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "c-ki-k-r1-b2a2",
    "col": "none",
    "a_ko": 139,
@@ -1746,6 +2154,33 @@
    "a_ko": 104,
    "b_ko": 96,
    "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 162,
+   "timeouts": 38,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 1,
+   "b_ko": 154,
+   "timeouts": 45,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 6,
+   "b_ko": 169,
+   "timeouts": 25,
    "draws": 0,
    "matches": 200
   },
@@ -1876,6 +2311,33 @@
    "matches": 200
   },
   {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 9,
+   "b_ko": 91,
+   "timeouts": 100,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 9,
+   "b_ko": 90,
+   "timeouts": 101,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 28,
+   "b_ko": 131,
+   "timeouts": 41,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-ichigo-ki",
    "col": "none",
    "a_ko": 87,
@@ -1999,6 +2461,33 @@
    "b_ko": 65,
    "timeouts": 114,
    "draws": 2,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 45,
+   "timeouts": 155,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 49,
+   "timeouts": 151,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ichigo-ki",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 0,
+   "b_ko": 1,
+   "timeouts": 199,
+   "draws": 1,
    "matches": 200
   },
   {
@@ -2128,6 +2617,33 @@
    "matches": 200
   },
   {
+   "row": "s1-brawler",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 0,
+   "b_ko": 197,
+   "timeouts": 3,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 1,
+   "b_ko": 194,
+   "timeouts": 5,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "s1-brawler",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 0,
+   "b_ko": 196,
+   "timeouts": 4,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "c-ki-k-r2-b0a2",
    "col": "none",
    "a_ko": 106,
@@ -2252,6 +2768,339 @@
    "timeouts": 2,
    "draws": 0,
    "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 1,
+   "b_ko": 184,
+   "timeouts": 15,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 0,
+   "b_ko": 182,
+   "timeouts": 18,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b0a2",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 2,
+   "b_ko": 186,
+   "timeouts": 12,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "none",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-generic",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hisagi-merged",
+   "a_ko": 40,
+   "b_ko": 1,
+   "timeouts": 159,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 44,
+   "b_ko": 2,
+   "timeouts": 154,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hisagi-press",
+   "a_ko": 79,
+   "b_ko": 0,
+   "timeouts": 121,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hisagi-pressd",
+   "a_ko": 89,
+   "b_ko": 0,
+   "timeouts": 111,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hisagi-kite",
+   "a_ko": 75,
+   "b_ko": 0,
+   "timeouts": 125,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hk-wake",
+   "a_ko": 40,
+   "b_ko": 1,
+   "timeouts": 159,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hk-pot",
+   "a_ko": 27,
+   "b_ko": 3,
+   "timeouts": 170,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hk-kite",
+   "a_ko": 61,
+   "b_ko": 0,
+   "timeouts": 139,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-hk-all",
+   "a_ko": 51,
+   "b_ko": 0,
+   "timeouts": 149,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "h1-range",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "a-ken-ki",
+   "a_ko": 3,
+   "b_ko": 2,
+   "timeouts": 195,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "s7-kite",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 31,
+   "b_ko": 8,
+   "timeouts": 161,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 40,
+   "b_ko": 9,
+   "timeouts": 151,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b0a2",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 116,
+   "b_ko": 35,
+   "timeouts": 49,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "none",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-generic",
+   "a_ko": 199,
+   "b_ko": 1,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hisagi-merged",
+   "a_ko": 177,
+   "b_ko": 23,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hisagi-dswitch",
+   "a_ko": 172,
+   "b_ko": 28,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hisagi-press",
+   "a_ko": 160,
+   "b_ko": 40,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hisagi-pressd",
+   "a_ko": 169,
+   "b_ko": 31,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hisagi-kite",
+   "a_ko": 181,
+   "b_ko": 19,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hk-wake",
+   "a_ko": 177,
+   "b_ko": 23,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hk-pot",
+   "a_ko": 161,
+   "b_ko": 39,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hk-kite",
+   "a_ko": 185,
+   "b_ko": 15,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-hk-all",
+   "a_ko": 175,
+   "b_ko": 24,
+   "timeouts": 1,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "h1-range",
+   "a_ko": 195,
+   "b_ko": 5,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "a-ken-ki",
+   "a_ko": 163,
+   "b_ko": 37,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "s7-kite",
+   "a_ko": 181,
+   "b_ko": 19,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "x-kh-h-r1-b0a2",
+   "a_ko": 100,
+   "b_ko": 100,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "x-kh-h-r1-b1a2",
+   "a_ko": 110,
+   "b_ko": 90,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "x-kh-k-r1-b3a2",
+   "col": "x-kh-h-r1-b3a2",
+   "a_ko": 70,
+   "b_ko": 130,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
   }
  ],
  "a_mix": {
@@ -2265,10 +3114,12 @@
   "c-ki-k-pilot-b0a0": 0.0,
   "c-ki-k-r1-b0a1": 0.0,
   "c-ki-k-r1-b2a2": 0.0,
-  "c-ki-k-r2-b1a2": 0.723,
+  "c-ki-k-r2-b1a2": 0.0,
   "a-ichigo-ki": 0.0,
   "s1-brawler": 0.0,
-  "c-ki-k-r2-b0a2": 0.277
+  "c-ki-k-r2-b0a2": 0.0,
+  "x-kh-k-r1-b0a2": 1.0,
+  "x-kh-k-r1-b3a2": 0.0
  },
  "b_mix": {
   "none": 0.0,
@@ -2279,15 +3130,18 @@
   "a-hisagi-pressd": 0.0,
   "a-hisagi-kite": 0.0,
   "a-hk-wake": 0.0,
-  "a-hk-pot": 0.987,
+  "a-hk-pot": 0.0,
   "a-hk-kite": 0.0,
   "a-hk-all": 0.0,
   "h1-range": 0.0,
-  "a-ken-ki": 0.001,
-  "s7-kite": 0.011
+  "a-ken-ki": 0.0,
+  "s7-kite": 0.0,
+  "x-kh-h-r1-b0a2": 0.0,
+  "x-kh-h-r1-b1a2": 0.0,
+  "x-kh-h-r1-b3a2": 1.0
  },
- "a_value": 0.0591,
- "b_value": 0.272,
+ "a_value": 0.5799,
+ "b_value": 0.1751,
  "a_gap": 0.0001,
  "b_gap": 0.0
 }
