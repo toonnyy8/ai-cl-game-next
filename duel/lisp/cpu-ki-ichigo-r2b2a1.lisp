@@ -75,7 +75,8 @@ lunge goes off (IKW-ALT)."
 (defun ichigo-ki-r2b2a1-style (e b f kit s d)
   "ICHIGO-KI-STYLE (on the gap-off arm once IKW-GAP-WATCH says so) plus the wake-up roll (IKW-ROLL-STEP); a stale neutral goes to the
 generic CPU (IKW-STALE-P). T when it decided."
-  (let ((st (or (brain-style b) (setf (brain-style b) (make-ikw)))) (state (fighter-state f)))
+  (let ((st (let ((x (brain-style b))) (if (ikw-p x) x (setf (brain-style b) (make-ikw)))))   ; (only its own IKW: another style's struct
+        (state (fighter-state f)))                                                          ;  starts afresh, as IR2-P / HMS-P do)
     (when (and (ikw-alt st) (brain-now b))
       (let ((c (ikw-cell st)))
         (setf (car c) (ikw-alt st) (cdr c) (cdr (brain-now b)) (brain-now b) c)))

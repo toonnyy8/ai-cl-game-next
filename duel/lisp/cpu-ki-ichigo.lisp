@@ -776,7 +776,8 @@ pressed."
 
 (defun ichigo-ki-style (e b f kit s d)
   "Ichigo's style against Kenpachi (CAI-DEFSTYLE): the episode's mode, then the neutral or move step. T when it decided."
-  (let ((st (or (brain-style b) (setf (brain-style b) (make-ikst)))) (state (fighter-state f)))
+  (let ((st (let ((x (brain-style b))) (if (ikst-p x) x (setf (brain-style b) (make-ikst)))))   ; (an IKST or a style's on it, IR2 / IKW,
+        (state (fighter-state f)))                                                              ;  kept; another struct starts afresh)
     (if (member (snap-state s) '(:air :down :wakeup))           ; his knockdown: the meaty's roll, once as he goes down
         (unless (ikst-down st)
           (setf (ikst-down st) t
