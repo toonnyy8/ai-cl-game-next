@@ -2554,7 +2554,9 @@ The KI search writes arms as data, but the style CPUs read almost no arm key (sp
 - The live lookup's tables leave nothing behind (HARD, seed 601, KI and IH through the pairing gate): snaptest straight = pollute (KI 38 lines, 302 rollouts; IH 34 lines, 247 rollouts; 0 differ); fulltest with `FT_LAYER=t` 0 differ (KI 553 checks, IH 526).
 - `./build.sh duel`; smoke desktop and `--mobile --size 390x844` exit 0.
 
-**HARD CvC with the new lookup** (`simgate.py` at 81022, seeds 601-620; cross pairings both seats through the pairing gate 200000 + 100 c1 + 10 c2; reported, not gated):
+**HARD CvC with the new lookup** (seeds 601-620, reported, not gated). Every gate starts its matches through gate.lisp START-CVC, which reads `*gate-difficulty*` (debug 81022 = HARD).
+- One seat: `python3 tools/simgate.py --pairs 2,7,9,29,31,35 --seed0 600 --seeds 20 --cmd 81022` (KK IK II HK HI HH, the first-named character as P1).
+- The other seat of the cross pairings: the pairing gate, `tools/simgate/run.lisp` with `30600 31120 81022 C` and C = 200130 (KI), 200170 (KH), 200370 (IH) (200000 + 100 c1 + 10 c2).
 
 | Pairing | Matches | K.O. | Median s | K.O. wins |
 |---|---|---|---|---|
