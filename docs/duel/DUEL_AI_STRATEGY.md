@@ -3190,7 +3190,7 @@ the five arm 0s and KI Ichigo's 4 arms (was 2).
 
 **NORMAL: nothing tuned** (the user left its strength, §11.21). §11.18's check, reproduced with its tool: `sp/ship/normal/ord.py TREE
 10` (the pairing gate under `tools/simgate/strat-run.lisp` at 81022, the candidate seat's difficulty by `STRAT_DIF_P<n>`, the other seat
-`STRAT_P<n>=none`; seeds 201-210 + 301-310, both seats, 40 matches a cell, K.O. wins of the candidate). Before = 8b9a1665's build.
+`STRAT_P<n>=none`; seeds 201-210 + 301-310, both seats, 40 matches a cell, K.O. wins of the candidate). Before = ad2d34be (sim build 3ee0d873, sources as 8b9a1665).
 
 | Side vs (HARD `none`) | EASY | NORMAL | HARD | before: EASY / NORMAL / HARD |
 |---|---|---|---|---|
@@ -3210,8 +3210,9 @@ the five arm 0s and KI Ichigo's 4 arms (was 2).
 **NORMAL's K.O.s of 180** (§11.19's measure: CvC at NORMAL, debug 81021, seeds 1-30, the six pairings KK IK II HK HI HH with the
 first-named character P1; §11.19's scratch `run.py`, now `sp/ship/normal/run.py TREE OUT 30 1 2,7,9,29,31,35` over
 `tools/simgate/run-log.lisp`, counted by `ko.py`): **140 of 180**, time-outs 40 (K.O.s KK 30, IK 23, II 9, HK 27, HI 28, HH 23).
-Today's build before this change also gives **140** (KK 30, IK 24, II 9, HK 29, HI 25, HH 23): the 127 of §11.19 was measured before
-§11.20-§11.21 moved NORMAL. So the tables leave NORMAL's CvC strength where it was.
+Today's build before this change (ad2d34be) also gives **140** (KK 30, IK 24, II 9, HK 29, HI 25, HH 23): the 127 of §11.19 was
+measured before §11.20-§11.21 moved NORMAL. So the tables leave NORMAL's CvC total where it was; three pairings moved (IK 24 → 23,
+HK 29 → 27, HI 25 → 28), the mirrors are identical.
 
 **G2** (G2's CvC is NORMAL, which plays the tables in windows, §11.17): only IK moved; II and KK are identical (their mirror tables are
 unchanged). `tests/style-cvc-ref.txt` regenerated once, natively, with a header note: II 39 lines (P2 2-4, 391.5 s), **IK 35 → 32
