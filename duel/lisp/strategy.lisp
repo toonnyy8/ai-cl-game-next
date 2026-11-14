@@ -3259,14 +3259,11 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
   (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (or (null (cdr ap)) (eq (second ap) vs))))))
                  *strat-library*))
 
-(defparameter *strat-lookup* '((:hisagi :ichigo :hard :f-ih-hisagi)  ; (§8.19 round 4: was :qhs2-ichigo, :qhs-ichigo, :qh-ichigo)
-                                (:ichigo :kenpachi :hard :f-ki-ichigo)             ; (§8.19 round 5 step 3: back from :qis-ken, 「加上，KI/IK 回原表」)
-                                (:hisagi :kenpachi :hard :f-kh-hisagi) (:hisagi :hisagi :hard :f-hh-hisagi)  ; (§8.19 round 5: were :qh-ken; :qhs3-mirror, :qhs2-mirror)
-                                (:ichigo :hisagi :hard :f-ih-ichigo)                  ; (§8.19 round 5: was :q1-ichigo-hisagi, §8.18; before it :ki-ichigo)
-                                (:kenpachi :ichigo :hard :f-ki-kenpachi)             ; (§8.19 round 5 step 3: the joint fit; were :qks2-ichigo, :qks-ichigo)
-                                (:kenpachi :hisagi :hard :f-kh-kenpachi)             ; (§8.19 round 5 step 7: was :qks4-hisagi; step 6: :qks3-hisagi; step 5: :qks2-hisagi)
-                                (:kenpachi :kenpachi :hard :f-kk-kenpachi)               ; (§8.19 round 4: was :q1-ken-ken, §8.18)
-                                (:ichigo :ichigo :hard :f-ii-ichigo))            ; (§8.18)
+(defparameter *strat-lookup* '((:ichigo :kenpachi :hard :f-ki-ichigo) (:kenpachi :ichigo :hard :f-ki-kenpachi)   ; (§11.16: the SP re-collection's
+                                (:kenpachi :hisagi :hard :f-kh-kenpachi) (:hisagi :kenpachi :hard :f-kh-hisagi)  ;  final tables; were :q1-ichigo-ken,
+                                (:ichigo :hisagi :hard :f-ih-ichigo) (:hisagi :ichigo :hard :f-ih-hisagi)        ;  :qks3-ichigo, :qks5-hisagi, :qhs-ken,
+                                (:kenpachi :kenpachi :hard :f-kk-kenpachi) (:ichigo :ichigo :hard :f-ii-ichigo)  ;  :qis-hisagi, :qhs3-ichigo, :qks-ken,
+                                (:hisagi :hisagi :hard :f-hh-hisagi))                                            ;  :q1-ichigo-ichigo, :qhs4-mirror: §8.19)
   "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), HARD only (EASY / NORMAL keep their
 designed strength). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
 
