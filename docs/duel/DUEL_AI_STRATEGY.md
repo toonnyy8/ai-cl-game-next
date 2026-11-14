@@ -2514,3 +2514,53 @@ The KI search writes arms as data, but the style CPUs read almost no arm key (sp
 
 - Asked at the checkpoint-B threshold (fewer than half of six sides gaining): KI Ichigo's band table gains on held-out seeds; KI Kenpachi found no band that replicates; KH Kenpachi (0.985) and IH Ichigo (0.9917) sit at the ceiling, where a band cannot show a gain; Hisagi takes almost no K.O.s from the searched opponents (IH 0 against Ichigo's new arm, KH ~1 % against Kenpachi's). Options: wrap up and ship / finish the plan (~30 cells) / look at Hisagi's balance first. The user (AskUserQuestion, 2026-11-14): 「收尾出貨 (Recommended)」.
 - **What ships** (HARD): KI Ichigo `sp/final/ki-ichigo.lisp` (gaining); every other side its best pure arm against the opponent's final, written as a constant table (PLAN2 §3 fallback: alternates and `none` at Q -0.05 for `fq-online.lisp`), reported as tables in format only. Mirrors by PLAN2's sufficiency check (the cross-pairing incumbents on both seats). The stalling lookup leaves. Then NORMAL (PLAN2 §4: the table in 10 s windows at chance 0.5, else `none`), G2's reference regenerated, the gates, the playtest Artifact. The unused search budget (~60 cells) is not spent.
+
+### 11.16 The shipped tables (HARD) (2026-11-14)
+
+**The nine tables** (`docs/research/strategy-drsi/sp/final/`, README there): one per ordered pairing, every one `:rb-sp` (42 rules in 5 groups), `:xfeats t`, `:keep-state t`, `:margin 0.02`, `:period 30`.
+- **Gaining**: KI Ichigo `ki-ichigo` (arm 0 `c-ki-i-r2-b2a2`, arm 1 `c-ki-i-r3-b3a0-k` in `awake`).
+- **Fallback** (arm 0 in every rule, alternates and `none` at Q -0.05 for `fq-online.lisp`): KI Kenpachi `c-ki-k-r2-b1a2`; KH Kenpachi and KK `c-ki-k-r2-b0a2`; KH Hisagi `a-hisagi-pressd`; IH Ichigo `c-ih-i-r1-b0a1`; II `c-ki-i-r2-b2a2` (54 % self-play K.O., kept: the stronger); IH and HH Hisagi `c-ih-h-r1-b2a0`.
+- **The lead's call on Hisagi** (2026-11-14): IH arm 0 `c-ih-h-r1-b2a0` over `a-hisagi-kite` (full score 0.332 vs 0.304, K.O. rate 398 / 400; `kite`'s 7 K.O. wins against `ih-ichigo` cost 33 time-outs against her `none`); HH the same arm (95 % self-play K.O., beats `none` 193:5:2), alternates `kite`, `pressd`, `none`. Both rewritten by `band.py fallback` and proved to play arm 0 raw (`band.py pair`, block 200: b = c = 0 in every group, the same time-outs).
+
+**Into the library: §10's path, one implementation.** `entry.py` maps each raw table's inline arms to arm units and its rules to a rule base; the arms the search made were not units yet:
+- Two style units: `:st-ichigo-ki-r2b2a1` (`ichigo-ki-r2b2a1-style`), `:st-hisagi-ihr1b2a0` (`hisagi-ihr1b2a0-style`).
+- Twelve arm units (`:c-ki-i-r2-b2a2` ... `:c-ih-h-r1-b0a2`), written by `sp/final/units.py` (each arm's keys over its style unit's; an id seen twice must be the same arm).
+- `sp/final/add.sh` runs `entry.py` + `add.py` per table: nine entries `:f-<file>` (`:f-ki-ichigo` ... `:f-hh-hisagi`; the prefix because `:ki-ichigo` is round 1's strategy). `:keep-state` and `:xfeats` pass through `strat-expand` (host-checked).
+- `strat-lookup`'s library find became `strat-by-id`, which the host tests share.
+
+**The lookup.** Every HARD row now names a final table:
+
+| Row | Was | Now |
+|---|---|---|
+| Ichigo vs Kenpachi | `:q1-ichigo-ken` | `:f-ki-ichigo` |
+| Kenpachi vs Ichigo | `:qks3-ichigo` | `:f-ki-kenpachi` |
+| Kenpachi vs Hisagi | `:qks5-hisagi` | `:f-kh-kenpachi` |
+| Hisagi vs Kenpachi | `:qhs-ken` | `:f-kh-hisagi` |
+| Ichigo vs Hisagi | `:qis-hisagi` | `:f-ih-ichigo` |
+| Hisagi vs Ichigo | `:qhs3-ichigo` | `:f-ih-hisagi` |
+| Kenpachi mirror | `:qks-ken` | `:f-kk-kenpachi` |
+| Ichigo mirror | `:q1-ichigo-ichigo` | `:f-ii-ichigo` |
+| Hisagi mirror | `:qhs4-mirror` | `:f-hh-hisagi` |
+
+- **The old tables stay in the library**, as the superseded ones always have: the host tests read them by id (the event layer's `:knockdown` arm, `:qks5-hisagi` = `:qks3-hisagi` + the stand-off column, the online learner's `:keep` path on `:q1-ichigo-ken`), and research scripts name them (`hkfn/`, `khfn/`, `fq/switch/lineup.sh`, `proofs4.sh`, `hksplit/start.sh`). Their removal, with `:rb-switch89` and the units only they use, is a refactor batch of its own.
+- **A player's saved online copy** (`fq-online.lisp` FQ-TABLE → `fq-decode`) loads only at the same length and checksum. The old tables have 89 or 48 rules, the new 42, so every saved copy loads fresh (host check per row: the old table's copy is NIL, a right-size copy with another checksum is NIL, the new table's own copy reads back with its match count).
+  - Caveat: the checksum covers the q values only. Every fallback table with the same arm count has the same q, so a later rewrite that changes only its arms (as Step 0's IH Hisagi did in research) would keep a player's copy learned on the old arms. Folding the arm ids into the checksum would cost no extra reset now, since every saved copy is reset by this release anyway. Not done (not asked).
+- The style-knob host check now allows knobs in the searched arms the tables ship (units `:c-*`, tables `:f-*`) and nowhere else.
+
+**Proofs** (sim build of this branch):
+- Raw = lookup: each raw file through `STRAT_P*` (`fq/proof/identity.py` via `sp/final/proofs.sh`) against the other side's final raw file (a mirror against itself), seeds 601-610 both seats: 2 of 2 chunks identical, 0 differing, b = c = 0, for all nine (`sp/final/proofs-600.jsonl`).
+- G2 (`simgate.py --cvc`, NORMAL; the lookup is HARD-only): II 36 / IK 40 / KK 38 lines, PASS, identical to the old reference.
+- Host tests ALL PASS (3274 checks); `pkgcheck.sh duel`: only DUEL::APP.
+- The live lookup's tables leave nothing behind (HARD, seed 601, KI and IH through the pairing gate): snaptest straight = pollute (KI 38 lines, 302 rollouts; IH 34 lines, 247 rollouts; 0 differ); fulltest with `FT_LAYER=t` 0 differ (KI 553 checks, IH 526).
+- `./build.sh duel`; smoke desktop and `--mobile --size 390x844` exit 0.
+
+**HARD CvC with the new lookup** (`simgate.py` at 81022, seeds 601-620; cross pairings both seats through the pairing gate 200000 + 100 c1 + 10 c2; reported, not gated):
+
+| Pairing | Matches | K.O. | Median s | K.O. wins |
+|---|---|---|---|---|
+| KK | 20 | 20 | 141.0 | — |
+| KI | 40 | 40 | 152.2 | Ichigo 37, Kenpachi 3 |
+| II | 20 | 12 | 294.8 | — (8 time-outs) |
+| KH | 40 | 40 | 144.8 | Kenpachi 40 |
+| IH | 40 | 40 | 106.5 | Ichigo 40 |
+| HH | 20 | 17 | 228.3 | — (3 time-outs) |
