@@ -1441,7 +1441,14 @@ shared rule, DUEL_CORE §2.1.1; the CPU's strategy is a later phase.
   combos: AS1 starts on the first step after J1's hitstop and hits 16 frames later; its super freeze stops the victim's stun count 4 of
   them, so about 5 of the 18 stun frames are left (combo 2, 50 / 63 damage). J1 J2 → AS1 (as-by-press 1 1): combo 3. J1–J3 → AS2: combo 4.
   The meaty chase (`kk-meaty-step`, cpu-ki-ken.lisp) reads J1's startup (`mv-s`), no hard-coded 6: it now presses 9 frames before her
-  first free frame.
+  first free frame. AS1 held (its Kikon, 鈴): J1 → AS1 and J1 J2 → AS1 with SP held reach `KIKON FOLLOW-UP` and `KE-Z-AS1 -> P2 KIKON 90`
+  against Ichigo and Hisagi; the dash-in `kikon-follow-wait` (*kikon-follow-stun* 16 + 1 + *kikon-follow-gap* 24 − S) is 29 → 25 frames,
+  so the follow-up strike lands on the same frame as before.
+- **The clips' recovery** (presentation, for the playtest): at 6/9 and 12/16 speed the clips run longer than the moves (J1's 21 clip
+  frames take 31.5 steps against the move's 24 on a hit / 28 on a block; AS1's 36 take 48 against 40 on a hit), and `recovery-pace`
+  never plays a clip faster than its speed, so on a hit or block the last ~5–6 clip frames of the return to the stance are cut and the
+  idle blend finishes it (before, both matched their moves at speed 1). A whiff (J1 40 steps) still plays it out. The alternative
+  (`:clip-s` 9 / 16, speed 1) keeps the recovery whole but shows the strike pose 3 / 4 frames before the hit.
 - **Matrix after both changes** (the same scenes, plus a reactive SA: J pressed 8 frames after the AS starts): the sealed form against the
   other characters 21 / 0 → 18 / 3 on the seven old answers (a latched SA is a guess now and loses), 9 / 0 → 0 / 9 against the reactive
   SA; all answers 30 / 0 → 18 / 12. DUEL_CORE §2.1.1 has the full table.

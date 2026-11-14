@@ -221,8 +221,11 @@ characters' forms; Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hi
 | Hb | 19 / 6 / 1 → 19 / 6 / 1 | 10 / 1 → 10 / 1 | 29 / 7 / 1 → 29 / 7 / 1 |
 
 The sweep is gone against a reaction; a guessed SA (latched before the cancel) now loses where it used to win by firing after the AS's
-start (Ib's 10 → 3), as intended (「a guess too early is punished」). Hisagi's AS1 TSUMUJI (16 active frames, four hits) still beats the
-reactive SA: the SA absorbs two hits and its window ends before TSUMUJI's; a property of that move, not of the rule.
+start (the NS side's wins on the seven old answers: against Ib 10 → 3, Ks 6 → 3, Ik 2 → 0), as the brief's case (a) asked (「a guess too
+early is punished」). So on the seven old answers alone (all their SAs are pre-cancel latches) the J1 → AS side still nearly sweeps (Kz
+18 / 3, Ik 19 / 0): the lead's call whether that is the intended reading. Hisagi's AS1 TSUMUJI (16 active frames, four hits) still beats the
+reactive SA: TSUMUJI carries him back to 3-4 m (traced: 1.2 m at the cancel, 3.3 m at the SA's hit frame), so the SA absorbs two of
+its hits, whiffs on distance (reach 2.4 + slide 1.4), and its window ends before TSUMUJI's; a property of that move, not of the rule.
 
 **HARD CPU logs** (information; 10 seeds, pairings KK IK II HK HI HH, the next real hit after each cancel, `run.py` / `analyze.py` of the
 investigation): the CPU (unchanged) does not use the out yet: e.g. Kenpachi's J × Hisagi's NS 232 cancels (231 AS hits) → 94 (93), Ichigo's
