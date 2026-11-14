@@ -237,6 +237,65 @@ II 36 → 37 lines, P1 2-0 355.6 s → P1 5-5 368.4 s; IK 31 → 39, P1 2-0 307.
 232.1 s; native = browser); snaptest (seeded gate matches with rollouts: equal) and fulltest on G2's IK (80 checks, 0 differ) clean. No
 balance gates.
 
+#### 2.1.2 No Hoho while an exchange is open (the user, 2026-11-14)
+
+The user (verbatim): 「那我第一點真正想要的是 B 選項，要正面對決而不是比誰手速快。在相消的過程不該能進行閃步。」 Context (DUEL_AI_STRATEGY
+§11.18's leftover): after a J x NS cancel the side whose hit was judged may Hoho at once (its cancel windows open on its own hit frame,
+`core-cancel-land-sf`), and its perfect Hoho over the segment's later hits counters, while the other side is held to its own hit frame:
+scripted, the J side's Hoho out beat every NS answer 19 : 0 : 6. A race of who presses first, not a face-off. Also asked: shorten Hisagi's
+AS1 TSUMUJI (it carries him to 3.3 m and beats the reactive SA)? The user: 「先不用」. TSUMUJI stays as it is.
+
+**The rule.** "相消的過程" = the exchange a cancel opens (§2.1's exchange: `core-xch-open!` from `core-nohit!`'s `:cancel` and
+`core-kikon-cancel!`, ended by `core-xch-step` at the first step both are back in neutral, by a cinematic, by the reset). While it is open
+**neither fighter may start a Hoho**, all three fighters, every form, whoever's hit was judged.
+- The predicate: `core-hoho-open-p xch` (core.lisp, pure, host-tested in triangle.lisp). It is true when `xch` < 0. A fighter's own
+  `fighter-xch` is enough: every writer sets both sides together (`core-xch-open!`, `core-xch-step`, `reset-round`).
+- Where it is read: `hoho-ready-p` (fighter.lisp). So every CPU's Hoho test inherits it: the generic, the style CPUs, the MCTS's legal
+  actions and light model, the strategy cue `:hoho`, the one-hand perfect hint.
+- The refusal: `try-command`'s `:hoho`, both from neutral (`command!`) and out of a move (`cancel-into`, once its cancel window is open).
+  The press is refused **and eaten** with the `:refused` cue (the dud tick only; the SP HUD flash means "not enough SP" and is not reused)
+  and the log line `P1 refused hoho: exchange`. A refused Hoho used to stay buffered for `*input-buffer*` (10 frames); here it would then
+  fire on the step the exchange ends, which brings the race back. A press that never reaches `try-command` (during a reel, or in a
+  segment before its own hit frame) stays buffered as any press does, up to 10 frames, and may start the Hoho once the exchange is over:
+  allowed.
+- An MCTS plan picked a reaction before the cancel (`mc-plan-apply`) drops a Hoho that is no longer allowed.
+
+**Decided with it.**
+- **Step and the guard stay as they are.** The user named 閃步 (Hoho, Mod+Space). A Step is no instant escape: `move-commands` takes no Step
+  out of a move, so the J side can Step only once its J has recovered. Scripted (`steps.py`, all 25 form pairings at 1.5 m, P1 J1 into
+  P2's NS1, P1 Step on his first free frame): the NS side's next hit lands first 23 / 25 (it carries on) and 21 / 25 (it stops); the rest
+  have no hit. These numbers are the same before and after the rule. A core kit never guards (§2.1's audit).
+- **A Hoho already running at the cancel**: cannot happen. A cancel needs both fighters in a classed move's window, and a Hoho is no
+  classed move (`start-hoho` leaves the move). One that started earlier is not touched: the rule gates the start only.
+- **The exchange outlives its breakthrough.** The exchange stays open after the first real hit, while the victim reels. So a combo that
+  started from a cancel gets no Hoho of either side (§8's combo Hoho off a hit, a BLUE burst's Hoho) until both are back in neutral. A combo
+  from a clean hit opens no exchange and keeps them. HARD logs before the rule (30 seeds, KK IK II HK HI HH, 180 matches): 3,674 Hohos.
+  - Inside an exchange: 2,042 before its breakthrough, 1,091 of them perfect.
+  - Inside an exchange after its breakthrough: 634, 338 of them perfect.
+  - Combo-Hoho resumes (`HOHO ->`) inside an exchange: 787.
+
+  This literal reading is the brief's. The narrower one ("open and its breakthrough not yet taken", `xch-done`) would still stop the
+  user's case, since the counter comes before any breakthrough. That one would be a second argument to `core-hoho-open-p`: the lead's call.
+
+**Scenes** (native, `tools/simgate/trial.lisp` copies driving both sides; first real hit after the cancel, J side : NS side : none, 25 form
+pairings each: Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hisagi):
+
+| Scene | Before | After |
+|---|---|---|
+| J hit first; P1 J1 → Hoho on contact, any NS answer | 19 : 0 : 6 (the perfect-Hoho counter) | refused (P1's press refused in all 125 trials); 0 : 21-25, exactly the "hold" row |
+| P1 J1 → AS on contact vs the reactive SA | 5 : 20 | 5 : 20 (unchanged; the 5 are TSUMUJI) |
+| P1 J1 → AS on contact vs P2 mashing Hoho after the cancel | 14 : 11 | 25 : 0 (her Hoho refused, the AS lands) |
+| NS hit first (P1 NS1, P2 J at frame 6 / 9); her Hoho vs his AS | J 8 : NS 17 / J 5 : NS 20 | J 25 : NS 0, both (refused, as "none") |
+| NS hit first; his Hoho vs her SA at once | J 25 : NS 0 / J 23 : NS 2 | J 0 : NS 25, both (his Hoho refused, the SA lands) |
+| P2 NS side mashing Hoho 1-19 frames after the cancel | a Hoho inside the exchange in 18 / 25 | none in 25 / 25; refused presses logged in 18, none fires when the exchange ends |
+| P1 Hoho 40 frames after he is free (P2 stopped: both neutral, the exchange over) | Hoho 25 / 25 | Hoho 25 / 25 |
+| Decisive A / C (§2.1.1) and the reactive SA by press frame | as in §2.1.1 | identical; A2 (her Hoho mash) is now refused, the same AS1 HIT 90 |
+
+**The CPU**: DUEL_AI_STRATEGY §11.19. **Tests**:
+- triangle.lisp: `core-hoho-open-p` with no exchange, an open one, tick 0.
+- sim.lisp: after a cross-class cancel, both sides carry the exchange, neither is `hoho-ready-p`, and `try-command :hoho` returns NIL. The
+  move goes on and the press is eaten. With the exchange over, both may Hoho again.
+
 ### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 
 Requests (verbatim, 2026-11-12): 「檜佐木始解 AS1「旋」改 10/20/30/40」, 「一護始解 AS1「落牙」改 80」, 「一護血鎖 AS1「鎖引」改 30/30/30/30」,
@@ -577,6 +636,9 @@ NS 段（推薦）」** (rejected: J only; J, NS and AS).
   Hoho > J → the SA KIRI. The CPU never Hohos off a hit, so the sim gates and G2 are identical to before: KK 167.2, IK 192.6, II 231.6,
   HK 183.8, HI 190.4, HH 295.7 s (10 seeds; HH's 4 time-outs are §27.9's, Hisagi's), cvc ii / ik / kk PASS. Teaching the CPU this is
   left for later.
+
+Since 2026-11-14 (§2.1.2) no Hoho starts while an exchange is open, so this combo Hoho is refused in a combo that began from a cancel until
+both fighters are back in neutral; a combo from a clean hit keeps it.
 
 ## 9. PRACTICE's GUARD ALL cancels (the user, 2026-11-12)
 

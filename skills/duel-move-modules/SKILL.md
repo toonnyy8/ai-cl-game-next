@@ -25,7 +25,8 @@ change after a playtest: `duel-character-rework`; the CPU: `duel-character-cpu`;
 The triangle judges a hit only while the defender is in a classed move's startup or active frames; a hazard (a wave, a KESSA clone's replay) is judged with the class of the segment that fired it (since 2026-11-13, DUEL_SP §6: a cancel removes it and refunds its owner, a beaten wave is spent).
 A cancel is a mutual no-damage bounce with a slow motion, and it is symmetric: both fighters' moves count as landed (links, AS, SP /
 Hoho cancels open for both; the side still in its startup only from its own first hit frame; DUEL_CORE §2.1, the user 2026-11-12:
-「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」). **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
+「相消不該有所謂的攻擊方與受擊方，是一個平等的狀態」). No Hoho starts while the exchange a cancel opened is open, either side, until both
+are back in neutral (`core-hoho-open-p`; DUEL_CORE §2.1.2, the user 2026-11-14: 「在相消的過程不該能進行閃步」). **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
 2026-10-28, DUEL_CORE §5b).
 
 **SP** (DUEL_SP, 2026-11-13): every NS and AS segment pays from the flash-step gauge when it starts, at a price computed once at kit

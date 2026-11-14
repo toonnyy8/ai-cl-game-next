@@ -35,6 +35,9 @@ e55304e:skills/duel-move-modules/reference.md`.
     frames end. Exception (2026-11-14, DUEL_CORE §2.1.1): once an NS segment took part in a cancel (`core-cancelled-p`: an exchange
     opened in it), a J press starts its SA at once (`core-sa-open-p`); an SA latched before the cancel fires then, stamped with the
     cancel's tick (a guess the J side's AS beats by `core-later`).
+  - No Hoho while an exchange is open (2026-11-14, DUEL_CORE §2.1.2): `core-hoho-open-p` (core.lisp) in `hoho-ready-p`, so every
+    CPU's Hoho test has it too; `try-command`'s `:hoho` refuses the press and eats it (the `:refused` cue), so that press cannot fire
+    the step the exchange ends. A combo that began from a cancel gets no combo Hoho until both are neutral.
   - `core-verdicts` judges a step's hits as a set.
   - `core-follow-step` runs the Kikon's dash-in: the confirm, the undo, the cues.
 

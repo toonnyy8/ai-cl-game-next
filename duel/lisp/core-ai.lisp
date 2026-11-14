@@ -185,31 +185,23 @@ cancelled move holds into no Kikon. The J side's answer is picked in CAI-XCH-STE
 
 (defun cai-xch-step (e b f kit s d)
   "Play the cancel his move in play took part in (CAI-XCH-NEW): T while it owns the step, so no style, MCTS or generic move step presses
-under it (a real hit's route stays theirs). J side: one roll picks the AS, the next J or a Hoho out (*CAI-XCH-J*, XCH-J-ANSWER: the AS and
-J only while the AS reaches him, the Hoho only when ready; none: he holds), pressed once his cancel windows are open. NS side: rolled once
-(*CAI-XCH-NS-HOHO-P*, *CAI-XCH-SA-P*, *CAI-XCH-CARRY-P*): when the segment's own hit was the cancel's (his J was in its startup and will
-land on her recovery), a Hoho out (its perfect Hoho over his J or AS counters); watching, a J on the step his AS or new J link is seen to start, or at once while his J is still
-coming when the segment's own hit was the cancel's (XCH-TURN-SEEN-P: the perceived SNAP, never his true state), starts the SA; nothing seen
-by the segment's active end, the next segment or the route's end."
+under it (a real hit's route stays theirs). No Hoho on either side: an open exchange refuses it (DUEL_CORE §2.1.2). J side: one roll
+picks the AS or the next J (*CAI-XCH-J*, XCH-J-ANSWER: only while the AS reaches him; else he holds), pressed once his cancel windows are
+open. NS side: rolled once (*CAI-XCH-SA-P*, *CAI-XCH-CARRY-P*): watching, a J on the step his AS or new J link is seen to start, or at once
+while his J is still coming when the segment's own hit was the cancel's (XCH-TURN-SEEN-P: the perceived SNAP, never his true state),
+starts the SA; nothing seen by the segment's active end, the next segment or the route's end."
   (let ((mv (fighter-move f)))
     (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
       (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
         (if (eq (fighter-cls f) :ns)
-            (setf (brain-xpick b) (cond ((and (plusp (fighter-hits f)) (hoho-ready-p e) (brain-roll b *cai-xch-ns-hoho-p*)) :hoho)
-                                        ((brain-roll b *cai-xch-sa-p*) :watch))
+            (setf (brain-xpick b) (and (brain-roll b *cai-xch-sa-p*) :watch)
                   (brain-xcarry b) (brain-roll b *cai-xch-carry-p*))
             (let ((as (kit-core-move kit :as (core-next-as f))))
               (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (brain-chance b *cai-xch-j*)
-                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) *cai-clash-margin*)))
-                                                  (hoho-ready-p e))))))
+                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) *cai-clash-margin*))))))))
       (unless (brain-xdone b)
         (if (eq (fighter-cls f) :ns)
-            (cond ((eq (brain-xpick b) :hoho)                                   ; (her own hit was the cancel's: out, his J still coming)
-                   (when (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t)
-                     (setf (brain-xdone b) t)
-                     (clog "~a cpu xch NS hoho at ~,1f" (side-name e) d)
-                     (ai-press b :step 1 :modded t :act :hoho)))
-                  ((and (eq (brain-xpick b) :watch) (xch-turn-seen-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))))
+            (cond ((and (eq (brain-xpick b) :watch) (xch-turn-seen-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))))
                    (setf (brain-xdone b) t)
                    (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))
                    (cai-press b :quick 1))
@@ -221,8 +213,7 @@ by the segment's active end, the next segment or the route's end."
               (clog "~a cpu xch ~(~a~) at ~,1f" (side-name e) (or (brain-xpick b) :hold) d)
               (case (brain-xpick b)
                 (:as (let ((as (kit-core-move kit :as (core-next-as f)))) (cai-sp b f s 1 (and as (getf (mv-params as) :no-kikon)))))
-                (:j (cai-press b :quick 1))
-                (:hoho (ai-press b :step 1 :modded t :act :hoho))))))
+                (:j (cai-press b :quick 1))))))
       t)))
 
 (defun cai-clash (e b f kit s d)

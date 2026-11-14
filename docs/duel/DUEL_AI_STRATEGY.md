@@ -2678,6 +2678,8 @@ cpu-ih-hisagi*) all answer a cancel the same way without an edit of their own, a
 | `*cai-xch-carry-p*` | 0.5 | 0.35 | 0.2 | `*fz-ns-cont*` |
 | `*cai-clash-p*` (margin 1.0 m) | 0.15 | 0.35 | 0.6 | 0 (no such rule) |
 
+The Hoho answers (`*cai-xch-j*`'s Hoho, `*cai-xch-ns-hoho-p*`) left the same day with the rule that no Hoho starts in an open exchange (§11.19).
+
 - The first HARD values (SA watch 0.9, J side 0.35 / 0.15 / 0.5, no NS Hoho) swung the NA x NS cells to the NS side (KK 0.75, II 0.80,
   IH 0.71) and left the NS-hit-first cells to the J side (HK, HH 0.80). So the NS side's watch went to 0.65 and its Hoho out came in.
 - No knob is a style key. What an arm sets reaches a cancel no more: `:turn` / `:cont` (the generic CPU's AS / SA read and NS carry-on
@@ -2804,4 +2806,117 @@ fresh block 1001-1200. The debug seed offset 30000+k stops at 999, so a scratch 
 - `./build.sh duel`; smoke exit 0.
 - **G2** regenerated (`tests/style-cvc-ref.txt`, native = browser): II 37 → 38 lines (P1 5-5, 368.4 s → P1 3-2, 377.3 s), IK 39 → 34
   (P2 0-1, 382.8 s → P2 0-4, 337.2 s), KK 23 → 26 (P1 4-0, 232.1 s → P2 0-5, 255.5 s).
+- No balance gates.
+
+### 11.19 No Hoho in an exchange: the CPU without its Hoho answers (2026-11-14)
+
+The user (verbatim): 「那我第一點真正想要的是 B 選項，要正面對決而不是比誰手速快。在相消的過程不該能進行閃步。」 The rule is DUEL_CORE §2.1.2:
+while the exchange a cancel opened is open, neither fighter may start a Hoho (`core-hoho-open-p`, read by `hoho-ready-p`; a press is refused
+and eaten). It removes §11.18's first leftover, the J side's perfect-Hoho counter. The second leftover, Hisagi's AS1 TSUMUJI, stays: asked
+whether to shorten it, the user said 「先不用」.
+
+**The CPU change.**
+- **J side**: one roll picks the AS or the next J (`xch-j-answer r ws reach-ok`, no Hoho argument). Out of the AS's reach it holds, as
+  before when its Hoho was not ready.
+- **NS side**: the roll is the watch alone (`*cai-xch-sa-p*`), then the carry-on (`*cai-xch-carry-p*`). Its Hoho out when its own hit was the
+  cancel's is gone, and so is its knob `*cai-xch-ns-hoho-p*`.
+- **No CPU path presses a Hoho inside an exchange.** Every Hoho press of the generic CPU (`cai-neutral`), the KI styles (`kk-hoho` callers,
+  `iks-timed-hoho`, the wake-up Hohos) and the MCTS's legal actions already asks `hoho-ready-p`, which now includes the rule. The one press
+  that did not ask at press time, an MCTS plan made a reaction before the cancel, is dropped in `mc-plan-apply`. HARD and NORMAL logs below:
+  0 `refused hoho` lines, 0 Hohos inside an exchange (3,674 Hohos before at HARD, 2,676 of them inside one; 1,250 after).
+
+| Knob | EASY | NORMAL | HARD | Before (§11.18) |
+|---|---|---|---|---|
+| `*cai-xch-j*` AS / J | 0.9 / 0.1 | 0.7 / 0.3 | 0.6 / 0.4 | AS / J / Hoho 0.8 / 0.1 / 0.1, 0.5 / 0.2 / 0.3, 0.3 / 0.2 / 0.5 |
+| `*cai-xch-ns-hoho-p*` | deleted | | | 0.1 / 0.3 / 0.55 |
+
+Why these weights: the Hoho's share went to the AS and the J in their old ratio, rounded. Against a reactive SA both lose (scripted: AS 5 :
+20, J 8 : 17). Against a carry-on or a stop the AS wins 25 : 0, and the J (free) cancels again or lands. So neither dominates, and the
+share of the J (the harder mix to read) still grows with the difficulty. The difficulty order below holds. No search.
+
+**Scripted** (DUEL_CORE §2.1.2's table): the J side's Hoho out, 19 : 0 : 6 before, is refused and plays as a hold (0 : 21-25). The AS
+against a reactive SA is unchanged (5 : 20). The NS side's Hoho answers are refused too: against her mashed Hoho the AS now lands 25 : 0
+(14 : 11 before), and with the NS hit first her Hoho against his AS is J 25 : NS 0 (8 : 17 / 5 : 20 at his J on frame 6 / 9 before).
+
+**HARD** (30 seeds a pairing, the first-named P1; each cell: the next real hit after the first J x NS cancel of an exchange, J side : NS side;
+before = main a7341e13, which reproduced §11.18's "after" exactly):
+
+| Pairing | Cell | HARD before: n, J : NS, share | HARD after |
+|---|---|---|---|
+| KK | K:NA x K:NS | 1458, 521 : 721, NS 0.58 | 1541, 551 : 969, NS 0.64 |
+| KK | K:NS x K:NA | 242, 127 : 109, J 0.54 | 317, 185 : 132, J 0.58 |
+| IK | K:NA x I:NS | 389, 150 : 229, NS 0.60 | 444, 190 : 253, NS 0.57 |
+| IK | K:NS x I:NA | 74, 40 : 34, J 0.54 | 76, 40 : 36, J 0.53 |
+| IK | I:NA x K:NS | 36, 15 : 16, NS 0.52 | 38, 14 : 24, NS 0.63 |
+| II | I:NA x I:NS | 227, 57 : 125, NS 0.69 | 257, 55 : 202, **NS 0.79** |
+| II | I:NS x I:NA | 54, 14 : 39, **NS 0.74** | 62, 30 : 32, NS 0.52 |
+| II | I:SA x I:NS | 29, 8 : 20, **NS 0.71** | 23, 5 : 18, **NS 0.78** |
+| HK | K:NA x H:NS | 652, 253 : 375, NS 0.60 | 696, 284 : 410, NS 0.59 |
+| HK | H:NS x K:NA | 248, 117 : 107, J 0.52 | 290, 164 : 112, J 0.59 |
+| HK | H:NA x K:NS | 189, 137 : 36, **J 0.79** | 246, 150 : 83, J 0.64 |
+| HK | K:NS x H:NA | 186, 138 : 47, **J 0.75** | 169, 126 : 42, **J 0.75** |
+| HI | I:NA x H:NS | 272, 108 : 149, NS 0.58 | 268, 99 : 167, NS 0.63 |
+| HI | H:NS x I:NA | 230, 120 : 82, J 0.59 | 252, 116 : 115, J 0.50 |
+| HI | H:NA x I:NS | 147, 79 : 36, J 0.69 | 148, 72 : 70, J 0.51 |
+| HH | H:NA x H:NS | 492, 340 : 141, **J 0.71** | 455, 273 : 170, J 0.62 |
+| HH | H:NS x H:NA | 704, 426 : 243, J 0.64 | 731, 505 : 219, J 0.70 (0.698) |
+| HH | H:SA x H:NS | 19, 12 : 7, J 0.63 | 18, 11 : 7, J 0.61 |
+
+- **Cells over 0.70 (n ≥ 10): 5 → 3.** Gone: HK H:NA x K:NS (the Hoho counters were 49 of its 137 J wins) and HH H:NA x H:NS (136 of
+  340), both §11.18's Hoho cells, and II I:NS x I:NA. Left:
+  - HK K:NS x H:NA J 0.75, unchanged (§11.18's (b): the NS hit first; her Hoho counters, 26 of 138, are gone, the share is not). With the NS
+    hit first the NS side's SA **at once** loses to his AS (the later start), and that is what the CPU's own-hit clause in XCH-TURN-SEEN-P
+    presses (an SA on his J itself). A **delayed** SA wins: scripted (`mat2r.py`, P1 NS1, P2 J at frame 6 / 9 then AS / J2 / Hoho / hold, P1's
+    J 4-20 frames after contact; NS : J, 25 pairings), the same before and after the rule but for the Hoho column:
+
+    | P1's SA after contact | vs his AS (J at 6 / 9) | vs his J2 | vs his hold (and his Hoho, now refused) |
+    |---|---|---|---|
+    | 4 frames | 19 : 6 / 18 : 7 | 23 : 2 / 23 : 2 | 23 : 2 / 23 : 2 |
+    | 8 | 20 : 5 / 19 : 5 | 21 : 4 / 21 : 4 | 21 : 4 / 21 : 4 |
+    | 12 | 20 : 5 / 20 : 5 | 5 : 20 / 2 : 23 | 21 : 4 / 19 : 6 |
+    | 16 | 7 : 18 / 8 : 17 | 4 : 21 / 0 : 25 | 21 : 4 / 19 : 6 |
+    | 20 | 0 : 25 / 2 : 23 | 4 : 21 / 0 : 25 | 21 : 4 / 19 : 6 |
+
+    So the NS-hit-first exchange has a strong answer the CPU does not play (an SA 4-8 frames after the cancel beats his AS, his J2 and a
+    hold). A CPU leftover, not the rule's; no knob added here (the lead's call).
+  - II I:NA x I:NS **NS 0.79** (was 0.69) and I:SA x I:NS NS 0.78 (23 cells): the Ichigo mirror's J side lost its Hoho out and has only
+    the AS / J guess, which the HARD watch (0.65, 8 frames) reads. The other mirrors stay under 0.70. Not retuned (the brief: no search).
+- **Cancels a match**: KK 78.7 → 90.4, IK 22.4 → 26.6, II 14.8 → 18.8, HK 57.4 → 64.8, HI 32.5 → 35.7, HH 75.3 → 83.5 (the
+  exchanges now end in a hit or another cancel, no longer in a Hoho).
+- **K.O. and time-outs** (180 matches): K.O. 157 → 151, time-outs 23 → 29 (KK 0 → 0, IK 0 → 0, II 6 → 8, HK 15 → 14, HI 0 → 0, HH 2 → 7).
+  Medians: KK 209.6 → 226.6 s, IK 139.2 → 146.5, II 264.6 → 263.3, HK 300.0 → 275.6, HI 149.5 → 166.8, HH 246.8 → 256.6.
+
+**NORMAL** (the same seeds, difficulty 1): cells over 0.70 (n ≥ 10) 12 → 13 (n ≥ 10 here; §11.18 quoted 11), all on the J side as in §11.18 (NORMAL's watch is 0.45 at
+a 14-frame delay). The largest moves: KK K:NS x K:NA J 0.74 → 0.88, KK K:NA x K:NS J 0.71 → 0.62, IK K:NA x I:NS J 0.81 → 0.71, HI
+I:NS x H:NA J 0.72 → 0.81. Cancels a match: KK 34.6 → 33.2, IK 33.7 → 33.5, II 27.8 → 32.0, HK 35.9 → 37.2, HI 33.7 → 37.1, HH 40.9 →
+41.4. K.O. 136 → 127 of 180, time-outs 44 → 53 (HH 6 → 13, II 21 → 23, IK 2 → 6, HI 12 → 9, HK 2 → 2, KK 1 → 0).
+
+**EASY ≤ NORMAL ≤ HARD** (§11.18's check: each side's lookup at one difficulty against the opponent's HARD `none`, seeds 201-210 + 301-310,
+both seats, 40 matches a cell, K.O. wins). After, then before (main a7341e13, identical to §11.18's table):
+
+| Side vs | EASY | NORMAL | HARD | before: EASY / NORMAL / HARD |
+|---|---|---|---|---|
+| Kenpachi vs Kenpachi | 0 | 0 | 31 (TO 3) | 0 / 0 / 36 |
+| Kenpachi vs Ichigo | 0 (TO 1) | 0 | 7 (TO 4) | 0 / 0 / 17 |
+| Kenpachi vs Hisagi | 0 | 1 | 34 | 0 / 2 / 34 |
+| Ichigo vs Kenpachi | 0 | 2 | 40 | 0 / 2 / 40 |
+| Ichigo vs Ichigo | 0 | 0 (TO 12) | 32 (TO 8) | 0 / 0 / 33 |
+| Ichigo vs Hisagi | 0 | 0 (TO 3) | 39 | 0 / 0 / 40 |
+| Hisagi vs Kenpachi | 0 | 0 (TO 1) | 40 | 0 / 0 / 40 |
+| Hisagi vs Ichigo | 0 (TO 1) | 4 (TO 12) | 34 (TO 5) | 0 / 3 / 36 |
+| Hisagi vs Hisagi | 0 (TO 3) | 0 (TO 5) | 28 (TO 8) | 0 / 2 / 28 |
+
+- The order holds in every row.
+- Kenpachi's HARD against Ichigo's HARD `none` fell 17 → 7 (4 time-outs): he lost his Hoho out of a cancel against her; NORMAL and EASY
+  stay at 0.
+
+**Checks.**
+- Host tests ALL PASS (3366): triangle.lisp `core-hoho-open-p`; sim.lisp the refusal after a cancel; xch-ai.lisp the J side's two answers,
+  no Hoho weight, the knob gone, the J share by difficulty.
+- `sp-costs-check.py` passes. `pkgcheck.sh duel`: only DUEL::APP.
+- Snaptest straight = pollute (`30000 31104 81022 2132`; 1,044 rollouts; equal but for the cons statistics). Fulltest on G2's IK: 68
+  checks, 0 differ.
+- `./build.sh duel`; smoke exit 0.
+- **G2** regenerated (`tests/style-cvc-ref.txt`, native = browser): II 38 → 38 lines (P1 3-2, 377.3 s → P2 4-6, 374.5 s), IK 34 → 33 (P2
+  0-4, 337.2 s → P2 0-1, 330.8 s), KK 26 → 23 (P2 0-5, 255.5 s → P2 0-6, 224.8 s).
 - No balance gates.

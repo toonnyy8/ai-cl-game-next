@@ -41,7 +41,7 @@ Consequences:
 | `:do` | d / reach of HIS command move | same | same four |
 | `:lead` | my Konpaku minus his (integer) | integers | `:behind` (-99 -99 -1 0), `:even` (-1 0 0 1), `:ahead` (0 1 99 99). On integers: 0 is only `:even`; any nonzero is fully `:behind` or `:ahead`; `:even` has w = 0 at +-1. |
 | `:mr` / `:or` | my / his Reishi fraction | 0..1 | `:low` (-1 0 .25 .5), `:high` (.5 .75 1 2) |
-| `:ored` `:hoho` `:wave` `:awk` | crisp 0/1: he is red / my Hoho ready / my pointer's NS is a wave / I am awakened | 0, 1 | `:yes` (.5 1 1 1.5), `:no` (-.5 0 0 .5) |
+| `:ored` `:hoho` `:wave` `:awk` | crisp 0/1: he is red / my Hoho ready (`hoho-ready-p`: 0 inside an open exchange since 2026-11-14, DUEL_CORE §2.1.2) / my pointer's NS is a wave / I am awakened | 0, 1 | `:yes` (.5 1 1 1.5), `:no` (-.5 0 0 .5) |
 | `:ost` | his perceived state class: 0 idle/run/guard, 1 in a move before its hit window (startup), 2 in a move past it, 3 step/hoho, 4 anything else (air, down, stun, wakeup, cine) | 0..4 | `:free` (0), `:startup` (1), `:active` (2), `:evade` (3), `:down` (4) as peaks; `:busy` (.5 1 99 99) |
 
 Any set name in `*fz-sets*` may be applied to any cue (e.g. `:near` / `:mid` / `:far` are in metres, meaningless on `:dj`). Distance sets only make sense on `:dj :dn :do`; the `:ost` sets only on `:ost`.

@@ -447,22 +447,19 @@ so a table plays HARD at any difficulty: NORMAL plays it half the time. New 2026
 ;;; The user, 2026-11-14: 「好 1+2，然後再以此修改 AI 的策略，然後盡量讓 AI 積極相消互動」 (after DUEL_CORE §2.1.1's out). Played by
 ;;; core-ai.lisp CAI-XCH-STEP / CAI-CLASH for every CPU (its style CPUs included), over xch-ai.lisp's pure choices. Every chance is one roll
 ;;; per event: the cancel (both sides' answers), his classed move's start (the clash).
-(defparameter *cai-xch-j* '(:easy (:as 0.8 :j 0.1 :hoho 0.1) :normal (:as 0.5 :j 0.2 :hoho 0.3) :hard (:as 0.3 :j 0.2 :hoho 0.5))
+(defparameter *cai-xch-j* '(:easy (:as 0.9 :j 0.1) :normal (:as 0.7 :j 0.3) :hard (:as 0.6 :j 0.4))
   "The J side of a J x NS cancel (its NA link or SA took part): the weights of its answer, one roll at the cancel (XCH-J-ANSWER): the AS at
-once (beats a carried-on or idle segment, loses to a reactive SA), the next J (cancels a carried-on segment, absorbed by an SA), a Hoho out
-(a perfect Hoho over the segment's later hits counters: it beat every scripted answer of the NS side, §11.18's matrix). New 2026-11-14 (the
-lead, for the user's request above). Before: the AS at once whenever she was seen in an NS (CAI-MOVE-STEP's fuzzy AS-NOW; the style CPUs'
-KK-MOVE *KK-AS-READ-P* 1.0, the KI Ichigo style's read).")
+once (beats a carried-on or idle segment, loses to a reactive SA), the next J (free; cancels a carried-on segment again, absorbed by an SA).
+New 2026-11-14 (the lead, DUEL_AI_STRATEGY §11.18): AS / J / Hoho EASY 0.8 / 0.1 / 0.1, NORMAL 0.5 / 0.2 / 0.3, HARD 0.3 / 0.2 / 0.5. The
+Hoho left the same day with the rule that no Hoho starts in an open exchange (the user, 2026-11-14: 「要正面對決而不是比誰手速快。在相消的
+過程不該能進行閃步。」, DUEL_CORE §2.1.2; §11.19): its weight shared out between the AS and J in their old ratio, rounded, so the mix
+(the harder guess to read) still grows with the difficulty. Before §11.18: the AS at once whenever she was seen in an NS (CAI-MOVE-STEP's
+fuzzy AS-NOW; the style CPUs' KK-MOVE *KK-AS-READ-P* 1.0, the KI Ichigo style's read).")
 (defparameter *cai-xch-sa-p* '(:easy 0.25 :normal 0.45 :hard 0.65)
   "The NS side of a cancel (its segment took part): the chance, rolled at the cancel, that it watches for his turn and presses J the step it
 sees his AS or a new NA link start (XCH-TURN-SEEN-P over the perceived SNAP, BRAIN-DELAY late): the SA starts at once and wins in time.
 New 2026-11-14 (the lead). Before: no watch; the generic CPU's SA read at the segment's first active frame (a guess the cancel fires on its
 own tick, which an AS beats).")
-(defparameter *cai-xch-ns-hoho-p* '(:easy 0.1 :normal 0.3 :hard 0.55)
-  "The NS side of a cancel its segment's own hit made (his J was still in its startup: unanswered, it lands on her recovery; her Hoho is open
-at once): the chance, rolled at the cancel, of a Hoho out (its perfect Hoho over his J or AS counters: §11.18's second matrix, where it beat
-his AS 17-20 / 25 and his next J 20-23 / 25); else the watch (*CAI-XCH-SA-P*: an SA at once on his J, which beats it and his next J but
-loses to his AS, the later start, and to his Hoho). New 2026-11-14 (the lead).")
 (defparameter *cai-xch-carry-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.")
