@@ -18,10 +18,11 @@
 (defun st-digest ()   ; (with "digest FILE" after the mode: every battle tick's full hash line, to find the first divergence)
   (when (and *st-digest* (battle-p))
     (format *st-digest* "~d ~d ~a~%" *match-seed* *match-tick* (state-hash-line))))
-(setf *step-hook* (lambda () (st-digest)))
+(setf *step-hook* (lambda () (cl-user::sg-strat-step) (st-digest)))   ; (STRAT_P1 / STRAT_P2: prelude.lisp)
 (when (string= *st-mode* "pollute")
   (setf *step-hook*
         (lambda ()
+          (cl-user::sg-strat-step)
           (st-digest)
           (when (and (sim-snapshot-ok-p) (zerop (mod *match-tick* 40)))
             (let* ((t0 (get-internal-real-time)) (s (sim-snapshot)) (t1 (get-internal-real-time)))
