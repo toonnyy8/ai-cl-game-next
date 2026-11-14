@@ -1,0 +1,5 @@
+W=(':iks-mix-whiff 0.3',':iks-mix-whiff 0.5')
+var('gw6w5',[W],':iks-gap-wait 6.0')
+var('gw6w7',[(':iks-mix-whiff 0.3',':iks-mix-whiff 0.7')],':iks-gap-wait 6.0')
+var('gw7w5',[W],':iks-gap-wait 7.0')
+var('gw6w5lo',[W,(':ir2-oki-lo 2.0',':ir2-oki-lo 1.6')],':iks-gap-wait 6.0')

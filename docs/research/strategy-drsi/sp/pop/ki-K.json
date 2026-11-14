@@ -34,6 +34,12 @@
    "file": "docs/research/strategy-drsi/sp/arms/r1/c-ki-k-r1-b2a2.lisp",
    "why": "KI round 1 candidate: no Bankai, :kk-reach-p 0.5 on the r1 converged arm; block 400 0.9274 (admitted: in the KI equilibrium mix, block-200 matrix 2026-11-14)",
    "status": "admitted r1"
+  },
+  {
+   "id": "c-ki-k-r2-b1a2",
+   "file": "docs/research/strategy-drsi/sp/arms/r2/c-ki-k-r2-b1a2.lisp",
+   "why": "KI round 2 candidate: r2: always Burst / Kikon-cancel (:other 10), mostly tapped SP (:kikon 0.3), :kk-ns-safe-p 0.8; blocks 200/400/500 0.939/0.918/0.942 (admitted: the whole KI equilibrium mix, block-200 matrix 2026-11-14)",
+   "status": "admitted r2"
   }
  ],
  "screen": {
@@ -210,7 +216,7 @@
   }
  },
  "mix": {
-  "c-ki-k-r1-b2a2": 1.0
+  "c-ki-k-r2-b1a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }

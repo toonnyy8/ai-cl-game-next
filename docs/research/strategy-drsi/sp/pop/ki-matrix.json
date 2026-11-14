@@ -3,31 +3,35 @@
  "b": "ichigo",
  "seeds": "201-300",
  "both_seats": true,
- "build": "29a3fe99f123075c",
+ "build": "f5048d03eec3999b",
  "rows": [
   "none",
   "a-generic",
   "a-ken-press",
   "a-ken-kh-standoff",
   "c-ki-k-pilot-b0a0",
-  "c-ki-k-r1-b2a2"
+  "c-ki-k-r1-b2a2",
+  "c-ki-k-r2-b1a2"
  ],
  "cols": [
   "none",
   "a-generic",
   "a-ichigo-press",
-  "c-ki-i-r1-b3a2"
+  "c-ki-i-r1-b3a2",
+  "c-ki-i-r2-b2a2"
  ],
  "a_ko_share": [
   [
    0.23,
    1.0,
    0.19,
-   0.005
+   0.005,
+   0.0
   ],
   [
    0.0,
    0.955,
+   0.0,
    0.0,
    0.0
   ],
@@ -35,25 +39,36 @@
    0.395,
    1.0,
    0.325,
-   0.025
+   0.025,
+   0.0
   ],
   [
    0.41,
    1.0,
    0.36,
-   0.01
+   0.01,
+   0.0
   ],
   [
    0.645,
    1.0,
    0.59,
-   0.065
+   0.065,
+   0.0
   ],
   [
    0.945,
    1.0,
    0.91,
-   0.64
+   0.64,
+   0.165
+  ],
+  [
+   0.975,
+   1.0,
+   0.95,
+   0.91,
+   0.28
   ]
  ],
  "b_ko_share": [
@@ -61,37 +76,50 @@
    0.72,
    0.0,
    0.8,
-   0.945
+   0.945,
+   1.0
   ],
   [
    1.0,
    0.035,
    1.0,
-   0.985
+   0.985,
+   1.0
   ],
   [
    0.605,
    0.0,
    0.675,
-   0.975
+   0.975,
+   1.0
   ],
   [
    0.585,
    0.0,
    0.64,
-   0.99
+   0.99,
+   1.0
   ],
   [
    0.355,
    0.0,
    0.41,
-   0.925
+   0.925,
+   1.0
   ],
   [
    0.04,
    0.0,
    0.085,
-   0.085
+   0.085,
+   0.835
+  ],
+  [
+   0.025,
+   0.0,
+   0.05,
+   0.09,
+   0.72
   ]
  ],
  "cells": [
@@ -132,6 +160,15 @@
    "matches": 200
   },
   {
+   "row": "none",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-generic",
    "col": "none",
    "a_ko": 0,
@@ -168,6 +205,15 @@
    "matches": 200
   },
   {
+   "row": "a-generic",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "a-ken-press",
    "col": "none",
    "a_ko": 79,
@@ -199,6 +245,15 @@
    "col": "c-ki-i-r1-b3a2",
    "a_ko": 5,
    "b_ko": 195,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "a-ken-press",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 0,
+   "b_ko": 200,
    "timeouts": 0,
    "draws": 0,
    "matches": 200
@@ -240,6 +295,15 @@
    "matches": 200
   },
   {
+   "row": "a-ken-kh-standoff",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
    "row": "c-ki-k-pilot-b0a0",
    "col": "none",
    "a_ko": 129,
@@ -272,6 +336,15 @@
    "a_ko": 13,
    "b_ko": 185,
    "timeouts": 2,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-pilot-b0a0",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 0,
+   "b_ko": 200,
+   "timeouts": 0,
    "draws": 0,
    "matches": 200
   },
@@ -310,6 +383,60 @@
    "timeouts": 55,
    "draws": 0,
    "matches": 200
+  },
+  {
+   "row": "c-ki-k-r1-b2a2",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 33,
+   "b_ko": 167,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "none",
+   "a_ko": 195,
+   "b_ko": 5,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-generic",
+   "a_ko": 200,
+   "b_ko": 0,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "a-ichigo-press",
+   "a_ko": 190,
+   "b_ko": 10,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "c-ki-i-r1-b3a2",
+   "a_ko": 182,
+   "b_ko": 18,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
+  },
+  {
+   "row": "c-ki-k-r2-b1a2",
+   "col": "c-ki-i-r2-b2a2",
+   "a_ko": 56,
+   "b_ko": 144,
+   "timeouts": 0,
+   "draws": 0,
+   "matches": 200
   }
  ],
  "a_mix": {
@@ -318,16 +445,18 @@
   "a-ken-press": 0.0,
   "a-ken-kh-standoff": 0.0,
   "c-ki-k-pilot-b0a0": 0.0,
-  "c-ki-k-r1-b2a2": 1.0
+  "c-ki-k-r1-b2a2": 0.0,
+  "c-ki-k-r2-b1a2": 1.0
  },
  "b_mix": {
   "none": 0.0,
   "a-generic": 0.0,
-  "a-ichigo-press": 0.122,
-  "c-ki-i-r1-b3a2": 0.878
+  "a-ichigo-press": 0.0,
+  "c-ki-i-r1-b3a2": 0.0,
+  "c-ki-i-r2-b2a2": 1.0
  },
- "a_value": 0.6729,
- "b_value": 0.085,
+ "a_value": 0.28,
+ "b_value": 0.72,
  "a_gap": 0.0,
  "b_gap": 0.0
 }

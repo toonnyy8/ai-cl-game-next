@@ -24,6 +24,12 @@
    "file": "docs/research/strategy-drsi/sp/arms/r1/c-ki-i-r1-b3a2.lisp",
    "why": "KI round 1 candidate: no meaty chase, whiff-punish mix; block 400 0.9323 (admitted: in the KI equilibrium mix, block-200 matrix 2026-11-14)",
    "status": "admitted r1"
+  },
+  {
+   "id": "c-ki-i-r2-b2a2",
+   "file": "docs/research/strategy-drsi/sp/arms/r2/c-ki-i-r2-b2a2.lisp",
+   "why": "KI round 2 candidate: r2: ichigo-ki-r2b2a1-style (45-degree wake-up roll, lunge off after his far back Step, stale breaker), no space mode; blocks 200/400 0.931/0.939 (admitted: the whole KI equilibrium mix, block-200 matrix 2026-11-14)",
+   "status": "admitted r2"
   }
  ],
  "screen": {
@@ -172,8 +178,7 @@
   }
  },
  "mix": {
-  "a-ichigo-press": 0.122,
-  "c-ki-i-r1-b3a2": 0.878
+  "c-ki-i-r2-b2a2": 1.0
  },
  "mix_source": "docs/research/strategy-drsi/sp/pop/ki-matrix.json (seeds 201-300, both seats, regret matching on own K.O. share)"
 }
