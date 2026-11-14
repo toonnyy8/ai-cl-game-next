@@ -2624,3 +2624,184 @@ difficulty, delay and lookup strategy (and `STRAT_P<other>=none`).
 (P2 4-7, 356.7 s → P1 2-0, 355.6 s), IK 40 → 31 lines (P1 3-2, 398.3 s → P1 2-0, 307.3 s), KK 38 → 19 lines (P1 1-0, 375.3 s → P1 6-0,
 188.0 s). Native `simgate.py --cvc` PASS; browser `style-gates.py cvc dist/duel` PASS (bit for bit). The old lines are quoted only in
 dated records (DUEL_SP §8.4, REFACTOR_2026-11, §11.16, DEVLOG), which stay as written.
+
+### 11.18 The CPU after a cancel, and the clash (2026-11-14)
+
+The user (verbatim, after DUEL_CORE §2.1.1's out and DUEL_KEN_V3 §48): 「好 1+2，然後再以此修改 AI 的策略，然後盡量讓 AI 積極相消互動」. Part "1+2"
+is the rule (main 291bd391). This section is the CPU: its strategy under the new rule, and a CPU that seeks cancels and plays the exchange
+after them.
+
+**Why the old CPU no longer fit.** After a J x NS cancel, every CPU path took the AS at once whenever she was seen in an NS: the generic
+CAI-MOVE-STEP (the fuzzy AS-NOW, `:ons`), Kenpachi's KK-MOVE (`*kk-as-read-p*` 1.0 at every difficulty), the KI Ichigo style's read. The
+NS side had no answer at all. No CPU watched for the AS, and the generic SA read pressed at the segment's first active frame, before the
+cancel, which §2.1.1 now stamps as a guess that the AS beats. HARD logs on main (30 seeds): Kenpachi's J x Hisagi's NS 214 cancels, J side
+208 of 213 next real hits; Hisagi's mirror 230 : 10.
+
+**The design: one place for every CPU.** CORE-BRAIN-STEP (core-ai.lisp) runs two clauses after the held press and before a strategy's
+style, the MCTS and the generic CPU. So the nine shipped tables' style CPUs (cpu-ki-ken, cpu-kh-ken, cpu-ki-ichigo*, cpu-hisagi-range,
+cpu-ih-hisagi*) all answer a cancel the same way without an edit of their own, and a real hit's route stays theirs.
+- `xch-ai.lisp` (new, plain CL, host-tested in `tests/duel-rules/xch-ai.lisp`):
+  - XCH-SIDE: which side of a cancel a move in play stands on, over CORE-CANCELLED-P. An SA the cancel fired, stamped with its tick, is not one.
+  - XCH-J-ANSWER: the J side's weighted pick (WEIGHTED-PICK).
+  - XCH-TURN-SEEN-P: the NS side's trigger, over the perceived SNAP.
+  - CLASH-OPENER: the class that cancels his whichever hit lands first, derived from CORE-VERDICT.
+- core-ai.lisp:
+  - CAI-XCH-NEW: the event, keyed by the exchange's tick and the move's start. A held press (an SP's Kikon hold) is let go.
+  - CAI-XCH-STEP: plays it. T while it owns the step, so no style presses under it.
+  - CAI-CLASH: the neutral throw.
+  - Brain slots `xkey xmove xpick xcarry xdone clash-key` (components.lisp).
+- Rolls: one at the cancel per side (its answer), one per move of his for the clash; never per step. The NS side reads the opponent only
+  through the SNAP ring (BRAIN-DELAY late: EASY 24, NORMAL 14, HARD 8 frames). Its own state (the cancel, its hit) it reads live.
+
+**The answers.**
+- **J side** (its NA link or SA took part): one roll picks the AS, the next J, or a Hoho out (*CAI-XCH-J*), pressed once its cancel
+  windows are open. The AS and J count only while the AS reaches him (`strat-reach` + *CAI-CLASH-MARGIN*), the Hoho only when it is ready.
+  With nothing left he holds. "Hold" is not a weight: in the scripted matrix below it lost every column.
+- **NS side** (its segment took part):
+  - When its own hit was the cancel's (his J was still in its startup and lands on her recovery unanswered): a Hoho out with
+    *CAI-XCH-NS-HOHO-P*.
+  - Else a watch with *CAI-XCH-SA-P*: J (the SA, at once) on the step it sees his AS or a new J link start after the cancel. When its own
+    hit was the cancel's, his J itself is enough.
+  - Nothing seen by the segment's active end: the next segment with *CAI-XCH-CARRY-P* (a later J still starts the SA over it), else the
+    route stops.
+- **The clash** (積極相消, *CAI-CLASH-P*): the CPU is free and sees him in a classed melee move (hits, no parry), still live after the
+  CPU's delay and within his reach + 1.0 m. One roll, then a J into his NS / AS or its pointer's NS into his NA / SA (no Kikon hold; an
+  MCTS plan made a reaction ago is dropped). Else the CPU decides as before.
+
+**Knobs** (tuning.lisp, new 2026-11-14, the lead):
+
+| Knob | EASY | NORMAL | HARD | Before |
+|---|---|---|---|---|
+| `*cai-xch-j*` AS / J / Hoho | 0.8 / 0.1 / 0.1 | 0.5 / 0.2 / 0.3 | 0.3 / 0.2 / 0.5 | the AS at once when she was seen in an NS |
+| `*cai-xch-sa-p*` | 0.25 | 0.45 | 0.65 | no watch |
+| `*cai-xch-ns-hoho-p*` | 0.1 | 0.3 | 0.55 | none |
+| `*cai-xch-carry-p*` | 0.5 | 0.35 | 0.2 | `*fz-ns-cont*` |
+| `*cai-clash-p*` (margin 1.0 m) | 0.15 | 0.35 | 0.6 | 0 (no such rule) |
+
+- The first HARD values (SA watch 0.9, J side 0.35 / 0.15 / 0.5, no NS Hoho) swung the NA x NS cells to the NS side (KK 0.75, II 0.80,
+  IH 0.71) and left the NS-hit-first cells to the J side (HK, HH 0.80). So the NS side's watch went to 0.65 and its Hoho out came in.
+- No knob is a style key. What an arm sets reaches a cancel no more: `:turn` / `:cont` (the generic CPU's AS / SA read and NS carry-on
+  scales) and the KI styles' `*kk-as-read-p*` / `*iks-read-p*` now act on real hits only, because the shared clause owns the cancelled
+  move (KNOBS.md notes it under each key; the docstrings say so).
+
+**What the rule allows: scripted matrices.** Runs of the scratch tools' `trialx.lisp` at 1.5 m: every J-side form x every NS-side form,
+25 pairings. Each cell is the first real hit after the cancel, J side : NS side : none.
+- **J hit first** (P1 J1, P2 NS1 on the same frame):
+  - The J side's **Hoho** beats every NS answer, 19 : 0 : 6. A perfect Hoho over the segment's later hits counters; the 6 are Ichigo's
+    NS1, which has no later hit to dodge.
+  - AS: loses to a reactive SA 5 : 20 (the 5 are Hisagi's TSUMUJI, below); wins against carry / stop / a pre-cancel SA 25 : 0.
+  - Next J: loses to the SA (8 : 17) and to a pre-cancel SA (0 : 25).
+  - Hold: loses to every NS answer (0 : 21-25) but her own Hoho (0 : 11 : 14).
+  - The NS side's own Hoho (open only at its hit frame here) splits the AS 14 : 11.
+- **NS hit first** (P1 NS1, P2 J at frame 6 / 9):
+  - An SA at once loses to his AS and his Hoho (0 : 25: the later start, the perfect Hoho) and beats his next J or a hold (25 : 0).
+  - Her **Hoho** beats his AS 17-20 : 8-5 and his next J 23-20 : 2-5.
+  - Doing nothing loses: his J lands.
+- **The CPU as the NS side** (P2 its CPU after a forced NS1, 6 seeds a cell): against a scripted AS the NS side wins EASY 17 / 150,
+  NORMAL 51 / 150, HARD 63 / 150 (Hisagi's TSUMUJI rows included). Against a Hoho the J side wins at every difficulty (128-131 / 150).
+- **Two leftovers of the rule, not fixed here** (the brief: the rules stay):
+  - The J side's immediate Hoho out of a cancel counters through the segment's later hits.
+  - Hisagi's J1 → AS1 TSUMUJI (16 active frames, carries him to 3.3 m) beats the reactive SA. In HK, AS against an SA that reacted: Hisagi
+    39 : 8, Kenpachi 42 : 134.
+
+**Measurements** (native sim, the diagnosis's scratch `run.py` / `analyze.py`, 30 seeds a pairing, the first-named character P1). Each
+cell is the next real hit after the first J x NS cancel of each exchange, J side : NS side; "before" = main 291bd391.
+
+| Pairing | Cell | HARD before: n, J : NS, share | HARD after |
+|---|---|---|---|
+| KK | K:NA x K:NS | 104, 51 : 52, NS 0.50 | 1458, 521 : 721, NS 0.58 |
+| KK | K:NS x K:NA | 29, 18 : 10, J 0.64 | 242, 127 : 109, J 0.54 |
+| IK | K:NA x I:NS | 177, 57 : 120, NS 0.68 | 389, 150 : 229, NS 0.60 |
+| IK | K:NS x I:NA | 11, 4 : 7 | 74, 40 : 34, J 0.54 |
+| IK | I:NA x K:NS | 7, 1 : 6 | 36, 15 : 16, NS 0.52 |
+| II | I:NA x I:NS | 215, 29 : 185, **NS 0.86** | 227, 57 : 125, NS 0.69 |
+| II | I:NS x I:NA | 31, 13 : 18, NS 0.58 | 54, 14 : 39, **NS 0.74** |
+| II | I:SA x I:NS | 16, 1 : 15, **NS 0.94** | 29, 8 : 20, **NS 0.71** |
+| HK | K:NA x H:NS | 214, 208 : 5, **J 0.98** | 652, 253 : 375, NS 0.60 |
+| HK | H:NS x K:NA | 51, 51 : 0, **J 1.00** | 248, 117 : 107, J 0.52 |
+| HK | H:NA x K:NS | 22, 13 : 5, **J 0.72** | 189, 137 : 36, **J 0.79** (a) |
+| HK | K:NS x H:NA | 62, 46 : 14, **J 0.77** | 186, 138 : 47, **J 0.75** (b) |
+| HI | I:NA x H:NS | 129, 123 : 5, **J 0.96** | 272, 108 : 149, NS 0.58 |
+| HI | H:NS x I:NA | 20, 11 : 9 | 230, 120 : 82, J 0.59 |
+| HI | H:NA x I:NS | 27, 17 : 10, J 0.63 | 147, 79 : 36, J 0.69 |
+| HH | H:NA x H:NS | 240, 230 : 10, **J 0.96** | 492, 340 : 141, **J 0.71** (c) |
+| HH | H:NS x H:NA | 142, 124 : 9, **J 0.93** | 704, 426 : 243, J 0.64 |
+| HH | H:SA x H:NS | 30, 29 : 1, **J 0.97** | 19, 12 : 7, J 0.63 |
+
+- **Not passed: 5 cells over 0.70 after** (10 before, up to 1.00). The winning hits by move (`attr.py` over `analyze.py`'s detail mode):
+  - (a) HK H:NA x K:NS, Hisagi the J side, 137 wins: her AS1 TSUMUJI 66, her perfect-Hoho counter 49, the ranged / Bankai AS1 18. TSUMUJI
+    (the rule's leftover) is half of it; the counters are this branch's J-side Hoho weight (0.5 at HARD) meeting the rule's other leftover.
+  - (b) HK K:NS x H:NA, Kenpachi's NS hit first, Hisagi the J side, 138 wins: her AS after his early SA 32 (TSUMUJI) + 28 (the Bankai's
+    AS1), her J1 landing unanswered 26, her counters 26, the Bankai's J 20. Not TSUMUJI's: the NS-hit-first case, where his SA at once
+    loses to any AS (the later start) and to her Hoho, and doing nothing loses to her J.
+  - (c) HH H:NA x H:NS, 340 J-side wins: perfect-Hoho counters 136 (picks: the J side's Hoho won 115 : 18), TSUMUJI 113, the ranged AS1 46.
+    Mostly the Hoho counter, then TSUMUJI.
+  - II I:NS x I:NA (NS 0.74 of 53) and I:SA x I:NS (NS 0.71 of 28): small counts near the line.
+  - So only part of the excess is TSUMUJI; the rest is the J side's Hoho counter (a rule leftover this branch's HARD weight uses) and the
+    NS-hit-first exchange.
+- **Cancels a match** (all `CANCEL` lines / matches): KK 8.6 → 78.7, IK 12.6 → 22.4, II 14.0 → 14.8, HK 19.7 → 57.4, HI 14.3 → 32.5,
+  HH 44.2 → 75.3. II is not above the diagnosis's `hard-after.txt` (14.8 a match at 10 seeds): the Ichigo mirror threw 316 clashes in 30
+  matches against KK's 1,848; why the gates pass so few of Ichigo's moves (his hitless NS segments, the Getsuga charges and KESSA's clones,
+  are excluded by design; his short J startups may fall under the delay test) is not measured. Clashes thrown (HARD, 30 matches; J into NS / AS, NS into NA / SA): KK 359 / 1,489, IK 147 / 362, II 105 / 211,
+  HK 524 / 753, HI 609 / 380, HH 1,805 / 342.
+- **K.O. and time-outs** (HARD, 180 matches): K.O. 152 → 157, time-outs 28 → 23 (KK 0 → 0, IK 0 → 0, II 12 → 6, HK 14 → 15, HI 0 → 0,
+  HH 2 → 2). Medians: KK 165.3 → 209.6 s, IK 144.0 → 139.2, II 288.6 → 264.6, HK 211.4 → 300.0, HI 112.9 → 149.5, HH 218.6 → 246.8.
+- **NORMAL** (the same 30 seeds, difficulty 1): the J side wins most cells before and after. Its slower perception (14 frames) rarely
+  catches the AS in time, and its watch is 0.45.
+  - Over 0.70: 13 → 11 cells, e.g. HK K:NA x H:NS J 0.82 → 0.69, H:NS x K:NA J 0.97 → 0.72, II I:NA x I:NS NS 0.51 → J 0.72.
+  - Cancels a match: KK 36.3 → 34.6 (down), II 26.3 → 27.8, IK 30.4 → 33.7, HK 32.1 → 35.9, HI 28.6 → 33.7, HH 31.9 → 40.9.
+  - K.O. 140 → 136 of 180, time-outs 40 → 44 (HI 5 → 12, II 23 → 21).
+- **Hisagi's NS into Kenpachi's J** (main's 94 in the 10-seed logs): her ranged mode's close rule (cpu-hisagi-range.lisp HR-CLOSE) presses
+  WA (NS1a) at 2.3 m as he walks in. Its back-step test (`d < reach + 0.5`, his J1 1.8 m) misses at exactly 2.3, so she throws the NS into
+  his J1 as it starts (9 frames after it, her HARD delay 8). Under the old rule that cancel gave him a free AS (93 of 94). Now it is a clash
+  she wins as the NS side (K:NA x H:NS NS 0.60). Not changed: it is no longer a mistake.
+- Not measured: while the shared clause owns a cancelled move, the style functions are not called. KEN-KI-STYLE takes a gap of more than
+  `*kk-cine-gap*` (60) steps since it last ran for a cinematic and then waits its delay; a cancelled move's remaining frames are normally
+  under that, but the longest stretch was not counted.
+- About 2-8 % of cancels still meet an SA latched before them (a style's or the generic CPU's segment-gap read), which fires as the stamped
+  guess and loses to the AS. Not moved: without a cancel, a latched SA fires at the active end anyway.
+
+**EASY ≤ NORMAL ≤ HARD** (§11.17's check with fewer seeds). Each side plays its lookup at one difficulty against the opponent's HARD `none`;
+seeds 201-210 + 301-310, both seats, 40 matches a cell, K.O. wins. This branch, then main 291bd391:
+
+| Side vs | EASY | NORMAL | HARD | main: EASY / NORMAL / HARD |
+|---|---|---|---|---|
+| Kenpachi vs Kenpachi | 0 | 0 | 36 (TO 2) | 0 / 5 / 40 |
+| Kenpachi vs Ichigo | 0 (TO 1) | 0 | 17 (TO 1) | 0 / 0 / 35 |
+| Kenpachi vs Hisagi | 0 | 2 | 34 | 1 / 18 / 40 |
+| Ichigo vs Kenpachi | 0 | 2 | 40 | 0 / 0 / 40 |
+| Ichigo vs Ichigo | 0 | 0 (TO 15) | 33 (TO 7) | 0 / 2 / 38 |
+| Ichigo vs Hisagi | 0 | 0 (TO 3) | 40 | 0 / 2 / 40 |
+| Hisagi vs Kenpachi | 0 | 0 | 40 | 0 / 0 / 30 |
+| Hisagi vs Ichigo | 0 | 3 (TO 5) | 36 (TO 4) | 0 / 10 / 40 |
+| Hisagi vs Hisagi | 0 (TO 1) | 2 (TO 2) | 28 (TO 5) | 1 / 9 / 38 |
+
+- The order holds in every row (EASY and NORMAL tied at 0 in four).
+- NORMAL fell further from HARD: a HARD `none` opponent now reacts to NORMAL's AS in time, and NORMAL rarely reacts to its.
+  `*cai-xch-sa-p*` and `*cai-clash-p*` at NORMAL are the knobs if NORMAL should be stronger.
+
+**The KI Ichigo band table re-measured** (§11.16's one gaining table). `ship.py`'s test: both seats, 200 seeds a seat, paired z, on the
+fresh block 1001-1200. The debug seed offset 30000+k stops at 999, so a scratch copy of `strat-run.lisp` took the offset from the env.
+
+| Build | Opponent | b / c | z | Table K.O. wins | Arm 0 K.O. wins |
+|---|---|---|---|---|---|
+| this branch | `ki-kenpachi` (final) | 10 / 10 | 0.00 | 387 / 400 | 387 / 400 |
+| this branch | `none` | 0 / 0 | 0.00 | 400 / 400 | 400 / 400 |
+| this branch | **pooled** | **10 / 10** | **0.00** | 787 / 800 | 787 / 800 |
+| main 291bd391 | `ki-kenpachi` (final) | 70 / 37 | +3.19 | 337 / 400 | 304 / 400 |
+| main 291bd391 | `none` | 0 / 0 | 0.00 | 400 / 400 | 400 / 400 |
+| main 291bd391 | **pooled** | **70 / 37** | **+3.19** | 737 / 800 | 704 / 800 |
+
+- Under the old CPU the table's gain replicates on the fresh block (z +3.19). With this branch it is gone (z 0.00, bar 1 fails).
+- The reason: Ichigo now wins 387 of 400 against Kenpachi's final with either arm (304-337 before), so the band's arm k has nothing to add.
+  No time-outs.
+- The table still plays (its arm 0 is the same CPU). A new search is the user's budget, not done here.
+
+**Checks.**
+- Host tests ALL PASS (3359; `xch-ai.lisp` new). `pkgcheck.sh duel`: only DUEL::APP.
+- Snaptest straight = pollute (`30000 31104 81022 2132`: 121 lines, 1,099 rollouts, 0 differ). Fulltest on G2's IK: 69 checks, 0 differ;
+  with `FT_LAYER=t` on HARD KI: 623, 0 differ.
+- `./build.sh duel`; smoke exit 0.
+- **G2** regenerated (`tests/style-cvc-ref.txt`, native = browser): II 37 → 38 lines (P1 5-5, 368.4 s → P1 3-2, 377.3 s), IK 39 → 34
+  (P2 0-1, 382.8 s → P2 0-4, 337.2 s), KK 23 → 26 (P1 4-0, 232.1 s → P2 0-5, 255.5 s).
+- No balance gates.
