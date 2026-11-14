@@ -3273,7 +3273,9 @@ designed strength). The user's rule: 「查表＋搜克制策略，之後再上 
 (defun strat-lookup (me vs dif)
   "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."
   (let ((r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
-    (and r (find (fourth r) *strat-library* :key (lambda (st) (getf st :id))))))
+    (and r (strat-by-id (fourth r)))))
+
+(defun strat-by-id (id) "The *STRAT-LIBRARY* entry ID, or NIL." (find id *strat-library* :key (lambda (st) (getf st :id))))
 
 (defun strat-seed-value (me vs id)
   "ME's expected win share with strategy ID against VS's equilibrium mix (*STRAT-PAYOFF*), 0.5 when the pairing or ID is not in it."

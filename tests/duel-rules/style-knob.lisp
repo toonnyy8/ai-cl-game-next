@@ -35,9 +35,13 @@
                     (~= 3.0 (strat-out (cons arm '(:dj 0.5)) k 1.0))
                     (eq d (strat-out (cons '(:base (:range 0.7 :ns 0.3)) '(:dj 0.5)) k d))
                     (eq d (strat-out nil k d)))))))
-  ;; no shipped strategy names a knob (every library unit and table), and no seed arm of the SP search (the library's arms written out,
-  ;; sp/arms/*.lisp, and the pilot's): their play is unchanged. The searched arms (sp/arms/r<n>/) name knobs by design.
-  (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* *strat-units* *strat-rule-bases* *strat-library*)))
+  ;; no library unit or table names a knob but the searched arms the final tables ship (DUEL_AI_STRATEGY §11.16: units :c-*, tables :f-*),
+  ;; and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is unchanged. The
+  ;; searched arms (sp/arms/r<n>/) name knobs by design.
+  (flet ((unsearched (l pre) (remove-if (lambda (u) (eql 0 (search pre (symbol-name (getf u :id))))) l)))
+    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-") *strat-rule-bases*
+                                                           (unsearched *strat-library* "F-"))))
+    (check (sk-tree-has *strat-units* keys)))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
                      (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/pilot/*.lisp" *load-truename*))))
     (unless (string= "dump" (pathname-name f))          ; (the arm writer, a script)
