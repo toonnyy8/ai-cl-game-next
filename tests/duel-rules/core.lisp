@@ -318,6 +318,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (not (hoho-allowed-p nil 300.0 10)) (not (hoho-allowed-p nil 99.0 0))))
 (check (and (awaken-allowed-p t 100.0 nil) (not (awaken-allowed-p t 100.0 t)) (not (awaken-allowed-p nil 100.0 nil))
             (not (awaken-allowed-p t 99.0 nil))))
+;; when the awakening may start (the user, 2026-11-14: 「挨第 1 下就能開」「自己出招中也能開」「Kikon 鎖定中也能開」「倒地／起身中也能開」):
+;; every state of play (the first hit: :stun / :air carry no hit count here; a Kikon lock is :stun / :idle too), never under the input
+;; lock, in a cinematic, his own Hoho, the intro / win / lose
+(check (every (lambda (s) (awaken-state-ok-p s nil nil)) '(:idle :guard :guard-hit :stun :air :down :wakeup :move :step :run)))
+(check (notany (lambda (s) (awaken-state-ok-p s nil nil)) '(:hoho :cine :intro :win :lose nil)))
+(check (notany (lambda (s) (awaken-state-ok-p s t nil)) '(:idle :stun :air :move :down)))   ; the perfect-Hoho / reset lock
+(check (notany (lambda (s) (awaken-state-ok-p s nil t)) '(:idle :stun :air :move :down)))   ; a cinematic running
+(check (and (awaken-allowed-p (awaken-state-ok-p :stun nil nil) 100.0 nil) (not (awaken-allowed-p (awaken-state-ok-p :stun nil nil) 100.0 t))))
 ;; the burst modes (docs/duel/DUEL_DESIGN.md "Burst modes", the user 2026-09-30): the state picks the mode
 (check (and (eq (burst-mode :stun nil 2 nil) :blue) (eq (burst-mode :air nil 3 nil) :blue) (null (burst-mode :stun nil 1 nil))
             (eq (burst-mode :guard-hit nil 0 nil) :blue)                        ; blockstun: from any blocked hit

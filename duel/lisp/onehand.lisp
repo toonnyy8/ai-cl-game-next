@@ -204,10 +204,7 @@ shows it (hud.lisp HUD-HINT). Free states that take a Hoho, the Hoho affordable 
   "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused)
 from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
 hold (RV-READY-P)."
-  (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
-    (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
-         (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
-         t)))
+  (and (awaken-ready-p e (fighter e)) t))
 
 (defun rv-ready-p ()
   "爆 (chip 7) is the awakening's hold now (the user, 2026-10-28: 「把覺醒鍵整合進爆氣中，改由長按覺醒」): not ready, the Burst

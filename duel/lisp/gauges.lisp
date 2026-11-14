@@ -152,8 +152,11 @@ his hazards (KESSA's clones hitting while his own swing missed, a zone: the user
 
 (defun repel! (e)
   "E breaks free (a Burst Reverse, an awakening): neutral at once (on the ground), invulnerable *BURST-INVULN* f, his
-combo over; the opponent's move / Hoho / step / run ends and he slides *BURST-PUSH* away, not stunned."
+combo over; the opponent's move / Hoho / step / run ends and he slides *BURST-PUSH* away, not stunned. A Kikon follow-up coming
+(the awakening under a Kikon lock, 2026-11-14; a Burst never fires there) is over on both sides, as CORE-BOUNCE! ends one: no
+FIGHTER-FOLLOW / FIGHTER-KIKON-UNDO left on the rusher, no FIGHTER-KIKON-LOCK on the victim."
   (let* ((f (fighter e)) (mo (motion e)) (o (fighter-opp f)) (p (pos-of e)) (q (pos-of o)))
+    (dolist (x (list e o)) (let ((fx (fighter x))) (setf (fighter-follow fx) nil (fighter-kikon-undo fx) nil (fighter-kikon-lock fx) 0)))
     (setf (aref p 1) 0f0 (motion-grounded mo) t (motion-kb-left mo) 0)
     (to-idle e 0)
     (setf (fighter-invuln f) *burst-invuln*)

@@ -15,6 +15,7 @@
 (defun emit (&rest r) (push r *t-events*))
 (defun log-msg (&rest r) (declare (ignore r)) nil)
 (defun start-cine (&rest r) (push (cons :cine r) *t-events*))
+(defvar *cine* nil)                                      ; (the engine's running cinematic: none here)
 (defun t-pair (ka kb)
   "Two stand-in fighters in kits KA (P1) and KB (P2), facing each other; *P1* / *P2*."
   (let ((a (tent (make-fighter :kit ka :side 0) (make-gauges))) (b (tent (make-fighter :kit kb :side 1) (make-gauges))))
@@ -128,8 +129,10 @@
     (setf (gauges-awakened gb) t (gauges-awaken ga) 0f0)
     (check (and (try-command b (fighter b) :awaken) (eq (first *tp-call*) b) (second *tp-call*)))   ; (free: idle)
     (setf (fighter-state (fighter b)) :stun (fighter-combo-hits (fighter b)) 1)
-    (check (and (try-command b (fighter b) :awaken) (null (second *tp-call*))))   ; in a combo before its 2nd hit: not free
-    (setf (fighter-state (fighter b)) :idle (fighter-combo-hits (fighter b)) 0)
+    (check (and (try-command b (fighter b) :awaken) (second *tp-call*)))   ; free from a combo's first hit (2026-11-14; before: its 2nd)
+    (setf (fighter-lock (fighter b)) 5)
+    (check (and (try-command b (fighter b) :awaken) (null (second *tp-call*))))   ; the input lock (a perfect Hoho's): not free
+    (setf (fighter-state (fighter b)) :idle (fighter-combo-hits (fighter b)) 0 (fighter-lock (fighter b)) 0)
     (check (null (try-command a (fighter a) :awaken)))             ; (his own kit has no :p)
     ;; the release (where a Burst is applied): the snapshot back
     (setf *tb-release* t *tb-pool* 450f0)
