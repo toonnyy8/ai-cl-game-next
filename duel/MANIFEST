@@ -54,6 +54,7 @@ lisp/cpu-ki-ichigo.lisp
 lisp/cpu-ki-ichigo-r2b1a1.lisp
 lisp/cpu-ki-ichigo-r2b2a1.lisp
 lisp/cpu-hisagi-range.lisp
+lisp/cpu-ih-hisagi-ihr1b2a0.lisp
 lisp/cpu-kh-ken.lisp
 lisp/cpu-hk-hisagi.lisp
 lisp/mcts-lite.lisp
