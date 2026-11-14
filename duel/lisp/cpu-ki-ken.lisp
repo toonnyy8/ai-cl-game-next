@@ -107,7 +107,9 @@ cannot stop it: the brawl's answers are skipped for them) are Hohoed through wit
 (defparameter *kk-as-read-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
   "In a planned string (KK-MOVE: the climb, L3's J4-J7, the Bankai's), a link that lands or cancels while she is seen in an NS turns to
 the SP at once, as the generic CPU's CAI-MOVE-STEP always does (one roll per link, the move's own BRAIN-R-TURN). v0's plans pressed the
-next J into her NS / SA. A located v0 bug, found independently by round 1's b1_a0 (*KK-TURN-P*) and b2_a0 (*KK-AS-READ-P*).")
+next J into her NS / SA. A located v0 bug, found independently by round 1's b1_a0 (*KK-TURN-P*) and b2_a0 (*KK-AS-READ-P*). Since
+2026-11-14 a real hit only: a link that took part in a cancel is answered by every CPU's shared exchange (core-ai.lisp CAI-XCH-STEP,
+DUEL_AI_STRATEGY §11.18), which runs before this style.")
 (defparameter *kk-meaty-p* '(:easy 0.0 :normal 0.1 :hard 1.0)
   "封印肉搏 / 卍解爆發's chase: per knockdown of hers (one roll as she goes down): walk (or Hoho, from beyond *KK-CHASE-HOHO* m) in and
 press J1 to land on her first free frame (K1: 64 a loop; D43 after the Bankai entry). HARD 0.7 -> 1.0, 2026-11-07, cell b0_a0

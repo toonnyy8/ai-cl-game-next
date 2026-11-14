@@ -67,6 +67,7 @@ stdin is set to /dev/null, so an ECL error never waits in its debugger.
 | 300 | 301-400 | the cells' dev runs (and `pop.py screen`, 301-340) |
 | 400 | 401-500 | held-out for admission |
 | — | 601-800 | the final gates' held-out set (PLAN §6): `eval.py` and `band.py pair` refuse any range that touches it; only `ship.py` plays it |
+| — | 1001-1200 | spent 2026-11-14: the KI Ichigo table's re-measure after the CPU's exchange (DUEL_AI_STRATEGY §11.18), on main 291bd391 and that branch. The debug seed offset 30000+k stops at 999, so it took a scratch copy of `strat-run.lisp` reading the offset from the env |
 
 The default of 100 seeds a seat gives 3 groups x 2 seats x 100 = **600 matches**, exactly one block. More than 100 needs `--spill`.
 

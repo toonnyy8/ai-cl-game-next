@@ -171,6 +171,76 @@ press is dropped as S7 drops the NS gap's (DUEL_SP S7's gap, closed by REFACTOR_
                       (< (brain-r-cont b) (cai-fz b *fz-ns-cont* :choice :hit (cai-bit (fighter-contact f)) :d (fighter-dist f))))
              (cai-press b :quick 1 t))))))))
 
+;;; ---------------------------------------------------------------- the exchange after a cancel, the clash (DUEL_AI_STRATEGY §11.18)
+;;; One place for every CPU (CORE-BRAIN-STEP runs these before a strategy's style, the MCTS and the generic CPU): the cancel's answers
+;;; and the neutral throw that seeks a cancel. The choices are xch-ai.lisp's (pure), the knobs tuning.lisp's.
+(defun cai-xch-new (b f)
+  "His move in play just took part in a cancel (XCH-SIDE; keyed by the exchange's tick and the move's start, so an SA the cancel fired,
+stamped with its tick, is not taken for a new one): the event's rolls, once, and a press still held (an SP's Kikon hold) let go: the
+cancelled move holds into no Kikon. The J side's answer is picked in CAI-XCH-STEP (it reads the distance and the Hoho's readiness)."
+  (when (and (eq (fighter-state f) :move) (not (and (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f))))
+             (xch-side (fighter-cls f) (fighter-contact f) (fighter-xch f) (fighter-cls-t f)))
+    (setf (brain-xkey b) (fighter-xch f) (brain-xmove b) (fighter-cls-t f) (brain-xdone b) nil (brain-xpick b) :roll
+          (brain-press-left b) 0)))
+
+(defun cai-xch-step (e b f kit s d)
+  "Play the cancel his move in play took part in (CAI-XCH-NEW): T while it owns the step, so no style, MCTS or generic move step presses
+under it (a real hit's route stays theirs). J side: one roll picks the AS, the next J or a Hoho out (*CAI-XCH-J*, XCH-J-ANSWER: the AS and
+J only while the AS reaches him, the Hoho only when ready; none: he holds), pressed once his cancel windows are open. NS side: rolled once
+(*CAI-XCH-NS-HOHO-P*, *CAI-XCH-SA-P*, *CAI-XCH-CARRY-P*): when the segment's own hit was the cancel's (his J was in its startup and will
+land on her recovery), a Hoho out (its perfect Hoho over his J or AS counters); watching, a J on the step his AS or new J link is seen to start, or at once while his J is still
+coming when the segment's own hit was the cancel's (XCH-TURN-SEEN-P: the perceived SNAP, never his true state), starts the SA; nothing seen
+by the segment's active end, the next segment or the route's end."
+  (let ((mv (fighter-move f)))
+    (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
+      (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
+        (if (eq (fighter-cls f) :ns)
+            (setf (brain-xpick b) (cond ((and (plusp (fighter-hits f)) (hoho-ready-p e) (brain-roll b *cai-xch-ns-hoho-p*)) :hoho)
+                                        ((brain-roll b *cai-xch-sa-p*) :watch))
+                  (brain-xcarry b) (brain-roll b *cai-xch-carry-p*))
+            (let ((as (kit-core-move kit :as (core-next-as f))))
+              (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (brain-chance b *cai-xch-j*)
+                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) *cai-clash-margin*)))
+                                                  (hoho-ready-p e))))))
+      (unless (brain-xdone b)
+        (if (eq (fighter-cls f) :ns)
+            (cond ((eq (brain-xpick b) :hoho)                                   ; (her own hit was the cancel's: out, his J still coming)
+                   (when (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t)
+                     (setf (brain-xdone b) t)
+                     (clog "~a cpu xch NS hoho at ~,1f" (side-name e) d)
+                     (ai-press b :step 1 :modded t :act :hoho)))
+                  ((and (eq (brain-xpick b) :watch) (xch-turn-seen-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))))
+                   (setf (brain-xdone b) t)
+                   (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))
+                   (cai-press b :quick 1))
+                  ((and (brain-xcarry b) (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv) -1)))   ; (his turn may still come: the watch goes on)
+                   (setf (brain-xcarry b) nil)
+                   (when (and (mv-ns-next kit mv) (cai-next-ok-p e kit mv)) (cai-press b :quick 1 t))))
+            (when (or (null (brain-xpick b)) (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t))
+              (setf (brain-xdone b) t)
+              (clog "~a cpu xch ~(~a~) at ~,1f" (side-name e) (or (brain-xpick b) :hold) d)
+              (case (brain-xpick b)
+                (:as (let ((as (kit-core-move kit :as (core-next-as f)))) (cai-sp b f s 1 (and as (getf (mv-params as) :no-kikon)))))
+                (:j (cai-press b :quick 1))
+                (:hoho (ai-press b :step 1 :modded t :act :hoho))))))
+      t)))
+
+(defun cai-clash (e b f kit s d)
+  "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry) still live after the CPU's delay and within his reach
++ *CAI-CLASH-MARGIN*: one roll per such move of his (BRAIN-CLASH-KEY), and the CPU throws CLASH-OPENER's move into it (a J into his NS / AS,
+its pointer's NS into his NA / SA): whichever hit lands first, a cancel. A plan the MCTS made a reaction ago is dropped. T when it pressed."
+  (let* ((mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))))
+    (when (and to mv (/= (brain-clash-key b) (snap-start s)) (plusp (length (mv-hits mv))) (plusp (snap-reach s))
+               (not (member :parry (snap-flags s))) (>= (- (snap-active-end s) (snap-sf s) (brain-delay b)) 1)
+               (snap-near-p s e d *cai-clash-margin*) (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
+      (setf (brain-clash-key b) (snap-start s))
+      (when (brain-roll b *cai-clash-p*)
+        (mc-plan-drop f)
+        (clog "~a cpu clash ~(~a~) into his ~(~a~) at ~,1f" (side-name e) to (cai-class-of (fighter-opp f) s) d)
+        (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0)        ; (its own rolls made afresh; no Kikon hold on a clash)
+        (if (eq to :na) (cai-press b :quick 1) (cai-sp b f s))
+        t))))
+
 (defun cai-neutral (e b f kit s d)
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
   (let* ((vp (pilot-vpad (pilot e)))
@@ -236,7 +306,10 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
       (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :follow) (eq (brain-press b) :quick) (plusp (brain-press-left b)))   ; held at the hit: on
         (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
+        (cai-xch-new b f)                                                  ; (a cancel his move just took part in: its key, §11.18)
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
+              ((cai-xch-step e b f kit s d))                                   ; the exchange after a cancel: every CPU's one answer (§11.18)
+              ((and (member (fighter-state f) '(:idle :run)) (cai-clash e b f kit s d)))   ; 積極相消: a classed move into his (§11.18)
               ((let ((fn (and now (getf (car now) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
                  (and fn (if ev (strat-event-call fn e b f kit s d) (funcall fn e b f kit s d)))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)

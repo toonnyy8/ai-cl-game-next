@@ -146,7 +146,9 @@ his 破月牙 answers it from 7-12 m by Hohoing in, KK-WAVE-PLAN).")
 (defparameter *iks-steer-p* '(:easy 0.0 :normal 0.6 :hard 0.95)
   "A string in a style mode runs to the mode's AS (J5 + SP = AS3, KESSA AS2) instead of the generic continue rolls (one roll per string).")
 (defparameter *iks-read-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
-  "A steered string still takes the AS read when he is seen in an NS (AS beats NS; it writes AS1 / AS2: pointer 3 lost). One roll per link.")
+  "A steered string still takes the AS read when he is seen in an NS (AS beats NS; it writes AS1 / AS2: pointer 3 lost). One roll per link.
+Since 2026-11-14 a real hit only: a link that took part in a cancel is answered by the shared CAI-XCH-STEP (core-ai.lisp, DUEL_AI_STRATEGY
+§11.18), which runs before this style.")
 (defparameter *iks-kessa-read-min* '(:easy 1 :normal 1 :hard 2)
   "KESSA: a steered string takes the AS read (*IKS-READ-P*) only when the AS it would start is at least this (1: always, as v0; 2: never
 AS1, so the read never writes pointer 1). Round 1's b3_a1 (1 -> 2, HARD 100 seeds a seat: kessa 131 -> 143 of 200); grafted by round 2's

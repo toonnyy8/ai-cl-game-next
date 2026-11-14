@@ -47,6 +47,7 @@ lisp/hazards.lisp
 lisp/scripted.lisp
 lisp/cpu-perceive.lisp
 lisp/rollout.lisp
+lisp/xch-ai.lisp
 lisp/core-ai.lisp
 lisp/strategy-glue.lisp
 lisp/cpu-ki-ken.lisp

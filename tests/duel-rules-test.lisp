@@ -11,10 +11,10 @@
 ;; plain structs here (no entities: the tests make them with MAKE-...)
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "core" "sp" "fuzzy" "strategy" "kit" "ken" "ichigo" "hisagi" "mcts-lite" "lhud-data" "lhud-geom"))
+(dolist (f '("tuning" "rules" "core" "sp" "fuzzy" "strategy" "kit" "ken" "ichigo" "hisagi" "mcts-lite" "xch-ai" "lhud-data" "lhud-geom"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 ;; the checks live in tests/duel-rules/*.lisp, loaded in order into this one image (CHECK, *CHECKS* and the shared helpers are in core)
-(dolist (f '("core" "ken" "art" "systems" "sim" "practice" "hisagi" "triangle" "sp" "sublimation" "mcts" "fuzzy" "strategy" "lhud-charset" "lhud-geom" "lhud-menu" "unit-names" "style-knob"))
+(dolist (f '("core" "ken" "art" "systems" "sim" "practice" "hisagi" "triangle" "xch-ai" "sp" "sublimation" "mcts" "fuzzy" "strategy" "lhud-charset" "lhud-geom" "lhud-menu" "unit-names" "style-knob"))
   (load (merge-pathnames (format nil "duel-rules/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
