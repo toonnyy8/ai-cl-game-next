@@ -9,7 +9,7 @@ pre-registered band. Before any search cell runs, the sim-only check asks whethe
 | Side | Band table | Admission result (seeds 801-1000) |
 |---|---|---|
 | Kenpachi | `r1-b2a2` in `nocell` | pooled z -1.17, 16 time-outs against arm 0's 0 |
-| Ichigo | `none` in `myburst` | keep-state on: z -1.31; off: z -1.17 |
+| Ichigo | `none` in `myburst` | keep-state on (the test): z -1.31; off (record): z -1.17 |
 
 Both tables lose to arm 0 on the fresh block. Block 300 and block 200 disagree about Kenpachi's band (+0.003, then -0.007), and the
 admission block settles it: a loss.
@@ -52,6 +52,10 @@ python3 band.py pair --me C --vs D --a FILE --b FILE --seed0 N [--seeds 100] [--
 - The band's groups are crisp (cells 0 / 1 / 2-3, bursts 0 / 1, the form index), so one state fires there. The gap between the arms is then
   +-q in every state.
 - **Any q above `:margin` plays exactly the same.** q = 0.05 was used; it is not a knob for these bands.
+- **For PLAN2 §3's merge**, where q is written as the measured gain:
+  - In a single crisp band, a gain at or below `:margin` (0.02) could never switch, and `write` refuses one (it asserts q > margin).
+  - The size of q matters only when merged bands from different groups are active at once: the larger q decides there. The merge step has
+    to set q with that in mind.
 
 **The bands** (`band.py bands`; rule indices in `:rb-sp` order: G0 0-17, G1 18-26, G2 27-35, G3 36-39, G4 40-41):
 
@@ -120,15 +124,18 @@ Ichigo plays it at 0.059 / 0.065 (on / off; about 7 changes a match).
 
 ### Admission (seeds 801-1000, both seats, 1,200 matches, paired against arm 0 on the same seeds)
 
-The pre-registered test is one table a side: Kenpachi's only band, and Ichigo's best by block 200, which is keep-state off. That table is
-`--record`: by PLAN2 §1 it could not be admitted even with a gain, because a `none` arm requires `:keep-state`. Ichigo's keep-state-on table
-was run as well. It is **for the record**, not a second test.
+The test is one table a side, the best by block 200 among the admissible tables.
+- Kenpachi: his only band.
+- Ichigo: keep-state on, her only admissible table. PLAN2 §1 allows a `none` arm only with `:keep-state`, and the keep-state-off table was
+  written `--record`.
+
+Ichigo's off table scored higher on block 200 and was run as well, **for the record only**.
 
 | Table vs arm 0 | anchor b / c | mix b / c | rest b / c | Pooled b / c | Pooled z | Time-outs (table / arm 0) | eval.py score (table / arm 0) | Admitted |
 |---|---|---|---|---|---|---|---|---|
 | Kenpachi `nocell` <- `r1-b2a2` | 16 / 20 | 72 / 76 | 34 / 45 | 122 / 141 | **-1.17** | 16 / 0 | 0.6434 / 0.6592 | no (z < 2.0; time-outs above arm 0's) |
-| Ichigo `myburst` <- `none`, keep-state off (the test) | 0 / 1 | 71 / 88 | 26 / 25 | 97 / 114 | **-1.17** | 1 / 1 | 0.8698 / 0.8839 | no (z < 2.0) |
-| Ichigo `myburst` <- `none`, keep-state on (record) | 0 / 1 | 63 / 78 | 23 / 25 | 86 / 104 | -1.31 | 1 / 1 | 0.8690 / 0.8839 | (record) |
+| Ichigo `myburst` <- `none`, keep-state on (the test) | 0 / 1 | 63 / 78 | 23 / 25 | 86 / 104 | **-1.31** | 1 / 1 | 0.8690 / 0.8839 | no (z < 2.0) |
+| Ichigo `myburst` <- `none`, keep-state off (record) | 0 / 1 | 71 / 88 | 26 / 25 | 97 / 114 | -1.17 | 1 / 1 | 0.8698 / 0.8839 | (record; not admissible) |
 
 - Neither side gains. Both point toward a loss, within noise: |z| < 1.96.
 - Kenpachi's band also fails the stalling bar: 13 of its 16 time-outs come from the `rest` pool.
