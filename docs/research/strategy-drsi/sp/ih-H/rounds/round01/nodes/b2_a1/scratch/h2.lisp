@@ -1,0 +1,1 @@
+(:id :c-ih-h-r1-b2a1 :fn hisagi-ihr1b2a1-style :apply (:hisagi) :dswitch-map ((:base 1 3)) :base (:dswitch 1.0 :ihx-margin -0.1 :ihy-chase-steps 40 :hoho 2.0) :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))

@@ -1,0 +1,1 @@
+(:id :c-ih-h-r1-b3a1 :fn hisagi-range-style :apply (:hisagi) :dswitch-map ((:base 1 3)) :base (:dswitch 1.0 :awaken 5.0 :b-step-out 0.15 :b-walk-out 0.1) :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))
