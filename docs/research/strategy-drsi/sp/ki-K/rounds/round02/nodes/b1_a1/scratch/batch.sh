@@ -1,0 +1,2 @@
+cd /media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/sp/ki-K/rounds/round02/nodes/b1_a1/scratch
+for p in ":kk-ns-safe-p 0.9" ":kk-ns-safe-p 0.7" ":kk-ns-safe-p 0.6" ":kk-ns-safe-p 0.8 :kk-hoho-in-max 3.6" ":kk-ns-safe-p 0.8 :kk-dodge-p 0.9"; do echo "$p"; ./gen.sh t_$RANDOM ken-kh-standoff-style "$p" | grep -o '"score": [0-9.]*\|"anchor": {[^}]*\|"mix": {[^}]*'|cut -c1-90|tr '\n' ' '; echo; done

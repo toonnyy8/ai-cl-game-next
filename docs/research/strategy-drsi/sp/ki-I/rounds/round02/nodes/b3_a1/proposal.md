@@ -1,0 +1,6 @@
+# b3_a1 (r2): b3_a0 plus two situational :rules on style keys (lead, his Reishi)
+Mechanism: parent b3_a0 (0.7376) unchanged in :base, plus two rules on style keys (the arm's :b-* rules are inert at HARD for Ichigo): `(((:lead :ahead)) (:iks-mix-kessa 3.0 :iks-mix-whiff 0.5))` (when ahead on Konpaku, shift the episode mix toward KESSA) and `(((:or :low)) (:iks-punish-p 1.0 :iks-confirm-p 1.0))` (when his Reishi fraction is low, always punish / confirm his moves).
+Evidence (seed0 300, parent re-measured 0.7376): lead rules alone: behind-kessa 0.7161, ahead-kessa 0.7508, ahead-ptr3 0.7459, behind-ptr3 0.7343, wait-max by lead 0.6122 / 0.6799 (bad). On the ahead-kessa arm: hoho-follow 90 0.7458, retreat 0.5 0.7475, steer 1.0 0.7294, gap-fs 90 / 110 0.7244 / 0.6914, hoho-p 0 when :dj :in 0.698, awaken-p rule 0.7326; Kikon when he is red 0.6436 (Kikon vs this Kenpachi loses); +(:or :low) punish/confirm 1.0 0.7607, confirm only 0.7574, + hoho-p 0.5 0.7491, with hoho-follow 90 + retreat 0.5 0.7558, :mr :low instead 0.7492.
+Not a repeat: b3_a0 tuned only base constants; this is the first use of situational rules on style keys (cues :lead, :or).
+Risk: gains over the parent (+0.023) are about one SE (~0.02-0.03); seed-300 overfit; mix still loses 107 of 200.
+Measured (seed0 300, final cand.lisp): score 0.7607; anchor 191W/2L/7TO, mix 91/107/2, rest 176/24/0.

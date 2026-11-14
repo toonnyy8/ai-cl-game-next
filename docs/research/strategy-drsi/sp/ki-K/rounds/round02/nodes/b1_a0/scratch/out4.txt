@@ -1,0 +1,6 @@
+z1 kk-step-max:4.5,kk-awaken-p:1.0,hold-awaken:0.0 0.8663 {'anchor': (185, 15, 0), 'mix': (158, 41, 1), 'rest': (179, 21, 0)}
+z2 kk-step-max:4.5,kk-awaken-p:1.0,awaken:1.0 0.8663 {'anchor': (185, 15, 0), 'mix': (158, 41, 1), 'rest': (179, 21, 0)}
+z3 kk-step-max:4.5,kk-awaken-p:1.0,kk-wave-p:0.9 0.8614 {'anchor': (184, 16, 0), 'mix': (158, 42, 0), 'rest': (177, 23, 0)}
+z4 kk-step-max:4.5,kk-awaken-p:1.0,kk-reach-p:1.0 0.7822 {'anchor': (185, 14, 1), 'mix': (118, 82, 0), 'rest': (168, 32, 0)}
+z5 kk-step-max:4.5,kk-awaken-p:1.0,kk-bankai-p:0.3 0.8053 {'anchor': (185, 15, 0), 'mix': (134, 64, 2), 'rest': (166, 34, 0)}
+z6 kk-step-max:4.5,kk-awaken-p:1.0,kk-hoho-in-p:0.3,kk-hin-fs:250 0.83 {'anchor': (183, 17, 0), 'mix': (146, 54, 0), 'rest': (171, 29, 0)}

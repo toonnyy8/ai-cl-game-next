@@ -1,0 +1,1 @@
+for v in y1 y2 y3 y4; do python3 docs/research/strategy-drsi/sp/ki-I/rounds/round02/nodes/b3_a1/scratch/run.py $v; done > docs/research/strategy-drsi/sp/ki-I/rounds/round02/nodes/b3_a1/scratch/b4.log 2>&1

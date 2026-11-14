@@ -1,0 +1,8 @@
+r1 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100'] 0.6963 {'anchor': (188, 1, 11), 'mix': (69, 129, 2), 'rest': (162, 38, 0)}
+r2 [':iks-kikon-p', '0.0', ':kikon', '0.0'] 0.6584 {'anchor': (194, 2, 4), 'mix': (45, 99, 56), 'rest': (157, 28, 15)}
+r3 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-confirm-p', '0.5'] 0.7079 {'anchor': (193, 1, 6), 'mix': (70, 127, 3), 'rest': (163, 36, 1)}
+r4 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-mix-kessa', '1.0'] 0.7294 {'anchor': (187, 3, 10), 'mix': (76, 120, 4), 'rest': (176, 22, 2)}
+r5 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-hoho-p', '0.0'] 0.6369 {'anchor': (186, 3, 11), 'mix': (47, 152, 1), 'rest': (150, 49, 1)}
+r6 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-punish-p', '0.5'] 0.703 {'anchor': (193, 1, 6), 'mix': (68, 131, 1), 'rest': (162, 37, 1)}
+r7 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-mix-whiff', '0.5'] 0.7162 {'anchor': (191, 3, 6), 'mix': (79, 120, 1), 'rest': (161, 39, 0)}
+r8 [':iks-kikon-p', '0.0', ':iks-gap-fs', '100', ':iks-wait-max', '80'] 0.7079 {'anchor': (188, 1, 11), 'mix': (72, 128, 0), 'rest': (166, 34, 0)}

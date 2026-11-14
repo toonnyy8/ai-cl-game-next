@@ -1,0 +1,7 @@
+s1|:ns 0.0 :cont 0.5
+s2|:ns 0.0 :cont 0.0
+s3|:ns 0.0 :cont 0.5 :range 0.5
+s4|:ns 0.0 :cont 0.5 :range 1.0
+s5|:ns 0.0 :cont 0.5 :turn 0.0
+s6|:ns 0.0 :cont 0.5 :iks-break-p 0.5 :iks-retreat-p 0
+s7|:ns 0.0 :cont 0.5 :iks-mix-ptr3 0.2

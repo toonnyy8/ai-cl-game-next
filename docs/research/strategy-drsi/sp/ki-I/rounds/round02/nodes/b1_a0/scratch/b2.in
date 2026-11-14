@@ -1,0 +1,9 @@
+q1|:iks-mix-whiff 4 :iks-retreat-p 0 :iks-break-p 0.5
+q2|:iks-mix-whiff 4
+q3|:iks-mix-ptr3 0.2 :iks-retreat-p 0 :iks-break-p 0.5
+q4|:iks-hoho-follow 90
+q5|:iks-ns-wait 40
+q6|:iks-ns-wait 16
+q7|:iks-kikon-costly-p 1.0
+q8|:iks-getsuga-min 9.0
+q9|:iks-mix-ptr3 0

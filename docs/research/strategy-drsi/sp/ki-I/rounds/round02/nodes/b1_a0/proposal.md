@@ -1,0 +1,6 @@
+# b1_a0: r1-b3a2's whiff-punish arm with the generic CPU's NS share cut to 0
+Mechanism: ichigo-ki-style, r1-b3a2's style keys (meaty off, ptr3 0.6, space 0.1, wait-max 40, gap, ns-wait 24, getsuga-min 6.5) with the whiff weight cut 1.5 -> 0.3 and the generic-CPU scale keys the style falls back to (iks-generic / cai-neutral) set: `:ns 0.0` (J1 not NS at the generic decision), `:cont 1.0`, `:turn 0.0` (scale keys are live: KNOBS says `:b-*` are inert for a style but `:ns :cont :turn :range` reach the fallback).
+Evidence (seed0 300, new population): r1-b3a2 itself 0.6155 (mix 17W/127L/56TO vs the new Kenpachi). Single probes: ns 0 0.6419, +cont 0.5 0.6502, +turn 0 0.6518, whiff 0.3 0.6601, cont 1.0 0.67. Worse: range 0.3/0.5/0.9/1.0/1.5 (0.41-0.61), ns 0.8, awaken-p 0 (0.27), steer-p 0 (0.20), meaty back on (0.52), kikon-costly 1 (0.58), hoho-p 0 (0.61). Inert: gap-p, wait-max, awaken scale, getsuga-min. break-p 0.3-0.5 about +0.01 (noise).
+Not a repeat: round 1 only tuned :iks-* keys; this moves the generic fallback's scale keys.
+Risk: seed-300 only (SE ~0.02); the gain is mostly the mix group (17 -> 39 wins); Kenpachi's new arm still wins 102/200.
+Measured (seed0 300): score 0.67; anchor 195W/2L/3TO, mix 39/102/59, rest 169/14/17.

@@ -1,0 +1,6 @@
+x1 kk-step-max:3.5,kk-brawl-p:0.0 0.8185 {'anchor': (169, 31, 0), 'mix': (150, 50, 0), 'rest': (174, 26, 0)}
+x2 kk-step-max:3.5,kk-dodge-p:0.5 0.8036 {'anchor': (174, 26, 0), 'mix': (136, 64, 0), 'rest': (174, 26, 0)}
+x3 kk-step-max:4.5 0.8416 {'anchor': (189, 10, 1), 'mix': (140, 59, 1), 'rest': (178, 22, 0)}
+x4 kk-step-max:2.5 0.8333 {'anchor': (180, 20, 0), 'mix': (150, 49, 1), 'rest': (172, 28, 0)}
+x5 kk-step-max:3.5,kk-step-p:0.5 0.7822 {'anchor': (167, 32, 1), 'mix': (143, 56, 1), 'rest': (161, 38, 1)}
+x6 kk-step-max:3.5,kk-brawl-p:0.3 0.8251 {'anchor': (181, 19, 0), 'mix': (147, 53, 0), 'rest': (169, 31, 0)}

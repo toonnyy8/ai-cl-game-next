@@ -1,0 +1,9 @@
+u1|:iks-mix-whiff 0.1
+u2|:iks-mix-whiff 0.6
+u3|:iks-mix-space 0.0
+u4|:iks-mix-ptr3 1.0
+u5|:range 0.9
+u6|:cont 1.0
+u7|:ns 0.15
+u8|:iks-break-p 0.3
+u9|:iks-punish-p 1.0 :iks-confirm-p 1.0

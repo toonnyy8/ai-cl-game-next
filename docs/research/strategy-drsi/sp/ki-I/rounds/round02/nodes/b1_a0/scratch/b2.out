@@ -1,0 +1,9 @@
+q1 :iks-mix-whiff 4 :iks-retreat-p 0 :iks-break-p 0.5 0.6007 {'anchor': (185, 1, 14), 'mix': (16, 115, 69), 'rest': (160, 24, 16)}
+q2 :iks-mix-whiff 4 0.6089 {'anchor': (189, 5, 6), 'mix': (20, 123, 57), 'rest': (157, 26, 17)}
+q3 :iks-mix-ptr3 0.2 :iks-retreat-p 0 :iks-break-p 0.5 0.6171 {'anchor': (188, 1, 11), 'mix': (21, 133, 46), 'rest': (162, 24, 14)}
+q4 :iks-hoho-follow 90 0.6155 {'anchor': (191, 4, 5), 'mix': (20, 124, 56), 'rest': (159, 25, 16)}
+q5 :iks-ns-wait 40 0.6072 {'anchor': (188, 4, 8), 'mix': (17, 127, 56), 'rest': (160, 24, 16)}
+q6 :iks-ns-wait 16 0.6122 {'anchor': (191, 3, 6), 'mix': (17, 125, 58), 'rest': (160, 24, 16)}
+q7 :iks-kikon-costly-p 1.0 0.5809 {'anchor': (180, 2, 18), 'mix': (20, 120, 60), 'rest': (149, 24, 27)}
+q8 :iks-getsuga-min 9.0 0.6122 {'anchor': (194, 3, 3), 'mix': (16, 125, 59), 'rest': (158, 25, 17)}
+q9 :iks-mix-ptr3 0 0.6007 {'anchor': (186, 3, 11), 'mix': (18, 133, 49), 'rest': (157, 26, 17)}

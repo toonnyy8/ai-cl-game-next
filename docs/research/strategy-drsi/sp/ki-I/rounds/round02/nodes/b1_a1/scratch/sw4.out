@@ -1,0 +1,4 @@
+o4 :ir2-oki-p 1.0 :ir2-oki-lo 1.5 :ir2-oki-hi 2.1 0.8383 {'anchor': (192, 0, 8), 'mix': (131, 69, 0), 'rest': (182, 16, 2)}
+o5 :ir2-oki-p 1.0 :ir2-oki-lo 1.8 :ir2-oki-hi 2.4 0.835 {'anchor': (189, 0, 11), 'mix': (131, 69, 0), 'rest': (183, 16, 1)}
+o6 :ir2-oki-p 1.0 :ir2-oki-lo 2.2 :ir2-oki-hi 2.8 0.8564 {'anchor': (191, 0, 9), 'mix': (137, 63, 0), 'rest': (188, 12, 0)}
+o7 :ir2-oki-p 1.0 :ir2-oki-lo 1.0 :ir2-oki-hi 1.6 0.8581 {'anchor': (191, 0, 9), 'mix': (137, 63, 0), 'rest': (189, 11, 0)}

@@ -1,0 +1,18 @@
+:kk-read-range 3.4
+"score": 0.8317 "anchor": {"ko_wins": 181, "ko_losses": 19, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 149, "ko_losses": 51, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-reach-p 0.7
+"score": 0.8663 "anchor": {"ko_wins": 185, "ko_losses": 15, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 158, "ko_losses": 41, "timeouts": 1, "draws": 0, "matches": 200, "share 
+:kk-step-max 4.0 :kk-read-range 3.4
+"score": 0.8317 "anchor": {"ko_wins": 181, "ko_losses": 19, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 149, "ko_losses": 51, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-dodge-p 0.9
+"score": 0.8581 "anchor": {"ko_wins": 185, "ko_losses": 15, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 155, "ko_losses": 45, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-ns-safe-p 0.8
+"score": 0.8878 "anchor": {"ko_wins": 183, "ko_losses": 17, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 168, "ko_losses": 32, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-climb-p 0.7
+"score": 0.7376 "anchor": {"ko_wins": 171, "ko_losses": 29, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 118, "ko_losses": 82, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-meaty-p 0.8
+"score": 0.8086 "anchor": {"ko_wins": 179, "ko_losses": 21, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 142, "ko_losses": 58, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-brawl-p 0.8
+"score": 0.8614 "anchor": {"ko_wins": 180, "ko_losses": 19, "timeouts": 1, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 158, "ko_losses": 42, "timeouts": 0, "draws": 0, "matches": 200, "share 
+:kk-link-p 0.8
+"score": 0.8498 "anchor": {"ko_wins": 185, "ko_losses": 15, "timeouts": 0, "draws": 0, "matches": 200, "sh "mix": {"ko_wins": 150, "ko_losses": 50, "timeouts": 0, "draws": 0, "matches": 200, "share 

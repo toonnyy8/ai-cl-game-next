@@ -1,0 +1,6 @@
+# b1_a1 (round 2): b1_a0 (step-max 4.5, awaken on) + :kk-ns-safe-p 0.8
+Mechanism: ken-kh-standoff-style with r1-b2a2's knobs, :kk-step-max 4.5, :kk-awaken-p 1.0 (the parent) plus :kk-ns-safe-p 1.0 -> 0.8 (80% of approaches/decisions wait for her timed Hoho to be unable to read the J1/NS; 20% start regardless, breaking the predictable wait).
+Evidence (seed0 300, new population; parent re-measured 0.8663): ns-safe 0.9 0.8746, 0.8 0.8878, 0.7 0.8812, 0.6 0.8746; +hoho-in-max 3.6 or +dodge-p 0.9 on 0.8 unchanged/0.8878. Other screens on the parent, all not better: ken-ki-style fn 0.665, ken-kh-style fn 0.5116, read-range 3.4 0.8317, 3.8 0.8581, kso-lead +0.1 0.8482 / -0.1 0.8581, hoho-in-p 0.3 0.8284 / 0.15 0.835, kikon-ptr-p 0.7 0.5743, climb-p 0.7 0.7376, meaty-p 0.8 0.8086, brawl-p 0.8 0.8614, link-p 0.8 0.8498, dodge-p 0.9 0.8581; inert: as-on-p 0.5, lunge-p 0.8, bk-ns-p 0, reach-p 0.7.
+Not a repeat: the parent tuned step range and awakening; this relaxes the Hoho-safety gate, which round 1 only tested at 0.5 (harmful on the old population).
+Risk: seed-300 overfit; +0.02 over parent is ~1 SE, and 0.6-0.9 all land 0.875-0.888, so the gain is a plateau, not a sharp peak.
+Measured: score 0.8878; anchor 183W/17L/0TO, mix 168/32/0, rest 184/16/0.

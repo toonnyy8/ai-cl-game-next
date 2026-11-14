@@ -8,7 +8,7 @@
     1.0
   ],
   "branches": 4,
-  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=29a3fe99 python3 docs/research/strategy-drsi/sp/eval.py --me kenpachi --vs ichigo --cand {node_dir}/cand.lisp --seed0 300 -j 3",
+  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=f5048d03 python3 docs/research/strategy-drsi/sp/eval.py --me kenpachi --vs ichigo --cand {node_dir}/cand.lisp --seed0 300 -j 3",
   "lambda": 0.05,
   "refines": 2,
   "task": "SOUL DUEL KI: a strategy arm for kenpachi against ichigo's frozen population (K.O.-only score)",

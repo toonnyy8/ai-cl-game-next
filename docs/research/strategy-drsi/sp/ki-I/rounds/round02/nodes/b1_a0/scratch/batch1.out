@@ -1,0 +1,12 @@
+p1 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-hoho-p 0.0 :iks-wake-hoho-p 0 0.5924 {'anchor': (188, 3, 9), 'mix': (17, 156, 27), 'rest': (151, 41, 8)}
+p2 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-break-p 0.5 0.6172 {'anchor': (185, 2, 13), 'mix': (24, 116, 60), 'rest': (162, 20, 18)}
+p3 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-punish-p 0.0 0.6023 {'anchor': (188, 3, 9), 'mix': (17, 120, 63), 'rest': (157, 25, 18)}
+p4 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-confirm-p 0.0 0.6056 {'anchor': (190, 1, 9), 'mix': (18, 125, 57), 'rest': (156, 27, 17)}
+p5 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-awaken-p 0.0 0.2739 {'anchor': (59, 6, 135), 'mix': (5, 133, 62), 'rest': (99, 49, 52)}
+p6 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-gap-p 0.0 0.6155 {'anchor': (193, 3, 4), 'mix': (17, 127, 56), 'rest': (160, 24, 16)}
+p7 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-retreat-p 0.0 0.6205 {'anchor': (195, 2, 3), 'mix': (17, 125, 58), 'rest': (161, 23, 16)}
+p8 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-wait-max 150 0.6155 {'anchor': (193, 3, 4), 'mix': (17, 127, 56), 'rest': (160, 24, 16)}
+p9 :iks-meaty-p 0.0 :iks-mix-wap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-mix-kessa 0.6 0.604 {'anchor': (189, 1, 10), 'mix': (20, 121, 59), 'rest': (154, 27, 19)}
+p10 :iks-meaty-p 0.0 :iks-mix-gap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-mix-whiff 0.1 0.6155 {'anchor': (193, 3, 4), 'mix': (17, 127, 56), 'rest': (160, 24, 16)}
+p11 :iks-meaty-p 0.0 :iks-mix-gap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-steer-p 0.0 0.2046 {'anchor': (48, 22, 130), 'mix': (11, 158, 31), 'rest': (62, 68, 70)}
+p12 :iks-meaty-p 0.0 :iks-mix-gap-p 1.0 :iks-gap-fs 150 :iks-ns-wait 24 :iks-getsuga-min 6.5 :iks-gap-wait 5.5 0.6089 {'anchor': (190, 3, 7), 'mix': (22, 132, 46), 'rest': (154, 30, 16)}

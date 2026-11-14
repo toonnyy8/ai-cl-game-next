@@ -1,0 +1,12 @@
+a1 :kikon 0.5
+"score": 0.8746 "mix": {"ko_wins": 160, "ko_losses": 33, "timeouts": 7, "draws": 0, "matches": 200, "share": 0.797, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 
+a2 :kikon 0.0 :turn 0.5
+"score": 0.835 "mix": {"ko_wins": 142, "ko_losses": 49, "timeouts": 9, "draws": 0, "matches": 200, "share": 0.7079, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 
+a3 :kikon 0.0 :cont 1.0
+"score": 0.8762 "mix": {"ko_wins": 163, "ko_losses": 30, "timeouts": 7, "draws": 0, "matches": 200, "share": 0.8119, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 
+a4 :kikon 0.0 :kk-step-p 1.0 :kk-hin-fs 100 :kk-hoho-in-p 0.15
+"score": 0.8581 "mix": {"ko_wins": 149, "ko_losses": 31, "timeouts": 20, "draws": 0, "matches": 200, "share": 0.7426, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 
+a5 :kikon 0.0 :kk-kikon-red-p 0.85
+"score": 0.8762 "mix": {"ko_wins": 163, "ko_losses": 30, "timeouts": 7, "draws": 0, "matches": 200, "share": 0.8119, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 
+a6 :kikon 0.0 :kk-bk-floor 0
+"score": 0.8762 "mix": {"ko_wins": 163, "ko_losses": 30, "timeouts": 7, "draws": 0, "matches": 200, "share": 0.8119, "members": {"a-ichigo-press": 2, "c-ki-i-r1-b3a2": 18} 

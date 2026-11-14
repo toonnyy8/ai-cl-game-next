@@ -1,0 +1,2 @@
+stp0 [:iks-steer-p 0.3] => 0.3796 anchor 107/15/78 mix 16/157/27 rest 104/68/28
+stp1 [:iks-steer-p 1.0] => 0.6287 anchor 192/2/6 mix 26/121/53 rest 160/26/14

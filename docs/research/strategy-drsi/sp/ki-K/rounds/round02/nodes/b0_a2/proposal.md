@@ -1,0 +1,6 @@
+# b0_a2 (round 2): sibling b0_a1's arm plus a situational rule: Hoho-safety off while Kenpachi leads
+Mechanism: b0_a1's arm (brawl-p 0.3, dodge-p 0) plus one :rules entry, (((:lead :ahead)) (:kk-ns-safe-p 0.0)): the base keeps :kk-ns-safe-p at 1.0 (patient, waits for her Hoho to be unable to read the start), but whenever Kenpachi leads on Konpaku he starts J1 / NS without that wait, which converts leads into K.O.s instead of stalling.
+Evidence (seed0 300; base = b0_a1 arm 0.8762): ns-safe 0 when behind 0.8284 (worse), ahead 0.934, low own Reishi no usable result, Reishi-red 0.8812, dj afar step-p .5 0.8168, behind brawl 0 0.8498, ahead brawl .6 / dodge .5 0.8482. Variants on the ahead rule: +meaty 1/brawl 0 0.9323, ns-safe .3 0.9307, +reach-p 0 0.9125, +step-p 0 0.8861, +hoho-in 0/lunge .5 0.9191, also when even 0.8432 (bad), +dodge .5 0.9274, +link/ns-stop .5 0.9224. Held-out seed0 400: this arm 0.9241 vs b0_a1 0.8581 (+0.066).
+Not a repeat: siblings and round 1 only set constant :base knobs; this is the first cue-conditioned style knob (leading vs not), a different mechanism from retuning constants.
+Risk: seed-300 selected; mix time-outs 7; a rule on a chance at 0 changes the random stream. Held-out gain supports it.
+Measured (seed0 300): score 0.934; anchor 186W/13L/1TO, mix 184/9/7, rest 193/5/2.

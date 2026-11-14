@@ -1,0 +1,2 @@
+dsw [:dswitch 1.0] => 0.5957 anchor 191/1/8 mix 12/131/57 rest 155/27/18
+aw0 [:awaken 0.5 :iks-awaken-p 1.0] => 0.6155 anchor 193/3/4 mix 17/127/56 rest 160/24/16

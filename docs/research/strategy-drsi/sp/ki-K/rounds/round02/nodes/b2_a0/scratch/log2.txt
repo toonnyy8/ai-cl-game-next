@@ -1,0 +1,11 @@
+y1 [:kk-dodge-p 0.0 :kk-step-p 0.5 ] 0.7805 {'anchor': (169, 31, 0), 'mix': (135, 65, 0), 'rest': (166, 34, 0)}
+y2 [:kk-dodge-p 0.0 :kk-step-p 0.0 ] 0.7426 {'anchor': (150, 50, 0), 'mix': (131, 69, 0), 'rest': (166, 34, 0)}
+y3 [:kk-dodge-p 0.0 :kk-reach-p 1.0 ] 0.7921 {'anchor': (182, 14, 4), 'mix': (123, 76, 1), 'rest': (172, 28, 0)}
+y4 [:kk-dodge-p 0.0 :kk-reach-p 0.0 ] 0.8333 {'anchor': (188, 12, 0), 'mix': (144, 40, 16), 'rest': (170, 25, 5)}
+y5 [:kk-dodge-p 0.0 :kk-brawl-p 1.0 ] 0.8465 {'anchor': (184, 15, 1), 'mix': (149, 43, 8), 'rest': (177, 21, 2)}
+y6 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 ] 0.8713 {'anchor': (186, 14, 0), 'mix': (159, 34, 7), 'rest': (180, 17, 3)}
+y7 [:kk-dodge-p 0.0 :kk-hoho-in-p 0.3 ] 0.8036 {'anchor': (172, 28, 0), 'mix': (137, 50, 13), 'rest': (175, 21, 4)}
+y8 [:kk-dodge-p 0.0 :kk-lunge-p 0.5 ] 0.8498 {'anchor': (183, 17, 0), 'mix': (150, 39, 11), 'rest': (179, 18, 3)}
+y9 [:kk-dodge-p 0.0 :kk-read-range 2.0 ] 0.8267 {'anchor': (179, 20, 1), 'mix': (146, 40, 14), 'rest': (173, 25, 2)}
+y10 [:kk-dodge-p 0.0 :kk-link-p 0.5 ] 0.8515 {'anchor': (187, 12, 1), 'mix': (146, 43, 11), 'rest': (180, 19, 1)}
+y11 [:kk-dodge-p 0.0 :kk-ns-safe-p 0.0 ] 0.8498 {'anchor': (185, 14, 1), 'mix': (151, 28, 21), 'rest': (176, 14, 10)}

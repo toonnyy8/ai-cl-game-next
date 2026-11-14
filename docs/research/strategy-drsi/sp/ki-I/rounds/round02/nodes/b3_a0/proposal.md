@@ -1,0 +1,6 @@
+# b3_a0 (r2): r1 b3a2 with the Kikon hold off, a lower shut-gauge threshold, KESSA weight 1.0 and confirm-p 0.5
+Mechanism: r1 admitted arm c-ki-i-r1-b3a2 plus `:iks-kikon-p 0.0` (never hold the Kikon), `:iks-gap-fs 100` (150: Kenpachi's Hoho counts as shut under 100, ending the stand-off time-outs), `:iks-mix-kessa 1.0` (0.16), `:iks-confirm-p 0.5` (0.95).
+Evidence (seed0 300; r1 b3a2 re-measured against the new population: 0.6155, mix 17/127/56): kikon-p 0 0.6601 (mix 45 wins), gap-fs 100 alone 0.6254 (mix time-outs 56 -> 1 but losses 173), kikon-p 0 + gap-fs 100 0.6963, + kessa 1.0 0.7294, + confirm 0.5 0.7376. Worse or null: meaty-p 1 0.4951, wait-max 150 0.5891, hoho-p 0/1 0.5924/0.5875, mix-generic 1 0.5297, steer-p 0 0.2046, hold-awaken 0.5 0.4571, gap-wait 7.5 0.5611, mix-space 1 0.5875, whiff 0.5 / wait-max 80 / ptr3 0.2 / 1.0 on the final arm 0.668-0.708; confirm 0 / 0.25, awaken-p 0.8 0.734-0.738 (plateau).
+Not a repeat: round 1 tuned against the old Kenpachi (meaty off, whiff-heavy); the new member is a stand-off Kenpachi that never awakens, so the Kikon hold (which times out or loses) and the shut-gauge threshold (stand-off breaker) are the levers that moved.
+Risk: seed-300 overfit (SE ~0.02-0.03; last two steps within noise); mix still loses 117 of 200.
+Measured: score 0.7376; anchor 190W/2L/8TO, mix 79/117/4, rest 175/23/2.

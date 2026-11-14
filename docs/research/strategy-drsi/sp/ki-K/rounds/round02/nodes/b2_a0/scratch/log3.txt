@@ -1,0 +1,7 @@
+z1 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-brawl-p 0.0 ] 0.8267 {'anchor': (183, 17, 0), 'mix': (140, 55, 5), 'rest': (175, 24, 1)}
+z2 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-step-max 6.0 ] 0.8696 {'anchor': (189, 11, 0), 'mix': (159, 34, 7), 'rest': (176, 21, 3)}
+z3 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-awaken-p 1.0 ] 0.8069 {'anchor': (185, 15, 0), 'mix': (133, 61, 6), 'rest': (168, 29, 3)}
+z4 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-climb-p 0.0 ] 0.5792 {'anchor': (135, 63, 2), 'mix': (86, 106, 8), 'rest': (127, 69, 4)}
+z5 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-reach-margin 0.5 ] 0.7987 {'anchor': (171, 28, 1), 'mix': (140, 51, 9), 'rest': (170, 28, 2)}
+z6 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-meaty-p 0.7 ] 0.7211 {'anchor': (161, 36, 3), 'mix': (117, 74, 9), 'rest': (156, 42, 2)}
+z7 [:kk-dodge-p 0.0 :kk-brawl-p 0.2 :kk-kikon-red-p 0.7 ] 0.7343 {'anchor': (168, 31, 1), 'mix': (116, 73, 11), 'rest': (158, 39, 3)}
