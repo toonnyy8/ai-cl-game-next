@@ -207,6 +207,21 @@
            (check (and (eq (fighter-contact fa) :hit) (= (fighter-land-sf fa) (mv-first-hit ns))))
            (check (and (eq (fighter-contact fb) :hit) (= (fighter-land-sf fb) (mv-first-hit j1)) (> (mv-first-hit j1) 5)))
            (check (null bounced))                                                  ; (cross-class: both go on)
+           ;; DUEL_CORE §2.1.2 (the user, 2026-11-14: 「在相消的過程不該能進行閃步」): the cancel's exchange, on both, bars the Hoho for
+           ;; both until it ends; a press is refused and eaten (no buffered Hoho fires the step it ends)
+           (let* ((eaten nil) (ns '(vpad-consume! pilot pilot-vpad)) (os (mapcar (lambda (n) (and (fboundp n) (fdefinition n))) ns)))
+             (setf (fdefinition 'vpad-consume!) (lambda (vp btn) (declare (ignore vp)) (push btn eaten))
+                   (fdefinition 'pilot) (lambda (e) e) (fdefinition 'pilot-vpad) (lambda (p) p))
+             (unwind-protect
+                  (progn
+                    (setf (gauges-fs (gauges a)) *fs-max* (gauges-fs (gauges b)) *fs-max*)
+                    (check (and (>= (fighter-xch fa) 0) (= (fighter-xch fa) (fighter-xch fb))))
+                    (check (not (or (hoho-ready-p a) (hoho-ready-p b))))
+                    (check (and (null (try-command b fb :hoho :step)) (eq (fighter-state fb) :move) (equal eaten '(:step))))
+                    (check (and (null (try-command a fa :hoho :step)) (eq (fighter-state fa) :move)))
+                    (setf (fighter-xch fa) -1 (fighter-xch fb) -1)                   ; (the exchange over: CORE-XCH-STEP)
+                    (check (and (hoho-ready-p a) (hoho-ready-p b))))
+               (loop for n in ns for o in os do (if o (setf (fdefinition n) o) (fmakunbound n)))))
            (in fa ns :ns (mv-first-hit ns)) (in fb j1 :na (+ (mv-s j1) (mv-a j1)))   ; (he is in his recovery: no cancel for him)
            (cancel)
            (check (and (eq (fighter-contact fa) :hit) (null (fighter-contact fb)) (= (fighter-land-sf fb) -1)))

@@ -51,6 +51,13 @@ once from the frame the segment took part in a cancel (CANCELLED, CORE-CANCELLED
 segment's active end while the J side's AS started at once (the later start wins: CORE-LATER), so the J side always had the free turn."
   (or cancelled (>= sf (+ s a))))
 
+(defun core-hoho-open-p (xch)
+  "May a fighter whose exchange is XCH (FIGHTER-XCH, -1 when none) start a Hoho? Not while the exchange a cancel opened is open, until both
+are back in neutral (CORE-XCH-STEP): the user, 2026-11-14: 「那我第一點真正想要的是 B 選項，要正面對決而不是比誰手速快。在相消的過程不該能進行
+閃步。」 (DUEL_CORE §2.1.2). Both sides of every cancel, all fighters. Both carry the same XCH (CORE-XCH-OPEN!, CORE-XCH-STEP and the reset
+write both), so his own is enough."
+  (minusp xch))
+
 
 ;;; ---------------------------------------------------------------- the sequence (what a press means)
 ;;; (*CORE-POINTER-MAX*, *CORE-KIKON-MAX* and *CORE-SOUL-BREAK-MAX* are shared knobs: tuning.lisp, the core system's block)

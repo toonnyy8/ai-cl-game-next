@@ -121,7 +121,7 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
 (defun mc-neutral (e b f kit s d)
   "The MCTS neutral: T when it pressed (see the file header)."
   (when (plusp (aref *mc-plan* (* 5 (fighter-side f))))                 ; a decision made a reaction time ago comes due
-    (return-from mc-neutral (mc-plan-apply b f)))
+    (return-from mc-neutral (mc-plan-apply e b f)))
   (when *in-rollout* (return-from mc-neutral nil))                       ; (a rollout's later decisions: the generic CPU's)
   (when (and *mc-on* (or (eq *mc-on* t) (member (fighter-character f) *mc-on*)) (member (fighter-state f) '(:idle :run))
              (not (member (list (fighter-character f) (brain-difficulty b)) *mc-off-at* :test #'equal))
@@ -166,9 +166,10 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
              (incf (svref *mc-full-stats* 0))
              t))))
 
-(defun mc-plan-apply (b f)
+(defun mc-plan-apply (e b f)
   "His hold is over: the plan's pick (both scored: the better within the difficulty's budget, a softmax between them; still running:
-the light model's best), if he is still free. The plan is cleared either way. T when he pressed."
+the light model's best), if he is still free. The plan is cleared either way. T when he pressed. A Hoho picked a reaction ago is dropped
+when E may not Hoho now (HOHO-READY-P: an exchange opened since, DUEL_CORE §2.1.2)."
   (let* ((k (* 5 (fighter-side f))) (st (aref *mc-plan* k)) (a1 (aref *mc-plan* (+ k 1))) (a2 (aref *mc-plan* (+ k 2))))
     (setf (aref *mc-plan* k) 0)
     (when (and (member (fighter-state f) '(:idle :run)) (>= a1 0))
@@ -178,8 +179,9 @@ the light model's best), if he is still free. The plan is cleared either way. T 
                            ((< (* (+ 1.0 (exp (/ (- gap) (getf *mc-tau* dif 0.03)))) (sim-rnd01)) 1.0) a1)
                            (t a2)))
                    a1)))
-        (mc-press b (nth a *mc-actions*))
-        t))))
+        (unless (and (eq (nth a *mc-actions*) :hoho) (not (hoho-ready-p e)))
+          (mc-press b (nth a *mc-actions*))
+          t)))))
 
 (defun mc-plan-drop (f)
   "F's plan made a reaction time ago is dropped (a style pressed instead: cpu-hisagi-range.lisp HR-TAKEN); its job ends at the next

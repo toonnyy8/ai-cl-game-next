@@ -2,7 +2,7 @@
 (in-package :duel)
 
 ;; which side of a cancel a move in play stands on
-(check (eq (xch-side :na :hit 40 30) :j))                          ; (his J link took part: AS / next J / Hoho open)
+(check (eq (xch-side :na :hit 40 30) :j))                          ; (his J link took part: AS / next J open)
 (check (eq (xch-side :sa :hit 40 30) :j))                          ; (an SA that took part)
 (check (eq (xch-side :ns :hit 40 30) :ns))                         ; (an NS segment: its SA open at once)
 (check (eq (xch-side :ns nil 30 30) :ns))                          ; (on its first frame)
@@ -11,15 +11,15 @@
 (check (null (xch-side :as :hit 40 30)))                           ; (an AS: no answer to make)
 (check (null (xch-side :na :hit -1 30)))                           ; (a real hit: no exchange, the combo route stays the styles')
 (check (null (xch-side :ns :hit 20 30)))                           ; (an exchange from an earlier move)
-;; the J side's answer: weighted, the AS / J only in reach, the Hoho only when ready
-(let ((ws '(:as 0.5 :j 0.25 :hoho 0.25)))
-  (check (eq (xch-j-answer 0.1 ws t t) :as))
-  (check (eq (xch-j-answer 0.6 ws t t) :j))
-  (check (eq (xch-j-answer 0.9 ws t t) :hoho))
-  (check (eq (xch-j-answer 0.9 ws t nil) :j))                      ; (no Hoho: the AS / J share the roll)
-  (check (eq (xch-j-answer 0.1 ws nil t) :hoho))                   ; (out of reach: only the Hoho)
-  (check (null (xch-j-answer 0.1 ws nil nil))))                    ; (nothing: he holds)
-(check (every (lambda (d) (getf (getf *cai-xch-j* d) :as)) '(:easy :normal :hard)))   ; (every difficulty has its weights)
+;; the J side's answer: weighted between the AS and the next J, only in reach; no Hoho (DUEL_CORE §2.1.2: refused in an open exchange)
+(let ((ws '(:as 0.6 :j 0.4)))
+  (check (eq (xch-j-answer 0.1 ws t) :as))
+  (check (eq (xch-j-answer 0.7 ws t) :j))
+  (check (null (xch-j-answer 0.1 ws nil))))                        ; (out of reach: he holds)
+(check (every (lambda (d) (let ((w (getf *cai-xch-j* d))) (and (getf w :as) (null (getf w :hoho))))) '(:easy :normal :hard)))
+(check (not (boundp '*cai-xch-ns-hoho-p*)))                         ; (the NS side's Hoho out left with the rule)
+;; the mix (the harder guess) grows with the difficulty
+(check (<= (getf (getf *cai-xch-j* :easy) :j) (getf (getf *cai-xch-j* :normal) :j) (getf (getf *cai-xch-j* :hard) :j)))
 ;; the NS side sees his turn: an AS or a new J link started after the cancel (perceived); or his J itself when its own hit was the cancel's
 (check (xch-turn-seen-p :as 41 40 nil))
 (check (xch-turn-seen-p :na 45 40 nil))

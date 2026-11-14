@@ -74,9 +74,11 @@ bits already: it keeps its box, and no new one is made. PLACE is read before it 
 
 ;;; ---------------------------------------------------------------- small helpers (pure reads; the kits and the CPU use them)
 (defun hoho-ready-p (e)
-  "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst)?"
+  "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst; no open exchange, CORE-HOHO-OPEN-P)? Every CPU's Hoho
+press asks it, so none is pressed inside an exchange."
   (let ((f (fighter e)) (g (gauges e)))
-    (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g))))
+    (and (core-hoho-open-p (fighter-xch f))
+         (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g)))))
 (defun current-move (f) "The move fighter F is in (his MOVE while his state is :move), else NIL." (and (eq (fighter-state f) :move) (fighter-move f)))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
@@ -410,7 +412,12 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
   (let ((g (gauges e)) (kit (fighter-kit f)))
     (case cmd
       (:step (start-step e f) t)
-      (:hoho (when (hoho-ready-p e) (start-hoho e f) t))
+      (:hoho (cond ((not (core-hoho-open-p (fighter-xch f)))   ; an open exchange (DUEL_CORE §2.1.2): refused, the press eaten with the
+                    (when button (vpad-consume! (pilot-vpad (pilot e)) button))   ;  cue, so no buffered Hoho fires the step it ends
+                    (emit :refused e :hoho)
+                    (clog "~a refused hoho: exchange" (side-name e))
+                    nil)
+                   ((hoho-ready-p e) (start-hoho e f) t)))
       (:awaken (let ((free (awaken-state-p e f)))
                  (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
                        ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
