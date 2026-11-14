@@ -1,0 +1,9 @@
+spfit/r1-k 201-400: 1600 matches, 268613 judgements, arms played [196712, 14555, 13901, 13930, 14566, 14949]
+share of judgements with the cue at 1: ored 0.250, awk 0.549, oawk 0.576, wall 0.241
+awk agrees with G1 form >= 1 in 1.000 of judgements
+kept deltas per group (cells): G0 30/108 (placebo 14), G1 11/54 (placebo 2), G2 20/54 (placebo 11), G3 11/24 (placebo 5), G4 4/12 (placebo 4), ored 1/12 (placebo 2), awk 10/12 (placebo 2), oawk 2/12 (placebo 1), wall 6/12 (placebo 2)
+run effect of arm 1 on the K.O. win: +0.37 per unit share (se 0.14, z +2.72), mean share 0.054
+run effect of arm 2 on the K.O. win: -0.11 per unit share (se 0.14, z -0.83), mean share 0.052
+run effect of arm 3 on the K.O. win: -0.23 per unit share (se 0.14, z -1.65), mean share 0.051
+run effect of arm 4 on the K.O. win: -0.23 per unit share (se 0.13, z -1.79), mean share 0.054
+run effect of arm 5 on the K.O. win: -0.45 per unit share (se 0.13, z -3.59), mean share 0.056

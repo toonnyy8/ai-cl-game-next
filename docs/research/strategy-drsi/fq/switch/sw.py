@@ -17,12 +17,17 @@ arms/hi-pilot.arms).
 
 Logs go under logs/<tag>/ (gitignored); a measure's summary to <tag>.json here.
 
-The rule base (Lisp groups, strategy.lisp STRAT-FQ-Q :GROUPS; Q = the sum of each group's firing-weighted average):
+The rule base (--rb, read from strategy.lisp's *STRAT-RULE-BASES*, written inline with its :groups; Q = the sum of each group's
+firing-weighted average, STRAT-FQ-Q :GROUPS). :rb-switch89 (the default, §8.19):
   G0  72  lead x ored x ost x awk x prev: 48 with prev :no / :yes (arm 0 / arm 1) + 24 with prev :p2up (arm 2 or later)
   G1   9  my form (Shikai / ranged / bind) x distance in metres (:m-close / :m-mid / :m-far): the user's distance rule lives here
   G2   4  the switch's gauge (DRIVE awakened, SUBLIMATION before; :g-low / :g-high about 0.25) x awk
   G3   2  the wall (:w-near within 2-3 m / :w-open)
   G4   2  his awakening
+:rb-sp (§11.3, PLAN §4): G0 18 lead x ost x prev, G1 9 form x distance, G2 9 my x his flash-step cells, G3 4 my x his burst, G4 2 exchange.
+--ko (PLAN §4, §11): a K.O. pays +-1 at the end, a time-out -1 to both, a draw before the bell 0; measure's share / score / wins count K.O.
+wins only. Without it the old terminal (the winner at the bell +-1). Never log or measure on seeds 601-800 (the final gates) by default:
+pass --seeds.
 """
 import argparse, concurrent.futures as cf, gzip, json, os, re, subprocess, sys
 import numpy as np
@@ -33,11 +38,14 @@ ROOT = os.path.abspath(os.path.join(HERE, '../../../../..'))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 sys.path.insert(0, FQD)
 from simgate import ECL, FAS, MUSLM, build   # noqa: E402
+from simlib import row_ko                    # noqa: E402
 import fq                                    # noqa: E402
 
 HARD = 2
 LOGS = os.path.join(HERE, 'logs')
 ME = VS = MEN = VSN = OPP = NA = None          # (the pairing, the opponent seat's STRAT_ value, the arm count: CONFIGURE)
+RB = ':rb-switch89'                              # (--rb: the rule base the tables are written on; CONFIGURE)
+KO = False                                       # (--ko: PLAN §4's K.O.-only outcome, DUEL_AI_STRATEGY §11: a time-out pays -1 to both)
 EVENT = None                                     # (--event: the :KNOCKDOWN event arm's plist every written table carries, §8.19 step 6)
 ARMS = []
 
@@ -45,48 +53,48 @@ ARMS = []
 def configure(a):
     """Set the pairing from the common options: --me / --vs (names), --opp (a file, `none` or a comma pool, relative to this directory or
     absolute), --arms (an arms file here: one arm plist a line, in arm order, ;-lines comments)."""
-    global ME, VS, MEN, VSN, OPP, NA, ARMS, EVENT
+    global ME, VS, MEN, VSN, OPP, NA, ARMS, EVENT, RB, KO
     EVENT = getattr(a, 'event', None)
+    RB, KO = getattr(a, 'rb', ':rb-switch89'), getattr(a, 'ko', False)
+    set_rule_base(RB)
     MEN, VSN = a.me, a.vs
     ME, VS = fq.ROSTER[a.me], fq.ROSTER[a.vs]
     OPP = ','.join(x if x == 'none' else os.path.abspath(os.path.join(HERE, x)) for x in a.opp.split(','))
     ARMS = [l.strip() for l in open(os.path.join(HERE, a.arms)) if l.strip() and not l.lstrip().startswith(';')]
     NA = len(ARMS)
-LEAD = (':behind', ':even', ':ahead')
-YN = (':no', ':yes')
 
 
-def rules():
-    """-> [(antecedent text, group)] in table order."""
-    out = [(fq.ante(c), 0) for c in range(fq.NC)]
-    for lc in range(3):
-        for ored in range(2):
-            for free in range(2):
-                for awk in range(2):
-                    out.append((f'((:lead {LEAD[lc]}) (:ored {YN[ored]}) (:ost {":free" if free else ":busy"}) (:awk {YN[awk]}) (:prev :p2up))', 0))
-    for fm in (':no', ':yes', ':k2'):
-        for dm in (':m-close', ':m-mid', ':m-far'):
-            out.append((f'((:form {fm}) (:dm {dm}))', 1))
-    for g in (':g-low', ':g-high'):
-        for awk in YN:
-            out.append((f'((:gauge {g}) (:awk {awk}))', 2))
-    out += [('((:wall :w-near))', 3), ('((:wall :w-open))', 3), ('((:oawk :no))', 4), ('((:oawk :yes))', 4)]
-    return out
+RULES = GROUPS = GROUP_OF = RULE_NAMES = None
+NR = 0
 
 
-RULES = rules()
-NR = len(RULES)
-GROUPS = [sum(1 for _, g in RULES if g == k) for k in range(5)]
-GROUP_OF = np.array([g for _, g in RULES])
-RULE_NAMES = [a for a, _ in RULES]
+def rule_base(rb):
+    """The rule base RB (e.g. :rb-switch89, :rb-sp) as strategy.lisp's *STRAT-RULE-BASES* defines it: -> ([(antecedent text, group)], groups).
+    Read from the Lisp source, the one definition; a raw table file is never expanded, so write_table writes these antecedents inline."""
+    t = open(os.path.join(ROOT, 'duel/lisp/strategy.lisp')).read()
+    i = t.index(f'(:id {rb} ')
+    j = min(k for k in (t.find('(:id :rb-', i + 1), t.index('"The rule bases', i)) if k > 0)
+    blk = t[i:j]
+    groups = [int(x) for x in re.search(r':groups \(([\d ]+)\)', blk).group(1).split()]
+    antes = ['(' + x + ')' for x in re.findall(r'\((\(:[\w-]+ :[\w-]+\)(?: \(:[\w-]+ :[\w-]+\))*)\)', blk[blk.index(':antes'):])]
+    assert len(antes) == sum(groups), f'{rb}: {len(antes)} antecedents, groups {groups}'
+    return [(a, k) for k, n in enumerate(groups) for a in antes[sum(groups[:k]):sum(groups[:k]) + n]], groups
+
+
+def set_rule_base(rb):
+    global RULES, NR, GROUPS, GROUP_OF, RULE_NAMES
+    RULES, GROUPS = rule_base(rb)
+    NR = len(RULES)
+    GROUP_OF = np.array([g for _, g in RULES])
+    RULE_NAMES = [a for a, _ in RULES]
 
 
 def arms_text():
     return '(' + ' '.join(ARMS) + ')'
 
 
-def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False):
-    keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t' + (' :keep-state t' if keep else '')
+def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False, margin=None):
+    keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t' + (' :keep-state t' if keep else '') + (f' :margin {margin}' if margin else '')
     if EVENT:
         keys += f' :event-arms ((:knockdown {EVENT}))'
     if period:
@@ -95,8 +103,12 @@ def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=Fa
         keys += f' :gamma {gamma} :scale {scale}'
     body = '\n          '.join(f'({RULES[r][0]} {" ".join(f"{q[r, a]:.4f}" for a in range(NA))})' for r in range(NR))
     with open(path, 'w') as f:
-        f.write(f';; {note}\n;; Groups {GROUPS}: G0 lead x ored x ost x awk x prev, G1 form x distance (m), G2 gauge x awk, G3 wall, G4 his awakening.\n'
+        f.write(f';; {note}\n;; {RB} written inline (raw files are never expanded), groups {GROUPS}: {GROUP_DOC.get(RB, "")}\n'
                 f'(:id {sid} :apply (:{MEN} :{VSN}) :fq (:arms {arms_text()} {keys}\n     :rules ({body})))\n')
+
+
+GROUP_DOC = {':rb-switch89': 'G0 lead x ored x ost x awk x prev, G1 form x distance (m), G2 gauge x awk, G3 wall, G4 his awakening.',
+             ':rb-sp': 'G0 lead x ost x prev, G1 form x distance (m), G2 my x his flash-step cells, G3 my x his burst, G4 an exchange open.'}
 
 
 def read_q(path):
@@ -120,7 +132,7 @@ def cmd_start(a):
             q[fq.NC + k] = q[2 * k]
         note = f'The start table: {a.embed} inside the grouped rule base; arms 2- below, every new group 0, so it plays that table bit for bit.'
     else:                                                             # (arm 0 everywhere: it plays arm 0 whole)
-        q[:fq.NC + 24, 1:] = -1e-3
+        q[GROUP_OF == 0, 1:] = -1e-3
         note = 'The start table: arm 0 in every state (G0 puts every other arm 0.001 below), so it plays arm 0 whole.'
     write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q, note, period=a.period, keep=a.keep_state)
 
@@ -138,11 +150,11 @@ def run(args):
     env = {k: v for k, v in os.environ.items() if not k.startswith('STRAT_')}
     env.update(LD_PRELOAD=MUSLM, STRAT_FQLOG=f'{salt} {eps} {seat[1]}' + (f' {rmin} {rmax}' if rmax else ''), STRAT_HRANGE='1')
     env['STRAT_' + seat] = table
-    env['STRAT_' + ('P2' if seat == 'P1' else 'P1')] = os.path.abspath(OPP)
-    cmds = [30000 + seed0, 31100 + n, 81000, 81020 + HARD, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
-    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                       capture_output=True, text=True, env=env, timeout=7200)
-    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'dswitch ', 'switch ', 'event '))]
+    env['STRAT_' + ('P2' if seat == 'P1' else 'P1')] = OPP          # (CONFIGURE made it absolute; `none` stays `none`)
+    cmds = [30000 + seed0, 31100 + n, 81020 + HARD, 200000 + 100 * c1 + 10 * c2]   # (strategy-switch.py's run_job: 81000 / 81030 / 81040, ASSIST's,
+    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,   # were freed)
+                       capture_output=True, text=True, env=env, timeout=7200, stdin=subprocess.DEVNULL)
+    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'dswitch ', 'switch ', 'event ', 'duel hash '))]   # (hash lines: the identity proofs)
     rows = sum(l.startswith('duel gate row ') for l in keep)
     if r.returncode or rows != n:
         sys.exit(f'sw.py: sim exited {r.returncode}, {rows} of {n} rows ({path})\n' + (r.stdout + r.stderr)[-2000:])
@@ -157,7 +169,7 @@ def play(table, tag, seeds, salt=0, eps=0.0, runs=(None, None), j=8):
     # every sim runs build/simgate/duel.fas as it is: rebuild it first when a source is newer, or a swapped-in file plays the last build's
     # code (step 9's bundle and fidelity runs played round 3's b1_a2, §8.19 round 5, step 11). ponytail: mtime only, blind to `cp -p`.
     build()
-    table = os.path.abspath(table)
+    table = table if table == 'none' else os.path.abspath(table)   # (none: no strategy on my seat, a reference run)
     os.makedirs(os.path.join(LOGS, tag), exist_ok=True)
     with open(os.path.join(LOGS, tag, 'args.txt'), 'a') as f:
         f.write(f'salt {salt} eps {eps} runs {runs} seeds {seeds} table {os.path.relpath(table, ROOT)}\n')
@@ -177,7 +189,8 @@ LINE = re.compile(r'fq (\d+) (\d+) (P\d) lead (-?\d+) ored (\d) ost (\d) mr \S+ 
 
 
 def parse_file(path, seat):
-    """-> {seed: dict(js=[(tick, arm, greedy, h, dm, form, fire dict, oawk, gauge, wall, lead)], end=h, win=+1/-1/0, hr=...)}"""
+    """-> {seed: dict(js=[(tick, arm, greedy, h, dm, form, fire dict, oawk, gauge, wall, lead, ored, ost, awk)], end=h, win=+1/-1/0, ko=1/0,
+    hr=...)}"""
     per = {}
     for line in gzip.open(path, 'rt'):
         if line.startswith('fq '):
@@ -189,7 +202,7 @@ def parse_file(path, seat):
             per.setdefault(int(g.group(1)), dict(js=[]))['js'].append(
                 (int(g.group(2)), int(g.group(10)), int(g.group(9)), float(g.group(11)) - float(g.group(12)), float(g.group(13)) if x else None,
                  int(g.group(14)) if x else None, fire, int(g.group(15)) if x else None, float(g.group(16)) if x else None,
-                 float(g.group(17)) if x else None, int(g.group(4))))
+                 float(g.group(17)) if x else None, int(g.group(4)), int(g.group(5)), int(g.group(6)), int(g.group(7))))
         elif line.startswith('fqend '):
             p = line.split()
             if p[2] == seat:
@@ -199,6 +212,11 @@ def parse_file(path, seat):
             secs = re.search(r' secs? ([\d.]+)', line)
             d = per.setdefault(int(m.group(1)), dict(js=[]))
             d['win'] = 1.0 if m.group(2) == seat else (-1.0 if m.group(2) in ('P1', 'P2') else 0.0)
+            d['ko'] = row_ko(line)                                    # (1 before the bell, 0 the time-out bell, None an old build)
+            if KO:                                                    # (PLAN §4: a K.O. +-1, a time-out -1 to both, a draw before the bell 0)
+                if d['ko'] is None:
+                    sys.exit(f'sw.py --ko: a gate row without its ko field (an old build?): {line}')
+                d['win'] = d['win'] if d['ko'] else -1.0
             d['secs'] = float(secs.group(1)) if secs else None
         elif line.startswith('dswitch '):
             p = line.split()
@@ -256,19 +274,34 @@ def ridge_fit(X, A, Y, w, lam_v, lam_d, prior=None):
     preference it starts from; default 0 = no preference). -> theta (NR x NA) = v + delta_a."""
     w = w.astype(np.float32)
     Xw = X * w[:, None]
-    v = np.linalg.solve((Xw.T @ X).astype(float) + lam_v * np.eye(NR), (Xw.T @ Y).astype(float))
+    nr = X.shape[1]                                                   # (NR, or more columns: cues.py's offline extra cues)
+    v = np.linalg.solve((Xw.T @ X).astype(float) + lam_v * np.eye(nr), (Xw.T @ Y).astype(float))
     res = (Y - X @ v.astype(np.float32)).astype(np.float32)
-    th = np.zeros((NR, NA))
+    th = np.zeros((nr, NA))
     for a in range(NA):
         m = (A == a)
         if w[m].sum() <= 0:
             th[:, a] = v
             continue
         Xa, Xwa = X[m], Xw[m]
-        p0 = np.zeros(NR) if prior is None else prior[:, a]
-        d = np.linalg.solve((Xwa.T @ Xa).astype(float) + lam_d * np.eye(NR), (Xwa.T @ res[m]).astype(float) + lam_d * p0)
+        p0 = np.zeros(nr) if prior is None else prior[:, a]
+        d = np.linalg.solve((Xwa.T @ Xa).astype(float) + lam_d * np.eye(nr), (Xwa.T @ res[m]).astype(float) + lam_d * p0)
         th[:, a] = v + d
     return th, v
+
+
+def gated(X, A, Y, U, nu, lam_v, lam, prior, boot, conf):
+    """The fit and its gate: a delta coefficient survives when the match bootstrap (NU matches, U = each row's match) agrees on its sign in
+    >= CONF of BOOT replicates. -> v, d (every delta), dg (the surviving ones; the gate acts on the move away from PRIOR)."""
+    th, v = ridge_fit(X, A, Y, np.ones(len(Y)), lam_v, lam, prior)
+    d = th - v[:, None] - prior
+    rng = np.random.default_rng(1)
+    sign = np.zeros(d.shape)
+    for b in range(boot):
+        w = rng.poisson(1.0, nu)[U].astype(float)
+        tb, vb = ridge_fit(X, A, Y, w, lam_v, lam, prior)
+        sign += np.sign(tb - vb[:, None] - prior) == np.sign(d)
+    return v, d, np.where(sign / boot >= conf, d, 0.0)
 
 
 def cmd_fit(a):
@@ -283,36 +316,28 @@ def cmd_fit(a):
         for r, (ante, g) in enumerate(RULES):
             if g == 1 and ante.startswith(f'((:form {fm})') and (not a.prior_band or ante.endswith(f'(:dm :m-{a.prior_band}))')):
                 prior[r, arm] = b
-    th, v = ridge_fit(X, A, Y, np.ones(len(Y)), a.lam_v, a.lam, prior)
-    d = th - v[:, None] - prior
-    # the gate: a delta coefficient survives when the match bootstrap agrees on its sign in >= CONF of the replicates
-    rng = np.random.default_rng(1)
-    nu = len(ms)
-    sign = np.zeros((NR, NA))
-    for b in range(a.boot):
-        w = rng.poisson(1.0, nu)[U].astype(float)
-        tb, vb = ridge_fit(X, A, Y, w, a.lam_v, a.lam, prior)
-        sign += np.sign(tb - vb[:, None] - prior) == np.sign(d)
-    agree = sign / a.boot
-    dg = np.where(agree >= a.conf, d, 0.0)                          # (the gate acts on the move away from the prior)
+    v, d, dg = gated(X, A, Y, U, len(ms), a.lam_v, a.lam, prior, a.boot, a.conf)
     q = v[:, None] + prior + dg
     q -= 1e-4
     q[:, a.default] += 1e-4                                           # (no preference: the default arm, pi0)
+    if a.only:                                                        # (--only: the other arms 1 below every row's minimum, never picked)
+        keep = [int(x) for x in a.only.split(',')]
+        q[:, [k for k in range(NA) if k not in keep]] = q[:, keep].min(1, keepdims=True) - 1.0
     q = np.round(q, 4)
     # what the table would play on the data's own states
     Q = X @ q
     pick = Q.argmax(1)
     write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q,
                 f'sw.py fit --tag {a.tag} --seeds {a.seeds} --gamma {a.gamma} --scale {a.scale} --lam {a.lam} --lam-v {a.lam_v} '
-                f'--conf {a.conf} --boot {a.boot} --default {a.default}' + (f' --prior {" ".join(a.prior)}' if a.prior else '') + (f' --prior-band {a.prior_band}' if a.prior_band else '') + f': {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale,
-                keep=a.keep_state)
+                f'--conf {a.conf} --boot {a.boot} --default {a.default} --rb {RB}' + (' --ko' if KO else '') + (f' --margin {a.margin}' if a.margin else '') + (f' --only {a.only}' if a.only else '') + (f' --prior {" ".join(a.prior)}' if a.prior else '') + (f' --prior-band {a.prior_band}' if a.prior_band else '') + f': {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale,
+                keep=a.keep_state, margin=a.margin)
     res = dict(tag=a.tag, seeds=a.seeds, gamma=a.gamma, scale=a.scale, lam=a.lam, lam_v=a.lam_v, conf=a.conf, boot=a.boot, matches=len(ms),
                judgements=int(len(Y)), behaviour_arms=np.bincount(A, minlength=NA).tolist(), greedy_on_data=np.bincount(pick, minlength=NA).tolist(),
                kept=[[RULE_NAMES[r], a_] for r in range(NR) for a_ in range(NA) if dg[r, a_] != 0])
     with open(os.path.splitext(a.out)[0] + '.json', 'w') as f:
         json.dump(res, f, indent=1)
     print(json.dumps({k: v_ for k, v_ in res.items() if k != 'kept'}))
-    print(f'kept deltas: {len(res["kept"])}')
+    print(f'kept deltas: {len(res["kept"])}, per group {np.bincount([GROUP_OF[RULE_NAMES.index(r)] for r, _ in res["kept"]], minlength=len(GROUPS)).tolist()}')
 
 
 def form_names():
@@ -331,9 +356,12 @@ def summarize(ms):
     changes = [sum(1 for k in range(1, len(m['js'])) if m['js'][k][1] != m['js'][k - 1][1]) for m in ms]
     arms = np.zeros(max([NA] + [j[1] + 1 for m in ms for j in m['js']]))
     by = {}
+    rule = np.zeros((NR, len(arms)))                                  # (each rule's firing strength by the arm played: what it picks where)
     for m in ms:
         for j in m['js']:
             arms[j[1]] += 1
+            for r, x in j[6].items():
+                rule[r, j[1]] += x
             if j[4] is None:
                 continue
             fn = form_names()[j[5]]
@@ -346,7 +374,12 @@ def summarize(ms):
                changes_per_match=dict(mean=round(float(np.mean(changes)), 2), median=float(np.median(changes)),
                                       zero=int(sum(c == 0 for c in changes))),
                by={k: {kk: dict(n=int(vv.sum()), share=[round(x / max(1, vv.sum()), 3) for x in vv]) for kk, vv in v.items()} for k, v in by.items()},
+               by_rule={RULE_NAMES[r]: dict(w=round(float(rule[r].sum()), 1), share=[round(x / rule[r].sum(), 3) for x in rule[r]])
+                        for r in range(NR) if rule[r].sum() > 0},
                wins=wins)
+    kw = sum(1 for m in ms if m['win'] > 0)
+    out.update(timeouts=sum(1 for m in ms if m.get('ko') == 0), ko_rate=round(sum(1 for m in ms if m.get('ko') == 1) / max(1, n), 3),
+               score=round((kw + 1) / (n + 2), 4))              # (with --ko: share and score count K.O. wins only, eval.py's (W + 1) / (n + 2))
     lv = [next((j[0] for j in m['js'] if j[5] not in (None, 0)), None) for m in ms if m['js'] and m['js'][0][5] is not None]
     if lv:                                                            # (when he first leaves the Shikai: his awakening's timing)
         t = [x / 60.0 for x in lv if x is not None]
@@ -365,9 +398,10 @@ def cmd_eval(a):
     play(a.table, a.tag, a.seeds, j=a.j)
     lo, hi = (int(x) for x in a.seeds.split('-'))
     out = dict(table=os.path.relpath(os.path.abspath(a.table), ROOT), seeds=a.seeds, **summarize(load(a.tag, lo, hi)))
+    os.makedirs(os.path.dirname(os.path.join(HERE, a.tag)), exist_ok=True)
     with open(os.path.join(HERE, a.tag + '.json'), 'w') as f:
         json.dump(out, f, indent=1)
-    print(json.dumps({k: v for k, v in out.items() if k not in ('wins', 'by')}))
+    print(json.dumps({k: v for k, v in out.items() if k not in ('wins', 'by', 'by_rule', 'dswitch', 'hrange')}))
 
 
 def cmd_pin(a):
@@ -383,7 +417,8 @@ def cmd_pin(a):
     g = float(text.split(':gamma ')[1].split()[0]) if ':gamma ' in text else None
     sc = float(text.split(':scale ')[1].split()[0]) if ':scale ' in text else None
     per = int(text.split(':period ')[1].split()[0]) if ':period ' in text else None
-    write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q, note, period=per, gamma=g, scale=sc, keep=':keep-state t' in text)
+    write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q, note, period=per, gamma=g, scale=sc, keep=':keep-state t' in text,
+                margin=float(text.split(':margin ')[1].split()[0]) if ':margin ' in text else None)
 
 
 def cmd_pair(a):
@@ -398,6 +433,8 @@ def main():
     com.add_argument('--me', default='hisagi', choices=list(fq.ROSTER)); com.add_argument('--vs', default='ichigo', choices=list(fq.ROSTER))
     com.add_argument('--opp', default='../../counter/frozen/ki-ichigo.lisp', help='the opponent seat: a file, none, or a comma pool')
     com.add_argument('--arms', default='arms/hi-pilot.arms', help='the arms file (one plist a line, in arm order)')
+    com.add_argument('--rb', default=':rb-switch89', help='the rule base (strategy.lisp *STRAT-RULE-BASES*): :rb-switch89 or :rb-sp')
+    com.add_argument('--ko', action='store_true', help='K.O.-only outcomes (PLAN §4): a time-out pays -1 to both; share / score count K.O. wins')
     com.add_argument('--event', help='an arm plist: every table written carries it as its :KNOCKDOWN event layer (:EVENT-ARMS, §8.19 round 5 step 6)')
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -407,19 +444,21 @@ def main():
     p = sub.add_parser('log', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--salt', type=int, required=True)
     p.add_argument('--eps', type=float, default=0.03); p.add_argument('--runs', type=int, nargs=2, default=[6, 18])
-    p.add_argument('--seeds', default='1-599'); p.add_argument('-j', type=int, default=20)
+    p.add_argument('--seeds', required=True); p.add_argument('-j', type=int, default=6)   # (the pilot's 1-599 / 701-800 and -j 20: §11
+    # forbids 601-800 and 400 in a fit and AGENTS.md -j <= 6, so a run names its seeds)
     p = sub.add_parser('fit', parents=[com])
-    p.add_argument('--tag', required=True); p.add_argument('--out', required=True); p.add_argument('--seeds', default='1-599')
+    p.add_argument('--tag', required=True); p.add_argument('--out', required=True); p.add_argument('--seeds', required=True)
     p.add_argument('--gamma', type=float, default=0.966); p.add_argument('--scale', type=float, default=0.1)
     p.add_argument('--lam', type=float, default=300.0); p.add_argument('--lam-v', type=float, default=1.0)
     p.add_argument('--conf', type=float, default=0.95); p.add_argument('--boot', type=int, default=20); p.add_argument('--period', type=int, default=30)
     p.add_argument('--default', type=int, default=0, help='the arm where no delta survives (pi0)')
-    p.add_argument('--keep-state', action='store_true')
+    p.add_argument('--only', help='a comma list of arms the table may pick (the fit uses every logged arm; the rest are never picked)')
+    p.add_argument('--keep-state', action='store_true'); p.add_argument('--margin', type=float, help='the table\'s :margin (hysteresis)')
     p.add_argument('--prior', nargs=3, metavar=('FORM', 'ARM', 'B'), help='start ARM at bias B in FORM\'s G1 rows; the data moves it')
     p.add_argument('--prior-band', choices=('close', 'mid', 'far'), help='the prior only in that distance band\'s G1 row')
     p = sub.add_parser('measure', parents=[com])
-    p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', default='701-800')
-    p.add_argument('-j', type=int, default=20)
+    p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', required=True)
+    p.add_argument('-j', type=int, default=6)
     p = sub.add_parser('pin', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--out', required=True); p.add_argument('--form', type=int, default=0)
     p.add_argument('--arm', type=int, default=0); p.add_argument('--bonus', type=float, default=1.0)

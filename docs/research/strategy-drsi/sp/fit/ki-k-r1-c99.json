@@ -1,0 +1,226 @@
+{
+ "tag": "spfit/r1-k",
+ "seeds": "201-400",
+ "gamma": 0.966,
+ "scale": 0.1,
+ "lam": 3000.0,
+ "lam_v": 1.0,
+ "conf": 0.99,
+ "boot": 100,
+ "matches": 1600,
+ "judgements": 268613,
+ "behaviour_arms": [
+  196712,
+  14555,
+  13901,
+  13930,
+  14566,
+  14949
+ ],
+ "greedy_on_data": [
+  76653,
+  120992,
+  7731,
+  19515,
+  42712,
+  1010
+ ],
+ "kept": [
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ost :busy) (:prev :no))",
+   5
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :no))",
+   5
+  ],
+  [
+   "((:lead :behind) (:ost :free) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :even) (:ost :busy) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :no))",
+   5
+  ],
+  [
+   "((:lead :even) (:ost :free) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ost :busy) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ost :free) (:prev :p2up))",
+   5
+  ],
+  [
+   "((:form :no) (:dm :m-close))",
+   0
+  ],
+  [
+   "((:form :no) (:dm :m-close))",
+   2
+  ],
+  [
+   "((:form :no) (:dm :m-close))",
+   4
+  ],
+  [
+   "((:form :no) (:dm :m-far))",
+   0
+  ],
+  [
+   "((:form :no) (:dm :m-far))",
+   4
+  ],
+  [
+   "((:form :no) (:dm :m-far))",
+   5
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   0
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   5
+  ],
+  [
+   "((:form :yes) (:dm :m-mid))",
+   0
+  ],
+  [
+   "((:form :yes) (:dm :m-mid))",
+   4
+  ],
+  [
+   "((:mcell :no) (:ocell :no))",
+   1
+  ],
+  [
+   "((:mcell :no) (:ocell :no))",
+   4
+  ],
+  [
+   "((:mcell :no) (:ocell :no))",
+   5
+  ],
+  [
+   "((:mcell :no) (:ocell :p2up))",
+   5
+  ],
+  [
+   "((:mcell :yes) (:ocell :no))",
+   0
+  ],
+  [
+   "((:mcell :yes) (:ocell :yes))",
+   0
+  ],
+  [
+   "((:mcell :yes) (:ocell :yes))",
+   3
+  ],
+  [
+   "((:mcell :yes) (:ocell :p2up))",
+   4
+  ],
+  [
+   "((:mcell :p2up) (:ocell :p2up))",
+   1
+  ],
+  [
+   "((:mburst :no) (:oburst :no))",
+   0
+  ],
+  [
+   "((:mburst :no) (:oburst :yes))",
+   5
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   0
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   1
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   2
+  ],
+  [
+   "((:mburst :yes) (:oburst :no))",
+   3
+  ],
+  [
+   "((:xch :no))",
+   0
+  ],
+  [
+   "((:xch :no))",
+   5
+  ]
+ ]
+}
