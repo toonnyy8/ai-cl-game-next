@@ -1,5 +1,5 @@
 #!/bin/sh
-# proofs.sh — checkpoint 2b's four arms5 T0 tables: each raw file (arms5/t0/t0-<t>.lisp, run through STRAT_P*; its :with expanded by the
+# proofs.sh — checkpoint 2b's four arms5 T0 tables (KI both, KK, II) and checkpoint 2c's four (KH both, IH both; 2026-11-16): each raw file (arms5/t0/t0-<t>.lisp, run through STRAT_P*; its :with expanded by the
 # runner) = the live HARD lookup (:t0-<t>, the unit library expanded), seeds 141-150 (arms5's block), both seats, against the other side's
 # raw T0 (a mirror: itself) -> arms5/t0/proofs-140.jsonl (arms4/t0final/proofs.sh's method, DUEL_AI_STRATEGY §11.16). Run from the repo root.
 set -e
@@ -14,6 +14,10 @@ ichigo kenpachi ki-ichigo ki-kenpachi
 kenpachi ichigo ki-kenpachi ki-ichigo
 kenpachi kenpachi kk-kenpachi kk-kenpachi
 ichigo ichigo ii-ichigo ii-ichigo
+kenpachi hisagi kh-kenpachi kh-hisagi
+hisagi kenpachi kh-hisagi kh-kenpachi
+ichigo hisagi ih-ichigo ih-hisagi
+hisagi ichigo ih-hisagi ih-ichigo
 EOF
 python3 -c "
 import json

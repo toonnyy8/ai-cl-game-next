@@ -3407,3 +3407,10 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   as merged until the user's playtest; the ladder's two lost cells go to the tier tuning. 「KH、IH 換新表，HH 保留舊表 (Recommended)」:
   arms5's final T0s for both sides of KH and IH (`sp/arms5/t0/t0-kh-*`, `t0-ih-*`) replace B4's in the lookup; HH keeps B4's (it stares with
   either table; reworked later).
+- **Checkpoint 2c tables in the lookup** (`sp/arms5/tables2.md`; `sp/arms5/t0/add.sh`, a new style unit `:st-hisagi-own` and Hisagi's
+  five `h5-*` arm units; raw = lookup on 8 of 8 rows, `proofs-140.jsonl`, the 2b rows rerun with the finish; saved online copies reset).
+  HARD vs HARD with the finish, 141-180 (501-540), the shipped rows = kh5 / ih5 exactly: KH K.O. .975 (.988), Kenpachi's points .975
+  (.925), median changes Kenpachi 63.5 / Hisagi 89.5; IH K.O. .887 (.887, short), Ichigo's points .075 (.075), changes Ichigo 99.5 /
+  Hisagi 60. Dev ladder 501-600: 15 → 15 of 27; H>N IH .497 → .720, H>N HK .460 → .665 (both still fail), N>E HK .695 → .790 (passes),
+  N>E IH .790 → .608 (fails), E>M KH .690 → .750, E>M HI .250 → .290, N>E HI .990 → 1.000; time-outs rise where the new tables meet
+  (N>E KH 0 → 108, N>E IH 44 → 156, E>M HI 99 → 178). G2 identical.
