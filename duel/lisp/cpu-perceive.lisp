@@ -78,6 +78,12 @@ within its capsule + E's hurt radius + MARGIN, SNAP-SEG-GAP)?"
   "Hold BUTTON (with :MOD when MODDED) for FRAMES steps, starting now."
   (setf (brain-press b) button (brain-press-mod b) modded (brain-press-left b) (max 1 frames) (brain-act b) act))
 
+(defun ai-press-write! (b vp)
+  "Brain B's held press onto vpad VP this step: its button (with :MOD when modded) down while PRESS-LEFT lasts, every other button up."
+  (loop for a across *vpad-actions*
+        do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))
+                               (and (eq a :mod) (> (brain-press-left b) 0) (brain-press-mod b))))))
+
 (defun ai-dash (b dir to)
   "Hold Step (the hop, then the run) with the stick toward (DIR 1) or away from (-1) the opponent,
 until the distance passes TO (CORE-BRAIN-STEP lets go)."

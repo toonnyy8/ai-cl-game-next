@@ -876,7 +876,7 @@ ZANZO runs."
   "In blockstun L starts the parry at once (the blockstun ends), under its price; a CPU presses it after a blocked K
 link *AI-IC-PARRY-BS-P* of the time, on the frame that puts the string's next hit in the window."
   (let ((b (brain e)))
-    (when (and b (not (brain-off b)))
+    (when (and b (not (brain-off b)) (not (brain-masher b)))   ; (the masher gets no CPU help, masher.lisp)
       (let ((sf (fighter-sf f)))
         (when (or (< (ics-bs-key st) 0) (< sf (ics-bs-key st)))   ; a new blockstun (a block restarts it at 0)
           (setf (ics-bs-at st) -1)

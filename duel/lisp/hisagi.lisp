@@ -951,8 +951,8 @@ velocity replaced, a J link has no chase). The look is the move's own clip (A1, 
              (v (motion-vel (motion e))))
         (setf (aref v 0) (f32 (* sp (/ dx l))) (aref v 2) (f32 (* sp (/ dz l))))))))
 (defun hs-tick-brain (e)
-  "The brain his windmill decides on: his own CPU's; NIL for a human (no brain, or one switched off)."
-  (let ((b (brain e))) (and b (not (brain-off b)) b)))
+  "The brain his windmill decides on: his own CPU's; NIL for a human (no brain, or one switched off) or the masher (masher.lisp)."
+  (let ((b (brain e))) (and b (not (brain-off b)) (not (brain-masher b)) b)))
 (defun hs-kaza-k-free-p (f)
   "May the windmill start its K string now (F its fighter)? Not while a ranged hit it caught would still hold a plain
 guard (the user, 2026-10-23, Hisagi's Shikai mirror: 「擋下後給硬直」 over 「為什麼修兵一擋下遠攻後就可以直接發動 K 攻擊？甚至能打斷

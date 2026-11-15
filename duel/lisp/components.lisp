@@ -219,6 +219,8 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (ev-n 0 :type fixnum) (ev-steps 0 :type fixnum)   ; ... takeovers and steps under it this match, outside rollouts (strat-run.lisp)
   (fql nil)                            ; the online fuzzy Q's record this match (fq-online.lisp FQ-ATTACH!; NIL = not learning)
   (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (strategy-glue.lisp): the tick of its next selection, its last free tick
+  (masher nil)                          ; the seeded button-masher plays this seat instead of the CPU (masher.lisp, PLAN4 §5): CORE-BRAIN-STEP
+  (m-left 0 :type fixnum) (m-stick :neutral)   ; ... its event's steps left, its stick (*MASHER-STICKS*' name); the button: PRESS above
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."

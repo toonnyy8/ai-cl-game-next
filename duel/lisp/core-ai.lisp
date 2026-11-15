@@ -296,7 +296,9 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
   (unless *in-rollout* (incf (aref *cai-switch-counts* (+ (strat-form-index f) (* 3 (fighter-side f)))))))
 
 (defun core-brain-step (e b)
-  "One step of the core CPU: perceive, then hold the press in progress, or decide for the state he is in."
+  "One step of the core CPU: perceive, then hold the press in progress, or decide for the state he is in. A masher brain plays
+MASHER-STEP instead (masher.lisp: no CPU at all)."
+  (when (brain-masher b) (return-from core-brain-step (masher-step e b)))
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)) (kit (fighter-kit f)))
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)
@@ -351,9 +353,7 @@ index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by t
       (setf (brain-now b) nil)))                                         ; (its step is over: a step-end snapshot holds NIL, as the special did)
     (setf (brain-was b) (fighter-state f))
     (when (cai-hoho-hold-p e b f kit) (setf (brain-press-left b) 0))   ; (an SP the Hoho's resume would have refused: dropped, R15d)
-    (loop for a across *vpad-actions*
-          do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))
-                                 (and (eq a :mod) (> (brain-press-left b) 0) (brain-press-mod b)))))
+    (ai-press-write! b vp)
     (when (> (brain-press-left b) 0)
       (case (brain-act b)
         ((:side-step :switch) (vpad-stick! vp (brain-strafe b) 0f0))   ; (:switch: a strategy's DRIVE switch, CAI-SWITCH-PRESS)
