@@ -3351,3 +3351,9 @@ job rules (any one of its groups: `band.py t0 --or`), `:with` the pairing's 11-1
   262.9 s, KK 21 P1 2-0 209.2 s).
 - These arms are the pipeline's test bed. The kit studies (§11.28's last note) propose the arms the user will pick from; the first,
   Ichigo's (`sp/kits/ichigo/`, 845 sim-verified trials), is in.
+
+**Checkpoint 2a: the strategies the user picked from the kit studies** (2026-11-15). Three kit studies are in `sp/kits/<char>/` (sheets
+generated from the kits; 845 / 1608 / 2415 trials, all sim-verified; matchup tables; proposals). The user took every proposed set
+(「全部採用」 for Ichigo, Kenpachi and Hisagi) and 「改成修兵自己的打法」 for Hisagi's Shikai arm 0 (it played Kenpachi's brawler at 1.7-3.0
+m, inside his chain's dead zone). The sets and the generic clash fix are in PLAN4's checkpoint 2a note. Next: implementation batches,
+one-job proofs, T0 tables, the ladder, DUCT's freeze.

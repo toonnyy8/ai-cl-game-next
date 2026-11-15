@@ -396,3 +396,17 @@ jobs the kit does not separate. From here on, per character and form, in this or
 4. arms, T0, search only to tune weights and thresholds.
 Today's admitted arms stay as data until step 3 replaces or keeps them. B4 (nine T0s, the measures, the playtest build) and the
 provisional DUCT continue as the pipeline's test bed.
+
+**Checkpoint 2a: the user picks the strategies from the kit studies** (2026-11-15; `sp/kits/<char>/strategies.md`). All three proposed
+sets were taken (「全部採用」 x3), and 「改成修兵自己的打法」 for Hisagi's Shikai arm 0:
+- **Ichigo**: `all` (= the sealed band vs Kenpachi), S1 answer, S2 brawl, S3 economy, S4 punish, S5 kessa-lunge; targeted T2 keep
+  (KI, ahead late only), T3 inside 3 m (IH).
+- **Kenpachi**: `all`, out-range poke, wake-up by his cells (generalises `bait`), red Kikon on pointer 2 (replaces `spend`), climb (no
+  Bankai route under half Reishi); targeted Getsuga close-in (vs Ichigo), dead-zone hug (vs Hisagi). Rush and guard are dropped.
+- **Hisagi**: S1 the chain's band (kite merged), S2 J-side cancels, S3 chain tip (`range` sharpened), S4 bind to catch up, S5 `wake`;
+  targeted K1 J1 into the lunge / K2 out of the sealed reach (replace `hoho6`), I1 the rush and the wave, `ihx` kept. `press` dropped.
+  His Shikai arm 0 becomes his own (the chain's band), no longer Kenpachi's brawler.
+- **The generic CPU fix** (the lead's): the clash never throws a move whose min reach (dead zone) covers the distance. 201 of the 224
+  dead-zone NAGIs against Kenpachi came from it (`kits/hisagi/probe.md`).
+These are implementation batches, one per character plus the shared fix (PLAN4 §6's order step 4: write the strategy into the CPU,
+search only for weights). They are separate from the 36-cell search budget, of which 10 cells remain.
