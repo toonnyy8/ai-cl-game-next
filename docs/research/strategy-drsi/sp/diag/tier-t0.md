@@ -78,13 +78,16 @@ Within these knobs, the best world passes 7 of the 9 E>M cells, with 6 of 9 N>E 
 impossible, and a second one shows up in every world measured.
 
 **Block 1: the masher-Kenpachi column against the HK diagonal (structural; it rules out 27 of 27).**
-- E>M against a masher Kenpachi (KK, IK, HK) needs EASY's clash at HARD's chance and delay (0.6, 8 frames). Shares for the KK cell by EASY
-  clash (chance / delay):
+- E>M against a masher Kenpachi (KK, IK, HK) needs EASY's clash to be both 8 frames and at chance ≥ .6, which is HARD's. Shares for the
+  KK cell by EASY clash (chance / delay):
   - .6 / 8: .575 at eyes 24 (E1); .86-.87 at eyes 14-22 with flat `@cai` (E3, G3n, G3m22);
+  - .35 / 8: .48 (HK .155); .15 / 8: .20 (HK .060). Both are in the G3m22 world (`spec-tier-d8`); there, H>N HK is .475 and .835;
   - .6 / 14: .085 (A14, eyes 14, flat `@cai`);
   - .35 / 10: .16;
   - .25 / 10: .16;
   - .15 / 10: .13 (all in the G3n world).
+- So a rarer 8-frame clash that keeps H>N HK (.15 / 8: .835) loses KK and HK against the masher. A surer one that wins KK (.6 / 8) loses
+  H>N HK (.045).
 - The masher's J hits about 9 frames after it starts. A clash slower than 8 frames reads a snapshot older than the J's live window
   (masher-vs-easy.md C2).
 - Even NORMAL cannot beat a masher Kenpachi without that clash: N>M KK .090, IK .115, HK .305 as shipped (.35 / 10); KK .18 and IK .185 at
@@ -150,6 +153,18 @@ chances make the EASY Kenpachi stall the NORMAL Hisagi to the bell: 144-199 time
 
 Two tierings are close in count and differ in which rung they give up. Neither passes the bar.
 
+**Two counts.**
+- The pass rule above is ladder.py's: Wilson low ≥ .70, i.e. 151 of 200.
+- Read at face value, as raw share ≥ .70 (the user's 「至少 70:30」), more cells pass:
+
+| world | Wilson count | raw-share count | the cells that differ |
+|---|---|---|---|
+| baseline | 17 | 17 | |
+| G3m22 | 21 | 23 | E>M HH .705, N>E IH .720 |
+| G3m24 | 21 | 23 | E>M HH .700, N>E IH .735 |
+| G3n | 20 | 21 | E>M HH .705 |
+| R1a | 17 | 18 | N>E HK .730 |
+
 ### A. G3m22: 21 of 27 (the most cells; EASY beats the masher in 7 of 9)
 
 | knob | EASY | NORMAL | HARD | shipped |
@@ -207,6 +222,6 @@ The world is main with **`*cai-clash-delay*` (:easy 24 :normal 14 :hard 8)**, i.
 
 ## Files
 
-- Specs: `spec-tier-{e,2,b,h,nk,nk2,x,s,3,r,c,g,g24}.tsv`. A14 (E>M, N>M) and A18 (E>M) from `spec-tier-3` were stopped there; B18 / C18 never ran.
-- Runs: `tier/*.json`, and the logs `tier/{x,s,r,c,g,g24}.log`.
+- Specs: `spec-tier-{e,2,b,h,nk,nk2,x,s,3,r,c,g,g24,d8}.tsv`. A14 (E>M, N>M) and A18 (E>M) from `spec-tier-3` were stopped there; B18 / C18 never ran.
+- Runs: `tier/*.json`, and the logs `tier/{x,s,r,c,g,g24,d8}.log`.
 - Baseline: `tier/base-501-600.json` (ladder.py). HK cause, per side: `tier/hk-hn-base-full.json`.

@@ -1,0 +1,3 @@
+# tier-t0.md round 10: G3m22 with a rarer 8-frame clash at EASY = NORMAL (HARD .6 / 8); :x carries it past the @cai lift
+X15d8	*ai-delay*=(:easy 22 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.15 :normal 0.15 :hard 0.6 :x 0.15);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8 :x 8)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*;normal=x:*cai-clash-p*,*cai-clash-delay*
+X35d8	*ai-delay*=(:easy 22 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6 :x 0.35);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8 :x 8)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*;normal=x:*cai-clash-p*,*cai-clash-delay*
