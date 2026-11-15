@@ -1,0 +1,9 @@
+{
+ "pair": "ki", "side": "ichigo", "vs": "kenpachi", "anchor": "none",
+ "note": "cells-k (PLAN4 B3): the opponent's groups = his none and his T0 (PLAN4 §3 scorer). anchor = none; mix = none and the T0 by seed (half each); rest = the T0.",
+ "members": [
+  {"id": "none", "file": "none", "why": "his plain CPU"},
+  {"id": "t0-ki-ichigo", "file": "/media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-ab58407965fd9cc0f/docs/research/strategy-drsi/sp/arms4/t0/t0-ki-ichigo.lisp", "why": "his T0 (arms4/t0, v3)"}
+ ],
+ "mix": {"none": 1.0, "t0-ki-ichigo": 1.0}
+}

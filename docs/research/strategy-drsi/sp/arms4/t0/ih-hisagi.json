@@ -1,0 +1,7 @@
+{"note": "IH, Hisagi's T0 as an OPPONENT for the cells-k search (B3, 2026-11-15): his five drafts of ../hisagi.lisp as they are (all and range pass their probe; wake, kite, press untuned), jobs as PLAN4 §3 (range: G1 his released forms (form 1 and 2) x mid / far, G9 the switch open). Not Hisagi's admitted table",
+ "arms": ["hisagi/h4-all.lisp#h4-all", "hisagi/h4-wake.lisp#h4-wake", "hisagi/h4-kite.lisp#h4-kite", "hisagi/h4-press.lisp#h4-press", "hisagi/h4-range.lisp#h4-range"],
+ "jobs": [null,
+          [[2, ["(:ost :down)"]]],
+          [[2, ["(:ost :atk)", "(:dm :m-close)"]], [0, ["(:lead :ahead)"]]],
+          [[7, ["(:or :r-low)"]], [0, ["(:ored :yes)"]]],
+          [[1, ["(:form :yes)", "(:dm :m-mid)"]], [1, ["(:form :yes)", "(:dm :m-far)"]], [1, ["(:form :k2)", "(:dm :m-mid)"]], [1, ["(:form :k2)", "(:dm :m-far)"]], [9, ["(:swopen :yes)"]]]]}

@@ -1,0 +1,6 @@
+{"note": "IH, Ichigo's T0 (PLAN4 §3 / §4; cells-k, B3, 2026-11-15): KI's v3 map (ki-ichigo.json) on the IH exchange unit; the targeted arm vs Hisagi joins as a fifth arm (cells-k/i-vsh)",
+ "arms": ["ichigo.lisp#a4-i-all", "ichigo.lisp#a4-i-brawl", "ichigo.lisp#a4-i-keep", "ichigo.lisp#a4-i-kessa2"],
+ "jobs": [null,
+          [[2, ["(:ost :free)"]]],
+          [[8, ["(:lead :ahead)"]]],
+          [[0, ["(:awst :k2)"]], [1, ["(:form :yes)"]]]]}

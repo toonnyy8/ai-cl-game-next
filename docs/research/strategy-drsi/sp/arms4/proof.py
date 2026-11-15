@@ -39,8 +39,11 @@ TESTS = {
     # Ichigo's code cell (B3, 2026-11-15; registered in ichigo.md §"Re-jobbed arms" before the seeds 1-100 run)
     'a4-i-brawl': ('close', '+', 0.10), 'a4-i-keep': [('p2', '+', 0.20), ('mean_d', '+', 0.5)], 'a4-i-kessa2': ('k_d', '-', 0.30),
     'a4-i-whiff': ('mid', '+', 0.05), 'a4-i-space': ('mean_d', '+', 0.5), 'a4-i-ptr3': ('p3', '+', 0.10), 'a4-i-kessa': ('awk', '+', 0.05),
-    'a4-k-rush': ('close', '+', 0.10), 'a4-k-guard': ('evade', 'x', 1.3), 'a4-k-spend': ('spend', 'x', 1.5),
-    'a4-k-climb': ('bankai', '+', 0.05), 'a4-k-bait': ('wake_kd', 'x<', 0.5), 'a4-k-wave': ('evade', 'x', 1.2),
+    'a4-k-spend': ('spend', 'x', 1.5), 'a4-k-climb': ('bankai', '+', 0.05), 'a4-k-bait': ('wake_kd', 'x<', 0.5),
+    # Kenpachi's search cells (B3, cells-k, 2026-11-15; re-registered in kenpachi.md "Re-registered for the cells" BEFORE any cell ran).
+    # Was: rush ('close', '+', 0.10) (a ceiling: arm 0 at .86), guard ('evade', 'x', 1.3); wave keeps its bar but is measured against
+    # Ichigo's a4-i-keep played whole (--opp), the arm that runs the Getsuga route (her `none` rarely does).
+    'a4-k-rush': ('nstart_r', 'x', 1.25), 'a4-k-guard': ('mean_d', '+', 0.30), 'a4-k-wave': ('evade', 'x', 1.2),
 }
 # Distinctness tolerance (pre-registered): two arms are NOT distinct when within these of each other on every descriptor.
 # ('abs', t): |a - b| <= t; ('rel', t): |a - b| <= t x max(|a|, |b|, 1) (counts a match).
@@ -50,7 +53,10 @@ TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'f
        'evade': ('rel', 0.15), 'acts': ('rel', 0.15), 'clash': ('rel', 0.15),
        # Ichigo's code cell (B3, pre-registered in ichigo.md before its proof run): pointer 2's share, move starts into his neutral, SP moves
        # per 1000 awakened steps (pooled)
-       'p2': ('abs', 0.05), 'nstart': ('rel', 0.15), 'k_sp': ('rel', 0.15), 'k_d': ('abs', 0.25)}
+       'p2': ('abs', 0.05), 'nstart': ('rel', 0.15), 'k_sp': ('rel', 0.15), 'k_d': ('abs', 0.25),
+       # cells-k (B3, pre-registered in kenpachi.md before any cell ran): move starts into his neutral per 1000 steps, pooled (rush's
+       # contact rate: a per-match count falls when a rush shortens the match)
+       'nstart_r': ('rel', 0.15)}
 DESC = list(TOL)
 
 
@@ -176,9 +182,10 @@ def arm_desc(res):
         ko += sum(k for _, k in rw.values())
         kow += sum(1 for w, k in rw.values() if k and w == seat)
     n = len(ms)
-    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k not in ('wake_kd', 'k_sp', 'k_d')}
+    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k not in ('wake_kd', 'k_sp', 'k_d', 'nstart_r')}
     out['k_d'] = sum(m['adsum'] for m in ms) / 1000.0 / max(1, sum(m['awk_n'] for m in ms))   # (pooled: mean distance of the awakened steps)
     out['k_sp'] = 1000.0 * sum(m['asp'] for m in ms) / max(1, sum(m['awk_n'] for m in ms))   # (pooled: SP moves per 1000 awakened steps)
+    out['nstart_r'] = 1000.0 * sum(m['nstart'] for m in ms) / max(1, sum(m['steps'] for m in ms))   # (pooled: starts into his neutral per 1000 steps)
     out['wake_kd'] = sum(m['wake'] for m in ms) / max(1, sum(m['kd'] for m in ms))   # (pooled: presses per knockdown of his)
     out.update(matches=n, ko_rate=ko / max(1, n), ko_win=kow / max(1, n))
     return out
@@ -220,10 +227,11 @@ def cmd_desc(a):
     out = {}
     import numpy as np
     for aid in ids:
-        t = os.path.join(WORK, f'one-{a.me}-{a.vs}-{aid}.lisp')
+        t = os.path.join(WORK, f'one-{a.me}-{a.vs}-{aid}-{hashlib.sha1(arms[aid].encode()).hexdigest()[:10]}.lisp')   # (by text: cells run at once)
         write_table(a.me, a.vs, [arms[aid]], np.zeros((104, 1)), t, a.with_ or [],
                     f'proof.py: {aid} whole (a 1-arm table: as T0 plays it), :with {" ".join(a.with_ or []) or "none"}')
-        out[aid] = arm_desc(both_seats(a.me, a.vs, t, 'none', a.seed0, a.seeds, {'STRAT_DESC': '1'}, a.j, a.dif))
+        out[aid] = arm_desc(both_seats(a.me, a.vs, t, os.path.abspath(a.opp) if a.opp != 'none' else 'none', a.seed0, a.seeds,
+                                       {'STRAT_DESC': '1'}, a.j, a.dif))
         print(f'{aid}: {out[aid]["matches"]} matches, K.O. {out[aid]["ko_rate"]:.3f}', file=sys.stderr, flush=True)
     d0 = out[a0]
     sheet = {}
@@ -233,11 +241,11 @@ def cmd_desc(a):
                           ko_rate=round(d['ko_rate'], 3), ko_win=round(d['ko_win'], 3), ko_ok=d['ko_rate'] >= 0.5, matches=d['matches'],
                           test=test(aid, d, d0), not_distinct_from=[b for b in ids if b != aid and close_on_all(d, out[b])])
     os.makedirs(os.path.join(HERE, 'proof'), exist_ok=True)
-    dst = os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + (f'-{a.tag}' if a.tag else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
-    json.dump(dict(me=a.me, vs=a.vs, opp='none', dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
+    dst = a.out or os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + (f'-{a.tag}' if a.tag else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
+    json.dump(dict(me=a.me, vs=a.vs, opp=a.opp if a.opp == 'none' else os.path.relpath(os.path.abspath(a.opp), HERE), dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
                    build=simlib.build_hash(os.path.join(ROOT, 'tools/simgate/strat-run.lisp'))[:12], arms=sheet), open(dst, 'w'), indent=1)
-    cols = ['mean_d', 'close', 'mid', 'far', 'p2', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'nstart', 'k_sp', 'k_d', 'acts', 'clash']
-    print(f'{a.me} vs {a.vs} none, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
+    cols = ['mean_d', 'close', 'mid', 'far', 'p2', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'nstart', 'nstart_r', 'k_sp', 'k_d', 'acts', 'clash']
+    print(f'{a.me} vs {a.vs} {a.opp}, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
     print('arm'.ljust(12) + ''.join(c.rjust(8) for c in cols) + '     K.O.  KOwin  test')
     for aid in ids:
         s = sheet[aid]
@@ -344,6 +352,9 @@ def main():
     p.add_argument('--seed0', type=int, default=0); p.add_argument('--seeds', type=int, default=100); p.add_argument('-j', type=int, default=20)
     p.add_argument('--dif', choices=('easy', 'normal'), help='my seat at this difficulty (a diagnostic; the proof is HARD)')
     p.add_argument('--tag', help='suffix of the output file (proof/<me>-vs-<vs>[-dif]-TAG.json)')
+    p.add_argument('--opp', default='none', help="the opponent seat's raw strategy file (default none: his plain CPU; a targeted arm's "
+                   "descriptor may be registered against the arm of his that runs the situation, cells-k)")
+    p.add_argument('--out', help='the output JSON (default proof/<me>-vs-<vs>[-dif][-TAG].json)')
     p = sub.add_parser('t0')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--map', required=True); p.add_argument('--out', required=True); p.add_argument('--with', dest='with_', nargs='*')

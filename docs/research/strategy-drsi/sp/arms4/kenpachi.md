@@ -99,3 +99,25 @@ Bar A on seeds 501-540, 80 matches (`t0/bar-ki-501-540.json`, `t0/bar-kk-501-540
 
 These tables carry the failing arms (rush, guard, wave) as assembled. The switching passes by construction; the jobs inside it are not yet
 proved.
+
+## Re-registered for the cells (cells-k, PLAN4 B3 search, 2026-11-15; written BEFORE any cell or baseline ran)
+
+The search cells (`cells-k/`) tune `rush`, `guard` and `wave`. The two failing bars above are replaced here, before any cell ran, for the
+reasons the proof gave. The bar values below do not move after the cells. `proof.py` TESTS / TOL carry them.
+
+| Arm | Descriptor (against arm 0 `a4-k-all`) | Pass | Measured against | Why |
+|---|---|---|---|---|
+| rush | `nstart_r`: my move starts while he is `:idle` / `:run`, per 1000 steps, pooled over the 200 matches (new, tool only: `nstart` / `steps`) | >= arm 0's x 1.25 | Ichigo's and Hisagi's `none` (both) | "close in" = start contact more often. "Inside 3 m" sits at a ceiling (.86). A per-match count would fall when a rush shortens the match (vs Hisagi arm 0 already K.O.s 1.00), so the count is taken per step |
+| guard | `mean_d`: mean distance | >= arm 0's + 0.30 m | Ichigo's and Hisagi's `none` (both) | "hold and answer" = keep him out. The assembled guard showed +0.33 m vs Ichigo (and +0.09 vs Hisagi) on the proof seeds 1-100 before this bar was set. 0.30 m is chosen to clear the distinctness tolerance on mean distance (0.25 m) |
+| wave (vs I) | `evade`: Steps + Hohos a match | >= arm 0's x 1.2 (unchanged) | **Ichigo's `a4-i-keep` played whole** (1-arm table, `d-x-ki-i`; `proof.py desc --opp`) | the wave answer acts only on her pointer-2 Getsuga route, which her `none` rarely runs (the failure above). `keep` is her arm that runs it. **A deviation from PLAN4 §3.1** ("against his `none`") |
+
+- K.O. (>= 0.50 of matches end by any K.O.) and distinctness from the siblings are measured against `none`, as for every sibling, wave
+  included (a second desc run against `none`). Comparing wave-vs-keep with siblings-vs-none would mean nothing.
+- An arm shared by tables passes only if it passes against each opponent it plays (rush, guard: Ichigo and Hisagi).
+- The proof runs at admission: seeds 1-100 both seats, HARD, all of Kenpachi's general arms in one `desc` call per opponent (one build for
+  the distinctness test).
+- Job rules in T0 are unchanged (`t0/ki-kenpachi.json`, `t0/kk-kenpachi.json`). The new KH table (`t0/kh-kenpachi.json`) gives G2 down to
+  bait and keeps rush on G3 his cells 0 and G8 late.
+- Ichigo's targeted arm vs Hisagi (`cells-k/i-vsh`): its job is found by the search, so it cannot be registered here. Each cell writes its
+  `job.json` (the job rules) and its descriptor and bar (in `proposal.md`, from proof.py's TOL descriptors, against Hisagi's `none` unless
+  it names one of his arms) **before its first eval**. Admission tests the cell's own registration (`ichigo.md`).
