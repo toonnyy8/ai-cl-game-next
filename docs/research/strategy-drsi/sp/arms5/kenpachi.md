@@ -76,6 +76,58 @@ knockdown, so the meaty runs: the job and this descriptor disagree; the pure bai
 (pure bait .29); Getsuga x0.64 at best (21.4 -> 13.8 waves a match: many are her strings' own waves); hug `mid` +0.00 (.113 vs .111:
 Hisagi sets the distance, as guard showed). A bar is never moved after a run.
 
-## Results
+## Results (`proof.py desc`, seeds 1-100 both seats, 200 matches an arm; `arms5/kenpachi/proof/*.json`)
 
-(below, after the run)
+Sim build `ea6fbc425304` (strat-run's build hash in this worktree at c161cbb6 = the WIP code + main 336830ca merged, the clash dead-zone
+fix: every vs-Hisagi number meets the fixed opponent). The probes above ran before that merge (build `bc1ba3cf0226` and its successors).
+Values: arm 0's row, then each arm's value (test against arm 0's).
+
+| vs | arm | mean d | mid | p2 | Bankai | wake/kd | pfar | kikon_k | wave_taken | K.O. | K.O. win | test |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| I `none` | all | 1.907 | .096 | .046 | 0 | .879 | 3.32 | .955 | 1.94 | .96 | .72 | |
+| I | poke | 2.063 | .153 | .062 | 0 | .882 | **5.02** | .40 | 1.13 | .75 | .445 | pfar x1.51 **PASS** |
+| I | wake | 1.943 | .065 | .056 | 0 | **.919** | 1.77 | .675 | 1.78 | .68 | .545 | x1.05 **FAIL** |
+| I | red | 1.956 | .105 | **.195** | 0 | .890 | 4.36 | **3.25** | 2.10 | .94 | .095 | p2 +0.149, kikon_k x3.40 **PASS** |
+| I | climb | 1.947 | .108 | .051 | **.083** | .885 | 3.74 | .77 | 1.91 | .955 | .425 | +0.083 **PASS** |
+| I | getsuga | 1.815 | .108 | .055 | 0 | .886 | 3.66 | .785 | 1.02 | .99 | .715 | (bar vs keep, below) |
+| H `none` | all | 1.841 | .097 | .084 | 0 | 1.002 | 1.48 | .965 | 0 | 1.00 | 1.00 | |
+| H | poke | 1.994 | .129 | .068 | 0 | .987 | **5.19** | .92 | 0 | 1.00 | 1.00 | x3.50 **PASS** |
+| H | wake | 1.838 | .109 | .069 | 0 | **.697** | 1.95 | .875 | 0 | 1.00 | 1.00 | x0.70 **FAIL** |
+| H | red | 1.873 | .111 | **.287** | 0 | .971 | 3.48 | **6.73** | 0 | 1.00 | .95 | p2 +0.203, kikon_k x6.97 **PASS** |
+| H | climb | 1.885 | .118 | .090 | **.092** | 1.028 | 2.30 | .86 | 0 | 1.00 | .995 | +0.092 **PASS** |
+| H | hug | 1.850 | **.099** | .106 | 0 | 1.012 | 3.79 | .72 | 0 | 1.00 | 1.00 | mid +0.002 (needs -0.04) **FAIL** |
+| I `a4-i-keep` | all | 3.114 | .229 | .059 | 0 | .765 | 4.73 | .13 | **21.47** | .99 | .025 | |
+| I `a4-i-keep` | getsuga | 3.017 | .177 | .076 | 0 | .702 | 8.48 | .385 | **13.86** | .925 | .27 | x0.645 (needs x0.5) **FAIL** |
+
+- No two arms are within tolerance of each other against either opponent (no `not_distinct_from` in any row). Every arm ends >= .68 of
+  its matches by K.O. against `none`.
+- **Pass (4 general, the floor plus one): all, poke, red, climb.** Fail: wake (both), Getsuga (vs Ichigo), hug (vs Hisagi). No targeted
+  arm passes.
+- **poke** passes vs Ichigo by a hair (x1.51 against x1.5) and loses strength there (K.O. win .445 vs .72). The 0.2 m band is not held as a
+  stance: the style always walks in to reach (KK-PICK); the keys only make it start from farther (margin 0.1, walk band x1.3). What the
+  descriptor counts is mostly NS1a / the Shikai J1 landing from 2.4-3.1 m.
+- **red** passes both, but against Ichigo it is a losing arm whole (K.O. win .095; .15 at `:kikon` 1.0, .80 at the base 0.3, where
+  kikon_k only reached x1.15 in the probes). A T0 plays it only in its job (his red / Reishi under half); the integration batch should
+  watch its in-band effect (PLAN4 §3.4).
+- **wake** (the cells split as the study wrote it): against Ichigo she is usually under 100 flash-step at a knockdown, so the meaty J1
+  runs and the arm is arm 0 there (x1.05); against Hisagi the meaty half lifts wake/kd to x0.70 (the pure bait was x0.29 in the probes).
+  The job (meaty without his Hoho, bait with it) and the descriptor (fewer wake-up presses) disagree; a re-registration would need a
+  descriptor of the outcome (e.g. his perfect Hohos on my wake-up press per knockdown), on fresh seeds.
+- **Getsuga**: the arm wins the situation (K.O. win .27 against arm 0's .025 vs `keep`) and cuts her wave hits 21.5 -> 13.9 a match,
+  short of the halving; part of the floor is her strings' own point-blank waves (AS2's Getsuga), which no route answer reaches.
+- **hug**: `mid` does not move (+0.002; every probe variant within +-0.003): as the study warned, Hisagi sets the distance. Not
+  separable by the kit with these keys.
+
+## Checks (on the final code, main 336830ca merged)
+
+- Host tests ALL PASS: duel-rules 3657 checks (style-knob: 83 keys, 32 `kk-`; KNOBS.md §6.1 / §6.2 document the 8 new ones),
+  duel-control 124, input 33, touch 100 (0 failures), cine 18. `tools/pkgcheck.sh duel`: only `DUEL::APP`.
+- `./build.sh duel` exit 0 (vendor restored), smoke `run.mjs --secs 8` exit 0.
+- G2: `tests/style-gates.py cvc dist/duel` and `tools/simgate.py --cvc` PASS, identical to `tests/style-cvc-ref.txt` (II 41, IK 42,
+  KK 31 lines).
+- The shipped lookup: `fq/proof/identity.py` on KI (both sides), KH (both sides), KK, seeds 501-510 both seats: 0 chunks differing
+  (460 / 460 / 732 / 732 / 636 lines).
+- kdesc is read-only: 25 matches with and without STRAT_DESC (red vs `none`, Getsuga vs `keep`): gate rows and hash lines identical
+  (711, 784 lines).
+- snaptest straight = pollute, 0 sim lines differ (only the `stats` cons line): KI, KH, IK, HK HARD (577-1145 rollouts). fulltest
+  0 differ (IK NORMAL 4007, 21 checks). `tests/sp-costs-check.py`: every check passes.

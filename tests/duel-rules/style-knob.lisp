@@ -25,10 +25,11 @@
   ;; the scan finds them all: Kenpachi 25 (cpu-ki-ken), his KH styles 4 (cpu-kh-ken), Ichigo 24 (cpu-ki-ichigo, 5 of them the mode mix),
   ;; Hisagi 14 (PLAN4 B3, KNOBS.md §6.6: the ranged mode's distance rule 7, cpu-hisagi-range; the HK style's kite 7, cpu-hk-hisagi),
   ;; Ichigo 8 more (PLAN4 B3, KNOBS.md §6.7: the patience and pointer-2 switches, the hover adds, the retreat, the steer, KESSA's chains)
-  (check (= 75 (length keys)))
+  ;; PLAN4 P5 (2026-11-15): Kenpachi's 8 more (KNOBS.md §6.1 / §6.2: the wave mix 5, :kk-lunge-any, :kk-p2-or, :khf-bait-fs)
+  (check (= 83 (length keys)))
   (check (= 7 (count-if (lambda (k) (string= "hr-" (subseq k 0 3))) keys)))
   (check (= 7 (count-if (lambda (k) (eql 0 (search "hkk-" k))) keys)))
-  (check (= 25 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
+  (check (= 32 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
   (check (= 32 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
   ;; a style prefix on every key, so none collides with the shared keys (:range :ns :hoho ...)
   (check (every (lambda (k) (some (lambda (p) (eql 0 (search p k))) '("kk-" "iks-" "kso-" "khf-" "hr-" "hkk-"))) keys))

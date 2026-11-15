@@ -206,6 +206,12 @@ special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 | `:kk-ns-safe-p` | 1.0 (0 / 0) | chance per approach and per style decision | start a J1 / NS only when her timed Hoho cannot read it | 0-1 |
 | `:kk-step-in-p` | 1.0 (0 / 0) | chance per approach | Step in (2.2-4.4 m) then J1 out of its cancel | 0-1 |
 | `:kk-wake-hoho-p` | 1.0 (0 / 0) | chance per own wake-up | Hoho on his first free step, her within 2.4 m | 0-1 |
+| `:kk-wave-close` / `:kk-wave-cut` / `:kk-wave-late` / `:kk-wave-step` | 0.25 / 0.15 / 1.0 / 1.0 | weights | `*kk-wave-mix*`'s answers to her Getsuga route (PLAN4 P5, the Getsuga close-in arm) | 0-1 each |
+| `:kk-wave-close-max` | 5.6 | m | beyond this the close-in answer is not rolled | 4.0-7.0 |
+| `:kk-lunge-any` | none (off) | switch (>= 0.5 on) | the Shikai NS1 lunge at 3.0-5.2 m climbing or not, at any L (PLAN4 P5, the dead-zone hug) | 0, 1 |
+| `:kk-p2-or` | none (never) | his Reishi fraction | under it his strings end J1-J3 + SP, writing pointer 2 (sealed AS2; the Shikai short of an L3 Bankai plan: ptr 1's burst, ptr 2's AS2) (PLAN4 P5, the red Kikon arm) | 0-1.01 |
+
+(PLAN4 P5, 2026-11-15: the last 8 rows, `sp/arms5/kenpachi.md`; 32 `kk-` keys.)
 
 ### 6.2 `ken-kh-standoff-style` / `ken-kh-style` (cpu-kh-ken.lisp): 4 keys (+ the 25 above)
 
@@ -215,6 +221,7 @@ special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 | `:kso-lead` | 0.0 | Reishi fraction | he counts as winning the bell (keeps his patience) above this Reishi lead at equal Konpaku | -0.2-0.2 |
 | `:khf-bait-p` | 1.0 (0 / 0.5) | chance per Hisagi knockdown | `ken-kh-style`'s wake-up bait: hold instead of the meaty J1 | 0-1 |
 | `:khf-bait-d` | 2.3 | m | the distance the bait holds | 1.8-3.0 |
+| `:khf-bait-fs` | none (always) | his flash-step | the bait only while his flash-step is at least this (100: his wake-up Hoho is there), else the meaty J1 (PLAN4 P5, wake-up by his cells) | 0-300 |
 
 ### 6.3 `ichigo-ki-style` (cpu-ki-ichigo.lisp): 24 keys
 
