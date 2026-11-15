@@ -233,10 +233,12 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
 
 ;;; ---- STRAT_DESC, Hisagi's PLAN4 arms (arms5/hisagi.md; cpu-hisagi-own.lisp), read-only. Per side, appended to the desc line:
 ;;; bdsum the Shikai steps' summed distance (m); nagi / nagiin NAGI (:hs-n1a) starts, those inside 3.0 m; xc / xj / xja the cancels he took
-;;; part in (XCH-SIDE :J or :NS), those as the J side, those J-side ones followed by an AS start within 20 steps; taba / tabat TABA
+;;; part in (XCH-SIDE :J or :NS), those as the J side, those J-side ones followed by an AS start within 60 steps (a J cancelled in its
+;;; startup opens its AS window only after it: 45 steps in the dev logs); taba / tabat TABA
 ;;; (:hs-r-n2a) starts, those at 4.0-4.9 m; rbeh / rbehb steps behind in Reishi by >= 300, those in the bind (:bankai-bind); beven BIND
 ;;; EVEN (his HSS-EVEN-A stamped anew while bound); bina bind entries while ahead in Reishi; jlunge his J1 starts during Kenpachi's Shikai
-;;; lunge's (:ke-s-n1a) startup at 2.5-5.7 m; nsin his route-opening NS starts inside 5.7 m while Kenpachi is in his Shikai (:nozarashi);
+;;; lunge's (:ke-s-n1a) startup at 2.5-5.7 m; nsin his route-opening NS starts in his own Shikai inside 5.7 m while Kenpachi is in his
+;;; Shikai (:nozarashi);
 ;;; osk steps of that; klunge the lunges started; gch / gans Ichigo's Getsuga charges (NS2a starts), those answered (his NAGI landed, he
 ;;; Hohoed, or the charge took part in a cancel, before it ended); rush / rushn Ichigo's NS3a rush starts, those during whose startup he
 ;;; started NAGI. HSS read with HSS (never HS: that attaches one).
@@ -263,7 +265,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
           (when (plusp (getf ed :xpend 0))
             (let ((sd (and (eq st :move) (xch-side (fighter-cls f) (fighter-contact f) x (fighter-cls-t f)))))
               (if sd
-                  (progn (inc 'xc) (setf (getf ed :xpend) 0) (when (eq sd :j) (inc 'xj) (setf (getf ed :xwatch) 21)))
+                  (progn (inc 'xc) (setf (getf ed :xpend) 0) (when (eq sd :j) (inc 'xj) (setf (getf ed :xwatch) 61)))
                   (decf (getf ed :xpend))))))
         (when (plusp (getf ed :xwatch 0))
           (if (and start (eq (kit-class kit mv) :as)) (progn (inc 'xja) (setf (getf ed :xwatch) 0)) (decf (getf ed :xwatch))))
@@ -276,7 +278,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
         (when (and start (member name '(:hs-j1 :hs-j1-1h)) (eq oname :ke-s-n1a) (< (fighter-sf fo) (mv-s omv)) (<= 2.5 d 5.7)) (inc 'jlunge))
         (when (eq (fighter-form fo) :nozarashi)
           (inc 'osk)
-          (when (and start (< d 5.7) (member name (getf (kit-core kit) :ns))) (inc 'nsin)))
+          (when (and start (< d 5.7) (eq (fighter-form f) :base) (member name (getf (kit-core kit) :ns))) (inc 'nsin)))
         (when (and ostart (eq oname :ke-s-n1a)) (inc 'klunge))
         ;; Ichigo's Getsuga charge: open from his NS2a's start until his move leaves the charge / wave segments
         (when (getf ed :gch)

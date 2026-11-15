@@ -1,0 +1,22 @@
+{
+ "note": "PLAN4 checkpoint 2a, Hisagi's arms5 job maps (arms5/hisagi.md §2): arm 0 h5-all everywhere else; FILE#id refs relative to arms4/ (proof.py t0). KH = kh, IH = ih; the HH mirror takes the general arms (all, cancel, tip, bind, wake) with the KH jobs.",
+ "kh": {
+  "arms": ["../arms5/hisagi.lisp#h5-all", "../arms5/hisagi.lisp#h5-cancel", "../arms5/hisagi.lisp#h5-tip", "../arms5/hisagi.lisp#h5-bind", "../arms5/hisagi.lisp#h5-wake", "../arms5/hisagi.lisp#h5-k1"],
+  "jobs": [null,
+   [[2, ["(:ost :atk)", "(:dm :m-close)"]], [2, ["(:ost :atk)", "(:dm :m-mid)"]], [5, ["(:xch :yes)"]]],
+   [[1, ["(:form :yes)", "(:dm :m-mid)"]], [1, ["(:form :yes)", "(:dm :m-far)"]]],
+   [[0, ["(:lead :behind)", "(:awst :k2)"]], [7, ["(:mr :r-low)", "(:or :r-high)"]], [1, ["(:form :k2)", "(:dm :m-close)"]]],
+   [[2, ["(:ost :down)"]]],
+   [[10, ["(:optr :yes)", "(:dm :m-mid)"]], [10, ["(:optr :yes)", "(:dm :m-far)"]]]]
+ },
+ "ih": {
+  "arms": ["../arms5/hisagi.lisp#h5-all", "../arms5/hisagi.lisp#h5-cancel", "../arms5/hisagi.lisp#h5-tip", "../arms5/hisagi.lisp#h5-bind", "../arms5/hisagi.lisp#h5-wake", "../arms5/hisagi.lisp#h5-i1", "../arms5/hisagi.lisp#h5-ihx"],
+  "jobs": [null,
+   [[2, ["(:ost :atk)", "(:dm :m-close)"]], [2, ["(:ost :atk)", "(:dm :m-mid)"]], [5, ["(:xch :yes)"]]],
+   [[1, ["(:form :yes)", "(:dm :m-mid)"]], [1, ["(:form :yes)", "(:dm :m-far)"]]],
+   [[0, ["(:lead :behind)", "(:awst :k2)"]], [7, ["(:mr :r-low)", "(:or :r-high)"]], [1, ["(:form :k2)", "(:dm :m-close)"]]],
+   [[2, ["(:ost :down)"]]],
+   [[10, ["(:optr :k2)", "(:dm :m-mid)"]], [10, ["(:optr :k2)", "(:dm :m-far)"]], [10, ["(:optr :k3)", "(:dm :m-mid)"]]],
+   [[7, ["(:mr :r-high)", "(:or :r-low)"]]]]
+ }
+}

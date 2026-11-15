@@ -24,7 +24,9 @@
   "A switch off at every difficulty: STYLE-ON's default for this file's rules, so no arm without the key plays them.")
 (defparameter *hb-lo* 3.4
   "S1: the band's floor (m, perceived): sealed Kenpachi's J reaches 2.6, his Shikai J 3.4, NAGI's dead zone ends at 3.0 (sheet). 2026-11-15, mine.")
-(defparameter *hb-hi* 5.0 "S1: the band's top (m): NS3a reaches 5.2, NAGI 6.4; the walk stops inside the band (it strafes).")
+(defparameter *hb-hi* 4.2
+  "S1: the band's top (m): NS3a reaches 5.2, NAGI 6.4, but NAGI > SA KIRI combos only from 3.5 m or nearer (catalogue C: the 321 route):
+the walk stops inside the band (it strafes). 5.0 -> 4.2 on the dev screen (seeds 301-320): fewer time-outs.")
 (defparameter *hb-nagi-min* 3.1 "S1: NAGI only when he will be at least this far at its hit (m): its dead zone 3.0 + 0.1.")
 (defparameter *hb-nagi-max* 6.2 "S1: ... and at most this far (m; its arc reaches 6.0, the sim's band 6.4).")
 (defparameter *hb-ns3-max* 5.0 "S1: NS3a SHIBARI (the 4.5 m line, no dead zone) from at most this far (m; it reaches 5.2).")
@@ -33,7 +35,7 @@
   "S1: per event of his (an approach, a whiff, a charge; one roll each): the NAGI / NS answer. 2026-11-15, mine.")
 (defparameter *hb-step-p* '(:easy 0.25 :normal 0.6 :hard 1.0)
   "S1: per stay inside the floor while he closes (one roll): the back Step (else the walk out). As *HKK-P*.")
-(defparameter *hb-poke-p* '(:easy 0.2 :normal 0.35 :hard 0.5)
+(defparameter *hb-poke-p* '(:easy 0.3 :normal 0.6 :hard 1.0)
   "S1: per think decision (*CAI-THINK*) in the band with him free: the opener, the pointer's NS when it reaches (NS3a / NAGI / NS2a), so
 a match against a waiting opponent still ends. 2026-11-15, mine.")
 (defparameter *hb-oki-at* 40 "S1: okizeme: the pointer's NS this many frames after his first free step with the opponent down (catalogue K).")
@@ -62,9 +64,12 @@ a match against a waiting opponent still ends. 2026-11-15, mine.")
   (bt 0 :type fixnum))          ; S4: the tick of the next J1 sought from the tip while behind
 (inline-readers hbs)
 
-(defun hb-ns (e b f kit s d mv nsmin)
-  "Start MV (his pointer's NS) with a tap when D is out of its dead zone (MV-MIN-REACH + 0.1) and NSMIN, and his gauge pays for it. T."
-  (when (and mv (>= d (+ (mv-min-reach mv e) 0.1)) (>= d nsmin) (kit-sp-start-p kit mv (gauges-fs (gauges e)) (gauges-burst (gauges e))))
+(defun hb-ns (e b f kit s d mv nsmin &optional (v 0.0))
+  "Start MV (his pointer's NS, a tap) when he is out of its dead zone (MV-MIN-REACH + 0.1) and NSMIN, both now and at its first hit
+(the perceived D less his closing speed V, m a step, times the perception delay and then its startup too), and his gauge pays. T."
+  (when (and mv (let ((m (max nsmin (+ (mv-min-reach mv e) 0.1))))
+                  (and (>= (- d (* v (brain-delay b))) m) (>= (- d (* v (+ (brain-delay b) (mv-s mv)))) m)))
+             (kit-sp-start-p kit mv (gauges-fs (gauges e)) (gauges-burst (gauges e))))
     (clog "~a hb ~(~a~) at ~,1f" (side-name e) (mv-name mv) d)
     (hr-sp b f s) (hr-taken b f) t))
 
@@ -106,17 +111,20 @@ his charge past its first 20 frames), so the band rule below neither NAGIs nor b
           (t (values nil nil)))))
 
 (defun hb-band (e b f kit s d st)
-  "S1, the Shikai's free step (the file header). T: it owns every free Shikai step (NIL only in a cinematic or his intro)."
+  "S1, the Shikai's free step (the file header). T: it owns every free Shikai step but his reel (stun: the follow-up is left to the
+string code), a cinematic or his intro (NIL)."
   (let* ((ss (snap-state s)) (fo (fighter (fighter-opp f))) (oalt (not (eq (fighter-form fo) :base)))   ; (his form: the HUD shows it)
          (lo (style-knob b :hb-lo *hb-lo*)) (hi (style-knob b :hb-hi *hb-hi*))
          (lo (if oalt (style-knob b :hb-olo lo) lo)) (hi (if oalt (style-knob b :hb-ohi hi) hi))
          (nsmin (if oalt (style-knob b :hb-ons-min 0.0) 0.0))
          (nmin (max nsmin (style-knob b :hb-nagi-min *hb-nagi-min*)))
          (v (if (> (hbs-pd st) 50.0) 0.0 (max 0.0 (- (hbs-pd st) d)))) (closing (> v 0.004))   ; (his perceived closing speed, m a step)
+         (walk (> v 0.03))                               ; (walking in or faster: 3.8 m/s is 0.063 a step; a strafe's drift is less)
          (ptr (mc-ptr f)) (ns (kit-core-move kit :ns ptr)) (down (member ss '(:air :down :wakeup)))
          (dp (- d (* v (+ (brain-delay b) 20)))))       ; (where he will be at NAGI's hit, S 20)
     (setf (hbs-pd st) (f32 d))
-    (when (member ss '(:cine :intro)) (return-from hb-band nil))
+    (when (member ss '(:cine :intro :stun)) (return-from hb-band nil))
+  ; (his reel: the follow-up is the string code's, HISAGI-MERGED-STYLE)
     (setf (hbs-oki st) (if down (if (minusp (hbs-oki st)) *match-tick* (hbs-oki st)) -1))
     (unless closing (setf (hbs-ev st) nil))
     (unless (< d lo) (setf (hbs-in st) nil))
@@ -129,18 +137,18 @@ his charge past its first 20 frames), so the band rule below neither NAGIs nor b
              (clog "~a hb awaken" (side-name e)) (ai-press b :awaken 1 :modded t) t)
             ;; okizeme: the pointer's NS *HB-OKI-AT* frames after he is free with the opponent down
             ((and down (>= (- *match-tick* (hbs-oki st)) (style-knob b :hb-oki-at *hb-oki-at*)) (hb-reach-ok-p ptr d nmin)
-                  (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin))))
+                  (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin) v)))
             ;; his whiff: the pointer's NS when it lands before he recovers (HKW-FITS-P: the reach, the dead zone, his recovery seen)
             ((and (not down) (not hold) (snap-recovering-p s) (null (snap-contact s)) (hkw-fits-p e ns s b d) (hb-react b s st)
-                  (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin))))
+                  (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin) v)))
             ;; his charge (a segment with no hit of its own, no parry): NAGI into it
             ((and (not hold) (= ptr 1) (eq ss :move) (snap-move s) (zerop (length (mv-hits (snap-move s)))) (not (member :parry (snap-flags s)))
                   (not (getf (mv-params (snap-move s)) :hit-at)) (not (member (mv-name (snap-move s)) *hb-ich-wave*))   ; (KESSA's clones, the wave)
-                  (<= nmin d *hb-nagi-max*) (hb-react b s st) (hb-ns e b f kit s d ns nmin)))
+                  (<= nmin d *hb-nagi-max*) (hb-react b s st) (hb-ns e b f kit s d ns nmin v)))
             ;; his walk / run-in: NAGI when its hit meets him in the band (one roll per approach)
-            ((and (not hold) closing (= ptr 1) (not (eq ss :move))
+            ((and (not hold) walk (= ptr 1) (not (eq ss :move))
                   (progn (unless (hbs-ev st) (setf (hbs-ev st) t (hbs-go st) (style-roll b :hb-react-p *hb-react-p*))) (hbs-go st))
-                  (<= nmin dp 6.0) (<= d *hb-nagi-max*) (hb-ns e b f kit s d ns nmin))
+                  (<= nmin dp 6.0) (<= d *hb-nagi-max*) (hb-ns e b f kit s d ns nmin v))
              (setf (hbs-go st) nil) t)
             ;; inside the floor while he closes (or well inside it): the back Step, one roll per stay; cornered: the side Step
             ((and (not hold) (< d lo) (or closing (< d (- lo 0.5))) (not down)
@@ -155,7 +163,7 @@ his charge past its first 20 frames), so the band rule below neither NAGIs nor b
                  (cond ((> d 8.0) (ai-dash b 1 hi))
                        ((and (not down) (not hold) (not (eq ss :move)) (<= lo d (+ hi 0.5)) (hb-reach-ok-p ptr d nmin)
                              (style-roll b :hb-poke-p *hb-poke-p*))
-                        (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin)))))
+                        (hb-ns e b f kit s d ns (if (= ptr 1) nmin nsmin) v))))
                (unless (> (brain-press-left b) 0) (ai-walk e b (pilot-vpad (pilot e)) d lo hi))
                t)))))
 

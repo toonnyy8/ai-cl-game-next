@@ -270,11 +270,11 @@
 ;; §8.19 round 5 step 5: Kenpachi's style code against Hisagi (duel/lisp/cpu-kh-ken.lisp, KEN-KH-STYLE). Off by default: the file holds only
 ;; definitions (no CAI-DEFSTYLE or any other top-level call that would register it), KEN-KH-STYLE takes the :fn contract's six arguments,
 ;; and every difficulty plist of chances it defines (values within 0-1; a threshold in frames may fall) rises EASY <= NORMAL <= HARD.
-(dolist (ff '(("cpu-kh-ken" ken-kh-style) ("cpu-hk-hisagi" hisagi-hk-style)))   ; (a style file the hkfn search keeps joins this list, DUEL_AI_STRATEGY §8.19 step 7)
+(dolist (ff '(("cpu-kh-ken" ken-kh-style) ("cpu-hk-hisagi" hisagi-hk-style) ("cpu-hisagi-own" hisagi-own-style)))   ; (a style file the hkfn search keeps joins this list, DUEL_AI_STRATEGY §8.19 step 7; PLAN4 2a's own play)
  (let ((forms (with-open-file (in (merge-pathnames (format nil "../../duel/lisp/~a.lisp" (first ff)) *load-truename*))
                (let ((*package* (find-package :duel))) (loop for x = (read in nil in) until (eq x in) collect x)))))
   (check (every (lambda (x) (member (car x) '(in-package defparameter defvar defconstant defun defmacro defstruct inline-readers))) forms))
-  (check (find-if (lambda (x) (and (eq (car x) 'defun) (eq (second x) (second ff)) (= 6 (length (third x))))) forms))
+  (check (find-if (lambda (x) (and (eq (car x) 'defun) (eq (second x) (second ff)) (= 6 (length (ldiff (third x) (member '&optional (third x))))))) forms))   ; (six required; HISAGI-HK-STYLE's optional OWN, PLAN4 2a)
   (dolist (x forms)
     (let ((v (and (eq (car x) 'defparameter) (third x))))
       (when (and (consp v) (eq (car v) 'quote) (consp (second v)) (eq (car (second v)) :easy))
