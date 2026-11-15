@@ -1,0 +1,6 @@
+# EASY candidates under NORMAL = Ne (HARD's @cai, @style-k, @style-i; eyes 14) and HARD eyes 4 (T1). EASY's lifts first (from today's NORMAL / HARD), then NORMAL's
+E1	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 4)	easy=normal:@cai;easy=hard:@clash;normal=hard:@cai,@style-k,@style-i
+E2	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 4)	easy=normal:@cai,@style-k,@style-i;easy=hard:@clash;normal=hard:@cai,@style-k,@style-i
+E3	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 4)	easy=normal:@cai;easy=hard:@clash,@style-k,@style-i;normal=hard:@cai,@style-k,@style-i
+E4	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@cai;easy=hard:@clash,@style-k,@style-i;normal=hard:@cai,@style-k,@style-i
+E5	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k,@style-i;easy=hard:@cai;normal=hard:@cai,@style-k,@style-i

@@ -15,6 +15,42 @@
                (format t "probe set ~a~%" kv))
           while p)))
 
+;;; PROBE_LIFT=to=from:knob,knob;... (after PROBE_SET; all-tiers-table.md): each per-difficulty plist knob's TO value becomes its FROM
+;;; value (a copy of the list, never the literal). A knob is *name* or a group: @eyes @cai @style @mc (below).
+(defparameter *pr-groups*
+  '((:eyes *ai-delay*)
+    (:cai *fz-skill* *cai-think* *cai-turn-p* *cai-cont-p* *cai-hoho-p* *cai-clash-p* *cai-clash-delay* *cai-xch-j* *cai-xch-sa-p*
+     *cai-xch-carry-p* *cai-awaken-break-p* *cai-awaken-kikon-p* *cai-dswitch-dif* *strat-lambda*)
+    (:style *hkb-p* *hkk-p* *hkw-p* *hr-home-p* *hr-p* *hr-taba-p* *ihx-p* *iks-awaken-p* *iks-bait-modes* *iks-break-p* *iks-burst-no-hoho*
+     *iks-confirm-p* *iks-follow-any-perfect* *iks-gap-p* *iks-generic-kikon* *iks-hoho-p* *iks-kessa-read-min* *iks-kessa-space-modes*
+     *iks-kikon-costly-p* *iks-kikon-p* *iks-meaty-p* *iks-mix* *iks-ns-stop* *iks-ns-wait* *iks-p2-wait* *iks-patient-p* *iks-punish-p*
+     *iks-read-p* *iks-retreat-p* *iks-steer-p* *iks-wait-max* *iks-wake-hoho-p* *ikw-roll-p* *ir2-oki-p* *ir2-roll-p* *khf-bait-p*
+     *kk-as-on-p* *kk-as-read-p* *kk-awaken-p* *kk-bankai-p* *kk-bk-ns-p* *kk-brawl-p* *kk-cine-wait* *kk-climb-p* *kk-dodge-p* *kk-hend-p*
+     *kk-hoho-in-p* *kk-kikon-ptr-p* *kk-kikon-red-p* *kk-l3-sa-p* *kk-link-p* *kk-lunge-p* *kk-meaty-p* *kk-ns-safe-p* *kk-ns-stop-p*
+     *kk-pf-p* *kk-reach-p* *kk-step-in-p* *kk-step-p* *kk-wake-hoho-p* *kk-wave-p* *kso-stale*)
+    (:mc *mc-budget* *mc-iters* *mc-opp-delay* *mc-react-p* *mc-select-by* *mc-sure* *mc-tau*)
+    (:clash *cai-clash-p* *cai-clash-delay*)))
+;;; @style-k / @style-i / @style-h: one character's style knobs (@style's names by prefix: Kenpachi kk kso khf, Ichigo iks ikw ir2, Hisagi hk hr ihx)
+(dolist (g '((:style-k "*KK-" "*KSO-" "*KHF-") (:style-i "*IKS-" "*IKW-" "*IR2-") (:style-h "*HK" "*HR-" "*IHX-")))
+  (push (cons (car g) (remove-if-not (lambda (s) (some (lambda (p) (eql 0 (search p (symbol-name s)))) (cdr g)))
+                                     (cdr (assoc :style *pr-groups*))))
+        *pr-groups*))
+(let ((l (ext:getenv "PROBE_LIFT")))
+  (when (and l (plusp (length l)))
+    (loop for start = 0 then (1+ p) for p = (position #\; l :start start)
+          do (let* ((g (subseq l start p)) (eq1 (position #\= g)) (co (position #\: g))
+                    (to (intern (string-upcase (subseq g 0 eq1)) :keyword)) (from (intern (string-upcase (subseq g (1+ eq1) co)) :keyword)))
+               (loop for s0 = (1+ co) then (1+ q) for q = (position #\, g :start s0)
+                     do (let ((name (string-upcase (subseq g s0 q))))
+                          (dolist (sym (if (char= (char name 0) #\@)
+                                           (cdr (assoc (intern (subseq name 1) :keyword) *pr-groups*))
+                                           (list (intern name :duel))))
+                            (let ((v (copy-list (symbol-value sym))))
+                              (setf (getf v to) (getf v from) (symbol-value sym) v))))
+                     while q)
+               (format t "probe lift ~a~%" g))
+          while p)))
+
 (defvar *pr-match* -1)
 (defvar *pr-st* (list (make-hash-table) (make-hash-table)))
 (defvar *pr-c* (make-array '(2 8) :initial-element 0))   ; per side: open hits first firstwin dmg

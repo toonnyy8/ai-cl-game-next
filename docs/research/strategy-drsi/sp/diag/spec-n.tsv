@@ -1,0 +1,6 @@
+# NORMAL candidates on the table (T1): NORMAL > masher and HARD > NORMAL (EASY untouched)
+Na	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@clash
+Nb	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@clash,@style-k
+Nc	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*cai-clash-delay*=(:easy 24 :normal 8 :hard 8)	normal=hard:@style-k
+Nd	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 12 :hard 8)	normal=hard:@clash
+Ne	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@cai,@style-k,@style-i

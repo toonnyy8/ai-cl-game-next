@@ -1,0 +1,4 @@
+# HARD faster than today (eyes and clash 4 frames) over NORMAL candidates (T1): HARD > NORMAL
+NaH4	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 14 :hard 4);*cai-clash-delay*=(:easy 24 :normal 8 :hard 4)	normal=hard:*cai-clash-p*
+NeH4	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 14 :hard 4)	normal=hard:@cai,@style-k,@style-i
+NeH4c	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 14 :hard 4);*cai-clash-delay*=(:easy 24 :normal 8 :hard 4)	normal=hard:*fz-skill*,*cai-think*,*cai-turn-p*,*cai-cont-p*,*cai-hoho-p*,*cai-clash-p*,*cai-xch-j*,*cai-xch-sa-p*,*cai-xch-carry-p*,*cai-awaken-break-p*,*cai-awaken-kikon-p*,*cai-dswitch-dif*,*strat-lambda*,@style-k,@style-i

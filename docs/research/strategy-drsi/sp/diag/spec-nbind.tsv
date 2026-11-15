@@ -1,0 +1,10 @@
+# NORMAL vs the masher Kenpachi rows, every tier on the table (T1): which part of HARD does NORMAL lack?
+TNd14	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)
+TNd10	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 10 :hard 8)
+TNd8	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 8 :hard 8)
+Ncai	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@cai
+Nstyle	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@style
+Nmc	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@mc
+TNd8cai	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 8 :hard 8)	normal=hard:@cai
+TNd8style	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 8 :hard 8)	normal=hard:@style
+Nhard	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:@eyes,@cai,@style,@mc

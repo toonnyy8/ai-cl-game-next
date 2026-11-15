@@ -1,0 +1,5 @@
+# every tier on the table (all-tiers-table.md)
+base	*mc-defer-gap*=6
+T1	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)
+T1off	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*mc-on*=nil
+T1sure	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*mc-sure*=(:easy 0.16 :normal 0.16 :hard 0.16)

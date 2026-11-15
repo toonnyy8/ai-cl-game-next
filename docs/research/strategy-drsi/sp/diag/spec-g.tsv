@@ -1,0 +1,4 @@
+# F1 plus Hisagi's style knobs (T1)
+G1	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 12 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G2	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 12 :hard 4)	easy=normal:@style-k,@style-h;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G3	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h

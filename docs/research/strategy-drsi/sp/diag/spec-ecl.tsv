@@ -1,0 +1,5 @@
+# EASY (T1) vs the masher, all cells: clash, eyes, NORMAL's chances
+Ecl	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:*cai-clash-p*,*cai-clash-delay*
+Ecld14	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:*cai-clash-p*,*cai-clash-delay*;easy=normal:*ai-delay*
+Ecld14cai	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=normal:@eyes,@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*
+EasN-cl	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=normal:@eyes,@cai,@style,@mc;easy=hard:*cai-clash-p*,*cai-clash-delay*
