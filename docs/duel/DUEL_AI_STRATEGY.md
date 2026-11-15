@@ -3273,3 +3273,14 @@ HARD playing DUCT in game, or DUCT as an offline teacher):
   arm set must change, it is re-frozen once, and that is recorded.
 - Every tier (HARD, NORMAL, EASY, the masher) reports its win rate against it, per pairing and seat, beside the ladder bar. HARD's
   target against DUCT (e.g. ≥ 50 %, as strong as DUCT) is a checkpoint question in PLAN4.
+
+**The plan and checkpoint 0** (`docs/research/strategy-drsi/sp/PLAN4.md`, Fable): rule base `:rb-sp2` (104 rules in 11 additive groups:
+the dropped cues back, his state x distance, both walls, both Reishi, the clock, both SP pointers; `:prev` left to `:margin`); one-job arms
+per character (Ichigo `all whiff space ptr3 kessa`, Kenpachi `all rush guard spend climb`, Hisagi `all wake kite press range`) with the
+2026-11-15 exchange keys laid under every arm (`:with`); a designed table T0 that switches by construction, then at most two small fit
+rounds; the masher (`masher.lisp`, seeded, pre-registered rates); the frozen DUCT anchor (`STRAT_ANCHOR`). Bars: A it switches (every
+match, median ≥ 10 changes, ≥ 3 arms at ≥ 10 %, none > 70 %), B the ladder (27 cells x both seats, 400 matches, ≥ 296 / 400), C against
+DUCT (reported), D health. Probes today: HARD beats NORMAL 359 of 360; NORMAL beats EASY 93-100 % by the game's result (35 % / 57 % in
+II / IH by K.O.s only); a hand-written job table for Ichigo vs Kenpachi switches 38 times a match at its arms' strength (148-12).
+The user's answers: time-outs by 「照遊戲判定」; 70:30 「只是下限」; HARD vs DUCT 「先報告，CP2 再定」 (working target pooled ≥ 50 %);
+search budget 「36 格」. The masher stays a test opponent (debug and native only).
