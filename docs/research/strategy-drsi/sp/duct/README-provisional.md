@@ -133,6 +133,11 @@ Equilibria:
 
 - Only the rows carry information. Kenpachi wins 3 of 100 with the standard budget and 7 with today's; Ichigo 93 and 97. In KH Kenpachi
   wins 98 with standard and 96 with today's.
+- **The per-seat budget took effect** (checked from the cached D1 jobs' `stratlayer` lines). Rollouts = 16 x picks(new seat) + 8 x
+  picks(old seat), to within the unfinished jobs:
+  - 354,315 against a predicted 354,232, and 383,008 against 382,936 (ratio 1.000);
+  - both seats at 8 would give 237k / 255k, both at 16 would give 474k / 510k.
+  - `*strat-h*` is set on the same code path, but it is not counted separately.
 - **Choice: today's, 8 x 150 / 90** (`budget-provisional.json`). Heavy was not compared: by the rule, it plays only if standard wins.
 
 Cost of each setting: DUCT on both seats, KI seeds 1-20, P1 Kenpachi, 40 matches:
@@ -165,7 +170,8 @@ At every `SP_BUILD` re-pin, rerun `duct.py fingerprint --budget today` and diff 
   passed as `STRAT_P<n>`. Under `STRAT_ANCHOR`, `strat-lookup` sees only the anchor's entries, so without the file the HARD seat would play
   the plain CPU.
 - Checked: the table seat prints its `switch P<n> KI-KENPACHI judged 131` line.
-- B4's T0 tables had not landed on main (last checked: main = c15f9a55), so **T0 is not measured**.
+- B4's T0 tables had not landed on main (last checked: main = c15f9a55), so **T0 is not measured**. The B3 drafts in `arms4/t0/` cover 7
+  of the 9 rows and are not B4's tables.
 - The DUCT-vs-DUCT runs are 6 distinct sets: rows KI and IK are the same matches. A mirror's 50 matches are read from both seats.
 
 | Row (X vs DUCT-Y) | DUCT-X share (P1 / P2) | HARD shipped-X share (P1 / P2) | HARD - DUCT | Bells DUCT / HARD (of 100) |
@@ -179,9 +185,12 @@ At every `SP_BUILD` re-pin, rerun `duct.py fingerprint --budget today` and diff 
 | HK | .040 (.02 / .06) | **.280** (.26 / .30) | +.24 | 0 / 5 |
 | HI | .590 (.62 / .56) | **.100** (.08 / .12) | -.49 | 8 / 1 |
 | HH | .500 (.68 / .32) | **.070** (.08 / .06) | -.43 | 100 / 32 |
-| **pooled** | **.500** (the symmetry check holds) | **.342** | | |
+| **pooled** | **.500** (by construction: KI / IK and each mirror are the same matches read from both sides) | **.342** | | |
 
-**Against the working target** (pooled >= 50 %, no row more than 15 points under DUCT's own), today's HARD fails:
+The determinism evidence is the fingerprint's byte-identical rerun, not this pool.
+
+**Against the working target** (pooled >= 50 %, no row more than 15 points under DUCT's own), **today's shipped lookup, not T0**, fails.
+CP2 sets the target from T0's number.
 - pooled .342;
 - four rows more than 15 points under: KK -39, IH -33, HI -49, HH -43.
 
