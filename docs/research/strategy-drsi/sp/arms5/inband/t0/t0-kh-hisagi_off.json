@@ -1,0 +1,99 @@
+{
+ "note": "arms5 in-band (kh-hisagi#off): arm 0 h5-all; jobs inband.py JOB",
+ "arms": [
+  "../arms5/hisagi/arms.lisp#h5-all",
+  "../arms5/hisagi/arms.lisp#h5-cancel",
+  "../arms5/hisagi/arms.lisp#h5-tip",
+  "../arms5/hisagi/arms.lisp#h5-bind",
+  "../arms5/hisagi/arms.lisp#h5-wake",
+  "../arms5/hisagi/arms.lisp#h5-k1"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    5,
+    [
+     "(:xch :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:lead :behind)",
+     "(:awst :k2)"
+    ]
+   ],
+   [
+    7,
+    [
+     "(:mr :r-low)",
+     "(:or :r-high)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :k2)",
+     "(:dm :m-close)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    10,
+    [
+     "(:optr :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    10,
+    [
+     "(:optr :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ]
+ ]
+}

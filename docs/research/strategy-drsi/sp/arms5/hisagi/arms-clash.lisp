@@ -1,0 +1,31 @@
+;;;; arms5/hisagi/arms-clash.lisp — arms.lisp with every `:clash-p 0.0` dropped (the lead, PLAN4 in-band batch, 2026-11-15: "the h5 arms
+;;;; with the pairing's :with clash restored"), so the exchange unit's :clash-p (1.7 in KH and IH; the generic clash with main's dead-zone fix)
+;;;; plays under every arm. Otherwise the plists are arms.lisp's, byte for byte (same ids). The record: arms5/inband.md.
+
+(:id :h5-all :fn hisagi-own-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :hb-band 1.0))
+
+(:id :h5-cancel :fn hisagi-own-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :hb-band 1.0 :hb-jclash 1.0 :xch-j 0.0))
+
+(:id :h5-tip :fn hisagi-own-style :apply (:hisagi) :dswitch-map ((:base 1 3))
+ :base (:hk-pot 1.0 :hb-band 1.0 :hr-taba-n 1.0 :hr-taba-lo 4.0 :hr-taba-hi 4.9
+        :dswitch 1.0 :range 3.2 :ns 1.0 :hoho 1.0 :kikon 0.4 :cont 1.3 :awaken 4.0 :p 1.0 :b-walk-out 0.05 :b-wait 0.04 :b-j1 -0.3
+        :b-walk-in -0.08 :b-step-in -0.05 :hr-near 4.5 :hr-home-p 1.0)
+ :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0)) (((:dn :reach)) (:b-sp 0.2 :b-walk-in -0.05))
+         (((:dn :out)) (:b-sp 0.15)) (((:dn :afar) (:wave :yes)) (:b-sp 0.22 :b-walk-in -0.06))
+         (((:do :in)) (:b-walk-out 0.2 :b-step-out 0.18 :b-j1 -0.1)) (((:do :reach)) (:b-walk-out 0.1 :b-step-out 0.08))))
+
+(:id :h5-bind :fn hisagi-own-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :hb-band 1.0 :hb-bind 1.0))
+
+(:id :h5-wake :fn hisagi-own-style :ken-ranged t :apply (:hisagi)
+ :base (:hk-pot 1.0 :hb-band 1.0 :hk-wake 1.0 :kk-hoho-in-p 1.0 :kk-hin-fs 100 :kk-hoho-in-max 6.0 :kk-reach-margin 1.0
+        :kk-ns-safe-p 0.25))
+
+(:id :h5-k1 :fn hisagi-own-style :ken-ranged t :apply (:hisagi)
+ :base (:hk-pot 1.0 :hb-band 1.0 :hb-jclash 1.0 :xch-j 0.0 :hb-olo 5.8 :hb-ohi 6.4 :hb-ons-min 5.8))
+
+(:id :h5-i1 :fn hisagi-own-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :hb-band 1.0 :hb-ich 1.0 :xch-j 0.0))
+
+(:id :h5-ihx :dswitch-map ((:base 1 3)) :fn hisagi-ihr1b2a0-style :apply (:hisagi)
+ :base (:dswitch 1.0 :awaken 3.0 :hoho 0.3 :range 1.75 :ns 0.9 :cont 2.0 :turn 2.0 :ihx-p 1.0 :ihx-margin 0.1 :ihx-chase 0.0 :ihx-reishi 0.5
+        :hold-awaken 0.3)
+ :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))
