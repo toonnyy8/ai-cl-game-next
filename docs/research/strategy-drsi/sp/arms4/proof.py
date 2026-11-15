@@ -33,8 +33,11 @@ HARD = 2
 KEEP = ('desc ', 'duel gate row ', 'fq ', 'strat ')
 
 # Pre-registered (written before the first proof run, ichigo.md / kenpachi.md): arm id -> (descriptor, op, amount) against arm 0.
-# '+': value >= arm 0's + amount; 'x': value >= arm 0's x amount; 'x<': value <= arm 0's x amount.
+# '+': value >= arm 0's + amount; '-': value <= arm 0's - amount; 'x': value >= arm 0's x amount; 'x<': value <= arm 0's x amount.
+# A list: every part must pass.
 TESTS = {
+    # Ichigo's code cell (B3, 2026-11-15; registered in ichigo.md §"Re-jobbed arms" before the seeds 1-100 run)
+    'a4-i-brawl': ('close', '+', 0.10), 'a4-i-keep': [('p2', '+', 0.20), ('mean_d', '+', 0.5)], 'a4-i-kessa2': ('k_d', '-', 0.30),
     'a4-i-whiff': ('mid', '+', 0.05), 'a4-i-space': ('mean_d', '+', 0.5), 'a4-i-ptr3': ('p3', '+', 0.10), 'a4-i-kessa': ('awk', '+', 0.05),
     'a4-k-rush': ('close', '+', 0.10), 'a4-k-guard': ('evade', 'x', 1.3), 'a4-k-spend': ('spend', 'x', 1.5),
     'a4-k-climb': ('bankai', '+', 0.05), 'a4-k-bait': ('wake_kd', 'x<', 0.5), 'a4-k-wave': ('evade', 'x', 1.2),
@@ -44,7 +47,10 @@ TESTS = {
 TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'far': ('abs', 0.03), 'awk': ('abs', 0.03),
        'p3': ('abs', 0.05), 'bankai': ('abs', 0.03), 'released': ('abs', 0.03),
        'sp': ('rel', 0.15), 'burst': ('rel', 0.15), 'kikon': ('rel', 0.15), 'spend': ('rel', 0.15), 'wake_kd': ('rel', 0.15),
-       'evade': ('rel', 0.15), 'acts': ('rel', 0.15), 'clash': ('rel', 0.15)}
+       'evade': ('rel', 0.15), 'acts': ('rel', 0.15), 'clash': ('rel', 0.15),
+       # Ichigo's code cell (B3, pre-registered in ichigo.md before its proof run): pointer 2's share, move starts into his neutral, SP moves
+       # per 1000 awakened steps (pooled)
+       'p2': ('abs', 0.05), 'nstart': ('rel', 0.15), 'k_sp': ('rel', 0.15), 'k_d': ('abs', 0.25)}
 DESC = list(TOL)
 
 
@@ -154,7 +160,7 @@ def desc_vec(line):
     fm = {x.split(':')[0]: int(x.split(':')[1]) for x in p[p.index('form') + 1:]}
     st = max(1, kv['steps'])
     return dict(mean_d=kv['dsum'] / 1000.0 / st, close=kv['close'] / st, far=kv['far'] / st, mid=1 - (kv['close'] + kv['far']) / st,
-                awk=kv['awk'] / st, p3=kv['p3'] / st, bankai=fm.get('bankai', 0) / st, released=1 - fm.get('base', 0) / st,
+                awk=kv['awk'] / st, p3=kv['p3'] / st, p2=kv.get('p2', 0) / st, nstart=kv.get('nstart', 0), asp=kv.get('asp', 0), adsum=kv.get('adsum', 0), awk_n=kv['awk'], bankai=fm.get('bankai', 0) / st, released=1 - fm.get('base', 0) / st,
                 sp=kv['sp'], burst=kv['burst'], kikon=kv['kikon'], spend=kv['burst'] + kv['kikon'], kd=kv['kd'], wake=kv['wake'],
                 evade=kv['evade'], acts=kv['acts'], clash=kv['clash'], steps=kv['steps'])
 
@@ -170,7 +176,9 @@ def arm_desc(res):
         ko += sum(k for _, k in rw.values())
         kow += sum(1 for w, k in rw.values() if k and w == seat)
     n = len(ms)
-    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k != 'wake_kd'}
+    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k not in ('wake_kd', 'k_sp', 'k_d')}
+    out['k_d'] = sum(m['adsum'] for m in ms) / 1000.0 / max(1, sum(m['awk_n'] for m in ms))   # (pooled: mean distance of the awakened steps)
+    out['k_sp'] = 1000.0 * sum(m['asp'] for m in ms) / max(1, sum(m['awk_n'] for m in ms))   # (pooled: SP moves per 1000 awakened steps)
     out['wake_kd'] = sum(m['wake'] for m in ms) / max(1, sum(m['kd'] for m in ms))   # (pooled: presses per knockdown of his)
     out.update(matches=n, ko_rate=ko / max(1, n), ko_win=kow / max(1, n))
     return out
@@ -179,8 +187,16 @@ def arm_desc(res):
 def test(aid, d, d0):
     if aid not in TESTS:
         return None
-    k, op, amt = TESTS[aid]
-    ok = d[k] >= d0[k] + amt if op == '+' else (d[k] >= d0[k] * amt if op == 'x' else d[k] <= d0[k] * amt)
+    t = TESTS[aid]
+    if isinstance(t, list):
+        parts = [test1(x, d, d0) for x in t]
+        return dict(desc='+'.join(x['desc'] for x in parts), parts=parts, ok=all(x['ok'] for x in parts))
+    return test1(t, d, d0)
+
+
+def test1(t, d, d0):
+    k, op, amt = t
+    ok = {'+': d[k] >= d0[k] + amt, '-': d[k] <= d0[k] - amt, 'x': d[k] >= d0[k] * amt, 'x<': d[k] <= d0[k] * amt}[op]
     return dict(desc=k, op=op, amount=amt, value=round(d[k], 4), arm0=round(d0[k], 4), ok=bool(ok))
 
 
@@ -217,10 +233,10 @@ def cmd_desc(a):
                           ko_rate=round(d['ko_rate'], 3), ko_win=round(d['ko_win'], 3), ko_ok=d['ko_rate'] >= 0.5, matches=d['matches'],
                           test=test(aid, d, d0), not_distinct_from=[b for b in ids if b != aid and close_on_all(d, out[b])])
     os.makedirs(os.path.join(HERE, 'proof'), exist_ok=True)
-    dst = os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
+    dst = os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + (f'-{a.tag}' if a.tag else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
     json.dump(dict(me=a.me, vs=a.vs, opp='none', dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
                    build=simlib.build_hash(os.path.join(ROOT, 'tools/simgate/strat-run.lisp'))[:12], arms=sheet), open(dst, 'w'), indent=1)
-    cols = ['mean_d', 'close', 'mid', 'far', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'acts', 'clash']
+    cols = ['mean_d', 'close', 'mid', 'far', 'p2', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'nstart', 'k_sp', 'k_d', 'acts', 'clash']
     print(f'{a.me} vs {a.vs} none, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
     print('arm'.ljust(12) + ''.join(c.rjust(8) for c in cols) + '     K.O.  KOwin  test')
     for aid in ids:
@@ -327,6 +343,7 @@ def main():
     p.add_argument('--arms', required=True); p.add_argument('--with', dest='with_', nargs='*'); p.add_argument('--ids')
     p.add_argument('--seed0', type=int, default=0); p.add_argument('--seeds', type=int, default=100); p.add_argument('-j', type=int, default=20)
     p.add_argument('--dif', choices=('easy', 'normal'), help='my seat at this difficulty (a diagnostic; the proof is HARD)')
+    p.add_argument('--tag', help='suffix of the output file (proof/<me>-vs-<vs>[-dif]-TAG.json)')
     p = sub.add_parser('t0')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--map', required=True); p.add_argument('--out', required=True); p.add_argument('--with', dest='with_', nargs='*')

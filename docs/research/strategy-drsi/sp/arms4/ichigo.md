@@ -100,3 +100,64 @@ seats, 80 matches (`t0/bar-ki-501-540.json`):
   fires on 89 % of judgements and kessa's G0 job on every awakened one, so they crowd out arm 0;
 - in-job vs out-of-job share: whiff .172 / .009, space .127 / .000, ptr3 .521 / .000, kessa .956 / .000 (all pass x2);
 - K.O. rate 1.00 (Ichigo wins 0.95 by K.O.).
+
+(The first drafts' map, `t0/ki-ichigo.json` at 1170f748: whiff G2 `(:ost :atk) (:dm :m-mid)` / G1 `(:form :no) (:dm :m-mid)`; space G1
+`(:dm :m-far)` / G6 `(:wall :w-near)`; ptr3 G3 `(:ocell :no)` / G9 `(:mptr :k3)`; kessa G0 `(:awst :k2)` / G1 `(:form :yes)`. Its bar file
+was `t0/bar-ki-501-540.json`, replaced below.)
+
+## Re-jobbed arms (Ichigo's code cell, PLAN4 B3, 2026-11-15)
+
+After the failure above, the lead's decision was to do both: expose the switches as style keys (KNOBS.md §6.7), and define the jobs by
+what separates. The code cell's keys:
+- `:iks-patient-p` and `:iks-p2-wait`: 0 / 1 switches, through STYLE-ON;
+- `:iks-hover-add` / `:iks-bait-hover-add`: metres added to the hover tables;
+- `:iks-retreat-to`;
+- `:iks-steer-to`: the steered string's press count (5 = AS3, 3 = AS2);
+- `:iks-kessa-chain-lo` / `-hi`: turn on KESSA pointer 1's chains.
+
+The four failing drafts left `ichigo.lisp`. Their plists stay in git (`ichigo.lisp` and `t0/t0-ki-ichigo.arms` at 1170f748).
+
+### Design probes (dev seeds 201-220, both seats, 40 matches an arm and opponent; not the proof seeds)
+
+Differences from arm 0 (vs Kenpachi / vs Hisagi) in the probes that shaped the drafts:
+
+| Candidate | Keys | close | mean d | p2 | awakened mean d (`k_d`) | K.O. | What it showed |
+|---|---|---|---|---|---|---|---|
+| brawl-p3 (kept) | patient 0, gap 0, ptr3 | +.17 / +.18 | -.68 / -.70 | | -.53 / -.54 | 1.0 / .95 | closes in, both forms |
+| brawl-gen | gap 0, generic 1 | +.18 / | -.60 / | | | 1.0 / | pointer 3 lost (-.60) |
+| brawl-p0 | patient 0, gap 0, the tier's mix | +.13 / +.08 | | | | | weaker vs Hisagi |
+| keep-a | steer 3, p2-wait 0 | | +.80 / +1.65 | +.53 / +.66 | | 1.0 / **.50** | time-outs vs Hisagi (K.O. win .025) |
+| keep-l (kept) | keep-a + behind: steer 5, retreat 0 | | +.79 / +.91 | +.52 / +.42 | | 1.0 / .73 | fights back when behind |
+| keep-c, keep-g, keep-r | getsuga-min 6.0, 7.0; retreat 0.5 | | | | | .40-.70 vs H | no better |
+| kessa (old), kessa + chains | kessa 1 (+ chain 2.8-3.4) | | -.02 / +.09 | | .00 / +.19 | | see note 1 |
+| kessa + awakened gap 0 | rule `(:awk :yes)` -> gap 0 | | | | -.34 / -.20 | | the gap's share of KESSA |
+| kessa2 (kept) | kessa 1; awakened: gap 0, wait-max 0 | | -.22 / -.27 | | -.49 / -.43 | 1.0 / 1.0 | KESSA's neutral goes to the generic at once |
+| space-g, space-h | space 1, hover +1.0 (gap on / off) | | +.09 / +.32; -.06 | | | | see note 2 |
+
+1. The shut-gauge lunge takes KESSA's pointer-3 steps in every mode, because the base has `:iks-gap-p 1` and `:iks-gap-fs 150`. Chains at
+   pointer 1 are rare.
+2. The hover is not where the time goes, so there is no fifth arm.
+
+### Pre-registered (written before the proof run on seeds 1-100; `proof.py` TESTS)
+
+Played as before: whole against his `none`, HARD, seeds 1-100 both seats (200 matches), a 1-arm `:rb-sp2` table (keep-state, period 30)
+with the pairing's `:with` unit. Opponents: Kenpachi (`d-x-ki-i`) and Hisagi (`d-x-ih-i`). Arm 0 is re-run in this build.
+
+| Arm | Job | Descriptor (against arm 0, both opponents) | T0 job rules (KI) |
+|---|---|---|---|
+| `a4-i-all` | the patient hover-and-punish | arm 0 | everywhere else |
+| `a4-i-brawl` | close pressure | share of steps inside 3 m >= + 0.10 | G2 `(:ost :free) (:dm :m-close)` |
+| `a4-i-keep` | the pointer-2 Getsuga at range, distance held | share of steps at pointer 2 >= + 0.20 **and** mean distance >= + 0.5 m | G8 `(:lead :ahead)` |
+| `a4-i-kessa2` | awakened pressure (KESSA) | mean distance of the awakened steps (`k_d`, pooled) <= - 0.30 m | G0 `(:awst :k2)`, G1 `(:form :yes)` (as PLAN4 §3) |
+
+- New descriptors, tool-only:
+  - `strat-run.lisp`'s desc line gains `nstart`, `asp` and `adsum`, and `proof.py` reads `p2` too.
+  - `p2`: share of steps at pointer 2.
+  - `nstart`: my move starts while he is `:idle` / `:run`, a match.
+  - `k_sp`: SP moves per 1000 awakened steps, pooled.
+  - `k_d`: described in the table above.
+- Distinctness tolerances for the new descriptors: `p2` 0.05, `k_d` 0.25 m, `nstart` and `k_sp` 15 % of the larger (at least 0.15). This
+  widens the test for every character's later runs (one more way to differ). Kenpachi's sheet was written before it.
+- K.O. >= 0.50 and the distinctness test work as before. Pass = the descriptor (both opponents) + distinct from every sibling + the K.O.
+  rate.
+- Need >= 3 passing general arms (all + 2). No bar moves after the run.

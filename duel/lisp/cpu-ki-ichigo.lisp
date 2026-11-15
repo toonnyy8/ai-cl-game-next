@@ -79,7 +79,8 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
 (defparameter *iks-ns-wait* '(:easy 32 :normal 32 :hard 32)
   "Frames after his whiffing NS starts before the punish is pressed: earlier runs into his next segment (U6), f32 lands (U7).")
 (defparameter *iks-hover* '(:base (3.7 4.2) :nozarashi (4.9 5.3))
-  "The :whiff / :space hover band (m) by his form: just outside his NS reach, inside NS3a's 5.0 m.")
+  "The :whiff / :space hover band (m) by his form: just outside his NS reach, inside NS3a's 5.0 m. This and *IKS-HOVER-P1* move by the
+arm's :iks-hover-add metres (IKS-TABLE-BAND, KNOBS.md §6.7).")
 (defparameter *iks-hover-p1* '(:base (3.4 3.8) :nozarashi (4.9 5.3))
   "The :whiff / :space hover band (m) under pointer 1: her J-whiff punisher (NS1a) reaches only 3.4 m (*IKS-PUNISH-REACH*), so v0's
 3.7-4.2 never let her punish his J whiff; 3.4-3.8 stays past his sealed NS1a (3.3 m). b0_a0 2026-11-06: new (v0 used *IKS-HOVER*).")
@@ -88,13 +89,19 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
 sealed neutral starts its NS1a from (KK-REACH: 2.6 m) and just out of his J1's (1.9 m), so he commits to the NS1a (S14: seen 6 f before
 its hit, inside the timed Hoho's lead window), which the timed Hoho turns into a perfect Hoho's counter, the follow-up's J string and
 AS3. Round 3, b2_a0's bait hover (0.8517 rescored: the 3.4-4.2 m stand-off ended), grafted by b0_a1 under the shut-gauge lunge, which
-still takes the step first while his Hoho is shut.")
+still takes the step first while his Hoho is shut. Moved by the arm's :iks-bait-hover-add metres (IKS-HOVER-BAND).")
 (defparameter *iks-bait-modes* '(:easy nil :normal nil :hard (:whiff :ptr3 :kessa))
   "By difficulty, the style modes that hover at *IKS-BAIT-HOVER* (round 3, b2_a0). :space keeps *IKS-HOVER*.")
+(defun iks-table-band (b band)
+  "BAND (lo hi), a hover table's entry, as two values moved by the arm's :iks-hover-add metres (no key: 0, BAND itself)."
+  (let ((a (style-knob b :iks-hover-add 0))) (values (+ (first band) a) (+ (second band) a))))
 (defun iks-hover-band (b o mode table)
-  "The hover band (lo hi) for this episode's MODE against O's form: *IKS-BAIT-HOVER* for *IKS-BAIT-MODES*, else TABLE's."
-  (or (and (member mode (brain-chance b *iks-bait-modes*)) (iks-form-get *iks-bait-hover* o))
-      (iks-form-get table o)))
+  "The hover band for this episode's MODE against O's form, as two values (lo hi): *IKS-BAIT-HOVER* (moved by the arm's
+:iks-bait-hover-add metres) for *IKS-BAIT-MODES*, else TABLE's (IKS-TABLE-BAND)."
+  (let ((bait (and (member mode (brain-chance b *iks-bait-modes*)) (iks-form-get *iks-bait-hover* o))))
+    (if bait
+        (let ((a (style-knob b :iks-bait-hover-add 0))) (values (+ (first bait) a) (+ (second bait) a)))
+        (iks-table-band b (iks-form-get table o)))))
 (defparameter *iks-lunge-band* '(:base (4.0 5.0) :nozarashi (4.8 5.0))
   "Pointer 3: NS3a's lunge from this band (m) when he is not attacking (R5 / R25: only her NS3a reaches 4–5 m sealed; his Shikai
 NS1a reaches 4.6, R15).")
@@ -111,7 +118,8 @@ lost its first hits 12 hers / 52 his against this Kenpachi (his Hoho / back Step
 the whiff confirm's NS3a (5.0 m) instead. Round 2, b1_a1: T again on b3_a0's pieces, paired seeds 1-20 a seat: spacing 0.063 -> 0.102,
 whiff 0.903 -> 0.857, HARD 38 -> 37 of 40, raw 0.7596 -> 0.7485; kept NIL.")
 (defparameter *iks-patient-p* '(:easy nil :normal nil :hard t)
-  "*IKS-PATIENT-FORMS* applies at this difficulty (HARD only: at NORMAL it lifted the NORMAL share to 6 of 40, past the band's 5.5).")
+  "*IKS-PATIENT-FORMS* applies at this difficulty (HARD only: at NORMAL it lifted the NORMAL share to 6 of 40, past the band's 5.5). The arm
+key :iks-patient-p is a 0 / 1 switch (STYLE-ON, KNOBS.md §6.7).")
 (defparameter *iks-ns-stop* '(:easy nil :normal nil :hard t)
   "In a style mode's own NS (one with hits of its own; not KESSA's clone segments or the Getsuga's charges): the next segment waits
 for the segment's contact, and a whiff stops the route there. Round 2, b1_a0: the generic CPU pressed the next segment on its first
@@ -126,7 +134,7 @@ sealed form stopped using it).")
   "Frames a style mode may hover / back off in one neutral episode before it hands the episode to the generic CPU (no stalling).")
 (defparameter *iks-ns2-min* 3.6 "Pointer 2: no NS2 charge inside this distance (M13 / M14: his J1 > AS1 or NS1a punishes the charge).")
 (defparameter *iks-getsuga-min* 7.5 "Pointer 2: the Getsuga from this distance on (R17 / R18 / M16: his run-in loses).")
-(defparameter *iks-retreat-to* 8.2 "Pointer 2: the back dash's target distance (m) to get the Getsuga's range.")
+(defparameter *iks-retreat-to* 8.2 "Pointer 2: the back dash's target distance (m) to get the Getsuga's range (arm key :iks-retreat-to).")
 (defparameter *iks-retreat-p* '(:easy 0.0 :normal 0.5 :hard 1.0)
   "Pointer 2 out of J reach and inside the Getsuga's range: back dash to *IKS-RETREAT-TO* (one roll per neutral episode, or per his
 move with *IKS-RETREAT-REARM*). HARD 0.8 -> 1.0 (b0_a0).")
@@ -139,10 +147,13 @@ again and again: 15 whiffs of his in 900 frames with no answer, since pointer 2 
 her J reach it hovers at his form's whiff distance (*IKS-HOVER*) and waits for his whiff (the confirm's J / NS2a + SA) or his attack
 (the timed Hoho). Round 2, b1_a1: the Getsuga route was the opener of his biggest share of combos on her (b1_a0 + b3_a0's pieces, 20
 seeds a seat: 44 combos, 14.2k, from pointer 2's Getsuga in both forms, all but a few KE-S-N1A, his Shikai lunge landing on the charge:
-his 破月牙 answers it from 7-12 m by Hohoing in, KK-WAVE-PLAN).")
+his 破月牙 answers it from 7-12 m by Hohoing in, KK-WAVE-PLAN). The arm key :iks-p2-wait is a 0 / 1 switch (STYLE-ON, KNOBS.md §6.7).")
 (defparameter *iks-getsuga-his-forms* '(:base) "His forms against which pointer 2 still shoots the Getsuga (*IKS-P2-WAIT*).")
 (defparameter *iks-j-reach* 2.3 "Her J1's reach (m): pointer 2 inside it opens a J string instead of a charge (A13 2.4 hits, R6 2.6 misses).")
 (defparameter *iks-shot-gap* 80 "Steps before the next decision after a Getsuga (as *CAI-RANGED-GAP*: the wave is not spammed).")
+(defparameter *iks-steer-to* 5
+  "The attack presses a steered string runs to before its SP outside a KESSA :kessa episode (*IKS-KESSA-AS*'s there): 5 = J5 + SP = AS3
+(pointer 3 kept, b2_a1's home); 3 = J3 + SP = AS2 (writes pointer 2, the Getsuga's). The arm key :iks-steer-to (PLAN4 B3, KNOBS.md §6.7).")
 (defparameter *iks-steer-p* '(:easy 0.0 :normal 0.6 :hard 0.95)
   "A string in a style mode runs to the mode's AS (J5 + SP = AS3, KESSA AS2) instead of the generic continue rolls (one roll per string).")
 (defparameter *iks-read-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
@@ -178,7 +189,8 @@ every style mode, so the full gauge is not left waiting for a :kessa episode).")
 (defparameter *iks-kessa-chain-band* nil
   "KESSA pointer 1, a :kessa episode: the chains (NS1) from this band (K5, R8 3.4 hits, R9 3.8 misses); NIL: hover in *IKS-HOVER-P1* and
 wait for his whiff. v0 (2.8 3.4) -> NIL (round 2, b1_a0): the chains lost their first hits 7 hers / 13 his, 10 / 37 before the
-sealed-form changes, against this Kenpachi's read and dodge.")
+sealed-form changes, against this Kenpachi's read and dodge. The arm's :iks-kessa-chain-lo turns them on from there (to
+:iks-kessa-chain-hi, else 3.4; KNOBS.md §6.7).")
 (defparameter *iks-kessa-lunge-band* '(5.05 5.5)
   "KESSA pointer 3, the modes of *IKS-KESSA-SPACE-MODES*: NS3a then its SA's 3 m lunge from this band (m, the projected distance,
 IKS-PROJ). The SA starts on NS3a's f18 where NS3a started, so the hit counts as one from >= 4 m; it lands from 4.2 to 5.6 m (round 2
@@ -604,9 +616,9 @@ decides."
   "Pointer 2 (either form): the Getsuga from *IKS-GETSUGA-MIN*, a J string inside her J reach, no charge in between: back dash
 (one roll per episode) or hover back. T when decided, NIL to hand over (the generic shoots from 3.6–6.6 m against a walk-in)."
   (let ((gmin (style-knob b :iks-getsuga-min *iks-getsuga-min*)))
-    (cond ((and (getf *iks-p2-wait* (brain-difficulty b)) (> d *iks-j-reach*)
+    (cond ((and (style-on b :iks-p2-wait *iks-p2-wait*) (> d *iks-j-reach*)
                 (not (member (fighter-form (fighter (fighter-opp f))) *iks-getsuga-his-forms*)))   ; his released form: no Getsuga, wait
-           (destructuring-bind (hlo hhi) (iks-form-get *iks-hover* (fighter-opp f)) (iks-walk e b vp d hlo hhi)))
+           (multiple-value-bind (hlo hhi) (iks-table-band b (iks-form-get *iks-hover* (fighter-opp f))) (iks-walk e b vp d hlo hhi)))
           ((>= d gmin)
            (when (<= (ikst-dt st) 0)
              (setf (ikst-dt st) *iks-shot-gap*)
@@ -621,7 +633,7 @@ decides."
              (cond ((eq (ikst-retreat st) :go)
                     (setf (ikst-retreat st) t)
                     (iks-log e st :retreat d)
-                    (ai-dash b -1 *iks-retreat-to*)
+                    (ai-dash b -1 (style-knob b :iks-retreat-to *iks-retreat-to*))
                     t)
                    ((< d *iks-ns2-min*) (iks-walk e b vp d *iks-ns2-min* gmin))   ; never charge in his face
                    (t nil))))))
@@ -630,7 +642,7 @@ decides."
   "A style mode's neutral step. T when decided."
   (let* ((st (brain-style b)) (o (fighter-opp f)) (vp (pilot-vpad (pilot e))) (mode (ikst-mode st))
          (kessa (eq (fighter-form f) :kessa)) (ptr (fighter-ptr f)) (calm (member (snap-state s) '(:idle :run)))
-         (patient (and (getf *iks-patient-p* (brain-difficulty b)) (member (fighter-form f) *iks-patient-forms*))))
+         (patient (and (style-on b :iks-patient-p *iks-patient-p*) (member (fighter-form f) *iks-patient-forms*))))
     (declare (ignorable kit))
     (decf (ikst-dt st))
     (when (and (not *iks-untimed-hoho*) (member (fighter-form f) *iks-hoho-forms*) (plusp (style-dif b :iks-hoho-p *iks-hoho-p*)))
@@ -655,16 +667,19 @@ decides."
       ((= ptr 2) (iks-pointer-2 e b f st s d vp))               ; (before the wait's end: never a charge in his face)
       ((iks-gap e b f st s d vp))                               ; (pointer 3, his Hoho shut: the lunge beyond his back Step)
       ((and (> (ikst-ep-t st) (style-dif b :iks-wait-max *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
-      ((and kessa (eq mode :kessa) (/= ptr 3) (null *iks-kessa-chain-band*))   ; (no chains: wait for his whiff)
+      ((and kessa (eq mode :kessa) (/= ptr 3) (null (style-knob b :iks-kessa-chain-lo (first *iks-kessa-chain-band*))))   ; (no chains: wait)
        (if (< d 1.7) nil
-           (destructuring-bind (hlo hhi) (iks-hover-band b o mode *iks-hover-p1*) (iks-walk e b vp d hlo hhi))))
+           (multiple-value-bind (hlo hhi) (iks-hover-band b o mode *iks-hover-p1*) (iks-walk e b vp d hlo hhi))))
       ((and kessa (= ptr 3) (member mode (brain-chance b *iks-kessa-space-modes*)))   ; KESSA pointer 3: the k-lunge beyond his back Step
        (destructuring-bind (clo chi) *iks-kessa-lunge-band*
          (if (and calm (<= clo (iks-proj b st d) chi) (<= (ikst-dt st) 0))
              (iks-sp e b f st :k-lunge d :k-lunge)
              (iks-walk e b vp d clo chi))))
       ((and kessa (eq mode :kessa))
-       (destructuring-bind (clo chi) (if (= ptr 3) *iks-kessa-near-band* *iks-kessa-chain-band*)
+       (multiple-value-bind (clo chi) (if (= ptr 3)
+                                          (values (first *iks-kessa-near-band*) (second *iks-kessa-near-band*))
+                                          (values (style-knob b :iks-kessa-chain-lo (first *iks-kessa-chain-band*))   ; (the arm's -lo turns
+                                                  (style-knob b :iks-kessa-chain-hi (or (second *iks-kessa-chain-band*) 3.4))))   ;  them on)
          (cond ((and calm (<= clo d chi) (<= (ikst-dt st) 0))
                 (iks-sp e b f st (if (= ptr 3) :k-lunge :k-chains) d (and (= ptr 3) :k-lunge)))
                ((> d 7.0) nil)
@@ -682,7 +697,7 @@ decides."
        (iks-sp e b f st :walk-in d))
       ((or patient (member mode '(:space :whiff)))
        (if (< d 1.7) nil
-           (destructuring-bind (hlo hhi) (iks-hover-band b o mode (if (= ptr 1) *iks-hover-p1* *iks-hover*)) (iks-walk e b vp d hlo hhi))))
+           (multiple-value-bind (hlo hhi) (iks-hover-band b o mode (if (= ptr 1) *iks-hover-p1* *iks-hover*)) (iks-walk e b vp d hlo hhi))))
       (t nil))))
 
 (defun iks-move (e b f kit s d)
@@ -697,7 +712,7 @@ decides."
                  (ikst-steer st) (and (style-roll b :iks-steer-p *iks-steer-p*)
                                       (if (and kessa (eq (ikst-mode-mv st) :kessa))
                                           (if (gauges-red-p (gauges o)) (second *iks-kessa-as*) (first *iks-kessa-as*))
-                                          5))))
+                                          (style-knob b :iks-steer-to *iks-steer-to*)))))
          (let ((to (or (iks-finish-target f) (ikst-steer st))))
           (when (and to (eq (fighter-contact f) :hit) (not (fighter-as-done f)))
            (setf (brain-decided b) (fighter-cls-t f))
