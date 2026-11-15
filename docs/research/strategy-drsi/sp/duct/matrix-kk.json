@@ -1,0 +1,126 @@
+{
+ "pair": "kk",
+ "a": "kenpachi",
+ "b": "kenpachi",
+ "rows": [
+  "all",
+  "spend",
+  "climb"
+ ],
+ "cols": [
+  "all",
+  "spend",
+  "climb"
+ ],
+ "seeds": "201-300",
+ "both_seats": true,
+ "matches_a_cell": 200,
+ "payoff": "A's game-result share (K.O. or the bell's lead; a draw half); B's = 1 - M",
+ "M": [
+  [
+   0.5,
+   1.0,
+   0.51
+  ],
+  [
+   0.0,
+   0.5,
+   0.045
+  ],
+  [
+   0.49,
+   0.955,
+   0.5
+  ]
+ ],
+ "x": [
+  1.0,
+  0.0,
+  0.0
+ ],
+ "y": [
+  1.0,
+  0.0,
+  0.0
+ ],
+ "value": 0.5,
+ "gap_a": 0.0,
+ "gap_b": 0.0,
+ "cells": [
+  {
+   "row": "all",
+   "col": "all",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 100,
+   "losses": 100,
+   "draws": 0,
+   "ko_w": 100,
+   "ko_l": 100,
+   "bell": 0
+  },
+  {
+   "row": "all",
+   "col": "spend",
+   "n": 200,
+   "pts": 200.0,
+   "wins": 200,
+   "losses": 0,
+   "draws": 0,
+   "ko_w": 200,
+   "ko_l": 0,
+   "bell": 0
+  },
+  {
+   "row": "all",
+   "col": "climb",
+   "n": 200,
+   "pts": 102.0,
+   "wins": 102,
+   "losses": 98,
+   "draws": 0,
+   "ko_w": 102,
+   "ko_l": 98,
+   "bell": 0
+  },
+  {
+   "row": "spend",
+   "col": "spend",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 100,
+   "losses": 100,
+   "draws": 0,
+   "ko_w": 70,
+   "ko_l": 70,
+   "bell": 60
+  },
+  {
+   "row": "spend",
+   "col": "climb",
+   "n": 200,
+   "pts": 9.0,
+   "wins": 9,
+   "losses": 191,
+   "draws": 0,
+   "ko_w": 9,
+   "ko_l": 191,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "climb",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 100,
+   "losses": 100,
+   "draws": 0,
+   "ko_w": 100,
+   "ko_l": 100,
+   "bell": 0
+  }
+ ],
+ "build": "b835ac41b83bd264",
+ "wall_s": 14.8,
+ "cpu_s": 240.1
+}

@@ -1,0 +1,38 @@
+;;;; duct-hook.lisp — loaded by tools/simgate/duct-run.lisp (its header): DUCT's per-seat budget and the layered sides' arm counters.
+;;;; Runs in *STEP-HOOK* after strat-run.lisp's SR-HOOK, i.e. in HASH-LOG right before MC-FULL-STEP, never inside a rollout.
+(in-package :duel)
+(defun duct-budget (side)
+  (let ((v (ext:getenv (if (zerop side) "DUCT_BUDGET_P1" "DUCT_BUDGET_P2"))))
+    (and v (plusp (length v)) (with-input-from-string (in v) (list (read in) (read in) (read in))))))
+(defvar *duct-budgets* (list (duct-budget 0) (duct-budget 1)) "Per side (rolls h period), or NIL: the globals.")
+(defvar *duct-stamp* (make-hash-table :test 'eq) "Per brain, the BRAIN-ST-NEXT this hook last wrote.")
+(defvar *duct-acc* (list nil nil) "Per layered side: (last-id changes ((id . steps) ...)).")
+(defvar *duct-seed* nil)
+(defun duct-flush ()
+  (when *duct-seed*
+    (loop for side from 0 for a in *duct-acc* when a
+          do (format t "duct ~d P~d changes ~d held~:{ ~(~a~):~d~}~%" *duct-seed* (1+ side) (second a)
+                     (mapcar (lambda (c) (list (car c) (cdr c))) (reverse (third a))))))
+  (setf *duct-acc* (list nil nil) *duct-seed* nil))
+(defun duct-step ()
+  (when (battle-p)
+    (unless (eql *duct-seed* *match-seed*) (duct-flush) (setf *duct-seed* *match-seed*))
+    (let ((j (first *strat-jobs*)))                                       ; (MC-FULL-STEP runs the oldest job's rollout right after this)
+      (when j
+        (let ((bd (nth (stjob-side j) *duct-budgets*)))
+          (when bd (setf *strat-rolls* (first bd) *strat-h* (second bd))))))
+    (do-sides (e)
+      (let* ((f (fighter e)) (side (fighter-side f)) (b (brain e)))
+        (when (and b (strat-layer-p f))
+          (let ((bd (nth side *duct-budgets*)) (v (brain-st-next b)))     ; (a selection queued this step stamped tick + *STRAT-PERIOD*)
+            (when (and bd (not (eql v (gethash b *duct-stamp*))))
+              (setf v (+ (- v *strat-period*) (third bd)) (brain-st-next b) v (gethash b *duct-stamp*) v)))
+          (when (eq *flow* :battle)
+            (let* ((id (and (brain-strat b) (getf (brain-strat b) :id)))
+                   (a (or (nth side *duct-acc*) (setf (nth side *duct-acc*) (list nil 0 nil)))))
+              (when id
+                (when (and (first a) (not (eq id (first a)))) (incf (second a)))
+                (setf (first a) id)
+                (let ((c (assoc id (third a)))) (if c (incf (cdr c)) (push (cons id 1) (third a))))))))))))
+(defun duct-install ()
+  (let ((sr *step-hook*)) (setf *step-hook* (lambda () (funcall sr) (duct-step)))))

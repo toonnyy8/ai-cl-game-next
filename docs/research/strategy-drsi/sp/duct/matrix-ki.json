@@ -1,0 +1,203 @@
+{
+ "pair": "ki",
+ "a": "kenpachi",
+ "b": "ichigo",
+ "rows": [
+  "all",
+  "spend",
+  "climb"
+ ],
+ "cols": [
+  "all",
+  "brawl",
+  "keep",
+  "kessa2"
+ ],
+ "seeds": "201-300",
+ "both_seats": true,
+ "matches_a_cell": 200,
+ "payoff": "A's game-result share (K.O. or the bell's lead; a draw half); B's = 1 - M",
+ "M": [
+  [
+   0.09,
+   0.21,
+   0.02,
+   0.15
+  ],
+  [
+   0.0,
+   0.0,
+   0.025,
+   0.0
+  ],
+  [
+   0.02,
+   0.03,
+   0.03,
+   0.02
+  ]
+ ],
+ "x": [
+  0.124,
+  0.0,
+  0.876
+ ],
+ "y": [
+  0.125,
+  0.0,
+  0.875,
+  0.0
+ ],
+ "value": 0.0288,
+ "gap_a": 0.0,
+ "gap_b": 0.0001,
+ "cells": [
+  {
+   "row": "all",
+   "col": "all",
+   "n": 200,
+   "pts": 18.0,
+   "wins": 18,
+   "losses": 182,
+   "draws": 0,
+   "ko_w": 18,
+   "ko_l": 182,
+   "bell": 0
+  },
+  {
+   "row": "all",
+   "col": "brawl",
+   "n": 200,
+   "pts": 42.0,
+   "wins": 42,
+   "losses": 158,
+   "draws": 0,
+   "ko_w": 42,
+   "ko_l": 158,
+   "bell": 0
+  },
+  {
+   "row": "all",
+   "col": "keep",
+   "n": 200,
+   "pts": 4.0,
+   "wins": 4,
+   "losses": 196,
+   "draws": 0,
+   "ko_w": 4,
+   "ko_l": 195,
+   "bell": 1
+  },
+  {
+   "row": "all",
+   "col": "kessa2",
+   "n": 200,
+   "pts": 30.0,
+   "wins": 30,
+   "losses": 170,
+   "draws": 0,
+   "ko_w": 30,
+   "ko_l": 170,
+   "bell": 0
+  },
+  {
+   "row": "spend",
+   "col": "all",
+   "n": 200,
+   "pts": 0.0,
+   "wins": 0,
+   "losses": 200,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 200,
+   "bell": 0
+  },
+  {
+   "row": "spend",
+   "col": "brawl",
+   "n": 200,
+   "pts": 0.0,
+   "wins": 0,
+   "losses": 200,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 200,
+   "bell": 0
+  },
+  {
+   "row": "spend",
+   "col": "keep",
+   "n": 200,
+   "pts": 5.0,
+   "wins": 5,
+   "losses": 195,
+   "draws": 0,
+   "ko_w": 4,
+   "ko_l": 184,
+   "bell": 12
+  },
+  {
+   "row": "spend",
+   "col": "kessa2",
+   "n": 200,
+   "pts": 0.0,
+   "wins": 0,
+   "losses": 200,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 200,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "all",
+   "n": 200,
+   "pts": 4.0,
+   "wins": 4,
+   "losses": 196,
+   "draws": 0,
+   "ko_w": 4,
+   "ko_l": 196,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "brawl",
+   "n": 200,
+   "pts": 6.0,
+   "wins": 6,
+   "losses": 194,
+   "draws": 0,
+   "ko_w": 6,
+   "ko_l": 194,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "keep",
+   "n": 200,
+   "pts": 6.0,
+   "wins": 6,
+   "losses": 194,
+   "draws": 0,
+   "ko_w": 5,
+   "ko_l": 194,
+   "bell": 1
+  },
+  {
+   "row": "climb",
+   "col": "kessa2",
+   "n": 200,
+   "pts": 4.0,
+   "wins": 4,
+   "losses": 196,
+   "draws": 0,
+   "ko_w": 4,
+   "ko_l": 196,
+   "bell": 0
+  }
+ ],
+ "build": "b835ac41b83bd264",
+ "wall_s": 27.9,
+ "cpu_s": 441.2
+}
