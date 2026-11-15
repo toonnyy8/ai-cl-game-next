@@ -3264,3 +3264,12 @@ as a fuzzy Q table without the user's yes.
   situation-specialised arms.
 - These win-rate runs are the user's request, so they run despite the no-balance-gates rule (2026-10-29); the seed / pacing gate, the
   awaken A/B and aieval stay off.
+
+**DUCT as the strength anchor** (the user, same day: 「然後以 DUCT 作為強度錨點」; asked how, chose "DUCT as a fixed reference" over
+HARD playing DUCT in game, or DUCT as an offline teacher):
+- A DUCT reference CPU: §5's strategy layer (Decoupled UCT over my arms x his, full-sim rollouts, seeded by a payoff matrix) over
+  PLAN4's arms. It runs natively, for research and the bars only; the game keeps playing the fuzzy Q tables, with no rollouts for this.
+- It is frozen for all of PLAN4 (settings, arms, seeds, build), so the strength scale does not move while the tables are fitted. If the
+  arm set must change, it is re-frozen once, and that is recorded.
+- Every tier (HARD, NORMAL, EASY, the masher) reports its win rate against it, per pairing and seat, beside the ladder bar. HARD's
+  target against DUCT (e.g. ≥ 50 %, as strong as DUCT) is a checkpoint question in PLAN4.
