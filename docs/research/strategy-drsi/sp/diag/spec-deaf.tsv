@@ -1,0 +1,6 @@
+# rerun with the victim-state counters (on_*, deaf)
+mcoff	*mc-on*=nil
+mcfullnil	*mc-full*=nil
+delay8	*ai-delay*=(:easy 8 :normal 14 :hard 8)
+delay14	*ai-delay*=(:easy 14 :normal 14 :hard 8)
+mcsure16	*mc-sure*=(:easy 0.16 :normal 0.0 :hard 0.16)

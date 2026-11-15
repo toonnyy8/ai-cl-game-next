@@ -1,0 +1,4 @@
+# NORMAL's eyes alone (NORMAL vs the masher)
+Nd8	*ai-delay*=(:easy 24 :normal 8 :hard 8)
+Nd10	*ai-delay*=(:easy 24 :normal 10 :hard 8)
+Nd12	*ai-delay*=(:easy 24 :normal 12 :hard 8)

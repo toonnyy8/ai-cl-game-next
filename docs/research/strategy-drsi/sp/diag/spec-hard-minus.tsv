@@ -1,0 +1,6 @@
+# HARD given one part of EASY at a time (attribution only: which part of HARD carries the win against the masher?)
+d24	*ai-delay*=(:easy 24 :normal 14 :hard 24)
+notable	*strat-lookup*=nil
+skill03	*fz-skill*=(:easy 0.3 :normal 0.62 :hard 0.3)
+clash-easy	*cai-clash-delay*=(:easy 24 :normal 10 :hard 24);*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 0.15)
+notable-d24	*strat-lookup*=nil;*ai-delay*=(:easy 24 :normal 14 :hard 24)

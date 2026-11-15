@@ -1,0 +1,4 @@
+# the MCTS neutral's reaction-time hold (cpu-mcts.lisp MC-FULL-REQUEST: no input for BRAIN-DELAY steps, nothing else checked)
+mcsure16	*mc-sure*=(:easy 0.16 :normal 0.0 :hard 0.16)
+mcoff	*mc-on*=nil
+mcfullnil	*mc-full*=nil

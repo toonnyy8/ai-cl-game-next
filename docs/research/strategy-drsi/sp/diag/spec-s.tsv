@@ -1,0 +1,5 @@
+# candidate sets (both seats bound): S1 = the MCTS defers below HARD's margin at every tier and Ichigo's MCTS is off at every tier
+S1	*mc-sure*=(:easy 0.16 :normal 0.16 :hard 0.16);*mc-off-at*=((:ichigo :easy) (:ichigo :normal) (:ichigo :hard))
+S1-d14	*mc-sure*=(:easy 0.16 :normal 0.16 :hard 0.16);*mc-off-at*=((:ichigo :easy) (:ichigo :normal) (:ichigo :hard));*ai-delay*=(:easy 14 :normal 14 :hard 8)
+S1-d14-sk	*mc-sure*=(:easy 0.16 :normal 0.16 :hard 0.16);*mc-off-at*=((:ichigo :easy) (:ichigo :normal) (:ichigo :hard));*ai-delay*=(:easy 14 :normal 14 :hard 8);*fz-skill*=(:easy 0.62 :normal 0.62 :hard 1.0);*cai-think*=(:easy 22 :normal 22 :hard 12)
+S1-off	*mc-sure*=(:easy 99.0 :normal 99.0 :hard 0.16);*mc-off-at*=((:ichigo :easy) (:ichigo :normal) (:ichigo :hard))
