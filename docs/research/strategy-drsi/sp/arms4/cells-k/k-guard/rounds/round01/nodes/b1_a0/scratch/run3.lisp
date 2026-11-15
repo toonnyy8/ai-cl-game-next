@@ -1,0 +1,2 @@
+;; baseline of cells-k/k-guard: the assembled a4-k-guard of arms4/kenpachi.lisp (B3 draft)
+(:id :a4-k-guard :fn ken-kh-standoff-style :apply (:kenpachi) :base (:range 1.3 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :kk-brawl-p 1.0 :kk-read-range 4.0 :kk-dodge-p 1.0 :kk-step-in-p 0.0 :kk-hoho-in-p 0.0 :kk-awaken-p 1.0 :kk-reach-margin 0.7 :kk-wave-p 0.9 :kk-lunge-p 0.0 :kso-stale 600 :kk-step-max 7.0 :kk-step-p 1.0 :kk-bankai-p 0.0 :kk-reach-p 1.0 :kk-ns-safe-p 1.0 :other 10.0 :kikon 0.3))

@@ -1,0 +1,16 @@
+{
+  "baseline_score": 0.3234,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "branches": 1,
+  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-ab58407965fd9cc0f/docs/research/strategy-drsi/sp/arms4/cells-k && python3 score.py k-wave {node_dir} -j 4",
+  "lambda": 0.05,
+  "refines": 1,
+  "task": "SOUL DUEL PLAN4 B3: Kenpachi's targeted arm vs Ichigo, the wave answer (G10 her pointer 2), scored as the played policy: his KI T0 with the arm in its job rules, vs Ichigo's none + T0 (K.O.-only, block 300)",
+  "workers": 4
+}
