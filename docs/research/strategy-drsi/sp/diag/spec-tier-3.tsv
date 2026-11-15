@@ -1,0 +1,6 @@
+# tier-t0.md round 3: EASY > masher with the clash no faster than NORMAL's eyes (*cai-clash-delay* 14 at EASY / NORMAL: H>N HK needs it)
+# and the rest of @cai at HARD's for EASY / NORMAL (flat generic chances, as G3); the :x slot carries the clash delay past the @cai lift (lifts run after the set)
+A14	*ai-delay*=(:easy 14 :normal 14 :hard 4);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8 :x 14)	easy=hard:@cai;normal=hard:@cai;easy=x:*cai-clash-delay*;normal=x:*cai-clash-delay*
+A18	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8 :x 14)	easy=hard:@cai;normal=hard:@cai;easy=x:*cai-clash-delay*;normal=x:*cai-clash-delay*
+B18	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8 :x 14)	easy=hard:@cai,@style-i;normal=hard:@cai,@style-i;easy=x:*cai-clash-delay*;normal=x:*cai-clash-delay*
+C18	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8 :x 14)	easy=hard:@cai,@style-i,@style-k;normal=hard:@cai,@style-i,@style-k;easy=x:*cai-clash-delay*;normal=x:*cai-clash-delay*

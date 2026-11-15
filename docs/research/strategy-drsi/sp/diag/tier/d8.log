@@ -1,0 +1,6 @@
+X15d8    easy>masher    0.200  0.980  0.060  0.413  (n 600, bell 1) |      0      1      0  1
+X35d8    easy>masher    0.480  0.990  0.155  0.542  (n 600, bell 1) |      0      1      0  1
+X15d8    normal>easy    0.335  0.335  (n 200, bell 94) |     94  94
+X15d8    hard>normal    0.835  0.835  (n 200, bell 61) |     61  61
+X35d8    normal>easy    0.170  0.170  (n 200, bell 89) |     89  89
+X35d8    hard>normal    0.475  0.475  (n 200, bell 86) |     86  86

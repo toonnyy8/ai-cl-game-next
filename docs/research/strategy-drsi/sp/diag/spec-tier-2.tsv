@@ -1,0 +1,5 @@
+# tier-t0.md round 2. E0 = EASY's clash at NORMAL's, NORMAL untouched; G3n = all-tiers-table.md's G3 on this build (@style-h now also
+# holds the *hb-* knobs); R1a = main with NORMAL's clash delay 10 -> 14 (H>N HK's cause, spec-tier-nk2 Ncd14).
+E0	*ai-delay*=(:easy 24 :normal 14 :hard 8)	easy=normal:@clash
+G3n	*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+R1a	*cai-clash-delay*=(:easy 24 :normal 14 :hard 8)	easy=easy:*ai-delay*

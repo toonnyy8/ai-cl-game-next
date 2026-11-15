@@ -1,0 +1,5 @@
+# tier-t0.md round 7: two families. C1 / C1b = the shipped clash with NORMAL's delay 14 (R1a) and EASY's generic chances and Ichigo style
+# at NORMAL's (EASY's own clash kept through :x); C2 = G3n with Hisagi's style flat at EASY's at every tier and EASY's eyes 20.
+C1	*ai-delay*=(:easy 18 :normal 14 :hard 8);*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 0.6 :x 0.15);*cai-clash-delay*=(:easy 24 :normal 14 :hard 8 :x 24)	easy=normal:@cai,@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*
+C1b	*ai-delay*=(:easy 24 :normal 14 :hard 8);*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 0.6 :x 0.15);*cai-clash-delay*=(:easy 24 :normal 14 :hard 8 :x 24)	easy=normal:@cai,@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*
+C2	*ai-delay*=(:easy 20 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i;normal=easy:@style-h;hard=easy:@style-h

@@ -1,0 +1,7 @@
+# tier-t0.md step 3: HARD-only levers for HARD > NORMAL IH / HK / HH (everything else as shipped; monotone by construction)
+H4	*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=easy:*ai-delay*
+H2	*ai-delay*=(:easy 24 :normal 14 :hard 2)	easy=easy:*ai-delay*
+Hc	*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 1.0);*cai-clash-delay*=(:easy 24 :normal 10 :hard 4)	easy=easy:*ai-delay*
+H4c	*ai-delay*=(:easy 24 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 1.0);*cai-clash-delay*=(:easy 24 :normal 10 :hard 4)	easy=easy:*ai-delay*
+Hs	*ai-delay*=(:easy 24 :normal 14 :hard 8)	hard=normal:@style-h
+H4s	*ai-delay*=(:easy 24 :normal 14 :hard 4)	hard=normal:@style-h

@@ -1,0 +1,2 @@
+# tier-t0.md: B = main as shipped (the set restates today's eyes; run for NORMAL > masher, the other rungs are ladder.py's baseline)
+B	*ai-delay*=(:easy 24 :normal 14 :hard 8)	easy=easy:*ai-delay*

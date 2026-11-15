@@ -1,0 +1,7 @@
+# tier-t0.md round 5: on top of the clash flat at HARD's (0.6 / 8; E1), one EASY part at a time, NORMAL lifted with it where monotone
+# needs it; HARD's eyes 4
+S1	*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=hard:@clash;normal=hard:@clash
+S2	*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=hard:@clash,@style-i;normal=hard:@clash,@style-i
+S3	*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=normal:@cai;easy=hard:@clash;normal=hard:@clash
+S5	*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=hard:@clash,@style-i;normal=hard:@clash,@style-i
+S6	*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@cai;easy=hard:@clash,@style-i;normal=hard:@clash,@style-i

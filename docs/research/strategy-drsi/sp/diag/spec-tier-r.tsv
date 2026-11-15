@@ -1,0 +1,5 @@
+# tier-t0.md round 6: the slow-clash family (NORMAL's clash no faster than its eyes, 14: H>N HK holds), aiming at the six E>M cells
+# outside the masher Kenpachi column. :x carries the clash past the lifts.
+R5	*cai-clash-delay*=(:easy 24 :normal 14 :hard 8)	easy=hard:@style-i;normal=hard:@style-i
+R2	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8)	easy=hard:@style-i;normal=hard:@style-i
+R3	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6 :x 0.6);*cai-clash-delay*=(:easy 14 :normal 14 :hard 8 :x 14)	easy=normal:@cai;easy=hard:@style-i;normal=hard:@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*

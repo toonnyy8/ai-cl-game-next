@@ -1,0 +1,5 @@
+# tier-t0.md step 3: NORMAL's clash split into its chance and its delay (H>N HK)
+Ncp	*cai-clash-p*=(:easy 0.15 :normal 0.15 :hard 0.6)	easy=easy:*ai-delay*
+Ncd	*cai-clash-delay*=(:easy 24 :normal 24 :hard 8)	easy=easy:*ai-delay*
+Ncp25	*cai-clash-p*=(:easy 0.15 :normal 0.25 :hard 0.6)	easy=easy:*ai-delay*
+Ncd14	*cai-clash-delay*=(:easy 24 :normal 14 :hard 8)	easy=easy:*ai-delay*
