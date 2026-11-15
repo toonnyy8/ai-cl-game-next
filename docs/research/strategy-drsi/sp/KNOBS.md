@@ -162,7 +162,7 @@ Each style reads the tunables below through `(style-knob b KEY default)` (strate
 `:base` value, or the average of its `:rules` that fire (§1: a firing rule replaces the base), else the style's own value. The key is the
 special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 
-- **Only for an arm whose `:fn` is that style** (`ken-ki-style`, `ken-kh-style`, `ken-kh-standoff-style`, `ichigo-ki-style`; Hisagi's styles for §6.6's). Under `none`
+- **Only for an arm whose `:fn` is that style** (`ken-ki-style`, `ken-kh-style`, `ken-kh-standoff-style`, `ichigo-ki-style` and the styles on it; Hisagi's styles for §6.6's). Under `none`
   the style runs with no strategy and every key is inert; an arm without `:fn` runs no style. Hisagi's `hisagi-merged-style` (and
   `hisagi-hk-style` on it) plays `ken-ki-style` outside his ranged mode, so a Hisagi arm naming `:kk-*` keys changes that part of his play
   too (none does today): a lever for the KH / IH searches.
@@ -228,7 +228,7 @@ special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 | `:iks-punish-p` | 0.9 (0 / 0.5) | chance per his move start | punish a move he starts out of his reach | 0-1 |
 | `:iks-confirm-p` | 0.95 (0 / 0.1) | chance per his move | whiff confirm: the fastest punisher that lands in his recovery | 0-1 |
 | `:iks-ns-wait` | 32 | frames | after his whiffing NS starts before her punish | 16-48 |
-| `:iks-wait-max` | 150 (0 / 90) | frames | hover per episode before the generic CPU takes it (not in a patient form: sealed at HARD) | 60-300 |
+| `:iks-wait-max` | 150 (0 / 90) | frames | hover per episode before the generic CPU takes it (not in a patient form: sealed at HARD, unless `:iks-patient-p` 0, §6.7) | 0-300 |
 | `:iks-retreat-p` | 1.0 (0 / 0.5) | chance per episode / his move | pointer 2: back dash to the Getsuga range | 0-1 |
 | `:iks-getsuga-min` | 7.5 | m | pointer 2 shoots the Getsuga from this on | 6.0-9.0 |
 | `:iks-steer-p` | 0.95 (0 / 0.6) | chance per string | a string runs to the mode's AS | 0-1 |
@@ -253,10 +253,10 @@ counts 0); the weights are normalised; all 0 plays `:generic`. At HARD a `:gener
 
 - Frame timings measured from trials, not decisions: `*kk-dodge-lead*`, `*kk-step-lead*`, `*kk-meaty-lead*`, `*kk-cut-lead*`, `*kk-late-lead*`, `*kk-wave-step-lead*`, `*kk-hend-lead*`, `*kk-clone-strike*`, `*iks-meaty-lead*`, `*iks-confirm-slack*`.
 - Engine facts (lock frames, perception delay, turn and walk rates): `*kk-hoho-lockout*`, `*kk-hoho-blind*`, `*kk-pf-window*`, `*kk-cine-gap*`, `*kk-repel-wait*`, `*kk-face-max*`, `*iks-gap-lockout*`, `*iks-confirm-walk*`, `*iks-lead-vmax*`.
-- Lists (bands, weight plists, form tables; a rule cannot average them): `*kk-wave-band*`, `*kk-wave-mix*`, `*kk-lunge-band*`, `*kk-step-in-band*`, `*iks-hover*`, `*iks-hover-p1*`, `*iks-bait-hover*`, `*iks-lunge-band*`, `*iks-gap-band*`, `*iks-kessa-*-band*`, `*iks-his-reach*`, `*iks-punish-reach*`, `*iks-punishers*`, `*iks-hoho-lead*`, `*iks-kessa-as*`, `*iks-gap-dash-his-forms*`. Split into `-lo` / `-hi` keys if a search needs one.
-- Booleans and mode / form lists (NIL cannot be a value): `*kk-cine-wait*`, `*iks-patient-p*`, `*iks-ns-stop*`, `*iks-p2-wait*`, `*iks-untimed-hoho*`, `*iks-hoho-slide*`, `*iks-finish-steer*`, `*iks-finish-even*`, `*iks-break-awaken*`, `*iks-retreat-rearm*`, `*iks-punish-ns-reach*`, `*iks-k-sa-perceived*`, `*iks-k-sa-dodge-stop*`, `*iks-meaty-space-skip*`, `*iks-patient-lunge*`, `*iks-generic-kikon*`, `*iks-follow-any-perfect*`, `*iks-burst-no-hoho*`, `*iks-bait-modes*`, `*iks-awaken-modes*`, `*iks-kessa-space-modes*`, `*iks-*-forms*`, `*iks-walkin-band*`, `*iks-kessa-chain-band*`, `*iks-gap-dash-dt*`.
+- Lists (bands, weight plists, form tables; a rule cannot average them): `*kk-wave-band*`, `*kk-wave-mix*`, `*kk-lunge-band*`, `*kk-step-in-band*`, `*iks-lunge-band*`, `*iks-gap-band*`, `*iks-kessa-*-band*`, `*iks-his-reach*`, `*iks-punish-reach*`, `*iks-punishers*`, `*iks-hoho-lead*`, `*iks-kessa-as*`, `*iks-gap-dash-his-forms*`. Split into `-lo` / `-hi` keys if a search needs one (`*iks-hover*`, `*iks-hover-p1*`, `*iks-bait-hover*` are moved by adds since §6.7).
+- Booleans and mode / form lists (NIL cannot be a value): `*kk-cine-wait*`, `*iks-ns-stop*`, `*iks-untimed-hoho*`, `*iks-hoho-slide*`, `*iks-finish-steer*`, `*iks-finish-even*`, `*iks-break-awaken*`, `*iks-retreat-rearm*`, `*iks-punish-ns-reach*`, `*iks-k-sa-perceived*`, `*iks-k-sa-dodge-stop*`, `*iks-meaty-space-skip*`, `*iks-patient-lunge*`, `*iks-generic-kikon*`, `*iks-follow-any-perfect*`, `*iks-burst-no-hoho*`, `*iks-bait-modes*`, `*iks-awaken-modes*`, `*iks-kessa-space-modes*`, `*iks-*-forms*`, `*iks-walkin-band*`, `*iks-gap-dash-dt*` (`*iks-patient-p*`, `*iks-p2-wait*` and `*iks-kessa-chain-band*` became keys, §6.7).
 - Located bug fixes at 1.0 everywhere (turning them off only re-opens the bug): `*kk-as-read-p*`, `*iks-read-p*`, `*iks-kessa-read-min*`. Since 2026-11-14 they act on real hits only: a link that took part in a cancel is answered by the shared CAI-XCH-STEP before the style runs (DUEL_AI_STRATEGY §11.18).
-- Move geometry and the Bankai's string plan (second tier, kept to 25 a style): `*kk-meaty-near*`, `*kk-meaty-min*`, `*kk-meaty-back*`, `*kk-chase-hoho*`, `*kk-wave-close-max*`, `*kk-wave-margin*`, `*kk-wave-carry*`, `*kk-wave-far*`, `*kk-wave-timeout*`, `*kk-chase-frames*`, `*kk-chase-dash*`, `*kk-link-margin*`, `*kk-dodge-reach*`, `*kk-clone-reach*`, `*kk-l3-range*`, `*kk-l3-sa-range*`, `*kk-bk-floor*`, `*kk-bk-ns-spare*`, `*kk-bk-ns-range*`, `*kk-bk-walk-range*`, `*kk-special-n*`, `*kk-bk-cashouts*`, `*kk-reach-retry*`, `*kk-wake-hoho-near*`, `*iks-j-reach*`, `*iks-ns2-min*`, `*iks-retreat-to*`, `*iks-shot-gap*`, `*iks-k-sa-reach*`, `*iks-k-sa-min*`, `*iks-meaty-near*`, `*iks-hoho-j-reach*`, `*iks-wake-hoho-near*`, `*iks-gap-cmin*`, `*iks-gap-dash-over*`, `*iks-gap-max*`, `*iks-gap-dash-need*`.
+- Move geometry and the Bankai's string plan (second tier, kept to 25 a style): `*kk-meaty-near*`, `*kk-meaty-min*`, `*kk-meaty-back*`, `*kk-chase-hoho*`, `*kk-wave-close-max*`, `*kk-wave-margin*`, `*kk-wave-carry*`, `*kk-wave-far*`, `*kk-wave-timeout*`, `*kk-chase-frames*`, `*kk-chase-dash*`, `*kk-link-margin*`, `*kk-dodge-reach*`, `*kk-clone-reach*`, `*kk-l3-range*`, `*kk-l3-sa-range*`, `*kk-bk-floor*`, `*kk-bk-ns-spare*`, `*kk-bk-ns-range*`, `*kk-bk-walk-range*`, `*kk-special-n*`, `*kk-bk-cashouts*`, `*kk-reach-retry*`, `*kk-wake-hoho-near*`, `*iks-j-reach*`, `*iks-ns2-min*`, `*iks-shot-gap*`, `*iks-k-sa-reach*`, `*iks-k-sa-min*`, `*iks-meaty-near*`, `*iks-hoho-j-reach*`, `*iks-wake-hoho-near*`, `*iks-gap-cmin*`, `*iks-gap-dash-over*`, `*iks-gap-max*`, `*iks-gap-dash-need*`.
 - HARD-only follow-ups left for a next pass (one `style-roll` each to add): `*kk-pf-p*`, `*kk-hend-p*`, `*kk-l3-sa-p*`.
 
 ### 6.5 The exchange keys: the shared exchange layer's knobs (2026-11-15, DUEL_AI_STRATEGY §11.23, PLAN3 X1): 8 keys
@@ -317,3 +317,30 @@ Left out (one line each, PLAN4 B3's record `sp/arms4/hisagi.md`): the bands `*hr
 `-lo` / `-hi` keys if a search needs one); the closing-speed floor 0.004 m a step and WA's 14 frames (facts); the wake rule `*hkw-p*`,
 `*hkw-margin*`, `*hkw-lead*`, `*hkw-guard-d*` and the Reishi pot `*hkb-below*`, `*hkb-range*`, `*hkb-p*` (no searched arm of PLAN4 moves them;
 one `style-knob` each when one does); `:ken-ranged` (a boolean on the style unit, read by `getf`).
+
+### 6.7 Ichigo: the patience and pointer-2 switches, the hover tables, the steer (2026-11-15, PLAN4 §3 B3, Ichigo's code cell): 8 keys
+
+Read through `style-knob` (`ichigo-ki-style`, so every arm whose `:fn` plays it: `ichigo-ki-r2b2a1-style`, `-r2b1a1-`), a replacement the
+same at every difficulty, except the two switches, which go through **`style-on`** (strategy-glue.lisp): a 0 / 1 number, on at >= 0.5, read
+on every step (never rolled, so a value between 0 and 1 draws nothing). No key: the special's value at the brain's difficulty. The hover adds
+move a by-form table's band (both ends) by metres, so his form still picks the band. Why these keys: Ichigo's first general arms failed their
+one-job proof because at HARD the sealed form's patience made every mode hover in the same band (`sp/arms4/ichigo.md`).
+
+| Key | Default | Unit | What it changes | Search range |
+|---|---|---|---|---|
+| `:iks-patient-p` | 1 (0 / 0) | switch | `*iks-patient-p*`: in her patient forms (`*iks-patient-forms*`, sealed) every style mode hovers and attacks only through the whiff punish / confirm and the timed Hoho; 0: `:ptr3` and a pre-KESSA `:kessa` episode go to the generic CPU, the other modes after `:iks-wait-max` | 0, 1 |
+| `:iks-p2-wait` | 1 (0 / 0) | switch | `*iks-p2-wait*`: pointer 2 against his released forms hovers at `*iks-hover*` and waits for his whiff; 0: it shoots the Getsuga and backs off as against his sealed form | 0, 1 |
+| `:iks-hover-add` | 0 | m | added to `*iks-hover*` (3.7-4.2 sealed, 4.9-5.3 Shikai) and `*iks-hover-p1*` (3.4-3.8 / 4.9-5.3): `:space`'s hover (and every mode's below HARD), pointer 2's wait | -1.0-2.0 |
+| `:iks-bait-hover-add` | 0 | m | added to `*iks-bait-hover*` (2.3-2.7 against his sealed form; none in his Shikai: the hover table): the bait modes' hover at HARD (`*iks-bait-modes*`: whiff, ptr3, kessa) | -0.5-1.5 |
+| `:iks-retreat-to` | 8.2 | m | pointer 2's back dash distance (the Getsuga's range) | 6.5-10 |
+| `:iks-steer-to` | 5 | attack presses | a steered string (`:iks-steer-p`) outside a KESSA `:kessa` episode runs to this many presses before its SP: 5 = AS3 (pointer 3 kept), 3 = AS2 (writes pointer 2, the Getsuga's), 1-2 = AS1 (Ichigo's `:as-by-press` (1 1 2 2 3)); his red still steers to the finisher (`*iks-finish-steer*`) | 1-5 |
+| `:iks-kessa-chain-lo` | none | m | `*iks-kessa-chain-band*`'s low end: KESSA pointer 1, a `:kessa` episode presses the chains (NS1) from here; none = off (hover and wait). The key alone turns them on | 2.4-3.4 |
+| `:iks-kessa-chain-hi` | 3.4 | m | its high end (v0's 2.8-3.4) | 3.0-4.0 |
+
+- The re-jobbed arms that use them (`sp/arms4/ichigo.lisp`): `a4-i-brawl` (`:iks-patient-p 0`), `a4-i-keep` (`:iks-steer-to 3 :iks-p2-wait 0`,
+  and back to 5 when behind), `a4-i-kessa2` (no new key: the rule `(:awk :yes)` -> `:iks-gap-p 0 :iks-wait-max 0`). The hover adds and the
+  chains were probed (no arm separated by them: the shut-gauge lunge, `:iks-gap-p` / `:iks-gap-fs`, owns the spacing) and are left for searches.
+- No shipped strategy, unit, table, seed arm or final table names one (host check `tests/duel-rules/style-knob.lisp`, its scan now reads
+  `style-on` too: 75 keys, 32 of them `iks-`).
+- Left out: `*iks-bait-modes*` (which modes bait: a mode list), the KESSA bands `*iks-kessa-near-band*` / `*iks-kessa-lunge-band*` and
+  `*iks-lunge-band*` (no arm moves them yet; an add each when one does).

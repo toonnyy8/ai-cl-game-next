@@ -1,0 +1,243 @@
+{
+ "p1": "T0 v2 (brawl G2 (:ost :free) (:dm :m-close) or G7 (:or :r-low)); a scratch table, not kept, see ../ichigo.md",
+ "p2": "t0/t0-ki-kenpachi.lisp",
+ "seeds": "501-540",
+ "build": "84bd53aad9af",
+ "sides": {
+  "c1 ichigo": {
+   "matches": 80,
+   "judgements_per_match": 147.4,
+   "changes": {
+    "median": 7.0,
+    "mean": 6.7,
+    "zero": 0
+   },
+   "arm_share": [
+    0.163,
+    0.068,
+    0.298,
+    0.47
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.212,
+     "out_share": 0.0013,
+     "ratio": 168.29,
+     "in_weight": 0.319,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.4205,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.71,
+     "ok": true
+    },
+    "3": {
+     "in_share": 1.0,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.47,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 2329,
+     "share": [
+      0.322,
+      0.282,
+      0.395,
+      0.0
+     ]
+    },
+    "f0-far": {
+     "n": 2090,
+     "share": [
+      0.275,
+      0.015,
+      0.711,
+      0.0
+     ]
+    },
+    "f0-mid": {
+     "n": 1831,
+     "share": [
+      0.327,
+      0.065,
+      0.608,
+      0.0
+     ]
+    },
+    "f1-close": {
+     "n": 2470,
+     "share": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "f1-far": {
+     "n": 1247,
+     "share": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "f1-mid": {
+     "n": 1824,
+     "share": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": false,
+    "three_arms": true,
+    "division": true
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.863,
+   "timeouts": 0
+  },
+  "c2 kenpachi": {
+   "matches": 80,
+   "judgements_per_match": 150.4,
+   "changes": {
+    "median": 27.0,
+    "mean": 26.8,
+    "zero": 0
+   },
+   "arm_share": [
+    0.065,
+    0.507,
+    0.021,
+    0.14,
+    0.131,
+    0.137
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.6614,
+     "out_share": 0.0013,
+     "ratio": 497.18,
+     "in_weight": 0.765,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.2043,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.101,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.524,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.266,
+     "ok": true
+    },
+    "4": {
+     "in_share": 0.4538,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.289,
+     "ok": true
+    },
+    "5": {
+     "in_share": 0.6657,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.206,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 1977,
+     "share": [
+      0.0,
+      0.414,
+      0.0,
+      0.261,
+      0.322,
+      0.003
+     ]
+    },
+    "f0-far": {
+     "n": 1100,
+     "share": [
+      0.0,
+      0.083,
+      0.0,
+      0.128,
+      0.64,
+      0.149
+     ]
+    },
+    "f0-mid": {
+     "n": 394,
+     "share": [
+      0.0,
+      0.048,
+      0.003,
+      0.249,
+      0.596,
+      0.104
+     ]
+    },
+    "f1-close": {
+     "n": 5776,
+     "share": [
+      0.065,
+      0.744,
+      0.024,
+      0.112,
+      0.0,
+      0.054
+     ]
+    },
+    "f1-far": {
+     "n": 1912,
+     "share": [
+      0.109,
+      0.322,
+      0.044,
+      0.113,
+      0.0,
+      0.412
+     ]
+    },
+    "f1-mid": {
+     "n": 870,
+     "share": [
+      0.228,
+      0.287,
+      0.024,
+      0.069,
+      0.0,
+      0.392
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": true,
+    "division": true
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.138,
+   "timeouts": 0
+  }
+ },
+ "p1map": "not kept (../ichigo.md gives its jobs)"
+}

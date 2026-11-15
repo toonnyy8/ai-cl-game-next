@@ -76,6 +76,10 @@ math, 0 B. Read once per decision."
 (defun style-roll (b key plist)
   "BRAIN-ROLL of the per-difficulty chance PLIST, the arm's KEY replacing its value (STYLE-DIF)."
   (chance-roll (style-dif b key plist)))
+(defun style-on (b key plist)
+  "A per-difficulty switch PLIST (T / NIL by difficulty) as the arm's number KEY: on at >= 0.5 (no roll: a switch read each step); no key:
+PLIST's value at B's difficulty (BRAIN-CHANCE). PLAN4 B3, Ichigo's code cell (KNOBS.md §6.7)."
+  (let ((k (style-knob b key nil))) (if k (>= k 0.5) (brain-chance b plist))))
 
 (defun strat-window-step (b sw)
   "The lookup table's windows (DUEL_AI_STRATEGY §11.17; tuning.lisp *STRAT-TABLE-CHANCE*): at the first step brain B takes in each window of

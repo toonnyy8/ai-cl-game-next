@@ -1,7 +1,6 @@
-{"note": "KI, Ichigo's T0 (PLAN4 §3 / §4): the five general arms of ../ichigo.lisp; job rules as PLAN4 §3's table (as b2/t0-ki/map.json)",
- "arms": ["ichigo.lisp#a4-i-all", "ichigo.lisp#a4-i-whiff", "ichigo.lisp#a4-i-space", "ichigo.lisp#a4-i-ptr3", "ichigo.lisp#a4-i-kessa"],
+{"note": "KI, Ichigo's T0 (PLAN4 §3 / §4), re-jobbed by Ichigo's code cell (2026-11-15, ../ichigo.md 'Re-jobbed arms'): the arms of ../ichigo.lisp; the first drafts' map (whiff / space / ptr3 / kessa) is recorded in ichigo.md and in git (1170f748)",
+ "arms": ["ichigo.lisp#a4-i-all", "ichigo.lisp#a4-i-brawl", "ichigo.lisp#a4-i-keep", "ichigo.lisp#a4-i-kessa2"],
  "jobs": [null,
-          [[2, ["(:ost :atk)", "(:dm :m-mid)"]], [1, ["(:form :no)", "(:dm :m-mid)"]]],
-          [[1, ["(:dm :m-far)"]], [6, ["(:wall :w-near)"]]],
-          [[3, ["(:ocell :no)"]], [9, ["(:mptr :k3)"]]],
+          [[2, ["(:ost :free)"]]],
+          [[8, ["(:lead :ahead)"]]],
           [[0, ["(:awst :k2)"]], [1, ["(:form :yes)"]]]]}

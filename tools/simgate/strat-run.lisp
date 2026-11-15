@@ -184,12 +184,14 @@
 ;;; awk K clash X ptr p1 p2 p3 form <form>:<steps> ...": battle steps, their summed distance (m), those inside 3 m / beyond 6 m, SP moves
 ;;; started (kind :sp), Bursts, my Kikons (his FIGHTER-KIKON-LOCK set anew: the hold's strike landed), his knockdowns ended (out of :down / :wakeup) and my action starts (a move, Step or Hoho)
 ;;; in his first 20 steps after each, my Steps + Hohos, all my action starts, steps awakened, clashes (FIGHTER-CLASH-T stamped anew), steps at
-;;; SP pointer 1 / 2 / 3 (4 reads 3), steps per form. Reads only: 25 seeds with and without it gave identical gate rows and hash lines.
+;;; SP pointer 1 / 2 / 3 (4 reads 3), my move starts while he is :idle / :run (nstart: an attack into his neutral, not an answer to his move;
+;;; Ichigo's code cell, PLAN4 B3), SP moves started while awakened (asp) and the summed distance of the awakened steps (adsum, m), steps per form. Reads only: 25 seeds with and without it gave
+;;; identical gate rows and hash lines.
 (defvar *sr-desc* (plusp (length (or (ext:getenv "STRAT_DESC") ""))))
 (defvar *sr-desc-acc* (list nil nil) "Per side: (counts-vector form-alist), or NIL before the match's first battle step.")
 (defvar *sr-desc-edge* (list nil nil) "Per side: (last-state last-move last-burst last-clash-t his-last-state wake-left his-last-kikon-lock).")
 (defvar *sr-desc-seed* nil)
-(defparameter +sr-desc-keys+ '(steps dsum close far sp burst kikon kd wake evade acts awk clash p1 p2 p3))
+(defparameter +sr-desc-keys+ '(steps dsum close far sp burst kikon kd wake evade acts awk clash p1 p2 p3 nstart asp adsum))
 (defun sr-desc-flush ()
   (when *sr-desc-seed*
     (loop for side from 0 for a in *sr-desc-acc* when a
@@ -201,7 +203,7 @@
   (setf *sr-desc-seed* *match-seed*)
   (do-sides (e)
     (let* ((f (fighter e)) (side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o))
-           (a (or (nth side *sr-desc-acc*) (setf (nth side *sr-desc-acc*) (list (make-array 16 :initial-element 0) nil))))
+           (a (or (nth side *sr-desc-acc*) (setf (nth side *sr-desc-acc*) (list (make-array 19 :initial-element 0) nil))))
            (v (first a)) (ed (or (nth side *sr-desc-edge*) (list nil nil nil (fighter-clash-t f) nil 0 0)))
            (st (fighter-state f)) (mv (fighter-move f)) (d (fighter-dist f)) (ost (fighter-state fo))
            (start (or (and (eq st :move) mv (or (not (eq (first ed) :move)) (not (eq mv (second ed)))))
@@ -215,9 +217,11 @@
         (when (plusp (sixth ed)) (when start (inc 8)) (decf (sixth ed)))
         (when (and start (member st '(:step :hoho))) (inc 9))
         (when start (inc 10))
-        (when (gauges-awakened (gauges e)) (inc 11))
+        (when (gauges-awakened (gauges e)) (inc 11) (incf (aref v 18) (round (* 1000 d))))
         (when (and (plusp (fighter-clash-t f)) (/= (fighter-clash-t f) (fourth ed))) (inc 12))
         (inc (+ 13 (1- (min 3 (max 1 (fighter-ptr f))))))
+        (when (and start (eq st :move) (member ost '(:idle :run))) (inc 16))
+        (when (and start (eq st :move) (eq (mv-kind mv) :sp) (gauges-awakened (gauges e))) (inc 17))
         (let ((c (assoc (fighter-form f) (second a)))) (if c (incf (cdr c)) (push (cons (fighter-form f) 1) (second a)))))
       (setf (nth side *sr-desc-edge*) (list st mv (gauges-burst (gauges e)) (fighter-clash-t f) ost (sixth ed) (fighter-kikon-lock fo))))))
 (defun sr-hook ()
