@@ -3316,3 +3316,38 @@ modes, Kenpachi's rush / guard / wave, Hisagi's press / kite), and Hisagi's tabl
 user set on 2026-10-25 (DEVLOG §369; skill `duel-character-cpu`): data sheet → sim-verified catalogue → strategies the user picks →
 CPU, search only for weights. PLAN4 now follows it per character and form, with matchup tables against the other two; today's arms
 stay as data until the user's pick replaces or keeps them.
+
+
+### 11.29 The nine T0 tables in the game: switching one-job arms at every difficulty (2026-11-15)
+
+PLAN4 B4 (`docs/research/strategy-drsi/sp/b4.md`, tables `sp/arms4/t0final/`), the user's requirements of §11.28. Every lookup row now
+names a designed table `:t0-<pair>-<side>` on `:rb-sp2` (104 rules, 11 groups). Each arm is a one-job unit; arm k sits at +q in its
+job rules (any one of its groups: `band.py t0 --or`), `:with` the pairing's 11-15 exchange unit, `:keep-state t`, `:margin 0.02`,
+`:period 30`. Every difficulty plays it whole.
+- **Arms**: Ichigo `all brawl keep kessa2`; Kenpachi `all spend climb` (+ `bait` vs Hisagi); Hisagi `all range wake` (+ `hoho6` vs
+  Kenpachi, `ihx` vs Ichigo). KH Hisagi's arm 0 is the 11-15 arm `x-kh-h-r2-b3a1` (whole against Kenpachi's table it K.O.s 27 of 80,
+  `all` 2).
+- **Bar A** (switching, seeds 501-540 / 541-580, against the final opponent tables): passes in 8 of 9 rows, with medians of 13.5 (KI
+  Kenpachi) to 89 (KH Kenpachi) changes a match. **HH fails**: arm 0 holds 96 %, there are 22 matches without a change, and its K.O.
+  rate is .025.
+- **A vacuity column**: a job whose rules fire on more than 60 % of judgements cannot pass "in-job ≥ 2x". It caught Ichigo's `keep`
+  (.68) and II `kessa2` (.60), whose jobs were narrowed before the runs. KH Hisagi `range` still latches (fire .52, it stays on), and so
+  does the IH v0 option.
+- **Bar D** (HARD vs HARD K.O.): KI 1.0, KH 1.0 (the .75 was a stall: Kenpachi's `spend` against the draft Hisagi `press`), IH
+  .96-.98, KK .975-1.0, II .93 / .83.
+- **The first dev ladder on these tables** (seeds 501-600, 200 a cell): 16 of 27 pass.
+  - HARD > NORMAL fails IH .71 (by the 1-sided bound) and HK .345.
+  - NORMAL > EASY passes all nine, with time-outs flagged in II, IH, HK and HH.
+  - EASY > masher fails all nine (.00-.675).
+  - Median changes a match: HARD 47, NORMAL 33-52, EASY 43-53.
+- **Provisional DUCT** (`sp/duct/README-provisional.md`, not frozen):
+  - the matrices put arm 0 at the pure equilibrium almost everywhere;
+  - the budget stays at today's 8x150 / 90 (standard did not beat it, 198 of 400);
+  - DUCT plays one arm ≥ 97 % in five of nine rows;
+  - the 11-15 shipped HARD tables score .342 pooled against it, with KK, IH, HI and HH more than 15 points under DUCT's own.
+- Saved online learning copies reset for all nine rows (new checksums).
+- Host tests 3632 ALL PASS, pkgcheck, build, smoke, snaptest / fulltest 0 differ.
+- G2 regenerated: II 41 lines P2 2-5 403.6 s, IK 42 P2 1-2 421.7 s, KK 31 P1 3-0 307.2 s (was II 38 P1 7-2 374.3 s, IK 27 P1 6-0
+  262.9 s, KK 21 P1 2-0 209.2 s).
+- These arms are the pipeline's test bed. The kit studies (§11.28's last note) propose the arms the user will pick from; the first,
+  Ichigo's (`sp/kits/ichigo/`, 845 sim-verified trials), is in.
