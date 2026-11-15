@@ -1,0 +1,291 @@
+{
+ "seeds": "141-180 both seats",
+ "build": "f0e2bb129de1",
+ "rows": [
+  {
+   "kind": "whole",
+   "arm": "h4-all",
+   "vs": "kenpachi",
+   "opp": "none",
+   "n": 80,
+   "share": 1.0,
+   "ko_rate": 0.963,
+   "ko_wins": 77,
+   "timeouts": 3,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H4-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h4-all",
+   "vs": "kenpachi",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.269,
+   "ko_rate": 0.237,
+   "ko_wins": 16,
+   "timeouts": 61,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H4-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (on)",
+   "vs": "kenpachi",
+   "opp": "none",
+   "n": 80,
+   "share": 1.0,
+   "ko_rate": 0.925,
+   "ko_wins": 74,
+   "timeouts": 6,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H5-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (on)",
+   "vs": "kenpachi",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.25,
+   "ko_rate": 0.275,
+   "ko_wins": 17,
+   "timeouts": 58,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H5-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (off)",
+   "vs": "kenpachi",
+   "opp": "none",
+   "n": 80,
+   "share": 1.0,
+   "ko_rate": 0.7,
+   "ko_wins": 56,
+   "timeouts": 24,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H5-ALL-OFF"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (off)",
+   "vs": "kenpachi",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.25,
+   "ko_rate": 0.113,
+   "ko_wins": 8,
+   "timeouts": 71,
+   "played": [
+    "ONE-HISAGI-KENPACHI-H5-ALL-OFF"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h4-all",
+   "vs": "ichigo",
+   "opp": "none",
+   "n": 80,
+   "share": 0.613,
+   "ko_rate": 0.512,
+   "ko_wins": 27,
+   "timeouts": 39,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H4-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h4-all",
+   "vs": "ichigo",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.0,
+   "ko_rate": 0.95,
+   "ko_wins": 0,
+   "timeouts": 4,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H4-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (on)",
+   "vs": "ichigo",
+   "opp": "none",
+   "n": 80,
+   "share": 0.825,
+   "ko_rate": 0.562,
+   "ko_wins": 39,
+   "timeouts": 35,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H5-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (on)",
+   "vs": "ichigo",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.212,
+   "ko_rate": 0.6,
+   "ko_wins": 2,
+   "timeouts": 32,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H5-ALL"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (off)",
+   "vs": "ichigo",
+   "opp": "none",
+   "n": 80,
+   "share": 0.988,
+   "ko_rate": 0.338,
+   "ko_wins": 27,
+   "timeouts": 53,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H5-ALL-OFF"
+   ]
+  },
+  {
+   "kind": "whole",
+   "arm": "h5-all (off)",
+   "vs": "ichigo",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.062,
+   "ko_rate": 0.662,
+   "ko_wins": 0,
+   "timeouts": 27,
+   "played": [
+    "ONE-HISAGI-ICHIGO-H5-ALL-OFF"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "kh-hisagi#on",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.25,
+   "ko_rate": 0.25,
+   "ko_wins": 12,
+   "timeouts": 60,
+   "played": [
+    "T0-KH-HISAGI_ON"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "kh-hisagi#off",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.15,
+   "ko_rate": 0.188,
+   "ko_wins": 7,
+   "timeouts": 65,
+   "played": [
+    "T0-KH-HISAGI_OFF"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "kh-hisagi#h4",
+   "opp": "kh-kenpachi",
+   "n": 80,
+   "share": 0.188,
+   "ko_rate": 0.225,
+   "ko_wins": 10,
+   "timeouts": 62,
+   "played": [
+    "T0-KH-HISAGI_H4"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "ih-hisagi#on",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.738,
+   "ko_rate": 0.487,
+   "ko_wins": 33,
+   "timeouts": 41,
+   "played": [
+    "T0-IH-HISAGI_ON"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "ih-hisagi#off",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.544,
+   "ko_rate": 0.512,
+   "ko_wins": 22,
+   "timeouts": 39,
+   "played": [
+    "T0-IH-HISAGI_OFF"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "ih-hisagi#h4",
+   "opp": "ih-ichigo",
+   "n": 80,
+   "share": 0.6,
+   "ko_rate": 0.45,
+   "ko_wins": 18,
+   "timeouts": 44,
+   "played": [
+    "T0-IH-HISAGI_H4"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "hh-hisagi#on",
+   "opp": "itself",
+   "n": 80,
+   "share": 0.5,
+   "ko_rate": 0.025,
+   "ko_wins": 1,
+   "timeouts": 78,
+   "played": [
+    "T0-HH-HISAGI_ON"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "hh-hisagi#off",
+   "opp": "itself",
+   "n": 80,
+   "share": 0.5,
+   "ko_rate": 0.0,
+   "ko_wins": 0,
+   "timeouts": 80,
+   "played": [
+    "T0-HH-HISAGI_OFF"
+   ]
+  },
+  {
+   "kind": "t0",
+   "row": "hh-hisagi#h4",
+   "opp": "itself",
+   "n": 80,
+   "share": 0.5,
+   "ko_rate": 0.0,
+   "ko_wins": 0,
+   "timeouts": 80,
+   "played": [
+    "T0-HH-HISAGI_H4"
+   ]
+  }
+ ]
+}

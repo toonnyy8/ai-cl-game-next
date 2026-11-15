@@ -1,0 +1,45 @@
+{
+ "note": "arms5 in-band (kk-kenpachi, final: the admitted arms of inband.md \u00a73): arm 0 k5-all; jobs inband.py JOB",
+ "arms": [
+  "../arms5/kenpachi/a0-all.lisp#k5-all",
+  "../arms5/kenpachi/g2-wake.lisp#k5-wake",
+  "../arms5/kenpachi/g4-climb.lisp#k5-climb"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    2,
+    [
+     "(:ost :down)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :down)",
+     "(:dm :m-mid)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:lead :even)",
+     "(:ored :no)",
+     "(:awst :k2)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:lead :ahead)",
+     "(:ored :no)",
+     "(:awst :k2)"
+    ]
+   ]
+  ]
+ ]
+}

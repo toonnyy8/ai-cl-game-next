@@ -1,0 +1,86 @@
+{
+ "note": "arms5 in-band (kh-kenpachi@a4-k-bait): arm 0 k5-all; jobs inband.py JOB",
+ "arms": [
+  "../arms5/kenpachi/a0-all.lisp#k5-all",
+  "../arms5/kenpachi/g1-poke.lisp#k5-poke",
+  "kenpachi.lisp#a4-k-bait",
+  "../arms5/kenpachi/g3-red.lisp#k5-red",
+  "../arms5/kenpachi/g4-climb.lisp#k5-climb",
+  "../arms5/kenpachi/t2-hug.lisp#k5-hug"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :no)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    10,
+    [
+     "(:optr :yes)",
+     "(:dm :m-close)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:ored :yes)"
+    ]
+   ],
+   [
+    7,
+    [
+     "(:or :r-low)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:lead :even)",
+     "(:ored :no)",
+     "(:awst :k2)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:lead :ahead)",
+     "(:ored :no)",
+     "(:awst :k2)"
+    ]
+   ]
+  ],
+  [
+   [
+    10,
+    [
+     "(:optr :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :free)",
+     "(:dm :m-mid)"
+    ]
+   ]
+  ]
+ ]
+}

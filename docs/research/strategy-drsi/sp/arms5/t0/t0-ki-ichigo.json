@@ -1,0 +1,92 @@
+{
+ "note": "arms5 in-band (ki-ichigo, final: the admitted arms of inband.md \u00a73): arm 0 a4-i-all; jobs inband.py JOB",
+ "arms": [
+  "../arms5/ichigo/arms.lisp#a4-i-all",
+  "../arms5/ichigo/arms.lisp#a5-i-answer",
+  "../arms5/ichigo/arms.lisp#a4-i-brawl",
+  "../arms5/ichigo/arms.lisp#a5-i-economy",
+  "../arms5/ichigo/arms.lisp#a5-i-punish",
+  "../arms5/ichigo/arms.lisp#a5-i-kessa-lunge"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    5,
+    [
+     "(:xch :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :free)"
+    ]
+   ]
+  ],
+  [
+   [
+    3,
+    [
+     "(:mcell :no)",
+     "(:ocell :yes)"
+    ]
+   ],
+   [
+    3,
+    [
+     "(:mcell :no)",
+     "(:ocell :p2up)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :evade)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :evade)",
+     "(:dm :m-mid)"
+    ]
+   ]
+  ],
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ]
+ ]
+}

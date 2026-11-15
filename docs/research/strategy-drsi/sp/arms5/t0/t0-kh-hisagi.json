@@ -1,0 +1,41 @@
+{
+ "note": "arms5 in-band (kh-hisagi, final: the admitted arms of inband.md \u00a73): arm 0 h5-all; jobs inband.py JOB",
+ "arms": [
+  "../arms5/hisagi/arms-clash.lisp#h5-all",
+  "../arms5/hisagi/arms-clash.lisp#h5-cancel",
+  "../arms5/hisagi/arms-clash.lisp#h5-wake"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    5,
+    [
+     "(:xch :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ]
+ ]
+}
