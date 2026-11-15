@@ -8,7 +8,7 @@
     1.0
   ],
   "branches": 1,
-  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-a881f185bf528644a && SP_BUILD=b835ac41b83b python3 docs/research/strategy-drsi/sp/arms4/cells-h/score.py --slot ihx --arm {node_dir}/arm.lisp --vs ichigo -j 3",
+  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next && SP_BUILD=b835ac41b83b python3 docs/research/strategy-drsi/sp/arms4/cells-h/score.py --slot ihx --arm {node_dir}/arm.lisp --vs ichigo -j 3",
   "lambda": 0.05,
   "refines": 1,
   "task": "SOUL DUEL PLAN4 B3: Hisagi's ihx arm in its slot of his T0 (played policy), vs ichigo, K.O.-only",

@@ -1,0 +1,2 @@
+;; h4-ihx expanded from arms4/hisagi.lisp (arms4/expand.lisp)
+(:id :h4-ihx :dswitch-map ((:base 1 3)) :fn hisagi-ihr1b2a0-style :apply (:hisagi) :base (:dswitch 1.0 :awaken 3.0 :hoho 0.3 :range 1.75 :ns 0.9 :cont 2.0 :turn 2.0 :ihx-p 1.0 :ihx-margin 0.3 :ihx-chase 20.0 :ihx-reishi 0.0 :hold-awaken 0.3) :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))

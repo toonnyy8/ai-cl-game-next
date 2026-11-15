@@ -1,0 +1,302 @@
+{
+ "p1": "cells-h/t0/t0-full-hh-hisagi.lisp",
+ "p2": "cells-h/t0/t0-full-hh-hisagi.lisp",
+ "seeds": "501-540",
+ "build": "b835ac41b83b",
+ "sides": {
+  "c1 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 407.8,
+   "changes": {
+    "median": 21.5,
+    "mean": 22.1,
+    "zero": 0
+   },
+   "arm_share": [
+    0.703,
+    0.21,
+    0.028,
+    0.024,
+    0.035
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.9052,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.232,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.2561,
+     "out_share": 0.0003,
+     "ratio": 996.92,
+     "in_weight": 0.11,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.1726,
+     "out_share": 0.0,
+     "ratio": 6159.47,
+     "in_weight": 0.138,
+     "ok": true
+    },
+    "4": {
+     "in_share": 0.3311,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.105,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 23425,
+     "share": [
+      0.946,
+      0.0,
+      0.015,
+      0.019,
+      0.02
+     ]
+    },
+    "f0-far": {
+     "n": 1043,
+     "share": [
+      0.441,
+      0.039,
+      0.094,
+      0.172,
+      0.254
+     ]
+    },
+    "f0-mid": {
+     "n": 699,
+     "share": [
+      0.422,
+      0.024,
+      0.165,
+      0.096,
+      0.293
+     ]
+    },
+    "f1-close": {
+     "n": 540,
+     "share": [
+      0.0,
+      0.589,
+      0.135,
+      0.122,
+      0.154
+     ]
+    },
+    "f1-far": {
+     "n": 4545,
+     "share": [
+      0.0,
+      0.991,
+      0.009,
+      0.0,
+      0.0
+     ]
+    },
+    "f1-mid": {
+     "n": 1844,
+     "share": [
+      0.0,
+      0.972,
+      0.019,
+      0.007,
+      0.002
+     ]
+    },
+    "f2-close": {
+     "n": 250,
+     "share": [
+      0.0,
+      0.044,
+      0.472,
+      0.02,
+      0.464
+     ]
+    },
+    "f2-far": {
+     "n": 179,
+     "share": [
+      0.0,
+      0.637,
+      0.324,
+      0.022,
+      0.017
+     ]
+    },
+    "f2-mid": {
+     "n": 95,
+     "share": [
+      0.0,
+      0.568,
+      0.379,
+      0.011,
+      0.042
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": false,
+    "division": true
+   },
+   "ko_rate": 0.25,
+   "ko_win": 0.125,
+   "timeouts": 60
+  },
+  "c2 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 407.8,
+   "changes": {
+    "median": 21.5,
+    "mean": 22.1,
+    "zero": 0
+   },
+   "arm_share": [
+    0.703,
+    0.21,
+    0.028,
+    0.024,
+    0.035
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.9052,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.232,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.2561,
+     "out_share": 0.0003,
+     "ratio": 996.92,
+     "in_weight": 0.11,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.1726,
+     "out_share": 0.0,
+     "ratio": 6159.47,
+     "in_weight": 0.138,
+     "ok": true
+    },
+    "4": {
+     "in_share": 0.3311,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.105,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 23425,
+     "share": [
+      0.946,
+      0.0,
+      0.015,
+      0.019,
+      0.02
+     ]
+    },
+    "f0-far": {
+     "n": 1043,
+     "share": [
+      0.441,
+      0.039,
+      0.094,
+      0.172,
+      0.254
+     ]
+    },
+    "f0-mid": {
+     "n": 699,
+     "share": [
+      0.422,
+      0.024,
+      0.165,
+      0.096,
+      0.293
+     ]
+    },
+    "f1-close": {
+     "n": 540,
+     "share": [
+      0.0,
+      0.589,
+      0.135,
+      0.122,
+      0.154
+     ]
+    },
+    "f1-far": {
+     "n": 4545,
+     "share": [
+      0.0,
+      0.991,
+      0.009,
+      0.0,
+      0.0
+     ]
+    },
+    "f1-mid": {
+     "n": 1844,
+     "share": [
+      0.0,
+      0.972,
+      0.019,
+      0.007,
+      0.002
+     ]
+    },
+    "f2-close": {
+     "n": 250,
+     "share": [
+      0.0,
+      0.044,
+      0.472,
+      0.02,
+      0.464
+     ]
+    },
+    "f2-far": {
+     "n": 179,
+     "share": [
+      0.0,
+      0.637,
+      0.324,
+      0.022,
+      0.017
+     ]
+    },
+    "f2-mid": {
+     "n": 95,
+     "share": [
+      0.0,
+      0.568,
+      0.379,
+      0.011,
+      0.042
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": false,
+    "division": true
+   },
+   "ko_rate": 0.25,
+   "ko_win": 0.125,
+   "timeouts": 60
+  }
+ }
+}

@@ -163,3 +163,86 @@ rate >= 0.50.
 | ihx (vs I) | my move starts into his neutral (`nstart`) a match | >= arm 0's x 1.2 |
 
 Bar A (on each T0, seeds 501-540, both seats, 80 matches, against the opponent's T0) and the HH mirror's (self-play) as PLAN4 §1 A.
+
+## 6. The cells and the admission (2026-11-15)
+
+**Cells: 14 of 14** (Sonnet 5.5; dream-rsi W = 4, `v1_rank_keep`, one round a workspace; workspaces `cells-h/ws-*`, each cell's
+`proposal.md` and `scratch/`). press 2 x 2, kite 2 x 2, wake 1 x 2, ihx 1 x 2, hoho6 1 x 2. Every score was re-run by the coordinator from
+the cell's `arm.lisp` before it was recorded (`score.json` in the node). One cell (kite b1_a0) never wrote `arm.lisp` and is recorded as
+failed (its `COORDINATOR-NOTE.md`; its v1 is in its scratch). After batch 1 the coordinator measured each pick's descriptor (`screen.json`:
+seeds 301-320, block 300, whole against `none`) and gave it to the batch-2 cells, which could also run the screen themselves.
+
+| Workspace / cell | Change (over the draft) | block 300 | block 200 | screen (301-320) |
+|---|---|---|---|---|
+| draft T0 (both / IH / KH tables) | | .5686 / .6287 / .5016 | .5719 / .6072 / .4818 | |
+| press b0_a0 | `:range 1.3 :b-walk-in 0.2 :kk-hoho-in-p 0.5` | .6014 | .5883 | close +.064 / +.038 |
+| **press b0_a1** | `:range 0.6`, reach margin 1, lunge, Step in, no awakening press, Hoho safety 0 | .5964 | **.6079** | +.088 / +.070 |
+| press b1_a0 | the close rule on and forward (`:hr-p 1 :hr-close 3.6 :hr-near 3.6 ...`) | .5964 | .5915 | +.015 / +.011 |
+| press b1_a1 | `:hr-home-p 0 :hr-close 2 :hr-near 2` | .5736 | .5752 | +.075 / +.097 |
+| kite b0_a0 | `:hkk-near 2.8 :hkk-far 2.4 :hkk-poke-min 3.4 :hkk-window 70` | .6337 | | mean d +.12 / +.66 |
+| kite b0_a1 | the `:hkk-*` stretched (near 5 / 6, window 120) | .6304 | | +.25 / +.71 |
+| kite b1_a0 | (failed: no arm.lisp) | fail | | (v1: +.22 / +.81) |
+| **kite b1_a1** | the walk-in off, back Step to 6.5 m, `:hr-near 4.2 :hr-close 3.4`, `:hkk-near 4 / 5` | .6370 | .6172 (both tables .5817) | +.435 / +1.04 |
+| wake b0_a0 | + the 6 m Hoho in, reach margin 1, `:kk-ns-safe-p 0.5` | .5948 | .5620 | wake / kd x1.30 / x1.32 |
+| **wake b0_a1** | the same, `:kk-ns-safe-p 0.25` | .6079 | .5589 | x1.50 / x1.38 |
+| **ihx b0_a0** | `:ihx-chase 0` | .6320 | .6072 | nstart x1.42 |
+| ihx b0_a1 | + `:hoho 0.8` (inert: counts identical) | .6320 | | |
+| hoho6 b0_a0 | none (six variants all .488-.502) | .5016 | | Steps + Hohos 30.6 vs 41.5 |
+| **hoho6 b0_a1** | reach margin 3.5, no lunge, Step in, `:hoho 1.5`, back Step to 7 m, dodge | .5000 | .4884 | 60.1 vs 41.5 |
+
+(Screens are vs Kenpachi / vs Ichigo. A bold cell = the one that went to the proof: its branch's best on block 200, or for one-branch
+workspaces the one whose screen passed.)
+
+- **No table score moved beyond noise on the held-out block.** The block-300 gains (press +.03, wake +.04) shrank to +.036 (press b0_a1) and
+  **-.013** (wake) on block 200. kite, ihx and hoho6 stayed inside +-.015 on both blocks. A job arm plays a fraction of the judgements, and
+  600 matches cannot resolve that.
+- The cells moved the **descriptors** a lot once they were measured (wake x1.10 -> x1.50, hoho6 0.74 -> 1.45 of arm 0, kite vs K +.12 ->
+  +.44). They did not move the scores.
+
+**One-job proof** (`proof.py desc`, seeds 1-100 both seats, 200 matches an arm and opponent, against `none`; `proof/hisagi-vs-*.json`;
+range and all also in `*-pre.json`; press b1_a0 in `*-press-b1.json`):
+
+| Arm | vs Kenpachi | vs Ichigo | K.O. rate K / I | distinct | verdict |
+|---|---|---|---|---|---|
+| all | 2.19 m, close .770 | 2.37 m, close .749 | .99 / .565 | yes | arm 0 |
+| range | mean d +.80, Bankai +.47 PASS | +.93, +.115 PASS | .925 / 1.00 | yes | **pass** |
+| press (b0_a1) | close +.059 FAIL | +.053 FAIL | .98 / .98 | yes | **fail** (descriptor) |
+| press (b1_a0) | close -.012 FAIL | -.004 FAIL | .995 / .935 | | **fail** |
+| kite (b1_a1) | mean d **+.480 FAIL** | +1.06 PASS | .845 / .77 | yes | **fail** (vs K by 0.02 m) |
+| wake (b0_a1) | wake / kd .707 vs .454 (x1.56) PASS | .666 vs .471 (x1.41) PASS | .965 / .895 | yes | **pass** |
+| hoho6 (b0_a1, vs K) | Steps + Hohos 66.1 vs 39.5 (x1.67) PASS | | .905 | yes | **pass** |
+| ihx (b0_a0, vs I) | | nstart 54.2 vs 38.0 (x1.43) PASS | 1.00 | yes | **pass** |
+
+**Hisagi ends with three general arms (all, range, wake), the floor**, and one targeted arm a pairing (hoho6 vs K, ihx vs I). press does
+not close in enough. Arm 0 is already inside 3 m for 75-77 % of the steps, and no key the cells found took it past +.09; b0_a1's own probes
+put the rest in the base form. kite misses by 0.02 m against Kenpachi, whose `none` keeps the fight close. Neither bar moved after the run.
+
+**T0s** (`cells-h/t0/`; arms in `cells-h/final/`; `band.py t0 --or`, q 0.06; bar A by `proof.py bar`, both seats, 80 matches; vs the
+opponent's T0 of `cells-h/t0/`):
+
+| T0 | arms (job) | seeds | changes median (mean), zero | arm shares | in / out of job | bar A | K.O. rate; Hisagi's K.O. wins |
+|---|---|---|---|---|---|---|---|
+| **KH** `t0-final-kh-hisagi` (v1 map) | all, range (G1 form 1 x mid / far, G9 switch open), wake (G2 down), hoho6 (G2 free x mid / far) | 501-540 | 35 (36.2), 0 | .230 / .466 / .271 / .032 | .89 / 0, .84 / 0, .29 / 0 | **pass** | .975; .013 |
+| | | 541-580 (replication) | 36 (36.3), 0 | .143 / .527 / .296 / .034 | .90 / 0, .83 / 0, .27 / .0001 | **pass** | 1.00; .025 |
+| IH `t0-final-ih-hisagi` (v1 map: as KH, ihx G7 my high x her low) | all, range, wake, ihx | 501-540 | 17, 0 | .171 / **.707** / **.096** / .025 | .89 / 0, .31 / 0, .17 / .0003 | **fail** (range > 70 %, two arms >= 10 %) | .975; .50 |
+| **IH** `t0-final-ih-hisagi-v2` (range: G1 only) | all, range, wake, ihx | 501-540 | 40 (40.9), 0 | .330 / .505 / .109 / .057 | .94 / .017, .36 / 0, .42 / .004 | **pass** (selected) | 1.00; .30 |
+| | | 541-580 (replication) | 42 (42.1), 0 | .352 / .443 / .137 / .068 | .93 / .012, .44 / 0, .47 / .005 | **pass** | 1.00; .287 |
+| HH `t0-final-hh-hisagi` (general arms, KH jobs) | all, range, wake | 501-540 | 3 (6.3), **22** | **.963** / .021 / .016 | .95 / 0, .74 / 0 | **fail** (all four) | **.05** (76 of 80 at the bell) |
+| HH `-v2` (range G1 only) | all, range, wake | 501-540 | 3 (7.0), 22 | .963 / .021 / .016 | .99 / .0002, .69 / 0 | **fail** | **.025** (78 of 80) |
+
+For the record, the "full" tables (`t0-full-*`, with the cells' failing press and kite in): KH passes bar A (median 42.5; Hisagi's K.O. wins
+.087), IH fails (range .629; K.O. wins .25), HH fails (all .703; self-play K.O. .25, 60 of 80 at the bell).
+
+- **The IH v1 map failed, and v2 was designed after it on the same 80 matches**, so v2's 501-540 pass is a selected result. Why v1 failed:
+  v1 gives range a G9 rule, "switch open". Once the gauge has been full, that rule fires on every judgement. Under `--or`, that keeps range
+  at +0.03 over arm 0 everywhere. v2 drops the G9 rule. A replication on 541-580 (the table unchanged) passes too. KH keeps v1: it passes
+  on both blocks, and range is under 70 % there.
+- **The mirror stalls.** In self-play both seats sit in arm 0 at 96 % and 76-78 of 80 matches go to the bell. Range never gets its form
+  (the ranged mode, 2 % of judgements) and wake has few knockdowns to act on. With three general arms there is nothing to switch to.
+  The HH table needs a mirror-specific arm, or a fix for what stalls the mirror (PLAN4 §1 D: HH self-play 0 % with the 2026-11-15 arms).
+  That is outside this batch.
+- **Hisagi's tables lose to the opponents' T0s**: K.O. wins .013 / .025 against Kenpachi's KH T0, .30 / .29 against Ichigo's IH T0, as in
+  the cells' scores (the rest group).
+
+Files: the workspaces `cells-h/ws-*`; `cells-h/score.py` (the scorer) and `cells-h/admit/200-*.json` (block-200 rescores); the maps and
+tables in `cells-h/t0/` (`bar-*.json` = bar A); the arms in `cells-h/final/` (press, kite = the failing picks); `proof/hisagi-vs-*.json`.

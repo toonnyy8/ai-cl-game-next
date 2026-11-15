@@ -1,0 +1,186 @@
+{
+ "p1": "cells-h/t0/t0-final-hh-hisagi-v2.lisp",
+ "p2": "cells-h/t0/t0-final-hh-hisagi-v2.lisp",
+ "seeds": "501-540",
+ "build": "b835ac41b83b",
+ "sides": {
+  "c1 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 549.7,
+   "changes": {
+    "median": 3.0,
+    "mean": 7.0,
+    "zero": 22
+   },
+   "arm_share": [
+    0.963,
+    0.021,
+    0.016
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.9871,
+     "out_share": 0.0002,
+     "ratio": 5860.82,
+     "in_weight": 0.022,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.6878,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.023,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 42012,
+     "share": [
+      0.992,
+      0.0,
+      0.008
+     ]
+    },
+    "f0-far": {
+     "n": 576,
+     "share": [
+      0.724,
+      0.0,
+      0.276
+     ]
+    },
+    "f0-mid": {
+     "n": 375,
+     "share": [
+      0.621,
+      0.0,
+      0.379
+     ]
+    },
+    "f1-close": {
+     "n": 46,
+     "share": [
+      0.717,
+      0.0,
+      0.283
+     ]
+    },
+    "f1-far": {
+     "n": 679,
+     "share": [
+      0.0,
+      0.99,
+      0.01
+     ]
+    },
+    "f1-mid": {
+     "n": 286,
+     "share": [
+      0.031,
+      0.941,
+      0.028
+     ]
+    }
+   },
+   "A": {
+    "no_zero": false,
+    "median_10": false,
+    "three_arms": false,
+    "division": true
+   },
+   "ko_rate": 0.025,
+   "ko_win": 0.013,
+   "timeouts": 78
+  },
+  "c2 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 549.7,
+   "changes": {
+    "median": 3.0,
+    "mean": 7.0,
+    "zero": 22
+   },
+   "arm_share": [
+    0.963,
+    0.021,
+    0.016
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.9871,
+     "out_share": 0.0002,
+     "ratio": 5860.82,
+     "in_weight": 0.022,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.6878,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.023,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 42012,
+     "share": [
+      0.992,
+      0.0,
+      0.008
+     ]
+    },
+    "f0-far": {
+     "n": 576,
+     "share": [
+      0.724,
+      0.0,
+      0.276
+     ]
+    },
+    "f0-mid": {
+     "n": 375,
+     "share": [
+      0.621,
+      0.0,
+      0.379
+     ]
+    },
+    "f1-close": {
+     "n": 46,
+     "share": [
+      0.717,
+      0.0,
+      0.283
+     ]
+    },
+    "f1-far": {
+     "n": 679,
+     "share": [
+      0.0,
+      0.99,
+      0.01
+     ]
+    },
+    "f1-mid": {
+     "n": 286,
+     "share": [
+      0.031,
+      0.941,
+      0.028
+     ]
+    }
+   },
+   "A": {
+    "no_zero": false,
+    "median_10": false,
+    "three_arms": false,
+    "division": true
+   },
+   "ko_rate": 0.025,
+   "ko_win": 0.013,
+   "timeouts": 78
+  }
+ }
+}

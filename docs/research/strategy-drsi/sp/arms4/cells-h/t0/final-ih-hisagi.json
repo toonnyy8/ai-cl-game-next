@@ -1,0 +1,51 @@
+{
+ "note": "IH, Hisagi's T0 after the B3 cells (final): only the arms that passed their one-job proof (all, range, wake, ihx); job rules as the cells' table (ih-hisagi.json); arms in ../final/",
+ "arms": [
+  "../final/h4-all.lisp",
+  "../final/h4-range.lisp",
+  "../final/h4-wake.lisp",
+  "../final/h4-ihx.lisp"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ],
+   [
+    9,
+    [
+     "(:swopen :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    7,
+    [
+     "(:mr :r-high)",
+     "(:or :r-low)"
+    ]
+   ]
+  ]
+ ]
+}

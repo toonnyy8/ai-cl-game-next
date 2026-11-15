@@ -1,0 +1,45 @@
+{
+ "note": "IH, Hisagi's T0 after the B3 cells (final): only the arms that passed their one-job proof (all, range, wake, ihx); job rules as the cells' table (ih-hisagi.json); arms in ../final/. v2 (after v1 failed bar A on 501-540): range's job is G1 form 1 x mid / far only; v1's G9 switch-open rule is a lasting state (once the gauge has been full it fires every judgement), so with --or it kept range at +0.03 over arm 0 everywhere",
+ "arms": [
+  "../final/h4-all.lisp",
+  "../final/h4-range.lisp",
+  "../final/h4-wake.lisp",
+  "../final/h4-ihx.lisp"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    7,
+    [
+     "(:mr :r-high)",
+     "(:or :r-low)"
+    ]
+   ]
+  ]
+ ]
+}

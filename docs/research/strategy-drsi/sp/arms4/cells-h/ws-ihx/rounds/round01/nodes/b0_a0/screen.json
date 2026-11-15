@@ -1,0 +1,39 @@
+{
+ "slot": "ihx",
+ "arm": "docs/research/strategy-drsi/sp/arms4/cells-h/ws-ihx/rounds/round01/nodes/b0_a0/arm.lisp",
+ "seeds": "301-320 both seats vs none (whole, 1-arm table)",
+ "sides": {
+  "ichigo": {
+   "test": {
+    "desc": "nstart",
+    "op": "x",
+    "amount": 1.2,
+    "value": 53.1,
+    "arm0": 37.325,
+    "ok": true
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "not_distinct_from_arm0": false,
+   "delta": {
+    "mean_d": 0.5812,
+    "close": -0.1664,
+    "far": 0.0258,
+    "bankai": 0.0199,
+    "evade": -30.275,
+    "wake_kd": -0.0121,
+    "nstart": 15.775,
+    "sp": -20.2,
+    "acts": -97.775
+   },
+   "arm0": {
+    "mean_d": 2.3888,
+    "close": 0.7399,
+    "bankai": 0.1891,
+    "evade": 44.9,
+    "wake_kd": 0.4669,
+    "nstart": 37.325
+   }
+  }
+ }
+}

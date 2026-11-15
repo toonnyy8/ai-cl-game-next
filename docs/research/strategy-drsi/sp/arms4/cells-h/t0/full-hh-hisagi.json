@@ -1,0 +1,72 @@
+{
+ "note": "HH, Hisagi's T0 after the B3 cells (full): every arm, the cells' picks included (press and kite fail their proof): for the record; job rules as the cells' table (hh-hisagi.json); arms in ../final/",
+ "arms": [
+  "../final/h4-all.lisp",
+  "../final/h4-range.lisp",
+  "../final/h4-press.lisp",
+  "../final/h4-kite.lisp",
+  "../final/h4-wake.lisp"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ],
+   [
+    9,
+    [
+     "(:swopen :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    7,
+    [
+     "(:or :r-low)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:ored :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :atk)",
+     "(:dm :m-close)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:lead :ahead)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ]
+ ]
+}

@@ -1,0 +1,1 @@
+Coordinator note: the cell reported its final arm as scratch/v1.lisp (score 0.6353 on block 300 by its own runs) but never wrote arm.lisp or proposal.md, so it is recorded as a failed cell (runtime: no arm.lisp written). Its report: v2 (:b-* / :do rules) identical counts to baseline = inert over the hk style; v3 0.6353; v4 0.6221.
