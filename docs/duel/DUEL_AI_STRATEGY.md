@@ -3293,3 +3293,19 @@ the delay counted twice, with no clash, exchange answer or Hoho meanwhile. No mo
 不是在做 fuzzy Q table 嗎？」, then 「三個難度都用 Q 表」: EASY, NORMAL and HARD all play the pairing's fuzzy Q table the whole match,
 and differ by perception, chances and the table's strength. Probed first on a branch; §11.17's windows and EASY's "no table" leave when it
 holds.
+
+**Every difficulty on the table, in the game** (2026-11-15, checkpoint 1's change). The first probe (`sp/diag/all-tiers-table.md`, dev seeds, today's
+constant tables) moved the shares against the masher: EASY 0.07 → 0.15, NORMAL 0.56 → 0.75 (KK 0.05), HARD 0.99. NORMAL > EASY 0.93,
+HARD > NORMAL 0.99. The styles still hand some neutral back to the MCTS (they return NIL where they don't steer): its hold steps a match fall
+from 2290 / 1198 to 841 / 440 (EASY / NORMAL), and with the MCTS off the shares move ≤ 0.03, so the hold no longer decides. The rest is
+tiering:
+- the clash is the main lever (HARD's clash alone takes EASY > masher to 0.58 at 24-frame eyes);
+- a sketch (eyes 18 / 14 / 4, the generic knobs at HARD's for every tier, style knobs stepped) passes 24 of 27 dev cells;
+- the Hisagi rows are the wall (NORMAL > EASY HK 0.54, HI 0.48; HARD > NORMAL HH 0.69). PLAN4's Hisagi arms are meant to close it.
+The tier values are tuned at PLAN4 B6 on the switching tables, not now on constant ones.
+- Change: tuning.lisp `*strat-table-chance*` (:easy 0 → 1, :normal 0.5 → 1); the window machinery stays for a chance strictly between 0 and
+  1.
+- The online learner stays HARD-only (fq-online.lisp FQ-ATTACH!: the page keeps one copy a pairing).
+- Host checks: EASY's lookup row = HARD's (3561 ALL PASS).
+- G2 regenerated: II 38 lines P1 7-2 374.3 s, IK 27 P1 6-0 262.9 s, KK 21 P1 2-0 209.2 s (was II 39 P2 2-4 391.5 s, IK 32 P2 0-3 314.3 s,
+  KK 29 P1 4-0 283.5 s); native = browser.

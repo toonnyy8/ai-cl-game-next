@@ -41,12 +41,14 @@ was saved from this same offline table, else a fresh copy."
   (log-msg "duel fq reset"))
 
 (defun fq-attach! (e)
-  "CPU E learns this match when its strategy is a Q selector played whole (table chance 1: HARD, DUEL_AI_STRATEGY §11.17) and it faces a human (VS CPU, LEARNING CPU on, no debug command; or a tool's
+  "CPU E learns this match when its strategy is a Q selector played whole at HARD (table chance 1; since 2026-11-15 every difficulty plays it whole, §11.28) and it faces a human (VS CPU, LEARNING CPU on, no debug command; or a tool's
 *FQ-LEARN-FORCE*): its brain plays the player's copy and keeps the match's record (BRAIN-FQL: me vs offline-table records)."
   (let* ((b (brain e)) (f (fighter e)) (lib (brain-strat b)) (o (fighter-opp f)))
     (when (and lib (getf lib :fq)
                ;; (a table played whole: NORMAL's windows would credit arms it never played, and its copy shares HARD's page slot; §11.17)
                (>= (brain-chance b *strat-table-chance*) 1.0)
+               ;; (HARD only: every difficulty plays the table whole since 2026-11-15, but the page keeps one copy a pairing, HARD's)
+               (eq (brain-difficulty b) :hard)
                (or *fq-learn-force* (and (eq *mode* :vs-cpu) (null (brain o)) (zerop (setting :learn)) (not *learn-debug-off*))))
       (let ((me (position (fighter-character f) *roster*)) (vs (position (fighter-character (fighter o)) *roster*)))
         (setf (brain-strat b) (car (fq-table me vs lib))

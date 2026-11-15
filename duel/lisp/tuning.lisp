@@ -434,12 +434,15 @@ KI 61 s, HK 57 s; target 125-210 s): the pointer-3 Soul Break takes up to 5 of 9
 (defparameter *core-soul-break-max* 5 "Konpaku one Soul Break takes at most (the old *SOUL-BREAK-MAX-EVENT*).")
 
 ;;; ---------------------------------------------------------------- the lookup's tables by difficulty (DUEL_AI_STRATEGY §11.17)
-(defparameter *strat-table-chance* '(:easy 0.0 :normal 0.5 :hard 1.0)
+(defparameter *strat-table-chance* '(:easy 1.0 :normal 1.0 :hard 1.0)
   "Per difficulty, the chance that a CPU plays its lookup table (strategy.lisp *STRAT-LOOKUP*, the nine SP tables) for one window of
 *STRAT-TABLE-WINDOW* steps; else that window plays the table's none arm (STRAT-WINDOW-STEP, one SIM-RND01 roll at the window's first step,
 drawn only when the chance is strictly between 0 and 1, so EASY and HARD play as before). An arm's knobs replace the per-difficulty ones,
 so a table plays HARD at any difficulty: NORMAL plays it half the time. New 2026-11-14 (the user, 2026-11-14, DUEL_AI_STRATEGY §11.15:
-「收尾出貨」 with PLAN2 §4's NORMAL; §11.17). Before: the tables at HARD only (:easy 0 :normal 0 :hard 1).")
+「收尾出貨」 with PLAN2 §4's NORMAL; §11.17). Before: the tables at HARD only (:easy 0 :normal 0 :hard 1).
+2026-11-15 :easy 0 -> 1, :normal 0.5 -> 1 (the user: 「三個難度都用 Q 表」, DUEL_AI_STRATEGY §11.28 checkpoint 1): every difficulty plays the
+table whole, so its neutral is the style's and no longer the MCTS's light+full-sim hold (sp/diag/masher-vs-easy.md); the difficulties
+differ by perception, the per-difficulty chances and the table. The window machinery stays for a chance strictly between 0 and 1.")
 (defparameter *strat-table-window* 600
   "Steps in one window of *STRAT-TABLE-CHANCE* (600 = 10 s at 60 Hz). New 2026-11-14 (the user, 2026-11-14, DUEL_AI_STRATEGY §11.15; PLAN2 §4).")
 
