@@ -1,0 +1,5 @@
+# G1 / G3 with HARD's eyes 2 (HARD > NORMAL), G1 with EASY's eyes 20 / 22 (EASY > masher, NORMAL > EASY)
+G1h2	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 12 :hard 2)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G3h2	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 2)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G1e20	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 20 :normal 12 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G1e22	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 22 :normal 12 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h

@@ -1,0 +1,6 @@
+# whole tierings on the table (T1); EASY's lifts first (from today's NORMAL), then NORMAL's
+X2a	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=normal:@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*;normal=hard:@cai
+X2b	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 8)	easy=normal:@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*;normal=hard:@cai
+X2c	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 24 :normal 14 :hard 8)	easy=normal:@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*;normal=hard:@cai
+X1	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=normal:@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*;normal=hard:@cai,@style
+X4	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=normal:@cai;easy=hard:*cai-clash-p*,*cai-clash-delay*;normal=hard:*cai-clash-p*,*cai-clash-delay*,@style

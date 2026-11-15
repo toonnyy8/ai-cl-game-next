@@ -1,0 +1,3 @@
+# NORMAL (T1) clash splits (masher Kenpachi rows)
+Ncld8	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*cai-clash-delay*=(:easy 24 :normal 8 :hard 8)
+Nclp6	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*cai-clash-p*=(:easy 0.15 :normal 0.6 :hard 0.6)

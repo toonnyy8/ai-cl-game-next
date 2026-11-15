@@ -1,0 +1,4 @@
+# whole tierings (T1): HARD eyes 4; NORMAL HARD's @cai @style-k @style-i at eyes 12 / 10; EASY HARD's @cai @style-i, today's NORMAL @style-k
+F1	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 12 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i
+F2	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 10 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i
+F3	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 10 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i

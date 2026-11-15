@@ -1,0 +1,3 @@
+# G3 with EASY on the table only part of the time (*strat-table-chance* :easy 0.75 / 0.5: 10 s windows of arm 0 or the none arm)
+G3t75	*strat-table-chance*=(:easy 0.75 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+G3t50	*strat-table-chance*=(:easy 0.5 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h

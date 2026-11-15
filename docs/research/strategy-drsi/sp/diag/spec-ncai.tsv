@@ -1,0 +1,7 @@
+# NORMAL (T1) given one generic chance group of HARD's
+Nskill	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*fz-skill*
+Nclash	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*cai-clash-p*,*cai-clash-delay*
+Nthink	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*cai-think*
+Nxch	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*cai-xch-j*,*cai-xch-sa-p*,*cai-xch-carry-p*
+Ntch	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*cai-turn-p*,*cai-cont-p*,*cai-hoho-p*
+Nawk	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	normal=hard:*cai-awaken-break-p*,*cai-awaken-kikon-p*,*cai-dswitch-dif*,*strat-lambda*

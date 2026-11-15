@@ -1,0 +1,4 @@
+# G3 (NORMAL eyes 14, HARD 4) with a weaker EASY: today's NORMAL @cai + HARD's clash
+E6a	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@cai,@style-k;easy=hard:@clash,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+E6b	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 14 :normal 14 :hard 4)	easy=normal:@cai,@style-k;easy=hard:@clash,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+E6d	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0);*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@cai,@style-k,@style-i;easy=hard:@clash;normal=hard:@cai,@style-k,@style-i,@style-h
