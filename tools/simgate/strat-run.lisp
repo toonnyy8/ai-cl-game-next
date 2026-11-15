@@ -9,7 +9,7 @@
 ;;;; "event P<n> <id> fires <takeovers> steps <steps under the layer> ticks <match ticks>" (§8.19 round 5, step 6).
 ;;;; A Q selector (:FQ, strategy.lisp) is kept like a composite (its "switch" line's h_i = the judgements arm i won); STRAT_FQLOG logs its
 ;;;; judgements for training (below); STRAT_FQLEARN runs the online fuzzy Q learner against a player proxy (below).
-;;;; STRAT_LAYER=<character>[,<character>] (or "t"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
+;;;; STRAT_LAYER=<character>[,<character>] (or "t", or a seat "P1" / "P2"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
 ;;;; RESULTS line "duel stratlayer ..." gives the cost and the picks. STRAT_SET=*knob*=value[,...]: set strategy-layer knobs (numbers) first.
 ;;;; A STRAT_P<n> / STRAT_<CHARACTER> value may also be `none` (that CPU plays with no strategy at all: BRAIN-STRAT NIL, so neither the
 ;;;; lookup's nor a file's; the shipped CPU with its style CPU, frozen against later lookup entries) or a comma list of files / none, a POOL:
@@ -21,7 +21,7 @@
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
-(defun sr-read (path) (and path (plusp (length path)) (with-open-file (in path) (let ((*read-eval* nil)) (read in)))))
+(defun sr-read (path) (and path (plusp (length path)) (cl-user::sg-read-strat path)))   ; (prelude: a :WITH table expanded, PLAN4 §3)
 (defvar *sr-files* (make-hash-table :test 'equal))
 (defun sr-strat (env)
   "ENV's strategy for this match: NIL (unset), :NONE, or a plist; a comma list is a pool, member (match seed mod n)."
@@ -198,9 +198,23 @@
 
 (let ((l (ext:getenv "STRAT_LAYER")))
   (when (and l (plusp (length l)))
-    (setf *strat-layer* (if (string-equal l "t") t
-                            (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
-                                  collect (intern (string-upcase (subseq l start p)) :keyword) while p)))))
+    (setf *strat-layer* (cond ((string-equal l "t") t)
+                              ((member l '("p1" "p2") :test #'string-equal) (1- (parse-integer l :start 1)))   ; (a seat, PLAN4 §6)
+                              (t (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
+                                       collect (intern (string-upcase (subseq l start p)) :keyword) while p))))))
+;;; STRAT_ANCHOR=<file> (PLAN4 §6, DUCT the frozen anchor): for this run the strategy layer's library and payoff matrix come from FILE, one
+;;; plist (:LIBRARY (entry ...) :PAYOFF (row ...)): each entry a library plist (arms of both sides, written inline or as units; an entry's
+;;; :WITH (unit ...) is laid under it, STRAT-WITH), each row as *STRAT-PAYOFF*'s. The game's library is not touched; but STRAT-LOOKUP then
+;;; sees only the anchor's entries, so a seat that should play a table gets it by STRAT_P<n> (a file), not by its difficulty's lookup.
+(let ((a (ext:getenv "STRAT_ANCHOR")))
+  (when (and a (plusp (length a)))
+    (let ((an (with-open-file (in a) (let ((*read-eval* nil)) (read in)))))
+      (setf *strat-library* (mapcar (lambda (st) (strat-with (strat-expand (loop for (k v) on st by #'cddr unless (eq k :with) append (list k v)))
+                                                             (getf st :with)))
+                                    (getf an :library))
+            *strat-payoff* (getf an :payoff)
+            *strat-picks* (make-array (* 2 (length *strat-library*)) :initial-element 0))
+      (format t "anchor ~a entries~{ ~(~a~)~}~%" a (mapcar (lambda (st) (getf st :id)) *strat-library*)))))
 (let ((l (ext:getenv "STRAT_SET")))
   (when (and l (plusp (length l)))
     (loop for start = 0 then (1+ p) for p = (position #\, l :start start)

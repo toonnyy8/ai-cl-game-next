@@ -227,7 +227,8 @@ when CODES is empty, another format, another offline table's or the wrong size (
 ;;; strategy (its key :P, a zero-order Sugeno over the same cues as its outputs; 1 when it names none). Nothing here runs unless
 ;;; *STRAT-LAYER* (cpu-mcts.lisp) is on. :APPLY (me vs): only for that character against that one (NIL = anyone).
 (defparameter *strat-layer* nil
-  "The strategy layer in play (DUEL_AI_STRATEGY §5): NIL (off: the CPUs exactly as before), T, or a list of characters. A core CPU under it
+  "The strategy layer in play (DUEL_AI_STRATEGY §5): NIL (off: the CPUs exactly as before), T, a list of characters, or a seat 0 / 1 (PLAN4
+§6: one seat of a mirror; strategy-glue.lisp STRAT-LAYER-P). A core CPU under it
 re-selects its strategy (BRAIN-STRAT) in neutral every *STRAT-PERIOD* steps and on coming back to neutral; its matchup style CPU then runs
 only as one of the strategies (:FN ken-ki-style ...).")
 (defparameter *strat-period* 90 "Steps between selections while he is in neutral (1.5 s).")
@@ -551,7 +552,119 @@ only as one of the strategies (:FN ken-ki-style ...).")
      ((:mburst :yes) (:oburst :no))
      ((:mburst :yes) (:oburst :yes))
      ((:xch :no))
-     ((:xch :yes)))))
+     ((:xch :yes))))
+    ;; PLAN4's (DUEL_AI_STRATEGY §11.28, PLAN4 §2; the user, 2026-11-09: 「將距離與其他狀態細節都以模糊規則展開成 Q table 的一部分」): 104 rules in
+    ;; 11 additive groups, no :prev. G0 36 lead x his red x my awakening (:awst 0 not ready / 1 ready / 2 awakened) x his awakening; G1 9 my
+    ;; form x distance; G2 12 his state class x distance (free 0, attacking 1-2 = startup / active or recovery, evading 3 = step / Hoho, down 4
+    ;; = any other: reeling, guarding a hit, launched, down, waking up); G3 9 my x his cells; G4 4 my x his burst; G5 2 an exchange open; G6 4
+    ;; my x his metres to the wall; G7 4 my x his Reishi about a half; G8 9 the clock (the HUD timer's elapsed share) x lead; G9 6 the pointer
+    ;; switch open (the awakening gauge has been full) x my SP pointer; G10 9 his SP pointer x distance. The new cues are STRAT-SP2-CUES'
+    ;; (judgement-only, no sim state). Off until a table names it.
+    (:id :rb-sp2 :groups (36 9 12 9 4 2 4 4 9 6 9) :xfeats t
+     :antes (((:lead :behind) (:ored :no) (:awst :no) (:oawk :no))
+     ((:lead :behind) (:ored :no) (:awst :no) (:oawk :yes))
+     ((:lead :behind) (:ored :no) (:awst :yes) (:oawk :no))
+     ((:lead :behind) (:ored :no) (:awst :yes) (:oawk :yes))
+     ((:lead :behind) (:ored :no) (:awst :k2) (:oawk :no))
+     ((:lead :behind) (:ored :no) (:awst :k2) (:oawk :yes))
+     ((:lead :behind) (:ored :yes) (:awst :no) (:oawk :no))
+     ((:lead :behind) (:ored :yes) (:awst :no) (:oawk :yes))
+     ((:lead :behind) (:ored :yes) (:awst :yes) (:oawk :no))
+     ((:lead :behind) (:ored :yes) (:awst :yes) (:oawk :yes))
+     ((:lead :behind) (:ored :yes) (:awst :k2) (:oawk :no))
+     ((:lead :behind) (:ored :yes) (:awst :k2) (:oawk :yes))
+     ((:lead :even) (:ored :no) (:awst :no) (:oawk :no))
+     ((:lead :even) (:ored :no) (:awst :no) (:oawk :yes))
+     ((:lead :even) (:ored :no) (:awst :yes) (:oawk :no))
+     ((:lead :even) (:ored :no) (:awst :yes) (:oawk :yes))
+     ((:lead :even) (:ored :no) (:awst :k2) (:oawk :no))
+     ((:lead :even) (:ored :no) (:awst :k2) (:oawk :yes))
+     ((:lead :even) (:ored :yes) (:awst :no) (:oawk :no))
+     ((:lead :even) (:ored :yes) (:awst :no) (:oawk :yes))
+     ((:lead :even) (:ored :yes) (:awst :yes) (:oawk :no))
+     ((:lead :even) (:ored :yes) (:awst :yes) (:oawk :yes))
+     ((:lead :even) (:ored :yes) (:awst :k2) (:oawk :no))
+     ((:lead :even) (:ored :yes) (:awst :k2) (:oawk :yes))
+     ((:lead :ahead) (:ored :no) (:awst :no) (:oawk :no))
+     ((:lead :ahead) (:ored :no) (:awst :no) (:oawk :yes))
+     ((:lead :ahead) (:ored :no) (:awst :yes) (:oawk :no))
+     ((:lead :ahead) (:ored :no) (:awst :yes) (:oawk :yes))
+     ((:lead :ahead) (:ored :no) (:awst :k2) (:oawk :no))
+     ((:lead :ahead) (:ored :no) (:awst :k2) (:oawk :yes))
+     ((:lead :ahead) (:ored :yes) (:awst :no) (:oawk :no))
+     ((:lead :ahead) (:ored :yes) (:awst :no) (:oawk :yes))
+     ((:lead :ahead) (:ored :yes) (:awst :yes) (:oawk :no))
+     ((:lead :ahead) (:ored :yes) (:awst :yes) (:oawk :yes))
+     ((:lead :ahead) (:ored :yes) (:awst :k2) (:oawk :no))
+     ((:lead :ahead) (:ored :yes) (:awst :k2) (:oawk :yes))
+     ((:form :no) (:dm :m-close))
+     ((:form :no) (:dm :m-mid))
+     ((:form :no) (:dm :m-far))
+     ((:form :yes) (:dm :m-close))
+     ((:form :yes) (:dm :m-mid))
+     ((:form :yes) (:dm :m-far))
+     ((:form :k2) (:dm :m-close))
+     ((:form :k2) (:dm :m-mid))
+     ((:form :k2) (:dm :m-far))
+     ((:ost :free) (:dm :m-close))
+     ((:ost :free) (:dm :m-mid))
+     ((:ost :free) (:dm :m-far))
+     ((:ost :atk) (:dm :m-close))
+     ((:ost :atk) (:dm :m-mid))
+     ((:ost :atk) (:dm :m-far))
+     ((:ost :evade) (:dm :m-close))
+     ((:ost :evade) (:dm :m-mid))
+     ((:ost :evade) (:dm :m-far))
+     ((:ost :down) (:dm :m-close))
+     ((:ost :down) (:dm :m-mid))
+     ((:ost :down) (:dm :m-far))
+     ((:mcell :no) (:ocell :no))
+     ((:mcell :no) (:ocell :yes))
+     ((:mcell :no) (:ocell :p2up))
+     ((:mcell :yes) (:ocell :no))
+     ((:mcell :yes) (:ocell :yes))
+     ((:mcell :yes) (:ocell :p2up))
+     ((:mcell :p2up) (:ocell :no))
+     ((:mcell :p2up) (:ocell :yes))
+     ((:mcell :p2up) (:ocell :p2up))
+     ((:mburst :no) (:oburst :no))
+     ((:mburst :no) (:oburst :yes))
+     ((:mburst :yes) (:oburst :no))
+     ((:mburst :yes) (:oburst :yes))
+     ((:xch :no))
+     ((:xch :yes))
+     ((:wall :w-near) (:owall :w-near))
+     ((:wall :w-near) (:owall :w-open))
+     ((:wall :w-open) (:owall :w-near))
+     ((:wall :w-open) (:owall :w-open))
+     ((:mr :r-low) (:or :r-low))
+     ((:mr :r-low) (:or :r-high))
+     ((:mr :r-high) (:or :r-low))
+     ((:mr :r-high) (:or :r-high))
+     ((:time :t-early) (:lead :behind))
+     ((:time :t-early) (:lead :even))
+     ((:time :t-early) (:lead :ahead))
+     ((:time :t-mid) (:lead :behind))
+     ((:time :t-mid) (:lead :even))
+     ((:time :t-mid) (:lead :ahead))
+     ((:time :t-late) (:lead :behind))
+     ((:time :t-late) (:lead :even))
+     ((:time :t-late) (:lead :ahead))
+     ((:swopen :no) (:mptr :yes))
+     ((:swopen :no) (:mptr :k2))
+     ((:swopen :no) (:mptr :k3))
+     ((:swopen :yes) (:mptr :yes))
+     ((:swopen :yes) (:mptr :k2))
+     ((:swopen :yes) (:mptr :k3))
+     ((:optr :yes) (:dm :m-close))
+     ((:optr :yes) (:dm :m-mid))
+     ((:optr :yes) (:dm :m-far))
+     ((:optr :k2) (:dm :m-close))
+     ((:optr :k2) (:dm :m-mid))
+     ((:optr :k2) (:dm :m-far))
+     ((:optr :k3) (:dm :m-close))
+     ((:optr :k3) (:dm :m-mid))
+     ((:optr :k3) (:dm :m-far)))))
   "The rule bases: a Q table names one (:RULE-BASE) and carries only its q per rule and arm (:Q) (DUEL_AI_STRATEGY §10).")
 
 (defun strat-sp-cues (fs ofs burst oburst xch oxch)
@@ -560,6 +673,14 @@ our exchange ids XCH / OXCH (FIGHTER-XCH): :MCELL / :OCELL the full cells (0-3, 
 a cancel, SP-EXCHANGE-OPEN-P) 0 / 1."
   (flet ((cells (x) (min 3 (floor x *fs-cell*))))
     (list :mcell (cells fs) :ocell (cells ofs) :mburst (if burst 1 0) :oburst (if oburst 1 0) :xch (if (sp-exchange-open-p xch oxch) 1 0))))
+
+(defun strat-sp2-cues (ready awakened owall left total ptr optr swopen)
+  "The cues :RB-SP2 adds (PLAN4 §2), from what the HUD shows: :AWST my awakening 0 not READY / 1 ready / 2 AWAKENED; :OWALL his metres to
+the wall; :TIME the match clock's elapsed share 0-1 (LEFT of TOTAL frames on the timer); :MPTR / :OPTR the SP pointers PTR / OPTR, read
+1-3 (a fourth, KESSA's, reads 3); :SWOPEN the pointer switch open (SWOPEN: the awakening gauge has been full) 0 / 1."
+  (flet ((p3 (p) (max 1 (min 3 p))))
+    (list :awst (cond (awakened 2) (ready 1) (t 0)) :owall owall :time (max 0.0 (min 1.0 (- 1.0 (/ left (float (max 1 total))))))
+          :mptr (p3 ptr) :optr (p3 optr) :swopen (if swopen 1 0))))
 
 (defun strat-unit-find (id units)
   "The unit ID in UNITS (a list of plists keyed :ID), or an error naming it."
@@ -605,12 +726,38 @@ the arm holds through DELAY + *STRAT-EVENT-GRACE* frames after. NIL whenever FQ 
           (when (member ss '(:air :down :wakeup)) (setf last now))
           (values (and (>= last 0) (<= (- now last) (+ delay *strat-event-grace*)) arm) last)))))
 
+(defun strat-with (arm units)
+  "ARM (an expanded arm plist, or NIL) with the data UNITS (ids of *STRAT-DATA*, or inline plists) laid under it (a Q table's :WITH, PLAN4
+§3): ARM's own keys win. A key ARM names anywhere (a top-level key, its :BASE, a rule's output) is left out of every unit; of the rest
+an earlier unit wins over a later one; :BASE is ARM's then the units' (GETF takes the first), :RULES ARM's then the units' (a rule
+keeps only the outputs no earlier source names; one left with none is dropped). NIL stays NIL (the none arm is no strategy: a unit's
+keys would make it the generic CPU). No UNITS: ARM itself (EQ)."
+  (if (or (null arm) (null units))
+      arm
+      (let* ((out (loop for (k v) on arm by #'cddr unless (member k '(:base :rules)) append (list k v)))
+             (base (copy-list (getf arm :base))) (rules (copy-list (getf arm :rules)))
+             (named (append (loop for (k) on out by #'cddr collect k) (loop for (k) on base by #'cddr collect k)
+                            (loop for r in rules append (loop for (k) on (second r) by #'cddr collect k)))))
+        (dolist (u (mapcar (lambda (d) (if (keywordp d) (strat-unit-find d *strat-data*) d)) units))
+          (let ((new nil))
+            (loop for (k v) on u by #'cddr
+                  unless (or (member k '(:id :base :rules)) (member k named)) do (setf out (append out (list k v))) (push k new))
+            (loop for (k v) on (getf u :base) by #'cddr unless (member k named) do (setf base (append base (list k v))) (push k new))
+            (dolist (r (getf u :rules))
+              (let ((o (loop for (k v) on (second r) by #'cddr unless (member k named) append (list k v))))
+                (when o
+                  (setf rules (append rules (list (list (first r) o))))
+                  (loop for (k) on o by #'cddr do (push k new)))))
+            (setf named (append new named))))
+        (append out (and base (list :base base)) (and rules (list :rules rules))))))
+
 (defun strat-expand (st)
-  "One *STRAT-LIBRARY* entry ST in the runtime's form (the header above): a Q table's arms and rules, a composite's subs, a strategy's units."
+  "One *STRAT-LIBRARY* entry ST in the runtime's form (the header above): a Q table's arms and rules (its :WITH units laid under every arm,
+STRAT-WITH), a composite's subs, a strategy's units."
   (let ((fq (getf st :fq)))
     (cond (fq
            (let* ((rb (and (getf fq :rule-base) (strat-unit-find (getf fq :rule-base) *strat-rule-bases*)))
-                  (arms (mapcar #'strat-arm (getf fq :arms)))
+                  (arms (mapcar (lambda (a) (strat-with (strat-arm a) (getf fq :with))) (getf fq :arms)))
                   (rules (if rb
                              (progn (assert (= (length (getf rb :antes)) (length (getf fq :q))))
                                     (mapcar (lambda (ante q) (assert (= (length q) (length arms))) (cons ante q)) (getf rb :antes) (getf fq :q)))
@@ -620,7 +767,7 @@ the arm holds through DELAY + *STRAT-EVENT-GRACE* frames after. NIL whenever FQ 
              (assert (= (length arms) (length (remove-duplicates arms :test #'eq))))   ; (an arm twice: STRAT-SWITCH-STEP's :PREV would see the first)
              (assert (or (not (and rb (getf rb :xfeats))) (getf fq :xfeats)))   ; (its cues are STRAT-XFEATS': without them every one reads 0)
              (loop for (k v) on fq by #'cddr
-                   unless (member k '(:arms :rules :groups :rule-base :q))
+                   unless (member k '(:arms :rules :groups :rule-base :q :with))
                      do (setf out (append out (list k (if (eq k :event-arms)   ; (the event layer's arms, ids or plists: expanded too)
                                                           (mapcar (lambda (ev) (list* (first ev) (strat-arm (second ev)) (cddr ev))) v)
                                                           v)))))

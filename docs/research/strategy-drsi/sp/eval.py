@@ -107,6 +107,9 @@ def check_cand(path):
     if not text.startswith('(') or ss.form_end(text, 0) != len(text):
         sys.exit(f'eval: {path}: not exactly one plist (a form starting with an open parenthesis, balanced, nothing after it)')
     body = re.sub(r':id\s+[^\s()]+', '', text, flags=re.I)   # (every :id: an inline arm keeps its own)
+    w = re.search(r':with\s*\(', body, flags=re.I)              # (a table's :with (unit ...) may name *STRAT-DATA* ids: strat-run.lisp
+    if w:                                                          #  expands a file naming it, PLAN4 §3)
+        body = body[:w.start()] + body[ss.form_end(body, w.end() - 1):]
     m = UNIT_IDS.search(body)
     if m:
         sys.exit(f'eval: {path}: names {m[0]}: a raw file is not expanded (no :style / :data / :rule-base, no unit ids); '

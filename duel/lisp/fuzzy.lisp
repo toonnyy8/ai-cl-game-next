@@ -33,7 +33,13 @@
     ;; closing-in edge); far from 4.5 (where NS1a WA's hit puts him) to 6.0 (the 3-6 m bands of RANSA / OGI)
     (:m-close -99 -99 2.9 3.4) (:m-mid 2.9 3.4 4.5 6.0) (:m-far 4.5 6.0 99 99)
     (:g-low -99 -99 0.2 0.3) (:g-high 0.2 0.3 99 99)                  ; the DRIVE / SUBLIMATION fraction about the switch's 0.25
-    (:w-near -99 -99 2.0 3.0) (:w-open 2.0 3.0 99 99))                ; metres to the arena's wall (the ranged rule's cornered: 2.0)
+    (:w-near -99 -99 2.0 3.0) (:w-open 2.0 3.0 99 99)                 ; metres to the arena's wall (the ranged rule's cornered: 2.0)
+    ;; :RB-SP2's (DUEL_AI_STRATEGY §11.28, PLAN4 §2; none above changed): his state class attacking (startup 1, or 2: active or recovery);
+    ;; the match clock elapsed (0-1 of the HUD's timer) in thirds; a Reishi fraction about a half that covers every value once (:LOW / :HIGH
+    ;; leave 0.25-0.75 part-silent and both read 0 at 0.5, so a group on them would not sum to 1)
+    (:atk 0.5 1 2 2.5)
+    (:t-early -99 -99 0.3 0.4) (:t-mid 0.3 0.4 0.6 0.7) (:t-late 0.6 0.7 99 99)
+    (:r-low -99 -99 0.45 0.55) (:r-high 0.45 0.55 99 99))
   "The fuzzy sets: name -> trapezoid (A B C D): 0 below A and above D, 1 from B to C.")
 
 (fz-sets! *fz-sets*)   ; (the engine's inference, engine/lisp/fuzzy.lisp: FZ-MU / FZ-INFER read them)
