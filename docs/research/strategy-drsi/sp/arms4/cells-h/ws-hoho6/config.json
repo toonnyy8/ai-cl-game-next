@@ -1,0 +1,16 @@
+{
+  "baseline_score": 0.5016,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "branches": 1,
+  "eval_command": "cd /media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-a881f185bf528644a && SP_BUILD=b835ac41b83b python3 docs/research/strategy-drsi/sp/arms4/cells-h/score.py --slot hoho6 --arm {node_dir}/arm.lisp --vs kenpachi -j 3",
+  "lambda": 0.05,
+  "refines": 1,
+  "task": "SOUL DUEL PLAN4 B3: Hisagi's hoho6 arm in its slot of his T0 (played policy), vs kenpachi, K.O.-only",
+  "workers": 4
+}

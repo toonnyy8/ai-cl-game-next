@@ -1,0 +1,32 @@
+{
+  "baseline_score": 0.5686,
+  "beta": 0.6,
+  "branch_count": 2,
+  "cells": {},
+  "directions": {
+    "0": "the KI code's close-in keys (:kk-* : the Hoho in's band and timing, Step in, reach margin, lunge, back Step) and the shared outputs (:range, :b-walk-in, :rules); the ranged close rule left off (:hr-p 0)",
+    "1": "the ranged mode's close rule (:hr-p, :hr-close, :hr-near, :hr-wa-pred, :hr-taba-p, :hr-edge) used to close in rather than switched off, the 6 m Hoho in kept"
+  },
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 2,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 1
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a0",
+    "b1_a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 1,
+  "round_index": 1,
+  "task": "SOUL DUEL PLAN4 B3: Hisagi's press arm in its slot of his T0 (played policy), vs both, K.O.-only"
+}

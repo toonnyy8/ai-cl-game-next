@@ -1,0 +1,6 @@
+{"note": "IH, Ichigo's T0 for Hisagi's cells (PLAN4 B3, cells-h): her four passing arms and KI's v3 map (../../t0/ki-ichigo.json); :with d-x-ih-i; --or q 0.06",
+ "arms": ["ichigo.lisp#a4-i-all", "ichigo.lisp#a4-i-brawl", "ichigo.lisp#a4-i-keep", "ichigo.lisp#a4-i-kessa2"],
+ "jobs": [null,
+          [[2, ["(:ost :free)"]]],
+          [[8, ["(:lead :ahead)"]]],
+          [[0, ["(:awst :k2)"]], [1, ["(:form :yes)"]]]]}

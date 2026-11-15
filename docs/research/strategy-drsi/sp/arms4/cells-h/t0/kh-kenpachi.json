@@ -1,0 +1,6 @@
+{"note": "KH, Kenpachi's T0 for Hisagi's cells (PLAN4 B3, cells-h): his passing arms only (all, spend, climb, and the targeted bait vs Hisagi; rush / guard are being tuned elsewhere), the job rules of ../../t0/ki-kenpachi.json, bait G2 down; :with d-x-kh-k; --or q 0.075 as his tables",
+ "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb", "kenpachi.lisp#a4-k-bait"],
+ "jobs": [null,
+          [[3, ["(:mcell :yes)"]], [3, ["(:mcell :p2up)"]], [4, ["(:mburst :yes)"]]],
+          [[0, ["(:lead :behind)", "(:awst :no)"]], [0, ["(:lead :behind)", "(:awst :yes)"]], [9, ["(:swopen :no)"]]],
+          [[2, ["(:ost :down)"]]]]}

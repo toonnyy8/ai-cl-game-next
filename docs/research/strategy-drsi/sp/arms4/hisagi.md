@@ -102,3 +102,64 @@ Reading:
 
 Reproduce: the baseline comparison and the probe were run by a scratch driver over `simlib.run_lisp('simgate/strat-run.lisp', [30000+s0,
 31100+n, 81022, 200000+100*c1+10*c2])` with `STRAT_P1` / `STRAT_P2` = the raw arm file or `none` and `STRAT_HRANGE=1`.
+
+## 5. The search cells (PLAN4 §3 B3, Hisagi side, 2026-11-15): set-up, written before any cell or proof run
+
+Sim build: the pin `SP_BUILD=b835ac41b83b`. The worktree's own build hashed `c039496306c4`: same sources (`duel/`, `engine/`, the tools
+identical to main's checkout), but the fas embeds its checkout's absolute path. So main's pinned `build/simgate/duel.fas` was copied in
+(`cp`, newer than every source, so `simlib.build()` keeps it), and `build_hash()` = `b835ac41b83b`. Every eval, proof and bar run below used it.
+
+**Targeted drafts** (`hisagi.lisp`, raw in `hisagi/`):
+- `h4-hoho6` (vs K): x-kh-h-r1-b3a2's keys over the HK style (the pot, reach margin 1.0, the lunge, the 6 m Hoho in), no exchange keys.
+- `h4-ihx` (vs I): `hisagi-ihr1b2a0-style` with c-ih-h-r1-b0a2's keys (`:ihx-reishi 0.5`: press into her shut-Hoho window when her Reishi
+  is low). A third style function.
+
+**T0 maps** (`cells-h/t0/*.json`, `band.py t0 --or`; Hisagi q 0.06, so a 2-group job leads by 0.03 > the 0.02 margin):
+
+| Arm | KH job rules | IH job rules |
+|---|---|---|
+| `all` (arm 0) | everywhere else | everywhere else |
+| `range` | G1 form 1 x mid, form 1 x far; G9 switch open | same |
+| `press` | G7 his Reishi low; G0 his red | G7 **my Reishi low x his low**; G0 his red |
+| `kite` | G2 attacking x close; G0 ahead | same |
+| `wake` | G2 down | same |
+| `hoho6` (KH) | G2 free x mid, free x far | |
+| `ihx` (IH) | | G7 my Reishi high x hers low |
+| HH mirror | KH's five general arms and jobs, no `:with` | |
+
+PLAN4 gives both `press` and the IH targeted arm "her Reishi low" (G7). In IH the two split it by my Reishi, so neither ties the other.
+
+**Opponents** (`cells-h/t0/`, built from their passing arms only):
+- KH Kenpachi: all, spend, climb, bait (G2 down); q 0.075; `:with d-x-kh-k`. His rush / guard are being tuned by the other coordinator, so
+  they are left out.
+- IH Ichigo: all, brawl, keep, kessa2 with KI's v3 map; `:with d-x-ih-i`.
+- Pop files `cells-h/pop-kh-K.json` and `pop-ih-I.json` hold his `none` and his T0, with no mix. So eval.py's groups are: anchor = `none`,
+  mix = a 50/50 pool, rest = his T0.
+
+**Scorer** (`cells-h/score.py`): the cell writes `arm.lisp`. The script puts it into its slot of Hisagi's T0 for the pairing, then runs
+eval.py (K.O.-only) on block 300.
+- General arms scored on both tables (`press`, `wake`): 50 seeds a seat each, score = the mean.
+- `kite` (vs I first, as briefed) and the targeted arms: their one table at 100 seeds.
+
+Baselines (the drafts' T0, block 300; K.O. W-L-TO by group anchor / mix / rest):
+
+| Workspace | score | KH | IH |
+|---|---|---|---|
+| press, wake (both, 50 + 50) | 0.5686 | .5229: 95-1-4 / 57-35-8 / 5-81-14 | .6144: 89-6-5 / 67-31-2 / 29-70-1 |
+| kite, ihx (IH, 100) | 0.6287 | | 182-10-8 / 127-70-3 / 69-129-2 |
+| hoho6 (KH, 100) | 0.5016 | 194-1-5 / 100-84-16 / 7-163-30 | |
+
+**Pre-registered one-job descriptors** (`proof.py` TESTS, `proof.py desc`): seeds 1-100, both seats, against his `none`, as T0 plays it,
+measured against `h4-all`. A general arm must pass against both opponents. Pass = the descriptor + distinct from every sibling + K.O.
+rate >= 0.50.
+
+| Arm | Descriptor | Pass |
+|---|---|---|
+| press | share of steps inside 3 m | >= arm 0's + 0.10 (as registered in §4) |
+| kite | mean distance | >= arm 0's + 0.5 m |
+| range | mean distance **and** Bankai (ranged-mode) share | >= + 0.5 m **and** >= + 0.10 |
+| wake | my action starts in his first 20 free steps after a knockdown, per knockdown | >= arm 0's x 1.3 (`hkw-step` presses J1 / NS when they fit) |
+| hoho6 (vs K) | Steps + Hohos a match | >= arm 0's x 1.3 |
+| ihx (vs I) | my move starts into his neutral (`nstart`) a match | >= arm 0's x 1.2 |
+
+Bar A (on each T0, seeds 501-540, both seats, 80 matches, against the opponent's T0) and the HH mirror's (self-play) as PLAN4 §1 A.

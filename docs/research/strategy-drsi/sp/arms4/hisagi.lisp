@@ -23,3 +23,16 @@
 ;; reach (h1-range's data) (G1 form 1 x mid / far, G9). A second style function: the table needs :keep-state t.
 (:id :h4-range :style :st-hisagi-range :data (:d-dswitch :d-no-far-ns :d-kite)
  :base (:hr-near 4.5 :hr-home-p 1.0))
+
+;; targeted, vs Kenpachi (KH only): the 6 m Hoho in of x-kh-h-r1-b3a2 (PLAN4 §3) over the HK style with the pot, the reach margin 1.0 and the
+;; lunge (its keys, no exchange keys: those come from :with d-x-kh-h) (G2 his free state x mid / far)
+(:id :h4-hoho6 :style :st-hisagi-hk
+ :base (:hk-pot 1.0 :kk-reach-margin 1.0 :kk-lunge-p 1.0 :kk-step-in-p 0.0 :kk-hoho-in-p 1.0 :kk-hin-fs 100 :kk-hoho-in-max 6.0
+        :kk-kikon-ptr-p 0.0))
+
+;; targeted, vs Ichigo (IH only): hisagi-ihr1b2a0-style (press into her shut-Hoho window, gated on her Reishi: :ihx-reishi 0.5), the keys of
+;; c-ih-h-r1-b0a2 (PLAN3 IH round 1) (G7 my Reishi high x hers low). A third style function: the IH table needs :keep-state t.
+(:id :h4-ihx :style :st-hisagi-ihr1b2a0 :dswitch-map ((:base 1 3))
+ :base (:dswitch 1.0 :awaken 3.0 :hoho 0.3 :range 1.75 :ns 0.9 :cont 2.0 :turn 2.0 :ihx-p 1.0 :ihx-margin 0.1 :ihx-chase 20.0 :ihx-reishi 0.5
+        :hold-awaken 0.3)
+ :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))

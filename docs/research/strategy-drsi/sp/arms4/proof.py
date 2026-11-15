@@ -52,6 +52,9 @@ TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'f
        # per 1000 awakened steps (pooled)
        'p2': ('abs', 0.05), 'nstart': ('rel', 0.15), 'k_sp': ('rel', 0.15), 'k_d': ('abs', 0.25)}
 DESC = list(TOL)
+# Hisagi's arms (B3 cells, cells-h; pre-registered in hisagi.md §5 before any cell or proof run). A cell's winner keeps its slot's id.
+TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5), 'h4-range': [('mean_d', '+', 0.5), ('bankai', '+', 0.10)],
+              'h4-wake': ('wake_kd', 'x', 1.3), 'h4-hoho6': ('evade', 'x', 1.3), 'h4-ihx': ('nstart', 'x', 1.2)})
 
 
 def forms(path):
