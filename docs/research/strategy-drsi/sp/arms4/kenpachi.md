@@ -149,8 +149,9 @@ reasons the proof gave. The bar values below do not move after the cells. `proof
 - guard: no score moved past noise. The only lever that moved distance was `:range`, which drops the K.O. rate.
 - wave: the Hoho in from 8 m (`:kk-hin-fs 0`), Step in and the 1.0 answer. A gain on both blocks.
 
-**One-job proofs** (seeds 1-100 both seats, 200 matches an arm, `cells-k/admit/proof*-kenpachi-vs-*.json`). By the rule set before the
-proofs ran, the branch with the higher block-200 score was proved first and, if it failed, the other branch's best:
+**One-job proofs** (seeds 1-100 both seats, 200 matches an arm, `cells-k/admit/proof*-kenpachi-vs-*.json`). The best candidate of each
+branch was proved (no selection rule between branches was committed beforehand, so none is claimed), and all four rush / guard candidates
+fail:
 
 | Arm (candidate) | vs Ichigo `none` | vs Hisagi `none` | K.O. | distinct | verdict |
 |---|---|---|---|---|---|

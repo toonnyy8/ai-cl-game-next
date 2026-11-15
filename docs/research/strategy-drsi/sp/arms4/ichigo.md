@@ -254,6 +254,11 @@ The four-arm IH T0 is the baseline: .8267 on block 300, .8152 on block 200.
 | b0_a0 | G7 `(:mr :r-low)` (her Reishi low: he presses) | mean_d >= + 0.5 m | `:iks-hover-add 2.0 :iks-bait-hover-add 1.5 :iks-gap-p 0` | .8185 |
 | b0_a1 | G10 `(:optr :k2) (:dm :m-far)` (his pointer 2, far) | mean_d <= - 0.3 m | `:iks-patient-p 0 :iks-wait-max 0 :iks-gap-p 1` (a close chase) | .8267 |
 
+- Registration, checked by file times:
+  - b0_a0's `job.json` (15:10) predates its first table (15:17).
+  - b0_a1 re-registered between runs. Its proposal records run 1 as job G10 `(:optr :k2)` with p2 >= + 0.1, then mean_d <= - 0.3 from run 2,
+    with the job narrowed to far in run 3. So its final registration followed a run and is weaker than a pre-registration.
+  - The verdict does not depend on it: the final bar fails.
 - b0_a1 scored .8201 on block 200 (baseline .8152), which is noise. Its job rule rarely fires: the T0 group's record equals the baseline's.
 - **Proof** (seeds 1-100, both seats, against his `none`, with the four general arms in one run;
   `cells-k/admit/proof-ichigo-vs-hisagi.json`):
