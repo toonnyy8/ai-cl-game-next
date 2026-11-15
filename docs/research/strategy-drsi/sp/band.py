@@ -12,6 +12,9 @@ in one pre-registered band's rules. One implementation of the rule base and the 
   python3 band.py fallback --me C --vs D --inc ARM0 --alt ARM|none ... --out FILE [--q 0.05] [--margin 0.02] [--period 30]
                                                           # PLAN2 §3's fallback: arm 0 everywhere, the --alt arms at -q in G0's rules
                                                           # (Q = the groups' sum: each alternate at exactly -q), :keep-state on
+  python3 band.py t0 --me C --vs D --map MAP.json --out FILE [--q 0.06] [--or] [--with UNIT ...] [--margin 0.02] [--period 30]
+                                                          # PLAN4 §4's T0 on :rb-sp2: a job map (below), :keep-state on, :gamma 0.966
+                                                          # :scale 0.1, :with the pairing's exchange unit(s)
 
 The q values (written, not fitted: PLAN2 §3): arm 0 = 0 everywhere; arm k = +q in the band's rules and -q in every other rule of the
 band's group, 0 in the other groups. The -q is needed: STRAT-FQ-PICK keeps the previous arm while it trails the best by less than :margin,
@@ -107,6 +110,39 @@ def cmd_fallback(a):
     print(f'{a.out}: {len(arms)} arms, arm 0 everywhere')
 
 
+def cmd_t0(a):
+    """PLAN4 §4's designed table T0 on :rb-sp2. MAP (JSON): {"arms": [arm files (or "none"), arm 0 first], "jobs": [null, [[G, [ante
+    substring, ...]], ...], ...]}: arm k's job rules are the rules of group G whose antecedent holds every substring (e.g. [2, ["(:ost :atk)",
+    "(:dm :m-mid)"]]). Arm 0 = 0 in every rule; arm k = +q in its job rules and -q in the rest of the groups its job names (PLAN4's recipe),
+    0 elsewhere. A job over n groups then plays only where all n fire (+q each; one firing nets 0, a tie arm 0 keeps): --or puts -q / n in
+    the rest instead, so any one firing gives q / n (keep it above :margin)."""
+    sw.set_rule_base(':rb-sp2')
+    m = json.load(open(a.map))
+    base = os.path.dirname(os.path.abspath(a.map))
+    files = [x if x == 'none' else os.path.join(base, x) for x in m['arms']]
+    arms = [arm_text(x) for x in files]
+    assert len(m['jobs']) == len(arms) and m['jobs'][0] is None, 'one job per arm, arm 0 none'
+    q = np.zeros((sw.NR, len(arms)))
+    for k, job in enumerate(m['jobs'][1:], 1):
+        gs = sorted({g for g, _ in job})
+        rest = a.q / len(gs) if a.or_ else a.q
+        assert (a.q / len(gs) if a.or_ else a.q) > (a.margin or 0), 'the job\'s lead must exceed :margin'
+        mine = [r for r, (ante, g) in enumerate(sw.RULES) for gg, subs in job if g == gg and all(s in ante for s in subs)]
+        assert mine, f'arm {k}: no rule matches its job {job}'
+        for r, (_, g) in enumerate(sw.RULES):
+            if g in gs:
+                q[r, k] = a.q if r in mine else -rest
+    sw.ARMS, sw.NA, sw.MEN, sw.VSN, sw.RB, sw.EVENT = arms, len(arms), a.me, a.vs, ':rb-sp2', None
+    with_ = [sw.unit_text(x if x.startswith(':') else os.path.relpath(os.path.abspath(x), sw.HERE)) for x in (a.with_ or [])]
+    sid = ':' + os.path.splitext(os.path.basename(a.out))[0]
+    note = (f'band.py t0 (PLAN4 §4): {os.path.basename(a.map)}, arm 0 everywhere, each arm k +{a.q} in its job rules, '
+            f'{"-q / n" if a.or_ else "-q"} in the rest of its groups; :with {" ".join(a.with_ or []) or "none"}; keep-state on.')
+    sw.write_table(a.out, sid, q, note, period=a.period, gamma=0.966, scale=0.1, keep=True, margin=a.margin, with_=with_)
+    with open(os.path.splitext(a.out)[0] + '.arms', 'w') as f:
+        f.write(f'; {os.path.basename(a.out)}\'s arms (band.py t0)\n' + '\n'.join(arms) + '\n')
+    print(f'{a.out}: {len(arms)} arms, job rules per arm ' + str([int((q[:, k] > 0).sum()) for k in range(len(arms))]))
+
+
 def paired(wa, wb):
     """Two {(seat, seed): K.O. win 0/1} on the same seeds -> (b, c, z): b = A won by K.O. and B did not, c the reverse."""
     b = sum(1 for k in wa if wa[k] and not wb[k])
@@ -155,12 +191,18 @@ def main():
     p.add_argument('--inc', required=True, help='arm 0: the best pure arm'); p.add_argument('--alt', required=True, nargs='+', help='arm files or none')
     p.add_argument('--out', required=True)
     p.add_argument('--q', type=float, default=0.05); p.add_argument('--margin', type=float, default=0.02); p.add_argument('--period', type=int, default=30)
+    p = sub.add_parser('t0')
+    p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
+    p.add_argument('--map', required=True, help='the job map (JSON; cmd_t0)'); p.add_argument('--out', required=True)
+    p.add_argument('--q', type=float, default=0.06); p.add_argument('--or', dest='or_', action='store_true')
+    p.add_argument('--with', dest='with_', nargs='+', help='data units under every arm (:with): ids (:d-...) or unit files')
+    p.add_argument('--margin', type=float, default=0.02); p.add_argument('--period', type=int, default=30)
     p = sub.add_parser('pair')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--a', required=True); p.add_argument('--b', required=True); p.add_argument('--seed0', type=int, required=True)
     p.add_argument('--seeds', type=int, default=100); p.add_argument('--spill', action='store_true'); p.add_argument('--pop'); p.add_argument('-j', type=int, default=6)
     a = ap.parse_args()
-    {'bands': cmd_bands, 'write': cmd_write, 'fallback': cmd_fallback, 'pair': cmd_pair}[a.cmd](a)
+    {'bands': cmd_bands, 'write': cmd_write, 'fallback': cmd_fallback, 't0': cmd_t0, 'pair': cmd_pair}[a.cmd](a)
 
 
 if __name__ == '__main__':

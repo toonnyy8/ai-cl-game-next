@@ -25,6 +25,8 @@ firing-weighted average, STRAT-FQ-Q :GROUPS). :rb-switch89 (the default, §8.19)
   G3   2  the wall (:w-near within 2-3 m / :w-open)
   G4   2  his awakening
 :rb-sp (§11.3, PLAN §4): G0 18 lead x ost x prev, G1 9 form x distance, G2 9 my x his flash-step cells, G3 4 my x his burst, G4 2 exchange.
+:rb-sp2 (PLAN4 §2, 104 rules): G0 36 lead x ored x awst x oawk, G1 9 form x distance, G2 12 his state x distance, G3 9 cells, G4 4 bursts,
+  G5 2 exchange, G6 4 my x his wall, G7 4 my x his Reishi, G8 9 clock x lead, G9 6 switch open x my pointer, G10 9 his pointer x distance.
 --ko (PLAN §4, §11): a K.O. pays +-1 at the end, a time-out -1 to both, a draw before the bell 0; measure's share / score / wins count K.O.
 wins only. Without it the old terminal (the winner at the bell +-1). The seed defaults are the pilot's (log / fit 1-599, measure 701-800):
 a §11 run passes --seeds (sp/fit/run.sh), since 601-800 are its final gates and 401-500 its held-out block.
@@ -47,14 +49,16 @@ ME = VS = MEN = VSN = OPP = NA = None          # (the pairing, the opponent seat
 RB = ':rb-switch89'                              # (--rb: the rule base the tables are written on; CONFIGURE)
 KO = False                                       # (--ko: PLAN §4's K.O.-only outcome, DUEL_AI_STRATEGY §11: a time-out pays -1 to both)
 EVENT = None                                     # (--event: the :KNOCKDOWN event arm's plist every written table carries, §8.19 step 6)
+WITH = []                                        # (--with: data unit texts every written table lays under its arms, :with, PLAN4 §3)
 ARMS = []
 
 
 def configure(a):
     """Set the pairing from the common options: --me / --vs (names), --opp (a file, `none` or a comma pool, relative to this directory or
     absolute), --arms (an arms file here: one arm plist a line, in arm order, ;-lines comments)."""
-    global ME, VS, MEN, VSN, OPP, NA, ARMS, EVENT, RB, KO
+    global ME, VS, MEN, VSN, OPP, NA, ARMS, EVENT, RB, KO, WITH
     EVENT = getattr(a, 'event', None)
+    WITH = [unit_text(p) for p in (getattr(a, 'with_', None) or [])]
     RB, KO = getattr(a, 'rb', ':rb-switch89'), getattr(a, 'ko', False)
     set_rule_base(RB)
     MEN, VSN = a.me, a.vs
@@ -89,12 +93,24 @@ def set_rule_base(rb):
     RULE_NAMES = [a for a, _ in RULES]
 
 
+def unit_text(p):
+    """A data unit for :with: an id (e.g. :d-brawler, a *STRAT-DATA* unit) as it is, or a file here holding one inline plist (;-comments
+    dropped, whitespace collapsed)."""
+    if p.startswith(':'):
+        return p
+    return ' '.join(re.sub(r';[^\n]*', '', open(os.path.join(HERE, p)).read()).split())
+
+
 def arms_text():
     return '(' + ' '.join(ARMS) + ')'
 
 
-def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False, margin=None):
+def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False, margin=None, with_=None):
+    """WITH_: data unit texts (ids or inline plists) the table lays under every arm (:with, PLAN4 §3; strat-run.lisp expands such a file)."""
     keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t' + (' :keep-state t' if keep else '') + (f' :margin {margin}' if margin else '')
+    with_ = WITH if with_ is None else with_
+    if with_:
+        keys += f' :with ({" ".join(with_)})'
     if EVENT:
         keys += f' :event-arms ((:knockdown {EVENT}))'
     if period:
@@ -108,7 +124,10 @@ def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=Fa
 
 
 GROUP_DOC = {':rb-switch89': 'G0 lead x ored x ost x awk x prev, G1 form x distance (m), G2 gauge x awk, G3 wall, G4 his awakening.',
-             ':rb-sp': 'G0 lead x ost x prev, G1 form x distance (m), G2 my x his flash-step cells, G3 my x his burst, G4 an exchange open.'}
+             ':rb-sp': 'G0 lead x ost x prev, G1 form x distance (m), G2 my x his flash-step cells, G3 my x his burst, G4 an exchange open.',
+             ':rb-sp2': 'G0 lead x ored x awst x oawk, G1 form x distance (m), G2 his state (free / attacking / evading / down) x distance, '
+                        'G3 my x his cells, G4 my x his burst, G5 an exchange open, G6 my x his wall, G7 my x his Reishi about a half, '
+                        'G8 clock x lead, G9 the pointer switch open x my pointer, G10 his pointer x distance.'}
 
 
 def read_q(path):
@@ -408,6 +427,8 @@ def cmd_pin(a):
     """A fitted table with ARM pinned in FORM: its G1 rows of that form (form x distance) give ARM a bonus, so it wins wherever the form holds
     (the user's arm 0 kept in the Shikai while the rest of the table is the fit's)."""
     q = read_q(a.table)
+    if ':with (' in open(a.table).read() and not WITH:
+        sys.exit('sw.py pin: the table names :with; pass its units again with --with, or the pinned table drops them')
     fm = (':no', ':yes', ':k2')[a.form]
     for r, (ante, g) in enumerate(RULES):
         if g == 1 and ante.startswith(f'((:form {fm})') and (not a.band or ante.endswith(f'(:dm :m-{a.band}))')):
@@ -433,8 +454,10 @@ def main():
     com.add_argument('--me', default='hisagi', choices=list(fq.ROSTER)); com.add_argument('--vs', default='ichigo', choices=list(fq.ROSTER))
     com.add_argument('--opp', default='../../counter/frozen/ki-ichigo.lisp', help='the opponent seat: a file, none, or a comma pool')
     com.add_argument('--arms', default='arms/hi-pilot.arms', help='the arms file (one plist a line, in arm order)')
-    com.add_argument('--rb', default=':rb-switch89', help='the rule base (strategy.lisp *STRAT-RULE-BASES*): :rb-switch89 or :rb-sp')
+    com.add_argument('--rb', default=':rb-switch89', help='the rule base (strategy.lisp *STRAT-RULE-BASES*): :rb-switch89, :rb-sp or :rb-sp2')
     com.add_argument('--ko', action='store_true', help='K.O.-only outcomes (PLAN §4): a time-out pays -1 to both; share / score count K.O. wins')
+    com.add_argument('--with', dest='with_', nargs='+', metavar='UNIT', help='data units every written table lays under its arms '
+                     '(:with, PLAN4 §3): ids (:d-...) or files here with one inline plist')
     com.add_argument('--event', help='an arm plist: every table written carries it as its :KNOCKDOWN event layer (:EVENT-ARMS, §8.19 round 5 step 6)')
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)

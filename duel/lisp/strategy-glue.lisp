@@ -35,16 +35,24 @@ for anyone."
   "F's form as a Q selector's cue: 0 the base form (Hisagi's Shikai), 2 Hisagi's bind mode (:bankai-bind), 1 any other (his ranged mode, an
 awakened form)."
   (case (fighter-form f) (:base 0) (:bankai-bind 2) (t 1)))
-(defun strat-xfeats (e f d)
+(defun strat-xfeats (e f s d)
   "A Q selector's extra cues (its :XFEATS, DUEL_AI_STRATEGY §8.19), read only at its judgements: :DM the perceived distance (m), :FORM mine
 (STRAT-FORM-INDEX), :OAWK his awakening, :GAUGE the switch's gauge (DRIVE awakened, SUBLIMATION before, as a fraction), :WALL metres from me
-to the arena's wall; and the SP cues (STRAT-SP-CUES, :RB-SP, §11.3), his read live from his gauges as :OAWK / :ORED (the HUD shows the
-cells and the burst dial; only his state comes through the SNAP)."
-  (let* ((g (gauges e)) (o (fighter-opp f)) (go (gauges o)) (p (pos-of e)) (x (aref p 0)) (z (aref p 2)))
+to the arena's wall; the SP cues (STRAT-SP-CUES, :RB-SP, §11.3), his read live from his gauges as :OAWK / :ORED (the HUD shows the
+cells and the burst dial; only his state comes through the SNAP); and :RB-SP2's (STRAT-SP2-CUES, PLAN4 §2), read live as the HUD shows
+them: my awakening's state, the match timer, both SP pointers (STRAT-HUD-PTR), the pointer switch open; his metres to the wall from where
+SNAP S sees him (as D, BRAIN-DELAY steps late: his position is not a HUD value)."
+  (let* ((g (gauges e)) (o (fighter-opp f)) (fo (fighter o)) (go (gauges o)) (p (pos-of e)) (x (aref p 0)) (z (aref p 2))
+         (ox (snap-x s)) (oz (snap-z s)))
     (list* :dm d :form (strat-form-index f) :oawk (cai-bit (gauges-awakened go))
            :gauge (if (gauges-awakened g) (/ (gauges-drive g) *drive-max*) (/ (gauges-sub g) *sub-max*))
            :wall (- *arena-radius* (sqrt (+ (* x x) (* z z))))
-           (strat-sp-cues (gauges-fs g) (gauges-fs go) (gauges-burst g) (gauges-burst go) (fighter-xch f) (fighter-xch (fighter o))))))
+           (nconc (strat-sp-cues (gauges-fs g) (gauges-fs go) (gauges-burst g) (gauges-burst go) (fighter-xch f) (fighter-xch fo))
+                  (strat-sp2-cues (awaken-ready-p e f) (gauges-awakened g) (- *arena-radius* (sqrt (+ (* ox ox) (* oz oz))))
+                                  (match-frames-left) (* 60 *match-seconds*) (strat-hud-ptr f) (strat-hud-ptr fo) (aw-full-p g))))))
+(defun strat-hud-ptr (f)
+  "F's SP pointer as his plate's seals show it (webhud.lisp WEBHUD-SIDE's +9): a DRIVE switch's target while it runs, else his pointer."
+  (core-clamp-pointer (if (and (plusp (fighter-tmp f)) (eq (fighter-state f) :move)) (fighter-tmp f) (fighter-ptr f))))
 
 (defun strat-hold-awaken-p (e)
   "The active strategy's :HOLD-AWAKEN H (DUEL_AI_STRATEGY §8.19 round 4; the user, 2026-11-09: 「試「延後覺醒」」): the CPU keeps from awakening
@@ -99,7 +107,7 @@ In a window the table sits out (STRAT-WINDOW-STEP, NORMAL) the judgement is the 
         (if (brain-tw-off b)
             (values nil (or (position nil (getf (getf sw :fq) :arms)) -1))   ; (the window's none arm, §11.17)
         (let* ((fq (getf sw :fq)) (feats (strat-feats e f s d))
-               (feats (if (getf fq :xfeats) (append feats (strat-xfeats e f d)) feats))   ; (its extra cues, §8.19)
+               (feats (if (getf fq :xfeats) (append feats (strat-xfeats e f s d)) feats))   ; (its extra cues, §8.19)
                (feats (if fq (list* :prev (or (position (brain-sw-sub b) (getf fq :arms)) 0) feats) feats)))   ; (the previous arm)
           (multiple-value-bind (sub i) (strat-judge sw feats)
             (multiple-value-bind (sub i) (if (and *strat-judge-hook* (not *in-rollout*)) (funcall *strat-judge-hook* e b sw sub i feats) (values sub i))
@@ -164,7 +172,9 @@ snapshot it starts from (taken by its first rollout) and the seed of its rollout
   e side dif mine his prior sums ns hsums hns hprior (snap nil) (rng 0) (n 0))
 (inline-readers stjob)
 
-(defun strat-layer-p (f) "Is fighter F's CPU under the strategy layer?" (and *strat-layer* (or (eq *strat-layer* t) (member (fighter-character f) *strat-layer*))))
+(defun strat-layer-p (f)
+  "Is fighter F's CPU under the strategy layer? *STRAT-LAYER* T, a list of characters, or a seat 0 / 1 (PLAN4 §6: DUCT on one seat of a mirror)."
+  (and *strat-layer* (or (eq *strat-layer* t) (if (integerp *strat-layer*) (= *strat-layer* (fighter-side f)) (member (fighter-character f) *strat-layer*)))))
 
 (defun brain-set-strat! (b st)
   "The strategy layer gives brain B strategy ST (a pick, a rollout's arm). Another strategy than his starts its per-strategy state afresh:

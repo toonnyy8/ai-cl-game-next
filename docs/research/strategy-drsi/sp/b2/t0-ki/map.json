@@ -1,0 +1,7 @@
+{"note": "B2's KI proof (PLAN4 §3 Ichigo's job rules; the arms are placeholders: existing units standing in for all / whiff / space / ptr3 / kessa)",
+ "arms": ["x-ki-i-r1-b0a2.lisp", "c-ki-i-r2-b2a2.lisp", "c-ih-i-r1-b1a1.lisp", "c-ki-i-r3-b3a0-k.lisp", "x-ki-i-r1-b1a1.lisp"],
+ "jobs": [null,
+          [[2, ["(:ost :atk)", "(:dm :m-mid)"]], [1, ["(:form :no)", "(:dm :m-mid)"]]],
+          [[1, ["(:dm :m-far)"]], [6, ["(:wall :w-near)"]]],
+          [[3, ["(:ocell :no)"]], [9, ["(:mptr :k3)"]]],
+          [[0, ["(:awst :k2)"]], [1, ["(:form :yes)"]]]]}

@@ -14,6 +14,11 @@
 ;;; seat's CPU plays from each match's first battle step; a plain arm (no :SWITCH / :FQ) also drops its character's matchup style CPU, as
 ;;; strat-run.lisp does (its pools, `none` and counters are not here). No such env: nothing.
 (in-package :duel)
+(defun cl-user::sg-read-strat (path)
+  "The strategy file PATH (one plist) as a runner plays it: READ as it is (a raw file is never expanded), but a Q table naming :WITH (PLAN4
+§3) is expanded (STRAT-EXPAND lays its units under its arms)."
+  (let ((st (with-open-file (in path) (let ((*read-eval* nil)) (read in)))))
+    (if (and (consp st) (getf (getf st :fq) :with)) (strat-expand st) st)))
 (defvar *sg-styles0* (copy-tree *cai-styles*))
 (defvar *sg-strat-match* -1)
 (defvar *sg-strat-on* (or (plusp (length (or (ext:getenv "STRAT_P1") ""))) (plusp (length (or (ext:getenv "STRAT_P2") "")))))
@@ -22,7 +27,7 @@
     (setf *sg-strat-match* *match-seed* *cai-styles* (copy-tree *sg-styles0*))
     (do-sides (e)
       (let* ((f (fighter e)) (b (brain e)) (p (ext:getenv (if (zerop (fighter-side f)) "STRAT_P1" "STRAT_P2")))
-             (st (and b p (plusp (length p)) (with-open-file (in p) (let ((*read-eval* nil)) (read in))))))
+             (st (and b p (plusp (length p)) (cl-user::sg-read-strat p))))
         (when st
           (setf (brain-strat b) st)
           (unless (or (getf st :switch) (getf st :fq)) (remf *cai-styles* (fighter-character f)))

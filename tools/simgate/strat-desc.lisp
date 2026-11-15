@@ -11,7 +11,7 @@
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
-(defun sr-read (path) (and path (plusp (length path)) (with-open-file (in path) (let ((*read-eval* nil)) (read in)))))
+(defun sr-read (path) (and path (plusp (length path)) (cl-user::sg-read-strat path)))   ; (prelude: a :WITH table expanded, PLAN4 §3)
 (defvar *sr-files* (make-hash-table :test 'equal))
 (defun sr-strat (env) (let ((p (ext:getenv env))) (and p (plusp (length p)) (or (gethash p *sr-files*) (setf (gethash p *sr-files*) (sr-read p))))))
 (defvar *sr-match* -1)
