@@ -585,6 +585,12 @@ decided."
 (defun kk-reach-of (mv margin)
   "MV's reach + slide less MARGIN (m; *KK-REACH-MARGIN* or the arm's): the farthest it starts from; 0 for a move that reaches nothing (the tame)."
   (if (and mv (plusp (mv-reach mv))) (- (+ (mv-reach mv) (mv-slide mv)) margin) 0.0))
+(defun kk-fits-p (e mv d dp margin)
+  "Does MV (E's) start a hit: its dead zone (MV-MIN-REACH, the :min-reach hook's now) <= the perceived distance D, and the distance DP
+predicted at its hit (D + her speed away x the delay and startup) <= KK-REACH-OF? Both bounds only ever stricter (her speed away would
+lift a dead-zone pick at 2 m over 3 m: 0.066 m/f x 28 f). The dead zone added 2026-11-15 (KK-REACH-OF never read it: Hisagi's NAGI
+picked under 3.0 m on this brawler, PLAN4 arms5/clash.md; no Kenpachi or Ichigo move has one, their play unchanged)."
+  (and (<= (mv-min-reach mv e) d) (<= dp (kk-reach-of mv margin))))
 
 (defun kk-pick (e b f kit s d st safe)
   "封印肉搏's discipline at a neutral decision inside the generic CPU's attack zone: J1 or the pointer's NS only where it reaches (the
@@ -603,9 +609,9 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
               (let* ((ns (kit-core-move kit :ns (fighter-ptr f))) (q (kit-command-move kit :q))
                      (v (min 0.0 (ken-closing e b s d)))       ; her perceived speed away (m/f, <= 0): only ever stricter
                      (rm (style-knob b :kk-reach-margin *kk-reach-margin*))
-                     (can-j (and q (<= (- d (* v (+ (brain-delay b) (mv-s q)))) (kk-reach-of q rm))
+                     (can-j (and q (kk-fits-p e q d (- d (* v (+ (brain-delay b) (mv-s q)))) rm)
                                  (or (not (kks-safe st)) (kk-ns-open-p b s st q))))   ; (the Shikai J1 is S9: b0_a0 r3)
-                     (can-n (and ns (not bk) (<= (- d (* v (+ (brain-delay b) (mv-s ns)))) (kk-reach-of ns rm))   ; (a Bankai NS: KK-DECIDE's roll)
+                     (can-n (and ns (not bk) (kk-fits-p e ns d (- d (* v (+ (brain-delay b) (mv-s ns)))) rm)   ; (a Bankai NS: KK-DECIDE's roll)
                                  (or (not (kks-safe st)) (kk-ns-open-p b s st ns)))))   ; (not into her timed Hoho: b0_a0 r3)
                 (cond ((and can-n (or (not can-j) (< (sim-rnd01) (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                        (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01) (kks-appr st) nil)
