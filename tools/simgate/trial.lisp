@@ -19,7 +19,8 @@
 ;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
 ;;;; :p2-cpu DIF (DUEL_SP S7, 2026-11-13): P2's CPU plays (CORE-BRAIN-STEP at difficulty DIF, no strategy: the generic CPU or the
 ;;;; pairing's matchup style), e.g. after a :p2-start; :seed N reseeds the sim's random stream first (one seed, the same rolls in two trials).
-;;;; :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
+;;;; :p1-bound T (PLAN4 kit study, 2026-11-15): a Hisagi P1 in :bankai-bind starts bound (HSS-BOUND, so HS-BK-TICK keeps the bind form);
+;;;; every other Hisagi P1 starts unbound (the flag carried over from the last trial). :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
@@ -53,10 +54,13 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
+    (when (eq p1 :hisagi)                               ; (:p1-bound: his bind is his own state, HS-BK-TICK sets the form from it)
+      (hs-reset *p1*)                                   ; (his 餘電, the cancel unlock, the 聚 flag: none carried over)
+      (let ((st (hs *p1*))) (setf (hss-bound st) (and p1-bound t) (hss-bind-arm st) nil (hss-unbind st) nil)))
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
     (place *p1* *p2* dist)
     (clear-hazards)                                     ; (no wave or clone carried from the last trial)
