@@ -1,0 +1,123 @@
+{
+ "seed0": 500,
+ "seeds": 100,
+ "build": "221adeac793c4f00",
+ "cells": [
+  {
+   "rung": "hn",
+   "hi": "hard",
+   "lo": "normal",
+   "cell": "HK",
+   "n": 200,
+   "hi_wins": 146,
+   "lo_wins": 54,
+   "draws": 0,
+   "share": 0.73,
+   "wilson_lo": 0.6755,
+   "passed": false,
+   "bell": 36,
+   "bell_flag": false,
+   "share_p1": 0.74,
+   "share_p2": 0.72,
+   "hi_changes": {
+    "median": 91.0,
+    "mean": 91.0,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 62.0,
+    "mean": 62.9,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "hn",
+   "hi": "hard",
+   "lo": "normal",
+   "cell": "KH",
+   "n": 200,
+   "hi_wins": 200,
+   "lo_wins": 0,
+   "draws": 0,
+   "share": 1.0,
+   "wilson_lo": 0.9867,
+   "passed": true,
+   "bell": 0,
+   "bell_flag": false,
+   "share_p1": 1.0,
+   "share_p2": 1.0,
+   "hi_changes": {
+    "median": 63.0,
+    "mean": 64.3,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 49.0,
+    "mean": 50.8,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "ne",
+   "hi": "normal",
+   "lo": "easy",
+   "cell": "HK",
+   "n": 200,
+   "hi_wins": 144,
+   "lo_wins": 56,
+   "draws": 0,
+   "share": 0.72,
+   "wilson_lo": 0.6651,
+   "passed": false,
+   "bell": 29,
+   "bell_flag": false,
+   "share_p1": 0.74,
+   "share_p2": 0.7,
+   "hi_changes": {
+    "median": 97.0,
+    "mean": 98.1,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 97.0,
+    "mean": 96.9,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "ne",
+   "hi": "normal",
+   "lo": "easy",
+   "cell": "KH",
+   "n": 200,
+   "hi_wins": 200,
+   "lo_wins": 0,
+   "draws": 0,
+   "share": 1.0,
+   "wilson_lo": 0.9867,
+   "passed": true,
+   "bell": 0,
+   "bell_flag": false,
+   "share_p1": 1.0,
+   "share_p2": 1.0,
+   "hi_changes": {
+    "median": 66.0,
+    "mean": 66.4,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 46.0,
+    "mean": 47.0,
+    "zero": 0,
+    "matches": 200
+   }
+  }
+ ]
+}

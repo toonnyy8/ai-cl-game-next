@@ -14,8 +14,10 @@ user: 「照遊戲判定」). Per cell: the higher tier's share, its one-sided 9
 Seed blocks (PLAN4 §1): 501-600 dev (--seed0 500 --seeds 100), 801-1000 the final once (--seed0 800 --seeds 200), 601-800 spent. A job
 plays at most 50 seeds (the gate's 31100+n takes n <= 99: a larger n is a silent no-op), and each job's row count is checked. Env SP_BUILD
 (a round's pin, PLAN4 §7): refuse a different sim build.
+--switch (B4): every judgement logged (STRAT_FQLOG "0 0": eps 0, play unchanged) and each side's arm changes a match counted: per cell the
+higher and the lower tier's median changes, mean, and matches without a change (a masher side has none).
 """
-import argparse, collections, json, math, os, sys
+import argparse, collections, json, math, os, re, statistics, sys
 sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(HERE, '../../../../tools')))
@@ -28,6 +30,8 @@ RUNGS = {'hn': ('hard', 'normal'), 'ne': ('normal', 'easy'), 'em': ('easy', 'mas
 Z = 1.645                                                   # one-sided 95 %
 BAR = 0.70
 CHUNK = 50
+FQ = re.compile(r'^fq (\d+) \d+ (P\d) .* arm (\d+) ')
+SWITCH = False
 
 
 def wilson_lo(points, n, z=Z):
@@ -46,12 +50,18 @@ def job(j):
     """One strat-run process: P1 character a, P2 b, the higher tier on seat hs, seeds s0+1 .. s0+n -> (j, [(winner, ko)])."""
     a, b, hs, rung, s0, n = j
     hi, lo = RUNGS[rung]
-    env = dict(os.environ, **{f'STRAT_DIF_P{hs}': hi, f'STRAT_DIF_P{3 - hs}': lo})
+    env = dict(os.environ, **{f'STRAT_DIF_P{hs}': hi, f'STRAT_DIF_P{3 - hs}': lo}, **({'STRAT_FQLOG': '0 0'} if SWITCH else {}))
     r = run_lisp(RUNNER, [30000 + s0, 31100 + n, 81022, 200000 + 100 * ROSTER[a] + 10 * ROSTER[b]], env=env, timeout=6 * 3600)
     rows = [(m[2], row_ko(l)) for l in r.stdout.splitlines() for m in [ROW.search(l)] if m]
     if r.returncode or len(rows) != n or any(k is None for _, k in rows):
         sys.exit(f'ladder: job {j} gave {len(rows)} rows of {n} (exit {r.returncode}): {r.stderr[-800:]}')
-    return j, rows
+    seq = collections.defaultdict(list)                     # ((seed, seat) -> the arms judged, in order)
+    for l in r.stdout.splitlines():
+        m = FQ.match(l)
+        if m:
+            seq[(int(m[1]), m[2])].append(int(m[3]))
+    ch = {k: sum(1 for i in range(1, len(v)) if v[i] != v[i - 1]) for k, v in seq.items()}
+    return j, rows, {seat: [c for (_, st), c in ch.items() if st == seat] for seat in ('P1', 'P2')}
 
 
 def main():
@@ -62,7 +72,10 @@ def main():
     ap.add_argument('--pairs', default=','.join(a + b for a in 'KIH' for b in 'KIH'), help='higher tier character + lower, e.g. KI')
     ap.add_argument('-j', type=int, default=12)
     ap.add_argument('--json')
+    ap.add_argument('--switch', action='store_true', help='log every judgement and report the arm changes a match per tier')
     o = ap.parse_args()
+    global SWITCH
+    SWITCH = o.switch
     rungs = o.rungs.split(',')
     pairs = o.pairs.split(',')
     build()
@@ -77,8 +90,11 @@ def main():
                 a, b = (me, op) if hs == 1 else (op, me)
                 jobs += [(a, b, hs, rung, s0, n) for s0, n in chunks]
     cells = collections.OrderedDict()
-    for (a, b, hs, rung, s0, n), rows in pool(job, jobs, o.j):
+    chg = collections.defaultdict(lambda: {'hi': [], 'lo': []})
+    for (a, b, hs, rung, s0, n), rows, sw in pool(job, jobs, o.j):
         me, op = (a, b) if hs == 1 else (b, a)
+        chg[(rung, me + op)]['hi'] += sw[f'P{hs}']
+        chg[(rung, me + op)]['lo'] += sw[f'P{3 - hs}']
         c = cells.setdefault((rung, me + op), collections.Counter())
         for w, ko in rows:
             who = 'hi' if w == f'P{hs}' else 'lo' if w == f'P{3 - hs}' else 'draw'
@@ -95,9 +111,16 @@ def main():
         row = dict(rung=rung, hi=RUNGS[rung][0], lo=RUNGS[rung][1], cell=cell, n=n, hi_wins=c['hi'], lo_wins=c['lo'], draws=c['draw'],
                    share=round(pts / n, 4), wilson_lo=round(lo, 4), passed=lo >= BAR, bell=c['bell'], bell_flag=flag,
                    share_p1=round(s1, 4), share_p2=round(s2, 4))
+        if SWITCH:
+            for side in ('hi', 'lo'):
+                v = chg[(rung, cell)][side]
+                row[f'{side}_changes'] = dict(median=statistics.median(v), mean=round(statistics.fmean(v), 1), zero=sum(x == 0 for x in v),
+                                              matches=len(v)) if v else None
         out.append(row)
         print(f"{rung:2s} {RUNGS[rung][0][0].upper()}>{RUNGS[rung][1][0].upper()} {cell:4s} | {n:3d} | {c['hi']:3d} : {c['lo']:3d} : {c['draw']:2d} "
-              f"| {pts / n:.3f}  {lo:.3f} | {'PASS' if lo >= BAR else 'fail'} | {c['bell']:3d}{' FLAG' if flag else ''} | {s1:.2f} / {s2:.2f}")
+              f"| {pts / n:.3f}  {lo:.3f} | {'PASS' if lo >= BAR else 'fail'} | {c['bell']:3d}{' FLAG' if flag else ''} | {s1:.2f} / {s2:.2f}"
+              + (''.join(f" | {sd} changes " + (f"med {row[sd + '_changes']['median']} zero {row[sd + '_changes']['zero']}"
+                                                 if row[sd + '_changes'] else '-') for sd in ('hi', 'lo')) if SWITCH else ''))
     print(f"{sum(r['passed'] for r in out)} of {len(out)} cells pass")
     path = o.json or os.path.join(ROOT, 'build/ladder', f'ladder-{o.seed0}-{o.seeds}-{"".join(rungs)}.json')
     os.makedirs(os.path.dirname(path), exist_ok=True)

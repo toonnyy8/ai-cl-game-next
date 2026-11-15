@@ -41,11 +41,12 @@
                     (eq d (strat-out (cons '(:base (:range 0.7 :ns 0.3)) '(:dj 0.5)) k d))
                     (eq d (strat-out nil k d)))))))
   ;; no library unit or table names a knob but the searched arms the final tables ship (DUEL_AI_STRATEGY §11.16: units :c-*, tables :f-*;
-  ;; §11.27: the re-collection's units :x-*), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the
-  ;; pilot's): their play is unchanged. The searched arms (sp/arms/r<n>/, x1/) name knobs by design.
+  ;; §11.27: the re-collection's units :x-*; §11.29, PLAN4 B4: the one-job arms :a4-* / :h4-*, whose keys ARE their jobs, and the T0 tables
+  ;; :t0-* that name them), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is
+  ;; unchanged. The searched arms (sp/arms/r<n>/, x1/, arms4/) name knobs by design.
   (flet ((unsearched (l &rest pres) (remove-if (lambda (u) (some (lambda (pre) (eql 0 (search pre (symbol-name (getf u :id))))) pres)) l)))
-    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-") *strat-rule-bases*
-                                                           (unsearched *strat-library* "F-"))))
+    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-" "A4-" "H4-") *strat-rule-bases*
+                                                           (unsearched *strat-library* "F-" "T0-"))))
     (check (sk-tree-has *strat-units* keys)))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
                      (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/pilot/*.lisp" *load-truename*))))
@@ -91,13 +92,18 @@
   ;; arms the five tables of §11.27 ship: the units :x-*, those five :f-* entries (which name them by id and hold them once expanded), and
   ;; their five raw files in sp/final/ (proved = the lookup by sp/final/proofs.sh). The other four final tables (ih-hisagi and the mirrors) and
   ;; every unit before §11.27 still hold none, so their play is unchanged.
+  ;; §11.29 (PLAN4 B4): the six exchange data units :d-x-* (one per pairing side, laid under a T0 table's arms by its :WITH) and the six
+  ;; cross-pairing :t0-* entries that name them hold them too; the three mirror T0 tables (no :WITH) and the one-job arm units hold none.
   (let ((x-units (remove-if-not (lambda (u) (eql 0 (search "X-" (symbol-name (getf u :id))))) *strat-units*))
-        (x-tables '(:f-ki-kenpachi :f-ki-ichigo :f-kh-kenpachi :f-kh-hisagi :f-ih-ichigo)))   ; (*STRAT-LIBRARY* holds them expanded)
+        (x-data (remove-if-not (lambda (u) (eql 0 (search "D-X-" (symbol-name (getf u :id))))) *strat-data*))
+        (x-tables '(:f-ki-kenpachi :f-ki-ichigo :f-kh-kenpachi :f-kh-hisagi :f-ih-ichigo
+                    :t0-ki-ichigo :t0-ki-kenpachi :t0-kh-kenpachi :t0-kh-hisagi :t0-ih-ichigo :t0-ih-hisagi)))   ; (*STRAT-LIBRARY* holds them expanded)
     (check (= 13 (length x-units)))
-    (check (sk-tree-has x-units names))
+    (check (= 6 (length x-data)))
+    (check (and (sk-tree-has x-units names) (sk-tree-has x-data names)))
     (check (every (lambda (id) (sk-tree-has (strat-by-id id) names)) x-tables))
     (check (notany (lambda (v) (sk-tree-has v names))
-                   (list *strat-styles* *strat-data* (set-difference *strat-units* x-units) *strat-rule-bases*
+                   (list *strat-styles* (set-difference *strat-data* x-data) (set-difference *strat-units* x-units) *strat-rule-bases*
                          (remove-if (lambda (e) (member (getf e :id) x-tables)) *strat-library*)))))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
                      (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/pilot/*.lisp" *load-truename*))

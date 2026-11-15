@@ -1,0 +1,271 @@
+{
+ "p1": "t0final/final/t0-kh-kenpachi.lisp",
+ "p2": "t0final/final/t0-kh-hisagi.lisp",
+ "seeds": "541-580",
+ "build": "b835ac41b83b",
+ "sides": {
+  "c1 kenpachi": {
+   "matches": 80,
+   "judgements_per_match": 188.3,
+   "changes": {
+    "median": 88.5,
+    "mean": 89.1,
+    "zero": 0
+   },
+   "arm_share": [
+    0.287,
+    0.136,
+    0.115,
+    0.462
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.6668,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.204,
+     "fire_share": 0.204,
+     "lasting": 0.204,
+     "vacuous": false,
+     "latch": false,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.6324,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.182,
+     "fire_share": 0.182,
+     "lasting": 0.182,
+     "vacuous": false,
+     "latch": false,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.9751,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.474,
+     "fire_share": 0.474,
+     "lasting": 0.492,
+     "vacuous": false,
+     "latch": false,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 2062,
+     "share": [
+      0.0,
+      0.132,
+      0.622,
+      0.246
+     ]
+    },
+    "f0-far": {
+     "n": 492,
+     "share": [
+      0.0,
+      0.36,
+      0.64,
+      0.0
+     ]
+    },
+    "f0-mid": {
+     "n": 180,
+     "share": [
+      0.0,
+      0.267,
+      0.733,
+      0.0
+     ]
+    },
+    "f1-close": {
+     "n": 9112,
+     "share": [
+      0.28,
+      0.049,
+      0.0,
+      0.671
+     ]
+    },
+    "f1-far": {
+     "n": 1831,
+     "share": [
+      0.434,
+      0.457,
+      0.0,
+      0.11
+     ]
+    },
+    "f1-mid": {
+     "n": 1384,
+     "share": [
+      0.701,
+      0.197,
+      0.0,
+      0.102
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": true,
+    "division": true,
+    "vacuous": [],
+    "latch": []
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.988,
+   "timeouts": 0
+  },
+  "c2 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 146.3,
+   "changes": {
+    "median": 38.0,
+    "mean": 37.6,
+    "zero": 0
+   },
+   "arm_share": [
+    0.151,
+    0.52,
+    0.295,
+    0.034
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.9014,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.577,
+     "fire_share": 0.577,
+     "lasting": 1.0,
+     "vacuous": false,
+     "latch": true,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.835,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.354,
+     "fire_share": 0.354,
+     "lasting": 0.36,
+     "vacuous": false,
+     "latch": false,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.2594,
+     "out_share": 0.0001,
+     "ratio": 4426.23,
+     "in_weight": 0.129,
+     "fire_share": 0.134,
+     "lasting": 0.134,
+     "vacuous": false,
+     "latch": false,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 3085,
+     "share": [
+      0.451,
+      0.006,
+      0.543,
+      0.0
+     ]
+    },
+    "f0-far": {
+     "n": 1282,
+     "share": [
+      0.193,
+      0.0,
+      0.559,
+      0.248
+     ]
+    },
+    "f0-mid": {
+     "n": 640,
+     "share": [
+      0.2,
+      0.0,
+      0.717,
+      0.083
+     ]
+    },
+    "f1-close": {
+     "n": 3764,
+     "share": [
+      0.0,
+      0.854,
+      0.146,
+      0.0
+     ]
+    },
+    "f1-far": {
+     "n": 1912,
+     "share": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "f1-mid": {
+     "n": 848,
+     "share": [
+      0.0,
+      0.995,
+      0.005,
+      0.0
+     ]
+    },
+    "f2-close": {
+     "n": 136,
+     "share": [
+      0.0,
+      0.618,
+      0.382,
+      0.0
+     ]
+    },
+    "f2-far": {
+     "n": 19,
+     "share": [
+      0.0,
+      0.158,
+      0.105,
+      0.737
+     ]
+    },
+    "f2-mid": {
+     "n": 17,
+     "share": [
+      0.0,
+      0.529,
+      0.0,
+      0.471
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": true,
+    "division": true,
+    "vacuous": [],
+    "latch": [
+     1
+    ]
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.013,
+   "timeouts": 0
+  }
+ }
+}

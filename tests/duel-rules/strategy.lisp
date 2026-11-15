@@ -23,8 +23,8 @@
     (check (< 0.5 (strat-similarity fa fb) 1.0))))
 
 ;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo :qks3-ichigo :f-ki-kenpachi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi :qks2-hisagi :qks3-hisagi :qks4-hisagi :qks5-hisagi :f-kh-kenpachi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo :qks3-ichigo :f-ki-kenpachi :t0-ki-kenpachi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi :qks2-hisagi :qks3-hisagi :qks4-hisagi :qks5-hisagi :f-kh-kenpachi :t0-kh-kenpachi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
 (check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
 (check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
 (check (~= 0.0 (strat-seed-value :ichigo :kenpachi :s0-generic)))       ; (her s0 against his equilibrium row :ki-ken: 1 - 1.0)
@@ -353,39 +353,37 @@
       (check (= (+ 3 (* 2 42)) (length (fq-encode fq fq 0)))))
     (check (handler-case (progn (tbl :period 30) nil) (error () t)))))
 
-;; DUEL_AI_STRATEGY §11.16: the HARD lookup plays the SP re-collection's nine final tables (sp/final/*.lisp, :rb-sp's 42 rules, keep-state)
-;; (§11.27: five rows re-collected after the exchange rules, arm 0 an :x-* unit; IH Hisagi and the mirrors as §11.16)
-(dolist (r '((:ichigo :kenpachi :f-ki-ichigo 4 x-ki-i-r1-b0a2) (:kenpachi :ichigo :f-ki-kenpachi 4 x-ki-k-r1-b0a2)
-             (:kenpachi :hisagi :f-kh-kenpachi 4 x-kh-k-r1-b0a2) (:hisagi :kenpachi :f-kh-hisagi 4 x-kh-h-r2-b3a1)
-             (:ichigo :hisagi :f-ih-ichigo 4 x-ih-i-r1-b2a1) (:hisagi :ichigo :f-ih-hisagi 4 c-ih-h-r1-b2a0)
-             (:kenpachi :kenpachi :f-kk-kenpachi 3 c-ki-k-r2-b0a2) (:ichigo :ichigo :f-ii-ichigo 3 c-ki-i-r2-b2a2)
-             (:hisagi :hisagi :f-hh-hisagi 4 c-ih-h-r1-b2a0)))
-  (destructuring-bind (me vs id na arm0) r
-    (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq)) (base '(:lead 0 :ost 0 :prev 0 :form 0 :dm 3.0 :mburst 0 :oburst 0 :mcell 0 :ocell 0 :xch 0)))
+;; DUEL_AI_STRATEGY §11.29 (PLAN4 B4, 2026-11-15): the lookup plays the nine T0 tables (sp/arms4/t0final/t0-*.lisp: :rb-sp2's 104 rules,
+;; keep-state, period 30, one-job arms, the pairing's :WITH exchange unit; mirrors none). Was §11.16 / §11.27's :f-<pair>-<side> (42 rules,
+;; a fallback that played arm 0 everywhere): this block checked those, and now checks the T0 rows on purpose (the lead's brief, B4).
+(dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 4 a4-i-all :d-x-ki-i :f-ki-ichigo) (:kenpachi :ichigo :t0-ki-kenpachi 3 c-ki-k-r2-b1a2 :d-x-ki-k :f-ki-kenpachi)
+             (:kenpachi :hisagi :t0-kh-kenpachi 4 c-ki-k-r2-b1a2 :d-x-kh-k :f-kh-kenpachi) (:hisagi :kenpachi :t0-kh-hisagi 4 x-kh-h-r2-b3a1 :d-x-kh-h :f-kh-hisagi)
+             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-all :d-x-ih-i :f-ih-ichigo) (:hisagi :ichigo :t0-ih-hisagi 4 a-hk-pot :d-x-ih-h :f-ih-hisagi)
+             (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil :f-kk-kenpachi) (:ichigo :ichigo :t0-ii-ichigo 4 a4-i-all nil :f-ii-ichigo)
+             (:hisagi :hisagi :t0-hh-hisagi 3 a-hk-pot nil :f-hh-hisagi)))
+  (destructuring-bind (me vs id na arm0 with old-id) r
+    (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq))
+           (base (list* :swopen (if (eq me :hisagi) 0 1)   ; (Kenpachi's climb owns "switch not open", KH Hisagi's range "open")
+                        '(:lead 0 :ored 0 :awst 0 :oawk 0 :form 0 :ost 1 :mcell 0 :ocell 0 :mburst 0 :oburst 0 :xch 0 :mptr 1 :optr 1
+                          :dm 3.0 :wall 5.0 :owall 5.0 :mr 1.0 :or 1.0 :time 0.1 :prev 0)))
+           (job1 (case me (:ichigo (list* :ost 0 base)) (:kenpachi (list* :mcell 1 base)) (t (list* :form 1 :dm 4.5 base)))))   ; (arm 1's job: Ichigo's
+                                                                                                    ;  brawl his free state, Kenpachi's spend a cell, Hisagi's range form 1 at mid)
       (check (eq id (getf st :id)))
       (check (equal (list me vs) (getf st :apply)))
       (check (and (= na (length (getf fq :arms))) (string= (symbol-name arm0) (symbol-name (getf (first (getf fq :arms)) :id)))))
-      (check (and (= 42 (length (getf fq :rules)) (reduce #'+ (getf fq :groups))) (getf fq :xfeats) (getf fq :keep-state) (eql 30 (getf fq :period))))
-      (check (= 0 (strat-fq-pick fq base)))                                  ; (arm 0 where no SP cue fires)
-      ;; a player's online copy saved from any other table (the old lookup's: 89 or 48 rules) loads fresh: another length or checksum
-      (let ((codes (fq-encode fq fq 2)) (old (getf (strat-by-id (fourth (find-if (lambda (o) (and (eq me (first o)) (eq vs (second o))))
-                                                                                    '((:hisagi :ichigo :x :qhs3-ichigo) (:ichigo :kenpachi :x :q1-ichigo-ken)
-                                                                                      (:hisagi :kenpachi :x :qhs-ken) (:hisagi :hisagi :x :qhs4-mirror)
-                                                                                      (:ichigo :hisagi :x :qis-hisagi) (:kenpachi :ichigo :x :qks3-ichigo)
-                                                                                      (:kenpachi :hisagi :x :qks5-hisagi) (:kenpachi :kenpachi :x :qks-ken)
-                                                                                      (:ichigo :ichigo :x :q1-ichigo-ichigo)))))
-                                                 :fq)))
+      (check (and (= 104 (length (getf fq :rules)) (reduce #'+ (getf fq :groups))) (getf fq :xfeats) (getf fq :keep-state) (eql 30 (getf fq :period))))
+      (check (= 0 (strat-fq-pick fq base)))                                  ; (arm 0 where no job cue fires)
+      (check (= 1 (strat-fq-pick fq job1)))
+      ;; the exchange unit under every arm (an arm's own key wins: KH Hisagi's arm 0 names the same keys itself)
+      (when with
+        (let ((u (getf (strat-unit-find with *strat-data*) :base)))
+          (check (every (lambda (a) (loop for (k) on u by #'cddr always (getf (getf a :base) k))) (getf fq :arms)))))
+      ;; a player's online copy saved from the table this row played before (§11.27's :f-*) loads fresh: another length and checksum
+      (let ((codes (fq-encode fq fq 2)) (old (getf (strat-by-id old-id) :fq)))
         (check (= 2 (nth-value 1 (fq-decode codes fq))))                    ; (its own copy reads back, with its match count)
         (check (null (fq-decode (fq-encode old old 5) fq)))                 ; (the old table's saved copy: fresh)
         (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))   ; (the right size, another checksum: fresh)
-        ;; §11.17: the checksum covers the arms. A copy saved under the q-only checksum (before 2026-11-14) and a copy of the same q
-        ;; learned on other arms both load fresh
-        (let ((q-only (let ((s (length (getf fq :rules))))
-                        (dolist (r (getf fq :rules) s) (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))
-              (other (list* :arms (reverse (getf fq :arms)) fq)))
-          (check (/= q-only (second codes)))
-          (check (null (fq-decode (list* (first codes) q-only (cddr codes)) fq)))
-          (check (equal (getf other :rules) (getf fq :rules)))
+        (let ((other (list* :arms (reverse (getf fq :arms)) fq)))           ; (§11.17: the checksum covers the arms)
           (check (/= (fq-checksum other) (fq-checksum fq)))
           (check (null (fq-decode (fq-encode other other 2) fq))))))))
 

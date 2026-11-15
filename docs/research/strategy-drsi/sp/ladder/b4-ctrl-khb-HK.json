@@ -1,0 +1,24 @@
+{
+ "seed0": 500,
+ "seeds": 100,
+ "build": "221adeac793c4f00",
+ "cells": [
+  {
+   "rung": "hn",
+   "hi": "hard",
+   "lo": "normal",
+   "cell": "HK",
+   "n": 200,
+   "hi_wins": 69,
+   "lo_wins": 131,
+   "draws": 0,
+   "share": 0.345,
+   "wilson_lo": 0.2921,
+   "passed": false,
+   "bell": 35,
+   "bell_flag": false,
+   "share_p1": 0.3,
+   "share_p2": 0.39
+  }
+ ]
+}

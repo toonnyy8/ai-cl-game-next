@@ -70,7 +70,16 @@ antes = [show(r[0]) for r in rules]
 rb = next((k for k, v in rbs.items() if v == antes), None)
 if not rb:
     sys.exit('entry.py: the rules match no rule base')
-keys = ''.join(f' {kk} {show(pget(fq, kk))}' for kk in pkeys(fq) if kk not in (':arms', ':rules', ':groups'))
+def with_ids(units):
+    """A raw table's inline :WITH units -> the *STRAT-DATA* ids they equal (PLAN4 B4: the exchange units :d-x-*), else exit."""
+    by_text = {show(d): i for i, d in data.items()}
+    out = [u if isinstance(u, str) else by_text.get(show(u)) for u in units]
+    if None in out:
+        sys.exit(f'entry.py: a :with unit is not in *strat-data*: {show(units)}')
+    return '(' + ' '.join(out) + ')'
+
+
+keys = ''.join(f' {kk} {with_ids(pget(fq, kk)) if kk == ":with" else show(pget(fq, kk))}' for kk in pkeys(fq) if kk not in (':arms', ':rules', ':groups'))
 pre = ''.join(f' {kk} {show(pget(table, kk))}' for kk in pkeys(table) if kk not in (':id', ':fq'))
 qs = '\n          '.join('(' + ' '.join(r[1:]) + ')' for r in rules)
 print(f'(:id {sys.argv[2]}{pre} :fq (:arms ({" ".join(arms)}) :rule-base {rb}{keys}\n         :q ({qs})))')

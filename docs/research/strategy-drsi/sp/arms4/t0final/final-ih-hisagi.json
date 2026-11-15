@@ -1,0 +1,45 @@
+{
+ "note": "B4 final (2026-11-15): IH Hisagi",
+ "arms": [
+  "cells-h/final/h4-all.lisp#h4-all",
+  "cells-h/final/h4-range.lisp#h4-range",
+  "cells-h/final/h4-wake.lisp#h4-wake",
+  "cells-h/final/h4-ihx.lisp#h4-ihx"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    7,
+    [
+     "(:mr :r-high)",
+     "(:or :r-low)"
+    ]
+   ]
+  ]
+ ]
+}
