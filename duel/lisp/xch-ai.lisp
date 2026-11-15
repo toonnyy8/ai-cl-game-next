@@ -47,6 +47,14 @@ on tick OSTART)? His turn: an AS or a new NA link started after the cancel (AS v
 of the two it can open with from neutral (:NA an attack, :NS an SP): :NA against his NS or AS, :NS against his NA or SA; NIL else."
   (and ocls (find-if (lambda (c) (and (eq (core-verdict c ocls) :cancel) (eq (core-verdict ocls c) :cancel))) '(:na :ns))))
 
+(defun clash-fit (ocls d na-min ns-min)
+  "The class the clash throws into his classed move OCLS at the perceived distance D (m, centre to centre): CLASH-OPENER's rule, but only
+an opener that can hit there, its dead zone NA-MIN / NS-MIN (m, MV-MIN-REACH: 0 without one, NIL: no such move) <= D; NIL else. The
+upper bound stays the clash's own (his reach + margin). New 2026-11-15 (the user took the lead's fix, DEVLOG §793: Hisagi's dead-zone
+NAGIs against Kenpachi, 201 of 224 thrown by the clash, PLAN4 kits/hisagi/probe.md; arms5/clash.md)."
+  (flet ((ok (c mn) (and mn (<= mn d) (eq (core-verdict c ocls) :cancel) (eq (core-verdict ocls c) :cancel))))
+    (cond ((null ocls) nil) ((ok :na na-min) :na) ((ok :ns ns-min) :ns))))
+
 (defun clash-window (hits-n active-end reach hit-at hit-reach)
   "Values the frame after which his perceived move's hit is spent and how far it reaches, for the clash: its own hit windows (HITS-N > 0:
 ACTIVE-END, REACH), else a hit it makes land later (:params :hit-at F frames into the move, :hit-reach m: KESSA's NS3 summons, whose clones
