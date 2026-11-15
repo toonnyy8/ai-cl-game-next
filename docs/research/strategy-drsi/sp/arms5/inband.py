@@ -421,21 +421,47 @@ def cmd_admit(a):
         print(row, keep)
 
 
+PROOF100 = ['arms5/ichigo/proof-vs-{vs}.json', 'arms5/kenpachi/proof/kenpachi-vs-{vs}.json', 'arms5/hisagi/proof/hisagi-vs-{vs}.json',
+            'arms4/proof/{me}-vs-{vs}.json']   # (the descriptor-whole proofs on seeds 1-100: arms5's, then arms4's for kessa2 / bait / h4-wake)
+
+
+def descriptor(row, arm):
+    """The pre-registered descriptor test, report only: (1-100, 141-180) as 'pass' / 'FAIL' / '-' (no test); a mirror's arm in both of its
+    character's cross runs. getsuga's 1-100 test is against Ichigo's keep (arms5/kenpachi/proof/getsuga-vs-keep.json); its 141-180 run is
+    against her none."""
+    me, vs, *_ = row_arms(row)
+    vss = [vs] if vs != me else [v for (m, v) in DESC_SETS if m == me]
+    def ok(d):
+        x = d.get(arm, {}).get('test') if d else None
+        return None if x is None else x['ok']
+    r100, r141 = [], []
+    for v in vss:
+        fs = ['arms5/kenpachi/proof/getsuga-vs-keep.json'] if arm == 'k5-getsuga' else [f.format(me=me, vs=v) for f in PROOF100]
+        for f in fs:
+            f = os.path.join(HERE, '..', f)
+            if os.path.exists(f) and arm in json.load(open(f))['arms']:
+                r100.append(ok(json.load(open(f))['arms'])); break
+        f = os.path.join(HERE, 'inband/desc', f'{me}-vs-{v}.json')
+        r141.append(ok(json.load(open(f))['arms']) if os.path.exists(f) else None)
+    word = lambda rs: '-' if not rs or any(x is None for x in rs) else ('pass' if all(rs) else 'FAIL')
+    return word(r100), word(r141)
+
+
 def cmd_report(a):
     """Markdown tables for inband.md: per arm the in-band numbers and the admission (inband/admit.json), then the final tables' bar A / D
     (arms5/t0/bar/)."""
     ad = json.load(open(os.path.join(HERE, 'inband/admit.json')))
     ib = load_ib()
-    print('| Row | Arm | G/T | n run / distinct used | slope (se), z | MDE | margin z | distinct | fire, in / out | verdict |')
-    print('|---|---|---|---|---|---|---|---|---|---|')
+    print('| Row | Arm | G/T | n run / distinct used | slope (se), z | z clustered | MDE | margin z | distinct | fire, in / out | descriptor 1-100 / 141-180 (report only) | verdict |')
+    print('|---|---|---|---|---|---|---|---|---|---|---|---|')
     for r in ad['arms']:
         x = ib.get((r['row'], r['arm']), {})
         v = 'ADMIT' if r['admitted'] else 'out: ' + ', '.join(w for w, ok in (('in-band', r['inband']), ('not distinct', r['distinct']),
                                                                              ('division', r['division'])) if not ok)
         print(f"| {r['row']} | {r['arm']} | {'T' if r['targeted'] else 'G'} | {x.get('run_matches')} / {x.get('used')} | "
-              f"{x.get('slope')} ({x.get('se')}), **{x.get('z')}** | {x.get('mde')} | {x.get('margin_z')} | "
+              f"{x.get('slope')} ({x.get('se')}), **{x.get('z')}** | {x.get('z_cl')} | {x.get('mde')} | {x.get('margin_z')} | "
               f"{'yes' if r['distinct'] else 'no (~' + ','.join(r['not_distinct_from']) + ')'} | {r['fire']:.2f}{' VAC' if r['vacuous'] else ''}, "
-              f"{r['in_share']:.2f} / {r['out_share']:.3f} | {v} |")
+              f"{r['in_share']:.2f} / {r['out_share']:.3f} | {' / '.join(descriptor(r['row'], r['arm']))} | {v} |")
     print()
     print('| Row | final arms | changes median (zero) | shares | per job: in / out, fire | bar A | K.O. (bar D) | points |')
     print('|---|---|---|---|---|---|---|---|')
@@ -507,13 +533,13 @@ def fe_slope(use, key):
     g = {}
     for m in use:
         g.setdefault((m['seed'], m['seat']), []).append(m)
-    ys, ss_, G = [], [], 0
+    ys, ss_, gi, G = [], [], [], 0
     for v in g.values():
         if len(v) < 2:
             continue
         G += 1
         my, msx = statistics.fmean(m[key] for m in v), statistics.fmean(m['s'] for m in v)
-        ys += [m[key] - my for m in v]; ss_ += [m['s'] - msx for m in v]
+        ys += [m[key] - my for m in v]; ss_ += [m['s'] - msx for m in v]; gi += [G] * len(v)
     y, s = np.array(ys), np.array(ss_)
     sxx = float(s @ s) if len(s) else 0.0
     if sxx <= 1e-9:
@@ -522,8 +548,12 @@ def fe_slope(use, key):
     res = y - b * s
     se = (float(res @ res) / max(1, len(y) - G - 1) / sxx) ** 0.5
     if se == 0:
-        return dict(groups=G, slope=round(b, 3), se=0.0, z=0.0, no_variance=True)
-    return dict(groups=G, slope=round(b, 3), se=round(se, 3), z=round(b / se, 2))
+        return dict(groups=G, slope=round(b, 3), se=0.0, z=0.0, no_variance=True, se_cl=0.0, z_cl=0.0)
+    # sensitivity (inband.md §4, after the runs): se clustered by (seed, seat), the 80 independent units, with the G / (G - 1) correction
+    sc = np.bincount(np.array(gi), weights=s * res)
+    se_cl = (float(sc @ sc) * G / max(1, G - 1)) ** 0.5 / sxx
+    return dict(groups=G, slope=round(b, 3), se=round(se, 3), z=round(b / se, 2), se_cl=round(se_cl, 3),
+                z_cl=round(b / se_cl, 2) if se_cl > 0 else None)
 
 
 def analyse(ms):

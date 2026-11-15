@@ -112,62 +112,67 @@ in-band and leaves the table; two arms that never share a table need not differ.
 `admit.json` keeps both lists (`not_distinct_from`, `not_distinct_any`).
 
 "margin z" = the same test on the end-of-match health margin (report only). "fire, in / out" = bar A's division on the candidate T0.
+"z clustered" (a sensitivity check added after the runs, from the same cached matches; the verdicts stay the pre-registered z's): the se
+clustered by (seed, seat), the 80 independent units under the salts. Four verdicts would flip: KH climb (-2.37 -> -1.73: KH Kenpachi
+would keep a third arm), KH bait (2.05 -> 1.49: no targeted arm would pass), IH cancel (-2.94 -> -1.08), HH bind (-3.64 -> -1.74).
+"descriptor": the pre-registered descriptor-whole test (report only, as the brief says): arms5's / arms4's proof on seeds 1-100, and
+again on 141-180 (`inband/desc/`, against his `none`; getsuga's 1-100 test is against Ichigo's keep, its 141-180 run against her none).
 
-| Row | Arm | G/T | n run / distinct used | slope (se), z | MDE | margin z | distinct | fire, in / out | verdict |
-|---|---|---|---|---|---|---|---|---|---|
-| ki-kenpachi | k5-poke | G | 1600 / 1058 | -0.004 (0.005), **-0.84** | 0.01 | 3.79 | yes | 0.43, 0.64 / 0.007 | ADMIT |
-| ki-kenpachi | k5-wake | G | 1600 / 1020 | -0.001 (0.007), **-0.18** | 0.014 | -3.46 | yes | 0.34, 0.69 / 0.000 | ADMIT |
-| ki-kenpachi | k5-red | G | 1600 / 414 | -0.117 (0.027), **-4.29** | 0.054 | -9.15 | yes | 0.30, 0.65 / 0.002 | out: in-band |
-| ki-kenpachi | k5-climb | G | 1600 / 34 | -0.072 (0.106), **-0.67** | 0.212 | -0.16 | yes | 0.01, 0.99 / 0.000 | ADMIT |
-| ki-kenpachi | k5-getsuga | T | 1600 / 164 | 0.0 (0.0), **0.0** | None | -0.58 | yes | 0.04, 0.77 / 0.000 | out: in-band |
-| ki-ichigo | a5-i-answer | G | 1600 / 1422 | 0.008 (0.007), **1.26** | 0.014 | -4.78 | yes | 0.48, 0.71 / 0.000 | ADMIT |
-| ki-ichigo | a4-i-brawl | G | 1600 / 1316 | 0.006 (0.007), **0.87** | 0.014 | 0.7 | yes | 0.31, 0.61 / 0.000 | ADMIT |
-| ki-ichigo | a5-i-economy | G | 1600 / 805 | 0.027 (0.01), **2.63** | 0.02 | -0.46 | yes | 0.19, 0.94 / 0.000 | ADMIT |
-| ki-ichigo | a5-i-punish | G | 1600 / 930 | 0.009 (0.005), **1.85** | 0.01 | 0.83 | yes | 0.18, 0.54 / 0.007 | ADMIT |
-| ki-ichigo | a5-i-kessa-lunge | G | 1600 / 587 | 0.001 (0.012), **0.05** | 0.024 | -0.15 | yes | 0.28, 0.47 / 0.001 | ADMIT |
-| ki-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 575 | 0.012 (0.012), **0.96** | 0.024 | 1.41 | yes | 0.25, 0.43 / 0.001 | ADMIT |
-| ki-ichigo | a4-i-keep | T | 1600 / 29 | 0.0 (0.0), **0.0** | None | -0.15 | yes | 0.04, 0.26 / 0.001 | out: in-band |
-| kh-kenpachi | k5-poke | G | 1600 / 1185 | 0.063 (0.033), **1.92** | 0.066 | 1.84 | yes | 0.79 VAC, 0.31 / 0.019 | out: division |
-| kh-kenpachi | k5-wake | G | 1600 / 648 | 0.04 (0.048), **0.84** | 0.096 | -0.0 | yes | 0.20, 0.33 / 0.000 | ADMIT |
-| kh-kenpachi@a4-k-bait | a4-k-bait | T | 1600 / 801 | 0.086 (0.042), **2.05** | 0.084 | 1.0 | yes | 0.20, 0.34 / 0.000 | ADMIT |
-| kh-kenpachi | k5-red | G | 1600 / 633 | -0.261 (0.031), **-8.38** | 0.062 | -10.04 | yes | 0.48, 0.68 / 0.000 | out: in-band |
-| kh-kenpachi | k5-climb | G | 1600 / 408 | -0.08 (0.034), **-2.37** | 0.068 | -1.82 | yes | 0.30, 0.98 / 0.000 | out: in-band |
-| kh-kenpachi | k5-hug | T | 1600 / 1051 | 0.018 (0.032), **0.56** | 0.064 | 1.54 | yes | 0.12, 0.59 / 0.003 | out: in-band |
-| kh-hisagi | h5-cancel | G | 1600 / 1299 | 0.008 (0.011), **0.69** | 0.022 | 2.3 | yes | 0.24, 0.52 / 0.000 | ADMIT |
-| kh-hisagi | h5-tip | G | 1600 / 599 | -0.153 (0.045), **-3.39** | 0.09 | -3.4 | yes | 0.05, 0.75 / 0.000 | out: in-band |
-| kh-hisagi | h5-bind | G | 1600 / 666 | 0.031 (0.022), **1.37** | 0.044 | 0.87 | yes | 0.78 VAC, 0.80 / 0.001 | out: division |
-| kh-hisagi | h5-wake | G | 1600 / 981 | -0.038 (0.032), **-1.18** | 0.064 | -1.91 | yes | 0.10, 0.62 / 0.000 | ADMIT |
-| kh-hisagi@h4-wake | h4-wake | G | 1600 / 986 | -0.022 (0.037), **-0.6** | 0.074 | -0.54 | yes | 0.10, 0.69 / 0.000 | ADMIT |
-| kh-hisagi | h5-k1 | T | 1600 / 999 | 0.031 (0.029), **1.06** | 0.058 | 0.68 | yes | 0.25, 0.64 / 0.000 | out: in-band |
-| ih-ichigo | a5-i-answer | G | 1600 / 1130 | 0.077 (0.029), **2.66** | 0.058 | 0.08 | yes | 0.18, 0.47 / 0.000 | ADMIT |
-| ih-ichigo | a4-i-brawl | G | 1600 / 1368 | 0.03 (0.028), **1.1** | 0.056 | -1.65 | yes | 0.26, 0.47 / 0.000 | ADMIT |
-| ih-ichigo | a5-i-economy | G | 1600 / 908 | 0.134 (0.033), **4.01** | 0.066 | 2.87 | yes | 0.12, 0.74 / 0.000 | ADMIT |
-| ih-ichigo | a5-i-punish | G | 1600 / 1180 | 0.074 (0.026), **2.84** | 0.052 | 0.63 | yes | 0.43, 0.23 / 0.001 | ADMIT |
-| ih-ichigo | a5-i-kessa-lunge | G | 1600 / 1292 | 0.043 (0.027), **1.58** | 0.054 | 2.51 | yes | 0.55, 0.77 / 0.004 | ADMIT |
-| ih-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 1299 | -0.005 (0.025), **-0.22** | 0.05 | -1.25 | yes | 0.46, 0.63 / 0.006 | ADMIT |
-| ih-ichigo | a5-i-inside | T | 1600 / 1264 | -0.029 (0.03), **-0.96** | 0.06 | -1.5 | no (~a4-i-brawl) | 0.55, 0.27 / 0.018 | out: in-band, not distinct |
-| ih-hisagi | h5-cancel | G | 1600 / 1365 | -0.057 (0.019), **-2.94** | 0.038 | 2.91 | yes | 0.35, 0.40 / 0.001 | out: in-band |
-| ih-hisagi | h5-tip | G | 1600 / 1105 | 0.349 (0.034), **10.16** | 0.068 | 13.65 | yes | 0.46, 0.89 / 0.003 | ADMIT |
-| ih-hisagi | h5-bind | G | 1600 / 575 | 0.237 (0.032), **7.32** | 0.064 | 9.57 | yes | 0.31, 0.24 / 0.002 | ADMIT |
-| ih-hisagi | h5-wake | G | 1600 / 1200 | -0.042 (0.026), **-1.6** | 0.052 | 4.25 | yes | 0.33, 0.33 / 0.000 | ADMIT |
-| ih-hisagi@h4-wake | h4-wake | G | 1600 / 1155 | -0.046 (0.031), **-1.47** | 0.062 | -1.27 | yes | 0.33, 0.34 / 0.000 | ADMIT |
-| ih-hisagi | h5-i1 | T | 1600 / 947 | -0.058 (0.035), **-1.64** | 0.07 | -0.3 | yes | 0.42, 0.45 / 0.004 | out: in-band |
-| ih-hisagi | h5-ihx | T | 1600 / 441 | -0.077 (0.05), **-1.55** | 0.1 | -0.08 | yes | 0.25, 0.21 / 0.002 | out: in-band |
-| kk-kenpachi | k5-poke | G | 1600 / 702 | -0.05 (0.044), **-1.14** | 0.088 | 0.88 | yes | 0.98 VAC, 0.97 / 0.034 | out: division |
-| kk-kenpachi | k5-wake | G | 1600 / 142 | 0.008 (0.108), **0.08** | 0.216 | 0.87 | yes | 0.03, 0.18 / 0.000 | ADMIT |
-| kk-kenpachi | k5-red | G | 1600 / 123 | -0.335 (0.093), **-3.61** | 0.186 | -4.47 | yes | 0.09, 0.18 / 0.000 | out: in-band |
-| kk-kenpachi | k5-climb | G | 1600 / 126 | -0.224 (0.119), **-1.89** | 0.238 | -1.87 | yes | 0.02, 0.99 / 0.000 | ADMIT |
-| ii-ichigo | a5-i-answer | G | 1600 / 1294 | -0.051 (0.033), **-1.55** | 0.066 | -2.16 | yes | 0.36, 0.82 / 0.001 | ADMIT |
-| ii-ichigo | a4-i-brawl | G | 1600 / 1405 | -0.193 (0.031), **-6.19** | 0.062 | -8.32 | yes | 0.42, 0.58 / 0.000 | out: in-band |
-| ii-ichigo | a5-i-economy | G | 1600 / 953 | -0.026 (0.038), **-0.67** | 0.076 | -0.86 | yes | 0.24, 0.83 / 0.000 | ADMIT |
-| ii-ichigo | a5-i-punish | G | 1600 / 934 | -0.041 (0.036), **-1.13** | 0.072 | -0.93 | yes | 0.12, 0.57 / 0.005 | ADMIT |
-| ii-ichigo | a5-i-kessa-lunge | G | 1600 / 608 | 0.011 (0.041), **0.28** | 0.082 | -0.37 | yes | 0.38, 0.38 / 0.001 | ADMIT |
-| ii-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 593 | -0.04 (0.036), **-1.11** | 0.072 | -1.26 | yes | 0.39, 0.29 / 0.001 | ADMIT |
-| hh-hisagi | h5-cancel | G | 1600 / 1462 | 0.012 (0.028), **0.44** | 0.056 | -1.03 | yes | 0.44, 0.34 / 0.001 | ADMIT |
-| hh-hisagi | h5-tip | G | 1600 / 984 | -0.218 (0.037), **-5.83** | 0.074 | -6.9 | yes | 0.58, 0.92 / 0.004 | out: in-band |
-| hh-hisagi | h5-bind | G | 1600 / 612 | -0.102 (0.028), **-3.64** | 0.056 | -1.3 | yes | 0.49, 0.26 / 0.001 | out: in-band |
-| hh-hisagi | h5-wake | G | 1600 / 1040 | -0.027 (0.026), **-1.03** | 0.052 | -0.22 | yes | 0.28, 0.26 / 0.000 | ADMIT |
-| hh-hisagi@h4-wake | h4-wake | G | 1600 / 964 | -0.051 (0.042), **-1.2** | 0.084 | 0.3 | yes | 0.30, 0.29 / 0.000 | ADMIT |
+| Row | Arm | G/T | n run / distinct used | slope (se), z | z clustered | MDE | margin z | distinct | fire, in / out | descriptor 1-100 / 141-180 (report only) | verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ki-kenpachi | k5-poke | G | 1600 / 1058 | -0.004 (0.005), **-0.84** | -0.83 | 0.01 | 3.79 | yes | 0.43, 0.64 / 0.007 | pass / pass | ADMIT |
+| ki-kenpachi | k5-wake | G | 1600 / 1020 | -0.001 (0.007), **-0.18** | -0.16 | 0.014 | -3.46 | yes | 0.34, 0.69 / 0.000 | FAIL / FAIL | ADMIT |
+| ki-kenpachi | k5-red | G | 1600 / 414 | -0.117 (0.027), **-4.29** | -2.97 | 0.054 | -9.15 | yes | 0.30, 0.65 / 0.002 | pass / pass | out: in-band |
+| ki-kenpachi | k5-climb | G | 1600 / 34 | -0.072 (0.106), **-0.67** | -1.53 | 0.212 | -0.16 | yes | 0.01, 0.99 / 0.000 | pass / pass | ADMIT |
+| ki-kenpachi | k5-getsuga | T | 1600 / 164 | 0.0 (0.0), **0.0** | 0.0 | None | -0.58 | yes | 0.04, 0.77 / 0.000 | FAIL / pass | out: in-band |
+| ki-ichigo | a5-i-answer | G | 1600 / 1422 | 0.008 (0.007), **1.26** | 1.08 | 0.014 | -4.78 | yes | 0.48, 0.71 / 0.000 | FAIL / FAIL | ADMIT |
+| ki-ichigo | a4-i-brawl | G | 1600 / 1316 | 0.006 (0.007), **0.87** | 0.88 | 0.014 | 0.7 | yes | 0.31, 0.61 / 0.000 | pass / pass | ADMIT |
+| ki-ichigo | a5-i-economy | G | 1600 / 805 | 0.027 (0.01), **2.63** | 1.11 | 0.02 | -0.46 | yes | 0.19, 0.94 / 0.000 | FAIL / FAIL | ADMIT |
+| ki-ichigo | a5-i-punish | G | 1600 / 930 | 0.009 (0.005), **1.85** | 1.36 | 0.01 | 0.83 | yes | 0.18, 0.54 / 0.007 | pass / FAIL | ADMIT |
+| ki-ichigo | a5-i-kessa-lunge | G | 1600 / 587 | 0.001 (0.012), **0.05** | 0.04 | 0.024 | -0.15 | yes | 0.28, 0.47 / 0.001 | FAIL / FAIL | ADMIT |
+| ki-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 575 | 0.012 (0.012), **0.96** | 0.91 | 0.024 | 1.41 | yes | 0.25, 0.43 / 0.001 | pass / pass | ADMIT |
+| ki-ichigo | a4-i-keep | T | 1600 / 29 | 0.0 (0.0), **0.0** | 0.0 | None | -0.15 | yes | 0.04, 0.26 / 0.001 | pass / pass | out: in-band |
+| kh-kenpachi | k5-poke | G | 1600 / 1185 | 0.063 (0.033), **1.92** | 1.42 | 0.066 | 1.84 | yes | 0.79 VAC, 0.31 / 0.019 | pass / pass | out: division |
+| kh-kenpachi | k5-wake | G | 1600 / 648 | 0.04 (0.048), **0.84** | 0.71 | 0.096 | -0.0 | yes | 0.20, 0.33 / 0.000 | FAIL / FAIL | ADMIT |
+| kh-kenpachi@a4-k-bait | a4-k-bait | T | 1600 / 801 | 0.086 (0.042), **2.05** | 1.49 | 0.084 | 1.0 | yes | 0.20, 0.34 / 0.000 | pass / pass | ADMIT |
+| kh-kenpachi | k5-red | G | 1600 / 633 | -0.261 (0.031), **-8.38** | -4.71 | 0.062 | -10.04 | yes | 0.48, 0.68 / 0.000 | pass / pass | out: in-band |
+| kh-kenpachi | k5-climb | G | 1600 / 408 | -0.08 (0.034), **-2.37** | -1.73 | 0.068 | -1.82 | yes | 0.30, 0.98 / 0.000 | pass / pass | out: in-band |
+| kh-kenpachi | k5-hug | T | 1600 / 1051 | 0.018 (0.032), **0.56** | 0.3 | 0.064 | 1.54 | yes | 0.12, 0.59 / 0.003 | FAIL / FAIL | out: in-band |
+| kh-hisagi | h5-cancel | G | 1600 / 1299 | 0.008 (0.011), **0.69** | 0.22 | 0.022 | 2.3 | yes | 0.24, 0.52 / 0.000 | FAIL / FAIL | ADMIT |
+| kh-hisagi | h5-tip | G | 1600 / 599 | -0.153 (0.045), **-3.39** | -3.06 | 0.09 | -3.4 | yes | 0.05, 0.75 / 0.000 | FAIL / FAIL | out: in-band |
+| kh-hisagi | h5-bind | G | 1600 / 666 | 0.031 (0.022), **1.37** | 0.66 | 0.044 | 0.87 | yes | 0.78 VAC, 0.80 / 0.001 | FAIL / FAIL | out: division |
+| kh-hisagi | h5-wake | G | 1600 / 981 | -0.038 (0.032), **-1.18** | -0.56 | 0.064 | -1.91 | yes | 0.10, 0.62 / 0.000 | pass / pass | ADMIT |
+| kh-hisagi@h4-wake | h4-wake | G | 1600 / 986 | -0.022 (0.037), **-0.6** | -0.42 | 0.074 | -0.54 | yes | 0.10, 0.69 / 0.000 | pass / pass | ADMIT |
+| kh-hisagi | h5-k1 | T | 1600 / 999 | 0.031 (0.029), **1.06** | 0.46 | 0.058 | 0.68 | yes | 0.25, 0.64 / 0.000 | pass / pass | out: in-band |
+| ih-ichigo | a5-i-answer | G | 1600 / 1130 | 0.077 (0.029), **2.66** | 2.02 | 0.058 | 0.08 | yes | 0.18, 0.47 / 0.000 | FAIL / FAIL | ADMIT |
+| ih-ichigo | a4-i-brawl | G | 1600 / 1368 | 0.03 (0.028), **1.1** | 0.71 | 0.056 | -1.65 | yes | 0.26, 0.47 / 0.000 | pass / pass | ADMIT |
+| ih-ichigo | a5-i-economy | G | 1600 / 908 | 0.134 (0.033), **4.01** | 2.22 | 0.066 | 2.87 | yes | 0.12, 0.74 / 0.000 | FAIL / FAIL | ADMIT |
+| ih-ichigo | a5-i-punish | G | 1600 / 1180 | 0.074 (0.026), **2.84** | 1.85 | 0.052 | 0.63 | yes | 0.43, 0.23 / 0.001 | FAIL / FAIL | ADMIT |
+| ih-ichigo | a5-i-kessa-lunge | G | 1600 / 1292 | 0.043 (0.027), **1.58** | 1.2 | 0.054 | 2.51 | yes | 0.55, 0.77 / 0.004 | FAIL / FAIL | ADMIT |
+| ih-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 1299 | -0.005 (0.025), **-0.22** | -0.14 | 0.05 | -1.25 | yes | 0.46, 0.63 / 0.006 | pass / pass | ADMIT |
+| ih-ichigo | a5-i-inside | T | 1600 / 1264 | -0.029 (0.03), **-0.96** | -0.7 | 0.06 | -1.5 | no (~a4-i-brawl) | 0.55, 0.27 / 0.018 | pass / pass | out: in-band, not distinct |
+| ih-hisagi | h5-cancel | G | 1600 / 1365 | -0.057 (0.019), **-2.94** | -1.08 | 0.038 | 2.91 | yes | 0.35, 0.40 / 0.001 | FAIL / FAIL | out: in-band |
+| ih-hisagi | h5-tip | G | 1600 / 1105 | 0.349 (0.034), **10.16** | 6.45 | 0.068 | 13.65 | yes | 0.46, 0.89 / 0.003 | FAIL / FAIL | ADMIT |
+| ih-hisagi | h5-bind | G | 1600 / 575 | 0.237 (0.032), **7.32** | 4.08 | 0.064 | 9.57 | yes | 0.31, 0.24 / 0.002 | FAIL / FAIL | ADMIT |
+| ih-hisagi | h5-wake | G | 1600 / 1200 | -0.042 (0.026), **-1.6** | -0.82 | 0.052 | 4.25 | yes | 0.33, 0.33 / 0.000 | FAIL / pass | ADMIT |
+| ih-hisagi@h4-wake | h4-wake | G | 1600 / 1155 | -0.046 (0.031), **-1.47** | -1.21 | 0.062 | -1.27 | yes | 0.33, 0.34 / 0.000 | pass / pass | ADMIT |
+| ih-hisagi | h5-i1 | T | 1600 / 947 | -0.058 (0.035), **-1.64** | -1.0 | 0.07 | -0.3 | yes | 0.42, 0.45 / 0.004 | FAIL / FAIL | out: in-band |
+| ih-hisagi | h5-ihx | T | 1600 / 441 | -0.077 (0.05), **-1.55** | -1.2 | 0.1 | -0.08 | yes | 0.25, 0.21 / 0.002 | pass / pass | out: in-band |
+| kk-kenpachi | k5-poke | G | 1600 / 702 | -0.05 (0.044), **-1.14** | -0.84 | 0.088 | 0.88 | yes | 0.98 VAC, 0.97 / 0.034 | pass / pass | out: division |
+| kk-kenpachi | k5-wake | G | 1600 / 142 | 0.008 (0.108), **0.08** | 0.08 | 0.216 | 0.87 | yes | 0.03, 0.18 / 0.000 | FAIL / FAIL | ADMIT |
+| kk-kenpachi | k5-red | G | 1600 / 123 | -0.335 (0.093), **-3.61** | -3.37 | 0.186 | -4.47 | yes | 0.09, 0.18 / 0.000 | pass / pass | out: in-band |
+| kk-kenpachi | k5-climb | G | 1600 / 126 | -0.224 (0.119), **-1.89** | -1.38 | 0.238 | -1.87 | yes | 0.02, 0.99 / 0.000 | pass / pass | ADMIT |
+| ii-ichigo | a5-i-answer | G | 1600 / 1294 | -0.051 (0.033), **-1.55** | -0.88 | 0.066 | -2.16 | yes | 0.36, 0.82 / 0.001 | FAIL / FAIL | ADMIT |
+| ii-ichigo | a4-i-brawl | G | 1600 / 1405 | -0.193 (0.031), **-6.19** | -3.83 | 0.062 | -8.32 | yes | 0.42, 0.58 / 0.000 | pass / pass | out: in-band |
+| ii-ichigo | a5-i-economy | G | 1600 / 953 | -0.026 (0.038), **-0.67** | -0.4 | 0.076 | -0.86 | yes | 0.24, 0.83 / 0.000 | FAIL / FAIL | ADMIT |
+| ii-ichigo | a5-i-punish | G | 1600 / 934 | -0.041 (0.036), **-1.13** | -0.53 | 0.072 | -0.93 | yes | 0.12, 0.57 / 0.005 | FAIL / FAIL | ADMIT |
+| ii-ichigo | a5-i-kessa-lunge | G | 1600 / 608 | 0.011 (0.041), **0.28** | 0.21 | 0.082 | -0.37 | yes | 0.38, 0.38 / 0.001 | FAIL / FAIL | ADMIT |
+| ii-ichigo@a4-i-kessa2 | a4-i-kessa2 | G | 1600 / 593 | -0.04 (0.036), **-1.11** | -0.82 | 0.072 | -1.26 | yes | 0.39, 0.29 / 0.001 | pass / pass | ADMIT |
+| hh-hisagi | h5-cancel | G | 1600 / 1462 | 0.012 (0.028), **0.44** | 0.17 | 0.056 | -1.03 | yes | 0.44, 0.34 / 0.001 | FAIL / FAIL | ADMIT |
+| hh-hisagi | h5-tip | G | 1600 / 984 | -0.218 (0.037), **-5.83** | -4.87 | 0.074 | -6.9 | yes | 0.58, 0.92 / 0.004 | FAIL / FAIL | out: in-band |
+| hh-hisagi | h5-bind | G | 1600 / 612 | -0.102 (0.028), **-3.64** | -1.74 | 0.056 | -1.3 | yes | 0.49, 0.26 / 0.001 | FAIL / FAIL | out: in-band |
+| hh-hisagi | h5-wake | G | 1600 / 1040 | -0.027 (0.026), **-1.03** | -0.37 | 0.052 | -0.22 | yes | 0.28, 0.26 / 0.000 | FAIL / pass | ADMIT |
+| hh-hisagi@h4-wake | h4-wake | G | 1600 / 964 | -0.051 (0.042), **-1.2** | -1.06 | 0.084 | 0.3 | yes | 0.30, 0.29 / 0.000 | pass / pass | ADMIT |
 
 Reading:
 - **KI Kenpachi**: Kenpachi loses nearly every match to Ichigo's T0 (points .004-.072), so for poke, wake, climb and getsuga the game's
@@ -202,9 +207,10 @@ Same recipe as the candidates (§2; Hisagi "on"); each table against the opponen
 - **Bar A passes in six rows** (KI both, IH both, KK, II); **it fails in KH both and HH** on "three arms >= 10 %": arm 0 holds .78-.80 of the
   judgements (KH Kenpachi has one job arm left, wake; KH Hisagi cancel + wake; HH cancel + wake).
 - **Bar D: KI 1.000 passes; KH .287 and IH .550 fail** (>= .90). Mirrors: KK 1.000, II .475, HH .000 (80 of 80 at the bell).
-  For comparison, B4's shipped tables (501-580): KI 1.000, KH 1.000, IH .963-.975; KK .975-1.000, II .825-.925, HH .000-.025. The KH and IH
-  stalls come with Hisagi's own arm 0 and the clash on (the candidate T0s already had KH .250, IH .487): KH Hisagi trails at the bell (points
-  .025), IH Hisagi leads at it (Ichigo's points .175).
+  For comparison, B4's shipped tables (501-580): KI 1.000, KH 1.000, IH .963-.975; KK .975-1.000, II .825-.925, HH .000-.025. Neither Hisagi's own arm 0 nor
+  the clash explains the KH / IH stalls: §1's T0 setting stalls in every variant (KH K.O. .250 / .188 / .225, IH .487 / .512 / .450 for on /
+  off / h4), and `h4-all` played whole against KH Kenpachi's candidate T0 K.O.s .237. What changed from B4 is the opponents' arms5 tables and
+  Hisagi's h5 job arms. KH Hisagi trails at the bell (points .025), IH Hisagi leads at it (Ichigo's points .175).
 - No match without an arm change in any row; medians 38.5-97.
 
 ## 6. Findings for the lead (to take to the user)
@@ -242,6 +248,12 @@ distinct): the findings proper.
 **Admitted although their descriptor failed** (report only by the brief; named so nothing is kept quietly): Ichigo answer (sa_x), economy
 (sp), kessa-lunge (k_sp, k_p3), punish (vs Hisagi on 1-100; vs both on 141-180); Kenpachi wake (wake_kd); Hisagi cancel (KH, HH), h5-wake vs Ichigo (x1.27
 on 1-100; passes on 141-180).
+
+**Below PLAN4 §3's floor** ("never fewer than 3 general arms: then stop and report"): KH Kenpachi has one general arm (wake), KH Hisagi two
+(cancel, wake), HH two (cancel, wake). **Fit to integrate (bar A and bar D both pass): KI Kenpachi, KI Ichigo, KK, II** (II's K.O. .475 is a
+mirror, reported). IH Ichigo / IH Hisagi pass bar A but fail bar D (.550). KH both sides and HH: stop and report.
+
+**The table ids** (`:t0-ki-kenpachi` ...) are B4's shipped library ids: `t0final/add.sh` would replace them; the lead decides the names.
 
 **Rows that fail bar A or D with the admitted arms**: KH (both sides: two / three arms, arm 0 at .80 / .78; K.O. .287), IH (K.O. .550), HH
 (three arms; K.O. .000). Options for the user are not decided here: e.g. KH Hisagi's or Kenpachi's arm 0, the clash setting of Hisagi's
