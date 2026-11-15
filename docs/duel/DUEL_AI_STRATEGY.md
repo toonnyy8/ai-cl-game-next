@@ -3378,8 +3378,9 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   side's hit in Hisagi's classed window, so his opener need not reach, and both sides count as landed (DUEL_CORE §2.1); his AS1 lands at
   1.09 m after a 2.2 m cancel. The lead's "dead zone" framing was wrong. What decides the exchange is the side (`kits/hisagi/catalogue.md`
   §5): Hisagi as the J side (his J1 into Kenpachi's NS) wins with AS1 TSUMUJI against every answer; as the NS side (Kenpachi's J into his
-  NS) he loses to the instant AS unless he answers it with the reactive SA (DUEL_CORE §2.1.1), which the CPU does not use. The generic
-  clash rule answered Kenpachi's J with a NS (the losing side); CLASH-FIT's dead-zone test happened to block those for the wrong reason
-  and blocked Hisagi's own clashes too. Next (the lead's call, not a ladder knob): the exchange picks the winning side (J1 into his NS;
-  no NS into his J) and, as the NS side, the reactive SA; CLASH-FIT's test restated as "which side wins the exchange"; G2-checked; then
-  the tier probe again.
+  NS) he loses to the instant AS unless he answers it with the reactive SA (DUEL_CORE §2.1.1). The CPU has that answer (`xch-ai.lisp`
+  XCH-SA-NOW-P, `*cai-xch-sa-p*` .25 / .45 / .65), seen BRAIN-DELAY late (24 / 14 / 8 frames against a ~16-frame window). CLASH-OPENER
+  already picks the J into his NS and the NS into his J; CLASH-FIT's dead-zone test (the lead's fix, DEVLOG §793) blocks Hisagi's clash
+  under 3.0 m on a wrong premise, since the cancel needs only the other side's hit in his window. Next (the lead's call, not a ladder
+  knob): measure the clash without CLASH-FIT's dead-zone test (KK-FITS-P, the brawler's real-hit test, stays), counting the cancels and
+  who wins each exchange; G2-checked; then the tier probe again.
