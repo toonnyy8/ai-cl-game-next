@@ -37,7 +37,7 @@ Dev screens (seeds 301-320, both seats, 40 matches) set the defaults that change
 0.5 -> 1.0 at HARD, the reel handed to the string code, NAGI only on a walk-in (> 0.03 m a step). Tried and dropped: the Kikon hold on the band's
 NS (vs Ichigo's `none` K.O. 0.35 -> 0.00 on the screen), a stall breaker (no effect).
 
-## 2. The arms (`arms5/hisagi.lisp`) and their job maps (`arms5/hisagi-jobs.json`, `:rb-sp2`)
+## 2. The arms (`arms5/hisagi/arms.lisp`) and their job maps (`arms5/hisagi/jobs.json`, `:rb-sp2`)
 
 | Arm | Keys over arm 0 | Job rules (KH; IH the same unless said) |
 |---|---|---|
@@ -58,7 +58,7 @@ NS (vs Ichigo's `none` K.O. 0.35 -> 0.00 on the screen), a stall breaker (no eff
 ## 3. Pre-registered descriptors (proof.py TESTS; written and committed before the seeds 1-100 run)
 
 `proof.py desc`, seeds 1-100, both seats (200 matches), HARD, against the opponent's `none`, as T0 plays an arm (a 1-arm `:rb-sp2` table, keep-state,
-period 30) with the pairing's `:with` unit (`d-x-kh-h`, `d-x-ih-h`). `h5-all` against the OLD arm 0 (`arms5/hisagi-old0.lisp`: `h4-all` first);
+period 30) with the pairing's `:with` unit (`d-x-kh-h`, `d-x-ih-h`). `h5-all` against the OLD arm 0 (`arms5/hisagi/old0.lisp`: `h4-all` first);
 every other arm against `h5-all`. Pass = every part + distinct from every sibling + K.O. rate >= 0.50. A general arm must pass against both.
 
 | Arm | Descriptor (per match unless pooled) | Bar |
@@ -102,6 +102,21 @@ kept are the rerun's, which carry the other batches' extra keys too).
 | `h5-ihx` (vs I) | | | move starts into her neutral 54.8 vs 19.3 (x2.84) PASS | 1.000 | **passes** |
 
 Every pair of h5- arms is distinct (no `not_distinct_from`). The bars were not moved after the run.
+
+**Stop condition (PLAN4 §3: never fewer than 3 general arms, "then stop and report").** No general job arm passes, and arm 0 fails part of
+its own descriptor. Hisagi is below the floor: **no T0 should be built from these arms**; only `h5-k1` (vs K) and `h5-ihx` (vs I) are
+admissible. For S5 the arms4 `h4-wake` (passed against the old arm 0, `arms4/hisagi.md` §6) still exists beside this `h5-wake`.
+
+Deviations to weigh at integration: every arm sets **`:clash-p 0`**, which overrides the pairing's `:with` exchange key (1.7 in KH and IH)
+that PLAN4 §3 lays under every arm; it was set against the dead-zone NAGIs that the shared CLASH-FIT now prevents, and the arms were never
+measured without it (the first lever on arm 0's damage rate). K2 is absorbed into arm 0 (no arm). The AS window 20 -> 60 f and k1's + 1 part
+(§3). Arm 0's K.O. "drop" against Ichigo is partly a reading: the old arm 0's .525 K.O.s include being K.O.'d (its K.O. wins .27); the new arm
+0 won every screened match (K.O. or the lead at the bell), so it is a finishing problem, not a losing one.
+
+Shared lines edited outside the separated blocks (other batches in flight may conflict there): strat-run.lisp `sr-desc-flush` /
+`sr-desc-step` (the two hook lists `*sr-desc-extra*`, `*sr-desc-steps*`); proof.py `close_on_all`'s `hx` argument, `test1`'s op table
+(`a>=`, `a<=`), `cmd_desc`'s descriptor keys, print columns and `vals` line. Stale prose left as it is (a Lisp comment change would need a
+rebuild): cpu-hisagi-own.lisp's header says the band is 3.4-5.0 m and the predicted hit 3.1-6.2 m; the code uses `*hb-hi*` 4.2 and <= 6.0.
 
 Reading:
 - **Arm 0 does the kit's job in the Shikai** (+1.0 / +1.9 m, NAGI 29 / 53 a match from the band) but **K.O.s Ichigo's `none` in 18.5 % of the

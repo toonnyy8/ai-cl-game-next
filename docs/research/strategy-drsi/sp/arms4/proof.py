@@ -90,7 +90,7 @@ HX_TOL = {'b_mean_d': ('abs', 0.25), 'nagiin': ('rel', 0.15), 'jside': ('abs', 0
           'bind_b': ('abs', 0.03), 'beven': ('rel', 0.15), 'bina': ('rel', 0.15), 'jlunge': ('rel', 0.15), 'nsin': ('rel', 0.15),
           'g_ans': ('abs', 0.05), 'rush_nagi': ('abs', 0.05)}
 HX_DESC = list(HX_MEAN) + list(HX_POOLED)
-# Pre-registered (arms5/hisagi.md §3, committed before the seeds 1-100 run). h5-all is measured against the OLD arm 0 (arms5/hisagi-old0.lisp:
+# Pre-registered (arms5/hisagi.md §3, committed before the seeds 1-100 run). h5-all is measured against the OLD arm 0 (arms5/hisagi/old0.lisp:
 # h4-all first), every other h5- arm against h5-all. The kit study's bars (kits/hisagi/strategies.md), with the deviations named in §3.
 TESTS.update({'h5-all': [('b_mean_d', '+', 1.0), ('nagiin', 'x<', 0.25)],
               'h5-cancel': [('jside', '+', 0.30), ('as_after', 'a>=', 0.80)],

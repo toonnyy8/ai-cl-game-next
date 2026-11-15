@@ -1,4 +1,4 @@
-;;;; arms5/hisagi.lisp — PLAN4 checkpoint 2a (the user, 2026-11-15: 「全部採用」, 「改成修兵自己的打法」): Hisagi's arms from his kit study
+;;;; arms5/hisagi/arms.lisp — PLAN4 checkpoint 2a (the user, 2026-11-15: 「全部採用」, 「改成修兵自己的打法」): Hisagi's arms from his kit study
 ;;;; (kits/hisagi/strategies.md), written inline (:fn, so no style unit is needed in strategy.lisp: nothing in the game names them). The
 ;;;; style hisagi-own-style (duel/lisp/cpu-hisagi-own.lisp) plays hisagi-hk-style with his own rules under the :hb-* keys (KNOBS.md §6.8).
 ;;;; Arm 0 is the first form. Every job arm = arm 0's keys + its job's keys. The record: arms5/hisagi.md.
