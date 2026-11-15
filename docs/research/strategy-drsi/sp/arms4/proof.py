@@ -31,7 +31,7 @@ sw, ss = band.sw, band.ss
 CACHE = os.path.join(ROOT, 'build/arms4-cache')
 WORK = os.path.join(ROOT, 'build/arms4')
 HARD = 2
-KEEP = ('desc ', 'duel gate row ', 'fq ', 'strat ')
+KEEP = ('desc ', 'duel gate row ', 'fq ', 'strat ', 'kdesc ')   # (kdesc: PLAN4 P5, Kenpachi's counters, strat-run.lisp)
 
 # Pre-registered (written before the first proof run, ichigo.md / kenpachi.md): arm id -> (descriptor, op, amount) against arm 0.
 # '+': value >= arm 0's + amount; '-': value <= arm 0's - amount; 'x': value >= arm 0's x amount; 'x<': value <= arm 0's x amount.
@@ -58,6 +58,8 @@ TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'f
        # cells-k (B3, pre-registered in kenpachi.md before any cell ran): move starts into his neutral per 1000 steps, pooled (rush's
        # contact rate: a per-match count falls when a rush shortens the match)
        'nstart_r': ('rel', 0.15)}
+# PLAN4 P5, Kenpachi (arms5/kenpachi.md, pre-registered before the proof run): the kdesc counters, per match
+TOL.update({'pfar': ('rel', 0.15), 'kikon_k': ('rel', 0.15), 'wave_taken': ('rel', 0.15)})
 DESC = list(TOL)
 # Hisagi's arms (B3 cells, cells-h; pre-registered in hisagi.md §5 before any cell or proof run). A cell's winner keeps its slot's id.
 TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5), 'h4-range': [('mean_d', '+', 0.5), ('bankai', '+', 0.10)],
@@ -65,7 +67,14 @@ TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5),
 
 
 def forms(path):
-    """An arms file -> {id (no colon): one-line plist}, in file order."""
+    """An arms file -> {id (no colon): one-line plist}, in file order. A directory (arms5/<char>/, one arm a file): its *.lisp in name
+    order, merged (PLAN4 P5)."""
+    if os.path.isdir(path):
+        out = {}
+        for f in sorted(os.listdir(path)):
+            if f.endswith('.lisp'):
+                out.update(forms(os.path.join(path, f)))
+        return out
     t = ss.strip_lisp(open(path).read())
     out, i = {}, 0
     while True:
@@ -175,14 +184,33 @@ def desc_vec(line):
                 evade=kv['evade'], acts=kv['acts'], clash=kv['clash'], steps=kv['steps'])
 
 
+# ---- PLAN4 P5, Kenpachi's descriptors (arms5/kenpachi.md; strat-run.lisp's "kdesc" line under STRAT_DESC; 2026-11-15) ----
+# pfar: J / NS hits landed from a start beyond 2.4 m (the out-range poke); kikon_k: Konpaku taken by my Kikons; wave_taken: his wave hits on
+# me. Per match. A run without kdesc lines (an older cache) reads 0.
+KDESC0 = dict(pfar=0, kikon_k=0, wave_taken=0)
+
+
+def kdesc(lines):
+    """kdesc lines -> {(seed, seat): {pfar, kikon_k, wave_taken}}."""
+    out = {}
+    for l in lines:
+        if l.startswith('kdesc '):
+            p = l.split()
+            kv = {p[i]: int(p[i + 1]) for i in range(3, len(p), 2)}
+            out[(p[1], p[2])] = dict(pfar=kv['pfar'], kikon_k=kv['kikonk'], wave_taken=kv['wavet'])
+    return out
+# ---- end of P5 Kenpachi's block ----
+
+
 def arm_desc(res):
     """{seat: lines} -> the arm's per-match means, K.O. rate, K.O.-win share, matches."""
     ms, ko, kow = [], 0, 0
     for seat, lines in res.items():
         rw = rows(lines)
+        kx = kdesc(lines)
         for l in lines:
             if l.startswith('desc ') and l.split()[2] == seat:
-                ms.append(desc_vec(l))
+                ms.append(dict(desc_vec(l), **kx.get((l.split()[1], seat), KDESC0)))
         ko += sum(k for _, k in rw.values())
         kow += sum(1 for w, k in rw.values() if k and w == seat)
     n = len(ms)
