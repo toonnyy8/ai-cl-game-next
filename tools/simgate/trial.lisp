@@ -19,7 +19,8 @@
 ;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
 ;;;; :p2-cpu DIF (DUEL_SP S7, 2026-11-13): P2's CPU plays (CORE-BRAIN-STEP at difficulty DIF, no strategy: the generic CPU or the
 ;;;; pairing's matchup style), e.g. after a :p2-start; :seed N reseeds the sim's random stream first (one seed, the same rolls in two trials).
-;;;; :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
+;;;; :p1-reishi X P1's Reishi (PLAN4 kit study: the bind's evening from behind). :p2-meter X (PLAN4 kit study) P2's kit meter (Kenpachi's Shikai L 0-3). :p1-bound T (PLAN4 kit study, 2026-11-15): a Hisagi P1 in :bankai-bind starts bound (HSS-BOUND, so HS-BK-TICK keeps the bind form);
+;;;; every other Hisagi P1 starts unbound (the flag carried over from the last trial). :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
 (load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
@@ -53,13 +54,17 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound p2-meter p1-reishi) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
+    (when (eq p1 :hisagi)                               ; (:p1-bound: his bind is his own state, HS-BK-TICK sets the form from it)
+      (hs-reset *p1*)                                   ; (his 餘電, the cancel unlock, the 聚 flag: none carried over)
+      (let ((st (hs *p1*))) (setf (hss-bound st) (and p1-bound t) (hss-bind-arm st) nil (hss-unbind st) nil)))
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
     (place *p1* *p2* dist)
-    (clear-hazards)                                     ; (no wave or clone carried from the last trial)
+    (dolist (e (list *p1* *p2*)) (vpad-clear! (pilot-vpad (pilot e))))   ; (no button held over from the last trial: a press there was no edge; PLAN4 kit study)
+    (clear-hazards)                                   ; (no wave or clone carried from the last trial)
     (when *cine* (skip-cine))
     (setf *timer* 36000)                                ; (no time-up mid-file: one match carries every trial)
     (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*)
@@ -68,6 +73,7 @@ from that act)."
       (let ((g (gauges e)))                             ; (SUBLIMATION / DRIVE scale the damage: none carried from the last trial)
         (setf (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0 (gauges-awaken g) 0f0)))
     (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)
+    (setf (gauges-meter (gauges *p2*)) (f32 (or p2-meter 0)))   ; (:p2-meter: Kenpachi's Shikai L; 0 = none carried from the last trial)
     (setf (gauges-fs (gauges *p1*)) (f32 fs))
     (when p2-fs (setf (gauges-fs (gauges *p2*)) (f32 p2-fs)))
     (when burst (setf (gauges-burst (gauges *p1*)) burst (gauges-burn (gauges *p1*)) 300f0))   ; (:burst :white|:blue|:orange: P1 starts the trial in that burst, DUEL_SP S3's "no gain")
@@ -75,6 +81,7 @@ from that act)."
     (when p2-ptr (setf (fighter-ptr (fighter *p2*)) p2-ptr))
     (when awaken (setf (gauges-awaken (gauges *p1*)) (f32 awaken)))
     (when p2-reishi (setf (gauges-reishi (gauges *p2*)) (f32 p2-reishi)))   ; (under 30 %: red, his Kikon can't be cancelled)
+    (when p1-reishi (setf (gauges-reishi (gauges *p1*)) (f32 p1-reishi)))
     (let ((f2 (fighter *p2*)) (b1 (brain *p1*)) (b2 (brain *p2*)))
       (setf (brain-off b1) nil (brain-habit b1) :trial (brain-press-left b1) 0
             (brain-off b2) (not p2-cpu) (brain-press-left b2) 0)
