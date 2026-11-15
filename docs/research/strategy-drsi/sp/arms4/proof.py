@@ -60,6 +60,8 @@ TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'f
        'nstart_r': ('rel', 0.15)}
 # PLAN4 P5, Kenpachi (arms5/kenpachi.md, pre-registered before the proof run): the kdesc counters, per match
 TOL.update({'pfar': ('rel', 0.15), 'kikon_k': ('rel', 0.15), 'wave_taken': ('rel', 0.15)})
+TESTS.update({'k5-poke': ('pfar', 'x', 1.5), 'k5-wake': ('wake_kd', 'x<', 0.5), 'k5-red': [('p2', '+', 0.10), ('kikon_k', 'x', 1.5)],
+              'k5-climb': ('bankai', '+', 0.05), 'k5-getsuga': ('wave_taken', 'x<', 0.5), 'k5-hug': ('mid', '-', 0.04)})
 DESC = list(TOL)
 # Hisagi's arms (B3 cells, cells-h; pre-registered in hisagi.md §5 before any cell or proof run). A cell's winner keeps its slot's id.
 TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5), 'h4-range': [('mean_d', '+', 0.5), ('bankai', '+', 0.10)],

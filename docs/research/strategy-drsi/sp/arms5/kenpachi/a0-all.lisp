@@ -1,0 +1,3 @@
+;; PLAN4 P5 (2026-11-15), Kenpachi's arm 0: a4-k-all unchanged (the KI and KH tables' 2026-11-15 arm 0 without its exchange keys). General. :with d-x-ki-k (KI), d-x-kh-k (KH), none (KK).
+;; Keys over the base: arms5/kenpachi.md. One plist; proof.py desc --arms ../arms5/kenpachi reads the directory in name order.
+(:id :k5-all :fn ken-kh-standoff-style :apply (:kenpachi) :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :kk-step-in-p 0.0 :kk-awaken-p 1.0 :kk-reach-margin 0.35 :kk-wave-p 0.0 :kk-lunge-p 1.0 :kso-stale 60 :kk-step-max 4.5 :kk-step-p 1.0 :kk-bankai-p 0.0 :kk-reach-p 0.5 :kk-ns-safe-p 0.8 :other 10.0 :kikon 0.3))

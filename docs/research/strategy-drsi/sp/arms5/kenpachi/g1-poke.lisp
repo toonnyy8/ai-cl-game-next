@@ -1,0 +1,3 @@
+;; PLAN4 P5 (2026-11-15), Kenpachi's general: the out-range poke (strategies.md 1). Start J1 / NS from reach + slide - 0.1 m, every approach by reach, the walk band x1.3 (2.2-3.9 m). :with d-x-ki-k / d-x-kh-k.
+;; Keys over the base: arms5/kenpachi.md. One plist; proof.py desc --arms ../arms5/kenpachi reads the directory in name order.
+(:id :k5-poke :fn ken-kh-standoff-style :apply (:kenpachi) :base (:range 1.3 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :kk-step-in-p 0.0 :kk-awaken-p 1.0 :kk-reach-margin 0.1 :kk-wave-p 0.0 :kk-lunge-p 1.0 :kso-stale 60 :kk-step-max 4.5 :kk-step-p 1.0 :kk-bankai-p 0.0 :kk-reach-p 1.0 :kk-ns-safe-p 0.8 :other 10.0 :kikon 0.3))
