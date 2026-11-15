@@ -404,6 +404,12 @@ only the debug scene's cap.")
 (defparameter *ai-mash-starts* 4 "... at least this many (a J string is 3): he mashes J (AI-MASH-P).")
 (defparameter *ai-burst-low* 0.5 "Burst is worth it below this fraction of Reishi ...")
 (defparameter *ai-dash-frames* 70 "Longest the CPU holds a dash.")
+(defparameter *cai-finish-at* 0.6
+  "The late-match finish (rules.lisp FINISH-ROLE, core-ai.lisp CAI-FINISH; the user, 2026-11-15: 「加「後段收尾」行為」): once this share
+of the match clock has run (MATCH-ELAPSED, the :RB-SP2 :TIME cue's scale), a CPU leaves its style's neutral (band, hover, patience) for
+the generic one: the side ahead at the bell at once (it closes to finish), the side behind or level once its style has held a whole
+decision gap (it presses). New (none -> 0.6, 120 s left), 2026-11-15: the foot of :T-LATE; HARD vs HARD stares (arms5 KH) set in
+118-153 s before the bell with the trailer at 5-6 Konpaku, ~15 s of play a Konpaku (docs/research/strategy-drsi/sp/arms5/finish.md).")
 
 ;;; ================================================================ §14 budgets
 (defparameter *fire-density* 1.0 "0..1: scales every VFX emission (every fire emitter's rate; 0.5 if the perf gate fails).")
