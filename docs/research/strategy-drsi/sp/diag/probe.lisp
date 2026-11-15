@@ -21,7 +21,7 @@
   '((:eyes *ai-delay*)
     (:cai *fz-skill* *cai-think* *cai-turn-p* *cai-cont-p* *cai-hoho-p* *cai-clash-p* *cai-clash-delay* *cai-xch-j* *cai-xch-sa-p*
      *cai-xch-carry-p* *cai-awaken-break-p* *cai-awaken-kikon-p* *cai-dswitch-dif* *strat-lambda*)
-    (:style *hkb-p* *hkk-p* *hkw-p* *hr-home-p* *hr-p* *hr-taba-p* *ihx-p* *iks-awaken-p* *iks-bait-modes* *iks-break-p* *iks-burst-no-hoho*
+    (:style *hb-awaken-p* *hb-jclash-p* *hb-poke-p* *hb-react-p* *hb-step-p* *hkb-p* *hkk-p* *hkw-p* *hr-home-p* *hr-p* *hr-taba-p* *ihx-p* *iks-awaken-p* *iks-bait-modes* *iks-break-p* *iks-burst-no-hoho*
      *iks-confirm-p* *iks-follow-any-perfect* *iks-gap-p* *iks-generic-kikon* *iks-hoho-p* *iks-kessa-read-min* *iks-kessa-space-modes*
      *iks-kikon-costly-p* *iks-kikon-p* *iks-meaty-p* *iks-mix* *iks-ns-stop* *iks-ns-wait* *iks-p2-wait* *iks-patient-p* *iks-punish-p*
      *iks-read-p* *iks-retreat-p* *iks-steer-p* *iks-wait-max* *iks-wake-hoho-p* *ikw-roll-p* *ir2-oki-p* *ir2-roll-p* *khf-bait-p*
@@ -30,8 +30,8 @@
      *kk-pf-p* *kk-reach-p* *kk-step-in-p* *kk-step-p* *kk-wake-hoho-p* *kk-wave-p* *kso-stale*)
     (:mc *mc-budget* *mc-iters* *mc-opp-delay* *mc-react-p* *mc-select-by* *mc-sure* *mc-tau*)
     (:clash *cai-clash-p* *cai-clash-delay*)))
-;;; @style-k / @style-i / @style-h: one character's style knobs (@style's names by prefix: Kenpachi kk kso khf, Ichigo iks ikw ir2, Hisagi hk hr ihx)
-(dolist (g '((:style-k "*KK-" "*KSO-" "*KHF-") (:style-i "*IKS-" "*IKW-" "*IR2-") (:style-h "*HK" "*HR-" "*IHX-")))
+;;; @style-k / @style-i / @style-h: one character's style knobs (@style's names by prefix: Kenpachi kk kso khf, Ichigo iks ikw ir2, Hisagi hb hk hr ihx)
+(dolist (g '((:style-k "*KK-" "*KSO-" "*KHF-") (:style-i "*IKS-" "*IKW-" "*IR2-") (:style-h "*HB-" "*HK" "*HR-" "*IHX-")))
   (push (cons (car g) (remove-if-not (lambda (s) (some (lambda (p) (eql 0 (search p (symbol-name s)))) (cdr g)))
                                      (cdr (assoc :style *pr-groups*))))
         *pr-groups*))

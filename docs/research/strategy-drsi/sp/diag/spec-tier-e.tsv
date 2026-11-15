@@ -1,0 +1,4 @@
+# tier-t0.md step 2: EASY > masher on the T0 tables (main 334b313b, SP_BUILD f0e2bb129de1). Monotone: a lift to EASY lifts NORMAL too.
+E1	*ai-delay*=(:easy 24 :normal 14 :hard 8)	easy=hard:@clash;normal=hard:@clash
+E2	*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=hard:@clash;normal=hard:@clash
+E3	*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=hard:@clash,@cai;normal=hard:@clash,@cai

@@ -1,0 +1,2 @@
+# tier-t0.md round 9: G3m with EASY eyes as shipped (24)
+G3m24	*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i

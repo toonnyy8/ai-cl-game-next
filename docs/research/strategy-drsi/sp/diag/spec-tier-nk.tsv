@@ -1,0 +1,7 @@
+# tier-t0.md step 3: which NORMAL part makes NORMAL Kenpachi beat HARD Hisagi (H>N HK); one NORMAL part at EASY's value (monotone)
+Ncl	*ai-delay*=(:easy 24 :normal 14 :hard 8)	normal=easy:@clash
+Ncai	*ai-delay*=(:easy 24 :normal 14 :hard 8)	normal=easy:@cai
+Nsk	*ai-delay*=(:easy 24 :normal 14 :hard 8)	normal=easy:@style-k
+Nmc	*ai-delay*=(:easy 24 :normal 14 :hard 8)	normal=easy:@mc
+Ne18	*ai-delay*=(:easy 24 :normal 18 :hard 8)	easy=easy:*ai-delay*
+Ncl4	*ai-delay*=(:easy 24 :normal 14 :hard 4)	normal=easy:@clash
