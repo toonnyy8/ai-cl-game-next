@@ -300,6 +300,21 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (eql (time-up-winner 2 900 1000 3 100 1000) 1))
 (check (eql (time-up-winner 2 600 1000 2 500 1000) 0))                   ; then Reishi %
 (check (eql (time-up-winner 2 500 1000 2 525 1050) :draw))               ; 50 % each
+;; the late-match finish (FINISH-ROLE, the user 2026-11-15): off until *CAI-FINISH-AT* of the clock, then the bell's order
+(check (= (match-elapsed 18000 18000) 0.0))
+(check (= (match-elapsed 0 18000) 1.0))
+(check (= (match-elapsed -5 18000) 1.0))                                 ; (clamped)
+(check (null (finish-role 7201 18000 99 24 6 100 1000 3 900 1000 0.6)))        ; (120.02 s left: not yet, however quiet)
+(check (eq (finish-role 7200 18000 0 24 6 100 1000 3 900 1000 0.6) :ahead))    ; (120 s left: the leader at once; Konpaku first, as the bell)
+(check (null (finish-role 7200 18000 23 24 3 900 1000 6 100 1000 0.6)))        ; (the trailer: its style keeps the step while it attacks ...)
+(check (eq (finish-role 7200 18000 24 24 3 900 1000 6 100 1000 0.6) :behind))  ; (... until it held a whole decision gap)
+(check (eq (finish-role 600 18000 24 24 2 900 1000 4 1000 1000 0.6) :behind))  ; (kh5 seed 144: -2 Konpaku, +Reishi: behind at the bell)
+(check (null (finish-role 600 18000 5 24 4 500 1000 4 525 1050 0.6)))          ; (a level bell: as the trailer)
+(check (eq (finish-role 600 18000 30 24 4 500 1000 4 525 1050 0.6) :even))
+(check (eq (finish-role 60 18000 0 24 4 600 1000 4 500 1000 0.6) :ahead))      ; (Reishi % next)
+(check (null (finish-role (* 60 *match-seconds*) (* 60 *match-seconds*) 0 0 9 0 1 1 0 1)))   ; (the default knob: off at the start ...)
+(check (finish-role (floor (* 60 *match-seconds* (- 1 *cai-finish-at*))) (* 60 *match-seconds*) 0 0 9 0 1 1 0 1))   ; (... on at it)
+(check (< 0.0 *cai-finish-at* 1.0))
 (multiple-value-bind (ax az bx bz) (reset-placement 10.0 0.0 12.0 0.0)
   (check (and (~= ax -4.0) (~= az 0.0) (~= bx 4.0) (~= bz 0.0))))
 

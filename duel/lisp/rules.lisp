@@ -452,6 +452,18 @@ the victim's Reishi resets to max and both are placed by RESET-PLACEMENT."
         ((< (* reishi-0 max-1) (* reishi-1 max-0)) 1)
         (t :draw)))
 
+(defun match-elapsed (left total)
+  "The match clock's elapsed share 0-1, LEFT of TOTAL frames on the timer (strategy.lisp's :TIME cue, FINISH-ROLE)."
+  (max 0.0 (min 1.0 (- 1.0 (/ left (float (max 1 total)))))))
+
+(defun finish-role (left total quiet wait konpaku-0 reishi-0 max-0 konpaku-1 reishi-1 max-1 &optional (at *cai-finish-at*))
+  "The late-match finish (core-ai.lisp CAI-FINISH): NIL until AT of the clock has run (MATCH-ELAPSED of LEFT / TOTAL frames); then side
+0's place at the bell by TIME-UP-WINNER (Konpaku, then Reishi %) when the finish takes its step: :AHEAD at once (it closes to finish),
+:BEHIND or :EVEN (a level bell) once QUIET (frames since it last attacked or was hit) reaches WAIT (it presses when its style holds), else NIL."
+  (when (>= (match-elapsed left total) at)
+    (let ((role (case (time-up-winner konpaku-0 reishi-0 max-0 konpaku-1 reishi-1 max-1) (0 :ahead) (1 :behind) (t :even))))
+      (and (or (eq role :ahead) (>= quiet wait)) role))))
+
 ;;; ================================================================ gauges (§3, §5)
 (defun gauge-add (g n max)
   "Gauge G after adding N (may be negative), kept in [0, MAX]. (Single-floats, the sim's: typed, MIN / MAX as ECL compiles

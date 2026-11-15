@@ -3395,3 +3395,7 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   never NS-clashes: its eyes miss the window), KH cells unchanged; KH HARD vs HARD K.O. .665 → .995. In H>N HK a match: Hisagi's NAGI
   clashes under 3 m 3.2 → 10.4 (7.5 won, nearly all by the SA), his clashes 21.0 → 29.4, Kenpachi's 50.2 → 48.9 (his J-side exchanges
   ~86 % won by his AS). G2 identical. The lead's CLASH-FIT notes above (DEVLOG §793) are superseded.
+- **The late-match finish** (the user: 「加「後段收尾」行為」; `sp/arms5/finish.md`): `core-ai.lisp` CAI-FINISH, from `*cai-finish-at*` 0.6 of
+  the clock (tuning.lisp, new) the side ahead at the bell plays the generic neutral at once, the side behind once its style held a decision
+  gap. Bar D 141-180 (501-540): shipped cross rows pass before and after; arms5 KH .362 → .975 (.988), arms5 IH .588 → .887 (.887, short).
+  G2: II 40 lines P1 2-0 393.2 s, IK 37 P1 2-0 369.6 s, KK 26 P2 0-5 262.3 s.

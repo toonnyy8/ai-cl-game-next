@@ -250,11 +250,12 @@ brain's perceived SNAP and distance)."
         (if (eq to :na) (cai-press b :quick 1) (cai-sp b f s))
         t)))))
 
-(defun cai-neutral (e b f kit s d)
-  "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
+(defun cai-neutral (e b f kit s d &optional finish)
+  "Free: Hoho out of an attack at him, else walk to the range and now and then start a move. FINISH (CAI-FINISH): the kit's own range,
+no strategy's scale, and only a move out of its dead zone (MV-MIN-REACH; neither the NS nor J1: walk on)."
   (let* ((vp (pilot-vpad (pilot e)))
          (nr (nth (1- (max 1 (min *core-pointer-max* (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
-         (rg (getf (kit-core kit) :range *cai-range*)) (sc (strat-out (brain-now b) :range nil))   ; (a strategy's range scale)
+         (rg (getf (kit-core kit) :range *cai-range*)) (sc (and (not finish) (strat-out (brain-now b) :range nil)))   ; (a strategy's range scale)
          (lo (if sc (* sc (first rg)) (first rg))) (hi (if sc (* sc (second rg)) (second rg))))
     (when (<= (decf (brain-strafe-t b)) 0) (ai-strafe e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-ready-p e)
@@ -272,10 +273,27 @@ brain's perceived SNAP and distance)."
                       (cai-sp b f s))
                      ((<= d (+ hi 0.6))
                       (setf (brain-own-key b) -1)
-                      (let ((roll (sim-rnd01)) (ns (kit-core-move kit :ns (fighter-ptr f))))
-                        (if (and ns (< roll (strat-out (brain-now b) :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
-                            (progn (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
-                            (cai-press b :quick 1))))))))))
+                      (let* ((roll (sim-rnd01)) (ns (kit-core-move kit :ns (fighter-ptr f)))
+                             (ns (and ns (or (not finish) (<= (mv-min-reach ns e) d)) ns)))
+                        (cond ((and ns (< roll (strat-out (brain-now b) :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
+                               (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
+                              ((or (not finish) (let ((q (kit-command-move kit :q e))) (and q (<= (mv-min-reach q e) d))))
+                               (cai-press b :quick 1)))))))))))
+
+(defun cai-finish (e b f kit s d)
+  "The late-match finish (the user, 2026-11-15: 「加「後段收尾」行為」; docs/research/strategy-drsi/sp/arms5/finish.md): once
+*CAI-FINISH-AT* of the match clock has run, a free CPU ahead at the bell (FINISH-ROLE) plays the generic neutral (CAI-NEUTRAL with FINISH)
+instead of its style's or the MCTS's, so no band, hover or patience holds it: it closes to finish. Behind (or level) its style keeps
+the step while it attacks; once it has neither attacked nor been hit for a whole decision gap of its own (*CAI-THINK* + 12 frames: the
+style held), the finish presses for it. The exchange and the clash still come first (CORE-BRAIN-STEP). T when it took the step."
+  (let* ((g (gauges e)) (go (gauges (fighter-opp f)))
+         (role (finish-role (match-frames-left) (* 60 *match-seconds*) (- *match-tick* (brain-fin-t b))
+                            (+ (getf *cai-think* (brain-difficulty b) 22) 12)
+                            (gauges-konpaku g) (gauges-reishi g) (gauges-reishi-max g) (gauges-konpaku go) (gauges-reishi go) (gauges-reishi-max go))))
+    (when role
+      (when (<= (brain-decide-t b) 1) (clog "~a cpu finish ~(~a~) at ~,1f" (side-name e) role d))
+      (cai-neutral e b f kit s d t)
+      t)))
 
 (defun cai-awaken-break (e b f key p)
   "The awakening out of his combo or Kikon (DUEL_AI_STRATEGY §11.20): when E may awaken now (AWAKEN-READY-P, no strategy holding it), one
@@ -324,11 +342,13 @@ MASHER-STEP instead (masher.lisp: no CPU at all)."
         (setf (brain-press-left b) 0 (brain-decide-t b) 1))
       (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :follow) (eq (brain-press b) :quick) (plusp (brain-press-left b)))   ; held at the hit: on
         (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
+      (when (or (eq (fighter-state f) :move) (mc-full-reel-p (fighter-state f))) (setf (brain-fin-t b) *match-tick*))   ; (the finish's quiet)
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cai-xch-new b f)                                                  ; (a cancel his move just took part in: its key, §11.18)
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
               ((cai-xch-step e b f kit s d))                                   ; the exchange after a cancel: every CPU's one answer (§11.18)
               ((and (member (fighter-state f) '(:idle :run)) (cai-clash e b f kit s d)))   ; 積極相消: a classed move into his (§11.18)
+              ((and (member (fighter-state f) '(:idle :run)) (cai-finish e b f kit s d)))  ; the late-match finish over any style (§11.29)
               ((let ((fn (and now (getf (car now) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
                  (and fn (if ev (strat-event-call fn e b f kit s d) (funcall fn e b f kit s d)))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)

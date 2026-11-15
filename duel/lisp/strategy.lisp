@@ -710,7 +710,7 @@ a cancel, SP-EXCHANGE-OPEN-P) 0 / 1."
 the wall; :TIME the match clock's elapsed share 0-1 (LEFT of TOTAL frames on the timer); :MPTR / :OPTR the SP pointers PTR / OPTR, read
 1-3 (a fourth, KESSA's, reads 3); :SWOPEN the pointer switch open (SWOPEN: the awakening gauge has been full) 0 / 1."
   (flet ((p3 (p) (max 1 (min 3 p))))
-    (list :awst (cond (awakened 2) (ready 1) (t 0)) :owall owall :time (max 0.0 (min 1.0 (- 1.0 (/ left (float (max 1 total))))))
+    (list :awst (cond (awakened 2) (ready 1) (t 0)) :owall owall :time (match-elapsed left total)
           :mptr (p3 ptr) :optr (p3 optr) :swopen (if swopen 1 0))))
 
 (defun strat-unit-find (id units)

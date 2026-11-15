@@ -1,0 +1,40 @@
+;;;; diag-run.lisp — strat-run.lisp with the late-match trace for the finish's diagnosis (arms5/finish.md §1). Read-only: it evaluates
+;;;; tools/simgate/strat-run.lisp form by form (as inband-run.lisp does) and wraps its step hook. In the last FIN_SECS (default 90) seconds of
+;;;; the match timer, every 30 ticks one "fin" line per side, and one "fmv" line per move start:
+;;;;   fin <seed> <left s> P<n> lead <konpaku diff> rp <my reishi %> orp <his %> d <m> st <state> form <form> arm <index|-> fn <style fn|->
+;;;;   fmv <seed> <left s> P<n> <move> d <m>
+;;;; Usage: ecl-host --norc --load docs/research/strategy-drsi/sp/arms5/finish/diag-run.lisp -- <duel.fas> <cmd>...
+(defvar cl-user::*fd-tail* nil)
+(let* ((path (merge-pathnames "tools/simgate/strat-run.lisp" (truename "./"))) (*package* *package*) (*load-truename* path))
+  (with-open-file (in path)
+    (loop for form = (read in nil in) until (eq form in)
+          do (if (or cl-user::*fd-tail* (equal form '(cl-user::sg-init)))
+                 (push form cl-user::*fd-tail*)
+                 (eval form))))
+  (setf cl-user::*fd-tail* (nreverse cl-user::*fd-tail*)))
+(in-package :duel)
+(defvar *fd-log* (plusp (length (or (ext:getenv "FIN_LOG") ""))))
+(defvar *fd-secs* (let ((s (ext:getenv "FIN_SECS"))) (if (and s (plusp (length s))) (parse-integer s) 90)))
+(defvar *fd-was* (list nil nil))
+(defun fd-dist (e o) (let ((p (pos-of e)) (q (pos-of o))) (sqrt (+ (expt (- (aref p 0) (aref q 0)) 2) (expt (- (aref p 2) (aref q 2)) 2)))))
+(defun fd-step ()
+  (when *fd-log* (setf *combat-log* t))
+  (when (and (eq *flow* :battle) (<= (match-frames-left) (* 60 *fd-secs*)))
+    (let ((left (/ (match-frames-left) 60.0)))
+      (do-sides (e)
+        (let* ((f (fighter e)) (o (fighter-opp f)) (b (brain e)) (side (fighter-side f)) (st (fighter-state f)))
+          (when (and (eq st :move) (not (eq (nth side *fd-was*) :move)) (fighter-move f))
+            (format t "fmv ~d ~,1f P~d ~(~a~) d ~,2f~%" *match-seed* left (1+ side) (mv-name (fighter-move f)) (fd-dist e o)))
+          (setf (nth side *fd-was*) st)
+          (when (zerop (mod *match-tick* 30))
+            (let* ((g (gauges e)) (go (gauges o)) (fq (and b (brain-strat b) (getf (brain-strat b) :fq)))
+                   (sub (and b (brain-sw-sub b))))
+              (format t "fin ~d ~,1f P~d lead ~d rp ~,3f orp ~,3f d ~,2f st ~(~a~) form ~(~a~) arm ~a fn ~(~a~) off ~a lock ~d pl ~d act ~(~a~) why ~(~a~) k ~d ok ~d~%"
+                      *match-seed* left (1+ side) (- (gauges-konpaku g) (gauges-konpaku go))
+                      (/ (gauges-reishi g) (float (gauges-reishi-max g))) (/ (gauges-reishi go) (float (gauges-reishi-max go)))
+                      (fd-dist e o) st (fighter-form (fighter e)) (if fq (or (position sub (getf fq :arms)) "-") "-")
+                      (or (and sub (getf (strat-arm sub) :fn)) "-")
+                      (and b (brain-off b)) (fighter-lock f) (if b (brain-press-left b) -1) (and b (brain-act b)) (and b (brain-why b)) (gauges-konpaku g) (gauges-konpaku go)))))))))
+(let ((orig (symbol-function 'sr-hook)))
+  (setf (symbol-function 'sr-hook) (lambda () (funcall orig) (fd-step))))
+(dolist (form cl-user::*fd-tail*) (eval form))
