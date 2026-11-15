@@ -179,7 +179,7 @@ seeds 301-320, block 300, whole against `none`) and gave it to the batch-2 cells
 | **press b0_a1** | `:range 0.6`, reach margin 1, lunge, Step in, no awakening press, Hoho safety 0 | .5964 | **.6079** | +.088 / +.070 |
 | press b1_a0 | the close rule on and forward (`:hr-p 1 :hr-close 3.6 :hr-near 3.6 ...`) | .5964 | .5915 | +.015 / +.011 |
 | press b1_a1 | `:hr-home-p 0 :hr-close 2 :hr-near 2` | .5736 | .5752 | +.075 / +.097 |
-| kite b0_a0 | `:hkk-near 2.8 :hkk-far 2.4 :hkk-poke-min 3.4 :hkk-window 70` | .6337 | | mean d +.12 / +.66 |
+| kite b0_a0 | `:hkk-near 2.8 :hkk-far 2.4 :hkk-poke-min 3.4 :hkk-window 70` | .6337 | .6337 (IH table) | mean d +.12 / +.66 (not proved: its screen fails vs K by 0.38 m) |
 | kite b0_a1 | the `:hkk-*` stretched (near 5 / 6, window 120) | .6304 | | +.25 / +.71 |
 | kite b1_a0 | (failed: no arm.lisp) | fail | | (v1: +.22 / +.81) |
 | **kite b1_a1** | the walk-in off, back Step to 6.5 m, `:hr-near 4.2 :hr-close 3.4`, `:hkk-near 4 / 5` | .6370 | .6172 (both tables .5817) | +.435 / +1.04 |
@@ -194,7 +194,9 @@ seeds 301-320, block 300, whole against `none`) and gave it to the batch-2 cells
 workspaces the one whose screen passed.)
 
 - **No table score moved beyond noise on the held-out block.** The block-300 gains (press +.03, wake +.04) shrank to +.036 (press b0_a1) and
-  **-.013** (wake) on block 200. kite, ihx and hoho6 stayed inside +-.015 on both blocks. A job arm plays a fraction of the judgements, and
+  **-.013** (wake) on block 200. (press b0_a1 was picked on block 200 among its branch's two cells, so its +.036 is not an unbiased
+  held-out number.) kite b1_a1, ihx and hoho6 stayed inside +-.015 on both blocks; kite b0_a0 was +.026 on block 200 in the IH table (the
+  coordinator's rescore) and fails the kite's descriptor. A job arm plays a fraction of the judgements, and
   600 matches cannot resolve that.
 - The cells moved the **descriptors** a lot once they were measured (wake x1.10 -> x1.50, hoho6 0.74 -> 1.45 of arm 0, kite vs K +.12 ->
   +.44). They did not move the scores.
@@ -222,8 +224,10 @@ opponent's T0 of `cells-h/t0/`):
 
 | T0 | arms (job) | seeds | changes median (mean), zero | arm shares | in / out of job | bar A | K.O. rate; Hisagi's K.O. wins |
 |---|---|---|---|---|---|---|---|
-| **KH** `t0-final-kh-hisagi` (v1 map) | all, range (G1 form 1 x mid / far, G9 switch open), wake (G2 down), hoho6 (G2 free x mid / far) | 501-540 | 35 (36.2), 0 | .230 / .466 / .271 / .032 | .89 / 0, .84 / 0, .29 / 0 | **pass** | .975; .013 |
-| | | 541-580 (replication) | 36 (36.3), 0 | .143 / .527 / .296 / .034 | .90 / 0, .83 / 0, .27 / .0001 | **pass** | 1.00; .025 |
+| KH `t0-final-kh-hisagi` (v1 map) | all, range (G1 form 1 x mid / far, G9 switch open), wake (G2 down), hoho6 (G2 free x mid / far) | 501-540 | 35 (36.2), 0 | .230 / .466 / .271 / .032 | .89 / 0, .84 / 0, .29 / 0 | passes, **but range's division check is vacuous** (below) | .975; .013 |
+| | | 541-580 | 36 (36.3), 0 | .143 / .527 / .296 / .034 | .90 / 0, .83 / 0, .27 / .0001 | same | 1.00; .025 |
+| KH `t0-final-kh-hisagi-v2` (range: G1 only, as IH v2) | all, range, wake, hoho6 | 501-540 | 47.5 (48.4), 0 | **.806** / .049 / .128 / .017 | .94 / .0005, .91 / 0, .44 / .0001 | **fail** (all > 70 %, two arms >= 10 %) | **.275** (58 of 80 at the bell); .013 |
+| | | 541-580 | 47 (48.8), 0 | **.795** / .051 / .135 / .018 | .93 / .0007, .92 / 0, .43 / .0001 | **fail** | **.325** (54 at the bell); .013 |
 | IH `t0-final-ih-hisagi` (v1 map: as KH, ihx G7 my high x her low) | all, range, wake, ihx | 501-540 | 17, 0 | .171 / **.707** / **.096** / .025 | .89 / 0, .31 / 0, .17 / .0003 | **fail** (range > 70 %, two arms >= 10 %) | .975; .50 |
 | **IH** `t0-final-ih-hisagi-v2` (range: G1 only) | all, range, wake, ihx | 501-540 | 40 (40.9), 0 | .330 / .505 / .109 / .057 | .94 / .017, .36 / 0, .42 / .004 | **pass** (selected) | 1.00; .30 |
 | | | 541-580 (replication) | 42 (42.1), 0 | .352 / .443 / .137 / .068 | .93 / .012, .44 / 0, .47 / .005 | **pass** | 1.00; .287 |
@@ -235,8 +239,13 @@ For the record, the "full" tables (`t0-full-*`, with the cells' failing press an
 
 - **The IH v1 map failed, and v2 was designed after it on the same 80 matches**, so v2's 501-540 pass is a selected result. Why v1 failed:
   v1 gives range a G9 rule, "switch open". Once the gauge has been full, that rule fires on every judgement. Under `--or`, that keeps range
-  at +0.03 over arm 0 everywhere. v2 drops the G9 rule. A replication on 541-580 (the table unchanged) passes too. KH keeps v1: it passes
-  on both blocks, and range is under 70 % there.
+  at +0.03 over arm 0 everywhere. v2 drops the G9 rule. A replication on 541-580 (the table unchanged) passes too.
+- **KH has no clean pass.** KH v1 carries the same G9 rule. Range's G1 job (form 1, the ranged mode) only comes after the awakening, inside
+  that lasting state. `side_bar` scores a judgement's in-job weight as the largest of its groups' firing, so after the switch opens every
+  judgement counts as in-job for range: its .89 / 0 cannot fail. Its .47-.53 share is the same "+0.03 everywhere" effect, kept under 70 %.
+  KH v2 (range on G1 alone) fails bar A on both blocks: arm 0 holds 80 %, and the table stalls (K.O. rate .28-.33). So under this map
+  design the KH table either switches only by that artefact or stalls. Hisagi's KH T0 for B4 is an open item. v1's numbers stay here as
+  the record.
 - **The mirror stalls.** In self-play both seats sit in arm 0 at 96 % and 76-78 of 80 matches go to the bell. Range never gets its form
   (the ranged mode, 2 % of judgements) and wake has few knockdowns to act on. With three general arms there is nothing to switch to.
   The HH table needs a mirror-specific arm, or a fix for what stalls the mirror (PLAN4 §1 D: HH self-play 0 % with the 2026-11-15 arms).
