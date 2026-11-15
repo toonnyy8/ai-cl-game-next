@@ -373,3 +373,10 @@ table 嗎？」 and chose **「三個難度都用 Q 表」**: every tier plays t
 neutral no longer goes to the MCTS's light+full-sim decision). The tiers differ by perception, the per-difficulty chances and the
 table's strength (e.g. EASY with fewer or weaker arms). §5's "What each tier plays" table is replaced by this. NORMAL's 10 s windows and
 EASY's "no table" are to leave once the probe confirms. The MCTS timing fix was prototyped only as an option and is not taken.
+
+**B3 merged, the cells' pin** (2026-11-15, main ddaae0f9): Hisagi's code cell (14 keys `:hr-*` / `:hkk-*`, KNOBS.md §6.6) and Ichigo's
+(8 keys, §6.7: patience, hover, steer, KESSA chain) both leave play bit for bit. Passing general arms: Ichigo `all brawl keep kessa2`
+(re-jobbed after `whiff space ptr3 kessa` failed: HARD's patience made every mode hover alike), Kenpachi `all spend climb` (+ `bait` vs
+Hisagi), Hisagi drafts `all range` (+ `press kite wake` to tune). T0 KI Ichigo v3 switches (median 19 / 21 changes on 501-540 / 541-580).
+Code cells used 2 of 3. **`SP_BUILD=b835ac41b83b`** (strategy-switch.py's build_hash at ddaae0f9) for B3's cells and D1-D2; main's Lisp
+stays frozen until they hand back.
