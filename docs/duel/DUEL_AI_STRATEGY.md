@@ -3227,3 +3227,30 @@ dist/duel` PASS (bit for bit). The old lines are quoted only in dated records (�
 - Fulltest on `2102 4007` (G2's IK): 45 checks, 0 differ; with `FT_LAYER=t` 683 checks (640 strategy checks), 0 differ.
 - `./build.sh duel`; smoke exit 0 (heap 75.3 MB).
 - No balance gates (the user, 2026-10-29).
+
+
+### 11.28 The tables must switch again: a full redo of the rule base and the arms (2026-11-15)
+
+The user, on reading the shipped tables' rules and arms (§11.27): 「為什麼規則又變這麼少？你還記得我之前對規則的要求嗎」; asked
+how to fix it, chose 「完整重做」 (over refitting the current arms on a restored rule base, or first restoring KI Ichigo's switching
+table alone).
+
+**The standing requirements** (2026-11-09, §8.19, DEVLOG §668-§671), which every shipped table must meet:
+1. 「理論上在對戰中的每個時間點不是都能切換不同策略才對嗎？」: a table switches arms during a match.
+2. 「將距離與其他狀態細節都以模糊規則展開成 Q table 的一部分」: distance and the other state details are fuzzy rules of the table
+   (`:rb-switch89`: 89 rules in 5 additive groups).
+3. 「每 0.5s 就判斷一次」: `:period 30`.
+4. 「每個角色設計多個通用策略與少量的針對性對敵策略」: 3-5 situation-specialised general arms per character, 1-2 targeted per pairing.
+
+**How the shipped tables broke them** (the lead's account):
+- `:rb-sp` (§11.3, 2026-11-14) has 42 rules; it dropped `:ored`, `:awk`, `:wall`, `:oawk` "to come back if step 8 wants it" and never
+  asked. (`:gauge` left with the DRIVE threshold.)
+- §11.16 shipped constant fallback tables on five sides (the user's 「收尾出貨」 then); §11.27 shipped constant tables on all nine rows,
+  replacing KI Ichigo's switching table without asking. Every HARD table now plays one arm a whole match (requirement 1).
+- The §11.21-§11.27 arms are mostly one style per side with different exchange keys, not arms split by situation (requirement 4).
+
+**The redo** (plan: `docs/research/strategy-drsi/sp/PLAN4.md`, by Fable): a rule base that restores the dropped cues beside the SP
+cues; arms per character split by situation plus targeted ones; both sides fitted together; shipped only if, on fresh held-out seeds
+(801-1000; 601-800 are spent), a table beats today's, keeps K.O. ≥ 90 %, does not lose to his `none`, **and switches in every match**
+(arm changes and time shares reported). Today's tables stay until a side passes. A standing rule from now on: no constant table ships
+as a fuzzy Q table without the user's yes.
