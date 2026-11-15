@@ -356,18 +356,25 @@
 ;; DUEL_AI_STRATEGY §11.29 (PLAN4 B4, 2026-11-15): the lookup plays the nine T0 tables (sp/arms4/t0final/t0-*.lisp: :rb-sp2's 104 rules,
 ;; keep-state, period 30, one-job arms, the pairing's :WITH exchange unit; mirrors none). Was §11.16 / §11.27's :f-<pair>-<side> (42 rules,
 ;; a fallback that played arm 0 everywhere): this block checked those, and now checks the T0 rows on purpose (the lead's brief, B4).
-(dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 4 a4-i-all :d-x-ki-i :f-ki-ichigo) (:kenpachi :ichigo :t0-ki-kenpachi 3 c-ki-k-r2-b1a2 :d-x-ki-k :f-ki-kenpachi)
-             (:kenpachi :hisagi :t0-kh-kenpachi 4 c-ki-k-r2-b1a2 :d-x-kh-k :f-kh-kenpachi) (:hisagi :kenpachi :t0-kh-hisagi 4 x-kh-h-r2-b3a1 :d-x-kh-h :f-kh-hisagi)
-             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-all :d-x-ih-i :f-ih-ichigo) (:hisagi :ichigo :t0-ih-hisagi 4 a-hk-pot :d-x-ih-h :f-ih-hisagi)
-             (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil :f-kk-kenpachi) (:ichigo :ichigo :t0-ii-ichigo 4 a4-i-all nil :f-ii-ichigo)
-             (:hisagi :hisagi :t0-hh-hisagi 3 a-hk-pot nil :f-hh-hisagi)))
-  (destructuring-bind (me vs id na arm0 with old-id) r
+;; Checkpoint 2b (the user, 2026-11-15, 「先保留 B4 舊表」): KI both, KK and II are arms5's final T0s (sp/arms5/t0/, same ids; arms5/t0/add.sh);
+;; each row names its arm 1's job cue (and a base where no job fires), and those four rows' "before" is B4's checksum (255846: KI Kenpachi
+;; and KK, 812408: KI Ichigo and II, read from the B4 library before the swap), so a copy saved from B4's table loads fresh.
+(dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 6 a4-i-all :d-x-ki-i 812408 (:xch 1))          ; (arm 1 answer: an exchange open)
+             (:kenpachi :ichigo :t0-ki-kenpachi 4 c-ki-k-r2-b1a2 :d-x-ki-k 255846 (:dm 2.0) (:dm 7.0))   ; (poke: form 0 close; base far)
+             (:kenpachi :hisagi :t0-kh-kenpachi 4 c-ki-k-r2-b1a2 :d-x-kh-k :f-kh-kenpachi (:mcell 1))   ; (B4's spend: a cell)
+             (:hisagi :kenpachi :t0-kh-hisagi 4 x-kh-h-r2-b3a1 :d-x-kh-h :f-kh-hisagi (:form 1 :dm 4.5))   ; (B4's range: form 1 at mid)
+             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-all :d-x-ih-i :f-ih-ichigo (:ost 0))     ; (B4's brawl: his free state)
+             (:hisagi :ichigo :t0-ih-hisagi 4 a-hk-pot :d-x-ih-h :f-ih-hisagi (:form 1 :dm 4.5))
+             (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil 255846 (:ost 4))     ; (wake: he is down)
+             (:ichigo :ichigo :t0-ii-ichigo 5 a4-i-all nil 812408 (:xch 1))
+             (:hisagi :hisagi :t0-hh-hisagi 3 a-hk-pot nil :f-hh-hisagi (:form 1 :dm 4.5))))
+  (destructuring-bind (me vs id na arm0 with old job1-cues &optional base-cues) r
     (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq))
-           (base (list* :swopen (if (eq me :hisagi) 0 1)   ; (Kenpachi's climb owns "switch not open", KH Hisagi's range "open")
-                        '(:lead 0 :ored 0 :awst 0 :oawk 0 :form 0 :ost 1 :mcell 0 :ocell 0 :mburst 0 :oburst 0 :xch 0 :mptr 1 :optr 1
-                          :dm 3.0 :wall 5.0 :owall 5.0 :mr 1.0 :or 1.0 :time 0.1 :prev 0)))
-           (job1 (case me (:ichigo (list* :ost 0 base)) (:kenpachi (list* :mcell 1 base)) (t (list* :form 1 :dm 4.5 base)))))   ; (arm 1's job: Ichigo's
-                                                                                                    ;  brawl his free state, Kenpachi's spend a cell, Hisagi's range form 1 at mid)
+           (base (append base-cues
+                         (list* :swopen (if (eq me :hisagi) 0 1)   ; (Kenpachi's climb owns "switch not open", KH Hisagi's range "open")
+                                '(:lead 0 :ored 0 :awst 0 :oawk 0 :form 0 :ost 1 :mcell 0 :ocell 0 :mburst 0 :oburst 0 :xch 0 :mptr 1 :optr 1
+                                  :dm 3.0 :wall 5.0 :owall 5.0 :mr 1.0 :or 1.0 :time 0.1 :prev 0))))
+           (job1 (append job1-cues base)))
       (check (eq id (getf st :id)))
       (check (equal (list me vs) (getf st :apply)))
       (check (and (= na (length (getf fq :arms))) (string= (symbol-name arm0) (symbol-name (getf (first (getf fq :arms)) :id)))))
@@ -378,10 +385,13 @@
       (when with
         (let ((u (getf (strat-unit-find with *strat-data*) :base)))
           (check (every (lambda (a) (loop for (k) on u by #'cddr always (getf (getf a :base) k))) (getf fq :arms)))))
-      ;; a player's online copy saved from the table this row played before (§11.27's :f-*) loads fresh: another length and checksum
-      (let ((codes (fq-encode fq fq 2)) (old (getf (strat-by-id old-id) :fq)))
+      ;; a player's online copy saved from the table this row played before (§11.27's :f-*, or B4's checksum) loads fresh
+      (let ((codes (fq-encode fq fq 2)))
         (check (= 2 (nth-value 1 (fq-decode codes fq))))                    ; (its own copy reads back, with its match count)
-        (check (null (fq-decode (fq-encode old old 5) fq)))                 ; (the old table's saved copy: fresh)
+        (if (integerp old)
+            (check (and (/= old (fq-checksum fq)) (null (fq-decode (list* (first codes) old (cddr codes)) fq))))   ; (B4's copy, even at this size)
+            (let ((old (getf (strat-by-id old) :fq)))
+              (check (null (fq-decode (fq-encode old old 5) fq)))))       ; (the old table's saved copy: fresh)
         (check (null (fq-decode (list* (first codes) (1+ (second codes)) (cddr codes)) fq)))   ; (the right size, another checksum: fresh)
         (let ((other (list* :arms (reverse (getf fq :arms)) fq)))           ; (§11.17: the checksum covers the arms)
           (check (/= (fq-checksum other) (fq-checksum fq)))

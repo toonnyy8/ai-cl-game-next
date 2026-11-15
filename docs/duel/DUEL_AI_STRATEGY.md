@@ -3384,3 +3384,6 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   under 3.0 m on a wrong premise, since the cancel needs only the other side's hit in his window. Next (the lead's call, not a ladder
   knob): measure the clash without CLASH-FIT's dead-zone test (KK-FITS-P, the brawler's real-hit test, stays), counting the cancels and
   who wins each exchange; G2-checked; then the tier probe again.
+- **In the lookup** (`sp/arms5/t0/add.sh`; raw = lookup, `proofs-140.jsonl`; saved online copies reset): median changes / HARD K.O. on
+  141-180: KI 55 (Kenpachi) and 82 (Ichigo) / 1.000, KK 38.5 / 1.000, II 65.5 / .475. G2: II 37 lines P2 0-6 366.3 s, IK 35 P1 4-0
+  349.2 s, KK 26 P2 0-5 257.7 s (was II 41 P2 2-5 403.6 s, IK 42 P2 1-2 421.7 s, KK 31 P1 3-0 307.2 s).
