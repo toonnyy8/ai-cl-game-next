@@ -241,3 +241,33 @@ Kenpachi's side in the same run: median 24, arm shares .069 / .536 / .022 / .129
   and without `STRAT_DESC`: the hash, state and gate-row lines were identical (194 lines).
 - **Build hash**: the sim build hash changes with the source text (c61156551c44 at 1170f748, 84bd53aad9af here) though play does not. Main
   re-pins `SP_BUILD` after this cell (PLAN4 §7).
+
+## The targeted arm vs Hisagi: cells-k/i-vsh (PLAN4 B3 search, 2026-11-15)
+
+Two Sonnet cells, one branch (1 x 2, W 4, `v1_rank_keep`). Each cell chose its own job rules and registered a descriptor in `job.json`
+before its first eval (`kenpachi.md` "Re-registered for the cells"). It was scored as the fifth arm of her IH T0 (`t0/ih-ichigo.json`: KI's
+v3 map on `d-x-ih-i`) against Hisagi's `none` and his IH T0 (`t0/t0-ih-hisagi.lisp`, built from his five drafts), K.O.-only, block 300.
+The four-arm IH T0 is the baseline: .8267 on block 300, .8152 on block 200.
+
+| Cell | job (registered) | descriptor (registered) | keys | block 300 |
+|---|---|---|---|---|
+| b0_a0 | G7 `(:mr :r-low)` (her Reishi low: he presses) | mean_d >= + 0.5 m | `:iks-hover-add 2.0 :iks-bait-hover-add 1.5 :iks-gap-p 0` | .8185 |
+| b0_a1 | G10 `(:optr :k2) (:dm :m-far)` (his pointer 2, far) | mean_d <= - 0.3 m | `:iks-patient-p 0 :iks-wait-max 0 :iks-gap-p 1` (a close chase) | .8267 |
+
+- b0_a1 scored .8201 on block 200 (baseline .8152), which is noise. Its job rule rarely fires: the T0 group's record equals the baseline's.
+- **Proof** (seeds 1-100, both seats, against his `none`, with the four general arms in one run;
+  `cells-k/admit/proof-ichigo-vs-hisagi.json`):
+  - mean_d -0.184 m against the -0.30 registered: **fail**.
+  - Distinct from all four general arms. K.O. .965.
+- Not admitted. The IH T0 stays four arms (`t0/t0-ih-ichigo.lisp`).
+- The search found:
+  - the hover adds are inert against Hisagi, as note 2 found against Kenpachi;
+  - a pointer-2 Getsuga arm at range loses (.754);
+  - the close chase helps against his `none` but costs against his T0 once it fires at mid range.
+
+**Bar A, IH** (her IH T0 against Hisagi's IH T0, seeds 501-540, both seats, 80 matches; `t0/bar-ih-501-540-b3.json`):
+- changes: median 18 (mean 19.6), no match without a change; 183 judgements a match;
+- arm shares .239 / .069 / .128 / .565; in-job vs out .28 / 0, .24 / 0, 1.0 / 0;
+- K.O. rate .975 (she wins .875).
+- **Passes.** KI (unchanged table, against Kenpachi's new KI T0): median 21, shares .218 / .083 / .267 / .432, K.O. 1.00 (she wins .963):
+  passes.

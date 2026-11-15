@@ -26,8 +26,8 @@ _s = importlib.util.spec_from_file_location('proof', os.path.join(A4, 'proof.py'
 proof = importlib.util.module_from_spec(_s); _s.loader.exec_module(proof)
 
 # table: (opponent, map, :with unit, q, pop file)
-KI = ('ichigo', 't0/ki-kenpachi.json', 'x-units/d-x-ki-k.lisp', 0.075, 'pop-ki-I.json')
-KH = ('hisagi', 't0/kh-kenpachi.json', 'x-units/d-x-kh-k.lisp', 0.075, 'pop-kh-H.json')
+KI = ('ichigo', 'cells-k/maps-at-search/ki-kenpachi.json', 'x-units/d-x-ki-k.lisp', 0.075, 'pop-ki-I.json')
+KH = ('hisagi', 'cells-k/maps-at-search/kh-kenpachi.json', 'x-units/d-x-kh-k.lisp', 0.075, 'pop-kh-H.json')
 IH = ('hisagi', 't0/ih-ichigo.json', 'x-units/d-x-ih-i.lisp', 0.06, 'pop-ih-H.json')
 CONF = {
     'k-rush':  dict(me='kenpachi', slot='a4-k-rush', tables=[KI, KH]),
@@ -57,6 +57,9 @@ def build_table(ws, node, tab):
         sys.exit(f"score: arm.lisp needs :apply (:{c['me']})")
     if proof.band.ev.UNIT_IDS.search(re.sub(r':id\s+[^\s()]+', '', arm, flags=re.I)):
         sys.exit('score: arm.lisp must be inline (no :style / :data / unit ids)')
+    x = re.search(r':(xch-sa-p|xch-carry-p|xch-j|clash-p|clash-margin|xch-sa-wait|awaken-break-p|awaken-kikon-p)\b', arm)
+    if x:
+        sys.exit(f'score: arm.lisp names the exchange key :{x[1]}: those come from the pairing\'s :with unit (KNOBS.md §6.5, PLAN4 §3)')
     scratch = os.path.join(node, 'scratch', 'tables')
     os.makedirs(scratch, exist_ok=True)
     files, jobs = [], list(m['jobs'])

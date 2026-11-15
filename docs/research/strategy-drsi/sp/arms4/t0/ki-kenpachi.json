@@ -1,8 +1,5 @@
-{"note": "KI, Kenpachi's T0 (PLAN4 §3 / §4): the four general job arms of ../kenpachi.lisp and the targeted wave answer (G10 her pointer 2, the Getsuga)",
- "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-rush", "kenpachi.lisp#a4-k-guard", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb", "kenpachi.lisp#a4-k-wave"],
+{"note": "KI, Kenpachi's T0 after the cells-k search (B3, 2026-11-15): the arms that passed their one-job proof only (all, spend, climb). rush, guard and wave failed theirs after the search (../kenpachi.md 'cells-k results') and left the table. The map the cells were scored on: ../cells-k/maps-at-search/ki-kenpachi.json",
+ "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb"],
  "jobs": [null,
-          [[3, ["(:ocell :no)"]], [2, ["(:ost :down)"]], [8, ["(:time :t-late)"]]],
-          [[0, ["(:lead :ahead)"]], [4, ["(:oburst :yes)"]]],
           [[3, ["(:mcell :yes)"]], [3, ["(:mcell :p2up)"]], [4, ["(:mburst :yes)"]]],
-          [[0, ["(:lead :behind)", "(:awst :no)"]], [0, ["(:lead :behind)", "(:awst :yes)"]], [9, ["(:swopen :no)"]]],
-          [[10, ["(:optr :k2)"]]]]}
+          [[0, ["(:lead :behind)", "(:awst :no)"]], [0, ["(:lead :behind)", "(:awst :yes)"]], [9, ["(:swopen :no)"]]]]}

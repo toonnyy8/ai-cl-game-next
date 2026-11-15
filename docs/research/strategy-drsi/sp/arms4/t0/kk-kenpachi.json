@@ -1,7 +1,5 @@
-{"note": "KK, the mirror's T0 (PLAN4 §3: mirrors use the general arms only; no :with, PLAN3 found no mirror exchange arm)",
- "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-rush", "kenpachi.lisp#a4-k-guard", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb"],
+{"note": "KK, the mirror's T0 after the cells-k search (B3, 2026-11-15): the general arms that passed their one-job proof only (all, spend, climb); rush and guard failed theirs (../kenpachi.md 'cells-k results'). No :with (no mirror exchange arm)",
+ "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb"],
  "jobs": [null,
-          [[3, ["(:ocell :no)"]], [2, ["(:ost :down)"]], [8, ["(:time :t-late)"]]],
-          [[0, ["(:lead :ahead)"]], [4, ["(:oburst :yes)"]]],
           [[3, ["(:mcell :yes)"]], [3, ["(:mcell :p2up)"]], [4, ["(:mburst :yes)"]]],
           [[0, ["(:lead :behind)", "(:awst :no)"]], [0, ["(:lead :behind)", "(:awst :yes)"]], [9, ["(:swopen :no)"]]]]}

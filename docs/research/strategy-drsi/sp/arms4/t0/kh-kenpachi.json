@@ -1,8 +1,6 @@
-{"note": "KH, Kenpachi's T0 (PLAN4 §3 / §4; built by the cells-k coordinator, B3, 2026-11-15): the four general job arms of ../kenpachi.lisp and the targeted wake-up bait (G2 down). rush's G2 down job is left to bait here (one owner a rule against Hisagi); rush keeps G3 his cells 0 and G8 late",
- "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-rush", "kenpachi.lisp#a4-k-guard", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb", "kenpachi.lisp#a4-k-bait"],
+{"note": "KH, Kenpachi's T0 after the cells-k search (B3, 2026-11-15): the arms that passed their one-job proof (all, spend, climb) and the targeted wake-up bait (G2 down). rush and guard failed theirs (../kenpachi.md 'cells-k results'). The map the cells were scored on: ../cells-k/maps-at-search/kh-kenpachi.json",
+ "arms": ["kenpachi.lisp#a4-k-all", "kenpachi.lisp#a4-k-spend", "kenpachi.lisp#a4-k-climb", "kenpachi.lisp#a4-k-bait"],
  "jobs": [null,
-          [[3, ["(:ocell :no)"]], [8, ["(:time :t-late)"]]],
-          [[0, ["(:lead :ahead)"]], [4, ["(:oburst :yes)"]]],
           [[3, ["(:mcell :yes)"]], [3, ["(:mcell :p2up)"]], [4, ["(:mburst :yes)"]]],
           [[0, ["(:lead :behind)", "(:awst :no)"]], [0, ["(:lead :behind)", "(:awst :yes)"]], [9, ["(:swopen :no)"]]],
           [[2, ["(:ost :down)"]]]]}
