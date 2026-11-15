@@ -29,8 +29,15 @@ from his first press; they include the AS's call-out freeze, so only the `+n` in
 | SA +1 ... +16 | **her SA wins** (`HS-SA-KIRI -> P2 HIT 40`; from +8 his AS1's hit is absorbed by it) |
 | SA +17 ... +32 | no SA starts (its window is over); his AS1 wins as with none |
 
-  So the NS side's out is the reactive SA in a 16-frame window. The CPU's XCH-SA-NOW-P sees his AS BRAIN-DELAY late (HARD 8, NORMAL 14,
-  EASY 24 frames): HARD and NORMAL fall inside it, EASY outside (and it fires at `*cai-xch-sa-p*` .25 / .45 / .65 only).
+  So the NS side's out is the reactive SA in a 16-frame window (timed from his SP press). The CPU's XCH-SA-NOW-P sees his AS
+  BRAIN-DELAY late, and fires at `*cai-xch-sa-p*` .25 / .45 / .65 only:
+  - HARD (8 frames): inside.
+  - NORMAL (14 frames, plus a frame of press latency, about +15-16): at the edge, not measured. No measured cell has a NORMAL Hisagi on
+    the NS side; in H>N KH her NS-clash exchanges are 0.00 a match.
+  - EASY (24 frames): outside.
+
+  In play, HARD wins its NS-clash exchanges 72 % of the time in H>N HK (7.47 of 10.43) and 60 % in bar D (10.1 of 16.95). Both are near
+  HARD's .65.
 - 2.9 m: no cancel, so no AS for him. Her SA press then starts SA-KIRI out of NAGI and hits (36). This needs no exchange.
 
 **(b) His NS1a (sim frame 0), Hisagi's J1 into it.** 1.2-2.9 m: `KE-Z-N1A x P1: CANCEL` at tick 14, then `HS-J1 x P2: CANCEL` at 23.
@@ -74,7 +81,7 @@ Kenpachi). [n] = matches at the bell.
 | **bar D**: KH HARD vs HARD, K.O. rate | | .665 (67 at the bell) | **.995** (1 at the bell) | yes (>= .90) |
 
 - In bar D, Kenpachi wins either way (share .985 → .995). The time-outs became K.O.s, mostly his.
-- E>M and N>E KH are bit-identical: an EASY Hisagi throws no NS clash under 3 m in either build (0.00 a match).
+- E>M (both cells) and N>E KH are identical in every counter: an EASY Hisagi throws no NS clash under 3 m in either build (0.00 a match).
 
 ### The exchange accounting (per match; `probe.py`'s new counters)
 
@@ -89,10 +96,11 @@ The counters:
 | per match | Hisagi before | Kenpachi before | Hisagi after | Kenpachi after |
 |---|---|---|---|---|
 | clashes (all) | 20.95 | 50.17 | 29.41 | 48.88 |
-| NS clash under 3 m (NAGI into his J / SA) | 3.24 | 2.25 | **10.39** | 2.52 |
-| NA clash (J into his NS / AS), < 3 / >= 3 m | 15.48 / 1.79 | 19.87 / 17.88 | 16.83 / 1.76 | 20.47 / 16.64 |
-| his NS-clash exchanges: opened / won / lost | 3.28 / 1.44 / 1.84 | 9.41 / 5.61 / 3.40 | **10.43 / 7.47 / 2.96** | 9.00 / 5.23 / 3.45 |
-| his NA-clash exchanges: opened / won / lost | 14.57 / 13.55 / 0.96 | 29.05 / 25.07 / 3.46 | 12.29 / 11.23 / 1.04 | 29.02 / 24.89 / 3.69 |
+| NS clash under 3 m (hers: NAGI into his J / SA) | 3.24 | 2.25 | **10.39** | 2.52 |
+| NA clash (a J into the other's NS / AS), < 3 / >= 3 m | 15.48 / 1.79 | 19.87 / 17.88 | 16.83 / 1.76 | 20.47 / 16.64 |
+| own NS-clash exchanges: opened / won / lost | 3.28 / 1.44 / 1.84 | 9.41 / 5.61 / 3.40 | **10.43 / 7.47 / 2.96** | 9.00 / 5.23 / 3.45 |
+| own NA-clash exchanges: opened / won / lost | 14.57 / 13.55 / 0.96 | 29.05 / 25.07 / 3.46 | 12.29 / 11.23 / 1.04 | 29.02 / 24.89 / 3.69 |
+| clashes that opened no exchange (clash − opened): NS / NA | 0.39 / 2.71 | 3.02 / 8.70 | 0.39 / 6.30 | 2.77 / 8.09 |
 | first real hit of an exchange: J / AS / SA | 10.91 / 7.01 / 6.19 | 0.18 / 31.14 / 5.66 | 9.67 / 6.00 / **12.54** | 0.23 / 32.35 / 5.40 |
 | AS starts / damage | 51.9 / 1670 | 123.8 / 3852 | 60.3 / 2008 | 127.8 / 3800 |
 | SA starts / damage | 42.0 / 354 | 10.0 / 162 | 49.3 / 557 | 9.3 / 160 |
@@ -101,6 +109,8 @@ The counters:
 - The new clashes are the NS side: NAGI under 3 m, 3.2 → 10.4 a match.
 - She wins 7.5 of those 10.4 exchanges. They are the SA breakthroughs (6.2 → 12.5), which matches the scenes: HARD's 8-frame eyes
   answer his AS inside the 16-frame window.
+- Her NS clashes that opened no exchange stay at 0.39 a match. Nearly every new NAGI clash cancels, so the 2.7-3.0 m band where nothing
+  reaches (scene a) is rare in play. Her NA clashes with no exchange rose 2.71 → 6.30. That is observed here and not chased.
 - Kenpachi still out-clashes her (48.9 to 29.4), and his J-side exchanges (29 a match, 86 % won with his AS) are unchanged. That is why
   the cell is still a fail at .435.
 
