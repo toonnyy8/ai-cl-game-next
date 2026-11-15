@@ -1,6 +1,6 @@
 ;;;; sheet.lisp — a core-system fighter's data sheet per form, as Markdown tables generated from the kit (PLAN4 step 1, the order of
 ;;;; DEVLOG §369 / skill duel-character-cpu "The order for a style search"). Host only, no build (the rules test's load list):
-;;;;   $ECL_HOST --norc --load docs/research/strategy-drsi/sp/kits/hisagi/sheet.lisp -- hisagi base bankai bankai-bind > .../sheet-data.md
+;;;;   (cat sheet-head.md; $ECL_HOST --norc --load sheet.lisp -- hisagi base bankai bankai-bind | grep -v "^;;; ") > sheet.md   (in this folder)
 ;;;;   (any character: -- kenpachi base nozarashi / -- ichigo base kessa, for the opponents' rows, opp-sheets.md)
 ;;;; Regenerates docs/research/ki-ai/ichigo/sheet.lisp (2026-11-06, before the SP system) for the SP system: SP cost (KIT-SP-COST), the
 ;;;; effective startup of a link (S - :enter), every hit window (frame, damage, reaction, stun, dead zone :min-reach, :seg-fn, steal),
