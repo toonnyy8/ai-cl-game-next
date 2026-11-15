@@ -78,7 +78,11 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
 0.001 (off): whiff 0.531, score 0.636 against 0.629 / 0.658 at 0.06 (40 seeds, b1_a0).")
 (defparameter *iks-ns-wait* '(:easy 32 :normal 32 :hard 32)
   "Frames after his whiffing NS starts before the punish is pressed: earlier runs into his next segment (U6), f32 lands (U7).")
-(defparameter *iks-hover* '(:base (3.7 4.2) :nozarashi (4.9 5.3))
+(defun iks-ns-wait (b f)
+  "*IKS-NS-WAIT* (the arm's :iks-ns-wait) for F's punish of his whiffing NS; under pointer 1 the arm's :iks-ns-wait-p1 replaces it (her NS1a
+lands at f10 on his NS2a whiff, the NS3a at f24: the kit study's W, PLAN4 checkpoint 2a S4 punish, KNOBS.md §6.7a). No key: the same wait."
+  (let ((w (style-dif b :iks-ns-wait *iks-ns-wait*))) (if (= (fighter-ptr f) 1) (style-knob b :iks-ns-wait-p1 w) w)))
+(defparameter *iks-hover*'(:base (3.7 4.2) :nozarashi (4.9 5.3))
   "The :whiff / :space hover band (m) by his form: just outside his NS reach, inside NS3a's 5.0 m. This and *IKS-HOVER-P1* move by the
 arm's :iks-hover-add metres (IKS-TABLE-BAND, KNOBS.md §6.7).")
 (defparameter *iks-hover-p1* '(:base (3.4 3.8) :nozarashi (4.9 5.3))
@@ -194,7 +198,9 @@ sealed-form changes, against this Kenpachi's read and dodge. The arm's :iks-kess
 (defparameter *iks-kessa-lunge-band* '(5.05 5.5)
   "KESSA pointer 3, the modes of *IKS-KESSA-SPACE-MODES*: NS3a then its SA's 3 m lunge from this band (m, the projected distance,
 IKS-PROJ). The SA starts on NS3a's f18 where NS3a started, so the hit counts as one from >= 4 m; it lands from 4.2 to 5.6 m (round 2
-b0_a0's trials X1-X5.8), beyond his back Step's *KK-STEP-MAX* 5.0. Round 2's b0_a0 (3.6-4.3 -> 5.05-5.5), :space only as in b3_a0.")
+b0_a0's trials X1-X5.8), beyond his back Step's *KK-STEP-MAX* 5.0. Round 2's b0_a0 (3.6-4.3 -> 5.05-5.5), :space only as in b3_a0.
+The arm keys :iks-kessa-lunge-lo / -hi replace its ends (PLAN4 checkpoint 2a, Ichigo's S5 kessa-lunge, KNOBS.md §6.7a; no key:
+this band).")
 (defparameter *iks-kessa-space-modes* '(:easy nil :normal nil :hard (:space))
   "By difficulty, the style modes whose KESSA pointer-3 neutral is the far k-lunge (*IKS-KESSA-LUNGE-BAND*). Round 2's b3_a0: all four
 modes 0.5632 against :space only 0.7271 (20 seeds a seat). HARD only.")
@@ -460,7 +466,7 @@ J, after *IKS-NS-WAIT* against an NS. One roll per his move start. T when presse
           (when (and (eq (ikst-punish st) :go)
                      (if (eq oc :na)
                          (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))   ; (his J's whiff: only within her punisher's reach)
-                         (and (>= (- *match-tick* (snap-start s)) (style-dif b :iks-ns-wait *iks-ns-wait*))   ; (his NS's slide brings him in: M20)
+                         (and (>= (- *match-tick* (snap-start s)) (iks-ns-wait b f))   ; (his NS's slide brings him in: M20)
                               (or (not *iks-punish-ns-reach*) (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))))))
             (setf (ikst-punish st) :done)
             (iks-sp e b f st (if (eq oc :na) :punish-j :punish-ns) d (and (= (fighter-ptr f) 3) :lunge))))
@@ -671,7 +677,8 @@ decides."
        (if (< d 1.7) nil
            (multiple-value-bind (hlo hhi) (iks-hover-band b o mode *iks-hover-p1*) (iks-walk e b vp d hlo hhi))))
       ((and kessa (= ptr 3) (member mode (brain-chance b *iks-kessa-space-modes*)))   ; KESSA pointer 3: the k-lunge beyond his back Step
-       (destructuring-bind (clo chi) *iks-kessa-lunge-band*
+       (let ((clo (style-knob b :iks-kessa-lunge-lo (first *iks-kessa-lunge-band*)))       ; (the arm's -lo / -hi move it, KNOBS.md §6.7a)
+             (chi (style-knob b :iks-kessa-lunge-hi (second *iks-kessa-lunge-band*))))
          (if (and calm (<= clo (iks-proj b st d) chi) (<= (ikst-dt st) 0))
              (iks-sp e b f st :k-lunge d :k-lunge)
              (iks-walk e b vp d clo chi))))
