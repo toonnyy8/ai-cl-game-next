@@ -1,0 +1,11 @@
+{
+ "pair": "kh",
+ "side": "kenpachi",
+ "vs": "hisagi",
+ "anchor": "none",
+ "note": "PLAN4 B3 Hisagi cells (cells-h): Kenpachi's groups = his `none` and his KH T0 (t0/t0-kh-kenpachi.lisp, his passing arms); no mix: uniform over the two",
+ "members": [
+  {"id": "none", "file": "none", "why": "the anchor (no strategy)"},
+  {"id": "t0-kh-kenpachi", "file": "docs/research/strategy-drsi/sp/arms4/cells-h/t0/t0-kh-kenpachi.lisp", "why": "his KH T0 (PLAN4 §4) from his passing arms"}
+ ]
+}

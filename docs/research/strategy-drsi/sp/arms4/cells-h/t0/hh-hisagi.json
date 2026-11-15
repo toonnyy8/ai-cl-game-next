@@ -1,0 +1,7 @@
+{"note": "HH, the mirror's T0 (PLAN4 §3: mirrors use the general arms only; no :with, no mirror exchange unit): the general arms with their KH job rules; --or q 0.06",
+ "arms": ["../../hisagi/h4-all.lisp", "../../hisagi/h4-range.lisp", "../../hisagi/h4-press.lisp", "../../hisagi/h4-kite.lisp", "../../hisagi/h4-wake.lisp"],
+ "jobs": [null,
+          [[1, ["(:form :yes)", "(:dm :m-mid)"]], [1, ["(:form :yes)", "(:dm :m-far)"]], [9, ["(:swopen :yes)"]]],
+          [[7, ["(:or :r-low)"]], [0, ["(:ored :yes)"]]],
+          [[2, ["(:ost :atk)", "(:dm :m-close)"]], [0, ["(:lead :ahead)"]]],
+          [[2, ["(:ost :down)"]]]]}

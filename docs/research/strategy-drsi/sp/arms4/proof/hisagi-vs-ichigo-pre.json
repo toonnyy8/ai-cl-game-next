@@ -1,0 +1,138 @@
+{
+ "me": "hisagi",
+ "vs": "ichigo",
+ "opp": "none",
+ "dif": "hard",
+ "seeds": "1-100 both seats",
+ "with_": [
+  "docs/research/strategy-drsi/sp/arms4/x-units/d-x-ih-h.lisp"
+ ],
+ "build": "b835ac41b83b",
+ "arms": {
+  "h4-all": {
+   "desc": {
+    "mean_d": 2.3681,
+    "close": 0.7485,
+    "mid": 0.2258,
+    "far": 0.0257,
+    "awk": 0.7742,
+    "p3": 0.0215,
+    "bankai": 0.1894,
+    "released": 0.7742,
+    "sp": 56.64,
+    "burst": 13.02,
+    "kikon": 2.14,
+    "spend": 15.16,
+    "wake_kd": 0.4714,
+    "evade": 47.105,
+    "acts": 391.53,
+    "clash": 131.9,
+    "p2": 0.2919,
+    "nstart": 38.02,
+    "k_sp": 2.3147,
+    "k_d": 2.4264
+   },
+   "delta": {
+    "mean_d": 0.0,
+    "close": 0.0,
+    "mid": 0.0,
+    "far": 0.0,
+    "awk": 0.0,
+    "p3": 0.0,
+    "bankai": 0.0,
+    "released": 0.0,
+    "sp": 0.0,
+    "burst": 0.0,
+    "kikon": 0.0,
+    "spend": 0.0,
+    "wake_kd": 0.0,
+    "evade": 0.0,
+    "acts": 0.0,
+    "clash": 0.0,
+    "p2": 0.0,
+    "nstart": 0.0,
+    "k_sp": 0.0,
+    "k_d": 0.0
+   },
+   "ko_rate": 0.565,
+   "ko_win": 0.255,
+   "ko_ok": true,
+   "matches": 200,
+   "test": null,
+   "not_distinct_from": []
+  },
+  "h4-range": {
+   "desc": {
+    "mean_d": 3.2962,
+    "close": 0.4338,
+    "mid": 0.5195,
+    "far": 0.0467,
+    "awk": 0.4731,
+    "p3": 0.0496,
+    "bankai": 0.3046,
+    "released": 0.4731,
+    "sp": 32.455,
+    "burst": 0.465,
+    "kikon": 8.535,
+    "spend": 9.0,
+    "wake_kd": 0.3044,
+    "evade": 18.795,
+    "acts": 273.16,
+    "clash": 57.075,
+    "p2": 0.329,
+    "nstart": 44.68,
+    "k_sp": 2.8055,
+    "k_d": 3.5285
+   },
+   "delta": {
+    "mean_d": 0.9281,
+    "close": -0.3146,
+    "mid": 0.2937,
+    "far": 0.0209,
+    "awk": -0.3011,
+    "p3": 0.0281,
+    "bankai": 0.1152,
+    "released": -0.3011,
+    "sp": -24.185,
+    "burst": -12.555,
+    "kikon": 6.395,
+    "spend": -6.16,
+    "wake_kd": -0.167,
+    "evade": -28.31,
+    "acts": -118.37,
+    "clash": -74.825,
+    "p2": 0.0371,
+    "nstart": 6.66,
+    "k_sp": 0.4908,
+    "k_d": 1.1021
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.995,
+   "ko_ok": true,
+   "matches": 200,
+   "test": {
+    "desc": "mean_d+bankai",
+    "parts": [
+     {
+      "desc": "mean_d",
+      "op": "+",
+      "amount": 0.5,
+      "value": 3.2962,
+      "arm0": 2.3681,
+      "ok": true
+     },
+     {
+      "desc": "bankai",
+      "op": "+",
+      "amount": 0.1,
+      "value": 0.3046,
+      "arm0": 0.1894,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "not_distinct_from": []
+  }
+ }
+}

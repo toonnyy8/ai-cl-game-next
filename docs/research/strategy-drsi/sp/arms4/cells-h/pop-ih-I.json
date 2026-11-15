@@ -1,0 +1,11 @@
+{
+ "pair": "ih",
+ "side": "ichigo",
+ "vs": "hisagi",
+ "anchor": "none",
+ "note": "PLAN4 B3 Hisagi cells (cells-h): Ichigo's groups = her `none` and her IH T0 (t0/t0-ih-ichigo.lisp, her four passing arms, KI's v3 map); no mix: uniform over the two",
+ "members": [
+  {"id": "none", "file": "none", "why": "the anchor (no strategy)"},
+  {"id": "t0-ih-ichigo", "file": "docs/research/strategy-drsi/sp/arms4/cells-h/t0/t0-ih-ichigo.lisp", "why": "her IH T0 (PLAN4 §4) from her passing arms"}
+ ]
+}

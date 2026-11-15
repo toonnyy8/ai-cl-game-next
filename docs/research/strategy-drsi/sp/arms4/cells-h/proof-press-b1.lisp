@@ -1,0 +1,3 @@
+;; h4-all expanded from arms4/hisagi.lisp (arms4/expand.lisp)
+(:id :h4-all :fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0))
+(:id :h4-press :fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05 :hr-p 1.0 :hr-close 3.6 :hr-near 3.6 :hr-wa-pred 3.0 :hr-taba-p 1.0 :hr-edge 0.5 :kk-hoho-in-p 1.0 :kk-hin-fs 100 :kk-hoho-in-max 6.0 :kk-step-p 0.0) :rules ((((:ost :down)) (:b-walk-in 0.14 :b-j1 0.12 :b-wait -0.12)) (((:dj :in)) (:b-j1 0.12 :b-step-out -0.1)) (((:dj :afar)) (:b-walk-in 0.12 :b-step-in 0.08)) (((:ost :active) (:dj :in)) (:b-hoho -0.05))))

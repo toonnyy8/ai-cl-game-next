@@ -1,0 +1,52 @@
+{
+ "note": "KH, Hisagi's T0 after the B3 cells (final): only the arms that passed their one-job proof (all, range, wake, hoho6); job rules as the cells' table (kh-hisagi.json); arms in ../final/. v2: range's job is G1 form 1 x mid / far only (as IH v2): v1's G9 switch-open rule is a lasting state, so v1's range division check was vacuous",
+ "arms": [
+  "../final/h4-all.lisp",
+  "../final/h4-range.lisp",
+  "../final/h4-wake.lisp",
+  "../final/h4-hoho6.lisp"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :free)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    2,
+    [
+     "(:ost :free)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ]
+ ]
+}

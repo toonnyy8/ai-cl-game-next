@@ -1,0 +1,62 @@
+{
+  "baseline_score": 0.6287,
+  "beta": 0.6,
+  "branch_count": 2,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.6337
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.6304
+    },
+    "b1_a0": {
+      "error": "no arm.lisp written",
+      "fail_class": "runtime",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": null
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.637
+    }
+  },
+  "directions": {
+    "0": "the kite rule's own keys :hkk-* (chance, start distances, too-late distance, the poke band and window)",
+    "1": "the kite data's shared outputs and :rules (:range, :b-walk-out, :b-step-out, :b-sp, the (:do ...) / (:dn ...) rules), :hkk-* at their defaults or lightly moved"
+  },
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 2,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 1
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 1,
+  "round_index": 1,
+  "task": "SOUL DUEL PLAN4 B3: Hisagi's kite arm in its slot of his T0 (played policy), vs ichigo, K.O.-only"
+}

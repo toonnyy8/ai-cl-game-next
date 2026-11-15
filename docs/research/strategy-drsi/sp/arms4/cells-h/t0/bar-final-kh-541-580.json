@@ -1,0 +1,241 @@
+{
+ "p1": "cells-h/t0/t0-final-kh-hisagi.lisp",
+ "p2": "cells-h/t0/t0-kh-kenpachi.lisp",
+ "seeds": "541-580",
+ "build": "b835ac41b83b",
+ "sides": {
+  "c1 hisagi": {
+   "matches": 80,
+   "judgements_per_match": 141.2,
+   "changes": {
+    "median": 36.0,
+    "mean": 36.3,
+    "zero": 0
+   },
+   "arm_share": [
+    0.143,
+    0.527,
+    0.296,
+    0.034
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.901,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.585,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.8335,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.355,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.2698,
+     "out_share": 0.0001,
+     "ratio": 5328.67,
+     "in_weight": 0.127,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 2847,
+     "share": [
+      0.451,
+      0.009,
+      0.54,
+      0.0
+     ]
+    },
+    "f0-far": {
+     "n": 1284,
+     "share": [
+      0.17,
+      0.0,
+      0.585,
+      0.245
+     ]
+    },
+    "f0-mid": {
+     "n": 623,
+     "share": [
+      0.177,
+      0.0,
+      0.729,
+      0.095
+     ]
+    },
+    "f1-close": {
+     "n": 3704,
+     "share": [
+      0.0,
+      0.854,
+      0.146,
+      0.0
+     ]
+    },
+    "f1-far": {
+     "n": 1845,
+     "share": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "f1-mid": {
+     "n": 870,
+     "share": [
+      0.0,
+      0.991,
+      0.009,
+      0.0
+     ]
+    },
+    "f2-close": {
+     "n": 101,
+     "share": [
+      0.0,
+      0.495,
+      0.505,
+      0.0
+     ]
+    },
+    "f2-far": {
+     "n": 17,
+     "share": [
+      0.0,
+      0.059,
+      0.235,
+      0.706
+     ]
+    },
+    "f2-mid": {
+     "n": 6,
+     "share": [
+      0.0,
+      0.667,
+      0.0,
+      0.333
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": true,
+    "division": true
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.025,
+   "timeouts": 0
+  },
+  "c2 kenpachi": {
+   "matches": 80,
+   "judgements_per_match": 183.8,
+   "changes": {
+    "median": 88.0,
+    "mean": 89.8,
+    "zero": 0
+   },
+   "arm_share": [
+    0.286,
+    0.131,
+    0.109,
+    0.475
+   ],
+   "job": {
+    "1": {
+     "in_share": 0.6862,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.19,
+     "ok": true
+    },
+    "2": {
+     "in_share": 0.5898,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.185,
+     "ok": true
+    },
+    "3": {
+     "in_share": 0.9821,
+     "out_share": 0.0,
+     "ratio": null,
+     "in_weight": 0.483,
+     "ok": true
+    }
+   },
+   "by_form_band": {
+    "f0-close": {
+     "n": 2069,
+     "share": [
+      0.0,
+      0.13,
+      0.565,
+      0.304
+     ]
+    },
+    "f0-far": {
+     "n": 466,
+     "share": [
+      0.0,
+      0.369,
+      0.631,
+      0.0
+     ]
+    },
+    "f0-mid": {
+     "n": 181,
+     "share": [
+      0.0,
+      0.232,
+      0.762,
+      0.006
+     ]
+    },
+    "f1-close": {
+     "n": 8893,
+     "share": [
+      0.278,
+      0.043,
+      0.0,
+      0.679
+     ]
+    },
+    "f1-far": {
+     "n": 1739,
+     "share": [
+      0.43,
+      0.461,
+      0.0,
+      0.109
+     ]
+    },
+    "f1-mid": {
+     "n": 1357,
+     "share": [
+      0.726,
+      0.187,
+      0.0,
+      0.087
+     ]
+    }
+   },
+   "A": {
+    "no_zero": true,
+    "median_10": true,
+    "three_arms": true,
+    "division": true
+   },
+   "ko_rate": 1.0,
+   "ko_win": 0.975,
+   "timeouts": 0
+  }
+ }
+}

@@ -1,0 +1,71 @@
+{
+ "slot": "press",
+ "arm": "docs/research/strategy-drsi/sp/arms4/cells-h/ws-press/rounds/round01/nodes/b1_a0/arm.lisp",
+ "seeds": "301-320 both seats vs none (whole, 1-arm table)",
+ "sides": {
+  "kenpachi": {
+   "test": {
+    "desc": "close",
+    "op": "+",
+    "amount": 0.1,
+    "value": 0.7593,
+    "arm0": 0.7447,
+    "ok": false
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "not_distinct_from_arm0": false,
+   "delta": {
+    "mean_d": -0.0301,
+    "close": 0.0146,
+    "far": 0.0013,
+    "bankai": -0.0477,
+    "evade": 5.75,
+    "wake_kd": -0.0383,
+    "nstart": -7.9,
+    "sp": -11.175,
+    "acts": -29.925
+   },
+   "arm0": {
+    "mean_d": 2.2754,
+    "close": 0.7447,
+    "bankai": 0.2347,
+    "evade": 41.475,
+    "wake_kd": 0.487,
+    "nstart": 32.425
+   }
+  },
+  "ichigo": {
+   "test": {
+    "desc": "close",
+    "op": "+",
+    "amount": 0.1,
+    "value": 0.7511,
+    "arm0": 0.7399,
+    "ok": false
+   },
+   "ko_rate": 0.95,
+   "ko_win": 0.4,
+   "not_distinct_from_arm0": false,
+   "delta": {
+    "mean_d": -0.0612,
+    "close": 0.0112,
+    "far": 0.0028,
+    "bankai": -0.0059,
+    "evade": -4.975,
+    "wake_kd": -0.0486,
+    "nstart": -10.375,
+    "sp": -2.5,
+    "acts": -50.65
+   },
+   "arm0": {
+    "mean_d": 2.3888,
+    "close": 0.7399,
+    "bankai": 0.1891,
+    "evade": 44.9,
+    "wake_kd": 0.4669,
+    "nstart": 37.325
+   }
+  }
+ }
+}

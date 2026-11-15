@@ -1,0 +1,45 @@
+{
+  "baseline_score": 0.5686,
+  "beta": 0.6,
+  "branch_count": 1,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.5948
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "",
+      "score": 0.6079
+    }
+  },
+  "directions": {
+    "0": "around the fixed :hk-wake unit: getting into range of a downed opponent and the follow-up (:kk-*, the shared outputs and (:ost :down) rules, :hr-* while he gets up)"
+  },
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 1,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 1
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 1,
+  "round_index": 1,
+  "task": "SOUL DUEL PLAN4 B3: Hisagi's wake arm in its slot of his T0 (played policy), vs both, K.O.-only"
+}
