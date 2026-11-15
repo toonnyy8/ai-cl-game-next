@@ -4,7 +4,7 @@ Assembled, no search (PLAN4 §3: "Ichigo: none"). Arms: `ichigo.lisp`, one style
 `x-units/d-x-ki-i.lisp` (KI, from `x-ki-i-r1-b0a2`) and `x-units/d-x-ih-i.lisp` (IH, from `x-ih-i-r1-b2a1`), the §6.5 exchange keys only.
 
 **Status (2026-11-15, Ichigo's code cell)**: the four mode arms below failed. After the code cell's keys, the arms are `all`, `brawl`, `keep`
-and `kessa2`, and all four pass. T0 v3 passes bar A. Both are in "Re-jobbed arms" at the end.
+and `kessa2`, and all four pass. The registered T0 map (v1) fails bar A on switching. v3, chosen afterwards, passes on 501-540 and in a replication on 541-580. Both are in "Re-jobbed arms" at the end.
 
 ## The arms (first drafts)
 
@@ -198,6 +198,12 @@ both seats (80 matches), against Kenpachi's KI T0 (`t0/t0-ki-kenpachi.lisp`, unc
 | v1 (the one pre-registered above) | G2 `(:ost :free) (:dm :m-close)` | 6 (6.5) | 0 | .292 / .017 / .260 / .431 | .24 / .0001, .39 / 0, 1.0 / 0 | **fails** (median) |
 | v2 | v1 + G7 `(:or :r-low)` | 7 (6.7) | 0 | .163 / .068 / .298 / .470 | .21 / .001, .42 / 0, 1.0 / 0 | **fails** (median) |
 | **v3 (kept)** | G2 `(:ost :free)` (all three distances) | **19 (19.8)** | **0** | **.205** / .077 / **.271** / **.447** | .25 / 0, .39 / 0, 1.0 / 0 | **passes** |
+| v3, replication on seeds 541-580 | (the same table) | **21 (20.9)** | **0** | **.219** / .081 / **.250** / **.449** | .27 / 0, .38 / 0, 1.0 / 0 | **passes** |
+
+The registered map (v1) **fails**. v3 was designed after v1 and v2 on the same 80 matches and kept because it passed, so its 501-540 pass is a
+selected result. The replication tests it: the v3 table unchanged, one run on seeds 541-580, a dev block this cell had not used
+(`t0/bar-ki-541-580.json`). The map was not edited after it. Files: `t0/bar-ki-501-540-v1.json`, `-v2.json` (v1's table was overwritten by v3,
+v2's was a scratch file), `t0/bar-ki-501-540.json` (v3).
 
 v3's bar A (`t0/bar-ki-501-540.json`): no match without a change; median 19 >= 10; three arms >= 10 % (all, keep, kessa2; brawl .077), none
 over 70 %; in-job >= 2x out-of-job for each arm. There were 132.4 judgements a match. K.O. rate 1.00, and Ichigo wins .938 by K.O.
@@ -206,6 +212,9 @@ Kenpachi's side in the same run: median 24, arm shares .069 / .536 / .022 / .129
   (in-job share .21-.24), so few arm changes happened. His free state toggles with every move of his. That is what v3's switching comes
   from.
 - brawl is under 10 % in every map: it wins only a quarter of its job's weight. A fit (B5) may widen it.
+- kessa2 is not PLAN4's "KESSA chains". While awakened, `:iks-wait-max 0` hands KESSA's neutral to the generic CPU, and the chain keys are
+  unused (the probes found no separation by them). Its job is KESSA pressure with the shut-gauge lunge off. Its bar (-0.30 m) was set after
+  the 201-220 probes showed -0.49 / -0.43.
 
 ### Proofs (no play changes)
 
