@@ -1,0 +1,12 @@
+# EASY given one part of HARD at a time (which part of HARD beats the masher?)
+base
+delay8	*ai-delay*=(:easy 8 :normal 14 :hard 8)
+clashdelay8	*cai-clash-delay*=(:easy 8 :normal 10 :hard 8)
+clashp06	*cai-clash-p*=(:easy 0.6 :normal 0.35 :hard 0.6)
+clashboth	*cai-clash-delay*=(:easy 8 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.6 :normal 0.35 :hard 0.6)
+think12	*cai-think*=(:easy 12 :normal 22 :hard 12)
+skill1	*fz-skill*=(:easy 1.0 :normal 0.62 :hard 1.0)
+table1	*strat-table-chance*=(:easy 1.0 :normal 0.5 :hard 1.0)
+turn08	*cai-turn-p*=(:easy 0.8 :normal 0.5 :hard 0.8)
+mcts	*mc-iters*=(:easy 160 :normal 96 :hard 160);*mc-tau*=(:easy 0.015 :normal 0.03 :hard 0.015);*mc-budget*=(:easy 0.02 :normal 0.05 :hard 0.02)
+xch	*cai-xch-sa-p*=(:easy 0.65 :normal 0.45 :hard 0.65);*cai-xch-carry-p*=(:easy 0.2 :normal 0.35 :hard 0.2);*cai-xch-j*=(:easy (:as 0.6 :j 0.4) :normal (:as 0.7 :j 0.3) :hard (:as 0.6 :j 0.4))

@@ -1,0 +1,3 @@
+# the MCTS hold from each tier's side: *mc-sure* (the margin below which the MCTS defers to the CPU under it)
+sure0	*mc-sure*=(:easy 0.0 :normal 0.0 :hard 0.0)
+sure16	*mc-sure*=(:easy 0.16 :normal 0.16 :hard 0.16)

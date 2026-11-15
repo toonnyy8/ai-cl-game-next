@@ -1,0 +1,8 @@
+# candidate knob sets for EASY (load-time bindings); clash = EASY's clash at NORMAL's values (delay 10, chance 0.35)
+c1-fullnil-clash	*mc-full*=nil;*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6)
+c2-d14-clash	*ai-delay*=(:easy 14 :normal 14 :hard 8);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6)
+c3-fullnil-d14-clash	*mc-full*=nil;*ai-delay*=(:easy 14 :normal 14 :hard 8);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6)
+c4-c3-skill	*mc-full*=nil;*ai-delay*=(:easy 14 :normal 14 :hard 8);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6);*fz-skill*=(:easy 0.62 :normal 0.62 :hard 1.0)
+c5-sure-clash	*mc-sure*=(:easy 0.16 :normal 0.0 :hard 0.16);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6)
+c6-mcoff-d14-clash	*mc-sure*=(:easy 99.0 :normal 0.0 :hard 0.16);*ai-delay*=(:easy 14 :normal 14 :hard 8);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6)
+c7-fullnil-clash-p06	*mc-full*=nil;*cai-clash-delay*=(:easy 10 :normal 10 :hard 8);*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6)
