@@ -60,6 +60,7 @@ lisp/cpu-ih-hisagi-ihr1b2a0.lisp
 lisp/cpu-ih-hisagi-ihr1b2a1.lisp
 lisp/cpu-kh-ken.lisp
 lisp/cpu-hk-hisagi.lisp
+lisp/cpu-hisagi-own.lisp
 lisp/mcts-lite.lisp
 lisp/cpu-mcts.lisp
 lisp/fq-online.lisp

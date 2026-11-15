@@ -56,6 +56,7 @@ side Steps, switches, TATAKI. Reset and printed by tools/simgate/strat-run.lisp 
   (seg -1 :type fixnum)         ; the WA / TABA segment (its CLS-T) the gap was decided for
   (hk -1 :type fixnum)          ; the J2 (its CLS-T) the pointer-home roll was made for
   (pd 99.0 :type single-float)  ; the perceived distance at his last free step (closing in: it falls)
+  (tb nil)                      ; HR-TABA-N: inside the neutral TABA band since its roll
   (tick 0 :type fixnum))        ; *MATCH-TICK* at his last call (a lower one: a new match)
 (inline-readers hrs)
 
@@ -98,12 +99,29 @@ side Steps, switches, TATAKI. Reset and printed by tools/simgate/strat-run.lisp 
                         (hr-count f 4) (clog "~a hr back-step (his attack) at ~,1f" (side-name e) d) (mc-press b :step-out))
                        ((and (= ptr 1) (not reel) (or (not near) (<= (- d (* v (+ (brain-delay b) 14))) (style-knob b :hr-wa-pred *hr-wa-pred*))))   ; (WA S 14: where he will be)
                         (hr-count f 2) (clog "~a hr WA at ~,1f" (side-name e) d) (hr-sp b f s))
-                       ((and (= ptr 2) (not reel) (not near) (hrs-taba st) (<= (first *hr-taba-band*) d (second *hr-taba-band*)))
+                       ((and (= ptr 2) (not reel) (not near) (hrs-taba st)
+                             (<= (style-knob b :hr-taba-lo (first *hr-taba-band*)) d (style-knob b :hr-taba-hi (second *hr-taba-band*))))
                         (hr-count f 3) (clog "~a hr TABA at ~,1f" (side-name e) d) (hr-sp b f s))
                        ((not corner) (hr-count f 4) (clog "~a hr back-step at ~,1f" (side-name e) d) (mc-press b :step-out))
                        (t (hr-count f 5) (clog "~a hr side-step at ~,1f" (side-name e) d) (mc-press b :step-side)))
                  (hr-taken b f)
                  t))))))
+
+(defun hr-taba-n (e b f kit s d st)
+  "Free in the ranged mode at pointer 2 with the opponent free in TABA's tip band (:HR-TABA-LO-:HR-TABA-HI; the sheet: 4.0-4.9 m, x1.71,
+route NS2a SA-g J2s AS2ab 308): NS2a TABA from neutral, one roll of the arm's chance :HR-TABA-N per stay in the band (PLAN4 S3, 鏈尖). No
+:HR-TABA-N (every arm before it): NIL, nothing drawn. T when it pressed."
+  (let ((p (style-knob b :hr-taba-n nil)))
+    (when p
+      (let ((mv (kit-core-move kit :ns 2)))
+        (cond ((not (and mv (= (fighter-ptr f) 2) (not (member (snap-state s) '(:move :cine :intro)))
+                         (<= (style-knob b :hr-taba-lo (first *hr-taba-band*)) d (style-knob b :hr-taba-hi (second *hr-taba-band*)))))
+               (setf (hrs-tb st) nil) nil)
+              ((hrs-tb st) nil)
+              (t (setf (hrs-tb st) t)
+                 (when (and (chance-roll p) (kit-sp-start-p kit mv (gauges-fs (gauges e)) (gauges-burst (gauges e))))
+                   (hr-count f 3) (clog "~a hr TABA (neutral) at ~,1f" (side-name e) d) (hr-sp b f s) (hr-taken b f)
+                   t)))))))
 
 (defun hr-gap (e b f kit st)
   "In his own WA (NS1a) / TABA (NS2a) segment: wait for its active frames (the contact known), then the route (see the header). T while
@@ -145,7 +163,7 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
     (if (not (eq (fighter-form f) :bankai))
         (progn (setf (hrs-on st) nil) nil)
         (case (fighter-state f)
-          ((:idle :run) (hr-close e b f s d st))
+          ((:idle :run) (or (hr-close e b f s d st) (hr-taba-n e b f kit s d st)))
           (:move (setf (hrs-on st) nil (hrs-pd st) 99f0) (or (hr-home e b f s st) (hr-gap e b f kit st)))
           (t (setf (hrs-on st) nil (hrs-pd st) 99f0) nil)))))
 

@@ -63,6 +63,20 @@ DESC = list(TOL)
 TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5), 'h4-range': [('mean_d', '+', 0.5), ('bankai', '+', 0.10)],
               'h4-wake': ('wake_kd', 'x', 1.3), 'h4-hoho6': ('evade', 'x', 1.3), 'h4-ihx': ('nstart', 'x', 1.2)})
 
+# ---- Hisagi's PLAN4 arms (arms5/hisagi.md; tools/simgate/strat-run.lisp's Hisagi block, 2026-11-15). Raw counters of the desc line, the
+# per-match means and pooled shares made of them (HX_POOLED), the distinctness tolerances used between two h5- arms only (so no other
+# character's pre-registered distinctness changes), and absolute test ops ('a>=' / 'a<=': the value itself against the amount).
+HX_RAW = ('bdsum', 'nagi', 'nagiin', 'xc', 'xj', 'xja', 'taba', 'tabat', 'rbeh', 'rbehb', 'beven', 'bina', 'jlunge', 'nsin', 'osk', 'klunge',
+          'gch', 'gans', 'rush', 'rushn')
+HX_MEAN = ('nagi', 'nagiin', 'xc', 'beven', 'bina', 'jlunge', 'nsin', 'osk', 'klunge', 'gch', 'rush')   # (per match)
+HX_POOLED = {'b_mean_d': ('bdsum', 'bsteps', 0.001), 'jside': ('xj', 'xc', 1), 'as_after': ('xja', 'xj', 1), 'taba_tip': ('tabat', 'taba', 1),
+             'bind_b': ('rbehb', 'rbeh', 1), 'g_ans': ('gans', 'gch', 1), 'rush_nagi': ('rushn', 'rush', 1)}
+HX_TOL = {'b_mean_d': ('abs', 0.25), 'nagiin': ('rel', 0.15), 'jside': ('abs', 0.05), 'as_after': ('abs', 0.05), 'taba_tip': ('abs', 0.05),
+          'bind_b': ('abs', 0.03), 'beven': ('rel', 0.15), 'bina': ('rel', 0.15), 'jlunge': ('rel', 0.15), 'nsin': ('rel', 0.15),
+          'g_ans': ('abs', 0.05), 'rush_nagi': ('abs', 0.05)}
+HX_DESC = list(HX_MEAN) + list(HX_POOLED)
+# ---- (end of Hisagi's PLAN4 block)
+
 
 def forms(path):
     """An arms file -> {id (no colon): one-line plist}, in file order."""
@@ -172,7 +186,8 @@ def desc_vec(line):
     return dict(mean_d=kv['dsum'] / 1000.0 / st, close=kv['close'] / st, far=kv['far'] / st, mid=1 - (kv['close'] + kv['far']) / st,
                 awk=kv['awk'] / st, p3=kv['p3'] / st, p2=kv.get('p2', 0) / st, nstart=kv.get('nstart', 0), asp=kv.get('asp', 0), adsum=kv.get('adsum', 0), awk_n=kv['awk'], bankai=fm.get('bankai', 0) / st, released=1 - fm.get('base', 0) / st,
                 sp=kv['sp'], burst=kv['burst'], kikon=kv['kikon'], spend=kv['burst'] + kv['kikon'], kd=kv['kd'], wake=kv['wake'],
-                evade=kv['evade'], acts=kv['acts'], clash=kv['clash'], steps=kv['steps'])
+                evade=kv['evade'], acts=kv['acts'], clash=kv['clash'], steps=kv['steps'],
+                bsteps=fm.get('base', 0), **{k: kv.get(k, 0) for k in HX_RAW})
 
 
 def arm_desc(res):
@@ -191,6 +206,8 @@ def arm_desc(res):
     out['k_sp'] = 1000.0 * sum(m['asp'] for m in ms) / max(1, sum(m['awk_n'] for m in ms))   # (pooled: SP moves per 1000 awakened steps)
     out['nstart_r'] = 1000.0 * sum(m['nstart'] for m in ms) / max(1, sum(m['steps'] for m in ms))   # (pooled: starts into his neutral per 1000 steps)
     out['wake_kd'] = sum(m['wake'] for m in ms) / max(1, sum(m['kd'] for m in ms))   # (pooled: presses per knockdown of his)
+    out.update({k: statistics.fmean(m[k] for m in ms) for k in HX_MEAN})   # (Hisagi's PLAN4 block: per match, then pooled shares)
+    out.update({k: sc * sum(m[a] for m in ms) / max(1, sum(m[b] for m in ms)) for k, (a, b, sc) in HX_POOLED.items()})
     out.update(matches=n, ko_rate=ko / max(1, n), ko_win=kow / max(1, n))
     return out
 
@@ -207,12 +224,13 @@ def test(aid, d, d0):
 
 def test1(t, d, d0):
     k, op, amt = t
-    ok = {'+': d[k] >= d0[k] + amt, '-': d[k] <= d0[k] - amt, 'x': d[k] >= d0[k] * amt, 'x<': d[k] <= d0[k] * amt}[op]
+    ok = {'+': d[k] >= d0[k] + amt, '-': d[k] <= d0[k] - amt, 'x': d[k] >= d0[k] * amt, 'x<': d[k] <= d0[k] * amt,
+          'a>=': d[k] >= amt, 'a<=': d[k] <= amt}[op]
     return dict(desc=k, op=op, amount=amt, value=round(d[k], 4), arm0=round(d0[k], 4), ok=bool(ok))
 
 
-def close_on_all(a, b):
-    for k, (kind, t) in TOL.items():
+def close_on_all(a, b, hx=False):
+    for k, (kind, t) in (dict(TOL, **HX_TOL) if hx else TOL).items():
         lim = t if kind == 'abs' else t * max(abs(a[k]), abs(b[k]), 1.0)
         if abs(a[k] - b[k]) > lim:
             return False
@@ -241,19 +259,22 @@ def cmd_desc(a):
     sheet = {}
     for aid in ids:
         d = out[aid]
-        sheet[aid] = dict(desc={k: round(d[k], 4) for k in DESC}, delta={k: round(d[k] - d0[k], 4) for k in DESC},
+        dk = DESC + (HX_DESC if aid.startswith('h5-') else [])
+        sheet[aid] = dict(desc={k: round(d[k], 4) for k in dk}, delta={k: round(d[k] - d0[k], 4) for k in dk},
                           ko_rate=round(d['ko_rate'], 3), ko_win=round(d['ko_win'], 3), ko_ok=d['ko_rate'] >= 0.5, matches=d['matches'],
-                          test=test(aid, d, d0), not_distinct_from=[b for b in ids if b != aid and close_on_all(d, out[b])])
+                          test=test(aid, d, d0), not_distinct_from=[b for b in ids if b != aid and close_on_all(d, out[b], aid.startswith('h5-') and b.startswith('h5-'))])
     os.makedirs(os.path.join(HERE, 'proof'), exist_ok=True)
     dst = a.out or os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + (f'-{a.tag}' if a.tag else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
     json.dump(dict(me=a.me, vs=a.vs, opp=a.opp if a.opp == 'none' else os.path.relpath(os.path.abspath(a.opp), HERE), dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
                    build=simlib.build_hash(os.path.join(ROOT, 'tools/simgate/strat-run.lisp'))[:12], arms=sheet), open(dst, 'w'), indent=1)
     cols = ['mean_d', 'close', 'mid', 'far', 'p2', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'nstart', 'nstart_r', 'k_sp', 'k_d', 'acts', 'clash']
+    if any(x.startswith('h5-') for x in ids):   # (Hisagi's PLAN4 block)
+        cols = ['mean_d', 'close', 'bankai', 'wake_kd', 'nstart'] + HX_DESC
     print(f'{a.me} vs {a.vs} {a.opp}, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
     print('arm'.ljust(12) + ''.join(c.rjust(8) for c in cols) + '     K.O.  KOwin  test')
     for aid in ids:
         s = sheet[aid]
-        vals = s['desc'] if aid == a0 else s['delta']
+        vals = dict(d0, **s['desc']) if aid == a0 else dict({k: out[aid][k] - d0[k] for k in cols}, **s['delta'])
         tt = s['test']
         print(aid[3:].ljust(12) + ''.join(f'{vals[c]:8.3f}' for c in cols) + f'  {s["ko_rate"]:6.3f} {s["ko_win"]:6.3f}  '
               + ('' if tt is None else f'{tt["desc"]} {"PASS" if tt["ok"] else "FAIL"}') + (' K.O.<.5' if not s['ko_ok'] else '')

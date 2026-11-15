@@ -132,8 +132,9 @@ recovery ends?"
         (hkk-step e b f kit s d st)
         (progn (setf (hks-k-pd st) (f32 d) (hks-k-on st) nil (hks-k-go st) nil) nil))))
 
-(defun hisagi-hk-style (e b f kit s d)
-  "Hisagi's style against Kenpachi: T when it decided this step, NIL for the MCTS / the generic core CPU."
+(defun hisagi-hk-style (e b f kit s d &optional own)
+  "Hisagi's style against Kenpachi: T when it decided this step, NIL for the MCTS / the generic core CPU. OWN (a style on this one:
+cpu-hisagi-own.lisp HB-SHIKAI): a rule (e b f kit s d st) tried after the three rules and before the merged style; none as a strategy's :FN."
   (let ((st (brain-style b)))
     (when (or (not (hks-p st)) (< *match-tick* (hks-hk-tick st)))
       (setf st (make-hks) (brain-style b) st))
@@ -141,5 +142,6 @@ recovery ends?"
     (prog1 (or (and (strat-out (brain-now b) :hk-wake nil) (hkw-step e b f kit s d st))
                (hkb-gated e b s d st)
                (hkk-gated e b f kit s d st)
+               (and own (funcall own e b f kit s d st))
                (hisagi-merged-style e b f kit s d))
       (setf (hks-hk-was st) (fighter-state f)))))
