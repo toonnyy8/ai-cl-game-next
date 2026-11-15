@@ -22,9 +22,13 @@ PSTAT = re.compile(r'^pstat (\d+) (P[12]) st (.*?) on(.*?) k(.*?) deaf (\d+) hol
 
 
 def mclass(name):
-    """A move name's triangle class from its last part (J1 NA, N1A NS, AS1, SA1), else 'other'."""
-    t = name.split('-')[-1]
-    for pre, c in (('AS', 'AS'), ('SA', 'SA'), ('J', 'NA'), ('N', 'NS')):
+    """A move name's triangle class: SA when a part is SA / SA1 (IC-SA, KE-S-SA, HS-SA-KIRI, HS-R-SA-G), else from its last part (J1 /
+    NA3 NA, N1A NS, AS1), else 'other'. (Before arms5/clash2.md the bare SA names and Hisagi's NA3 / NA4 fell to 'other'.)"""
+    parts = name.split('-')
+    if any(re.fullmatch(r'SA\d*', p) for p in parts[1:]):
+        return 'SA'
+    t = parts[-1]
+    for pre, c in (('AS', 'AS'), ('J', 'NA'), ('NA', 'NA'), ('N', 'NS')):
         if re.fullmatch(pre + r'\d+[A-Z]?', t):
             return c
     return 'other'
@@ -35,14 +39,28 @@ def parse(out):
     ms = collections.OrderedDict()
     cur = None
     last_hit = {}
+    # The exchange accounting (arms5/clash2.md): an exchange is a run of cancels each within 60 ticks of the last (a step's two verdicts,
+    # the J and the NS cancelling in turn); it is "from S's clash" (thrown class cto) when S logged `cpu clash` in the 40 ticks before
+    # its first cancel, and ends with the first real hit (BREAK fs, CORE-BREAK!: xwin_<class> for the hitter) or with none (x_none).
+    xt = clasher = cto = None
+    clash_t = {}
+
+    def x_none():
+        if xt is not None and cur is not None:
+            for sd in ('P1', 'P2'):
+                cur[sd]['x_none'] += 1
+            if clasher:
+                cur[clasher]['xc_none_' + cto] += 1
     for l in out.splitlines():
         m = re.match(r'duel match seed (\d+)', l)
         if m:
+            x_none(); xt = clasher = None; clash_t = {}
             cur = ms.setdefault(int(m[1]), {'P1': collections.Counter(), 'P2': collections.Counter()})
             continue
         m = ROW.search(l)
         if m:
             ms[int(m[1])].update(winner=m[2], ko=row_ko(l))
+            x_none(); xt = clasher = None
             continue
         m = PSTAT.match(l)
         if m:
@@ -59,8 +77,23 @@ def parse(out):
         m = TICK.match(l)
         if not m or cur is None:
             continue
-        side, rest = m[2], m[3]
+        side, rest, t = m[2], m[3], int(m[1])
         c = cur[side]
+        if rest.endswith(': CANCEL') and t != xt:
+            cs = [sd for sd, (ct, _) in clash_t.items() if 0 <= t - ct <= 40]
+            if cs or xt is None or t - xt > 60:          # a fresh exchange (else the open one goes on: a restamp)
+                x_none()
+                clasher = max(cs, key=lambda sd: clash_t[sd][0]) if cs else None
+                cto = clash_t[clasher][1] if clasher else None
+                if clasher:
+                    cur[clasher]['xc_open_' + cto] += 1
+            clash_t = {}
+            xt = t
+        elif rest.startswith('BREAK fs') and xt is not None:
+            c['xwin_' + last_hit.get(side, '?')] += 1
+            if clasher:
+                cur[clasher][('xc_won_' if clasher == side else 'xc_lost_') + cto] += 1
+            xt = clasher = None
         if rest.startswith('move '):
             c['start_' + mclass(rest.split()[1])] += 1
         elif re.match(r'(\S+) -> P[12] HIT (\d+)', rest):
@@ -101,7 +134,9 @@ def parse(out):
         elif rest.startswith('KIKON FOLLOW-UP'):
             c['kfollow'] += 1
         elif rest.startswith('cpu clash'):
-            c['clash'] += 1
+            mm = re.match(r'cpu clash (\w+) into his \w+ at ([\d.]+)', rest)
+            c['clash'] += 1; c[f"clash_{mm[1]}_{'lt3' if float(mm[2]) < 3.0 else 'ge3'}"] += 1
+            clash_t[side] = (t, mm[1])
         elif rest.startswith('cpu xch'):
             c['xch'] += 1
         elif rest.startswith('cpu holds'):
@@ -124,7 +159,10 @@ def job(j):
 KEYS = ['start_NA', 'start_NS', 'start_AS', 'start_SA', 'start_other', 'step', 'hoho', 'perfect', 'burst', 'awaken',
         'open', 'hits', 'first', 'firstwin', 'dmg', 'hit_NA', 'hit_NS', 'hit_AS', 'hit_SA', 'hit_counter', 'hit_other', 'hit_hazard',
         'dmg_NA', 'dmg_NS', 'dmg_AS', 'dmg_SA', 'dmg_counter', 'dmg_other', 'dmg_hazard', 'kp_kikon', 'kp_soulbreak', 'n_kikon',
-        'n_soulbreak', 'kfollow', 'letgo', 'cancel', 'absorbed', 'clash', 'xch', 'refused', 'holds', 'fsbreak']
+        'n_soulbreak', 'kfollow', 'letgo', 'cancel', 'absorbed', 'clash', 'xch', 'refused', 'holds', 'fsbreak',
+        'xwin_NA', 'xwin_NS', 'xwin_AS', 'xwin_SA', 'xwin_counter', 'xwin_hazard', 'x_none',
+        'clash_na_lt3', 'clash_na_ge3', 'clash_ns_lt3', 'clash_ns_ge3', 'xc_open_na', 'xc_won_na', 'xc_lost_na', 'xc_none_na',
+        'xc_open_ns', 'xc_won_ns', 'xc_lost_ns', 'xc_none_ns']
 
 
 def main():

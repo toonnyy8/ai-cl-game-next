@@ -1,5 +1,8 @@
 # The clash dead-zone fix (PLAN4 implementation batch, the generic CPU; 2026-11-15)
 
+**Superseded the same day by `clash2.md`.** CLASH-FIT has been removed: a cancel needs only the other side's hit in the opener's window.
+KK-FITS-P stays.
+
 The user took the lead's fix with the kit studies (Checkpoint 2a, PLAN4; DEVLOG §793: 「相消時丟出的 NS 要先確認距離不在招式死角內」).
 In `kits/hisagi/probe.md`, 201 of Hisagi's 224 dead-zone NAGIs against Kenpachi came from the clash (`cpu clash ns`). The other 22 came
 from Kenpachi's brawler (`kk pick`, KK-REACH-OF). Both had the same bug: the reach test had an upper bound and no lower bound.

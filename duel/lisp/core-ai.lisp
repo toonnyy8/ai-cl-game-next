@@ -228,24 +228,24 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
 (defun cai-clash (e b f kit s0 d0)
   "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry; or a summon whose clone cuts later, CLASH-WINDOW) still
 live after the CPU's delay and within his reach + *CAI-CLASH-MARGIN*: one roll per such move of his (BRAIN-CLASH-KEY), and the CPU throws
-CLASH-OPENER's move into it (a J into his NS / AS, its pointer's NS into his NA / SA): whichever hit lands first, a cancel; never one
-whose dead zone (:min-reach) covers D (CLASH-FIT, 2026-11-15: Hisagi's NAGI under 3.0 m). A plan the MCTS
+CLASH-OPENER's move into it (a J into his NS / AS, its pointer's NS into his NA / SA): whichever hit lands first, a cancel. No dead-zone test: his hit landing in
+the opener's window is a cancel too (DUEL_CORE §2.1), so the opener need not reach (CLASH-FIT's :min-reach test, 2026-11-15, removed the
+same day: Hisagi's NAGI cancels Kenpachi's J1 at 1.2-2.6 m; the user: 「隨後的 SA 或 AS 還是能造成攻擊」, arms5/clash2.md). A plan the MCTS
 made a reaction ago is dropped. T when it pressed. Its own reaction: *CAI-CLASH-DELAY*, never slower than the brain's (S0 / D0: the
 brain's perceived SNAP and distance)."
   (let* ((dl (min (brain-delay b) (brain-chance b *cai-clash-delay*)))
          (s (if (< dl (brain-delay b)) (or (brain-snap-ago b dl) s0) s0)) (d (if (eq s s0) d0 (snap-dist s e)))
-         (mv (snap-move s)) (cls (cai-class-of (fighter-opp f) s)) (hits (if mv (length (mv-hits mv)) 0))
-         (q (and cls (kit-command-move kit :q e))) (ns (and cls (kit-core-move kit :ns (fighter-ptr f))))
-         (to (clash-fit cls d (if q (mv-min-reach q e) 0.0) (and ns (mv-min-reach ns e)))))   ; (only an opener that hits at D: no dead zone)
+         (mv (snap-move s)) (to (clash-opener (cai-class-of (fighter-opp f) s))) (hits (if mv (length (mv-hits mv)) 0)))
     (multiple-value-bind (end reach)
         (and mv (clash-window hits (snap-active-end s) (snap-reach s) (getf (mv-params mv) :hit-at) (getf (mv-params mv) :hit-reach)))
      (when (and to end (/= (brain-clash-key b) (snap-start s)) (plusp reach)
                (not (member :parry (snap-flags s))) (>= (- end (snap-sf s) dl) 1)
-               (if (plusp hits) (snap-near-p s e d (cai-margin b)) (< d (+ reach (cai-margin b)))))
+               (if (plusp hits) (snap-near-p s e d (cai-margin b)) (< d (+ reach (cai-margin b))))
+               (or (eq to :na) (kit-core-move kit :ns (fighter-ptr f))))
       (setf (brain-clash-key b) (snap-start s))
       (when (cai-roll b :clash-p *cai-clash-p*)
         (mc-plan-drop f)
-        (clog "~a cpu clash ~(~a~) into his ~(~a~) at ~,1f" (side-name e) to cls d)
+        (clog "~a cpu clash ~(~a~) into his ~(~a~) at ~,1f" (side-name e) to (cai-class-of (fighter-opp f) s) d)
         (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0)        ; (its own rolls made afresh; no Kikon hold on a clash)
         (if (eq to :na) (cai-press b :quick 1) (cai-sp b f s))
         t)))))

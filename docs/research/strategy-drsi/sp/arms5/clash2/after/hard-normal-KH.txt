@@ -1,0 +1,68 @@
+hard vs normal, seeds 501-600, both seats
+cell     KH    all
+share 1.000  1.000  (n 200, bell 0)
+bell      0  0  (matches at the bell, of 200 a cell)
+per match           hard    normal
+start_NA          106.11     27.98
+start_NS           20.93     72.31
+start_AS           92.42     17.46
+start_SA           10.21     10.73
+start_other         5.50      0.00
+step                3.96     29.15
+hoho                0.51      4.59
+perfect             0.02      0.34
+burst               4.42      4.62
+awaken              1.00      1.00
+open               49.84     17.51
+hits              161.47     50.72
+first              16.55     36.60
+firstwin           10.07     11.08
+dmg              4876.98   1090.69
+hit_NA             54.48     14.70
+hit_NS              7.54      5.50
+hit_AS             80.39     22.42
+hit_SA              5.11      8.51
+hit_counter         0.02      0.26
+hit_other          13.97      0.00
+hit_hazard          0.00      0.00
+dmg_NA           1072.85    249.75
+dmg_NS            228.60    173.29
+dmg_AS           2965.55    419.70
+dmg_SA             93.75    211.58
+dmg_counter         0.60     12.14
+dmg_other         567.36      0.00
+dmg_hazard          0.00      0.00
+kp_kikon            3.89      0.26
+kp_soulbreak        5.11      0.00
+n_kikon             3.64      0.15
+n_soulbreak         1.91      0.00
+kfollow            11.30      2.08
+letgo               0.00      0.00
+cancel             35.03     30.43
+absorbed            8.18     17.43
+clash              41.59      7.58
+xch                42.33     17.27
+refused             0.07      0.00
+holds               1.50      0.43
+fsbreak            28.20     14.03
+xwin_NA             0.07      0.11
+xwin_NS             0.04      0.33
+xwin_AS            26.39      3.23
+xwin_SA             1.49      7.99
+xwin_counter        0.00      0.00
+xwin_hazard         0.00      0.00
+x_none              2.54      2.54
+clash_na_lt3       27.60      6.60
+clash_na_ge3        8.79      0.32
+clash_ns_lt3        2.63      0.51
+clash_ns_ge3        2.56      0.15
+xc_open_na         30.09      1.97
+xc_won_na          23.12      1.39
+xc_lost_na          6.05      0.57
+xc_none_na          0.92      0.01
+xc_open_ns          4.00      0.00
+xc_won_ns           0.85      0.00
+xc_lost_ns          1.59      0.00
+xc_none_ns          1.54      0.00
+hi state share air 0.019 cine 0.084 down 0.018 hoho 0.001 idle 0.288 move 0.517 run 0.001 step 0.006 stun 0.048 wakeup 0.018
+lo state share air 0.072 cine 0.084 down 0.056 hoho 0.008 idle 0.177 move 0.320 run 0.005 step 0.047 stun 0.176 wakeup 0.056
