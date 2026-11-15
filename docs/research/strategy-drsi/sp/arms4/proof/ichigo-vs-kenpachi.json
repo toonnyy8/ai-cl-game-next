@@ -1,0 +1,272 @@
+{
+ "me": "ichigo",
+ "vs": "kenpachi",
+ "opp": "none",
+ "seeds": "1-100 both seats",
+ "with_": [
+  "x-units/d-x-ki-i.lisp"
+ ],
+ "build": "081d88151480",
+ "arms": {
+  "a4-i-all": {
+   "desc": {
+    "mean_d": 2.3426,
+    "close": 0.7085,
+    "mid": 0.2253,
+    "far": 0.0662,
+    "awk": 0.4466,
+    "p3": 0.7074,
+    "bankai": 0.0,
+    "released": 0.4466,
+    "sp": 53.79,
+    "burst": 0.715,
+    "kikon": 2.21,
+    "spend": 2.925,
+    "wake_kd": 0.6735,
+    "evade": 22.975,
+    "acts": 212.475,
+    "clash": 12.96
+   },
+   "delta": {
+    "mean_d": 0.0,
+    "close": 0.0,
+    "mid": 0.0,
+    "far": 0.0,
+    "awk": 0.0,
+    "p3": 0.0,
+    "bankai": 0.0,
+    "released": 0.0,
+    "sp": 0.0,
+    "burst": 0.0,
+    "kikon": 0.0,
+    "spend": 0.0,
+    "wake_kd": 0.0,
+    "evade": 0.0,
+    "acts": 0.0,
+    "clash": 0.0
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "ko_ok": true,
+   "matches": 200,
+   "test": null,
+   "not_distinct_from": [
+    "a4-i-whiff",
+    "a4-i-kessa"
+   ]
+  },
+  "a4-i-whiff": {
+   "desc": {
+    "mean_d": 2.3898,
+    "close": 0.702,
+    "mid": 0.2275,
+    "far": 0.0705,
+    "awk": 0.4533,
+    "p3": 0.7289,
+    "bankai": 0.0,
+    "released": 0.4533,
+    "sp": 53.295,
+    "burst": 0.675,
+    "kikon": 2.2,
+    "spend": 2.875,
+    "wake_kd": 0.6857,
+    "evade": 25.875,
+    "acts": 214.1,
+    "clash": 11.705
+   },
+   "delta": {
+    "mean_d": 0.0473,
+    "close": -0.0064,
+    "mid": 0.0021,
+    "far": 0.0043,
+    "awk": 0.0067,
+    "p3": 0.0215,
+    "bankai": 0.0,
+    "released": 0.0067,
+    "sp": -0.495,
+    "burst": -0.04,
+    "kikon": -0.01,
+    "spend": -0.05,
+    "wake_kd": 0.0122,
+    "evade": 2.9,
+    "acts": 1.625,
+    "clash": -1.255
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "ko_ok": true,
+   "matches": 200,
+   "test": {
+    "desc": "mid",
+    "op": "+",
+    "amount": 0.05,
+    "value": 0.2275,
+    "arm0": 0.2253,
+    "ok": false
+   },
+   "not_distinct_from": [
+    "a4-i-all",
+    "a4-i-ptr3",
+    "a4-i-kessa"
+   ]
+  },
+  "a4-i-space": {
+   "desc": {
+    "mean_d": 2.4546,
+    "close": 0.6881,
+    "mid": 0.2331,
+    "far": 0.0787,
+    "awk": 0.441,
+    "p3": 0.7519,
+    "bankai": 0.0,
+    "released": 0.441,
+    "sp": 54.5,
+    "burst": 0.475,
+    "kikon": 2.125,
+    "spend": 2.6,
+    "wake_kd": 0.7517,
+    "evade": 27.265,
+    "acts": 218.43,
+    "clash": 11.49
+   },
+   "delta": {
+    "mean_d": 0.112,
+    "close": -0.0203,
+    "mid": 0.0078,
+    "far": 0.0126,
+    "awk": -0.0056,
+    "p3": 0.0445,
+    "bankai": 0.0,
+    "released": -0.0056,
+    "sp": 0.71,
+    "burst": -0.24,
+    "kikon": -0.085,
+    "spend": -0.325,
+    "wake_kd": 0.0782,
+    "evade": 4.29,
+    "acts": 5.955,
+    "clash": -1.47
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "ko_ok": true,
+   "matches": 200,
+   "test": {
+    "desc": "mean_d",
+    "op": "+",
+    "amount": 0.5,
+    "value": 2.4546,
+    "arm0": 2.3426,
+    "ok": false
+   },
+   "not_distinct_from": []
+  },
+  "a4-i-ptr3": {
+   "desc": {
+    "mean_d": 2.3832,
+    "close": 0.7064,
+    "mid": 0.2211,
+    "far": 0.0725,
+    "awk": 0.454,
+    "p3": 0.7309,
+    "bankai": 0.0,
+    "released": 0.454,
+    "sp": 53.485,
+    "burst": 0.72,
+    "kikon": 2.135,
+    "spend": 2.855,
+    "wake_kd": 0.6867,
+    "evade": 26.665,
+    "acts": 216.855,
+    "clash": 10.38
+   },
+   "delta": {
+    "mean_d": 0.0406,
+    "close": -0.0021,
+    "mid": -0.0043,
+    "far": 0.0063,
+    "awk": 0.0074,
+    "p3": 0.0234,
+    "bankai": 0.0,
+    "released": 0.0074,
+    "sp": -0.305,
+    "burst": 0.005,
+    "kikon": -0.075,
+    "spend": -0.07,
+    "wake_kd": 0.0132,
+    "evade": 3.69,
+    "acts": 4.38,
+    "clash": -2.58
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "ko_ok": true,
+   "matches": 200,
+   "test": {
+    "desc": "p3",
+    "op": "+",
+    "amount": 0.1,
+    "value": 0.7309,
+    "arm0": 0.7074,
+    "ok": false
+   },
+   "not_distinct_from": [
+    "a4-i-whiff"
+   ]
+  },
+  "a4-i-kessa": {
+   "desc": {
+    "mean_d": 2.3906,
+    "close": 0.7023,
+    "mid": 0.2277,
+    "far": 0.0701,
+    "awk": 0.4583,
+    "p3": 0.7339,
+    "bankai": 0.0,
+    "released": 0.4583,
+    "sp": 53.545,
+    "burst": 0.655,
+    "kikon": 2.17,
+    "spend": 2.825,
+    "wake_kd": 0.7662,
+    "evade": 25.55,
+    "acts": 216.57,
+    "clash": 12.505
+   },
+   "delta": {
+    "mean_d": 0.048,
+    "close": -0.0062,
+    "mid": 0.0023,
+    "far": 0.0039,
+    "awk": 0.0117,
+    "p3": 0.0264,
+    "bankai": 0.0,
+    "released": 0.0117,
+    "sp": -0.245,
+    "burst": -0.06,
+    "kikon": -0.04,
+    "spend": -0.1,
+    "wake_kd": 0.0928,
+    "evade": 2.575,
+    "acts": 4.095,
+    "clash": -0.455
+   },
+   "ko_rate": 1.0,
+   "ko_win": 1.0,
+   "ko_ok": true,
+   "matches": 200,
+   "test": {
+    "desc": "awk",
+    "op": "+",
+    "amount": 0.05,
+    "value": 0.4583,
+    "arm0": 0.4466,
+    "ok": false
+   },
+   "not_distinct_from": [
+    "a4-i-all",
+    "a4-i-whiff"
+   ]
+  }
+ }
+}
