@@ -2,7 +2,9 @@
 """finish.py — the late-match finish (arms5/finish.md; the user, 2026-11-15: 「加「後段收尾」行為」): bar D (HARD vs HARD K.O. rate) and the
 points per row on seeds 141-180, both seats (80 matches a row), and the stall diagnosis.
 
-  python3 finish.py bar [--set shipped,a5h] [--seed0 140] [--env K=V] [-j 20] [--tag T] [--log FILE]   # K.O. rate, points, bell
+  python3 finish.py bar [--set shipped,a5h] [--seed0 140] [--env K=V] [-j 20] [--tag T] [--log FILE] [--switch]   # K.O. rate, points, bell
+  (--switch, arms5/tables2.md: every judgement logged, STRAT_FQLOG "0 0" as ladder.py --switch, play unchanged; each side's median arm
+   changes a match, bar A)
   python3 finish.py diag --row ROW [--secs 90] [-j 20]                       # the late-match trace (diag-run.lisp) of ROW's time-outs
   python3 finish.py onset --row ROW                                          # per time-out: the last move start, the Konpaku then
 
@@ -84,11 +86,21 @@ def cmd_bar(o):
     h = pin()
     rows = [r for s in o.set.split(',') for r in SETS.get(s, [s])]
     extra = dict(x.split('=', 1) for x in o.env)
-    js = [(row, seat, j) for row in rows for seat, j in jobs(row, extra=extra)]
+    keep = ('duel gate row ',)
+    if o.switch:
+        extra['STRAT_FQLOG'] = '0 0'; keep += ('fq ',)
+    js = [(row, seat, j) for row in rows for seat, j in jobs(row, extra=extra, keep=keep)]
     outs = simlib.pool(run, [j for _, _, j in js], o.j)
     acc = collections.OrderedDict()
+    chg = collections.defaultdict(lambda: {'a': [], 'b': []})
     for (row, seat, _), lines in zip(js, outs):
         c = acc.setdefault(row, collections.Counter())
+        seq = collections.defaultdict(list)                     # ((seed, seat) -> the arms judged, in order), ladder.py's count
+        for m in map(FQ.match, lines):
+            if m:
+                seq[(int(m[1]), m[2])].append(int(m[3]))
+        for (_, st), v in seq.items():
+            chg[row]['a' if st == seat else 'b'].append(sum(1 for i in range(1, len(v)) if v[i] != v[i - 1]))
         for m in map(ROWRE.search, lines):
             if not m:
                 continue
@@ -99,21 +111,28 @@ def cmd_bar(o):
                 c['bell_a' if pa == 1 else 'bell_b' if pa == 0 else 'bell_draw'] += 1
             c['secs'] += float(m[2])
     print(f'finish bar, build {h[:12]}, seeds {SEED0 + 1}-{SEED0 + SEEDS} both seats, HARD vs HARD' + (f', {o.tag}' if o.tag else ''))
-    print('row  | A        B        |  n | K.O.  | points A | bell: A ahead / B ahead / draw | mean secs')
+    print('row  | A        B        |  n | K.O.  | points A | bell: A ahead / B ahead / draw | mean secs' + (' | changes med A / B (zero)' if o.switch else ''))
     res = []
     for row, c in acc.items():
         a, b = ROWS[row][:2]
         r = dict(tag=o.tag, build=h[:12], seeds=f'{SEED0 + 1}-{SEED0 + SEEDS}', row=row, a=a, b=b, n=c['n'], ko_rate=round(c['ko'] / c['n'], 3), points_a=round(c['pa'] / c['n'], 3),
                  bell_a=c['bell_a'], bell_b=c['bell_b'], bell_draw=c['bell_draw'], secs=round(c['secs'] / c['n'], 1))
+        if o.switch:
+            for sd in ('a', 'b'):
+                v = chg[row][sd]
+                r[f'changes_{sd}'] = dict(median=statistics.median(v), zero=sum(x == 0 for x in v), matches=len(v)) if v else None
         res.append(r)
+        sw = ''.join(f" {'/' if sd == 'b' else '|'} " + (f"{r['changes_' + sd]['median']} ({r['changes_' + sd]['zero']})" if r['changes_' + sd] else '-')
+                     for sd in ('a', 'b')) if o.switch else ''
         print(f"{row:4s} | {a:8s} {b:8s} | {r['n']:2d} | {r['ko_rate']:.3f} | {r['points_a']:.3f}    | {r['bell_a']:2d} / {r['bell_b']:2d} / {r['bell_draw']:2d}"
-              f"                   | {r['secs']}")
+              f"                   | {r['secs']}{sw}")
     if o.log:
         with open(o.log, 'a') as f:
             for r in res:
                 f.write(json.dumps(r) + '\n')
 
 
+FQ = re.compile(r'^fq (\d+) \d+ (P\d) .* arm (\d+) ')   # (ladder.py's: a judgement's seed, seat, pick)
 FIN = re.compile(r'^fin (\d+) ([\d.]+) (P\d) lead (-?\d+) rp ([\d.]+) orp ([\d.]+) d ([\d.]+) st (\S+) form (\S+) arm (\S+) fn (\S+)')
 FMV = re.compile(r'^fmv (\d+) ([\d.]+) (P\d) (\S+) d ([\d.]+)')
 
@@ -211,6 +230,7 @@ def main():
     p = sub.add_parser('bar'); p.add_argument('--set', default='shipped,a5h'); p.add_argument('-j', type=int, default=20)
     p.add_argument('--seed0', type=int, default=140, help='the block: seeds SEED0+1 .. SEED0+40 (default 141-180)')
     p.add_argument('--tag', default=''); p.add_argument('--log'); p.add_argument('--env', action='append', default=[], help='K=V for the sims (e.g. STRAT_SET=...)')
+    p.add_argument('--switch', action='store_true', help='log every judgement (STRAT_FQLOG "0 0") and report each side\'s arm changes a match')
     p = sub.add_parser('diag'); p.add_argument('--row', required=True); p.add_argument('--secs', type=int, default=90)
     p.add_argument('--window', type=float, default=60.0); p.add_argument('--all', action='store_true'); p.add_argument('-j', type=int, default=20)
     p = sub.add_parser('onset'); p.add_argument('--row', required=True); p.add_argument('-j', type=int, default=20)

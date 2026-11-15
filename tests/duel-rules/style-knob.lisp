@@ -46,10 +46,10 @@
                     (eq d (strat-out nil k d)))))))
   ;; no library unit or table names a knob but the searched arms the final tables ship (DUEL_AI_STRATEGY §11.16: units :c-*, tables :f-*;
   ;; §11.27: the re-collection's units :x-*; §11.29, PLAN4 B4: the one-job arms :a4-* / :h4-*, whose keys ARE their jobs, and the T0 tables
-  ;; :t0-* that name them; checkpoint 2b: arms5's one-job arms :k5-* / :a5-*), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is
+  ;; :t0-* that name them; checkpoint 2b: arms5's one-job arms :k5-* / :a5-*; 2c: Hisagi's :h5-*), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is
   ;; unchanged. The searched arms (sp/arms/r<n>/, x1/, arms4/) name knobs by design.
   (flet ((unsearched (l &rest pres) (remove-if (lambda (u) (some (lambda (pre) (eql 0 (search pre (symbol-name (getf u :id))))) pres)) l)))
-    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-" "A4-" "H4-" "K5-" "A5-") *strat-rule-bases*
+    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-" "A4-" "H4-" "K5-" "A5-" "H5-") *strat-rule-bases*
                                                            (unsearched *strat-library* "F-" "T0-"))))
     (check (sk-tree-has *strat-units* keys)))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
@@ -99,12 +99,13 @@
   ;; §11.29 (PLAN4 B4): the six exchange data units :d-x-* (one per pairing side, laid under a T0 table's arms by its :WITH) and the six
   ;; cross-pairing :t0-* entries that name them hold them too; the three mirror T0 tables (no :WITH) and the one-job arm units hold none.
   ;; Checkpoint 2b (2026-11-15): arms5's :a5-i-answer is a one-job arm whose job IS the exchange (clash / SA keys), so it holds them, and so
-  ;; does the II mirror's :t0-ii-ichigo that names it (KK's and HH's mirror tables still hold none).
+  ;; does the II mirror's :t0-ii-ichigo that names it (KK's and HH's mirror tables still hold none). Checkpoint 2c (2026-11-16): Hisagi's
+;; :h5-cancel likewise (its job is the exchange: :xch-j), named by :t0-kh-hisagi.
   (let ((x-units (remove-if-not (lambda (u) (eql 0 (search "X-" (symbol-name (getf u :id))))) *strat-units*))
         (x-data (remove-if-not (lambda (u) (eql 0 (search "D-X-" (symbol-name (getf u :id))))) *strat-data*))
         (x-tables '(:f-ki-kenpachi :f-ki-ichigo :f-kh-kenpachi :f-kh-hisagi :f-ih-ichigo
                     :t0-ki-ichigo :t0-ki-kenpachi :t0-kh-kenpachi :t0-kh-hisagi :t0-ih-ichigo :t0-ih-hisagi :t0-ii-ichigo))
-        (answer (list (strat-unit-find :a5-i-answer *strat-units*))))   ; (*STRAT-LIBRARY* holds them expanded)
+        (answer (list (strat-unit-find :a5-i-answer *strat-units*) (strat-unit-find :h5-cancel *strat-units*))))   ; (*STRAT-LIBRARY* holds them expanded)
     (check (= 13 (length x-units)))
     (check (= 6 (length x-data)))
     (check (and (sk-tree-has x-units names) (sk-tree-has x-data names) (sk-tree-has answer names)))

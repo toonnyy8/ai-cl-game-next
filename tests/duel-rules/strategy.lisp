@@ -359,12 +359,14 @@
 ;; Checkpoint 2b (the user, 2026-11-15, 「先保留 B4 舊表」): KI both, KK and II are arms5's final T0s (sp/arms5/t0/, same ids; arms5/t0/add.sh);
 ;; each row names its arm 1's job cue (and a base where no job fires), and those four rows' "before" is B4's checksum (255846: KI Kenpachi
 ;; and KK, 812408: KI Ichigo and II, read from the B4 library before the swap), so a copy saved from B4's table loads fresh.
+;; Checkpoint 2c (the user, 2026-11-16, 「KH、IH 換新表，HH 保留舊表」): KH both and IH both likewise (B4's checksums 575073 KH Kenpachi,
+;; 195522 KH Hisagi, 812408 IH Ichigo, 671538 IH Hisagi); HH alone keeps B4's table (and §11.27's :f-* as its "before").
 (dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 6 a4-i-all :d-x-ki-i 812408 (:xch 1))          ; (arm 1 answer: an exchange open)
              (:kenpachi :ichigo :t0-ki-kenpachi 4 c-ki-k-r2-b1a2 :d-x-ki-k 255846 (:dm 2.0) (:dm 7.0))   ; (poke: form 0 close; base far)
-             (:kenpachi :hisagi :t0-kh-kenpachi 4 c-ki-k-r2-b1a2 :d-x-kh-k :f-kh-kenpachi (:mcell 1))   ; (B4's spend: a cell)
-             (:hisagi :kenpachi :t0-kh-hisagi 4 x-kh-h-r2-b3a1 :d-x-kh-h :f-kh-hisagi (:form 1 :dm 4.5))   ; (B4's range: form 1 at mid)
-             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-all :d-x-ih-i :f-ih-ichigo (:ost 0))     ; (B4's brawl: his free state)
-             (:hisagi :ichigo :t0-ih-hisagi 4 a-hk-pot :d-x-ih-h :f-ih-hisagi (:form 1 :dm 4.5))
+             (:kenpachi :hisagi :t0-kh-kenpachi 2 c-ki-k-r2-b1a2 :d-x-kh-k 575073 (:ost 4))     ; (wake: he is down)
+             (:hisagi :kenpachi :t0-kh-hisagi 3 h5-all :d-x-kh-h 195522 (:xch 1) (:ost 0))   ; (cancel: an exchange open; base his free state)
+             (:ichigo :hisagi :t0-ih-ichigo 6 a4-i-all :d-x-ih-i 812408 (:xch 1))     ; (answer: an exchange open)
+             (:hisagi :ichigo :t0-ih-hisagi 4 h5-all :d-x-ih-h 671538 (:form 1 :dm 4.5))   ; (tip: form 1 at mid)
              (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil 255846 (:ost 4))     ; (wake: he is down)
              (:ichigo :ichigo :t0-ii-ichigo 5 a4-i-all nil 812408 (:xch 1))
              (:hisagi :hisagi :t0-hh-hisagi 3 a-hk-pot nil :f-hh-hisagi (:form 1 :dm 4.5))))
