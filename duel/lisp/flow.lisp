@@ -140,6 +140,7 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
                     (when b (setf (brain-strat b) (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f)))
                                                                 (brain-difficulty b))))))
     (do-sides (e) (when (brain e) (fq-attach! e))))       ; (a Q selector facing a human plays the player's copy, DUEL_AI_STRATEGY §8.14)
+  (masher-apply!)                                         ; (debug 81030+s: a seat's CPU as the button-masher, masher.lisp)
   (do-sides (e)
     (setf (gauges-konpaku (gauges e)) *konpaku-start*)
     (setf (fighter-state (fighter e)) :intro))

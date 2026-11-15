@@ -46,6 +46,7 @@ lisp/core-sim.lisp
 lisp/hazards.lisp
 lisp/scripted.lisp
 lisp/cpu-perceive.lisp
+lisp/masher.lisp
 lisp/rollout.lisp
 lisp/xch-ai.lisp
 lisp/core-ai.lisp
