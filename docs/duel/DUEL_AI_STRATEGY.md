@@ -3254,3 +3254,13 @@ cues; arms per character split by situation plus targeted ones; both sides fitte
 (801-1000; 601-800 are spent), a table beats today's, keeps K.O. ≥ 90 %, does not lose to his `none`, **and switches in every match**
 (arm changes and time shares reported). Today's tables stay until a side passes. A standing rule from now on: no constant table ships
 as a fuzzy Q table without the user's yes.
+
+**The bar changed the same day** (the user: 「不要與固定表比較，請設計讓勝率能做到 hard > normal > easy > 亂按，對上前一階難度的對手能獲得至少 70:30 的勝率。」):
+- No comparison with today's constant tables (the "beat today's table" bar above is void).
+- The bar is a difficulty ladder, HARD > NORMAL > EASY > a random button-masher, each tier winning **at least 70 %** against the tier
+  below it (HARD vs NORMAL, NORMAL vs EASY, EASY vs the masher). PLAN4 decides per pairing and seat, the time-out rule, the sample and
+  confidence rule, what each tier plays, and the masher (the old `:dumb` habit left with R4 and is rebuilt as a seeded random presser).
+- The requirements of 2026-11-09 still hold: the tables switch in every match, rules expand the distance and state details, 0.5 s,
+  situation-specialised arms.
+- These win-rate runs are the user's request, so they run despite the no-balance-gates rule (2026-10-29); the seed / pacing gate, the
+  awaken A/B and aieval stay off.
