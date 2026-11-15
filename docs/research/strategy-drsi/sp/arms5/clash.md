@@ -1,4 +1,4 @@
-# The clash dead-zone fix (PLAN4 implementation batch, the generic CPU; 2026-11-15)
+# (SUPERSEDED 2026-11-15 by clash2.md) The clash dead-zone fix (PLAN4 implementation batch, the generic CPU; 2026-11-15)
 
 **Superseded the same day by `clash2.md`.** CLASH-FIT has been removed: a cancel needs only the other side's hit in the opener's window.
 KK-FITS-P stays.

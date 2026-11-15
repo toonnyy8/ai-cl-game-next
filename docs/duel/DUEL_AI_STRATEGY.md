@@ -3387,3 +3387,11 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
 - **In the lookup** (`sp/arms5/t0/add.sh`; raw = lookup, `proofs-140.jsonl`; saved online copies reset): median changes / HARD K.O. on
   141-180: KI 55 (Kenpachi) and 82 (Ichigo) / 1.000, KK 38.5 / 1.000, II 65.5 / .475. G2: II 37 lines P2 0-6 366.3 s, IK 35 P1 4-0
   349.2 s, KK 26 P2 0-5 257.7 s (was II 41 P2 2-5 403.6 s, IK 42 P2 1-2 421.7 s, KK 31 P1 3-0 307.2 s).
+- **CLASH-FIT removed** (`sp/arms5/clash2.md`; sim build 5607924a031c). Scripted (Hisagi's Shikai vs sealed Kenpachi): his J1 into NAGI
+  cancels at 1.2-2.6 m inside NAGI's 3.0 m dead zone (from 2.7 m his J1 does not reach); then his instant AS wins unanswered, Hisagi's SA
+  ties at +0, wins at +1..+16 frames after his SP press, is late from +17 (HARD's 8-frame eyes inside, EASY's 24 outside); Hisagi's J1 into
+  his NS1a cancels everywhere and AS1 TSUMUJI wins. CAI-CLASH takes CLASH-OPENER's class again (the NS only when the pointer has one);
+  KK-FITS-P stays. Seeds 501-600, 200 a cell, shipped lookup: H>N HK .200 → .435 (still fails), N>E HK .770 → .785, E>M HK .000 (EASY
+  never NS-clashes: its eyes miss the window), KH cells unchanged; KH HARD vs HARD K.O. .665 → .995. In H>N HK a match: Hisagi's NAGI
+  clashes under 3 m 3.2 → 10.4 (7.5 won, nearly all by the SA), his clashes 21.0 → 29.4, Kenpachi's 50.2 → 48.9 (his J-side exchanges
+  ~86 % won by his AS). G2 identical. The lead's CLASH-FIT notes above (DEVLOG §793) are superseded.
