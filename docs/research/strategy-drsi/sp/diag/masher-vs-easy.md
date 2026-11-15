@@ -55,7 +55,8 @@ what knobs can and cannot do. Read-only on game code: every probe is a load-time
 
 ## 2. The causes, ranked
 
-**C1. The MCTS reaction hold makes EASY and NORMAL deaf.** This is the mechanism; its root is a code path, not a chance.
+**C1. The MCTS acts a second reaction late.** This is where the losses land; its root is a code path, not a chance. Being deaf is not the
+cost in itself; acting late is (see the last two bullets).
 - At EASY and NORMAL, `*mc-sure*` is 0, so the in-game MCTS takes every neutral decision. `mc-full-request` then holds no button for
   BRAIN-DELAY steps (24 / 14 / 8) while its full-sim rollouts run.
 - In `core-brain-step`, a held press (`press-left > 0`) is the cond's first branch. It takes the whole step, so the exchange answer, the clash and
@@ -75,9 +76,16 @@ what knobs can and cannot do. Read-only on game code: every probe is a load-time
     0.929** → MCTS deferral 0.967 → MCTS iterations 0.964 → table 0.956.
   - Both walks say the same thing. Long eyes combined with an MCTS that holds for the eyes' length is what loses: 24 frames x MCTS costs -0.31
     to -0.60, whichever was added last.
-- **Upper bound of a fix.** `*mc-full*` nil drops the full sim and with it the hold (a global switch, not a candidate; see §4). It raises EASY
-  0.071 → 0.256 and **NORMAL 0.533 → 0.750**.
-- With the hold gone, EASY's clash at NORMAL's values adds 0.11 (c1 0.369). The clash only helps once the CPU can hear.
+- **Deaf is not the cost; late is.**
+  - Removing the deafness while keeping the late play buys nothing:
+    - NORMAL with `*mc-sure*` 0.16 is deaf 96 steps instead of 1330, yet scores 0.561 (today 0.533). The masher's openers on a free NORMAL
+      rise 17 → 36.
+    - EASY with the MCTS off (`*mc-on*` nil, 0 deaf steps) scores 0.069; with `*mc-sure*` 0.16, 0.053.
+  - What gains is the MCTS still deciding without the extra delay. `*mc-full*` nil makes the light model's pick act at once (no full sim, no
+    hold): EASY 0.071 → 0.256, **NORMAL 0.533 → 0.750**. This is a global switch, not a candidate (§4).
+  - Eyes of 8 shorten the hold together with the perception: the reverse walk's +0.60.
+  - The 44.5 openers inside the hold show where the losses land, not that deafness causes them.
+- With the delay gone (`*mc-full*` nil), EASY's clash at NORMAL's values adds 0.11 (c1 0.369).
 
 **C2. EASY cannot answer a J at all; the threat is faster than its eyes.** This is what is left once the hold is removed.
 - The masher's J1 hits about 9 frames after it starts. `*cai-clash-delay*` EASY 24 reads a snapshot older than the J's active end, so the
@@ -107,8 +115,10 @@ what knobs can and cannot do. Read-only on game code: every probe is a load-time
 ## 3. Candidate knobs (admissible: EASY <= NORMAL <= HARD in every chance; delay frames EASY >= NORMAL >= HARD; no per-pairing knob; masher frozen)
 
 **The ceiling first.** EASY can be at most NORMAL on every knob, so its score against the masher is capped near NORMAL's.
-- EASY with all of NORMAL's values (c4, with the hold removed) scores 0.553; NORMAL's own score is 0.533. **No EASY-only change can pass while
-  NORMAL sits near 0.53.**
+- Compared within the same world:
+  - with no hold (`*mc-full*` nil), EASY with NORMAL's values (c4) scores 0.553 and NORMAL 0.750;
+  - with eyes 8 at both tiers, EASY with NORMAL's chances (W2) scores 0.711 and NORMAL 0.853.
+- **EASY stays below NORMAL against the masher, so no EASY-only change passes while NORMAL fails** (0.533 today).
 - So NORMAL must move up first, spending HARD > NORMAL's slack (1.00 today). EASY then follows, with NORMAL > EASY rechecked at each step.
 
 Probes (seeds 501-520, 360 matches a rung, both seats bound; cells in ladder order KK KI KH IK II IH HK HI HH):
@@ -120,7 +130,7 @@ Probes (seeds 501-520, 360 matches a rung, both seats bound; cells in ladder ord
 | W1: W0 + EASY `*fz-skill*` 0.3 → 0.62, `*cai-think*` 34 → 22 | 0.578 | 0.681 | 0.853 | 0.992 |
 | W2: W0 + every EASY chance at NORMAL's (skill, think, clash 10 / 0.35, turn, cont, Hoho, exchange, awakening) | 0.711 (KK .40, IK .25, IH .475 fail) | 0.614 | 0.853 | 0.992 |
 | W3: W2 with EASY's eyes 10 | 0.553 | 0.751 (IH .30) | 0.853 | 0.992 |
-| W4: W2 + `*strat-table-chance*` :normal 0.5 → 1.0 | 0.711 | 0.761 (KI .65, IH .425) | 0.919 | 0.908 (HK .45) |
+| W4: W2 + `*strat-table-chance*` :normal 0.5 → 1.0 | = W2 (EASY unaffected; not rerun) | 0.761 (KI .65, IH .425) | 0.919 | 0.908 (HK .45) |
 
 Ranked by expected effect:
 1. **`*ai-delay*` :normal 14 → 8** (EASY's 24 → 8-10 with it). The one lever large enough: NORMAL vs masher 0.53 → 0.85, HARD > NORMAL still 0.99.
@@ -141,12 +151,13 @@ Ranked by expected effect:
 
 ## 4. Recommendation
 
-1. **Fix the hold in code (shared, needs the lead's decision; not a knob).** Let the reactive branches (`cai-xch-step`, `cai-clash`, the Hoho
-   test) run while an MCTS reaction hold is pending, or drop the plan when a threat is perceived.
-   - This removes C1 at every tier without touching any difficulty's chances or eyes, and keeps the user's §12 decision (the full sim at every
-     difficulty).
-   - `*mc-full*` nil is its upper-bound probe: EASY 0.256, NORMAL 0.750. It is a global switch that reverses DUEL_AI_MCTS §12 and moves G2
-     (the gate plays NORMAL), so it is not offered as a knob.
+1. **Stop the MCTS from acting a second reaction late (code; shared; needs the lead's decision; not a knob).** Measured variant: act on the
+   light model's pick at once, or hold for less than BRAIN-DELAY, with the full sim's verdict applied only if it arrives in time.
+   - This removes C1 at every tier without touching any difficulty's chances or eyes.
+   - `*mc-full*` nil is the probe for this variant: EASY 0.256, NORMAL 0.750. As a switch it is global, reverses DUEL_AI_MCTS §12 (the full
+     sim at every difficulty) and moves G2 (the gate plays NORMAL), so it is not offered as a knob.
+   - Unmeasured alternative, likely small: let the reactive branches (`cai-xch-step`, `cai-clash`, the Hoho) run during the hold. Removing the
+     deafness alone gained nothing (C1), and EASY's clash can never fire against a J (C2).
 2. **Then rerun this probe set on the fixed build**, and only then spend knobs in the order NORMAL up (eyes 14 → 10-8, the table chance), then
    EASY toward NORMAL (eyes, skill, clash), rechecking NORMAL > EASY at each step.
    - PLAN4 §5's knob order (table chance, eyes, chances) stays.
