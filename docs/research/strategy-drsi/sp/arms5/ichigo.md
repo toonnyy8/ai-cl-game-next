@@ -72,3 +72,48 @@ study's, verbatim** (S2 / T2 keep their arms4 registrations).
 lasting, KI; IH): answer .48 / .49; .19 / .20. brawl .31; .20. economy .14 / .15; .23 / .25. punish .17; .38. kessa-lunge .26 / .58; .45 / .75.
 keep (KI) .02 / .97 (latches, rare). inside (IH) .39 / .40. None is over 60 %. The first economy map (G3 my cells 0, any his) fired .55 (KI)
 and .74 (IH, VACUOUS), so it was narrowed to "my cells 0 x his >= 1" before this registration.
+
+**Builds**: the probes and the job scores ran on this branch before main's clash dead-zone fix (336830ca), so their vs-Hisagi numbers met
+the old Hisagi. The registration was committed (e2ecdf1c), main was merged (56ac213d), and then the proof ran on that build.
+
+## Results (`proof.py desc`, sim build `95ac116d248f` = e2ecdf1c + main 336830ca, seeds 1-100 both seats, 200 matches an arm; `ichigo/proof-vs-*.json` / `.txt`)
+
+| Arm | vs Kenpachi: descriptor (arm 0) | K.O. / K.O. win | vs Hisagi: descriptor (arm 0) | K.O. / K.O. win | Distinct | Verdict |
+|---|---|---|---|---|---|---|
+| `a4-i-all` | arm 0 | 1.00 / 1.00 | arm 0 | .99 / .905 | yes | arm 0 |
+| `a5-i-answer` | clash 19.58 (12.96) x1.51 PASS; sa_x .302 (.262) +.04 FAIL | 1.00 / 1.00 | clash 67.6 (30.0) x2.25 PASS; sa_x .158 (.258) -.10 FAIL | .98 / .665 | yes | **fails** (sa_x) |
+| `a4-i-brawl` | close .887 (.709) +.18 PASS | 1.00 / 1.00 | close .765 (.579) +.19 PASS | .985 / .87 | vs K yes; vs H **~inside** | passes vs K; vs H passes only without `inside` beside it |
+| `a5-i-economy` | as1 .806 (.132) PASS; sp 49.5 (53.8) x0.92 FAIL | 1.00 / 1.00 | as1 .763 (.250) PASS; sp 57.0 (55.7) x1.02 FAIL | .845 / .79 | yes | **fails** (sp) |
+| `a5-i-punish` | punish 1.255 (.775) x1.62 PASS | 1.00 / 1.00 | punish 14.97 (16.93) x0.88 FAIL | .985 / .94 | yes | passes vs K, **fails vs H** |
+| `a5-i-kessa-lunge` | k_sp 3.78 (4.47) x0.85 FAIL; k_p3 .948 (.846) FAIL | 1.00 / 1.00 | k_sp 3.79 (3.24) x1.17 FAIL; k_p3 .806 (.775) FAIL | .995 / .975 | yes | **fails** |
+| `a4-i-keep` (T2) | p2 .657 (.153) PASS; mean_d 3.13 (2.34) PASS | 1.00 / .935 | | | yes | **passes** (KI) |
+| `a5-i-inside` (T3) | | | b34 .146 (.270) -.12 PASS | .99 / .875 | **~brawl** | **fails** (not distinct from brawl) |
+
+Every outcome is the one predicted at registration. Every arm ends its matches (K.O. >= .845). **Passing:** brawl (vs K, and vs H on its own
+descriptor), keep (T2), punish vs Kenpachi only. **Failing:** answer (`sa_x`), economy (`sp`), kessa-lunge (both parts), punish vs Hisagi,
+and inside (T3, the same play as brawl: the hover add is inert in brawl's mode). Arm 0 vs Kenpachi reproduces arms4's run of the same arm
+exactly (2.343 m, .709 close, p2 .153, p3 .707, k_d 2.340, 53.8 SP), so the new keys left her play unchanged.
+
+What the failures say:
+- **`sa_x`, `sp` and `k_sp` are not moved by the study's keys or by any lever probed.** The SA after a cancel is the shared exchange
+  layer's answer to his turn. Her SP count is set by the punish / confirm NS and the AS segments, not by `:ns` or the steer alone. KESSA's
+  SP rate is set by how often he is calm inside the band. A new descriptor or a code change would be a new registration on fresh seeds.
+- **punish vs Hisagi**: arm 0 already punishes his dead-zone whiffs from neutral 17 times a match, and the space hover (3.7-4.2 m) sits in
+  his chain band, so it punishes less. A Hisagi-specific punish arm would need the hover inside his dead zone (an IH targeted arm).
+- **T3** = S2 in IH. Drop T3, or give it a behaviour brawl does not have (e.g. a hover inside his dead zone, which t3d / t3e tried: distinct
+  but `b34` -0.03).
+
+## Checks (this branch at 56ac213d + the result files)
+
+- Host tests: duel-rules 3647 checks ALL PASS (style-knob: 78 keys, 35 `iks-`), duel-control 124, input 33 and cine 18 ALL PASS, touch 100 / 0
+  failures. pkgcheck: only `DUEL::APP`. `./build.sh duel` exit 0 (vendor restored), smoke exit 0.
+- G2: `tools/simgate.py --cvc` PASS (ii 41, ik 42, kk 31 lines) and `tests/style-gates.py cvc dist/duel` PASS: identical to
+  `tests/style-cvc-ref.txt`.
+- identity.py, the shipped HARD lookup = the raw T0 file, seeds 501-510 both seats: KI 2 chunks identical (460 lines), IH 2 identical (579), II
+  2 identical (616).
+- The idesc counters only read: `a5-i-answer` vs Kenpachi and `a5-i-kessa-lunge` vs Hisagi, seeds 501-510, with and without STRAT_DESC: hash,
+  state and gate rows identical (178 / 253 lines).
+- snaptest straight = pollute, HARD, 2 matches each: KI, IH, II (577 / 714 / 832 rollouts). Only the timing and cons lines differ (`brush`
+  ms, `stats` cons/frame, `duel mcfull` ms); 0 sim lines differ. fulltest 0 differ: IK 4007 (21 checks), 5013 (0), 3015 (50), `FT_LAYER=t`
+  HARD 5013 (630 checks, 620 strategy).
+- `tests/sp-costs-check.py`: all checks pass.
