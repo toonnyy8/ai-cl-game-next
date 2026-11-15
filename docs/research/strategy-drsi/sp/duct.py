@@ -415,7 +415,7 @@ def cmd_d2(o):
             c, rl = res[(n, x + y)]
             pooled[n] = add(pooled[n], c) if pooled[n] else c
             p1 = score([r for r, se in rl if se == 'P1'], 'P1'); p2 = score([r for r, se in rl if se == 'P2'], 'P2')
-            sw = switching(rl, (lambda se: ['P1', 'P2']) if n == 'duct' else (lambda se: ['P2' if se == 'P1' else 'P1']))
+            sw = switching(rl, lambda se: ['P2' if se == 'P1' else 'P1'])     # (the row's DUCT: Y, on the seat opposite X's)
             rec['rows'].setdefault(x + y, {})[n] = dict(c, share=round(c['pts'] / c['n'], 4), share_p1=round(p1['pts'] / max(1, p1['n']), 4),
                                                          share_p2=round(p2['pts'] / max(1, p2['n']), 4), duct_switching=sw,
                                                          cpu_s_match=round(sum(r['cpu_s'] for r, _ in rl) / c['n'], 2))
