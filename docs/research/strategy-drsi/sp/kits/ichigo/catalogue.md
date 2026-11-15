@@ -6,7 +6,7 @@ python3 tools/combo-trial.py docs/research/strategy-drsi/sp/kits/ichigo/trials.l
 python3 docs/research/strategy-drsi/sp/kits/ichigo/grid.py < trials-out.md      # section P's matrices
 ```
 
-**747 trials, every one run in the native sim** (main c15f9a55; this branch adds only tool-side output: `trial.lisp`'s end line gives P2's
+**845 trials, every one run in the native sim** (main c15f9a55; this branch adds only tool-side output: `trial.lisp`'s end line gives P2's
 gauge change `fs2`, `combo-trial.py --events` lists cancels, absorbs, breaks, steals, refusals and Kikon lines). Two full runs gave
 byte-identical output (`trials-out.md` is the raw table). P1 is Ichigo pressing only her script; P2 is Kenpachi (K sealed `:base`, Ks his
 Shikai `:nozarashi`) or Hisagi (H Shikai `:base`, Hb Bankai ranged `:bankai`). P2 stands unless the trial makes him press J / SP on
@@ -145,6 +145,9 @@ A = an absorb first, - = nobody hit. Her NS2a column is NS2a + the SA-g1 lunge; 
 | NS1a | cI cI cI - - | H H H H H | H H I - - |
 | NS2a+SAg1 | cI cI cI I - | H H H H H | H H I I - |
 | NS3a | cI cI cI cI I | H H H H H | H H H H I |
+| kJ1 | I I H - - | cH cH cH H H | cH cH - - - |
+| kNS1a | cI cI cI - - | H H H H H | H H I I - |
+| kNS3a+SA | cI cI cI I I | I I I I I | H H I I I |
 
 | hers \ his (Hb) | J1 | NS1a | NS2a |
 |---|---|---|---|
@@ -152,6 +155,9 @@ A = an absorb first, - = nobody hit. Her NS2a column is NS2a + the SA-g1 lunge; 
 | NS1a | I I c- c- c- | H H H - - | I I H H - |
 | NS2a+SAg1 | I I cI c- c- | H H H - - | c- c- c- c- c- |
 | NS3a | I I cI I c- | H H H H H | I I I I H |
+| kJ1 | I - H H H | cH H H - - | cH - H H - |
+| kNS1a | I I cI c- c- | H H H - - | I I I H - |
+| kNS3a+SA | cI cI cI cI cI | H H H I I | I I c- c- c- |
 
 What the grid says (the triangle at work, reach deciding the rest):
 - **Her NS beats his lone J** at 1.6-3.2 m against all four forms (cI): his J cancels her NS in its startup, her segment carries on and
@@ -163,6 +169,8 @@ What the grid says (the triangle at work, reach deciding the rest):
   his NS2a / NS3a bind.
 - **KESSA's NS3a + SA** is the best single answer in the grid: it wins or cancels-then-wins 20 of 20 cells against Hisagi and 17 of 20
   against Kenpachi, losing only to his NS1a at 1.6-3.2 m (the SA is a turn move with super armour from f6; the summon is the NS).
+  Against the awakened forms: 13 of 15 against his Shikai (it beats NOZARASHI's NS1a everywhere, loses to his NS2a at 1.6-2.4 m), 9 of 15
+  against Hisagi's Bankai (loses to his 360° NS1a inside 3.2 m, only cancels his NS2a from 3.2 m).
 
 ## X. After a cancel (the exchange)
 
@@ -228,4 +236,4 @@ What the grid says (the triangle at work, reach deciding the rest):
 - JUJISHO no longer beats every class: a J cancels it (X3, X4), an AS absorbs it.
 - Her NS vs his J1 is no longer "his AS wins": with the cancel's out (DUEL_CORE §2.1.1) her SA at once beats his AS (X2/K SA 19) except
   Hisagi's TSUMUJI.
-- The routes' damage is unchanged (A12 202, B8 233, D5 197, C8 360 vs 365: SUBLIMATION is now 0 in every trial).
+- The routes' damage is unchanged (A12 202, B8 233, D5 197, C8 360 against 365: 5 lower than the 11-06 run, cause not traced).

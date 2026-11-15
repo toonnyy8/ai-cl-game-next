@@ -154,7 +154,6 @@ HIS = {'K': [('J1', ':j', 1), ('NS1a', ':sp', 1), ('NS2a', ':sp', 2), ('NS3a+SA'
 for o in ('K', 'H', 'Ks', 'Hb'):
     for d in (1.6, 2.4, 3.2, 4.2, 5.4):
         for mn, ms, mp, mf in MINE:
-            if o in ('Ks', 'Hb') and mf == ':kessa': continue
             for hn, hb, hp in HIS[o]:
                 extra = f':p2-at ((0 {hb}){" (10 :j)" if hn == "NS3a+SA" else ""})'
                 T(f'P {mn} vs his {hn} at {d}', o, ms, d, ptr=mp, form=mf, p2ptr=hp, frames=110, extra=extra)

@@ -1,7 +1,7 @@
 # Ichigo: the data sheet (PLAN4's kit study, step 1; 2026-11-15)
 
 Generated from the kit by `sheet.lisp` (host ECL, no build), main c15f9a55. Below the line is the script's output; this header is
-hand-written. The sim's real damage, routes and advantages are in `catalogue.md` (747 trials, `trials.lisp`); a frame-math number the sim
+hand-written. The sim's real damage, routes and advantages are in `catalogue.md` (845 trials, `trials.lisp`); a frame-math number the sim
 contradicts is marked there. The opponents' sheets (same script) are in `opp-sheets.md`.
 
 ```sh

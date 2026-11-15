@@ -44,7 +44,7 @@ given beside each band for the rule base.
 | SP per route (sheet) | NS 85 / 80 / 70, AS 20 / 45 / 90 | NS 55 / 55 / 60, AS 25 / 50 / 75 (base x0.76; he also pays Reishi for SP: DUEL_SP §4) |
 | empty gauge | J routes keep 87-92 % (G A12 177, G A9 103); NS1 / NS2 die after segment a (G B2 38, G C1 0) | (his) |
 | steal | AS1 40 (may take his last cell) | none on AS1 |
-| awakening | KESSA: J1 S8, NS3 clones + SA (the grid's best answer), Kikon base 3 | NOZARASHI: reach 4.5 (NS1a) |
+| awakening | KESSA: J1 S8, NS3 clones + SA (the grid's best answer: 17 of 20 against his sealed openers, 13 of 15 against his Shikai's), Kikon base 3 | NOZARASHI: reach 4.5 (NS1a) |
 | Burst | 100 SP, any mode; BLUE breaks his combos after hit 2 | the same |
 
 ## Headlines

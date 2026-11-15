@@ -486,54 +486,99 @@
 | P NS3a vs his J1 at 1.6 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | +0 | 0 / 0 | +0 | [  1000] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
 | P NS3a vs his NS1a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  1117] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
 | P NS3a vs his NS2a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -28 | 0 / 0 | +0 | [  1225] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
-| P J1 vs his J1 at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | [  1330] P2 KE-S-J1 HIT 40 | self -16 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  1458] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.91 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  1555] P2 KE-S-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his J1 at 2.4 /Ks | 37 | 1 | 1 | — | 2 | 1.69 | +0 | 0 / 0 | +0 | [  1660] P2 KE-S-J1 x P1: CANCEL; IC-N1A HIT 68; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |
-| P NS1a vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -21 | 0 / 0 | +0 | [  1777] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS1a vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.47 | -23 | 0 / 0 | +0 | [  1885] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
-| P NS2a+SAg1 vs his J1 at 2.4 /Ks | 30 | 1 | 1 | — | 3 | 0.83 | +0 | 0 / 0 | +0 | [  1990] P2 KE-S-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
-| P NS2a+SAg1 vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -6 | 0 / 0 | +0 | [  2107] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
-| P NS2a+SAg1 vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.26 | -8 | 0 / 0 | +0 | [  2215] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
-| P NS3a vs his J1 at 2.4 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 0.84 | +0 | 0 / 0 | +0 | [  2320] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
-| P NS3a vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  2437] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
-| P NS3a vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -28 | 0 / 0 | +0 | [  2545] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
-| P J1 vs his J1 at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | [  2650] P2 KE-S-J1 HIT 40 | self -16 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.90 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  2777] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS2a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 1.71 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  2875] P2 KE-S-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his J1 at 3.2 /Ks | 37 | 1 | 1 | — | 2 | 2.49 | +0 | 0 / 0 | +0 | [  2980] P2 KE-S-J1 x P1: CANCEL; IC-N1A HIT 68; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |
-| P NS1a vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -21 | 0 / 0 | +0 | [  3097] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P kJ1 vs his J1 at 1.6 /Ks | 16 | 1 | 1 | — | 3 | 0.83 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.85 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  1478] P2 KE-S-N1A HIT 70; [  1478] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS2a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.89 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  1582] P2 KE-S-N2A HIT 45; [  1582] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -23 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his J1 at 1.6 /Ks | 31 | 1 | 1 | — | 4 | 0.89 | +0 | 0 / 0 | +0 | [  1660] P2 KE-S-J1 x P1: CANCEL; IC-K-N1A HIT 60; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -200 |
+| P kNS1a vs his NS1a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.85 | -20 | 0 / 0 | +0 | [  1777] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his NS2a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.89 | -22 | 0 / 0 | +0 | [  1885] P2 KE-S-N2A HIT 45 | self -23 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS3a+SA vs his J1 at 1.6 /Ks | 35 | 2 | 2 | 0 | 11 | 0.89 | +0 | 0 / 0 | +0 | [  1990] P2 KE-S-J1 x P1: CANCEL; IC-HIT HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -196 |
+| P kNS3a+SA vs his NS1a at 1.6 /Ks | 35 | 2 | 2 | 0 | 11 | 0.85 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
+| P kNS3a+SA vs his NS2a at 1.6 /Ks | 0 | 0 | 0 | — | ? | 0.89 | -7 | 0 / 0 | +0 | [  2215] P2 KE-S-N2A HIT 45 | self -23 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -10 |
+| P J1 vs his J1 at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | [  2320] P2 KE-S-J1 HIT 40 | self -16 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  2448] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.91 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  2545] P2 KE-S-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P NS1a vs his J1 at 2.4 /Ks | 37 | 1 | 1 | — | 2 | 1.69 | +0 | 0 / 0 | +0 | [  2650] P2 KE-S-J1 x P1: CANCEL; IC-N1A HIT 68; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |
+| P NS1a vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -21 | 0 / 0 | +0 | [  2767] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.47 | -23 | 0 / 0 | +0 | [  2875] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
+| P NS2a+SAg1 vs his J1 at 2.4 /Ks | 30 | 1 | 1 | — | 3 | 0.83 | +0 | 0 / 0 | +0 | [  2980] P2 KE-S-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
+| P NS2a+SAg1 vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -6 | 0 / 0 | +0 | [  3097] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.26 | -8 | 0 / 0 | +0 | [  3205] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
+| P NS3a vs his J1 at 2.4 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 0.84 | +0 | 0 / 0 | +0 | [  3310] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
+| P NS3a vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  3427] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P NS3a vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -28 | 0 / 0 | +0 | [  3535] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P kJ1 vs his J1 at 2.4 /Ks | 16 | 1 | 1 | — | 3 | 0.83 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  3788] P2 KE-S-N1A HIT 70; [  3788] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.47 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  3891] P2 KE-S-N2A HIT 45; [  3891] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -23 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his J1 at 2.4 /Ks | 31 | 1 | 1 | — | 4 | 1.69 | +0 | 0 / 0 | +0 | [  3970] P2 KE-S-J1 x P1: CANCEL; IC-K-N1A HIT 60; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -200 |
+| P kNS1a vs his NS1a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 0.90 | -20 | 0 / 0 | +0 | [  4087] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.47 | -22 | 0 / 0 | +0 | [  4195] P2 KE-S-N2A HIT 45 | self -23 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS3a+SA vs his J1 at 2.4 /Ks | 35 | 2 | 2 | 0 | 11 | 0.83 | +0 | 0 / 0 | +0 | [  4300] P2 KE-S-J1 x P1: CANCEL; IC-HIT HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -196 |
+| P kNS3a+SA vs his NS1a at 2.4 /Ks | 35 | 2 | 2 | 0 | 11 | 0.90 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
+| P kNS3a+SA vs his NS2a at 2.4 /Ks | 0 | 0 | 0 | — | ? | 1.47 | -7 | 0 / 0 | +0 | [  4525] P2 KE-S-N2A HIT 45 | self -23 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -10 |
+| P J1 vs his J1 at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | [  4630] P2 KE-S-J1 HIT 40 | self -16 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.90 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  4755] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS2a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 1.71 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  4855] P2 KE-S-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P NS1a vs his J1 at 3.2 /Ks | 37 | 1 | 1 | — | 2 | 2.49 | +0 | 0 / 0 | +0 | [  4960] P2 KE-S-J1 x P1: CANCEL; IC-N1A HIT 68; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |
+| P NS1a vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -21 | 0 / 0 | +0 | [  5077] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
 | P NS1a vs his NS2a at 3.2 /Ks | 37 | 1 | 1 | — | 2 | 2.27 | -25 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -5 |
-| P NS2a+SAg1 vs his J1 at 3.2 /Ks | 30 | 1 | 1 | — | 3 | 1.26 | +0 | 0 / 0 | +0 | [  3310] P2 KE-S-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
-| P NS2a+SAg1 vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -6 | 0 / 0 | +0 | [  3427] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his J1 at 3.2 /Ks | 30 | 1 | 1 | — | 3 | 1.26 | +0 | 0 / 0 | +0 | [  5290] P2 KE-S-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
+| P NS2a+SAg1 vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -6 | 0 / 0 | +0 | [  5407] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
 | P NS2a+SAg1 vs his NS2a at 3.2 /Ks | 30 | 1 | 1 | — | 3 | 1.05 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -6 |
-| P NS3a vs his J1 at 3.2 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | 0 / 0 | +0 | [  3640] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
-| P NS3a vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  3757] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
-| P NS3a vs his NS2a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -28 | 0 / 0 | +0 | [  3865] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P NS3a vs his J1 at 3.2 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | 0 / 0 | +0 | [  5620] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
+| P NS3a vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  5737] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P NS3a vs his NS2a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -28 | 0 / 0 | +0 | [  5845] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P kJ1 vs his J1 at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | [  5950] P2 KE-S-J1 HIT 40 | self -20 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  6098] P2 KE-S-N1A HIT 70; [  6098] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS2a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 2.27 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his J1 at 3.2 /Ks | 31 | 1 | 1 | — | 4 | 2.49 | +0 | 0 / 0 | +0 | [  6280] P2 KE-S-J1 x P1: CANCEL; IC-K-N1A HIT 60; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -200 |
+| P kNS1a vs his NS1a at 3.2 /Ks | 0 | 0 | 0 | — | ? | 0.95 | -20 | 0 / 0 | +0 | [  6397] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his NS2a at 3.2 /Ks | 31 | 1 | 1 | — | 4 | 2.27 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -6 |
+| P kNS3a+SA vs his J1 at 3.2 /Ks | 35 | 2 | 2 | 0 | 11 | 0.83 | +0 | 0 / 0 | +0 | [  6610] P2 KE-S-J1 x P1: CANCEL; IC-HIT HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -196 |
+| P kNS3a+SA vs his NS1a at 3.2 /Ks | 35 | 2 | 2 | 0 | 11 | 0.95 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
+| P kNS3a+SA vs his NS2a at 3.2 /Ks | 35 | 2 | 2 | 0 | 11 | 0.83 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -5 |
 | P J1 vs his J1 at 4.2 /Ks | 0 | 0 | 0 | — | ? | 2.93 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  4097] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [  7065] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS2a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 2.71 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS1a vs his J1 at 4.2 /Ks | 0 | 0 | 0 | — | ? | 3.49 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.39 | -21 | 0 / 0 | +0 | [  4417] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.39 | -21 | 0 / 0 | +0 | [  7387] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
 | P NS1a vs his NS2a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 3.27 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS2a+SAg1 vs his J1 at 4.2 /Ks | 30 | 1 | 1 | — | 3 | 2.26 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
-| P NS2a+SAg1 vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.17 | -6 | 0 / 0 | +0 | [  4747] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.17 | -6 | 0 / 0 | +0 | [  7717] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
 | P NS2a+SAg1 vs his NS2a at 4.2 /Ks | 30 | 1 | 1 | — | 3 | 2.05 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -6 |
-| P NS3a vs his J1 at 4.2 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 1.22 | +0 | 0 / 0 | +0 | [  4960] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
-| P NS3a vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  5077] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
-| P NS3a vs his NS2a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.40 | -28 | 0 / 0 | +0 | [  5185] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P NS3a vs his J1 at 4.2 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 1.22 | +0 | 0 / 0 | +0 | [  7930] P2 KE-S-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
+| P NS3a vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 0.83 | -26 | 0 / 0 | +0 | [  8047] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P NS3a vs his NS2a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.40 | -28 | 0 / 0 | +0 | [  8155] P2 KE-S-N2A HIT 45 | self -18 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P kJ1 vs his J1 at 4.2 /Ks | 0 | 0 | 0 | — | ? | 3.49 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.39 | +0 | 0 / 0 | +0 | [  8377] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kJ1 vs his NS2a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 3.27 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his J1 at 4.2 /Ks | 0 | 0 | 0 | — | ? | 3.49 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 4.2 /Ks | 0 | 0 | 0 | — | ? | 1.39 | -20 | 0 / 0 | +0 | [  8707] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his NS2a at 4.2 /Ks | 31 | 1 | 1 | — | 4 | 3.27 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -6 |
+| P kNS3a+SA vs his J1 at 4.2 /Ks | 26 | 1 | 1 | — | 11 | 0.83 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 +0 |
+| P kNS3a+SA vs his NS1a at 4.2 /Ks | 35 | 2 | 2 | 0 | 11 | 0.83 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
+| P kNS3a+SA vs his NS2a at 4.2 /Ks | 26 | 1 | 1 | — | 11 | 0.87 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -6 |
 | P J1 vs his J1 at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.13 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.03 | +0 | 0 / 0 | +0 | [  5407] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.03 | +0 | 0 / 0 | +0 | [  9367] P2 KE-S-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS2a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 3.91 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS1a vs his J1 at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.69 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.59 | -21 | 0 / 0 | +0 | [  5737] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.59 | -21 | 0 / 0 | +0 | [  9697] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
 | P NS1a vs his NS2a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.47 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS2a+SAg1 vs his J1 at 5.4 /Ks | 0 | 0 | 0 | — | ? | 3.46 | -10 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
-| P NS2a+SAg1 vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.37 | -6 | 0 / 0 | +0 | [  6067] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.37 | -6 | 0 / 0 | +0 | [ 10027] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 2 meter 0 fs2 -20 |
 | P NS2a+SAg1 vs his NS2a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 3.25 | -10 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
 | P NS3a vs his J1 at 5.4 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 2.42 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
-| P NS3a vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 0.91 | -26 | 0 / 0 | +0 | [  6397] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P NS3a vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 0.91 | -26 | 0 / 0 | +0 | [ 10357] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
 | P NS3a vs his NS2a at 5.4 /Ks | 38 | 4 | 4 | 0 0 0 | 5 | 2.20 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -4 |
+| P kJ1 vs his J1 at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.69 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.59 | +0 | 0 / 0 | +0 | [ 10687] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kJ1 vs his NS2a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.47 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his J1 at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.69 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 2.59 | -20 | 0 / 0 | +0 | [ 11017] P2 KE-S-N1A HIT 70 | self -35 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his NS2a at 5.4 /Ks | 0 | 0 | 0 | — | ? | 4.47 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS3a+SA vs his J1 at 5.4 /Ks | 26 | 1 | 1 | — | 11 | 1.99 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 +0 |
+| P kNS3a+SA vs his NS1a at 5.4 /Ks | 35 | 2 | 2 | 0 | 11 | 0.83 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
+| P kNS3a+SA vs his NS2a at 5.4 /Ks | 26 | 1 | 1 | — | 11 | 1.77 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -6 |
 | P J1 vs his J1 at 1.6 /Hb | 17 | 1 | 1 | — | 3 | 0.74 | +0 | 0 / 0 | +0 | IC-J1 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS1a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 1.04 | +0 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [   125] P2 HS-R-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS2a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 1.04 | -200 | 0 / 0 | +0 | IC-J1 x P2: CANCEL; [   277] P2 HS-R-N2A HIT 50; [   277] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -14 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
@@ -546,54 +591,99 @@
 | P NS3a vs his J1 at 1.6 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
 | P NS3a vs his NS1a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  1115] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
 | P NS3a vs his NS2a at 1.6 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -14 |
+| P kJ1 vs his J1 at 1.6 /Hb | 16 | 1 | 1 | — | 3 | 0.74 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  1468] P2 HS-R-N1A HIT 26; [  1468] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS2a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 1.60 | -200 | 0 / 0 | +0 | IC-K-J1 x P2: CANCEL; [  1597] P2 HS-R-N2A HIT 50; [  1597] P2 BREAK fs 200.0 from P1 (fs 100.0), gains 0.0 (fs 300.0) | self -18 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his J1 at 1.6 /Hb | 31 | 1 | 1 | — | 4 | 1.60 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -22 | 0 / 0 | +0 | [  1775] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his NS2a at 1.6 /Hb | 31 | 1 | 1 | — | 4 | 1.60 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -16 |
+| P kNS3a+SA vs his J1 at 1.6 /Hb | 26 | 1 | 1 | — | 11 | 0.74 | +0 | 0 / 0 | +0 | ic-hit ns x P2: CANCEL; [  2003] P2 HS-R-J1 x P1: ABSORBED; IC-K-SA HIT 50; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -200 |
+| P kNS3a+SA vs his NS1a at 1.6 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -7 | 0 / 0 | +0 | [  2105] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -10 |
+| P kNS3a+SA vs his NS2a at 1.6 /Hb | 35 | 2 | 2 | 0 | 11 | 0.74 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
 | P J1 vs his J1 at 2.4 /Hb | 0 | 0 | 0 | — | ? | 1.84 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 1.84 | +0 | 0 / 0 | +0 | [  1445] P2 HS-R-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 1.84 | +0 | 0 / 0 | +0 | [  2435] P2 HS-R-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS2a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 1.84 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
 | P NS1a vs his J1 at 2.4 /Hb | 37 | 1 | 1 | — | 2 | 2.40 | -25 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -23 | 0 / 0 | +0 | [  1775] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
+| P NS1a vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -23 | 0 / 0 | +0 | [  2765] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS1a vs his NS2a at 2.4 /Hb | 37 | 1 | 1 | — | 2 | 2.40 | -25 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -15 |
 | P NS2a+SAg1 vs his J1 at 2.4 /Hb | 30 | 1 | 1 | — | 3 | 1.18 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
-| P NS2a+SAg1 vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.37 | -8 | 0 / 0 | +0 | [  2105] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
+| P NS2a+SAg1 vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.37 | -8 | 0 / 0 | +0 | [  3095] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
 | P NS2a+SAg1 vs his NS2a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 1.18 | +0 | 0 / 0 | +0 | IC-SA-G1 x P2: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
 | P NS3a vs his J1 at 2.4 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
-| P NS3a vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  2435] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P NS3a vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  3425] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
 | P NS3a vs his NS2a at 2.4 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -14 |
+| P kJ1 vs his J1 at 2.4 /Hb | 0 | 0 | 0 | — | ? | 2.40 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | +0 | 0 / 0 | +0 | [  3755] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kJ1 vs his NS2a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 2.40 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his J1 at 2.4 /Hb | 31 | 1 | 1 | — | 4 | 2.40 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -22 | 0 / 0 | +0 | [  4085] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his NS2a at 2.4 /Hb | 31 | 1 | 1 | — | 4 | 2.40 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -16 |
+| P kNS3a+SA vs his J1 at 2.4 /Hb | 26 | 1 | 1 | — | 11 | 0.90 | +0 | 0 / 0 | +0 | ic-hit ns x P2: CANCEL; [  4312] P2 HS-R-J1 x P1: ABSORBED; IC-K-SA HIT 50; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -200 |
+| P kNS3a+SA vs his NS1a at 2.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -7 | 0 / 0 | +0 | [  4415] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -10 |
+| P kNS3a+SA vs his NS2a at 2.4 /Hb | 35 | 2 | 2 | 0 | 11 | 0.90 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -15 |
 | P J1 vs his J1 at 3.2 /Hb | 0 | 0 | 0 | — | ? | 2.64 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 2.64 | +0 | 0 / 0 | +0 | [  2765] P2 HS-R-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P J1 vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 2.64 | +0 | 0 / 0 | +0 | [  2886] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS1a vs his J1 at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | +0 | 0 / 0 | +0 | [  2985] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
-| P NS1a vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -23 | 0 / 0 | +0 | [  3095] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
-| P NS1a vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | -21 | 0 / 0 | +0 | [  3216] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS2a+SAg1 vs his J1 at 3.2 /Hb | 30 | 1 | 1 | — | 3 | 1.98 | +0 | 0 / 0 | +0 | [  3315] P2 HS-R-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
-| P NS2a+SAg1 vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.37 | -8 | 0 / 0 | +0 | [  3425] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
-| P NS2a+SAg1 vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 1.98 | +0 | 0 / 0 | +0 | [  3546] P2 HS-R-N2A x P1: CANCEL; IC-SA-G1 x P2: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
-| P NS3a vs his J1 at 3.2 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | +0 | 0 / 0 | +0 | [  3645] P2 HS-R-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
-| P NS3a vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  3755] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P J1 vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 2.64 | +0 | 0 / 0 | +0 | [  4745] P2 HS-R-N1A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 2.64 | +0 | 0 / 0 | +0 | [  4866] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his J1 at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | +0 | 0 / 0 | +0 | [  4965] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P NS1a vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -23 | 0 / 0 | +0 | [  5075] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
+| P NS1a vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | -21 | 0 / 0 | +0 | [  5196] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his J1 at 3.2 /Hb | 30 | 1 | 1 | — | 3 | 1.98 | +0 | 0 / 0 | +0 | [  5295] P2 HS-R-J1 x P1: CANCEL; IC-SA-G1 HIT 55; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -200 |
+| P NS2a+SAg1 vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.37 | -8 | 0 / 0 | +0 | [  5405] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
+| P NS2a+SAg1 vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 1.98 | +0 | 0 / 0 | +0 | [  5526] P2 HS-R-N2A x P1: CANCEL; IC-SA-G1 x P2: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
+| P NS3a vs his J1 at 3.2 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | +0 | 0 / 0 | +0 | [  5625] P2 HS-R-J1 x P1: CANCEL; IC-N3A HIT 18; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -195 |
+| P NS3a vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  5735] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
 | P NS3a vs his NS2a at 3.2 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -14 |
-| P J1 vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 3.64 | +0 | 0 / 0 | +0 | [  3975] P2 HS-R-J1 HIT 19 | self -11 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his J1 at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | +0 | 0 / 0 | +0 | [  5955] P2 HS-R-J1 HIT 19 | self -14 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | +0 | 0 / 0 | +0 | [  6065] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kJ1 vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 3.20 | +0 | 0 / 0 | +0 | [  6186] P2 HS-R-N2A HIT 50 | self -36 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his J1 at 3.2 /Hb | 31 | 1 | 1 | — | 4 | 3.20 | +0 | 0 / 0 | +0 | [  6285] P2 HS-R-J1 x P1: CANCEL; IC-K-N1A HIT 60; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -200 |
+| P kNS1a vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -22 | 0 / 0 | +0 | [  6395] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his NS2a at 3.2 /Hb | 31 | 1 | 1 | — | 4 | 3.20 | -25 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -16 |
+| P kNS3a+SA vs his J1 at 3.2 /Hb | 26 | 1 | 1 | — | 11 | 0.80 | +0 | 0 / 0 | +0 | [  6615] P2 HS-R-J1 x P1: CANCEL; IC-K-SA HIT 50; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -200 |
+| P kNS3a+SA vs his NS1a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -7 | 0 / 0 | +0 | [  6725] P2 HS-R-N1A HIT 26 | self -19 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -10 |
+| P kNS3a+SA vs his NS2a at 3.2 /Hb | 0 | 0 | 0 | — | ? | 0.80 | +0 | 0 / 0 | +0 | IC-K-SA x P2: CANCEL | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 +0 |
+| P J1 vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 3.64 | +0 | 0 / 0 | +0 | [  6945] P2 HS-R-J1 HIT 19 | self -11 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 3.64 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
-| P J1 vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 3.64 | +0 | 0 / 0 | +0 | [  4206] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS1a vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 | [  4305] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 3.64 | +0 | 0 / 0 | +0 | [  7176] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 | [  7275] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P NS1a vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
-| P NS1a vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | -18 | 0 / 0 | +0 | [  4536] P2 HS-R-N2A HIT 50 | self -49 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS2a+SAg1 vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 2.98 | +0 | 0 / 0 | +0 | [  4635] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
+| P NS1a vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | -18 | 0 / 0 | +0 | [  7506] P2 HS-R-N2A HIT 50 | self -49 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 2.98 | +0 | 0 / 0 | +0 | [  7605] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
 | P NS2a+SAg1 vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 2.98 | -10 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
-| P NS2a+SAg1 vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 2.98 | +0 | 0 / 0 | +0 | [  4866] P2 HS-R-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
+| P NS2a+SAg1 vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 2.98 | +0 | 0 / 0 | +0 | [  7836] P2 HS-R-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
 | P NS3a vs his J1 at 4.2 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 1.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
-| P NS3a vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  5075] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P NS3a vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  8045] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
 | P NS3a vs his NS2a at 4.2 /Hb | 38 | 4 | 4 | 0 0 0 | 5 | 1.93 | -30 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 -14 |
-| P J1 vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.84 | +0 | 0 / 0 | +0 | [  5295] P2 HS-R-J1 HIT 19 | self -11 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 | [  8265] P2 HS-R-J1 HIT 19 | self -14 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kJ1 vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 | [  8496] P2 HS-R-N2A HIT 50 | self -61 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his J1 at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | +0 | 0 / 0 | +0 | [  8595] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 4.20 | -17 | 0 / 0 | +0 | [  8826] P2 HS-R-N2A HIT 50 | self -61 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS3a+SA vs his J1 at 4.2 /Hb | 26 | 1 | 1 | — | 11 | 1.50 | +0 | 0 / 0 | +0 | [  8925] P2 HS-R-J1 x P1: CANCEL; IC-K-SA HIT 50; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -200 |
+| P kNS3a+SA vs his NS1a at 4.2 /Hb | 26 | 1 | 1 | — | 11 | 1.50 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -6 |
+| P kNS3a+SA vs his NS2a at 4.2 /Hb | 0 | 0 | 0 | — | ? | 1.50 | +0 | 0 / 0 | +0 | IC-K-SA x P2: CANCEL | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 +0 |
+| P J1 vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.84 | +0 | 0 / 0 | +0 | [  9255] P2 HS-R-J1 HIT 19 | self -11 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P J1 vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.84 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
-| P J1 vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.84 | +0 | 0 / 0 | +0 | [  5526] P2 HS-R-N2A HIT 50 | self -49 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS1a vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 | [  5625] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
+| P J1 vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.84 | +0 | 0 / 0 | +0 | [  9486] P2 HS-R-N2A HIT 50 | self -49 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
+| P NS1a vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 | [  9585] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 +0 |
 | P NS1a vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -10 |
 | P NS1a vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -20 |
-| P NS2a+SAg1 vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.18 | +0 | 0 / 0 | +0 | [  5955] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
+| P NS2a+SAg1 vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.18 | +0 | 0 / 0 | +0 | [  9915] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
 | P NS2a+SAg1 vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.18 | -10 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 -10 |
-| P NS2a+SAg1 vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.18 | +0 | 0 / 0 | +0 | [  6186] P2 HS-R-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
-| P NS3a vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 3.13 | +0 | 0 / 0 | +0 | [  6285] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
-| P NS3a vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [  6397] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
-| P NS3a vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 3.13 | -26 | 0 / 0 | +0 | [  6516] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P NS2a+SAg1 vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.18 | +0 | 0 / 0 | +0 | [ 10146] P2 HS-R-N2A x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 2 meter 0 fs2 +0 |
+| P NS3a vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 3.13 | +0 | 0 / 0 | +0 | [ 10245] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form base ptr 3 meter 0 fs2 +0 |
+| P NS3a vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 4.50 | -28 | 0 / 0 | +0 | [ 10357] P2 HS-R-N1A HIT 26 | self -15 konpaku +0/+0 form base ptr 3 meter 0 fs2 -10 |
+| P NS3a vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 3.13 | -26 | 0 / 0 | +0 | [ 10476] P2 HS-R-N2A HIT 50 | self -29 konpaku +0/+0 form base ptr 3 meter 0 fs2 -20 |
+| P kJ1 vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 | [ 10575] P2 HS-R-J1 HIT 19 | self -14 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kJ1 vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kJ1 vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS1a vs his J1 at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | +0 | 0 / 0 | +0 | [ 10905] P2 HS-R-J1 x P1: CANCEL | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 +0 |
+| P kNS1a vs his NS1a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -10 |
+| P kNS1a vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 5.40 | -25 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 fs2 -20 |
+| P kNS3a+SA vs his J1 at 5.4 /Hb | 26 | 1 | 1 | — | 11 | 2.70 | +0 | 0 / 0 | +0 | [ 11235] P2 HS-R-J1 x P1: CANCEL; IC-K-SA HIT 50; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -200 |
+| P kNS3a+SA vs his NS1a at 5.4 /Hb | 26 | 1 | 1 | — | 11 | 2.70 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 -6 |
+| P kNS3a+SA vs his NS2a at 5.4 /Hb | 0 | 0 | 0 | — | ? | 2.70 | +0 | 0 / 0 | +0 | [ 11466] P2 HS-R-N2A x P1: CANCEL; IC-K-SA x P2: CANCEL | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 fs2 +0 |
 | X1 her J1 into his NS1a (AS1 on contact), his none /K | 27 | 1 | 1 | — | ? | 1.89 | +0 | 0 / 0 | +0 | [    15] P2 KE-Z-N1A x P1: CANCEL; IC-AS1 HIT 50; STEAL fs 40.0 from P2, gains 20.0; BREAK fs 160.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |
 | X1 her J1 into his NS1a (J2 on contact), his none /K | 34 | 2 | 2 | 0 | 2 | 0.83 | +0 | 0 / 0 | +0 | [   155] P2 KE-Z-N1A x P1: CANCEL; IC-J1 HIT 32; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0); IC-J2 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -197 |
 | X1 her J1 into his NS1a (stop), his none /K | 17 | 1 | 1 | — | 3 | 0.83 | +0 | 0 / 0 | +0 | [   295] P2 KE-Z-N1A x P1: CANCEL; IC-J1 HIT 32; BREAK fs 200.0 from P2 (fs 100.0), gains 0.0 (fs 300.0) | self +0 konpaku +0/+0 form base ptr 1 meter 0 fs2 -200 |

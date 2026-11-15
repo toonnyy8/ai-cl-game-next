@@ -44,7 +44,7 @@ His hits are worth ~1.2x hers (kit 1.15 x core 1.7 against her 1.0 x 1.3, her ta
 | SP per route (sheet) | NS 85 / 80 / 70, AS 20 / 45 / 90 | Shikai NS 75 / 75 / **25** (the bind is cheap), AS 25 / 45 / 80; Bankai ranged NS 40 / 80, AS 15 / 55 / 35 |
 | steal | AS1 40 in one hit | TSUMUJI 50 over four hits |
 | empty gauge | J routes keep 87-92 % | (his) |
-| awakening | KESSA (J1 S8, NS3 clones + SA: 20 of 20 grid cells won against him) | Bankai: ranged mode out-pokes her at 3.4-6.2 m |
+| awakening | KESSA (J1 S8, NS3 clones + SA: 20 of 20 grid cells against his Shikai, 9 of 15 against his Bankai: his 360° NS1a beats it inside 3.2 m) | Bankai: ranged mode out-pokes her at 3.4-6.2 m |
 
 ## Headlines
 
@@ -55,4 +55,5 @@ His hits are worth ~1.2x hers (kit 1.15 x core 1.7 against her 1.0 x 1.3, her ta
    measured `keep` arm lost whole to his `none`: arms4/ichigo.md).
 4. **TSUMUJI beats her reactive SA**: after her NS is cancelled by his J, his AS1 wins; she needs his J2 to be his habit, or to avoid the
    NS-into-his-J cancel at that distance.
-5. **KESSA is her best form here**: its NS3a + SA won every grid cell against his Shikai openers (the SA's armour and lunge, 4.6 m).
+5. **KESSA is her best form here**: its NS3a + SA won every grid cell against his Shikai openers (the SA's armour and lunge, 4.6 m); against his Bankai
+   it holds only from 4.2 m (his NS1a, 360°, beats it closer).
