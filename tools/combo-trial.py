@@ -4,6 +4,8 @@ and means of a fighter's catalogue verified against a dummy; skill duel-characte
 
   python3 tools/combo-trial.py docs/research/ki-ai/kenpachi/trials.lisp            a Markdown table
   python3 tools/combo-trial.py FILE --log                                          and every trial's combat log
+  python3 tools/combo-trial.py FILE --events                                       the log column also lists cancels, absorbs, breaks,
+                                                                                  steals, refusals, Kikon lines (PLAN4's kit study, 2026-11-15)
 
 Columns: dmg dealt, hits, the combo counter's top, gaps (per hit after the first: the frames he could act before it; 0 = a
 true combo), adv (his first free frame - hers after the last hit or block), the distance, her flash step change,
@@ -16,8 +18,10 @@ import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import simgate
 
+EVENTS = r'CANCEL|ABSORBED|BREAK|STEAL|refused|KIKON|lets go|cancels the Kikon|beats|PERFECT|AWAKEN|SOUL BREAK'   # (--events, 2026-11-15)
+
 def main():
-    path = sys.argv[1]; show = '--log' in sys.argv
+    path = sys.argv[1]; show = '--log' in sys.argv; events = '--events' in sys.argv
     simgate.build()
     r = simgate.run_lisp('simgate/trial.lisp', [os.path.abspath(path)])
     if r.returncode:
@@ -32,9 +36,10 @@ def main():
             f = [x.strip() for x in line.split('trial end', 1)[1].split('|')]
             kv = {x.split(' ', 1)[0]: x.split(' ', 1)[1] if ' ' in x else '' for x in f[1:]}
             hits = [re.sub(r'^\[\s*\d+\] P1 ', '', l).replace(' -> P2', '').replace(' -> P1', '') for l in log
-                    if re.search(r'\] (P1 )?\S+ -> P2 ', l) or re.search(r'\] P2 \S+ -> P1 ', l)]   # (P2's hits on P1: :p2-press)
+                    if re.search(r'\] (P1 )?\S+ -> P2 ', l) or re.search(r'\] P2 \S+ -> P1 ', l)
+                    or (events and re.search(EVENTS, l))]   # (P2's hits on P1: :p2-press; --events: the exchange's lines too)
             print(f"| {f[0]} | {kv['dmg']} | {kv['hits']} | {kv['combo']} | {kv['gaps'] or '—'} | {kv['adv']} | {kv['dist']} | "
-                  f"{kv['fs']} | {kv['layers'].replace(' chill ', ' / ')} | {kv.get('konpaku', '')} | {'; '.join(hits)} | {kv.get('more', '')} |")
+                  f"{kv['fs']} | {kv['layers'].replace(' chill ', ' / ')} | {kv.get('konpaku', '')} | {'; '.join(hits)} | {kv.get('more', '')} fs2 {kv.get('fs2', '')} |")
             if show:
                 print('\n'.join('    ' + l for l in log))
         elif re.match(r'\[\s*\d+\] ', line.split('duel ', 1)[-1]) or line.startswith('['):
