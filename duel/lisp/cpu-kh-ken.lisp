@@ -23,11 +23,18 @@ holds (his first free frame and Hoho press are not in the SNAP yet; a move start
   (last -999 :type fixnum))     ; the last tick the SNAP showed him down / waking up
 (inline-readers khs)
 
+(defun khf-bait-cells-p (b f)
+  "The wake-up by his cells (PLAN4 P5, Kenpachi's wake-up arm; the arm's :KHF-BAIT-FS, no key: always): the bait only while his flash-step
+(a HUD value, its cells) is at least this, so his wake-up Hoho (100) is there to bait; under it no Hoho can answer the KI code's meaty J1
+(catalogue K: it beats his wake-up J, NS1a and back Step), so the meaty runs. Against Ichigo too: her wake-up Hoho is the same rule (K)."
+  (let ((x (style-knob b :khf-bait-fs nil)))
+    (or (null x) (>= (gauges-fs (gauges (fighter-opp f))) x))))
+
 (defun khf-bait-step (e b f s d st)
   "Hisagi down or just up with the bait roll yes: hold at *KHF-BAIT-D*. T when it decided."
   (let ((ss (snap-state s)) (now *match-tick*))
     (when (and (member ss '(:air :down :wakeup)) (not (member (khs-hw st) '(:air :down :wakeup))))
-      (setf (khs-bait st) (style-roll b :khf-bait-p *khf-bait-p*))
+      (setf (khs-bait st) (and (khf-bait-cells-p b f) (style-roll b :khf-bait-p *khf-bait-p*)))
       (when (khs-bait st) (clog "~a khf bait armed" (side-name e))))
     (setf (khs-hw st) ss)
     (when (member ss '(:down :wakeup)) (setf (khs-last st) now))

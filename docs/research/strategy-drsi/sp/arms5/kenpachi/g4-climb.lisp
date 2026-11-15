@@ -1,0 +1,3 @@
+;; PLAN4 P5 (2026-11-15), Kenpachi's general: climb to the Bankai and cash out (strategies.md 4; a4-k-climb kept) plus the rule: no Bankai route under half his own Reishi (:mr :low, any weight, replaces the base). :with d-x-ki-k / d-x-kh-k.
+;; Keys over the base: arms5/kenpachi.md. One plist; proof.py desc --arms ../arms5/kenpachi reads the directory in name order.
+(:id :k5-climb :fn ken-kh-standoff-style :apply (:kenpachi) :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :kk-step-in-p 0.0 :kk-awaken-p 1.0 :kk-reach-margin 0.35 :kk-wave-p 0.0 :kk-lunge-p 1.0 :kso-stale 60 :kk-step-max 4.5 :kk-step-p 1.0 :kk-bankai-p 1.0 :kk-reach-p 0.5 :kk-ns-safe-p 0.8 :other 10.0 :kikon 0.3 :kk-climb-p 1.0 :kk-bk-ns-p 0.25) :rules ((((:mr :low)) (:kk-bankai-p 0.0))))
