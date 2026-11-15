@@ -31,7 +31,7 @@ sw, ss = band.sw, band.ss
 CACHE = os.path.join(ROOT, 'build/arms4-cache')
 WORK = os.path.join(ROOT, 'build/arms4')
 HARD = 2
-KEEP = ('desc ', 'duel gate row ', 'fq ', 'strat ')
+KEEP = ('desc ', 'idesc ', 'duel gate row ', 'fq ', 'strat ')
 
 # Pre-registered (written before the first proof run, ichigo.md / kenpachi.md): arm id -> (descriptor, op, amount) against arm 0.
 # '+': value >= arm 0's + amount; '-': value <= arm 0's - amount; 'x': value >= arm 0's x amount; 'x<': value <= arm 0's x amount.
@@ -58,6 +58,17 @@ TOL = {'mean_d': ('abs', 0.25), 'close': ('abs', 0.03), 'mid': ('abs', 0.03), 'f
        # cells-k (B3, pre-registered in kenpachi.md before any cell ran): move starts into his neutral per 1000 steps, pooled (rush's
        # contact rate: a per-match count falls when a rush shortens the match)
        'nstart_r': ('rel', 0.15)}
+# ---- begin: Ichigo's kit-strategy descriptors (PLAN4 checkpoint 2a; pre-registered in sp/arms5/ichigo.md before its proof run). From
+# strat-run.lisp's "idesc" line: sa_x = her post-cancel first actions that are the SA (pooled share); as1 = her AS routes that are AS1 (pooled
+# share); punish = her move starts inside his recovery, a match; k_p3 = her awakened NS routes that are NS3 (pooled share); b34 = share of
+# steps at 3.4-6.0 m. Their distinctness tolerances widen the test for every later run (one more way to differ).
+TOL.update({'sa_x': ('abs', 0.05), 'as1': ('abs', 0.05), 'punish': ('rel', 0.15), 'k_p3': ('abs', 0.05), 'b34': ('abs', 0.03)})
+IPOOLED = {'sa_x': ('xsa', 'xpost'), 'as1': ('as1', 'asn'), 'k_p3': ('nsk3', 'nsk')}
+# The kit study's bars verbatim (strategies.md's descriptor column; S2 brawl and T2 keep keep their arms4 registrations above).
+TESTS.update({'a5-i-answer': [('clash', 'x', 1.3), ('sa_x', '+', 0.15)], 'a5-i-economy': [('as1', '+', 0.25), ('sp', 'x<', 0.85)],
+              'a5-i-punish': ('punish', 'x', 1.5), 'a5-i-kessa-lunge': [('k_sp', 'x', 1.3), ('k_p3', '+', 0.20)],
+              'a5-i-inside': ('b34', '-', 0.10)})
+# ---- end: Ichigo's kit-strategy descriptors
 DESC = list(TOL)
 # Hisagi's arms (B3 cells, cells-h; pre-registered in hisagi.md §5 before any cell or proof run). A cell's winner keeps its slot's id.
 TESTS.update({'h4-press': ('close', '+', 0.10), 'h4-kite': ('mean_d', '+', 0.5), 'h4-range': [('mean_d', '+', 0.5), ('bankai', '+', 0.10)],
@@ -180,13 +191,20 @@ def arm_desc(res):
     ms, ko, kow = [], 0, 0
     for seat, lines in res.items():
         rw = rows(lines)
+        idesc = {int(l.split()[1]): l.split()[3:] for l in lines if l.startswith('idesc ') and l.split()[2] == seat}   # (Ichigo's block)
         for l in lines:
             if l.startswith('desc ') and l.split()[2] == seat:
-                ms.append(desc_vec(l))
+                m = desc_vec(l)
+                kv = idesc.get(int(l.split()[1]), [])
+                m.update({kv[i]: int(kv[i + 1]) for i in range(0, len(kv), 2)})
+                m['punish'], m['b34'] = m.get('pun', 0), m.get('b34', 0) / max(1, m['steps'])
+                ms.append(m)
         ko += sum(k for _, k in rw.values())
         kow += sum(1 for w, k in rw.values() if k and w == seat)
     n = len(ms)
-    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k not in ('wake_kd', 'k_sp', 'k_d', 'nstart_r')}
+    out = {k: statistics.fmean(m[k] for m in ms) for k in DESC if k not in ('wake_kd', 'k_sp', 'k_d', 'nstart_r') + tuple(IPOOLED)}
+    for k, (num, den) in IPOOLED.items():   # (Ichigo's block: pooled shares)
+        out[k] = sum(m.get(num, 0) for m in ms) / max(1, sum(m.get(den, 0) for m in ms))
     out['k_d'] = sum(m['adsum'] for m in ms) / 1000.0 / max(1, sum(m['awk_n'] for m in ms))   # (pooled: mean distance of the awakened steps)
     out['k_sp'] = 1000.0 * sum(m['asp'] for m in ms) / max(1, sum(m['awk_n'] for m in ms))   # (pooled: SP moves per 1000 awakened steps)
     out['nstart_r'] = 1000.0 * sum(m['nstart'] for m in ms) / max(1, sum(m['steps'] for m in ms))   # (pooled: starts into his neutral per 1000 steps)
@@ -249,6 +267,7 @@ def cmd_desc(a):
     json.dump(dict(me=a.me, vs=a.vs, opp=a.opp if a.opp == 'none' else os.path.relpath(os.path.abspath(a.opp), HERE), dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
                    build=simlib.build_hash(os.path.join(ROOT, 'tools/simgate/strat-run.lisp'))[:12], arms=sheet), open(dst, 'w'), indent=1)
     cols = ['mean_d', 'close', 'mid', 'far', 'p2', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'nstart', 'nstart_r', 'k_sp', 'k_d', 'acts', 'clash']
+    cols += [c for c in a.cols.split(',') if c] if a.cols else []   # (--cols: more descriptor columns, e.g. Ichigo's sa_x,as1,punish,k_p3,b34)
     print(f'{a.me} vs {a.vs} {a.opp}, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
     print('arm'.ljust(12) + ''.join(c.rjust(8) for c in cols) + '     K.O.  KOwin  test')
     for aid in ids:
@@ -374,6 +393,7 @@ def main():
     p.add_argument('--opp', default='none', help="the opponent seat's raw strategy file (default none: his plain CPU; a targeted arm's "
                    "descriptor may be registered against the arm of his that runs the situation, cells-k)")
     p.add_argument('--out', help='the output JSON (default proof/<me>-vs-<vs>[-dif][-TAG].json)')
+    p.add_argument('--cols', help='extra descriptor columns to print (comma list of DESC names)')
     p = sub.add_parser('t0')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--map', required=True); p.add_argument('--out', required=True); p.add_argument('--with', dest='with_', nargs='*')

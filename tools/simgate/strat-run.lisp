@@ -188,11 +188,48 @@
 ;;; Ichigo's code cell, PLAN4 B3), SP moves started while awakened (asp) and the summed distance of the awakened steps (adsum, m), steps per form. Reads only: 25 seeds with and without it gave
 ;;; identical gate rows and hash lines.
 (defvar *sr-desc* (plusp (length (or (ext:getenv "STRAT_DESC") ""))))
+;;; ---- begin: Ichigo's kit-strategy counters (PLAN4 checkpoint 2a, sp/arms5/ichigo.md), also under STRAT_DESC; read only.
+;;; Per match and side, one line "idesc <seed> P<n> xn N xpost P xsa S asn A as1 A1 pun U nsk K nsk3 K3 b34 B": the cancels (a fresh
+;;; FIGHTER-XCH tick), her first action start after each while the exchange is open (a move, Step or Hoho) and those that are the SA; her AS
+;;; routes started (a first segment, KIT-CORE's :as) and those that are AS1; her move starts out of her neutral (:idle / :run the step
+;;; before) while his move is past its active frames (his recovery: S4 punish); her NS routes started while awakened (KIT-CORE's :ns) and those that are NS3 (S5); steps at 3.4-6.0 m (T3).
+(defparameter +sr-idesc-keys+ '(xn xpost xsa asn as1 pun nsk nsk3 b34))
+(defvar *sr-idesc-acc* (list nil nil) "Per side: the counts vector, or NIL before the match's first battle step.")
+(defvar *sr-idesc-edge* (list nil nil) "Per side: (last-xch pending last-state last-move).")
+(defun sr-idesc-flush (seed)
+  (loop for side from 0 for v in *sr-idesc-acc* when v
+        do (format t "idesc ~d P~d~{ ~(~a~) ~d~}~%" seed (1+ side) (loop for k in +sr-idesc-keys+ for i from 0 append (list k (aref v i)))))
+  (setf *sr-idesc-acc* (list nil nil) *sr-idesc-edge* (list nil nil)))
+(defun sr-idesc-step ()
+  (do-sides (e)
+    (let* ((f (fighter e)) (side (fighter-side f)) (fo (fighter (fighter-opp f))) (kit (fighter-kit f))
+           (v (or (nth side *sr-idesc-acc*) (setf (nth side *sr-idesc-acc*) (make-array 9 :initial-element 0))))
+           (ed (or (nth side *sr-idesc-edge*) (list (fighter-xch f) nil nil nil)))
+           (st (fighter-state f)) (mv (fighter-move f)) (d (fighter-dist f)) (x (fighter-xch f)) (pend (second ed))
+           (mstart (and (eq st :move) mv (or (not (eq (third ed) :move)) (not (eq mv (fourth ed))))))
+           (start (or mstart (and (member st '(:step :hoho)) (not (eq st (third ed)))))))
+      (flet ((inc (i) (incf (aref v i))))
+        (cond ((< x 0) (setf pend nil))
+              ((/= x (first ed)) (inc 0) (setf pend t)))
+        (when (and pend start)
+          (inc 1) (when (and mstart (eq (fighter-cls f) :sa)) (inc 2)) (setf pend nil))
+        (when mstart
+          (let ((a (position (mv-name mv) (getf (kit-core kit) :as))) (n (position (mv-name mv) (getf (kit-core kit) :ns)))
+                (mo (fighter-move fo)))
+            (when a (inc 3) (when (= a 0) (inc 4)))
+            (when (and (member (third ed) '(:idle :run)) (eq (fighter-state fo) :move) mo (eq (fighter-phase fo) :main)
+                       (>= (fighter-sf fo) (+ (mv-s mo) (mv-a mo))))
+              (inc 5))
+            (when (and n (gauges-awakened (gauges e))) (inc 6) (when (= n 2) (inc 7)))))
+        (when (<= 3.4 d 6.0) (inc 8)))
+      (setf (nth side *sr-idesc-edge*) (list x pend st mv)))))
+;;; ---- end: Ichigo's kit-strategy counters
 (defvar *sr-desc-acc* (list nil nil) "Per side: (counts-vector form-alist), or NIL before the match's first battle step.")
 (defvar *sr-desc-edge* (list nil nil) "Per side: (last-state last-move last-burst last-clash-t his-last-state wake-left his-last-kikon-lock).")
 (defvar *sr-desc-seed* nil)
 (defparameter +sr-desc-keys+ '(steps dsum close far sp burst kikon kd wake evade acts awk clash p1 p2 p3 nstart asp adsum))
 (defun sr-desc-flush ()
+  (when *sr-desc-seed* (sr-idesc-flush *sr-desc-seed*))   ; (Ichigo's kit-strategy counters, the block above)
   (when *sr-desc-seed*
     (loop for side from 0 for a in *sr-desc-acc* when a
           do (format t "desc ~d P~d~{ ~(~a~) ~d~} form~:{ ~(~a~):~d~}~%" *sr-desc-seed* (1+ side)
@@ -200,6 +237,7 @@
                      (mapcar (lambda (c) (list (car c) (cdr c))) (reverse (second a))))))
   (setf *sr-desc-acc* (list nil nil) *sr-desc-edge* (list nil nil) *sr-desc-seed* nil))
 (defun sr-desc-step ()
+  (sr-idesc-step)                                          ; (Ichigo's kit-strategy counters, the block above)
   (setf *sr-desc-seed* *match-seed*)
   (do-sides (e)
     (let* ((f (fighter e)) (side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o))
