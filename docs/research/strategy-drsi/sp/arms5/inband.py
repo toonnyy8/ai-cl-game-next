@@ -344,11 +344,115 @@ def cmd_desc(a):
                 fi, aid = ref(i, var).split('#')
                 o.write(proof.forms(os.path.join(A4, fi))[aid] + '\n')
         r = subprocess.run([sys.executable, os.path.join(A4, 'proof.py'), 'desc', '--me', me, '--vs', vs, '--arms', os.path.relpath(f, A4),
-                            '--with', os.path.join(XU, UNIT[(me, vs)] + '.lisp'), '--seed0', str(SEED0), '--seeds', str(SEEDS), '-j', str(a.j),
+                            '--with', os.path.join('x-units', UNIT[(me, vs)] + '.lisp'), '--seed0', str(SEED0), '--seeds', str(SEEDS), '-j', str(a.j),
                             '--out', f.replace('.lisp', '.json')], capture_output=True, text=True, cwd=A4)
         if r.returncode:
             sys.exit(r.stdout[-2000:] + r.stderr[-2000:])
         print(r.stdout, flush=True)
+
+
+def load_ib(path=None):
+    """inband/ib.jsonl -> {(row, arm): the last record} (candidate runs only)."""
+    out = {}
+    for l in open(path or os.path.join(HERE, 'inband/ib.jsonl')):
+        r = json.loads(l)
+        if not r.get('final'):
+            out[(r['row'], r['arm'])] = r
+    return out
+
+
+def distinct(row, arm, among=None):
+    """(ok, the siblings it is not distinct from): proof.py desc's not_distinct_from on 141-180, against this row's arms only (arm 0
+    included; AMONG: only these, inband.md §4: the siblings that pass in-band); a mirror's arm must be distinct in both of its
+    character's cross runs."""
+    me, vs, ids, *_ = row_arms(row)
+    ids = [i for i in ids if among is None or i in among or i == ids[0]]
+    runs = [vs] if vs != me else [v for (m, v) in DESC_SETS if m == me]
+    bad = set()
+    for v in runs:
+        d = json.load(open(os.path.join(HERE, 'inband/desc', f'{me}-vs-{v}.json')))['arms']
+        bad |= {b for b in d[arm]['not_distinct_from'] if b in ids}
+    return not bad, sorted(bad)
+
+
+def division(row, arm):
+    """Bar A's division of ARM on ROW's candidate T0 (inband/bar/): (ok, in, out, fire share)."""
+    me, vs, ids, *_ = row_arms(row)
+    s = json.load(open(os.path.join(HERE, 'inband/bar', f'bar-{row.replace("@", "_").replace("#", "_")}.json')))['sides']['c1 ' + me]
+    j = s['job'][str(ids.index(arm))]
+    return j['ok'], j['in_share'], j['out_share'], j['fire_share']
+
+
+def cmd_admit(a):
+    """inband.md §3's admission per arm and row, the slot rule (§2), the final tables arms5/t0/t0-<row>.lisp (+ .json map), and
+    inband/admit.json (every arm's z, distinctness and division; the findings)."""
+    ib = load_ib()
+    out, finals = [], {}
+    for row in ROWS:
+        me, vs, ids, *_ = row_arms(row)
+        keep = [ids[0]]
+        passing = {a_ for a_ in ids[1:] if (ib.get((row, a_)) or {}).get('pass')}   # (distinctness among these, inband.md §4)
+        for arm in ids[1:]:
+            cands = [(row, arm)] + [(f'{row}@{alt}', alt) for alt, slot in ALT.items() if slot == arm and row in ALT_ROWS.get(alt, {row})]
+            picked = None
+            for r_, a_ in cands:
+                rec = ib.get((r_, a_))
+                dok, dbad = distinct(r_, a_, passing)
+                dbad_all = distinct(r_, a_)[1]
+                vok, vin, vout, vfire = division(r_, a_)
+                ok_ib = bool(rec and rec['pass'])
+                adm = ok_ib and dok and vok
+                out.append(dict(row=r_, arm=a_, targeted=a_ in TARGETED, z=rec and rec['z'], slope=rec and rec['slope'], se=rec and rec['se'],
+                                used=rec and rec['used'], inband=ok_ib, distinct=dok, not_distinct_from=dbad, not_distinct_any=dbad_all, division=vok, in_share=vin,
+                                out_share=vout, fire=vfire, vacuous=vfire > proof.VACUOUS, admitted=adm))
+                if adm and picked is None:
+                    picked = a_
+            if picked:
+                keep.append(picked)
+        finals[row] = keep
+    for row, keep in finals.items():
+        write_table(row, keep, table_of(row, True), note=f', final: the admitted arms of inband.md §3')
+    json.dump(dict(finals=finals, arms=out), open(os.path.join(HERE, 'inband/admit.json'), 'w'), indent=1)
+    for r in out:
+        print(f"{r['row']:28s} {r['arm']:18s} {'T' if r['targeted'] else 'G'} z {r['z']!s:>6} in-band {'ok ' if r['inband'] else 'NO '}"
+              f"distinct {'ok ' if r['distinct'] else 'NO ' + ','.join(r['not_distinct_from'])} division {'ok ' if r['division'] else 'NO '}"
+              f"fire {r['fire']:.3f}{' VACUOUS' if r['vacuous'] else ''} -> {'ADMIT' if r['admitted'] else '-'}")
+    for row, keep in finals.items():
+        print(row, keep)
+
+
+def cmd_report(a):
+    """Markdown tables for inband.md: per arm the in-band numbers and the admission (inband/admit.json), then the final tables' bar A / D
+    (arms5/t0/bar/)."""
+    ad = json.load(open(os.path.join(HERE, 'inband/admit.json')))
+    ib = load_ib()
+    print('| Row | Arm | G/T | n run / distinct used | slope (se), z | MDE | margin z | distinct | fire, in / out | verdict |')
+    print('|---|---|---|---|---|---|---|---|---|---|')
+    for r in ad['arms']:
+        x = ib.get((r['row'], r['arm']), {})
+        v = 'ADMIT' if r['admitted'] else 'out: ' + ', '.join(w for w, ok in (('in-band', r['inband']), ('not distinct', r['distinct']),
+                                                                             ('division', r['division'])) if not ok)
+        print(f"| {r['row']} | {r['arm']} | {'T' if r['targeted'] else 'G'} | {x.get('run_matches')} / {x.get('used')} | "
+              f"{x.get('slope')} ({x.get('se')}), **{x.get('z')}** | {x.get('mde')} | {x.get('margin_z')} | "
+              f"{'yes' if r['distinct'] else 'no (~' + ','.join(r['not_distinct_from']) + ')'} | {r['fire']:.2f}{' VAC' if r['vacuous'] else ''}, "
+              f"{r['in_share']:.2f} / {r['out_share']:.3f} | {v} |")
+    print()
+    print('| Row | final arms | changes median (zero) | shares | per job: in / out, fire | bar A | K.O. (bar D) | points |')
+    print('|---|---|---|---|---|---|---|---|')
+    for row, keep in ad['finals'].items():
+        f = os.path.join(HERE, 't0/bar', f'bar-{row}.json')
+        if not os.path.exists(f):
+            continue
+        me = ROWS[row][0]
+        s = json.load(open(f))['sides']['c1 ' + me]
+        A = s['A']
+        ok = A['no_zero'] and A['median_10'] and A['three_arms'] and A['division']
+        jobs = '; '.join(f"{keep[int(k)]} {v['in_share']:.2f} / {v['out_share']:.3f}, {v['fire_share']:.2f}{' VAC' if v['vacuous'] else ''}"
+                         for k, v in s['job'].items())
+        fails = [n for n, okk in (('zero', A['no_zero']), ('median', A['median_10']), ('three arms', A['three_arms']),
+                                  ('division', A['division'])) if not okk]
+        print(f"| {row} | {', '.join(keep)} | {s['changes']['median']} ({s['changes']['zero']}) | {' '.join(f'{x:.2f}' for x in s['arm_share'])} | "
+              f"{jobs or '-'} | {'pass' if ok else 'fail (' + ', '.join(fails) + ')'} | {s['ko_rate']:.3f} | {s.get('points')} |")
 
 
 def table_path(row, final):
@@ -487,6 +591,7 @@ def main():
     sub.add_parser('tables')
     sub.add_parser('selftest')
     p = sub.add_parser('h0'); p.add_argument('-j', type=int, default=12)
+    sub.add_parser('admit'); sub.add_parser('report')
     p = sub.add_parser('desc'); p.add_argument('--only'); p.add_argument('-j', type=int, default=12)
     p = sub.add_parser('result')
     p.add_argument('--me', required=True); p.add_argument('--vs', required=True); p.add_argument('--mine', required=True)
@@ -499,7 +604,7 @@ def main():
     p = sub.add_parser('bar')
     p.add_argument('--row', required=True); p.add_argument('--opp'); p.add_argument('--final', action='store_true'); p.add_argument('-j', type=int, default=20)
     a = ap.parse_args()
-    {'tables': cmd_tables, 'selftest': cmd_selftest, 'h0': cmd_h0, 'desc': cmd_desc, 'result': cmd_result, 'ib': cmd_ib, 'bar': cmd_bar}[a.cmd](a)
+    {'tables': cmd_tables, 'selftest': cmd_selftest, 'h0': cmd_h0, 'desc': cmd_desc, 'admit': cmd_admit, 'report': cmd_report, 'result': cmd_result, 'ib': cmd_ib, 'bar': cmd_bar}[a.cmd](a)
 
 
 if __name__ == '__main__':
