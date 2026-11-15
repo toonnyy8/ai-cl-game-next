@@ -228,14 +228,19 @@
 (defvar *sr-desc-edge* (list nil nil) "Per side: (last-state last-move last-burst last-clash-t his-last-state wake-left his-last-kikon-lock).")
 (defvar *sr-desc-seed* nil)
 (defparameter +sr-desc-keys+ '(steps dsum close far sp burst kikon kd wake evade acts awk clash p1 p2 p3 nstart asp adsum))
+(defvar *sr-desc-extra* nil
+  "Functions (side) -> a flat list (key count ...) appended to that side's desc line before \"form\" (a batch's own counters, in its own
+block below; proof.py's desc_vec reads any key) and resetting their own state: one per block, in load order.")
 (defun sr-desc-flush ()
   (when *sr-desc-seed* (sr-idesc-flush *sr-desc-seed*))   ; (Ichigo's kit-strategy counters, the block above)
   (when *sr-desc-seed*
     (loop for side from 0 for a in *sr-desc-acc* when a
           do (format t "desc ~d P~d~{ ~(~a~) ~d~} form~:{ ~(~a~):~d~}~%" *sr-desc-seed* (1+ side)
-                     (loop for k in +sr-desc-keys+ for i from 0 append (list k (aref (first a) i)))
+                     (append (loop for k in +sr-desc-keys+ for i from 0 append (list k (aref (first a) i)))
+                             (loop for fn in *sr-desc-extra* append (funcall fn side)))
                      (mapcar (lambda (c) (list (car c) (cdr c))) (reverse (second a))))))
   (setf *sr-desc-acc* (list nil nil) *sr-desc-edge* (list nil nil) *sr-desc-seed* nil))
+(defvar *sr-desc-steps* nil "Functions run at the end of each SR-DESC-STEP (a batch's own counters, in its own block below).")
 (defun sr-desc-step ()
   (sr-idesc-step)                                          ; (Ichigo's kit-strategy counters, the block above)
   (setf *sr-desc-seed* *match-seed*)
@@ -261,7 +266,75 @@
         (when (and start (eq st :move) (member ost '(:idle :run))) (inc 16))
         (when (and start (eq st :move) (eq (mv-kind mv) :sp) (gauges-awakened (gauges e))) (inc 17))
         (let ((c (assoc (fighter-form f) (second a)))) (if c (incf (cdr c)) (push (cons (fighter-form f) 1) (second a)))))
-      (setf (nth side *sr-desc-edge*) (list st mv (gauges-burst (gauges e)) (fighter-clash-t f) ost (sixth ed) (fighter-kikon-lock fo))))))
+      (setf (nth side *sr-desc-edge*) (list st mv (gauges-burst (gauges e)) (fighter-clash-t f) ost (sixth ed) (fighter-kikon-lock fo)))))
+  (dolist (fn *sr-desc-steps*) (funcall fn)))
+
+;;; ---- STRAT_DESC, Hisagi's PLAN4 arms (arms5/hisagi.md; cpu-hisagi-own.lisp), read-only. Per side, appended to the desc line:
+;;; bdsum the Shikai steps' summed distance (m); nagi / nagiin NAGI (:hs-n1a) starts, those inside 3.0 m; xc / xj / xja the cancels he took
+;;; part in (XCH-SIDE :J or :NS), those as the J side, those J-side ones followed by an AS start within 60 steps (a J cancelled in its
+;;; startup opens its AS window only after it: 45 steps in the dev logs); taba / tabat TABA
+;;; (:hs-r-n2a) starts, those at 4.0-4.9 m; rbeh / rbehb steps behind in Reishi by >= 300, those in the bind (:bankai-bind); beven BIND
+;;; EVEN (his HSS-EVEN-A stamped anew while bound); bina bind entries while ahead in Reishi; jlunge his J1 starts during Kenpachi's Shikai
+;;; lunge's (:ke-s-n1a) startup at 2.5-5.7 m; nsin his route-opening NS starts in his own Shikai inside 5.7 m while Kenpachi is in his
+;;; Shikai (:nozarashi);
+;;; osk steps of that; klunge the lunges started; gch / gans Ichigo's Getsuga charges (NS2a starts), those answered (his NAGI landed, he
+;;; Hohoed, or the charge took part in a cancel, before it ended); rush / rushn Ichigo's NS3a rush starts, those during whose startup he
+;;; started NAGI. HSS read with HSS (never HS: that attaches one).
+(defparameter +sr-hx-keys+ '(bdsum nagi nagiin xc xj xja taba tabat rbeh rbehb beven bina jlunge nsin osk klunge gch gans rush rushn))
+(defvar *sr-hx* (list nil nil) "Per side: (counts edge), edge = a plist of the last step's reads.")
+(defvar *sr-hx-seed* nil)
+(defun sr-hx-step ()
+  (unless (eql *sr-hx-seed* *match-seed*) (setf *sr-hx* (list nil nil) *sr-hx-seed* *match-seed*))
+  (do-sides (e)
+    (let* ((f (fighter e)) (side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o)) (kit (fighter-kit f))
+           (a (or (nth side *sr-hx*) (setf (nth side *sr-hx*) (list (make-array (length +sr-hx-keys+) :initial-element 0) (list :xch (fighter-xch f))))))
+           (v (first a)) (ed (second a)) (st (fighter-state f)) (mv (fighter-move f)) (d (fighter-dist f))
+           (ost (fighter-state fo)) (omv (fighter-move fo)) (name (and (eq st :move) mv (mv-name mv))) (oname (and (eq ost :move) omv (mv-name omv)))
+           (start (and name (or (not (eq (getf ed :st) :move)) (not (eq mv (getf ed :mv))))))
+           (ostart (and oname (or (not (eq (getf ed :ost) :move)) (not (eq omv (getf ed :omv))))))
+           (r (gauges-reishi (gauges e))) (or* (gauges-reishi (gauges o))) (hs (hss e)))
+      (flet ((inc (k) (incf (aref v (position k +sr-hx-keys+)))))
+        (when (eq (fighter-form f) :base) (incf (aref v 0) (round (* 1000 d))))
+        (when (and start (eq name :hs-n1a)) (inc 'nagi) (when (< d 3.0) (inc 'nagiin))
+          (when (and (eq oname :ic-n3a) (< (fighter-sf fo) (mv-s omv)) (not (getf ed :rushn))) (inc 'rushn) (setf (getf ed :rushn) t)))
+        ;; the cancels: classified on the step his exchange is stamped anew (or the next two, until his move shows its side)
+        (let ((x (fighter-xch f)))
+          (when (and (>= x 0) (/= x (getf ed :xch -1))) (setf (getf ed :xch) x (getf ed :xpend) 3))
+          (when (plusp (getf ed :xpend 0))
+            (let ((sd (and (eq st :move) (xch-side (fighter-cls f) (fighter-contact f) x (fighter-cls-t f)))))
+              (if sd
+                  (progn (inc 'xc) (setf (getf ed :xpend) 0) (when (eq sd :j) (inc 'xj) (setf (getf ed :xwatch) 61)))
+                  (decf (getf ed :xpend))))))
+        (when (plusp (getf ed :xwatch 0))
+          (if (and start (eq (kit-class kit mv) :as)) (progn (inc 'xja) (setf (getf ed :xwatch) 0)) (decf (getf ed :xwatch))))
+        (when (and start (eq name :hs-r-n2a)) (inc 'taba) (when (<= 4.0 d 4.9) (inc 'tabat)))
+        (when (>= (- or* r) 300) (inc 'rbeh) (when (eq (fighter-form f) :bankai-bind) (inc 'rbehb)))
+        (when hs
+          (when (and (hss-bound hs) (/= (hss-even-a hs) (getf ed :even (hss-even-a hs)))) (inc 'beven))
+          (setf (getf ed :even) (hss-even-a hs)))
+        (when (and (eq (fighter-form f) :bankai-bind) (not (eq (getf ed :form) :bankai-bind)) (> r or*)) (inc 'bina))
+        (when (and start (member name '(:hs-j1 :hs-j1-1h)) (eq oname :ke-s-n1a) (< (fighter-sf fo) (mv-s omv)) (<= 2.5 d 5.7)) (inc 'jlunge))
+        (when (eq (fighter-form fo) :nozarashi)
+          (inc 'osk)
+          (when (and start (< d 5.7) (eq (fighter-form f) :base) (member name (getf (kit-core kit) :ns))) (inc 'nsin)))
+        (when (and ostart (eq oname :ke-s-n1a)) (inc 'klunge))
+        ;; Ichigo's Getsuga charge: open from his NS2a's start until his move leaves the charge / wave segments
+        (when (getf ed :gch)
+          (when (or (eq st :hoho) (and (eq name :hs-n1a) (eq (fighter-contact f) :hit)) (>= (fighter-xch fo) (getf ed :gch)))
+            (setf (getf ed :gans) t))
+          (unless (member oname '(:ic-n2a :ic-n2b :ic-n2c :ic-k-n2a :ic-k-n2b :ic-k-n2c))
+            (when (getf ed :gans) (inc 'gans))
+            (setf (getf ed :gch) nil (getf ed :gans) nil)))
+        (when (and ostart (member oname '(:ic-n2a :ic-k-n2a))) (inc 'gch) (setf (getf ed :gch) *match-tick* (getf ed :gans) nil))
+        (when (and ostart (eq oname :ic-n3a)) (inc 'rush) (setf (getf ed :rushn) nil)))
+      (setf (getf ed :st) st (getf ed :mv) mv (getf ed :ost) ost (getf ed :omv) omv (getf ed :form) (fighter-form f))
+      (setf (second a) ed))))
+(push #'sr-hx-step *sr-desc-steps*)
+(push (lambda (side)
+        (let ((a (nth side *sr-hx*)))
+          (loop for k in +sr-hx-keys+ for i from 0 append (list k (if a (aref (first a) i) 0)))))
+      *sr-desc-extra*)
+;;; ---- (end of Hisagi's PLAN4 block)
 ;;; ---------------------------------------------------------------- PLAN4 P5, Kenpachi's descriptors (sp/arms5/kenpachi.md), under STRAT_DESC
 ;;; One more line per match and side, "kdesc <seed> P<n> pfar N kikonk K wavet W", read from the state only:
 ;;;   pfar    my J / NS (class :na / :ns) started beyond 2.4 m (Ichigo's and Hisagi's J1 far edge, centre to centre) whose contact turned

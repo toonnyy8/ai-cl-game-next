@@ -325,6 +325,36 @@ Left out (one line each, PLAN4 B3's record `sp/arms4/hisagi.md`): the bands `*hr
 `*hkw-margin*`, `*hkw-lead*`, `*hkw-guard-d*` and the Reishi pot `*hkb-below*`, `*hkb-range*`, `*hkb-p*` (no searched arm of PLAN4 moves them;
 one `style-knob` each when one does); `:ken-ranged` (a boolean on the style unit, read by `getf`).
 
+### 6.8 Hisagi's own play (2026-11-15, PLAN4 checkpoint 2a, `sp/arms5/hisagi.md`): 21 keys
+
+**`:hb-*`** act only under `hisagi-own-style` (duel/lisp/cpu-hisagi-own.lisp; no unit, table or lookup entry names it: the research
+arm files write `:fn hisagi-own-style` inline). It plays `hisagi-hk-style` with its rules in front of Kenpachi's KI code; each rule is
+off without its switch (`style-on`, 0 / 1, on at >= 0.5). **`:hr-taba-*`** act wherever `hisagi-range-style` runs (§6.6's list), in the
+ranged mode: `:hr-taba-lo` / `-hi` replace `*hr-taba-band*` (2.5 2.9) in the close event's TABA (still under `:hr-taba-p`, 0) and give
+the neutral TABA's band; `:hr-taba-n` turns the neutral TABA on (no key: nothing read but it, nothing drawn).
+
+| Key | Default | Unit | What it changes | Search range |
+|---|---|---|---|---|
+| `:hb-band` | off | switch | S1 the chain's band: owns every free Shikai step (not his reel) | 0, 1 |
+| `:hb-lo` | 3.4 | m (perceived) | the band's floor: walk out / back Step inside it | 3.0-4.0 |
+| `:hb-hi` | 4.2 | m | the band's top: walk in beyond it (5.0 before the dev screen) | 4.0-5.2 |
+| `:hb-olo` / `:hb-ohi` | = `:hb-lo` / `:hb-hi` | m | the band against his released forms (K1: 5.8 / 6.4) | 3.4-6.4 |
+| `:hb-ons-min` | 0 | m | against his released forms, no NS of his own inside this (K1: 5.8) | 0-6 |
+| `:hb-nagi-min` | 3.1 | m | NAGI only when he is this far now and at its hit (its 3.0 m dead zone) | 3.0-3.6 |
+| `:hb-react-p` | 1.0 (0.3 / 0.6) | chance per event | NAGI / the pointer's NS on his approach, whiff, charge (one roll each) | 0-1 |
+| `:hb-step-p` | 1.0 (0.25 / 0.6) | chance per stay | the back Step inside the floor while he closes | 0-1 |
+| `:hb-poke-p` | 1.0 (0.3 / 0.6) | chance per think | the opener from the band (the pointer's NS when it reaches) | 0-1 |
+| `:hb-oki-at` | 40 | frames | okizeme: the pointer's NS this long after he is free with the opponent down | 20-60 |
+| `:hb-awaken-p` | 1.0 (0.5 / 0.75) | chance a match | awaken at his first free Shikai step with the gauge full | 0-1 |
+| `:hb-jclash` | off | switch | S2: J1 into his NS / AS start in reach (the arm also sets `:clash-p 0`, `:xch-j 0`) | 0, 1 |
+| `:hb-jclash-p` | 1.0 (0.3 / 0.6) | chance per his move | ... its roll | 0-1 |
+| `:hb-bind` | off | switch | S4: behind, the ranged string to J5 > AS3 and the J1 seek; in the bind the J clash; ahead, AS2 at J4 / out by AS3 | 0, 1 |
+| `:hb-bind-gap` | 300 | Reishi | behind when his Reishi exceeds mine by this | 100-600 |
+| `:hb-ich` | off | switch | I1: Ichigo's rush (NS2a / J1, no NAGI) and Getsuga charge (NAGI <= 20 f, else the Hoho into the wave) | 0, 1 |
+| `:hb-ich-hoho` | 14 | frames | I1: the Hoho at this frame of his wave segment (NS2c) | 8-24 |
+| `:hr-taba-lo` / `:hr-taba-hi` | 2.5 / 2.9 | m | TABA's band (the close event's; the neutral TABA's, S3: 4.0 / 4.9) | 2.5-4.9 |
+| `:hr-taba-n` | none | chance per stay | S3: NS2a TABA from neutral at pointer 2 in the band | 0-1 |
+
 ### 6.7 Ichigo: the patience and pointer-2 switches, the hover tables, the steer (2026-11-15, PLAN4 §3 B3, Ichigo's code cell): 8 keys
 
 Read through `style-knob` (`ichigo-ki-style`, so every arm whose `:fn` plays it: `ichigo-ki-r2b2a1-style`, `-r2b1a1-`), a replacement the

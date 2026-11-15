@@ -12,6 +12,8 @@
 ;;;;   cpu-kh-ken KEN-KH-STYLE, -STANDOFF-STYLE      KEN-KI-STYLE with :MEATY / :SAFE, the KKS struct (:INCLUDE),    cpu-ki-ken
 ;;;;                                                 KKS-TICK / -PLAN / -APPR, KK-STICK
 ;;;;   cpu-hk-hisagi HISAGI-HK-STYLE                 HISAGI-MERGED-STYLE, the HMS struct (:INCLUDE), HR-SP, HR-TAKEN  cpu-hisagi-range
+;;;;   cpu-hisagi-own HISAGI-OWN-STYLE               HISAGI-HK-STYLE (its OWN rule), the HKS struct (:INCLUDE),      cpu-hk-hisagi,
+;;;;                                                 HKW-FITS-P; HR-SP, HR-TAKEN, HR-CORNERED-P, *HR-EDGE*           cpu-hisagi-range
 ;;;; Every style also uses the shared CPU: core-ai's presses and generic steps (CAI-PRESS, CAI-SP, CAI-MOVE-STEP, CAI-NEUTRAL ...),
 ;;;; cpu-mcts's MC-PRESS / MC-PTR / MC-PLAN-DROP, STRAT-OUT over its brain's NOW. Ichigo's KI style (cpu-ki-ichigo) reads no other style:
 ;;;; its KK-* and *KK-HEND-P* names are in docstrings only.
