@@ -15,6 +15,9 @@
 ;;;; :p2-reishi X his Reishi (red under 30 %). The end line also gives his Konpaku change.
 ;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
 ;;;; slow-motion frames don't count; Kenpachi's file).
+;;;; :p1-at ((sim-frame :j|:sp [frames]) ...) (arms5/clash2.md, 2026-11-15): the same for P1, on the same clock, after his script's step
+;;;; that frame (a press timed from the opponent's move, where the script's waits count only P1's unlocked frames). Each press logs
+;;;; "P1 at simf N".
 ;;;; :p2-start ((sim-frame move-name) ...) (DUEL_SP S5, 2026-11-13): P2 starts MOVE-NAME (a move of his kit) through CORE-START! on that SIM
 ;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
 ;;;; :p2-cpu DIF (DUEL_SP S7, 2026-11-13): P2's CPU plays (CORE-BRAIN-STEP at difficulty DIF, no strategy: the generic CPU or the
@@ -54,7 +57,7 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound p2-meter p1-reishi) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound p2-meter p1-reishi p1-at) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
@@ -105,11 +108,15 @@ from that act)."
             (when (= i at)
               (ai-press b2 btn n :modded md :act (if st :dash :hold))
               (when st (setf (brain-dash b2) (f32 st) (brain-dash-to b2) (if (plusp st) -1f0 99f0))))))
-        (when (and (or p2-at p2-start) (/= tick2 (vpad-tick vp2)))     ; (:p2-at / :p2-start: once per sim frame, by his vpad clock)
+        (when (and (or p2-at p2-start p1-at) (/= tick2 (vpad-tick vp2)))     ; (:p2-at / :p2-start / :p1-at: once per sim frame, by his vpad clock)
           (setf tick2 (vpad-tick vp2))
           (when (and (not p2-cpu) (plusp (brain-press-left b2))) (decf (brain-press-left b2)))   ; (a live CPU counts its own)
           (dolist (a p2-at)
             (when (= (first a) simf) (ai-press b2 :quick (or (third a) 1) :modded (eq (second a) :sp) :act :hold)))
+          (dolist (a p1-at)
+            (when (= (first a) simf)
+              (ai-press b1 :quick (or (third a) 1) :modded (eq (second a) :sp) :act :hold)
+              (clog "P1 at simf ~d" simf)))
           (dolist (a p2-start)
             (when (= (first a) simf) (core-start! *p2* (gethash (second a) (kit-moves (kit-of *p2*))))))
           (incf simf))
