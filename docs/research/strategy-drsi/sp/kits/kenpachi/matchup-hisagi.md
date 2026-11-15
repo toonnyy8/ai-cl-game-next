@@ -20,15 +20,15 @@ deals about 1.5x what Kenpachi deals** (his NS1a 51 off Kenpachi, Kenpachi's NS1
 
 | Whiffer | Whiff | Punished by | Trials |
 |---|---|---|---|
-| Hisagi | J1 at 2.4-2.6 m (37 frames) | every opener of mine pressed f15-23 | W |
-| Hisagi | Shikai NS1a inside its dead zone (2.4 m, 58 frames) | everything, pressed f22-44 (NS1a and the lunges from f14; a J1 at f14 meets his NS1a's window and cancels) | W |
-| Hisagi | NS2a at 3.9-4.2 m (it slides him 1 m in; 44 frames) | sealed NS1a and Shikai J1 (f22-30), both lunges (f22) | W |
-| Hisagi | NS3a bind past 5.2 m (60 frames) | only the Shikai lunge (f22-38) | W |
-| Hisagi | ranged J1 inside 3.0 m (dead zone) | everything (f14-23) | W Hr |
-| Hisagi | ranged NS1a past 3.4 m (47 frames) | both lunges (f22-30 / f22-33) | W Hr |
-| Kenpachi | J1 at 3.1 / 3.6 m | not by his J1 or NS1a (my slide leaves me in his dead zone); by his bind at f10 | S |
-| Kenpachi | sealed NS1a at 3.8 m | his bind (f10-26) | S |
-| Kenpachi | Shikai lunge at 6.2 m | his NS1a and bind (f10-26) | S |
+| Hisagi | J1 at 2.4-2.6 m (free on tick 47) | every opener of mine pressed f15-30 | W, F |
+| Hisagi | Shikai NS1a inside its dead zone (2.4 m, free on 68) | everything, pressed f22-44 (NS1a and the lunges from f14; a J1 at f14 meets his NS1a's window and cancels) | W |
+| Hisagi | NS2a at 3.9-4.2 m (it slides him 1 m in; free on 54) | sealed NS1a, Shikai J1 and both lunges (f22-30) | W, F |
+| Hisagi | NS3a bind past 5.2 m (free on 70) | only the Shikai lunge (f22-46) | W, F |
+| Hisagi | ranged J1 inside 3.0 m (dead zone; free on 47) | everything (f14-30) | W Hr |
+| Hisagi | ranged NS1a past 3.4 m (free on 57) | both lunges (f22-33) | W Hr |
+| Kenpachi | J1 at 3.1 / 3.6 m (free on 42) | not by his J1 or NS1a (my slide leaves me in his dead zone); by his bind thrown f10-18 | S |
+| Kenpachi | sealed NS1a at 3.8 m (free on 60) | his bind (f10-26) | S |
+| Kenpachi | Shikai lunge at 6.2 m (free on 64) | his NS1a and bind (f10-26) | S |
 
 ## Openers that trade or cancel (both on frame 0)
 
@@ -42,8 +42,9 @@ deals about 1.5x what Kenpachi deals** (his NS1a 51 off Kenpachi, Kenpachi's NS1
 | sealed NS3a (tame) | parried: thrust + men 83 | (his NS1a at 2.0 m is in its dead zone) |
 | vs Hr / Hb | J1 beats his ranged / bind J1; NS1a cancels his ranged NS1a, beats the bind NS1a | |
 
-After a cancel (X), the same as against Ichigo: my AS at once beats his NS going on and a latched SA, loses to his reactive SA (f14 / f18);
-**the AS 6-10 frames after the contact beats both**. A cancel also turns on his close range (`KIN on`, Hisagi's own rule).
+After a cancel (X, Y, Z), as against Ichigo: my AS beats his NS going on and any SA that started before it, loses to one started after
+it; against his HARD CPU my AS lands first in 3 / 4 / 0 of 10 seeds at +0 / +6 / +10 (at +10 his NS lands first). A cancel also turns on
+his close range (`KIN on`, Hisagi's own rule).
 
 ## Pressure, wake-up, approach
 
@@ -61,6 +62,9 @@ After a cancel (X), the same as against Ichigo: my AS at once beats his NS going
 | SP per route (DUEL_SP §4) | sealed NS1 55, Shikai NS1 100 / NS2 120 | Shikai NS1 75, NS2 75, NS3 25; ranged NS1 40, NS2 80; bind NS1 65, NS2 80 |
 | Damage | 0.504 / 0.605 a base point | ~0.82 a base point (x1.15 x 0.42 x 1.7 in the Shikai): NS1a 51, NS2a 37, bind 33, J1 25 off Kenpachi |
 | His AS1 TSUMUJI | | steals 5 / 10 / 15 / 20 flash-step a hit (DUEL_SP §6) and carries him to 3-4 m (DUEL_CORE §2.1.1) |
+| Awakening gauge (shared: +0.035 a point dealt, +0.049 a point taken, +10.5 a Konpaku lost; once a match; heals 20 % Reishi) | he deals ~1.5x a base point, so Kenpachi's gauge fills from what he takes faster than Hisagi's does | |
+| What the awakening brings | the Shikai at L0 (the lunge, the only answer that lands first in his 3-6 m band) and later the Bankai | the Bankai's ranged mode (J1 3.0-6.4 m) and bind mode (NS1a 1.5-6.7 m, no dead zone) |
+| Burst (shared: needs 100 flash-step, pushes the attacker 5 m, invulnerable 20 frames; SP attacks free while it runs) | a Burst and a Hoho draw on the same cell: after a breakthrough (up to 200 taken) neither may be left | his AS1 TSUMUJI's steal also takes from that cell |
 
 ## The forms that change the picture
 

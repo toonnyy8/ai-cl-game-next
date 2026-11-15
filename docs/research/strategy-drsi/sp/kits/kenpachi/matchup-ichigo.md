@@ -20,13 +20,13 @@ Shikai (takes x0.8), "IK" = KESSA (x1.0).
 
 | Whiffer | Whiff | Punished by | Trials |
 |---|---|---|---|
-| Ichigo | J1 at 2.4-2.6 m (37 frames on a whiff) | every opener of mine, pressed f14-23 (a J1 at f30 meets his next J1 in its startup and still wins) | W |
-| Ichigo | NS1a at 3.2-3.6 m (58 frames) | only the Shikai lunge (pressed f30-36) and KYORAN's (f30-44); sealed nothing | W |
-| Ichigo | NS3a rush past 5.1 m (60 frames) | the Shikai lunge (f22-38), KYORAN's (f30-46) | W |
-| KESSA | J1 (31 frames) | my openers pressed f14-22 | W IK |
-| Kenpachi | J1 at 3.1 m (sealed) / 3.6 m (Shikai) | not by his J1; by his NS1a and NS3a rush at f10 | S |
-| Kenpachi | sealed NS1a at 3.8 m (47 frames) | his NS1a (f10-18), his rush (f18-26) | S |
-| Kenpachi | Shikai lunge at 6.2 m (51 frames) | his rush (f18-26) | S |
+| Ichigo | J1 at 2.4-2.6 m (free on tick 47: S + A + whiff R + 10) | every opener of mine, pressed up to f30 (the latest tried) | W, F |
+| Ichigo | NS1a at 3.2-3.6 m (free on 68) | only the Shikai lunge and KYORAN's (pressed f30-44); sealed nothing | W, F |
+| Ichigo | NS3a rush past 5.1 m (free on 70) | the Shikai lunge (f22-46), KYORAN's (f30-46) | W, F |
+| KESSA | J1 (free on 41) | my openers pressed f14-22 (my J1 still at f30) | W IK, F |
+| Kenpachi | J1 at 3.1 m (sealed) / 3.6 m (Shikai) (free on 42) | not by his J1; by his NS1a and NS3a rush thrown f10-18 | S |
+| Kenpachi | sealed NS1a at 3.8 m (free on 60) | his NS1a (f10-26), his rush (f18-26) | S |
+| Kenpachi | Shikai lunge at 6.2 m (free on 64) | his rush (f18-26) | S |
 
 ## Openers that trade or cancel (both on frame 0)
 
@@ -39,8 +39,9 @@ Shikai (takes x0.8), "IK" = KESSA (x1.0).
 | sealed NS2a (armour) | no hit either side (his NA cancels the drop) | me: the drop absorbs his NS hit, 34 |
 | sealed NS3a (tame) | parried: thrust + men 66 | parried: 66 |
 
-After a cancel (X): my AS at once beats his NS going on and his pre-latched SA, loses to his reactive SA; **my AS 6-10 frames after the
-contact beats both**; as the NS side my SA beats his J2 and ties or loses to his AS.
+After a cancel (X, Y, Z): my AS beats his NS going on and any SA of his that started before it, loses to one started after it (the later
+start wins); no delay of mine escapes that: against his HARD CPU my AS lands first in 3 of 10 seeds at +0, +6 and +10 (he SAs in 7). As the
+NS side my SA beats his J2 and ties or loses to his AS.
 
 ## Pressure, wake-up, approach
 
@@ -59,7 +60,10 @@ contact beats both**; as the NS side my SA beats his J2 and ties or loses to his
 | Damage per base point dealt | 0.504 sealed / Shikai, 0.605 Bankai | his J1 32 base = 17 off me; NS1a 37; Getsuga 82 |
 | Damage taken | x1.0 in every form | x0.8 Shikai, x1.0 KESSA: my routes do 25 % more to KESSA (R5 171 -> 215) |
 | Kikon | ptr 2 on a red victim -3 Konpaku (C); non-red victims cancel the follow-up | |
-| Breakthrough | the J side wins most exchanges (X): each first hit after a cancel takes up to 200 of the victim's flash-step | |
+| Breakthrough | each first hit after a cancel takes up to 200 of the victim's flash-step; the J side's AS against his SA is a guess (Y, Z) | |
+| Awakening gauge (shared: +0.035 a point dealt, +0.049 a point taken, +10.5 a Konpaku lost; once a match; heals 20 % Reishi) | fills mostly from damage taken: the side that loses the exchanges awakens first | |
+| What the awakening brings | the Shikai at L0 (the lunge to 5.7 m; L to build, three lunges) and later the Bankai | KESSA: J1 S8 (beats my sealed J1), NS1a to 3.4 m, takes x1.0 instead of x0.8 |
+| Burst (shared: needs 100 flash-step, pushes the attacker 5 m, invulnerable 20 frames; SP attacks free while it runs) | a Burst and a Hoho draw on the same cell: after a breakthrough (up to 200 taken) neither may be left | the same |
 
 ## The forms that change the picture
 

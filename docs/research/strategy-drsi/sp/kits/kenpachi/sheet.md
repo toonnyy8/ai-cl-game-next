@@ -11,7 +11,8 @@ retiming of DUEL_KEN_V3 §48). Built at main c15f9a55.
     $ECL_HOST --norc --load docs/research/strategy-drsi/sp/kits/kenpachi/sheet.lisp -- opp | grep -v "^;;; Loading" > docs/research/strategy-drsi/sp/kits/kenpachi/opp-data.md
 
 `opp-data.md` holds Ichigo's and Hisagi's rows in the same columns (for the matchup tables; their own studies own their sheets).
-Trial names (R5, Pz2, X…) are `trials.lisp` entries, every one verified in the native sim (`catalogue.md`). This header holds what the
+Trial names (R5, Pz2, X…) are `trials.lisp` entries, every one verified in the native sim (`catalogue.md`). A whiff's real recovery is S + A + whiff R
+plus about 10 frames (catalogue F). This header holds what the
 rows cannot show; every line was re-checked against the code and the trials of 2026-11-15.
 
 ## Damage: base vs dealt
@@ -82,9 +83,9 @@ press count (R11 214 / 269, R12 173 / 218, R27 251 / 315, R49 461 / 577).
   both back in neutral; the cancel's slow motion (x0.2 for 0.7 s) stretches the display ticks.
 - The first real hit is the **breakthrough**: it takes all of the victim's flash-step above the last cell (up to 200), the attacker gains
   half. A J / SA in a cancel gains +30, a cancelled SP segment is refunded.
-- **J side** (his NS cancelled by my J): AS at once beats his NS going on and an SA he latched before the cancel; it loses to an SA he
-  starts after it (the later start wins); **an AS 6-10 sim frames after the contact beats both** his NS going on and his SA reacting at
-  f14 (X "late AS" rows, both forms, both opponents); 14 frames late his NS lands. J2 loses to everything (another cancel or his SA).
+- **J side** (his NS cancelled by my J): the AS beats his NS going on and any SA of his that started before it; it loses to an SA he
+  starts after it, until the AS's hit (the later start wins). No AS delay escapes that: against his HARD CPU the AS lands first in 3-4 of
+  10 seeds at +0 / +6 / +10 (Y, Z); 14 frames late his NS lands. J2 loses to everything (another cancel or his SA).
 - **NS side** (my NS cancelled by his J): my SA at once beats his J2 and ties (cancels) or loses to his AS; NS1b loses to his AS; doing
   nothing loses to his AS. The J side keeps the edge (DUEL_CORE §2.1.1's finding, still true).
 

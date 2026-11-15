@@ -3,7 +3,8 @@
     python3 docs/research/strategy-drsi/sp/kits/kenpachi/gen.py > docs/research/strategy-drsi/sp/kits/kenpachi/trials.lisp
     python3 tools/combo-trial.py docs/research/strategy-drsi/sp/kits/kenpachi/trials.lisp
 One function per catalogue section (R routes, P / E my reach, Q his reach, T the triangle by distance, X the exchange, W his whiff
-punished, S my whiff punished, A his approach and Hoho, K his wake-up, G his ranged pressure, C Kikon); gen.py RPQ prints a subset."""
+punished, S my whiff punished, A his approach and Hoho, K his wake-up, G his ranged pressure, C Kikon, Y / Z the J side's AS timing,
+F his real whiff recovery); gen.py RPQ prints a subset."""
 import sys
 OPP = {'I': (':ichigo', ':base'), 'IK': (':ichigo', ':kessa'), 'H': (':hisagi', ':base'), 'Hr': (':hisagi', ':bankai'),
        'Hb': (':hisagi', ':bankai-bind')}
@@ -154,8 +155,7 @@ def exchange():
                         t(f'X{f} my J1>AS1 {w} f after contact vs {lab}', o, [J, f'(:quick 1 :modded t :on :hit :wait {w})'], d, 200, f, 1, m, f' :p2-ptr 1 :p2-at {at}')
 
 # (opp, his move label, ptr, p2-at, whiff distance, his total frames to free on a whiff)
-# (opp, his move, ptr, key, whiff distance, his whiff total S + A + whiff R: he presses J again on that sim frame, buffered, so a
-# late punish meets his next J1)
+# (opp, his move, ptr, key, whiff distance, his whiff total S + A + whiff R from the sheet; his real free tick is about 9-10 later, section F)
 WHIFF = [('I', 'J1', 1, ':j', 2.6, 37), ('I', 'NS1a', 1, ':sp', 3.6, 58), ('I', 'NS3a rush', 3, ':sp', 6.5, 60),
          ('IK', 'J1', 1, ':j', 2.6, 31), ('IK', 'NS1a', 1, ':sp', 3.6, 56),
          ('H', 'J1', 1, ':j', 2.6, 37), ('H', 'NS1a (dead zone)', 1, ':sp', 2.4, 58), ('H', 'NS2a', 2, ':sp', 4.2, 44), ('H', 'NS3a bind', 3, ':sp', 5.6, 60),
@@ -165,7 +165,7 @@ PUN = [('sealed J1', 'z', 1, None, [J]), ('sealed NS1a', 'z', 1, None, [SP]), ('
        ('Shikai lunge', 's', 1, 0, [SP]), ('KYORAN lunge', 'kr', 1, None, [SP])]
 
 def whiff():
-    sec('W. his whiff punished: he starts a move out of reach on f0 and presses J1 again as he recovers; I press after WAIT sim frames')
+    sec('W. his whiff punished: he starts a move out of reach on f0 (his J1 press at the whiff total - 2 is eaten by his own latch: he does nothing until free, section F); I press after WAIT sim frames')
     for o, lab, ptr, key, d, tot in WHIFF:
         at = f'((0 {key}) ({tot - 2} :j))'
         for plab, f, mptr, m, sc in PUN:
@@ -210,7 +210,6 @@ def wakeup():
             t(f'K meaty J1 vs his wake-up {lab}', o, meaty, 1.6, 360, extra=' ' + ext)
             t(f'K late J1 vs his wake-up {lab}', o, late, 1.6, 360, extra=' ' + ext)
         t('K3 AS3 (KD), Step in, J1 J2 AS1', o, J_(5) + [SPh, SP, SP, '(:step 1 :stick 1 :on :free)', '(:quick 1 :on :free :wait 24)', Jh, SPh], 1.6, 420)
-        t('K4 AS2 launch, walk, J1 on landing', o, J_(3) + [SPh, SP, '(:walk 20 :on :free)', '(:quick 1 :on :free :wait 30)', Jh, SPh], 1.6, 420)
 
 def ranged():
     sec('G. his ranged pressure and my answers')
@@ -249,6 +248,31 @@ def kikon():
         t('C ZANKAI J1-J5 TATE-GOTO held', o, J_(5) + ['(:quick 100 :modded t :on :hit)'], 1.6, 380, 'zh', 1, None)
         t('C sealed NS1a held, he presses J1 on sim f40 (Kikon cancel?)', o, ['(:quick 60 :modded t)'], 2.0, 300, 'z', 1, None, ' :p2-at ((40 :j))')
 
+def exchange2():
+    sec('Y. the J side\'s AS timing against his SA on sim frames 12-34 (the HARD CPU version is section Z, last in the file)')
+    for o in ('I', 'H'):
+        for w in (0, 6, 10):
+            asp = '(:quick 1 :modded t :on :hit)' if w == 0 else f'(:quick 1 :modded t :on :hit :wait {w})'
+            for sa in range(12, 36, 2):
+                t(f'Y my J1>AS1 +{w} vs his SA on f{sa}', o, [J, asp], 1.6, 220, 'z', 1, None, f' :p2-ptr 1 :p2-at ((0 :sp) ({sa} :j))')
+
+def exchange_cpu():
+    sec('Z. the same against his HARD CPU (:p2-start his NS1a, :p2-cpu 2, ten seeds). LAST in the file: a CPU trial leaves brain and kit state '
+        '(his KIN, the CPU\'s rolls) that :seed does not reset, so these rows depend on what ran before them')
+    ns = {'I': ':ic-n1a', 'H': ':hs-n1a'}
+    for o in ('I', 'H'):
+        for w in (0, 6, 10):
+            asp = '(:quick 1 :modded t :on :hit)' if w == 0 else f'(:quick 1 :modded t :on :hit :wait {w})'
+            for seed in range(1, 11):
+                t(f'Y my J1>AS1 +{w} vs his HARD CPU, seed {seed}', o, [J, asp], 1.6, 220, 'z', 1, None,
+                  f' :p2-ptr 1 :p2-start ((0 {ns[o]})) :p2-cpu 2 :seed {seed}')
+
+def freeticks():
+    sec('F. his whiff\'s real recovery: he whiffs on f0, then presses J1 on one sim frame around his whiff total; the first press that starts a move is his free tick (a press inside his own recovery is eaten by the move\'s latch, not buffered)')
+    for o, lab, ptr, key, d, tot in WHIFF:
+        for k in range(tot - 12, tot + 14, 2):
+            t(f'F his {lab} whiff @{d}, his J1 pressed f{k}', o, [], d, 140, 'z', 1, None, f' :p2-ptr {ptr} :p2-at ((0 {key}) ({k} :j))')
+
 def edges():
     sec('E. the reach edges at 0.1 m (between the last hit and the first whiff of P / Q)')
     pk = {p[0]: p for p in POKES}
@@ -280,10 +304,10 @@ def safety():
                 for F in (10, 18, 26):
                     t(f'S my {lab}, his {alab} at f{F}', o, sc + ['(:quick 1 :on :free)'], d, 140, f, ptr, m, f' :p2-ptr {aptr} :p2-at (({F} {key}))')
 
-PHASES = {'S': safety, 'E': edges, 'R': routes, 'P': pokes, 'Q': opp_openers, 'T': triangle, 'X': exchange, 'W': whiff, 'A': approach, 'K': wakeup,
+PHASES = {'Z': exchange_cpu, 'F': freeticks, 'Y': exchange2, 'S': safety, 'E': edges, 'R': routes, 'P': pokes, 'Q': opp_openers, 'T': triangle, 'X': exchange, 'W': whiff, 'A': approach, 'K': wakeup,
           'G': ranged, 'C': kikon}
 if __name__ == '__main__':
-    want = sys.argv[1] if len(sys.argv) > 1 else 'RPEQTXWSAKGC'
+    want = sys.argv[1] if len(sys.argv) > 1 else 'RPEQTXYWFSAKGCZ'
     for k in want:
         PHASES[k]()
     print(HEAD + '\n'.join(out))

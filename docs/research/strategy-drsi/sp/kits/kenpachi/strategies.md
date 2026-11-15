@@ -32,7 +32,9 @@ far = over 6 m, evade, wake_kd, p2, bankai, kikon, nstart_r…). The thresholds 
 - **Entries**: K (meaty vs J / NS1a / back Step / Hoho ticks 134-140), R13 (64 a loop), R14 (AS3, Step in, 235 / 296).
 - **Keys**: `:fn ken-kh-style`, `:khf-bait-p`, `:khf-bait-d` 2.3, `:kk-meaty-p`; the cells split is a T0 job rule (G3), not a key.
 - **Descriptor**: `wake_kd` <= arm 0's x 0.5 (bait's registered bar, passed vs Hisagi: .28 vs .97), now registered against **both**
-  opponents. Ichigo has the same wake-up Hoho (K rows are identical for I and H).
+  opponents. Ichigo has the same wake-up Hoho (K rows are identical for I and H). `ken-kh-style`'s bait branch reads only his perceived
+  down / wake-up state, not his character, so it runs against Ichigo as written. Its 2.3 m was set inside Hisagi's CPU's 2.4 m wake-up Hoho
+  trigger, and Ichigo's CPU trigger may differ: `:khf-bait-d` is a search key.
 
 ### 3. Red Kikon on pointer 2 (replaces `spend`)
 - **Idea**: a Kikon only pays on a red victim. A non-red one cancels the follow-up with any attack (C: 0 Konpaku). Pointer 2 on red takes
@@ -58,13 +60,14 @@ far = over 6 m, evade, wake_kd, p2, bankai, kikon, nstart_r…). The thresholds 
 - **Keys**: as admitted (`:kk-climb-p 1`, `:kk-bankai-p 1`, `:kk-bk-ns-p 0.25`) plus a G7 job rule.
 - **Descriptor**: `bankai` >= arm 0's + 0.05 (registered; passed .149 / .115).
 
-### (not an arm) The late AS in the exchange
-- **Finding**: as the J side of a J x NS cancel, an AS 6-10 sim frames after the contact beats both his NS going on and his SA reacting
-  at f14. That covers the CPUs' reactive SA, whose `*cai-xch-sa-wait*` is 4 frames. Both forms, all four opponent forms (X). The AS at once
-  loses to the reactive SA. 14 frames is too late. J2 always loses.
-- This lives in the shared exchange layer (core-ai.lisp `cai-xch-step`, the x-units' keys), not in an arm: arms never name exchange keys.
-  **Code needed**: a J-side AS delay knob, e.g. `*cai-xch-as-wait*`, and a unit key for it. With it, `:xch-j` 0 (never J2) for Kenpachi.
-- **Descriptor**: a new counter `xwin` = exchanges whose breakthrough is mine / exchanges, >= arm 0's + 0.10.
+### (not a strategy) The exchange's J side is a guess
+- Checked because the first X rows suggested it: an AS 6-10 sim frames after the contact beat his SA pressed on a fixed f14. Keyed to my AS
+  instead (Y), the rule is simply "the later start wins". My AS beats any SA that started before it and loses to one started after it, until
+  the AS's hit.
+- Against his HARD CPU (Z, ten seeds) my AS lands first in 3 of 10 at +0, +6 and +10 against Ichigo and in 3 / 4 / 0 of 10 against Hisagi.
+  No delay helps; J2 always loses.
+- So the kit gives the J side no read that wins. Kenpachi has nothing of his own here (the exchange is shared), and the x-units already own
+  it. No arm or knob is proposed.
 
 ## Targeted
 
@@ -127,4 +130,4 @@ far = over 6 m, evade, wake_kd, p2, bankai, kikon, nstart_r…). The thresholds 
 | `wave` (vs I) | **replace** with "close in on the Getsuga" and a `wave_taken` descriptor | it failed on Steps + Hohos; the answer is to hit the charge (G) |
 
 Suggested sets: general = all, poke (1), wake-up by cells (2), red Kikon (3), climb (4). Targeted: Getsuga close-in (vs Ichigo), dead-zone
-hug (vs Hisagi). The exchange's late AS goes to the shared layer for every arm.
+hug (vs Hisagi).
