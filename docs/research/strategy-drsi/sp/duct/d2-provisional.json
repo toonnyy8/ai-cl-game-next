@@ -1,0 +1,532 @@
+{
+ "seeds": "501-550",
+ "both_seats": true,
+ "budget": [
+  8,
+  150,
+  90
+ ],
+ "build": "b835ac41b83bd264",
+ "tiers": {
+  "duct": null,
+  "hard-shipped": "docs/research/strategy-drsi/sp/final"
+ },
+ "rows": {
+  "KK": {
+   "duct": {
+    "n": 100,
+    "pts": 50.0,
+    "wins": 50,
+    "losses": 50,
+    "draws": 0,
+    "ko_w": 50,
+    "ko_l": 50,
+    "bell": 0,
+    "share": 0.5,
+    "share_p1": 0.3,
+    "share_p2": 0.7,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 85.6,
+     "changes_mean": 14.7,
+     "changes_median": 14,
+     "no_change": 0,
+     "ms_selection": 27.27,
+     "shares": {
+      "dc-kk-k-all": 0.898,
+      "dc-kk-k-climb": 0.102
+     }
+    },
+    "cpu_s_match": 2.78
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 11.0,
+    "wins": 11,
+    "losses": 89,
+    "draws": 0,
+    "ko_w": 11,
+    "ko_l": 89,
+    "bell": 0,
+    "share": 0.11,
+    "share_p1": 0.12,
+    "share_p2": 0.1,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 84.6,
+     "changes_mean": 14.35,
+     "changes_median": 14,
+     "no_change": 0,
+     "ms_selection": 9.81,
+     "shares": {
+      "dc-kk-k-all": 0.894,
+      "dc-kk-k-climb": 0.106
+     }
+    },
+    "cpu_s_match": 1.0
+   }
+  },
+  "KI": {
+   "duct": {
+    "n": 100,
+    "pts": 6.0,
+    "wins": 6,
+    "losses": 94,
+    "draws": 0,
+    "ko_w": 6,
+    "ko_l": 94,
+    "bell": 0,
+    "share": 0.06,
+    "share_p1": 0.08,
+    "share_p2": 0.04,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 73.5,
+     "changes_mean": 22.45,
+     "changes_median": 21,
+     "no_change": 0,
+     "ms_selection": 28.92,
+     "shares": {
+      "dc-ki-i-all": 0.767,
+      "dc-ki-i-keep": 0.202,
+      "dc-ki-i-kessa2": 0.026,
+      "dc-ki-i-brawl": 0.005
+     }
+    },
+    "cpu_s_match": 2.6
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 5.0,
+    "wins": 5,
+    "losses": 95,
+    "draws": 0,
+    "ko_w": 4,
+    "ko_l": 95,
+    "bell": 1,
+    "share": 0.05,
+    "share_p1": 0.04,
+    "share_p2": 0.06,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 75.9,
+     "changes_mean": 24.65,
+     "changes_median": 23,
+     "no_change": 0,
+     "ms_selection": 14.42,
+     "shares": {
+      "dc-ki-i-all": 0.757,
+      "dc-ki-i-keep": 0.218,
+      "dc-ki-i-kessa2": 0.021,
+      "dc-ki-i-brawl": 0.004
+     }
+    },
+    "cpu_s_match": 1.28
+   }
+  },
+  "KH": {
+   "duct": {
+    "n": 100,
+    "pts": 96.0,
+    "wins": 96,
+    "losses": 4,
+    "draws": 0,
+    "ko_w": 96,
+    "ko_l": 4,
+    "bell": 0,
+    "share": 0.96,
+    "share_p1": 0.94,
+    "share_p2": 0.98,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 75.4,
+     "changes_mean": 0.69,
+     "changes_median": 0,
+     "no_change": 68,
+     "ms_selection": 23.35,
+     "shares": {
+      "dc-kh-h-wake": 0.994,
+      "dc-kh-h-hoho6": 0.004,
+      "dc-kh-h-all": 0.001,
+      "dc-kh-h-range": 0.0
+     }
+    },
+    "cpu_s_match": 2.52
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 98.0,
+    "wins": 98,
+    "losses": 2,
+    "draws": 0,
+    "ko_w": 97,
+    "ko_l": 2,
+    "bell": 1,
+    "share": 0.98,
+    "share_p1": 0.98,
+    "share_p2": 0.98,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 81.6,
+     "changes_mean": 0.98,
+     "changes_median": 0,
+     "no_change": 57,
+     "ms_selection": 16.66,
+     "shares": {
+      "dc-kh-h-wake": 0.991,
+      "dc-kh-h-hoho6": 0.007,
+      "dc-kh-h-range": 0.002,
+      "dc-kh-h-all": 0.0
+     }
+    },
+    "cpu_s_match": 1.55
+   }
+  },
+  "IK": {
+   "duct": {
+    "n": 100,
+    "pts": 94.0,
+    "wins": 94,
+    "losses": 6,
+    "draws": 0,
+    "ko_w": 94,
+    "ko_l": 6,
+    "bell": 0,
+    "share": 0.94,
+    "share_p1": 0.96,
+    "share_p2": 0.92,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 70.4,
+     "changes_mean": 0.23,
+     "changes_median": 0,
+     "no_change": 90,
+     "ms_selection": 28.92,
+     "shares": {
+      "dc-ki-k-all": 0.997,
+      "dc-ki-k-climb": 0.003
+     }
+    },
+    "cpu_s_match": 2.6
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 87.0,
+    "wins": 87,
+    "losses": 13,
+    "draws": 0,
+    "ko_w": 87,
+    "ko_l": 13,
+    "bell": 0,
+    "share": 0.87,
+    "share_p1": 0.9,
+    "share_p2": 0.84,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 66.7,
+     "changes_mean": 0.0,
+     "changes_median": 0,
+     "no_change": 100,
+     "ms_selection": 17.91,
+     "shares": {
+      "dc-ki-k-all": 1.0
+     }
+    },
+    "cpu_s_match": 1.39
+   }
+  },
+  "II": {
+   "duct": {
+    "n": 100,
+    "pts": 50.0,
+    "wins": 50,
+    "losses": 50,
+    "draws": 0,
+    "ko_w": 33,
+    "ko_l": 33,
+    "bell": 34,
+    "share": 0.5,
+    "share_p1": 0.52,
+    "share_p2": 0.48,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 133.9,
+     "changes_mean": 6.4,
+     "changes_median": 6,
+     "no_change": 3,
+     "ms_selection": 31.03,
+     "shares": {
+      "dc-ii-i-all": 0.966,
+      "dc-ii-i-kessa2": 0.034
+     }
+    },
+    "cpu_s_match": 5.78
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 54.0,
+    "wins": 54,
+    "losses": 46,
+    "draws": 0,
+    "ko_w": 44,
+    "ko_l": 29,
+    "bell": 27,
+    "share": 0.54,
+    "share_p1": 0.52,
+    "share_p2": 0.56,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 128.6,
+     "changes_mean": 6.36,
+     "changes_median": 6,
+     "no_change": 5,
+     "ms_selection": 24.38,
+     "shares": {
+      "dc-ii-i-all": 0.964,
+      "dc-ii-i-kessa2": 0.036
+     }
+    },
+    "cpu_s_match": 3.21
+   }
+  },
+  "IH": {
+   "duct": {
+    "n": 100,
+    "pts": 41.0,
+    "wins": 41,
+    "losses": 59,
+    "draws": 0,
+    "ko_w": 41,
+    "ko_l": 51,
+    "bell": 8,
+    "share": 0.41,
+    "share_p1": 0.44,
+    "share_p2": 0.38,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 105.0,
+     "changes_mean": 0.1,
+     "changes_median": 0,
+     "no_change": 95,
+     "ms_selection": 19.82,
+     "shares": {
+      "dc-ih-h-range": 0.999,
+      "dc-ih-h-ihx": 0.001
+     }
+    },
+    "cpu_s_match": 3.59
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 8.0,
+    "wins": 8,
+    "losses": 92,
+    "draws": 0,
+    "ko_w": 8,
+    "ko_l": 92,
+    "bell": 0,
+    "share": 0.08,
+    "share_p1": 0.1,
+    "share_p2": 0.06,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 97.4,
+     "changes_mean": 0.2,
+     "changes_median": 0,
+     "no_change": 92,
+     "ms_selection": 21.24,
+     "shares": {
+      "dc-ih-h-range": 0.999,
+      "dc-ih-h-ihx": 0.001
+     }
+    },
+    "cpu_s_match": 2.16
+   }
+  },
+  "HK": {
+   "duct": {
+    "n": 100,
+    "pts": 4.0,
+    "wins": 4,
+    "losses": 96,
+    "draws": 0,
+    "ko_w": 4,
+    "ko_l": 96,
+    "bell": 0,
+    "share": 0.04,
+    "share_p1": 0.02,
+    "share_p2": 0.06,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 77.4,
+     "changes_mean": 35.62,
+     "changes_median": 36,
+     "no_change": 0,
+     "ms_selection": 23.35,
+     "shares": {
+      "dc-kh-k-bait": 0.618,
+      "dc-kh-k-all": 0.382
+     }
+    },
+    "cpu_s_match": 2.52
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 28.0,
+    "wins": 28,
+    "losses": 72,
+    "draws": 0,
+    "ko_w": 28,
+    "ko_l": 67,
+    "bell": 5,
+    "share": 0.28,
+    "share_p1": 0.26,
+    "share_p2": 0.3,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 100.0,
+     "changes_mean": 45.68,
+     "changes_median": 44,
+     "no_change": 0,
+     "ms_selection": 11.56,
+     "shares": {
+      "dc-kh-k-bait": 0.563,
+      "dc-kh-k-all": 0.437
+     }
+    },
+    "cpu_s_match": 1.47
+   }
+  },
+  "HI": {
+   "duct": {
+    "n": 100,
+    "pts": 59.0,
+    "wins": 59,
+    "losses": 41,
+    "draws": 0,
+    "ko_w": 51,
+    "ko_l": 41,
+    "bell": 8,
+    "share": 0.59,
+    "share_p1": 0.62,
+    "share_p2": 0.56,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 115.2,
+     "changes_mean": 4.08,
+     "changes_median": 4,
+     "no_change": 11,
+     "ms_selection": 19.82,
+     "shares": {
+      "dc-ih-i-all": 0.976,
+      "dc-ih-i-kessa2": 0.024
+     }
+    },
+    "cpu_s_match": 3.59
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 10.0,
+    "wins": 10,
+    "losses": 90,
+    "draws": 0,
+    "ko_w": 10,
+    "ko_l": 89,
+    "bell": 1,
+    "share": 0.1,
+    "share_p1": 0.08,
+    "share_p2": 0.12,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 80.4,
+     "changes_mean": 2.69,
+     "changes_median": 2,
+     "no_change": 36,
+     "ms_selection": 12.89,
+     "shares": {
+      "dc-ih-i-all": 0.981,
+      "dc-ih-i-kessa2": 0.019
+     }
+    },
+    "cpu_s_match": 1.29
+   }
+  },
+  "HH": {
+   "duct": {
+    "n": 100,
+    "pts": 50.0,
+    "wins": 46,
+    "losses": 46,
+    "draws": 8,
+    "ko_w": 0,
+    "ko_l": 0,
+    "bell": 100,
+    "share": 0.5,
+    "share_p1": 0.68,
+    "share_p2": 0.32,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 197.7,
+     "changes_mean": 0.0,
+     "changes_median": 0,
+     "no_change": 100,
+     "ms_selection": 20.0,
+     "shares": {
+      "dc-hh-h-all": 1.0
+     }
+    },
+    "cpu_s_match": 7.64
+   },
+   "hard-shipped": {
+    "n": 100,
+    "pts": 7.0,
+    "wins": 7,
+    "losses": 93,
+    "draws": 0,
+    "ko_w": 5,
+    "ko_l": 63,
+    "bell": 32,
+    "share": 0.07,
+    "share_p1": 0.08,
+    "share_p2": 0.06,
+    "duct_switching": {
+     "sides": 100,
+     "sel_mean": 142.7,
+     "changes_mean": 0.02,
+     "changes_median": 0,
+     "no_change": 99,
+     "ms_selection": 10.99,
+     "shares": {
+      "dc-hh-h-all": 1.0,
+      "dc-hh-h-wake": 0.0
+     }
+    },
+    "cpu_s_match": 1.86
+   }
+  }
+ },
+ "pooled": {
+  "duct": {
+   "n": 900,
+   "pts": 450.0,
+   "wins": 446,
+   "losses": 446,
+   "draws": 8,
+   "ko_w": 375,
+   "ko_l": 375,
+   "bell": 150,
+   "share": 0.5
+  },
+  "hard-shipped": {
+   "n": 900,
+   "pts": 308.0,
+   "wins": 308,
+   "losses": 592,
+   "draws": 0,
+   "ko_w": 294,
+   "ko_l": 539,
+   "bell": 67,
+   "share": 0.3422
+  }
+ }
+}

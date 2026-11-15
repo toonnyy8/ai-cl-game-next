@@ -1,0 +1,136 @@
+{
+ "rule": "take the cheapest setting the next one does not beat at >= 55 % of 400 (>= 220 points)",
+ "split": "KI seeds 1-100 + KH seeds 101-200; the newer budget on P1, then on P2 (gate order K first); game result, a draw half",
+ "build": "b835ac41b83bd264",
+ "comparisons": [
+  {
+   "new": "standard",
+   "old": "today",
+   "new_budget": [
+    16,
+    240,
+    90
+   ],
+   "old_budget": [
+    8,
+    150,
+    90
+   ],
+   "n": 400,
+   "new_points": 198.0,
+   "new_share": 0.495,
+   "beats": false,
+   "rows": {
+    "KI new on P1": {
+     "n": 100,
+     "pts": 3.0,
+     "wins": 3,
+     "losses": 97,
+     "draws": 0,
+     "ko_w": 3,
+     "ko_l": 97,
+     "bell": 0,
+     "share": 0.03,
+     "cpu_s_match": 4.07
+    },
+    "KI new on P2": {
+     "n": 100,
+     "pts": 93.0,
+     "wins": 93,
+     "losses": 7,
+     "draws": 0,
+     "ko_w": 93,
+     "ko_l": 7,
+     "bell": 0,
+     "share": 0.93,
+     "cpu_s_match": 3.81
+    },
+    "KH new on P1": {
+     "n": 100,
+     "pts": 98.0,
+     "wins": 98,
+     "losses": 2,
+     "draws": 0,
+     "ko_w": 97,
+     "ko_l": 2,
+     "bell": 1,
+     "share": 0.98,
+     "cpu_s_match": 3.69
+    },
+    "KH new on P2": {
+     "n": 100,
+     "pts": 4.0,
+     "wins": 4,
+     "losses": 96,
+     "draws": 0,
+     "ko_w": 4,
+     "ko_l": 95,
+     "bell": 1,
+     "share": 0.04,
+     "cpu_s_match": 3.79
+    }
+   },
+   "wall_s": 113.5,
+   "cpu_s_match": 3.84
+  }
+ ],
+ "choice": "today",
+ "cost": {
+  "today": {
+   "matches": 40,
+   "cpu_s_match": 1.29,
+   "sides": 80,
+   "sel_mean": 74.9,
+   "changes_mean": 12.18,
+   "changes_median": 10,
+   "no_change": 34,
+   "ms_selection": 7.64,
+   "shares": {
+    "dc-ki-k-all": 0.498,
+    "dc-ki-i-all": 0.383,
+    "dc-ki-i-keep": 0.104,
+    "dc-ki-i-kessa2": 0.011,
+    "dc-ki-i-brawl": 0.002,
+    "dc-ki-k-climb": 0.002
+   }
+  },
+  "standard": {
+   "matches": 40,
+   "cpu_s_match": 3.9,
+   "sides": 80,
+   "sel_mean": 78.4,
+   "changes_mean": 19.44,
+   "changes_median": 23,
+   "no_change": 9,
+   "ms_selection": 23.72,
+   "shares": {
+    "dc-ki-k-all": 0.489,
+    "dc-ki-i-all": 0.32,
+    "dc-ki-i-keep": 0.091,
+    "dc-ki-i-kessa2": 0.057,
+    "dc-ki-i-brawl": 0.032,
+    "dc-ki-k-climb": 0.007,
+    "dc-ki-k-spend": 0.003
+   }
+  },
+  "heavy": {
+   "matches": 40,
+   "cpu_s_match": 13.44,
+   "sides": 80,
+   "sel_mean": 110.6,
+   "changes_mean": 34.29,
+   "changes_median": 31,
+   "no_change": 5,
+   "ms_selection": 59.24,
+   "shares": {
+    "dc-ki-k-all": 0.487,
+    "dc-ki-i-all": 0.276,
+    "dc-ki-i-keep": 0.09,
+    "dc-ki-i-kessa2": 0.075,
+    "dc-ki-i-brawl": 0.06,
+    "dc-ki-k-climb": 0.009,
+    "dc-ki-k-spend": 0.004
+   }
+  }
+ }
+}

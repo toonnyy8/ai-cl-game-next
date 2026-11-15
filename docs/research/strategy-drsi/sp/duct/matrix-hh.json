@@ -1,0 +1,126 @@
+{
+ "pair": "hh",
+ "a": "hisagi",
+ "b": "hisagi",
+ "rows": [
+  "all",
+  "range",
+  "wake"
+ ],
+ "cols": [
+  "all",
+  "range",
+  "wake"
+ ],
+ "seeds": "201-300",
+ "both_seats": true,
+ "matches_a_cell": 200,
+ "payoff": "A's game-result share (K.O. or the bell's lead; a draw half); B's = 1 - M",
+ "M": [
+  [
+   0.5,
+   0.985,
+   0.67
+  ],
+  [
+   0.015,
+   0.5,
+   0.08
+  ],
+  [
+   0.33,
+   0.92,
+   0.5
+  ]
+ ],
+ "x": [
+  1.0,
+  0.0,
+  0.0
+ ],
+ "y": [
+  1.0,
+  0.0,
+  0.0
+ ],
+ "value": 0.5,
+ "gap_a": 0.0,
+ "gap_b": 0.0,
+ "cells": [
+  {
+   "row": "all",
+   "col": "all",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 96,
+   "losses": 96,
+   "draws": 8,
+   "ko_w": 0,
+   "ko_l": 0,
+   "bell": 200
+  },
+  {
+   "row": "all",
+   "col": "range",
+   "n": 200,
+   "pts": 197.0,
+   "wins": 197,
+   "losses": 3,
+   "draws": 0,
+   "ko_w": 78,
+   "ko_l": 0,
+   "bell": 122
+  },
+  {
+   "row": "all",
+   "col": "wake",
+   "n": 200,
+   "pts": 134.0,
+   "wins": 134,
+   "losses": 66,
+   "draws": 0,
+   "ko_w": 6,
+   "ko_l": 3,
+   "bell": 191
+  },
+  {
+   "row": "range",
+   "col": "range",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 100,
+   "losses": 100,
+   "draws": 0,
+   "ko_w": 11,
+   "ko_l": 11,
+   "bell": 178
+  },
+  {
+   "row": "range",
+   "col": "wake",
+   "n": 200,
+   "pts": 16.0,
+   "wins": 16,
+   "losses": 184,
+   "draws": 0,
+   "ko_w": 5,
+   "ko_l": 141,
+   "bell": 54
+  },
+  {
+   "row": "wake",
+   "col": "wake",
+   "n": 200,
+   "pts": 100.0,
+   "wins": 100,
+   "losses": 100,
+   "draws": 0,
+   "ko_w": 58,
+   "ko_l": 58,
+   "bell": 84
+  }
+ ],
+ "build": "b835ac41b83bd264",
+ "wall_s": 27.8,
+ "cpu_s": 435.0
+}

@@ -1,0 +1,259 @@
+{
+ "pair": "kh",
+ "a": "kenpachi",
+ "b": "hisagi",
+ "rows": [
+  "all",
+  "spend",
+  "climb",
+  "bait"
+ ],
+ "cols": [
+  "all",
+  "range",
+  "wake",
+  "hoho6"
+ ],
+ "seeds": "201-300",
+ "both_seats": true,
+ "matches_a_cell": 200,
+ "payoff": "A's game-result share (K.O. or the bell's lead; a draw half); B's = 1 - M",
+ "M": [
+  [
+   0.99,
+   1.0,
+   0.98,
+   0.985
+  ],
+  [
+   0.105,
+   0.47,
+   0.005,
+   0.005
+  ],
+  [
+   0.77,
+   0.925,
+   0.67,
+   0.8
+  ],
+  [
+   0.305,
+   1.0,
+   0.905,
+   0.89
+  ]
+ ],
+ "x": [
+  1.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "y": [
+  0.001,
+  0.0,
+  0.999,
+  0.0
+ ],
+ "value": 0.98,
+ "gap_a": 0.0,
+ "gap_b": 0.0,
+ "cells": [
+  {
+   "row": "all",
+   "col": "all",
+   "n": 200,
+   "pts": 198.0,
+   "wins": 198,
+   "losses": 2,
+   "draws": 0,
+   "ko_w": 64,
+   "ko_l": 2,
+   "bell": 134
+  },
+  {
+   "row": "all",
+   "col": "range",
+   "n": 200,
+   "pts": 200.0,
+   "wins": 200,
+   "losses": 0,
+   "draws": 0,
+   "ko_w": 200,
+   "ko_l": 0,
+   "bell": 0
+  },
+  {
+   "row": "all",
+   "col": "wake",
+   "n": 200,
+   "pts": 196.0,
+   "wins": 196,
+   "losses": 4,
+   "draws": 0,
+   "ko_w": 195,
+   "ko_l": 4,
+   "bell": 1
+  },
+  {
+   "row": "all",
+   "col": "hoho6",
+   "n": 200,
+   "pts": 197.0,
+   "wins": 197,
+   "losses": 3,
+   "draws": 0,
+   "ko_w": 187,
+   "ko_l": 1,
+   "bell": 12
+  },
+  {
+   "row": "spend",
+   "col": "all",
+   "n": 200,
+   "pts": 21.0,
+   "wins": 21,
+   "losses": 179,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 171,
+   "bell": 29
+  },
+  {
+   "row": "spend",
+   "col": "range",
+   "n": 200,
+   "pts": 94.0,
+   "wins": 94,
+   "losses": 106,
+   "draws": 0,
+   "ko_w": 2,
+   "ko_l": 27,
+   "bell": 171
+  },
+  {
+   "row": "spend",
+   "col": "wake",
+   "n": 200,
+   "pts": 1.0,
+   "wins": 1,
+   "losses": 199,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 192,
+   "bell": 8
+  },
+  {
+   "row": "spend",
+   "col": "hoho6",
+   "n": 200,
+   "pts": 1.0,
+   "wins": 1,
+   "losses": 199,
+   "draws": 0,
+   "ko_w": 0,
+   "ko_l": 198,
+   "bell": 2
+  },
+  {
+   "row": "climb",
+   "col": "all",
+   "n": 200,
+   "pts": 154.0,
+   "wins": 154,
+   "losses": 46,
+   "draws": 0,
+   "ko_w": 39,
+   "ko_l": 45,
+   "bell": 116
+  },
+  {
+   "row": "climb",
+   "col": "range",
+   "n": 200,
+   "pts": 185.0,
+   "wins": 185,
+   "losses": 15,
+   "draws": 0,
+   "ko_w": 185,
+   "ko_l": 15,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "wake",
+   "n": 200,
+   "pts": 134.0,
+   "wins": 134,
+   "losses": 66,
+   "draws": 0,
+   "ko_w": 134,
+   "ko_l": 66,
+   "bell": 0
+  },
+  {
+   "row": "climb",
+   "col": "hoho6",
+   "n": 200,
+   "pts": 160.0,
+   "wins": 160,
+   "losses": 40,
+   "draws": 0,
+   "ko_w": 144,
+   "ko_l": 35,
+   "bell": 21
+  },
+  {
+   "row": "bait",
+   "col": "all",
+   "n": 200,
+   "pts": 61.0,
+   "wins": 61,
+   "losses": 139,
+   "draws": 0,
+   "ko_w": 6,
+   "ko_l": 0,
+   "bell": 194
+  },
+  {
+   "row": "bait",
+   "col": "range",
+   "n": 200,
+   "pts": 200.0,
+   "wins": 200,
+   "losses": 0,
+   "draws": 0,
+   "ko_w": 200,
+   "ko_l": 0,
+   "bell": 0
+  },
+  {
+   "row": "bait",
+   "col": "wake",
+   "n": 200,
+   "pts": 181.0,
+   "wins": 181,
+   "losses": 19,
+   "draws": 0,
+   "ko_w": 169,
+   "ko_l": 12,
+   "bell": 19
+  },
+  {
+   "row": "bait",
+   "col": "hoho6",
+   "n": 200,
+   "pts": 178.0,
+   "wins": 178,
+   "losses": 22,
+   "draws": 0,
+   "ko_w": 82,
+   "ko_l": 0,
+   "bell": 118
+  }
+ ],
+ "build": "b835ac41b83bd264",
+ "wall_s": 63.5,
+ "cpu_s": 933.9
+}
