@@ -13,7 +13,8 @@
       Two tables against each other on both seats (C's table on P1 first, then on P2: 2 x seeds matches), every judgement logged
       (STRAT_FQLOG eps 0: play unchanged). Per side: arm changes a match (median, zero), judgements, arm shares, each arm's share inside vs
       outside its job rules (the map's jobs; a job over several groups is an OR: a judgement's in-job weight = the largest of its groups'
-      summed job-rule firing), K.O. rate; bar A's four checks.
+      summed job-rule firing), K.O. rate; bar A's four checks. A job whose rules fire on more than 60 % of the judgements (firing-weighted,
+      `in_weight`) is VACUOUS: its division check is not passed (B4, 2026-11-15).
 Seeds: dev only (1-600). 601-1000 refused. Sim output cached in build/arms4-cache/ by (sim build hash, runner, env texts, commands).
 """
 import argparse, hashlib, importlib.util, json, os, re, statistics, sys, types
@@ -279,6 +280,8 @@ def job_rules(job):
     return {g: sorted(set(v)) for g, v in out.items()}
 
 
+VACUOUS = 0.60
+LATCH = 0.95   # (reported, not a bar: a job that, once it fires in a match, fires on >= 95 % of the rest of its judgements: a lasting state)
 FQRE = re.compile(r'^fq (\d+) (\d+) (P\d) .* arm (\d+) h .* fire(.*)$')
 
 
@@ -298,14 +301,20 @@ def side_bar(groups, jobs):
     ch = [sum(1 for i in range(1, len(s)) if s[i][0] != s[i - 1][0]) for s in seq.values()]
     held = [0] * na
     inn, inw, out_, outw = [0.0] * na, [0.0] * na, [0.0] * na, [0.0] * na
+    anyf, last_n, last_f = [0] * na, [0] * na, [0] * na    # (judgements with any job firing; after the job's first firing in a match: all, firing)
     by = {}
     for s in seq.values():
+        seen = [False] * na
         for arm, fire, fb in s:
             held[arm] += 1
             by.setdefault(fb, [0] * na)[arm] += 1
             for k in range(1, na):
                 w = min(1.0, max(sum(fire.get(r, 0.0) for r in rs) for rs in jr[k].values()))
                 inw[k] += w; outw[k] += 1 - w
+                anyf[k] += w > 0
+                seen[k] = seen[k] or w > 0
+                if seen[k]:
+                    last_n[k] += 1; last_f[k] += w > 0
                 if arm == k:
                     inn[k] += w; out_[k] += 1 - w
     J = sum(held)
@@ -313,15 +322,22 @@ def side_bar(groups, jobs):
     job = {}
     for k in range(1, na):
         si, so = inn[k] / max(1e-9, inw[k]), out_[k] / max(1e-9, outw[k])
+        fire = anyf[k] / max(1, J)
+        # B4 vacuity check (the lead, 2026-11-15): a job whose rules fire (any weight) on more than VACUOUS of the judgements cannot fail
+        # "in-job >= 2x out-of-job" (T0 plays arm k exactly where its rules fire, so out-of-job is ~0 by construction): VACUOUS, not passed.
+        # in_weight = the firing-weighted share; lasting = the firing share after the job first fires in a match (1.0: a state that never
+        # turns off, e.g. G9 switch open).
         job[k] = dict(in_share=round(si, 4), out_share=round(so, 4), ratio=round(si / so, 2) if so > 0 else None, in_weight=round(inw[k] / max(1, J), 3),
-                      ok=si >= 2 * so and si > 0)
+                      fire_share=round(fire, 3), lasting=round(last_f[k] / max(1, last_n[k]), 3),
+                      vacuous=fire > VACUOUS, latch=last_f[k] / max(1, last_n[k]) >= LATCH, ok=si >= 2 * so and si > 0 and fire <= VACUOUS)
     big = sum(1 for x in share if x >= 0.10)
     res = dict(matches=len(seq), judgements_per_match=round(J / max(1, len(seq)), 1),
                changes=dict(median=statistics.median(ch) if ch else 0, mean=round(statistics.fmean(ch), 1) if ch else 0, zero=sum(c == 0 for c in ch)),
                arm_share=[round(x, 3) for x in share], job=job,
                by_form_band={k: dict(n=sum(v), share=[round(x / sum(v), 3) for x in v]) for k, v in sorted(by.items())})
     res['A'] = dict(no_zero=res['changes']['zero'] == 0, median_10=res['changes']['median'] >= 10, three_arms=big >= 3 and max(share) <= 0.70,
-                    division=all(v['ok'] for v in job.values()))
+                    division=all(v['ok'] for v in job.values()), vacuous=[k for k, v in job.items() if v['vacuous']],
+                    latch=[k for k, v in job.items() if v['latch']])
     return res
 
 

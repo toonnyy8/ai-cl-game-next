@@ -1,0 +1,62 @@
+{
+ "note": "B4 v0 (2026-11-15): KH Kenpachi (bait G2 down)",
+ "arms": [
+  "kenpachi.lisp#a4-k-all",
+  "kenpachi.lisp#a4-k-spend",
+  "kenpachi.lisp#a4-k-climb",
+  "kenpachi.lisp#a4-k-bait"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    3,
+    [
+     "(:mcell :yes)"
+    ]
+   ],
+   [
+    3,
+    [
+     "(:mcell :p2up)"
+    ]
+   ],
+   [
+    4,
+    [
+     "(:mburst :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:lead :behind)",
+     "(:awst :no)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:lead :behind)",
+     "(:awst :yes)"
+    ]
+   ],
+   [
+    9,
+    [
+     "(:swopen :no)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ]
+ ]
+}

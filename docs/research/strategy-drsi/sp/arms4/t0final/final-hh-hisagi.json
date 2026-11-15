@@ -1,0 +1,35 @@
+{
+ "note": "B4 final (2026-11-15): HH mirror (no :with)",
+ "arms": [
+  "cells-h/final/h4-all.lisp#h4-all",
+  "cells-h/final/h4-range.lisp#h4-range",
+  "cells-h/final/h4-wake.lisp#h4-wake"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ]
+ ]
+}

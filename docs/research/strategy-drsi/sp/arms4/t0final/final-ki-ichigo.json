@@ -1,0 +1,52 @@
+{
+ "note": "B4 final (2026-11-15): KI Ichigo (t0/ki-ichigo.json v3), v1 keep / kessa2 jobs",
+ "arms": [
+  "ichigo.lisp#a4-i-all",
+  "ichigo.lisp#a4-i-brawl",
+  "ichigo.lisp#a4-i-keep",
+  "ichigo.lisp#a4-i-kessa2"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    2,
+    [
+     "(:ost :free)"
+    ]
+   ]
+  ],
+  [
+   [
+    0,
+    [
+     "(:lead :ahead)",
+     "(:awst :no)"
+    ]
+   ],
+   [
+    0,
+    [
+     "(:lead :ahead)",
+     "(:awst :yes)"
+    ]
+   ]
+  ],
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ]
+ ]
+}

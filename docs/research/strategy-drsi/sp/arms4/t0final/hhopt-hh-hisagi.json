@@ -1,0 +1,35 @@
+{
+ "note": "B4 HH option (not adopted): arm 0 = c-ih-h-r1-b2a0 (the 11-15 HH arm 0, not a PLAN4 one-job arm), range G1 only, wake G2 down",
+ "arms": [
+  "../arms/ih-r1/c-ih-h-r1-b2a0.lisp#c-ih-h-r1-b2a0",
+  "cells-h/final/h4-range.lisp#h4-range",
+  "cells-h/final/h4-wake.lisp#h4-wake"
+ ],
+ "jobs": [
+  null,
+  [
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-mid)"
+    ]
+   ],
+   [
+    1,
+    [
+     "(:form :yes)",
+     "(:dm :m-far)"
+    ]
+   ]
+  ],
+  [
+   [
+    2,
+    [
+     "(:ost :down)"
+    ]
+   ]
+  ]
+ ]
+}
