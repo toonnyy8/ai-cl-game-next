@@ -3,7 +3,10 @@
 Assembled, no search (PLAN4 §3: "Ichigo: none"). Arms: `ichigo.lisp`, one style function `ichigo-ki-r2b2a1-style`. Exchange units:
 `x-units/d-x-ki-i.lisp` (KI, from `x-ki-i-r1-b0a2`) and `x-units/d-x-ih-i.lisp` (IH, from `x-ih-i-r1-b2a1`), the §6.5 exchange keys only.
 
-## The arms
+**Status (2026-11-15, Ichigo's code cell)**: the four mode arms below failed. After the code cell's keys, the arms are `all`, `brawl`, `keep`
+and `kessa2`, and all four pass. T0 v3 passes bar A. Both are in "Re-jobbed arms" at the end.
+
+## The arms (first drafts)
 
 | Arm | Job (PLAN4 §3) | Keys | Job rules (T0) |
 |---|---|---|---|
@@ -161,3 +164,71 @@ with the pairing's `:with` unit. Opponents: Kenpachi (`d-x-ki-i`) and Hisagi (`d
 - K.O. >= 0.50 and the distinctness test work as before. Pass = the descriptor (both opponents) + distinct from every sibling + the K.O.
   rate.
 - Need >= 3 passing general arms (all + 2). No bar moves after the run.
+
+### Results (`proof.py desc`, sim build 84bd53aad9af, seeds 1-100 both seats, 200 matches an arm; `proof/ichigo-vs-*.json`, which replace the first drafts' files: those are in git at 1170f748)
+
+Arm 0's row gives values. The other rows give differences from arm 0. Arm 0 plays as before: 2.343 m, .709 inside 3 m vs K, the same as the
+first run.
+
+| vs | arm | mean d | close | far | p2 | p3 | `k_d` | SP a match | Step+Hoho | K.O. | K.O. win | test | distinct |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| K | all | 2.343 | .709 | .066 | .153 | .707 | 2.340 | 53.8 | 23.0 | 1.00 | 1.00 | | yes |
+| K | brawl | -.695 | **+.179** | -.041 | -.043 | -.092 | -.598 | +3.0 | -19.7 | 1.00 | 1.00 | close PASS | yes |
+| K | keep | **+.790** | -.118 | +.115 | **+.504** | -.586 | +.816 | -13.1 | +10.6 | 1.00 | .935 | p2 + mean d PASS | yes |
+| K | kessa2 | -.210 | +.060 | -.008 | +.002 | +.008 | **-.494** | -0.2 | -8.1 | 1.00 | 1.00 | `k_d` PASS | yes |
+| H | all | 3.016 | .569 | .107 | .102 | .681 | 3.107 | 55.4 | 66.6 | .99 | .875 | | yes |
+| H | brawl | -.692 | **+.183** | -.061 | +.047 | -.125 | -.619 | +7.6 | -45.9 | .995 | .89 | close PASS | yes |
+| H | keep | **+.863** | -.175 | +.097 | **+.427** | -.391 | +.762 | -15.1 | +25.9 | .79 | .375 | p2 + mean d PASS | yes |
+| H | kessa2 | -.338 | +.105 | -.034 | +.037 | -.005 | **-.557** | +1.1 | -26.5 | .98 | .92 | `k_d` PASS | yes |
+
+**All three new arms pass**: the descriptor against both opponents, distinct from every sibling, K.O. >= .79. With `all`, Ichigo has four
+general arms (the floor is 3). Notes:
+- brawl and kessa2 both close in while awakened (`k_d` -.60 / -.49 vs K). They differ on the close share (+.18 against +.06 vs K) and on
+  everything sealed.
+- keep loses whole to Hisagi's `none`. Hisagi K.O.s it in 41.5 % of the matches and 21 % are time-outs. Like Kenpachi's rush against
+  Ichigo, a job arm may lose whole (PLAN4 §3).
+
+### T0 (KI, Ichigo's side; `t0/t0-ki-ichigo.lisp`, `band.py t0 --or`, q 0.06, `:with d-x-ki-i`)
+
+The job rules are the T0 design, not a registered bar. I wrote three maps in turn, and each was measured against bar A on seeds 501-540,
+both seats (80 matches), against Kenpachi's KI T0 (`t0/t0-ki-kenpachi.lisp`, unchanged). Bar A itself did not move.
+
+| Map | brawl's job | changes a match: median (mean) | zero | arm shares all / brawl / keep / kessa2 | in-job / out-of-job | Bar A |
+|---|---|---|---|---|---|---|
+| v1 (the one pre-registered above) | G2 `(:ost :free) (:dm :m-close)` | 6 (6.5) | 0 | .292 / .017 / .260 / .431 | .24 / .0001, .39 / 0, 1.0 / 0 | **fails** (median) |
+| v2 | v1 + G7 `(:or :r-low)` | 7 (6.7) | 0 | .163 / .068 / .298 / .470 | .21 / .001, .42 / 0, 1.0 / 0 | **fails** (median) |
+| **v3 (kept)** | G2 `(:ost :free)` (all three distances) | **19 (19.8)** | **0** | **.205** / .077 / **.271** / **.447** | .25 / 0, .39 / 0, 1.0 / 0 | **passes** |
+
+v3's bar A (`t0/bar-ki-501-540.json`): no match without a change; median 19 >= 10; three arms >= 10 % (all, keep, kessa2; brawl .077), none
+over 70 %; in-job >= 2x out-of-job for each arm. There were 132.4 judgements a match. K.O. rate 1.00, and Ichigo wins .938 by K.O.
+Kenpachi's side in the same run: median 24, arm shares .069 / .536 / .022 / .129 / .099 / .145, and it passes bar A too.
+- v1 and v2 failed on switching. keep (G8 ahead) and kessa2 (awakened) follow slow cues, and brawl's narrow job rarely won its rules
+  (in-job share .21-.24), so few arm changes happened. His free state toggles with every move of his. That is what v3's switching comes
+  from.
+- brawl is under 10 % in every map: it wins only a quarter of its job's weight. A fit (B5) may widen it.
+
+### Proofs (no play changes)
+
+- **Host tests**:
+  - duel-rules: 3607 checks, ALL PASS. `style-knob.lisp` scans `style-on` too and now finds 75 keys (32 `iks-`).
+  - duel-control 124, input 33 and cine 18: ALL PASS.
+  - touch: 100 checks, 0 failures.
+- **pkgcheck**: only `DUEL::APP`.
+- **Build**: `./build.sh duel` exit 0, then `git checkout -- vendor`. The smoke exits 0.
+- **G2**: `tools/simgate.py --cvc` PASS (ii 38, ik 27, kk 21 lines) and `tests/style-gates.py cvc dist/duel` PASS. II and IK play Ichigo's
+  matchup style, so G2 sees the edited code.
+- **identity.py**, HARD lookup = raw final file, seeds 501-510, both seats:
+  - KI (`ki-ichigo` vs `ki-kenpachi`): 2 chunks identical, 0 differing, 532 lines.
+  - IH (`ih-ichigo` vs `ih-hisagi`): 2 identical, 0 differing, 500 lines.
+- **Cross-build**: a baseline worktree at 1170f748 against this branch. Native sim, seeds 501-510 HARD, both seats, combat log on. 24 jobs
+  (240 matches):
+  - the KI and IH final tables;
+  - the five first drafts (which name `:iks-mix-*`, so the mode pick, the hover bands and the patience read all run), against Kenpachi's
+    and Hisagi's `none`.
+
+  Every combat-log line, `duel hash`, `duel state`, gate row and per-match stats line was identical: 503 640 lines. The edited code ran:
+  483-1233 `ki-style` action lines a job.
+- **The desc counters only read**: `nstart`, `asp` and `adsum` are new. `a4-i-all` against Kenpachi's `none`, seeds 501-510, was run with
+  and without `STRAT_DESC`: the hash, state and gate-row lines were identical (194 lines).
+- **Build hash**: the sim build hash changes with the source text (c61156551c44 at 1170f748, 84bd53aad9af here) though play does not. Main
+  re-pins `SP_BUILD` after this cell (PLAN4 §7).

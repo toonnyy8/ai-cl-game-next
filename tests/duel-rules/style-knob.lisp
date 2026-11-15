@@ -4,12 +4,12 @@
 (in-package :duel)
 
 (defun sk-keys ()
-  "Every arm key the style CPUs read through STYLE-KNOB / STYLE-DIF / STYLE-ROLL, plus *IKS-MIX-KEYS*'s (lower-case strings, no colon)."
+  "Every arm key the style CPUs read through STYLE-KNOB / STYLE-DIF / STYLE-ROLL / STYLE-ON, plus *IKS-MIX-KEYS*'s (lower-case strings, no colon)."
   (let ((keys nil))
     (dolist (f '("duel/lisp/cpu-ki-ken.lisp" "duel/lisp/cpu-kh-ken.lisp" "duel/lisp/cpu-ki-ichigo.lisp"
                  "duel/lisp/cpu-hisagi-range.lisp" "duel/lisp/cpu-hk-hisagi.lisp") (nreverse keys))
       (dolist (l (un-lines f))
-        (dolist (pre '("(style-knob b :" "(style-dif b :" "(style-roll b :" " :iks-mix-"))
+        (dolist (pre '("(style-knob b :" "(style-dif b :" "(style-roll b :" "(style-on b :" " :iks-mix-"))
           (loop for p = (search pre l) then (search pre l :start2 (1+ p)) while p
                 do (let* ((s (+ p (length pre) (if (char= (char pre 0) #\Space) -8 0)))
                           (e (position-if (lambda (c) (member c '(#\Space #\) #\())) l :start s))
@@ -23,12 +23,13 @@
 
 (let* ((keys (sk-keys)) (kws (mapcar (lambda (k) (intern (string-upcase k) :keyword)) keys)))
   ;; the scan finds them all: Kenpachi 25 (cpu-ki-ken), his KH styles 4 (cpu-kh-ken), Ichigo 24 (cpu-ki-ichigo, 5 of them the mode mix),
-  ;; Hisagi 14 (PLAN4 B3, KNOBS.md §6.6: the ranged mode's distance rule 7, cpu-hisagi-range; the HK style's kite 7, cpu-hk-hisagi)
-  (check (= 67 (length keys)))
+  ;; Hisagi 14 (PLAN4 B3, KNOBS.md §6.6: the ranged mode's distance rule 7, cpu-hisagi-range; the HK style's kite 7, cpu-hk-hisagi),
+  ;; Ichigo 8 more (PLAN4 B3, KNOBS.md §6.7: the patience and pointer-2 switches, the hover adds, the retreat, the steer, KESSA's chains)
+  (check (= 75 (length keys)))
   (check (= 7 (count-if (lambda (k) (string= "hr-" (subseq k 0 3))) keys)))
   (check (= 7 (count-if (lambda (k) (eql 0 (search "hkk-" k))) keys)))
   (check (= 25 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
-  (check (= 24 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
+  (check (= 32 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
   ;; a style prefix on every key, so none collides with the shared keys (:range :ns :hoho ...)
   (check (every (lambda (k) (some (lambda (p) (eql 0 (search p k))) '("kk-" "iks-" "kso-" "khf-" "hr-" "hkk-"))) keys))
   ;; an arm's :BASE sets a knob, a firing rule replaces it, a rule that does not fire leaves the base; absent: the style's own value (EQ)
