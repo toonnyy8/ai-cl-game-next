@@ -262,13 +262,16 @@ def side_bar(groups, jobs):
             m = FQRE.match(l)
             if m and m[3] == seat:
                 fire = {int(k): float(v) for k, v in (x.split(':') for x in m[5].split())}
-                seq.setdefault((gi, int(m[1])), []).append((int(m[4]), fire))
+                x = re.search(r' dm (\S+) form (\d)', l)
+                seq.setdefault((gi, int(m[1])), []).append((int(m[4]), fire, f'f{x[2]}-{sw.band(float(x[1]))}' if x else '?'))
     ch = [sum(1 for i in range(1, len(s)) if s[i][0] != s[i - 1][0]) for s in seq.values()]
     held = [0] * na
     inn, inw, out_, outw = [0.0] * na, [0.0] * na, [0.0] * na, [0.0] * na
+    by = {}
     for s in seq.values():
-        for arm, fire in s:
+        for arm, fire, fb in s:
             held[arm] += 1
+            by.setdefault(fb, [0] * na)[arm] += 1
             for k in range(1, na):
                 w = min(1.0, max(sum(fire.get(r, 0.0) for r in rs) for rs in jr[k].values()))
                 inw[k] += w; outw[k] += 1 - w
@@ -284,7 +287,8 @@ def side_bar(groups, jobs):
     big = sum(1 for x in share if x >= 0.10)
     res = dict(matches=len(seq), judgements_per_match=round(J / max(1, len(seq)), 1),
                changes=dict(median=statistics.median(ch) if ch else 0, mean=round(statistics.fmean(ch), 1) if ch else 0, zero=sum(c == 0 for c in ch)),
-               arm_share=[round(x, 3) for x in share], job=job)
+               arm_share=[round(x, 3) for x in share], job=job,
+               by_form_band={k: dict(n=sum(v), share=[round(x / sum(v), 3) for x in v]) for k, v in sorted(by.items())})
     res['A'] = dict(no_zero=res['changes']['zero'] == 0, median_10=res['changes']['median'] >= 10, three_arms=big >= 3 and max(share) <= 0.70,
                     division=all(v['ok'] for v in job.values()))
     return res
@@ -298,7 +302,7 @@ def cmd_bar(a):
     j1, j2 = (json.load(open(os.path.join(HERE, x)))['jobs'] for x in (a.p1map, a.p2map))
     res = both_seats(a.c1, a.c2, t1, t2, lo - 1, hi - lo + 1, {'STRAT_FQLOG': '0 0'}, a.j)   # (C1's table on P1, then on P2)
     out = {}
-    for name, me_seat_of, jobs in ((a.c1, lambda s: s, j1), (a.c2, lambda s: 'P2' if s == 'P1' else 'P1', j2)):
+    for name, me_seat_of, jobs in (('c1 ' + a.c1, lambda s: s, j1), ('c2 ' + a.c2, lambda s: 'P2' if s == 'P1' else 'P1', j2)):
         groups = [(ls, me_seat_of(seat)) for seat, ls in res.items()]
         r = side_bar(groups, jobs)
         rw = [(rows(ls), ms) for ls, ms in groups]

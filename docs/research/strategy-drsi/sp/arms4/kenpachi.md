@@ -39,6 +39,60 @@ Played whole against his `none`, HARD, seeds 1-100 both seats (200 matches), as 
 
 K.O. (>= 0.50 of matches end by any K.O.) and distinctness: as `ichigo.md`.
 
-## Results
+## Results (`proof.py desc`, sim build of 328ea625, seeds 1-100 both seats, 200 matches an arm; `proof/kenpachi-vs-*.json`)
 
-(below)
+Differences from arm 0 (arm 0's row: values). "Kikon" counts his Kikon lock set anew (a hold whose strike landed; it may still be
+cancelled).
+
+| vs | arm | mean d | close | mid | Bankai | SP a match | Burst | Kikon | Step+Hoho | wake / kd | acts | clash | K.O. | K.O. win | test |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| I | all | 1.91 | .863 | .096 | 0 | 88.2 | 6.9 | 2.0 | 10.7 | .88 | 229 | 49.5 | .96 | .72 | |
+| I | rush | -.09 | +.011 | -.010 | 0 | -6.1 | | | +0.4 | | -5.4 | -3.3 | 1.00 | .785 | close **FAIL** |
+| I | guard | +.33 | -.099 | +.115 | 0 | -38.6 | | | -2.4 | | -64.6 | -19.5 | .61 | .37 | Step+Hoho **FAIL** |
+| I | spend | +.35 | -.092 | +.090 | 0 | -60.6 | 8.4 | 24.0 | +3.1 | | -80.6 | +14.5 | .87 | **.00** | Burst+Kikon 32.4 vs 8.9 PASS |
+| I | climb | +.08 | -.028 | +.024 | +.149 | -36.6 | | | 0.0 | | -41.6 | -8.2 | .98 | .31 | Bankai PASS |
+| I | wave (targeted) | -.08 | +.019 | -.012 | 0 | -0.9 | | | -2.9 | | -6.3 | -0.9 | .965 | .735 | Step+Hoho **FAIL** |
+| H | all | 1.91 | .858 | .111 | 0 | 108.0 | 3.0 | 2.3 | 3.1 | .97 | 236 | 49.9 | 1.00 | 1.00 | |
+| H | rush | -.02 | +.004 | -.004 | 0 | -9.6 | | | +1.2 | | -10.5 | -6.2 | 1.00 | 1.00 | close **FAIL** |
+| H | guard | +.09 | -.018 | +.019 | 0 | -2.4 | | | +0.9 | | +2.3 | +2.9 | 1.00 | .995 | Step+Hoho **FAIL** |
+| H | spend | +.48 | -.148 | +.141 | 0 | -14.6 | 14.1 | 52.6 | +7.2 | | +59.8 | +99.9 | .95 | .18 | Burst+Kikon 66.7 vs 5.3 PASS |
+| H | climb | +.05 | -.030 | +.027 | +.115 | -33.3 | | | +2.1 | | -23.0 | -5.5 | 1.00 | .97 | Bankai PASS |
+| H | bait (targeted) | -.04 | -.005 | +.008 | 0 | +9.4 | | | +0.2 | .28 vs .97 | +38.0 | +16.0 | .995 | .985 | wake / kd PASS |
+
+Every arm ends its matches (K.O. >= 0.61) and **no two arms are within tolerance of each other** against either opponent.
+
+| Arm | Verdict |
+|---|---|
+| spend | **pass**, but a losing arm whole (K.O. win .00 vs I, .18 vs H). Against Hisagi it locks 53 Kikons a match and clashes 150 times (x3): his bind cancels the follow-ups (likely; not traced) |
+| climb | **pass**: Bankai 15 % / 12 % of the steps (arm 0: never, its `:kk-bankai-p` is 0) |
+| bait (vs H) | **pass**: 0.28 action starts per knockdown in his first 20 free steps (arm 0: 0.97), and it wins as arm 0 does |
+| rush | **fail**: the descriptor has a ceiling (arm 0 is already inside 3 m for 86 % of the steps against both) and the keys barely move play (6-10 fewer SP moves a match) |
+| guard | **fail**: vs Ichigo it changes play a lot (mean distance +0.33 m, 65 fewer action starts, close -0.10) but it does so by doing less (Steps + Hohos -2.4, not up), and it is weak (K.O. .61, K.O. win .37); vs Hisagi it is almost arm 0 |
+| wave (vs I) | **fail**: Steps + Hohos fall 2.9 a match. The answer by `*kk-wave-mix*` is mostly a cut or a Hoho in, and Ichigo's `none` rarely runs the Getsuga route at him |
+
+**General arms that pass: all, spend, climb: exactly the floor of 3.** Targeted: bait passes, wave fails.
+
+**Which need the tuning cells (note for the lead).** Both, but for different reasons:
+- **guard** (4 cells): it has a working lever: distance up, starts down. It needs cells to stay in its job without losing (K.O. win .37 vs
+  I) and to act at all against Hisagi. Its descriptor should become what it does: mean distance (+0.33 vs I already) or close share down,
+  not Steps + Hohos.
+- **rush** (4 cells): first a new descriptor, because "inside 3 m" is at its ceiling. A rate of contact would do: SP moves or action starts a
+  match up, or the time from a free step to his guard / hit. Then cells for keys that change it. As assembled it is nearly arm 0.
+
+## T0 (`band.py t0 --or`, **q 0.075**, keep-state, margin 0.02, period 30)
+
+`rush` spans 3 groups. With `--or` a single firing group gives q / 3, and band.py asserts q / n > margin, which fails at q 0.06
+(0.02 = 0.02). So Kenpachi's tables take q 0.075, which gives q / 3 = 0.025.
+
+- **KI** (`t0/t0-ki-kenpachi.lisp`): arms all, rush, guard, spend, climb, wave; `:with d-x-ki-k`. Job rules per arm: 0 / 9 / 14 / 8 / 11 / 3.
+- **KK** (`t0/t0-kk-kenpachi.lisp`): the five general arms, no `:with` (no mirror exchange arm exists).
+
+Bar A on seeds 501-540, 80 matches (`t0/bar-ki-501-540.json`, `t0/bar-kk-501-540.json`):
+
+| Row | changes a match (median / mean / zero) | judgements a match | arm shares | in vs out of job | K.O. rate | bar A |
+|---|---|---|---|---|---|---|
+| KI, Kenpachi vs Ichigo's T0 | 18.5 / 18.7 / 0 | 112.1 | all .064, rush .575, guard .013, spend .175, climb .117, wave .057 | rush .80 / .00, guard .23 / 0, spend .61 / 0, climb .31 / 0, wave .92 / 0 | 1.00 (he wins .05) | **all four pass** |
+| KK, mirror | 33 / 34.4 / 0 | 168.7 | all .040, rush .494, guard .149, spend .211, climb .105 | rush .64 / .00, guard .36 / 0, spend .50 / 0, climb .27 / 0 | 1.00 | **all four pass** |
+
+These tables carry the failing arms (rush, guard, wave) as assembled. The switching passes by construction; the jobs inside it are not yet
+proved.
