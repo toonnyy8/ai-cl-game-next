@@ -74,9 +74,22 @@ the KESSA form and in the in-move steering, too little to move any descriptor. T
 whiff's "mid" share is the wrong sign for a mode that hovers at 2.3-2.7 m at HARD. A whiff test on the timed Hoho or punish count would
 need a new counter.
 
-**What would make them one-job**: patience and the bait-hover modes exposed as number keys (e.g. `:iks-patient` 0 / 1 and
-`:iks-bait-hover` 0 / 1, read through `style-knob`), so a job arm can leave the patient hover in the sealed form. That is game code (one
-Opus code cell, like Hisagi's in PLAN4 §3), outside this batch.
+**Diagnostic at NORMAL** (`proof.py desc --dif normal`, the same seeds; `proof/ichigo-vs-*-normal.json`; not a proof, which is HARD). At
+NORMAL both `*iks-patient-p*` and `*iks-bait-modes*` are NIL, and arm 0's mix is 0.88 generic.
+- Every job arm now differs from arm 0 by a lot: mean distance +0.47 to +0.55 m vs K, +1.0 to +1.2 m vs H; pointer 3 +0.26 to +0.38.
+  whiff, space and ptr3 pass their tests against both opponents. kessa fails vs K (awakened +0.040).
+- But the modes do not separate from one another: whiff ~ space ~ ptr3 vs K, and whiff ~ space ~ kessa vs H.
+- With patience off, what separates is style against generic, not mode against mode. Whiff and space then share `*iks-hover*`, and the
+  rest of what tells the modes apart is small.
+
+**What would make them one-job**: more than patience. A code cell would need to expose:
+- patience as a number key (`:iks-patient` 0 / 1, through `style-knob`);
+- the per-mode hover bands as `-lo` / `-hi` keys (KNOBS.md §6.4 lists `*iks-hover*` / `*iks-bait-hover*` as split candidates);
+- possibly the space lunge's band.
+
+That is game code (an Opus code cell, as PLAN4 §3 plans for Hisagi), outside this batch. The other route is to define Ichigo's jobs by what
+does separate: generic brawl against the patient style, the KESSA form, and the pointer-2 Getsuga keep-away (`:iks-retreat-p` /
+`:iks-getsuga-min`, PLAN4's targeted vs K arm).
 
 ## T0 (KI, Ichigo's side; `t0/t0-ki-ichigo.lisp`, `band.py t0 --or`, q 0.06, `:with d-x-ki-i`)
 

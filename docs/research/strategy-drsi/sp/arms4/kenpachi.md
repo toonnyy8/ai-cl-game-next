@@ -41,8 +41,9 @@ K.O. (>= 0.50 of matches end by any K.O.) and distinctness: as `ichigo.md`.
 
 ## Results (`proof.py desc`, sim build of 328ea625, seeds 1-100 both seats, 200 matches an arm; `proof/kenpachi-vs-*.json`)
 
-Differences from arm 0 (arm 0's row: values). "Kikon" counts his Kikon lock set anew (a hold whose strike landed; it may still be
-cancelled).
+Differences from arm 0 (arm 0's row: values). "Kikon" counts Kikon follow-ups started: his Kikon lock set anew, when a held SP's strike
+lands (combat.lisp sets it once a hit). The follow-up may then be undone (a let-go) or cancelled. A dump of seed 1 (spend vs Ichigo) shows the
+edges 150-600 frames apart: separate attempts, not flicker. Most never become a Kikon cinematic.
 
 | vs | arm | mean d | close | mid | Bankai | SP a match | Burst | Kikon | Step+Hoho | wake / kd | acts | clash | K.O. | K.O. win | test |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -59,11 +60,13 @@ cancelled).
 | H | climb | +.05 | -.030 | +.027 | +.115 | -33.3 | | | +2.1 | | -23.0 | -5.5 | 1.00 | .97 | Bankai PASS |
 | H | bait (targeted) | -.04 | -.005 | +.008 | 0 | +9.4 | | | +0.2 | .28 vs .97 | +38.0 | +16.0 | .995 | .985 | wake / kd PASS |
 
-Every arm ends its matches (K.O. >= 0.61) and **no two arms are within tolerance of each other** against either opponent.
+Every arm ends its matches (K.O. >= 0.61) and **no two arms are within tolerance of each other** against either opponent. An arm is
+shared by its tables, so it **passes only if it passes against each opponent it plays**. spend's pass against Ichigo rests on the Kikon
+follow-ups: its Bursts alone are 8.4 vs 6.9, x1.2.
 
 | Arm | Verdict |
 |---|---|
-| spend | **pass**, but a losing arm whole (K.O. win .00 vs I, .18 vs H). Against Hisagi it locks 53 Kikons a match and clashes 150 times (x3): his bind cancels the follow-ups (likely; not traced) |
+| spend | **pass**, but a losing arm whole (K.O. win .00 vs I, .18 vs H). Against Hisagi it starts 53 Kikon follow-ups a match and clashes 150 times (x3). Likely his bind cancels the follow-ups; not traced |
 | climb | **pass**: Bankai 15 % / 12 % of the steps (arm 0: never, its `:kk-bankai-p` is 0) |
 | bait (vs H) | **pass**: 0.28 action starts per knockdown in his first 20 free steps (arm 0: 0.97), and it wins as arm 0 does |
 | rush | **fail**: the descriptor has a ceiling (arm 0 is already inside 3 m for 86 % of the steps against both) and the keys barely move play (6-10 fewer SP moves a match) |

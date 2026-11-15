@@ -175,7 +175,7 @@
 ;;; awk K clash X ptr p1 p2 p3 form <form>:<steps> ...": battle steps, their summed distance (m), those inside 3 m / beyond 6 m, SP moves
 ;;; started (kind :sp), Bursts, my Kikons (his FIGHTER-KIKON-LOCK set anew: the hold's strike landed), his knockdowns ended (out of :down / :wakeup) and my action starts (a move, Step or Hoho)
 ;;; in his first 20 steps after each, my Steps + Hohos, all my action starts, steps awakened, clashes (FIGHTER-CLASH-T stamped anew), steps at
-;;; SP pointer 1 / 2 / 3 (4 reads 3), steps per form.
+;;; SP pointer 1 / 2 / 3 (4 reads 3), steps per form. Reads only: 25 seeds with and without it gave identical gate rows and hash lines.
 (defvar *sr-desc* (plusp (length (or (ext:getenv "STRAT_DESC") ""))))
 (defvar *sr-desc-acc* (list nil nil) "Per side: (counts-vector form-alist), or NIL before the match's first battle step.")
 (defvar *sr-desc-edge* (list nil nil) "Per side: (last-state last-move last-burst last-clash-t his-last-state wake-left his-last-kikon-lock).")

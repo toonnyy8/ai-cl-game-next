@@ -118,15 +118,19 @@ def chunks(seed0, n, size=25):
     return [(seed0 + s, min(size, n - s)) for s in range(0, n, size)]
 
 
-def both_seats(me, vs, mine, theirs, seed0, n, extra, j):
-    """MINE on ME's seat, THEIRS (a file or none) on VS's, both seats. -> {seat: [lines]} (seat = ME's)."""
+def both_seats(me, vs, mine, theirs, seed0, n, extra, j, dif=None):
+    """MINE on ME's seat, THEIRS (a file or none) on VS's, both seats; DIF: ME's difficulty (STRAT_DIF_P<n>; default the gate's HARD).
+    -> {seat: [lines]} (seat = ME's)."""
     R = ss.ROSTER
     jobs = []
     for seat in ('P1', 'P2'):
         other = 'P2' if seat == 'P1' else 'P1'
         c1, c2 = (R[me], R[vs]) if seat == 'P1' else (R[vs], R[me])
         for s0, k in chunks(seed0, n):
-            jobs.append((seat, c1, c2, dict(extra, **{'STRAT_' + seat: mine, 'STRAT_' + other: theirs}), s0, k))
+            env = dict(extra, **{'STRAT_' + seat: mine, 'STRAT_' + other: theirs})
+            if dif:
+                env['STRAT_DIF_' + seat] = dif
+            jobs.append((seat, c1, c2, env, s0, k))
     with ThreadPoolExecutor(max(1, min(22, j))) as ex:
         outs = list(ex.map(lambda x: run(x[1], x[2], x[3], x[4], x[5]), jobs))
     res = {'P1': [], 'P2': []}
@@ -203,7 +207,7 @@ def cmd_desc(a):
         t = os.path.join(WORK, f'one-{a.me}-{a.vs}-{aid}.lisp')
         write_table(a.me, a.vs, [arms[aid]], np.zeros((104, 1)), t, a.with_ or [],
                     f'proof.py: {aid} whole (a 1-arm table: as T0 plays it), :with {" ".join(a.with_ or []) or "none"}')
-        out[aid] = arm_desc(both_seats(a.me, a.vs, t, 'none', a.seed0, a.seeds, {'STRAT_DESC': '1'}, a.j))
+        out[aid] = arm_desc(both_seats(a.me, a.vs, t, 'none', a.seed0, a.seeds, {'STRAT_DESC': '1'}, a.j, a.dif))
         print(f'{aid}: {out[aid]["matches"]} matches, K.O. {out[aid]["ko_rate"]:.3f}', file=sys.stderr, flush=True)
     d0 = out[a0]
     sheet = {}
@@ -213,8 +217,8 @@ def cmd_desc(a):
                           ko_rate=round(d['ko_rate'], 3), ko_win=round(d['ko_win'], 3), ko_ok=d['ko_rate'] >= 0.5, matches=d['matches'],
                           test=test(aid, d, d0), not_distinct_from=[b for b in ids if b != aid and close_on_all(d, out[b])])
     os.makedirs(os.path.join(HERE, 'proof'), exist_ok=True)
-    dst = os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}.json')
-    json.dump(dict(me=a.me, vs=a.vs, opp='none', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
+    dst = os.path.join(HERE, 'proof', f'{a.me}-vs-{a.vs}' + (f'-{a.dif}' if a.dif else '') + '.json')   # (--dif: a diagnostic, the proof is HARD)
+    json.dump(dict(me=a.me, vs=a.vs, opp='none', dif=a.dif or 'hard', seeds=f'{a.seed0 + 1}-{a.seed0 + a.seeds} both seats', with_=a.with_,
                    build=simlib.build_hash(os.path.join(ROOT, 'tools/simgate/strat-run.lisp'))[:12], arms=sheet), open(dst, 'w'), indent=1)
     cols = ['mean_d', 'close', 'mid', 'far', 'p3', 'awk', 'bankai', 'sp', 'spend', 'evade', 'wake_kd', 'acts', 'clash']
     print(f'{a.me} vs {a.vs} none, {d0["matches"]} matches an arm  ({os.path.relpath(dst, HERE)})')
@@ -322,6 +326,7 @@ def main():
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--arms', required=True); p.add_argument('--with', dest='with_', nargs='*'); p.add_argument('--ids')
     p.add_argument('--seed0', type=int, default=0); p.add_argument('--seeds', type=int, default=100); p.add_argument('-j', type=int, default=20)
+    p.add_argument('--dif', choices=('easy', 'normal'), help='my seat at this difficulty (a diagnostic; the proof is HARD)')
     p = sub.add_parser('t0')
     p.add_argument('--me', required=True, choices=list(ss.ROSTER)); p.add_argument('--vs', required=True, choices=list(ss.ROSTER))
     p.add_argument('--map', required=True); p.add_argument('--out', required=True); p.add_argument('--with', dest='with_', nargs='*')
