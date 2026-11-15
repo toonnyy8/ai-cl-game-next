@@ -1,7 +1,12 @@
 # Hisagi: the catalogue (PLAN4 step 2, sim-verified, 2026-11-15)
 
 **2415 trials, every one played in the native sim** (`tools/simgate/trial.lisp`, main c15f9a55 + this branch's three trial keys
-`:p1-bound`, `:p2-meter`, `:p1-reishi`). Two full runs gave byte-identical `results.json`. Reproduce:
+`:p1-bound`, `:p2-meter`, `:p1-reishi` and a vpad release at each trial's start). Read by `run.py`; `tools/combo-trial.py trials.lisp`
+plays them too, but its table splits the `SEC|id|…` names on `|`. **Verified order-independent**: two 16-process runs gave byte-identical
+`results.json`, and a single-process run (`run.py -j 1`: all 2415 in one match, as combo-trial.py plays them) equals it in every field
+but the match-tick frame numbers. (Every trial reseeds the sim, `:seed 1`. That check caught two Hoho-in trials whose one-frame Hoho press
+at trial frame 0 was dropped or not by the trial before; P2's Hoho presses are held 3 frames now, and both rows agree with their
+neighbours.) Reproduce:
 
     python3 docs/research/strategy-drsi/sp/kits/hisagi/gen.py        # writes trials.lisp
     python3 docs/research/strategy-drsi/sp/kits/hisagi/run.py -j 16  # results.json / results.md (every trial: both sides' damage, hits, cancels)
@@ -24,7 +29,7 @@ routes short of SP, **B** the bind's clash, **W** / **WH** whiff punishes both w
 | **Hisagi ranged** | WA (0-3.4) | WA, TABA (2.5-4.9) | J1 (3.0-6.4), WA to 3.4, TABA | J1, TABA (tip 4.0-4.9) | J1 (tip 5.5-6.4) | nothing |
 | **Hisagi bind** | J1 (2.2), NS2a, KAGIYOSE | NS2a (3.3), KAGIYOSE | KAGIYOSE | KAGIYOSE | KAGIYOSE (6.7) | |
 | Kenpachi sealed | J1 (2.6), NS1a, NS2a | NS1a (3.3), NS2a (3.0) | NS1a to 3.3 | nothing | nothing | |
-| Kenpachi Shikai (L0 = L3) | J1 (3.4), NS1a, NS2a (2.6) | J1, NS1a | J1 to 3.4, NS1a | **NS1a lunge (5.7)** | NS1a to 5.7 | |
+| Kenpachi Shikai (L0; L3 on the 0.5 m grid alike) | J1 (3.4), NS1a, NS2a (2.6) | J1, NS1a | J1 to 3.4, NS1a | **NS1a lunge (5.7)** | NS1a to 5.7 | |
 | Kenpachi KYORAN | J1 (2.5), NS1a | NS1a | NS1a | NS1a (4.9) | | |
 | Ichigo Shikai | J1 (2.3), NS1a (3.0), NS3a | NS1a, NS3a | NS3a | **NS3a rush (5.0)** | (NS2c JUJISHO wave, 12 m, after 56 f of charge) | |
 | Ichigo KESSA | J1 (1.9), NS1a (3.3), NS3a clones (3.0) | NS1a, NS3a | NS1a to 3.3 | (AS1 7 m line, after a J hit) | (JUJISHO) | |
@@ -156,5 +161,5 @@ beats J1; at 4.5 m NS3a beats NAGI (S18 < S20), NAGI beats NS2a; at 5.5 m NAGI b
 - One frame each: T is a simultaneous press; a reaction 8-24 f late (the CPU's perception) changes cells where the startups differ by
   less (most of 1.5-2.5 m).
 - The dummy does nothing after a cancel in T / W: `x>H` there means "the exchange opens"; §5 has the answers.
-- Kenpachi's L only moves his J string and its AS (D trials of the 2026-11-06 catalogue); his lunge reaches 5.7 m at L0 and L3 alike.
+- Kenpachi's L only moves his J string and its AS (D trials of the 2026-11-06 catalogue); his lunge reaches 5.7 m at L0 (0.1 m edges); L3 has only the 0.5 m grid (hits at 5.5, misses at 6.0).
 - The dormant OUT-graph moves (`hs-j1-1h` ...) in the sheet are unreachable since S1.

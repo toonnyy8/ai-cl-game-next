@@ -1965,7 +1965,7 @@
 | A · Hb · NS2a +0 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 2.16 | -20 | — |  |
 | A · Hb · NS2a +8 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 2.47 | -20 | — |  |
 | A · Hb · NS3a +0 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 1.60 | -15 | — |  |
-| A · Hb · NS3a +8 on his Hoho · Kz · 4.5 | 33 | 0 | P1 HS-N3A | — | 10 | 4.50 | -15 | P1 HS-N3A f27 HIT 40 |  |
+| A · Hb · NS3a +8 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 1.60 | -15 | — |  |
 | A · Hb · Step back +0 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 0.81 | +0 | — |  |
 | A · Hb · Step back +8 on his Hoho · Kz · 4.5 | 0 | 0 | none | — | ? | 4.10 | +0 | — |  |
 | A · Hb · J1 +6 on his Hoho > J1 · Kz · 4.5 | 0 | 18 | P2 KE-Z-J1 | — | ? | 0.81 | +0 | P2 KE-Z-J1 f395 HIT 35 |  |
@@ -2116,7 +2116,7 @@
 | A · Hr · J1 +12 on his Hoho > J1 · Ik · 4.5 | 0 | 16 | P2 IC-K-J1 | — | ? | 0.74 | +0 | P2 IC-K-J1 f9355 HIT 30 |  |
 | A · Hr · J1 +18 on his Hoho > J1 · Ik · 4.5 | 0 | 16 | P2 IC-K-J1 | — | ? | 0.74 | +0 | P2 IC-K-J1 f9495 HIT 30 |  |
 | A · Hr · NS1a (WA) +6 on his Hoho > J1 · Ik · 4.5 | 19 | 0 | P1 HS-R-N1A | — | 5 | 4.50 | -10 | P1 HS-R-N1A f9621 HIT 26 |  |
-| A · Hr · NS1a (WA) +12 on his Hoho > J1 · Ik · 4.5 | 0 | 0 | none | — | ? | 4.50 | -10 | — |  |
+| A · Hr · NS1a (WA) +12 on his Hoho > J1 · Ik · 4.5 | 0 | 16 | P2 IC-K-J1 | P1 HS-R-N1A CANCEL | ? | 0.74 | -200 | P2 IC-K-J1 f65 HIT 30 | P1 KIN on (the cancel unlocks his close range) d 1.60; P2 BREAK fs 200.0 from P1 (fs 100.0), gains 60.0 (fs 300.0) |
 | A · Hr · NS1a (WA) +18 on his Hoho > J1 · Ik · 4.5 | 0 | 0 | none | P1 HS-R-N1A CANCEL; P2 IC-K-J1 CANCEL | ? | 1.60 | +0 | — | P1 KIN on (the cancel unlocks his close range) d 1.60 |
 | A · Hr · Step back +6 on his Hoho > J1 · Ik · 4.5 | 0 | 0 | none | — | ? | 0.74 | +0 | — |  |
 | A · Hr · Step back +12 on his Hoho > J1 · Ik · 4.5 | 0 | 0 | none | — | ? | 4.10 | +0 | — |  |

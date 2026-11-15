@@ -8,7 +8,11 @@
 (in-package :duel)
 (cl-user::sg-init)
 (cl-user::sg-queue)
+;;; PROBE_LOG=1: the combat log on, and a "probe-end SIDE MOVE BAND OUTCOME" line as each Hisagi move ends (probe.py attributes each NAGI
+;;; start to the CPU decision line logged before it: kk pick / cpu clash / hr / hk, else none logged: the generic neutral or the MCTS).
 (defvar *pr* (make-hash-table :test 'equal))
+(defvar *pr-log* (plusp (length (or (ext:getenv "PROBE_LOG") ""))))
+(when *pr-log* (setf *combat-log* t))
 (defvar *pr-last* (vector nil nil))   ; per side: (move sf d contact form reishi0)
 (defun pr-band (d) (cond ((< d 3.0) "<3.0") ((<= d 6.4) "3.0-6.4") (t ">6.4")))
 (defun pr-close (k)
@@ -16,11 +20,13 @@
     (when l (destructuring-bind (mv sf d contact form r0) l
               (declare (ignore sf))
               (let ((hit (< (gauges-reishi (gauges (opp-of (if (= k 0) *p1* *p2*)))) r0)))
-                (incf (gethash (list form (mv-name mv) (pr-band d) (cond (hit :hit) (contact :touch) (t :whiff))) *pr* 0)))))
+                (incf (gethash (list form (mv-name mv) (pr-band d) (cond (hit :hit) (contact :touch) (t :whiff))) *pr* 0))
+                (when *pr-log* (log-msg "probe-end P~d ~a ~a ~(~a~)" (1+ k) (mv-name mv) (pr-band d) (cond (hit :hit) (contact :touch) (t :whiff)))))))
     (setf (svref *pr-last* k) nil)))
 (setf *step-hook*
       (lambda ()
         (cl-user::sg-strat-step)
+        (when *pr-log* (setf *combat-log* t))             ; (the gate's start turns it off: gate.lisp)
         (when (and (battle-p) (eq *flow* :battle))
           (do-sides (e)
             (let* ((f (fighter e)) (k (fighter-side f)))

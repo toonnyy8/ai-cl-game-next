@@ -58,7 +58,7 @@ band, 1.75-2.5 m); Hoho 24 f (iframes 1-14), reappears 1.6 m behind him, 100 SP,
 - The CPU's `:ns-range` for NAGI is (3.6 6.2): the sim's band is 3.0-6.4 m.
 - NS1a > SA KIRI combos only from **≤ 3.5 m** (from 4.5 m KIRI whiffs at 3.24 m, then -19).
 - Ranged J1-J3 > AS2ab from the tip (5.8 m) **drops AS2** (its 2.5-4.5 m band): 63 dmg, -65; from 4.5 m it combos (127, +49).
-- Kenpachi's Shikai J1 reaches **3.4 m** (2.4 + slide 0.8 + hurt), his Shikai lunge NS1a **5.7 m** (L0 = L3), his KYORAN lunge 4.9 m,
+- Kenpachi's Shikai J1 reaches **3.4 m** (2.4 + slide 0.8 + hurt), his Shikai lunge NS1a **5.7 m** (L0; L3 hits at 5.5 on the 0.5 m grid), his KYORAN lunge 4.9 m,
   Ichigo's NS3a rush **5.0 m**: these are what cover NAGI's band (`matchup-*.md`).
 - After a cancel the *other* move's later hit windows still run: Hisagi's J1 cancelling Ichigo's slow NS1a (S22) still eats its hit at
   f22 unless TSUMUJI follows (X trials).

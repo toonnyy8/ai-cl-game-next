@@ -58,7 +58,7 @@ band, 1.75-2.5 m); Hoho 24 f (iframes 1-14), reappears 1.6 m behind him, 100 SP,
 - The CPU's `:ns-range` for NAGI is (3.6 6.2): the sim's band is 3.0-6.4 m.
 - NS1a > SA KIRI combos only from **≤ 3.5 m** (from 4.5 m KIRI whiffs at 3.24 m, then -19).
 - Ranged J1-J3 > AS2ab from the tip (5.8 m) **drops AS2** (its 2.5-4.5 m band): 63 dmg, -65; from 4.5 m it combos (127, +49).
-- Kenpachi's Shikai J1 reaches **3.4 m** (2.4 + slide 0.8 + hurt), his Shikai lunge NS1a **5.7 m** (L0 = L3), his KYORAN lunge 4.9 m,
+- Kenpachi's Shikai J1 reaches **3.4 m** (2.4 + slide 0.8 + hurt), his Shikai lunge NS1a **5.7 m** (L0; L3 hits at 5.5 on the 0.5 m grid), his KYORAN lunge 4.9 m,
   Ichigo's NS3a rush **5.0 m**: these are what cover NAGI's band (`matchup-*.md`).
 - After a cancel the *other* move's later hit windows still run: Hisagi's J1 cancelling Ichigo's slow NS1a (S22) still eats its hit at
   f22 unless TSUMUJI follows (X trials).
@@ -78,6 +78,8 @@ band, 1.75-2.5 m); Hoho 24 f (iframes 1-14), reappears 1.6 m behind him, 100 SP,
 | :as-by-press / :as-writes | (1 1 2 2 3) / (1 2 3) |
 | CPU reads (:ns-range / :range) | ((3.6 6.2) nil nil) / nil |
 | push reach (K ender) | 6.0 |
+| stances by pointer | hs-s-stance / hs-st-kari / hs-st-raiden |
+| Kikon cinematics by pointer | hs-kare-cine / hs-kari-cine / hs-raiden-cine |
 
 | Tag | Move | class | S/A/R (e = enter) | S eff | whiff R | hit windows (frame dmg reaction stun, min = dead zone m) | dmg x mult | hit adv (last window) | block adv | first volume | motion | SP cost | flags, params |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -124,6 +126,8 @@ Kikon / Soul Break Konpaku by pointer (base 2): ptr 1 Kikon 1 (red 1), Soul Brea
 | :as-by-press / :as-writes | (1 1 2 2 3) / (1 2 nil) |
 | CPU reads (:ns-range / :range) | nil / (3.0 4.5) |
 | push reach (K ender) | 7.5 |
+| stances by pointer | hs-k-stance / hs-k-st-shu |
+| Kikon cinematics by pointer | hs-kusari-ame-cine / hs-kosa-cine |
 
 | Tag | Move | class | S/A/R (e = enter) | S eff | whiff R | hit windows (frame dmg reaction stun, min = dead zone m) | dmg x mult | hit adv (last window) | block adv | first volume | motion | SP cost | flags, params |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -162,6 +166,8 @@ Kikon / Soul Break Konpaku by pointer (base 3): ptr 1 Kikon 2 (red 2), Soul Brea
 | :as-by-press / :as-writes | (1 1 2 2 3) / (1 2 nil) |
 | CPU reads (:ns-range / :range) | nil / nil |
 | push reach (K ender) | 2.95 |
+| stances by pointer | hs-kb-stance / hs-kb-st-shibori |
+| Kikon cinematics by pointer | hs-kagi-gari-cine / hs-koshu-cine |
 
 | Tag | Move | class | S/A/R (e = enter) | S eff | whiff R | hit windows (frame dmg reaction stun, min = dead zone m) | dmg x mult | hit adv (last window) | block adv | first volume | motion | SP cost | flags, params |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -189,3 +195,5 @@ Kikon / Soul Break Konpaku by pointer (base 3): ptr 1 Kikon 2 (red 2), Soul Brea
 Shared rules (tuning.lisp): stun by reaction (:flinch 18 :stagger 26 :knockback 30 :launch 0 :knockdown 0 :guard-break 50 :crumple 40 :down 30 :wakeup 30); hitstop J 4 / other 8; whiff R = R + 6, + (:quick 8 :flash 8 :kikon 8) by kind; a block adds (:quick 4 :flash 6 :kikon 6); a J link opens on a hit from S+A (on a block only the last 3 f of R).
 
 Turn moves (AS / SA) carry super armour from move frame 6 to the end of their startup (DUEL_CORE §2). Combo scaling: hits 1-3 full, then -0.15 a hit, floor 0.20; SP and the ranged tip hits unscaled. SP: cost = dmg x 0.4 rounded to 5, 10-60; fs max 300, Hoho 100 (lockout 60 f), J hit +10, SA hit +15, an ATK in a cancel +30, breakthrough takes all above 100 (gain x0.5). Step 2.5 m / 24 f (iframes (3 9)); Hoho 24 f (iframes (1 14)), reappears 1.6 m behind.
+
+Bursts (P): WHITE / BLUE / ORANGE each start from one cell (fs 100); BLUE burns one cell, WHITE / ORANGE drain to 0; SP segments cost nothing during a burst (DUEL_SP §2). The Kikon hold (an SP held) is confirmed 12 f after the hitstop (*CORE-KIKON-CONFIRM*, keyboard / CPU); the pointer switch (another pointer's NS1 from an NS gap) opens once the awakening gauge has been full and costs that segment's SP (DUEL_SP §3).

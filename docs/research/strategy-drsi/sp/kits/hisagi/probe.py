@@ -4,7 +4,7 @@ CPU (lookup), seeds 501-540 HARD (40 matches each, Hisagi P1), and writes probe.
 
   python3 docs/research/strategy-drsi/sp/kits/hisagi/probe.py
 """
-import os, sys, collections
+import os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '../../../../../../tools'))
 import simlib  # noqa: E402
@@ -24,6 +24,28 @@ def run(job):
     wins = sum(1 for l in r.stdout.splitlines() if 'gate row' in l and 'winner P1' in l and 'ko 1' in l)
     return arm, opp, rows, wins
 
+DEC = re.compile(r'\] P1 ((?:kk|cpu|hr|hk) [a-z-]+(?: [a-z0-9-]+)?)')
+
+def attribute(job):
+    """PROBE_LOG run: each P1 NAGI (HS-N1A) start attributed to the last P1 decision line logged before it -> Counter((dec, band, outcome))."""
+    arm, opp, code, chunk = job
+    env = dict(os.environ, STRAT_P1=os.path.join(ARMS, arm + '.lisp'), PROBE_LOG='1'); env.pop('STRAT_P2', None)
+    r = simlib.run_lisp('../' + os.path.relpath(os.path.join(HERE, 'probe.lisp'), simlib.ROOT),
+                        [30500 + 10 * chunk, 31110, 81022, code], env=env)
+    c, dec, q = collections.Counter(), None, []   # (Q: the decisions of the NAGI starts not yet ended; the next move's line comes before
+    for l in r.stdout.splitlines():                #  the hook's probe-end of the one it replaced)
+        m = DEC.search(l)
+        if m:
+            dec = m.group(1)
+        elif '] P1 move ' in l:
+            if l.split('] P1 move ', 1)[1].startswith('HS-N1A'):
+                q.append(dec)
+            dec = None
+        elif 'probe-end P1 HS-N1A' in l and q:
+            band, outcome = l.split()[-2:]
+            c[(q.pop(0) or 'none logged (generic neutral / MCTS / string)', band, outcome)] += 1
+    return arm, opp, c
+
 def main():
     simlib.build()
     tab = collections.defaultdict(collections.Counter)
@@ -42,6 +64,16 @@ def main():
         keys = sorted({k[:3] for k in c if k[1] != 'free'})
         for form, move, band in keys:
             out.append(f"| {form} | {move} | {band} | {c[(form, move, band, 'hit')]} | {c[(form, move, band, 'touch')]} | {c[(form, move, band, 'whiff')]} |")
+        out.append('')
+    out.append('## Who pressed NAGI (PROBE_LOG: the P1 decision line logged before each HS-N1A start; the same seeds)\n')
+    att = collections.defaultdict(collections.Counter)
+    for arm, opp, c in simlib.pool(attribute, JOBS, 16):
+        att[(arm, opp)].update(c)
+    for (arm, opp), c in sorted(att.items()):
+        out.append(f'### {arm} vs {opp}\n')
+        out.append('| decided by | start band | hit | touch | whiff |\n|---|---|---|---|---|')
+        for dec, band in sorted({k[:2] for k in c}):
+            out.append(f"| {dec} | {band} | {c[(dec, band, 'hit')]} | {c[(dec, band, 'touch')]} | {c[(dec, band, 'whiff')]} |")
         out.append('')
     open(os.path.join(HERE, 'probe.md'), 'w').write('\n'.join(out) + '\n')
     print('probe.md written')

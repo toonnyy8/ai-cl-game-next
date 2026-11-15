@@ -475,7 +475,7 @@ after the last hit (a knockdown counts his wake-up); end = distance at the end; 
 | Shikai: NS2a +0 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 2.2 |  |
 | Shikai: NS2a +8 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 2.5 |  |
 | Shikai: NS3a +0 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 1.6 |  |
-| Shikai: NS3a +8 on his Hoho | Kz | 4.5 | H | 33 | 0 | 10 | 4.5 | P1 HS-N3A HIT 40 |
+| Shikai: NS3a +8 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 1.6 |  |
 | Shikai: Step back +0 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 0.8 |  |
 | Shikai: Step back +8 on his Hoho | Kz | 4.5 | - | 0 | 0 | ? | 4.1 |  |
 | Shikai: J1 +6 on his Hoho > J1 | Kz | 4.5 | o | 0 | 18 | ? | 0.8 | P2 KE-Z-J1 HIT 35 |
@@ -626,7 +626,7 @@ after the last hit (a knockdown counts his wake-up); end = distance at the end; 
 | Bankai ranged: J1 +12 on his Hoho > J1 | Ik | 4.5 | o | 0 | 16 | ? | 0.7 | P2 IC-K-J1 HIT 30 |
 | Bankai ranged: J1 +18 on his Hoho > J1 | Ik | 4.5 | o | 0 | 16 | ? | 0.7 | P2 IC-K-J1 HIT 30 |
 | Bankai ranged: NS1a (WA) +6 on his Hoho > J1 | Ik | 4.5 | H | 19 | 0 | 5 | 4.5 | P1 HS-R-N1A HIT 26 |
-| Bankai ranged: NS1a (WA) +12 on his Hoho > J1 | Ik | 4.5 | - | 0 | 0 | ? | 4.5 |  |
+| Bankai ranged: NS1a (WA) +12 on his Hoho > J1 | Ik | 4.5 | x>o | 0 | 16 | ? | 0.7 | P2 IC-K-J1 HIT 30 |
 | Bankai ranged: NS1a (WA) +18 on his Hoho > J1 | Ik | 4.5 | x | 0 | 0 | ? | 1.6 |  |
 | Bankai ranged: Step back +6 on his Hoho > J1 | Ik | 4.5 | - | 0 | 0 | ? | 0.7 |  |
 | Bankai ranged: Step back +12 on his Hoho > J1 | Ik | 4.5 | - | 0 | 0 | ? | 4.1 |  |

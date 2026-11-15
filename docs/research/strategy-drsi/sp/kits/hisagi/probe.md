@@ -331,3 +331,67 @@ Shikai free steps by band: <3.0 m 0.40, 3.0-6.4 m 0.46, >6.4 m 0.14 (22939 steps
 | base | hs-sa-kiri | 3.0-6.4 | 2 | 19 | 29 |
 | base | hs-sa-kiri | <3.0 | 340 | 88 | 2 |
 
+## Who pressed NAGI (PROBE_LOG: the P1 decision line logged before each HS-N1A start; the same seeds)
+
+### h4-all vs Ichigo
+
+| decided by | start band | hit | touch | whiff |
+|---|---|---|---|---|
+| cpu clash ns | <3.0 | 5 | 110 | 4 |
+| cpu xch j | 3.0-6.4 | 1 | 0 | 0 |
+| kk link stop | 3.0-6.4 | 2 | 0 | 4 |
+| kk link stop | <3.0 | 0 | 0 | 2 |
+| kk meaty armed | 3.0-6.4 | 74 | 0 | 16 |
+| kk meaty armed | >6.4 | 21 | 0 | 5 |
+| kk pick | 3.0-6.4 | 1 | 0 | 0 |
+| kk pick | <3.0 | 8 | 2 | 19 |
+| kk read | 3.0-6.4 | 3 | 1 | 1 |
+| kk step-dodge at | 3.0-6.4 | 2 | 0 | 0 |
+| kk step-in at | 3.0-6.4 | 1 | 0 | 0 |
+| kk wave | 3.0-6.4 | 16 | 0 | 4 |
+| kk wave | <3.0 | 0 | 2 | 2 |
+| kk wave | >6.4 | 0 | 0 | 1 |
+| none logged (generic neutral / MCTS / string) | 3.0-6.4 | 13 | 0 | 16 |
+| none logged (generic neutral / MCTS / string) | <3.0 | 0 | 0 | 1 |
+| none logged (generic neutral / MCTS / string) | >6.4 | 0 | 0 | 1 |
+
+### h4-all vs Kenpachi
+
+| decided by | start band | hit | touch | whiff |
+|---|---|---|---|---|
+| cpu clash ns | <3.0 | 7 | 194 | 0 |
+| kk hoho-end plan | <3.0 | 0 | 1 | 0 |
+| kk link stop | 3.0-6.4 | 0 | 0 | 1 |
+| kk pick | 3.0-6.4 | 7 | 0 | 0 |
+| kk pick | <3.0 | 2 | 7 | 13 |
+| none logged (generic neutral / MCTS / string) | 3.0-6.4 | 13 | 9 | 17 |
+
+### h4-range vs Ichigo
+
+| decided by | start band | hit | touch | whiff |
+|---|---|---|---|---|
+| cpu clash ns | 3.0-6.4 | 6 | 0 | 12 |
+| cpu clash ns | <3.0 | 1 | 89 | 7 |
+| cpu holds | 3.0-6.4 | 20 | 4 | 36 |
+| cpu holds | <3.0 | 1 | 9 | 13 |
+| cpu holds | >6.4 | 2 | 0 | 1 |
+| none logged (generic neutral / MCTS / string) | 3.0-6.4 | 51 | 1 | 172 |
+| none logged (generic neutral / MCTS / string) | <3.0 | 10 | 38 | 64 |
+| none logged (generic neutral / MCTS / string) | >6.4 | 2 | 0 | 2 |
+
+### h4-range vs Kenpachi
+
+| decided by | start band | hit | touch | whiff |
+|---|---|---|---|---|
+| cpu clash ns | <3.0 | 0 | 132 | 1 |
+| cpu holds | 3.0-6.4 | 0 | 6 | 8 |
+| cpu holds | <3.0 | 0 | 2 | 8 |
+| cpu switch 1 | <3.0 | 0 | 1 | 0 |
+| cpu switch 3 | 3.0-6.4 | 0 | 3 | 1 |
+| cpu xch | 3.0-6.4 | 0 | 1 | 1 |
+| cpu xch | <3.0 | 0 | 0 | 1 |
+| hr back-step | 3.0-6.4 | 0 | 1 | 0 |
+| none logged (generic neutral / MCTS / string) | 3.0-6.4 | 30 | 129 | 340 |
+| none logged (generic neutral / MCTS / string) | <3.0 | 2 | 82 | 77 |
+| none logged (generic neutral / MCTS / string) | >6.4 | 0 | 1 | 11 |
+

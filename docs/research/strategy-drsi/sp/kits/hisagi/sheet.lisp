@@ -70,8 +70,8 @@ DOWN for a knockdown / launch (the wake-up is his: *REACTION-FRAMES* :down 30 + 
             (kit-walk kit) (kit-run kit) (getf (kit-atk-mods kit 0) :mult) (kit-mult kit) *core-damage* (getf core :mult 1.0) (kit-taken kit))
     (format t "| Kikon Konpaku base | ~d |~%| awakening | ~:[into ~(~a~)~;this is it~*~] |~%| :as-by-press / :as-writes | ~(~a~) / ~(~a~) |~%"
             (kit-kikon-konpaku kit) (kit-awakening kit) (kit-awaken-form kit) (getf core :as-by-press) (getf core :as-writes '(1 2 3)))
-    (format t "| CPU reads (:ns-range / :range) | ~(~a~) / ~(~a~) |~%| push reach (K ender) | ~a |~%~%"
-            (getf core :ns-range) (getf core :range) (kit-push-reach kit))
+    (format t "| CPU reads (:ns-range / :range) | ~(~a~) / ~(~a~) |~%| push reach (K ender) | ~a |~%| stances by pointer | ~(~{~a~^ / ~}~) |~%| Kikon cinematics by pointer | ~(~{~a~^ / ~}~) |~%~%"
+            (getf core :ns-range) (getf core :range) (kit-push-reach kit) (getf core :stances) (getf core :kikon-cines))
     (format t "| Tag | Move | class | S/A/R (e = enter) | S eff | whiff R | hit windows (frame dmg reaction stun, min = dead zone m) | dmg x mult | hit adv (last window) | block adv | first volume | motion | SP cost | flags, params |~%")
     (format t "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|~%")
     (flet ((row (tag name) (let ((mv (and name (gethash name (kit-moves kit)))))
@@ -100,5 +100,7 @@ DOWN for a knockdown / launch (the wake-up is his: *REACTION-FRAMES* :down 30 + 
   (format t "Turn moves (AS / SA) carry super armour from move frame ~d to the end of their startup (DUEL_CORE §2). Combo scaling: hits 1-~d full, then -~,2f a hit, floor ~,2f; SP and the ranged tip hits unscaled. SP: cost = dmg x ~,1f rounded to 5, ~d-~d; fs max ~d, Hoho ~d (lockout ~d f), J hit +~d, SA hit +~d, an ATK in a cancel +~d, breakthrough takes all above ~d (gain x~,1f). Step ~,1f m / ~d f (iframes ~(~a~)); Hoho ~d f (iframes ~(~a~)), reappears ~,1f m behind.~%"
           *armor-from* *combo-full-hits* *combo-decay* *combo-floor* *sp-cost-rate* (round *sp-cost-min*) (round *sp-cost-max*)
           (round *fs-max*) (round *fs-hoho*) *hoho-lockout* (round *sp-gain-j*) (round *sp-gain-sa*) (round *sp-gain-cancel*)
-          (round *fs-cell*) *sp-break-gain* *step-distance* *step-frames* *step-iframes* *hoho-frames* *hoho-iframes* *hoho-distance*))
+          (round *fs-cell*) *sp-break-gain* *step-distance* *step-frames* *step-iframes* *hoho-frames* *hoho-iframes* *hoho-distance*)
+  (format t "~%Bursts (P): WHITE / BLUE / ORANGE each start from one cell (fs ~d); BLUE burns one cell, WHITE / ORANGE drain to 0; SP segments cost nothing during a burst (DUEL_SP §2). The Kikon hold (an SP held) is confirmed ~d f after the hitstop (*CORE-KIKON-CONFIRM*, keyboard / CPU); the pointer switch (another pointer's NS1 from an NS gap) opens once the awakening gauge has been full and costs that segment's SP (DUEL_SP §3).~%"
+          (round *fs-burst*) *core-kikon-confirm*))
 (ext:quit 0)

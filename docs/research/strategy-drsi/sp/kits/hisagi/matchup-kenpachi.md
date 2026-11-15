@@ -1,7 +1,7 @@
 # Hisagi vs Kenpachi: the matchup table (PLAN4 step 2, 2026-11-15)
 
 From `sheet.md` (both kits) and `catalogue.md` / `tables.md` (2415 sim trials; section letters in brackets). Kenpachi: sealed (Kz), his
-Shikai NOZARASHI (Ks, his awakening; L0 and L3 reach the same), KYORAN (Kb, from L3's J7 + SP). Distances centre to centre.
+Shikai NOZARASHI (Ks, his awakening; the lunge measured at L0 to 5.7 m, L3 on the 0.5 m grid only: hits at 5.5, misses at 6.0), KYORAN (Kb, from L3's J7 + SP). Distances centre to centre.
 
 ## By distance band, Hisagi's Shikai
 
