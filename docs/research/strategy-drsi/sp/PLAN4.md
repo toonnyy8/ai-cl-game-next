@@ -363,3 +363,13 @@ played the dominant arm and its rollouts added nothing measurable.)
 failed); Q2 「只是下限」 (70:30 is a floor; the real gaps reported); Q3 「先報告，CP2 再定」 (working target pooled ≥ 50 %, no row more than
 15 points under DUCT's own; set at CP2 from T0's number); Q4 「36 格」 (≤ 3 Opus code cells). Q5 not asked: the default (debug and native
 sim only, no menu entry) stands.
+
+**Checkpoint 1** (2026-11-15). The first dev ladder (seeds 501-600, 200 a cell): HARD > NORMAL and NORMAL > EASY pass in all nine cells,
+EASY > masher fails in all nine (EASY's share 0.00-0.54). The diagnosis (`sp/diag/masher-vs-easy.md`): EASY never plays a table and NORMAL
+plays one half the time. In neutral the in-game MCTS decides, and after its light search it holds still for the CPU's perception delay
+(EASY 24, NORMAL 14 frames) while the full sim scores the best two (MC-FULL-REQUEST). That is a second reaction delay, with no clash,
+exchange answer or Hoho during it. No monotone knob set passes EASY > masher. The user asked 「為什麼會有模擬問題？不是在做 fuzzy Q
+table 嗎？」 and chose **「三個難度都用 Q 表」**: every tier plays the pairing's fuzzy Q table the whole match (the style functions press;
+neutral no longer goes to the MCTS's light+full-sim decision). The tiers differ by perception, the per-difficulty chances and the
+table's strength (e.g. EASY with fewer or weaker arms). §5's "What each tier plays" table is replaced by this. NORMAL's 10 s windows and
+EASY's "no table" are to leave once the probe confirms. The MCTS timing fix was prototyped only as an option and is not taken.

@@ -3284,3 +3284,12 @@ DUCT (reported), D health. Probes today: HARD beats NORMAL 359 of 360; NORMAL be
 II / IH by K.O.s only); a hand-written job table for Ichigo vs Kenpachi switches 38 times a match at its arms' strength (148-12).
 The user's answers: time-outs by 「照遊戲判定」; 70:30 「只是下限」; HARD vs DUCT 「先報告，CP2 再定」 (working target pooled ≥ 50 %);
 search budget 「36 格」. The masher stays a test opponent (debug and native only).
+
+**Checkpoint 1: every difficulty plays the Q table** (2026-11-15). The new seeded masher (`masher.lisp`, debug 81030-81033) beats EASY in
+all nine pairings (EASY's share 0.00-0.54 on dev seeds) and about ties NORMAL. HARD wins all. Cause (`sp/diag/masher-vs-easy.md`): EASY plays
+no table and NORMAL one half the time (`*strat-table-chance*`, §11.17). In neutral the in-game MCTS decides, and after its light search
+it holds still for the CPU's perception delay while the full sim scores its best two (cpu-mcts.lisp MC-FULL-REQUEST, DUEL_AI_MCTS §12):
+the delay counted twice, with no clash, exchange answer or Hoho meanwhile. No monotone knob set fixes it. The user: 「為什麼會有模擬問題？
+不是在做 fuzzy Q table 嗎？」, then 「三個難度都用 Q 表」: EASY, NORMAL and HARD all play the pairing's fuzzy Q table the whole match,
+and differ by perception, chances and the table's strength. Probed first on a branch; §11.17's windows and EASY's "no table" leave when it
+holds.
