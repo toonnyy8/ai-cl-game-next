@@ -380,3 +380,19 @@ EASY's "no table" are to leave once the probe confirms. The MCTS timing fix was 
 Hisagi), Hisagi drafts `all range` (+ `press kite wake` to tune). T0 KI Ichigo v3 switches (median 19 / 21 changes on 501-540 / 541-580).
 Code cells used 2 of 3. **`SP_BUILD=b835ac41b83b`** (strategy-switch.py's build_hash at ddaae0f9) for B3's cells and D1-D2; main's Lisp
 stays frozen until they hand back.
+
+**The arms come from each fighter's kit** (the user, 2026-11-15: 「你探索每個人物的時候請依據遊戲系統與該人物的特色、幀數表、攻擊範圍等等進行規劃」;
+the order they set on 2026-10-25, DEVLOG §369, skill `duel-character-cpu` "The order for a style search", which §3 skipped). §3's jobs were
+picked from the style knobs, and most failed their proofs (Ichigo's four modes, Kenpachi's rush / guard / wave, Hisagi's press / kite):
+jobs the kit does not separate. From here on, per character and form, in this order:
+1. a **data sheet** generated from the kit (S / A / R, advantage, reactions, reach and hit volumes, movement and pushes, every cancel
+   and latch, SP costs and gains, the exchange rules), regenerating `docs/research/ki-ai/*/sheet.lisp` (2026-11-06, before the SP
+   system) and adding Hisagi;
+2. a **catalogue** of combos and means (pokes by distance, whiff punishes, safe pressure, anti-approach, wake-up pressure, ranged
+   pressure, the exchange after a cancel), each verified in the native sim by a scripted input, plus the matchup tables against the
+   other two (who out-ranges whom where, whose whiff each punishes, which openers trade);
+3. **strategies** = situations → catalogue entries, proposed as arms (general and targeted) whose jobs and descriptors come from the
+   sheet; the user picks before any arm is built or searched;
+4. arms, T0, search only to tune weights and thresholds.
+Today's admitted arms stay as data until step 3 replaces or keeps them. B4 (nine T0s, the measures, the playtest build) and the
+provisional DUCT continue as the pipeline's test bed.

@@ -3309,3 +3309,10 @@ The tier values are tuned at PLAN4 B6 on the switching tables, not now on consta
 - Host checks: EASY's lookup row = HARD's (3561 ALL PASS).
 - G2 regenerated: II 38 lines P1 7-2 374.3 s, IK 27 P1 6-0 262.9 s, KK 21 P1 2-0 209.2 s (was II 39 P2 2-4 391.5 s, IK 32 P2 0-3 314.3 s,
   KK 29 P1 4-0 283.5 s); native = browser.
+
+**The arms come from the kit, not the knobs** (the user, 2026-11-15: 「你探索每個人物的時候請依據遊戲系統與該人物的特色、幀數表、攻擊範圍等等進行規劃」).
+B3 picked jobs from the style knobs. Of 15 jobs, 9 failed their one-job proofs, because the kit does not separate them (Ichigo's four
+modes, Kenpachi's rush / guard / wave, Hisagi's press / kite), and Hisagi's tables switch yet barely win. The lead skipped the order the
+user set on 2026-10-25 (DEVLOG §369; skill `duel-character-cpu`): data sheet → sim-verified catalogue → strategies the user picks →
+CPU, search only for weights. PLAN4 now follows it per character and form, with matchup tables against the other two; today's arms
+stay as data until the user's pick replaces or keeps them.
