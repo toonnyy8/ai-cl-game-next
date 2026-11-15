@@ -410,3 +410,21 @@ sets were taken (「全部採用」 x3), and 「改成修兵自己的打法」 f
   dead-zone NAGIs against Kenpachi came from it (`kits/hisagi/probe.md`).
 These are implementation batches, one per character plus the shared fix (PLAN4 §6's order step 4: write the strategy into the CPU,
 search only for weights). They are separate from the 36-cell search budget, of which 10 cells remain.
+
+**After the implementation batches** (2026-11-15, main e947d86d). Every proof below played the arm whole against the opponent's `none`
+(seeds 1-100):
+- Ichigo passes brawl, keep (KI) and punish (vs K).
+- Kenpachi passes poke, red Kikon and climb.
+- Hisagi passes k1 (vs K) and ihx (vs I). His own Shikai arm 0 holds 3.4-5.2 m but K.O.s Ichigo's `none` only 18.5 %, and every h5 arm
+  set `:clash-p 0`.
+
+Many failures are the probe's, not the strategy's: a job whose situation the opponent's `none` rarely makes, a bar set against a
+baseline that the clash fix had already moved, a bar declared impossible before the run.
+
+**The admission test from here is §3 step 4, as pre-registered and so far skipped: in-band.** Inside the arm's T0, a run of the arm in its
+job rules against arm 0's, scored by the game's result. A general arm must not reach z ≤ -2; a targeted arm must reach z ≥ +2. Bar A's
+in-job / out-of-job check with the vacuity column and distinctness still apply. The descriptor-whole numbers stay in the record as a
+report only. **Seed block for it: 141-180, x salts.** Untouched by any run so far: proofs used 1-100, probes 101-140 / 201-220, DUCT
+201-300, cells 301-400, dev ladder 501-600. Hisagi's arm 0 is rerun first with the pairing's `:with` clash restored. A strategy that fails
+in-band and shows no distinct behaviour is reported to the user as a finding; it is not dropped without asking. The ladder's tiering
+probe runs in parallel on the current build. **`SP_BUILD=f0e2bb129de1`** (main e947d86d).
