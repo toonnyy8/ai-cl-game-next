@@ -94,8 +94,9 @@ recovery ends?"
           (cai-press b :awaken 1)
           t))))
 
-(defun hkk-step (e b f kit s d st &aux (bk (eq (fighter-form f) :bankai)) (near (if bk *hkk-near-bankai* *hkk-near*)))
-  "Shikai kite. T when it pressed."
+(defun hkk-step (e b f kit s d st &aux (bk (eq (fighter-form f) :bankai))
+                                       (near (if bk (style-knob b :hkk-near-bankai *hkk-near-bankai*) (style-knob b :hkk-near *hkk-near*))))
+  "Shikai kite. T when it pressed. Its tunables are arm keys (STYLE-KNOB; KNOBS.md §6.6)."
   (declare (ignorable kit))
   (let* ((v (if (> (hks-k-pd st) 50.0) 0.0 (max 0.0 (- (hks-k-pd st) d))))
          (closing (> v 0.004))
@@ -104,14 +105,14 @@ recovery ends?"
     (setf (hks-k-pd st) (f32 d))
     (cond (reel (setf (hks-k-on st) nil) nil)
           ;; the poke after the back-step
-          ((and (hks-k-go st) (< 0 (- *match-tick* (hks-k-at st)) *hkk-window*))
-           (cond ((and (<= *hkk-poke-min* d *hkk-poke-max*) (not (eq ss :move)))
+          ((and (hks-k-go st) (< 0 (- *match-tick* (hks-k-at st)) (style-knob b :hkk-window *hkk-window*)))
+           (cond ((and (<= (style-knob b :hkk-poke-min *hkk-poke-min*) d (style-knob b :hkk-poke-max *hkk-poke-max*)) (not (eq ss :move)))
                   (setf (hks-k-go st) nil) (clog "~a hk kite poke at ~,1f" (side-name e) d)
                   (hr-sp b f s) (hr-taken b f) t)
                  (t nil)))
           ((>= d near) (setf (hks-k-on st) nil (hks-k-go st) nil) nil)
-          ((and (not (hks-k-on st)) closing (>= d *hkk-far*))
-           (setf (hks-k-on st) t (hks-k-go st) (brain-roll b *hkk-p*))
+          ((and (not (hks-k-on st)) closing (>= d (style-knob b :hkk-far *hkk-far*)))
+           (setf (hks-k-on st) t (hks-k-go st) (style-roll b :hkk-p *hkk-p*))
            (when (hks-k-go st)
              (setf (hks-k-at st) *match-tick*)
              (clog "~a hk kite back-step at ~,1f" (side-name e) d)

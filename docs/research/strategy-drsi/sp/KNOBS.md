@@ -3,7 +3,7 @@
 Traced from the sources on 2026-11-14 (all paths under `duel/lisp/` unless noted). An arm is `(:id .. :fn STYLE :base (k v ..) :rules ((((cue set) ..) (k v ..)) ..))`.
 Where I am not sure, the text says so.
 
-**Update 2026-11-14 (style knobs, §6):** the KI / KH style CPUs now read 53 of their own tunables through `style-knob` (strategy-glue.lisp), so an arm whose `:fn` is that style sets them as data: `:kk-*` (Kenpachi, 25), `:kso-*` / `:khf-*` (his KH styles, 4), `:iks-*` (Ichigo, 24). Where the text below says a style's constants are "not arm keys", §6 is current.
+**Update 2026-11-14 (style knobs, §6):** the KI / KH style CPUs now read 53 of their own tunables through `style-knob` (strategy-glue.lisp), so an arm whose `:fn` is that style sets them as data: `:kk-*` (Kenpachi, 25), `:kso-*` / `:khf-*` (his KH styles, 4), `:iks-*` (Ichigo, 24); since 2026-11-15 (PLAN4 B3) Hisagi's 14 (§6.6: `:hr-*` his ranged mode's distance rule, `:hkk-*` his HK kite), 67 in all. Where the text below says a style's constants are "not arm keys", §6 is current.
 
 ## 0. The one fact that explains "byte-identical" edits
 
@@ -162,7 +162,7 @@ Each style reads the tunables below through `(style-knob b KEY default)` (strate
 `:base` value, or the average of its `:rules` that fire (§1: a firing rule replaces the base), else the style's own value. The key is the
 special's name without its stars (`*kk-hin-fs*` -> `:kk-hin-fs`). Rules:
 
-- **Only for an arm whose `:fn` is that style** (`ken-ki-style`, `ken-kh-style`, `ken-kh-standoff-style`, `ichigo-ki-style`). Under `none`
+- **Only for an arm whose `:fn` is that style** (`ken-ki-style`, `ken-kh-style`, `ken-kh-standoff-style`, `ichigo-ki-style`; Hisagi's styles for §6.6's). Under `none`
   the style runs with no strategy and every key is inert; an arm without `:fn` runs no style. Hisagi's `hisagi-merged-style` (and
   `hisagi-hk-style` on it) plays `ken-ki-style` outside his ranged mode, so a Hisagi arm naming `:kk-*` keys changes that part of his play
   too (none does today): a lever for the KH / IH searches.
@@ -284,3 +284,36 @@ gives the knob at HARD (EASY / NORMAL in brackets). Search ranges are on k.
 - No shipped strategy, unit, table, seed arm or final table names one (host check `tests/duel-rules/style-knob.lisp`'s exchange block).
 - The awakening keys only act with a full awakening gauge at a combo's Burst roll or a Kikon's first locked frame, and `:hold-awaken` still
   gates them (AWAKEN-READY-P, STRAT-HOLD-AWAKEN-P).
+
+### 6.6 Hisagi: the ranged mode's distance rule and the kite (2026-11-15, PLAN4 §3 B3, Hisagi's code cell): 14 keys
+
+Read through `style-knob` / `style-roll` like §6.1-§6.3 (a replacement, the same at every difficulty). **`:hr-*`** act wherever
+`hisagi-range-style` runs: `:st-hisagi-range`, `:st-hisagi-merged`, `:st-hisagi-hk` (both over the merged style) and `:st-hisagi-ihr1b2a0`
+(on the range style), only in the Bankai's ranged mode (form `:bankai`), and only on his free steps (the close rule) or in his own WA / TABA
+segment and J string (the gaps, the pointer home). **`:hkk-*`** act only under `:st-hisagi-hk` with `:hk-kite` on (`:d-hk-kite`). The
+pointer switch itself is the shared `:dswitch` / `:dswitch-map` (§1; the WA gap's DRIVE switch to pointer 2), and `:hr-home-p` is its
+other half (back to pointer 1). Inside the ranged mode the close rule runs first; where it leaves the step, `ken-ki-style` decides when the
+style unit carries `:ken-ranged t` (merged, hk; a plain `getf`, not an arm key), else the MCTS / generic CPU. So a low `:hr-p` hands the
+close events to `ken-ki-style` (the `:kk-*` keys of §6.1, incl. the Hoho in: `:kk-hoho-in-p`, `:kk-hin-fs`, `:kk-hoho-in-max`).
+
+| Key | Default | Unit | What it changes | Search range |
+|---|---|---|---|---|
+| `:hr-p` | 1.0 (0.25 / 0.6) | chance per close event | take the close event (back Step / WA / TABA); else the merged style's KI code or the MCTS | 0-1 |
+| `:hr-close` | 2.9 | m (perceived) | the close event starts inside this (also the TABA gap's TATAKI push) | 2.0-4.0 |
+| `:hr-near` | 3.4 | m (perceived) | a closing opponent starts the event from here (back Step only); the event ends past it | 3.0-5.0 (>= `:hr-close`) |
+| `:hr-wa-pred` | 2.8 | m | closing in at pointer 1: WA when his predicted distance at WA's hit is within this, else the back Step | 2.0-3.0 |
+| `:hr-taba-p` | 0 (0 / 0) | chance per close event | pointer 2 at 2.5-2.9 m: NS2a TABA then NS2b TATAKI, not the back Step (off since scene 83808) | 0-1 |
+| `:hr-edge` | 2.0 | m from the wall | cornered (the back Step would hit the wall): WA, else a side Step | 0.5-4.0 |
+| `:hr-home-p` | 0.7 (0 / 0.4) | chance per ranged J string whose J2 lands | the SP there (AS1, writes pointer 1: WA stays his NS) | 0-1 |
+| `:hkk-p` | 1.0 (0.25 / 0.6) | chance per approach event | the kite's back Step from a closing opponent | 0-1 |
+| `:hkk-near` | 3.3 | m (perceived) | the Shikai / bind mode: a closing opponent starts the event inside this | 2.5-5.0 |
+| `:hkk-near-bankai` | 4.2 | m (perceived) | the same in the ranged mode (the range rule owns inside `:hr-near`) | 3.4-6.0 |
+| `:hkk-far` | 2.0 | m | not inside this: too late to back off | 1.0-3.0 |
+| `:hkk-poke-min` | 2.9 | m | after the back Step, the pointer's NS poke from this far | 2.0-4.0 |
+| `:hkk-poke-max` | 6.0 | m | ... to this far | 4.0-8.0 |
+| `:hkk-window` | 50 | frames | after the back Step, the poke may still follow this long | 20-120 |
+
+Left out (one line each, PLAN4 B3's record `sp/arms4/hisagi.md`): the bands `*hr-taba-band*` (2.5 2.9), `*hr-sa-band*` (2.5 4.5) (lists;
+`-lo` / `-hi` keys if a search needs one); the closing-speed floor 0.004 m a step and WA's 14 frames (facts); the wake rule `*hkw-p*`,
+`*hkw-margin*`, `*hkw-lead*`, `*hkw-guard-d*` and the Reishi pot `*hkb-below*`, `*hkb-range*`, `*hkb-p*` (no searched arm of PLAN4 moves them;
+one `style-knob` each when one does); `:ken-ranged` (a boolean on the style unit, read by `getf`).

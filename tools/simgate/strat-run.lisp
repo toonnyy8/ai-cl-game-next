@@ -152,8 +152,14 @@
 (defvar *sr-hr* (plusp (length (or (ext:getenv "STRAT_HRANGE") ""))))
 (defvar *sr-hr-acc* (make-array 8 :initial-element 0))   ; per side: steps, dsum (x1000), close, WA started beyond 3.2 m
 (defvar *sr-hr-seed* nil)
+;;; ... and "hdesc <seed> P<n> steps N dsum D close C" (PLAN4 §3's arm descriptors, B3): every battle step of the match, whatever the form.
+(defvar *sr-hd-acc* (make-array 6 :initial-element 0))   ; per side: steps, dsum (x1000), steps inside 3 m
 (defun sr-hr-flush ()
   (when *sr-hr-seed*
+    (dotimes (side 2)
+      (format t "hdesc ~d P~d steps ~d dsum ~,1f close ~d~%" *sr-hr-seed* (1+ side) (aref *sr-hd-acc* (* 3 side))
+              (/ (aref *sr-hd-acc* (+ 1 (* 3 side))) 1000.0) (aref *sr-hd-acc* (+ 2 (* 3 side)))))
+    (fill *sr-hd-acc* 0)
     (dotimes (side 2)
       (format t "hrange ~d P~d steps ~d dsum ~,1f close ~d wafar ~d cnt~{ ~d~}~%" *sr-hr-seed* (1+ side) (aref *sr-hr-acc* (* 3 side))
               (/ (aref *sr-hr-acc* (+ 1 (* 3 side))) 1000.0) (aref *sr-hr-acc* (+ 2 (* 3 side))) (aref *sr-hr-acc* (+ 6 side))
@@ -164,6 +170,9 @@
   (setf *sr-hr-seed* *match-seed*)
   (do-sides (e)
     (let ((f (fighter e)))
+      (let ((side (fighter-side f)) (d (fighter-dist f)))
+        (incf (aref *sr-hd-acc* (* 3 side))) (incf (aref *sr-hd-acc* (+ 1 (* 3 side))) (round (* 1000 d)))
+        (when (< d 3.0) (incf (aref *sr-hd-acc* (+ 2 (* 3 side))))))
       (when (eq (fighter-form f) :bankai)
         (let ((side (fighter-side f)) (d (fighter-dist f)))
           (incf (aref *sr-hr-acc* (* 3 side))) (incf (aref *sr-hr-acc* (+ 1 (* 3 side))) (round (* 1000 d)))
