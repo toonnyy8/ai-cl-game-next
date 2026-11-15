@@ -24,14 +24,16 @@
 (let* ((keys (sk-keys)) (kws (mapcar (lambda (k) (intern (string-upcase k) :keyword)) keys)))
   ;; the scan finds them all: Kenpachi 25 (cpu-ki-ken), his KH styles 4 (cpu-kh-ken), Ichigo 24 (cpu-ki-ichigo, 5 of them the mode mix),
   ;; Hisagi 14 (PLAN4 B3, KNOBS.md §6.6: the ranged mode's distance rule 7, cpu-hisagi-range; the HK style's kite 7, cpu-hk-hisagi),
-  ;; Ichigo 8 more (PLAN4 B3, KNOBS.md §6.7: the patience and pointer-2 switches, the hover adds, the retreat, the steer, KESSA's chains),
+  ;; Ichigo 8 more (PLAN4 B3, KNOBS.md §6.7: the patience and pointer-2 switches, the hover adds, the retreat, the steer, KESSA's chains)
+  ;; and 3 more (PLAN4 checkpoint 2a, KNOBS.md §6.7a: the KESSA k-lunge band's ends, S5; the pointer-1 NS punish wait, S4)
+  ;; PLAN4 P5 (2026-11-15): Kenpachi's 8 more (KNOBS.md §6.1 / §6.2: the wave mix 5, :kk-lunge-any, :kk-p2-or, :khf-bait-fs)
   ;; Hisagi 21 more (PLAN4 checkpoint 2a, KNOBS.md §6.8: his own play's 18 :hb-* in cpu-hisagi-own, the neutral TABA's 3 :hr-taba-*)
-  (check (= 96 (length keys)))
+  (check (= 107 (length keys)))
   (check (= 10 (count-if (lambda (k) (string= "hr-" (subseq k 0 3))) keys)))
   (check (= 18 (count-if (lambda (k) (string= "hb-" (subseq k 0 3))) keys)))
   (check (= 7 (count-if (lambda (k) (eql 0 (search "hkk-" k))) keys)))
-  (check (= 25 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
-  (check (= 32 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
+  (check (= 32 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
+  (check (= 35 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
   ;; a style prefix on every key, so none collides with the shared keys (:range :ns :hoho ...)
   (check (every (lambda (k) (some (lambda (p) (eql 0 (search p k))) '("kk-" "iks-" "kso-" "khf-" "hr-" "hkk-" "hb-"))) keys))
   ;; an arm's :BASE sets a knob, a firing rule replaces it, a rule that does not fire leaves the base; absent: the style's own value (EQ)

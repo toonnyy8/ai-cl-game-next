@@ -188,6 +188,42 @@
 ;;; Ichigo's code cell, PLAN4 B3), SP moves started while awakened (asp) and the summed distance of the awakened steps (adsum, m), steps per form. Reads only: 25 seeds with and without it gave
 ;;; identical gate rows and hash lines.
 (defvar *sr-desc* (plusp (length (or (ext:getenv "STRAT_DESC") ""))))
+;;; ---- begin: Ichigo's kit-strategy counters (PLAN4 checkpoint 2a, sp/arms5/ichigo.md), also under STRAT_DESC; read only.
+;;; Per match and side, one line "idesc <seed> P<n> xn N xpost P xsa S asn A as1 A1 pun U nsk K nsk3 K3 b34 B": the cancels (a fresh
+;;; FIGHTER-XCH tick), her first action start after each while the exchange is open (a move, Step or Hoho) and those that are the SA; her AS
+;;; routes started (a first segment, KIT-CORE's :as) and those that are AS1; her move starts out of her neutral (:idle / :run the step
+;;; before) while his move is past its active frames (his recovery: S4 punish); her NS routes started while awakened (KIT-CORE's :ns) and those that are NS3 (S5); steps at 3.4-6.0 m (T3).
+(defparameter +sr-idesc-keys+ '(xn xpost xsa asn as1 pun nsk nsk3 b34))
+(defvar *sr-idesc-acc* (list nil nil) "Per side: the counts vector, or NIL before the match's first battle step.")
+(defvar *sr-idesc-edge* (list nil nil) "Per side: (last-xch pending last-state last-move).")
+(defun sr-idesc-flush (seed)
+  (loop for side from 0 for v in *sr-idesc-acc* when v
+        do (format t "idesc ~d P~d~{ ~(~a~) ~d~}~%" seed (1+ side) (loop for k in +sr-idesc-keys+ for i from 0 append (list k (aref v i)))))
+  (setf *sr-idesc-acc* (list nil nil) *sr-idesc-edge* (list nil nil)))
+(defun sr-idesc-step ()
+  (do-sides (e)
+    (let* ((f (fighter e)) (side (fighter-side f)) (fo (fighter (fighter-opp f))) (kit (fighter-kit f))
+           (v (or (nth side *sr-idesc-acc*) (setf (nth side *sr-idesc-acc*) (make-array 9 :initial-element 0))))
+           (ed (or (nth side *sr-idesc-edge*) (list (fighter-xch f) nil nil nil)))
+           (st (fighter-state f)) (mv (fighter-move f)) (d (fighter-dist f)) (x (fighter-xch f)) (pend (second ed))
+           (mstart (and (eq st :move) mv (or (not (eq (third ed) :move)) (not (eq mv (fourth ed))))))
+           (start (or mstart (and (member st '(:step :hoho)) (not (eq st (third ed)))))))
+      (flet ((inc (i) (incf (aref v i))))
+        (cond ((< x 0) (setf pend nil))
+              ((/= x (first ed)) (inc 0) (setf pend t)))
+        (when (and pend start)
+          (inc 1) (when (and mstart (eq (fighter-cls f) :sa)) (inc 2)) (setf pend nil))
+        (when mstart
+          (let ((a (position (mv-name mv) (getf (kit-core kit) :as))) (n (position (mv-name mv) (getf (kit-core kit) :ns)))
+                (mo (fighter-move fo)))
+            (when a (inc 3) (when (= a 0) (inc 4)))
+            (when (and (member (third ed) '(:idle :run)) (eq (fighter-state fo) :move) mo (eq (fighter-phase fo) :main)
+                       (>= (fighter-sf fo) (+ (mv-s mo) (mv-a mo))))
+              (inc 5))
+            (when (and n (gauges-awakened (gauges e))) (inc 6) (when (= n 2) (inc 7)))))
+        (when (<= 3.4 d 6.0) (inc 8)))
+      (setf (nth side *sr-idesc-edge*) (list x pend st mv)))))
+;;; ---- end: Ichigo's kit-strategy counters
 (defvar *sr-desc-acc* (list nil nil) "Per side: (counts-vector form-alist), or NIL before the match's first battle step.")
 (defvar *sr-desc-edge* (list nil nil) "Per side: (last-state last-move last-burst last-clash-t his-last-state wake-left his-last-kikon-lock).")
 (defvar *sr-desc-seed* nil)
@@ -196,6 +232,7 @@
   "Functions (side) -> a flat list (key count ...) appended to that side's desc line before \"form\" (a batch's own counters, in its own
 block below; proof.py's desc_vec reads any key) and resetting their own state: one per block, in load order.")
 (defun sr-desc-flush ()
+  (when *sr-desc-seed* (sr-idesc-flush *sr-desc-seed*))   ; (Ichigo's kit-strategy counters, the block above)
   (when *sr-desc-seed*
     (loop for side from 0 for a in *sr-desc-acc* when a
           do (format t "desc ~d P~d~{ ~(~a~) ~d~} form~:{ ~(~a~):~d~}~%" *sr-desc-seed* (1+ side)
@@ -205,6 +242,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
   (setf *sr-desc-acc* (list nil nil) *sr-desc-edge* (list nil nil) *sr-desc-seed* nil))
 (defvar *sr-desc-steps* nil "Functions run at the end of each SR-DESC-STEP (a batch's own counters, in its own block below).")
 (defun sr-desc-step ()
+  (sr-idesc-step)                                          ; (Ichigo's kit-strategy counters, the block above)
   (setf *sr-desc-seed* *match-seed*)
   (do-sides (e)
     (let* ((f (fighter e)) (side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o))
@@ -297,12 +335,56 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
           (loop for k in +sr-hx-keys+ for i from 0 append (list k (if a (aref (first a) i) 0)))))
       *sr-desc-extra*)
 ;;; ---- (end of Hisagi's PLAN4 block)
+;;; ---------------------------------------------------------------- PLAN4 P5, Kenpachi's descriptors (sp/arms5/kenpachi.md), under STRAT_DESC
+;;; One more line per match and side, "kdesc <seed> P<n> pfar N kikonk K wavet W", read from the state only:
+;;;   pfar    my J / NS (class :na / :ns) started beyond 2.4 m (Ichigo's and Hisagi's J1 far edge, centre to centre) whose contact turned
+;;;           :hit while his Reishi fell that step (a cancel also writes :hit but deals nothing): the out-range poke's hits, once a move;
+;;;   kikonk  his Konpaku lost on a step after one with his FIGHTER-KIKON-LOCK set (my Kikon's follow-up was coming): Konpaku my Kikons took
+;;;           (a Soul Break outside a Kikon's lock is not counted);
+;;;   wavet   steps on which one of his :wave hazards connected (its hits-left fell, or it was spent the step it appeared) and my Reishi
+;;;           fell: his Getsuga hits on me (a J's cancel of the wave deals nothing).
+(defvar *sr-kd-acc* (list nil nil) "Per side: #(pfar kikonk wavet), or NIL before the match's first battle step.")
+(defvar *sr-kd-edge* (list nil nil) "Per side: (pending-far-move my-move his-konpaku his-kikon-lock my-reishi his-reishi) at the last step.")
+(defvar *sr-kd-waves* nil "Every :wave hazard at the last step: (handle owner hits-left).")
+(defvar *sr-kd-seed* nil)
+(defun sr-kd-flush ()
+  (when *sr-kd-seed*
+    (loop for side from 0 for a in *sr-kd-acc* when a
+          do (format t "kdesc ~d P~d pfar ~d kikonk ~d wavet ~d~%" *sr-kd-seed* (1+ side) (aref a 0) (aref a 1) (aref a 2))))
+  (setf *sr-kd-acc* (list nil nil) *sr-kd-edge* (list nil nil) *sr-kd-waves* nil *sr-kd-seed* nil))
+(defun sr-kd-step ()
+  (setf *sr-kd-seed* *match-seed*)
+  (let ((waves nil))
+    (do-entities (h (hz hazard))
+      (when (eq (hazard-kind hz) :wave) (push (list h (hazard-owner hz) (hazard-hits-left hz)) waves)))
+    (do-sides (e)
+      (let* ((f (fighter e)) (side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o)) (g (gauges e)) (go (gauges o))
+             (a (or (nth side *sr-kd-acc*) (setf (nth side *sr-kd-acc*) (make-array 3 :initial-element 0))))
+             (ed (or (nth side *sr-kd-edge*) (list nil nil (gauges-konpaku go) 0 (gauges-reishi g) (gauges-reishi go))))
+             (st (fighter-state f)) (mv (and (eq st :move) (fighter-move f))) (pend (first ed)))
+        (when (and mv (not (eq mv (second ed))) (member (fighter-cls f) '(:na :ns)))   ; (a new J / NS: far or not)
+          (setf pend (and (> (fighter-dist f) 2.4) mv)))
+        (unless (and pend (eq mv pend)) (setf pend nil))
+        (when (and pend (eq (fighter-contact f) :hit))
+          (when (< (gauges-reishi go) (sixth ed)) (incf (aref a 0)))
+          (setf pend nil))
+        (when (and (plusp (fourth ed)) (< (gauges-konpaku go) (third ed)))
+          (incf (aref a 1) (- (third ed) (gauges-konpaku go))))
+        (when (and (< (gauges-reishi g) (fifth ed))
+                   (some (lambda (w) (and (eql (second w) o)
+                                          (let ((old (assoc (first w) *sr-kd-waves*)))
+                                            (if old (< (third w) (third old)) (<= (third w) 0)))))
+                         waves))
+          (incf (aref a 2)))
+        (setf (nth side *sr-kd-edge*) (list pend mv (gauges-konpaku go) (fighter-kikon-lock fo) (gauges-reishi g) (gauges-reishi go)))))
+    (setf *sr-kd-waves* waves)))
 (defun sr-hook ()
   (when (and *sr-win* (battle-p) (plusp *match-tick*) (zerop (mod *match-tick* 90))) (sr-win-lines))
   (when (and (battle-p) (/= *sr-match* *match-seed*))
     (setf *sr-match* *match-seed*)
     (when *sr-hr* (sr-hr-flush))
     (when *sr-desc* (sr-desc-flush))
+    (when *sr-desc* (sr-kd-flush))                                ; (PLAN4 P5, Kenpachi's kdesc line)
     (sr-sw-flush)
     (sr-fq-flush)
     (setf *cai-styles* (copy-tree *sr-styles0*))
@@ -327,7 +409,8 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
             (fq-attach! e)
             (setf *sr-fql-key* (cons (position ch *roster*) (position (fighter-character (fighter (fighter-opp f))) *roster*))))))))
   (when (battle-p) (sr-sw-note) (when *sr-fq* (sr-fq-note)) (when (and *sr-hr* (eq *flow* :battle)) (sr-hr-step))
-    (when (and *sr-desc* (eq *flow* :battle)) (sr-desc-step))))   ; (after a new match's flush: else its first step's counts replace the last match's)
+    (when (and *sr-desc* (eq *flow* :battle)) (sr-desc-step))   ; (after a new match's flush: else its first step's counts replace the last match's)
+    (when (and *sr-desc* (eq *flow* :battle)) (sr-kd-step))))   ; (PLAN4 P5, Kenpachi's kdesc line)
 
 (let ((l (ext:getenv "STRAT_LAYER")))
   (when (and l (plusp (length l)))
@@ -366,6 +449,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
 (sr-fq-flush)
 (when *sr-hr* (sr-hr-flush))
 (when *sr-desc* (sr-desc-flush))
+(when *sr-desc* (sr-kd-flush))
 (sr-fql-dump)
 (finish-output)
 (ext:quit 0)

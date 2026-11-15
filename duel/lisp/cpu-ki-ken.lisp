@@ -314,9 +314,18 @@ apart in the log)."
   "The tick to press an answer timed LEAD frames after JUJISHO starts at 5 m, shifted by the wave's travel to D (14 m/s)."
   (+ (kk-juji-start s) lead (round (* (- d 5.0) (/ 60.0 14.0)))))
 
+(defun kk-wave-mix (b key)
+  "*KK-WAVE-MIX*'s weight KEY (:close :cut :late :step), or the arm's :KK-WAVE-CLOSE / -CUT / -LATE / -STEP (PLAN4 P5, Kenpachi's Getsuga
+close-in arm; no key: the plist's value)."
+  (case key
+    (:close (style-knob b :kk-wave-close (getf *kk-wave-mix* :close 0.0)))
+    (:cut (style-knob b :kk-wave-cut (getf *kk-wave-mix* :cut 0.0)))
+    (:late (style-knob b :kk-wave-late (getf *kk-wave-mix* :late 0.0)))
+    (t (style-knob b :kk-wave-step (getf *kk-wave-mix* :step 0.0)))))
+
 (defun kk-wave-plan (e b f kit d)
   "One roll for her Getsuga route, or NIL. Nearer than *KK-WAVE-BAND*: :close (the wave leaves 1.7 m in front of her). Where his NS
-reaches her from here (the Shikai's lunge, KYORAN's): :close, it lands on her charge (F15, F18). Else by *KK-WAVE-MIX*: :late only
+reaches her from here (the Shikai's lunge, KYORAN's): :close, it lands on her charge (F15, F18). Else by *KK-WAVE-MIX* (KK-WAVE-MIX): :late only
 with a Hoho open, :cut not sealed, :close not beyond *KK-WAVE-CLOSE-MAX*, :step only sealed without a Hoho. Beyond the band (to
 *KK-WAVE-FAR*): :close by a Hoho, else :cut, else (sealed) :step."
   (when (> d (second *kk-wave-band*))                          ; (from afar: Hoho in at once, else the cut; b3_a1)
@@ -324,13 +333,13 @@ with a Hoho open, :cut not sealed, :close not beyond *KK-WAVE-CLOSE-MAX*, :step 
       (cond ((not (style-roll b :kk-wave-p *kk-wave-p*)) nil)
             ((hoho-ready-p e) :close)
             ((not (eq (fighter-form f) :base)) :cut)
-            ((plusp (getf *kk-wave-mix* :step 0.0)) :step))))
+            ((plusp (kk-wave-mix b :step)) :step))))
   (let* ((far (>= d (first *kk-wave-band*)))
          (lunge (<= d (kk-reach kit f :ns)))
-         (wc (cond ((or (not far) lunge) 1.0) ((> d *kk-wave-close-max*) 0.0) (t (getf *kk-wave-mix* :close 0.0))))
-         (wk (if (or (not far) lunge (eq (fighter-form f) :base)) 0.0 (getf *kk-wave-mix* :cut 0.0)))
-         (wl (if (and far (not lunge) (hoho-ready-p e)) (getf *kk-wave-mix* :late 0.0) 0.0))
-         (ws (if (and far (not lunge) (not (hoho-ready-p e)) (eq (fighter-form f) :base)) (getf *kk-wave-mix* :step 0.0) 0.0))
+         (wc (cond ((or (not far) lunge) 1.0) ((> d (style-knob b :kk-wave-close-max *kk-wave-close-max*)) 0.0) (t (kk-wave-mix b :close))))
+         (wk (if (or (not far) lunge (eq (fighter-form f) :base)) 0.0 (kk-wave-mix b :cut)))
+         (wl (if (and far (not lunge) (hoho-ready-p e)) (kk-wave-mix b :late) 0.0))
+         (ws (if (and far (not lunge) (not (hoho-ready-p e)) (eq (fighter-form f) :base)) (kk-wave-mix b :step) 0.0))
          (sum (+ wc wk wl ws)))
     (when (and (plusp sum) (style-roll b :kk-wave-p *kk-wave-p*))
       (let ((r (* sum (sim-rnd01))))
@@ -527,6 +536,11 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
               (kk-stick e 0)
               t)))))))
 
+(defun kk-lunge-any-p (b)
+  "The arm's :KK-LUNGE-ANY switch (>= 0.5; no key: off, the lunge only while climbing below L3): the Shikai's NS1 lunge at *KK-LUNGE-BAND*
+as an answer in Hisagi's 3-6 m band, climbing or not, at any L (PLAN4 P5, Kenpachi's dead-zone hug: his NS1a / bind lose to it, S16-S20)."
+  (let ((k (style-knob b :kk-lunge-any nil))) (and k (>= k 0.5))))
+
 (defun kk-decide (e b f s d st safe)
   "A neutral decision the generic CPU would make this step, taken by the style when a roll says so (SAFE: the Hoho-safety roll's chance,
 KEN-KI-STYLE's). T when it decided."
@@ -539,7 +553,7 @@ KEN-KI-STYLE's). T when it decided."
       (case form
         (:nozarashi
          (let ((lv (ken-lv e)))
-           (cond ((and ns-ok (kks-climb st) (< lv *ken-lv-max*) (= (fighter-ptr f) 1)
+           (cond ((and ns-ok (or (and (kks-climb st) (< lv *ken-lv-max*)) (kk-lunge-any-p b)) (= (fighter-ptr f) 1)
                        (<= (first *kk-lunge-band*) d (second *kk-lunge-band*)) (style-roll b :kk-lunge-p *kk-lunge-p*))
                   (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                   (cai-sp b f s) t)
@@ -653,14 +667,24 @@ decided."
              t)))))
 
 ;;; ---------------------------------------------------------------- his strings
-(defun kk-string-target (e f st)
+(defun kk-p2-p (b f)
+  "The red Kikon's route rule (PLAN4 P5, Kenpachi's red Kikon arm; the arm's :KK-P2-OR, no key: never): her / his Reishi fraction is under
+it, so his strings end on pointer 2 (KK-STRING-TARGET), the pointer whose Kikon takes 3 Konpaku off a red victim (pointer 1 / 3: 1; a
+non-red victim cancels the follow-up, KK-KIKON-RULE). His Reishi is a HUD value, read live as GAUGES-RED-P is."
+  (let ((x (style-knob b :kk-p2-or nil)))
+    (and x (< (reishi-frac (gauges (fighter-opp f))) x))))
+
+(defun kk-string-target (e b f st)
   "The attack press his SP follows in this string, or NIL (the generic CPU's choice): the Shikai at L3, the Bankai J7 or the special AS
 J*KK-SPECIAL-N*; climbing below L3, the pointer's own AS (pointer 1 after J2, pointer 2 after J3); a Bankai, J4 (the AS) or J5 (the way
-back: his Reishi under the floor, or the cash-outs spent)."
+back: his Reishi under the floor, or the cash-outs spent). KK-P2-P: J1-J3 + SP, which writes pointer 2: sealed AS2; the Shikai short of
+an L3 Bankai plan, before the climb and its special AS (pointer 1's burst TOSSHIN-ISSEN, which resets L; pointer 2's AS2)."
   (case (fighter-form f)
+    (:base (and (kk-p2-p b f) 3))
     (:nozarashi
-     (cond ((< (ken-lv e) *ken-lv-max*) (and (kks-climb st) (if (= (fighter-ptr f) 1) 2 3)))
-           ((kks-bankai st) 7)
+     (cond ((kks-bankai st) 7)                                   ; (set only at L3)
+           ((kk-p2-p b f) 3)
+           ((< (ken-lv e) *ken-lv-max*) (and (kks-climb st) (if (= (fighter-ptr f) 1) 2 3)))
            ((kks-climb st) (max 4 (min 6 *kk-special-n*)))))
     ((:bankai :bankai-2)
      (if (or (< (reishi-frac (gauges e)) *kk-bk-floor*) (>= (kks-bk-n st) *kk-bk-cashouts*)) 5 4))))
@@ -679,7 +703,7 @@ plan the J string goes on: every Shikai J window cuts the wave). Not a Bankai (i
 (*KK-AS-READ-P*: the AS beats her NS, as the generic CPU reads). T when it decided."
   (when (and (member (fighter-cls f) '(:na :sa)) (eq (fighter-contact f) :hit) (not (fighter-as-done f))
              (/= (brain-decided b) (fighter-cls-t f)))
-    (let ((target (if (and (kk-route-p s) (kk-route-as-p e f st)) 0 (kk-string-target e f st))))   ; (0: the SP now; b3_a0)
+    (let ((target (if (and (kk-route-p s) (kk-route-as-p e f st)) 0 (kk-string-target e b f st))))   ; (0: the SP now; b3_a0)
       (when target
         (cai-own-rolls b f)
         (setf (brain-decided b) (fighter-cls-t f))
