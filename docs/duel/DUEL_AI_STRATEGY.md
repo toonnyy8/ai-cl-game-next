@@ -3399,3 +3399,7 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   the clock (tuning.lisp, new) the side ahead at the bell plays the generic neutral at once, the side behind once its style held a decision
   gap. Bar D 141-180 (501-540): shipped cross rows pass before and after; arms5 KH .362 → .975 (.988), arms5 IH .588 → .887 (.887, short).
   G2: II 40 lines P1 2-0 393.2 s, IK 37 P1 2-0 369.6 s, KK 26 P2 0-5 262.3 s.
+  Cost: the shipped IH's points move to Hisagi (Ichigo .550 → .338; .525 → .263 on 501-540), ih5's new K.O.s are mostly the trailer
+  finished, and the dev ladder goes 17 → 15 of 27 (H>N IH .765 → .497, N>E HK .785 → .695). The mirrors' stalls are out of its reach (II's
+  KESSA lockstep through the exchange layer, HH's stare from 9-9). Merged for the playtest (Artifact v428), the manual's CPU VS CPU row
+  explains it; whether to keep it as is waits on the user (DEVLOG §796).
