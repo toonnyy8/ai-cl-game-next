@@ -84,6 +84,56 @@ Deviations from the kit study, named before the run:
   press count), so x 2 is out of reach; registered unchanged.
 - Support (screen, per match vs `none`): Kenpachi's lunges 60-70, his Shikai most of the match; Ichigo's charges 2-4, rushes ~0.5.
 
-## 4. Results
+## 4. Results (seeds 1-100, both seats, 200 matches an arm and opponent; `arms5/hisagi/proof/*.json`)
 
-(below, after the run)
+Builds: first run on p5-hisagi over main 336830ca (the clash fix), proof build `5cab37e096ec`; rerun after merging main c250671f (Ichigo's and
+Kenpachi's batches), proof build `c66e637e022f` (sim fas `93f44a5df713`): every arm's descriptors, K.O. rates and tests identical (the files
+kept are the rerun's, which carry the other batches' extra keys too).
+
+| Arm | vs Kenpachi: descriptor (value vs arm 0) | K.O. | vs Ichigo: descriptor | K.O. | Verdict |
+|---|---|---|---|---|---|
+| `h5-all` vs old `h4-all` | Shikai mean d 3.53 vs 2.49 (+1.04) PASS; NAGI < 3 m 0.475 vs 0.25 a match FAIL (x0.25) | .770 (old .965) | 4.02 vs 2.14 (+1.88) PASS; 0.185 vs 4.07 PASS | **.185** (old .525) | fails: the dead-zone part vs K, K.O. vs I |
+| `h5-cancel` | J-side share .534 vs .433 (+.10) FAIL; AS within 60 f .951 PASS | .710 | .524 vs .559 FAIL; .875 PASS | .200 | fails |
+| `h5-tip` | mean d +.466 FAIL (by .03); ranged share +.445 PASS; TABA at the tip .254 FAIL | .930 | +.339 FAIL; +.112 PASS; .252 FAIL | .660 | fails |
+| `h5-bind` | in the bind when behind .203 vs .751 FAIL; BIND EVEN 4.19 vs 6.54 FAIL; entries ahead .15 vs 1.03 PASS | .930 | 0 vs .883 FAIL; .20 vs 6.65 FAIL; .05 vs 1.06 PASS | .960 | fails |
+| `h5-wake` | wake / kd .649 vs .416 (x1.56) PASS | **.480** | .537 vs .423 (x1.27) FAIL | .230 | fails (K.O. vs K by .02; vs I) |
+| `h5-k1` (vs K) | J1 into the lunge 4.46 vs 0 a match PASS; own Shikai NS inside 5.7 m .255 vs 5.785 PASS | .645 | | | **passes** |
+| `h5-i1` (vs I) | | | charges answered .057 FAIL (>= .6); NAGI in her rush 0 PASS | .200 | fails |
+| `h5-ihx` (vs I) | | | move starts into her neutral 54.8 vs 19.3 (x2.84) PASS | 1.000 | **passes** |
+
+Every pair of h5- arms is distinct (no `not_distinct_from`). The bars were not moved after the run.
+
+Reading:
+- **Arm 0 does the kit's job in the Shikai** (+1.0 / +1.9 m, NAGI 29 / 53 a match from the band) but **K.O.s Ichigo's `none` in 18.5 % of the
+  matches** (old 52.5 %). It wins the rest at the bell (every time-out of the dev screen was his lead, 300 s): Ichigo's waiting CPU hovers at
+  3.5-4 m, NAGI lands (dev log: 28 hits / 13 whiffs in a match) but does not empty her Konpaku in time. This sinks every general arm's K.O.
+  test against Ichigo. It is a damage-rate matter (the band's routes are NS1abc 163; the kit's 321 / 286 routes need NAGI from <= 3.5 m or
+  NS3a, i.e. the pointer), the next tuning's first item.
+- **The dead-zone part vs Kenpachi** fails as the pre-run note warned: after the shared fix the old arm 0 starts 0.25 a match there, arm 0
+  0.475 (the string code's NS starts on his reel, which the band hands to it, and NAGIs whose hit was predicted outside 3.0 m).
+- **S2**: the AS on the cancel works (.95 / .87 from .57 / .08); the J-side share hardly moves, because most cancels are his J into Hisagi's
+  NAGI (the opponent's clash, which no Hisagi rule controls) and the J clash fires only on his NS / AS starts in reach.
+- **S3**: the neutral TABA fires but a quarter of TABA starts are in 4.0-4.9 m (most come from the WA gap's switch at other distances); the
+  distance part misses by .03 m vs K.
+- **S4**: the rule keeps him out of the bind when ahead (entries x0.15 / x0.05) but, behind, puts him in it less than arm 0 (whose ranged
+  strings end in AS3 by the press count far more often than the forced J5 > AS3 connects).
+- **I1**: support is thin (3.2 charges a match against her `none`) and few are answered (the NAGI window of 20 f at 4-6 m and the Hoho both
+  rarely line up). Her rush: 0.05 a match.
+
+## 5. Checks (on the merged build)
+
+- Host tests: duel-rules 3713 checks ALL PASS (style-knob: 107 keys, 10 `hr-`, 18 `hb-`; the `:fn` contract counts required arguments, and
+  cpu-hisagi-own.lisp joins the "definitions only, monotone plists" check); duel-control 124, input 33, touch 100 / 0 failures, cine 18 ALL PASS.
+- `tools/pkgcheck.sh duel`: only `DUEL::APP`. `./build.sh duel` exit 0, `git checkout -- vendor`; smoke (`run.mjs --secs 8`) exit 0.
+- G2: `tools/simgate.py --cvc` and `tests/style-gates.py cvc dist/duel` PASS (ii 41, ik 42, kk 31 lines), `tests/style-cvc-ref.txt` unchanged
+  since 39e11628.
+- The shipped lookup, `fq/proof/identity.py` (raw T0 file = live lookup), seeds 501-510, both seats: KH both sides, IH both sides, HH: 10 of 10
+  chunks identical, 0 differing.
+- Cross-build (main c250671f vs this branch, seeds 501-510 HARD, `STRAT_HRANGE`): h4-all, h4-range, h4-wake, h4-ihx, h4-kite, h4-press against
+  `none` (K and I, each seat) and the shipped lookups KH / HK / HI / IH / HH: 29 of 29 jobs identical, 12 443 lines (hash, state, gate row,
+  hrange, dswitch, hdesc).
+- STRAT_DESC read-only: h5-i1 vs I and h5-k1 vs K, seeds 521-530, with and without: hash / state / gate rows identical.
+- snaptest (straight vs pollute, seeds 4 a run, HARD): h5-k1, h5-bind (vs K), h5-tip, h5-i1, h5-cancel (vs I), h5-all (vs K): all the same
+  (1638-2276 rollouts each). fulltest (NORMAL, 2 seeds): h5-tip 24, h5-i1 40, h5-cancel 44 checks, 0 differ (h5-k1 / h5-bind / h5-all vs K:
+  0 checks: the band owns the neutral the MCTS would have rolled out).
+- `tests/sp-costs-check.py`: 116 PASS.
