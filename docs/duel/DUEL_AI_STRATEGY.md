@@ -3357,3 +3357,29 @@ generated from the kits; 845 / 1608 / 2415 trials, all sim-verified; matchup tab
 (「全部採用」 for Ichigo, Kenpachi and Hisagi) and 「改成修兵自己的打法」 for Hisagi's Shikai arm 0 (it played Kenpachi's brawler at 1.7-3.0
 m, inside his chain's dead zone). The sets and the generic clash fix are in PLAN4's checkpoint 2a note. Next: implementation batches,
 one-job proofs, T0 tables, the ladder, DUCT's freeze.
+
+**Checkpoint 2b: the in-band test, the tier probe and the user's calls** (2026-11-15). Records: `sp/arms5/inband.md` (PLAN4 §3 step 4 on
+seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swap.md`, `sp/diag/tier-t0.md`.
+- **In-band**: bar A + bar D pass in KI (both sides, K.O. 1.000), KK and II (a mirror, K.O. .475). IH passes bar A, fails bar D (.550).
+  KH (both sides) and HH fall under three general arms. Hisagi's arm 0 with the clash restored: K.O. vs Kenpachi's `none` .700 → .925,
+  vs Ichigo's .338 → .562. Verdicts stay on the pre-registered z; the clustered-se check (80 independent groups) would flip four (KH climb
+  and HH bind in, bait and IH cancel out of their sides) and is reported only. One rule set after the runs: distinctness counts only
+  siblings that pass in-band (it admits IH Ichigo's brawl).
+- **Swap test**: the KH / IH stall follows Hisagi's arms5 table (his own band play): KH K.O. .263 / .287 against either Kenpachi table, .900
+  with B4's Hisagi against arms5's Kenpachi; B4's KH is .525 on today's build. IH: arms5 Hisagi scores .975 / .825 but holds the band to
+  the bell while ahead.
+- **Tier probe** (seeds 501-600, 200 a cell): today 17 of 27 (E>M 0 of 9, H>N HK .200); no monotone tiering passes all 27, best 21.
+  The block: a masher Kenpachi needs EASY's clash at .6 / 8, which hands NORMAL the same clash, and Kenpachi out-clashes Hisagi 50 : 21.
+- **The user's calls**: 「先保留 B4 舊表」 (the four arms5 tables KI Kenpachi, KI Ichigo, KK, II go into the lookup; KH, IH, HH keep B4's
+  shipped tables until the stall is fixed); 「加『後段收尾』行為」 (a late-match finish on the clock cue: the side ahead closes to finish, the
+  side behind presses; target bar D ≥ .90); 「先拿掉，之後重做」 (out of this round, listed for a rework from the sheets: Kenpachi getsuga,
+  hug, red; Hisagi tip, bind, cancel in IH, i1; Ichigo inside).
+- **The clash question**: 「就算在修兵的近距離死角相消，但隨後的 SA 或 AS 還是能造成攻擊啊？」 Right: a cancel is judged on the other
+  side's hit in Hisagi's classed window, so his opener need not reach, and both sides count as landed (DUEL_CORE §2.1); his AS1 lands at
+  1.09 m after a 2.2 m cancel. The lead's "dead zone" framing was wrong. What decides the exchange is the side (`kits/hisagi/catalogue.md`
+  §5): Hisagi as the J side (his J1 into Kenpachi's NS) wins with AS1 TSUMUJI against every answer; as the NS side (Kenpachi's J into his
+  NS) he loses to the instant AS unless he answers it with the reactive SA (DUEL_CORE §2.1.1), which the CPU does not use. The generic
+  clash rule answered Kenpachi's J with a NS (the losing side); CLASH-FIT's dead-zone test happened to block those for the wrong reason
+  and blocked Hisagi's own clashes too. Next (the lead's call, not a ladder knob): the exchange picks the winning side (J1 into his NS;
+  no NS into his J) and, as the NS side, the reactive SA; CLASH-FIT's test restated as "which side wins the exchange"; G2-checked; then
+  the tier probe again.
