@@ -11,7 +11,7 @@
 ;;;; acting, through the real input path). A core kit's P1 (its BRAIN-STEP goes to CORE-BRAIN-STEP, which never reads the :trial
 ;;;; habit) is driven here: its brain off, TRIAL-STEP called once per sim frame (the vpad is still written from the brain's press).
 ;;;; :burst M (2026-11-13) P1 begins in burst mode M (:white / :blue / :orange).
-;;;; :p2-fs N P2's flash-step gauge (default full).
+;;;; :p2-fs N P2's flash-step gauge (default full). The end line's "fs2" (2026-11-15, PLAN4's kit study): P2's flash-step change.
 ;;;; :p2-reishi X his Reishi (red under 30 %). The end line also gives his Konpaku change.
 ;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
 ;;;; slow-motion frames don't count; Kenpachi's file).
@@ -90,7 +90,7 @@ from that act)."
     (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (fs0 (gauges-fs g1))
            (k0 (gauges-konpaku g2)) (core1 (kit-core (kit-of *p1*))) (b1 (brain *p1*)) (b2 (brain *p2*))
            (prev r0) (hits 0) (cmax 0) (gaps nil) (run2 0) (last-hit nil) (free1 nil) (free2 nil)
-           (s0 (gauges-reishi g1)) (k1 (gauges-konpaku g1)) (vp2 (pilot-vpad (pilot *p2*))) (tick2 -1) (simf 0))
+           (s0 (gauges-reishi g1)) (k1 (gauges-konpaku g1)) (vp2 (pilot-vpad (pilot *p2*))) (tick2 -1) (simf 0) (fs2-0 (gauges-fs g2)))
       (dotimes (i frames)
         (when core1 (trial-core-drive *p1* b1))
         (dolist (p p2-press)
@@ -118,14 +118,15 @@ from that act)."
             (if (trial-free-p *p1*) (unless free1 (setf free1 i)) (setf free1 nil))
             (if (trial-free-p *p2*) (unless free2 (setf free2 i)) (setf free2 nil)))))
       (let* ((p (pos-of *p1*)) (q (pos-of *p2*)) (f2 (fighter *p2*)))
-        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d | more self ~@d konpaku ~@d/~@d form ~(~a~) ptr ~d meter ~d"
+        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d | more self ~@d konpaku ~@d/~@d form ~(~a~) ptr ~d meter ~d | fs2 ~@d"
                  name (round (- r0 (gauges-reishi g2))) hits cmax (rest (reverse gaps)) last-hit free1 free2
                  (if (and free1 free2) (- free2 free1) "?")
                  (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2)))
                  (round (- (gauges-fs g1) fs0)) 0 0   ; (layers / chill: Rukia's, 0 since 2026-11-12)
                  (fighter-state (fighter *p1*)) (fighter-state f2) (- (gauges-konpaku g2) k0)
                  (round (- (gauges-reishi g1) s0)) (- (gauges-konpaku g1) k1) (- (gauges-konpaku g2) k0)
-                 (fighter-form (fighter *p1*)) (fighter-ptr (fighter *p1*)) (round (gauges-meter g1)))))
+                 (fighter-form (fighter *p1*)) (fighter-ptr (fighter *p1*)) (round (gauges-meter g1))
+                 (round (- (gauges-fs g2) fs2-0)))))
     (trial-reset nil) (setf (brain-habit (brain *p1*)) nil (brain-off (brain *p1*)) t)))
 
 (with-open-file (in (second cl-user::*sg-args*))
