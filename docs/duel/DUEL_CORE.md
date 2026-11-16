@@ -332,10 +332,10 @@ and wins.
     `cancel-open-p` and `move-end-frame`;
   - the Kikon hold, judged from the press to the hit;
   - KESSA's ZANZO echo (`sf - lag`);
-  - the CPU's `snap-left` (6 frames more left) and `snap-start` (tick - move frame - hold: the pre-roll adds no drift of its own; it
-    reads the tick of move frame 0, 6 after the press, and still drifts by the hitstop / slow-motion ticks as before, see the CPU below).
+  - the CPU's `snap-left` (6 frames more left). Its `snap-start` was tick - move frame - hold (the tick of move frame 0, 6 after the
+    press); since 2026-11-17 it is the move's `fighter-cls-t`, the press tick (fighter.lisp ACT-START, DUEL_AI_STRATEGY §11.29).
   
-  A counter that held the frame would have drifted `snap-start` on every pre-roll step, re-keying the CPU's per-move rolls. The new fighter slot `pre` (in the ECS store, so the
+  A counter that held the frame would have drifted the old `snap-start` on every pre-roll step, re-keying the CPU's per-move rolls. The new fighter slot `pre` (in the ECS store, so the
   snapshot carries it) records the frames, for the clip only. What does not shift by itself:
   - the first-frame hooks are not run at the start; MAIN-PHASE-STEP runs them when the frame reaches them;
   - the lunge and chase give no velocity while the frame is at or before ENTER, so the lunge covers its own distance (turn tracking goes
@@ -359,6 +359,13 @@ and wins.
   fired on his "new NA" at the AS's own tick, then its follow-up landed first. The cause is pre-existing: during the cancel's hitstop and
   slow motion `snap-start` (tick - move frame) drifts past the cancel's tick, so `(> ostart xch)` takes his old J1 for a new link. It is
   left for the CPU's own pass.
+  
+  Fixed 2026-11-17 (DUEL_AI_STRATEGY §11.29, `sp/arms5/snap/notes.md`): `snap-start` is stamped when the action begins. That measurement
+  was also distorted by its harness (the trial kept the match's 14-frame delay at every difficulty and the last trial's SNAP ring). With
+  both fixed, the HARD watch sees the AS in 49 of 60 trials (15 of 60 with the old read, which fired 34 times on the old J1 one frame
+  earlier), always 9 frames after his press, inside every window, and the SA lands first. NORMAL's SA comes after her NSa is absorbed by
+  his AS (the own-hit branch: 45 of 60 before, 47 after, on the same frames, +9 / +9 / +11, landing first every time); EASY's never
+  comes.
 
 **Scenes** (`sweep.py` there, tools/simgate/trial.lisp, no CPU; every distance and Hisagi mode / pointer the same):
 

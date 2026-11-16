@@ -20,7 +20,7 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
   (state :idle) (kind nil) (phase nil)
   (sf 0 :type fixnum) (s 0 :type fixnum) (active-end 0 :type fixnum)
   (left 0 :type fixnum)                 ; frames left of his move (99 = still charging / dashing) or stun
-  (start 0 :type fixnum)                ; tick his current move / guard began (one roll per event)
+  (start 0 :type fixnum)                ; tick his current move / guard / Hoho began (ACT-START: one roll per event; -1 none)
   (reach 0f0 :type single-float)
   (flags nil)                           ; his move's :flags (:parry :bind ...)
   (contact nil)                         ; what his move touched so far (NIL = nothing yet: a whiff when it ends)
@@ -31,7 +31,7 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
   "Fill SNAP S with fighter O as he is now."
   (let* ((f (fighter o)) (p (pos-of o)) (mv (fighter-move f)) (st (fighter-state f)))
     (sim-fast (let* ((q p)) (declare (type f32vec q)) (%set-float (snap-x s) (aref q 0)) (%set-float (snap-z s) (aref q 2))))
-    (setf (snap-state s) st (snap-sf s) (fighter-sf f))
+    (setf (snap-state s) st (snap-sf s) (fighter-sf f) (snap-start s) (act-start f))
     (if (and (eq st :move) mv)
         (let ((total (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
                                      (zerop (length (mv-hits mv))) (mv-kind mv))))
@@ -39,11 +39,9 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
                 (snap-contact s) (fighter-contact f)
                 (snap-active-end s) (+ (mv-s mv) (mv-a mv)) (snap-reach s) (f32 (mv-reach mv))
                 (snap-left s) (if (eq (fighter-phase f) :main) (max 0 (- total (fighter-sf f))) 99)
-                (snap-start s) (- *match-tick* (fighter-sf f) (fighter-hold f))
                 (snap-move s) mv))
         (setf (snap-kind s) nil (snap-phase s) nil (snap-reach s) 0f0 (snap-flags s) nil (snap-contact s) nil (snap-move s) nil
-              (snap-left s) (if (eq st :stun) (max 0 (- (fighter-stun f) (fighter-sf f))) 0)
-              (snap-start s) (if (eq st :guard) (- *match-tick* (fighter-guard-t f)) -1)))
+              (snap-left s) (if (eq st :stun) (max 0 (- (fighter-stun f) (fighter-sf f))) 0)))
     s))
 
 (defun snap-live-p (s)

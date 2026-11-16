@@ -363,8 +363,8 @@ KEN-KI-STYLE's), her Getsuga route (the answer's roll)."
       (setf (kks-meaty st) (chance-roll meaty))
       (when (kks-meaty st) (clog "~a kk meaty armed" (side-name e))))
     (unless (member ss '(:air :down :wakeup)) (setf (kks-meaty st) nil))
-    (when (eq ss :hoho)                                         ; her Hoho seen: its start = now - delay - her frame (b3_a0 r3)
-      (let ((h0 (- *match-tick* (brain-delay b) (snap-sf s))) (q (kit-command-move kit :q)))
+    (when (eq ss :hoho)                                         ; her Hoho seen: its start (b3_a0 r3; SNAP-START since §11.29: now -
+      (let ((h0 (snap-start s)) (q (kit-command-move kit :q)))  ;  delay - her frame drifted in its own slow motion, a roll each step)
         (when (> (+ h0 *kk-hoho-lockout*) (kks-hl st))         ; (a new one)
           (setf (kks-hl st) (+ h0 *kk-hoho-lockout*))
           (when (and q (null (kks-plan st)) (brain-roll b *kk-hend-p*))

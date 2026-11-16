@@ -258,3 +258,41 @@
            (check (equal (from-j1 -1 nil as) (list (mv-enter as) 0 50 1)))               ; (no cancel: a normal combo)
            (check (= (second (from-j1 40 nil (kit-next kit (mv-name j1) :q))) 0)))      ; (the J link out of the cancel: no wait)
       (loop for n in names for f in old do (if f (setf (fdefinition n) f) (fmakunbound n))))))
+
+;; DUEL_AI_STRATEGY §11.29 (the user, 2026-11-17: 「Ok，下一步」): the CPUs' perceived start of his action (ACT-START, SNAP-START) is stamped
+;; when it begins, never tick - frame: a cancel's hitstop and slow motion run ticks without move frames, a phase change resets the hold, and
+;; the old read drifted past the cancel's tick (the exchange watch took his old J1 for a new link). A J1 started on tick 50 keeps 50 through
+;; 12 hitstop ticks and 5 slow frames 5 ticks apart; an AS out of the cancel starts on its press tick despite its 6-frame pre-roll; a
+;; guard / Hoho reads STATE-T, anything else -1
+(multiple-value-bind (a b) (t-pair (kit :kenpachi :bankai) (kit :hisagi :bankai))
+  (declare (ignore b))
+  (let* ((fa (fighter a)) (names '(halt! play-clip)) (old (mapcar (lambda (n) (and (fboundp n) (fdefinition n))) names))
+         (kit (kit :kenpachi :bankai)) (j1 (kit-command-move kit :q)) (as (kit-core-move kit :as 1)) (*match-tick* 50))
+    (setf (fdefinition 'halt!) (lambda (e) (declare (ignore e)) nil)
+          (fdefinition 'play-clip) (lambda (&rest r) (declare (ignore r)) nil))
+    (unwind-protect
+         (let ((on (mv-on-frame j1)))
+           (setf (fighter-state fa) :idle (fighter-move fa) nil (fighter-xch fa) -1)
+           (check (= (act-start fa) -1))
+           (setf (mv-on-frame j1) nil)
+           (unwind-protect (start-move a j1 :quick) (setf (mv-on-frame j1) on))
+           (check (= (act-start fa) 50))
+           (incf (fighter-sf fa) 3) (incf *match-tick* 3)            ; (3 plain frames)
+           (incf *match-tick* 12)                                   ; (the cancel's hitstop: ticks, no frame)
+           (setf (fighter-xch fa) 65 (fighter-contact fa) :hit)
+           (dotimes (i 5) (incf (fighter-sf fa)) (incf *match-tick* 5))   ; (its slow motion: a frame every 5 ticks)
+           (setf (fighter-hold fa) 0)                               ; (a phase change resets the hold)
+           (check (= (act-start fa) 50))
+           (check (/= (- *match-tick* (fighter-sf fa) (fighter-hold fa)) 50))   ; (the old read: drifted)
+           (check (> 65 (act-start fa)))                            ; (XCH-TURN-SEEN-P: his J1 began before the cancel, no new link)
+           (let ((press *match-tick*) (on-as (mv-on-frame as)))
+             (setf (mv-on-frame as) nil)
+             (unwind-protect (start-move a as :quick) (setf (mv-on-frame as) on-as))
+             (check (and (= (fighter-pre fa) 6) (= (act-start fa) press) (> (act-start fa) 65))))   ; (his AS: a new turn)
+           (setf (fighter-state fa) :guard (fighter-state-t fa) 120 *match-tick* 160 (fighter-guard-t fa) 3)
+           (check (= (act-start fa) 120))
+           (setf (fighter-state fa) :hoho)
+           (check (= (act-start fa) 120))
+           (setf (fighter-state fa) :stun)
+           (check (= (act-start fa) -1)))
+      (loop for n in names for f in old do (if f (setf (fdefinition n) f) (fmakunbound n))))))

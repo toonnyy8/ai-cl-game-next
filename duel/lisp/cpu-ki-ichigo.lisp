@@ -809,7 +809,7 @@ pressed."
           (when (ikst-meaty st) (clog "~a ki-style meaty armed d ~,1f" (side-name e) d)))
         (setf (ikst-down st) nil (ikst-meaty st) nil))
     (when (eq (snap-state s) :hoho)                     ; (his Hoho seen: its start tick, for IKS-HIS-HOHO-SHUT-P)
-      (setf (ikst-his-hoho st) (- *match-tick* (snap-sf s) (brain-delay b))))
+      (setf (ikst-his-hoho st) (snap-start s)))         ; (now - frame - delay before §11.29: drifted in slow motion)
     (when (and (member state '(:idle :run)) (plusp (fighter-invuln f)) (getf *iks-burst-no-hoho* (brain-difficulty b)))
       (setf (brain-hoho-roll b) 1f0))                    ; (after her Burst: the stale SNAP's attack is not Hohoed)
     (prog1

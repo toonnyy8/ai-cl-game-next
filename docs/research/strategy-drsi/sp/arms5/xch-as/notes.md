@@ -44,6 +44,9 @@ one frame after the cancel; seeds 1-20 per difficulty and form.
 - The cause (pre-existing, not touched): `snap-start` = tick - move frame - hold (cpu-perceive.lisp). During the cancel's hitstop and its
   0.2 slow motion, ticks run while move frames don't. So his J1's perceived start drifts past the cancel's tick, and XCH-TURN-SEEN-P's
   `(> ostart xch)` takes the old J1 for a new link.
+  - (2026-11-17, `../snap/notes.md`: fixed, the start stamped when the move begins. The rows above were also skewed by the trial: it
+    kept a 14-frame delay at every difficulty and the last trial's SNAP ring. With both fixed, the HARD watch sees his AS in 49 of
+    60 trials.)
 - Had the watch seen the AS, its SA would press about BRAIN-DELAY + 1 frames after the AS starts: EASY 25, NORMAL 15, HARD 9.
   - Before: HARD inside every window, NORMAL only against the sealed AS1 (+16), EASY never.
   - After: HARD and NORMAL inside every window (+18 / +20 / +22), EASY still never.

@@ -22,6 +22,10 @@
 ;;;; frame (a written debug drive: an AS or SA where no press of his could reach one, e.g. at a wave's range; he pays like a player).
 ;;;; :p2-cpu DIF (DUEL_SP S7, 2026-11-13): P2's CPU plays (CORE-BRAIN-STEP at difficulty DIF, no strategy: the generic CPU or the
 ;;;; pairing's matchup style), e.g. after a :p2-start; :seed N reseeds the sim's random stream first (one seed, the same rolls in two trials).
+;;;; :log-simf T (2026-11-17) logs "simf N" on each sim frame (with :p2-at / :p2-start / :p1-at), to count frames across slow motion.
+;;;; Its perception (2026-11-17, DUEL_AI_STRATEGY §11.29): the difficulty's BRAIN-DELAY (*AI-DELAY*; it stayed the match's 14 before), and
+;;;; its SNAP ring filled with P1 as the trial starts (it held the last trial's tail: one match carries every trial, so a CPU saw the last
+;;;; trial's moves for its first DELAY frames, or P1 undelayed in a file's first trial).
 ;;;; :p1-reishi X P1's Reishi (PLAN4 kit study: the bind's evening from behind). :p2-meter X (PLAN4 kit study) P2's kit meter (Kenpachi's Shikai L 0-3). :p1-bound T (PLAN4 kit study, 2026-11-15): a Hisagi P1 in :bankai-bind starts bound (HSS-BOUND, so HS-BK-TICK keeps the bind form);
 ;;;; every other Hisagi P1 starts unbound (the flag carried over from the last trial). :p1-cmd (N ...) debug commands (DEBUG-COMMAND) run after the setup (KESSA's two NS3 clones: 74904). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
@@ -57,7 +61,7 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :ichigo) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 0) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound p2-meter p1-reishi p1-at) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at burst p2-fs p2-start p1-cmd p2-cpu seed p1-bound p2-meter p1-reishi p1-at log-simf) tr
     (declare (ignore layers chill bars))   ; (Rukia's layers, gone 2026-11-12, and the Reiatsu bars, 2026-11-13: a trial file may still name them)
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
@@ -88,13 +92,16 @@ from that act)."
     (let ((f2 (fighter *p2*)) (b1 (brain *p1*)) (b2 (brain *p2*)))
       (setf (brain-off b1) nil (brain-habit b1) :trial (brain-press-left b1) 0
             (brain-off b2) (not p2-cpu) (brain-press-left b2) 0)
-      (when p2-cpu (setf (brain-difficulty b2) p2-cpu (brain-strat b2) nil (brain-decided b2) -1)))   ; (:p2-cpu: his CPU plays, S7)
+      (when p2-cpu (setf (brain-difficulty b2) p2-cpu (brain-delay b2) (getf *ai-delay* p2-cpu 14)   ; (:p2-cpu: his CPU plays, S7)
+                         (brain-strat b2) nil (brain-decided b2) -1)))
     (when seed (setf (sim-rnd-state) seed))
     (let ((f2 (fighter *p2*)) (b2 (brain *p2*)))
       (when (eq dummy :guard)
         (setf (fighter-state f2) :guard (fighter-guard-t f2) 30 (brain-press b2) :guard (brain-press-left b2) 9999)))
     (when (kit-core (kit-of *p1*)) (setf (brain-off (brain *p1*)) t))   ; (driven by TRIAL-CORE-DRIVE)
     (dolist (c p1-cmd) (debug-command c))
+    (when p2-cpu                                        ; (his perception's history: P1 as he stands now, not the last trial's tail)
+      (let ((ring (brain-ring (brain *p2*)))) (dotimes (i (length ring)) (setf (svref ring i) (snap-take! (make-snap) *p1*)))))
     (trial-reset script) (setf *combat-log* t)
     (log-msg "trial begin ~a" name)
     (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (fs0 (gauges-fs g1))
@@ -119,6 +126,7 @@ from that act)."
               (clog "P1 at simf ~d" simf)))
           (dolist (a p2-start)
             (when (= (first a) simf) (core-start! *p2* (gethash (second a) (kit-moves (kit-of *p2*))))))
+          (when log-simf (clog "simf ~d" simf))
           (incf simf))
         (engine::%frame)
         (when (and p2-press (trial-sim-frame-p *p2* 1) (plusp (brain-press-left b2))) (decf (brain-press-left b2)))   ; (his brain is off)

@@ -95,6 +95,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (hoho-hold nil)                       ; the resumed move: it holds the victim's reaction through its startup / active
   (guard-t 0 :type fixnum)              ; frames Guard has been held (raised at *GUARD-RAISE*)
                                         ; (Bankai West: frames in the ward, which is up at *GUARD-RAISE*)
+  (state-t -1 :type fixnum)             ; *MATCH-TICK* his guard or Hoho began (ACT-START: the CPUs' perceived start; a move's is CLS-T)
   (ward-until 0 :type fixnum)           ; a :ranged-ward move's last catch: the tick a plain guard's blockstun would end (0 none)
   (stored 0 :type fixnum)               ; stance: damage absorbed
   (charge 0 :type fixnum)               ; hold frames when a charge move was released (Shiranui)
