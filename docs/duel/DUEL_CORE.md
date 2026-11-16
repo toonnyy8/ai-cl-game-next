@@ -332,10 +332,10 @@ and wins.
     `cancel-open-p` and `move-end-frame`;
   - the Kikon hold, judged from the press to the hit;
   - KESSA's ZANZO echo (`sf - lag`);
-  - the CPU's `snap-left` (6 frames more left) and `snap-start` (tick - move frame stays constant through the move, so no keyed roll
-    re-rolls).
+  - the CPU's `snap-left` (6 frames more left) and `snap-start` (tick - move frame - hold: the pre-roll adds no drift of its own; it
+    reads the tick of move frame 0, 6 after the press, and still drifts by the hitstop / slow-motion ticks as before, see the CPU below).
   
-  A counter that held the frame would have drifted `snap-start` every step. The new fighter slot `pre` (in the ECS store, so the
+  A counter that held the frame would have drifted `snap-start` on every pre-roll step, re-keying the CPU's per-move rolls. The new fighter slot `pre` (in the ECS store, so the
   snapshot carries it) records the frames, for the clip only. What does not shift by itself:
   - the first-frame hooks are not run at the start; MAIN-PHASE-STEP runs them when the frame reaches them;
   - the lunge and chase give no velocity while the frame is at or before ENTER, so the lunge covers its own distance (turn tracking goes
@@ -396,6 +396,11 @@ and wins.
   - IH Ichigo 0.075 → 0.113;
   - the mirrors 0.500.
 - The dev ladder: 15 → 16 of 27 (H>N HK 0.665 → 0.975 passes; H>N IH 0.720 → 0.645).
+- KH's swing, counted (xlog.py, the bar's KH row with the combat log on): Kenpachi's AS out of a cancel took the next real hit 3197 / 918
+  before (78 %), 1103 / 2653 after (29 %); Hisagi's 341 / 148 → 423 / 202. Which of her answers turns it is not measured: her CPU's
+  watch never sees the AS (above).
+- The browser drew it with no error: `duel-hisagi-j1-cancel.json` (HS-R-AS1 out of the cancel `HIT 43` at 89-91 against §2.1's 83-87),
+  and one seed of every pairing. The looks' `sf` readers are all range-guarded.
 
 ### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 

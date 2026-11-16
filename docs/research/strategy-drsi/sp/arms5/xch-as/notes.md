@@ -47,8 +47,9 @@ one frame after the cancel; seeds 1-20 per difficulty and form.
 - Had the watch seen the AS, its SA would press about BRAIN-DELAY + 1 frames after the AS starts: EASY 25, NORMAL 15, HARD 9.
   - Before: HARD inside every window, NORMAL only against the sealed AS1 (+16), EASY never.
   - After: HARD and NORMAL inside every window (+18 / +20 / +22), EASY still never.
-- A negative start frame keeps `snap-start` steady through the AS (the tick of its move frame 0, 6 after the press). `snap-left` counts
-  the 6 extra frames. The CPU's keyed rolls don't re-roll.
+- The negative start frame adds no drift of its own to `snap-start`: it reads the tick of the AS's move frame 0, 6 after the press, and
+  drifts by hitstop / slow-motion ticks as every move's does. A counter holding the frame would have drifted it on every pre-roll step,
+  re-keying the CPU's per-move rolls. `snap-left` counts the 6 extra frames.
 
 ## HARD vs HARD bar (finish.py bar, seeds 141-180, both seats, the shipped lookup)
 
@@ -61,8 +62,8 @@ one frame after the cancel; seeds 1-20 per difficulty and form.
 | II | 0.550 | 0.600 | 0.500 | 0.500 | 271.4 | 269.7 |
 | HH | 0.000 | 0.000 | 0.500 | 0.500 | 300.0 | 300.0 |
 
-Kenpachi's HARD loses most: KH flips from Kenpachi 0.975 to Hisagi 0.763, and KI goes 0.250 → 0.013. His tables lean on the J1 → AS out of
-a cancel. Report only; nothing was tuned.
+Kenpachi's HARD loses most: KH flips from Kenpachi 0.975 to Hisagi 0.763, and KI goes 0.250 → 0.013. Report only; nothing was tuned.
+What moved is counted below (xlog.py).
 
 ## Ladder (ladder.py --seed0 500 --seeds 100, 27 cells)
 
@@ -79,3 +80,29 @@ a cancel. Report only; nothing was tuned.
 | E>M IH | 0.130 | 0.195 |
 
 The other cells are within a few matches of before. The E>M row still fails throughout.
+
+## What moved in the bar's KH row (xlog.py: seeds 141-180, both seats, the combat log on)
+
+An "AS out of a cancel" here is an AS's `move` line after a CANCEL with no real hit between, so an AS's later segments count too. The
+next hit is the first real hit after the first such AS.
+
+| Side | cancels judged before → after | AS out of a cancel | its next real hit: own / other, before | after |
+|---|---|---|---|---|
+| Kenpachi | 3903 → 3657 | 6532 → 4264 | 3197 / 918 (78 % own) | 1103 / 2653 (29 % own) |
+| Hisagi | 2327 → 2574 | 738 → 1103 | 341 / 148 (70 %) | 423 / 202 (68 %) |
+
+So the swing is Kenpachi's AS out of a cancel: it used to take the next hit 78 % of the time and now takes it 29 %. Hisagi's CPU never
+presses its SA on seeing his AS (above). The turn must therefore come from her other answers meeting an AS that is 6 frames slower, but
+which of them wins it is not measured. Her other answers are:
+- the SA fired on the drifted "new NA" read;
+- the segment carrying on;
+- the SA after her own hit.
+
+## The browser with Hisagi's looks
+
+The negative move frame was never drawn by G2 (II / IK / KK). Two runs covered it, both exit 0, with no error:
+- `duel-hisagi-j1-cancel.json` (debug 83811-83814, PRACTICE, rendered): HS-R-AS1 out of the cancel, `HIT 43` at 89-91 against §2.1's
+  83-87.
+- One seed of every pairing (debug 31101, 2113: KK IK II HK HI HH).
+
+Every `sf` reader in hisagi-draw / ken-look / ichigo-look / draw is range-guarded; no table is indexed by the move frame.
