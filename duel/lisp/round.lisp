@@ -86,7 +86,7 @@ everyone, the hidden stun cleared, the forms kept, flash-step kept, the kit's :r
         (when rf (set-form e rf) (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0)))
       (fill (motion-vel mo) 0f0)
       (vpad-clear! (pilot-vpad (pilot e)))
-      (let ((b (brain e))) (when b (setf (brain-press-left b) 0)))   ; a CPU lets go of what it held (a rush's O)
+      (let ((b (brain e))) (when b (setf (brain-press-left b) 0 (brain-fresh b) t)))   ; a CPU lets go of what it held (a rush's O); its ring restarts
       (let ((h (kit-hook (kit-of e) :reset))) (when h (funcall h e)))   ; the form's own reset (Hisagi's sickle back in hand)
       (to-idle e 0)))
   (emit :reset))

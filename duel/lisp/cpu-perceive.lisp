@@ -127,7 +127,10 @@ distance to it."
   (let* ((ring (brain-ring b)) (n (length ring))
          (cur (or (svref ring (brain-head b)) (setf (svref ring (brain-head b)) (make-snap)))))
     (snap-take! cur o)
-    (let* ((s (or (svref ring (mod (- (brain-head b) (brain-delay b)) n)) cur))
+    (when (brain-fresh b)                                   ; (match start, round reset: every slot is this step's view, so the
+      (setf (brain-fresh b) nil)                            ;  first DELAY steps see the round's start, never him undelayed or last round)
+      (dotimes (i n) (unless (eq (svref ring i) cur) (snap-take! (or (svref ring i) (setf (svref ring i) (make-snap))) o))))
+    (let* ((s (svref ring (mod (- (brain-head b) (brain-delay b)) n)))
            (d (snap-dist s e)))
       (setf (brain-head b) (mod (1+ (brain-head b)) n))
       (when (and (eq (snap-state s) :move) (eq (snap-kind s) :quick) (/= (snap-start s) (brain-jkey b)))   ; a J of his begins

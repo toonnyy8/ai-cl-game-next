@@ -3471,3 +3471,33 @@ hit). Playtest Artifact v432.
   finish affects.
 - Not tier knobs, the lead's next work: a Kenpachi answer to Ichigo's NS clash into his J (KI), an IH Ichigo table that is not dominated
   at parity, an HH table that does not stare, and the bell's tiebreak (tier-r2.md "What would move the frontier").
+
+### 11.31 The perception ring starts fresh; the NS side's own hit latched (2026-11-17)
+
+The user, 2026-11-17: 「繼續」, after §11.30 listed the open small CPU issues (`sp/arms5/snap/notes.md` "Still open").
+
+**What was wrong.**
+- At match start, an empty ring slot fell back to this step's SNAP, so for its first BRAIN-DELAY steps a CPU saw the opponent
+  undelayed.
+- A round reset kept the ring, so after it a CPU saw the last round's tail for BRAIN-DELAY steps.
+- XCH-SA-NOW-P's OWN-HIT ("the NS segment's own hit was the cancel's") read `(plusp (fighter-hits f))` every step. A later hit of the
+  segment that his AS absorbed sets a bit there too, so the branch fired on that.
+
+**Fix** (no chance, table or knob changed):
+- The brain slot `fresh` (components.lisp) is T on a new brain and is set again by the round reset (round.lisp). BRAIN-PERCEIVE then fills
+  every ring slot with this step's view, once. The first DELAY steps see the round's start.
+- `brain-xown` is latched in CAI-XCH-NEW on the cancel's step and read by CAI-XCH-STEP.
+
+**Measured** (the shipped build):
+- fulltest 2102 4007: 0 differ (5 checks; FT_LAYER=t 652 checks, 0 differ).
+- **Ladder 19 -> 17 of 27** (`sp/diag/tier/ladder-ring.txt`). E>M drops across the row: KK .655 -> .530, KI .820 -> .730 (out),
+  IK .705 -> .555, HI .565 -> .445. N>E HK .815 -> .715 (out). The rest within noise: H>N KI .845 -> .840, IH .555 -> .630, N>E IH
+  .410 -> .445.
+  - EASY no longer sees the masher's first J of each round undelayed. That was a perception leak, so the cost is kept.
+- Bar D (HARD vs HARD, 141-180; `sp/diag/tier/bar-ring.txt`): KI K.O. 1.000 (Kenpachi .037), KH 1.000 (.200), IH .825 (Ichigo .050),
+  KK 1.000, II .475, HH 0 (300 s, a stare).
+- G2 regenerated (native = browser): II 39 lines P1 2-1 386.6 s, IK 27 lines P1 5-0 264.6 s, KK 22 lines P2 0-6 221.7 s. Host tests 3742
+  ALL PASS. Playtest Artifact v433.
+
+These are the baseline of the IH and HH table batches that follow.
+

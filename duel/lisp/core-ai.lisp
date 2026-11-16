@@ -188,6 +188,7 @@ cancelled move holds into no Kikon. The J side's answer is picked in CAI-XCH-STE
   (when (and (eq (fighter-state f) :move) (not (and (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f))))
              (xch-side (fighter-cls f) (fighter-contact f) (fighter-xch f) (fighter-cls-t f)))
     (setf (brain-xkey b) (fighter-xch f) (brain-xmove b) (fighter-cls-t f) (brain-xdone b) nil (brain-xpick b) :roll
+          (brain-xown b) (plusp (fighter-hits f))
           (brain-press-left b) 0)))
 
 (defun cai-xch-step (e b f kit s d)
@@ -209,7 +210,7 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
       (unless (brain-xdone b)
         (if (eq (fighter-cls f) :ns)
             (cond ((and (eq (brain-xpick b) :watch)
-                        (xch-sa-now-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (plusp (fighter-hits f))
+                        (xch-sa-now-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (brain-xown b)
                                       *match-tick* (strat-mul (brain-now b) :xch-sa-wait *cai-xch-sa-wait*)))
                    (setf (brain-xdone b) t)
                    (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))

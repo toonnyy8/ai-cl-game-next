@@ -190,6 +190,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (delay 14 :type fixnum)               ; perception delay, frames
   (ring (make-array 32) :type simple-vector)   ; SNAPs of the opponent, one per step
   (head 0 :type fixnum)
+  (fresh t)                             ; the ring holds no SNAP of this round yet (match start, round reset): BRAIN-PERCEIVE fills it
   (strafe 1f0 :type single-float) (strafe-t 0 :type fixnum)
   (press nil) (press-mod nil) (press-left 0 :type fixnum)  ; button being held and for how long
   (decide-t 0 :type fixnum)             ; frames until the next neutral decision
@@ -205,6 +206,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (r-turn 1f0 :type single-float) (r-cont 1f0 :type single-float) (r-kikon 1f0 :type single-float)   ; ... and the rolls
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (xkey -1 :type fixnum) (xmove -1 :type fixnum)   ; the cancel answered (core-ai.lisp CAI-XCH-NEW): its exchange tick, his move's start
+  (xown nil)                            ; ... the NS segment's own hit was the cancel's (FIGHTER-HITS on the cancel's step, not a later absorbed hit)
   (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch), the NS carry-on, acted
   (clash-key -1 :type fixnum)           ; the start tick of his move the clash's roll was made for (CAI-CLASH)
   (fin-t 0 :type fixnum)                ; the last tick it attacked or was hit (in :MOVE or reeling): the late-match finish's quiet (CAI-FINISH)
