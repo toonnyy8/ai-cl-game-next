@@ -3501,3 +3501,50 @@ The user, 2026-11-17: 「繼續」, after §11.30 listed the open small CPU issu
 
 These are the baseline of the IH and HH table batches that follow.
 
+### 11.32 IH Ichigo and HH tables (p9 batches, 2026-11-17)
+
+The user, 2026-11-17: 「繼續」 (the plan after §11.31: an IH Ichigo table that is not dominated at parity, an HH table that fights).
+Two worktree batches from main 717dc4c9; the levers were the pairing's table in `strategy.lisp` only (no rule, knob or shared unit).
+Records: `sp/arms6/ih.md`, `sp/arms6/hh.md`.
+
+**HH** (`:t0-hh-hisagi`, replaced in place, same id):
+- Diagnosis: not a stare on today's build (B4's time-outs move to the bell, the last move start a median 0.7 s before it). The damage
+  rate was the block: B4's arm 0 (`a-hk-pot`, Kenpachi's brawler) took 264 s a Konpaku against itself, Hisagi's own Shikai band
+  (`h5-all`) 500 s (both sides hold 3.4-4.2 m). The generic CPU + MCTS K.O.s the mirror (.875 played whole).
+- Table: arms `(:a-generic :h5-all :c-ih-h-r1-b2a0)`, `:rb-sp2`, keep-state, margin .02, period 30, no `:with`. The generic CPU plays
+  the Shikai and the bind mode; in the ranged mode `h5-all` while he attacks, `c-ih` otherwise. About 33 arm changes a match.
+- A trade it cannot remove: no rule-base cue tells a masher from a CPU, so mirror K.O.s cost E>M (a K.O.-heavier t10: bar D .90, E>M .14).
+
+**IH Ichigo** (`:t0-ih-ichigo`, 6 arms -> 4):
+- The unit `:d-x-ih-i` turns her clash back on (it was `:clash-p 0.0`, set before §11.30): `(:clash-p 1.7 :xch-sa-p 1.6 :xch-carry-p 0.3
+  :clash-margin 0.5 :awaken-break-p 0.0 :awaken-kikon-p 1.2)`. Only `:t0-ih-ichigo` names it by id; the research tables carry it inline.
+- Arms `(:a4-i-brawl :i6-economy :i6-punish :a5-i-kessa-lunge)` on arms5's job map and q. `:i6-economy` / `:i6-punish` are new units:
+  economy and punish on arm 0's neutral. No arm over .70 of the time; 59-76 arm changes a match.
+- Parity is not reached: at HARD, Hisagi's own Shikai band (`hb-band` in his IH arms, checkpoint 2a) blocks every Ichigo table tried
+  (about 70; HH-parity cell at most .095; without the band .28, with B4's Hisagi table .50). At NORMAL every Ichigo variant stays
+  at or under .133.
+
+**Measured on merged main** (`sp/diag/tier/ladder-p9.txt`, `bar-p9.txt`; sim build f23d72765792):
+
+| cell | §11.31 | now |
+|---|---|---|
+| H>N IH | .630 | .590 fail |
+| N>E IH | .445 | **.885** PASS |
+| E>M IH | .325 | **.895** PASS |
+| H>N / N>E / E>M HI | 1.000 / 1.000 / .445 | 1.000 / .995 / .445 |
+| H>N / N>E / E>M HH | .960 / .915 / .325 | **1.000** / **.950** / .470 |
+| parity IH (Ichigo's share) N>N / H>H | .005 / .050 | .035 / .035 |
+| parity HH K.O. rate N>N / H>H | .020 / .000 | .920 / .820 |
+
+- **Ladder 17 -> 19 of 27**; the other 21 cells identical to `ladder-ring.txt`. Fails: H>N IH .590, N>E HK .715, E>M KK .530, KI .730,
+  IK .555, II .345, HI .445, HH .470.
+- N>E IH, E>M IH and E>M HH repeat on seeds 141-180 (IH > 10 SE, HH about 2.6 SE).
+- Bar D: IH K.O. .825 -> .925 (Ichigo .037; bell 1 / 5), HH .000 -> .750 (256.5 s; .775 on 501-540); KI / KH / KK 1.000, II .475.
+- **Tool note:** bar D's mirror rows (KK, II, HH) run both seats as one identical job, so each is 40 distinct matches counted twice
+  (SE about .07, not .05); `finish.py bar` with `-j` > 1 races on those jobs' one cache file (use `-j 1`).
+- Host tests 3742 ALL PASS, pkgcheck (DUEL::APP only), `--cvc` PASS unchanged (the G2 pairs play no IH / HH table). Playtest Artifact v434.
+
+**Open, the user's call** (both measured with this Ichigo table, not shipped; each undoes a checkpoint the user picked):
+- `:hb-band` removed from Hisagi's IH arms: H>N IH .765, N>E .855, E>M .760, E>M HI .695, HH parity .385 (undoes checkpoint 2a).
+- B4's IH Hisagi table: H>N IH .835, N>E .915, E>M .760, E>M HI .690, HH parity .560 (undoes checkpoint 2c).
+
