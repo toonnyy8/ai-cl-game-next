@@ -172,7 +172,7 @@ None of these cells has a match without a change.
 |---|---|---|---|---|
 | HARD vs NORMAL | .556 | .160 | .114 | .170 |
 | NORMAL vs EASY | .543 | .262 | .085 | .110 |
-| EASY vs HARD | .543 | .100 | .132 | .226 |
+| EASY vs HARD (not the E>M cell, whose opponent is the masher) | .543 | .100 | .132 | .226 |
 | HARD vs HARD | .392 | .138 | .204 | .266 |
 
 No arm is over .70.
@@ -213,4 +213,7 @@ Tried on H>N IH, all .49-.64 (`ih/r-u*`, `r-n*`, `r-h*`, `r-f*`, `r-t-*`):
   - In H>N, her generic NS1a goes in at his floor, he back-Steps it, and NAGI punishes the whiff (`hn-1.log` pattern).
   - Candidates, untested: a gated Ichigo key family in cpu-ki-ichigo.lisp, such as a Hoho-in that catches his back Step with NS3a, or
     the reach and hover entries for Hisagi's forms.
-- **The ladder count.** Its 27 cells should go 17 → 19 on main's ladder: only the IH / HI cells move, by construction.
+- **The ladder count** (measured, `ih/ladder-full.txt`, build `fabe31b2f849`): 17 → **19 of 27**. Only the IH / HI cells differ from
+  `diag/tier/ladder-ring.txt`; the other 23 cells are identical, KI included.
+- **The edited unit:** `:d-x-ih-i` is named by id only from the library (the lookup). The research files that lay it (arms4 / arms5
+  tables, `arms5/inband.py`, the DUCT anchors) inline it from `arms4/x-units/d-x-ih-i.lisp` or as text, so they keep the old play.
