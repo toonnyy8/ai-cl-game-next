@@ -1,0 +1,7 @@
+# tier-r2.md step 2: tier-t0's informative worlds re-run on a6c77eeb (names r2*; set / lift exactly as tier-t0's spec-tier-{r,g,g24,e}.tsv)
+r2R1a	*cai-clash-delay*=(:easy 24 :normal 14 :hard 8)	easy=easy:*ai-delay*
+r2G3n	*ai-delay*=(:easy 18 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h
+r2G3m22	*ai-delay*=(:easy 22 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i
+r2G3m24	*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i
+r2E1	*ai-delay*=(:easy 24 :normal 14 :hard 8)	easy=hard:@clash;normal=hard:@clash
+r2E3	*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=hard:@clash,@cai;normal=hard:@clash,@cai

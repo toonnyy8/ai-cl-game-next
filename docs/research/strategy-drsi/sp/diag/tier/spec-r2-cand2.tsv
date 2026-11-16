@@ -1,0 +1,4 @@
+# tier-r2.md step 4: X1 variants. X3: Ichigo's style at NORMAL's shipped for EASY and NORMAL (aimed at H>N KI). X4: NORMAL Hisagi's style at
+# EASY's (aimed at IH); HARD keeps its own. Run X4 on N>E and H>N only (EASY is X1's).
+r2X3	*ai-delay*=(:easy 22 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0 :x 0.45);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4 :x 8)	easy=normal:@style-k,@style-i;easy=hard:@cai;normal=hard:@cai,@style-k;easy=x:*cai-clash-p*,*cai-clash-delay*;normal=x:*cai-clash-p*,*cai-clash-delay*
+r2X4	*ai-delay*=(:easy 22 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0 :x 0.45);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4 :x 8)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i;normal=easy:@style-h;easy=x:*cai-clash-p*,*cai-clash-delay*;normal=x:*cai-clash-p*,*cai-clash-delay*

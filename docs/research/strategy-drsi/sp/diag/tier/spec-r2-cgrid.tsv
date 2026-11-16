@@ -1,0 +1,13 @@
+# tier-r2.md step 3: the clash grid at EASY = NORMAL (HARD .6 / 8), everything else as shipped: E>M KK IK HK (the masher Kenpachi column) and H>N KI
+r2c35_8	*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8)	easy=easy:*ai-delay*
+r2c35_9	*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6);*cai-clash-delay*=(:easy 9 :normal 9 :hard 8)	easy=easy:*ai-delay*
+r2c35_10	*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8)	easy=easy:*ai-delay*
+r2c35_12	*cai-clash-p*=(:easy 0.35 :normal 0.35 :hard 0.6);*cai-clash-delay*=(:easy 12 :normal 12 :hard 8)	easy=easy:*ai-delay*
+r2c45_8	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8)	easy=easy:*ai-delay*
+r2c45_9	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 0.6);*cai-clash-delay*=(:easy 9 :normal 9 :hard 8)	easy=easy:*ai-delay*
+r2c45_10	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 0.6);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8)	easy=easy:*ai-delay*
+r2c45_12	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 0.6);*cai-clash-delay*=(:easy 12 :normal 12 :hard 8)	easy=easy:*ai-delay*
+r2c6_8	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8)	easy=easy:*ai-delay*
+r2c6_9	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 9 :normal 9 :hard 8)	easy=easy:*ai-delay*
+r2c6_10	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 10 :normal 10 :hard 8)	easy=easy:*ai-delay*
+r2c6_12	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 12 :normal 12 :hard 8)	easy=easy:*ai-delay*

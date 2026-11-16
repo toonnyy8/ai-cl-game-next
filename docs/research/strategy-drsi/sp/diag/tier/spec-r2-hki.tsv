@@ -1,0 +1,8 @@
+# tier-r2.md step 3: HARD-only raises against H>N KI with EASY = NORMAL's clash at .6 / 8 (r2c6_8: KI .205) or .45 / 8 (r2c45_8: .655)
+r2k6h6	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 6)	easy=easy:*ai-delay*
+r2k6h4	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=easy:*ai-delay*
+r2k6p1	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8)	easy=easy:*ai-delay*
+r2k6p1h4	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=easy:*ai-delay*
+r2k6e4	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8);*ai-delay*=(:easy 24 :normal 14 :hard 4)	easy=easy:*ai-delay*
+r2k6xs	*cai-clash-p*=(:easy 0.6 :normal 0.6 :hard 0.6);*cai-clash-delay*=(:easy 8 :normal 8 :hard 8);*cai-xch-sa-p*=(:easy 0.25 :normal 0.45 :hard 1.0);*cai-xch-j*=(:easy (:as 0.9 :j 0.1) :normal (:as 0.7 :j 0.3) :hard (:as 1.0 :j 0.0))	easy=easy:*ai-delay*
+r2k45h4	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=easy:*ai-delay*

@@ -190,6 +190,7 @@ def main():
             pt = 1.0 if w == f'P{hs}' else 0.0 if w == f'P{3 - hs}' else 0.5
             for t in (c, tot):
                 t['n'] += 1; t['pts'] += pt; t['bell'] += 1 - m['ko']
+                t['bellpts'] = t.get('bellpts', 0.0) + pt * (1 - m['ko'])   # (tier-r2: the higher tier's points at the bell)
             tot['hi'].update(m[f'P{hs}']); tot['lo'].update(m[f'P{3 - hs}'])
             c.setdefault('hi', collections.Counter()).update(m[f'P{hs}']); c.setdefault('lo', collections.Counter()).update(m[f'P{3 - hs}'])
     print(f"{o.hi} vs {o.lo}, seeds {o.seed0 + 1}-{o.seed0 + o.seeds}, both seats{'; set ' + o.set if o.set else ''}{'; lift ' + o.lift if o.lift else ''}")
@@ -209,6 +210,7 @@ def main():
         with open(o.json, 'w') as f:
             json.dump(dict(hi=o.hi, lo=o.lo, seed0=o.seed0, seeds=o.seeds, set=o.set, lift=o.lift, n=tot['n'], share=tot['pts'] / tot['n'],
                            cells={k: c['pts'] / c['n'] for k, c in cells.items()}, bells={k: c['bell'] for k, c in cells.items()},
+                           bellpts={k: c.get('bellpts', 0.0) for k, c in cells.items()},
                            per_match={t: {k: tot[t][k] / tot['n'] for k in sorted(tot[t])} for t in ('hi', 'lo')}), f, indent=1)
 
 
