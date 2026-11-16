@@ -158,10 +158,34 @@ C['f1'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], EC2, PUN2, KL2], T0Q,
 C['f2'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], A[':a5-i-economy'], PUN2, A[':a5-i-kessa-lunge']], T0Q, [(UNIT0, UNIT1)])
 C['f3'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], A[':a5-i-economy'], A[':a5-i-punish'], KL2], T0Q, [(UNIT0, UNIT1)])
 C['f4'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], EC2, A[':a5-i-punish'], A[':a5-i-kessa-lunge']], T0Q, [(UNIT0, UNIT1)])
+# the job arms on arm 0's neutral (brawl's: patience off, the ptr3 mode, no shut-gauge lunge), each keeping its own job key on top:
+# economy its steer to AS1; punish its whiff confirm at 1.0 (the start-time punish off: it reads sealed Kenpachi's reach)
+EC3 = fix(A[':a5-i-economy'], BRAWL0)
+PUN3 = fix(A[':a5-i-punish'], BRAWL0 + ' :iks-punish-p 0.0 :iks-confirm-p 1.0')
+C['g1'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], EC3, PUN3, A[':a5-i-kessa-lunge']], T0Q, [(UNIT0, UNIT1)])
+C['g2'] = ([ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], EC3, PUN3, KL2], T0Q, [(UNIT0, UNIT1)])
+# the pick (arms6/ih.md): g1 with its two changed job arms under ids of their own (their plists differ from the KI / II tables' arms)
+FINAL = [ARMSB[0], A[':a5-i-answer'], A[':a4-i-brawl'], EC3.replace('(:id :a5-i-economy ', '(:id :i6-economy ', 1),
+         PUN3.replace('(:id :a5-i-punish ', '(:id :i6-punish ', 1), A[':a5-i-kessa-lunge']]
+# under the new unit, arm 0 (= a4-i-brawl's plist) and the answer arm (brawl + the same exchange keys the unit now lays) play alike: drop
+# both duplicate columns (answer 1, brawl 2), keeping arm 0, economy, punish, kessa-lunge and their q columns
+KEEP = (0, 3, 4, 5)
+FINAL4 = [FINAL[i] for i in KEEP]
+Q4 = lambda ante, k: Q0[ante][KEEP[k]]  # noqa: E731
+C['g1d'] = (FINAL4, Q4, [(UNIT0, UNIT1)])
+# ablation: t-unit-b0 with job arm k replaced by arm 0's play (its job rules and q kept)
+for _k, _n in ((3, 'economy'), (4, 'punish'), (5, 'kessa')):
+    C['s-' + _n] = ([a if i != _k else ARMSB[0].replace(':i6-all', f':i6-s{_k}', 1) for i, a in enumerate(ARMSB)], T0Q, [(UNIT0, UNIT1)])
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    if sys.argv[1:] == ['final']:   # the installed table's source (strategy.lisp :t0-ih-ichigo)
+        tab.write(BASE, os.path.join(HERE, 'ih/t0-ih-ichigo.lisp'), ':t0-ih-ichigo', FINAL4, Q4, subs=[(UNIT0, UNIT1)],
+                  note="p9-ih's IH Ichigo table (= candidate g1d): arms5's T0 job map and q for arms 0 / economy / punish / kessa-lunge (answer "
+                       "and brawl dropped: under the new unit they play as arm 0), arm 0 = a4-i-brawl, economy and punish on its neutral "
+                       "(:i6-economy, :i6-punish), the unit :d-x-ih-i with the clash on")
+        return
     names = sys.argv[1:] or list(C)
     for n in names:
         arms, q, *subs = C[n]

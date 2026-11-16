@@ -1,0 +1,10 @@
+ladder seeds 501-600, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N IH   | 200 | 118 :  82 :  0 | 0.590  0.532 | fail | 134 FLAG | 0.55 / 0.63 | hi changes med 76.0 zero 0 | lo changes med 59.0 zero 0
+hn H>N HI   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   0 | 1.00 / 1.00 | hi changes med 39.5 zero 0 | lo changes med 50.0 zero 0
+ne N>E IH   | 200 | 177 :  23 :  0 | 0.885  0.843 | PASS | 102 FLAG | 0.88 / 0.89 | hi changes med 66.0 zero 0 | lo changes med 35.0 zero 0
+ne N>E HI   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |  62 FLAG | 0.99 / 1.00 | hi changes med 57.0 zero 0 | lo changes med 76.0 zero 0
+em E>M IH   | 200 | 179 :  21 :  0 | 0.895  0.854 | PASS |  27 | 0.89 / 0.90 | hi changes med 64.0 zero 0 | lo changes -
+em E>M HI   | 200 |  89 : 111 :  0 | 0.445  0.388 | fail | 196 FLAG | 0.44 / 0.45 | hi changes med 54.0 zero 0 | lo changes -
+4 of 6 cells pass
+json docs/research/strategy-drsi/sp/arms6/ih/ladder-switch.json

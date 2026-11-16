@@ -1,0 +1,104 @@
+{
+ "ichigo": "ih/c/g1.lisp",
+ "hisagi": null,
+ "seed0": 140,
+ "seeds": 40,
+ "cells": [
+  {
+   "rung": "hn",
+   "cell": "IH",
+   "n": 80,
+   "share": 0.55,
+   "wilson_lo": 0.4584,
+   "passed": false,
+   "bell": 53,
+   "bellpts": 28.0,
+   "ko": 27,
+   "kowins": 16.0
+  },
+  {
+   "rung": "hn",
+   "cell": "HI",
+   "n": 80,
+   "share": 1.0,
+   "wilson_lo": 0.9673,
+   "passed": true,
+   "bell": 0,
+   "bellpts": 0,
+   "ko": 80,
+   "kowins": 80.0
+  },
+  {
+   "rung": "ne",
+   "cell": "IH",
+   "n": 80,
+   "share": 0.8375,
+   "wilson_lo": 0.7588,
+   "passed": true,
+   "bell": 40,
+   "bellpts": 28.0,
+   "ko": 40,
+   "kowins": 39.0
+  },
+  {
+   "rung": "ne",
+   "cell": "HI",
+   "n": 80,
+   "share": 1.0,
+   "wilson_lo": 0.9673,
+   "passed": true,
+   "bell": 21,
+   "bellpts": 21.0,
+   "ko": 59,
+   "kowins": 59.0
+  },
+  {
+   "rung": "em",
+   "cell": "IH",
+   "n": 80,
+   "share": 0.9125,
+   "wilson_lo": 0.8461,
+   "passed": true,
+   "bell": 18,
+   "bellpts": 11.0,
+   "ko": 62,
+   "kowins": 62.0
+  },
+  {
+   "rung": "em",
+   "cell": "HI",
+   "n": 80,
+   "share": 0.475,
+   "wilson_lo": 0.3855,
+   "passed": false,
+   "bell": 78,
+   "bellpts": 38.0,
+   "ko": 2,
+   "kowins": 0.0
+  },
+  {
+   "rung": "nn",
+   "cell": "IH",
+   "n": 80,
+   "share": 0.05,
+   "wilson_lo": 0.0226,
+   "passed": false,
+   "bell": 19,
+   "bellpts": 3.0,
+   "ko": 61,
+   "kowins": 1.0
+  },
+  {
+   "rung": "hh",
+   "cell": "IH",
+   "n": 80,
+   "share": 0.0625,
+   "wilson_lo": 0.0307,
+   "passed": false,
+   "bell": 3,
+   "bellpts": 0.0,
+   "ko": 77,
+   "kowins": 5.0
+  }
+ ]
+}
