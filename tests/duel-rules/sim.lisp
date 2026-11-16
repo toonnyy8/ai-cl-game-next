@@ -233,3 +233,28 @@
            (cancel)
            (check (equal bounced '(:hit :hit))))
       (loop for n in names for f in old do (if f (setf (fdefinition n) f) (fmakunbound n))))))
+
+;; DUEL_CORE §2.1.3 (the user, 2026-11-16: 「相消後的 AS 前搖拉長」): START-MOVE of an AS out of a J1 that took part in a cancel begins its
+;; move frame *CORE-XCH-AS-DELAY* before its entry (so its hit frames come that much later), its start tick the press's, its first-frame
+;; hooks not run yet; after a real hit since the cancel, without a cancel, or for a J link, as before
+(multiple-value-bind (a b) (t-pair (kit :kenpachi :bankai) (kit :hisagi :bankai))
+  (declare (ignore b))
+  (let* ((fa (fighter a)) (names '(halt! play-clip)) (old (mapcar (lambda (n) (and (fboundp n) (fdefinition n))) names))
+         (kit (kit :kenpachi :bankai)) (j1 (kit-command-move kit :q)) (as (kit-core-move kit :as 1)) (hooked 0)
+         (*match-tick* 50))
+    (setf (fdefinition 'halt!) (lambda (e) (declare (ignore e)) nil)
+          (fdefinition 'play-clip) (lambda (&rest r) (declare (ignore r)) nil))
+    (unwind-protect
+         (flet ((from-j1 (xch done mv)
+                  (setf (fighter-state fa) :move (fighter-phase fa) :main (fighter-move fa) j1 (fighter-cls fa) :na (fighter-cls-t fa) 30
+                        (fighter-contact fa) :hit (fighter-xch fa) xch (fighter-xch-done fa) done hooked 0)
+                  (let ((on (mv-on-frame mv)))                      ; (count the first-frame hooks instead of running them)
+                    (setf (mv-on-frame mv) (mapcar (lambda (x) (list (first x) (lambda (e) (declare (ignore e)) (incf hooked)))) on))
+                    (unwind-protect (start-move a mv :quick) (setf (mv-on-frame mv) on)))
+                  (list (fighter-sf fa) (fighter-pre fa) (fighter-cls-t fa) hooked)))
+           (check (plusp (count (mv-enter as) (mapcar #'first (mv-on-frame as)))))   ; (KE-KR-AS1 has a hook on its first frame)
+           (check (equal (from-j1 40 nil as) (list (- (mv-enter as) 6) 6 50 0)))        ; (out of the cancel: 6 more, hook later)
+           (check (equal (from-j1 40 t as) (list (mv-enter as) 0 50 1)))                 ; (a real hit since: as before)
+           (check (equal (from-j1 -1 nil as) (list (mv-enter as) 0 50 1)))               ; (no cancel: a normal combo)
+           (check (= (second (from-j1 40 nil (kit-next kit (mv-name j1) :q))) 0)))      ; (the J link out of the cancel: no wait)
+      (loop for n in names for f in old do (if f (setf (fdefinition n) f) (fmakunbound n))))))

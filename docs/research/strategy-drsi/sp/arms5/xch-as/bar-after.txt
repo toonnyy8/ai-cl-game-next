@@ -1,0 +1,8 @@
+finish bar, build d469c53ddce2, seeds 141-180 both seats, HARD vs HARD
+row  | A        B        |  n | K.O.  | points A | bell: A ahead / B ahead / draw | mean secs
+ki   | kenpachi ichigo   | 80 | 1.000 | 0.013    |  0 /  0 /  0                   | 156.6
+kh   | kenpachi hisagi   | 80 | 1.000 | 0.237    |  0 /  0 /  0                   | 210.5
+ih   | ichigo   hisagi   | 80 | 0.887 | 0.113    |  0 /  9 /  0                   | 244.6
+kk   | kenpachi kenpachi | 80 | 1.000 | 0.500    |  0 /  0 /  0                   | 173.4
+ii   | ichigo   ichigo   | 80 | 0.600 | 0.500    | 16 / 16 /  0                   | 269.7
+hh   | hisagi   hisagi   | 80 | 0.000 | 0.500    | 40 / 40 /  0                   | 300.0

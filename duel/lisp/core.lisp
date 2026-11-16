@@ -51,6 +51,18 @@ once from the frame the segment took part in a cancel (CANCELLED, CORE-CANCELLED
 segment's active end while the J side's AS started at once (the later start wins: CORE-LATER), so the J side always had the free turn."
   (or cancelled (>= sf (+ s a))))
 
+(defun core-xch-as-p (cls old-cls xch old-cls-t done)
+  "Is a move of class CLS, started out of a move of class OLD-CLS (begun on tick OLD-CLS-T), an AS out of a cancel: its first segment (out
+of an NA link or the SA), the move it follows took part in a cancel (CORE-CANCELLED-P over XCH, FIGHTER-XCH; an SA only an exchange after
+its start: one latched before the cancel fires stamped with the cancel's tick, CORE-LATCH-STEP, and took no part), and no real hit since
+(DONE: FIGHTER-XCH-DONE, the exchange's breakthrough: a J link that broke through, or a later window that hit)? Such an AS gets
+*CORE-XCH-AS-DELAY* frames more startup (the user, 2026-11-16: 「相消後的 AS 前搖拉長」; DUEL_CORE §2.1.3). Either side of the cancel."
+  (and (eq cls :as) (not done)
+       (case old-cls
+         (:na (core-cancelled-p xch old-cls-t))
+         (:sa (> xch old-cls-t -1)))
+       t))
+
 (defun core-hoho-open-p (xch &optional done)
   "May a fighter whose exchange is XCH (FIGHTER-XCH, -1 when none; DONE: FIGHTER-XCH-DONE, its breakthrough taken) start a Hoho? Not while
 the exchange a cancel opened is still undecided: from the cancel until its first real hit (the breakthrough, CORE-BREAK!) or until both are

@@ -299,6 +299,104 @@ pairings each: Kz sealed Kenpachi, Ks his Shikai, Ib Ichigo, Ik KESSA, Hb Hisagi
 - sim.lisp: after a cross-class cancel, both sides carry the exchange, neither is `hoho-ready-p`, and `try-command :hoho` returns NIL. The
   move goes on and the press is eaten. With the exchange over, both may Hoho again.
 
+#### 2.1.3 An AS out of a cancel waits 6 frames (the user, 2026-11-16)
+
+The user (verbatim): 「檜佐木卍解後還是會被劍八壓著打，我發現是因為 NSa 的動作太久了，導致在他能切換成 SA 前，劍八就已經能從 J 換成 AS 以突破防線。是否應該要讓每一段在相消後就能換成 SA 或 AS？」
+
+**The cause.** The NS side's SA already starts at once after a cancel (§2.1.1). The real limit is the reaction window.
+- Scripted (Bankai Hisagi's four NSa x Kenpachi's three forms x 1.2 / 1.8 / 2.4 m): Kenpachi's J1 cancels her NSa and his AS starts one
+  frame after the cancel. Her SA, pressed n frames after his AS press, wins only for n in:
+  - +2..+16 against the sealed AS1 (S 16),
+  - +2..+14 against the Shikai's (S 14),
+  - +2..+12 against the Bankai's (S 12).
+- +0 is the same tick, a CORE-LATER tie. A human needs about 12-15 frames to see the AS and press.
+
+The user chose **「相消後的 AS 前搖拉長」**: every fighter, every form.
+
+**The rule** (old → new). An AS started out of a cancel had its own startup. It now waits **`*core-xch-as-delay*` = 6 frames** (tuning.lisp,
+0 → 6) before that startup runs: its hit frames, its armour window (move frame 6 on), its on-frame hooks and its end all come 6 later. Its
+start tick (`fighter-cls-t`, CORE-LATER's) stays the press. So an SA started within S + 6 frames after the AS is still the later start
+and wins.
+- **Which AS** (the pure `core-xch-as-p`, core.lisp). It must be an AS's first segment, out of an NA link or the SA.
+  - The move it follows took part in a cancel: `core-cancelled-p`, an exchange opened on or after that move's start. An SA counts only for
+    an exchange strictly after its start, since one latched before the cancel fires stamped with the cancel's tick and took no part.
+  - No real hit came since: the exchange's breakthrough `fighter-xch-done`, which is any real hit in it; neither contact nor the window
+    bits can tell a cancel from a hit.
+  - An AS after a real hit is unchanged: a normal combo, a J link that broke through (its own start is after the exchange), or a later
+    window that hit.
+  - Either side of the cancel, all three fighters, every form, Kenpachi's `:as-pick` moves too, since the wait is set in START-MOVE.
+- **The mechanism: a negative start frame.** `core-pre-roll` (core-sim.lisp) is read by START-MOVE before it replaces the move, while the
+  old move's class, start tick and exchange are still on the fighter. The move frame then starts at ENTER - 6 (`fighter-sf`) and every
+  frame-indexed reader shifts by itself:
+  - the hit windows, `*armor-from*`, `core-window-class` (the pre-roll counts as startup: the triangle judges it as an AS),
+    `cancel-open-p` and `move-end-frame`;
+  - the Kikon hold, judged from the press to the hit;
+  - KESSA's ZANZO echo (`sf - lag`);
+  - the CPU's `snap-left` (6 frames more left) and `snap-start` (tick - move frame stays constant through the move, so no keyed roll
+    re-rolls).
+  
+  A counter that held the frame would have drifted `snap-start` every step. The new fighter slot `pre` (in the ECS store, so the
+  snapshot carries it) records the frames, for the clip only. What does not shift by itself:
+  - the first-frame hooks are not run at the start; MAIN-PHASE-STEP runs them when the frame reaches them;
+  - the lunge and chase give no velocity while the frame is at or before ENTER, so the lunge covers its own distance (turn tracking goes
+    on: the wind-up tracks 6 frames more);
+  - the clip plays its wind-up slower (speed x (S - ENTER) / (S - ENTER + 6)) and gets its own speed back on the hit frame, so no pose
+    freezes and the drawn swing meets the hit frame;
+  - an ORANGE startup cut is skipped for such an AS (the wait wins).
+  
+  No AS has a `:tick`; its frame hooks are all on its first frame or later.
+- **Readers checked and left alone.** core-ai's `(>= sf s)` reads; xch-ai's `xch-turn-seen-p` / `xch-sa-now-p` (`(> ostart xch)` stays
+  true); cpu-ki-ken / cpu-ki-ichigo / cpu-hisagi-range (NS segments and their own moves); practice's dummy (`next-window-lead`: a larger
+  lead); combat's threat / perfect-Hoho windows; the HUD; and the looks. ken-look / `move-beats` use -1 as "no move" and see -6..-1 for
+  a few frames: cosmetic. mcts-lite's light model ends a rollout at a cancel, so it never meets the wait. The full-sim rollouts run the
+  real sim.
+- **The CPU** (no chance or knob retuned; docs/research/strategy-drsi/sp/arms5/xch-as/notes.md). The NS side's watch
+  (`*cai-xch-sa-p*`, XCH-SA-NOW-P) would press its SA about BRAIN-DELAY + 1 frames after seeing the AS start: EASY 25, NORMAL 15, HARD 9.
+  - Before: HARD inside every window, NORMAL only against the sealed AS1, EASY never.
+  - After: HARD and NORMAL inside every window (+18 / +20 / +22), EASY still never.
+  
+  Measured (cpu-window.py, Kenpachi J1 into the CPU's Bankai NSa, seeds 1-20 a row, both builds), the watch never saw the AS. Its SA
+  fired on his "new NA" at the AS's own tick, then its follow-up landed first. The cause is pre-existing: during the cancel's hitstop and
+  slow motion `snap-start` (tick - move frame) drifts past the cancel's tick, so `(> ostart xch)` takes his old J1 for a new link. It is
+  left for the CPU's own pass.
+
+**Scenes** (`sweep.py` there, tools/simgate/trial.lisp, no CPU; every distance and Hisagi mode / pointer the same):
+
+| Scene | Before | After |
+|---|---|---|
+| Bankai Hisagi NSa x Kenpachi J1 → his AS, her SA at +n: sealed / Shikai / Bankai AS1 | +2..+16 / +2..+14 / +2..+12 (ranged pointer 2 vs Bankai: +0..+12) | +2..+22 / +2..+20 / +2..+18 |
+| Reverse: Hisagi J1 x Kenpachi NS1a → Bankai HS-R-AS1, Kenpachi's SA: vs sealed, Bankai / Shikai | +2..+16 / +2..+14 | +2..+22 / +2..+20 |
+| Reverse, Shikai Hisagi's AS1 TSUMUJI: vs sealed, Bankai / Shikai | none / none | none / +2..+6 |
+| KI: Ichigo NS1a (base, KESSA) x Kenpachi J1 → his AS, her SA | +2..+16 / +14 / +12 | +2..+22 / +20 / +18 |
+| Combo: J1 really hits, SP on the hit (every fighter's AS1) | AS start / hit ticks | identical |
+
+- The +0 tie: before, SA-G's later hit happened to fall on the Bankai AS1's recovery; now the AS's later active frames meet it, a second
+  cancel.
+
+**Tests**:
+- triangle.lisp: the knob; `core-xch-as-p` with a cancel, on its first frame, after a real hit, with no cancel, with an earlier move's
+  exchange, for a J link, for an AS's next segment, for an SA cancelled after its start or latched before.
+- sim.lisp: START-MOVE of Kenpachi's Bankai AS1 out of a cancelled J1 starts at ENTER - 6 with `pre` 6 and its start tick the press,
+  its first-frame hook not run yet. After a real hit, or without a cancel, it starts as before (hook run). A J2 link out of the cancel
+  does not wait.
+- Host tests 3718 → 3733 checks, ALL PASS. sp-costs-check all pass.
+- snaptest (30000 31104 2132: equal but for the cons/frame stat).
+- fulltest: 2102 4007 3 checks; with FT_LAYER=t 659 checks, and 758 on KK; 0 differ.
+
+**G2** (`tests/style-cvc-ref.txt`). With the knob at 0, native `--cvc` matched the old reference line for line. At 6 it was regenerated
+(native = browser):
+- II 40 → 32 lines, P1 2-0 393.2 s → P2 0-4 321.0 s;
+- IK 37 → 24, P1 2-0 369.6 s → P1 3-0 240.6 s;
+- KK 26 → 28, P2 0-5 262.3 s → P2 0-2 273.7 s.
+
+**Report only** (no tuning; notes.md there).
+- HARD vs HARD bar (seeds 141-180, the shipped lookup), points of A before → after:
+  - KI Kenpachi 0.250 → 0.013;
+  - KH Kenpachi 0.975 → 0.237 (K.O. 0.975 → 1.000);
+  - IH Ichigo 0.075 → 0.113;
+  - the mirrors 0.500.
+- The dev ladder: 15 → 16 of 27 (H>N HK 0.665 → 0.975 passes; H>N IH 0.720 → 0.645).
+
 ### 2.2 A stealing AS: per-hit flash-step take, no cap, 50 % to the attacker (the user, 2026-11-12)
 
 Requests (verbatim, 2026-11-12): 「檜佐木始解 AS1「旋」改 10/20/30/40」, 「一護始解 AS1「落牙」改 80」, 「一護血鎖 AS1「鎖引」改 30/30/30/30」,
