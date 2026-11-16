@@ -1,0 +1,7 @@
+seeds 501-600 both seats; ichigo=ih/c/t-ug2.lisp hisagi=lookup
+rung cell |   n | share  wilson pass | bell  bellpts |  ko  kowins
+hn   IH   | 200 | 0.590  0.532    -  |  126    71.0  |  74    47.0
+ne   IH   | 200 | 0.880  0.837  PASS |  138   120.0  |  62    56.0
+em   IH   | 200 | 0.795  0.744  PASS |   54    25.0  | 146   134.0
+hh   IH   | 200 | 0.010  0.003    -  |   20     1.0  | 180     1.0
+nn   IH   | 200 | 0.040  0.023    -  |   62     5.0  | 138     3.0

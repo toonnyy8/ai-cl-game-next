@@ -1,0 +1,171 @@
+{
+ "seed0": 500,
+ "seeds": 100,
+ "build": "fabe31b2f84916cd",
+ "cells": [
+  {
+   "rung": "hn",
+   "hi": "hard",
+   "lo": "normal",
+   "cell": "IH",
+   "n": 200,
+   "hi_wins": 118,
+   "lo_wins": 82,
+   "draws": 0,
+   "share": 0.59,
+   "wilson_lo": 0.532,
+   "passed": false,
+   "bell": 134,
+   "bell_flag": true,
+   "share_p1": 0.55,
+   "share_p2": 0.63,
+   "hi_changes": {
+    "median": 76.0,
+    "mean": 74.5,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 59.0,
+    "mean": 59.0,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "hn",
+   "hi": "hard",
+   "lo": "normal",
+   "cell": "HI",
+   "n": 200,
+   "hi_wins": 200,
+   "lo_wins": 0,
+   "draws": 0,
+   "share": 1.0,
+   "wilson_lo": 0.9867,
+   "passed": true,
+   "bell": 0,
+   "bell_flag": false,
+   "share_p1": 1.0,
+   "share_p2": 1.0,
+   "hi_changes": {
+    "median": 39.5,
+    "mean": 41.1,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 50.0,
+    "mean": 50.8,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "ne",
+   "hi": "normal",
+   "lo": "easy",
+   "cell": "IH",
+   "n": 200,
+   "hi_wins": 177,
+   "lo_wins": 23,
+   "draws": 0,
+   "share": 0.885,
+   "wilson_lo": 0.8426,
+   "passed": true,
+   "bell": 102,
+   "bell_flag": true,
+   "share_p1": 0.88,
+   "share_p2": 0.89,
+   "hi_changes": {
+    "median": 66.0,
+    "mean": 65.5,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 35.0,
+    "mean": 36.4,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "ne",
+   "hi": "normal",
+   "lo": "easy",
+   "cell": "HI",
+   "n": 200,
+   "hi_wins": 199,
+   "lo_wins": 1,
+   "draws": 0,
+   "share": 0.995,
+   "wilson_lo": 0.9779,
+   "passed": true,
+   "bell": 62,
+   "bell_flag": true,
+   "share_p1": 0.99,
+   "share_p2": 1.0,
+   "hi_changes": {
+    "median": 57.0,
+    "mean": 58.2,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": {
+    "median": 76.0,
+    "mean": 76.9,
+    "zero": 0,
+    "matches": 200
+   }
+  },
+  {
+   "rung": "em",
+   "hi": "easy",
+   "lo": "masher",
+   "cell": "IH",
+   "n": 200,
+   "hi_wins": 179,
+   "lo_wins": 21,
+   "draws": 0,
+   "share": 0.895,
+   "wilson_lo": 0.8539,
+   "passed": true,
+   "bell": 27,
+   "bell_flag": false,
+   "share_p1": 0.89,
+   "share_p2": 0.9,
+   "hi_changes": {
+    "median": 64.0,
+    "mean": 62.5,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": null
+  },
+  {
+   "rung": "em",
+   "hi": "easy",
+   "lo": "masher",
+   "cell": "HI",
+   "n": 200,
+   "hi_wins": 89,
+   "lo_wins": 111,
+   "draws": 0,
+   "share": 0.445,
+   "wilson_lo": 0.3883,
+   "passed": false,
+   "bell": 196,
+   "bell_flag": true,
+   "share_p1": 0.44,
+   "share_p2": 0.45,
+   "hi_changes": {
+    "median": 54.0,
+    "mean": 54.6,
+    "zero": 0,
+    "matches": 200
+   },
+   "lo_changes": null
+  }
+ ]
+}

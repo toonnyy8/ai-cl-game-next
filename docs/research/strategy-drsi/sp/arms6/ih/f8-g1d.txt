@@ -1,0 +1,11 @@
+[simgate] building build/simgate/duel.fas (~2 min)
+seeds 501-600 both seats; ichigo=ih/c/g1d.lisp hisagi=lookup
+rung cell |   n | share  wilson pass | bell  bellpts |  ko  kowins
+hn   IH   | 200 | 0.590  0.532    -  |  134    71.0  |  66    47.0
+hn   HI   | 200 | 1.000  0.987  PASS |    0     0.0  | 200   200.0
+ne   IH   | 200 | 0.885  0.843  PASS |  102    82.0  |  98    95.0
+ne   HI   | 200 | 0.995  0.978  PASS |   62    61.0  | 138   138.0
+em   IH   | 200 | 0.895  0.854  PASS |   27    15.0  | 173   164.0
+em   HI   | 200 | 0.445  0.388    -  |  196    87.0  |   4     2.0
+nn   IH   | 200 | 0.035  0.019    -  |   68     3.0  | 132     4.0
+hh   IH   | 200 | 0.035  0.019    -  |   10     0.0  | 190     7.0

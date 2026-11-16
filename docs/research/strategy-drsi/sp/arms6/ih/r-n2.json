@@ -1,0 +1,56 @@
+{
+ "ichigo": "ih/c/n2.lisp",
+ "hisagi": null,
+ "seed0": 500,
+ "seeds": 100,
+ "cells": [
+  {
+   "rung": "hn",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.4925,
+   "wilson_lo": 0.4348,
+   "passed": false,
+   "bell": 144,
+   "bellpts": 72.5,
+   "ko": 56,
+   "kowins": 26.0
+  },
+  {
+   "rung": "ne",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.86,
+   "wilson_lo": 0.8148,
+   "passed": true,
+   "bell": 132,
+   "bellpts": 107.0,
+   "ko": 68,
+   "kowins": 65.0
+  },
+  {
+   "rung": "em",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.755,
+   "wilson_lo": 0.7018,
+   "passed": true,
+   "bell": 62,
+   "bellpts": 24.0,
+   "ko": 138,
+   "kowins": 127.0
+  },
+  {
+   "rung": "hh",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.03,
+   "wilson_lo": 0.0156,
+   "passed": false,
+   "bell": 16,
+   "bellpts": 3.0,
+   "ko": 184,
+   "kowins": 3.0
+  }
+ ]
+}

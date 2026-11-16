@@ -1,0 +1,104 @@
+{
+ "ichigo": "ih/c/t-unit-b0.lisp",
+ "hisagi": "../arms4/t0final/t0-ih-hisagi.lisp",
+ "seed0": 500,
+ "seeds": 100,
+ "cells": [
+  {
+   "rung": "hn",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.835,
+   "wilson_lo": 0.7874,
+   "passed": true,
+   "bell": 26,
+   "bellpts": 17.0,
+   "ko": 174,
+   "kowins": 150.0
+  },
+  {
+   "rung": "hn",
+   "cell": "HI",
+   "n": 200,
+   "share": 0.975,
+   "wilson_lo": 0.9495,
+   "passed": true,
+   "bell": 0,
+   "bellpts": 0,
+   "ko": 200,
+   "kowins": 195.0
+  },
+  {
+   "rung": "ne",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.915,
+   "wilson_lo": 0.8768,
+   "passed": true,
+   "bell": 48,
+   "bellpts": 37.0,
+   "ko": 152,
+   "kowins": 146.0
+  },
+  {
+   "rung": "ne",
+   "cell": "HI",
+   "n": 200,
+   "share": 0.955,
+   "wilson_lo": 0.9242,
+   "passed": true,
+   "bell": 7,
+   "bellpts": 5.0,
+   "ko": 193,
+   "kowins": 186.0
+  },
+  {
+   "rung": "em",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.76,
+   "wilson_lo": 0.7071,
+   "passed": true,
+   "bell": 66,
+   "bellpts": 27.0,
+   "ko": 134,
+   "kowins": 125.0
+  },
+  {
+   "rung": "em",
+   "cell": "HI",
+   "n": 200,
+   "share": 0.69,
+   "wilson_lo": 0.634,
+   "passed": false,
+   "bell": 121,
+   "bellpts": 64.0,
+   "ko": 79,
+   "kowins": 74.0
+  },
+  {
+   "rung": "nn",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.21,
+   "wilson_lo": 0.1667,
+   "passed": false,
+   "bell": 16,
+   "bellpts": 6.0,
+   "ko": 184,
+   "kowins": 36.0
+  },
+  {
+   "rung": "hh",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.56,
+   "wilson_lo": 0.5018,
+   "passed": false,
+   "bell": 2,
+   "bellpts": 2.0,
+   "ko": 198,
+   "kowins": 110.0
+  }
+ ]
+}

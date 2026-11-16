@@ -101,7 +101,10 @@ startup / active / recovery of a move by class, or his state."
               ((and b dv (plusp (length dv)))
                (let ((dif (intern (string-upcase dv) :keyword)))
                  (setf (brain-difficulty b) dif (brain-delay b) (getf *ai-delay* dif 14))
-                 (brain-set-strat! b (strat-lookup (fighter-character (fighter e)) (fighter-character (fighter (fighter-opp (fighter e)))) dif))))))))
+                 (brain-set-strat! b (strat-lookup (fighter-character (fighter e)) (fighter-character (fighter (fighter-opp (fighter e)))) dif))
+                 ;; STRAT_<CHARACTER>=file (arms6/ih.md): that character's table from a file at every tier, as strat-run.lisp reads it
+                 (let ((p (ext:getenv (format nil "STRAT_~a" (fighter-character (fighter e))))))
+                   (when (and p (plusp (length p))) (brain-set-strat! b (cl-user::sg-read-strat p))))))))))
   (when (and (battle-p) (eq *flow* :battle))
     (setf *combat-log* t (aref *pr-c* 0 5) *match-tick* (aref *pr-c* 1 5) *match-tick*)
     (let ((now (list nil nil)))

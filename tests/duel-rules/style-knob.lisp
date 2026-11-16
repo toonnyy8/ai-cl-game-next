@@ -46,10 +46,10 @@
                     (eq d (strat-out nil k d)))))))
   ;; no library unit or table names a knob but the searched arms the final tables ship (DUEL_AI_STRATEGY §11.16: units :c-*, tables :f-*;
   ;; §11.27: the re-collection's units :x-*; §11.29, PLAN4 B4: the one-job arms :a4-* / :h4-*, whose keys ARE their jobs, and the T0 tables
-  ;; :t0-* that name them; checkpoint 2b: arms5's one-job arms :k5-* / :a5-*; 2c: Hisagi's :h5-*), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is
+  ;; :t0-* that name them; checkpoint 2b: arms5's one-job arms :k5-* / :a5-*; 2c: Hisagi's :h5-*; p9-ih: IH Ichigo's :i6-*), and no seed arm of the SP search (the library's arms written out, sp/arms/*.lisp, and the pilot's): their play is
   ;; unchanged. The searched arms (sp/arms/r<n>/, x1/, arms4/) name knobs by design.
   (flet ((unsearched (l &rest pres) (remove-if (lambda (u) (some (lambda (pre) (eql 0 (search pre (symbol-name (getf u :id))))) pres)) l)))
-    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-" "A4-" "H4-" "K5-" "A5-" "H5-") *strat-rule-bases*
+    (check (notany (lambda (v) (sk-tree-has v keys)) (list *strat-styles* *strat-data* (unsearched *strat-units* "C-" "X-" "A4-" "H4-" "K5-" "A5-" "H5-" "I6-") *strat-rule-bases*
                                                            (unsearched *strat-library* "F-" "T0-"))))
     (check (sk-tree-has *strat-units* keys)))
   (dolist (f (append (directory (merge-pathnames "../../docs/research/strategy-drsi/sp/arms/*.lisp" *load-truename*))
