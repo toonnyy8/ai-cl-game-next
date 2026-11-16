@@ -408,7 +408,7 @@ scenes (0-4 12 62-64 66) left with his code, 2026-11-12; Ichigo takes his place 
   (case k
     (5 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 7.0) (force-form *p1* :nozarashi) (force-cmd *p1* :sp1))
     (6 (ensure-battle :kenpachi :ichigo) (place *p1* *p2* 3.5)
-       (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30)
+       (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30 (fighter-state-t (fighter *p2*)) *match-tick*)
        (setf (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 120)   ; off: held
        (force-cmd *p1* :breaker))
     (7 (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 2.4) (force-cmd *p2* :f)   ; a Hoho out of Kenpachi's K

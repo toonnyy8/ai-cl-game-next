@@ -267,6 +267,17 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
     (halt! e)
     (play-clip e (fighter-stance-clip f) :blend blend)))
 
+;;; The start of what he is doing, as the CPUs perceive it (cpu-perceive.lisp SNAP-START; the user, 2026-11-17: 「Ok，下一步」,
+;;; DUEL_AI_STRATEGY §11.29). It was tick - move frame - hold: hitstop, slow motion and a super freeze run ticks without frames, and a
+;;; phase change resets the hold, so it drifted, re-keying every per-event roll and taking an old J for a new link.
+(defun act-start (f)
+  "The *MATCH-TICK* fighter F's current action began, a fact stamped when it began: a move's CLS-T (its START-MOVE: an AS out of a cancel's
+pre-roll from its press; an SA latched before a cancel, that cancel's tick, CORE-LATCH-STEP), a guard's or Hoho's STATE-T, else -1."
+  (case (fighter-state f)
+    (:move (if (fighter-move f) (fighter-cls-t f) -1))
+    ((:guard :hoho) (fighter-state-t f))
+    (t -1)))
+
 (defun callout (e text)
   (let ((f (fighter e))) (setf (fighter-callout f) text (fighter-callout-t f) *callout-frames*)))
 
@@ -385,7 +396,7 @@ opponent (HOHO-STEP). Checks PERFECT now (no flash-step refund since 2026-10-18)
       (setf (fighter-hoho-from f) mv (fighter-hoho-cls f) (fighter-cls f) (fighter-hoho-presses f) (fighter-presses f)
             (fighter-hoho-mult f) (fighter-charge-mult f) (fighter-hoho-left f) 0 (fighter-queued f) nil))   ; (DUEL_CORE §8)
     (setf (fighter-perfect f) (perfect-now-p e)                                     ; (before leaving the move: a cancel Hoho)
-          (fighter-state f) :hoho (fighter-sf f) 0 (fighter-move f) nil
+          (fighter-state f) :hoho (fighter-sf f) 0 (fighter-move f) nil (fighter-state-t f) *match-tick*
           (fighter-hoho-lock f) (+ *hoho-frames* *hoho-lockout*))
     (halt! e)
     (let ((p (pos-of e))) (emit :hoho-out e (aref p 0) (aref p 2)))
@@ -521,7 +532,7 @@ AWAKEN-PRESS!, 2026-11-14)."
       (if (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (guard-held-p e vp))   ; (a red Kikon lock: no guard)
           (progn
             (unless (eq (fighter-state f) :guard)
-              (setf (fighter-state f) :guard (fighter-guard-t f) 0)
+              (setf (fighter-state f) :guard (fighter-guard-t f) 0 (fighter-state-t f) *match-tick*)
               (when (pilot-cam-relative (pilot e)) (clog "~a guard" (side-name e)))
               (play-clip e :sh-guard :blend 3))
             (incf (fighter-guard-t f))
@@ -661,7 +672,7 @@ the end (MOVE-END-FRAME)."
                                                           (zerop (length (mv-hits mv))) (mv-kind mv))           ;  its recovery
                                           sf))                                                                  ;  would have ended
              (when (guard-held-p e vp)
-               (setf (fighter-state f) :guard (fighter-guard-t f) 0)
+               (setf (fighter-state f) :guard (fighter-guard-t f) 0 (fighter-state-t f) *match-tick*)
                (play-clip e :sh-guard :blend 3)))
             ((>= sf (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
                                     (zerop (length (mv-hits mv))) (mv-kind mv)))
@@ -829,7 +840,7 @@ since 2026-11-14: AWAKEN-PRESS!, before this step); lock 1 (not red): an attack 
   (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f)))
              (not (hoho-holds-p f)))
     (to-idle e)
-    (when (guard-held-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise*) (play-clip e :sh-guard :blend 3))))
+    (when (guard-held-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise* (fighter-state-t f) *match-tick*) (play-clip e :sh-guard :blend 3))))
 
 (defun chain-more-p (e f mv)
   "Can E's move MV still go on into a follow-up (the guard lock's MORE): a next J / K link, an L link L may start, the

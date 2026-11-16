@@ -3414,3 +3414,21 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   Hisagi 60. Dev ladder 501-600: 15 → 15 of 27; H>N IH .497 → .720, H>N HK .460 → .665 (both still fail), N>E HK .695 → .790 (passes),
   N>E IH .790 → .608 (fails), E>M KH .690 → .750, E>M HI .250 → .290, N>E HI .990 → 1.000; time-outs rise where the new tables meet
   (N>E KH 0 → 108, N>E IH 44 → 156, E>M HI 99 → 178). G2 identical.
+- **The perceived start, stamped** (the user, 2026-11-17: 「Ok，下一步」, on the misread found in `sp/arms5/xch-as/notes.md`;
+  `sp/arms5/snap/notes.md`). `snap-start` was tick - move frame - hold, which drifted:
+  - in every hitstop, slow motion, super freeze and cinematic (ticks run, frames don't);
+  - at every hold reset (a Breaker's or Kikon's phase) and at ENTER-MAIN.
+
+  Every "one roll per event" key re-rolled on each hit, and on every frame of a cancel's slow motion. After a cancel, the HARD watch took
+  his old J1 for a new NA link and pressed one frame before it could see his AS.
+  - The fix: fighter.lisp ACT-START, the start as a fact of the action. A move's is CLS-T (its press: an AS's pre-roll included). A
+    guard's or Hoho's is a new slot STATE-T, stamped at each entry. KI's two Hoho reads now use it too instead of now - delay - frame.
+  - No chance, table or knob changed. tools/simgate/trial.lisp's `:p2-cpu` now uses the difficulty's delay and a fresh SNAP ring (it had
+    kept 14 frames and the last trial's ring, which skewed xch-as's "0 of 180").
+  - cpu-window, HARD: the watch fires on his AS 15 → 49 of 60, and on the old J1 34 → 0. Every press is 9 frames after his AS press,
+    inside the +2..+18/20/22 window, and the SA lands first. NORMAL's SA comes only through the own-hit branch after an absorb, on the
+    same frames both ways (+9 / +9 / +11 by Kenpachi's form, inside); EASY's never comes.
+  - G2 regenerated (identical with the old read restored): II 30 lines P2 0-7 292.6 s, IK 18 P1 9-0 175.0 s, KK 21 P1 2-0 205.7 s.
+  - HARD vs HARD 141-180, K.O. / points A: KI 1.000 / .013 → 1.000 / .000, KH 1.000 / .237 → .963 / .200, IH .887 → .838
+    (.113), KK 1.000 (mean 173.4 → 164.3 s), II .600 → .425, HH .000.
+  - Dev ladder 16 → 17 of 27: E>M KH .705 → .755 PASS; N>E HK .920 → .870, N>E KK .965 → .925, E>M IH .195 → .125.
