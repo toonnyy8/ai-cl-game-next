@@ -1,0 +1,4 @@
+{"note": "t18: arm 0 generic; in the ranged mode h5-all while ahead / even (G8), c-ih-h-r1-b2a0 while behind", "arms": ["../arms/hh-gen.lisp", "../arms/h5-all.lisp", "../arms/c-ih-h-r1-b2a0.lisp"],
+ "values": [null,
+  [[["(:form :"], -0.12], [["(:form :yes)"], 0.06], [["(:time"], -0.03], [["(:time", "(:lead :ahead)"], 0.03], [["(:time", "(:lead :even)"], 0.03]],
+  [[["(:form :"], -0.12], [["(:form :yes)"], 0.06], [["(:time"], -0.03], [["(:time", "(:lead :behind)"], 0.03]]]}

@@ -1,0 +1,1 @@
+(:id :p-cih :fn hisagi-ihr1b2a0-style :apply (:hisagi) :dswitch-map ((:base 1 3)) :base (:dswitch 1.0 :ihx-margin -0.1) :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))

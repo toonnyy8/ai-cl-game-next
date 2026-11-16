@@ -1,0 +1,1 @@
+{"note": "arms6/hh t1: arm 0 the generic CPU + MCTS; h5-all (his own Shikai band) in the Shikai", "arms": ["../arms/hh-gen.lisp", "../arms/h5-all.lisp"], "jobs": [null, [[1, ["(:form :no)"]]]]}

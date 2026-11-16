@@ -360,7 +360,8 @@
 ;; each row names its arm 1's job cue (and a base where no job fires), and those four rows' "before" is B4's checksum (255846: KI Kenpachi
 ;; and KK, 812408: KI Ichigo and II, read from the B4 library before the swap), so a copy saved from B4's table loads fresh.
 ;; Checkpoint 2c (the user, 2026-11-16, 「KH、IH 換新表，HH 保留舊表」): KH both and IH both likewise (B4's checksums 575073 KH Kenpachi,
-;; 195522 KH Hisagi, 812408 IH Ichigo, 671538 IH Hisagi); HH alone keeps B4's table (and §11.27's :f-* as its "before").
+;; 195522 KH Hisagi, 812408 IH Ichigo, 671538 IH Hisagi); HH alone kept B4's table (and §11.27's :f-* as its "before").
+;; arms6/hh (p9-hh, 2026-11-17): HH's table replaced in place (same id; sp/arms6/hh.md): arm 0 the generic CPU, its "before" B4's checksum 101019.
 (dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 6 a4-i-all :d-x-ki-i 812408 (:xch 1))          ; (arm 1 answer: an exchange open)
              (:kenpachi :ichigo :t0-ki-kenpachi 4 c-ki-k-r2-b1a2 :d-x-ki-k 255846 (:dm 2.0) (:dm 7.0))   ; (poke: form 0 close; base far)
              (:kenpachi :hisagi :t0-kh-kenpachi 2 c-ki-k-r2-b1a2 :d-x-kh-k 575073 (:ost 4))     ; (wake: he is down)
@@ -369,7 +370,7 @@
              (:hisagi :ichigo :t0-ih-hisagi 4 h5-all :d-x-ih-h 671538 (:form 1 :dm 4.5))   ; (tip: form 1 at mid)
              (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil 255846 (:ost 4))     ; (wake: he is down)
              (:ichigo :ichigo :t0-ii-ichigo 5 a4-i-all nil 812408 (:xch 1))
-             (:hisagi :hisagi :t0-hh-hisagi 3 a-hk-pot nil :f-hh-hisagi (:form 1 :dm 4.5))))
+             (:hisagi :hisagi :t0-hh-hisagi 3 a-generic nil 101019 (:form 1 :ost 1))))   ; (h5-all: the ranged mode while he attacks)
   (destructuring-bind (me vs id na arm0 with old job1-cues &optional base-cues) r
     (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq))
            (base (append base-cues

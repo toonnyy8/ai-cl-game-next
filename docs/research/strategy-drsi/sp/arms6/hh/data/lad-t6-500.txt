@@ -1,0 +1,6 @@
+ladder seeds 501-600, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N HH   | 200 | 196 :   4 :  0 | 0.980  0.956 | PASS |   4 | 0.98 / 0.98
+ne N>E HH   | 200 | 186 :  14 :  0 | 0.930  0.894 | PASS |  31 | 0.91 / 0.95
+em E>M HH   | 200 |  79 : 121 :  0 | 0.395  0.340 | fail |  89 FLAG | 0.41 / 0.38
+2 of 3 cells pass

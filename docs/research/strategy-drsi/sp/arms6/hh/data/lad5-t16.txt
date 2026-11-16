@@ -1,0 +1,7 @@
+HH cells, seeds 501-600 both seats, table t/t16.lisp, build 2d4bd5f5c371
+rung      | n   | share  wilson | pass | K.O. rate | K.O. hi : lo | bell n, hi : lo : draw
+hn H>N HH | 200 | 0.990  0.970 | PASS | 0.955     | 191 :   0    |   9, 7 : 2 : 0
+ne N>E HH | 200 | 0.915  0.877 | PASS | 0.860     | 164 :   8    |  28, 19 : 9 : 0
+em E>M HH | 200 | 0.530  0.472 | fail | 0.705     |  78 :  63    |  59, 28 : 31 : 0
+nn N>N HH | 200 | 0.500  0.442 | fail | 0.820     |  82 :  82    |  36, 18 : 18 : 0
+hh H>H HH | 200 | 0.500  0.442 | fail | 0.700     |  70 :  70    |  60, 30 : 30 : 0

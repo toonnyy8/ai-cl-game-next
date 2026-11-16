@@ -1,0 +1,3 @@
+; t3.lisp's arms (band.py t0)
+(:id :h5-all :fn hisagi-own-style :ken-ranged t :apply (:hisagi) :base (:hk-pot 1.0 :hb-band 1.0))
+(:id :hh-gen :apply (:hisagi) :base (:p 1.0))

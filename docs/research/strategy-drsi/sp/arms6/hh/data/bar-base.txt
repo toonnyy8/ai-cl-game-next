@@ -1,0 +1,3 @@
+finish bar, build 2d4bd5f5c371, seeds 141-180 both seats, HARD vs HARD
+row  | A        B        |  n | K.O.  | points A | bell: A ahead / B ahead / draw | mean secs | changes med A / B (zero)
+hh   | hisagi   hisagi   | 80 | 0.000 | 0.500    | 40 / 40 /  0                   | 300.0 | 28.0 (0) / 28.0 (0)
