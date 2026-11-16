@@ -18,6 +18,16 @@ count the attack press (an NA link and an SA are attack presses: the pointer an 
     (when (and (eq cls :ns) (not (eq (kit-class (fighter-kit f) old) :ns))) (setf (fighter-clash-n f) 0))   ; a fresh NS route counts its cancels from 0
     (case cls ((:na :sa) (incf (fighter-presses f))))))
 
+(defun core-pre-roll (f mv)
+  "Frames move MV, about to start (START-MOVE, called before it replaces F's move in play: F's class, start tick and exchange are still the
+old move's), waits before its startup: *CORE-XCH-AS-DELAY* for an AS out of a cancel (CORE-XCH-AS-P; DUEL_CORE §2.1.3), else 0. Only a
+move that starts in its main phase (no hold / rush phase). START-MOVE starts its move frame that much before its first; an ORANGE startup
+cut is then skipped (the wait wins: every AS out of a cancel)."
+  (if (and (eq (fighter-state f) :move) (not (mv-hold mv)) (not (member (mv-kind mv) '(:breaker :kikon)))
+           (core-xch-as-p (kit-class (fighter-kit f) mv) (fighter-cls f) (fighter-xch f) (fighter-cls-t f) (fighter-xch-done f)))
+      *core-xch-as-delay*
+      0))
+
 (defun core-charge-mult (fa mv own hazard)
   "The damage x of attacker FA's hit with MV: a charged SA's :charge-mult on the string it opened (its J2 / J3 and the AS segments
 after it; the user, 2026-10-27: 「月牙靈壓帶來的強化效果除了後續的 J2 J3 以外，連同插入的 SP 結尾也都會一併受到強化」), not on the

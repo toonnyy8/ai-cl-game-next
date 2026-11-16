@@ -1,0 +1,8 @@
+HISAGI    AS out of a cancel                       738
+HISAGI    AS out of a cancel, next hit other       148
+HISAGI    AS out of a cancel, next hit own         341
+HISAGI    cancel judged                            2327
+KENPACHI  AS out of a cancel                       6532
+KENPACHI  AS out of a cancel, next hit other       918
+KENPACHI  AS out of a cancel, next hit own         3197
+KENPACHI  cancel judged                            3903

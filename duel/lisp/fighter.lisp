@@ -271,15 +271,17 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   (let ((f (fighter e))) (setf (fighter-callout f) text (fighter-callout-t f) *callout-frames*)))
 
 (defun start-move (e mv &optional button)
-  "Enter move MV (a MOVE of E's kit). Frame (MV-ENTER mv) is this step; MOVE-STEP advances it."
-  (let* ((f (fighter e)) (enter (mv-enter mv)) (old (current-move f))
+  "Enter move MV (a MOVE of E's kit). Frame (MV-ENTER mv) is this step; MOVE-STEP advances it. An AS out of a cancel (CORE-PRE-ROLL,
+DUEL_CORE §2.1.3) starts PRE frames before it: its move frame runs from ENTER - PRE, so its hit frames, armour, frame hooks and end
+all come PRE later; the lunge waits (MAIN-PHASE-STEP), the clip's wind-up is played slower to fill them."
+  (let* ((f (fighter e)) (enter (mv-enter mv)) (old (current-move f)) (pre (core-pre-roll f mv))
          (off-ender (or (plusp (fighter-chain f))                       ; ORANGE's restart, or a move started off a J / K
                         (and old (member :ender (mv-flags old)) (member (mv-kind old) '(:quick :flash))   ; ender that hit
                              (eq (fighter-contact f) :hit))
                         (and old (eq (mv-kind old) :breaker) (eq (fighter-contact f) :hit)))))   ; J1 / K1 off a Breaker
                                                                 ; that landed (pushed away: it chases him, MAIN-PHASE-STEP)
     (setf (fighter-end-chase f) off-ender)
-    (setf (fighter-state f) :move (fighter-move f) mv (fighter-sf f) enter (fighter-hits f) 0
+    (setf (fighter-state f) :move (fighter-move f) mv (fighter-sf f) (- enter pre) (fighter-pre f) pre (fighter-hits f) 0
           (fighter-contact f) nil (fighter-hz-hit f) nil (fighter-queued f) nil (fighter-chained f) nil (fighter-land-sf f) -1 (fighter-dmg-bonus f) 0 (fighter-crush f) nil
           (fighter-stored f) 0                           ; an interrupted stance keeps nothing
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
@@ -289,8 +291,11 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
           (fighter-phase f) (cond ((member (mv-kind mv) '(:breaker :kikon)) :aura) ((mv-hold mv) :hold) (t :main)))
     (core-note-start! f mv old)
     (halt! e)
-    (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend (mv-blend mv) :speed (mv-clip-speed mv)   ; (the
-                              :time (/ (* enter (mv-clip-speed mv)) 60.0))                                   ;  form's look)
+    (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend (mv-blend mv)   ; (the form's look; a pre-roll: its wind-up slower,
+               :speed (if (zerop pre) (mv-clip-speed mv)                            ;  to reach the hit pose on the hit frame, then
+                          (let ((w (max 1 (- (mv-s mv) enter))))                    ;  MAIN-PHASE-STEP gives it its own speed back)
+                            (* (mv-clip-speed mv) (/ w (float (+ w pre))))))
+               :time (/ (* enter (mv-clip-speed mv)) 60.0))
     (if (eq (mv-kind mv) :kikon)
         (callout e "KIKON")                             ; its own name shows if it becomes the Kikon
         (when (mv-callout mv) (callout e (mv-callout mv))))
@@ -301,11 +306,11 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
       (:breaker (emit :breaker e))
       (:kikon (emit :rush e)))
     (clog "~a move ~a~@[ ~a~]" (side-name e) (mv-name mv) (let ((b (brain e))) (and b (brain-why b))))
-    (when (eq (fighter-phase f) :main)                 ; a hook on the move's first frame (NOMIHOSE's cash-out)
-      (loop for (fr hook) in (mv-on-frame mv) when (= fr enter) do (funcall hook e)))
+    (when (and (eq (fighter-phase f) :main) (zerop pre))   ; a hook on the move's first frame (NOMIHOSE's cash-out; a pre-roll's:
+      (loop for (fr hook) in (mv-on-frame mv) when (= fr enter) do (funcall hook e)))   ;  MAIN-PHASE-STEP runs it on that frame)
     (when (plusp (fighter-chain f))                     ; ORANGE: the first move after the cancel starts later in its
-      (setf (fighter-chain f) 0)                        ; startup (the skipped frames' hooks run now, in order)
-      (let ((cut (if (eq (fighter-phase f) :main) (chain-startup-cut (mv-s mv) enter) 0)))
+      (setf (fighter-chain f) 0)                        ; startup (the skipped frames' hooks run now, in order; not a pre-roll's)
+      (let ((cut (if (and (eq (fighter-phase f) :main) (zerop pre)) (chain-startup-cut (mv-s mv) enter) 0)))
         (when (plusp cut)
           (loop for fr from (1+ enter) to (+ enter cut) while (eq (fighter-move f) mv)
                 do (loop for (hf hook) in (mv-on-frame mv) when (= hf fr) do (funcall hook e)))
@@ -637,9 +642,11 @@ the end (MOVE-END-FRAME)."
              (slide (if (and (> (mv-slide mv) 0) (> (fighter-dist f) *lunge-stop*)) (* 60.0 (/ (mv-slide mv) s)) 0.0))
              (sp (max chase slide)))                  ; a lunge stopping at the opponent; a follow-up link's chase
         (turn-to-opp e f (track-step (if chained (max (mv-track mv) *chase-track*) (mv-track mv))))
-        (when (> sp 0)
+        (when (and (> sp 0) (> sf (mv-enter mv)))       ; (a pre-roll's frames, START-MOVE: no lunge yet, it covers its own distance)
           (let ((yaw (yaw-of e)))
             (setf (aref v 0) (f32 (* sp (fwd-x yaw))) (aref v 2) (f32 (* sp (fwd-z yaw))))))))
+    (when (and (= sf s) (plusp (fighter-pre f)))        ; a pre-roll's slowed wind-up (START-MOVE) at the hit pose: its own speed again
+      (setf (anim-speed (model-anim (model e))) (f32 (mv-clip-speed mv))))
     (loop for (fr hook) in (mv-on-frame mv) when (= fr sf) do (funcall hook e))
     (when (mv-tick mv) (funcall (mv-tick mv) e))
     (loop for w across (mv-hits mv) when (= sf (hw-from w))

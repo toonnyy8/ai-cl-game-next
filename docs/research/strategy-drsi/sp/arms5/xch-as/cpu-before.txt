@@ -1,0 +1,10 @@
+Kenpachi form | dif | her SA pressed on his AS: n, SA first / AS first / none | on his "new NA" (a drifted perceived start): same
+:base       | :easy   |  0: 0 / 0 / 0 | 11: 11 / 0 / 0
+:base       | :normal |  0: 0 / 0 / 0 | 14: 14 / 0 / 0
+:base       | :hard   |  0: 0 / 0 / 0 | 13: 13 / 0 / 0
+:nozarashi  | :easy   |  0: 0 / 0 / 0 | 10: 10 / 0 / 0
+:nozarashi  | :normal |  0: 0 / 0 / 0 | 14: 14 / 0 / 0
+:nozarashi  | :hard   |  0: 0 / 0 / 0 | 13: 13 / 0 / 0
+:bankai     | :easy   |  0: 0 / 0 / 0 |  5: 5 / 0 / 0
+:bankai     | :normal |  0: 0 / 0 / 0 | 11: 11 / 0 / 0
+:bankai     | :hard   |  0: 0 / 0 / 0 | 13: 13 / 0 / 0

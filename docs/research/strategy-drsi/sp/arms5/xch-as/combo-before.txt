@@ -1,0 +1,8 @@
+## combo: J1 real hit -> SP on the hit (standing dummy, 1.5 m; Bankai Hisagi 4.5 m, his dead zone)
+:kenpachi :base: moves [(1, 'KE-Z-J1'), (15, 'KE-Z-AS1')] hits [(10, 'KE-Z-J1'), (31, 'KE-Z-AS1')]
+:kenpachi :nozarashi: moves [(1, 'KE-S-J1'), (16, 'KE-S-AS1')] hits [(10, 'KE-S-J1'), (30, 'KE-S-AS1')]
+:kenpachi :bankai: moves [(1, 'KE-KR-J1'), (14, 'KE-KR-AS1')] hits [(8, 'KE-KR-J1'), (26, 'KE-KR-AS1')]
+:hisagi :base: moves [(1, 'HS-J1'), (20, 'HS-AS1')] hits [(15, 'HS-J1'), (34, 'HS-AS1'), (46, 'HS-AS1'), (58, 'HS-AS1')]
+:hisagi :bankai: moves [(1, 'HS-R-J1'), (20, 'HS-R-AS1')] hits [(15, 'HS-R-J1'), (35, 'HS-R-AS1')]
+:ichigo :base: moves [(1, 'IC-J1'), (20, 'IC-AS1')] hits [(15, 'IC-J1'), (34, 'IC-AS1')]
+:ichigo :kessa: moves [(1, 'IC-K-J1'), (14, 'IC-K-AS1')] hits [(9, 'IC-K-J1'), (26, 'IC-K-AS1'), (38, 'IC-K-AS1'), (50, 'IC-K-AS1')]

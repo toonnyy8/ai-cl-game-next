@@ -1,0 +1,83 @@
+## kh: Bankai Hisagi NSa (P1) x Kenpachi J1 (P2) -> his AS, her SA at +n
+(':bankai', 1, ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@67 SA wins +2..+22
+(':bankai', 1, ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai', 1, ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai', 1, ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':bankai', 1, ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':bankai', 1, ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':bankai', 1, ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@61 SA wins +2..+18
+(':bankai', 1, ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@60 SA wins +2..+18
+(':bankai', 1, ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@60 SA wins +2..+18
+(':bankai', 2, ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai', 2, ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai', 2, ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai', 2, ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@61 SA wins +2..+20
+(':bankai', 2, ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@62 SA wins +2..+20
+(':bankai', 2, ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@61 SA wins +2..+20
+(':bankai', 2, ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':bankai', 2, ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@58 SA wins +2..+18
+(':bankai', 2, ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@58 SA wins +2..+18
+(':bankai-bind', 1, ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@67 SA wins +2..+22
+(':bankai-bind', 1, ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai-bind', 1, ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai-bind', 1, ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':bankai-bind', 1, ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':bankai-bind', 1, ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':bankai-bind', 1, ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@61 SA wins +2..+18
+(':bankai-bind', 1, ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@61 SA wins +2..+18
+(':bankai-bind', 1, ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@60 SA wins +2..+18
+(':bankai-bind', 2, ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai-bind', 2, ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai-bind', 2, ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':bankai-bind', 2, ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':bankai-bind', 2, ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':bankai-bind', 2, ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':bankai-bind', 2, ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':bankai-bind', 2, ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':bankai-bind', 2, ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@58 SA wins +2..+18
+## hk: Hisagi J1 (P1) x Kenpachi NS1a (P2) -> his AS1, Kenpachi SA at +n
+(':base', ':base', 1.2) cancel@14 AS alone=HS-AS1@68 SA wins -
+(':base', ':base', 1.8) cancel@14 AS alone=HS-AS1@67 SA wins -
+(':base', ':base', 2.4) cancel@14 AS alone=HS-AS1@68 SA wins -
+(':base', ':nozarashi', 1.2) cancel@16 AS alone=HS-AS1@68 SA wins +2..+6
+(':base', ':nozarashi', 1.8) cancel@16 AS alone=HS-AS1@68 SA wins +2..+6
+(':base', ':nozarashi', 2.4) cancel@16 AS alone=HS-AS1@68 SA wins +2..+6
+(':base', ':bankai', 1.2) cancel@14 AS alone=HS-AS1@67 SA wins -
+(':base', ':bankai', 1.8) cancel@14 AS alone=HS-AS1@68 SA wins -
+(':base', ':bankai', 2.4) cancel@14 AS alone=HS-AS1@67 SA wins -
+(':bankai', ':base', 1.2) cancel@14 AS alone=HS-R-AS1@69 SA wins +2..+22
+(':bankai', ':base', 1.8) cancel@14 AS alone=HS-R-AS1@68 SA wins +2..+22
+(':bankai', ':base', 2.4) cancel@14 AS alone=HS-R-AS1@68 SA wins +2..+22
+(':bankai', ':nozarashi', 1.2) cancel@16 AS alone=HS-R-AS1@70 SA wins +2..+20
+(':bankai', ':nozarashi', 1.8) cancel@16 AS alone=HS-R-AS1@70 SA wins +2..+20
+(':bankai', ':nozarashi', 2.4) cancel@16 AS alone=HS-R-AS1@69 SA wins +2..+20
+(':bankai', ':bankai', 1.2) cancel@14 AS alone=HS-R-AS1@68 SA wins +2..+22
+(':bankai', ':bankai', 1.8) cancel@14 AS alone=HS-R-AS1@68 SA wins +2..+22
+(':bankai', ':bankai', 2.4) cancel@14 AS alone=HS-R-AS1@69 SA wins +2..+22
+## ki: Ichigo NS1a (P1) x Kenpachi J1 (P2) -> his AS, Ichigo SA at +n
+(':base', ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@67 SA wins +2..+22
+(':base', ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@67 SA wins +2..+22
+(':base', ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':base', ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':base', ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':base', ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':base', ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':base', ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':base', ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':kessa', ':base', 1.2) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':kessa', ':base', 1.8) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':kessa', ':base', 2.4) cancel@9 AS alone=KE-Z-AS1@66 SA wins +2..+22
+(':kessa', ':nozarashi', 1.2) cancel@9 AS alone=KE-S-AS1@65 SA wins +2..+20
+(':kessa', ':nozarashi', 1.8) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':kessa', ':nozarashi', 2.4) cancel@9 AS alone=KE-S-AS1@64 SA wins +2..+20
+(':kessa', ':bankai', 1.2) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':kessa', ':bankai', 1.8) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+(':kessa', ':bankai', 2.4) cancel@7 AS alone=KE-KR-AS1@57 SA wins +2..+18
+## combo: J1 real hit -> SP on the hit (standing dummy, 1.5 m; Bankai Hisagi 4.5 m, his dead zone)
+:kenpachi :base: moves [(1, 'KE-Z-J1'), (15, 'KE-Z-AS1')] hits [(10, 'KE-Z-J1'), (31, 'KE-Z-AS1')]
+:kenpachi :nozarashi: moves [(1, 'KE-S-J1'), (16, 'KE-S-AS1')] hits [(10, 'KE-S-J1'), (30, 'KE-S-AS1')]
+:kenpachi :bankai: moves [(1, 'KE-KR-J1'), (14, 'KE-KR-AS1')] hits [(8, 'KE-KR-J1'), (26, 'KE-KR-AS1')]
+:hisagi :base: moves [(1, 'HS-J1'), (20, 'HS-AS1')] hits [(15, 'HS-J1'), (34, 'HS-AS1'), (46, 'HS-AS1'), (58, 'HS-AS1')]
+:hisagi :bankai: moves [(1, 'HS-R-J1'), (20, 'HS-R-AS1')] hits [(15, 'HS-R-J1'), (35, 'HS-R-AS1')]
+:ichigo :base: moves [(1, 'IC-J1'), (20, 'IC-AS1')] hits [(15, 'IC-J1'), (34, 'IC-AS1')]
+:ichigo :kessa: moves [(1, 'IC-K-J1'), (14, 'IC-K-AS1')] hits [(9, 'IC-K-J1'), (26, 'IC-K-AS1'), (38, 'IC-K-AS1'), (50, 'IC-K-AS1')]

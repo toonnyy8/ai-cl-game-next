@@ -418,6 +418,12 @@ decision gap (it presses). New (none -> 0.6, 120 s left), 2026-11-15: the foot o
 (defparameter *core-clash-slowmo-scale* 0.2 "Time scale of the slow motion on a cancel (the triangle's mutual no-damage clash): a beat to read the next move
 (the user, 2026-10-27: 「抵消的瞬間要有慢動作讓人有一瞬間能思考接下來的行動」; the perfect Hoho's is 0.25).")
 (defparameter *core-clash-slowmo-seconds* 0.7 "Real seconds of that slow motion (the last 0.1 s eases back to full speed).")
+(defparameter *core-xch-as-delay* 6
+  "Frames an AS started out of a cancel waits before its startup runs (CORE-XCH-AS-P, CORE-PRE-ROLL: its move frame begins this much
+before its first, so its hit frames, armour window and frame hooks all come later; its start tick, CORE-LATER's, stays the press). So the
+NS side, seeing the AS start, has time to press its SA, the later start (DUEL_CORE §2.1.3). 0 -> 6, 2026-11-16, the user:
+「檜佐木卍解後還是會被劍八壓著打，我發現是因為 NSa 的動作太久了，導致在他能切換成 SA 前，劍八就已經能從 J 換成 AS 以突破防線。」, shown the
+reaction window (an SA pressed 2-12 / 14 / 16 frames after the AS wins), chose 「相消後的 AS 前搖拉長」, every fighter, every form.")
 (defparameter *core-kikon-confirm* 12
   "Frames of a held SP's dash-in (phase :follow, after the hitstop) the button must still be down for: a let-go inside them drops
 the Kikon, both back to neutral (CORE-FOLLOW-STEP). 0 -> 12, 2026-10-28, the user: 「把毀魂技的按住判定時間拉長」 (asked which way,

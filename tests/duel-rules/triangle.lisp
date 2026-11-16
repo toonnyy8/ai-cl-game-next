@@ -59,6 +59,17 @@
 (check (not (core-hoho-open-p 40)))                                 ; (an exchange opened at tick 40)
 (check (not (core-hoho-open-p 0)))                                  ; (tick 0 is a tick)
 (check (core-hoho-open-p 40 t))                                     ; (its breakthrough taken: a combo won out of the clash keeps its Hoho)
+;; DUEL_CORE §2.1.3 (the user, 2026-11-16: 「相消後的 AS 前搖拉長」): an AS out of a cancel waits *CORE-XCH-AS-DELAY* frames more
+(check (= *core-xch-as-delay* 6))
+(check (core-xch-as-p :as :na 40 30 nil))                           ; (a J1 cancelled at tick 40, started at 30: its AS waits)
+(check (core-xch-as-p :as :na 30 30 nil))                           ; (cancelled on its first frame)
+(check (not (core-xch-as-p :as :na 40 30 t)))                       ; (a real hit since the cancel: the breakthrough, a combo as before)
+(check (not (core-xch-as-p :as :na -1 30 nil)))                     ; (no exchange: a J1 that really hit, a normal combo)
+(check (not (core-xch-as-p :as :na 20 30 nil)))                     ; (an earlier move's exchange: a J2 link that broke through)
+(check (not (core-xch-as-p :na :na 40 30 nil)))                     ; (a J link out of the cancel: not an AS)
+(check (not (core-xch-as-p :as :as 40 30 nil)))                     ; (an AS's next segment)
+(check (core-xch-as-p :as :sa 40 30 nil))                           ; (an SA cancelled after its start)
+(check (not (core-xch-as-p :as :sa 30 30 nil)))                     ; (an SA latched before the cancel, stamped with its tick: took no part)
 ;; the pointer
 (check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)
