@@ -139,7 +139,7 @@ FMV = re.compile(r'^fmv (\d+) ([\d.]+) (P\d) (\S+) d ([\d.]+)')
 
 def cmd_diag(o):
     pin()
-    js = jobs(o.row, DIAG, {'FIN_SECS': str(o.secs), 'STRAT_FQLOG': '0 0'}, ('duel gate row ', 'fin ', 'fmv '))
+    js = jobs(o.row, DIAG, {'FIN_SECS': str(o.secs), 'STRAT_FQLOG': '0 0', **dict(x.split('=', 1) for x in o.env)}, ('duel gate row ', 'fin ', 'fmv '))
     outs = simlib.pool(run, [j for _, j in js], o.j)
     a, b = ROWS[o.row][:2]
     tot = collections.Counter()
@@ -193,7 +193,7 @@ def cmd_onset(o):
     """Per time-out of ROW (the trace over the whole match): when the last move of either side started (s left on the timer; the freeze's
     onset when the rest is a stare), the Konpaku then (A-B), and the K.O. matches' pace (s of play per Konpaku taken, both sides)."""
     pin()
-    js = jobs(o.row, DIAG, {'FIN_SECS': '300', 'STRAT_FQLOG': '0 0'}, ('duel gate row ', 'fin ', 'fmv '))
+    js = jobs(o.row, DIAG, {'FIN_SECS': '300', 'STRAT_FQLOG': '0 0', **dict(x.split('=', 1) for x in o.env)}, ('duel gate row ', 'fin ', 'fmv '))
     outs = simlib.pool(run, [j for _, j in js], o.j)
     onsets, pace = [], []
     for (seat, _), lines in zip(js, outs):
@@ -233,7 +233,9 @@ def main():
     p.add_argument('--switch', action='store_true', help='log every judgement (STRAT_FQLOG "0 0") and report each side\'s arm changes a match')
     p = sub.add_parser('diag'); p.add_argument('--row', required=True); p.add_argument('--secs', type=int, default=90)
     p.add_argument('--window', type=float, default=60.0); p.add_argument('--all', action='store_true'); p.add_argument('-j', type=int, default=20)
+    p.add_argument('--env', action='append', default=[], help='K=V for the sims (arms6/hh: a table file per seat)')
     p = sub.add_parser('onset'); p.add_argument('--row', required=True); p.add_argument('-j', type=int, default=20)
+    p.add_argument('--env', action='append', default=[], help='K=V for the sims (arms6/hh)')
     o = ap.parse_args()
     simlib.build()
     {'bar': cmd_bar, 'diag': cmd_diag, 'onset': cmd_onset}[o.cmd](o)

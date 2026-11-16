@@ -1,0 +1,1 @@
+{"note": "t6: arm 0 h5-all; the generic arm in the bind mode and in the ranged mode close", "arms": ["../arms/h5-all.lisp", "../arms/hh-gen.lisp"], "jobs": [null, [[1, ["(:form :k2)"]], [1, ["(:form :yes)", "(:dm :m-close)"]]]]}

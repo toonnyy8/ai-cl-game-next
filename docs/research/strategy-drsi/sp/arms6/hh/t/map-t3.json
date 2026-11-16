@@ -1,0 +1,1 @@
+{"note": "t3: arm 0 h5-all; the generic arm while behind (G8 lead behind, any clock)", "arms": ["../arms/h5-all.lisp", "../arms/hh-gen.lisp"], "jobs": [null, [[8, ["(:lead :behind)"]]]]}

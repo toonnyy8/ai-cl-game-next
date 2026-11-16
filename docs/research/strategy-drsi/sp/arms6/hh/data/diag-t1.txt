@@ -1,0 +1,142 @@
+seed 141 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.08
+   A:hisagi    d med 4.47 [1.6-8.5] states {'move': 89, 'stun': 26, 'idle': 21, 'air': 8} forms {'bankai': 160} arms {'0': 160} fns {'-': 160}
+               moves 38: {'hs-r-n1a': 19, 'hs-r-j1': 17, 'hs-r-n2a': 2}
+   B:hisagi    d med 4.47 [1.6-8.5] states {'move': 99, 'idle': 22, 'stun': 12, 'air': 6} forms {'bankai': 160} arms {'0': 160} fns {'-': 160}
+               moves 37: {'hs-r-n1a': 21, 'hs-r-j1': 14, 'hs-r-n2a': 2}
+seed 145 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A -2 reishi% A-B +0.04
+   A:hisagi    d med 4.31 [1.2-8.7] states {'move': 99, 'idle': 22, 'stun': 18, 'air': 5} forms {'bankai': 166} arms {'0': 166} fns {'-': 166}
+               moves 39: {'hs-r-n1a': 18, 'hs-r-j1': 18, 'hs-r-n2a': 3}
+   B:hisagi    d med 4.31 [1.2-8.7] states {'move': 108, 'idle': 18, 'stun': 11, 'air': 7} forms {'bankai': 116, 'bankai-bind': 50} arms {'0': 166} fns {'-': 166}
+               moves 37: {'hs-r-n1a': 15, 'hs-r-j1': 10, 'hs-b-na1': 5, 'hs-b-n1a': 5, 'hs-r-n2a': 2}
+seed 148 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A -2 reishi% A-B +0.05
+   A:hisagi    d med 4.47 [1.4-8.5] states {'move': 110, 'idle': 27, 'stun': 10, 'cine': 5} forms {'bankai': 164} arms {'0': 164} fns {'-': 164}
+               moves 42: {'hs-r-n1a': 22, 'hs-r-j1': 17, 'hs-r-n2a': 3}
+   B:hisagi    d med 4.47 [1.4-8.5] states {'move': 86, 'idle': 25, 'stun': 18, 'down': 9} forms {'bankai': 164} arms {'0': 164} fns {'-': 164}
+               moves 35: {'hs-r-n1a': 21, 'hs-r-j1': 13, 'hs-r-n2a': 1}
+seed 151 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.15
+   A:hisagi    d med 1.84 [0.7-8.0] states {'move': 95, 'idle': 32, 'stun': 13, 'cine': 10} forms {'bankai-bind': 178} arms {'0': 178} fns {'-': 178}
+               moves 36: {'hs-b-n1a': 16, 'hs-b-na1': 16, 'hs-b-n2a': 4}
+   B:hisagi    d med 1.84 [0.7-8.0] states {'move': 115, 'idle': 25, 'stun': 12, 'cine': 10} forms {'bankai-bind': 178} arms {'0': 178} fns {'-': 178}
+               moves 43: {'hs-b-na1': 28, 'hs-b-n1a': 11, 'hs-b-n2a': 4}
+seed 152 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.14
+   A:hisagi    d med 2.26 [1.0-8.0] states {'move': 94, 'idle': 25, 'stun': 24, 'cine': 10} forms {'bankai-bind': 177} arms {'0': 177} fns {'-': 177}
+               moves 41: {'hs-b-na1': 24, 'hs-b-n1a': 17}
+   B:hisagi    d med 2.26 [1.0-8.0] states {'move': 107, 'idle': 34, 'stun': 12, 'cine': 10} forms {'bankai': 59, 'bankai-bind': 118} arms {'0': 177} fns {'-': 177}
+               moves 40: {'hs-b-n1a': 14, 'hs-b-na1': 11, 'hs-r-n1a': 9, 'hs-r-j1': 5, 'hs-b-n2a': 1}
+seed 154 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 2 reishi% A-B -0.12
+   A:hisagi    d med 2.02 [0.9-8.0] states {'move': 108, 'idle': 23, 'stun': 12, 'cine': 10} forms {'bankai-bind': 173} arms {'0': 173} fns {'-': 173}
+               moves 41: {'hs-b-na1': 21, 'hs-b-n1a': 18, 'hs-b-n2a': 2}
+   B:hisagi    d med 2.02 [0.9-8.0] states {'move': 87, 'idle': 39, 'stun': 12, 'cine': 10} forms {'bankai-bind': 173} arms {'0': 173} fns {'-': 173}
+               moves 34: {'hs-b-n1a': 17, 'hs-b-na1': 13, 'hs-b-n2a': 4}
+seed 164 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.18
+   A:hisagi    d med 2.41 [0.9-8.9] states {'move': 80, 'stun': 26, 'idle': 21, 'air': 8} forms {'bankai-bind': 162} arms {'0': 162} fns {'-': 162}
+               moves 38: {'hs-b-na1': 19, 'hs-b-n1a': 14, 'hs-b-n2a': 5}
+   B:hisagi    d med 2.41 [0.9-8.9] states {'move': 110, 'idle': 30, 'stun': 6, 'cine': 5} forms {'bankai-bind': 108, 'bankai': 54} arms {'0': 162} fns {'-': 162}
+               moves 41: {'hs-b-n1a': 16, 'hs-b-na1': 14, 'hs-r-j1': 5, 'hs-r-n2a': 4, 'hs-r-n1a': 2}
+seed 169 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 1 reishi% A-B -0.42
+   A:hisagi    d med 2.24 [0.7-8.0] states {'move': 91, 'idle': 34, 'stun': 21, 'cine': 10} forms {'bankai': 32, 'bankai-bind': 143} arms {'0': 175} fns {'-': 175}
+               moves 40: {'hs-b-na1': 18, 'hs-b-n1a': 15, 'hs-r-j1': 4, 'hs-r-n1a': 3}
+   B:hisagi    d med 2.24 [0.7-8.0] states {'move': 105, 'idle': 32, 'stun': 13, 'cine': 10} forms {'bankai-bind': 175} arms {'0': 175} fns {'-': 175}
+               moves 39: {'hs-b-n1a': 18, 'hs-b-na1': 18, 'hs-b-n2a': 3}
+seed 170 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.13
+   A:hisagi    d med 2.99 [0.7-8.0] states {'move': 97, 'stun': 22, 'idle': 16, 'air': 10} forms {'bankai-bind': 175} arms {'0': 175} fns {'-': 175}
+               moves 32: {'hs-b-n1a': 14, 'hs-b-na1': 11, 'hs-b-n2a': 7}
+   B:hisagi    d med 2.99 [0.7-8.0] states {'move': 105, 'idle': 26, 'stun': 18, 'cine': 10} forms {'bankai': 175} arms {'0': 175} fns {'-': 175}
+               moves 36: {'hs-r-j1': 19, 'hs-r-n1a': 14, 'hs-r-n2a': 3}
+seed 171 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A -2 reishi% A-B +0.06
+   A:hisagi    d med 2.04 [0.9-8.0] states {'move': 109, 'idle': 32, 'stun': 9, 'air': 6} forms {'bankai-bind': 174} arms {'0': 174} fns {'-': 174}
+               moves 42: {'hs-b-n1a': 21, 'hs-b-na1': 21}
+   B:hisagi    d med 2.04 [0.9-8.0] states {'move': 101, 'idle': 36, 'stun': 14, 'down': 6} forms {'bankai-bind': 174} arms {'0': 174} fns {'-': 174}
+               moves 42: {'hs-b-na1': 22, 'hs-b-n1a': 20}
+seed 173 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 5 reishi% A-B +0.00
+   A:hisagi    d med 2.75 [1.0-8.0] states {'move': 124, 'idle': 26, 'stun': 14, 'cine': 5} forms {'bankai-bind': 180} arms {'0': 180} fns {'-': 180}
+               moves 44: {'hs-b-na1': 27, 'hs-b-n1a': 17}
+   B:hisagi    d med 2.75 [1.0-8.0] states {'move': 103, 'idle': 45, 'stun': 8, 'down': 6} forms {'bankai-bind': 40, 'bankai': 140} arms {'0': 180} fns {'-': 180}
+               moves 40: {'hs-r-n1a': 18, 'hs-r-j1': 14, 'hs-b-n1a': 5, 'hs-b-na1': 3}
+seed 176 seat-A P1 winner P1 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.03
+   A:hisagi    d med 2.70 [0.7-8.0] states {'move': 106, 'idle': 22, 'stun': 18, 'air': 6} forms {'bankai': 123, 'bankai-bind': 46} arms {'0': 169} fns {'-': 169}
+               moves 38: {'hs-r-n1a': 17, 'hs-r-j1': 10, 'hs-b-na1': 7, 'hs-b-n1a': 3, 'hs-b-n2a': 1}
+   B:hisagi    d med 2.70 [0.7-8.0] states {'move': 102, 'idle': 24, 'stun': 14, 'air': 6} forms {'bankai-bind': 169} arms {'0': 169} fns {'-': 169}
+               moves 38: {'hs-b-n1a': 19, 'hs-b-na1': 17, 'hs-b-n2a': 2}
+seed 177 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A -1 reishi% A-B +0.09
+   A:hisagi    d med 2.35 [0.9-8.0] states {'move': 117, 'idle': 21, 'stun': 17, 'cine': 10} forms {'bankai-bind': 132, 'bankai': 49} arms {'0': 181} fns {'-': 181}
+               moves 36: {'hs-b-na1': 11, 'hs-b-n1a': 9, 'hs-b-n2a': 6, 'hs-r-j1': 4, 'hs-r-n1a': 4, 'hs-r-n2a': 2}
+   B:hisagi    d med 2.35 [0.9-8.0] states {'move': 102, 'stun': 27, 'idle': 20, 'cine': 10} forms {'bankai': 2, 'bankai-bind': 179} arms {'0': 181} fns {'-': 181}
+               moves 36: {'hs-b-n1a': 18, 'hs-b-na1': 18}
+seed 180 seat-A P1 winner P2 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.00
+   A:hisagi    d med 2.96 [1.2-8.0] states {'move': 89, 'stun': 25, 'idle': 18, 'air': 9} forms {'bankai-bind': 167} arms {'0': 167} fns {'-': 167}
+               moves 33: {'hs-b-n1a': 17, 'hs-b-na1': 16}
+   B:hisagi    d med 2.96 [1.2-8.0] states {'move': 103, 'idle': 25, 'stun': 11, 'air': 6} forms {'bankai': 167} arms {'0': 167} fns {'-': 167}
+               moves 35: {'hs-r-n1a': 19, 'hs-r-j1': 14, 'hs-r-n2a': 2}
+seed 141 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.08
+   A:hisagi    d med 4.47 [1.6-8.5] states {'move': 99, 'idle': 22, 'stun': 12, 'air': 6} forms {'bankai': 160} arms {'0': 160} fns {'-': 160}
+               moves 37: {'hs-r-n1a': 21, 'hs-r-j1': 14, 'hs-r-n2a': 2}
+   B:hisagi    d med 4.47 [1.6-8.5] states {'move': 89, 'stun': 26, 'idle': 21, 'air': 8} forms {'bankai': 160} arms {'0': 160} fns {'-': 160}
+               moves 38: {'hs-r-n1a': 19, 'hs-r-j1': 17, 'hs-r-n2a': 2}
+seed 145 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 2 reishi% A-B -0.04
+   A:hisagi    d med 4.31 [1.2-8.7] states {'move': 108, 'idle': 18, 'stun': 11, 'air': 7} forms {'bankai': 116, 'bankai-bind': 50} arms {'0': 166} fns {'-': 166}
+               moves 37: {'hs-r-n1a': 15, 'hs-r-j1': 10, 'hs-b-na1': 5, 'hs-b-n1a': 5, 'hs-r-n2a': 2}
+   B:hisagi    d med 4.31 [1.2-8.7] states {'move': 99, 'idle': 22, 'stun': 18, 'air': 5} forms {'bankai': 166} arms {'0': 166} fns {'-': 166}
+               moves 39: {'hs-r-n1a': 18, 'hs-r-j1': 18, 'hs-r-n2a': 3}
+seed 148 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 2 reishi% A-B -0.05
+   A:hisagi    d med 4.47 [1.4-8.5] states {'move': 86, 'idle': 25, 'stun': 18, 'down': 9} forms {'bankai': 164} arms {'0': 164} fns {'-': 164}
+               moves 35: {'hs-r-n1a': 21, 'hs-r-j1': 13, 'hs-r-n2a': 1}
+   B:hisagi    d med 4.47 [1.4-8.5] states {'move': 110, 'idle': 27, 'stun': 10, 'cine': 5} forms {'bankai': 164} arms {'0': 164} fns {'-': 164}
+               moves 42: {'hs-r-n1a': 22, 'hs-r-j1': 17, 'hs-r-n2a': 3}
+seed 151 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.15
+   A:hisagi    d med 1.84 [0.7-8.0] states {'move': 115, 'idle': 25, 'stun': 12, 'cine': 10} forms {'bankai-bind': 178} arms {'0': 178} fns {'-': 178}
+               moves 43: {'hs-b-na1': 28, 'hs-b-n1a': 11, 'hs-b-n2a': 4}
+   B:hisagi    d med 1.84 [0.7-8.0] states {'move': 95, 'idle': 32, 'stun': 13, 'cine': 10} forms {'bankai-bind': 178} arms {'0': 178} fns {'-': 178}
+               moves 36: {'hs-b-n1a': 16, 'hs-b-na1': 16, 'hs-b-n2a': 4}
+seed 152 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.14
+   A:hisagi    d med 2.26 [1.0-8.0] states {'move': 107, 'idle': 34, 'stun': 12, 'cine': 10} forms {'bankai': 59, 'bankai-bind': 118} arms {'0': 177} fns {'-': 177}
+               moves 40: {'hs-b-n1a': 14, 'hs-b-na1': 11, 'hs-r-n1a': 9, 'hs-r-j1': 5, 'hs-b-n2a': 1}
+   B:hisagi    d med 2.26 [1.0-8.0] states {'move': 94, 'idle': 25, 'stun': 24, 'cine': 10} forms {'bankai-bind': 177} arms {'0': 177} fns {'-': 177}
+               moves 41: {'hs-b-na1': 24, 'hs-b-n1a': 17}
+seed 154 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A -2 reishi% A-B +0.12
+   A:hisagi    d med 2.02 [0.9-8.0] states {'move': 87, 'idle': 39, 'stun': 12, 'cine': 10} forms {'bankai-bind': 173} arms {'0': 173} fns {'-': 173}
+               moves 34: {'hs-b-n1a': 17, 'hs-b-na1': 13, 'hs-b-n2a': 4}
+   B:hisagi    d med 2.02 [0.9-8.0] states {'move': 108, 'idle': 23, 'stun': 12, 'cine': 10} forms {'bankai-bind': 173} arms {'0': 173} fns {'-': 173}
+               moves 41: {'hs-b-na1': 21, 'hs-b-n1a': 18, 'hs-b-n2a': 2}
+seed 164 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.18
+   A:hisagi    d med 2.41 [0.9-8.9] states {'move': 110, 'idle': 30, 'stun': 6, 'cine': 5} forms {'bankai-bind': 108, 'bankai': 54} arms {'0': 162} fns {'-': 162}
+               moves 41: {'hs-b-n1a': 16, 'hs-b-na1': 14, 'hs-r-j1': 5, 'hs-r-n2a': 4, 'hs-r-n1a': 2}
+   B:hisagi    d med 2.41 [0.9-8.9] states {'move': 80, 'stun': 26, 'idle': 21, 'air': 8} forms {'bankai-bind': 162} arms {'0': 162} fns {'-': 162}
+               moves 38: {'hs-b-na1': 19, 'hs-b-n1a': 14, 'hs-b-n2a': 5}
+seed 169 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A -1 reishi% A-B +0.42
+   A:hisagi    d med 2.24 [0.7-8.0] states {'move': 105, 'idle': 32, 'stun': 13, 'cine': 10} forms {'bankai-bind': 175} arms {'0': 175} fns {'-': 175}
+               moves 39: {'hs-b-n1a': 18, 'hs-b-na1': 18, 'hs-b-n2a': 3}
+   B:hisagi    d med 2.24 [0.7-8.0] states {'move': 91, 'idle': 34, 'stun': 21, 'cine': 10} forms {'bankai': 32, 'bankai-bind': 143} arms {'0': 175} fns {'-': 175}
+               moves 40: {'hs-b-na1': 18, 'hs-b-n1a': 15, 'hs-r-j1': 4, 'hs-r-n1a': 3}
+seed 170 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.13
+   A:hisagi    d med 2.99 [0.7-8.0] states {'move': 105, 'idle': 26, 'stun': 18, 'cine': 10} forms {'bankai': 175} arms {'0': 175} fns {'-': 175}
+               moves 36: {'hs-r-j1': 19, 'hs-r-n1a': 14, 'hs-r-n2a': 3}
+   B:hisagi    d med 2.99 [0.7-8.0] states {'move': 97, 'stun': 22, 'idle': 16, 'air': 10} forms {'bankai-bind': 175} arms {'0': 175} fns {'-': 175}
+               moves 32: {'hs-b-n1a': 14, 'hs-b-na1': 11, 'hs-b-n2a': 7}
+seed 171 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 2 reishi% A-B -0.06
+   A:hisagi    d med 2.04 [0.9-8.0] states {'move': 101, 'idle': 36, 'stun': 14, 'down': 6} forms {'bankai-bind': 174} arms {'0': 174} fns {'-': 174}
+               moves 42: {'hs-b-na1': 22, 'hs-b-n1a': 20}
+   B:hisagi    d med 2.04 [0.9-8.0] states {'move': 109, 'idle': 32, 'stun': 9, 'air': 6} forms {'bankai-bind': 174} arms {'0': 174} fns {'-': 174}
+               moves 42: {'hs-b-n1a': 21, 'hs-b-na1': 21}
+seed 173 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A -5 reishi% A-B -0.00
+   A:hisagi    d med 2.75 [1.0-8.0] states {'move': 103, 'idle': 45, 'stun': 8, 'down': 6} forms {'bankai-bind': 40, 'bankai': 140} arms {'0': 180} fns {'-': 180}
+               moves 40: {'hs-r-n1a': 18, 'hs-r-j1': 14, 'hs-b-n1a': 5, 'hs-b-na1': 3}
+   B:hisagi    d med 2.75 [1.0-8.0] states {'move': 124, 'idle': 26, 'stun': 14, 'cine': 5} forms {'bankai-bind': 180} arms {'0': 180} fns {'-': 180}
+               moves 44: {'hs-b-na1': 27, 'hs-b-n1a': 17}
+seed 176 seat-A P2 winner P1 ko 0 | at the bell: ahead B:hisagi lead A 0 reishi% A-B -0.03
+   A:hisagi    d med 2.70 [0.7-8.0] states {'move': 102, 'idle': 24, 'stun': 14, 'air': 6} forms {'bankai-bind': 169} arms {'0': 169} fns {'-': 169}
+               moves 38: {'hs-b-n1a': 19, 'hs-b-na1': 17, 'hs-b-n2a': 2}
+   B:hisagi    d med 2.70 [0.7-8.0] states {'move': 106, 'idle': 22, 'stun': 18, 'air': 6} forms {'bankai': 123, 'bankai-bind': 46} arms {'0': 169} fns {'-': 169}
+               moves 38: {'hs-r-n1a': 17, 'hs-r-j1': 10, 'hs-b-na1': 7, 'hs-b-n1a': 3, 'hs-b-n2a': 1}
+seed 177 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 1 reishi% A-B -0.09
+   A:hisagi    d med 2.35 [0.9-8.0] states {'move': 102, 'stun': 27, 'idle': 20, 'cine': 10} forms {'bankai': 2, 'bankai-bind': 179} arms {'0': 181} fns {'-': 181}
+               moves 36: {'hs-b-n1a': 18, 'hs-b-na1': 18}
+   B:hisagi    d med 2.35 [0.9-8.0] states {'move': 117, 'idle': 21, 'stun': 17, 'cine': 10} forms {'bankai-bind': 132, 'bankai': 49} arms {'0': 181} fns {'-': 181}
+               moves 36: {'hs-b-na1': 11, 'hs-b-n1a': 9, 'hs-b-n2a': 6, 'hs-r-j1': 4, 'hs-r-n1a': 4, 'hs-r-n2a': 2}
+seed 180 seat-A P2 winner P2 ko 0 | at the bell: ahead A:hisagi lead A 0 reishi% A-B +0.00
+   A:hisagi    d med 2.96 [1.2-8.0] states {'move': 103, 'idle': 25, 'stun': 11, 'air': 6} forms {'bankai': 167} arms {'0': 167} fns {'-': 167}
+               moves 35: {'hs-r-n1a': 19, 'hs-r-j1': 14, 'hs-r-n2a': 2}
+   B:hisagi    d med 2.96 [1.2-8.0] states {'move': 89, 'stun': 25, 'idle': 18, 'air': 9} forms {'bankai-bind': 167} arms {'0': 167} fns {'-': 167}
+               moves 33: {'hs-b-n1a': 17, 'hs-b-na1': 16}
+A:hisagi: mean moves in the last 60 s of a time-out: 38.3
+B:hisagi: mean moves in the last 60 s of a time-out: 38.3

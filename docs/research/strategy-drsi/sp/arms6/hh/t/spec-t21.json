@@ -1,0 +1,4 @@
+{"note": "t21: arm 0 generic; in the ranged mode h5-all while he attacks (G2 atk), c-ih-h-r1-b2a0 otherwise", "arms": ["../arms/hh-gen.lisp", "../arms/h5-all.lisp", "../arms/c-ih-h-r1-b2a0.lisp"],
+ "values": [null,
+  [[["(:form :"], -0.12], [["(:form :yes)"], 0.06], [["(:ost :"], -0.03], [["(:ost :atk)"], 0.03]],
+  [[["(:form :"], -0.12], [["(:form :yes)"], 0.06], [["(:ost :"], 0.03], [["(:ost :atk)"], -0.03]]]}

@@ -1,0 +1,1 @@
+{"note": "t10: arm 0 generic; h5-all in the Shikai far; c-ih-h-r1-b2a0 in the ranged mode", "arms": ["../arms/hh-gen.lisp", "../arms/h5-all.lisp", "../arms/c-ih-h-r1-b2a0.lisp"], "jobs": [null, [[1, ["(:form :no)", "(:dm :m-far)"]]], [[1, ["(:form :yes)"]]]]}

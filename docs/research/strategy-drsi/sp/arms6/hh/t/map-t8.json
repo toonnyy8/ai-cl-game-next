@@ -1,0 +1,1 @@
+{"note": "t8: arm 0 generic; c-ih-h-r1-b2a0 in the ranged mode", "arms": ["../arms/hh-gen.lisp", "../arms/c-ih-h-r1-b2a0.lisp"], "jobs": [null, [[1, ["(:form :yes)"]]]]}

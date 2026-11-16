@@ -1,0 +1,1 @@
+{"note": "arms6/hh t2: t1 + h4-range in the Bankai's ranged mode (form yes) mid / far", "arms": ["../arms/hh-gen.lisp", "../arms/h5-all.lisp", "../arms/h4-range.lisp"], "jobs": [null, [[1, ["(:form :no)"]]], [[1, ["(:form :yes)", "(:dm :m-mid)"]], [1, ["(:form :yes)", "(:dm :m-far)"]]]]}
