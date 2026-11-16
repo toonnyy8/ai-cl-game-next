@@ -1,0 +1,2 @@
+ladder: job ('I', 'H', 1, 'hh', 500, 50) gave 0 rows of 50 (exit 3): simgate fatal: game-frame: Cannot open "/media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-abf044242ba2935c4/docs/research/strategy-drsi/sp/arms6/ih/c/w1-all w2-space w3-spacefar w4-whiffin w5-gaponly w6-spacefar2.lisp".C library error: No such file or directory
+

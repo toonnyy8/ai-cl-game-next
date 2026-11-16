@@ -1,0 +1,32 @@
+{
+ "ichigo": "ih/c/w1-all.lisp",
+ "hisagi": null,
+ "seed0": 500,
+ "seeds": 100,
+ "cells": [
+  {
+   "rung": "hh",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.02,
+   "wilson_lo": 0.009,
+   "passed": false,
+   "bell": 57,
+   "bellpts": 2.0,
+   "ko": 143,
+   "kowins": 2.0
+  },
+  {
+   "rung": "nn",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.015,
+   "wilson_lo": 0.006,
+   "passed": false,
+   "bell": 34,
+   "bellpts": 2.0,
+   "ko": 166,
+   "kowins": 1.0
+  }
+ ]
+}

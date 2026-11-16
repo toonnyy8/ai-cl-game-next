@@ -1,0 +1,4 @@
+seeds 501-600 both seats; ichigo=ih/c/w2-space.lisp hisagi=lookup
+rung cell |   n | share  wilson pass | bell  bellpts |  ko  kowins
+hh   IH   | 200 | 0.000  0.000    -  |   27     0.0  | 173     0.0
+nn   IH   | 200 | 0.000  0.000    -  |   48     0.0  | 152     0.0

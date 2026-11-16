@@ -1,0 +1,32 @@
+{
+ "ichigo": "ih/c/x-klunge.lisp",
+ "hisagi": null,
+ "seed0": 500,
+ "seeds": 100,
+ "cells": [
+  {
+   "rung": "hh",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.065,
+   "wilson_lo": 0.0417,
+   "passed": false,
+   "bell": 99,
+   "bellpts": 11.0,
+   "ko": 101,
+   "kowins": 2.0
+  },
+  {
+   "rung": "nn",
+   "cell": "IH",
+   "n": 200,
+   "share": 0.01,
+   "wilson_lo": 0.0033,
+   "passed": false,
+   "bell": 58,
+   "bellpts": 1.0,
+   "ko": 142,
+   "kowins": 1.0
+  }
+ ]
+}
