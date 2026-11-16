@@ -480,12 +480,13 @@ own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
 A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
-(defparameter *cai-clash-p* '(:easy 0.15 :normal 0.35 :hard 0.6)
+(defparameter *cai-clash-p* '(:easy 0.45 :normal 0.45 :hard 1.0)
   "積極相消 (the user, above): in neutral, the chance (one roll per move of his it applies to) that the CPU throws the move that cancels his
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move
 with hits, not a parry, still live after the CPU's delay, the CPU within his reach + *CAI-CLASH-MARGIN*. Else the CPU decides as before (its
 style, the MCTS, the generic CPU: wait, walk, Hoho). New 2026-11-14 (the lead). Before: no such rule (0). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :CLASH-P k, the chance x k
-within 0-1 (CAI-ROLL).")
+within 0-1 (CAI-ROLL). Tiering 2026-11-17 (the user: 「X2 只改相消」, DUEL_AI_STRATEGY §11.30): EASY .15 -> .45, NORMAL .35 -> .45, HARD .6 ->
+1.0, so EASY beats the masher's J1 and HARD keeps its lead over NORMAL.")
 (defparameter *cai-xch-sa-wait* 4
   "The NS side whose own hit was the cancel's (his J still coming): its SA this many frames after the cancel (XCH-SA-NOW-P; the user,
 2026-11-14: 「…以目前的系統設定繼續修正 CPU」): scripted 4-8 beat his AS, his J2 and a hold, 0 lost to his AS (DUEL_AI_STRATEGY §11.19,
@@ -498,11 +499,13 @@ A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :AWAKEN-BREAK-P
 (defparameter *cai-awaken-kikon-p* '(:easy 0.2 :normal 0.5 :hard 0.85)
   "The same on a Kikon's lock (its first frame, once): the awakening repels him and the follow-up never lands, the Konpaku saved. New
 2026-11-14 (the lead). Before: 0. A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :AWAKEN-KIKON-P k, the chance x k within 0-1 (CAI-ROLL).")
-(defparameter *cai-clash-delay* '(:easy 24 :normal 10 :hard 8)
+(defparameter *cai-clash-delay* '(:easy 8 :normal 8 :hard 4)
   "The clash's own reaction, frames (CAI-CLASH reads the SNAP this many steps old, never older than BRAIN-DELAY): NORMAL 14 -> 10 so it
 cancels KESSA's NS3 clone cuts in time too (n3b's and the X's land on the summon's f11; the user, 2026-11-15: 「要」 to 「NORMAL 是否也要能
 相消分身？…縮短 NORMAL 的反應延遲」, with NORMAL's overall strength left as it is: 「目前先這樣」, so only the clash reads sooner). New
-2026-11-15 (the lead). Before: the brain's delay (EASY 24, NORMAL 14, HARD 8).")
+2026-11-15 (the lead). Before: the brain's delay (EASY 24, NORMAL 14, HARD 8). Tiering 2026-11-17 (the user: 「X2 只改相消」, DUEL_AI_STRATEGY
+§11.30): EASY 24 -> 8, NORMAL 10 -> 8, HARD 8 -> 4. The masher's J1 is live about 9 frames, so only a clash of 8 or less passes the live
+test (EASY vs masher KK at 8 frames .87, at 9 frames .15).")
 (defparameter *cai-clash-margin* 1.0 "m past his move's reach within which the clash throws its opener (the generic CPU's Hoho test: reach + 1.0).
 Read by the clash and by the J side's AS reach test (CAI-XCH-STEP). A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15):
 :CLASH-MARGIN k, 1.0 x k m, >= 0, at both reads (CAI-MARGIN).")

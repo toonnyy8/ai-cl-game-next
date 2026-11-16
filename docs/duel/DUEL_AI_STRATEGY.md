@@ -2676,7 +2676,7 @@ cpu-ih-hisagi*) all answer a cancel the same way without an edit of their own, a
 | `*cai-xch-sa-p*` | 0.25 | 0.45 | 0.65 | no watch |
 | `*cai-xch-ns-hoho-p*` | 0.1 | 0.3 | 0.55 | none |
 | `*cai-xch-carry-p*` | 0.5 | 0.35 | 0.2 | `*fz-ns-cont*` |
-| `*cai-clash-p*` (margin 1.0 m) | 0.15 | 0.35 | 0.6 | 0 (no such rule) |
+| `*cai-clash-p*` (margin 1.0 m) | 0.15 (0.45 since §11.30) | 0.35 (0.45) | 0.6 (1.0) | 0 (no such rule) |
 
 The Hoho answers (`*cai-xch-j*`'s Hoho, `*cai-xch-ns-hoho-p*`) left the same day with the rule that no Hoho starts in an open exchange (§11.19).
 
@@ -2964,7 +2964,7 @@ decisions.
 The user (verbatim, on §11.20's three questions): 「要」 to "NORMAL 是否也要能相消分身？做法是縮短 NORMAL 的反應延遲"; 「目前先這樣」 to NORMAL's
 overall strength (K.O. 127 of 180, §11.19); 「要，請重新蒐集」 to a dream-rsi re-collection (planned in `sp/PLAN3.md`).
 
-**The clash's own reaction** (`*cai-clash-delay*` EASY 24 / NORMAL 10 / HARD 8; before: the brain's delay 24 / 14 / 8). `cai-clash` reads
+**The clash's own reaction** (`*cai-clash-delay*` EASY 24 / NORMAL 10 / HARD 8, since §11.30 8 / 8 / 4; before: the brain's delay 24 / 14 / 8). `cai-clash` reads
 the SNAP that many steps old (`brain-snap-ago`, `snap-dist` factored out of `brain-perceive`), never older than the brain's own. Only the
 clash reads sooner, so NORMAL's other decisions keep their 14 frames (the strength the user kept). NORMAL now reaches n3b's and the X's cut
 (the summon's f11). Scripted (2829 the clash at 1, the practice CPU at NORMAL; 2833 is the HARD switch, split off 2829): against Kenpachi,
@@ -3432,3 +3432,42 @@ seeds 141-180 x 20 salts, 53 tests, `SP_BUILD=f0e2bb129de1`), `sp/arms5/swap/swa
   - HARD vs HARD 141-180, K.O. / points A: KI 1.000 / .013 → 1.000 / .000, KH 1.000 / .237 → .963 / .200, IH .887 → .838
     (.113), KK 1.000 (mean 173.4 → 164.3 s), II .600 → .425, HH .000.
   - Dev ladder 16 → 17 of 27: E>M KH .705 → .755 PASS; N>E HK .920 → .870, N>E KK .965 → .925, E>M IH .195 → .125.
+
+### 11.30 Ladder tiering: X2, the clash alone (2026-11-17)
+
+The user, 2026-11-17, on the tier probe's three options (`docs/research/strategy-drsi/sp/diag/tier-r2.md`): 「X2 只改相消」.
+
+**Why.** On main a6c77eeb the ladder passed 17 of 27 cells, and EASY beat the masher in one (KH). Round 2 of the tier probe found that the
+clash was the whole cause in the masher-Kenpachi column: the masher's J1 is live about 9 frames, so only a clash read 8 frames old or less
+passes CAI-CLASH's live test (E>M KK .87 at 8 frames, .15 at 9). Three options went to the user:
+
+| option | knobs | Wilson / raw | what it breaks |
+|---|---|---|---|
+| X2 (chosen) | the clash only | 19 / 20 | nothing on the upper rungs; E>M 1 -> 3 |
+| X1 | eyes 22 / 14 / 4, HARD's 12 `@cai` knobs at EASY / NORMAL, styles | 22 / 23 | H>N KI 1.000 -> .365, N>E HH .965 -> .625 |
+| X5 | X1 with NORMAL's `@cai` at EASY / NORMAL | 21 / 22 | N>E HK .870 -> .415, E>M HH .565 |
+
+X1 and X5 leave EASY with HARD's judgment and a slower eye; X2 keeps every difficulty's judgment as it was.
+
+**Knobs** (tuning.lisp):
+
+| Knob | EASY | NORMAL | HARD |
+|---|---|---|---|
+| `*cai-clash-p*` | .15 -> .45 | .35 -> .45 | .6 -> 1.0 |
+| `*cai-clash-delay*` (frames) | 24 -> 8 | 10 -> 8 | 8 -> 4 |
+
+**Ladder** (`ladder.py --seed0 500 --seeds 100`, the shipped build; `sp/diag/tier/ladder-x2-shipped.txt`): **17 -> 19 of 27**, equal to
+the probe's X2 cell for cell.
+- E>M 1 -> 3: KH .995, KI .820, HK .920 pass; KK .655, IK .705, II .445, IH .360, HI .565, HH .300 fail.
+- N>E 8: IH .410 fails (main .595).
+- H>N 8: IH .555 fails (main .635); KI 1.000 -> .845, HK .975 -> .853.
+
+**G2** regenerated (native = browser): II 39 lines P2 1-1 391.4 s, IK 25 lines P1 6-0 246.0 s, KK 20 lines P2 0-5 201.2 s. Host tests
+3742 ALL PASS (the clash chance stays EASY <= NORMAL <= HARD and its delay EASY >= NORMAL >= HARD; NORMAL's delay is still under n3b's
+hit). Playtest Artifact v432.
+
+**Open.**
+- The tiering is re-measured after the user's playtest of the late-match finish (§11.29): main's IH is lost at the bell, which the
+  finish affects.
+- Not tier knobs, the lead's next work: a Kenpachi answer to Ichigo's NS clash into his J (KI), an IH Ichigo table that is not dominated
+  at parity, an HH table that does not stare, and the bell's tiebreak (tier-r2.md "What would move the frontier").
