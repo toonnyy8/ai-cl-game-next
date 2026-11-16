@@ -1,0 +1,2 @@
+r2mcfull	*mc-full*=nil	easy=easy:*ai-delay*
+r2mcoff	*mc-off-at*=nil	easy=easy:*ai-delay*

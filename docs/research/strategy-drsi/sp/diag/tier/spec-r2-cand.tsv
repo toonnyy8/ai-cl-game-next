@@ -1,0 +1,4 @@
+# tier-r2.md step 4: candidates. The 8-frame clash at EASY = NORMAL (the masher's J1 needs <= 8, r2-cgrid), at .45 so H>N KI can hold,
+# HARD's clash 1.0 / 4 (r2k45h4: KI .845). :x carries EASY's / NORMAL's clash past the @cai lifts.
+r2X1	*ai-delay*=(:easy 22 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0 :x 0.45);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4 :x 8)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i;easy=x:*cai-clash-p*,*cai-clash-delay*;normal=x:*cai-clash-p*,*cai-clash-delay*
+r2X2	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=easy:*ai-delay*

@@ -1,0 +1,24 @@
+r2c35_8  easy>masher    0.440  0.480  0.880  0.600  (n 600, bell 2) |      0      0      2  2
+r2c35_9  easy>masher    0.050  0.145  0.130  0.108  (n 600, bell 0) |      0      0      0  0
+r2c35_10 easy>masher    0.070  0.165  0.085  0.107  (n 600, bell 0) |      0      0      0  0
+r2c35_12 easy>masher    0.040  0.105  0.050  0.065  (n 600, bell 7) |      0      0      7  7
+r2c45_8  easy>masher    0.655  0.705  0.920  0.760  (n 600, bell 4) |      0      2      2  4
+r2c45_9  easy>masher    0.090  0.160  0.170  0.140  (n 600, bell 2) |      0      0      2  2
+r2c45_10 easy>masher    0.065  0.155  0.175  0.132  (n 600, bell 0) |      0      0      0  0
+r2c45_12 easy>masher    0.055  0.075  0.060  0.063  (n 600, bell 5) |      0      0      5  5
+r2c6_8   easy>masher    0.870  0.910  0.975  0.918  (n 600, bell 16) |      0     15      1  16
+r2c6_9   easy>masher    0.150  0.275  0.345  0.257  (n 600, bell 3) |      0      0      3  3
+r2c6_10  easy>masher    0.205  0.245  0.265  0.238  (n 600, bell 0) |      0      0      0  0
+r2c6_12  easy>masher    0.070  0.165  0.085  0.107  (n 600, bell 8) |      0      0      8  8
+r2c35_8  hard>normal    0.820  0.820  (n 200, bell 0) |      0  0
+r2c35_9  hard>normal    1.000  1.000  (n 200, bell 0) |      0  0
+r2c35_10 hard>normal    1.000  1.000  (n 200, bell 0) |      0  0
+r2c35_12 hard>normal    0.995  0.995  (n 200, bell 0) |      0  0
+r2c45_8  hard>normal    0.655  0.655  (n 200, bell 0) |      0  0
+r2c45_9  hard>normal    1.000  1.000  (n 200, bell 0) |      0  0
+r2c45_10 hard>normal    1.000  1.000  (n 200, bell 0) |      0  0
+r2c45_12 hard>normal    0.995  0.995  (n 200, bell 0) |      0  0
+r2c6_8   hard>normal    0.205  0.205  (n 200, bell 0) |      0  0
+r2c6_9   hard>normal    0.990  0.990  (n 200, bell 0) |      0  0
+r2c6_10  hard>normal    1.000  1.000  (n 200, bell 0) |      0  0
+r2c6_12  hard>normal    1.000  1.000  (n 200, bell 0) |      0  0

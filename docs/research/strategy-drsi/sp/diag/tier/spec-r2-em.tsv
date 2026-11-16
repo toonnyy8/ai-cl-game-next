@@ -1,0 +1,12 @@
+# tier-r2.md step 3: what E>M needs today, one group at a time from main (E>M only). A group lifted to HARD's at EASY is lifted at NORMAL
+# too (monotone); *strat-table-chance* (flat 1.0, its shipped value) is a placeholder set where a line has only a lift (run-tier.sh's
+# tab split collapses an empty field).
+r2Ee14	*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=easy:*ai-delay*
+r2Ee8	*ai-delay*=(:easy 8 :normal 8 :hard 8)	easy=easy:*ai-delay*
+r2Ecn	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=normal:@clash
+r2Egen	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:*fz-skill*,*cai-think*,*cai-turn-p*,*cai-cont-p*,*cai-hoho-p*,*cai-xch-j*,*cai-xch-sa-p*,*cai-xch-carry-p*,*cai-awaken-break-p*,*cai-awaken-kikon-p*,*cai-dswitch-dif*,*strat-lambda*;normal=hard:*fz-skill*,*cai-think*,*cai-turn-p*,*cai-cont-p*,*cai-hoho-p*,*cai-xch-j*,*cai-xch-sa-p*,*cai-xch-carry-p*,*cai-awaken-break-p*,*cai-awaken-kikon-p*,*cai-dswitch-dif*,*strat-lambda*
+r2Esk	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:@style-k;normal=hard:@style-k
+r2Esi	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:@style-i;normal=hard:@style-i
+r2Esh	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:@style-h;normal=hard:@style-h
+r2Emc	*strat-table-chance*=(:easy 1.0 :normal 1.0 :hard 1.0)	easy=hard:@mc;normal=hard:@mc
+r2Egnc	*ai-delay*=(:easy 18 :normal 14 :hard 4);*cai-clash-p*=(:easy 0.15 :normal 0.35 :hard 0.6 :x 0.15);*cai-clash-delay*=(:easy 24 :normal 10 :hard 8 :x 24)	easy=normal:@style-k;easy=hard:@cai,@style-i;normal=hard:@cai,@style-k,@style-i,@style-h;easy=x:*cai-clash-p*,*cai-clash-delay*
