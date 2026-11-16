@@ -164,6 +164,29 @@ So the window is narrow, at about NORMAL = EASY = .45 / 8 with HARD at 1.0 / 4:
 - With every other knob shipped (X2), E>M KK and IK fall short (.655, .705).
 - With G3's lifts (X1), KK and IK pass (.955, 1.000), but NORMAL's other HARD `@cai` takes H>N KI back down to .365.
 
+**KK and IK can be passed at X2's clash, each through its own character** (`spec-r2-{cand4,ik,cand5}.tsv`):
+- **IK, EASY Ichigo's ceiling**: X2's NORMAL against the masher Kenpachi scores **.995** (`normal-masher-r2X2.json`, IK only). That
+  NORMAL is the one that keeps H>N KI at .845, so IK is not blocked by KI.
+- In X2, each of the following lifts E>M IK .705 to a pass, one at a time:
+
+  | EASY's group at NORMAL's | E>M IK |
+  |---|---|
+  | eyes 14 | .840 |
+  | generic `@cai` | .885 |
+  | Ichigo's style | .845 |
+  | `@mc` | .695 (no lift) |
+
+  Ichigo's style is per character, so this costs no H>N cell. X6 is X2 with EASY's Kenpachi and Ichigo style at NORMAL's: E>M IK .845,
+  and H>N is X2's row, KI .845.
+- **KK** passes with Kenpachi's style at HARD's for EASY and NORMAL. That is X2k: E>M KK .655 → .980, while H>N KI stays .845.
+  - The cost moves to N>E HK: an EASY Kenpachi with HARD's style beats a NORMAL Hisagi, .815 → .170.
+  - With his style only at NORMAL's (X6), KK is .690.
+- So the KI squeeze is not about KK or IK. What NORMAL Ichigo cannot take without losing KI is the strength that E>M's **Ichigo and
+  Hisagi** cells (II, IH, HI, HH) need:
+  - HARD's generic chances and Ichigo's HARD style. Restoring his style at NORMAL's (X3) moves KI .365 → .465, and the generic chances at
+    NORMAL's (X5) .365 → .640.
+  - In X6, which has neither, E>M II is .670, IH .525, HI .580 and HH .315.
+
 **Not measurable as a lever**: `*mc-off-at*` nil (HARD Ichigo under the MCTS) gives H>N KI / IH / II exactly as shipped (1.000 / .635 /
 .990).
 
@@ -176,8 +199,29 @@ So the window is narrow, at about NORMAL = EASY = .45 / 8 with HARD at 1.0 / 4:
 | X3 (X1, Ichigo style at NORMAL's for E / N) | 7 | 6 | 7 | 20 | 23 |
 | X4 (X1, NORMAL Hisagi style at EASY's) | 8 | 7 | 7 | 22 | 23 |
 | X5 (X1, generic `@cai` at NORMAL's for E / N) | 8 | 6 | 7 | 21 | 22 |
+| X2k (X2, Kenpachi style HARD at E / N) | 4 | 7 | 8 | 19 | 20 |
+| X6 (X2, EASY's Kenpachi and Ichigo style at NORMAL's) | 4 | 7 | 8 | 19 | 20 |
 
-X4's E>M is X1's, since its EASY is the same. Specs: `tier/spec-r2-cand*.tsv`.
+- X4's E>M is X1's, since its EASY is the same.
+- X6's H>N is X2's row, since its NORMAL and HARD are X2's.
+- X4's raw 23 rests on E>M HH at exactly .700 (140 of 200): an edge.
+- Specs: `tier/spec-r2-cand*.tsv`.
+
+X2k:
+
+| rung | KK | KI | KH | IK | II | IH | HK | HI | HH | pass | raw |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| E>M | .980 | .995 | 1.000 | .705* | .445* [133] | .360* [61] | .910 | .640* [187] | .280* | 4 | 5 |
+| N>E | .925 | 1.000 | 1.000 | .965 | .940 | .370* [113] | .170* | 1.000 | .785 [182] | 7 | 7 |
+| H>N | .985 | .845 | .965 | 1.000 | .995 | .682* [62] | .840 | 1.000 | .935 [182] | 8 | 8 |
+
+X6:
+
+| rung | KK | KI | KH | IK | II | IH | HK | HI | HH | pass | raw |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| E>M | .690* | .885 | .995 | .845 | .670* [92] | .525* | .960 | .580* [189] | .315* [69] | 4 | 4 |
+| N>E | .850 | .870 | .990 [63] | .965 | .910 | .285* [146] | .750* | 1.000 | .835 [166] | 7 | 8 |
+| H>N | 1.000 | .845 | .980 | .995 | .995 | .555* [82] | .853 | 1.000 | .950 [157] | 8 | 8 |
 
 ### A. X1: 22 of 27 (raw 23); the most cells
 
@@ -200,7 +244,8 @@ X4's E>M is X1's, since its EASY is the same. Specs: `tier/spec-r2-cand*.tsv`.
 | H>N | .985 | .365* | .845 [66] | .990 | .925 | .500* | .820 | 1.000 | .785 [195] | 7 | 7 |
 
 - Fails: H>N KI (§4), IH on both upper rungs, N>E HH, and E>M HH (.700: 140 of 200, a raw pass).
-- IH is lost by K.O., not at the bell. H>N IH has 24 matches at the bell, with the HARD Ichigo taking 2 points of those 24.
+- Here IH is lost by K.O. H>N IH has 24 matches at the bell, with the HARD Ichigo taking 2 points of those 24. On main it is the bell
+  instead (§6, Block B).
 - HH is decided at the bell: 177 and 195 of 200 matches there.
 - **X4** is a variant of X1: NORMAL Hisagi's style set to EASY's, which is admissible.
   - It trades H>N IH .500 → .665 against N>E HI .990 → .900 and H>N KH .845 → .815.
@@ -245,21 +290,38 @@ shipped.
 - A (or X4) gives the most cells and passes the masher rung except HH. It leaves KI, IH and HH open above.
 - B is the same idea with H>N nearly whole (raw 8 of 9), and pays with the middle rung.
 - C is the minimal change: two plists, upper rungs as main, E>M only 3.
+- X2k and X6 are C plus one per-character style setting each (Kenpachi, or Kenpachi and Ichigo). They keep 8 + 8 above, but they pass a
+  different E>M cell and lose a different middle-rung cell; the count is the same.
 - Not a candidate: R1a, `tier-t0.md`'s one-knob fix. It changes nothing today (17 = main), because H>N HK already passes.
 
 ## 6. The blocks that remain, and whether they are structural
 
-**Block A: H>N KI against E>M KK / IK (structural under the constraints, within these knobs).**
+**Block A: H>N KI against E>M's Ichigo and Hisagi cells (a trade, not shown structural).**
 - E>M against a masher Kenpachi needs EASY's clash ≤ 8 frames and a chance of about .45 or more (§3's cliff).
-- Monotone passes that clash to NORMAL. A NORMAL Ichigo's 8-frame NS clash beats HARD Kenpachi's J.
-- HARD-only levers recover at most .57 at NORMAL .6, and .845 at NORMAL .45 with every other knob shipped.
-- Once NORMAL also gets the lifts that E>M's other cells need, KI falls under .755 (X1 .365, X5 .640, G3m22 .035).
-- No world measured passes E>M KK, E>M IK and H>N KI together.
+- Monotone passes that clash to NORMAL, where a NORMAL Ichigo's 8-frame NS clash beats HARD Kenpachi's J. At .45 / 8, with HARD at
+  1.0 / 4, KI holds at .845.
+- KK and IK can then be passed through each character's own style, so they are not what blocks KI:
+  - IK: X6, .845; NORMAL's ceiling there is .995.
+  - KK: X2k, .980, but it costs N>E HK .170: Kenpachi's style is a trade between E>M KK and N>E HK.
+- What blocks KI is the generic lift and Ichigo's HARD style that E>M II, IH, HI and HH need. Monotone hands both to NORMAL, and KI
+  falls: X1 .365, X3 .465, X5 .640, G3m22 .035.
+- No world measured passes E>M II, E>M IH and H>N KI together.
+- It is not proven impossible: a lift that wins those four E>M cells without strengthening NORMAL Ichigo against Kenpachi's J was not
+  found among these knobs.
 
 **Block B: IH on both upper rungs (a matchup block, already failing on main).**
 - Hisagi beats Ichigo .920 (HARD) and .995 (NORMAL) at parity, so the tier gap has to overcome a near-total matchup edge.
 - Main's tier gap reaches only .635 / .595, and every lift to a lower tier narrows it.
-- It is decided by K.O. (X1's H>N IH: 24 at the bell), so the late-match finish is not what loses it.
+- **On main it is lost at the bell** (`{normal-easy,hard-normal}-r2baseih.json`):
+
+  | rung | at the bell | the higher tier's points there | by K.O. |
+  |---|---|---|---|
+  | N>E IH | 166 of 200 | 91 (.548) | 28 of 34 |
+  | H>N IH | 77 of 200 | 29 (.377) | 98 of 123 |
+
+  The higher-tier Ichigo wins 80 % of the K.O.s and loses the tiebreak. This fits §11.29's record that the late-match finish cost this
+  cell (H>N IH .765 → .497). The finish's mechanism was not traced here.
+- In the lifted worlds the cell flips to K.O.s by the lower-tier Hisagi (X1's H>N IH: 24 at the bell, 2 of those points Ichigo's).
 - The one admissible lever measured is NORMAL Hisagi's style at EASY's (X4: H>N IH .665).
 
 **Block C: HH (a stall, not tierable).**
@@ -274,16 +336,18 @@ shipped.
 | A Kenpachi answer to the NS clash into his J. Options: his KI table's `:xch-j` toward the J link after a cancel, or a Kenpachi arm that throws fewer J starts at 1-3 m against Ichigo | lead (table / arm) | **estimated**. HARD's generic `*cai-xch-sa-p*` 1.0 with an all-AS `*cai-xch-j*` takes H>N KI .205 → .390 at NORMAL .6 / 8, so the generic exchange knobs are not enough; it needs a matchup answer. If KI held at .755 with NORMAL at X1's lifts, X1 would be 23 (raw 24) |
 | An IH Ichigo arm or table that is not dominated at parity. Today Hisagi takes .92 / .995 | lead (table / arm; IH is on the rework list) | **estimated** +2 cells (N>E IH, H>N IH) if parity IH moved to about .5 |
 | An HH table that does not stare (on the rework list) | lead | **estimated** +1 to +2 cells (N>E HH, E>M HH in X1). Today it is decided at the bell |
-| A per-character clash knob, e.g. Ichigo's NORMAL clash chance under EASY Kenpachi's / Hisagi's | **the user** (per character) | **estimated** small. EASY Ichigo needs the fast clash for E>M IK, NORMAL Ichigo must lack it for H>N KI, and monotone links the two. A per-character clash chance only helps if Ichigo's E>M IK can be carried by his style instead (X1's IK is 1.000 with HARD style; untested at his clash .35) |
-| A per-character Hisagi style tier (NORMAL Hisagi at EASY's) | **the user** | measured inside the rules as X4. It is already admissible, because style groups are per character by construction |
+| A per-character clash knob, e.g. Ichigo's clash chance at NORMAL lower than the others' | **the user** (per character) | **estimated** small to moderate. EASY Ichigo's IK passes through his style (X6 .845), so a lower Ichigo clash for EASY and NORMAL might keep IK and lift KI past X1's .365. Untested: at the shipped other knobs, Ichigo's NORMAL clash .35 / 8 gives KI .820 (every character at .35) |
+| Per-character style tiers. Kenpachi: EASY at HARD's helps E>M KK, but costs N>E HK. Hisagi: NORMAL at EASY's helps H>N IH | **the user** (they set one character's play per tier) | measured, admissible: X2k (KK .980, N>E HK .170), X4 (H>N IH .665). Style groups are per character by construction |
+| IH's tiebreak on main: a finish that does not hand the bell to the side holding a band (§6 B) | lead (rule; the finish waits on the user's playtest, §796) | **estimated** up to +2 cells on main (N>E IH .595, H>N IH .635), since the higher-tier Ichigo already wins 80 % of the K.O.s |
 | The MCTS hold fix (`masher-vs-easy.md` §4.1, `*mc-full*` nil as its probe) | lead (code) | **measured, no longer worth it**: E>M .168 → .187 |
 | `*mc-off-at*` nil (HARD Ichigo under the MCTS) | user (per character) | **measured, nil**: identical cells |
 
 ## 8. Budget and files
 
-- About 45 rung-runs at 200 a cell, plus about 30 narrowed runs of 1-3 cells (the clash grid and the KI levers).
-- Full 27-cell tables: baseline, R1a, G3n, G3m22, G3m24, E1, E3, X1, X2, X3, X5, plus X4's two upper rungs.
-- Specs: `tier/spec-r2-{base,worlds,em,cgrid,hki,nontier,cand,cand2,cand3}.tsv`.
+- About 50 rung-runs at 200 a cell, plus about 40 narrowed runs of 1-3 cells (the clash grid, the KI levers, the IK lifts). That is over
+  the brief's ~40; each full world took about 4.5 minutes.
+- Full 27-cell tables: baseline, R1a, G3n, G3m22, G3m24, E1, E3, X1, X2, X2k, X3, X5, plus X4's two upper rungs and X6's two lower ones.
+- Specs: `tier/spec-r2-{base,baseih,worlds,em,cgrid,hki,ik,nontier,cand,cand2,cand3,cand4,cand5}.tsv`.
 - Runs: `tier/<hi>-<lo>-r2*.json`, the logs `tier/r2-*.log`, and the per-cell probe texts `tier/r2-em-*-base.txt` and
   `tier/r2-hn-ki-*.txt`.
 - Render any world with `python3 docs/research/strategy-drsi/sp/diag/tier-table.py r2X1`.

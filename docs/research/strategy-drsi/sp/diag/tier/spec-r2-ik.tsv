@@ -1,0 +1,5 @@
+# tier-r2.md step 5: what lifts E>M IK in X2 (X2's NORMAL scores .995 there): EASY's group at NORMAL's, one at a time (E>M IK only)
+r2Iey	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4);*ai-delay*=(:easy 14 :normal 14 :hard 8)	easy=easy:*ai-delay*
+r2Igen	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0 :x 0.45);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4 :x 8)	easy=normal:@cai;easy=x:*cai-clash-p*,*cai-clash-delay*
+r2Isi	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=normal:@style-i
+r2Imc	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=normal:@mc

@@ -1,0 +1,2 @@
+# tier-r2.md step 5: X6 = X2 + EASY's Kenpachi and Ichigo style at NORMAL's shipped (NORMAL and HARD are X2's, so H>N is X2's row).
+r2X6	*cai-clash-p*=(:easy 0.45 :normal 0.45 :hard 1.0);*cai-clash-delay*=(:easy 8 :normal 8 :hard 4)	easy=normal:@style-k,@style-i
