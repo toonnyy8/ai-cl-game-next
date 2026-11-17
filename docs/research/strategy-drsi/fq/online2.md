@@ -66,6 +66,8 @@ Branch q1-eps from main fabade57. Files: `online.py` (updated), `online2/` (tabl
   `stats.jsonl`.
 - **Noise.** A held-out share has an SE of about .02 on 400 matches and .03 on 200; a live share of 500, about .02. The spread across the 4
   runs is the real noise for a final table (fixed seed blocks, deterministic). ε vs ε 0 is compared paired, on the same 20 blocks of 25.
+  The 5 blocks of a run share one evolving table, so they are serially correlated and the block SE is optimistic: no single paired z
+  below about 3 is taken alone.
 
 ## 5. Results
 
@@ -107,7 +109,8 @@ Branch q1-eps from main fabade57. Files: `online.py` (updated), `online2/` (tabl
 - Largest |q| 0.48 (page integer 47,697), far below the ~1000 flag (a 30-bit fixnum holds up to 5,368).
 
 **A diagnostic outside the brief's grid: η 0.005** (about η / Σx², so one transition moves Q by about 0.05·δ, as η alone suggests). The shipped
-η stays 0.05; this measures only whether the step, rather than exploration, is what hurts.
+η stays 0.05; this measures only whether the step, rather than exploration, is what hurts. **One value, picked after the η 0.05 results
+were seen**; nothing was selected among η values, which is the only reason its held-out numbers are clean.
 
 | config | live / frozen (z) | curve (of 100) | vs proxy 601-800 | vs shipped 501-600 | broken |
 |---|---|---|---|---|---|
@@ -121,7 +124,12 @@ Branch q1-eps from main fabade57. Files: `online.py` (updated), `online2/` (tabl
 | IH istyle η .005 ε .05 | 169 / 159 (0.67) | 29/25 28/37 39/34 39/30 34/33 | .362 .335 .352 .487 | .200 .195 .145 .150 | 0 |
 
 - At η .005, ε .05 vs ε 0 (live, paired): KI shipped +.004 (.013), KI istyle -.032 (.021), IH shipped -.022 (.018), IH istyle -.070 (.038).
-- At η .005 the largest |q| is 0.149. Leaders flip on 0-2 rules, and no arm takes over the table.
+- At η .005 the largest |q| is 0.149, and leaders flip on 0-2 rules. **But at ε 0 the tables collapse harder: one arm takes 0.84-1.0 of the
+  judgements in 14 of 16 final tables, arm 0 in 13 of them.** Arm 0 is `a4-i-all` (KI) or `a4-i-brawl` (IH). KI shipped run 1 plays arm 1
+  (`a5-i-answer`) at 0.999, and IH istyle runs 1-2 are mixed: arm 0 .65 / .25, kessa-lunge .34 / .75.
+  - The four tables of a config are different files (md5), yet they play the same policy. That is why KI shipped's and IH shipped's held-out
+    numbers repeat to three decimals.
+  - At ε .05 the η .005 tables stay mixed (the largest arm .35-.997, mostly .45-.74).
 
 ## 6. Reading and recommendation
 
@@ -133,21 +141,29 @@ Branch q1-eps from main fabade57. Files: `online.py` (updated), `online2/` (tabl
     a player's habits teach a table that fails against everyone else.
 - **Exploration does not fix this.**
   - At η 0.05: ε .05 / .1 change live wins by -.11 to +.03 (paired). Only IH istyle moves past 2.5 SE, and it moves the wrong way (-.074 and
-    -.112).
+    -.112). The block SE is optimistic (§4), but the direction repeats at both ε and again at η .005 (-.070).
   - ε does make KI's frozen tables steadier (KI istyle held-out .79-.87 at ε > 0 against .63-.85 at ε 0), but not by a margin beyond the
     run-to-run spread.
   - IH shipped stays below the offline table at every ε (live 45-70 vs 85; 1-4 tables broken).
   - At η .005 every ε .05 cell is at or below its ε 0 cell (-.004 to -.070).
-- **The step is what breaks the tables, not the lack of exploration.** The same grid at η .005 and ε 0:
-  - every pairing x proxy gains live (z 1.7-4.5);
-  - 14 of 16 final tables are at or above the offline table against the shipped CPU (the exceptions: IH istyle runs 1 and 2, .145 and
-    .06, tuned to the off-style Hisagi);
-  - IH shipped turns from 56 to 115 live (offline 85), with all four tables .215-.230;
-  - KI istyle's four tables hold .863-.880 on held-out (offline .745).
+- **Both η collapse the table onto one arm; the larger step picks the arm erratically and badly.**
+  - At η 0.05 the collapse lands on varied arms (kessa-lunge, economy, brawl), often worse ones.
+  - At η .005 and ε 0 it lands on arm 0 almost everywhere: Ichigo's whole style (`a4-i-all`) against Kenpachi, the brawl style
+    (`a4-i-brawl`) against Hisagi. Arm 0 played whole happens to beat the designed job map against these opponents:
+    - KI istyle: live 426 vs 371 (z 4.5), held-out .863-.880 (offline .745);
+    - IH shipped: live 115 vs 85 (z 2.5), held-out .215-.230 (offline .19 / .21: small, each table z 0.4-1.1).
+  - So what the η .005 learner finds is mostly "drop the switching" (KI shipped: .92-.97). It is not a fine-grained table.
+  - That is itself a signal for the T0 job maps: against these opponents the switching between one-job arms costs wins relative to arm 0
+    whole. The lead may want this checked with arm 0 played raw on a held-out block.
 - **Recommended ε: 0, with no decay.** Constant ε did not hurt the converged case (KI shipped), which is the case a decay is meant to protect.
+  (ε does keep the tables mixed rather than collapsed, but at no win gain beyond noise.)
   ε helped nowhere beyond noise, and it hurt IH istyle at both η. So a decaying ε would only interpolate toward ε 0. It was not run.
 - **For the lead's decision (not changed here): η.** The shipped η 0.05 behaves like an effective step of about 0.55 on these 11-group tables.
-  η 0.005 (or, equivalently, dividing the update by Σx²) learned better in every cell measured here.
+  Against the shipped η 0.05 at ε 0, η 0.005 (or, equivalently, dividing the update by Σx²):
+  - is better against the shipped CPU in every pairing x proxy (by mean; one table broken, IH istyle run 2 at .06, against four at η 0.05);
+  - is better live in two of four (IH shipped 115 vs 56, KI istyle 426 vs 398) and level in two (KI shipped 470 vs 465, IH istyle 204 vs 208);
+  - is lower against the off-style Hisagi itself (held-out mean .422 vs .467).
+  - It still collapses the table onto one arm (above).
   - η is the user's earlier knob (§8.14: chosen at cap 0.05 on the two-arm, one-group table, where Σx² = 1).
   - The minimal proposed diff, if the lead takes it: `*fq-online-eta*` 0.05 → 0.005 in strategy.lisp, docstring citing this record.
     Alternatively, FQ-TD-UPDATE! could divide `(* eta x delta)` by the transition's Σx² (one `loop ... sum (* x x)`), which keeps η's meaning
