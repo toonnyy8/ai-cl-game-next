@@ -1,0 +1,11 @@
+{"_doc": "online2 (q1-eps, 2026-11-17): the player proxies, fixed BEFORE any learning run. The learner is Ichigo's shipped HARD table on P2 (as in VS CPU), dumped from the build's lookup (t0-ki-ichigo.lisp, t0-ih-ichigo.lisp here). Shipped = the opponent's HARD lookup table (online.py --proxy omitted; NOT `none`, which is his CPU without any strategy). Off-style rule: one proxy for both pairings, among the existing §8.14 / §8.15 proxy strategies, the one whose screen (frozen T0 table's wins on seeds 1-100, P2) lies in 0.25-0.75 in both pairings: only online/ken-istyle.lisp qualifies (KI: every other candidate >= 0.99). Screen = the frozen table only (no learning), seeds 1-100 P2, 100 matches each.",
+ "screen_1_100_P2": {
+   "ichigo-kenpachi": {"shipped (lookup t0-ki-kenpachi)": 91, "none": 99, "ki-ken": 100, "online/ken-wide.lisp": 99, "online/ken-istyle.lisp": 74},
+   "ichigo-hisagi": {"shipped (lookup t0-ih-hisagi)": 19, "none": 18, "s3-zoner": 20, "s7-kite": 7, "ki-ken": 61, "online/ken-wide.lisp": 77, "online/ken-istyle.lisp": 34}},
+ "screen_arm_shares": {
+   "ichigo-kenpachi": {"shipped": [0.06, 0.41, 0.26, 0.15, 0.08, 0.04], "online/ken-istyle.lisp": [0.04, 0.25, 0.32, 0.28, 0.08, 0.03]},
+   "ichigo-hisagi": {"shipped": [0.43, 0.17, 0.2, 0.21], "online/ken-istyle.lisp": [0.46, 0.29, 0.06, 0.19]}},
+ "proxies": {
+   "ichigo-kenpachi": {"shipped": null, "istyle": "online/ken-istyle.lisp"},
+   "ichigo-hisagi": {"shipped": null, "istyle": "online/ken-istyle.lisp"}},
+ "smoke_disclosed": "one 50-match smoke run before this file (KI, eps 0.1, ken-istyle, seeds 1-50, one run, scratchpad, tool check only): 38 / 34 wins learner / frozen; not used for any choice."}
