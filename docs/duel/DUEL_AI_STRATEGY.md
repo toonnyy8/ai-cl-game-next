@@ -3547,4 +3547,5 @@ Records: `sp/arms6/ih.md`, `sp/arms6/hh.md`.
 **Open, the user's call** (both measured with this Ichigo table, not shipped; each undoes a checkpoint the user picked):
 - `:hb-band` removed from Hisagi's IH arms: H>N IH .765, N>E .855, E>M .760, E>M HI .695, HH parity .385 (undoes checkpoint 2a).
 - B4's IH Hisagi table: H>N IH .835, N>E .915, E>M .760, E>M HI .690, HH parity .560 (undoes checkpoint 2c).
+- **Decided** (the user, 2026-11-17: 「維持現狀」): neither; H>N IH stays failing until the tier re-measure after the finish playtest.
 
