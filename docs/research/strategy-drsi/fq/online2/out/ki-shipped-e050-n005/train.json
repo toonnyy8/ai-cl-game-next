@@ -1,0 +1,251 @@
+{
+ "char": "ichigo",
+ "vs": "kenpachi",
+ "table": "docs/research/strategy-drsi/fq/online2/t0-ki-ichigo.lisp",
+ "proxy": null,
+ "init": null,
+ "eta": 0.005,
+ "cap": null,
+ "eps": 0.05,
+ "eps_decay": null,
+ "seeds": "1-500",
+ "spans": [
+  [
+   1,
+   125
+  ],
+  [
+   126,
+   250
+  ],
+  [
+   251,
+   375
+  ],
+  [
+   376,
+   500
+  ]
+ ],
+ "tables": [
+  "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e050-n005/run0-4.lisp",
+  "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e050-n005/run1-4.lisp",
+  "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e050-n005/run2-4.lisp",
+  "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e050-n005/run3-4.lisp"
+ ],
+ "learner": 472,
+ "q1": 456,
+ "n": 500,
+ "b": 42,
+ "c": 26,
+ "z": 1.94,
+ "by_block": {
+  "0": {
+   "learner": 92,
+   "q1": 93,
+   "n": 100
+  },
+  "1": {
+   "learner": 96,
+   "q1": 93,
+   "n": 100
+  },
+  "2": {
+   "learner": 93,
+   "q1": 92,
+   "n": 100
+  },
+  "3": {
+   "learner": 93,
+   "q1": 84,
+   "n": 100
+  },
+  "4": {
+   "learner": 98,
+   "q1": 94,
+   "n": 100
+  }
+ },
+ "curve": [
+  {
+   "run": 0,
+   "seeds": "1-25",
+   "learner": 25,
+   "q1": 23,
+   "b": 2,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "26-50",
+   "learner": 24,
+   "q1": 23,
+   "b": 2,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "51-75",
+   "learner": 23,
+   "q1": 24,
+   "b": 1,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "76-100",
+   "learner": 25,
+   "q1": 21,
+   "b": 4,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "101-125",
+   "learner": 25,
+   "q1": 24,
+   "b": 1,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "126-150",
+   "learner": 22,
+   "q1": 24,
+   "b": 1,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "151-175",
+   "learner": 24,
+   "q1": 24,
+   "b": 1,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "176-200",
+   "learner": 23,
+   "q1": 23,
+   "b": 2,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "201-225",
+   "learner": 22,
+   "q1": 23,
+   "b": 2,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "226-250",
+   "learner": 24,
+   "q1": 23,
+   "b": 1,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "251-275",
+   "learner": 24,
+   "q1": 22,
+   "b": 3,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "276-300",
+   "learner": 24,
+   "q1": 24,
+   "b": 1,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "301-325",
+   "learner": 23,
+   "q1": 22,
+   "b": 3,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "326-350",
+   "learner": 22,
+   "q1": 20,
+   "b": 4,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "351-375",
+   "learner": 25,
+   "q1": 23,
+   "b": 2,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "376-400",
+   "learner": 21,
+   "q1": 24,
+   "b": 1,
+   "c": 4,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "401-425",
+   "learner": 24,
+   "q1": 22,
+   "b": 3,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "426-450",
+   "learner": 24,
+   "q1": 23,
+   "b": 2,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "451-475",
+   "learner": 24,
+   "q1": 20,
+   "b": 5,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "476-500",
+   "learner": 24,
+   "q1": 24,
+   "b": 1,
+   "c": 1,
+   "n": 25
+  }
+ ]
+}
