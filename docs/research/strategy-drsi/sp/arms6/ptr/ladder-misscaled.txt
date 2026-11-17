@@ -1,0 +1,13 @@
+ladder seeds 501-600, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N KI   | 200 | 178 :  22 :  0 | 0.890  0.848 | PASS |   0 | 0.93 / 0.85
+hn H>N IK   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   0 | 1.00 / 1.00
+hn H>N HH   | 200 | 198 :   2 :  0 | 0.990  0.970 | PASS |   1 | 0.98 / 1.00
+ne N>E KI   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   8 | 1.00 / 1.00
+ne N>E IK   | 200 | 198 :   2 :  0 | 0.990  0.970 | PASS |   4 | 0.98 / 1.00
+ne N>E HH   | 200 | 185 :  15 :  0 | 0.925  0.888 | PASS |  11 | 0.91 / 0.94
+em E>M KI   | 200 | 148 :  52 :  0 | 0.740  0.686 | fail |   4 | 0.77 / 0.71
+em E>M IK   | 200 | 111 :  89 :  0 | 0.555  0.497 | fail |   5 | 0.59 / 0.52
+em E>M HH   | 200 |  68 : 132 :  0 | 0.340  0.287 | fail |  71 FLAG | 0.39 / 0.29
+6 of 9 cells pass
+json build/ladder/narrow.json

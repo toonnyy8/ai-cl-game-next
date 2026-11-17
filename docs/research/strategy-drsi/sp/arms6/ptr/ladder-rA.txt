@@ -1,0 +1,20 @@
+[simgate] building build/simgate/duel.fas (~2 min)
+ladder seeds 501-600, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N KH   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |  17 | 1.00 / 1.00
+hn H>N HK   | 200 | 169 :  31 :  0 | 0.845  0.798 | PASS |  82 FLAG | 0.85 / 0.84
+hn H>N IH   | 200 | 155 :  45 :  0 | 0.775  0.723 | PASS | 101 FLAG | 0.82 / 0.73
+hn H>N HI   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   3 | 1.00 / 0.99
+hn H>N HH   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   9 | 0.99 / 1.00
+ne N>E KH   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS | 122 FLAG | 1.00 / 0.99
+ne N>E HK   | 200 | 130 :  70 :  0 | 0.650  0.593 | fail | 129 FLAG | 0.67 / 0.63
+ne N>E IH   | 200 | 191 :   9 :  0 | 0.955  0.924 | PASS |  50 | 0.96 / 0.95
+ne N>E HI   | 200 | 176 :  23 :  1 | 0.882  0.840 | PASS | 112 FLAG | 0.88 / 0.89
+ne N>E HH   | 200 | 184 :  16 :  0 | 0.920  0.883 | PASS |  42 | 0.91 / 0.93
+em E>M KH   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   0 | 1.00 / 1.00
+em E>M HK   | 200 | 183 :  17 :  0 | 0.915  0.877 | PASS |  12 | 0.93 / 0.90
+em E>M IH   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   7 | 1.00 / 1.00
+em E>M HI   | 200 |  89 : 111 :  0 | 0.445  0.388 | fail | 196 FLAG | 0.44 / 0.45
+em E>M HH   | 200 |  70 : 130 :  0 | 0.350  0.297 | fail |  76 FLAG | 0.35 / 0.35
+12 of 15 cells pass
+json build/ladder/rA.json

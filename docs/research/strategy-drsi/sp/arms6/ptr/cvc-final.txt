@@ -1,0 +1,3 @@
+PASS native cvc ii: 39 lines vs 39; duel -> RESULTS winner P1 konpaku 2-1 ticks 23199 secs 386.6
+PASS native cvc ik: 27 lines vs 27; duel -> RESULTS winner P1 konpaku 5-0 ticks 15875 secs 264.6
+PASS native cvc kk: 22 lines vs 22; duel -> RESULTS winner P2 konpaku 0-6 ticks 13301 secs 221.7

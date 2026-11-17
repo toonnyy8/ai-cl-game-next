@@ -1,0 +1,8 @@
+ki-kenpachi hard,hard seeds 501-540: 80 matches, changes median 20 min 4, no change in 0; shares 0:0.070 1:0.162 2:0.709 3:0.059  bar A fail
+ki-kenpachi hard,normal seeds 501-540: 80 matches, changes median 25 min 8, no change in 0; shares 0:0.051 1:0.229 2:0.591 3:0.130  bar A PASS
+ki-kenpachi normal,easy seeds 501-540: 80 matches, changes median 47 min 26, no change in 0; shares 0:0.056 1:0.470 2:0.274 3:0.199  bar A PASS
+ki-kenpachi easy,masher seeds 501-540: 80 matches, changes median 52 min 25, no change in 0; shares 0:0.058 1:0.317 2:0.434 3:0.191  bar A PASS
+ih-ichigo hard,hard seeds 501-540: 80 matches, changes median 65 min 35, no change in 0; shares 0:0.500 1:0.092 2:0.245 3:0.164  bar A PASS
+ih-ichigo hard,normal seeds 501-540: 80 matches, changes median 66 min 16, no change in 0; shares 0:0.655 1:0.098 2:0.145 3:0.101  bar A PASS
+ih-ichigo normal,easy seeds 501-540: 80 matches, changes median 55 min 12, no change in 0; shares 0:0.659 1:0.198 2:0.061 3:0.082  bar A fail
+ih-ichigo easy,masher seeds 501-540: 80 matches, changes median 38 min 18, no change in 0; shares 0:0.794 1:0.073 2:0.078 3:0.055  bar A fail

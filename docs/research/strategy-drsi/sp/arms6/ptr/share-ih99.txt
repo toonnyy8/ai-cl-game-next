@@ -1,0 +1,4 @@
+ih-ichigo hard,hard seeds 501-540: 80 matches, changes median 78 min 41, no change in 0; shares 0:0.395 1:0.162 2:0.276 3:0.167  bar A PASS
+ih-ichigo hard,normal seeds 501-540: 80 matches, changes median 77 min 29, no change in 0; shares 0:0.528 1:0.195 2:0.169 3:0.109  bar A PASS
+ih-ichigo normal,easy seeds 501-540: 80 matches, changes median 47 min 15, no change in 0; shares 0:0.486 1:0.367 2:0.067 3:0.080  bar A fail
+ih-ichigo easy,masher seeds 501-540: 80 matches, changes median 50 min 24, no change in 0; shares 0:0.671 1:0.162 2:0.109 3:0.058  bar A PASS

@@ -1,0 +1,73 @@
+== kh-kenpachi
+kh-kenpachi: 1000 matches, 129280 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:89:2       my1 swshut   gain  +4.07 e-3 (z +6.6) switched 0.264  halves  +3.29 /  +4.84
+  1:96:2       his1 mid     gain  +4.58 e-3 (z +3.2) switched 0.183  halves  +3.88 /  +5.28
+  1:92:2       my1 swopen   gain +12.70 e-3 (z +2.9) switched 0.442  halves +10.76 / +14.45
+  1:95:2       his1 close   gain  +7.45 e-3 (z +2.2) switched 0.279  halves  +5.00 /  +9.72
+== kh-hisagi
+kh-hisagi: 1000 matches, 128747 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:98:-2      his2 close   gain  +0.10 e-3 (z +3.1) switched 0.001  halves  +0.14 /  +0.06
+  *0:98:-2     his2 close   gain  +0.10 e-3 (z +3.1) switched 0.001  halves  +0.14 /  +0.06
+  2:89:2       my1 swshut   gain  +2.38 e-3 (z +2.6) switched 0.256  halves  +2.76 /  +2.04
+  2:95:2       his1 close   gain  +5.32 e-3 (z +2.3) switched 0.165  halves  +8.17 /  +2.89
+  *0:96:-2     his1 mid     gain  +2.37 e-3 (z +2.0) switched 0.200  halves  +2.45 /  +2.31
+== ih-ichigo
+ih-ichigo: 1000 matches, 140372 judgements outside a run; the recomputed pick = the logged one on 0.9955
+z >= 2, both halves the same sign:
+  2:99:2       his2 mid     gain  +5.00 e-3 (z +5.1) switched 0.072  halves  +3.83 /  +6.26
+  *0:95:-2     his1 close   gain  +4.43 e-3 (z +2.8) switched 0.119  halves  +2.44 /  +6.53
+  2:99:-2      his2 mid     gain  +2.60 e-3 (z +2.4) switched 0.039  halves  +1.17 /  +4.11
+  2:91:2       my3 swshut   gain  +1.58 e-3 (z +2.3) switched 0.069  halves  +1.18 /  +1.95
+  2:98:2       his2 close   gain  +4.82 e-3 (z +2.1) switched 0.128  halves  +5.80 /  +3.72
+  1:95:-2      his1 close   gain  +3.23 e-3 (z +2.1) switched 0.077  halves  +1.06 /  +5.40
+  1:97:-2      his1 far     gain  +2.05 e-3 (z +2.1) switched 0.026  halves  +1.92 /  +2.05
+== ih-hisagi
+ih-hisagi: 1000 matches, 145672 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:95:2       his1 close   gain +15.22 e-3 (z +5.1) switched 0.163  halves +15.96 / +14.39
+  1:95:-2      his1 close   gain  +0.69 e-3 (z +4.2) switched 0.003  halves  +0.68 /  +0.70
+  1:96:2       his1 mid     gain  +8.42 e-3 (z +3.3) switched 0.170  halves  +7.79 /  +9.01
+  1:92:2       my1 swopen   gain +12.10 e-3 (z +3.0) switched 0.206  halves  +9.28 / +14.97
+  3:96:-2      his1 mid     gain  +2.46 e-3 (z +2.4) switched 0.038  halves  +1.88 /  +2.90
+  1:93:2       my2 swopen   gain  +5.89 e-3 (z +2.4) switched 0.111  halves  +5.22 /  +6.56
+  1:101:2      his3 close   gain  +5.43 e-3 (z +2.0) switched 0.130  halves  +1.08 /  +9.74
+  2:96:2       his1 mid     gain  +6.65 e-3 (z +2.0) switched 0.184  halves +10.76 /  +1.58
+== hh-hisagi
+hh-hisagi: 1000 matches, 150586 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:89:2       my1 swshut   gain  +2.94 e-3 (z +4.2) switched 0.235  halves  +2.17 /  +3.78
+  2:99:-2      his2 mid     gain  +1.64 e-3 (z +3.3) switched 0.017  halves  +2.29 /  +0.85
+  1:101:2      his3 close   gain  +0.38 e-3 (z +3.1) switched 0.011  halves  +0.42 /  +0.36
+  1:101:-2     his3 close   gain  +0.08 e-3 (z +2.3) switched 0.001  halves  +0.11 /  +0.04
+  *0:96:-2     his1 mid     gain  +5.35 e-3 (z +2.3) switched 0.152  halves  +6.02 /  +4.69
+  *0:92:-2     my1 swopen   gain  +6.34 e-3 (z +2.1) switched 0.305  halves  +9.29 /  +3.35
+== ki-ichigo
+ki-ichigo: 1000 matches, 93419 judgements outside a run; the recomputed pick = the logged one on 0.9964
+z >= 2, both halves the same sign:
+  3:91:-2      my3 swshut   gain  +2.89 e-3 (z +2.9) switched 0.062  halves  +3.03 /  +2.74
+  2:91:2       my3 swshut   gain  +5.09 e-3 (z +2.7) switched 0.133  halves  +4.00 /  +6.22
+  1:95:-2      his1 close   gain +16.06 e-3 (z +2.5) switched 0.317  halves +10.89 / +21.00
+  1:94:-2      my3 swopen   gain  +7.03 e-3 (z +2.5) switched 0.089  halves  +5.55 /  +8.39
+  5:96:-2      his1 mid     gain  +4.58 e-3 (z +2.3) switched 0.043  halves  +3.99 /  +5.17
+  *0:94:-2     my3 swopen   gain +11.02 e-3 (z +2.1) switched 0.213  halves  +3.11 / +17.85
+  1:96:-2      his1 mid     gain  +3.02 e-3 (z +2.1) switched 0.059  halves  +2.40 /  +3.63
+== ki-kenpachi
+ki-kenpachi: 1000 matches, 83137 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  2:92:2       my1 swopen   gain +39.49 e-3 (z +5.5) switched 0.432  halves +40.66 / +37.15
+  2:101:2      his3 close   gain +12.62 e-3 (z +4.0) switched 0.204  halves +10.32 / +14.83
+  2:95:2       his1 close   gain +10.51 e-3 (z +3.5) switched 0.158  halves +14.47 /  +6.29
+  1:98:2       his2 close   gain  +0.95 e-3 (z +2.8) switched 0.005  halves  +0.42 /  +1.37
+  3:98:2       his2 close   gain  +2.47 e-3 (z +2.7) switched 0.005  halves  +2.42 /  +2.59
+== ii-ichigo
+ii-ichigo: 1000 matches, 212414 judgements outside a run; the recomputed pick = the logged one on 0.9978
+z >= 2, both halves the same sign:
+== kk-kenpachi
+kk-kenpachi: 1000 matches, 119614 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:97:2       his1 far     gain  +2.93 e-3 (z +3.3) switched 0.057  halves  +2.35 /  +3.54
+  1:92:2       my1 swopen   gain +17.24 e-3 (z +3.1) switched 0.299  halves +17.73 / +16.95
+  1:95:2       his1 close   gain +15.69 e-3 (z +3.0) switched 0.366  halves +15.00 / +16.40
+  1:96:-2      his1 mid     gain  +0.39 e-3 (z +2.4) switched 0.001  halves  +0.53 /  +0.27

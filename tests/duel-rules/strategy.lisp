@@ -378,12 +378,14 @@
 ;; arms6/hh (p9-hh, 2026-11-17): HH's table replaced in place (same id; sp/arms6/hh.md): arm 0 the generic CPU, its "before" B4's checksum 101019.
 ;; p9-ih (2026-11-17, sp/arms6/ih.md): IH Ichigo's table plays arm 0 = brawl, economy and punish on its neutral, kessa-lunge (4 arms); its
 ;; "before" is arms5's T0 checksum (179296).
+;; q2-ptr (2026-11-17, sp/arms6/ptr.md): pointer rules (G10) in IH Ichigo's table; its row's "before" is now the table before them
+;; (76462), so a copy saved from it loads fresh.
 (dolist (r '((:ichigo :kenpachi :t0-ki-ichigo 6 a4-i-all :d-x-ki-i 812408 (:xch 1))          ; (arm 1 answer: an exchange open)
              (:kenpachi :ichigo :t0-ki-kenpachi 4 c-ki-k-r2-b1a2 :d-x-ki-k 255846 (:dm 2.0) (:dm 7.0))   ; (poke: form 0 close; base far)
              (:kenpachi :hisagi :t0-kh-kenpachi 2 c-ki-k-r2-b1a2 :d-x-kh-k 575073 (:ost 4))     ; (wake: he is down)
              (:hisagi :kenpachi :t0-kh-hisagi 3 h5-all :d-x-kh-h 195522 (:xch 1) (:ost 0))   ; (cancel: an exchange open; base his free state)
-             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-brawl :d-x-ih-i 179296 (:ocell 1))   ; (p9-ih: economy, his cells and none of mine;
-                                                                                         ;  179296 = arms5's checksum)
+             (:ichigo :hisagi :t0-ih-ichigo 4 a4-i-brawl :d-x-ih-i 76462 (:ocell 1) (:optr 3))   ; (p9-ih: economy, his cells and none of mine; his pointer 3: no q2-ptr row;
+                                                                                         ;  76462 = p9-ih's, before q2-ptr)
              (:hisagi :ichigo :t0-ih-hisagi 4 h5-all :d-x-ih-h 671538 (:form 1 :dm 4.5))   ; (tip: form 1 at mid)
              (:kenpachi :kenpachi :t0-kk-kenpachi 3 c-ki-k-r2-b1a2 nil 255846 (:ost 4))     ; (wake: he is down)
              (:ichigo :ichigo :t0-ii-ichigo 5 a4-i-all nil 812408 (:xch 1))
@@ -416,6 +418,17 @@
         (let ((other (list* :arms (reverse (getf fq :arms)) fq)))           ; (§11.17: the checksum covers the arms)
           (check (/= (fq-checksum other) (fq-checksum fq)))
           (check (null (fq-decode (fq-encode other other 2) fq))))))))
+
+;; q2-ptr (sp/arms6/ptr.md): the pointer rows move the pick. The same state but for one pointer cue: IH Ichigo plays i6-punish at his
+;; pointer 2 mid, brawl at his pointer 1 close.
+(let ((base '(:lead 0 :ored 0 :awst 0 :oawk 0 :form 0 :ost 0 :mcell 0 :ocell 0 :mburst 0 :oburst 0 :xch 0 :mptr 1 :optr 3 :dm 7.0
+              :wall 5.0 :owall 5.0 :mr 1.0 :or 1.0 :time 0.1 :prev 0)))
+  (flet ((pick (me vs &rest cues) (strat-fq-pick (getf (strat-lookup me vs :hard) :fq) (append cues base))))
+    (check (= 0 (pick :ichigo :hisagi :swopen 1 :optr 3 :dm 4.5)))
+    (check (= 2 (pick :ichigo :hisagi :swopen 1 :optr 2 :dm 4.5)))
+    (check (= 1 (pick :ichigo :hisagi :swopen 1 :ocell 1 :optr 3 :dm 1.0)))   ; (economy's cell job ...)
+    (check (= 1 (pick :ichigo :hisagi :swopen 1 :ocell 1 :optr 2 :dm 1.0)))
+    (check (= 0 (pick :ichigo :hisagi :swopen 1 :ocell 1 :optr 1 :dm 1.0)))))   ; (... yields to brawl at his pointer 1 close)
 
 ;; PLAN4 §2 (DUEL_AI_STRATEGY §11.28): :RB-SP2, 104 rules in 11 additive groups, and its new cues (STRAT-SP2-CUES), off until a table names
 ;; it. Each group's firing adds up to 1 on a grid over its cues (the crisp cues at their points, the continuous ones across their ramps)
