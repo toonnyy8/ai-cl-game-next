@@ -3618,3 +3618,20 @@ The user, after §11.34 (exploration and pointer rules offered): 「都做」. T
 - **Checks.** Host tests (the N-arm pick: never the judged arm, every other arm evenly; split firing moves Q by η δ). CPU vs CPU never
   learns: `--cvc` unchanged, the ladder unchanged.
 
+### 11.36 Pointer rules in the T0 tables (q2-ptr, 2026-11-17)
+
+The user, 2026-11-17: 「都做」 (§11.35). Record: `docs/research/strategy-drsi/sp/arms6/ptr.md` (+ `ptr/`, tool `ptr.py`).
+
+- **Method.** Exploration logs (STRAT_FQLOG, ε .04 in holds of 6-18 judgements) per table on seeds 1-500, at HARD vs HARD and in each
+  failing cell's tier pair. Each candidate G9 / G10 row estimated by run starts vs no-start judgements, the pick recomputed exactly (99.5-100 %
+  of logged picks), match bootstrap plus both seed halves; gate z >= 3.3 and >= 3 % of picks changed; then the ladder on 501-600 and 401-500,
+  bar A, bar D. Two Fable reviews (a baseline bug in the candidate test; the row-99-only check).
+- **Shipped: IH Ichigo only.** G10 row 95 (his pointer 1, close): economy / punish / kessa-lunge -0.12, so brawl plays; row 99 (his pointer 2,
+  mid): i6-punish +0.12. Checksum 76462 -> 201095 (players' saved IH copies load fresh).
+  - Ladder 19 -> 20 of 27: H>N IH .745 -> .775 PASS (401-500 .760 -> .830); N>E IH .960 -> .955, E>M IH .995 -> 1.000; HI cells level.
+    Every other cell identical. Bar D IH K.O. .900 -> .938. G2 unchanged (IH is not a G2 pair).
+  - Modest: pooled H>N IH 304 -> 321 of 400 (~1.5 SE); the lift is row 95's (z 2.8, under the gate; row 99 alone gives none).
+- **Dropped.** KI Kenpachi (k5-wake at the switch open: H>N KI .84 -> .935 but wake takes .78 of judgements, bar A fails, E>M KI -4 SE at
+  1.5q); HH (deletes an arm); KH both sides, IH Hisagi, KK (cells fall); KI Ichigo and II (nothing passes the gate). Kenpachi sits at
+  pointer 1 ~92 % of the time, so his own-pointer rows are switch-open rules.
+
