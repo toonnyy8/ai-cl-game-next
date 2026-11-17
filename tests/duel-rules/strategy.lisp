@@ -195,6 +195,14 @@
     (check (~= 0.25 (third (first (getf fq :rules))) 1e-5))
     (fq-td-update! fq base (list (list f1 0 -50.0 nil)) :eta 0.5 :cap 0.05)
     (check (~= 0.25 (second (second (getf fq :rules))) 1e-5)))
+  ;; exploration over N arms (FQ-EXPLORE-ARM, §11.35): eps 0 or u >= eps keeps I; below eps never I, every other arm reached, evenly
+  (check (= 2 (fq-explore-arm 0.01 0.0 2 4)))
+  (check (= 2 (fq-explore-arm 0.5 0.1 2 4)))
+  (check (= 0 (fq-explore-arm 0.0 0.1 0 1)))
+  (let ((seen (loop for k below 300 collect (fq-explore-arm (* 0.1 (/ k 300.0)) 0.1 2 4))))
+    (check (notany (lambda (j) (= j 2)) seen))
+    (check (every (lambda (j) (= 100 (count j seen))) '(0 1 3))))
+  (check (= 1 (fq-explore-arm 0.05 0.1 0 2)))
   ;; no cap (the shipped NIL since 2026-11-17, §11.34): the same reward moves q past offline + 0.05
   (check (null *fq-online-cap*))
   (let ((fq (copy-tree base)))

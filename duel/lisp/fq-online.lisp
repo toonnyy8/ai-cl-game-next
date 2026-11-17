@@ -55,12 +55,11 @@ was saved from this same offline table, else a fresh copy."
               (brain-fql b) (list me vs (getf lib :fq) nil))))))
 
 (defun fq-explore (e sw sub i)
-  "A learning CPU E's judgement (SUB, arm I) of the Q selector SW, or the other arm with chance *FQ-ONLINE-EPS* (two arms; FQ-U01: no draw)."
-  (let ((arms (getf (getf sw :fq) :arms)))
-    (if (and (plusp *fq-online-eps*) (= 2 (length arms))
-             (< (fq-u01 *match-seed* *match-tick* (fighter-side (fighter e))) *fq-online-eps*))
-        (values (nth (- 1 i) arms) (- 1 i))
-        (values sub i))))
+  "A learning CPU E's judgement (SUB, arm I) of the Q selector SW, or another arm with chance *FQ-ONLINE-EPS* (FQ-EXPLORE-ARM over one FQ-U01
+draw of the match seed, tick and side; no SIM-RND01). The explored arm becomes :PREV, so the table's :MARGIN may hold it past one window."
+  (let* ((arms (getf (getf sw :fq) :arms))
+         (j (fq-explore-arm (fq-u01 *match-seed* *match-tick* (fighter-side (fighter e))) *fq-online-eps* i (length arms))))
+    (if (= j i) (values sub i) (values (nth j arms) j))))
 
 (defun fq-note (e b feats arm)
   "Record a judgement of CPU E (brain B, learning): the firing vector for FEATS, the ARM played, my health balance."

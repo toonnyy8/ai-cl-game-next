@@ -136,7 +136,7 @@ the learned tables against the shipped Kenpachi (offline 0.905): cap 0.01 0.83-0
 (defparameter *fq-online-scale* 0.1 "The reward per window = this x the change of (my mc-full-health - his), as the offline trainer's; +-1 at the end.")
 (defparameter *fq-unit* 100000 "An online q is kept as round(q x this) / this: the page stores those integers, so a table read back equals the one in memory.")
 (defparameter *fq-online-eps* 0.0
-  "The online fuzzy Q's chance that a judgement plays the other arm (two arms), drawn from FQ-U01 (match seed, tick, side), never SIM-RND01 (§8.14;
+  "The online fuzzy Q's chance that a judgement plays another arm (any number since 2026-11-17, FQ-EXPLORE-ARM; two before), drawn from FQ-U01 (match seed, tick, side), never SIM-RND01 (§8.14;
 new). Off: the arm a state plays is the table's, and a losing arm's q falls until the other one leads, so a state explores where the player beats
 it. Training seeds at cap 0.05, wins of 599 against the offline table's (proxy 1 89, proxy 2 387): eps 0 187 / 512, eps 0.05 242 / 354 (proxy 2
 worse than no learning), eps 0.1 275 / not run.")
@@ -147,6 +147,14 @@ worse than no learning), eps 0.1 275 / not run.")
   (let ((x (1+ (mod (+ (* seed 1000003) (* tick 7919) (* side 104729)) 2147483646))))
     (dotimes (i 4) (setf x (mod (* x 48271) 2147483647)))
     (/ x 2147483647d0)))
+
+(defun fq-explore-arm (u eps i n)
+  "The arm a judgement of arm I (of N) plays for the uniform draw U: I unless U < EPS, then one of the other N - 1 alike, the
+floor(U / EPS x (N - 1))-th skipping I (U is uniform below EPS, so one draw does both). Any number of arms since 2026-11-17
+(DUEL_AI_STRATEGY §11.35; two before)."
+  (if (and (plusp eps) (> n 1) (<= 0 i) (< u eps))
+      (let ((k (min (- n 2) (floor (* (/ u eps) (1- n)))))) (if (>= k i) (1+ k) k))
+      i))
 
 (defun fq-quant (q) "Q at the storage's resolution (*FQ-UNIT*)." (/ (round (* q *fq-unit*)) (float *fq-unit*)))
 
