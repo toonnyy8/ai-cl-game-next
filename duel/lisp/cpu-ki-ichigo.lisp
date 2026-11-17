@@ -82,12 +82,15 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
   "*IKS-NS-WAIT* (the arm's :iks-ns-wait) for F's punish of his whiffing NS; under pointer 1 the arm's :iks-ns-wait-p1 replaces it (her NS1a
 lands at f10 on his NS2a whiff, the NS3a at f24: the kit study's W, PLAN4 checkpoint 2a S4 punish, KNOBS.md §6.7a). No key: the same wait."
   (let ((w (style-dif b :iks-ns-wait *iks-ns-wait*))) (if (= (fighter-ptr f) 1) (style-knob b :iks-ns-wait-p1 w) w)))
-(defparameter *iks-hover*'(:base (3.7 4.2) :nozarashi (4.9 5.3))
+(defparameter *iks-hover*'(:base (3.7 4.2) :nozarashi (4.9 5.3) :hisagi (2.0 2.6) :hisagi-ranged (2.0 2.6))
   "The :whiff / :space hover band (m) by his form: just outside his NS reach, inside NS3a's 5.0 m. This and *IKS-HOVER-P1* move by the
-arm's :iks-hover-add metres (IKS-TABLE-BAND, KNOBS.md §6.7).")
-(defparameter *iks-hover-p1* '(:base (3.4 3.8) :nozarashi (4.9 5.3))
+arm's :iks-hover-add metres (IKS-TABLE-BAND, KNOBS.md §6.7). Hisagi's rows (*IKS-HISAGI-KEYS*; 2026-11-17, p10-ih-ichigo): inside his
+3.0 m dead zone (*IKS-CROSS-BAND*), in her J's reach; before, his Shikai read :base's 3.7-4.2 and his ranged mode :nozarashi's 4.9-5.3,
+both inside his NAGI / ranged J (3.0-6.0).")
+(defparameter *iks-hover-p1* '(:base (3.4 3.8) :nozarashi (4.9 5.3) :hisagi (2.0 2.6) :hisagi-ranged (2.0 2.6))
   "The :whiff / :space hover band (m) under pointer 1: her J-whiff punisher (NS1a) reaches only 3.4 m (*IKS-PUNISH-REACH*), so v0's
-3.7-4.2 never let her punish his J whiff; 3.4-3.8 stays past his sealed NS1a (3.3 m). b0_a0 2026-11-06: new (v0 used *IKS-HOVER*).")
+3.7-4.2 never let her punish his J whiff; 3.4-3.8 stays past his sealed NS1a (3.3 m). b0_a0 2026-11-06: new (v0 used *IKS-HOVER*).
+Hisagi's rows as *IKS-HOVER*'s (2026-11-17).")
 (defparameter *iks-bait-hover* '(:base (2.3 2.7) :nozarashi nil)
   "The hover band (m) by his form for the episodes of *IKS-BAIT-MODES* (NIL: *IKS-HOVER* / *IKS-HOVER-P1*): inside the distance his
 sealed neutral starts its NS1a from (KK-REACH: 2.6 m) and just out of his J1's (1.9 m), so he commits to the NS1a (S14: seen 6 f before
@@ -219,6 +222,10 @@ located bug: 21 SAs after a dodge, his hit first 8 times, hers 2). Grafted by b0
 (defparameter *iks-k-sa-min* 2.0
   "KESSA NS3a's SA (the k-lunge) is pressed only from this distance (m) on: under it he has Hohoed through her clone and the SA lunges
 past him (round 3, b3_a0: SAs under 2.0 m, first hit hers 15 / his 15 / none 31; from 2.0 m on 26 / 9). Grafted by b0_a1.")
+(defparameter *iks-close-j-chars* '(:hisagi)
+  "Opponents against whom KESSA pointer 3 inside *IKS-K-SA-MIN* presses J1, never the generic's NS: KESSA NS3a's clone (:hit-at 15,
+:hit-reach 2.6) whiffs at 1 m, and against Hisagi that whiff was the largest single source of her punished whiffs in his bind (0.35-0.70
+a minute at NORMAL / HARD, arms6/ih-human.md). New 2026-11-17 (p10-ih-ichigo); before: the generic CPU's NS / J roll for everyone.")
 (defparameter *iks-lead-vmax* 0.07
   "IKS-PROJ: the perceived distance's change a step is clamped to this (m; a walk is 0.06-0.07 a step) before it is projected over
 her perception delay.")
@@ -364,6 +371,7 @@ spacing 0.237, kessa 0.725; in neither 0.170, 0.925).")
   (last-d 0f0)                          ; the perceived distance at the previous call (IKS-PROJ)
   (down nil) (meaty nil)                ; his knockdown seen (its roll made); the meaty roll's result (T: go)
   (gap nil) (gap-t 0 :type fixnum)      ; this episode's shut-gauge lunge roll: NIL unmade, :go, :no; frames spent on it
+  (cross nil)                           ; this episode's IKS-CROSS roll: NIL unmade, :go, :no
   (his-hoho -999 :type fixnum))
 (inline-readers ikst)         ; the start tick of his last Hoho seen (IKS-HIS-HOHO-SHUT-P)
 
@@ -391,9 +399,17 @@ it names any (no arm key: IKS-PICK on the plist itself; all weights 0: :generic)
                     finally (return :generic))
               :generic)))))
 
+(defparameter *iks-hisagi-keys* '(:base :hisagi :bankai :hisagi-ranged :bankai-bind :hisagi-bind)
+  "Hisagi's forms -> the key his rows sit under in this file's form tables (IKS-FORM-GET): the style was built against Kenpachi and
+its tables name his forms, so Hisagi's Shikai (kit form :base) read sealed Kenpachi's rows and his Bankai modes :nozarashi's (p9-ih's
+diagnosis, docs/research/strategy-drsi/sp/arms6/ih.md §1; batch p10-ih-ichigo, 2026-11-17, the user's playtest: 「我試玩起來感覺一護對修兵
+的 AI 特別弱」). A table without a Hisagi row keeps the old lookup for him.")
 (defun iks-form-get (table o)
-  "TABLE's entry for opponent O's form (his visible form), else :nozarashi's."
-  (or (getf table (fighter-form (fighter o))) (getf table :nozarashi)))
+  "TABLE's entry for opponent O: against Hisagi his row (*IKS-HISAGI-KEYS*) when TABLE has one (NIL included), else his form's (his
+visible form), else :nozarashi's."
+  (let* ((fo (fighter o)) (k (and (eq (fighter-character fo) :hisagi) (getf *iks-hisagi-keys* (fighter-form fo))))
+         (h (if k (getf table k :none) :none)))
+    (if (eq h :none) (or (getf table (fighter-form fo)) (getf table :nozarashi)) h)))
 
 (defun iks-log (e st action d)
   (clog "~a ki-style ~(~a~) ~(~a~) d ~,1f ptr ~d form ~(~a~)" (side-name e) (ikst-mode st) action d (fighter-ptr (fighter e))
@@ -454,15 +470,32 @@ red Kikon of 3 (a pointer-3 success) instead of AS3's capped Soul Break of 4 (a 
   "Does a new neutral episode start (she was not neutral at the last call, or she was hit since)?"
   (or (not (member (ikst-last-st st) '(:idle :run))) (< (gauges-reishi (gauges e)) (ikst-last-reishi st))))
 
+(defparameter *iks-move-band-chars* '(:hisagi)
+  "Opponents whose move-start whiff test (IKS-WHIFF-START-P) reads the perceived move's own band, not *IKS-HIS-REACH*: Hisagi's reach
+moves with his pointer inside one form (Shikai NS1a NAGI 3.0-6.0 m, NS2a TAN-GARI 2.5 + 1.0 slide, NS3a SHIBARI a 4.5 m line; the
+ranged mode's NS1a WA 0-3.0, NS2a TABA 2.5-4.15, J 3.0-6.0; the bind's KAGIYOSE 6.0, J 1.5), so one number a form misreads two pointers
+of three. Against him *IKS-HIS-REACH*'s :base row (sealed Kenpachi's NS 3.65 m) took a NAGI started at 4-6 m for a whiff and lunged
+NS3a into it (arms6/ih.md §1). New 2026-11-17 (p10-ih-ichigo); before: every opponent read the table.")
+(defparameter *iks-move-band-margin* 0.4
+  "IKS-WHIFF-START-P against *IKS-MOVE-BAND-CHARS*: his move whiffs when she is this far (m, a body's radius) beyond its reach plus its
+forward slide, or this far inside its dead zone (MV-MIN-REACH, his kit's hook: 0 in a route out of a cancel).")
+(defun iks-whiff-start-p (o s d oc)
+  "Does opponent O's perceived move (class OC, SNAP S) start out of his reach at D? Against *IKS-MOVE-BAND-CHARS* from the move itself
+(*IKS-MOVE-BAND-MARGIN*), else *IKS-HIS-REACH*'s row for his form."
+  (let ((mv (snap-move s)))
+    (if (member (fighter-character (fighter o)) *iks-move-band-chars*)
+        (and mv (or (> d (+ (snap-reach s) (max 0.0 (mv-slide mv)) *iks-move-band-margin*))
+                    (< d (- (mv-min-reach mv o) *iks-move-band-margin*))))
+        (let ((reach (getf (iks-form-get *iks-his-reach* o) oc))) (and reach (> d reach))))))
+
 (defun iks-punish (e b f st s d o)
-  "The whiff punish (every style mode): his perceived move started out of his reach -> NS1a (pointer 1) / NS3a (3) at once against a
-J, after *IKS-NS-WAIT* against an NS. One roll per his move start. T when pressed."
+  "The whiff punish (every style mode): his perceived move started out of his reach (IKS-WHIFF-START-P) -> NS1a (pointer 1) / NS3a (3)
+at once against a J, after *IKS-NS-WAIT* against an NS. One roll per his move start. T when pressed."
   (let ((oc (cai-class-of o s)))
     (or (when (and (member oc '(:na :ns)) (/= (fighter-ptr f) 2))
           (unless (= (ikst-pkey st) (snap-start s))
             (setf (ikst-pkey st) (snap-start s)
-                  (ikst-punish st) (let ((reach (getf (iks-form-get *iks-his-reach* o) oc)))
-                                     (if (and reach (> d reach) (style-roll b :iks-punish-p *iks-punish-p*)) :go :no))))
+                  (ikst-punish st) (if (and (iks-whiff-start-p o s d oc) (style-roll b :iks-punish-p *iks-punish-p*)) :go :no)))
           (when (and (eq (ikst-punish st) :go)
                      (if (eq oc :na)
                          (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))   ; (his J's whiff: only within her punisher's reach)
@@ -540,17 +573,23 @@ Only perceived distances are used (b0_a0)."
   (let ((v (max (- *iks-lead-vmax*) (min *iks-lead-vmax* (- d (ikst-last-d st))))))
     (+ d (* v (brain-delay b)))))
 
+(defparameter *iks-gap-lockout-only* '(:hisagi)
+  "Opponents whose Hoho the shut-gauge lunge reads as shut only by his lockout (his last Hoho seen), never by his flash-step gauge: Hisagi
+spends that gauge on his SP (NAGI from 3.1-6.0 m), so a low gauge is no Hoho of his, and the lunge it armed backed off to 6.5 m and
+lunged NS3a (5.0 m) into his NAGI (6.0 m) from 6.2 m (arms6/ih.md §1). New 2026-11-17 (p10-ih-ichigo); before: the gauge for everyone.")
 (defun iks-his-hoho-shut-p (o st fs)
-  "Is opponent O's Hoho shut: his flash-step (HUD) under FS (*IKS-GAP-FS* or the arm's), or his last Hoho seen started within *IKS-GAP-LOCKOUT*?"
+  "Is opponent O's Hoho shut: his flash-step (HUD) under FS (*IKS-GAP-FS* or the arm's; not for *IKS-GAP-LOCKOUT-ONLY*), or his last
+Hoho seen started within *IKS-GAP-LOCKOUT*?"
   (let ((g (gauges o)))
-    (or (and (< (gauges-fs g) fs) (not (gauges-burst g)))   ; (a Burst's end gives the gauge back: B0 BURST END, then his Hoho)
+    (or (and (< (gauges-fs g) fs) (not (gauges-burst g))   ; (a Burst's end gives the gauge back: B0 BURST END, then his Hoho)
+             (not (member (fighter-character (fighter o)) *iks-gap-lockout-only*)))
         (< (- *match-tick* (ikst-his-hoho st)) *iks-gap-lockout*))))
 
 (defun iks-his-shut-left (o st fs)
   "Frames his Hoho stays shut (IKS-HIS-HOHO-SHUT-P) at the least: the longer of his flash-step's climb to FS (0 in a Burst) and his
 lockout's rest."
   (let ((g (gauges o)))
-    (max (if (gauges-burst g) 0 (/ (- fs (gauges-fs g)) (/ *fs-regen* 60.0)))
+    (max (if (or (gauges-burst g) (member (fighter-character (fighter o)) *iks-gap-lockout-only*)) 0 (/ (- fs (gauges-fs g)) (/ *fs-regen* 60.0)))
          (- *iks-gap-lockout* (- *match-tick* (ikst-his-hoho st))))))
 
 (defun iks-closing (e b d)
@@ -618,6 +657,37 @@ decides."
             ((> d *iks-meaty-near*) (vpad-stick! (pilot-vpad (pilot e)) 0f0 1f0) t)
             (t (vpad-stick! (pilot-vpad (pilot e)) 0f0 0f0) t)))))
 
+(defparameter *iks-cross-band* '(:hisagi (3.0 6.4 2.2) :hisagi-ranged (3.0 6.4 2.2))
+  "By his form (IKS-FORM-GET; NIL: none), the band she never stands in: (lo hi to), crossed by a dash in to TO (IKS-CROSS). Hisagi's
+Shikai NAGI (NS1a) hits 3.0-6.0 m (its :min-reach *HS-K-DEAD* 3.0, :reach 6.0, its 90 deg arc and her body to 6.4), his ranged mode's J
+3.0-6.0 (*HS-R-J-DEAD*, *HS-R-J-REACH*); inside 3.0 neither lands, and her J (2.3 m) and NS1a (3.4) do. The generic neutral walked her
+through the band to her own range and its NS1a started at his floor, and in KESSA she hovered at the :nozarashi entry 4.9-5.3 m, inside
+his ranged J (the user's playtest, 2026-11-17: 「不太進攻」「一直衝進來吃招」「不懂躲遠距攻擊」; arms6/ih.md §1). New 2026-11-17
+(p10-ih-ichigo); before: none. Host-pinned against his moves (tests/duel-rules/style-knob.lisp).")
+(defparameter *iks-cross-p* '(:easy 0.0 :normal 1.0 :hard 1.0)
+  "IKS-CROSS's chance, one roll per neutral episode. EASY 0 (2026-11-17, p10-ih-ichigo): at 1.0 the EASY Ichigo took the lower tier's
+N>E HI cell from .995 to .877 (seeds 501-600; at 0.5 .925, at 0 .975), so EASY keeps walking in; E>M IH .895 -> .925 at 0 (.995 at 1.0).")
+(defparameter *iks-cross-hoho-p* '(:easy 0.0 :normal 1.0 :hard 1.0)
+  "IKS-CROSS by the Hoho (one roll per cross, with the Hoho ready and flash-step to spare, AI-HOHO-SPARE-P): she reappears *HOHO-DISTANCE*
+behind him on its frame *HOHO-APPEAR*, invulnerable to *HOHO-IFRAMES*' end, inside his dead zone; else the dash (a 2.5 m hop, then the
+run: about 30 frames inside the band).")
+(defparameter *iks-cross-dt* 6 "Frames before the next own decision after IKS-CROSS's dash or Hoho.")
+(defun iks-cross (e b st s d o)
+  "Inside his form's band (*IKS-CROSS-BAND*) with him free, dodging or recovering (his move's hit not coming): the Hoho
+(*IKS-CROSS-HOHO-P*) or a dash in to its TO (one roll per episode, *IKS-CROSS-P*). T when it pressed."
+  (let ((row (iks-form-get *iks-cross-band* o)))
+    (when (and row (< (first row) d (second row)) (<= (ikst-dt st) 0)
+               (not (and (eq (snap-state s) :move) (not (snap-recovering-p s))))
+               (progn (unless (ikst-cross st) (setf (ikst-cross st) (if (style-roll b :iks-cross-p *iks-cross-p*) :go :no)))
+                      (eq (ikst-cross st) :go)))
+      (setf (ikst-dt st) *iks-cross-dt*)
+      (let ((g (gauges e)))
+        (if (and (hoho-ready-p e) (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g))
+                 (style-roll b :iks-cross-hoho-p *iks-cross-hoho-p*))
+            (progn (iks-log e st :cross-hoho d) (ai-press b :step 1 :modded t :act :hoho))
+            (progn (iks-log e st :cross d) (ai-dash b 1 (third row)))))
+      t)))
+
 (defun iks-pointer-2 (e b f st s d vp)
   "Pointer 2 (either form): the Getsuga from *IKS-GETSUGA-MIN*, a J string inside her J reach, no charge in between: back dash
 (one roll per episode) or hover back. T when decided, NIL to hand over (the generic shoots from 3.6–6.6 m against a walk-in)."
@@ -670,6 +740,7 @@ decides."
        (iks-log e st :awaken d)
        (ai-press b :awaken 1 :modded t)
        t)
+      ((iks-cross e b st s d o))                                ; (his form's band: never stood in, crossed by a dash in)
       ((= ptr 2) (iks-pointer-2 e b f st s d vp))               ; (before the wait's end: never a charge in his face)
       ((iks-gap e b f st s d vp))                               ; (pointer 3, his Hoho shut: the lunge beyond his back Step)
       ((and (> (ikst-ep-t st) (style-dif b :iks-wait-max *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
@@ -691,6 +762,8 @@ decides."
                 (iks-sp e b f st (if (= ptr 3) :k-lunge :k-chains) d (and (= ptr 3) :k-lunge)))
                ((> d 7.0) nil)
                (t (iks-walk e b vp d clo chi)))))
+      ((and kessa (= ptr 3) (< d *iks-k-sa-min*) (member (fighter-character (fighter o)) *iks-close-j-chars*))   ; (no clone in his face)
+       (if (and (<= (ikst-dt st) 0) (or calm (snap-recovering-p s))) (iks-j e b st :close-j d) t))
       ((and (eq mode :ptr3) (not patient)) nil)                ; neutral as the generic; the steering is in the move
       ((and (eq mode :kessa) (not kessa) (not patient)) nil)   ; (until full: as the generic)
       ((> d 7.0) nil)                                          ; the generic dashes in to 4.5 m
@@ -819,7 +892,7 @@ pressed."
              (setf (ikst-mode st) (iks-mode-pick b (sim-rnd01))
                    (ikst-mode-mv st) (ikst-mode st) (ikst-plan st) nil
                    (ikst-ep-t st) 0 (ikst-pend st) nil (ikst-retreat st) nil (ikst-awaken st) nil (ikst-dt st) 0
-                   (ikst-gap st) nil))
+                   (ikst-gap st) nil (ikst-cross st) nil))
            (incf (ikst-ep-t st))
            (cond ((and (eq (ikst-last-st st) :wakeup) (iks-wake e b f st d)))
                  ((iks-hoho-follow e b st s d (pilot-vpad (pilot e))))

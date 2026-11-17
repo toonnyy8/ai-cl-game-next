@@ -1,0 +1,27 @@
+beh seeds 141-180 both seats; Hisagi hard; ichigo=lookup; build 9a884bac1f5e
+per minute of battle (60 s); band = share of his Shikai time in 3.1-6.0 m / of his ranged mode in 3.4-6.2 m
+tier   opp            share |  hit  nagi   rJ  far | open free  rec   up | o:nagi kiri  rJ  oth xcan | start into myopen | band S  band R  R-min
+easy   none           0.000 | 37.2  1.38 0.89 16.1 | 10.48 1.45 4.16 2.96 |  0.78 3.05 0.31 6.34 5.90 | 17.14 8.99  4.84 | 0.239  0.420  0.74
+    tags: none 5.13, cpu-xch 2.75, cpu-clash 2.46, cpu-finish 0.06, p2-j 0.04, getsuga 0.02, lunge 0.01, confirm-sp 0.01
+easy   arm:h5-all     0.000 | 33.4  3.00 3.00 13.5 | 9.25 1.74 4.36 1.58 |  2.15 1.32 1.29 4.49 3.77 | 19.27 6.10  3.66 | 0.575  0.510  0.92
+    tags: none 5.78, cpu-clash 1.97, cpu-xch 0.94, cpu-holds 0.22, cpu-finish 0.22, p2-j 0.07, getsuga 0.04, lunge 0.01, confirm-sp 0.01, confirm-walk 0.00
+easy   arm:h4-range   0.000 | 37.2  1.70 2.94 14.4 | 11.38 2.64 5.28 1.55 |  1.25 1.75 2.20 6.18 4.41 | 17.60 10.46  4.07 | 0.239  0.630  1.23
+    tags: none 7.55, cpu-clash 2.38, cpu-xch 1.21, confirm-sp 0.10, cpu-finish 0.06, getsuga 0.03, p2-j 0.03, cpu-holds 0.01
+easy   lookup         0.000 | 34.1  2.92 3.26 16.8 | 9.94 2.22 4.94 1.59 |  2.04 1.48 2.29 4.13 4.28 | 19.62 7.98  2.81 | 0.564  0.600  1.41
+    tags: none 6.39, cpu-clash 2.35, cpu-xch 0.75, cpu-holds 0.21, cpu-finish 0.16, p2-j 0.03, lunge 0.02, getsuga 0.01, confirm-walk 0.01, confirm-j 0.01
+normal none           0.013 | 31.6  1.31 1.93 13.7 | 9.94 1.32 4.63 2.11 |  0.76 2.27 0.65 6.27 3.89 | 19.42 9.45  5.20 | 0.257  0.411  1.41
+    tags: none 4.49, cpu-xch 2.81, cpu-clash 1.77, cpu-finish 0.26, getsuga 0.15, lunge 0.13, retreat 0.11, punish-ns 0.08, cpu-holds 0.07, p2-j 0.03
+normal arm:h5-all     0.000 | 31.3  4.14 3.29 14.6 | 9.75 1.30 4.92 2.04 |  2.73 1.58 1.53 3.91 4.16 | 22.18 6.15  3.58 | 0.614  0.540  0.96
+    tags: none 5.04, cpu-clash 2.37, cpu-xch 1.00, cpu-finish 0.42, cpu-holds 0.42, lunge 0.16, punish-ns 0.13, getsuga 0.10, p2-j 0.05, retreat 0.03
+normal arm:h4-range   0.000 | 34.5  2.02 6.66 17.8 | 13.04 2.36 7.44 1.66 |  1.43 1.45 5.41 4.75 6.30 | 18.05 10.66  3.18 | 0.271  0.756  2.04
+    tags: none 8.35, cpu-clash 2.11, cpu-xch 1.26, punish-ns 0.26, lunge 0.22, cpu-holds 0.21, cpu-finish 0.18, punish-j 0.16, confirm-sp 0.12, getsuga 0.09
+normal lookup         0.000 | 32.0  4.58 5.03 19.6 | 11.84 1.97 6.34 2.17 |  3.04 1.69 3.88 3.23 5.61 | 21.39 8.53  2.37 | 0.613  0.697  1.69
+    tags: none 6.84, cpu-clash 2.79, cpu-xch 0.88, cpu-holds 0.44, cpu-finish 0.31, lunge 0.24, punish-ns 0.15, getsuga 0.08, punish-j 0.05, retreat 0.04
+hard   none           0.125 | 29.5  0.42 1.64 10.2 | 9.21 0.10 5.50 1.53 |  0.27 1.72 0.32 6.91 3.81 | 24.23 10.61  6.43 | 0.216  0.246  1.66
+    tags: cpu-xch 3.42, cpu-clash 2.89, none 1.84, cpu-finish 0.61, ns-stop 0.27, retreat 0.05, getsuga 0.04, confirm-sp 0.04, p2-j 0.02, cpu-holds 0.01
+hard   arm:h5-all     0.325 | 26.3  1.80 2.22  7.8 | 8.05 0.11 5.06 1.83 |  1.09 1.28 0.53 5.15 3.78 | 24.32 6.30  5.73 | 0.453  0.305  0.92
+    tags: none 2.01, cpu-clash 2.00, cpu-xch 1.87, cpu-finish 0.95, ns-stop 0.84, cpu-holds 0.12, retreat 0.09, k-sa-stop 0.09, getsuga 0.04, p2-j 0.02
+hard   arm:h4-range   0.000 | 32.9  1.02 0.80 11.3 | 10.39 0.08 7.35 1.50 |  0.61 1.60 0.33 7.85 3.27 | 23.51 12.38  4.85 | 0.207  0.576  1.35
+    tags: cpu-clash 4.10, none 2.51, cpu-xch 2.39, ns-stop 0.80, cpu-finish 0.25, k-sa 0.06, k-lunge 0.05, confirm-sp 0.05, retreat 0.04, punish-ns 0.03
+hard   lookup         0.037 | 28.1  1.58 2.27 12.0 | 8.70 0.11 5.79 1.77 |  0.90 1.21 0.66 5.93 3.70 | 24.51 9.74  5.24 | 0.442  0.465  2.16
+    tags: cpu-clash 2.63, cpu-xch 2.10, none 2.10, ns-stop 0.82, cpu-finish 0.66, cpu-holds 0.10, retreat 0.08, k-sa 0.06, k-lunge 0.04, k-sa-stop 0.03

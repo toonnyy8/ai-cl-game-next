@@ -398,3 +398,19 @@ where one wait (`:iks-ns-wait`) served both pointers. The arms that use them: `s
 
 - The host check (`tests/duel-rules/style-knob.lisp`) now finds 78 keys, 35 of them `iks-`. `*iks-kessa-near-band*` and `*iks-lunge-band*`
   stay left out.
+
+### 6.7b Ichigo against Hisagi: the band cross (2026-11-17, batch p10-ih-ichigo, `sp/arms6/ih-human.md`): 2 keys
+
+Read through `style-roll`, a replacement the same at every difficulty; no key: the same play. Only against an opponent with a row in
+`*iks-cross-band*` (Hisagi's Shikai and ranged mode: his NAGI / ranged J band 3.0-6.4 m); against anyone else `iks-cross` never rolls.
+Inside the band with him free, dodging or recovering, she crosses it in to 2.2 m (inside his 3.0 m dead zone) instead of walking or standing
+in it. The same batch gave Hisagi rows (`*iks-hisagi-keys*`) to `*iks-hover*` / `*iks-hover-p1*` (2.0-2.6 m in both modes), read the
+start-time punish from his perceived move (`*iks-move-band-chars*`), the shut-gauge lunge his lockout only (`*iks-gap-lockout-only*`) and
+KESSA pointer 3's close press J1 (`*iks-close-j-chars*`): lists, not keys.
+
+| Key | Default | Unit | What it changes | Search range |
+|---|---|---|---|---|
+| `:iks-cross-p` | 1.0 (0 / 1.0) | chance per episode | cross his band (`*iks-cross-band*`) by the Hoho or a dash in | 0-1 |
+| `:iks-cross-hoho-p` | 1.0 (0 / 1.0) | chance per cross | the cross by the Hoho (Hoho ready, flash-step to spare), else the dash | 0-1 |
+
+- The host check (`tests/duel-rules/style-knob.lisp`) now finds 109 keys, 37 of them `iks-`.
