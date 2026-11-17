@@ -28,12 +28,13 @@
   ;; and 3 more (PLAN4 checkpoint 2a, KNOBS.md §6.7a: the KESSA k-lunge band's ends, S5; the pointer-1 NS punish wait, S4)
   ;; PLAN4 P5 (2026-11-15): Kenpachi's 8 more (KNOBS.md §6.1 / §6.2: the wave mix 5, :kk-lunge-any, :kk-p2-or, :khf-bait-fs)
   ;; Hisagi 21 more (PLAN4 checkpoint 2a, KNOBS.md §6.8: his own play's 18 :hb-* in cpu-hisagi-own, the neutral TABA's 3 :hr-taba-*)
-  (check (= 107 (length keys)))
+  ;; Ichigo 2 more (p10-ih-ichigo, KNOBS.md §6.7b: the band cross against Hisagi, :iks-cross-p / :iks-cross-hoho-p)
+  (check (= 109 (length keys)))
   (check (= 10 (count-if (lambda (k) (string= "hr-" (subseq k 0 3))) keys)))
   (check (= 18 (count-if (lambda (k) (string= "hb-" (subseq k 0 3))) keys)))
   (check (= 7 (count-if (lambda (k) (eql 0 (search "hkk-" k))) keys)))
   (check (= 32 (count-if (lambda (k) (string= "kk-" (subseq k 0 3))) keys)))
-  (check (= 35 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
+  (check (= 37 (count-if (lambda (k) (string= "iks-" (subseq k 0 4))) keys)))
   ;; a style prefix on every key, so none collides with the shared keys (:range :ns :hoho ...)
   (check (every (lambda (k) (some (lambda (p) (eql 0 (search p k))) '("kk-" "iks-" "kso-" "khf-" "hr-" "hkk-" "hb-"))) keys))
   ;; an arm's :BASE sets a knob, a firing rule replaces it, a rule that does not fire leaves the base; absent: the style's own value (EQ)
@@ -123,3 +124,27 @@
   ;; KNOBS.md documents every one (§6.5)
   (let ((doc (format nil "~{~a~%~}" (un-lines "docs/research/strategy-drsi/sp/KNOBS.md"))))
     (dolist (n names) (check (search (format nil "`:~a`" n) doc)))))
+
+;; ================================================================ Ichigo's rows against Hisagi (cpu-ki-ichigo.lisp, p10-ih-ichigo 2026-11-17)
+;; *IKS-CROSS-BAND*'s rows are his moves' bands, read from his kit (not guessed): the Shikai NS1a NAGI and the ranged mode's J both miss
+;; inside 3.0 m (:min-reach) and reach 6.0; the band ends 0.4 m (her body, the arc) past that, and the cross goes in under the dead zone,
+;; where the Hisagi hover rows sit too. The style file is not host-loadable: its tables are read from its text (quoted defparameters).
+(defun sk-param (file name)
+  "The quoted value of FILE's top-level (defparameter NAME 'VALUE ...)."
+  (with-open-file (s (merge-pathnames (concatenate 'string "../../" file) *load-truename*) :external-format :utf-8)
+    (let ((*read-eval* nil) (*package* (find-package :duel)))
+      (loop for form = (read s nil :eof) until (eq form :eof)
+            when (and (consp form) (eq (first form) 'defparameter) (eq (second form) name)) return (second (third form))))))
+(let* ((f "duel/lisp/cpu-ki-ichigo.lisp") (cross (sk-param f '*iks-cross-band*)) (hover (sk-param f '*iks-hover*))
+       (hover1 (sk-param f '*iks-hover-p1*)) (keys (sk-param f '*iks-hisagi-keys*))
+       (nagi (kit-core-move (kit :hisagi :base) :ns 1)) (rj (kit-command-move (kit :hisagi :bankai) :q)))
+  (dolist (row (list (list (getf cross :hisagi) nagi) (list (getf cross :hisagi-ranged) rj)))
+    (destructuring-bind ((lo hi to) mv) row
+      (check (and (~= lo (hw-min (svref (mv-hits mv) 0))) (~= hi (+ (mv-reach mv) 0.4)) (< to lo)))))
+  (dolist (tb (list hover hover1))
+    (dolist (k '(:hisagi :hisagi-ranged))
+      (check (< (second (getf tb k)) (hw-min (svref (mv-hits nagi) 0))))))
+  ;; the Hisagi keys name his three forms; Kenpachi's and the fallback rows as before
+  (check (equal '(:base :bankai :bankai-bind) (loop for (fm) on keys by #'cddr collect fm)))
+  (check (and (equal '(3.7 4.2) (getf hover :base)) (equal '(4.9 5.3) (getf hover :nozarashi))
+              (equal '(3.4 3.8) (getf hover1 :base)) (equal '(4.9 5.3) (getf hover1 :nozarashi)))))
