@@ -156,6 +156,24 @@ recovery. The last two columns are her share of his ranged-mode time in 3.4-6.2 
 | HARD | h4-range | 0.562 → 0.675 | 0.95 → 0.53 | 1.29 → 1.43 | 9.62 → 11.01 | 6.43 → 4.81 | 24.9 → 23.8 | 0.41 → 0.29 | 0.28 → 0.18 |
 | HARD | his IH table | 0.500 → 0.838 | 2.92 → 2.08 | 2.40 → 2.72 | 7.71 → 7.01 | 5.91 → 5.30 | 28.4 → 28.3 | 0.28 → 0.21 | 0.48 → 0.41 |
 
+**Replication on the dev block** (seeds 501-600, both seats, 200 matches a cell, Hisagi HARD; `ihh/b5-main.json` → `ihh/b5-final.json`).
+The variants were picked on 141-180, so this block checks them. Every direction below repeats.
+
+| Ichigo | Hisagi plays | her share | NAGI hits | ranged-J hits | his openers | her whiffs punished | her attack starts | ranged mode in 3.4-6.2 m | Shikai in 3.1-6.0 m |
+|---|---|---|---|---|---|---|---|---|---|
+| EASY | no strategy | 0.000 → 0.000 | 1.33 → 0.71 | 0.92 → 0.86 | 10.47 → 10.24 | 4.30 → 4.37 | 17.2 → 17.5 | 0.43 → 0.29 | 0.24 → 0.23 |
+| EASY | h5-all (his band) | 0.000 → 0.000 | 2.51 → 2.37 | 2.78 → 2.92 | 9.06 → 8.90 | 4.43 → 4.40 | 19.1 → 19.2 | 0.50 → 0.44 | 0.57 → 0.56 |
+| EASY | h4-range | 0.000 → 0.000 | 1.63 → 1.23 | 3.12 → 2.21 | 11.47 → 11.07 | 5.36 → 5.47 | 17.7 → 17.5 | 0.62 → 0.61 | 0.24 → 0.23 |
+| EASY | his IH table | 0.000 → 0.000 | 2.78 → 2.57 | 3.31 → 2.58 | 9.69 → 9.29 | 4.82 → 4.81 | 19.6 → 19.7 | 0.56 → 0.52 | 0.57 → 0.56 |
+| NORMAL | no strategy | 0.000 → 0.005 | 1.15 → 0.37 | 1.81 → 1.80 | 9.86 → 9.13 | 4.54 → 3.75 | 19.6 → 20.3 | 0.40 → 0.17 | 0.24 → 0.19 |
+| NORMAL | h5-all (his band) | 0.010 → 0.025 | 4.21 → 1.84 | 3.35 → 2.94 | 9.80 → 7.69 | 4.83 → 3.85 | 21.7 → 23.5 | 0.55 → 0.31 | 0.60 → 0.51 |
+| NORMAL | h4-range | 0.000 → 0.010 | 1.72 → 0.33 | 6.74 → 1.79 | 12.81 → 9.89 | 7.34 → 3.81 | 18.1 → 19.1 | 0.75 → 0.39 | 0.26 → 0.15 |
+| NORMAL | his IH table | 0.000 → 0.005 | 4.59 → 1.98 | 5.17 → 2.63 | 11.78 → 8.14 | 6.26 → 3.84 | 21.4 → 24.0 | 0.69 → 0.33 | 0.60 → 0.51 |
+| HARD | no strategy | 0.195 → 0.220 | 0.46 → 0.17 | 1.75 → 1.97 | 9.03 → 8.91 | 5.43 → 4.89 | 24.7 → 22.6 | 0.25 → 0.17 | 0.22 → 0.16 |
+| HARD | h5-all (his band) | 0.305 → 0.430 | 1.64 → 0.87 | 2.33 → 2.55 | 8.06 → 7.24 | 5.16 → 4.47 | 23.7 → 22.4 | 0.32 → 0.21 | 0.43 → 0.35 |
+| HARD | h4-range | 0.015 → 0.050 | 0.87 → 0.28 | 0.94 → 1.59 | 10.25 → 10.30 | 7.12 → 5.49 | 23.5 → 21.3 | 0.58 → 0.41 | 0.21 → 0.12 |
+| HARD | his IH table | 0.035 → 0.210 | 1.60 → 0.92 | 2.31 → 3.12 | 8.84 → 8.07 | 5.91 → 4.74 | 24.2 → 22.1 | 0.46 → 0.27 | 0.44 → 0.35 |
+
 How to read them (80 matches a cell: a share's SE is about .05, and rates move by about 5-10 % in noise).
 
 **一直衝進來吃招 (running in and eating his moves).**
