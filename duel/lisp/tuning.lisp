@@ -191,6 +191,9 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
 「50%」 as the share taken); 0.5 -> 1.0 on 2026-11-13, the user: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」 (the 50 % is the
 conversion, *SP-BREAK-GAIN*), DUEL_SP §6.")
 (defparameter *sp-break-gain* 0.5 "Share of a breakthrough's take the attacker gains (the victim loses all of it). New 2026-11-12, the user's SP design, DUEL_SP §6.")
+(defparameter *sp-break-flat* 50.0
+  "Flash-step a breakthrough gives the attacker before the share of the take (`*sp-break-gain*`), even when nothing is taken (a victim at the
+last cell). New 2026-11-18, the user: 「先把我把突破相消後恢復的量表固定先增加 50 點，之後才加上從對手那吸取的數量」 (0 before), DUEL_SP §6.")
 (defparameter *fs-burst* 100.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; 200 -> 100 on 2026-11-13, S1 of DUEL_SP §2, the user: 「三色爆氣皆改成一格可放」; the drain is the cost).")
 (defparameter *fs-regen* 4.5 "Flash-step per second (3 -> 9 -> 4.5: 2026-11-12, the user: 「閃步量表的自然恢復速度減半」; a Hoho from empty in 23.2 s) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")

@@ -87,6 +87,13 @@ CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 o
 - Any real hit after a cancel counts, J included (「都算」), by either side of it, until both are back in neutral (the exchange keyed on the
   two moves' start ticks, as `hs-bind-clash` does).
 - It takes **everything** of the victim's flash-step above the last cell (the last cell is never taken by a breakthrough) and the attacker gains **50 %** of it (the user, 2026-11-13: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」; built 2026-11-12/13 as 50 % taken, the lead having read 「50%」 as the share: `*sp-break-share*` 0.5 -> 1.0, `*sp-break-gain*` 0.5). Once per exchange.
+- **A flat 50 first** (the user, 2026-11-18: 「先把我把突破相消後恢復的量表固定先增加 50 點，之後才加上從對手那吸取的數量」): the attacker
+  gains `*sp-break-flat*` 50 (new, 0 before), then half of the take: gain = 50 + 0.5 x take (`sp-break-take`). The 50 comes on every
+  breakthrough, also when nothing is taken (a victim at or under one cell); like the rest it goes through `pay-gauges` (nothing in his burst,
+  x SUBLIMATION). E.g. a victim at 300: takes 200, gains 150 (was 100); at 80: takes 0, gains 50 (was 0). Proof: host tests 3768 ALL PASS
+  (sp-break-take's five checks), `sp-costs-check.py` 116 checks (`rule`: gain = 50 + half the take; the victim at 80 gains 50), G2
+  regenerated: II 39 lines (P1 2-1, 386.6 s) -> 33 (P1 7-0, 322.8 s), IK 27 (P1 5-0, 264.6 s) -> 20 (P1 8-0, 201.0 s), KK 22 (P2 0-6,
+  221.7 s) -> 27 (P2 0-5, 267.6 s). DEVLOG §809.
 - Projectiles join the triangle (「將飛行道具回歸相消的攻擊體系中」, 「OK」 on the lead's definitions): a hazard's class is the segment that fired
   it; a cancel removes it and refunds that segment even after the move ended; an owner no longer in a move gets only the refund (no
   "landed"); wave vs wave stays as it is (ichigo.lisp); DUEL_CORE's "a wave beats every class at range" is overturned (Ichigo's pointer 2

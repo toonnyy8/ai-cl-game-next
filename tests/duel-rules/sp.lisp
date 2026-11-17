@@ -2,7 +2,8 @@
 ;;; ================================================================ SP spending (duel/lisp/sp.lisp, docs/duel/DUEL_SP.md, batch S0)
 ;; knobs
 (check (and (~= *fs-cell* 100.0) (~= *sp-cost-rate* 0.4) (~= *sp-cost-min* 10.0) (~= *sp-cost-max* 60.0)
-            (~= *sp-gain-j* 10.0) (~= *sp-gain-sa* 15.0) (~= *sp-gain-cancel* 30.0) (~= *sp-break-share* 1.0) (~= *sp-break-gain* 0.5)))
+            (~= *sp-gain-j* 10.0) (~= *sp-gain-sa* 15.0) (~= *sp-gain-cancel* 30.0) (~= *sp-break-share* 1.0) (~= *sp-break-gain* 0.5)
+            (~= *sp-break-flat* 50.0)))
 ;; sp-cost: damage x 0.4 x mult, rounded to 5, clamped 10 .. 60; an override wins
 (check (~= (sp-cost 100) 40.0))
 (check (~= (sp-cost 110) 45.0))                                    ; 44 -> 45
@@ -41,12 +42,13 @@
 (check (and (~= (sp-atk-gain :na t) 30.0) (~= (sp-atk-gain :sa t) 30.0)))
 (check (and (zerop (sp-atk-gain :ns nil)) (zerop (sp-atk-gain :as nil)) (zerop (sp-atk-gain :ns t)) (zerop (sp-atk-gain :as t))
             (zerop (sp-atk-gain nil nil)) (zerop (sp-atk-gain :kikon nil))))
-;; sp-break-take: everything above the last cell, the attacker gains half of it (the user 2026-11-13: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」)
-(check (multiple-value-bind (take gain) (sp-break-take 300.0) (and (~= take 200.0) (~= gain 100.0))))
-(check (multiple-value-bind (take gain) (sp-break-take 140.0) (and (~= take 40.0) (~= gain 20.0))))
-(check (multiple-value-bind (take gain) (sp-break-take 100.0) (and (zerop take) (zerop gain))))  ; the last cell is never taken
-(check (multiple-value-bind (take gain) (sp-break-take 40.0) (and (zerop take) (zerop gain))))
-(check (multiple-value-bind (take gain) (sp-break-take 0.0) (and (zerop take) (zerop gain))))
+;; sp-break-take: everything above the last cell, the attacker gains a flat 50, then half of the take (the user 2026-11-13: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」;
+;; 2026-11-18: 「先把我把突破相消後恢復的量表固定先增加 50 點，之後才加上從對手那吸取的數量」)
+(check (multiple-value-bind (take gain) (sp-break-take 300.0) (and (~= take 200.0) (~= gain 150.0))))
+(check (multiple-value-bind (take gain) (sp-break-take 140.0) (and (~= take 40.0) (~= gain 70.0))))
+(check (multiple-value-bind (take gain) (sp-break-take 100.0) (and (zerop take) (~= gain 50.0))))  ; the last cell is never taken; the flat 50 still comes
+(check (multiple-value-bind (take gain) (sp-break-take 40.0) (and (zerop take) (~= gain 50.0))))
+(check (multiple-value-bind (take gain) (sp-break-take 0.0) (and (zerop take) (~= gain 50.0))))
 ;; sp-exchange-open-p: the same live id on both
 (check (sp-exchange-open-p 120 120))
 (check (not (sp-exchange-open-p 120 121)))

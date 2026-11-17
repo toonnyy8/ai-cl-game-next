@@ -40,9 +40,9 @@ a segment that started free in a burst, §8.6 Q7)."
 
 (defun sp-break-take (victim-fs)
   "(values take gain) of a breakthrough on a victim with VICTIM-FS: `*sp-break-share*` of what is above the last cell (`*fs-cell*`); the
-attacker gains `*sp-break-gain*` of the take (DUEL_SP §6)."
+attacker gains a flat `*sp-break-flat*` first, then `*sp-break-gain*` of the take (DUEL_SP §6)."
   (let ((take (* *sp-break-share* (max 0.0 (- victim-fs *fs-cell*)))))
-    (values take (* take *sp-break-gain*))))
+    (values take (+ *sp-break-flat* (* take *sp-break-gain*)))))
 
 (defun sp-exchange-open-p (xch-a xch-b)
   "Do two fighters carry the same live exchange id (the cancel's tick; negative = none)?"

@@ -156,9 +156,9 @@ balance gates.
 「都算」). A cancel opens an **exchange** between the two fighters, still with no attacker and no defender: `core-nohit!`'s `:cancel` and
 `core-kikon-cancel!` (Q12: the victim's attack against a non-red Kikon follow-up; it also pays him the cancel's +30, nothing is refunded)
 stamp both fighters' `xch` with the tick (`core-xch-open!`; a later cancel restamps). The **first real hit** of either side in it (`apply-hit`,
-result `:hit` / `:counter`, J included, a hazard's or a clone's too) is the **breakthrough** (`core-break!`): `sp-break-take` takes 50 % of
-the victim's flash-step above the last cell (`*sp-break-share*`) through `spend-fs`, the attacker gains half of that (`*sp-break-gain*`)
-through `pay-gauges` (nothing in his burst, x SUBLIMATION; Q18); once per exchange (`xch-done` on both), also when it takes nothing (a
+result `:hit` / `:counter`, J included, a hazard's or a clone's too) is the **breakthrough** (`core-break!`): `sp-break-take` takes all of
+the victim's flash-step above the last cell (`*sp-break-share*` 1.0 since 2026-11-13) through `spend-fs`, the attacker gains a flat 50
+(`*sp-break-flat*`, 2026-11-18) plus half of the take (`*sp-break-gain*`) through `pay-gauges` (nothing in his burst, x SUBLIMATION; Q18); once per exchange (`xch-done` on both), also when it takes nothing (a
 victim at or under 100). It runs after the hit's own effects, so an AS1's steal comes first and the breakthrough takes from what is left
 (Q10). The exchange ends at the first step both fighters are back in neutral (`core-xch-step`, the last of `sim-systems`, the pure `sp-neutral-p`:
 no move, no reel / blockstun / air / down / wake-up, and not standing in a clash's bounce push, so a tie's or a Kikon cancel's exchange
