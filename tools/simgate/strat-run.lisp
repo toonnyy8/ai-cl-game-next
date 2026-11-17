@@ -122,6 +122,22 @@
         when r do (format t "fqend ~d P~d h ~,3f oh ~,3f~%" (first r) (1+ side) (second r) (third r)))
   (setf *sr-fq-last* (list nil nil)))
 (when *sr-fq* (setf *strat-judge-hook* #'sr-fq-judge))
+;;; STRAT_FQBASE=<file> (docs/research/strategy-drsi/fq/online2.md): every Q-selector judgement outside rollouts is also judged by FILE's table
+;;; (a strategy file, read as STRAT_P<n>) on the same cues, :PREV included; per match and side "fqbase <seed> P<n> judged J differ D", D = the
+;;; judgements where FILE's arm index differs. It only reads (the played arm is unchanged); not with STRAT_FQLOG (one judge hook).
+(defvar *sr-fqb* (let ((p (ext:getenv "STRAT_FQBASE"))) (and p (plusp (length p)) (sr-read p))) "STRAT_FQBASE's table (only a table of its :APPLY is judged).")
+(defvar *sr-fqb-n* (list nil nil) "Per side: (seed judged differ) of this match, or NIL.")
+(defun sr-fqb-flush ()
+  (loop for side from 0 for r in *sr-fqb-n* when r do (format t "fqbase ~d P~d judged ~d differ ~d~%" (first r) (1+ side) (second r) (third r)))
+  (setf *sr-fqb-n* (list nil nil)))
+(defun sr-fqb-judge (e b sw sub i feats)
+  (declare (ignore b))
+  (when (equal (getf sw :apply) (getf *sr-fqb* :apply))
+    (let* ((side (fighter-side (fighter e))) (r (or (nth side *sr-fqb-n*) (setf (nth side *sr-fqb-n*) (list *match-seed* 0 0)))))
+      (incf (second r))
+      (unless (= i (strat-fq-pick (getf *sr-fqb* :fq) feats)) (incf (third r)))))
+  (values sub i))
+(when (and *sr-fqb* (not *sr-fq*)) (setf *strat-judge-hook* #'sr-fqb-judge))
 ;;; STRAT_FQLEARN="<in> <out>" (DUEL_AI_STRATEGY §8.14): every Q-selector CPU learns online as against a human (*FQ-LEARN-FORCE*), its table
 ;;; carried from match to match; IN (or "-": none) is a table written by an earlier run, OUT gets the table at the end: the strategy plist plus
 ;;; :matches, keyed by its :apply (me vs). A player proxy is the other seat's CPU (STRAT_<CHARACTER>); don't give the learner's seat a STRAT_.
@@ -387,6 +403,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
     (when *sr-desc* (sr-kd-flush))                                ; (PLAN4 P5, Kenpachi's kdesc line)
     (sr-sw-flush)
     (sr-fq-flush)
+    (sr-fqb-flush)
     (setf *cai-styles* (copy-tree *sr-styles0*))
     (do-sides (e)
       (let* ((f (fighter e)) (b (brain e)) (ch (fighter-character f))
@@ -447,6 +464,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
   (ext:quit 4))
 (sr-sw-flush)
 (sr-fq-flush)
+(sr-fqb-flush)
 (when *sr-hr* (sr-hr-flush))
 (when *sr-desc* (sr-desc-flush))
 (when *sr-desc* (sr-kd-flush))
