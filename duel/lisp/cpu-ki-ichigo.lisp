@@ -664,10 +664,11 @@ Shikai NAGI (NS1a) hits 3.0-6.0 m (its :min-reach *HS-K-DEAD* 3.0, :reach 6.0, i
 through the band to her own range and its NS1a started at his floor, and in KESSA she hovered at the :nozarashi entry 4.9-5.3 m, inside
 his ranged J (the user's playtest, 2026-11-17: 「不太進攻」「一直衝進來吃招」「不懂躲遠距攻擊」; arms6/ih.md §1). New 2026-11-17
 (p10-ih-ichigo); before: none. Host-pinned against his moves (tests/duel-rules/style-knob.lisp).")
-(defparameter *iks-cross-p* '(:easy 0.0 :normal 1.0 :hard 1.0)
-  "IKS-CROSS's chance, one roll per neutral episode. EASY 0 (2026-11-17, p10-ih-ichigo): at 1.0 the EASY Ichigo took the lower tier's
-N>E HI cell from .995 to .877 (seeds 501-600; at 0.5 .925, at 0 .975), so EASY keeps walking in; E>M IH .895 -> .925 at 0 (.995 at 1.0).")
-(defparameter *iks-cross-hoho-p* '(:easy 0.0 :normal 1.0 :hard 1.0)
+(defparameter *iks-cross-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
+  "IKS-CROSS's chance, one roll per neutral episode. Every tier 1.0 (the lead, 2026-11-17: the user's playtest named no difficulty, and
+the tiers differ by the clash alone, DUEL_AI_STRATEGY §11.30); p10-ih-ichigo had EASY 0, which kept the user's complaints at EASY (at 1.0
+N>E HI .995 -> .877, still passing; E>M IH .995).")
+(defparameter *iks-cross-hoho-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
   "IKS-CROSS by the Hoho (one roll per cross, with the Hoho ready and flash-step to spare, AI-HOHO-SPARE-P): she reappears *HOHO-DISTANCE*
 behind him on its frame *HOHO-APPEAR*, invulnerable to *HOHO-IFRAMES*' end, inside his dead zone; else the dash (a 2.5 m hop, then the
 run: about 30 frames inside the band).")

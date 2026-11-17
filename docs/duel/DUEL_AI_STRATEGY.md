@@ -3549,3 +3549,34 @@ Records: `sp/arms6/ih.md`, `sp/arms6/hh.md`.
 - B4's IH Hisagi table: H>N IH .835, N>E .915, E>M .760, E>M HI .690, HH parity .560 (undoes checkpoint 2c).
 - **Decided** (the user, 2026-11-17: 「維持現狀」): neither; H>N IH stays failing until the tier re-measure after the finish playtest.
 
+### 11.33 CPU Ichigo against Hisagi: rows by his form, the band cross (p10, 2026-11-17)
+
+The user, 2026-11-17, after playing Hisagi against CPU Ichigo: 「我試玩起來感覺一護對修兵的 AI 特別弱」; symptoms (asked): 「不太進攻」
+「一直衝進來吃招」「不懂躲遠距攻擊」. They are §11.32's misreads (`sp/arms6/ih.md` §1), left unfixed because they did not lift CPU parity
+against Hisagi's band; the yardstick here is behaviour against a human-like Hisagi. Record: `sp/arms6/ih-human.md`.
+
+**Step 1:** v434's clash (`:d-x-ih-i :clash-p 1.7`) is not a regression: with it off NAGI hits double or triple at every tier (her J into
+his NAGI is a cancel, not a hit taken). Kept.
+
+**Step 2, Ichigo's own style file** (`cpu-ki-ichigo.lisp`; only against Hisagi, Kenpachi / Ichigo opponents never reach the new code):
+- `*iks-hisagi-keys*` + `iks-form-get`: his forms read their own rows (`:hisagi`, `:hisagi-ranged`, `:hisagi-bind`); before, his Shikai
+  read sealed Kenpachi's rows and his Bankai `:nozarashi`'s.
+- `*iks-hover*` / `*iks-hover-p1*`: 2.0-2.6 m for his Shikai and ranged mode (inside his 3.0 m dead zone; was 3.7-4.2 / 4.9-5.3, inside
+  his NAGI / ranged J 3.0-6.0).
+- The band cross (`iks-cross`, `*iks-cross-band*` 3.0-6.4 m -> 2.2 m): inside the band, with him free / dodging / recovering, a Hoho
+  (if affordable) or a dash in. New keys `:iks-cross-p`, `:iks-cross-hoho-p`, both 1.0 at every tier (p10 had EASY 0 to keep N>E HI at
+  .995; the lead set 1.0: the user named no difficulty and the tiers differ by the clash alone, §11.30).
+- The start-time punish reads his perceived move's own reach / slide / dead zone (`iks-whiff-start-p`); the shut-gauge lunge counts his
+  Hoho shut only in his lockout (`*iks-gap-lockout-only*`, he spends the gauge on NAGI); KESSA pointer 3 inside 2.0 m presses J1
+  (`*iks-close-j-chars*`).
+
+**Behaviour** (p10's build with EASY 0; Hisagi HARD with his IH table, seeds 501-600, per minute): NORMAL Ichigo NAGI hits 4.59 -> 1.98,
+ranged-J hits 5.17 -> 2.63, punished whiffs 6.26 -> 3.84, attack starts 21.4 -> 24.0, share of his ranged mode spent in 3.4-6.2 m
+.69 -> .33; HARD NAGI 1.60 -> 0.92, in-band .46 -> .27, attack starts 24.2 -> 22.1, ranged-J hits 2.31 -> 3.12 (string hits after an
+opener). Open: WA (0-3 m) lands on her dash into his ranged mode; his bind has no row.
+
+**Measured on main** (`sp/diag/tier/ladder-p10.txt`, `bar-p10.txt`): ladder 19 of 27 (as before); H>N IH .590 -> .745 (still fails,
+Wilson .691), N>E IH .885 -> .960, E>M IH .895 -> .995, H>N HI 1.000 -> .995, N>E HI .995 -> .877; the other 22 cells identical. Parity
+(p10's numbers) N>N .035 -> .225, H>H .035 -> .210. Bar D IH K.O. .925 -> .900, Ichigo's points .037 -> .163; other rows identical.
+Host tests 3754 ALL PASS, pkgcheck, `--cvc` unchanged. Playtest Artifact v435. Manual: CPU VS CPU row.
+
