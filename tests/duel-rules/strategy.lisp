@@ -195,6 +195,11 @@
     (check (~= 0.25 (third (first (getf fq :rules))) 1e-5))
     (fq-td-update! fq base (list (list f1 0 -50.0 nil)) :eta 0.5 :cap 0.05)
     (check (~= 0.25 (second (second (getf fq :rules))) 1e-5)))
+  ;; no cap (the shipped NIL since 2026-11-17, §11.34): the same reward moves q past offline + 0.05
+  (check (null *fq-online-cap*))
+  (let ((fq (copy-tree base)))
+    (fq-td-update! fq base (list (list f0 1 50.0 nil)) :eta 0.5 :cap nil)
+    (check (~= (+ 0.2 (* 0.5 (- 50.0 0.2))) (third (first (getf fq :rules))) 1e-4)))
   ;; a no-op match (no judgement) leaves the table equal; so does a transition whose delta is 0
   (let ((fq (copy-tree base)))
     (fq-td-update! fq base nil)

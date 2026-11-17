@@ -122,14 +122,15 @@ fuzzy Q, §8.19: a group with no rule firing adds 0)."
 ;;; Online fuzzy Q against a human (DUEL_AI_STRATEGY §8.14; the user, 2026-11-09: 「對玩家的線上學習」). A CPU whose lookup strategy is a Q
 ;;; selector plays a per-player copy of it; each judgement of the match is recorded (firing vector, arm, health balance), and only at the match's
 ;;; end the copy takes Glorennec & Jouffe's TD updates, q_r(a) += eta x alpha_r x delta, delta = r + gamma x V(s') - Q(s, a), V(s) = sum_r
-;;; alpha_r max_a q_r(a), each q clamped within the offline value +- cap and kept at the storage's resolution. Nothing changes during a match.
+;;; alpha_r max_a q_r(a), each q kept at the storage's resolution (and within the offline value +- cap when a cap is set; none since 2026-11-17). Nothing changes during a match.
 ;;; The glue (who learns, the record, the page) is fq-online.lisp.
 (defparameter *fq-online-eta* 0.05
   "The online fuzzy Q's learning rate per transition (the user, 2026-11-09: 「對玩家的線上學習」, DUEL_AI_STRATEGY §8.14; new). Training seeds
 against proxy 1 at cap 0.05: eta 0.05 187 wins of 599, 0.02 171, the offline table 89.")
-(defparameter *fq-online-cap* 0.01
-  "The most an online q may drift from its offline value, either way, so a few matches against an odd player cannot wreck the table (§8.14;
-new). Training wins of 599 against proxy 1 / proxy 2 (offline table 89 / 387): cap 0.01 197 / 502, 0.02 174 / 487, 0.05 187 / 512, 0.1 70 / -;
+(defparameter *fq-online-cap* nil
+  "The most an online q may drift from its offline value, either way (a number), or NIL: no bound. 0.01 -> NIL (the user, 2026-11-17:
+「自適應學習的上限不在設限」, DUEL_AI_STRATEGY §11.34: at 0.01 the learner could barely move a designed job map's 0.06-0.075 q, so it could
+not change an arm). Was 0.01 so a few matches against an odd player could not wreck the table (§8.14). Training wins of 599 against proxy 1 / proxy 2 (offline table 89 / 387): cap 0.01 197 / 502, 0.02 174 / 487, 0.05 187 / 512, 0.1 70 / -;
 the learned tables against the shipped Kenpachi (offline 0.905): cap 0.01 0.83-0.93, 0.05 0.35-0.96 (one proxy-1 table broke).")
 (defparameter *fq-online-gamma* 0.9 "The online TD's discount per judgement window: the offline trainer's (fq.py, §8.12).")
 (defparameter *fq-online-scale* 0.1 "The reward per window = this x the change of (my mc-full-health - his), as the offline trainer's; +-1 at the end.")
@@ -175,14 +176,14 @@ r = SCALE x the change of H to the next judgement (to H-END at the last, plus WO
 
 (defun fq-td-update! (fq base trans &key (eta *fq-online-eta*) (gamma *fq-online-gamma*) (cap *fq-online-cap*))
   "Apply TRANS (FQ-TRANSITIONS, in order) to the Q selector FQ in place: per transition q_r(a) += ETA x alpha_r x delta, clamped within BASE's
-(the offline table's) q +- CAP, at the storage's resolution. Returns FQ."
+(the offline table's) q +- CAP (CAP NIL: unclamped), at the storage's resolution. Returns FQ."
   (dolist (tr trans fq)
     (destructuring-bind (fire a r nfire) tr
       (let ((delta (- (+ r (if nfire (* gamma (fq-v-at fq nfire)) 0.0)) (fq-q-at fq fire a))))
         (loop for rule in (getf fq :rules) for b0 in (getf base :rules) for x across fire
               when (plusp x)
-                do (let ((q0 (nth (1+ a) b0)))
-                     (setf (nth (1+ a) rule) (fq-quant (max (- q0 cap) (min (+ q0 cap) (+ (nth (1+ a) rule) (* eta x delta))))))))))))
+                do (let ((q0 (nth (1+ a) b0)) (q (+ (nth (1+ a) rule) (* eta x delta))))
+                     (setf (nth (1+ a) rule) (fq-quant (if cap (max (- q0 cap) (min (+ q0 cap) q)) q)))))))))
 
 (defun fq-checksum (fq)
   "A small checksum of the Q selector FQ's arms and q values (a saved online table is kept only while its offline table is the same):

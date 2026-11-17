@@ -378,7 +378,7 @@ never learns, so G2 is identical (II 32, IK 34, KK 33 lines, native and browser)
   - A table read back is identical to the one in memory. Natively nothing is stored.
 - **Knobs** (strategy.lisp; chosen on the training seeds and on the shipped-CPU check below, never on held-out):
   - `*fq-online-eta*` 0.05.
-  - `*fq-online-cap*` **0.01**.
+  - `*fq-online-cap*` **0.01** (NIL, no bound, since 2026-11-17: §11.34).
   - `*fq-online-gamma*` 0.9 and `*fq-online-scale*` 0.1: the offline trainer's.
   - `*fq-online-eps*` 0.0.
 - **Why cap 0.01.** Most offline arm gaps are 0.001-0.025, so a cap of 0.05 lets nearly every cell flip.
@@ -3580,3 +3580,19 @@ Wilson .691), N>E IH .885 -> .960, E>M IH .895 -> .995, H>N HI 1.000 -> .995, N>
 (p10's numbers) N>N .035 -> .225, H>H .035 -> .210. Bar D IH K.O. .925 -> .900, Ichigo's points .037 -> .163; other rows identical.
 Host tests 3754 ALL PASS, pkgcheck, `--cvc` unchanged. Playtest Artifact v435. Manual: CPU VS CPU row.
 
+### 11.34 The online learner's cap removed (2026-11-17)
+
+The user, 2026-11-17, after asking whether the Q tables read both SP pointers and whether the online learner explores: 「自適應學習的上限不在設限，開始修改」.
+
+- **What the answer was.** The pointers are cues of `:rb-sp2` (G9 my pointer x the switch open, G10 his pointer x distance), but the
+  shipped tables' job maps leave those 15 rows at 0 except one (the KI Kenpachi table's poke arm at his pointer 1, close). The online
+  learner had no exploration (`*fq-online-eps*` 0; FQ-EXPLORE only handles two arms) and each q stayed within its offline value +- 0.01,
+  while the designed job maps' q are 0.06-0.075: the learner could barely change an arm.
+- **Change.** `*fq-online-cap*` 0.01 -> NIL. FQ-TD-UPDATE! skips the clamp when the cap is NIL (a number still clamps, for the tools).
+  η 0.05, γ 0.9, scale 0.1 and ε 0 unchanged; still only HARD, VS CPU against a human, LEARNING CPU on.
+- **Risk, from §8.14's measurements.** Larger caps learned worse against the proxies (cap 0.1: 70 wins of 599 against proxy 1, cap 0.01 197),
+  and at cap 0.05 one proxy-1 table broke (0.34 against the shipped CPU). RESET LEARNING clears a broken table. The stored integers
+  (q x 100000) stay well inside a 30-bit fixnum for the bounded TD targets (reward +-1 at the end, 0.1 x health per window, γ 0.9).
+- **Checks.** Host test: with no cap a reward moves q past offline + 0.05; `*fq-online-cap*` is NIL. CPU vs CPU never learns, so `--cvc`
+  and the ladder are unchanged (G2 PASS, II / IK / KK as before). Manual: 會學習的電腦 says the correction has no bound.
+- **Open.** Exploration (ε for any number of arms) and pointer job rules: offered, not asked for.
