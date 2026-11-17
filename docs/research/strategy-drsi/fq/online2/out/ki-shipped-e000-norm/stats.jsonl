@@ -1,0 +1,4 @@
+{"table": "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e000/run0-4.lisp", "rules": 104, "moved": 81, "led": 12, "flips": 0, "gained": 66, "max_abs_q": 0.1111, "max_page_int": 11110}
+{"table": "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e000/run1-4.lisp", "rules": 104, "moved": 80, "led": 12, "flips": 0, "gained": 60, "max_abs_q": 0.10642, "max_page_int": 10642}
+{"table": "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e000/run2-4.lisp", "rules": 104, "moved": 80, "led": 12, "flips": 0, "gained": 63, "max_abs_q": 0.11265, "max_page_int": 11265}
+{"table": "docs/research/strategy-drsi/fq/online2/out/ki-shipped-e000/run3-4.lisp", "rules": 104, "moved": 79, "led": 12, "flips": 0, "gained": 65, "max_abs_q": 0.10839, "max_page_int": 10839}

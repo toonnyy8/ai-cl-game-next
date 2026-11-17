@@ -126,7 +126,8 @@ fuzzy Q, §8.19: a group with no rule firing adds 0)."
 ;;; The glue (who learns, the record, the page) is fq-online.lisp.
 (defparameter *fq-online-eta* 0.05
   "The online fuzzy Q's learning rate per transition (the user, 2026-11-09: 「對玩家的線上學習」, DUEL_AI_STRATEGY §8.14; new). Training seeds
-against proxy 1 at cap 0.05: eta 0.05 187 wins of 599, 0.02 171, the offline table 89.")
+against proxy 1 at cap 0.05: eta 0.05 187 wins of 599, 0.02 171, the offline table 89. Since 2026-11-17 FQ-TD-UPDATE! divides the step by
+the firing's sum of squares (§11.35), so eta is the share of the error a transition corrects in Q(s, a) for any rule base.")
 (defparameter *fq-online-cap* nil
   "The most an online q may drift from its offline value, either way (a number), or NIL: no bound. 0.01 -> NIL (the user, 2026-11-17:
 「自適應學習的上限不在設限」, DUEL_AI_STRATEGY §11.34: at 0.01 the learner could barely move a designed job map's 0.06-0.075 q, so it could
@@ -184,10 +185,13 @@ r = SCALE x the change of H to the next judgement (to H-END at the last, plus WO
 
 (defun fq-td-update! (fq base trans &key (eta *fq-online-eta*) (gamma *fq-online-gamma*) (cap *fq-online-cap*))
   "Apply TRANS (FQ-TRANSITIONS, in order) to the Q selector FQ in place: per transition q_r(a) += ETA x alpha_r x delta, clamped within BASE's
-(the offline table's) q +- CAP (CAP NIL: unclamped), at the storage's resolution. Returns FQ."
+(the offline table's) q +- CAP (CAP NIL: unclamped), at the storage's resolution. Returns FQ. The step is normalised by the firing's
+sum of squares (2026-11-17, DUEL_AI_STRATEGY §11.35): Q(s, a) is the sum over every rule, so a raw step moved it by ETA x delta x sum x^2,
+up to 11 x ETA on :RB-SP2's 11 groups (one crisp rule a group); now by ETA x delta whatever the rule base (fq/online2.md)."
   (dolist (tr trans fq)
     (destructuring-bind (fire a r nfire) tr
-      (let ((delta (- (+ r (if nfire (* gamma (fq-v-at fq nfire)) 0.0)) (fq-q-at fq fire a))))
+      (let ((delta (/ (- (+ r (if nfire (* gamma (fq-v-at fq nfire)) 0.0)) (fq-q-at fq fire a))
+                      (max 1e-6 (loop for x across fire sum (* x x))))))
         (loop for rule in (getf fq :rules) for b0 in (getf base :rules) for x across fire
               when (plusp x)
                 do (let ((q0 (nth (1+ a) b0)) (q (+ (nth (1+ a) rule) (* eta x delta))))

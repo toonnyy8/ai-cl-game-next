@@ -151,7 +151,7 @@ def run_log(args):
     env['STRAT_' + seat] = table
     if opp:
         env['STRAT_' + ('P2' if seat == 'P1' else 'P1')] = opp
-    cmds = [30000 + seed0, 31100 + n, 81000, 81020 + HARD, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
+    cmds = [30000 + seed0, 31100 + n, 81020 + HARD, 200000 + 100 * c1 + 10 * c2]
     r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
                        capture_output=True, text=True, env=env, timeout=7200)
     keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row '))]

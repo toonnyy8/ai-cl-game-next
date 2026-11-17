@@ -171,3 +171,20 @@ were seen**; nothing was selected among η values, which is the only reason its 
     (tests/duel-rules/strategy.lisp, firing 0.75 / 0.25, Σx² 0.625) would need its expected values updated.
   - Neither is measured beyond the grid above: no η sweep, and IH istyle's table that broke against the shipped Hisagi (.06) shows a player can
     still teach a table that loses to others (RESET LEARNING clears it).
+
+## The lead's follow-up: the step normalised (2026-11-17, DUEL_AI_STRATEGY §11.35)
+
+The lead took the second diff: FQ-TD-UPDATE! divides delta by the transition's sum of x^2, so Q(s, a) moves by eta x delta for any rule base
+(eta 0.05 kept, cap NIL, eps 0). The four eps-0 configs re-run on that build (`runs.py`, same seeds and proxies; out/<tag>-norm/):
+
+| Config | Live (z) | vs proxy, 601-800 (offline) | vs shipped, 501-600 (offline) | Broken | max abs q |
+|---|---|---|---|---|---|
+| KI shipped | 468/456 (1.4) | .965 .920 .970 .978 (.930) | .950 .935 .950 .965 (.890) | 0 | 0.113 |
+| KI istyle | 426/371 (4.4) | .860 .865 .875 .868 (.745) | .950 .950 .950 .985 (.890) | 0 | 0.129 |
+| IH shipped | 107/85 (1.8) | .217 .220 .217 .207 (.190) | .230 .225 .225 .200 (.210) | 0 | 0.100 |
+| IH istyle | 157/159 (-0.1) | .302 .302 .305 .300 (.352) | .220 .230 .255 .235 (.210) | 0 | 0.090 |
+
+No table broke (4 of 4 at the raw step on IH shipped); against the shipped CPU every final table is at or above the offline one. The tables
+still lean on arm 0 (0.89-1.0 of judgements against the proxies), the "drop the switching" reading above. The stale 81000 / 81030 / 81040
+commands in `fq/fq.py` and `sitcheck/drive.py` were dropped the same way (81020 + difficulty only).
+

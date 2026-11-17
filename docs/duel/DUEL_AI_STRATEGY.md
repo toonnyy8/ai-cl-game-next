@@ -3596,3 +3596,25 @@ The user, 2026-11-17, after asking whether the Q tables read both SP pointers an
 - **Checks.** Host test: with no cap a reward moves q past offline + 0.05; `*fq-online-cap*` is NIL. CPU vs CPU never learns, so `--cvc`
   and the ladder are unchanged (G2 PASS, II / IK / KK as before). Manual: 會學習的電腦 says the correction has no bound.
 - **Open.** Exploration (ε for any number of arms) and pointer job rules: offered, not asked for.
+
+### 11.35 The online learner's exploration and step (2026-11-17)
+
+The user, after §11.34 (exploration and pointer rules offered): 「都做」. This § is the exploration; the pointer rules are §11.36.
+
+- **Exploration over any number of arms.** `fq-explore-arm` (strategy.lisp, pure, host-tested): with chance `*fq-online-eps*` a learning
+  judgement plays one of the other n - 1 arms alike, one FQ-U01 draw (match seed, tick, side; the VS CPU seed is the clock's, so each match
+  explores other moments). Before, only two-arm tables could explore. An explored arm becomes `:prev`, so a table's `:margin` may hold it.
+- **ε measured, stays 0** (`docs/research/strategy-drsi/fq/online2.md`: KI / IH Ichigo tables x the shipped and an off-style proxy x ε 0 /
+  .05 / .1, 4 runs x 125 learning matches on 1-500, final tables frozen on 601-800 and 501-600): exploration helped nowhere beyond noise
+  and cost the off-style Hisagi case (-.074 / -.112 a block, paired).
+- **The step was ~11 x η.** Q(s, a) sums all of `:rb-sp2`'s 11 groups (one crisp rule each), so q_r += η α_r δ moved Q by η δ Σα², up to
+  0.55 δ against job-map q of 0.06. Uncapped (§11.34), that broke IH: live 56 vs the frozen table's 85 against the shipped Hisagi, all 4
+  final tables below half the offline one. **Fix:** FQ-TD-UPDATE! divides δ by Σα², so Q moves by η δ for any rule base (η 0.05 kept; a
+  one-crisp-rule table is unchanged). Re-run: no table broken in 16; IH shipped live 107 vs 85, KI off-style 426 vs 371 (held-out .867 vs
+  .745), every final table at or above the offline one against the shipped CPU; IH off-style level live (157 vs 159), its held-out against
+  the proxy .30 vs .35.
+- **Still open.** The learned tables lean on arm 0 (0.89-1.0 of judgements): against these opponents the slow learner mostly drops the
+  switching, a hint that the T0 job maps are not better than their first arm played whole.
+- **Checks.** Host tests (the N-arm pick: never the judged arm, every other arm evenly; split firing moves Q by η δ). CPU vs CPU never
+  learns: `--cvc` unchanged, the ladder unchanged.
+

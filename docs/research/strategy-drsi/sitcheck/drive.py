@@ -10,7 +10,7 @@ def job(a):
     path=f'{OUT}/{me}_vs_{op}_{dif}_{s}_P{seat}.out'
     if os.path.exists(path): return
     env=dict(os.environ,LD_PRELOAD=ROOT+'/build/simgate/muslm.so',STRAT_WIN='1',**{f'STRAT_P{seat}':SEEDS+SF[s]+'.lisp'})
-    cmds=[30200,31140,81000,81020+DIF[dif],81030,81040,200000+100*c1+10*c2]
+    cmds=[30200,31140,81020+DIF[dif],200000+100*c1+10*c2]
     r=subprocess.run([ECL,'--norc','--load','tools/simgate/strat-run.lisp','--',ROOT+'/build/simgate/duel.fas']+list(map(str,cmds)),cwd=ROOT,capture_output=True,text=True,env=env)
     if r.returncode: print('FAIL',path,r.returncode,r.stderr[-300:],flush=True); return
     open(path,'w').write('\n'.join(l for l in r.stdout.splitlines() if l.startswith(('win ','duel gate row','strat '))))

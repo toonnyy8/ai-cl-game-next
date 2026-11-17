@@ -214,12 +214,13 @@
     (check (equal fq base))
     (fq-td-update! fq base (list (list f1 0 0.3 nil)))                                 ; (delta = 0.3 - 0.3)
     (check (equal fq base)))
-  ;; split firing: each rule moves by its share
+  ;; split firing: each rule moves by its share, the step over the firing's sum of squares (§11.35), so Q(s, a) moves by eta x delta
   (let ((fq (copy-tree base)) (x (svref fh 0)))
     (fq-td-update! fq base (list (list fh 0 1.0 nil)) :eta 0.1 :cap 1.0)
-    (let ((d (- 1.0 (+ (* x 0.1) (* (- 1 x) 0.3)))))
-      (check (~= (+ 0.1 (* 0.1 x d)) (second (first (getf fq :rules))) 1e-4))
-      (check (~= (+ 0.3 (* 0.1 (- 1 x) d)) (second (second (getf fq :rules))) 1e-4))))
+    (let* ((d (- 1.0 (+ (* x 0.1) (* (- 1 x) 0.3)))) (n (/ d (+ (* x x) (* (- 1 x) (- 1 x))))))
+      (check (~= (+ 0.1 (* 0.1 x n)) (second (first (getf fq :rules))) 1e-4))
+      (check (~= (+ 0.3 (* 0.1 (- 1 x) n)) (second (second (getf fq :rules))) 1e-4))
+      (check (~= (+ (- 1.0 d) (* 0.1 d)) (fq-q-at fq fh 0) 1e-4))))
   ;; the page: format, the offline table's checksum, the matches, every q; read back equal; another offline table or format: none
   (let ((fq (copy-tree base)))
     (fq-td-update! fq base (list (list fh 0 1.0 f1) (list f1 1 -0.4 nil)))
