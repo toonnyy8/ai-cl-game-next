@@ -1,0 +1,16 @@
+ladder seeds 401-500, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N KI   | 200 | 178 :  22 :  0 | 0.890  0.848 | PASS |   0 | 0.90 / 0.88
+hn H>N IK   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   0 | 1.00 / 1.00
+hn H>N IH   | 200 | 166 :  34 :  0 | 0.830  0.782 | PASS |  91 FLAG | 0.84 / 0.82
+hn H>N HI   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   4 | 0.99 / 1.00
+ne N>E KI   | 200 | 197 :   3 :  0 | 0.985  0.963 | PASS |   6 | 0.98 / 0.99
+ne N>E IK   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   3 | 0.99 / 1.00
+ne N>E IH   | 200 | 191 :   9 :  0 | 0.955  0.924 | PASS |  50 | 0.93 / 0.98
+ne N>E HI   | 200 | 175 :  25 :  0 | 0.875  0.831 | PASS |  97 FLAG | 0.89 / 0.86
+em E>M KI   | 200 | 126 :  74 :  0 | 0.630  0.572 | fail |   6 | 0.70 / 0.56
+em E>M IK   | 200 | 114 :  86 :  0 | 0.570  0.512 | fail |   3 | 0.58 / 0.56
+em E>M IH   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   4 | 0.99 / 1.00
+em E>M HI   | 200 | 101 :  99 :  0 | 0.505  0.447 | fail | 196 FLAG | 0.52 / 0.49
+9 of 12 cells pass
+json build/ladder/c-final.json

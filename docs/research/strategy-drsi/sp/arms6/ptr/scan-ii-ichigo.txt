@@ -1,0 +1,2 @@
+ii-ichigo: 1000 matches, 212414 judgements outside a run; the recomputed pick = the logged one on 0.9978
+z >= 2, both halves the same sign:

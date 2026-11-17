@@ -1,0 +1,10 @@
+ladder seeds 501-600, both seats; share = (wins + draws/2) / n; pass = one-sided 95 % Wilson low >= 0.7
+rung   cell  |   n | hi : lo : draw  | share  wilson | pass | bell (flag > 25 %) | share hi on P1 / P2
+hn H>N IH   | 200 | 149 :  50 :  1 | 0.748  0.694 | fail | 103 FLAG | 0.77 / 0.72
+hn H>N HI   | 200 | 199 :   1 :  0 | 0.995  0.978 | PASS |   5 | 1.00 / 0.99
+ne N>E IH   | 200 | 191 :   9 :  0 | 0.955  0.924 | PASS |  54 FLAG | 0.98 / 0.93
+ne N>E HI   | 200 | 175 :  24 :  1 | 0.877  0.834 | PASS | 107 FLAG | 0.91 / 0.84
+em E>M IH   | 200 | 200 :   0 :  0 | 1.000  0.987 | PASS |   2 | 1.00 / 1.00
+em E>M HI   | 200 |  89 : 111 :  0 | 0.445  0.388 | fail | 196 FLAG | 0.44 / 0.45
+4 of 6 cells pass
+json build/ladder/ih99.json

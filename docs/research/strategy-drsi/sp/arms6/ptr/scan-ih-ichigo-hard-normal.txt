@@ -1,0 +1,4 @@
+ih-ichigo: 1000 matches, 156836 judgements outside a run; the recomputed pick = the logged one on 0.9961
+z >= 2, both halves the same sign (* = passes the gate: z >= 3.3, switched >= .03):
+  *0:96:-2     his1 mid     gain  +5.04 e-3 (z +2.2) switched 0.172  halves  +2.75 /  +7.10
+  2:97:2       his1 far     gain  +1.94 e-3 (z +2.0) switched 0.068  halves  +1.98 /  +1.91

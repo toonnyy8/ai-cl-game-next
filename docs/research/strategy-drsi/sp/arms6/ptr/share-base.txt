@@ -1,0 +1,14 @@
+ki-kenpachi hard,hard seeds 501-540: 80 matches, changes median 51 min 21, no change in 0; shares 0:0.420 1:0.288 2:0.281 3:0.011  bar A PASS
+ki-kenpachi hard,normal seeds 501-540: 80 matches, changes median 40 min 24, no change in 0; shares 0:0.205 1:0.296 2:0.242 3:0.257  bar A PASS
+ki-kenpachi normal,easy seeds 501-540: 80 matches, changes median 33 min 17, no change in 0; shares 0:0.079 1:0.519 2:0.069 3:0.334  bar A fail
+ki-kenpachi easy,masher seeds 501-540: 80 matches, changes median 56 min 23, no change in 0; shares 0:0.135 1:0.409 2:0.150 3:0.306  bar A PASS
+ih-ichigo hard,hard seeds 501-540: 80 matches, changes median 78 min 41, no change in 0; shares 0:0.425 1:0.169 2:0.196 3:0.210  bar A PASS
+ih-ichigo hard,normal seeds 501-540: 80 matches, changes median 71 min 29, no change in 0; shares 0:0.554 1:0.198 2:0.119 3:0.130  bar A PASS
+ih-ichigo normal,easy seeds 501-540: 80 matches, changes median 46 min 15, no change in 0; shares 0:0.492 1:0.365 2:0.057 3:0.086  bar A fail
+ih-ichigo easy,masher seeds 501-540: 80 matches, changes median 48 min 23, no change in 0; shares 0:0.679 1:0.163 2:0.091 3:0.066  bar A fail
+hh-hisagi hard,hard seeds 501-540: 80 matches, changes median 30 min 2, no change in 0; shares 0:0.714 1:0.118 2:0.168  bar A fail
+hh-hisagi hard,normal seeds 501-540: 80 matches, changes median 20 min 1, no change in 0; shares 0:0.717 1:0.087 2:0.196  bar A fail
+hh-hisagi normal,easy seeds 501-540: 80 matches, changes median 14 min 0, no change in 1; shares 0:0.753 1:0.055 2:0.192  bar A fail
+hh-hisagi easy,masher seeds 501-540: 80 matches, changes median 20 min 0, no change in 3; shares 0:0.713 1:0.166 2:0.121  bar A fail
+
+[exited with code 0]

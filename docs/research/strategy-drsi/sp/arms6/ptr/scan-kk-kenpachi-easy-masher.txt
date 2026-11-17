@@ -1,0 +1,3 @@
+kk-kenpachi: 1000 matches, 135205 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign (* = passes the gate: z >= 3.3, switched >= .03):
+  2:91:2       my3 swshut   gain  +0.35 e-3 (z +2.1) switched 0.007  halves  +0.22 /  +0.49

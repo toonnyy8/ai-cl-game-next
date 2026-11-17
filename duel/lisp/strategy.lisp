@@ -3895,6 +3895,9 @@ STRAT-WITH), a composite's subs, a strategy's units."
           (0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000))))
     ;; p9-ih (2026-11-17; was arms5's T0, checkpoint 2c, DUEL_AI_STRATEGY §11.29): arms5's job map and q for arm 0 / economy / punish / kessa-lunge, arm 0 = brawl, economy and punish on its neutral, the unit :d-x-ih-i with the clash on: docs/research/strategy-drsi/sp/arms6/ih/t0-ih-ichigo.lisp, docs/research/strategy-drsi/sp/arms6/ih.md
+    ;; q2-ptr (2026-11-17, sp/arms6/ptr.md): G10 (his pointer x distance): i6-punish +0.12 at row 99 (his pointer 2, mid), and economy,
+    ;; punish, kessa-lunge -0.12 at row 95 (his pointer 1, close: brawl plays there). Run-start estimates HARD vs HARD: row 99 z 5.1, row
+    ;; 95 z 2.8; ladder H>N IH .745 -> .775 / .760 -> .830 on 501-600 / 401-500 (row 99 alone: .748 / .735, so the lift is row 95's).
     (:id :t0-ih-ichigo :apply (:ichigo :hisagi) :fq (:arms (:a4-i-brawl :i6-economy :i6-punish :a5-i-kessa-lunge) :rule-base :rb-sp2 :xfeats t :keep-state t :margin 0.02 :with (:d-x-ih-i) :period 30 :gamma 0.966 :scale 0.1
          :q ((0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
@@ -3991,11 +3994,11 @@ STRAT-WITH), a composite's subs, a strategy's units."
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
+          (0.0000 -0.1200 -0.1200 -0.1200)
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
-          (0.0000 0.0000 0.0000 0.0000)
-          (0.0000 0.0000 0.0000 0.0000)
+          (0.0000 0.0000 0.1200 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)
           (0.0000 0.0000 0.0000 0.0000)

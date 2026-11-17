@@ -1,0 +1,11 @@
+ih-hisagi: 1000 matches, 271045 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign (* = passes the gate: z >= 3.3, switched >= .03):
+  3:97:2       his1 far     gain  +2.80 e-3 (z +3.2) switched 0.078  halves  +1.52 /  +4.22
+  3:93:2       my2 swopen   gain  +2.98 e-3 (z +3.0) switched 0.028  halves  +2.80 /  +3.19
+  2:96:2       his1 mid     gain  +5.79 e-3 (z +2.8) switched 0.362  halves  +9.82 /  +1.74
+  3:92:2       my1 swopen   gain  +6.74 e-3 (z +2.7) switched 0.176  halves  +5.94 /  +7.40
+  1:102:-2     his3 mid     gain  +0.60 e-3 (z +2.6) switched 0.002  halves  +0.63 /  +0.56
+  2:95:2       his1 close   gain  +3.58 e-3 (z +2.5) switched 0.123  halves  +3.36 /  +3.78
+  3:95:2       his1 close   gain  +3.74 e-3 (z +2.4) switched 0.171  halves  +3.12 /  +4.31
+  3:96:2       his1 mid     gain  +3.37 e-3 (z +2.3) switched 0.394  halves  +3.78 /  +2.96
+  *0:102:-2    his3 mid     gain  +0.64 e-3 (z +2.1) switched 0.006  halves  +0.20 /  +0.97

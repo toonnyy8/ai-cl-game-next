@@ -1,0 +1,13 @@
+hn KI  0.760 -> 0.890  (+4.8 se)  PASS -> PASS  bell 0 -> 0
+hn IK  1.000 -> 1.000  (+0.0 se)  PASS -> PASS  bell 0 -> 0
+hn IH  0.760 -> 0.830  (+2.5 se)  PASS -> PASS  bell 108 -> 91
+hn HI  1.000 -> 0.995  (-1.4 se)  PASS -> PASS  bell 5 -> 4
+ne KI  1.000 -> 0.985  (-2.5 se)  PASS -> PASS  bell 4 -> 6
+ne IK  0.990 -> 0.995  (+0.8 se)  PASS -> PASS  bell 3 -> 3
+ne IH  0.940 -> 0.955  (+1.0 se)  PASS -> PASS  bell 54 -> 50
+ne HI  0.865 -> 0.875  (+0.4 se)  PASS -> PASS  bell 103 -> 97
+em KI  0.750 -> 0.630  (-3.7 se)  fail -> fail  bell 4 -> 6
+em IK  0.570 -> 0.570  (+0.0 se)  fail -> fail  bell 3 -> 3
+em IH  0.985 -> 0.995  (+1.4 se)  PASS -> PASS  bell 5 -> 4
+em HI  0.505 -> 0.505  (+0.0 se)  fail -> fail  bell 196 -> 196
+11 of 15 pass (cells missing from NEW keep BASE)

@@ -1,0 +1,6 @@
+kk-kenpachi: 1000 matches, 119614 judgements outside a run; the recomputed pick = the logged one on 1.0000
+z >= 2, both halves the same sign:
+  1:97:2       his1 far     gain  +2.93 e-3 (z +3.3) switched 0.057  halves  +2.35 /  +3.54
+  1:92:2       my1 swopen   gain +17.24 e-3 (z +3.1) switched 0.299  halves +17.73 / +16.95
+  1:95:2       his1 close   gain +15.69 e-3 (z +3.0) switched 0.366  halves +15.00 / +16.40
+  1:96:-2      his1 mid     gain  +0.39 e-3 (z +2.4) switched 0.001  halves  +0.53 /  +0.27

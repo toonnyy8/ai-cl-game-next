@@ -1,0 +1,11 @@
+ki-ichigo: 1000 matches, 148614 judgements outside a run; the recomputed pick = the logged one on 0.9993
+z >= 2, both halves the same sign (* = passes the gate: z >= 3.3, switched >= .03):
+ *2:89:2       my1 swshut   gain  +6.11 e-3 (z +3.6) switched 0.215  halves  +5.90 /  +6.37
+ *4:89:2       my1 swshut   gain  +4.26 e-3 (z +3.4) switched 0.189  halves  +5.40 /  +3.09
+  2:93:2       my2 swopen   gain  +9.46 e-3 (z +3.1) switched 0.067  halves +15.14 /  +3.54
+  4:91:2       my3 swshut   gain  +1.56 e-3 (z +2.8) switched 0.022  halves  +2.05 /  +1.06
+  4:94:-2      my3 swopen   gain  +1.59 e-3 (z +2.7) switched 0.004  halves  +0.10 /  +1.91
+  2:95:2       his1 close   gain +15.24 e-3 (z +2.6) switched 0.480  halves  +6.24 / +24.07
+  4:95:2       his1 close   gain +13.28 e-3 (z +2.4) switched 0.444  halves +19.52 /  +6.85
+  5:92:2       my1 swopen   gain +11.40 e-3 (z +2.3) switched 0.306  halves +12.29 / +10.86
+  2:90:2       my2 swshut   gain  +1.20 e-3 (z +2.0) switched 0.040  halves  +0.65 /  +1.63
