@@ -1,0 +1,6 @@
+xch ab kh hisagi J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 401-500, both orders
+ shipped: hisagi wins 143 / 200 = 0.715 (SE 0.032), K.O. wins 142
+    hold: hisagi wins 109 / 200 = 0.545 (SE 0.035), K.O. wins 107
+     own: hisagi wins 127 / 200 = 0.635 (SE 0.034), K.O. wins 126
+    ownj: hisagi wins 180 / 200 = 0.900 (SE 0.021), K.O. wins 176
+       j: hisagi wins 159 / 200 = 0.795 (SE 0.029), K.O. wins 155

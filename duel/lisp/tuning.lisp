@@ -186,6 +186,20 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
 (defparameter *sp-gain-j* 10.0 "SP a J hit (each damaging hit window) earns. New 2026-11-12, the user: 「J 命中 +10」, DUEL_SP §5, §8.6 Q3.")
 (defparameter *sp-gain-sa* 15.0 "SP an SA hit (each damaging hit window) earns. New 2026-11-12, the user's SP design, DUEL_SP §5.")
 (defparameter *sp-gain-cancel* 30.0 "SP an ATK (J / SA) that takes part in a cancel earns, instead of its hit gain. New 2026-11-12, the user's SP design, DUEL_SP §5.")
+(defparameter *sp-cancel-gain-once* nil
+  "Research only (q4-defence R1, the user 2026-11-18: 「先量規則版」; docs/research/strategy-drsi/sp/arms6/xch2.md §R1): T = inside one open
+exchange (from its cancel until both are back in neutral, FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*`; a later
+cancel before the exchange is over pays 0 (SP-RECANCEL-P). NIL, the game: every cancel pays (DUEL_SP §5). Toggled by tools through STRAT_SET.")
+(defparameter *core-cancel-dead* nil
+  "Research only (q4-defence R3, the user 2026-11-18: 「先量 R3」; docs/research/strategy-drsi/sp/arms6/xch2.md §R3): T = a cancel kills both
+segments that took part (CORE-CANCEL-LANDED!: the J side's and the NS side's move, a hazard's firing segment while it is still in play):
+no hit window left (COLLECT-MELEE, CUT-HAZARDS skip it) and no class for the triangle (CORE-WINDOW-CLASS NIL), so it can't take part in
+another cancel and a hit on him during its rest is a clean hit (a breakthrough inside the open exchange). What he may press next is
+unchanged (the next segment, the SA in the gap, the AS, by the cancel windows). NIL, the game: a cancelled segment stays out.")
+(defparameter *sp-recancel-no-refund* nil
+  "Research only (q4-defence R2 = R1 + this; xch2.md §R1): T = an NS / AS segment cancelled inside an exchange already open from an earlier
+step (SP-RECANCEL-P) gets no refund of what it paid (CORE-CANCEL-LANDED!; a hazard cancelled after its move ended keeps its refund). NIL,
+the game: every cancelled segment is refunded once (DUEL_SP §3).")
 (defparameter *sp-break-share* 1.0
   "Share of the victim's flash-step above the last cell a breakthrough after a cancel takes. New 2026-11-12 at 0.5 (the lead read the user's
 「50%」 as the share taken); 0.5 -> 1.0 on 2026-11-13, the user: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」 (the 50 % is the
@@ -482,13 +496,37 @@ own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23
 (defparameter *cai-xch-carry-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
-A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
-(defparameter *cai-xch-early-p* '(:easy 0.5 :normal 0.5 :hard 0.5)
+A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).
+Since 2026-11-18 (the user: 「先補防守」, 「做防守混合」; DUEL_AI_STRATEGY §11.38, sp/arms6/xch2.md §MIX) only when the NS side is not watching
+(its SA early, or none); watching, *CAI-XCH-CARRY-WATCH-P*.")
+(defparameter *cai-xch-carry-watch-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
+  "The NS side's carry (as *CAI-XCH-CARRY-P*) when its pick is to watch for his turn: the carry tied to the pick, one roll at the cancel
+(CAI-XCH-STEP). New 2026-11-18 (the user: 「先補防守」, then 「做防守混合」; DUEL_AI_STRATEGY §11.38, sp/arms6/xch2.md §MIX): KI's match-level
+equilibrium wants watch + carry and early + no carry (§NS-BR: the mix as independent rolls leaked, Ichigo's ownj .825 against .725 as arms).
+The default equals *CAI-XCH-CARRY-P* (main's play); a pairing's unit sets the mix: :XCH-CARRY-WATCH-P p, the chance itself at every difficulty
+(CAI-MIX-ROLL; a strategy without it: :XCH-CARRY-P scales this roll, as before the split).")
+(defparameter *cai-xch-early-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
   "The NS side watching (*CAI-XCH-SA-P*) a cancel its own segment's hit made (his J still coming): the chance, rolled at the cancel, that it
 presses its SA early, *CAI-XCH-SA-WAIT* frames after the cancel (beats his J coming on and a hold); else it keeps watching and presses the SA
 the step it sees his AS or a new J link start (beats his AS, the later start). New 2026-11-18 (the user: 「先補防守」, DUEL_AI_STRATEGY §11.38):
 before, always early (1.0), which the J side's AS started after the wait beat every time (KI: Kenpachi's AS in that spot hit first 88 %;
-sp/arms6/xch.md). A mix, not a strength, so one value for every difficulty. A strategy arm scales it: :XCH-EARLY-P k, the chance x k within 0-1 (CAI-ROLL).")
+sp/arms6/xch.md). A mix, not a strength, so one value for every difficulty. A strategy arm scales it: :XCH-EARLY-P k, the chance x k within 0-1 (CAI-ROLL).
+0.5 -> 0.15 the same day (q4-defence, sp/arms6/xch2.md): a match-level sweep of the fixed J-side policies (shipped / hold / own / ownj / j,
+KI and KH's four J sides, seeds 301-400, xch-sweep.py): here 0 / 0.15 / 0.5 left the J side's best fixed policy about as high (KI Kenpachi
+own .935 / .945 / .965); 0.15 with the other cancel's 0.3 (*CAI-XCH-EARLY-HIS-P*) gave the lowest worst side and mean gap of the sweep.
+0.15 -> 1.0 the same day (§MIX, the user: 「做防守混合」): the defaults go back to main's play (no one-size mix serves the four measured NS
+sides: KI Ichigo's wants no early SA, KI Kenpachi's .58, KH Hisagi's .58 here and .06 at the other cancel), and each pairing's unit sets its
+side's mix (strategy.lisp :d-x-*, the arm keys :XCH-EARLY-P, :XCH-EARLY-HIS-P, :XCH-CARRY-WATCH-P).")
+(defparameter *cai-xch-early-his-p* '(:easy 0.0 :normal 0.0 :hard 0.0)
+  "The NS side watching a cancel his J's hit made (its own segment's hit still to come; *CAI-XCH-EARLY-P*'s other case): the chance, rolled at
+the cancel, of the early SA (*CAI-XCH-SA-WAIT* frames after the cancel, into his J's recovery: beats his hold and his next J); else it keeps
+watching for his AS or new J (beats his AS). New 2026-11-18 (q4-defence, the user: 「先補防守」; sp/arms6/xch2.md). Before: always watching
+(0), so his hold (or next J) there was never punished: KI Kenpachi's J side held at +0.10 against his AS's -0.14 (xch.py game, explored).
+A mix, not a strength: one value for every difficulty. 0.3 -> 0 the same day (§MIX, the user: 「做防守混合」): main's play by default; a
+pairing's unit sets it with :XCH-EARLY-HIS-P p, the chance itself (CAI-MIX-ROLL; a strategy without it: :XCH-EARLY-P scales this roll).
+Before, 0.3 by the match-level sweep
+(xch2.md; 0 / .1 / .2 / .3 / .4: KI Kenpachi's best fixed policy .945 / .935 / .88 / .81 / .76, his shipped AS .125 / .315 / .51 / .68 / .76):
+it moves the pairings' balance a lot (KI and KH towards Kenpachi), the user's call.")
 (defparameter *cai-clash-p* '(:easy 0.45 :normal 0.45 :hard 1.0)
   "積極相消 (the user, above): in neutral, the chance (one roll per move of his it applies to) that the CPU throws the move that cancels his
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move

@@ -1,0 +1,8 @@
+STRAT_SET=*cai-xch-early-p*=(:easy 1.0 :normal 1.0 :hard 1.0),*cai-xch-early-his-p*=(:easy 0 :normal 0 :hard 0) STRAT_XNS=kenpachi mix 1.0 0.58 0.53 0.54 seeds 401-500
+xch ab ki ichigo J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 401-500, both orders
+ shipped: ichigo wins 121 / 200 = 0.605 (SE 0.035), K.O. wins 121
+    hold: ichigo wins 108 / 200 = 0.540 (SE 0.035), K.O. wins 108
+     own: ichigo wins 109 / 200 = 0.545 (SE 0.035), K.O. wins 109
+    ownj: ichigo wins 165 / 200 = 0.825 (SE 0.027), K.O. wins 165
+       j: ichigo wins 153 / 200 = 0.765 (SE 0.030), K.O. wins 153
+done

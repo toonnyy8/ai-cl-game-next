@@ -332,10 +332,13 @@ only as one of the strategies (:FN ken-ki-style ...).")
     ;; IH Ichigo: the clash back on with the answer arm's exchange keys (p9-ih, 2026-11-17; was :clash-p 0.0 :clash-margin 0.3, set before
     ;; §11.30's clash; docs/research/strategy-drsi/sp/arms6/ih.md): N>E IH .445 -> .870, E>M IH .325 -> .885 with the table below
     (:id :d-x-ih-i :base (:clash-p 1.7 :xch-sa-p 1.6 :xch-carry-p 0.3 :clash-margin 0.5 :awaken-break-p 0.0 :awaken-kikon-p 1.2))
-    (:id :d-x-kh-h :base (:clash-p 1.7 :xch-sa-p 1.5 :awaken-break-p 1.9 :xch-carry-p 3.0 :clash-margin 1.6))
-    (:id :d-x-kh-k :base (:xch-j 0.0 :awaken-break-p 1.8 :clash-p 1.7 :xch-sa-p 1.6))
-    (:id :d-x-ki-i :base (:xch-j 0.0 :xch-sa-p 1.6 :xch-carry-p 3.0 :clash-p 1.7 :clash-margin 1.5))
-    (:id :d-x-ki-k :base (:xch-j 0.0 :clash-margin 1.6 :clash-p 1.7)))
+    ;; §MIX (the user, 2026-11-18: 「做防守混合」; sp/arms6/xch2.md): each unit's NS side plays its pairing's match-level equilibrium mix of the
+    ;; exchange answers: :xch-early-p (own-hit early SA, a scale on 1.0), :xch-early-his-p (his-hit early SA) and :xch-carry-watch-p (the carry
+    ;; when watching), the last two the chances themselves; :xch-sa-p / :xch-carry-p as before. Before §MIX none of the three was set.
+    (:id :d-x-kh-h :base (:clash-p 1.7 :xch-sa-p 1.6 :awaken-break-p 1.9 :xch-carry-p 5.0 :clash-margin 1.6 :xch-early-p 0.58 :xch-early-his-p 0.06 :xch-carry-watch-p 1.0))
+    (:id :d-x-kh-k :base (:xch-j 0.0 :awaken-break-p 1.8 :clash-p 1.7 :xch-sa-p 1.6 :xch-early-p 0.0 :xch-early-his-p 0.0 :xch-carry-watch-p 1.0))
+    (:id :d-x-ki-i :base (:xch-j 0.0 :xch-sa-p 1.6 :xch-carry-p 3.0 :clash-p 1.7 :clash-margin 1.5 :xch-early-p 0.0 :xch-early-his-p 0.0 :xch-carry-watch-p 1.0))
+    (:id :d-x-ki-k :base (:xch-j 0.0 :clash-margin 1.6 :clash-p 1.7 :xch-sa-p 1.6 :xch-early-p 0.58 :xch-early-his-p 0.53 :xch-carry-watch-p 1.0)))
   "The data units: outputs, rules and keys without code (DUEL_AI_STRATEGY §10).")
 
 (defparameter *strat-units*

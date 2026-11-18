@@ -1,0 +1,9 @@
+STRAT_SET=*cai-xch-early-p*=(:easy 1.0 :normal 1.0 :hard 1.0),*cai-xch-early-his-p*=(:easy 0 :normal 0 :hard 0) STRAT_XNS=kenpachi none ship seeds 301-400
+xch ab ki ichigo J-side rule j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: ichigo wins 200 / 200 = 1.000 (SE 0.000), K.O. wins 200
+       j: ichigo wins 200 / 200 = 1.000 (SE 0.000), K.O. wins 200
+xch ab kh hisagi J-side rule j,ownj vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: hisagi wins 190 / 200 = 0.950 (SE 0.015), K.O. wins 188
+       j: hisagi wins 199 / 200 = 0.995 (SE 0.005), K.O. wins 199
+    ownj: hisagi wins 197 / 200 = 0.985 (SE 0.009), K.O. wins 197
+done

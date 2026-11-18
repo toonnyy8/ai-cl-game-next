@@ -67,7 +67,8 @@
 ;; The shared exchange layer's eight knobs as arm keys, read in core-ai.lisp as scales on the per-difficulty value: a chance through
 ;; STRAT-SCALE (x k, within 0-1; CAI-ROLL), the margin and the wait through STRAT-MUL (x k, >= 0; the wait rounded to frames), :XCH-J
 ;; through XCH-J-WEIGHTS (xch-ai test). Not style keys: the scan above (67) is the style CPUs' own; these get their own list.
-(let* ((xkeys '(:xch-sa-p :xch-carry-p :xch-early-p :xch-j :clash-p :clash-margin :xch-sa-wait :awaken-break-p :awaken-kikon-p))
+(let* ((xkeys '(:xch-sa-p :xch-carry-p :xch-carry-watch-p :xch-early-p :xch-early-his-p :xch-j :clash-p :clash-margin :xch-sa-wait
+                :awaken-break-p :awaken-kikon-p))
        (names (mapcar (lambda (k) (string-downcase (symbol-name k))) xkeys))
        (src (format nil "~{~a~%~}" (un-lines "duel/lisp/core-ai.lisp"))))
   ;; each one read in core-ai.lisp (its readers CAI-XCH-STEP, CAI-CLASH, CAI-AWAKEN-BREAK's callers, CAI-MARGIN)

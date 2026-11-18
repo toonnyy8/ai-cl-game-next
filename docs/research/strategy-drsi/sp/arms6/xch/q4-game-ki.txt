@@ -1,0 +1,41 @@
+xch game ki: seeds 1-500, Y = dh (the J side's value), mean (SE) n
+
+=== kenpachi J side, own0 (his NS rolls: wc0 32%, wc1 19%, ec0 32%, ec1 17%)
+       | wc0                 | wc1                 | ec0                 | ec1                
+    as | +0.022 (0.061) 213  | -0.140 (0.096) 95   | +0.272 (0.056) 204  | +0.192 (0.059) 70  
+  hold | +0.011 (0.033) 141  | -0.126 (0.090) 73   | -0.193 (0.072) 117  | -0.426 (0.112) 87  
+     j | +0.083 (0.078) 111  | -0.447 (0.152) 61   | -0.169 (0.082) 142  | -0.089 (0.089) 58  
+  his rolls now (p early 0.49, p neither 0.00, p carry 0.36): as +0.102, hold -0.155, j -0.122 -> his best as +0.102
+  NS minimax (p early 0.00, p neither 0.00, p carry 1.00): as -0.140, hold -0.126, j -0.447 -> his best hold -0.126
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.000, hold -0.080, j -0.130 -> his best as -0.000
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as +0.070, hold -0.141, j -0.132 -> his best as +0.070
+
+=== kenpachi J side, own1 (his NS rolls: wc0 30%, wc1 21%, ec0 30%, ec1 20%)
+       | wc0                 | wc1                 | ec0                 | ec1                
+    as | -0.135 (0.026) 803  | -0.180 (0.035) 565  | +0.347 (0.025) 739  | +0.235 (0.026) 519 
+  hold | +0.102 (0.020) 806  | +0.038 (0.028) 538  | +0.084 (0.024) 782  | +0.019 (0.032) 569 
+     j | +0.072 (0.024) 881  | +0.059 (0.026) 595  | +0.013 (0.026) 870  | -0.028 (0.029) 574 
+  his rolls now (p early 0.50, p neither 0.00, p carry 0.41): as +0.073, hold +0.067, j +0.032 -> his best as +0.073
+  NS minimax (p early 0.50, p neither 0.00, p carry 1.00): as +0.027, hold +0.029, j +0.015 -> his best hold +0.029
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.085, hold +0.073, j +0.056 -> his best hold +0.073
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as +0.029, hold +0.069, j +0.039 -> his best hold +0.069
+
+=== ichigo J side, own0 (his NS rolls: wc0 26%, wc1 7%, ec0 26%, ec1 7%, nc0 28%, nc1 7%)
+       | wc0                 | wc1                 | ec0                 | ec1                 | nc0                 | nc1                
+    as | +0.120 (0.032) 235  | -0.027 (0.025) 57   | +0.067 (0.028) 235  | +0.057 (0.038) 57   | +0.108 (0.024) 228  | +0.020 (0.014) 61  
+  hold | +0.009 (0.012) 220  | +0.012 (0.037) 62   | -0.074 (0.033) 255  | -0.001 (0.058) 64   | +0.024 (0.014) 274  | +0.034 (0.034) 73  
+     j | +0.194 (0.039) 253  | +0.039 (0.026) 52   | -0.033 (0.041) 217  | -0.168 (0.053) 63   | +0.185 (0.036) 236  | -0.041 (0.041) 63  
+  his rolls now (p early 0.32, p neither 0.35, p carry 0.20): as +0.082, hold -0.007, j +0.082 -> his best as +0.082
+  NS minimax (p early 0.25, p neither 0.00, p carry 0.90): as +0.005, hold +0.007, j +0.003 -> his best hold +0.007
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as +0.062, hold +0.002, j +0.099 -> his best j +0.099
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as +0.062, hold -0.012, j +0.045 -> his best as +0.062
+
+=== ichigo J side, own1 (his NS rolls: wc0 25%, wc1 7%, ec0 26%, ec1 6%, nc0 29%, nc1 7%)
+       | wc0                 | wc1                 | ec0                 | ec1                 | nc0                 | nc1                
+    as | -0.265 (0.025) 390  | -0.292 (0.070) 104  | -0.206 (0.025) 447  | -0.204 (0.047) 111  | +0.052 (0.022) 465  | +0.106 (0.024) 123 
+  hold | -0.055 (0.013) 431  | -0.218 (0.063) 100  | -0.207 (0.026) 444  | -0.205 (0.058) 100  | -0.070 (0.011) 482  | -0.262 (0.062) 109 
+     j | -0.087 (0.032) 399  | -0.055 (0.063) 111  | -0.264 (0.029) 432  | -0.099 (0.067) 91   | -0.110 (0.025) 441  | -0.082 (0.047) 129 
+  his rolls now (p early 0.32, p neither 0.36, p carry 0.20): as -0.131, hold -0.133, j -0.138 -> his best as -0.131
+  NS minimax (p early 1.00, p neither 0.00, p carry 0.00): as -0.206, hold -0.207, j -0.264 -> his best as -0.206
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.265, hold -0.133, j -0.093 -> his best j -0.093
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as -0.248, hold -0.154, j -0.124 -> his best j -0.124

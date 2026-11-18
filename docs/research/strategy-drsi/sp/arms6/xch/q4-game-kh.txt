@@ -1,0 +1,41 @@
+xch game kh: seeds 1-500, Y = dh (the J side's value), mean (SE) n
+
+=== kenpachi J side, own0 (his NS rolls: wc0 20%, wc1 29%, ec0 19%, ec1 29%, nc0 1%, nc1 2%)
+       | wc0                 | wc1                 | ec0                 | ec1                 | nc0                 | nc1                
+    as | +0.044 (0.029) 206  | +0.070 (0.033) 292  | +0.143 (0.033) 192  | +0.105 (0.033) 257  | +0.153 (0.186) 10   | +0.125 (0.127) 25  
+  hold | +0.054 (0.027) 157  | -0.069 (0.043) 219  | -0.185 (0.042) 132  | -0.098 (0.023) 232  | +0.066 (0.050) 10   | +0.097 (0.351) 7   
+     j | +0.072 (0.057) 128  | +0.030 (0.037) 211  | -0.116 (0.037) 139  | -0.141 (0.030) 223  | +0.057 (0.081) 4    | -0.009 (0.042) 10  
+  his rolls now: (a cell under --min)
+  NS minimax (p early 0.10, p neither 0.00, p carry 0.00): as +0.054, hold +0.030, j +0.053 -> his best as +0.054
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as +0.065, hold -0.018, j +0.028 -> his best as +0.065
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as +0.084, hold -0.057, j -0.017 -> his best as +0.084
+
+=== kenpachi J side, own1 (his NS rolls: wc0 20%, wc1 29%, ec0 19%, ec1 29%, nc0 1%, nc1 2%)
+       | wc0                 | wc1                 | ec0                 | ec1                 | nc0                 | nc1                
+    as | -0.120 (0.016) 828  | -0.050 (0.013) 1255 | +0.195 (0.019) 769  | +0.217 (0.016) 1191 | +0.432 (0.090) 51   | +0.313 (0.070) 65  
+  hold | +0.018 (0.010) 895  | -0.013 (0.013) 1381 | -0.037 (0.013) 919  | -0.039 (0.012) 1328 | +0.043 (0.051) 51   | +0.079 (0.067) 78  
+     j | +0.032 (0.017) 820  | -0.002 (0.013) 1325 | +0.036 (0.017) 817  | -0.020 (0.013) 1340 | +0.087 (0.073) 34   | +0.078 (0.056) 75  
+  his rolls now (p early 0.48, p neither 0.03, p carry 0.60): as +0.072, hold -0.017, j +0.009 -> his best as +0.072
+  NS minimax (p early 0.15, p neither 0.00, p carry 1.00): as -0.010, hold -0.017, j -0.005 -> his best j -0.005
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.047, hold -0.001, j +0.018 -> his best j +0.018
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as +0.026, hold -0.012, j +0.017 -> his best as +0.026
+
+=== hisagi J side, own0 (his NS rolls: wc0 40%, wc1 10%, ec0 39%, ec1 10%)
+       | wc0                 | wc1                 | ec0                 | ec1                
+    as | -0.067 (0.022) 464  | -0.091 (0.050) 108  | +0.014 (0.022) 472  | -0.023 (0.038) 116 
+  hold | -0.056 (0.018) 357  | -0.088 (0.048) 80   | -0.170 (0.026) 347  | -0.188 (0.046) 96  
+     j | -0.036 (0.023) 357  | -0.073 (0.035) 119  | -0.239 (0.023) 358  | -0.182 (0.046) 88  
+  his rolls now (p early 0.50, p neither 0.00, p carry 0.21): as -0.033, hold -0.117, j -0.135 -> his best as -0.033
+  NS minimax (p early 0.10, p neither 0.00, p carry 1.00): as -0.084, hold -0.098, j -0.084 -> his best j -0.084
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.065, hold -0.085, j -0.076 -> his best as -0.065
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as -0.046, hold -0.112, j -0.117 -> his best as -0.046
+
+=== hisagi J side, own1 (his NS rolls: wc0 40%, wc1 10%, ec0 40%, ec1 10%)
+       | wc0                 | wc1                 | ec0                 | ec1                
+    as | -0.306 (0.036) 334  | -0.332 (0.060) 78   | -0.093 (0.025) 305  | -0.139 (0.048) 88  
+  hold | -0.101 (0.017) 353  | -0.252 (0.058) 82   | -0.252 (0.027) 365  | -0.240 (0.064) 94  
+     j | -0.144 (0.036) 268  | -0.143 (0.052) 89   | -0.200 (0.025) 306  | -0.150 (0.053) 82  
+  his rolls now (p early 0.50, p neither 0.00, p carry 0.20): as -0.206, hold -0.190, j -0.167 -> his best j -0.167
+  NS minimax (p early 0.60, p neither 0.00, p carry 0.00): as -0.178, hold -0.191, j -0.178 -> his best j -0.178
+  mix 0.15,0,0.4 (p early 0.15, p neither 0.00, p carry 0.40): as -0.285, hold -0.174, j -0.149 -> his best j -0.149
+  mix 0.4,0,0.4 (p early 0.40, p neither 0.00, p carry 0.40): as -0.234, hold -0.196, j -0.158 -> his best j -0.158

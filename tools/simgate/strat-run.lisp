@@ -407,16 +407,25 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
 ;;;  teacher's unit> ts <ticks until this exchange's own key changed (a fresh cancel or the end), -1 never> dhs <dh at that tick: the short
 ;;;  window> dk <his Konpaku lost - mine> dr <his Reishi lost - mine>
 ;;;  drf <the same as fractions of the bars> dfs <my flash-step change - his> brk <me|him|both|-: who hit first> bt <ticks to that hit, -1>
-;;;  osa <0|1: he started an SA before it> end <x|cap|m>". J options as / j / hold; NS options w<0|1>c<0|1>.
+;;;  osa <0|1: he started an SA before it> end <x|cap|m> m1 <my first new action cls:name@tick> hs1 <his action / state then> h1 <his
+;;;  first new action> hit <the first hit's source>". J options as / j / hold; NS options w<0|1>c<0|1>.
 (defvar *sr-x* (let ((l (ext:getenv "STRAT_XLOG"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in) (read in nil nil))))))
 (defparameter *sr-xcap* 900 "Ticks after which an exchange decision's outcome is cut (KK rarely returns to neutral).")
 ;;; STRAT_XPOL="<seat> hold|own|ownj" (with STRAT_XLOG, xch.md's match-level check): that seat's CPU plays a fixed J-side rule in every
 ;;; exchange (not an explored one): hold = never the AS nor the J; own = the AS when his own J's hit was not the cancel's (BRAIN-XOWN NIL),
-;;; else hold; ownj = the same with the J instead of hold.
+;;; else hold; ownj = the same with the J instead of hold; j = always the next J.
 (defvar *sr-xpol* (let ((l (ext:getenv "STRAT_XPOL"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in))))))
+;;; STRAT_XNS="<character> <pick> <carry>" (xch2.md §NS-BR): that character's CPU plays a fixed NS-side answer at every exchange it is the NS
+;;; side of (whatever its rolls gave): pick watch (the SA on his seen turn) | early (the SA *CAI-XCH-SA-WAIT* after the cancel) | main (early
+;;; when its own hit made the cancel, else watch: main's rule with the watch always on) | none (no SA) | ship (its rolls); carry 1 | 0 | ship.
+(defvar *sr-xns* (let ((l (ext:getenv "STRAT_XNS"))) (and l (plusp (length l)) (with-input-from-string (in l) (loop for x = (read in nil :eof) until (eq x :eof) collect x)))))
+;;; ... or STRAT_XNS="<character> mix <p watch> <p early, own hit> <p early, his hit> <p carry>": a mix as per-event rolls, drawn from
+;;; SR-FQ-U over (seed tick side) alone (three draws from its digits; never SIM-RND01): the SA watched with p watch, then early by whose hit.
+;;; ... or STRAT_XNS="<character> arms <p early> <p watch+carry>": one of the fixed arms per event (the rest: main), keeping each arm's
+;;; own carry (early and main: the rolled carry; watch: carry on): the equilibrium's mix as played, not as independent rolls.
 (defvar *sr-xrecs* nil "The open exchange decisions (plists, every key set at the start: SR-X-STEP updates them in place).")
 (defun sr-x-name (ns pick carry)
-  (if ns (format nil "w~dc~d" (if pick 1 0) (if carry 1 0)) (case pick (:as "as") (:j "j") (t "hold"))))
+  (if ns (format nil "w~ac~d" (case pick (:watch 1) (:early "e") (t 0)) (if carry 1 0)) (case pick (:as "as") (:j "j") (t "hold"))))
 (defun sr-x-hook (e b f kit d)
   (when *in-rollout* (return-from sr-x-hook nil))   ; (never logged nor explored there; no rollout of the in-game MCTS reaches an exchange
                                                      ;  decision: 0 calls in KI seeds 301-302, so a rule here equals one in the rollouts too)
@@ -438,9 +447,25 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
       (let* ((opts (if ns '((:watch t) (:watch nil) (nil t) (nil nil)) (if asok '(:as :j nil) '(:j nil))))
              (k (nth (min (1- (length opts)) (floor (* (/ u (second *sr-x*)) (length opts)))) opts)))
         (if ns (setf (brain-xpick b) (first k) (brain-xcarry b) (second k)) (setf (brain-xpick b) k))))
+    (when (and *sr-xns* ns (not ex) (string-equal (symbol-name (first *sr-xns*)) (symbol-name (fighter-character f))))   ; (STRAT_XNS)
+      (case (second *sr-xns*)
+        (watch (setf (brain-xpick b) :watch)) (early (setf (brain-xpick b) :early)) (none (setf (brain-xpick b) nil))
+        (main (setf (brain-xpick b) (if (brain-xown b) :early :watch)))
+        (mix (destructuring-bind (pw peo peh pc) (cddr *sr-xns*)
+               (let* ((u (sr-fq-u *match-seed* *match-tick* side 4242)) (u2 (mod (* u 1000) 1)) (u3 (mod (* u 1000000) 1)))
+                 (setf (brain-xpick b) (and (< u pw) (if (< u2 (if (brain-xown b) peo peh)) :early :watch))
+                       (brain-xcarry b) (< u3 pc))))))
+      (when (eq (second *sr-xns*) 'arms)
+        (destructuring-bind (pa pb) (cddr *sr-xns*)
+          (let ((u (sr-fq-u *match-seed* *match-tick* side 4242)))
+            (cond ((< u pa) (setf (brain-xpick b) :early))
+                  ((< u (+ pa pb)) (setf (brain-xpick b) :watch (brain-xcarry b) t))
+                  (t (setf (brain-xpick b) (if (brain-xown b) :early :watch)))))))
+      (unless (member (second *sr-xns*) '(mix arms))
+        (case (third *sr-xns*) (1 (setf (brain-xcarry b) t)) (0 (setf (brain-xcarry b) nil)))))
     (when (and *sr-xpol* (not ns) (= (first *sr-xpol*) (1+ side)) (not ex))   ; (STRAT_XPOL: the J side's pick by the rule)
       (setf (brain-xpick b) (case (second *sr-xpol*) (hold nil) (own (if (or (brain-xown b) (not asok)) nil :as))
-                                  (ownj (if (or (brain-xown b) (not asok)) :j :as)))))
+                                  (ownj (if (or (brain-xown b) (not asok)) :j :as)) (j :j))))
     (push (list :seed *match-seed* :t0 *match-tick* :side side :ns ns
                 :head (format nil "xd ~d ~d P~d ~(~a~) ~a pick ~a ship ~a ex ~d fs ~,1f ofs ~,1f ptr ~d optr ~d red ~d ored ~d kon ~d okon ~d r ~,3f or ~,3f d ~,2f form ~(~a~) oform ~(~a~) awk ~d oawk ~d time ~,3f arm ~(~a~) own ~d asok ~d reach ~d pas ~,2f pj ~,2f pw ~,2f pc ~,2f mv ~(~a~) omv ~(~a~)"
                               *match-seed* *match-tick* (1+ side) (fighter-character f) (if ns "ns" "j")
@@ -456,18 +481,27 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
                 :mx (float (gauges-reishi-max g)) :hx (float (gauges-reishi-max go)) :fm (gauges-fs g) :fh (gauges-fs go)
                 :dt 0 :dm 0 :dh 0 :lkm 0 :lkh 0 :brk nil :bt -1 :osa nil :ocls-t (fighter-cls-t fo)
                 :xk (fighter-xch f) :h0 (- (mc-full-health e) (mc-full-health o)) :hs nil :ts -1
+                :mv0 (fighter-move f) :omv0 (fighter-move fo) :st0 (fighter-state f) :ost0 (fighter-state fo) :m1 "-" :hs1 "-" :h1 "-" :hit "-"
                 :hl (- (mc-full-health e) (mc-full-health o)) :fl (- (gauges-fs g) (gauges-fs go)))
           *sr-xrecs*)))
 (defun sr-x-close (r why)
   "R's line, from the values SR-X-STEP last stored (a match's end is closed on the next match's first step: its gauges are not R's)."
-  (format t "~a out dt ~d dh ~,4f ts ~d dhs ~,4f dk ~d dr ~d drf ~,4f dfs ~,1f brk ~a bt ~d osa ~d end ~a~%" (getf r :head) (getf r :dt)
+  (format t "~a out dt ~d dh ~,4f ts ~d dhs ~,4f dk ~d dr ~d drf ~,4f dfs ~,1f brk ~a bt ~d osa ~d end ~a m1 ~a hs1 ~a h1 ~a hit ~a~%" (getf r :head) (getf r :dt)
           (- (getf r :hl) (getf r :h0)) (getf r :ts) (or (getf r :hs) (- (getf r :hl) (getf r :h0)))
           (- (getf r :lkh) (getf r :lkm)) (- (getf r :dh) (getf r :dm)) (- (/ (getf r :dh) (getf r :hx)) (/ (getf r :dm) (getf r :mx)))
           (- (getf r :fl) (- (getf r :fm) (getf r :fh)))
-          (case (getf r :brk) (:me "me") (:him "him") (:both "both") (t "-")) (getf r :bt) (if (getf r :osa) 1 0) why))
+          (case (getf r :brk) (:me "me") (:him "him") (:both "both") (t "-")) (getf r :bt) (if (getf r :osa) 1 0) why (getf r :m1) (getf r :hs1) (getf r :h1) (getf r :hit)))
 (defun sr-x-flush ()
   "Close every open decision of an earlier match (its last observed step's values)."
   (setf *sr-xrecs* (remove-if (lambda (r) (and (/= (getf r :seed) *match-seed*) (progn (sr-x-close r "m") t))) *sr-xrecs*)))
+(defun sr-x-new-p (f mv0 st0)
+  "Has F started an action other than the one in play at the decision (MV0, his state last step ST0): a new move, a Step / Hoho?"
+  (or (and (eq (fighter-state f) :move) (not (eq (fighter-move f) mv0)))
+      (and (member (fighter-state f) '(:step :hoho)) (not (eq st0 (fighter-state f))))))
+(defun sr-x-act (f cls dt)
+  "F's action now as cls:name@DT (CLS NIL: no @), else his state."
+  (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
+    (format nil "~(~a~)~@[@~d~]" (if mv (format nil "~a:~a" (or (fighter-cls f) "-") (mv-name mv)) (fighter-state f)) (and cls dt))))
 (defun sr-x-step ()
   "After each battle step: every open decision's drops (Reishi refills and the reset are not counted), who was hit first, his SA; closed
 when the exchange is over or at the cap."
@@ -488,7 +522,14 @@ when the exchange is over or at the cap."
                     (let ((hm (or (plusp lkm) (and (plusp dm) (mc-full-reel-p (fighter-state f)))))
                           (hh (or (plusp lkh) (and (plusp dh) (mc-full-reel-p (fighter-state fo))))))
                       (setf (getf r :brk) (cond ((and hm hh) :both) (hh :me) (hm :him)))
+                      (when (member (getf r :brk) '(:me :him))   ; (the first hit's source: the hitter's move, else his state: a clone or wave)
+                        (setf (getf r :hit) (sr-x-act (if (eq (getf r :brk) :me) f fo) nil (- *match-tick* (getf r :t0)))))
                       (when (getf r :brk) (setf (getf r :bt) (- *match-tick* (getf r :t0))))))
+                  (when (and (equal (getf r :m1) "-") (sr-x-new-p f (getf r :mv0) (getf r :st0)))
+                    (setf (getf r :m1) (sr-x-act f t (- *match-tick* (getf r :t0))) (getf r :hs1) (sr-x-act fo nil nil)))   ; (and his then)
+                  (when (and (equal (getf r :h1) "-") (sr-x-new-p fo (getf r :omv0) (getf r :ost0)))
+                    (setf (getf r :h1) (sr-x-act fo t (- *match-tick* (getf r :t0)))))
+                  (setf (getf r :st0) (fighter-state f) (getf r :ost0) (fighter-state fo))
                   (when (and (not (getf r :brk)) (eq (fighter-state fo) :move) (eq (fighter-cls fo) :sa) (/= (fighter-cls-t fo) (getf r :ocls-t)))
                     (setf (getf r :osa) t))   ; (an SA of his before the first hit: his answer, not his combo's)
                   (when (and (null (getf r :hs)) (/= (fighter-xch f) (getf r :xk)))   ; (the short window: this exchange's own key gone, a fresh

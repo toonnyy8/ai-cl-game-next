@@ -1,0 +1,26 @@
+STRAT_SET=*cai-xch-early-p*=(:easy 0.15 :normal 0.15 :hard 0.15),*cai-xch-early-his-p*=(:easy 0.3 :normal 0.3 :hard 0.3),*core-cancel-dead*=t,*sp-cancel-gain-once*=t seeds 301-400
+xch ab ki kenpachi J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: kenpachi wins 93 / 200 = 0.465 (SE 0.035), K.O. wins 93
+    hold: kenpachi wins 89 / 200 = 0.445 (SE 0.035), K.O. wins 89
+     own: kenpachi wins 105 / 200 = 0.525 (SE 0.035), K.O. wins 105
+    ownj: kenpachi wins 112 / 200 = 0.560 (SE 0.035), K.O. wins 112
+       j: kenpachi wins 54 / 200 = 0.270 (SE 0.031), K.O. wins 54
+xch ab kh kenpachi J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: kenpachi wins 84 / 200 = 0.420 (SE 0.035), K.O. wins 80
+    hold: kenpachi wins 64 / 200 = 0.320 (SE 0.033), K.O. wins 58
+     own: kenpachi wins 125 / 200 = 0.625 (SE 0.034), K.O. wins 115
+    ownj: kenpachi wins 53 / 200 = 0.265 (SE 0.031), K.O. wins 46
+       j: kenpachi wins 22 / 200 = 0.110 (SE 0.022), K.O. wins 21
+xch ab kh hisagi J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: hisagi wins 116 / 200 = 0.580 (SE 0.035), K.O. wins 113
+    hold: hisagi wins 116 / 200 = 0.580 (SE 0.035), K.O. wins 114
+     own: hisagi wins 99 / 200 = 0.495 (SE 0.035), K.O. wins 98
+    ownj: hisagi wins 158 / 200 = 0.790 (SE 0.029), K.O. wins 153
+       j: hisagi wins 170 / 200 = 0.850 (SE 0.025), K.O. wins 166
+xch ab ki ichigo J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: ichigo wins 107 / 200 = 0.535 (SE 0.035), K.O. wins 107
+    hold: ichigo wins 193 / 200 = 0.965 (SE 0.013), K.O. wins 193
+     own: ichigo wins 184 / 200 = 0.920 (SE 0.019), K.O. wins 184
+    ownj: ichigo wins 198 / 200 = 0.990 (SE 0.007), K.O. wins 198
+       j: ichigo wins 199 / 200 = 0.995 (SE 0.005), K.O. wins 199
+done

@@ -56,6 +56,12 @@ for it (strategy.lisp: :HOHO :TURN :CONT :KIKON)."
   "One roll (CHANCE-ROLL) of PLIST's chance at brain B's difficulty times the active strategy's scale KEY (STRAT-SCALE: none, the chance
 itself; kept within 0-1): the exchange keys :XCH-SA-P :XCH-CARRY-P :XCH-EARLY-P :CLASH-P :AWAKEN-BREAK-P :AWAKEN-KIKON-P (DUEL_AI_STRATEGY §11.23)."
   (chance-roll (strat-scale (brain-now b) key (brain-chance b plist))))
+(defun cai-mix-roll (b key else plist)
+  "One roll of a mix chance (§11.38, sp/arms6/xch2.md §MIX: the NS side's early SA at the cancel his J's hit made, its carry when watching):
+the active strategy's KEY is the chance itself, 0-1, the same at every difficulty (a mix, not a strength; and the default can be 0, which
+no scale lifts); a strategy without KEY: CAI-ROLL of PLIST scaled by the older key ELSE (:XCH-EARLY-P, :XCH-CARRY-P), as before the split."
+  (let ((v (strat-out (brain-now b) key nil)))
+    (if v (chance-roll (max 0.0 (min 1.0 v))) (cai-roll b else plist))))
 (defun cai-margin (b)
   "*CAI-CLASH-MARGIN* times the active strategy's :CLASH-MARGIN (STRAT-MUL; none: the knob itself), at its every read (§11.23)."
   (strat-mul (brain-now b) :clash-margin *cai-clash-margin*))
@@ -200,16 +206,24 @@ BRAIN-XCARRY; docs/research/strategy-drsi/sp/arms6/xch.md).")
   "Play the cancel his move in play took part in (CAI-XCH-NEW): T while it owns the step, so no style, MCTS or generic move step presses
 under it (a real hit's route stays theirs). No Hoho on either side: an open exchange refuses it (DUEL_CORE §2.1.2). J side: one roll
 picks the AS or the next J (*CAI-XCH-J*, XCH-J-ANSWER: only while the AS reaches him; else he holds), pressed once his cancel windows are
-open. NS side: rolled once (*CAI-XCH-SA-P*, *CAI-XCH-CARRY-P*; the own hit's cancel also *CAI-XCH-EARLY-P*): watching, a J on the step his AS or new J
-link is seen to start, or (:EARLY) *CAI-XCH-SA-WAIT* frames after the cancel while his J is still coming when the segment's own hit was the cancel's (XCH-TURN-SEEN-P: the perceived SNAP, never his true state),
+open. NS side: rolled once (*CAI-XCH-SA-P*; *CAI-XCH-EARLY-P* / *CAI-XCH-EARLY-HIS-P* by whose hit made the cancel; the carry by the pick,
+*CAI-XCH-CARRY-WATCH-P* when watching, else *CAI-XCH-CARRY-P*): watching, a
+J on the step his AS or new J link is seen to start, or (:EARLY) *CAI-XCH-SA-WAIT* frames after the cancel while his J is still coming or
+recovering (XCH-TURN-SEEN-P: the perceived SNAP, never his true state),
 starts the SA; nothing seen by the segment's active end, the next segment or the route's end."
   (let ((mv (fighter-move f)))
     (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
       (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
         (if (eq (fighter-cls f) :ns)
-            (setf (brain-xpick b) (and (cai-roll b :xch-sa-p *cai-xch-sa-p*)   ; (watching, the own hit's cancel: early SA or keep watching,
-                                       (if (and (brain-xown b) (cai-roll b :xch-early-p *cai-xch-early-p*)) :early :watch))   ;  *CAI-XCH-EARLY-P*)
-                  (brain-xcarry b) (cai-roll b :xch-carry-p *cai-xch-carry-p*))
+            (let ((pick (and (cai-roll b :xch-sa-p *cai-xch-sa-p*)   ; (watching: the early SA or keep watching, by whose hit made the cancel)
+                             (if (if (brain-xown b)
+                                     (cai-roll b :xch-early-p *cai-xch-early-p*)
+                                     (cai-mix-roll b :xch-early-his-p :xch-early-p *cai-xch-early-his-p*))
+                                 :early :watch))))
+              (setf (brain-xpick b) pick                         ; (the carry by the pick: watching, else the SA early or none, §11.38)
+                    (brain-xcarry b) (if (eq pick :watch)
+                                         (cai-mix-roll b :xch-carry-watch-p :xch-carry-p *cai-xch-carry-watch-p*)
+                                         (cai-roll b :xch-carry-p *cai-xch-carry-p*))))
             (let ((as (kit-core-move kit :as (core-next-as f))))
               (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (xch-j-weights (brain-chance b *cai-xch-j*) (strat-out (brain-now b) :xch-j nil))
                                                   (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b))))))))

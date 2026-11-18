@@ -1,0 +1,5 @@
+xch ab ki kenpachi J-side rule hold,own,ownj vs shipped, HARD vs HARD, seeds 301-500, both orders
+ shipped: kenpachi wins 264 / 400 = 0.660 (SE 0.024), K.O. wins 264
+    hold: kenpachi wins 185 / 400 = 0.463 (SE 0.025), K.O. wins 185
+     own: kenpachi wins 312 / 400 = 0.780 (SE 0.021), K.O. wins 312
+    ownj: kenpachi wins 163 / 400 = 0.407 (SE 0.025), K.O. wins 163

@@ -4,7 +4,8 @@ bin, each exchange option's mean outcome (randomised: the explored decisions onl
 
   python3 xch.py log PAIR [--seeds 1-500] [--salt 11] [--eps 0.3] [-j 6]
   python3 xch.py tab PAIR [--seeds 1-500] [--y dh|dhs] [--boot 200] [--min 20]
-  python3 xch.py ab PAIR --char kenpachi [--rule own|ownj|hold] [--seeds 301-500]   (a match-level check: STRAT_XPOL)
+  python3 xch.py game PAIR [--seeds 1-500] [--mix pe,pn,pc]   (q4-defence, xch2.md: the exchange's payoff matrix per J side and own case)
+  python3 xch.py ab PAIR --char kenpachi [--rule own|ownj|hold|j[,...]] [--seeds 301-500]   (a match-level check: STRAT_XPOL)
 
 PAIR = ki | kh (the gate's character order is both ways: 200000 + 100 a + 10 b and b a). The logs: tools/simgate/strat-run.lisp STRAT_XLOG
 "<salt> <eps> <seat>", HARD vs HARD on the shipped lookup tables, one exploring seat a run (his answers stay the shipped CPU's), so four runs a
@@ -90,7 +91,8 @@ def cmd_ab(o):
     me = o.char[0]
     him = o.pair[1] if o.pair[0] == me else o.pair[0]
     jobs = []
-    for rule in ('shipped', o.rule):
+    rules = o.rule.split(',')
+    for rule in ['shipped'] + rules:
         for x, y, seat in ((me, him, 1), (him, me, 2)):
             gate = 200000 + 100 * ROSTER[x] + 10 * ROSTER[y]
             for s0 in range(a0 - 1, a1, 50):
@@ -105,10 +107,88 @@ def cmd_ab(o):
             res[rule][1] += win
             res[rule][2] += win and ko
     print(f'xch ab {o.pair} {NAME[me]} J-side rule {o.rule} vs shipped, HARD vs HARD, seeds {a0}-{a1}, both orders')
-    for rule in ('shipped', o.rule):
+    for rule in ['shipped'] + rules:
         n, w, k = res[rule]
         p = w / n
         print(f'{rule:>8}: {NAME[me]} wins {w} / {n} = {p:.3f} (SE {np.sqrt(p * (1 - p) / n):.3f}), K.O. wins {k}')
+
+
+
+NSACT = ('w', 'e', 'n')   # the NS side watching (SA on his seen turn), early (SA *CAI-XCH-SA-WAIT* after the cancel), neither
+
+
+def ns_cell(pick):
+    """An NS pick name (w1c0, wec1, w0c1 ...) -> (act, carry)."""
+    return {'1': 'w', 'e': 'e', '0': 'n'}[pick[1]], int(pick[3])
+
+
+def cmd_game(o):
+    """q4-defence (xch2.md): the exchange as a game, per J side and own case. Rows: the J side's explored option (a hash coin); columns: his
+    shipped NS roll in the same exchange (watch / early / neither x carry), which is random too, so every cell is a randomised estimate.
+    Then the NS mix (p early, p neither, p carry; one roll each) that minimises the J side's best row, by a grid."""
+    a0, a1 = seeds_of(o.seeds)
+    rows = load(o.pair, a0, a1)
+    idx = {(d['order'], d['xseat'], d['seed'], d['t0'], d['P']): d for d in rows}
+    print(f'xch game {o.pair}: seeds {a0}-{a1}, Y = {o.y} (the J side\'s value), mean (SE) n')
+    for char in (NAME[o.pair[0]], NAME[o.pair[1]]):
+        for own in (0, 1):
+            cells = collections.defaultdict(list)
+            freq = collections.Counter()
+            for d in rows:
+                if d['char'] != char or d['role'] != 'j' or d['P'] != d['xseat'] or d['own'] != own:
+                    continue
+                h = idx.get((d['order'], d['xseat'], d['seed'], d['t0'], 'P2' if d['P'] == 'P1' else 'P1'))
+                if not h or h['role'] != 'ns':
+                    continue
+                freq[ns_cell(h['pick'])] += 1
+                if d['ex']:
+                    cells[(d['pick'], ns_cell(h['pick']))].append(d[o.y])
+            if not cells:
+                continue
+            jopts = [x for x in ('as', 'hold', 'j') if any(k[0] == x for k in cells)]
+            cols = [(a, c) for a in NSACT for c in (0, 1) if any(k[1] == (a, c) for k in cells)]
+            m = {k: (float(np.mean(v)), float(np.std(v) / np.sqrt(len(v))), len(v)) for k, v in cells.items()}
+            tot = sum(freq.values())
+            print(f'\n=== {char} J side, own{own} (his NS rolls: ' + ', '.join(f'{a}c{c} {100 * freq[(a, c)] / tot:.0f}%' for a, c in cols) + ')')
+            print('       | ' + ' | '.join(f'{a}c{c:<17}' for a, c in cols))
+            for r in jopts:
+                print(f'{r:>6} | ' + ' | '.join((f'{m[(r, k)][0]:+.3f} ({m[(r, k)][1]:.3f}) {m[(r, k)][2]:<4}' if (r, k) in m else ' ' * 20) for k in cols))
+
+            def val(r, pe, pn, pc):
+                v = w = 0.0
+                for (a, c), pa in (((a, c), (pe if a == 'e' else pn if a == 'n' else 1 - pe - pn) * (pc if c else 1 - pc)) for a in NSACT for c in (0, 1)):
+                    if pa > 0:
+                        if (r, (a, c)) not in m or m[(r, (a, c))][2] < o.min:
+                            return None
+                        v += pa * m[(r, (a, c))][0]
+                return v
+            sh = {'pe': sum(v for (a, c), v in freq.items() if a == 'e') / tot, 'pn': sum(v for (a, c), v in freq.items() if a == 'n') / tot,
+                  'pc': sum(v for (a, c), v in freq.items() if c) / tot}
+            def show(lab, pe, pn, pc):
+                vs = {r: val(r, pe, pn, pc) for r in jopts}
+                if any(v is None for v in vs.values()):
+                    print(f'  {lab}: (a cell under --min)')
+                    return
+                print(f'  {lab} (p early {pe:.2f}, p neither {pn:.2f}, p carry {pc:.2f}): ' + ', '.join(f'{r} {v:+.3f}' for r, v in vs.items())
+                      + f' -> his best {max(vs, key=vs.get)} {max(vs.values()):+.3f}')
+            show('his rolls now', sh['pe'], sh['pn'], sh['pc'])
+            best = None
+            g = np.linspace(0, 1, 21)
+            for pe in g:
+                for pn in g:
+                    if pe + pn > 1.0001:
+                        continue
+                    for pc in g:
+                        vs = [val(r, pe, pn, pc) for r in jopts]
+                        if None in vs:
+                            continue
+                        if best is None or max(vs) < best[0] - 1e-9:
+                            best = (max(vs), pe, pn, pc)
+            if best:
+                show('NS minimax', *best[1:])
+            for spec in o.mix or []:
+                pe, pn, pc = (float(x) for x in spec.split(','))
+                show(f'mix {spec}', pe, pn, pc)
 
 
 def parse_line(l):
@@ -371,8 +451,14 @@ def main():
     ab.add_argument('--rule', default='own')
     ab.add_argument('--seeds', default='301-500')
     ab.add_argument('-j', type=int, default=6)
+    gm = sp.add_parser('game')
+    gm.add_argument('pair')
+    gm.add_argument('--seeds', default='1-500')
+    gm.add_argument('--y', default='dh')
+    gm.add_argument('--min', type=int, default=15)
+    gm.add_argument('--mix', action='append', help='pe,pn,pc: the J rows under this NS mix')
     o = ap.parse_args()
-    {'log': cmd_log, 'tab': cmd_tab, 'ab': cmd_ab}[o.cmd](o)
+    {'log': cmd_log, 'tab': cmd_tab, 'ab': cmd_ab, 'game': cmd_game}[o.cmd](o)
 
 
 if __name__ == '__main__':

@@ -50,6 +50,12 @@
 (check (core-cancelled-p 40 30))                                  ; (a cancel at tick 40 in a segment started at 30)
 (check (core-cancelled-p 30 30))                                  ; (on its first frame)
 (check (not (core-cancelled-p -1 30)))                            ; (no exchange: a whiff, or a real hit)
+;; core-seg-dead-p (research R3, *core-cancel-dead*): the killed move on its own start tick only; the same move started again lives
+(check (core-seg-dead-p :j1 30 :j1 30))
+(check (not (core-seg-dead-p :j1 45 :j1 30)))                      ; (J1 again, a later start)
+(check (not (core-seg-dead-p :j2 30 :j1 30)))                      ; (another move: an SA latched on the cancel's tick)
+(check (not (core-seg-dead-p :j1 30 nil -1)))                      ; (nothing killed: the game, R3 off)
+(check (null *core-cancel-dead*))                                  ; (off in the game)
 (check (not (core-cancelled-p 20 30)))                            ; (an exchange from an earlier move: not this segment's)
 (check (core-sa-open-p 3 14 4 t))                                 ; (cancelled in its startup: open now)
 (check (not (core-sa-open-p 3 14 4 nil)))                         ; (no cancel: closed until 14 + 4)
