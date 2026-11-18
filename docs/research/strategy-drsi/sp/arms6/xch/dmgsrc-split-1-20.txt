@@ -1,0 +1,11 @@
+$ python3 docs/research/strategy-drsi/dmgsrc/dmgsrc.py --pairs KK,KI,KH,II,IH,HH --seed0 0 --seeds 20 -j 2 --split   (main abdd87e4 + the q3-xch hook, off)
+dmgsrc --split hard vs hard, seeds 1-20: brk = the combo the breakthrough hit opened, scr = a combo opened later in the open exchange, neu = neutral
+pair |  n | reishi brk / scr / neu % | combos brk / scr / neu | konpaku brk / scr / neu %
+KK   | 20 | 93.6 /  1.4 /  5.0 | 1614 / 16 / 73 | 94.3 /  3.4 /  2.4
+KI   | 20 | 66.7 / 19.0 / 14.3 | 859 / 210 / 130 | 67.3 / 16.2 / 16.5
+KH   | 20 | 66.3 /  4.4 / 29.3 | 1115 / 62 / 406 | 70.6 /  5.5 / 23.8
+II   | 20 | 36.3 / 13.2 / 50.4 | 516 / 131 / 537 | 37.6 /  6.2 / 56.2
+IH   | 20 | 43.4 /  6.2 / 50.4 | 643 / 106 / 704 | 32.0 /  2.9 / 65.1
+HH   | 20 | 64.0 / 10.0 / 25.9 | 1423 / 205 / 503 | 66.9 /  3.1 / 30.0
+
+The same seeds without --split (the old buckets; xch = brk + scr): KI 85.7 % of the Reishi from xch combos (66.7 + 19.0), KK 95.0 % (93.6 + 1.4).
