@@ -59,6 +59,7 @@
 (check (not (sp-recancel-p -1 -1 130)))
 (check (not (sp-recancel-p 120 121 130)))
 (check (null *sp-cancel-gain-once*))   ; off in the game
+(check (null *sp-recancel-no-refund*))   ; (R2) off in the game
 (check (not (sp-exchange-open-p -1 -1)))                           ; no exchange
 (check (sp-exchange-open-p 0 0))                                   ; tick 0 is a tick
 ;; sp-neutral-p (Q11): no move, no reaction, not standing in a clash's push

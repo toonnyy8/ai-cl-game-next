@@ -190,6 +190,10 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
   "Research only (q4-defence R1, the user 2026-11-18: 「先量規則版」; docs/research/strategy-drsi/sp/arms6/xch2.md §R1): T = inside one open
 exchange (from its cancel until both are back in neutral, FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*`; a later
 cancel before the exchange is over pays 0 (SP-RECANCEL-P). NIL, the game: every cancel pays (DUEL_SP §5). Toggled by tools through STRAT_SET.")
+(defparameter *sp-recancel-no-refund* nil
+  "Research only (q4-defence R2 = R1 + this; xch2.md §R1): T = an NS / AS segment cancelled inside an exchange already open from an earlier
+step (SP-RECANCEL-P) gets no refund of what it paid (CORE-CANCEL-LANDED!; a hazard cancelled after its move ended keeps its refund). NIL,
+the game: every cancelled segment is refunded once (DUEL_SP §3).")
 (defparameter *sp-break-share* 1.0
   "Share of the victim's flash-step above the last cell a breakthrough after a cancel takes. New 2026-11-12 at 0.5 (the lead read the user's
 「50%」 as the share taken); 0.5 -> 1.0 on 2026-11-13, the user: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」 (the 50 % is the

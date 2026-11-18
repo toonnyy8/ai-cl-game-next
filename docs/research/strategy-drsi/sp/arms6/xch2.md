@@ -117,3 +117,74 @@ the last two columns, for the same character's shipped and best policy.
 - Tools: strat-run.lisp (`m1` / `hs1` / `h1` / `hit` fields, the NS pick `we..` for early, STRAT_XPOL `j`), `xch.py game` and `ab
   --rule a,b,c`, `xch-sweep.py`, `xch-diag.py`, `xch-hs1.py`.
 - Data: `xch/q4-*`, `xch/q4b-*`, `xch/sweep/`.
+
+## §R1. The rule version: the cancel's +30 once per exchange (2026-11-18)
+
+The user, after the section above: 「先量規則版」 (measure the rule version first). Research only; the rule stays as it is unless the user
+decides after these numbers.
+- **R1** (`*sp-cancel-gain-once*`, tuning.lisp, default NIL): inside one open exchange (from its cancel until both are back in neutral,
+  FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*` +30 (DUEL_SP §5); a later cancel before the exchange is over pays 0.
+  A same-step second verdict (a same-class J tie) is still the first cancel: both sides are paid. Also for the Kikon follow-up's cancel.
+  Pure test: `sp-recancel-p` (sp.lisp, tests/duel-rules/sp.lisp).
+- **R2** = R1 + `*sp-recancel-no-refund*` (default NIL): an NS / AS segment cancelled inside an exchange already open gets no refund
+  (CORE-CANCEL-LANDED!; a hazard cancelled after its move ended keeps its refund). Measured because R1 did not close the farm (below).
+- **Off is EQ:** with both knobs NIL the `--cvc` lines (II / IK / KK seed 7, 99 lines) are byte-identical to 69459d9a's (md5 b87a95d6...);
+  host tests 3778 ALL PASS, pkgcheck clean. **Main's NS rolls** (early own-hit 1.0, his-hit 0, R1 off) reproduce main's play: KI and KH
+  seeds 1-10, every line but `stats:` equal to the abdd87e4 build's.
+
+### The sweep (seeds 301-400, 200 matches an arm; shipped / the best fixed J policy)
+
+| config | KI Kenpachi | KH Kenpachi | KH Hisagi | KI Ichigo | worst best | mean best - shipped |
+|---|---|---|---|---|---|---|
+| main's rolls (1.0 / 0), rule as now | .165 / .995 own | .270 / .460 ownj | .730 / .985 ownj | .835 / .945 ownj | .995 | +.346 |
+| main's rolls, **R1** | .115 / .980 own | .130 / .530 ownj | .870 / .985 ownj | .885 / .975 ownj | .985 | +.367 |
+| main's rolls, **R2** | .065 / .980 own | .155 / .580 ownj | .845 / .965 ownj | .935 / .965 ownj | .980 | +.372 |
+| .15 / .3, rule as now | .680 / .810 own | .445 / .445 shipped | .555 / .795 ownj | .320 / .960 j | .960 | +.252 |
+| .15 / .3, **R1** | .525 / .630 own | .430 / .430 shipped | .570 / .860 ownj | .475 / .980 j | .980 | +.225 |
+| .15 / .3, **R2** | .490 / .625 own | .455 / .455 shipped | .545 / .855 ownj | .510 / .985 j | .985 | +.230 |
+| .15 / 0, rule as now | .125 / .945 own | .070 / .450 own | .930 / .965 hold | .875 / 1.000 ownj | 1.000 | +.340 |
+| .15 / 0, **R1** | .085 / .965 own | .105 / .545 own | .895 / .985 own | .915 / 1.000 ownj | 1.000 | +.374 |
+
+### The cancel economy (`xch-econ.py`, shipped CPUs, KI + KH seeds 301-340, `xch/r1-econ.txt`)
+
+Cancels per exchange / re-cancel share, and flash-step a match from cancel gains / from refunds:
+
+| config | KI | KH |
+|---|---|---|
+| main's rolls, off | 1.66 / 40 %; Ichigo 459 / 432, Kenpachi 853 / 269 | 2.21 / 55 %; Hisagi 512 / 463, Kenpachi 1404 / 335 |
+| main's rolls, R1 | 1.57 / 36 %; Ichigo 348 / 401, Kenpachi 425 / 270 | 2.10 / 52 %; Hisagi 148 / 465, Kenpachi 814 / 275 |
+| main's rolls, R2 | 1.58 / 37 %; Ichigo 396 / 230, Kenpachi 440 / 248 | 2.04 / 51 %; Hisagi 145 / 295, Kenpachi 798 / 82 |
+| .15 / .3, off | 1.80 / 44 %; Ichigo 653 / 547, Kenpachi 975 / 403 | 2.40 / 58 %; Hisagi 609 / 512, Kenpachi 1447 / 353 |
+| .15 / .3, R1 | 1.81 / 45 %; Ichigo 389 / 509, Kenpachi 480 / 374 | 2.29 / 56 %; Hisagi 175 / 557, Kenpachi 929 / 344 |
+| .15 / .3, R2 | 1.91 / 48 %; Ichigo 384 / 280, Kenpachi 504 / 236 | 2.34 / 57 %; Hisagi 179 / 324, Kenpachi 884 / 93 |
+
+R1 removes about half of the flash-step the cancels pay (KI Kenpachi 853 → 425 a match, KH Hisagi 512 → 148) and R2 most of the refunds,
+yet the CPUs re-cancel about as often (1.66 → 1.57 cancels an exchange) and every exploit stays.
+
+### The A/B at the best config (.15 / .3 + R1, seeds 301-500, 400 matches an arm)
+
+`xch/sweep/AB500-R1-E-o15-h30.txt`; the same NS rolls without R1 from `xch/q4b-ab-*.txt` (no `j` arm there for the Kenpachi / Hisagi
+sides). SE about .025.
+
+| J side | shipped | hold | own | ownj | j | best - shipped | without R1: shipped / best |
+|---|---|---|---|---|---|---|---|
+| KI Kenpachi | .502 | .398 | **.655** | .320 | .163 | +.153 | .660 / .780 own (+.12) |
+| KH Kenpachi | **.425** | .155 | .403 | .155 | .083 | 0 | .445 / .445 shipped (0) |
+| KH Hisagi | .575 | .450 | .542 | **.855** | .770 | +.280 | .555 / .800 ownj (+.245) |
+| KI Ichigo | .497 | .320 | .285 | .892 | **.970** | +.473 | .340 / .965 j (+.625) |
+
+Worst side's best policy .970 (without R1 .965); mean gap +.227 (without R1 +.248). R1 mostly moves KI back towards even (shipped
+Kenpachi .660 → .502); the gaps stay.
+
+### Verdict
+
+- **The +30 is not what drives the re-cancel farm.** R1 takes half the cancels' flash-step out of the game and changes neither how
+  often the CPUs re-cancel nor which fixed policy wins: KI Kenpachi `own` .995 → .980 at main's rolls, KI Ichigo `j` / `ownj` .945-.98,
+  KH Hisagi `ownj` .985. R2 (no refund on a re-cancel) is the same within noise (.98 / .965 / .965).
+- What drives it is positional, as the traces showed: a segment still out gets re-cancelled by the free J side (Kenpachi's
+  hold-then-clash), or keeps carrying into the next J and then into the AS (Ichigo's J loop against Kenpachi's Shikai NS1a / NS1b). The
+  gauge it pays is a side effect.
+- **Balance:** R1 moves a little towards the NS side at main's rolls (shipped Kenpachi KI .165 → .115, KH .270 → .130; Hisagi .730 →
+  .870) and pulls the .15 / .3 point back towards even (KI Kenpachi .680 → .525). It does not make the exchange a guess at match level.
+- The levers left: the segment's re-cancel itself (whether a segment still out after a cancel may be cancelled again by a fresh J, or
+  ends), and the value after the break. Rules questions for the user.

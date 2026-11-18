@@ -1,0 +1,18 @@
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 1.0 :normal 1.0 :hard 1.0),*cai-xch-early-his-p*=(:easy 0 :normal 0 :hard 0)
+KI: 40 matches | cancels / exchange 1.66 | re-cancels 40 % | cancels a match 49.5 | flash-step a match, cancel gain / refund: ichigo 459 / 432, kenpachi 853 / 269
+KH: 40 matches | cancels / exchange 2.21 | re-cancels 55 % | cancels a match 77.0 | flash-step a match, cancel gain / refund: hisagi 512 / 463, kenpachi 1404 / 335
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 1.0 :normal 1.0 :hard 1.0),*cai-xch-early-his-p*=(:easy 0 :normal 0 :hard 0),*sp-cancel-gain-once*=t
+KI: 40 matches | cancels / exchange 1.57 | re-cancels 36 % | cancels a match 45.0 | flash-step a match, cancel gain / refund: ichigo 348 / 401, kenpachi 425 / 270
+KH: 40 matches | cancels / exchange 2.10 | re-cancels 52 % | cancels a match 68.2 | flash-step a match, cancel gain / refund: hisagi 148 / 465, kenpachi 814 / 275
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 1.0 :normal 1.0 :hard 1.0),*cai-xch-early-his-p*=(:easy 0 :normal 0 :hard 0),*sp-cancel-gain-once*=t,*sp-recancel-no-refund*=t
+KI: 40 matches | cancels / exchange 1.58 | re-cancels 37 % | cancels a match 48.5 | flash-step a match, cancel gain / refund: ichigo 396 / 230, kenpachi 440 / 248
+KH: 40 matches | cancels / exchange 2.04 | re-cancels 51 % | cancels a match 65.1 | flash-step a match, cancel gain / refund: hisagi 145 / 295, kenpachi 798 / 82
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 0.15 :normal 0.15 :hard 0.15),*cai-xch-early-his-p*=(:easy 0.3 :normal 0.3 :hard 0.3)
+KI: 40 matches | cancels / exchange 1.80 | re-cancels 44 % | cancels a match 60.0 | flash-step a match, cancel gain / refund: ichigo 653 / 547, kenpachi 975 / 403
+KH: 40 matches | cancels / exchange 2.40 | re-cancels 58 % | cancels a match 85.8 | flash-step a match, cancel gain / refund: hisagi 609 / 512, kenpachi 1447 / 353
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 0.15 :normal 0.15 :hard 0.15),*cai-xch-early-his-p*=(:easy 0.3 :normal 0.3 :hard 0.3),*sp-cancel-gain-once*=t
+KI: 40 matches | cancels / exchange 1.81 | re-cancels 45 % | cancels a match 55.7 | flash-step a match, cancel gain / refund: ichigo 389 / 509, kenpachi 480 / 374
+KH: 40 matches | cancels / exchange 2.29 | re-cancels 56 % | cancels a match 83.8 | flash-step a match, cancel gain / refund: hisagi 175 / 557, kenpachi 929 / 344
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*cai-xch-early-p*=(:easy 0.15 :normal 0.15 :hard 0.15),*cai-xch-early-his-p*=(:easy 0.3 :normal 0.3 :hard 0.3),*sp-cancel-gain-once*=t,*sp-recancel-no-refund*=t
+KI: 40 matches | cancels / exchange 1.91 | re-cancels 48 % | cancels a match 59.7 | flash-step a match, cancel gain / refund: ichigo 384 / 280, kenpachi 504 / 236
+KH: 40 matches | cancels / exchange 2.34 | re-cancels 57 % | cancels a match 81.5 | flash-step a match, cancel gain / refund: hisagi 179 / 324, kenpachi 884 / 93

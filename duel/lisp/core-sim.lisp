@@ -255,7 +255,9 @@ cancel windows from CORE-CANCEL-LAND-SF); an NS / AS segment gets back what it p
 KESSA replay paid nothing), through REFUND-FS; a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T)."
   (setf (fighter-contact f) :hit
         (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))
-  (when (and refund (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
+  (when (and refund (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f))   ; the SP it paid back, once
+             (not (and *sp-recancel-no-refund*                                     ; (research R2: not for a re-cancel)
+                       (sp-recancel-p (fighter-xch f) (fighter-xch (fighter (fighter-opp f))) *match-tick*))))
     (setf (fighter-sp-back f) t)
     (refund-fs (gauges e) (fighter-sp-paid f))
     (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
