@@ -1,0 +1,8 @@
+STRAT_SET=*core-as-sa-out*=t STRAT_XNS=kenpachi watch 1 seeds 301-400
+xch ab kh hisagi J-side rule hold,own,ownj,j vs shipped, HARD vs HARD, seeds 301-400, both orders
+ shipped: hisagi wins 142 / 200 = 0.710 (SE 0.032), K.O. wins 142
+    hold: hisagi wins 121 / 200 = 0.605 (SE 0.035), K.O. wins 120
+     own: hisagi wins 133 / 200 = 0.665 (SE 0.033), K.O. wins 131
+    ownj: hisagi wins 177 / 200 = 0.885 (SE 0.023), K.O. wins 175
+       j: hisagi wins 169 / 200 = 0.845 (SE 0.026), K.O. wins 163
+done

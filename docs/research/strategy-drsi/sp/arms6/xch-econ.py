@@ -3,7 +3,7 @@
 environment, e.g. the R1 knob). Per pairing: cancels per exchange (a chain from its first cancel until `exchange over` or a Kikon / Soul
 Break reset), the share of cancels that are re-cancels, and per character and match the flash-step from cancel gains (`SP cancel gain`)
 and from refunds (`SP refund`).
-Also each pairing's K.O. count and median match time (its gate rows' secs: the match without its cinematics).
+Also each pairing's K.O. count and median match time, and (R4) the AS segments in play at a cancel and how often that side's next move is an SA (its gate rows' secs: the match without its cinematics).
   python3 xch-econ.py [--pairs KI,KH] [--seeds 301-340] [-j 6]"""
 import argparse, collections, os, re, sys
 sys.dont_write_bytecode = True
@@ -14,6 +14,7 @@ from simlib import build, pool, run_lisp  # noqa: E402
 ROSTER = {'K': 1, 'I': 3, 'H': 7}
 NAME = {'K': 'kenpachi', 'I': 'ichigo', 'H': 'hisagi'}
 TICK = re.compile(r'^\[ *(\d+)\] (.*)$')
+MOVE = re.compile(r'^P(\d) move (\S+)')
 GAIN = re.compile(r'^P(\d) SP cancel gain ([\d.]+)')
 REF = re.compile(r'^P(\d) SP refund ([\d.]+)')
 
@@ -41,6 +42,7 @@ def main():
         c = acc[a + b]
         chars = {'1': NAME[a], '2': NAME[b]}
         open_ = False
+        cur, asx = {}, {}
         for line in out.splitlines():
             if line.startswith('duel gate row'):
                 t = line.split()
@@ -55,7 +57,17 @@ def main():
             if not t:
                 continue
             body = t[2]
+            mv = MOVE.match(body)
+            if mv:   # (R4: an SA right after an AS segment's cancel)
+                if asx.get(mv[1]):
+                    c['as->sa'] += '-SA' in mv[2]
+                    asx[mv[1]] = False
+                cur[mv[1]] = mv[2]
             if body.endswith(': CANCEL'):
+                for side, name in cur.items():
+                    if re.search(r'-AS\d', name):
+                        c['as cancels'] += 1
+                        asx[side] = True
                 c['cancels'] += 1
                 if open_:
                     c['recancels'] += 1
@@ -76,7 +88,8 @@ def main():
         per = ', '.join(f'{x} {c["gain " + x] / m:.0f} / {c["refund " + x] / m:.0f}' for x in sorted({NAME[p[0]], NAME[p[1]]}))
         ss = sorted(acc_secs[p])
         print(f'{p}: K.O. {c["ko"]} / {len(ss)}, median {ss[len(ss) // 2] if ss else 0:.1f} s | cancels / exchange {c["cancels"] / max(1, c["chains"]):.2f} | re-cancels {100 * c["recancels"] / max(1, c["cancels"]):.0f} % '
-              f'| cancels a match {c["cancels"] / m:.1f} | flash-step a match, cancel gain / refund: {per}')
+              f'| cancels a match {c["cancels"] / m:.1f} | AS segments in a cancel {c["as cancels"] / m:.1f} a match, an SA next {100 * c["as->sa"] / max(1, c["as cancels"]):.0f} % '
+              f'| flash-step a match, cancel gain / refund: {per}')
 
 
 if __name__ == '__main__':

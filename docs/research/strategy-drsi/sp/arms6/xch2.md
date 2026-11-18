@@ -489,3 +489,101 @@ Method:
   - **IK FAIL as expected: 28 lines vs 20, P1 3-0, 275.8 s** (was P1 8-0, 201.0 s in the ref).
 - The research knobs stay in, default off: `*sp-cancel-gain-once*` (R1), `*sp-recancel-no-refund*` (R2), `*core-cancel-dead*` (R3, with
   the fighter slots `dead-mv` / `dead-t`). The research tools: strat-run.lisp STRAT_XLOG / XPOL / XNS, trial.lisp STRAT_SET.
+
+## §R4. An SA out of a cancel for an AS segment (2026-11-18)
+
+The user, for the KH cell (§MIX Part A): 「AS 段也能在相消後立刻出 SA」. DUEL_CORE §2.1.1 (the cancel's out) extended to AS segments, behind
+a default-off knob, then measured. Nothing is turned on.
+
+### The rule as built (`*core-as-sa-out*`, tuning.lisp, default NIL)
+
+- **The gate:** `core-as-sa-out-p` (core.lisp, pure; host tests in triangle.lisp, knob on and off). It is true only with the knob, only
+  for an AS segment, and only once that segment took part in a cancel (CORE-CANCELLED-P, either side of the cancel). An AS segment that
+  took part in no cancel still has no SA.
+- **The press** (fighter.lisp MOVE-COMMANDS, a new clause after the NS one; core-sim.lisp `core-as-sa-press!`): an attack pressed in a
+  cancelled AS segment starts the SA at once, the one `core-sa-move` picks (the segment's `:sa`, else the kit's). The J string goes on
+  after it as for any SA.
+- **The latch:** a press before the cancel is latched as `:sa`, but only when nothing else is latched, so it never replaces the route's
+  latched next segment. CORE-LATCH-STEP fires it only on a cancel (not at the active end, as an NS segment's latch does), counted as
+  started on the cancel's tick, as in §2.1.1.
+- **The AS's own rules** (each the reading closest to "the same out the NS side has"):
+  - The pointer an AS writes is written when the AS starts, so it stays.
+  - The Kikon hold (`fighter-sp-held`) is dropped when the SA starts (CORE-NOTE-START! sets it only for NS / AS), as for an NS segment's
+    SA.
+  - `fighter-as-done` stays T, so no second AS in that string.
+  - The rest of the AS route (its later segments, the last segment's knockdown) is abandoned, as an NS route is when its SA starts.
+  - The cancelled segment's refund is unchanged.
+- **The CPU** (core-ai.lisp):
+  - CAI-XCH-NEW also keys an AS segment's cancel when R4's gate holds.
+  - CAI-XCH-STEP gives that AS side the NS side's answer: the same rolls (sa-p, the early pick by whose hit, the units' mix keys) and the
+    same watch / early SA.
+  - The carry is not rolled (left NIL), and the step owns the move only on the step it presses the SA, so the AS route's own next
+    segment stays the move step's, as before.
+  - strat-run.lisp's hook treats that AS side as an NS side (STRAT_XLOG / STRAT_XNS).
+- **Off is EQ:** with the knob NIL the `--cvc` lines are byte-identical to 0737b2bc's (88 lines, md5 29feb298...; 0737b2bc rebuilt and
+  dumped for the comparison). Host tests 3802 ALL PASS, pkgcheck clean.
+
+### The scripted check (`xch/r4-trial.lisp` through trial.lisp; `xch/r4-trial-{off,on}.txt`)
+
+P2 Kenpachi (Shikai) starts AS1 (`:p2-start`). P1 Hisagi (Bankai, ranged) presses J into it, and P2 presses J right after the cancel.
+
+| tick | R4 off | R4 on |
+|---|---|---|
+| 14 | P2 KE-S-AS1 x P1: CANCEL | P2 KE-S-AS1 x P1: CANCEL |
+| 42 | (no SA: the press does nothing) | **P2 move KE-S-SA** |
+| 47 | **P1 HS-R-J1 -> P2 HIT 19, P1 BREAK** (J1's still-live window on AS1's recovery) | **P1 HS-R-J1 x P2: ABSORBED** |
+| 56-83 | P1 J2, NA3 hit: a combo | 59: **P2 KE-S-SA -> P1 HIT 40, P2 BREAK** |
+
+- Trial 4 is a press latched before the cancel: the SA starts on the cancel (tick 318), absorbs J1 at 343 and hits at 354.
+- Trial 2 is a press too late: J1 landed first, so no SA.
+
+### The A/B with R4 on (the §MIX units in place; seeds 401-500, both orders, 200 matches an arm; `xch/r4/AB401-*.txt`)
+
+The J side's character's win rate; R4 off is §MIX's A/B on the same seeds:
+
+| NS side (J side) | R4 off: shipped / best | R4 on: shipped | hold | own | ownj | j | R4 on: best - shipped |
+|---|---|---|---|---|---|---|---|
+| KI Kenpachi (Ichigo J) | .730 / .730 shipped | **.985** | .445 | .475 | .755 | .720 | 0 |
+| KI Ichigo (Kenpachi J) | .270 / .375 j | .015 | .160 | .175 | .240 | **.420** | +.405 |
+| KH Hisagi (Kenpachi J) | .285 / .365 ownj | .335 | .005 | .185 | **.380** | .025 | +.045 |
+| KH Kenpachi (Hisagi J), the hole | .715 / .900 ownj | .665 | .560 | .620 | **.900** | .810 | +.235 |
+
+- **Shipped vs shipped, R4 off → on:**
+  - KI: Kenpachi .270 → .015, Ichigo .730 → .985.
+  - KH: Kenpachi .285 → .335, Hisagi .715 → .665.
+
+### KH Kenpachi's NS mix under R4 (seeds 301-400; `xch/r4/kh-kenpachi/*.txt`, `xch/r4/kh-kenpachi-matrix.txt`)
+
+- The re-solved equilibrium (early .74, carry-1 picks .26) gives Hisagi .878. The current unit (watch + carry) gives .885. That's within
+  noise, so the unit is unchanged and needs no new A/B.
+- Hisagi's `ownj` stays .875-.915 against every Kenpachi NS arm under R4.
+
+### The feel (`xch-econ.py`, shipped vs shipped, seeds 301-340; `xch/r4/feel.txt`)
+
+| pairing | K.O. of 40, off → on | median s | cancels a match | AS segments in a cancel a match | an SA next, R4 on |
+|---|---|---|---|---|---|
+| KK | 40 → 40 | 176.8 → 183.2 | 139.2 → 140.0 | 11.4 → 10.8 | 41 % |
+| KI | 40 → 40 | 159.1 → 147.6 | 56.1 → 54.9 | 8.2 → 7.5 | 100 % |
+| KH | 40 → 40 | 198.2 → 189.5 | 83.2 → 79.3 | 10.3 → 10.7 | 47 % |
+| II | 14 → 17 | 300.0 → 300.0 | 82.9 → 85.2 | 3.5 → 2.5 | 35 % |
+| IH | 35 → 36 | 233.5 → 233.6 | 66.5 → 57.0 | 16.6 → 7.2 | 48 % |
+| HH | 26 → 31 | 285.1 → 268.7 | 100.0 → 97.0 | 6.6 → 5.3 | 48 % |
+
+The SA count is approximate: a side counts as "in an AS segment" from its AS start until its next move, so an AS that already ended can be
+counted (R4 off: 0 % everywhere, as it must be).
+
+### Verdict
+
+- **R4 does not close the KH hole.** Hisagi's `ownj` stays .900 (.875-.915 against every Kenpachi NS arm).
+  - The trace (KH seed 301, R4 on, Hisagi `ownj`): Kenpachi's own AS segments' active hits keep cancelling Hisagi's next links first.
+  - The decisive last one: J3's still-live window after AS1D's cancel was started before that cancel. Kenpachi's CPU, watching, sees no
+    new turn and never presses. Its pick from the KH unit is the watch, and the early arm doesn't help at match level.
+  - A human pressing the SA on the cancel does absorb it (the scripted check). The rule gives the out; the CPU's picks don't find it in
+    this chain.
+- **R4 costs a lot elsewhere.** It flips KI to Ichigo: shipped Kenpachi .270 → .015, Ichigo .985. Ichigo's own AS routes get the out
+  against Kenpachi too, and Kenpachi's best fixed J policy reaches .420 (+.405 over shipped). KH moves a little towards Kenpachi.
+- **Feel:** the AS side's SA follows 35-100 % of AS cancels. More K.O.s in HH (26 → 31) and II (14 → 17), fewer cancels in IH
+  (66 → 57), medians within about 15 s.
+- **Not recommended on these numbers.** If the user wants it, KI would need its units re-solved under R4, and KH's hole would need the
+  CPU's AS-side pick to answer a link started before the cancel (an own-hit early SA at the AS side), which neither the rule nor the units
+  give today.
