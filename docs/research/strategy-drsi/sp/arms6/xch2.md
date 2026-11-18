@@ -188,3 +188,104 @@ Kenpachi .660 → .502); the gaps stay.
   .870) and pulls the .15 / .3 point back towards even (KI Kenpachi .680 → .525). It does not make the exchange a guess at match level.
 - The levers left: the segment's re-cancel itself (whether a segment still out after a cancel may be cancelled again by a fresh J, or
   ends), and the value after the break. Rules questions for the user.
+
+## §R3. The rule version: a cancelled segment goes dead (2026-11-18)
+
+The user, after §R1: 「先量 R3」. Research only; the rule stays as it is unless the user decides after these numbers.
+
+**The reading built** (`*core-cancel-dead*`, tuning.lisp, default NIL):
+- On a cancel, every segment that took part is marked dead, in CORE-CANCEL-LANDED!, the one place both sides of a cancel pass: the J
+  side's NA / SA, the NS side's NS / AS, and a hazard's firing segment while its owner is still in it. The mark is the move and its start
+  tick (new fighter slots `dead-mv` / `dead-t`). The pure test is `core-seg-dead-p` in core.lisp, pinned in tests/duel-rules/triangle.lisp:
+  the same move started again later (a second J1), or an SA latched on the cancel's tick, is alive.
+- A dead segment:
+  - collects no more hits (COLLECT-MELEE, and CUT-HAZARDS for Nozarashi's blade);
+  - has no class for the triangle (CORE-WINDOW-CLASS NIL), so it can't take part in another cancel, and a hit on him during its rest is a
+    clean hit, which is the breakthrough inside the open exchange.
+- Unchanged:
+  - FIGHTER-CLS stays, so the cancel windows, the next segment, the SA in the gap, the AS and the CPU's exchange step read the move as
+    before;
+  - FIGHTER-HITS stays, so the CPU's `own` flag still means "my own hit made the cancel".
+- **Edge cases:**
+  - A same-class J tie and the Kikon follow-up's cancel already end both moves and bounce, so R3 adds nothing there.
+  - Hisagi's chain windows are hit windows of the same move, so they die with it.
+  - A dead move's threat to a Hoho (PERFECT-NOW-P) is unchanged. No Hoho starts in an open exchange anyway.
+- **Off is EQ:** with the knob NIL the `--cvc` lines are byte-identical to 4996d991's (99 lines, md5 b87a95d6...). Host tests 3783 ALL
+  PASS, pkgcheck clean.
+
+**The scripted check** (`xch/r3-trial.lisp` through tools/simgate/trial.lisp, which now reads STRAT_SET; logs `xch/r3-trial-{off,on}.txt`).
+Setup: P1 Ichigo's J1 meets P2 Kenpachi's Shikai NS1a (startup 16, active 4) early in its startup, and P1's J2 comes into J1's chain. The
+second trial ("P2 SP at 14"):
+
+| tick | R3 off | R3 on |
+|---|---|---|
+| 104 | P2 move KE-S-N1A | P2 move KE-S-N1A |
+| 108 | P1 IC-J1 x P2: CANCEL | P1 IC-J1 x P2: CANCEL |
+| 126 / 123 | P1 move IC-J2 | P1 move IC-J2 |
+| 150 / 149 | **P1 IC-J2 x P2: CANCEL** (a second cancel on the still-out NS1a) | **P1 IC-J2 -> P2 HIT 32, P1 BREAK** |
+| 160 | P2 KE-S-N1A x P1: CANCEL (NS1a's own hit, still to come) | (dead: no hit) |
+
+The fourth trial is the farm's own shape: NS1a's hit cancels J1's startup (tick 286), then with R3 off J1's own hit cancels NS1a again
+(tick 298); with R3 on there is no second cancel, and the J2 lands clean (329).
+
+### The sweep (seeds 301-400, 200 matches an arm; shipped / the best fixed J policy)
+
+| config | KI Kenpachi | KH Kenpachi | KH Hisagi | KI Ichigo | worst best | mean best - shipped |
+|---|---|---|---|---|---|---|
+| main's rolls (1.0 / 0), rule as now | .165 / .995 own | .270 / .460 ownj | .730 / .985 ownj | .835 / .945 ownj | .995 | +.346 |
+| main's rolls, **R3** | .085 / .690 own | .250 / .665 own | .750 / .975 ownj | .915 / 1.000 hold | 1.000 | +.333 |
+| .15 / .3, rule as now | .680 / .810 own | .445 / .445 shipped | .555 / .795 ownj | .320 / .960 j | .960 | +.252 |
+| .15 / .3, **R3** | .550 / .725 ownj | .455 / .605 own | .545 / .880 j | .450 / .995 ownj | .995 | +.301 |
+| .15 / .3, R1 | .525 / .630 own | .430 / .430 shipped | .570 / .860 ownj | .475 / .980 j | .980 | +.225 |
+| .15 / .3, **R3 + R1** | .465 / .560 ownj | .420 / .625 own | .580 / .850 j | .535 / .995 j | .995 | +.258 |
+
+R3 at main's rolls in KI Ichigo: every policy but the AS wins: hold, own, ownj and j all 1.000, shipped .915.
+
+### The A/B at the best R3 config (R3 + R1, .15 / .3; seeds 301-500, 400 matches an arm; `xch/sweep/AB500-R3R1-E-o15-h30.txt`)
+
+| J side | shipped | hold | own | ownj | j | best - shipped | R1 alone (§R1): shipped / best |
+|---|---|---|---|---|---|---|---|
+| KI Kenpachi | .450 | .475 | **.545** | .542 | .278 | +.095 | .502 / .655 own |
+| KH Kenpachi | .465 | .325 | **.615** | .285 | .100 | +.150 | .425 / .425 shipped |
+| KH Hisagi | .535 | .585 | .530 | .785 | **.835** | +.300 | .575 / .855 ownj |
+| KI Ichigo | .550 | .965 | .905 | .990 | **.998** | +.448 | .497 / .970 j |
+
+Worst side's best policy .998 (R1 alone .970); mean gap +.248 (R1 alone +.227).
+
+### The economy and the feel (`xch-econ.py`, shipped CPUs, seeds 301-340, `xch/r3-econ.txt`; main's rolls)
+
+| pairing | K.O. of 40, off → R3 | median s, off → R3 | cancels a match, off → R3 | cancels / exchange, off → R3 | re-cancel share, off → R3 |
+|---|---|---|---|---|---|
+| KK | 40 → 40 | 176.8 → 173.9 | 139.2 → 98.4 | 4.26 → 3.45 | 77 → 71 % |
+| KI | 40 → 40 | 168.0 → 174.7 | 49.5 → 48.0 | 1.66 → 1.49 | 40 → 33 % |
+| KH | 40 → 38 | 207.6 → 197.9 | 77.0 → 66.0 | 2.21 → 1.93 | 55 → 48 % |
+| II | 14 → 22 | 300.0 → 290.2 | 82.9 → 41.0 | 3.40 → 1.62 | 71 → 38 % |
+| IH | 35 → 39 | 233.5 → 241.7 | 66.5 → 48.8 | 2.29 → 1.60 | 56 → 37 % |
+| HH | 26 → 25 | 285.1 → 282.6 | 100.0 → 89.1 | 1.84 → 1.66 | 46 → 40 % |
+
+Flash-step a match (cancel gain / refund), KI: Ichigo 459 / 432 → 483 / 424, Kenpachi 853 / 269 → 812 / 291; KH: Hisagi 512 / 463 →
+440 / 454, Kenpachi 1404 / 335 → 1344 / 270. At .15 / .3 with R3: KI 1.73 cancels an exchange (42 % re-cancels), KH 2.00 (50 %); with
+R3 + R1: KI 1.69 / 41 %, KH 1.97 / 49 %, and the cancel gains halve as in §R1.
+
+A "re-cancel" here is any cancel while the exchange is still open. R3 removes the ones a dead segment took part in, but a fresh move
+(the next segment, a new J, a clash) still cancels inside the open exchange. That is why KK keeps 3.45 cancels an exchange.
+
+### Verdict
+
+- **R3 does not make the exchange a real guess at match level.** It closes Kenpachi's hold-then-reclash: KI `own` .995 → .690 at main's
+  rolls, and +.095 over shipped at the best config. It opens or widens the other side:
+  - a fresh J into a dead segment is now a clean hit and the breakthrough, which is the J loop's payoff made direct;
+  - KI Ichigo's non-AS policies all win against Kenpachi's NS side (1.000 at main's rolls, .965-.998 at the best config);
+  - KH Hisagi's `j` reaches .835.
+- **The worst side gets worse:** .998 at the best R3 config (R1 alone .970). The mean gap is about the same (+.248 vs +.227).
+- **Balance:** at main's rolls R3 tilts KI further to Ichigo (shipped Kenpachi .165 → .085), KH stays close (.270 → .250). At the best
+  config the four shipped rates sit at .45-.55: the most even of every config measured. But each side's best fixed policy is still far
+  above.
+- **Feel:**
+  - Fewer cancels in the mirrors (KK 139 → 98 a match, II 83 → 41) and in IH (66 → 49); KI is unchanged.
+  - More K.O.s in II (14 → 22 of 40) and IH (35 → 39); HH and KH about the same.
+  - Medians within about 10 s everywhere.
+- **What it says about the holes.** Both exploits survive the segment's death: the NS side's answer still loses to the J side's next
+  choice. The NS side (Kenpachi's above all) has no CPU answer to a fresh J after a cancel: its watch's SA starts too late, and with R3
+  the dead segment can't even cancel it. Closing it needs the NS side's answer to the next J (its timing or a new option), not the
+  segment's lifetime.
