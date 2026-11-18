@@ -415,6 +415,14 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
 ;;; exchange (not an explored one): hold = never the AS nor the J; own = the AS when his own J's hit was not the cancel's (BRAIN-XOWN NIL),
 ;;; else hold; ownj = the same with the J instead of hold; j = always the next J.
 (defvar *sr-xpol* (let ((l (ext:getenv "STRAT_XPOL"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in))))))
+;;; STRAT_XNS="<character> <pick> <carry>" (xch2.md §NS-BR): that character's CPU plays a fixed NS-side answer at every exchange it is the NS
+;;; side of (whatever its rolls gave): pick watch (the SA on his seen turn) | early (the SA *CAI-XCH-SA-WAIT* after the cancel) | main (early
+;;; when its own hit made the cancel, else watch: main's rule with the watch always on) | none (no SA) | ship (its rolls); carry 1 | 0 | ship.
+(defvar *sr-xns* (let ((l (ext:getenv "STRAT_XNS"))) (and l (plusp (length l)) (with-input-from-string (in l) (loop for x = (read in nil :eof) until (eq x :eof) collect x)))))
+;;; ... or STRAT_XNS="<character> mix <p watch> <p early, own hit> <p early, his hit> <p carry>": a mix as per-event rolls, drawn from
+;;; SR-FQ-U over (seed tick side) alone (three draws from its digits; never SIM-RND01): the SA watched with p watch, then early by whose hit.
+;;; ... or STRAT_XNS="<character> arms <p early> <p watch+carry>": one of the fixed arms per event (the rest: main), keeping each arm's
+;;; own carry (early and main: the rolled carry; watch: carry on): the equilibrium's mix as played, not as independent rolls.
 (defvar *sr-xrecs* nil "The open exchange decisions (plists, every key set at the start: SR-X-STEP updates them in place).")
 (defun sr-x-name (ns pick carry)
   (if ns (format nil "w~ac~d" (case pick (:watch 1) (:early "e") (t 0)) (if carry 1 0)) (case pick (:as "as") (:j "j") (t "hold"))))
@@ -439,6 +447,22 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
       (let* ((opts (if ns '((:watch t) (:watch nil) (nil t) (nil nil)) (if asok '(:as :j nil) '(:j nil))))
              (k (nth (min (1- (length opts)) (floor (* (/ u (second *sr-x*)) (length opts)))) opts)))
         (if ns (setf (brain-xpick b) (first k) (brain-xcarry b) (second k)) (setf (brain-xpick b) k))))
+    (when (and *sr-xns* ns (not ex) (string-equal (symbol-name (first *sr-xns*)) (symbol-name (fighter-character f))))   ; (STRAT_XNS)
+      (case (second *sr-xns*)
+        (watch (setf (brain-xpick b) :watch)) (early (setf (brain-xpick b) :early)) (none (setf (brain-xpick b) nil))
+        (main (setf (brain-xpick b) (if (brain-xown b) :early :watch)))
+        (mix (destructuring-bind (pw peo peh pc) (cddr *sr-xns*)
+               (let* ((u (sr-fq-u *match-seed* *match-tick* side 4242)) (u2 (mod (* u 1000) 1)) (u3 (mod (* u 1000000) 1)))
+                 (setf (brain-xpick b) (and (< u pw) (if (< u2 (if (brain-xown b) peo peh)) :early :watch))
+                       (brain-xcarry b) (< u3 pc))))))
+      (when (eq (second *sr-xns*) 'arms)
+        (destructuring-bind (pa pb) (cddr *sr-xns*)
+          (let ((u (sr-fq-u *match-seed* *match-tick* side 4242)))
+            (cond ((< u pa) (setf (brain-xpick b) :early))
+                  ((< u (+ pa pb)) (setf (brain-xpick b) :watch (brain-xcarry b) t))
+                  (t (setf (brain-xpick b) (if (brain-xown b) :early :watch)))))))
+      (unless (member (second *sr-xns*) '(mix arms))
+        (case (third *sr-xns*) (1 (setf (brain-xcarry b) t)) (0 (setf (brain-xcarry b) nil)))))
     (when (and *sr-xpol* (not ns) (= (first *sr-xpol*) (1+ side)) (not ex))   ; (STRAT_XPOL: the J side's pick by the rule)
       (setf (brain-xpick b) (case (second *sr-xpol*) (hold nil) (own (if (or (brain-xown b) (not asok)) nil :as))
                                   (ownj (if (or (brain-xown b) (not asok)) :j :as)) (j :j))))

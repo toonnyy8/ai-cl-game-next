@@ -289,3 +289,93 @@ A "re-cancel" here is any cancel while the exchange is still open. R3 removes th
   choice. The NS side (Kenpachi's above all) has no CPU answer to a fresh J after a cancel: its watch's SA starts too late, and with R3
   the dead segment can't even cancel it. Closing it needs the NS side's answer to the next J (its timing or a new option), not the
   segment's lifetime.
+
+## §NS-BR. Does any fixed NS-side policy counter "always J"? (2026-11-18)
+
+The one cell that never moved under the rule variants was KI Ichigo's J side against Kenpachi's NS side (.945-.998). Until now only the
+J side's policies had been searched. Here Kenpachi's NS side gets the same treatment: fixed NS policies, rule as now, all R knobs off,
+main's NS rolls for everyone else (STRAT_SET early 1.0 / 0), HARD vs HARD.
+
+**The tool:** strat-run.lisp `STRAT_XNS="<character> <pick> <carry>"` makes that character play a fixed answer at every exchange where it
+is the NS side:
+- picks: `watch` (the SA on his seen turn), `early` (the SA *CAI-XCH-SA-WAIT* after the cancel), `main` (early when its own hit made the
+  cancel, else watch, with the watch always on), `none` (no SA), `ship` (its rolls);
+- carry: 1 / 0 / ship.
+- Two mixed modes: `mix pw pe-own pe-his pc` (independent per-event rolls, the form tuning knobs take) and `arms pa pb` (one fixed arm
+  per event: early / watch + carry / main).
+- Draws come from SR-FQ-U, never SIM-RND01.
+- These are all the NS-side exchange options the code has. An NS side can't AS, the Hoho is refused in an open exchange, and the next
+  segment is pressed only by the carry, at the segment's active end.
+
+### The NS-arm sweep (seeds 301-400, both orders, 200 matches an arm; `xch/nsbr/*.txt`, `xch-nsbr.py`)
+
+The win rate of the J side's character:
+
+| Kenpachi's NS arm | KI Ichigo shipped | KI Ichigo **j** | KH Hisagi shipped | KH Hisagi **j** | KH Hisagi **ownj** |
+|---|---|---|---|---|---|
+| shipped (main's rolls: watch .65, carry .2) | .835 | .885 | .730 | .865 | .985 |
+| early (early 1.0 / 1.0) | .680 | .780 | .870 | .850 | .975 |
+| main (early own-hit, else watch; watch 1.0) | .575 | .560 | .730 | .865 | .985 |
+| carry 0 | .875 | .935 | .735 | .860 | .985 |
+| carry 1 | .840 | **.460** | .760 | .855 | .975 |
+| none (sa-p 0) | 1.000 | 1.000 | .950 | .995 | .985 |
+| watch only (sa-p 1, early 0 / 0) | .655 | 1.000 | .790 | .960 | .965 |
+| early, wait 0 | .680 | .780 | .870 | .850 | .975 |
+| early, wait 2 | .680 | .780 | .870 | .850 | .975 |
+| watch + carry 1 | .750 | .625 | .775 | **.820** | **.845** |
+| early + carry 0 | .670 | .770 | .875 | .855 | .975 |
+| early + carry 1 | .685 | .785 | .880 | .870 | .975 |
+
+- **The wait doesn't matter** (0 / 2 / 4 identical to the match): the CPU's early SA never fires before its first exchange step anyway.
+  That step comes after the cancel's hitstop and its perception delay, by which time 4 frames have passed. The wait the SA could use is
+  below the CPU's reaction. (The wait arms set the global knob, so the other side's own-hit SA ran with it too.)
+- **KI: branch (b) holds.** Two arms put Ichigo's `j` well under .9: carry 1 (.460) and main (.560), and watch + carry .625. Each loses
+  elsewhere: carry 1 lets Ichigo's shipped CPU win .840, and main is beaten by his `ownj` (below).
+- **KH: no arm gets Hisagi's `j` or `ownj` well below .9.** The best is watch + carry 1: `j` .820, `ownj` .845. Every other arm leaves
+  `ownj` at .965-.985.
+
+### KI: the two-sided matrix and its equilibrium (`xch/nsmat/*.txt`, `xch-nsmat.py`)
+
+Ichigo's J policy x Kenpachi's NS arm, Ichigo's win rate, seeds 301-400:
+
+| Ichigo J \ Kenpachi NS | shipped | carry 1 | early | main | main + carry 1 | watch + carry 1 |
+|---|---|---|---|---|---|---|
+| shipped | .835 | .840 | .680 | .575 | .640 | .750 |
+| own | .630 | .490 | .635 | .500 | .415 | .280 |
+| ownj | **.945** | **.900** | .710 | **.925** | **.920** | .675 |
+| j | .885 | .460 | **.780** | .560 | .565 | .625 |
+| his best | .945 | .900 | .780 | .925 | .920 | .750 |
+
+Zero-sum equilibrium (fictitious play, 200,000 rounds): **value .705**, against .945 for Kenpachi's shipped NS side.
+- Kenpachi's NS mix: early .533, watch + carry 1 .423, main .044.
+- Ichigo's mix: shipped .485, ownj .383, j .132. Against Kenpachi's mix: shipped / ownj / j .705, own .479.
+
+### The A/B of the mix (seeds 401-500, both orders, 200 matches an arm; `xch/nsmat/AB401-*.txt`)
+
+Ichigo's win rate against every fixed J policy:
+
+| Kenpachi's NS side | shipped | hold | own | ownj | j | his best |
+|---|---|---|---|---|---|---|
+| shipped | .900 | .685 | .650 | .945 | .900 | .945 |
+| the mix as **independent rolls** (`mix 1.0 .58 .53 .54`: watch 1.0, early own-hit .58, early his-hit .53, carry .54) | .605 | .540 | .545 | .825 | .765 | .825 |
+| the mix **per event as arms** (`arms .533 .423`: early, else watch + carry, else main) | .725 | .505 | .410 | .715 | .720 | **.725** |
+
+- **Played as arms, the equilibrium holds out of sample.** Ichigo's best fixed policy is .725, the predicted .705 within noise, against
+  .945 with the shipped NS side. No fixed J policy wins far above the others: shipped .725, ownj .715, j .720.
+- **As knob values (independent rolls) it leaks:** `ownj` .825. The equilibrium needs the carry tied to the pick: carry on when watching,
+  carry rolled (.2) when firing early. Today's knobs roll them independently (*CAI-XCH-CARRY-P* does not depend on the pick).
+- **The knob form closest to the mix:**
+  - sa-p 1.0 (watch always), early-own .58, early-his .53;
+  - carry 1.0 when watching and .2 when early. That carry-by-pick would be a new knob: a code change in CAI-XCH-STEP (shared), not
+    built here.
+- **The cost elsewhere:** the shipped Ichigo CPU wins .725 against this NS side (.900 against Kenpachi's shipped one). KI moves towards
+  Kenpachi when both sides play their CPUs.
+
+### Verdict
+
+- **KI (branch b): yes, the NS side can counter.** A Kenpachi NS side mixing early SA with watch + carry, per event, holds every fixed
+  Ichigo J policy to about .72 (from .945). That is the first configuration in this whole study where the cell is a real guess.
+- **KH (closest to branch a):** Kenpachi's NS arms leave Hisagi's `j` / `ownj` at .82-.85 at best (watch + carry 1). The SA's timing
+  can't go earlier than the CPU's first exchange step (the wait sweep), so what is missing there would be a faster NS answer to his next
+  J. KH's matrix and equilibrium were not built.
+- Nothing ships. The pick-dependent carry is a code change in the shared exchange step and needs the user's decision.
