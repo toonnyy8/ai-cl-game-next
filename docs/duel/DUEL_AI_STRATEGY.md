@@ -3635,3 +3635,14 @@ The user, 2026-11-17: 「都做」 (§11.35). Record: `docs/research/strategy-dr
   1.5q); HH (deletes an arm); KH both sides, IH Hisagi, KK (cells fall); KI Ichigo and II (nothing passes the gate). Kenpachi sits at
   pointer 1 ~92 % of the time, so his own-pointer rows are switch-open rules.
 
+
+### 11.37 Why the arms differ so little: where the damage comes from (2026-11-18)
+
+The user: 「為什麼不同打法帶來的優勢如此不顯著？」, then 「好」 to the measurement. Two causes read from the code: a table's arms share one style,
+base and rules and differ in 1-3 neutral knobs (IH Ichigo's four: `:iks-steer-to` / `:ns` / `:iks-retreat-p`, `:iks-punish-p` /
+`:iks-confirm-p`, the lunge band), and every arm gets the same exchange unit (`:with`, strategy.lisp `strat-with`). Measured
+(`docs/research/strategy-drsi/dmgsrc/`, strat-run.lisp `STRAT_CLOG=1`, HARD vs HARD, seeds 601-620, 6 pairings x 20): 71.2 % of the Reishi
+and 69.9 % of the Konpaku come from combos opened inside an exchange after a cancel (Kenpachi's pairings 88-96 %, II / IH 44-52 %); a match
+is decided by ~5.1 Konpaku events (Soul Breaks and Kikons; Kikon 45 % of the Konpaku, HH 100 %). So the arms vary the layer that decides
+least, and a few large swings make every match noisy. Next (open): arms that differ in the exchange (bait / no cancel, AS for the break,
+gauge economy for Hoho and burst), each with its own exchange unit, before any switching (table or fuzzy tree) can show.

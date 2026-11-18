@@ -35,6 +35,9 @@
 (defvar *sr-match* -1)
 ;;; STRAT_WIN=1: every 90 ticks, per strategy-playing CPU in :idle/:run, one "win" line of situation cues (sitcheck analysis).
 (defvar *sr-win* (plusp (length (or (ext:getenv "STRAT_WIN") ""))))
+;;; STRAT_CLOG=1: the combat log (CLOG lines "[tick] ...") on in every match (the gate turns it off at START-MATCH); read only, the play is unchanged
+;;; (docs/research/strategy-drsi/dmgsrc/: where the damage comes from).
+(defvar *sr-clog* (plusp (length (or (ext:getenv "STRAT_CLOG") ""))))
 (defun sr-win-lines ()
   (do-sides (e)
     (let* ((f (fighter e)) (b (brain e)) (o (fighter-opp f)) (fo (fighter o)))
@@ -398,6 +401,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
   (when (and *sr-win* (battle-p) (plusp *match-tick*) (zerop (mod *match-tick* 90))) (sr-win-lines))
   (when (and (battle-p) (/= *sr-match* *match-seed*))
     (setf *sr-match* *match-seed*)
+    (when *sr-clog* (setf *combat-log* t))
     (when *sr-hr* (sr-hr-flush))
     (when *sr-desc* (sr-desc-flush))
     (when *sr-desc* (sr-kd-flush))                                ; (PLAN4 P5, Kenpachi's kdesc line)
