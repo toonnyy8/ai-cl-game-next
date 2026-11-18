@@ -430,7 +430,7 @@ block below; proof.py's desc_vec reads any key) and resetting their own state: o
   (when *in-rollout* (return-from sr-x-hook nil))   ; (never logged nor explored there; no rollout of the in-game MCTS reaches an exchange
                                                      ;  decision: 0 calls in KI seeds 301-302, so a rule here equals one in the rollouts too)
   (let* ((side (fighter-side f)) (o (fighter-opp f)) (fo (fighter o)) (g (gauges e)) (go (gauges o))
-         (ns (eq (fighter-cls f) :ns)) (now (brain-now b))
+         (ns (or (eq (fighter-cls f) :ns) (and *core-as-sa-out* (eq (fighter-cls f) :as)))) (now (brain-now b))   ; (R4: an AS side answers too)
          (as (and (not ns) (kit-core-move kit :as (core-next-as f))))
          (asok (and as (not (fighter-as-done f))))
          (reach (and asok (<= d (+ (strat-reach as) (cai-margin b)))))

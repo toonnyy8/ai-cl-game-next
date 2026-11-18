@@ -1,0 +1,121 @@
+;;; Loading #P"/media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-a9ea970b5f1907259/tools/simgate/trial.lisp"
+brush: 244 glyphs, 32109 triangles, 0 bad polygons, 34 ms
+duel page: coarse NIL hand RIGHT settings (0 1 2 2 0 0 0 0 0 0 5)
+duel -> TITLE
+duel match seed 1 CPU-CPU HISAGI vs KENPACHI NORMAL
+duel -> INTRO
+duel -> BATTLE
+trial begin R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 18, 1.0 m
+[     0] P2 move KE-S-AS1
+[     0] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[     2] P1 at simf 2
+[     6] P1 move HS-R-J1 TRIAL
+[    14] P2 SP refund 20.0 (fs 300.0)
+[    14] P1 SP cancel gain 30.0 (fs 130.0)
+[    14] P2 KE-S-AS1 x P1: CANCEL
+[    14] P1 KIN on (the cancel unlocks his close range) d 0.81
+[    37] P1 at simf 18
+[    47] P1 HS-R-J1 -> P2 HIT 19
+[    47] P1 dealt 7: flinch stun 24
+[    47] P1 SP hit gain 13.0 (fs 143.0)
+[    47] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 19 -> 10 (x0.50)
+[    47] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.1 (fs 293.1)
+[    56] P1 move HS-R-J2 TRIAL
+[    57] P1 at simf 24
+[    66] P1 HS-R-J2 -> P2 HIT 16
+[    66] P1 dealt 6: flinch stun 24
+[    66] P1 SP hit gain 6.9 (fs 300.0)
+[    66] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+[    73] P1 move HS-R-NA3 TRIAL
+[    83] P1 HS-R-NA3 -> P2 HIT 16
+[    83] P1 dealt 6: flinch stun 24
+[    83] P1 SP hit gain 0.0 (fs 300.0)
+[    83] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+trial end R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 18, 1.0 m | dmg 19 | hits 3 | combo 3 | gaps 0 0 | last hit f83 | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 -198
+[    99] P1 form BANKAI
+[    99] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 4 / 20, Kenpachi J at 22, 1.0 m
+[    99] P2 move KE-S-AS1
+[    99] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   103] P1 at simf 4
+[   105] P1 move HS-R-J1 TRIAL
+[   113] P2 SP refund 20.0 (fs 300.0)
+[   113] P1 SP cancel gain 30.0 (fs 130.0)
+[   113] P2 KE-S-AS1 x P1: CANCEL
+[   113] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   143] P1 HS-R-J1 -> P2 HIT 19
+[   143] P1 dealt 7: flinch stun 24
+[   143] P1 SP hit gain 13.0 (fs 143.0)
+[   143] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 19 -> 10 (x0.50)
+[   143] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.1 (fs 293.1)
+[   143] P1 at simf 20
+[   154] P1 move HS-R-J2 TRIAL
+[   157] P1 at simf 26
+[   164] P1 HS-R-J2 -> P2 HIT 16
+[   164] P1 dealt 6: flinch stun 24
+[   164] P1 SP hit gain 6.9 (fs 300.0)
+[   164] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+[   171] P1 move HS-R-NA3 TRIAL
+[   181] P1 HS-R-NA3 -> P2 HIT 16
+[   181] P1 dealt 6: flinch stun 24
+[   181] P1 SP hit gain 0.0 (fs 300.0)
+[   181] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+trial end R4 AS1 at 0, Hisagi J at 4 / 20, Kenpachi J at 22, 1.0 m | dmg 19 | hits 3 | combo 3 | gaps 0 0 | last hit f81 | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 -198
+[   199] P1 form BANKAI
+[   199] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 0 / 16, Kenpachi J at 16, 1.6 m
+[   199] P1 at simf 0
+[   199] P2 move KE-S-AS1
+[   199] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   200] P1 move HS-R-J1 TRIAL
+[   213] P2 SP refund 20.0 (fs 300.0)
+[   213] P1 SP cancel gain 30.0 (fs 130.0)
+[   213] P2 KE-S-AS1 x P1: CANCEL
+[   213] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   224] P1 at simf 16
+[   239] P1 HS-R-J1 -> P2 HIT 19
+[   239] P1 dealt 7: flinch stun 24
+[   239] P1 SP hit gain 13.0 (fs 143.0)
+[   239] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 19 -> 10 (x0.50)
+[   239] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.1 (fs 293.1)
+[   253] P1 move HS-R-J2 TRIAL
+[   253] P1 at simf 22
+[   263] P1 HS-R-J2 -> P2 HIT 16
+[   263] P1 dealt 6: flinch stun 24
+[   263] P1 SP hit gain 6.9 (fs 300.0)
+[   263] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+[   270] P1 move HS-R-NA3 TRIAL
+[   280] P1 HS-R-NA3 -> P2 HIT 16
+[   280] P1 dealt 6: flinch stun 24
+[   280] P1 SP hit gain 0.0 (fs 300.0)
+[   280] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+trial end R4 AS1 at 0, Hisagi J at 0 / 16, Kenpachi J at 16, 1.6 m | dmg 19 | hits 3 | combo 3 | gaps 0 0 | last hit f80 | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 -198
+[   299] P1 form BANKAI
+[   299] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 10 (latched before the cancel), 1.0 m
+[   299] P2 move KE-S-AS1
+[   299] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   301] P1 at simf 2
+[   305] P1 move HS-R-J1 TRIAL
+[   313] P2 SP refund 20.0 (fs 300.0)
+[   313] P1 SP cancel gain 30.0 (fs 130.0)
+[   313] P2 KE-S-AS1 x P1: CANCEL
+[   313] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   335] P1 at simf 18
+[   345] P1 HS-R-J1 -> P2 HIT 19
+[   345] P1 dealt 7: flinch stun 24
+[   345] P1 SP hit gain 13.0 (fs 143.0)
+[   345] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 19 -> 10 (x0.50)
+[   345] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.1 (fs 293.1)
+[   354] P1 move HS-R-J2 TRIAL
+[   355] P1 at simf 24
+[   364] P1 HS-R-J2 -> P2 HIT 16
+[   364] P1 dealt 6: flinch stun 24
+[   364] P1 SP hit gain 6.9 (fs 300.0)
+[   364] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+[   371] P1 move HS-R-NA3 TRIAL
+[   381] P1 HS-R-NA3 -> P2 HIT 16
+[   381] P1 dealt 6: flinch stun 24
+[   381] P1 SP hit gain 0.0 (fs 300.0)
+[   381] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+trial end R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 10 (latched before the cancel), 1.0 m | dmg 19 | hits 3 | combo 3 | gaps 0 0 | last hit f81 | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 -198

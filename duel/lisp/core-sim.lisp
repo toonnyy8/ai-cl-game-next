@@ -175,6 +175,20 @@ CORE-LATCH-STEP); after the segment took part in a cancel, the SA starts at once
         (progn (setf (fighter-queued f) nil) (core-start! e (core-sa-move f mv)))
         (progn (setf (fighter-queued f) :sa) nil))))
 
+(defun core-as-sa-press! (e f vp mv button)
+  "Research R4 (*CORE-AS-SA-OUT*): an attack pressed in an AS segment. After the segment took part in a cancel: its SA at once (CORE-SA-MOVE,
+as an NS segment's, CORE-SA-START!). Before: latched as :SA when nothing else is latched, firing only if the segment then takes part in a
+cancel (CORE-LATCH-STEP). T when the SA started; NIL else (a refused or latched press: the next command clauses still see it)."
+  (when (kit-sa-move (fighter-kit f))
+    (cond ((core-as-sa-out-p *core-as-sa-out* (fighter-cls f) (core-seg-cancelled-p f))
+           (vpad-consume! vp button)
+           (setf (fighter-queued f) nil)
+           (core-start! e (core-sa-move f mv)))
+          ((null (fighter-queued f))
+           (vpad-consume! vp button)
+           (setf (fighter-queued f) :sa)
+           nil))))
+
 (defun core-latch-step (e f mv sf)
   "A latched NS continuation or SA starts once the segment's active frames are over (MOVE-COMMANDS); a latched SA also once the
 segment took part in a cancel (CORE-SA-OPEN-P). Such an SA was latched before the cancel (a press after it starts at once,
@@ -183,7 +197,11 @@ step), and a J side's AS started after the hitstop is the later start and beats 
   (let* ((q (fighter-queued f))
          (cancelled (and (eq q :sa) (core-seg-cancelled-p f))))
     (when (and (member q '(:ns :sa :sw))
-               (if (eq q :sa) (core-sa-open-p sf (mv-s mv) (mv-a mv) cancelled) (>= sf (+ (mv-s mv) (mv-a mv))))
+               (if (eq q :sa)
+                   (if (and *core-as-sa-out* (eq (fighter-cls f) :as))   ; (research R4: an AS segment's latched SA fires only on a cancel)
+                       cancelled
+                       (core-sa-open-p sf (mv-s mv) (mv-a mv) cancelled))
+                   (>= sf (+ (mv-s mv) (mv-a mv))))
                (< sf (mv-total mv)))
       (when (and cancelled (< sf (+ (mv-s mv) (mv-a mv))))   ; (fired early by the cancel: a guess, started on the cancel's tick)
         (let ((xch (fighter-xch f)))

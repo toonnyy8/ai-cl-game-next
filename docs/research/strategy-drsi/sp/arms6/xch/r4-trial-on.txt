@@ -1,0 +1,103 @@
+;;; Loading #P"/media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-a9ea970b5f1907259/tools/simgate/trial.lisp"
+brush: 244 glyphs, 32109 triangles, 0 bad polygons, 33 ms
+duel page: coarse NIL hand RIGHT settings (0 1 2 2 0 0 0 0 0 0 5)
+duel -> TITLE
+duel match seed 1 CPU-CPU HISAGI vs KENPACHI NORMAL
+duel -> INTRO
+duel -> BATTLE
+trial begin R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 18, 1.0 m
+[     0] P2 move KE-S-AS1
+[     0] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[     2] P1 at simf 2
+[     6] P1 move HS-R-J1 TRIAL
+[    14] P2 SP refund 20.0 (fs 300.0)
+[    14] P1 SP cancel gain 30.0 (fs 130.0)
+[    14] P2 KE-S-AS1 x P1: CANCEL
+[    14] P1 KIN on (the cancel unlocks his close range) d 0.81
+[    37] P1 at simf 18
+[    42] P2 move KE-S-SA
+[    47] P1 HS-R-J1 x P2: ABSORBED
+[    55] P1 move HS-R-J2 TRIAL
+[    56] P1 at simf 24
+[    59] P2 KE-S-SA -> P1 HIT 40
+[    59] P2 dealt 20: flinch stun 18
+[    59] P2 SP hit gain 0.0 (fs 300.0)
+[    59] P2 BREAK fs 32.7 from P1 (fs 100.0), gains 0.0 (fs 300.0)
+[    59] P1 KIN off (neutral) d 0.81
+[    82] exchange over
+trial end R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 18, 1.0 m | dmg 0 | hits 0 | combo 0 | gaps  | last hit fNIL | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +0 | layers 0 chill 0 | p1 idle p2 idle | konpaku +0 | more self -20 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 +0
+[    99] P1 form BANKAI
+[    99] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 4 / 20, Kenpachi J at 22, 1.0 m
+[    99] P2 move KE-S-AS1
+[    99] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   103] P1 at simf 4
+[   105] P1 move HS-R-J1 TRIAL
+[   113] P2 SP refund 20.0 (fs 300.0)
+[   113] P1 SP cancel gain 30.0 (fs 130.0)
+[   113] P2 KE-S-AS1 x P1: CANCEL
+[   113] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   146] P1 HS-R-J1 -> P2 HIT 19
+[   146] P1 dealt 7: flinch stun 24
+[   146] P1 SP hit gain 13.0 (fs 143.0)
+[   146] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 19 -> 10 (x0.50)
+[   146] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.1 (fs 293.1)
+[   146] P1 at simf 20
+[   155] P1 move HS-R-J2 TRIAL
+[   158] P1 at simf 26
+[   165] P1 HS-R-J2 -> P2 HIT 16
+[   165] P1 dealt 6: flinch stun 24
+[   165] P1 SP hit gain 6.9 (fs 300.0)
+[   165] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+[   172] P1 move HS-R-NA3 TRIAL
+[   182] P1 HS-R-NA3 -> P2 HIT 16
+[   182] P1 dealt 6: flinch stun 24
+[   182] P1 SP hit gain 0.0 (fs 300.0)
+[   182] P1 KIN: HIT inside its 3.0 m dead zone at d 0.81, dmg 16 -> 8 (x0.50)
+trial end R4 AS1 at 0, Hisagi J at 4 / 20, Kenpachi J at 22, 1.0 m | dmg 19 | hits 3 | combo 3 | gaps 0 0 | last hit f82 | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 -198
+[   199] P1 form BANKAI
+[   199] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 0 / 16, Kenpachi J at 16, 1.6 m
+[   199] P1 at simf 0
+[   199] P2 move KE-S-AS1
+[   199] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   200] P1 move HS-R-J1 TRIAL
+[   213] P2 SP refund 20.0 (fs 300.0)
+[   213] P1 SP cancel gain 30.0 (fs 130.0)
+[   213] P2 KE-S-AS1 x P1: CANCEL
+[   213] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   223] P1 at simf 16
+[   228] P2 move KE-S-SA
+[   238] P1 HS-R-J1 x P2: ABSORBED
+[   252] P1 move HS-R-J2 TRIAL
+[   252] P1 at simf 22
+[   256] P2 KE-S-SA -> P1 HIT 40
+[   256] P2 dealt 20: flinch stun 18
+[   256] P2 SP hit gain 0.0 (fs 300.0)
+[   256] P2 BREAK fs 32.7 from P1 (fs 100.0), gains 0.0 (fs 300.0)
+[   256] P1 KIN off (neutral) d 0.81
+[   279] exchange over
+trial end R4 AS1 at 0, Hisagi J at 0 / 16, Kenpachi J at 16, 1.6 m | dmg 0 | hits 0 | combo 0 | gaps  | last hit fNIL | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +0 | layers 0 chill 0 | p1 idle p2 idle | konpaku +0 | more self -20 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 +0
+[   299] P1 form BANKAI
+[   299] P2 form NOZARASHI
+trial begin R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 10 (latched before the cancel), 1.0 m
+[   299] P2 move KE-S-AS1
+[   299] P2 SP KE-S-AS1 fs 300.0 cost 20.0 paid 20.0 x1.00
+[   301] P1 at simf 2
+[   305] P1 move HS-R-J1 TRIAL
+[   313] P2 SP refund 20.0 (fs 300.0)
+[   313] P1 SP cancel gain 30.0 (fs 130.0)
+[   313] P2 KE-S-AS1 x P1: CANCEL
+[   313] P1 KIN on (the cancel unlocks his close range) d 0.81
+[   318] P2 move KE-S-SA
+[   333] P1 at simf 18
+[   343] P1 HS-R-J1 x P2: ABSORBED
+[   354] P1 move HS-R-J2 TRIAL
+[   354] P2 KE-S-SA -> P1 HIT 40
+[   354] P2 dealt 20: flinch stun 18
+[   354] P2 SP hit gain 0.0 (fs 300.0)
+[   354] P2 BREAK fs 32.7 from P1 (fs 100.0), gains 0.0 (fs 300.0)
+[   354] P1 KIN off (neutral) d 0.81
+[   360] P1 at simf 24
+[   377] exchange over
+trial end R4 AS1 at 0, Hisagi J at 2 / 18, Kenpachi J at 10 (latched before the cancel), 1.0 m | dmg 0 | hits 0 | combo 0 | gaps  | last hit fNIL | free P1 fNIL P2 fNIL | adv ? | dist 0.81 | fs +0 | layers 0 chill 0 | p1 idle p2 idle | konpaku +0 | more self -20 konpaku +0/+0 form bankai ptr 1 meter 0 | fs2 +0

@@ -1,0 +1,15 @@
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=
+KK: K.O. 40 / 40, median 176.8 s | cancels / exchange 4.26 | re-cancels 77 % | cancels a match 139.2 | AS segments in a cancel 11.4 a match, an SA next 0 % | flash-step a match, cancel gain / refund: kenpachi 2701 / 1265
+KI: K.O. 40 / 40, median 159.1 s | cancels / exchange 1.91 | re-cancels 48 % | cancels a match 56.1 | AS segments in a cancel 8.2 a match, an SA next 0 % | flash-step a match, cancel gain / refund: ichigo 526 / 541, kenpachi 890 / 287
+KH: K.O. 40 / 40, median 198.2 s | cancels / exchange 2.42 | re-cancels 59 % | cancels a match 83.2 | AS segments in a cancel 10.3 a match, an SA next 0 % | flash-step a match, cancel gain / refund: hisagi 532 / 483, kenpachi 1368 / 313
+II: K.O. 14 / 40, median 300.0 s | cancels / exchange 3.40 | re-cancels 71 % | cancels a match 82.9 | AS segments in a cancel 3.5 a match, an SA next 0 % | flash-step a match, cancel gain / refund: ichigo 1818 / 641
+IH: K.O. 35 / 40, median 233.5 s | cancels / exchange 2.29 | re-cancels 56 % | cancels a match 66.5 | AS segments in a cancel 16.6 a match, an SA next 0 % | flash-step a match, cancel gain / refund: hisagi 710 / 221, ichigo 831 / 313
+HH: K.O. 26 / 40, median 285.1 s | cancels / exchange 1.84 | re-cancels 46 % | cancels a match 100.0 | AS segments in a cancel 6.6 a match, an SA next 0 % | flash-step a match, cancel gain / refund: hisagi 3118 / 1248
+xch-econ: seeds 301-340, both orders not mixed (P1 = the first letter), STRAT_SET=*core-as-sa-out*=t
+KK: K.O. 40 / 40, median 183.2 s | cancels / exchange 4.01 | re-cancels 75 % | cancels a match 140.0 | AS segments in a cancel 10.8 a match, an SA next 41 % | flash-step a match, cancel gain / refund: kenpachi 2657 / 1258
+KI: K.O. 40 / 40, median 147.6 s | cancels / exchange 1.90 | re-cancels 47 % | cancels a match 54.9 | AS segments in a cancel 7.5 a match, an SA next 100 % | flash-step a match, cancel gain / refund: ichigo 389 / 539, kenpachi 869 / 286
+KH: K.O. 40 / 40, median 189.5 s | cancels / exchange 2.32 | re-cancels 57 % | cancels a match 79.3 | AS segments in a cancel 10.7 a match, an SA next 47 % | flash-step a match, cancel gain / refund: hisagi 525 / 449, kenpachi 1241 / 297
+II: K.O. 17 / 40, median 300.0 s | cancels / exchange 3.62 | re-cancels 72 % | cancels a match 85.2 | AS segments in a cancel 2.5 a match, an SA next 35 % | flash-step a match, cancel gain / refund: ichigo 1856 / 624
+IH: K.O. 36 / 40, median 233.6 s | cancels / exchange 1.90 | re-cancels 47 % | cancels a match 57.0 | AS segments in a cancel 7.2 a match, an SA next 48 % | flash-step a match, cancel gain / refund: hisagi 691 / 228, ichigo 834 / 327
+HH: K.O. 31 / 40, median 268.7 s | cancels / exchange 1.78 | re-cancels 44 % | cancels a match 97.0 | AS segments in a cancel 5.3 a match, an SA next 48 % | flash-step a match, cancel gain / refund: hisagi 3037 / 1243
+done

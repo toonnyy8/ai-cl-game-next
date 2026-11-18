@@ -56,6 +56,13 @@
 (check (not (core-seg-dead-p :j2 30 :j1 30)))                      ; (another move: an SA latched on the cancel's tick)
 (check (not (core-seg-dead-p :j1 30 nil -1)))                      ; (nothing killed: the game, R3 off)
 (check (null *core-cancel-dead*))                                  ; (off in the game)
+;; core-as-sa-out-p (research R4, *core-as-sa-out*): an AS segment's SA out of a cancel, only with the knob, only for AS, only once cancelled
+(check (core-as-sa-out-p t :as t))
+(check (not (core-as-sa-out-p nil :as t)))                         ; (knob off: the game)
+(check (not (core-as-sa-out-p t :as nil)))                         ; (an AS that took part in no cancel)
+(check (not (core-as-sa-out-p t :ns t)))                           ; (an NS segment keeps its own rule, CORE-SA-OPEN-P)
+(check (not (core-as-sa-out-p t :na t)))
+(check (null *core-as-sa-out*))                                    ; (off in the game)
 (check (not (core-cancelled-p 20 30)))                            ; (an exchange from an earlier move: not this segment's)
 (check (core-sa-open-p 3 14 4 t))                                 ; (cancelled in its startup: open now)
 (check (not (core-sa-open-p 3 14 4 nil)))                         ; (no cancel: closed until 14 + 4)

@@ -1,0 +1,11 @@
+hisagi win rate |       c1 |    early |  earlyc0 |    main1 |     ship |    watch |  watchc1
+        shipped |    0.710 |    0.935 |    0.900 |    0.630 |    0.710 |    0.710 |    0.710
+           hold |    0.605 |    0.650 |    0.675 |    0.540 |    0.605 |    0.605 |    0.605
+            own |    0.665 |    0.760 |    0.760 |    0.720 |    0.665 |    0.665 |    0.665
+           ownj |    0.885 |    0.875 |    0.890 |    0.915 |    0.885 |    0.885 |    0.885
+              j |    0.845 |    0.670 |    0.665 |    0.650 |    0.845 |    0.845 |    0.845
+  column max (his best fixed policy) |    0.885 |    0.935 |    0.900 |    0.915 |    0.885 |    0.885 |    0.885
+value about 0.878 (bounds: the J side guarantees 0.878, the NS side holds it to 0.878)
+J side mix: shipped 0.042, ownj 0.958
+NS side mix: c1 0.260, early 0.740
+each J policy against that NS mix: shipped 0.876, hold 0.638, own 0.735, ownj 0.878, j 0.716
