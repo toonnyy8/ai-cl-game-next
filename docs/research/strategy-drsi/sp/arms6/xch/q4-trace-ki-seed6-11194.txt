@@ -1,0 +1,25 @@
+[ 11187] P2 ki-style ptr3 punish-j d 3.3 ptr 1 form kessa
+[ 11187] P2 move IC-K-N1A
+[ 11187] P2 SP IC-K-N1A fs 145.4 cost 25.0 paid 25.0 x1.00
+[ 11187] P1 SP cancel gain 33.5 (fs 48.6)
+[ 11187] P2 SP refund 25.0 (fs 145.4)
+[ 11187] P1 KE-S-J1 x P2: CANCEL
+[ 11194] P1 cpu xch hold at 2.5
+[ 11235] P1 cpu clash na into his ns at 2.5
+[ 11235] P1 move KE-S-J1
+[ 11237] P1 kh stand-off breaker at 2.5
+[ 11241] P1 SP cancel gain 33.5 (fs 83.7)
+[ 11241] P2 IC-K-N1A x P1: CANCEL
+[ 11245] P2 cpu xch SA on his na
+[ 11245] P2 move IC-K-SA1
+[ 11255] P1 KE-S-J1 x P2: ABSORBED
+[ 11263] P1 cpu xch as at 1.8
+[ 11263] P1 move KE-S-AS1
+[ 11263] P1 SP KE-S-AS1 fs 84.0 cost 20.0 paid 20.0 x1.00
+[ 11263] P1 AS1 pointer 1
+[ 11286] P2 IC-K-SA1 x P1: ABSORBED
+[ 11300] P1 KE-S-AS1 -> P2 HIT 70
+[ 11300] P1 dealt 40: stagger stun 26
+[ 11300] P1 BREAK fs 51.5 from P2 (fs 100.0), gains 84.9 (fs 148.9)
+[ 11312] P1 move KE-S-AS1B
+[ 11312] P1 SP KE-S-AS1B fs 148.9 cost 15.0 paid 15.0 x1.00

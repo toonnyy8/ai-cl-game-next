@@ -1,0 +1,48 @@
+
+=== kenpachi J own0 as: n 229, mean dh +0.207, he hits first 34 %, I 66 %
+  his NS pick: w1c0 49%, wec0 24%, w1c1 14%, wec1 12%, ? 0%
+  my first action: as:ke-s-as1 53% (f20), na:ke-s-j2 19% (f28), as:ke-z-as1 18% (f31), na:ke-z-j2 8% (f46), as:ke-s-burst1 1% (f37), - 0%
+  his first action: sa:ic-k-sa1 36% (f18), sa:ic-sa 25% (f25), - 14%, na:ic-k-j1 10% (f75), ns:ic-k-n1b 3% (f18), ns:ic-n3b 3% (f64)
+  the first hit (hitter): na:ke-s-j1 24%, as:ke-s-as1 20%, sa:ic-k-sa1 20%, as:ke-z-as1 12%, sa:ic-sa 10%, na:ke-z-j1 4%
+  first hit by him (77): sa:ic-k-sa1 45, sa:ic-sa 22, as:ic-as1 3, sa:ic-k-sa 3, as:ic-k-as1 2
+  first hit by me (151): na:ke-s-j1 56, as:ke-s-as1 45, as:ke-z-as1 27, na:ke-z-j1 9, cine 6
+
+=== kenpachi J own0 hold: n 178, mean dh -0.203, he hits first 62 %, I 37 %
+  his NS pick: w1c0 41%, wec0 21%, w1c1 19%, wec1 17%, ? 2%
+  my first action: - 40%, as:ke-z-as1 16% (f33), as:ke-s-as1 13% (f23), ns:ke-s-n1a 11% (f71), ns:ke-z-n1a 8% (f80), hoho 7% (f258)
+  his first action: sa:ic-sa 40% (f25), - 33%, sa:ic-k-sa1 12% (f0), ns:ic-k-n1b 6% (f15), ns:ic-k-n3c 3% (f10), ns:ic-k-n3b 2% (f10)
+  the first hit (hitter): sa:ic-sa 29%, na:ke-s-j1 18%, sa:ic-k-sa1 17%, na:ke-s-j2 9%, as:ic-as1 6%, as:ke-z-as1 5%
+  first hit by him (111): sa:ic-sa 51, sa:ic-k-sa1 30, as:ic-as1 11, ns:ic-n3a 8, sa:ic-k-sa 6
+  first hit by me (65): na:ke-s-j1 32, na:ke-s-j2 16, as:ke-z-as1 9, na:ke-z-j1 5, as:ke-s-as1b 2
+
+=== kenpachi J own0 j: n 150, mean dh -0.148, he hits first 68 %, I 32 %
+  his NS pick: w1c0 49%, wec0 24%, w1c1 14%, wec1 12%, ? 1%
+  my first action: na:ke-s-j2 60% (f28), na:ke-z-j2 20% (f34), as:ke-z-as1 5% (f109), ns:ke-z-n1a 5% (f89), as:ke-s-as1 4% (f38), ns:ke-s-n1a 2% (f92)
+  his first action: sa:ic-sa 31% (f28), sa:ic-k-sa1 24% (f5), ns:ic-k-n3a 13% (f73), - 9%, ns:ic-n3b 9% (f46), sa:ic-k-sa 7% (f43)
+  the first hit (hitter): sa:ic-sa 31%, sa:ic-k-sa1 25%, na:ke-s-j1 21%, sa:ic-k-sa 8%, as:ke-z-as1 4%, na:ke-z-j1 3%
+  first hit by him (102): sa:ic-sa 47, sa:ic-k-sa1 37, sa:ic-k-sa 12, ns:ic-n3a 4, ns:ic-n3b 2
+  first hit by me (48): na:ke-s-j1 31, as:ke-z-as1 6, na:ke-z-j1 5, na:ke-s-j2 3, as:ke-s-as1 2
+
+=== kenpachi J own1 as: n 933, mean dh -0.243, he hits first 93 %, I 7 %
+  his NS pick: w1c0 56%, w1c1 40%, ? 3%, wec0 1%, wec1 0%
+  my first action: as:ke-s-as1 88% (f0), as:ke-z-as1 10% (f0), as:ke-s-burst1 2% (f0), as:ke-kr-as1 0% (f0)
+  his first action: sa:ic-k-sa1 45% (f35), sa:ic-k-sa 27% (f35), sa:ic-sa 21% (f36), ns:ic-k-n3b 3% (f31), - 2%, sa:ic-k-sa-g1 1% (f35)
+  the first hit (hitter): sa:ic-k-sa1 44%, sa:ic-k-sa 27%, sa:ic-sa 20%, as:ke-s-as1 5%, as:ke-s-as1b 1%, as:ke-z-as1 1%
+  first hit by him (868): sa:ic-k-sa1 411, sa:ic-k-sa 253, sa:ic-sa 186, sa:ic-k-sa-g1 6, as:ic-as1 5
+  first hit by me (64): as:ke-s-as1 49, as:ke-s-as1b 8, as:ke-z-as1 6, cine 1
+
+=== kenpachi J own1 hold: n 1010, mean dh +0.031, he hits first 69 %, I 28 %
+  his NS pick: w1c0 56%, w1c1 43%, ? 1%, wec1 0%, wec0 0%
+  my first action: - 38%, as:ke-s-as1 31% (f80), na:ke-s-j2 11% (f83), ns:ke-s-n1a 7% (f76), hoho 4% (f325), as:ke-z-as1 4% (f85)
+  his first action: - 30%, sa:ic-k-sa1 23% (f55), ns:ic-k-n3b 16% (f43), ns:ic-k-n1b 9% (f62), sa:ic-sa 7% (f51), ns:ic-n1b 4% (f47)
+  the first hit (hitter): ns:ic-k-n3a 24%, as:ke-s-as1 17%, sa:ic-k-sa1 10%, ns:ic-k-n1a 9%, ns:ic-n3a 8%, na:ke-s-j1 5%
+  first hit by him (694): ns:ic-k-n3a 244, sa:ic-k-sa1 106, ns:ic-k-n1a 89, ns:ic-n3a 79, ns:ic-n1a 49
+  first hit by me (284): as:ke-s-as1 173, na:ke-s-j1 53, as:ke-z-as1 20, as:ke-s-as1b 17, cine 11
+
+=== kenpachi J own1 j: n 996, mean dh -0.114, he hits first 77 %, I 21 %
+  his NS pick: w1c0 53%, w1c1 43%, wec0 2%, wec1 1%, ? 1%
+  my first action: na:ke-s-j2 89% (f10), na:ke-z-j2 10% (f10), as:ke-s-as1 1% (f13), na:ke-kr-j2 0% (f10), as:ke-z-as1 0% (f13)
+  his first action: sa:ic-k-sa1 41% (f37), sa:ic-sa 20% (f39), sa:ic-k-sa 15% (f47), ns:ic-k-n3b 14% (f73), - 5%, ns:ic-k-n1b 3% (f54)
+  the first hit (hitter): sa:ic-k-sa1 39%, sa:ic-k-sa 17%, sa:ic-sa 13%, as:ke-s-as1 10%, na:ke-s-j2 4%, ns:ic-k-n3b 4%
+  first hit by him (769): sa:ic-k-sa1 388, sa:ic-k-sa 174, sa:ic-sa 133, ns:ic-k-n3b 38, as:ic-as1 14
+  first hit by me (210): as:ke-s-as1 98, na:ke-s-j2 39, as:ke-s-as1b 36, as:ke-z-as1 27, cine 6

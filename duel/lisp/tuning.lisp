@@ -483,12 +483,23 @@ own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
 A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
-(defparameter *cai-xch-early-p* '(:easy 0.5 :normal 0.5 :hard 0.5)
+(defparameter *cai-xch-early-p* '(:easy 0.15 :normal 0.15 :hard 0.15)
   "The NS side watching (*CAI-XCH-SA-P*) a cancel its own segment's hit made (his J still coming): the chance, rolled at the cancel, that it
 presses its SA early, *CAI-XCH-SA-WAIT* frames after the cancel (beats his J coming on and a hold); else it keeps watching and presses the SA
 the step it sees his AS or a new J link start (beats his AS, the later start). New 2026-11-18 (the user: 「先補防守」, DUEL_AI_STRATEGY §11.38):
 before, always early (1.0), which the J side's AS started after the wait beat every time (KI: Kenpachi's AS in that spot hit first 88 %;
-sp/arms6/xch.md). A mix, not a strength, so one value for every difficulty. A strategy arm scales it: :XCH-EARLY-P k, the chance x k within 0-1 (CAI-ROLL).")
+sp/arms6/xch.md). A mix, not a strength, so one value for every difficulty. A strategy arm scales it: :XCH-EARLY-P k, the chance x k within 0-1 (CAI-ROLL).
+0.5 -> 0.15 the same day (q4-defence, sp/arms6/xch2.md): a match-level sweep of the fixed J-side policies (shipped / hold / own / ownj / j,
+KI and KH's four J sides, seeds 301-400, xch-sweep.py): here 0 / 0.15 / 0.5 left the J side's best fixed policy about as high (KI Kenpachi
+own .935 / .945 / .965); 0.15 with the other cancel's 0.3 (*CAI-XCH-EARLY-HIS-P*) gave the lowest worst side and mean gap of the sweep.")
+(defparameter *cai-xch-early-his-p* '(:easy 0.3 :normal 0.3 :hard 0.3)
+  "The NS side watching a cancel his J's hit made (its own segment's hit still to come; *CAI-XCH-EARLY-P*'s other case): the chance, rolled at
+the cancel, of the early SA (*CAI-XCH-SA-WAIT* frames after the cancel, into his J's recovery: beats his hold and his next J); else it keeps
+watching for his AS or new J (beats his AS). New 2026-11-18 (q4-defence, the user: 「先補防守」; sp/arms6/xch2.md). Before: always watching
+(0), so his hold (or next J) there was never punished: KI Kenpachi's J side held at +0.10 against his AS's -0.14 (xch.py game, explored).
+A mix, not a strength: one value for every difficulty. The arm key :XCH-EARLY-P scales it too (CAI-ROLL). 0.3 by the match-level sweep
+(xch2.md; 0 / .1 / .2 / .3 / .4: KI Kenpachi's best fixed policy .945 / .935 / .88 / .81 / .76, his shipped AS .125 / .315 / .51 / .68 / .76):
+it moves the pairings' balance a lot (KI and KH towards Kenpachi), the user's call.")
 (defparameter *cai-clash-p* '(:easy 0.45 :normal 0.45 :hard 1.0)
   "積極相消 (the user, above): in neutral, the chance (one roll per move of his it applies to) that the CPU throws the move that cancels his
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move
