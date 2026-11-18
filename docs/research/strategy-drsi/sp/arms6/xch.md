@@ -15,7 +15,8 @@ Base: main abdd87e4. Seeds 1-500 only.
   bootstrap SE over matches):
   - holding instead is worth +0.19 (SE .02): a better flat unit;
   - the per-`own` rule (AS when his own J did not make the cancel, else hold) adds +0.058 (SE .011, cross-validated) over that flat
-    hold.
+    hold;
+  - the oracle gain by `own` (the per-bin pick minus the shipped unit, cross-validated) is +0.251 (SE .018).
 - **The same cue recurs** on every J side measured: KH Kenpachi +0.044 (SE .009), KH Hisagi +0.036 (SE .006, short window; +0.018 (SE .017)
   on the long one). KI Ichigo shows none (-0.005, SE .017): Kenpachi's NS side watches only 65 % of the time, so Ichigo's AS wins or
   loses on a coin no cue predicts (below).
@@ -131,18 +132,21 @@ NIL in the game):
 
 The full per-cue tables (12 single cues and 2 crossings, each side) are in `xch/tab-*.txt`.
 
-## The gains (const / situ, SE)
+## The gains (const / situ / oracle, SE)
 
-| side | const, Y = dh | situ, `own`, dh | situ, `own`, dhs | best other single cue (dh) |
-|---|---|---|---|---|
-| KI Kenpachi J | **+.192 (.021)** | **+.058 (.011)** | **+.065 (.010)** | optr +.011 (.016) |
-| KI Kenpachi NS | **+.080 (.007)** | +.003 (.017) | +.010 (.011) | form +.020 (.013) |
-| KI Ichigo J | .000 (.009) | -.005 (.017) | -.005 (.006) | ptr +.028 (.016), form +.025 (.015) |
-| KI Ichigo NS | +.009 (.008) | +.008 (.015) | -.004 (.010) | time +.016 (.023) |
-| KH Kenpachi J | +.015 (.011) | **+.044 (.009)** | **+.028 (.011)** | dist +.051 (.013), form +.049 (.011) |
-| KH Kenpachi NS | +.008 (.012) | +.027 (.023) | +.042 (.018) | mfs +.041 (.020) |
-| KH Hisagi J | +.010 (.004) | +.018 (.017) | **+.036 (.006)** | none |
-| KH Hisagi NS | +.015 (.006) | +.026 (.011) | +.005 (.008) | ownform +.037 (.012) |
+`oracle` = the brief's oracle gain: each bin's best option (picked on the other half of the seeds) minus what the shipped unit plays
+there, cross-validated, by `own`. It is about const + situ.
+
+| side | const, Y = dh | situ, `own`, dh | oracle, `own`, dh | situ, `own`, dhs | best other single cue (situ, dh) |
+|---|---|---|---|---|---|
+| KI Kenpachi J | **+.192 (.021)** | **+.058 (.011)** | **+.251 (.018)** | **+.065 (.010)** | optr +.011 (.016) |
+| KI Kenpachi NS | **+.080 (.007)** | +.003 (.017) | **+.080 (.014)** | +.010 (.011) | form +.020 (.013) |
+| KI Ichigo J | .000 (.009) | -.005 (.017) | -.012 (.015) | -.005 (.006) | ptr +.028 (.016), form +.025 (.015) |
+| KI Ichigo NS | +.009 (.008) | +.008 (.015) | +.017 (.021) | -.004 (.010) | time +.016 (.023) |
+| KH Kenpachi J | +.015 (.011) | **+.044 (.009)** | **+.055 (.013)** | **+.028 (.011)** | dist +.051 (.013), form +.049 (.011) |
+| KH Kenpachi NS | +.008 (.012) | +.027 (.023) | +.014 (.022) | +.042 (.018) | mfs +.041 (.020) |
+| KH Hisagi J | +.010 (.004) | +.018 (.017) | **+.029 (.010)** | **+.036 (.006)** | none |
+| KH Hisagi NS | +.015 (.006) | +.026 (.011) | +.024 (.014) | +.005 (.008) | ownform +.037 (.012) |
 
 Bold = past 2.5 SE. Two cautions:
 - `dhs` cuts at the next cancel, so it undervalues an option whose value comes in the next exchange. KI Ichigo J's J looks +.07 better
@@ -212,8 +216,22 @@ The xch bucket is mostly the break hit's own combo: who wins the exchange gets t
   - `:xch-j` only moves the AS / J split, so even `:xch-j` at its maximum gives the J (-.116), not hold (+.009).
   - The one partial lever is `:clash-margin`: the J side holds when the AS is out of its reach + the margin, so a margin of 0 holds by
     distance only.
-- What a lever would need, then: the exchange's J side choosing by `own` (the AS at `own0`; hold or the J at `own1`, by pairing), with the
-  `own1` choice in the unit as data. That is a change to xch-ai.lisp / core-ai.lisp (shared files: every CPU's exchange), not to a table.
+- **What "hold" is in the code.** CAI-XCH-STEP returns T on every step while the cancelled move's keys still match, also after it acted
+  (BRAIN-XDONE). So hold = the cancelled J finishes with no further press and no style / MCTS / generic step until that move ends. A
+  future hold key must reproduce exactly that, not hand the step back to the style.
+
+**What this means for the levers.** The .995 is a hole in the shipped CPU, not a target. The mechanism is the NS side's SA timing:
+- After its own segment's hit made the cancel, the NS side fires its SA a fixed *CAI-XCH-SA-WAIT* after the cancel, and that SA loses to
+  the J side's later AS.
+- After the J side's own J made it, the NS side watches, and its SA comes later and wins.
+- The NS-side `own1` rows say the same from the other seat: there not watching beats watching (KI Kenpachi, KH Hisagi).
+
+Two candidate levers, both shared-file changes (xch-ai.lisp / core-ai.lisp: every CPU's exchange), neither a table's:
+- **An `own`-keyed J side:** the AS at `own0`; hold or the J at `own1`, by pairing, with the `own1` choice in the unit as data.
+- **The NS side's own-hit SA timing**, which closes the hole for every pairing at once.
+
+Shipping Kenpachi's J-side rule alone would move KI from .133 to about .995 for Kenpachi at every tier: every difficulty plays the same
+table and the same exchange code. Pick the lever with that in view.
 
 ## What failed / caveats
 

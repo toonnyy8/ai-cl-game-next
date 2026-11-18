@@ -19,6 +19,7 @@ pi = its logged chances (pas / pj, pw / pc) averaged over the bin. Reported, wei
   situ  = cross-validated: the best option per bin picked on odd seeds, scored on even seeds, minus the best flat option picked on odd
           seeds, scored on even seeds (and swapped); only this is situational value. A bin with fewer than --min explored samples of an
           option keeps the flat option.
+  oracle = the same per-bin pick scored against the scoring half's shipped V (the oracle gain: about const + situ, cross-validated).
 SEs: a bootstrap over matches (seed x character order)."""
 import argparse, collections, gzip, os, re, sys
 import numpy as np
@@ -232,13 +233,14 @@ def filled(m, n):
 
 
 def gains(s, bi, nb, w, min_n):
-    """(shipped V, the best flat option's value, const, situ): const = a better flat unit than the shipped one; situ = the CV gain of a
-    per-bin pick (odd seeds pick, even seeds score, and swapped) over the best flat option picked the same way."""
+    """(shipped V, the best flat option's value, const, situ, oracle): const = a better flat unit than the shipped one; situ = the CV gain
+    of a per-bin pick (odd seeds pick, even seeds score, and swapped) over the best flat option picked the same way; oracle = the same
+    per-bin pick scored against the scoring half's shipped V (the brief's oracle gain, cross-validated)."""
     share, m, n, pi = stats(s, bi, nb, w)
     f = filled(m, n)
     vs = float((share * (pi * f).sum(1)).sum())
     vf = (share[:, None] * f).sum(0)
-    out = []
+    out, orc = [], []
     for a in (0, 1):
         sa = stats(s, bi, nb, w * (s.par == a))
         sb = stats(s, bi, nb, w * (s.par != a))
@@ -246,7 +248,8 @@ def gains(s, bi, nb, w, min_n):
         flat = int(np.argmax((sa[0][:, None] * fa).sum(0)))
         pick = np.where((sa[2] >= min_n).all(1), np.argmax(np.where(sa[2] > 0, fa, -np.inf), 1), flat)
         out.append(float((sb[0] * (fb[np.arange(nb), pick] - fb[:, flat])).sum()))
-    return vs, float(vf.max()), float(vf.max()) - vs, float(np.mean(out))
+        orc.append(float((sb[0] * (fb[np.arange(nb), pick] - (sb[3] * fb).sum(1))).sum()))
+    return vs, float(vf.max()), float(vf.max()) - vs, float(np.mean(out)), float(np.mean(orc))
 
 
 def boot_w(s, rng):
@@ -314,10 +317,10 @@ def cmd_tab(o):
                     print(f'{names[b]:>15} | {share[b]:.3f} | {cells} | {vship[b]:+.3f} ({se[b, -1]:.3f}) | {best}')
                 g = gains(s, bi, nb, one, o.min)
                 gb = np.array([gains(s, bi, nb, w, o.min) for w in bws]) if bws else None
-                gse = gb.std(axis=0) if gb is not None else np.full(4, np.nan)
+                gse = gb.std(axis=0) if gb is not None else np.full(5, np.nan)
                 print(f'   shipped V {g[0]:+.4f} ({gse[0]:.4f})  best flat {g[1]:+.4f}  const {g[2]:+.4f} (SE {gse[2]:.4f})  '
-                      f'situ (CV) {g[3]:+.4f} (SE {gse[3]:.4f})')
-                summary.append((char, role, part, g[2], gse[2], g[3], gse[3]))
+                      f'situ (CV) {g[3]:+.4f} (SE {gse[3]:.4f})  oracle (CV, per-bin pick - shipped) {g[4]:+.4f} (SE {gse[4]:.4f})')
+                summary.append((char, role, part, g[2], gse[2], g[3], gse[3], g[4], gse[4]))
             tab = joint(rows, rs, opts)
             hp = sorted({k[1] for k in tab})
             print('-- my explored option x his shipped pick (same exchange): mean Y (n) him%')
@@ -325,8 +328,9 @@ def cmd_tab(o):
                 print(f'{x:>6} | ' + ' | '.join(f'{h}: {np.mean([d[o.y] for d in tab[(x, h)]]):+.3f} ({len(tab[(x, h)])}) '
                                                   f'{100 * np.mean([d["brk"] == "him" for d in tab[(x, h)]]):.0f}' for h in hp if tab[(x, h)]))
     print('\n=== summary: const (a better flat unit) and situ (CV, over the best flat option), per side and cue ===')
-    for char, role, part, c, cs, si, ss in summary:
-        print(f'{char:>9} {role:>2} {part:>5} | const {c:+.4f} ({cs:.4f}) | situ {si:+.4f} ({ss:.4f}){"  *" if ss > 0 and si > 2.5 * ss else ""}')
+    for char, role, part, c, cs, si, ss, oc, os_ in summary:
+        print(f'{char:>9} {role:>2} {part:>5} | const {c:+.4f} ({cs:.4f}) | situ {si:+.4f} ({ss:.4f}){"  *" if ss > 0 and si > 2.5 * ss else "   "}'
+              f' | oracle {oc:+.4f} ({os_:.4f})')
 
 
 def him_rate(rs, part, b, o):
