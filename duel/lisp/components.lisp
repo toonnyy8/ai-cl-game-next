@@ -207,7 +207,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (xkey -1 :type fixnum) (xmove -1 :type fixnum)   ; the cancel answered (core-ai.lisp CAI-XCH-NEW): its exchange tick, his move's start
   (xown nil)                            ; ... the NS segment's own hit was the cancel's (FIGHTER-HITS on the cancel's step, not a later absorbed hit)
-  (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch), the NS carry-on, acted
+  (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch / :early, *CAI-XCH-EARLY-P*), the NS carry-on, acted
   (clash-key -1 :type fixnum)           ; the start tick of his move the clash's roll was made for (CAI-CLASH)
   (fin-t 0 :type fixnum)                ; the last tick it attacked or was hit (in :MOVE or reeling): the late-match finish's quiet (CAI-FINISH)
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs

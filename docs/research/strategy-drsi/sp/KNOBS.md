@@ -278,6 +278,7 @@ gives the knob at HARD (EASY / NORMAL in brackets). Search ranges are on k.
 |---|---|---|---|---|
 | `:xch-sa-p` | `*cai-xch-sa-p*` (NS side: watch for his turn and SA it) | chance p x k, 0-1, rolled at the cancel | 0.65 (0.25 / 0.45) | 0-1.6 |
 | `:xch-carry-p` | `*cai-xch-carry-p*` (NS side, nothing seen: carry on into the next segment) | chance p x k, 0-1 | 0.2 (0.5 / 0.35) | 0-5 |
+| `:xch-early-p` | `*cai-xch-early-p*` (NS side watching a cancel its own hit made: the early SA, else keep watching for his AS; 2026-11-18) | chance p x k, 0-1, rolled at the cancel | 0.5 (0.5 / 0.5) | 0-2 |
 | `:xch-j` | the J's weight in `*cai-xch-j*` (J side: AS at once or the next J) | the J's share J / (AS + J) x k within 0-1, the AS the rest (`xch-j-weights`) | J 0.4, AS 0.6 (0.1 / 0.3) | 0-2.5 |
 | `:clash-p` | `*cai-clash-p*` (積極相消: throw the cancelling move into his) | chance p x k, 0-1, one roll per move of his | 0.6 (0.15 / 0.35) | 0-1.7 |
 | `:clash-margin` | `*cai-clash-margin*` (m past his reach) | 1.0 x k m, >= 0, at **both** reads: the clash's distance test and the J side's AS reach test | 1.0 m | 0-2 |

@@ -483,6 +483,12 @@ own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
 A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
+(defparameter *cai-xch-early-p* '(:easy 0.5 :normal 0.5 :hard 0.5)
+  "The NS side watching (*CAI-XCH-SA-P*) a cancel its own segment's hit made (his J still coming): the chance, rolled at the cancel, that it
+presses its SA early, *CAI-XCH-SA-WAIT* frames after the cancel (beats his J coming on and a hold); else it keeps watching and presses the SA
+the step it sees his AS or a new J link start (beats his AS, the later start). New 2026-11-18 (the user: 「先補防守」, DUEL_AI_STRATEGY §11.38):
+before, always early (1.0), which the J side's AS started after the wait beat every time (KI: Kenpachi's AS in that spot hit first 88 %;
+sp/arms6/xch.md). A mix, not a strength, so one value for every difficulty. A strategy arm scales it: :XCH-EARLY-P k, the chance x k within 0-1 (CAI-ROLL).")
 (defparameter *cai-clash-p* '(:easy 0.45 :normal 0.45 :hard 1.0)
   "積極相消 (the user, above): in neutral, the chance (one roll per move of his it applies to) that the CPU throws the move that cancels his
 classed move whichever hit lands first (CLASH-OPENER: a J into his NS / AS, an NS into his NA / SA), seen through the perception: a melee move

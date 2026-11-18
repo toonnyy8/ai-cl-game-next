@@ -36,6 +36,8 @@
 (check (null (clash-opener nil)))
 ;; the knobs keep EASY <= NORMAL <= HARD where a larger chance is the stronger play
 (check (<= (getf *cai-xch-sa-p* :easy) (getf *cai-xch-sa-p* :normal) (getf *cai-xch-sa-p* :hard)))
+;; the own hit's cancel: an early SA or keep watching, a mix (the user 2026-11-18: 「先補防守」): one value a tier, strictly inside 0-1
+(check (loop for d in '(:easy :normal :hard) always (< 0.0 (getf *cai-xch-early-p* d) 1.0)))
 (check (<= (getf *cai-clash-p* :easy) (getf *cai-clash-p* :normal) (getf *cai-clash-p* :hard)))
 ;; the clash's window: a move's own hits, else a summon's later clone cut (:hit-at / :hit-reach), else none
 (check (equal (multiple-value-list (clash-window 1 14 2.0 nil nil)) '(14 2.0)))
