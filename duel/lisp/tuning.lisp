@@ -496,7 +496,14 @@ own tick, which an AS beats). A strategy arm scales it (DUEL_AI_STRATEGY §11.23
 (defparameter *cai-xch-carry-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
   "The NS side, nothing seen by its segment's active end: the chance (rolled at the cancel) that it carries on into the next segment (latched;
 a J on his later turn still starts the SA over it); else the route stops there. New 2026-11-14 (the lead). Before: CAI-MOVE-STEP's *FZ-NS-CONT*.
-A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).")
+A strategy arm scales it (DUEL_AI_STRATEGY §11.23, 2026-11-15): :XCH-CARRY-P k, the chance x k within 0-1 (CAI-ROLL).
+Since 2026-11-18 (the user: 「先補防守」, 「做防守混合」; DUEL_AI_STRATEGY §11.38, sp/arms6/xch2.md §MIX) only when the NS side is not watching
+(its SA early, or none); watching, *CAI-XCH-CARRY-WATCH-P*.")
+(defparameter *cai-xch-carry-watch-p* '(:easy 0.5 :normal 0.35 :hard 0.2)
+  "The NS side's carry (as *CAI-XCH-CARRY-P*) when its pick is to watch for his turn: the carry tied to the pick, one roll at the cancel
+(CAI-XCH-STEP). New 2026-11-18 (the user: 「先補防守」, then 「做防守混合」; DUEL_AI_STRATEGY §11.38, sp/arms6/xch2.md §MIX): KI's match-level
+equilibrium wants watch + carry and early + no carry (§NS-BR: the mix as independent rolls leaked, Ichigo's ownj .825 against .725 as arms).
+A mix, not a strength: one value for every difficulty. A strategy arm scales it: :XCH-CARRY-WATCH-P k (CAI-ROLL).")
 (defparameter *cai-xch-early-p* '(:easy 0.15 :normal 0.15 :hard 0.15)
   "The NS side watching (*CAI-XCH-SA-P*) a cancel its own segment's hit made (his J still coming): the chance, rolled at the cancel, that it
 presses its SA early, *CAI-XCH-SA-WAIT* frames after the cancel (beats his J coming on and a hold); else it keeps watching and presses the SA

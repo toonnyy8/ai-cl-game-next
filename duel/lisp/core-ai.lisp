@@ -56,6 +56,10 @@ for it (strategy.lisp: :HOHO :TURN :CONT :KIKON)."
   "One roll (CHANCE-ROLL) of PLIST's chance at brain B's difficulty times the active strategy's scale KEY (STRAT-SCALE: none, the chance
 itself; kept within 0-1): the exchange keys :XCH-SA-P :XCH-CARRY-P :XCH-EARLY-P :CLASH-P :AWAKEN-BREAK-P :AWAKEN-KIKON-P (DUEL_AI_STRATEGY §11.23)."
   (chance-roll (strat-scale (brain-now b) key (brain-chance b plist))))
+(defun cai-key (b key else)
+  "KEY when brain B's active strategy names it, else the older key ELSE that scaled the same roll before KEY split from it (§11.38:
+:XCH-EARLY-HIS-P from :XCH-EARLY-P, :XCH-CARRY-WATCH-P from :XCH-CARRY-P), so a strategy written before the split plays as it did."
+  (if (strat-out (brain-now b) key nil) key else))
 (defun cai-margin (b)
   "*CAI-CLASH-MARGIN* times the active strategy's :CLASH-MARGIN (STRAT-MUL; none: the knob itself), at its every read (§11.23)."
   (strat-mul (brain-now b) :clash-margin *cai-clash-margin*))
@@ -200,7 +204,8 @@ BRAIN-XCARRY; docs/research/strategy-drsi/sp/arms6/xch.md).")
   "Play the cancel his move in play took part in (CAI-XCH-NEW): T while it owns the step, so no style, MCTS or generic move step presses
 under it (a real hit's route stays theirs). No Hoho on either side: an open exchange refuses it (DUEL_CORE §2.1.2). J side: one roll
 picks the AS or the next J (*CAI-XCH-J*, XCH-J-ANSWER: only while the AS reaches him; else he holds), pressed once his cancel windows are
-open. NS side: rolled once (*CAI-XCH-SA-P*, *CAI-XCH-CARRY-P*, and *CAI-XCH-EARLY-P* / *CAI-XCH-EARLY-HIS-P* by whose hit made the cancel): watching, a
+open. NS side: rolled once (*CAI-XCH-SA-P*; *CAI-XCH-EARLY-P* / *CAI-XCH-EARLY-HIS-P* by whose hit made the cancel; the carry by the pick,
+*CAI-XCH-CARRY-WATCH-P* when watching, else *CAI-XCH-CARRY-P*): watching, a
 J on the step his AS or new J link is seen to start, or (:EARLY) *CAI-XCH-SA-WAIT* frames after the cancel while his J is still coming or
 recovering (XCH-TURN-SEEN-P: the perceived SNAP, never his true state),
 starts the SA; nothing seen by the segment's active end, the next segment or the route's end."
@@ -208,9 +213,15 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
     (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
       (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
         (if (eq (fighter-cls f) :ns)
-            (setf (brain-xpick b) (and (cai-roll b :xch-sa-p *cai-xch-sa-p*)   ; (watching: the early SA or keep watching, by whose hit made
-                                       (if (cai-roll b :xch-early-p (if (brain-xown b) *cai-xch-early-p* *cai-xch-early-his-p*)) :early :watch))   ;  the cancel)
-                  (brain-xcarry b) (cai-roll b :xch-carry-p *cai-xch-carry-p*))
+            (let ((pick (and (cai-roll b :xch-sa-p *cai-xch-sa-p*)   ; (watching: the early SA or keep watching, by whose hit made the cancel)
+                             (if (if (brain-xown b)
+                                     (cai-roll b :xch-early-p *cai-xch-early-p*)
+                                     (cai-roll b (cai-key b :xch-early-his-p :xch-early-p) *cai-xch-early-his-p*))
+                                 :early :watch))))
+              (setf (brain-xpick b) pick                         ; (the carry by the pick: watching, else the SA early or none, §11.38)
+                    (brain-xcarry b) (if (eq pick :watch)
+                                         (cai-roll b (cai-key b :xch-carry-watch-p :xch-carry-p) *cai-xch-carry-watch-p*)
+                                         (cai-roll b :xch-carry-p *cai-xch-carry-p*))))
             (let ((as (kit-core-move kit :as (core-next-as f))))
               (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (xch-j-weights (brain-chance b *cai-xch-j*) (strat-out (brain-now b) :xch-j nil))
                                                   (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b))))))))
