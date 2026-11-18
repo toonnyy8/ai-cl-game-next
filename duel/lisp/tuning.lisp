@@ -186,6 +186,10 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
 (defparameter *sp-gain-j* 10.0 "SP a J hit (each damaging hit window) earns. New 2026-11-12, the user: 「J 命中 +10」, DUEL_SP §5, §8.6 Q3.")
 (defparameter *sp-gain-sa* 15.0 "SP an SA hit (each damaging hit window) earns. New 2026-11-12, the user's SP design, DUEL_SP §5.")
 (defparameter *sp-gain-cancel* 30.0 "SP an ATK (J / SA) that takes part in a cancel earns, instead of its hit gain. New 2026-11-12, the user's SP design, DUEL_SP §5.")
+(defparameter *sp-cancel-gain-once* nil
+  "Research only (q4-defence R1, the user 2026-11-18: 「先量規則版」; docs/research/strategy-drsi/sp/arms6/xch2.md §R1): T = inside one open
+exchange (from its cancel until both are back in neutral, FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*`; a later
+cancel before the exchange is over pays 0 (SP-RECANCEL-P). NIL, the game: every cancel pays (DUEL_SP §5). Toggled by tools through STRAT_SET.")
 (defparameter *sp-break-share* 1.0
   "Share of the victim's flash-step above the last cell a breakthrough after a cancel takes. New 2026-11-12 at 0.5 (the lead read the user's
 「50%」 as the share taken); 0.5 -> 1.0 on 2026-11-13, the user: 「這邊是要奪取第一格以上的全部，並以 50% 效率轉換成自身量表」 (the 50 % is the

@@ -259,8 +259,10 @@ KESSA replay paid nothing), through REFUND-FS; a J / SA takes `*sp-gain-cancel*`
     (setf (fighter-sp-back f) t)
     (refund-fs (gauges e) (fighter-sp-paid f))
     (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
-  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f)))   ; a J / SA in a cancel: +30,
-    (setf (fighter-sp-gain-t f) (fighter-cls-t f))                                                ;  once per move (DUEL_SP §5)
+  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f))   ; a J / SA in a cancel: +30,
+             (not (and *sp-cancel-gain-once*                                                       ;  once per move (DUEL_SP §5); research
+                       (sp-recancel-p (fighter-xch f) (fighter-xch (fighter (fighter-opp f))) *match-tick*))))   ;  R1: once per exchange
+    (setf (fighter-sp-gain-t f) (fighter-cls-t f))
     (let ((fs0 (gauges-fs (gauges e))))
       (pay-gauges e (sp-atk-gain (fighter-cls f) t))
       (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name e) (- (gauges-fs (gauges e)) fs0) (gauges-fs (gauges e))))))
@@ -481,9 +483,10 @@ PAY-GAUGES, and an exchange opens (CORE-XCH-OPEN!; it lives through the bounce's
 segment already hit."
   (let ((o (fighter-opp f)))
     (clog "~a cancels the Kikon follow-up" (side-name victim))
-    (let ((fs0 (gauges-fs (gauges victim))))
+    (unless (and *sp-cancel-gain-once* (sp-recancel-p (fighter-xch f) (fighter-xch (fighter o)) *match-tick*))   ; (research R1)
+     (let ((fs0 (gauges-fs (gauges victim))))
       (pay-gauges victim (sp-atk-gain :na t))
-      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name victim) (- (gauges-fs (gauges victim)) fs0) (gauges-fs (gauges victim))))
+      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name victim) (- (gauges-fs (gauges victim)) fs0) (gauges-fs (gauges victim)))))
     (core-xch-open! victim o)
     (core-clash! victim o)
     (hitstop *hitstop-block*)
