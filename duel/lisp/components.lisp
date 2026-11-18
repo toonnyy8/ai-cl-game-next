@@ -106,6 +106,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   ;; the core system (core.lisp, docs/duel/DUEL_CORE.md)
   (cls nil)                             ; the triangle class of the move he is in (:na :ns :as :sa), NIL outside a classed move
   (cls-t 0 :type fixnum)                ; *MATCH-TICK* that move started on (AS against SA: the later start wins)
+  (dead-mv nil) (dead-t -1 :type fixnum)   ; research R3 (*CORE-CANCEL-DEAD*): the move and its CLS-T a cancel killed (CORE-SEG-DEAD-P)
   (pre 0 :type fixnum)                  ; frames that move waited before its startup (an AS out of a cancel: CORE-PRE-ROLL, DUEL_CORE §2.1.3)
   (presses 0 :type fixnum)              ; attack presses since neutral (an AS after NA n writes the pointer n)
   (ptr 1 :type fixnum)                  ; the SP pointer 1 .. 3: the next neutral SP is NS n (kept through resets, 1 each match)

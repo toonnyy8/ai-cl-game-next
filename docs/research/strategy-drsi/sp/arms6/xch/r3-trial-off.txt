@@ -1,0 +1,182 @@
+;;; Loading #P"/media/8tsp/projects/ai-cl-game-next/.claude/worktrees/agent-a9ea970b5f1907259/tools/simgate/trial.lisp"
+brush: 244 glyphs, 32109 triangles, 0 bad polygons, 33 ms
+duel page: coarse NIL hand RIGHT settings (0 1 2 2 0 0 0 0 0 0 5)
+duel -> TITLE
+duel match seed 1 CPU-CPU ICHIGO vs KENPACHI NORMAL
+duel -> INTRO
+duel -> BATTLE
+trial begin R3 P2 SP at 10, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m
+[     0] simf 0
+[     1] simf 1
+[     2] simf 2
+[     3] simf 3
+[     4] P1 at simf 4
+[     4] simf 4
+[     5] P1 move IC-J1 TRIAL
+[     5] simf 5
+[     6] simf 6
+[     7] simf 7
+[     8] simf 8
+[     9] simf 9
+[    10] simf 10
+[    11] P2 move KE-S-N1A
+[    11] P2 SP KE-S-N1A fs 300.0 cost 20.0 paid 20.0 x1.00
+[    11] simf 11
+[    12] simf 12
+[    13] simf 13
+[    14] P1 at simf 14
+[    14] simf 14
+[    15] simf 15
+[    16] simf 16
+[    17] simf 17
+[    18] P1 at simf 18
+[    18] simf 18
+[    19] P1 SP cancel gain 30.0 (fs 130.0)
+[    19] P2 SP refund 20.0 (fs 300.0)
+[    19] P1 IC-J1 x P2: CANCEL
+[    19] simf 19
+[    27] simf 20
+[    32] simf 21
+[    37] P1 move IC-J2 TRIAL
+[    37] P1 at simf 22
+[    37] simf 22
+[    42] simf 23
+[    47] simf 24
+[    52] simf 25
+[    57] simf 26
+[    58] P1 SP cancel gain 30.0 (fs 160.0)
+[    58] P2 KE-S-N1A x P1: CANCEL
+[    58] simf 27
+[    66] simf 28
+[    71] P1 IC-J2 x P2: CANCEL
+[    71] simf 29
+[    79] simf 30
+[    84] simf 31
+[    89] P1 move IC-NA3 TRIAL
+trial end R3 P2 SP at 10, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m | dmg 0 | hits 0 | combo 0 | gaps  | last hit fNIL | free P1 fNIL P2 fNIL | adv ? | dist 0.88 | fs +60 | layers 0 chill 0 | p1 move p2 move | konpaku +0 | more self +0 konpaku +0/+0 form base ptr 1 meter 0 | fs2 +0
+[    89] P1 form BASE
+[    89] P2 form NOZARASHI
+trial begin R3 P2 SP at 14, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m
+[    89] simf 0
+[    90] simf 1
+[    91] simf 2
+[    92] simf 3
+[    93] P1 at simf 4
+[    93] simf 4
+[    94] P1 move IC-J1 TRIAL
+[    94] simf 5
+[    95] simf 6
+[    96] simf 7
+[    97] simf 8
+[    98] simf 9
+[    99] simf 10
+[   100] simf 11
+[   101] simf 12
+[   102] simf 13
+[   103] P1 at simf 14
+[   103] simf 14
+[   104] P2 move KE-S-N1A
+[   104] P2 SP KE-S-N1A fs 300.0 cost 20.0 paid 20.0 x1.00
+[   104] simf 15
+[   105] simf 16
+[   106] simf 17
+[   107] P1 at simf 18
+[   107] simf 18
+[   108] P1 SP cancel gain 30.0 (fs 130.0)
+[   108] P2 SP refund 20.0 (fs 300.0)
+[   108] P1 IC-J1 x P2: CANCEL
+[   108] simf 19
+[   116] simf 20
+[   121] simf 21
+[   126] P1 move IC-J2 TRIAL
+[   126] P1 at simf 22
+[   126] simf 22
+[   131] simf 23
+[   136] simf 24
+[   141] simf 25
+[   146] simf 26
+[   147] simf 27
+[   149] simf 28
+[   150] P1 SP cancel gain 30.0 (fs 160.0)
+[   150] P1 IC-J2 x P2: CANCEL
+[   150] simf 29
+[   155] simf 30
+[   160] P2 KE-S-N1A x P1: CANCEL
+[   160] simf 31
+[   168] P1 move IC-NA3 TRIAL
+[   168] simf 32
+[   173] simf 33
+[   178] simf 34
+trial end R3 P2 SP at 14, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m | dmg 0 | hits 0 | combo 0 | gaps  | last hit fNIL | free P1 fNIL P2 fNIL | adv ? | dist 0.94 | fs +60 | layers 0 chill 0 | p1 move p2 move | konpaku +0 | more self +0 konpaku +0/+0 form base ptr 1 meter 0 | fs2 +0
+[   179] P1 form BASE
+[   179] P2 form NOZARASHI
+trial begin R3 P2 SP at 8, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m
+[   179] simf 0
+[   180] simf 1
+[   181] simf 2
+[   182] simf 3
+[   183] P1 at simf 4
+[   183] simf 4
+[   184] P1 move IC-J1 TRIAL
+[   184] simf 5
+[   185] simf 6
+[   186] simf 7
+[   187] simf 8
+[   188] P2 move KE-S-N1A
+[   188] P2 SP KE-S-N1A fs 300.0 cost 20.0 paid 20.0 x1.00
+[   188] simf 9
+[   189] simf 10
+[   190] simf 11
+[   191] simf 12
+[   192] simf 13
+[   193] P1 at simf 14
+[   193] simf 14
+[   194] simf 15
+[   195] simf 16
+[   196] simf 17
+[   197] P1 at simf 18
+[   197] simf 18
+[   198] P1 SP cancel gain 30.0 (fs 130.0)
+[   198] P2 SP refund 20.0 (fs 300.0)
+[   198] P1 IC-J1 x P2: CANCEL
+[   198] simf 19
+[   205] simf 20
+[   210] simf 21
+[   215] P1 move IC-J2 TRIAL
+[   215] P1 at simf 22
+[   215] simf 22
+[   220] simf 23
+[   225] simf 24
+[   230] P1 SP cancel gain 30.0 (fs 160.0)
+[   230] P2 KE-S-N1A x P1: CANCEL
+[   230] simf 25
+[   238] simf 26
+[   243] simf 27
+[   248] simf 28
+[   253] P1 IC-J2 -> P2 HIT 32
+[   253] P1 dealt 17: flinch stun 18
+[   253] P1 SP hit gain 10.0 (fs 170.0)
+[   253] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 130.0 (fs 300.0)
+[   253] simf 29
+[   262] simf 30
+[   267] simf 31
+[   269] P1 move IC-NA3 TRIAL
+trial end R3 P2 SP at 8, J1 at 4, J2 pressed 14 / 18 / 22, 1.6 m | dmg 17 | hits 1 | combo 1 | gaps  | last hit f73 | free P1 fNIL P2 fNIL | adv ? | dist 0.83 | fs +200 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form base ptr 1 meter 0 | fs2 -200
+[   269] P1 form BASE
+[   269] P2 form NOZARASHI
+trial begin R3 P2 SP at 0, J1 at 4, J2 pressed 16, 1.6 m (the farm's shape: NS1a's own hit cancels, J1 re-cancels when R3 is off)
+[   270] P2 move KE-S-N1A
+[   270] P2 SP KE-S-N1A fs 300.0 cost 20.0 paid 20.0 x1.00
+[   273] P1 at simf 4
+[   274] P1 move IC-J1 TRIAL
+[   285] P1 at simf 16
+[   286] P2 SP refund 20.0 (fs 300.0)
+[   286] P1 SP cancel gain 30.0 (fs 130.0)
+[   286] P2 KE-S-N1A x P1: CANCEL
+[   298] P1 IC-J1 x P2: CANCEL
+[   316] P1 move IC-J2 TRIAL
+[   340] P1 IC-J2 -> P2 HIT 32
+[   340] P1 dealt 17: flinch stun 18
+[   340] P1 SP hit gain 10.0 (fs 140.0)
+[   340] P1 BREAK fs 200.0 from P2 (fs 100.0), gains 150.0 (fs 290.0)
+trial end R3 P2 SP at 0, J1 at 4, J2 pressed 16, 1.6 m (the farm's shape: NS1a's own hit cancels, J1 re-cancels when R3 is off) | dmg 17 | hits 1 | combo 1 | gaps  | last hit f70 | free P1 fNIL P2 fNIL | adv ? | dist 0.85 | fs +190 | layers 0 chill 0 | p1 move p2 stun | konpaku +0 | more self +0 konpaku +0/+0 form base ptr 1 meter 0 | fs2 -200

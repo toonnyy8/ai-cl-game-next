@@ -3,6 +3,7 @@
 environment, e.g. the R1 knob). Per pairing: cancels per exchange (a chain from its first cancel until `exchange over` or a Kikon / Soul
 Break reset), the share of cancels that are re-cancels, and per character and match the flash-step from cancel gains (`SP cancel gain`)
 and from refunds (`SP refund`).
+Also each pairing's K.O. count and median match time (its gate rows' secs: the match without its cinematics).
   python3 xch-econ.py [--pairs KI,KH] [--seeds 301-340] [-j 6]"""
 import argparse, collections, os, re, sys
 sys.dont_write_bytecode = True
@@ -35,11 +36,17 @@ def main():
     build()
     jobs = [(p[0], p[1], s0, min(10, a1 - s0)) for p in o.pairs.split(',') for s0 in range(a0 - 1, a1, 10)]
     acc = collections.defaultdict(collections.Counter)
+    acc_secs = collections.defaultdict(list)
     for (a, b, s0, n), out in pool(job, jobs, o.j):
         c = acc[a + b]
         chars = {'1': NAME[a], '2': NAME[b]}
         open_ = False
         for line in out.splitlines():
+            if line.startswith('duel gate row'):
+                t = line.split()
+                acc_secs[a + b].append(float(t[t.index('secs') + 1]))
+                c['ko'] += line.rstrip().endswith('ko 1')
+                continue
             if line.startswith('duel match seed'):
                 c['matches'] += 1
                 open_ = False
@@ -67,7 +74,8 @@ def main():
     for p, c in acc.items():
         m = max(1, c['matches'])
         per = ', '.join(f'{x} {c["gain " + x] / m:.0f} / {c["refund " + x] / m:.0f}' for x in sorted({NAME[p[0]], NAME[p[1]]}))
-        print(f'{p}: {c["matches"]} matches | cancels / exchange {c["cancels"] / max(1, c["chains"]):.2f} | re-cancels {100 * c["recancels"] / max(1, c["cancels"]):.0f} % '
+        ss = sorted(acc_secs[p])
+        print(f'{p}: K.O. {c["ko"]} / {len(ss)}, median {ss[len(ss) // 2] if ss else 0:.1f} s | cancels / exchange {c["cancels"] / max(1, c["chains"]):.2f} | re-cancels {100 * c["recancels"] / max(1, c["cancels"]):.0f} % '
               f'| cancels a match {c["cancels"] / m:.1f} | flash-step a match, cancel gain / refund: {per}')
 
 

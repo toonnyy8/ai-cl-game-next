@@ -190,6 +190,12 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
   "Research only (q4-defence R1, the user 2026-11-18: 「先量規則版」; docs/research/strategy-drsi/sp/arms6/xch2.md §R1): T = inside one open
 exchange (from its cancel until both are back in neutral, FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*`; a later
 cancel before the exchange is over pays 0 (SP-RECANCEL-P). NIL, the game: every cancel pays (DUEL_SP §5). Toggled by tools through STRAT_SET.")
+(defparameter *core-cancel-dead* nil
+  "Research only (q4-defence R3, the user 2026-11-18: 「先量 R3」; docs/research/strategy-drsi/sp/arms6/xch2.md §R3): T = a cancel kills both
+segments that took part (CORE-CANCEL-LANDED!: the J side's and the NS side's move, a hazard's firing segment while it is still in play):
+no hit window left (COLLECT-MELEE, CUT-HAZARDS skip it) and no class for the triangle (CORE-WINDOW-CLASS NIL), so it can't take part in
+another cancel and a hit on him during its rest is a clean hit (a breakthrough inside the open exchange). What he may press next is
+unchanged (the next segment, the SA in the gap, the AS, by the cancel windows). NIL, the game: a cancelled segment stays out.")
 (defparameter *sp-recancel-no-refund* nil
   "Research only (q4-defence R2 = R1 + this; xch2.md §R1): T = an NS / AS segment cancelled inside an exchange already open from an earlier
 step (SP-RECANCEL-P) gets no refund of what it paid (CORE-CANCEL-LANDED!; a hazard cancelled after its move ended keeps its refund). NIL,

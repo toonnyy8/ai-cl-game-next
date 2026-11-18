@@ -39,6 +39,12 @@ S for a move with no hit window). The side whose hit was judged is on that hit's
 and a real hit never opens his AS / SP / Hoho / guard cancels before his own hit frame, so neither does a cancel."
   (if (>= land-sf 0) land-sf (max sf first-hit)))
 
+(defun core-seg-dead-p (mv cls-t dead-mv dead-t)
+  "Is the move in play (MV, started on tick CLS-T) the segment a cancel killed (DEAD-MV started on DEAD-T: FIGHTER-DEAD-MV / -DEAD-T,
+research R3, *CORE-CANCEL-DEAD*)? Then it has no hit window left and no class for the triangle. The same move object started again
+(a later J1) has another start tick, so it lives."
+  (and dead-mv (eq mv dead-mv) (= cls-t dead-t)))
+
 (defun core-cancelled-p (xch cls-t)
   "Has the move in play (started on tick CLS-T) taken part in a cancel? An exchange (FIGHTER-XCH, -1 when none) opened on or after its
 start: a cancel opens one on both sides (CORE-XCH-OPEN!). A whiff or a real hit opens none."

@@ -34,6 +34,12 @@
 (cl-user::sg-init)
 (engine::%frame)
 (setf *skip-cines* t)   ; (a Kikon's cinematic is skipped: the next trial starts on a plain stage)
+(let ((l (ext:getenv "STRAT_SET")))   ; STRAT_SET=*knob*=value[,...] as strat-run.lisp's (q4-defence R3's scripted check, xch2.md §R3)
+  (when (and l (plusp (length l)))
+    (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
+          do (let* ((kv (subseq l start p)) (q (position #\= kv)))
+               (setf (symbol-value (intern (string-upcase (subseq kv 0 q)) :duel)) (let ((*read-eval* nil)) (read-from-string (subseq kv (1+ q))))))
+          while p)))
 
 (defun trial-free-p (e)
   "Can E act (neutral, guarding or running)?"
