@@ -190,6 +190,12 @@ user: 「不限制吸取上限，然後吸取的轉換率設為 50%」 (this rep
   "Research only (q4-defence R1, the user 2026-11-18: 「先量規則版」; docs/research/strategy-drsi/sp/arms6/xch2.md §R1): T = inside one open
 exchange (from its cancel until both are back in neutral, FIGHTER-XCH) only the first cancel pays the ATK's `*sp-gain-cancel*`; a later
 cancel before the exchange is over pays 0 (SP-RECANCEL-P). NIL, the game: every cancel pays (DUEL_SP §5). Toggled by tools through STRAT_SET.")
+(defparameter *core-as-sa-out* nil
+  "Research (q4-defence R4, the user 2026-11-18: 「AS 段也能在相消後立刻出 SA」; docs/research/strategy-drsi/sp/arms6/xch2.md §R4): T = DUEL_CORE
+§2.1.1's out of a cancel extends to AS segments: an AS segment that took part in a cancel (either side) may start its SA at once (an attack
+press; one pressed before the cancel is latched and fires on it, counted as started on the cancel's tick); an AS segment that took part in
+none still has no SA. The CPU answers such a cancel from the AS side with the NS side's watch / early pick (CAI-XCH-STEP; its carry stays the
+AS route's own). NIL, the game: an AS segment has no SA.")
 (defparameter *core-cancel-dead* nil
   "Research only (q4-defence R3, the user 2026-11-18: 「先量 R3」; docs/research/strategy-drsi/sp/arms6/xch2.md §R3): T = a cancel kills both
 segments that took part (CORE-CANCEL-LANDED!: the J side's and the NS side's move, a hazard's firing segment while it is still in play):

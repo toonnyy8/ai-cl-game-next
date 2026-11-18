@@ -192,7 +192,8 @@ press is dropped as S7 drops the NS gap's (DUEL_SP S7's gap, closed by REFACTOR_
 stamped with its tick, is not taken for a new one): the event's rolls, once, and a press still held (an SP's Kikon hold) let go: the
 cancelled move holds into no Kikon. The J side's answer is picked in CAI-XCH-STEP (it reads the distance and the Hoho's readiness)."
   (when (and (eq (fighter-state f) :move) (not (and (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f))))
-             (xch-side (fighter-cls f) (fighter-contact f) (fighter-xch f) (fighter-cls-t f)))
+             (or (xch-side (fighter-cls f) (fighter-contact f) (fighter-xch f) (fighter-cls-t f))
+                 (core-as-sa-out-p *core-as-sa-out* (fighter-cls f) (core-seg-cancelled-p f))))   ; (research R4: an AS segment's cancel)
     (setf (brain-xkey b) (fighter-xch f) (brain-xmove b) (fighter-cls-t f) (brain-xdone b) nil (brain-xpick b) :roll
           (brain-xown b) (plusp (fighter-hits f))
           (brain-press-left b) 0)))
@@ -211,30 +212,34 @@ open. NS side: rolled once (*CAI-XCH-SA-P*; *CAI-XCH-EARLY-P* / *CAI-XCH-EARLY-H
 J on the step his AS or new J link is seen to start, or (:EARLY) *CAI-XCH-SA-WAIT* frames after the cancel while his J is still coming or
 recovering (XCH-TURN-SEEN-P: the perceived SNAP, never his true state),
 starts the SA; nothing seen by the segment's active end, the next segment or the route's end."
-  (let ((mv (fighter-move f)))
+  (let* ((mv (fighter-move f))
+         (as-out (and *core-as-sa-out* (eq (fighter-cls f) :as)))   ; (research R4: the AS side answers as the NS side, its carry its route's)
+         (ns (or as-out (eq (fighter-cls f) :ns))) (pressed nil))
     (when (and mv (eq (fighter-state f) :move) (= (brain-xmove b) (fighter-cls-t f)) (= (brain-xkey b) (fighter-xch f)))
       (when (eq (brain-xpick b) :roll)                       ; (the event's rolls, made on its first step)
-        (if (eq (fighter-cls f) :ns)
+        (if ns
             (let ((pick (and (cai-roll b :xch-sa-p *cai-xch-sa-p*)   ; (watching: the early SA or keep watching, by whose hit made the cancel)
                              (if (if (brain-xown b)
                                      (cai-roll b :xch-early-p *cai-xch-early-p*)
                                      (cai-mix-roll b :xch-early-his-p :xch-early-p *cai-xch-early-his-p*))
                                  :early :watch))))
               (setf (brain-xpick b) pick                         ; (the carry by the pick: watching, else the SA early or none, §11.38)
-                    (brain-xcarry b) (if (eq pick :watch)
-                                         (cai-mix-roll b :xch-carry-watch-p :xch-carry-p *cai-xch-carry-watch-p*)
-                                         (cai-roll b :xch-carry-p *cai-xch-carry-p*))))
+                    (brain-xcarry b) (cond (as-out nil)
+                                           ((eq pick :watch)
+                                            (cai-mix-roll b :xch-carry-watch-p :xch-carry-p *cai-xch-carry-watch-p*))
+                                           (t (cai-roll b :xch-carry-p *cai-xch-carry-p*)))))
             (let ((as (kit-core-move kit :as (core-next-as f))))
               (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (xch-j-weights (brain-chance b *cai-xch-j*) (strat-out (brain-now b) :xch-j nil))
                                                   (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b))))))))
         (when *cai-xch-hook* (funcall *cai-xch-hook* e b f kit d)))
       (unless (brain-xdone b)
-        (if (eq (fighter-cls f) :ns)
+        (if ns
             (cond ((and (member (brain-xpick b) '(:watch :early))
                         (xch-sa-now-p (cai-class-of (fighter-opp f) s) (snap-start s) (fighter-xch f) (eq (brain-xpick b) :early)
                                       *match-tick* (strat-mul (brain-now b) :xch-sa-wait *cai-xch-sa-wait*)))
                    (setf (brain-xdone b) t)
                    (clog "~a cpu xch SA on his ~(~a~)" (side-name e) (cai-class-of (fighter-opp f) s))
+                   (setf pressed t)
                    (cai-press b :quick 1))
                   ((and (brain-xcarry b) (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv) -1)))   ; (his turn may still come: the watch goes on)
                    (setf (brain-xcarry b) nil)
@@ -245,7 +250,7 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
               (case (brain-xpick b)
                 (:as (let ((as (kit-core-move kit :as (core-next-as f)))) (cai-sp b f s 1 (and as (getf (mv-params as) :no-kikon)))))
                 (:j (cai-press b :quick 1))))))
-      t)))
+      (if as-out pressed t))))   ; (R4's AS side owns only its SA's step: the route's next segment stays the move step's)
 
 (defun cai-clash (e b f kit s0 d0)
   "積極相消 (*CAI-CLASH-P*): free, he is seen in a classed melee move (hits, no parry; or a summon whose clone cuts later, CLASH-WINDOW) still

@@ -771,6 +771,8 @@ action started."
                                           (progn (skip-aura e f) t)))
                              ((:q :f) (cond ((eq (fighter-cls f) :ns)    ; an attack in an NS gap: the SA (core-sim.lisp)
                                              (core-sa-start! e f vp mv sf button))
+                                            ((and *core-as-sa-out* (eq (fighter-cls f) :as)   ; (research R4: an AS segment's SA out of a cancel)
+                                                  (core-as-sa-press! e f vp mv button)))
                                             ((string-link-p kit name)   ; the latch takes every J / K press
                                              (setf (fighter-queued f) (string-latch kit name cmd (fighter-queued f)))
                                              (vpad-consume! vp button)

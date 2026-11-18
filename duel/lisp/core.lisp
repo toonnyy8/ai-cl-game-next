@@ -57,6 +57,11 @@ once from the frame the segment took part in a cancel (CANCELLED, CORE-CANCELLED
 segment's active end while the J side's AS started at once (the later start wins: CORE-LATER), so the J side always had the free turn."
   (or cancelled (>= sf (+ s a))))
 
+(defun core-as-sa-out-p (on cls cancelled)
+  "May the segment in play (class CLS) start its SA out of a cancel it took part in (CANCELLED, CORE-CANCELLED-P), as an AS segment under
+research R4 (ON: *CORE-AS-SA-OUT*)? Only an AS segment, only after a cancel, only with ON (DUEL_CORE §2.1.1 extended, xch2.md §R4)."
+  (and on (eq cls :as) cancelled t))
+
 (defun core-xch-as-p (cls old-cls xch old-cls-t done)
   "Is a move of class CLS, started out of a move of class OLD-CLS (begun on tick OLD-CLS-T), an AS out of a cancel: its first segment (out
 of an NA link or the SA), the move it follows took part in a cancel (CORE-CANCELLED-P over XCH, FIGHTER-XCH; an SA only an exchange after
