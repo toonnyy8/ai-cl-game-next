@@ -1,0 +1,5 @@
+xch ab ki ichigo J-side rule own,ownj,j vs shipped, HARD vs HARD, seeds 301-500, both orders
+ shipped: ichigo wins 95 / 400 = 0.237 (SE 0.021), K.O. wins 95
+     own: ichigo wins 38 / 400 = 0.095 (SE 0.015), K.O. wins 38
+    ownj: ichigo wins 294 / 400 = 0.735 (SE 0.022), K.O. wins 293
+       j: ichigo wins 366 / 400 = 0.915 (SE 0.014), K.O. wins 366

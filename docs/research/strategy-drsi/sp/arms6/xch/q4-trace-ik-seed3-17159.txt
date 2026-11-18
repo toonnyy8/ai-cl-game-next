@@ -1,0 +1,23 @@
+[ 17154] P1 SP cancel gain 34.7 (fs 244.7)
+[ 17154] P2 SP refund 20.0 (fs 69.8)
+[ 17154] P1 IC-K-J1 x P2: CANCEL
+[ 17159] P1 cpu xch j at 0.8
+[ 17169] P1 move IC-K-J2
+[ 17169] P1 SP cancel gain 34.7 (fs 279.3)
+[ 17169] P2 KE-S-N1A x P1: CANCEL
+[ 17192] P2 move KE-S-N1B
+[ 17192] P2 SP KE-S-N1B fs 69.8 cost 15.0 paid 15.0 x1.00
+[ 17208] P2 SP refund 15.0 (fs 69.8)
+[ 17208] P1 IC-K-J2 x P2: CANCEL
+[ 17216] P1 cpu xch as at 0.8
+[ 17216] P1 move IC-K-AS1
+[ 17216] P1 SP IC-K-AS1 fs 279.3 cost 20.0 paid 20.0 x1.00
+[ 17216] P1 AS1 pointer 1
+[ 17252] P2 KE-S-N1B x P1: ABSORBED
+[ 17262] P1 IC-K-AS1 -> P2 HIT 14
+[ 17262] P1 dealt 7: flinch stun 18
+[ 17262] P1 STEAL fs 15.0 from P2, gains 7.5
+[ 17262] P1 BREAK fs 0.0 from P2 (fs 55.9), gains 32.0 (fs 300.0)
+[ 17274] P1 IC-K-AS1 -> P2 HIT 14
+[ 17274] P1 dealt 7: flinch stun 18
+[ 17274] P1 STEAL fs 15.0 from P2, gains 7.5

@@ -48,6 +48,11 @@ attacker gains a flat `*sp-break-flat*` first, then `*sp-break-gain*` of the tak
   "Do two fighters carry the same live exchange id (the cancel's tick; negative = none)?"
   (and (>= xch-a 0) (= xch-a xch-b)))
 
+(defun sp-recancel-p (xch-a xch-b tick)
+  "Is a cancel on TICK a later one inside an exchange already open from an earlier step (both carry the same live id XCH-A / XCH-B, opened
+before TICK)? A same-step second verdict (a same-class tie) is the first cancel still: the step's CORE-XCH-OPEN! stamps TICK itself."
+  (and (sp-exchange-open-p xch-a xch-b) (< xch-a tick)))
+
 (defun sp-neutral-p (state sliding)
   "Is a fighter in STATE back in neutral for the exchange (DUEL_SP §6, Q11: in no move and no reaction)? Not in a move, a reel, a blockstun,
 the air, down or getting up; and not standing while still SLIDING (a clash's bounce sends both to :idle pushed apart: the exchange's own

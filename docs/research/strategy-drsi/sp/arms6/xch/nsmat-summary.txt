@@ -1,0 +1,10 @@
+Ichigo win rate | AB401-arms | AB401-mix | AB401-ship |       c1 |    early |    main1 |  main1c1 |     ship |  watchc1
+        shipped |    0.725 |    0.605 |    0.900 |    0.840 |    0.680 |    0.575 |    0.640 |    0.835 |    0.750
+            own |    0.410 |    0.545 |    0.650 |    0.490 |    0.635 |    0.500 |    0.415 |    0.630 |    0.280
+           ownj |    0.715 |    0.825 |    0.945 |    0.900 |    0.710 |    0.925 |    0.920 |    0.945 |    0.675
+              j |    0.720 |    0.765 |    0.900 |    0.460 |    0.780 |    0.560 |    0.565 |    0.885 |    0.625
+  column max (his best fixed policy) |    0.725 |    0.825 |    0.945 |    0.900 |    0.780 |    0.925 |    0.920 |    0.945 |    0.750
+value about 0.705 (bounds: Ichigo guarantees 0.705, Kenpachi holds him to 0.705)
+Ichigo mix: shipped 0.485, ownj 0.383, j 0.131
+Kenpachi NS mix: early 0.533, main1 0.045, watchc1 0.422
+each J policy against that NS mix: shipped 0.705, own 0.479, ownj 0.705, j 0.705

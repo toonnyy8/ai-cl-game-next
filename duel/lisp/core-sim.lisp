@@ -34,11 +34,17 @@ after it; the user, 2026-10-27: 「月牙靈壓帶來的強化效果除了後續
 charged SA itself (its own :dmg is written high) nor on a hazard."
   (if (and own (not hazard) mv (not (getf (mv-params mv) :charge-mult))) (fighter-charge-mult fa) 1f0))
 
+(defun core-dead-p (f)
+  "Research R3: is F's move in play a segment a cancel killed (CORE-SEG-DEAD-P; never while *CORE-CANCEL-DEAD* is off: nothing marks one)?"
+  (core-seg-dead-p (fighter-move f) (fighter-cls-t f) (fighter-dead-mv f) (fighter-dead-t f)))
+
 (defun core-window-class (f)
-  "The class of the move F is inside the startup or active frames of (where the triangle judges a hit on him), else NIL."
+  "The class of the move F is inside the startup or active frames of (where the triangle judges a hit on him), else NIL. A segment a
+cancel killed (research R3, CORE-DEAD-P) has none: a hit on him is a clean hit."
   (let ((mv (fighter-move f)))
     (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-cls f) mv
          (< (fighter-sf f) (+ (mv-s mv) (mv-a mv)))
+         (not (core-dead-p f))
          (fighter-cls f))))
 
 ;;; ---------------------------------------------------------------- starting moves
@@ -255,12 +261,18 @@ cancel windows from CORE-CANCEL-LAND-SF); an NS / AS segment gets back what it p
 KESSA replay paid nothing), through REFUND-FS; a J / SA takes `*sp-gain-cancel*` +30 through PAY-GAUGES, once per move (FIGHTER-SP-GAIN-T)."
   (setf (fighter-contact f) :hit
         (fighter-land-sf f) (core-cancel-land-sf (fighter-land-sf f) (fighter-sf f) (mv-first-hit (fighter-move f))))
-  (when (and refund (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f)))   ; the SP it paid back, once
+  (when *core-cancel-dead*                       ; (research R3: the segment goes dead, no hit window and no class left)
+    (setf (fighter-dead-mv f) (fighter-move f) (fighter-dead-t f) (fighter-cls-t f)))
+  (when (and refund (member (fighter-cls f) '(:ns :as)) (not (fighter-sp-back f))   ; the SP it paid back, once
+             (not (and *sp-recancel-no-refund*                                     ; (research R2: not for a re-cancel)
+                       (sp-recancel-p (fighter-xch f) (fighter-xch (fighter (fighter-opp f))) *match-tick*))))
     (setf (fighter-sp-back f) t)
     (refund-fs (gauges e) (fighter-sp-paid f))
     (clog "~a SP refund ~,1f (fs ~,1f)" (side-name e) (fighter-sp-paid f) (gauges-fs (gauges e))))
-  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f)))   ; a J / SA in a cancel: +30,
-    (setf (fighter-sp-gain-t f) (fighter-cls-t f))                                                ;  once per move (DUEL_SP §5)
+  (when (and (member (fighter-cls f) '(:na :sa)) (/= (fighter-sp-gain-t f) (fighter-cls-t f))   ; a J / SA in a cancel: +30,
+             (not (and *sp-cancel-gain-once*                                                       ;  once per move (DUEL_SP §5); research
+                       (sp-recancel-p (fighter-xch f) (fighter-xch (fighter (fighter-opp f))) *match-tick*))))   ;  R1: once per exchange
+    (setf (fighter-sp-gain-t f) (fighter-cls-t f))
     (let ((fs0 (gauges-fs (gauges e))))
       (pay-gauges e (sp-atk-gain (fighter-cls f) t))
       (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name e) (- (gauges-fs (gauges e)) fs0) (gauges-fs (gauges e))))))
@@ -481,9 +493,10 @@ PAY-GAUGES, and an exchange opens (CORE-XCH-OPEN!; it lives through the bounce's
 segment already hit."
   (let ((o (fighter-opp f)))
     (clog "~a cancels the Kikon follow-up" (side-name victim))
-    (let ((fs0 (gauges-fs (gauges victim))))
+    (unless (and *sp-cancel-gain-once* (sp-recancel-p (fighter-xch f) (fighter-xch (fighter o)) *match-tick*))   ; (research R1)
+     (let ((fs0 (gauges-fs (gauges victim))))
       (pay-gauges victim (sp-atk-gain :na t))
-      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name victim) (- (gauges-fs (gauges victim)) fs0) (gauges-fs (gauges victim))))
+      (clog "~a SP cancel gain ~,1f (fs ~,1f)" (side-name victim) (- (gauges-fs (gauges victim)) fs0) (gauges-fs (gauges victim)))))
     (core-xch-open! victim o)
     (core-clash! victim o)
     (hitstop *hitstop-block*)

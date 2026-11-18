@@ -36,6 +36,16 @@
 (check (null (clash-opener nil)))
 ;; the knobs keep EASY <= NORMAL <= HARD where a larger chance is the stronger play
 (check (<= (getf *cai-xch-sa-p* :easy) (getf *cai-xch-sa-p* :normal) (getf *cai-xch-sa-p* :hard)))
+;; the early SA and the carry by the pick (the user 2026-11-18: 「先補防守」, 「做防守混合」, §MIX): a mix, one value for every tier; the
+;; defaults are main's play (early at the own hit's cancel, none at his, the carry the same whatever the pick); the pairings' units set the mix
+(check (loop for d in '(:easy :normal :hard) always (= 1.0 (getf *cai-xch-early-p* d))))
+(check (loop for d in '(:easy :normal :hard) always (= 0.0 (getf *cai-xch-early-his-p* d))))
+(check (equal *cai-xch-carry-watch-p* *cai-xch-carry-p*))
+;; each mix key of the four units within 0-1 where it is the chance itself
+(dolist (id '(:d-x-ki-k :d-x-ki-i :d-x-kh-k :d-x-kh-h))
+  (let ((u (getf (strat-unit-find id *strat-data*) :base)))
+    (dolist (k '(:xch-early-his-p :xch-carry-watch-p))
+      (check (<= 0.0 (getf u k) 1.0)))))
 (check (<= (getf *cai-clash-p* :easy) (getf *cai-clash-p* :normal) (getf *cai-clash-p* :hard)))
 ;; the clash's window: a move's own hits, else a summon's later clone cut (:hit-at / :hit-reach), else none
 (check (equal (multiple-value-list (clash-window 1 14 2.0 nil nil)) '(14 2.0)))

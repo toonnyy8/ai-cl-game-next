@@ -106,6 +106,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   ;; the core system (core.lisp, docs/duel/DUEL_CORE.md)
   (cls nil)                             ; the triangle class of the move he is in (:na :ns :as :sa), NIL outside a classed move
   (cls-t 0 :type fixnum)                ; *MATCH-TICK* that move started on (AS against SA: the later start wins)
+  (dead-mv nil) (dead-t -1 :type fixnum)   ; research R3 (*CORE-CANCEL-DEAD*): the move and its CLS-T a cancel killed (CORE-SEG-DEAD-P)
   (pre 0 :type fixnum)                  ; frames that move waited before its startup (an AS out of a cancel: CORE-PRE-ROLL, DUEL_CORE §2.1.3)
   (presses 0 :type fixnum)              ; attack presses since neutral (an AS after NA n writes the pointer n)
   (ptr 1 :type fixnum)                  ; the SP pointer 1 .. 3: the next neutral SP is NS n (kept through resets, 1 each match)
@@ -207,7 +208,7 @@ writes it. CAM-RELATIVE: the stick is camera-relative (humans); else it is alrea
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (xkey -1 :type fixnum) (xmove -1 :type fixnum)   ; the cancel answered (core-ai.lisp CAI-XCH-NEW): its exchange tick, his move's start
   (xown nil)                            ; ... the NS segment's own hit was the cancel's (FIGHTER-HITS on the cancel's step, not a later absorbed hit)
-  (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch), the NS carry-on, acted
+  (xpick nil) (xcarry nil) (xdone nil)  ; ... its answer (J side :as / :j / :hoho; NS side :hoho / :watch / :early, *CAI-XCH-EARLY-P*), the NS carry-on, acted
   (clash-key -1 :type fixnum)           ; the start tick of his move the clash's roll was made for (CAI-CLASH)
   (fin-t 0 :type fixnum)                ; the last tick it attacked or was hit (in :MOVE or reeling): the late-match finish's quiet (CAI-FINISH)
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs

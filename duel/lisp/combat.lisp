@@ -307,7 +307,7 @@ Hoho's counter strike on its frame (it always connects)."
       (when (and (eq (fighter-state f) :hoho) (fighter-perfect f) (= (fighter-sf f) *hoho-counter-strike*))
         (push (make-pending :att e :def o :hw *perfect-hw* :sx (aref p 0) :sz (aref p 2) :state (defender-state o))
               *pending*))
-      (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
+      (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (not (core-dead-p f)))   ; (research R3: a dead segment hits nothing)
         (let* ((sf (fighter-sf f)) (q (pos-of o)) (yaw (yaw-of e)) (go (gauges o))
                (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))) (ob (model-body (model o))))
           (loop for w across (mv-hits mv) for i from 0
@@ -330,7 +330,7 @@ as the hazard's own hit on him would be (CORE-VERDICT of its class against his w
 has no class: it is cut, nothing more; a cancel: CORE-HAZARD-NOHIT! (the owner refunded, an exchange) and it is gone; the wave's class
 wins (:hit): it flies on."
   (let ((mv (fighter-move f)))
-    (when (and (passive-p e :projectile-cut) (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
+    (when (and (passive-p e :projectile-cut) (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (not (core-dead-p f)))
       (let* ((sf (fighter-sf f)) (p (pos-of e)) (yaw (yaw-of e)) (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))))
         (loop for w across (mv-hits mv)
               when (and (<= (hw-from w) sf) (< sf (hw-to w)))

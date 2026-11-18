@@ -3646,3 +3646,34 @@ and 69.9 % of the Konpaku come from combos opened inside an exchange after a can
 is decided by ~5.1 Konpaku events (Soul Breaks and Kikons; Kikon 45 % of the Konpaku, HH 100 %). So the arms vary the layer that decides
 least, and a few large swings make every match noisy. Next (open): arms that differ in the exchange (bait / no cancel, AS for the break,
 gauge economy for Hoho and burst), each with its own exchange unit, before any switching (table or fuzzy tree) can show.
+
+### 11.38 The exchange's defence: the NS side's answer as a match-level equilibrium mix (2026-11-18)
+
+The user, after §11.37 and q3-xch (`docs/research/strategy-drsi/sp/arms6/xch.md`: a fixed J-side rule beat the shipped CPU, KI Kenpachi
+`own` .133 -> .995): 「先補防守」 (fix the NS side before any J-side rule), then 「先量規則版」, 「先量 R3」, 「做防守混合，也討論修兵那格怎麼改」 and
+「AS 段也能在相消後立刻出 SA」. Record: `docs/research/strategy-drsi/sp/arms6/xch2.md` (§q4, §R1, §R3, §NS-BR, §MIX, §R4); target: no fixed
+J-side policy (shipped / hold / own / ownj / j, STRAT_XPOL) far above the shipped CPU.
+
+- **NS timing alone (v1, v2):** an early SA at the cancel its own hit made (`*cai-xch-early-p*`) and at the one his J made (new
+  `*cai-xch-early-his-p*`): no setting closed it; .15 / .3 flipped KI to Kenpachi (.138 -> .660) and left KI Ichigo `j` .965.
+- **Rule variants, research knobs, default off:** R1 `*sp-cancel-gain-once*` (a cancel's +30 once an exchange), R2
+  `*sp-recancel-no-refund*`, R3 `*core-cancel-dead*` (a cancelled segment loses its hit window and its class): none made the exchange a
+  guess. The re-cancel loops are positional, not paid by the gauge (R1 halved the cancel gains, re-cancels 1.66 -> 1.57 an exchange).
+- **The NS side's best responses (§NS-BR):** fixed NS arms (strat-run `STRAT_XNS`) against fixed J policies, a match-level matrix and
+  fictitious play. KI: a mix exists (early .533 / watch + carry .423 / main .044, value .705); it needs the carry tied to the pick.
+  KH, Hisagi's J against Kenpachi: no NS arm helps, since ~95 % of those wins are Hisagi's ranged J chain cancelling Kenpachi's Shikai AS1
+  route segment by segment, and an AS segment has no legal answer after a cancel (no SA out of an AS, Hoho refused, recovery 20-24 f vs a
+  10 f link): a human with a perfect read loses too.
+- **Built (§MIX):** CAI-XCH-STEP's carry by the pick (new `*cai-xch-carry-watch-p*` when watching, `*cai-xch-carry-p*` otherwise; one
+  roll an event, the same at every tier: a mix, not a strength); new unit keys `:xch-early-his-p`, `:xch-carry-watch-p` (the chance itself,
+  CAI-MIX-ROLL; a strategy without them falls back to the older keys). Global defaults stay main's (early 1.0 / 0, carry-watch = carry).
+  Units: `:d-x-ki-k` early .58 / .53, carry-watch 1.0, `:xch-sa-p 1.6`; `:d-x-ki-i` and `:d-x-kh-k` watch + carry (early 0 / 0); `:d-x-kh-h`
+  early .58 / .06, carry 1.0 (`:xch-carry-p` 3.0 -> 5.0, `:xch-sa-p` 1.5 -> 1.6). Mirrors and IH keep the defaults.
+- **Out of sample** (seeds 401-500, both orders, 200 a cell, the knobs only), the J side's best fixed policy - shipped: KI vs Kenpachi's NS
+  0 (was +.045 at .945), KI vs Ichigo's NS +.105 (Kenpachi's `own` was .995), KH vs Hisagi's NS +.080, KH vs Kenpachi's NS +.185 (`ownj`
+  .900: the known hole above). Shipped vs shipped: KI Kenpachi .103 -> .270, KH Hisagi .760 -> .715.
+- **Gates** (vs `sp/diag/tier/*-brk50.txt`): ladder 20 / 27 -> 20 / 27 (H>N HK .875 -> .990, N>E HK .590 -> .520, N>E IK .945 -> .880,
+  E>M IK .550 -> .445, E>M KI .800 -> .855); bar D KI Kenpachi's points .138 -> .263, KH K.O. 1.000 -> .975, the rest identical
+  (`ladder-mix.txt`, `bar-mix.txt`). G2: II / KK identical, IK 20 lines (P1 8-0, 201.0 s) -> 28 (P1 3-0, 275.8 s). Host tests 3796 ALL PASS.
+- **Next (in progress):** R4, the user's 「AS 段也能在相消後立刻出 SA」: DUEL_CORE §2.1.1's cancel out extended to AS segments, measured
+  behind a default-off knob before the user decides to turn it on.
