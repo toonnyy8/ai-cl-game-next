@@ -191,6 +191,11 @@ cancelled move holds into no Kikon. The J side's answer is picked in CAI-XCH-STE
           (brain-xown b) (plusp (fighter-hits f))
           (brain-press-left b) 0)))
 
+(defvar *cai-xch-hook* nil
+  "NIL in the game; a research tool's function (e b f kit d) run once per exchange event, right after CAI-XCH-STEP's rolls, in rollouts too
+(it checks *IN-ROLLOUT* itself; tools/simgate/strat-run.lisp STRAT_XLOG / STRAT_XPOL: logs the cues and may replace BRAIN-XPICK /
+BRAIN-XCARRY; docs/research/strategy-drsi/sp/arms6/xch.md).")
+
 (defun cai-xch-step (e b f kit s d)
   "Play the cancel his move in play took part in (CAI-XCH-NEW): T while it owns the step, so no style, MCTS or generic move step presses
 under it (a real hit's route stays theirs). No Hoho on either side: an open exchange refuses it (DUEL_CORE §2.1.2). J side: one roll
@@ -206,7 +211,8 @@ starts the SA; nothing seen by the segment's active end, the next segment or the
                   (brain-xcarry b) (cai-roll b :xch-carry-p *cai-xch-carry-p*))
             (let ((as (kit-core-move kit :as (core-next-as f))))
               (setf (brain-xpick b) (xch-j-answer (sim-rnd01) (xch-j-weights (brain-chance b *cai-xch-j*) (strat-out (brain-now b) :xch-j nil))
-                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b)))))))))
+                                                  (and as (not (fighter-as-done f)) (<= d (+ (strat-reach as) (cai-margin b))))))))
+        (when *cai-xch-hook* (funcall *cai-xch-hook* e b f kit d)))
       (unless (brain-xdone b)
         (if (eq (fighter-cls f) :ns)
             (cond ((and (eq (brain-xpick b) :watch)
