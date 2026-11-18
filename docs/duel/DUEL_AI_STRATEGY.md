@@ -3675,5 +3675,9 @@ J-side policy (shipped / hold / own / ownj / j, STRAT_XPOL) far above the shippe
 - **Gates** (vs `sp/diag/tier/*-brk50.txt`): ladder 20 / 27 -> 20 / 27 (H>N HK .875 -> .990, N>E HK .590 -> .520, N>E IK .945 -> .880,
   E>M IK .550 -> .445, E>M KI .800 -> .855); bar D KI Kenpachi's points .138 -> .263, KH K.O. 1.000 -> .975, the rest identical
   (`ladder-mix.txt`, `bar-mix.txt`). G2: II / KK identical, IK 20 lines (P1 8-0, 201.0 s) -> 28 (P1 3-0, 275.8 s). Host tests 3796 ALL PASS.
-- **Next (in progress):** R4, the user's 「AS 段也能在相消後立刻出 SA」: DUEL_CORE §2.1.1's cancel out extended to AS segments, measured
-  behind a default-off knob before the user decides to turn it on.
+- **R4, measured and left off** (the user: 「AS 段也能在相消後立刻出 SA」, then 「不開 R4，修兵那格留著」): `*core-as-sa-out*` (default off)
+  extends DUEL_CORE §2.1.1's cancel out to AS segments (the pure gate `core-as-sa-out-p`; a latched press fires on the cancel; the CPU's AS
+  side answers with the NS side's picks). The scripted check works (`xch/r4-trial`: the SA absorbs Hisagi's link and hits), but at match
+  level (seeds 401-500) Hisagi's `ownj` stays .900 (his J3 started before the cancel, so the watching AS side never sees a new turn; a
+  re-solved mix .878) and KI flips (shipped Kenpachi .270 -> .015). The rule stays as it is; KH Kenpachi's NS cell is the known hole.
+  R1-R4 stay in the code as research knobs, all default off (`--cvc` byte-identical, host tests 3802 ALL PASS).
