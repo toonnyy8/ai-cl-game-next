@@ -379,3 +379,113 @@ Ichigo's win rate against every fixed J policy:
   can't go earlier than the CPU's first exchange step (the wait sweep), so what is missing there would be a faster NS answer to his next
   J. KH's matrix and equilibrium were not built.
 - Nothing ships. The pick-dependent carry is a code change in the shared exchange step and needs the user's decision.
+
+## §MIX. The NS-side equilibrium mixes, built (2026-11-18)
+
+The user: 「做防守混合，也討論修兵那格怎麼改」. Build the defence mix for the four NS sides of KI and KH, leave KH's Kenpachi-NS cell as a
+known hole, and give the frame facts for that cell (Part A, below).
+
+### Part A: the KH cell's frame facts
+
+Seeds 301-304, with Hisagi playing `j` and Kenpachi as P1. About 95 % of Hisagi's `j` wins in that cell are **not against Kenpachi's NS
+side**: they are Hisagi's Bankai (ranged) J chain against Kenpachi's Shikai **AS1 route** (`ke-s-as1 / b / c / d`, class AS). When Kenpachi
+was really in an NS segment (`ke-s-n1a`), Hisagi's `j` lost: Kenpachi hit first in all 33 of those exchanges. That's why no NS arm moved
+the cell.
+
+Seed 301 (seed 302 is the same to the tick):
+
+| tick | event | frames |
+|---|---|---|
+| 6155 | Kenpachi AS1D starts (the route's last segment) | startup 14, active 4, recovery 24 |
+| 6177 | **cancel A**: Hisagi's NA4 hits AS1D's startup | hitstop 3, slow motion x0.2 for 0.7 s (about 42 ticks, about 8 sim frames; both sides) |
+| 6182 | Hisagi's CPU picks `j` | |
+| 6192 | Hisagi's J3 starts (a new move, the chain's ender) | startup 10, active 3, recovery 18; reach `*hs-r-j-reach*`, arc 100 |
+| 6202 | **cancel B**: AS1D's own hit lands in J3's startup | |
+| 6241 | J3's own window, still live after the cancel, hits AS1D's recovery (the breakthrough) | |
+
+- **J3 lands about 20 sim frames before Kenpachi is free.** At cancel B, J3 is about 8 sim frames from its first active frame, while AS1D
+  still has its active and recovery frames (about 28) to play.
+- Each earlier link runs the same race: Hisagi's links (startup 10, active 3) start 15 ticks after each cancel, Kenpachi's AS segments
+  about 23 ticks after. They cancel each other, and Hisagi gains +30 each time, until Kenpachi's route runs out of segments.
+- **Kenpachi's legal answers after the cancel:**
+  - the next AS segment: AS vs NA is a cancel, never a win; after AS1D there is none;
+  - no SA out of an AS segment (only out of an NS);
+  - Hoho is refused in an open exchange;
+  - no guard in the core layout;
+  - stopping the route leaves his 20-24 frames of recovery against Hisagi's 10-frame startup.
+  - **So a human with a perfect read loses this too.** It is not the CPU's perception.
+- **What would have to change** (one number each):
+  - **a rule:** the AS side gets the same out of a cancel as the NS side, an SA at once (DUEL_CORE §2.1.1 extended to AS segments; SA
+    absorbs NA);
+  - **Kenpachi's kit:** his Shikai AS1 segments' recovery from 20-24 to under about 8 frames (too large);
+  - **Hisagi's kit:** his Bankai ranged J link startup from 10 to about 26 or more (too large);
+  - **not enough on its own:** R3 removes J3's late hit, but his next fresh J (startup 10-14) still lands inside the 24-frame recovery
+    (R3's measured KH `j` .835-.88).
+
+### The build
+
+- **The carry tied to the pick** (core-ai.lisp CAI-XCH-STEP, the same single roll per event):
+  - watching rolls the new `*cai-xch-carry-watch-p*`; an early SA (or none) rolls `*cai-xch-carry-p*`.
+  - Both are one value at every tier (a mix, not a strength). The default `*cai-xch-carry-watch-p*` equals `*cai-xch-carry-p*` (main's play).
+- **The pairing's unit sets each side's mix** (strategy.lisp `:d-x-*`, the tables' `:with`). Two new keys, both **the chance itself
+  (0-1, every tier)**, through CAI-MIX-ROLL: `:xch-early-his-p` and `:xch-carry-watch-p`.
+  - Why not a scale: main's default for the his-hit early SA is 0, which no scale lifts, and a mix has one value at every tier.
+  - A strategy without the new key keeps the old behaviour: `:xch-early-p` / `:xch-carry-p` scale that roll, as before the split.
+  - `:xch-early-p` still scales the own-hit early SA (now on a base of 1.0).
+  - KNOBS.md and style-knob.lisp's xkeys are updated.
+- **The global defaults go back to main's values:** `*cai-xch-early-p*` 1.0 (was .15 on this branch), `*cai-xch-early-his-p*` 0 (was
+  .3), `*cai-xch-carry-watch-p*` = `*cai-xch-carry-p*`.
+  - **Why:** no one-size mix serves the four measured sides. KI Ichigo's NS side wants no early SA at all, KI Kenpachi's wants .58 / .53,
+    KH Hisagi's .58 / .06. And main's play is the known state for the unmeasured pairings (KK, II, HH, IH / HI).
+  - The mirrors are left on the defaults: their tables have no `:with` unit. `--cvc`'s II and KK lines match the main reference exactly
+    (33 / 27).
+
+| unit (the side's table) | keys added / changed | the mix at HARD (watch; early own-hit / his-hit; carry watching / early) |
+|---|---|---|
+| `:d-x-ki-k` (KI Kenpachi) | `:xch-sa-p 1.6` (new), `:xch-early-p 0.58`, `:xch-early-his-p 0.53`, `:xch-carry-watch-p 1.0` | 1.0; .58 / .53; 1.0 / .2 |
+| `:d-x-ki-i` (KI Ichigo) | `:xch-early-p 0.0`, `:xch-early-his-p 0.0`, `:xch-carry-watch-p 1.0` | 1.0; 0 / 0; 1.0 / (none) |
+| `:d-x-kh-h` (KH Hisagi) | `:xch-sa-p 1.5 -> 1.6`, `:xch-carry-p 3.0 -> 5.0`, `:xch-early-p 0.58`, `:xch-early-his-p 0.06`, `:xch-carry-watch-p 1.0` | 1.0; .58 / .06; 1.0 / 1.0 |
+| `:d-x-kh-k` (KH Kenpachi, the known hole) | `:xch-early-p 0.0`, `:xch-early-his-p 0.0`, `:xch-carry-watch-p 1.0` | 1.0; 0 / 0; 1.0 / (none) |
+
+### Solving each side (`xch/mix/<side>/*.txt`, `xch/mix/matrices.txt`, `xch-nsmat.py --dir`)
+
+Method:
+- NS arms (`STRAT_XNS`, the NS character only): shipped, early, main1, watch + carry 1, carry 1, watch, early + carry 0. Seeds 301-400,
+  both orders, against every fixed J policy (shipped / hold / own / ownj / j), main's rolls otherwise.
+- Fictitious play for the zero-sum equilibrium.
+- KI Kenpachi's side reuses §NS-BR's matrix.
+
+| NS side | equilibrium NS mix | value (the J side's best) | shipped NS side's column best |
+|---|---|---|---|
+| KI Kenpachi | early .533, watch + carry .423, main1 .044 | .705 | .945 |
+| KI Ichigo | watch + carry 1.000 (pure) | .370 | .995 |
+| KH Hisagi | carry 1 (its shipped picks) .518, watch + carry .420, early .062 | .267 | .460 |
+| KH Kenpachi | watch + carry 1.000 (pure) | .845 (the hole) | .985 |
+
+### The out-of-sample A/B with the knobs themselves (seeds 401-500, both orders, 200 matches an arm; no STRAT_SET, no STRAT_XNS)
+
+`xch/mix/AB401-*.txt`. The J side's character's win rate:
+
+| NS side (J side) | shipped | hold | own | ownj | j | best - shipped | value predicted |
+|---|---|---|---|---|---|---|---|
+| KI Kenpachi (Ichigo J) | **.730** | .445 | .455 | .715 | .720 | 0 | .705 |
+| KI Ichigo (Kenpachi J) | .270 | .200 | .185 | .270 | **.375** | +.105 | .370 |
+| KH Hisagi (Kenpachi J) | .285 | .005 | .180 | **.365** | .025 | +.080 | .267 |
+| KH Kenpachi (Hisagi J), the hole | .715 | .545 | .635 | **.900** | .795 | +.185 | .845 |
+
+- Before, at main (§NS-BR / §MIX sweeps): KI Ichigo's best fixed policy against Kenpachi was .945, Kenpachi's against Ichigo .995;
+  Kenpachi's against Hisagi .460, Hisagi's against Kenpachi .985.
+- **Shipped vs shipped**, seeds 401-500, main (the abdd87e4 build) → after: KI Kenpachi .103 → .270 (Ichigo .897 → .730); KH Hisagi .760
+  → .715 (Kenpachi .240 → .285). (The main file lost 10 of 400 rows to interleaved appends from parallel runs: 195-196 rows a pairing.)
+- **Three of the four sides now hold every fixed J policy near the predicted value**, and none of them more than +.105 over shipped.
+  KH's Kenpachi-NS cell stays the known hole (Hisagi's `ownj` .900, Part A).
+
+### Checks
+
+- Host tests 3796 ALL PASS. pkgcheck clean apart from DUEL::APP. `tests/sp-costs-check.py` 116 PASS.
+- `--cvc`, changed by design and not regenerated:
+  - II PASS (33 lines, P1 7-0, 322.8 s);
+  - KK PASS (27 lines, P2 0-5, 267.6 s);
+  - **IK FAIL as expected: 28 lines vs 20, P1 3-0, 275.8 s** (was P1 8-0, 201.0 s in the ref).
+- The research knobs stay in, default off: `*sp-cancel-gain-once*` (R1), `*sp-recancel-no-refund*` (R2), `*core-cancel-dead*` (R3, with
+  the fighter slots `dead-mv` / `dead-t`). The research tools: strat-run.lisp STRAT_XLOG / XPOL / XNS, trial.lisp STRAT_SET.

@@ -1,0 +1,50 @@
+# KI Kenpachi's NS side (xch/nsmat)
+ichigo win rate |       c1 |    early |    main1 |  main1c1 |     ship |  watchc1
+        shipped |    0.840 |    0.680 |    0.575 |    0.640 |    0.835 |    0.750
+            own |    0.490 |    0.635 |    0.500 |    0.415 |    0.630 |    0.280
+           ownj |    0.900 |    0.710 |    0.925 |    0.920 |    0.945 |    0.675
+              j |    0.460 |    0.780 |    0.560 |    0.565 |    0.885 |    0.625
+  column max (his best fixed policy) |    0.900 |    0.780 |    0.925 |    0.920 |    0.945 |    0.750
+value about 0.705 (bounds: the J side guarantees 0.705, the NS side holds it to 0.705)
+J side mix: shipped 0.485, ownj 0.383, j 0.132
+NS side mix: early 0.533, main1 0.044, watchc1 0.423
+each J policy against that NS mix: shipped 0.705, own 0.479, ownj 0.705, j 0.705
+
+# KI Ichigo's NS side
+kenpachi win rate |       c1 |    early |  earlyc0 |    main1 |     ship |    watch |  watchc1
+        shipped |    0.135 |    0.985 |    0.990 |    0.165 |    0.165 |    0.150 |    0.100
+           hold |    0.170 |    0.155 |    0.150 |    0.355 |    0.355 |    0.875 |    0.310
+            own |    0.945 |    0.690 |    0.690 |    0.995 |    0.995 |    0.940 |    0.370
+           ownj |    0.655 |    0.330 |    0.315 |    0.685 |    0.685 |    0.520 |    0.335
+              j |    0.235 |    0.155 |    0.145 |    0.245 |    0.245 |    0.425 |    0.320
+  column max (his best fixed policy) |    0.945 |    0.985 |    0.990 |    0.995 |    0.995 |    0.940 |    0.370
+value about 0.370 (bounds: the J side guarantees 0.370, the NS side holds it to 0.370)
+J side mix: own 1.000
+NS side mix: watchc1 1.000
+each J policy against that NS mix: shipped 0.100, hold 0.310, own 0.370, ownj 0.335, j 0.320
+
+# KH Hisagi's NS side
+kenpachi win rate |       c1 |    early |  earlyc0 |    main1 |     ship |    watch |  watchc1
+        shipped |    0.250 |    0.980 |    0.995 |    0.230 |    0.270 |    0.060 |    0.180
+           hold |    0.000 |    0.065 |    0.060 |    0.015 |    0.020 |    0.395 |    0.140
+            own |    0.110 |    0.310 |    0.290 |    0.205 |    0.215 |    0.520 |    0.455
+           ownj |    0.410 |    0.135 |    0.160 |    0.435 |    0.460 |    0.175 |    0.110
+              j |    0.000 |    0.005 |    0.010 |    0.000 |    0.000 |    0.130 |    0.030
+  column max (his best fixed policy) |    0.410 |    0.980 |    0.995 |    0.435 |    0.460 |    0.520 |    0.455
+value about 0.267 (bounds: the J side guarantees 0.267, the NS side holds it to 0.267)
+J side mix: shipped 0.064, own 0.443, ownj 0.493
+NS side mix: c1 0.518, early 0.062, watchc1 0.420
+each J policy against that NS mix: shipped 0.266, hold 0.063, own 0.267, ownj 0.267, j 0.013
+
+# KH Kenpachi's NS side
+hisagi win rate |       c1 |    early |  earlyc0 |    main1 |     ship |    watch |  watchc1
+        shipped |    0.760 |    0.870 |    0.875 |    0.730 |    0.730 |    0.790 |    0.775
+           hold |    0.665 |    0.765 |    0.800 |    0.710 |    0.710 |    0.800 |    0.615
+            own |    0.790 |    0.855 |    0.855 |    0.770 |    0.770 |    0.825 |    0.720
+           ownj |    0.975 |    0.975 |    0.975 |    0.985 |    0.985 |    0.965 |    0.845
+              j |    0.855 |    0.850 |    0.855 |    0.865 |    0.865 |    0.960 |    0.820
+  column max (his best fixed policy) |    0.975 |    0.975 |    0.975 |    0.985 |    0.985 |    0.965 |    0.845
+value about 0.845 (bounds: the J side guarantees 0.845, the NS side holds it to 0.845)
+J side mix: ownj 1.000
+NS side mix: watchc1 1.000
+each J policy against that NS mix: shipped 0.775, hold 0.615, own 0.720, ownj 0.845, j 0.820
