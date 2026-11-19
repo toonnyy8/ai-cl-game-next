@@ -1185,8 +1185,9 @@ The segments with no blade window: the tip or the body where the move says on it
 - Contact sheets: `tests/shots/duel-yama-k3-sheet.png`, `duel-yama-k3-sheet-phone.png` (each segment at its S, both cameras).
 
 The links land on the frames the trials gave (the stills' logs: NS2b +44, NS2c +69, AS2a +33, AS2b +56, NS3b +47, NS3c +65, AS3a / b / c +48
-/ +69 / +89, 北 AS +19, the SA +44). On a hit the S still falls inside the 8 f hitstop, which shows the frame before S (so 西's first
-flare shows from the frame after the hitstop: the K1 look keys on the move frame). Checked by eye: orange only in 西 (NS2a's two flares,
+/ +69 / +89, 北 AS +19, the SA +44). Observed, cause not traced: NS2a's and NS2b's S stills (S+1, inside the 8 f hitstop of their hit)
+show the pose before S and no flare yet, which shows from the frame after the hitstop (`ns2b-end`); AS2a's S still shows the hit pose.
+Checked by eye: orange only in 西 (NS2a's two flares,
 the advance's and the throw's, 西's stance garb, the armour) and 北 (the burn on the gather, the band's rims); the dead are charcoal with red
 hairlines; the armour shows the red hexagon with no yellow spark; the planted blade stands at his right in the grab and the throw and by
 his front foot in AS3b; the six 南 segments read apart (upright blade before the face, the half kneel with the point in, kneeling up with
@@ -1199,7 +1200,7 @@ the head lifted, the blade overhead; the reverse stab, the low sweep, the back t
 | Presentation only: the native trials | `tests/trials/yamamoto-bankai.lisp` (514 lines of `combo-trial.py --log`), `yamamoto-core.lisp` (241), `yamamoto-blaze.lisp` (268): identical to 7eb02f5b's, every line |
 | Presentation only: the browser | `tests/scripts/duel-yama-bankai.json`: every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 7eb02f5b (86 lines) |
 | Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
-| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 7eb02f5b: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's; the YK match (seed 28) shows no K3 clip on its pinned frames (its Yamamoto is not in a K3 segment then), so nothing differs |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 7eb02f5b: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's. It does not exercise K3: in the YK match (seed 28) Yamamoto never awakens (his log: Shikai moves only, no AWAKEN / ZANKA), and no pinned scene shows his Bankai; the K3 stills (18.7) are the review of the changed looks |
 | Host tests | ALL PASS, 4105 checks (+21: the FK rows by the hand, the cast checks, the planted windows' grips, the two hooks and `:planted` off for every other kit, the blend list) |
 | pkgcheck, debug ranges | identical to 7eb02f5b's output (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 0 errors (no new debug number: the stills use 87000+k, 87301-87303, 87437, 87444-87446, 2109) |
 | 0 B a frame | debug 87448: `... smear 0, planted 0, burn 0, plant-spot 0, dead x8 0` (planted read 8 B a draw before deviation 4) |
@@ -1214,5 +1215,7 @@ the head lifted, the blade overhead; the reverse stab, the low sweep, the back t
   a per-predecessor clip would need a mechanism that does not exist (`:clip-map` is per form).
 - The grab's hand stops at 1.26 m, below the collar (deviation 7).
 - K4 (§15.1): the three Kikon cinematics (`ya-kaka` keeps its name and its held upright pose, which §15.3.3's beat 0 names at f16).
+- **For the lead:** on a hit, 西's flares (L8, keyed on the move frame by YAMA-BK-MOVES since K1) seem to show only after the 8 f hitstop
+  (18.7's observation); if so, every move-frame look lags its hit by the hitstop in play. Not traced here.
 - Closed here: §16.5's yellow spark and AS2a's reach, §17.7's J1 pop and K3.
 - From before: the toon shader's 1.2 px white edge on INK shapes (K1 deviation 8, §17.7); `duel-view-strips.json`'s off-by-one (§17.7).
