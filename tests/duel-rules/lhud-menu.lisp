@@ -19,7 +19,7 @@
 (check (equal (lm-bind-name 1 t) "A"))
 (check (equal (lm-bind-name 0 nil) "—"))
 (check (equal (lm-card-name 3) "ICHIGO"))
-(check (equal (lm-card-name 0) "—"))                                               ; a retired roster index: the dash, as menu.js
+(check (equal (lm-card-name 2) "—"))                                               ; a retired roster index (Rukia; Yamamoto has his card again since 2026-11-19): the dash, as menu.js
 (check (equal (lm-sel-title 1 1) "CHOOSE THE DUMMY"))
 (check (equal (cdr (aref *lm-screens* 3)) "SETTINGS"))
 
@@ -78,13 +78,14 @@
   (check (near (aref g 8) 223.3)))
 (let ((g (lmg-at 390.0 844.0 #'lm-ctl-geom! 1)))                                    ; CONTROLS, the phone's gestures card
   (check (and (near (aref g 6) 573) (near (aref g 8) 467.5) (near (aref g 11) (/ 358 560.0)))))
-(let* ((w (make-f32 3)))
-  (setf (aref w 0) 1.0 (aref w 1) 4.0 (aref w 2) 1.0)                             ; SELECT, a phone, phase 0 (Ichigo focused)
+(check (= (length *lm-card-order*) +lm-nc+ 4))                                   ; SELECT's four cards (Yamamoto's since 2026-11-19)
+(let* ((w (make-f32 4)))
+  (setf (aref w 0) 1.0 (aref w 1) 4.0 (aref w 2) 1.0 (aref w 3) 1.0)              ; SELECT, a phone, phase 0 (Ichigo focused)
   (let ((g (lmg-at 390.0 844.0 #'lm-select-geom! w 0)))
-    (check (and (near (aref g 9) 196) (near (aref g 15) 84.3) (near (aref g 11) 290.3) (near (aref g 17) 337.3) (near (aref g 13) 637.7))))
+    (check (and (near (aref g 9) 196) (near (aref g 17) 70.83) (near (aref g 11) 276.83) (near (aref g 19) 283.31) (near (aref g 15) 650.97))))
   (setf (aref w 0) 4.0 (aref w 1) 1.0)                                             ; the last page (Kenpachi focused, the foot wraps)
   (let ((g (lmg-at 390.0 844.0 #'lm-select-geom! w 1)))
-    (check (and (near (aref g 9) 196) (near (aref g 15) 294.7) (near (aref g 11) 500.7) (near (aref g 17) 73.7) (near (aref g 7) 676))))
+    (check (and (near (aref g 9) 196) (near (aref g 17) 246.89) (near (aref g 11) 452.89) (near (aref g 19) 61.72) (near (aref g 7) 676))))
   (setf (aref w 0) 1.0 (aref w 1) 2.6)                                             ; desktop, phase 0
   (let ((g (lmg-at 1280.0 720.0 #'lm-select-geom! w 0)))
-    (check (and (near (aref g 5) 145.2) (near (aref g 6) 598) (near (aref g 8) 16) (near (aref g 14) 266.96) (near (aref g 16) 694.1)))))
+    (check (and (near (aref g 5) 145.2) (near (aref g 6) 598) (near (aref g 8) 16) (near (aref g 16) 217.5) (near (aref g 18) 565.5) (near (aref g 14) 1046.5)))))

@@ -306,3 +306,12 @@ hazard's data from the draw path (nothing in the sim reads it; replace with the 
 set, decay, the Reishi drain floored at 1, free NS / AS, the cancel burn), the form latch at neutral, the HUD bar. C: the Bankai (東 / 西 /
 南 pointers, the marks on an AS hit, 北 as a flag, 天地灰尽), the awakening in place of `:no-awaken`. Both: the Kikon storyboards, the
 pointer stances' own clips, the bone wall's wave stop.
+
+## 12. The select screen (2026-11-19; the user: 「選角畫面沒有修改，導致我無法選擇山本」)
+
+Stage A un-retired him in the roster but the select screen's cards were a fixed list of three (`*lm-card-order*` #(1 3 7)), so the
+cursor reached him with no card to show or pick. Now four cards (#(1 3 7 0)): `+lm-nc+` 4, the geometry's slots by `lmc-xy` / `lmc-wh`
+(card k at [8 + 2k] and [8 + 2N + 2k], the head's height at [8 + 4N]), the gaps 10 x (N - 1), the tween buffers N cards; his card (炎, the
+three pointers' themes); a name wider than its card shrinks to fit (desktop: the narrower unfocused cards clipped KENPACHI); "4 PLAYABLE".
+Host test: the card count and the new geometry (phone and desktop). The looks gate's `menus` scenario shoots four select stills; its
+`LOOKS_SEEDS` (2000 + seed, a draw over the playable roster) need re-pinning over the four (open; the looks gate is for refactors).

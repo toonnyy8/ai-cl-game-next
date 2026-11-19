@@ -116,7 +116,7 @@ LOOKS_START = 4.0          # virtual s of the first event: the title stands from
 # (Hisagi added, DUEL_HISAGI B2a); before: ((1 YS) (72 RI) (33 KS) (44 BK)) over six (2026-10-13; the old Lille removed),
 # and ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
 # Re-pinned 2026-11-10 over the three that play since the core system (K I H; the draw is no longer over seven): 1 KH, 3 HK, 7 II, 10 IK.
-LOOKS_SEEDS = ((1, "KH"), (3, "HK"), (7, "II"), (10, "IK"))
+LOOKS_SEEDS = ((1, "KH"), (3, "HK"), (7, "II"), (10, "IK"))   # TO RE-PIN: the draw is over the playable roster, four since 2026-11-19 (Yamamoto back); the match check will flag these
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
 # the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's CINE-AT
 # (35000 + f: Kenpachi's Bankai), 75300 + k Ichigo's awakening at frame 2k. Re-pinned 2026-11-13 (REFACTOR_2026-11 R7) to the
@@ -149,7 +149,7 @@ def looks_scenarios():
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU
     t += 4.5
-    for i in range(3):
+    for i in range(4):                                                # (four since Yamamoto's return, 2026-11-19: select-3 is new)
         shot(s, t, f"select-{i}"); key(s, t + 0.1, "ArrowRight"); t += 0.6
     sc["menus"] = (s, done(s), ())
 

@@ -153,30 +153,30 @@ the keyboard map's scale (its 640 x 196 viewBox at the body's width, at most 1),
 ;;; ---------------------------------------------------------------- SELECT
 (defun-fast-inline lm-select-geom! (out cw ch weights last)
   "SELECT (menu.css #s-select: rows auto 1fr auto, gap 18; .sel-head, .fighters, .sel-foot) in CSS px from the content box OUT [0..3];
-WEIGHTS the three cards' flex-grow (tweened, 1 -> 2.6, narrow 4), LAST the last page shown (the foot's rows): [4] the head's top,
-[5] the cards' top, [6] the cards' bottom, [7] the foot's top, [8 + 2k] card k's left / top and [14 + 2k] its width / height (desktop
-side by side, gap 10; narrow stacked), [20] the head's height."
+WEIGHTS the +LM-NC+ cards' flex-grow (tweened, 1 -> 2.6, narrow 4), LAST the last page shown (the foot's rows): [4] the head's top,
+[5] the cards' top, [6] the cards' bottom, [7] the foot's top, card k's left / top at (LMC-XY k) and its width / height at (LMC-WH k)
+(desktop side by side, gap 10; narrow stacked), [8 + 4 +LM-NC+] the head's height."
   (declare (type f32vec out weights) (single-float cw ch) (fixnum last))
   (let* ((narrow (lm-narrow-p cw)) (x0 (aref out 0)) (y0 (aref out 1)) (x1 (aref out 2)) (y1 (aref out 3))
          (headh (if narrow 114f0 (+ 10f0 10f0 (* 0.9f0 (fmx 30f0 (fmn (* 0.04f0 cw) 48f0))))))
          (footh (if (= last 1) (if narrow (+ 38f0 16f0 54f0) 54f0) 44f0))   ; (.sel-foot min-height 44; narrow, the rows wrap)
          (top (+ y0 headh 18f0)) (bot (- y1 footh 18f0))
-         (sum (+ (aref weights 0) (aref weights 1) (aref weights 2))))
+         (sum (let ((a 0f0)) (declare (single-float a)) (dotimes (k +lm-nc+ a) (incf a (aref weights k))))))
     (declare (single-float x0 y0 x1 y1 headh footh top bot sum))
-    (setf (aref out 4) y0 (aref out 5) top (aref out 6) bot (aref out 7) (+ bot 18f0) (aref out 20) headh)
+    (setf (aref out 4) y0 (aref out 5) top (aref out 6) bot (aref out 7) (+ bot 18f0) (aref out (+ 8 (* 4 +lm-nc+))) headh)
     (if narrow
-        (let* ((free (- bot top 20f0)) (y top))
+        (let* ((free (- bot top (* 10f0 (1- +lm-nc+)))) (y top))
           (declare (single-float free y))
-          (dotimes (k 3)
+          (dotimes (k +lm-nc+)
             (let* ((hk (* free (/ (aref weights k) sum))))
               (declare (single-float hk))
-              (setf (aref out (+ 8 (* 2 k))) x0 (aref out (+ 9 (* 2 k))) y (aref out (+ 14 (* 2 k))) (- x1 x0) (aref out (+ 15 (* 2 k))) hk
+              (setf (aref out (lmc-xy k)) x0 (aref out (1+ (lmc-xy k))) y (aref out (lmc-wh k)) (- x1 x0) (aref out (1+ (lmc-wh k))) hk
                     y (+ y hk 10f0)))))
-        (let* ((free (- x1 x0 20f0)) (x x0))
+        (let* ((free (- x1 x0 (* 10f0 (1- +lm-nc+)))) (x x0))
           (declare (single-float free x))
-          (dotimes (k 3)
+          (dotimes (k +lm-nc+)
             (let* ((wk (* free (/ (aref weights k) sum))))
               (declare (single-float wk))
-              (setf (aref out (+ 8 (* 2 k))) x (aref out (+ 9 (* 2 k))) top (aref out (+ 14 (* 2 k))) wk (aref out (+ 15 (* 2 k))) (- bot top)
+              (setf (aref out (lmc-xy k)) x (aref out (1+ (lmc-xy k))) top (aref out (lmc-wh k)) wk (aref out (1+ (lmc-wh k))) (- bot top)
                     x (+ x wk 10f0))))))
     out))
