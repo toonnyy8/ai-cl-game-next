@@ -26,7 +26,7 @@
 ;;;;       Ink (§2.4): every solid shape and weapon section gets an ink hull (*BODY-INK* colours, a
 ;;;;       shape's :ink k = width, small shapes and strokes none), drawn when ALPHA is 1.
 ;;;;   (draw-weapon key m &key alpha flash emissive rim)   a weapon at world matrix M (weapon frame)
-;;;;   (draw-planted-weapon key x z yaw &key alpha emissive)  a blade stuck in the ground (Ikkotsu, Kaka)
+;;;;   (draw-planted-weapon key x z yaw &key ahead right alpha emissive)  a blade stuck in the ground (Yamamoto's grab, AS3b)
 ;;;;   (body-weapon-tip body weapon joints out) / (body-weapon-base ...)   world points of the
 ;;;;       held weapon's tip / blade base (0.25 m up the blade) into OUT, for trails and fire.
 (in-package :duel)
@@ -219,19 +219,27 @@ feet height of the last DRAW-BODY (0 for a planted weapon). TINT (optional): the
 body, e.g. Lille II's legs in the mirror match's P2 *MIRROR-TINT*) on its untinted parts; NIL as before."
   (dolist (part (weapon-meshes (weapon-built (find-weapon key))))
     (if (svref part 1)
-        (draw-mesh (svref part 0) m :tint (svref part 1) :emissive (+ (svref part 2) emissive) :alpha alpha :toon *toon-body*)
+        (draw-mesh (svref part 0) m :tint (svref part 1) :alpha alpha :toon *toon-body*
+                   :emissive (if (= emissive 0f0) (svref part 2) (+ (svref part 2) emissive)))   ; (no new float box when 0: art K3's probe)
         (draw-mesh (svref part 0) m :flash flash :alpha alpha :emissive emissive :rim rim :tint tint :toon *toon-body*)))
   (when (>= alpha 1f0)
     (dolist (part (weapon-meshes (find-weapon key)))
       (when (svref part 3) (draw-mesh (svref part 3) m :toon *toon-ink*)))))
 
-(defun draw-planted-weapon (key x z yaw &key (alpha 1f0) (emissive 0f0))
-  "WEAPON KEY stuck in the ground at (X Z), leaning slightly toward YAW's facing (Ikkotsu, Kaka)."
-  (let* ((len (weapon-len (find-weapon key))) (m *dm2*))
-    ;; blade +Y pointing down (pitch pi), grip 0.8 of the blade length above the ground
-    (m4-euler! m (f32 x) (f32 (* 0.8 len)) (f32 z) (f32 yaw) (f32 (- pi 0.2)) 0f0)
-    (setf (aref *toon-body* 1) 0f0)
-    (draw-weapon key m :alpha alpha :emissive emissive)))
+(defun-fast %planted-m! (m x z yaw ahead right len)
+  "M: the planted weapon's frame AHEAD m before (X Z) along YAW's facing and RIGHT m to its right: blade +Y pointing down (pitch pi less
+0.2: the hilt leaning toward the facing), the grip 0.8 of the blade length LEN above the ground. 0 B (DRAW-PLANTED-WEAPON)."
+  (declare (type f32vec m) (single-float x z yaw ahead right len))
+  (let* ((fx (- (sin yaw))) (fz (- (cos yaw))))
+    (declare (single-float fx fz))
+    (%euler! m 0 (+ x (* ahead fx) (* right (- fz))) (* 0.8f0 len) (+ z (* ahead fz) (* right fx)) yaw 2.9415927f0 0f0 1f0)   ; (M4-EULER!'s
+    m))                                                                                                           ;  math, inline)
+(defun draw-planted-weapon (key x z yaw &key (ahead 0.7f0) (right 0f0) (alpha 1f0) (emissive 0f0))
+  "WEAPON KEY stuck in the ground AHEAD m before (X Z) along YAW's facing and RIGHT m to its right (his right), leaning slightly toward
+the facing (DRAW-FIGHTER's planted weapon: PLANTED-SPOT)."
+  (%planted-m! *dm2* x z yaw ahead right (weapon-len (find-weapon key)))
+  (setf (aref *toon-body* 1) 0f0)
+  (draw-weapon key *dm2* :alpha alpha :emissive emissive))
 
 (defun draw-shadow (x y z r)
   "The ink shadow disc of radius R under (X Z), smaller the higher the body is (Y)."

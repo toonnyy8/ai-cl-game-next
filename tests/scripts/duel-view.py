@@ -80,6 +80,16 @@ def yama_k2(cmd, shot, t):
         for k, view in ((1, "side"), (2, "front")):
             cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-k2-{n}-{view}", 0.9)
 
+# Art K3 (DUEL_YAMA_CORE §18): the same strips for 西, 南, 北's new and re-keyed clips (the viewer draws the blade in his hand: the planted
+# blade of the grab / AS3b is the game's, PLANTED-SPOT): tests/shots/duel-view-yama-k3-<clip>-<side|front>.png
+#   node tools/run.mjs dist/duelview --secs 60 --script tests/scripts/duel-view-yama-k3.json
+YA_K3 = ("ya-shonetsu", "ya-e-advance", "ya-e-gokui-cut", "ya-e-grab", "ya-e-throw", "ya-kaka", "ya-e-minami-b", "ya-e-minami-c",
+         "ya-e-as3a", "ya-e-as3b", "ya-e-as3c", "ya-e-tenchi", "ya-e-f1")
+def yama_k3(cmd, shot, t):
+    for n in YA_K3:
+        for k, view in ((1, "side"), (2, "front")):
+            cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-k3-{n}-{view}", 0.9)
+
 script("looks", looks); script("strips", strips); script("stage", stage); script("sounds", sounds); script("strings", strings)
-script("yama-k2", yama_k2)
+script("yama-k2", yama_k2); script("yama-k3", yama_k3)
 print(len(clips), "clips:", " ".join(c.lower() for c in clips))

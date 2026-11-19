@@ -1025,3 +1025,197 @@ black with a red hairline, no yellow. Checked by numbers, needs the user's eyes:
 - `tests/scripts/duel-view-strips.json`'s indices run one short past `ic-k-xb` (`duel-view.py`'s clip list misses DEFCLIP-MIRROR), from
   before K2; the K2 strip script counts it.
 - The smear's wash, like every INK shape, keeps the toon shader's 1.2 px white edge (K1's deviation 8, the same question).
+
+## 18. As built (art batch K3: 西, 南, 北, the SA, 2026-11-20)
+
+K3 of §15.1 (the user, 2026-11-19: 「先做這兩件事」; the spec §15.2.2, the decisions §15.4 D1-D4, D1 「焦黑骷髏配上紅色高光」, D4 「只有西和北有火」):
+西's five segments, 南's six, 北's two and the SA, each on its own clip at its move's S, frame 0 keyed from where its link lands; the cast
+checks; J1's stance pop (§17.7); the yellow armour spark (§16.5). Presentation only (proofs in 18.8). Code: `yama-art.lisp` (the clips and
+their named landing poses), `yama-look.lisp` (`*ya-plants*` / `yama-planted`, 北's burn `%ya-blade-burn`, the probe), `yama.lisp` (`:clip`,
+dropped `:clip-s`, two `:blend`s, the hook `:planted`, docstrings), and shared: `draw.lisp` `planted-spot`, `body.lisp`
+`draw-planted-weapon` (a spot) and `draw-weapon` (no float box at emissive 0), `feedback.lisp` (the `:armored` spark), `kit.lisp` (hook docs).
+
+### 18.1 What was built
+
+| Slot | Clip | As built |
+|---|---|---|
+| NS2a SHONETSU | `ya-shonetsu` re-keyed (S16 A12; the clip had A 0) | frame 0 = 西's stance (`ya-st-nishi`: NS2 starts only from it, an attack has no blend); drawn in f0-12 (the point lifted off the plaza: it went 0.19 m in), held f13-15, the arms open on S; the breath in on f25 and the second chest pulse on f26 (the second hit and L8's second flare); S+A `:ya-shonetsu-a` (f28) |
+| NS2b the advance | `ya-e-advance` (new, S14) | from SHONETSU's open arms two slow dragging steps (the right foot f0-7, the left dragged up f7-12; the move's 1.5 m slide carries him), chin up, the blade low at his right, the arms open low; the flare on S; nothing flinches (the armour f6-S); S+A `:ya-e-advance-a` (f17) |
+| NS2c the counter-cut | `ya-e-gokui-cut` (new, S12) | still f0-7 (taking it, the chin up), the low carry at his right (f9), a rising forehand across to his high left with one step; the tip 1.94 m on S (volume 2.0) |
+| AS2a the grab | `ya-e-grab` (new, S12) | from J2's S+1 (`:ya-e-q2-thru`) the blade comes down and is planted point-down at his right (f4, `:ya-e-plant-r`: grip 0.74 m up, 0.5 m right, 0.14 m ahead), the free hand drawn back (f6-10, held), shot to his collar on S (the hand 1.60 m out, 1.26 m up; a 0.88 m lunge); S+A `:ya-e-grab-a` (f15, holding him); unthrown, the hand is back on the hilt by f26 |
+| AS2b the throw | `ya-e-throw` (new, S12) | the arm locked out holding him (the blade still planted), sinking f0-10 as the garb builds, the hand driven up and opened on S (1.85 m up; L8's flare throws him); back on the hilt by f30, drawn out low into 西's carry (f34) |
+| NS3a the plant | `ya-kaka` re-keyed at S22 (was S20 at x0.91) | frame 0 = 南's stance; the blade brought before his face (a key a frame f1-5), held upright f6-18 (the words), trembling f16-18, lifted on f19, driven down f20-21 into the half kneel on S, the point 0.94 m ahead in the plaza; kneeling through the hands' 17 f delay (`:ya-kaka-a`, f39) |
+| NS3b the swarm's "go" | `ya-e-minami-b` (new, S16) | from the kneel, bowed lower and the hilt turned in the hand (f0-14), then up straight on his knee, the head lifted, the hilt drawn back over the point on S (the point stays in the plaza, ±0.08 m: FK) |
+| NS3c the wall | `ya-e-minami-c` (new, S18) | the grip taken, sunk (f6-11), the blade ripped up out of the plaza (f13, f16) to straight overhead on S (tip 2.84 m up); the recovery turns his chest (-46°) and head (-40°) away, no root yaw |
+| AS3a the hands | `ya-e-as3a` (new, S10) | from J3's S+1 (`:ya-e-q3-thru`, the dropped knee) the point drawn back and raised (f3-8), a reverse stab into the plaza by the front foot on S (grip 0.74 m up, 0.2 m right, 0.79 m ahead; the point 0.62 m ahead), held (`:ya-e-as3a-a`, f13) |
+| AS3b the swarm, by hand | `ya-e-as3b` (new, S10) | the hand leaves the planted hilt (f0-3), drawn back low, held (f7-8), swept low, palm forward on S (the hand 0.38 m up, 0.68 m ahead); back on the hilt by f24 |
+| AS3c the pile | `ya-e-as3c` (new, S12) | the hand back on the hilt by f6 (the blade planted until then), he stands drawing it out low (f9-11) and looks away as the pile lands on S (head -50°, chest -26°) |
+| 北 NS | `ya-e-tenchi` re-authored at S24 (was S6 at x0.25) | frame 0 = the idle (`:blend 4`: 北 starts from any pointer's stance); the gather f0-15 a key a frame, eased in to f8 (the blade swung out over the plaza) and on to the coil (`:ya-e-tenchi-coil`: trailing low behind, the tip 0.46 m up, 1.05 m behind); orange tongues off the blade f0-15, gone through the coil (`%ya-blade-burn`, D4); the coil held and trembling f16-20; the release f21-23; the passing cut on S (the tip 2.24 m ahead) |
+| 北 AS | `ya-e-f1` revived, re-keyed at S10 (was S16; spare) | frame 0 = J1's f15 (`:ya-e-q1-thru`; after J2 / J3 it jumps, 18.3); up over the right shoulder (f3-6), held f7-8, the diagonal down to his low left with a 0.8 m lunge, the tip 2.32 m ahead on S (L10's crescent carries it to 2.4) |
+| SA | `ya-w-counter` (its home now) | unchanged (it starts from any NS segment's S+A: six poses; no blend, 18.3) |
+| E-J1 | `ya-e-q1` | `:blend 4` (§17.7's pop, 18.3) |
+| The planted blade | hook `:planted` | `*ya-plants*` (yama-look.lisp): (move from to (ahead right)): the grab f4-25 and the throw f0-29 at (0.14 0.5), AS3b f0-23 and AS3c f0-5 at (0.79 0.2), the clips' grips by FK; `draw.lisp` `planted-spot` asks the kit's hook (else a `:planted` move's 0.7 m ahead, as before; no move sets it), hides the hand's weapon and stands it there (`draw-planted-weapon :ahead :right`) |
+| The armour spark | `feedback.lisp` `:armored` | a defender's kit `:armored-fx` hook now draws instead of the generic `vfx-hit :reiatsu` (the yellow under L9's hexagon); the sounds stay. Only the Bankai has the hook (host check) |
+
+### 18.2 Drawn reach against hit reach (the host FK test)
+
+| Move | Before (K2, 7eb02f5b): tip / volume end / delta | After | Verdict |
+|---|---|---|---|
+| NS2a SHONETSU | 1.59 / 2.00 / -0.41 | 1.59 / 2.00 / -0.41 | one-sided (L8's burn r 2.0) |
+| NS2b the advance | 1.60 / 2.00 / -0.40 | 1.26 / 2.00 / -0.74 | one-sided (L8): no swing, the blade carried low |
+| NS2c the counter-cut | 1.96 / 2.00 / -0.04 (`ya-w-counter` x0.5) | 1.94 / 2.00 / -0.06 | within ±0.15 |
+| AS2a the grab | 1.96 / 1.60 / **+0.36 (off)** (the blade of `ya-w-counter` x0.5) | **1.60 / 1.60 / 0.00 (the hand)** | within ±0.15: `known-off` is empty |
+| AS2b the throw | 1.60 / 2.00 / -0.40 (the blade) | 0.84 / 2.00 / -1.16 (the hand: the blade stands planted) | one-sided (L8) |
+| AS 北 | 2.25 / 2.40 / -0.15 (`ya-e-tenchi` x0.6) | 2.32 / 2.40 / -0.08 | one-sided (L10's crescent), now within 0.15 too |
+| SA | 1.96 / 2.00 / -0.04 | 1.96 / 2.00 / -0.04 | within ±0.15 (the clip unchanged) |
+| the rest (E-J1-3, 東, AS1, the Kikon strikes) | §17.2 | unchanged | |
+
+The test (`tests/duel-rules/art.lisp`) now measures the grab and the throw by the free hand (`hand`: their blade stands in the plaza), keeps
+the `known-off` guard with an empty list, and reads `*ya-plants*` from yama-look.lisp.
+
+### 18.3 Link frames: the tip's jump on the frame the link lands (m)
+
+Where the links land (the native trials' combat logs, ticks after the first move: C4 / C5 / C7 / C8 / C12, and the stills' logs agree): an
+NS segment at its predecessor's S+A (+8 f a hitstop on a hit), an AS at the J's S+1 (+4), the SA at an NS segment's S+A. Each clip's frame
+0 is the pose its predecessor draws on that frame (a named pose, or a sampled one: `:ya-e-q2-thru`, `:ya-e-q3-thru`), so it starts with no
+flash (attacks start with blend 0).
+
+| Link (lands on) | Before | After |
+|---|---|---|
+| 西 stance > NS2a (f0) | 0.61 | 0 |
+| NS2a > NS2b (NS2a f28) | 0.76 | 0 |
+| NS2b > NS2c (NS2b f17) | 1.39 | 0 |
+| J2 > AS2a (J2 f8) | 2.30 | 0 |
+| AS2a > AS2b (AS2a f15) | 1.43 | 0 |
+| 南 stance > NS3a (f0) | 0.66 | 0 |
+| NS3a > NS3b (NS3a f39) | 0.39 | 0 |
+| NS3b > NS3c (NS3b f18) | 0.39 | 0 |
+| J3 > AS3a (J3 f9) | 1.43 | 0 |
+| AS3a > AS3b (AS3a f13) | 0.39 | 0 |
+| AS3b > AS3c (AS3b f12) | 0.39 | 0 |
+| J1 > AS 北 (J1 f15) | 2.75 | 0 |
+| J2 / J3 > AS 北 (f8 / f9) | 2.41 / 2.99 | 1.87 / 0.76 (one clip, three predecessors: keyed from J1's, the trials' and the CPU's usual route) |
+| 東 / 西 / 南 stance > NS 北 (f0) | 2.32 / 1.75 / 1.54 | 1.84 / 0.61 / 0.66 snapped; with its `:blend 4` the peak per-frame motion is 1.09 / 0.19 / 0.72 over f1-4 |
+| NS gap > SA: 東 a f23 / 東 b f18 / 西 a f28 / 西 b f17 / 南 a f39 / 南 b f18 | 1.91 / 2.83 / 0.81 / 1.39 / 0.35 / 0.35 | 1.91 / 2.83 / 1.51 / 0.77 / 0.34 / 0.32 (the clip unchanged; 西's poses are new) |
+
+**J1's stance pop (§17.7, item 8).** E-J1 starts from the pointer's stance (the idle in the Bankai is the pointer's stance) with no blend:
+the tip jumped 1.84 / 0.61 / 0.66 m (東 / 西 / 南) on its first frame. Fixed with the move's `:blend 4` (PLAY-CLIP's crossfade, smoothstep
+over 4 frames): the peak per-frame motion of the tip over f1-4 is now 0.80 / 0.41 / 0.55 m, against the charge's own 0.08-0.64 (§17.3). A
+look: `mv-blend`'s one reader is PLAY-CLIP in START-MOVE (grep), and the trials are identical (18.8). The three Kikon strikes are
+`defmove-copy`s of E-J1 and carry the blend too. `:clip-map` is per form, not per pointer, so it cannot do this. Ichigo is unchanged.
+
+**Blends tried and dropped.** The same crossfade on the SA and on 北's AS made the peak larger, not smaller: both clips' own wind-up is fast
+(the SA's tip moves 1.16 / 1.21 m on f1 / f2, 北 AS's 0.94 / 1.01), and fading toward a pose that is itself moving fast adds the two. With a
+blend 3: the SA's peaks 1.28-2.14 m against the snaps above (0.32-2.83), 北 AS 1.40 / 0.74 / 1.05 against 0 / 1.87 / 0.76. So neither has
+one; 北's NS keeps its blend (its first frames barely move: 0.03-0.11 m).
+
+### 18.4 緩急: the tip's speed per frame (m a frame, the clip's FK at the root; the move's slide not included)
+
+| Move | Charge | Hold | Release → S | After S |
+|---|---|---|---|---|
+| 北 NS (S24), before (`ya-e-tenchi` S6 at x0.25) | f1-12: 0.01-0.03 (no gather: the old clip's frame 0 held) | none | f13-16 0.12 0.31 0.44 0.50 (the old wind-up, mid-startup), f17-20 0.49-0.10, f21-23 0.67 0.67 0.64, S 0.59 | f25 0.09 |
+| 北 NS (S24), after | f1-8: 0.03 0.07 0.11 0.13 0.16 0.18 0.19 0.21; f9-16: 0.14 0.14 0.13 0.13 0.13 0.12 0.13 0.13 | f17-20: 0.06 0.05 0.06 0.05 | f21 0.87, f22 0.75, f23 0.70, **S 2.27** | f25 0.90, f26 0.58 |
+| NS3a (S22), before (`ya-kaka` S20 at x0.91) | f1-9: 0.10 0.27 0.35 0.32 0.26 0.27 0.31 0.30 0.22 (the first frames the fastest) | f10-17 ≤ 0.02 | f18-21 0.06 0.16 0.17 0.18, S 0.19 | f23 0.03 |
+| NS3a (S22), after | f1-6 (to the face): 0.01 0.02 0.02 0.03 0.04 0.05 | f7-19: 0.00-0.01, the tremble f17-19 0.04 | f20 1.54, **f21 1.83**, S 0.43 | f23 0.02 |
+
+The releases stand out: 北's cut 2.27 m on S against a gather of at most 0.21 (the burn rides the gather, the coil holds still), NS3a's
+drive 1.83 against a rise of at most 0.05 and a still hold. Under the house easing a key several frames away moves most of its way on its
+first frame, so both charges are keyed a frame apart (北's from a two-segment table: eased in to f8, even to f16).
+
+### 18.5 Cast checks (host, `tests/duel-rules/art.lisp`)
+
+The segments with no blade window: the tip or the body where the move says on its frame (x his right, y up, ahead; all pass).
+
+| Move, frame | What | Test | Value |
+|---|---|---|---|
+| NS3a f22 | the tip | in the plaza (-0.2 ≤ y ≤ 0.05), 0.4-1.2 m ahead | 0.14 / -0.03 / 0.94 |
+| NS3b f16 | the tip | still in the plaza, 0.4-1.2 m ahead | 0.14 / -0.03 / 0.90 |
+| NS3c f18 | the tip | overhead (y ≥ 2.2) | 0.11 / 2.84 / 0.26 |
+| AS3a f10 | the tip | in the plaza by the front foot, 0.4-1.2 m ahead | 0.20 / -0.15 / 0.62 |
+| AS3b f10 | the hand | low (y ≤ 0.9), swept forward (≥ 0.5 m ahead) | 0.02 / 0.38 / 0.68 |
+| AS3c f12 | the tip | drawn out low (y ≤ 0.6) | 1.04 / 0.16 / -0.33 |
+| 北 NS f24 | the tip | past the wave's start (≥ 1.0 m ahead) | -0.22 / 1.19 / 2.24 |
+| NS2a f16, f26 | the hands | the arms open (right x ≥ 0.6, left x ≤ -0.6) | 0.73 / -0.80; 0.75 |
+| NS2b f14 | the right hand | the arms open low (x ≥ 0.5, y ≤ 1.2) | 0.70 / 0.99 |
+| AS2b f12 | the right hand | opened upward (y ≥ 1.7) | 1.85 |
+| every `*ya-plants*` window | the grip | on the planted spot (0.76 m up) when the hand leaves the hilt and when it is back, within 0.1 m | 0.03 m each (the grab f4 / f26, the throw f30, AS3b f0 / f24, AS3c f6) |
+
+### 18.6 Deviations, each with its reason
+
+1. **E-J1 and 北's NS carry a `:blend`** (a move field, not in the listed edits; item 8 of the brief allows "a short clip blend"): 4 frames
+   each; their frame 0 cannot match three stances. Proof that it is a look: `mv-blend` has one reader (PLAY-CLIP), the trials identical.
+   The SA and 北's AS have none (18.3: it drew larger jumps).
+2. **The planted blade is a kit hook, not the move's `:planted` or a `:params` key**: the grab plants it beside him, and the throw, AS3b and
+   AS3c leave it there for a window of frames, while the existing `:planted` path stood it 0.7 m ahead for the whole move (no move used
+   it). `:params` is what the sim reads, so the spots and windows are Yamamoto's table (`*ya-plants*`) behind the kit hook `:planted`, read
+   by `draw.lisp` `planted-spot`; `draw-planted-weapon` takes the spot. Off for every other kit (host check); no move sets `:planted`.
+3. **The throw, AS3b and AS3c also plant the blade** (the table names the grab only): he has one arm, and each of them uses the hand
+   (holding the collar, sweeping, the hand back to the hilt) while the blade stands where the segment before left it.
+4. **`draw-weapon` no longer boxes a float at emissive 0** (shared `body.lisp`): the planted blade's draw measured 8 B (its one glow part's
+   `(+ glow 0)`); the held weapon took the same 8 B a frame before. The same value is passed, so no pixel moves.
+5. **NS3b's lever draws the hilt back over the point** (the spec: "levers it forward"): with the point pinned in the plaza the arm cannot
+   reach the hilt forward from the kneel (FK); he kneels up straight, the head lifted, the hilt drawn over the point: the "go" reads from
+   the camera as the bowed NS3a and the upright NS3b.
+6. **NS2a's frame 0 is 西's stance, NS3a's 南's** (the table: reuse + a key / re-key), and NS2a's drawn-in pose lifts the point off the
+   plaza (it went 0.19 m in): openers start from their pointer's stance with no blend, as K2's KYOKKO.
+7. **The grab's hand is at 1.26 m, not the collar's ~1.4**: the hand at the move's 1.6 m needs a 0.88 m lunge already; higher, the arm
+   would point up past him. 北 AS lunges 0.8 m (the tip 2.32 against 2.4). Neither move slides in the sim: the drawn body leads the sim's
+   root, as KYOKKO's (0.6 m).
+8. **北's gather drags the point 0.09 m into the plaza for two frames** (f4-6): from the idle (the point near the plaza) the blade swings out
+   over it; a deeper arc would read as a swing, not a drag.
+9. **北's burn is a new look** (`%ya-blade-burn` from `yama-draw`, not in §15.2.1's list): the clip table says the blade burns on the gather;
+   five orange tongues rising off it f0-15, gone through the coil. D4's fire for 北.
+10. **The SA's frame 0 matches none of its six predecessors** (any NS a / b's S+A); unchanged clip.
+11. **The art viewer's strips draw the blade in his hand** in the planted frames (the viewer has no fighter); the stills in play show it
+    planted.
+
+### 18.7 Stills (untracked)
+
+- In play: `tests/scripts/duel-yama-k3.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_k3_script`), the behind camera then the SIDE
+  camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on): `tests/shots/duel-yama-k3-<still>-<behind|side>[-phone].png`
+  for `ns2a-tell`, `ns2a-s`, `ns2a-pulse`, `ns2a-end`, `ns2b-tell`, `ns2b-s`, `ns2b-end`, `ns2c-tell`, `ns2c-s`, `ns2c-end`, `as2a-tell`,
+  `as2a-cocked`, `as2a-s`, `as2a-end`, `as2b-tell`, `as2b-s`, `as2b-end`, `ns3a-up`, `ns3a-tell`, `ns3a-s`, `ns3a-end`, `ns3b-tell`, `ns3b-s`,
+  `ns3b-end`, `ns3c-tell`, `ns3c-s`, `ns3c-end`, `as3a-tell`, `as3a-s`, `as3a-end`, `as3b-tell`, `as3b-s`, `as3b-end`, `as3c-tell`,
+  `as3c-s`, `as3c-end`, `n4ns-gather`, `n4ns-tell`, `n4ns-coil`, `n4ns-s`, `n4ns-end`, `n4as-tell`, `n4as-s`, `n4as-end`, `sa-tell`, `sa-s`,
+  `sa-end`, `armour` (192 stills).
+- 8-frame strips, the art viewer (`dist/duelview` with `yama-art.lisp`): `tests/shots/duel-view-yama-k3-<clip>-<side|front>.png` for
+  `ya-shonetsu`, `ya-e-advance`, `ya-e-gokui-cut`, `ya-e-grab`, `ya-e-throw`, `ya-kaka`, `ya-e-minami-b`, `ya-e-minami-c`, `ya-e-as3a`,
+  `ya-e-as3b`, `ya-e-as3c`, `ya-e-tenchi`, `ya-e-f1` (`tests/scripts/duel-view-yama-k3.json`, `duel-view.py`'s `yama_k3`; the K2 strip
+  script's indices moved with the new clips and were regenerated).
+- Contact sheets: `tests/shots/duel-yama-k3-sheet.png`, `duel-yama-k3-sheet-phone.png` (each segment at its S, both cameras).
+
+The links land on the frames the trials gave (the stills' logs: NS2b +44, NS2c +69, AS2a +33, AS2b +56, NS3b +47, NS3c +65, AS3a / b / c +48
+/ +69 / +89, 北 AS +19, the SA +44). Observed, cause not traced: NS2a's and NS2b's S stills (S+1, inside the 8 f hitstop of their hit)
+show the pose before S and no flare yet, which shows from the frame after the hitstop (`ns2b-end`); AS2a's S still shows the hit pose.
+Checked by eye: orange only in 西 (NS2a's two flares,
+the advance's and the throw's, 西's stance garb, the armour) and 北 (the burn on the gather, the band's rims); the dead are charcoal with red
+hairlines; the armour shows the red hexagon with no yellow spark; the planted blade stands at his right in the grab and the throw and by
+his front foot in AS3b; the six 南 segments read apart (upright blade before the face, the half kneel with the point in, kneeling up with
+the head lifted, the blade overhead; the reverse stab, the low sweep, the back turned).
+
+### 18.8 Checks (all on the final build)
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-bankai.lisp` (514 lines of `combo-trial.py --log`), `yamamoto-core.lisp` (241), `yamamoto-blaze.lisp` (268): identical to 7eb02f5b's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-bankai.json`: every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 7eb02f5b (86 lines) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 7eb02f5b: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's. It does not exercise K3: in the YK match (seed 28) Yamamoto never awakens (his log: Shikai moves only, no AWAKEN / ZANKA), and no pinned scene shows his Bankai; the K3 stills (18.7) are the review of the changed looks |
+| Host tests | ALL PASS, 4105 checks (+21: the FK rows by the hand, the cast checks, the planted windows' grips, the two hooks and `:planted` off for every other kit, the blend list) |
+| pkgcheck, debug ranges | identical to 7eb02f5b's output (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 0 errors (no new debug number: the stills use 87000+k, 87301-87303, 87437, 87444-87446, 2109) |
+| 0 B a frame | debug 87448: `... smear 0, planted 0, burn 0, plant-spot 0, dead x8 0` (planted read 8 B a draw before deviation 4) |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs` smoke exit 0 |
+
+### 18.9 Open
+
+- **For the user's eyes** (checked by numbers, the stills by eye only): how 西's advance and counter-cut read in play, whether the grab
+  (the blade left at his right, the hand to the collar) reads as 「take the hit, then grab」, how far apart the six 南 segments read from the
+  match camera (the bowed plant / the upright "go" / the rip overhead; the plant / the sweep / the back turned), 北's burn and gather.
+- The SA's frame 0 and 北 AS after J2 / J3 still jump (18.3): one clip cannot start from six (three) poses, and a crossfade made it worse;
+  a per-predecessor clip would need a mechanism that does not exist (`:clip-map` is per form).
+- The grab's hand stops at 1.26 m, below the collar (deviation 7).
+- K4 (§15.1): the three Kikon cinematics (`ya-kaka` keeps its name and its held upright pose, which §15.3.3's beat 0 names at f16).
+- **For the lead:** on a hit, 西's flares (L8, keyed on the move frame by YAMA-BK-MOVES since K1) seem to show only after the 8 f hitstop
+  (18.7's observation); if so, every move-frame look lags its hit by the hitstop in play. Not traced here.
+- Closed here: §16.5's yellow spark and AS2a's reach, §17.7's J1 pop and K3.
+- From before: the toon shader's 1.2 px white edge on INK shapes (K1 deviation 8, §17.7); `duel-view-strips.json`'s off-by-one (§17.7).

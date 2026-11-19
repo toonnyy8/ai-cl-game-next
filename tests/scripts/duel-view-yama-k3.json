@@ -1,0 +1,210 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(1232001)"
+},
+{
+"at": 10.15,
+"shot": "tests/shots/duel-view-yama-k3-ya-shonetsu-side.png"
+},
+{
+"at": 10.35,
+"eval": "Module._debug_cmd(1232002)"
+},
+{
+"at": 11.5,
+"shot": "tests/shots/duel-view-yama-k3-ya-shonetsu-front.png"
+},
+{
+"at": 11.7,
+"eval": "Module._debug_cmd(1198001)"
+},
+{
+"at": 12.85,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-advance-side.png"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(1198002)"
+},
+{
+"at": 14.2,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-advance-front.png"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(1206001)"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-gokui-cut-side.png"
+},
+{
+"at": 15.75,
+"eval": "Module._debug_cmd(1206002)"
+},
+{
+"at": 16.9,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-gokui-cut-front.png"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(1207001)"
+},
+{
+"at": 18.25,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-grab-side.png"
+},
+{
+"at": 18.45,
+"eval": "Module._debug_cmd(1207002)"
+},
+{
+"at": 19.6,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-grab-front.png"
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(1216001)"
+},
+{
+"at": 20.95,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-throw-side.png"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(1216002)"
+},
+{
+"at": 22.3,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-throw-front.png"
+},
+{
+"at": 22.5,
+"eval": "Module._debug_cmd(1224001)"
+},
+{
+"at": 23.65,
+"shot": "tests/shots/duel-view-yama-k3-ya-kaka-side.png"
+},
+{
+"at": 23.85,
+"eval": "Module._debug_cmd(1224002)"
+},
+{
+"at": 25.0,
+"shot": "tests/shots/duel-view-yama-k3-ya-kaka-front.png"
+},
+{
+"at": 25.2,
+"eval": "Module._debug_cmd(1209001)"
+},
+{
+"at": 26.35,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-minami-b-side.png"
+},
+{
+"at": 26.55,
+"eval": "Module._debug_cmd(1209002)"
+},
+{
+"at": 27.7,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-minami-b-front.png"
+},
+{
+"at": 27.9,
+"eval": "Module._debug_cmd(1210001)"
+},
+{
+"at": 29.05,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-minami-c-side.png"
+},
+{
+"at": 29.25,
+"eval": "Module._debug_cmd(1210002)"
+},
+{
+"at": 30.4,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-minami-c-front.png"
+},
+{
+"at": 30.6,
+"eval": "Module._debug_cmd(1200001)"
+},
+{
+"at": 31.75,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3a-side.png"
+},
+{
+"at": 31.95,
+"eval": "Module._debug_cmd(1200002)"
+},
+{
+"at": 33.1,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3a-front.png"
+},
+{
+"at": 33.3,
+"eval": "Module._debug_cmd(1201001)"
+},
+{
+"at": 34.45,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3b-side.png"
+},
+{
+"at": 34.65,
+"eval": "Module._debug_cmd(1201002)"
+},
+{
+"at": 35.8,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3b-front.png"
+},
+{
+"at": 36.0,
+"eval": "Module._debug_cmd(1202001)"
+},
+{
+"at": 37.15,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3c-side.png"
+},
+{
+"at": 37.35,
+"eval": "Module._debug_cmd(1202002)"
+},
+{
+"at": 38.5,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-as3c-front.png"
+},
+{
+"at": 38.7,
+"eval": "Module._debug_cmd(1215001)"
+},
+{
+"at": 39.85,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-tenchi-side.png"
+},
+{
+"at": 40.05,
+"eval": "Module._debug_cmd(1215002)"
+},
+{
+"at": 41.2,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-tenchi-front.png"
+},
+{
+"at": 41.4,
+"eval": "Module._debug_cmd(1204001)"
+},
+{
+"at": 42.55,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-f1-side.png"
+},
+{
+"at": 42.75,
+"eval": "Module._debug_cmd(1204002)"
+},
+{
+"at": 43.9,
+"shot": "tests/shots/duel-view-yama-k3-ya-e-f1-front.png"
+}
+]

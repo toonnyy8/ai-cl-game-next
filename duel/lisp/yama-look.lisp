@@ -403,6 +403,37 @@ wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as 
                                :sway 0.05f0 :ph (+ dr (i->f j))))))))))
   nil)
 
+;;; ---------------------------------------------------------------- art K3 (§18): the planted blade, 北's burn
+(defparameter *ya-plants*
+  '((:ya-e-as2 4 26 (0.14f0 0.5f0)) (:ya-e-as2b 0 30 (0.14f0 0.5f0) :carried)   ; the grab / the throw: at his right (YA-E-PLANT-R)
+    (:ya-e-as3b 0 24 (0.79f0 0.2f0)) (:ya-e-as3c 0 6 (0.79f0 0.2f0) :carried))     ; the dead's AS: by his front foot (YA-E-AS3A-HIT)
+  "The Bankai moves whose blade stands in the plaza, the hand off it: (move from to (ahead right) [:carried]), planted from frame FROM up
+to TO (the clip's hand leaves the hilt after FROM, or it was left by the segment before: :CARRIED; it is back on it at TO), at (ahead
+right) m from his feet. The spots are the clips' grips by FK (the planted weapon's grip stands 0.76 m up, BODY.LISP DRAW-PLANTED-WEAPON;
+host-checked in tests/duel-rules/art.lisp).")
+(defun yama-planted (e f mv)
+  "The Bankai's KIT-HOOK :planted (DRAW.LISP PLANTED-SPOT): the constant (ahead right) of *YA-PLANTS* while MV's main phase is inside its
+window, else NIL (the blade in his hand). A look; 0 B."
+  (declare (ignore e))
+  (let ((p (and mv (eq (fighter-phase f) :main) (assoc (mv-name mv) *ya-plants*))))
+    (and p (<= (the fixnum (second p)) (fighter-sf f)) (< (fighter-sf f) (the fixnum (third p))) (fourth p))))
+
+(defun-fast %ya-blade-burn (tip base sf)
+  "北's NS gather (§15.2.2: the blade trailing low behind him, the only time the Bankai's blade burns; D4: 北 has fire): five orange tongues
+rising off the blade from BASE to TIP, building over f0-15 and gone through the coil (f16-20). SF the move frame. A look; 0 B."
+  (declare (type f32vec tip base) (fixnum sf))
+  (when (<= sf 20)
+    (let* ((k (if (<= sf 15) (f-min 0.98f0 (+ 0.35f0 (* 0.045f0 (i->f sf)))) (* 0.98f0 (/ (i->f (- 20 sf)) 5f0))))
+           (dr (drawing-no)) (bx (aref base 0)) (by (aref base 1)) (bz (aref base 2))
+           (dx (- (aref tip 0) bx)) (dy (- (aref tip 1) by)) (dz (- (aref tip 2) bz)) (seed (+ (* 3f0 bx) bz)))
+      (declare (single-float k dr bx by bz dx dy dz seed))
+      (dotimes (i 5)
+        (let* ((f (i->f i)) (u (+ 0.2f0 (* 0.19f0 f))) (h (* (+ 0.32f0 (* 0.08f0 f)) (+ 0.75f0 (* 0.5f0 (hash01 (+ f dr) seed))))))
+          (declare (single-float f u h))
+          (%tongue (+ bx (* u dx)) (+ by (* u dy)) (+ bz (* u dz)) (* -0.25f0 dx h) h (* -0.25f0 dz h) 0.08f0 +pal-flame+ k
+                   (+ seed f dr) (+ dr f) 0.03f0 :segs 4)))))
+  nil)
+
 ;;; ---------------------------------------------------------------- L9 西's armour (FEEDBACK-SYSTEM's :armored event, the kit hook :armored-fx)
 (defun yama-armored-fx (def x y z)
   "The Bankai's :armored-fx hook: an NA absorbed on 西's armour (NS2b / NS2c's :turn-armor, the core verdict :absorb) shows the garb's
@@ -420,7 +451,8 @@ block, the fire hexagon facing the attacker (VFX-GARB-BLOCK), and the scorch on 
 (defun yama-look-consing ()
   "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count),
 after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture). Art K2 adds the
-stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail)."
+stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail); art K3 the planted blade
+(DRAW-PLANTED-WEAPON at a *YA-PLANTS* spot), 北's burn (%YA-BLADE-BURN on stand-in ends) and the :planted hook itself."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
@@ -432,7 +464,11 @@ stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-S
         (an-n (let ((a (make-anim))) (anim-play a :ya-st-nishi :blend 0) (setf (anim-time a) 0.6f0) a))
         (an-m (let ((a (make-anim))) (anim-play a :ya-st-minami :blend 0) a))
         (tr (let ((tr (make-trail))) (dotimes (i 5 tr) (trail-push tr 0f0 1f0 (- -0.3f0 (* 0.1f0 i)) (* 0.25f0 i) 1.5f0 -1.2f0))))
-        (sm (make-f32 12)))
+        (sm (make-f32 12))
+        (px (aref (pos-of *p1*) 0)) (pz (aref (pos-of *p1*) 2)) (sp (fourth (first *ya-plants*)))   ; (art K3: boxed once, as DRAW-FIGHTER's)
+        (tp (let ((v (make-f32 3))) (setf (aref v 0) 0.4f0 (aref v 1) 0.2f0 (aref v 2) 0.6f0) v))
+        (bs (let ((v (make-f32 3))) (setf (aref v 0) 0.3f0 (aref v 1) 0.8f0 (aref v 2) 0.1f0) v))
+        (fp (fighter *p1*)) (mv-as2 (kit-move (find-kit :yamamoto :bankai) :ya-e-as2)))
     (macrolet ((cons-per (name form)                    ; (debug.lisp's CONS-PER, which loads after this file, plus a warm-up: the
                  `(let ((n0 (symbol-value *ya-dq-n*)))   ;  engine's draw queue doubles at a new high-water mark, so the
                     (dotimes (i 10) ,form)                ;  measured draws get the room the warm-up made: the steady state)
@@ -458,5 +494,8 @@ stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-S
                      (cons-per "garb" (yama-stance-look pos yaw an-n))   ; (art K2)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))
                      (cons-per "smear" (vfx-smear tr sm 3))
+                     (cons-per "planted" (draw-planted-weapon :zanka px pz yaw :ahead (first sp) :right (second sp)))   ; (art K3)
+                     (cons-per "burn" (%ya-blade-burn tp bs 9))
+                     (cons-per "plant-spot" (yama-planted *p1* fp mv-as2))
                      (cons-per "dead x8" (progn (fresh) (dotimes (j 8) (ya-dead :sk-grab 10))))))))
     (ya-dead-reset)))
