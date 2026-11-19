@@ -1,0 +1,238 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 11.52,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 11.53,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 11.93,
+"shot": "tests/shots/duel-yama-k4-higashi-b0-held-phone.png"
+},
+{
+"at": 11.98,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 12.68,
+"shot": "tests/shots/duel-yama-k4-higashi-b1-caption-phone.png"
+},
+{
+"at": 12.73,
+"eval": "Module._debug_cmd(87628)"
+},
+{
+"at": 13.46,
+"shot": "tests/shots/duel-yama-k4-higashi-b2-tap-phone.png"
+},
+{
+"at": 13.51,
+"eval": "Module._debug_cmd(87637)"
+},
+{
+"at": 14.11,
+"shot": "tests/shots/duel-yama-k4-higashi-b3-nothing-phone.png"
+},
+{
+"at": 14.16,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 14.83,
+"shot": "tests/shots/duel-yama-k4-higashi-b4-void-phone.png"
+},
+{
+"at": 14.88,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 15.58,
+"shot": "tests/shots/duel-yama-k4-higashi-b5-shatter-phone.png"
+},
+{
+"at": 15.63,
+"eval": "Module._debug_cmd(87675)"
+},
+{
+"at": 16.43,
+"shot": "tests/shots/duel-yama-k4-higashi-b6-hang-phone.png"
+},
+{
+"at": 17.03,
+"eval": "console.log('=== nishi')"
+},
+{
+"at": 17.08,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 19.58,
+"eval": "Module._debug_cmd(87451)"
+},
+{
+"at": 19.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 19.61,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 20.01,
+"shot": "tests/shots/duel-yama-k4-nishi-b0-held-phone.png"
+},
+{
+"at": 20.06,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 20.76,
+"shot": "tests/shots/duel-yama-k4-nishi-b1-strike-phone.png"
+},
+{
+"at": 20.81,
+"eval": "Module._debug_cmd(87623)"
+},
+{
+"at": 21.38,
+"shot": "tests/shots/duel-yama-k4-nishi-b2-ash-phone.png"
+},
+{
+"at": 21.43,
+"eval": "Module._debug_cmd(87631)"
+},
+{
+"at": 21.99,
+"shot": "tests/shots/duel-yama-k4-nishi-b3-ignite-phone.png"
+},
+{
+"at": 22.04,
+"eval": "Module._debug_cmd(87650)"
+},
+{
+"at": 22.98,
+"shot": "tests/shots/duel-yama-k4-nishi-b4-walk-phone.png"
+},
+{
+"at": 23.03,
+"eval": "Module._debug_cmd(87664)"
+},
+{
+"at": 23.79,
+"shot": "tests/shots/duel-yama-k4-nishi-b5-pass-phone.png"
+},
+{
+"at": 23.84,
+"eval": "Module._debug_cmd(87673)"
+},
+{
+"at": 24.44,
+"shot": "tests/shots/duel-yama-k4-nishi-b6-column-phone.png"
+},
+{
+"at": 24.49,
+"eval": "Module._debug_cmd(87685)"
+},
+{
+"at": 25.19,
+"shot": "tests/shots/duel-yama-k4-nishi-b7-wide-phone.png"
+},
+{
+"at": 25.79,
+"eval": "console.log('=== minami')"
+},
+{
+"at": 25.84,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 28.34,
+"eval": "Module._debug_cmd(87452)"
+},
+{
+"at": 28.36,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 28.37,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 28.77,
+"shot": "tests/shots/duel-yama-k4-minami-b0-held-phone.png"
+},
+{
+"at": 28.82,
+"eval": "Module._debug_cmd(87616)"
+},
+{
+"at": 29.56,
+"shot": "tests/shots/duel-yama-k4-minami-b1-words-phone.png"
+},
+{
+"at": 29.61,
+"eval": "Module._debug_cmd(87626)"
+},
+{
+"at": 30.24,
+"shot": "tests/shots/duel-yama-k4-minami-b2-plant-phone.png"
+},
+{
+"at": 30.29,
+"eval": "Module._debug_cmd(87642)"
+},
+{
+"at": 31.12,
+"shot": "tests/shots/duel-yama-k4-minami-b3-dead-phone.png"
+},
+{
+"at": 31.17,
+"eval": "Module._debug_cmd(87661)"
+},
+{
+"at": 32.11,
+"shot": "tests/shots/duel-yama-k4-minami-b4-back-phone.png"
+},
+{
+"at": 32.16,
+"eval": "Module._debug_cmd(87672)"
+},
+{
+"at": 32.82,
+"shot": "tests/shots/duel-yama-k4-minami-b5-burst-phone.png"
+},
+{
+"at": 32.87,
+"eval": "Module._debug_cmd(87686)"
+},
+{
+"at": 33.64,
+"shot": "tests/shots/duel-yama-k4-minami-b6-wide-phone.png"
+},
+{
+"at": 34.29,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 34.59,
+"eval": "console.log('=== END')"
+}
+]

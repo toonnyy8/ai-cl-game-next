@@ -230,6 +230,9 @@
 before R15a (2026-11), which dropped it from hem-spring.lisp while no kit used it.")
 (defvar *ya-tip* (make-f32 3) "YAMA-DRAW's blade tip.")
 (defvar *ya-base* (make-f32 3) "YAMA-DRAW's blade base (北's burn, art K3).")
+(declaim (type f32vec *ya-rdt*))
+(defvar *ya-rdt* (make-f32 1) "This frame's effect seconds, kept by YAMA-DRAW for the Kikon cinematics' looks (yama-cine.lisp, art K4): read
+there, never passed as a boxed argument.")
 
 (defun-fast %ya-smoke (x y z)
   "Bankai East's blade (canon: a thin white thread of smoke rises straight up from the charred tip in every Bankai
@@ -254,6 +257,7 @@ own looks (yama-look.lisp YAMA-BK-MOVES, art K1) and 北's burn on the gather (%
 looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza)."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
+    (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
     (ya-dead-reset)
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))

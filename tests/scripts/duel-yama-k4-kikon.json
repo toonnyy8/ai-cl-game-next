@@ -1,0 +1,330 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== east J1 > AS1 held')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 10.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 12.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 12.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 18.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 18.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 20.95,
+"eval": "console.log('=== west J1 J2 > AS2 held')"
+},
+{
+"at": 21.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 21.05,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 21.1,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.2,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 22.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 24.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 27.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 30.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 30.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 32.95,
+"eval": "console.log('=== south J1-J3 > AS3 held')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 33.1,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 33.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 33.2,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 34.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.55,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 35.56,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 36.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 39.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 42.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 42.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 44.7,
+"eval": "Module._debug_cmd(2101)"
+},
+{
+"at": 44.95,
+"eval": "console.log('=== west again from 2 Konpaku: the K.O.')"
+},
+{
+"at": 45.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 45.05,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 45.1,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 45.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 45.2,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 46.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 46.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 47.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 47.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 47.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 47.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 47.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 48.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 48.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 54.8,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 54.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 57.0,
+"eval": "console.log('=== END')"
+}
+]

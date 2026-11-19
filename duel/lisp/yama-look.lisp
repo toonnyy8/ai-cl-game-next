@@ -452,7 +452,8 @@ block, the fire hexagon facing the attacker (VFX-GARB-BLOCK), and the scorch on 
   "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count),
 after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture). Art K2 adds the
 stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail); art K3 the planted blade
-(DRAW-PLANTED-WEAPON at a *YA-PLANTS* spot), 北's burn (%YA-BLADE-BURN on stand-in ends) and the :planted hook itself."
+(DRAW-PLANTED-WEAPON at a *YA-PLANTS* spot), 北's burn (%YA-BLADE-BURN on stand-in ends) and the :planted hook itself; art K4 the
+three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine.lisp) at their busiest frames, P1 and P2 as the actors."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
@@ -470,12 +471,17 @@ stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-S
         (bs (let ((v (make-f32 3))) (setf (aref v 0) 0.3f0 (aref v 1) 0.8f0 (aref v 2) 0.1f0) v))
         (fp (fighter *p1*)) (mv-as2 (kit-move (find-kit :yamamoto :bankai) :ya-e-as2)))
     (macrolet ((cons-per (name form)                    ; (debug.lisp's CONS-PER, which loads after this file, plus a warm-up: the
-                 `(let ((n0 (symbol-value *ya-dq-n*)))   ;  engine's draw queue doubles at a new high-water mark, so the
-                    (dotimes (i 10) ,form)                ;  measured draws get the room the warm-up made: the steady state)
-                    (setf (symbol-value *ya-dq-n*) n0)
-                    (let ((c0 (cons-bytes)))
-                      (dotimes (i 10) ,form)
-                      (prog1 (format nil "~a ~d" ,name (- (cons-bytes) c0)) (setf (symbol-value *ya-dq-n*) n0))))))
+                 `(let ((n0 (symbol-value *ya-dq-n*))     ;  engine's draw queue doubles at a new high-water mark, so the
+                        (f0 (stream-buffer-fill *fx-toon*)) (f1 (stream-buffer-fill *fx-add*))   ;  measured draws get the room
+                        (f2 (stream-buffer-fill *fx-alpha*)) (d0 *fx-dropped*))                ;  the warm-up made: the steady
+                    (flet ((rewind () (setf (symbol-value *ya-dq-n*) n0 (stream-buffer-fill *fx-toon*) f0   ;  state; art K4: the fx
+                                            (stream-buffer-fill *fx-add*) f1 (stream-buffer-fill *fx-alpha*) f2)))   ;  batches are
+                      (dotimes (i 10) ,form)              ;  rewound too, so no look is measured on a full batch's skip path:
+                      (rewind)                            ;  "(dropped)" if one still overflowed)
+                      (let ((c0 (cons-bytes)) (d1 *fx-dropped*))
+                        (dotimes (i 10) ,form)
+                        (prog1 (format nil "~a ~d~:[~; (dropped)~]" ,name (- (cons-bytes) c0) (/= d1 *fx-dropped*))
+                          (rewind) (setf *fx-dropped* d0)))))))
      (flet ((fresh () (ya-dead-reset)))
       (log-msg "yama look consing (10 draws, B): ~{~a~^, ~}"
                (list (cons-per "hands" (progn (fresh) (yama-hands-look hands 0.016f0)))
@@ -497,5 +503,13 @@ stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-S
                      (cons-per "planted" (draw-planted-weapon :zanka px pz yaw :ahead (first sp) :right (second sp)))   ; (art K3)
                      (cons-per "burn" (%ya-blade-burn tp bs 9))
                      (cons-per "plant-spot" (yama-planted *p1* fp mv-as2))
-                     (cons-per "dead x8" (progn (fresh) (dotimes (j 8) (ya-dead :sk-grab 10))))))))
+                     (cons-per "dead x8" (progn (fresh) (dotimes (j 8) (ya-dead :sk-grab 10))))
+                     (cons-per "east-void" (yama-higashi-look *p1* *p2* 90))   ; (art K4: the Kikon cinematics' looks, yama-cine.lisp)
+                     (cons-per "west-ash" (yama-nishi-look *p1* *p2* 46))
+                     (cons-per "west-walk" (yama-nishi-look *p1* *p2* 100))
+                     (cons-per "west-pass" (yama-nishi-look *p1* *p2* 128))
+                     (cons-per "west-column" (yama-nishi-look *p1* *p2* 140))
+                     (cons-per "south-dead" (yama-minami-look *p1* *p2* 90))
+                     (cons-per "south-pile" (yama-minami-look *p1* *p2* 130))
+                     (cons-per "south-burst" (yama-minami-look *p1* *p2* 150))))))
     (ya-dead-reset)))
