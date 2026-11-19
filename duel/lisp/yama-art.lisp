@@ -835,7 +835,8 @@ looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blad
   (:upper-arm-l :flex -40.0 :side 30.0) (:thigh-r :flex 80.0 :side 4.0) (:shin-r :flex 92.0) (:thigh-l :flex -6.0 :side 6.0) (:shin-l :flex 84.0))
 
 ;; E4 北 AS (art K3, DUEL_YAMA_CORE §15.2.2 / §18; the spare K1 KAGERO revived at the move's S10): the same cut as 北's NS, point-blank.
-;; Frame 0 is J1's f15 (:YA-E-Q1-THRU: the AS after J1 lands there; after J2 / J3 the move's :blend 3 fades in); the wrist carries the blade
+;; Frame 0 is J1's f15 (:YA-E-Q1-THRU: the AS after J1 lands there; after J2 / J3 it jumps 1.87 / 0.76 m: a blend over this fast
+;; wind-up drew more, DUEL_YAMA_CORE §18.3); the wrist carries the blade
 ;; up over his right shoulder (f6), held a frame, then one diagonal down to his low left with a lunge (the body behind it: the move has no
 ;; slide); at S the blade crosses his centre line going down, the tip as far as FK gives (L10's crescent carries it to 2.4 m)
 (defpose :ya-e-f1-hit (:base :ya-e-stance)                  ; (FK: the tip 2.30 m ahead, 0.6 m up)
@@ -1062,18 +1063,19 @@ looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blad
   (:end :ya-e-stance))
 ;; NS3b the swarm's "go" (S16): still kneeling, the hand twists the planted hilt and levers it forward (the point stays in the plaza), the
 ;; head lifts on S; S+A (:YA-E-MINAMI-B-A, f18) is NS3c's first frame
-(defpose :ya-e-minami-b-hit (:base :ya-kaka-a)             ; (FK: the point stays where it went in, within 0.05 m)
-  (:root :u -0.36) (:spine :flex 30) (:chest :twist 10) (:head :flex -18) (:hand-r :twist -149))
+(defpose :ya-e-minami-b-hit (:base :ya-kaka-a)             ; kneeling up straight, the head lifted, the hilt drawn back over the point
+  (:root :u -0.36) (:spine :flex 4) (:chest :twist 6 :flex -6) (:neck :flex -8) (:head :flex -22)   ;  (FK: the point stays where
+  (:arm-r :flex 82.8 :side -23.3) (:elbow-r :flex 11.1) (:hand-r :twist -150.4 :flex 19.4))         ;  it went in, within 0.05 m)
 (defpose :ya-e-minami-b-a (:base :ya-e-minami-b-hit)
-  (:spine :flex 29.5) (:head :flex -20))
+  (:spine :flex 5) (:head :flex -24))
 (defstrike :ya-e-minami-b (16 2 22 :base :ya-e-stance)
   (0 :ya-kaka-a)
-  (5 (:hand-r :twist -149.5) (:head :flex 9) (:spine :flex 24.5))                                 ; the twist of the hilt,
-  (10 (:hand-r :twist -149) (:spine :flex 25) (:head :flex 7))                                    ;  slow
-  (13 (:hand-r :twist -148.5) (:root :u -0.375) (:spine :flex 25.5) (:head :flex 7))                ; held
-  (14 (:hand-r :twist -148.3) (:spine :flex 25))
-  (15 :snap (:hand-r :twist -149) (:spine :flex 28.5) (:head :flex -6))                           ; levered over
-  (:s :snap :ya-e-minami-b-hit)                                                                   ; "go": the head up
+  (5 (:hand-r :twist -149.5) (:head :flex 12) (:spine :flex 26))                                  ; bowed lower, the hilt
+  (10 (:hand-r :twist -149) (:spine :flex 27) (:head :flex 13))                                   ;  twisted in the hand
+  (13 (:root :u -0.375) (:spine :flex 27.5) (:head :flex 13))                                     ; held
+  (14 (:spine :flex 27))
+  (15 :snap (:spine :flex 14) (:head :flex -6) (:arm-r :flex 98 :side -24) (:elbow-r :flex 13) (:hand-r :flex 9))   ; levered
+  (:s :snap :ya-e-minami-b-hit)                                                                   ; "go": up, the head lifted
   (:a :ya-e-minami-b-a)
   (30 (:root :u -0.24) (:spine :flex 12) (:head :flex -4) (:arm-r :flex 80 :side 0) (:elbow-r :flex 24) (:hand-r :twist -40 :flex -70)
       (:thigh-r :flex 10) (:knee-r :flex 44) (:thigh-l :flex 40) (:knee-l :flex 46))
@@ -1086,9 +1088,10 @@ looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blad
   (:thigh-r :flex 14) (:knee-r :flex 10) (:thigh-l :flex -8) (:knee-l :flex 6))
 (defstrike :ya-e-minami-c (18 2 30 :base :ya-e-stance)
   (0 :ya-e-minami-b-a)
-  (6 (:root :u -0.4) (:spine :flex 26) (:head :flex -6) (:hand-r :twist -120 :flex 0))           ; the grip taken, sunk
-  (10 (:root :u -0.41) (:spine :flex 27))                                                         ; held
-  (11 (:root :u -0.4) (:spine :flex 26.5) (:arm-r :flex 98))
+  (6 (:root :u -0.4) (:spine :flex 22) (:head :flex -6) (:arm-r :flex 109.8 :side -17.9) (:elbow-r :flex 9.9)   ; the grip taken,
+     (:hand-r :twist -161.5 :flex 2.9))                                                           ;  sunk (the point still in)
+  (10 (:root :u -0.41) (:spine :flex 23))                                                         ; held
+  (11 (:root :u -0.4) (:spine :flex 22.5) (:arm-r :flex 108))
   (13 :snap (:root :u -0.24) (:spine :flex 14) (:head :flex -10) (:arm-r :flex 110 :side -10) (:elbow-r :flex 10)   ; ripped
       (:hand-r :twist -60 :flex -40) (:thigh-r :flex 6) (:knee-r :flex 60) (:thigh-l :flex 50) (:knee-l :flex 56))  ;  up
   (16 :snap (:root :u -0.06) (:spine :flex -4) (:head :flex -14) (:arm-r :flex 150 :side 0) (:elbow-r :flex 6) (:hand-r :twist -20 :flex -80)

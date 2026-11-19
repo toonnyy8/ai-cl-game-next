@@ -996,14 +996,14 @@ write("yama-k2-phone", yama_k2_script(True))
 
 # Yamamoto's Bankai art K3 (DUEL_YAMA_CORE §18): 西, 南, 北 and the SA in play, each from its link as the scripts land it (the native trials'
 # ticks: C4 西 NS a-b-c from 1.6 m, C7 J1 J2 > AS2 a-b, C5 南 NS a-b-c from 4 m, C8 J1-J3 > AS3 a-b-c, C11 北's NS (armed) from 6 m, C12 J1 >
-# 北's AS, and the SA in 西 NSa's gap), each segment at its tell, its S and its end (frames after the first press; an NS link lands at S+A,
-# +8 f a hitstop on a hit; a J link at S+A (+4), an AS at S+1 (+4)); then 西's armour (87437: the garb's mark, no yellow spark). From the
+# 北's AS, and the SA in 西 NSa's gap; scene names carry no quote: they go into a console.log('...')), each segment at its tell, its S and its end (frames after the first press; an NS link lands at S+A,
+# +8 f a hitstop on a hit; a J link at S+A (+4), an AS at S+1 (+4); 西's flare stills at S+1, the flare's first drawn frame); then 西's armour (87437: the garb's mark, no yellow spark). From the
 # behind camera, then the SIDE camera (2109). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 110 --script tests/scripts/duel-yama-k3.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 110 --mobile --size 390x844 --script tests/scripts/duel-yama-k3-phone.json
 YAMA_K3 = (   # scene, setup commands, presses (("j" | "sp", seconds after the start) ...), ((frame after the first press, still) ...)
-    ("west NS a-b-c", (87016, 87302, 87445), (("sp", 0), ("sp", 0.3), ("sp", 0.6)),
-     ((12, "ns2a-tell"), (16, "ns2a-s"), (34, "ns2a-pulse"), (44 + 7, "ns2b-tell"), (44 + 14, "ns2b-s"), (69 + 7, "ns2c-tell"),
+    ("west NS a-b-c", (87016, 87302, 87445), (("sp", 0), ("sp", 0.3), ("sp", 0.9)),
+     ((12, "ns2a-tell"), (17, "ns2a-s"), (34, "ns2a-pulse"), (44 + 7, "ns2b-tell"), (44 + 15, "ns2b-s"), (69 + 7, "ns2c-tell"),
       (69 + 12, "ns2c-s"), (69 + 12 + 8 + 18, "ns2c-end"), (44 + 14 + 8 + 2, "ns2b-end"), (44, "ns2a-end"))),
     ("J1 J2 > AS2 a-b", (87014, 87301, 87445), (("j", 0), ("j", 0.25), ("sp", 0.45), ("sp", 0.75)),
      ((33 + 4, "as2a-tell"), (33 + 9, "as2a-cocked"), (33 + 12, "as2a-s"), (56, "as2a-end"), (56 + 9, "as2b-tell"), (56 + 12, "as2b-s"),
@@ -1018,7 +1018,7 @@ YAMA_K3 = (   # scene, setup commands, presses (("j" | "sp", seconds after the s
      ((8, "n4ns-gather"), (15, "n4ns-tell"), (19, "n4ns-coil"), (24, "n4ns-s"), (40, "n4ns-end"))),
     ("J1 > NORTH AS (armed)", (87014, 87303, 87445, 87444), (("j", 0), ("sp", 0.2)),
      ((19 + 6, "n4as-tell"), (19 + 10, "n4as-s"), (19 + 10 + 8 + 20, "n4as-end"))),
-    ("SA in west NSa's gap", (87016, 87302, 87445), (("sp", 0), ("j", 0.4)),
+    ("SA in the west NSa gap", (87016, 87302, 87445), (("sp", 0), ("j", 0.4)),
      ((44 + 1, "sa-tell"), (44 + 6, "sa-s"), (44 + 6 + 8 + 16, "sa-end"))),
     ("west armour", (87020, 87302, 87445), (), ()),
 )

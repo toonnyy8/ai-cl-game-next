@@ -434,9 +434,9 @@
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :bankai)) (null (kit-smear kk))))))
     ;; art K3 (§18): the hooks that replace the armour spark and plant the blade are the Bankai's; no move in any kit sets :planted (the
-    ;; generic 0.7 m spot is unused), and a :blend is only on the Bankai's E-J1 (+ its Kikon copies), 北 NS / AS and the SA (looks)
+    ;; generic 0.7 m spot is unused), and a :blend is only on the Bankai's E-J1 (+ its Kikon copies) and 北's NS (looks)
     (check (and (kit-hook kb :armored-fx) (kit-hook kb :planted)))
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (nil . kk) in alist always (loop for mv being the hash-values of (kit-moves kk) never (mv-planted mv)))))
     (check (equal (sort (loop for mv being the hash-values of (kit-moves kb) unless (zerop (mv-blend mv)) collect (mv-name mv)) #'string<)
-                  '(:ya-e-as-strike :ya-e-as4 :ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-e-ns-strike :ya-e-sa)))))
+                  '(:ya-e-as-strike :ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-e-ns-strike)))))

@@ -428,9 +428,9 @@ rising off the blade from BASE to TIP, building over f0-15 and gone through the 
            (dx (- (aref tip 0) bx)) (dy (- (aref tip 1) by)) (dz (- (aref tip 2) bz)) (seed (+ (* 3f0 bx) bz)))
       (declare (single-float k dr bx by bz dx dy dz seed))
       (dotimes (i 5)
-        (let* ((f (i->f i)) (u (+ 0.2f0 (* 0.19f0 f))) (h (* (+ 0.18f0 (* 0.06f0 f)) (+ 0.75f0 (* 0.5f0 (hash01 (+ f dr) seed))))))
+        (let* ((f (i->f i)) (u (+ 0.2f0 (* 0.19f0 f))) (h (* (+ 0.32f0 (* 0.08f0 f)) (+ 0.75f0 (* 0.5f0 (hash01 (+ f dr) seed))))))
           (declare (single-float f u h))
-          (%tongue (+ bx (* u dx)) (+ by (* u dy)) (+ bz (* u dz)) (* -0.2f0 dx h) h (* -0.2f0 dz h) 0.05f0 +pal-flame+ k
+          (%tongue (+ bx (* u dx)) (+ by (* u dy)) (+ bz (* u dz)) (* -0.25f0 dx h) h (* -0.25f0 dz h) 0.08f0 +pal-flame+ k
                    (+ seed f dr) (+ dr f) 0.03f0 :segs 4)))))
   nil)
 

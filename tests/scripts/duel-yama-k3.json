@@ -44,7 +44,7 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-tell-behind.png"
 },
 {
-"at": 11.03,
+"at": 11.04,
 "shot": "tests/shots/duel-yama-k3-ns2a-s-behind.png"
 },
 {
@@ -72,26 +72,6 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-pulse-behind.png"
 },
 {
-"at": 11.35,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 11.36,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 11.41,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 11.44,
-"key": "ShiftLeft",
-"down": false
-},
-{
 "at": 11.49,
 "shot": "tests/shots/duel-yama-k3-ns2a-end-behind.png"
 },
@@ -100,7 +80,27 @@
 "shot": "tests/shots/duel-yama-k3-ns2b-tell-behind.png"
 },
 {
-"at": 11.73,
+"at": 11.65,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.66,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.71,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.74,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.74,
 "shot": "tests/shots/duel-yama-k3-ns2b-s-behind.png"
 },
 {
@@ -625,7 +625,7 @@
 },
 {
 "at": 32.95,
-"eval": "console.log('=== SA in west NSa's gap behind')"
+"eval": "console.log('=== SA in the west NSa gap behind')"
 },
 {
 "at": 33.0,
@@ -762,7 +762,7 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-tell-side.png"
 },
 {
-"at": 43.33,
+"at": 43.34,
 "shot": "tests/shots/duel-yama-k3-ns2a-s-side.png"
 },
 {
@@ -790,26 +790,6 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-pulse-side.png"
 },
 {
-"at": 43.65,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 43.66,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 43.71,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 43.74,
-"key": "ShiftLeft",
-"down": false
-},
-{
 "at": 43.79,
 "shot": "tests/shots/duel-yama-k3-ns2a-end-side.png"
 },
@@ -818,7 +798,27 @@
 "shot": "tests/shots/duel-yama-k3-ns2b-tell-side.png"
 },
 {
-"at": 44.03,
+"at": 43.95,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.96,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.04,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.04,
 "shot": "tests/shots/duel-yama-k3-ns2b-s-side.png"
 },
 {
@@ -1343,7 +1343,7 @@
 },
 {
 "at": 65.25,
-"eval": "console.log('=== SA in west NSa's gap side')"
+"eval": "console.log('=== SA in the west NSa gap side')"
 },
 {
 "at": 65.3,

@@ -48,7 +48,7 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-tell-behind-phone.png"
 },
 {
-"at": 11.08,
+"at": 11.09,
 "shot": "tests/shots/duel-yama-k3-ns2a-s-behind-phone.png"
 },
 {
@@ -76,26 +76,6 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-pulse-behind-phone.png"
 },
 {
-"at": 11.4,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 11.41,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 11.46,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 11.49,
-"key": "ShiftLeft",
-"down": false
-},
-{
 "at": 11.54,
 "shot": "tests/shots/duel-yama-k3-ns2a-end-behind-phone.png"
 },
@@ -104,7 +84,27 @@
 "shot": "tests/shots/duel-yama-k3-ns2b-tell-behind-phone.png"
 },
 {
-"at": 11.78,
+"at": 11.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.79,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.79,
 "shot": "tests/shots/duel-yama-k3-ns2b-s-behind-phone.png"
 },
 {
@@ -649,7 +649,7 @@
 },
 {
 "at": 32.95,
-"eval": "console.log('=== SA in west NSa's gap behind')"
+"eval": "console.log('=== SA in the west NSa gap behind')"
 },
 {
 "at": 33.0,
@@ -798,7 +798,7 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-tell-side-phone.png"
 },
 {
-"at": 43.38,
+"at": 43.39,
 "shot": "tests/shots/duel-yama-k3-ns2a-s-side-phone.png"
 },
 {
@@ -826,26 +826,6 @@
 "shot": "tests/shots/duel-yama-k3-ns2a-pulse-side-phone.png"
 },
 {
-"at": 43.7,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 43.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 43.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 43.79,
-"key": "ShiftLeft",
-"down": false
-},
-{
 "at": 43.84,
 "shot": "tests/shots/duel-yama-k3-ns2a-end-side-phone.png"
 },
@@ -854,7 +834,27 @@
 "shot": "tests/shots/duel-yama-k3-ns2b-tell-side-phone.png"
 },
 {
-"at": 44.08,
+"at": 44.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.09,
 "shot": "tests/shots/duel-yama-k3-ns2b-s-side-phone.png"
 },
 {
@@ -1399,7 +1399,7 @@
 },
 {
 "at": 65.25,
-"eval": "console.log('=== SA in west NSa's gap side')"
+"eval": "console.log('=== SA in the west NSa gap side')"
 },
 {
 "at": 65.3,

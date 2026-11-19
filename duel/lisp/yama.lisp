@@ -263,11 +263,11 @@
 (defmove :ya-e-n4 :kind :flash :clip :ya-e-tenchi :blend 4 :startup 24 :active 2 :recovery 30 :reach 14.0 :callout "TENCHI KAIJIN"
   :on-frame ((0 yama-north-start) (24 yama-wave-fire))
   :params (:width 4.0 :speed 20.0 :range 14.0 :dmg 220 :react :knockdown :look yama-north-look :north t :kikon-strike :ya-e-n4-strike))
-(defmove :ya-e-as4 :kind :sp :clip :ya-e-f1 :blend 3 :startup 10 :active 2 :recovery 30 :dmg 180 :reach 2.4 :arc 110
+(defmove :ya-e-as4 :kind :sp :clip :ya-e-f1 :startup 10 :active 2 :recovery 30 :dmg 180 :reach 2.4 :arc 110
   :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-north-start)) :params (:north t))
-;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; :blend 3: it follows
-;; any NS segment's S+A, six poses, a look only)
-(defmove :ya-e-sa :kind :quick :clip :ya-w-counter :blend 3 :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
+;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; it follows any NS
+;; segment's S+A, six poses, so its frame 0 matches none: a blend over its fast wind-up drew a larger jump, DUEL_YAMA_CORE §18.3)
+(defmove :ya-e-sa :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
   :on-hit :stagger)
 
 (defkit :yamamoto :bankai
@@ -703,7 +703,8 @@ P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as th
 (all three marks); 87445 P1's marks and 北 cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
 c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87448 the consing of every
-Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too)."
+Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
+the planted blade, 北's burn, the :planted hook)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
