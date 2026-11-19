@@ -249,13 +249,16 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
-own looks (yama-look.lisp YAMA-BK-MOVES, art K1); Bankai East's smoke thread from the drawn blade's tip."
+own looks (yama-look.lisp YAMA-BK-MOVES, art K1); out of a move, the pointer stances' looks (YAMA-STANCE-LOOK, art K2); Bankai East's
+smoke thread from the drawn blade's tip."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (ya-dead-reset)
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
         (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt)))))
+    (when (and (null mv) (eq (kit-form (fighter-kit f)) :bankai) (> (model-alpha m) 0.5))   ; 西's garb / 南's cracks (art K2)
+      (yama-stance-look (pos-of e) (yaw-of e) (model-anim m)))
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (and mv (mv-planted mv) (eq (fighter-phase f) :main))))
       (let ((tp *ya-tip*))

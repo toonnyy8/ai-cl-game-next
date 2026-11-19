@@ -365,6 +365,36 @@ crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
   (case (mv-name mv)
     (:ya-e-n1a 1) (:ya-e-n1c 2) (:ya-e-as1 3) (:ya-e-n2a 4) (:ya-e-n2b 5) (:ya-e-as2b 6) (:ya-e-n3c 7) (:ya-e-as4 8) (t 0)))
 
+;;; ---------------------------------------------------------------- the pointer stances' looks (art K2, §17: YAMA-DRAW)
+(defun-fast yama-stance-look (pos yaw an)
+  "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS facing YAW:
+:YA-ST-NISHI 西's low garb (L8 at rest, the user's D4: 西 has fire): ten orange tongues round his feet up to the knee and two small
+wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as the clip; the clip's own time boxed a float); :YA-ST-MINAMI 南's faint ember cracks (a crack star r 0.5 at his
+feet, its hairline pulsing with the same breath). 東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
+  (declare (type f32vec pos) (single-float yaw))
+  (let* ((c (anim-clip an)) (nm (and c (clip-name c))))
+    (when (or (eq nm :ya-st-nishi) (eq nm :ya-st-minami))
+      (let* ((x (aref pos 0)) (z (aref pos 2)) (dr (drawing-no)) (seed (+ (* 3f0 x) z))
+             (b (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (fx-clock)))))))   ; the breath 0..1 (2.4 s, the stance clips' loop)
+        (declare (single-float x z dr seed b))
+        (if (eq nm :ya-st-minami)
+            (%ya-crack-star x z 0.5f0 0.55f0 (+ 0.45f0 (* 0.4f0 b)) seed)
+            (let* ((px (f-cos yaw)) (pz (- (f-sin yaw))))   ; (his right, as YAMA-BK-MOVES's (- fz) fx)
+              (declare (single-float px pz))
+              (dotimes (i 10)                            ; the tongues to the knee
+                (let* ((f (i->f i)) (a (+ (* 0.6283f0 f) (* 0.3f0 (hash01 f seed)))) (co (f-cos a)) (si (f-sin a))
+                       (hh (* (+ 0.36f0 (* 0.12f0 b)) (+ 0.75f0 (* 0.35f0 (hash01 (+ f dr) seed))))))
+                  (declare (single-float f a co si hh))
+                  (%tongue (+ x (* 0.32f0 co)) 0.03f0 (+ z (* 0.32f0 si)) (* 0.15f0 hh co) hh (* 0.15f0 hh si) 0.07f0 +pal-flame+ 0.9f0
+                           (+ seed f dr) (+ dr f) 0.03f0 :segs 4)))
+              (dotimes (j 4)                             ; the small wings: two ribbons a side, out from the shoulders
+                (let* ((sd (if (< j 2) -1f0 1f0)) (q (i->f (mod j 2))) (w (+ 0.36f0 (* 0.06f0 b) (* -0.1f0 q))))
+                  (declare (single-float sd q w))
+                  (toon-ribbon ((+ x (* sd 0.2f0 px)) 1.32f0 (+ z (* sd 0.2f0 pz))) ((* sd w px) (+ 0.1f0 (* 0.18f0 q)) (* sd w pz))
+                               (0.07f0 0.01f0) :seed (- -90f0 (i->f j) (f-mod dr 3f0)) :wob 0.3f0 :pal +pal-flame+ :k 0.85f0 :segs 4
+                               :sway 0.05f0 :ph (+ dr (i->f j))))))))))
+  nil)
+
 ;;; ---------------------------------------------------------------- L9 西's armour (FEEDBACK-SYSTEM's :armored event, the kit hook :armored-fx)
 (defun yama-armored-fx (def x y z)
   "The Bankai's :armored-fx hook: an NA absorbed on 西's armour (NS2b / NS2c's :turn-armor, the core verdict :absorb) shows the garb's
@@ -381,7 +411,8 @@ block, the fire hexagon facing the attacker (VFX-GARB-BLOCK), and the scorch on 
 (defvar *ya-dq-n* (find-symbol "*DQ-N*" :engine) "The engine's draw count (render.lisp, not exported): the probe rewinds it.")
 (defun yama-look-consing ()
   "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count),
-after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture)."
+after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture). Art K2 adds the
+stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail)."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
@@ -389,7 +420,11 @@ after 10 unmeasured draws; the probe's draws are taken off the frame's queue aga
         (fall (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.6f0 :life 30 :age 2))
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
         (north (make-hazard :kind :wave :x 0f0 :z -6f0 :px 0f0 :pz -5.67f0 :size 2f0 :life 42 :age 15 :speed 20f0))
-        (pos (pos-of *p1*)) (yaw (yaw-of *p1*)))
+        (pos (pos-of *p1*)) (yaw (yaw-of *p1*))
+        (an-n (let ((a (make-anim))) (anim-play a :ya-st-nishi :blend 0) (setf (anim-time a) 0.6f0) a))
+        (an-m (let ((a (make-anim))) (anim-play a :ya-st-minami :blend 0) a))
+        (tr (let ((tr (make-trail))) (dotimes (i 5 tr) (trail-push tr 0f0 1f0 (- -0.3f0 (* 0.1f0 i)) (* 0.25f0 i) 1.5f0 -1.2f0))))
+        (sm (make-f32 12)))
     (macrolet ((cons-per (name form)                    ; (debug.lisp's CONS-PER, which loads after this file, plus a warm-up: the
                  `(let ((n0 (symbol-value *ya-dq-n*)))   ;  engine's draw queue doubles at a new high-water mark, so the
                     (dotimes (i 10) ,form)                ;  measured draws get the room the warm-up made: the steady state)
@@ -412,5 +447,8 @@ after 10 unmeasured draws; the probe's draws are taken off the frame's queue aga
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
                      (cons-per "crescent" (yama-bk-moves pos yaw 8 11 0.016f0))
+                     (cons-per "garb" (yama-stance-look pos yaw an-n))   ; (art K2)
+                     (cons-per "cracks" (yama-stance-look pos yaw an-m))
+                     (cons-per "smear" (vfx-smear tr sm 3))
                      (cons-per "dead x8" (progn (fresh) (dotimes (j 8) (ya-dead :sk-grab 10))))))))
     (ya-dead-reset)))
