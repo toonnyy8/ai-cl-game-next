@@ -13,10 +13,10 @@
 (defmacro hv-practice-p () "PRACTICE (V0 bit 16)?" `(logtest (hv 0) 16))
 
 ;;; ---------------------------------------------------------------- the per-side derived strings (component data + its system)
-(defvar *lhud-side* (vector (make-array 10 :initial-element :none) (make-array 10 :initial-element :none))
+(defvar *lhud-side* (vector (make-array 11 :initial-element :none) (make-array 11 :initial-element :none))
   "Per side: [0] the plate label and [1] the tag they were made from, [2] the fighter entry (*LHUD-FIGHTERS*), [3] the name, [4] the
 tag segments ((string . jade) ...), [5] the seals ((glyph name) ...), [6] the callout romaji seen, [7] its kanji or NIL, [8] the
-kit strip's kind (LHUD-KIT-KIND), [9] the roster value they were made from.")
+kit strip's kind (LHUD-KIT-KIND), [9] the roster value they were made from, [10] the marks by the pointer (LHUD-MARKS: Yamamoto's Bankai).")
 
 (defun lhud-model-update ()
   "Refresh each side's derived strings when the model's label, tag, roster or callout changed (EQ: the model's strings are stable
@@ -30,7 +30,8 @@ until they change; allocation only then)."
                 (svref c 3) (if entry (first entry) (lhud-label-name label))
                 (svref c 4) (lhud-tag-segments label tag)
                 (svref c 5) (lhud-seals entry (lhud-label-form label) tag)
-                (svref c 8) (lhud-kit-kind tag))))
+                (svref c 8) (lhud-kit-kind tag)
+                (svref c 10) (lhud-marks tag))))
       (unless (eq rom (svref c 6))
         (setf (svref c 6) rom (svref c 7) (lhud-move-kanji rom)))))
   nil)

@@ -270,6 +270,7 @@ also moves out), the live one's name (.pn .78u mono, .14em, a 1 px shadow) 9.4u 
                (px (if left (+ cx (* 9.4f0 u)) (- cx (* 9.4f0 u) pw))) (py (f-floor+ (+ (- cy (* 0.45f0 u)) (line-baseline +f-mono+ pz 1f0)))))
           (declare (single-float pz pw px py))
           (paint-pen! (f-floor+ px) (+ py (lay-dpr)) pz :spacing 0.14f0) (paint-text name +f-mono+ +c-word-shadow+)
-          (paint-pen! (f-floor+ px) py pz :spacing 0.14f0) (paint-text name +f-mono+ +c-steel+))
+          (paint-pen! (f-floor+ px) py pz :spacing 0.14f0) (paint-text name +f-mono+ +c-steel+)
+          (lhud-marks-at 0 (if left (+ px pw (* 0.5f0 u)) (- px (* 0.5f0 u))) cy u (not left)))   ; (Yamamoto's Bankai marks)
         (paint-reset)))
     nil))

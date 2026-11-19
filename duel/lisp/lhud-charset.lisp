@@ -19,10 +19,12 @@
 (kj "呑腕解風死分身毀止爆技斬覺")
 ;; the pointer seals and the forms' seals
 (kj "拖肩構旋墜狂壞重月亂鎖影投刈雷散聚鎌絞縛")
+(kj "火城撫東西南北")                                    ; (Yamamoto: the Shikai's seals, the Bankai's and its marks, 北)
 ;; the callout's kanji (lhud-data.lisp *LHUD-MOVES*, *LHUD-CRY*)
 (kj "綴雷電縛後薙旋風旋刈連刈短刈刈上交刈蓄電放電蓄纏斬首掛刈れ鎖雨絞縄解縛絞首")
 (kj "月牙天衝月牙十字衝双牙乱月月落峰打ち落牙鎖盾鎖引残像影討分身ぶった斬る")
 (kj "俺に斬れねえもんはねえ飲み干せ噛み千切り盾ごと殴り飛ばし真っ二つ斬月")
+(kj "不知火城郭炎上撫斬松明旭光旭日刃焦熱地獄残日獄衣大葬陣天地灰尽残火の太刀")   ; (Yamamoto's callouts)
 ;; the menus: seals, crumbs, the vertical tagline, the mode kanji, the emblems
 (kj "戦稽闘観設操書再選題魂道勝対戦稽古決闘観戦設定操作指南剣月風")
 (kj "一対一・死神の決闘")

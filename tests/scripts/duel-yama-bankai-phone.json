@@ -1,0 +1,314 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== awaken from the Shikai at heat 40')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87540)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87440)"
+},
+{
+"at": 10.4,
+"shot": "tests/shots/duel-yama-bankai-cine-phone.png"
+},
+{
+"at": 12.4,
+"shot": "tests/shots/duel-yama-bankai-phone.png"
+},
+{
+"at": 12.95,
+"eval": "console.log('=== BANKAI east NS a-b-c')"
+},
+{
+"at": 13.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 13.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.45,
+"eval": "console.log('=== BANKAI J1-J3 AS3: mark south')"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 16.55,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 16.6,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 16.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 17.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.95,
+"eval": "console.log('=== two marks by the pointer')"
+},
+{
+"at": 20.0,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 20.05,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 20.1,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 20.15,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 20.2,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 20.6,
+"shot": "tests/shots/duel-yama-marks-phone.png"
+},
+{
+"at": 21.45,
+"eval": "console.log('=== NORTH armed: the label')"
+},
+{
+"at": 21.5,
+"eval": "Module._debug_cmd(87444)"
+},
+{
+"at": 21.55,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 22.1,
+"shot": "tests/shots/duel-yama-north-phone.png"
+},
+{
+"at": 22.95,
+"eval": "console.log('=== AS NORTH after J1, held: the Kikon')"
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 23.05,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 23.1,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 23.15,
+"eval": "Module._debug_cmd(87444)"
+},
+{
+"at": 23.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.62,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.63,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.03,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.05,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.6,
+"shot": "tests/shots/duel-yama-tenchi-cine-phone.png"
+},
+{
+"at": 29.0,
+"eval": "console.log('=== END')"
+}
+]

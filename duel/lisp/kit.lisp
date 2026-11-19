@@ -503,10 +503,14 @@ the string ((SA :q J2)) follows every SA (the kit's and the segments' own) with 
 (defun core-segments (name)
   "NAME and the segments after it (each move's :params :ns-next: an NS's or an AS's next segment, one SP press each), in order."
   (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))
+(defun core-routes (core)
+  "Every route's first segment in a kit's :core plist: the pointers' NS and AS, then :NS-EXTRA / :AS-EXTRA (routes outside the pointer
+grammar that a kit hook picks: Yamamoto's 北, DUEL_YAMA_CORE §7.4; never a pointer, so no clamp, switch or table indexes them)."
+  (append (getf core :ns) (getf core :as) (getf core :ns-extra) (getf core :as-extra)))
 (defun core-move-names (core)
   "Every move name a kit's :core plist reaches: the three NS and the three AS sequences (every segment), the SA, and the moves of
 :ALSO (not in the grammar: kept in the table so a form that inherits this one derives them, Kenpachi's KATATE for RYOTE)."
-  (append (getf core :also) (loop for n in (append (getf core :ns) (getf core :as))
+  (append (getf core :also) (loop for n in (core-routes core)
                 append (loop for m in (core-segments n) collect m
                              when (getf (mv-params (find-move m)) :kikon-strike) collect it))   ; (a wave's follow-up strike)
           (core-segment-sas core) (and (getf core :sa) (list (getf core :sa)))))
@@ -520,8 +524,8 @@ the string ((SA :q J2)) follows every SA (the kit's and the segments' own) with 
                    (let ((s (getf (mv-params mv) :kikon-strike))) (when s (tag s cls)))))))   ; (its segment's class)
       (when (getf (kit-commands kit) :q) (tag (getf (kit-commands kit) :q) :na))
       (loop for (from cmd to) in (kit-strings kit) when (eq cmd :q) do (tag from :na) (tag to :na))
-      (loop for n in (getf core :ns) do (dolist (m (core-segments n)) (tag m :ns)))
-      (loop for n in (getf core :as) do (dolist (m (core-segments n)) (tag m :as)))
+      (loop for n in (append (getf core :ns) (getf core :ns-extra)) do (dolist (m (core-segments n)) (tag m :ns)))
+      (loop for n in (append (getf core :as) (getf core :as-extra)) do (dolist (m (core-segments n)) (tag m :as)))
       (when (getf core :sa) (tag (getf core :sa) :sa))
       (dolist (m (core-segment-sas core)) (tag m :sa)))))
 ;; The SP costs (DUEL_SP §4, §8.2, batch S2). Kept per kit and by move name, not in a MOVE slot: a kit's :sp-cost-mult (Kenpachi's forms)
@@ -535,7 +539,7 @@ segment: the minimum cost)."
   "Fill KIT's SP cost table once, at registration: every segment of its :core NS and AS sequences (CORE-SEGMENTS; a wave's Kikon strike is
 not one: free), SP-COST of its damage x the kit's :core :sp-cost-mult (default 1), or its own :params :sp-cost."
   (let* ((core (kit-core kit)) (mult (getf core :sp-cost-mult 1.0)) (h (kit-sp kit)))
-    (dolist (n (append (getf core :ns) (getf core :as)))
+    (dolist (n (core-routes core))
       (dolist (m (core-segments n))
         (let ((mv (gethash m (kit-moves kit))))
           (when mv (setf (gethash m h) (f32 (sp-cost (mv-sp-damage mv) mult (getf (mv-params mv) :sp-cost))))))))))
@@ -547,7 +551,8 @@ the SA, a Kikon strike): always; an NS / AS segment by SP-START-P, its FIRST = M
 wherever it starts: §8.6 Q17). The one test CORE-START! refuses by (every start: a press, the pointer switch's NS1, HOHO-RESUME!'s
 segment, a parry's catch) and the CPU reads before it presses (core-ai CAI-NEXT-OK-P, DUEL_SP S7): pure, of the kit's data and two numbers."
   (or (null (kit-sp-cost kit mv))
-      (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) fs (or bursting (kit-sp-free-p kit)))))
+      (sp-start-p (kit-class kit mv) (let ((core (kit-core kit))) (or (member (mv-name mv) (getf core :ns)) (member (mv-name mv) (getf core :ns-extra))))
+                  fs (or bursting (kit-sp-free-p kit)))))
 (defun kit-sp-free-p (kit)
   "Are KIT's NS / AS segments free of flash-step, as in a burst (its :core :sp-free: Yamamoto's 爆炎, DUEL_YAMA_CORE §3; DUEL_SP §2)? Every
 other kit: NIL."
@@ -626,6 +631,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
       :clash (e other)               a clash, once a step for the pair (CORE-CLASH!): Hisagi
       :cancel (e other mv hz)        his move MV or hazard HZ took part in a triangle cancel, per verdict (CORE-CANCEL-HOOK!):
                                      Yamamoto (heat, 爆炎's burn)
+      :ns-pick (e f)                 the MOVE an NS from neutral starts instead of the pointer's (CORE-SP-START!), NIL = the pointer's:
+                                     Yamamoto's Bankai (an armed 北, DUEL_YAMA_CORE §7.4)
+      :switch-ok (e f)               NIL: the pointer switch is refused now (CORE-SWITCH-OPEN-P): Yamamoto's Bankai (北 armed or in play)
       :min-reach (e m)               the dead zone, m or NIL, of his window whose :min-reach is M, now (COLLECT-MELEE; the
                                      CPU's MV-MIN-REACH; no hook: M): Hisagi (his cancel unlock, DUEL_HISAGI §29)
       :sp-gain-mult (att)            x his flash-step gain on a hit (SP-ATK-HIT!): Hisagi's Bankai

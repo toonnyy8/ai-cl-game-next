@@ -880,3 +880,31 @@ def yama_blaze_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-blaze", yama_blaze_script())
+
+# Yamamoto's Bankai, batch 1 stage C (DUEL_YAMA_CORE "As built (batch 1 C)"; the browser path of tests/trials/yamamoto-bankai.lisp, and
+# the cinematics the native trials skip): human P1 vs an idle Kenpachi. The awakening from heat 40 (87440: the old yama-bankai-cine, a
+# still on its card), the Bankai's plate (東 西 南, heat gone), 東 NS a-b-c from 3 m, J1-J3 > AS3 (mark 南), two marks by the pointer
+# (87441 87443, a still), 北 armed (87444: the label 北 · TENCHI KAIJIN, a still), AS 北 after J1 held (the Kikon: yama-tenchi-cine, a still).
+# Read the `AWAKEN` / `ZANKA` / `MARK` / `NORTH` / `-> P2` / `KIKON` lines per `===` scene. PHONE: the same on the deck (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --script tests/scripts/duel-yama-bankai.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --mobile --size 390x844 --script tests/scripts/duel-yama-bankai-phone.json
+def yama_bankai_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+    scene("awaken from the Shikai at heat 40", (87040, 87540, 87445) + ((87901,) if phone else ()) + (87440,))
+    ev.append(shot(t + 1.4, "yama-bankai-cine" + sx)); ev.append(shot(t + 3.4, "yama-bankai" + sx)); t += 4.0
+    scene("BANKAI east NS a-b-c", (87030, 87301)); sp(t + 0.3); sp(t + 0.6); sp(t + 0.9); t += 3.5
+    scene("BANKAI J1-J3 AS3: mark south", (87014, 87301, 87445)); [ev.extend(tap(t + 0.3 + 0.25 * i, "KeyJ", 0.05)) for i in range(3)]
+    sp(t + 1.1); sp(t + 1.4); sp(t + 1.7); t += 3.5
+    scene("two marks by the pointer", (87040, 87445, 87441, 87443, 87900)); ev.append(shot(t + 0.6, "yama-marks" + sx)); t += 1.5
+    scene("NORTH armed: the label", (87444, 87900)); ev.append(shot(t + 0.6, "yama-north" + sx)); t += 1.5
+    scene("AS NORTH after J1, held: the Kikon", (87014, 87302, 87445, 87444)); ev.extend(tap(t + 0.3, "KeyJ", 0.05)); sp(t + 0.62, 1.4)
+    ev.append(shot(t + 2.6, "yama-tenchi-cine" + sx)); t += 6.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-bankai", yama_bankai_script())
+write("yama-bankai-phone", yama_bankai_script(True))
