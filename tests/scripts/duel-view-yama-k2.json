@@ -1,0 +1,162 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(1203001)"
+},
+{
+"at": 10.15,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q1-side.png"
+},
+{
+"at": 10.35,
+"eval": "Module._debug_cmd(1203002)"
+},
+{
+"at": 11.5,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q1-front.png"
+},
+{
+"at": 11.7,
+"eval": "Module._debug_cmd(1204001)"
+},
+{
+"at": 12.85,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q2-side.png"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(1204002)"
+},
+{
+"at": 14.2,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q2-front.png"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(1205001)"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q3-side.png"
+},
+{
+"at": 15.75,
+"eval": "Module._debug_cmd(1205002)"
+},
+{
+"at": 16.9,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-q3-front.png"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(1202001)"
+},
+{
+"at": 18.25,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-kyokko-side.png"
+},
+{
+"at": 18.45,
+"eval": "Module._debug_cmd(1202002)"
+},
+{
+"at": 19.6,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-kyokko-front.png"
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(1201001)"
+},
+{
+"at": 20.95,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-f2-side.png"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(1201002)"
+},
+{
+"at": 22.3,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-f2-front.png"
+},
+{
+"at": 22.5,
+"eval": "Module._debug_cmd(1217001)"
+},
+{
+"at": 23.65,
+"shot": "tests/shots/duel-view-yama-k2-ya-kyoku-side.png"
+},
+{
+"at": 23.85,
+"eval": "Module._debug_cmd(1217002)"
+},
+{
+"at": 25.0,
+"shot": "tests/shots/duel-view-yama-k2-ya-kyoku-front.png"
+},
+{
+"at": 25.2,
+"eval": "Module._debug_cmd(1198001)"
+},
+{
+"at": 26.35,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-as1-side.png"
+},
+{
+"at": 26.55,
+"eval": "Module._debug_cmd(1198002)"
+},
+{
+"at": 27.7,
+"shot": "tests/shots/duel-view-yama-k2-ya-e-as1-front.png"
+},
+{
+"at": 27.9,
+"eval": "Module._debug_cmd(1227001)"
+},
+{
+"at": 29.05,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-higashi-side.png"
+},
+{
+"at": 29.25,
+"eval": "Module._debug_cmd(1227002)"
+},
+{
+"at": 30.4,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-higashi-front.png"
+},
+{
+"at": 30.6,
+"eval": "Module._debug_cmd(1229001)"
+},
+{
+"at": 31.75,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-nishi-side.png"
+},
+{
+"at": 31.95,
+"eval": "Module._debug_cmd(1229002)"
+},
+{
+"at": 33.1,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-nishi-front.png"
+},
+{
+"at": 33.3,
+"eval": "Module._debug_cmd(1228001)"
+},
+{
+"at": 34.45,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-minami-side.png"
+},
+{
+"at": 34.65,
+"eval": "Module._debug_cmd(1228002)"
+},
+{
+"at": 35.8,
+"shot": "tests/shots/duel-view-yama-k2-ya-st-minami-front.png"
+}
+]

@@ -73,15 +73,19 @@ average is exact at any frame rate. 0 once the pool is near the budget."
 blade's 0.7 point over the trail samples of the last drawing (at most 5), fat at the blade, its tail thinning and
 eroding. It is captured into SM when a new drawing (twos) starts and held for that drawing. LOOK 0 = FIRE
 (Ryujin Jakka), 1 = REIATSU (Kenpachi: a white-cored yellow comet, every form), 2 = charcoal ink wash (Zanka no
-Tachi). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width, drawing, presence."
+Tachi), 3 = that wash with one EMBER hairline down its middle (Yamamoto's Bankai, the kit's :smear: DUEL_YAMA_CORE §17, the
+user's D4 「只有西和北有火」). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width, drawing, presence."
   (declare (type f32vec tr sm) (fixnum look))
   (let* ((n (f->i (trail-count tr))) (dr (drawing-no)))
     (declare (fixnum n) (single-float dr))
     (fx-smear-capture! tr sm n dr 0.7f0 (len (* 0.33f0 len)) (if (>= n 5) 0.98f0 0.6f0))   ; through the blade's 0.7 points
     (when (> (aref sm 11) 0f0)
       (fx-crescent (aref sm 0) (aref sm 1) (aref sm 2) (aref sm 3) (aref sm 4) (aref sm 5) (aref sm 6) (aref sm 7) (aref sm 8)
-                   (aref sm 9) :comet 0.06f0 (if (= look 2) (+ 1000f0 dr) (+ 5f0 dr))
-                   (case look (0 +pal-fire+) (1 +pal-reiatsu+) (t +pal-black-smoke+)) (aref sm 11) :push 0.15f0))
+                   (aref sm 9) :comet 0.06f0 (if (>= look 2) (+ 1000f0 dr) (+ 5f0 dr))
+                   (case look (0 +pal-fire+) (1 +pal-reiatsu+) (t +pal-black-smoke+)) (aref sm 11) :push 0.15f0)
+      (when (= look 3)                                  ; (the ember hairline over the wash)
+        (fx-crescent (aref sm 0) (aref sm 1) (aref sm 2) (aref sm 3) (aref sm 4) (aref sm 5) (aref sm 6) (aref sm 7) (aref sm 8)
+                     0.018f0 :comet 0.02f0 (+ 1100f0 dr) +pal-ember+ (aref sm 11) :push 0.18f0)))
     nil))
 
 ;;; ---------------------------------------------------------------- auras

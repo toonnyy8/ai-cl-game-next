@@ -226,7 +226,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (if (and mv (eq (fighter-phase f) :main) (>= (fighter-sf f) (- (mv-s mv) 4)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv) 3)))
             (trail-push tr (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2))
             (trail-decay tr))
-        (vfx-smear tr (blade-smear (blade e)) 1)))
+        (vfx-smear tr (blade-smear (blade e)) (or (kit-smear kit) 1))))   ; (the REIATSU comet unless the form says: KIT :smear)
     ;; auras: the form's, EVOLUTION ready, the Breaker (brightens over the strike startup), the Kikon rush
     (let ((age (fx-clock)))
       (unless (or flashing (<= (model-alpha m) 0f0) (eql e *aura-off*))   ; the form's aura, crossfaded; none round a body

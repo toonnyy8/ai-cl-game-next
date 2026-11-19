@@ -2,6 +2,8 @@
 ;;;; sound. A test target, not part of the game (repointed from the retired kits' art by refactor R5, 2026-11-12):
 ;;;;   ./build.sh duelview duel/lisp/{package,tuning,rules,control,learn,sounds,components,body,kit,glyphs,glyphs-extra,brush,
 ;;;;     cinema,stage,vfx,vfx-stamps,hem-spring,tip-track,vfx-ember,ken-art,ichigo-art}.lisp tests/duel-view.lisp
+;;;;   Yamamoto's Bankai strips (art K2, DUEL_YAMA_CORE §17): the same list without learn (gone), with yama-art.lisp after ichigo-art
+;;;;   (its draw hooks call yama-look / fighter functions the viewer never reaches), then tests/scripts/duel-view-yama-k2.json
 ;;;;   python3 tests/scripts/duel-view.py   (writes tests/scripts/duel-view-*.json, see its header)
 ;;;;   node tools/run.mjs dist/duelview --secs 60 --script tests/scripts/duel-view-looks.json
 ;;;; Keys: 1-5 scenes, LEFT/RIGHT turn, SPACE spin, N/P next/previous clip strip, G stage on/off.
@@ -74,6 +76,8 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((or (prefix-p name "IC-K-") (member name '(:ic-c-light :ic-c-heavy)))
            '((:ichigo :tensa (:shikai :mark))))                          ; KESSA (DUEL_ICHIGO_TYBW)
           ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
+          ((or (prefix-p name "YA-E-") (prefix-p name "YA-ST-") (member name '(:ya-kyoku :ya-kaka :ya-shonetsu :ya-w-parry :ya-w-counter)))
+           '((:yamamoto-tybw :zanka (:haori))))                         ; Yamamoto's Bankai (DUEL_YAMA_CORE §17, art K2)
           (t '((:ichigo :zangetsu-long (:kessa :mark)) (:kenpachi :ken-katana nil))))))
 
 (defun look-at (ex ey ez tx ty tz) (setf *v-cam* (list ex ey ez tx ty tz)))

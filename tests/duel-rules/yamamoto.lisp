@@ -336,10 +336,10 @@
     (check (and (kit-sp-start-p kb (m :ya-e-n4) 0.0 nil) (not (kit-sp-start-p kb (m :ya-e-n1b) 0.0 nil))
                 (~= 60.0 (kit-sp-cost kb (m :ya-e-n4))) (~= 60.0 (kit-sp-cost kb (m :ya-e-as4)))))
     ;; stance by pointer
-    (check (equal (getf core :stances) '(:ya-e-stance :ya-st-nishi :ya-st-minami)))
+    (check (equal (getf core :stances) '(:ya-st-higashi :ya-st-nishi :ya-st-minami)))
     (let ((f (make-fighter :kit kb)))
       (check (equal (loop for p from 1 to 3 collect (progn (setf (fighter-ptr f) p) (fighter-stance-clip f)))
-                    '(:ya-e-stance :ya-st-nishi :ya-st-minami))))
+                    '(:ya-st-higashi :ya-st-nishi :ya-st-minami))))
     ;; the turn moves' armour in the triangle (pure): an NA that would cancel is absorbed; an AS still hits; nothing changes unarmoured
     (check (eq :absorb (core-turn-armor-verdict (core-verdict :na :ns) :na t)))
     (check (eq :hit (core-turn-armor-verdict (core-verdict :as :ns) :as t)))
@@ -426,4 +426,9 @@
                               always (or (and (eq c :yamamoto) (eq f :bankai))
                                          (and (null (kit-hook kk :ns-pick)) (null (kit-hook kk :switch-ok)) (null (kit-hook kk :armored-fx))
                                               (null (getf (kit-core kk) :ns-extra)) (null (getf (kit-core kk) :as-extra))
-                                              (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))))
+                                              (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))
+    ;; art K2 (DUEL_YAMA_CORE §17): the Bankai's smear is the ink wash with an ember hairline (look 3); every other form keeps the
+    ;; REIATSU comet (KIT :smear NIL: DRAW-FIGHTER passes 1, as before)
+    (check (eql 3 (kit-smear kb)))
+    (check (loop for c being the hash-keys of *kits* using (hash-value alist)
+                 always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :bankai)) (null (kit-smear kk))))))))

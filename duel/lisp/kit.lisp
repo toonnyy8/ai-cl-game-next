@@ -256,6 +256,7 @@ new button."
   (swing-sfx nil) (absorb-sfx nil)
   (enter-clips nil) (enter-hook nil) (exit-hook nil)
   (meter nil) (cine nil) (blade nil) (grade nil)
+  (smear nil)                           ; NIL, or the blade smear's VFX-SMEAR look (a look: DRAW.LISP; NIL = 1, the REIATSU comet)
   (kikon-konpaku 2 :type fixnum)        ; Konpaku a Kikon of this form removes (read at rush start)
   (form-name nil)                       ; the form's name on the HUD (default its keyword)
   (respect-callout nil)                 ; said when the opponent outplays him (a counter-hit, a perfect Hoho, a parry, a Burst)
@@ -676,6 +677,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :meter (... :draw fn :label fn :bankai-prompt (:key :right :pad :one-hand strings :rgb colour))  a character's own meter
                                      row / portrait label / BANKAI prompt words
   :blade (look power)                blade look drawn along the held weapon: (:fire 1.0) (:embers 1.0)
+  :smear N                           a look: the blade smear behind every swing is VFX-SMEAR's look N (NIL: 1, the REIATSU comet,
+                                     every form before 2026-11-20); Yamamoto's Bankai: 3, the ink wash with an ember hairline
+                                     (DUEL_YAMA_CORE §17, the user's D4)
   :grade                             the world's grade while the form is on: NIL, or :SPOT (grey but the ember
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)
   :intro :win :intro-callout :callout  clips / texts; :intro-weapon (key frame) = a prop held in the

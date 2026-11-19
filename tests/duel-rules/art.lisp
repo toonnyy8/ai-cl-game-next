@@ -103,7 +103,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
     ;; ahead for a capsule). The Bankai is checked: the J links and the swinging segments both ways within 0.15 m; where a look carries the
     ;; rest (ONE-SIDED: KYOKKO's lance L7, KYOKUJITSUJIN's void line L6, 西's burn round him L8, 北's AS crescent L10) the blade may fall
     ;; short, never over. The moves today's placeholder clips miss (KNOWN-OFF, the table in §16) are printed and must stay off: their own
-    ;; clips are art batches K2 (東, NA) and K3 (西, 南, 北, SA), which empty the list. The hazard segments (南, 北's NS) have no blade
+    ;; clips are art batches K2 (東, NA: done, §17) and K3 (西, 南, 北, SA), which empty the list. The hazard segments (南, 北's NS) have no blade
     ;; window: their cast checks are K3's. The Shikai and 爆炎 are printed only (their clips are later batches, §15.5).
     (flet ((ya-tip (k mv)
              (let* ((b (cdr (assoc (kit-body k) bodies))) (props (and (getf b :props) (apply #'make-rig-proportions (getf b :props))))
@@ -118,13 +118,13 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                        (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1))))))
       (let ((k (find-kit :yamamoto :bankai))
             (one-sided '(:ya-e-n1a :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-as2b :ya-e-as4))
-            (known-off '(:ya-e-as1 :ya-e-as2)))   ; (K2: AS1 on ya-kyoku x1.8, +0.26; K3: AS2 on ya-w-counter x0.5, +0.36)
+            (known-off '(:ya-e-as2)))   ; (K3: AS2 on ya-w-counter x0.5, +0.36; AS1 left the list with its own clip ya-e-as1, art K2 §17)
         (format t "yamamoto bankai FK (move, drawn tip, volume end, delta):~%")
         (dolist (n '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-as1 :ya-e-n2a :ya-e-n2b :ya-e-n2c :ya-e-as2 :ya-e-as2b
                      :ya-e-as4 :ya-e-sa :ya-e-ns-strike))
           (multiple-value-bind (art edge) (ya-tip k (kit-move k n))
             (let* ((d (- art edge)) (ok (and (<= d 0.15) (or (>= d -0.15) (member n one-sided)))))
-              (format t "  ~a ~(~a~) | ~,2f | ~,2f | ~,2@f~:[~; (known off: K2 / K3)~]~%" (if ok "ok " "OFF") n art edge d (member n known-off))
+              (format t "  ~a ~(~a~) | ~,2f | ~,2f | ~,2@f~:[~; (known off: K3)~]~%" (if ok "ok " "OFF") n art edge d (member n known-off))
               (if (member n known-off)
                   (check (not ok))                      ; (a fixed clip must leave the list)
                   (check (or ok (format t "yamamoto bankai ~a: the volume ends ~,2f m, the art ~,2f m~%" n edge art))))))))
