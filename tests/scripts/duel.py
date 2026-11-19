@@ -859,3 +859,24 @@ def yama_core_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-core", yama_core_script())
+
+# Yamamoto's heat and 爆炎, batch 1 stage B (DUEL_YAMA_CORE "As built (stage B)"; the browser path of tests/trials/yamamoto-blaze.lisp):
+# human P1 vs an idle Kenpachi. J1 hit from heat 0 (+8), NS3a from heat 40 (spends 25, x1.30: the HUD's heat strip, a still), heat 100
+# (87600) enters 爆炎 at once in neutral (the pose; a still of the bared body and the 爆炎 strip), Reishi 10 in 爆炎 (87710: the drain
+# held at 1, MIN 1 on the strip, a still), a free NS1a in 爆炎 (cost 0). Read the `HEAT` / `GOKUEN` / `SP` lines per `===` scene.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 32 --script tests/scripts/duel-yama-blaze.json
+def yama_blaze_script():
+    ev, t = [], T0
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+    scene("J1 hit from heat 0", (87016, 87500)); ev.extend(tap(t + 0.3, "KeyJ", 0.05)); t += 2.5
+    scene("NS3a from heat 40", (87018, 87303, 87540)); sp(t + 0.3); ev.append(shot(t + 1.5, "yama-heat")); t += 3.0
+    scene("heat 100: GOKUEN in neutral", (87050, 87301, 87600)); ev.append(shot(t + 1.2, "yama-blaze")); t += 2.0
+    scene("GOKUEN Reishi 10: the drain held at 1", (87710,)); ev.append(shot(t + 1.5, "yama-blaze-floor")); t += 2.5
+    scene("GOKUEN NS1a free", (87050, 87301)); sp(t + 0.3); t += 3.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-blaze", yama_blaze_script())

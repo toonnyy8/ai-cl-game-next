@@ -315,3 +315,111 @@ cursor reached him with no card to show or pick. Now four cards (#(1 3 7 0)): `+
 three pointers' themes); a name wider than its card shrinks to fit (desktop: the narrower unfocused cards clipped KENPACHI); "4 PLAYABLE".
 Host test: the card count and the new geometry (phone and desktop). The looks gate's `menus` scenario shoots four select stills; its
 `LOOKS_SEEDS` (2000 + seed, a draw over the playable roster) need re-pinning over the four (open; the looks gate is for refactors).
+
+## 13. As built (batch 1 B: heat and 爆炎, 2026-11-19)
+
+Stage B on top of §11: the heat gauge and 爆炎 GOKUEN as §3, §7.2 and §7.4 decide, in `duel/lisp/yama.lisp` (no new file: a section of
+pure rules, one of sim hooks), two shared hooks that default off, and the plate's heat strip.
+
+**Built.**
+- **Heat** is the kit meter (`GAUGES-METER`, 0-100; the old kit's Inferno slot), so the match's fresh fighter starts at 0 and a Konpaku
+  reset keeps it with the form. The per-segment bookkeeping is a component on his fighter (`yss`: the NS segment's start tick, the heat it
+  paid, its frozen x, whether a cancel gave it back; the gain and burn once-guards). Pure rules (host-tested): `ya-heat-gain` (NA 8 / SA 10 /
+  an AS segment 12, NS and classless 0, capped at 100), `ya-ns-spend` (25 or what is left; nothing for a segment with no hit of its own, NS2b's
+  ring; x 1 + 0.3 x paid / 25 in the Shikai, x 1 in 爆炎), `ya-heat-refund`, `ya-blaze-decay` (10 / s), `ya-form-next` (the latch both ways),
+  `ya-burn-amount`. Knobs `*ya-heat-max*` `*ya-heat-gain*` `*ya-heat-ns*` `*ya-heat-boost*` `*ya-blaze-decay*` `*ya-blaze-drain*`
+  `*ya-blaze-burn*` `*ya-blaze-in-frames*`.
+- **The spend** runs on every NS segment's frame 0 (`:on-frame (0 yama-ns-start)`, both sets; an NS copy played as an AS spends nothing) and
+  stores the x there; `yama-seg-x` returns it while that segment is the move in play, so a hazard copies it at its fire frame (§11's seam).
+  APPLY-HIT multiplies it with the SP short-pay x as before. A cancelled NS segment gets its heat back once (`:cancel` hook): a hazard
+  carries its segment's unrefunded heat in its data (`:heat`, at its fire frame, as `hazard-sp-paid` carries the SP), so a wave cancelled
+  after the next segment started is still paid back; a refund by either path closes the other (`yama-heat-back!`).
+- **Gains** (`:hit` hook on a real hit, `:cancel` hook on a cancel): once a move (an AS: once a segment; its hazard's hits keyed by the
+  segment's start tick), in the Shikai only; a blocked hit, a whiff, an NS, the Kikon's follow-up strike, any hit or cancel during his own
+  burst add nothing.
+- **爆炎** is the kit `:blaze` (`:inherit :base`; `:body :yamamoto-bare`, `:hide (:haori :kosode)`, `:aura :hellfire`, `:blade (:fire 1.3)`,
+  `:callout "GOKUEN"`, the form name GOKUEN). The `:tick` hook (GAUGE-SYSTEM: live sim steps only) enters it when he is free (idle / guard /
+  run, no input lock) with heat at 100: heat set to 100, the entry pose `:ya-blaze-in` (24 f, no class, no hit, the old clip `ya-hellfire`
+  played whole), 24 f invulnerable, the `:hellfire` flash. Outside the pose the heat decays 10 / s and the Reishi drains through the form's
+  `:burn 0.02` with rules.lisp's `burn-amount` / `burn` (never below 1; 26 / s at Reishi max 1300). Heat 0 leaves at his next neutral: the
+  Shikai, heat 0. `:no-awaken` stays (stage C).
+- **Free NS / AS**: the kit's `:core :sp-free t`, read by `kit-sp-free-p` in `kit-sp-start-p` (so the CPU's pre-press test agrees) and in
+  `core-start!` (paid and recorded as in a burst: cost 0, full damage, the regen not reset); the HUD's next-NSa price tick hides with it.
+- **The cancel burn** (Y10): `yama-burn!` from the `:cancel` hook in 爆炎: the opponent loses 25 % of his cancelled part's base damage (a
+  hazard's hit damage, else the move's `mv-sp-damage`), at least 1, his Reishi never below 1 (`burn`); no hitstun, no combo count, not counted
+  as dealt; once a step; a `GOKUEN BURN` clog line.
+- **Shared hooks, default off**: core-sim.lisp `core-cancel-hook!` (the kit hook `:cancel (e other mv hz)`), called per verdict in
+  `core-nohit!` and `core-hazard-nohit!` for each side of a cancel with his own move or hazard (his window side only when he was in a classed
+  window, read once before the verdict lands); kit.lisp `kit-sp-free-p`. No other kit has either (host-tested); `--cvc` byte-identical.
+- **HUD** (lhud-plate.lisp `lhud-heat`, the kit strip's kinds 4 / 5 from the meter's label HEAT / GOKUEN): beside the souls on both plates and
+  under the bar on the phone's deck line. Shikai: 炎 and the heat bar with a tick at each 25 (the NS segment's price), white-pulsing at the
+  top. 爆炎: 爆炎 and the bar white-hot, draining (the decay), then `-2%/s`, or `MIN 1` pulsing red once the drain is held at 1 (webhud V o+21:
+  a form with a `:burn` 1 draining, 2 at its floor; it was always 0). No new glyph (爆 and 炎 are already in the Mincho tier); lhud-charset passes.
+- **CPU**: the generic core CPU plays the `:blaze` set (its `:core` lists) and ignores heat. No tuning.
+- **Debug** (87000-87999): 87500+h P1's heat, 87701-87799 / 87801-87899 P1's / P2's Reishi; the probe line has heat and Reishi.
+
+**爆炎's move set as built** (copies with their own `:params`, so no Shikai `:ns-next` leaks in; damage before `:mult` 1.0):
+
+| Slot | 爆炎 |
+|---|---|
+| NA | J1 40 > J2 40 (the Shikai's clips) > J3 IKKOTSU 55, stagger (`ya-ikkotsu`, S9 A3 R18 as TSUKABI) |
+| NS1 | a wave 91 / b column 91 / c the tornado 117, knock-back, turning after him 60 deg / s (`:track`, the hazard's `:step`) |
+| NS2 | a stream 52 / b the ring closes at once: the dome at his bearing 3-8 m, 80, stagger (S16 R20) / c ENNETSU JIGOKU: a wave 2.4 m wide, 12 m/s over 9 m, 104, crumple (S18 R30) |
+| NS3 | a 52 / b 65 / c NADEGIRI 200, crumple, R60 (the Shikai's 34) |
+| AS | AS1 65 (steal 30) / AS2 52 (the ring's burn 26) > the dome 78, launch / AS3 52 > 65 > NADEGIRI 143, knockdown |
+| SA | TAIMATSU r 3.2, 55 |
+
+**Placeholders** (§7.2 leaves them open; the lead's numbers): x1.3 of the Shikai's wherever §7.2 names none (NS1 a / b, NS2a, NS3 a / b,
+every AS segment and the ring's burn); NS2b's 80 (the Shikai dome's) and its frames; ENNETSU as one travelling hit drawn with the tornado's
+pillar look (its rows of pillars are art to come); NS3c's R60; SA's 55; J3's frames; no flame trail on J1 / J2 yet; the burn has a sound only
+(`:explode`), no look; the Kikon cinematics stay `soul-break-cine`; the HUD's `-2%/s` is a literal (change it with `*ya-blaze-drain*`).
+
+**Deviations, each with its reason.**
+1. "A new round ends 爆炎 and resets heat": SOUL DUEL has no round inside a match but the Konpaku reset (which keeps both, §7.4); a new match
+   spawns fresh fighters (heat 0, the Shikai). PRACTICE's K.O. reset is a Konpaku reset, so it keeps both too.
+2. The drain does not go through GAUGE-SYSTEM's `kit-burn` branch itself: that branch runs only for a timed form (`gauges-form-left`), and
+   爆炎 has no duration. The `:tick` hook calls the same pieces (`burn-amount` over the form's `:burn` and `gauges-burn-step`, then `burn`).
+3. "Never below 1" for the cancel burn is applied both ways: the amount at least 1 and the victim's Reishi at least 1 (Y10's words and §3's).
+4. A cancel of the Kikon's follow-up (`core-kikon-cancel!`) burns nothing and moves no heat: it is not a triangle verdict of his move (the
+   hook is in `core-nohit!` / `core-hazard-nohit!`, as the brief says).
+5. "Burst hits add nothing" is read as a hit or cancel while his own burst runs (`gauges-burst`: WHITE / BLUE / ORANGE), as PAY-GAUGES and
+   the flash-step gains give nothing in one.
+6. Heat that reaches 100 logs `HEAT +0.0` on later gains: the gain is spent (once a move) but adds nothing at the top (§7.4: "Heat stays at
+   100 (no gain) until then").
+
+**Readings** (2026-11-19; native trials `tests/trials/yamamoto-blaze.lisp`, P1 scripted, P2 Kenpachi
+by `:p2-at`; damage dealt after his defence, the base in the hit line):
+
+| Trial | Reading |
+|---|---|
+| B1 / B2 J1 hit / whiff | HEAT +8 (8) / nothing (0) |
+| B3 NS3a at heat 0 / 10 / 40 | spends 0 / 10 / 25, x1.00 / 1.12 / 1.30, dealt 17 / 19 / 22 (heat left 0 / 0 / 15) |
+| B4 J1-J3 > AS3 from heat 90 | J1 +8 (98), J2 +2 (100, tick 359), the rest +0; the route stays the Shikai's (34 34 42 > 40 50 110); GOKUEN at tick 480, after AS3c's recovery |
+| B5 爆炎 from Reishi 30 | `drain held at reishi 1` (Reishi -29), still in 爆炎 |
+| B6 NS1a at fs 100 | Shikai: cost 30 paid 30, dealt 29 (70); 爆炎: cost 0 paid 0 (fs +0), dealt 38 (91) |
+| B7 爆炎 NS3 a-b from heat 50 | spends 25 (25 left), then 21.5 (the decay took 3.5) -> 0; `GOKUEN over` at the next neutral, the Shikai, heat 0 |
+| B8 爆炎 NS1a wave x P2's J1 | CANCEL, HEAT refund 25, BURN 23 (base 91): 1300 -> 1277; from Reishi 5: 5 -> 1 |
+| B9 Shikai NS1a x P2's J1 at heat 40 | spends 25, the cancel gives it back: 40 |
+| B10-B13 爆炎 routes | NS1 91 / 91 / 117; NS2 52 / the dome 80 / ENNETSU 104; J1 J2 J3 > AS3 40 40 55 > 52 65 143 (combo 6, gaps 0); NS3 52 > 65 > 200, adv -24, heat 0 in its recovery (25 x 3 + the decay): out at neutral |
+| B14 / B14b the entry pose | P2's J1 inside it whiffs (invulnerable); the same J1 with no pose hits 35 |
+| B15 Shikai NS1 a-b from heat 60, P2's J1 meets NS1a's wave after NS1b started | spends 25 (35), 25 (10), the wave's CANCEL refunds 25: 35 |
+| B16 J1 hit in his ORANGE burst | no heat (0) |
+
+The tornado's turn is host-tested (1 deg a step toward him, a wave without `:track` straight): the trial runner has no side step. The browser
+script `tests/scripts/duel-yama-blaze.json` (generated by tests/scripts/duel.py) reads the same lines through the page (HEAT +8; NS3a from 40
+spends 25 x1.30, dealt 22; GOKUEN in neutral; the drain held at 1; a free 爆炎 NS1a, cost 0) with stills of the heat strip, 爆炎 and MIN 1
+(`tests/shots/duel-yama-*.png`, desktop); the phone checked by eye, both the plate without the deck and the strip hung under the deck's
+line (87901 turns the deck on). Native CPU smoke (generic CPU, 3 seeds each, no error; rerun after the refund / burst fixes): YK Kenpachi 2-1 (Yamamoto won seed 2 on time);
+IY Ichigo 3-0 (three 300 s time-outs), Yamamoto entered 爆炎 once (eight 爆炎 moves, five burns, out at heat 0); HY Hisagi 3-0. The CPU
+spends its heat on NS routes, so it seldom reaches 100.
+
+Checks: host tests ALL PASS (3970 checks, +101: the pure heat rules, the drain and burn floors, the latch both ways on stand-in fighters, the
+爆炎 copies' class tags and chains, no mid-route knockdown, the free SP, the hazard's heat refund after the next segment, no gain in a burst,
+the tornado's turn, both hooks off for every other kit); pkgcheck as main; `--cvc` II / IK / KK identical; `python3 tests/sp-costs-check.py`
+116 PASS, 0 FAIL; `./build.sh duel`; the browser smoke (`run.mjs` exit 0).
+
+**Open for stage C.** The Bankai (東 / 西 / 南 pointers, marks on an AS hit, 北 as a flag, 天地灰尽) and the awakening in place of `:no-awaken`
+(in 爆炎 it ends 爆炎 and heat leaves with the Shikai, §3). Also open: 爆炎's art (the flame trail, ENNETSU's pillar rows, IKKOTSU's own
+timing, the burn's look), a CPU that reads heat (none asked for), the Kikon storyboards, and the defaults §9 keeps (a Kikon landed or taken
+does not end 爆炎). The burn writes Reishi directly (`burn`), not through `deal-damage`, so under Hisagi's bind (HY) the bind's grey
+accounting does not see it: check when HY is played.
