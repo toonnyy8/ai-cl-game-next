@@ -285,7 +285,8 @@
          :ns-extra (:ya-e-n4) :as-extra (:ya-e-as4)          ; 北: outside the pointer grammar, picked by the hooks (KIT CORE-ROUTES)
          :stances (:ya-st-higashi :ya-st-nishi :ya-st-minami) ; 東 the blade level across / 西 the arms open low / 南 the blade
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last; 北's: its moves' :cine)
+         :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19;
+                                                                             ;  北's: its moves' :cine, yama-tenchi-cine)
          :as-by-press (1 2 3)
          :ns-range ((2.0 5.5) nil (4.0 9.0))   ; the CPU lunges KYOKKO from mid range, plants 南's hands from range
          :mult 1.0)
