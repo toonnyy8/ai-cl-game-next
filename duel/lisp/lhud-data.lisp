@@ -102,7 +102,7 @@ sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / 
                       ((string= tg "KAZESHINI OUT") (list (cons (zh "風死") nil) (cons " · " t) (cons "THROWN" nil)))
                       ((string= tg "KAZESHINI ...") (list (cons (zh "風死") nil) (cons " · " t) (cons "RETURNING" nil)))
                       (n (list (cons (zh "分身") nil) (cons " · " t) (cons (format nil (zh "×~d") n) nil)))
-                      ((member tg '("NOME" "UDE" "KAIHO" "") :test #'string=) nil)
+                      ((member tg '("NOME" "UDE" "KAIHO" "HEAT" "GOKUEN" "") :test #'string=) nil)
                       (t (list (cons (string-upcase tg) nil)))))
            (out (if kin (append out (when out (list (cons " · " t))) (list (cons (zh "近") nil))) out)))   ; (one glyph: the phone's plate, §29)
       (append (when (plusp (length form)) (list (cons form nil)))
@@ -110,8 +110,9 @@ sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / 
               out))))
 
 (defun lhud-kit-kind (tag)
-  "The kit strip under the bar by the tag (DUEL_WEBUI §13): 1 NOME, 2 UDE, 3 KAIHO, 0 none."
-  (cond ((equal tag "NOME") 1) ((equal tag "UDE") 2) ((equal tag "KAIHO") 3) (t 0)))
+  "The kit strip under the bar by the tag (DUEL_WEBUI §13): 1 NOME, 2 UDE, 3 KAIHO, 4 Yamamoto's HEAT, 5 his 爆炎 GOKUEN (DUEL_YAMA_CORE §3),
+0 none."
+  (cond ((equal tag "NOME") 1) ((equal tag "UDE") 2) ((equal tag "KAIHO") 3) ((equal tag "HEAT") 4) ((equal tag "GOKUEN") 5) (t 0)))
 
 ;;; ---------------------------------------------------------------- the overlays' tables (DUEL_LISP_HUD §14: hud.js CRY, PAUSE)
 (defparameter *lhud-cry* (list (cons "KARE, KAZESHINI" (zh "刈れ")) (cons "ZANGETSU" (zh "斬月")))

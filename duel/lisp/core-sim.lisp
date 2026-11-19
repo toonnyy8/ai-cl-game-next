@@ -62,7 +62,7 @@ SA, a Kikon strike): started as it is. T when it started."
            (emit :refused e :sp)
            (clog "~a SP ~a refused (fs ~,1f)" (side-name e) (mv-name mv) (gauges-fs g))
            nil)
-          (t (let ((fs (gauges-fs g)) (burst (gauges-burst g)))
+          (t (let ((fs (gauges-fs g)) (burst (or (gauges-burst g) (kit-sp-free-p kit))))   ; (free as in a burst: 爆炎's :sp-free)
                (multiple-value-bind (left paid) (sp-pay fs cost burst)
                  (declare (ignore left))
                  (start-move e mv button)
@@ -255,23 +255,26 @@ A hazard's verdict: CORE-HAZARD-NOHIT!."
          (p (pos-of att)) (q (pos-of def)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
     (when (pending-hazard h) (return-from core-nohit! (core-hazard-nohit! (pending-hazard h) def verdict)))
     (when (and (eq (fighter-state fa) :move) (eq (pending-mv h) (fighter-move fa)))
+     (let ((dw (core-window-class fd)) (dm (fighter-move fd)))   ; (his window now: read before this verdict lands anything)
       (ecase verdict
         (:cancel
          (core-cancel-landed! att fa)
-         (when (core-window-class fd) (core-cancel-landed! def fd))   ; (re-read: an earlier hit this step may have moved him)
+         (when dw (core-cancel-landed! def fd))   ; (re-read: an earlier hit this step may have moved him)
          (hitstop *hitstop-block*)
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)
          (clog "~a ~a x ~a: CANCEL" (side-name att) (mv-name (pending-mv h)) (side-name def))
          (core-xch-open! att def)
          (core-clash! att def)
+         (core-cancel-hook! att def (pending-mv h) nil)   ; each side's own move in it (a kit's :cancel; NIL for every other kit)
+         (when dw (core-cancel-hook! def att dm nil))
          (when (and (eq (fighter-cls fa) (core-window-class fd)) (eq (fighter-state fd) :move))   ; a same-class tie: both to neutral
            (core-bounce! att def)))
         (:absorb
          (setf (fighter-contact fa) (or (fighter-contact fa) :block))
          (hitstop *hitstop-block*)
          (emit :armored def mx 1.2 mz)
-         (clog "~a ~a x ~a: ABSORBED" (side-name att) (mv-name (pending-mv h)) (side-name def)))))))
+         (clog "~a ~a x ~a: ABSORBED" (side-name att) (mv-name (pending-mv h)) (side-name def))))))))
 
 (defun core-cancel-landed! (e f &optional (refund t))
   "E (fighter F) took part in a cancel in his classed move (CORE-NOHIT!, CORE-HAZARD-NOHIT!): it counts as landed (contact :hit, his
@@ -313,16 +316,25 @@ wave's, or a classless blade cuts it, Q9): it is spent, nothing refunded, no exc
              (when (plusp paid)
                (refund-fs (gauges owner) paid)
                (clog "~a SP refund ~,1f (fs ~,1f), out of the move" (side-name owner) paid (gauges-fs (gauges owner))))))
-       (when (core-window-class fd) (core-cancel-landed! other fd))
-       (hitstop *hitstop-block*)
-       (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
-       (emit :clash x 1.2 z)
-       (clog "~a ~(~a ~a~) x ~a: CANCEL" (side-name owner) (hazard-kind hz) (hazard-cls hz) (side-name other))
-       (core-xch-open! owner other)
-       (core-clash! owner other))
+       (let ((dw (core-window-class fd)))
+         (when dw (core-cancel-landed! other fd))
+         (hitstop *hitstop-block*)
+         (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
+         (emit :clash x 1.2 z)
+         (clog "~a ~(~a ~a~) x ~a: CANCEL" (side-name owner) (hazard-kind hz) (hazard-cls hz) (side-name other))
+         (core-xch-open! owner other)
+         (core-clash! owner other)
+         (core-cancel-hook! owner other nil hz)          ; each side's own part (a kit's :cancel; NIL for every other kit)
+         (when dw (core-cancel-hook! other owner (fighter-move fd) nil))))
       (:absorb
        (emit :hazard-cut x (f32 (+ 1.0 (hazard-y hz))) z)
        (clog "~a beats ~a's ~(~a ~a~)" (side-name other) (side-name owner) (hazard-kind hz) (hazard-cls hz))))))
+
+(defun core-cancel-hook! (e other mv hz)
+  "E took part in a triangle cancel with OTHER (CORE-NOHIT!, CORE-HAZARD-NOHIT!) with his move MV (his hit judged, or the move whose window
+was struck) or his hazard HZ: his kit's :cancel hook (e other mv hz), called per verdict (a same-class tie gives two in one step: the
+hook dedupes). Yamamoto's heat and 爆炎's burn (DUEL_YAMA_CORE §3, §7.4); no other kit has it."
+  (let ((h (kit-hook (kit-of e) :cancel))) (when h (funcall h e other mv hz))))
 
 (defun core-clash! (a b)
   "A clash between A and B (攻擊抵銷: a triangle cancel, CORE-NOHIT!, or a cancelled Kikon follow-up, CORE-KIKON-CANCEL!): each

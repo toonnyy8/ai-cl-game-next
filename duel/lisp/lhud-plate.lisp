@@ -320,10 +320,49 @@ the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a seal
 (defparameter +c-kai0+ (rgba #xffe97a)) (defparameter +c-kai2+ (rgba #xe0a21a))
 (defparameter +c-ude0+ (rgba #xff4b63)) (defparameter +c-ude2+ (rgba #x8d0f20))
 
+(defparameter +c-heat-hot+ (rgba #xfff1d6))                 ; 爆炎's white-hot fill (Yamamoto's heat strip)
+
+(defun-fast lhud-heat (side mir)
+  "Yamamoto's heat strip (DUEL_YAMA_CORE §3; the precedents' lesson: the state, its drain and the floor at a glance): kind 4 the Shikai's
+炎 and the heat bar (0-100, ticks at each NS segment's 25, the boost it buys; white at the top: 爆炎 at his next neutral), kind 5 爆炎's
+爆炎 and the same bar white-hot, draining (its decay), then the Reishi drain's word: -2%/s, or MIN 1 pulsing once the drain is held at its
+floor (V o+21 = 2). *LHUD-A*: x (the start edge), the strip's centre y, u. MIR: from the right."
+  (declare (fixnum side))
+  (let* ((a *lhud-a*) (x (aref a 0)) (cy (aref a 1)) (u (aref a 2)) (now (aref *ui-clock* 0)) (o (side-o side))
+         (blaze (= (side-c side 8) 5)) (v (max 0 (hv (+ o 15)))) (mx (max 1 (hv (+ o 16)))) (k (f-min 1f0 (/ (i->f v) (i->f mx))))
+         (dir (if mir -1f0 1f0)) (kz (* 1.15f0 u)) (bw (* 6.5f0 u)) (bh (* 0.55f0 u)) (by (- cy (* 0.5f0 bh)))
+         (kn (if blaze (kj "爆炎") (kj "炎"))) (kw (text-w kn +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0)))
+         (pulse (- 0.5f0 (* 0.5f0 (f-cos (* 7.854f0 now))))))
+    (declare (single-float x cy u now k dir kz bw bh by kw ky pulse) (fixnum o v mx) (type f32vec a))
+    (paint-pen! (f-floor+ (if mir (- x kw) x)) (+ (f-floor+ ky) (lay-dpr)) kz) (paint-text kn +f-kanji+ +c-shade+)
+    (paint-pen! (f-floor+ (if mir (- x kw) x)) (f-floor+ ky) kz) (paint-text kn +f-kanji+ (if blaze +c-heat-hot+ +c-burst-o+))
+    (setf x (+ x (* dir (+ kw (* 0.7f0 u)))))
+    (let ((bx (if mir (- x bw) x)))
+      (declare (single-float bx))
+      (paint-rect bx by bw bh +c-cell+)
+      (when (> k 0.001f0)
+        (paint-rect (if mir (+ bx (* bw (- 1f0 k))) bx) by (* bw k) bh
+                    (cond (blaze (col-mix! *lhud-mix* +c-burst-o+ +c-heat-hot+ (+ 0.5f0 (* 0.5f0 k))))
+                          ((>= v mx) (col-mix! *lhud-mix* +c-burst-o+ +c-white+ (* 0.6f0 pulse)))
+                          (t +c-burst-o+))))
+      (unless blaze                                         ; the NS segment's price: a tick each 25
+        (dotimes (i 3)
+          (paint-rect (- (+ bx (* bw 0.25f0 (i->f (1+ i)))) (* 0.5f0 (lay-dpr))) by (lay-dpr) bh +c-ink+))))
+    (when blaze                                             ; the Reishi drain, and its floor
+      (let* ((held (= (hv (+ o 21)) 2)) (s (if held "MIN 1" "-2%/s")) (sz (* 0.7f0 u)) (sw (text-w s +f-mono+ sz 0.12f0))
+             (tx (+ x (* dir (+ bw (* 0.6f0 u))))))
+        (declare (single-float sz sw tx))
+        (with-col (c (if held +c-redlab+ +c-steel+)) (col-alpha! c (if held (+ 0.55f0 (* 0.45f0 pulse)) 0.85f0))
+          (paint-pen! (f-floor+ (if mir (- tx sw) tx)) (f-floor+ (+ (- cy (* 0.5f0 sz)) (line-baseline +f-mono+ sz 1f0))) sz :spacing 0.12f0)
+          (paint-text s +f-mono+ c))))
+    nil))
+
 (defun-fast lhud-kit (side mir)
   "Kenpachi's kit strip (.kit, DUEL_WEBUI §13): KAIHO (解, three pips, L n / MAX) or UDE (腕, four claw pips), gap .7u, MIR rtl (from
-the right). *LHUD-A*: x (the start edge), the strip's centre y, u. (NOME's cups went with the cups, DUEL_KEN_V3 §8: not drawn.)"
+the right); Yamamoto's heat (kinds 4 / 5: LHUD-HEAT). *LHUD-A*: x (the start edge), the strip's centre y, u. (NOME's cups went with the
+cups, DUEL_KEN_V3 §8: not drawn.)"
   (declare (fixnum side))
+  (when (member (side-c side 8) '(4 5)) (return-from lhud-kit (lhud-heat side mir)))
   (let* ((a *lhud-a*) (x0 (aref a 0)) (cy (aref a 1)) (u (aref a 2)) (now (aref *ui-clock* 0)) (o (side-o side))
          (kind (side-c side 8)) (v (max 0 (hv (+ o 15)))) (mx (max 1 (hv (+ o 16)))) (top (>= v mx)) (pts *lhud-pts*)
          (dir (if mir -1f0 1f0)) (x x0) (kz (* 1.15f0 u)) (pw (* 2.4f0 u)) (ph (* 1.5f0 u)))
@@ -375,7 +414,7 @@ phone's P2 (3.8u + safe top, 2.2u from the right, 27u wide with the deck, else 3
          (pw (* u (cond ((not phone) 36f0) ((and deck (= side 1)) 27f0) (t 30f0))))
          (sealz (if phone (* 2.2f0 u) (* 1.75f0 u))) (n (hv (+ o 9))) (kind (side-c side 8))
          (whoh (row-h (+f-display+ (* 2.3f0 u) 0.9f0) (+f-kanji+ (* 1.25f0 u) 1f0) (+f-mono+ (* 0.72f0 u) 1f0)))
-         (srowh (if (member kind '(2 3)) (* 1.5f0 u) (* 1.45f0 u)))
+         (srowh (if (member kind '(2 3 4 5)) (* 1.5f0 u) (* 1.45f0 u)))
          (ph (+ whoh (* 0.55f0 u) (* 1.55f0 u) (* 0.55f0 u) srowh (* 0.55f0 u) (* 0.42f0 u) (if (> n 0) (+ (* 0.55f0 u) (* 0.25f0 u) sealz) 0f0)))
          (top (cond ((not phone) (f-max (* 2.4f0 u) (+ st u)))
                     ((= side 1) (+ (* 3.8f0 u) st))
@@ -397,7 +436,7 @@ phone's P2 (3.8u + safe top, 2.2u from the right, 27u wide with the deck, else 3
     (lane! left y pw (* 1.55f0 u) 0.48f0 0.12f0) (lhud-bar side mir nil)
     (setf y (+ y (* 1.55f0 u) (* 0.55f0 u)))
     (lane! (if mir (+ left pw) left) (+ y (* 0.5f0 (- srowh (* 1.45f0 u)))) u) (lhud-souls side mir)
-    (when (member kind '(2 3))                             ; the kit strip beside the souls (flex: 1, gap 1u)
+    (when (member kind '(2 3 4 5))                         ; the kit strip beside the souls (flex: 1, gap 1u)
       (let* ((sw (+ (* 9f0 1.05f0 u) (* 8f0 0.38f0 u) u)))
         (declare (single-float sw))
         (lane! (if mir (- (+ left pw) sw) (+ left sw)) (+ y (* 0.5f0 srowh)) u) (lhud-kit side mir)))
@@ -428,7 +467,7 @@ line's far point, the bar (1.3u) centred on the line from 1.4u to the length - 1
       (let* ((wx (if left (+ x0 pad) (+ x0 pad (* 0.4f0 u) sw (* 1.1f0 u)))) (ww (- len (* 2f0 pad) (* 0.4f0 u) sw (* 1.1f0 u))))
         (declare (single-float wx ww))
         (lane! wx (- rb whoh) ww (* 1.75f0 u) u (* 0.72f0 u) u) (lhud-name-row 0 left nil))
-      (when (member (side-c 0 8) '(2 3))                   ; the kit strip hung under the bar (top 100% + .35u, from 1.4u)
+      (when (member (side-c 0 8) '(2 3 4 5))               ; the kit strip hung under the bar (top 100% + .35u, from 1.4u)
         (lane! (if left (+ x0 (* 0.5f0 len)) (+ x0 pad)) (+ (* 0.65f0 u) (* 0.35f0 u) (* 0.75f0 u)) u) (lhud-kit 0 left))
       (paint-reset))
     nil))

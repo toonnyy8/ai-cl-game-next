@@ -547,7 +547,11 @@ the SA, a Kikon strike): always; an NS / AS segment by SP-START-P, its FIRST = M
 wherever it starts: §8.6 Q17). The one test CORE-START! refuses by (every start: a press, the pointer switch's NS1, HOHO-RESUME!'s
 segment, a parry's catch) and the CPU reads before it presses (core-ai CAI-NEXT-OK-P, DUEL_SP S7): pure, of the kit's data and two numbers."
   (or (null (kit-sp-cost kit mv))
-      (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) fs bursting)))
+      (sp-start-p (kit-class kit mv) (member (mv-name mv) (getf (kit-core kit) :ns)) fs (or bursting (kit-sp-free-p kit)))))
+(defun kit-sp-free-p (kit)
+  "Are KIT's NS / AS segments free of flash-step, as in a burst (its :core :sp-free: Yamamoto's 爆炎, DUEL_YAMA_CORE §3; DUEL_SP §2)? Every
+other kit: NIL."
+  (getf (kit-core kit) :sp-free))
 (defun kit-core-move (kit role n)
   "The core move of ROLE (:ns or :as) number N (1 .. 3) of KIT, or NIL."
   (let ((name (nth (1- n) (getf (kit-core kit) role)))) (and name (gethash name (kit-moves kit)))))
@@ -603,11 +607,11 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      it where the point is (no hook: the generic rule). Every hook point (REFACTOR_2026-11 R11,
                                      2026-11-13; point (arguments) where it is called: users among the live kits):
     the sim (rules: called inside the step)
-      :tick (e f g)                  every sim step, after the hits (combat GAUGE-SYSTEM): Ichigo, Kenpachi's Bankai, Hisagi
+      :tick (e f g)                  every sim step, after the hits (combat GAUGE-SYSTEM): Ichigo, Kenpachi's Bankai, Hisagi, Yamamoto
       :hit / :struck (e other res hw mv hazard ranged)   the end of APPLY-HIT, the attacker's / the defender's kit: Ichigo,
-                                     Kenpachi's Shikai (:hit), Hisagi
+                                     Kenpachi's Shikai (:hit), Hisagi, Yamamoto (:hit)
       :parried (def att)             a catch by the form's parry (APPLY-HIT): Ichigo's KESSA
-      :dmg-mult (att def hw mv hazard d) -> x   a hit's damage factor (APPLY-HIT): Kenpachi, Hisagi
+      :dmg-mult (att def hw mv hazard d) -> x   a hit's damage factor (APPLY-HIT): Kenpachi, Hisagi, Yamamoto
       :unscaled (att)                true: his hit skips the combo scaling (APPLY-HIT): Hisagi's Bankai
       :armor (e f mv)                true: DEFENDER-STATE reports :armor while E is in MV (OWN-ARMOR-P): Kenpachi
       :ok (e cmd combo)              may the command start (KIT-COMMAND-OK-P; NIL at a press: REFUSED-CUE's :refused cue):
@@ -620,6 +624,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
       :as-pick (e f n)               the AS press N starts (CORE-AS-START!): Kenpachi's Shikai
       :lv (e)                        his level cap (CORE-SNAP-LV!): Kenpachi's Shikai
       :clash (e other)               a clash, once a step for the pair (CORE-CLASH!): Hisagi
+      :cancel (e other mv hz)        his move MV or hazard HZ took part in a triangle cancel, per verdict (CORE-CANCEL-HOOK!):
+                                     Yamamoto (heat, 爆炎's burn)
       :min-reach (e m)               the dead zone, m or NIL, of his window whose :min-reach is M, now (COLLECT-MELEE; the
                                      CPU's MV-MIN-REACH; no hook: M): Hisagi (his cancel unlock, DUEL_HISAGI §29)
       :sp-gain-mult (att)            x his flash-step gain on a hit (SP-ATK-HIT!): Hisagi's Bankai
