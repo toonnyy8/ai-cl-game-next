@@ -1007,7 +1007,7 @@ black with a red hairline, no yellow. Checked by numbers, needs the user's eyes:
 
 | Check | Result |
 |---|---|
-| Presentation only: the native trials | `tests/trials/yamamoto-bankai.lisp` (514 lines), `yamamoto-core.lisp` (241), `yamamoto-blaze.lisp` (268): `combo-trial.py --log` identical to 70356041's, every line |
+| Presentation only: the native trials | `tests/trials/yamamoto-bankai.lisp` (513 trial lines), `yamamoto-core.lisp` (241), `yamamoto-blaze.lisp` (268): `combo-trial.py --log` identical to 70356041's, every line |
 | Presentation only: the browser | `tests/scripts/duel-yama-bankai.json`: every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 70356041 (86 lines) |
 | Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` |
 | Host tests | ALL PASS, 4084 checks (+2: the smear slot set on the Bankai, off for every other form); the FK test with AS1 out of `known-off` |
