@@ -116,7 +116,9 @@ LOOKS_START = 4.0          # virtual s of the first event: the title stands from
 # (Hisagi added, DUEL_HISAGI B2a); before: ((1 YS) (72 RI) (33 KS) (44 BK)) over six (2026-10-13; the old Lille removed),
 # and ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
 # Re-pinned 2026-11-10 over the three that play since the core system (K I H; the draw is no longer over seven): 1 KH, 3 HK, 7 II, 10 IK.
-LOOKS_SEEDS = ((1, "KH"), (3, "HK"), (7, "II"), (10, "IK"))   # TO RE-PIN: the draw is over the playable roster, four since 2026-11-19 (Yamamoto back); the match check will flag these
+# Re-pinned 2026-11-20 over the four playable fighters (Yamamoto back, 2026-11-19; the draw is over Y K I H in roster order): 12 KH, 41 HK, 6 II,
+# 5 IK, plus 28 YK (Yamamoto in a pin); the 2026-11-10 seeds drew YI / HY / KK / IK once Yamamoto joined the draw.
+LOOKS_SEEDS = ((12, "KH"), (41, "HK"), (6, "II"), (5, "IK"), (28, "YK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
 # the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's CINE-AT
 # (35000 + f: Kenpachi's Bankai), 75300 + k Ichigo's awakening at frame 2k. Re-pinned 2026-11-13 (REFACTOR_2026-11 R7) to the
@@ -139,8 +141,8 @@ def looks_scenarios():
     def tap(s, t, x, y): s.extend([{"at": round(t, 3), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 3), "touch": "end", "x": x, "y": y}])
     def done(s): return max(e["at"] for e in s) + 0.3
 
-    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the three fighters that play (P1's cycle wraps
-    # every 3: seven presses showed select-0 / 3 / 6, 1 / 4 and 2 / 5 as the same three images)
+    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the four fighters that play (P1's cycle wraps
+    # every 4 since Yamamoto's return, 2026-11-19; it wrapped every 3 before: seven presses showed select-0 / 3 / 6 as the same image)
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
