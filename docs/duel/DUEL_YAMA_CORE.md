@@ -813,6 +813,11 @@ AS2a are expected failures (`known-off` in the test, printed `(known off: K2 / K
 clip batches must take them out of the list. The hazard segments (南 a / b / c, AS3 a / b / c, 北's NS) have no blade window: their cast
 checks (the blade in the floor) belong to K3's clips. The `:skeleton` body is a look and stays out of the fighters' hurt radii there.
 
+The Shikai and 爆炎 rows are printed too, not checked (their clips are the later batches, §15.5). Today: J1 1.39 / 1.40, J2 1.35 / 1.40, J3
+1.78 / 1.40 (+0.38: TSUKABI strikes with the pommel, which the print does not model; 爆炎's J3 IKKOTSU is the fist), NS3a / NS3b and the
+Kikon strikes 1.38-1.39 / 1.60, NS3c and AS3c NADEGIRI 1.87 / 2.40, AS1 2.04 / 1.60 (+0.44), AS2 1.66 / 2.00, AS3 1.35 / 1.80, AS3b
+1.99 / 2.00, the SA TAIMATSU 1.45 / 2.40 (爆炎's 3.20; its fire cone carries it).
+
 ### 16.2 The looks
 
 | # | Look | Built as | Footprint (= the sim's) | Frames |
@@ -829,8 +834,9 @@ checks (the blade in the floor) belong to K3's clips. The `:skeleton` body is a 
 | L10 | 北's band (NS), crescent (AS) | `yama-north-look`: one white band rising diagonally across the wave's whole width (0.2 m up at his left end to 2.0 m at his right, 0.64 m tall: the passing cut ↗), an orange flame rim above and below it, an INK band just behind; a scorched ASH strip from where it set out; code 8: three stacked crescents (ink, flame, white) from over his right shoulder to his low left | wave 4 m wide (the box); crescent: far edge 2.4 m ahead, 110° | NS from S24 over its 42 f; AS S10-12, fading to 15 |
 | L11 | the awakening's bursts | `vfx-awaken-burst` `:bankai`: 24 FIRE scraps from 3-5 m flying in to the raised blade's tip (2.4 m up) in 0.5-0.8 s; `:bankai-burst`: 28 INK shards and 20 ASH puffs flung out in a ring, no flame | none (cinematic) | `yama-bankai-cine` f12 and f118 (the calls were there) |
 
-Colour: every Bankai look is ink / charcoal, bone-ash white and one ember (or, for the dead, red) hairline; orange flame only in L8, L9
-and L10's rims (D4). The spot grade keeps red and the flame (hues within 25° of 10° and 48°), so the red highlights and 西's fire stay in
+Colour: every Bankai look is ink / charcoal, bone-ash white and one ember (or, for the dead, red) hairline; orange flame only in L8 and in
+L10's rims (D4). L9's hexagon and scorch are the old ember / white stamps; L11's `:bankai` scraps are FIRE because they are the Shikai's
+flames being taken into the blade (§15.2.1's L11 row), and `:bankai-burst` has none. The spot grade keeps red and the flame (hues within 25° of 10° and 48°), so the red highlights and 西's fire stay in
 colour in a grey world. The dead (D1): the `:skeleton` body is now charcoal (`#2E2826`) and near-black (`#171315`) with red (`#D8141C`)
 glows only as hairlines: the eye sockets, a crack over the brow and down the spine, the ribs' front edges, the upper arms' edges (the old
 chest fill box and orange spine glow are gone).
@@ -856,9 +862,17 @@ bodies a frame (`yama-draw` resets the count before the hazards draw).
    behind camera for the wave's whole flight; a band leaves the gaps under and over it, and is the canon's "wide diagonal white band".
 7. L3 / L5's heaps are camera-facing ink discs (with ink bones, red sockets and rib hairlines), not posed bodies: twelve bodies a wall would
    break the cap of 8 and the 0 B rule's budget.
-8. The INK palette's white value-opposite edge shows round L6's void strip, next to the ember hairline (checked in the still): left as it
-   is, since it reads as the ash rim of a cut.
-9. Debug: 87430+i (a Bankai AS segment on its own), 87437 (an `:armored` event on P1) and 87448 (the consing line) were claimed inside
+8. **For the user (D3):** the INK palette's white value-opposite edge (1.2 px, drawn by the toon shader round every INK shape) shows on
+   L6's void strip just inside its ember hairline. Covering it with a wider ember strip did not hide it (the edge draws over it), and
+   EMBER at a low heat draws a dark red fill, not black. So the strip carries a thin white rim the decision did not ask for. Keep it (a
+   cut's ash edge), or take it off (a toon palette or shader change, shared)? The hairline itself now draws at heat 0.3, the ember's red
+   body (at heat 1 its pale core showed as a second white line).
+9. Of the unused old assets the plan lists, only the `:skeleton` body and `:sk-grab` are reused. `vfx-kyoku-slit`, `vfx-skeleton-dust`,
+   `vfx-garb-flare` / `vfx-nishi` and `vfx-burnout` are one-shot stamps: called from a hazard look they would fire again on every drawn
+   frame of a hitstop (the age stands still), and they box their float arguments; L6's slit and L1's dust are redrawn per frame instead
+   (the slit is `%st-slit`'s shape). `vfx-garb-flare`'s ring also runs out past 2.0 m (the burn's edge). `draw-planted-weapon` belongs to
+   the grab's clip (K3). `vfx-garb-block` / `vfx-scorch` are used for L9, which is an event (once).
+10. Debug: 87430+i (a Bankai AS segment on its own), 87437 (an `:armored` event on P1) and 87448 (the consing line) were claimed inside
    his 87000-87999 for the stills and the probe (DUEL_GAMEPLAY "Debug commands").
 
 ### 16.4 Checks
@@ -870,8 +884,8 @@ bodies a frame (`yama-draw` resets the count before the hazards draw).
 | Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` |
 | Host tests | ALL PASS, 4082 checks (+15: the FK print's rows, the known-off guard, the new hook off for every other kit) |
 | pkgcheck, debug ranges | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 0 errors |
-| 0 B a frame | debug 87448: `yama look consing (10 draws, B): hands 0, tell 0, swarm 0, wall 0, fall 0, pile 0, north 0, lance 0, void 0, notch 0, flare 0, rise 0, crescent 0, dead x8 0` (10 unmeasured draws first: the engine's draw queue doubles at a new high-water mark once, the rest is the steady state). A first build read 16 B a draw on the swarm and 北's band: a read of HAZARD-SPEED / HAZARD-PX boxed a float there; their trails now take the wave's speed as a constant (6 m/s, 20 m/s) |
-| The looks gate | `tests/style-gates.py looks` against ecccfed4's dist: 75 of 76 stills byte-identical; `cvc-hk/w3-0` differs, a frame of `yama-bankai-cine` (L11's scraps, and the cosmetic random stream they draw from, moving later particles). It plays Yamamoto because the gate's pinned pairings drifted when his kit came back (pre-existing: its `cvc-kh` / `cvc-hk` / `cvc-ik` fighters checks fail on BASE too: `YAMAMOTO vs ICHIGO`, `HISAGI vs YAMAMOTO`, `KENPACHI vs KENPACHI`); every other scene is byte-identical |
+| 0 B a frame | debug 87448: `yama look consing (10 draws, B): hands 0, tell 0, swarm 0, wall 0, fall 0, pile 0, north 0, lance 0, void 0, notch 0, flare 0, rise 0, crescent 0, dead x8 0` (10 unmeasured draws first: the engine's draw queue doubles at a new high-water mark once, the rest is the steady state). A first build read 16 B a draw on the swarm and 北's band: their trail's travel term (HAZARD-SPEED, then HAZARD-PX with F-HYPOT) consed, which a bisect build pinned to that one binding but not further; the trails now take the wave's speed as a constant (6 m/s, 20 m/s) |
+| The looks gate | `tests/style-gates.py looks` against ecccfed4's dist, on the final build: 75 of 76 stills byte-identical; `cvc-hk/w3-0` differs, a frame of `yama-bankai-cine` (L11's scraps, and the cosmetic random stream they draw from, moving later particles). It plays Yamamoto because the gate's pinned pairings drifted when his kit came back (pre-existing: its `cvc-kh` / `cvc-hk` / `cvc-ik` fighters checks fail on BASE too: `YAMAMOTO vs ICHIGO`, `HISAGI vs YAMAMOTO`, `KENPACHI vs KENPACHI`); every other scene is byte-identical, and the two Yamamoto scenes' logs (hash and combat lines) are identical to BASE's |
 | Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs` smoke exit 0 |
 
 Stills (untracked, `tests/scripts/duel-yama-k1.json` / `-phone.json`, generated by `tests/scripts/duel.py`): `tests/shots/duel-yama-k1-<look>-<behind|side>[-phone].png`,
