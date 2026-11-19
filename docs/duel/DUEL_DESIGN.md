@@ -479,6 +479,17 @@ route totals and fails first).
 | AS2 | HS-B-AS2 55 / 20, HS-B-AS2B 70 / 30 | 50 |
 | AS3 | HS-B-AS3 40 / 15, HS-B-AS3B 40 / 15, HS-B-AS3C 100 / 40 | 70 |
 
+**Yamamoto Shikai** (`(find-kit :yamamoto :base)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | YA-N1A 70 / 30, YA-N1B 70 / 30, YA-N1C 90 / 35 | 95 |
+| NS2 | YA-N2A 40 / 15, YA-N2B 0 / 10, YA-N2C 80 / 30 | 55 |
+| NS3 | YA-N3A 40 / 15, YA-N3B 50 / 20, YA-N3C 110 / 45 | 80 |
+| AS1 | YA-AS1 50 / 20 | 20 |
+| AS2 | YA-AS2 40 / 15, YA-AS2B 60 / 25 | 40 |
+| AS3 | YA-AS3 40 / 15, YA-AS3B 50 / 20, YA-AS3C 110 / 45 | 80 |
+
 <!-- sp-cost-table end -->
 
 ## 6. Characters

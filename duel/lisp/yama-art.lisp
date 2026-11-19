@@ -257,6 +257,9 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) tp)
         (%ya-smoke (aref tp 0) (aref tp 1) (aref tp 2))))))
 
+;; the intro's name column (brush.lisp *BRUSH-NAMES*, CINE-NAME; his entry left with the retired kits, back with his core kit)
+(setf *brush-names* (append (remove :yamamoto *brush-names* :key #'first) '((:yamamoto "山本元柳斎重國" "YAMAMOTO GENRYUSAI SHIGEKUNI"))))
+
 ;;; ---------------------------------------------------------------- weapons
 (defweapon :ya-cane (:length 0.86 :base 0.1)          ; the shikomizue: Ryujin Jakka sheathed in a cane
   (:solid (mbc mb #x3A3430)                           ; dark wood, desaturated (colour is spot-only)
@@ -623,6 +626,12 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
   (:root :u -0.02) (:pelvis :twist 0) (:chest :twist 0) (:spine :flex 14) (:head :flex -6)
   (:arm-r :flex 40 :side 8) (:elbow-r :flex 35) (:hand-r :twist 150 :flex 10)
   (:thigh-r :flex 0 :side 6) (:thigh-l :flex 0 :side 6) (:knees :flex 8))
+;; the core kit's pointer stances (DUEL_YAMA_CORE §7.1, batch 1 placeholders on the old poses; pointer 1 is :ya-shiranui):
+;; 2 the point held out at arm's length (ENJO's), 3 leaning on the planted blade as on the cane (the intro's)
+(defclip :ya-st-enjo (2.4 :loop t :base :ya-enjo-point)
+  (0) (1.2 (:root :u -0.06) (:arm-r :flex 125)))
+(defclip :ya-st-cane (2.4 :loop t :base :ya-lean)
+  (0) (1.2 (:spine :flex 16) (:root :u -0.03)))
 (defclip :ya-intro (2.0 :base :ya-lean)                ; weapon :ya-cane until 1.35 s, then :ryujin-jakka
   (0) (1.1 (:head :flex -12))
   (1.3 (:chest :twist -30) (:arm-r :flex 60 :side 40) (:elbow-r :flex 60) (:hand-r :twist 0 :flex -40))

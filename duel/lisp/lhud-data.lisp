@@ -18,7 +18,9 @@
   ;; roster index (kit.lisp *ROSTER*) -> (NAME KANJI SEALS FORMS FULL): hud.js FIGHTERS. NAME upper case (the CSS upper-cases it);
   ;; SEALS the pointer seals ((glyph name) ...), FORMS (("FORM" seals) ...) by the plate label's form, or the form + " " + the tag;
   ;; FULL the intro's vertical name column (hud.js full; its display tier: lhud-charset.lisp's bigkj)
-  (vector (list "YAMAMOTO" (kj "山本") nil nil (kj "山本元柳斎重國"))
+  (vector (list "YAMAMOTO" (kj "山本")
+                (list (list (kj "火") (zh "不知火 · SHIRANUI")) (list (kj "城") (zh "城郭炎上 · JOKAKU ENJO")) (list (kj "撫") (zh "撫斬 · NADEGIRI")))
+                nil (kj "山本元柳斎重國"))   ; (his Shikai's pointers, DUEL_YAMA_CORE §7.1; batch 1, 2026-11-19)
           (list "KENPACHI" (kj "更木")
                 (list (list (kj "拖") (zh "拖 · DRAG")) (list (kj "肩") (zh "肩 · SHOULDER")) (list (kj "構") (zh "構 · CHUDAN")))
                 (list (list "SHIKAI" (list (kj "旋") (zh "旋 · KAITEN")) (list (kj "墜") (zh "墜 · TSUITEN")))
@@ -51,7 +53,8 @@
     (cons "ZANZO" (kj "残像")) (cons "KAGE-UCHI" (kj "影討")) (cons "BUNSHIN" (kj "分身")) (cons "BUTTAGIRU" (kj "ぶった斬る"))
     (cons "ORE NI KIRENEE MON WA NEE" (kj "俺に斬れねえもんはねえ")) (cons "NOMIHOSE" (kj "飲み干せ"))
     (cons "KAMICHIGIRI" (kj "噛み千切り")) (cons "TATE-GOTO" (kj "盾ごと")) (cons "NAGURI-TOBASHI" (kj "殴り飛ばし"))
-    (cons "MAPPUTATSU" (kj "真っ二つ"))))
+    (cons "MAPPUTATSU" (kj "真っ二つ")) (cons "SHIRANUI" (kj "不知火")) (cons "JOKAKU ENJO" (kj "城郭炎上")) (cons "NADEGIRI" (kj "撫斬"))
+    (cons "TAIMATSU" (kj "松明"))))
 
 ;;; ---------------------------------------------------------------- pure lookups (each called only when its model string changed)
 (defun lhud-fighter (roster+1)

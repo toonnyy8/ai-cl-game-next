@@ -69,6 +69,7 @@ CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 o
 | Hisagi Shikai | 75 | 75 | 25 | 25 | 45 | 80 | — |
 | Hisagi ranged | 40 | 80 | — | 15 | 55 | 35 | — |
 | Hisagi bind | 65 | 80 | — | 20 | 50 | 70 | — |
+| Yamamoto Shikai | 95 | 55 | 80 | 20 | 40 | 80 | — |
 
 ## 5. Earning
 

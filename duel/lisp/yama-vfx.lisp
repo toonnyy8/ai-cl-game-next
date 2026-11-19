@@ -616,3 +616,40 @@ first), 5 BLACK SMOKE puffs off the shoulders and 12 ASH shards falling."
     (stamp :nade x 0f0 z :dx dx :dz dz :scale 8.0)
     (flash-light (+ x (* 1.5f0 dx)) 1.0 (+ z (* 1.5f0 dz)) 1.0 0.6 0.3)
     nil))
+
+;;; ---------------------------------------------------------------- his core kit's hazard looks (yama.lisp's fire; DUEL_YAMA_CORE
+;;; batch 1 stage A: placeholders on the old drawings until the art batches). Each a HAZARD-DRAW look function (hz rdt); a look only.
+(defun yama-wave-look (hz rdt)
+  "NS1a's spiral / NS2a's stream: the fire wave as wide as its hit box."
+  (when (<= (hazard-delay hz) 0)
+    (vfx-fire-wave (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (/ (hazard-age hz) 60.0) (* 2 (hazard-size hz)) (f32 rdt)
+                   :life (/ (hazard-life hz) 60.0))))
+
+(defun yama-tornado-look (hz rdt)
+  "NS1c's tornado: a travelling fire column."
+  (when (<= (hazard-delay hz) 0)
+    (vfx-fire-pillar (hazard-x hz) (hazard-z hz) (/ (hazard-age hz) 60.0) (/ (hazard-life hz) 60.0) (f32 rdt) :height 4.0)))
+
+(defun yama-column-look (hz rdt)
+  "NS1b's 'unknown fire': embers at the point through the delay (the tell), the column once it erupts."
+  (if (> (hazard-delay hz) 0)
+      (vfx-fire-pillar (hazard-x hz) (hazard-z hz) 0.05 1.0 (f32 rdt) :height 0.4)
+      (vfx-fire-pillar (hazard-x hz) (hazard-z hz) (/ (hazard-age hz) 60.0) (/ (hazard-life hz) 60.0) (f32 rdt) :height 5.0)))
+
+(defun yama-ring-look (hz rdt)
+  "城郭炎上's burning ring: six low pillars on the circle."
+  (let ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (/ (hazard-age hz) 60.0)) (life (/ (hazard-life hz) 60.0)))
+    (dotimes (i 6)
+      (let ((a (* i (/ +two-pi+ 6))))
+        (vfx-fire-pillar (+ x (* r (fwd-x a))) (+ z (* r (fwd-z a))) age life (f32 rdt) :height 1.4)))))
+
+(defun yama-dome-look (hz rdt)
+  "The walls closed into the dome: the old Jokaku Enjo look from its seethe on, so it detonates as the hit lands."
+  (vfx-fire-dome (hazard-x hz) (hazard-z hz) (hazard-size hz) (+ 0.8 (/ (hazard-age hz) 60.0)) 1.0 (f32 rdt)))
+
+(defun yama-nade-look (hz rdt)
+  "NADEGIRI's split, 24 f after the cut (the hit was on S): the old white crescent and scorch line, once."
+  (declare (ignore rdt))
+  (when (and (<= (hazard-delay hz) 0) (not (eq (hazard-data hz) :done)))
+    (setf (hazard-data hz) :done)
+    (let ((yaw (hazard-yaw hz))) (vfx-nadegiri (hazard-x hz) (hazard-z hz) (fwd-x yaw) (fwd-z yaw)))))

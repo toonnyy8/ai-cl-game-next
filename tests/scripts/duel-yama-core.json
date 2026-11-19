@@ -1,0 +1,398 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== NS1 a-b-c')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.45,
+"eval": "console.log('=== NS2 a-b-c')"
+},
+{
+"at": 13.5,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 13.55,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 13.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 17.95,
+"eval": "console.log('=== NS3 a-b-c')"
+},
+{
+"at": 18.0,
+"eval": "Module._debug_cmd(87018)"
+},
+{
+"at": 18.05,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 18.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 22.45,
+"eval": "console.log('=== J1-J3 AS3')"
+},
+{
+"at": 22.5,
+"eval": "Module._debug_cmd(87016)"
+},
+{
+"at": 22.55,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 22.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 24.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.08,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 24.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 26.95,
+"eval": "console.log('=== NS3a SA')"
+},
+{
+"at": 27.0,
+"eval": "Module._debug_cmd(87018)"
+},
+{
+"at": 27.05,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 27.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 27.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 27.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 31.45,
+"eval": "console.log('=== NS3a held: Kikon')"
+},
+{
+"at": 31.5,
+"eval": "Module._debug_cmd(87018)"
+},
+{
+"at": 31.55,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 31.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 31.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.03,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 36.0,
+"eval": "console.log('=== END')"
+}
+]

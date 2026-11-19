@@ -834,3 +834,28 @@ def stake_script():
     ev.append({"at": round(t + 0.5, 2), "eval": "console.log('=== END')"})
     return ev
 write("stake", stake_script())
+
+# Yamamoto's core kit, batch 1 stage A (DUEL_YAMA_CORE "As built (batch 1 A)"; the browser path of the native trials in
+# tests/trials/yamamoto-core.lisp): human P1 Yamamoto vs an idle Kenpachi (87000 + 10 x m), each pointer's NS a-b-c from 5 m (NS3
+# from 1.8 m), J1-J3 > AS3 from 1.6 m, NS3a > TAIMATSU, and NS3a held (the Kikon). Read the combat log's `-> P2` / `ring` / `dome` /
+# `KIKON` lines per `===` scene.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-core.json
+def yama_core_script():
+    ev, t = [], T0
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    for name, c, ptr, presses in (("NS1 a-b-c", 87050, 87301, "sss"), ("NS2 a-b-c", 87050, 87302, "sss"),
+                                  ("NS3 a-b-c", 87018, 87303, "sss"), ("J1-J3 AS3", 87016, 87301, "jjjsss"),
+                                  ("NS3a SA", 87018, 87303, "sj"), ("NS3a held: Kikon", 87018, 87303, "H")):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev += [cmd(t, c), cmd(t + 0.05, ptr)]
+        a = t + 0.3
+        for p in presses:
+            if p == "s": sp(a)
+            elif p == "j": ev.extend(tap(a, "KeyJ", 0.05))
+            else: sp(a, 1.2)
+            a += 0.3
+        t += 4.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-core", yama_core_script())

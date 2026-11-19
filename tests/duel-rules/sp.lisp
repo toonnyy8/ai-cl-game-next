@@ -103,7 +103,8 @@
     (:ichigo :kessa 1.0 (75 80 30) (20 45 80))
     (:hisagi :base 1.0 (75 75 25) (25 45 80))
     (:hisagi :bankai 1.0 (40 80) (15 55 35))
-    (:hisagi :bankai-bind 1.0 (65 80) (20 50 70))))
+    (:hisagi :bankai-bind 1.0 (65 80) (20 50 70))
+    (:yamamoto :base 1.0 (95 55 80) (20 40 80))))   ; (DUEL_YAMA_CORE batch 1 stage A, 2026-11-19)
 (let ((mism 0))
   (dolist (row *sp-table*)
     (destructuring-bind (c f mult ns as) row
