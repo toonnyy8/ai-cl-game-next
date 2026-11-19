@@ -449,12 +449,11 @@ the 125–210 window); otherwise it is rerun with the full 20 (31120, or no knob
 gates and the awaken A/B streams run on the host-native sim gate** (`tools/simgate.py`, below; built 2026-09-29, DEVLOG
 §38); the browser keeps G2 (`style-gates.py cvc`, the bit-exact references), smoke, duelstill and the touch scripts.
 
-**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 75 fixed stills of SOUL DUEL
-from `run.mjs --fixed-dt` at 640x360 (390x844 for the portrait one), 10 scripts generated in Python (nothing committed):
-`menus` (title, MODE / SETTINGS / CONTROLS, the select screen with the three fighters that play: P1's cycle wraps every 3, so the
-old seven presses showed three images twice; 7 stills); four CPU-vs-CPU matches (debug 2000+seed: Kenpachi-Hisagi, Hisagi-Kenpachi,
-Ichigo-Ichigo, Ichigo-Kenpachi, seeds 1 / 3 / 7 / 10; the intro, the first frame, then turbo jumps of 240 / 960 / 1920 / 3600 ticks
-each followed by live frames, plus the pause menu; 29); the cinematics at their key frames (`cine-ken`: Nozarashi and Bankai, 5;
+**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** **Re-pinned 2026-11-20:** Yamamoto became playable again on 2026-11-19, so the seed draw (xorshift32 over the playable roster, now Y K I H in roster order) moved: the old seeds 1 / 3 / 7 / 10 gave Yamamoto-Ichigo, Hisagi-Yamamoto, Ichigo-Kenpachi and Kenpachi-Kenpachi and the "fighters" checks failed on an unchanged build. New pins 12 KH, 41 HK, 6 II, 5 IK plus 28 YK (Yamamoto in a pin), and the select screen's four stills; 75 stills before, 83 now (a BASE and NEW of one build: all byte-identical). 83 fixed stills of SOUL DUEL
+from `run.mjs --fixed-dt` at 640x360 (390x844 for the portrait one), 11 scripts generated in Python (nothing committed):
+`menus` (title, MODE / SETTINGS / CONTROLS, the select screen with the four fighters that play: P1's cycle wraps every 4; 8 stills); five CPU-vs-CPU matches (debug 2000+seed: Kenpachi-Hisagi, Hisagi-Kenpachi,
+Ichigo-Ichigo, Ichigo-Kenpachi, Yamamoto-Kenpachi, seeds 12 / 41 / 6 / 5 / 28; the intro, the first frame, then turbo jumps of 240 / 960 / 1920 / 3600 ticks
+each followed by live frames, plus the pause menu; 36); the cinematics at their key frames (`cine-ken`: Nozarashi and Bankai, 5;
 `cine-ko`: Soul Break and K.O. with RESULTS, 5; `cine-ichigo`: his awakening, 3); `fx-a` (12: the Lisp HUD's review states on a
 running battle (2505, 2440+k), Kenpachi's sword smears and moves (2309, 2305, 2306, 2308, 2310) and KESSA's three clones (74007));
 and the portrait touch layout `mobile` with its RESULTS (14). **Re-pinned 2026-11-13 (REFACTOR_2026-11 R7):** the cinematic sets of
