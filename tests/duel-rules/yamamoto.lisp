@@ -236,6 +236,32 @@
             (yama-hz nil hz :step) (yama-hz nil hz0 :step)
             (check (and (~= (track-step 60.0) (abs (hazard-yaw hz)) 1e-5) (~= 0.0 (hazard-yaw hz0))))
             (check (< (abs (angle-wrap (- (dir-yaw 3.0 -4.0) (hazard-yaw hz)))) (abs (angle-wrap (dir-yaw 3.0 -4.0))))))
+          ;; a wave cancelled after the next segment started still pays its heat back, from its own copy (:heat), once
+          (setf (gauges-meter ga) 60f0)
+          (in k :ya-n1a 600) (yama-ns-start a)                             ; 35 left
+          (let ((w (make-hazard :kind :wave :owner a :cls :ns :sp-src 600 :data (list :hot 9999 :x 1.3 :heat (yama-seg-heat a)))))
+            (check (~= 25.0 (getf (hazard-data w) :heat)))
+            (in k :ya-n1b 624) (yama-ns-start a)                           ; 10 left: NS1b's spend took the segment's place
+            (check (~= 10.0 (gauges-meter ga)))
+            (yama-cancel a b nil w) (yama-cancel a b nil w)
+            (check (and (~= 35.0 (gauges-meter ga)) (~= 0.0 (getf (hazard-data w) :heat)))))
+          ;; ... and a window cancel of the segment closes its hazard's copy (no second refund)
+          (setf *t-hz* nil)
+          (let ((mv (in k :ya-n1a 700)))
+            (yama-ns-start a)                                              ; 10 left
+            (spawn-entity (make-hazard :kind :wave :owner a :cls :ns :sp-src 700 :data (list :hot 9999 :heat (yama-seg-heat a))))
+            (yama-cancel a b mv nil)
+            (check (~= 35.0 (gauges-meter ga)))
+            (yama-cancel a b nil (cdr (first *t-hz*)))
+            (check (~= 35.0 (gauges-meter ga))))
+          (setf *t-hz* nil)
+          ;; no heat from a hit during his own burst (§7.4)
+          (setf (gauges-burst ga) :orange)
+          (yama-hit a b :hit nil (in k :ya-j1 800) nil nil)
+          (check (~= 35.0 (gauges-meter ga)))
+          (setf (gauges-burst ga) nil)
+          (yama-hit a b :hit nil (in k :ya-j1 810) nil nil)
+          (check (~= 43.0 (gauges-meter ga)))
           ;; the cancel hook stays off for every other kit
           (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                        always (loop for (f . kk) in alist always (or (eq c :yamamoto) (null (kit-hook kk :cancel))))))

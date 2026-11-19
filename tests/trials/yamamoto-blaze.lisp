@@ -39,3 +39,7 @@
  :script () :p2-at ((4 :j)) :frames 60)
 (:name "B14b control: the same J1 at heat 0 (no pose) hits" :p1 :yamamoto :p2 :kenpachi :dist 1.4 :fs 300 :meter 0
  :script () :p2-at ((4 :j)) :frames 60)
+(:name "B15 Shikai NS1 a-b at heat 60, P2's J1 meets NS1a's wave after NS1b started: 25 back" :p1 :yamamoto :p2 :kenpachi :ptr 1
+ :dist 5.0 :fs 300 :meter 60 :script ((:quick 1 :modded t) (:quick 1 :modded t)) :p2-at ((26 :j)) :frames 140)
+(:name "B16 J1 hit in his ORANGE burst: no heat" :p1 :yamamoto :p2 :kenpachi :dist 1.6 :fs 300 :meter 0 :burst :orange
+ :script ((:quick 1)) :frames 60)

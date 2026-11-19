@@ -273,9 +273,10 @@ is in it (not the Kikon's follow-up strike: Kikon strikes add nothing, §7.4); e
 
 (defun yama-heat-gain! (e cls tick why)
   "E's move or segment of class CLS started on TICK hit or took part in a cancel (WHY): its heat (YA-HEAT-GAIN), once, in the Shikai only
-(爆炎: no gain until it ends)."
+(爆炎: no gain until it ends), never during his burst (§7.4 「burst hits add nothing」: as PAY-GAUGES gains nothing in one)."
   (let ((g (gauges e)) (s (ys e)))
-    (when (and (eq (fighter-form (fighter e)) :base) (plusp (getf *ya-heat-gain* cls 0.0)) (/= tick (yss-gain-t s)))
+    (when (and (eq (fighter-form (fighter e)) :base) (null (gauges-burst g)) (plusp (getf *ya-heat-gain* cls 0.0))
+               (/= tick (yss-gain-t s)))
       (let ((h0 (gauges-meter g)))      ; ponytail: one guard (the last gainer); a segment's hazard hitting after a later one gained could add twice (AS2a's ring is spent by AS2b's dome first)
         (setf (yss-gain-t s) tick (gauges-meter g) (f32 (ya-heat-gain h0 cls)))
         (clog "~a HEAT +~,1f ~(~a~) ~a (heat ~,1f)" (side-name e) (- (gauges-meter g) h0) cls why (gauges-meter g))))))
@@ -293,11 +294,30 @@ cancelled NS segment gets back the heat it paid, once (§7.4); in 爆炎 OTHER i
   (multiple-value-bind (cls tick) (yama-part e mv hz)
     (when cls
       (yama-heat-gain! e cls tick "cancel")
-      (let ((s (ys e)) (g (gauges e)))
-        (when (and (eq cls :ns) (= tick (yss-seg-t s)) (not (yss-back s)) (plusp (yss-paid s)))
-          (setf (yss-back s) t (gauges-meter g) (f32 (ya-heat-refund (gauges-meter g) (yss-paid s))))
-          (clog "~a HEAT refund ~,1f (heat ~,1f)" (side-name e) (yss-paid s) (gauges-meter g))))
+      (when (eq cls :ns) (yama-heat-back! e tick hz))
       (when (eq (fighter-form (fighter e)) :blaze) (yama-burn! e other mv hz)))))
+
+(defun yama-seg-heat (e)
+  "The heat E's NS segment in play paid and has not got back (0 for any other move): what a hazard it fires carries for its refund."
+  (let* ((f (fighter e)) (s (yss e)))
+    (if (and s (eq (fighter-cls f) :ns) (= (yss-seg-t s) (fighter-cls-t f)) (not (yss-back s))) (yss-paid s) 0f0)))
+
+(defun yama-heat-back! (e tick hz)
+  "A cancelled NS segment (started on TICK) gets back the heat it paid, once (§7.4): through its hazard HZ's own copy (data :heat, taken at
+its fire frame, so a wave cancelled after the next segment started is still paid back; zeroed), else the segment's while it is the one in
+play. Either way the other path is closed: the segment marked BACK, its live hazards' copies zeroed."
+  (let* ((s (ys e)) (g (gauges e))
+         (paid (cond (hz (getf (hazard-data hz) :heat 0f0))
+                     ((and (= tick (yss-seg-t s)) (not (yss-back s))) (yss-paid s))
+                     (t 0f0))))
+    (when (plusp paid)
+      (when (= tick (yss-seg-t s)) (setf (yss-back s) t))
+      (when hz (setf (getf (hazard-data hz) :heat) 0f0))
+      (do-entities (h (x hazard))
+        (when (and (eql (hazard-owner x) e) (= (hazard-sp-src x) tick) (getf (hazard-data x) :heat))
+          (setf (getf (hazard-data x) :heat) 0f0)))
+      (setf (gauges-meter g) (f32 (ya-heat-refund (gauges-meter g) paid)))
+      (clog "~a HEAT refund ~,1f (heat ~,1f)" (side-name e) paid (gauges-meter g)))))
 
 (defun yama-burn! (e other mv hz)
   "爆炎's cancel burn (Y10): OTHER loses YA-BURN-AMOUNT of E's cancelled part's base damage (a hazard's hit, else the move's MV-SP-DAMAGE),
@@ -349,7 +369,7 @@ the drain wait for its end)."
   "Spawn his fire hazard KIND at (X Z), in his segment now (its class, SP scale, start tick: SPAWN-HAZARD's defaults), its segment x
 frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then it is only a look)."
   (spawn-hazard kind e :x x :z z :yaw (yaw-of e) :size size :life life :delay delay :hits hits :look look :hook 'yama-hz
-                       :hw hw :data (list :hot hot :x (yama-seg-x e (fighter-move (fighter e))))))
+                       :hw hw :data (list :hot hot :x (yama-seg-x e (fighter-move (fighter e))) :heat (yama-seg-heat e))))
 
 (defun yama-hz (h hz ev &optional tx ty tz tr th)
   "His fire's hazard hook: :step closes the hit after its HOT frames (the look stays); :touches is its shape."
@@ -376,7 +396,8 @@ frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then
       (spawn-hazard :wave e :x x :z z :yaw (yaw-of e) :speed speed :size (* 0.5 (move-param e :width))
                             :life (round (* 60 (/ (move-param e :range) speed))) :look (move-param e :look)
                             :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))
-                            :hook 'yama-hz :data (list :hot 9999 :x (yama-seg-x e (fighter-move (fighter e))) :track (move-param e :track)))))
+                            :hook 'yama-hz :data (list :hot 9999 :x (yama-seg-x e (fighter-move (fighter e))) :heat (yama-seg-heat e)
+                                              :track (move-param e :track)))))
   (emit :sfx :whoosh-heavy e))
 
 (defun yama-column-fire (e)
@@ -445,7 +466,7 @@ hot 4 frames."
 (both CPUs off, full gauges), k / 10 m apart (k 0-199); 87200+n the same vs Ichigo (n 0) / Hisagi (1) 2.0 m apart; 87301-87303 P1's
 pointer 1-3; 87400+n P1 starts his NS under the pointer (n 0) / J1 (1); 87410+i P1 starts NS segment i of NS1a b c NS2a b c (0-5) on
 its own (CORE-START!: paid as a press); 87500+h P1's heat h (h 0-100: 100 enters 爆炎 at his next neutral); 87700+r P1's Reishi r, 87800+r
-P2's (r 1-99); 87900 the probe line."
+P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as the setting would have it: a portrait window)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -461,6 +482,7 @@ P2's (r 1-99); 87900 the probe line."
           ((<= 87701 c 87799) (setf (gauges-reishi (gauges *p1*)) (- c 87700)))
           ((<= 87801 c 87899) (setf (gauges-reishi (gauges *p2*)) (- c 87800)))
           ((= c 87900))
+          ((= c 87901) (setf *one-hand* (one-hand-effective-p)))   ; (the phone's deck: run with --mobile --size 390x844)
           (t (log-msg "duel yamamoto: no debug command ~d" c))))
   (yama-probe-line (format nil "cmd ~d" c)))
 (define-debug-range (87000 87999) yama-debug)
