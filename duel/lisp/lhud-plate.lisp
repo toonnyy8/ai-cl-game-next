@@ -295,17 +295,19 @@ the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a seal
 
 (defun-fast lhud-marks-at (side x cy u mir)
   "Yamamoto's Bankai marks next to the pointer (DUEL_YAMA_CORE §4: the side's LHUD-MARKS, [10]): each held mark's kanji (東 西 南) .8u in
-the ember colour with the names' shadow, .25u apart, from X (the start edge; MIR: leftward), centred on CY. Nothing for any other kit."
+the ember colour with the names' shadow, .25u apart, in reading order (東 西 南) from X (the start edge; MIR: the row ends at X), centred on
+CY. Nothing for any other kit."
   (declare (fixnum side) (single-float x cy u))
-  (let ((marks (side-c side 10)) (kz (* 0.8f0 u)))
-    (declare (single-float kz))
+  (let ((marks (side-c side 10)) (kz (* 0.8f0 u)) (gap (* 0.25f0 u)))
+    (declare (single-float kz gap))
     (when (consp marks)
+      (when mir (dolist (m marks) (setf x (- x (text-w m +f-kanji+ kz) gap))) (setf x (+ x gap)))
       (dolist (m marks)
-        (let* ((kw (text-w m +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0))) (gx (if mir (- x kw) x)))
-          (declare (single-float kw ky gx))
-          (paint-pen! (f-floor+ gx) (+ (f-floor+ ky) (lay-dpr)) kz) (paint-text m +f-kanji+ +c-shade+)
-          (paint-pen! (f-floor+ gx) (f-floor+ ky) kz) (paint-text m +f-kanji+ +c-burst-o+)
-          (setf x (if mir (- x kw (* 0.25f0 u)) (+ x kw (* 0.25f0 u)))))))
+        (let* ((kw (text-w m +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0))))
+          (declare (single-float kw ky))
+          (paint-pen! (f-floor+ x) (+ (f-floor+ ky) (lay-dpr)) kz) (paint-text m +f-kanji+ +c-shade+)
+          (paint-pen! (f-floor+ x) (f-floor+ ky) kz) (paint-text m +f-kanji+ +c-burst-o+)
+          (setf x (+ x kw gap)))))
     nil))
 
 (defun-fast lhud-seal-row (side mir)

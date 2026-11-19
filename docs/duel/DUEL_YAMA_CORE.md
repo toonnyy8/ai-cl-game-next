@@ -423,3 +423,160 @@ the tornado's turn, both hooks off for every other kit); pkgcheck as main; `--cv
 timing, the burn's look), a CPU that reads heat (none asked for), the Kikon storyboards, and the defaults §9 keeps (a Kikon landed or taken
 does not end 爆炎). The burn writes Reishi directly (`burn`), not through `deal-damage`, so under Hisagi's bind (HY) the bind's grey
 accounting does not see it: check when HY is played.
+
+## 14. As built (batch 1 C: the Bankai, the marks and 北, 2026-11-19)
+
+Stage C on top of §11 and §13: the Bankai ZANKA NO TACHI as §4, §7.3 and §7.4 decide, in `duel/lisp/yama.lisp` (a section of moves and the
+kit, the pure mark rules, the sim hooks), the old kit's two cinematics in a new `duel/lisp/yama-cine.lisp`, two stance loops in
+`yama-art.lisp`, five shared hooks that default off, and the HUD's seals and marks.
+
+**Built.**
+- **The awakening** (Mod + P, as every kit): `:no-awaken` left both Shikai kits; `:awaken-form :bankai` on the Shikai (爆炎 inherits it).
+  The kit `:bankai` has its own `:core` and no `:inherit` (no heat hooks, no drain, no free SP). Its `:enter-hook` (`yama-bankai-enter`)
+  sets heat to 0, so heat leaves with the Shikai, and an awakening in 爆炎 ends 爆炎. Its own `:meter` ("ZANKA", max 1) keeps the plate from
+  inheriting the heat strip. It wears the body `:yamamoto-tybw` (no haori) and the weapon `:zanka`, uses the stance `ya-e-stance` and the
+  grade `:spot`. The entry cinematic is the old `yama-bankai-cine`: it runs on today's cinema API with no change, and the browser still
+  `duel-yama-bankai-cine.png` shows its card.
+- **The pointers** (§7.3's numbers; damage before `:mult` 1.0):
+
+| Pointer | NS a / b / c | AS n |
+|---|---|---|
+| 1 東 | a KYOKKO S20, a 4.6 m line, slide 1.6, 80 / b the sunrise S14, slide 1.6, 70 / c KYOKUJITSUJIN S18, a low 6 m line, 120, knock-back | AS1 S10 the tip-touch 50, a knockdown, `:steal-fs` 30 |
+| 2 西 | a SHONETSU S16: no swing, a burn round him (r 2, 360°), two windows of 45 (f16, f26) / b the advance S14, slide 1.5, armour f6 to S, its own NS burn r 2, 40 / c the counter-cut (Y11) S12, armour f6 to S, 90, knock-back | AS2 S12 the grab 40, a stagger > the flare S12, 70, a launch |
+| 3 南 | a the plant S22: hands at the victim's bearing 4-10 m (r 1.2), the point taken on S, the hands on S + 16 (`:delay` 17 inside A 17), 40, a bind (60 f) / b the swarm S16, a wave at 6 m/s over 8 m, 50 / c the bone wall S18: the fall on a disc 3 m ahead (r 1.6), 70, a crumple; the wall stands 90 f | AS3 S10 the hands at him 40, a stagger > the swarm S10, a wave at 8 m/s, 50 > the pile S12 at him (r 1.4), 100, a knockdown |
+| 北 | NS S24: one wave 4 m wide, 20 m/s over 14 m, 220, a knockdown | AS S10: the same cut point-blank, 180, a knockdown |
+
+  The NA is E-J1 S14 (34, the old HIZASHI clip slowed: the opener's tell) > E-J2 S7 (38) > E-J3 S8 (42, a stagger). The SA is S6, 60, the
+  old counter's clip. SP costs (DUEL_SP §4, `*sp-table*`, DUEL_DESIGN §5.1 regenerated): NS 110 / 85 / 65, AS 20 / 45 / 75, 北 NS 60 and AS 60.
+- **The marks and 北** are fighter state on his `yss` component (`marks` as bits 東 1 / 西 2 / 南 4, `north` as a flag). They live through
+  every form change and Konpaku reset for the match.
+  - Pure rules, host-tested: `ya-mark-add` (a repeated mark stays one; the third distinct mark arms 北), `ya-north-pick`, `ya-north-start`
+    (the marks to 0, the flag off), `ya-switch-ok-p`.
+  - A mark is given by `yama-bk-hit`, the Bankai's `:hit` hook. It fires on a real hit of an AS segment, or of the hazard it fired, in the
+    Bankai. Each AS segment carries `:params :mark n`, and a hazard copies it into its data at the fire frame.
+  - While 北 is armed, the new `:ns-pick` hook (`yama-ns-pick`) starts 北's NS in place of the pointer's. The existing `:as-pick` hook
+    (`yama-as-pick`) starts 北's AS after any J count and returns no pointer, so `core-as-start!` logs `AS1 pointer kept 3`.
+  - 北's moves sit outside the pointer grammar, in the new core keys `:ns-extra` / `:as-extra`. `core-routes` feeds them to the class
+    table, the SP costs and the move table, and 北's NS starts at fs 0 as a route's first segment. The pointer clamp, `:stances`,
+    `:kikon-cines`, the Konpaku table and the switch's route count still see three.
+  - On its frame 0, a 北 move runs `yama-north-start`: the marks clear, the flag drops, and `fighter-sp-ptr` becomes 3 (pointer 3's Kikon
+    profile). The pointer itself was never touched, so it stays n, the third AS's write.
+  - The Kikon cinematic is the landing strike's `:cine`: `yama-tenchi-cine` sits on 北's AS and on its wave's strike copy
+    (`:ya-e-n4-strike`). The browser still `duel-yama-tenchi-cine.png` shows its card.
+- **The shared changes**: four switches, each off by default, and one refactor.
+  - kit.lisp: `:ns-extra` / `:as-extra` (`core-routes`), and the hook docs.
+  - core-sim.lisp: `core-sp-start!` asks the kit's `:ns-pick` hook first; `core-switch-open-p` asks the kit's `:switch-ok` hook.
+  - `core-verdicts`: a defender inside a move's `:params :turn-armor` window (f `*armor-from*` 6 to S, `core-turn-armor-p`) turns an NA's
+    `:cancel` into an `:absorb` (core.lisp `core-turn-armor-verdict`, pure). Every other verdict stands, so an AS still hits.
+  - No other kit has any of these (host-tested), and `--cvc` stays byte-identical.
+- **HUD** (no new model slot).
+  - The Bankai's `:hud-tag` hook returns constant strings: `MARK 1` ... `MARK 123` by the marks held, and `NORTH` while 北 is armed.
+  - lhud-data's FORMS give "ZANKA NO TACHI" the seals 東 / 西 / 南 with their names. "ZANKA NO TACHI NORTH" keeps the seals and names every
+    pointer 北 · TENCHI KAIJIN, through the existing form + tag lookup. So both plates and the phone deck replace the label.
+  - `lhud-marks` (the side's derived slot 10) gives the held marks, and `lhud-marks-at` draws them in the ember colour after the pointer's
+    name, on the plate's seal row and on the deck's ring.
+  - The tag line shows neither tag. The select card is unchanged. The callouts' kanji were added, and the atlas was rebaked (lhud-charset
+    passes).
+- **CPU**: the generic core CPU plays the Bankai and 北 as they are: `:ns-range` 東 (2.0 5.5), 南 (4.0 9.0). No tuning.
+- **Debug** (87000-87999): 87420+i a Bankai segment on its own (i 0-9), 87440 awaken now, 87441-87443 a mark, 87444 北 armed, 87445 cleared,
+  87446 into the Bankai with no cinematic, 87447 a `duel yamamoto switch` line. The probe line now carries the marks and 北.
+
+**Placeholders** (§7.3 leaves them open; the lead's numbers, to be tuned by play):
+- Frames and hit volumes:
+  - every A / R;
+  - E-J1-3's reach 1.52 / 1.59 / 1.71, written as arcs (as stage A did);
+  - NS1b's slide and reach;
+  - NS1c's 6 m low line and its knock-back 3;
+  - AS1, AS2a / b, AS3a / b / c's S (10 / 12 / 12 / 10 / 10 / 12) and their radii;
+  - NS2c's S12, 90 and knock-back 3;
+  - NS3b's width 2 and range 8 m;
+  - NS3c's fall disc (3 m ahead, r 1.6) and its crumple;
+  - 北's wave speed 20 m/s;
+  - AS 北's S10, reach 2.4, arc 110;
+  - the SA's reach 2.0 and its stagger;
+  - the bind's 60 f (`*ya-bind-stun*`, the old kit's).
+- Clips (the old ones, §8):
+  - NS1a `ya-e-kyokko`; NS1b `ya-e-f2`; NS1c and AS1 `ya-kyoku`;
+  - NS2a / NS2b / AS2b `ya-shonetsu`; NS2c / AS2a / SA `ya-w-counter`;
+  - every 南 segment `ya-kaka`;
+  - 北 `ya-e-tenchi` (stretched from S6 to S24 on the NS);
+  - the Kikon strikes E-J1's.
+- Stances: 東 `ya-e-stance`, 西 `ya-st-nishi` (a loop on SHONETSU's flare pose), 南 `ya-st-minami` (a loop on MINAMI's incantation pose,
+  the blade upright before the face). The last two are two-key loops on old poses.
+- Looks: the hands and the pile are the fire column, the swarm the fire wave, the wall a column, the fall the dome, 北's wave the tornado
+  pillar. KYOKUJITSUJIN's slit and ground line are not drawn.
+- Cinematics: 東 / 西 / 南's Kikon are `soul-break-cine`. In `yama-bankai-cine`, `vfx-awaken-burst` has no `:bankai` / `:bankai-burst`
+  look, so it draws nothing.
+
+**Deviations, each with its reason.**
+1. AS 北 "follows any J count (`:params :as-ptr`)" is built through the existing `:as-pick` hook, which ignores the press count. `:as-ptr`
+   names the AS of the move he is in; 北's AS must follow J1, J2 and J3 alike, and `:as-pick` returning `(values move nil)` also writes no
+   pointer.
+2. 西's armour is not `:armor-hits`. `:armor-hits` is judged in `resolve-contact`, after the triangle. A J on an NS cancels before it,
+   and an AS would be `:armored` (Kenpachi's NS2), the opposite of "an AS still beats it". The armour is read in the triangle instead
+   (`:turn-armor`): an NA is absorbed as by a turn move (SA / AS), and an AS's hit stands. NSc carries the same param.
+3. "The pointer switch is refused while 北 is armed" is close to unreachable. Marks come from an AS, so he is never in an NS route when
+   北 arms, and his next NS is 北, which clears the flag at its start. The guard therefore also covers a 北 move in play (a switch out of
+   its gap would skip it). It is proven by the host test and the debug line (the native trials have no side stick).
+4. The bone wall's wave stop is his own hazard hook (`yama-wall-stop` from `yama-hz`'s `:step`), not shared machinery. An opponent
+   `:wave` / `:fireball` whose centre comes within the wall's half width plus its own is spent there through `core-hazard-nohit!`
+   `:absorb` (as a classless blade cuts one: no refund, no exchange). "Rises before him, then falls forward (S18, 70)" is built as both on
+   S: the fall's hit on a disc 3 m ahead, and the wall 1.2 m ahead standing 90 f with no hit. A 90 f fall would need a 90 f active window
+   (§7.4's delayed-hazard rule).
+5. A mark comes only from a real hit (`:hit` / `:counter`). A cancel, a block, or the Kikon's follow-up strike gives none (§7.4: "when
+   the AS lands, its first hit").
+6. "Marks and an armed 北 survive the Bankai's end": the Bankai has no end (no `:duration`, no `:reset-form`). The marks live on the
+   fighter for the match, so they would survive one.
+7. `yama-tenchi-cine` lost one line: the old script set the victim's `model-alpha` to 0 after the ash, and nothing restores it after the
+   reset.
+8. Heat leaves through the Bankai's `:enter-hook`, not a `:meter :start`, so the zeroing and its log line sit in one place.
+
+**Readings** (2026-11-19; native trials `tests/trials/yamamoto-bankai.lisp`, P1 scripted, P2 Kenpachi unless named; base damage in the
+hit lines):
+
+| Trial | Reading |
+|---|---|
+| C1 the awakening from the Shikai at heat 40 | `AWAKEN from IDLE`, `ZANKA NO TACHI: heat 40.0 -> 0`, form BANKAI, meter 0 |
+| C2 the awakening in 爆炎 at heat 100 | `ZANKA NO TACHI: heat 100.0 -> 0`, form BANKAI (爆炎 over), meter 0 |
+| C3 東 NS a-b-c (3 m) | 80 > 70 > 120, gaps 0 0; SP 30 + 30 + 50 |
+| C4 西 NS a-b-c (1.6 m) | 45 45 > 40 > 90, gaps 0 0 0; SP 35 + 15 + 35 |
+| C5 南 NS a-b-c (4 m) | the hands 40 (bound, combo 2) > the wall's fall 70 > the swarm 50 (the slow wave lands after the fall); SP 15 + 20 + 30 |
+| C6 J1 > AS1 | 34 > 50, `AS1 pointer 1`, `MARK EAST (marks 1)` on AS1's hit, STEAL fs 30 |
+| C7 J1 J2 > AS2 | 34 38 > 40 70, `MARK WEST (marks 2)` on AS2a's hit |
+| C8 J1-J3 > AS3 | 34 38 42 > 40 50 100, gaps 0, `MARK SOUTH (marks 4)` on the hands' hit |
+| C9 東 held, J1 > AS1 | no MARK line: a repeated mark stays one |
+| C10 東 西 held, J1-J3 > AS3 | `MARK SOUTH (marks 7)`, `NORTH armed (pointer 3)` |
+| C11 NS 北 (armed, pointer 2, 6 m) | `NORTH YA-E-N4: marks cleared, pointer 2`, SP 60, the wave 220, the pointer still 2 |
+| C12 AS 北 after J1 (armed, pointer 3) | `AS1 pointer kept 3`, 34 > 180, no MARK |
+| C13 the switch line | armed: `open NIL north T`; cleared: `open T north NIL` |
+| C14a 西 NSb x P2's J (2.6 m: NSa whiffs, NSb slides in) | `P2 KE-Z-J1 x P1: ABSORBED` (NSb f8), then NSb's burn 40 |
+| C14b the same J on NSa's startup | `CANCEL`, P1's SP refunded 35 |
+| C15 西 NSb x P2's AS1 (started under it) | `P2 KE-Z-AS1 -> P1 HIT 90` on NSb's f10 (inside f6-14) |
+| C16a 南 NSa, P2 Steps on sim frame 24 (after S22) | no hit, P2 2.5 m further out |
+| C16b the same, no Step | the hands 40, bound (combo 2) |
+| C17 南 NSc's wall x Ichigo's Getsuga (P2's AS2b at 8 m) | `P1's bone wall stops P2's wave`, `P1 beats P2's wave as`, no hit on P1 |
+| C18 AS 北 held after J1 (pointer 2) | the Kikon: -2 Konpaku (pointer 3's profile: the Bankai's 3 - 1) |
+| C18b AS2 held after J1 J2 (pointer 2, no 北) | the Kikon: -3 Konpaku (pointer 2's profile) |
+
+The browser script `tests/scripts/duel-yama-bankai.json` (and `-phone.json` with the deck, 87901; generated by tests/scripts/duel.py)
+reads the same lines through the page. It also plays the two cinematics the native trials skip: the awakening's card (卍解 / 残火の太刀)
+and 北's Kikon (北 / 天地灰尽). Stills: `tests/shots/duel-yama-bankai*.png`, `-marks` (東 南 by the pointer), `-north` (北 · TENCHI KAIJIN,
+東 西 南), `-tenchi-cine`; the same with `-phone`. On the phone run the AS 北 scene lands without a Kikon: with the deck up, P1's SP
+hold is the touch rule (`core-touch-p`), which keyboard keys do not drive. Its `-tenchi-cine-phone` still therefore shows the fight, and
+the cinematic is the desktop run's.
+
+Native CPU smoke (the generic CPU, 3 seeds each, no error): YK Kenpachi 2-1, IY Ichigo 2-1 (Yamamoto won seed 2 on time), HY Hisagi 3-0.
+Every match awakened him into the Bankai. 北 was armed in eight of nine matches and played as NS or AS in each of those eight.
+
+Checks: host tests ALL PASS (4067 checks, +97: the Bankai's class tags, openers, no mid-route knockdown, AS segment counts, stances,
+strikes and cinematics, the pure mark and 北 rules, the turn-armour verdict, the marks on stand-in fighters with the pointer never 4, the
+HUD's seals / marks / tags, every new hook off for the other kits); pkgcheck as main; `--cvc` II / IK / KK identical;
+`python3 tests/sp-costs-check.py` 116 PASS, 0 FAIL; `./build.sh duel`; the browser smoke (`run.mjs` exit 0).
+
+**Open.** The art batch:
+- the pointer stances' own clips;
+- every Bankai move's own clip;
+- the hands, swarm, bone wall and wall-fall looks, KYOKUJITSUJIN's slit, the awakening burst's `:bankai` look.
+
+Also open: the Kikon storyboards (東 / 西 / 南 still `soul-break-cine`), drawn reach against hit reach (the host FK test does not load
+yama-art), a CPU that reads the marks or 北 (none asked for), and §9's defaults.

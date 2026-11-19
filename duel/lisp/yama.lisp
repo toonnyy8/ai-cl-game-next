@@ -232,7 +232,7 @@
 ;;; ---------------------------------------------------------------- 3 南 DAISOJIN: the dead rise
 ;; a: the plant: dead hands at the victim's bearing 4-10 m (r 1.2), the point taken on S, the hands 16 f later (:delay 17 inside A 17, as
 ;; NS1b's column: a Step after S dodges), a bind; b: the swarm crawls along the floor (a :wave, 6 m/s); c: the bone wall rises before him
-;; (its fall the hit, 2.2 m ahead) and stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-HZ :ya-wall)
+;; (its fall the hit, a disc 3 m ahead, r 1.6) and stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-HZ :ya-wall)
 (defmove :ya-e-n3a :kind :flash :clip :ya-kaka :clip-s 20 :startup 22 :active 17 :recovery 20 :reach 10.0 :callout "DAISOJIN"
   :on-frame ((22 yama-column-fire))
   :params (:ns-next :ya-e-n3b :near 4.0 :far 10.0 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun*
@@ -242,7 +242,7 @@
   :params (:ns-next :ya-e-n3c :width 2.0 :speed 6.0 :range 8.0 :dmg 50 :react :stagger :look yama-wave-look :kikon-strike :ya-e-ns-strike))
 (defmove :ya-e-n3c :kind :flash :clip :ya-kaka :clip-s 20 :startup 18 :active 2 :recovery 30 :reach 4.0
   :on-frame ((18 yama-wall-fire))
-  :params (:ahead 2.2 :radius 1.4 :dmg 70 :react :crumple :kikon-strike :ya-e-ns-strike))
+  :params (:ahead 3.0 :radius 1.6 :dmg 70 :react :crumple :kikon-strike :ya-e-ns-strike))
 ;; AS3: the hands seize at him (40, a stagger: a bind inside a combo would be a flinch, COMBO-STEP) > the swarm (50) > the pile collapses
 ;; (100, a knockdown); mark 南
 (defmove :ya-e-as3c :kind :sp :clip :ya-kaka :clip-s 20 :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
