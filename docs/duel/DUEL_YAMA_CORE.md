@@ -22,6 +22,12 @@ look per form, the motion bars) and DUEL_YAMA_REWORK (the old Bankai), the canon
 | Y5 | The Shikai's three pointer themes | **1 不知火 / 2 城郭炎上 / 3 撫斬** (the user's reply spells the third 「撚斬」, the option's 撫斬 = canon Nadegiri) | 1 松明 / 2 城郭炎上 / 3 一骨; the user's own |
 | Y6 | How are the Bankai's East / West / South marks earned? | **「AS n 寫入該指針」**: AS1 gives East, AS2 West, AS3 South, when the AS writes its pointer | an NS hit under that pointer; an NS or AS hit under it |
 | Y7 | How long does North (天地灰尽) last? | **「一次北的 NS 或 AS」**: one North move (hit or whiff), then back to the pointer before it; the marks clear | a fixed time (e.g. 8 s); until he is hit or a time-out |
+| Y8 | 城郭炎上's ring (§9 Q1) | **「會燒的火環，可穿過」**: a burning ring, no collision; Step and Hoho pass, crossing it hurts | a cage that stops walking out; both |
+| Y9 | 爆炎's early exit (Q5) | first **「只有指定的才消耗」**; the lead's own example (hold SP) collides with the Kikon hold (a held SP from the segment's start through its hit is the Kikon's input, `fighter-sp-held`), so asked again: **「那改回使用 NS 就消耗熱量」**: every 爆炎 NS segment spends 25 | hold = spend; a landed Kikon clears heat (RoS 1.10); the pointer switch spends |
+| Y10 | (the same answer) | **「且對手相消時也會受到灼燒傷害（HP 不會因此被扣的 0）」**: in 爆炎, a cancel with him burns the opponent; never to 0 (floor 1) | — |
+| Y11 | 西's NS c (Q4) | **「帶霸體的反擊斬」**: an armoured counter-cut that always swings, inside the triangle | a parry (the old GOKUI GAESHI) |
+| Y12 | The pointer tables (§7) | **「可以，開始實作」**: batch 1 starts | change first |
+| — | Told the user with the plan, not objected | NADEGIRI's split a look only; 爆炎's entry a short invulnerable pose at the next neutral; 北's Konpaku = pointer 3's profile | — |
 
 ## 3. The Shikai: Ryūjin Jakka and the heat gauge
 
@@ -34,7 +40,8 @@ look per form, the motion bars) and DUEL_YAMA_REWORK (the old Bankai), the canon
 | 爆炎 decay | heat falls 10 / s (`*ya-blaze-decay*`: 10 s from full); no gain of any kind until it ends |
 | 爆炎 Reishi drain | 2 % of max Reishi / s (`*ya-blaze-drain*`), never below 1 (Y4) |
 | 爆炎 SP | NS and AS segments cost no flash-step gauge (as during a burst, DUEL_SP §2); NA / SA as usual |
-| 爆炎 early exit | each NS segment spends 25 heat (`*ya-heat-ns*`) at the 爆炎 move's fixed power (no proportional boost: 爆炎's variants are already the strong set); heat at 0 ends 爆炎 |
+| 爆炎 early exit | each NS segment spends 25 heat (`*ya-heat-ns*`) at the 爆炎 move's fixed power (no proportional boost: 爆炎's variants are already the strong set); heat at 0 ends 爆炎 (Y9; a cancelled segment gets its heat back, §7.4) |
+| 爆炎 cancel burn | a cancel between his move and the opponent's (any class, either side's hit) burns the opponent 25 % of his cancelled move's base damage (`*ya-blaze-burn*` 0.25), never below 1 (Y10); no hitstun, no combo count |
 | 爆炎 end | back to the Shikai's set, heat 0 |
 | Awakening in 爆炎 | allowed; 爆炎 ends, heat leaves with the Shikai (the Bankai has no heat) |
 
@@ -183,25 +190,15 @@ Reused as above (`ya-stance`, `ya-q1/q2`, `ya-tsuka`, `ya-f1..f3`, `ya-sig`, `ya
 and the openers' tells, come in the art batches after the user plays it. Each segment that shares a clip with another class gets a copy
 (duel-move-modules red flag).
 
-## 9. Questions for the user (asked with the plan; the recommended first)
+## 9. Questions (answered 2026-11-19, §2 Y8-Y12)
 
-- Q1 城郭炎上's ring: **a burning ring, no collision** (crossing it hurts; it reuses the hazard path, Step / Hoho pass) / a cage that stops
-  walking out (canon; needs a wall primitive and the CPU taught it; Hoho passes) / both.
-- Q2 撫斬's late split: **a look only** (the hit lands on S, the split drawn later: a real delay breaks the segment latch and the Kikon hold)
-  / a real delay.
-- Q3 爆炎's entry pose (the change itself always waits for the next neutral, §7.4): **a short pose** (the haori off, the pillars; ~24 f,
-  invulnerable) / none, the look just changes.
-- Q4 西's NS c: **an armoured counter-cut that always swings** (inside the triangle) / a parry that catches a hit (the old GOKUI GAESHI; outside
-  the triangle, no core kit has one).
-- Q5 爆炎's early exit: **every 爆炎 NS segment spends 25** (the plan: at most about 3 NS segments a state) / only a chosen spend (a held SP, or
-  the route's c segment), so 爆炎's free NS can be used without leaving.
-- Q6 北's Konpaku worth: **pointer 3's profile** (Kikon -1, Soul Break +2) / its own, bigger.
-- Defaults unless the user rules otherwise: a Kikon landed or taken does not end 爆炎 (RoS 1.10 does); a cancelled 北 counts as used (its
-  gauge refunded, DUEL_SP §3).
+Q1 -> Y8 (a burning ring), Q4 -> Y11 (the armoured counter), Q5 -> Y9 / Y10 (every 爆炎 NS spends; 爆炎's cancels burn), Q2 / Q3 / Q6 as
+recommended (a look only; a short entry pose; pointer 3's profile). Still defaults: a Kikon landed or taken does not end 爆炎; a cancelled 北
+counts as used (its gauge refunded, DUEL_SP §3).
 
 ## 10. Next
 
-1. The Fable review is folded in (§7.4); the user's yes on the tables and Q1-Q6.
+1. Done: the Fable review folded in (§7.4); the user's yes (Y12).
 2. Batch 1: the kits' `:core`, the heat gauge and 爆炎 in the sim (pure functions host-tested), the marks and 北, functional clips at the
    right reach; the generic core CPU plays them. Roster: un-retire slot 0 (`*retired*`, simgate `RETIRED`), the host tests, the looks
    gate's seeds.
