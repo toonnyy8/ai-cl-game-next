@@ -589,3 +589,190 @@ Also open:
 
 Also open: the Kikon storyboards (東 / 西 / 南 still `soul-break-cine`), drawn reach against hit reach (the host FK test does not load
 yama-art), a CPU that reads the marks or 北 (none asked for), and §9's defaults.
+
+## 15. The art batch and the 東 / 西 / 南 Kikon storyboards (planned 2026-11-20)
+
+The user, 2026-11-19: 「先做這兩件事」 (「動作與外觀美術」 and 「東西南的毀魂技分鏡」). The plan was drafted by a Fable review (grades: A canon, B official
+game, C secondary, D the lead's proposal; sources §4 / §6 / §7.3 / §14, `motion-refs.md` §1.6-§1.9, §5.3-§5.6, `canon-looks.md` §4, §6; code as of
+05acf777). The user's decisions are in §15.4; their 西 storyboard replaces the draft's (§15.3.2).
+### 15.1 Order and batching
+
+**Bankai first, then the Shikai, then 爆炎.** One form at a time, its looks before its strikes (skill rule).
+
+| Evidence | For |
+|---|---|
+| §14's placeholder list is longest and most wrong in the Bankai: 5 looks are fire stand-ins (hands, pile, swarm, wall, fall), 北's band is the tornado, the slit and the awakening burst draw nothing, two stances are two-key loops, all six 南 segments play one clip, `ya-w-counter` serves three slots, 北's NS is a S6 clip stretched x4 | Bankai |
+| The three storyboards need the same looks (the dead, the void line, the garb): built once, used twice | Bankai |
+| Cheap: the old kit left unused Bankai assets in main: the `:skeleton` body + `:sk-grab`, `vfx-kyoku-slit` (`%st-slit`), `vfx-skeleton-dust`, `vfx-garb-flare` / `vfx-nishi` / `vfx-garb-block` / `vfx-scorch` / `vfx-burnout`, the spare clips `ya-e-f1`, `ya-e-drop`, `ya-w-parry`, `draw-planted-weapon` | Bankai |
+| Against: every match starts in the Shikai (seen longest); and the Bankai's A / R and the AS S values are §14 placeholders "to be tuned by play" (red flag: clips drawn while the rules still move) | Shikai |
+
+Answer to the risk: looks and stances do not depend on A / R, so they go first; before any strike is keyed the lead freezes the S list
+(§2.2's S column) with the user's playtest of stage C. A later A / R change costs a recovery key, not a clip.
+
+| Batch | Content | Review gate (stills to the user) |
+|---|---|---|
+| K1 | FK coverage first (Yamamoto's Bankai into `tests/duel-rules/art.lisp`: prints today's tips), then the look list §2.1 | every look: match camera + side, landscape + portrait |
+| K2 | the three stances, NA, 東's strikes | the stance triptych (debug 2510 + p), 8-frame strips |
+| K3 | 西, 南, 北, SA strikes | strips, then the playtest Artifact |
+| K4 | the three Kikon cinematics from §3 (after the storyboards' yes; needs K1) | one still per beat, both aspects |
+
+### 15.2 The Bankai in full
+
+Colour rule (D, from A: "no flames are visible as it cuts", ch. 507; the kit's grade is `:spot`): the Bankai is **ink / charcoal + bone-ash
+white + one ember hairline**. Orange flame appears only in 西 (the garb, A) and 北 (the band's rim, A). So at most 3 hues a look, and
+fire itself becomes the tell that says 西 / 北.
+
+#### 15.2.1 Look list
+
+| # | Look (hazard / effect) | Canon | Shape as vector ink | Sim footprint it must equal | On which frames |
+|---|---|---|---|---|---|
+| L1 | the dead hands (NS3a, AS3a) | charred skeletons out of a rupture (A, ch. 508) | 3 `:skeleton` bodies, charcoal with thin red highlights (D1), hips under the floor, clawing up (`:sk-grab`) on the disc; an ember crack star under them; `vfx-skeleton-dust` | disc r 1.2 at his bearing 4-10 m (NS); r 1.2 at him (AS) | NS: the crack star glows from S22 through the 17 f delay (the tell a Step reads); the clench lands on S+16 (start `:sk-grab` 8 f before), hot 6 f, gone by 30. AS: at f10 |
+| L2 | the swarm (NS3b, AS3b) | they crawl and swarm (A) | a low front of 4 crawling torsos (ink mass, red skull and arm highlights (D1), on twos), ash dragged behind | box 2 m wide; 6 m/s over 8 m (NS), 8 m/s over 6 m (AS); the front edge = the hazard's x | from S16 (NS) / S10 (AS), for its life |
+| L3 | the bone wall (`:ya-wall`) | a pile-wall of bodies shields him (A, ch. 509) | a rampart of stacked torsos and skulls, **chest-high (≤ 1.4 m) with gaps** so the behind camera still sees the foe; crumbles to ash in its last 10 f | 3.2 m wide (half 1.6), 1.2 m ahead; stands 90 f; stops waves | rises over the startup f6-S18 (drawn by the move's draw hook: the tell); stands S..S+90 |
+| L4 | the wall's fall (NS3c's hit) | (D: the sim's "falls forward") | the rampart's crest topples as an avalanche of bones onto the disc; ash ring on landing | disc r 1.6, 3 m ahead | lands on S18, hot 4 f; debris to 30 |
+| L5 | the pile (AS3c) | the dead bury the victim (A, ch. 508-509) | a mound closing in from three sides over him, to 1.8 m; bursts to ash | disc r 1.4 at him | f12, hot; ash to 30 |
+| L6 | KYOKUJITSUJIN's erased line (NS1c) + the slit | the tip touches the ground, a chunk vanishes; no fire (A, ch. 507) | the white down-cut slit (`vfx-kyoku-slit`, exists) + a flat **black void strip** on the floor with an ember hairline rim, ash falling in | `:cap 0.2 6.0 0.3 0.4`: 0.2-6.0 m ahead, 0.8 m wide, low | slit on S18; the strip **at full length on S** (the hit is the whole line at once), held 20 f, then filled by ash. AS1: a 1.6 m notch at S10 |
+| L7 | KYOKKO's lance (NS1a) | "focuses all his flames into the tip" (B) | a white hairline with an ember core from the tip to the cap's end (no blade is 4.6 m long; the old kit's edge flare) | `:cap 0.2 4.6 1.1 0.3` | S20-S22 |
+| L8 | SHONETSU's flare (NS2a / NS2b / AS2b) and 西's garb | orange tongues from the feet, shoulder wings ~2x his width, molten ring at the soles (A, `508Yamamoto in flames`) | `%st-flare` + the ring of `vfx-nishi` rescaled so its **outer edge is 2.0 m**; the wings as two ribbon fans; white-hot core on the pulse | r 2.0, 360° | NS2a pulses on f16 and f26; NS2b on S14; AS2b on S12. The low garb (tongues to the knee, small wings) rides pointer 2's stance |
+| L9 | 西's armour absorb | the foe's blade is erased on his body (A) | `vfx-garb-block` + `vfx-scorch` (both exist) on the `ABSORBED` event | at the contact point | the absorb frame |
+| L10 | 北's diagonal band (NS wave; AS crescent) | a wide diagonal white band, the blade a smear (A, `509…Kita`) | a leaning white sheet (tilted ~35°), ember rims, ink backing, a scorched ash strip left on the floor | wave 4 m wide, 20 m/s, 14 m (42 f); AS: reach 2.4, arc 110 | NS from S24; AS on S10 |
+| L11 | the awakening burst `:bankai` / `:bankai-burst` | every flame is drawn into the blade; the charred blade (A, ch. 506) | `:bankai`: ~24 fire scraps flying **inward** to the raised blade; `:bankai-burst`: an outward ink + ash ring and shards, no flame | none (cinematic) | `yama-bankai-cine` f12 and f118 (the calls exist) |
+
+#### 15.2.2 Clip table
+
+Planes / hands in use, none shared: E-J1 level R→L fore, E-J2 rising L→R back, E-J3 rising thrust, NS1a level thrust, NS1b vertical up,
+NS1c ↙ back, AS1 vertical point drop, NS2c rising R→L fore, SA level L→R back, 北 NS ↗ trailing pass, 北 AS ↘ fore; 西's a / b and all of
+南 have no swing (body / plant). He has one arm: a grab plants the blade first (`draw-planted-weapon`, as IKKOTSU).
+Tip targets are from the move's volume; **the K1 FK print decides** where arm + blade (≈ 1.9-2.2 m with a lunge) falls short.
+
+| Slot | S / A / R | Archetype | Body in one line | Grade | Verdict | Now plays | Drawn tip target |
+|---|---|---|---|---|---|---|---|
+| Stance 東 | loop | the naming pose | upright, the fist toward the foe at chest height, the blade **level across**, its tip out past his left side; the smoke thread | A | new `ya-st-higashi` | `ya-e-stance` (the Bankai's idle: stays the idle) | - |
+| Stance 西 | loop | the furnace | feet apart and sunk, chest out, chin up, arms open low, the blade low right point-down; L8's garb breathing | A | re-key (4 keys: the wings breathe, the feet sink) | 2-key loop on SHONETSU's pose | - |
+| Stance 南 | loop | the plant, held | the blade **vertical, point down**, the hilt at the chin, the elbow winged high; held 0.25 m right of the face so the behind camera sees it (D); faint ember cracks at his feet | A (pose) / D (offset) | re-key | 2-key loop on MINAMI's f9 | - |
+| E-J1 | 14 / 3 / 12 **(opener: held tell)** | fencer's lunge | charge f0-9 (drawn back right, level), held f10-12, release f13-14: the deep lunge, a level cut at face height | A | re-key at S14 (poses kept) | `ya-e-q1` at clip-s 8 | 1.52 (arc 100) |
+| E-J2 | 7 / 3 / 13 | the return | from the lunge a rising backhand, he stands as it rises | A + D | reuse | `ya-e-q2` | 1.59 |
+| E-J3 | 8 / 3 / 18 | lunge finale | dropped knee, an underhand rising thrust | D | reuse | `ya-e-q3` | 1.71 (arc 60) |
+| NS1a KYOKKO | 20 / 3 / 26 **(tell)** | the lunge, extreme | chambered at the right hip, point at him, held f12-17; the body near horizontal at S | A | re-key at S20 | `ya-e-kyokko` clip-s 15 | the tip as far as FK gives; L7 carries the rest to 4.6 |
+| NS1b sunrise | 14 / 4 / 24 | hammer | **frame 0 = KYOKKO's landing lunge**; the blade swung up through vertical, rising onto the toes | D | re-key (new f0, S14; hit pose kept) | `ya-e-f2` clip-s 19 | 1.56, h 1.3 |
+| NS1c KYOKUJITSUJIN | 18 / 5 / 26 | the tip-tap | from the raised blade (1b's end) a backhand ↙, only the tip touches the floor on f20 | A | reuse (f0 re-keyed to 1b's landing) | `ya-kyoku` | tip on the floor ahead; L6 is the 6 m |
+| AS1 | 10 / 3 / 24 | tip-tap, point-blank | no body swing: the wrist lifts the point to the shoulder, drops it straight to the floor at his toes | A (idea) / D | new `ya-e-as1` | `ya-kyoku` x1.8 | 1.6 (arc 90) |
+| NS2a SHONETSU | 16 / 12 / 24 **(tell)** | the furnace | no swing: drawn in f0-12, the arms open on S; a second chest pulse on f26 | A + D | reuse + one key (f26) | `ya-shonetsu` | - (L8 r 2.0) |
+| NS2b the advance | 14 / 3 / 20 | the furnace walks | two slow dragging steps, chin up, the blade low; he takes the hit without a flinch (armour f6-S) | A (ch. 508) | new `ya-e-advance` | `ya-shonetsu` | - (L8) |
+| NS2c the counter-cut | 12 / 3 / 24 | furnace counter | still f0-7 (taking it), then a rising forehand from the low carry up to his left, one step | D | new `ya-e-gokui-cut` (frees `ya-w-counter` for the SA) | `ya-w-counter` x0.5 | 2.0 (arc 120) |
+| AS2a the grab | 12 / 3 / 16 | take the hit, then grab | the blade planted beside him, the right hand shoots to the collar | A (Aizen, Yhwach) | new `ya-e-grab` | `ya-w-counter` | hand at 1.6; if FK is short the garb's flame on the hand covers ≤ 0.3 m |
+| AS2b the throw | 12 / 3 / 24 | the flare | arm locked out holding him, the garb flares, the hand opens upward | D | new `ya-e-throw` | `ya-shonetsu` | - (L8) |
+| NS3a the plant | 22 / 17 / 20 **(tell)** | the plant | upright hold f6-18 (trembling 3 f), driven straight down into a half kneel on S | A | re-key at S22 | `ya-kaka` | cast check: blade in the floor |
+| NS3b the swarm | 16 / 2 / 22 | "go" | still kneeling: the hand twists the planted hilt and levers it forward, the head lifts | D | new `ya-e-minami-b` | `ya-kaka` | - |
+| NS3c the wall | 18 / 2 / 30 | the rip | he rises, ripping the blade up out of the floor to overhead on S; recovery: the chest turns away (no root yaw) | D + A (walks away) | new `ya-e-minami-c` | `ya-kaka` | - |
+| AS3a the hands | 10 / 3 / 16 | the short plant | from E-J3's dropped knee: a reverse stab into the floor by the front foot | D | new `ya-e-as3a` | `ya-kaka` x2 | - |
+| AS3b the swarm | 10 / 2 / 18 | "go", by hand | the hand leaves the planted hilt and sweeps low, palm forward | D | new `ya-e-as3b` | `ya-kaka` | - |
+| AS3c the pile | 12 / 3 / 30 | the back turned | he stands, draws the blade out low and looks away as it lands | A (ch. 509) | new `ya-e-as3c` | `ya-kaka` | - |
+| 北 NS | 24 / 2 / 30 **(tell)** | hammer from the sky | gather f0-15 (the blade trailing low behind, the only time it burns), coil held f16-20, release f21-24: one passing cut ↗ | A | re-author at S24 | `ya-e-tenchi` S6 x4 | cast check (the wave starts 1 m ahead) |
+| 北 AS | 10 / 2 / 30 | the same, point-blank | from over the right shoulder a diagonal ↘ to his low left | A (the band's direction) | revive the spare `ya-e-f1`, re-keyed to S10 | `ya-e-tenchi` | 2.4 (arc 110); L10's crescent covers what FK leaves |
+| SA | 6 / 3 / 24 | the short backhand | chest-height L→R, one step | D | reuse (its home now) | `ya-w-counter` | 2.0 (arc 120) |
+| Kikon strikes (NS / AS / 北) | E-J1's | - | copies of E-J1: they follow its re-key | - | none | E-J1's | 1.6 |
+
+Count: 11 new, 7 re-keyed, 5 reused, 1 spare revived; `ya-e-drop` and `ya-w-parry` stay spare (the cinematics use them).
+
+#### 15.2.3 Checks the batch proves
+
+| Check | How |
+|---|---|
+| Presentation only | the native trials `tests/trials/yamamoto-bankai.lisp` (C1-C18), `-core`, `-blaze`: tables identical before / after; the browser script `duel-yama-bankai.json` state-hash and log lines identical; `--cvc` II / IK / KK byte-identical (it plays no Yamamoto: it proves the shared files only). The only `yama.lisp` edits allowed are `:clip`, `:clip-s`, `:look` |
+| Drawn reach = hit reach | Yamamoto's Bankai added to the host FK test (`tests/duel-rules/art.lisp`), ±0.15 m; today it does not load `yama-art` (§14 open). Printed before drawing; cast checks for the no-hit-window moves |
+| Looks = footprints | each look's edge against §2.1's radius / width in a top-down debug still |
+| 0 B / frame | a `vfx consing` probe (debug 2328's pattern) per new look and for the extra skeleton bodies |
+| Others untouched | the looks gate's 75 stills byte-identical (new `vfx-awaken-burst` kinds are new branches) |
+| Stills | per segment (debug 87420+i) and per stance: match camera + side, landscape + portrait (87901); 8-frame strips side + front; 緩急 by the tip's speed per frame for E-J1, KYOKKO, 北 |
+
+### 15.3 The three Kikon storyboards
+
+House length: the Kikon cinematics in main run 150-206 f (Ichigo 180, Hisagi 150, Kenpachi 196-206), `:hold` 100-160; 天地灰尽 is 168.
+Kept apart: 天地灰尽 = the black card, the white slash, the manga page. 東 = **absence** (a tap, then nothing, then the world is missing),
+西 = **heat at arm's length** (the foe strikes, the old man takes hold), 南 = **the crowd, and his back** (he never touches the victim).
+Landscape letterbox 9 %; "P:" = the portrait note.
+
+#### 15.3.1 東 旭日刃 KYOKUJITSUJIN (168 f)
+
+Idea: one tap of the point; a held beat where nothing happens; then the floor behind the victim is gone.
+Actors: `cine-place a v 2.2` (the tip lands at the victim's feet). The victim ends crumpled on the lip of the void, at his placed spot.
+
+| Frames | Shot (angle / dist / height / lens) | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-12 | (held from play) | beat 0: `hold-both`; he holds `ya-kyoku`'s raised pose (f15), the victim `:sh-kikon-victim` | negative 2 f; whoosh | |
+| 12-44 | on him, front 30°, 3.0 m, 0.6 m high, lens 44, roll -6 | the blade high and angled; the only colour its ember edge | silence 32; caption 旭日刃, mark 東, KYOKUJITSUJIN, hanko | P: `:off` halves by itself |
+| 44-62 | side-on pair, 5.0 m, 1.0 m, lens 50 | `cine-slow` 0.35: the diagonal comes down, passes his face by a hand's width, the tip taps the floor at his feet (f58) | one dry tick; a pinch of ash at the tip | P: 7.0 m |
+| 62-84 | ground level on the tip, 1.6 m, 0.15 m, lens 70; the victim's feet behind | nothing. The smoke thread rises. The victim looks down | silence 22 | the economy beat (A: the result arrives late) |
+| 84-100 | from behind him, high: 180°, 6.5 m, 7 m up, looking 4 m ahead, lens 40 | the void opens from the tip: a black wedge, 0.8 m at the tip widening to ~5 m, through the victim's spot to the arena's edge in 10 f | L6 at cinematic scale; ember hairline; ash falls **into** it; the boom 4 f late; shake 0.5 | P: the wedge runs up the tall frame |
+| 100-130 | on the victim from behind him, 150°, 4.0 m, 1.0 m, lens 50 | he stands half on the black; f104 the Konpaku shatters; he crumples on the lip | negative 2, `cine-shatter`, manga 10, splash; konpaku-shatter | |
+| 130-168 | low, behind the fallen victim, looking back across the void at Yamamoto, 7 m, 0.4 m, lens 40 | he lifts the point off the floor and lets the blade hang | caption exits; ash still falling | |
+
+#### 15.3.2 西 殘日獄衣 ZANJITSU GOKUI (180 f; the user's storyboard, 2026-11-20)
+
+The user (verbatim, replacing the draft's young-Yamamoto / grab / throw version): 「西 殘日獄衣：對手先出手，武器碰到火衣就從刀尖化成灰。山本燃起灼熱的火衣並緩步走向不知所措的對手。最終瞬間穿過對手，使其被升騰的高溫烈焰燒成灰燼。」
+
+Idea: the foe strikes first and his weapon dies on the garb; the old man, burning, walks at him slowly; in one instant he passes through
+him, and the rising flames burn the foe to ash. Actors: `cine-place a v 1.4` (the foe's strike reaches him). He walks the foe back about 1.5 m,
+then passes through and ends ~2 m beyond him; both are given back at `cine-end`. The victim ends down at his spot, charred and smoking (no
+alpha 0: §14 deviation 7; the ash is drawn rising off a black silhouette).
+
+| Frames | Shot | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-10 | (held) | beat 0; he stands chin up, the blade low | negative 2 | |
+| 10-40 | over the victim's shoulder: on v 160°, 2.2 m, 1.5 m, lens 60 | `cine-slow` 0.3: the victim's own first attack swings in; he does not move | a faint garb at his feet; a rising sizzle | P: 3.0 m |
+| 40-52 | close on his chest: 20°, 1.6 m, 1.4 m, lens 80 | contact (f40): the weapon turns to ash from the tip toward the hilt; the victim recoils | `vfx-garb-block`, `vfx-scorch`, an ash ribbon drawn over the weapon (the model untouched); silence 12 | §15.3.4 flag 4 |
+| 52-72 | low front: 10°, 3.4 m, 0.5 m, lens 40 | the garb ignites: tongues from the feet, the shoulder wings, the molten ring at his soles | L8 at full size, white-hot core; caption 殘日獄衣, mark 西, ZANJITSU GOKUI (f56); a roar of heat | P: 4.6 m |
+| 72-124 | tracking side-on, the pair, 4.6 m, 1.2 m, lens 46 | he walks forward slowly (three dragging steps, `ya-e-advance`); the victim backs away, lost (a stagger loop, weapon-less hands up); molten footprints behind him | heat shimmer; footsteps and sizzle only | P: 6.4 m |
+| 124-130 | on the victim, front, 2.6 m, 1.4 m, lens 50 | the instant: a white-hot streak; he is through the victim and stands behind him, back to back | negative 2, a hard cut; one sharp crack | the pass is a cut between two placements (CINE-PLACE), no body crossing |
+| 130-160 | low, behind Yamamoto looking back past him at the victim, 3.6 m, 0.4 m, lens 40 | the flames rise from the victim's feet into a column; f134 the Konpaku shatters; he chars black and ash streams upward off him; he falls to his knees, then down | flame column (orange, 西's fire), `cine-shatter`, manga 10, ash rising; shake 0.4 | |
+| 160-180 | wide side, 7 m, 1.6 m, lens 44 | Yamamoto never turns; the garb gutters out; the charred victim smokes on the floor | `vfx-burnout`, black smoke; caption exits | P: 9 m |
+
+#### 15.3.3 南 火火十万億死大葬陣 DAISOJIN (192 f)
+
+Idea: he plants the blade, says the words, turns his back and walks away; behind him the dead take the victim down.
+Actors: `cine-place a v 5.0` (A: "several meters away"). The victim ends under the pile at his placed spot, down.
+
+| Frames | Shot | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-12 | (held) | beat 0; the blade upright before his face (`ya-kaka` f16) | negative 2 | |
+| 12-50 | close front, low: 15°, 2.2 m, 1.0 m, lens 50, roll 6 | the incantation: the vertical blade splits his face; one eye opens | silence 38, a low drone; caption 火火十万億死 / 大葬陣 (two columns), mark 南, DAISOJIN | P: the long caption must pass the caption-fit test |
+| 50-56 | front, high: 0°, 4 m, 4.5 m up, looking 1.5 m ahead, lens 44 | the blade driven down (f50) | ember cracks run from the blade toward the victim (`stage-crack-add` along the line); ground-crack; shake 0.3 | |
+| 56-96 | on the victim at ground level: 140°, 3.2 m, 0.2 m, lens 32 | hands break the floor round him (3, then 8 bodies, one every 5 f), take his ankles, knees, sword arm; he fights it | L1 bodies, `vfx-skeleton-dust`; bones | P: 4.2 m; the foreground hand kept left of centre |
+| 96-140 | in front of Yamamoto, long lens: 0°, 4.5 m, 0.9 m, lens 70 | **he has turned his back on the victim and walks toward the camera**, the blade low, the eye closing; far behind him the pile climbs over the victim to 2.4 m, an arm last | L5 at cinematic scale, soft with distance; footsteps only | the shot the cinematic is for (A, ch. 509) |
+| 140-146 | the same | f140 the Konpaku, unseen by him: the pile bursts | negative 2, back-rim on him, `cine-shatter`, manga 10; shake 0.35 | |
+| 146-192 | wide, high, side: pair 8 m, 3.0 m, lens 44 | the pile falls to ash; the victim lies in the ring of cracks; he keeps walking, back turned | `vfx-ash-burst` x3, black smoke; caption exits f160 | P: 10 m |
+
+#### 15.3.4 What today's API cannot do as written
+
+| # | Beat | Gap | Proposed way |
+|---|---|---|---|
+| 1 | 東's void | no way to remove stage geometry | a flat black strip / wedge on the floor (Ichigo's `vfx-ic-split` is the precedent), shot from above so it reads as depth |
+| 2 | 西's young Yamamoto | (gone: the user's storyboard has no young Yamamoto) | - |
+| 3 | the dead as bodies (南; L1) | no helper draws an extra posed body for him | a small Yamamoto helper on the `ic-ghost` pattern (FK into preallocated joints, `draw-body` with `:skeleton`); cap 8 bodies, the far crowd as vector ink |
+| 4 | 西's erased weapon | hiding the victim's weapon needs a restore that also runs when the cinematic is cut short (`cine-end` gives back only places and scale; §14 deviation 7 was this trap) | draw the ash over the weapon and leave the model alone; or the lead adds the restore to `cine-end` (a shared change) |
+| 5 | 西's victim attack; 南's victim sunk | the victim's own first-attack clip is a kit lookup (fallback: a generic flinch-in); a body under y 0 may show through the plaza | look it up from the kit's `:commands`; do not sink him: the pile look covers him |
+| 6 | the captions | 旭 殘 獄 衣 葬 陣 億 and others may be missing from the baked caption glyphs | an offline bake step (`tools/glyph-bake.py`) in K4 |
+
+### 15.4 Decisions (AskUserQuestion, 2026-11-20; the user's answer in bold)
+
+| # | Question | Answer | Rejected |
+|---|---|---|---|
+| D1 | How literal are the dead? | **「焦黑骷髏配上紅色高光」**: black charred skeletons, skulls visible, the highlights red (the user's own mix of a and b) | bone-white highlights (the manga's); crimson bones on red cracks (the anime's); abstract hands and ink |
+| D2 | The young Yamamoto in 西's Kikon | **the user's own storyboard** (§15.3.2, quoted there): no young Yamamoto, no grab / throw; the slow walk, the pass-through, the rising flames | an 8 f silhouette; a young body; none |
+| D3 | 東's erased line in play | **「黑色虛空帶」**: a black void strip, held 20 f, then filled by ash | the slit and a scorch line only; a scar for the round |
+| D4 | Fire in the Bankai | **「只有西和北有火」**: orange flame only in 西 and 北; every other look charcoal + an ember line | ember-only everywhere; fire on every move |
+
+Consequence of D1: the dead's red sits near Kenpachi's and Ichigo's blood hue; the red is kept to thin highlights on black (bone edges,
+eye sockets, the cracks), never a fill, so a skeleton still reads as charcoal from the arena camera. The lead decides the rest from stills
+(the wall's height, 南's stance offset, frame counts).
+
+### 15.5 Later batches (outline)
+
+- **Shikai**: looks first: NS1a's spiral, NS1b's "unknown fire" tell and column, NS1c's tornado (its own look: 北 no longer borrows it),
+  the flame's size by heat paid (small to white-hot). Then the three stances (1 the hip draw, 2 the level point, 3 the hand on the planted
+  pommel), own clips for NS3a / NS3b (today J2's and J1's), NS2b, AS1-AS3; J1's S14 tell re-keyed. Then three Kikon storyboards
+  (the tornado closing in / ENNETSU JIGOKU / the turn away and the late split).
+- **爆炎**: the bared body exists. A flame trail on J1 / J2 as a draw hook (no new clips), IKKOTSU exists, the tracking tornado's look,
+  ENNETSU's pillar rows, the true NADEGIRI's long recovery, the scars' glow by heat. Open: whether it keeps the Shikai's stances and
+  Kikon cinematics or gets its own.
