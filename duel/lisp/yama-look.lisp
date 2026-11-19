@@ -111,7 +111,8 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (w (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz)) (life (hazard-life hz))
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx)
          (k (f-clamp (* 0.98f0 (/ (i->f (- life age)) 6f0)) 0f0 0.98f0))
-         (trav (f-min 2.5f0 (* (hazard-speed hz) (/ (i->f age) 60f0)))) (seed (* 7f0 yaw)))
+         (trav (f-min 2.5f0 (* 0.1f0 (i->f age)))) (seed (* 7f0 yaw)))   ; (ponytail: 6 m/s; AS3b's 8 m/s trail lags a little.
+                                                                       ;  HAZARD-SPEED / -PX reads boxed a float here: 16 B a draw)
     (declare (single-float x z w yaw fx fz px pz k trav seed) (fixnum age life))
     (when (> trav 0.1f0)
       (toon-ground-seg (- x (* trav fx)) (- z (* trav fz)) (+ x (* -0.5f0 fx)) (+ z (* -0.5f0 fz)) 0.012f0 (* 0.55f0 w) 0.2f0 1f0 seed 0.3f0
@@ -235,42 +236,41 @@ on the disc's edge with an ember hairline while it is hot. A look."
     nil))
 
 ;;; ---------------------------------------------------------------- L10 北's band (NS 北: the :wave)
-(defmacro %ya-sheet (x z ux uz w lx ly lz pal k seed)
-  "A flat toon parallelogram standing on the ground: its base from (X Z) - W (UX UZ) to (X Z) + W (UX UZ) (a unit vector), its top edge the
-base moved by (LX LY LZ); field across its height (inked base and top), heat 1 at the base .. 0.3 at the top (it erodes from the top as K
-fades). 8 panels. Single-float forms; 0 B."
-  `(let* ((%x ,x) (%z ,z) (%ux ,ux) (%uz ,uz) (%w ,w) (%lx ,lx) (%ly ,ly) (%lz ,lz) (%pk (toon-a ,pal ,k)) (%sd (- -1f0 (f-abs ,seed))))
-     (declare (single-float %x %z %ux %uz %w %lx %ly %lz %pk %sd))
+(defmacro %ya-band (x z ux uz w y0 rise bw pal k seed)
+  "A flat toon band standing across the line (X Z) - W (UX UZ) .. (X Z) + W (UX UZ) (a unit vector): its lower edge rising from Y0 at the
+first end by RISE to the other, BW tall; field across its height (both long edges inked), heat 1 at the low end .. 0.4 at the high one (it
+erodes from there as K fades). 8 panels. Single-float forms; 0 B."
+  `(let* ((%x ,x) (%z ,z) (%ux ,ux) (%uz ,uz) (%w ,w) (%y0 ,y0) (%ri ,rise) (%bw ,bw) (%pk (toon-a ,pal ,k)) (%sd (- -1f0 (f-abs ,seed))))
+     (declare (single-float %x %z %ux %uz %w %y0 %ri %bw %pk %sd))
      (with-fx-verts (%d %o :toon 48)
        (dotimes (%i 8)
-         (let* ((%a (* %w (- (* 0.25f0 (i->f %i)) 1f0))) (%b (+ %a (* 0.25f0 %w)))
-                (%x0 (+ %x (* %a %ux))) (%z0 (+ %z (* %a %uz))) (%x1 (+ %x (* %b %ux))) (%z1 (+ %z (* %b %uz))))
-           (declare (single-float %a %b %x0 %z0 %x1 %z1))
-           (vtx %x0 0.01f0 %z0 -1f0 0f0 1f0 %sd 0.12f0 %pk)
-           (vtx %x1 0.01f0 %z1 -1f0 0f0 1f0 %sd 0.12f0 %pk)
-           (vtx (+ %x1 %lx) %ly (+ %z1 %lz) 1f0 0f0 0.3f0 %sd 0.12f0 %pk)
-           (vtx %x0 0.01f0 %z0 -1f0 0f0 1f0 %sd 0.12f0 %pk)
-           (vtx (+ %x1 %lx) %ly (+ %z1 %lz) 1f0 0f0 0.3f0 %sd 0.12f0 %pk)
-           (vtx (+ %x0 %lx) %ly (+ %z0 %lz) 1f0 0f0 0.3f0 %sd 0.12f0 %pk))))))
+         (let* ((%u0 (* 0.125f0 (i->f %i))) (%u1 (+ %u0 0.125f0)) (%a (* %w (- (* 2f0 %u0) 1f0))) (%b (* %w (- (* 2f0 %u1) 1f0)))
+                (%x0 (+ %x (* %a %ux))) (%z0 (+ %z (* %a %uz))) (%x1 (+ %x (* %b %ux))) (%z1 (+ %z (* %b %uz)))
+                (%ya (+ %y0 (* %u0 %ri))) (%yb (+ %y0 (* %u1 %ri))) (%h0 (- 1f0 (* 0.6f0 %u0))) (%h1 (- 1f0 (* 0.6f0 %u1))))
+           (declare (single-float %u0 %u1 %a %b %x0 %z0 %x1 %z1 %ya %yb %h0 %h1))
+           (vtx %x0 %ya %z0 -1f0 0f0 %h0 %sd 0.12f0 %pk)
+           (vtx %x1 %yb %z1 -1f0 0f0 %h1 %sd 0.12f0 %pk)
+           (vtx %x1 (+ %yb %bw) %z1 1f0 0f0 %h1 %sd 0.12f0 %pk)
+           (vtx %x0 %ya %z0 -1f0 0f0 %h0 %sd 0.12f0 %pk)
+           (vtx %x1 (+ %yb %bw) %z1 1f0 0f0 %h1 %sd 0.12f0 %pk)
+           (vtx %x0 (+ %ya %bw) %z0 1f0 0f0 %h0 %sd 0.12f0 %pk))))))
 
 (defun-fast yama-north-look (hz rdt)
-  "北's band (L10, the NS wave: 2 x HAZARD-SIZE = 4 m wide, 20 m/s): a white sheet leaning ~35 deg across its width, 2.6 m tall, an INK
-backing just behind it and an orange flame rim on its two edges (北 is one of the two places with fire, D4); a scorched ASH strip on the
-floor from where it started. A look."
+  "北's band (L10, the NS wave: 2 x HAZARD-SIZE = 4 m wide, 20 m/s): one white band rising diagonally across its whole width (0.2 m up at
+his left end to 2.0 m at his right, 0.64 m tall: the passing cut, ~25 deg; the gaps under and over it keep the foe in view), an orange
+flame rim above and below it (北 is one of the two places with fire, D4), an INK band just behind; a scorched ASH strip on the floor from
+where it started. A look."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (w (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz)) (life (hazard-life hz))
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5)))
          (k (f-clamp (* 0.98f0 (/ (i->f (- life age)) 6f0)) 0f0 0.98f0))
-         (trav (* (hazard-speed hz) (/ (i->f age) 60f0))) (lx (* 0.57f0 2.6f0)) (ly (* 0.82f0 2.6f0)))
-    (declare (single-float x z w yaw fx fz px pz dr sd k trav lx ly) (fixnum age life))
+         (trav (* 0.3333f0 (i->f age))))                  ; (20 m/s, 北's wave only: HAZARD-SPEED's read boxed a float, 16 B a draw)
+    (declare (single-float x z w yaw fx fz px pz dr sd k trav) (fixnum age life))
     (toon-ground-seg (- x (* trav fx)) (- z (* trav fz)) x z 0.012f0 (* 0.5f0 w) 0.2f0 1f0 (+ 3f0 sd) 0.3f0 (toon-a +pal-ash+ (* 0.5f0 k)))
     (toon-ground-seg (- x (* trav fx)) (- z (* trav fz)) x z 0.014f0 (* 0.3f0 w) 0.2f0 1f0 (+ 4f0 sd) 0.2f0 (toon-a +pal-ink+ (* 0.8f0 k)))
-    (%ya-sheet (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) px pz (+ w 0.12f0) (* lx px) (+ ly 0.12f0) (* lx pz) +pal-ink+ k (+ 40f0 sd))   ; behind
-    (%ya-sheet x z px pz w (* lx px) ly (* lx pz) +pal-hit+ k (+ 50f0 sd))
-    (dotimes (i 2)                                       ; the flame rims on its two edges
-      (let* ((sg (if (= i 0) -1f0 1f0)) (bx (+ x (* sg w px))) (bz (+ z (* sg w pz))))
-        (declare (single-float sg bx bz))
-        (toon-ribbon (bx 0f0 bz) ((* lx px) ly (* lx pz)) (0.1f0 0.05f0) :seed (- -60f0 sg sd) :wob 0.3f0 :pal +pal-flame+ :k k :segs 5)))
+    (%ya-band (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) px pz (+ w 0.1f0) 0.05f0 1.8f0 0.95f0 +pal-ink+ k (+ 40f0 sd))   ; the ink behind it
+    (%ya-band x z px pz w 0.12f0 1.8f0 0.8f0 +pal-flame+ k (+ 45f0 sd))                     ; the flame rims (above and below the white)
+    (%ya-band (- x (* 0.03f0 fx)) (- z (* 0.03f0 fz)) px pz w 0.2f0 1.8f0 0.64f0 +pal-hit+ k (+ 50f0 sd))   ; the white band
     (%light x 1.3f0 z 1f0 0.55f0 0.3f0 6f0 (* 2f0 k) 7)
     nil))
 
@@ -284,7 +284,8 @@ three ribbons, 0.9 m out each side). Single-float forms; 0 B."
      (dotimes (%i 14)
        (let* ((%f (i->f %i)) (%a (+ (* 0.4488f0 %f) (* 0.3f0 (hash01 %f ,seed)))) (%c (f-cos %a)) (%s (f-sin %a))
               (%hh (* (- 1.3f0 (* 0.5f0 %g)) (+ 0.7f0 (* 0.5f0 (hash01 (+ %f %dr) ,seed)))
-                      (+ 0.25f0 (* 0.75f0 (%near-cam (+ ,x (* %rr %c)) (+ ,z (* %rr %s)) 1.2f0 3.5f0))))))   ; (small by the lens)
+                      (let ((%n (%near-cam (+ ,x (* %rr %c)) (+ ,z (* %rr %s)) 1.5f0 4.5f0))) (declare (single-float %n))
+                        (+ 0.08f0 (* 0.92f0 %n %n))))))   ; (small by the lens: the behind camera keeps the fight)
          (declare (single-float %f %a %c %s %hh))
          (%tongue (+ ,x (* %rr %c)) 0.04f0 (+ ,z (* %rr %s)) (* 0.3f0 %hh %c) %hh (* 0.3f0 %hh %s) 0.16f0 +pal-flame+ %k (+ ,seed %f %dr)
                   (+ %dr %f) 0.03f0 :segs 4)))
@@ -376,18 +377,25 @@ block, the fire hexagon facing the attacker (VFX-GARB-BLOCK), and the scorch on 
         (vfx-scorch (aref v 0) (aref v 1) (aref v 2))))))
 
 ;;; ---------------------------------------------------------------- the consing probe (debug 87448)
+(defvar *ya-dq-n* (find-symbol "*DQ-N*" :engine) "The engine's draw count (render.lisp, not exported): the probe rewinds it.")
 (defun yama-look-consing ()
-  "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count)."
+  "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count),
+after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture)."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
-        (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :size 1f0 :life 80 :age 20 :speed 6f0))
+        (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
         (wall (make-hazard :kind :ya-wall :x 0f0 :z -1.2f0 :size 1.6f0 :life 90 :age 84))
         (fall (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.6f0 :life 30 :age 2))
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
-        (north (make-hazard :kind :wave :x 0f0 :z -6f0 :size 2f0 :life 42 :age 15 :speed 20f0))
+        (north (make-hazard :kind :wave :x 0f0 :z -6f0 :px 0f0 :pz -5.67f0 :size 2f0 :life 42 :age 15 :speed 20f0))
         (pos (pos-of *p1*)) (yaw (yaw-of *p1*)))
-    (macrolet ((cons-per (name form)                    ; (debug.lisp's CONS-PER loads after this file: the same, here)
-                 `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (format nil "~a ~d" ,name (- (cons-bytes) c0)))))
+    (macrolet ((cons-per (name form)                    ; (debug.lisp's CONS-PER, which loads after this file, plus a warm-up: the
+                 `(let ((n0 (symbol-value *ya-dq-n*)))   ;  engine's draw queue doubles at a new high-water mark, so the
+                    (dotimes (i 10) ,form)                ;  measured draws get the room the warm-up made: the steady state)
+                    (setf (symbol-value *ya-dq-n*) n0)
+                    (let ((c0 (cons-bytes)))
+                      (dotimes (i 10) ,form)
+                      (prog1 (format nil "~a ~d" ,name (- (cons-bytes) c0)) (setf (symbol-value *ya-dq-n*) n0))))))
      (flet ((fresh () (ya-dead-reset)))
       (log-msg "yama look consing (10 draws, B): ~{~a~^, ~}"
                (list (cons-per "hands" (progn (fresh) (yama-hands-look hands 0.016f0)))
