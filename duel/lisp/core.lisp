@@ -24,6 +24,12 @@ same step: same-class ties cancel (「先打到的贏，如果同時打中就相
              (:as (ecase def (:na :cancel) (:ns :hit) ((:as :sa) (core-later att-t def-t))))
              (:sa (ecase def (:na :hit) (:ns :cancel) ((:as :sa) (core-later att-t def-t))))))))
 
+(defun core-turn-armor-verdict (verdict att armored)
+  "VERDICT on a defender inside a turn-move armour (ARMORED: an NS segment's :params :turn-armor, core-sim CORE-TURN-ARMOR-P): an NA
+(ATT) that would cancel is absorbed, as by a turn move (SA / AS); every other verdict stands, so an AS still beats it (Yamamoto's 西 NSb,
+DUEL_YAMA_CORE §7.4)."
+  (if (and armored (eq att :na) (eq verdict :cancel)) :absorb verdict))
+
 (defun core-later (att-t def-t)
   "Two turn moves: the one that started later wins (:HIT when the attacker's move did, :ABSORB when the defender's), the
 same frame (or an unknown start) cancels."

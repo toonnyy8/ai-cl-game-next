@@ -293,6 +293,21 @@ the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a seal
     (paint-pop)
     nil))
 
+(defun-fast lhud-marks-at (side x cy u mir)
+  "Yamamoto's Bankai marks next to the pointer (DUEL_YAMA_CORE §4: the side's LHUD-MARKS, [10]): each held mark's kanji (東 西 南) .8u in
+the ember colour with the names' shadow, .25u apart, from X (the start edge; MIR: leftward), centred on CY. Nothing for any other kit."
+  (declare (fixnum side) (single-float x cy u))
+  (let ((marks (side-c side 10)) (kz (* 0.8f0 u)))
+    (declare (single-float kz))
+    (when (consp marks)
+      (dolist (m marks)
+        (let* ((kw (text-w m +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0))) (gx (if mir (- x kw) x)))
+          (declare (single-float kw ky gx))
+          (paint-pen! (f-floor+ gx) (+ (f-floor+ ky) (lay-dpr)) kz) (paint-text m +f-kanji+ +c-shade+)
+          (paint-pen! (f-floor+ gx) (f-floor+ ky) kz) (paint-text m +f-kanji+ +c-burst-o+)
+          (setf x (if mir (- x kw (* 0.25f0 u)) (+ x kw (* 0.25f0 u)))))))
+    nil))
+
 (defun-fast lhud-seal-row (side mir)
   "The pointer seals in a row (.hptr: gap .35u, MIR row-reverse) and the live one's name (.pn .7u mono, .16em, margin-inline .5u).
 *LHUD-A*: x (the start edge: left, or right when MIR), the row's centre y, the seal's size, u."
@@ -313,7 +328,8 @@ the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a seal
              (px (if mir (- x (* 0.5f0 u) pw) (+ x (* 0.5f0 u)))))
         (declare (single-float pz pw px))
         (paint-pen! (f-floor+ px) (f-floor+ (+ (- cy (* 0.5f0 pz)) (line-baseline +f-mono+ pz 1f0))) pz :spacing 0.16f0)
-        (paint-text name +f-mono+ +c-steel+)))
+        (paint-text name +f-mono+ +c-steel+)
+        (lhud-marks-at side (if mir (- px (* 0.5f0 u)) (+ px pw (* 0.5f0 u))) cy u mir)))
     nil))
 
 (defparameter +c-pip+ (rgba #x0d0d12)) (defparameter +c-pip-line+ (rgba #xeeeeea 0.8))

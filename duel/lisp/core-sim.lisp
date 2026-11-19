@@ -84,8 +84,10 @@ a level gained in the route opens segments from the next route on). No hook: 99 
   (<= (getf (mv-params mv) :lv 0) (fighter-lv-cap f)))
 
 (defun core-sp-start! (e f)
-  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it started."
-  (let ((mv (kit-core-move (fighter-kit f) :ns (fighter-ptr f))))
+  "SP from a free state: NS under the pointer (the next segment pointer's style), or the move the kit's :ns-pick hook names instead (an
+armed 北, DUEL_YAMA_CORE §7.4: the pointer stays as it is). T when it started."
+  (let ((mv (or (let ((h (kit-hook (fighter-kit f) :ns-pick))) (and h (funcall h e f)))
+                (kit-core-move (fighter-kit f) :ns (fighter-ptr f)))))
     (when mv
       (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
       (core-snap-lv! e f)
@@ -143,7 +145,8 @@ T when something started."
   "May E (fighter F) switch pointer now (DUEL_SP §3, DUEL_SUBLIMATION §17.8)? SP-SWITCH-OK-P over his gauges and route: not switched yet
 (FIGHTER-TMP), a second NS route, the awakening gauge full once (AW-FULL-P), and SP above 0. Reads no brain: a human's stick, or a CPU's
 press (CORE-AI's CAI-SWITCH-PRESS decides whether a CPU presses one), reach it through the vpad alone (REFACTOR_2026-11 §11.5.7 item 6)."
-  (sp-switch-ok-p (gauges-fs (gauges e)) (aw-full-p (gauges e)) (plusp (fighter-tmp f)) (length (getf (kit-core (fighter-kit f)) :ns))))
+  (and (sp-switch-ok-p (gauges-fs (gauges e)) (aw-full-p (gauges e)) (plusp (fighter-tmp f)) (length (getf (kit-core (fighter-kit f)) :ns)))
+       (let ((h (kit-hook (fighter-kit f) :switch-ok))) (or (null h) (funcall h e f)))))   ; (a kit's refusal: Yamamoto's 北, DUEL_YAMA_CORE §7.4)
 
 (defun core-switch-target (e f)
   "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: once a route, before the awakening
@@ -235,11 +238,20 @@ a defender in a parry's window (:parry) skips the triangle, so the parry catches
                        (ca (if hz (hazard-cls hz) (and mv (eq mv (fighter-move fa)) (fighter-cls fa))))
                        (cd (core-window-class fd)))
                   (if (and ca cd (not (eq (pending-state h) :parry)))   ; a parry's window catches first (Kenpachi's tame, DUEL_KEN_V3 §35.1)
-                      (core-verdict ca cd
-                                    :simul (loop for h2 in hits thereis (and (eq (pending-att h2) def) (eq (pending-def h2) att)
-                                                                             (pending-mv h2) (not (pending-hazard h2))))
-                                    :att-t (if hz (hazard-sp-src hz) (fighter-cls-t fa)) :def-t (fighter-cls-t fd))
+                      (core-turn-armor-verdict
+                       (core-verdict ca cd
+                                     :simul (loop for h2 in hits thereis (and (eq (pending-att h2) def) (eq (pending-def h2) att)
+                                                                              (pending-mv h2) (not (pending-hazard h2))))
+                                     :att-t (if hz (hazard-sp-src hz) (fighter-cls-t fa)) :def-t (fighter-cls-t fd))
+                       ca (core-turn-armor-p fd))
                       :hit))))
+
+(defun core-turn-armor-p (f)
+  "Is F inside the turn-move armour of his move in play: its :params :turn-armor, from move frame *ARMOR-FROM* to its startup's end
+(Yamamoto's 西 NSb / NSc, DUEL_YAMA_CORE §7.4, Y11)? No other move has one."
+  (let ((mv (fighter-move f)))
+    (and mv (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (getf (mv-params mv) :turn-armor)
+         (<= *armor-from* (fighter-sf f)) (< (fighter-sf f) (mv-s mv)))))
 
 (defun core-nohit! (h verdict)
   "Apply a :cancel or :absorb verdict of pending hit H: no damage. A cancel counts as landed for both fighters, the one whose hit

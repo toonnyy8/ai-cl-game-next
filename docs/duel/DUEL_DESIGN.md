@@ -490,6 +490,19 @@ route totals and fails first).
 | AS2 | YA-AS2 40 / 15, YA-AS2B 60 / 25 | 40 |
 | AS3 | YA-AS3 40 / 15, YA-AS3B 50 / 20, YA-AS3C 110 / 45 | 80 |
 
+**Yamamoto Bankai (ZANKA NO TACHI)** (`(find-kit :yamamoto :bankai)`, cost multiplier 1.00)
+
+| Pointer | Segments: move damage / cost | Total |
+|---|---|---|
+| NS1 | YA-E-N1A 80 / 30, YA-E-N1B 70 / 30, YA-E-N1C 120 / 50 | 110 |
+| NS2 | YA-E-N2A 90 / 35, YA-E-N2B 40 / 15, YA-E-N2C 90 / 35 | 85 |
+| NS3 | YA-E-N3A 40 / 15, YA-E-N3B 50 / 20, YA-E-N3C 70 / 30 | 65 |
+| AS1 | YA-E-AS1 50 / 20 | 20 |
+| AS2 | YA-E-AS2 40 / 15, YA-E-AS2B 70 / 30 | 45 |
+| AS3 | YA-E-AS3 40 / 15, YA-E-AS3B 50 / 20, YA-E-AS3C 100 / 40 | 75 |
+| NS-EXTRA1 | YA-E-N4 220 / 60 | 60 |
+| AS-EXTRA1 | YA-E-AS4 180 / 60 | 60 |
+
 <!-- sp-cost-table end -->
 
 ## 6. Characters

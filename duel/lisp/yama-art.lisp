@@ -245,13 +245,13 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
   "KIT-HOOK :pose: the hem's swing on the posed joints (%YA-HEM-POSE; none in the Bankai's robe)."
   (let ((f (fighter e)))
     (%ya-hem-pose (model-joints m) *ya-hem* (* 16 (fighter-side f))
-                  (if (member (kit-form (fighter-kit f)) '(:bankai-east :bankai-west)) 0 1))))
+                  (if (eq (kit-form (fighter-kit f)) :bankai) 0 1))))
 
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; Bankai East's smoke thread from the drawn blade's tip."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
-    (when (and (eq (kit-form (fighter-kit f)) :bankai-east) (model-weapon m) (> (model-alpha m) 0.5)
+    (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (and mv (mv-planted mv) (eq (fighter-phase f) :main))))
       (let ((tp *ya-tip*))
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) tp)
@@ -952,6 +952,16 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
        (:spine :flex 35) (:thigh-l :flex 60) (:knee-l :flex 60) (:thigh-r :flex -25))
   (0.9 (:chest :twist 72) (:root :f 0.8 :u -0.28))
   (1.3 :ya-stance))
+
+;; the core Bankai's pointer stances (DUEL_YAMA_CORE §7.3, batch 1 stage C placeholders on the old poses; pointer 1 東 is :ya-e-stance):
+;; 2 西 the arms open (SHONETSU's flare pose), 3 南 the blade upright before the face, point down (MINAMI's incantation, its f9)
+(defclip :ya-st-nishi (2.4 :loop t :base :ya-shonetsu-hit)
+  (0) (1.2 (:root :u -0.1) (:arm-l :side 84) (:arm-r :side 70)))
+(defpose :ya-kaka-up (:base :ya-e-stance)
+  (:root :u 0.02) (:spine :flex -6) (:chest :twist 20) (:head :flex 4)
+  (:arm-r :flex 70 :side -40) (:elbow-r :flex 110) (:hand-r :twist -140 :flex -80))
+(defclip :ya-st-minami (2.4 :loop t :base :ya-kaka-up)
+  (0) (1.2 (:root :u 0.03) (:arm-r :flex 74) (:head :flex 2)))
 
 ;;; ---------------------------------------------------------------- South's hands (Kaka Jumanokushi Daisojin)
 (defpose :sk-crouch ()

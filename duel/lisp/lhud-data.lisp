@@ -20,7 +20,12 @@
   ;; FULL the intro's vertical name column (hud.js full; its display tier: lhud-charset.lisp's bigkj)
   (vector (list "YAMAMOTO" (kj "山本")
                 (list (list (kj "火") (zh "不知火 · SHIRANUI")) (list (kj "城") (zh "城郭炎上 · JOKAKU ENJO")) (list (kj "撫") (zh "撫斬 · NADEGIRI")))
-                nil (kj "山本元柳斎重國"))   ; (his Shikai's pointers, DUEL_YAMA_CORE §7.1; batch 1, 2026-11-19)
+                ;; the Bankai's 東 / 西 / 南 (§7.3, stage C); NORTH (the tag while 北 is armed): every name 天地灰尽's, the seals kept
+                (list (list "ZANKA NO TACHI" (list (kj "東") (zh "東 · KYOKUJITSUJIN")) (list (kj "西") (zh "西 · ZANJITSU GOKUI"))
+                            (list (kj "南") (zh "南 · DAISOJIN")))
+                      (list "ZANKA NO TACHI NORTH" (list (kj "東") (zh "北 · TENCHI KAIJIN")) (list (kj "西") (zh "北 · TENCHI KAIJIN"))
+                            (list (kj "南") (zh "北 · TENCHI KAIJIN"))))
+                (kj "山本元柳斎重國"))   ; (his Shikai's pointers, DUEL_YAMA_CORE §7.1; batch 1, 2026-11-19)
           (list "KENPACHI" (kj "更木")
                 (list (list (kj "拖") (zh "拖 · DRAG")) (list (kj "肩") (zh "肩 · SHOULDER")) (list (kj "構") (zh "構 · CHUDAN")))
                 (list (list "SHIKAI" (list (kj "旋") (zh "旋 · KAITEN")) (list (kj "墜") (zh "墜 · TSUITEN")))
@@ -54,7 +59,9 @@
     (cons "ORE NI KIRENEE MON WA NEE" (kj "俺に斬れねえもんはねえ")) (cons "NOMIHOSE" (kj "飲み干せ"))
     (cons "KAMICHIGIRI" (kj "噛み千切り")) (cons "TATE-GOTO" (kj "盾ごと")) (cons "NAGURI-TOBASHI" (kj "殴り飛ばし"))
     (cons "MAPPUTATSU" (kj "真っ二つ")) (cons "SHIRANUI" (kj "不知火")) (cons "JOKAKU ENJO" (kj "城郭炎上")) (cons "NADEGIRI" (kj "撫斬"))
-    (cons "TAIMATSU" (kj "松明"))))
+    (cons "TAIMATSU" (kj "松明")) (cons "KYOKKO" (kj "旭光")) (cons "KYOKUJITSUJIN" (kj "旭日刃")) (cons "SHONETSU JIGOKU" (kj "焦熱地獄"))
+    (cons "ZANJITSU GOKUI" (kj "残日獄衣")) (cons "DAISOJIN" (kj "大葬陣")) (cons "TENCHI KAIJIN" (kj "天地灰尽"))
+    (cons "ZANKA NO TACHI" (kj "残火の太刀"))))
 
 ;;; ---------------------------------------------------------------- pure lookups (each called only when its model string changed)
 (defun lhud-fighter (roster+1)
@@ -102,12 +109,24 @@ sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / 
                       ((string= tg "KAZESHINI OUT") (list (cons (zh "風死") nil) (cons " · " t) (cons "THROWN" nil)))
                       ((string= tg "KAZESHINI ...") (list (cons (zh "風死") nil) (cons " · " t) (cons "RETURNING" nil)))
                       (n (list (cons (zh "分身") nil) (cons " · " t) (cons (format nil (zh "×~d") n) nil)))
-                      ((member tg '("NOME" "UDE" "KAIHO" "HEAT" "GOKUEN" "") :test #'string=) nil)
+                      ((member tg '("NOME" "UDE" "KAIHO" "HEAT" "GOKUEN" "NORTH" "") :test #'string=) nil)
+                      ((lhud-mark-tag-p tg) nil)                           ; (Yamamoto's marks: drawn by the pointer, LHUD-MARKS)
                       (t (list (cons (string-upcase tg) nil)))))
            (out (if kin (append out (when out (list (cons " · " t))) (list (cons (zh "近") nil))) out)))   ; (one glyph: the phone's plate, §29)
       (append (when (plusp (length form)) (list (cons form nil)))
               (when (and (plusp (length form)) out) (list (cons " · " t)))
               out))))
+
+(defun lhud-mark-tag-p (tag)
+  "Is TAG Yamamoto's Bankai marks tag (\"MARK 13\": the marks held, by number; yama.lisp YAMA-BK-TAG)?"
+  (and (> (length tag) 5) (string= "MARK " tag :end2 5)))
+
+(defun lhud-marks (tag)
+  "The marks drawn next to the pointer by the tag (DUEL_YAMA_CORE §4: Yamamoto's Bankai): \"MARK 13\" -> (東 南); NORTH (北 armed, the
+marks still held) -> all three; else NIL."
+  (let ((tg (or tag "")) (k (list (kj "東") (kj "西") (kj "南"))))
+    (cond ((string= tg "NORTH") k)
+          ((lhud-mark-tag-p tg) (loop for i from 1 to 3 when (find (digit-char i) tg :start 5) collect (nth (1- i) k))))))
 
 (defun lhud-kit-kind (tag)
   "The kit strip under the bar by the tag (DUEL_WEBUI §13): 1 NOME, 2 UDE, 3 KAIHO, 4 Yamamoto's HEAT, 5 his 爆炎 GOKUEN (DUEL_YAMA_CORE §3),
