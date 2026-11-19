@@ -1255,8 +1255,8 @@ commit (the last of the batch), because it moves sim ticks (19.2).
 | 52-72 | `shot-on a 40 3.4 0.5 :look 1.1` (portrait 4.6), lens 40 | the garb ignites (built over 4 f): 10 orange tongues from his feet to ~1.3 m leaning out, two shoulder wings of three flame ribbons ~1.2 m out, the molten ring at his soles with a white-hot core; `ya-e-advance` f0 held (the arms open) | f56 caption 残日獄衣, mark 西, ZANJITSU GOKUI, hanko; explode 0.5, the rising roar (`:awaken-rise` 0.7), shake 0.15 | 40 deg for 10: at 10 the victim's back filled the frame; caption 残 not 殘 (deviation 3) |
 | 72-124 | `shot-pair a v 1 4.6 1.2` each step (portrait 6.4), lens 46 | he walks forward 0.029 m a frame (`ya-e-advance` re-started f72, f89, f106: three dragging steps), the victim backs away 0.026 m a frame staggering (`:sh-stagger` x0.5 at f72, f98), weaponless; molten footprints every 9 f behind him | steps f80 f97 f114 | as written (1.5 m walked, 1.35 m backed) |
 | 124-130 | `shot-on v 0 2.6 1.4 :look 1.3`, lens 50 | the instant: a hard cut, he stands 2 m beyond the victim, the two back to back (both turned away); a white-hot streak (flame and white) from his old side through the victim to him, fading over 10 f | negative 2, cut-heavy 1.2 | as written: a cut between two placements, no body crossing |
-| 130-160 | `cine-cam` low, in front of and off to his side (1.5 m ahead, 3.5 m aside, 0.4 m up) aimed past him 1.2 m toward the victim, lens 40 | the column rises off the victim (10 thin orange tongues at 0.55 m to 3 m, an orange ring); f134 the Konpaku, `silhouette-black` on him (charred: CINE-END undoes it), `:sh-crumple`; ash streams up off him; f150 `:sh-down` | f130 explode 0.7, sizzle; f134 negative 2, `cine-shatter`, f136 manga 10, konpaku-shatter, shake 0.4 | off to his side, not straight behind (deviation 1): his garb and the column read apart |
-| 160-180 | `shot-pair a v 1 7.0 1.6` (portrait 9.0), lens 44 | he never turns; the garb gutters (from f156, gone by f168); the charred victim smokes on the floor | `vfx-burnout` (garb t), black smoke from f150, caption exits | as written |
+| 130-160 | `cine-cam` low, in front of and off to his side (1.5 m ahead, 3.5 m aside, 0.4 m up) aimed past him 1.2 m toward the victim, lens 40 | the column rises off the victim (10 thin orange tongues at 0.55 m to 3 m, an orange ring); f134 the Konpaku, `silhouette-black` on him (charred: CINE-END undoes it), `:sh-crumple`; ash streams up off him; f150 `:sh-down` | f130 explode 0.7, sizzle; f134 negative 2, `cine-shatter`, f136 manga 10, konpaku-shatter, shake 0.4; f150 the caption exits | off to his side, not straight behind (deviation 1): his garb and the column read apart; the caption out at f150 for f160 (deviation 12) |
+| 160-180 | `shot-pair a v 1 7.0 1.6` (portrait 9.0), lens 44 | he never turns; the garb gutters (from f156, gone by f168); the charred victim smokes on the floor | `vfx-burnout` (garb t), black smoke from f150 | as written |
 
 南 火火十万億死大葬陣 DAISOJIN (192 f; `cine-place a v 5.0`):
 
@@ -1267,8 +1267,8 @@ commit (the last of the batch), because it moves sim ticks (19.2).
 | 50-56 | `shot-on a 0 4.0 4.5 :look 0 :ahead 1.5`, lens 44 | `ya-kaka` from f19 at f48: driven into the plaza on f51 (its S22) | ember cracks: a crack line from the blade to the victim run out in 6 f (the look) and three stage cracks along it (`stage-crack-add`, the round's marks); f51 ground-crack, shake 0.3 | as written |
 | 56-96 | `shot-on v 140 3.6 0.3 :look 0.6` (portrait 4.6), lens 50 | `:sh-bound` (he fights it); L1 at his feet (YAMA-HANDS-LOOK on a stand-in hazard: the crack star and three of the dead), then one more of the dead every 5 f (f61-81) at his knees and sword arm: 8 bodies (YA-DEAD, cap 8); he kneels from f60 (`ya-kaka` f30 held) | bones f56 f61 f71 f81; dust as they break out | lens 50 for 32: at 32 his back filled the frame and hid the dead (deviation 1) |
 | 96-140 | `shot-on a 20 9.0 1.1 :look 1.2`, lens 30 | **he has turned his back** (yaw + 180) and walks toward the camera (`:sh-walk-f` x0.55, 0.02 m a frame); far behind him L5 (YAMA-PILE-LOOK on a stand-in hazard) closes over the victim by f110 and holds; an arm claws out of its crest f126-140 | steps f96 f120, bones f130 | a long lens is a narrow field here: 30 deg at 9 m for "lens 70" at 4.5 m, 20 deg off his line so the pile shows beside him (deviation 4) |
-| 140-146 | the same | f140 the Konpaku, unseen by him: the pile bursts (L5 from its age 16) | negative 2, `back-rim 6`, `cine-shatter`, f142 manga 10, konpaku-shatter, shake 0.35 | as written |
-| 146-192 | `shot-pair a v 1 9.5 3.0` (portrait 13.0, 4.0 up), lens 44 | the pile falls to ash; the victim down (`:sh-down`) in the ring of cracks; he keeps walking | `vfx-ash-burst` x3 (f146), caption exits f160 | 9.5 m for 8: at 8 he walked out of the frame's left edge |
+| 140-146 | the same | f140 the Konpaku, unseen by him: the pile bursts (L5 from its age 16) | negative 2, `back-rim 6`, `cine-shatter`, f142 manga 10, konpaku-shatter, shake 0.35; the caption exits | the caption out at f140 for f160 (deviation 12) |
+| 146-192 | `shot-pair a v 1 9.5 3.0` (portrait 13.0, 4.0 up), lens 44 | the pile falls to ash; the victim down (`:sh-down`) in the ring of cracks; he keeps walking | `vfx-ash-burst` x3 (f146) | 9.5 m for 8: at 8 he walked out of the frame's left edge |
 
 ### 19.2 Is a Kikon cinematic's length sim timing? Yes (only in ticks)
 
@@ -1337,7 +1337,9 @@ So the cinematics move no rule, damage or state; only when the reset (or the K.O
 10. **The probe (87448) rewinds the fx batches too** (it rewound only the draw count): with the 8 new rows its 560 draws overflowed the toon
     batch (`fx-dropped` 6486), so the last rows were measured on the full batch's skip path; each row now ends with "(dropped)" if it still
     overflows (none does).
-11. Debug: 87450-87452 and 87601-87699 claimed inside his 87000-87999 (DUEL_GAMEPLAY "Debug commands"): the stills only; the proof script uses
+12. **西's and 南's captions slice out earlier** (f150 for f160, f140 for f160): in their wide last shots he stands or walks in the caption's
+    third of the frame, under it (the first stills, both aspects).
+13. Debug: 87450-87452 and 87601-87699 claimed inside his 87000-87999 (DUEL_GAMEPLAY "Debug commands"): the stills only; the proof script uses
     commands that exist at 3173bf43, so it runs on a dist built there.
 
 ### 19.4 Stills (untracked)
@@ -1345,13 +1347,14 @@ So the cinematics move no rule, damage or state; only when the reset (or the K.O
 `tests/scripts/duel-yama-k4.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_k4_script`): each cinematic from 87450+i after 2.5 s idle in
 the Bankai, held at one frame per beat (87600+k), landscape (the 9 % letterbox) and portrait (`--mobile --size 390x844`, the deck on):
 `tests/shots/duel-yama-k4-higashi-b0-held` … `b6-hang`, `duel-yama-k4-nishi-b0-held` … `b7-wide`, `duel-yama-k4-minami-b0-held` …
-`b6-wide` (`-phone`; 44 stills); contact sheets `tests/shots/duel-yama-k4-<higashi|nishi|minami>-sheet.png` and `-phone.png`.
+`b6-wide` (`-phone`; 44 stills); contact sheets `tests/shots/duel-yama-k4-<higashi|nishi|minami>-sheet.png` and `-sheet-phone.png`.
 Checked by eye, both aspects: every actor in frame (the held victim, the victim's back, the pair) but in 東's caption shot and 南's
 incantation (Yamamoto alone, as written) and 南's high plant shot (the victim 5 m out, behind the camera, as written); orange flame only in 西
 (the garb, the footprints, the streak, the column; 東 and 南 are ink, ash white and the ember / red hairlines; the victim's own yellow aura is
 his kit's); the charred victim stays visible inside the column and under the rising ash, then down and smoking; no caption leaves the screen
 (no `brush: caption … off the screen` line in either run's log). Two held stills (西's b7 and 南's b6, portrait) show the caption half sliced
-out over Yamamoto: a held cinematic freezes the effect clock, the exit takes 0.3 s in play.
+out over Yamamoto at the frame they hold, which is what play shows there (a held still is the frame as played): in the wide last shots of 西
+and 南 he stood or walked under the caption, so both captions now slice out before those shots (deviation 12); the stills are of that build.
 
 ### 19.5 Checks (all on the final build)
 
@@ -1365,12 +1368,20 @@ out over Yamamoto: a held cinematic freezes the effect clock, the exit takes 0.3
 | Host tests | ALL PASS, 4105 checks (unchanged: the cinematics are drawn code the host tests do not load); `tests/cine-test.lisp` 18, ALL PASS |
 | pkgcheck, debug ranges | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 0 errors (87450-87452, 87601-87699 claimed) |
 | 0 B a frame | debug 87448: `... dead x8 0, east-void 0, west-ash 0, west-walk 0, west-pass 0, west-column 0, south-dead 0, south-pile 0, south-burst 0`, no row "(dropped)" (landscape and portrait runs) |
+| The cinematics in the native sim | a scratch trial file (東 J1 > AS1, 西 J1 J2 > AS2, 南 J1-J3 > AS3 under its pointer, each held into its Kikon, 420 frames each) through `combo-trial.py` with `tools/simgate/trial.lisp`'s `*skip-cines*` set to nil for the run (restored after): the three cinematics play to their end in the native build (`cine YAMA-HIGASHI- / -NISHI- / -MINAMI-CINE`), no Lisp error, the trials after them run; the gates (`gate.lisp` plays cinematics) will meet them once wired |
 | Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs --secs 8` smoke exit 0 |
 
 ### 19.6 Open
 
 - **For the lead / the user: merge the wiring commit or not** (19.2): the cinematics play only through debug 87450-87452 until it is merged;
   merged, each Bankai Kikon under 東 / 西 / 南 adds 72 / 84 / 96 ticks before the reset, as every other kit's per-pointer Kikon does.
+- **For the user: the caption 残日獄衣 shows 残, not the 殘 of their storyboard** (deviation 3): the Japanese form, as 残火の太刀; 殘 is one
+  bake away (`tools/glyph-bake.py`).
+- **For the user: the lens readings** (deviation 4 and 19.1): 南's "long lens 70" built as a narrow 30 deg at 9 m, its ground shot 50 deg for 32
+  (the engine's LENS is a vertical field of view); their call to overrule.
+- **For the lead: an AS route's Kikon plays the cinematic of the pointer held when its SP started**, not the AS's number (CORE-KIKON-CINE
+  reads FIGHTER-SP-PTR): in the native check J1-J3 > AS3 under pointer 1 played 東's (the proof scripts set the pointer first). A rule from
+  before K4, unchanged here.
 - **For the user's eyes**: the pacing (the 22 f of nothing in 東, the walk in 西, the long lens in 南), whether the void reads as depth from
   above, the charred victim inside 西's column, the dead at the victim's feet from the ground camera.
 - The victim's own form aura draws through every shot (in the stills Kenpachi's yellow REIATSU flames, kept by the spot grade): his kit's
