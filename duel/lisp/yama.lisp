@@ -187,9 +187,10 @@
 (defparameter *ya-bind-stun* 60 "南 NSa's bind: frames the victim's feet are held (the old kit's *BIND-STUN*; the lead's placeholder, §14).")
 (defparameter *ya-wall-life* 90 "南 NSc's bone wall: frames it stands, stopping the opponent's waves (§7.3).")
 
-;; NA: the fencer's lunge (§6, A): E-J1 S14 (the old HIZASHI clip slowed: the opener's tell) > E-J2 the rising backhand S7 > E-J3 the dropped-knee
-;; thrust S8 (a stagger, no knockdown, no :ender push: the AS follows). Reach the old clips' drawn tips (1.52 / 1.59 / 1.71).
-(defmove :ya-e-j1 :kind :quick :clip :ya-e-q1 :clip-s 8 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
+;; NA: the fencer's lunge (§6, A): E-J1 S14 (its own clip at S14 since art K2: the opener's held tell) > E-J2 the rising backhand S7 >
+;; E-J3 the dropped-knee thrust S8 (a stagger, no knockdown, no :ender push: the AS follows). Reach the old clips' drawn tips (1.52 / 1.59 /
+;; 1.71).
+(defmove :ya-e-j1 :kind :quick :clip :ya-e-q1 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
   :reach 1.52 :arc 100 :on-hit :flinch)
 (defmove :ya-e-j2 :kind :quick :clip :ya-e-q2 :startup 7 :active 3 :recovery 13 :dmg 38 :adv-block -2
   :reach 1.59 :arc 100 :on-hit :flinch)
@@ -204,14 +205,14 @@
 ;;; ---------------------------------------------------------------- 1 東 KYOKUJITSUJIN: short, exact reach, the highest single hits
 ;; a: KYOKKO, the longest lunge (a 4.6 m line, slide 1.6); b: the sunrise, a rising cut out of the lunge; c: the tip touches the floor and the
 ;; line ahead is erased (a low line, 6 m)
-(defmove :ya-e-n1a :kind :flash :clip :ya-e-kyokko :clip-s 15 :startup 20 :active 3 :recovery 26 :dmg 80 :adv-block -12 :slide 1.6
+(defmove :ya-e-n1a :kind :flash :clip :ya-e-kyokko :startup 20 :active 3 :recovery 26 :dmg 80 :adv-block -12 :slide 1.6
   :vol (:cap 0.2 4.6 1.1 0.3) :on-hit :stagger :callout "KYOKKO" :params (:ns-next :ya-e-n1b))
-(defmove :ya-e-n1b :kind :flash :clip :ya-e-f2 :clip-s 19 :startup 14 :active 4 :recovery 24 :dmg 70 :adv-block -3 :slide 1.6
+(defmove :ya-e-n1b :kind :flash :clip :ya-e-f2 :startup 14 :active 4 :recovery 24 :dmg 70 :adv-block -3 :slide 1.6
   :vol (:cap 0.2 1.56 1.3 0.35) :on-hit :stagger :params (:ns-next :ya-e-n1c))
 (defmove :ya-e-n1c :kind :flash :clip :ya-kyoku :startup 18 :active 5 :recovery 26 :dmg 120 :adv-block -16
   :vol (:cap 0.2 6.0 0.3 0.4) :on-hit :knockback :kb 3.0 :callout "KYOKUJITSUJIN")
 ;; AS1: the tip-touch point-blank, stealing flash-step (30, §7.4); mark 東
-(defmove :ya-e-as1 :kind :sp :clip :ya-kyoku :clip-s 18 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
+(defmove :ya-e-as1 :kind :sp :clip :ya-e-as1 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
   :on-hit :knockdown :callout "KYOKUJITSUJIN" :params (:steal-fs 30 :mark 1))
 
 ;;; ---------------------------------------------------------------- 2 西 ZANJITSU GOKUI: close pressure, armour, the burning body
@@ -279,8 +280,8 @@
   :strings ((:ya-e-j1 :q :ya-e-j2) (:ya-e-j2 :q :ya-e-j3))
   :core (:ns (:ya-e-n1a :ya-e-n2a :ya-e-n3a) :as (:ya-e-as1 :ya-e-as2 :ya-e-as3) :sa :ya-e-sa
          :ns-extra (:ya-e-n4) :as-extra (:ya-e-as4)          ; 北: outside the pointer grammar, picked by the hooks (KIT CORE-ROUTES)
-         :stances (:ya-e-stance :ya-st-nishi :ya-st-minami)   ; 東 the blade level in front / 西 the arms open / 南 the blade upright
-                                                              ;  before the face (placeholders on the old poses)
+         :stances (:ya-st-higashi :ya-st-nishi :ya-st-minami) ; 東 the blade level across / 西 the arms open low / 南 the blade
+                                                              ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last; 北's: its moves' :cine)
          :as-by-press (1 2 3)
          :ns-range ((2.0 5.5) nil (4.0 9.0))   ; the CPU lunges KYOKKO from mid range, plants 南's hands from range
