@@ -369,8 +369,9 @@ crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
 (defun-fast yama-stance-look (pos yaw an)
   "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS facing YAW:
 :YA-ST-NISHI 西's low garb (L8 at rest, the user's D4: 西 has fire): ten orange tongues round his feet up to the knee and two small
-wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as the clip; the clip's own time boxed a float); :YA-ST-MINAMI 南's faint ember cracks (a crack star r 0.5 at his
-feet, its hairline pulsing with the same breath). 東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
+wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as the clip; the clip's own time boxed a float);
+:YA-ST-MINAMI 南's faint ember cracks (six thin ink cracks out to 0.45-0.7 m with ember cores pulsing with the same breath, no ring).
+東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
   (declare (type f32vec pos) (single-float yaw))
   (let* ((c (anim-clip an)) (nm (and c (clip-name c))))
     (when (or (eq nm :ya-st-nishi) (eq nm :ya-st-minami))
@@ -378,7 +379,14 @@ feet, its hairline pulsing with the same breath). 東 has the blade's smoke thre
              (b (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (fx-clock)))))))   ; the breath 0..1 (2.4 s, the stance clips' loop)
         (declare (single-float x z dr seed b))
         (if (eq nm :ya-st-minami)
-            (%ya-crack-star x z 0.5f0 0.55f0 (+ 0.45f0 (* 0.4f0 b)) seed)
+            (dotimes (i 6)                               ; six thin cracks out from under his feet, no ring (faint: not L1's tell)
+              (let* ((f (i->f i)) (a (+ (* 1.0472f0 f) (hash01 f seed))) (co (f-cos a)) (si (f-sin a))
+                     (r2 (+ 0.45f0 (* 0.25f0 (hash01 f 3.1f0)))))
+                (declare (single-float f a co si r2))
+                (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* r2 co)) (+ z (* r2 si)) 0.01f0 0.022f0 1f0 0.3f0
+                                 (+ seed f) 0.2f0 (toon-a +pal-ink+ 0.6f0))
+                (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* 0.85f0 r2 co)) (+ z (* 0.85f0 r2 si)) 0.013f0 0.008f0
+                                 0.3f0 0.3f0 (+ seed f 9f0) 0.1f0 (toon-a +pal-ember+ (* 0.6f0 (+ 0.45f0 (* 0.4f0 b)))))))
             (let* ((px (f-cos yaw)) (pz (- (f-sin yaw))))   ; (his right, as YAMA-BK-MOVES's (- fz) fx)
               (declare (single-float px pz))
               (dotimes (i 10)                            ; the tongues to the knee

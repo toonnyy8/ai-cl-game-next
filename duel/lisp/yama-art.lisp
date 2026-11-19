@@ -708,14 +708,14 @@ smoke thread from the drawn blade's tip."
 (defclip :ya-st-higashi (2.4 :loop t :base :ya-st-higashi)
   (0) (1.2 (:chest :flex -8) (:root :u -0.02) (:hand-r :flex -10)))
 (defpose :ya-st-nishi (:base :ya-e-stance)            ; 西 the furnace: feet apart and sunk, chest out, chin up, arms open low
-  (:root :u -0.1) (:spine :flex -16) (:chest :flex -6) (:neck :flex -10) (:head :flex -14) (:thighs :side 14) (:knees :flex 20)
+  (:root :u -0.1) (:spine :flex -12) (:chest :flex -6) (:neck :flex -10) (:head :flex -14) (:thighs :side 14) (:knees :flex 20)
   (:arm-r :flex 10 :side 53) (:elbow-r :flex 15) (:hand-r :twist 30 :flex -100)              ; the blade low right, point down
   (:arm-l :flex 10 :side 45))
 (defclip :ya-st-nishi (2.4 :loop t :base :ya-st-nishi)   ; (4 keys: the feet sink, the chest swells, the arms open as the garb
   (0)                                                    ;  breathes: YAMA-STANCE-LOOK reads this clip's phase)
   (0.6 (:root :u -0.13) (:knees :flex 24) (:arm-r :side 56) (:arm-l :side 49))
-  (1.2 (:root :u -0.12) (:spine :flex -19) (:head :flex -17) (:knees :flex 23) (:arm-r :side 58) (:arm-l :side 52))
-  (1.8 (:root :u -0.11) (:spine :flex -17) (:head :flex -15) (:knees :flex 21) (:arm-r :side 55) (:arm-l :side 48)))
+  (1.2 (:root :u -0.12) (:spine :flex -15) (:head :flex -17) (:knees :flex 23) (:arm-r :side 58) (:arm-l :side 52))
+  (1.8 (:root :u -0.11) (:spine :flex -13) (:head :flex -15) (:knees :flex 21) (:arm-r :side 55) (:arm-l :side 48)))
 (defpose :ya-st-minami (:base :ya-e-stance)           ; 南 the plant, held: the hilt at the chin, the elbow winged high
   (:root :u 0.0) (:spine :flex -4) (:chest :twist 0) (:head :flex 6)
   (:arm-r :flex 0 :side 130) (:elbow-r :flex 140) (:hand-r :twist 50 :flex -60))             ; the blade vertical, point down

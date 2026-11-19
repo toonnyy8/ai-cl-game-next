@@ -700,7 +700,7 @@ P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as th
 (all three marks); 87445 P1's marks and 北 cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
 c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87448 the consing of every
-Bankai look (yama-look.lisp YAMA-LOOK-CONSING)."
+Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)

@@ -904,3 +904,124 @@ Checked by numbers, needs the user's eyes: the colours, how the dead read at are
   colour but ember" on every swing. It belongs to the strikes (K2).
 - `vfx-hit :reiatsu`, the generic spark of every `:armored` event, still draws yellow under L9's fire hexagon (FEEDBACK-SYSTEM's, shared).
 - The looks gate's pinned scenes no longer pin their pairings (16.4): a lead's fix in `tests/style-gates.py`.
+
+## 17. As built (art batch K2: the three stances, NA, 東, 2026-11-20)
+
+K2 of §15.1 (the user, 2026-11-19: 「先做這兩件事」; the spec §15.2.2, the decisions §15.4 D1-D4): the three pointer stances, the NA string,
+東's three segments and AS1, and the Bankai's swing smear (§16.5). Presentation only (proofs in 17.6). Code: `yama-art.lisp` (the stance
+poses and clips, E-J1, KYOKKO, NS1b's `ya-e-f2`, NS1c's `ya-kyoku`, the new `ya-e-as1`; named landing poses), `yama-look.lisp`
+(`yama-stance-look`, the probe), `yama.lisp` (`:clip` / `:clip-s`, the `:stances` list, the kit's `:smear 3`, a debug docstring), a kit slot
+`:smear` read by `draw.lisp` and a look 3 in `vfx.lisp` `vfx-smear`.
+
+### 17.1 What was built
+
+| Slot | Clip | As built |
+|---|---|---|
+| Stance 東 | `ya-st-higashi` (new; pointer 1's stance, `:ya-e-stance` stays the form's idle) | upright, the fist toward the foe at chest height (hand 1.25 m up, 0.69 m ahead), the blade level across, its tip 0.80 m out past his left side; the smoke thread from the tip (YAMA-DRAW, as before) |
+| Stance 西 | `ya-st-nishi` (re-keyed, 4 keys) | feet apart and sunk, chest out, chin up, arms open low, the blade low at his right, point down (tip 0.13-0.21 m off the plaza); the keys sink the feet, swell the chest and open the arms. L8's low garb on it (`yama-stance-look`): ten orange tongues round his feet up to the knee (0.36-0.48 m), two small wings of two ribbons out from the shoulders, breathing every 2.4 s (deviation 3 of §16.3 closed) |
+| Stance 南 | `ya-st-minami` (re-keyed) | the blade vertical, point down, the fist at 1.39 m (the grip above it at the chin), the elbow winged high (1.55 m); by FK the hand is 0.27 m right of his head (target 0.25); six faint ink cracks with ember cores at his feet (no ring) |
+| E-J1 | `ya-e-q1` re-keyed at S14, `:clip-s 8` dropped | charge f0-9 (a key a frame: 2 5 10 17 27 40 56 76 % of the way to the drawn pose, the wrist's turn spread over f4-8), held f10-12 (1-2° tremble), released f13-14 into the kept hit pose; on through f15 (`:ya-e-q1-thru`, where an AS starts) and down to his low left by f17 (`:ya-e-q2-from` = J2's first frame) |
+| E-J2 | `ya-e-q2` reused | its first frame and its S+A pose named (`:ya-e-q2-from`, `:ya-e-q2-top`): the same numbers, the clip unchanged |
+| E-J3 | `ya-e-q3` reused, frame 0 re-keyed | frame 0 = J2's S+A pose (`:ya-e-q2-top`; deviation 1) |
+| NS1a KYOKKO | `ya-e-kyokko` re-keyed at S20, `:clip-s 15` dropped | frame 0 = 東's stance (NS1 starts only from pointer 1, and an attack starts with no blend); charge f0-11 (a key a frame: 1 3 6 10 15 21 29 38 49 62 79 %), the hilt drawn back to the right hip, chambered and held f12-17 (the point at him, trembling), released f18-19 into the kept lunge; S+A = `:ya-e-kyokko-land` |
+| NS1b | `ya-e-f2` re-keyed at S14, `:clip-s 19` dropped | frame 0 = KYOKKO's landing (`:ya-e-kyokko-land`); out of the lunge the point lowered onto the plaza ahead (f9), held f9-12 (the tell), the rise through level (the kept hit pose) to vertical; S+A = `:ya-e-f2-top` (deviation 4) |
+| NS1c | `ya-kyoku` reused, frame 0 re-keyed | frame 0 = NS1b's S+A (`:ya-e-f2-top`, the blade straight up); the hit pose kept; from f20 only the tip on the plaza (y 0.00-0.04 m; it sank to -0.08 before): the bite pose's arm 86 → 90°, wrist -90 → -95° |
+| AS1 | `ya-e-as1` (new; was `ya-kyoku` at x1.8) | frame 0 = J1's f15 (where the AS lands); no body swing: the wrist turns the point back over the centre and lifts it to his shoulder's height (f7, tip 1.50 m up), held a frame, then drops it onto the plaza on S10, the tip 1.55 m ahead (deviation 2) |
+| Kikon strikes | copies of E-J1 | follow its re-key (no `:clip-s` either): 1.52 vs 1.60 |
+| The smear | `vfx-smear` look 3 | the Bankai's trail behind every swing: look 2's charcoal ink wash (`+pal-black-smoke+`) and one EMBER hairline (half-width 0.018 m) down its middle; no REIATSU yellow. A new kit slot `:smear` (NIL = look 1, the REIATSU comet, as every form drew before); only Yamamoto's Bankai sets it (3), host-tested |
+
+The links land where the scripts land them (the trials' and the stills' logs): an NS segment at the previous one's S+A (+8 f hitstop on a
+hit), a J link at S+A (+4), an AS at the J's S+1 (+4). Each clip's frame 0 is now the pose its predecessor holds on that frame (attacks
+start with blend 0, so a mismatch drew the arm flashing across for one frame):
+
+| Link (lands on) | Tip jump on the link frame, before | After |
+|---|---|---|
+| J1 > J2 (J1 f17) | 1.41 m (J1 at x0.57 had not finished its follow-through) | 0 |
+| J2 > J3 (J2 f10) | 2.12 m (J3 started from the stance) | 0 |
+| J1 > AS1 (J1 f15) | 1.57 m (`ya-kyoku` from the stance) | 0 |
+| 東 stance > NS1a (f0) | 0 (both `ya-e-stance`) | 0 (both `ya-st-higashi`) |
+| NS1a > NS1b (NS1a f23) | 1.84 m | 0 |
+| NS1b > NS1c (NS1b f18) | 2.66 m | 0 |
+
+### 17.2 Drawn reach against hit reach (the host FK test)
+
+| Move | Before (K1, §16.1): tip / volume end / delta | After | Verdict |
+|---|---|---|---|
+| E-J1 | 1.52 / 1.52 / 0.00 | 1.52 / 1.52 / 0.00 | within ±0.15 |
+| E-J2 | 1.59 / 1.59 / 0.00 | 1.59 / 1.59 / 0.00 | within ±0.15 |
+| E-J3 | 1.71 / 1.71 / 0.00 | 1.71 / 1.71 / 0.00 | within ±0.15 |
+| NS1a KYOKKO | 2.39 / 4.90 / -2.51 | 2.39 / 4.90 / -2.51 | one-sided (L7's lance) |
+| NS1b | 1.91 / 1.91 / 0.00 | 1.91 / 1.91 / 0.00 | within ±0.15 |
+| NS1c KYOKUJITSUJIN | 1.86 / 6.40 / -4.54 | 1.86 / 6.40 / -4.54 | one-sided (L6's void line) |
+| AS1 | 1.86 / 1.60 / **+0.26 (off)** | 1.55 / 1.60 / -0.05 | within ±0.15: out of the test's `known-off` list (AS2a stays for K3) |
+| the Kikon strikes (E-J1's clip) | 1.52 / 1.60 / -0.08 | 1.52 / 1.60 / -0.08 | within ±0.15 |
+
+### 17.3 緩急: the tip's speed per frame (m a frame, the clip's FK at the root; the move's slide not included)
+
+| Move | Charge | Hold | Release → S | After S |
+|---|---|---|---|---|
+| E-J1 (S14), before (`ya-e-q1` S8 at x0.57) | f1 0.88 (the first frame the fastest), then 0.75 0.61 0.39 0.20 ... | none | f11 0.94, f12 0.33, f13 0.63, S 0.52 | f15 0.82 |
+| E-J1 (S14), after | f1-9: 0.08 0.09 0.14 0.29 0.32 0.39 0.56 0.64 0.55 | f10-12: 0.07 0.04 0.06 | f13 **1.21**, S 1.00 | f15 0.88, f16 1.02, f17 0.55 (down to J2's first frame) |
+| KYOKKO (S20), before (`ya-e-kyokko` S15 at x0.75) | f1 0.53, f2 0.33, f3 0.20 ... f8-16 ≤ 0.02 | (the clip's own hold, stretched) | f17 0.47, f18 0.44, f19 0.34, S 0.21 | f21 0.05 |
+| KYOKKO (S20), after | f1-12: 0.01 0.02 0.03 0.03 0.06 0.07 0.12 0.13 0.21 0.25 0.36 0.41 | f13-17: 0.02 0.00 0.03 0.01 0.02 | f18 **1.07**, f19 0.21, S 0.20 (+0.08 a frame of slide) | f21 0.06 |
+
+The release's peak now stands out: E-J1 1.21 against a charge of at most 0.64 (before, the first frame of the charge, 0.88, was as fast as
+the cut); KYOKKO 1.07 against 0.41 (before 0.53 on f1 and 0.47 at the release). Under the house easing (`*key-ease*` 1, ease-out cubic) a
+key several frames away moves most of its way on the first frame, so the charges are keyed a frame apart.
+
+### 17.4 Deviations, each with its reason
+
+1. **E-J3's frame 0 re-keyed** (the table says reuse): the J2 > J3 link lands on J2's S+A pose, the blade high at his right; J3's frame
+   0 was the stance, a 2.12 m jump of the tip on the link frame. Only frame 0 changed (J2's S+A pose, named); the rest of the clip is kept.
+2. **AS1's tip lands 1.55 m ahead, not "at his toes"**: the move's arc is 1.6 m and the FK test wants the tip within 0.15 m of it; at his
+   toes it would be 0.6 m short. 1.55 m is also the far end of L6's notch (0.2-1.6 m), so the tap and the erased notch meet.
+3. **西's garb breathes on the effect clock**, not on the stance clip's own phase: reading the clip's time in the look boxed a float (16-24 B
+   a draw on the probe); both are 2.4 s loops, so the garb and the arms drift in and out of step.
+4. **NS1b's tell lowers the point onto the plaza ahead** (the old clip's tell put it on the plaza behind him): from KYOKKO's landing, a swing
+   of the blade back behind him passed the tip 0.35 m through the floor (FK). The rise through level to vertical (the table's line) is kept.
+5. **KYOKKO's frame 0 is 東's stance** (not in the table): NS1 starts only from pointer 1's stance and attacks start with no blend.
+6. **南's cracks have no ring**: K1's crack star (L1's ink ring with an ember hairline) read as a disc round his feet, i.e. as 南's hands' tell;
+   six thin cracks read as "faint".
+7. **The smear is a new kit slot `:smear`**, not the existing `:blade` (no code reads `kit-blade`); shared files `kit.lisp`, `draw.lisp`,
+   `vfx.lisp`, default NIL = look 1 for every other form (host check: only Yamamoto's Bankai sets it; `--cvc` identical).
+8. **The art viewer** (`tests/duel-view.lisp`) shows Yamamoto's Bankai clips (a clip-owner line) when built with `yama-art.lisp`; its strip
+   script for K2 is `tests/scripts/duel-view-yama-k2.json` (`duel-view.py`'s `yama_k2`, counting DEFCLIP-MIRROR's clips).
+
+### 17.5 Stills (untracked)
+
+- In play: `tests/scripts/duel-yama-k2.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_k2_script`), the behind camera then the SIDE
+  camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on): `tests/shots/duel-yama-k2-<still>-<behind|side>[-phone].png`
+  for `stance-higashi`, `stance-nishi`, `stance-minami`, `ns1a-charge`, `ns1a-held`, `ns1a-release`, `ns1a-lance`, `ns1b-tell`, `ns1b-hit`,
+  `ns1c-raised`, `ns1c-tip`, `j1-charge`, `j1-held`, `j1-hit`, `j1-smear`, `j2-first`, `j2-hit`, `j3-first`, `j3-hit`, `as1-first`,
+  `as1-lift`, `as1-tap` (88 stills); the triptychs `duel-yama-k2-triptych-<behind|side>[-phone].png`.
+- 8-frame strips, the art viewer (`dist/duelview` built with `yama-art.lisp`): `tests/shots/duel-view-yama-k2-<clip>-<side|front>.png` for
+  `ya-e-q1`, `ya-e-q2`, `ya-e-q3`, `ya-e-kyokko`, `ya-e-f2`, `ya-kyoku`, `ya-e-as1` and the three stances (frames 0, S/3, 2S/3, S-2, S, S+A,
+  mid-recovery, end).
+- Contact sheets: `tests/shots/duel-yama-k2-sheet.png`, `duel-yama-k2-sheet-phone.png`.
+
+Checked by eye: the three stances read apart from the match camera (the blade level across / low right in fire / upright beside the face);
+the held tells show (J1's blade drawn back over the shoulder f9-12, KYOKKO's chamber f12-17, NS1b's point on the plaza f9-12); the smear is
+black with a red hairline, no yellow. Checked by numbers, needs the user's eyes: how the stances and the garb read in play, the lean of 西.
+
+### 17.6 Checks
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-bankai.lisp` (514 lines), `yamamoto-core.lisp` (241), `yamamoto-blaze.lisp` (268): `combo-trial.py --log` identical to 70356041's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-bankai.json`: every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 70356041 (86 lines) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` |
+| Host tests | ALL PASS, 4084 checks (+2: the smear slot set on the Bankai, off for every other form); the FK test with AS1 out of `known-off` |
+| pkgcheck, debug ranges | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 0 errors (no new debug number: the stills use 87000+k, 87301-87303, 87446, 2109) |
+| 0 B a frame | debug 87448: `... crescent 0, garb 0, cracks 0, smear 0, dead x8 0` |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs` smoke exit 0 |
+| The looks gate | not run (being re-pinned in a parallel batch) |
+
+### 17.7 Open
+
+- **For the user / the lead: J1 from a stance pops.** E-J1 starts from `ya-e-stance` with no blend (as every attack), so from 東's stance the
+  tip jumps 1.83 m on its first frame (西 0.60 m, 南 0.66 m). One clip cannot start from three stances; a 2-3 f `:blend` on E-J1 (a move
+  field outside K2's allowed edits) or a per-pointer `:clip-map` would. Ichigo's three stances have the same pop.
+- K3: 西, 南, 北, the SA (AS2a's reach, the hazard segments' cast checks).
+- `tests/scripts/duel-view-strips.json`'s indices run one short past `ic-k-xb` (`duel-view.py`'s clip list misses DEFCLIP-MIRROR), from
+  before K2; the K2 strip script counts it.
+- The smear's wash, like every INK shape, keeps the toon shader's 1.2 px white edge (K1's deviation 8, the same question).

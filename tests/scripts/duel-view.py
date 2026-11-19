@@ -67,5 +67,19 @@ def script(name, build):
     json.dump(ev, open(f"tests/scripts/duel-view-{name}.json", "w"), indent=0)
     print(f"duel-view-{name}.json: {len(ev)} steps, ends at {t[0]:.0f} s")
 
+# Yamamoto's Bankai, art K2 (DUEL_YAMA_CORE §17): the viewer built with yama-art.lisp too (tests/duel-view.lisp's header), so the clip
+# indices count its clips; 8-frame strips from the side (k 1) and from 33 degrees off the front (k 2) of E-J1..3, NS1a..c, AS1 and the
+# three stances: tests/shots/duel-view-yama-k2-<clip>-<side|front>.png
+#   node tools/run.mjs dist/duelview --secs 40 --script tests/scripts/duel-view-yama-k2.json
+YA_CLIPS = sorted(clips + [m.group(2).upper() for m in re.finditer(r"^\((defclip|defstrike) :([a-z0-9-]+)", open("duel/lisp/yama-art.lisp").read(), re.M)]
+                  + [n.upper() for f in SRC + ["duel/lisp/yama-art.lisp"] for n in re.findall(r"\(defclip-mirror :([a-z0-9-]+)", open(f).read())])
+                  # (+ DEFCLIP-MIRROR's clips, which CLIPS misses: Ichigo's ic-k-xb, so its indices past it run one short)
+YA_K2 = ("ya-e-q1", "ya-e-q2", "ya-e-q3", "ya-e-kyokko", "ya-e-f2", "ya-kyoku", "ya-e-as1", "ya-st-higashi", "ya-st-nishi", "ya-st-minami")
+def yama_k2(cmd, shot, t):
+    for n in YA_K2:
+        for k, view in ((1, "side"), (2, "front")):
+            cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-k2-{n}-{view}", 0.9)
+
 script("looks", looks); script("strips", strips); script("stage", stage); script("sounds", sounds); script("strings", strings)
+script("yama-k2", yama_k2)
 print(len(clips), "clips:", " ".join(c.lower() for c in clips))

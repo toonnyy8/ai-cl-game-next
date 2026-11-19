@@ -1,0 +1,622 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== stance higashi behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 10.3,
+"shot": "tests/shots/duel-yama-k2-stance-higashi-behind.png"
+},
+{
+"at": 10.75,
+"eval": "console.log('=== stance nishi behind')"
+},
+{
+"at": 10.8,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 10.85,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 10.9,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 12.1,
+"shot": "tests/shots/duel-yama-k2-stance-nishi-behind.png"
+},
+{
+"at": 12.55,
+"eval": "console.log('=== stance minami behind')"
+},
+{
+"at": 12.6,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 12.65,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 12.7,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 13.9,
+"shot": "tests/shots/duel-yama-k2-stance-minami-behind.png"
+},
+{
+"at": 14.35,
+"eval": "console.log('=== east NS a-b-c behind')"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 14.45,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 14.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 16.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.19,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.23,
+"shot": "tests/shots/duel-yama-k2-ns1a-charge-behind.png"
+},
+{
+"at": 16.34,
+"shot": "tests/shots/duel-yama-k2-ns1a-held-behind.png"
+},
+{
+"at": 16.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.41,
+"shot": "tests/shots/duel-yama-k2-ns1a-release-behind.png"
+},
+{
+"at": 16.44,
+"shot": "tests/shots/duel-yama-k2-ns1a-lance-behind.png"
+},
+{
+"at": 16.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.49,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.79,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.81,
+"shot": "tests/shots/duel-yama-k2-ns1b-tell-behind.png"
+},
+{
+"at": 16.86,
+"shot": "tests/shots/duel-yama-k2-ns1b-hit-behind.png"
+},
+{
+"at": 17.26,
+"shot": "tests/shots/duel-yama-k2-ns1c-raised-behind.png"
+},
+{
+"at": 17.39,
+"shot": "tests/shots/duel-yama-k2-ns1c-tip-behind.png"
+},
+{
+"at": 18.65,
+"eval": "console.log('=== J1-J3 behind')"
+},
+{
+"at": 18.7,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 18.75,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 18.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 20.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.5,
+"shot": "tests/shots/duel-yama-k2-j1-charge-behind.png"
+},
+{
+"at": 20.58,
+"shot": "tests/shots/duel-yama-k2-j1-held-behind.png"
+},
+{
+"at": 20.63,
+"shot": "tests/shots/duel-yama-k2-j1-hit-behind.png"
+},
+{
+"at": 20.65,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.67,
+"shot": "tests/shots/duel-yama-k2-j1-smear-behind.png"
+},
+{
+"at": 20.7,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.75,
+"shot": "tests/shots/duel-yama-k2-j2-first-behind.png"
+},
+{
+"at": 20.87,
+"shot": "tests/shots/duel-yama-k2-j2-hit-behind.png"
+},
+{
+"at": 20.9,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.95,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.98,
+"shot": "tests/shots/duel-yama-k2-j3-first-behind.png"
+},
+{
+"at": 21.12,
+"shot": "tests/shots/duel-yama-k2-j3-hit-behind.png"
+},
+{
+"at": 22.45,
+"eval": "console.log('=== J1 > AS1 behind')"
+},
+{
+"at": 22.5,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 22.55,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 22.6,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 24.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 24.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.49,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.52,
+"shot": "tests/shots/duel-yama-k2-as1-first-behind.png"
+},
+{
+"at": 24.63,
+"shot": "tests/shots/duel-yama-k2-as1-lift-behind.png"
+},
+{
+"at": 24.68,
+"shot": "tests/shots/duel-yama-k2-as1-tap-behind.png"
+},
+{
+"at": 26.3,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 26.55,
+"eval": "console.log('=== stance higashi side')"
+},
+{
+"at": 26.6,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 26.65,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 26.7,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 27.9,
+"shot": "tests/shots/duel-yama-k2-stance-higashi-side.png"
+},
+{
+"at": 28.35,
+"eval": "console.log('=== stance nishi side')"
+},
+{
+"at": 28.4,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 28.45,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 28.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 29.7,
+"shot": "tests/shots/duel-yama-k2-stance-nishi-side.png"
+},
+{
+"at": 30.15,
+"eval": "console.log('=== stance minami side')"
+},
+{
+"at": 30.2,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 30.25,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 30.3,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 31.5,
+"shot": "tests/shots/duel-yama-k2-stance-minami-side.png"
+},
+{
+"at": 31.95,
+"eval": "console.log('=== east NS a-b-c side')"
+},
+{
+"at": 32.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 32.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 32.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 33.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.79,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 33.83,
+"shot": "tests/shots/duel-yama-k2-ns1a-charge-side.png"
+},
+{
+"at": 33.94,
+"shot": "tests/shots/duel-yama-k2-ns1a-held-side.png"
+},
+{
+"at": 34.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 34.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.01,
+"shot": "tests/shots/duel-yama-k2-ns1a-release-side.png"
+},
+{
+"at": 34.04,
+"shot": "tests/shots/duel-yama-k2-ns1a-lance-side.png"
+},
+{
+"at": 34.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 34.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 34.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 34.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 34.39,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 34.41,
+"shot": "tests/shots/duel-yama-k2-ns1b-tell-side.png"
+},
+{
+"at": 34.46,
+"shot": "tests/shots/duel-yama-k2-ns1b-hit-side.png"
+},
+{
+"at": 34.86,
+"shot": "tests/shots/duel-yama-k2-ns1c-raised-side.png"
+},
+{
+"at": 34.99,
+"shot": "tests/shots/duel-yama-k2-ns1c-tip-side.png"
+},
+{
+"at": 36.25,
+"eval": "console.log('=== J1-J3 side')"
+},
+{
+"at": 36.3,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 36.35,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 36.4,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 38.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.1,
+"shot": "tests/shots/duel-yama-k2-j1-charge-side.png"
+},
+{
+"at": 38.18,
+"shot": "tests/shots/duel-yama-k2-j1-held-side.png"
+},
+{
+"at": 38.23,
+"shot": "tests/shots/duel-yama-k2-j1-hit-side.png"
+},
+{
+"at": 38.25,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.27,
+"shot": "tests/shots/duel-yama-k2-j1-smear-side.png"
+},
+{
+"at": 38.3,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.35,
+"shot": "tests/shots/duel-yama-k2-j2-first-side.png"
+},
+{
+"at": 38.47,
+"shot": "tests/shots/duel-yama-k2-j2-hit-side.png"
+},
+{
+"at": 38.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.58,
+"shot": "tests/shots/duel-yama-k2-j3-first-side.png"
+},
+{
+"at": 38.72,
+"shot": "tests/shots/duel-yama-k2-j3-hit-side.png"
+},
+{
+"at": 40.05,
+"eval": "console.log('=== J1 > AS1 side')"
+},
+{
+"at": 40.1,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 40.15,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 40.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 41.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 41.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 42.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 42.12,
+"shot": "tests/shots/duel-yama-k2-as1-first-side.png"
+},
+{
+"at": 42.23,
+"shot": "tests/shots/duel-yama-k2-as1-lift-side.png"
+},
+{
+"at": 42.28,
+"shot": "tests/shots/duel-yama-k2-as1-tap-side.png"
+},
+{
+"at": 43.9,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 44.2,
+"eval": "console.log('=== END')"
+}
+]

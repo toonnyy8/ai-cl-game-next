@@ -949,3 +949,47 @@ def yama_k1_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-k1", yama_k1_script())
 write("yama-k1-phone", yama_k1_script(True))
+
+# Yamamoto's Bankai art K2 (DUEL_YAMA_CORE §17): the stance triptych (pointer 1 / 2 / 3, then 87446: into the Bankai at once, the idle the
+# pointer's stance) and the strikes in play, each from its link as the scripts land it (the clips' frame 0 keyed from the landing): 東 NS
+# a-b-c from 3 m (NS1a's charge / hold / release / lance, NS1b's tell and hit, NS1c raised and on the floor), J1-J3 from 1.4 m (J1's charge,
+# hold, hit and smear, J2 and J3 at their first frame and their hit), J1 > AS1 (its lift and the tap), from the behind camera, then the SIDE
+# camera (2109). Frame offsets: a move starts on its press; an NS link lands at S+A (+8 f hitstop on a hit), a J link at S+A (+4), an AS at
+# S+1 (+4). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 70 --script tests/scripts/duel-yama-k2.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 70 --mobile --size 390x844 --script tests/scripts/duel-yama-k2-phone.json
+def yama_k2_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    def shots(a, frames, cam):
+        for f, n in frames: ev.append(shot(a + f / 60, f"yama-k2-{n}-{cam}{sx}"))
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for p, n in ((1, "higashi"), (2, "nishi"), (3, "minami")):
+            s0 = scene(f"stance {n} {cam}", (87020, 87300 + p, 87446) + deck)
+            ev.append(shot(s0 + 1.2, f"yama-k2-stance-{n}-{cam}{sx}")); t += 1.8
+        s0 = scene(f"east NS a-b-c {cam}", (87030, 87301, 87446) + deck); a = s0 + 1.6   # (after the form's callout)
+        for i in range(3): sp(a + 0.3 * i)
+        a += 0.01
+        shots(a, ((7, "ns1a-charge"), (14, "ns1a-held"), (18, "ns1a-release"), (20, "ns1a-lance"), (31 + 11, "ns1b-tell"),
+                  (31 + 14, "ns1b-hit"), (57 + 12, "ns1c-raised"), (57 + 20, "ns1c-tip")), cam)
+        t += 4.3
+        s0 = scene(f"J1-J3 {cam}", (87014, 87301, 87446) + deck); a = s0 + 1.6   # (after the form's callout)
+        for i in range(3): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
+        shots(a, ((6, "j1-charge"), (11, "j1-held"), (14, "j1-hit"), (16, "j1-smear"), (21, "j2-first"), (28, "j2-hit"),
+                  (35, "j3-first"), (43, "j3-hit")), cam)
+        t += 3.8
+        s0 = scene(f"J1 > AS1 {cam}", (87014, 87301, 87446) + deck); a = s0 + 1.6   # (after the form's callout)
+        ev.extend(tap(a, "KeyJ", 0.05)); sp(a + 0.2)
+        shots(a, ((19, "as1-first"), (26, "as1-lift"), (29, "as1-tap")), cam)
+        t += 3.8
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k2", yama_k2_script())
+write("yama-k2-phone", yama_k2_script(True))
