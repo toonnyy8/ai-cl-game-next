@@ -170,8 +170,9 @@ SA: a pointer-neutral short backhand at chest height (S6, 60; a copy of `ya-w-co
   spends no heat; an AS segment adds its heat once, on its first hit or cancel; Kikon strikes and burst hits add nothing. A segment's damage =
   base x (1 + 0.3 x paid / 25) x the SP short-pay scale, frozen at its start (a hazard's at its fire frame); its SP cost from the base damage.
 - **Marks and 北**: a mark is given when the AS **lands** (its first hit), not at its start. The third distinct mark arms 北; the pointer
-  returns to n (the third AS's write) and the marks clear when the 北 move **starts**; `fighter-sp-ptr` keeps 北 for its Kikon and Soul
-  Break. AS 北 follows any J count (`:params :as-ptr`) and writes no pointer and no mark. The pointer switch (DUEL_SP §3) is refused while
+  returns to n (the third AS's write) and the marks clear when the 北 move **starts**. **北 is a flag, not pointer value 4**: the
+  pointer stays 1-3 everywhere (the clamp, `:stances` / `:kikon-cines` by index, the Konpaku table, the HUD, the switch's route count);
+  the armed flag replaces the NS / AS pick, and the 北 move's own record picks the 天地灰尽 cinematic with pointer 3's Konpaku profile (Q6). AS 北 follows any J count (`:params :as-ptr`) and writes no pointer and no mark. The pointer switch (DUEL_SP §3) is refused while
   北 is armed. Marks and an armed 北 survive the Bankai's end and return with it (for the match).
 - **Every hazard segment carries a Kikon strike** (`:params :kikon-strike`, Ichigo's wave rule), so the hold works on pointers 1 / 2, 南
   and 北. Each move used by two classes gets its own copy (AS2's dome, NADEGIRI as NS3c / AS3c / 爆炎's). AS1 steals flash-step
@@ -180,7 +181,12 @@ SA: a pointer-neutral short backhand at chest height (S6, 60; a copy of `ya-w-co
   the floor); the eye opening is a face-scale garnish.
 - **Watch in play**: J1-J2-J3 > AS3 adds 60 heat, so two confirmed strings enter 爆炎; a full 爆炎 burns about 20 % of his Reishi and can
   walk him into red (the HUD warns at the red line). The boosted routes (Shikai NS1 230, 299 at full spend; 爆炎 NS3c 200; 北 220) sit above
-  Ichigo's: the kit's `:mult` is set by measuring so they match the roster's top (Kenpachi's AS 240-320).
+  Ichigo's: the kit's `:mult` starts at 1.0 and is tuned by play (no pacing gate: 「以後不用跑平衡測試」), toward the roster's top
+  (Kenpachi's AS 240-320).
+- **Batch 1 staging**: commit 0 ports the old art and VFX inert (still retired; names already in main dropped: `hem-spring`, `tip-track`,
+  `vfx-ember`); stage A the Shikai and the un-retire, then the playtest page; stage B heat and 爆炎; stage C the Bankai, the marks and
+  北. A fresh `yama.lisp` (the old one's `:commands`, `:grid`, `:meter`, AI v2 hooks, boss and passives are dead grammar). The Kikon
+  cinematics are placeholders until their storyboards; the bone wall's wave stop may wait past batch 1.
 
 ## 8. Clip inventory (the old kit, `git show retired-kits:duel/lisp/yama-art.lisp`: 36 clips)
 
