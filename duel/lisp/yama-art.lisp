@@ -248,9 +248,14 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
                   (if (eq (kit-form (fighter-kit f)) :bankai) 0 1))))
 
 (defun yama-draw (e rdt)
-  "KIT-HOOK :draw: step the hem spring; Bankai East's smoke thread from the drawn blade's tip."
+  "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
+own looks (yama-look.lisp YAMA-BK-MOVES, art K1); Bankai East's smoke thread from the drawn blade's tip."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
+    (ya-dead-reset)
+    (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
+      (let ((c (yama-bk-code mv)))
+        (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt)))))
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (and mv (mv-planted mv) (eq (fighter-phase f) :main))))
       (let ((tp *ya-tip*))
@@ -283,25 +288,30 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
                       (mb-at (mb :y 0.62 :z 0.004 :roll -0.4) (mb-box mb 0.009 0.08 0.004))))
 
 ;;; ---------------------------------------------------------------- the charred skeleton (Bankai South)
+;; The dead of 南 (DUEL_YAMA_CORE §15.4 D1, the user 2026-11-20: 「焦黑骷髏配上紅色高光」): black charred bones, the skull plain, and only
+;; thin red highlights (the bone edges, the eye sockets, the cracks), never a red fill, so a skeleton still reads as charcoal from the
+;; arena camera (art K1, §16: the chest's red fill box and the orange spine glow became hairline strips). Drawn by yama-look.lisp's YA-DEAD.
 (defbody :skeleton (:scale 1.0 :width 1.0 :hunch 20 :hurt-r 0.3 :hurt-h 1.7
-                    :palette ((:bone #xD2CEC4) (:ash #x4A4E5C) (:ember #xFF5A1A))   ; pale bone, charred bands: they read on the V2 plaza
-                    :rim (#xFF6A2A 0.35))
+                    :palette ((:bone #x2E2826) (:ash #x171315) (:ember #xD8141C))   ; charcoal bone, near-black bands, the red
+                    :rim (#xD8141C 0.35))
   (:pelvis (:bevel 0.26 0.1 0.12 0.02 :c :ash))
   (:spine (:box 0.05 0.24 0.05 :at (0 0.11 -0.04) :c :bone)
-          (:glow 2.0 (:box 0.02 0.18 0.02 :at (0 0.11 -0.01) :c :ember)))
+          (:glow 2.0 (:box 0.008 0.2 0.008 :at (0 0.11 -0.012) :c :ember)))                  ; a crack down the spine
   (:chest (:box 0.06 0.24 0.06 :at (0 0.1 -0.06) :c :bone)
           (:box 0.3 0.035 0.18 :at (0 0.04 0) :c :ash) (:box 0.34 0.035 0.2 :at (0 0.1 0) :c :bone)
           (:box 0.32 0.035 0.19 :at (0 0.16 0) :c :ash) (:box 0.26 0.035 0.16 :at (0 0.21 0) :c :bone)
-          (:glow 2.5 (:box 0.2 0.1 0.12 :at (0 0.12 0) :c :ember)))
+          (:glow 2.5 (:box 0.3 0.007 0.007 :at (0 0.12 0.102) :c :ember))                     ; the ribs' front edges: hairlines
+          (:glow 2.5 (:box 0.24 0.007 0.007 :at (0 0.23 0.082) :c :ember)))
   (:neck (:box 0.04 0.1 0.04 :at (0 0.04 0) :c :bone))
   (:head (:bevel 0.17 0.17 0.2 0.04 :at (0 0.13 0) :c :ash)
          (:box 0.12 0.06 0.1 :at (0 0.03 0.04) :c :bone)
-         (:glow 4.0 (:box 0.04 0.035 0.01 :at (0.04 0.13 0.1) :c :ember))
-         (:glow 4.0 (:box 0.04 0.035 0.01 :at (-0.04 0.13 0.1) :c :ember)))
+         (:glow 4.0 (:box 0.04 0.035 0.01 :at (0.04 0.13 0.1) :c :ember))                     ; the eye sockets
+         (:glow 4.0 (:box 0.04 0.035 0.01 :at (-0.04 0.13 0.1) :c :ember))
+         (:glow 2.5 (:box 0.007 0.09 0.007 :at (0.03 0.2 0.09) :rot (0 0 25) :c :ember)))      ; a crack over the brow
   (:shoulder-r (:box 0.14 0.04 0.05 :at (0.04 0 0) :c :bone))
   (:shoulder-l (:box 0.14 0.04 0.05 :at (-0.04 0 0) :c :bone))
-  (:upper-arm-r (:box 0.045 0.3 0.045 :at (0 -0.15 0) :c :bone))
-  (:upper-arm-l (:box 0.045 0.3 0.045 :at (0 -0.15 0) :c :bone))
+  (:upper-arm-r (:box 0.045 0.3 0.045 :at (0 -0.15 0) :c :bone) (:glow 2.0 (:box 0.007 0.26 0.007 :at (0.024 -0.15 0.024) :c :ember)))
+  (:upper-arm-l (:box 0.045 0.3 0.045 :at (0 -0.15 0) :c :bone) (:glow 2.0 (:box 0.007 0.26 0.007 :at (-0.024 -0.15 0.024) :c :ember)))
   (:lower-arm-r (:box 0.04 0.27 0.04 :at (0 -0.135 0) :c :ash))
   (:lower-arm-l (:box 0.04 0.27 0.04 :at (0 -0.135 0) :c :ash))
   (:hand-r (:box 0.07 0.1 0.03 :at (0 -0.05 0) :c :bone) (:cone 0.03 0.08 :at (0 -0.13 0) :rot (0 180 0) :seg 4 :c :bone))
@@ -973,3 +983,12 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
   (0.25 (:root :u -1.28) (:arms :flex 118 :side 30) (:elbows :flex 70) (:spine :flex 25))
   (1.13 (:root :u -1.3) (:arms :flex 122 :side 28) (:elbows :flex 65) (:spine :flex 22))
   (1.53 (:root :u -2.3) (:arms :flex 90 :side 20) (:elbows :flex 30) (:spine :flex 40)))
+;; the swarm (art K1, L2): prone, the hips low, the arms reaching forward in turn and dragging the body (a 0.6 s loop; YA-DEAD samples it on
+;; twos). A look clip for the dead, not a strike.
+(defpose :sk-prone ()
+  (:root :pitch 78 :u -0.78) (:spine :flex -10) (:neck :flex -30) (:head :flex -40)
+  (:arms :flex 150 :side 20) (:elbows :flex 30) (:thighs :flex -6 :side 10) (:knees :flex 20))
+(defclip :sk-crawl (0.6 :loop t :base :sk-prone)
+  (0 (:arm-r :flex 172 :side 14) (:elbow-r :flex 6) (:arm-l :flex 110 :side 30) (:elbow-l :flex 70) (:chest :twist 10))
+  (0.3 (:arm-r :flex 110 :side 30) (:elbow-r :flex 70) (:arm-l :flex 172 :side 14) (:elbow-l :flex 6) (:chest :twist -10))
+  (0.6 (:arm-r :flex 172 :side 14) (:elbow-r :flex 6) (:arm-l :flex 110 :side 30) (:elbow-l :flex 70) (:chest :twist 10)))

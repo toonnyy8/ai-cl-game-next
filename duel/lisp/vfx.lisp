@@ -422,7 +422,8 @@ END-CINE also resets it). Shoot it down the cut (camera on the cut line) so seam
 (defun-fast vfx-awaken-burst (x y z kind)
   "Awakening one-shots at the feet (x y z), drawn toon (docs/style/STYLE_STORM_DESIGN.md §4.1 / §4.2). KIND :nozarashi (the
 yellow reiatsu pillar: REIATSU flames shooting up, a flat ring), :oni (Kenpachi's Bankai: the BLOOD pillar), :arm-burst /
-:arm-crack (his Bankai arm: BLOOD spray, ink shards)."
+:arm-crack (his Bankai arm: BLOOD spray, ink shards), :bankai / :bankai-burst (Yamamoto's: the flames drawn into the blade, the ink
+and ash burst)."
   (with-floats (x y z)
     (case kind
       (:oni                                            ; Kenpachi's Bankai: the BLOOD pillar shooting up over INK flames
@@ -447,6 +448,25 @@ yellow reiatsu pillar: REIATSU flames shooting up, a flat ring), :oni (Kenpachi'
        (dotimes (i 6)
          (%t-shard x y z (rnd-range -1.5f0 1.5f0) (rnd-range 0.5f0 2f0) (rnd-range -1.5f0 1.5f0) (rnd-range 0.2f0 0.35f0)
                    (rnd-range 0.03f0 0.05f0) 4f0 +pal-blood+)))
+      (:bankai                                         ; Yamamoto's Bankai (DUEL_YAMA_CORE §16, L11): every flame drawn INTO the raised
+                                                       ; blade: 24 FIRE scraps from 3-5 m round him flying in to its tip (2.4 m up) in 0.5-0.8 s
+       (dotimes (i 24)
+         (let* ((a (rnd-range 0f0 6.2832f0)) (r (rnd-range 3f0 5f0)) (sx (+ x (* r (f-cos a)))) (sy (+ y (rnd-range 0.2f0 2.2f0)))
+                (sz (+ z (* r (f-sin a)))) (l (rnd-range 0.5f0 0.8f0)))
+           (declare (single-float a r sx sy sz l))
+           (%t-blob sx sy sz (/ (- x sx) l) (/ (- (+ y 2.4f0) sy) l) (/ (- z sz) l) l (rnd-range 0.12f0 0.22f0) 0f0 0.3f0 +pal-fire+)))
+       (flash-light x (+ y 2.4) z 1.0 0.45 0.15))
+      (:bankai-burst                                   ; ... the charred blade revealed: an outward ring of INK shards and ASH, no flame
+       (dotimes (i 28)
+         (let* ((a (+ (* 0.2244f0 (i->f i)) (rnd-range -0.1f0 0.1f0))) (sp (rnd-range 5f0 8f0)))
+           (declare (single-float a sp))
+           (%t-shard (+ x (* 0.4f0 (f-cos a))) (+ y 0.3f0) (+ z (* 0.4f0 (f-sin a))) (* sp (f-cos a)) (rnd-range 0.5f0 2f0) (* sp (f-sin a))
+                     (rnd-range 0.5f0 0.8f0) (rnd-range 0.08f0 0.16f0) 4f0 +pal-ink+)))
+       (dotimes (i 20)
+         (let* ((a (rnd-range 0f0 6.2832f0)) (sp (rnd-range 2f0 4f0)))
+           (declare (single-float a sp))
+           (%t-blob (+ x (* 0.5f0 (f-cos a))) (+ y 0.2f0) (+ z (* 0.5f0 (f-sin a))) (* sp (f-cos a)) (rnd-range 0.2f0 0.8f0) (* sp (f-sin a))
+                    (rnd-range 0.6f0 0.9f0) (rnd-range 0.1f0 0.18f0) -0.2f0 0.25f0 +pal-ash+))))
       (:nozarashi
        (dotimes (i 28)
          (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (rnd-range 0f0 1f0)) (+ z (rnd-range -0.35f0 0.35f0))

@@ -908,3 +908,44 @@ def yama_bankai_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-bankai", yama_bankai_script())
 write("yama-bankai-phone", yama_bankai_script(True))
+
+# Yamamoto's Bankai looks, art batch K1 (DUEL_YAMA_CORE §16): each look L1-L11 on its own segment (87420+i NS, 87430+i AS, P1 in the Bankai
+# at once: 87446), P2 an idle Kenpachi placed so the footprint shows (k / 10 m: 87000+k), stills at the look's frames from the behind
+# camera, then the same from the SIDE camera (2109). The awakening's two bursts (L11) come first in each pass (a fresh match in the
+# Shikai: 87200 then 87040). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 75 --script tests/scripts/duel-yama-k1.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 75 --mobile --size 390x844 --script tests/scripts/duel-yama-k1-phone.json
+YAMA_K1 = (   # look, P2 metres, the segment's command, ((frames after it, still name) ...)
+    ("hands", 6.0, 87426, ((30, "l1-hands-tell"), (41, "l1-hands"))),
+    ("swarm", 9.0, 87427, ((50, "l2-swarm"),)),
+    ("wall", 6.0, 87428, ((13, "l3-wall-rise"), (20, "l4-fall"), (50, "l3-wall"), (103, "l3-wall-crumble"))),
+    ("pile", 2.0, 87435, ((16, "l5-pile-close"), (24, "l5-pile"))),
+    ("void", 7.0, 87422, ((22, "l6-void"), (44, "l6-void-ash"))),
+    ("notch", 3.0, 87430, ((14, "l6-notch"),)),
+    ("lance", 8.0, 87420, ((22, "l7-lance"),)),
+    ("flare", 3.0, 87423, ((18, "l8-flare"), (28, "l8-flare-2"))),
+    ("armour", 2.0, 87437, ((4, "l9-armour"),)),
+    ("north", 12.0, 87429, ((30, "l10-north"),)),
+    ("crescent", 4.0, 87436, ((11, "l10-crescent"),)),
+)
+def yama_k1_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        s0 = scene(f"L11 awakening {cam}", (87200, 87040, 87540, 87445) + deck + (87440,))
+        ev.append(shot(s0 + 25 / 60, f"yama-k1-l11-in-{cam}{sx}")); ev.append(shot(s0 + 124 / 60, f"yama-k1-l11-burst-{cam}{sx}"))
+        t += 3.5
+        for look, m, c, shots in YAMA_K1:
+            s0 = scene(f"{look} {cam}", (87000 + round(10 * m), 87446) + deck + (c,))
+            for f, n in shots: ev.append(shot(s0 + f / 60, f"yama-k1-{n}-{cam}{sx}"))
+            t += 2.2
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k1", yama_k1_script())
+write("yama-k1-phone", yama_k1_script(True))

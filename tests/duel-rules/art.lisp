@@ -30,7 +30,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
   "Clips whose striking point must reach the edge both ways although their move may fall short (a K, a Breaker): none live.")
 (defparameter *reach-one-sided* '((:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)))
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil) (frost nil) (seen nil))
-  (dolist (art '("ken-art" "ichigo-art" "hisagi-art" "hisagi-draw" "hisagi-cine" "hisagi-stills"))   ; (the files that hold clips, strikes, bodies and the tables read below)
+  (dolist (art '("ken-art" "ichigo-art" "hisagi-art" "hisagi-draw" "hisagi-cine" "hisagi-stills" "yama-art"))   ; (the files that hold clips, strikes, bodies and the tables read below)
     (with-open-file (in (merge-pathnames (format nil "../../duel/lisp/~a.lisp" art) *load-truename*))
       (let ((*package* (find-package :duel)))
         (loop for form = (read in nil in) until (eq form in)
@@ -46,7 +46,8 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                      (body-variant (push (cons (second form) (cdr (assoc (third form) bodies))) bodies))   ; (its base's rig)
                      (defweapon (push (cons (second form) (getf (third form) :length)) weapons)))))))
   (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3)) (g (make-f32 3))
-        (min-hurt (loop for (nil . b) in bodies minimize (getf b :hurt-r))) (max-hurt (loop for (nil . b) in bodies maximize (getf b :hurt-r))))
+        (min-hurt (loop for (n . b) in bodies unless (eq n :skeleton) minimize (getf b :hurt-r)))   ; (:skeleton: 南's dead, a look
+        (max-hurt (loop for (nil . b) in bodies maximize (getf b :hurt-r))))                          ;  body, no fighter)
     ;; J is close (the J cut): the chase and a lunge stop at *LUNGE-STOP*, outside any two hurt cylinders' push-apart, and
     ;; every J follow-up's chase goal is inside its reach + the thinnest hurt radius (it connects)
     (check (> *lunge-stop* (* 2 max-hurt)))
@@ -97,7 +98,44 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                                     (and (not (assoc clip strike))   ; (her K props: both ways)
                                          (not (assoc clip frost)) (not (member clip *two-sided*))   ; (Rukia's frost points, HAINAWA)
                                          (or (member cf *reach-one-sided* :test #'equal) (member (mv-kind mv) '(:flash :breaker)))))))
-                       (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))))
+                       (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))
+    ;; Yamamoto (DUEL_YAMA_CORE §15.2.3, §16, art batch K1): every segment with a blade window, the same FK as above (radial for an arc,
+    ;; ahead for a capsule). The Bankai is checked: the J links and the swinging segments both ways within 0.15 m; where a look carries the
+    ;; rest (ONE-SIDED: KYOKKO's lance L7, KYOKUJITSUJIN's void line L6, 西's burn round him L8, 北's AS crescent L10) the blade may fall
+    ;; short, never over. The moves today's placeholder clips miss (KNOWN-OFF, the table in §16) are printed and must stay off: their own
+    ;; clips are art batches K2 (東, NA) and K3 (西, 南, 北, SA), which empty the list. The hazard segments (南, 北's NS) have no blade
+    ;; window: their cast checks are K3's. The Shikai and 爆炎 are printed only (their clips are later batches, §15.5).
+    (flet ((ya-tip (k mv)
+             (let* ((b (cdr (assoc (kit-body k) bodies))) (props (and (getf b :props) (apply #'make-rig-proportions (getf b :props))))
+                    (wlen (cdr (assoc (kit-weapon k) weapons))) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw)))
+                    (cap (> (aref vol 0) 0.5)) (clip (kit-move-clip k (mv-clip mv))))
+               (values (loop for sf from (hw-from hw) below (hw-to hw)
+                             maximize (progn
+                                        (clip-sample! pose (find-clip clip) (/ (* sf (mv-clip-speed mv)) 60.0))
+                                        (pose-fk! jm pose 0f0 0f0 0f0 0f0 (f32 (getf b :scale)) (f32 (deg (getf b :hunch 0))) props)
+                                        (joint-point! v jm (ji :weapon-r) 0f0 0f0 (f32 (- wlen)))
+                                        (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))
+                       (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1))))))
+      (let ((k (find-kit :yamamoto :bankai))
+            (one-sided '(:ya-e-n1a :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-as2b :ya-e-as4))
+            (known-off '(:ya-e-as1 :ya-e-as2)))   ; (K2: AS1 on ya-kyoku x1.8, +0.26; K3: AS2 on ya-w-counter x0.5, +0.36)
+        (format t "yamamoto bankai FK (move, drawn tip, volume end, delta):~%")
+        (dolist (n '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-as1 :ya-e-n2a :ya-e-n2b :ya-e-n2c :ya-e-as2 :ya-e-as2b
+                     :ya-e-as4 :ya-e-sa :ya-e-ns-strike))
+          (multiple-value-bind (art edge) (ya-tip k (kit-move k n))
+            (let* ((d (- art edge)) (ok (and (<= d 0.15) (or (>= d -0.15) (member n one-sided)))))
+              (format t "  ~a ~(~a~) | ~,2f | ~,2f | ~,2@f~:[~; (known off: K2 / K3)~]~%" (if ok "ok " "OFF") n art edge d (member n known-off))
+              (if (member n known-off)
+                  (check (not ok))                      ; (a fixed clip must leave the list)
+                  (check (or ok (format t "yamamoto bankai ~a: the volume ends ~,2f m, the art ~,2f m~%" n edge art))))))))
+      (dolist (f '(:base :blaze))
+        (let ((k (find-kit :yamamoto f)))
+          (format t "yamamoto ~(~a~) FK, printed only (move, drawn tip, volume end, delta):~%" f)
+          (dolist (mv (sort (loop for m being the hash-values of (kit-moves k)
+                                  when (and (plusp (length (mv-hits m))) (find-clip (kit-move-clip k (mv-clip m)) nil)) collect m)
+                            #'string< :key (lambda (m) (symbol-name (mv-name m)))))
+            (multiple-value-bind (art edge) (ya-tip k mv)
+              (format t "  ~(~a~) | ~,2f | ~,2f | ~,2@f~%" (mv-name mv) art edge (- art edge)))))))))
 
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
 ;; than any J link at the same position of the string (its reach + its lunge, :slide); 片腕's short K against the J floor (2026-10-06) excepted

@@ -5,7 +5,7 @@
 ;;;;
 ;;;; Events (positions captured when they happen):
 ;;;;   (:swing e kind)  (:super e)  (:breaker e) (:breaker-end e)  (:rush e) (:rush-dash e) (:kikon-follow att def)  (:step e)
-;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (the attacker's kit hook :hit-fx sees it after the spark)  (:blocked att def x y z)  (:armored def x y z)
+;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (the attacker's kit hook :hit-fx sees it after the spark)  (:blocked att def x y z)  (:armored def x y z)  (the defender's kit hook :armored-fx after the spark)
 ;;;;   (:absorbed def x y z)  (:guard-crush att def x y z) (:guard-back e)  (:guard-break att def x y z)  (:stance-break att def x y z)  (:clash x y z)
 ;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:refused e cmd)  (:sp-break att def take gain)  (:kosei att m x y z)
 ;;;;   (:hazard-cut x y z)  (:hoho-out e x z) (:hoho-in e x z) (:perfect e victim)  (:burst e attacker mode) (:burst-end e)
@@ -104,7 +104,8 @@ search leaves no crack on the live stage (REFACTOR_2026-11 §11.5.2 C)."
       (sfx-at :clang x y z))
     (:armored (def x y z)     ; the owner's spot colour: REIATSU (+ his absorb sound)
       (vfx-hit x y z :reiatsu) (sfx-at :cut x y z :gain 0.7)
-      (let ((k (kit-absorb-sfx (kit-of def)))) (when k (sfx-on k def :gain 0.8))))
+      (let ((k (kit-absorb-sfx (kit-of def)))) (when k (sfx-on k def :gain 0.8)))
+      (let ((h (kit-hook (kit-of def) :armored-fx))) (when h (funcall h def x y z))))   ; the defender's own mark (Yamamoto's 西 garb)
     (:parried (att def x y z)   ; a parry caught it: an ember star, a 1 f negative frame
       (multiple-value-bind (dx dz) (hit-dir att def) (vfx-ember x y z :dx (- dx) :dz (- dz) :scale 1.3))
       (sfx-at :clang x y z) (sfx-at :sizzle x y z) (shake 0.12 0.2) (impact-frame :negative 1)
