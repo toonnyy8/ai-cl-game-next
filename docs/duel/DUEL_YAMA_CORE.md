@@ -1306,6 +1306,8 @@ Konpaku): its 147 hash / probe / combat lines against the same script on a dist 
 
 So the cinematics move no rule, damage or state; only when the reset (or the K.O.) happens, by the length added.
 
+**Merged wired (the lead, 2026-11-20).** The storyboards' lengths stay: they are the user's storyboards (西 is theirs word for word), every other kit's per-pointer Kikon cinematic already runs longer than the generic 96 f, the damage frame does not move, and no gate reads the shift (the trials skip cinematics, `--cvc` plays no Yamamoto, the looks gate's YK match never awakens). The cost is +72 / +84 / +96 ticks before the reset after a Bankai Kikon under 東 / 西 / 南; reverting is one line (`:kikon-cines` back to `soul-break-cine`).
+
 ### 19.3 Deviations, each with its reason
 
 1. **Camera angles and distances moved where an actor blocked the lens or left the frame** (19.1's last column): the storyboards placed the
