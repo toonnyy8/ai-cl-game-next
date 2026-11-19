@@ -993,3 +993,58 @@ def yama_k2_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-k2", yama_k2_script())
 write("yama-k2-phone", yama_k2_script(True))
+
+# Yamamoto's Bankai art K3 (DUEL_YAMA_CORE §18): 西, 南, 北 and the SA in play, each from its link as the scripts land it (the native trials'
+# ticks: C4 西 NS a-b-c from 1.6 m, C7 J1 J2 > AS2 a-b, C5 南 NS a-b-c from 4 m, C8 J1-J3 > AS3 a-b-c, C11 北's NS (armed) from 6 m, C12 J1 >
+# 北's AS, and the SA in 西 NSa's gap), each segment at its tell, its S and its end (frames after the first press; an NS link lands at S+A,
+# +8 f a hitstop on a hit; a J link at S+A (+4), an AS at S+1 (+4)); then 西's armour (87437: the garb's mark, no yellow spark). From the
+# behind camera, then the SIDE camera (2109). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 110 --script tests/scripts/duel-yama-k3.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 110 --mobile --size 390x844 --script tests/scripts/duel-yama-k3-phone.json
+YAMA_K3 = (   # scene, setup commands, presses (("j" | "sp", seconds after the start) ...), ((frame after the first press, still) ...)
+    ("west NS a-b-c", (87016, 87302, 87445), (("sp", 0), ("sp", 0.3), ("sp", 0.6)),
+     ((12, "ns2a-tell"), (16, "ns2a-s"), (34, "ns2a-pulse"), (44 + 7, "ns2b-tell"), (44 + 14, "ns2b-s"), (69 + 7, "ns2c-tell"),
+      (69 + 12, "ns2c-s"), (69 + 12 + 8 + 18, "ns2c-end"), (44 + 14 + 8 + 2, "ns2b-end"), (44, "ns2a-end"))),
+    ("J1 J2 > AS2 a-b", (87014, 87301, 87445), (("j", 0), ("j", 0.25), ("sp", 0.45), ("sp", 0.75)),
+     ((33 + 4, "as2a-tell"), (33 + 9, "as2a-cocked"), (33 + 12, "as2a-s"), (56, "as2a-end"), (56 + 9, "as2b-tell"), (56 + 12, "as2b-s"),
+      (56 + 12 + 8 + 18, "as2b-end"))),
+    ("south NS a-b-c", (87040, 87303, 87445), (("sp", 0), ("sp", 0.4), ("sp", 0.8)),
+     ((6, "ns3a-up"), (17, "ns3a-tell"), (22, "ns3a-s"), (34, "ns3a-end"), (47 + 8, "ns3b-tell"), (47 + 16, "ns3b-s"), (65, "ns3b-end"),
+      (65 + 10, "ns3c-tell"), (65 + 18, "ns3c-s"), (65 + 34, "ns3c-end"))),
+    ("J1-J3 > AS3 a-b-c", (87014, 87301, 87445), (("j", 0), ("j", 0.25), ("j", 0.5), ("sp", 0.75), ("sp", 1.05), ("sp", 1.35)),
+     ((48 + 6, "as3a-tell"), (48 + 10, "as3a-s"), (69, "as3a-end"), (69 + 7, "as3b-tell"), (69 + 10, "as3b-s"), (89, "as3b-end"),
+      (89 + 6, "as3c-tell"), (89 + 12, "as3c-s"), (89 + 12 + 8 + 20, "as3c-end"))),
+    ("NORTH NS (armed)", (87060, 87302, 87445, 87444), (("sp", 0),),
+     ((8, "n4ns-gather"), (15, "n4ns-tell"), (19, "n4ns-coil"), (24, "n4ns-s"), (40, "n4ns-end"))),
+    ("J1 > NORTH AS (armed)", (87014, 87303, 87445, 87444), (("j", 0), ("sp", 0.2)),
+     ((19 + 6, "n4as-tell"), (19 + 10, "n4as-s"), (19 + 10 + 8 + 20, "n4as-end"))),
+    ("SA in west NSa's gap", (87016, 87302, 87445), (("sp", 0), ("j", 0.4)),
+     ((44 + 1, "sa-tell"), (44 + 6, "sa-s"), (44 + 6 + 8 + 16, "sa-end"))),
+    ("west armour", (87020, 87302, 87445), (), ()),
+)
+def yama_k3_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for name, cmds, presses, shots in YAMA_K3:
+            s0 = scene(f"{name} {cam}", cmds[:2] + (87446,) + cmds[2:] + deck)   # (the pointer, into the Bankai at once, the marks)
+            a = s0 + 1.6                                                        # (after the form's callout)
+            for kind, dt in presses:
+                if kind == "sp": sp(a + dt)
+                else: ev.extend(tap(a + dt, "KeyJ", 0.05))
+            a += 0.01
+            for f, n in shots: ev.append(shot(a + f / 60, f"yama-k3-{n}-{cam}{sx}"))
+            if name == "west armour":
+                ev.append(cmd(a, 87437)); ev.append(shot(a + 4 / 60, f"yama-k3-armour-{cam}{sx}"))
+            t += 4.0
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k3", yama_k3_script())
+write("yama-k3-phone", yama_k3_script(True))

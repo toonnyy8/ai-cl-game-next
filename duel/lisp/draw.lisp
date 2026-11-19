@@ -160,6 +160,13 @@ once, on the draw that first sees the frame (MODEL-LAST-SF)."
                                (zerop (mod (- now (mv-s mv)) 10)))
                       (start-ghost e)))))))
 
+(defun planted-spot (e f mv)
+  "Where E's weapon stands planted in the plaza now, a constant list (ahead right) in m from his feet, or NIL (in his hand). His kit's
+:planted hook decides when it has one (Yamamoto's Bankai: the grab, the throw, AS3b / AS3c, each a window of frames, art K3), else a
+:planted move in its main phase stands it 0.7 m ahead. A look: the sim never reads it."
+  (let ((h (kit-hook (fighter-kit f) :planted)))
+    (if h (funcall h e f mv) (and mv (mv-planted mv) (eq (fighter-phase f) :main) '(0.7f0 0f0)))))
+
 (defun body-lift (kit b)
   "The drawn height of KIT's :lift for body B: the lift while B is the form's own body (a cinematic that still shows the
 form before, e.g. an awakening's first beats, stands on the ground)."
@@ -173,7 +180,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
          (mv (current-move f))
          (look (and mv (or (eq (mv-kind mv) :kikon) (eq (fighter-phase f) :follow)) (getf (mv-params mv) :look)))   ; (a wave's strike)
          (flashing (and (eq look :flash-step) (rush-dashing-p f)))   ; the flash step: afterimages only
-         (planted (and mv (mv-planted mv) (eq (fighter-phase f) :main)))
+         (planted (planted-spot e f mv))                ; (ahead right) or NIL
          (sc (draw-scale-of e))                           ; (a cinematic's giant: CINE-SCALE, about his feet)
          (weapon (if (or planted flashing) nil (model-weapon m))) (x (aref p 0))
          (y (+ (aref p 1) (rush-lift f mv) (if (= sc 1f0) (body-lift kit b) (* sc (body-lift kit b))))) (z (aref p 2)))
@@ -211,7 +218,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (unless (= sc 1f0) (draw-shadow x y z (* 1.2 sc (body-hurt-r b))))))   ; (the giant's shadow)
     (let ((h (kit-hook kit :draw))) (when h (funcall h e rdt)))   ; a character's own looks on the posed body (KIT-HOOK)
     (when (and planted (model-weapon m))
-      (draw-planted-weapon (model-weapon m) (+ x (* 0.7 (fwd-x yaw))) (+ z (* 0.7 (fwd-z yaw))) yaw))
+      (draw-planted-weapon (model-weapon m) x z yaw :ahead (first planted) :right (second planted)))
     (when (and weapon (> (model-alpha m) 0.5))
       (body-weapon-tip b weapon (model-joints m) *tip*)
       (body-weapon-base b weapon (model-joints m) *base*)

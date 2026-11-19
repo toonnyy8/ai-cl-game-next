@@ -189,8 +189,9 @@
 
 ;; NA: the fencer's lunge (§6, A): E-J1 S14 (its own clip at S14 since art K2: the opener's held tell) > E-J2 the rising backhand S7 >
 ;; E-J3 the dropped-knee thrust S8 (a stagger, no knockdown, no :ender push: the AS follows). Reach the old clips' drawn tips (1.52 / 1.59 /
-;; 1.71).
-(defmove :ya-e-j1 :kind :quick :clip :ya-e-q1 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
+;; 1.71). E-J1's :blend 4 (art K3, §18): it starts from any pointer's stance (a 1.83 m jump of the tip from 東's), so its first frames
+;; fade in; a look only (PLAY-CLIP is MV-BLEND's one reader), the Kikon strikes below inherit it.
+(defmove :ya-e-j1 :kind :quick :clip :ya-e-q1 :blend 4 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
   :reach 1.52 :arc 100 :on-hit :flinch)
 (defmove :ya-e-j2 :kind :quick :clip :ya-e-q2 :startup 7 :active 3 :recovery 13 :dmg 38 :adv-block -2
   :reach 1.59 :arc 100 :on-hit :flinch)
@@ -221,37 +222,37 @@
 ;; armoured the same way, always swinging (no catch: not a parry)
 (defmove :ya-e-n2a :kind :flash :clip :ya-shonetsu :startup 16 :active 12 :recovery 24 :reach 2.0 :arc 360 :callout "SHONETSU JIGOKU"
   :hits ((16 18 :dmg 45 :on-hit :stagger) (26 28 :dmg 45 :on-hit :stagger)) :params (:ns-next :ya-e-n2b))
-(defmove :ya-e-n2b :kind :flash :clip :ya-shonetsu :clip-s 16 :startup 14 :active 3 :recovery 20 :dmg 40 :reach 2.0 :arc 360 :slide 1.5
+(defmove :ya-e-n2b :kind :flash :clip :ya-e-advance :startup 14 :active 3 :recovery 20 :dmg 40 :reach 2.0 :arc 360 :slide 1.5
   :on-hit :stagger :params (:ns-next :ya-e-n2c :turn-armor t))
-(defmove :ya-e-n2c :kind :flash :clip :ya-w-counter :clip-s 6 :startup 12 :active 3 :recovery 24 :dmg 90 :adv-block -12 :slide 0.6
+(defmove :ya-e-n2c :kind :flash :clip :ya-e-gokui-cut :startup 12 :active 3 :recovery 24 :dmg 90 :adv-block -12 :slide 0.6
   :reach 2.0 :arc 120 :on-hit :knockback :kb 3.0 :callout "ZANJITSU GOKUI" :params (:turn-armor t))
 ;; AS2: the grab after the hit (40) > the flare throws him (70, a launch); mark 西
-(defmove-copy :ya-e-as2b :ya-e-n2b :kind :sp :startup 12 :recovery 24 :dmg 70 :slide 0.0 :on-hit :launch :params (:mark 2))
-(defmove :ya-e-as2 :kind :sp :clip :ya-w-counter :clip-s 6 :startup 12 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
+(defmove-copy :ya-e-as2b :ya-e-n2b :kind :sp :clip :ya-e-throw :startup 12 :recovery 24 :dmg 70 :slide 0.0 :on-hit :launch :params (:mark 2))
+(defmove :ya-e-as2 :kind :sp :clip :ya-e-grab :startup 12 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
   :callout "ZANJITSU GOKUI" :params (:ns-next :ya-e-as2b :mark 2))
 
 ;;; ---------------------------------------------------------------- 3 南 DAISOJIN: the dead rise
 ;; a: the plant: dead hands at the victim's bearing 4-10 m (r 1.2), the point taken on S, the hands 16 f later (:delay 17 inside A 17, as
 ;; NS1b's column: a Step after S dodges), a bind; b: the swarm crawls along the floor (a :wave, 6 m/s); c: the bone wall rises before him
 ;; (its fall the hit, a disc 3 m ahead, r 1.6) and stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-HZ :ya-wall)
-(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :clip-s 20 :startup 22 :active 17 :recovery 20 :reach 10.0 :callout "DAISOJIN"
+(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 10.0 :callout "DAISOJIN"
   :on-frame ((22 yama-column-fire))
   :params (:ns-next :ya-e-n3b :near 4.0 :far 10.0 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun*
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3b :kind :flash :clip :ya-kaka :clip-s 20 :startup 16 :active 2 :recovery 22 :reach 8.0
+(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 8.0
   :on-frame ((16 yama-wave-fire))
   :params (:ns-next :ya-e-n3c :width 2.0 :speed 6.0 :range 8.0 :dmg 50 :react :stagger :look yama-swarm-look :kikon-strike :ya-e-ns-strike))
-(defmove :ya-e-n3c :kind :flash :clip :ya-kaka :clip-s 20 :startup 18 :active 2 :recovery 30 :reach 4.0
+(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 4.0
   :on-frame ((18 yama-wall-fire))
   :params (:ahead 3.0 :radius 1.6 :dmg 70 :react :crumple :kikon-strike :ya-e-ns-strike))
 ;; AS3: the hands seize at him (40, a stagger: a bind inside a combo would be a flinch, COMBO-STEP) > the swarm (50) > the pile collapses
 ;; (100, a knockdown); mark 南
-(defmove :ya-e-as3c :kind :sp :clip :ya-kaka :clip-s 20 :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
+(defmove :ya-e-as3c :kind :sp :clip :ya-e-as3c :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
   :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike :look yama-pile-look))
-(defmove :ya-e-as3b :kind :sp :clip :ya-kaka :clip-s 20 :startup 10 :active 2 :recovery 18 :reach 6.0 :on-frame ((10 yama-wave-fire))
+(defmove :ya-e-as3b :kind :sp :clip :ya-e-as3b :startup 10 :active 2 :recovery 18 :reach 6.0 :on-frame ((10 yama-wave-fire))
   :params (:ns-next :ya-e-as3c :width 2.0 :speed 8.0 :range 6.0 :dmg 50 :react :stagger :look yama-swarm-look :mark 3
            :kikon-strike :ya-e-as-strike))
-(defmove :ya-e-as3 :kind :sp :clip :ya-kaka :clip-s 20 :startup 10 :active 3 :recovery 16 :reach 4.0 :callout "DAISOJIN"
+(defmove :ya-e-as3 :kind :sp :clip :ya-e-as3a :startup 10 :active 3 :recovery 16 :reach 4.0 :callout "DAISOJIN"
   :on-frame ((10 yama-column-fire))
   :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
            :look yama-hands-look))
@@ -259,13 +260,14 @@
 ;;; ---------------------------------------------------------------- 北 TENCHI KAIJIN (armed by the third mark; one move, NS or AS)
 ;; NS: flame gathers (S24), one enormous wave (4 m wide, 14 m), a knockdown; AS: the same cut point-blank (180), after any J count (the
 ;; :as-pick hook ignores the press count). Neither writes a pointer or a mark; frame 0 clears the marks (YAMA-NORTH-START)
-(defmove :ya-e-n4 :kind :flash :clip :ya-e-tenchi :clip-s 6 :startup 24 :active 2 :recovery 30 :reach 14.0 :callout "TENCHI KAIJIN"
+(defmove :ya-e-n4 :kind :flash :clip :ya-e-tenchi :blend 4 :startup 24 :active 2 :recovery 30 :reach 14.0 :callout "TENCHI KAIJIN"
   :on-frame ((0 yama-north-start) (24 yama-wave-fire))
   :params (:width 4.0 :speed 20.0 :range 14.0 :dmg 220 :react :knockdown :look yama-north-look :north t :kikon-strike :ya-e-n4-strike))
-(defmove :ya-e-as4 :kind :sp :clip :ya-e-tenchi :clip-s 6 :startup 10 :active 2 :recovery 30 :dmg 180 :reach 2.4 :arc 110
+(defmove :ya-e-as4 :kind :sp :clip :ya-e-f1 :blend 3 :startup 10 :active 2 :recovery 30 :dmg 180 :reach 2.4 :arc 110
   :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-north-start)) :params (:north t))
-;; SA (J in an NS gap, any pointer): a short backhand at chest height (a copy of the old counter's clip, not 西's move)
-(defmove :ya-e-sa :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
+;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; :blend 3: it follows
+;; any NS segment's S+A, six poses, a look only)
+(defmove :ya-e-sa :kind :quick :clip :ya-w-counter :blend 3 :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
   :on-hit :stagger)
 
 (defkit :yamamoto :bankai
@@ -289,7 +291,8 @@
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult   ; (its hazards carry x 1.0: no heat)
           :ns-pick yama-ns-pick :as-pick yama-as-pick :switch-ok yama-switch-ok :hud-tag yama-bk-tag
-          :armored-fx yama-armored-fx))                ; (西's armour absorbing an NA: L9, a look, art K1)
+          :armored-fx yama-armored-fx                  ; (西's armour absorbing an NA: L9, a look, art K1; it replaces the spark, K3)
+          :planted yama-planted))                      ; (the blade left in the plaza: the grab / throw, AS3b / AS3c; a look, art K3)
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules/yamamoto.lisp)
 (defun ya-bearing-point (px pz qx qz near far)
