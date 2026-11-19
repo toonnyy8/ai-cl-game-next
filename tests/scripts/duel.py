@@ -1048,3 +1048,71 @@ def yama_k3_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-k3", yama_k3_script())
 write("yama-k3-phone", yama_k3_script(True))
+
+# Yamamoto's Bankai art K4 (DUEL_YAMA_CORE §19): the 東 / 西 / 南 Kikon cinematics landed in play, the proof that they move no sim line
+# but the ones a cinematic's length moves (the debug commands exist at 3173bf43 too, so the same script runs on a dist built there and
+# its log can be diffed line by line). Each scene a fresh match (87200 then 87014: the opponent changes twice), human P1 in the Bankai
+# 1.4 m from an idle Kenpachi, then the route held into its Kikon: J1 > AS1 (東), J1 J2 > AS2 (西), J1-J3 > AS3 (南); probe lines and a
+# hash line after the cinematic and the reset; the t=600 hash line lands after every cinematic. Last, 2101 (2 Konpaku a match from the
+# next) and the 西 route again: its Kikon is the K.O. (the match-over path, the K.O. cinematic, RESULTS).
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 62 --script tests/scripts/duel-yama-k4-kikon.json
+YAMA_K4_KIKON = (   # scene, pointer, presses (("j" | "hold", seconds after the start) ...)
+    ("east J1 > AS1 held", 87301, (("j", 0), ("hold", 0.2))),
+    ("west J1 J2 > AS2 held", 87302, (("j", 0), ("j", 0.25), ("hold", 0.45))),
+    ("south J1-J3 > AS3 held", 87303, (("j", 0), ("j", 0.25), ("j", 0.5), ("hold", 0.75))),
+    ("west again from 2 Konpaku: the K.O.", 87302, (("j", 0), ("j", 0.25), ("hold", 0.45))),
+)
+def yama_k4_kikon_script():
+    ev, t = [], T0
+    def sp(s, hold): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    for name, ptr, presses in YAMA_K4_KIKON:
+        if name.startswith("west again"): ev.append(cmd(t - 0.3, 2101))
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        cmds = (87200, 87014, ptr, 87446, 87445)
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        a = t + 0.05 * (len(cmds) - 1) + 1.6                                # (after the form's callout)
+        for kind, dt in presses:
+            if kind == "hold": sp(a + dt, 1.2)
+            else: ev.extend(tap(a + dt, "KeyJ", 0.05))
+        for dt in (1.0, 5.0, 8.0): ev.append(cmd(a + dt, 87900))
+        ev.append(cmd(a + 8.1, 2107))
+        t += 12.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k4-kikon", yama_k4_kikon_script())
+
+# Yamamoto's Bankai art K4 (DUEL_YAMA_CORE §19): one still per storyboard beat of each Kikon cinematic (87450+i from frame 0, P1 in the
+# Bankai 3 m from an idle Kenpachi set down mid-stage, after 2.5 s idle in the Bankai (87030, 87446 the first time); 87600+k holds it at frame 2k, the
+# still a moment after it gets there, then the next hold). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --script tests/scripts/duel-yama-k4.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --mobile --size 390x844 --script tests/scripts/duel-yama-k4-phone.json
+YAMA_K4 = (   # cinematic, name, ((frame (even), beat still) ...)
+    (0, "higashi", ((6, "b0-held"), (30, "b1-caption"), (56, "b2-tap"), (74, "b3-nothing"), (96, "b4-void"), (120, "b5-shatter"),
+                    (150, "b6-hang"))),
+    (1, "nishi", ((6, "b0-held"), (30, "b1-strike"), (46, "b2-ash"), (62, "b3-ignite"), (100, "b4-walk"), (128, "b5-pass"),
+                  (146, "b6-column"), (170, "b7-wide"))),
+    (2, "minami", ((6, "b0-held"), (32, "b1-words"), (52, "b2-plant"), (84, "b3-dead"), (122, "b4-back"), (144, "b5-burst"),
+                   (172, "b6-wide"))),
+)
+def yama_k4_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    for i, name, beats in YAMA_K4:
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev += [cmd(t, 87030)] + ([cmd(t + 0.05, 87446)] if i == 0 else [])   # (idle in the Bankai first: the form's callout gone)
+        t += 2.5
+        ev.append(cmd(t, 87450 + i))
+        if phone: ev.append(cmd(t + 0.02, 87901))
+        ev.append(cmd(t + 0.03, 87600 + beats[0][0] // 2))
+        a, f0 = t + 0.03, 0
+        for j, (f, n) in enumerate(beats):
+            a += (f - f0) / 60 + 0.3                                         # (it runs on to frame f, then a still)
+            ev.append(shot(a, f"yama-k4-{name}-{n}{sx}"))
+            if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1][0] // 2))
+            a += 0.05
+            f0 = f
+        t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k4", yama_k4_script())
+write("yama-k4-phone", yama_k4_script(True))

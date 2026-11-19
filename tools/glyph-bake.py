@@ -18,7 +18,7 @@ from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import BasePen
 import pathops
 
-CHARS = ("卍解残火の太刀野晒呑め、鬼魂上天地灰尽旭日刃衣十万億死大葬陣東西南北斬勝"
+CHARS = ("卍解残火の太刀野晒呑め、鬼魂上天地灰尽旭日刃獄衣十万億死大葬陣東西南北斬勝"
          "山本元柳斎重國更木剣八不知明俺斬決着時間切光攻"
          "腕片盾殴飛噛千切真二草鹿"
          "朽ルキア月白初舞霞罸絶対零度這縄霜閃凍結次縛柱"

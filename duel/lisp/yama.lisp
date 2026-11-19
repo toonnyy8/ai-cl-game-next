@@ -285,7 +285,8 @@
          :ns-extra (:ya-e-n4) :as-extra (:ya-e-as4)          ; 北: outside the pointer grammar, picked by the hooks (KIT CORE-ROUTES)
          :stances (:ya-st-higashi :ya-st-nishi :ya-st-minami) ; 東 the blade level across / 西 the arms open low / 南 the blade
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last; 北's: its moves' :cine)
+         :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19;
+                                                                             ;  北's: its moves' :cine, yama-tenchi-cine)
          :as-by-press (1 2 3)
          :ns-range ((2.0 5.5) nil (4.0 9.0))   ; the CPU lunges KYOKKO from mid range, plants 南's hands from range
          :mult 1.0)
@@ -692,6 +693,18 @@ else the marks held (MARK 1 / 12 / ... : LHUD-MARKS draws them next to the point
              (if hz (format nil "~,2f ~,2f age ~d" (hazard-x hz) (hazard-z hz) (hazard-age hz)) "-")
              (state-of *p2*) (gauges-reishi (gauges *p2*)) (fighter-dist f))))
 
+(defun yama-cine-at (name)
+  "Stills (art K4): the Bankai's Kikon cinematic NAME from frame 0, P1 Yamamoto in the Bankai 3 m from an idle Kenpachi, both set down
+mid-stage first (CINE-STAGE, as SETTLE-SOULS does); no AFTER (the round goes on). When NAME already runs, nothing (87601+k holds it)."
+  (unless (and *cine* (eq (cine-name *cine*) name))
+    (abort-cine) (stamps-clear)                          ; (the last one's stamps: the stills run one after another)
+    (setf *cine-hold* nil)
+    (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (full-gauges! *p1*) (full-gauges! *p2*)
+    (unless (eq (fighter-form (fighter *p1*)) :bankai)   ; (the stills run 87446 first: its callout gone)
+      (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
+    (cine-stage *p1* *p2*)
+    (start-cine name *p1* *p2*)))
+
 (defun yama-debug (c)
   "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\", 87000-87999): 87000+k human P1 Yamamoto vs an idle Kenpachi
 (both CPUs off, full gauges), k / 10 m apart (k 0-199); 87200+n the same vs Ichigo (n 0) / Hisagi (1) 2.0 m apart; 87301-87303 P1's
@@ -704,7 +717,9 @@ P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as th
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
 c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87448 the consing of every
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
-the planted blade, 北's burn, the :planted hook)."
+the planted blade, 北's burn, the :planted hook; art K4: the three Kikon cinematics' looks). Art K4 (§19): 87450+i the Bankai's Kikon
+cinematic i (東 / 西 / 南, 0-2) from frame 0, P1 in the Bankai 3 m from an idle Kenpachi, set down mid-stage as a Kikon is (YAMA-CINE-AT;
+nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -729,6 +744,8 @@ the planted blade, 北's burn, the :planted hook)."
           ((= c 87445) (let ((s (ys *p1*))) (setf (yss-marks s) 0 (yss-north s) nil)))
           ((= c 87446) (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
           ((= c 87448) (yama-look-consing))
+          ((<= 87450 c 87452) (yama-cine-at (nth (- c 87450) '(yama-higashi-cine yama-nishi-cine yama-minami-cine))))   ; (art K4)
+          ((<= 87601 c 87699) (when *cine* (setf (cine-hold *cine*) (* 2 (- c 87600)))))
           ((= c 87447) (log-msg "duel yamamoto switch t ~d open ~a north ~a" *match-tick* (and (core-switch-open-p *p1* (fighter *p1*)) t)
                                 (yss-north (ys *p1*))))
           ((<= 87500 c 87600) (setf (gauges-meter (gauges *p1*)) (f32 (- c 87500))))
