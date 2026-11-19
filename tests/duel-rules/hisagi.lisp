@@ -600,7 +600,8 @@
                  always (loop for (f . k) in alist
                               always (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
                                          (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
-                                         (eq (kit-hook k :dmg-mult) (cond ((eq c :hisagi) 'hs-core-dmg-mult) ((eq c :kenpachi) 'ken-dmg-mult)))))))
+                                         (eq (kit-hook k :dmg-mult) (cond ((eq c :hisagi) 'hs-core-dmg-mult) ((eq c :kenpachi) 'ken-dmg-mult)
+                                                                          ((eq c :yamamoto) 'yama-dmg-mult)))))))   ; (his segment x, DUEL_YAMA_CORE stage B's seam)
     ;; the annulus (§25.3: J1 / J2 3.0-6.0 m 100 deg ahead, J3 3.0-6.0 m all round): a hurt cylinder r 0.36 at D m (ahead,
     ;; or behind); the window's dead zone first, then its volume (facing -Z)
     (flet ((reach-p (n d &optional behind)

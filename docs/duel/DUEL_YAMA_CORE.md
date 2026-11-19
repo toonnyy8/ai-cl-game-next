@@ -209,3 +209,100 @@ counts as used (its gauge refunded, DUEL_SP §3).
    right reach; the generic core CPU plays them. Roster: un-retire slot 0 (`*retired*`, simgate `RETIRED`), the host tests, the looks
    gate's seeds.
 3. The playtest Artifact, then art batches (presentation only), the Kikon storyboards last.
+
+## 11. As built (batch 1 A, 2026-11-19)
+
+Commit 0 brought `yama-art.lisp` / `yama-vfx.lisp` back from `retired-kits` unchanged but for the API drift: `*ya-hem*` (the hem spring state
+R15a dropped from hem-spring.lisp) and the stamp dispatch's ten kinds of his (vfx-stamps.lisp, codes 17-22 / 25-29). Stage A is a fresh
+`duel/lisp/yama.lisp`: §7.1's table on the core grammar, slot 0 un-retired (kit.lisp `*retired*`, simgate `RETIRED`; `*roster*` untouched).
+
+**Built.** NA J1 HISEN S14 (34) > J2 KAESHIBI S8 (34) > J3 TSUKABI S9 (42, stagger), `as-by-press (1 2 3)`. The routes, the SA and every
+number §7.1 gives, as written (damage before the kit's `:mult` 1.0):
+
+| Pointer | NS a / b / c | AS |
+|---|---|---|
+| 1 不知火 | a S22 wave 70 (8 m) / b S16 the column 70 at the victim's bearing 4-7 m, the point on S, erupting on S + 12 / c S18 the tornado wave 90 (3.5 m wide, knock-back) | AS1 S10 the thrust 50, knockdown, `:steal-fs` 30 |
+| 2 城郭炎上 | a S20 the stream wave 40 (10 m) / b S16 the ring round the victim (3-8 m, r 1.6, 90 f, one at a time) / c S18 the dome on the ring (spends it), or at his bearing 3-8 m: 80, crumple | AS2 S12 the ring snaps round him (40, stagger; the ring left there) > the dome on it (NS2c's copy: 60, launch) |
+| 3 撫斬 | a S18 the jab 40 (1.6 m, slide 1.0) / b S12 the step-cut 50 (slide 2.0) / c S14 NADEGIRI 110, crumple, the hit on S, the split a look 24 f later | AS3 S8 40 > S10 50 > NADEGIRI's copy 110, knockdown |
+
+SA TAIMATSU (S16 A8 R24, the old kit's): a 360 deg halo r 2.4, 55, stagger; its armour is the SA class's. SP costs (DUEL_SP §4, the host
+test's `*sp-table*`, DUEL_DESIGN §5.1 regenerated): NS 95 / 55 / 80, AS 20 / 40 / 80.
+
+His fire is hazards spawned inside their segment (SPAWN-HAZARD's defaults freeze the class, the SP scale and the start tick at the fire
+frame): `:wave` (NS1a / NS1c / NS2a), and his own kinds through `yama-hz` (`:ya-col`, `:ya-ring`, `:ya-dome`). The ring has no collision:
+its hit is a burn on its line (±0.25 m), so crossing it hurts and standing inside or outside does not (Y8). Every hazard segment carries
+`:params :kikon-strike` (`:ya-ns-strike` for the NS ones, `:ya-as-strike` for AS2a / AS2b: one copy per class). One move per class
+(AS2b, AS3c are copies). Only a route's last segment knocks down / crumples / launches (host-tested).
+
+**Stage B seam.** `yama-seg-x` (1.0 now) is the per-segment damage x; the kit's `:dmg-mult` hook (`yama-dmg-mult`) returns it for his own
+hits and, for a hazard, the copy frozen in its data (`:x`) at the fire frame. APPLY-HIT multiplies it with the SP short-pay x (`sp-paid /
+sp-cost`) and the hazard's frozen SP x. The ring segment is priced as a setup (`:sp-cost` 10; its burn is `:ring-dmg`, not SP damage), so
+§7.4's "no hit of its own spends no heat" can read `mv-sp-damage` = 0. Only a hazard's x is frozen today (its data `:x` at the fire
+frame); a melee hit calls `yama-seg-x` when it lands, so stage B stores the boost at the segment's start (§7.4) and has `yama-seg-x` read
+it.
+
+**The awakening.** `:core :no-awaken t`: Mod + P does nothing and the CPU never awakens (the existing switch, fighter.lisp / core-ai /
+webhud); `tests/duel-rules/yamamoto.lisp` pins it with no `:awaken-form`. Stage C replaces it.
+
+**Placeholders** (new art after the playtest, §8):
+- Clips: J1 `ya-q1` slowed to S14 (`:clip-s` 9); NS1a `ya-f1`, NS1b `ya-f2`, NS1c `ya-sig` (its f40 wave pose on S), NS2a / NS2b / AS2a
+  `ya-enjo`, NS2c / AS2b `ya-f3`, NS3a / AS3a `ya-q2`, NS3b `ya-q1`, NS3c / AS3c `ya-nadegiri`, AS1 `ya-shiranui-throw`, AS3b `ya-f1`, SA
+  `ya-taimatsu`; the Kikon strikes J1's clip.
+- Stances: 1 `ya-shiranui` (the old charge loop), 2 `ya-st-enjo` (a loop on ENJO's point pose), 3 `ya-st-cane` (a loop on the intro's cane
+  lean: the planted blade). The last two are two-key loops on old poses.
+- Kikon cinematics: the generic `soul-break-cine` for all three pointers. The old `yama-kikon-cine` calls `push-in-on` (gone with R5) and its
+  caption's 城郭炎 are not in glyphs.lisp (only 上 would draw); it waits for the storyboards.
+- Hazard looks (yama-vfx.lisp): the old fire wave, a pillar for the column / the tornado, six low pillars for the ring, the old dome from
+  its seethe so it detonates on the hit, NADEGIRI's old crescent for the split.
+
+**Deviations from §7.1 / §7.4, each with its reason.**
+1. J1's reach 1.0 m (J2 0.96, J3 0.88) plays at 1.4 m: `*j-reach-min*` floors every `:quick` move (Ichigo's 1.1 the same).
+2. NS1b's active window is 13, not 12: a hazard spawned on frame S counts its first delay frame in that step, so the eruption on S + 12 needs
+   `:delay` 13, and A 13 keeps it inside [S, S + A) (a next segment, which starts at S + A at the earliest, never comes before it).
+3. J3 carries no `:ender`: the old O ender's push would carry the victim out of AS3's reach (§7.1: "no knockdown: an AS follows").
+4. Numbers §7.1 leaves open, the lead's placeholders (knobs in yama.lisp's move data): the waves' widths / speeds (NS1a 2.0 m 14 m/s, NS1c
+   10 m/s over 8 m, NS2a 1.2 m 18 m/s); the column r 1.2, hot 6 f; the dome hot 4 f; the ring's burn 20 (flinch), at most 2 hits 16 f
+   apart; the fire's height 2.4 m; every A / R (listed in the file); AS1 / AS2a / AS3a / AS3b's S 10 / 12 / 8 / 10; NS3b's reach 1.6,
+   NS3c's 2.4; the reactions §7.1 does not name: stagger mid-route (NS1a, NS1b, NS2a, NS3a, NS3b, AS2a, AS3a, AS3b), AS1 a knockdown.
+5. AS2a's 40 is its own melee hit; the ring is spawned by that hit (`:on-land`) round the victim, so a whiffed AS2a leaves none. AS2b (the
+   dome) lands at his bearing from 0 m when no ring stands (NS2c's from 3 m).
+6. TAIMATSU is a melee window (it moves with him), not a hazard; it has no `:kikon-strike` (not a hazard segment).
+
+**Debug range** 87000-87999 (`yama-debug`, DUEL_GAMEPLAY "Debug commands"): scenes vs Kenpachi / Ichigo / Hisagi, the pointer, a route
+or a single NS1 / NS2 segment started on its own, the probe line.
+
+**Checks** (2026-11-19). Host tests ALL PASS (the new `tests/duel-rules/yamamoto.lisp`: the class tags, the openers' tells, no mid-route
+knockdown, each hazard segment's strike, AS 1 / 2 / 3, one ring at a time, the stance by pointer, the bearing point, the ring's band);
+pkgcheck as main; `--cvc` II / IK / KK identical; the native trials `tests/trials/yamamoto-core.lisp` (P1 scripted, P2 by `:p2-at` /
+`:p2-press`), base damage (dealt to Kenpachi):
+
+| Trial | Reading |
+|---|---|
+| NS1 a-b-c (5 m) | wave 70 (29), the column 70 on NS1b's frame 28 (29), the tornado 90 knock-back (38); SP 30 + 30 + 35 |
+| NS2 a-b-c (5 m) | stream 40 (17), the ring round him, the dome on the ring 80 crumple (34); SP 15 + 10 + 30 |
+| NS3 a-b-c (1.8 m) | 40 > 50 > 110 crumple, a true combo (gaps 0 0), 84 dealt; SP 80 |
+| J1 > AS1 (1.6 m) | 34 > 50 knockdown; STEAL fs 30 from P2, gains 15 |
+| J1 J2 > AS2 | 34 34 > 40 > the dome 60 launch, combo 4, gaps 0 |
+| J1-J3 > AS3 | 34 34 42 > 40 50 110, combo 6, gaps 0, 130 dealt |
+| NS3a > SA | the jab 40 > TAIMATSU 55, a combo |
+| NS1a wave x P2's J1 | CANCEL, refund 30 (fs back to 300) |
+| NS1b's column x P2's J1 (87411) | CANCEL inside NS1b's window: refund 30, counted as landed for him |
+| NS2c alone (87415) | the dome at his bearing (no ring) 80 |
+| NS3a held | KIKON FOLLOW-UP, the Kikon: 1 Konpaku (pointer 3) |
+| NS1a held | the wave's hit, the strike flash-steps in (YA-NS-STRIKE KIKON), 1 Konpaku |
+| NS2 a-b twice | the second ring puts the first out (`ring out (one at a time)`) |
+| NS2 a-b, P2 steps back | YA-RING HIT 20 (the crossing burns) |
+
+The browser script `tests/scripts/duel-yama-core.json` plays the routes through the page; one native CPU smoke of YK, IY, HY (3 seeds each)
+ran without an error (no balance gate: the CPU is the generic core one, untuned). The looks gate was not run: its `menus` still changes
+(a fourth fighter on the select screen). The pairing-keyed CPU layers fall back for a Y pairing: `*strat-lookup*` has no Yamamoto row
+(START-MATCH leaves the strategy NIL, so no Q table attaches), `*cai-styles*` none, the strategy layer is off, the MCTS outcome tables
+take their `(t t)` row; so the form-keyed tables (cpu-ki-ichigo's `*iks-hover*` by the opponent's form, his `:base` read as Kenpachi's) are
+not reached. In the smoke Yamamoto lost all nine (YK 0-3, IY 0-3 with two 300 s time-outs, HY 0-3): the generic untuned CPU at `:mult`
+1.0. Still open for the art batch: drawn reach against hit reach (the host FK test does not load yama-art); `yama-nade-look` marks its
+hazard's data from the draw path (nothing in the sim reads it; replace with the split's own look).
+
+**Open for stage B / C.** B: the heat gauge (gains on a hit or cancel, NS spend and boost through `yama-seg-x`), 爆炎 (`:blaze`, its own move
+set, decay, the Reishi drain floored at 1, free NS / AS, the cancel burn), the form latch at neutral, the HUD bar. C: the Bankai (東 / 西 /
+南 pointers, the marks on an AS hit, 北 as a flag, 天地灰尽), the awakening in place of `:no-awaken`. Both: the Kikon storyboards, the
+pointer stances' own clips, the bone wall's wave stop.

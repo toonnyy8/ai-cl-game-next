@@ -8,7 +8,7 @@
 (defpackage :duel (:use :cl :engine))
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "core" "sp" "fuzzy" "strategy" "kit" "ken" "ichigo" "hisagi"))
+(dolist (f '("tuning" "rules" "core" "sp" "fuzzy" "strategy" "kit" "ken" "ichigo" "yama" "hisagi"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 (setf *print-pretty* nil)
@@ -16,7 +16,8 @@
 (defparameter *sct-forms*
   '((:kenpachi :base "Kenpachi base") (:kenpachi :nozarashi "Kenpachi Shikai (NOZARASHI)") (:kenpachi :bankai "Kenpachi Bankai")
     (:kenpachi :bankai-2 "Kenpachi Bankai-2") (:ichigo :base "Ichigo Shikai") (:ichigo :kessa "Ichigo KESSA")
-    (:hisagi :base "Hisagi Shikai") (:hisagi :bankai "Hisagi Bankai, ranged") (:hisagi :bankai-bind "Hisagi Bankai, bind"))
+    (:hisagi :base "Hisagi Shikai") (:hisagi :bankai "Hisagi Bankai, ranged") (:hisagi :bankai-bind "Hisagi Bankai, bind")
+    (:yamamoto :base "Yamamoto Shikai"))
   "(character form title): every live core form, in DUEL_SP §4's order.")
 (defparameter *sct-begin* "<!-- sp-cost-table begin (generated: tools/sp-cost-table.lisp; do not edit by hand) -->")
 (defparameter *sct-end* "<!-- sp-cost-table end -->")

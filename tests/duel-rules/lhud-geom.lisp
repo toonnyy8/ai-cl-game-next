@@ -15,7 +15,8 @@
 (check (equal (mapcar #'first (lhud-seals (lhud-fighter 2) "SHIKAI" nil)) '("旋" "墜")))
 (check (equal (mapcar #'first (lhud-seals (lhud-fighter 4) "KESSA" "BUNSHIN x2")) '("鎖" "月" "影")))
 (check (equal (mapcar #'first (lhud-seals (lhud-fighter 8) "FUSHI NO KOJO" "BIND")) '("鎌" "絞")))   ; Hisagi's Bankai: form + tag
-(check (equal (mapcar #'first (lhud-seals (lhud-fighter 1) "" nil)) '("一" "二" "三")))           ; no seals of his own: PTR0
+(check (equal (mapcar #'first (lhud-seals (lhud-fighter 3) "" nil)) '("一" "二" "三")))           ; no seals of her own (Rukia, retired): PTR0
+(check (equal (mapcar #'first (lhud-seals (lhud-fighter 1) "" nil)) '("火" "城" "撫")))           ; Yamamoto's Shikai (DUEL_YAMA_CORE §7.1)
 (check (equal (second (first (lhud-seals (lhud-fighter 4) "" nil))) "重 · CLEAVER"))
 (check (equal (lhud-move-kanji "Getsuga Tensho") "月牙天衝"))
 (check (equal (lhud-move-kanji "NOTHING") nil))

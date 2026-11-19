@@ -10,7 +10,7 @@
 ;;;;               menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo). (The retired kits'
 ;;;;               scenes, the frame / stance / module probes and the HUD review left with their code, 2026-11-12.)
 ;;;;   22000-27999, 30000-31199   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc), the gates' seeds
-;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 81020+i the gates' CPU difficulty, 81030+s the masher (masher.lisp), 200000+ the pairing gate
+;;;;   74000-75599 Ichigo, 83000-83999 Hisagi, 84000-84099 Kenpachi, 87000-87999 Yamamoto, 81020+i the gates' CPU difficulty, 81030+s the masher (masher.lisp), 200000+ the pairing gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (s = SP paid),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 ;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.

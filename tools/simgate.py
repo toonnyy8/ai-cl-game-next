@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simlib import ROOT, ECL, FAS, EMSDK, MUSLM, build, run_lisp, pool   # noqa: E402,F401  (re-exported: the other tools and the research scripts import them from here)
 
 ROSTER = ['YAMAMOTO', 'KENPACHI', 'RUKIA', 'ICHIGO', 'SENJUMARU', 'LILLE', 'BARRO', 'HISAGI']   # kit.lisp *ROSTER*, in order (the tools' one roster list)
-RETIRED = {'LILLE', 'YAMAMOTO', 'RUKIA', 'SENJUMARU', 'BARRO'}   # kit.lisp *RETIRED*: index 5, the old Lille's slot (out 2026-10-12, his code removed 2026-10-13); BARRO is Lille
+RETIRED = {'LILLE', 'RUKIA', 'SENJUMARU', 'BARRO'}   # kit.lisp *RETIRED*: index 5, the old Lille's slot (out 2026-10-12, his code removed 2026-10-13); BARRO is Lille
 # gate.lisp ROSTER-PAIRS: the first five characters' fifteen in their historical order (YK has P1 Yamamoto; SS before SI),
 # then per later character i its pairings (i, j) with every earlier j, then its mirror (i, i)
 PAIRS = [f'{ROSTER[a]} {ROSTER[b]}' for a, b in ((0, 0), (0, 1), (1, 1), (2, 0), (2, 1), (2, 2), (3, 0), (3, 1), (3, 2), (3, 3),
