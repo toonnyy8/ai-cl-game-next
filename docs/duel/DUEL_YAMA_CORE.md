@@ -428,7 +428,8 @@ accounting does not see it: check when HY is played.
 
 Stage C on top of §11 and §13: the Bankai ZANKA NO TACHI as §4, §7.3 and §7.4 decide, in `duel/lisp/yama.lisp` (a section of moves and the
 kit, the pure mark rules, the sim hooks), the old kit's two cinematics in a new `duel/lisp/yama-cine.lisp`, two stance loops in
-`yama-art.lisp`, five shared hooks that default off, and the HUD's seals and marks.
+`yama-art.lisp`, four shared switches that default off (the `:ns-pick` and `:switch-ok` hooks, the `:turn-armor` param, the
+`:ns-extra` / `:as-extra` keys), and the HUD's seals and marks.
 
 **Built.**
 - **The awakening** (Mod + P, as every kit): `:no-awaken` left both Shikai kits; `:awaken-form :bankai` on the Shikai (爆炎 inherits it).
@@ -463,7 +464,7 @@ kit, the pure mark rules, the sim hooks), the old kit's two cinematics in a new 
     profile). The pointer itself was never touched, so it stays n, the third AS's write.
   - The Kikon cinematic is the landing strike's `:cine`: `yama-tenchi-cine` sits on 北's AS and on its wave's strike copy
     (`:ya-e-n4-strike`). The browser still `duel-yama-tenchi-cine.png` shows its card.
-- **The shared changes**: four switches, each off by default, and one refactor.
+- **The shared changes**: four switches, each off by default (plus `core-routes`, the one list of a kit's routes).
   - kit.lisp: `:ns-extra` / `:as-extra` (`core-routes`), and the hook docs.
   - core-sim.lisp: `core-sp-start!` asks the kit's `:ns-pick` hook first; `core-switch-open-p` asks the kit's `:switch-ok` hook.
   - `core-verdicts`: a defender inside a move's `:params :turn-armor` window (f `*armor-from*` 6 to S, `core-turn-armor-p`) turns an NA's
@@ -475,6 +476,7 @@ kit, the pure mark rules, the sim hooks), the old kit's two cinematics in a new 
     pointer 北 · TENCHI KAIJIN, through the existing form + tag lookup. So both plates and the phone deck replace the label.
   - `lhud-marks` (the side's derived slot 10) gives the held marks, and `lhud-marks-at` draws them in the ember colour after the pointer's
     name, on the plate's seal row and on the deck's ring.
+  - webhud's next-NSa price tick (o+27) asks the kit's `:ns-pick` hook first, so it shows 北's 60 while armed.
   - The tag line shows neither tag. The select card is unchanged. The callouts' kanji were added, and the atlas was rebaked (lhud-charset
     passes).
 - **CPU**: the generic core CPU plays the Bankai and 北 as they are: `:ns-range` 東 (2.0 5.5), 南 (4.0 9.0). No tuning.
@@ -571,12 +573,19 @@ Every match awakened him into the Bankai. 北 was armed in eight of nine matches
 Checks: host tests ALL PASS (4067 checks, +97: the Bankai's class tags, openers, no mid-route knockdown, AS segment counts, stances,
 strikes and cinematics, the pure mark and 北 rules, the turn-armour verdict, the marks on stand-in fighters with the pointer never 4, the
 HUD's seals / marks / tags, every new hook off for the other kits); pkgcheck as main; `--cvc` II / IK / KK identical;
-`python3 tests/sp-costs-check.py` 116 PASS, 0 FAIL; `./build.sh duel`; the browser smoke (`run.mjs` exit 0).
+`python3 tests/sp-costs-check.py` 116 PASS, 0 FAIL (it plays no Yamamoto route: the Bankai's costs are pinned by `*sp-table*` only);
+the stage A and B trials (`yamamoto-core.lisp`, `yamamoto-blaze.lisp`) give tables identical to db0e303c's; `./build.sh duel`; the
+browser smoke (`run.mjs` exit 0).
 
 **Open.** The art batch:
 - the pointer stances' own clips;
 - every Bankai move's own clip;
 - the hands, swarm, bone wall and wall-fall looks, KYOKUJITSUJIN's slit, the awakening burst's `:bankai` look.
+
+Also open:
+- The plate's Konpaku stake (o+4) while 北 is armed still reads pointer n's profile (the stake knows nothing of 北's 3).
+- 南's timing at 4 m: NS3b's swarm (6 m/s) lands after NS3c's fall. The route's last hit is the late wave, the kind of late effect
+  duel-move-modules warns about: check it in the playtest.
 
 Also open: the Kikon storyboards (東 / 西 / 南 still `soul-break-cine`), drawn reach against hit reach (the host FK test does not load
 yama-art), a CPU that reads the marks or 北 (none asked for), and §9's defaults.

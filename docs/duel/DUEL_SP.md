@@ -70,7 +70,10 @@ CHIGIRI 60 (300), the Bankai-2's AS5 TATE-GOTO 60 (320). The table's AS3 / AS4 o
 | Hisagi ranged | 40 | 80 | — | 15 | 55 | 35 | — |
 | Hisagi bind | 65 | 80 | — | 20 | 50 | 70 | — |
 | Yamamoto Shikai | 95 | 55 | 80 | 20 | 40 | 80 | — |
-| Yamamoto Bankai | 110 | 85 | 65 | 20 | 45 | 75 | (北: NS 60, AS 60) |
+| Yamamoto Bankai | 110 | 85 | 65 | 20 | 45 | 75 | — |
+
+Yamamoto's Bankai also has 北 (TENCHI KAIJIN, DUEL_YAMA_CORE §7.3), one NS and one AS outside the pointers (`:ns-extra` / `:as-extra`),
+picked while armed: NS 60, AS 60 (pinned by `*sp-table*`; `tests/sp-costs-check.py` plays no Yamamoto route).
 
 ## 5. Earning
 
