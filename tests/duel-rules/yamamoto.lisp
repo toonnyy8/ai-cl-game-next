@@ -424,6 +424,6 @@
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . kk) in alist
                               always (or (and (eq c :yamamoto) (eq f :bankai))
-                                         (and (null (kit-hook kk :ns-pick)) (null (kit-hook kk :switch-ok))
+                                         (and (null (kit-hook kk :ns-pick)) (null (kit-hook kk :switch-ok)) (null (kit-hook kk :armored-fx))
                                               (null (getf (kit-core kk) :ns-extra)) (null (getf (kit-core kk) :as-extra))
                                               (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))))

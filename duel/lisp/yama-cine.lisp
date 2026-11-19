@@ -1,7 +1,7 @@
 ;;;; yama-cine.lisp — Yamamoto's cinematics on his core kit (DUEL_YAMA_CORE §7.3, batch 1 stage C): the old kit's two that still run on
 ;;;; today's cinema API, back from the branch `retired-kits` (`git show retired-kits:duel/lisp/yama.lisp`) unchanged but for two lines
 ;;;; (below). The grammar is cinema.lisp's (docs/style/STYLE_STORM_DESIGN.md §5). Placeholders until the storyboards (§7.4): the Kikon
-;;;; cinematics of 東 / 西 / 南 are the generic SOUL-BREAK-CINE; VFX-AWAKEN-BURST has no :bankai / :bankai-burst look today (it draws nothing).
+;;;; cinematics of 東 / 西 / 南 are the generic SOUL-BREAK-CINE. VFX-AWAKEN-BURST's :bankai / :bankai-burst looks came with art K1 (DUEL_YAMA_CORE §16).
 (in-package :duel)
 
 (defcine yama-tenchi-cine (a v :len 168 :hold 26)
@@ -32,7 +32,7 @@ splash; the charcoal burst and the plaza cracks in the grey world."
       (setf (model-weapon (model a)) :ryujin-jakka)
       (hold-both a v 12) (impact-frame :negative 2)
       (play-sfx :awaken-rise))
-  (at 12 (let ((p (pos-of a))) (vfx-awaken-burst (aref p 0) 0.0 (aref p 2) :bankai))   ; every flame sucked in (no look today)
+  (at 12 (let ((p (pos-of a))) (vfx-awaken-burst (aref p 0) 0.0 (aref p 2) :bankai))   ; every flame sucked in (L11)
       (shot-on a 25 1.5 0.45 :look 1.45) (lens 88 6) (focus-lines 36))
   (during (12 60) (let ((p (pos-of a)))
                     (vfx-charge (aref p 0) 2.4 (aref p 2) u (cine-dt))

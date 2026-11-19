@@ -236,30 +236,31 @@
 (defmove :ya-e-n3a :kind :flash :clip :ya-kaka :clip-s 20 :startup 22 :active 17 :recovery 20 :reach 10.0 :callout "DAISOJIN"
   :on-frame ((22 yama-column-fire))
   :params (:ns-next :ya-e-n3b :near 4.0 :far 10.0 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun*
-           :kikon-strike :ya-e-ns-strike))
+           :kikon-strike :ya-e-ns-strike :look yama-hands-look))
 (defmove :ya-e-n3b :kind :flash :clip :ya-kaka :clip-s 20 :startup 16 :active 2 :recovery 22 :reach 8.0
   :on-frame ((16 yama-wave-fire))
-  :params (:ns-next :ya-e-n3c :width 2.0 :speed 6.0 :range 8.0 :dmg 50 :react :stagger :look yama-wave-look :kikon-strike :ya-e-ns-strike))
+  :params (:ns-next :ya-e-n3c :width 2.0 :speed 6.0 :range 8.0 :dmg 50 :react :stagger :look yama-swarm-look :kikon-strike :ya-e-ns-strike))
 (defmove :ya-e-n3c :kind :flash :clip :ya-kaka :clip-s 20 :startup 18 :active 2 :recovery 30 :reach 4.0
   :on-frame ((18 yama-wall-fire))
   :params (:ahead 3.0 :radius 1.6 :dmg 70 :react :crumple :kikon-strike :ya-e-ns-strike))
 ;; AS3: the hands seize at him (40, a stagger: a bind inside a combo would be a flinch, COMBO-STEP) > the swarm (50) > the pile collapses
 ;; (100, a knockdown); mark 南
 (defmove :ya-e-as3c :kind :sp :clip :ya-kaka :clip-s 20 :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
-  :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike))
+  :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike :look yama-pile-look))
 (defmove :ya-e-as3b :kind :sp :clip :ya-kaka :clip-s 20 :startup 10 :active 2 :recovery 18 :reach 6.0 :on-frame ((10 yama-wave-fire))
-  :params (:ns-next :ya-e-as3c :width 2.0 :speed 8.0 :range 6.0 :dmg 50 :react :stagger :look yama-wave-look :mark 3
+  :params (:ns-next :ya-e-as3c :width 2.0 :speed 8.0 :range 6.0 :dmg 50 :react :stagger :look yama-swarm-look :mark 3
            :kikon-strike :ya-e-as-strike))
 (defmove :ya-e-as3 :kind :sp :clip :ya-kaka :clip-s 20 :startup 10 :active 3 :recovery 16 :reach 4.0 :callout "DAISOJIN"
   :on-frame ((10 yama-column-fire))
-  :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike))
+  :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
+           :look yama-hands-look))
 
 ;;; ---------------------------------------------------------------- 北 TENCHI KAIJIN (armed by the third mark; one move, NS or AS)
 ;; NS: flame gathers (S24), one enormous wave (4 m wide, 14 m), a knockdown; AS: the same cut point-blank (180), after any J count (the
 ;; :as-pick hook ignores the press count). Neither writes a pointer or a mark; frame 0 clears the marks (YAMA-NORTH-START)
 (defmove :ya-e-n4 :kind :flash :clip :ya-e-tenchi :clip-s 6 :startup 24 :active 2 :recovery 30 :reach 14.0 :callout "TENCHI KAIJIN"
   :on-frame ((0 yama-north-start) (24 yama-wave-fire))
-  :params (:width 4.0 :speed 20.0 :range 14.0 :dmg 220 :react :knockdown :look yama-tornado-look :north t :kikon-strike :ya-e-n4-strike))
+  :params (:width 4.0 :speed 20.0 :range 14.0 :dmg 220 :react :knockdown :look yama-north-look :north t :kikon-strike :ya-e-n4-strike))
 (defmove :ya-e-as4 :kind :sp :clip :ya-e-tenchi :clip-s 6 :startup 10 :active 2 :recovery 30 :dmg 180 :reach 2.4 :arc 110
   :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-north-start)) :params (:north t))
 ;; SA (J in an NS gap, any pointer): a short backhand at chest height (a copy of the old counter's clip, not 西's move)
@@ -285,7 +286,8 @@
          :ns-range ((2.0 5.5) nil (4.0 9.0))   ; the CPU lunges KYOKKO from mid range, plants 南's hands from range
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult   ; (its hazards carry x 1.0: no heat)
-          :ns-pick yama-ns-pick :as-pick yama-as-pick :switch-ok yama-switch-ok :hud-tag yama-bk-tag))
+          :ns-pick yama-ns-pick :as-pick yama-as-pick :switch-ok yama-switch-ok :hud-tag yama-bk-tag
+          :armored-fx yama-armored-fx))                ; (西's armour absorbing an NA: L9, a look, art K1)
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules/yamamoto.lisp)
 (defun ya-bearing-point (px pz qx qz near far)
@@ -591,10 +593,10 @@ hot 4 frames."
   "南 NSc on S: the bone wall rises before him and falls forward: its hit (:dmg, :react) on a disc :ahead m out (r :radius, hot 4); the wall
 itself a hitless :ya-wall 1.2 m out that stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-WALL-STOP)."
   (multiple-value-bind (x z) (ahead e (move-param e :ahead))
-    (yama-fire e :ya-col x z :size (move-param e :radius) :life 30 :hot 4 :look 'yama-dome-look
+    (yama-fire e :ya-col x z :size (move-param e :radius) :life 30 :hot 4 :look 'yama-fall-look   ; (the looks: yama-look.lisp, art K1)
                :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))))
   (multiple-value-bind (x z) (ahead e 1.2)
-    (spawn-hazard :ya-wall e :x x :z z :yaw (yaw-of e) :size 1.6 :life *ya-wall-life* :hook 'yama-hz :look 'yama-column-look))
+    (spawn-hazard :ya-wall e :x x :z z :yaw (yaw-of e) :size 1.6 :life *ya-wall-life* :hook 'yama-hz :look 'yama-wall-look))
   (clog "~a bone wall (~d f)" (side-name e) *ya-wall-life*)
   (emit :sfx :ground-crack e))
 
@@ -694,7 +696,9 @@ P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as th
 (stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, 北's NS (0-9) on its own (CORE-START!; P1 in the Bankai);
 87440 P1 awakens now (AWAKEN!, the cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!: the third arms 北); 87444 P1's 北 armed
 (all three marks); 87445 P1's marks and 北 cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
-switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P)."
+switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
+c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87448 the consing of every
+Bankai look (yama-look.lisp YAMA-LOOK-CONSING)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -709,11 +713,16 @@ switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P)."
           ((<= 87420 c 87429)
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87420) '(:ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c
                                                                        :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-n4)))))
+          ((<= 87430 c 87436)                       ; (art K1's stills: an AS segment on its own)
+           (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87430) '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c
+                                                                       :ya-e-as4)))))
+          ((= c 87437) (let ((p (pos-of *p1*))) (emit :armored *p1* (aref p 0) 1.2 (aref p 2))))   ; (西's armour look, L9: an event only)
           ((= c 87440) (awaken! *p1*))
           ((<= 87441 c 87443) (yama-mark! *p1* (- c 87440)))
           ((= c 87444) (dolist (n '(1 2 3)) (yama-mark! *p1* n)))
           ((= c 87445) (let ((s (ys *p1*))) (setf (yss-marks s) 0 (yss-north s) nil)))
           ((= c 87446) (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
+          ((= c 87448) (yama-look-consing))
           ((= c 87447) (log-msg "duel yamamoto switch t ~d open ~a north ~a" *match-tick* (and (core-switch-open-p *p1* (fighter *p1*)) t)
                                 (yss-north (ys *p1*))))
           ((<= 87500 c 87600) (setf (gauges-meter (gauges *p1*)) (f32 (- c 87500))))

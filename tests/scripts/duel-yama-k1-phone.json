@@ -1,0 +1,670 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== L11 awakening behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87540)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 9.25,
+"eval": "Module._debug_cmd(87440)"
+},
+{
+"at": 9.67,
+"shot": "tests/shots/duel-yama-k1-l11-in-behind-phone.png"
+},
+{
+"at": 11.32,
+"shot": "tests/shots/duel-yama-k1-l11-burst-behind-phone.png"
+},
+{
+"at": 12.45,
+"eval": "console.log('=== hands behind')"
+},
+{
+"at": 12.5,
+"eval": "Module._debug_cmd(87060)"
+},
+{
+"at": 12.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 12.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 12.65,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 13.15,
+"shot": "tests/shots/duel-yama-k1-l1-hands-tell-behind-phone.png"
+},
+{
+"at": 13.33,
+"shot": "tests/shots/duel-yama-k1-l1-hands-behind-phone.png"
+},
+{
+"at": 14.65,
+"eval": "console.log('=== swarm behind')"
+},
+{
+"at": 14.7,
+"eval": "Module._debug_cmd(87090)"
+},
+{
+"at": 14.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 14.8,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 14.85,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 15.68,
+"shot": "tests/shots/duel-yama-k1-l2-swarm-behind-phone.png"
+},
+{
+"at": 16.85,
+"eval": "console.log('=== wall behind')"
+},
+{
+"at": 16.9,
+"eval": "Module._debug_cmd(87060)"
+},
+{
+"at": 16.95,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 17.27,
+"shot": "tests/shots/duel-yama-k1-l3-wall-rise-behind-phone.png"
+},
+{
+"at": 17.38,
+"shot": "tests/shots/duel-yama-k1-l4-fall-behind-phone.png"
+},
+{
+"at": 17.88,
+"shot": "tests/shots/duel-yama-k1-l3-wall-behind-phone.png"
+},
+{
+"at": 18.77,
+"shot": "tests/shots/duel-yama-k1-l3-wall-crumble-behind-phone.png"
+},
+{
+"at": 19.05,
+"eval": "console.log('=== pile behind')"
+},
+{
+"at": 19.1,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 19.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 19.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 19.25,
+"eval": "Module._debug_cmd(87435)"
+},
+{
+"at": 19.52,
+"shot": "tests/shots/duel-yama-k1-l5-pile-close-behind-phone.png"
+},
+{
+"at": 19.65,
+"shot": "tests/shots/duel-yama-k1-l5-pile-behind-phone.png"
+},
+{
+"at": 21.25,
+"eval": "console.log('=== void behind')"
+},
+{
+"at": 21.3,
+"eval": "Module._debug_cmd(87070)"
+},
+{
+"at": 21.35,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.4,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 21.45,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 21.82,
+"shot": "tests/shots/duel-yama-k1-l6-void-behind-phone.png"
+},
+{
+"at": 22.18,
+"shot": "tests/shots/duel-yama-k1-l6-void-ash-behind-phone.png"
+},
+{
+"at": 23.45,
+"eval": "console.log('=== notch behind')"
+},
+{
+"at": 23.5,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 23.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 23.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 23.65,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 23.88,
+"shot": "tests/shots/duel-yama-k1-l6-notch-behind-phone.png"
+},
+{
+"at": 25.65,
+"eval": "console.log('=== lance behind')"
+},
+{
+"at": 25.7,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 25.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 25.8,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 25.85,
+"eval": "Module._debug_cmd(87420)"
+},
+{
+"at": 26.22,
+"shot": "tests/shots/duel-yama-k1-l7-lance-behind-phone.png"
+},
+{
+"at": 27.85,
+"eval": "console.log('=== flare behind')"
+},
+{
+"at": 27.9,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 27.95,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 28.0,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 28.05,
+"eval": "Module._debug_cmd(87423)"
+},
+{
+"at": 28.35,
+"shot": "tests/shots/duel-yama-k1-l8-flare-behind-phone.png"
+},
+{
+"at": 28.52,
+"shot": "tests/shots/duel-yama-k1-l8-flare-2-behind-phone.png"
+},
+{
+"at": 30.05,
+"eval": "console.log('=== armour behind')"
+},
+{
+"at": 30.1,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 30.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 30.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 30.25,
+"eval": "Module._debug_cmd(87437)"
+},
+{
+"at": 30.32,
+"shot": "tests/shots/duel-yama-k1-l9-armour-behind-phone.png"
+},
+{
+"at": 32.25,
+"eval": "console.log('=== north behind')"
+},
+{
+"at": 32.3,
+"eval": "Module._debug_cmd(87120)"
+},
+{
+"at": 32.35,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 32.4,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 32.45,
+"eval": "Module._debug_cmd(87429)"
+},
+{
+"at": 32.95,
+"shot": "tests/shots/duel-yama-k1-l10-north-behind-phone.png"
+},
+{
+"at": 34.45,
+"eval": "console.log('=== crescent behind')"
+},
+{
+"at": 34.5,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 34.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 34.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 34.65,
+"eval": "Module._debug_cmd(87436)"
+},
+{
+"at": 34.83,
+"shot": "tests/shots/duel-yama-k1-l10-crescent-behind-phone.png"
+},
+{
+"at": 36.7,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 36.95,
+"eval": "console.log('=== L11 awakening side')"
+},
+{
+"at": 37.0,
+"eval": "Module._debug_cmd(87200)"
+},
+{
+"at": 37.05,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 37.1,
+"eval": "Module._debug_cmd(87540)"
+},
+{
+"at": 37.15,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 37.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 37.25,
+"eval": "Module._debug_cmd(87440)"
+},
+{
+"at": 37.67,
+"shot": "tests/shots/duel-yama-k1-l11-in-side-phone.png"
+},
+{
+"at": 39.32,
+"shot": "tests/shots/duel-yama-k1-l11-burst-side-phone.png"
+},
+{
+"at": 40.45,
+"eval": "console.log('=== hands side')"
+},
+{
+"at": 40.5,
+"eval": "Module._debug_cmd(87060)"
+},
+{
+"at": 40.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 40.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 40.65,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 41.15,
+"shot": "tests/shots/duel-yama-k1-l1-hands-tell-side-phone.png"
+},
+{
+"at": 41.33,
+"shot": "tests/shots/duel-yama-k1-l1-hands-side-phone.png"
+},
+{
+"at": 42.65,
+"eval": "console.log('=== swarm side')"
+},
+{
+"at": 42.7,
+"eval": "Module._debug_cmd(87090)"
+},
+{
+"at": 42.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 42.8,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 42.85,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 43.68,
+"shot": "tests/shots/duel-yama-k1-l2-swarm-side-phone.png"
+},
+{
+"at": 44.85,
+"eval": "console.log('=== wall side')"
+},
+{
+"at": 44.9,
+"eval": "Module._debug_cmd(87060)"
+},
+{
+"at": 44.95,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 45.0,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 45.05,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 45.27,
+"shot": "tests/shots/duel-yama-k1-l3-wall-rise-side-phone.png"
+},
+{
+"at": 45.38,
+"shot": "tests/shots/duel-yama-k1-l4-fall-side-phone.png"
+},
+{
+"at": 45.88,
+"shot": "tests/shots/duel-yama-k1-l3-wall-side-phone.png"
+},
+{
+"at": 46.77,
+"shot": "tests/shots/duel-yama-k1-l3-wall-crumble-side-phone.png"
+},
+{
+"at": 47.05,
+"eval": "console.log('=== pile side')"
+},
+{
+"at": 47.1,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 47.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 47.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 47.25,
+"eval": "Module._debug_cmd(87435)"
+},
+{
+"at": 47.52,
+"shot": "tests/shots/duel-yama-k1-l5-pile-close-side-phone.png"
+},
+{
+"at": 47.65,
+"shot": "tests/shots/duel-yama-k1-l5-pile-side-phone.png"
+},
+{
+"at": 49.25,
+"eval": "console.log('=== void side')"
+},
+{
+"at": 49.3,
+"eval": "Module._debug_cmd(87070)"
+},
+{
+"at": 49.35,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 49.4,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 49.45,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 49.82,
+"shot": "tests/shots/duel-yama-k1-l6-void-side-phone.png"
+},
+{
+"at": 50.18,
+"shot": "tests/shots/duel-yama-k1-l6-void-ash-side-phone.png"
+},
+{
+"at": 51.45,
+"eval": "console.log('=== notch side')"
+},
+{
+"at": 51.5,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 51.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 51.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 51.65,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 51.88,
+"shot": "tests/shots/duel-yama-k1-l6-notch-side-phone.png"
+},
+{
+"at": 53.65,
+"eval": "console.log('=== lance side')"
+},
+{
+"at": 53.7,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 53.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 53.8,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 53.85,
+"eval": "Module._debug_cmd(87420)"
+},
+{
+"at": 54.22,
+"shot": "tests/shots/duel-yama-k1-l7-lance-side-phone.png"
+},
+{
+"at": 55.85,
+"eval": "console.log('=== flare side')"
+},
+{
+"at": 55.9,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 55.95,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 56.0,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 56.05,
+"eval": "Module._debug_cmd(87423)"
+},
+{
+"at": 56.35,
+"shot": "tests/shots/duel-yama-k1-l8-flare-side-phone.png"
+},
+{
+"at": 56.52,
+"shot": "tests/shots/duel-yama-k1-l8-flare-2-side-phone.png"
+},
+{
+"at": 58.05,
+"eval": "console.log('=== armour side')"
+},
+{
+"at": 58.1,
+"eval": "Module._debug_cmd(87020)"
+},
+{
+"at": 58.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 58.2,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 58.25,
+"eval": "Module._debug_cmd(87437)"
+},
+{
+"at": 58.32,
+"shot": "tests/shots/duel-yama-k1-l9-armour-side-phone.png"
+},
+{
+"at": 60.25,
+"eval": "console.log('=== north side')"
+},
+{
+"at": 60.3,
+"eval": "Module._debug_cmd(87120)"
+},
+{
+"at": 60.35,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 60.4,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 60.45,
+"eval": "Module._debug_cmd(87429)"
+},
+{
+"at": 60.95,
+"shot": "tests/shots/duel-yama-k1-l10-north-side-phone.png"
+},
+{
+"at": 62.45,
+"eval": "console.log('=== crescent side')"
+},
+{
+"at": 62.5,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 62.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 62.6,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 62.65,
+"eval": "Module._debug_cmd(87436)"
+},
+{
+"at": 62.83,
+"shot": "tests/shots/duel-yama-k1-l10-crescent-side-phone.png"
+},
+{
+"at": 64.7,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 65.0,
+"eval": "console.log('=== END')"
+}
+]

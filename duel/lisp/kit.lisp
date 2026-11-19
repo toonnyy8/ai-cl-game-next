@@ -657,6 +657,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
       :body-alpha (e)                the body's draw alpha, a constant float: a see-through form (DRAW-FIGHTER): none
       :charge (e rdt)                drawn instead of the fire charge look of a held move (DRAW-FIGHTER): none
       :hit-fx (att def ...)          a kit's own mark on its hit (FEEDBACK-SYSTEM's :hit event): Kenpachi's Bankai, Hisagi's Bankai
+      :armored-fx (def x y z)        a defender's own mark when his armour absorbs a hit (FEEDBACK-SYSTEM's :armored event):
+                                     Yamamoto's Bankai (西's garb, DUEL_YAMA_CORE §16)
       :hud-tag (e)                   the plate's tag (WEBHUD-TAG): Ichigo's KESSA, Hisagi
       :deck (e x y d)                the one-hand thumb ring (HUD-STICK): Ichigo's KESSA, Hisagi
       :soul-break-cine               a cinematic's name, not a function: the form's Soul Break cinematic (KIT-KIKON-CINE):
