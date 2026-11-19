@@ -79,7 +79,8 @@ engine/        package ENGINE; knows no game. lisp/ (package math hitvol input t
 duel/          SOUL DUEL (package DUEL): lisp/, hud-font/ (the Lisp HUD's baked SDF atlas), web/ (head.html pwa.js sw.js manual.html manifest icons: the page services and the manual; every screen is drawn by Lisp, DUEL_LISP_HUD), MANIFEST
 tools/         build + test + gate tools (table below)
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
-skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below)
+skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below), plus the submodule
+               sakurai-skill (a third-party skill, linked as .claude/skills/sakurai)
 docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
@@ -208,6 +209,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `duel-move-modules` | designing or restructuring a core move set: NA / NS / AS / SA, the pointer and its theme, `:core` and `:params`, the Kikon hold, waves, carried effects (charge, clones), the bug classes (from Ichigo's rebuild) |
 | `duel-character-cpu` | the generic core CPU (`core-ai.lisp`) taking a new move or rule, press lengths vs timing rules, a style search (dream-rsi) |
 | `duel-motion-style` | deciding a fighter's or form's motion style, researching references (canon, other games' movesets), a theme, stance and tell per SP pointer, planning it into per-move clips, measuring before drawing (Kenpachi, the new Lille, Ichigo) |
+| `sakurai` | third-party (the git submodule `skills/sakurai-skill`, github.com/kociden/sakurai-skill, a fan-made summary of Masahiro Sakurai's game-making videos, no licence file, so linked and not copied; added at the user's request 2026-11-20; `git submodule update --init` after a clone): game feel, hit stop, motion, effects, UI, difficulty reviews |
 
 | Tool | Purpose |
 |---|---|

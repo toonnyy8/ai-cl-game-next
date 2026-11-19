@@ -121,7 +121,7 @@ engine/      可重複使用的引擎（ENGINE 套件），不知道任何一款
   web/         共用的 HTML 外殼：向瀏覽器要 WebGPU 裝置、載入進度、錯誤畫面
 tools/       建置、無頭測試、原生模擬與各種把關工具、部署、vendor 腳本
 tests/       主機測試、瀏覽器腳本產生器、截圖與畫風檢查
-skills/      九個 Claude skill（遊戲開發流程、平衡把關、畫風、角色設計與重做、招式模組、電腦 AI、動作風格）
+skills/      九個 Claude skill（遊戲開發流程、平衡把關、畫風、角色設計與重做、招式模組、電腦 AI、動作風格），另有子模組 sakurai-skill（第三方，clone 後執行 git submodule update --init）
 docs/        文件，依主題分資料夾
 vendor/      wasm 版 ECL、帶 WebGPU 後端的 SDL3、Dawn 的 emdawnwebgpu
 ```
