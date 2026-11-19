@@ -426,4 +426,9 @@
                               always (or (and (eq c :yamamoto) (eq f :bankai))
                                          (and (null (kit-hook kk :ns-pick)) (null (kit-hook kk :switch-ok)) (null (kit-hook kk :armored-fx))
                                               (null (getf (kit-core kk) :ns-extra)) (null (getf (kit-core kk) :as-extra))
-                                              (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))))
+                                              (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))
+    ;; art K2 (DUEL_YAMA_CORE §17): the Bankai's smear is the ink wash with an ember hairline (look 3); every other form keeps the
+    ;; REIATSU comet (KIT :smear NIL: DRAW-FIGHTER passes 1, as before)
+    (check (eql 3 (kit-smear kb)))
+    (check (loop for c being the hash-keys of *kits* using (hash-value alist)
+                 always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :bankai)) (null (kit-smear kk))))))))

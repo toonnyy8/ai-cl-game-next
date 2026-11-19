@@ -273,6 +273,7 @@
   :intro :ya-intro :win :ya-win :intro-callout "BANSHO ISSAI KAIJIN TO NASE" :intro-weapon (:ya-cane 81) :callout "ZANKA NO TACHI"
   :walk *ya-walk* :run *ya-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *ya-mult* :taken *ya-taken*
   :stun-tolerance 18.0 :grade :spot :aura :heat :blade (:embers 1.4)
+  :smear 3                                      ; (the swing's smear: ink with an ember hairline, not REIATSU yellow: D4, art K2 §17)
   :cine yama-bankai-cine                        ; (the old kit's awakening cinematic: yama-cine.lisp)
   :enter-hook yama-bankai-enter                 ; heat leaves with the Shikai (§3)
   :meter (:name "ZANKA" :max 1)                 ; (its own: the HUD inherits no heat strip; no sim reads it)
