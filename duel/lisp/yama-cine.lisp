@@ -423,7 +423,7 @@ a look that needs only the feet binds them here.)"
   "A cinematic column of flame (§21.5.4 row 1, §28.5: no longer a cone): from the floor at (X Z) along (LX H LZ) (its lean at the top),
 base half-width R, nearly as wide at the top (0.6 R) as at the foot, as the canon's Ennetsu columns (sheet_EnnetsuJigoku 11-20 s): an
 EMBER backing behind it, two FIRE masses side by side swaying out of step (the sides ragged, licking), an EMBER stripe twisting up its
-front (batch 1's VFX-FIRE-PILLAR's spiral), the tier's white core (TI 1 / 2: 30 / 60 % of the width, wavering), two tongues licking off
+front (batch 1's VFX-FIRE-PILLAR's spiral), the tier's white core (TI 1 / 2: 25 / 42 % of the width, wavering), two tongues licking off
 its sides and three flaring out of its top, re-drawn on twos. K the presence (0 .. 0.98). Single-float forms (TI fixnum); about 450
 vertices; 0 B."
   `(let* ((%x ,x) (%z ,z) (%lx ,lx) (%lz ,lz) (%r ,r) (%h ,h) (%k0 ,k) (%k (%ya-k %k0)) (%ti ,ti) (%dr (drawing-no))
@@ -447,7 +447,7 @@ vertices; 0 B."
          (toon-ribbon (%sx %sy %sz) ((* 0.95f0 %lx) (* 0.9f0 %h) (* 0.95f0 %lz)) ((* 0.16f0 %r) (* 0.1f0 %r)) :heat (0.3f0 0.2f0)
                       :seed (- %sd 9f0) :wob 0.15f0 :pal +pal-ember+ :k %k :ph (* 2f0 %dr) :sway (* 0.09f0 %h) :segs 8)))
      (when (> %ti 0)
-       (let ((%cx %x) (%cy 0f0) (%cz %z) (%cw (if (= %ti 1) 0.3f0 0.6f0)))
+       (let ((%cx %x) (%cy 0f0) (%cz %z) (%cw (if (= %ti 1) 0.25f0 0.42f0)))   ; (narrower than a tongue's: a column's core is a seam, §28.5)
          (declare (single-float %cx %cy %cz %cw))
          (%away-from-eye (%cx %cy %cz) -0.1f0
            (toon-ribbon (%cx %cy %cz) ((* 0.8f0 %lx) (* 0.78f0 %h) (* 0.8f0 %lz)) ((* %cw %r) (* 0.45f0 %cw %r)) :heat (0.3f0 0.15f0)
@@ -518,8 +518,9 @@ strand growing guard to point). It leaves the tip in *YA-CT* (焱熱地獄's flo
   "不知火's look at cinematic frame CF: the blade's rest fire (SL0) to f62 and from f150; f10-62 the spiral winding down the blade from the
 tip to the guard and tightening (f10-40), going out on the thrust (f58-62); the nine ghost lights waking round the victim on a 4 m circle,
 one every 2 f from f40 (pale flames over EMBER marks); from f64 each stands up as a column (8 f), and f76-126 they circle him faster, the
-circle closing from 4 m to 0.8 m, leaning together (an EMBER ring on the floor at their radius); f124 one tornado at his spot (5 bands, up
-to 10 m, FIRE on the camera's side, INK on the far one, gaps for the victim), white-cored, guttering to embers f150-166, black smoke off
+circle closing from 4 m to 0.8 m, leaning together (an EMBER ring on the floor at their radius); f124 one tornado at his spot (§28.5: one
+twisting body up to 10 m, a FIRE mass behind him over an EMBER rim, six strands wound 1.3 turns up it, FIRE on the camera's side and
+EMBER on the far one, gaps between the turns for the victim, tongues licking off the rim), white-cored, guttering to embers f150-166, black smoke off
 the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.2 in 爆炎. The blade: YAMA-S5-BLADE. A look; 0 B."
   (declare (fixnum cf))
   (yama-s5-blade a cf 1)
@@ -548,29 +549,32 @@ the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.
                       (let* ((h (* hs rise (+ 3.2f0 (* 1.6f0 u)) (+ 0.85f0 (* 0.25f0 (hash01 (+ fi dr) seed)))))
                              (ws (f-max 0.2f0 (%near-cam lx lz 0.5f0 4f0))))
                         (declare (single-float h ws))
-                        (%ya-cpillar lx lz (* (- lean) c) (* (- lean) s) (* 0.45f0 ws) (* h (+ 0.3f0 (* 0.7f0 ws))) kc 2 (+ 420f0 fi seed)))))))))
+                        (%ya-cpillar lx lz (* (- lean) c) (* (- lean) s) (* 0.45f0 ws (+ 0.4f0 (* 0.6f0 rise))) (* h (+ 0.3f0 (* 0.7f0 ws))) kc 2 (+ 420f0 fi seed)))))))))
         (when (and (<= 124 cf) (< cf 166))               ; the tornado at his spot, then its embers
           (let* ((h (* 10f0 hs (f-min 1f0 (/ (i->f (- cf 123)) 6f0)))) (k (if (< cf 150) 0.98f0 (* 0.98f0 (/ (i->f (- 166 cf)) 16f0))))
                  (ex (- (aref e 0) qx)) (ez (- (aref e 2) qz)))
             (declare (single-float h k ex ez))
             (%tring qx 0f0 qz 1.3f0 0.25f0 +pal-ember+ (* 0.7f0 k) (+ seed 5f0) 24)
-            (let ((bx qx) (by 0f0) (bz qz))              ; (§28.5: one twisting body, not stacked rings) the funnel's far wall: an EMBER
-              (declare (single-float bx by bz))           ;  mass behind him, widening as it rises (his black silhouette reads on it)
-              (%away-from-eye (bx by bz) 1.3f0
-                (toon-ribbon (bx by bz) (0f0 (* 1.02f0 h) 0f0) ((* 0.12f0 h) (* 0.27f0 h)) :heat (0.3f0 0.15f0) :seed (- -430f0 (f-abs seed))
-                             :wob 0.35f0 :pal +pal-ember+ :k (%ya-k k) :ph dr :sway (* 0.06f0 h) :segs 8)))
-            (dotimes (st 5)                              ; five strands wound up it (1.3 turns floor to top), the radius widening
-              (dotimes (i 9)                             ; 1.0 -> 2.6 m: INK on the far side, FIRE T2 on the camera's (gaps between turns)
-                (let* ((u0 (/ (i->f i) 9f0)) (u1 (/ (i->f (1+ i)) 9f0)) (sp (+ (* 0.55f0 dr) (* 1.2566f0 (i->f st))))
+            (let ((bx qx) (by 0f0) (bz qz) (cx qx) (cy 0f0) (cz qz))   ; (§28.5: one twisting body, not stacked rings) its far wall: a FIRE
+              (declare (single-float bx by bz cx cy cz))                ;  mass behind him over an EMBER rim, widening as it rises (his black
+              (%away-from-eye (bx by bz) 1.7f0                          ;  silhouette reads on it)
+                (toon-ribbon (bx by bz) (0f0 (* 1.04f0 h) 0f0) ((* 0.16f0 h) (* 0.33f0 h)) :heat (0.3f0 0.15f0) :seed (- -431f0 (f-abs seed))
+                             :wob 0.35f0 :pal +pal-ember+ :k (%ya-k k) :ph (+ dr 1f0) :sway (* 0.06f0 h) :segs 8))
+              (%away-from-eye (cx cy cz) 1.3f0
+                (toon-ribbon (cx cy cz) (0f0 h 0f0) ((* 0.13f0 h) (* 0.28f0 h)) :heat (0.3f0 0.15f0) :seed (- -430f0 (f-abs seed))
+                             :wob 0.35f0 :pal +pal-fire+ :k (%ya-k k) :ph dr :sway (* 0.06f0 h) :segs 8)))
+            (dotimes (st 6)                              ; six strands wound up it (1.3 turns floor to top), the radius widening
+              (dotimes (i 9)                             ; 1.0 -> 2.6 m: EMBER on the far side, FIRE T2 on the camera's (gaps between turns)
+                (let* ((u0 (/ (i->f i) 9f0)) (u1 (/ (i->f (1+ i)) 9f0)) (sp (+ (* 0.55f0 dr) (* 1.0472f0 (i->f st))))
                        (a0 (+ sp (* 8.17f0 u0))) (a1 (+ sp (* 8.17f0 u1)))
                        (r0 (* (/ h 10f0) (+ 1f0 (* 1.6f0 u0)))) (r1 (* (/ h 10f0) (+ 1f0 (* 1.6f0 u1))))
                        (ca0 (f-cos a0)) (sa0 (f-sin a0)) (ca1 (f-cos a1)) (sa1 (f-sin a1))
-                       (w0 (* h (+ 0.03f0 (* 0.03f0 u0)))) (w1 (* h (+ 0.03f0 (* 0.03f0 u1))))
+                       (w0 (* h (+ 0.016f0 (* 0.022f0 u0)))) (w1 (* h (+ 0.016f0 (* 0.022f0 u1))))
                        (far (< (+ (* ex (+ ca0 ca1)) (* ez (+ sa0 sa1))) 0f0)))
                   (declare (single-float u0 u1 sp a0 a1 r0 r1 ca0 sa0 ca1 sa1 w0 w1))
                   (if far
                       (%ya-seg (+ qx (* r0 ca0)) (* h u0) (+ qz (* r0 sa0)) (+ qx (* r1 ca1)) (* h u1) (+ qz (* r1 sa1))
-                               (* 0.8f0 w0) (* 0.8f0 w1) 0 k (+ seed (* 12f0 (i->f st)) (i->f i)) (+ dr (i->f i)) :pal +pal-ink+)
+                               (* 0.8f0 w0) (* 0.8f0 w1) 0 k (+ seed (* 12f0 (i->f st)) (i->f i)) (+ dr (i->f i)) :pal +pal-ember+)
                       (%ya-seg (+ qx (* r0 ca0)) (* h u0) (+ qz (* r0 sa0)) (+ qx (* r1 ca1)) (* h u1) (+ qz (* r1 sa1))
                                w0 w1 2 k (+ seed (* 12f0 (i->f st)) (i->f i)) (+ dr (i->f i)))))))
             (dotimes (j 6)                               ; tongues licking off its rim, on twos
