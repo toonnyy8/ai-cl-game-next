@@ -1,49 +1,18 @@
-;;;; yama-vfx.lisp — YAMAMOTO GENRYUSAI's effects (moved out of vfx.lisp, refactor round 2, the user 2026-10-21): the blade
-;;;; fire and embers, the fire wave, fireball, charge, Ennetsu Jigoku pillar and Jokaku Enjo dome, Tenchi Kaijin's slash and ash,
+;;;; yama-vfx.lisp — YAMAMOTO GENRYUSAI's effects (moved out of vfx.lisp, refactor round 2, the user 2026-10-21): the Bankai's
+;;;; blade embers, the fireball, Tenchi Kaijin's slash and ash (the Shikai's fire looks, the blade's fire among them, are yama-look.lisp's
+;;;; since art S1, DUEL_YAMA_CORE §22: the old wave / pillar / dome looks left with their placeholders),
 ;;;; the skeleton dust, Taimatsu's cone, and the stamp looks only he uses (%ST-CONE %ST-BOOM %ST-GARB-GUARD %ST-SCORCH
 ;;;; %ST-FLARE %ST-GUTTER %ST-NADE %ST-EMBER %ST-SLIT %ST-WISPS) with their VFX-* wrappers. The universal stamp system
 ;;;; (STAMP, WITH-STAMP, %STAR ..., STAMPS-DRAW) is vfx-stamps.lisp's; STAMPS-DRAW calls these looks by name, so this file
 ;;;; loads after it. Same rules as vfx.lisp: cosmetic only (RND01, never SIM-RND01), x y z metres, AGE / LIFE / DT seconds.
 (in-package :duel)
 
-;;; ---------------------------------------------------------------- Yamamoto: blade fire / embers
+;;; ---------------------------------------------------------------- Yamamoto: the Bankai's blade embers
 ;;; Signature looks (docs/style/STYLE_STORM_DESIGN.md §4.1 / §4.2, Phase 3): drawn toon shapes in the layer order of §3.4 —
 ;;; a darker backing (ember, charcoal), the drawn mass (FIRE / REIATSU / EMBER), a thin additive T光 line, and
 ;;; scraps (toon particles) flying off. Shapes are re-drawn on the fx clock's drawings (DRAWING: twos, 12 a second),
 ;;; so they hold still between drawings like the universal effects; positions the game depends on never step
 ;;; (DRAWING-NO, engine fx.lisp).
-(defmacro %blade-fire (x0 y0 z0 x1 y1 z1 dt power)
-  "VFX-BLADE-FIRE's drawing, inline: the fire from (X0 Y0 Z0) to (X1 Y1 Z1), all single-float forms (a defun-fast caller passes
-its computed floats unboxed: DRAW-FIGHTER's fire sheet)."
-  `(let ((x0 ,x0) (y0 ,y0) (z0 ,z0) (x1 ,x1) (y1 ,y1) (z1 ,z1) (dt ,dt) (power ,power))
-     (declare (single-float x0 y0 z0 x1 y1 z1 dt power))
-     (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0)) (p power) (dr (drawing-no))
-            (pk (toon-a +pal-fire+ 0.95f0)) (sd (- -3f0 (i->f (mod (f->i dr) 5)))))
-       (declare (single-float bx by bz p dr pk sd))
-       (toon-ribbon (x0 y0 z0) (bx by bz) ((* 0.075f0 p) (* 0.045f0 p)) :heat (1f0 0.3f0) :seed sd :wob 0.2f0 :k pk :ph dr :sway 0.01f0 :segs 4)
-       (dotimes (k 3)
-         (let* ((kf (i->f k)) (u (+ 0.25f0 (* 0.27f0 kf)))
-                (h (* p (+ 0.26f0 (* 0.26f0 (hash01 (+ kf dr) 3.1f0)))))
-                (lx (* 0.14f0 (- (hash01 (+ kf dr) 5.3f0) 0.5f0))) (lz (* 0.14f0 (- (hash01 (+ kf dr) 7.9f0) 0.5f0)))
-                (tx (+ x0 (* u bx))) (ty (+ y0 (* u by))) (tz (+ z0 (* u bz))) (tsd (- sd (* 7f0 (+ kf 1f0)))))
-           (declare (single-float kf u h lx lz tx ty tz tsd))
-           (%away-from-eye (tx ty tz) 0.04f0
-             (toon-ribbon (tx ty tz) (lx h lz) ((* 0.09f0 p) 0f0) :seed tsd :wob 0.25f0 :k pk :ph (+ dr kf) :sway 0.03f0 :segs 5))))
-       (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.75f0 0.4f0 0.3f0 1f0 0.65f0 0.3f0 0.2f0 0f0 0f0 :segs 1)   ; T光
-       (dotimes (i (n-of (* 10f0 p) dt))                 ; scraps: flame bits peeling off the swing
-         (let* ((u (rnd-range 0.2f0 1f0)))
-           (declare (single-float u))
-           (%t-blob (+ x0 (* u bx)) (+ y0 (* u by) 0.05f0) (+ z0 (* u bz)) (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.6f0)
-                    (rnd-range -0.4f0 0.4f0) (rnd-range 0.3f0 0.5f0) (* p (rnd-range 0.035f0 0.06f0)) -2f0 0.3f0 +pal-fire+))))))
-
-(defun-fast vfx-blade-fire (x0 y0 z0 x1 y1 z1 dt &key (power 1.0))
-  "Ryujin Jakka (§4.1 blade fire): the blade (base x0 y0 z0 → tip x1 y1 z1) sheathed in drawn FIRE (heat 1 at the
-base .. 0.3 at the tip), three tongues licking upward from behind the sheath whose heights and lean are re-drawn
-every drawing (twos), a thin additive core line (T光) and flame scraps peeling off (the sheath's red shade
-lower edge is the backing: black smoke puffs off a blade read as bubbles). POWER 1.3 in Hellfire. The swing is the fighter's comet smear (VFX-SMEAR)."
-  (with-floats (x0 y0 z0 x1 y1 z1 dt power)
-    (%blade-fire x0 y0 z0 x1 y1 z1 dt power)))
-
 (defun-fast vfx-blade-embers (x0 y0 z0 x1 y1 z1 dt)
   "Zanka no Tachi (§4.1 Bankai): every flame is gone. One thin EMBER line along the charred blade (drawn just in
 front of it, a glowing additive core in it), its presence breathing on threes, and a few ember flecks drifting up; the heat is the :HEAT aura's
@@ -61,113 +30,7 @@ charcoal wisps. Under the Bankai grade (spot-keep, hue 10) this line is the only
           (%t-blob (+ x0 (* u bx)) (+ y0 (* u by)) (+ z0 (* u bz)) (rnd-range -0.15f0 0.15f0) (rnd-range 0.3f0 0.7f0)
                    (rnd-range -0.15f0 0.15f0) (rnd-range 0.8f0 1.4f0) (rnd-range 0.015f0 0.028f0) -0.3f0 0.1f0 pal))))))
 
-;;; ---------------------------------------------------------------- fire wave / fireball / charge
-
-(defmacro %wave-line (x z sx sz fx fz hw ox oz)
-  "Fill *WAVE-XS* / *WAVE-ZS* with the fire wave's base: 9 points along its crescent, the middle ahead (the ends
-bowed back 0.7 m), shifted by (OX OZ)."
-  `(dotimes (%i 9)
-     (let* ((%u (- (* 0.25f0 (i->f %i)) 1f0)) (%b (* 0.7f0 %u %u)))
-       (declare (single-float %u %b))
-       (setf (aref *wave-xs* %i) (+ ,x ,ox (* ,sx %u ,hw) (- (* %b ,fx)))
-             (aref *wave-zs* %i) (+ ,z ,oz (* ,sz %u ,hw) (- (* %b ,fz)))))))
-
-(defmacro %fire-wave-look ()
-  "VFX-FIRE-WAVE's body over the single-float variables X Z YAW AGE WIDTH DT LIFE in scope (a macro: the live wave and
-its eroding ghost, WAVE-GHOSTS-DRAW, share it at 0 B)."
-  `(progn
-    (let* ((fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (sx (- fz)) (sz fx) (dr (drawing-no)) (a (sage age 2f0))
-           (hold (f-max 0f0 (- (* 60f0 life) 22f0))) (e (camera-eye *camera*))
-           (vx (- x (aref e 0))) (vz (- z (aref e 2))) (vl (f-max 0.01f0 (f-hypot vx vz)))
-           (ox (* 0.35f0 (/ vx vl))) (oz (* 0.35f0 (/ vz vl))) (sd (i->f (mod (f->i dr) 7))))
-      (declare (type f32vec e) (single-float fx fz sx sz dr a hold vx vz vl ox oz sd))
-      (fx-envelope (es k fl ph) (a 1 3 hold 18)
-        (let* ((hw (* 0.5f0 width es))                   ; the eye's nearest point of the wall: passing the lens
-               (al (f-clamp (+ (* sx vx) (* sz vz)) (- hw) hw))   ; (the behind camera) it sinks to 0.4 of its height
-               (hgt (* 2.6f0 es (+ 0.4f0 (* 0.6f0 (%near-cam (- x (* sx al)) (- z (* sz al)) 1.0f0 3.5f0))))))
-          (declare (single-float hw al hgt))
-          (when (= ph 1)                              ; the flash drawing: a jagged white burst
-            (fx-star x 1.2f0 z 0.48f0 0.69f0 12 (* 6.2831855f0 (hash01 0.3f0 dr)) 0f0 0f0 0.1f0 dr +pal-hit+ 0.98f0 :push 0.45f0))
-          (%wave-line x z sx sz fx fz hw ox oz)          ; the backing, then the mass
-          (fx-wall *wave-xs* *wave-zs* 9 (* 1.2f0 hgt) 6 0.25f0 (+ 20f0 sd) +pal-ember+ k)
-          (%wave-line x z sx sz fx fz hw 0f0 0f0)
-          (fx-wall *wave-xs* *wave-zs* 9 hgt 6 0.2f0 (+ 3f0 sd) +pal-fire+ k)
-          (let* ((edge (f-abs (/ (+ (* sx vx) (* sz vz)) vl))) (tw (* 0.5f0 es (f-clamp (/ (- edge 0.35f0) 0.5f0) 0f0 1f0))))
-            (declare (single-float edge tw))
-            (when (> tw 0f0)                            ; seen along the wall (edge-on): camera-facing tongues give it body
-              (dotimes (j 5)
-                (let* ((i (+ 1 (floor (* 6 j) 4))) (f (i->f j)) (tsd (- -60f0 f sd))
-                       (th (* hgt (+ 0.55f0 (* 0.35f0 (hash01 (+ f dr) 4.3f0))))) (tl (* 0.3f0 (- (hash01 (+ f dr) 6.7f0) 0.5f0))))
-                  (declare (fixnum i) (single-float f tsd th tl))
-                  (toon-ribbon ((aref *wave-xs* i) 0.02f0 (aref *wave-zs* i)) ((* tl fx) th (* tl fz)) (tw 0f0) :seed tsd :wob 0.25f0 :pal +pal-fire+
-                               :k k :ph (+ dr f) :sway 0.08f0)))))
-          (fx-crescent (aref *wave-xs* 0) 1.2f0 (aref *wave-zs* 0) (aref *wave-xs* 8) 1.2f0 (aref *wave-zs* 8)
-                       (+ x (* 0.7f0 fx)) 1.2f0 (+ z (* 0.7f0 fz)) (* 0.16f0 es) :lens 0.05f0 (+ 9f0 dr) +pal-fire+ k :push 0.5f0)
-          (toon-ground-seg x z (- x (* 1.4f0 fx)) (- z (* 1.4f0 fz)) 0.03f0 (* 0.3f0 hw) 1f0 0.2f0 (+ 40f0 sd) 0.3f0
-                           (toon-a +pal-ember+ (* 0.9f0 k)))
-          (fx-ribbon x 0.05f0 z (* sx hw) 0f0 (* sz hw) 0.02f0 0.02f0 1f0 0.7f0 0.3f0 (* -0.4f0 k) 1f0 0.7f0 0.3f0 (* -0.4f0 k)
-                     0f0 0f0 :segs 1)                    ; T光 along the base (a thin additive line)
-          (fx-ribbon x 0.05f0 z (* (- sx) hw) 0f0 (* (- sz) hw) 0.02f0 0.02f0 1f0 0.7f0 0.3f0 (* -0.4f0 k) 1f0 0.7f0 0.3f0
-                     (* -0.4f0 k) 0f0 0f0 :segs 1)
-          (when (> k 0.3f0)
-            (dotimes (i (n-of 14f0 dt))                  ; scraps: flames flung ahead off the crests
-              (let* ((u (rnd-range -0.9f0 0.9f0)) (b (* 0.7f0 u u)) (sp (rnd-range 3f0 6f0)))
-                (declare (single-float u b sp))
-                (%t-blob (+ x (* sx u hw) (- (* b fx))) (* hgt (rnd-range 0.5f0 0.9f0)) (+ z (* sz u hw) (- (* b fz)))
-                         (* sp fx) (rnd-range 0.5f0 1.5f0) (* sp fz) (rnd-range 0.25f0 0.4f0) (rnd-range 0.08f0 0.15f0)
-                         -1f0 0.3f0 +pal-fire+))))
-          (%light x 1.2f0 z 1f0 0.45f0 0.12f0 6f0 2.5f0 7)
-          nil)))))
-
-(defun-fast vfx-fire-wave (x z yaw age width dt &key (life 99.0))
-  "Signature flame wave (§4.1 fire wave): ONE continuous drawn FIRE wall WIDTH m wide on a crescent centred on
-ground point (x z), travelling toward YAW (the caller moves it; the position never steps), tallest in the middle,
-its top cut into 6 tongues re-drawn every drawing (seen edge-on, 5 camera-facing tongues along it give it body);
-behind it (away from the camera) an EMBER backing wall 20 % taller (the fire's own dark red: a black one read as
-an ink outline, user review 2); a FIRE lens slash riding it at 1.2 m;
-a narrow EMBER scorch on the ground behind; flame scraps flying ahead (black smoke puffs read as bubbles). Envelope (1 3 hold 18) over LIFE s: a white flash, grows, holds, erodes."
-  (with-floats (x z yaw age width dt life)
-    (%fire-wave-look)))
-
-(declaim (type f32vec *wave-ghosts*))
-(defvar *wave-ghosts* (let ((g (make-f32 24))) (dotimes (i 4 g) (setf (aref g (+ (* 6 i) 5)) -1f0)))
-  "Fire waves spent by a hit, eroding where they hit (Phase 5): 4 slots of x z yaw width age-at-the-hit t (t < 0 = free).
-The sim ends a wave the step after its hit (hazards.lisp HAZARD-CONNECTED), which cut its look off without its
-18-frame erosion; HAZARD-DRAW hands the spent wave here instead.")
-
-(defun wave-ghost-start (x z yaw width age)
-  "The fire wave at (x z) was spent by a hit at AGE s: keep drawing it where it is, eroding over its envelope's 18 f
-(once: a wave drawn again while the sim still holds it keeps its ghost)."
-  (let ((g *wave-ghosts*) (free nil))
-    (dotimes (i 4)
-      (let ((o (* 6 i)))
-        (cond ((and (>= (aref g (+ o 5)) 0f0) (= (aref g o) (f32 x)) (= (aref g (+ o 1)) (f32 z))) (return-from wave-ghost-start nil))
-              ((and (not free) (< (aref g (+ o 5)) 0f0)) (setf free o)))))
-    (when free
-      (setf (aref g free) (f32 x) (aref g (+ free 1)) (f32 z) (aref g (+ free 2)) (f32 yaw) (aref g (+ free 3)) (f32 width)
-            (aref g (+ free 4)) (f32 age) (aref g (+ free 5)) 0f0))
-    nil))
-
-(defun-fast wave-ghosts-draw (dt)
-  "Draw every spent wave's erosion (DT effect seconds): the wave's own look with LIFE = its hit age + 22 f, so its
-envelope goes from the hold straight into the 18 f erosion; freed after 0.4 s."
-  (declare (single-float dt))
-  (let* ((g *wave-ghosts*))
-    (declare (type f32vec g))
-    (dotimes (i 4)
-      (let* ((o (* 6 i)))
-        (declare (fixnum o))
-        (when (>= (aref g (+ o 5)) 0f0)
-          (setf (aref g (+ o 5)) (+ (aref g (+ o 5)) dt))
-          (if (> (aref g (+ o 5)) 0.4f0)
-              (setf (aref g (+ o 5)) -1f0)
-              (let* ((x (aref g o)) (z (aref g (+ o 1))) (yaw (aref g (+ o 2))) (width (aref g (+ o 3)))
-                     (age (+ (aref g (+ o 4)) (aref g (+ o 5)))) (life (+ (aref g (+ o 4)) 0.3667f0)))
-                (declare (single-float x z yaw width age life))
-                (%fire-wave-look))))))
-    nil))
-
->>>NEW
+;;; ---------------------------------------------------------------- fireball
 
 (defun-fast vfx-fireball (x y z size dirx dirz dt)
   "Shiranui (§4.1, Phase 5): a drawn FIRE disc of radius SIZE m (wobble 0.3, re-drawn every drawing), 5 tongues licking
@@ -195,110 +58,6 @@ left behind (toon puffs, stepped on threes). The position never steps (the hazar
                  +pal-black-smoke+))
       (%light x y z 1f0 0.5f0 0.15f0 8f0 2f0 7))))
 
-
-;;; ---------------------------------------------------------------- Ennetsu Jigoku pillar / Jokaku Enjo dome
-(defun-fast vfx-fire-pillar (x z age life dt &key (height 5.0))
-  "One Ennetsu Jigoku pillar at ground (x z) (§4.1, Phase 5): a wide FIRE column over an EMBER backing, an inner EMBER
-stripe twisting up its front (a second, swaying ribbon: the spiral), and a crowned top (6 short tongues flaring out). It
-rises on ones (3 drawings), the crown re-draws on twos, and it erodes from the tip over the last 0.25 s of LIFE; an EMBER
-scorch ring at its foot, flame scraps off the crown. No light (the caller adds one for the ring)."
-  (with-floats (x z age life dt height)
-    (let* ((a1 (sage age 1f0)) (rise (f-clamp (/ (i->f (f->i (* 24f0 a1))) 3f0) 0f0 1f0)) (dr (drawing-no))
-           (k (* 0.98f0 (f-clamp (/ (- life age) 0.25f0) 0f0 1f0))) (q (%near-cam x z 2f0 8f0))   ; near the lens:
-           (ws (f-max 0.1f0 (%near-cam x z 0f0 9f0)))     ; never wider on screen than at 9 m, 0.4 as tall at 2 m, the ring whole
-           (h (* height rise (+ 0.4f0 (* 0.6f0 q)) (+ 0.9f0 (* 0.1f0 (hash01 dr (* 0.37f0 x)))))) (sd (+ (i->f (mod (f->i dr) 7)) (f-abs (* 3.1f0 z)))))
-      (declare (single-float a1 rise dr k q ws h sd))
-      (when (and (> k 0.02f0) (> rise 0f0))
-        (%tring x 0f0 z 0.5f0 0.08f0 +pal-ember+ (* 0.9f0 k) sd 16)
-        (let* ((bx x) (by 0f0) (bz z))
-          (declare (single-float bx by bz))
-          (%away-from-eye (bx by bz) 0.12f0             ; the dark-red backing, 8 % taller and wider
-            (toon-ribbon (bx by bz) (0f0 (* 1.08f0 h) 0f0) ((* 0.4f0 ws) (* 0.26f0 ws)) :heat (1f0 0.35f0) :seed (- -20f0 sd) :pal +pal-ember+ :k k
-                         :ph dr :sway 0.05f0 :segs 7)))
-        (toon-ribbon (x 0f0 z) (0f0 h 0f0) ((* 0.32f0 ws) (* 0.2f0 ws)) :heat (1f0 0.35f0) :seed (- -3f0 sd) :wob 0.25f0 :pal +pal-fire+ :k k :ph dr
-                     :sway 0.04f0 :segs 7)
-        (let* ((sx x) (sy 0.1f0) (sz z))                ; the spiral stripe, in front of the column
-          (declare (single-float sx sy sz))
-          (%away-from-eye (sx sy sz) -0.1f0
-            (toon-ribbon (sx sy sz) (0f0 (* 0.95f0 h) 0f0) ((* 0.07f0 ws) (* 0.045f0 ws)) :heat (1f0 0.4f0) :seed (- -9f0 sd) :wob 0.1f0
-                         :pal +pal-ember+ :k k :ph (* 2f0 dr) :sway 0.25f0 :segs 8)))
-        (when (and (>= rise 1f0) (> q 0.5f0))            ; the crown: 6 tongues flaring out of the top
-          (dotimes (j 6)
-            (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.5f0 (hash01 (+ f dr) 5.1f0)))) (hc (* 0.18f0 height (+ 0.7f0 (* 0.5f0 (hash01 (+ f dr) 2.3f0))))))
-              (declare (single-float f an hc))
-              (%tongue (+ x (* 0.16f0 (f-cos an))) (* 0.94f0 h) (+ z (* 0.16f0 (f-sin an))) (* 0.6f0 hc (f-cos an)) hc (* 0.6f0 hc (f-sin an))
-                       0.11f0 +pal-fire+ k (+ 60f0 f sd) (+ dr f) 0.03f0 :segs 4))))
-        (dotimes (i (n-of (* 10f0 rise q) dt))
-          (%t-blob (+ x (rnd-range -0.3f0 0.3f0)) (* h (rnd-range 0.85f0 1f0)) (+ z (rnd-range -0.3f0 0.3f0)) (rnd-range -0.8f0 0.8f0)
-                   (rnd-range 1.5f0 3f0) (rnd-range -0.8f0 0.8f0) (rnd-range 0.3f0 0.5f0) (rnd-range 0.08f0 0.15f0) -1f0 0.3f0 +pal-fire+))))))
-
-(declaim (type f32vec *dome-last*))
-(defvar *dome-last* (make-f32 1) "VFX-FIRE-DOME: < 1e8 while a dome is closing (the detonation is armed), 1e9 once it fired.")
-
-(defun-fast vfx-fire-dome (x z r age life dt)
-  "Jokaku Enjo around ground point (x z), radius R (§4.1, Phase 5: no shell). 3 tiers of FIRE tongue rings (12 + 9 + 6
-tongues; the outer one over EMBER backings) rise on ones, then lean in and close in a spiral in 4 drawn steps (35-70 %
-of LIFE), the upper tiers climbing as it closes; 70-85 % the tongues boil on twos (the seethe); at 85 % it detonates:
-the :BOOM stamp (a white flash, a FIRE star over an EMBER one), a FIRE ground ring and flame / smoke / ember scraps.
-An EMBER scorch ring under the walls."
-  (with-floats (x z r age life dt)
-    (let* ((ua (/ (sage age 1f0) (f-max life 0.01f0))) (det 0.85f0) (big-h (* 1.15f0 r)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 7))))
-      (declare (single-float ua det big-h dr sd))
-      (if (< ua det)
-          (let* ((c (f-clamp (/ (- ua 0.35f0) 0.35f0) 0f0 1f0)) (cq (* 0.25f0 (i->f (f->i (* 4f0 c)))))   ; closing: 4 drawn steps
-                 (seethe (f-clamp (/ (- ua 0.7f0) 0.15f0) 0f0 1f0)))
-            (declare (single-float c cq seethe))
-            (setf (aref *dome-last* 0) age)                 ; still closing: the detonation is armed
-            (%tring x 0f0 z r 0.14f0 +pal-ember+ (* 0.9f0 (f-clamp (* 8f0 ua) 0f0 1f0)) sd)
-            (dotimes (tier 3)
-              (let* ((ti (i->f tier)) (n (- 12 (* 3 tier))) (nf (i->f n)) (start (* 0.18f0 ti))
-                     (rise (f-clamp (/ (i->f (f->i (* 24f0 life (- ua start)))) 3f0) 0f0 1f0))
-                     (rad (* r (- 1f0 (* 0.27f0 ti)))) (y0 (* big-h 0.3f0 ti cq)) (lean (* cq (+ 0.45f0 (* 0.25f0 ti))))
-                     (spin (+ (* 0.7f0 ti) (* 0.6f0 (+ ti 1f0) (- 1f0 cq)))) (w (* 0.3f0 (/ (* 6.2832f0 rad) nf))))
-                (declare (fixnum n) (single-float ti nf start rise rad y0 lean spin w))
-                (when (> rise 0f0)
-                  (dotimes (i n)
-                    (let* ((f (i->f i)) (an (+ spin (/ (* 6.2832f0 f) nf))) (ca (f-cos an)) (sa (f-sin an))
-                           (bx (+ x (* rad ca))) (bz (+ z (* rad sa)))
-                           (hh (* rise big-h (- 0.95f0 (* 0.25f0 ti)) (- 1f0 (* 0.3f0 cq))
-                                  (+ (- 0.8f0 (* 0.15f0 seethe)) (* (+ 0.4f0 (* 0.5f0 seethe)) (hash01 (+ f dr) (+ 3.7f0 ti))))))
-                           (ax (* (- lean) rad ca)) (az (* (- lean) rad sa)) (tsd (+ (* 13f0 ti) f sd)))
-                      (declare (single-float f an ca sa bx bz hh ax az tsd))
-                      (when (= tier 0)
-                        (let* ((kx bx) (ky y0) (kz bz))
-                          (declare (single-float kx ky kz))
-                          (%away-from-eye (kx ky kz) 0.1f0
-                            (%tongue kx ky kz (* 1.1f0 ax) (* 1.15f0 hh) (* 1.1f0 az) (* 1.2f0 w) +pal-ember+ 0.95f0 (+ 100f0 tsd) (+ dr f) 0.05f0))))
-                      (%tongue bx y0 bz ax hh az w +pal-fire+ 0.95f0 tsd (+ dr f) 0.05f0))))))
-            (dotimes (i (n-of 40f0 dt))
-              (let* ((an (rnd-range 0f0 6.2832f0)) (rr (* r (rnd-range 0.3f0 1f0))))
-                (declare (single-float an rr))
-                (%t-blob (+ x (* rr (f-cos an))) (* big-h (rnd-range 0.3f0 0.9f0)) (+ z (* rr (f-sin an))) (rnd-range -0.4f0 0.4f0)
-                         (rnd-range 1.2f0 2.4f0) (rnd-range -0.4f0 0.4f0) (rnd-range 0.3f0 0.45f0) (rnd-range 0.1f0 0.18f0) -1f0 0.3f0 +pal-fire+)))
-            (%light x 1.5f0 z 1f0 0.35f0 0.08f0 10f0 (+ 1f0 (* 0.8f0 c)) 8))
-          (let* ((v (f-clamp (/ (- (/ age (f-max life 0.01f0)) det) (- 1f0 det)) 0f0 1f0)))
-            (declare (single-float v))
-            (when (< (aref *dome-last* 0) 1f8)             ; the first draw past 85 %: detonate (a flag, not DT: a
-              (setf (aref *dome-last* 0) 1f9)               ; cinematic's freeze passes DT 0)
-              (stamp :boom x 1.3f0 z :scale r)
-              (stamp :ring x 0f0 z :scale (* 1.2f0 r) :n +pal-fire+)
-              (dotimes (i 26)
-                (let* ((an (rnd-range 0f0 6.2832f0)) (sp (rnd-range 3f0 7f0)))
-                  (declare (single-float an sp))
-                  (%t-blob x (rnd-range 0.6f0 2f0) z (* sp (f-cos an)) (rnd-range 1f0 4f0) (* sp (f-sin an)) (rnd-range 0.4f0 0.7f0)
-                           (rnd-range 0.25f0 0.45f0) -1f0 0.3f0 +pal-fire+)))
-              (dotimes (i 10)
-                (let* ((an (rnd-range 0f0 6.2832f0)) (sp (rnd-range 1f0 2.5f0)))
-                  (declare (single-float an sp))
-                  (%t-blob (+ x (* r 0.5f0 (f-cos an))) (rnd-range 0.5f0 2f0) (+ z (* r 0.5f0 (f-sin an))) (* sp (f-cos an)) (rnd-range 0.8f0 1.8f0)
-                           (* sp (f-sin an)) (rnd-range 0.9f0 1.4f0) (rnd-range 0.4f0 0.7f0) -0.3f0 0.3f0 +pal-black-smoke+)))
-              (dotimes (i 16)
-                (let* ((an (rnd-range 0f0 6.2832f0)) (sp (rnd-range 5f0 10f0)))
-                  (declare (single-float an sp))
-                  (%t-shard x 1.3f0 z (* sp (f-cos an)) (rnd-range 1f0 5f0) (* sp (f-sin an)) (rnd-range 0.5f0 0.8f0) (rnd-range 0.12f0 0.22f0)
-                            6f0 +pal-ember+))))
-            (%light x 1.5f0 z 1f0 0.5f0 0.2f0 16f0 (* 3.5f0 (- 1f0 v)) 9)))))
-  nil)
 
 ;;; ---------------------------------------------------------------- Tenchi Kaijin's slash (UI space)
 (defvar *ts-c0* (make-f32 4)) (defvar *ts-c1* (make-f32 4))
@@ -617,39 +376,9 @@ first), 5 BLACK SMOKE puffs off the shoulders and 12 ASH shards falling."
     (flash-light (+ x (* 1.5f0 dx)) 1.0 (+ z (* 1.5f0 dz)) 1.0 0.6 0.3)
     nil))
 
-;;; ---------------------------------------------------------------- his core kit's hazard looks (yama.lisp's fire; DUEL_YAMA_CORE
-;;; batch 1 stage A: placeholders on the old drawings until the art batches). Each a HAZARD-DRAW look function (hz rdt); a look only.
-(defun yama-wave-look (hz rdt)
-  "NS1a's spiral / NS2a's stream: the fire wave as wide as its hit box."
-  (when (<= (hazard-delay hz) 0)
-    (vfx-fire-wave (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (/ (hazard-age hz) 60.0) (* 2 (hazard-size hz)) (f32 rdt)
-                   :life (/ (hazard-life hz) 60.0))))
-
-(defun yama-tornado-look (hz rdt)
-  "NS1c's tornado: a travelling fire column."
-  (when (<= (hazard-delay hz) 0)
-    (vfx-fire-pillar (hazard-x hz) (hazard-z hz) (/ (hazard-age hz) 60.0) (/ (hazard-life hz) 60.0) (f32 rdt) :height 4.0)))
-
-(defun yama-column-look (hz rdt)
-  "NS1b's 'unknown fire': embers at the point through the delay (the tell), the column once it erupts."
-  (if (> (hazard-delay hz) 0)
-      (vfx-fire-pillar (hazard-x hz) (hazard-z hz) 0.05 1.0 (f32 rdt) :height 0.4)
-      (vfx-fire-pillar (hazard-x hz) (hazard-z hz) (/ (hazard-age hz) 60.0) (/ (hazard-life hz) 60.0) (f32 rdt) :height 5.0)))
-
-(defun yama-ring-look (hz rdt)
-  "城郭炎上's burning ring: six low pillars on the circle."
-  (let ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (/ (hazard-age hz) 60.0)) (life (/ (hazard-life hz) 60.0)))
-    (dotimes (i 6)
-      (let ((a (* i (/ +two-pi+ 6))))
-        (vfx-fire-pillar (+ x (* r (fwd-x a))) (+ z (* r (fwd-z a))) age life (f32 rdt) :height 1.4)))))
-
-(defun yama-dome-look (hz rdt)
-  "The walls closed into the dome: the old Jokaku Enjo look from its seethe on, so it detonates as the hit lands."
-  (vfx-fire-dome (hazard-x hz) (hazard-z hz) (hazard-size hz) (+ 0.8 (/ (hazard-age hz) 60.0)) 1.0 (f32 rdt)))
-
 (defun yama-nade-look (hz rdt)
-  "NADEGIRI's split, 24 f after the cut (the hit was on S): the old white crescent and scorch line, once."
-  (declare (ignore rdt))
-  (when (and (<= (hazard-delay hz) 0) (not (eq (hazard-data hz) :done)))
-    (setf (hazard-data hz) :done)
-    (let ((yaw (hazard-yaw hz))) (vfx-nadegiri (hazard-x hz) (hazard-z hz) (fwd-x yaw) (fwd-z yaw)))))
+  "The look of NADEGIRI's split entity (YAMA-NADE-SPLIT: :delay 24 :life 2): nothing since art S1 (DUEL_YAMA_CORE §22). The seam, SL7, is
+drawn from the move's frames by YAMA-DRAW (14 f: longer than this entity lives); the entity stays, the state hash counts hazards (F6).
+Before S1 it stamped the old crescent and 8 m scorch once and marked the hazard's data (F5: a look never writes)."
+  (declare (ignore hz rdt))
+  nil)

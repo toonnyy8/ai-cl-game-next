@@ -1780,3 +1780,159 @@ counts, every camera angle that an actor blocks.
 | Q4 | NADEGIRI's late split in play | **「火焰裂縫」**: a hairline on the hit, 24 f later a seam of fire parting in a V through the victim's spot, by heat; the model never cut | almost nothing; the world splits (8 m scorch) |
 
 With all four the plan of §21.0-§21.6 stands as drafted. Batches S1 → S5 in order.
+
+## 22. As built (art batch S1: the Shikai's FK checks and looks SL0-SL9, 2026-11-20)
+
+S1 of §21.1 (the user, 2026-11-20: 「繼續」; the plan §21.0-§21.2, the decisions §21.8, Q1 「明顯但適中」, Q4 「火焰裂縫」): the Shikai / 爆炎 FK rows
+as checks, the hitstop trace (§18.9's open item), then the looks SL0-SL9. Presentation only (proofs in 22.6). Code: `yama-look.lisp` (the
+Shikai's looks, the heat tier, the 87449 probe), `yama-art.lisp` (YAMA-DRAW's Shikai / 爆炎 branch), `yama-vfx.lisp` (F5; the old placeholder
+looks and the wave / pillar / dome / blade-fire looks only they used, deleted), `yama.lisp` (`:look` of NS1a / NS2a and 爆炎's copies, the
+Shikai's `:smear 4`, debug commands), shared `vfx.lisp` (`vfx-smear` look 4) and `kit.lisp` (its docstring), tests `tests/duel-rules/art.lisp`
+and `yamamoto.lisp`.
+
+### 22.1 Drawn reach against hit reach (the host FK test, now checks)
+
+The Shikai and 爆炎 rows of `tests/duel-rules/art.lisp` are checked as the Bankai's: two-sided within ±0.15 m, one-sided (never over by 0.15)
+where a look carries the rest (NADEGIRI's seam SL7, TAIMATSU's halo SL8). TSUKABI (J3) is measured by the **pommel** (the `:weapon-r` joint
++0.285 m: MB-BLADE's kashira end), IKKOTSU by the **fist**. `known-off` must stay off (a fixed clip has to leave the list).
+
+| Move | Drawn / volume end / delta (m) | Verdict |
+|---|---|---|
+| J1 / J2 (both forms) | 1.39 / 1.40 / -0.01; 1.35 / 1.40 / -0.05 | ok |
+| J3 TSUKABI (by the pommel) | 1.12 / 1.40 / -0.28 | **known off** (not in §21.3's list: the tip prints 1.78, the pommel 0.28 short; S2) |
+| 爆炎 J3 IKKOTSU (by the fist) | 1.21 / 1.40 / -0.19 | **known off** (S4) |
+| AS1 (both forms) | 2.04 / 1.60 / +0.44 | known off (S2) |
+| AS2a (both forms) | 1.66 / 2.00 / -0.34 | **known off** (not in §21.3's list; S3) |
+| AS3a (both forms) | 1.35 / 1.80 / -0.45 | known off (S3) |
+| AS3b (both forms) | 1.99 / 2.00 / -0.01 | ok |
+| NS3a / NS3b (both forms) | 1.38 / 1.60 / -0.22; 1.39 / 1.60 / -0.21 | known off (S3) |
+| NS3c / AS3c NADEGIRI (both forms) | 1.87 / 2.40 / -0.53 | one-sided (SL7) |
+| SA TAIMATSU | 1.45 / 2.40 / -0.95 (爆炎 3.20 / -1.75) | one-sided (SL8) |
+| the Kikon strikes (J1's clip) | 1.39 / 1.60 / -0.21 | known off (S3) |
+
+`known-off`: J3, AS1, AS2a, AS3a, NS3a, NS3b, the two Kikon strikes, 爆炎's AS1 / AS2a / AS3a / NS3a / NS3b and IKKOTSU (14 moves). The
+hazard segments (NS1a-c, NS2a-c, AS2b) have no blade window; their cast checks belong to the clips (S2 / S3).
+
+**F10, confirmed by the print.** IKKOTSU's clip `ya-ikkotsu` has its S at f8 on a move whose S is f9 (no `:clip-s`); the fist ahead per frame
+f6-f12: 0.69 0.98 1.19 1.21 1.21 1.20 1.20. The punch lands a frame before the hit window opens and holds through it (the clip's A covers f8-f11),
+so the drawn reach in the window is the hold's 1.21 m: a frame early, not a missed hit. S4 re-keys it at S9.
+
+### 22.2 Do move-frame looks lag the hit by the hitstop? No: they freeze on the hit frame
+
+Code: during a hitstop `sim-step` runs only `pilot-read` (`main.lisp`): FIGHTER-SYSTEM (the move frame `fighter-sf`, `main-phase-step`, and the
+clip's `anim-advance`) and HAZARD-SYSTEM (a hazard's delay and age) do not run, while the picture is drawn every frame. A hit is applied in
+HIT-SYSTEM on the step its frame is reached (the fighters step first), so the frame drawn on the hit's step is already the hit frame, and it is
+drawn for the whole hitstop. Evidence, a native trace (a scratch runner on the prelude: per step `*hitstop*`, P1's move frame, his hazards):
+
+| Hit | Steps |
+|---|---|
+| NS3c NADEGIRI (melee, S14) | sf 13 (hitstop 0) → **sf 14, hitstop 8** (the hit) → sf 14 for 8 more steps (hitstop 7 .. 0) → sf 15 |
+| NS1b's column (:ya-col, delay 13) | delay 1 age 0 (sf 27) → **delay 0 age 0, hitstop 8** (the hit, sf 28) → age 0 for 8 more steps → age 1 |
+| SA TAIMATSU (melee, S16, a 4 f hitstop) | sf 15 → **sf 16, hitstop 4** → sf 16 for 4 more steps → sf 17 |
+
+So a look keyed on the move frame or the hazard's age does not lag; it **freezes on the hit frame** for the hitstop (9 drawn frames for a heavy
+hit), as the body does (the `sa-hit` still shows SL8's halo whole inside the SA's hitstop). K3's still (§18.7: NS2a's S still showed the pose
+before S and no flare): the pose is FEEDBACK's `(hold-pose att 3)`, which draws the attacker's cached pose (the frame before S) for 3 frames
+after his hit (read in the code); the missing flare likely the shot landing on S-1, since the script timed it from the key press (input
+latency; inferred, not traced). The consequence for the looks, built in: **every look's hit frame draws the full hit
+extent** (a hazard's age 0 after its delay, the move's S), since that frame is what the player sees during the freeze: the column is at full
+height on its eruption frame, the dome closed on its first frame, the SA's halo at its reach on S16 (it ignites over f12-15), AS1's burst whole
+on S10. A look that grows on its hit frame would be frozen small while the hit lands at the volume's edge.
+
+### 22.3 The looks
+
+Colour (§21.2): FIRE the mass, EMBER the backing and every floor mark, INK the shadow side of the tornado and the dome and the SA's dark behind
+him; white-hot (HIT) only as the core of a segment that paid heat. No REIATSU yellow (the smear: look 4). Every fire shape is a ribbon (an
+along shape) with heat lanes 0.3 .. 0.12, which keeps the FIRE palette's own pale-yellow core out (the toon shader draws it where the heat lane is
+near 0.7): the only core is the tier's. Heat tiers (`ya-heat-tier`, host-checked): T0 paid 0, T1 part of 25, T2 a full 25 or any 爆炎 segment; T0
+60 % of the height and of the tongues and no core, T1 80 % and a white core 30 % of the width, T2 100 %, the core 60 % (over each tongue's lower
+half, its root), and an EMBER scorch for 30 f. The floor marks never move with heat (the top-down stills, 22.5).
+
+| # | Look (function) | Footprint (= the sim's) | As built |
+|---|---|---|---|
+| SL0 | the blade's fire (`yama-blade-fire`, from YAMA-DRAW) | none | the sheath, three tongues on twos and a warm additive line (no white centre: negative alphas), `%blade-fire`'s drawing revived on f32vec ends (the `:weapon-r` joint at -0.95 / -0.25 m: the blade's length and base); power 0.5 at rest, 1.0 from a move's start to S+A, the tier's share in an NS, x1.3 and always cored in 爆炎; scraps only inside a move (none at rest: the cosmetic stream is not drawn from there); off on the intro's cane (the model's weapon is not `:ryujin-jakka`), off in 撫斬's stance (the idle clip `:ya-st-cane`), off at alpha < 0.5 |
+| SL1 | NS1a's spiral (`yama-spiral-look`) | the :wave box 2.0 m across, 1.0 m along | two FIRE strands wound round the lane's axis (10 segments each, turning on twos) over an EMBER streak; a rolling head of six tongues whose front is the box's (x + 0.5 m); the tail up to 2.5 m behind, only over the lane crossed; the floor an EMBER strip as wide as the box from its front back under the tail; T2 a scorch over the last 30 f of the lane |
+| SL2 | NS1b's ghost lights and column (`yama-column-look`) | the disc r 1.2 | the delay: an EMBER ring on the disc's edge pulsing on twos, five small flames 0.3-0.8 m over it circling inward (their clock: the move's :delay 13, a host-checked constant); the eruption: one FIRE column as wide as the disc at its foot, tapering to a crown of six tongues, 2.4 m x the tier (2.4 = *YA-FIRE-H*, the hit's height, at T2), EMBER behind, full on age 0; it erodes 12-30; shorter and thinner near the lens |
+| SL3 | NS1c's tornado (`yama-tornado-look`) | the :wave box 3.5 m across, 1.0 m along | four stacked tilted bands of 12 segments turning on twos, FIRE on the camera's side, INK on the far side, gaps between them; the lowest band is the box itself (an ellipse 1.75 m across, 0.5 m along), the upper ones narrow across, up to 3.2 m x the tier; an EMBER stripe climbing between bands; the floor the box as an EMBER patch; T2 the scorch 30 f back |
+| SL4 | NS2a's lance (`yama-lance-look`) | the :wave box 1.2 m across, 1.0 m along | a FIRE lens at 1.1 m, its point the box's front, 2.4 m long (its first 8 f its tail at the blade, 1 m ahead of him), an EMBER backing lens, tongues off its back; the floor an EMBER patch the box's size under the point and a thin EMBER scorch line over the last 20 f of the lane |
+| SL5 | the burning ring (`yama-ring-look`) | the band r 1.6 ± 0.25 | the floor ring exactly the band (EMBER); 24 tongues on it, 1.0 m on the camera's side and 1.4 m on the far side x the tier, coiling in both ways from the point nearest him over 4 f; its charge from HAZARD-HITS-LEFT: 2 full, 1 thinner, lower and 70 % of the tongues, 0 the embers only; the last 15 f gutter; tongues sink near the lens |
+| SL6 | the dome (`yama-dome-look`) | the disc r 1.6 | 12 tongues from the disc's edge leaning in, closed (2.4 m x the tier) on its first frame, INK backings on the far side, gaps between; holds to 16, the walls fall open and erode by 40; an EMBER ring on the edge; T2 a scorch disc |
+| SL7 | NADEGIRI (`yama-sk-moves` code 1) | melee r 2.4, 100 deg | on S and S+1 one INK hairline (3 cm) across the arc at neck height, nothing else; from f38 (S+24) to f52 the seam: an INK + EMBER line on the floor along his facing from 0.6 m to 2.4 m, 14 tongues parting left and right (a V) rising toward 2.4 m ahead, by tier; no spark, no shake |
+| SL8 | TAIMATSU's halo (`yama-sk-moves` codes 2 / 3) | melee r 2.4 (爆炎 3.2), 360 deg | 18 tongues igniting round him from his facing over f12-16 and out to the reach by S16, standing to f23, fading to f27; an EMBER ring on the reach's edge from f14; an INK disc behind him (his silhouette dark); tongues shrink near the lens |
+| SL9 | J3's pommel, AS1's burst (`%ya-pommel-fire`, code 5) | J3 r 1.4; AS1 r 1.6, 90 deg | J3: two small tongues on the pommel f7-12; AS1: SL1's corkscrew (two strands of 5) from 0.2 m to the reach 1.6 m at 1.1 m, whole on S10, fading to 14 |
+| — | the smear (`vfx-smear` look 4, the kit's `:smear 4`) | none | a FIRE comet half the width with one orange FLAME hairline; 爆炎 inherits it until its own trail (S4) |
+| — | NADEGIRI's split entity (`yama-nade-look`) | — | draws nothing: no more stamp, no write to its data (F5); the entity stays (the hash counts hazards, F6) |
+
+### 22.4 Deviations, each with its reason
+
+1. **SL3's floor is the box, not a round 3.5 m band.** A :wave hits with a box 2 x size across and only 1.0 m along its travel (*WAVE-BOX*'s
+   half-length 0.5): a round lowest band would paint 1.25 m of floor ahead of and behind the hit. The lowest band is an ellipse 3.5 x 1.0 and the
+   floor patch the box; the upper bands may be rounder (in the air, not on the floor).
+2. **Heads on the box's front.** SL1's and SL4's heads sit at x + 0.5 m (the box's front), not on the hazard's x (§21.2 wrote "on the
+   hazard's x"): that is where the hit begins.
+3. **The hit frame draws the full shape** (22.2): the column full on age 0 (no rise), the dome closed on its first frame (§21.2: "closes S18 to
+   S+4"), the halo's opening moved before S (§21.2: 0.6 m to the reach in 2 f from S16), AS1's burst whole on S10.
+4. **AS1's burst is anchored on the volume** (0.2 m to the reach 1.6 m), not "1.4 m from the tip": the borrowed clip's tip is 2.04 m out
+   (known off), so a burst from it would draw 3.4 m of fire for a 1.6 m hit. S2's clip brings the tip to the volume.
+5. **No fire discs.** A camera-facing fan disc in FIRE always draws the palette's pale-yellow core; the spiral's head is a ball of tongues.
+6. **Fades on low-heat ribbons** run their presence over 0.69-0.97 (`%ya-k`): with heat lanes under 0.3 the shader erases an along shape whole
+   below 0.7 (the first stills: the dome and the seam vanished at once in their fade).
+7. **SL5's ring, the AS segments and the SA are T0 in the Shikai by rule**: NS2b pays no heat (no hit of its own: YA-NS-SPEND), an AS or the SA
+   pays none. Their stills are one heat. 爆炎's tier comes from its owner's form at the drawing (T2), so a 爆炎 hazard still alive after the form
+   ends drops to its paid tier.
+8. **SL7 is drawn from NADEGIRI's move frames** (F6), so the seam goes with the move if he is struck in its recovery; the seam runs along his
+   facing from 0.6 m to the reach (the V opening forward), the floor line through where the victim stood.
+9. **爆炎's ENNETSU borrows SL3** (its `:look`), its T2 scorch measured at NS1c's 10 m/s (it moves at 12): S4 gives it the rows of pillars.
+10. **Lights are small and do not follow heat** (radius 3-4 m, the same intensity at every tier): the first stills' 6-7 m lights lit a pale disc
+   on the floor round every look, and a light growing with the tier read from above as a footprint growing with heat.
+11. **Deleted, unreferenced after S1**: the five placeholder looks in `yama-vfx.lisp` (their names reused by the new ones, the old wave look
+   left), `vfx-fire-wave` (+ `*wave-ghosts*`), `vfx-fire-pillar`, `vfx-fire-dome` (+ `*dome-last*`), `%blade-fire` / `vfx-blade-fire` (its
+   drawing lives on in SL0), and a stray `>>>NEW` line from e0069c2c1. `vfx-fireball`, `vfx-fire-cone` and the stamps stay (not S1's).
+12. **The probes share one row macro**: 87448's local `cons-per` became `%ya-cons-per` (the same expansion: 87448's line is unchanged), used by the
+   new 87449 (`yama-shikai-consing`). The row macro now takes the bytes before it formats the row's name: the first builds made the hazard
+   rows' names at run time inside the measured span and read 864-872 B a row of 10 draws (by the name's length: the looks consed nothing);
+   the names are now made at expansion and the count is taken first.
+13. **The SL5 charge states 1 and 0** are in the probe, not in the stills (a crossing needs the victim to walk out of the ring).
+
+### 22.5 Stills (untracked)
+
+`tests/scripts/duel-yama-s1.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_s1_script`): each segment on its own (87410+i, 87416+i,
+87460) after its heat (87500+h), the behind camera then the SIDE camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on):
+`tests/shots/duel-yama-s1-<still>-h<0|12|25>-<behind|side>[-phone].png` for `spiral-a`, `spiral-b`, `column-tell`, `column-erupt`, `column-late`,
+`tornado-a`, `tornado-b`, `lance-tied`, `lance-b`, `dome-hit`, `dome-hold`, `dome-open`, `nade-cut`, `nade-seam`, `nade-late`; one heat:
+`ring-coil`, `ring-full`, `sa-ignite`, `sa-hit`, `sa-fade`, `as1-burst`, `as1-late`, `j1-smear`, `j3-a` / `-b` / `-c`, `rest-p1` / `p2` / `p3`,
+`blaze-rest`, `blaze-spiral`, `blaze-sa`. From above (87480 + 87481, landscape): `tests/shots/duel-yama-s1-top-<spiral|column|tornado|lance|dome>-h<0|25>.png`,
+`-top-ring-h0`, `-top-sa-h0` (with 2103's melee volume). Contact sheets: `tests/shots/duel-yama-s1-heat-sheet.png` (rows the stills, columns the
+three heats x the two cameras), `-misc-sheet.png`, `-top-sheet.png`, and `-heat-sheet-phone.png`, `-misc-sheet-phone.png`.
+
+What the stills show, checked by eye: the tiers read apart in height, share and core from both cameras (T0 orange only, T2 white-cored); from
+above every floor mark sits on the cyan footprint at T0 and at T2 alike (the spiral's strip and the tornado's lowest band on the box, the
+column's and the dome's ring on the disc, the ring's floor on the band, the halo's ring on 2103's 2.4 m volume); the column's eruption still is
+full height (the hit frame); the stance-3 still has no fire; the smear is orange, no yellow. Not by eye: NADEGIRI's 3 cm hairline is under the hit
+spark from both match cameras (the cut frame is the hit frame); the black radial marks under him in the later stills are the 爆炎 entry's
+scorch (FEEDBACK `:hellfire`'s `stage-mark`, kept for the round), not an S1 look.
+
+### 22.6 Checks (all on the final build)
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-core.lisp` (241 lines of `combo-trial.py --log`), `-blaze` (268), `-bankai` (513): identical to 3a8ef27f's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-core.json` (110 lines) and `duel-yama-blaze.json` (34): every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 3a8ef27f |
+| Heat is read, never written | the trials above (their HEAT lines) and the new host check: no `setf` / `incf` / `decf` / `push` / `remf` of a `gauges-` or `yss-` slot or of `hazard-data` in `yama-look`, `yama-vfx`, `yama-cine`, `yama-art` (it flags the old F5 write when run on 3a8ef27f's `yama-vfx.lisp`) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines; `vfx-smear`'s look 4) |
+| The looks gate | `tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 3a8ef27f. The expected diff, written before the run: the YK match's stills with Yamamoto on screen (F7) and the select still that shows him (P1's cycle from Ichigo: I, H, Y, K, so select-2). Result: exactly those 8 differ, `menus/select-2` and `cvc-yk/intro`, `start`, `w0-0`, `w1-0`, `w1-1`, `w2-0`, `w3-0`; the other 75 byte-identical (noise floor 0); `cvc-yk fighters` and `cvc-yk sim lines` (12) PASS. Not re-based here: the lead's call (§21.6) |
+| Host tests | ALL PASS, 4152 checks (+47: the Shikai / 爆炎 FK rows, the known-off guard, the no-write check, the look constants against the sim, the heat tiers, the smear on the Shikai and 爆炎) |
+| pkgcheck, debug ranges, warnings | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 88 ranges, 0 errors (87416-87419, 87449, 87460-87465, 87470-87481 claimed in DUEL_GAMEPLAY "Debug commands"); the compiler's warnings the same set as main's build |
+| 0 B a frame | debug 87449, every row 0: `spiral-t-0/1/2`, `lance-t-*`, `column-t-*`, `column-tell`, `tornado-t-*`, `ring-hits-0/1/2`, `dome-t-*`, `spiral-owned`, `blade-rest`, `blade-move`, `blade-ns-t2`, `blade-blaze`, `pommel`, `nade-cut`, `nade-seam-t0`, `nade-seam-t2`, `halo`, `halo-blaze`, `as1`, `tier-move`, `tier-hz`, `smear-4`; no row "(dropped)"; `fx-dropped 0` on every stats line of both stills runs. 87448's line unchanged from BASE's in the same scene: its 南 cinematic rows read 80 B on BASE too when P1 is not in the Bankai (they are 0 in K4's / K5's runs, set up in the Bankai) |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs --secs 8` exit 0 |
+
+### 22.7 Open
+
+- **For the user's eyes** (the sheets): whether T0 / T1 / T2 read apart at play distance (Q1's "明顯但適中"); the dome's T2 (twelve tongues each
+  with a white root read as stripes); the tornado's tilted bands and their INK far side; the SA's INK disc behind him; the spiral at 8 m.
+- S2 / S3 empty `known-off` (J3's pommel, AS1, AS2a, AS3a, NS3a / NS3b, the Kikon strikes); S4 IKKOTSU (F10) and 爆炎's own looks (the trail,
+  ENNETSU's rows, the tornado's lean); S5 the cinematics on 87482-87489.
+- SL5's charge states (1 hit left, 0) are proven by the probe only.
+- NADEGIRI's hairline cannot be seen under the hit spark from the match cameras; a stronger mark on the cut frame would need the spark's
+  owner (FEEDBACK, shared).
+- The SA's frame 0 against its six predecessors (§18.9) is unchanged.

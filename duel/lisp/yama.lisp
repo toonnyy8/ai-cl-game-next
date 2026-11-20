@@ -51,7 +51,7 @@
 ;; active window 13 so the eruption is inside it (no next segment before it); c: the tornado, a wide column travelling (a :wave)
 (defmove :ya-n1a :kind :flash :clip :ya-f1 :clip-s 18 :startup 22 :active 2 :recovery 24 :reach 8.0
   :on-frame ((0 yama-ns-start) (22 yama-wave-fire)) :callout "SHIRANUI"
-  :params (:ns-next :ya-n1b :width 2.0 :speed 14.0 :range 8.0 :dmg 70 :react :stagger :look yama-wave-look :kikon-strike :ya-ns-strike))
+  :params (:ns-next :ya-n1b :width 2.0 :speed 14.0 :range 8.0 :dmg 70 :react :stagger :look yama-spiral-look :kikon-strike :ya-ns-strike))
 (defmove :ya-n1b :kind :flash :clip :ya-f2 :clip-s 22 :startup 16 :active 13 :recovery 20 :reach 7.0
   :on-frame ((0 yama-ns-start) (16 yama-column-fire))
   :params (:ns-next :ya-n1c :near 4.0 :far 7.0 :radius 1.2 :delay 13 :dmg 70 :react :stagger :kikon-strike :ya-ns-strike))
@@ -65,7 +65,7 @@
 ;; spent), or at his bearing when none stands
 (defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :reach 10.0
   :on-frame ((0 yama-ns-start) (20 yama-wave-fire)) :callout "JOKAKU ENJO"
-  :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-wave-look :kikon-strike :ya-ns-strike))
+  :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove :ya-n2b :kind :flash :clip :ya-enjo :clip-s 20 :startup 16 :active 2 :recovery 20 :reach 8.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
   :params (:ns-next :ya-n2c :near 3.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
@@ -109,6 +109,8 @@
   :intro :ya-intro :win :ya-win :intro-callout "BANSHO ISSAI KAIJIN TO NASE" :intro-weapon (:ya-cane 81)
   :walk *ya-walk* :run *ya-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *ya-mult* :taken *ya-taken*
   :stun-tolerance 18.0                          ; (the old kit's: the old man stands a long beating)
+  :smear 4                                      ; (the swing's smear: a thin FIRE wash with an orange hairline, not REIATSU yellow: art S1,
+                                                ;  DUEL_YAMA_CORE §21 F4, §22; 爆炎 inherits it until its own trail, S4)
   :commands (:q :ya-j1)
   :strings ((:ya-j1 :q :ya-j2) (:ya-j2 :q :ya-j3))
   :core (:ns (:ya-n1a :ya-n2a :ya-n3a) :as (:ya-as1 :ya-as2 :ya-as3) :sa :ya-sa
@@ -135,7 +137,7 @@
   :reach 0.88 :arc 100 :on-hit :stagger :callout "IKKOTSU")
 ;; NS1 不知火 x1.3; c: the tornado tracks him (:track 60 deg/s, YAMA-HZ)
 (defmove-copy :ya-b-n1a :ya-n1a
-  :params (:ns-next :ya-b-n1b :width 2.0 :speed 14.0 :range 8.0 :dmg 91 :react :stagger :look yama-wave-look :kikon-strike :ya-ns-strike))
+  :params (:ns-next :ya-b-n1b :width 2.0 :speed 14.0 :range 8.0 :dmg 91 :react :stagger :look yama-spiral-look :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n1b :ya-n1b
   :params (:ns-next :ya-b-n1c :near 4.0 :far 7.0 :radius 1.2 :delay 13 :dmg 91 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n1c :ya-n1c
@@ -144,7 +146,7 @@
 ;; NS2 城郭炎上: a the stream x1.3; b the ring closes at once (b and c in one: the dome at his bearing, a stagger mid-route); c ENNETSU, the
 ;; pillars along the lane (a :wave drawn as columns)
 (defmove-copy :ya-b-n2a :ya-n2a
-  :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-wave-look :kikon-strike :ya-ns-strike))
+  :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2b :ya-n2c :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
   :params (:ns-next :ya-b-n2c :near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2c :ya-n2a :clip-s 20 :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"
@@ -705,6 +707,30 @@ mid-stage first (CINE-STAGE, as SETTLE-SOULS does); no AFTER (the round goes on)
     (cine-stage *p1* *p2*)
     (start-cine name *p1* *p2*)))
 
+(defun yama-topdown-cam ()
+  "Debug 87480 (art S1's footprint stills): a camera looking down on the stage 4.5 m ahead of P1 from 9.5 m up (tilted 7 deg: a lens straight
+down has no up), or the game's camera again. A shot (CINE-CAM) outside a cinematic: the next cinematic drops it."
+  (if *cine-cam*
+      (setf *cine-cam* nil)
+      (let* ((p (pos-of *p1*)) (yaw (yaw-of *p1*)) (cx (+ (aref p 0) (* 4.5 (fwd-x yaw)))) (cz (+ (aref p 2) (* 4.5 (fwd-z yaw)))))
+        (cine-cam (- cx (* 1.2 (fwd-x yaw))) 9.5 (- cz (* 1.2 (fwd-z yaw))) cx 0.0 cz))))
+
+(defun yama-footprints (e)
+  "Debug 87481: E's fire hazards' sim footprints on the floor in cyan (a :wave's box, 2 x size across and 2 x the box's half-length along;
+a disc of HAZARD-SIZE; the ring's band), to set against the looks' ground edges. Debug only (it conses)."
+  (do-entities (h (hz hazard))
+    (when (and (eql (hazard-owner hz) e) (hazard-hw hz))
+      (let ((x (hazard-x hz)) (z (hazard-z hz)) (s (hazard-size hz)) (yaw (hazard-yaw hz)))
+        (case (hazard-kind hz)
+          (:wave (let* ((l (second *wave-box*)) (fx (fwd-x yaw)) (fz (fwd-z yaw)) (px (- fz)) (pz fx)
+                        (c (list (list (+ (* l fx) (* s px)) (+ (* l fz) (* s pz))) (list (- (* l fx) (* s px)) (- (* l fz) (* s pz)))
+                                 (list (- (- (* l fx)) (* s px)) (- (- (* l fz)) (* s pz))) (list (+ (- (* l fx)) (* s px)) (+ (- (* l fz)) (* s pz))))))
+                   (loop for (a b) on (append c (list (first c))) while b
+                         do (fx-line (+ x (first a)) 0.04 (+ z (second a)) (+ x (first b)) 0.04 (+ z (second b)) 0.02 0.2 1.0 1.0 1.0))))
+          (:ya-ring (draw-circle x 0.04 z (- s *ya-ring-band*) 0.2 1.0 1.0 :segments 48 :width 0.02 :alpha 1.0)
+                    (draw-circle x 0.04 z (+ s *ya-ring-band*) 0.2 1.0 1.0 :segments 48 :width 0.02 :alpha 1.0))
+          (t (draw-circle x 0.04 z s 0.2 1.0 1.0 :segments 48 :width 0.02 :alpha 1.0)))))))
+
 (defun yama-debug (c)
   "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\", 87000-87999): 87000+k human P1 Yamamoto vs an idle Kenpachi
 (both CPUs off, full gauges), k / 10 m apart (k 0-199); 87200+n the same vs Ichigo (n 0) / Hisagi (1) 2.0 m apart; 87301-87303 P1's
@@ -719,7 +745,10 @@ c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBAC
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
 the planted blade, 北's burn, the :planted hook; art K4: the three Kikon cinematics' looks). Art K4 (§19): 87450+i the Bankai's Kikon
 cinematic i (東 / 西 / 南, 0-2) from frame 0, P1 in the Bankai 3 m from an idle Kenpachi, set down mid-stage as a Kikon is (YAMA-CINE-AT;
-nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills)."
+nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills). Art S1
+(§22): 87416+i P1 starts NS3a / b / c or the SA (i 0-3) on its own; 87460+i the Shikai's AS segment i of AS1, AS2a / b, AS3a / b / c (0-5);
+87470+i 爆炎's segment i of NS1a-c, NS2a-c, NS3a-c, the SA (0-9; P1 in 爆炎); 87480 the top-down camera on / off (YAMA-TOPDOWN-CAM); 87481
+his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -731,6 +760,16 @@ nothing when it already runs); 87601-87699 the running cinematic held at frame 2
           ((= c 87401) (force-cmd *p1* :q))
           ((<= 87410 c 87415)                       ; (a segment on its own: the column without the wave first, the dome with no ring)
            (core-start! *p1* (find-move (nth (- c 87410) '(:ya-n1a :ya-n1b :ya-n1c :ya-n2a :ya-n2b :ya-n2c)))))
+          ((<= 87416 c 87419)                       ; (art S1's stills: NS3 a / b / c, the SA on their own)
+           (core-start! *p1* (find-move (nth (- c 87416) '(:ya-n3a :ya-n3b :ya-n3c :ya-sa)))))
+          ((<= 87460 c 87465)                       ; (art S1: the Shikai's AS segments on their own)
+           (core-start! *p1* (find-move (nth (- c 87460) '(:ya-as1 :ya-as2 :ya-as2b :ya-as3 :ya-as3b :ya-as3c)))))
+          ((<= 87470 c 87479)                       ; (art S1: 爆炎's segments on their own; P1 in 爆炎)
+           (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87470) '(:ya-b-n1a :ya-b-n1b :ya-b-n1c :ya-b-n2a :ya-b-n2b :ya-b-n2c
+                                                                      :ya-b-n3a :ya-b-n3b :ya-b-n3c :ya-b-sa)))))
+          ((= c 87480) (yama-topdown-cam))
+          ((= c 87481) (setf *ya-footprints* (not *ya-footprints*)))
+          ((= c 87449) (yama-shikai-consing))
           ((<= 87420 c 87429)
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87420) '(:ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c
                                                                        :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-n4)))))

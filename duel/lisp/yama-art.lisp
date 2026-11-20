@@ -234,6 +234,8 @@ before R15a (2026-11), which dropped it from hem-spring.lisp while no kit used i
 (defvar *ya-rdt* (make-f32 1) "This frame's effect seconds, kept by YAMA-DRAW for the Kikon cinematics' looks (yama-cine.lisp, art K4): read
 there, never passed as a boxed argument.")
 
+(defvar *ya-footprints* nil "Debug 87481: YAMA-DRAW outlines his fire hazards' sim footprints on the floor (art S1's top-down stills).")
+
 (defun-fast %ya-smoke (x y z)
   "Bankai East's blade (canon: a thin white thread of smoke rises straight up from the charred tip in every Bankai
 still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, its lean and sway wobbling slowly."
@@ -254,7 +256,10 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
 own looks (yama-look.lisp YAMA-BK-MOVES, art K1) and 北's burn on the gather (%YA-BLADE-BURN, art K3); out of a move, the pointer stances'
-looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza)."
+looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza). The Shikai and
+爆炎 (art S1): Ryujin Jakka's fire on the drawn blade (YAMA-BLADE-FIRE, SL0; not on the intro's cane, not in 撫斬's stance), J3's burning
+pommel and the moves' own looks (YAMA-SK-MOVES: NADEGIRI's hairline and seam, TAIMATSU's halo, AS1's burst), by the tier of the heat his
+segment paid (YA-SK-TIER)."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
@@ -268,6 +273,24 @@ looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blad
         (%ya-blade-burn *ya-tip* *ya-base* (fighter-sf f))))
     (when (and (null mv) (eq (kit-form (fighter-kit f)) :bankai) (> (model-alpha m) 0.5))   ; 西's garb / 南's cracks (art K2)
       (yama-stance-look (pos-of e) (yaw-of e) (model-anim m)))
+    (unless (eq (kit-form (fighter-kit f)) :bankai)       ; the Shikai / 爆炎 (art S1, DUEL_YAMA_CORE §22): SL0 the blade's fire, SL7-SL9
+      (let* ((main (and mv (eq (fighter-phase f) :main))) (ti (ya-sk-tier e f mv)) (jm (model-joints m))
+             (blaze (eq (kit-form (fighter-kit f)) :blaze)) (c (anim-clip (model-anim m))))
+        (when (and (eq (model-weapon m) :ryujin-jakka) (> (model-alpha m) 0.5)   ; (not the intro's cane; not 撫斬's stance: no fire at all)
+                   (not (and (null mv) c (eq (clip-name c) :ya-st-cane))))
+          (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 -0.95f0)    ; (:ryujin-jakka's length / blade base, yama-art.lisp DEFWEAPON)
+          (joint-point! *ya-base* jm (ji :weapon-r) 0f0 0f0 -0.25f0)
+          (yama-blade-fire *ya-tip* *ya-base*
+                           (+ (if blaze 10 0) (cond ((not (and main (<= (fighter-sf f) (+ (mv-s mv) (mv-a mv))))) 0)
+                                                    ((eq (fighter-cls f) :ns) 2) (t 1)))
+                           ti (f32 rdt))
+          (when (and main (eq (mv-name mv) :ya-j3) (<= 7 (fighter-sf f) 12))   ; SL9: TSUKABI's burning pommel (S-2 to S+A)
+            (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 0.285f0)
+            (%ya-pommel-fire *ya-tip*)))
+        (when main
+          (let ((code (yama-sk-code mv)))
+            (when (> code 0) (yama-sk-moves (pos-of e) (yaw-of e) code (fighter-sf f) ti))))))
+    (when *ya-footprints* (yama-footprints e))           ; (debug 87481: the sim footprints outlined, art S1's top-down stills)
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (planted-spot e f mv)))                 ; (no smoke from a blade left in the plaza)
       (let ((tp *ya-tip*))

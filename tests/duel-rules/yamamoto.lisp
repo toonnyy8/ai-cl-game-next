@@ -428,11 +428,14 @@
                                               (null (kit-hook kk :planted))   ; (art K3: the planted blade, PLANTED-SPOT)
                                               (null (getf (kit-core kk) :ns-extra)) (null (getf (kit-core kk) :as-extra))
                                               (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))
-    ;; art K2 (DUEL_YAMA_CORE §17): the Bankai's smear is the ink wash with an ember hairline (look 3); every other form keeps the
-    ;; REIATSU comet (KIT :smear NIL: DRAW-FIGHTER passes 1, as before)
+    ;; art K2 (DUEL_YAMA_CORE §17): the Bankai's smear is the ink wash with an ember hairline (look 3); art S1 (§22): the Shikai's and
+    ;; 爆炎's (inherited) a thin fire wash with an orange hairline (look 4); every other form keeps the REIATSU comet (KIT :smear NIL:
+    ;; DRAW-FIGHTER passes 1, as before)
     (check (eql 3 (kit-smear kb)))
+    (check (eql 4 (kit-smear (find-kit :yamamoto :base))))
+    (check (eql 4 (kit-smear (find-kit :yamamoto :blaze))))
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
-                 always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :bankai)) (null (kit-smear kk))))))
+                 always (loop for (f . kk) in alist always (or (eq c :yamamoto) (null (kit-smear kk))))))
     ;; art K3 (§18): the hooks that replace the armour spark and plant the blade are the Bankai's; no move in any kit sets :planted (the
     ;; generic 0.7 m spot is unused), and a :blend is only on the Bankai's E-J1 (+ its Kikon copies) and 北's NS (looks)
     (check (and (kit-hook kb :armored-fx) (kit-hook kb :planted)))
