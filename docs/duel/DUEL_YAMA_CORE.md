@@ -2445,3 +2445,45 @@ entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`), one per scene.
   nearly every still, menus included: it compared against base renders left in `build/style/looks/` by an earlier run, not renders of
   `looks-base-s3`. Re-run without `--keep-base`: PASS. The base is now this merge's dist (`looks-base-s4`); S5's wiring changes YK again.
 - Playtest v458 (index.js / index.wasm / manual.html hashes verified). The manual's Yamamoto line now names 爆炎's art.
+
+## 27. 殘日獄衣's mantle: the reference look (batch Z1, 2026-11-20)
+
+The user, 2026-11-20, attaching a fan illustration of the flame cloak: 「殘日獄衣的造型應該是像附圖這樣，請你在做造型前先搜尋範例圖」. The
+references were collected first: `docs/research/yamamoto-rework/zanjitsu-refs.md` (images in `.refs/yamamoto-zanjitsu/`: the user's
+image, manga ch. 507 / 508, anime ep. 372). They agree on one closed flame mantle over the whole body, unlike the current L8.
+- Current L8: ten separate tongues from the feet plus two small ribbon wings, about a third of the reference's size.
+- Reference: the mantle is narrow at the ankles and flares upward. Two great wings of up-curling lobes spread at the shoulders. Lobes
+  also rise above the head, to about 1.4x his height. The face and beard show in an opening; the feet show below the hem.
+- Colour: yellow-white with a white rim and red-orange flame marks inside.
+
+### 27.1 Decisions (AskUserQuestion, 2026-11-20; the user's answer in bold)
+
+| # | Question | Answer | Rejected |
+|---|---|---|---|
+| Z-Q1 | When the mantle shows at full size | **「站姿縮小、招式和過場全尺寸」**: a small mantle in 西's stance; full size on the garb flares (NS2a, NS2b, AS2b) and in the 西 Kikon cinematic | full size whenever the pointer is 西; full size only in the cinematic |
+| Z-Q2 | The full mantle covers the opponent from the behind camera | **「背面變淡」**: the faces turned toward the camera draw only the rim and the flame marks (hollow middle); from the front and the side it is the solid glowing shape | drawn as is; shrunk while seen from behind |
+
+### 27.2 The spec (presentation only; the lead's numbers from the references)
+
+| Item | Full (flares, cinematic) | Stance (small) |
+|---|---|---|
+| Silhouette | One closed mantle from the ankles up; about body-wide at the shins, widening through the hips. Sandals visible below. An opening for the face and beard near the top | the same shape language |
+| Wings | One per shoulder at shoulder height, 4-5 lobes each, tips curling up; tips ≤ 1.9 m from his centre line, inside L8's 2.0 m burn footprint, so decoration never reads past the hit | about 0.6 m from the centre line |
+| Top | 3-5 lobes rising to about 1.4x his height | about head height |
+| Hem | 3-4 lobes at the knee curling out and up | the same, smaller |
+| Colour | a yellow-white glowing body; a white rim; red-orange flame marks and dark holes inside; sparks drifting off. Within the fire hues | the same at lower intensity |
+| Motion | the lobes billow and lick upward on the effect clock (twos); embers drift | breathing with the stance's 2.4 s loop |
+| Behind camera (Z-Q2) | the faces toward the camera fade to rim plus marks as the camera comes round behind him; front and side solid | the same rule |
+| Blade | outside the mantle, in the right hand (the clips as they are) | |
+
+- Kept: the molten ring at his soles, its outer edge 2.0 m (the footprint rule, §21.6), and L9's armour hexagon.
+- Replaced: L8's tongues and ribbon wings.
+- The K4 西 cinematic's ignite beat (f52-72) and the beats after it draw the full mantle.
+- 北 (canon: him wrapped in West's flames) is not in scope.
+
+Checks:
+- presentation only: the native trials, the browser scripts and `--cvc` are identical;
+- 0 B a frame on the 87448 probe, `fx-dropped 0`;
+- the looks gate: the expected diff is written first (the YK match's stills if seed 28 shows 西, and `select-3` if the select model draws it);
+- stills of the stance, each flare and each cinematic beat: the match camera, the side, behind, portrait;
+- the side-by-side with the user's image.
