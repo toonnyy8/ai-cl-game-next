@@ -2091,3 +2091,11 @@ right, from the side camera barely, and in portrait hardly at all (the user's ey
 - The looks: stance 1's slow corkscrew of fire and stance 2's drip (deviation 6), with S3 / S4's looks work.
 - S3: pointer 2 / 3, AS2 / AS3, the SA, the Kikon strikes (`ya-strike`, then they leave `known-off`) and NS3b's clip (then `ya-q1` goes).
 - The SA's frame 0 against its six predecessors (§18.9) is unchanged.
+
+### 23.10 Merged (the lead, 2026-11-20)
+
+Merged into main as built. The lead re-ran the fast checks on the merge: host tests 4164 ALL PASS, pkgcheck as before, debug ranges 0 errors,
+build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v456 (v455 the same build, v456 adds the manual line). The looks gate's 5 changed stills (cvc-yk start, w0-0, w1-0, w1-1, w2-0)
+are inside the expected list, the YK sim lines identical: **re-based** at this merge (BASE = a dist built here) until S3.
+The lead's call on deviation 6 (stance 1's corkscrew, stance 2's drip) and stance 3's faint blade: S3 adds them with its looks, an ember on
+stance 3's point included if the user wants the blade to read (it stays "no fire" by §21.3 until then).
