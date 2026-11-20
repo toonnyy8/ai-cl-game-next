@@ -462,6 +462,14 @@ vertices; 0 B."
          (%ya-tongue %cx %cy %cz (+ (* %tl %ux) (* %sd2 0.45f0 %tl %rx)) %tl (+ (* %tl %uz) (* %sd2 0.45f0 %tl %rz))
                      (* (if %top 0.32f0 0.22f0) %r) %ti %k0 (+ %s0 (* 31f0 %f)) (+ %dr %f) :back nil :segs 3)))))
 
+(defmacro %ya-sight-blocks (x z e ax az)
+  "Does a cinematic pillar at (X Z) stand on the camera eye E's line to an actor at (AX AZ), on the floor plane: between them (0.5 m clear
+of each end) and within 0.45 m (the pillar's FIRE half-width) + 0.3 m (the actor's) scaled by its share of the distance? Pure; 0 B."
+  `(let* ((%ex (aref ,e 0)) (%ez (aref ,e 2)) (%dx (- ,ax %ex)) (%dz (- ,az %ez)) (%l (f-max 0.01f0 (f-hypot %dx %dz)))
+          (%vx (- ,x %ex)) (%vz (- ,z %ez)) (%al (/ (+ (* %vx %dx) (* %vz %dz)) %l)) (%lat (/ (f-abs (- (* %vx %dz) (* %vz %dx))) %l)))
+     (declare (single-float %ex %ez %dx %dz %l %vx %vz %al %lat))
+     (and (> %al 0.5f0) (< %al (- %l 0.5f0)) (< %lat (+ 0.45f0 (* 0.3f0 (/ %al %l)))))))
+
 (defmacro %ya-cblade ((tip base) a &body body)
   "Bind TIP and BASE to A's drawn blade's ends (*YA-CT* / *YA-CB*: :ryujin-jakka's length / blade base, as YAMA-DRAW's) and run BODY,
 when he holds a blade."
@@ -674,9 +682,10 @@ YAMA-S5-BLADE. A look; 0 B."
               (let* ((fi (i->f i)) (an (+ th0 0.2618f0 (* 0.5236f0 fi))) (c (f-cos an)) (s (f-sin an)) (x (+ mx (* 4f0 c))) (z (+ mz (* 4f0 s)))
                      (g (f-clamp (/ (i->f (- cf (+ 66 (* 3 i)))) 6f0) 0f0 1f0)))   ; (full pillars all round: 15 deg either side of the line's
                 (declare (single-float fi an c s x z g))                        ;  normal, the two nearest the lens frame the pair, §28.5)
-                (if (<= g 0f0)
-                    (%ya-tongue x 0.02f0 z 0f0 (* 0.5f0 hs) 0f0 0.1f0 ti 0.95f0 (+ 510f0 fi seed) (+ dr fi) :back nil :segs 3)
-                    (%ya-cpillar x z (* (- lean) c) (* (- lean) s) 0.4f0 (* 6f0 hs g) kj ti (+ 520f0 fi seed)))))))
+                (unless (or (%ya-sight-blocks x z e px pz) (%ya-sight-blocks x z e qx qz))   ; (a pillar on the lens's line to either actor is
+                  (if (<= g 0f0)                                                          ;  left out: the portrait side shot, §28.5)
+                      (%ya-tongue x 0.02f0 z 0f0 (* 0.5f0 hs) 0f0 0.1f0 ti 0.95f0 (+ 510f0 fi seed) (+ dr fi) :back nil :segs 3)
+                      (%ya-cpillar x z (* (- lean) c) (* (- lean) s) 0.4f0 (* 6f0 hs g) kj ti (+ 520f0 fi seed))))))))
         (when (and (<= 110 cf) (< cf 172))               ; the dome: closed f110-118, held, falling outward f160-172
           (let* ((g (f-min 1f0 (/ (i->f (- cf 109)) 8f0))) (fall (f-clamp (/ (i->f (- cf 160)) 12f0) 0f0 1f0))
                  (k (if (< cf 160) 0.98f0 (* 0.98f0 (- 1f0 fall)))) (h (* 4f0 hs (+ 0.5f0 (* 0.5f0 g)) (- 1f0 (* 0.8f0 fall))))
