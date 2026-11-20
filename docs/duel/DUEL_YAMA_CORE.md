@@ -1936,3 +1936,10 @@ scorch (FEEDBACK `:hellfire`'s `stage-mark`, kept for the round), not an S1 look
 - NADEGIRI's hairline cannot be seen under the hit spark from the match cameras; a stronger mark on the cut frame would need the spark's
   owner (FEEDBACK, shared).
 - The SA's frame 0 against its six predecessors (§18.9) is unchanged.
+
+### 22.8 Merged (the lead, 2026-11-20)
+
+Merged into main as built. The lead re-ran the fast checks on the merge: host tests 4152 ALL PASS, pkgcheck as before, debug ranges 0 errors,
+build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v454 (v453 the same build, v454 adds the manual line). **The looks gate is re-based here**: its 8 changed stills are the expected
+YK / select-2 ones (YK sim lines identical), so from this merge on BASE is a dist built at this merge, and the pass rule is again 83 / 83
+byte-identical until S5's wiring (§21.6) re-bases YK again.
