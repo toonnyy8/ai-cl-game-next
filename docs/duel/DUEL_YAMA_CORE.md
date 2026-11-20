@@ -1770,4 +1770,13 @@ No balance gate (the user, 2026-10-29). Bounded waits only in every brief; never
 The lead decides the rest from stills, as §15.4: stance 3's offset, the ring's and the dome's heights, the tornado's band count, frame
 counts, every camera angle that an actor blocks.
 
-The user's answers to Q1-Q4 go in §21.8.
+### 21.8 Decisions (AskUserQuestion, 2026-11-20; the user's answer in bold)
+
+| # | Question | Answer | Rejected |
+|---|---|---|---|
+| Q1 | Heat 0 against a full spend | **「明顯但適中」**: T0 60 % height, orange only; T2 full height with a white-hot core; the ground edge never moves | extreme (35 % / 130 %); colour only |
+| Q2 | 爆炎's own stances / cinematics | **「沿用始解的，換爆炎裝扮」**: the Shikai's stances and three cinematics, drawn bared, scarred, white-hot | pointer 2 alone differs; its own three cinematics; its own stances too |
+| Q3 | How literal ENNETSU JIGOKU is | **「照原作」**: pillars round both, the dome closes with him inside, his hem alight, a look only (no Reishi taken); caption 焱熱地獄 (bake 焱 熱) | the cage round the victim alone (城郭炎上); literal with a self-burn rule |
+| Q4 | NADEGIRI's late split in play | **「火焰裂縫」**: a hairline on the hit, 24 f later a seam of fire parting in a V through the victim's spot, by heat; the model never cut | almost nothing; the world splits (8 m scorch) |
+
+With all four the plan of §21.0-§21.6 stands as drafted. Batches S1 → S5 in order.
