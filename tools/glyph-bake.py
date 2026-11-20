@@ -28,7 +28,9 @@ CHARS = ("卍解残火の太刀野晒呑め、鬼魂上天地灰尽旭日刃獄�
 # Glyphs the font lacks, composed from glyphs it has (a char -> (component, [target boxes in 1/1000 em, y down:
 # x0 y0 x1 y1, one per copy])): each copy of the component's polygons is mapped from its bounding box onto a box.
 # 焱 (ENNETSU JIGOKU's caption, DUEL_YAMA_CORE §26) is not in Yuji Syuku: three of its 火, one over two.
-COMPOSED = {"焱": ("火", [(265, 10, 735, 465), (25, 470, 495, 975), (505, 470, 975, 975)])}
+# BOLD (font units, the third element) thickens the component's strokes before the copies are shrunk, so a composed
+# glyph keeps its neighbours' weight (焱's copies are about half size; DUEL_YAMA_CORE §28.5).
+COMPOSED = {"焱": ("火", [(250, 0, 750, 470), (10, 465, 500, 985), (500, 465, 990, 985)], 40)}
 OUT = "duel/lisp/glyphs.lisp"
 FLAT, SIMPLIFY = 1.0, 2.5         # font units (1000 per em): ~0.5 px on a 200 px glyph
 TOP = 880                         # the ideographic em box: 880 above the baseline .. 120 below
@@ -105,8 +107,11 @@ def bridge(outer, holes):
     return poly
 
 
-def glyph(gs, name):
+def glyph(gs, name, bold=0):
     p = pathops.Path(); gs[name].draw(p.getPen()); p.simplify()       # overlaps removed, windings made consistent
+    if bold:                                                         # thickened by BOLD units (BOLD / 2 a side)
+        s = pathops.Path(p); s.stroke(bold, pathops.LineCap.ROUND_CAP, pathops.LineJoin.ROUND_JOIN, 4)
+        s.convertConicsToQuads(); p = pathops.op(p, s, pathops.PathOp.UNION)
     f = Flatten(gs); p.draw(f)
     rings = [[(round(x), round(TOP - y)) for x, y in dp(c, SIMPLIFY)] for c in f.contours]
     rings = [[q for i, q in enumerate(r) if q != r[i - 1]] for r in rings]
@@ -124,8 +129,8 @@ def glyph(gs, name):
 
 def composed(gs, cmap, c):
     """COMPOSED[c]'s polygons: its component's, copied onto each target box (scaled from their joint bounding box)."""
-    src, boxes = COMPOSED[c]
-    polys = glyph(gs, cmap[ord(src)])
+    src, boxes, bold = COMPOSED[c]
+    polys = glyph(gs, cmap[ord(src)], bold)
     xs = [x for p in polys for x, _ in p]; ys = [y for p in polys for _, y in p]
     x0, y0, w, h = min(xs), min(ys), (max(xs) - min(xs)) or 1, (max(ys) - min(ys)) or 1
     return [[(round(bx0 + (x - x0) * (bx1 - bx0) / w), round(by0 + (y - y0) * (by1 - by0) / h)) for x, y in p]

@@ -1032,7 +1032,8 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
   "The Shikai's stance looks on the blade BASE .. TIP, at the tier TI of the heat his next segment would pay (YA-STANCE-TIER): CODE 1 不知火,
 a slow corkscrew of fire, two strands wound 1.5 turns round the blade, turning once in 4 s; CODE 2 城郭炎上, a drip of fire off the point: a
 flame hanging 0.26 m from the tip and three drops falling from it 0.8 m in turn, one every 0.4 s, thinning as they fall. By tier: the size
-and the white core (%YA-SEG). Pure of the fx clock (no random stream). A look; 0 B."
+and the white core (%YA-SEG). CODE 3 撫斬 (batch J3, DUEL_YAMA_CORE §28.5; TI ignored): still no fire, a thin EMBER line down the blade
+and a small EMBER ring where the point meets the plaza, breathing on twos, so the blade reads from the behind camera. Pure of the fx clock (no random stream). A look; 0 B."
   (declare (type f32vec tip base) (fixnum code ti))
   (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2))
          (bx (- tx x0)) (by (- ty y0)) (bz (- tz z0)) (c (fx-clock)) (dr (drawing-no)) (hf (%ya-hf ti)))
@@ -1059,7 +1060,15 @@ and the white core (%YA-SEG). Pure of the fx clock (no random stream). A look; 0
            (let* ((p (+ (* 0.833f0 c) (* 0.3333f0 (i->f j)))) (ph (- p (i->f (f->i p))))   ; (each drop's phase, 1.2 s a fall)
                   (y (- ty 0.12f0 (* 0.8f0 ph ph))) (w (* 0.04f0 hf (- 1f0 (* 0.6f0 ph)))))
              (declare (single-float p ph y w))
-             (%ya-seg tx (+ y (* 0.13f0 hf)) tz tx y tz w (* 0.5f0 w) ti (- 0.95f0 (* 0.5f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j)))))))
+             (%ya-seg tx (+ y (* 0.13f0 hf)) tz tx y tz w (* 0.5f0 w) ti (- 0.95f0 (* 0.5f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j))))))
+      (3 (let ((b (+ 0.8f0 (* 0.15f0 (f-sin (* 2.618f0 (- c (f-mod c 0.083333f0))))))))   ; 撫斬 (J3, §28.5): no fire, an EMBER line down the
+           (declare (single-float b))                                                   ;  edge (the blade reads from behind), breathing on twos
+           (let ((ex x0) (ey y0) (ez z0))
+             (declare (single-float ex ey ez))
+             (%away-from-eye (ex ey ez) -0.03f0
+               (toon-ribbon (ex ey ez) (bx by bz) (0.016f0 0.01f0) :heat (0.3f0 0.2f0) :seed -230f0 :wob 0.1f0 :pal +pal-ember+ :k (%ya-k b)
+                            :ph dr :segs 3)))
+           (%tring tx 0f0 tz 0.07f0 0.025f0 +pal-ember+ (* 0.8f0 b) 231f0 8))))   ; (where the point meets the plaza)
     nil))
 
 (defun ya-stance-tier (e blaze)
@@ -1477,6 +1486,7 @@ rows."
       (push (%ya-cons-per "stance-2-t0" (yama-stance-fire tp bs 2 0)) rows)
       (push (%ya-cons-per "stance-2-t1" (yama-stance-fire tp bs 2 1)) rows)
       (push (%ya-cons-per "stance-2-t2" (yama-stance-fire tp bs 2 2)) rows)
+      (push (%ya-cons-per "stance-3-ember" (yama-stance-fire tp bs 3 0)) rows)   ; (J3, §28.5)
       (push (%ya-cons-per "tier-stance" (ya-stance-tier *p1* nil)) rows)
       (let ((jm (model-joints (model *p1*))) (yaw (yaw-of *p1*)) (mv-ik (kit-move (find-kit :yamamoto :blaze) :ya-b-j3))
             (en0 (hz :wave -4f0 1.2f0 45 0 :heat 25f0)) (en (hz :wave -4f0 1.2f0 45 24 :heat 25f0)) (en-end (hz :wave -4f0 1.2f0 45 42 :heat 25f0))
@@ -1499,8 +1509,8 @@ rows."
       (macrolet ((cine (name f frames)                 ; (art S5: the Kikon cinematics' looks at their busiest frames, P1 and P2 as the
                    `(progn ,@(loop for cf in frames      ;  actors, in P1's form; each run with the whole batch, as a frame)
                                    collect `(push (%ya-cons-per ,(format nil "~a-~d" name cf) (,f *p1* *p2* ,cf) t) rows)))))
-        (cine "shiranui" yama-shiranui-look (30 50 60 100 118 130 160))
+        (cine "shiranui" yama-shiranui-look (30 50 60 100 118 124 130 160))   ; (124: the columns and the tornado, §28.5)
         (cine "ennetsu" yama-ennetsu-cine-look (26 50 62 100 114 132 150 168))
-        (cine "nadegiri" yama-nadegiri-cine-look (52 112 124 150))
+        (cine "nadegiri" yama-nadegiri-cine-look (40 86 100 130))   ; (re-timed, §28.5)
         (push (%ya-cons-per "s5-cine-p" (yama-s5-cine-p *p1*)) rows))
       (log-msg "yama shikai consing (10 draws, B): ~{~a~^, ~}" (nreverse rows)))))

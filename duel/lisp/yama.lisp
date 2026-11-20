@@ -153,7 +153,7 @@
 ;; pillars along the lane (a :wave drawn as columns)
 (defmove-copy :ya-b-n2a :ya-n2a
   :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
-(defmove-copy :ya-b-n2b :ya-n2c :clip-s 18 :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
+(defmove-copy :ya-b-n2b :ya-n2c :clip :ya-b-n2b :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
   :params (:ns-next :ya-b-n2c :near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2c :ya-n2a :clip :ya-b-n2c :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))

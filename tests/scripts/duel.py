@@ -1490,8 +1490,8 @@ YAMA_S5 = (   # cinematic, name, ((frame (even), beat still) ...)
                      (138, "b6-tornado"), (162, "b7-back"))),
     (1, "ennetsu", ((6, "b0-held"), (28, "b1-edge"), (62, "b2-pattern"), (96, "b3-pillars"), (120, "b4-dome"), (134, "b5-shatter"),
                     (148, "b6-inside"), (172, "b7-wide"))),
-    (2, "nadegiri", ((6, "b0-held"), (30, "b1-face"), (48, "b2-strike"), (52, "b3-cut"), (54, "b3b-out"), (90, "b4-turn"), (110, "b5-seam"), (114, "b5b-shatter"),
-                     (126, "b6-split"), (150, "b7-wide"))),
+    (2, "nadegiri", ((6, "b0-held"), (20, "b1-face"), (36, "b2-strike"), (40, "b3-cut"), (42, "b3b-out"), (64, "b4-turn"), (84, "b5-seam"), (88, "b5b-shatter"),
+                     (104, "b6-split"), (146, "b7-wide"))),   # (re-timed in J3, DUEL_YAMA_CORE §28.5)
 )
 def yama_s5_script(phone=False):
     ev, t, sx = [], T0, ("-phone" if phone else "")
@@ -1570,3 +1570,33 @@ def yama_j1_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-j1", yama_j1_script())
 write("yama-j1-phone", yama_j1_script(True))
+
+# Yamamoto J3 (DUEL_YAMA_CORE §28.5): stance 3 (撫斬) at rest in the Shikai and in 爆炎 (87600: heat 100), the behind camera then the SIDE
+# camera (2109), two phases of its loop each; 爆炎's NS2b (87474, its own clip since J3) as an 8-frame strip from the S4 ring scene's setup,
+# both cameras. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-j3.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --mobile --size 390x844 --script tests/scripts/duel-yama-j3-phone.json
+def yama_j3_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for form, extra in (("shikai", ()), ("gokuen", (87600,))):
+            a = scene(f"stance 3 {form} {cam}", (87500, 87030, 87303) + extra + deck) + 1.2
+            ev.append(shot(a, f"j3-stance3-{form}-a-{cam}{sx}")); ev.append(shot(a + 0.7, f"j3-stance3-{form}-b-{cam}{sx}"))
+            t = a + 1.0
+        a = scene(f"gokuen NS2b {cam}", (87500, 87050, 87302, 87600) + deck) + 0.8
+        ev.append(cmd(a, 87474))
+        for f in (1, 4, 7, 10, 13, 15, 16, 18):
+            ev.append(shot(a + f / 60, f"j3-ns2b-f{f:02d}-{cam}{sx}"))
+        t = a + 1.5
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append(cmd(t, 87500)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-j3", yama_j3_script())
+write("yama-j3-phone", yama_j3_script(True))
