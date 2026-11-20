@@ -175,12 +175,11 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                     (check (<= d 0.1))))))))
         ;; The Shikai and 爆炎 (art batch S1, DUEL_YAMA_CORE §21.6, §22): checked as the Bankai, ±0.15 m both ways; ONE-SIDED where a look
         ;; carries the rest (NADEGIRI's seam SL7, TAIMATSU's halo SL8); TSUKABI (J3) strikes with the POMMEL (the handle's end), IKKOTSU with
-        ;; the FIST. KNOWN-OFF: the borrowed clips S1's print found off (§22.1); S2 / S3 (S4: IKKOTSU) take them out, and a move put back in
-        ;; it must be off. F10: IKKOTSU's clip (S8) on its move (S9), the fist per frame.
+        ;; the FIST. KNOWN-OFF: the borrowed clips S1's print found off (§22.1); S2 / S3 took them out (§23, §24), IKKOTSU is S4's, and a move
+        ;; put back in it must be off. F10: IKKOTSU's clip (S8) on its move (S9), the fist per frame.
         (let ((one-sided '(:ya-n3c :ya-as3c :ya-sa :ya-b-n3c :ya-b-as3c :ya-b-sa))
               (pommel '(:ya-j3)) (fist '(:ya-b-j3))
-              (known-off '(:ya-as2 :ya-as3 :ya-n3a :ya-n3b :ya-ns-strike :ya-as-strike   ; (S3: their own clips; J3's pommel and AS1
-                           :ya-b-as2 :ya-b-as3 :ya-b-n3a :ya-b-n3b :ya-b-j3)))       ;  left with art S2, §23; 爆炎's copies; IKKOTSU: S4)
+              (known-off '(:ya-b-j3)))   ; (S2: J3's pommel and AS1; S3: AS2a, AS3a, NS3a / NS3b, the Kikon strikes and 爆炎's copies)
           (dolist (f '(:base :blaze))
             (let ((k (find-kit :yamamoto f)))
               (format t "yamamoto ~(~a~) FK (move, drawn tip, volume end, delta):~%" f)
@@ -196,14 +195,21 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                           (check (not ok))
                           (check (or ok (format t "yamamoto ~(~a~) ~a: the volume ends ~,2f m, the art ~,2f m~%" f n edge art))))))))))
           ;; art S2 (§23): pointer 1's segments have no blade window: a cast check on their frames (x right, y up, ahead); pointer 3's stance
-          ;; stands the point on the plaza at his right front at every phase of its loop; each S2 clip plays at x1 with its move's S, S+A and end
+          ;; stands the point on the plaza at his right front at every phase of its loop; each S2 clip plays at x1 with its move's S, S+A and end.
+          ;; Art S3 (§24): pointer 2's segments too (NS2a's point out on S, NS2c's / AS2b's blade overhead through the hold and level on S), every
+          ;; S3 clip on its move's frames (爆炎's NS2b plays NS2c's clip at x18/16: its S scaled), and no Shikai move clip turns his root by more
+          ;; than 45 deg at any key (the blade is carried round him, never the body: the old SA / NADEGIRI / NS2c clips turned 360 / 185 / 360)
           (let ((k (find-kit :yamamoto :base))
                 (plaza (lambda (x y a) (declare (ignore x)) (and (<= -0.2 y 0.05) (<= 0.4 a 1.6)))))
             (format t "yamamoto base cast checks (move, frame, x y ahead):~%")
             (dolist (c `((:ya-n1a 22 "the tip past the spiral's start (1 m), at 1.1 m" ,(lambda (x y a) (declare (ignore x)) (and (>= a 1.0) (<= 0.9 y 1.3))))
                          (:ya-n1b 9 "the point on the plaza ahead" ,plaza) (:ya-n1b 12 "still on the plaza" ,plaza)
                          (:ya-n1b 16 "the blade overhead" ,(lambda (x y a) (declare (ignore x a)) (>= y 2.2)))
-                         (:ya-n1c 18 "flung past 1 m ahead" ,(lambda (x y a) (declare (ignore x y)) (>= a 1.0)))))
+                         (:ya-n1c 18 "flung past 1 m ahead" ,(lambda (x y a) (declare (ignore x y)) (>= a 1.0)))
+                         (:ya-n2a 20 "the point locked out past 1 m ahead" ,(lambda (x y a) (declare (ignore x y)) (>= a 1.0)))
+                         ,@(loop for n in '(:ya-n2c :ya-as2b)
+                                 append (append (loop for sf from 9 to 14 collect (list n sf "the blade overhead" (lambda (x y a) (declare (ignore x a)) (>= y 2.2))))
+                                                (list (list n 18 "chopped to the level point, past 1 m" (lambda (x y a) (declare (ignore x)) (and (>= a 1.0) (<= 0.9 y 1.5)))))))))
               (destructuring-bind (n sf desc test) c
                 (let ((mv (kit-move k n)))
                   (ya-pose k (kit-move-clip k (mv-clip mv)) sf (mv-clip-speed mv))
@@ -216,11 +222,21 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                       (reduce #'min tips :key #'first) (reduce #'max tips :key #'first) (reduce #'min tips :key #'second) (reduce #'max tips :key #'second)
                       (reduce #'min tips :key #'third) (reduce #'max tips :key #'third))
               (check (every (lambda (p) (and (<= 0.25 (first p) 0.30) (<= -0.05 (second p) 0.05) (<= 0.1 (third p) 0.35))) tips)))
-            (dolist (n '(:ya-j1 :ya-n1a :ya-n1b :ya-n1c :ya-as1))
+            (dolist (n '(:ya-j1 :ya-n1a :ya-n1b :ya-n1c :ya-as1 :ya-n2a :ya-n2b :ya-n2c :ya-as2 :ya-as2b :ya-n3a :ya-n3b :ya-n3c :ya-as3 :ya-as3b :ya-as3c
+                         :ya-sa :ya-ns-strike :ya-as-strike))
               (let* ((mv (kit-move k n)) (c (find-clip (kit-move-clip k (mv-clip mv)))))
                 (check (or (and (= 1.0 (mv-clip-speed mv)) (= (mv-s mv) (round (* 60 (clip-mark c :s)))) (= (+ (mv-s mv) (mv-a mv)) (round (* 60 (clip-mark c :a))))
                                 (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur c)))))
-                           (format t "yamamoto ~a: its clip's frames are not its move's~%" n))))))
+                           (format t "yamamoto ~a: its clip's frames are not its move's~%" n)))))
+            (let* ((mv (kit-move (find-kit :yamamoto :blaze) :ya-b-n2b)) (c (find-clip (mv-clip mv))))   ; (爆炎's NS2b: NS2c's clip, scaled)
+              (check (= (mv-s mv) (round (/ (* 60 (clip-mark c :s)) (mv-clip-speed mv))))))
+            (dolist (f '(:base :blaze))
+              (loop for m being the hash-values of (kit-moves (find-kit :yamamoto f))
+                    do (let ((c (and (mv-clip m) (find-clip (kit-move-clip (find-kit :yamamoto f) (mv-clip m)) nil))))
+                         (when c
+                           (let ((yaw (loop for i below (engine::clip-n c) maximize (abs (aref (engine::clip-poses c) (+ (* i +pose-n+) +root+ 3))))))
+                             (check (or (<= yaw (deg 45)) (eq (mv-name m) :ya-blaze-in)   ; (爆炎's entry pose: S4's)
+                                        (format t "yamamoto ~(~a~) ~a: its clip turns the root ~,0f deg~%" f (mv-name m) (/ yaw (deg 1)))))))))))
           (let* ((k (find-kit :yamamoto :blaze)) (mv (kit-move k :ya-b-j3)))   ; F10 (printed): the clip's S against the move's
             (format t "yamamoto blaze IKKOTSU (clip ~a S~d, move S~d), the fist ahead per frame:" (mv-clip mv)
                     (round (* 60 (clip-mark (kit-move-clip k (mv-clip mv)) :s))) (mv-s mv))
