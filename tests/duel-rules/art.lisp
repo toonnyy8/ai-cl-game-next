@@ -43,6 +43,8 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                                      (*hs-grip* (setf grips (eval (third form))))            ; (Hisagi's J short grip)
                                      (*ya-plants* (setf plants (eval (third form))))         ; (Yamamoto's planted blade, art K3)
                                      ))
+                     (defconstant (when (eql 0 (search "+YA-" (symbol-name (second form)))) (eval form)))   ; (art S1's look constants)
+                     (defun (when (eq (second form) 'ya-heat-tier) (eval form)))                              ; (art S1's heat tier)
                      (defbody (push (cons (second form) (third form)) bodies))
                      (body-variant (push (cons (second form) (cdr (assoc (third form) bodies))) bodies))   ; (its base's rig)
                      (defweapon (push (cons (second form) (getf (third form) :length)) weapons)))))))
@@ -225,6 +227,23 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
           (loop for form = (read in nil in) until (eq form in) do (walk form file))))))
   (format t "yamamoto looks: writes of heat / hazard data: ~:[none~;~:*~s~]~%" bad)
   (check (null bad)))
+;; art S1 (§22): the Shikai's looks take a few sim numbers as constants (0 B: no float read off a struct or a list per draw): each equals the
+;; sim's, so a retune shows here; the heat tiers (§21.8 Q1); the move looks' literal reaches (YAMA-SK-MOVES: NADEGIRI 2.4, TAIMATSU 2.4 / 3.2,
+;; AS1's burst to 1.6) are the moves'.
+(flet ((par (form name key) (getf (mv-params (kit-move (find-kit :yamamoto form) name)) key))
+       (reach (form name) (mv-reach (kit-move (find-kit :yamamoto form) name))))
+  (check (= +ya-wave-half+ (second *wave-box*)))
+  (check (= +ya-spiral-speed+ (par :base :ya-n1a :speed) (par :blaze :ya-b-n1a :speed)))
+  (check (= +ya-lance-speed+ (par :base :ya-n2a :speed) (par :blaze :ya-b-n2a :speed)))
+  (check (= +ya-tornado-speed+ (par :base :ya-n1c :speed) (par :blaze :ya-b-n1c :speed)))   ; (ENNETSU borrows the look at 12: S4)
+  (check (= +ya-ring-band+ *ya-ring-band*))
+  (check (= +ya-col-delay+ (par :base :ya-n1b :delay) (par :blaze :ya-b-n1b :delay)))
+  (check (= +ya-fire-h+ *ya-fire-h*))
+  (check (= 25 *ya-heat-ns*))                          ; (YA-HEAT-TIER's full spend)
+  (check (equal '(0 1 2 2 2) (list (ya-heat-tier 0f0 nil) (ya-heat-tier 12f0 nil) (ya-heat-tier 25f0 nil) (ya-heat-tier 0f0 t) (ya-heat-tier 12f0 t))))
+  (check (= 2.4 (reach :base :ya-n3c) (reach :base :ya-as3c) (reach :base :ya-sa)))
+  (check (= 3.2 (reach :blaze :ya-b-sa)))
+  (check (= 1.6 (reach :base :ya-as1))))
 
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
 ;; than any J link at the same position of the string (its reach + its lunge, :slide); 片腕's short K against the J floor (2026-10-06) excepted
