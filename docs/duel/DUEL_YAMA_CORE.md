@@ -2508,19 +2508,21 @@ is its own commit, the last (§19.2).
 | Frames | Shot as built | Action as built | Effects / sound | Against §21.5.3 |
 |---|---|---|---|---|
 | 0-12 | held | `hold-both` 12; NADEGIRI's draw (`ya-nadegiri` f9, held), the victim `:sh-kikon-victim`; his face calm for the whole cinematic (`face-beat :neutral` 2.6 s: the cinematic attacker's shout would open his mouth) | negative 2 | as written |
-| 12-40 | `shot-on a 35 2.2 1.35 :look 1.3 :off 0.25`, lens 20 | eyes shut, nothing moves; no fire on the blade | silence 28; caption 撫斬, NADEGIRI, sub RYUJIN JAKKA, hanko | 35° and his face's height for 10° and 1.55 m: at 10° the victim, 2 m ahead, filled the lens (dev 1) |
+| 12-40 | `shot-on a 35 2.2 1.35 :look 1.3 :off 0.25` (portrait 3.0, §21.5.3's P), lens 20 | eyes shut, nothing moves; no fire on the blade | silence 28; caption 撫斬, NADEGIRI, sub RYUJIN JAKKA, hanko | 35° and his face's height for 10° and 1.55 m: at 10° the victim, 2 m ahead, filled the lens (dev 1) |
 | 40-52 | `shot-on a 200 2.4 1.5 :look 1.3 :ahead 1.6`, lens 50 | `cine-slow 0.3`; the victim starts his own J (K4's `yama-victim-attack`) | | as written |
 | 52-56 | the same | f52 the cut, not shown: one INK hairline across the frame at the victim's neck (12 m long, 2 f); the victim frozen mid-swing (his clip 4 frames on, speed 0); f53 his arm already out (`ya-b-n3c` at its f16, held) | negative 2, `:hs-tip` (no slash sound) | the victim freezes at the cut, not at f56 |
 | 56-110 | `shot-pair a v 1 4.2 1.2` (portrait 6.0), lens 46 | he turns his back (yaw + 180, as 南's turn) and lowers the blade (the true NADEGIRI's clip `ya-b-n3c` from f19 at x0.74: its 40 f lowering over 54 f) | silence | 爆炎's own true NADEGIRI clip in both forms (dev 5) |
 | 110-116 | `shot-on v 35 2.6 1.4 :look 1.2`, lens 50 | `silhouette-black` on the victim; a white seam down him, crown to floor in 4 f (0.04-0.08 m, 0.4 m toward the lens); f112 the Konpaku | f112 negative 2, splash; f114 manga 10 | 35° for "front": in front of him stood Yamamoto, 0.6 m ahead of the lens (dev 1) |
-| 116-140 | `shot-on v 180 3.6 0.4 :look 1.0 :ahead 1.0`, lens 40 | fire bursts from the seam and parts in a V (12 walls a side from 0.6 m before him to 6 m behind, 3 m at him, lower away, sunk near the lens); an INK + EMBER scorch line runs 8 m behind him in 10 f; `:sh-crumple`, f130 `:sh-down` | sizzle; f120 the boom 4 f late, shake 0.3 | as written |
+| 116-140 | `shot-on v 155 3.6 0.4 :look 1.0 :ahead 1.0`, lens 40 | fire bursts from the seam and parts in a V (12 walls a side from 0.6 m before him to 6 m behind, 3 m at him, lower away, sunk near the lens); an INK + EMBER scorch line runs 8 m behind him in 10 f; `:sh-crumple`, f130 `:sh-down` | sizzle; f120 the boom 4 f late, shake 0.3 | 155° for 180° (dev 1): on the line his upright silhouette hid Yamamoto |
 | 140-156 | `shot-pair a v 1 7.0 1.6` (portrait 9.0), lens 44 | he has not looked back, the blade hangs; the scorch line kept; embers | caption exits | as written |
 
 ### 26.2 Deviations, each with its reason
 
 1. **Camera angles moved where an actor blocked the lens** (K4's dev 1 again; 26.1's last column): 撫斬's face shot 35° at his face's
    height (1.35 m, look 1.3) for 10° at 1.55 (the victim, 2 m ahead, filled the frame at 10°; the draw pose's head is lower than 1.55);
-   撫斬's seam shot 35° for "front" (Yamamoto stood 0.6 m in front of the lens); 不知火's caption shot 2.6 m in portrait (the blade at his
+   撫斬's seam shot 35° for "front" (Yamamoto stood 0.6 m in front of the lens); 撫斬's split shot 155° for 180° ("past him to Yamamoto's
+   back": on the line the victim's upright silhouette hid him, found in the stills after the wiring commit was first made, so the branch
+   was rebuilt with this fix before the wiring commit); 不知火's caption shot 2.6 m in portrait (the blade at his
    hip left the tall frame at 1.8). 焱熱地獄's inside shots and 不知火's front shots kept their angles: the other actor stands behind the lens.
 2. **焱 is composed** (the glyph): Yuji Syuku has no 焱 (`tools/glyph-bake.py`: "not in the font"). It is three copies of the font's 火
    (one over two, each mapped from 火's bounding box onto a box of the em: `COMPOSED` in the bake script), so its strokes are about 0.47 x

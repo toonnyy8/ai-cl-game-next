@@ -794,7 +794,7 @@ the fire bursts from the seam and parts in a V, a scorch line runs past us, he c
       (cine-clip a :ya-nadegiri :blend 2 :time (/ 9.0 60.0) :speed 0.0) (cine-clip v :sh-kikon-victim :blend 4)
       (face-beat a :neutral 2.6)                          ; (eyes shut, calm: never the cinematic attacker's shout)
       (hold-both a v 12) (impact-frame :negative 2))
-  (at 12 (shot-on a 35 2.2 1.35 :look 1.3 :off 0.25) (lens 20) (silence 28)   ; (35 deg, not 10: at 10 the victim, 2 m ahead,
+  (at 12 (shot-on a 35 (if (portrait-p) 3.0 2.2) 1.35 :look 1.3 :off 0.25) (lens 20) (silence 28)   ; (35 deg, not 10: at 10 the victim, 2 m ahead,
                                                                                 ;  stood in front of the lens)
       (caption "撫斬" :reading "NADEGIRI" :sub "RYUJIN JAKKA" :side 0 :hanko t))
   (at 40 (shot-on a 200 2.4 1.5 :look 1.3 :ahead 1.6) (lens 50) (cine-slow 0.3) (yama-victim-attack v))
@@ -807,7 +807,8 @@ the fire bursts from the seam and parts in a V, a scorch line runs past us, he c
   (at 112 (impact-frame :negative 2) (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
       (impact-splash-at v 0.0 14 0.08) (play-sfx :konpaku-shatter) (shake 0.2 0.3))
   (at 114 (impact-frame :manga 10))
-  (at 116 (shot-on v 180 3.6 0.4 :look 1.0 :ahead 1.0) (lens 40) (cine-clip v :sh-crumple :blend 3) (play-sfx :sizzle))
+  (at 116 (shot-on v 155 3.6 0.4 :look 1.0 :ahead 1.0) (lens 40) (cine-clip v :sh-crumple :blend 3) (play-sfx :sizzle))   ; (155 deg,
+                                                                                ;  not 180: on the line the victim hid him)
   (at 120 (play-sfx :explode :pitch 0.6) (shake 0.3 0.4))   ; (the boom 4 f late)
   (at 130 (cine-clip v :sh-down :blend 10))
   (at 140 (shot-pair a v 1 (if (portrait-p) 9.0 7.0) 1.6) (lens 44) (caption-exit))
