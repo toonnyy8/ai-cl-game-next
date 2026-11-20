@@ -1891,7 +1891,14 @@ in fire palettes; shared: the orange running burst, the fire-wave line cut, the 
 - Hisagi: none tongue-shaped (JADE / INK / GOLD shards, stars and crescents).
 
 Finding: `vfx-aura` has no `:hellfire` branch, and the keyword is not fbound. The 爆炎 entry's call (`yama-cine.lisp:40`) and
-`yama.lisp`'s GOKUEN form (`:aura :hellfire`) therefore draw no aura today.
+`yama.lisp`'s GOKUEN form (`:aura :hellfire`) therefore draw no aura today. (Closed by J2: the `:hellfire` and `:garb` branches are
+back in `vfx-aura`.)
+
+**After the sweep (§15.7, 2026-11-21).** Re-grepped on fde834c9 (J0-J3 merged): 74 `(drawing-no)` calls. The sweep removed 33
+(flame-class and borderline looks); 4 more stay where a look mixes a flame with a stepped non-flame part (北's band, NS2a's flash star,
+the dome's :boom stars, `:south`'s tell pulse), their flame shapes flowing now. The 37 others are outside the class: Kenpachi 11, Hisagi
+12, Ichigo's chain / edge / crescent / charged blades 4, the smear capture, the breaker ring, the meteor's light sheet, the skull, the
+rain, the face accent, the rift, the dead's hands, `yama-bk-moves`' crescents and the Bankai's smoke thread (§15.7 "Left out").
 
 ### 15.4 The prototype (shader only, 2026-11-20)
 
@@ -2034,3 +2041,107 @@ The user: 「火焰請用 80% 半透明來表示」. Read as opacity 0.8 (不透
   `tests/shots/duel-j0b-{stance,ring,ring1,dome,dome1,hellfire,hellfire1,west,aura,ennetsu}-a{10,08}[-phone].png`, covering
   stance 1's fire, 城郭炎上's ring and dome, 爆炎's `:hellfire`, 西's garb from behind, Kenpachi's aura (84000) and 焱熱地獄's
   pillars. Sheets `duel-j0b-sheet[-phone].png` (untracked); scripts `tests/scripts/duel-j0b-a{10,08}[-phone].json`.
+
+### 15.7 As built (the flow sweep, batch F1 phase 3, 2026-11-21)
+
+The last part of the user's 「保留平塗、只柔邊和流動」: the flow on the Lisp side. The shader already scrolled the flame class on the
+continuous clock (§15.4), but most flame looks put `drawing-no` into their seeds, heights, leans and sway phases, so every shape still
+popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the motion changed. Presentation only.
+
+**The helpers** (engine `fx-shapes.lisp`, exported; names grepped first, both namespaces):
+- `FLOW-PH` (rate, default `+FLOW-SWAY+` = 12 rad/s, the old step of one radian a drawing): a continuous phase for a ribbon's `:ph`,
+  wrapped to 20π. That is exact for the ribbon's sin(ph), sin(1.7 ph) and sin(2.3 ph), and for every multiple of 0.1 the callers use.
+  Spins that turned by a fixed angle a drawing use it with their own rate (the spiral 90°/drawing → 18.85 rad/s, the cinematic blade
+  spiral 180° → 37.70, the tornado 0.55 → 6.6, the 不知火 tornado's tongues 0.3 → 3.6).
+- `FLOW01` (i, seed, rate, default `+FLOW-LICK+` = 6 keys/s): value noise over the same `HASH01` (i + n, seed), smoothstep between keys,
+  wrapped to 64 keys with key 63 easing into key 0. It equals the old `(hash01 (+ i dr) seed)` on each key, so the heights, leans and
+  angles keep their distribution. It runs at 6 keys a second, half the old 12: at 12 the smooth drift still looked busy (the advisor's
+  point; a knob, by eye).
+- Both stay on the fx clock: hitstop and a cinematic's DT 0 freeze them, so stills stay deterministic.
+- **Seeds are now constant per shape.** The shader turns the seed into the noise offset (`fract(seed × 0.618) × 97`), so a seed that
+  changes at all reseeds the noise; the shader's own scroll is the flow. The flags stay (the sign for along shapes, +1000 for charcoal).
+  Where a seed came from a moving position (the blade, the fist, his feet in `yama-sk-moves`, ENNETSU's front row that rides the box,
+  `yama-ring-close`'s spot that may follow the victim), it is a per-shape constant now: a moving seed would churn the noise every frame.
+- `%brush-aura` changed once. That covers the `:kikon`, `:reiatsu` / `:nozarashi` / `:nomihose`, `:garb`, `:hellfire`, `:burst-*`,
+  `:evolution`, `:oni` and `:breaker` auras. `%ya-pillar` (城郭炎上's six pillars) and `%ya-cpillar` (the cinematic columns) changed
+  inside the macro. `%ya-tongue`, `%ya-seg` and `toon-ribbon` are untouched (their callers pass the phase); `%tongue`'s docstring says
+  to pass a constant seed.
+
+**Sites changed:**
+- vfx.lisp: `%brush-aura`; the rings of `%kikon-aura` / `%reiatsu-aura` / `:burst-*`; `%garb-aura` (wings, rings); `vfx-aura
+  :hellfire` (the foot tongues, the ring); `vfx-smear` look 5's three tongues only; `vfx-line-cut` `:enjo` / `:kyoku` / `:kyokko`
+  seeds and `:south`'s ember seed; `vfx-soul-flame` (its own 3-drawing cycle and its bob on `sage`, now continuous).
+- vfx-ember.lisp: `vfx-charge` (the converging shards loop continuously).
+- yama-vfx.lisp: `vfx-blade-embers` (breathing continuously, 4 keys/s for the old threes), `vfx-fireball`, `%st-gutter`'s FIRE tongues
+  (they sink on the raw age).
+- yama-look.lisp: `yama-north-look` (the flame band's seed), `%ya-blade-burn`, `yama-spiral-look`, `yama-lance-look`, `yama-column-look`
+  (the tell's 6 Hz pulse as a smooth cosine, the ghost lights, the column, the crown), `yama-tornado-look`, `%ya-pillar`,
+  `yama-dome-look` (the closed tongues), `yama-blade-fire`, `%ya-pommel-fire`, `yama-stance-fire` (codes 1-3; 撫斬's EMBER line breathes
+  continuously), `yama-sk-moves` (codes 1, 2 / 3, 5, 8), `yama-ennetsu-look` (a pillar id replaces the positional seed),
+  `yama-ring-close`, `yama-blaze-in-look`, `%ya-fist-fire`.
+- yama-cine.lisp: `yama-nishi-look` (the column off the victim, the ember at the ash's front), `%ya-cpillar`, `yama-s5-blade`,
+  `yama-shiranui-look` (the lights' pulse, the columns, the tornado's strands and tongues), `yama-ennetsu-cine-look`,
+  `yama-nadegiri-cine-look`.
+- ichigo-look.lisp: `ichigo-red-wisps` and `ic-flame-sheets` (their sway was continuous already; only the seed lost `drawing-no`).
+- In all: 33 `(drawing-no)` calls removed, 4 kept for a stepped non-flame part beside a flowing flame (§15.3 note).
+
+**Left out, and why:**
+- Smears, crescents and rifts (the lead's borderline rule):
+  - `vfx-smear`'s comet is captured per drawing (`fx-smear-capture!` keys on the drawing number), so the fire wash stays a held drawing.
+  - `vfx-rift`, the black Getsuga, `ichigo-charged-blades`, `yama-bk-moves`' lens and crescents (KYOKKO, 北's AS crescent) and the
+    cinematics' hairlines also stay.
+- Impacts stay stepped: the hit stamps' `%star` shuffles, NS2a's flash star, the dome's `:boom` and the white flashes ("impact frames
+  sharp").
+- Envelopes on `sage` stay designed beats: the one-shot envelopes of NS2a's wall and the dome's detonation (the flash drawing), the
+  pillars' 3-drawing rise on ones (§22.2), the dome's seethe on ones, and `vfx-charge`'s disc growing in sixths (a gauge of the charge,
+  not a flicker). The two tells that blink on twos also stay: `:south`'s ember rim and the face accent.
+- Dead stamps (no caller): `%st-cone`, `%st-flare`, `%st-nade`, `%st-wisps`. `%st-garb-guard` / `%st-scorch`: smoke curls and an
+  ember hit star.
+- The non-flame looks of §15.3 (Kenpachi, Hisagi, Ichigo's chain and edge, the Bankai's smoke thread, the dead's hands, the rain, the
+  skull, the breaker ring).
+
+**Gates** (on d0d44411):
+- Host tests 4259 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 90, 0 errors. Smoke exit 0.
+- `--cvc` PASS on II / IK / KK (33 / 28 / 27 lines).
+- Consing (debug 2328, 2329, 2390, 2391, 87448, 87449): every row 0 B. The one exception, `aura crossfading 728`, reads the same on
+  the base build, as does the `fx-dropped 2926` that the probes' own bulk draws cause.
+- **Looks gate** against `looks-base-j0` (main's dist at fde834c9), no `--keep-base`, noise 0:
+  - 67 differ, 16 byte-identical; 16 / 16 sim and fighter lines PASS.
+  - The 20 written as identical beforehand: 16 held (`menus/select-0/1`, `mobile/intro/neutral/close/paused/mode/select`,
+    `cvc-hk/ii/ik intro`, `cvc-ii/start/w0-0/w2-0`, `cine-ken/ken-bankai-030`, `cine-ichigo/ichigo-awaken-060`).
+  - The four misses (`cvc-ii/w1-0`, `w1-1`, `w3-0`, `cvc-ik/w2-0`) were checked by diff image. Each is the BURST REVERSE blue
+    aura (`:burst-blue`, a `%brush-aura`, borderline), which J0 left identical because BLUE is outside the shader's class. The
+    written expectation missed it.
+  - Every still written as "differs" differs, including those new against J0b: `cine-ken/ken-bankai-080/120` (the `:oni` pillar)
+    and `cine-ko/soul-break-030/090` (the soul flame).
+- **Frame-to-frame change.** Over 30 consecutive 60 Hz frames per scene, the count of pixels changed between neighbouring frames, in
+  the box where anything moves (HUD and phone deck masked):
+
+  | Scene | Before: max / median | After: max / median |
+  |---|---|---|
+  | Shikai stance 1 fire | 1.8 | 1.2 |
+  | 城郭炎上's ring | 1.4 | 1.1 |
+  | 西's garb | 1.8 | 1.1 |
+  | 爆炎's `:hellfire` | 1.7 | 1.1 |
+  | Kenpachi's aura (84000) | 1.7 | 1.3 |
+
+  - Before, the spikes come every 4.8-5 frames, the 12 drawings a second. 西's spikes sit at frames 0, 6, 11, 15, 21, 26, and
+    爆炎's at 0, 5, 9, 15, 20, 24.
+  - After, the series is flat (爆炎: 47.9 k-58.9 k on a median of 51.9 k).
+  - Phone (390 × 844): stance 1.6 → 1.3, ring 1.4 → 1.3, garb 1.6 → 1.1, 爆炎 1.8 → 1.2, aura 1.6 → 1.4.
+  - Two scenes have other motion that swamps the measure, so they show it only by eye:
+    - The NS1 column: 3.5 → 3.2, its peak the eruption frame (designed: full at once).
+    - 焱熱地獄's running cinematic: 2.0 → 1.9 (camera motion). It is not held, because a held cinematic freezes the fx clock.
+  - Kenpachi's aura keeps a small 3-frame ripple after the sweep: its white core lines and flecks (HIT, outside the class) still step
+    in the shader.
+- **Sheets** (rows = 8 consecutive frames, before | after): `tests/shots/duel-f1s-{stance,column,ring,west,hellfire,aura,ennetsu}[-phone].png`
+  (untracked). The raw frames and the generator are in the batch's scratchpad.
+
+**Open points:**
+- **The shader half of the borderline.** BLOOD, INK, STEEL, HIT and BLUE are outside `soft_class`. So the Kikon and `:oni` auras,
+  `:evolution`, the white / blue bursts, the soul flame and Ichigo's wisps and sheets now move smoothly in Lisp, but their shader noise
+  still steps and reseeds on twos, with no feather and no 0.8. Widening `soft_class` would put every BLOOD / INK along shape at 0.8
+  (Kenpachi's blood trails, chains), which is a design call for the lead or the user, not this sweep.
+- The rates `+FLOW-SWAY+` (12) and `+FLOW-LICK+` (6) are by eye on SwiftShader. The feel needs a playtest.
+- The `sage`-stepped one-shot envelopes (NS2a's erosion over 18 frames, the dome's detonation) still erode on twos. Smoothing them
+  means a flash-drawing rule per envelope; left for now.
