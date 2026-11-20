@@ -1943,3 +1943,151 @@ Merged into main as built. The lead re-ran the fast checks on the merge: host te
 build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v454 (v453 the same build, v454 adds the manual line). **The looks gate is re-based here**: its 8 changed stills are the expected
 YK / select-2 ones (YK sim lines identical), so from this merge on BASE is a dist built at this merge, and the pass rule is again 83 / 83
 byte-identical until S5's wiring (§21.6) re-bases YK again.
+
+## 23. As built (art batch S2: the Shikai's stances, NA and pointer 1, 2026-11-20)
+
+S2 of §21.1 (the user, 2026-11-20: 「繼續」; the plan §21.3, the decisions §21.8): the three Shikai stances, J1 HISEN at its S14 with a held
+tell, J2 reused, J3 TSUKABI's frame 0 and its pommel, pointer 1's NS1a / NS1b / NS1c and AS1, each on a clip at its move's S with frame 0 the
+pose its link lands on. Presentation only (proofs in 23.7). Code: `yama-art.lisp` (the clips and their named landing poses), `yama.lisp`
+(`:clip`, three dropped `:clip-s`, J1's `:blend 4`, the `:stances` comment), tests `tests/duel-rules/art.lisp` and `yamamoto.lisp`, the art
+viewer `tests/duel-view.lisp` (the Shikai's clips on his Shikai body) and the still scripts.
+
+### 23.1 What was built
+
+| Slot | Clip | As built |
+|---|---|---|
+| Stance 1 不知火 | `ya-shiranui` re-keyed (2.4 s, 4 keys; was a 0.5 s 2-key charge loop) on the new `:ya-st-shiranui` | sunk (knees 40) and side-on (root yaw -25), the hilt drawn back at his right hip (the hand 0.40 m right, 0.85 m up), the blade level along the lane (the tip 0.90 m ahead at 0.89 m); a slow breath that moves the tip under 2 cm |
+| Stance 2 城郭炎上 | `ya-st-enjo` re-keyed (4 keys) on the new `:ya-st-jokaku` | upright (spine 2), the arm locked out at shoulder height (the hand 1.33 m up), the blade level at the foe (the tip 1.70 m ahead, 1.34 m up) |
+| Stance 3 撫斬 | `ya-st-cane` re-keyed (4 keys) on the new `:ya-st-nade` | upright, the head bowed (the eyes shut), the hand on the hilt of the blade stood point-down at his right front: the tip on the plaza 0.28 m right, 0.22 m ahead (y -0.01) at every phase of the loop (only the head breathes); no fire (YAMA-DRAW's rule, unchanged) |
+| J1 HISEN | **`ya-hisen`** (new, S14; the move's `:clip-s 9` dropped, `:blend 4`) | from the form idle the charge f1-9 a key a frame, the arm's side and the wrist leading, the flex and the elbow lagging, to the wrist cocked high right (the feet still); held f10-12 (a 1° tremble); released f13-14 into the kept `:ya-q1-hit` (the tip 1.39 m); on through f15 (`:ya-hisen-thru`, AS1's first frame) to S+A f17 (`:ya-hisen-a` = J2's first frame) |
+| J2 KAESHIBI | `ya-q2` reused, byte-identical | J1's S+A pose carries J2's frame-0 numbers, so the link lands with no jump |
+| J3 TSUKABI | `ya-tsuka` re-keyed | frame 0 `:ya-q2-a` (J2's f11 as `ya-q2` draws it); the wind-up f1-3 a key a frame to the kept wind pose (f4-7); the hit pose turned: the wrist over, the blade laid back under the forearm (the tip 0.33 m ahead), the pommel leading at the face's height, 1.40 m ahead |
+| NS1a | **`ya-n1a`** (new, S22; was `ya-f1` at x0.82) | frame 0 stance 1; the spiral gathers f1-14 (a key a frame, eased; the wrist circles the point 1.5 turns, growing then closing, as the hilt goes back past the ribs: `:ya-n1a-coil`); the coil held and trembling f15-19; the level thrust released f20-21, the arm locked on S (`:ya-n1a-hit`, the old SHIRANUI throw's pose: the tip 2.04 m ahead, 1.15 m up); held out to S+A (`:ya-n1a-land`) |
+| NS1b | `ya-f2` re-keyed at S16 (`:clip-s 22` dropped) | frame 0 `:ya-n1a-land`; the point dropped onto the plaza ahead by f8 (`:ya-n1b-plaza`: 1.16 m ahead), held f8-12 (the tell); lifted through level (f14, the old hit pose) onto his toes, the blade straight up on S (`:ya-n1b-hit`, the tip 2.78 m up), held up through the active window to S+A (`:ya-n1b-top`) |
+| NS1c | **`ya-n1c`** (new, S18; was `ya-sig` at x2.2) | frame 0 `:ya-n1b-top`; the blade tilted back (f1-3), then the wrist alone circles its tip once over his head, the hand still above it and the blade 50° off upright (behind f3, his left f6, ahead f9, his right f12: keys every 45°, linear, deviation 4); held at his right f13-15; flung forward and down f16-17 as the torso turns in, the tip 1.65 m ahead on S (`:ya-n1c-hit`) |
+| AS1 | **`ya-as1`** (new, S10; was `ya-shiranui-throw` at x0.2) | frame 0 `:ya-hisen-thru`; the hilt pulled back to the ribs f1-6 (a key a frame, `:ya-as1-coil`), held f7-8, a short corkscrew thrust (the wrist rolls 30° as it goes), the tip 1.60 m ahead on S (`:ya-as1-hit`) |
+| The smear | S1's look 4 | every new clip is a Shikai move: it draws look 4 (the kit's `:smear 4`), unchanged |
+| 爆炎 | its `defmove-copy`s | `ya-b-j1` / `-j2`, `ya-b-n1a`-`c` and `ya-b-as1` play the same clips (their FK rows below); IKKOTSU and ENNETSU are S4's |
+
+Deleted, unreferenced after S2: `ya-sig` and its three poses, `ya-shiranui-throw`, `:ya-throw-hit`, `:ya-shiranui-coil`. Kept: `ya-q1` (NS3b
+still plays it at `:clip-s 9`), `ya-f1` (AS3b's), `ya-enjo` (pointer 2's), the stance clips' names (YAMA-DRAW keys SL0's absence on
+`:ya-st-cane`; the `:stances` list is host-checked).
+
+### 23.2 Drawn reach against hit reach (the host FK test)
+
+| Move | Before (S1, §22.1): drawn / volume end / delta | After | Verdict |
+|---|---|---|---|
+| J1 (both forms) | 1.39 / 1.40 / -0.01 | 1.39 / 1.40 / -0.01 | within ±0.15 (its own clip, the same hit pose) |
+| J2 (both forms) | 1.35 / 1.40 / -0.05 | 1.35 / 1.40 / -0.05 | within ±0.15 (unchanged) |
+| J3 TSUKABI (by the pommel; both forms' rows) | 1.12 / 1.40 / -0.28 **(known off)** | **1.40 / 1.40 / +0.00** | within ±0.15: out of `known-off` |
+| AS1 (both forms) | 2.04 / 1.60 / +0.44 **(known off)** | **1.60 / 1.60 / -0.00** | within ±0.15: out of `known-off` |
+| the Kikon strikes (J1's clip) | 1.39 / 1.60 / -0.21 (known off) | 1.39 / 1.60 / -0.21 (known off) | J1's copies: they follow its clip; S3's own `ya-strike` |
+
+`known-off` left (11): AS2a, AS3a, NS3a, NS3b, the two Kikon strikes; 爆炎's AS2a, AS3a, NS3a, NS3b and IKKOTSU (S3, S4).
+
+### 23.3 緩急: the tip's speed per frame (m a frame, the clip's FK at the root, ease-out cubic; the move's slide not included)
+
+| Move | Charge | Hold | Release → S | After S |
+|---|---|---|---|---|
+| J1 (S14), before (`ya-q1` S9 at x0.64) | f1 **2.15** (the first frame the fastest: from the stance with no blend), 1.06, 0.38, 0.21, 0.10, f6-10 ≤ 0.02 | (the old wind-up's hold, stretched) | f11 0.06, f12 0.46, f13 0.90, S 1.75 | f15 0.71 |
+| J1 (S14), after | f1-9: 0.15 0.24 0.30 0.42 0.58 0.62 0.68 0.64 0.54 | f10-12: 0.02 0.03 0.03 | f13 0.32, **S 1.58** | f15 0.70, f16 0.05, f17 0.01 |
+| NS1a (S22), before (`ya-f1` S18 at x0.82) | f1 0.72, 0.55, 0.40, 0.28, 0.18, then ≤ 0.10 | f8-15 ≤ 0.08 | f16 0.13, f17 0.81, f18 0.37, f19 0.10, f20 0.56, **f21 1.19**, S 0.91 | f23 1.10, f24 0.27 |
+| NS1a (S22), after | f1-14: 0.04 0.09 0.08 0.11 0.17 0.16 0.12 0.14 0.19 0.17 0.10 0.04 0.05 0.06 (the wrist's circle) | f15-19: 0.01 0.03 0.04 0.02 0.02 | f20 0.38, **f21 0.74**, S 0.55 | f23 0.02, f24 0.00 |
+
+J1's release (1.58) is now 2.3x its fastest charge frame (0.68), and the pop on f1 is gone. NS1a's release (0.74) is 3.9x the gather's
+fastest frame (0.19) against a still hold; before, the old sweep's wind-up and its second swing (f20-23: 0.56 1.19 0.91 1.10) outran it.
+J1's charge has one long arc to travel (the point from the plaza to over the right shoulder, 4.1 m over 9 frames), so its frames cannot all
+be slow: the staggered channels flatten its middle (0.74 → 0.68 a frame) and the f13 key was moved back toward the cocked pose so the last
+frame carries the cut (S 1.25 → 1.58).
+
+### 23.4 Link frames: the tip's jump on the frame the link lands (m)
+
+Where the links land (§17.1 / §18.3, the trials' logs): an NS segment at its predecessor's S+A, a J link at S+A, an AS at the J's S+1.
+
+| Link (lands on) | Before | After | The new clip's first frames (f1-4) |
+|---|---|---|---|
+| J1 > J2 (J1 f17) | 0.03 | 0 | 0.33 0.13 0.06 0.01 (J2's own) |
+| J2 > J3 (J2 f11) | 1.81 (J3 started from the stance) | 0 | 0.51 0.81 0.87 0.64 (the wind-up, a key a frame; it was 1.40 on f1 with one key) |
+| J1 > AS1 (J1 f15) | 1.22 | 0 | 0.12 0.17 0.17 0.19 |
+| stance 1 > NS1a (f0) | 1.11 | 0 (at any phase of the stance's loop: 0.016 at most) | 0.04 0.09 0.08 0.11 |
+| NS1a > NS1b (NS1a f24) | 1.76 | 0 | 0.41 0.40 0.32 0.23 |
+| NS1b > NS1c (NS1b f29) | 1.13 | 0 | 0.34 0.35 0.35 0.36 |
+| stance 1 / 2 / 3 > J1 (f0) | 1.11 / 1.60 / 0.80 snapped, then `ya-q1`'s 2.15 on f1 | 0.96 / 1.65 / 0.59 snapped; with `:blend 4` the tip moves 0.13-0.30 / 0.20-0.53 / 0.49-0.98 a frame over f1-4 | (J1's own f1-4: 0.15 0.24 0.30 0.42) |
+
+### 23.5 Cast checks (host, `tests/duel-rules/art.lisp`; x his right, y up, ahead)
+
+| Move, frame | What | Test | Value |
+|---|---|---|---|
+| NS1a f22 | the tip | past the spiral's start (≥ 1.0 m ahead) at 0.9-1.3 m | -0.01 / 1.15 / 2.04 |
+| NS1b f9, f12 | the tip | on the plaza (-0.2 ≤ y ≤ 0.05), 0.4-1.6 m ahead | 0.05 / -0.00 / 1.16; 0.05 / 0.01 / 1.17 |
+| NS1b f16 | the tip | overhead (y ≥ 2.2) | 0.28 / 2.78 / 0.61 |
+| NS1c f18 | the tip | flung past 1 m ahead | -0.20 / 0.86 / 1.65 |
+| stance 3, its loop every 0.2 s | the tip | x 0.25-0.30, y ±0.05, 0.1-0.35 m ahead | 0.28 / -0.01 / 0.22 at every phase |
+| J1, NS1a-c, AS1 | the clip | plays at x1, its S, S+A and end the move's (no `:clip-s`: F10's class of bug) | all five |
+
+### 23.6 Deviations, each with its reason
+
+1. **J1 has a new clip `ya-hisen` instead of `ya-q1` re-keyed in place**: NS3b (and 爆炎's copy) still plays `ya-q1` at `:clip-s 9`; re-keyed,
+   NS3b's drawn pose and its known-off row would move in a pointer S2 must not touch. S3 gives NS3b its own clip; `ya-q1` goes then.
+2. **J2 is byte-identical and J3's frame 0 is a new pose** (`:ya-q2-a`, `ya-q2`'s f11 sampled): `ya-q2` is also NS3a's and AS3's clip.
+3. **J3's hit pose turned over, not only moved forward**: the old pose led with the tip (1.64-1.75 m ahead, the pommel behind the hand), so
+   no forward step could put the pommel on the volume without the tip passing it by 0.4 m. The pommel now leads (the blade laid back under
+   the forearm), at 1.40 m and the face's height (1.43 m up); the body's forward shift is 0.33 m (was 0.55). Its wind-up got three keys a
+   frame apart (the link pose to the wind pose was a 1.40 m first frame).
+4. **NS1c's whirl is a cone, not a level blade, keyed every 45°**: a level blade turned once by the wrist winds the hand's twist channel by
+   360°, and the crossfade into the idle (channels linear; ANIM-PLAY wraps only the root's yaw) would unwind it as a visible spin; a lasso by
+   the shoulder winds the arm's twist the same way. With the hand still over his head and the blade 50° off upright, the wrist's three
+   channels oscillate and come back. 90° keys left the tip moving 0.27 / 0.53 a frame by turns; 45° keys 1.5 frames apart, linear, give an
+   even 0.32-0.38. It ends at his right (the plan did not say where), so the fling is a diagonal down across him.
+5. **AS1 reaches its volume with the body drawn back** (root -0.15 m, the elbow at 25°): a locked arm from where he stands puts the tip at
+   1.76 m; point-blank, as the slot's archetype says.
+6. **Stance 1's slow corkscrew of fire and stance 2's drip off the tip are not built**: they are new looks (yama-look.lisp), outside S2's
+   allowed edits; S1's SL0 burns on both stances as before (open, 23.9).
+7. **Stance 1 is side-on by the root's yaw (-25°)**, a still offset (the old placeholder had the same); NS1a turns him into the thrust (+10°
+   on S): a 35° body turn, not a spin.
+8. **J1's `:blend 4` reaches its copies** (the two Kikon strikes, 爆炎's J1): `defmove-copy` carries it; a look (`mv-blend`'s one reader is
+   PLAY-CLIP). A host check lists the Shikai / 爆炎 moves that blend. From stance 3 the blended first frames still move 0.98 m at most (the
+   planted blade swung up into J1's charge).
+9. **The art viewer draws the Shikai's clips on the Shikai body** (`tests/duel-view.lisp` CLIP-OWNERS): before, a `ya-` clip that was not
+   the Bankai's posed Ichigo and Kenpachi, and `ya-st-enjo` / `ya-st-cane` (prefix `YA-ST-`) the Bankai body. The K2 / K3 strip scripts'
+   indices moved with the new and deleted clips and were regenerated.
+
+### 23.7 Stills (untracked)
+
+- In play: `tests/scripts/duel-yama-s2.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_s2_script`), the behind camera then the SIDE
+  camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on): `tests/shots/duel-yama-s2-<still>-<behind|side>[-phone].png`
+  for `stance-1`-`3`, `ns1a-gather` / `-coiled` / `-held` / `-release` / `-s` / `-land`, `ns1b-drop` / `-tell` / `-level` / `-s` / `-top`,
+  `ns1c-behind` / `-left` / `-ahead` / `-right` / `-held` / `-fling` / `-s`, `as1-first` / `-coil` / `-held` / `-thrust` / `-s`, `j1-charge` /
+  `-cocked` / `-held` / `-release` / `-s` / `-thru`, `j2-first`, `j2-s`, `j3-first`, `j3-wind`, `j3-s`, `as1-link-first` / `-coil` / `-s` (160).
+- 8-frame strips, the art viewer (`dist/duelview` with `yama-art.lisp`): `tests/shots/duel-view-yama-s2-<clip>-<side|front>.png` for
+  `ya-hisen`, `ya-q2`, `ya-tsuka`, `ya-n1a`, `ya-f2`, `ya-n1c`, `ya-as1` and the three stances (`tests/scripts/duel-view-yama-s2.json`,
+  `duel-view.py`'s `yama_s2`).
+- Contact sheets: `tests/shots/duel-yama-s2-triptych[-phone].png` (the stances, both cameras), `duel-yama-s2-sheet-<behind|side>[-phone].png`
+  (every still), `duel-yama-s2-strips-<side|front>.png` (the strips).
+
+Checked by eye: the three stances read apart from both cameras (the blade level at the hip in fire / the arm and blade out at the foe in fire
+/ upright with no fire, the blade at his right front); NS1a's coil and thrust, NS1b's point on the plaza then the blade straight up, NS1c's
+tip circling over his head and the fling, J3's pommel forward. Stance 3's blade is a thin unlit line: from the behind camera it shows at his
+right, from the side camera barely, and in portrait hardly at all (the user's eyes: a faint ember on the point, a look, would be S3 / S4's).
+
+### 23.8 Checks (all on the final build)
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-core.lisp` (241 lines of `combo-trial.py --log`), `-blaze` (268), `-bankai` (513): identical to 90b84eb7's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-core.json` (111 lines) and `duel-yama-blaze.json` (35): every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at 90b84eb7 |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 90b84eb7 (S1 merged). The expected diff, written before the run from BASE's cvc-yk log: `cvc-yk/start` (his idle in stance 1), `w0-0` (NS1a's recovery), `w1-0` (NS1b), `w1-1` (NS1c), `w2-0` (a step out of stance 2), `w3-0` (NS1a); not `intro` (`ya-intro`) nor `menus/select-2` (the select model plays the form idle `:ya-stance`). Result: 5 differ, `cvc-yk/start`, `w0-0`, `w1-0`, `w1-1`, `w2-0` (8 px: the step's first frames out of the stance); `w3-0` is byte-identical (the still is a KIKON / PERFECT caption frame after his NS1a's hit; his drawn pose there is not the new clip's: read from the image, not traced); the other 78 byte-identical (noise floor 0); every scenario's fighters and sim lines PASS (`cvc-yk sim lines` 12). Not re-based here (the lead's call) |
+| Host tests | ALL PASS, 4164 checks (+12: the five cast checks, stance 3's planted point, the five clips' frames against their moves, the Shikai / 爆炎 blend list); `known-off` without J3, AS1, 爆炎's AS1 |
+| pkgcheck, debug ranges, warnings | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 88 ranges, 0 errors (no new debug number: the stills use 87014, 87030, 87100, 87300+p, 87401, 87410-87412, 87460, 2109); the compiler's warnings the same set as main's |
+| 0 B a frame | debug 87449 every row 0; both consing lines (87449, 87448) identical to BASE's in the same scene (`duel-yama-s2.json` run on a dist built at 90b84eb7; 87448's 南 cinematic rows read 80 B on both with P1 not in the Bankai, as §22.6); `fx-dropped 0` |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs --secs 8` exit 0 |
+
+### 23.9 Open
+
+- **For the user's eyes** (the sheets): the three stances in play (above all stance 3's unlit blade from the side camera); whether NS1c's
+  cone whirl reads as "the blade whirled over his head"; J1 from stance 3 (the planted blade swung up into the charge, 0.98 m on a blended
+  frame); J3's pommel-first strike; NS1a's wrist circle as the spiral's gather.
+- The looks: stance 1's slow corkscrew of fire and stance 2's drip (deviation 6), with S3 / S4's looks work.
+- S3: pointer 2 / 3, AS2 / AS3, the SA, the Kikon strikes (`ya-strike`, then they leave `known-off`) and NS3b's clip (then `ya-q1` goes).
+- The SA's frame 0 against its six predecessors (§18.9) is unchanged.

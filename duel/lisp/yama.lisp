@@ -32,9 +32,10 @@
 (defparameter *ya-blaze-in-frames* 24 "爆炎's entry pose (§2 「told the user」: a short invulnerable pose at the next neutral), frames.")
 
 ;;; ================================================================ the Shikai RYUJIN JAKKA (§7.1)
-;;; NA: the unmovable pivot. J1 HISEN (the old clip retimed: :clip-s 9 at S14, the opener's tell), J2 KAESHIBI, J3 TSUKABI's burning
+;;; NA: the unmovable pivot. J1 HISEN (its own clip at S14 with the opener's held tell, art S2; :blend 4: it starts from three stances),
+;;; J2 KAESHIBI, J3 TSUKABI's burning
 ;;; pommel (a stagger, no knockdown and no :ender push: the AS follows). Reach 1.0 / 0.96 / 0.88 as written, raised to *J-REACH-MIN*.
-(defmove :ya-j1 :kind :quick :clip :ya-q1 :clip-s 9 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
+(defmove :ya-j1 :kind :quick :clip :ya-hisen :blend 4 :startup 14 :active 3 :recovery 12 :dmg 34 :adv-block -2
   :reach 1.0 :arc 100 :on-hit :flinch)
 (defmove :ya-j2 :kind :quick :clip :ya-q2 :startup 8 :active 3 :recovery 13 :dmg 34 :adv-block -2
   :reach 0.96 :arc 100 :on-hit :flinch)
@@ -49,13 +50,13 @@
 ;; a: the thrust casts a spiral of fire down the lane (a :wave, 8 m); b: the "unknown fire", a column at the victim's bearing 4-7 m
 ;; ahead, the point taken on S, erupting 12 f later (:delay 13: a hazard spawned on frame S counts its first frame there), the
 ;; active window 13 so the eruption is inside it (no next segment before it); c: the tornado, a wide column travelling (a :wave)
-(defmove :ya-n1a :kind :flash :clip :ya-f1 :clip-s 18 :startup 22 :active 2 :recovery 24 :reach 8.0
+(defmove :ya-n1a :kind :flash :clip :ya-n1a :startup 22 :active 2 :recovery 24 :reach 8.0
   :on-frame ((0 yama-ns-start) (22 yama-wave-fire)) :callout "SHIRANUI"
   :params (:ns-next :ya-n1b :width 2.0 :speed 14.0 :range 8.0 :dmg 70 :react :stagger :look yama-spiral-look :kikon-strike :ya-ns-strike))
-(defmove :ya-n1b :kind :flash :clip :ya-f2 :clip-s 22 :startup 16 :active 13 :recovery 20 :reach 7.0
+(defmove :ya-n1b :kind :flash :clip :ya-f2 :startup 16 :active 13 :recovery 20 :reach 7.0
   :on-frame ((0 yama-ns-start) (16 yama-column-fire))
   :params (:ns-next :ya-n1c :near 4.0 :far 7.0 :radius 1.2 :delay 13 :dmg 70 :react :stagger :kikon-strike :ya-ns-strike))
-(defmove :ya-n1c :kind :flash :clip :ya-sig :clip-s 40 :startup 18 :active 2 :recovery 30 :reach 8.0
+(defmove :ya-n1c :kind :flash :clip :ya-n1c :startup 18 :active 2 :recovery 30 :reach 8.0
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
   :params (:width 3.5 :speed 10.0 :range 8.0 :dmg 90 :react :knockback :kb 3.0 :look yama-tornado-look :kikon-strike :ya-ns-strike))
 
@@ -85,7 +86,7 @@
 
 ;;; ---------------------------------------------------------------- the AS (as-by-press (1 2 3): J1 -> AS1, J2 -> AS2, J3 -> AS3)
 ;; AS1: the spiral thrust point-blank, stealing flash-step (:steal-fs 30, §7.4)
-(defmove :ya-as1 :kind :sp :clip :ya-shiranui-throw :clip-s 2 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
+(defmove :ya-as1 :kind :sp :clip :ya-as1 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
   :on-hit :knockdown :callout "SHIRANUI" :params (:steal-fs 30))
 ;; AS2: the ring snaps round him at the contact (40, its own hit; the ring left there) -> the dome on it (NS2c's copy: 60, a launch)
 (defmove-copy :ya-as2b :ya-n2c :kind :sp :callout "JOKAKU ENJO"
@@ -114,8 +115,8 @@
   :commands (:q :ya-j1)
   :strings ((:ya-j1 :q :ya-j2) (:ya-j2 :q :ya-j3))
   :core (:ns (:ya-n1a :ya-n2a :ya-n3a) :as (:ya-as1 :ya-as2 :ya-as3) :sa :ya-sa
-         :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)   ; by pointer: the blade drawn back at the hip / the point held out / on the
-                                                           ;  planted blade as on the cane (placeholders on the old poses, §8)
+         :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)   ; by pointer: the blade drawn back level at the hip / the point held out at the
+                                                           ;  foe / the blade stood point-down at his right front (art S2, §23)
          :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last, §7.4)
          :as-by-press (1 2 3)
          :ns-range ((3.0 7.0) (3.0 9.0) nil)   ; the CPU casts the spiral / the stream from range under pointers 1 / 2

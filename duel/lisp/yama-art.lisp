@@ -394,6 +394,43 @@ segment paid (YA-SK-TIER)."
   (18 (:chest :twist 0) (:spine :flex 14) (:root :u -0.05) (:arm-r :flex 50 :side 10 :twist 15) (:elbow-r :flex 25)
       (:hand-r :twist 2 :flex -80) (:head :flex -18))
   (:end :ya-stance))
+;; The core kit's J1 HISEN (art S2, DUEL_YAMA_CORE §21.3 / §23): its own clip at the move's S14, the opener's held tell (:YA-Q1 above
+;; stays NS3b's until S3). The charge f1-9 a key a frame, the arm's side and the wrist leading, the flex and the elbow lagging (eased:
+;; ease-out cubic moves fastest on a segment's first frame), to the wrist cocked high right with the feet still; held f10-12 (a 1 deg
+;; tremble); released f13-14 into the kept hit pose (:YA-Q1-HIT, the tip 1.39 m). On through f15 (:YA-HISEN-THRU: AS1's first frame) to
+;; S+A f17 (:YA-HISEN-A = J2's first frame, the same numbers). Starts from three stances: the move's :blend 4
+(defpose :ya-hisen-a (:base :ya-q1-hit)                     ; (S+A: J2 starts here; :YA-Q2's frame 0)
+  (:chest :twist 9) (:arm-r :flex 79 :side 34 :twist 41) (:elbow-r :flex 18) (:hand-r :twist 5 :flex -79))
+(defpose :ya-hisen-thru (:base :ya-hisen-a)                 ; (S+1: AS1 starts here)
+  (:chest :twist 10) (:spine :flex 18) (:root :u -0.07) (:arm-r :flex 81 :side 36))
+(defstrike :ya-hisen (14 3 12 :base :ya-stance)
+  (0)
+  (1 (:arm-r :flex 25 :side -4) (:elbow-r :flex 33) (:hand-r :twist -5 :flex -80))                                 ; the charge
+  (2 (:root :u -0.041) (:chest :twist -9) (:arm-r :flex 28 :side 2 :twist -1) (:elbow-r :flex 35) (:hand-r :twist -9 :flex -77))
+  (3 (:root :u -0.042) (:head :flex -15) (:arm-r :flex 32 :side 10 :twist -2) (:elbow-r :flex 38) (:hand-r :twist -14 :flex -73))
+  (4 (:root :u -0.043) (:chest :twist -10) (:head :flex -16) (:arm-r :flex 40 :side 19 :twist -3) (:elbow-r :flex 42)
+     (:hand-r :twist -21 :flex -68))
+  (5 (:root :u -0.045) (:chest :twist -12) (:spine :flex 11) (:head :flex -17) (:arm-r :flex 52 :side 30 :twist -5) (:elbow-r :flex 50)
+     (:hand-r :twist -28 :flex -62))
+  (6 (:root :u -0.048) (:chest :twist -13) (:head :flex -18) (:arm-r :flex 69 :side 41 :twist -8) (:elbow-r :flex 60)
+     (:hand-r :twist -36 :flex -56))
+  (7 (:root :u -0.051) (:chest :twist -15) (:head :flex -20) (:arm-r :flex 93 :side 52 :twist -11) (:elbow-r :flex 76)
+     (:hand-r :twist -44 :flex -50))
+  (8 (:root :u -0.055) (:chest :twist -18) (:spine :flex 10) (:head :flex -22) (:arm-r :flex 129 :side 62 :twist -15) (:elbow-r :flex 98)
+     (:hand-r :twist -51 :flex -45))
+  (9 (:root :u -0.06) (:chest :twist -21) (:head :flex -24) (:arm-r :flex 175 :side 72 :twist -20) (:elbow-r :flex 127)   ; cocked
+     (:hand-r :twist -58 :flex -40))                                                                                       ;  high right
+  (10 (:chest :twist -22) (:arm-r :side 73))                                                                ; held, trembling
+  (11 (:chest :twist -21) (:arm-r :flex 174 :side 71) (:root :u -0.065))
+  (12 (:chest :twist -22) (:arm-r :flex 176 :side 73))
+  (13 :snap (:chest :twist -17) (:spine :flex 11) (:neck :flex -18) (:head :flex -24)                      ; released
+      (:arm-r :flex 169 :side 84 :twist -40) (:elbow-r :flex 133) (:hand-r :twist -59 :flex -54))
+  (:s :snap :ya-q1-hit)
+  (15 :ya-hisen-thru)
+  (:a :ya-hisen-a)
+  (23 (:chest :twist 0) (:spine :flex 14) (:root :u -0.05) (:arm-r :flex 50 :side 10 :twist 15) (:elbow-r :flex 25)
+      (:hand-r :twist 2 :flex -80) (:head :flex -18))
+  (:end :ya-stance))
 ;; S2 J2 KAESHIBI: the return flick, low left to high right, the elbow leading the backhand; still no step
 (defpose :ya-q2-coil (:base :ya-stance)
   (:chest :twist 22) (:spine :flex 14 :side 4) (:root :u -0.06) (:neck :flex -18) (:head :flex -20)
@@ -412,10 +449,15 @@ segment paid (YA-SK-TIER)."
   (17 (:chest :twist -14) (:spine :flex 11) (:root :u -0.04) (:arm-r :flex 50 :side -5 :twist -10) (:elbow-r :flex 25)
       (:hand-r :twist 8 :flex -55) (:head :flex -18))
   (:end :ya-stance))
+(defpose :ya-q2-a (:base :ya-q2-hit)                        ; J2's S+A (f11) as :YA-Q2 draws it: J3 starts here (art S2)
+  (:chest :twist -27) (:spine :flex 8) (:root :u -0.02) (:head :flex -24)
+  (:arm-r :flex 77 :side -2 :twist -39) (:elbow-r :flex 7) (:hand-r :twist 20 :flex -20))
 ;; S3 J3 TSUKABI 柄火 (the user, 2026-10-14: 「右手刀柄回擊」, DUEL_YAMA_TYBW §8): no left forearm in TYBW, so the right hand
 ;; drives the hilt: the grip drawn back past the right shoulder, the blade laid back along the forearm (the point behind and
 ;; low), then the hips and chest turn in and the pommel is punched up into the face (S, the burning pommel: DRAW-FIGHTER),
-;; the empty left sleeve thrown back
+;; the empty left sleeve thrown back. Art S2 (DUEL_YAMA_CORE §23): frame 0 is J2's S+A (:YA-Q2-A, where the string's link lands: it was
+;; the stance, a 1.81 m jump of the tip), and the hit pose leads with the pommel (the wrist turned over, the blade laid back under the
+;; forearm, the tip 0.33 m ahead): the pommel 1.40 m ahead at the face's height, on the move's 1.4 m volume (it was 1.12, the tip leading)
 (defpose :ya-tsuka-wind (:base :ya-stance)
   (:root :yaw -12 :u -0.08) (:pelvis :twist -10 :side 4) (:chest :twist -28) (:spine :flex 12 :side 4)
   (:head :flex -14 :twist 14)
@@ -423,19 +465,22 @@ segment paid (YA-SK-TIER)."
   (:arm-l :flex 35 :side 15) (:elbow-l :flex 5)
   (:thigh-r :flex 18) (:knee-r :flex 24) (:thigh-l :flex 6) (:knee-l :flex 14))
 (defpose :ya-tsuka-hit (:base :ya-stance)
-  (:root :f 0.55 :u -0.06 :yaw 4) (:pelvis :twist 10 :side -4) (:chest :twist 20) (:spine :flex 10)
+  (:root :f 0.33 :u -0.06 :yaw 4) (:pelvis :twist 10 :side -4) (:chest :twist 20) (:spine :flex 10)
   (:head :flex -18 :twist -6)
-  (:arm-r :flex 100 :side -5) (:elbow-r :flex 20) (:hand-r :flex -150)
+  (:arm-r :flex 130.5 :side -30) (:elbow-r :flex 5.5) (:hand-r :twist 166.5 :flex -83.5 :side -19.5)
   (:arm-l :flex -25 :side 30) (:elbow-l :flex 10)
   (:thigh-l :flex 38 :side 6) (:knee-l :flex 36) (:thigh-r :flex -22 :side 8) (:knee-r :flex 16))
 (defstrike :ya-tsuka (9 3 18 :base :ya-stance)
-  (0)
+  (0 :ya-q2-a)
+  (1 (:root :yaw -2.64 :u -0.033) (:pelvis :twist 5.6 :side 1) (:spine :flex 9 :side 1) (:neck :flex -19.6) (:head :flex -22 :twist 3) (:arm-r :flex 55.7 :side 4 :twist -30.4) (:elbow-r :flex 26.4) (:hand-r :twist 15 :flex -48.6) (:arm-l :flex 11 :side 11) (:elbow-l :flex 1) (:thigh-r :flex -2.3) (:knee-r :flex 19.3) (:thigh-l :flex 15.4) (:knee-l :flex 20))
+  (2 (:root :yaw -6.24 :u -0.051) (:pelvis :twist -0.4 :side 2) (:chest :twist -27.5) (:spine :flex 10 :side 2) (:neck :flex -19) (:head :flex -19 :twist 7.3) (:arm-r :flex 26.6 :side 12 :twist -18.7) (:elbow-r :flex 53) (:hand-r :twist 8.6 :flex -87.6) (:arm-l :flex 20 :side 12.6) (:elbow-l :flex 2.6) (:thigh-r :flex 5.5) (:knee-r :flex 21) (:thigh-l :flex 12) (:knee-l :flex 18))
+  (3 (:root :yaw -9.6 :u -0.068) (:pelvis :twist -6 :side 3) (:chest :twist -28) (:spine :flex 11 :side 3) (:neck :flex -18.4) (:head :flex -16 :twist 11) (:arm-r :flex -0.6 :side 19.6 :twist -8) (:elbow-r :flex 77.4) (:hand-r :twist 2.4 :flex -124) (:arm-l :flex 29 :side 14) (:elbow-l :flex 4) (:thigh-r :flex 13) (:knee-r :flex 23) (:thigh-l :flex 8.4) (:knee-l :flex 15.6))
   (4 :ya-tsuka-wind)
   (7 :ya-tsuka-wind (:root :yaw -16 :u -0.1) (:chest :twist -34) (:elbow-r :flex 105))   ; wound up, held
   (:s :snap :ya-tsuka-hit)
-  (:a :ya-tsuka-hit (:root :f 0.54) (:arm-r :flex 104))
-  (21 (:root :yaw 2 :f 0.3 :u -0.05) (:pelvis :twist 4) (:chest :twist 8) (:spine :flex 10)
-      (:arm-r :flex 40 :side 10) (:elbow-r :flex 50) (:hand-r :flex -108)
+  (:a :ya-tsuka-hit (:root :f 0.32) (:arm-r :flex 132))
+  (21 (:root :yaw 2 :f 0.2 :u -0.05) (:pelvis :twist 4) (:chest :twist 8) (:spine :flex 10)
+      (:arm-r :flex 40 :side 10) (:elbow-r :flex 50) (:hand-r :twist 60 :flex -108 :side -8)
       (:arm-l :flex -5 :side 18) (:thigh-l :flex 22) (:knee-l :flex 24))
   (:end :ya-stance))
 ;; S4 K1 HOMURA-NAGI, the flame wave: the whole body turns away right (root yaw -42), steps in on the left foot and sweeps the
@@ -462,29 +507,133 @@ segment paid (YA-SK-TIER)."
       (:arm-r :flex 40 :side 0 :twist -15) (:elbow-r :flex 45) (:hand-r :twist 10 :flex -85)
       (:thigh-l :flex 30) (:knee-l :flex 32) (:thigh-r :flex -14) (:knee-r :flex 18))
   (:end :ya-stance))
-;; S5 K2 SHOEN: the point dragged along the plaza from behind him to the front in a deep crouch (f6-f18: the link enters at
-;; f8), then raised straight up through the front as he rises onto his toes: S crossing ahead at 45 degrees, overhead after
+;; Pointer 1's stance 不知火 (kit :core :stances; DUEL_YAMA_CORE §21.3, art S2): sunk and side-on, the hilt drawn back at his right hip 0.4 m
+;; out from the body, the blade level along the lane (the tip 0.9 m ahead at the hip's height); 4 keys, a slow breath (the tip moves
+;; under 3 cm: NS1a starts from the pose)
+(defpose :ya-st-shiranui (:base :ya-stance)
+  (:root :yaw -25 :u -0.14) (:pelvis :twist 0) (:knees :flex 40) (:thighs :flex 30) (:chest :twist -20) (:spine :flex 10)
+  (:head :twist 22 :flex -12) (:arm-r :flex 4 :side 40 :twist 26) (:elbow-r :flex 95) (:hand-r :twist -10 :flex -46.5 :side -8.5))
+(defclip :ya-shiranui (2.4 :loop t :base :ya-st-shiranui)
+  (0) (0.6 (:root :u -0.15) (:knees :flex 41)) (1.2 (:root :u -0.145) (:chest :twist -21) (:knees :flex 40.5))
+  (1.8 (:root :u -0.15) (:knees :flex 41) (:chest :twist -20.5)))
+;; Pointer 1 不知火 SHIRANUI, art S2 (DUEL_YAMA_CORE §21.3 / §23): each segment on its own clip at its move's S, frame 0 the pose its link
+;; lands on (an attack starts with no blend): NS1a from pointer 1's stance (:YA-ST-SHIRANUI), NS1b from NS1a's S+A (:YA-N1A-LAND), NS1c
+;; from NS1b's S+A (:YA-N1B-TOP), AS1 from J1's S+1 (:YA-HISEN-THRU). No root-yaw turn: the whirl is the wrist's.
+;; NS1a (S22), the point thrown: the spiral gathers f1-14 (a key a frame, eased; the wrist circles the point 1.5 turns, growing then
+;; closing, as the hilt is drawn back to the ribs), the coil held and trembling f15-19, the level thrust released f20-21, the arm locked on
+;; S (the tip 2.04 m ahead, 1.15 m up: the spiral leaves 1 m ahead), held out to S+A (:YA-N1A-LAND = NS1b's first frame)
+(defpose :ya-n1a-coil (:base :ya-st-shiranui)               ; the hilt drawn back past the ribs, the point still on the lane
+  (:root :yaw -32 :u -0.17) (:knees :flex 46) (:chest :twist -32) (:head :twist 28)
+  (:arm-r :flex -16 :side 77.5 :twist 43.5) (:elbow-r :flex 104.5) (:hand-r :twist -7 :flex -1.5 :side -12))
+(defpose :ya-n1a-hit (:base :ya-stance)                     ; the level thrust, the arm locked (the old SHIRANUI throw's pose)
+  (:root :yaw 10 :f 0.3 :u -0.1) (:chest :twist 15) (:spine :flex 12) (:head :flex -18)
+  (:thigh-l :flex 50) (:knee-l :flex 40) (:thigh-r :flex -25)
+  (:arm-r :flex 121 :side -50 :twist 18) (:elbow-r :flex 14) (:hand-r :twist -7 :flex -92))
+(defpose :ya-n1a-land (:base :ya-n1a-hit) (:root :f 0.32))  ; (S+A: NS1b starts here)
+(defstrike :ya-n1a (22 2 24 :base :ya-stance)
+  (0 :ya-st-shiranui)
+  (1 (:root :yaw -25.07) (:arm-r :side 40.4) (:hand-r :flex -43.6 :side -9))
+  (2 (:root :yaw -25.14 :u -0.141) (:arm-r :flex 3.6 :side 41 :twist 26.4) (:hand-r :flex -38 :side -13.4))
+  (3 (:root :yaw -25.28) (:chest :twist -20.5) (:arm-r :flex 3 :side 41.5 :twist 26.7) (:elbow-r :flex 95.4) (:hand-r :flex -34.6 :side -21.5))
+  (4 (:root :yaw -25.42 :u -0.142) (:knees :flex 40.4) (:chest :twist -20.7) (:head :twist 22.4) (:arm-r :side 42 :twist 27) (:elbow-r :flex 95.6) (:hand-r :flex -37.7 :side -30))
+  (5 (:root :yaw -25.63 :u -0.143) (:knees :flex 40.5) (:chest :twist -21) (:head :twist 22.5) (:arm-r :flex 2 :side 43.4 :twist 27.6) (:elbow-r :flex 96) (:hand-r :twist -9.7 :flex -46 :side -34.4))
+  (6 (:root :yaw -25.91 :u -0.144) (:knees :flex 41) (:chest :twist -21.6) (:head :twist 23) (:arm-r :flex 1.4 :side 45 :twist 28.3) (:hand-r :twist -9.6 :flex -54.4 :side -32))
+  (7 (:root :yaw -26.26 :u -0.145) (:chest :twist -22) (:arm-r :flex 0.4 :side 47 :twist 29) (:elbow-r :flex 96.7) (:hand-r :twist -9.5 :flex -56.4 :side -23.5))
+  (8 (:root :yaw -26.68 :u -0.147) (:knees :flex 41.4) (:chest :twist -23) (:head :twist 23.4) (:arm-r :flex -1 :side 49 :twist 30) (:elbow-r :flex 97.3) (:hand-r :twist -9.3 :flex -49.4 :side -14.6))
+  (9 (:root :yaw -27.17 :u -0.149) (:knees :flex 42) (:chest :twist -23.7) (:head :twist 24) (:arm-r :flex -2 :side 51.6 :twist 31.4) (:elbow-r :flex 98) (:hand-r :twist -9 :flex -36 :side -10))
+  (10 (:root :yaw -27.8 :u -0.152) (:knees :flex 42.4) (:chest :twist -25) (:head :twist 24.4) (:arm-r :flex -4 :side 55 :twist 33) (:elbow-r :flex 99) (:hand-r :flex -22.4 :side -11))
+  (11 (:root :yaw -28.57 :u -0.155) (:knees :flex 43) (:chest :twist -26) (:head :twist 25) (:arm-r :flex -6 :side 59 :twist 35) (:elbow-r :flex 100) (:hand-r :twist -8.5 :flex -13.4 :side -15.4))
+  (12 (:root :yaw -29.48 :u -0.159) (:knees :flex 44) (:chest :twist -27.7) (:head :twist 26) (:arm-r :flex -9 :side 64 :twist 37) (:elbow-r :flex 101) (:hand-r :twist -8 :flex -10 :side -18.4))
+  (13 (:root :yaw -30.6 :u -0.164) (:knees :flex 45) (:chest :twist -29.6) (:head :twist 27) (:arm-r :flex -12 :side 70 :twist 40) (:elbow-r :flex 102.6) (:hand-r :twist -7.6 :flex -8 :side -17))
+  (14 (:root :yaw -32 :u -0.17) (:knees :flex 46) (:chest :twist -32) (:head :twist 28) (:arm-r :flex -16 :side 77.5 :twist 43.5) (:elbow-r :flex 104.5) (:hand-r :twist -7 :flex -1.5 :side -12))
+  (15 :ya-n1a-coil (:arm-r :side 78.5) (:root :u -0.175))                                     ; the coil held, trembling
+  (16 :ya-n1a-coil (:arm-r :side 77) (:hand-r :twist -8))
+  (17 :ya-n1a-coil (:arm-r :side 79) (:root :u -0.18))
+  (18 :ya-n1a-coil (:arm-r :side 77.5) (:hand-r :twist -6))
+  (19 :ya-n1a-coil (:arm-r :side 79) (:root :u -0.18))
+  (20 :snap (:root :yaw -21.5 :f 0.075 :u -0.153) (:chest :twist -20) (:head :twist 21 :flex -13.5) (:spine :flex 10.5) (:arm-r :flex 18 :side 45.6 :twist 37) (:elbow-r :flex 82) (:hand-r :twist -7 :flex -24 :side -9))
+  (21 :snap (:root :yaw -6.8 :f 0.18 :u -0.128) (:chest :twist -4) (:head :twist 11 :flex -15.6) (:spine :flex 11) (:arm-r :flex 66 :side 1 :twist 28) (:elbow-r :flex 50) (:hand-r :twist -7 :flex -56 :side -5))
+  (:s :snap :ya-n1a-hit)
+  (:a :ya-n1a-land)
+  (36 (:root :yaw 4 :f 0.14 :u -0.07) (:chest :twist 4) (:spine :flex 12) (:thigh-l :flex 30) (:knee-l :flex 30)
+      (:thigh-r :flex -14) (:arm-r :flex 60 :side -10 :twist 5) (:elbow-r :flex 25) (:hand-r :twist 0 :flex -80))
+  (:end :ya-stance))
+;; NS1b (S16, the old K2 SHOEN re-keyed; was S22 at x1.375), the lift: out of the thrust the point dropped onto the plaza ahead (f8),
+;; held there f9-12 (the tell: the fire answers 4-7 m away), then lifted straight up through level (f14) onto his toes, the blade
+;; overhead on S, held up through the active window to S+A (:YA-N1B-TOP = NS1c's first frame)
 (defpose :ya-f2-low (:base :ya-stance)
   (:root :yaw -8 :u -0.22) (:knees :flex 55) (:thighs :flex 40) (:spine :flex 30) (:chest :twist -5)
   (:arm-r :flex 45 :side 10) (:elbow-r :flex 41) (:hand-r :twist 0 :flex -71))
 (defpose :ya-f2-hit (:base :ya-stance)
   (:root :u 0.05) (:knees :flex 5) (:thighs :flex 4) (:spine :flex -5) (:head :flex -30)
   (:arm-r :flex 59 :side -1 :twist 13) (:elbow-r :flex 23) (:hand-r :twist -12 :flex -29))
-(defstrike :ya-f2 (22 4 24 :base :ya-stance)
-  (0)
-  (6 (:root :yaw -20 :u -0.14) (:knees :flex 40) (:spine :flex 25) (:chest :twist -15)
-     (:arm-r :flex 29 :side -17 :twist -70) (:elbow-r :flex 12) (:hand-r :twist -34 :flex -51))
-  (10 (:root :yaw -16 :u -0.2) (:knees :flex 52) (:thighs :flex 30) (:spine :flex 27) (:chest :twist -13))
-  (14 :ya-f2-low (:root :yaw -12) (:chest :twist -10) (:spine :flex 28)
-      (:arm-r :flex -2 :side 21 :twist 3) (:elbow-r :flex 48) (:hand-r :twist -1 :flex -42))
-  (18 :ya-f2-low)
-  (20 :ya-f2-low (:root :yaw -4 :u -0.12) (:knees :flex 35) (:spine :flex 15) (:arm-r :flex 52) (:hand-r :flex -50))
-  (:s :snap :ya-f2-hit)
-  (24 (:root :u 0.08) (:spine :flex -12) (:head :flex -34)
-      (:arm-r :flex 136 :side -10 :twist -15) (:elbow-r :flex 12) (:hand-r :twist 20 :flex -60))
-  (:a (:arm-r :flex 138) (:root :u 0.07))
-  (38 (:root :u -0.02) (:spine :flex 4) (:knees :flex 14) (:head :flex -22)
+(defpose :ya-n1b-plaza (:base :ya-f2-low)                   ; crouched, the point on the plaza 1.16 m ahead
+  (:root :yaw -4 :f 0.2 :u -0.2) (:arm-r :flex 22 :side -10.5) (:elbow-r :flex 43) (:hand-r :twist 8.5 :flex -54))
+(defpose :ya-n1b-hit (:base :ya-f2-hit)                     ; on his toes, the blade straight up (the tip 2.78 m up)
+  (:root :u 0.08) (:spine :flex -12) (:head :flex -34) (:arm-r :flex 136 :side -10 :twist -15) (:elbow-r :flex 12) (:hand-r :twist 20 :flex -60))
+(defpose :ya-n1b-top (:base :ya-n1b-hit) (:arm-r :flex 138) (:root :u 0.07))   ; (S+A: NS1c starts here)
+(defstrike :ya-f2 (16 13 20 :base :ya-stance)
+  (0 :ya-n1a-land)
+  (8 :ya-n1b-plaza)                                                                             ; the point dropped
+  (10 :ya-n1b-plaza (:root :u -0.205))                                                          ; held: the tell
+  (12 :ya-n1b-plaza (:hand-r :flex -53))
+  (13 :snap :ya-f2-low (:root :yaw -4 :f 0.18 :u -0.12) (:knees :flex 35) (:spine :flex 15) (:arm-r :flex 52) (:hand-r :flex -50))
+  (14 :snap :ya-f2-hit (:root :f 0.16))                                                         ; through level
+  (15 :snap :ya-n1b-hit (:root :f 0.15 :u 0.04) (:arm-r :flex 105))
+  (:s :snap :ya-n1b-hit (:root :f 0.14))
+  (22 :ya-n1b-hit (:root :f 0.12 :u 0.075) (:arm-r :flex 137))
+  (:a :ya-n1b-top)
+  (40 (:root :u -0.02 :f 0.04) (:spine :flex 4) (:knees :flex 14) (:head :flex -22)
       (:arm-r :flex 80 :side 0 :twist 0) (:elbow-r :flex 30) (:hand-r :twist 5 :flex -60))
+  (:end :ya-stance))
+;; NS1c (S18), the whirl: from the blade overhead the forearm stays upright and the wrist turns the level blade once round over his head,
+;; a key every 90 deg (ahead f3, his left f6, behind f9, his right f12: linear between, an even whirl), held high at his right f13-15,
+;; flung forward and down f16-17 as the torso turns in, the tip 1.65 m ahead on S (the tornado leaves)
+(defpose :ya-n1c-hit (:base :ya-stance)
+  (:root :yaw 8 :f 0.25 :u -0.14) (:pelvis :side -4) (:chest :twist 22) (:spine :flex 20) (:head :flex -24)
+  (:thigh-l :flex 48) (:knee-l :flex 44) (:thigh-r :flex -22)
+  (:arm-r :flex 32.5 :side 18.5 :twist -18) (:elbow-r :flex 60) (:hand-r :twist -17 :flex -47))
+(defstrike :ya-n1c (18 2 30 :base :ya-stance)
+  (0 :ya-n1b-top)
+  (3 :snap (:arm-r :flex 168 :side -6 :twist 0) (:elbow-r :flex 6) (:hand-r :twist 20 :flex -22.5 :side 30.5))
+  (4.5 :snap (:hand-r :twist 51.5 :flex -11.5 :side 26.5))
+  (6 :snap (:hand-r :twist 67.5 :flex -74 :side 11.5))
+  (7.5 :snap (:hand-r :twist 51.5 :flex -134.5 :side 21))
+  (9 :snap (:hand-r :twist 34.5 :flex -140.5 :side 46.5))
+  (10.5 :snap (:hand-r :twist 34.5 :flex -117 :side 71.5))
+  (12 :snap (:hand-r :twist 50.5 :flex -74 :side 95.5))
+  (13 (:hand-r :side 97) (:root :u 0.075))                                                      ; held at his right, trembling
+  (14 (:hand-r :side 94.5 :flex -73))
+  (15 (:hand-r :side 96.5 :flex -75) (:root :u 0.07))
+  (16 :snap (:root :yaw 1.6 :f 0.05 :u 0.028) (:pelvis :side -1) (:chest :twist -2) (:spine :flex -5.6) (:head :flex -32) (:thigh-l :flex 13) (:knee-l :flex 13) (:thigh-r :flex -1) (:knee-r :flex 7.6) (:arm-r :flex 141 :side -1 :twist -3.6) (:elbow-r :flex 17) (:hand-r :twist 37 :flex -68.6 :side 76.4))
+  (17 :snap (:root :yaw 4.8 :f 0.15 :u -0.056) (:pelvis :side -2.4) (:chest :twist 10) (:spine :flex 7) (:head :flex -28) (:thigh-l :flex 30.4) (:knee-l :flex 28.4) (:thigh-r :flex -11.6) (:knee-r :flex 13) (:arm-r :flex 86.7 :side 8.7 :twist -11) (:elbow-r :flex 38.4) (:hand-r :twist 10 :flex -58 :side 38))
+  (:s :snap :ya-n1c-hit)
+  (:a :ya-n1c-hit (:root :f 0.26 :u -0.15) (:spine :flex 21))
+  (36 (:root :yaw 4 :f 0.14 :u -0.08) (:pelvis :side -1) (:chest :twist 8) (:spine :flex 12) (:thigh-l :flex 28) (:knee-l :flex 30)
+      (:thigh-r :flex -12) (:arm-r :flex 40 :side 4 :twist -5) (:elbow-r :flex 35) (:hand-r :twist -5 :flex -75))
+  (:end :ya-stance))
+;; AS1 (S10), the point point-blank: from J1's S+1 the hilt pulled back to the ribs (f1-6 a key a frame), held f7-8, a short corkscrew
+;; thrust (the wrist rolls 70 deg as it goes), the tip 1.60 m ahead on S: the move's 1.6 m arc (it was 2.04, the old throw at x0.2)
+(defpose :ya-as1-coil (:base :ya-hisen-thru)
+  (:root :yaw -14 :f 0.02 :u -0.1) (:chest :twist -22) (:spine :flex 12) (:head :flex -20 :twist 12)
+  (:arm-r :flex -38 :side 53.5 :twist 43.5) (:elbow-r :flex 119.5) (:hand-r :twist -9.5 :flex -27 :side 0))
+(defpose :ya-as1-hit (:base :ya-n1a-hit)
+  (:root :yaw 15 :f -0.15 :u -0.1) (:chest :twist 10) (:arm-r :flex 110 :side -54.5 :twist 18) (:elbow-r :flex 25) (:hand-r :twist -7 :flex -92.5))
+(defstrike :ya-as1 (10 3 24 :base :ya-stance)
+  (0 :ya-hisen-thru)
+  (1 (:root :yaw -1.12 :f 0.002 :u -0.072) (:chest :twist 7.4) (:spine :flex 17.5) (:head :flex -25.5 :twist 1) (:arm-r :flex 71.5 :side 37.4) (:elbow-r :flex 26) (:hand-r :twist 4 :flex -75))
+  (2 (:root :yaw -2.8 :f 0.004 :u -0.076) (:chest :twist 3.6) (:spine :flex 17) (:head :flex -25 :twist 2.4) (:arm-r :flex 57 :side 39.5 :twist 41.5) (:elbow-r :flex 38.3) (:hand-r :twist 2 :flex -68.6))
+  (3 (:root :yaw -5.04 :f 0.007 :u -0.081) (:chest :twist -1.5) (:spine :flex 16) (:head :flex -24 :twist 4.3) (:arm-r :flex 38 :side 42.3 :twist 42) (:elbow-r :flex 54.5) (:hand-r :twist 0 :flex -60.3))
+  (4 (:root :yaw -7.7 :f 0.011 :u -0.087) (:chest :twist -7.6) (:spine :flex 14.7) (:head :flex -22.7 :twist 6.6) (:arm-r :flex 15.5 :side 45.6 :twist 42.4) (:elbow-r :flex 74) (:hand-r :twist -3 :flex -50.4))
+  (5 (:root :yaw -10.64 :f 0.015 :u -0.093) (:chest :twist -14.3) (:spine :flex 13.4) (:head :flex -21.4 :twist 9) (:arm-r :flex -9.4 :side 49.3 :twist 43) (:elbow-r :flex 95) (:hand-r :twist -6 :flex -39.5))
+  (6 (:root :yaw -14 :f 0.02 :u -0.1) (:chest :twist -22) (:spine :flex 12) (:head :flex -20 :twist 12) (:arm-r :flex -38 :side 53.5 :twist 43.5) (:elbow-r :flex 119.5) (:hand-r :twist -9.5 :flex -27))
+  (7 (:arm-r :side 54.5) (:root :u -0.105))                                                   ; held
+  (8 (:arm-r :side 53) (:hand-r :twist -11))
+  (9 :snap (:root :yaw -0.95 :f -0.056 :u -0.1) (:chest :twist -7.6) (:spine :flex 12) (:head :flex -19 :twist 6.6) (:arm-r :flex 28.6 :side 5 :twist 32) (:elbow-r :flex 77) (:hand-r :twist -38.4 :flex -56.5 :side 0))
+  (:s :snap :ya-as1-hit)
+  (:a :ya-as1-hit (:root :u -0.105) (:arm-r :flex 109))
+  (25 (:root :yaw 4 :f 0.0 :u -0.07) (:chest :twist 4) (:spine :flex 12) (:thigh-l :flex 30) (:knee-l :flex 30)
+      (:thigh-r :flex -14) (:arm-r :flex 50 :side -10 :twist 5) (:elbow-r :flex 25) (:hand-r :twist 0 :flex -80))
   (:end :ya-stance))
 ;; S6 K3 ENBAKU, the hammer (canon ch. 506, "a spinning vertical slash"): the blade cocked over the shoulder, one full turn
 ;; to his right (root yaw -360, a key every 90 degrees, rising), then the one vertical drop to the plaza ahead on S; the
@@ -510,68 +659,6 @@ segment paid (YA-SK-TIER)."
   (44 (:root :yaw -360 :u -0.1 :f 0.12) (:pelvis :side -2) (:spine :flex 24) (:knees :flex 32) (:thigh-l :flex 30)
       (:head :flex -22) (:arm-r :flex 40 :side 0 :twist 0) (:elbow-r :flex 30) (:hand-r :twist 0 :flex -75))
   (:end :ya-stance (:root :yaw -360)))
-;; S7 L RYUJIN JAKKA, the halo (canon 339Taimatsu2's arch, RoS Enro no Hitonade): three beats of its own. Cut 1 (f16) the
-;; blade drawn round over his head in a semicircle, right -> overhead -> left, crossing above the front; cut 2 (f28) a
-;; backhand down from high left to low right; f40 the point driven down into the plaza: the wave leaves (YAMA-FIRE-WAVE)
-;; (keys solved in a chain, each from the last, so the blade travels the arc it names between them)
-(defpose :ya-sig-hit1 (:base :ya-stance)
-  (:chest :twist 15) (:spine :flex 6) (:head :flex -28)
-  (:arm-r :flex 50 :side 123 :twist -46) (:elbow-r :flex 72) (:hand-r :twist -49 :flex -110))
-(defpose :ya-sig-hit2 (:base :ya-stance)
-  (:root :yaw -6) (:chest :twist -15) (:spine :flex 14)
-  (:arm-r :flex 63 :side 43 :twist 10) (:elbow-r :flex 62) (:hand-r :twist -14 :flex -109))
-(defpose :ya-sig-hit3 (:base :ya-stance)
-  (:root :u -0.28 :f 0.25) (:spine :flex 38) (:knees :flex 58) (:thigh-l :flex 58) (:head :flex -30)
-  (:arm-r :flex 135 :side -16 :twist 92) (:elbow-r :flex 63) (:hand-r :twist 80 :flex 70))
-(defstrike :ya-sig (16 24 26 :base :ya-stance)
-  (0)
-  (6 (:root :yaw -12 :u -0.04) (:chest :twist -25) (:spine :flex 10 :side -5)                  ; out to his right
-     (:arm-r :flex 58 :side 54 :twist -6) (:elbow-r :flex 1) (:hand-r :twist -68 :flex -109))
-  (9 (:root :yaw -8 :u -0.01) (:chest :twist -18) (:spine :flex 7 :side -3)                     ; rising
-     (:arm-r :flex 30 :side 83 :twist -13) (:elbow-r :flex 12) (:hand-r :twist -84 :flex -110))
-  (12 (:root :yaw -2 :u 0.02) (:chest :twist -5) (:spine :flex 4 :side 0) (:head :flex -28)     ; over his head
-      (:arm-r :flex 45 :side 103 :twist -21) (:elbow-r :flex 58) (:hand-r :twist -92 :flex -110))
-  (16 :snap :ya-sig-hit1)                                                                         ; cut 1, across the top
-  (19 (:root :yaw 8) (:chest :twist 25) (:spine :flex 8 :side 4)                                 ; on round to his left
-      (:arm-r :flex 93 :side 99 :twist -33) (:elbow-r :flex 88) (:hand-r :twist -28 :flex -110))
-  (23 (:root :yaw 12) (:chest :twist 30) (:spine :flex 10 :side 5)                                ; cocked high left
-      (:arm-r :flex 122 :side 102 :twist -30) (:elbow-r :flex 103) (:hand-r :twist -19 :flex -107))
-  (26 (:root :yaw 14) (:chest :twist 33) (:arm-r :flex 126) (:elbow-r :flex 106))
-  (28 :snap :ya-sig-hit2)                                                                         ; cut 2, the backhand down
-  (30 (:root :yaw -14) (:chest :twist -28) (:spine :flex 16)                                      ; to low right
-      (:arm-r :flex 47 :side 11 :twist 20) (:elbow-r :flex 51) (:hand-r :twist -12 :flex -110))
-  (32 (:root :yaw -9 :u 0.0) (:chest :twist -16) (:spine :flex 10) (:head :flex -24)            ; the point turned down
-      (:arm-r :flex 136 :side -4 :twist 63) (:elbow-r :flex 76) (:hand-r :twist 62 :flex 70))
-  (34 (:root :yaw -4 :u 0.02) (:chest :twist -5) (:spine :flex 4) (:head :flex -26)              ; raised, the point down
-      (:arm-r :flex 171 :side -24 :twist 83) (:elbow-r :flex 54) (:hand-r :twist 42 :flex 68))
-  (37 (:root :yaw 0 :u 0.05) (:chest :twist 0) (:spine :flex 0)                                   ; up on his toes
-      (:arm-r :flex 177 :side -16 :twist 92) (:elbow-r :flex 34) (:hand-r :twist 40 :flex 70))
-  (39 :snap (:root :u -0.08 :f 0.12) (:spine :flex 18) (:knees :flex 30) (:thigh-l :flex 30) (:head :flex -28)
-      (:arm-r :flex 135 :side -16 :twist 92) (:elbow-r :flex 63) (:hand-r :twist 80 :flex 70))
-  (40 :snap :ya-sig-hit3)                                                                         ; driven into the plaza
-  (42 (:root :u -0.3 :f 0.26) (:spine :flex 40))
-  (46 (:root :u -0.28 :f 0.25) (:spine :flex 39))
-  (56 (:root :u -0.1 :f 0.1) (:spine :flex 22) (:knees :flex 30) (:thigh-l :flex 30) (:head :flex -20)
-      (:arm-r :flex 25 :side -10 :twist 10) (:elbow-r :flex 25) (:hand-r :twist -5 :flex -75))
-  (:end :ya-stance))
-;; S8 SHIRANUI: the charge draws the blade back level at his ribs (the tornado spins at the point: VFX-CHARGE), the throw a
-;; level thrust with the arm locked (on S, the move's f2, the fireball leaves)
-(defpose :ya-shiranui-coil (:base :ya-stance)
-  (:root :yaw -25 :u -0.14) (:knees :flex 40) (:chest :twist -25) (:spine :flex 14) (:head :twist 25 :flex -20)
-  (:arm-r :flex -37 :side 51 :twist 14) (:elbow-r :flex 133) (:hand-r :twist 0 :flex -44))
-(defclip :ya-shiranui (0.5 :loop t :base :ya-shiranui-coil)
-  (0) (0.25 (:root :yaw -28 :u -0.16) (:chest :twist -28) (:knees :flex 44)))
-(defpose :ya-throw-hit (:base :ya-stance)
-  (:root :yaw 10 :f 0.3 :u -0.1) (:chest :twist 15) (:spine :flex 12) (:head :flex -18)
-  (:thigh-l :flex 50) (:knee-l :flex 40) (:thigh-r :flex -25)
-  (:arm-r :flex 121 :side -50 :twist 18) (:elbow-r :flex 14) (:hand-r :twist -7 :flex -92))
-(defstrike :ya-shiranui-throw (2 1 20 :base :ya-stance)
-  (0 :ya-shiranui-coil)
-  (:s :snap :ya-throw-hit)
-  (:a (:root :f 0.32))
-  (13 (:root :yaw 4 :f 0.14 :u -0.07) (:chest :twist 4) (:spine :flex 12) (:thigh-l :flex 30) (:knee-l :flex 30)
-      (:thigh-r :flex -14) (:arm-r :flex 60 :side -10 :twist 5) (:elbow-r :flex 25) (:hand-r :twist 0 :flex -80))
-  (:end :ya-stance))
 ;; S9 TAIMATSU: the eye-open tell (the head up, f3), one full turn to his left low (a key every 90 degrees), the blade
 ;; trailing low on his right, rising into the fan of fire across the front on S, held
 (defpose :ya-taimatsu-low (:base :ya-stance)
@@ -671,12 +758,22 @@ segment paid (YA-SK-TIER)."
   (:root :u -0.02) (:pelvis :twist 0) (:chest :twist 0) (:spine :flex 14) (:head :flex -6)
   (:arm-r :flex 40 :side 8) (:elbow-r :flex 35) (:hand-r :twist 150 :flex 10)
   (:thigh-r :flex 0 :side 6) (:thigh-l :flex 0 :side 6) (:knees :flex 8))
-;; the core kit's pointer stances (DUEL_YAMA_CORE §7.1, batch 1 placeholders on the old poses; pointer 1 is :ya-shiranui):
-;; 2 the point held out at arm's length (ENJO's), 3 leaning on the planted blade as on the cane (the intro's)
-(defclip :ya-st-enjo (2.4 :loop t :base :ya-enjo-point)
-  (0) (1.2 (:root :u -0.06) (:arm-r :flex 125)))
-(defclip :ya-st-cane (2.4 :loop t :base :ya-lean)
-  (0) (1.2 (:spine :flex 16) (:root :u -0.03)))
+;; the core kit's pointer stances 2 and 3 (DUEL_YAMA_CORE §21.3, art S2; pointer 1's :YA-SHIRANUI is with its segments): 2 城郭炎上
+;; upright, the arm locked out at shoulder height, the blade level at the foe (the hand 1.33 m up, the tip 1.70 m ahead); 3 撫斬 upright,
+;; the head bowed (the eyes shut), the hand on the hilt of the blade stood point-down at his right front (the tip on the plaza 0.28 m
+;; right, 0.22 m ahead: his body hides a centred blade from the behind camera), no fire (YAMA-DRAW); only the head breathes, so the
+;; point stays on the plaza. 4 keys each, 2.4 s loops
+(defpose :ya-st-jokaku (:base :ya-enjo-point)
+  (:root :yaw 12 :u -0.02) (:chest :twist 10) (:spine :flex 2) (:neck :flex -8) (:head :flex -10)
+  (:arm-r :flex 116 :side -49.5 :twist -4) (:elbow-r :flex 4) (:hand-r :twist -6 :flex -82.5))
+(defclip :ya-st-enjo (2.4 :loop t :base :ya-st-jokaku)
+  (0) (0.6 (:root :u -0.03) (:arm-r :flex 115.5)) (1.2 (:root :u -0.035) (:chest :flex -2) (:arm-r :flex 115))
+  (1.8 (:root :u -0.025) (:arm-r :flex 115.5)))
+(defpose :ya-st-nade (:base :ya-lean)
+  (:root :u -0.01) (:spine :flex 6) (:neck :flex -10) (:head :flex -26)
+  (:arm-r :flex -14.5 :side 22 :twist 5) (:elbow-r :flex 84.5) (:hand-r :twist 150 :flex 39.5 :side 13.5))
+(defclip :ya-st-cane (2.4 :loop t :base :ya-st-nade)
+  (0) (0.6 (:head :flex -27)) (1.2 (:neck :flex -11) (:head :flex -28)) (1.8 (:head :flex -27)))
 (defclip :ya-intro (2.0 :base :ya-lean)                ; weapon :ya-cane until 1.35 s, then :ryujin-jakka
   (0) (1.1 (:head :flex -12))
   (1.3 (:chest :twist -30) (:arm-r :flex 60 :side 40) (:elbow-r :flex 60) (:hand-r :twist 0 :flex -40))
