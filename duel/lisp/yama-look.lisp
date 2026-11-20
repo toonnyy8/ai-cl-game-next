@@ -274,30 +274,267 @@ where it started. A look."
     (%light x 1.3f0 z 1f0 0.55f0 0.3f0 6f0 (* 2f0 k) 7)
     nil))
 
+;;; ---------------------------------------------------------------- 殘日獄衣's mantle (batch Z1, DUEL_YAMA_CORE §27; L8 since then)
+;;; One closed flame mantle round him, traced from the user's reference image (2026-11-20; round 2 after the lead's review, §27.6): narrow
+;;; at the ankles (the sandals show), a rounded lobe curling out at each knee-hip, two wings of three swept lobes rising outward (the
+;;; outer the longest, its tip hooked back), a column of five tall tongues over his head to 1.47x his height, apart from the wings by a
+;;; valley at the neck. The outline is a smooth Catmull-Rom curve through keys in metres on a cylindrical billboard: U along the camera's
+;;; horizontal right from his vertical axis, V up from the floor (so it reads the same from the front, the side and behind). Every outline
+;;; point has an anchor on a skeleton tree inside the shape (the trunk, the hem lobes' branches, the wing spines and the lobes'); a fill
+;;; is the strip between the anchor chain and the outline (a walk, (:walk au av), keeps the outline point and moves its anchor along the
+;;; tree, so the anchor chain runs the tree's edges and the strips leave no gap). Flat manga bands (F-Q1, STYLE_STORM_DESIGN §15): a
+;;; yellow-white fill (FIRE's core), a white-hot band deeper than 0.3 m from the outline (HIT), an orange band 0.05 m inside the outline
+;;; (FLAME's body, its outer edge feathered by the soft-flame pass), a clean white rim (HIT, no boil); curved flame strokes licking up
+;;; inside (FIRE / EMBER comets), white sparks. The sheet sits behind his body on the view ray; at full size a see-through front layer
+;;; (*YA-SKIRT-KEYS*, glass 3) wraps his torso and legs below the neck. Z-Q2: from behind the fill turns see-through (glass 2), the rim
+;;; and the strokes stay. Without MSAA a glass shape would be opaque: there the hollow drops the fill and the front layer is not drawn.
+(defparameter *ya-mantle-keys*
+  '((0.00 0.13 0.00 0.45 0.0) (0.17 0.13 0.00 0.45 0.0) (0.24 0.26 0.00 0.55 0.1)        ; the hem's edge above the sandals
+    (0.34 0.36 0.12 0.57 0.3) (0.48 0.47 0.30 0.60 0.4) (0.58 0.60 0.42 0.65 0.6)        ; the lobe curling out at the knee-hip
+    (0.64 0.78 0.50 0.77 0.8) (0.66 0.93 0.56 0.86 1.0) (0.62 1.01 0.56 0.86 1.0)        ;  its tip, hooked back in
+    (0.53 0.99 0.53 0.82 0.8) (0.46 0.90 0.44 0.68 0.5)
+    (:walk 0.40 0.62) (:walk 0.00 0.55)
+    (0.36 1.08 0.00 1.00 0.3) (0.30 1.20 0.00 1.24 0.2) (:walk 0.00 1.42)                ; the notch under the wing
+    (0.40 1.31 0.10 1.443 0.3) (0.66 1.43 0.60 1.56 0.4) (0.95 1.62 0.92 1.736 0.5)     ; the wing's underside, rising
+    (1.20 1.82 1.20 1.869 0.7)
+    (1.36 1.90 1.30 1.91 0.9) (1.48 1.95 1.30 1.91 1.0) (1.55 2.04 1.30 1.91 1.0)        ; the outer lobe's tip, 1.55 m out,
+    (1.47 2.09 1.30 1.91 1.0) (1.36 2.06 1.30 1.91 0.9)                                    ;  hooked back over
+    (1.25 2.08 1.22 1.877 0.7) (:walk 1.00 1.78)
+    (1.14 2.16 1.01 1.92 0.8) (1.04 2.22 1.02 2.06 1.0) (0.92 2.16 1.01 1.95 0.8)        ; the middle lobe
+    (0.82 1.98 1.00 1.78 0.5) (:walk 0.66 1.593)
+    (0.76 2.04 0.68 1.75 0.8) (0.70 2.10 0.70 1.92 1.0) (0.62 2.02 0.68 1.75 0.8)        ; the inner lobe
+    (0.48 1.80 0.66 1.593 0.4) (:walk 0.60 1.56) (:walk 0.00 1.42) (:walk 0.00 1.60)      ; the valley at the neck
+    (0.48 2.00 0.30 1.80 0.6) (0.48 2.16 0.40 2.10 0.8) (0.43 2.33 0.42 2.16 1.0)        ; the column's outer tongue
+    (0.36 2.18 0.38 2.04 0.8) (0.30 2.04 0.33 1.89 0.5)
+    (:walk 0.24 1.76) (:walk 0.00 1.60) (:walk 0.00 1.80)
+    (0.27 2.16 0.12 2.00 0.7) (0.21 2.34 0.20 2.14 1.0) (0.15 2.20 0.16 2.07 0.8)        ; its inner tongue
+    (0.10 2.10 0.06 1.90 0.6) (:walk 0.00 1.80)
+    (0.06 2.28 0.00 2.12 0.8) (0.00 2.42 0.00 2.20 1.0))                                  ; the centre tongue (1.47 x 1.65 m)
+  "殘日獄衣's outline, the right half from the bottom centre up to the top centre (YA-MANTLE-SAMPLE mirrors it): (u v au av flex) an
+outline key in metres (U out from his axis, V up), its anchor (AU AV) on the skeleton tree, FLEX how far it billows (0 the hem's edge
+.. 1 a tip); (:walk au av) the same outline point with its anchor moved along the tree. Traced on the user's reference at its scale
+(1.65 m tall, §27.6): the wing tips 1.55 m out (<= 1.9: the spec), the top 2.42 m (~1.4 x), the hem 0.13 m. Host-checked
+(tests/duel-rules/art.lisp).")
+(defparameter *ya-skirt-keys*
+  '((0.00 0.13 0.00 0.40 0.0) (0.15 0.13 0.00 0.40 0.0) (0.22 0.30 0.00 0.45 0.1) (0.27 0.60 0.00 0.65 0.2)
+    (0.30 0.90 0.00 0.90 0.3) (0.31 1.15 0.00 1.12 0.3) (0.30 1.32 0.00 1.25 0.4) (0.22 1.40 0.00 1.28 0.5)
+    (0.13 1.37 0.00 1.28 0.4) (0.00 1.31 0.00 1.24 0.3))
+  "The mantle's front layer at full size (*YA-MANTLE-KEYS*'s format): his torso and legs, 0.15 m at the ankle, 0.31 m at the hip and
+chest, the shoulders at 1.40 m and a dip under the chin (1.31 m), so the head and beard show above it and his hands and blade beside it;
+drawn see-through (glass 3) so his body shows dimly through.")
+
+(defun ya-mantle-sample (keys sub)
+  "The closed outline of a key table KEYS (*YA-MANTLE-KEYS*'s format): a list of (u v au av flex) from the bottom centre up the right side,
+over the top and down the left side (the right half mirrored), SUB samples a key gap on a Catmull-Rom curve (the ends' neighbours their
+mirror images: smooth across the axis), the anchors and the flex lerped; a walk adds a point at the same place with the next anchor. Pure."
+  (let ((groups nil))
+    (dolist (e keys)
+      (if (eq (first e) :walk)
+          (setf (second (first groups)) (append (second (first groups)) (list (list (second e) (third e)))))
+          (push (list e (list (list (third e) (fourth e)))) groups)))
+    (let* ((gv (coerce (nreverse groups) 'vector)) (n (length gv)) (out nil))
+      (flet ((key (i) (cond ((< i 0) (let ((p (first (aref gv 1)))) (list (- (first p)) (second p))))   ; (the mirror images)
+                            ((>= i n) (let ((p (first (aref gv (- n 2))))) (list (- (first p)) (second p))))
+                            (t (first (aref gv i))))))
+        (dotimes (i n)
+          (destructuring-bind (p anc) (aref gv i)
+            (dolist (a anc) (push (list (first p) (second p) (first a) (second a) (fifth p)) out))
+            (when (< i (1- n))
+              (destructuring-bind (q anq) (aref gv (1+ i))
+                (let ((p0 (key (1- i))) (p3 (key (+ i 2))) (a0 (car (last anc))) (a1 (first anq)))
+                  (loop for s from 1 below sub
+                        do (let ((tt (/ s sub)))
+                             (flet ((cr (k) (let ((x0 (nth k p0)) (x1 (nth k p)) (x2 (nth k q)) (x3 (nth k p3)))
+                                              (* 0.5 (+ (* 2 x1) (* (- x2 x0) tt) (* (+ (* 2 x0) (* -5 x1) (* 4 x2) (- x3)) tt tt)
+                                                        (* (+ (- x0) (* 3 x1) (* -3 x2) x3) tt tt tt))))))
+                               (push (list (cr 0) (cr 1) (+ (first a0) (* tt (- (first a1) (first a0))))
+                                           (+ (second a0) (* tt (- (second a1) (second a0)))) (+ (fifth p) (* tt (- (fifth q) (fifth p)))))
+                                     out))))))))))
+      (let ((right (nreverse out)))
+        (append right (mapcar (lambda (e) (destructuring-bind (u v au av w) e (list (- u) v (- au) av w)))
+                              (reverse (butlast (rest right)))))))))
+
+(defun ya-mantle-table (keys sub)
+  "YA-MANTLE-SAMPLE of KEYS as an f32vec, 8 floats a point: u v au av flex, the outward normal (nu nv: from the neighbours that stand
+elsewhere, a walk's twin skipped) and the length along the outline (the billow's phase, the bands' noise coordinate). Built once at load."
+  (let* ((pts (coerce (ya-mantle-sample keys sub) 'vector)) (n (length pts)) (tb (make-f32 (* 8 n))) (s 0.0))
+    (flet ((other (i dir) (let ((p (aref pts i)))
+                            (loop for k from 1 below n
+                                  for q = (aref pts (mod (+ i (* dir k)) n))
+                                  unless (and (= (first q) (first p)) (= (second q) (second p))) return q
+                                  finally (return p)))))
+      (dotimes (i n tb)
+        (let* ((p (aref pts i)) (a (other i -1)) (b (other i 1))
+               (tx (- (first b) (first a))) (ty (- (second b) (second a))) (l (max 1e-6 (sqrt (+ (* tx tx) (* ty ty))))))
+          (when (> i 0)
+            (let ((q (aref pts (1- i)))) (incf s (sqrt (+ (expt (- (first p) (first q)) 2) (expt (- (second p) (second q)) 2))))))
+          (loop for x in (list (first p) (second p) (third p) (fourth p) (fifth p) (/ ty l) (/ (- tx) l) s)
+                for k from 0 do (setf (aref tb (+ (* 8 i) k)) (f32 x))))))))
+
+(declaim (type f32vec *ya-mantle* *ya-skirt* *ya-mt-args* *ya-mt-buf*))
+(defparameter *ya-mantle* (ya-mantle-table *ya-mantle-keys* 2) "The mantle's outline (YA-MANTLE-TABLE, 2 samples a key gap).")
+(defparameter *ya-skirt* (ya-mantle-table *ya-skirt-keys* 3) "Its front layer's.")
+(defvar *ya-mt-args* (make-f32 6) "YA-MANTLE's arguments: x z rx rz g k (YA-MANTLE-DRAW reads them: no boxed float).")
+(defvar *ya-mt-buf* (make-f32 (* 4 256)) "The shaped points of the table being drawn: u v au av each (YA-MANTLE-DRAW).")
+(assert (<= (floor (length *ya-mantle*) 8) 256))
+
+(defmacro ya-mantle (x z rx rz g k)
+  "Draw 殘日獄衣's mantle (YA-MANTLE-DRAW) at his feet (X Z), (RX RZ) his right (a unit), G its size (0 西's stance: the wings 0.60 m out,
+the top 1.74 m; 1 full: the wings 1.55 m, the top 2.42 m, the front layer on), K its presence (0.98 whole; below 0.7 the fill erodes from
+the outline in). Single-float forms, written into *YA-MT-ARGS*: 0 B."
+  `(let ((%a *ya-mt-args*))
+     (declare (type f32vec %a))
+     (setf (aref %a 0) ,x (aref %a 1) ,z (aref %a 2) ,rx (aref %a 3) ,rz (aref %a 4) ,g (aref %a 5) ,k)
+     (ya-mantle-draw)))
+
+(defmacro %ya-mt-at ((px py pz) u v d &body body)
+  "Inside YA-MANTLE-DRAW: bind PX PY PZ to the mantle point (U V) moved D m along the view ray (+ away from the eye: behind his body; the
+same screen point). Single-float forms."
+  `(let* ((,px (+ x (* ,u lx))) (,py ,v) (,pz (+ z (* ,u lz)))
+          (%dx (- ,px ex)) (%dy (- ,py ey)) (%dz (- ,pz ez)) (%l (/ ,d (f-max 1f-3 (f-hypot %dx %dy %dz)))))
+     (declare (single-float ,px ,py ,pz %dx %dy %dz %l))
+     (setf ,px (+ ,px (* %l %dx)) ,py (+ ,py (* %l %dy)) ,pz (+ ,pz (* %l %dz)))
+     ,@body))
+
+(defmacro %ya-mt-shape! (tbl n sw sh amp)
+  "Inside YA-MANTLE-DRAW: *YA-MT-BUF* := TBL's N points and anchors shaped for the size (SW: the wings' and the column's spread and their
+height over 1.3 m; SH: the hem lobes' reach out of the body's 0.24 m) and the outline billowing by its flex x AMP m: a smooth, slow sway out
+and lick up whose phase runs along the outline (one wave across a lobe, never point by point), on the continuous effect clock (CLK)."
+  `(dotimes (i ,n)
+     (let* ((o (* 8 i)) (b (* 4 i)) (fi (* 1.3f0 (aref ,tbl (+ o 7)))) (w (* (aref ,tbl (+ o 4)) ,amp)))
+       (declare (fixnum o b) (single-float fi w))
+       (dotimes (h 2)
+         (let* ((u (aref ,tbl (+ o h h))) (v (aref ,tbl (+ o h h 1))) (au (f-abs u))
+                (up (f-clamp (/ (- v 0.95f0) 0.4f0) 0f0 1f0)) (up (* up up (- 3f0 (* 2f0 up))))   ; (a smoothstep: the hips .. the shoulders)
+                (hem (* (if (< u 0f0) -1f0 1f0) (+ (f-min au 0.24f0) (* ,sh (f-max 0f0 (- au 0.24f0))))))
+                (u2 (+ hem (* up (- (* u ,sw) hem)))) (v2 (if (> v 1.3f0) (+ 1.3f0 (* ,sw (- v 1.3f0))) v)))
+           (declare (single-float u v au up hem u2 v2))
+           (when (= h 0)
+             (setf u2 (+ u2 (* w (f-sin (+ (* 1.9f0 clk) fi))))
+                   v2 (+ v2 (* w (+ 0.5f0 (* 0.5f0 (f-sin (+ (* 2.6f0 clk) (* 0.8f0 fi)))))))))
+           (setf (aref bf (+ b h h)) u2 (aref bf (+ b h h 1)) v2))))))
+
+(defmacro %ya-mt-fill (n d in0 in1 pk uvx uvy)
+  "Inside YA-MANTLE-DRAW: a flat band of the shaped points (*YA-MT-BUF*, N of them) D m along the view ray: the strip from IN0 m in from
+the outline (0: the outline) to IN1 m in (each toward the point's anchor and never past it: a large IN1 reaches the anchors), a fan shape
+whose heat runs 0 at an anchor .. 0.7 on the outline (the presence erodes it from the outline in), its UV (UVX UVY) on a palette spot (a
+flat colour, no shade, no edge), PK the palette + presence + glass lane. 6 N vertices."
+  `(with-fx-verts (dd o :toon (* 6 ,n))
+     (dotimes (i ,n)
+       (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j))
+              (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
+              (iau (- (aref bf (+ i4 2)) pu)) (iav (- (aref bf (+ i4 3)) pv)) (jau (- (aref bf (+ j4 2)) qu)) (jav (- (aref bf (+ j4 3)) qv))
+              (id (f-max 1f-3 (f-hypot iau iav))) (jd (f-max 1f-3 (f-hypot jau jav)))
+              (i0 (f-min 1f0 (/ ,in0 id))) (i1 (f-min 1f0 (/ ,in1 id))) (j0 (f-min 1f0 (/ ,in0 jd))) (j1 (f-min 1f0 (/ ,in1 jd))))
+         (declare (fixnum j i4 j4) (single-float pu pv qu qv iau iav jau jav id jd i0 i1 j0 j1))
+         (%ya-mt-at (ax ay az) (+ pu (* i1 iau)) (+ pv (* i1 iav)) ,d
+           (%ya-mt-at (bx by bz) (+ pu (* i0 iau)) (+ pv (* i0 iav)) ,d
+             (%ya-mt-at (cx cy cz) (+ qu (* j0 jau)) (+ qv (* j0 jav)) ,d
+               (%ya-mt-at (gx gy gz) (+ qu (* j1 jau)) (+ qv (* j1 jav)) ,d
+                 (vtx ax ay az ,uvx ,uvy (* 0.7f0 (- 1f0 i1)) 7f0 0f0 ,pk) (vtx bx by bz ,uvx ,uvy (* 0.7f0 (- 1f0 i0)) 7f0 0f0 ,pk)
+                 (vtx cx cy cz ,uvx ,uvy (* 0.7f0 (- 1f0 j0)) 7f0 0f0 ,pk)
+                 (vtx ax ay az ,uvx ,uvy (* 0.7f0 (- 1f0 i1)) 7f0 0f0 ,pk) (vtx cx cy cz ,uvx ,uvy (* 0.7f0 (- 1f0 j0)) 7f0 0f0 ,pk)
+                 (vtx gx gy gz ,uvx ,uvy (* 0.7f0 (- 1f0 j1)) 7f0 0f0 ,pk)))))))))
+
+(defmacro %ya-mt-band (tbl n d w0 w1 x0 x1 pk)
+  "Inside YA-MANTLE-DRAW: a smooth band along the shaped outline (*YA-MT-BUF*, N points; their normals from TBL) from W0 to W1 m out along
+the normal, D m along the view ray: an along shape, UV.X X0 .. X1 across it (|UV.X| near 1 is its silhouette: the soft-flame feather on a
+flame palette), UV.Y the length along the outline, heat 1, no wobble (a clean line); PK the palette + presence + glass lane. 6 N vertices
+(a walk's twin a zero-area quad)."
+  `(with-fx-verts (dd o :toon (* 6 ,n))
+     (dotimes (i ,n)
+       (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j)) (io (* 8 i)) (jo (* 8 j))
+              (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
+              (inu (aref ,tbl (+ io 5))) (inv (aref ,tbl (+ io 6))) (jnu (aref ,tbl (+ jo 5))) (jnv (aref ,tbl (+ jo 6)))
+              (is (* 0.8f0 (aref ,tbl (+ io 7)))) (js (* 0.8f0 (aref ,tbl (+ jo 7)))))
+         (declare (fixnum j i4 j4 io jo) (single-float pu pv qu qv inu inv jnu jnv is js))
+         (%ya-mt-at (ax ay az) (+ pu (* ,w0 inu)) (+ pv (* ,w0 inv)) ,d
+           (%ya-mt-at (bx by bz) (+ pu (* ,w1 inu)) (+ pv (* ,w1 inv)) ,d
+             (%ya-mt-at (cx cy cz) (+ qu (* ,w1 jnu)) (+ qv (* ,w1 jnv)) ,d
+               (%ya-mt-at (gx gy gz) (+ qu (* ,w0 jnu)) (+ qv (* ,w0 jnv)) ,d
+                 (vtx ax ay az ,x0 is 1f0 -17f0 0f0 ,pk) (vtx bx by bz ,x1 is 1f0 -17f0 0f0 ,pk) (vtx cx cy cz ,x1 js 1f0 -17f0 0f0 ,pk)
+                 (vtx ax ay az ,x0 is 1f0 -17f0 0f0 ,pk) (vtx cx cy cz ,x1 js 1f0 -17f0 0f0 ,pk)
+                 (vtx gx gy gz ,x0 js 1f0 -17f0 0f0 ,pk)))))))))
+
+(defun-fast ya-mantle-draw ()
+  "殘日獄衣's mantle from *YA-MT-ARGS* (YA-MANTLE). Z-Q2's solidity S from where the eye stands: 1 from the front round to 90 deg (the SIDE
+camera stands 78 deg round), 0 from 100 deg (the match camera: 106 deg round at 2 m apart and closer, 112 at 4 m, 141 at 12 m; portrait
+108; 87448's line). The outline is shaped for the size G and billows on the continuous effect clock; then, 0.5 m behind his body on the
+view ray: the yellow-white fill, the white-hot band deeper than 0.3 m (full size only), the orange band 0.05 m inside the outline and
+0.035 m outside it (feathered), the clean white rim (-0.018 .. +0.022 m x the size), 7-16 flame strokes licking up inside, 6-12 white sparks; at full
+size the front layer 0.35 m in front of his body, see-through (glass 3) and fading with S; an orange light. Seen from behind (S < 0.9) the
+fill turns see-through by S (glass 3, then 2 from S < 0.45; glass 1 read as an empty outline) in FIRE's red-orange body (the yellow,
+half-covered, greys under the Bankai's grade), the white-hot band left out; the rim and strokes stay; without MSAA (a glass shape would be opaque) the hollow
+drops the fills and the front layer is not drawn. Vertices (*YA-MANTLE* N points, *YA-SKIRT* M): 4 x 6 N + the strokes' 48 and the
+sparks' 6 each + 6 M (87448's line). A look; 0 B."
+  (let* ((ar *ya-mt-args*) (x (aref ar 0)) (z (aref ar 1)) (rx (aref ar 2)) (rz (aref ar 3)) (g (f-clamp (aref ar 4) 0f0 1f0))
+         (k (aref ar 5)) (e (camera-eye *camera*)) (ex (aref e 0)) (ey (aref e 1)) (ez (aref e 2)) (rt (camera-right *camera*))
+         (lx (aref rt 0)) (lz (aref rt 2)) (ll (f-hypot lx lz)) (hx (- ex x)) (hz (- ez z)) (hl (f-max 1f-3 (f-hypot hx hz)))
+         (fr (/ (- (* rz hx) (* rx hz)) hl))            ; his facing (rz, -rx) . the way to the eye: 1 the camera in front, -1 behind
+         (s (f-clamp (+ 1f0 (/ fr 0.17f0)) 0f0 1f0))
+         (msaa (> (the fixnum *msaa-samples*) 1))
+         (gl (cond ((>= s 0.9f0) 0f0) ((>= s 0.45f0) 96f0) (t 64f0)))   ; (the fills' glass lane, 32 x level: 3, then 2 behind)
+         (fills (or msaa (= gl 0f0)))
+         (clk (fx-clock)) (dr (drawing-no))
+         (sw (+ 0.39f0 (* 0.61f0 g))) (sh (+ 0.6f0 (* 0.4f0 g))) (sz (+ 0.6f0 (* 0.4f0 g))) (amp (+ 0.025f0 (* 0.045f0 g)))
+         (tb *ya-mantle*) (bf *ya-mt-buf*) (n (floor (length tb) 8)) (d 0.5f0)
+         (nm (if (> g 0.5f0) 16 7)) (ns (if (> g 0.5f0) 12 6)))
+    (declare (type f32vec ar e rt tb bf) (fixnum n nm ns)
+             (single-float x z rx rz g k ex ey ez lx lz ll hx hz hl fr s gl clk dr sw sh sz amp d))
+    (if (> ll 1f-4) (setf lx (/ lx ll) lz (/ lz ll)) (setf lx rx lz rz))
+    (%ya-mt-shape! tb n sw sh amp)
+    (when fills
+      (if (= gl 0f0)
+          (%ya-mt-fill n d 0f0 9f0 (toon-a +pal-fire+ k t) 0.15f0 -0.35f0)                       ; the yellow-white fill (FIRE's core)
+          (%ya-mt-fill n d 0f0 9f0 (+ gl (toon-a +pal-fire+ k t)) -1f0 0.3f0))   ; see-through: FIRE's body (a yellow half-covered
+                                                                                  ;  greys under the Bankai's spot-keep grade; the
+                                                                                  ;  red-orange keeps its hue)
+      (when (and (> g 0.5f0) (= gl 0f0))
+        (%ya-mt-fill n (- d 0.01f0) (* 0.3f0 sz) 9f0 (+ gl (toon-a +pal-hit+ k t)) 0.15f0 -0.35f0))   ; the white-hot band
+      (%ya-mt-band tb n (- d 0.02f0) (* -0.05f0 sz) (* 0.035f0 sz) 0f0 -1f0 (+ gl (toon-a +pal-flame+ k))))   ; orange (FLAME's body)
+    (%ya-mt-band tb n (- d 0.03f0) (* -0.018f0 sz) (* 0.022f0 sz) -0.6f0 0.6f0 (toon-a +pal-hit+ k))   ; the white rim
+    (dotimes (m nm)                                     ; the flame strokes: curved comets licking up, wide at the base, from inside
+      (let* ((fm (i->f m)) (h2 (hash01 fm 5.3f0)) (h3 (hash01 fm 8.9f0))
+             (i (mod (f->i (* (hash01 fm 3.7f0) (i->f n))) n)) (i4 (* 4 i))
+             (ph (f-mod (+ (* 0.45f0 clk) h3) 1f0)) (tt (+ 0.2f0 (* 0.3f0 h2)))
+             (au (aref bf (+ i4 2))) (av (aref bf (+ i4 3)))
+             (mu (+ au (* tt (- (aref bf i4) au)))) (mv (+ av (* tt (- (aref bf (+ i4 1)) av)) (* 0.1f0 sz ph)))
+             (hh (* sz (+ 0.28f0 (* 0.2f0 h3)) (- 1f0 (* 0.4f0 ph)))) (bend (* (if (evenp m) 0.35f0 -0.35f0) hh))
+             (lean (* 0.25f0 hh (aref tb (+ (* 8 i) 5)))) (kk (* k (f-min 1f0 (* 4f0 (- 1f0 ph))))))
+        (declare (single-float fm h2 h3 ph tt au av mu mv hh bend lean kk) (fixnum i i4))
+        (%ya-mt-at (bx by bz) mu mv (- d 0.05f0)
+          (%ya-mt-at (tx ty tz) (+ mu lean) (+ mv hh) (- d 0.05f0)
+            (%ya-mt-at (cx cy cz) (+ mu (* 0.5f0 lean) bend) (+ mv (* 0.5f0 hh)) (- d 0.05f0)
+              (fx-crescent tx ty tz bx by bz cx cy cz (* 0.075f0 sz) :comet 0f0 (+ fm (* 3f0 dr)) (if (= 0 (mod m 3)) +pal-ember+ +pal-fire+) kk
+                           :push 0f0))))))
+    (dotimes (m ns)                                     ; the sparks: off the outline, rising, smaller as they go
+      (let* ((fm (i->f m)) (i (mod (f->i (* (hash01 fm 11.3f0) (i->f n))) n)) (i4 (* 4 i)) (o (* 8 i))
+             (ph (f-mod (+ (* 0.5f0 clk) (hash01 fm 17.7f0)) 1f0)) (off (* sz (+ 0.06f0 (* 0.3f0 (hash01 fm 13.1f0)))))
+             (su (+ (aref bf i4) (* off (aref tb (+ o 5))))) (sv (+ (aref bf (+ i4 1)) (* off (aref tb (+ o 6))) (* 0.6f0 sz ph))))
+        (declare (single-float fm ph off su sv) (fixnum i i4 o))
+        (%ya-mt-at (bx by bz) su sv (- d 0.06f0)
+          (fx-disc bx by bz (* 0.022f0 sz (- 1.2f0 ph)) 0.2f0 (+ fm 40f0) +pal-hit+ k :push 0f0))))
+    (when (and msaa (> g 0.5f0) (> s 0.02f0))           ; the front layer over his torso and legs, see-through (its presence x S)
+      (let* ((tb *ya-skirt*) (n (floor (length tb) 8)) (ks (* k s)))
+        (declare (type f32vec tb) (fixnum n) (single-float ks))
+        (%ya-mt-shape! tb n 1f0 1f0 (* 0.5f0 amp))
+        (%ya-mt-fill n -0.35f0 0f0 9f0 (+ 96f0 (toon-a +pal-fire+ ks t)) 0.15f0 -0.35f0)))
+    (%light x 1.3f0 z 1f0 0.55f0 0.2f0 6f0 (* 2f0 k) 7))
+  nil)
+
 ;;; ---------------------------------------------------------------- the moves' own looks (the :draw hook: YAMA-DRAW)
-(defmacro %ya-flare (x z u k seed)
-  "西's flare (L8) at his feet (X Z), U frames after its pulse: 14 orange flame tongues thrown out round him, leaning out, never past 2.0 m
-(the burn's radius); the molten ring on that 2.0 m edge; a white-hot ring on the pulse's first two frames; the shoulder wings (two fans of
-three ribbons, 0.9 m out each side). Single-float forms; 0 B."
-  `(let* ((%g (f-min 1f0 (/ (+ ,u 1f0) 3f0))) (%k ,k) (%rr (+ 0.35f0 (* 1.2f0 %g))) (%dr (drawing-no)))
-     (declare (single-float %g %k %rr %dr))
-     (dotimes (%i 14)
-       (let* ((%f (i->f %i)) (%a (+ (* 0.4488f0 %f) (* 0.3f0 (hash01 %f ,seed)))) (%c (f-cos %a)) (%s (f-sin %a))
-              (%hh (* (- 1.3f0 (* 0.5f0 %g)) (+ 0.7f0 (* 0.5f0 (hash01 (+ %f %dr) ,seed)))
-                      (let ((%n (%near-cam (+ ,x (* %rr %c)) (+ ,z (* %rr %s)) 1.5f0 4.5f0))) (declare (single-float %n))
-                        (+ 0.08f0 (* 0.92f0 %n %n))))))   ; (small by the lens: the behind camera keeps the fight)
-         (declare (single-float %f %a %c %s %hh))
-         (%tongue (+ ,x (* %rr %c)) 0.04f0 (+ ,z (* %rr %s)) (* 0.3f0 %hh %c) %hh (* 0.3f0 %hh %s) 0.16f0 +pal-flame+ %k (+ ,seed %f %dr)
-                  (+ %dr %f) 0.03f0 :segs 4)))
+(defmacro %ya-flare (x z rx rz u k seed)
+  "西's flare (L8; batch Z1, §27: the garb flares to the full mantle) at his feet (X Z), (RX RZ) his right, U frames after its pulse: the
+mantle grows from the stance's size to full over 2 frames (YA-MANTLE); the molten ring on the burn's 2.0 m edge; a white-hot ring on the
+pulse's first two frames. Before Z1: 14 orange tongues thrown out round him and two fans of ribbon wings 0.9 m out. Single-float forms;
+0 B."
+  `(let* ((%g (f-min 1f0 (/ (+ ,u 1f0) 3f0))) (%k ,k))
+     (declare (single-float %g %k))
+     (ya-mantle ,x ,z ,rx ,rz %g %k)
      (%tring ,x 0f0 ,z 2.0f0 0.06f0 +pal-flame+ %k (+ ,seed 3f0))
      (when (< ,u 2f0)
        (%tring ,x 0.01f0 ,z 2.0f0 0.025f0 +pal-hit+ 0.98f0 (+ ,seed 4f0))
-       (%tring ,x 0.01f0 ,z 0.45f0 0.05f0 +pal-hit+ 0.98f0 (+ ,seed 5f0)))
-     (dotimes (%j 6)
-       (let* ((%f (i->f %j)) (%sd (if (< %j 3) -1f0 1f0)) (%q (i->f (mod %j 3))))
-         (declare (single-float %f %sd %q))
-         (toon-ribbon (,x 1.3f0 ,z) ((* %sd 0.9f0 (- 1f0 (* 0.25f0 %q))) (+ 0.2f0 (* 0.35f0 %q)) 0f0) (0.14f0 0.02f0)
-                      :seed (- -70f0 %f (f-mod %dr 3f0)) :wob 0.3f0 :pal +pal-flame+ :k (* %k %g) :segs 4 :sway 0.06f0 :ph (+ %dr %f))))))
+       (%tring ,x 0.01f0 ,z 0.45f0 0.05f0 +pal-hit+ 0.98f0 (+ ,seed 5f0)))))
 
 (defun-fast-inline yama-tear (ax az fx fz len w0 w1 sl g n m seed pk)
   "東's void as a ragged radial tear (L6 and the 東 Kikon; the user, 2026-11-20, DUEL_YAMA_CORE §20 / §20.1): flat ink on the floor
@@ -400,11 +637,11 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
                        (declare (single-float u v))
                        (%t-blob (+ x (* u fx) (* v px)) (rnd-range 0.6f0 1.6f0) (+ z (* u fz) (* v pz)) 0f0 (rnd-range -0.9f0 -0.4f0) 0f0
                                 (rnd-range 0.8f0 1.2f0) (rnd-range 0.04f0 0.08f0) 0.2f0 0.2f0 +pal-ash+)))))))
-      (4 (when (<= 16 sf 35) (%ya-flare x z (i->f (if (< sf 26) (- sf 16) (- sf 26))) (if (< sf 26) (if (< sf 23) 0.98f0 0.6f0)
+      (4 (when (<= 16 sf 35) (%ya-flare x z px pz (i->f (if (< sf 26) (- sf 16) (- sf 26))) (if (< sf 26) (if (< sf 23) 0.98f0 0.6f0)
                                                                                          (f-clamp (* 0.98f0 (/ (i->f (- 36 sf)) 6f0)) 0f0 0.98f0))
                                    seed)))
-      (5 (when (<= 14 sf 23) (%ya-flare x z (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
-      (6 (when (<= 12 sf 21) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
+      (5 (when (<= 14 sf 23) (%ya-flare x z px pz (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
+      (6 (when (<= 12 sf 21) (%ya-flare x z px pz (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
       (7 (when (<= 6 sf 17)                              ; (from S18 the :ya-wall hazard draws it: YAMA-WALL-LOOK)
            (%ya-rampart (+ x (* 1.2f0 fx)) (+ z (* 1.2f0 fz)) yaw (/ (i->f (- sf 5)) 13f0) 0.98f0 (+ (* 1.2f0 fx) x z))))
       (8 (when (<= 10 sf 15)                             ; the crescent: from over his right shoulder down to his low left, its far edge 2.4 m
@@ -426,16 +663,17 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
 ;;; ---------------------------------------------------------------- the pointer stances' looks (art K2, §17: YAMA-DRAW)
 (defun-fast yama-stance-look (pos yaw an)
   "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS facing YAW:
-:YA-ST-NISHI 西's low garb (L8 at rest, the user's D4: 西 has fire): ten orange tongues round his feet up to the knee and two small
-wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as the clip; the clip's own time boxed a float);
+:YA-ST-NISHI 西's garb at rest (L8, the user's D4: 西 has fire; batch Z1, §27 Z-Q1: 殘日獄衣's mantle small, YA-MANTLE at size
+0.08 x the breath: the wings 0.60 m out, the top 1.74 m), breathing on the effect clock's twos (2.4 s, as the clip; the clip's own
+time boxed a float; before Z1: ten orange tongues to the knee and two small wings of two ribbons);
 :YA-ST-MINAMI 南's faint ember cracks (six thin ink cracks out to 0.45-0.7 m with ember cores pulsing with the same breath, no ring).
 東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
   (declare (type f32vec pos) (single-float yaw))
   (let* ((c (anim-clip an)) (nm (and c (clip-name c))))
     (when (or (eq nm :ya-st-nishi) (eq nm :ya-st-minami))
-      (let* ((x (aref pos 0)) (z (aref pos 2)) (dr (drawing-no)) (seed (+ (* 3f0 x) z))
+      (let* ((x (aref pos 0)) (z (aref pos 2)) (seed (+ (* 3f0 x) z))
              (b (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (fx-clock)))))))   ; the breath 0..1 (2.4 s, the stance clips' loop)
-        (declare (single-float x z dr seed b))
+        (declare (single-float x z seed b))
         (if (eq nm :ya-st-minami)
             (dotimes (i 6)                               ; six thin cracks out from under his feet, no ring (faint: not L1's tell)
               (let* ((f (i->f i)) (a (+ (* 1.0472f0 f) (hash01 f seed))) (co (f-cos a)) (si (f-sin a))
@@ -445,20 +683,11 @@ wings of two ribbons at his shoulders, breathing on the effect clock (2.4 s, as 
                                  (+ seed f) 0.2f0 (toon-a +pal-ink+ 0.6f0))
                 (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* 0.85f0 r2 co)) (+ z (* 0.85f0 r2 si)) 0.013f0 0.008f0
                                  0.3f0 0.3f0 (+ seed f 9f0) 0.1f0 (toon-a +pal-ember+ (* 0.6f0 (+ 0.45f0 (* 0.4f0 b)))))))
-            (let* ((px (f-cos yaw)) (pz (- (f-sin yaw))))   ; (his right, as YAMA-BK-MOVES's (- fz) fx)
-              (declare (single-float px pz))
-              (dotimes (i 10)                            ; the tongues to the knee
-                (let* ((f (i->f i)) (a (+ (* 0.6283f0 f) (* 0.3f0 (hash01 f seed)))) (co (f-cos a)) (si (f-sin a))
-                       (hh (* (+ 0.36f0 (* 0.12f0 b)) (+ 0.75f0 (* 0.35f0 (hash01 (+ f dr) seed))))))
-                  (declare (single-float f a co si hh))
-                  (%tongue (+ x (* 0.32f0 co)) 0.03f0 (+ z (* 0.32f0 si)) (* 0.15f0 hh co) hh (* 0.15f0 hh si) 0.07f0 +pal-flame+ 0.9f0
-                           (+ seed f dr) (+ dr f) 0.03f0 :segs 4)))
-              (dotimes (j 4)                             ; the small wings: two ribbons a side, out from the shoulders
-                (let* ((sd (if (< j 2) -1f0 1f0)) (q (i->f (mod j 2))) (w (+ 0.36f0 (* 0.06f0 b) (* -0.1f0 q))))
-                  (declare (single-float sd q w))
-                  (toon-ribbon ((+ x (* sd 0.2f0 px)) 1.32f0 (+ z (* sd 0.2f0 pz))) ((* sd w px) (+ 0.1f0 (* 0.18f0 q)) (* sd w pz))
-                               (0.07f0 0.01f0) :seed (- -90f0 (i->f j) (f-mod dr 3f0)) :wob 0.3f0 :pal +pal-flame+ :k 0.85f0 :segs 4
-                               :sway 0.05f0 :ph (+ dr (i->f j))))))))))
+            (let* ((px (f-cos yaw)) (pz (- (f-sin yaw)))   ; (his right, as YAMA-BK-MOVES's (- fz) fx)
+                   (clk (fx-clock)) (bq (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (- clk (f-mod clk 0.083333f0))))))))   ; (the breath on twos)
+              (declare (single-float px pz clk bq))
+              (unless (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))   ; (the 西 Kikon draws the full one, then gutters it out)
+                (ya-mantle x z px pz (* 0.08f0 bq) 0.9f0)))))))   ; the small mantle (Z-Q1, §27), breathing 8 % of the way to full
   nil)
 
 ;;; ---------------------------------------------------------------- art K3 (§18): the planted blade, 北's burn
@@ -1194,15 +1423,15 @@ fading by f13. White-cored (T2). A look; 0 B."
   "The consing probes' row (87448, 87449): bytes consed by 10 runs of FORM after 10 unmeasured ones, as \"NAME n\" (debug.lisp's CONS-PER,
 which loads after this file, plus a warm-up: the engine's draw queue doubles at a new high-water mark, so the measured draws get the room
 the warm-up made: the steady state; art K4: the fx batches are rewound too, so no look is measured on a full batch's skip path:
-\"(dropped)\" if one still overflowed). The probe's draws are taken off the frame's queue again."
+\"(dropped)\" if one still overflowed; batch Z1: rewound after every run, a mantle being 2.5-3.4 k of the toon batch's 16384 vertices). The
+probe's draws are taken off the frame's queue again."
   `(let ((n0 (symbol-value *ya-dq-n*))
          (f0 (stream-buffer-fill *fx-toon*)) (f1 (stream-buffer-fill *fx-add*))
          (f2 (stream-buffer-fill *fx-alpha*)) (d0 *fx-dropped*))
      (flet ((rewind () (setf (symbol-value *ya-dq-n*) n0 (stream-buffer-fill *fx-toon*) f0
                              (stream-buffer-fill *fx-add*) f1 (stream-buffer-fill *fx-alpha*) f2)))
-       (dotimes (i 10) ,form)
-       (rewind)
-       (let* ((c0 (cons-bytes)) (d1 *fx-dropped*) (b (progn (dotimes (i 10) ,form) (- (cons-bytes) c0))))   ; (the bytes before the
+       (dotimes (i 10) ,form (rewind))
+       (let* ((c0 (cons-bytes)) (d1 *fx-dropped*) (b (progn (dotimes (i 10) ,form (rewind)) (- (cons-bytes) c0))))   ; (the bytes before the
          (prog1 (format nil "~a ~d~:[~; (dropped)~]" ,name b (/= d1 *fx-dropped*))                       ;  row's name: a computed
            (rewind) (setf *fx-dropped* d0))))))                                                         ;  name conses)
 
@@ -1246,7 +1475,9 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
                      (cons-per "crescent" (yama-bk-moves pos yaw 8 11 0.016f0))
-                     (cons-per "garb" (yama-stance-look pos yaw an-n))   ; (art K2)
+                     (cons-per "garb" (yama-stance-look pos yaw an-n))   ; (art K2; batch Z1: the small mantle)
+                     (cons-per "mantle-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch Z1: the full mantle, NS2b's flare)
+                     (cons-per "mantle-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))
                      (cons-per "smear" (vfx-smear tr sm 3))
                      (cons-per "planted" (draw-planted-weapon :zanka px pz yaw :ahead (first sp) :right (second sp)))   ; (art K3)
@@ -1257,12 +1488,23 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "east-open" (yama-higashi-look *p1* *p2* 86))   ; (art K5: the tear opening, then at full)
                      (cons-per "east-full" (yama-higashi-look *p1* *p2* 120))
                      (cons-per "west-ash" (yama-nishi-look *p1* *p2* 46))
+                     (cons-per "west-ignite" (yama-nishi-look *p1* *p2* 54))   ; (batch Z1: the mantle building, then full)
+                     (cons-per "west-full" (yama-nishi-look *p1* *p2* 62))
                      (cons-per "west-walk" (yama-nishi-look *p1* *p2* 100))
                      (cons-per "west-pass" (yama-nishi-look *p1* *p2* 128))
                      (cons-per "west-column" (yama-nishi-look *p1* *p2* 140))
                      (cons-per "south-dead" (yama-minami-look *p1* *p2* 90))
                      (cons-per "south-pile" (yama-minami-look *p1* *p2* 130))
                      (cons-per "south-burst" (yama-minami-look *p1* *p2* 150))))))
+    (let ((f0 (stream-buffer-fill *fx-toon*)) (n0 (symbol-value *ya-dq-n*)) (rows nil))   ; (batch Z1: one draw's toon vertices, this camera)
+      (macrolet ((vc (name form)
+                   `(progn ,form (push (format nil "~a ~d" ,name (floor (- (stream-buffer-fill *fx-toon*) f0) 9)) rows)
+                           (setf (stream-buffer-fill *fx-toon*) f0 (symbol-value *ya-dq-n*) n0))))
+        (vc "stance" (yama-stance-look pos yaw an-n)) (vc "flare" (yama-bk-moves pos yaw 5 17 0.016f0))
+        (vc "cine" (yama-nishi-look *p1* *p2* 62)))
+      (let* ((e (camera-eye *camera*)) (p (pos-of *p1*)) (yw (yaw-of *p1*)) (hx (- (aref e 0) (aref p 0))) (hz (- (aref e 2) (aref p 2))))
+        (log-msg "yama mantle toon verts (one draw, of 16384): ~{~a~^, ~} | the eye ~,1f deg round from P1's front"   ; (Z-Q2's angle)
+                 (nreverse rows) (* (/ 180 pi) (acos (max -1.0 (min 1.0 (/ (+ (* (- (sin yw)) hx) (* (- (cos yw)) hz)) (max 1e-3 (sqrt (+ (* hx hx) (* hz hz))))))))))))
     (ya-dead-reset)))
 
 (defun yama-shikai-consing ()

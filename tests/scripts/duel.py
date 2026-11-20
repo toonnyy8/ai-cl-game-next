@@ -1419,6 +1419,52 @@ def yama_s4_script(phone=False):
 write("yama-s4", yama_s4_script())
 write("yama-s4-phone", yama_s4_script(True))
 
+# Yamamoto's Bankai, batch Z1 (DUEL_YAMA_CORE §27): 殘日獄衣's mantle. 西's stance (the small mantle) and each flare at its peak (the full
+# mantle: NS2a 87423 at f20, NS2b 87424 at f17, AS2b 87432 at f15, each segment on its own, P2 an idle Kenpachi) from the match
+# camera (behind), the SIDE camera (2109), and P1's orbit cameras (87491 the front, 87492 45 deg, 87493 135 deg: three quarters behind,
+# Z-Q2's fade); then the 西 Kikon cinematic from the ignite on (87451, K4's holds 87600+k: f54 f62 f80 f100 f128 f146 f160 f170). 87448's
+# consing line (and the mantle's vertex count) ends the run. PHONE: the deck on (87901), stills -phone, the behind camera only.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 82 --timeout 7200 --script tests/scripts/duel-yama-z1.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 24 --timeout 3600 --mobile --size 390x844 --script tests/scripts/duel-yama-z1-phone.json
+#   (slow under SwiftShader: the default wall timeout ended one run at virtual 79 s, after its END)
+YAMA_Z1_CAMS = (("behind", None, 87020), ("side", 2109, 87020), ("front", 87491, 87120), ("q45", 87492, 87120), ("q135", 87493, 87040))
+                  # (camera, its command, the scene: P2 2 m off; 12 m for the front cameras, behind the lens; 4 m three quarters behind)
+YAMA_Z1_FLARES = (("ns2a", 87423, 20), ("ns2b", 87424, 17), ("as2b", 87432, 15))
+def yama_z1_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam, cc, sc in (YAMA_Z1_CAMS[:1] if phone else YAMA_Z1_CAMS):
+        s0 = scene(f"stance west {cam}", (sc, 87302, 87446, 87445) + deck)
+        if cc: ev.append(cmd(s0 + 0.1, cc))
+        ev.append(shot(s0 + 1.8, f"yama-z1-stance-{cam}{sx}"))
+        for name, c, f in YAMA_Z1_FLARES:
+            a = s0 + 2.2
+            ev.append(cmd(a, c)); ev.append(shot(a + f / 60, f"yama-z1-{name}-{cam}{sx}"))
+            s0 = a + 1.4
+            ev.append(cmd(s0, sc))                                          # (back to the scene's spacing, idle in the stance)
+        if cc: ev.append(cmd(s0 + 0.6, cc))                                 # (the camera back)
+        t = s0 + 1.0
+    if not phone:
+        ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== west Kikon')"})
+        ev.append(cmd(t, 87030)); t += 2.5
+        ev.append(cmd(t, 87451)); beats = (54, 62, 80, 100, 128, 146, 160, 170)
+        ev.append(cmd(t + 0.03, 87600 + beats[0] // 2))
+        a, f0 = t + 0.03, 0
+        for j, f in enumerate(beats):
+            a += (f - f0) / 60 + 0.3
+            ev.append(shot(a, f"yama-z1-cine-f{f}{sx}"))
+            if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1] // 2))
+            a += 0.05; f0 = f
+        t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-z1", yama_z1_script())
+write("yama-z1-phone", yama_z1_script(True))
 # The soft flame's prototype strips (batch F1, docs/style/STYLE_STORM_DESIGN.md §15): one run per candidate c (88000+c first: 0 the
 # current look, 1-3 the feather x glow rows), the same timeline in every run, so the rows differ only by the candidate. Each subject:
 # 8 consecutive frames (shots held at the middle of frames n .. n+7 of the fixed 60 Hz clock): (a) Kenpachi's REIATSU aura idle

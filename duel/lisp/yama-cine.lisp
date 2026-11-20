@@ -133,25 +133,15 @@ victim, half on the black, his Konpaku shatters; low across the void, the old ma
       (cine-clip a :ya-e-stance :blend 14)))              ; he lifts the point off the floor and lets the blade hang
 
 ;;; ---------------------------------------------------------------- 西 殘日獄衣 ZANJITSU GOKUI (§15.3.2, the user's storyboard, 180 f)
-(defmacro %ya-garb (x z rx rz h k seed)
-  "西's garb at full (§15.3.2, L8's parts round his body): 10 thin orange tongues from his feet up to about H, leaning out (his body shows
-between them), two shoulder wings of three flame
-ribbons ~1.2 m out (RX RZ his right), the molten ring at his soles with a white-hot core, an orange light. Single-float forms; 0 B."
-  `(let* ((%dr (drawing-no)) (%k ,k) (%h ,h))
-     (declare (single-float %dr %k %h))
-     (dotimes (%i 10)
-       (let* ((%f (i->f %i)) (%a (+ (* 0.6283f0 %f) (* 0.3f0 (hash01 %f ,seed)))) (%c (f-cos %a)) (%s (f-sin %a))
-              (%hh (* %h (+ 0.65f0 (* 0.55f0 (hash01 (+ %f %dr) ,seed))))))
-         (declare (single-float %f %a %c %s %hh))
-         (%tongue (+ ,x (* 0.36f0 %c)) 0.04f0 (+ ,z (* 0.36f0 %s)) (* 0.22f0 %hh %c) %hh (* 0.22f0 %hh %s) 0.1f0 +pal-flame+ %k
-                  (+ ,seed %f %dr) (+ %dr %f) 0.04f0 :segs 5)))
+(defmacro %ya-garb (x z rx rz g k seed)
+  "西's garb at full (§15.3.2; batch Z1, §27: 殘日獄衣's mantle, YA-MANTLE at size G, (RX RZ) his right), the molten ring at his soles with
+a white-hot core, an orange light. Before Z1: 10 thin orange tongues from his feet and two shoulder wings of three ribbons ~1.2 m out.
+Single-float forms; 0 B."
+  `(let* ((%k ,k))
+     (declare (single-float %k))
+     (ya-mantle ,x ,z ,rx ,rz ,g %k)
      (%tring ,x 0f0 ,z 0.6f0 0.07f0 +pal-flame+ %k (+ ,seed 3f0))
      (%tring ,x 0.008f0 ,z 0.6f0 0.02f0 +pal-hit+ (* 0.8f0 %k) (+ ,seed 4f0))
-     (dotimes (%j 6)
-       (let* ((%f (i->f %j)) (%sd (if (< %j 3) -1f0 1f0)) (%q (i->f (mod %j 3))) (%w (* %sd (- 1.2f0 (* 0.3f0 %q)))))
-         (declare (single-float %f %sd %q %w))
-         (toon-ribbon ((+ ,x (* %sd 0.2f0 ,rx)) 1.32f0 (+ ,z (* %sd 0.2f0 ,rz))) ((* %w ,rx) (+ 0.25f0 (* 0.35f0 %q)) (* %w ,rz)) (0.15f0 0.02f0)
-                      :seed (- -110f0 %f (f-mod %dr 3f0)) :wob 0.3f0 :pal +pal-flame+ :k %k :segs 4 :sway 0.07f0 :ph (+ %dr %f))))
      (%light ,x 1.0f0 ,z 1f0 0.5f0 0.2f0 5f0 (* 2f0 %k) 7)))
 
 (defun-fast yama-nishi-look (a v cf)
@@ -185,7 +175,8 @@ smoke from f150. A look; 0 B."
                   (%t-shard (+ x0 (* s ddx)) (+ y0 (* s ddy)) (+ z0 (* s ddz)) (rnd-range -0.4f0 0.4f0) (rnd-range -0.2f0 0.4f0)
                             (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.3f0) (rnd-range 0.03f0 0.06f0) 0.6f0 +pal-ash+)))))))
       (when (and (<= 52 cf) (< cf 168))                   ; the garb at full
-        (%ya-garb px pz rx rz (if (< cf 156) 1.3f0 (* 1.3f0 (/ (i->f (- 168 cf)) 12f0)))
+        (%ya-garb px pz (if (< cf 124) rx (- rx)) (if (< cf 124) rz (- rz))   ; (his right: from f124 he stands turned away)
+                  (f-min 1f0 (* 0.34f0 (i->f (- cf 52))))   ; (from the stance's size to full in 3 f)
                   (if (< cf 56) (* 0.25f0 (i->f (- cf 52))) (if (< cf 156) 0.98f0 (* 0.98f0 (/ (i->f (- 168 cf)) 12f0))))
                   seed))
       (when (and (<= 72 cf) (< cf 124))                   ; molten footprints: where he stood every 9 f (he walks 0.029 m a frame)

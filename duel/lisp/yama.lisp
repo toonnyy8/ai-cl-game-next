@@ -720,6 +720,17 @@ down has no up), or the game's camera again. A shot (CINE-CAM) outside a cinemat
       (let* ((p (pos-of *p1*)) (yaw (yaw-of *p1*)) (cx (+ (aref p 0) (* 4.5 (fwd-x yaw)))) (cz (+ (aref p 2) (* 4.5 (fwd-z yaw)))))
         (cine-cam (- cx (* 1.2 (fwd-x yaw))) 9.5 (- cz (* 1.2 (fwd-z yaw))) cx 0.0 cz))))
 
+(defun yama-orbit-cam (deg)
+  "Debug 87491-87493 (batch Z1's mantle stills, DUEL_YAMA_CORE §27): a camera on P1 from DEG degrees round from his front toward his right
+(0 the front, 45, 135: three quarters behind), 6.5 m out, 1.5 m up, at his chest; the same command again (any of the three) gives the
+game's camera back. A shot (CINE-CAM) outside a cinematic, as YAMA-TOPDOWN-CAM's: the next cinematic drops it."
+  (if *cine-cam*
+      (setf *cine-cam* nil)
+      (let* ((p (pos-of *p1*)) (yaw (yaw-of *p1*)) (a (* deg (/ pi 180)))
+             (fx (fwd-x yaw)) (fz (fwd-z yaw)) (rx (- fz)) (rz fx)
+             (dx (+ (* (cos a) fx) (* (sin a) rx))) (dz (+ (* (cos a) fz) (* (sin a) rz))))
+        (cine-cam (+ (aref p 0) (* 6.5 dx)) 1.5 (+ (aref p 2) (* 6.5 dz)) (aref p 0) 1.2 (aref p 2)))))
+
 (defun yama-footprints (e)
   "Debug 87481: E's fire hazards' sim footprints on the floor in cyan (a :wave's box, 2 x size across and 2 x the box's half-length along;
 a disc of HAZARD-SIZE; the ring's band), to set against the looks' ground edges. Debug only (it conses)."
@@ -754,7 +765,8 @@ nothing when it already runs); 87601-87699 the running cinematic held at frame 2
 (§22): 87416+i P1 starts NS3a / b / c or the SA (i 0-3) on its own; 87460+i the Shikai's AS segment i of AS1, AS2a / b, AS3a / b / c (0-5);
 87470+i 爆炎's segment i of NS1a-c, NS2a-c, NS3a-c, the SA (0-9; P1 in 爆炎); 87480 the top-down camera on / off (YAMA-TOPDOWN-CAM); 87481
 his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING). Art S4 (§25):
-87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean)."
+87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean). Batch Z1 (§27): 87491-87493 a camera on P1 from his front /
+45 deg round to his right / 135 deg (three quarters behind), again: the game's camera (YAMA-ORBIT-CAM)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -774,6 +786,7 @@ his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing o
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87470) '(:ya-b-n1a :ya-b-n1b :ya-b-n1c :ya-b-n2a :ya-b-n2b :ya-b-n2c
                                                                       :ya-b-n3a :ya-b-n3b :ya-b-n3c :ya-b-sa)))))
           ((= c 87480) (yama-topdown-cam))
+          ((<= 87491 c 87493) (yama-orbit-cam (nth (- c 87491) '(0 45 135))))   ; (batch Z1: the mantle's front / side stills)
           ((= c 87481) (setf *ya-footprints* (not *ya-footprints*)))
           ((= c 87449) (yama-shikai-consing))
           ((= c 87490) (let ((q (pos-of *p2*)) (yaw (yaw-of *p1*)))   ; (art S4: the tornado lean's off-axis victim, 3 m to P1's right)
