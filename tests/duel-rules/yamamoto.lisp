@@ -456,3 +456,6 @@
 (load (merge-pathnames "../../duel/lisp/glyphs.lisp" *load-truename*))
 (check (every (lambda (ch) (assoc (char-code ch) *glyph-outlines*)) "不知火焱熱地獄撫斬"))
 (check (= (length (cddr (assoc (char-code #\焱) *glyph-outlines*))) (* 3 (length (cddr (assoc (char-code #\火) *glyph-outlines*))))))
+;; art S5's wiring (§26): the Shikai's and 爆炎's Kikons (and Soul Breaks) play the three Shikai cinematics by pointer (Q2: the same three)
+(check (loop for f in '(:base :blaze)
+             always (equal (getf (kit-core (find-kit :yamamoto f)) :kikon-cines) '(yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine))))

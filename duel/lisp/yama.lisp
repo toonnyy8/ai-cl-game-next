@@ -117,7 +117,8 @@
   :core (:ns (:ya-n1a :ya-n2a :ya-n3a) :as (:ya-as1 :ya-as2 :ya-as3) :sa :ya-sa
          :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)   ; by pointer: the blade drawn back level at the hip / the point held out at the
                                                            ;  foe / the blade stood point-down at his right front (art S2, §23)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last, §7.4)
+         :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; 不知火 / 焱熱地獄 / 撫斬 (art S5, §26; the Soul Break
+                                                                                    ;  under a pointer plays its one too)
          :as-by-press (1 2 3)
          :ns-range ((3.0 7.0) (3.0 9.0) nil)   ; the CPU casts the spiral / the stream from range under pointers 1 / 2
          :mult 1.0)
@@ -178,7 +179,7 @@
   :strings ((:ya-b-j1 :q :ya-b-j2) (:ya-b-j2 :q :ya-b-j3))
   :core (:ns (:ya-b-n1a :ya-b-n2a :ya-b-n3a) :as (:ya-b-as1 :ya-b-as2 :ya-b-as3) :sa :ya-b-sa
          :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)
+         :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; (the Shikai's three, drawn bared: §21.8 Q2)
          :as-by-press (1 2 3)
          :ns-range ((3.0 7.0) (3.0 9.0) nil)
          :sp-free t                                   ; NS / AS free of flash-step, as in a burst (§3; KIT-SP-FREE-P)
