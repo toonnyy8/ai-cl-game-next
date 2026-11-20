@@ -99,30 +99,35 @@ end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width,
     nil))
 
 ;;; ---------------------------------------------------------------- auras
-(defmacro %brush-aura (x y z h k pal n rad w white)
+(defmacro %brush-aura (x y z h k pal n rad w white &optional all)
   "A brush-flame aura (docs/style/STYLE_STORM_DESIGN.md §4.2 reiatsu, §4.3 Kikon rush): N tongues of palette PAL around
 the body at radius RAD (half-width W at the base), drawn only behind and at the sides (the ones between the camera and the body are left
-out, so the fighter stays readable inside), H tall x 0.8..1.25 with a lean, both re-drawn every drawing (twos),
+out, so the fighter stays readable inside; ALL literal T draws those too: 殘日獄衣, the user 2026-11-20, DUEL_YAMA_CORE §28), H tall
+x 0.8..1.25 with a lean, both re-drawn every drawing (twos),
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
 level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. A macro (the auras run every
 frame: 0 B); N and WHITE literal fixnums."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))
-         (dr (drawing-no)) (pk (toon-a pal (* 0.95f0 k))) (step (/ 6.2831855f0 ,(float n 1f0)))
-         (wpal (+ +pal-hit+ (* 32f0 (i->f (f->i (/ pal 32f0)))))))   ; the white cores' palette, the same glass level
-    (declare (single-float x y z h k pal rad w) (type f32vec e) (single-float ex ez el dr pk step wpal) (ignorable wpal))
-    (dotimes (i ,n)
-      (let* ((f (i->f i)) (ang (+ (* step f) (* 0.3f0 (hash01 f 1.3f0))))
-             (c (f-cos ang)) (sn (f-sin ang)) (front (/ (+ (* ex c) (* ez sn)) el)))
-        (declare (single-float f ang c sn front))
-        (when (< front 0.35f0)                        ; behind and at the sides only
-          (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (hash01 (+ f dr) 3.7f0))))) (lean (* 0.25f0 (- (hash01 (+ f dr) 5.9f0) 0.5f0)))
-                 (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 (+ f (* 3f0 (i->f (mod (f->i dr) 5)))))))
-            (declare (single-float hh lean bx bz sd))
-            (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f dr) :sway 0.12f0)
-            (when ,(if (eql white 1) '(< front -0.4f0) nil)
-              (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0 :pal wpal
-                           :k (* 0.95f0 k) :segs 3))))))
-     nil))
+  (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
+    `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (dr (drawing-no)) (pk (toon-a pal (* 0.95f0 k)))
+            (step (/ 6.2831855f0 ,(float n 1f0)))
+            ,@(when sides '((e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))))
+            ,@(when (eql white 1) '((wpal (+ +pal-hit+ (* 32f0 (i->f (f->i (/ pal 32f0)))))))))   ; the white cores' palette, same glass
+       (declare (single-float x y z h k pal rad w dr pk step) ,@(when sides '((type f32vec e) (single-float ex ez el)))
+                ,@(when (eql white 1) '((single-float wpal))))
+       (dotimes (i ,n)
+         (let* ((f (i->f i)) (ang (+ (* step f) (* 0.3f0 (hash01 f 1.3f0)))) (c (f-cos ang)) (sn (f-sin ang))
+                ,@(when sides '((front (/ (+ (* ex c) (* ez sn)) el)))))
+           (declare (single-float f ang c sn ,@(when sides '(front))))
+           (when ,(if (eq all t) t '(< front 0.35f0))   ; behind and at the sides only (unless ALL)
+             (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (hash01 (+ f dr) 3.7f0))))) (lean (* 0.25f0 (- (hash01 (+ f dr) 5.9f0) 0.5f0)))
+                    (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 (+ f (* 3f0 (i->f (mod (f->i dr) 5)))))))
+               (declare (single-float hh lean bx bz sd))
+               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f dr) :sway 0.12f0)
+               ,@(when (eql white 1)
+                   '((when (< front -0.4f0)
+                       (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0
+                                    :pal wpal :k (* 0.95f0 k) :segs 3))))))))
+       nil)))
 
 (defmacro %kikon-aura (x y z h k)
   "The Kikon rush aura (the :KIKON kind of VFX-AURA): 7 BLOOD brush-flame tongues behind the body (radius 0.5 m),
@@ -155,6 +160,44 @@ GLASS (0..3): the tongues, cores and ring see-through, GLASS / 4 of them drawn (
 pillar 2 (the user's request 2026-09-28: it hid the view); the Bankai's red-and-black pillar (:oni, the same day): its
 BLOOD tongues 2, its taller INK tongues 3 (at 2 the black read as a grey smear). Render only.")
 
+(defmacro %garb-aura (x y z h k dt)
+  "Yamamoto's 殘日獄衣 (the :GARB kind of VFX-AURA; the TYBW kit's garb, canon manga colour, DUEL_YAMA_TYBW §3.1; ported back by batch J2,
+DUEL_YAMA_CORE §28, the user 2026-11-20: 「ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」): orange FLAME
+brush tongues from the feet up round the body (0.8 x H x 9 at 0.34 m, 0.62 x H x 6 at 0.25 m), flaring at the shoulders into two wings
+(a fan of 3 ribbons each, to the camera's left and right so the shape reads from any camera: out ~30 deg from the shoulders, the tips ~0.5 m
+over his head and ~0.6 m out), a molten double ring at his feet, flame scraps rising, a warm light. Since J2 the camera-side tongues draw
+too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
+fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). A macro: 0 B."
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt)
+          (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
+          (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))
+     (declare (single-float x y z h k dt kc fl fr dr sd pk))
+     (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t)
+     (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t)
+     (with-cam (rx ry rz ux uy uz)
+       (let* ((rl (f-max 1f-3 (f-hypot rx rz))) (hx (/ rx rl)) (hz (/ rz rl)))
+         (declare (single-float rl hx hz))
+         (dotimes (sg 2)
+           (dotimes (j 3)                                ; (base out, base up, tip out, tip up, half-width) x h / m
+             (let* ((sgn (if (= sg 0) 1f0 -1f0)) (jf (i->f j))
+                    (b-out (case j (0 0.12f0) (1 0.1f0) (t 0.16f0))) (b-up (case j (0 0.7f0) (1 0.62f0) (t 0.66f0)))
+                    (t-out (case j (0 0.55f0) (1 0.36f0) (t 0.66f0))) (t-up (case j (0 1.2f0) (1 1.27f0) (t 1.0f0)))
+                    (w (* fr (case j (0 0.17f0) (1 0.12f0) (t 0.13f0))))
+                    (vary (+ 0.92f0 (* 0.16f0 (hash01 (+ jf (* 3f0 (i->f sg)) dr) 4.7f0))))
+                    (bx (+ x (* sgn b-out fr hx))) (by (+ y (* b-up h))) (bz (+ z (* sgn b-out fr hz)))
+                    (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
+                    (wsd (- -40f0 jf (* 3f0 (i->f sg)) (* 7f0 sd))))
+               (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
+               (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ dr jf) :sway 0.07f0 :segs 6))))))
+     (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) sd 24)   ; the plaza melting under him
+     (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) (+ sd 2f0) 24)
+     (dotimes (i (n-of (* 14f0 kc) dt))
+       (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
+                (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
+                (rnd-range 0.06f0 0.11f0) -1f0 0.3f0 +pal-flame+))
+     (%light x (+ y 1.0f0) z 1f0 0.58f0 0.28f0 5f0 (* 1.2f0 kc fl) 8)
+     nil))
+
 ;;; the burst modes' colours and names (docs/duel/DUEL_DESIGN.md "Burst modes"): the HUD bar, the word, the aura
 (defvar *c-burst-white* (list 0.95 0.96 1.0 1.0))
 (defvar *c-burst-blue* (list 0.4 0.66 1.0 1.0))
@@ -175,7 +218,8 @@ fighters stand within ~3 m, where two auras (or one over the other fighter) summ
 
 (defun-fast vfx-aura (x y z height kind age dt &key (k 1.0))
   "Body aura at the feet (x y z) of a fighter HEIGHT m tall, every kind a drawn toon look (Phase 5 redrew the last soft
-ones). KIND: :evolution (mono STEEL tongues), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
+ones). KIND: :hellfire (爆炎 / GOKUEN: a bonfire of FIRE tongues + a ring at the feet), :garb (Bankai 西's 殘日獄衣, %GARB-AURA; K > 1
+flares it; both ported back from the TYBW kit by batch J2, DUEL_YAMA_CORE §28), :evolution (mono STEEL tongues), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
 awakened / cup 3's pillar: %REIATSU-AURA), :bound (ash at the held feet), :kikon (the BLOOD rush aura), :breaker (Kenpachi's shoulder charge), :burst-white / -blue / -orange (a running burst).
 K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the camera is within ~4 m. AGE is unused (kept: 22 callers)."
   (declare (ignorable age))
@@ -186,6 +230,24 @@ K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the
            (ka (* near (the single-float (f32 *aura-cap*)) (f-clamp k 0f0 1f0))))
       (declare (type f32vec eye) (single-float h ex ey ez near ka))
       (case kind
+        (:hellfire                                       ; 爆炎 (GOKUEN; the TYBW kit's Hellfire, ported back by J2): a bonfire round
+                                                         ; him — 7 FIRE brush tongues behind and at the sides (0.8 x his height), a
+                                                         ; ring of 8 short FIRE tongues licking at his feet, an EMBER scorch ring, scraps
+         (let* ((kc (f-clamp k 0f0 1f0)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))))
+           (declare (single-float kc dr sd))
+           (%brush-aura x y z (* 0.8f0 h) kc +pal-fire+ 7 0.38f0 0.17f0 0)
+           (dotimes (j 8)
+             (let* ((f (i->f j)) (an (+ (* 0.7854f0 f) (* 0.3f0 (hash01 f 7.1f0)))) (hh (* 0.3f0 (+ 0.7f0 (* 0.7f0 (hash01 (+ f dr) 2.9f0))))))
+               (declare (single-float f an hh))
+               (%tongue (+ x (* 0.55f0 (f-cos an))) (+ y 0.02f0) (+ z (* 0.55f0 (f-sin an))) 0f0 hh 0f0 0.09f0 +pal-fire+ (* 0.95f0 kc)
+                        (+ 70f0 f (* 8f0 sd)) (+ dr f) 0.02f0 :segs 3)))
+           (%tring x y z 0.55f0 0.07f0 +pal-ember+ (* 0.9f0 kc) sd 24)
+           (dotimes (i (n-of (* 16f0 kc) dt))
+             (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.35f0 0.35f0))
+                      (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
+                      (rnd-range 0.05f0 0.1f0) -1f0 0.3f0 +pal-fire+))
+           (%light x (+ y 0.6f0) z 1f0 0.4f0 0.1f0 4.5f0 (* 0.8f0 kc) 8)))
+        (:garb (%garb-aura x y z h k dt))                ; Bankai 西's 殘日獄衣 (J2; YAMA-STANCE-LOOK / %YA-FLARE draw it through YA-GARB)
         ((:burst-white :burst-blue :burst-orange)        ; a running burst (docs/duel/DUEL_DESIGN.md "Burst modes"): 8 brush
                                                          ; tongues in its colour (white HIT / BLUE / orange FIRE) with white
                                                          ; cores, a ring at the feet, flecks rising

@@ -61,19 +61,20 @@
   :params (:width 3.5 :speed 10.0 :range 8.0 :dmg 90 :react :knockback :kb 3.0 :look yama-tornado-look :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 2 城郭炎上 JOKAKU ENJO: control, the lane shaped by fire
-;; a: the stream, a lance of fire down the lane (a :wave, 10 m); b: the ring lands round the victim at his bearing (3-8 m, r 1.6 m,
+;; a: the stream, a lance of fire down the lane (a :wave, 10 m); b: the ring lands round the victim at his bearing (0-8 m, r 1.6 m,
 ;; 90 f; one at a time; its burn :ring-dmg on a crossing, its SP the setup minimum); c: the walls close into a dome on the ring (it is
-;; spent), or at his bearing when none stands
+;; spent), or at his bearing when none stands. :near 0 (was 3.0 until batch J1, the user 2026-11-20: 「現在 NS 的火圈在靠太近時反而
+;; 包不住人」, DUEL_YAMA_CORE §28.3): a victim closer than :near stood outside the ring and the dome
 (defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :reach 10.0
   :on-frame ((0 yama-ns-start) (20 yama-wave-fire)) :callout "JOKAKU ENJO"
   :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 8.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
-  :params (:ns-next :ya-n2c :near 3.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
+  :params (:ns-next :ya-n2c :near 0.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
            :kikon-strike :ya-ns-strike))
 (defmove :ya-n2c :kind :flash :clip :ya-n2c :startup 18 :active 2 :recovery 30 :reach 8.0
   :on-frame ((0 yama-ns-start) (18 yama-dome-fire))
-  :params (:near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
+  :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 3 撫斬 NADEGIRI: the finisher
 ;; a: the walking jab of the point; b: the closing step-cut; c: NADEGIRI, one snap, the hit on S (the split is a look 24 f later)
@@ -152,8 +153,8 @@
 ;; pillars along the lane (a :wave drawn as columns)
 (defmove-copy :ya-b-n2a :ya-n2a
   :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
-(defmove-copy :ya-b-n2b :ya-n2c :clip-s 18 :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
-  :params (:ns-next :ya-b-n2c :near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
+(defmove-copy :ya-b-n2b :ya-n2c :clip :ya-b-n2b :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
+  :params (:ns-next :ya-b-n2c :near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2c :ya-n2a :clip :ya-b-n2c :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
   :params (:width 2.4 :speed 12.0 :range 9.0 :dmg 104 :react :crumple :look yama-ennetsu-look :kikon-strike :ya-ns-strike))   ; (rows of pillars, art S4)
@@ -724,17 +725,6 @@ down has no up), or the game's camera again. A shot (CINE-CAM) outside a cinemat
       (let* ((p (pos-of *p1*)) (yaw (yaw-of *p1*)) (cx (+ (aref p 0) (* 4.5 (fwd-x yaw)))) (cz (+ (aref p 2) (* 4.5 (fwd-z yaw)))))
         (cine-cam (- cx (* 1.2 (fwd-x yaw))) 9.5 (- cz (* 1.2 (fwd-z yaw))) cx 0.0 cz))))
 
-(defun yama-orbit-cam (deg)
-  "Debug 87491-87493 (batch Z1's mantle stills, DUEL_YAMA_CORE §27): a camera on P1 from DEG degrees round from his front toward his right
-(0 the front, 45, 135: three quarters behind), 6.5 m out, 1.5 m up, at his chest; the same command again (any of the three) gives the
-game's camera back. A shot (CINE-CAM) outside a cinematic, as YAMA-TOPDOWN-CAM's: the next cinematic drops it."
-  (if *cine-cam*
-      (setf *cine-cam* nil)
-      (let* ((p (pos-of *p1*)) (yaw (yaw-of *p1*)) (a (* deg (/ pi 180)))
-             (fx (fwd-x yaw)) (fz (fwd-z yaw)) (rx (- fz)) (rz fx)
-             (dx (+ (* (cos a) fx) (* (sin a) rx))) (dz (+ (* (cos a) fz) (* (sin a) rz))))
-        (cine-cam (+ (aref p 0) (* 6.5 dx)) 1.5 (+ (aref p 2) (* 6.5 dz)) (aref p 0) 1.2 (aref p 2)))))
-
 (defun yama-footprints (e)
   "Debug 87481: E's fire hazards' sim footprints on the floor in cyan (a :wave's box, 2 x size across and 2 x the box's half-length along;
 a disc of HAZARD-SIZE; the ring's band), to set against the looks' ground edges. Debug only (it conses)."
@@ -771,8 +761,8 @@ nothing when it already runs); 87601-87699 the running cinematic held at frame 2
 his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING). Art S4 (§25):
 87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean). Art S5 (§26): 87482+i the Shikai's Kikon cinematic i
 (不知火 / 焱熱地獄 / 撫斬, 0-2) from frame 0, P1 in the Shikai, and 87485+i the same in 爆炎 (heat 100), 3 m from an idle Kenpachi, set down
-mid-stage (YAMA-CINE-AT; nothing when it already runs in that form); 87601-87699 holds them as K4's. Batch Z1 (§27): 87491-87493 a camera on P1 from his front /
-45 deg round to his right / 135 deg (three quarters behind), again: the game's camera (YAMA-ORBIT-CAM)."
+mid-stage (YAMA-CINE-AT; nothing when it already runs in that form); 87601-87699 holds them as K4's. (87491-87493, batch Z1's orbit cameras for
+its mantle, left with the mantle: batch J2, §28.)"
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -792,7 +782,6 @@ mid-stage (YAMA-CINE-AT; nothing when it already runs in that form); 87601-87699
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87470) '(:ya-b-n1a :ya-b-n1b :ya-b-n1c :ya-b-n2a :ya-b-n2b :ya-b-n2c
                                                                       :ya-b-n3a :ya-b-n3b :ya-b-n3c :ya-b-sa)))))
           ((= c 87480) (yama-topdown-cam))
-          ((<= 87491 c 87493) (yama-orbit-cam (nth (- c 87491) '(0 45 135))))   ; (batch Z1: the mantle's front / side stills)
           ((= c 87481) (setf *ya-footprints* (not *ya-footprints*)))
           ((= c 87449) (yama-shikai-consing))
           ((= c 87490) (let ((q (pos-of *p2*)) (yaw (yaw-of *p1*)))   ; (art S4: the tornado lean's off-axis victim, 3 m to P1's right)

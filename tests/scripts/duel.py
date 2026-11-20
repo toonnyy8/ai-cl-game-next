@@ -1419,52 +1419,6 @@ def yama_s4_script(phone=False):
 write("yama-s4", yama_s4_script())
 write("yama-s4-phone", yama_s4_script(True))
 
-# Yamamoto's Bankai, batch Z1 (DUEL_YAMA_CORE §27): 殘日獄衣's mantle. 西's stance (the small mantle) and each flare at its peak (the full
-# mantle: NS2a 87423 at f20, NS2b 87424 at f17, AS2b 87432 at f15, each segment on its own, P2 an idle Kenpachi) from the match
-# camera (behind), the SIDE camera (2109), and P1's orbit cameras (87491 the front, 87492 45 deg, 87493 135 deg: three quarters behind,
-# Z-Q2's fade); then the 西 Kikon cinematic from the ignite on (87451, K4's holds 87600+k: f54 f62 f80 f100 f128 f146 f160 f170). 87448's
-# consing line (and the mantle's vertex count) ends the run. PHONE: the deck on (87901), stills -phone, the behind camera only.
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 82 --timeout 7200 --script tests/scripts/duel-yama-z1.json
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 24 --timeout 3600 --mobile --size 390x844 --script tests/scripts/duel-yama-z1-phone.json
-#   (slow under SwiftShader: the default wall timeout ended one run at virtual 79 s, after its END)
-YAMA_Z1_CAMS = (("behind", None, 87020), ("side", 2109, 87020), ("front", 87491, 87120), ("q45", 87492, 87120), ("q135", 87493, 87040))
-                  # (camera, its command, the scene: P2 2 m off; 12 m for the front cameras, behind the lens; 4 m three quarters behind)
-YAMA_Z1_FLARES = (("ns2a", 87423, 20), ("ns2b", 87424, 17), ("as2b", 87432, 15))
-def yama_z1_script(phone=False):
-    ev, t, sx = [], T0, ("-phone" if phone else "")
-    deck = (87901,) if phone else ()
-    def scene(name, cmds):
-        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
-        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
-        return t + 0.05 * (len(cmds) - 1)
-    for cam, cc, sc in (YAMA_Z1_CAMS[:1] if phone else YAMA_Z1_CAMS):
-        s0 = scene(f"stance west {cam}", (sc, 87302, 87446, 87445) + deck)
-        if cc: ev.append(cmd(s0 + 0.1, cc))
-        ev.append(shot(s0 + 1.8, f"yama-z1-stance-{cam}{sx}"))
-        for name, c, f in YAMA_Z1_FLARES:
-            a = s0 + 2.2
-            ev.append(cmd(a, c)); ev.append(shot(a + f / 60, f"yama-z1-{name}-{cam}{sx}"))
-            s0 = a + 1.4
-            ev.append(cmd(s0, sc))                                          # (back to the scene's spacing, idle in the stance)
-        if cc: ev.append(cmd(s0 + 0.6, cc))                                 # (the camera back)
-        t = s0 + 1.0
-    if not phone:
-        ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== west Kikon')"})
-        ev.append(cmd(t, 87030)); t += 2.5
-        ev.append(cmd(t, 87451)); beats = (54, 62, 80, 100, 128, 146, 160, 170)
-        ev.append(cmd(t + 0.03, 87600 + beats[0] // 2))
-        a, f0 = t + 0.03, 0
-        for j, f in enumerate(beats):
-            a += (f - f0) / 60 + 0.3
-            ev.append(shot(a, f"yama-z1-cine-f{f}{sx}"))
-            if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1] // 2))
-            a += 0.05; f0 = f
-        t = a + 0.6
-    ev.append(cmd(t, 87448)); t += 0.3
-    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
-    return sorted(ev, key=lambda x: x["at"])
-write("yama-z1", yama_z1_script())
-write("yama-z1-phone", yama_z1_script(True))
 # The soft flame's prototype strips (batch F1, docs/style/STYLE_STORM_DESIGN.md §15): one run per candidate c (88000+c first: 0 the
 # current look, 1-3 the feather x glow rows), the same timeline in every run, so the rows differ only by the candidate. Each subject:
 # 8 consecutive frames (shots held at the middle of frames n .. n+7 of the fixed 60 Hz clock): (a) Kenpachi's REIATSU aura idle
@@ -1536,8 +1490,8 @@ YAMA_S5 = (   # cinematic, name, ((frame (even), beat still) ...)
                      (138, "b6-tornado"), (162, "b7-back"))),
     (1, "ennetsu", ((6, "b0-held"), (28, "b1-edge"), (62, "b2-pattern"), (96, "b3-pillars"), (120, "b4-dome"), (134, "b5-shatter"),
                     (148, "b6-inside"), (172, "b7-wide"))),
-    (2, "nadegiri", ((6, "b0-held"), (30, "b1-face"), (48, "b2-strike"), (52, "b3-cut"), (54, "b3b-out"), (90, "b4-turn"), (110, "b5-seam"), (114, "b5b-shatter"),
-                     (126, "b6-split"), (150, "b7-wide"))),
+    (2, "nadegiri", ((6, "b0-held"), (20, "b1-face"), (36, "b2-strike"), (40, "b3-cut"), (42, "b3b-out"), (64, "b4-turn"), (84, "b5-seam"), (88, "b5b-shatter"),
+                     (104, "b6-split"), (146, "b7-wide"))),   # (re-timed in J3, DUEL_YAMA_CORE §28.5)
 )
 def yama_s5_script(phone=False):
     ev, t, sx = [], T0, ("-phone" if phone else "")
@@ -1564,3 +1518,85 @@ def yama_s5_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s5", yama_s5_script())
 write("yama-s5-phone", yama_s5_script(True))
+
+# Yamamoto batch J1 (DUEL_YAMA_CORE §28.3): 城郭炎上's looks and the ring's centre, on commands batch 1 (05acf777) has too, so one script
+# shoots the old build, main and the new one alike. NS2a (87413) at 9 m, NS2b's ring (87414) and NS2c's dome (87415) with the victim at
+# 1 m and 5 m (87010 / 87050: P1 at x -d/2, P2 at +d/2; the `ring at` / `dome at` combat lines and the probe (87900) give the centre);
+# AS2 by presses (J J, then SP SP: the ring snaps round him, the dome on it) at 1.4 m; 爆炎 (87600, its entry pose let run) NS2a > NS2b (the
+# dome at once) at 5 m and 1 m, and its AS2. Heat 0 / 25 for the segments that pay (T0 / T2). The behind camera, then the side one (2109).
+# PHONE: the deck on (87901). Stills tests/shots/duel-j1-*.png.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --script tests/scripts/duel-yama-j1.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --mobile --size 390x844 --script tests/scripts/duel-yama-j1-phone.json
+YAMA_J1 = (   # name, setup, start, ((frame, still) ...)
+    ("lance", (87090, 87302), 87413, ((24, "a"), (32, "b"))),
+    ("ring1m", (87010, 87302), 87414, ((18, "rise"), (30, "a"), (60, "b"))),
+    ("ring5m", (87050, 87302), 87414, ((18, "rise"), (30, "a"), (60, "b"))),
+    ("dome1m", (87010, 87302), 87415, ((19, "hit"), (22, "boom"), (28, "c"), (40, "d"))),
+    ("dome5m", (87050, 87302), 87415, ((19, "hit"), (22, "boom"), (28, "c"), (40, "d"))),
+)
+def yama_j1_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for name, setup, start, frames in YAMA_J1:
+            for h in ((0,) if name.startswith("ring") else (0, 25)):
+                a = scene(f"{name} heat {h} {cam}", setup + (87500 + h,) + deck) + 0.3
+                ev.append(cmd(a - 0.05, setup[0])); ev.append(cmd(a, start)); ev.append(cmd(a + 21 / 60, 87900))
+                for f, n in frames: ev.append(shot(a + f / 60, f"j1-{name}-{n}-h{h}-{cam}{sx}"))
+                t = a + 1.8
+        for g in ("", "-gokuen"):
+            a = scene(f"AS2{g} {cam}", (87014, 87302, 87500) + ((87600,) if g else ()) + deck) + 1.6   # (爆炎's entry pose over by then;
+            ev.append(cmd(a - 0.1, 87014))                                                            #  set down again: a stray step)
+            ev.extend(tap(a, "KeyJ", 0.05)); ev.extend(tap(a + 0.25, "KeyJ", 0.05)); sp(a + 0.45); sp(a + 0.8)
+            for f, n in ((14, "snap"), (26, "ring"), (40, "b-hit"), (44, "b-boom"), (52, "b-c")):
+                ev.append(shot(a + 0.45 + f / 60, f"j1-as2{g}-{n}-{cam}{sx}"))
+            ev.append(cmd(a + 0.75, 87900))
+            t = a + 2.6
+        for d in (50, 10):
+            a = scene(f"gokuen NS2a NS2b {d / 10:g} m {cam}", (87000 + d, 87302, 87600) + deck) + 1.6
+            ev.append(cmd(a - 0.1, 87000 + d)); sp(a); sp(a + 0.5)
+            for f, n in ((24, "lance"), (47, "dome-hit"), (50, "dome-boom"), (58, "dome-c")):
+                ev.append(shot(a + f / 60, f"j1-gokuen{d // 10}m-{n}-{cam}{sx}"))
+            t = a + 2.4
+        t = scene(f"out {cam}", (87050, 87500)) + 1.2                          # (heat 0: back to the Shikai at his next neutral)
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-j1", yama_j1_script())
+write("yama-j1-phone", yama_j1_script(True))
+
+# Yamamoto J3 (DUEL_YAMA_CORE §28.5): stance 3 (撫斬) at rest in the Shikai and in 爆炎 (87600: heat 100), the behind camera then the SIDE
+# camera (2109), two phases of its loop each; 爆炎's NS2b (87474, its own clip since J3) as an 8-frame strip from the S4 ring scene's setup,
+# both cameras. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-j3.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --mobile --size 390x844 --script tests/scripts/duel-yama-j3-phone.json
+def yama_j3_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for form, extra in (("shikai", ()), ("gokuen", (87600,))):
+            a = scene(f"stance 3 {form} {cam}", (87500, 87030, 87303) + extra + deck) + 1.2
+            ev.append(shot(a, f"j3-stance3-{form}-a-{cam}{sx}")); ev.append(shot(a + 0.7, f"j3-stance3-{form}-b-{cam}{sx}"))
+            t = a + 1.0
+        a = scene(f"gokuen NS2b {cam}", (87500, 87050, 87302, 87600) + deck) + 0.8
+        ev.append(cmd(a, 87474))
+        for f in (1, 4, 7, 10, 13, 15, 16, 18):
+            ev.append(shot(a + f / 60, f"j3-ns2b-f{f:02d}-{cam}{sx}"))
+        t = a + 1.5
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append(cmd(t, 87500)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-j3", yama_j3_script())
+write("yama-j3-phone", yama_j3_script(True))

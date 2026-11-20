@@ -123,7 +123,7 @@ NA: J1 HISEN S14 (the blade drawn back, then a wrist snap; 34, 1.0 m, flinch) ->
 | Pointer | Stance | NS a / b / c | AS n | Kikon |
 |---|---|---|---|---|
 | 1 不知火 | the blade drawn back level at the hip, a flame spiral on it (`ya-shiranui`'s charge pose) | a: the thrust casts a spiral of fire along the lane (wave, 8 m; S22, 70) / b: the "unknown fire": a column erupts at the victim's bearing 4-7 m ahead, the point sampled at S, the eruption 12 f later inside an active window of 12 (S16, 70; `ya-f2`) / c: the tornado, a wide spinning column that travels (wave 3.5 m wide; S18, 90, knock-back; `ya-sig`) | AS1 (1): the spiral thrust point-blank, steals flash-step (50; `ya-shiranui-throw`) | the tornado swallows him: columns close in |
-| 2 城郭炎上 | the arm out, blade pointed at arm's length, held (`ya-enjo`) | a: the stream, a lance of fire along the lane (wave, 10 m; S20, 40) / b: the ring lands round the victim at his bearing (3-8 m, radius 1.6 m; lives 90 f; one ring at a time; S16; see Q1) / c: the walls close into a dome on the ring, or at once at his bearing if no ring stands (S18, 80, crumple; `ya-f3`; an NS hazard: J / SA cancel it) | AS2 (2): the ring snaps round him at contact (40, stagger) -> the dome erupts (60, launch) | ENNETSU JIGOKU: the pillars rise from the floor round both, a dome of fire (A) |
+| 2 城郭炎上 | the arm out, blade pointed at arm's length, held (`ya-enjo`) | a: the stream, a lance of fire along the lane (wave, 10 m; S20, 40) / b: the ring lands round the victim at his bearing (0-8 m since J1, §28.3; radius 1.6 m; lives 90 f; one ring at a time; S16; see Q1) / c: the walls close into a dome on the ring, or at once at his bearing if no ring stands (S18, 80, crumple; `ya-f3`; an NS hazard: J / SA cancel it) | AS2 (2): the ring snaps round him at contact (40, stagger) -> the dome erupts (60, launch) | ENNETSU JIGOKU: the pillars rise from the floor round both, a dome of fire (A) |
 | 3 撫斬 | upright, both hands on the pommel of the planted blade, as on the cane (reads apart from 1's low hip draw) | a: the walking jab of the point (S18, the blade pulled from the floor as the tell; 40, 1.6 m, slide 1.0) / b: the closing step-cut (S12, 50, slide 2.0) / c: NADEGIRI, one snap, the hit on S, the split drawn 24 f later (S14, 110, crumple; `ya-nadegiri`; see Q2) | AS3 (3): back cut (40) -> turning cut (50) -> NADEGIRI (110, knockdown) | he lowers the blade and turns away; the victim splits (A, ch. 338) |
 
 SA (J in an NS gap, any pointer): **TAIMATSU**, the radial halo of fire round him (360 deg, r 2.4 m; 55; the turn move's armour window;
@@ -2927,3 +2927,224 @@ The user, 2026-11-20, after playing v462:
 | J3 | S5 fixes, 爆炎 NS2b's own clip, stance 3's blade | `yama-cine.lisp`, its stills, `yama-art.lisp` clips |
 
 Merged one at a time; the looks gate re-based after each.
+
+### 28.3 As built (J1)
+
+**The looks gate's expected diff (written before the run).** BASE = a dist of main at the S5 merge (`looks-base-s5m`, code-equal to
+d7d17b1a). J1 touches only Yamamoto: three hazard looks (NS2a's wave, the ring, the dome) and `:near` on NS2b / NS2c / 爆炎 NS2b. Expected:
+- Every scenario without Yamamoto (KH, HK, II, IK, cine-ken, cine-ko, cine-ichigo, fx-a, mobile) and `menus` (his select still draws no
+  hazard): byte-identical, sim lines as BASE's.
+- `cvc-yk` (seed 28): its sim moves only from the first NS2b / NS2c / 爆炎 NS2b fired with the victim inside 3 m (the ring or the dome
+  now lands round him, so hits and the hash lines may change from that tick); AS2's ring snaps on the victim and its dome lands on the
+  ring, so AS2 alone moves nothing. Its looks move on any still with a ring, a dome or an NS2a wave on screen. S5 recorded his first
+  Kikon (J1 J2 > AS2) at tick 4010, so at least `cvc-yk-w3-0` (tick 6898) can differ; `intro`, `start`, `w0-0`, `w1-*` and `w2-0` differ
+  only if one of those looks is in frame or an NS2b / NS2c inside 3 m came before them (read from the logs' `ring at` / `dome at` lines).
+- **Result**: 82 / 83 byte-identical (noise floor 0). `cvc-yk-w3-0` differs (tick 6898, after the divergence), `cvc-yk` sim lines differ
+  from `t=3600` (`t=600` .. `t=3000` and the match line identical): BASE's 4th NS2b (tick 3444) landed its ring at (1.85, -4.99), clamped
+  3 m out; with `:near 0` the route plays differently from there (the CPU's full-sim rollouts read the move too). Every other scenario:
+  identical, fighters and sim lines as BASE's. As predicted.
+
+**Task A: the ring that misses (sim).** `:near 3.0 -> 0.0` on `:ya-n2b`, `:ya-n2c`, `:ya-b-n2b` (AS2b / 爆炎 AS2b had 0 already);
+`ya-bearing-point` itself unchanged (its host test passes explicit near / far). `+ya-dome-near+` (YAMA-RING-CLOSE's predicted spot,
+host-checked against `:ya-b-n2b :near`) 3 -> 0. The script (`tests/scripts/duel-yama-j1.json`, debug 87010 / 87050: P1 at x -d/2, P2 at
++d/2 on z 0; combat lines `ring at` / `dome at`):
+
+| Scene | P2 at x | before (main, = batch 1) | after (J1) |
+|---|---|---|---|
+| NS2b, 1 m | 0.50 | ring at 2.50: P2 2.0 m from its centre, standing on the band, so the ring burned him twice on landing (2 x 20) but did not enclose him | ring at 0.50: round him; no hit on landing (inside the band is free, Y8); he burns when he crosses it |
+| NS2b, 5 m | 2.50 | ring at 2.50 | ring at 2.50 (unchanged) |
+| NS2c alone, 1 m (heat 0 / 25) | 0.50 | dome at 2.50 (hit 80: the dome's reach plus his hurt radius caught him at 2.0 m) | dome at 0.50 (hit 80) |
+| NS2c alone, 5 m | 2.50 | dome at 2.50 | dome at 2.50 |
+| 爆炎 NS2a > NS2b, 1 m | 0.50 | dome at 2.50 (hit 80) | dome at 0.50 (hit 80) |
+| 爆炎 NS2a > NS2b, 5 m | 2.50 | dome at 2.50 | dome at 2.50 |
+| AS2 (J J > AS2a > AS2b), 1.4 m | (0.75 after the hits) | ring 0.75, dome on it | the same (AS2 was already 0) |
+
+Docs: §7.1's NS2b cell now reads 0-8 m; the code comment and YAMA-RING-CLOSE's docstring too. The 3-8 m in §11's table (line ~225),
+§13's (~367), §21.2's SL6 row and §25.1's NS2b row are as-built records of their batches, superseded here.
+
+**Task B: batch 1's looks back (presentation).** Reference = 05acf777 (v446), built in a scratch worktree and shot with the same script
+as main and J1 (stills `tests/shots/duel-j1-*.png` = J1, `duel-j1-old-*.png` = batch 1, untracked; sheets
+`tests/shots/duel-j1-sheet-behind.png` / `-side.png`, columns batch 1 | main | J1). In `yama-look.lisp`, same names and signatures:
+- `yama-lance-look` (NS2a): batch 1 had no lance; NS2a drew `yama-wave-look` -> `vfx-fire-wave`, a 2.6 m FIRE crescent wall as wide as
+  the box. Main's SL4 was a 1.1 m-high lens: it lost the force, so the wall is back (its body re-ported: EMBER backing wall 20 % taller,
+  6 scalloped tongues, edge-on tongues, the lens at 1.2 m, scorch, T光 base lines, scraps; envelope 1 3 hold 18 with the white burst on
+  its first drawing; it sinks to 0.4 passing the lens). One change: the crescent's middle sits on the box's front (+0.5 m), its bowed ends
+  inside the box. The `*wave-ghosts*` erosion after a hit is not ported (draw-side state).
+- `yama-ring-look`: six `%ya-pillar` columns (batch 1's `vfx-fire-pillar` as a 0 B macro: EMBER backing, FIRE column, the twisting stripe,
+  the 6-tongue crown, the foot scorch, scraps) 1.4 m high on the circle, plus SL5's EMBER band ±`+ya-ring-band+` on the floor (the
+  footprint: it burns between the pillars too). The pillar base half-width is clamped 0.32 -> 0.25 (inside the band) and the foot
+  scorch ring shrunk to stay inside it. Batch 1's pillars rose from nothing at age 0; they now stand one drawing up on the first frame
+  (§22.2's hit frame: AS2a's snap lands the ring in hitstop). The charge: 2 hits full, 1 hit x0.7 high and x0.8 thin, 0 only the band.
+- `yama-dome-look`: batch 1's Jokaku Enjo from its seethe on, as a function of the hazard's age (no `*dome-last*`, no `stamp`): ages
+  0-2 the closed three-tier dome (12 + 9 + 6 FIRE tongues leaning in, EMBER backings on the outer tier, boiling scraps, 1.15 r high), from
+  age 3 the detonation drawn from `age - 3`: batch 1's `:boom` (the white flash, the 14-spike FIRE star over the EMBER one, the white core
+  for 2 drawings) and its `:ring` FIRE shockwave, the flame / smoke / ember burst emitted by rate over ages 3-5 (batch 1 threw 26 + 10 + 16
+  at once), the 16 m light fading in 9 f. The footprint ring sits inside the disc's edge.
+- Heat: T0 draws batch 1's silhouette as it was (`%ya-up` 1.0: the ring and AS2b's dome are always T0 in the Shikai, and NS2c and NS2a are T0 when no heat is
+  paid, so §21.2's T0 x0.6 / 60 % would have drawn them below batch 1: a deviation from §21.2's T0 row, for 「更有魄力」). T1 / T2 and every 爆炎 segment grow x1.15 /
+  x1.3 (`%ya-up` from `%ya-hf`) and take `%ya-core`'s white core (30 / 60 % of the width) inside each pillar, tongue and the wave; T2 keeps
+  the dome's EMBER scorch disc. Palettes FIRE / EMBER / HIT only (the soft-flame pass's flame class).
+- Probes (debug 87449): new rows `ring-rise` (age 1), `ring-t2`, `dome-seethe` (age 0), `dome-seethe-t2`, `dome-boom` (age 3),
+  `dome-boom-t2`, `lance-flash` (age 0); all read **0 B**, as do the old rows (`lance-t-*`, `ring-hits-*`, `dome-t-*`, `ring-close`). (A
+  first build read 240 B on the lance: `(* 2f0 (hazard-size hz))` and `(+ (hazard-x hz) ...)` went through generic arithmetic; the reads
+  are now bound typed first. The probe macro binds `D0` / `F0` / `N0` itself: a stand-in named `d0` was shadowed by `*fx-dropped*` and
+  stopped the page; renamed.)
+
+**Checks**: host tests 4262 ALL PASS (the FK reach test and the looks' no-writes walk included); pkgcheck clean but the old `DUEL::APP`;
+`./build.sh duel` 0 (vendor restored); smoke 0; `--cvc` II / IK / KK identical; looks gate as above.
+
+**Open (for the lead and the user)**:
+- The white burst on the wave's first drawing and the dome's white flash / core are batch 1's, kept as the user's reference, though
+  §21.2 gives white to heat alone.
+- At 1 m the ring and the dome now sit round both fighters (he stands 1 m from the centre): the dome and its detonation cover Yamamoto
+  from the behind camera for ~10 f. The cost of the fix; the stills `duel-j1-dome1m-*`.
+  On the phone (390 x 844, `duel-j1-*-phone.png`, sheet `duel-j1-sheet-phone.png`: batch 1 | J1) the 1 m ring's near pillar stands at
+  the lower left of the frame and the 1 m dome fills it; the 5 m ring and dome read as batch 1's.
+- NS2b at point blank no longer burns on landing (main's off-centre ring caught a 1 m victim on its band for 2 x 20); the ring now traps
+  him and burns when he crosses it.
+- 爆炎 NS2b still shows SL5's low tongue ring (YAMA-RING-CLOSE, f12-15) before batch 1's dome: not in J1's scope (J3 gives that move its
+  own clip).
+- The pillars read a little slimmer than batch 1's (base 0.25 for the band, was 0.32).
+### 28.4 As built (J2)
+
+**Looks gate expectation (written before the gate ran).** BASE = `dist/duel` built on main after S5 (`looks-base-s5m`). The garb draws only in the Bankai (西's stance clip with no move, the three
+flares, the 西 Kikon cinematic); `:hellfire` draws whenever 爆炎 (GOKUEN) is on screen. Checked on BASE's own renders of the pinned YK match
+(`--once --only cvc-yk`): Yamamoto is in the Shikai in intro, start, w0-0 .. w2-0 (no bare torso, no scars) and enters the Bankai in w3-0
+with the 東 pointer (旭日刃 on the HUD): no still shows 爆炎, 西's stance or a 西 flare. `%brush-aura`'s default expansion is unchanged (the
+new optional ALL is T only for the garb), so Kenpachi's auras are the same code. **Expected: 83 of 83 stills byte-identical, none listed.**
+
+**Ported** (presentation only; no sim file, no sim number):
+- `vfx.lisp`: the TYBW kit's `:garb` as the macro `%garb-aura` (orange FLAME `%brush-aura` tongues 0.8 h x 9 at 0.34 m and 0.62 h x 6 at
+  0.25 m; two wings of three `toon-ribbon`s at the shoulders, to the camera's left and right; the molten double `%tring` at the feet;
+  `%t-blob` scraps; a warm `%light`; K < 1 fades it, K > 1 flares it taller x K and wider x 1 + 0.3 (K - 1)), used by `vfx-aura`'s new
+  `:garb` case; and the old `:hellfire` case verbatim (7 FIRE tongues behind and at the sides, 8 short FIRE tongues licking at the feet, an
+  EMBER scorch ring, scraps, a light). The FLAME (15) and FIRE (0) palettes are both soft-flame class. Code from `retired-kits`
+  `duel/lisp/vfx.lisp` (= the old repo's last main 1c19d18).
+- **The front flames.** `%brush-aura` takes an optional literal ALL: T draws the camera-side tongues too (the garb's two layers); every
+  other caller's drawing is unchanged. The wings no longer sit inside `%away-from-eye` (they were pushed 0.22 m back along the view ray).
+- **0 B.** The first build read 32 B a garb draw (debug 87448). A probe split it: each `%brush-aura` boxed the floats it binds and never
+  reads (the unused bindings, declared IGNORABLE, were boxed in the generated C; unused ones without the declaration were not): `wpal` whenever WHITE is 0 (8 B, every caller's: Kenpachi's
+  `nomihose` / `oni` / `evolution` rows read 80 B per 10 draws on BASE too) and `el` once ALL is T. `%brush-aura` now binds the eye's side
+  only when it reads it and `wpal` only when WHITE is 1; the computation of every drawn tongue is the same expression as before.
+  Since then every garb / hellfire row reads 0, and so do `nomihose`, `oni`, `oni smoulder` and `evolution` (80 B before).
+- `yama-look.lisp`: `ya-garb` (x z k into `*ya-garb-args*`) and `ya-garb-draw` (one `%garb-aura` expansion, h = `+ya-garb-h+` 1.815 m =
+  1.1 x his 1.65 m hurt height, as `draw-aura` passes a form aura; the scraps on `*ya-rdt*`), so no float is boxed: 0 B.
+  - 西's stance (`yama-stance-look`): `ya-garb` at K 1, the old look's own size (Z-Q1's "stance shrunk" superseded). Still skipped while the
+    西 Kikon cinematic runs (it draws its own).
+  - The flares (`%ya-flare`, NS2a f16 / f26, NS2b S14, AS2b S12): K = fade x (1 + 0.9 x growth), the growth 0 .. 1 over the pulse's first
+    2 frames, so the garb flares to 1.9 x (the old "garb-flare" probe's K) and, as the fade runs, shrinks back to its stance size and then
+    fades. The 2.0 m molten ring and the white-hot first two frames are kept.
+  - The 西 Kikon cinematic (`yama-cine.lisp` `%ya-garb`, body only; the call and its shots untouched): the same K from its growth G and
+    presence; its soles' ring kept, its own light dropped (the garb brings one).
+- `:hellfire` now draws: the 爆炎 kit's `:aura :hellfire` reaches `vfx-aura` through `draw-aura` as before; until now the keyword fell
+  through to the function case and drew nothing.
+
+**Removed** (everything that only served Z1's mantle): `*ya-mantle-keys*`, `*ya-skirt-keys*`, `ya-mantle-sample`, `ya-mantle-table`,
+`*ya-mantle*`, `*ya-skirt*`, `*ya-mt-args*`, `*ya-mt-buf*`, the `ya-mantle` / `%ya-mt-at` / `%ya-mt-shape!` / `%ya-mt-fill` / `%ya-mt-band`
+macros and `ya-mantle-draw` (yama-look.lisp, ~250 lines); `%ya-flare`'s unused RX RZ; 87448's mantle vertex-count / eye-angle line; the
+mantle sentence of `%ya-cons-per`'s docstring (the per-run rewind stays: S5's rows rely on it); debug 87491-87493 and `yama-orbit-cam`
+(yama.lisp; the `(87000 87999)` range itself stays), its clause in DUEL_GAMEPLAY's 87000-87999 row (now "87491-87493 free"); the `yama-z1`
+block of `tests/scripts/duel.py` and `duel-yama-z1.json` / `-phone.json`; the mantle's 7 host checks (`tests/duel-rules/art.lisp`).
+Left: the engine's `*msaa-samples*` export (Z1 exported it; an engine file, no other user now).
+
+**Checks** (final build; presentation only, no sim file touched):
+
+| Check | Result |
+|---|---|
+| Host tests (`tests/duel-rules-test.lisp`) | 4255 checks ALL PASS (Z1's 7 mantle checks gone with it) |
+| `tools/pkgcheck.sh duel` | 0 undefined, 0 engine redefinitions; the one `DUEL::APP` note is BASE's |
+| `tests/debug-ranges-check.py` | 89 ranges, 0 errors |
+| Smoke (`run.mjs --secs 8`) | exit 0 |
+| `style-gates.py cvc dist/duel` | PASS II IK KK (identical to the reference) |
+| Looks gate, BASE = `looks-base-s5m`, no `--keep-base` | 83 of 83 byte-identical, noise floor 0, every scenario's sim lines identical (cvc-yk's 12 too): as written above |
+| 87448 / 2328 / 2390 | every garb row 0 B (`garb`, `garb-flare`, `garb-throw`, `flare`, `west-ignite` .. `west-column`; vfx `garb`, `garb-flare`, `hellfire`), `fx-dropped 0`; `south-dead` / `-pile` / `-burst` 80 B in a fresh scene, as on BASE |
+
+**Stills** (`tests/shots/duel-j2-{before,after}-*.png`, untracked; before = BASE with the Z1 mantle, after = J2):
+`stance-` / `ns2a-` / `ns2b-` / `as2b-` × `behind` (the match camera) and `side` (SIDE); `f-…-q45` (45 deg off his front: the
+orbit camera, shot on a J2 build before 87491-87493 were removed; the `f-…-front` ones have Kenpachi between the lens and him, so the
+frontal evidence is q45 and the cinematic's f62 / f146); `cine-f54 … f170` (the 西 Kikon); `blaze-behind` / `-side` (爆炎; BASE draws
+nothing there); `-phone` versions (390 x 844, the behind camera); `duel-j2-sheet.png` / `duel-j2-sheet-phone.png` (before | after).
+The desktop after stills come from the J2 build before the `%brush-aura` binding fix (the same drawing expressions; the looks gate shows
+the fix moves no pixel of the other callers); the phone after stills from the final build.
+
+**Open points for the user:**
+- In the 西 Kikon's close frontal shots (f62, f100, f146) the flared garb (K about 1.86) covers him whole: the front tongues stand
+  between the lens and his body, so only the column of flame shows. From the match camera (behind) his back and head show between the
+  tongues, and from the side he reads inside them. Nothing was faded (the user did not ask for it); if the cinematic should show him,
+  the knob is the cinematic's K (`%ya-garb`) or the front layer's height.
+- (Closed by the follow-up below: the garb is 西's form aura now, drawn through every move under 西.)
+- `:hellfire` keeps the old rule (behind and at the sides only); the user's front-flames request was for 殘日獄衣.
+- 87491-87493 are gone, so there is no front camera on P1 now; a front still needs P2 off the line or a cinematic frame.
+- The manual's Bankai sentence on the mantle and STYLE_STORM_DESIGN §15.3's inventory (`%ya-garb`, the mantle) are the lead's to update.
+
+**Follow-up: the garb as 西's form aura** (the lead's review of 798b3789, 2026-11-21: the original drew the garb as the West form's aura
+through every 西 move, so draw it whenever he is in the Bankai under 西).
+- `yama-draw` (yama-art.lisp, the :draw hook) calls `yama-garb-at` (K 1) every frame he is in the Bankai with pointer 2 (西): the stance,
+  NA, every segment and AS, the Kikon's startup. Left out while a flare draws it flared (`yama-bk-flare-p`: the same windows
+  `yama-bk-moves` now uses, NS2a f16-35, NS2b S14-23, AS2b S12-21; the flares still peak at 1.9), while the 西 Kikon cinematic draws its own,
+  while his body is hidden (model alpha <= 0.5) and while a cinematic holds his aura off (`*aura-off*`, as `draw-aura`).
+- The form garb stands on the floor under his pelvis joint, not at his sim position: NS2c's and AS2a's clips carry his body about 1 m
+  ahead of it, and the first stills showed the garb left behind him (the old form aura, drawn at the sim position, had the same gap).
+  The flares and the cinematic still draw at his sim position, as before.
+- `yama-stance-look` keeps only 南's cracks; 87448's `garb` row measures `yama-garb-at`.
+- Looks gate expectation (written before the gate ran): BASE's YK stills show the Shikai and, in w3-0, the Bankai under 東 (旭日刃 on the
+  HUD); the select models are the base form; no other scenario has Yamamoto. **Expected: 83 of 83 byte-identical, none listed.**
+- Checks on the follow-up's build: host tests 4255 ALL PASS; pkgcheck clean (BASE's `DUEL::APP` note); smoke exit 0; `cvc` PASS II IK
+  KK; looks gate vs `looks-base-s5m` (no `--keep-base`) 83 of 83 byte-identical, noise floor 0, every scenario's sim lines identical
+  (cvc-yk's 12): as expected; 87448 / 2328 / 2390 every garb / hellfire row 0 B (`garb` now measures `yama-garb-at`).
+- Stills: `tests/shots/duel-j2-form-j1.png` (J1 mid-swing), `-ns2c` (NS2c, no flare: the K 1 garb with him through the lunge), `-as2a`
+  (AS2a's grab), behind camera, and `-phone` (390 x 844); `duel-j2-form-sheet-phone.png`. In J1 on the phone his torso leans out of
+  the garb's top-front (the garb sits on the floor under his pelvis).
+### 28.5 As built (J3: S5's open looks, 爆炎 NS2b's own clip, stance 3's blade, 2026-11-20)
+
+The user, 2026-11-20: 「其他繼續修」 (§28.1 (4)). All six items are presentation only: no move frame, hit volume, hazard or tick changed;
+撫斬 keeps its 156 f, so the Kikon wiring (+60 ticks) and the YK sim lines stay as they were. References viewed first (the user's rule):
+`.refs/yamamoto/sheet_EnnetsuJigoku.png` (the columns of 11.2-19.6 s: near-constant width, ragged licking sides, dark gaps between),
+`sheet_J__kakuEnj__.png` (the tongues inside a wall of flame), `sheet_Taimatsu226.png` (flame wrapping one body), `v_338a.jpg` and
+motion-refs §1.3's `HitotsumeNadegiri.gif` order (tell, the unseen cut, the lowering from behind, the late split).
+
+| # | Item | What changed (code) | Kind |
+|---|---|---|---|
+| 1 | 不知火's columns read as cones; the tornado as stacked rings | `%ya-cpillar` (yama-cine.lisp, used only by the two S5 cinematics) rebuilt as a **column of flame**: nearly as wide at the top (0.6 R) as at the foot (it was R → 0.22 R, the cone), an EMBER backing, two FIRE masses side by side swaying out of step (ragged sides), batch 1's EMBER stripe twisting up the front (VFX-FIRE-PILLAR's spiral), the tier's core narrower (25 / 42 %, was 30 / 60: a seam, not a white wedge), two tongues licking off the sides and three flaring out of the top, re-drawn on twos (about 450 vertices, was 72). 不知火's columns also grow in width with their rise (no squat barrels mid-rise). The tornado (f124-166) is **one twisting body**: a FIRE mass behind the victim over an EMBER rim (camera-facing, widening 1.3 → 2.8 m half-width up its 10 m), six strands wound 1.3 turns floor to top on a funnel widening 1.0 → 2.6 m (FIRE T2 on the camera's side, EMBER on the far side), tongues licking off its rim; the victim's black silhouette reads on the mass between the turns | look |
+| 2 | the composed 焱 lighter than 熱地獄 | `tools/glyph-bake.py`: a COMPOSED entry takes a BOLD (font units): the component's outline is thickened (pathops stroke, round joins, unioned) before its copies shrink. 焱 = three 火 + 40 on boxes (250 0 750 470), (10 465 500 985), (500 465 990 985) (was + 0 on 470 x 455-505 boxes). Mean stroke (2 x area / perimeter, 1/1000 em): 焱 45.1 → **63.1**; 熱 61.8, 地 75.5, 獄 57.3; ink area 176 k → 262 k (熱地獄 285-323 k). `glyphs.lisp`: only 焱's line changed (161 glyphs, 20351 points); its 9 polygons are still 3 x 火's (the host check) | bake |
+| 3 | 撫斬's still face and sheathing run long | **the length kept (156 f)**, the frames re-distributed, so the wiring and every sim line stay: the face 16 f (f12-28, was 28: f12-40), over the shoulder 28-40 (12 f, as before), the cut f40-41, the turn and the lowering f44-84 with `ya-b-n3c` at x1.0 (40 f, was 54 f at x0.74), the seam f84 (8 f, was 6), the split f92-128 (36 f, was 24: the V of fire burns to f132 and gutters into the wide), the wide f128-156 (28 f, was 16). The look's windows moved with them (the hairline f40-41, the seam f84-122, the V f92-144, the scorch from f144); `:hold` 64 (the turn). Shortening it instead would have cut the payoff the user did not mention and made a sim change | timing |
+| 4 | 焱熱地獄's near pillars as stubs side-on | the stubs were S5's dev 3 (`ws`, 12-100 % of height between the lens and the pair). Now the floor pattern and the twelve marks turn with the pair's line (TH0 = the A→V bearing; marks at TH0 + 15° + 30° k, spokes at TH0 + 45° k), so the side-on shot (SHOT-PAIR: the camera on the line's normal) always looks through the gap between the pillars at 75° and 105°, and **every pillar stands full height** (6 m, x1.2 in 爆炎): in landscape (5.5 m) the two nearest the lens frame the pair at the screen's edges. In portrait (7.5 m) those two stood on the lens's line to the actors and hid both (the first portrait stills), so a pillar on the lens's line to either actor is left out (`%ya-sight-blocks`: between them, 0.5 m clear of each end, within 0.45 m (its FIRE half-width) + 0.3 m (the actor's) x its share of the distance, on the floor plane): the portrait shows both between full pillars; in the landscape stills the right-hand framing pillar stays and the left one, just inside the rule (the camera is not exactly on the normal), is left out | look |
+| 5 | 爆炎 NS2b played NS2c's clip (x18/16) | its own clip `ya-b-n2b` (16 / 2 / 20, yama-art.lisp; the move's `:clip :ya-b-n2b` for `:clip-s 18`, yama.lisp line 155 only: J1's `:params` line untouched): frame 0 爆炎 NS2a's landing (`:ya-n2a-land`, as the Shikai's NS2b), the wrist flicks one circle with the point f2-6 (a key a frame: "the ring closes at once", YAMA-RING-CLOSE f12-15), the blade swept point-up overhead f7-11 (NS2c's rise at twice its speed), held f11-13 trembling, chopped f14-15 (NS2c's two snaps), the level point on S (`:ya-n2c-hit`), S+A = ENNETSU's frame 0 exactly. Link jumps (the tip, m): **NS2a S+A > NS2b f0 0.00** (was 0.15 after S3, 1.20 before), **NS2b S+A > ENNETSU f0 0.00** (was 0.18 → 0 by S4's frame-0 match); its f1-4 0.02 0.02 0.32 0.33 (the flick). Root yaw ≤ 12.8°. Host: the clip on its move's frames (in S4's own-clip list), cast checks f11 / f13 the blade overhead (y 2.68) and f16 the level point 1.83 m ahead at 1.30 m | clip |
+| 6 | stance 3's blade barely visible from behind | both a clearer silhouette and an ember: `:ya-st-nade`'s hand `:side` 13.5 → 33.5 slants the blade out, the point on the plaza **0.50 m right, 0.32 ahead** (y 0.02; was 0.28 / 0.22, behind the haori's edge from the behind camera); and YAMA-STANCE-FIRE code 3 (YAMA-DRAW, out of a move in `:ya-st-cane`, not in an S5 cinematic): still **no fire**, a thin EMBER line down the blade (0.016 → 0.010 m, pushed 0.03 m toward the eye) and a small EMBER ring (r 0.07) where the point meets the plaza, breathing on twos. NS3a starts from the same pose (its frame 0 is `:ya-st-nade`), so stance 3 > NS3a stays 0 at f0; its f1-4 hand `:side` eased 27.5 / 19.6 / 11.2 / 3.4 (was 11.5 / 8.6 / 5.2 / 1.4), so the tip's jumps f1-4 read 0.20 0.28 0.31 0.30 (0.40 at f1 before the easing; 0.16 0.22 0.25 0.26 before J3); NS3a's hit frames and FK row unchanged (1.68 / 1.60). The host cast check now reads x 0.45-0.55, y ±0.05, 0.2-0.4 ahead | pose + look |
+
+The looks gate's expected diff, written before the run (BASE = the merged main's dist, `looks-base-s5m`; no `--keep-base`): every sim
+line identical (presentation only, 撫斬 at 156 f); every still identical except a cvc-yk still with P1 idle in pointer 3 (the slanted
+blade and its ember), mid-爆炎 NS2b or in NS3a's first frames, or inside an S5 cinematic (§26.0 found none of the YK stills inside one).
+
+Checks (on the final head):
+
+| Check | Result |
+|---|---|
+| Host tests | `duel-rules-test.lisp` 4266 checks ALL PASS (main 4262; +3 NS2b cast checks, +1 its S+A = ENNETSU's frame 0; NS2b moved from the scaled check into the own-clip list; stance 3's range re-written). Its printed lines against d7d17b1a's: only the stance 3 tip line moved, plus the new NS2b and NS3a lines (every FK row, every other cast check as before) |
+| pkgcheck | as main: the one `DUEL::APP` line, 0 redefinitions, 0 undefined |
+| Native trials (`combo-trial.py --log`, every line against the same files at d7d17b1a) | `yamamoto-core` 241, `-blaze` 268, `-bankai` 513 lines: **identical** |
+| `--cvc` | `tests/style-gates.py cvc dist/duel`: II / IK / KK PASS (33 / 28 / 27 lines) |
+| The looks gate | **PASS, 83 / 83 stills byte-identical**, every scenario's fighters and sim lines PASS (cvc-yk 12), noise floor 0 (1396 s wall at 4 jobs): as expected; no YK still shows stance 3 or 爆炎 NS2b. Run again after the NS3a easing: the same, 83 / 83 (1358 s). The portrait pillar rule came after it: it runs only inside 焱熱地獄, which no looks scenario plays |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`); `run.mjs --secs 8` exit 0 |
+| 0 B a frame | debug 87449 in the Shikai and in 爆炎 (the S5 stills run): every row 0 B, the new `shiranui-124` (the columns and the tornado at once), `nadegiri-40 / 86 / 100 / 130` (its re-timed busiest frames, were 52 / 112 / 124 / 150) and `stance-3-ember` included; 87448 every row 0 B; `fx-dropped 0` on every stats line of the stills runs |
+
+Stills (untracked; the before set rendered from the BASE dist with the same scripts, the old 撫斬 beat frames for its before row):
+`tests/shots/duel-j3-<shiranui|ennetsu|nadegiri>-sheet[-phone].png` (rows: before Shikai, after Shikai, before 爆炎, after 爆炎),
+`duel-j3-stance3-sheet.png` (before over after: the Shikai and 爆炎, behind and side), `duel-j3-ns2b-before-after-sheet.png` (8 frames,
+side camera; `duel-j3-ns2b-sheet.png` both cameras after), the singles `duel-j3-before-*.png`, `duel-j3-stance3-*`, `duel-j3-ns2b-f*`, and
+the S5 script's `duel-yama-s5-*` (re-shot). The J3 script: `tests/scripts/duel-yama-j3[-phone].json` (`tests/scripts/duel.py`'s
+`yama_j3_script`); `duel-yama-s5[-phone].json`'s 撫斬 beats moved with the re-timing (b1 f20, b2 36, b3 40, b3b 42, b4 64, b5 84, b5b 88,
+b6 104, b7 146).
+
+Open (for the lead and the user):
+- The 爆炎 NS2b strip's labels run about 2-3 frames behind the move frame (the stills land after the start command's step): the ring is
+  already drawn in "f10", the chop in "f13"; the clip's own frames are as keyed (the host cast checks).
+- 爆炎's 焱熱地獄 b5 still (f134, a held manga frame) shows a large black shape the before still did not. Inferred, not proven: a random
+  layout (the manga frame's or the shatter's shards near the lens) read from the cosmetic stream, whose count moved with 撫斬's re-timing
+  earlier in the same script; the Shikai row, which runs before the re-timed 撫斬, is unchanged there. In play it lasts 10 f.
+- The first BASE stills run hit run.mjs's 900 s wall timeout at virtual 42 s on the loaded machine (every still after that was taken at
+  once, invalid); all the before / after runs were re-made with `--timeout 20000`.
+- The in-game SL3 tornado (NS1c, `yama-tornado-look`) still draws stacked bands: out of J3's scope (the user named the cinematic).
+- Stance 3 now has an ember, which §21.3 kept out ("no fire at all"): it is EMBER (a dull line, no FIRE, no tongues), the S2 lead's
+  anticipated option (§23.10).
+- `yama.lisp` line 155 (爆炎 NS2b's `:clip`) sits next to J1's `:near 0` on line 156: a merge may show them as one hunk.
