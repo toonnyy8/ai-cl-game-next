@@ -849,7 +849,7 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
         (%away-from-eye (tx ty tz) 0.04f0
           (toon-ribbon (tx ty tz) (lx h lz) ((* 0.09f0 p) 0f0) :heat (0.3f0 0.12f0) :seed (- sd (* 7f0 (+ f 1f0))) :wob 0.25f0 :pal +pal-fire+
                        :k 0.95f0 :ph (+ dr f) :sway 0.03f0 :segs 5))))
-    (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.55f0 0.25f0 0.25f0 1f0 0.5f0 0.2f0 0.15f0 0f0 0f0 :segs 1)   ; the warm line
+    (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.55f0 0.25f0 -0.25f0 1f0 0.5f0 0.2f0 -0.15f0 0f0 0f0 :segs 1)   ; the warm line (no white centre)
     (when (> m 0)
       (dotimes (i (n-of (* 10f0 p) rdt))               ; scraps peeling off the swing (inside a move only)
         (let* ((u (rnd-range 0.2f0 1f0)))
@@ -960,10 +960,9 @@ the warm-up made: the steady state; art K4: the fx batches are rewound too, so n
                              (stream-buffer-fill *fx-add*) f1 (stream-buffer-fill *fx-alpha*) f2)))
        (dotimes (i 10) ,form)
        (rewind)
-       (let ((c0 (cons-bytes)) (d1 *fx-dropped*))
-         (dotimes (i 10) ,form)
-         (prog1 (format nil "~a ~d~:[~; (dropped)~]" ,name (- (cons-bytes) c0) (/= d1 *fx-dropped*))
-           (rewind) (setf *fx-dropped* d0))))))
+       (let* ((c0 (cons-bytes)) (d1 *fx-dropped*) (b (progn (dotimes (i 10) ,form) (- (cons-bytes) c0))))   ; (the bytes before the
+         (prog1 (format nil "~a ~d~:[~; (dropped)~]" ,name b (/= d1 *fx-dropped*))                       ;  row's name: a computed
+           (rewind) (setf *fx-dropped* d0))))))                                                         ;  name conses)
 
 (defun yama-look-consing ()
   "Debug 87448: bytes consed by 10 draws of each Bankai look (0 B each wanted), on stand-in hazards mid-life (made before the count),
@@ -1044,8 +1043,8 @@ fire at rest, in a move, in an NS at T2 and in 爆炎, the tier readers, and the
            (bs (let ((v (make-f32 3))) (setf (aref v 0) 0.3f0 (aref v 1) 1.0f0 (aref v 2) -0.1f0) v))
            (tr (let ((tr (make-trail))) (dotimes (i 5 tr) (trail-push tr 0f0 1f0 (- -0.3f0 (* 0.1f0 i)) (* 0.25f0 i) 1.5f0 -1.2f0))))
            (sm (make-f32 12)) (rows nil))
-      (macrolet ((tiers (name f l)                     ; (each a direct call on a LET-bound stand-in: measured inside a LOOP, every
-                   `(progn ,@(loop for i below 3          ;  look read 87 B a call, the loop's, not the look's)
+      (macrolet ((tiers (name f l)                     ; (three direct calls, each row's name made at expansion)
+                   `(progn ,@(loop for i below 3
                                    collect `(let ((h (nth ,i ,l))) (push (%ya-cons-per ,(format nil "~a-~d" name i) (,f h 0.016f0)) rows))))))
         (tiers "spiral-t" yama-spiral-look sp) (tiers "lance-t" yama-lance-look ln) (tiers "column-t" yama-column-look cl)
         (push (%ya-cons-per "column-tell" (yama-column-look tell 0.016f0)) rows)

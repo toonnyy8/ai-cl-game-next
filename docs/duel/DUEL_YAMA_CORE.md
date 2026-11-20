@@ -1831,9 +1831,10 @@ drawn for the whole hitstop. Evidence, a native trace (a scratch runner on the p
 | SA TAIMATSU (melee, S16, a 4 f hitstop) | sf 15 → **sf 16, hitstop 4** → sf 16 for 4 more steps → sf 17 |
 
 So a look keyed on the move frame or the hazard's age does not lag; it **freezes on the hit frame** for the hitstop (9 drawn frames for a heavy
-hit), as the body does. K3's still (§18.7: NS2a's S still showed the pose before S and no flare) has two causes outside the looks: FEEDBACK's
-`(hold-pose att 3)` draws the attacker's cached pose (the frame before S) for 3 frames after his hit, and the still script timed the shot from
-the key press (input latency), so it could land on S-1. The consequence for the looks, built in: **every look's hit frame draws the full hit
+hit), as the body does (the `sa-hit` still shows SL8's halo whole inside the SA's hitstop). K3's still (§18.7: NS2a's S still showed the pose
+before S and no flare): the pose is FEEDBACK's `(hold-pose att 3)`, which draws the attacker's cached pose (the frame before S) for 3 frames
+after his hit (read in the code); the missing flare likely the shot landing on S-1, since the script timed it from the key press (input
+latency; inferred, not traced). The consequence for the looks, built in: **every look's hit frame draws the full hit
 extent** (a hazard's age 0 after its delay, the move's S), since that frame is what the player sees during the freeze: the column is at full
 height on its eruption frame, the dome closed on its first frame, the SA's halo at its reach on S16 (it ignites over f12-15), AS1's burst whole
 on S10. A look that grows on its hit frame would be frozen small while the hit lands at the volume's edge.
@@ -1849,7 +1850,7 @@ half, its root), and an EMBER scorch for 30 f. The floor marks never move with h
 
 | # | Look (function) | Footprint (= the sim's) | As built |
 |---|---|---|---|
-| SL0 | the blade's fire (`yama-blade-fire`, from YAMA-DRAW) | none | the sheath, three tongues on twos and a warm line, `%blade-fire`'s drawing revived on f32vec ends (the `:weapon-r` joint at -0.95 / -0.25 m: the blade's length and base); power 0.5 at rest, 1.0 from a move's start to S+A, the tier's share in an NS, x1.3 and always cored in 爆炎; scraps only inside a move (none at rest: the cosmetic stream is not drawn from there); off on the intro's cane (the model's weapon is not `:ryujin-jakka`), off in 撫斬's stance (the idle clip `:ya-st-cane`), off at alpha < 0.5 |
+| SL0 | the blade's fire (`yama-blade-fire`, from YAMA-DRAW) | none | the sheath, three tongues on twos and a warm additive line (no white centre: negative alphas), `%blade-fire`'s drawing revived on f32vec ends (the `:weapon-r` joint at -0.95 / -0.25 m: the blade's length and base); power 0.5 at rest, 1.0 from a move's start to S+A, the tier's share in an NS, x1.3 and always cored in 爆炎; scraps only inside a move (none at rest: the cosmetic stream is not drawn from there); off on the intro's cane (the model's weapon is not `:ryujin-jakka`), off in 撫斬's stance (the idle clip `:ya-st-cane`), off at alpha < 0.5 |
 | SL1 | NS1a's spiral (`yama-spiral-look`) | the :wave box 2.0 m across, 1.0 m along | two FIRE strands wound round the lane's axis (10 segments each, turning on twos) over an EMBER streak; a rolling head of six tongues whose front is the box's (x + 0.5 m); the tail up to 2.5 m behind, only over the lane crossed; the floor an EMBER strip as wide as the box from its front back under the tail; T2 a scorch over the last 30 f of the lane |
 | SL2 | NS1b's ghost lights and column (`yama-column-look`) | the disc r 1.2 | the delay: an EMBER ring on the disc's edge pulsing on twos, five small flames 0.3-0.8 m over it circling inward (their clock: the move's :delay 13, a host-checked constant); the eruption: one FIRE column as wide as the disc at its foot, tapering to a crown of six tongues, 2.4 m x the tier (2.4 = *YA-FIRE-H*, the hit's height, at T2), EMBER behind, full on age 0; it erodes 12-30; shorter and thinner near the lens |
 | SL3 | NS1c's tornado (`yama-tornado-look`) | the :wave box 3.5 m across, 1.0 m along | four stacked tilted bands of 12 segments turning on twos, FIRE on the camera's side, INK on the far side, gaps between them; the lowest band is the box itself (an ellipse 1.75 m across, 0.5 m along), the upper ones narrow across, up to 3.2 m x the tier; an EMBER stripe climbing between bands; the floor the box as an EMBER patch; T2 the scorch 30 f back |
@@ -1888,7 +1889,9 @@ half, its root), and an EMBER scorch for 30 f. The floor marks never move with h
    left), `vfx-fire-wave` (+ `*wave-ghosts*`), `vfx-fire-pillar`, `vfx-fire-dome` (+ `*dome-last*`), `%blade-fire` / `vfx-blade-fire` (its
    drawing lives on in SL0), and a stray `>>>NEW` line from e0069c2c1. `vfx-fireball`, `vfx-fire-cone` and the stamps stay (not S1's).
 12. **The probes share one row macro**: 87448's local `cons-per` became `%ya-cons-per` (the same expansion: 87448's line is unchanged), used by the
-   new 87449 (`yama-shikai-consing`). Its rows call each look directly (the first build measured them through FUNCALL: 87 B a call at the entry).
+   new 87449 (`yama-shikai-consing`). The row macro now takes the bytes before it formats the row's name: the first builds made the hazard
+   rows' names at run time inside the measured span and read 864-872 B a row of 10 draws (by the name's length: the looks consed nothing);
+   the names are now made at expansion and the count is taken first.
 13. **The SL5 charge states 1 and 0** are in the probe, not in the stills (a crossing needs the victim to walk out of the ring).
 
 ### 22.5 Stills (untracked)
