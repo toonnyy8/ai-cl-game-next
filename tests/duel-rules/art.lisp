@@ -222,7 +222,11 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
               (format t "  stance 3 (ya-st-cane), the tip over its loop: x ~,2f-~,2f y ~,2f-~,2f ahead ~,2f-~,2f~%"
                       (reduce #'min tips :key #'first) (reduce #'max tips :key #'first) (reduce #'min tips :key #'second) (reduce #'max tips :key #'second)
                       (reduce #'min tips :key #'third) (reduce #'max tips :key #'third))
-              (check (every (lambda (p) (and (<= 0.45 (first p) 0.55) (<= -0.05 (second p) 0.05) (<= 0.2 (third p) 0.4))) tips)))
+              (check (every (lambda (p) (and (<= 0.45 (first p) 0.55) (<= -0.05 (second p) 0.05) (<= 0.2 (third p) 0.4))) tips))
+              (let ((n3 (loop for sf from 0 to 4 collect (progn (ya-pose k (kit-move-clip k (mv-clip (kit-move k :ya-n3a))) sf 1.0) (ya-wtip k)
+                                                                (list (aref v 0) (aref v 1) (aref v 2))))))   ; (J3, §28.5: printed)
+                (format t "  stance 3 > NS3a, the tip's jump f1-4 (m): ~{~,2f~^ ~}~%"
+                        (loop for (p q) on n3 while q collect (sqrt (reduce #'+ (mapcar (lambda (a b) (expt (- a b) 2)) p q)))))))
             (dolist (n '(:ya-j1 :ya-n1a :ya-n1b :ya-n1c :ya-as1 :ya-n2a :ya-n2b :ya-n2c :ya-as2 :ya-as2b :ya-n3a :ya-n3b :ya-n3c :ya-as3 :ya-as3b :ya-as3c
                          :ya-sa :ya-ns-strike :ya-as-strike))
               (let* ((mv (kit-move k n)) (c (find-clip (kit-move-clip k (mv-clip mv)))))
