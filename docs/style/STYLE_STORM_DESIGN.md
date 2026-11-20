@@ -2155,3 +2155,99 @@ popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the mo
   The 爆炎 strips come from a separate run with Yamamoto in the Shikai (the first run carried 西's Bankai over into that scene).
 - The `sage`-stepped one-shot envelopes (NS2a's erosion over 18 frames, the dome's detonation) still erode on twos. Smoothing them
   means a flash-drawing rule per envelope; left for now.
+
+### 15.8 As built (the borderline flames, batch F1b, 2026-11-21)
+
+§15.7's first open point: the borderline tongue auras flowed on the Lisp side only. The shader's flame class (`soft_class`) chose by
+palette, so BLOOD / INK / STEEL / HIT / BLUE tongues got no feather, no continuous scroll and stayed out of the 0.8 flame layer.
+Widening it by palette would have swept in Kenpachi's blood trails and the chains. The lead's rule (§15.5): tongue-shaped auras join
+whatever their colour; crescents, rifts, smears, impact stars, blood trails and chains stay out. Presentation only.
+
+**The flag.** `ENGINE:+TOON-FLAME+` = 128, added to a toon call's palette argument the same way the glass level is (+ 32 g). The
+vertex format does not grow: the pk lane already carries palette 0..15 + presence k (the fraction) + 16 fan + 32 g (g 0..3, so
+pk < 128 before), and f32 keeps k to about 1e-5 at pk ≈ 256.
+- Shader (`fx-toon-io.wgsl`): `pk_noflag` strips the 128; every glass decode reads from it (`fxt_shade`, `fs_fx_toon_l`,
+  `fs_fx_toon_fl`). `soft_class` returns true for pk ≥ 128, so every consumer (the opaque cut band, RP_FXT_F / RP_FXT_FL, the
+  RP_FXT_N / RP_FXT_L split, the continuous scroll) treats a flagged shape as flame. For pk < 128 every value is the same float as
+  before.
+- Lisp: the call sites add the constant to the palette; no helper took a new argument (`%brush-aura`, `%tring`, `%tongue` and
+  `toon-ribbon :pal` pass the palette through). Grepped first in both packages; exported from `package.lisp`.
+- Why not the seed lane: its sign is the along flag and |seed| ≥ 1000 the charcoal style; a third band there would have touched
+  the charcoal test in every shape.
+
+**Sites flagged:**
+- `%kikon-aura`: the 7 BLOOD tongues and the BLOOD ring (`vfx-aura :kikon`).
+- `vfx-aura :oni` (Kenpachi's Bankai pillar): the INK tongues and the BLOOD tongues. Inside the layer the glass is ignored (§15.6),
+  so they show at 0.8 rather than glass 3 / 2 (0.75 / 0.5).
+- `vfx-aura :evolution`: the STEEL tongues.
+- `vfx-aura :burst-white / -blue / -orange`: the tongues and the ring (orange is FIRE, in the class already: no change). The
+  flecks (`%t-blob`) keep the bare palette.
+- `vfx-soul-flame`: the two BLOOD ribbons and the white core ribbon.
+- `ichigo-red-wisps`: the BLOOD tongue (its EMBER core was in the class already).
+- `ic-flame-sheets`: the black (BLACK-SMOKE) and the BLOOD sheets (the EMBER core was in already).
+- The white HIT core lines inside every flagged brush aura (Kikon, `:oni`, the bursts): `%brush-aura`'s `wpal`
+  (`HIT + 32 floor(pal / 32)`) carries the glass and the flag alike. The batch's first build stripped the flag there and the stills
+  showed why not: the core went to the scene pass and its tongue to the flame layer, which loads the scene's depth, so at about equal
+  depth the 0.8 tongue was laid over the core (the soul flame's core read pink, the blue burst's cores pale). With both in the
+  layer, in the same batch order, the core draws over its tongue as in the single pass, and the aura as a whole sits at 0.8.
+
+**Left out, deliberately:**
+- The flecks of every aura (`%t-blob`).
+- Kenpachi's REIATSU aura is not flagged: its yellow tongues and ring are in the class by palette; its white cores and
+  Nozarashi's three inner HIT tongues stay out (so the menus' backdrop aura is unchanged). They have the same wash since J0: in
+  `tests/shots/duel-j0b-aura-a10.png` / `-a08.png` (main's checkout) the cores are white at 1.0 and yellowed at 0.8 (open point).
+- `:breaker`'s INK backing under the REIATSU layer: a tongue aura by the rule, but outside the lead's list and under a layer whose
+  cores and backing were never discussed (open point below).
+- Blood trails, chains, smears (the comet), crescents (the black Getsuga, `ichigo-charged-blades`), rifts, impact stars, the
+  breaker ring, the clones' BLOOD ring and 残像's HIT ring: untouched.
+
+**西's moving seed (§15.7 open point).** `yama-nishi-look` bound `seed` from his position (`(+ (* 3f0 px) pz)`) once for the whole
+look; it is the literal 37 now. Every shape in the look takes a constant seed (the molten ring and the footprints through the walk,
+and also the ash, the pass's crescents and the column, whose seeds only moved with him), so the noise flows instead of churning.
+A one-line diff.
+
+**Commits:** 2c69e435 the flag (shader + Lisp, cores stripped); bf84e09b 西's seed; 6eaec9bb the cores flagged (Lisp only).
+
+**Gates** (on 6eaec9bb unless noted):
+- Host tests 4259 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 90, 0 errors. Smoke exit 0. `--cvc` PASS on
+  II / IK / KK (33 / 28 / 27 lines).
+- Consing (debug 2328, 2329, 2390, 2391, 87448, 87449, one run each build): every row the same as main 5bb4a9fb's in the same
+  script: 0 B but `aura crossfading 624` (time-dependent, §15.7) and `south-dead / -pile / -burst 80` (yama look; 80 on main too).
+  2328's `oni` and 2390's `evolution` rows cover flagged `%brush-aura` calls: 0 B.
+- **The flag is inert with the soft flame off** (debug 88000 + 88020 as the defaults). Main 5bb4a9fb and 2c69e435, each built with
+  `*soft-flame*` 0 and `*flame-alpha*` 1 hard-set (never committed), through the looks gate (no `--keep-base`, noise 0): 82 / 83
+  byte-identical. The one: `cvc-ii/w1-1`, 1 px, max diff 21, on the edge of the flagged blue burst aura. Cause: TOON-A sums palette
+  and presence in f32, and at pk ≈ 140 the step is 2⁻¹⁶ against 2⁻²⁰ at pk ≈ 12, so k moves by up to 1.5e-5 and one edge pixel
+  flips. Every unflagged pixel is identical. 6eaec9bb adds flags through the same gated paths (Lisp only) and was not re-proved.
+- **Looks gate** against `looks-base-f1s` (main's dist at 5bb4a9fb), no `--keep-base`, noise 0: 24 differ, 59 byte-identical,
+  16 / 16 sim and fighter lines PASS. Expectation written first (by name and by category):
+  - Differ as named: `cvc-ii/w1-0`, `w1-1`, `w3-0` (the blue burst aura), `cine-ken/ken-bankai-080/120` (`:oni`),
+    `cine-ko/soul-break-030/090` (the soul flame), `fx-a/ichigo-clones` (KESSA's wisps).
+  - Differ by category, each checked by its diff crop: KESSA's wisps (`cine-ichigo/ichigo-awaken-020`, `fx-a/hud-7`,
+    `mobile/deck-ichigo`, `mobile/ichigo-clones`, `mobile/results`), the soul flame over a Kikon-able victim (`fx-a/hud-3`,
+    `mobile/hud-3`, `cvc-kh/w3-0`), Hisagi's white burst (`cvc-hk/w0-0`, `w1-0`, `w1-1`, `w3-0`, `cvc-kh/pause`, `w1-0`, `w1-1`),
+    a white burst on Ichigo (`mobile/hud-6`).
+  - Identical as written: every `menus/*` (the REIATSU backdrop aura untouched), `mobile/intro/neutral/close/paused/mode/select`,
+    every `cvc-*/intro` and `start`, `cine-ken/ken-nozarashi-*`, `ken-bankai-030`, `cine-ko/ko-*`, the Yamamoto-Kenpachi stills.
+  - Misses: `cvc-ik/w2-0` (named "differ" from §15.7) is identical: its blue pieces are BURST REVERSE's activation shards and stamp,
+    not the running aura, so nothing flagged is in frame. `cine-ichigo/ichigo-awaken-020` (written "identical") differs: KESSA's
+    wisps are in frame.
+- **Flow** (the blue burst, debug 2323, 8 consecutive 60 Hz frames at half-frame offsets, the box round the aura): the mean grey
+  change between neighbouring frames 2.9-4.5 before → 2.0-2.8 after (desktop), 3.2-5.4 → 2.5-3.1 (phone); pixels changing by more
+  than 48 grey 2.7-4.8 k → 2.0-2.9 k, 5.6-11.1 k → 3.3-4.5 k. Before, the noise pops on the shader's twos; after, it scrolls.
+- **Stills** (before = main 5bb4a9fb, after = 6eaec9bb, same timeline): `tests/shots/duel-f1b-{burstblue,wisps,oni,soulflame}-{before,after}[-phone].png`
+  (2323 the blue burst on Ichigo, 74001 KESSA's wisps, 35080 the Bankai cinematic's pillar, 16030 the soul-break cinematic), the
+  8-frame strip `duel-f1b-strip-f{0..7}-{before,after}[-phone].png`, sheets `duel-f1b-sheet[-phone].png` (rows = scenes, before |
+  after, cropped) and `duel-f1b-strip[-phone].png` (rows before / after) (untracked).
+
+**Open points:**
+- **Kenpachi's REIATSU aura's white cores** (and Nozarashi's inner HIT tongues) have the core wash since J0: the yellow tongue in
+  the layer is laid at 0.8 over the core in the scene pass. Flagging them (`%reiatsu-aura`'s palettes + `+TOON-FLAME+`) would fix it
+  the way 6eaec9bb fixed the flagged auras, and would move every still with the backdrop aura in it (the menus). The lead's call.
+- `:breaker`'s INK backing is unflagged (above); one constant if the lead wants it.
+- No still of the Kikon rush aura: no debug scene starts the rush (84006-84008 cut to the card), and no looks still catches one. It
+  is the same `%brush-aura` + `%tring` path as the blue burst shown; checked by reading only.
+- The soul flame's white core is now see-through with its ribbon (0.8 over the dark sky reads light grey, not white).
+- The 0.8 layer ignores glass, so the `:oni` pillar is denser than its glass levels made it: the INK tongues 0.8 rather than 0.75,
+  the BLOOD tongues 0.8 rather than 0.5. The pillar hid the view at full opacity (the user, 2026-09-28); worth a look in the playtest.
+
