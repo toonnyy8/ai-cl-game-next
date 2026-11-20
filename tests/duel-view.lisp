@@ -76,8 +76,10 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((or (prefix-p name "IC-K-") (member name '(:ic-c-light :ic-c-heavy)))
            '((:ichigo :tensa (:shikai :mark))))                          ; KESSA (DUEL_ICHIGO_TYBW)
           ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
+          ((member name '(:ya-st-enjo :ya-st-cane)) '((:yamamoto :ryujin-jakka nil)))   ; (the Shikai's stances 2 / 3, art S2)
           ((or (prefix-p name "YA-E-") (prefix-p name "YA-ST-") (member name '(:ya-kyoku :ya-kaka :ya-shonetsu :ya-w-parry :ya-w-counter)))
            '((:yamamoto-tybw :zanka (:haori))))                         ; Yamamoto's Bankai (DUEL_YAMA_CORE §17, art K2)
+          ((prefix-p name "YA-") '((:yamamoto :ryujin-jakka nil)))      ; Yamamoto's Shikai (DUEL_YAMA_CORE §23, art S2)
           (t '((:ichigo :zangetsu-long (:kessa :mark)) (:kenpachi :ken-katana nil))))))
 
 (defun look-at (ex ey ez tx ty tz) (setf *v-cam* (list ex ey ez tx ty tz)))

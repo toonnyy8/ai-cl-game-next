@@ -1234,3 +1234,52 @@ def yama_s1_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s1", yama_s1_script())
 write("yama-s1-phone", yama_s1_script(True))
+
+# Yamamoto's Shikai art S2 (DUEL_YAMA_CORE §21.3, §23): the stance triptych (pointer 1 / 2 / 3 at rest: 87300+p, Kenpachi 3 m away), then
+# each re-keyed or new clip in play at its frames: pointer 1's segments on their own (87410-87412 NS1a-c, 87460 AS1; the frame after the
+# start command is sf 1), J1 alone (87401: a J press), J1 J2 J3 by presses (K2's frame offsets: a J link lands at S+A, +4 f a hitstop on a
+# hit) and J1 > AS1 (the AS at J1's S+1, +4). Kenpachi 10 m away for the segments on their own (no hit: no hitstop freezes the frames),
+# 1.4 m for the strings. The behind camera, then the SIDE camera (2109). Last the consing lines (87449 the Shikai's looks, 87448 the
+# Bankai's). PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 120 --script tests/scripts/duel-yama-s2.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 120 --mobile --size 390x844 --script tests/scripts/duel-yama-s2-phone.json
+YAMA_S2 = (   # scene, setup commands, start ("cmd" c | presses ((kind, seconds) ...)), ((frame, still) ...)
+    ("NS1a", (87100, 87301), ("cmd", 87410), ((7, "ns1a-gather"), (14, "ns1a-coiled"), (18, "ns1a-held"), (21, "ns1a-release"), (22, "ns1a-s"),
+                                             (24, "ns1a-land"))),
+    ("NS1b", (87100, 87301), ("cmd", 87411), ((3, "ns1b-drop"), (10, "ns1b-tell"), (14, "ns1b-level"), (16, "ns1b-s"), (29, "ns1b-top"))),
+    ("NS1c", (87100, 87301), ("cmd", 87412), ((3, "ns1c-behind"), (6, "ns1c-left"), (9, "ns1c-ahead"), (12, "ns1c-right"), (15, "ns1c-held"),
+                                             (17, "ns1c-fling"), (18, "ns1c-s"))),
+    ("AS1", (87100, 87301), ("cmd", 87460), ((1, "as1-first"), (6, "as1-coil"), (8, "as1-held"), (9, "as1-thrust"), (10, "as1-s"))),
+    ("J1", (87100, 87301), ("cmd", 87401), ((5, "j1-charge"), (9, "j1-cocked"), (11, "j1-held"), (13, "j1-release"), (14, "j1-s"), (15, "j1-thru"))),
+    ("J1 J2 J3", (87014, 87301), (("j", 0), ("j", 0.25), ("j", 0.5)), ((21, "j2-first"), (29, "j2-s"), (36, "j3-first"), (40, "j3-wind"), (45, "j3-s"))),
+    ("J1 > AS1", (87014, 87301), (("j", 0), ("sp", 0.2)), ((19, "as1-link-first"), (26, "as1-link-coil"), (29, "as1-link-s"))),
+)
+def yama_s2_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for p in (1, 2, 3):
+            a = scene(f"stance {p} {cam}", (87030, 87300 + p) + deck)
+            ev.append(shot(a + 1.2, f"yama-s2-stance-{p}-{cam}{sx}")); t = a + 1.5
+        for name, setup, start, frames in YAMA_S2:
+            a = scene(f"{name} {cam}", setup + deck) + 0.5
+            if start[0] == "cmd": ev.append(cmd(a, start[1]))
+            else:
+                for kind, dt in start:
+                    if kind == "sp": sp(a + dt)
+                    else: ev.extend(tap(a + dt, "KeyJ", 0.05))
+                a += 0.01
+            for f, n in frames: ev.append(shot(a + f / 60, f"yama-s2-{n}-{cam}{sx}"))
+            t = a + 2.0
+    ev.append(cmd(t, 87449)); t += 0.3
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-s2", yama_s2_script())
+write("yama-s2-phone", yama_s2_script(True))

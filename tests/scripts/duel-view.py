@@ -90,6 +90,15 @@ def yama_k3(cmd, shot, t):
         for k, view in ((1, "side"), (2, "front")):
             cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-k3-{n}-{view}", 0.9)
 
+# Art S2 (DUEL_YAMA_CORE §23): the same strips for the Shikai's re-keyed and new clips (J1 HISEN's own clip, J2 reused, J3 TSUKABI,
+# pointer 1's NS1a / NS1b / NS1c and AS1, the three stances): tests/shots/duel-view-yama-s2-<clip>-<side|front>.png
+#   node tools/run.mjs dist/duelview --secs 40 --script tests/scripts/duel-view-yama-s2.json
+YA_S2 = ("ya-hisen", "ya-q2", "ya-tsuka", "ya-n1a", "ya-f2", "ya-n1c", "ya-as1", "ya-shiranui", "ya-st-enjo", "ya-st-cane")
+def yama_s2(cmd, shot, t):
+    for n in YA_S2:
+        for k, view in ((1, "side"), (2, "front")):
+            cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-s2-{n}-{view}", 0.9)
+
 script("looks", looks); script("strips", strips); script("stage", stage); script("sounds", sounds); script("strings", strings)
-script("yama-k2", yama_k2); script("yama-k3", yama_k3)
+script("yama-k2", yama_k2); script("yama-k3", yama_k3); script("yama-s2", yama_s2)
 print(len(clips), "clips:", " ".join(c.lower() for c in clips))
