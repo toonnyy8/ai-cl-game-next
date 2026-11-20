@@ -91,11 +91,11 @@ end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width,
       (when (= look 5)                                  ; (爆炎: tongues off the wash, on the Bezier toward the blade end, rising)
         (dotimes (i 3)
           (let* ((u (+ 0.45f0 (* 0.2f0 (i->f i)))) (a (* (- 1f0 u) (- 1f0 u))) (b (* 2f0 u (- 1f0 u))) (c (* u u))
-                 (h (* (+ 0.14f0 (* 0.1f0 u)) (+ 0.7f0 (* 0.3f0 (hash01 (+ (i->f i) dr) 6.1f0))))))
+                 (h (* (+ 0.14f0 (* 0.1f0 u)) (+ 0.7f0 (* 0.3f0 (flow01 (i->f i) 6.1f0))))))   ; (the tongues flow, §15.7)
             (declare (single-float u a b c h))
             (%tongue (+ (* a (aref sm 0)) (* b (aref sm 6)) (* c (aref sm 3))) (+ (* a (aref sm 1)) (* b (aref sm 7)) (* c (aref sm 4)) (* 0.5f0 (aref sm 9)))
                      (+ (* a (aref sm 2)) (* b (aref sm 8)) (* c (aref sm 5))) 0f0 h 0f0 (* 0.5f0 (aref sm 9)) +pal-fire+ (aref sm 11)
-                     (+ 1200f0 (i->f i) dr) (+ dr (i->f i)) 0.03f0 :segs 4)))))
+                     (+ 1200f0 (i->f i)) (+ (flow-ph) (i->f i)) 0.03f0 :segs 4)))))
     nil))
 
 ;;; ---------------------------------------------------------------- auras
@@ -103,26 +103,26 @@ end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width,
   "A brush-flame aura (docs/style/STYLE_STORM_DESIGN.md §4.2 reiatsu, §4.3 Kikon rush): N tongues of palette PAL around
 the body at radius RAD (half-width W at the base), drawn only behind and at the sides (the ones between the camera and the body are left
 out, so the fighter stays readable inside; ALL literal T draws those too: 殘日獄衣, the user 2026-11-20, DUEL_YAMA_CORE §28), H tall
-x 0.8..1.25 with a lean, both re-drawn every drawing (twos),
+x 0.8..1.25 with a lean, both drifting continuously (FLOW01 / FLOW-PH: the flow sweep, STYLE_STORM_DESIGN §15.7; on twos before),
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
 level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. A macro (the auras run every
 frame: 0 B); N and WHITE literal fixnums."
   (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
-    `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (dr (drawing-no)) (pk (toon-a pal (* 0.95f0 k)))
+    `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (fp (flow-ph)) (pk (toon-a pal (* 0.95f0 k)))
             (step (/ 6.2831855f0 ,(float n 1f0)))
             ,@(when sides '((e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))))
             ,@(when (eql white 1) '((wpal (+ +pal-hit+ (* 32f0 (i->f (f->i (/ pal 32f0)))))))))   ; the white cores' palette, same glass
-       (declare (single-float x y z h k pal rad w dr pk step) ,@(when sides '((type f32vec e) (single-float ex ez el)))
+       (declare (single-float x y z h k pal rad w fp pk step) ,@(when sides '((type f32vec e) (single-float ex ez el)))
                 ,@(when (eql white 1) '((single-float wpal))))
        (dotimes (i ,n)
          (let* ((f (i->f i)) (ang (+ (* step f) (* 0.3f0 (hash01 f 1.3f0)))) (c (f-cos ang)) (sn (f-sin ang))
                 ,@(when sides '((front (/ (+ (* ex c) (* ez sn)) el)))))
            (declare (single-float f ang c sn ,@(when sides '(front))))
            (when ,(if (eq all t) t '(< front 0.35f0))   ; behind and at the sides only (unless ALL)
-             (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (hash01 (+ f dr) 3.7f0))))) (lean (* 0.25f0 (- (hash01 (+ f dr) 5.9f0) 0.5f0)))
-                    (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 (+ f (* 3f0 (i->f (mod (f->i dr) 5)))))))
+             (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (flow01 f 3.7f0))))) (lean (* 0.25f0 (- (flow01 f 5.9f0) 0.5f0)))   ; (§15.7: flowing,
+                    (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 f)))                             ;  one seed a tongue)
                (declare (single-float hh lean bx bz sd))
-               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f dr) :sway 0.12f0)
+               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0)
                ,@(when (eql white 1)
                    '((when (< front -0.4f0)
                        (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0
@@ -132,10 +132,10 @@ frame: 0 B); N and WHITE literal fixnums."
 (defmacro %kikon-aura (x y z h k)
   "The Kikon rush aura (the :KIKON kind of VFX-AURA): 7 BLOOD brush-flame tongues behind the body (radius 0.5 m),
 white core lines in the back three, and a flat BLOOD ring at the feet. A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dr (drawing-no)))
-    (declare (single-float x y z h k dr))
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k))
+    (declare (single-float x y z h k))
     (%brush-aura x y z h k +pal-blood+ 7 0.5f0 0.2f0 1)
-    (%tring x y z (+ 0.72f0 (* 0.06f0 (hash01 dr 8.3f0))) 0.07f0 +pal-blood+ (* 0.95f0 k) (i->f (mod (f->i dr) 7)))
+    (%tring x y z (+ 0.72f0 (* 0.06f0 (flow01 0f0 8.3f0))) 0.07f0 +pal-blood+ (* 0.95f0 k) 0f0)
     nil))
 
 (defmacro %reiatsu-aura (x y z h k awake glass)
@@ -144,13 +144,13 @@ white core lines in the back three, and a flat BLOOD ring at the feet. A macro: 
 3 thin inner white tongues, a flat REIATSU ring at the feet and a yellow light (its soft additive glow cut in Phase 6).
 GLASS (0..3): the tongues, cores and ring see-through, GLASS / 4 of them drawn (*REIATSU-GLASS*; the user's request
 2026-09-28: cup 3's pillar hid the view). A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dr (drawing-no)) (g (* 32f0 (i->f ,glass))))
-    (declare (single-float x y z h k dr g))
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (g (* 32f0 (i->f ,glass))))
+    (declare (single-float x y z h k g))
     (if (= ,awake 1)
         (progn
           (%brush-aura x y z (* 1.05f0 h) k (+ +pal-reiatsu+ g) 9 0.5f0 0.19f0 1)
           (%brush-aura x y z (* 0.7f0 h) k (+ +pal-hit+ g) 3 0.3f0 0.06f0 0)
-          (%tring x y z (+ 0.8f0 (* 0.06f0 (hash01 dr 8.3f0))) 0.06f0 (+ +pal-reiatsu+ g) (* 0.95f0 k) (i->f (mod (f->i dr) 7)))
+          (%tring x y z (+ 0.8f0 (* 0.06f0 (flow01 0f0 8.3f0))) 0.06f0 (+ +pal-reiatsu+ g) (* 0.95f0 k) 0f0)
           (%light x (+ y 1.2f0) z 1f0 0.8f0 0.25f0 5f0 0.7f0 8))
         (%brush-aura x y z (* 0.8f0 h) k (+ +pal-reiatsu+ g) 7 0.45f0 0.16f0 1))
     nil))
@@ -170,8 +170,8 @@ too and the wings sit where they are (the old garb left the camera side out and 
 fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). A macro: 0 B."
   `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt)
           (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
-          (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))
-     (declare (single-float x y z h k dt kc fl fr dr sd pk))
+          (fp (flow-ph)) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))   ; (flowing: §15.7)
+     (declare (single-float x y z h k dt kc fl fr fp pk))
      (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t)
      (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t)
      (with-cam (rx ry rz ux uy uz)
@@ -183,14 +183,14 @@ fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the fra
                     (b-out (case j (0 0.12f0) (1 0.1f0) (t 0.16f0))) (b-up (case j (0 0.7f0) (1 0.62f0) (t 0.66f0)))
                     (t-out (case j (0 0.55f0) (1 0.36f0) (t 0.66f0))) (t-up (case j (0 1.2f0) (1 1.27f0) (t 1.0f0)))
                     (w (* fr (case j (0 0.17f0) (1 0.12f0) (t 0.13f0))))
-                    (vary (+ 0.92f0 (* 0.16f0 (hash01 (+ jf (* 3f0 (i->f sg)) dr) 4.7f0))))
+                    (vary (+ 0.92f0 (* 0.16f0 (flow01 (+ jf (* 3f0 (i->f sg))) 4.7f0))))
                     (bx (+ x (* sgn b-out fr hx))) (by (+ y (* b-up h))) (bz (+ z (* sgn b-out fr hz)))
                     (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
-                    (wsd (- -40f0 jf (* 3f0 (i->f sg)) (* 7f0 sd))))
+                    (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
-               (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ dr jf) :sway 0.07f0 :segs 6))))))
-     (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) sd 24)   ; the plaza melting under him
-     (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) (+ sd 2f0) 24)
+               (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6))))))
+     (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) 0f0 24)   ; the plaza melting under him
+     (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) 2f0 24)
      (dotimes (i (n-of (* 14f0 kc) dt))
        (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
                 (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
@@ -233,15 +233,15 @@ K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the
         (:hellfire                                       ; 爆炎 (GOKUEN; the TYBW kit's Hellfire, ported back by J2): a bonfire round
                                                          ; him — 7 FIRE brush tongues behind and at the sides (0.8 x his height), a
                                                          ; ring of 8 short FIRE tongues licking at his feet, an EMBER scorch ring, scraps
-         (let* ((kc (f-clamp k 0f0 1f0)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))))
-           (declare (single-float kc dr sd))
+         (let* ((kc (f-clamp k 0f0 1f0)) (fp (flow-ph)))   ; (flowing: §15.7)
+           (declare (single-float kc fp))
            (%brush-aura x y z (* 0.8f0 h) kc +pal-fire+ 7 0.38f0 0.17f0 0)
            (dotimes (j 8)
-             (let* ((f (i->f j)) (an (+ (* 0.7854f0 f) (* 0.3f0 (hash01 f 7.1f0)))) (hh (* 0.3f0 (+ 0.7f0 (* 0.7f0 (hash01 (+ f dr) 2.9f0))))))
+             (let* ((f (i->f j)) (an (+ (* 0.7854f0 f) (* 0.3f0 (hash01 f 7.1f0)))) (hh (* 0.3f0 (+ 0.7f0 (* 0.7f0 (flow01 f 2.9f0))))))
                (declare (single-float f an hh))
                (%tongue (+ x (* 0.55f0 (f-cos an))) (+ y 0.02f0) (+ z (* 0.55f0 (f-sin an))) 0f0 hh 0f0 0.09f0 +pal-fire+ (* 0.95f0 kc)
-                        (+ 70f0 f (* 8f0 sd)) (+ dr f) 0.02f0 :segs 3)))
-           (%tring x y z 0.55f0 0.07f0 +pal-ember+ (* 0.9f0 kc) sd 24)
+                        (+ 70f0 f) (+ fp f) 0.02f0 :segs 3)))
+           (%tring x y z 0.55f0 0.07f0 +pal-ember+ (* 0.9f0 kc) 0f0 24)
            (dotimes (i (n-of (* 16f0 kc) dt))
              (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.35f0 0.35f0))
                       (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
@@ -251,11 +251,11 @@ K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the
         ((:burst-white :burst-blue :burst-orange)        ; a running burst (docs/duel/DUEL_DESIGN.md "Burst modes"): 8 brush
                                                          ; tongues in its colour (white HIT / BLUE / orange FIRE) with white
                                                          ; cores, a ring at the feet, flecks rising
-         (let* ((kc (f-clamp k 0f0 1f0)) (dr (drawing-no))
+         (let* ((kc (f-clamp k 0f0 1f0))
                 (pal (case kind (:burst-white +pal-hit+) (:burst-blue +pal-blue+) (t +pal-fire+))))
-           (declare (single-float kc dr pal))
+           (declare (single-float kc pal))
            (%brush-aura x y z (* 0.95f0 h) kc pal 8 0.46f0 0.15f0 1)
-           (%tring x y z (+ 0.7f0 (* 0.05f0 (hash01 dr 4.1f0))) 0.05f0 pal (* 0.9f0 kc) (i->f (mod (f->i dr) 5)))
+           (%tring x y z (+ 0.7f0 (* 0.05f0 (flow01 0f0 4.1f0))) 0.05f0 pal (* 0.9f0 kc) 0f0)
            (dotimes (i (n-of 8f0 dt))
              (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.4f0 0.4f0))
                       0f0 (rnd-range 1.2f0 2.2f0) 0f0 (rnd-range 0.3f0 0.5f0) (rnd-range 0.02f0 0.035f0) 0f0 0.1f0 pal))))
@@ -379,11 +379,11 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
                  (%t-blob (+ x0 (* u dx)) 0.2f0 (+ z0 (* u dz)) (* sd sp px) (rnd-range 0.3f0 1f0) (* sd sp pz)
                           (rnd-range 0.6f0 1f0) (rnd-range 0.25f0 0.4f0) -0.2f0 0.25f0 +pal-dust+))))))
         (:enjo                                           ; the lane of fire walls (§4.1 row ENJO)
-         (let* ((sa (sage age 2f0)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 7))) (ux (/ dx l)) (uz (/ dz l))
+         (let* ((sa (sage age 2f0)) (sd 0f0) (ux (/ dx l)) (uz (/ dz l))   ; (sd: one seed, the fire flows, §15.7)
                 (k (if (< sa (- life 0.25f0)) 0.98f0 (f-max 0f0 (* 0.98f0 (/ (- life sa) 0.25f0)))))
                 (e (camera-eye *camera*)) (vx (- (* 0.5f0 (+ x0 x1)) (aref e 0))) (vz (- (* 0.5f0 (+ z0 z1)) (aref e 2)))
                 (vl (f-max 0.01f0 (f-hypot vx vz))) (ox (* 0.3f0 (/ vx vl))) (oz (* 0.3f0 (/ vz vl))))
-           (declare (single-float sa dr sd ux uz k vx vz vl ox oz) (type f32vec e))
+           (declare (single-float sa sd ux uz k vx vz vl ox oz) (type f32vec e))
            (toon-ground-seg (+ x0 ux) (+ z0 uz) x1 z1 0.03f0 0.12f0 1f0 0.3f0 (+ 40f0 sd) 0.3f0
                             (toon-a +pal-fire+ (* k (f-clamp (* 8f0 sa) 0f0 0.98f0))))
            (dotimes (i 4)
@@ -409,9 +409,9 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
                                                          ; 25 deg heat sheet racing 9 m over 3 drawings (HIT core, EMBER
                                                          ; body, a charcoal backing), then ASH lifting along it
          (let* ((sa (sage age 2f0)) (run (f-clamp (/ sa 0.25f0) 0f0 1f0)) (yaw (f-atan2 (- dx) (- dz)))
-                (k (f-clamp (- 0.98f0 (* 2.8f0 (f-max 0f0 (- sa 0.25f0)))) 0f0 0.98f0)) (dr (drawing-no))
-                (sd (i->f (mod (f->i dr) 7))) (r1 (* 9f0 run)) (half 0.2182f0))
-           (declare (single-float sa run yaw k dr sd r1 half))
+                (k (f-clamp (- 0.98f0 (* 2.8f0 (f-max 0f0 (- sa 0.25f0)))) 0f0 0.98f0))
+                (sd 0f0) (r1 (* 9f0 run)) (half 0.2182f0))            ; (sd: one seed, the heat flows, §15.7)
+           (declare (single-float sa run yaw k sd r1 half))
            (when (> k 0.02f0)
              (toon-ground-seg (+ x0 (* 0.5f0 px)) (+ z0 (* 0.5f0 pz)) (+ x0 (* 0.5f0 px) (* 2.4f0 (/ dx l))) (+ z0 (* 0.5f0 pz) (* 2.4f0 (/ dz l)))
                               0.03f0 0.16f0 1f0 0.3f0 (+ seed 2f0) 0.25f0 (toon-a +pal-ink+ k))
@@ -428,7 +428,7 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
         (:south                                          ; South: (x0 z0) the grab point, L its radius: an INK ring crack
                                                          ; with an EMBER rim pulsing on twos over the tell, 5 radial cracks,
                                                          ; then eroding while the feet are held
-         (let* ((sa (sage age 2f0)) (dr (drawing-no)) (tell (< age 0.28f0)) (sd (i->f (mod (f->i dr) 5)))
+         (let* ((sa (sage age 2f0)) (dr (drawing-no)) (tell (< age 0.28f0)) (sd 0f0)   ; (the pulse stays on twos: a tell)
                 (k (f-clamp (* 0.98f0 fade) 0f0 0.98f0)) (pulse (if (evenp (f->i dr)) 0.98f0 0.55f0)))
            (declare (single-float sa dr sd k pulse))
            (%tring x0 0f0 z0 l 0.11f0 +pal-ink+ k (+ seed 1f0))
@@ -448,9 +448,9 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
         (:kyokko                                         ; KYOKKO: the ray along the line at chest height: an EMBER lens
                                                          ; with a white HIT core, a small INK sun with an EMBER fill at its
                                                          ; tip; eroding over its life
-         (let* ((k (f-clamp (* 0.98f0 (- 1f0 (* v v v))) 0f0 0.98f0)) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5)))
+         (let* ((k (f-clamp (* 0.98f0 (- 1f0 (* v v v))) 0f0 0.98f0)) (sd 0f0)   ; (one seed: the ember flows, §15.7)
                 (y 1.1f0) (mx (* 0.5f0 (+ x0 x1))) (mz (* 0.5f0 (+ z0 z1))))
-           (declare (single-float k dr sd y mx mz))
+           (declare (single-float k sd y mx mz))
            (when (> k 0.02f0)
              (fx-crescent x0 y z0 x1 y z1 mx (+ y 0.02f0) mz 0.1f0 :lens 0.06f0 (+ 30f0 sd) +pal-ember+ k :push 0.2f0)
              (fx-crescent x0 y z0 x1 y z1 mx (+ y 0.02f0) mz 0.035f0 :lens 0.03f0 (+ 35f0 sd) +pal-hit+ k :push 0.24f0)
@@ -637,17 +637,16 @@ HIT drops flung off the head, falling, gone at 400 ms. 0 B."
 
 (defun-fast vfx-soul-flame (x y z age)
   "The red soul flame floating over a Kikon-able victim (x y z = the flame's base, e.g. 0.4 m over the
-head): one BLOOD ribbon with a dark hairline, boiling through 3 drawings (its seed cycles), a small
-white core. AGE (s) bobs it; no particles."
+head): one BLOOD ribbon with a dark hairline, a small white core, swaying and licking continuously (FLOW01 / FLOW-PH,
+STYLE_STORM_DESIGN §15.7; it boiled through 3 drawings before, its seed cycling). AGE (s) bobs it; no particles."
   (with-floats (x y z age)
-    (let* ((y (+ y (* 0.05f0 (f-sin (* 3f0 (sage age 2f0))))))
-           (dr (i->f (mod (f->i (* 12f0 (fx-clock))) 3))) (seed (+ 11f0 (* 5f0 dr)))
-           (h (+ 0.9f0 (* 0.12f0 (hash01 dr 2.7f0)))) (lean (* 0.08f0 (- (hash01 dr 4.1f0) 0.5f0))))
-      (declare (single-float y dr seed h lean))
-      (toon-ribbon (x y z) (lean h 0f0) (0.22f0 0f0) :seed (- seed) :pal +pal-blood+ :k 0.95f0 :ph (* 2f0 dr) :sway 0.07f0)
+    (let* ((y (+ y (* 0.05f0 (f-sin (* 3f0 age))))) (fp (flow-ph)) (seed 11f0)
+           (h (+ 0.9f0 (* 0.12f0 (flow01 0f0 2.7f0)))) (lean (* 0.08f0 (- (flow01 0f0 4.1f0) 0.5f0))))
+      (declare (single-float y fp seed h lean))
+      (toon-ribbon (x y z) (lean h 0f0) (0.22f0 0f0) :seed (- seed) :pal +pal-blood+ :k 0.95f0 :ph (* 2f0 fp) :sway 0.07f0)
       (toon-ribbon ((+ x 0.1f0) (+ y 0.05f0) z) ((+ 0.1f0 lean) (* 0.55f0 h) 0f0) (0.1f0 0f0) :seed (- -3f0 seed) :pal +pal-blood+ :k 0.95f0
-                   :ph (+ 1f0 dr) :sway 0.05f0 :segs 4)
+                   :ph (+ 1f0 fp) :sway 0.05f0 :segs 4)
       (toon-ribbon (x (+ y 0.04f0) z) ((* 0.5f0 lean) (* 0.5f0 h) 0f0) (0.035f0 0f0) :seed (- -5f0 seed) :wob 0.1f0 :pal +pal-hit+ :k 0.95f0
-                   :ph (* 2f0 dr) :sway 0.03f0 :segs 3))))
+                   :ph (* 2f0 fp) :sway 0.03f0 :segs 3))))
 
 

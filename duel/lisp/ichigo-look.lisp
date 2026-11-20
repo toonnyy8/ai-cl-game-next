@@ -430,7 +430,7 @@ back against his motion as he moves."
                                     (+ (* still 0.4 (sin ang)) (* -0.1 (aref v 2)))
                                     (+ (* -0.08 (aref v 2)) (* 0.12 (sin (* 2.1 k))))))
                         (rise (if neck (* len (+ 0.3 (* 0.7 (- 1.0 still)))) len))
-                        (sd (+ i (* 3 k) (drawing-no))))
+                        (sd (+ i (* 3 k))))   ; (one seed a tongue: it flows, STYLE_STORM_DESIGN §15.7)
                    (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 lean) (f32 rise) (f32 lean-z) 0.06f0 +pal-blood+ 0.95f0 (f32 sd) (f32 ph) 0.08f0 :segs 6 :wob 0.04)
                    (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 rise)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
                             (f32 (+ sd 40.0)) (f32 (+ ph 0.7)) 0.05f0 :segs 5 :wob 0.04)))))))
@@ -1068,7 +1068,7 @@ base and narrowing to a point, a blood-red sheet riding on every black one and a
              (len (* r (+ 0.9 (* 1.7 env)) (+ 0.9 (* 0.1 (sin (+ (* 4.0 tm) (* 1.9 i)))))))
              (cur (* 0.9 (- 1.0 env)))
              (ax (* len (+ (* -0.9 fx) (* cur sg (- sa) fx)))) (ay (* len (* cur sg ca))) (az (* len (+ (* -0.9 fz) (* cur sg (- sa) fz))))
-             (w (* r (+ 0.14 (* 0.3 env)))) (sway (* 0.14 len)) (ph (+ (* 3.0 tm) (* 1.3 i))) (sd (+ (* 2.0 i) (drawing-no))))
+             (w (* r (+ 0.14 (* 0.3 env)))) (sway (* 0.14 len)) (ph (+ (* 3.0 tm) (* 1.3 i))) (sd (* 2.0 i)))   ; (one seed a sheet: §15.7)
         (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 12 :wob 0.0)
         (%tongue (f32 (+ px (* 0.04 r fx))) (f32 py) (f32 (+ pz (* 0.04 r fz))) (f32 (* 0.85 ax)) (f32 (* 0.85 ay)) (f32 (* 0.85 az))
                  (f32 (* 0.8 w)) +pal-blood+ (f32 (* 0.85 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0)

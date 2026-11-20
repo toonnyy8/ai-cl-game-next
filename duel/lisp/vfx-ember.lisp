@@ -6,22 +6,22 @@
 
 (defun-fast vfx-charge (x y z k dt)
   "Charging at the blade (x y z), K 0..1 (§4.1 Shiranui, Phase 5): anticipation — 6 FIRE / EMBER shards converging on
-it (a new drawing every 1/12 s, looping inward), flame scraps sucked in — and a FIRE disc growing in drawn steps (1/6 of
-the charge each) with a white HIT core disc. (The caller adds the focus lines when the charge starts.)"
+it (looping inward continuously: the flow sweep, STYLE_STORM_DESIGN §15.7; a new drawing every 1/12 s before), flame scraps sucked
+in — and a FIRE disc growing in drawn steps (1/6 of the charge each: a gauge, kept) with a white HIT core disc. (The caller adds the focus lines when the charge starts.)"
   (with-floats (x y z k dt)
-    (let* ((dr (drawing-no)) (kq (* 0.16667f0 (i->f (f->i (* 6f0 (f-clamp k 0f0 1f0)))))))
+    (let* ((dr (f-mod (* 12f0 (fx-clock)) 64f0)) (kq (* 0.16667f0 (i->f (f->i (* 6f0 (f-clamp k 0f0 1f0)))))))
       (declare (single-float dr kq))
       (with-cam (rx ry rz ux uy uz)
         (dotimes (i 6)
           (let* ((f (i->f i)) (a (+ (* 1.0472f0 f) (* 0.4f0 (hash01 f 3.3f0))))
-                 (ph (- 1f0 (* 0.25f0 (i->f (mod (+ (f->i dr) i) 4))))) (rr (* (+ 0.35f0 (* 0.5f0 k)) (+ 0.4f0 (* 0.8f0 ph))))
+                 (ph (- 1f0 (* 0.1875f0 (f-mod (+ dr (i->f i)) 4f0)))) (rr (* (+ 0.35f0 (* 0.5f0 k)) (+ 0.4f0 (* 0.8f0 ph))))
                  (c (f-cos a)) (sn (f-sin a)) (wx (+ (* c rx) (* sn ux))) (wy (+ (* c ry) (* sn uy))) (wz (+ (* c rz) (* sn uz))))
             (declare (single-float f a ph rr c sn wx wy wz))
             (fx-shard (+ x (* rr wx)) (+ y (* rr wy)) (+ z (* rr wz)) (- wx) (- wy) (- wz) (* 0.22f0 (+ 0.6f0 k)) 0.03f0 0.05f0
-                      (+ f dr) (if (evenp i) +pal-fire+ +pal-ember+) 0.9f0 :push 0.3f0)))
+                      f (if (evenp i) +pal-fire+ +pal-ember+) 0.9f0 :push 0.3f0)))
         nil)
-      (fx-disc x y z (+ 0.07f0 (* 0.26f0 kq)) 0.3f0 (+ 50f0 (i->f (mod (f->i dr) 5))) +pal-fire+ 0.95f0 :push 0.2f0)
-      (fx-disc x y z (+ 0.03f0 (* 0.08f0 kq)) 0.2f0 (+ 55f0 (i->f (mod (f->i dr) 5))) +pal-hit+ 0.98f0 :push 0.25f0)   ; the core
+      (fx-disc x y z (+ 0.07f0 (* 0.26f0 kq)) 0.3f0 50f0 +pal-fire+ 0.95f0 :push 0.2f0)
+      (fx-disc x y z (+ 0.03f0 (* 0.08f0 kq)) 0.2f0 55f0 +pal-hit+ 0.98f0 :push 0.25f0)   ; the core
       (dotimes (i (n-of (+ 20f0 (* 40f0 k)) dt))
         (let* ((dx (rnd-range -1f0 1f0)) (dy (rnd-range -1f0 1f0)) (dz (rnd-range -1f0 1f0))
                (l (f-max 0.05f0 (f-hypot dx dy dz))) (r (+ 0.6f0 (* 0.5f0 k))) (sp (/ r (* l 0.3f0))))
