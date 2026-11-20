@@ -134,15 +134,15 @@ victim, half on the black, his Konpaku shatters; low across the void, the old ma
 
 ;;; ---------------------------------------------------------------- 西 殘日獄衣 ZANJITSU GOKUI (§15.3.2, the user's storyboard, 180 f)
 (defmacro %ya-garb (x z rx rz g k seed)
-  "西's garb at full (§15.3.2; batch Z1, §27: 殘日獄衣's mantle, YA-MANTLE at size G, (RX RZ) his right), the molten ring at his soles with
-a white-hot core, an orange light. Before Z1: 10 thin orange tongues from his feet and two shoulder wings of three ribbons ~1.2 m out.
-Single-float forms; 0 B."
+  "西's garb at full (§15.3.2; batch J2, §28: 殘日獄衣, YA-GARB flared as the moves flare it: 1 + 0.9 G, G 0..1 its growth, x the
+presence K), the molten ring at his soles with a white-hot core (the garb brings its own light). (RX RZ), his right, unused since J2 (Z1's
+mantle lay in it; the call kept). Single-float forms; 0 B."
+  (declare (ignore rx rz))
   `(let* ((%k ,k))
      (declare (single-float %k))
-     (ya-mantle ,x ,z ,rx ,rz ,g %k)
+     (ya-garb ,x ,z (* %k (+ 1f0 (* 0.9f0 ,g))))
      (%tring ,x 0f0 ,z 0.6f0 0.07f0 +pal-flame+ %k (+ ,seed 3f0))
-     (%tring ,x 0.008f0 ,z 0.6f0 0.02f0 +pal-hit+ (* 0.8f0 %k) (+ ,seed 4f0))
-     (%light ,x 1.0f0 ,z 1f0 0.5f0 0.2f0 5f0 (* 2f0 %k) 7)))
+     (%tring ,x 0.008f0 ,z 0.6f0 0.02f0 +pal-hit+ (* 0.8f0 %k) (+ ,seed 4f0))))
 
 (defun-fast yama-nishi-look (a v cf)
   "西's look at cinematic frame CF: f40-52 the victim's weapon turning to ash from the tip toward the hilt (§15.3.4 flag 4: ash drawn over

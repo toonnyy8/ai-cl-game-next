@@ -2927,3 +2927,76 @@ The user, 2026-11-20, after playing v462:
 | J3 | S5 fixes, 爆炎 NS2b's own clip, stance 3's blade | `yama-cine.lisp`, its stills, `yama-art.lisp` clips |
 
 Merged one at a time; the looks gate re-based after each.
+
+### 28.4 As built (J2)
+
+**Looks gate expectation (written before the gate ran).** BASE = `dist/duel` built on main after S5 (`looks-base-s5m`). The garb draws only in the Bankai (西's stance clip with no move, the three
+flares, the 西 Kikon cinematic); `:hellfire` draws whenever 爆炎 (GOKUEN) is on screen. Checked on BASE's own renders of the pinned YK match
+(`--once --only cvc-yk`): Yamamoto is in the Shikai in intro, start, w0-0 .. w2-0 (no bare torso, no scars) and enters the Bankai in w3-0
+with the 東 pointer (旭日刃 on the HUD): no still shows 爆炎, 西's stance or a 西 flare. `%brush-aura`'s default expansion is unchanged (the
+new optional ALL is T only for the garb), so Kenpachi's auras are the same code. **Expected: 83 of 83 stills byte-identical, none listed.**
+
+**Ported** (presentation only; no sim file, no sim number):
+- `vfx.lisp`: the TYBW kit's `:garb` as the macro `%garb-aura` (orange FLAME `%brush-aura` tongues 0.8 h x 9 at 0.34 m and 0.62 h x 6 at
+  0.25 m; two wings of three `toon-ribbon`s at the shoulders, to the camera's left and right; the molten double `%tring` at the feet;
+  `%t-blob` scraps; a warm `%light`; K < 1 fades it, K > 1 flares it taller x K and wider x 1 + 0.3 (K - 1)), used by `vfx-aura`'s new
+  `:garb` case; and the old `:hellfire` case verbatim (7 FIRE tongues behind and at the sides, 8 short FIRE tongues licking at the feet, an
+  EMBER scorch ring, scraps, a light). The FLAME (15) and FIRE (0) palettes are both soft-flame class. Code from `retired-kits`
+  `duel/lisp/vfx.lisp` (= the old repo's last main 1c19d18).
+- **The front flames.** `%brush-aura` takes an optional literal ALL: T draws the camera-side tongues too (the garb's two layers); every
+  other caller's drawing is unchanged. The wings no longer sit inside `%away-from-eye` (they were pushed 0.22 m back along the view ray).
+- **0 B.** The first build read 32 B a garb draw (debug 87448). A probe split it: each `%brush-aura` boxed the floats it binds and never
+  reads (the unused bindings, declared IGNORABLE, were boxed in the generated C; unused ones without the declaration were not): `wpal` whenever WHITE is 0 (8 B, every caller's: Kenpachi's
+  `nomihose` / `oni` / `evolution` rows read 80 B per 10 draws on BASE too) and `el` once ALL is T. `%brush-aura` now binds the eye's side
+  only when it reads it and `wpal` only when WHITE is 1; the computation of every drawn tongue is the same expression as before.
+  Since then every garb / hellfire row reads 0, and so do `nomihose`, `oni`, `oni smoulder` and `evolution` (80 B before).
+- `yama-look.lisp`: `ya-garb` (x z k into `*ya-garb-args*`) and `ya-garb-draw` (one `%garb-aura` expansion, h = `+ya-garb-h+` 1.815 m =
+  1.1 x his 1.65 m hurt height, as `draw-aura` passes a form aura; the scraps on `*ya-rdt*`), so no float is boxed: 0 B.
+  - 西's stance (`yama-stance-look`): `ya-garb` at K 1, the old look's own size (Z-Q1's "stance shrunk" superseded). Still skipped while the
+    西 Kikon cinematic runs (it draws its own).
+  - The flares (`%ya-flare`, NS2a f16 / f26, NS2b S14, AS2b S12): K = fade x (1 + 0.9 x growth), the growth 0 .. 1 over the pulse's first
+    2 frames, so the garb flares to 1.9 x (the old "garb-flare" probe's K) and, as the fade runs, shrinks back to its stance size and then
+    fades. The 2.0 m molten ring and the white-hot first two frames are kept.
+  - The 西 Kikon cinematic (`yama-cine.lisp` `%ya-garb`, body only; the call and its shots untouched): the same K from its growth G and
+    presence; its soles' ring kept, its own light dropped (the garb brings one).
+- `:hellfire` now draws: the 爆炎 kit's `:aura :hellfire` reaches `vfx-aura` through `draw-aura` as before; until now the keyword fell
+  through to the function case and drew nothing.
+
+**Removed** (everything that only served Z1's mantle): `*ya-mantle-keys*`, `*ya-skirt-keys*`, `ya-mantle-sample`, `ya-mantle-table`,
+`*ya-mantle*`, `*ya-skirt*`, `*ya-mt-args*`, `*ya-mt-buf*`, the `ya-mantle` / `%ya-mt-at` / `%ya-mt-shape!` / `%ya-mt-fill` / `%ya-mt-band`
+macros and `ya-mantle-draw` (yama-look.lisp, ~250 lines); `%ya-flare`'s unused RX RZ; 87448's mantle vertex-count / eye-angle line; the
+mantle sentence of `%ya-cons-per`'s docstring (the per-run rewind stays: S5's rows rely on it); debug 87491-87493 and `yama-orbit-cam`
+(yama.lisp; the `(87000 87999)` range itself stays), its clause in DUEL_GAMEPLAY's 87000-87999 row (now "87491-87493 free"); the `yama-z1`
+block of `tests/scripts/duel.py` and `duel-yama-z1.json` / `-phone.json`; the mantle's 7 host checks (`tests/duel-rules/art.lisp`).
+Left: the engine's `*msaa-samples*` export (Z1 exported it; an engine file, no other user now).
+
+**Checks** (final build; presentation only, no sim file touched):
+
+| Check | Result |
+|---|---|
+| Host tests (`tests/duel-rules-test.lisp`) | 4255 checks ALL PASS (Z1's 7 mantle checks gone with it) |
+| `tools/pkgcheck.sh duel` | 0 undefined, 0 engine redefinitions; the one `DUEL::APP` note is BASE's |
+| `tests/debug-ranges-check.py` | 89 ranges, 0 errors |
+| Smoke (`run.mjs --secs 8`) | exit 0 |
+| `style-gates.py cvc dist/duel` | PASS II IK KK (identical to the reference) |
+| Looks gate, BASE = `looks-base-s5m`, no `--keep-base` | 83 of 83 byte-identical, noise floor 0, every scenario's sim lines identical (cvc-yk's 12 too): as written above |
+| 87448 / 2328 / 2390 | every garb row 0 B (`garb`, `garb-flare`, `garb-throw`, `flare`, `west-ignite` .. `west-column`; vfx `garb`, `garb-flare`, `hellfire`), `fx-dropped 0`; `south-dead` / `-pile` / `-burst` 80 B in a fresh scene, as on BASE |
+
+**Stills** (`tests/shots/duel-j2-{before,after}-*.png`, untracked; before = BASE with the Z1 mantle, after = J2):
+`stance-` / `ns2a-` / `ns2b-` / `as2b-` × `behind` (the match camera) and `side` (SIDE); `f-…-q45` (45 deg off his front: the
+orbit camera, shot on a J2 build before 87491-87493 were removed; the `f-…-front` ones have Kenpachi between the lens and him, so the
+frontal evidence is q45 and the cinematic's f62 / f146); `cine-f54 … f170` (the 西 Kikon); `blaze-behind` / `-side` (爆炎; BASE draws
+nothing there); `-phone` versions (390 x 844, the behind camera); `duel-j2-sheet.png` / `duel-j2-sheet-phone.png` (before | after).
+The desktop after stills come from the J2 build before the `%brush-aura` binding fix (the same drawing expressions; the looks gate shows
+the fix moves no pixel of the other callers); the phone after stills from the final build.
+
+**Open points for the user:**
+- In the 西 Kikon's close frontal shots (f62, f100, f146) the flared garb (K about 1.86) covers him whole: the front tongues stand
+  between the lens and his body, so only the column of flame shows. From the match camera (behind) his back and head show between the
+  tongues, and from the side he reads inside them. Nothing was faded (the user did not ask for it); if the cinematic should show him,
+  the knob is the cinematic's K (`%ya-garb`) or the front layer's height.
+- The garb draws in 西's stance clip (out of a move) and the three flares only. The TYBW kit drew it through every West move (it was
+  the form's aura); main has one Bankai form with pointer stances, so moves under 西 other than the flares show no garb, as Z1 did.
+- `:hellfire` keeps the old rule (behind and at the sides only); the user's front-flames request was for 殘日獄衣.
+- 87491-87493 are gone, so there is no front camera on P1 now; a front still needs P2 off the line or a cinematic frame.
+- The manual's Bankai sentence on the mantle and STYLE_STORM_DESIGN §15.3's inventory (`%ya-garb`, the mantle) are the lead's to update.
