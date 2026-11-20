@@ -19,6 +19,10 @@
 (defconstant +pal-jade+ 13f0 "A muted jade (an ink tone, not a spot hue: energy with a coloured edge).")
 (defconstant +pal-gold+ 14f0 "A muted gold #B89A5A (energy with a coloured edge).")
 (defconstant +pal-flame+ 15f0 "An orange flame (fire style; core #FADBA5, body #F18349, shade #8E4737), a canon manga colour. Palette 15 is the last: 16 is TOON-A's fan flag.")
+(defconstant +toon-flame+ 128f0
+  "The flame flag, added to a toon call's palette like the glass level (+ 32 x g): the shader counts the shape in the flame class
+(soft edge, continuous flow, the 0.8 flame layer: fx-toon-io.wgsl SOFT_CLASS) whatever its palette. Set only on the borderline
+tongue auras (STYLE_STORM_DESIGN §15.8: BLOOD / INK / STEEL / HIT / BLUE tongues), never on trails, chains, smears or crescents.")
 
 (defmacro fx-clock () "The fx clock in seconds (*FX-CLOCK*, render.lisp)." `(aref (the f32vec *fx-clock*) 0))
 (defun-fast fx-clock-advance (dt)
