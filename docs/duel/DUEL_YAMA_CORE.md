@@ -2453,6 +2453,15 @@ entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`), one per scene.
 - **The cinematics commits (not wired)**: none. 83 / 83 stills byte-identical to BASE (a dist built at 22ee1330), every scenario's
   fighters and sim lines as BASE's. The new cinematics play only through debug 87482-87487; YAMA-DRAW's new guard (YAMA-S5-CINE-P) is
   false outside them; the 87449 rows run only on that command; the 爆炎 / Shikai `:kikon-cines` still name `soul-break-cine`.
+  **Result: PASS, 83 / 83 byte-identical** (noise floor 0), every scenario's fighters and sim lines as BASE's (`cvc-yk sim lines` 12).
+- **The wiring commit**, written from that run's BASE `cvc-yk.log` (seed 28) before the wiring run: P1 Yamamoto's first Kikon is at tick
+  4010, `P1 AS2 pointer 2` (J1 J2 > AS2, the ring's hit, then the AS strike), in the Shikai (`(BASE)`), so it will play
+  `yama-ennetsu-cine` (186 f) for `soul-break-cine` (96 f): +90 ticks before the reset. (A second, at 4813 under pointer 1, lies after
+  it: the match has diverged by then, the CPU reads `*match-tick*`.) The YK stills: `cvc-yk-intro`, `-start`, `-w0-0` (early in the first round),
+  `-w1-0`, `-w1-1` (tick 1385), `-w2-0` (tick 3307) are before 4010: identical; `cvc-yk-w3-0` (tick 6898 in BASE) is after it: **expected
+  to differ**. The YK sim lines (12: the match line and the `duel hash` lines): `t=600` .. `t=3600` and the match line identical; `t=4200`
+  and every later hash line (and the RESULTS line if the run reaches it) **expected to differ**. Every other scenario: identical (they play
+  no Yamamoto Kikon in the Shikai or 爆炎: KH, HK, II, IK, the cinematics, fx-a, menus, mobile).
 
 S5 of §21.1 (the user, 2026-11-20: 「繼續」; the storyboards §21.5; the decisions §21.8: Q2 「沿用始解的，換爆炎裝扮」, Q3 「照原作」). Three `defcine`s
 in `duel/lisp/yama-cine.lisp`: `yama-shiranui-cine` (174 f, hold 100), `yama-ennetsu-cine` (186 f, hold 120), `yama-nadegiri-cine` (156 f,
