@@ -2299,3 +2299,131 @@ build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v457.
 YK sim lines are identical. The cause is a mis-prediction (the CPU idles in stance 1 on those ticks), not a leak, so the lead accepts it and
 **re-bases** at this merge (BASE = a dist built here). Lesson for the next expected list: a look drawn on a stance shows on every idle tick of
 the YK match.
+
+## 25. As built (art batch S4: 爆炎's delta, 2026-11-20)
+
+S4 of §21.1 (the user, 2026-11-20: 「繼續」; the plan §21.4, the decisions §21.8: Q2 「沿用始解的，換爆炎裝扮」, so 爆炎 keeps the Shikai's stances
+and Kikon cinematics in its own dress): every row of §21.4's table. Presentation only (proofs in 25.7). Code: `yama-art.lisp` (the four clips,
+*YA-SCARS* and the bared body's dull scar glow, YAMA-DRAW's 爆炎 calls), `yama-look.lisp` (YAMA-SCAR-GLOW, YAMA-ENNETSU-LOOK, YAMA-RING-CLOSE,
+YAMA-BLAZE-IN-LOOK, %YA-FIST-FIRE, the tornado's lean, YAMA-SK-MOVES code 8, IKKOTSU's *YA-PLANTS* row, the 87449 rows), `yama.lisp` (`:clip`,
+`:blend`, `:look`, `:smear`, the `:planted` hook on the Shikai's `:hooks`, debug 87490), shared `vfx.lisp` (`vfx-smear` look 5) and `kit.lisp`
+(its docstring), tests `tests/duel-rules/art.lisp` and `yamamoto.lisp`, the art viewer (`tests/duel-view.lisp`: 爆炎's clips on the bared body)
+and the still scripts.
+
+### 25.1 What was built, row by row (§21.4)
+
+| §21.4 row | As built |
+|---|---|
+| Scars by heat | **Kit-local, not the shared gain.** The 12 glowing scars' mesh now glows a dull ember red (`:glow 2.4` → 0.9, `#FF5A3C` → `#A8301E`: the floor, what heat 25 and under shows), and YAMA-SCAR-GLOW draws an additive fire hairline over each (from *YA-SCARS*, the same table that builds the glow parts, 4 mm out along the skin's normal): brightness and width the heat's share above 25 (full at 100, gone by 25), a white centre from 70 up (a positive alpha: white-hot owned by heat, §21.2); at 10 and under a dull ember pulse three times a second on the fx clock. Why kit-local: a glow-parts-only gain needs a new key through DRAW-FIGHTER → DRAW-BODY → the engine's DRAW-PARTS (three files, the engine one shared by every game) for one kit; an additive overlay alone cannot dull a baked 2.4 glow, so the mesh's own glow was lowered in the bared body (爆炎's only), and the hairline carries the ramp. In the stills (25.6) heat 100 / 50 / 10 read apart on the chest from the SIDE camera: bright yellow-white lines, orange lines, dull red |
+| The blade | **Already built by S1** (SL0, §22.3): x1.3 and always white-cored in 爆炎 (YAMA-BLADE-FIRE's mode + 10). Not duplicated; 87449's `blade-blaze` row is 0 B. New: no SL0 while IKKOTSU's blade stands planted (the hand is empty; YAMA-DRAW asks PLANTED-SPOT) |
+| J1 / J2 flame trail | `vfx-smear` look 5, 爆炎's `:smear 5`: the FIRE wash at full width (look 4 is half), the orange hairline, and three tongues licking up off the Bezier toward the blade end (presence = the smear's). Default off: only a kit's `:smear 5` reaches it; looks 0-4 take the same branches as before. `:smear` is per form, so it draws behind **every** 爆炎 swing, not only J1 / J2 (§21.4 named those two) |
+| J3 IKKOTSU | `ya-ikkotsu` re-keyed at the move's S9 (9 / 3 / 18; it struck at S8, F10). Frame 0 J2's S+A (`:ya-q2-a`); the blade planted point-down at his right on f2 (`:ya-ikkotsu-plant`, FK: the grip 0.75 m up, 0.50 m right, 0.14 m ahead; *YA-PLANTS* row `(:ya-b-j3 2 24 (0.14 0.5))`), the hand lets go (f3), the fist drawn back to the ribs (f6) and wound (f7-8), one step in on the left foot and the fist straight out at shoulder height on S (`:ya-ikkotsu-hit`: the wrist 1.35 m ahead at 1.33 m up), held to S+A, drawn back, the hand on the hilt again on f24, the blade drawn out into the stance by f30. A FIRE burst on the fist (%YA-FIST-FIRE: six white-cored tongues along his facing) full on S, to S+A, gone by f13. The `:planted` hook (YAMA-PLANTED) is now on the Shikai's `:hooks`, so 爆炎 inherits it; it returns NIL for every other Shikai move (no move sets `:planted`, so the default 0.7 m rule was never reached) |
+| The entry pose | its own `ya-blaze-in` (23 / 1 / 0 = 24 f on the move's frames; it played the 60 f `ya-hellfire` x2.5 with a 360° root turn, now deleted), the move's `:clip-s 57` dropped, `:blend 4` (it starts from any stance). The point lowered to the plaza at his right (f0-6, `:ya-hellfire-point` kept), held while YAMA-BLAZE-IN-LOOK runs the fire down the edge (a white-cored strand guard → point, f7-10) and a ring of fire out over the floor from the point (0.3 → 2.5 m, f10-16, gone by f21); he straightens, chest out, chin up, the arm flung wide (f17-20, `:ya-blaze-up`), held to f24. Its root-yaw exemption is gone from S3's guard |
+| NS1c's tornado | YAMA-TORNADO-LOOK leans its upper bands toward the victim's side of its travel when the hazard's data carries `:track` (爆炎's NS1c alone): the lateral share of the victim's bearing x 1.0 m at the top band, a third of it per band, the lowest band (the footprint) never; the Shikai's NS1c (`:track` NIL) draws exactly as before. "Taller (T2)": every 爆炎 segment is T2 already (S1), so it is drawn at full height with no new factor |
+| NS2b: the ring closes at once | YAMA-RING-CLOSE on 爆炎 NS2b's move frames f12-15 (S-4 .. S-1): SL5's band (r 1.6, ±0.25) with 24 low white-cored tongues coiling in from the point nearest him over the 4 frames, round the spot the dome will take (his live ring's, else YA-BEARING-POINT's rule: the victim's bearing at 3-8 m, read now); on S16 the dome hazard stands closed at once (SL6, the hit frame full: §22.2). So "the ring for 4 f, then the walls" comes before S, not after it (the hit frame rule; the halo's opening before S is S1's precedent) |
+| NS2c ENNETSU JIGOKU | its own clip `ya-b-n2c` (18 / 2 / 30; it played NS2a's `ya-enjo` at x1.11, which ended at f40 of the 50 f move and held the stance pose): frame 0 爆炎 NS2b's landing (NS2c's clip at x18/16 drawn at its f18, sampled exactly), the hilt drawn back to his right hip with the point hanging (f1-12, a key a frame), held f13-15, the point driven down into the plaza at his right front on S (`:ya-b-n2c-hit`: the tip 1.08 m ahead, on the floor), left in it to f30 while the rows run, drawn out into the stance. Its look YAMA-ENNETSU-LOOK (the move's `:params :look`): rows of three pillars abreast across the 2.4 m box (each a third of its width), the front row riding the box (full on age 0, the hit frame; its far face 0.1 m inside the box's front), a fixed row every 1.0 m of the lane the box has crossed, each full 16 f from when the box's centre passed it, eroding over 4 f, so three rows burn behind the front; EMBER circles at the next row's three spots ahead of the box (the tell); a scorch under each row (T2); every row fades over the hazard's last 6 f (its 45 f life cannot grow) |
+| NS3c: the true NADEGIRI | its own clip `ya-b-n3c` (14 / 4 / 60): the Shikai's NADEGIRI keys to S+A (frame 0 NS3b's S+A), then the blade lowered over 40 f (f19-58, the Shikai's curve at half speed, a key a frame) with the chest (-46°) and the head turned away, no root yaw, held still to the move's end (f78; TO-IDLE's 6 f blend takes him back). It held the stance pose for its last 26 f before. SL7's seam (YAMA-SK-MOVES code 8, `:ya-b-n3c` only; 爆炎's AS3c keeps code 1): the hairline on S and S+1, then from f38 the seam from 0.6 m to 8 m, 10 white-cored tongues a side in a V, tallest at the reach (2.4 m), lower past it (0.6 at 8 m), gone by f65 |
+| AS / NS1a-b / NS2a / NS3a-b / SA | the Shikai's clips and looks at T2, unchanged; **the SA's halo at 3.2 m was already built by S1** (YAMA-SK-MOVES code 3, 87449's `halo-blaze` 0 B) |
+| The cancel burn (Y10) | **Left as a sound.** The cancel's feedback is `:clash x y z` (no side); the burn's own event is the generic `(:sfx :explode other)`, which carries the victim, but YAMA-DOME-FIRE emits the same key with Yamamoto himself on every dome, so FEEDBACK cannot tell a burn from a dome without a new event (a sim-file emit, outside S4's allowed edits) |
+
+Deleted, unreferenced after S4: `ya-hellfire` (the clip); kept `:ya-hellfire-point` (the entry's and S5's storyboard's pose). Re-defined:
+`:ya-ikkotsu-chamber`, `:ya-ikkotsu-hit` (IKKOTSU's own, no other user).
+
+### 25.2 Drawn reach against hit reach (the host FK test)
+
+| Move | Before (§24.2): drawn / volume end / delta | After | Verdict |
+|---|---|---|---|
+| 爆炎 J3 IKKOTSU (by the fist) | 1.21 / 1.40 / -0.19 **(known off)** | **1.36 / 1.40 / -0.04** | within ±0.15: out of `known-off` |
+| 爆炎 NS3c the true NADEGIRI | 1.95 / 2.40 / -0.45 (one-sided, `ya-nadegiri`) | 1.95 / 2.40 / -0.45 (its own clip, the same cut) | one-sided (SL7's seam, 8 m) |
+| 爆炎 SA TAIMATSU | 1.45 / 3.20 / -1.75 | unchanged | one-sided (SL8 at 3.2 m) |
+
+**`known-off` is empty** (`'()`): every Shikai and 爆炎 blade window is within ±0.15 m or one-sided. F10's print: `IKKOTSU (clip YA-IKKOTSU S9,
+move S9)`, the fist ahead per frame f6-12: 0.28 0.28 0.28 **1.35** 1.36 1.36 1.35 (before: 0.69 0.98 1.19 1.21 1.21 1.20 1.20, the punch a
+frame early). The planted windows: IKKOTSU's grip on its spot 0.01 m off at f2 and f24 (the check now poses each row on its own kit's body).
+ENNETSU's cast check: the tip at S18 0.34 / -0.04 / 1.08 (in the plaza, ahead).
+
+### 25.3 Link frames: the tip's jump on the frame the link lands (m)
+
+| Link (lands on) | Before | After | The new clip's first frames (f1-4) |
+|---|---|---|---|
+| J2 > IKKOTSU (J2 f11) | 1.28 | 0 | 1.27 1.33 1.51 0.82 (the blade driven into the plaza by f2, then drawn planted: the hand's blade is not drawn from f2) |
+| 爆炎 NS2b > ENNETSU (NS2b f18, NS2c's clip at x18/16) | 0.18 | 0 | 0.04 0.06 0.09 0.13 |
+| 爆炎 NS3b > the true NADEGIRI (NS3b f15) | 0 | 0 | 0.06 0.18 0.34 0.48 (the Shikai's settle) |
+| stance > the entry pose | (the old clip from `:ya-stance`, no blend) | `:blend 4` from any stance | (f1-4 of its own: 0.33 0.13 0.02 0.17) |
+
+### 25.4 緩急 (m a frame, the clip's FK at the root)
+
+| Move | Charge | Hold | Release → S | After S |
+|---|---|---|---|---|
+| IKKOTSU, the fist, before (S8 clip) | f6-8 0.51 0.45 0.29 (no hold: the chamber was frame 0) | - | f9 0.10 | 0.03 |
+| IKKOTSU, the fist, after | f4 0.28, f5 0.10 (to the ribs) | f6-8 0.01 0.01 0.01 | **S 1.48** (one drawing) | 0.02 |
+| ENNETSU, the tip | f1-12: 0.04 0.06 0.09 0.13 0.18 0.24 0.28 0.29 0.27 0.24 0.20 0.12 | f13-15 ≤ 0.02 | f16 0.27, **f17 0.49**, S 0.45 | 0.01 |
+| the true NADEGIRI, the tip | f1-6 the settle (0.48 at most) | f7-12 ≤ 0.02 | **f13 1.84, S 1.51** | the lowering 0.01 → 0.11 → 0.01 over f19-58, then 0 to f78 |
+
+ENNETSU's drive (0.49) is 1.7x its fastest gather frame (0.29): the gather carries the blade from level at the dome to his hip (1.9 m of tip
+travel), so it cannot be slow; it was stretched to 12 frames and the drive keyed at 12 % / 45 % so it gathers into S.
+
+### 25.5 Deviations, each with its reason
+
+1. **Kit-local scars, and the bared body's mesh dulled** (25.1): the shared gain would touch three files and the engine for one kit; the
+   overlay needs the mesh's own glow lowered to show "dull by 25". The scars' table is now *YA-SCARS* (one source for the parts and the look).
+2. **The ring before the dome, not after its first frame** (25.1): §22.2's hit-frame rule; its spot is read on the frames before S, so a victim
+   stepping in those 4 frames moves the dome's spot from the ring's by up to his 4 frames of travel (0.3-0.4 m at a walk).
+3. **ENNETSU's front row rides the box; the tell lies outside the footprint by design** (§21.4: "a row ahead of the front"). The rows behind
+   are the lane already crossed (decoration of a hit that has passed, as the spiral's tail). Rows erode over 4 f (§21.4 said "then eroding"
+   with no length) and their crowns are two tongues without a core: the first build's rows overflowed the fx batch in the 87449 probe (10 draws
+   past its 16,384 vertices: "(dropped)"); now about 1,200 vertices a draw (counted from the segments, 6 a segment).
+4. **The true NADEGIRI's seam has 10 tongues a side, no EMBER backing**: the first build's 14 a side with backings overflowed the probe the same
+   way (about 1,850 vertices a draw); now about 860.
+5. **The entry pose ends on its straightened pose** (f20-24), and TO-IDLE's 6 f blend takes him back to his stance, as the true NADEGIRI's end
+   (its held stillness to f78, as §21.4 asks).
+6. **IKKOTSU's fist is a 0.52 m drawn step** (`:root :f 0.52`; the old clip's 0.32): one arm from where he stands reaches 1.2 m; the Bankai's
+   grab is the precedent (0.88). Its punch is one drawing (S 1.48 m a frame after a 3-frame hold).
+7. **The flame trail draws behind every 爆炎 swing** (`:smear` is per form), not J1 / J2 alone.
+8. **Debug 87490** (new, claimed in DUEL_GAMEPLAY): P2 moved 3 m to P1's right, so the tornado has an off-axis victim to turn after (87000+k
+   always places him dead ahead).
+
+### 25.6 Stills (untracked)
+
+- In play: `tests/scripts/duel-yama-s4.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_s4_script`), P1 in 爆炎, the behind camera then
+  the SIDE camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on): `tests/shots/duel-yama-s4-<still>-<behind|side>[-phone].png`
+  for `heat-100`, `heat-50`, `heat-10`, `heat-10b` (the scars, the blade, stance 1's corkscrew), `j1-trail`, `j2-trail`, `ikk-first` / `-plant` /
+  `-chamber` / `-s` / `-a` / `-back` / `-hilt`, `entry-f03`-`f23`, `tornado-s`, `tornado-lean-a` / `-b`, `ring-f12` / `-f14` / `-f15` / `-s` /
+  `-f24`, `ennetsu-cock` / `-s` / `-f24` / `-f30` / `-f40` / `-f58`, `nade-s`, `nade-f30`-`f77`; from above (87480 + 87481, landscape):
+  `duel-yama-s4-top-ennetsu-f18` / `-f30` / `-f40`, `-top-tornado-f30`.
+- 8-frame strips, the art viewer (`dist/duelview` built with `yama-art.lisp`): `tests/shots/duel-view-yama-s4-<clip>-<side|front>.png` for
+  `ya-ikkotsu`, `ya-blaze-in`, `ya-b-n2c`, `ya-b-n3c` (`tests/scripts/duel-view-yama-s4.json`, `duel-view.py`'s `yama_s4`; the K2 / K3 / S2 / S3 strip
+  scripts regenerated: the clip indices moved).
+- Contact sheets: `tests/shots/duel-yama-s4-sheet-<behind|side>[-phone].png`, `duel-yama-s4-top-sheet.png`, `duel-yama-s4-strips-<side|front>.png`.
+
+Checked by eye: the three heats read apart on his chest from the SIDE camera (from behind only the back scar shows); IKKOTSU's blade stands
+in the plaza at his right from f2, the fist burst on S into Kenpachi; the entry's ring runs out from the point (the big orange disc of f6-f9 is
+FEEDBACK `:hellfire`'s existing shockwave, not S4's); NS2b's ring coils round Kenpachi f12-15 and the dome stands after; ENNETSU's rows
+stand behind the front and from above the front row fills the box with the tell circles a row ahead; the true NADEGIRI's seam runs past
+Kenpachi to 8 m and he stands turned away with the blade low. The tornado's lean is slight at play distance (the hazard turns after the
+victim at 60°/s, so the lateral share of his bearing shrinks as it tracks). The black radial marks under him in later stills are the 爆炎
+entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`), one per scene.
+
+### 25.7 Checks (all on the final build)
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-core.lisp` (242 lines of `combo-trial.py --log`), `-blaze` (268), `-bankai` (513): identical to 09002726's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-core.json` (116 lines) and `duel-yama-blaze.json` (40): every `duel hash`, `duel probe`, `duel yamamoto`, combat-log and scene line identical to a dist built at 09002726 |
+| Heat is read, never written | the trials above (their HEAT lines) and S1's host walker over the look files: none written (YAMA-SCAR-GLOW reads GAUGES-METER) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines; `vfx-smear`'s look 5) |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at 09002726. The expected list, written before the run from BASE's cvc-yk log: **none, 83 / 83** (no GOKUEN line in seed 28: P1's heat peaks at 40 at tick 1950 and is spent at 1995, so 爆炎 is never on screen; every S4 look and clip is 爆炎's; the Shikai paths touched draw the same: the `:planted` hook returns NIL, SL0's planted guard is false, the tornado's lean is 0 without `:track`, looks 0-4 take the same branches). Result: **83 / 83 byte-identical** (noise floor 0); every scenario's fighters and sim lines PASS (`cvc-yk sim lines` 12) |
+| Host tests | ALL PASS, 4252 checks (+11: IKKOTSU's FK row checked (`known-off` empty), its planted window at f2 and f24, 爆炎's four clips on their moves' frames, ENNETSU's point in the plaza on S, the entry pose under the root-yaw guard with no exemption, the look constants +YA-ENNETSU-SPEED+ / +YA-DOME-NEAR+ / +YA-DOME-FAR+ / +YA-ARENA-IN+ against the sim, 爆炎's smear 5, the `:planted` hook on 爆炎, the blend list with the entry pose) |
+| pkgcheck, debug ranges, warnings | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 88 ranges, 0 errors (87490 claimed in DUEL_GAMEPLAY "Debug commands"); the compiler's warnings the same three as main's, none in the yama files or `vfx.lisp` |
+| 0 B a frame | debug 87449 every row 0 B, the new `scars-100` / `-60` / `-20` / `-5`, `ennetsu-front` / `-rows` / `-end`, `tornado-lean`, `ring-close`, `blaze-in-edge` / `-ring`, `fist`, `nade-seam-8m`, `smear-5`, `plant-spot-ikkotsu` included; no row "(dropped)" (the first build's three: deviations 3 and 4); `fx-dropped 0` on every stats line of both stills runs |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs --secs 8` exit 0 |
+
+### 25.8 Open
+
+- **For the user's eyes** (the sheets): the true NADEGIRI's 8 m seam (§21.4 asks for it; 5.6 m of it lies past the 2.4 m reach: K5's
+  caveat, decoration read as reach); the tornado's lean (slight at play distance); IKKOTSU's 0.52 m step and one-drawing punch; ENNETSU's rows
+  from the behind camera (the front row starts 1 m ahead of him and fills the lower screen for its first frames); the scars' hairlines (they
+  read from the SIDE camera; from behind only the back scar shows).
+- The cancel burn stays a sound (25.1): a look would need its own event in YAMA-BURN! (a sim-file edit).
+- 爆炎 NS2b still plays NS2c's clip at x18/16 (its frame 0 0.15 m off 爆炎 NS2a's landing, §24.6 dev 5): not in §21.4's table.
+- The SA's frame 0 against its six predecessors (§18.9) is unchanged. S5: the three Kikon cinematics on 87482-87489.
