@@ -2647,7 +2647,8 @@ to the first wired run's (so 26.4's diff against BASE holds line for line); the 
   blocks), this doc (§26 before §27).
 - On merged main: host tests 4262 pass, debug ranges 0 errors, pkgcheck as before, build and smoke (exit 0) pass. `--cvc` and the looks
   gate (BASE = main's dist before the merge, `looks-base-s5`; expected: `cvc-yk/w3-0` and the YK hash lines from t=4200 only, §26.0) are
-  recorded below when they finish.
+  finished: `--cvc` PASS II / IK / KK; looks 82/83 with only `cvc-yk/w3-0` and the YK sim lines moved, as §26.0 wrote. The looks base
+  is re-based to the merged dist (scratchpad `looks-base-s5m`).
 - The lead's read of the sheets, for the user: 不知火's columns read as traffic cones and its tornado as stacked rings; the composed 焱 is
   lighter than 熱地獄; 撫斬's 28 f still face then 54 f lowering is slow; 焱熱地獄's near pillars sink to stubs side-on.
 
