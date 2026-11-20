@@ -1,0 +1,234 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== stance 3 shikai behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 10.3,
+"shot": "tests/shots/duel-j3-stance3-shikai-a-behind.png"
+},
+{
+"at": 11.0,
+"shot": "tests/shots/duel-j3-stance3-shikai-b-behind.png"
+},
+{
+"at": 11.25,
+"eval": "console.log('=== stance 3 gokuen behind')"
+},
+{
+"at": 11.3,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 11.35,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 11.4,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 11.45,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 12.65,
+"shot": "tests/shots/duel-j3-stance3-gokuen-a-behind.png"
+},
+{
+"at": 13.35,
+"shot": "tests/shots/duel-j3-stance3-gokuen-b-behind.png"
+},
+{
+"at": 13.6,
+"eval": "console.log('=== gokuen NS2b behind')"
+},
+{
+"at": 13.65,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 13.7,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 13.75,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 13.8,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 14.6,
+"eval": "Module._debug_cmd(87474)"
+},
+{
+"at": 14.62,
+"shot": "tests/shots/duel-j3-ns2b-f01-behind.png"
+},
+{
+"at": 14.67,
+"shot": "tests/shots/duel-j3-ns2b-f04-behind.png"
+},
+{
+"at": 14.72,
+"shot": "tests/shots/duel-j3-ns2b-f07-behind.png"
+},
+{
+"at": 14.77,
+"shot": "tests/shots/duel-j3-ns2b-f10-behind.png"
+},
+{
+"at": 14.82,
+"shot": "tests/shots/duel-j3-ns2b-f13-behind.png"
+},
+{
+"at": 14.85,
+"shot": "tests/shots/duel-j3-ns2b-f15-behind.png"
+},
+{
+"at": 14.87,
+"shot": "tests/shots/duel-j3-ns2b-f16-behind.png"
+},
+{
+"at": 14.9,
+"shot": "tests/shots/duel-j3-ns2b-f18-behind.png"
+},
+{
+"at": 16.1,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 16.35,
+"eval": "console.log('=== stance 3 shikai side')"
+},
+{
+"at": 16.4,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 16.45,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 17.7,
+"shot": "tests/shots/duel-j3-stance3-shikai-a-side.png"
+},
+{
+"at": 18.4,
+"shot": "tests/shots/duel-j3-stance3-shikai-b-side.png"
+},
+{
+"at": 18.65,
+"eval": "console.log('=== stance 3 gokuen side')"
+},
+{
+"at": 18.7,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 18.75,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 18.8,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 18.85,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 20.05,
+"shot": "tests/shots/duel-j3-stance3-gokuen-a-side.png"
+},
+{
+"at": 20.75,
+"shot": "tests/shots/duel-j3-stance3-gokuen-b-side.png"
+},
+{
+"at": 21.0,
+"eval": "console.log('=== gokuen NS2b side')"
+},
+{
+"at": 21.05,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 21.1,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 21.2,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 22.0,
+"eval": "Module._debug_cmd(87474)"
+},
+{
+"at": 22.02,
+"shot": "tests/shots/duel-j3-ns2b-f01-side.png"
+},
+{
+"at": 22.07,
+"shot": "tests/shots/duel-j3-ns2b-f04-side.png"
+},
+{
+"at": 22.12,
+"shot": "tests/shots/duel-j3-ns2b-f07-side.png"
+},
+{
+"at": 22.17,
+"shot": "tests/shots/duel-j3-ns2b-f10-side.png"
+},
+{
+"at": 22.22,
+"shot": "tests/shots/duel-j3-ns2b-f13-side.png"
+},
+{
+"at": 22.25,
+"shot": "tests/shots/duel-j3-ns2b-f15-side.png"
+},
+{
+"at": 22.27,
+"shot": "tests/shots/duel-j3-ns2b-f16-side.png"
+},
+{
+"at": 22.3,
+"shot": "tests/shots/duel-j3-ns2b-f18-side.png"
+},
+{
+"at": 23.5,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 23.8,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 24.1,
+"eval": "console.log('=== END')"
+}
+]

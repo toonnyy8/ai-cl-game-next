@@ -307,6 +307,11 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
           (when (and main (eq (mv-name mv) :ya-j3) (<= 7 (fighter-sf f) 12))   ; SL9: TSUKABI's burning pommel (S-2 to S+A)
             (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 0.285f0)
             (%ya-pommel-fire *ya-tip*)))
+        (when (and (null mv) c (eq (clip-name c) :ya-st-cane) (eq (model-weapon m) :ryujin-jakka) (> (model-alpha m) 0.5)   ; 撫斬's stance
+                   (not (planted-spot e f mv)) (not (yama-s5-cine-p e)))   ;  (J3, §28.5): no fire, the EMBER line down the blade
+          (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 -0.95f0)
+          (joint-point! *ya-base* jm (ji :weapon-r) 0f0 0f0 -0.25f0)
+          (yama-stance-fire *ya-tip* *ya-base* 3 0))
         (when main
           (let ((code (yama-sk-code mv)))
             (when (> code 0) (yama-sk-moves (pos-of e) (yaw-of e) code (fighter-sf f) ti)))
@@ -639,9 +644,9 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
 (defclip :ya-st-enjo (2.4 :loop t :base :ya-st-jokaku)
   (0) (0.6 (:root :u -0.03) (:arm-r :flex 115.5)) (1.2 (:root :u -0.035) (:chest :flex -2) (:arm-r :flex 115))
   (1.8 (:root :u -0.025) (:arm-r :flex 115.5)))
-(defpose :ya-st-nade (:base :ya-lean)
-  (:root :u -0.01) (:spine :flex 6) (:neck :flex -10) (:head :flex -26)
-  (:arm-r :flex -14.5 :side 22 :twist 5) (:elbow-r :flex 84.5) (:hand-r :twist 150 :flex 39.5 :side 13.5))
+(defpose :ya-st-nade (:base :ya-lean)                        ; (J3, §28.5: the blade slanted out, the point 0.50 m right / 0.32 ahead,
+  (:root :u -0.01) (:spine :flex 6) (:neck :flex -10) (:head :flex -26)   ;  was 0.28 / 0.22: past the haori's edge from behind; hand :side 33.5, was 13.5)
+  (:arm-r :flex -14.5 :side 22 :twist 5) (:elbow-r :flex 84.5) (:hand-r :twist 150 :flex 39.5 :side 33.5))
 (defclip :ya-st-cane (2.4 :loop t :base :ya-st-nade)
   (0) (0.6 (:head :flex -27)) (1.2 (:neck :flex -11) (:head :flex -28)) (1.8 (:head :flex -27)))
 ;; Pointer 2 城郭炎上 JOKAKU ENJO, art S3 (DUEL_YAMA_CORE §21.3 / §24): each segment on its own clip at its move's S, frame 0 the pose its link
@@ -850,6 +855,39 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
   (:s :snap :ya-n2c-hit)
   (:a :ya-n2c-land)
   (34 (:root :yaw 6 :f 0.06 :u -0.05) (:chest :twist 4) (:spine :flex 10) (:thigh-l :flex 18) (:knee-l :flex 20) (:thigh-r :flex -6)
+      (:arm-r :flex 70 :side -20 :twist 0) (:elbow-r :flex 22) (:hand-r :twist 0 :flex -80))
+  (:end :ya-stance))
+;; 爆炎 NS2b (S16; batch J3, DUEL_YAMA_CORE §28.5): its own clip (it played NS2c's at x18/16). "The ring closes at once" (§21.4): from
+;; 爆炎 NS2a's landing (:YA-N2A-LAND, as the Shikai's NS2b) the wrist flicks one circle with the point f2-6 (a key a frame: the ring
+;; YAMA-RING-CLOSE draws f12-15), the blade swept up point-up overhead f7-11 (NS2c's rise, twice as fast), held f11-13 trembling, chopped
+;; down f14-15 (NS2c's two snaps) to the level point on S (:YA-N2C-HIT: the dome stands); S+A is ENNETSU's frame 0 exactly (link jump 0)
+(defstrike :ya-b-n2b (16 2 20 :base :ya-stance)
+  (0 :ya-n2a-land)
+  (1 (:root :u -0.078) (:hand-r :flex -84))
+  (2 (:root :u -0.08) (:hand-r :flex -83 :side 0))                                            ; the circle, a key a frame
+  (3 (:hand-r :flex -68 :side -15))
+  (4 (:hand-r :flex -83 :side -30))
+  (5 (:hand-r :flex -98 :side -15))
+  (6 (:hand-r :flex -83 :side 0) (:arm-r :flex 130.5))
+  (8 :ya-n2b-land (:root :u -0.046 :f 0.132 :yaw 9.2) (:spine :flex 1.9) (:chest :twist 9.1) (:neck :flex -11.4) (:head :flex -20.2)   ; (NS2c's f3)
+        (:arm-r :flex 132.1 :twist -16.6 :side -37.2) (:elbow-r :flex 5.1) (:hand-r :flex -80.3 :twist 2.6) (:thigh-r :flex -9.1) (:knee-r :flex 13.5)
+        (:thigh-l :flex 26.3) (:knee-l :flex 24.0))
+  (10 (:root :u 0.0 :f 0.096 :yaw 2.8) (:spine :flex -3.6) (:chest :twist -2.7) (:neck :flex -16.0) (:head :flex -28.3)                 ; (NS2c's f6)
+        (:arm-r :flex 134.8 :twist -15.5 :side -18.4) (:elbow-r :flex 9.9) (:hand-r :flex -66.3 :twist 14.6) (:thigh-r :flex -0.1) (:knee-r :flex 7.6)
+        (:thigh-l :flex 10.9) (:knee-l :flex 10.9))
+  (11 :ya-n2c-up (:arm-r :flex 137) (:root :u 0.025))                                          ; overhead, held, trembling
+  (12 :ya-n2c-up (:arm-r :flex 135.5) (:hand-r :flex -61))
+  (13 :ya-n2c-up (:arm-r :flex 137) (:root :u 0.025))
+  (14 :snap :ya-n2c-up (:root :u -0.013 :f 0.086 :yaw 2.4) (:spine :flex -2.4) (:chest :twist -0.2) (:neck :flex -15.0) (:head :flex -26.6)
+        (:arm-r :flex 135.1 :twist -15.7 :side -22.4) (:elbow-r :flex 8.8) (:hand-r :flex -67.8 :twist 12.0) (:thigh-r :flex -0.2) (:knee-r :flex 8.9)
+        (:thigh-l :flex 11.2) (:knee-l :flex 11.3))
+  (15 :snap :ya-n2c-up (:root :u -0.057 :f 0.094 :yaw 5.6) (:spine :flex 2.4) (:chest :twist 10.2) (:neck :flex -11.0) (:head :flex -19.4)
+        (:arm-r :flex 133.9 :twist -16.8 :side -39.0) (:elbow-r :flex 4.7) (:hand-r :flex -78.2 :twist 1.4) (:thigh-r :flex -5.8) (:knee-r :flex 14.1)
+        (:thigh-l :flex 20.8) (:knee-l :flex 19.7))
+  (:s :snap :ya-n2c-hit)
+  (:a :ya-n2c-land (:root :u -0.093 :f 0.098 :yaw 7.9) (:spine :flex 6.2) (:chest :twist 17.3) (:arm-r :flex 127.8 :twist -16.6 :side -49.8)   ; (= :YA-B-N2C's
+     (:elbow-r :flex 2.6) (:hand-r :flex -85.7 :twist -6.2) (:thigh-r :flex -9.8) (:thigh-l :flex 27.5) (:knee-l :flex 25.7))                ;  frame 0)
+  (30 (:root :yaw 6 :f 0.06 :u -0.05) (:chest :twist 4) (:spine :flex 10) (:thigh-l :flex 18) (:knee-l :flex 20) (:thigh-r :flex -6)
       (:arm-r :flex 70 :side -20 :twist 0) (:elbow-r :flex 22) (:hand-r :twist 0 :flex -80))
   (:end :ya-stance))
 ;; 爆炎 NS2c ENNETSU JIGOKU (S18; art S4, DUEL_YAMA_CORE §21.4 / §25): its own clip (it played NS2a's :YA-ENJO at x1.11, which ended at f40
