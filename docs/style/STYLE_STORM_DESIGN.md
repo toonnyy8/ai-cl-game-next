@@ -1810,3 +1810,136 @@ tests `duel-view.lisp` (7000+k grip strips), `style-6-shots.py`, `style-6-checks
 
 **Open.** User review 4 (the final one). The fist's residual on DO's wind-up frame (a longer left arm or an extra key would
 reach); the face accents inside Kenpachi's cup-3 aura; a rain sound; the hair lift of cup 3's grin (a hair rig).
+
+## 15. Soft flame: feathered edges and continuous flow (batch F1, 2026-11-20)
+
+The user, 2026-11-20: 「能否讓火焰展現出輕柔的材質感，目前的火焰特效都顯的生硬」.
+
+**Why the flames read as stiff.** This reverses part of §3.4 / §6's rules: "one hard layer" per shape, fire on twos.
+- Every flame shape is one opaque layer, cut at a hard level set and filled with two or three flat palette bands.
+- Its noise steps every two fx ticks and reseeds on the third drawing, so it pops rather than flows.
+- Many Lisp looks also put `drawing-no` into their shape seeds and heights (about 70 call sites over `vfx`, `yama-*`, `ken-*`,
+  `ichigo-look`, `hisagi-*`), so they pop on each drawing too.
+- References: `.refs/yamamoto/RoS_Yamamoto_Ennetsu_Jigoku.png` (Rebirth of Souls: silk-like glowing ribbons), the anime ep. 372 frames, and
+  the user's Zanjitsu Gokui image (`docs/research/yamamoto-rework/zanjitsu-refs.md`). A side-by-side sheet was shown to the user.
+
+### 15.1 Decisions (AskUserQuestion, 2026-11-20; the user's answer in bold)
+
+| # | Question | Answer | Rejected |
+|---|---|---|---|
+| F-Q1 | Which softness | **「保留平塗、只柔邊和流動」**: keep the flat manga colour bands; the edges feather out, a little glow round the shape, the motion flows upward continuously frame by frame | silk and glow like RoS: translucent ribbons, smooth gradients, layered (the most change, the manga read fades); motion only (the shapes as they are, flowing and swaying, thin drifting tips) |
+| F-Q2 | Scope | **「所有火焰類特效」**: every flame-class effect, Kenpachi's yellow REIATSU flame aura and any other tongue-shaped aura included | Yamamoto's fire only |
+
+### 15.2 The approach (the lead's, with the advisor's review)
+
+1. **Feather inward, in a second pass.**
+   - The opaque core pass stays as it is.
+   - A blended fringe pass over the same fx-toon vertices draws only a thin band inside the silhouette, with an alpha falloff:
+     depth test on, depth write off, after the opaque fx.
+   - The edge must not move outward, so a floor ring's ground edge (the footprint rule, DUEL_YAMA_CORE §21.6) and the mantle's
+     1.9 m cap (§27) hold.
+   - No Lisp change and 0 B.
+   - Why not alpha-to-coverage alone: MSAA (4x when the device supports it) gives about 5 dithered levels, which reads as grain.
+     Without MSAA the shader discards at 0.5.
+2. **A little glow.** Use the existing bloom path (bright → blur → composite) if the flame palettes can feed it. Otherwise a faint halo
+   in the fringe pass. Small: the manga bands stay the read.
+3. **Flow.**
+   - Fire's noise scrolls on the continuous fx clock, wrapped to a period, with no reseed.
+   - On the Lisp side, one shared `defun-fast` helper (a hash interpolated over a continuous phase) replaces `drawing-no` in the flame
+     looks' seeds and heights.
+   - It stays on the fx clock, so hitstop and a cinematic's DT 0 still freeze it: the full shape on the hit frame, deterministic stills.
+4. **Order.**
+   - First a shader-only prototype: 2-3 feather widths × glow strengths on Kenpachi's aura and the ENNETSU pillars, shown to the user
+     as 8-frame strips (flow does not show in a still).
+   - Then the shader at the user's pick.
+   - Then the Lisp seed sweep, after the running batches S5 / Z1 merge so it covers their looks.
+5. **The flame-class inventory** (styles, palettes, call sites) is written into this § before the sweep; borderline effects are listed
+   for the user, not decided silently.
+
+### 15.3 The flame-class inventory (2026-11-20, before the sweep)
+
+**Shader side.** The toon fx palettes involved (`fx-toon-pal.wgsl`, `fx-shapes.lisp` `+pal-…+`):
+- fire style (`core.w` 2): 0 FIRE, 1 EMBER, 15 FLAME;
+- 2 REIATSU (energy style 0): Kenpachi's yellow, every form. It is also the comet smear (`vfx-smear` look 1), the REIATSU hit
+  stamps (`%st-hit` kind 15, `vfx-shockwave`), `vfx-rift`'s lens crescent, `vfx-skull`'s sockets and Ichigo's Getsuga core 3.
+
+The prototype's selector (`soft_class`, `fx-toon-io.wgsl`; the shader alone, no Lisp flag) takes palettes 0 / 1 / 15 in every shape,
+and REIATSU only as an *along* shape (seed < 0): the aura's tongues and its ring, not the comet smear or the stamps. The stage has no
+fire (`stage.lisp`: only the cracks' EMBER seam, a ground segment, which the selector takes as fire style).
+
+**Lisp side: `drawing-no` call sites** (shape seeds, tongue phases, heights, leans that pop each drawing): 70 in all. 57 are
+`(drawing-no)` (twos) and 13 `(drawing-no <rate>)`.
+
+| Class | Sites | Where |
+|---|---|---|
+| flame | 33 | yama-look 19 (`%ya-flare`, `%ya-blade-burn`, `%ya-pommel-fire`, `%ya-fist-fire`, `yama-north-`, `-stance-`, `-spiral-`, `-lance-`, `-column-`, `-tornado-`, `-ring-`, `-dome-`, `-ennetsu-`, `-blaze-in-look`, `-stance-fire`, `-blade-fire`, `-ring-close`, `-bk-moves`, `-sk-moves`); yama-cine 2 (`%ya-garb`, `yama-nishi-look`); yama-vfx 2 (`vfx-fireball`, `vfx-blade-embers` at threes); vfx.lisp 9 (`vfx-smear`, `%brush-aura`, `%reiatsu-aura`, `vfx-aura` `:burst-*`, five in `vfx-line-cut`: `:enjo`'s FIRE walls, `:kyoku`'s heat sheet, the rest of it ink / dust); vfx-ember 1 (`vfx-charge`) |
+| borderline | 6 | listed below |
+| non-flame | 31 | Kenpachi 11 (ken-look 8: wind, streaks, KK tail; ken-art 2: chops; ken.lisp 1: the rift band), Hisagi 12 (shards, stars, chains; 2 of them in hisagi-cine), Ichigo 2 (chain, edge), vfx 4 (breaker ring, skull, face accent, KO rain), yama 2 (the dead's hands, smoke) |
+
+Flame-class looks per owner: Yamamoto 27 (yama-look 17, yama-vfx 8 incl. the one-shot stamps, yama-cine 2); Kenpachi 1 shared
+(the REIATSU aura, cups 1 / 2 / 3 and the Breaker's REIATSU layer, plus the comet smear if the user wants it); Ichigo 0 and Hisagi 0
+in fire palettes; shared: the orange running burst, the fire-wave line cut, the Shiranui charge.
+
+**Borderline, for the user (not decided):**
+- `%kikon-aura` (vfx.lisp): the Kikon rush's BLOOD brush-flame tongues and ring;
+- `vfx-aura :oni` (Kenpachi's Bankai pillar: BLOOD tongues over INK tongues) and the INK backing under the Breaker's REIATSU;
+- `vfx-aura :evolution` (STEEL tongues) and `:burst-white` / `:burst-blue` (HIT / BLUE tongues), every one built with `%brush-aura`;
+- `vfx-soul-flame` (a BLOOD ribbon over a Kikon-able victim, no `drawing-no`: it cycles on its own 3-drawing count);
+- Ichigo: `ichigo-red-wisps` (BLOOD tongues with an EMBER core at the joints), `ic-flame-sheets` (the Bankai's red-black flame
+  sheets), `vfx-ic-crescent` (the black Getsuga, REIATSU only as core 3), `ichigo-charged-blades` (a REIATSU crescent wrap);
+- `vfx-rift` (a REIATSU lens crescent) and Kenpachi's REIATSU comet smear: REIATSU, but not tongues;
+- Hisagi: none tongue-shaped (JADE / INK / GOLD shards, stars and crescents).
+
+Finding: `vfx-aura` has no `:hellfire` branch, and the keyword is not fbound. The 爆炎 entry's call (`yama-cine.lisp:40`) and
+`yama.lisp`'s GOKUEN form (`:aura :hellfire`) therefore draw no aura today.
+
+### 15.4 The prototype (shader only, 2026-11-20)
+
+- **Knobs.** The engine's `*soft-flame*` holds a candidate (0 = the current look), set by debug 88000+i (DUEL_GAMEPLAY "Debug
+  commands"). `*soft-flame-knobs*` (render.lisp) gives each candidate a feather in px at 720 lines and a glow; candidates 1–3 also
+  flow. Frame lanes: `clk.z` = the flow clock (unfloored 24 Hz ticks, wrapped to 6144 = 256 s, -1 = off), `clk.w` = the feather
+  px; `*rp*`[23] = the glow.
+- **Feather.**
+  - `fs_fx_toon` (RP_FXT) cuts a flame-class shape at `kc = k − min(feather × ink scale × fwidth(d), k/2)` instead of `k`; the
+    palette bands still use `k`.
+  - `fs_fx_toon_f` (RP_FXT_F, slot 21: blend alpha, depth test without write, drawn right after RP_FXT and before the additive T光
+    lines) draws only the band `kc..k`, with alpha `1 − smoothstep(kc, k, d)` (× g/4 for a glass shape).
+  - The silhouette never grows past `d = k`.
+  - Its vertex entry moves every other shape outside the clip volume, and C skips the pass while the feather is 0.
+- **Glow.** `fs_bright` adds `glow × warm × colour` to what blooms. `warm` = saturation ≥ 0.45–0.65 × red above blue × value
+  0.8–0.95, so it takes the fire bodies and REIATSU's yellow and leaves white and grey out. The bloom's blur makes the halo. Known
+  leak: any other saturated warm bright pixel (an orange costume in full light) glows too.
+- **Flow.** The flame-class shapes' noise scrolls up at 0.175 shape units a tick on `clk.z`, with no reseed. The other shapes still
+  step and reseed as before. Their Lisp geometry still pops each drawing (`drawing-no`): that is the sweep's part.
+- **Candidates** (feather px, glow): 0 = (0, 0), the current look; 1 = (1.5, 0.25); 2 = (3, 0.5); 3 = (5, 0.8).
+- With candidate 0 every frame lane and the glow are 0 / -1, and the fringe pass is skipped. Its renders are byte-identical to the
+  base build's.
+- **Strips** (`tests/scripts/duel-soft-flame-c{0..3}[-phone].json`, one run per candidate on the same timeline; sheets
+  `tests/shots/duel-softflame-sheet-{aura,ennetsu,ennetsu-zoom,stance1,west}.png` and `-{aura,ennetsu}-phone.png`, untracked):
+  rows = candidates, columns = 8 consecutive 60 Hz frames.
+  - Read at a glance: the feather softens the outer rim. The glow shows from candidate 2, and at candidate 3 the pillars read as lit.
+  - The shade band (`d/k + 0.3 s.x > 0.82`) sits on the rim, so a wide feather fades the dark-red / gold shade edge out with it.
+  - The sheets judge feather × glow, not flow. Most flame seeds carry `drawing-no` (e.g. `%brush-aura`'s `sd`), and the shader turns
+    the seed into the noise offset, so the noise still reseeds on every drawing. Measured: the pixels that change between the two frames
+    of one drawing (frames 1→2 and 4→5 in the crop) are 0 / 66–82 at candidate 0 (aura / ENNETSU) and 1.2–1.6 k / 3.3–5.3 k at
+    candidates 1–3. The flow runs, but the 12 Hz repaint hides it. The verdict on flow waits for the sweep, or for a live try: debug
+    88001–88003 switches candidates on whatever is running.
+  - The glow leak: in the 84000 scene (Ichigo's orange hair in frame), candidate 3 changes 0 pixels outside the aura box.
+- **Proofs.**
+  - Candidate 0's 48 stills (32 landscape, 16 phone) are byte-identical to the base build (d7b71277).
+  - The title is byte-identical at candidate 0. At candidate 3 only the background Kenpachi's REIATSU aura changes (a 93 × 150 px
+    box): the title has a flame-class effect.
+  - `--cvc` passes; the native trials (`yamamoto-core`) are identical; host tests 4252 pass; pkgcheck shows only the existing
+    `DUEL::APP`; the debug ranges have 0 errors; `fill-frame-uniforms` conses 0 B a call at candidates 0 and 2 (native, 100 calls).
+- **Speed** (SwiftShader, wall clock, 西 garb + Kenpachi's aura, two runs each, on a shared machine): candidate 0 at 67.7–85.1 ms
+  a frame, candidate 3 at 60.4–94.5 ms. The difference is lost in the noise of the parallel load. Candidate 0 stands in for the
+  base build (fringe pass skipped, stills byte-identical). ENNETSU, the heaviest flame scene, was not timed (too short for the 5 s
+  perf window).
+
+Gates:
+- the native trials, the browser scripts' sim lines and `--cvc` identical (presentation only);
+- the looks gate's expected diff written first: every still with a flame or REIATSU effect moves, and the stills without one
+  (`menus/title`, …) stay byte-identical;
+- `tools/toon_check.py`'s spot-share and value-step numbers are reported; a rule they break is amended with the user's words, not retuned;
+- speed is compared before and after only (SwiftShader);
+- `procedural-ink-style`'s per-material step rates are updated after the batch.

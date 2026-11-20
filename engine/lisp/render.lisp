@@ -212,7 +212,7 @@ quality ladder's two light steps do nothing there).")
 (defvar *lp* (make-f32 (* 4 +max-lights+)))
 (defvar *lc* (make-f32 (* 4 +max-lights+)))
 (defvar *fu* (make-f32 +fu-floats+) "Frame uniforms, filled by FILL-FRAME-UNIFORMS.")
-(defvar *rp* (make-f32 23) "r_frame parameters (see r_frame).")
+(defvar *rp* (make-f32 24) "r_frame parameters (see r_frame).")
 (defvar *grade-desat* 0.0 "Composite desaturation: 0 = the image unchanged, 1 = greyscale (KO / flashback grading).")
 (defvar *grade-split* 0.0
   "Composite split, window pixels: the left half of the frame is shifted up and the right half down by
@@ -227,6 +227,15 @@ frame): the opaque composite exactly as before. Set it again each frame it is wa
 the default look's), 1 negative, 2 two-tone (ink / paper by luma), 3 manga page (two-tone keeping saturated spot
 colour), 4 spot-keep (greyscale but the saturated pixels near one or two hues). Parameters: *IMPACT-PARAMS*
 (GRADE-IMPACT sets both). The game owns the duration (set it back to 0).")
+(declaim (type fixnum *soft-flame*) (type f32vec *soft-flame-knobs*))
+(defvar *soft-flame* 2
+  "The soft flame's candidate (docs/style/STYLE_STORM_DESIGN.md §15, batch F1): 0 = the hard look before it (every pixel as
+before), 1..3 = a row of *SOFT-FLAME-KNOBS* (the flame-class shapes' inward feather, their bloom glow and the continuous flow
+of their noise). 0 -> 2 (the user, 2026-11-20: 「2 中柔邊 + 淡光」: feather 3 px, glow 0.5); debug 88000+i still switches it live.")
+(defparameter *soft-flame-knobs* (replace (make-f32 8) '(0f0 0f0  1.5f0 0.25f0  3f0 0.5f0  5f0 0.8f0))
+  "Per candidate of *SOFT-FLAME*: the feather (px at 720 lines, the band inside the silhouette, at most half the shape) and
+the glow (bright.frag.wgsl P.y: x the warm pixels' colour added to what blooms). Candidates 1..3 also flow. (the user,
+2026-11-20: 「保留平塗、只柔邊和流動」; narrow / faint, medium / light, wide / medium.)")
 (declaim (type f32vec *impact-params* *fx-clock*))
 (defvar *impact-params* (make-f32 10) "threshold keep-saturation keep-hue(deg) ink-rgb paper-rgb (sRGB) keep-hue-2(deg), see GRADE-IMPACT")
 (defvar *fx-clock* (make-f32 1)
@@ -275,7 +284,8 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
     (make-pipeline 15 toon-vs "vs_hull" toon-fs "fs_ink" #x333 0 1 0 4)     ; RP_HULL_CW
     (make-pipeline 16 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon" #x324 0 1 3 0) ; RP_FXT (A2C)
     (make-pipeline 17 tri "vs_tri" (wgsl "composite-fx.frag.wgsl") "fs_comp_fx" 0 2 0 0 0) ; RP_COMP_FX (*GRADE-IMPACT*)
-    (make-pipeline 18 tri "vs_tri" (wgsl "composite.frag.wgsl") "fs_comp_a" 0 2 0 0 0))    ; RP_COMP_A (*RENDER-TRANSPARENT*)
+    (make-pipeline 18 tri "vs_tri" (wgsl "composite.frag.wgsl") "fs_comp_a" 0 2 0 0 0)     ; RP_COMP_A (*RENDER-TRANSPARENT*)
+    (make-pipeline 21 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_f" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_f" #x324 0 2 1 0)) ; RP_FXT_F (soft flame, §15)
   (setf *msaa-samples* (ffi:c-inline () () :int "r_sample_count()" :one-liner t)
         *fx-alpha* (make-stream-buffer 9 16384)
         *fx-add* (make-stream-buffer 9 16384)
@@ -476,7 +486,10 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
       (setf (aref u 152) (srgb->lin (aref c 0)) (aref u 153) (srgb->lin (aref c 1)) (aref u 154) (srgb->lin (aref c 2))
             (aref u 155) (env-cin-width e)
             (aref u 156) (i->f (f->i (* 24f0 (aref (the f32vec *fx-clock*) 0))))          ; clk: fx clock in 24 Hz ticks,
-            (aref u 157) (if (> (the fixnum *msaa-samples*) 1) 0f0 0.5f0)))            ; toon fx discard threshold
+            (aref u 157) (if (> (the fixnum *msaa-samples*) 1) 0f0 0.5f0)              ; toon fx discard threshold
+            ;; the soft flame (§15): the flow clock (unfloored 24 Hz ticks wrapped to 256 s; -1 = off) and the feather px
+            (aref u 158) (if (> (the fixnum *soft-flame*) 0) (f-mod (* 24f0 (aref (the f32vec *fx-clock*) 0)) 6144f0) -1f0)
+            (aref u 159) (aref *soft-flame-knobs* (* 2 (the fixnum *soft-flame*)))))
     nil))
 
 (defun scene-scale () (if (< *scene-scale-cap* 1f0) (min *render-scale* *scene-scale-cap*) *render-scale*))
@@ -491,7 +504,8 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
           (aref p 4) (f32 (max 1 (round (* ww (scene-scale))))) (aref p 5) (f32 (max 1 (round (* wh (scene-scale)))))
           (aref p 6) (f32 ww) (aref p 7) (f32 wh) (aref p 8) (f32 *grade-desat*) (aref p 9) (f32 *grade-split*)
           (aref p 10) (if (env-toon e) 1f0 0f0)
-          (aref p 11) (f32 *grade-impact*))
+          (aref p 11) (f32 *grade-impact*)
+          (aref p 23) (aref *soft-flame-knobs* (+ 1 (* 2 (the fixnum *soft-flame*)))))   ; the soft flame's glow (§15)
     (replace p *impact-params* :start1 12)
     (setf (aref p 22) (if *render-transparent* 1f0 0f0) *render-transparent* nil)   ; a one-frame latch
     (fill-frame-uniforms (select-lights))

@@ -1465,3 +1465,27 @@ def yama_z1_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-z1", yama_z1_script())
 write("yama-z1-phone", yama_z1_script(True))
+# The soft flame's prototype strips (batch F1, docs/style/STYLE_STORM_DESIGN.md §15): one run per candidate c (88000+c first: 0 the
+# current look, 1-3 the feather x glow rows), the same timeline in every run, so the rows differ only by the candidate. Each subject:
+# 8 consecutive frames (shots held at the middle of frames n .. n+7 of the fixed 60 Hz clock): (a) Kenpachi's REIATSU aura idle
+# (84000), (b) 爆炎's ENNETSU pillars (87475, frames 30-37), (c) the Shikai's stance-1 blade fire (87030 87500 87301: heat 0, out of 爆炎), (d) the Bankai's
+# 西 stance garb (87446 87302). PHONE: --mobile --size 390x844, (a) and (b) only.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-soft-flame-c0.json   (c0..c3, + -phone)
+def soft_flame_script(c, phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    def fshot(a, n, name): return {"at": round((round(a * 60) + n + 0.5) / 60, 5), "shot": f"{SHOTS}softflame-{name}-c{c}-f{n}{sx}.png"}
+    ev.append(cmd(t - 0.5, 88000 + c))
+    scenes = [("aura", (84000,), None, 1.5), ("ennetsu", (87100, 87302, 87600), 87475, 30 / 60)]
+    if not phone: scenes += [("stance1", (87030, 87500, 87301), None, 1.5), ("west", (87030, 87446, 87302), None, 1.5)]
+    for name, setup, start, wait in scenes:
+        ev.extend(cmd(t + 0.05 * i, x) for i, x in enumerate(setup))
+        a = t + 0.05 * len(setup) + 0.8
+        if start: ev.append(cmd(a, start))
+        b = a + wait
+        ev.extend(fshot(b, n, name) for n in range(8))
+        t = b + 0.6
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+for c in range(4):
+    write(f"soft-flame-c{c}", soft_flame_script(c))
+    write(f"soft-flame-c{c}-phone", soft_flame_script(c, True))
