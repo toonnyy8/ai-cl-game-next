@@ -1998,9 +1998,11 @@ The user: 「火焰請用 80% 半透明來表示」. Read as opacity 0.8 (不透
   - Host tests 4262 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 0 errors. Smoke exit 0. `--cvc` PASS
     on II / IK / KK (33 / 28 / 27 lines).
   - Looks gate against `looks-base-s5m`, no `--keep-base`:
-    - At 1.0 (a scratch build with the default 1): 83 / 83 byte-identical. The first full run was taken on a machine at
-      load ~130, and 25 fx-a / mobile / cine-ko stills were noisy even between the two BASE renders. Those scenarios were
-      re-run quieter, with noise 0, and all are identical.
+    - At 1.0 (a build of the committed tree with the default set to 1): 83 / 83 byte-identical in one full run at noise 0.
+      An earlier run at load ~130 was noisy even between the two BASE renders and is not counted.
+    - Not run: the single-sample path (`r_samples` 1). `engine-init` always asks for 4x, and WebGPU guarantees 4x for RGBA8.
+    - `menus/select-3` (the transparent scene over the HUD back layer) was checked by eye: Kenpachi's aura is a little dimmer,
+      with no dark rim.
     - At 0.8: 62 differ, 21 byte-identical, every sim and fighter line PASS, noise 0. The 12 written as "no flame" stayed
       identical (`menus/select-0/1`, `mobile/intro/neutral/close/paused/mode/select`, `cvc-hk/ii/ik intro`,
       `cine-ken/ken-bankai-030`). So did 9 more with no flame-class shape in frame: `cvc-ii/start` / `w0-0` / `w2-0`,
@@ -2011,6 +2013,7 @@ The user: 「火焰請用 80% 半透明來表示」. Read as opacity 0.8 (不透
 - **Frame time** (SwiftShader, wall clock, Yamamoto in 爆炎 with his stance fire + Kenpachi's aura, 4 perf windows × 2 runs, load
   ~15): 1.0 at 26.9–31.0 ms (mean 29.5), 0.8 at 31.6–36.0 ms (mean 34.0), about +4.5 ms (+15 %) on the CPU rasteriser.
   Relative only. If a phone shows it, skip the split on frames with no flame-class vertex.
-- **Stills** `tests/shots/duel-j0-{stance,ns1,ns11,ns2,ns21,blaze,shiranui,ennetsu,ennetsu-dome}-a{10,08}[-phone].png`,
+- **Stills** `tests/shots/duel-j0-{stance,column,column1,tornado,tornado1,lance,lance1,dome,dome1,blaze,shiranui,ennetsu,ennetsu-dome}-a{10,08}[-phone].png`
+  (NS1 column / tornado, NS2 lance / 城郭炎上's dome, 爆炎, the 不知火 / 焱熱地獄 cinematics),
   sheets `duel-j0-sheet[-phone].png`, zooms `duel-j0-zoom-{aura,ennetsu}.png` (untracked). Scripts
   `tests/scripts/duel-j0-a{10,08}[-phone].json` show the same timeline at 88020 / 88018.
