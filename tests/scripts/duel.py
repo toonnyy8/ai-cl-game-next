@@ -1564,3 +1564,55 @@ def yama_s5_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s5", yama_s5_script())
 write("yama-s5-phone", yama_s5_script(True))
+
+# Yamamoto batch J1 (DUEL_YAMA_CORE §28.3): 城郭炎上's looks and the ring's centre, on commands batch 1 (05acf777) has too, so one script
+# shoots the old build, main and the new one alike. NS2a (87413) at 9 m, NS2b's ring (87414) and NS2c's dome (87415) with the victim at
+# 1 m and 5 m (87010 / 87050: P1 at x -d/2, P2 at +d/2; the `ring at` / `dome at` combat lines and the probe (87900) give the centre);
+# AS2 by presses (J J, then SP SP: the ring snaps round him, the dome on it) at 1.4 m; 爆炎 (87600, its entry pose let run) NS2a > NS2b (the
+# dome at once) at 5 m and 1 m, and its AS2. Heat 0 / 25 for the segments that pay (T0 / T2). The behind camera, then the side one (2109).
+# PHONE: the deck on (87901). Stills tests/shots/duel-j1-*.png.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --script tests/scripts/duel-yama-j1.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --mobile --size 390x844 --script tests/scripts/duel-yama-j1-phone.json
+YAMA_J1 = (   # name, setup, start, ((frame, still) ...)
+    ("lance", (87090, 87302), 87413, ((24, "a"), (32, "b"))),
+    ("ring1m", (87010, 87302), 87414, ((18, "rise"), (30, "a"), (60, "b"))),
+    ("ring5m", (87050, 87302), 87414, ((18, "rise"), (30, "a"), (60, "b"))),
+    ("dome1m", (87010, 87302), 87415, ((19, "hit"), (22, "boom"), (28, "c"), (40, "d"))),
+    ("dome5m", (87050, 87302), 87415, ((19, "hit"), (22, "boom"), (28, "c"), (40, "d"))),
+)
+def yama_j1_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for name, setup, start, frames in YAMA_J1:
+            for h in ((0,) if name.startswith("ring") else (0, 25)):
+                a = scene(f"{name} heat {h} {cam}", setup + (87500 + h,) + deck) + 0.3
+                ev.append(cmd(a - 0.05, setup[0])); ev.append(cmd(a, start)); ev.append(cmd(a + 21 / 60, 87900))
+                for f, n in frames: ev.append(shot(a + f / 60, f"j1-{name}-{n}-h{h}-{cam}{sx}"))
+                t = a + 1.8
+        for g in ("", "-gokuen"):
+            a = scene(f"AS2{g} {cam}", (87014, 87302, 87500) + ((87600,) if g else ()) + deck) + 1.6   # (爆炎's entry pose over by then;
+            ev.append(cmd(a - 0.1, 87014))                                                            #  set down again: a stray step)
+            ev.extend(tap(a, "KeyJ", 0.05)); ev.extend(tap(a + 0.25, "KeyJ", 0.05)); sp(a + 0.45); sp(a + 0.8)
+            for f, n in ((14, "snap"), (26, "ring"), (40, "b-hit"), (44, "b-boom"), (52, "b-c")):
+                ev.append(shot(a + 0.45 + f / 60, f"j1-as2{g}-{n}-{cam}{sx}"))
+            ev.append(cmd(a + 0.75, 87900))
+            t = a + 2.6
+        for d in (50, 10):
+            a = scene(f"gokuen NS2a NS2b {d / 10:g} m {cam}", (87000 + d, 87302, 87600) + deck) + 1.6
+            ev.append(cmd(a - 0.1, 87000 + d)); sp(a); sp(a + 0.5)
+            for f, n in ((24, "lance"), (47, "dome-hit"), (50, "dome-boom"), (58, "dome-c")):
+                ev.append(shot(a + f / 60, f"j1-gokuen{d // 10}m-{n}-{cam}{sx}"))
+            t = a + 2.4
+        t = scene(f"out {cam}", (87050, 87500)) + 1.2                          # (heat 0: back to the Shikai at his next neutral)
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-j1", yama_j1_script())
+write("yama-j1-phone", yama_j1_script(True))
