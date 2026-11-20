@@ -93,7 +93,7 @@ bodies or the floor with a straight depth line."
 ;;; same clock, §15.4). Both stay on the fx clock: hitstop and a cinematic's DT 0 freeze them. Non-flame looks keep DRAWING-NO.
 (defconstant +flow-sway+ 12f0 "FLOW-PH's rate, radians a second: the old per-drawing phase step (1 a drawing at 12 drawings a second).")
 (defconstant +flow-lick+ 6f0 "FLOW01's rate, keys a second: a tongue's height / lean / angle turns over 6 times a second (the old jump
-was 12 a drawing-number; smooth at 12 still read busy on the strips, §15.7).")
+was 12 a second; 6 chosen to be gentler, 12 not compared: a knob for the playtest, §15.7).")
 (defmacro flow-ph (&optional (per-second '+flow-sway+))
   "A continuous phase for a ribbon's :PH (FX-RIBBON's sway / width flicker): PER-SECOND radians a second on the fx clock, wrapped to
 20 pi (exact for FX-RIBBON's sin(ph), sin(1.7 ph), sin(2.3 ph) and any multiple of 0.1). Replaces DRAWING-NO in flame looks' phases."

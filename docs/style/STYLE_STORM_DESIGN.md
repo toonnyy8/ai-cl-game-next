@@ -2055,8 +2055,8 @@ popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the mo
   spiral 180° → 37.70, the tornado 0.55 → 6.6, the 不知火 tornado's tongues 0.3 → 3.6).
 - `FLOW01` (i, seed, rate, default `+FLOW-LICK+` = 6 keys/s): value noise over the same `HASH01` (i + n, seed), smoothstep between keys,
   wrapped to 64 keys with key 63 easing into key 0. It equals the old `(hash01 (+ i dr) seed)` on each key, so the heights, leans and
-  angles keep their distribution. It runs at 6 keys a second, half the old 12: at 12 the smooth drift still looked busy (the advisor's
-  point; a knob, by eye).
+  angles keep their distribution. It runs at 6 keys a second, half the old 12, chosen to be gentler (a smooth drift at 12 keys a
+  second turns a tongue over 12 times a second). 12 was not rendered for comparison; the rate is a knob for the playtest.
 - Both stay on the fx clock: hitstop and a cinematic's DT 0 freeze them, so stills stay deterministic.
 - **Seeds are now constant per shape.** The shader turns the seed into the noise offset (`fract(seed × 0.618) × 97`), so a seed that
   changes at all reseeds the noise; the shader's own scroll is the flow. The flags stay (the sign for along shapes, +1000 for charcoal).
@@ -2142,6 +2142,16 @@ popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the mo
   `:evolution`, the white / blue bursts, the soul flame and Ichigo's wisps and sheets now move smoothly in Lisp, but their shader noise
   still steps and reseeds on twos, with no feather and no 0.8. Widening `soft_class` would put every BLOOD / INK along shape at 0.8
   (Kenpachi's blood trails, chains), which is a design call for the lead or the user, not this sweep.
-- The rates `+FLOW-SWAY+` (12) and `+FLOW-LICK+` (6) are by eye on SwiftShader. The feel needs a playtest.
+- The rates `+FLOW-SWAY+` (12, the old step) and `+FLOW-LICK+` (6, chosen, not compared with 12) wait on the playtest.
+- **Flame area** (warm pixels below the HUD, mean over the 30 frames, after / before): stance 0.95, ring 1.01, 西's garb 1.06,
+  爆炎 1.00, Kenpachi's aura 1.08; phone 0.94 / 0.96 / 1.05 / 0.99 / 1.10. The size holds within 10 %. The drift comes from the
+  constant seeds: one fixed noise offset a tongue erodes it a little differently from the old average over five. The garb and the
+  aura read a little fuller. A different constant per tongue would trim them if the user sees it.
+- `yama-nishi-look` still seeds the molten ring under his soles (`%ya-garb`) and the FLAME footprints from his position. Through the
+  walk (f72-124, 0.029 m a frame) that seed changes every frame, so the noise churns. This is the moving-seed case fixed elsewhere
+  above, not a regression from main; a literal seed for the cinematic would end it.
+- No borderline site was measured. The claim that BLOOD / INK / BLUE flow only on the Lisp side is reasoned from `soft_class`.
+- **Zoom sheets** (a tight crop round the flame): `tests/shots/duel-f1s-zoom-{stance,column,ring,west,hellfire,aura}[-phone].png`.
+  The 爆炎 strips come from a separate run with Yamamoto in the Shikai (the first run carried 西's Bankai over into that scene).
 - The `sage`-stepped one-shot envelopes (NS2a's erosion over 18 frames, the dome's detonation) still erode on twos. Smoothing them
   means a flash-drawing rule per envelope; left for now.
