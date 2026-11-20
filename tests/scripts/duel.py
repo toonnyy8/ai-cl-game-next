@@ -1351,3 +1351,70 @@ def yama_s3_strike_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s3-strike", yama_s3_strike_script())
 write("yama-s3-strike-phone", yama_s3_strike_script(True))
+
+# Yamamoto's 爆炎 art S4 (DUEL_YAMA_CORE §21.4, §25): P1 in 爆炎 (87600: it enters at his next neutral, the entry pose 24 f), each look in
+# play: the scars, blade and stance at heat 100 / 50 / 10 (87500+h right before the still: 爆炎 decays 10 a second), J1 J2 IKKOTSU by
+# presses (Kenpachi 1.4 m: S2's frame offsets), the entry pose itself (87600 from the Shikai's stance), the tornado's lean (87472, then
+# 87490 moves Kenpachi 3 m to P1's right), NS2b's ring closing before its dome (87474), ENNETSU's rows (87475), the true NADEGIRI (87478);
+# the behind camera then the SIDE camera (2109); from above (87480 + 87481, landscape only) ENNETSU and the tornado. Last the consing line
+# (87449). PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 130 --script tests/scripts/duel-yama-s4.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 130 --mobile --size 390x844 --script tests/scripts/duel-yama-s4-phone.json
+YAMA_S4 = (   # scene, setup (after 爆炎's entry), start command, ((frame, still) ...)
+    ("entry", (87030, 87301), 87600, ((3, "entry-f03"), (6, "entry-f06"), (9, "entry-f09"), (12, "entry-f12"), (16, "entry-f16"),
+                                      (19, "entry-f19"), (23, "entry-f23"))),
+    ("tornado", (87100, 87301), 87472, ((18, "tornado-s"), (34, "tornado-lean-a"), (44, "tornado-lean-b"))),
+    ("ring close", (87050, 87302), 87474, ((12, "ring-f12"), (14, "ring-f14"), (15, "ring-f15"), (16, "ring-s"), (24, "ring-f24"))),
+    ("ennetsu", (87100, 87302), 87475, ((10, "ennetsu-cock"), (18, "ennetsu-s"), (24, "ennetsu-f24"), (30, "ennetsu-f30"), (40, "ennetsu-f40"),
+                                        (58, "ennetsu-f58"))),
+    ("nadegiri", (87030, 87303), 87478, ((14, "nade-s"), (30, "nade-f30"), (42, "nade-f42"), (50, "nade-f50"), (58, "nade-f58"),
+                                         (70, "nade-f70"), (77, "nade-f77"))),
+)
+YAMA_S4_TOP = (("ennetsu", (87100, 87302), 87475, (18, 30, 40)), ("tornado", (87100, 87301), 87472, (30,)))
+def yama_s4_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for h in (100, 50, 10):                      # the scars, the blade, the stance by heat
+            a = scene(f"heat {h} {cam}", (87030, 87301, 87600) + deck) + 1.0
+            ev.append(cmd(a, 87500 + h)); ev.append(shot(a + 0.05, f"yama-s4-heat-{h}-{cam}{sx}"))
+            if h == 10: ev.append(shot(a + 0.13, f"yama-s4-heat-{h}b-{cam}{sx}"))
+            t = a + 0.5
+        a = scene(f"J1 J2 IKKOTSU {cam}", (87014, 87301, 87600) + deck) + 1.0   # (the presses as S2's: J at 0, 0.25, 0.5 s)
+        for dt in (0, 0.25, 0.5): ev.extend(tap(a + dt, "KeyJ", 0.05))
+        for f, n in ((15, "j1-trail"), (29, "j2-trail"), (36, "ikk-first"), (38, "ikk-plant"), (42, "ikk-chamber"), (45, "ikk-s"), (48, "ikk-a"),
+                     (56, "ikk-back"), (61, "ikk-hilt")):
+            ev.append(shot(a + f / 60, f"yama-s4-{n}-{cam}{sx}"))
+        t = a + 1.8
+        for name, setup, start, frames in YAMA_S4:
+            if name == "entry":
+                a = scene(f"{name} {cam}", (87500,) + setup + deck) + 0.6
+            else:
+                a = scene(f"{name} {cam}", setup + (87600,) + deck) + 0.8
+            ev.append(cmd(a, start))
+            if name == "tornado": ev.append(cmd(a + 22 / 60, 87490))
+            for f, n in frames: ev.append(shot(a + f / 60, f"yama-s4-{n}-{cam}{sx}"))
+            t = a + max(f for f, n in frames) / 60 + 0.8
+        a = scene(f"out {cam}", (87050, 87500)); t = a + 1.0                       # (heat 0: back to the Shikai)
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    if not phone:
+        for name, setup, start, frames in YAMA_S4_TOP:
+            for f in frames:
+                a = scene(f"top {name} f{f}", setup + (87600, 87480, 87481)) + 0.8
+                ev.append(cmd(a, start))
+                if name == "tornado": ev.append(cmd(a + 22 / 60, 87490))
+                ev.append(shot(a + f / 60, f"yama-s4-top-{name}-f{f}"))
+                ev.extend((cmd(a + f / 60 + 0.05, 87480), cmd(a + f / 60 + 0.1, 87481)))
+                t = a + f / 60 + 0.8
+        a = scene("out top", (87050, 87500)); t = a + 1.0
+    ev.append(cmd(t, 87600)); t += 0.8
+    ev.append(cmd(t, 87449)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-s4", yama_s4_script())
+write("yama-s4-phone", yama_s4_script(True))

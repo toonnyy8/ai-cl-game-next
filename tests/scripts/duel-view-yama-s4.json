@@ -1,0 +1,66 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(1229001)"
+},
+{
+"at": 10.15,
+"shot": "tests/shots/duel-view-yama-s4-ya-ikkotsu-side.png"
+},
+{
+"at": 10.35,
+"eval": "Module._debug_cmd(1229002)"
+},
+{
+"at": 11.5,
+"shot": "tests/shots/duel-view-yama-s4-ya-ikkotsu-front.png"
+},
+{
+"at": 11.7,
+"eval": "Module._debug_cmd(1205001)"
+},
+{
+"at": 12.85,
+"shot": "tests/shots/duel-view-yama-s4-ya-blaze-in-side.png"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(1205002)"
+},
+{
+"at": 14.2,
+"shot": "tests/shots/duel-view-yama-s4-ya-blaze-in-front.png"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(1202001)"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-view-yama-s4-ya-b-n2c-side.png"
+},
+{
+"at": 15.75,
+"eval": "Module._debug_cmd(1202002)"
+},
+{
+"at": 16.9,
+"shot": "tests/shots/duel-view-yama-s4-ya-b-n2c-front.png"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(1203001)"
+},
+{
+"at": 18.25,
+"shot": "tests/shots/duel-view-yama-s4-ya-b-n3c-side.png"
+},
+{
+"at": 18.45,
+"eval": "Module._debug_cmd(1203002)"
+},
+{
+"at": 19.6,
+"shot": "tests/shots/duel-view-yama-s4-ya-b-n3c-front.png"
+}
+]

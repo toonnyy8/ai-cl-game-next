@@ -111,7 +111,7 @@
   :walk *ya-walk* :run *ya-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *ya-mult* :taken *ya-taken*
   :stun-tolerance 18.0                          ; (the old kit's: the old man stands a long beating)
   :smear 4                                      ; (the swing's smear: a thin FIRE wash with an orange hairline, not REIATSU yellow: art S1,
-                                                ;  DUEL_YAMA_CORE §21 F4, §22; 爆炎 inherits it until its own trail, S4)
+                                                ;  DUEL_YAMA_CORE §21 F4, §22; 爆炎 has its own trail, look 5, since art S4)
   :commands (:q :ya-j1)
   :strings ((:ya-j1 :q :ya-j2) (:ya-j2 :q :ya-j3))
   :core (:ns (:ya-n1a :ya-n2a :ya-n3a) :as (:ya-as1 :ya-as2 :ya-as3) :sa :ya-sa
@@ -124,14 +124,17 @@
   :awaken-form :bankai                         ; the Bankai ZANKA NO TACHI (stage C; 爆炎 inherits it: awakening there ends 爆炎, §3)
   :meter (:name "HEAT" :max 100 :label yama-hud-label)   ; the heat gauge (GAUGES-METER, 0-100; the plate's kit strip: lhud-plate.lisp)
   :hooks (:pose yama-pose :draw yama-draw :dmg-mult yama-dmg-mult
-          :tick yama-tick :hit yama-hit :cancel yama-cancel))   ; heat, 爆炎 (stage B; the :blaze form inherits them)
+          :tick yama-tick :hit yama-hit :cancel yama-cancel   ; heat, 爆炎 (stage B; the :blaze form inherits them)
+          :planted yama-planted))                      ; (爆炎's IKKOTSU leaves the blade in the plaza: a look, art S4; NIL for every
+                                                       ;  other Shikai move, so the default planted rule is never reached)
 
 ;;; ================================================================ 爆炎 GOKUEN (§7.2): the kit :blaze, every move a variant (「變招」)
 ;;; The first build gives each its own move entry, a copy with new numbers (the art may diverge later; DEFMOVE-COPY carries every key, so
 ;;; each copy states its :params whole: no Shikai :ns-next leaks in). x1.3 where §7.2 gives no number (the lead's placeholders, §11 B).
 ;;; Bared to the waist (:yamamoto-bare). Entered at his next neutral after heat reaches 100 (the entry pose :ya-blaze-in), left at the next
 ;;; neutral after heat 0; NS / AS free of flash-step (:core :sp-free); every NS segment spends 25 heat at the move's fixed power (Y9).
-(defmove :ya-blaze-in :kind :flash :clip :ya-hellfire :clip-s 57 :startup 23 :active 1 :recovery 0 :reach 0.0)   ; the entry pose (24 f)
+(defmove :ya-blaze-in :kind :flash :clip :ya-blaze-in :blend 4 :startup 23 :active 1 :recovery 0 :reach 0.0)   ; the entry pose (24 f; its own
+                                                                                                  ;  clip since art S4)
 (defmove-copy :ya-b-j1 :ya-j1 :dmg 40)          ; J1 / J2: the same clips (the flame trail: art), 40 / 40
 (defmove-copy :ya-b-j2 :ya-j2 :dmg 40)
 (defmove :ya-b-j3 :kind :quick :clip :ya-ikkotsu :startup 9 :active 3 :recovery 18 :dmg 55 :adv-block -4   ; J3 IKKOTSU, the fist
@@ -150,13 +153,13 @@
   :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2b :ya-n2c :clip-s 18 :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
   :params (:ns-next :ya-b-n2c :near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
-(defmove-copy :ya-b-n2c :ya-n2a :clip-s 20 :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"
+(defmove-copy :ya-b-n2c :ya-n2a :clip :ya-b-n2c :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
-  :params (:width 2.4 :speed 12.0 :range 9.0 :dmg 104 :react :crumple :look yama-tornado-look :kikon-strike :ya-ns-strike))
+  :params (:width 2.4 :speed 12.0 :range 9.0 :dmg 104 :react :crumple :look yama-ennetsu-look :kikon-strike :ya-ns-strike))   ; (rows of pillars, art S4)
 ;; NS3 撫斬 x1.3; c the true NADEGIRI: 200, a long recovery (RoS's "huge opening", B)
 (defmove-copy :ya-b-n3a :ya-n3a :dmg 52 :params (:ns-next :ya-b-n3b))
 (defmove-copy :ya-b-n3b :ya-n3b :dmg 65 :params (:ns-next :ya-b-n3c))
-(defmove-copy :ya-b-n3c :ya-n3c :dmg 200 :recovery 60 :callout "NADEGIRI")
+(defmove-copy :ya-b-n3c :ya-n3c :clip :ya-b-n3c :dmg 200 :recovery 60 :callout "NADEGIRI")   ; (its own clip: art S4)
 ;; AS1 / 2 / 3 x1.3 (free of flash-step: the kit's :sp-free)
 (defmove-copy :ya-b-as1 :ya-as1 :dmg 65)
 (defmove-copy :ya-b-as2b :ya-as2b :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 78 :react :launch :kikon-strike :ya-as-strike))
@@ -169,6 +172,7 @@
 
 (defkit :yamamoto :blaze :inherit :base
   :form-name "GOKUEN" :callout "GOKUEN" :body :yamamoto-bare :hide (:haori :kosode) :aura :hellfire :blade (:fire 1.3)
+  :smear 5                                        ; (the flame trail: a FIRE wash with tongues off its upper edge, every swing; art S4)
   :burn *ya-blaze-drain*                          ; the Reishi drain (YAMA-TICK through BURN-AMOUNT / BURN: never below 1, Y4)
   :commands (:q :ya-b-j1)
   :strings ((:ya-b-j1 :q :ya-b-j2) (:ya-b-j2 :q :ya-b-j3))
@@ -749,7 +753,8 @@ cinematic i (東 / 西 / 南, 0-2) from frame 0, P1 in the Bankai 3 m from an id
 nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills). Art S1
 (§22): 87416+i P1 starts NS3a / b / c or the SA (i 0-3) on its own; 87460+i the Shikai's AS segment i of AS1, AS2a / b, AS3a / b / c (0-5);
 87470+i 爆炎's segment i of NS1a-c, NS2a-c, NS3a-c, the SA (0-9; P1 in 爆炎); 87480 the top-down camera on / off (YAMA-TOPDOWN-CAM); 87481
-his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING)."
+his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING). Art S4 (§25):
+87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
            (place *p1* *p2* dist)
@@ -771,6 +776,8 @@ his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing o
           ((= c 87480) (yama-topdown-cam))
           ((= c 87481) (setf *ya-footprints* (not *ya-footprints*)))
           ((= c 87449) (yama-shikai-consing))
+          ((= c 87490) (let ((q (pos-of *p2*)) (yaw (yaw-of *p1*)))   ; (art S4: the tornado lean's off-axis victim, 3 m to P1's right)
+                         (setf (aref q 0) (f32 (+ (aref q 0) (* 3.0 (cos yaw)))) (aref q 2) (f32 (- (aref q 2) (* 3.0 (sin yaw)))))))
           ((<= 87420 c 87429)
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87420) '(:ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c
                                                                        :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-n4)))))
