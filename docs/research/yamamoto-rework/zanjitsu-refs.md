@@ -43,3 +43,9 @@ Grades as `canon-looks.md`: A canon still, B official game, C secondary, D infer
 - The reference is a large, bright, mostly opaque shape. From the match's behind camera it would cover the opponent. This is
   `procedural-ink-style`'s "big foreground parts that hide the fight" mistake, so the in-play size, or the opacity from behind, is a
   decision for the user.
+
+## Superseded (2026-11-20)
+
+The user, after playing the Z1 mantle (v461 / v462): 「殘日獄衣我覺得 ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」.
+The look goes back to the TYBW kit's `:garb` aura (`retired-kits` `duel/lisp/vfx.lisp`, the same as the old repo's last `main`), with its
+camera-side flames shown (DUEL_YAMA_CORE §28).

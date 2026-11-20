@@ -2884,3 +2884,46 @@ than fire; the wings' inner lobes are smaller and stiffer than the image's billo
   the fill is flat bands with small strokes (the image: a broad body full of large dark-red strokes); the glass front layer over the
   black robe reads khaki; from behind the mantle turns red-orange (the Bankai's grade greys the yellow); 37 % of the fx batch at most.
 - Manual: the Bankai paragraph gets one sentence on the mantle.
+
+## 28. The user's playtest of v462: 城郭炎上 back to the old look, the old 殘日獄衣, flames at 80 % (2026-11-20)
+
+The user, 2026-11-20, after playing v462:
+1. 「NS 跟 AS 的 城郭炎上 反而是重作前的版本更有魄力，而且現在 NS 的火圈在靠太近時反而包不住人」
+2. 「殘日獄衣我覺得 ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」
+3. 「火焰請用 80% 半透明來表示」
+4. 「其他繼續修」
+
+### 28.1 What each means (the lead's reading)
+
+- **(1) The look.** "Before the rework" is batch 1 (05acf777, v446): the ring was six `vfx-fire-pillar` columns on the circle and the
+  dome was the old Jokaku Enjo `vfx-fire-dome` (three tiers of fire tongue rings, the detonation star), both ported from the retired
+  TYBW kit. Art S3 / S4 replaced them with the SL5 tongue wall (`yama-ring-look`) and SL6 dome. Both old functions left `main` in S3 / S4.
+  So NS2 / AS2's ring and dome go back to the old shapes, re-ported into the current tier / palette / 0 B framework (batch J1).
+- **(1) The ring that misses.** This is a sim bug, not a look. `ya-bearing-point` clamps the ring's centre to `:near 3.0` m.
+  - With the victim 1 m away, the ring (r 1.6) is centred 3 m out, so he stands about 2 m from its centre, outside the fire.
+  - Fix: `:near 0` on NS2b, NS2c and their 爆炎 copies, so the ring and the dome land round him at any distance (AS2b has 0 already).
+  - It is a sim change: a scripted scene at 1 m and 5 m, `--cvc` identical (no Yamamoto pairing in it), YK's looks lines move.
+- **(2) The garb.** "ai-cl-game-test's original" is the TYBW kit's `:garb` aura. The old repo's last `main` (1c19d18, 2026-10-27)
+  and the `retired-kits` branch have the same code: orange FLAME `%brush-aura` tongues from the feet up, two wings of three ribbons
+  at the shoulders, a molten double ring, scraps, a warm light, K > 1 flaring it.
+  - It deliberately drew only behind and at the sides (`%brush-aura`'s skipped camera side, the wings inside `%away-from-eye`) so the
+    silhouette stayed readable. "Show the flames facing the camera" flips exactly those two.
+  - The Z1 mantle (§27) is replaced; Z-Q1 (the stance shrunk, moves and cinematics full size) and Z-Q2 (the back faded) are
+    superseded. The old `:hellfire` aura (爆炎) sits in the same function and is ported with it, closing "the :hellfire aura draws
+    nothing" (batch J2).
+- **(3) Flames at 80 %.** Read as opacity 0.8 (不透明度 80 %), one knob. The scope is F1's flame class (STYLE_STORM_DESIGN §15.3 /
+  §15.5); bodies stay opaque. Recorded in STYLE_STORM_DESIGN §15.6 (batch J0).
+- **(4) The rest.** S5's open looks (§26.8: the cone-shaped 不知火 columns and the stacked-ring tornado, the light composed 焱, 撫斬's
+  long still face and sheathing, 焱熱地獄's near pillars as stubs), 爆炎 NS2b playing NS2c's clip, stance 3's barely visible blade
+  (batch J3); then F1's Lisp `drawing-no` sweep once J0-J3 have merged (it touches every flame site, so it runs alone).
+
+### 28.2 The batches
+
+| Batch | What | Owns (functions / files) |
+|---|---|---|
+| J0 | flame opacity 0.8: the flame class composited at one alpha (no stacking of overlapping tongues) | engine `render.c`, `render.lisp`, `fx-toon*.wgsl`, composite shaders |
+| J1 | 城郭炎上: the old pillars and dome back, `:near 0` | `yama-ring-look`, `yama-dome-look`, `yama-lance-look` if it changed, NS2 / AS2 move params in `yama.lisp` |
+| J2 | 殘日獄衣: the old `:garb` with its front flames, the old `:hellfire`; the Z1 mantle and its probes / scripts out | the 西 mantle code in `yama-look.lisp`, the aura hook |
+| J3 | S5 fixes, 爆炎 NS2b's own clip, stance 3's blade | `yama-cine.lisp`, its stills, `yama-art.lisp` clips |
+
+Merged one at a time; the looks gate re-based after each.

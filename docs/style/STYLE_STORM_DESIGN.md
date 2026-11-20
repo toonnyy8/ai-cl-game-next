@@ -1960,3 +1960,11 @@ Gates:
 - **Still to do:** the flow shows only after the Lisp `drawing-no` sweep (§15.3), after S5 and Z1 merge. The borderline rule for that
   sweep (the lead's): tongue-shaped auras join whatever their colour (BLOOD aura, the `:oni` pillar, STEEL tongues, the soul-flame,
   Ichigo's red wisps and flame sheets); crescents, rifts and smears stay out (the black Getsuga, `vfx-rift`, the comet smear).
+
+### 15.6 Flames at 80 % (the user, 2026-11-20)
+
+The user: 「火焰請用 80% 半透明來表示」. Read as opacity 0.8 (不透明度 80 %; the reply says so, so a 透明度 reading can be corrected).
+- Scope: the flame class (SOFT_CLASS: §15.3's inventory and §15.5's borderline rule). Bodies stay opaque: "never translucent
+  bodies" still holds. This relaxes the flat-fill rule for flames only.
+- The 0.8 is one knob and applies to the flame layer as a whole: overlapping tongues must not stack into an opaque core. Alpha-to-
+  coverage's 1/4 steps (the `pk / 32` see-through lane) cannot give 0.8, so the batch (J0, DUEL_YAMA_CORE §28.2) composites the class.
