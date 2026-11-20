@@ -212,7 +212,7 @@ quality ladder's two light steps do nothing there).")
 (defvar *lp* (make-f32 (* 4 +max-lights+)))
 (defvar *lc* (make-f32 (* 4 +max-lights+)))
 (defvar *fu* (make-f32 +fu-floats+) "Frame uniforms, filled by FILL-FRAME-UNIFORMS.")
-(defvar *rp* (make-f32 24) "r_frame parameters (see r_frame).")
+(defvar *rp* (make-f32 25) "r_frame parameters (see r_frame).")
 (defvar *grade-desat* 0.0 "Composite desaturation: 0 = the image unchanged, 1 = greyscale (KO / flashback grading).")
 (defvar *grade-split* 0.0
   "Composite split, window pixels: the left half of the frame is shifted up and the right half down by
@@ -236,6 +236,12 @@ of their noise). 0 -> 2 (the user, 2026-11-20: 「2 中柔邊 + 淡光」: feath
   "Per candidate of *SOFT-FLAME*: the feather (px at 720 lines, the band inside the silhouette, at most half the shape) and
 the glow (bright.frag.wgsl P.y: x the warm pixels' colour added to what blooms). Candidates 1..3 also flow. (the user,
 2026-11-20: 「保留平塗、只柔邊和流動」; narrow / faint, medium / light, wide / medium.)")
+(declaim (type single-float *flame-alpha*))
+(defvar *flame-alpha* 0.8f0
+  "The flame class's opacity (docs/style/STYLE_STORM_DESIGN.md §15.6): below 1 the flame-class toon fx (SOFT_CLASS,
+fx-toon-io.wgsl) draw into their own layer sharing the scene's depth, laid over the scene at this opacity as a whole
+(overlapping tongues never stack past it; bodies and the other fx stay opaque). 1 = the single scene pass, every pixel as
+before. 1 -> 0.8 (the user, 2026-11-20: 「火焰請用 80% 半透明來表示」); debug 88010+n sets it to n/10.")
 (declaim (type f32vec *impact-params* *fx-clock*))
 (defvar *impact-params* (make-f32 10) "threshold keep-saturation keep-hue(deg) ink-rgb paper-rgb (sRGB) keep-hue-2(deg), see GRADE-IMPACT")
 (defvar *fx-clock* (make-f32 1)
@@ -285,7 +291,13 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
     (make-pipeline 16 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon" #x324 0 1 3 0) ; RP_FXT (A2C)
     (make-pipeline 17 tri "vs_tri" (wgsl "composite-fx.frag.wgsl") "fs_comp_fx" 0 2 0 0 0) ; RP_COMP_FX (*GRADE-IMPACT*)
     (make-pipeline 18 tri "vs_tri" (wgsl "composite.frag.wgsl") "fs_comp_a" 0 2 0 0 0)     ; RP_COMP_A (*RENDER-TRANSPARENT*)
-    (make-pipeline 21 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_f" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_f" #x324 0 2 1 0)) ; RP_FXT_F (soft flame, §15)
+    (make-pipeline 21 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_f" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_f" #x324 0 2 1 0) ; RP_FXT_F (soft flame, §15)
+    ;; the flame layer (*FLAME-ALPHA* < 1, STYLE_STORM_DESIGN §15.6)
+    (make-pipeline 22 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_n" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon" #x324 0 1 3 0)   ; RP_FXT_N (no flames)
+    (make-pipeline 23 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_l" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_l" #x324 0 1 0 0) ; RP_FXT_L (flames only)
+    (make-pipeline 24 tri "vs_tri" (wgsl "flame-comp.frag.wgsl") "fs_flame_comp" 0 0 0 4 0)      ; RP_COMP_FL
+    (make-pipeline 25 tri "vs_tri" (wgsl "flame-bright.frag.wgsl") "fs_bright_fl" 0 1 0 0 0)     ; RP_BRIGHT_FL
+    (make-pipeline 26 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_f" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_fl" #x324 0 2 1 0)) ; RP_FXT_FL (the layer's fringe)
   (setf *msaa-samples* (ffi:c-inline () () :int "r_sample_count()" :one-liner t)
         *fx-alpha* (make-stream-buffer 9 16384)
         *fx-add* (make-stream-buffer 9 16384)
@@ -505,7 +517,8 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
           (aref p 6) (f32 ww) (aref p 7) (f32 wh) (aref p 8) (f32 *grade-desat*) (aref p 9) (f32 *grade-split*)
           (aref p 10) (if (env-toon e) 1f0 0f0)
           (aref p 11) (f32 *grade-impact*)
-          (aref p 23) (aref *soft-flame-knobs* (+ 1 (* 2 (the fixnum *soft-flame*)))))   ; the soft flame's glow (§15)
+          (aref p 23) (aref *soft-flame-knobs* (+ 1 (* 2 (the fixnum *soft-flame*))))   ; the soft flame's glow (§15)
+          (aref p 24) *flame-alpha*)                                                    ; the flame layer (§15.6)
     (replace p *impact-params* :start1 12)
     (setf (aref p 22) (if *render-transparent* 1f0 0f0) *render-transparent* nil)   ; a one-frame latch
     (fill-frame-uniforms (select-lights))

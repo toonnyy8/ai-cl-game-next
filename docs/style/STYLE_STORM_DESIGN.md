@@ -1968,3 +1968,69 @@ The user: 「火焰請用 80% 半透明來表示」. Read as opacity 0.8 (不透
   bodies" still holds. This relaxes the flat-fill rule for flames only.
 - The 0.8 is one knob and applies to the flame layer as a whole: overlapping tongues must not stack into an opaque core. Alpha-to-
   coverage's 1/4 steps (the `pk / 32` see-through lane) cannot give 0.8, so the batch (J0, DUEL_YAMA_CORE §28.2) composites the class.
+
+**As built (batch J0, 2026-11-21).**
+- **The knob.** `ENGINE::*FLAME-ALPHA*` (render.lisp, default 0.8; 1 = the old single pass) → `*rp*`[24]. Debug 88010+n sets
+  it to n/10 (88018 = 0.8, 88020 = 1; DUEL_GAMEPLAY "Debug commands").
+- **The passes** (render.c `r_frame`, only while the knob < 1 and the frame has toon fx; otherwise the old code runs verbatim):
+  - A, the scene target: sky, the mesh queues, then RP_FXT_N (`vs_fx_toon_n`: every toon fx shape but SOFT_CLASS). Colour and
+    depth are stored (no resolve yet).
+  - B, the flame layer (`r_flame`, + `r_flame_msaa` with MSAA), cleared to 0, loading the scene's depth: RP_FXT_L
+    (`vs_fx_toon_l` + `fs_fx_toon_l`: the flame class only; depth test and write), then the fringe RP_FXT_FL
+    (`fs_fx_toon_fl`). `fs_fx_toon_l` does alpha-to-coverage by hand: `@builtin(sample_mask)` keeps round(4 × cover)
+    samples and each stores alpha 1, so the resolved layer is premultiplied. The fringe's straight-alpha blend into the cleared
+    layer gives premultiplied colour too.
+  - **Glass is ignored inside the layer**, in both the cut and the fringe, so every flame-class shape shows at exactly 0.8
+    (the lead's decision, 2026-11-21: "the user asked for 80 %, not 60 / 40 %"). Before that, the batch's first build
+    multiplied (Kenpachi's REIATSU at glass 3 → 0.6, Yamamoto's garb seen from behind at glass 2 → 0.4). At 1.0 the old pass
+    keeps the glass levels as they were.
+  - C, the scene target again: RP_COMP_FL (`flame-comp.frag.wgsl`) lays the layer over it premultiplied
+    (scene × (1 − 0.8 a) + 0.8 × layer), then FXA and FXB, then the resolve. The layer's coverage is one alpha per pixel, so
+    tongues that overlap stay at 0.8.
+- **Bloom.** At 0.8 a flame falls out of `fs_bright`'s warm gate, so on these frames RP_BRIGHT_FL (`flame-bright.frag.wgsl`)
+  rebuilds the pixel the single pass would have drawn (the scene behind the layer, recovered from the composite, with the layer
+  laid over it fully) and gates and weights the glow on that. The halo matches the 1.0 look of an opaque flame. A glass flame
+  now glows like an opaque one, being solid inside the layer. Where the layer is empty it returns `fs_bright`'s sum exactly.
+- **Transparent mode** keeps a valid premultiplied scene alpha (the premultiplied over). Impact frames, the composites and the
+  HUD are downstream and unchanged.
+- **Known limits.**
+  - The flames still write depth, so an FXA / FXB particle behind a flame stays hidden while the stage shows through at 20 %.
+  - The stage cracks' EMBER seam (a fire-style ground segment, §15.3) is in the class and turns 0.8 too (kept: the lead,
+    2026-11-21).
+  - One extra MSAA colour + depth store / reload and one full-screen pass on frames with toon fx: about +15 % frame time on
+    SwiftShader (below). Left as is (the lead, 2026-11-21); a frame without toon fx skips it already.
+- **Gates (J0b, after merging main 9292e623 = J1–J3; glass ignored).**
+  - Host tests 4259 ALL PASS. pkgcheck shows only `DUEL::APP`. Debug ranges: 90, 0 errors. Smoke exit 0. `--cvc` PASS on
+    II / IK / KK (33 / 28 / 27 lines).
+  - Looks gate against `looks-base-j3` (main's dist at 9292e623), no `--keep-base`, noise 0 in both runs:
+    - At 1.0: 83 / 83 byte-identical.
+    - At 0.8: 63 differ, 20 byte-identical, 16 / 16 sim and fighter lines PASS. 21 identical were written beforehand (J0's set).
+      The one miss is `cvc-kh/pause`, max diff 1 over 187 px: Kenpachi's aura behind the pause panel, now at 0.8 rather than
+      glass 3's 0.6. The other 62 differ as expected.
+- **Gates (J0, on d7d17b1a, glass multiplied).**
+  - Host tests 4262 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 0 errors. Smoke exit 0. `--cvc` PASS
+    on II / IK / KK (33 / 28 / 27 lines).
+  - Looks gate against `looks-base-s5m`, no `--keep-base`:
+    - At 1.0 (a build of the committed tree with the default set to 1): 83 / 83 byte-identical in one full run at noise 0.
+      An earlier run at load ~130 was noisy even between the two BASE renders and is not counted.
+    - Not run: the single-sample path (`r_samples` 1). `engine-init` always asks for 4x, and WebGPU guarantees 4x for RGBA8.
+    - `menus/select-3` (the transparent scene over the HUD back layer) was checked by eye: Kenpachi's aura is a little dimmer,
+      with no dark rim.
+    - At 0.8: 62 differ, 21 byte-identical, every sim and fighter line PASS, noise 0. The 12 written as "no flame" stayed
+      identical (`menus/select-0/1`, `mobile/intro/neutral/close/paused/mode/select`, `cvc-hk/ii/ik intro`,
+      `cine-ken/ken-bankai-030`). So did 9 more with no flame-class shape in frame: `cvc-ii/start` / `w0-0` / `w2-0`,
+      `cvc-ik/w2-0`, `cvc-kh/pause`, `cine-ken/ken-bankai-080/120` (the `:oni` pillar is BLOOD / INK, outside the class),
+      `cine-ko/soul-break-030` and `cine-ichigo/ichigo-awaken-060`. The empty layer is lossless.
+    - The small surprises were checked by diff image: `cvc-ii/w3-0` and `w1-0` (the cracks' EMBER seams), `cvc-ii/w1-1`
+      (7 px of ember), `cine-ichigo/ichigo-awaken-110` and `cine-ko/results` (Kenpachi's aura in the background or at the edge).
+- **Frame time** (SwiftShader, wall clock, Yamamoto in 爆炎 with his stance fire + Kenpachi's aura, 4 perf windows × 2 runs, load
+  ~15): 1.0 at 26.9–31.0 ms (mean 29.5), 0.8 at 31.6–36.0 ms (mean 34.0), about +4.5 ms (+15 %) on the CPU rasteriser.
+  Relative only. If a phone shows it, skip the split on frames with no flame-class vertex.
+- **Stills** `tests/shots/duel-j0-{stance,column,column1,tornado,tornado1,lance,lance1,dome,dome1,blaze,shiranui,ennetsu,ennetsu-dome}-a{10,08}[-phone].png`
+  (NS1 column / tornado, NS2 lance / 城郭炎上's dome, 爆炎, the 不知火 / 焱熱地獄 cinematics),
+  sheets `duel-j0-sheet[-phone].png`, zooms `duel-j0-zoom-{aura,ennetsu}.png` (untracked). Scripts
+  `tests/scripts/duel-j0-a{10,08}[-phone].json` show the same timeline at 88020 / 88018.
+- **Stills J0b** (main 9292e623's looks, glass ignored):
+  `tests/shots/duel-j0b-{stance,ring,ring1,dome,dome1,hellfire,hellfire1,west,aura,ennetsu}-a{10,08}[-phone].png`, covering
+  stance 1's fire, 城郭炎上's ring and dome, 爆炎's `:hellfire`, 西's garb from behind, Kenpachi's aura (84000) and 焱熱地獄's
+  pillars. Sheets `duel-j0b-sheet[-phone].png` (untracked); scripts `tests/scripts/duel-j0b-a{10,08}[-phone].json`.

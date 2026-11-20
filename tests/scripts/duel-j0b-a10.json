@@ -1,0 +1,170 @@
+[
+{
+"at": 8.4,
+"eval": "Module._debug_cmd(88020)"
+},
+{
+"at": 8.9,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 8.95,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 10.5,
+"shot": "tests/shots/duel-j0b-stance-a10.png"
+},
+{
+"at": 10.55,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 11.65,
+"eval": "Module._debug_cmd(87010)"
+},
+{
+"at": 11.7,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 11.75,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 12.0,
+"eval": "Module._debug_cmd(87010)"
+},
+{
+"at": 12.05,
+"eval": "Module._debug_cmd(87414)"
+},
+{
+"at": 12.55,
+"shot": "tests/shots/duel-j0b-ring-a10.png"
+},
+{
+"at": 13.05,
+"shot": "tests/shots/duel-j0b-ring1-a10.png"
+},
+{
+"at": 13.1,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 14.2,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 14.25,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 14.3,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 14.55,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 14.6,
+"eval": "Module._debug_cmd(87415)"
+},
+{
+"at": 15.07,
+"shot": "tests/shots/duel-j0b-dome-a10.png"
+},
+{
+"at": 15.27,
+"shot": "tests/shots/duel-j0b-dome1-a10.png"
+},
+{
+"at": 15.32,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 16.42,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 16.47,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 16.52,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 17.62,
+"shot": "tests/shots/duel-j0b-hellfire-a10.png"
+},
+{
+"at": 18.52,
+"shot": "tests/shots/duel-j0b-hellfire1-a10.png"
+},
+{
+"at": 18.57,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 19.67,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 19.72,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 19.77,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 21.27,
+"shot": "tests/shots/duel-j0b-west-a10.png"
+},
+{
+"at": 21.32,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 22.42,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 23.92,
+"shot": "tests/shots/duel-j0b-aura-a10.png"
+},
+{
+"at": 23.97,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 25.07,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 27.57,
+"eval": "Module._debug_cmd(87483)"
+},
+{
+"at": 27.6,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 29.5,
+"shot": "tests/shots/duel-j0b-ennetsu-a10.png"
+},
+{
+"at": 29.55,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 30.65,
+"eval": "console.log('=== done')"
+}
+]

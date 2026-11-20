@@ -17,3 +17,15 @@ fn fxt_vert(p: vec3f, uv: vec2f, c: vec4f) -> FxT {
   if (F.clk.w <= 0.0 || !soft_class(c.a, c.g)) { o.pos = vec4f(0.0, 0.0, 2.0, 1.0); }
   return o;
 }
+// The flame layer (§15.6, *FLAME-ALPHA* < 1): RP_FXT_N draws every toon fx shape but the flame class in the scene pass,
+// RP_FXT_L only the flame class into the layer (the other shapes moved outside the clip volume, as above).
+@vertex fn vs_fx_toon_n(@location(0) p: vec3f, @location(1) uv: vec2f, @location(2) c: vec4f) -> FxT {
+  var o = fxt_vert(p, uv, c);
+  if (soft_class(c.a, c.g)) { o.pos = vec4f(0.0, 0.0, 2.0, 1.0); }
+  return o;
+}
+@vertex fn vs_fx_toon_l(@location(0) p: vec3f, @location(1) uv: vec2f, @location(2) c: vec4f) -> FxT {
+  var o = fxt_vert(p, uv, c);
+  if (!soft_class(c.a, c.g)) { o.pos = vec4f(0.0, 0.0, 2.0, 1.0); }
+  return o;
+}

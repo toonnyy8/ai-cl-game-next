@@ -57,7 +57,7 @@
    #:env-vignette #:env-sun-size #:env-sun-glow #:*grade-desat* #:*grade-split*
    #:env-toon #:env-key-light #:env-toon-threshold #:env-toon-band #:env-toon-gradient #:env-toon-gradient-height
    #:env-toon-light-gain #:env-shade-value #:env-shade-saturation #:env-shade-hue #:env-shade-lift
-   #:env-cin-rim #:env-cin-width #:*grade-impact* #:*render-transparent* #:*impact-params* #:grade-impact #:*fx-clock* #:*soft-flame* #:*msaa-samples*
+   #:env-cin-rim #:env-cin-width #:*grade-impact* #:*render-transparent* #:*impact-params* #:grade-impact #:*fx-clock* #:*soft-flame* #:*flame-alpha* #:*msaa-samples*
    #:*render-scale* #:*scene-scale-cap* #:*auto-render-scale* #:*render-scale-min* #:*frame-budget-ms* #:*pixel-lights* #:*perf-log*
    #:*draw-count* #:*tri-count* #:*fx-alpha* #:*fx-add* #:*fx-toon* #:*fx-dropped*
    #:stream-buffer #:stream-buffer-data #:stream-buffer-fill #:stream-buffer-stride #:stream-room-p

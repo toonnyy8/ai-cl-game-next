@@ -515,6 +515,7 @@ engine/lisp/debug-ranges.lisp; a command no range claims does nothing)."
 (define-debug-range (2610 2612) (c) (burst-burn-test (- c 2610)))
 (define-debug-range (2328 2328) (c) (hud-cons-check))
 (define-debug-range (88000 88003) (c) (setf *soft-flame* (- c 88000)))   ; the soft flame's candidate (STYLE_STORM_DESIGN §15)
+(define-debug-range (88010 88020) (c) (setf *flame-alpha* (/ (i->f (- c 88010)) 10f0)))   ; the flames' opacity n/10 (§15.6)
 (define-debug-range (2329 2329) (c) (brush-cons-check))
 (define-debug-range (2390 2390) (c) (vfx5-cons-check))
 (define-debug-range (2391 2391) (c) (vfx6-cons-check))

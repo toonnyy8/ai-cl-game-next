@@ -7,10 +7,11 @@
 static SDL_GPUDevice *r_dev;
 /* Slots are fixed: ui.lisp creates RP_UI = 10, paint.lisp RP_HUD = 19 and RP_COMP_AO = 20; the toon pipelines (SOUL DUEL's restyle) are appended. */
 enum { RP_LIT, RP_LIT_CW, RP_LIT_T, RP_LIT_T_CW, RP_SKY, RP_FXA, RP_FXB, RP_BRIGHT, RP_BLUR, RP_COMP, RP_UI,
-       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_FXT_F, RP_N };
+       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_FXT_F,
+       RP_FXT_N, RP_FXT_L, RP_COMP_FL, RP_BRIGHT_FL, RP_FXT_FL, RP_N };   /* the flame layer (STYLE_STORM_DESIGN §15.6) */
 static SDL_GPUGraphicsPipeline *r_pipe[RP_N];
 static SDL_GPUSampler *r_linear, *r_nearest;
-static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font, *r_hudfont;
+static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font, *r_hudfont, *r_flame_msaa, *r_flame;
 static SDL_GPUBuffer *r_draws, *r_fx[3], *r_uib, *r_hudb, *r_hudbb;
 static SDL_GPUTransferBuffer *r_dyn;
 static int r_fw, r_fh, r_samples = 1, r_tris;
@@ -175,16 +176,18 @@ int r_hud_atlas_new(const unsigned char *px, int w, int h) {
 /* (Re)create the offscreen targets for a W x H scene. */
 static int r_targets(int w, int h) {
   if (w == r_fw && h == r_fh) return 1;
-  SDL_GPUTexture *old[7] = { r_msaa_tex, r_depth, r_scene, r_half[0], r_half[1], r_q[0], r_q[1] };
-  for (int i = 0; i < 7; i++) if (old[i]) SDL_ReleaseGPUTexture(r_dev, old[i]);
+  SDL_GPUTexture *old[9] = { r_msaa_tex, r_depth, r_scene, r_half[0], r_half[1], r_q[0], r_q[1], r_flame_msaa, r_flame };
+  for (int i = 0; i < 9; i++) if (old[i]) SDL_ReleaseGPUTexture(r_dev, old[i]);
   SDL_GPUTextureUsageFlags rt = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
   SDL_GPUTextureFormat f = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
   r_scene = r_tex(w, h, f, 1, rt);
   r_msaa_tex = r_samples > 1 ? r_tex(w, h, f, r_samples, SDL_GPU_TEXTUREUSAGE_COLOR_TARGET) : NULL;
+  r_flame = r_tex(w, h, f, 1, rt);   /* the flame layer (§15.6), resolved; MSAA like the scene */
+  r_flame_msaa = r_samples > 1 ? r_tex(w, h, f, r_samples, SDL_GPU_TEXTUREUSAGE_COLOR_TARGET) : NULL;
   r_depth = r_tex(w, h, SDL_GPU_TEXTUREFORMAT_D32_FLOAT, r_samples, SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET);
   for (int i = 0; i < 2; i++) { r_half[i] = r_tex(w / 2, h / 2, f, 1, rt); r_q[i] = r_tex(w / 4, h / 4, f, 1, rt); }
   r_fw = w; r_fh = h;
-  return r_scene && r_depth && r_half[0] && r_half[1] && r_q[0] && r_q[1] && (r_samples == 1 || r_msaa_tex);
+  return r_scene && r_depth && r_half[0] && r_half[1] && r_q[0] && r_q[1] && r_flame && (r_samples == 1 || (r_msaa_tex && r_flame_msaa));
 }
 /* Opaque (TRANSPARENT 0) or alpha < 1 (1) records of the queue. Per-draw data is read by the vertex
    shader from the storage buffer at instance_index = record index (first_instance). An opaque record
@@ -235,7 +238,8 @@ static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *ds
    4 scene w 5 scene h 6 window w 7 window h 8 desaturate 9 split (window px) 10 toon sky
    11 impact mode (0 = RP_COMP; 1..4 = RP_COMP_FX, see composite-fx.frag.wgsl) 12 threshold 13 keep-saturation
    14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2 22 transparent (no sky, RP_COMP_A: the scene's alpha out,
-   *RENDER-TRANSPARENT*; it wins over the impact mode) 23 the soft flame's glow (bright.frag.wgsl P.y, 0 = off)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
+   *RENDER-TRANSPARENT*; it wins over the impact mode) 23 the soft flame's glow (bright.frag.wgsl P.y, 0 = off)
+   24 the flame layer's opacity (*FLAME-ALPHA*, STYLE_STORM_DESIGN §15.6: < 1 = the flame-class toon fx in their own layer)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
    paint stream, drawn after the UI; HUDB: its back layer, drawn into the cleared swapchain under the composite, which then
    blends premultiplied over it (RP_COMP_AO), only on a transparent frame; nothing when the count is 0 or no atlas was made,
    so a frame without them takes the old path unchanged).
@@ -277,19 +281,49 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
   SDL_GPUDepthStencilTargetInfo dt = {0};
   dt.texture = r_depth; dt.clear_depth = 1; dt.load_op = SDL_GPU_LOADOP_CLEAR; dt.store_op = SDL_GPU_STOREOP_DONT_CARE;
   dt.stencil_load_op = SDL_GPU_LOADOP_DONT_CARE; dt.stencil_store_op = SDL_GPU_STOREOP_DONT_CARE;
+  /* The flame layer (STYLE_STORM_DESIGN §15.6, *FLAME-ALPHA* < 1): the flame-class toon fx (soft_class, fx-toon-io.wgsl) leave
+     the scene pass and draw, cut and fringe, into their own target cleared to 0 that shares the scene's depth (pass B); the
+     layer is laid over the scene at one opacity before the other fx (pass C), so overlapping tongues never stack past it.
+     At 1 (or with no toon fx) the single pass runs exactly as before. */
+  int layer = rp[24] < 1.0f && nft > 0;
+  if (layer) { ct.store_op = SDL_GPU_STOREOP_STORE; dt.store_op = SDL_GPU_STOREOP_STORE; }
   SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cb, &ct, 1, &dt);
   if (rp[22] == 0) { SDL_BindGPUGraphicsPipeline(pass, r_pipe[rp[10] != 0 ? RP_SKY_TOON : RP_SKY]); SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0); }   /* transparent: the clear (0,0,0,0) stays */
   r_tris = 0;
   int drawn = r_draw_queue(pass, dq, n, 0) + r_draw_queue(pass, dq, n, 1);
-  r_draw_batch(pass, RP_FXT, r_fx[2], nft / 9);
-  if (fu[159] > 0) r_draw_batch(pass, RP_FXT_F, r_fx[2], nft / 9);   /* the soft flame's fringe (STYLE_STORM_DESIGN §15): FU[159] = feather px */
+  if (!layer) {
+    r_draw_batch(pass, RP_FXT, r_fx[2], nft / 9);
+    if (fu[159] > 0) r_draw_batch(pass, RP_FXT_F, r_fx[2], nft / 9);   /* the soft flame's fringe (STYLE_STORM_DESIGN §15): FU[159] = feather px */
+  } else {
+    r_draw_batch(pass, RP_FXT_N, r_fx[2], nft / 9);                     /* every toon fx but the flames */
+    SDL_EndGPURenderPass(pass);
+    SDL_GPUColorTargetInfo lt = {0};                                     /* pass B: the flame layer */
+    lt.texture = r_samples > 1 ? r_flame_msaa : r_flame; lt.resolve_texture = r_samples > 1 ? r_flame : NULL;
+    lt.load_op = SDL_GPU_LOADOP_CLEAR; lt.store_op = r_samples > 1 ? SDL_GPU_STOREOP_RESOLVE : SDL_GPU_STOREOP_STORE;
+    dt.load_op = SDL_GPU_LOADOP_LOAD;
+    pass = SDL_BeginGPURenderPass(cb, &lt, 1, &dt);
+    r_draw_batch(pass, RP_FXT_L, r_fx[2], nft / 9);
+    if (fu[159] > 0) r_draw_batch(pass, RP_FXT_FL, r_fx[2], nft / 9);
+    SDL_EndGPURenderPass(pass);
+    ct.load_op = SDL_GPU_LOADOP_LOAD; ct.store_op = r_samples > 1 ? SDL_GPU_STOREOP_RESOLVE : SDL_GPU_STOREOP_STORE;   /* pass C */
+    dt.store_op = SDL_GPU_STOREOP_DONT_CARE;
+    pass = SDL_BeginGPURenderPass(cb, &ct, 1, &dt);
+    SDL_GPUTextureSamplerBinding lb = { r_flame, r_nearest }; float u[4] = { rp[24], 0, 0, 0 };
+    SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_COMP_FL]);
+    SDL_BindGPUFragmentSamplers(pass, 0, &lb, 1);
+    SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
+    SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
+    SDL_PushGPUFragmentUniformData(cb, 0, fu, R_FU * 4);                 /* the Frame back for the fx below */
+  }
   r_draw_batch(pass, RP_FXA, r_fx[0], nfa / 9);
   r_draw_batch(pass, RP_FXB, r_fx[1], nfb / 9);
   SDL_EndGPURenderPass(pass);
   /* bloom: bright pass at 1/2, separable blur at 1/2 and 1/4 */
   int bloom = rp[0] != 0, hw = r_fw / 2 > 0 ? r_fw / 2 : 1, hh = r_fh / 2 > 0 ? r_fh / 2 : 1, qw = r_fw / 4 > 0 ? r_fw / 4 : 1, qh = r_fh / 4 > 0 ? r_fh / 4 : 1;
   if (bloom) {
-    r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], rp[23], 0, 0, 0);   /* rp[23]: the soft flame's glow */
+    SDL_GPUTexture *bsrc[2] = { r_scene, r_flame };   /* the flame layer's glow is read from the layer itself (§15.6) */
+    if (layer) r_fs_pass(cb, r_half[0], RP_BRIGHT_FL, bsrc, 2, rp[1], rp[23], rp[24], 0, 0);
+    else r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], rp[23], 0, 0, 0);   /* rp[23]: the soft flame's glow */
     r_fs_pass(cb, r_half[1], RP_BLUR, &r_half[0], 1, 1.0f / hw, 0, 0, 0, 0);
     r_fs_pass(cb, r_half[0], RP_BLUR, &r_half[1], 1, 0, 1.0f / hh, 0, 0, 0);
     r_fs_pass(cb, r_q[0], RP_BLUR, &r_half[0], 1, 1.0f / qw, 0, 0, 0, 0);
