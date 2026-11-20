@@ -1116,3 +1116,51 @@ def yama_k4_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-k4", yama_k4_script())
 write("yama-k4-phone", yama_k4_script(True))
+
+# Yamamoto's Bankai art K5 (DUEL_YAMA_CORE §20.1): the 東 void as a ragged radial tear, every place it shows. L6 in play (K2's scenes):
+# 東 NS a-b-c from 3 m, NS1c's void at its S18+2 / +6 / +14 / +26 (growing, full, held, filling with ash), J1 > AS1's notch at its S10
+# +0 / +4 / +11; from the behind camera, then the SIDE camera (2109); then the K4 東 cinematic's frames 90 (opening), 96 (b4-void), 120
+# (b5-shatter), 150 (b6-hang) (K4's holds: 87450, 87600+k). 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-k5.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --mobile --size 390x844 --script tests/scripts/duel-yama-k5-phone.json
+def yama_k5_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    def sp(s): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+    def shots(a, frames, cam):
+        for f, n in frames: ev.append(shot(a + f / 60, f"yama-k5-{n}-{cam}{sx}"))
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        s0 = scene(f"east NS a-b-c {cam}", (87030, 87301, 87446) + deck); a = s0 + 1.6
+        for i in range(3): sp(a + 0.3 * i)
+        a += 0.01
+        shots(a, ((57 + 20, "void-grow"), (57 + 24, "void-full"), (57 + 32, "void-held"), (57 + 44, "void-fill")), cam)
+        t += 4.3
+        s0 = scene(f"J1 > AS1 {cam}", (87014, 87301, 87446) + deck); a = s0 + 1.6
+        ev.extend(tap(a, "KeyJ", 0.05)); sp(a + 0.2)
+        shots(a, ((29, "notch-first"), (33, "notch-full"), (40, "notch-held")), cam)
+        t += 3.8
+    ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== higashi')"})
+    ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]   # (idle in the Bankai first: the form's callout gone)
+    t += 2.5
+    ev.append(cmd(t, 87450))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    beats = ((90, "cine-open"), (96, "cine-b4-void"), (120, "cine-b5-shatter"), (150, "cine-b6-hang"))
+    ev.append(cmd(t + 0.03, 87600 + beats[0][0] // 2))
+    a, f0 = t + 0.03, 0
+    for j, (f, n) in enumerate(beats):
+        a += (f - f0) / 60 + 0.3
+        ev.append(shot(a, f"yama-k5-{n}{sx}"))
+        if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1][0] // 2))
+        a += 0.05
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-k5", yama_k5_script())
+write("yama-k5-phone", yama_k5_script(True))

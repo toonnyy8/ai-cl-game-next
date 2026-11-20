@@ -1406,3 +1406,89 @@ The user, on the K4 open items (with a manga page as reference: BLEACH ch. 507 p
    to both places that draw the void: L6 (KYOKUJITSUJIN NS1c's void line and AS1's notch, `yama-look.lisp`) and the K4 cinematic's
    wedge (`yama-higashi-look`, `yama-cine.lisp`). Presentation only. The shape is fixed per cast (seeded, never re-rolled per frame), and the
    spikes grow out as the void opens. The white toon rim question (K1 deviation 8) is judged again on the new shape's stills.
+
+### 20.1 As built (art batch K5: the 東 void as a ragged radial tear, 2026-11-20)
+
+One helper draws the void in both places: `yama-tear` (`yama-look.lisp`, a `defun-fast-inline`: its call expands in place, so the floats
+stay unboxed). L6 (`yama-bk-moves` codes 2 / 3) and the K4 cinematic (`yama-higashi-look`) call it in place of the old ink strip / wedge and
+their ember hairlines. Presentation only: `yama.lisp` and every rule are untouched.
+
+**The shape.** It is flat INK on the floor, 1.2 cm up, as one toon fan shape. Heat is 0 on the cut's line and 1 on the ragged outline. The
+shader's own wobble (0.14; the old strip had 0.05) and its broken edge give the dry-brush lift; no per-frame randomness is added.
+- The body runs from the origin (where the tip touched) along the cut. Its half-width goes from W0 to W1. The outline alternates notches
+  and spike tips at uneven stations: a notch sits 0.5-0.95 x the local half-width out (0.8 x at the two ends), and its station is
+  jittered by ±0.3 of a step. A tip sits between its two neighbouring notches (±0.45 of a step), so no straight side is longer than the
+  spike beside it.
+- A spike's length out of the body is G x (SL + 0.9 x the local half-width) x (0.2 + 2.0 h³), where h is a hash from 0 to 1. Most spikes
+  are short and a few are long thin claws. N spikes are drawn on each side of the line.
+- M spikes fan round each end: behind the origin (the tip's touch: "radiating from its origin") and beyond the far end. These are 0.7 x
+  as long.
+- Every outline point leans forward by (0.15 + 0.8 c + 0.3 sin(6c + seed)) x its distance out, where c is how far along the cut it is
+  (0 to 1). This one smooth shear fans the spikes out from the origin, more toward the far end. Because the shear is monotone along the
+  cut, no two spikes cross. The stills show no white rim line inside the black.
+- **Fixed per cast.** The shape is a pure function of its seed, and every seed is a constant: L6's void 32, AS1's notch 46, the cinematic
+  78. So each is one fixed shape per move, the same every cast. Nothing that happens mid-cast can re-roll it. A seed from his feet would
+  give each cast its own shape, but a crossing of the rounding grid would re-roll every spike mid-hold. Only the shader's boil changes,
+  on the fx clock's drawings, as every toon shape does.
+- **Growth.** G (0 to 1) grows the spikes out of the body. In L6 the void's body is at full length on S, as before (the hit is the whole
+  line), and the spikes come out over 4 f (G = (sf - S + 1) / 4). In the cinematic the body opens as before (0.8 m at the tip to 5 m at
+  12 m in 10 f from f84), and the spikes grow over 14 f from f84. While k falls (L6's ash fill, 11 f), the fan erodes from the outline in,
+  so the spikes go first.
+
+| Call | Origin, length | Body half-width W0 → W1 | SL | Spikes a side N / each end M | Spike length (at the far end) | Vertices |
+|---|---|---|---|---|---|---|
+| L6 NS1c KYOKUJITSUJIN | 0.2 m ahead, 5.8 m (to the cap's 6.0) | 0.28 → 0.40 | 0.15 | 12 / 4 | 0.10-1.12 m | 336 |
+| L6 AS1's notch | 0.2 m ahead, 1.4 m (to 1.6) | 0.21 → 0.30 | 0.15 | 4 / 3 | 0.08-0.92 m | 132 |
+| K4 東 cinematic | NS1c's tip (1.86 m ahead), 12 m | 0.40 → 2.50 | 0.35 | 16 / 5 | 0.52-5.7 m (0.14-1.6 m at the tip) | 444 |
+
+**The ember hairline: dropped in both places.** Following a ragged outline would take a second copy of the shape (twice the vertices). As a
+fan shape, EMBER draws its red body and pale core rather than a hairline. The INK shape's own white edge already traces every spike. In the
+cinematic, the only colour in 東 stays the blade's ember edge (§15.3.1 b1); the void is ink with a white rim.
+
+**The white toon rim (K1 deviation 8) on the new shape.** The INK palette's value-opposite edge (1.2 px x 1.8 at 720 lines) now runs along
+every spike and notch. The shader's brush-lift noise breaks it, so it reads as a manga cut's white margin round the black, closer to ch. 507
+than the old even line beside the ember hairline. The shared shader is unchanged; keeping the rim or removing it is still the user's call.
+INK's shade tone (the outer ~18 % of a fan's field: `d/k + 0.3 s.x > 0.82`) showed on the first build as a lighter grey band inside the
+outline. The tear's uv.x is set to -2 ± 0.4, which keeps that test false: one flat black, as D3. This is a geometry-side choice; the
+shader is untouched.
+
+**For the user: the spikes reach past the hit volume.** The solid body stays inside L6's cap (0.2-6.0 m ahead, ±0.4 m); the old strip was
+exactly the cap. Measured on the tear's geometry with the final law (a Python copy of YAMA-TEAR; its float64 hash rolls other shapes than
+the game's single floats, so the numbers are a sweep over 400 seeds, then the seed's own value):
+- NS1c's void: the spikes reach a median 0.8 m (at most 1.0 m) past the cap's sides, and a median 1.0 m (at most 1.7 m) past its 6.0 m end.
+  At seed 32: 0.85 m and 0.98 m.
+- AS1's notch: a median 0.6 m (at most 0.8 m) past its ±0.3 m sides, and 0.8 m (at most 1.4 m) past its 1.6 m end.
+- The origin's fan reaches up to 0.6 m behind the tip's touch point, under his own feet.
+
+This decorates a hit that lands the whole line at once, but a player may read the spikes as reach. The knobs, if the user wants them
+shorter: SL and the fans' x0.7 in `yama-tear`, or N (more spikes, each narrower).
+
+**Stills (untracked).** `tests/scripts/duel-yama-k5.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_k5_script`) shoot:
+- L6 in play from the behind camera and the SIDE camera: NS1c's void at S+2 / +6 / +14 / +26 (growing, full, held, filling), and AS1's
+  notch at S+0 / +4 / +11.
+- The 東 cinematic held at f90 (opening), f96 (b4-void), f120 (b5-shatter) and f150 (b6-hang).
+
+Every still was shot with a b2dacf06 dist (before) and this build (after), landscape and portrait (`--mobile --size 390x844`):
+`tests/shots/duel-yama-k5-<void-grow|void-full|void-held|void-fill|notch-first|notch-full|notch-held>-<behind|side>[-phone].png` and
+`duel-yama-k5-cine-<open|b4-void|b5-shatter|b6-hang>[-phone].png`. Contact sheets (before | after): `tests/shots/duel-yama-k5-void-sheet.png`
+and `-sheet-phone.png`.
+
+What the stills show, checked by eye:
+- From the cinematic's high camera (b4) the tear reads as the reference does: long thin claws and short teeth leaning out from the cut,
+  and a star of spikes round the tip at his feet. It reads most clearly in portrait, where the tear runs up the tall frame.
+- From the match's behind camera the low angle compresses it to a jagged black crack. From the side camera the spikes read in full.
+- AS1's notch is mostly under the two bodies, as before.
+- Low across the void (b5, b6) the spikes break the void's near lip into teeth.
+
+**Checks** (all on the final build, constant seeds):
+
+| Check | Result |
+|---|---|
+| Host tests | `duel-rules-test.lisp`: 4105 checks, ALL PASS |
+| pkgcheck, debug ranges | as main (the one `DUEL::APP` line, 0 redefinitions, 0 undefined); `tests/debug-ranges-check.py` 88 ranges, 0 errors |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), no new compiler warning (12, as base); `run.mjs --secs 8` smoke exit 0 |
+| Native trials | `combo-trial.py --log` for `tests/trials/yamamoto-bankai.lisp` (513 lines), `-core` (241) and `-blaze` (268) are identical, line for line, to b2dacf06's (the simgate rebuild banner left out) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at b2dacf06: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's. No pinned still shows the void (the YK match's frames hold none), so the K5 stills are the review |
+| 0 B a frame | debug 87448, landscape and portrait: `... void 0, void-grow 0, notch 0, ... east-void 0, east-open 0, east-full 0, ...`, every row 0 and none "(dropped)". The new rows are `void-grow` (code 2 at S+1, spikes growing), `east-open` (f86) and `east-full` (f120) |
+| The fx batch | the toon batch holds 16384 vertices; the tear takes at most 444. `fx-dropped 0` on every stats line of both K5 runs, which include the cinematic's busiest frames |
