@@ -123,7 +123,7 @@ NA: J1 HISEN S14 (the blade drawn back, then a wrist snap; 34, 1.0 m, flinch) ->
 | Pointer | Stance | NS a / b / c | AS n | Kikon |
 |---|---|---|---|---|
 | 1 不知火 | the blade drawn back level at the hip, a flame spiral on it (`ya-shiranui`'s charge pose) | a: the thrust casts a spiral of fire along the lane (wave, 8 m; S22, 70) / b: the "unknown fire": a column erupts at the victim's bearing 4-7 m ahead, the point sampled at S, the eruption 12 f later inside an active window of 12 (S16, 70; `ya-f2`) / c: the tornado, a wide spinning column that travels (wave 3.5 m wide; S18, 90, knock-back; `ya-sig`) | AS1 (1): the spiral thrust point-blank, steals flash-step (50; `ya-shiranui-throw`) | the tornado swallows him: columns close in |
-| 2 城郭炎上 | the arm out, blade pointed at arm's length, held (`ya-enjo`) | a: the stream, a lance of fire along the lane (wave, 10 m; S20, 40) / b: the ring lands round the victim at his bearing (3-8 m, radius 1.6 m; lives 90 f; one ring at a time; S16; see Q1) / c: the walls close into a dome on the ring, or at once at his bearing if no ring stands (S18, 80, crumple; `ya-f3`; an NS hazard: J / SA cancel it) | AS2 (2): the ring snaps round him at contact (40, stagger) -> the dome erupts (60, launch) | ENNETSU JIGOKU: the pillars rise from the floor round both, a dome of fire (A) |
+| 2 城郭炎上 | the arm out, blade pointed at arm's length, held (`ya-enjo`) | a: the stream, a lance of fire along the lane (wave, 10 m; S20, 40) / b: the ring lands round the victim at his bearing (0-8 m since J1, §28.3; radius 1.6 m; lives 90 f; one ring at a time; S16; see Q1) / c: the walls close into a dome on the ring, or at once at his bearing if no ring stands (S18, 80, crumple; `ya-f3`; an NS hazard: J / SA cancel it) | AS2 (2): the ring snaps round him at contact (40, stagger) -> the dome erupts (60, launch) | ENNETSU JIGOKU: the pillars rise from the floor round both, a dome of fire (A) |
 | 3 撫斬 | upright, both hands on the pommel of the planted blade, as on the cane (reads apart from 1's low hip draw) | a: the walking jab of the point (S18, the blade pulled from the floor as the tell; 40, 1.6 m, slide 1.0) / b: the closing step-cut (S12, 50, slide 2.0) / c: NADEGIRI, one snap, the hit on S, the split drawn 24 f later (S14, 110, crumple; `ya-nadegiri`; see Q2) | AS3 (3): back cut (40) -> turning cut (50) -> NADEGIRI (110, knockdown) | he lowers the blade and turns away; the victim splits (A, ch. 338) |
 
 SA (J in an NS gap, any pointer): **TAIMATSU**, the radial halo of fire round him (360 deg, r 2.4 m; 55; the turn move's armour window;
@@ -2939,3 +2939,67 @@ d7d17b1a). J1 touches only Yamamoto: three hazard looks (NS2a's wave, the ring, 
   ring, so AS2 alone moves nothing. Its looks move on any still with a ring, a dome or an NS2a wave on screen. S5 recorded his first
   Kikon (J1 J2 > AS2) at tick 4010, so at least `cvc-yk-w3-0` (tick 6898) can differ; `intro`, `start`, `w0-0`, `w1-*` and `w2-0` differ
   only if one of those looks is in frame or an NS2b / NS2c inside 3 m came before them (read from the logs' `ring at` / `dome at` lines).
+- **Result**: 82 / 83 byte-identical (noise floor 0). `cvc-yk-w3-0` differs (tick 6898, after the divergence), `cvc-yk` sim lines differ
+  from `t=3600` (`t=600` .. `t=3000` and the match line identical): BASE's 4th NS2b (tick 3444) landed its ring at (1.85, -4.99), clamped
+  3 m out; with `:near 0` the route plays differently from there (the CPU's full-sim rollouts read the move too). Every other scenario:
+  identical, fighters and sim lines as BASE's. As predicted.
+
+**Task A: the ring that misses (sim).** `:near 3.0 -> 0.0` on `:ya-n2b`, `:ya-n2c`, `:ya-b-n2b` (AS2b / 爆炎 AS2b had 0 already);
+`ya-bearing-point` itself unchanged (its host test passes explicit near / far). `+ya-dome-near+` (YAMA-RING-CLOSE's predicted spot,
+host-checked against `:ya-b-n2b :near`) 3 -> 0. The script (`tests/scripts/duel-yama-j1.json`, debug 87010 / 87050: P1 at x -d/2, P2 at
++d/2 on z 0; combat lines `ring at` / `dome at`):
+
+| Scene | P2 at x | before (main, = batch 1) | after (J1) |
+|---|---|---|---|
+| NS2b, 1 m | 0.50 | ring at 2.50: P2 2.0 m from its centre, standing on the band, so the ring burned him twice on landing (2 x 20) but did not enclose him | ring at 0.50: round him; no hit on landing (inside the band is free, Y8); he burns when he crosses it |
+| NS2b, 5 m | 2.50 | ring at 2.50 | ring at 2.50 (unchanged) |
+| NS2c alone, 1 m (heat 0 / 25) | 0.50 | dome at 2.50 (hit 80: the dome's reach plus his hurt radius caught him at 2.0 m) | dome at 0.50 (hit 80) |
+| NS2c alone, 5 m | 2.50 | dome at 2.50 | dome at 2.50 |
+| 爆炎 NS2a > NS2b, 1 m | 0.50 | dome at 2.50 (hit 80) | dome at 0.50 (hit 80) |
+| 爆炎 NS2a > NS2b, 5 m | 2.50 | dome at 2.50 | dome at 2.50 |
+| AS2 (J J > AS2a > AS2b), 1.4 m | (0.75 after the hits) | ring 0.75, dome on it | the same (AS2 was already 0) |
+
+Docs: §7.1's NS2b cell now reads 0-8 m; the code comment and YAMA-RING-CLOSE's docstring too. The 3-8 m in §11's table (line ~225),
+§13's (~367), §21.2's SL6 row and §25.1's NS2b row are as-built records of their batches, superseded here.
+
+**Task B: batch 1's looks back (presentation).** Reference = 05acf777 (v446), built in a scratch worktree and shot with the same script
+as main and J1 (stills `tests/shots/duel-j1-*.png` = J1, `duel-j1-old-*.png` = batch 1, untracked; sheets
+`tests/shots/duel-j1-sheet-behind.png` / `-side.png`, columns batch 1 | main | J1). In `yama-look.lisp`, same names and signatures:
+- `yama-lance-look` (NS2a): batch 1 had no lance; NS2a drew `yama-wave-look` -> `vfx-fire-wave`, a 2.6 m FIRE crescent wall as wide as
+  the box. Main's SL4 was a 1.1 m-high lens: it lost the force, so the wall is back (its body re-ported: EMBER backing wall 20 % taller,
+  6 scalloped tongues, edge-on tongues, the lens at 1.2 m, scorch, T光 base lines, scraps; envelope 1 3 hold 18 with the white burst on
+  its first drawing; it sinks to 0.4 passing the lens). One change: the crescent's middle sits on the box's front (+0.5 m), its bowed ends
+  inside the box. The `*wave-ghosts*` erosion after a hit is not ported (draw-side state).
+- `yama-ring-look`: six `%ya-pillar` columns (batch 1's `vfx-fire-pillar` as a 0 B macro: EMBER backing, FIRE column, the twisting stripe,
+  the 6-tongue crown, the foot scorch, scraps) 1.4 m high on the circle, plus SL5's EMBER band ±`+ya-ring-band+` on the floor (the
+  footprint: it burns between the pillars too). The pillar base half-width is clamped 0.32 -> 0.25 (inside the band) and the foot
+  scorch ring shrunk to stay inside it. Batch 1's pillars rose from nothing at age 0; they now stand one drawing up on the first frame
+  (§22.2's hit frame: AS2a's snap lands the ring in hitstop). The charge: 2 hits full, 1 hit x0.7 high and x0.8 thin, 0 only the band.
+- `yama-dome-look`: batch 1's Jokaku Enjo from its seethe on, as a function of the hazard's age (no `*dome-last*`, no `stamp`): ages
+  0-2 the closed three-tier dome (12 + 9 + 6 FIRE tongues leaning in, EMBER backings on the outer tier, boiling scraps, 1.15 r high), from
+  age 3 the detonation drawn from `age - 3`: batch 1's `:boom` (the white flash, the 14-spike FIRE star over the EMBER one, the white core
+  for 2 drawings) and its `:ring` FIRE shockwave, the flame / smoke / ember burst emitted by rate over ages 3-5 (batch 1 threw 26 + 10 + 16
+  at once), the 16 m light fading in 9 f. The footprint ring sits inside the disc's edge.
+- Heat: T0 draws batch 1's silhouette as it was (`%ya-up` 1.0: the ring and the dome pay no heat in the Shikai, so §21.2's T0 x0.6 / 60 %
+  would have shrunk them below batch 1: a deviation from §21.2's T0 row, for 「更有魄力」). T1 / T2 and every 爆炎 segment grow x1.15 /
+  x1.3 (`%ya-up` from `%ya-hf`) and take `%ya-core`'s white core (30 / 60 % of the width) inside each pillar, tongue and the wave; T2 keeps
+  the dome's EMBER scorch disc. Palettes FIRE / EMBER / HIT only (the soft-flame pass's flame class).
+- Probes (debug 87449): new rows `ring-rise` (age 1), `ring-t2`, `dome-seethe` (age 0), `dome-seethe-t2`, `dome-boom` (age 3),
+  `dome-boom-t2`, `lance-flash` (age 0); all read **0 B**, as do the old rows (`lance-t-*`, `ring-hits-*`, `dome-t-*`, `ring-close`). (A
+  first build read 240 B on the lance: `(* 2f0 (hazard-size hz))` and `(+ (hazard-x hz) ...)` went through generic arithmetic; the reads
+  are now bound typed first. The probe macro binds `D0` / `F0` / `N0` itself: a stand-in named `d0` was shadowed by `*fx-dropped*` and
+  stopped the page; renamed.)
+
+**Checks**: host tests 4262 ALL PASS (the FK reach test and the looks' no-writes walk included); pkgcheck clean but the old `DUEL::APP`;
+`./build.sh duel` 0 (vendor restored); smoke 0; `--cvc` II / IK / KK identical; looks gate as above.
+
+**Open (for the lead and the user)**:
+- The white burst on the wave's first drawing and the dome's white flash / core are batch 1's, kept as the user's reference, though
+  §21.2 gives white to heat alone.
+- At 1 m the ring and the dome now sit round both fighters (he stands 1 m from the centre): the dome and its detonation cover Yamamoto
+  from the behind camera for ~10 f. The cost of the fix; the stills `duel-j1-dome1m-*`.
+- NS2b at point blank no longer burns on landing (main's off-centre ring caught a 1 m victim on its band for 2 x 20); the ring now traps
+  him and burns when he crosses it.
+- 爆炎 NS2b still shows SL5's low tongue ring (YAMA-RING-CLOSE, f12-15) before batch 1's dome: not in J1's scope (J3 gives that move its
+  own clip).
+- The pillars read a little slimmer than batch 1's (base 0.25 for the band, was 0.32).
