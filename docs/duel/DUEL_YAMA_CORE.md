@@ -2980,8 +2980,8 @@ as main and J1 (stills `tests/shots/duel-j1-*.png` = J1, `duel-j1-old-*.png` = b
   age 3 the detonation drawn from `age - 3`: batch 1's `:boom` (the white flash, the 14-spike FIRE star over the EMBER one, the white core
   for 2 drawings) and its `:ring` FIRE shockwave, the flame / smoke / ember burst emitted by rate over ages 3-5 (batch 1 threw 26 + 10 + 16
   at once), the 16 m light fading in 9 f. The footprint ring sits inside the disc's edge.
-- Heat: T0 draws batch 1's silhouette as it was (`%ya-up` 1.0: the ring and the dome pay no heat in the Shikai, so §21.2's T0 x0.6 / 60 %
-  would have shrunk them below batch 1: a deviation from §21.2's T0 row, for 「更有魄力」). T1 / T2 and every 爆炎 segment grow x1.15 /
+- Heat: T0 draws batch 1's silhouette as it was (`%ya-up` 1.0: the ring and AS2b's dome are always T0 in the Shikai, and NS2c and NS2a are T0 when no heat is
+  paid, so §21.2's T0 x0.6 / 60 % would have drawn them below batch 1: a deviation from §21.2's T0 row, for 「更有魄力」). T1 / T2 and every 爆炎 segment grow x1.15 /
   x1.3 (`%ya-up` from `%ya-hf`) and take `%ya-core`'s white core (30 / 60 % of the width) inside each pillar, tongue and the wave; T2 keeps
   the dome's EMBER scorch disc. Palettes FIRE / EMBER / HIT only (the soft-flame pass's flame class).
 - Probes (debug 87449): new rows `ring-rise` (age 1), `ring-t2`, `dome-seethe` (age 0), `dome-seethe-t2`, `dome-boom` (age 3),
