@@ -2099,3 +2099,192 @@ build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v456 (v455 th
 are inside the expected list, the YK sim lines identical: **re-based** at this merge (BASE = a dist built here) until S3.
 The lead's call on deviation 6 (stance 1's corkscrew, stance 2's drip) and stance 3's faint blade: S3 adds them with its looks, an ember on
 stance 3's point included if the user wants the blade to read (it stays "no fire" by §21.3 until then).
+
+## 24. As built (art batch S3: pointer 2, pointer 3, AS2, AS3, the SA, the Kikon strikes and two stance looks, 2026-11-20)
+
+S3 of §21.1 (the user, 2026-11-20: 「繼續」; the plan §21.3, the decisions §21.8; §23.9's open looks): every Shikai segment left on a borrowed
+clip gets its own, at its move's S, with frame 0 the pose its link lands on (§21.3's table); TAIMATSU and NADEGIRI lose their root turns; the
+Kikon strikes get `ya-strike`; pointer 1's and 2's stances get their fire. Presentation only (proofs in 24.8). Code: `yama-art.lisp` (the clips
+and their named landing poses; YAMA-DRAW calls the stance look), `yama-look.lisp` (YAMA-STANCE-FIRE, YA-STANCE-TIER, the 87449 rows), `yama.lisp`
+(`:clip` / `:clip-s` only), tests `tests/duel-rules/art.lisp`, the still scripts (`tests/scripts/duel.py`, `duel-view.py`).
+
+### 24.1 What was built
+
+| Slot | Clip (S / A / R) | Frame 0 (= the landing of) | As built |
+|---|---|---|---|
+| NS2a (tell) | `ya-enjo` re-keyed (20 / 2 / 22; was 20 / 2 / 30 on a move of R22) | stance 2 `:ya-st-jokaku` | the pointing arm drawn back to the shoulder like a spear f1-12, a key a frame (`:ya-n2a-cock`: the elbow out at the shoulder, the forearm forward, the blade level by the cheek, the tip 1.13 m ahead); held f13-17 (a 1-2 deg tremble); released f18-19, locked out on a short step on S (`:ya-n2a-hit`: the tip 1.88 m ahead at 1.33 m, the lance leaves it); held to S+A (`:ya-n2a-land`) |
+| NS2b | **`ya-n2b`** (16 / 2 / 20; was `ya-enjo` at x1.25) | NS2a f22 `:ya-n2a-land` | the arm held out, the point settles f1-3; the wrist draws one circle with the point f4-13 (the hand's flex and side in quadrature, +-15 deg, a key every 45 deg, linear: the tip's circle 0.42 m across, no twist); a stop on S, the point dipped at the ring's spot (`:ya-n2b-hit`); `:ya-n2b-land` at S+A |
+| NS2c (F11's tell) | **`ya-n2c`** (18 / 2 / 30; was `ya-f3`, the 360 deg spin drop, at x1.22) | NS2b f18 `:ya-n2b-land` | the blade raised point-up overhead f1-8, a key a frame (`:ya-n2c-up`, the tip 2.68 m up); held f9-15 (a tremble: fire climbs SL0); chopped down f16-17 to the level point on S (`:ya-n2c-hit`: the tip 1.83 m ahead at 1.30 m) |
+| AS2a | **`ya-as2a`** (12 / 3 / 16; was `ya-enjo` at x1.67) | J2 f9 `:ya-q2-thru` (new: `ya-q2`'s f9 exactly) | the point brought down level at his right f1-6 (`:ya-as2a-cock`), held f7-9, flicked level R->L across his chest on a 0.2 m drawn lunge f10-12 (`:ya-as2a-hit`: the tip 1.90 m out, 7 deg left of ahead), on through S+2 (`:ya-as2a-thru`, 1.80 m at 31 deg left) |
+| AS2b | **`ya-as2b`** (18 / 2 / 30; was `ya-f3`) | AS2a f15 `:ya-as2a-land` | NS2c's keys from its own frame 0 (generated from the same poses) |
+| NS3a (tell) | **`ya-n3a`** (18 / 3 / 18; was `ya-q2` at x0.44) | stance 3 `:ya-st-nade` | the blade pulled up out of the plaza and levelled low at his right hip f1-12, a key a frame (`:ya-n3a-low`: the hand drawn back at the hip, the tip 0.86 m ahead at 0.78 m); held f13-16; a low rising jab f17-S (`:ya-n3a-hit`: the tip 1.68 m ahead at 1.14 m); the 1.0 m slide is the sim's, the legs make the lunge (the drawn root 0.1 m) |
+| NS3b | **`ya-n3b`** (12 / 3 / 18; was `ya-q1` at x0.75) | NS3a f21 `:ya-n3a-land` | the blade drawn to his right at the waist f1-8 (`:ya-n3b-wind`), held f9, a level cut R->L at the waist on the step f10-S (`:ya-n3b-hit`: the tip 1.65 m ahead at 1.00 m), on through S+2 (1.60 m at 42 deg left) to his left (`:ya-n3b-land`); the 2.0 m slide the sim's (the drawn root 0.12 m) |
+| NS3c NADEGIRI | `ya-nadegiri` re-keyed at S14 (14 / 4 / 34; the move's `:clip-s 20` dropped; the 185 deg root turn and the -360 end removed) | NS3b f15 `:ya-n3b-land` | the blade settles at his left hip, the eyes shut f1-6 (`:ya-nadegiri-draw`, the turn in the pelvis 14 / chest 28 deg, no root yaw); still f7-9; a 1 deg tremble f10-12; the snap L->R at the neck f13-S (two drawings; `:ya-nadegiri-hit` on a 0.3 m drawn lunge, the tip 1.94 m ahead at 1.43 m), on through S+2 to his right (37 deg); then the blade lowered over 20 f (f19-38) with the chest (-46 deg) and the head (-30) turned away to his right (`:ya-nadegiri-low`), held to f44, back to the stance by f52 |
+| AS3a | **`ya-as3a`** (8 / 3 / 14; was `ya-q2`) | J3 f10 `:ya-tsuka-thru` (new: `ya-tsuka`'s f10, `:ya-tsuka-hit` with root f 0.323, arm flex 131.6) | the reverse-gripped blade cocked out off the little finger to his left front f1-7 (the hand twist kept 166-175 deg: the grip never changes), out on S (`:ya-as3a-hit`: the hand 1.10 m ahead, the tip 1.77 m out at 19 deg left), then the hilt pulled back across him R->L through S+2 (`:ya-as3a-pull`, 1.67 m at 34 deg left): the edge cuts on the pull |
+| AS3b | **`ya-as3b`** (10 / 3 / 16; was `ya-f1` at x0.55) | AS3a f11 `:ya-as3a-land` | the blade flipped forward and dropped low at his right front f1-6 (the hand twist 175 -> 0: the flip is the motion), held f7; a rising cut to his high left as the chest turns f8-S (`:ya-as3b-hit`: the tip 1.91 m out at 1.58 m), on up to his high left (`:ya-as3b-land`, the tip 2.03 m up) |
+| AS3c | **`ya-as3c`** (14 / 4 / 34; was `ya-nadegiri` at x1.43) | AS3b f13 `:ya-as3b-land` | NADEGIRI's keys from its own frame 0 (the settle comes down from his high left) |
+| SA TAIMATSU | `ya-taimatsu` re-keyed (16 / 8 / 24; the root's 360 deg turn and its +360 end removed; `:ya-taimatsu-hit` kept, its yaw 0) | its own (the stance) | the eye-open tell f3; the blade carried once round him low, keys at f5 / 7 / 9 / 11 / 13 / 15, linear (the tip's bearing 30 / 88 / 147 / 208 / 262 / 320 deg: his right front, right, behind right, behind with the hand behind his back, left, left front; 0.2-0.85 m up), the chest turning with it (-8 .. -40 .. +15 deg); rising into the fan across the front on S (the kept hit pose); the order SL8's halo ignites in (front, right, behind, left) |
+| the Kikon strikes | **`ya-strike`** (14 / 3 / 12; `ya-ns-strike` gets `:clip`, `ya-as-strike` inherits it) | J1's (its own frame 0, the move's `:blend 4` kept) | `ya-hisen`'s keys with the root drawn forward from the held tell into S (0.02 .. 0.08 m f9-12, 0.17 on f13, 0.25 on S, 0.24 at S+A): the tip 1.62 m |
+| stance 1 不知火 (look) | YAMA-STANCE-FIRE code 1 | - | over SL0's rest sheath, a slow corkscrew of fire: two FIRE strands wound 1.5 turns round the blade (r 0.075 m x the tier's height share, widening toward the tip), turning once in 4 s; the tier's white core |
+| stance 2 城郭炎上 (look) | YAMA-STANCE-FIRE code 2 | - | a small flame hanging off the point and three drops of fire falling 0.6 m from it in turn (one every 0.4 s, 1.2 s a fall), thinning and fading as they fall; the tier's core |
+| stance 3 撫斬 | - | - | still no fire (§21.3; the user decides on an ember later) |
+
+The stance looks' tier is the heat his next NS segment would pay (YA-STANCE-TIER: the gauge capped at 25, the same rule as YA-HEAT-TIER; 2 in
+爆炎): T0 at heat 0, T1 below 25, T2 at 25 or more. They read the gauge and write nothing; they use the fx clock and HASH01, never the random
+stream, so nothing else in a frame moves with them.
+
+Deleted, unreferenced after S3: `ya-q1` (its hit pose `:ya-q1-hit` stays: `ya-hisen` and `ya-q2` use it), `ya-f1` (+ `:ya-f1-wind` / `-hit`),
+`ya-f3` (+ `:ya-f3-cock` / `-hit`), `:ya-taimatsu-low`, the old `:ya-nadegiri-draw` / `-hit` (re-defined). `:ya-enjo-point`, `:ya-lean` and the
+stance 2 / 3 poses moved up the file (the new pointer 2 / 3 poses are based on them; a pose must exist before a pose is based on it).
+`ya-enjo` keeps its name (NS2a, and 爆炎's ENNETSU at `:clip-s 20` until S4).
+
+### 24.2 Drawn reach against hit reach (the host FK test)
+
+| Move | Before (§23.2): drawn / volume end / delta | After | Verdict |
+|---|---|---|---|
+| AS2a (both forms) | 1.66 / 2.00 / -0.34 **(known off)** | **1.90 / 2.00 / -0.10** | within +-0.15: out of `known-off` |
+| AS3a (both forms) | 1.35 / 1.80 / -0.45 **(known off)** | **1.77 / 1.80 / -0.03** | within +-0.15: out |
+| AS3b (both forms) | 1.99 / 2.00 / -0.01 | 1.91 / 2.00 / -0.09 | within +-0.15 (its own clip) |
+| NS3a (both forms) | 1.38 / 1.60 / -0.22 **(known off)** | **1.68 / 1.60 / +0.08** | within +-0.15: out |
+| NS3b (both forms) | 1.39 / 1.60 / -0.21 **(known off)** | **1.65 / 1.60 / +0.05** | within +-0.15: out |
+| NS3c / AS3c NADEGIRI (both forms) | 1.87 / 2.40 / -0.53 (one-sided) | 1.95 / 2.40 / -0.45 | one-sided (SL7's seam) |
+| SA TAIMATSU | 1.45 / 2.40 / -0.95 (爆炎 3.20 / -1.75) | the same (the hit pose kept) | one-sided (SL8's halo) |
+| the Kikon strikes (both, both forms) | 1.39 / 1.60 / -0.21 **(known off)** | **1.62 / 1.60 / +0.02** | within +-0.15: out |
+| 爆炎 J3 IKKOTSU (by the fist) | 1.21 / 1.40 / -0.19 (known off) | unchanged | **known off** (S4) |
+
+`known-off` left: IKKOTSU alone (`'(:ya-b-j3)`). No slot needed a sim change. The arcs are kept too: every window's tip stays inside its move's
+arc (AS2a 7-31 deg left of ahead in 120, NS3b 0-42 in 110, NADEGIRI 5-37 in 100, AS3a 19-34 in 120, AS3b 17-42 in 160).
+
+### 24.3 緩急: the tip's speed per frame (m a frame, the clip's FK at the root; the move's slide not included)
+
+| Move | Charge | Hold | Release -> S | After S |
+|---|---|---|---|---|
+| NS2a (S20), before (`ya-enjo` S20 R30) | f1 **1.23** (from the stance with no blend: the old clip's frame 0 was the idle), 0.41, 0.13, then 0 | f5-17 0 | f18 0.17, f19 0.02, **S 0.60** | f21 0.03 |
+| NS2a, after | f1-12: 0.07 0.07 0.05 0.04 0.06 0.09 0.10 0.09 0.08 0.07 0.06 0.05 | f13-17: 0.01 0.02 0.02 0.03 0.02 | f18 0.22, **f19 0.37**, S 0.31 | f21 0.05, f22 0.01 |
+| NS2c (S18), before (`ya-f3` at x1.22) | f1 **2.11**, 0.99, 0.33 (the jump off NS2b), then the spin 0.04-0.52 | - | f17 1.42, **S 2.12** | f19 0.23 |
+| NS2c, after | f1-8: 0.19 0.27 0.32 0.34 0.32 0.28 0.22 0.15 | f9-15: 0.03 0.04 0.04 0.05 0.05 0.02 0.03 | f16 0.54, **f17 0.77**, S 0.63 | f19 0.05 |
+| NS3a (S18), before (`ya-q2` at x0.44) | 0.19 0.12 0.08 ... (J2's wind-up slowed) | - | f15-18 0.26 each, **f19 0.62** (after S) | - |
+| NS3a, after | f1-12: 0.16 0.22 0.25 0.26 0.26 0.26 0.25 0.24 0.22 0.21 0.19 0.13 | f13-16: 0.01 0.00 0.00 0.00 | f17 0.51, **S 0.54** | f19 0.02 |
+| NS3c (S14), the opposite proof: before (`ya-nadegiri` at x1.43) | f1-6 0.06 0.02 0.29 1.06 0.59 0.22 (the old draw) | f7-11 ~0 | f12 0.42, f13 1.67, S 1.40, f15 2.14 (the turn) | - |
+| NS3c, after | f1-6: 0.06 0.18 0.34 0.48 0.44 0.19 (the settle to the hip) | f7-12: 0.00 0.00 0.00 0.01 0.02 0.01 | **f13 1.84, S 1.51** (two drawings) | f15 0.47, f16 0.63, f17 0.03 |
+
+NS2a's release (0.37) is 3.7x its fastest charge frame (0.10); NS2c's chop (0.77) 2.3x its raise (0.34); NS3a's jab (0.54) 2.1x its pull (0.26).
+NS3a's pull has a long arc to travel (the blade turned up out of the plaza through 150 deg of wrist), and its frames are even, so its ratio is
+the lowest; the jab was made longer for it (the hand drawn back to the hip, the tip 0.86 m ahead: 0.82 m to cover in two frames). NADEGIRI is
+0 for six frames before the snap (f7-12: the tremble 0.02 at most), then 1.84 / 1.51.
+
+### 24.4 Link frames: the tip's jump on the frame the link lands (m)
+
+Where the links land (§17.1 / §18.3): an NS segment at its predecessor's S+A, an AS at the J's S+1, an AS segment at its predecessor's S+A.
+
+| Link (lands on) | Before | After | The new clip's first frames (f1-4) |
+|---|---|---|---|
+| stance 2 > NS2a (f0) | 1.65 | 0 | 0.07 0.07 0.05 0.04 |
+| NS2a > NS2b (NS2a f22) | 1.20 | 0 | 0.01 0.00 0.01 0.01 |
+| NS2b > NS2c (NS2b f18) | 1.19 | 0 | 0.19 0.27 0.32 0.34 |
+| J2 > AS2a (J2 f9) | 1.85 | 0 | 0.10 0.25 0.28 0.25 |
+| AS2a > AS2b (AS2a f15) | 1.03 | 0 | 0.17 0.26 0.32 0.37 |
+| stance 3 > NS3a (f0) | 1.37 | 0 | 0.16 0.22 0.25 0.26 |
+| NS3a > NS3b (NS3a f21) | 1.83 | 0 | 0.03 0.12 0.24 0.42 |
+| NS3b > NS3c (NS3b f15) | 0.90 | 0 | 0.06 0.18 0.34 0.48 |
+| J3 > AS3a (J3 f10) | 1.25 | 0 | 0.08 0.12 0.17 0.23 |
+| AS3a > AS3b (AS3a f11) | 1.81 | 0 | 0.30 0.54 0.41 0.91 (the flip) |
+| AS3b > AS3c (AS3b f13) | 1.70 | 0 | 0.17 0.46 0.68 0.73 |
+| 爆炎 NS2a > NS2b (b-n2a f22; NS2c's clip at x18/16) | 1.20 | 0.15 | 0.29 0.37 0.40 0.37 |
+| 爆炎 NS2b > NS2c (ENNETSU, `ya-enjo` at x1.11) | 0.68 | 0.18 | 0.09 0.08 0.05 0.06 |
+| NS1a f24 > SA | 1.73 | 1.73 | (the SA's f1-4: 0.10 0.04 0.01 0.31; was 1.14 on f4, the turn's start) |
+| NS1b f29 > SA | 2.84 | 2.84 | |
+| NS2a f22 > SA | 1.20 | 1.73 | |
+| NS2b f18 > SA | 1.19 | 1.69 | |
+| NS3a f21 > SA | 1.83 | 1.50 | |
+| NS3b f15 > SA | 0.90 | 1.63 | |
+
+The SA's six predecessors stay open (§18.9: one clip, one frame 0; a per-predecessor frame 0 needs a mechanism that does not exist). The
+stances > J1 jumps are S2's (§23.4), unchanged.
+
+### 24.5 Cast checks and guards (host, `tests/duel-rules/art.lisp`; x his right, y up, ahead)
+
+| Move, frame | What | Test | Value |
+|---|---|---|---|
+| NS2a f20 | the tip | locked out past 1 m ahead | -0.00 / 1.33 / 1.88 |
+| NS2c f9-14, AS2b f9-14 | the tip | overhead (y >= 2.2) | y 2.66-2.68 |
+| NS2c f18, AS2b f18 | the tip | chopped to the level point: >= 1.0 m ahead at 0.9-1.5 m | 0.16 / 1.30 / 1.83 |
+| every S3 move (19, both forms where copied) | the clip | plays at x1, its S, S+A and end the move's (F10's class of bug) | all; 爆炎's NS2b (NS2c's clip on a move at S16) its S scaled by `:clip-s 18` |
+| every Shikai / 爆炎 move clip | the root's yaw | no key past 45 deg (the blade is carried, the body never turns) | all but 爆炎's entry pose `ya-hellfire` (S4's) |
+| the looks file | heat / hazard data | read, never written (S1's walker) | none written |
+
+### 24.6 Deviations, each with its reason
+
+1. **NS2b's circle is 0.42 m across, not 0.50** (r 0.21 at the tip): the hand's +-15 deg in quadrature, as §21.3 asked by angle; the radius the plan
+   wrote would need 18 deg. Read from the stills, not tuned.
+2. **AS3a keeps the reverse grip and reaches 1.77 m** by cocking the blade out off the little finger to his left front with the arm out and a
+   0.3 m drawn lunge (J3's pommel pose already stood 0.32 m forward): a blade laid back along the forearm cannot pass 1.0 m. The grip never
+   changes in AS3a (the hand twist 166-175); AS3b's first six frames are the flip forward (175 -> 0), which is its motion (§21.3: "the blade
+   flipped forward").
+3. **TAIMATSU's carry passes behind his back** (f10-13, the hand 0.27-0.35 m from his spine axis): one right arm cannot carry a blade round
+   him low otherwise, and a root turn is the red flag. The chest turns with it (-40 deg at the back, +15 on the way to the front); the halo
+   (SL8) ignites in the same order. The rest of the clip (the tell, the kept hit pose, the recovery) is the old one without its yaw.
+4. **NADEGIRI settles for six frames before its stillness** (0.48 m a frame at most, f1-6): NS3b ends with the blade at his left front after
+   its cut, and §21.3's "the blade settles at the left hip" is that move; f7-12 are then still (0.02 at most) and the snap is 1.84 / 1.51.
+   It returns to the stance over f44-52: a clip ends in the form's idle at the move's end (the S2 check), so the held stillness is f38-44.
+5. **爆炎's NS2b plays NS2c's new clip** with `:clip-s 18` on its S16 (the copy's S scaled: the hit pose lands on its frame); its frame 0 is
+   NS2b's landing, 0.15 m off 爆炎 NS2a's (S4 may give it its own). **ENNETSU** still plays `ya-enjo` at `:clip-s 20` on its S18: the clip,
+   now 44 f (R22), ends at f40 of a 50 f move and holds the stance pose for the last 10 f; **爆炎's NADEGIRI** (R60) holds the stance pose
+   for its last 26 f, as it did with the old clip. Both are S4's (§21.4).
+6. **The stance-2 drip was made larger after the first stills** (the hanging flame 0.14 -> 0.26 m, the drops 0.05 -> 0.13 m long and twice
+   as wide, a 0.8 m fall): at 0.6 m and 2 cm the drops read as specks at play distance. Its first build consed 72 B a draw (a phase bound
+   without a type); declared, 0 B.
+7. **The stance 2 / 3 poses, `:ya-lean` and `:ya-enjo-point` moved up the file** (before pointer 2's clips, whose poses are based on them; a
+   pose is built when its form loads). `:ya-enjo-point` was the deleted O ENJO block's and stays as stance 2's base.
+8. **The Kikon strike stills are on NS1a's spiral** (pointer 1, Kenpachi 3 m away, the SP held): NS3a's Kikon is the cinematic itself, with
+   no strike (found by the first run).
+9. **No new debug number**: every still uses the existing segment starts (87413-87419, 87461-87465), pointers, heat and distances.
+10. **The art viewer's K2 / K3 / S2 strip scripts were regenerated** (the clip indices moved with the new and deleted clips).
+
+### 24.7 Stills (untracked)
+
+- In play: `tests/scripts/duel-yama-s3.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_s3_script`), each segment on its own (Kenpachi 10 m
+  away), the behind camera then the SIDE camera (2109), landscape and portrait (`--mobile --size 390x844`, the deck on):
+  `tests/shots/duel-yama-s3-<still>-<behind|side>[-phone].png` for `ns2a-cock` / `-cocked` / `-held` / `-release` / `-s` / `-land`, `ns2b-first` /
+  `-c1`-`c4` / `-s`, `ns2c-rise` / `-up` / `-held` / `-chop` / `-s` / `-rec`, `as2a-first` / `-cock` / `-flick` / `-s` / `-thru`, `as2b-up` / `-s`,
+  `ns3a-pull` / `-low` / `-held` / `-jab` / `-s` / `-land`, `ns3b-wind` / `-held` / `-cut` / `-s` / `-thru`, `ns3c-settle` / `-still` / `-snap` / `-s` /
+  `-thru` / `-lower` / `-away`, `as3a-cock` / `-s` / `-pull`, `as3b-flip` / `-low` / `-s` / `-high`, `as3c-settle` / `-s`, `sa-tell`, `sa-right-front`,
+  `sa-right`, `sa-behind-right`, `sa-behind`, `sa-left`, `sa-left-front`, `sa-s`; the stance looks `stance-<1|2>-h<0|12|25>-<a|b>` (two phases).
+- The Kikon strike: `tests/scripts/duel-yama-s3-strike.json` / `-phone.json` (`yama_s3_strike_script`): NS1a pressed with the SP held, the burst
+  `tests/shots/duel-yama-s3-strike-<00-23>-<behind|side>[-phone].png`.
+- 8-frame strips, the art viewer (`dist/duelview` built with `yama-art.lisp`): `tests/shots/duel-view-yama-s3-<clip>-<side|front>.png` for the 13
+  S3 clips (`tests/scripts/duel-view-yama-s3.json`, `duel-view.py`'s `yama_s3`).
+- Contact sheets: `tests/shots/duel-yama-s3-sheet-<behind|side>[-phone].png` (every segment still), `duel-yama-s3-stance-sheet[-phone].png`
+  (the stance looks: rows the pointer x phase, columns the two cameras x heat 0 / 12 / 25), `duel-yama-s3-strike-sheet-<behind|side>[-phone].png`,
+  `duel-yama-s3-strips-<side|front>.png`.
+
+Checked by eye: NS2a's cocked spear and the lock-out (the side camera), NS2c's blade straight up through the hold and level on S, the dome
+on Kenpachi when in reach; NS3c's stillness with the blade at his left hip, the hairline on S and the seam's V at f42 with the blade lowered
+at his right; TAIMATSU's blade at his right, behind, then at his left as the halo ignites round him, rising into the fan on S; stance 1's
+corkscrew reads at heat 25 (white strands winding round the blade) and is small and orange at heat 0; stance 2's hanging flame reads at the
+point, its drops are faint at play distance (deviation 6).
+
+### 24.8 Checks (all on the final build)
+
+| Check | Result |
+|---|---|
+| Presentation only: the native trials | `tests/trials/yamamoto-core.lisp` (242 lines of `combo-trial.py --log`), `-blaze` (268), `-bankai` (513): identical to a7f6a260's, every line |
+| Presentation only: the browser | `tests/scripts/duel-yama-core.json` (110 lines) and `duel-yama-blaze.json` (35): every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a dist built at a7f6a260 |
+| Heat is read, never written | the trials above (their HEAT lines) and S1's host walker over the look files: none written (YA-STANCE-TIER reads GAUGES-METER) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
+| The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at a7f6a260. The expected list written before the run (from BASE's cvc-yk log): `cvc-yk/start` (P1 idle in stance 1) and, possibly, `w2-0`. **Result: 2 stills differ, neither of them listed**: `cvc-yk/w1-1` (8 px) and `w3-0` (2030 px); `start` and `w2-0` are byte-identical; the other 81 byte-identical (noise floor 0); every scenario's fighters and sim lines PASS (`cvc-yk sim lines` 12). Traced after the run: both differences are stance 1's corkscrew on P1's blade, the diff images confined to the blade: at w3-0 (tick ~6898) and w1-1 (~1385) the CPU had just refused its next NS segment for want of flash-step (`cpu holds YA-N1B` at 6894, `YA-N1C` at 1357 in BASE's log), so P1 stood idle in pointer 1's stance, which the list read as "in NS1a / NS1b"; at `start` (tick ~41) P1 is stepping (a step clip, no stance fire). The list missed them; the cause is the expected one. Not re-based (the lead's call) |
+| Host tests | ALL PASS, 4241 checks (+77: the S3 FK rows now checked, the NS2a / NS2c / AS2b cast checks, the 14 S3 clips and 爆炎's NS2b against their moves' frames, the root-yaw guard over every Shikai / 爆炎 move); `known-off` = `(:ya-b-j3)` |
+| pkgcheck, debug ranges, warnings | as main (the one `DUEL::APP` line); `tests/debug-ranges-check.py` 88 ranges, 0 errors (no new debug number); no compiler warning in the yama files (a first build's `*YA-HEAT-NS*` forward reference from YA-STANCE-TIER was replaced by the host-checked 25) |
+| 0 B a frame | debug 87449 every row 0, the new `stance-1-t0..2`, `stance-2-t0..2`, `tier-stance` included (the first build's stance-2 rows read 720 B, deviation 6); 87448 the same as BASE's (its 南 rows 80 B with P1 not in the Bankai, §22.6); `fx-dropped 0` on every stats line of the stills runs |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), `run.mjs --secs 8` exit 0 |
+
+### 24.9 Open
+
+- **For the user's eyes** (the sheets): stance 2's drip (the drops faint at play distance; the hanging flame reads); TAIMATSU's carry (the hand
+  behind his back for two keys, the halo hides most of it); NADEGIRI's new stillness (no turn: the chest and head turned away, the blade
+  lowered at his right); AS3a's hooked reverse grip; NS2a's spear cock (it reads from the side camera, little from behind).
+- The looks gate's YK stills (start unchanged; w1-1, w3-0 changed by stance 1's corkscrew) wait for the lead's re-base.
+- S4: IKKOTSU (`known-off`), 爆炎's NS2b frame 0 (0.15 m), ENNETSU's own clip (it holds the stance for its last 10 f), 爆炎's NADEGIRI's long
+  recovery (`ya-b-n3c`), the entry pose `ya-hellfire` (the root-yaw guard's one exemption). S5: the cinematics on 87482-87489.
+- The SA's frame 0 against its six predecessors (§18.9): 1.50-2.84 m, unchanged in kind.
+- Stance 3 has no fire (an ember on the point is the user's call).
