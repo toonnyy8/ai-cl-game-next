@@ -7,7 +7,7 @@
 static SDL_GPUDevice *r_dev;
 /* Slots are fixed: ui.lisp creates RP_UI = 10, paint.lisp RP_HUD = 19 and RP_COMP_AO = 20; the toon pipelines (SOUL DUEL's restyle) are appended. */
 enum { RP_LIT, RP_LIT_CW, RP_LIT_T, RP_LIT_T_CW, RP_SKY, RP_FXA, RP_FXB, RP_BRIGHT, RP_BLUR, RP_COMP, RP_UI,
-       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_N };
+       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_FXT_F, RP_N };
 static SDL_GPUGraphicsPipeline *r_pipe[RP_N];
 static SDL_GPUSampler *r_linear, *r_nearest;
 static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font, *r_hudfont;
@@ -235,7 +235,7 @@ static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *ds
    4 scene w 5 scene h 6 window w 7 window h 8 desaturate 9 split (window px) 10 toon sky
    11 impact mode (0 = RP_COMP; 1..4 = RP_COMP_FX, see composite-fx.frag.wgsl) 12 threshold 13 keep-saturation
    14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2 22 transparent (no sky, RP_COMP_A: the scene's alpha out,
-   *RENDER-TRANSPARENT*; it wins over the impact mode)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
+   *RENDER-TRANSPARENT*; it wins over the impact mode) 23 the soft flame's glow (bright.frag.wgsl P.y, 0 = off)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
    paint stream, drawn after the UI; HUDB: its back layer, drawn into the cleared swapchain under the composite, which then
    blends premultiplied over it (RP_COMP_AO), only on a transparent frame; nothing when the count is 0 or no atlas was made,
    so a frame without them takes the old path unchanged).
@@ -282,13 +282,14 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
   r_tris = 0;
   int drawn = r_draw_queue(pass, dq, n, 0) + r_draw_queue(pass, dq, n, 1);
   r_draw_batch(pass, RP_FXT, r_fx[2], nft / 9);
+  if (fu[159] > 0) r_draw_batch(pass, RP_FXT_F, r_fx[2], nft / 9);   /* the soft flame's fringe (STYLE_STORM_DESIGN §15): FU[159] = feather px */
   r_draw_batch(pass, RP_FXA, r_fx[0], nfa / 9);
   r_draw_batch(pass, RP_FXB, r_fx[1], nfb / 9);
   SDL_EndGPURenderPass(pass);
   /* bloom: bright pass at 1/2, separable blur at 1/2 and 1/4 */
   int bloom = rp[0] != 0, hw = r_fw / 2 > 0 ? r_fw / 2 : 1, hh = r_fh / 2 > 0 ? r_fh / 2 : 1, qw = r_fw / 4 > 0 ? r_fw / 4 : 1, qh = r_fh / 4 > 0 ? r_fh / 4 : 1;
   if (bloom) {
-    r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], 0, 0, 0, 0);
+    r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], rp[23], 0, 0, 0);   /* rp[23]: the soft flame's glow */
     r_fs_pass(cb, r_half[1], RP_BLUR, &r_half[0], 1, 1.0f / hw, 0, 0, 0, 0);
     r_fs_pass(cb, r_half[0], RP_BLUR, &r_half[1], 1, 0, 1.0f / hh, 0, 0, 0);
     r_fs_pass(cb, r_q[0], RP_BLUR, &r_half[0], 1, 1.0f / qw, 0, 0, 0, 0);

@@ -1,0 +1,182 @@
+[
+{
+"at": 8.5,
+"eval": "Module._debug_cmd(88000)"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 11.35833,
+"shot": "tests/shots/duel-softflame-aura-c0-f0.png"
+},
+{
+"at": 11.375,
+"shot": "tests/shots/duel-softflame-aura-c0-f1.png"
+},
+{
+"at": 11.39167,
+"shot": "tests/shots/duel-softflame-aura-c0-f2.png"
+},
+{
+"at": 11.40833,
+"shot": "tests/shots/duel-softflame-aura-c0-f3.png"
+},
+{
+"at": 11.425,
+"shot": "tests/shots/duel-softflame-aura-c0-f4.png"
+},
+{
+"at": 11.44167,
+"shot": "tests/shots/duel-softflame-aura-c0-f5.png"
+},
+{
+"at": 11.45833,
+"shot": "tests/shots/duel-softflame-aura-c0-f6.png"
+},
+{
+"at": 11.475,
+"shot": "tests/shots/duel-softflame-aura-c0-f7.png"
+},
+{
+"at": 11.95,
+"eval": "Module._debug_cmd(87100)"
+},
+{
+"at": 12.0,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 12.05,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 12.9,
+"eval": "Module._debug_cmd(87475)"
+},
+{
+"at": 13.40833,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f0.png"
+},
+{
+"at": 13.425,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f1.png"
+},
+{
+"at": 13.44167,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f2.png"
+},
+{
+"at": 13.45833,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f3.png"
+},
+{
+"at": 13.475,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f4.png"
+},
+{
+"at": 13.49167,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f5.png"
+},
+{
+"at": 13.50833,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f6.png"
+},
+{
+"at": 13.525,
+"shot": "tests/shots/duel-softflame-ennetsu-c0-f7.png"
+},
+{
+"at": 14.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 14.05,
+"eval": "Module._debug_cmd(87500)"
+},
+{
+"at": 14.1,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 16.45833,
+"shot": "tests/shots/duel-softflame-stance1-c0-f0.png"
+},
+{
+"at": 16.475,
+"shot": "tests/shots/duel-softflame-stance1-c0-f1.png"
+},
+{
+"at": 16.49167,
+"shot": "tests/shots/duel-softflame-stance1-c0-f2.png"
+},
+{
+"at": 16.50833,
+"shot": "tests/shots/duel-softflame-stance1-c0-f3.png"
+},
+{
+"at": 16.525,
+"shot": "tests/shots/duel-softflame-stance1-c0-f4.png"
+},
+{
+"at": 16.54167,
+"shot": "tests/shots/duel-softflame-stance1-c0-f5.png"
+},
+{
+"at": 16.55833,
+"shot": "tests/shots/duel-softflame-stance1-c0-f6.png"
+},
+{
+"at": 16.575,
+"shot": "tests/shots/duel-softflame-stance1-c0-f7.png"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 17.15,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 19.50833,
+"shot": "tests/shots/duel-softflame-west-c0-f0.png"
+},
+{
+"at": 19.525,
+"shot": "tests/shots/duel-softflame-west-c0-f1.png"
+},
+{
+"at": 19.54167,
+"shot": "tests/shots/duel-softflame-west-c0-f2.png"
+},
+{
+"at": 19.55833,
+"shot": "tests/shots/duel-softflame-west-c0-f3.png"
+},
+{
+"at": 19.575,
+"shot": "tests/shots/duel-softflame-west-c0-f4.png"
+},
+{
+"at": 19.59167,
+"shot": "tests/shots/duel-softflame-west-c0-f5.png"
+},
+{
+"at": 19.60833,
+"shot": "tests/shots/duel-softflame-west-c0-f6.png"
+},
+{
+"at": 19.625,
+"shot": "tests/shots/duel-softflame-west-c0-f7.png"
+},
+{
+"at": 20.1,
+"eval": "console.log('=== END')"
+}
+]

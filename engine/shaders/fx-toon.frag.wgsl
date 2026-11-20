@@ -11,6 +11,11 @@
 // threshold, 0.5 without MSAA). Noise is PCG-hashed (the same on every GPU) and steps on the fx clock
 // (F.clk.x, 24 Hz ticks): energy and fire change on twos, matter (styles 1, 3) on threes; fire scrolls
 // up for two drawings and reseeds on the third.
+// Soft flame (§15, the prototype of batch F1): with F.clk.w (the feather, px at 720 lines) > 0 the flame-class shapes
+// (SOFT_CLASS, fx-toon-io.wgsl) stop their opaque cut a band inside the silhouette, and FS_FX_TOON_F (RP_FXT_F, blended, depth
+// test only, drawn right after this pass) fills that band with the same colours and an alpha falling to 0 on the silhouette:
+// the edge feathers inward and never grows. With F.clk.z >= 0 (the fx clock in unfloored 24 Hz ticks, wrapped) their noise
+// scrolls up continuously with no reseed (it still freezes with the fx clock). Both lanes 0 / -1: every pixel as before.
 // #include "frame.wgsl"
 @group(3) @binding(0) var<uniform> F: Frame;
 // #include "fx-toon-io.wgsl"
@@ -21,7 +26,7 @@ fn vnoise(p: vec2f) -> f32 {          // value noise on the integer lattice, smo
   let i = floor(p); let f = p - i; let u = f * f * (3.0 - 2.0 * f);
   return mix(mix(h21(i), h21(i + vec2f(1.0, 0.0)), u.x), mix(h21(i + vec2f(0.0, 1.0)), h21(i + vec2f(1.0, 1.0)), u.x), u.y);
 }
-@fragment fn fs_fx_toon(i: FxT) -> @location(0) vec4f {
+fn fxt_shade(i: FxT, fringe: bool) -> vec4f {   // FRINGE: the soft band only (RP_FXT_F)
   let glass = floor(i.pk / 32.0);
   let pk0 = i.pk - 32.0 * glass;
   let fan = pk0 >= 16.0;
@@ -38,8 +43,10 @@ fn vnoise(p: vec2f) -> f32 {          // value noise on the integer lattice, smo
   let heat = i.col.x;
   let s = select(i.uv, vec2f(i.uv.x, 1.0 - 2.0 * heat), along);        // shape coords: y -1 base .. +1 tip
   let tick = floor(F.clk.x / select(2.0, 3.0, matter));                // this material's drawing number
-  let tf = select(tick, floor(tick / 3.0), fire);
-  let scroll = select(0.0, (tick - 3.0 * tf) * 0.35, fire);
+  let soft = soft_class(i.pk, i.col.y);
+  let flow = soft && F.clk.z >= 0.0;                                   // soft flame: a continuous upward scroll, no reseed
+  let tf = select(select(tick, floor(tick / 3.0), fire), 0.0, flow);
+  let scroll = select(select(0.0, (tick - 3.0 * tf) * 0.35, fire), F.clk.z * 0.175, flow);
   let q = vec2f(s.x + select(0.0, i.uv.y, along), s.y - scroll) * 2.6     // along: uv.y = a free along-coordinate (walls)
         + vec2f(fract(seed * 0.618034) * 97.0 + fract(tf * 0.618034) * 37.0, fract(seed * 0.381966) * 61.0 + fract(tf * 0.414214) * 23.0);
   let n1 = vnoise(q) - 0.5; let n2 = vnoise(q * 1.7 + 13.0) - 0.5; let n3 = vnoise(q * 3.1 + 29.0);
@@ -47,9 +54,15 @@ fn vnoise(p: vec2f) -> f32 {          // value noise on the integer lattice, smo
   var d = select(select(length(i.uv), abs(i.uv.x), along), heat, fan) + n1 * i.col.z;   // silhouette field (wobbled)
   if (along) { d = max(d, (1.0 - k - heat) * 4.0 + k); }               // the tip erodes first
   let aa = max(fwidth(d), 1e-4);                                       // (uniform control flow)
-  var cover = 1.0 - smoothstep(k - aa, k, d);
+  let feather = soft && F.clk.w > 0.0;
+  let kc = select(k, k - min(F.clk.w * F.scr.w * aa, 0.5 * k), feather);   // soft flame: the opaque cut a band inside (<= half)
+  var cover = 1.0 - smoothstep(kc - aa, kc, d);
   if (matter) { cover *= step(1.0 - k, holes); }                       // matter perforates as it fades
-  if (cover <= F.clk.y) { discard; }
+  if (fringe) {                                                        // the band kc..k: alpha 1 -> 0 on the silhouette
+    if (!feather || d < kc - aa) { discard; }
+    cover = 1.0 - smoothstep(kc, k, d);
+    if (cover <= 0.0) { discard; }
+  } else if (cover <= F.clk.y) { discard; }
   var c = body.rgb;
   if (style == 1.0) {                                                  // puff: sphere-lit, light:shadow ~ 7:3
     let nz = sqrt(max(1.0 - min(dot(s, s), 1.0), 0.0));
@@ -67,3 +80,5 @@ fn vnoise(p: vec2f) -> f32 {          // value noise on the integer lattice, smo
   c = mix(c, pow(F.fog.rgb, vec3f(1.0 / 2.2)), 0.6 * i.fog);           // fog tints the colour, not the coverage
   return vec4f(c, select(cover, cover * 0.25 * glass, glass > 0.0));
 }
+@fragment fn fs_fx_toon(i: FxT) -> @location(0) vec4f { return fxt_shade(i, false); }
+@fragment fn fs_fx_toon_f(i: FxT) -> @location(0) vec4f { return fxt_shade(i, true); }
