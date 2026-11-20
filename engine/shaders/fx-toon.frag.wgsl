@@ -5,7 +5,7 @@
 // tip erodes first; its field is |uv.x|, and uv.y only moves the noise: 0 for ribbons, the distance along
 // a wall); |seed| >= 1000 = the charcoal style; pk >= 16 = a fan shape (stars, polygons,
 // shards: the field is the heat lane, 0 at the centre .. 1 exactly on the straight outline); pk >= 32: a glass level
-// g = floor(pk / 32) (1..3) makes the shape see-through: its alpha is the coverage x g / 4, so alpha-to-coverage keeps g of
+// g = floor(pk / 32) (1..3; pk >= 128 = the flame flag, stripped first: fx-toon-io.wgsl PK_NOFLAG) makes the shape see-through: its alpha is the coverage x g / 4, so alpha-to-coverage keeps g of
 // every 4 MSAA samples (without MSAA it stays opaque; g 0, every shape before it, is unchanged).
 // Output: the palette colour, alpha = coverage (alpha-to-coverage with MSAA; F.clk.y = the discard
 // threshold, 0.5 without MSAA). Noise is PCG-hashed (the same on every GPU) and steps on the fx clock
@@ -27,8 +27,9 @@ fn vnoise(p: vec2f) -> f32 {          // value noise on the integer lattice, smo
   return mix(mix(h21(i), h21(i + vec2f(1.0, 0.0)), u.x), mix(h21(i + vec2f(0.0, 1.0)), h21(i + vec2f(1.0, 1.0)), u.x), u.y);
 }
 fn fxt_shade(i: FxT, fringe: bool) -> vec4f {   // FRINGE: the soft band only (RP_FXT_F)
-  let glass = floor(i.pk / 32.0);
-  let pk0 = i.pk - 32.0 * glass;
+  let pkn = pk_noflag(i.pk);                                           // (the flame flag only selects: §15.8)
+  let glass = floor(pkn / 32.0);
+  let pk0 = pkn - 32.0 * glass;
   let fan = pk0 >= 16.0;
   let pk = select(pk0, pk0 - 16.0, fan);
   let p = min(u32(pk), 15u);
@@ -89,12 +90,14 @@ fn fxt_shade(i: FxT, fringe: bool) -> vec4f {   // FRINGE: the soft band only (R
 struct FxTL { @location(0) c: vec4f, @builtin(sample_mask) m: u32 }
 @fragment fn fs_fx_toon_l(i: FxT) -> FxTL {
   let o = fxt_shade(i, false);
-  let a = select(o.a, o.a * 4.0 / floor(i.pk / 32.0), i.pk >= 32.0);   // undo the glass scale: the cover
+  let pkn = pk_noflag(i.pk);
+  let a = select(o.a, o.a * 4.0 / floor(pkn / 32.0), pkn >= 32.0);     // undo the glass scale: the cover
   let n = u32(clamp(floor(a * 4.0 + 0.5), 0.0, 4.0));
   return FxTL(vec4f(o.rgb, 1.0), (1u << n) - 1u);
 }
 // The fringe in the flame layer (RP_FXT_FL): FS_FX_TOON_F with the glass scale undone, like the cut above.
 @fragment fn fs_fx_toon_fl(i: FxT) -> @location(0) vec4f {
   let o = fxt_shade(i, true);
-  return vec4f(o.rgb, select(o.a, o.a * 4.0 / floor(i.pk / 32.0), i.pk >= 32.0));
+  let pkn = pk_noflag(i.pk);
+  return vec4f(o.rgb, select(o.a, o.a * 4.0 / floor(pkn / 32.0), pkn >= 32.0));
 }

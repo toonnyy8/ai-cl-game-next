@@ -105,13 +105,14 @@ the body at radius RAD (half-width W at the base), drawn only behind and at the 
 out, so the fighter stays readable inside; ALL literal T draws those too: 殘日獄衣, the user 2026-11-20, DUEL_YAMA_CORE §28), H tall
 x 0.8..1.25 with a lean, both drifting continuously (FLOW01 / FLOW-PH: the flow sweep, STYLE_STORM_DESIGN §15.7; on twos before),
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
-level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. A macro (the auras run every
-frame: 0 B); N and WHITE literal fixnums."
+level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. PAL may carry +TOON-FLAME+ (the flame
+class whatever the palette, STYLE_STORM_DESIGN §15.8); the white cores carry it too (with the tongue in the flame layer and the
+core in the scene pass, the 0.8 tongue washed over the core). A macro (the auras run every frame: 0 B); N and WHITE literal fixnums."
   (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
     `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (fp (flow-ph)) (pk (toon-a pal (* 0.95f0 k)))
             (step (/ 6.2831855f0 ,(float n 1f0)))
             ,@(when sides '((e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))))
-            ,@(when (eql white 1) '((wpal (+ +pal-hit+ (* 32f0 (i->f (f->i (/ pal 32f0)))))))))   ; the white cores' palette, same glass
+            ,@(when (eql white 1) '((wpal (+ +pal-hit+ (* 32f0 (i->f (f->i (/ pal 32f0)))))))))   ; the white cores' palette, same glass (and flame flag)
        (declare (single-float x y z h k pal rad w fp pk step) ,@(when sides '((type f32vec e) (single-float ex ez el)))
                 ,@(when (eql white 1) '((single-float wpal))))
        (dotimes (i ,n)
@@ -134,8 +135,8 @@ frame: 0 B); N and WHITE literal fixnums."
 white core lines in the back three, and a flat BLOOD ring at the feet. A macro: 0 B."
   `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k))
     (declare (single-float x y z h k))
-    (%brush-aura x y z h k +pal-blood+ 7 0.5f0 0.2f0 1)
-    (%tring x y z (+ 0.72f0 (* 0.06f0 (flow01 0f0 8.3f0))) 0.07f0 +pal-blood+ (* 0.95f0 k) 0f0)
+    (%brush-aura x y z h k (+ +pal-blood+ +toon-flame+) 7 0.5f0 0.2f0 1)   ; (flame class: §15.8)
+    (%tring x y z (+ 0.72f0 (* 0.06f0 (flow01 0f0 8.3f0))) 0.07f0 (+ +pal-blood+ +toon-flame+) (* 0.95f0 k) 0f0)
     nil))
 
 (defmacro %reiatsu-aura (x y z h k awake glass)
@@ -143,8 +144,9 @@ white core lines in the back three, and a flat BLOOD ring at the feet. A macro: 
 0.45 m, 0.8 x his height, white core lines, white flecks rising. Nozarashi (AWAKE 1): 9 wider tongues at 0.5 m, 1.05 x,
 3 thin inner white tongues, a flat REIATSU ring at the feet and a yellow light (its soft additive glow cut in Phase 6).
 GLASS (0..3): the tongues, cores and ring see-through, GLASS / 4 of them drawn (*REIATSU-GLASS*; the user's request
-2026-09-28: cup 3's pillar hid the view). A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (g (* 32f0 (i->f ,glass))))
+2026-09-28: cup 3's pillar hid the view). Every palette carries +TOON-FLAME+ (STYLE_STORM_DESIGN §15.8: the white cores and the
+inner HIT tongues join the yellow in the 0.8 flame layer, which washed them yellow from the scene pass). A macro: 0 B."
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (g (+ (* 32f0 (i->f ,glass)) +toon-flame+)))   ; (the glass level + the flame flag)
     (declare (single-float x y z h k g))
     (if (= ,awake 1)
         (progn
@@ -254,14 +256,14 @@ K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the
          (let* ((kc (f-clamp k 0f0 1f0))
                 (pal (case kind (:burst-white +pal-hit+) (:burst-blue +pal-blue+) (t +pal-fire+))))
            (declare (single-float kc pal))
-           (%brush-aura x y z (* 0.95f0 h) kc pal 8 0.46f0 0.15f0 1)
-           (%tring x y z (+ 0.7f0 (* 0.05f0 (flow01 0f0 4.1f0))) 0.05f0 pal (* 0.9f0 kc) 0f0)
+           (%brush-aura x y z (* 0.95f0 h) kc (+ pal +toon-flame+) 8 0.46f0 0.15f0 1)   ; (flame class, not the flecks: §15.8)
+           (%tring x y z (+ 0.7f0 (* 0.05f0 (flow01 0f0 4.1f0))) 0.05f0 (+ pal +toon-flame+) (* 0.9f0 kc) 0f0)
            (dotimes (i (n-of 8f0 dt))
              (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.4f0 0.4f0))
                       0f0 (rnd-range 1.2f0 2.2f0) 0f0 (rnd-range 0.3f0 0.5f0) (rnd-range 0.02f0 0.035f0) 0f0 0.1f0 pal))))
         (:evolution                                      ; EVOLUTION ready (universal: mono, Phase 5): 5 thin STEEL brush tongues
                                                          ; behind him and white flecks rising (RGB is ignored)
-         (%brush-aura x y z (* 0.85f0 h) (* 0.8f0 (f-clamp k 0f0 1f0)) +pal-steel+ 5 0.33f0 0.09f0 0)
+         (%brush-aura x y z (* 0.85f0 h) (* 0.8f0 (f-clamp k 0f0 1f0)) (+ +pal-steel+ +toon-flame+) 5 0.33f0 0.09f0 0)   ; (§15.8)
          (dotimes (i (n-of 8f0 dt))
            (%t-blob (+ x (rnd-range -0.35f0 0.35f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.35f0 0.35f0))
                     0f0 (rnd-range 0.8f0 1.6f0) 0f0 (rnd-range 0.4f0 0.7f0) (rnd-range 0.015f0 0.03f0) 0f0 0.1f0 +pal-hit+)))
@@ -284,8 +286,8 @@ K is the presence (0..1); the reiatsu looks also fade by *AURA-CAP* and when the
                 (gb (* 32f0 (i->f (the fixnum (getf *reiatsu-glass* :oni 0)))))        ; request 2026-09-28), the ink
                 (gi (* 32f0 (i->f (the fixnum (getf *reiatsu-glass* :oni-ink 0))))))   ; denser so it stays black
            (declare (single-float kc gb gi))
-           (%brush-aura x y z (* 1.35f0 h) kc (+ +pal-ink+ gi) 9 0.5f0 0.2f0 0)
-           (%brush-aura x y z (* 1.05f0 h) kc (+ +pal-blood+ gb) 9 0.4f0 0.16f0 1)
+           (%brush-aura x y z (* 1.35f0 h) kc (+ +pal-ink+ gi +toon-flame+) 9 0.5f0 0.2f0 0)     ; (flame class: §15.8; inside
+           (%brush-aura x y z (* 1.05f0 h) kc (+ +pal-blood+ gb +toon-flame+) 9 0.4f0 0.16f0 1)  ;  the layer the glass is ignored)
            (dotimes (i (n-of (* 18f0 kc) dt))
              (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.1f0 1.2f0))) (+ z (rnd-range -0.4f0 0.4f0))
                       0f0 (rnd-range 1.5f0 3f0) 0f0 (rnd-range 0.4f0 0.7f0) (rnd-range 0.02f0 0.04f0) 0f0 0.15f0 +pal-blood+))
@@ -638,15 +640,16 @@ HIT drops flung off the head, falling, gone at 400 ms. 0 B."
 (defun-fast vfx-soul-flame (x y z age)
   "The red soul flame floating over a Kikon-able victim (x y z = the flame's base, e.g. 0.4 m over the
 head): one BLOOD ribbon with a dark hairline, a small white core, swaying and licking continuously (FLOW01 / FLOW-PH,
-STYLE_STORM_DESIGN §15.7; it boiled through 3 drawings before, its seed cycling). AGE (s) bobs it; no particles."
+STYLE_STORM_DESIGN §15.7; it boiled through 3 drawings before, its seed cycling). AGE (s) bobs it; no particles. All three
+ribbons carry the flame flag (§15.8: the core too, or the 0.8 red layer washes over it)."
   (with-floats (x y z age)
     (let* ((y (+ y (* 0.05f0 (f-sin (* 3f0 age))))) (fp (flow-ph)) (seed 11f0)
            (h (+ 0.9f0 (* 0.12f0 (flow01 0f0 2.7f0)))) (lean (* 0.08f0 (- (flow01 0f0 4.1f0) 0.5f0))))
       (declare (single-float y fp seed h lean))
-      (toon-ribbon (x y z) (lean h 0f0) (0.22f0 0f0) :seed (- seed) :pal +pal-blood+ :k 0.95f0 :ph (* 2f0 fp) :sway 0.07f0)
-      (toon-ribbon ((+ x 0.1f0) (+ y 0.05f0) z) ((+ 0.1f0 lean) (* 0.55f0 h) 0f0) (0.1f0 0f0) :seed (- -3f0 seed) :pal +pal-blood+ :k 0.95f0
+      (toon-ribbon (x y z) (lean h 0f0) (0.22f0 0f0) :seed (- seed) :pal (+ +pal-blood+ +toon-flame+) :k 0.95f0 :ph (* 2f0 fp) :sway 0.07f0)
+      (toon-ribbon ((+ x 0.1f0) (+ y 0.05f0) z) ((+ 0.1f0 lean) (* 0.55f0 h) 0f0) (0.1f0 0f0) :seed (- -3f0 seed) :pal (+ +pal-blood+ +toon-flame+) :k 0.95f0
                    :ph (+ 1f0 fp) :sway 0.05f0 :segs 4)
-      (toon-ribbon (x (+ y 0.04f0) z) ((* 0.5f0 lean) (* 0.5f0 h) 0f0) (0.035f0 0f0) :seed (- -5f0 seed) :wob 0.1f0 :pal +pal-hit+ :k 0.95f0
+      (toon-ribbon (x (+ y 0.04f0) z) ((* 0.5f0 lean) (* 0.5f0 h) 0f0) (0.035f0 0f0) :seed (- -5f0 seed) :wob 0.1f0 :pal (+ +pal-hit+ +toon-flame+) :k 0.95f0
                    :ph (* 2f0 fp) :sway 0.03f0 :segs 3))))
 
 

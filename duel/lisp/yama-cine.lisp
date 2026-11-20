@@ -152,7 +152,8 @@ from f52 (built in 4 f, guttering from f156); molten footprints behind him on th
 smoke from f150. A look; 0 B."
   (declare (fixnum cf))
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let ((rdt (aref *ya-rdt* 0)) (seed (+ (* 3f0 px) pz)) (dr (flow-ph)))   ; (DR: a flowing phase, §15.7)
+    (let ((rdt (aref *ya-rdt* 0)) (seed 37f0) (dr (flow-ph)))   ; (DR: a flowing phase, §15.7; SEED a literal: his position
+                                                                   ;  churned the noise through the walk, §15.8)
       (declare (single-float rdt seed dr))
       (when (and (<= 40 cf) (< cf 53))                    ; the ash creeping from the tip toward the hilt
         (let ((m (model v)))
