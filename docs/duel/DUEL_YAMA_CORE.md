@@ -2666,3 +2666,15 @@ stands in, from behind a translucent red-orange one with the opponent in view. S
 broad and full of large dark-red flame strokes and soft glow, while ours is flat bands with small strokes; the column's five tongues are
 of near-equal height (a crown) where the image's are uneven and leaning; the front layer's yellow over his black robe reads khaki rather
 than fire; the wings' inner lobes are smaller and stiffer than the image's billowing ones.
+
+### 27.9 The merge (the lead, 2026-11-20)
+
+- Round 1 went back (spiky teeth on a flat card, no bands, a scribble from behind); round 2 merged as de0f024b, playtest v461, beside the
+  user's image in `tests/shots/duel-yama-z1-sheet-ref.png`.
+- On merged main: host tests 4259 pass, the build and smoke (exit 0) pass, `--cvc` re-run; the looks gate stands on round 2's run
+  against the dist at 668dcd1e (83/83), the only main commit since being docs.
+- The lead's read of the sheet: the silhouette now reads as the image's (swept wings, the hooked outer tip, the knee curls). Still off,
+  for the user to rule on: the column over the head is five near-equal spikes (a crown; the image's tongues are uneven and leaning);
+  the fill is flat bands with small strokes (the image: a broad body full of large dark-red strokes); the glass front layer over the
+  black robe reads khaki; from behind the mantle turns red-orange (the Bankai's grade greys the yellow); 37 % of the fx batch at most.
+- Manual: the Bankai paragraph gets one sentence on the mantle.
