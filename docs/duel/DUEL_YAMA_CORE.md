@@ -2927,3 +2927,15 @@ The user, 2026-11-20, after playing v462:
 | J3 | S5 fixes, 爆炎 NS2b's own clip, stance 3's blade | `yama-cine.lisp`, its stills, `yama-art.lisp` clips |
 
 Merged one at a time; the looks gate re-based after each.
+
+### 28.3 As built (J1)
+
+**The looks gate's expected diff (written before the run).** BASE = a dist of main at the S5 merge (`looks-base-s5m`, code-equal to
+d7d17b1a). J1 touches only Yamamoto: three hazard looks (NS2a's wave, the ring, the dome) and `:near` on NS2b / NS2c / 爆炎 NS2b. Expected:
+- Every scenario without Yamamoto (KH, HK, II, IK, cine-ken, cine-ko, cine-ichigo, fx-a, mobile) and `menus` (his select still draws no
+  hazard): byte-identical, sim lines as BASE's.
+- `cvc-yk` (seed 28): its sim moves only from the first NS2b / NS2c / 爆炎 NS2b fired with the victim inside 3 m (the ring or the dome
+  now lands round him, so hits and the hash lines may change from that tick); AS2's ring snaps on the victim and its dome lands on the
+  ring, so AS2 alone moves nothing. Its looks move on any still with a ring, a dome or an NS2a wave on screen. S5 recorded his first
+  Kikon (J1 J2 > AS2) at tick 4010, so at least `cvc-yk-w3-0` (tick 6898) can differ; `intro`, `start`, `w0-0`, `w1-*` and `w2-0` differ
+  only if one of those looks is in frame or an NS2b / NS2c inside 3 m came before them (read from the logs' `ring at` / `dome at` lines).

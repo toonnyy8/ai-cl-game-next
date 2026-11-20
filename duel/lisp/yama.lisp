@@ -61,19 +61,20 @@
   :params (:width 3.5 :speed 10.0 :range 8.0 :dmg 90 :react :knockback :kb 3.0 :look yama-tornado-look :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 2 城郭炎上 JOKAKU ENJO: control, the lane shaped by fire
-;; a: the stream, a lance of fire down the lane (a :wave, 10 m); b: the ring lands round the victim at his bearing (3-8 m, r 1.6 m,
+;; a: the stream, a lance of fire down the lane (a :wave, 10 m); b: the ring lands round the victim at his bearing (0-8 m, r 1.6 m,
 ;; 90 f; one at a time; its burn :ring-dmg on a crossing, its SP the setup minimum); c: the walls close into a dome on the ring (it is
-;; spent), or at his bearing when none stands
+;; spent), or at his bearing when none stands. :near 0 (was 3.0 until batch J1, the user 2026-11-20: 「現在 NS 的火圈在靠太近時反而
+;; 包不住人」, DUEL_YAMA_CORE §28.3): a victim closer than :near stood outside the ring and the dome
 (defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :reach 10.0
   :on-frame ((0 yama-ns-start) (20 yama-wave-fire)) :callout "JOKAKU ENJO"
   :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 8.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
-  :params (:ns-next :ya-n2c :near 3.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
+  :params (:ns-next :ya-n2c :near 0.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
            :kikon-strike :ya-ns-strike))
 (defmove :ya-n2c :kind :flash :clip :ya-n2c :startup 18 :active 2 :recovery 30 :reach 8.0
   :on-frame ((0 yama-ns-start) (18 yama-dome-fire))
-  :params (:near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
+  :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 3 撫斬 NADEGIRI: the finisher
 ;; a: the walking jab of the point; b: the closing step-cut; c: NADEGIRI, one snap, the hit on S (the split is a look 24 f later)
@@ -153,7 +154,7 @@
 (defmove-copy :ya-b-n2a :ya-n2a
   :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2b :ya-n2c :clip-s 18 :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
-  :params (:ns-next :ya-b-n2c :near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
+  :params (:ns-next :ya-b-n2c :near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2c :ya-n2a :clip :ya-b-n2c :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
   :params (:width 2.4 :speed 12.0 :range 9.0 :dmg 104 :react :crumple :look yama-ennetsu-look :kikon-strike :ya-ns-strike))   ; (rows of pillars, art S4)
