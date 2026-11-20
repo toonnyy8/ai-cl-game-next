@@ -1286,8 +1286,7 @@ write("yama-s2-phone", yama_s2_script(True))
 
 # Yamamoto's Shikai art S3 (DUEL_YAMA_CORE §21.3, §24): each new or re-keyed clip in play at its frames, on its own (87413-87415 NS2a-c,
 # 87416-87419 NS3a-c and the SA, 87461-87465 AS2a / b, AS3a / b / c; the frame after the start command is sf 1; Kenpachi 10 m away: no hit,
-# no hitstop), the Kikon strike (NS3a hit with the SP held, Kenpachi 1.8 m away: a burst of stills), then the stance looks (pointer 1's
-# corkscrew, pointer 2's drip) at heat 0 / 12 / 25, two phases each. The behind camera, then the SIDE camera (2109). Last the consing lines
+# no hitstop), then the stance looks (pointer 1's corkscrew, pointer 2's drip) at heat 0 / 12 / 25, two phases each. The behind camera, then the SIDE camera (2109). Last the consing lines
 # (87449 the Shikai's looks, 87448 the Bankai's). PHONE: the deck on (87901), stills -phone.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --script tests/scripts/duel-yama-s3.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 150 --mobile --size 390x844 --script tests/scripts/duel-yama-s3-phone.json
@@ -1314,7 +1313,6 @@ def yama_s3_script(phone=False):
         ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
         ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
         return t + 0.05 * (len(cmds) - 1)
-    def sp(s, hold=0.05): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
     for cam in ("behind", "side"):
         if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
         for name, ptr, start, frames in YAMA_S3:
@@ -1322,10 +1320,6 @@ def yama_s3_script(phone=False):
             ev.append(cmd(a, start))
             for f, n in frames: ev.append(shot(a + f / 60, f"yama-s3-{n}-{cam}{sx}"))
             t = a + 1.6
-        a = scene(f"NS3a held: the Kikon strike {cam}", (87018, 87303) + deck) + 0.3
-        sp(a, 1.2)
-        for i in range(24): ev.append(shot(a + 0.5 + i * 0.05, f"yama-s3-strike-{i:02d}-{cam}{sx}"))
-        t = a + 3.0
         for p in (1, 2):
             for h in (0, 12, 25):
                 a = scene(f"stance {p} heat {h} {cam}", (87030, 87300 + p, 87500 + h) + deck)
@@ -1339,3 +1333,21 @@ def yama_s3_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s3", yama_s3_script())
 write("yama-s3-phone", yama_s3_script(True))
+# The Kikon strike (art S3: ya-strike, J1's poses with a 0.25 m drawn lunge): NS1a pressed with the SP held, Kenpachi 3 m away: the spiral
+# hits, he flash-steps in and cuts (YA-NS-STRIKE, its hit ~1.5 s after the press); a burst of stills every 3 frames from 0.9 s, both cameras.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-s3-strike.json   (+ -phone, --mobile --size 390x844)
+def yama_s3_strike_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== NS1a held: the Kikon strike {cam}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate((87030, 87301) + deck))
+        a = t + 0.5
+        ev.append(key(a, "ShiftLeft")); ev.extend(tap(a + 0.01, "KeyJ", 1.4)); ev.append(key(a + 1.45, "ShiftLeft", False))
+        for i in range(24): ev.append(shot(a + 0.9 + i * 0.05, f"yama-s3-strike-{i:02d}-{cam}{sx}"))
+        t = a + 3.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-s3-strike", yama_s3_strike_script())
+write("yama-s3-strike-phone", yama_s3_strike_script(True))

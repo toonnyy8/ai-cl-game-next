@@ -874,7 +874,7 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
 (defun-fast yama-stance-fire (tip base code ti)
   "The Shikai's stance looks on the blade BASE .. TIP, at the tier TI of the heat his next segment would pay (YA-STANCE-TIER): CODE 1 不知火,
 a slow corkscrew of fire, two strands wound 1.5 turns round the blade, turning once in 4 s; CODE 2 城郭炎上, a drip of fire off the point: a
-small flame hanging from the tip and three drops falling from it 0.6 m in turn, one every 0.4 s, thinning as they fall. By tier: the size
+flame hanging 0.26 m from the tip and three drops falling from it 0.8 m in turn, one every 0.4 s, thinning as they fall. By tier: the size
 and the white core (%YA-SEG). Pure of the fx clock (no random stream). A look; 0 B."
   (declare (type f32vec tip base) (fixnum code ti))
   (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2))
@@ -897,12 +897,12 @@ and the white core (%YA-SEG). Pure of the fx clock (no random stream). A look; 0
                  (%ya-seg (+ x0 (* u0 bx) (* c0 n1x) (* s0 n2x)) (+ y0 (* u0 by) (* s0 n2y)) (+ z0 (* u0 bz) (* c0 n1z) (* s0 n2z))
                           (+ x0 (* u1 bx) (* c1 n1x) (* s1 n2x)) (+ y0 (* u1 by) (* s1 n2y)) (+ z0 (* u1 bz) (* c1 n1z) (* s1 n2z))
                           (* 0.022f0 hf) (* 0.016f0 hf) ti 0.95f0 (+ 200f0 (* 9f0 (i->f s)) (i->f i)) (+ dr (i->f i))))))))
-      (2 (%ya-tongue tx (+ ty 0.02f0) tz 0f0 (* -0.14f0 hf) 0f0 (* 0.035f0 hf) ti 0.95f0 210f0 dr :segs 3)   ; the flame hanging off the point
+      (2 (%ya-tongue tx (+ ty 0.03f0) tz 0f0 (* -0.26f0 hf) 0f0 (* 0.055f0 hf) ti 0.95f0 210f0 dr :segs 3)   ; the flame hanging off the point
          (dotimes (j 3)
-           (let* ((ph (let ((p (+ (* 0.833f0 c) (* 0.3333f0 (i->f j))))) (- p (i->f (f->i p)))))   ; (each drop's phase, 1.2 s a fall)
-                  (y (- ty 0.05f0 (* 0.6f0 ph ph))) (w (* 0.02f0 hf (- 1f0 (* 0.7f0 ph)))))
-             (declare (single-float ph y w))
-             (%ya-seg tx (+ y (* 0.05f0 hf)) tz tx y tz w (* 0.4f0 w) ti (- 0.95f0 (* 0.6f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j)))))))
+           (let* ((p (+ (* 0.833f0 c) (* 0.3333f0 (i->f j)))) (ph (- p (i->f (f->i p))))   ; (each drop's phase, 1.2 s a fall)
+                  (y (- ty 0.12f0 (* 0.8f0 ph ph))) (w (* 0.04f0 hf (- 1f0 (* 0.6f0 ph)))))
+             (declare (single-float p ph y w))
+             (%ya-seg tx (+ y (* 0.13f0 hf)) tz tx y tz w (* 0.5f0 w) ti (- 0.95f0 (* 0.5f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j)))))))
     nil))
 
 (defun ya-stance-tier (e blaze)
