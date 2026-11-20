@@ -1190,19 +1190,20 @@ fading by f13. White-cored (T2). A look; 0 B."
 
 ;;; ---------------------------------------------------------------- the consing probe (debug 87448)
 (defvar *ya-dq-n* (find-symbol "*DQ-N*" :engine) "The engine's draw count (render.lisp, not exported): the probe rewinds it.")
-(defmacro %ya-cons-per (name form)
+(defmacro %ya-cons-per (name form &optional each)
   "The consing probes' row (87448, 87449): bytes consed by 10 runs of FORM after 10 unmeasured ones, as \"NAME n\" (debug.lisp's CONS-PER,
 which loads after this file, plus a warm-up: the engine's draw queue doubles at a new high-water mark, so the measured draws get the room
 the warm-up made: the steady state; art K4: the fx batches are rewound too, so no look is measured on a full batch's skip path:
-\"(dropped)\" if one still overflowed). The probe's draws are taken off the frame's queue again."
+\"(dropped)\" if one still overflowed). The probe's draws are taken off the frame's queue again. EACH (art S5: a cinematic's busiest
+frames hold more than a tenth of the toon batch): the batches are rewound after every run, so each run has the whole batch, as a frame does."
   `(let ((n0 (symbol-value *ya-dq-n*))
          (f0 (stream-buffer-fill *fx-toon*)) (f1 (stream-buffer-fill *fx-add*))
          (f2 (stream-buffer-fill *fx-alpha*)) (d0 *fx-dropped*))
      (flet ((rewind () (setf (symbol-value *ya-dq-n*) n0 (stream-buffer-fill *fx-toon*) f0
                              (stream-buffer-fill *fx-add*) f1 (stream-buffer-fill *fx-alpha*) f2)))
-       (dotimes (i 10) ,form)
+       (dotimes (i 10) ,form ,@(when each '((rewind))))
        (rewind)
-       (let* ((c0 (cons-bytes)) (d1 *fx-dropped*) (b (progn (dotimes (i 10) ,form) (- (cons-bytes) c0))))   ; (the bytes before the
+       (let* ((c0 (cons-bytes)) (d1 *fx-dropped*) (b (progn (dotimes (i 10) ,form ,@(when each '((rewind)))) (- (cons-bytes) c0))))   ; (the bytes before the
          (prog1 (format nil "~a ~d~:[~; (dropped)~]" ,name b (/= d1 *fx-dropped*))                       ;  row's name: a computed
            (rewind) (setf *fx-dropped* d0))))))                                                         ;  name conses)
 
@@ -1332,4 +1333,11 @@ rows."
         (push (%ya-cons-per "nade-seam-8m" (yama-sk-moves pos yaw 8 44 2)) rows)
         (push (%ya-cons-per "smear-5" (vfx-smear tr sm 5)) rows)
         (push (%ya-cons-per "plant-spot-ikkotsu" (yama-planted *p1* fp mv-ik)) rows))
+      (macrolet ((cine (name f frames)                 ; (art S5: the Kikon cinematics' looks at their busiest frames, P1 and P2 as the
+                   `(progn ,@(loop for cf in frames      ;  actors, in P1's form; each run with the whole batch, as a frame)
+                                   collect `(push (%ya-cons-per ,(format nil "~a-~d" name cf) (,f *p1* *p2* ,cf) t) rows)))))
+        (cine "shiranui" yama-shiranui-look (30 50 60 100 118 130 160))
+        (cine "ennetsu" yama-ennetsu-cine-look (26 50 62 100 114 132 150 168))
+        (cine "nadegiri" yama-nadegiri-cine-look (52 112 124 150))
+        (push (%ya-cons-per "s5-cine-p" (yama-s5-cine-p *p1*)) rows))
       (log-msg "yama shikai consing (10 draws, B): ~{~a~^, ~}" (nreverse rows)))))

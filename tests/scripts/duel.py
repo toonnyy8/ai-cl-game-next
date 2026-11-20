@@ -1418,3 +1418,79 @@ def yama_s4_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-s4", yama_s4_script())
 write("yama-s4-phone", yama_s4_script(True))
+
+# Yamamoto's Shikai art S5 (DUEL_YAMA_CORE §26): the proof that the Shikai's / 爆炎's three Kikon cinematics move no sim line but the
+# ones a cinematic's length moves (only commands that exist at 22ee1330, so the same script runs on a dist built there and its log can
+# be diffed line by line). Each scene a fresh match (87200 then 87014), human P1 in the Shikai 1.4 m from an idle Kenpachi, the route held
+# into its Kikon under its pointer: J1 > AS1 (不知火), J1 J2 > AS2 (城郭炎上), J1-J3 > AS3 (撫斬); in 爆炎 (87600: heat 100, entered at the
+# next neutral; the entry pose waited out) J1 J2 > AS2; a Soul Break he deals under pointer 3 (P2's Reishi 1, then J1: CORE-SOUL-BREAK-CINE
+# reads the same :kikon-cines); last 2101 (2 Konpaku a match from the next) and the 城郭炎上 route (AS2's Kikon takes 2): its Kikon is the K.O.
+# (the match-over path, the K.O. cinematic, RESULTS). Probe lines at 1 / 5 / 8 s
+# and a hash line after each.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 86 --script tests/scripts/duel-yama-s5-kikon.json
+YAMA_S5_KIKON = (   # scene, setup commands after 87200 87014, presses (("j" | "hold", seconds after the start) ...)
+    ("shiranui J1 > AS1 held", (87301,), (("j", 0), ("hold", 0.2))),
+    ("jokaku J1 J2 > AS2 held", (87302,), (("j", 0), ("j", 0.25), ("hold", 0.45))),
+    ("nadegiri J1-J3 > AS3 held", (87303,), (("j", 0), ("j", 0.25), ("j", 0.5), ("hold", 0.75))),
+    ("gokuen jokaku J1 J2 > AS2 held", (87302, 87600), (("j", 0), ("j", 0.25), ("hold", 0.45))),
+    ("soul break under nadegiri: J1 on Reishi 1", (87303, 87801), (("j", 0),)),
+    ("jokaku again from 2 Konpaku: the K.O.", (87302,), (("j", 0), ("j", 0.25), ("hold", 0.45))),
+)
+def yama_s5_kikon_script():
+    ev, t = [], T0
+    def sp(s, hold): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    for name, setup, presses in YAMA_S5_KIKON:
+        if name.startswith("jokaku again"): ev.append(cmd(t - 0.3, 2101))
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        cmds = (87200, 87014) + setup
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        a = t + 0.05 * (len(cmds) - 1) + 1.6                                # (爆炎's entry pose is over by then)
+        for kind, dt in presses:
+            if kind == "hold": sp(a + dt, 1.2)
+            else: ev.extend(tap(a + dt, "KeyJ", 0.05))
+        for dt in (1.0, 5.0, 8.0): ev.append(cmd(a + dt, 87900))
+        ev.append(cmd(a + 8.1, 2107))
+        t += 12.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-s5-kikon", yama_s5_kikon_script())
+
+# Yamamoto's Shikai art S5 (DUEL_YAMA_CORE §26): one still per storyboard beat of each Shikai Kikon cinematic, in the Shikai (87482+i from
+# frame 0, P1 3 m from an idle Kenpachi set down mid-stage, after 2.5 s idle) then in 爆炎 (87600 first: heat 100 enters it at the next
+# neutral, the entry pose over before 87485+i); 87600+k holds it at frame 2k, the still a moment after it gets there, then the next hold.
+# 87449's consing line after each form (the cinematic looks' rows in that form), 87448's at the end. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 100 --script tests/scripts/duel-yama-s5.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 100 --mobile --size 390x844 --script tests/scripts/duel-yama-s5-phone.json
+YAMA_S5 = (   # cinematic, name, ((frame (even), beat still) ...)
+    (0, "shiranui", ((6, "b0-held"), (30, "b1-caption"), (54, "b2-lights"), (68, "b3-thrust"), (100, "b4-columns"), (124, "b5-shatter"),
+                     (138, "b6-tornado"), (162, "b7-back"))),
+    (1, "ennetsu", ((6, "b0-held"), (28, "b1-edge"), (62, "b2-pattern"), (96, "b3-pillars"), (120, "b4-dome"), (134, "b5-shatter"),
+                    (148, "b6-inside"), (172, "b7-wide"))),
+    (2, "nadegiri", ((6, "b0-held"), (30, "b1-face"), (48, "b2-strike"), (52, "b3-cut"), (54, "b3b-out"), (90, "b4-turn"), (110, "b5-seam"), (114, "b5b-shatter"),
+                     (126, "b6-split"), (150, "b7-wide"))),
+)
+def yama_s5_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    for base, form in ((87482, "shikai"), (87485, "gokuen")):
+        for i, name, beats in YAMA_S5:
+            ev.append(cmd(t - 0.6, 87699))                                   # (the last one let run out: a held cinematic freezes the
+            ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {form} {name}')"})   #  effect clock, so a callout would wait)
+            ev += [cmd(t, 87030)] + ([cmd(t + 0.05, 87600)] if form == "gokuen" else [])   # (idle first; 爆炎 entered by heat 100)
+            t += 2.5
+            ev.append(cmd(t, base + i))
+            if phone: ev.append(cmd(t + 0.02, 87901))
+            ev.append(cmd(t + 0.03, 87600 + beats[0][0] // 2))
+            a, f0 = t + 0.03, 0
+            for j, (f, n) in enumerate(beats):
+                a += (f - f0) / 60 + 0.3                                     # (it runs on to frame f, then a still)
+                ev.append(shot(a, f"yama-s5-{form}-{name}-{n}{sx}"))
+                if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1][0] // 2))
+                a += 0.05
+                f0 = f
+            t = a + 0.6
+        ev.append(cmd(t, 87449)); t += 0.3
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-s5", yama_s5_script())
+write("yama-s5-phone", yama_s5_script(True))

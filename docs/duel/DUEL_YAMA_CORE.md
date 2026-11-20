@@ -2445,3 +2445,103 @@ entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`), one per scene.
   nearly every still, menus included: it compared against base renders left in `build/style/looks/` by an earlier run, not renders of
   `looks-base-s3`. Re-run without `--keep-base`: PASS. The base is now this merge's dist (`looks-base-s4`); S5's wiring changes YK again.
 - Playtest v458 (index.js / index.wasm / manual.html hashes verified). The manual's Yamamoto line now names 爆炎's art.
+
+## 26. As built (art batch S5: the Shikai's three Kikon cinematics, 2026-11-20)
+
+### 26.0 The looks gate's expected diff (written before each run)
+
+- **The cinematics commits (not wired)**: none. 83 / 83 stills byte-identical to BASE (a dist built at 22ee1330), every scenario's
+  fighters and sim lines as BASE's. The new cinematics play only through debug 87482-87487; YAMA-DRAW's new guard (YAMA-S5-CINE-P) is
+  false outside them; the 87449 rows run only on that command; the 爆炎 / Shikai `:kikon-cines` still name `soul-break-cine`.
+
+S5 of §21.1 (the user, 2026-11-20: 「繼續」; the storyboards §21.5; the decisions §21.8: Q2 「沿用始解的，換爆炎裝扮」, Q3 「照原作」). Three `defcine`s
+in `duel/lisp/yama-cine.lisp`: `yama-shiranui-cine` (174 f, hold 100), `yama-ennetsu-cine` (186 f, hold 120), `yama-nadegiri-cine` (156 f,
+hold 90), at the storyboards' lengths and CINE-PLACE distances (6.0 / 3.0 / 2.0 m), on K4's grammar: AT events cut, play clips and stamp
+(step mode); one DURING per cinematic calls one look, a DEFUN-FAST of the cinematic frame and the actors' places (`yama-shiranui-look`,
+`yama-ennetsu-cine-look`, `yama-nadegiri-cine-look`; the blade's fire in `yama-s5-blade`), 0 B, `rnd01` only. 爆炎 plays the same three
+(Q2): DEFCINE draws his current model, so he is bared with the scars lit by heat (YAMA-DRAW's YAMA-SCAR-GLOW), and `%ya-cform` gives every
+fire T2 (white-cored) and x1.2 height in 爆炎; in the Shikai the small fires are T1 and the beats the storyboards mark T2 (the columns, the
+tornado, the seam, the dome) are T2. Full colour: no `:spot` grade (the Shikai is the orange form; K4's Bankai grey is its own). While one
+runs, YAMA-DRAW leaves the blade's fire (SL0 and the stance fire) to the cinematic (`yama-s5-cine-p`), whose look draws it per beat: 不知火's
+spiral and its going out, ENNETSU's fire down the edge, and none at all in 撫斬. The wiring (the Shikai's and 爆炎's `:core :kikon-cines`)
+is its own commit, the last (§19.2).
+
+### 26.1 The beat tables as built (against §21.5)
+
+不知火 SHIRANUI (174 f; `cine-place a v 6.0`):
+
+| Frames | Shot as built | Action as built | Effects / sound | Against §21.5.1 |
+|---|---|---|---|---|
+| 0-10 | held | `hold-both` 10; stance 1's coil (`ya-shiranui`), the victim `:sh-kikon-victim` | negative 2, whoosh | as written |
+| 10-40 | `shot-on a 60 1.8 0.9 :look 1.1 :off 0.6` (portrait 2.6 m), lens 50 roll 5 | the spiral winds down the blade from the tip to the guard (f10-34, two strands, 1.1 turns) and tightens (r 0.17 → 0.08 m, f10-40) | silence 30; caption 不知火, SHIRANUI, sub RYUJIN JAKKA, hanko | portrait 2.6 m: at 1.8 the blade at his hip left the tall frame |
+| 40-58 | `shot-on v 180 7.0 4.5 :look 0.4` (portrait 9.0), lens 44 | nine pale lights (white flames 0.8 m over EMBER marks r 0.35, pulsing on twos) wink on round the victim on a 4 m circle, one every 2 f | a soft tick each (`:hs-tip`) | as written |
+| 58-76 | `shot-pair a v 1 9.0 1.2` (portrait 12.0), lens 46 | `cine-slow 0.4`; NS1a's release (`ya-n1a` from f18: its S20 on f63); the spiral goes out f58-62, the blade bare to f150; from f64 the lights stand up as columns (8 f) | f63 one dry crack (`:cut-heavy`), f66 the roar starts | as written |
+| 76-120 | `shot-on v 0 2.0 10.0 :look 0` (portrait 12 m up), lens 40 | `cine-slow 1`; the columns (3.2 → 4.8 m, T2) circle him faster, the circle closing 4 → 0.8 m, leaning together; an EMBER ring on the floor at their radius | shake 0.1 / 0.2 / 0.3 / 0.4 at f76 / 90 / 102 / 112 | as written |
+| 120-126 | `shot-on v 0 3.2 0.5 :look 1.0`, lens 36 | the wall arrives; f122 the Konpaku (`cine-shatter`, the Kikon's count) | f122 negative 2, splash, konpaku-shatter; f124 manga 10, explode | as written |
+| 126-150 | `shot-on v 30 5.0 0.3 :look 3.0`, lens 60 | one tornado from f124 (5 bands, 10 m, T2, FIRE on the camera's side, INK behind, a floor band and gaps), `silhouette-black` on the victim, `:sh-crumple` on the floor | sizzle | the bands thinned (0.35 m at 10 m) and the lowest put on the floor after the first stills: a 0.7 m band at 0.6 m hid him |
+| 150-174 | `shot-on a 160 3.5 1.6 :look 1.3` (portrait 5.0), lens 44 | his back; the tornado gutters to embers (f150-166); he blends to `ya-stance` (14 f), the blade's rest fire back; the victim `:sh-down`, black smoke | caption exits | 爆炎: the scarred bare back, not the 一 on the haori (dev 4) |
+
+焱熱地獄 ENNETSU JIGOKU (186 f; `cine-place a v 3.0`; M = the midpoint of the two):
+
+| Frames | Shot as built | Action as built | Effects / sound | Against §21.5.2 |
+|---|---|---|---|---|
+| 0-10 | held | `hold-both` 10; stance 2's point (`ya-st-enjo`) | negative 2, whoosh | as written |
+| 10-34 | `shot-on a 30 2.0 0.5 :look 0.8 :off 0.5`, lens 50 | the point lowered into the plaza at his right (`ya-blaze-in` x0.6 from f10, held at its f10 from f24: S4's entry clip, its fire not drawn); f22-34 a white-cored strand runs down the edge from the guard to the point | silence 20, f30 the hiss; caption 焱熱地獄, ENNETSU JIGOKU, sub JOKAKU ENJO, hanko | the clip: §21.5.2 named the pose `ya-hellfire-point`, which is `ya-blaze-in`'s held frames |
+| 34-66 | `shot-on a 0 2.0 10.0 :look 0 :ahead 1.5` (portrait 13 m up), lens 44 | an EMBER line from the point to M (f30-36), 8 spokes out from M to 6 m (f34-46), rings at 2 / 4 / 6 m growing both ways from each spoke (f38-58) round both; f60 twelve small flames on the 4 m ring | f60 explode (low) | drawn in the look, no stage marks (as written) |
+| 66-110 | `shot-pair a v 1 5.5 0.6` (portrait 7.5), lens 46 | a pillar from each mark, one every 3 f, to 6 m in 6 f, leaning in from f96 (1.5 m at the top); the victim `:sh-stagger` x0.5; he does not move | the roar, shake 0.2; f96 explode | the pillars between the lens and the pair stand as low stubs (`%near-cam` 2.5-6 m): the portrait first stills lost the pair behind one |
+| 110-130 | `shot-pair a v 1 12.0 2.5` (portrait 15.0), lens 40 | the pillars fade (f110-118) into one squat dome: 20 walls on the 5 m circle leaning in, 4 m high (x1.2 in 爆炎), INK backings on its far side, dark gaps | silence 12; f122 the boom (`:awaken-boom` low), shake 0.3 | as written |
+| 130-136 | `shot-on v 0 2.6 1.4 :look 1.2`, lens 50 | white fire round the victim (10 tongues at 1.2-2 m); f132 the Konpaku, `:sh-crumple` | f132 negative 2, splash; f134 manga 10 | as written (he stands 0.4 m behind the lens: not in it) |
+| 136-160 | `shot-on a 15 2.4 1.3 :look 1.2`, lens 44 roll -4 | `silhouette-black` on him: his dark shape in the flames, the blade still down; 7 small flames on his hem (爆炎: the hakama's, at the ankles); f150 the victim `:sh-down` | sizzle. A look only: no Reishi taken (Q3) | 爆炎: the hakama's hem (no haori, dev 4) |
+| 160-186 | `shot-pair a v 1 9.0 2.0` (portrait 12.0), lens 44 | `unsilhouette`; the dome falls outward (f160-172: the walls lean out, sink, fade) to a scorched EMBER ring on the 5 m circle; ash; black smoke off the victim; he points the blade (stance 2, 10 f) | caption exits, explode | the fall 12 f: at 16 f the last walls lay on the floor as red blocks in the wide still |
+
+撫斬 NADEGIRI (156 f; `cine-place a v 2.0`):
+
+| Frames | Shot as built | Action as built | Effects / sound | Against §21.5.3 |
+|---|---|---|---|---|
+| 0-12 | held | `hold-both` 12; NADEGIRI's draw (`ya-nadegiri` f9, held), the victim `:sh-kikon-victim`; his face calm for the whole cinematic (`face-beat :neutral` 2.6 s: the cinematic attacker's shout would open his mouth) | negative 2 | as written |
+| 12-40 | `shot-on a 35 2.2 1.35 :look 1.3 :off 0.25`, lens 20 | eyes shut, nothing moves; no fire on the blade | silence 28; caption 撫斬, NADEGIRI, sub RYUJIN JAKKA, hanko | 35° and his face's height for 10° and 1.55 m: at 10° the victim, 2 m ahead, filled the lens (dev 1) |
+| 40-52 | `shot-on a 200 2.4 1.5 :look 1.3 :ahead 1.6`, lens 50 | `cine-slow 0.3`; the victim starts his own J (K4's `yama-victim-attack`) | | as written |
+| 52-56 | the same | f52 the cut, not shown: one INK hairline across the frame at the victim's neck (12 m long, 2 f); the victim frozen mid-swing (his clip 4 frames on, speed 0); f53 his arm already out (`ya-b-n3c` at its f16, held) | negative 2, `:hs-tip` (no slash sound) | the victim freezes at the cut, not at f56 |
+| 56-110 | `shot-pair a v 1 4.2 1.2` (portrait 6.0), lens 46 | he turns his back (yaw + 180, as 南's turn) and lowers the blade (the true NADEGIRI's clip `ya-b-n3c` from f19 at x0.74: its 40 f lowering over 54 f) | silence | 爆炎's own true NADEGIRI clip in both forms (dev 5) |
+| 110-116 | `shot-on v 35 2.6 1.4 :look 1.2`, lens 50 | `silhouette-black` on the victim; a white seam down him, crown to floor in 4 f (0.04-0.08 m, 0.4 m toward the lens); f112 the Konpaku | f112 negative 2, splash; f114 manga 10 | 35° for "front": in front of him stood Yamamoto, 0.6 m ahead of the lens (dev 1) |
+| 116-140 | `shot-on v 180 3.6 0.4 :look 1.0 :ahead 1.0`, lens 40 | fire bursts from the seam and parts in a V (12 walls a side from 0.6 m before him to 6 m behind, 3 m at him, lower away, sunk near the lens); an INK + EMBER scorch line runs 8 m behind him in 10 f; `:sh-crumple`, f130 `:sh-down` | sizzle; f120 the boom 4 f late, shake 0.3 | as written |
+| 140-156 | `shot-pair a v 1 7.0 1.6` (portrait 9.0), lens 44 | he has not looked back, the blade hangs; the scorch line kept; embers | caption exits | as written |
+
+### 26.2 Deviations, each with its reason
+
+1. **Camera angles moved where an actor blocked the lens** (K4's dev 1 again; 26.1's last column): 撫斬's face shot 35° at his face's
+   height (1.35 m, look 1.3) for 10° at 1.55 (the victim, 2 m ahead, filled the frame at 10°; the draw pose's head is lower than 1.55);
+   撫斬's seam shot 35° for "front" (Yamamoto stood 0.6 m in front of the lens); 不知火's caption shot 2.6 m in portrait (the blade at his
+   hip left the tall frame at 1.8). 焱熱地獄's inside shots and 不知火's front shots kept their angles: the other actor stands behind the lens.
+2. **焱 is composed** (the glyph): Yuji Syuku has no 焱 (`tools/glyph-bake.py`: "not in the font"). It is three copies of the font's 火
+   (one over two, each mapped from 火's bounding box onto a box of the em: `COMPOSED` in the bake script), so its strokes are about 0.47 x
+   火's weight: it reads lighter than 熱地獄 beside it (26.5's stills). The alternatives for the user: 炎熱地獄 (炎 is in the font; not the
+   canon name) or a second font for one glyph.
+3. **The pillars between the lens and the pair are low stubs** in 焱熱地獄's side-on shot (§21.5.2: "the twelve pillars rise behind both"):
+   a pillar nearer the lens than M and within 1.2-3 m of the line to M is drawn at 12-100 % of its height and width. The portrait first
+   stills lost both actors behind the near pillars.
+4. **爆炎 has no haori** (its form hides `:haori :kosode`): 不知火's last shot shows his scarred bare back, not "the 一 in its rhombus, the
+   haori settling"; 焱熱地獄's hem fire is on the hakama's hem at the ankles (0.12 m up, r 0.26), not the haori's at the knees (0.55 m, r 0.34).
+5. **撫斬 plays 爆炎's true NADEGIRI clip `ya-b-n3c` in both forms** (its 40 f lowering with the chest and head turned away, S4): §21.5.3's
+   slow lowering over 54 f is that clip at x0.74. Turned 180° at f56 (the cut to the side-on pair), so his back is to the victim and the
+   blade hangs on his far side.
+6. **The victim freezes on the cut (f52)**, not at f56: the hairline is the instant the world stops; his clip is held 4 frames into his
+   swing (`yama-victim-attack`'s new LATER / FROZEN arguments; K4's call unchanged).
+7. **ENNETSU's opening plays S4's entry clip `ya-blaze-in`** (its point lowered into the plaza at his right, f0-10 at x0.6, held), not a
+   clip named `ya-hellfire-point` (that is the clip's held pose); its own fire look (YAMA-BLAZE-IN-LOOK) is not drawn (it reads the move,
+   and a cinematic has none): the cinematic draws its own strand down the edge.
+8. **YAMA-DRAW's blade fire is off while an S5 cinematic runs** (`yama-s5-cine-p`, a guard in `yama-art.lisp`, the attacker only): without
+   it the rest sheath and the stance corkscrew / drip would burn through 不知火's "nothing leaves the blade" and all of 撫斬.
+9. **No `:spot` grade**: K4's three are in the Bankai's grey; the Shikai's fire is orange, and `:spot` keeps only the ember hue and the
+   REIATSU yellow. Each cinematic runs in full colour under its negatives and manga frames.
+10. **撫斬's attacker face is held calm** (`face-beat :neutral` for 2.6 s from f0): every cinematic attacker shouts (draw.lisp FACE-OF);
+    "eyes shut, nothing moves" needs the closed mouth.
+11. **The probe (87449) rows of the cinematic looks rewind the fx batches after each run** (`%ya-cons-per`'s new EACH argument, default
+    off: the old rows expand as before): a cinematic's busiest frame holds more than a tenth of the toon batch, so ten runs without a
+    rewind would measure the last ones on the full batch's skip path. The frame's own gate is `fx-dropped 0` on the stills runs.
+12. **`%ya-feet` beside K4's `%ya-line`**: the looks that use only the actors' feet bind them there. Bound through `%ya-line` and left
+    unused, its unit vectors cost one boxed float a draw (8 B, found by the probe: 不知火's and 焱熱地獄's rows read 80 B / 10 draws until
+    then; isolated in scratch builds: a `%ya-line` whose FX / FZ go unused conses, one whose FX / FZ are used does not).
+13. **The 爆炎 stills enter 爆炎 through YAMA-CINE-AT** (heat 87600 alone did not enter it while the held cinematic before had just
+    ended), which clears the HUD's words (the GOKUEN callout) for the stills; the black radial marks under him in the 爆炎 stills are that
+    entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`, S4's §25.6), not the cinematics'.

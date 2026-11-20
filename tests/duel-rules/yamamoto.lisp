@@ -450,3 +450,9 @@
     (check (equal (sort (loop for mv being the hash-values of (kit-moves (find-kit :yamamoto :blaze)) unless (zerop (mv-blend mv)) collect (mv-name mv))
                         #'string<)
                   '(:ya-as-strike :ya-b-j1 :ya-blaze-in :ya-j1 :ya-ns-strike)))))
+
+;; art S5 (DUEL_YAMA_CORE §26): every glyph of the Shikai Kikon cinematics' captions (不知火, 焱熱地獄, 撫斬) is baked into glyphs.lisp
+;; (tools/glyph-bake.py; 焱 composed from three of the font's 火: Yuji Syuku has none), and 焱 is three copies of 火's polygons
+(load (merge-pathnames "../../duel/lisp/glyphs.lisp" *load-truename*))
+(check (every (lambda (ch) (assoc (char-code ch) *glyph-outlines*)) "不知火焱熱地獄撫斬"))
+(check (= (length (cddr (assoc (char-code #\焱) *glyph-outlines*))) (* 3 (length (cddr (assoc (char-code #\火) *glyph-outlines*))))))

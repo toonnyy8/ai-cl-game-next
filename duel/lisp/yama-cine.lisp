@@ -227,14 +227,15 @@ smoke from f150. A look; 0 B."
                      (rnd-range 1.4f0 2.0f0) (rnd-range 0.2f0 0.35f0) -0.3f0 0.3f0 +pal-black-smoke+))))))
   nil)
 
-(defun yama-victim-attack (v)
+(defun yama-victim-attack (v &optional (later 0) frozen)
   "西's f10: the victim's own first attack (his kit's J, CINE-SLOW 0.3 from now), started so its hit pose lands on f40 (30 frames x 0.3 =
-9 frames of clip before S); a generic flinch-in when his kit has none (§15.3.4 flag 5)."
+9 frames of clip before S); a generic flinch-in when his kit has none (§15.3.4 flag 5). Art S5 (撫斬): LATER frames of clip on and FROZEN
+(speed 0) hold him there mid-swing."
   (let* ((kit (kit-of v)) (mv (kit-command-move kit :q)))
     (if (and mv (mv-clip mv))
-        (cine-clip v (kit-move-clip kit (mv-clip mv)) :blend 4 :speed (mv-clip-speed mv)
-                   :time (/ (* (max 0 (- (mv-s mv) 9)) (mv-clip-speed mv)) 60.0))
-        (cine-clip v :sh-clash :blend 4))))
+        (cine-clip v (kit-move-clip kit (mv-clip mv)) :blend (if frozen 0 4) :speed (if frozen 0.0 (mv-clip-speed mv))
+                   :time (/ (* (+ (max 0 (- (mv-s mv) 9)) later) (mv-clip-speed mv)) 60.0))
+        (cine-clip v :sh-clash :blend 4 :speed (if frozen 0.0 1.0)))))
 
 (defun yama-weapon-keep (v)
   "西's f40: keep the victim's weapon's length and blade base for the ash look (*YA-CW*)."
@@ -396,3 +397,418 @@ over the victim; the Konpaku, unseen by him: the pile bursts; wide and high, the
       (multiple-value-bind (x y z) (actor-point v 0.0)
         (vfx-ash-burst x y z) (vfx-ash-burst (+ x 0.5) y z) (vfx-ash-burst x y (+ z 0.5))))
   (during (0 192) (yama-minami-look a v cf)))
+
+;;; ================================================================ art S5: the Shikai's 不知火 / 焱熱地獄 / 撫斬 Kikons (DUEL_YAMA_CORE §21.5, §26)
+;;; Kept apart (§21.5): 1 = fire that comes from nowhere (he thrusts, nothing leaves the blade; lights wake round the victim, stand up as
+;;; columns and close into one tornado), 2 = the cage (the fire runs down the edge into the floor, draws its circles, the pillars rise round
+;;; both and close into a dome with him inside it: Q3 「照原作」, a look only, no Reishi taken), 3 = nothing happens, then it has (the cut is
+;;; never shown; he turns away; the split comes late). 爆炎 plays the same three (Q2 「沿用始解的，換爆炎裝扮」): DEFCINE draws his current
+;;; model (bared, the scars by heat: YAMA-DRAW), and every fire here is white-cored (T2) and x1.2 high in 爆炎 (%YA-CFORM); in the Shikai the
+;;; small fires are T1 and the beats the storyboards mark T2 are T2. Full colour (no :spot grade: the Shikai is the orange form). While one
+;;; runs, YAMA-DRAW leaves the blade's fire (SL0, the stance fire) to the cinematic's look (YAMA-S5-CINE-P), which draws it per beat.
+;;; Same grammar as K4: AT events cut, play clips and stamp (step mode); one DURING calls one DEFUN-FAST look of the cinematic frame and the
+;;; actors' places (draw mode, 0 B: debug 87449's rows; rnd01 only).
+(defparameter *ya-s5-cines* '(yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)
+  "The Shikai's (and 爆炎's) three Kikon cinematics, by pointer (art S5): YAMA-S5-CINE-P, the debug commands 87482-87487.")
+
+(defun yama-s5-cine-p (e)
+  "Is E the attacker of a running S5 cinematic (YAMA-DRAW then leaves the blade's fire to its look)? Reads only."
+  (let ((c *cine*)) (and c (eql e (cine-a c)) (member (cine-name c) *ya-s5-cines*) t)))
+
+(defmacro %ya-cform ((bl ti hs) a &body body)
+  "Bind BL (A is in 爆炎), TI (the cinematic's small-fire tier: 2 in 爆炎, else 1) and HS (its fire's height factor: 1.2 in 爆炎, else 1)."
+  `(let* ((,bl (eq (kit-form (fighter-kit (fighter ,a))) :blaze)) (,ti (if ,bl 2 1)) (,hs (if ,bl 1.2f0 1f0)))
+     (declare (fixnum ,ti) (single-float ,hs) (ignorable ,bl ,ti ,hs))
+     ,@body))
+
+(defmacro %ya-feet ((px pz qx qz) a v &body body)
+  "Bind A's and V's feet (PX PZ, QX QZ; single floats). (%YA-LINE's unit vectors left unused cost a boxed float a draw on the probe:
+a look that needs only the feet binds them here.)"
+  `(let* ((%p (pos-of ,a)) (%q (pos-of ,v)) (,px (aref %p 0)) (,pz (aref %p 2)) (,qx (aref %q 0)) (,qz (aref %q 2)))
+     (declare (type f32vec %p %q) (single-float ,px ,pz ,qx ,qz) (ignorable ,px ,pz ,qx ,qz))
+     ,@body))
+
+(defmacro %ya-cpillar (x z lx lz r h k ti seed)
+  "A cinematic pillar of fire (§21.5.4 row 1: no crown, 72 vertices): from the floor at (X Z) along (LX H LZ) (its lean at the top),
+base half-width R: an EMBER backing behind it, the FIRE mass, the tier's white core in front (TI 1 / 2: 30 / 60 % of the width). K the
+presence (0 .. 0.98). Single-float forms (TI fixnum); 0 B."
+  `(let* ((%x ,x) (%z ,z) (%lx ,lx) (%lz ,lz) (%r ,r) (%h ,h) (%k (%ya-k ,k)) (%ti ,ti) (%dr (drawing-no))
+          (%sd (- -5f0 (i->f (mod (f->i %dr) 7)) (f-abs ,seed))))
+     (declare (single-float %x %z %lx %lz %r %h %k %dr %sd) (fixnum %ti))
+     (let ((%bx %x) (%by 0f0) (%bz %z))
+       (declare (single-float %bx %by %bz))
+       (%away-from-eye (%bx %by %bz) 0.12f0
+         (toon-ribbon (%bx %by %bz) ((* 1.05f0 %lx) (* 1.08f0 %h) (* 1.05f0 %lz)) ((* 1.15f0 %r) (* 0.3f0 %r)) :heat (0.3f0 0.15f0)
+                      :seed (- %sd 20f0) :wob 0.25f0 :pal +pal-ember+ :k %k :ph %dr :sway 0.05f0 :segs 4)))
+     (toon-ribbon (%x 0f0 %z) (%lx %h %lz) (%r (* 0.22f0 %r)) :heat (0.3f0 0.15f0) :seed %sd :wob 0.25f0 :pal +pal-fire+ :k %k :ph %dr
+                  :sway 0.04f0 :segs 5)
+     (when (> %ti 0)
+       (let ((%cx %x) (%cy 0f0) (%cz %z) (%cw (if (= %ti 1) 0.18f0 0.36f0)))
+         (declare (single-float %cx %cy %cz %cw))
+         (%away-from-eye (%cx %cy %cz) -0.08f0
+           (toon-ribbon (%cx %cy %cz) ((* 0.8f0 %lx) (* 0.85f0 %h) (* 0.8f0 %lz)) ((* %cw %r) (* 0.1f0 %r)) :heat (0.3f0 0.15f0)
+                        :seed (- %sd 40f0) :wob 0.2f0 :pal +pal-hit+ :k %k :ph %dr :sway 0.04f0 :segs 3))))))
+
+(defmacro %ya-cblade ((tip base) a &body body)
+  "Bind TIP and BASE to A's drawn blade's ends (*YA-CT* / *YA-CB*: :ryujin-jakka's length / blade base, as YAMA-DRAW's) and run BODY,
+when he holds a blade."
+  `(let ((%m (model ,a)))
+     (when (model-weapon %m)
+       (joint-point! *ya-ct* (model-joints %m) (ji :weapon-r) 0f0 0f0 -0.95f0)
+       (joint-point! *ya-cb* (model-joints %m) (ji :weapon-r) 0f0 0f0 -0.25f0)
+       (let ((,tip *ya-ct*) (,base *ya-cb*))
+         (declare (type f32vec ,tip ,base))
+         ,@body))))
+
+(defun-fast yama-s5-blade (a cf code)
+  "The blade's fire in an S5 cinematic at frame CF (YAMA-DRAW leaves it to the cinematic: YAMA-S5-CINE-P), CODE 1 不知火: the rest sheath
+(SL0) to f62 and from f150, and f10-62 the spiral winding down the blade from the tip to the guard, tightening (f10-40), going out on the
+thrust (f58-62); CODE 2 焱熱地獄: the rest sheath throughout, and f22-34 the fire running down the edge into the floor (a white-cored
+strand growing guard to point). It leaves the tip in *YA-CT* (焱熱地獄's floor line starts there). A look; 0 B."
+  (declare (fixnum cf code))
+  (%ya-cform (bl ti hs) a
+    (let ((dr (drawing-no)))
+      (declare (single-float dr))
+      (%ya-cblade (tip base) a
+        (if (= code 1)
+            (progn
+              (when (or (< cf 62) (>= cf 150)) (yama-blade-fire tip base (if bl 10 0) ti 0f0))   ; (the rest sheath: no scraps, so no rate)
+          (when (and (<= 10 cf) (< cf 62))
+            (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2))
+                   (bx (- (aref tip 0) x0)) (by (- (aref tip 1) y0)) (bz (- (aref tip 2) z0))
+                   (bl2 (f-max 0.01f0 (f-sqrt (+ (* bx bx) (* by by) (* bz bz))))) (ax (/ bx bl2)) (ay (/ by bl2)) (az (/ bz bl2))
+                   (n1x (- az)) (n1z ax) (nl (f-max 0.01f0 (f-sqrt (+ (* n1x n1x) (* n1z n1z))))) (n1x (/ n1x nl)) (n1z (/ n1z nl))
+                   (n2x (* n1z ay)) (n2y (- (* n1x az) (* n1z ax))) (n2z (- (* n1x ay)))
+                   (cov (f-min 1f0 (/ (i->f (- cf 10)) 24f0))) (rr (* hs (- 0.17f0 (* 0.09f0 (f-min 1f0 (/ (i->f (- cf 10)) 30f0))))))
+                   (k (if (< cf 58) 0.95f0 (* 0.95f0 (/ (i->f (- 62 cf)) 4f0)))) (spin (* 3.1416f0 dr)))
+              (declare (single-float x0 y0 z0 bx by bz bl2 ax ay az n1x n1z nl n2x n2y n2z cov rr k spin))
+              (dotimes (s 2)                             ; two strands, 1.1 turns over what they cover, from the tip down
+                (dotimes (i 8)
+                  (let* ((w0 (* 0.125f0 (i->f i))) (w1 (+ w0 0.125f0)) (u0 (- 1f0 (* cov w0))) (u1 (- 1f0 (* cov w1)))
+                         (ph (* 3.1416f0 (i->f s))) (a0 (+ spin ph (* 7f0 u0))) (a1 (+ spin ph (* 7f0 u1)))
+                         (c0 (* rr (f-cos a0))) (s0 (* rr (f-sin a0))) (c1 (* rr (f-cos a1))) (s1 (* rr (f-sin a1))))
+                    (declare (single-float w0 w1 u0 u1 ph a0 a1 c0 s0 c1 s1))
+                    (%ya-seg (+ x0 (* u0 bx) (* c0 n1x) (* s0 n2x)) (+ y0 (* u0 by) (* s0 n2y)) (+ z0 (* u0 bz) (* c0 n1z) (* s0 n2z))
+                             (+ x0 (* u1 bx) (* c1 n1x) (* s1 n2x)) (+ y0 (* u1 by) (* s1 n2y)) (+ z0 (* u1 bz) (* c1 n1z) (* s1 n2z))
+                             (* 0.03f0 hs) (* 0.024f0 hs) ti k (+ 400f0 (* 9f0 (i->f s)) (i->f i)) (+ dr (i->f i)))))))))
+            (progn
+              (yama-blade-fire tip base (if bl 10 0) ti 0f0)
+              (when (and (<= 22 cf) (< cf 34))
+                (let ((u (f-min 1f0 (/ (i->f (- cf 21)) 6f0))) (x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)))
+                  (declare (single-float u x0 y0 z0))
+                  (%ya-seg x0 y0 z0 (+ x0 (* u (- (aref tip 0) x0))) (+ y0 (* u (- (aref tip 1) y0))) (+ z0 (* u (- (aref tip 2) z0)))
+                           (* 0.05f0 hs) (* 0.08f0 hs) 2 0.98f0 500f0 dr))))))))
+  nil)
+
+;;; ---------------------------------------------------------------- 1 不知火 SHIRANUI (§21.5.1, 174 f)
+(defun-fast yama-shiranui-look (a v cf)
+  "不知火's look at cinematic frame CF: the blade's rest fire (SL0) to f62 and from f150; f10-62 the spiral winding down the blade from the
+tip to the guard and tightening (f10-40), going out on the thrust (f58-62); the nine ghost lights waking round the victim on a 4 m circle,
+one every 2 f from f40 (pale flames over EMBER marks); from f64 each stands up as a column (8 f), and f76-126 they circle him faster, the
+circle closing from 4 m to 0.8 m, leaning together (an EMBER ring on the floor at their radius); f124 one tornado at his spot (5 bands, up
+to 10 m, FIRE on the camera's side, INK on the far one, gaps for the victim), white-cored, guttering to embers f150-166, black smoke off
+the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.2 in 爆炎. The blade: YAMA-S5-BLADE. A look; 0 B."
+  (declare (fixnum cf))
+  (yama-s5-blade a cf 1)
+  (%ya-cform (bl ti hs) a
+    (%ya-feet (px pz qx qz) a v
+      (let ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))) (e (camera-eye *camera*)))
+        (declare (single-float dr rdt seed) (type f32vec e))
+        (when (and (<= 40 cf) (< cf 126))                ; the nine lights, then the columns
+          (let* ((rise (f-clamp (/ (i->f (- cf 64)) 8f0) 0f0 1f0)) (u (f-clamp (/ (i->f (- cf 76)) 44f0) 0f0 1f0))
+                 (rad (if (< cf 120) (- 4f0 (* 3.2f0 u)) (- 0.8f0 (* 0.07f0 (i->f (- cf 120))))))
+                 (spin (+ (* 0.15f0 rise) (* 1.4f0 u) (* 3.2f0 u u))) (lean (* 0.85f0 u))
+                 (kc (if (< cf 122) 0.98f0 (* 0.98f0 (/ (i->f (- 126 cf)) 4f0)))))
+            (declare (single-float rise u rad spin lean kc))
+            (when (>= cf 76) (%tring qx 0f0 qz rad 0.06f0 +pal-ember+ (* 0.8f0 kc) (+ seed 1f0) 24))
+            (dotimes (i 9)
+              (when (<= (+ 40 (* 2 i)) cf)
+                (let* ((fi (i->f i)) (an (+ (* 0.6981f0 fi) (* 0.3f0 (hash01 fi seed)) spin)) (c (f-cos an)) (s (f-sin an))
+                       (lx (+ qx (* rad c))) (lz (+ qz (* rad s))))
+                  (declare (single-float fi an c s lx lz))
+                  (if (< cf 64)
+                      (let ((pulse (if (evenp (+ i (f->i dr))) 0.95f0 0.6f0)) (y (+ 0.35f0 (* 0.4f0 (hash01 (+ fi 3f0) seed)))))
+                        (declare (single-float pulse y))
+                        (%tring lx 0f0 lz 0.35f0 0.06f0 +pal-ember+ pulse (+ seed fi 2f0) 8)
+                        (%ya-tongue lx (+ y (* 0.05f0 (f-sin (+ dr fi)))) lz 0f0 (* 0.8f0 (+ 0.7f0 (* 0.3f0 pulse))) 0f0 0.15f0 0
+                                    (* 0.95f0 pulse) (+ 410f0 fi seed) (+ dr fi) :back nil :segs 3 :pal +pal-hit+))
+                      (let* ((h (* hs rise (+ 3.2f0 (* 1.6f0 u)) (+ 0.85f0 (* 0.25f0 (hash01 (+ fi dr) seed)))))
+                             (ws (f-max 0.2f0 (%near-cam lx lz 0.5f0 4f0))))
+                        (declare (single-float h ws))
+                        (%ya-cpillar lx lz (* (- lean) c) (* (- lean) s) (* 0.45f0 ws) (* h (+ 0.3f0 (* 0.7f0 ws))) kc 2 (+ 420f0 fi seed)))))))))
+        (when (and (<= 124 cf) (< cf 166))               ; the tornado at his spot, then its embers
+          (let* ((h (* 10f0 hs (f-min 1f0 (/ (i->f (- cf 123)) 6f0)))) (k (if (< cf 150) 0.98f0 (* 0.98f0 (/ (i->f (- 166 cf)) 16f0))))
+                 (ex (- (aref e 0) qx)) (ez (- (aref e 2) qz)))
+            (declare (single-float h k ex ez))
+            (%tring qx 0f0 qz 1.3f0 0.25f0 +pal-ember+ (* 0.7f0 k) (+ seed 5f0) 24)
+            (dotimes (b 5)
+              (let* ((bf (i->f b)) (ra (+ 1.2f0 (* 0.45f0 bf))) (yb (* h (+ 0.01f0 (* 0.21f0 bf)))) (tk (* 0.035f0 h))   ; (gaps: the victim
+                     (spin (+ (* 0.55f0 dr) (* 0.9f0 bf))) (tilt (* 0.03f0 h)))   ;  shows between the floor band and the next)
+                (declare (single-float bf ra yb tk spin tilt))
+                (dotimes (i 12)
+                  (let* ((a0 (+ spin (* 0.5236f0 (i->f i)))) (a1 (+ a0 0.5236f0))
+                         (ca0 (f-cos a0)) (sa0 (f-sin a0)) (ca1 (f-cos a1)) (sa1 (f-sin a1))
+                         (far (< (+ (* ex (+ ca0 ca1)) (* ez (+ sa0 sa1))) 0f0)))
+                    (declare (single-float a0 a1 ca0 sa0 ca1 sa1))
+                    (if far
+                        (%ya-seg (+ qx (* ra ca0)) (+ yb (* tilt sa0)) (+ qz (* ra sa0)) (+ qx (* ra ca1)) (+ yb (* tilt sa1)) (+ qz (* ra sa1))
+                                 tk tk 0 k (+ seed (* 12f0 bf) (i->f i)) (+ dr (i->f i)) :pal +pal-ink+)
+                        (%ya-seg (+ qx (* ra ca0)) (+ yb (* tilt sa0)) (+ qz (* ra sa0)) (+ qx (* ra ca1)) (+ yb (* tilt sa1)) (+ qz (* ra sa1))
+                                 tk tk 2 k (+ seed (* 12f0 bf) (i->f i)) (+ dr (i->f i))))))))
+            (%light qx 2f0 qz 1f0 0.45f0 0.12f0 7f0 (* 1.2f0 k) 8)))
+        (when (>= cf 150)                                ; embers rising, then black smoke off the victim
+          (dotimes (i (n-of (if (< cf 166) 70f0 20f0) rdt))
+            (let ((an (rnd-range 0f0 6.2832f0)) (r (rnd-range 0.3f0 1.6f0)))
+              (declare (single-float an r))
+              (%t-blob (+ qx (* r (f-cos an))) (rnd-range 0.1f0 2.5f0) (+ qz (* r (f-sin an))) (rnd-range -0.2f0 0.2f0) (rnd-range 0.6f0 1.4f0)
+                       (rnd-range -0.2f0 0.2f0) (rnd-range 0.8f0 1.4f0) (rnd-range 0.03f0 0.06f0) -0.4f0 0.3f0 +pal-fire+)))
+          (dotimes (i (n-of 10f0 rdt))
+            (%t-blob (+ qx (rnd-range -0.3f0 0.3f0)) 0.3f0 (+ qz (rnd-range -0.3f0 0.3f0)) 0f0 (rnd-range 0.5f0 1.0f0) 0f0
+                     (rnd-range 1.4f0 2.0f0) (rnd-range 0.2f0 0.35f0) -0.3f0 0.3f0 +pal-black-smoke+))))))
+  nil)
+
+(defcine yama-shiranui-cine (a v :len 174 :hold 100)
+  "不知火 SHIRANUI, the Shikai's pointer 1 Kikon (DUEL_YAMA_CORE §21.5.1, §26): beat 0 in stance 1's coil; on him, the spiral winds down
+the blade under the 不知火 stamp in silence; from high behind the victim, pale lights wink on round him, one every 2 f, nine; side-on, slowed,
+the level thrust, and nothing leaves the blade: far off the nine lights stand up as columns; from above the victim the columns circle him,
+faster, closing in; on him the wall arrives and his Konpaku shatters; low, looking up, one tornado ten metres tall, the victim black inside
+it; behind the old man, the tornado gutters, he lowers the blade, the victim down and smoking."
+  (at 0 (cine-place a v 6.0)
+      (cine-clip a :ya-shiranui :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 10) (impact-frame :negative 2) (play-sfx :whoosh-heavy :pitch 0.8))
+  (at 10 (shot-on a 60 (if (portrait-p) 2.6 1.8) 0.9 :look 1.1 :off 0.6) (lens 50 5) (silence 30)   ; (portrait 2.6 m: the blade in the frame)
+      (caption "不知火" :reading "SHIRANUI" :sub "RYUJIN JAKKA" :side 0 :hanko t))
+  (at 40 (shot-on v 180 (if (portrait-p) 9.0 7.0) 4.5 :look 0.4) (lens 44))
+  (when (and step-p (<= 40 cf 56) (evenp cf)) (play-sfx :hs-tip :pitch (+ 1.5 (* 0.02 cf)) :gain 0.3))   ; a soft tick a light
+  (at 58 (shot-pair a v 1 (if (portrait-p) 12.0 9.0) 1.2) (lens 46) (cine-slow 0.4)
+      (cine-clip a :ya-n1a :blend 0 :time (/ 18.0 60.0)))   ; (NS1a's release: its S20 lands on f63 at x0.4)
+  (at 63 (play-sfx :cut-heavy :pitch 1.6 :gain 0.6))      ; one dry crack, and nothing leaves the blade
+  (at 66 (play-sfx :awaken-rise :pitch 0.6 :gain 0.8))    ; the roar starts, far away
+  (at 76 (cine-slow 1) (shot-on v 0 2.0 (if (portrait-p) 12.0 10.0) :look 0.0) (lens 40) (shake 0.1 0.4))
+  (at 90 (shake 0.2 0.4)) (at 102 (shake 0.3 0.4)) (at 112 (shake 0.4 0.4))
+  (at 120 (shot-on v 0 3.2 0.5 :look 1.0) (lens 36))
+  (at 122 (impact-frame :negative 2) (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (impact-splash-at v 0.0 14 0.08) (play-sfx :konpaku-shatter) (shake 0.3 0.4))
+  (at 124 (impact-frame :manga 10) (play-sfx :explode :pitch 0.5))
+  (at 126 (shot-on v 30 5.0 0.3 :look 3.0) (lens 60) (silhouette-black v) (cine-clip v :sh-crumple :blend 3) (play-sfx :sizzle))
+  (at 150 (shot-on a 160 (if (portrait-p) 5.0 3.5) 1.6 :look 1.3) (lens 44) (caption-exit)
+      (cine-clip v :sh-down :blend 10) (cine-clip a :ya-stance :blend 14))
+  (during (0 174) (yama-shiranui-look a v cf)))
+
+;;; ---------------------------------------------------------------- 2 城郭炎上 → 焱熱地獄 ENNETSU JIGOKU (§21.5.2, Q3 「照原作」, 186 f)
+(defun-fast yama-ennetsu-cine-look (a v cf)
+  "焱熱地獄's look at cinematic frame CF, round M (the midpoint of the two, 1.5 m from each): the blade's rest fire (SL0) throughout, and
+f22-30 the fire running down the edge into the floor (a white-cored strand growing guard to point); the floor pattern (A ch. 393: \"branches
+in circle patterns\"; drawn in the look, no stage marks): an EMBER line from the point to M (f30-36), 8 spokes out from M to 6 m (f34-46) and
+rings at 2 / 4 / 6 m growing both ways from each spoke (f38-58), enclosing both; f60 twelve marks on the 4 m ring ignite (small flames);
+f66-102 a pillar rises from each, one every 3 f, to 6 m in 6 f, leaning in from f96; f110-118 they join into one squat dome (r 5 m, 4 m
+high, 20 walls leaning in, INK on the far side, dark gaps), held to f160 with white fire round the victim (f130-136) and round him, his hem
+alight (f136-160); f160-172 the dome falls outward to a scorched ring; ash, black smoke off the victim from f150. x1.2 in 爆炎. The blade:
+YAMA-S5-BLADE. A look; 0 B."
+  (declare (fixnum cf))
+  (yama-s5-blade a cf 2)
+  (%ya-cform (bl ti hs) a
+    (%ya-feet (px pz qx qz) a v
+      (let* ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (mx (* 0.5f0 (+ px qx))) (mz (* 0.5f0 (+ pz qz))) (seed (+ (* 3f0 mx) mz))
+             (e (camera-eye *camera*)) (kp (if (< cf 160) 0.95f0 (f-clamp (* 0.95f0 (/ (i->f (- 186 cf)) 26f0)) 0f0 0.95f0))))
+        (declare (single-float dr rdt mx mz seed kp) (type f32vec e))
+        (when (and (<= 30 cf) (< cf 186))                ; the floor pattern: the line from the point (*YA-CT*: YAMA-S5-BLADE's) to M
+          (let* ((tx (aref *ya-ct* 0)) (tz (aref *ya-ct* 2)) (u (f-min 1f0 (/ (i->f (- cf 29)) 6f0))))
+            (declare (single-float tx tz u))
+            (toon-ground-seg tx tz (+ tx (* u (- mx tx))) (+ tz (* u (- mz tz))) 0.012f0 0.05f0 1f0 0.5f0 (+ seed 1f0) 0.2f0
+                             (toon-a +pal-ember+ kp))))
+        (when (and (<= 34 cf) (< cf 186))                ; the spokes and the rings
+          (let ((us (f-min 1f0 (/ (i->f (- cf 33)) 12f0))))
+            (declare (single-float us))
+            (dotimes (j 8)
+              (let* ((th (* 0.7854f0 (i->f j))) (c (f-cos th)) (s (f-sin th)))
+                (declare (single-float th c s))
+                (toon-ground-seg mx mz (+ mx (* 6f0 us c)) (+ mz (* 6f0 us s)) 0.012f0 0.045f0 1f0 0.4f0 (+ seed 2f0 (i->f j)) 0.2f0
+                                 (toon-a +pal-ember+ kp))
+                (dotimes (ri 3)                          ; each ring's arc grows both ways from the spoke (2 strips a side)
+                  (let* ((rr (* 2f0 (i->f (1+ ri)))) (p (f-clamp (/ (i->f (- cf (+ 38 (* 4 ri)))) 12f0) 0f0 1f0)))
+                    (declare (single-float rr p))
+                    (when (and (> p 0f0) (>= (* 6f0 us) rr))
+                      (dotimes (q 4)
+                        (let* ((sd (if (< q 2) 1f0 -1f0)) (qq (i->f (mod q 2)))
+                               (b0 (+ th (* sd 0.3927f0 p (* 0.5f0 qq)))) (b1 (+ th (* sd 0.3927f0 p (* 0.5f0 (+ qq 1f0))))))
+                          (declare (single-float sd qq b0 b1))
+                          (toon-ground-seg (+ mx (* rr (f-cos b0))) (+ mz (* rr (f-sin b0))) (+ mx (* rr (f-cos b1))) (+ mz (* rr (f-sin b1)))
+                                           0.012f0 0.045f0 1f0 0.6f0 (+ seed 10f0 (* 4f0 (i->f j)) (i->f q) (* 40f0 rr)) 0.2f0
+                                           (toon-a +pal-ember+ kp)))))))))))
+        (when (and (<= 60 cf) (< cf 118))                ; the twelve marks on the 4 m ring, then the pillars
+          (let ((lean (* 1.5f0 (f-clamp (/ (i->f (- cf 96)) 12f0) 0f0 1f0)))
+                (kj (if (< cf 110) 0.98f0 (* 0.98f0 (/ (i->f (- 118 cf)) 8f0)))))
+            (declare (single-float lean kj))
+            (dotimes (i 12)
+              (let* ((fi (i->f i)) (an (+ 0.2618f0 (* 0.5236f0 fi))) (c (f-cos an)) (s (f-sin an)) (x (+ mx (* 4f0 c))) (z (+ mz (* 4f0 s)))
+                     (g (f-clamp (/ (i->f (- cf (+ 66 (* 3 i)))) 6f0) 0f0 1f0)) (cmx (- mx (aref e 0))) (cmz (- mz (aref e 2))) (cl (f-max 0.1f0 (f-hypot cmx cmz)))
+                     (rlx (- x (aref e 0))) (rlz (- z (aref e 2))) (al (/ (+ (* rlx cmx) (* rlz cmz)) cl))
+                     (lat (/ (f-abs (- (* rlx cmz) (* rlz cmx))) cl))
+                     (ws (if (< al (- cl 0.5f0)) (f-clamp (/ (- lat 1.2f0) 1.8f0) 0.12f0 1f0) 1f0)))   ; (between the lens and the pair: low stubs
+                (declare (single-float fi an c s x z g cmx cmz cl rlx rlz al lat ws))
+                (if (<= g 0f0)
+                    (%ya-tongue x 0.02f0 z 0f0 (* 0.5f0 hs) 0f0 0.1f0 ti 0.95f0 (+ 510f0 fi seed) (+ dr fi) :back nil :segs 3)
+                    (%ya-cpillar x z (* (- lean) c) (* (- lean) s) (* 0.4f0 ws) (* 6f0 hs g ws) kj ti (+ 520f0 fi seed)))))))
+        (when (and (<= 110 cf) (< cf 172))               ; the dome: closed f110-118, held, falling outward f160-172
+          (let* ((g (f-min 1f0 (/ (i->f (- cf 109)) 8f0))) (fall (f-clamp (/ (i->f (- cf 160)) 12f0) 0f0 1f0))
+                 (k (if (< cf 160) 0.98f0 (* 0.98f0 (- 1f0 fall)))) (h (* 4f0 hs (+ 0.5f0 (* 0.5f0 g)) (- 1f0 (* 0.8f0 fall))))
+                 (lean (* 4.2f0 (- (* 0.95f0 g) (* 1.3f0 fall)))) (ex (- (aref e 0) mx)) (ez (- (aref e 2) mz))
+                 (inside (< (f-hypot ex ez) 5f0)))
+            (declare (single-float g fall k h lean ex ez))
+            (dotimes (i 20)
+              (let* ((fi (i->f i)) (an (+ (* 0.31416f0 fi) (* 0.1f0 (hash01 fi seed)))) (c (f-cos an)) (s (f-sin an))
+                     (bx (+ mx (* 5f0 c))) (bz (+ mz (* 5f0 s))) (far (< (+ (* ex c) (* ez s)) 0f0))
+                     (hh (* h (+ 0.85f0 (* 0.25f0 (hash01 (+ fi dr) seed))))) (wd 0.62f0))
+                (declare (single-float fi an c s bx bz hh wd))
+                (when (and far (not inside))
+                  (let ((kx bx) (ky 0f0) (kz bz))
+                    (declare (single-float kx ky kz))
+                    (%away-from-eye (kx ky kz) 0.15f0
+                      (toon-ribbon (kx ky kz) ((* -1.05f0 lean c) (* 1.05f0 hh) (* -1.05f0 lean s)) ((* 1.3f0 wd) 0f0) :heat (0.3f0 0.12f0)
+                                   :seed (- -530f0 fi (f-abs seed)) :wob 0.3f0 :pal +pal-ink+ :k (%ya-k k) :ph (+ dr fi) :sway 0.04f0 :segs 4))))
+                (%ya-tongue bx 0.02f0 bz (* (- lean) c) hh (* (- lean) s) wd 2 k (+ 540f0 fi seed) (+ dr fi) :back nil)))
+            (%light mx 2f0 mz 1f0 0.45f0 0.12f0 8f0 (* 1.2f0 k) 8)))
+        (when (and (<= 128 cf) (< cf 160))               ; inside: white fire round the victim, then round him, his hem alight
+          (let* ((on-v (< cf 136)) (cx (if on-v qx px)) (cz (if on-v qz pz)) (k (if (< cf 154) 0.98f0 (* 0.98f0 (/ (i->f (- 160 cf)) 6f0)))))
+            (declare (single-float cx cz k))
+            (dotimes (i 10)
+              (let* ((fi (i->f i)) (an (+ (* 0.6283f0 fi) (* 0.4f0 (hash01 (+ fi dr) seed)))) (r (+ 1.2f0 (* 0.8f0 (hash01 fi seed))))
+                     (x (+ cx (* r (f-cos an)))) (z (+ cz (* r (f-sin an)))) (hh (* hs (+ 1.4f0 (* 0.9f0 (hash01 (+ fi dr 7f0) seed))))))
+                (declare (single-float fi an r x z hh))
+                (%ya-tongue x 0.02f0 z (* -0.15f0 hh (f-cos an)) hh (* -0.15f0 hh (f-sin an)) 0.22f0 2 k (+ 560f0 fi seed) (+ dr fi) :back nil)))
+            (unless on-v                                 ; his hem alight (爆炎: the hakama's hem, bared to the waist)
+              (let ((hy (if bl 0.12f0 0.55f0)) (hr (if bl 0.26f0 0.34f0)))
+                (declare (single-float hy hr))
+                (dotimes (i 7)
+                  (let* ((fi (i->f i)) (an (+ (* 0.8976f0 fi) (* 0.3f0 (hash01 (+ fi dr) seed)))))
+                    (declare (single-float fi an))
+                    (%ya-tongue (+ px (* hr (f-cos an))) hy (+ pz (* hr (f-sin an))) 0f0 (* 0.24f0 (+ 0.7f0 (* 0.3f0 (hash01 (+ fi dr) 2.1f0)))) 0f0
+                                0.05f0 ti k (+ 580f0 fi seed) (+ dr fi) :back nil :segs 3)))))))
+        (when (>= cf 160)                                ; the scorched ring, ash, black smoke
+          (%tring mx 0f0 mz 5f0 0.3f0 +pal-ember+ (* 0.8f0 kp) (+ seed 7f0) 40))
+        (when (>= cf 150)
+          (dotimes (i (n-of (if (< cf 176) 40f0 15f0) rdt))
+            (let ((an (rnd-range 0f0 6.2832f0)))
+              (declare (single-float an))
+              (%t-blob (+ mx (* 5f0 (f-cos an))) (rnd-range 0.2f0 2.0f0) (+ mz (* 5f0 (f-sin an))) (rnd-range -0.3f0 0.3f0) (rnd-range 0.5f0 1.2f0)
+                       (rnd-range -0.3f0 0.3f0) (rnd-range 1.0f0 1.6f0) (rnd-range 0.04f0 0.08f0) -0.3f0 0.25f0 +pal-ash+)))
+          (dotimes (i (n-of 10f0 rdt))
+            (%t-blob (+ qx (rnd-range -0.3f0 0.3f0)) 0.3f0 (+ qz (rnd-range -0.3f0 0.3f0)) 0f0 (rnd-range 0.5f0 1.0f0) 0f0
+                     (rnd-range 1.4f0 2.0f0) (rnd-range 0.2f0 0.35f0) -0.3f0 0.3f0 +pal-black-smoke+))))))
+  nil)
+
+(defcine yama-ennetsu-cine (a v :len 186 :hold 120)
+  "焱熱地獄 ENNETSU JIGOKU, the Shikai's pointer 2 Kikon (DUEL_YAMA_CORE §21.5.2, Q3 「照原作」, §26): beat 0 in stance 2's point; low on the
+sword hand, he turns the blade point-down into the plaza and the fire runs down the edge into the ground, under the 焱熱地獄 stamp; from
+above, ember lines run out over the floor and branch into circles round both, twelve marks on the 4 m ring ignite; side-on and low, twelve
+pillars rise behind both, one every 3 f, and lean in, the victim looking for a way out, he does not move; far outside, the pillars join into
+one squat dome over both, silence, a low boom; inside, on the victim, white fire from every side, his Konpaku shatters; inside, on the old
+man, a dark shape standing in the flames, the blade still down, his hem alight (a look: no Reishi is taken); wide, the dome falls outward to
+a scorched ring, the victim down and smoking, he points the blade at where it stood."
+  (at 0 (cine-place a v 3.0)
+      (cine-clip a :ya-st-enjo :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 10) (impact-frame :negative 2) (play-sfx :whoosh-heavy :pitch 0.8))
+  (at 10 (shot-on a 30 2.0 0.5 :look 0.8 :off 0.5) (lens 50) (silence 20)
+      (cine-clip a :ya-blaze-in :blend 3 :speed 0.6)      ; (爆炎's entry clip: the point lowered into the plaza at his right)
+      (caption "焱熱地獄" :reading "ENNETSU JIGOKU" :sub "JOKAKU ENJO" :side 0 :hanko t))
+  (at 24 (cine-clip a :ya-blaze-in :blend 0 :time (/ 10.0 60.0) :speed 0.0))   ; (held with the point in the plaza)
+  (at 30 (play-sfx :sizzle :pitch 0.8))
+  (at 34 (shot-on a 0 2.0 (if (portrait-p) 13.0 10.0) :look 0.0 :ahead 1.5) (lens 44))
+  (at 60 (play-sfx :explode :pitch 0.4 :gain 0.6))
+  (at 66 (shot-pair a v 1 (if (portrait-p) 7.5 5.5) 0.6) (lens 46) (cine-clip v :sh-stagger :blend 4 :speed 0.5)
+      (play-sfx :awaken-rise :pitch 0.7) (shake 0.2 0.6))
+  (at 96 (play-sfx :explode :pitch 0.6 :gain 0.7) (shake 0.2 0.4))
+  (at 110 (shot-pair a v 1 (if (portrait-p) 15.0 12.0) 2.5) (lens 40) (silence 12))
+  (at 122 (play-sfx :awaken-boom :pitch 0.6) (shake 0.3 0.5))
+  (at 130 (shot-on v 0 2.6 1.4 :look 1.2) (lens 50))
+  (at 132 (impact-frame :negative 2) (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (impact-splash-at v 0.0 14 0.08) (cine-clip v :sh-crumple :blend 3) (play-sfx :konpaku-shatter) (shake 0.4 0.4))
+  (at 134 (impact-frame :manga 10))
+  (at 136 (shot-on a 15 2.4 1.3 :look 1.2) (lens 44 -4) (silhouette-black a) (play-sfx :sizzle :pitch 0.6))
+  (at 150 (cine-clip v :sh-down :blend 10))
+  (at 160 (unsilhouette) (shot-pair a v 1 (if (portrait-p) 12.0 9.0) 2.0) (lens 44) (caption-exit)
+      (cine-clip a :ya-st-enjo :blend 10) (play-sfx :explode :pitch 0.5))
+  (during (0 186) (yama-ennetsu-cine-look a v cf)))
+
+;;; ---------------------------------------------------------------- 3 撫斬 NADEGIRI (§21.5.3, 156 f)
+(defun-fast yama-nadegiri-cine-look (a v cf)
+  "撫斬's look at cinematic frame CF: no fire on the blade at all; f52-53 the cut, never shown: one INK hairline across the whole frame at
+the victim's neck; f110-140 a white seam down the victim (crown to floor in 4 f, over his black silhouette: the model is never cut);
+f116-146 fire bursts from it and parts left and right (a V of 12 walls a side along the line, tallest at him, 3 m), an INK and EMBER scorch
+line running away behind him along the floor (8 m in 10 f, held); embers to the end. T2 in both forms (the storyboard's); x1.2 in 爆炎. A
+look; 0 B."
+  (declare (fixnum cf))
+  (%ya-cform (bl ti hs) a
+    (%ya-line (px pz qx qz fx fz rx rz d) a v
+      (let ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))))
+        (declare (single-float dr rdt seed))
+        (when (<= 52 cf 53)                              ; the hairline across the frame, at the victim's neck
+          (let ((cx (- qx (* 0.3f0 fx))) (cz (- qz (* 0.3f0 fz))))
+            (declare (single-float cx cz))
+            (fx-crescent (+ cx (* -6f0 rx)) 1.45f0 (+ cz (* -6f0 rz)) (+ cx (* 6f0 rx)) 1.45f0 (+ cz (* 6f0 rz))
+                         (+ cx (* 0.8f0 fx)) 1.5f0 (+ cz (* 0.8f0 fz)) 0.025f0 :lens 0.02f0 (+ 600f0 seed) +pal-ink+ 0.98f0 :push 0.3f0)))
+        (when (and (<= 110 cf) (< cf 140))               ; the white seam down him
+          (let* ((u (f-min 1f0 (/ (i->f (- cf 109)) 4f0))) (k (if (< cf 132) 0.98f0 (* 0.98f0 (/ (i->f (- 140 cf)) 8f0))))
+                 (sx qx) (sy 1.9f0) (sz qz))
+            (declare (single-float u k sx sy sz))
+            (%away-from-eye (sx sy sz) -0.4f0
+              (toon-ribbon (sx sy sz) (0f0 (* -1.9f0 u) 0f0) (0.04f0 0.08f0) :heat (0.6f0 0.3f0) :seed (- -610f0 (f-abs seed)) :wob 0.15f0
+                           :pal +pal-hit+ :k k :ph dr :sway 0.01f0 :segs 4))))
+        (when (and (<= 116 cf) (< cf 146))               ; the V of fire along the line through him, and the scorch line
+          (let* ((g (f-min 1f0 (/ (i->f (- cf 115)) 4f0))) (k (if (< cf 136) 0.98f0 (* 0.98f0 (/ (i->f (- 146 cf)) 10f0))))
+                 (sl (* 8f0 (f-min 1f0 (/ (i->f (- cf 115)) 10f0)))))
+            (declare (single-float g k sl))
+            (dotimes (j 24)                              ; 12 a side, from 0.6 m before him to 6 m behind him
+              (let* ((sd (if (< j 12) -1f0 1f0)) (i (i->f (mod j 12))) (s (+ -0.6f0 (* 6.6f0 (/ (+ i 0.5f0) 12f0))))
+                     (x0 (+ qx (* s fx))) (z0 (+ qz (* s fz))) (off (* sd (+ 0.08f0 (* 0.45f0 g (f-min 1f0 (+ 0.3f0 (* 0.3f0 (f-abs s))))))))
+                     (x (+ x0 (* off rx))) (z (+ z0 (* off rz))) (nq (f-max 0.15f0 (%near-cam x z 0.8f0 3.5f0)))
+                     (hh (* hs g nq (- 3f0 (* 0.32f0 (f-abs s))) (+ 0.8f0 (* 0.3f0 (hash01 (+ i dr sd) seed))))))
+                (declare (single-float sd i s x0 z0 off x z nq hh))
+                (%ya-tongue x 0.02f0 z (* sd 0.4f0 hh rx) hh (* sd 0.4f0 hh rz) (* 0.18f0 nq) 2 k (+ 620f0 i sd seed) (+ dr i) :back nil)))
+            (toon-ground-seg qx qz (+ qx (* sl fx)) (+ qz (* sl fz)) 0.012f0 0.07f0 1f0 0.6f0 (+ seed 3f0) 0.15f0 (toon-a +pal-ink+ 0.95f0))
+            (toon-ground-seg qx qz (+ qx (* sl fx)) (+ qz (* sl fz)) 0.014f0 0.025f0 1f0 0.6f0 (+ seed 4f0) 0.1f0 (toon-a +pal-ember+ k))
+            (%light qx 1f0 qz 1f0 0.45f0 0.12f0 4f0 (* 0.9f0 k) 7)))
+        (when (>= cf 146)                                ; the scorch line kept, embers
+          (toon-ground-seg qx qz (+ qx (* 8f0 fx)) (+ qz (* 8f0 fz)) 0.012f0 0.07f0 1f0 0.6f0 (+ seed 3f0) 0.15f0 (toon-a +pal-ink+ 0.95f0)))
+        (when (>= cf 120)
+          (dotimes (i (n-of (if (< cf 146) 50f0 15f0) rdt))
+            (let ((s (rnd-range 0f0 6f0)))
+              (declare (single-float s))
+              (%t-blob (+ qx (* s fx) (rnd-range -0.5f0 0.5f0)) (rnd-range 0.1f0 1.5f0) (+ qz (* s fz) (rnd-range -0.5f0 0.5f0))
+                       (rnd-range -0.2f0 0.2f0) (rnd-range 0.6f0 1.4f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.8f0 1.4f0) (rnd-range 0.03f0 0.06f0)
+                       -0.4f0 0.3f0 +pal-fire+)))))))
+  nil)
+
+(defun yama-turn-back (a)
+  "撫斬's f56: he turns his back on the victim (yaw + 180, as 南's turn; CINE-END / RESET-ROUND face them again)."
+  (setf (transform-yaw (transform a)) (f32 (+ (yaw-of a) 3.1415927))))
+
+(defcine yama-nadegiri-cine (a v :len 156 :hold 90)
+  "撫斬 NADEGIRI, the Shikai's pointer 3 Kikon (DUEL_YAMA_CORE §21.5.3, §26; A ch. 338): beat 0 in NADEGIRI's draw, the blade at his left
+hip; on his face, a long lens, eyes shut, nothing moves, the 撫斬 stamp in silence; over his shoulder, slowed, the victim, unharmed, starts
+his own attack; the cut, never shown: one hairline across the frame, and his arm is already out; side-on, the victim frozen mid-swing, the
+old man turns his back and lowers the blade, slowly; on the victim, a white seam opens down him, his Konpaku shatters; low behind the victim,
+the fire bursts from the seam and parts in a V, a scorch line runs past us, he crumples and falls; wide, the old man has not looked back."
+  (at 0 (cine-place a v 2.0)
+      (cine-clip a :ya-nadegiri :blend 2 :time (/ 9.0 60.0) :speed 0.0) (cine-clip v :sh-kikon-victim :blend 4)
+      (face-beat a :neutral 2.6)                          ; (eyes shut, calm: never the cinematic attacker's shout)
+      (hold-both a v 12) (impact-frame :negative 2))
+  (at 12 (shot-on a 35 2.2 1.35 :look 1.3 :off 0.25) (lens 20) (silence 28)   ; (35 deg, not 10: at 10 the victim, 2 m ahead,
+                                                                                ;  stood in front of the lens)
+      (caption "撫斬" :reading "NADEGIRI" :sub "RYUJIN JAKKA" :side 0 :hanko t))
+  (at 40 (shot-on a 200 2.4 1.5 :look 1.3 :ahead 1.6) (lens 50) (cine-slow 0.3) (yama-victim-attack v))
+  (at 52 (cine-slow 1) (impact-frame :negative 2) (play-sfx :hs-tip :pitch 1.8 :gain 0.5)
+      (yama-victim-attack v 4 t))                         ; (frozen mid-swing: 12 frames x 0.3 of his clip after its start)
+  (at 53 (cine-clip a :ya-b-n3c :blend 0 :time (/ 16.0 60.0) :speed 0.0))   ; (the arm already out: the cut's S+2)
+  (at 56 (shot-pair a v 1 (if (portrait-p) 6.0 4.2) 1.2) (lens 46) (yama-turn-back a)
+      (cine-clip a :ya-b-n3c :blend 6 :time (/ 19.0 60.0) :speed 0.74))   ; (the true NADEGIRI's 40 f lowering over 54 f)
+  (at 110 (shot-on v 35 2.6 1.4 :look 1.2) (lens 50) (silhouette-black v))
+  (at 112 (impact-frame :negative 2) (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (impact-splash-at v 0.0 14 0.08) (play-sfx :konpaku-shatter) (shake 0.2 0.3))
+  (at 114 (impact-frame :manga 10))
+  (at 116 (shot-on v 180 3.6 0.4 :look 1.0 :ahead 1.0) (lens 40) (cine-clip v :sh-crumple :blend 3) (play-sfx :sizzle))
+  (at 120 (play-sfx :explode :pitch 0.6) (shake 0.3 0.4))   ; (the boom 4 f late)
+  (at 130 (cine-clip v :sh-down :blend 10))
+  (at 140 (shot-pair a v 1 (if (portrait-p) 9.0 7.0) 1.6) (lens 44) (caption-exit))
+  (during (0 156) (yama-nadegiri-cine-look a v cf)))

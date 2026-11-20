@@ -270,7 +270,8 @@ looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blad
 pommel and the moves' own looks (YAMA-SK-MOVES: NADEGIRI's hairline and seam, TAIMATSU's halo, AS1's burst), by the tier of the heat his
 segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA-STANCE-FIRE, art S3) by the heat his next segment would pay.
 爆炎 (art S4): the scars by heat (YAMA-SCAR-GLOW), no SL0 while IKKOTSU's blade stands planted, the entry pose's fire (YAMA-BLAZE-IN-LOOK),
-IKKOTSU's fist (%YA-FIST-FIRE), NS2b's ring closing before its dome (YAMA-RING-CLOSE)."
+IKKOTSU's fist (%YA-FIST-FIRE), NS2b's ring closing before its dome (YAMA-RING-CLOSE). Art S5: no SL0 / stance fire while he is the
+attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade per beat."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
@@ -291,7 +292,8 @@ IKKOTSU's fist (%YA-FIST-FIRE), NS2b's ring closing before its dome (YAMA-RING-C
           (yama-scar-glow jm (gauges-meter (gauges e))))
         (when (and (eq (model-weapon m) :ryujin-jakka) (> (model-alpha m) 0.5)   ; (not the intro's cane; not 撫斬's stance: no fire at all;
                    (not (and (null mv) c (eq (clip-name c) :ya-st-cane)))       ;  not in an empty hand: IKKOTSU's blade stands planted)
-                   (not (planted-spot e f mv)))
+                   (not (planted-spot e f mv))
+                   (not (yama-s5-cine-p e)))                   ; (art S5: the Kikon cinematic's look draws the blade's fire per beat)
           (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 -0.95f0)    ; (:ryujin-jakka's length / blade base, yama-art.lisp DEFWEAPON)
           (joint-point! *ya-base* jm (ji :weapon-r) 0f0 0f0 -0.25f0)
           (yama-blade-fire *ya-tip* *ya-base*
