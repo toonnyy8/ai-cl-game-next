@@ -870,6 +870,46 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
                     (+ 140f0 f) (+ dr f) :segs 3))))
   nil)
 
+;;; the pointer stances' fire on the blade (art S3, DUEL_YAMA_CORE §21.3 / §24; out of a move, over SL0's rest sheath; 撫斬's stance has none)
+(defun-fast yama-stance-fire (tip base code ti)
+  "The Shikai's stance looks on the blade BASE .. TIP, at the tier TI of the heat his next segment would pay (YA-STANCE-TIER): CODE 1 不知火,
+a slow corkscrew of fire, two strands wound 1.5 turns round the blade, turning once in 4 s; CODE 2 城郭炎上, a drip of fire off the point: a
+flame hanging 0.26 m from the tip and three drops falling from it 0.8 m in turn, one every 0.4 s, thinning as they fall. By tier: the size
+and the white core (%YA-SEG). Pure of the fx clock (no random stream). A look; 0 B."
+  (declare (type f32vec tip base) (fixnum code ti))
+  (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2))
+         (bx (- tx x0)) (by (- ty y0)) (bz (- tz z0)) (c (fx-clock)) (dr (drawing-no)) (hf (%ya-hf ti)))
+    (declare (single-float x0 y0 z0 tx ty tz bx by bz c dr hf))
+    (case code
+      (1 (let* ((bl (f-max 0.01f0 (f-sqrt (+ (* bx bx) (* by by) (* bz bz)))))   ; a frame round the blade: N1 = B x up, N2 = N1 x B
+                (ax (/ bx bl)) (ay (/ by bl)) (az (/ bz bl))
+                (n1x (- az)) (n1z ax) (nl (f-max 0.01f0 (f-sqrt (+ (* n1x n1x) (* n1z n1z))))) (n1x (/ n1x nl)) (n1z (/ n1z nl))
+                (n2x (* n1z ay)) (n2y (- (* n1x az) (* n1z ax))) (n2z (- (* n1x ay)))
+                (r (* 0.075f0 hf)) (spin (* 1.5708f0 c)))
+           (declare (single-float bl ax ay az n1x n1z nl n2x n2y n2z r spin))
+           (dotimes (s 2)
+             (dotimes (i 8)
+               (let* ((u0 (* 0.125f0 (i->f i))) (u1 (+ u0 0.125f0)) (ph (* 3.1416f0 (i->f s)))
+                      (a0 (+ spin ph (* 9.42f0 u0))) (a1 (+ spin ph (* 9.42f0 u1)))
+                      (r0 (* r (+ 0.6f0 (* 0.4f0 u0)))) (r1 (* r (+ 0.6f0 (* 0.4f0 u1))))
+                      (c0 (* r0 (f-cos a0))) (s0 (* r0 (f-sin a0))) (c1 (* r1 (f-cos a1))) (s1 (* r1 (f-sin a1))))
+                 (declare (single-float u0 u1 ph a0 a1 r0 r1 c0 s0 c1 s1))
+                 (%ya-seg (+ x0 (* u0 bx) (* c0 n1x) (* s0 n2x)) (+ y0 (* u0 by) (* s0 n2y)) (+ z0 (* u0 bz) (* c0 n1z) (* s0 n2z))
+                          (+ x0 (* u1 bx) (* c1 n1x) (* s1 n2x)) (+ y0 (* u1 by) (* s1 n2y)) (+ z0 (* u1 bz) (* c1 n1z) (* s1 n2z))
+                          (* 0.022f0 hf) (* 0.016f0 hf) ti 0.95f0 (+ 200f0 (* 9f0 (i->f s)) (i->f i)) (+ dr (i->f i))))))))
+      (2 (%ya-tongue tx (+ ty 0.03f0) tz 0f0 (* -0.26f0 hf) 0f0 (* 0.055f0 hf) ti 0.95f0 210f0 dr :segs 3)   ; the flame hanging off the point
+         (dotimes (j 3)
+           (let* ((p (+ (* 0.833f0 c) (* 0.3333f0 (i->f j)))) (ph (- p (i->f (f->i p))))   ; (each drop's phase, 1.2 s a fall)
+                  (y (- ty 0.12f0 (* 0.8f0 ph ph))) (w (* 0.04f0 hf (- 1f0 (* 0.6f0 ph)))))
+             (declare (single-float p ph y w))
+             (%ya-seg tx (+ y (* 0.13f0 hf)) tz tx y tz w (* 0.5f0 w) ti (- 0.95f0 (* 0.5f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j)))))))
+    nil))
+
+(defun ya-stance-tier (e blaze)
+  "The tier his pointer stance's fire draws at (YAMA-STANCE-FIRE): the heat his next NS segment would pay, the gauge (GAUGES-METER) up to
+25 (*YA-HEAT-NS*, host-checked; yama.lisp loads after this file); 2 in 爆炎 (BLAZE). Reads only."
+  (ya-heat-tier (min (gauges-meter (gauges e)) 25f0) blaze))
+
 (defun-fast yama-sk-moves (pos yaw code sf ti)
   "The Shikai's (and 爆炎's) moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-SK-CODE), tier TI: 1 NADEGIRI (SL7,
 S14): one INK hairline across the cut's arc (r 2.4, 100 deg) at neck height on S and S+1, nothing else; from S + 24 (f38) the seam of fire
@@ -1026,7 +1066,8 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
 (defun yama-shikai-consing ()
   "Debug 87449 (art S1, DUEL_YAMA_CORE §22): bytes consed by 10 draws of each Shikai / 爆炎 look (0 B each wanted), per tier, on stand-in
 hazards mid-life (their data's :heat 0 / 12 / 25: T0 / T1 / T2; the ring by its hits left), the moves' looks at their frames, the blade's
-fire at rest, in a move, in an NS at T2 and in 爆炎, the tier readers, and the smear's look 4. %YA-CONS-PER's rows."
+fire at rest, in a move, in an NS at T2 and in 爆炎, the tier readers, the smear's look 4, and the stances' fire per tier (art S3). %YA-CONS-PER's
+rows."
   (flet ((hz (kind z size life age &key (delay 0) (heat 0f0) (hits 1) owner)
            (make-hazard :kind kind :x 0f0 :z z :size size :life life :age age :delay delay :hits-left hits :owner owner
                         :data (list :hot 9999 :x 1f0 :heat heat))))
@@ -1064,4 +1105,11 @@ fire at rest, in a move, in an NS at T2 and in 爆炎, the tier readers, and the
       (push (%ya-cons-per "tier-move" (ya-sk-tier *p1* fp (fighter-move fp))) rows)
       (push (%ya-cons-per "tier-hz" (ya-hz-tier own)) rows)
       (push (%ya-cons-per "smear-4" (vfx-smear tr sm 4)) rows)
+      (push (%ya-cons-per "stance-1-t0" (yama-stance-fire tp bs 1 0)) rows)   ; (art S3: the stances' fire per tier, the stance tier)
+      (push (%ya-cons-per "stance-1-t1" (yama-stance-fire tp bs 1 1)) rows)
+      (push (%ya-cons-per "stance-1-t2" (yama-stance-fire tp bs 1 2)) rows)
+      (push (%ya-cons-per "stance-2-t0" (yama-stance-fire tp bs 2 0)) rows)
+      (push (%ya-cons-per "stance-2-t1" (yama-stance-fire tp bs 2 1)) rows)
+      (push (%ya-cons-per "stance-2-t2" (yama-stance-fire tp bs 2 2)) rows)
+      (push (%ya-cons-per "tier-stance" (ya-stance-tier *p1* nil)) rows)
       (log-msg "yama shikai consing (10 draws, B): ~{~a~^, ~}" (nreverse rows)))))

@@ -1,0 +1,266 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== NS1a held: the Kikon strike behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.4,
+"shot": "tests/shots/duel-yama-s3-strike-00-behind.png"
+},
+{
+"at": 10.45,
+"shot": "tests/shots/duel-yama-s3-strike-01-behind.png"
+},
+{
+"at": 10.5,
+"shot": "tests/shots/duel-yama-s3-strike-02-behind.png"
+},
+{
+"at": 10.55,
+"shot": "tests/shots/duel-yama-s3-strike-03-behind.png"
+},
+{
+"at": 10.6,
+"shot": "tests/shots/duel-yama-s3-strike-04-behind.png"
+},
+{
+"at": 10.65,
+"shot": "tests/shots/duel-yama-s3-strike-05-behind.png"
+},
+{
+"at": 10.7,
+"shot": "tests/shots/duel-yama-s3-strike-06-behind.png"
+},
+{
+"at": 10.75,
+"shot": "tests/shots/duel-yama-s3-strike-07-behind.png"
+},
+{
+"at": 10.8,
+"shot": "tests/shots/duel-yama-s3-strike-08-behind.png"
+},
+{
+"at": 10.85,
+"shot": "tests/shots/duel-yama-s3-strike-09-behind.png"
+},
+{
+"at": 10.9,
+"shot": "tests/shots/duel-yama-s3-strike-10-behind.png"
+},
+{
+"at": 10.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.95,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.95,
+"shot": "tests/shots/duel-yama-s3-strike-11-behind.png"
+},
+{
+"at": 11.0,
+"shot": "tests/shots/duel-yama-s3-strike-12-behind.png"
+},
+{
+"at": 11.05,
+"shot": "tests/shots/duel-yama-s3-strike-13-behind.png"
+},
+{
+"at": 11.1,
+"shot": "tests/shots/duel-yama-s3-strike-14-behind.png"
+},
+{
+"at": 11.15,
+"shot": "tests/shots/duel-yama-s3-strike-15-behind.png"
+},
+{
+"at": 11.2,
+"shot": "tests/shots/duel-yama-s3-strike-16-behind.png"
+},
+{
+"at": 11.25,
+"shot": "tests/shots/duel-yama-s3-strike-17-behind.png"
+},
+{
+"at": 11.3,
+"shot": "tests/shots/duel-yama-s3-strike-18-behind.png"
+},
+{
+"at": 11.35,
+"shot": "tests/shots/duel-yama-s3-strike-19-behind.png"
+},
+{
+"at": 11.4,
+"shot": "tests/shots/duel-yama-s3-strike-20-behind.png"
+},
+{
+"at": 11.45,
+"shot": "tests/shots/duel-yama-s3-strike-21-behind.png"
+},
+{
+"at": 11.5,
+"shot": "tests/shots/duel-yama-s3-strike-22-behind.png"
+},
+{
+"at": 11.55,
+"shot": "tests/shots/duel-yama-s3-strike-23-behind.png"
+},
+{
+"at": 13.0,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 13.25,
+"eval": "console.log('=== NS1a held: the Kikon strike side')"
+},
+{
+"at": 13.3,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 13.35,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 13.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.7,
+"shot": "tests/shots/duel-yama-s3-strike-00-side.png"
+},
+{
+"at": 14.75,
+"shot": "tests/shots/duel-yama-s3-strike-01-side.png"
+},
+{
+"at": 14.8,
+"shot": "tests/shots/duel-yama-s3-strike-02-side.png"
+},
+{
+"at": 14.85,
+"shot": "tests/shots/duel-yama-s3-strike-03-side.png"
+},
+{
+"at": 14.9,
+"shot": "tests/shots/duel-yama-s3-strike-04-side.png"
+},
+{
+"at": 14.95,
+"shot": "tests/shots/duel-yama-s3-strike-05-side.png"
+},
+{
+"at": 15.0,
+"shot": "tests/shots/duel-yama-s3-strike-06-side.png"
+},
+{
+"at": 15.05,
+"shot": "tests/shots/duel-yama-s3-strike-07-side.png"
+},
+{
+"at": 15.1,
+"shot": "tests/shots/duel-yama-s3-strike-08-side.png"
+},
+{
+"at": 15.15,
+"shot": "tests/shots/duel-yama-s3-strike-09-side.png"
+},
+{
+"at": 15.2,
+"shot": "tests/shots/duel-yama-s3-strike-10-side.png"
+},
+{
+"at": 15.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.25,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.25,
+"shot": "tests/shots/duel-yama-s3-strike-11-side.png"
+},
+{
+"at": 15.3,
+"shot": "tests/shots/duel-yama-s3-strike-12-side.png"
+},
+{
+"at": 15.35,
+"shot": "tests/shots/duel-yama-s3-strike-13-side.png"
+},
+{
+"at": 15.4,
+"shot": "tests/shots/duel-yama-s3-strike-14-side.png"
+},
+{
+"at": 15.45,
+"shot": "tests/shots/duel-yama-s3-strike-15-side.png"
+},
+{
+"at": 15.5,
+"shot": "tests/shots/duel-yama-s3-strike-16-side.png"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-yama-s3-strike-17-side.png"
+},
+{
+"at": 15.6,
+"shot": "tests/shots/duel-yama-s3-strike-18-side.png"
+},
+{
+"at": 15.65,
+"shot": "tests/shots/duel-yama-s3-strike-19-side.png"
+},
+{
+"at": 15.7,
+"shot": "tests/shots/duel-yama-s3-strike-20-side.png"
+},
+{
+"at": 15.75,
+"shot": "tests/shots/duel-yama-s3-strike-21-side.png"
+},
+{
+"at": 15.8,
+"shot": "tests/shots/duel-yama-s3-strike-22-side.png"
+},
+{
+"at": 15.85,
+"shot": "tests/shots/duel-yama-s3-strike-23-side.png"
+},
+{
+"at": 17.3,
+"eval": "console.log('=== END')"
+}
+]

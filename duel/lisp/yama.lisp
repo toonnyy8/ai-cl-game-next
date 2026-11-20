@@ -43,7 +43,7 @@
   :reach 0.88 :arc 140 :on-hit :stagger)
 ;; a hazard segment's Kikon (§7.4, Ichigo's wave rule): its fire hit with the SP held, he flash-steps in and this cut is the follow-up,
 ;; classed as the segment (BUILD-CORE-CLASSES tags it): one copy per class
-(defmove-copy :ya-ns-strike :ya-j1 :reach 1.6 :params (:follow-cap 40.0 :look :flash-step))
+(defmove-copy :ya-ns-strike :ya-j1 :clip :ya-strike :reach 1.6 :params (:follow-cap 40.0 :look :flash-step))
 (defmove-copy :ya-as-strike :ya-ns-strike)
 
 ;;; ---------------------------------------------------------------- pointer 1 不知火 SHIRANUI: heavy damage, long reach
@@ -67,21 +67,21 @@
 (defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :reach 10.0
   :on-frame ((0 yama-ns-start) (20 yama-wave-fire)) :callout "JOKAKU ENJO"
   :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
-(defmove :ya-n2b :kind :flash :clip :ya-enjo :clip-s 20 :startup 16 :active 2 :recovery 20 :reach 8.0
+(defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 8.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
   :params (:ns-next :ya-n2c :near 3.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
            :kikon-strike :ya-ns-strike))
-(defmove :ya-n2c :kind :flash :clip :ya-f3 :clip-s 22 :startup 18 :active 2 :recovery 30 :reach 8.0
+(defmove :ya-n2c :kind :flash :clip :ya-n2c :startup 18 :active 2 :recovery 30 :reach 8.0
   :on-frame ((0 yama-ns-start) (18 yama-dome-fire))
   :params (:near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 3 撫斬 NADEGIRI: the finisher
 ;; a: the walking jab of the point; b: the closing step-cut; c: NADEGIRI, one snap, the hit on S (the split is a look 24 f later)
-(defmove :ya-n3a :kind :flash :clip :ya-q2 :clip-s 8 :startup 18 :active 3 :recovery 18 :dmg 40 :reach 1.6 :arc 90 :slide 1.0
+(defmove :ya-n3a :kind :flash :clip :ya-n3a :startup 18 :active 3 :recovery 18 :dmg 40 :reach 1.6 :arc 90 :slide 1.0
   :on-hit :stagger :callout "NADEGIRI" :on-frame ((0 yama-ns-start)) :params (:ns-next :ya-n3b))
-(defmove :ya-n3b :kind :flash :clip :ya-q1 :clip-s 9 :startup 12 :active 3 :recovery 18 :dmg 50 :reach 1.6 :arc 110 :slide 2.0
+(defmove :ya-n3b :kind :flash :clip :ya-n3b :startup 12 :active 3 :recovery 18 :dmg 50 :reach 1.6 :arc 110 :slide 2.0
   :on-hit :stagger :on-frame ((0 yama-ns-start)) :params (:ns-next :ya-n3c))
-(defmove :ya-n3c :kind :flash :clip :ya-nadegiri :clip-s 20 :startup 14 :active 4 :recovery 34 :dmg 110 :reach 2.4 :arc 100
+(defmove :ya-n3c :kind :flash :clip :ya-nadegiri :startup 14 :active 4 :recovery 34 :dmg 110 :reach 2.4 :arc 100
   :on-hit :crumple :on-frame ((0 yama-ns-start) (14 yama-nade-split)))
 
 ;;; ---------------------------------------------------------------- the AS (as-by-press (1 2 3): J1 -> AS1, J2 -> AS2, J3 -> AS3)
@@ -89,16 +89,16 @@
 (defmove :ya-as1 :kind :sp :clip :ya-as1 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
   :on-hit :knockdown :callout "SHIRANUI" :params (:steal-fs 30))
 ;; AS2: the ring snaps round him at the contact (40, its own hit; the ring left there) -> the dome on it (NS2c's copy: 60, a launch)
-(defmove-copy :ya-as2b :ya-n2c :kind :sp :callout "JOKAKU ENJO"
+(defmove-copy :ya-as2b :ya-n2c :kind :sp :clip :ya-as2b :callout "JOKAKU ENJO"
   :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 60 :react :launch :kikon-strike :ya-as-strike))
-(defmove :ya-as2 :kind :sp :clip :ya-enjo :clip-s 20 :startup 12 :active 3 :recovery 16 :dmg 40 :reach 2.0 :arc 120
+(defmove :ya-as2 :kind :sp :clip :ya-as2a :startup 12 :active 3 :recovery 16 :dmg 40 :reach 2.0 :arc 120
   :on-hit :stagger :on-land yama-ring-snap
   :params (:ns-next :ya-as2b :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :kikon-strike :ya-as-strike))
 ;; AS3: the back cut -> the turning cut -> NADEGIRI (NS3c's copy: 110, a knockdown)
-(defmove-copy :ya-as3c :ya-n3c :kind :sp :on-hit :knockdown :callout "NADEGIRI")
-(defmove :ya-as3b :kind :sp :clip :ya-f1 :clip-s 18 :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 160
+(defmove-copy :ya-as3c :ya-n3c :kind :sp :clip :ya-as3c :on-hit :knockdown :callout "NADEGIRI")
+(defmove :ya-as3b :kind :sp :clip :ya-as3b :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 160
   :on-hit :stagger :params (:ns-next :ya-as3c))
-(defmove :ya-as3 :kind :sp :clip :ya-q2 :startup 8 :active 3 :recovery 14 :dmg 40 :reach 1.8 :arc 120
+(defmove :ya-as3 :kind :sp :clip :ya-as3a :startup 8 :active 3 :recovery 14 :dmg 40 :reach 1.8 :arc 120
   :on-hit :stagger :params (:ns-next :ya-as3b))
 ;; SA (J in an NS gap, any pointer): TAIMATSU, the halo of fire round him (360 deg, r 2.4 m; the old kit's S16 A8 R24); a turn move:
 ;; its armour is the class's (SA absorbs NA)
@@ -148,7 +148,7 @@
 ;; pillars along the lane (a :wave drawn as columns)
 (defmove-copy :ya-b-n2a :ya-n2a
   :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
-(defmove-copy :ya-b-n2b :ya-n2c :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
+(defmove-copy :ya-b-n2b :ya-n2c :clip-s 18 :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
   :params (:ns-next :ya-b-n2c :near 3.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove-copy :ya-b-n2c :ya-n2a :clip-s 20 :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"
   :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
