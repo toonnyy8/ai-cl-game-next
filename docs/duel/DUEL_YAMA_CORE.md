@@ -1390,3 +1390,19 @@ and 南 he stood or walked under the caption, so both captions now slice out bef
   look, not the cinematic's; D4's "only 西 has flame" is about Yamamoto's looks.
 - The toon shader's 1.2 px white edge rims 東's void wedge too (K1 deviation 8's question).
 - The stills hold the cinematic (87601+), which freezes the effect clock: a caption exiting in a held still stays half out.
+
+## 20. The user's answers on K4 and the jagged void (2026-11-20)
+
+The user, on the K4 open items (with a manga page as reference: BLEACH ch. 507 p. 10, 旭日刃's cut, kept in the git-ignored
+`.refs/yamamoto-rework/ch507-p10-kyokujitsujin-tear.png`):
+
+> 1. 維持残日獄衣即可
+> 2. 東的虛空帶我希望能像動畫與漫畫一般呈現出不平整的放射狀缺口
+
+1. **The caption stays 残日獄衣** (the Japanese form already baked; no 殘 bake). Closes §19.6's caption item.
+2. **東's void becomes an uneven, radial tear**, as in the anime and the manga, not the clean trapezoid wedge of L6 / K4. Read from the page:
+   the void is still flat ink on the floor (D3 「黑色虛空帶」 stands), but its outline is ragged: spikes of uneven length and width radiate
+   from the cut's line and from its origin (the tip's touch), edges broken like dry brush, no straight side longer than a spike. It applies
+   to both places that draw the void: L6 (KYOKUJITSUJIN NS1c's void line and AS1's notch, `yama-look.lisp`) and the K4 cinematic's
+   wedge (`yama-higashi-look`, `yama-cine.lisp`). Presentation only. The shape is fixed per cast (seeded, never re-rolled per frame), and the
+   spikes grow out as the void opens. The white toon rim question (K1 deviation 8) is judged again on the new shape's stills.
