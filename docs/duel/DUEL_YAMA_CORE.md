@@ -1426,9 +1426,10 @@ shader's own wobble (0.14; the old strip had 0.05) and its broken edge give the 
 - Every outline point leans forward by (0.15 + 0.8 c + 0.3 sin(6c + seed)) x its distance out, where c is how far along the cut it is
   (0 to 1). This one smooth shear fans the spikes out from the origin, more toward the far end. Because the shear is monotone along the
   cut, no two spikes cross. The stills show no white rim line inside the black.
-- **Fixed per cast.** The shape is a pure function of its seed. L6's seed is his feet on a 0.25 m grid, plus the code: one shape per cast,
-  and a few mm of drift cannot re-roll it. The cinematic's seed is the constant 78. Only the shader's boil changes, on the fx clock's
-  drawings, as every toon shape does.
+- **Fixed per cast.** The shape is a pure function of its seed, and every seed is a constant: L6's void 32, AS1's notch 46, the cinematic
+  78. So each is one fixed shape per move, the same every cast. Nothing that happens mid-cast can re-roll it. A seed from his feet would
+  give each cast its own shape, but a crossing of the rounding grid would re-roll every spike mid-hold. Only the shader's boil changes,
+  on the fx clock's drawings, as every toon shape does.
 - **Growth.** G (0 to 1) grows the spikes out of the body. In L6 the void's body is at full length on S, as before (the hit is the whole
   line), and the spikes come out over 4 f (G = (sf - S + 1) / 4). In the cinematic the body opens as before (0.8 m at the tip to 5 m at
   12 m in 10 f from f84), and the spikes grow over 14 f from f84. While k falls (L6's ash fill, 11 f), the fan erodes from the outline in,
@@ -1451,9 +1452,16 @@ INK's shade tone (the outer ~18 % of a fan's field: `d/k + 0.3 s.x > 0.82`) show
 outline. The tear's uv.x is set to -2 ± 0.4, which keeps that test false: one flat black, as D3. This is a geometry-side choice; the
 shader is untouched.
 
-**For the user:** the spikes reach past the hit volume. The solid body stays inside L6's cap (0.2-6.0 m ahead, ±0.4 m), but spikes reach up
-to ~1.1 m beyond its sides and its far end (AS1's notch: ~0.9 m). The old strip was exactly the cap. This is decoration on a hit that lands
-the whole line at once, but a player may read the spikes as reach.
+**For the user: the spikes reach past the hit volume.** The solid body stays inside L6's cap (0.2-6.0 m ahead, ±0.4 m); the old strip was
+exactly the cap. Measured on the tear's geometry with the final law (a Python copy of YAMA-TEAR; its float64 hash rolls other shapes than
+the game's single floats, so the numbers are a sweep over 400 seeds, then the seed's own value):
+- NS1c's void: the spikes reach a median 0.8 m (at most 1.0 m) past the cap's sides, and a median 1.0 m (at most 1.7 m) past its 6.0 m end.
+  At seed 32: 0.85 m and 0.98 m.
+- AS1's notch: a median 0.6 m (at most 0.8 m) past its ±0.3 m sides, and 0.8 m (at most 1.4 m) past its 1.6 m end.
+- The origin's fan reaches up to 0.6 m behind the tip's touch point, under his own feet.
+
+This decorates a hit that lands the whole line at once, but a player may read the spikes as reach. The knobs, if the user wants them
+shorter: SL and the fans' x0.7 in `yama-tear`, or N (more spikes, each narrower).
 
 **Stills (untracked).** `tests/scripts/duel-yama-k5.json` / `-phone.json` (`tests/scripts/duel.py`'s `yama_k5_script`) shoot:
 - L6 in play from the behind camera and the SIDE camera: NS1c's void at S+2 / +6 / +14 / +26 (growing, full, held, filling), and AS1's
@@ -1472,14 +1480,14 @@ What the stills show, checked by eye:
 - AS1's notch is mostly under the two bodies, as before.
 - Low across the void (b5, b6) the spikes break the void's near lip into teeth.
 
-**Checks.**
+**Checks** (all on the final build, constant seeds):
 
 | Check | Result |
 |---|---|
 | Host tests | `duel-rules-test.lisp`: 4105 checks, ALL PASS |
 | pkgcheck, debug ranges | as main (the one `DUEL::APP` line, 0 redefinitions, 0 undefined); `tests/debug-ranges-check.py` 88 ranges, 0 errors |
 | Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), no new compiler warning (12, as base); `run.mjs --secs 8` smoke exit 0 |
-| Native trials | `combo-trial.py --log` for `tests/trials/yamamoto-bankai.lisp` (513 lines), `-core` (241) and `-blaze` (268) are identical, line for line, to b2dacf06's. The only extra line is the simgate rebuild banner |
+| Native trials | `combo-trial.py --log` for `tests/trials/yamamoto-bankai.lisp` (513 lines), `-core` (241) and `-blaze` (268) are identical, line for line, to b2dacf06's (the simgate rebuild banner left out) |
 | Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
 | The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at b2dacf06: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's. No pinned still shows the void (the YK match's frames hold none), so the K5 stills are the review |
 | 0 B a frame | debug 87448, landscape and portrait: `... void 0, void-grow 0, notch 0, ... east-void 0, east-open 0, east-full 0, ...`, every row 0 and none "(dropped)". The new rows are `void-grow` (code 2 at S+1, spikes growing), `east-open` (f86) and `east-full` (f120) |

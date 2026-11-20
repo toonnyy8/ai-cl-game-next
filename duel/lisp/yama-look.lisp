@@ -388,13 +388,13 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
                  (fx-crescent (+ x (* 0.5f0 fx)) 2.3f0 (+ z (* 0.5f0 fz)) (+ x (* 1.6f0 fx)) 0.05f0 (+ z (* 1.6f0 fz))
                               (+ x (* 1.5f0 fx)) 1.6f0 (+ z (* 1.5f0 fz)) 0.1f0 :lens 0.1f0 (+ 50f0 sd) +pal-hit+ 0.98f0 :push 0.3f0))
                (when (>= sf s)                          ; the void: a ragged radial tear of flat black on the floor (D3, §20), its
-                                                        ;  spikes out in 4 f; the seed his feet on a 0.25 m grid (one shape a cast)
+                                                        ;  spikes out in 4 f; one fixed shape a move (a constant seed: nothing he
+                                                        ;  does mid-cast can re-roll it)
                  (let* ((k (if (< sf (+ s 20)) 0.98f0 (f-clamp (* 0.98f0 (/ (i->f (- (+ s 31) sf)) 11f0)) 0f0 0.98f0)))
-                        (g (f-min 1f0 (/ (i->f (+ 1 (- sf s))) 4f0)))
-                        (ts (+ (* 3f0 (i->f (f->i (* 4f0 x)))) (i->f (f->i (* 4f0 z))) (i->f code))))
-                   (declare (single-float k g ts))
+                        (g (f-min 1f0 (/ (i->f (+ 1 (- sf s))) 4f0))))
+                   (declare (single-float k g))
                    (yama-tear (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) fx fz (- len 0.2f0) (* 0.7f0 hw) hw 0.15f0 g
-                              (if (= code 2) 12 4) (if (= code 2) 4 3) ts (toon-a +pal-ink+ k t))
+                              (if (= code 2) 12 4) (if (= code 2) 4 3) (if (= code 2) 32f0 46f0) (toon-a +pal-ink+ k t))
                    (dotimes (i (n-of (if (< sf (+ s 20)) 18f0 60f0) rdt))   ; ash falling in (more as it fills)
                      (let* ((u (rnd-range 0.2f0 len)) (v (rnd-range (- hw) hw)))
                        (declare (single-float u v))
