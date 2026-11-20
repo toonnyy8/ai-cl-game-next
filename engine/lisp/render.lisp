@@ -296,7 +296,8 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
     (make-pipeline 22 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_n" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon" #x324 0 1 3 0)   ; RP_FXT_N (no flames)
     (make-pipeline 23 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_l" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_l" #x324 0 1 0 0) ; RP_FXT_L (flames only)
     (make-pipeline 24 tri "vs_tri" (wgsl "flame-comp.frag.wgsl") "fs_flame_comp" 0 0 0 4 0)      ; RP_COMP_FL
-    (make-pipeline 25 tri "vs_tri" (wgsl "flame-bright.frag.wgsl") "fs_bright_fl" 0 1 0 0 0))    ; RP_BRIGHT_FL
+    (make-pipeline 25 tri "vs_tri" (wgsl "flame-bright.frag.wgsl") "fs_bright_fl" 0 1 0 0 0)     ; RP_BRIGHT_FL
+    (make-pipeline 26 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon_f" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon_fl" #x324 0 2 1 0)) ; RP_FXT_FL (the layer's fringe)
   (setf *msaa-samples* (ffi:c-inline () () :int "r_sample_count()" :one-liner t)
         *fx-alpha* (make-stream-buffer 9 16384)
         *fx-add* (make-stream-buffer 9 16384)

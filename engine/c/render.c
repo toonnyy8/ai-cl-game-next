@@ -8,7 +8,7 @@ static SDL_GPUDevice *r_dev;
 /* Slots are fixed: ui.lisp creates RP_UI = 10, paint.lisp RP_HUD = 19 and RP_COMP_AO = 20; the toon pipelines (SOUL DUEL's restyle) are appended. */
 enum { RP_LIT, RP_LIT_CW, RP_LIT_T, RP_LIT_T_CW, RP_SKY, RP_FXA, RP_FXB, RP_BRIGHT, RP_BLUR, RP_COMP, RP_UI,
        RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_FXT_F,
-       RP_FXT_N, RP_FXT_L, RP_COMP_FL, RP_BRIGHT_FL, RP_N };   /* the flame layer (STYLE_STORM_DESIGN §15.6) */
+       RP_FXT_N, RP_FXT_L, RP_COMP_FL, RP_BRIGHT_FL, RP_FXT_FL, RP_N };   /* the flame layer (STYLE_STORM_DESIGN §15.6) */
 static SDL_GPUGraphicsPipeline *r_pipe[RP_N];
 static SDL_GPUSampler *r_linear, *r_nearest;
 static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font, *r_hudfont, *r_flame_msaa, *r_flame;
@@ -303,7 +303,7 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
     dt.load_op = SDL_GPU_LOADOP_LOAD;
     pass = SDL_BeginGPURenderPass(cb, &lt, 1, &dt);
     r_draw_batch(pass, RP_FXT_L, r_fx[2], nft / 9);
-    if (fu[159] > 0) r_draw_batch(pass, RP_FXT_F, r_fx[2], nft / 9);
+    if (fu[159] > 0) r_draw_batch(pass, RP_FXT_FL, r_fx[2], nft / 9);
     SDL_EndGPURenderPass(pass);
     ct.load_op = SDL_GPU_LOADOP_LOAD; ct.store_op = r_samples > 1 ? SDL_GPU_STOREOP_RESOLVE : SDL_GPU_STOREOP_STORE;   /* pass C */
     dt.store_op = SDL_GPU_STOREOP_DONT_CARE;
