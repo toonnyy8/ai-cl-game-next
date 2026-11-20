@@ -1874,9 +1874,9 @@ fire (`stage.lisp`: only the cracks' EMBER seam, a ground segment, which the sel
 |---|---|---|
 | flame | 33 | yama-look 19 (`%ya-flare`, `%ya-blade-burn`, `%ya-pommel-fire`, `%ya-fist-fire`, `yama-north-`, `-stance-`, `-spiral-`, `-lance-`, `-column-`, `-tornado-`, `-ring-`, `-dome-`, `-ennetsu-`, `-blaze-in-look`, `-stance-fire`, `-blade-fire`, `-ring-close`, `-bk-moves`, `-sk-moves`); yama-cine 2 (`%ya-garb`, `yama-nishi-look`); yama-vfx 2 (`vfx-fireball`, `vfx-blade-embers` at threes); vfx.lisp 9 (`vfx-smear`, `%brush-aura`, `%reiatsu-aura`, `vfx-aura` `:burst-*`, five in `vfx-line-cut`: `:enjo`'s FIRE walls, `:kyoku`'s heat sheet, the rest of it ink / dust); vfx-ember 1 (`vfx-charge`) |
 | borderline | 6 | listed below |
-| non-flame | 31 | Kenpachi 10 (wind, streaks, KK tail, chops, the rift band), Hisagi 12 (shards, stars, chains), Ichigo 2 (chain, edge), vfx 4 (breaker ring, skull, face accent, KO rain), yama 2 (the dead's hands, smoke), stamps 0, cine shards 2 (Hisagi) |
+| non-flame | 31 | Kenpachi 11 (ken-look 8: wind, streaks, KK tail; ken-art 2: chops; ken.lisp 1: the rift band), Hisagi 12 (shards, stars, chains; 2 of them in hisagi-cine), Ichigo 2 (chain, edge), vfx 4 (breaker ring, skull, face accent, KO rain), yama 2 (the dead's hands, smoke) |
 
-Flame-class looks per owner: Yamamoto about 28 (yama-look 17, yama-vfx 8 incl. the one-shot stamps, yama-cine 2); Kenpachi 1 shared
+Flame-class looks per owner: Yamamoto 27 (yama-look 17, yama-vfx 8 incl. the one-shot stamps, yama-cine 2); Kenpachi 1 shared
 (the REIATSU aura, cups 1 / 2 / 3 and the Breaker's REIATSU layer, plus the comet smear if the user wants it); Ichigo 0 and Hisagi 0
 in fire palettes; shared: the orange running burst, the fire-wave line cut, the Shiranui charge.
 
@@ -1919,7 +1919,12 @@ Finding: `vfx-aura` has no `:hellfire` branch, and the keyword is not fbound. Th
   rows = candidates, columns = 8 consecutive 60 Hz frames.
   - Read at a glance: the feather softens the outer rim. The glow shows from candidate 2, and at candidate 3 the pillars read as lit.
   - The shade band (`d/k + 0.3 s.x > 0.82`) sits on the rim, so a wide feather fades the dark-red / gold shade edge out with it.
-  - The geometry still jumps on twos, so the flow only shows in the noise.
+  - The sheets judge feather × glow, not flow. Most flame seeds carry `drawing-no` (e.g. `%brush-aura`'s `sd`), and the shader turns
+    the seed into the noise offset, so the noise still reseeds on every drawing. Measured: the pixels that change between the two frames
+    of one drawing (frames 1→2 and 4→5 in the crop) are 0 / 66–82 at candidate 0 (aura / ENNETSU) and 1.2–1.6 k / 3.3–5.3 k at
+    candidates 1–3. The flow runs, but the 12 Hz repaint hides it. The verdict on flow waits for the sweep, or for a live try: debug
+    88001–88003 switches candidates on whatever is running.
+  - The glow leak: in the 84000 scene (Ichigo's orange hair in frame), candidate 3 changes 0 pixels outside the aura box.
 - **Proofs.**
   - Candidate 0's 48 stills (32 landscape, 16 phone) are byte-identical to the base build (d7b71277).
   - The title is byte-identical at candidate 0. At candidate 3 only the background Kenpachi's REIATSU aura changes (a 93 × 150 px
@@ -1927,7 +1932,9 @@ Finding: `vfx-aura` has no `:hellfire` branch, and the keyword is not fbound. Th
   - `--cvc` passes; the native trials (`yamamoto-core`) are identical; host tests 4252 pass; pkgcheck shows only the existing
     `DUEL::APP`; the debug ranges have 0 errors; `fill-frame-uniforms` conses 0 B a call at candidates 0 and 2 (native, 100 calls).
 - **Speed** (SwiftShader, wall clock, 西 garb + Kenpachi's aura, two runs each, on a shared machine): candidate 0 at 67.7–85.1 ms
-  a frame, candidate 3 at 60.4–94.5 ms. The difference is lost in the noise of the parallel load.
+  a frame, candidate 3 at 60.4–94.5 ms. The difference is lost in the noise of the parallel load. Candidate 0 stands in for the
+  base build (fringe pass skipped, stills byte-identical). ENNETSU, the heaviest flame scene, was not timed (too short for the 5 s
+  perf window).
 
 Gates:
 - the native trials, the browser scripts' sim lines and `--cvc` identical (presentation only);
