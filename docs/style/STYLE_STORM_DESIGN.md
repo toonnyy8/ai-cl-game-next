@@ -1943,3 +1943,20 @@ Gates:
 - `tools/toon_check.py`'s spot-share and value-step numbers are reported; a rule they break is amended with the user's words, not retuned;
 - speed is compared before and after only (SwiftShader);
 - `procedural-ink-style`'s per-material step rates are updated after the batch.
+
+### 15.5 The pick and the merge (2026-11-20)
+
+- **The pick** (AskUserQuestion on the 8-frame strips): **「2 中柔邊 + 淡光（推薦）」**. `*soft-flame*` 0 → 2 (feather 3 px, glow
+  0.5); candidates 1 and 3 stay in `*soft-flame-knobs*`, and debug 88000+i still switches them live. Merged as 668dcd1e, playtest v460.
+- **Gates on main 668dcd1e:**
+  - `--cvc` PASS II IK KK (33 / 28 / 27 lines);
+  - the looks gate against the S4 base (`looks-base-s4`, no `--keep-base`): 70 stills differ, 13 identical, every sim and fighter
+    line PASS. The stills that differ are those with a flame or REIATSU effect, Kenpachi's aura making most of them. The surprises
+    against the written expectation were checked by their diff images: `menus/settings` (and `controls`, `mode`, `select-2/3`) is
+    the backdrop fighter's aura; `mobile/results` / `cine-ko/results` are the winner's aura and flame. The 13 identical are the
+    stills with no flame in frame (`menus/select-0/1`, `mobile/intro/neutral/close/paused/mode/select`, `cvc-*/intro` but KH / YK,
+    `cine-ken/ken-bankai-030`). `menus/title` differs as written in §15.4 (Kenpachi's aura behind the title).
+  - the looks base is re-based to a copy of the dist at 668dcd1e (scratchpad `looks-base-f1`).
+- **Still to do:** the flow shows only after the Lisp `drawing-no` sweep (§15.3), after S5 and Z1 merge. The borderline rule for that
+  sweep (the lead's): tongue-shaped auras join whatever their colour (BLOOD aura, the `:oni` pillar, STEEL tongues, the soul-flame,
+  Ichigo's red wisps and flame sheets); crescents, rifts and smears stay out (the black Getsuga, `vfx-rift`, the comet smear).
