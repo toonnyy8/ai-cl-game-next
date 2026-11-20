@@ -682,8 +682,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :blade (look power)                blade look drawn along the held weapon: (:fire 1.0) (:embers 1.0)
   :smear N                           a look: the blade smear behind every swing is VFX-SMEAR's look N (NIL: 1, the REIATSU comet,
                                      every form before 2026-11-20); Yamamoto's Bankai: 3, the ink wash with an ember hairline
-                                     (DUEL_YAMA_CORE §17, the user's D4); his Shikai (and 爆炎, inherited): 4, a thin fire wash with an
-                                     orange hairline (§22)
+                                     (DUEL_YAMA_CORE §17, the user's D4); his Shikai: 4, a thin fire wash with an orange hairline (§22);
+                                     爆炎: 5, the wash full width with tongues off it (§25)
   :grade                             the world's grade while the form is on: NIL, or :SPOT (grey but the ember
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)
   :intro :win :intro-callout :callout  clips / texts; :intro-weapon (key frame) = a prop held in the

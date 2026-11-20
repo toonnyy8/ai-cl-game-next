@@ -75,7 +75,8 @@ eroding. It is captured into SM when a new drawing (twos) starts and held for th
 (Ryujin Jakka), 1 = REIATSU (Kenpachi: a white-cored yellow comet, every form), 2 = charcoal ink wash (Zanka no
 Tachi), 3 = that wash with one EMBER hairline down its middle (Yamamoto's Bankai, the kit's :smear: DUEL_YAMA_CORE §17, the
 user's D4 「只有西和北有火」), 4 = a thin FIRE wash (half the width) with one orange FLAME hairline (Yamamoto's Shikai and 爆炎: §21 F4,
-art S1 §22). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width, drawing, presence."
+art S1 §22), 5 = 爆炎's flame trail: the FIRE wash full width with the orange hairline and three tongues licking up off it toward the blade
+end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width, drawing, presence."
   (declare (type f32vec tr sm) (fixnum look))
   (let* ((n (f->i (trail-count tr))) (dr (drawing-no)))
     (declare (fixnum n) (single-float dr))
@@ -83,10 +84,18 @@ art S1 §22). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width, drawing, presence."
     (when (> (aref sm 11) 0f0)
       (fx-crescent (aref sm 0) (aref sm 1) (aref sm 2) (aref sm 3) (aref sm 4) (aref sm 5) (aref sm 6) (aref sm 7) (aref sm 8)
                    (if (= look 4) (* 0.5f0 (aref sm 9)) (aref sm 9)) :comet 0.06f0 (if (or (= look 2) (= look 3)) (+ 1000f0 dr) (+ 5f0 dr))
-                   (case look ((0 4) +pal-fire+) (1 +pal-reiatsu+) (t +pal-black-smoke+)) (aref sm 11) :push 0.15f0)
+                   (case look ((0 4 5) +pal-fire+) (1 +pal-reiatsu+) (t +pal-black-smoke+)) (aref sm 11) :push 0.15f0)
       (when (>= look 3)                                 ; (the hairline over the wash: ember on the Bankai's ink, orange on the fire)
         (fx-crescent (aref sm 0) (aref sm 1) (aref sm 2) (aref sm 3) (aref sm 4) (aref sm 5) (aref sm 6) (aref sm 7) (aref sm 8)
-                     0.018f0 :comet 0.02f0 (+ 1100f0 dr) (if (= look 3) +pal-ember+ +pal-flame+) (aref sm 11) :push 0.18f0)))
+                     0.018f0 :comet 0.02f0 (+ 1100f0 dr) (if (= look 3) +pal-ember+ +pal-flame+) (aref sm 11) :push 0.18f0))
+      (when (= look 5)                                  ; (爆炎: tongues off the wash, on the Bezier toward the blade end, rising)
+        (dotimes (i 3)
+          (let* ((u (+ 0.45f0 (* 0.2f0 (i->f i)))) (a (* (- 1f0 u) (- 1f0 u))) (b (* 2f0 u (- 1f0 u))) (c (* u u))
+                 (h (* (+ 0.14f0 (* 0.1f0 u)) (+ 0.7f0 (* 0.3f0 (hash01 (+ (i->f i) dr) 6.1f0))))))
+            (declare (single-float u a b c h))
+            (%tongue (+ (* a (aref sm 0)) (* b (aref sm 6)) (* c (aref sm 3))) (+ (* a (aref sm 1)) (* b (aref sm 7)) (* c (aref sm 4)) (* 0.5f0 (aref sm 9)))
+                     (+ (* a (aref sm 2)) (* b (aref sm 8)) (* c (aref sm 5))) 0f0 h 0f0 (* 0.5f0 (aref sm 9)) +pal-fire+ (aref sm 11)
+                     (+ 1200f0 (i->f i) dr) (+ dr (i->f i)) 0.03f0 :segs 4)))))
     nil))
 
 ;;; ---------------------------------------------------------------- auras

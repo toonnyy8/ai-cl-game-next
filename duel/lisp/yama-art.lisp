@@ -171,9 +171,20 @@
 ;; kosode top folded down over the obi, its two black sleeves hanging behind the hips (on the pelvis: they swing with the
 ;; lower cape's lag, YAMA-POSE); a lean, wiry torso (no broader than the robed one) with ink lines for the collarbones,
 ;; pectorals and the belly; the left arm ends above the elbow; 16 thin scars across chest, belly and arms, 12 of them
-;; glowing red-orange (the anime's flare, #FF5A3C; emissive parts, one mesh each: kept to 12), 4 healed (ink-brown).
+;; glowing (emissive parts, one mesh each: kept to 12), 4 healed (ink-brown). Art S4 (DUEL_YAMA_CORE §25): the 12 burn by heat: the mesh
+;; glows a dull ember red (the floor: heat 25 and under), and YAMA-SCAR-GLOW (yama-look.lisp) draws an additive fire hairline over each
+;; from *YA-SCARS*, full at heat 100, gone by 25, a pulse in the last 10 (they were a fixed glow 2.4 in #FF5A3C, the anime's flare).
+(defparameter *ya-scars*
+  '((:spine 0.08 0.15 0.135 0.14 30) (:spine -0.06 0.09 0.135 0.16 -20)
+    (:chest 0.1 0.17 0.15 0.2 -35) (:chest -0.12 0.13 0.15 0.18 40) (:chest 0.04 0.1 0.152 0.22 -15)
+    (:chest -0.03 0.21 0.145 0.12 70) (:chest 0.15 0.04 0.13 0.12 25) (:chest -0.15 0.03 0.13 0.13 -50)
+    (:chest 0.08 0.12 -0.145 0.22 30)                                                             ; (on the back)
+    (:upper-arm-r 0.0 -0.1 0.06 0.1 35) (:upper-arm-r 0.0 -0.2 0.06 0.09 -40) (:lower-arm-r 0.0 -0.06 0.053 0.08 50))
+  "爆炎's 12 glowing scars: (part x y z length angle), a box LENGTH long at (X Y Z) of PART, turned ANGLE deg about its z (the surface's
+normal is z's sign). The body's glow parts and YAMA-SCAR-GLOW's hairlines both read it.")
 (defparameter *ya-bare-parts*
-  (flet ((scar (x y z len a) `(:glow 2.4 (:box ,len 0.007 0.006 :at (,x ,y ,z) :rot (0 0 ,a) :c :scar-glow)))   ; 12 glow
+  (flet ((scars (part) (loop for (p x y z len a) in *ya-scars* when (eq p part)              ; 12 glow (the dull floor)
+                             collect `(:glow 0.9 (:box ,len 0.007 0.006 :at (,x ,y ,z) :rot (0 0 ,a) :c :scar-glow))))
          (old (x y z len a) `(:box ,len 0.007 0.006 :at (,x ,y ,z) :rot (0 0 ,a) :c :scar)))                    ; 4 healed
     `((:pelvis (:bevel 0.42 0.1 0.31 0.04 :at (0 0.14 -0.01) :c :black)                            ; the top, folded down
                (:box 0.4 0.03 0.3 :at (0 0.19 -0.01) :c :black)
@@ -185,24 +196,22 @@
               (:box 0.006 0.2 0.006 :at (0 0.12 0.132) :c :lid)                                      ; the belly's lines
               (:box 0.13 0.006 0.006 :at (0 0.07 0.132) :c :lid) (:box 0.14 0.006 0.006 :at (0 0.13 0.132) :c :lid)
               (:box 0.15 0.006 0.006 :at (0 0.19 0.13) :c :lid)
-              ,(scar 0.08 0.15 0.135 0.14 30) ,(scar -0.06 0.09 0.135 0.16 -20) ,(old 0.03 0.04 0.135 0.12 -60)
+              ,@(scars :spine) ,(old 0.03 0.04 0.135 0.12 -60)
               ,(old 0.17 0.11 0.06 0.1 75))
       (:chest (:bevel 0.48 0.3 0.27 0.06 :at (0 0.11 -0.005) :c :skin)
               (:box 0.16 0.006 0.006 :at (0.1 0.07 0.148) :rot (0 0 10) :c :lid)                    ; pectorals
               (:box 0.16 0.006 0.006 :at (-0.1 0.07 0.148) :rot (0 0 -10) :c :lid)
               (:box 0.13 0.006 0.006 :at (0.1 0.235 0.125) :rot (0 0 -10) :c :lid)                  ; collarbones
               (:box 0.13 0.006 0.006 :at (-0.1 0.235 0.125) :rot (0 0 10) :c :lid)
-              ,(scar 0.1 0.17 0.15 0.2 -35) ,(scar -0.12 0.13 0.15 0.18 40) ,(scar 0.04 0.1 0.152 0.22 -15)
-              ,(scar -0.03 0.21 0.145 0.12 70) ,(scar 0.15 0.04 0.13 0.12 25) ,(scar -0.15 0.03 0.13 0.13 -50)
-              ,(scar 0.08 0.12 -0.145 0.22 30) ,(old -0.08 0.05 -0.145 0.2 -25))                     ; (two on the back)
+              ,@(scars :chest) ,(old -0.08 0.05 -0.145 0.2 -25))                                        ; (one of each on the back)
       (:shoulder-r (:bevel 0.12 0.07 0.14 0.03 :at (0.02 -0.02 0) :rot (0 0 -24) :c :skin))
       (:shoulder-l (:bevel 0.12 0.07 0.14 0.03 :at (-0.02 -0.02 0) :rot (0 0 24) :c :skin))
-      (:upper-arm-r (:box 0.105 0.31 0.115 :at (0 -0.15 0) :c :skin) ,(scar 0.0 -0.1 0.06 0.1 35) ,(scar 0.0 -0.2 0.06 0.09 -40))
+      (:upper-arm-r (:box 0.105 0.31 0.115 :at (0 -0.15 0) :c :skin) ,@(scars :upper-arm-r))
       (:upper-arm-l (:box 0.1 0.2 0.11 :at (0 -0.1 0) :c :skin) (:sphere 0.055 :at (0 -0.2 0) :seg 8 :c :skin)   ; the stump
                     ,(old 0.0 -0.08 0.058 0.09 -30))
       (:lower-arm-r (:box 0.095 0.24 0.1 :at (0 -0.12 0) :c :skin) (:box 0.006 0.17 0.006 :at (0.02 -0.12 0.052) :c :scar)
-                    ,(scar 0.0 -0.06 0.053 0.08 50)))))
-(body-variant :yamamoto-bare :yamamoto :palette '((:scar-glow #xFF5A3C)) :parts *ya-bare-parts*)
+                    ,@(scars :lower-arm-r)))))
+(body-variant :yamamoto-bare :yamamoto :palette '((:scar-glow #xA8301E)) :parts *ya-bare-parts*)   ; (the dull ember floor; art S4)
 
 ;; The Bankai (TYBW battle dress, canon-looks §3; the kit hides :haori): the black robe only, its edges burnt to tatters:
 ;; 6 triangles at the right sleeve's end, 5 at the empty left sleeve's, 6 round each hakama hem.
@@ -259,7 +268,9 @@ own looks (yama-look.lisp YAMA-BK-MOVES, art K1) and 北's burn on the gather (%
 looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza). The Shikai and
 爆炎 (art S1): Ryujin Jakka's fire on the drawn blade (YAMA-BLADE-FIRE, SL0; not on the intro's cane, not in 撫斬's stance), J3's burning
 pommel and the moves' own looks (YAMA-SK-MOVES: NADEGIRI's hairline and seam, TAIMATSU's halo, AS1's burst), by the tier of the heat his
-segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA-STANCE-FIRE, art S3) by the heat his next segment would pay."
+segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA-STANCE-FIRE, art S3) by the heat his next segment would pay.
+爆炎 (art S4): the scars by heat (YAMA-SCAR-GLOW), no SL0 while IKKOTSU's blade stands planted, the entry pose's fire (YAMA-BLAZE-IN-LOOK),
+IKKOTSU's fist (%YA-FIST-FIRE), NS2b's ring closing before its dome (YAMA-RING-CLOSE)."
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
@@ -276,8 +287,11 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
     (unless (eq (kit-form (fighter-kit f)) :bankai)       ; the Shikai / 爆炎 (art S1, DUEL_YAMA_CORE §22): SL0 the blade's fire, SL7-SL9
       (let* ((main (and mv (eq (fighter-phase f) :main))) (ti (ya-sk-tier e f mv)) (jm (model-joints m))
              (blaze (eq (kit-form (fighter-kit f)) :blaze)) (c (anim-clip (model-anim m))))
-        (when (and (eq (model-weapon m) :ryujin-jakka) (> (model-alpha m) 0.5)   ; (not the intro's cane; not 撫斬's stance: no fire at all)
-                   (not (and (null mv) c (eq (clip-name c) :ya-st-cane))))
+        (when (and blaze (> (model-alpha m) 0.5))         ; 爆炎's scars by heat (art S4)
+          (yama-scar-glow jm (gauges-meter (gauges e))))
+        (when (and (eq (model-weapon m) :ryujin-jakka) (> (model-alpha m) 0.5)   ; (not the intro's cane; not 撫斬's stance: no fire at all;
+                   (not (and (null mv) c (eq (clip-name c) :ya-st-cane)))       ;  not in an empty hand: IKKOTSU's blade stands planted)
+                   (not (planted-spot e f mv)))
           (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 -0.95f0)    ; (:ryujin-jakka's length / blade base, yama-art.lisp DEFWEAPON)
           (joint-point! *ya-base* jm (ji :weapon-r) 0f0 0f0 -0.25f0)
           (yama-blade-fire *ya-tip* *ya-base*
@@ -286,12 +300,19 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
                            ti (f32 rdt))
           (when (and (null mv) c (member (clip-name c) '(:ya-shiranui :ya-st-enjo)))   ; the stances' fire (art S3): 不知火's corkscrew,
             (yama-stance-fire *ya-tip* *ya-base* (if (eq (clip-name c) :ya-shiranui) 1 2) (ya-stance-tier e blaze)))   ;  城郭炎上's drip
+          (when (and main (eq (mv-name mv) :ya-blaze-in))   ; 爆炎's entry: the fire down the edge, the ring running out (art S4)
+            (yama-blaze-in-look *ya-tip* *ya-base* (fighter-sf f)))
           (when (and main (eq (mv-name mv) :ya-j3) (<= 7 (fighter-sf f) 12))   ; SL9: TSUKABI's burning pommel (S-2 to S+A)
             (joint-point! *ya-tip* jm (ji :weapon-r) 0f0 0f0 0.285f0)
             (%ya-pommel-fire *ya-tip*)))
         (when main
           (let ((code (yama-sk-code mv)))
-            (when (> code 0) (yama-sk-moves (pos-of e) (yaw-of e) code (fighter-sf f) ti))))))
+            (when (> code 0) (yama-sk-moves (pos-of e) (yaw-of e) code (fighter-sf f) ti)))
+          (case (mv-name mv)                              ; 爆炎 (art S4): IKKOTSU's fist, NS2b's ring closing before its dome
+            (:ya-b-j3 (when (<= 9 (fighter-sf f) 13)
+                        (joint-point! *ya-tip* jm (ji :hand-r) 0f0 0f0 0f0)
+                        (%ya-fist-fire *ya-tip* (yaw-of e) (fighter-sf f))))
+            (:ya-b-n2b (when (<= 12 (fighter-sf f) 15) (yama-ring-close e (fighter-sf f))))))))
     (when *ya-footprints* (yama-footprints e))           ; (debug 87481: the sim footprints outlined, art S1's top-down stills)
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (planted-spot e f mv)))                 ; (no smoke from a blade left in the plaza)
@@ -829,6 +850,42 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
   (34 (:root :yaw 6 :f 0.06 :u -0.05) (:chest :twist 4) (:spine :flex 10) (:thigh-l :flex 18) (:knee-l :flex 20) (:thigh-r :flex -6)
       (:arm-r :flex 70 :side -20 :twist 0) (:elbow-r :flex 22) (:hand-r :twist 0 :flex -80))
   (:end :ya-stance))
+;; 爆炎 NS2c ENNETSU JIGOKU (S18; art S4, DUEL_YAMA_CORE §21.4 / §25): its own clip (it played NS2a's :YA-ENJO at x1.11, which ended at f40
+;; of the 50 f move and held the stance pose). Frame 0 is 爆炎 NS2b's landing (NS2c's clip at x18/16 drawn at its f18: :YA-N2C's f20.25,
+;; sampled); the arm drops and draws the hilt back to his right hip, the point hanging toward the plaza (f1-10, :YA-B-N2C-COCK), held f11-15;
+;; the point driven down into the plaza at his right front on S (:YA-B-N2C-HIT: the tip 1.08 m ahead, on the floor), left in it while the
+;; rows of pillars run (to f30), drawn out into the stance
+(defpose :ya-b-n2c-cock (:base :ya-stance)                   ; the hilt drawn back at his right hip, the point hanging down-forward
+  (:root :u -0.06 :yaw -8) (:spine :flex 8) (:chest :twist -24) (:neck :flex -16) (:head :flex -20 :twist 10) (:knees :flex 20)
+  (:arm-r :flex -19 :side 26.5 :twist -7) (:elbow-r :flex 99.5) (:hand-r :flex -117 :twist 36.5 :side -0.5))
+(defpose :ya-b-n2c-hit (:base :ya-stance)                    ; crouched over it, the point in the plaza 1.08 m ahead
+  (:root :f 0.12 :u -0.2 :yaw 4) (:spine :flex 30) (:chest :twist 8) (:neck :flex -20) (:head :flex -30) (:knees :flex 44) (:thigh-l :flex 52)
+  (:thigh-r :flex 20) (:arm-r :flex 110 :side -40.5 :twist -41.5) (:elbow-r :flex 53) (:hand-r :flex -131.5 :twist -40 :side 16))
+(defstrike :ya-b-n2c (18 2 30 :base :ya-stance)
+  (0 :ya-n2c-land (:root :u -0.093 :f 0.098 :yaw 7.9) (:spine :flex 6.2) (:chest :twist 17.3) (:arm-r :flex 127.8 :twist -16.6 :side -49.8)
+     (:elbow-r :flex 2.6) (:hand-r :flex -85.7 :twist -6.2) (:thigh-r :flex -9.8) (:thigh-l :flex 27.5) (:knee-l :flex 25.7))
+  (1 (:root :u -0.092 :f 0.094 :yaw 7.3) (:spine :flex 6.3) (:chest :twist 15.6) (:neck :flex -8.3) (:head :flex -14.2 :twist 0.4) (:arm-r :flex 121.8 :twist -16.2 :side -46.7) (:elbow-r :flex 6.5) (:hand-r :flex -87.0 :twist -4.5) (:thigh-r :flex -9.7) (:knee-r :flex 18.1) (:thigh-l :flex 27.1) (:knee-l :flex 25.5))
+  (2 (:root :u -0.089 :f 0.087 :yaw 6.2) (:spine :flex 6.4) (:chest :twist 12.9) (:neck :flex -8.9) (:head :flex -14.6 :twist 1.1) (:arm-r :flex 112.0 :twist -15.6 :side -41.6) (:elbow-r :flex 13.0) (:hand-r :flex -89.1 :twist -1.6) (:thigh-r :flex -9.6) (:knee-r :flex 18.2) (:thigh-l :flex 26.5) (:knee-l :flex 25.1))
+  (3 (:root :u -0.087 :f 0.079 :yaw 4.9) (:spine :flex 6.5) (:chest :twist 9.5) (:neck :flex -9.5) (:head :flex -15.1 :twist 1.9) (:arm-r :flex 100.0 :twist -14.8 :side -35.3) (:elbow-r :flex 21.0) (:hand-r :flex -91.6 :twist 1.9) (:thigh-r :flex -9.5) (:knee-r :flex 18.4) (:thigh-l :flex 25.7) (:knee-l :flex 24.6))
+  (4 (:root :u -0.084 :f 0.07 :yaw 3.4) (:spine :flex 6.7) (:chest :twist 5.6) (:neck :flex -10.3) (:head :flex -15.7 :twist 2.8) (:arm-r :flex 86.2 :twist -13.9 :side -28.2) (:elbow-r :flex 30.1) (:hand-r :flex -94.6 :twist 5.9) (:thigh-r :flex -9.3) (:knee-r :flex 18.6) (:thigh-l :flex 24.8) (:knee-l :flex 24.1))
+  (5 (:root :u -0.08 :f 0.06 :yaw 1.7) (:spine :flex 6.9) (:chest :twist 1.3) (:neck :flex -11.1) (:head :flex -16.3 :twist 3.9) (:arm-r :flex 70.9 :twist -12.9 :side -20.2) (:elbow-r :flex 40.1) (:hand-r :flex -97.8 :twist 10.3 :side -0.2) (:thigh-r :flex -9.1) (:knee-r :flex 18.8) (:thigh-l :flex 23.8) (:knee-l :flex 23.5))
+  (6 (:root :u -0.076 :f 0.049 :yaw -0.1) (:spine :flex 7.1) (:chest :twist -3.4) (:neck :flex -12.0) (:head :flex -17.0 :twist 5.0) (:arm-r :flex 54.4 :twist -11.8 :side -11.6) (:elbow-r :flex 51.0) (:hand-r :flex -101.3 :twist 15.1 :side -0.3) (:thigh-r :flex -8.9) (:knee-r :flex 19.0) (:thigh-l :flex 22.8) (:knee-l :flex 22.9))
+  (7 (:root :u -0.073 :f 0.038 :yaw -1.8) (:spine :flex 7.3) (:chest :twist -8.0) (:neck :flex -12.9) (:head :flex -17.7 :twist 6.1) (:arm-r :flex 37.9 :twist -10.7 :side -3.1) (:elbow-r :flex 62.0) (:hand-r :flex -104.9 :twist 20.0 :side -0.3) (:thigh-r :flex -8.7) (:knee-r :flex 19.2) (:thigh-l :flex 21.7) (:knee-l :flex 22.2))
+  (8 (:root :u -0.069 :f 0.028 :yaw -3.5) (:spine :flex 7.5) (:chest :twist -12.3) (:neck :flex -13.7) (:head :flex -18.3 :twist 7.2) (:arm-r :flex 22.6 :twist -9.7 :side 4.9) (:elbow-r :flex 72.0) (:hand-r :flex -108.1 :twist 24.4 :side -0.4) (:thigh-r :flex -8.5) (:knee-r :flex 19.4) (:thigh-l :flex 20.7) (:knee-l :flex 21.6))
+  (9 (:root :u -0.066 :f 0.019 :yaw -5.0) (:spine :flex 7.7) (:chest :twist -16.2) (:neck :flex -14.5) (:head :flex -18.9 :twist 8.1) (:arm-r :flex 8.8 :twist -8.8 :side 12.0) (:elbow-r :flex 81.1) (:hand-r :flex -111.1 :twist 28.4) (:thigh-r :flex -8.3) (:knee-r :flex 19.6) (:thigh-l :flex 19.8) (:knee-l :flex 21.1))
+  (10 (:root :u -0.064 :f 0.011 :yaw -6.3) (:spine :flex 7.8) (:chest :twist -19.6) (:neck :flex -15.1) (:head :flex -19.4 :twist 8.9) (:arm-r :flex -3.2 :twist -8.0 :side 18.3) (:elbow-r :flex 89.1) (:hand-r :flex -113.6 :twist 31.9) (:thigh-r :flex -8.2) (:knee-r :flex 19.8) (:thigh-l :flex 19.0) (:knee-l :flex 20.6))
+  (11 (:root :u -0.061 :f 0.004 :yaw -7.4) (:spine :flex 7.9) (:chest :twist -22.3) (:neck :flex -15.7) (:head :flex -19.8 :twist 9.6) (:arm-r :flex -13.0 :twist -7.4 :side 23.4) (:elbow-r :flex 95.6) (:hand-r :flex -115.7 :twist 34.8) (:thigh-r :flex -8.1) (:knee-r :flex 19.9) (:thigh-l :flex 18.4) (:knee-l :flex 20.2))
+  (12 :ya-b-n2c-cock)                                                                         ; drawn back, the point hanging
+  (13 :ya-b-n2c-cock (:root :u -0.065) (:hand-r :flex -118))                                ; held
+  (15 :ya-b-n2c-cock (:root :u -0.062) (:hand-r :flex -116))
+  (16 :snap :ya-b-n2c-cock (:root :u -0.077 :f 0.014 :yaw -6.6) (:spine :flex 10.6) (:chest :twist -20.2) (:neck :flex -16.5) (:head :flex -21.2 :twist 8.8) (:arm-r :flex -3.5 :twist -11.1 :side 18.5) (:elbow-r :flex 93.9) (:hand-r :flex -118.7 :twist 27.3 :side 1.5) (:thigh-r :flex -4.6) (:knee-r :flex 22.9) (:thigh-l :flex 22.1) (:knee-l :flex 22.9))
+  (17 :snap :ya-b-n2c-cock (:root :u -0.123 :f 0.054 :yaw -2.6) (:spine :flex 17.9) (:chest :twist -9.6) (:neck :flex -17.8) (:head :flex -24.5 :twist 5.5) (:arm-r :flex 39.0 :twist -22.5 :side -3.7) (:elbow-r :flex 78.6) (:hand-r :flex -123.5 :twist 2.1 :side 6.9) (:thigh-r :flex 4.6) (:knee-r :flex 30.8) (:thigh-l :flex 33.3) (:knee-l :flex 30.8))
+  (:s :snap :ya-b-n2c-hit)                                                                    ; driven into the plaza
+  (:a :ya-b-n2c-hit (:root :u -0.21))
+  (30 :ya-b-n2c-hit (:root :u -0.2) (:head :flex -24))                                       ; left in it while the rows run
+  (40 (:root :yaw 2 :f 0.06 :u -0.1) (:spine :flex 18) (:chest :twist 2) (:head :flex -20) (:knees :flex 24) (:thigh-l :flex 30) (:thigh-r :flex 6)
+      (:arm-r :flex 50 :side -10 :twist -16) (:elbow-r :flex 50) (:hand-r :flex -100 :twist -10 :side 6))   ; drawn out
+  (:end :ya-stance))
 ;; Pointer 3 撫斬 NADEGIRI, art S3: NS3a from pointer 3's stance (:YA-ST-NADE), NS3b from NS3a's S+A (:YA-N3A-LAND), NS3c from NS3b's S+A
 ;; (:YA-N3B-LAND), AS3a from J3's S+1 (:YA-TSUKA-THRU), AS3b from AS3a's S+A (:YA-AS3A-LAND), AS3c from AS3b's S+A (:YA-AS3B-LAND) on NS3c's
 ;; poses. The slides (NS3a 1.0 m, NS3b 2.0 m) are the sim's: the drawn root moves 0.1 m at most, the legs make the step.
@@ -1049,6 +1106,85 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
         (:arm-r :flex 27.5 :twist -13.5 :side 17.5) (:hand-r :flex -85.5 :twist -13.5 :side 0.5) (:knee-r :flex 22.0) (:thigh-l :flex 30.0))
   (44 :ya-nadegiri-low (:root :u -0.065))                                                      ; held, his back to the cut
   (:end :ya-stance))
+;; 爆炎 NS3c, the true NADEGIRI (S14 A4 R60; art S4, DUEL_YAMA_CORE §21.4 / §25): its own clip (it played the Shikai's NADEGIRI, whose 52 f
+;; left the 78 f move holding the stance pose for its last 26 f). The Shikai's cut, the same keys to S+A (frame 0 NS3b's S+A), then RoS's
+;; "huge opening" drawn: the blade lowered over 40 f (f19-58, the Shikai's curve at half speed) with the chest (-46 deg) and the head turned
+;; away to his right, no root yaw, and held still to the move's end (f78; TO-IDLE's blend takes him back to the stance)
+(defstrike :ya-b-n3c (14 4 60 :base :ya-stance)
+  (0 :ya-n3b-land)
+  (1 (:root :u -0.119 :f 0.111 :yaw 3.7) (:pelvis :twist 10.3) (:chest :twist 29.9) (:neck :flex -18.1) (:head :flex -20.6)
+        (:arm-r :flex 44.5 :twist -12.1 :side -55.9) (:elbow-r :flex 51.5) (:hand-r :flex -122.4 :twist 27.9 :side -15.3) (:thigh-r :flex -22.8)
+        (:knee-r :flex 19.2) (:thigh-l :flex 43.9) (:knee-l :flex 39.6))
+  (2 (:root :u -0.115 :f 0.089 :yaw 3.0) (:pelvis :twist 11.0) (:chest :twist 29.5) (:neck :flex -18.5) (:head :flex -22.1)
+        (:arm-r :flex 41.9 :twist 5.1 :side -43.0) (:elbow-r :flex 55.3) (:hand-r :flex -115.9 :twist 30.0 :side -12.2) (:thigh-r :flex -19.9)
+        (:knee-r :flex 22.1) (:thigh-l :flex 38.7) (:knee-l :flex 38.4))
+  (3 (:root :u -0.11 :f 0.06 :yaw 2.0) (:pelvis :twist 12.0) (:chest :twist 29.0) (:neck :flex -19.0) (:head :flex -24.0)
+        (:arm-r :flex 38.5 :twist 27.5 :side -26.3) (:elbow-r :flex 60.3) (:hand-r :flex -107.5 :twist 32.7 :side -8.3) (:thigh-r :flex -16.0)
+        (:knee-r :flex 26.0) (:thigh-l :flex 32.0) (:knee-l :flex 37.0))
+  (4 (:root :u -0.105 :f 0.031 :yaw 1.0) (:pelvis :twist 13.0) (:chest :twist 28.5) (:neck :flex -19.5) (:head :flex -25.9)
+        (:arm-r :flex 35.1 :twist 49.9 :side -9.5) (:elbow-r :flex 65.2) (:hand-r :flex -99.1 :twist 35.5 :side -4.3) (:thigh-r :flex -12.1)
+        (:knee-r :flex 29.9) (:thigh-l :flex 25.3) (:knee-l :flex 35.6))
+  (5 (:root :u -0.101 :f 0.009 :yaw 0.3) (:pelvis :twist 13.7) (:chest :twist 28.1) (:neck :flex -19.9) (:head :flex -27.4)
+        (:arm-r :flex 32.5 :twist 67.1 :side 3.4) (:elbow-r :flex 69.0) (:hand-r :flex -92.6 :twist 37.6 :side -1.2) (:thigh-r :flex -9.2)
+        (:knee-r :flex 32.8) (:thigh-l :flex 20.1) (:knee-l :flex 34.4))
+  (6 (:root :u -0.1 :f 0.0 :yaw 0.0) (:pelvis :twist 14.0) (:chest :twist 28.0) (:neck :flex -20.0) (:head :flex -28.0)
+        (:arm-r :flex 31.5 :twist 74.0 :side 8.5) (:elbow-r :flex 70.5) (:hand-r :flex -90.0 :twist 38.5 :side 0.0) (:thigh-r :flex -8.0)
+        (:knee-r :flex 34.0) (:thigh-l :flex 18.0) (:knee-l :flex 34.0))
+  (9 :ya-nadegiri-draw)                                                                       ; still, the eyes shut
+  (10 :ya-nadegiri-draw (:hand-r :flex -91))                                                  ; a 1 deg tremble
+  (11 :ya-nadegiri-draw (:hand-r :flex -89))
+  (12 :ya-nadegiri-draw)
+  (13 :snap :ya-nadegiri-draw (:root :f 0.135) (:pelvis :twist 12.2) (:spine :flex 13.3) (:chest :twist 13.2) (:neck :flex -19.1) (:head :flex -27.1)
+        (:arm-r :flex 72.7 :twist 29.7 :side 0.4) (:elbow-r :flex 40.3) (:hand-r :flex -91.8 :twist 21.0) (:thigh-r :flex -12.5) (:knee-r :flex 32.2)
+        (:thigh-l :flex 27.9) (:knee-l :flex 34.9))
+  (:s :snap :ya-nadegiri-hit)
+  (15 :snap :ya-nadegiri-hit (:chest :twist -12.6) (:arm-r :flex 124.3 :twist 3.2 :side -21.6) (:elbow-r :flex 1.9)
+        (:hand-r :flex -95.1 :twist -11.7 :side -3.8))
+  (16 :snap :ya-nadegiri-thru)
+  (:a :ya-nadegiri-thru (:arm-r :flex 124) (:hand-r :flex -95))
+  (19 (:head :twist -0.1) (:arm-r :flex 123.8 :twist 36.9 :side -36.4))
+  (20 (:root :f 0.299) (:pelvis :twist 9.9) (:chest :twist -22.2) (:head :flex -25.9 :twist -0.2) (:arm-r :flex 123.3 :twist 36.6 :side -36.1) (:hand-r :twist -25.4) (:thigh-l :flex 39.9))
+  (21 (:root :f 0.298) (:pelvis :twist 9.7) (:chest :twist -22.4) (:neck :flex -17.9) (:head :flex -25.8 :twist -0.5) (:arm-r :flex 122.5 :twist 36.2 :side -35.6) (:hand-r :flex -94.8 :twist -25.3 :side -8.4) (:thigh-r :flex -17.9) (:knee-r :flex 29.9) (:thigh-l :flex 39.8) (:knee-l :flex 35.9))
+  (22 (:root :f 0.297) (:pelvis :twist 9.4) (:chest :twist -22.7) (:neck :flex -17.8) (:head :flex -25.7 :twist -0.8) (:arm-r :flex 121.3 :twist 35.6 :side -35.0) (:hand-r :flex -94.7 :twist -25.2 :side -8.2) (:thigh-r :flex -17.8) (:knee-r :flex 29.8) (:thigh-l :flex 39.7) (:knee-l :flex 35.8))
+  (23 (:root :u -0.098 :f 0.296) (:pelvis :twist 9.1) (:chest :twist -23.0) (:neck :flex -17.7) (:head :flex -25.6 :twist -1.3) (:arm-r :flex 119.9 :twist 34.8 :side -34.2) (:hand-r :flex -94.6 :twist -25.0 :side -8.1) (:thigh-r :flex -17.7) (:knee-r :flex 29.7) (:thigh-l :flex 39.6) (:knee-l :flex 35.7))
+  (24 (:root :u -0.098 :f 0.294) (:pelvis :twist 8.8) (:chest :twist -23.5) (:neck :flex -17.5) (:head :flex -25.4 :twist -1.8) (:arm-r :flex 118.1 :twist 33.9 :side -33.2) (:hand-r :flex -94.4 :twist -24.8 :side -8.0) (:thigh-r :flex -17.6) (:knee-r :flex 29.5) (:thigh-l :flex 39.4) (:knee-l :flex 35.6))
+  (25 (:root :u -0.097 :f 0.292) (:pelvis :twist 8.4) (:chest :twist -23.9) (:neck :flex -17.4) (:head :flex -25.2 :twist -2.4) (:arm-r :flex 116.2 :twist 32.9 :side -32.1) (:hand-r :flex -94.2 :twist -24.5 :side -7.8) (:thigh-r :flex -17.5) (:knee-r :flex 29.4) (:thigh-l :flex 39.2) (:knee-l :flex 35.5))
+  (26 (:root :u -0.096 :f 0.29) (:pelvis :twist 7.9) (:chest :twist -24.5) (:neck :flex -17.2) (:head :flex -25.0 :twist -3.1) (:arm-r :flex 114.0 :twist 31.7 :side -30.9) (:hand-r :flex -94.0 :twist -24.3 :side -7.6) (:thigh-r :flex -17.4) (:knee-r :flex 29.2) (:thigh-l :flex 39.0) (:knee-l :flex 35.4))
+  (27 (:root :u -0.095 :f 0.287) (:pelvis :twist 7.4) (:chest :twist -25.1) (:neck :flex -17.0) (:head :flex -24.7 :twist -3.9) (:arm-r :flex 111.5 :twist 30.5 :side -29.5) (:hand-r :flex -93.8 :twist -24.0 :side -7.3) (:thigh-r :flex -17.2) (:knee-r :flex 29.0) (:thigh-l :flex 38.7) (:knee-l :flex 35.2))
+  (28 (:root :u -0.094 :f 0.284) (:pelvis :twist 6.9) (:chest :twist -25.8) (:neck :flex -16.8) (:head :flex -24.4 :twist -4.7) (:arm-r :flex 108.9 :twist 29.1 :side -28.1) (:hand-r :flex -93.5 :twist -23.6 :side -7.1) (:thigh-r :flex -17.1) (:knee-r :flex 28.8) (:thigh-l :flex 38.4) (:knee-l :flex 35.1))
+  (29 (:root :u -0.093 :f 0.281) (:pelvis :twist 6.3) (:chest :twist -26.4) (:neck :flex -16.5) (:head :flex -24.1 :twist -5.6) (:arm-r :flex 106.1 :twist 27.6 :side -26.5) (:hand-r :flex -93.2 :twist -23.3 :side -6.8) (:thigh-r :flex -16.9) (:knee-r :flex 28.5) (:thigh-l :flex 38.1) (:knee-l :flex 34.9))
+  (30 (:root :u -0.091 :f 0.278) (:pelvis :twist 5.7) (:chest :twist -27.2) (:neck :flex -16.3) (:head :flex -23.8 :twist -6.5) (:arm-r :flex 103.2 :twist 26.1 :side -24.8) (:hand-r :flex -92.9 :twist -22.9 :side -6.6) (:thigh-r :flex -16.7) (:knee-r :flex 28.3) (:thigh-l :flex 37.8) (:knee-l :flex 34.7))
+  (31 (:root :u -0.09 :f 0.275) (:pelvis :twist 5.0) (:chest :twist -28.0) (:neck :flex -16.0) (:head :flex -23.5 :twist -7.4) (:arm-r :flex 100.0 :twist 24.5 :side -23.1) (:hand-r :flex -92.6 :twist -22.5 :side -6.3) (:thigh-r :flex -16.5) (:knee-r :flex 28.0) (:thigh-l :flex 37.5) (:knee-l :flex 34.5))
+  (32 (:root :u -0.089 :f 0.272) (:pelvis :twist 4.4) (:chest :twist -28.8) (:neck :flex -15.7) (:head :flex -23.2 :twist -8.5) (:arm-r :flex 96.8 :twist 22.8 :side -21.3) (:hand-r :flex -92.3 :twist -22.1 :side -6.0) (:thigh-r :flex -16.3) (:knee-r :flex 27.7) (:thigh-l :flex 37.2) (:knee-l :flex 34.3))
+  (33 (:root :u -0.087 :f 0.268) (:pelvis :twist 3.7) (:chest :twist -29.6) (:neck :flex -15.5) (:head :flex -22.8 :twist -9.5) (:arm-r :flex 93.5 :twist 21.0 :side -19.4) (:hand-r :flex -92.0 :twist -21.7 :side -5.7) (:thigh-r :flex -16.1) (:knee-r :flex 27.5) (:thigh-l :flex 36.8) (:knee-l :flex 34.1))
+  (34 (:root :u -0.086 :f 0.265) (:pelvis :twist 3.0) (:chest :twist -30.4) (:neck :flex -15.2) (:head :flex -22.5 :twist -10.6) (:arm-r :flex 90.0 :twist 19.2 :side -17.5) (:hand-r :flex -91.7 :twist -21.3 :side -5.3) (:thigh-r :flex -15.9) (:knee-r :flex 27.2) (:thigh-l :flex 36.5) (:knee-l :flex 33.9))
+  (35 (:root :u -0.084 :f 0.261) (:pelvis :twist 2.2) (:chest :twist -31.3) (:neck :flex -14.9) (:head :flex -22.1 :twist -11.7) (:arm-r :flex 86.5 :twist 17.4 :side -15.5) (:hand-r :flex -91.3 :twist -20.8 :side -5.0) (:thigh-r :flex -15.7) (:knee-r :flex 26.9) (:thigh-l :flex 36.1) (:knee-l :flex 33.7))
+  (36 (:root :u -0.083 :f 0.257) (:pelvis :twist 1.5) (:chest :twist -32.2) (:neck :flex -14.6) (:head :flex -21.7 :twist -12.8) (:arm-r :flex 83.0 :twist 15.5 :side -13.5) (:hand-r :flex -91.0 :twist -20.4 :side -4.7) (:thigh-r :flex -15.4) (:knee-r :flex 26.6) (:thigh-l :flex 35.7) (:knee-l :flex 33.4))
+  (37 (:root :u -0.081 :f 0.254) (:pelvis :twist 0.7) (:chest :twist -33.1) (:neck :flex -14.3) (:head :flex -21.4 :twist -13.9) (:arm-r :flex 79.4 :twist 13.6 :side -11.5) (:hand-r :flex -90.6 :twist -19.9 :side -4.3) (:thigh-r :flex -15.2) (:knee-r :flex 26.3) (:thigh-l :flex 35.4) (:knee-l :flex 33.2))
+  (38 (:root :u -0.08 :f 0.25) (:pelvis :twist 0.0) (:chest :twist -34.0) (:neck :flex -14.0) (:head :flex -21.0 :twist -15.0) (:arm-r :flex 75.7 :twist 11.8 :side -9.5) (:hand-r :flex -90.3 :twist -19.5 :side -4.0) (:thigh-r :flex -15.0) (:knee-r :flex 26.0) (:thigh-l :flex 35.0) (:knee-l :flex 33.0))
+  (39 (:root :u -0.079 :f 0.246) (:pelvis :twist -0.7) (:chest :twist -34.9) (:neck :flex -13.7) (:head :flex -20.6 :twist -16.1) (:arm-r :flex 72.1 :twist 9.9 :side -7.5) (:hand-r :flex -89.9 :twist -19.1 :side -3.7) (:thigh-r :flex -14.8) (:knee-r :flex 25.7) (:thigh-l :flex 34.6) (:knee-l :flex 32.8))
+  (40 (:root :u -0.077 :f 0.243) (:pelvis :twist -1.5) (:chest :twist -35.8) (:neck :flex -13.4) (:head :flex -20.3 :twist -17.2) (:arm-r :flex 68.5 :twist 8.0 :side -5.5) (:hand-r :flex -89.5 :twist -18.6 :side -3.3) (:thigh-r :flex -14.6) (:knee-r :flex 25.4) (:thigh-l :flex 34.3) (:knee-l :flex 32.6))
+  (41 (:root :u -0.076 :f 0.239) (:pelvis :twist -2.2) (:chest :twist -36.7) (:neck :flex -13.1) (:head :flex -19.9 :twist -18.3) (:arm-r :flex 65.0 :twist 6.1 :side -3.5) (:hand-r :flex -89.2 :twist -18.2 :side -3.0) (:thigh-r :flex -14.3) (:knee-r :flex 25.1) (:thigh-l :flex 33.9) (:knee-l :flex 32.3))
+  (42 (:root :u -0.074 :f 0.235) (:pelvis :twist -3.0) (:chest :twist -37.6) (:neck :flex -12.8) (:head :flex -19.5 :twist -19.4) (:arm-r :flex 61.5 :twist 4.3 :side -1.5) (:hand-r :flex -88.8 :twist -17.7 :side -2.7) (:thigh-r :flex -14.1) (:knee-r :flex 24.8) (:thigh-l :flex 33.5) (:knee-l :flex 32.1))
+  (43 (:root :u -0.073 :f 0.232) (:pelvis :twist -3.7) (:chest :twist -38.4) (:neck :flex -12.5) (:head :flex -19.2 :twist -20.5) (:arm-r :flex 58.0 :twist 2.5 :side 0.4) (:hand-r :flex -88.5 :twist -17.3 :side -2.3) (:thigh-r :flex -13.9) (:knee-r :flex 24.5) (:thigh-l :flex 33.2) (:knee-l :flex 31.9))
+  (44 (:root :u -0.071 :f 0.228) (:pelvis :twist -4.4) (:chest :twist -39.2) (:neck :flex -12.3) (:head :flex -18.8 :twist -21.5) (:arm-r :flex 54.7 :twist 0.7 :side 2.3) (:hand-r :flex -88.2 :twist -16.9 :side -2.0) (:thigh-r :flex -13.7) (:knee-r :flex 24.3) (:thigh-l :flex 32.8) (:knee-l :flex 31.7))
+  (45 (:root :u -0.07 :f 0.225) (:pelvis :twist -5.0) (:chest :twist -40.0) (:neck :flex -12.0) (:head :flex -18.5 :twist -22.6) (:arm-r :flex 51.5 :twist -1.0 :side 4.1) (:hand-r :flex -87.9 :twist -16.5 :side -1.7) (:thigh-r :flex -13.5) (:knee-r :flex 24.0) (:thigh-l :flex 32.5) (:knee-l :flex 31.5))
+  (46 (:root :u -0.069 :f 0.222) (:pelvis :twist -5.7) (:chest :twist -40.8) (:neck :flex -11.7) (:head :flex -18.2 :twist -23.5) (:arm-r :flex 48.3 :twist -2.6 :side 5.8) (:hand-r :flex -87.6 :twist -16.1 :side -1.4) (:thigh-r :flex -13.3) (:knee-r :flex 23.7) (:thigh-l :flex 32.2) (:knee-l :flex 31.3))
+  (47 (:root :u -0.067 :f 0.219) (:pelvis :twist -6.3) (:chest :twist -41.6) (:neck :flex -11.5) (:head :flex -17.9 :twist -24.4) (:arm-r :flex 45.4 :twist -4.1 :side 7.5) (:hand-r :flex -87.3 :twist -15.7 :side -1.2) (:thigh-r :flex -13.1) (:knee-r :flex 23.5) (:thigh-l :flex 31.9) (:knee-l :flex 31.1))
+  (48 (:root :u -0.066 :f 0.216) (:pelvis :twist -6.9) (:chest :twist -42.2) (:neck :flex -11.2) (:head :flex -17.6 :twist -25.3) (:arm-r :flex 42.6 :twist -5.6 :side 9.1) (:hand-r :flex -87.0 :twist -15.4 :side -0.9) (:thigh-r :flex -12.9) (:knee-r :flex 23.3) (:thigh-l :flex 31.6) (:knee-l :flex 30.9))
+  (49 (:root :u -0.065 :f 0.213) (:pelvis :twist -7.4) (:chest :twist -42.9) (:neck :flex -11.0) (:head :flex -17.3 :twist -26.1) (:arm-r :flex 40.0 :twist -7.0 :side 10.5) (:hand-r :flex -86.7 :twist -15.0 :side -0.7) (:thigh-r :flex -12.8) (:knee-r :flex 23.0) (:thigh-l :flex 31.3) (:knee-l :flex 30.8))
+  (50 (:root :u -0.064 :f 0.21) (:pelvis :twist -7.9) (:chest :twist -43.5) (:neck :flex -10.8) (:head :flex -17.0 :twist -26.9) (:arm-r :flex 37.5 :twist -8.2 :side 11.9) (:hand-r :flex -86.5 :twist -14.7 :side -0.4) (:thigh-r :flex -12.6) (:knee-r :flex 22.8) (:thigh-l :flex 31.0) (:knee-l :flex 30.6))
+  (51 (:root :u -0.063 :f 0.208) (:pelvis :twist -8.4) (:chest :twist -44.1) (:neck :flex -10.6) (:head :flex -16.8 :twist -27.6) (:arm-r :flex 35.3 :twist -9.4 :side 13.1) (:hand-r :flex -86.3 :twist -14.5 :side -0.2) (:thigh-r :flex -12.5) (:knee-r :flex 22.6) (:thigh-l :flex 30.8) (:knee-l :flex 30.5))
+  (52 (:root :u -0.062 :f 0.206) (:pelvis :twist -8.8) (:chest :twist -44.5) (:neck :flex -10.5) (:head :flex -16.6 :twist -28.2) (:arm-r :flex 33.4 :twist -10.4 :side 14.2) (:hand-r :flex -86.1 :twist -14.2 :side 0.0) (:thigh-r :flex -12.4) (:knee-r :flex 22.5) (:thigh-l :flex 30.6) (:knee-l :flex 30.4))
+  (53 (:root :u -0.062 :f 0.204) (:pelvis :twist -9.1) (:chest :twist -45.0) (:neck :flex -10.3) (:head :flex -16.4 :twist -28.7) (:arm-r :flex 31.6 :twist -11.3 :side 15.2) (:hand-r :flex -85.9 :twist -14.0 :side 0.1) (:thigh-r :flex -12.3) (:knee-r :flex 22.3) (:thigh-l :flex 30.4) (:knee-l :flex 30.3))
+  (54 (:root :u -0.061 :f 0.203) (:pelvis :twist -9.4) (:chest :twist -45.3) (:neck :flex -10.2) (:head :flex -16.3 :twist -29.2) (:arm-r :flex 30.2 :twist -12.1 :side 16.0) (:hand-r :flex -85.8 :twist -13.8 :side 0.2) (:thigh-r :flex -12.2) (:knee-r :flex 22.2) (:thigh-l :flex 30.3) (:knee-l :flex 30.2))
+  (55 (:root :f 0.202) (:pelvis :twist -9.7) (:chest :twist -45.6) (:neck :flex -10.1) (:head :flex -16.2 :twist -29.5) (:arm-r :flex 29.0 :twist -12.7 :side 16.6) (:hand-r :flex -85.7 :twist -13.7 :side 0.4) (:thigh-r :flex -12.1) (:knee-r :flex 22.1) (:thigh-l :flex 30.2) (:knee-l :flex 30.1))
+  (56 (:root :f 0.201) (:pelvis :twist -9.9) (:chest :twist -45.8) (:neck :flex -10.1) (:head :flex -16.1 :twist -29.8) (:arm-r :flex 28.2 :twist -13.1 :side 17.1) (:hand-r :flex -85.6 :twist -13.6 :side 0.4) (:thigh-r :flex -12.0) (:knee-r :flex 22.1) (:thigh-l :flex 30.1) (:knee-l :flex 30.0))
+  (57 (:root :f 0.2) (:pelvis :twist -10.0) (:chest :twist -46.0) (:head :flex -16.0 :twist -29.9) (:arm-r :flex 27.7 :twist -13.4 :side 17.4) (:hand-r :twist -13.5) (:thigh-l :flex 30.0))
+  (58 (:head :twist -30.0) (:arm-r :flex 27.5 :twist -13.5 :side 17.5))
+  (66 :ya-nadegiri-low (:root :u -0.065))                                                      ; held, his back to the cut
+  (72 :ya-nadegiri-low (:root :u -0.066) (:head :flex -15.5 :twist -30.5))
+  (:end :ya-nadegiri-low (:root :u -0.065)))
 ;; AS3a (S8), the back cut: from J3's S+1 (the pommel forward, the blade laid back under the forearm) the reverse-gripped blade cocked out
 ;; off the little finger to his left front (the tip 1.77 m out on S), then the hilt pulled back across him R->L: the edge cuts on the pull
 (defpose :ya-tsuka-thru (:base :ya-tsuka-hit) (:root :f 0.323) (:arm-r :flex 131.6))   ; J3's S+1 (f10) as :YA-TSUKA draws it
@@ -1279,23 +1415,35 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
      (:thigh-r :flex 45) (:knee-r :flex 20) (:thigh-l :flex -30) (:knee-l :flex 45) (:root :u -0.1))
   (0.2 (:spine :flex 30) (:head :flex -30) (:thigh-l :flex 45) (:knee-l :flex 20) (:thigh-r :flex -30) (:knee-r :flex 45)
        (:root :u -0.06)))
-;; S10 IKKOTSU (canon ch. 394): the blade planted (DRAW-PLANTED-WEAPON), one step in on the left foot, the right fist driven
-;; straight out at shoulder height, the body turned in behind it (the fist at the 1.35 m volume's edge)
-(defpose :ya-ikkotsu-chamber (:base :ya-stance)
-  (:root :yaw -20 :u -0.1) (:chest :twist -25) (:spine :flex 10) (:head :flex -22)
-  (:arm-r :flex 10 :side 15) (:elbow-r :flex 120) (:hand-r :flex 0 :twist 0))
-(defpose :ya-ikkotsu-hit (:base :ya-stance)
-  (:root :yaw 12 :f 0.32 :u -0.12) (:pelvis :side -4) (:chest :twist 22) (:spine :flex 14) (:head :flex -24)
-  (:thigh-l :flex 45) (:knee-l :flex 40) (:thigh-r :flex -22)
-  (:arm-r :flex 139 :side -47) (:elbow-r :flex 9) (:hand-r :flex 0 :twist 0))
-(defstrike :ya-ikkotsu (8 4 18 :base :ya-stance)       ; Ikkotsu: sword planted (draw it with DRAW-PLANTED-WEAPON), one punch
-  (0 :ya-ikkotsu-chamber)
-  (5 :ya-ikkotsu-chamber (:root :yaw -28 :u -0.14) (:chest :twist -32) (:spine :flex 12) (:thigh-l :flex 30) (:knee-l :flex 50))
+;; 爆炎 J3 IKKOTSU (canon ch. 394; art S4, DUEL_YAMA_CORE §21.4 / §25): at the move's S9 (it struck at S8, F10). Frame 0 is J2's S+A
+;; (:YA-Q2-A, where the string's link lands); the blade is planted point-down at his right on f2 (:YA-IKKOTSU-PLANT, *YA-PLANTS*' spot:
+;; the grip 0.76 m up, 0.5 m right, 0.14 m ahead, by FK) and the hand lets go; the fist drawn back to the ribs (f3-6), held and wound (f7-8);
+;; one step in on the left foot and the fist straight out at shoulder height on S (:YA-IKKOTSU-HIT: the wrist 1.35 m ahead at 1.33 m up, on
+;; the 1.40 m volume; it was 1.21); held through S+A, drawn back, the hand on the hilt again on f24, the blade drawn out into the stance
+(defpose :ya-ikkotsu-plant (:base :ya-stance)                ; the hand on the planted hilt (FK: the grip 0.75 m up, 0.50 right, 0.14 ahead)
+  (:root :u -0.1 :yaw -6) (:spine :flex 12) (:chest :twist -12) (:head :flex -10)
+  (:arm-r :flex 20 :side 27 :twist -16) (:elbow-r :flex 27) (:hand-r :flex -126 :twist 15 :side -16))
+(defpose :ya-ikkotsu-chamber (:base :ya-stance)              ; the fist drawn back to the ribs, the body turned away
+  (:root :yaw -20 :u -0.12) (:chest :twist -30) (:spine :flex 12) (:head :flex -22) (:thigh-l :flex 30) (:knee-l :flex 45)
+  (:arm-r :flex -39.5 :side 19.5 :twist 0) (:elbow-r :flex 136) (:hand-r :flex 0 :twist 0 :side 0))
+(defpose :ya-ikkotsu-hit (:base :ya-stance)                  ; stepped in, the fist out at shoulder height
+  (:root :yaw 10 :f 0.52 :u -0.16) (:pelvis :side -4 :twist 14) (:chest :twist 30.5) (:spine :flex 11.5) (:neck :flex -20) (:head :flex -24)
+  (:thigh-l :flex 58) (:knee-l :flex 52) (:thigh-r :flex -32) (:knee-r :flex 4)
+  (:arm-r :flex 157 :side -41 :twist 0) (:elbow-r :flex 4.5) (:hand-r :flex 0 :twist 0 :side 0))
+(defstrike :ya-ikkotsu (9 3 18 :base :ya-stance)
+  (0 :ya-q2-a)
+  (2 :snap :ya-ikkotsu-plant)                                                                 ; planted
+  (3 :ya-ikkotsu-plant (:arm-r :flex 4 :side 24 :twist -8) (:elbow-r :flex 70) (:hand-r :flex -40 :twist 6 :side -6))   ; let go
+  (6 :ya-ikkotsu-chamber)                                                                     ; drawn back
+  (7 :ya-ikkotsu-chamber (:root :yaw -21 :u -0.125) (:chest :twist -32))                     ; held, wound
+  (8 :ya-ikkotsu-chamber (:root :yaw -22 :u -0.13) (:chest :twist -33))
   (:s :snap :ya-ikkotsu-hit)
-  (9 (:root :yaw 15 :f 0.34) (:chest :twist 25))
-  (:a (:root :yaw 14 :f 0.33) (:chest :twist 24))
-  (22 (:root :yaw 2 :f 0.12 :u -0.1) (:pelvis :side 0) (:chest :twist 0) (:spine :flex 22)
-      (:arm-r :flex 45 :side 10) (:elbow-r :flex 40) (:hand-r :flex -20) (:thigh-l :flex 28) (:knee-l :flex 30) (:thigh-r :flex -10))
+  (10 :ya-ikkotsu-hit (:root :f 0.53) (:chest :twist 32))
+  (:a :ya-ikkotsu-hit (:chest :twist 31))
+  (18 (:root :yaw 2 :f 0.24 :u -0.12) (:pelvis :side -2 :twist 6) (:chest :twist 4) (:spine :flex 12) (:head :flex -16)
+      (:thigh-l :flex 34) (:knee-l :flex 34) (:thigh-r :flex -14) (:knee-r :flex 14)
+      (:arm-r :flex 60 :side 10 :twist -8) (:elbow-r :flex 60) (:hand-r :flex -60 :twist 8 :side -8))
+  (24 :ya-ikkotsu-plant)                                                                      ; back on the hilt
   (:end :ya-stance))
 (defclip :ya-kikon (1.8 :base :ya-stance)              ; Jokaku Enjo: raise the blade, sweep, the fire dome detonates
   (0)
@@ -1317,23 +1465,26 @@ segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA
   (1.3 (:arm-r :flex 72))
   (1.8 :ya-lean (:arm-r :flex 35 :side 10) (:elbow-r :flex 20) (:hand-r :twist 150 :flex 10) (:head :flex -4))
   (2.0 :ya-lean (:arm-r :flex 35 :side 10) (:elbow-r :flex 20) (:hand-r :twist 150 :flex 10) (:head :flex -4)))
-;; S12 the Hellfire entry (Ennetsu Jigoku, canon ch. 393): the point lowered to the plaza at his right side and drawn round
-;; in one circle step (root yaw, a key every 90 degrees: the fire runs down the edge into the ground), then he straightens
-;; and flares out
+;; 爆炎's entry pose (Ennetsu Jigoku's opening, canon ch. 393; art S4, DUEL_YAMA_CORE §21.4 / §25): its own 24 f clip on the move's frames
+;; (it played the old 60 f :YA-HELLFIRE, a 360 deg root turn, at x2.5). No turn: the point lowered to the plaza at his right (f0-6), held
+;; there while the fire runs down the edge into the floor and a ring runs out (f7-16: YAMA-SK-MOVES code 6), then he straightens, chest
+;; out, chin up, the arm flung wide (f17-23). The move's :blend 4 takes it from any stance
 (defpose :ya-hellfire-point (:base :ya-stance)
   (:root :u -0.1) (:knees :flex 30) (:chest :twist -10) (:spine :flex 14)
   (:arm-r :flex 1 :side 25 :twist 23) (:elbow-r :flex 1) (:hand-r :twist 0 :flex -34))
-(defclip :ya-hellfire (1.0 :base :ya-stance)
+(defpose :ya-blaze-up (:base :ya-stance)                     ; straightened: the chest out, the chin up, the arm and blade flung wide
+  (:root :u 0.0) (:knees :flex 10) (:spine :flex -12) (:neck :flex -10) (:head :flex -30) (:chest :twist 0)
+  (:arm-r :flex 20 :side 80 :twist 0) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -90) (:arm-l :side 45))
+(defstrike :ya-blaze-in (23 1 0 :base :ya-stance)
   (0)
-  (0.12 :ya-hellfire-point)
-  (0.27 :ya-hellfire-point (:root :yaw -90) (:pelvis :side 4))
-  (0.42 :ya-hellfire-point (:root :yaw -180) (:pelvis :side 5))
-  (0.57 :ya-hellfire-point (:root :yaw -270) (:pelvis :side 4))
-  (0.7 :ya-hellfire-point (:root :yaw -360))
-  (0.8 :snap (:root :yaw -360 :u 0.0) (:knees :flex 10) (:spine :flex -12) (:head :flex -30) (:chest :twist 0)
-       (:arm-r :flex 20 :side 80 :twist 0) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -90) (:arm-l :side 45))
-  (0.9 (:spine :flex -10) (:arm-l :side 47))
-  (1.0 :ya-stance (:root :yaw -360)))
+  (3 :ya-hellfire-point (:root :u -0.07) (:knees :flex 20) (:arm-r :flex 12 :side 18 :twist 10) (:elbow-r :flex 16) (:hand-r :flex -60))
+  (6 :ya-hellfire-point)                                                                      ; the point in the plaza
+  (11 :ya-hellfire-point (:root :u -0.11) (:head :flex -16))                                 ; the fire runs down into the floor
+  (16 :ya-hellfire-point (:root :u -0.105) (:head :flex -12) (:hand-r :flex -36))           ; the ring runs out
+  (18 :snap :ya-hellfire-point (:root :u -0.05) (:knees :flex 18) (:spine :flex 4) (:arm-r :flex 10 :side 50) (:hand-r :flex -60))
+  (20 :snap :ya-blaze-up)                                                                     ; straightened
+  (:s :ya-blaze-up (:spine :flex -10) (:arm-l :side 47))
+  (:end :ya-blaze-up (:spine :flex -10) (:arm-l :side 47)))
 
 ;;; ---------------------------------------------------------------- Bankai (Zanka no Tachi) kit
 (defclip :ya-bankai (2.2 :base :ya-stance)             ; the blade raised: every fire drawn into it; then ready

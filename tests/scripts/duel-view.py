@@ -109,6 +109,15 @@ def yama_s3(cmd, shot, t):
         for k, view in ((1, "side"), (2, "front")):
             cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-s3-{n}-{view}", 0.9)
 
+# Art S4 (DUEL_YAMA_CORE §25): 爆炎's own clips (IKKOTSU, the entry pose, ENNETSU, the true NADEGIRI) on the bared body (the viewer draws
+# IKKOTSU's blade in his hand: the planted blade is the game's): tests/shots/duel-view-yama-s4-<clip>-<side|front>.png
+#   node tools/run.mjs dist/duelview --secs 20 --script tests/scripts/duel-view-yama-s4.json
+YA_S4 = ("ya-ikkotsu", "ya-blaze-in", "ya-b-n2c", "ya-b-n3c")
+def yama_s4(cmd, shot, t):
+    for n in YA_S4:
+        for k, view in ((1, "side"), (2, "front")):
+            cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-s4-{n}-{view}", 0.9)
+
 script("looks", looks); script("strips", strips); script("stage", stage); script("sounds", sounds); script("strings", strings)
-script("yama-k2", yama_k2); script("yama-k3", yama_k3); script("yama-s2", yama_s2); script("yama-s3", yama_s3)
+script("yama-k2", yama_k2); script("yama-k3", yama_k3); script("yama-s2", yama_s2); script("yama-s3", yama_s3); script("yama-s4", yama_s4)
 print(len(clips), "clips:", " ".join(c.lower() for c in clips))
