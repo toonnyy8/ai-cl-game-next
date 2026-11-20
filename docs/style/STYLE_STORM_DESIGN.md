@@ -1914,6 +1914,20 @@ Finding: `vfx-aura` has no `:hellfire` branch, and the keyword is not fbound. Th
 - **Candidates** (feather px, glow): 0 = (0, 0), the current look; 1 = (1.5, 0.25); 2 = (3, 0.5); 3 = (5, 0.8).
 - With candidate 0 every frame lane and the glow are 0 / -1, and the fringe pass is skipped. Its renders are byte-identical to the
   base build's.
+- **Strips** (`tests/scripts/duel-soft-flame-c{0..3}[-phone].json`, one run per candidate on the same timeline; sheets
+  `tests/shots/duel-softflame-sheet-{aura,ennetsu,ennetsu-zoom,stance1,west}.png` and `-{aura,ennetsu}-phone.png`, untracked):
+  rows = candidates, columns = 8 consecutive 60 Hz frames.
+  - Read at a glance: the feather softens the outer rim. The glow shows from candidate 2, and at candidate 3 the pillars read as lit.
+  - The shade band (`d/k + 0.3 s.x > 0.82`) sits on the rim, so a wide feather fades the dark-red / gold shade edge out with it.
+  - The geometry still jumps on twos, so the flow only shows in the noise.
+- **Proofs.**
+  - Candidate 0's 48 stills (32 landscape, 16 phone) are byte-identical to the base build (d7b71277).
+  - The title is byte-identical at candidate 0. At candidate 3 only the background Kenpachi's REIATSU aura changes (a 93 × 150 px
+    box): the title has a flame-class effect.
+  - `--cvc` passes; the native trials (`yamamoto-core`) are identical; host tests 4252 pass; pkgcheck shows only the existing
+    `DUEL::APP`; the debug ranges have 0 errors; `fill-frame-uniforms` conses 0 B a call at candidates 0 and 2 (native, 100 calls).
+- **Speed** (SwiftShader, wall clock, 西 garb + Kenpachi's aura, two runs each, on a shared machine): candidate 0 at 67.7–85.1 ms
+  a frame, candidate 3 at 60.4–94.5 ms. The difference is lost in the noise of the parallel load.
 
 Gates:
 - the native trials, the browser scripts' sim lines and `--cvc` identical (presentation only);
