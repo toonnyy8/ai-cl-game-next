@@ -1810,3 +1810,56 @@ tests `duel-view.lisp` (7000+k grip strips), `style-6-shots.py`, `style-6-checks
 
 **Open.** User review 4 (the final one). The fist's residual on DO's wind-up frame (a longer left arm or an extra key would
 reach); the face accents inside Kenpachi's cup-3 aura; a rain sound; the hair lift of cup 3's grin (a hair rig).
+
+## 15. Soft flame: feathered edges and continuous flow (batch F1, 2026-11-20)
+
+The user, 2026-11-20: 「能否讓火焰展現出輕柔的材質感，目前的火焰特效都顯的生硬」.
+
+**Why the flames read as stiff.** This reverses part of §3.4 / §6's rules: "one hard layer" per shape, fire on twos.
+- Every flame shape is one opaque layer, cut at a hard level set and filled with two or three flat palette bands.
+- Its noise steps every two fx ticks and reseeds on the third drawing, so it pops rather than flows.
+- Many Lisp looks also put `drawing-no` into their shape seeds and heights (about 70 call sites over `vfx`, `yama-*`, `ken-*`,
+  `ichigo-look`, `hisagi-*`), so they pop on each drawing too.
+- References: `.refs/yamamoto/RoS_Yamamoto_Ennetsu_Jigoku.png` (Rebirth of Souls: silk-like glowing ribbons), the anime ep. 372 frames, and
+  the user's Zanjitsu Gokui image (`docs/research/yamamoto-rework/zanjitsu-refs.md`). A side-by-side sheet was shown to the user.
+
+### 15.1 Decisions (AskUserQuestion, 2026-11-20; the user's answer in bold)
+
+| # | Question | Answer | Rejected |
+|---|---|---|---|
+| F-Q1 | Which softness | **「保留平塗、只柔邊和流動」**: keep the flat manga colour bands; the edges feather out, a little glow round the shape, the motion flows upward continuously frame by frame | silk and glow like RoS: translucent ribbons, smooth gradients, layered (the most change, the manga read fades); motion only (the shapes as they are, flowing and swaying, thin drifting tips) |
+| F-Q2 | Scope | **「所有火焰類特效」**: every flame-class effect, Kenpachi's yellow REIATSU flame aura and any other tongue-shaped aura included | Yamamoto's fire only |
+
+### 15.2 The approach (the lead's, with the advisor's review)
+
+1. **Feather inward, in a second pass.**
+   - The opaque core pass stays as it is.
+   - A blended fringe pass over the same fx-toon vertices draws only a thin band inside the silhouette, with an alpha falloff:
+     depth test on, depth write off, after the opaque fx.
+   - The edge must not move outward, so a floor ring's ground edge (the footprint rule, DUEL_YAMA_CORE §21.6) and the mantle's
+     1.9 m cap (§27) hold.
+   - No Lisp change and 0 B.
+   - Why not alpha-to-coverage alone: MSAA (4x when the device supports it) gives about 5 dithered levels, which reads as grain.
+     Without MSAA the shader discards at 0.5.
+2. **A little glow.** Use the existing bloom path (bright → blur → composite) if the flame palettes can feed it. Otherwise a faint halo
+   in the fringe pass. Small: the manga bands stay the read.
+3. **Flow.**
+   - Fire's noise scrolls on the continuous fx clock, wrapped to a period, with no reseed.
+   - On the Lisp side, one shared `defun-fast` helper (a hash interpolated over a continuous phase) replaces `drawing-no` in the flame
+     looks' seeds and heights.
+   - It stays on the fx clock, so hitstop and a cinematic's DT 0 still freeze it: the full shape on the hit frame, deterministic stills.
+4. **Order.**
+   - First a shader-only prototype: 2-3 feather widths × glow strengths on Kenpachi's aura and the ENNETSU pillars, shown to the user
+     as 8-frame strips (flow does not show in a still).
+   - Then the shader at the user's pick.
+   - Then the Lisp seed sweep, after the running batches S5 / Z1 merge so it covers their looks.
+5. **The flame-class inventory** (styles, palettes, call sites) is written into this § before the sweep; borderline effects are listed
+   for the user, not decided silently.
+
+Gates:
+- the native trials, the browser scripts' sim lines and `--cvc` identical (presentation only);
+- the looks gate's expected diff written first: every still with a flame or REIATSU effect moves, and the stills without one
+  (`menus/title`, …) stay byte-identical;
+- `tools/toon_check.py`'s spot-share and value-step numbers are reported; a rule they break is amended with the user's words, not retuned;
+- speed is compared before and after only (SwiftShader);
+- `procedural-ink-style`'s per-material step rates are updated after the batch.
