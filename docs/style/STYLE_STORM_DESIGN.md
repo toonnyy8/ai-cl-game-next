@@ -2141,7 +2141,8 @@ popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the mo
 - **The shader half of the borderline.** BLOOD, INK, STEEL, HIT and BLUE are outside `soft_class`. So the Kikon and `:oni` auras,
   `:evolution`, the white / blue bursts, the soul flame and Ichigo's wisps and sheets now move smoothly in Lisp, but their shader noise
   still steps and reseeds on twos, with no feather and no 0.8. Widening `soft_class` would put every BLOOD / INK along shape at 0.8
-  (Kenpachi's blood trails, chains), which is a design call for the lead or the user, not this sweep.
+  (Kenpachi's blood trails, chains), which is a design call for the lead or the user, not this sweep. (Closed by §15.8: a per-shape
+  flame flag, not a wider palette test.)
 - The rates `+FLOW-SWAY+` (12, the old step) and `+FLOW-LICK+` (6, chosen, not compared with 12) wait on the playtest.
 - **Flame area** (warm pixels below the HUD, mean over the 30 frames, after / before): stance 0.95, ring 1.01, 西's garb 1.06,
   爆炎 1.00, Kenpachi's aura 1.08; phone 0.94 / 0.96 / 1.05 / 0.99 / 1.10. The size holds within 10 %. The drift comes from the
@@ -2149,7 +2150,7 @@ popped 12 times a second. Flat fill, the silhouettes and sizes stay; only the mo
   aura read a little fuller. A different constant per tongue would trim them if the user sees it.
 - `yama-nishi-look` still seeds the molten ring under his soles (`%ya-garb`) and the FLAME footprints from his position. Through the
   walk (f72-124, 0.029 m a frame) that seed changes every frame, so the noise churns. This is the moving-seed case fixed elsewhere
-  above, not a regression from main; a literal seed for the cinematic would end it.
+  above, not a regression from main; a literal seed for the cinematic would end it. (Closed by §15.8: the literal 37.)
 - No borderline site was measured. The claim that BLOOD / INK / BLUE flow only on the Lisp side is reasoned from `soft_class`.
 - **Zoom sheets** (a tight crop round the flame): `tests/shots/duel-f1s-zoom-{stance,column,ring,west,hellfire,aura}[-phone].png`.
   The 爆炎 strips come from a separate run with Yamamoto in the Shikai (the first run carried 西's Bankai over into that scene).
@@ -2232,9 +2233,11 @@ A one-line diff.
   - Misses: `cvc-ik/w2-0` (named "differ" from §15.7) is identical: its blue pieces are BURST REVERSE's activation shards and stamp,
     not the running aura, so nothing flagged is in frame. `cine-ichigo/ichigo-awaken-020` (written "identical") differs: KESSA's
     wisps are in frame.
-- **Flow** (the blue burst, debug 2323, 8 consecutive 60 Hz frames at half-frame offsets, the box round the aura): the mean grey
-  change between neighbouring frames 2.9-4.5 before → 2.0-2.8 after (desktop), 3.2-5.4 → 2.5-3.1 (phone); pixels changing by more
-  than 48 grey 2.7-4.8 k → 2.0-2.9 k, 5.6-11.1 k → 3.3-4.5 k. Before, the noise pops on the shader's twos; after, it scrolls.
+- **Flow** (the blue burst, debug 2323, 8 consecutive 60 Hz frames at half-frame offsets, the box round the aura; 7 differences a
+  row, a short series): the flatness of the mean grey change between neighbouring frames, max / median as in §15.7's table, is
+  1.20 → 1.08 on the desktop and 1.28 → 1.06 on the phone. Before, the noise pops on the shader's twos; after, it scrolls. The level
+  drops too (2.9-4.5 → 2.0-2.8 desktop, 3.2-5.4 → 2.5-3.1 phone), partly from the flow and partly from the 0.8 layer and the
+  feather lowering the aura's contrast against the ground.
 - **Stills** (before = main 5bb4a9fb, after = 6eaec9bb, same timeline): `tests/shots/duel-f1b-{burstblue,wisps,oni,soulflame}-{before,after}[-phone].png`
   (2323 the blue burst on Ichigo, 74001 KESSA's wisps, 35080 the Bankai cinematic's pillar, 16030 the soul-break cinematic), the
   8-frame strip `duel-f1b-strip-f{0..7}-{before,after}[-phone].png`, sheets `duel-f1b-sheet[-phone].png` (rows = scenes, before |
