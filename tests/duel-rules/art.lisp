@@ -310,7 +310,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
 ;; key gap): the wing tips <= 1.9 m from his centre line (the spec; inside the 2.0 m burn), the top ~1.4 x his 1.65 m, the hem above the
 ;; sandals; its fill strips (anchor i, outline i, outline i+1, anchor i+1) cover the inside: no strip folds by more than a sliver (a fold
 ;; would paint outside the outline), and every anchor lies in the half it serves (au u >= 0); the front layer stays body-wide
-;; and below his hands (|u| <= 0.32, v <= 1.12).
+;; and below his chin (|u| <= 0.32, v <= 1.42; round 2, §27.6: the torso and legs).
 (with-open-file (in (merge-pathnames "../../duel/lisp/yama-look.lisp" *load-truename*))
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
@@ -334,7 +334,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
     (check (> (folds m) -0.06))
     (check (> (folds k) -0.01))
     (check (every (lambda (p) (>= (* (first p) (third p)) 0)) m))
-    (check (every (lambda (p) (and (<= (abs (first p)) 0.32) (<= (second p) 1.12))) k))))
+    (check (every (lambda (p) (and (<= (abs (first p)) 0.32) (<= (second p) 1.42))) k))))
 
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
 ;; than any J link at the same position of the string (its reach + its lunge, :slide); 片腕's short K against the J floor (2026-10-06) excepted

@@ -275,89 +275,88 @@ where it started. A look."
     nil))
 
 ;;; ---------------------------------------------------------------- 殘日獄衣's mantle (batch Z1, DUEL_YAMA_CORE §27; L8 since then)
-;;; One closed flame mantle round him (the user's reference image, 2026-11-20): narrow at the ankles (the sandals show), hem lobes at the knee
-;;; and the hip, two wings of up-curling lobes, a column of lobes over his head to ~1.44x his height, apart from the wings by a valley at the
-;;; neck. The outline is a table in metres on a cylindrical billboard: U along the camera's horizontal right from his vertical axis, V up from
-;;; the floor (so it reads the same from the front, the side and behind). Every outline point has an anchor on a skeleton tree inside the
-;;; shape (the trunk, the hem lobes' branches, the wing spines and the lobes'); the fill is the strip between the anchor chain and the outline,
-;;; one fan-flagged FIRE shape whose UV sits on the palette's core spot: all the yellow-white core, no shade, no edge, so the strips never
-;;; seam (the Bankai's spot-keep grade keeps hue 10 / 48 deg above saturation 0.45: FIRE's core #FFE483 stays yellow). A walk
-;;; (:walk au av) keeps the outline point and moves its anchor along the tree (a fan round a valley), so the anchor chain runs the tree's
-;;; edges and the strips cover the inside with no gap. On it: a white rim (HIT), an orange edge outside it (FLAME, its shade the outer line),
-;;; red-orange and dark-red flame marks (FIRE / EMBER tongues) licking up inside, white sparks drifting off. The sheet sits behind his body
-;;; along the view ray; a front layer (*YA-SKIRT-KEYS*) wraps his legs below the hands while it is full. Z-Q2: as the camera comes round
-;;; behind him the fill hollows to a band at the outline (rim and marks stay; the opponent shows through).
+;;; One closed flame mantle round him, traced from the user's reference image (2026-11-20; round 2 after the lead's review, §27.6): narrow
+;;; at the ankles (the sandals show), a rounded lobe curling out at each knee-hip, two wings of three swept lobes rising outward (the
+;;; outer the longest, its tip hooked back), a column of five tall tongues over his head to 1.47x his height, apart from the wings by a
+;;; valley at the neck. The outline is a smooth Catmull-Rom curve through keys in metres on a cylindrical billboard: U along the camera's
+;;; horizontal right from his vertical axis, V up from the floor (so it reads the same from the front, the side and behind). Every outline
+;;; point has an anchor on a skeleton tree inside the shape (the trunk, the hem lobes' branches, the wing spines and the lobes'); a fill
+;;; is the strip between the anchor chain and the outline (a walk, (:walk au av), keeps the outline point and moves its anchor along the
+;;; tree, so the anchor chain runs the tree's edges and the strips leave no gap). Flat manga bands (F-Q1, STYLE_STORM_DESIGN §15): a
+;;; yellow-white fill (FIRE's core), a white-hot band deeper than 0.3 m from the outline (HIT), an orange band 0.05 m inside the outline
+;;; (FLAME's body, its outer edge feathered by the soft-flame pass), a clean white rim (HIT, no boil); curved flame strokes licking up
+;;; inside (FIRE / EMBER comets), white sparks. The sheet sits behind his body on the view ray; at full size a see-through front layer
+;;; (*YA-SKIRT-KEYS*, glass 3) wraps his torso and legs below the neck. Z-Q2: from behind the fill turns see-through (glass 2), the rim
+;;; and the strokes stay. Without MSAA a glass shape would be opaque: there the hollow drops the fill and the front layer is not drawn.
 (defparameter *ya-mantle-keys*
-  '((0.00 0.10 0.00 0.40 0.0 t)   (0.13 0.10 0.00 0.40 0.0 t)            ; the hem's edge above the sandals
-    (0.20 0.28 0.00 0.50 0.1 nil)
-    (0.36 0.40 0.16 0.52 0.4 nil) (0.64 0.60 0.42 0.56 1.0 t) (0.42 0.62 0.18 0.52 0.4 nil)   ; the knee lobe, out and up
-    (:walk 0.00 0.50) (:walk 0.00 0.80)
-    (0.62 0.78 0.28 0.85 0.7 nil) (0.82 1.04 0.54 0.90 1.0 t) (0.58 1.00 0.28 0.85 0.4 nil)   ; the hip lobe
-    (:walk 0.00 0.80) (:walk 0.00 1.36)
-    (0.86 1.14 0.70 1.46 0.4 nil) (1.12 1.30 1.10 1.59 0.6 nil)                               ; the wing's underside, rising
-    (1.38 1.34 1.30 1.65 0.9 t)   (1.40 1.56 1.45 1.78 0.6 nil)                               ; a lobe hanging under it, hooked out
-    (1.66 1.84 1.58 1.86 0.9 nil) (1.80 2.12 1.58 1.86 1.0 t) (1.58 1.94 1.50 1.81 0.7 nil)   ; the wing's tip, curled up (1.80 m out)
-    (:walk 1.36 1.721)
-    (1.50 2.18 1.40 1.94 1.0 t)   (1.28 1.86 1.36 1.721 0.6 nil)                              ; wing lobe A
-    (:walk 1.20 1.62) (:walk 1.00 1.556)
-    (1.10 2.06 1.04 1.88 1.0 t)   (0.80 1.72 1.00 1.556 0.6 nil)                              ; wing lobe B
-    (:walk 0.70 1.46)
-    (0.50 1.56 0.48 1.429 0.3 nil)                                                            ; the valley at the neck
-    (:walk 0.00 1.36) (:walk 0.00 1.50)
-    (0.40 1.80 0.15 1.71 0.6 nil) (0.40 2.12 0.30 1.92 1.0 t) (0.24 1.94 0.15 1.71 0.6 nil)   ; the column's outer lobe
-    (:walk 0.00 1.50) (:walk 0.00 1.70)
-    (0.20 2.28 0.14 2.08 1.0 t)   (0.10 2.06 0.07 1.89 0.6 nil)                               ; its inner lobe
-    (:walk 0.00 1.70)
-    (0.00 2.38 0.00 2.14 1.0 t))                                                              ; the centre lobe (1.44 x 1.65 m)
-  "殘日獄衣's outline, the right half from the bottom centre up to the top centre (YA-MANTLE-SAMPLE mirrors it): (u v au av flex sharp) an
-outline key in metres (U out from his axis, V up), its anchor (AU AV) on the skeleton tree, FLEX how far it billows (0 the hem's edge .. 1 a
-lobe's tip), SHARP a tip (its tangents along its sides); (:walk au av) the same outline point with its anchor moved along the tree. The
-user's reference (DUEL_YAMA_CORE §27.2): wing tips <= 1.9 m out (1.80), the top ~1.4 x his 1.65 m (2.38), 4 lobes a wing (the tip, A, B,
-the hanging one), 5 rising over his head (the centre, the column's two pairs). Host-checked (tests/duel-rules/art.lisp).")
+  '((0.00 0.13 0.00 0.45 0.0) (0.17 0.13 0.00 0.45 0.0) (0.24 0.26 0.00 0.55 0.1)        ; the hem's edge above the sandals
+    (0.34 0.36 0.12 0.57 0.3) (0.48 0.47 0.30 0.60 0.4) (0.58 0.60 0.42 0.65 0.6)        ; the lobe curling out at the knee-hip
+    (0.64 0.78 0.50 0.77 0.8) (0.66 0.93 0.56 0.86 1.0) (0.62 1.01 0.56 0.86 1.0)        ;  its tip, hooked back in
+    (0.53 0.99 0.53 0.82 0.8) (0.46 0.90 0.44 0.68 0.5)
+    (:walk 0.40 0.62) (:walk 0.00 0.55)
+    (0.36 1.08 0.00 1.00 0.3) (0.30 1.20 0.00 1.24 0.2) (:walk 0.00 1.42)                ; the notch under the wing
+    (0.40 1.31 0.10 1.443 0.3) (0.66 1.43 0.60 1.56 0.4) (0.95 1.62 0.92 1.736 0.5)     ; the wing's underside, rising
+    (1.20 1.82 1.20 1.869 0.7)
+    (1.36 1.90 1.30 1.91 0.9) (1.48 1.95 1.30 1.91 1.0) (1.55 2.04 1.30 1.91 1.0)        ; the outer lobe's tip, 1.55 m out,
+    (1.47 2.09 1.30 1.91 1.0) (1.36 2.06 1.30 1.91 0.9)                                    ;  hooked back over
+    (1.25 2.08 1.22 1.877 0.7) (:walk 1.00 1.78)
+    (1.14 2.16 1.01 1.92 0.8) (1.04 2.22 1.02 2.06 1.0) (0.92 2.16 1.01 1.95 0.8)        ; the middle lobe
+    (0.82 1.98 1.00 1.78 0.5) (:walk 0.66 1.593)
+    (0.76 2.04 0.68 1.75 0.8) (0.70 2.10 0.70 1.92 1.0) (0.62 2.02 0.68 1.75 0.8)        ; the inner lobe
+    (0.48 1.80 0.66 1.593 0.4) (:walk 0.60 1.56) (:walk 0.00 1.42) (:walk 0.00 1.60)      ; the valley at the neck
+    (0.48 2.00 0.30 1.80 0.6) (0.48 2.16 0.40 2.10 0.8) (0.43 2.33 0.42 2.16 1.0)        ; the column's outer tongue
+    (0.36 2.18 0.38 2.04 0.8) (0.30 2.04 0.33 1.89 0.5)
+    (:walk 0.24 1.76) (:walk 0.00 1.60) (:walk 0.00 1.80)
+    (0.27 2.16 0.12 2.00 0.7) (0.21 2.34 0.20 2.14 1.0) (0.15 2.20 0.16 2.07 0.8)        ; its inner tongue
+    (0.10 2.10 0.06 1.90 0.6) (:walk 0.00 1.80)
+    (0.06 2.28 0.00 2.12 0.8) (0.00 2.42 0.00 2.20 1.0))                                  ; the centre tongue (1.47 x 1.65 m)
+  "殘日獄衣's outline, the right half from the bottom centre up to the top centre (YA-MANTLE-SAMPLE mirrors it): (u v au av flex) an
+outline key in metres (U out from his axis, V up), its anchor (AU AV) on the skeleton tree, FLEX how far it billows (0 the hem's edge
+.. 1 a tip); (:walk au av) the same outline point with its anchor moved along the tree. Traced on the user's reference at its scale
+(1.65 m tall, §27.6): the wing tips 1.55 m out (<= 1.9: the spec), the top 2.42 m (~1.4 x), the hem 0.13 m. Host-checked
+(tests/duel-rules/art.lisp).")
 (defparameter *ya-skirt-keys*
-  '((0.00 0.10 0.00 0.36 0.0 t) (0.13 0.10 0.00 0.36 0.0 t) (0.19 0.30 0.00 0.42 0.1 nil) (0.24 0.58 0.00 0.62 0.2 nil)
-    (0.27 0.84 0.00 0.80 0.4 nil) (0.30 1.04 0.14 0.88 1.0 t) (0.15 0.90 0.07 0.84 0.4 nil)   ; up the leg; a flame at the hip
-    (:walk 0.00 0.80)
-    (0.00 1.10 0.00 0.94 1.0 t))                                                              ; the centre flame at the waist
-  "The mantle's front layer, in front of his body while the mantle is full (*YA-MANTLE-KEYS*'s format): body-wide (0.13 m at the ankle,
-0.3 m at the hip), below his hands (top 1.1 m), so the hand and the blade stay outside the mantle as in the reference.")
+  '((0.00 0.13 0.00 0.40 0.0) (0.15 0.13 0.00 0.40 0.0) (0.22 0.30 0.00 0.45 0.1) (0.27 0.60 0.00 0.65 0.2)
+    (0.30 0.90 0.00 0.90 0.3) (0.31 1.15 0.00 1.12 0.3) (0.30 1.32 0.00 1.25 0.4) (0.22 1.40 0.00 1.28 0.5)
+    (0.13 1.37 0.00 1.28 0.4) (0.00 1.31 0.00 1.24 0.3))
+  "The mantle's front layer at full size (*YA-MANTLE-KEYS*'s format): his torso and legs, 0.15 m at the ankle, 0.31 m at the hip and
+chest, the shoulders at 1.40 m and a dip under the chin (1.31 m), so the head and beard show above it and his hands and blade beside it;
+drawn see-through (glass 3) so his body shows dimly through.")
 
 (defun ya-mantle-sample (keys sub)
   "The closed outline of a key table KEYS (*YA-MANTLE-KEYS*'s format): a list of (u v au av flex) from the bottom centre up the right side,
-over the top and down the left side (the right half mirrored), SUB samples a key gap (Hermite: a sharp key's tangents along its two sides,
-a smooth key's from its neighbours), the anchors and the flex lerped; a walk adds a point at the same place with the next anchor. Pure."
+over the top and down the left side (the right half mirrored), SUB samples a key gap on a Catmull-Rom curve (the ends' neighbours their
+mirror images: smooth across the axis), the anchors and the flex lerped; a walk adds a point at the same place with the next anchor. Pure."
   (let ((groups nil))
     (dolist (e keys)
       (if (eq (first e) :walk)
           (setf (second (first groups)) (append (second (first groups)) (list (list (second e) (third e)))))
           (push (list e (list (list (third e) (fourth e)))) groups)))
     (let* ((gv (coerce (nreverse groups) 'vector)) (n (length gv)) (out nil))
-      (flet ((tang (i) (let ((p (first (aref gv i))))
-                         (unless (or (sixth p) (= i 0) (= i (1- n)))
-                           (let ((a (first (aref gv (1- i)))) (b (first (aref gv (1+ i)))))
-                             (list (* 0.5 (- (first b) (first a))) (* 0.5 (- (second b) (second a)))))))))
+      (flet ((key (i) (cond ((< i 0) (let ((p (first (aref gv 1)))) (list (- (first p)) (second p))))   ; (the mirror images)
+                            ((>= i n) (let ((p (first (aref gv (- n 2))))) (list (- (first p)) (second p))))
+                            (t (first (aref gv i))))))
         (dotimes (i n)
           (destructuring-bind (p anc) (aref gv i)
             (dolist (a anc) (push (list (first p) (second p) (first a) (second a) (fifth p)) out))
             (when (< i (1- n))
               (destructuring-bind (q anq) (aref gv (1+ i))
-                (let* ((d (list (- (first q) (first p)) (- (second q) (second p)))) (t0 (or (tang i) d)) (t1 (or (tang (1+ i)) d))
-                       (a0 (car (last anc))) (a1 (first anq)))
+                (let ((p0 (key (1- i))) (p3 (key (+ i 2))) (a0 (car (last anc))) (a1 (first anq)))
                   (loop for s from 1 below sub
-                        do (let* ((tt (/ s sub)) (h00 (+ (* 2 tt tt tt) (* -3 tt tt) 1)) (h10 (+ (* tt tt tt) (* -2 tt tt) tt))
-                                  (h01 (+ (* -2 tt tt tt) (* 3 tt tt))) (h11 (- (* tt tt tt) (* tt tt))))
-                             (push (list (+ (* h00 (first p)) (* h10 (first t0)) (* h01 (first q)) (* h11 (first t1)))
-                                         (+ (* h00 (second p)) (* h10 (second t0)) (* h01 (second q)) (* h11 (second t1)))
-                                         (+ (first a0) (* tt (- (first a1) (first a0)))) (+ (second a0) (* tt (- (second a1) (second a0))))
-                                         (+ (fifth p) (* tt (- (fifth q) (fifth p)))))
-                                   out)))))))))
+                        do (let ((tt (/ s sub)))
+                             (flet ((cr (k) (let ((x0 (nth k p0)) (x1 (nth k p)) (x2 (nth k q)) (x3 (nth k p3)))
+                                              (* 0.5 (+ (* 2 x1) (* (- x2 x0) tt) (* (+ (* 2 x0) (* -5 x1) (* 4 x2) (- x3)) tt tt)
+                                                        (* (+ (- x0) (* 3 x1) (* -3 x2) x3) tt tt tt))))))
+                               (push (list (cr 0) (cr 1) (+ (first a0) (* tt (- (first a1) (first a0))))
+                                           (+ (second a0) (* tt (- (second a1) (second a0)))) (+ (fifth p) (* tt (- (fifth q) (fifth p)))))
+                                     out))))))))))
       (let ((right (nreverse out)))
         (append right (mapcar (lambda (e) (destructuring-bind (u v au av w) e (list (- u) v (- au) av w)))
                               (reverse (butlast (rest right)))))))))
 
 (defun ya-mantle-table (keys sub)
   "YA-MANTLE-SAMPLE of KEYS as an f32vec, 8 floats a point: u v au av flex, the outward normal (nu nv: from the neighbours that stand
-elsewhere, a walk's twin skipped) and the length along the outline (the rims' noise coordinate). Built once at load."
+elsewhere, a walk's twin skipped) and the length along the outline (the billow's phase, the bands' noise coordinate). Built once at load."
   (let* ((pts (coerce (ya-mantle-sample keys sub) 'vector)) (n (length pts)) (tb (make-f32 (* 8 n))) (s 0.0))
     (flet ((other (i dir) (let ((p (aref pts i)))
                             (loop for k from 1 below n
@@ -374,14 +373,14 @@ elsewhere, a walk's twin skipped) and the length along the outline (the rims' no
 
 (declaim (type f32vec *ya-mantle* *ya-skirt* *ya-mt-args* *ya-mt-buf*))
 (defparameter *ya-mantle* (ya-mantle-table *ya-mantle-keys* 2) "The mantle's outline (YA-MANTLE-TABLE, 2 samples a key gap).")
-(defparameter *ya-skirt* (ya-mantle-table *ya-skirt-keys* 2) "Its front layer's.")
+(defparameter *ya-skirt* (ya-mantle-table *ya-skirt-keys* 3) "Its front layer's.")
 (defvar *ya-mt-args* (make-f32 6) "YA-MANTLE's arguments: x z rx rz g k (YA-MANTLE-DRAW reads them: no boxed float).")
 (defvar *ya-mt-buf* (make-f32 (* 4 256)) "The shaped points of the table being drawn: u v au av each (YA-MANTLE-DRAW).")
 (assert (<= (floor (length *ya-mantle*) 8) 256))
 
 (defmacro ya-mantle (x z rx rz g k)
-  "Draw 殘日獄衣's mantle (YA-MANTLE-DRAW) at his feet (X Z), (RX RZ) his right (a unit), G its size (0 西's stance: the wings 0.61 m out,
-the top 1.66 m; 1 full: the wings 1.80 m, the top 2.38 m, the front layer on), K its presence (0.98 whole; below 0.7 the fill erodes from
+  "Draw 殘日獄衣's mantle (YA-MANTLE-DRAW) at his feet (X Z), (RX RZ) his right (a unit), G its size (0 西's stance: the wings 0.60 m out,
+the top 1.74 m; 1 full: the wings 1.55 m, the top 2.42 m, the front layer on), K its presence (0.98 whole; below 0.7 the fill erodes from
 the outline in). Single-float forms, written into *YA-MT-ARGS*: 0 B."
   `(let ((%a *ya-mt-args*))
      (declare (type f32vec %a))
@@ -399,11 +398,11 @@ same screen point). Single-float forms."
 
 (defmacro %ya-mt-shape! (tbl n sw sh amp)
   "Inside YA-MANTLE-DRAW: *YA-MT-BUF* := TBL's N points and anchors shaped for the size (SW: the wings' and the column's spread and their
-height over 1.3 m; SH: the hem lobes' reach out of the body's 0.24 m) and the outline billowing by its flex x AMP m on the effect clock's
-drawings (twos: TQ), a sway out and a lick up."
+height over 1.3 m; SH: the hem lobes' reach out of the body's 0.24 m) and the outline billowing by its flex x AMP m: a smooth, slow sway out
+and lick up whose phase runs along the outline (one wave across a lobe, never point by point), on the continuous effect clock (CLK)."
   `(dotimes (i ,n)
-     (let* ((o (* 8 i)) (b (* 4 i)) (fi (* 4f0 (aref ,tbl (+ o 7)))) (w (* (aref ,tbl (+ o 4)) ,amp)))   ; (FI: the phase by the length
-       (declare (fixnum o b) (single-float fi w))                                                         ;  along: neighbours move together)
+     (let* ((o (* 8 i)) (b (* 4 i)) (fi (* 1.3f0 (aref ,tbl (+ o 7)))) (w (* (aref ,tbl (+ o 4)) ,amp)))
+       (declare (fixnum o b) (single-float fi w))
        (dotimes (h 2)
          (let* ((u (aref ,tbl (+ o h h))) (v (aref ,tbl (+ o h h 1))) (au (f-abs u))
                 (up (f-clamp (/ (- v 0.95f0) 0.4f0) 0f0 1f0)) (up (* up up (- 3f0 (* 2f0 up))))   ; (a smoothstep: the hips .. the shoulders)
@@ -411,109 +410,115 @@ drawings (twos: TQ), a sway out and a lick up."
                 (u2 (+ hem (* up (- (* u ,sw) hem)))) (v2 (if (> v 1.3f0) (+ 1.3f0 (* ,sw (- v 1.3f0))) v)))
            (declare (single-float u v au up hem u2 v2))
            (when (= h 0)
-             (setf u2 (+ u2 (* w (f-sin (+ (* 4.7f0 tq) fi))))
-                   v2 (+ v2 (* w (+ 0.6f0 (f-sin (+ (* 6.1f0 tq) (* 1.4f0 fi))))))))
+             (setf u2 (+ u2 (* w (f-sin (+ (* 1.9f0 clk) fi))))
+                   v2 (+ v2 (* w (+ 0.5f0 (* 0.5f0 (f-sin (+ (* 2.6f0 clk) (* 0.8f0 fi)))))))))
            (setf (aref bf (+ b h h)) u2 (aref bf (+ b h h 1)) v2))))))
 
-(defmacro %ya-mt-fill (n d bw k)
-  "Inside YA-MANTLE-DRAW: the fill of the shaped points (*YA-MT-BUF*, N of them) D m along the view ray: the strip from BW m in from the
-outline toward each anchor (at most the anchor: a large BW is solid; Z-Q2's hollow a band of even width) to the outline, heat 0 at an
-anchor .. 0.7 on the outline, its UV on FIRE's core spot (#FFE483: yellow-white, no shade, no edge; saturated enough at hue 47 deg to keep
-its colour under the Bankai's spot-keep grade, which greys FLAME's cream core), presence K. 6 N vertices."
+(defmacro %ya-mt-fill (n d in0 in1 pk uvx uvy)
+  "Inside YA-MANTLE-DRAW: a flat band of the shaped points (*YA-MT-BUF*, N of them) D m along the view ray: the strip from IN0 m in from
+the outline (0: the outline) to IN1 m in (each toward the point's anchor and never past it: a large IN1 reaches the anchors), a fan shape
+whose heat runs 0 at an anchor .. 0.7 on the outline (the presence erodes it from the outline in), its UV (UVX UVY) on a palette spot (a
+flat colour, no shade, no edge), PK the palette + presence + glass lane. 6 N vertices."
   `(with-fx-verts (dd o :toon (* 6 ,n))
-     (let ((pk (toon-a +pal-fire+ ,k t)))
-       (declare (single-float pk))
-       (dotimes (i ,n)
-         (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j))
-                (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
-                (ai (f-min 1f0 (/ ,bw (f-max 1f-3 (f-hypot (- (aref bf (+ i4 2)) pu) (- (aref bf (+ i4 3)) pv))))))   ; (the way in, 0..1)
-                (aj (f-min 1f0 (/ ,bw (f-max 1f-3 (f-hypot (- (aref bf (+ j4 2)) qu) (- (aref bf (+ j4 3)) qv))))))
-                (cu (+ pu (* ai (- (aref bf (+ i4 2)) pu)))) (cv (+ pv (* ai (- (aref bf (+ i4 3)) pv))))
-                (du (+ qu (* aj (- (aref bf (+ j4 2)) qu)))) (dv (+ qv (* aj (- (aref bf (+ j4 3)) qv))))
-                (hi (* 0.7f0 (- 1f0 ai))) (hj (* 0.7f0 (- 1f0 aj))))
-           (declare (fixnum j i4 j4) (single-float pu pv qu qv ai aj cu cv du dv hi hj))
-           (%ya-mt-at (ax ay az) cu cv ,d
-             (%ya-mt-at (bx by bz) pu pv ,d
-               (%ya-mt-at (cx cy cz) qu qv ,d
-                 (%ya-mt-at (gx gy gz) du dv ,d
-                   (vtx ax ay az 0.15f0 -0.35f0 hi 7f0 0f0 pk) (vtx bx by bz 0.15f0 -0.35f0 0.7f0 7f0 0f0 pk)
-                   (vtx cx cy cz 0.15f0 -0.35f0 0.7f0 7f0 0f0 pk)
-                   (vtx ax ay az 0.15f0 -0.35f0 hi 7f0 0f0 pk) (vtx cx cy cz 0.15f0 -0.35f0 0.7f0 7f0 0f0 pk)
-                   (vtx gx gy gz 0.15f0 -0.35f0 hj 7f0 0f0 pk))))))))))
+     (dotimes (i ,n)
+       (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j))
+              (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
+              (iau (- (aref bf (+ i4 2)) pu)) (iav (- (aref bf (+ i4 3)) pv)) (jau (- (aref bf (+ j4 2)) qu)) (jav (- (aref bf (+ j4 3)) qv))
+              (id (f-max 1f-3 (f-hypot iau iav))) (jd (f-max 1f-3 (f-hypot jau jav)))
+              (i0 (f-min 1f0 (/ ,in0 id))) (i1 (f-min 1f0 (/ ,in1 id))) (j0 (f-min 1f0 (/ ,in0 jd))) (j1 (f-min 1f0 (/ ,in1 jd))))
+         (declare (fixnum j i4 j4) (single-float pu pv qu qv iau iav jau jav id jd i0 i1 j0 j1))
+         (%ya-mt-at (ax ay az) (+ pu (* i1 iau)) (+ pv (* i1 iav)) ,d
+           (%ya-mt-at (bx by bz) (+ pu (* i0 iau)) (+ pv (* i0 iav)) ,d
+             (%ya-mt-at (cx cy cz) (+ qu (* j0 jau)) (+ qv (* j0 jav)) ,d
+               (%ya-mt-at (gx gy gz) (+ qu (* j1 jau)) (+ qv (* j1 jav)) ,d
+                 (vtx ax ay az ,uvx ,uvy (* 0.7f0 (- 1f0 i1)) 7f0 0f0 ,pk) (vtx bx by bz ,uvx ,uvy (* 0.7f0 (- 1f0 i0)) 7f0 0f0 ,pk)
+                 (vtx cx cy cz ,uvx ,uvy (* 0.7f0 (- 1f0 j0)) 7f0 0f0 ,pk)
+                 (vtx ax ay az ,uvx ,uvy (* 0.7f0 (- 1f0 i1)) 7f0 0f0 ,pk) (vtx cx cy cz ,uvx ,uvy (* 0.7f0 (- 1f0 j0)) 7f0 0f0 ,pk)
+                 (vtx gx gy gz ,uvx ,uvy (* 0.7f0 (- 1f0 j1)) 7f0 0f0 ,pk)))))))))
 
-(defmacro %ya-mt-band (tbl n d w0 w1 x0 x1 pal k wob)
-  "Inside YA-MANTLE-DRAW: a band along the shaped outline (*YA-MT-BUF*, N points; their normals from TBL) from W0 to W1 m out along the
-normal, D m along the view ray: an along shape (UV.X X0 .. X1 across it, UV.Y the length along the outline for the noise, heat 0.9: it
-narrows as K falls), palette PAL, presence K, wobble WOB. 6 N vertices (a walk's twin a zero-area quad)."
+(defmacro %ya-mt-band (tbl n d w0 w1 x0 x1 pk)
+  "Inside YA-MANTLE-DRAW: a smooth band along the shaped outline (*YA-MT-BUF*, N points; their normals from TBL) from W0 to W1 m out along
+the normal, D m along the view ray: an along shape, UV.X X0 .. X1 across it (|UV.X| near 1 is its silhouette: the soft-flame feather on a
+flame palette), UV.Y the length along the outline, heat 1, no wobble (a clean line); PK the palette + presence + glass lane. 6 N vertices
+(a walk's twin a zero-area quad)."
   `(with-fx-verts (dd o :toon (* 6 ,n))
-     (let ((pk (toon-a ,pal ,k)))
-       (declare (single-float pk))
-       (dotimes (i ,n)
-         (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j)) (io (* 8 i)) (jo (* 8 j))
-                (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
-                (inu (aref ,tbl (+ io 5))) (inv (aref ,tbl (+ io 6))) (jnu (aref ,tbl (+ jo 5))) (jnv (aref ,tbl (+ jo 6)))
-                (is (* 0.8f0 (aref ,tbl (+ io 7)))) (js (* 0.8f0 (aref ,tbl (+ jo 7)))))
-           (declare (fixnum j i4 j4 io jo) (single-float pu pv qu qv inu inv jnu jnv is js))
-           (%ya-mt-at (ax ay az) (+ pu (* ,w0 inu)) (+ pv (* ,w0 inv)) ,d
-             (%ya-mt-at (bx by bz) (+ pu (* ,w1 inu)) (+ pv (* ,w1 inv)) ,d
-               (%ya-mt-at (cx cy cz) (+ qu (* ,w1 jnu)) (+ qv (* ,w1 jnv)) ,d
-                 (%ya-mt-at (gx gy gz) (+ qu (* ,w0 jnu)) (+ qv (* ,w0 jnv)) ,d
-                   (vtx ax ay az ,x0 is 0.9f0 -17f0 ,wob pk) (vtx bx by bz ,x1 is 0.9f0 -17f0 ,wob pk)
-                   (vtx cx cy cz ,x1 js 0.9f0 -17f0 ,wob pk)
-                   (vtx ax ay az ,x0 is 0.9f0 -17f0 ,wob pk) (vtx cx cy cz ,x1 js 0.9f0 -17f0 ,wob pk)
-                   (vtx gx gy gz ,x0 js 0.9f0 -17f0 ,wob pk))))))))))
+     (dotimes (i ,n)
+       (let* ((j (if (= i (1- ,n)) 0 (1+ i))) (i4 (* 4 i)) (j4 (* 4 j)) (io (* 8 i)) (jo (* 8 j))
+              (pu (aref bf i4)) (pv (aref bf (+ i4 1))) (qu (aref bf j4)) (qv (aref bf (+ j4 1)))
+              (inu (aref ,tbl (+ io 5))) (inv (aref ,tbl (+ io 6))) (jnu (aref ,tbl (+ jo 5))) (jnv (aref ,tbl (+ jo 6)))
+              (is (* 0.8f0 (aref ,tbl (+ io 7)))) (js (* 0.8f0 (aref ,tbl (+ jo 7)))))
+         (declare (fixnum j i4 j4 io jo) (single-float pu pv qu qv inu inv jnu jnv is js))
+         (%ya-mt-at (ax ay az) (+ pu (* ,w0 inu)) (+ pv (* ,w0 inv)) ,d
+           (%ya-mt-at (bx by bz) (+ pu (* ,w1 inu)) (+ pv (* ,w1 inv)) ,d
+             (%ya-mt-at (cx cy cz) (+ qu (* ,w1 jnu)) (+ qv (* ,w1 jnv)) ,d
+               (%ya-mt-at (gx gy gz) (+ qu (* ,w0 jnu)) (+ qv (* ,w0 jnv)) ,d
+                 (vtx ax ay az ,x0 is 1f0 -17f0 0f0 ,pk) (vtx bx by bz ,x1 is 1f0 -17f0 0f0 ,pk) (vtx cx cy cz ,x1 js 1f0 -17f0 0f0 ,pk)
+                 (vtx ax ay az ,x0 is 1f0 -17f0 0f0 ,pk) (vtx cx cy cz ,x1 js 1f0 -17f0 0f0 ,pk)
+                 (vtx gx gy gz ,x0 js 1f0 -17f0 0f0 ,pk)))))))))
 
 (defun-fast ya-mantle-draw ()
-  "殘日獄衣's mantle from *YA-MT-ARGS* (YA-MANTLE): Z-Q2's solidity S from where the eye stands (1 from the front round to side-on, 90
-deg: the SIDE camera stands 78 deg round; 0 from 100 deg, so the match camera, measured 106 deg round at 2 m apart, 112 at 4 m, 141 at 12 m
-(87448's line), always sees the hollow: the fill a band 0.04-0.07 m wide inside the outline, widening as S rises), the outline shaped for
-the size G and billowing on twos, then 0.5 m behind
-his body on the view ray the fill, the white rim (-0.025 .. +0.035 m x the size), the orange edge outside it, 8-14 flame marks licking up
-inside and 6-12 white sparks drifting off it; the front layer at full size (G > 0.5, 0.35 m in front of his body, its presence x S); an
-orange light. Vertices (*YA-MANTLE* 130 points, *YA-SKIRT* 30): 3 x 6 x 130 + the marks' 18 and the sparks' 6 each + the front layer's
-2 x 6 x 30: 2520 in the stance, 2.86 k at full, 3.2 k with the front layer (87448's line; the toon batch holds 16384). A look; 0 B."
+  "殘日獄衣's mantle from *YA-MT-ARGS* (YA-MANTLE). Z-Q2's solidity S from where the eye stands: 1 from the front round to 90 deg (the SIDE
+camera stands 78 deg round), 0 from 100 deg (the match camera: 106 deg round at 2 m apart and closer, 112 at 4 m, 141 at 12 m; portrait
+108; 87448's line). The outline is shaped for the size G and billows on the continuous effect clock; then, 0.5 m behind his body on the
+view ray: the yellow-white fill, the white-hot band deeper than 0.3 m (full size only), the orange band 0.05 m inside the outline and
+0.035 m outside it (feathered), the clean white rim (-0.018 .. +0.022 m x the size), 7-16 flame strokes licking up inside, 6-12 white sparks; at full
+size the front layer 0.35 m in front of his body, see-through (glass 3) and fading with S; an orange light. Seen from behind (S < 0.9) the
+fill turns see-through by S (glass 3, then 2 from S < 0.45; glass 1 read as an empty outline) in FIRE's red-orange body (the yellow,
+half-covered, greys under the Bankai's grade), the white-hot band left out; the rim and strokes stay; without MSAA (a glass shape would be opaque) the hollow
+drops the fills and the front layer is not drawn. Vertices (*YA-MANTLE* N points, *YA-SKIRT* M): 4 x 6 N + the strokes' 48 and the
+sparks' 6 each + 6 M (87448's line). A look; 0 B."
   (let* ((ar *ya-mt-args*) (x (aref ar 0)) (z (aref ar 1)) (rx (aref ar 2)) (rz (aref ar 3)) (g (f-clamp (aref ar 4) 0f0 1f0))
          (k (aref ar 5)) (e (camera-eye *camera*)) (ex (aref e 0)) (ey (aref e 1)) (ez (aref e 2)) (rt (camera-right *camera*))
          (lx (aref rt 0)) (lz (aref rt 2)) (ll (f-hypot lx lz)) (hx (- ex x)) (hz (- ez z)) (hl (f-max 1f-3 (f-hypot hx hz)))
          (fr (/ (- (* rz hx) (* rx hz)) hl))            ; his facing (rz, -rx) . the way to the eye: 1 the camera in front, -1 behind
-         (s (f-clamp (+ 1f0 (/ fr 0.17f0)) 0f0 1f0)) (bw (+ (* 0.07f0 (+ 0.6f0 (* 0.4f0 g))) (* 3f0 s s)))   ; (the match camera: 110-150 deg)
-         (clk (fx-clock)) (tq (- clk (f-mod clk 0.083333f0))) (dr (drawing-no))
-         (sw (+ 0.34f0 (* 0.66f0 g))) (sh (+ 0.6f0 (* 0.4f0 g))) (sz (+ 0.6f0 (* 0.4f0 g))) (amp (+ 0.03f0 (* 0.04f0 g)))
+         (s (f-clamp (+ 1f0 (/ fr 0.17f0)) 0f0 1f0))
+         (msaa (> (the fixnum *msaa-samples*) 1))
+         (gl (cond ((>= s 0.9f0) 0f0) ((>= s 0.45f0) 96f0) (t 64f0)))   ; (the fills' glass lane, 32 x level: 3, then 2 behind)
+         (fills (or msaa (= gl 0f0)))
+         (clk (fx-clock)) (dr (drawing-no))
+         (sw (+ 0.39f0 (* 0.61f0 g))) (sh (+ 0.6f0 (* 0.4f0 g))) (sz (+ 0.6f0 (* 0.4f0 g))) (amp (+ 0.025f0 (* 0.045f0 g)))
          (tb *ya-mantle*) (bf *ya-mt-buf*) (n (floor (length tb) 8)) (d 0.5f0)
-         (nm (if (> g 0.5f0) 14 8)) (ns (if (> g 0.5f0) 12 6)))
+         (nm (if (> g 0.5f0) 16 7)) (ns (if (> g 0.5f0) 12 6)))
     (declare (type f32vec ar e rt tb bf) (fixnum n nm ns)
-             (single-float x z rx rz g k ex ey ez lx lz ll hx hz hl fr s bw clk tq dr sw sh sz amp d))
+             (single-float x z rx rz g k ex ey ez lx lz ll hx hz hl fr s gl clk dr sw sh sz amp d))
     (if (> ll 1f-4) (setf lx (/ lx ll) lz (/ lz ll)) (setf lx rx lz rz))
     (%ya-mt-shape! tb n sw sh amp)
-    (%ya-mt-fill n d bw k)
-    (%ya-mt-band tb n (- d 0.03f0) (* -0.025f0 sz) (* 0.035f0 sz) -0.7f0 0.7f0 +pal-hit+ k 0.06f0)       ; the white rim
-    (%ya-mt-band tb n (+ d 0.02f0) (* 0.015f0 sz) (* 0.095f0 sz) -1f0 1f0 +pal-flame+ k 0.15f0)        ; the orange edge
-    (let ((t0 (+ 0.3f0 (* 0.5f0 (- 1f0 s)))))           ; the flame marks: from t0 of the way out to 0.88 (near the band when hollow)
-      (declare (single-float t0))
-      (dotimes (m nm)
-        (let* ((fm (i->f m)) (h2 (hash01 fm 5.3f0)) (h3 (hash01 fm 8.9f0))
-               (i (mod (f->i (* (hash01 fm 3.7f0) (i->f n))) n)) (i4 (* 4 i))
-               (ph (f-mod (+ (* 0.7f0 tq) h3) 1f0)) (tt (+ t0 (* h2 (- 0.88f0 t0))))
-               (au (aref bf (+ i4 2))) (av (aref bf (+ i4 3)))
-               (mu (+ au (* tt (- (aref bf i4) au)))) (mv (+ av (* tt (- (aref bf (+ i4 1)) av)) (* 0.2f0 sz ph)))
-               (hh (* sz (+ 0.14f0 (* 0.14f0 h3)) (- 1f0 (* 0.5f0 ph)))) (lean (* 0.3f0 hh (aref tb (+ (* 8 i) 5)))))
-          (declare (single-float fm h2 h3 ph tt au av mu mv hh lean) (fixnum i i4))
-          (%ya-mt-at (bx by bz) mu mv (- d 0.05f0)
-            (%tongue bx by bz (* lean lx) hh (* lean lz) (* 0.045f0 sz) (if (= 0 (mod m 3)) +pal-ember+ +pal-fire+) k
-                     (+ fm (* 3f0 dr)) (+ dr fm) 0.02f0 :segs 3)))))
+    (when fills
+      (if (= gl 0f0)
+          (%ya-mt-fill n d 0f0 9f0 (toon-a +pal-fire+ k t) 0.15f0 -0.35f0)                       ; the yellow-white fill (FIRE's core)
+          (%ya-mt-fill n d 0f0 9f0 (+ gl (toon-a +pal-fire+ k t)) -1f0 0.3f0))   ; see-through: FIRE's body (a yellow half-covered
+                                                                                  ;  greys under the Bankai's spot-keep grade; the
+                                                                                  ;  red-orange keeps its hue)
+      (when (and (> g 0.5f0) (= gl 0f0))
+        (%ya-mt-fill n (- d 0.01f0) (* 0.3f0 sz) 9f0 (+ gl (toon-a +pal-hit+ k t)) 0.15f0 -0.35f0))   ; the white-hot band
+      (%ya-mt-band tb n (- d 0.02f0) (* -0.05f0 sz) (* 0.035f0 sz) 0f0 -1f0 (+ gl (toon-a +pal-flame+ k))))   ; orange (FLAME's body)
+    (%ya-mt-band tb n (- d 0.03f0) (* -0.018f0 sz) (* 0.022f0 sz) -0.6f0 0.6f0 (toon-a +pal-hit+ k))   ; the white rim
+    (dotimes (m nm)                                     ; the flame strokes: curved comets licking up, wide at the base, from inside
+      (let* ((fm (i->f m)) (h2 (hash01 fm 5.3f0)) (h3 (hash01 fm 8.9f0))
+             (i (mod (f->i (* (hash01 fm 3.7f0) (i->f n))) n)) (i4 (* 4 i))
+             (ph (f-mod (+ (* 0.45f0 clk) h3) 1f0)) (tt (+ 0.2f0 (* 0.3f0 h2)))
+             (au (aref bf (+ i4 2))) (av (aref bf (+ i4 3)))
+             (mu (+ au (* tt (- (aref bf i4) au)))) (mv (+ av (* tt (- (aref bf (+ i4 1)) av)) (* 0.1f0 sz ph)))
+             (hh (* sz (+ 0.28f0 (* 0.2f0 h3)) (- 1f0 (* 0.4f0 ph)))) (bend (* (if (evenp m) 0.35f0 -0.35f0) hh))
+             (lean (* 0.25f0 hh (aref tb (+ (* 8 i) 5)))) (kk (* k (f-min 1f0 (* 4f0 (- 1f0 ph))))))
+        (declare (single-float fm h2 h3 ph tt au av mu mv hh bend lean kk) (fixnum i i4))
+        (%ya-mt-at (bx by bz) mu mv (- d 0.05f0)
+          (%ya-mt-at (tx ty tz) (+ mu lean) (+ mv hh) (- d 0.05f0)
+            (%ya-mt-at (cx cy cz) (+ mu (* 0.5f0 lean) bend) (+ mv (* 0.5f0 hh)) (- d 0.05f0)
+              (fx-crescent tx ty tz bx by bz cx cy cz (* 0.075f0 sz) :comet 0f0 (+ fm (* 3f0 dr)) (if (= 0 (mod m 3)) +pal-ember+ +pal-fire+) kk
+                           :push 0f0))))))
     (dotimes (m ns)                                     ; the sparks: off the outline, rising, smaller as they go
       (let* ((fm (i->f m)) (i (mod (f->i (* (hash01 fm 11.3f0) (i->f n))) n)) (i4 (* 4 i)) (o (* 8 i))
-             (ph (f-mod (+ (* 0.5f0 tq) (hash01 fm 17.7f0)) 1f0)) (off (* sz (+ 0.06f0 (* 0.3f0 (hash01 fm 13.1f0)))))
+             (ph (f-mod (+ (* 0.5f0 clk) (hash01 fm 17.7f0)) 1f0)) (off (* sz (+ 0.06f0 (* 0.3f0 (hash01 fm 13.1f0)))))
              (su (+ (aref bf i4) (* off (aref tb (+ o 5))))) (sv (+ (aref bf (+ i4 1)) (* off (aref tb (+ o 6))) (* 0.6f0 sz ph))))
         (declare (single-float fm ph off su sv) (fixnum i i4 o))
         (%ya-mt-at (bx by bz) su sv (- d 0.06f0)
           (fx-disc bx by bz (* 0.022f0 sz (- 1.2f0 ph)) 0.2f0 (+ fm 40f0) +pal-hit+ k :push 0f0))))
-    (when (and (> g 0.5f0) (> s 0.02f0))                ; the front layer over his legs (its presence fades as the camera goes behind)
+    (when (and msaa (> g 0.5f0) (> s 0.02f0))           ; the front layer over his torso and legs, see-through (its presence x S)
       (let* ((tb *ya-skirt*) (n (floor (length tb) 8)) (ks (* k s)))
         (declare (type f32vec tb) (fixnum n) (single-float ks))
-        (%ya-mt-shape! tb n 1f0 1f0 (* 0.6f0 amp))
-        (%ya-mt-fill n -0.35f0 9f0 ks)
-        (%ya-mt-band tb n -0.38f0 -0.025f0 0.035f0 -0.7f0 0.7f0 +pal-hit+ ks 0.06f0)))
+        (%ya-mt-shape! tb n 1f0 1f0 (* 0.5f0 amp))
+        (%ya-mt-fill n -0.35f0 0f0 9f0 (+ 96f0 (toon-a +pal-fire+ ks t)) 0.15f0 -0.35f0)))
     (%light x 1.3f0 z 1f0 0.55f0 0.2f0 6f0 (* 2f0 k) 7))
   nil)
 
@@ -659,7 +664,7 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
 (defun-fast yama-stance-look (pos yaw an)
   "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS facing YAW:
 :YA-ST-NISHI 西's garb at rest (L8, the user's D4: 西 has fire; batch Z1, §27 Z-Q1: 殘日獄衣's mantle small, YA-MANTLE at size
-0.08 x the breath: the wings 0.61 m out, the top at his head), breathing on the effect clock's twos (2.4 s, as the clip; the clip's own
+0.08 x the breath: the wings 0.60 m out, the top 1.74 m), breathing on the effect clock's twos (2.4 s, as the clip; the clip's own
 time boxed a float; before Z1: ten orange tongues to the knee and two small wings of two ribbons);
 :YA-ST-MINAMI 南's faint ember cracks (six thin ink cracks out to 0.45-0.7 m with ember cores pulsing with the same breath, no ring).
 東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
@@ -681,7 +686,7 @@ time boxed a float; before Z1: ten orange tongues to the knee and two small wing
             (let* ((px (f-cos yaw)) (pz (- (f-sin yaw)))   ; (his right, as YAMA-BK-MOVES's (- fz) fx)
                    (clk (fx-clock)) (bq (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (- clk (f-mod clk 0.083333f0))))))))   ; (the breath on twos)
               (declare (single-float px pz clk bq))
-              (unless (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine) (< (cine-cf c) 168)))   ; (the 西 Kikon draws the full one)
+              (unless (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))   ; (the 西 Kikon draws the full one, then gutters it out)
                 (ya-mantle x z px pz (* 0.08f0 bq) 0.9f0)))))))   ; the small mantle (Z-Q1, §27), breathing 8 % of the way to full
   nil)
 

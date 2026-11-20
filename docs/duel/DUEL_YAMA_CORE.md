@@ -2498,6 +2498,8 @@ stills byte-identical, no still listed.**
 
 ### 27.4 As built (batch Z1, 2026-11-20)
 
+(Round 1. Round 2, §27.6-§27.8, replaced the outline, the bands, the strokes, the front layer and the hollow; where they differ, §27.7 holds.)
+
 Code: `duel/lisp/yama-look.lisp` "殘日獄衣's mantle" (`*ya-mantle-keys*`, `*ya-skirt-keys*`, `ya-mantle-sample`, `ya-mantle-table`, the
 `ya-mantle` macro, `ya-mantle-draw`), called from `yama-stance-look` (西's stance), `%ya-flare` (NS2a / NS2b / AS2b) and `%ya-garb` in
 `yama-cine.lisp` (the 西 Kikon cinematic, f52-168). Presentation only: no sim file, no sim number.
@@ -2590,3 +2592,77 @@ Open (for the user's eyes):
 - At f168-180 of the 西 Kikon, after the full mantle gutters out, the stance's small mantle comes back (the stance clip is on; BASE's
   stance tongues showed there too): extending the guard in `yama-stance-look` to the whole cinematic (`cf < 180`) would end it on the
   gutter, as the storyboard has it.
+
+### 27.6 Round 2 (the lead's review, 2026-11-20): the looks gate's expected diff, written first
+
+The lead, reviewing §27.4's stills against the user's image: the outline read as teeth and a zigzag (an explosion, not flame); he must
+read as inside the flame; flat bands (white-hot, yellow, orange); curved strokes; a translucent hollow view; the same shape language in
+the stance; the f168-180 reappearance; judged under main's soft-flame shader (668dcd1e, STYLE_STORM_DESIGN §15), merged into the branch
+first. BASE for this round = `dist/duel` built at 668dcd1e. The mantle still draws only in the Bankai (西's stance, the three flares, the
+西 Kikon), none of which a pinned still shows (§27.3's check); the one engine change is an export (`*msaa-samples*`). **Expected: every
+still byte-identical to BASE, none listed.**
+
+### 27.7 Round 2 as built
+
+Same entry points as §27.4 (`ya-mantle` from 西's stance, `%ya-flare`, `%ya-garb`); `yama-look.lisp`'s mantle section rewritten.
+
+- **The outline, traced.** The user's image thresholded to its flame mask, set at his scale (1.65 m tall: 236 px a metre, his axis at x
+  365, the floor at y 578), and the right half keyed on it (the right side is the clean one; mirrored). Catmull-Rom through every key (no
+  sharp key; tips and hooks from keys set close), 2 samples a gap: 188 points. The keyed outline covers the mask's flame within its glow
+  (`tests/duel-rules/art.lisp` checks the numbers; the scratch tracer's gap 322 px and overcover 56 px of 156 573 at the image's scale).
+
+| Item | Round 2 (full) | Stance |
+|---|---|---|
+| Hem | 0.13 m, 0.17 m out at the ankle | the same |
+| Knee-hip lobe | rises out to 0.66 m at 0.93 m, its tip hooked back in at 1.01 m (one a side) | its reach out of the body x 0.6 |
+| Notch under the wing | 0.30 m out at 1.20 m | |
+| Wings | three swept lobes rising outward: the outer 1.55 m out at 2.04 m, hooked back over (2.09 m); the middle 1.04 m at 2.22 m; the inner 0.70 m at 2.10 m | spread x 0.39: 0.60 m |
+| Column | five tongues: the centre 2.42 m (1.47 x), the inner pair 2.34 m, the outer pair 2.33 m; the valley at the neck 0.48 m out at 1.80 m | height over 1.3 m x 0.39: 1.74 m |
+| Motion | a smooth, slow displacement of the tips (0.07 m x the flex; a sway out and a lick up, its phase running along the outline: one wave across a lobe) on the continuous effect clock (the soft-flame flow's clock) | 0.04 m; the size breathes 8 % toward full on the stance's 2.4 s loop |
+
+- **Flat bands** (F-Q1): the fill FIRE's core #FFE483 (yellow-white); a white-hot band (HIT) deeper than 0.3 m from the outline (full
+  size: the trunk, the wing roots, the column's middle round his head); an orange band (FLAME's body) 0.05 m inside the outline to
+  0.035 m outside it, its outer edge feathered by the soft-flame pass (its UV runs 0 .. -1 across it: a silhouette at the outside, no
+  shade); the white rim (HIT) -0.018 .. +0.022 m, no boil (a clean line). The inner bands' edges are flat cuts (a fan's field held under
+  the presence: no shade band, so no feather either).
+- **Strokes:** 16 (7 in the stance) curved comet strokes, FIRE and every third EMBER, 0.28-0.48 m, 0.075 m wide at the base and tapering
+  to the tip, bending alternately left and right, leaning out with the outline, rising 0.1 m and fading as they cycle; seated 20-50 % of
+  the way from an anchor to its outline point.
+- **Inside the flame:** at full size the front layer (`*ya-skirt-keys*`, 36 points) covers his torso and legs from the ankles to a dip
+  under the chin (1.31 m; the shoulders 1.40 m, 0.31 m wide at the hip and chest), 0.35 m in front of his body, see-through: glass 3 (3 of
+  4 MSAA samples) of FIRE's core, so his body shows dimly through and his head, hands and blade stay clear; its presence x S.
+- **Z-Q2, the hollow:** solid to 90 deg, glass from 100 deg (unchanged). Seen from behind the fill turns see-through (glass 3 while S >=
+  0.45, then glass 2) and the white-hot band is left out; the rim, the orange band and the strokes stay. The see-through fill is FIRE's
+  red-orange body, not the yellow: half-covered, the yellow mixes with the grey stage to a saturation under the Bankai's spot-keep grade
+  (0.45) and turned grey in the stills; the red-orange keeps its hue. Glass 1 (the lead's suggestion) read as an empty outline: glass 2.
+- **Without MSAA** a glass shape is opaque (the shader keeps it opaque below 2 samples): there the hollow drops the fills and the orange band
+  (the rim and the strokes stay) and the front layer is not drawn (`*msaa-samples*`, now exported by the engine). Not shot: the build always gets 4
+  samples where the GPU supports it (SwiftShader does), and there is no switch to force 1.
+- **The f168-180 reappearance:** the stance's small mantle does not draw for the whole 西 Kikon (`cine-name` = `yama-nishi-cine`), so the
+  garb ends on its gutter.
+- **Vertices** (87448's line, of the toon batch's 16384): the stance 3756; a flare 4416 seen from behind, 5868 solid with the white-hot
+  band and the front layer; the cinematic's f62 look 6060 (the most).
+
+### 27.8 Round 2 checks, stills, verdict
+
+| Check (final build, branch merged with main 668dcd1e) | Result |
+|---|---|
+| Host tests | 4259 checks ALL PASS (mantle: 188 points, wing 1.55 m, top 2.42 m, worst strip fold -0.012 m², front layer 36 points) |
+| pkgcheck / debug-ranges-check | no undefined or redefined (the one `DUEL::APP` note is BASE's); 89 ranges, 0 errors |
+| Native trials vs 76b9be01 (core / blaze / bankai) | identical, every line (242 / 268 / 513) |
+| Browser `duel-yama-core` (40 s) / `-blaze` vs a dist built at 668dcd1e | 0 diff lines (123 / 46), exit 0 both |
+| `style-gates.py cvc` | PASS II IK KK |
+| Looks gate, BASE = dist at 668dcd1e, no `--keep-base` | 83 of 83 byte-identical, noise floor 0: as written in §27.6 |
+| 87448 | every mantle row 0 B, `fx-dropped 0`, no "(dropped)" (the stills runs too); `south-dead` / `-pile` / `-burst` 80 B in a fresh scene, as on BASE |
+| Smoke (`node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 8 > log 2>&1; echo $?`) | 0 |
+| Stills runs (`--timeout` now passed) | `duel-yama-z1.json` exit 0, `-phone` exit 0 |
+
+Stills: the same names as §27.5, re-shot; `duel-yama-z1-sheet-ref.png` now puts the user's image beside each view at the same scale
+(his height in the still = his height in the image), `duel-yama-z1-sheet-before-after.png` L8 (76b9be01) against round 2.
+
+Verdict (honest): the silhouette now follows the reference (traced from it: the swept wings with the hooked outer tip, the column of
+tongues, the knee-hip curls, the narrow hem) and reads as flame, not as an explosion; front and side it is a solid banded mantle he
+stands in, from behind a translucent red-orange one with the opponent in view. Still short of the image: the image's body of flame is
+broad and full of large dark-red flame strokes and soft glow, while ours is flat bands with small strokes; the column's five tongues are
+of near-equal height (a crown) where the image's are uneven and leaning; the front layer's yellow over his black robe reads khaki rather
+than fire; the wings' inner lobes are smaller and stiffer than the image's billowing ones.
