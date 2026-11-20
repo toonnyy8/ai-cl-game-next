@@ -228,10 +228,10 @@ the default look's), 1 negative, 2 two-tone (ink / paper by luma), 3 manga page 
 colour), 4 spot-keep (greyscale but the saturated pixels near one or two hues). Parameters: *IMPACT-PARAMS*
 (GRADE-IMPACT sets both). The game owns the duration (set it back to 0).")
 (declaim (type fixnum *soft-flame*) (type f32vec *soft-flame-knobs*))
-(defvar *soft-flame* 0
-  "The soft flame's prototype candidate (docs/style/STYLE_STORM_DESIGN.md §15, batch F1): 0 = the current look (every pixel as
-before), 1..3 = a row of +SOFT-FLAME-KNOBS+ (the flame-class shapes' inward feather, their bloom glow and the continuous flow
-of their noise). Set by a debug command until the user picks one.")
+(defvar *soft-flame* 2
+  "The soft flame's candidate (docs/style/STYLE_STORM_DESIGN.md §15, batch F1): 0 = the hard look before it (every pixel as
+before), 1..3 = a row of *SOFT-FLAME-KNOBS* (the flame-class shapes' inward feather, their bloom glow and the continuous flow
+of their noise). 0 -> 2 (the user, 2026-11-20: 「2 中柔邊 + 淡光」: feather 3 px, glow 0.5); debug 88000+i still switches it live.")
 (defparameter *soft-flame-knobs* (replace (make-f32 8) '(0f0 0f0  1.5f0 0.25f0  3f0 0.5f0  5f0 0.8f0))
   "Per candidate of *SOFT-FLAME*: the feather (px at 720 lines, the band inside the silhouette, at most half the shape) and
 the glow (bright.frag.wgsl P.y: x the warm pixels' colour added to what blooms). Candidates 1..3 also flow. (the user,
