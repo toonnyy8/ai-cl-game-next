@@ -1,0 +1,362 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== east NS a-b-c behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 10.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.79,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.09,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.39,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.99,
+"shot": "tests/shots/duel-yama-k5-void-grow-behind.png"
+},
+{
+"at": 12.06,
+"shot": "tests/shots/duel-yama-k5-void-full-behind.png"
+},
+{
+"at": 12.19,
+"shot": "tests/shots/duel-yama-k5-void-held-behind.png"
+},
+{
+"at": 12.39,
+"shot": "tests/shots/duel-yama-k5-void-fill-behind.png"
+},
+{
+"at": 13.25,
+"eval": "console.log('=== J1 > AS1 behind')"
+},
+{
+"at": 13.3,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 13.35,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 13.4,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 15.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.29,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.48,
+"shot": "tests/shots/duel-yama-k5-notch-first-behind.png"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-yama-k5-notch-full-behind.png"
+},
+{
+"at": 15.67,
+"shot": "tests/shots/duel-yama-k5-notch-held-behind.png"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 17.35,
+"eval": "console.log('=== east NS a-b-c side')"
+},
+{
+"at": 17.4,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 17.45,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 17.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 19.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.19,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.49,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.79,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 20.39,
+"shot": "tests/shots/duel-yama-k5-void-grow-side.png"
+},
+{
+"at": 20.46,
+"shot": "tests/shots/duel-yama-k5-void-full-side.png"
+},
+{
+"at": 20.59,
+"shot": "tests/shots/duel-yama-k5-void-held-side.png"
+},
+{
+"at": 20.79,
+"shot": "tests/shots/duel-yama-k5-void-fill-side.png"
+},
+{
+"at": 21.65,
+"eval": "console.log('=== J1 > AS1 side')"
+},
+{
+"at": 21.7,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 21.75,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 21.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 23.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.69,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.88,
+"shot": "tests/shots/duel-yama-k5-notch-first-side.png"
+},
+{
+"at": 23.95,
+"shot": "tests/shots/duel-yama-k5-notch-full-side.png"
+},
+{
+"at": 24.07,
+"shot": "tests/shots/duel-yama-k5-notch-held-side.png"
+},
+{
+"at": 25.45,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 25.5,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 25.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 28.0,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 28.03,
+"eval": "Module._debug_cmd(87645)"
+},
+{
+"at": 29.83,
+"shot": "tests/shots/duel-yama-k5-cine-open.png"
+},
+{
+"at": 29.88,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 30.28,
+"shot": "tests/shots/duel-yama-k5-cine-b4-void.png"
+},
+{
+"at": 30.33,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 31.03,
+"shot": "tests/shots/duel-yama-k5-cine-b5-shatter.png"
+},
+{
+"at": 31.08,
+"eval": "Module._debug_cmd(87675)"
+},
+{
+"at": 31.88,
+"shot": "tests/shots/duel-yama-k5-cine-b6-hang.png"
+},
+{
+"at": 32.53,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 32.83,
+"eval": "console.log('=== END')"
+}
+]

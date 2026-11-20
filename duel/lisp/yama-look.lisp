@@ -299,11 +299,73 @@ three ribbons, 0.9 m out each side). Single-float forms; 0 B."
          (toon-ribbon (,x 1.3f0 ,z) ((* %sd 0.9f0 (- 1f0 (* 0.25f0 %q))) (+ 0.2f0 (* 0.35f0 %q)) 0f0) (0.14f0 0.02f0)
                       :seed (- -70f0 %f (f-mod %dr 3f0)) :wob 0.3f0 :pal +pal-flame+ :k (* %k %g) :segs 4 :sway 0.06f0 :ph (+ %dr %f))))))
 
+(defun-fast-inline yama-tear (ax az fx fz len w0 w1 sl g n m seed pk)
+  "東's void as a ragged radial tear (L6 and the 東 Kikon; the user, 2026-11-20, DUEL_YAMA_CORE §20 / §20.1): flat ink on the floor
+(1.2 cm up) from the origin AX AZ (where the tip touched) LEN m along the unit FX FZ, its body W0 m to each side there and W1 at the far
+end; N spikes on each side of the line and M fanned round each end (behind the origin, beyond the far end). A spike's base sits at an
+uneven station, its tip between its two neighbours; its length out of the body is G x (SL + 0.9 x the local width) x 0.2..2.2 (cubed: most
+short, a few long; the fans' x0.7); every point leans forward by 0.15..0.95 of its distance out (more toward the far end, a slow wobble +-0.3),
+one smooth shear, so the spikes fan out from the origin and never cross. G 0..1 grows them out of the body (the void opening). A pure
+function of SEED: no per-frame roll. One toon fan shape (PK: palette + presence + 16; heat 0 on the line, 1 on the ragged outline, where
+the shader's wobble breaks it like dry brush). 24N + 12M vertices; inline, 0 B."
+  (declare (single-float ax az fx fz len w0 w1 sl g seed pk) (fixnum n m))
+  (let* ((px (- fz)) (pz fx) (nn (* 2 n)) (dn (i->f nn)) (dw (- w1 w0)) (il (/ 1f0 (f-max len 0.05f0)))
+         (ns (+ 1f0 (f-mod (f-abs seed) 900f0))))
+    (declare (single-float px pz dn dw il ns) (fixnum nn))
+    (macrolet ((v (s l h u)                             ; a vertex at along S, signed lateral L, heat H, uv.x U - 2 (uv.y > 1: no INK
+                                                        ;  core; uv.x < -1.6: no shade band, one flat black)
+                 `(let* ((%s ,s) (%l ,l) (%c (f-clamp (* %s il) 0f0 1f0))
+                         (%s2 (+ %s (* (f-abs %l) (+ 0.15f0 (* 0.8f0 %c) (* 0.3f0 (f-sin (+ (* 6f0 %c) seed))))))))
+                    (declare (single-float %s %l %c %s2))
+                    (vtx (+ ax (* %s2 fx) (* %l px)) 0.012f0 (+ az (* %s2 fz) (* %l pz)) (- ,u 2f0)
+                         (+ 2f0 (* 0.7f0 %s2)) ,h ns 0.14f0 pk)))
+               (spike (w f)                             ; a tip's length out of the body at local width W (hash index F)
+                 `(let ((%h (hash01 (+ ,f 307f0) seed))) (declare (single-float %h))
+                    (* g (+ sl (* 0.9f0 ,w)) (+ 0.2f0 (* 2f0 %h %h %h)))))
+               (side-pt (((s l) j sk) &body body)       ; station J of side SK: along S, out L (unsigned)
+                 `(let* ((%j ,j) (%f (+ (i->f %j) (* 53f0 (i->f ,sk))))
+                         (%t (if (< 0 %j nn) (+ (/ (i->f %j) dn) (/ (* (if (evenp %j) 0.6f0 0.9f0) (- (hash01 %f seed) 0.5f0)) dn))
+                                 (/ (i->f %j) dn)))
+                         (%w (+ w0 (* dw %t))) (,s (* len %t))
+                         (,l (cond ((or (= %j 0) (= %j nn)) (* 0.8f0 %w))
+                                   ((evenp %j) (* %w (+ 0.5f0 (* 0.45f0 (hash01 (+ %f 211f0) seed)))))
+                                   (t (+ (* 0.8f0 %w) (spike %w %f))))))
+                    (declare (fixnum %j) (single-float %f %t %w ,s ,l))
+                    ,@body))
+               (fan-pt (((s l) i sc e w) &body body)    ; point I of the fan round along SC (E -1 behind, +1 beyond), body W
+                 `(let* ((%i ,i) (%f (+ 500f0 (i->f %i) (* 40f0 ,e)))
+                         (%a (if (< 0 %i (* 2 m))
+                                 (* 1.5707964f0 (/ (+ (i->f %i) (* (if (evenp %i) 0.5f0 0.6f0) (- (hash01 %f seed) 0.5f0))) (i->f m)))
+                                 (* 1.5707964f0 (/ (i->f %i) (i->f m)))))
+                         (%r (cond ((or (= %i 0) (= %i (* 2 m))) (* 0.8f0 ,w))
+                                   ((evenp %i) (* ,w (+ 0.5f0 (* 0.45f0 (hash01 (+ %f 211f0) seed)))))
+                                   (t (+ (* 0.8f0 ,w) (* 0.7f0 (spike ,w %f))))))
+                         (,s (+ ,sc (* ,e %r (f-sin %a)))) (,l (* %r (f-cos %a))))
+                    (declare (fixnum %i) (single-float %f %a %r ,s ,l))
+                    ,@body)))
+      (with-fx-verts (d o :toon (+ (* 24 n) (* 12 m)))
+        (dotimes (sk 2)                                   ; the two sides: a quad strip from the line out to the outline
+          (let ((sg (if (= sk 0) 1f0 -1f0)))
+            (declare (single-float sg))
+            (dotimes (j nn)
+              (side-pt ((s0 l0) j sk)
+                (side-pt ((s1 l1) (1+ j) sk)
+                  (v s0 0f0 0f0 0f0) (v s0 (* sg l0) 1f0 (* 0.4f0 sg)) (v s1 (* sg l1) 1f0 (* 0.4f0 sg))
+                  (v s0 0f0 0f0 0f0) (v s1 (* sg l1) 1f0 (* 0.4f0 sg)) (v s1 0f0 0f0 0f0))))))
+        (dotimes (k 2)                                    ; the fans round the origin (behind it) and the far end (beyond it)
+          (let ((e (if (= k 0) -1f0 1f0)) (sc (if (= k 0) 0f0 len)) (w (if (= k 0) w0 w1)))
+            (declare (single-float e sc w))
+            (dotimes (i (* 2 m))
+              (fan-pt ((s0 l0) i sc e w)
+                (fan-pt ((s1 l1) (1+ i) sc e w)
+                  (v sc 0f0 0f0 0f0) (v s0 l0 1f0 0.4f0) (v s1 l1 1f0 0.4f0)))))))))
+  nil)
+
 (defun-fast yama-bk-moves (pos yaw code sf rdt)
   "The Bankai moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-DRAW's table): 1 KYOKKO's lance (L7, S20-22), 2
-KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once, held 20 f, then filled by ash), 3 AS1's notch (L6, S10), 4 SHONETSU's
-two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12), 7 the bone wall rising (L3, f6 to S18), 8 北's AS
-crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
+KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once as a ragged tear, YAMA-TEAR, held 20 f, then filled by ash), 3 AS1's
+notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12), 7 the bone wall
+rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
   (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
          (sd (i->f (mod (f->i dr) 5))) (seed (+ (* 3f0 x) z)))
@@ -325,18 +387,14 @@ crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
                (when (and (>= sf s) (< sf (+ s 4)))     ; the white down-cut slit (%ST-SLIT's shape)
                  (fx-crescent (+ x (* 0.5f0 fx)) 2.3f0 (+ z (* 0.5f0 fz)) (+ x (* 1.6f0 fx)) 0.05f0 (+ z (* 1.6f0 fz))
                               (+ x (* 1.5f0 fx)) 1.6f0 (+ z (* 1.5f0 fz)) 0.1f0 :lens 0.1f0 (+ 50f0 sd) +pal-hit+ 0.98f0 :push 0.3f0))
-               (when (>= sf s)                          ; the void: flat black on the floor, an ember hairline round it (D3; heat 0.3:
-                                                        ;  the ember's red body, not its pale core)
+               (when (>= sf s)                          ; the void: a ragged radial tear of flat black on the floor (D3, §20), its
+                                                        ;  spikes out in 4 f; the seed his feet on a 0.25 m grid (one shape a cast)
                  (let* ((k (if (< sf (+ s 20)) 0.98f0 (f-clamp (* 0.98f0 (/ (i->f (- (+ s 31) sf)) 11f0)) 0f0 0.98f0)))
-                        (ax (+ x (* 0.2f0 fx))) (az (+ z (* 0.2f0 fz))) (bx (+ x (* len fx))) (bz (+ z (* len fz))))
-                   (declare (single-float k ax az bx bz))
-                   (toon-ground-seg ax az bx bz 0.012f0 hw 1f0 1f0 (+ seed 1f0) 0.05f0 (toon-a +pal-ink+ k))
-                   (toon-ground-seg (+ ax (* hw px)) (+ az (* hw pz)) (+ bx (* hw px)) (+ bz (* hw pz)) 0.016f0 0.02f0 0.3f0 0.3f0 (+ seed 2f0)
-                                    0.05f0 (toon-a +pal-ember+ k))
-                   (toon-ground-seg (- ax (* hw px)) (- az (* hw pz)) (- bx (* hw px)) (- bz (* hw pz)) 0.016f0 0.02f0 0.3f0 0.3f0 (+ seed 3f0)
-                                    0.05f0 (toon-a +pal-ember+ k))
-                   (toon-ground-seg (- bx (* hw px)) (- bz (* hw pz)) (+ bx (* hw px)) (+ bz (* hw pz)) 0.016f0 0.02f0 0.3f0 0.3f0 (+ seed 4f0)
-                                    0.05f0 (toon-a +pal-ember+ k))
+                        (g (f-min 1f0 (/ (i->f (+ 1 (- sf s))) 4f0)))
+                        (ts (+ (* 3f0 (i->f (f->i (* 4f0 x)))) (i->f (f->i (* 4f0 z))) (i->f code))))
+                   (declare (single-float k g ts))
+                   (yama-tear (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) fx fz (- len 0.2f0) (* 0.7f0 hw) hw 0.15f0 g
+                              (if (= code 2) 12 4) (if (= code 2) 4 3) ts (toon-a +pal-ink+ k t))
                    (dotimes (i (n-of (if (< sf (+ s 20)) 18f0 60f0) rdt))   ; ash falling in (more as it fills)
                      (let* ((u (rnd-range 0.2f0 len)) (v (rnd-range (- hw) hw)))
                        (declare (single-float u v))
@@ -453,7 +511,8 @@ block, the fire hexagon facing the attacker (VFX-GARB-BLOCK), and the scorch on 
 after 10 unmeasured draws; the probe's draws are taken off the frame's queue again (a debug line, not a picture). Art K2 adds the
 stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail); art K3 the planted blade
 (DRAW-PLANTED-WEAPON at a *YA-PLANTS* spot), 北's burn (%YA-BLADE-BURN on stand-in ends) and the :planted hook itself; art K4 the
-three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine.lisp) at their busiest frames, P1 and P2 as the actors."
+three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine.lisp) at their busiest frames, P1 and P2 as the actors;
+art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and at full (east-full)."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
@@ -493,6 +552,7 @@ three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine
                      (cons-per "north" (yama-north-look north 0.016f0))
                      (cons-per "lance" (yama-bk-moves pos yaw 1 21 0.016f0))
                      (cons-per "void" (yama-bk-moves pos yaw 2 30 0.016f0))
+                     (cons-per "void-grow" (yama-bk-moves pos yaw 2 19 0.016f0))   ; (art K5: the tear's spikes growing)
                      (cons-per "notch" (yama-bk-moves pos yaw 3 12 0.016f0))
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
@@ -505,6 +565,8 @@ three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine
                      (cons-per "plant-spot" (yama-planted *p1* fp mv-as2))
                      (cons-per "dead x8" (progn (fresh) (dotimes (j 8) (ya-dead :sk-grab 10))))
                      (cons-per "east-void" (yama-higashi-look *p1* *p2* 90))   ; (art K4: the Kikon cinematics' looks, yama-cine.lisp)
+                     (cons-per "east-open" (yama-higashi-look *p1* *p2* 86))   ; (art K5: the tear opening, then at full)
+                     (cons-per "east-full" (yama-higashi-look *p1* *p2* 120))
                      (cons-per "west-ash" (yama-nishi-look *p1* *p2* 46))
                      (cons-per "west-walk" (yama-nishi-look *p1* *p2* 100))
                      (cons-per "west-pass" (yama-nishi-look *p1* *p2* 128))

@@ -78,27 +78,17 @@ look reads no boxed struct float.")
 ;;; ---------------------------------------------------------------- 東 旭日刃 KYOKUJITSUJIN (§15.3.1, 168 f)
 (defun-fast yama-higashi-look (a v cf)
   "東's look at cinematic frame CF: the void (D3 「黑色虛空帶」, §15.3.4 flag 1: no stage geometry is removed, a flat INK wedge on the
-floor shot from above) opens from where the tip touched, 1.86 m ahead of him (NS1c's tip by FK), through the victim's spot: 0.8 m wide at
-the tip to 5 m at 12 m, in 10 f from f84; an ember hairline on its sides and its near end (heat 0.3, the ember's red body, as L6); ash
-falling into it to the end. A look; 0 B."
+floor shot from above) opens from where the tip touched, 1.86 m ahead of him (NS1c's tip by FK), through the victim's spot: a ragged
+radial tear (YAMA-TEAR, the user's §20) whose body runs 0.8 m wide at the tip to 5 m at 12 m in 10 f from f84, 16 spikes a side and 5 round
+each end growing out over 14 f; no ember hairline (§20.1); ash falling into it to the end. A look; 0 B."
   (declare (fixnum cf))
   (when (>= cf 84)
     (%ya-line (px pz qx qz fx fz rx rz d) a v
       (let* ((tx (+ px (* 1.86f0 fx))) (tz (+ pz (* 1.86f0 fz))) (u (f-min 1f0 (/ (i->f (- cf 84)) 10f0))) (l (* 12f0 u))
-             (w0 0.4f0) (w1 (+ 0.4f0 (* 2.1f0 u))) (ex (+ tx (* l fx))) (ez (+ tz (* l fz)))
-             (pk (toon-a +pal-ink+ 0.98f0)) (ek (toon-a +pal-ember+ 0.98f0)) (rdt (aref *ya-rdt* 0)))
-        (declare (single-float tx tz u l w0 w1 ex ez pk ek rdt))
-        (when (> l 0.05f0)
-          (with-fx-verts (dd o :toon 6)                   ; the wedge: field across it (both long edges inked), heat 1
-            (vtx (- tx (* w0 rx)) 0.012f0 (- tz (* w0 rz)) -1f0 0f0 1f0 -78f0 0.05f0 pk)
-            (vtx (+ tx (* w0 rx)) 0.012f0 (+ tz (* w0 rz)) 1f0 0f0 1f0 -78f0 0.05f0 pk)
-            (vtx (+ ex (* w1 rx)) 0.012f0 (+ ez (* w1 rz)) 1f0 0f0 1f0 -78f0 0.05f0 pk)
-            (vtx (- tx (* w0 rx)) 0.012f0 (- tz (* w0 rz)) -1f0 0f0 1f0 -78f0 0.05f0 pk)
-            (vtx (+ ex (* w1 rx)) 0.012f0 (+ ez (* w1 rz)) 1f0 0f0 1f0 -78f0 0.05f0 pk)
-            (vtx (- ex (* w1 rx)) 0.012f0 (- ez (* w1 rz)) -1f0 0f0 1f0 -78f0 0.05f0 pk))
-          (toon-ground-seg (+ tx (* w0 rx)) (+ tz (* w0 rz)) (+ ex (* w1 rx)) (+ ez (* w1 rz)) 0.016f0 0.025f0 0.3f0 0.3f0 81f0 0.05f0 ek)
-          (toon-ground-seg (- tx (* w0 rx)) (- tz (* w0 rz)) (- ex (* w1 rx)) (- ez (* w1 rz)) 0.016f0 0.025f0 0.3f0 0.3f0 82f0 0.05f0 ek)
-          (toon-ground-seg (- tx (* w0 rx)) (- tz (* w0 rz)) (+ tx (* w0 rx)) (+ tz (* w0 rz)) 0.016f0 0.025f0 0.3f0 0.3f0 83f0 0.05f0 ek)
+             (w0 0.4f0) (w1 (+ 0.4f0 (* 2.1f0 u))) (pk (toon-a +pal-ink+ 0.98f0 t)) (rdt (aref *ya-rdt* 0)))
+        (declare (single-float tx tz u l w0 w1 pk rdt))
+        (when (> l 0.05f0)                                ; the tear (YAMA-TEAR, §20.1): its spikes out over 14 f, a fixed seed
+          (yama-tear tx tz fx fz l w0 w1 0.35f0 (f-min 1f0 (/ (i->f (- cf 83)) 14f0)) 16 5 78f0 pk)
           (dotimes (i (n-of 60f0 rdt))                    ; ash falling into it
             (let* ((s (rnd-range 0f0 l)) (w (* (+ w0 (* (- w1 w0) (/ s 12f0))) (rnd-range -0.9f0 0.9f0))))
               (declare (single-float s w))
