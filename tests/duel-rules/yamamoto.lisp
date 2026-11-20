@@ -442,4 +442,8 @@
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (nil . kk) in alist always (loop for mv being the hash-values of (kit-moves kk) never (mv-planted mv)))))
     (check (equal (sort (loop for mv being the hash-values of (kit-moves kb) unless (zerop (mv-blend mv)) collect (mv-name mv)) #'string<)
-                  '(:ya-e-as-strike :ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-e-ns-strike)))))
+                  '(:ya-e-as-strike :ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-e-ns-strike)))
+    ;; art S2 (§23): in the Shikai and 爆炎 only J1 (it starts from three stances) and its copies (the Kikon strikes, 爆炎's J1) blend in
+    (check (equal (sort (loop for mv being the hash-values of (kit-moves (find-kit :yamamoto :blaze)) unless (zerop (mv-blend mv)) collect (mv-name mv))
+                        #'string<)
+                  '(:ya-as-strike :ya-b-j1 :ya-j1 :ya-ns-strike)))))
