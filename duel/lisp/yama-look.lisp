@@ -625,7 +625,7 @@ back. A look."
         (when (<= (hash01 f 6.1f0) hf)
           (%ya-tongue (- x (* 0.12f0 fx)) yc (- z (* 0.12f0 fz)) (* l (- (* 0.7f0 ca) 0.3f0) fx) (* l sa) (* l (- (* 0.7f0 ca) 0.3f0) fz)
                       0.13f0 ti k (+ 50f0 f seed) (+ dr f)))))
-    (%light x yc z 1f0 0.45f0 0.12f0 3f0 (* 1f0 k hf) 7)
+    (%light x yc z 1f0 0.45f0 0.12f0 3f0 (* 0.7f0 k) 7)
     nil))
 
 ;;; ---------------------------------------------------------------- SL4 NS2a's lance (the :wave, 1.2 m, 18 m/s)
@@ -661,7 +661,7 @@ thickness and tongues, the white core. A look."
         (when (<= (hash01 f 7.7f0) hf)
           (%ya-tongue (+ x0 (* u (- x1 x0))) 1.15f0 (+ z0 (* u (- z1 z0))) (* -0.3f0 hh fx) hh (* -0.3f0 hh fz) 0.07f0 ti k
                       (+ 70f0 f seed) (+ dr f) :back nil))))
-    (%light x1 1.1f0 z1 1f0 0.45f0 0.12f0 3f0 (* 0.9f0 k hf) 7)
+    (%light x1 1.1f0 z1 1f0 0.45f0 0.12f0 3f0 (* 0.7f0 k) 7)
     nil))
 
 ;;; ---------------------------------------------------------------- SL2 NS1b's ghost lights and column (:ya-col, r 1.2)
@@ -711,7 +711,7 @@ from 12 to 30. The ring on the edge stays (the footprint). A look."
               (when (<= (hash01 f 8.3f0) hf)
                 (%ya-tongue (+ x (* 0.2f0 r ws (f-cos an))) (* 0.85f0 h) (+ z (* 0.2f0 r ws (f-sin an))) (* 0.5f0 hc (f-cos an)) hc
                             (* 0.5f0 hc (f-sin an)) (* 0.14f0 ws) ti k (+ 90f0 f seed) (+ dr f) :back nil))))
-          (%light x 1.2f0 z 1f0 0.45f0 0.12f0 3.5f0 (* 1.1f0 k hf) 7)))
+          (%light x 1.2f0 z 1f0 0.45f0 0.12f0 3.5f0 (* 0.7f0 k) 7)))
     nil))
 
 ;;; ---------------------------------------------------------------- SL3 NS1c's tornado (the :wave, 3.5 m, 10 m/s)
@@ -758,7 +758,7 @@ box as an EMBER patch (the footprint: never the round funnel's). Near the lens t
                  (x1 (+ x (* ra2 (f-cos (+ a 0.9f0)) px))) (z1 (+ z (* ra2 (f-cos (+ a 0.9f0)) pz))))
             (declare (single-float a ra2 x0 z0 x1 z1))
             (%ya-seg x0 yb z0 x1 (+ yb (* 0.85f0 hs)) z1 (* 0.4f0 tk) (* 0.3f0 tk) 0 (* 0.9f0 k) (+ seed 70f0 bf) dr :pal +pal-ember+)))))
-    (%light x 1.5f0 z 1f0 0.45f0 0.12f0 4f0 (* 1.2f0 k hf) 7)
+    (%light x 1.5f0 z 1f0 0.45f0 0.12f0 4f0 (* 0.8f0 k) 7)
     nil))
 
 ;;; ---------------------------------------------------------------- SL5 the burning ring (:ya-ring, r 1.6, band ±0.25, 90 f, 2 hits)
@@ -818,7 +818,7 @@ them; it holds to 16, then the walls fall open and erode by 40. An EMBER ring on
                 (toon-ribbon (kx ky kz) ((* 1.05f0 ax) (* 1.05f0 hh) (* 1.05f0 az)) ((* 1.3f0 wd) 0f0) :heat (0.3f0 0.12f0)
                              :seed (- -120f0 f (f-abs seed)) :wob 0.3f0 :pal +pal-ink+ :k (%ya-k k) :ph (+ dr f) :sway 0.04f0 :segs 4))))
           (%ya-tongue bx 0.02f0 bz ax hh az wd ti k (+ 130f0 f seed) (+ dr f)))))
-    (%light x 1.4f0 z 1f0 0.45f0 0.12f0 4f0 (* 1.1f0 k hf) 7)
+    (%light x 1.4f0 z 1f0 0.45f0 0.12f0 4f0 (* 0.7f0 k) 7)
     nil))
 
 ;;; ---------------------------------------------------------------- the moves' own looks (YAMA-DRAW): SL0 the blade, SL7-SL9
@@ -900,7 +900,7 @@ him. 5 AS1's burst (SL9, S10-12, fading to 14): SL1's corkscrew from 0.2 m out t
                  (when (<= (hash01 (+ i (* 3f0 sd)) 6.3f0) hf)
                    (%ya-tongue (+ x (* along fx) (* off px)) 0.02f0 (+ z (* along fz) (* off pz)) (* sd 0.35f0 hh px) hh (* sd 0.35f0 hh pz)
                                0.13f0 ti k (+ 160f0 i sd seed) (+ dr i)))))
-             (%light (+ x (* 1.6f0 fx)) 0.8f0 (+ z (* 1.6f0 fz)) 1f0 0.45f0 0.12f0 3f0 (* 0.9f0 k hf) 7))))
+             (%light (+ x (* 1.6f0 fx)) 0.8f0 (+ z (* 1.6f0 fz)) 1f0 0.45f0 0.12f0 3f0 (* 0.7f0 k) 7))))
       ((2 3) (when (<= 12 sf 27)                        ; the halo: full on S16, to S + A (23), fading to 27
                (let* ((rr (if (= code 3) 3.2f0 2.4f0)) (g (f-clamp (/ (i->f (- sf 11)) 5f0) 0f0 1f0))
                       (k (if (<= sf 23) 0.98f0 (* 0.98f0 (/ (i->f (- 28 sf)) 5f0)))) (rad (+ 0.6f0 (* (- rr 0.6f0) g)))
