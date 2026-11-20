@@ -2998,6 +2998,8 @@ as main and J1 (stills `tests/shots/duel-j1-*.png` = J1, `duel-j1-old-*.png` = b
   §21.2 gives white to heat alone.
 - At 1 m the ring and the dome now sit round both fighters (he stands 1 m from the centre): the dome and its detonation cover Yamamoto
   from the behind camera for ~10 f. The cost of the fix; the stills `duel-j1-dome1m-*`.
+  On the phone (390 x 844, `duel-j1-*-phone.png`, sheet `duel-j1-sheet-phone.png`: batch 1 | J1) the 1 m ring's near pillar stands at
+  the lower left of the frame and the 1 m dome fills it; the 5 m ring and dome read as batch 1's.
 - NS2b at point blank no longer burns on landing (main's off-centre ring caught a 1 m victim on its band for 2 x 20); the ring now traps
   him and burns when he crosses it.
 - 爆炎 NS2b still shows SL5's low tongue ring (YAMA-RING-CLOSE, f12-15) before batch 1's dome: not in J1's scope (J3 gives that move its
