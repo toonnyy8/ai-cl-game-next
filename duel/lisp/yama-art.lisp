@@ -265,7 +265,7 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
 own looks (yama-look.lisp YAMA-BK-MOVES, art K1) and 北's burn on the gather (%YA-BLADE-BURN, art K3); out of a move, the pointer stances'
-looks (YAMA-STANCE-LOOK, art K2); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza). The Shikai and
+looks (YAMA-STANCE-LOOK, art K2); under 西 the garb as the form's aura (YAMA-GARB-AT, J2 §28.4); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza). The Shikai and
 爆炎 (art S1): Ryujin Jakka's fire on the drawn blade (YAMA-BLADE-FIRE, SL0; not on the intro's cane, not in 撫斬's stance), J3's burning
 pommel and the moves' own looks (YAMA-SK-MOVES: NADEGIRI's hairline and seam, TAIMATSU's halo, AS1's burst), by the tier of the heat his
 segment paid (YA-SK-TIER); out of a move, pointer 1's and 2's stance looks (YAMA-STANCE-FIRE, art S3) by the heat his next segment would pay.
@@ -276,6 +276,12 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
     (ya-dead-reset)
+    (when (and (eq (kit-form (fighter-kit f)) :bankai) (eql (fighter-ptr f) 2)   ; 西's form aura, 殘日獄衣 at K 1 (J2, §28.4),
+               (> (model-alpha m) 0.5) (not (eql e *aura-off*))                 ;  every frame under 西 but while a flare draws
+               (not (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine))))        ;  it flared (YAMA-BK-MOVES below) or the 西
+               (not (and mv (let ((c (yama-bk-code mv)))                                  ;  Kikon draws its own
+                              (and (<= 4 c 6) (yama-bk-flare-p c (fighter-sf f)))))))
+      (yama-garb-at (model-joints m)))
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
         (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt))))
@@ -283,7 +289,7 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) *ya-tip*)
         (body-weapon-base (model-body m) (model-weapon m) (model-joints m) *ya-base*)
         (%ya-blade-burn *ya-tip* *ya-base* (fighter-sf f))))
-    (when (and (null mv) (eq (kit-form (fighter-kit f)) :bankai) (> (model-alpha m) 0.5))   ; 西's garb / 南's cracks (art K2)
+    (when (and (null mv) (eq (kit-form (fighter-kit f)) :bankai) (> (model-alpha m) 0.5))   ; 南's cracks (art K2)
       (yama-stance-look (pos-of e) (yaw-of e) (model-anim m)))
     (unless (eq (kit-form (fighter-kit f)) :bankai)       ; the Shikai / 爆炎 (art S1, DUEL_YAMA_CORE §22): SL0 the blade's fire, SL7-SL9
       (let* ((main (and mv (eq (fighter-phase f) :main))) (ti (ya-sk-tier e f mv)) (jm (model-joints m))

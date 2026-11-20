@@ -374,11 +374,19 @@ the shader's wobble breaks it like dry brush). 24N + 12M vertices; inline, 0 B."
                   (v sc 0f0 0f0 0f0) (v s0 l0 1f0 0.4f0) (v s1 l1 1f0 0.4f0)))))))))
   nil)
 
+(defun yama-bk-flare-p (code sf)
+  "T while YAMA-BK-MOVES' garb flare CODE (4 SHONETSU f16-35, 5 the advance S14-23, 6 the throw S12-21) draws at move frame SF: then
+西's K 1 form garb is left out (YAMA-DRAW, J2's follow-up, §28.4). Fixnums; pure (a function: yama-art.lisp's YAMA-DRAW, compiled
+before this file, calls it)."
+  (declare (fixnum code sf))
+  (case code (4 (<= 16 sf 35)) (5 (<= 14 sf 23)) (6 (<= 12 sf 21)) (t nil)))
+
 (defun-fast yama-bk-moves (pos yaw code sf rdt)
   "The Bankai moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-DRAW's table): 1 KYOKKO's lance (L7, S20-22), 2
 KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once as a ragged tear, YAMA-TEAR, held 20 f, then filled by ash), 3 AS1's
 notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12), 7 the bone wall
-rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect seconds (the ash). A look; 0 B."
+rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
+0 B."
   (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
          (sd (i->f (mod (f->i dr) 5))) (seed (+ (* 3f0 x) z)))
@@ -413,11 +421,11 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
                        (declare (single-float u v))
                        (%t-blob (+ x (* u fx) (* v px)) (rnd-range 0.6f0 1.6f0) (+ z (* u fz) (* v pz)) 0f0 (rnd-range -0.9f0 -0.4f0) 0f0
                                 (rnd-range 0.8f0 1.2f0) (rnd-range 0.04f0 0.08f0) 0.2f0 0.2f0 +pal-ash+)))))))
-      (4 (when (<= 16 sf 35) (%ya-flare x z (i->f (if (< sf 26) (- sf 16) (- sf 26))) (if (< sf 26) (if (< sf 23) 0.98f0 0.6f0)
+      (4 (when (yama-bk-flare-p 4 sf) (%ya-flare x z (i->f (if (< sf 26) (- sf 16) (- sf 26))) (if (< sf 26) (if (< sf 23) 0.98f0 0.6f0)
                                                                                          (f-clamp (* 0.98f0 (/ (i->f (- 36 sf)) 6f0)) 0f0 0.98f0))
                                    seed)))
-      (5 (when (<= 14 sf 23) (%ya-flare x z (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
-      (6 (when (<= 12 sf 21) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
+      (5 (when (yama-bk-flare-p 5 sf) (%ya-flare x z (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
+      (6 (when (yama-bk-flare-p 6 sf) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
       (7 (when (<= 6 sf 17)                              ; (from S18 the :ya-wall hazard draws it: YAMA-WALL-LOOK)
            (%ya-rampart (+ x (* 1.2f0 fx)) (+ z (* 1.2f0 fz)) yaw (/ (i->f (- sf 5)) 13f0) 0.98f0 (+ (* 1.2f0 fx) x z))))
       (8 (when (<= 10 sf 15)                             ; the crescent: from over his right shoulder down to his low left, its far edge 2.4 m
@@ -438,28 +446,38 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
 
 ;;; ---------------------------------------------------------------- the pointer stances' looks (art K2, §17: YAMA-DRAW)
 (defun-fast yama-stance-look (pos yaw an)
-  "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS facing YAW:
-:YA-ST-NISHI 西's garb at rest (L8, the user's D4: 西 has fire; batch J2, §28: 殘日獄衣, YA-GARB at K 1, the old kit's own size;
-YAW unused since, kept for the callers); :YA-ST-MINAMI 南's faint ember cracks (six thin ink cracks out to 0.45-0.7 m with ember
-cores pulsing with the stance clips' 2.4 s breath, no ring).
-東 has the blade's smoke thread only (YAMA-DRAW). A look; 0 B."
+  "The Bankai's pointer stances, while his idle clip AN plays one (art K2, DUEL_YAMA_CORE §15.2.2 / §17), at his feet POS: :YA-ST-MINAMI
+南's faint ember cracks (six thin ink cracks out to 0.45-0.7 m with ember cores pulsing with the stance clips' 2.4 s breath, no ring).
+西's garb left this look in J2's follow-up (§28.4): it is 西's form aura now (YAMA-GARB-AT, every frame under the pointer). 東 has the
+blade's smoke thread only (YAMA-DRAW). YAW unused (kept for the callers). A look; 0 B."
   (declare (type f32vec pos) (single-float yaw))
   (let* ((c (anim-clip an)) (nm (and c (clip-name c))))
-    (when (or (eq nm :ya-st-nishi) (eq nm :ya-st-minami))
+    (when (eq nm :ya-st-minami)
       (let* ((x (aref pos 0)) (z (aref pos 2)) (seed (+ (* 3f0 x) z))
              (b (+ 0.5f0 (* 0.5f0 (f-sin (* 2.618f0 (fx-clock)))))))   ; the breath 0..1 (2.4 s, the stance clips' loop)
         (declare (single-float x z seed b))
-        (if (eq nm :ya-st-minami)
-            (dotimes (i 6)                               ; six thin cracks out from under his feet, no ring (faint: not L1's tell)
-              (let* ((f (i->f i)) (a (+ (* 1.0472f0 f) (hash01 f seed))) (co (f-cos a)) (si (f-sin a))
-                     (r2 (+ 0.45f0 (* 0.25f0 (hash01 f 3.1f0)))))
-                (declare (single-float f a co si r2))
-                (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* r2 co)) (+ z (* r2 si)) 0.01f0 0.022f0 1f0 0.3f0
-                                 (+ seed f) 0.2f0 (toon-a +pal-ink+ 0.6f0))
-                (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* 0.85f0 r2 co)) (+ z (* 0.85f0 r2 si)) 0.013f0 0.008f0
-                                 0.3f0 0.3f0 (+ seed f 9f0) 0.1f0 (toon-a +pal-ember+ (* 0.6f0 (+ 0.45f0 (* 0.4f0 b)))))))
-            (unless (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))   ; (the 西 Kikon draws its own, then gutters it out)
-              (ya-garb x z 1f0))))))
+        (dotimes (i 6)                                   ; six thin cracks out from under his feet, no ring (faint: not L1's tell)
+          (let* ((f (i->f i)) (a (+ (* 1.0472f0 f) (hash01 f seed))) (co (f-cos a)) (si (f-sin a))
+                 (r2 (+ 0.45f0 (* 0.25f0 (hash01 f 3.1f0)))))
+            (declare (single-float f a co si r2))
+            (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* r2 co)) (+ z (* r2 si)) 0.01f0 0.022f0 1f0 0.3f0
+                             (+ seed f) 0.2f0 (toon-a +pal-ink+ 0.6f0))
+            (toon-ground-seg (+ x (* 0.18f0 co)) (+ z (* 0.18f0 si)) (+ x (* 0.85f0 r2 co)) (+ z (* 0.85f0 r2 si)) 0.013f0 0.008f0
+                             0.3f0 0.3f0 (+ seed f 9f0) 0.1f0 (toon-a +pal-ember+ (* 0.6f0 (+ 0.45f0 (* 0.4f0 b))))))))))
+  nil)
+
+(declaim (type f32vec *ya-garb-p*))
+(defvar *ya-garb-p* (make-f32 3) "YAMA-GARB-AT's pelvis point.")
+(defun-fast yama-garb-at (jm)
+  "西's form aura (J2's follow-up, §28.4; the lead, 2026-11-21: the TYBW kit drew the garb as the West form's aura through every move):
+殘日獄衣 at K 1 on the floor under his pelvis (JM his posed joints), so it goes with him when a clip lunges (NS2c, AS2a carry the body
+about 1 m ahead of his sim position; the old form aura stayed at the sim position). YAMA-DRAW calls it every frame he is in the Bankai
+under 西, but while a flare draws it flared, while the 西 Kikon cinematic draws its own, and while his body is hidden. A look; 0 B."
+  (declare (type f32vec jm))
+  (let ((v *ya-garb-p*))
+    (declare (type f32vec v))
+    (joint-point! v jm (ji :pelvis) 0f0 0f0 0f0)
+    (ya-garb (aref v 0) (aref v 2) 1f0))
   nil)
 
 ;;; ---------------------------------------------------------------- art K3 (§18): the planted blade, 北's burn
@@ -1224,7 +1242,6 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
         (north (make-hazard :kind :wave :x 0f0 :z -6f0 :px 0f0 :pz -5.67f0 :size 2f0 :life 42 :age 15 :speed 20f0))
         (pos (pos-of *p1*)) (yaw (yaw-of *p1*))
-        (an-n (let ((a (make-anim))) (anim-play a :ya-st-nishi :blend 0) (setf (anim-time a) 0.6f0) a))
         (an-m (let ((a (make-anim))) (anim-play a :ya-st-minami :blend 0) a))
         (tr (let ((tr (make-trail))) (dotimes (i 5 tr) (trail-push tr 0f0 1f0 (- -0.3f0 (* 0.1f0 i)) (* 0.25f0 i) 1.5f0 -1.2f0))))
         (sm (make-f32 12))
@@ -1249,7 +1266,7 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
                      (cons-per "crescent" (yama-bk-moves pos yaw 8 11 0.016f0))
-                     (cons-per "garb" (yama-stance-look pos yaw an-n))   ; (art K2; batch J2: 殘日獄衣 at K 1)
+                     (cons-per "garb" (yama-garb-at (model-joints (model *p1*))))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
                      (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
                      (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))

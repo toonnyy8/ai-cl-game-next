@@ -2995,8 +2995,26 @@ the fix moves no pixel of the other callers); the phone after stills from the fi
   between the lens and his body, so only the column of flame shows. From the match camera (behind) his back and head show between the
   tongues, and from the side he reads inside them. Nothing was faded (the user did not ask for it); if the cinematic should show him,
   the knob is the cinematic's K (`%ya-garb`) or the front layer's height.
-- The garb draws in 西's stance clip (out of a move) and the three flares only. The TYBW kit drew it through every West move (it was
-  the form's aura); main has one Bankai form with pointer stances, so moves under 西 other than the flares show no garb, as Z1 did.
+- (Closed by the follow-up below: the garb is 西's form aura now, drawn through every move under 西.)
 - `:hellfire` keeps the old rule (behind and at the sides only); the user's front-flames request was for 殘日獄衣.
 - 87491-87493 are gone, so there is no front camera on P1 now; a front still needs P2 off the line or a cinematic frame.
 - The manual's Bankai sentence on the mantle and STYLE_STORM_DESIGN §15.3's inventory (`%ya-garb`, the mantle) are the lead's to update.
+
+**Follow-up: the garb as 西's form aura** (the lead's review of 798b3789, 2026-11-21: the original drew the garb as the West form's aura
+through every 西 move, so draw it whenever he is in the Bankai under 西).
+- `yama-draw` (yama-art.lisp, the :draw hook) calls `yama-garb-at` (K 1) every frame he is in the Bankai with pointer 2 (西): the stance,
+  NA, every segment and AS, the Kikon's startup. Left out while a flare draws it flared (`yama-bk-flare-p`: the same windows
+  `yama-bk-moves` now uses, NS2a f16-35, NS2b S14-23, AS2b S12-21; the flares still peak at 1.9), while the 西 Kikon cinematic draws its own,
+  while his body is hidden (model alpha <= 0.5) and while a cinematic holds his aura off (`*aura-off*`, as `draw-aura`).
+- The form garb stands on the floor under his pelvis joint, not at his sim position: NS2c's and AS2a's clips carry his body about 1 m
+  ahead of it, and the first stills showed the garb left behind him (the old form aura, drawn at the sim position, had the same gap).
+  The flares and the cinematic still draw at his sim position, as before.
+- `yama-stance-look` keeps only 南's cracks; 87448's `garb` row measures `yama-garb-at`.
+- Looks gate expectation (written before the gate ran): BASE's YK stills show the Shikai and, in w3-0, the Bankai under 東 (旭日刃 on the
+  HUD); the select models are the base form; no other scenario has Yamamoto. **Expected: 83 of 83 byte-identical, none listed.**
+- Checks on the follow-up's build: host tests 4255 ALL PASS; pkgcheck clean (BASE's `DUEL::APP` note); smoke exit 0; `cvc` PASS II IK
+  KK; looks gate vs `looks-base-s5m` (no `--keep-base`) 83 of 83 byte-identical, noise floor 0, every scenario's sim lines identical
+  (cvc-yk's 12): as expected; 87448 / 2328 / 2390 every garb / hellfire row 0 B (`garb` now measures `yama-garb-at`).
+- Stills: `tests/shots/duel-j2-form-j1.png` (J1 mid-swing), `-ns2c` (NS2c, no flare: the K 1 garb with him through the lunge), `-as2a`
+  (AS2a's grab), behind camera, and `-phone` (390 x 844); `duel-j2-form-sheet-phone.png`. In J1 on the phone his torso leans out of
+  the garb's top-front (the garb sits on the floor under his pelvis).
