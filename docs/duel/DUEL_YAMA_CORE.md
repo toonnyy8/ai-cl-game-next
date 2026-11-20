@@ -1492,3 +1492,282 @@ What the stills show, checked by eye:
 | The looks gate | `python3 tests/style-gates.py looks BASE dist/duel --jobs 4`, BASE a dist built at b2dacf06: PASS, 83 of 83 stills byte-identical (noise floor 0), every scenario's fighters and sim lines as BASE's. No pinned still shows the void (the YK match's frames hold none), so the K5 stills are the review |
 | 0 B a frame | debug 87448, landscape and portrait: `... void 0, void-grow 0, notch 0, ... east-void 0, east-open 0, east-full 0, ...`, every row 0 and none "(dropped)". The new rows are `void-grow` (code 2 at S+1, spikes growing), `east-open` (f86) and `east-full` (f120) |
 | The fx batch | the toon batch holds 16384 vertices; the tear takes at most 444. `fx-dropped 0` on every stats line of both K5 runs, which include the cinematic's busiest frames |
+
+## 21. The Shikai and 爆炎 art batch and the Shikai Kikon storyboards (planned 2026-11-20)
+
+The user, 2026-11-20: 「繼續」 (after K5; the next art per §15.5). Drafted 2026-11-20 by a Fable review, read-only, code as of 9cc5e2af. It expands §15.5's outline on §15.1-§15.4's template. Grades: A canon,
+B official game, C secondary, D proposal. Sources: DUEL_YAMA_CORE §2 (Y1-Y12), §3, §6-§7.2, §8, §11, §13, §16-§20;
+`docs/research/yamamoto-rework/{canon-looks,motion-refs,core-refs}.md`; `duel/lisp/yama.lisp`, `yama-art.lisp`, `yama-vfx.lisp`,
+`yama-look.lisp`, `yama-cine.lisp`; skills `duel-motion-style`, `procedural-ink-style`, `duel-character`. Nothing was built or run for this
+plan: every "today" number is read from the code or quoted from §16.1.
+
+### 21.0 What the code shows today (found while reading; each changes the plan)
+
+| # | Finding | Where | Consequence |
+|---|---|---|---|
+| F1 | The Shikai's blade draws no flame. `vfx-blade-fire` has no caller, and no code reads `kit-blade` (爆炎's `:blade (:fire 1.3)` is dead data, §17.4 dev 7). Only the weapon's 3 mm glow strip shows | grep over `duel/lisp`; `yama-draw` draws only the Bankai's looks | "THE fire form" has no fire on its sword: look SL0 is the first job |
+| F2 | TAIMATSU's halo draws nothing. `vfx-fire-cone` has no caller; the SA is a melee window with no look | `yama.lisp` `:ya-sa`; grep | §16.1's "its fire cone carries it" is not true today: the SA's 2.4 m (爆炎 3.2 m) reach is invisible past the 1.45 m tip |
+| F3 | IKKOTSU punches with the blade in the fist. `*ya-plants*` has Bankai rows only | `yama-look.lisp` | one `*ya-plants*` row (S4) |
+| F4 | The Shikai's swing smear is the REIATSU yellow comet (kit `:smear` NIL = look 1) | `draw.lisp` `vfx-smear` | a fourth hue on every swing; S2 gives the form a `:smear` |
+| F5 | `yama-nade-look` writes its hazard's data from the draw path (`:done`), and is a one-shot stamp | `yama-vfx.lisp` | breaks "a look never writes"; replaced in S1 |
+| F6 | The state hash line counts hazards (`gate.lisp`). `spawn-look` makes a hazard entity | `gate.lisp` l.31, `hazards.lisp` | no new look may be a hazard entity, and no look hazard's `:life` may change: both move hash lines. NADEGIRI's split keeps its `:delay 24 :life 2` entity |
+| F7 | The looks gate plays the Shikai: its YK match (seed 28) is Shikai moves only (§18.8) | `tests/style-gates.py` `LOOKS_SEEDS` | **this is the first Yamamoto art batch where 83 / 83 cannot hold.** The YK stills change by design; see §6 |
+| F8 | Ten slots play another move's clip, six of them re-timed by `:clip-s` (x0.2 to x2.2) | `yama.lisp`; §3 below | the skill's red flag "a sibling's clip sped up" |
+| F9 | Captions: 不 知 火 斬 地 獄 上 are baked; 城 郭 炎 撫 焱 熱 are not | grep over `glyphs.lisp` | 不知火 needs no bake; 撫斬 needs 撫; 焱熱地獄 needs 焱 熱 (城郭炎上 would need 城 郭 炎) |
+| F10 | 爆炎's entry pose plays `ya-hellfire` (a 60 f clip with a 360° root turn) in 24 f (`:clip-s 57` at S23: x2.5); IKKOTSU's clip is S8 on a move at S9 with no `:clip-s` | `yama.lisp`, `yama-art.lisp` | S4 re-keys both; the second is to be confirmed by the FK print (the hit pose may land a frame early) |
+| F11 | NS2c / AS2b with no ring standing: the bearing point is sampled on S and the dome is hot from S for 4 f. No delay | `yama-dome-fire` | no ground tell is possible there; the tell must be on his body (S3's raised blade). Told here, not changed: a rule |
+| F12 | The heat a segment paid is already carried for the looks: a hazard's data `:heat` (0-25, taken at its fire frame) and `yama-seg-heat` (a pure reader) for his own move. 爆炎's segments pay 25 too | `yama-fire`, `yama-wave-fire`, `yama-seg-heat` | the looks read these; no new sim field. In 爆炎 every NS reads "full" for free |
+
+### 21.1 Order and batching
+
+**Shikai looks, then Shikai clips, then 爆炎, then the three Kikon cinematics.** One form at a time, looks before strikes (skill rule).
+
+| Evidence | For |
+|---|---|
+| Every match starts in the Shikai; it is the form seen longest (§15.1's "against") | Shikai first |
+| F1 / F2: the two most-used fire reads (the blade, the SA) draw nothing | looks first |
+| 爆炎's moves are `defmove-copy`s of the Shikai's: it reuses every Shikai look with one flag and 13 of its 16 clips | 爆炎 after the Shikai |
+| The cinematics use the same looks at cinematic scale (K4 reused K1's on stand-in hazards, §19.3 dev 5) | cinematics last |
+| Risk: §11 dev 4 calls the hazard widths / speeds and every A / R "the lead's placeholders", and `:mult` is "tuned by play" | freeze before keying |
+
+Answer to the risk, as §15.1: the looks read `hazard-size` / `hazard-life` from the struct, never a literal, so a retuned width moves the
+look with it. Before S2 the lead freezes the S list (§3's S column) with the user's playtest. A later A / R change then costs a recovery key.
+Where a look needs a speed as a constant (K1's 0 B fix, §16.4), a host check asserts it equals the move's `:speed`.
+
+| Batch | Content | Review gate (stills to the user) |
+|---|---|---|
+| S1 | FK first: the Shikai / 爆炎 rows of `tests/duel-rules/art.lisp` become checks (today printed only), with a `known-off` list. Trace K3's open item (do move-frame looks lag the hit by the hitstop, §18.9) before SL7 / SL8 are built on move frames. Then the look list §2 (SL0-SL9) | each look at heat 0 / 12 / 25: match camera + side, landscape + portrait; one top-down still per footprint |
+| S2 | the three stances, NA (J1 at S14, the pommel), pointer 1 (NS1a-c, AS1), the Shikai's `:smear` | the stance triptych (debug 2510 + p), 8-frame strips, 緩急 prints for J1 and NS1a |
+| S3 | pointer 2, pointer 3, AS2, AS3, the SA, the Kikon strikes | strips, link-jump table, then the playtest Artifact |
+| S4 | 爆炎's delta (§4): trail, IKKOTSU, entry pose, tracking tornado, ENNETSU's rows, the true NADEGIRI, scars by heat | stills at heat 100 / 50 / 10, then the playtest Artifact |
+| S5 | the three Kikon cinematics from §5 (after the storyboards' yes; needs S1). The wiring is its own, last commit (§19.2's rule) | one still per beat, both aspects |
+
+S1 (`yama-look.lisp`, `yama-vfx.lisp`) and S2 (`yama-art.lisp`) touch different files and may run in two worktrees; both edit `yama.lisp`
+(`:look` against `:clip`), so the lead merges and runs `unit-names`. S2 and S3 share `yama-art.lisp` and its named landing poses: in order.
+
+**The heat gauge stays presentation.** A look may read three things and write none: a hazard's `:heat` (F12), `yama-seg-heat` for his own
+move, `gauges-meter` for the stance and the scars. Rules for the batch: no `setf` of `gauges-*`, `yss-*` or `hazard-data` in any draw
+path (F5 goes); no `sim-rnd01`; a refunded segment's `:heat` is zeroed by the sim, so its look drops to tier 0, which is correct (the
+fire was cancelled). The proof is §6's row 1.
+
+### 21.2 The Shikai's looks
+
+**Colour rule (D, from A: "the blade is engulfed in fire"; A: he sets how hot each target burns, ch. 339).** Two hues and two values:
+FIRE orange is the mass, EMBER dark red is the backing and every floor mark, INK is the shadow side of the big shapes (the tornado, the dome).
+**White-hot has one owner: heat.** It appears only as the core of a segment that paid heat, in proportion, and everywhere in 爆炎. No white
+flash, rim or core for any other reason, so the player reads the spend in the fire itself. The three forms then read apart at a glance:
+Shikai orange, 爆炎 white-cored, Bankai ink with an ember line (D4). No REIATSU yellow (F4).
+
+**Heat tiers (h = paid / 25).** Three drawn steps, not a ramp (value steps read; the HUD's 25 ticks make "full" the common case):
+
+| Tier | When | Height / reach above the footprint | Density | Core |
+|---|---|---|---|---|
+| T0 | paid 0 | x0.6 | 60 % of the tongues | none: orange over ember |
+| T1 | 0 < paid < 25 | x0.8 | 80 % | a thin white core, 30 % of the width |
+| T2 | paid 25 (and every 爆炎 segment) | x1.0 | all | white-hot, 60 % of the width; an EMBER scorch left on the floor for 30 f |
+
+**The footprint never scales with heat**: the hit box is the same at any heat, so the ground edge of every look is the sim's edge at every
+tier. Heat changes height, density and core only. (Q1 asks how wide this span should be.)
+
+| # | Look | Canon | Shape as vector ink | Sim footprint it must equal (`yama.lisp`) | Frames |
+|---|---|---|---|---|---|
+| SL0 | the blade's fire (every Shikai move and stance) | the blade engulfed, igniting from the tip down (A, `RyūjinJakka.gif`) | `%blade-fire` revived from `yama-draw` (it exists, unused): the sheath, three tongues on twos, the T光 line. Power 0.5 at rest, 1.0 in a move's startup to S+A, by tier in an NS | none (it is not reach: the FK test measures the steel) | always; scraps only inside a move |
+| SL1 | NS1a's spiral stream | RoS "a veritable tornado of flame", cast ahead (B) | a corkscrew: two FIRE ribbons wound round the lane's axis over an EMBER backing, a rolling head on the hazard's x, a tail 2.5 m long that thins. No flat sheet (K1 dev 6: a sheet hid the foe) | `:wave` 2.0 m wide (half 1.0), 14 m/s over 8 m (34 f), spawned 1 m ahead | S22 to S+34 |
+| SL2 | NS1b's tell and column | 不知火 = ghost lights at a distance (D, the folklore); the column (B) | tell: an EMBER ring on the disc's edge and 5 small pale flames hovering 0.3-0.8 m over it, circling inward, pulsing on twos (the Step's read). Eruption: one column as wide as the disc at its foot, tapering, crown tongues | `:ya-col` disc r 1.2 at his bearing 4-7 m; `:delay 13`; hot 6 f; life 30; fire height 2.4 m | tell S16 to S+11; erupts S+12 (f28); hot to S+17; erodes to S+30 |
+| SL3 | NS1c's tornado (its own look: 北 no longer borrows it) | RoS tornado (B); the Taimatsu anime's flame tornado round the target (A) | a funnel of 4 stacked, tilted FIRE bands turning on twos, INK on their far side, a spiral EMBER stripe; the lowest band is the footprint (3.5 m), the bands narrow upward to 3.2 m high. **Gaps between the bands** keep the foe in view from behind; shrunk near the lens (`%near-cam`) | `:wave` 3.5 m wide (half 1.75), 10 m/s over 8 m (48 f), knock-back 3 m | S18 to S+48 |
+| SL4 | NS2a's stream | a horizontal lance of fire tapering to a point (A, ep. 215) | a lance: a FIRE lens with a pointed head on the hazard's x, tied back to the blade's tip for its first 8 f (fire running off the tip), a thin EMBER scorch line left on the lane for 20 f (a mark, no flames: it must not read as a hazard) | `:wave` 1.2 m wide (half 0.6), 18 m/s over 10 m (33 f) | S20 to S+33 |
+| SL5 | the burning ring (NS2b; AS2a's snap) | the stream coils into a ring on the ground (A) | a continuous low wall of 24 tongues on the circle, 0.5 m thick (the band), ≤ 1.0 m high on the camera's side and 1.4 m on the far side; it coils in from one point in 4 f. **It shows its charge**: 2 hits left full, 1 thinner, 0 embers only (a spent ring cannot burn: `hazard-hits-left`). Its last 15 f gutter | `:ya-ring` r 1.6, band ±0.25 m (`*ya-ring-band*`), 90 f, 2 hits of 20 (爆炎 26), one at a time | NS2b from S16; AS2a from its hit frame; 90 f |
+| SL5b | the crossing burn | (D: Y8 「會燒的火環，可穿過」) | the generic hit spark at the victim plus SL5 dropping a step. A flare at the crossing point would need a feedback hook (shared, default off): only if the stills say the burn does not read | the hit is the ring's (above) | the hit frame |
+| SL6 | the dome (NS2c; AS2b; 爆炎 NS2b) | the walls climb and close into a squat dome, no shell (A, ep. 215) | 12 FIRE tongues on the disc's edge rise and lean in to close at 2.4 m in 4 f, hold as a flattened dome with dark gaps for 12 f, then erode. On a standing ring the ring's own tongues are the ones that rise. Pure of the hazard's age (no `*dome-last*` state) | `:ya-dome` disc r 1.6 on the ring, or at his bearing 3-8 m (AS2b from 0 m); hot 4 f; life 40 | closes S18 to S+4 (hot); holds to S+16; gone by S+40 |
+| SL7 | NADEGIRI: the unseen cut and the late split (NS3c, AS3c) | the cut is never shown; the split comes a beat later (A, ch. 338, `HitotsumeNadegiri.gif`) | on S: one INK hairline across the arc at neck height for 2 f, nothing else. At S+24: a seam of fire opens along the cut's line through the victim's spot, two walls of flame parting left and right (a V), tallest at 2.4 m ahead, by tier. Drawn from the move's frames by `yama-draw` (F6: the hazard lives 2 f), from his feet (§16.3 dev 2) | melee `:reach 2.4 :arc 100`, the hit on S14 for 4 f. **The split is aftermath, not a second hit**: no spark, no shake | line S14-S15; split f38 to f52 (the Shikai's R34 ends at f52) |
+| SL8 | the SA's halo (TAIMATSU) | a full radial halo of fire, his silhouette at its centre (A, `Taimatsu226.gif`) | tongues ignite round him following the turn, the ring opens from 0.6 m to the reach in 2 f and stands for the window; an EMBER ring on the reach's edge; INK behind him so he reads dark in the fire. The `%ya-flare` pattern with a radius argument, shrunk near the lens | melee `:reach 2.4 :arc 360` (爆炎 3.2), S16 A8 | f16 to f23, fading to f27 |
+| SL9 | the small fires | the burning pommel (D, the user's 「右手刀柄回擊」); AS1's point-blank spiral | J3: a fist-sized flame on the pommel from S-2 to S+A. AS1: SL1's corkscrew as a 1.4 m burst from the tip | J3 reach 1.4 (the floor `*j-reach-min*`), arc 140; AS1 `:reach 1.6 :arc 90` | J3 S9; AS1 S10-S12 |
+
+Deviations to expect, said now: SL3 and SL6 will hide part of the victim for 40-48 f whatever the gaps; SL7's seam past 2.4 m is decoration
+beyond the hit (K5's caveat, Q4). The old `vfx-fire-wave` / `-pillar` / `-dome` take boxed floats and keep draw-side state (`*wave-ghosts*`,
+`*dome-last*`): the new looks are `defun-fast` functions of the hazard's age in `yama-look.lisp` (K1's pattern), and the old ones stay
+for `yama-bankai-cine` until nothing calls them.
+
+### 21.3 The Shikai's clips
+
+Planes / hands (motion-refs §5: none shared inside the form): J1 ↘ fore, J2 ↗ back, J3 pommel thrust, NS1a level thrust, NS1b vertical up,
+NS1c overhead whirl, NS2a spear cock and lock (travel 0), NS2b wrist circle, NS2c short vertical chop to level, NS3a low rising jab,
+NS3b level R→L fore, NS3c level L→R back at the neck, AS3a reverse-grip pull, AS3b rising ↖ fore, SA body turn. Two same-theme pairs share a
+plane on purpose (AS1 with NS1a, AS2a's flick with NS2b's circle): §5b's theme rule; they differ by length and startup.
+He has one arm (TYBW). No root yaw turns: the blade is carried round him (skill red flag; `ya-taimatsu`, `ya-f3`, `ya-nadegiri` have 360° turns today).
+Tip targets are the volumes; **S1's FK print decides**. Today's tips are §16.1's.
+
+| Slot | S / A / R | Archetype | Body in one line | Grade | Verdict | Now plays (**borrowed**) | Drawn tip target (today) |
+|---|---|---|---|---|---|---|---|
+| Stance 1 不知火 | loop | the flame wave, coiled | sunk and side-on, the hilt drawn back at the right hip 0.3 m out from the body, the blade level along the lane; SL0 as a slow corkscrew on the blade | B + D | re-key (4 keys) | `ya-shiranui`, a 0.5 s 2-key charge loop | - |
+| Stance 2 城郭炎上 | loop | the point | upright, the arm locked out at shoulder height, the blade level at the foe; a drip of fire off the tip | A (`316Jokaku Enjo`) | re-key (4 keys) | `ya-st-enjo`, 2 keys on ENJO's pose | - |
+| Stance 3 撫斬 | loop | the pivot, at rest | upright, eyes shut, the hand on the pommel of the blade stood point-down **0.25-0.3 m to his right front** (D: his body hides a centred blade from the behind camera, as 南's); **no fire at all**: SL0 off | A (the cane) / D (offset) | re-key | `ya-st-cane`, 2 keys on the intro's lean | cast: tip on the plaza ±0.05 |
+| J1 HISEN | 14 / 3 / 12 **(opener: held tell)** | unmovable pivot | charge f0-9 (the wrist cocked high right, the feet still), held f10-12, snap ↘ f13-14; `:blend 4` (it starts from three stances, §18.3) | D | re-key at S14, `:clip-s 9` dropped | `ya-q1` S9 slowed x0.64 | 1.4 (1.39) |
+| J2 KAESHIBI | 8 / 3 / 13 | the return flick | frame 0 = J1's f17; low left to high right, the elbow leading | D | reuse (frame 0 checked) | `ya-q2` | 1.4 (1.35) |
+| J3 TSUKABI | 9 / 3 / 18 | pivot finale | frame 0 = J2's f11; the grip drawn back, the pommel punched up into the face; SL9 | D (the user, 2026-10-14) | reuse, frame 0 re-keyed | `ya-tsuka` | 1.4 by the **pommel** (the FK row measures the weapon's base; the tip prints 1.78) |
+| NS1a | 22 / 2 / 24 **(tell)** | the point, thrown | frame 0 = stance 1; the spiral gathers f0-14 (a key a frame), the coil held and trembling f15-19, a level thrust with the arm locked f20-22 | B + D | **new `ya-n1a`** | **`ya-f1`** (the waist sweep) S18 at x0.82 | cast: tip ≥ 1.0 m ahead at 1.1 m up (the wave starts 1 m out) |
+| NS1b | 16 / 13 / 20 | the lift | frame 0 = NS1a's f24; the point dropped to the plaza ahead (f8, held f9-12), then lifted straight up onto the toes on S: the fire answers 4-7 m away | C + D | re-key at S16, `:clip-s 22` dropped | `ya-f2` S22 at x1.4 | cast: tip overhead on S, in the plaza f9-12 |
+| NS1c | 18 / 2 / 30 | the whirl | frame 0 = NS1b's f29 (the blade overhead); one whirl of the blade above his head (a key every 90°, the wrist, no root yaw) f0-12, held high f13-15, flung forward and down on S, the torso turning in | B + D | **new `ya-n1c`** | **`ya-sig`** (the three-beat halo, S40) at x2.2 | cast: tip ≥ 1.0 m ahead on S |
+| AS1 | 10 / 3 / 24 | the point, point-blank | frame 0 = J1's f15; the hilt pulled to the ribs (f0-6, held f7-8), a short corkscrew thrust, the wrist rolling | B + D | **new `ya-as1`** | **`ya-shiranui-throw`** S2 at x0.2 | 1.6 (2.04: **+0.44 over**) |
+| NS2a | 20 / 2 / 22 **(tell)** | the spear | frame 0 = stance 2; the pointing arm cocked back to the shoulder like a spear (f0-12), held f13-17, locked out on S: the lance leaves the tip | A (the cane "used like a spear") + D | re-key | `ya-enjo` (its own; R30 on a move of R22) | cast: tip ≥ 1.0 m ahead on S |
+| NS2b | 16 / 2 / 20 | the point draws | frame 0 = NS2a's f22; the wrist draws one circle with the point (r 0.25 m at the tip, f4-13: SL0 leaves the circle in the air), a stop on S | A (the stream coils into a ring) | **new `ya-n2b`** | **`ya-enjo`** again, S20 at x1.25 | - (SL5) |
+| NS2c | 18 / 2 / 30 **(F11: the only tell)** | the call | frame 0 = NS2b's f18; the blade raised point-up overhead (f0-8), held f9-14 with fire climbing it, chopped down to the level point on S | A (ep. 215: raised point-up, then the point) | **new `ya-n2c`** | **`ya-f3`** (the 360° spin drop, S22) at x1.2 | cast: tip overhead f9-14, level on S |
+| AS2a | 12 / 3 / 16 | the flick | frame 0 = J2's f9; a short level flick of the point across his chest R→L: the tip draws the ring that snaps on | D | **new `ya-as2a`** | **`ya-enjo`** S20 at x1.7 | 2.0, arc 120 (1.66) |
+| AS2b | 18 / 2 / 30 | the call, close | frame 0 = AS2a's f15; NS2c's poses from that frame | A | **new `ya-as2b`** (NS2c's poses, its own frame 0) | **`ya-f3`** | - (SL6) |
+| NS3a | 18 / 3 / 18 **(tell)** | Onibi's jab | frame 0 = stance 3; the blade pulled up out of the plaza (f0-12: the tell), levelled low at the hip, held f13-15, a low rising jab with the 1.0 m slide | A (Onibi, ch. 337: the low jab, walking past) | **new `ya-n3a`** | **`ya-q2`** (J2's) S8 at x0.44 | 1.6, arc 90 (1.38) |
+| NS3b | 12 / 3 / 18 | the closing step | frame 0 = NS3a's f21; one step, a level cut R→L at the waist with the 2.0 m slide | D | **new `ya-n3b`** | **`ya-q1`** (J1's) | 1.6, arc 110 (1.39) |
+| NS3c NADEGIRI | 14 / 4 / 34 | the pivot, purest | frame 0 = NS3b's f15; f0-9 still: the blade settles at the left hip, eyes shut; f10-12 a 1° tremble; f13-14 the snap L→R at the neck (2 frames of smear); then stillness: the blade lowered over 20 f, the chest (-46°) and head turned away, no root yaw | A (ch. 338) | re-key at S14, `:clip-s 20` dropped, the 185° root turn removed | `ya-nadegiri` S20 at x1.43 | 2.4, arc 100 (1.87): a 0.3 m drawn lunge, SL7's line carries the rest (one-sided) |
+| AS3a | 8 / 3 / 14 | the back cut | frame 0 = J3's f10 (the blade laid back along the forearm); the hilt pulled back across him: the edge cuts on the pull | D | **new `ya-as3a`** | **`ya-q2`** (J2's) | 1.8, arc 120 (1.35) |
+| AS3b | 10 / 3 / 16 | the turning cut | frame 0 = AS3a's f11; the blade flipped forward, a rising cut to his high left as the chest turns | D | **new `ya-as3b`** | **`ya-f1`** S18 at x0.55 | 2.0, arc 160 (1.99) |
+| AS3c | 14 / 4 / 34 | NADEGIRI | frame 0 = AS3b's f13; NS3c's poses from that frame | A | **new `ya-as3c`** (NS3c's poses, its own frame 0) | **`ya-nadegiri`** | 2.4 |
+| SA TAIMATSU | 16 / 8 / 24 | the wave, all round | the eye-open tell (f3), the blade carried once round him low (a key every 90°), rising into the fan on S; SL8 is the reach | A (`Taimatsu226.gif`) + B | re-key (the root 360° replaced by the carried blade; hit pose kept) | `ya-taimatsu` (its own) | one-sided: 1.45 against 2.4 / 3.2 (SL8) |
+| Kikon strikes (NS / AS) | J1's | - | copies of J1 with a 0.25 m drawn lunge: J1's tip is 0.21 m short of their 1.6 | - | **new `ya-strike`** (J1's poses, `:root :f`) | **J1's clip** | 1.6 (1.38-1.39: **-0.21**) |
+
+Count: 13 new (two of them pose-sharing copies), 7 re-keyed, 2 reused, 3 stances re-keyed. Borrowed today: NS1a, NS1c, NS2b, NS2c, AS1,
+AS2a, AS2b, NS3a, NS3b, AS3a, AS3b, AS3c and the Kikon strikes (13 slots on 8 other moves' clips).
+Still open after the batch, as the Bankai's: the SA's frame 0 matches none of its six predecessors (NS1a f24, NS1b f29, NS2a f22, NS2b
+f18, NS3a f21, NS3b f15); a per-predecessor clip needs a mechanism that does not exist (§18.9).
+S1's `known-off` list starts as: AS1 (+0.44), the Kikon strikes (-0.21), NS3a / NS3b (-0.22), AS3a (-0.45); S2 / S3 empty it.
+
+### 21.4 爆炎 (GOKUEN)
+
+What changes against the Shikai. Everything not listed is the Shikai's clip and look at tier T2.
+
+| Item | Today | Plan | Kind |
+|---|---|---|---|
+| The body | `:yamamoto-bare`, 12 glowing scars at a fixed 2.4, the `:hellfire` aura | exists; kept | - |
+| Scars by heat | fixed glow | the glow follows `gauges-meter`: full at 100, a dull red by 25, pulsing in the last 10 (the form is about to end). `draw-body`'s `:emissive` adds to every part, so this needs either a glow-parts-only gain in `body.lisp` (shared, default 1: the lead's call) or FIRE hairlines drawn over 6 scars by the draw hook | look (read only) |
+| The blade | no fire (F1) | SL0 at power 1.3, white-cored | look |
+| J1 / J2's flame trail | none | a kit `:smear` look for `:blaze`: the swing's trail as a FIRE wash with tongues off its upper edge (the `:smear` slot of §17.4 dev 7; a new branch in `vfx-smear`, default off). No new clips. The Shikai's `:smear` is the same wash thin, with one orange hairline | draw hook |
+| J3 IKKOTSU | `ya-ikkotsu` S8 on a move at S9 (F10); the blade in the fist (F3) | re-key at S9, frame 0 = J2's f11; the blade planted at his right (a `*ya-plants*` row, f2-f24), the fist straight out at shoulder height (A, ch. 394); a short FIRE burst on the fist at S | clip + table row |
+| The entry pose `ya-blaze-in` | `ya-hellfire` at x2.5, a 360° root turn in 24 f | its own 24 f clip, no turn: the point lowered to the plaza at his right (f0-6), fire runs down the edge into the floor and a ring runs out (f7-16), he straightens, chest out, chin up (f17-23). The strip is the form swap itself (instant at `set-form`) | clip |
+| NS1c: the tornado tracks | SL3 would travel upright | the funnel leans into its turn (its yaw rate is not stored: lean toward the target's bearing, read from `hazard-target`); taller (T2) | look |
+| NS2b: the ring closes at once | the dome | SL6 with the coil-in and the close in one (the ring drawn for 4 f, then the walls) | look |
+| NS2c ENNETSU JIGOKU | the tornado's pillar look | **rows of pillars**: 3 pillars abreast across the 2.4 m box, a new row rising every 1.0 m as the wave's front passes (5 f at 12 m/s), each standing 16 f then eroding, so 3 rows burn at once behind the front; EMBER circle marks on the floor a row ahead of the front (the tell that it is coming). The front row's far face is the hazard's x | look. Footprint: `:wave` 2.4 m wide, 12 m/s over 9 m (45 f), S18 |
+| NS3c: the true NADEGIRI | `ya-nadegiri` with R60 (the last pose held) | its own clip `ya-b-n3c`: the Shikai's cut, then the "huge opening" drawn: the blade lowered over 40 f, his back turned (chest and head), a held stillness to f78. SL7's seam at T2, 8 m long | clip + look |
+| AS1 / 2 / 3, NS1 a / b, NS2a, NS3 a / b, SA | the Shikai's clips | the Shikai's clips and looks; the SA's halo at 3.2 m | - |
+| The cancel burn (Y10) | a sound only (§13) | `vfx-scorch` on the opponent's weapon hand from the existing cancel feedback, if that event carries the side; else left as a sound | look, to check |
+
+**The open question: its own stances and Kikon cinematics, or the Shikai's? Recommendation: the Shikai's, in 爆炎's dress.**
+
+| Reason | Evidence |
+|---|---|
+| The pointer themes are the same three | §3: "each has a 爆炎 variant"; DUEL_CORE §5b: stance, NS, AS n and Kikon share one theme. A second stance for the same pointer makes the player relearn the read for a state that lasts seconds |
+| 爆炎 is short | 10 s at most (decay 10 / s), less with each NS (25 a segment): three NS segments leave about 2 s (§13 B13) |
+| The form already reads at a glance | the bared body, the scars, the aura, the white cores, the trail, the HUD's 爆炎 strip |
+| A cinematic's length is sim ticks (§19.2) | three more storyboards would add three more tick costs for a window that seldom holds a Kikon (the Kikon is a hold after an SP; the CPU "spends its heat on NS routes, so it seldom reaches 100", §13) |
+| It costs nothing | a `defcine` draws the actor's current model, so the same three cinematics show him bared and scarred; each look takes a form flag for T2 fire. `:blaze`'s `:kikon-cines` lists the same three |
+
+If the user wants one difference, Q2's option B is the cheap one: pointer 2's Kikon alone changes with the form.
+
+### 21.5 The three Kikon storyboards (Shikai)
+
+House length 150-206 f (§15.3). The engine's LENS is a **vertical field of view in degrees**: a small number is a long lens (§19.3 dev 4).
+Landscape letterbox 9 %; "P:" = the portrait note. Camera terms as K4 built them (`shot-on actor angle dist height`, `shot-pair`).
+Kept apart from each other and from the Bankai's: 1 = **fire that comes from nowhere**, 2 = **the cage**, 3 = **nothing happens, then it has**.
+Angles are drafts: K4 moved eight of them because the other actor blocked the lens (§19.3 dev 1). Expect the same.
+
+**The K4 finding applies in full (§19.2): a Kikon cinematic's length is sim timing, in ticks only.** The damage frame does not move; the
+reset after it does. Against the generic `soul-break-cine` (96 f):
+
+| Pointer | Storyboard length | Ticks added per Kikon | Cost of the build |
+|---|---|---|---|
+| 1 不知火 | 174 f | +78 | the ghost lights and the closing columns (SL2, SL3 at cinematic scale); no bake |
+| 2 城郭炎上 | 186 f | +90 | the floor pattern, 12 pillars, the dome (SL6 at scale); bake 焱 熱 |
+| 3 撫斬 | 156 f | +60 | the seam (SL7 at scale), the victim's own attack clip (K4's `yama-victim-attack`); bake 撫 |
+
+Unlike the Bankai's, **these ticks reach a gate**: the looks gate's YK match plays the Shikai, so if seed 28 holds a Shikai Kikon its later
+sim lines shift. The wiring is therefore its own commit, and the YK scenario is re-based on that commit (§6). The CPU's later play also
+shifts (MCTS seed and the learner's roll read `*match-tick*`).
+
+#### 21.5.1 Pointer 1: 不知火 SHIRANUI (174 f)
+
+Idea: he thrusts and nothing leaves the blade. Lights wake round the victim, become columns, and close into one tornado.
+Actors: `cine-place a v 6.0` (the long-reach pointer). The victim ends down at his placed spot, black and smoking.
+
+| Frames | Shot (angle / dist / height / lens) | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-10 | (held from play) | beat 0: `hold-both`; he holds stance 1's coil, the victim `:sh-kikon-victim` | negative 2; whoosh | |
+| 10-40 | on him, side-front 60°, 1.8 m, 0.9 m, lens 50, roll 5 | the blade at his hip; the spiral winds down it from the tip to the guard and tightens | silence 30; caption 不知火, SHIRANUI, sub RYUJIN JAKKA, hanko | P: `:off` halves by itself. No bake (F9) |
+| 40-58 | behind and above the victim: on v 180°, 7 m, 4.5 m, lens 44 | pale lights wink on round the victim on the floor, one every 2 f: 5, then 9, on a circle r 4 m. He looks about | each a soft tick; no source visible (A: none; D: the folklore) | P: 9 m |
+| 58-76 | side-on pair, 9 m, 1.2 m, lens 46 | `cine-slow` 0.4: the level thrust (NS1a's release, f62). The spiral on his blade goes out. Far away the nine lights stand up as columns | one dry crack on the thrust; then the roar starts | the economy beat: the blade does nothing here. P: 12 m |
+| 76-120 | above the victim: on v 0°, 2 m, 10 m up, looking down, lens 40 | the columns circle him, faster, the circle closing from 4 m to 0.8 m in a spiral; they lean together | SL2 x9 at T2; shake rising to 0.4 | the shot the cinematic is for. P: 12 m up |
+| 120-126 | on the victim, front, 3.2 m, 0.5 m, lens 36 | the wall reaches him; f122 the Konpaku shatters | negative 2, `cine-shatter`, manga 10 | |
+| 126-150 | low, looking up the tornado: on v 30°, 5 m, 0.3 m, lens 60 | one tornado, 10 m tall, white-cored; the victim a black silhouette inside it, on the floor (never lifted: no y change) | SL3 at scale; `silhouette-black`, `:sh-crumple` | CINE-END undoes the silhouette (§19.1, 西) |
+| 150-174 | behind Yamamoto: on a 160°, 3.5 m, 1.6 m, lens 44 | his back (the 一 in its rhombus, the haori settling); beyond him the tornado gutters to embers; he lowers the blade; the victim down | caption exits f150; `:sh-down`; black smoke | P: 5 m |
+
+#### 21.5.2 Pointer 2: 城郭炎上 → 焱熱地獄 ENNETSU JIGOKU (186 f)
+
+Idea (§7.1, A ch. 393): fire runs down the edge into the floor and draws its circles; the pillars rise round **both**; they close into a dome
+with him inside it. Actors: `cine-place a v 3.0`. The victim ends down at his spot. (Q3 asks whether he is inside.)
+
+| Frames | Shot | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-10 | (held) | beat 0; he holds stance 2's point | negative 2 | |
+| 10-34 | low on the sword hand: on a 30°, 2.0 m, 0.5 m, lens 50 | he turns the blade point-down, the edge to the floor (`ya-hellfire-point`); f22 the fire on the blade runs down the edge into the ground | silence 20, then a hiss; caption 焱熱地獄, ENNETSU JIGOKU, sub JOKAKU ENJO, hanko | bake 焱 熱 (`tools/glyph-bake.py`); caption-fit test |
+| 34-66 | from above: on a 0°, 2 m, 10 m up, looking 1.5 m ahead, lens 44 | EMBER lines run out over the floor from the blade and branch into circles: rings at r 2 / 4 / 6 m and 8 spokes, drawn in 20 f, enclosing both; f60 twelve marks on the r 4 ring ignite | drawn in the look (not `stage-crack-add`: no marks left for the round) | A: "branches in circle patterns". P: 13 m up |
+| 66-110 | side-on pair, low, 5.5 m, 0.6 m, lens 46 | the twelve pillars rise behind both, one every 3 f, to 6 m, then lean in. The victim turns, looks for a way out (`:sh-stagger` x0.5). He does not move | ember pillars; the roar; shake 0.2 | P: 7.5 m |
+| 110-130 | far, outside: `shot-pair` 12 m, 2.5 m, lens 40 | the pillars join into one squat dome (r 5 m, 4 m tall, dark gaps); both are inside, unseen | silence 12 from f110, then one low boom | A: the flattened sphere (ep. 215). P: 15 m |
+| 130-136 | inside, on the victim, front, 2.6 m, 1.4 m, lens 50 | white fire from every side; f132 the Konpaku shatters | negative 2, `cine-shatter`, manga 10 | |
+| 136-160 | inside, on him: front 15°, 2.4 m, 1.3 m, lens 44, roll -4 | his dark shape standing in the flames, the blade still down, the haori's hem alight | INK on him, embers on the hem. A look only: **no Reishi is taken** (the self-burn is canon's, not this move's rule) | A: `EnnetsuJigoku.gif` 27-30 s |
+| 160-186 | wide, outside, side: 9 m, 2.0 m, lens 44 | the dome falls outward to a scorched ring; the victim down and smoking; he stands with the arm out, the blade pointed at where it stood | caption exits f160; ash; black smoke | A: the pointing end pose (ep. 215). P: 12 m |
+
+#### 21.5.3 Pointer 3: 撫斬 NADEGIRI (156 f)
+
+Idea (A, ch. 338): the cut is never shown. He lowers the blade and turns away. The victim does not know. Then the split.
+Actors: `cine-place a v 2.0`. The victim's model is never cut: the split is a seam of light and fire over a black silhouette, then he falls.
+Kept apart from 南 (he walks toward a long lens, a crowd behind): here he does not walk, the camera is side-on and close, and nothing is on screen but the two of them.
+
+| Frames | Shot | Action | Effects / sound | Note |
+|---|---|---|---|---|
+| 0-12 | (held) | beat 0; he holds NADEGIRI's draw pose (the blade at the left hip), the victim `:sh-kikon-victim` | negative 2 | |
+| 12-40 | on his face: front 10°, 2.2 m, 1.55 m, lens 20 (a long lens) | eyes shut. Nothing moves | silence 28; caption 撫斬, NADEGIRI, sub RYUJIN JAKKA, hanko | bake 撫. P: 3.0 m |
+| 40-52 | over his shoulder at the victim: on a 200°, 2.4 m, 1.5 m, lens 50 | one eye opens (a garnish). The victim, unharmed, starts his own attack (his kit's `:q`, K4's `yama-victim-attack`; `:sh-clash` if none) | `cine-slow` 0.3 | "not even aware of it" (A) |
+| 52-56 | the same | the cut, not shown: one INK hairline across the whole frame for 2 f. On the next frame his arm is already out to his right | negative 2; one dry tick, no slash sound | 2 frames of smear (motion-refs H1) |
+| 56-110 | side-on pair, 4.2 m, 1.2 m, lens 46 | the victim frozen mid-swing (clip speed 0). He turns his back on him (step mode, as 南's turn) and lowers the blade, slowly, to hang (54 f) | silence; cloth only | the shot the cinematic is for (A: the slow lowering). P: 6 m |
+| 110-116 | on the victim, front, 2.6 m, 1.4 m, lens 50 | a white seam opens down him from crown to floor; f112 the Konpaku shatters | negative 2, `cine-shatter`, manga 10 | the model untouched: the seam is drawn over a `silhouette-black` |
+| 116-140 | low behind the victim, past him to Yamamoto's back: 3.6 m, 0.4 m, lens 40 | fire bursts from the seam and parts left and right (a V); a scorch line runs away behind him along the floor; `:sh-crumple`, then `:sh-down` | SL7 at scale, T2; shake 0.3; the boom 4 f late | |
+| 140-156 | wide side, 7 m, 1.6 m, lens 44 | he has not looked back. The blade hangs | caption exits f140; embers | P: 9 m |
+
+#### 21.5.4 What today's API cannot do as written
+
+| # | Beat | Gap | Proposed way |
+|---|---|---|---|
+| 1 | 5.1's nine columns, 5.2's twelve pillars | the fx batch holds 16384 vertices; K4's probe overflowed once (§19.3 dev 10) | a cinematic pillar of ≤ 200 vertices (no crown); `fx-dropped 0` on the stats line is a check |
+| 2 | 5.2's floor pattern | no helper draws rings and spokes growing | one `defun-fast` look, lines by `%ya-line` (yama-cine.lisp) |
+| 3 | 5.3's seam on the victim | the body cannot be split | a white `toon-ribbon` over `silhouette-black` (CINE-END restores it) |
+| 4 | 5.3's turn, 5.2's stillness | step-mode moves of the actors | as 南 / 西: CINE-SAVE gives the places back |
+| 5 | the captions | 撫 焱 熱 missing (F9) | the offline bake in S5; the re-bake of the old CHARS byte-identical first (§19.3 dev 3) |
+
+### 21.6 Checks the batches prove
+
+| Check | How |
+|---|---|
+| Presentation only | the native trials `tests/trials/yamamoto-core.lisp`, `-blaze`, `-bankai`: `combo-trial.py --log` identical to the base commit's, every line; the browser scripts `duel-yama-core.json` and `duel-yama-blaze.json`: every `duel hash`, `duel probe`, `duel yamamoto` and combat-log line identical to a base dist's. The only `yama.lisp` edits allowed: `:clip`, `:clip-s`, `:blend`, `:look`, the `:stances` list, `:smear`, hook wiring, debug commands |
+| Heat is read, never written | the same proof (the blaze trials' HEAT lines are in the log), plus a host check that the looks' file holds no `setf` of `gauges-meter`, a `yss-` slot or `hazard-data` (F5) |
+| Shared files | `python3 tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (it plays no Yamamoto: it proves `vfx.lisp` `vfx-smear`'s new branch, `body.lisp` if the glow gain is taken, and nothing else) |
+| The looks gate (83 stills) | **the expected diff is written down before the run**: the YK match's stills (F7), and `select-3` if SL0 draws on the select screen's model. Pass = every other still byte-identical to BASE, and **the YK scenario's fighters and sim lines identical to BASE's** (S1-S4 move no tick). Then the YK stills are re-based and checked by eye. For S5's wiring commit the YK sim lines may shift after the first Shikai Kikon by +60 / +78 / +90 (look for a `cine SOUL-BREAK-CINE` line in BASE's YK log): re-base once, on that commit |
+| Drawn reach = hit reach | the Shikai / 爆炎 rows of the host FK test become checks, ±0.15 m; J3 by the pommel, IKKOTSU by the fist; one-sided rows (NS3c, the SA) never over by 0.15; the `known-off` list empty after S3. Cast checks for the hazard segments (§3's last column) and stance 3's planted point |
+| Looks = footprints | each look's ground edge against §2's radius / width in a top-down still, at T0 and T2 (the edge must not move with heat); a host check that any speed constant in a look equals the move's `:speed` |
+| Link frames | the tip's jump on each link frame, before / after (§18.3's table), from the trials' ticks |
+| 緩急 | the tip's speed per frame for J1, NS1a, NS2c, NS3a and NS3c (NS3c's proof is the opposite: 0 until the 2-frame snap) |
+| 0 B a frame | a consing line per new look, tier and stance (87448's pattern; a second probe so its draws do not overflow the batch), `fx-dropped 0`, no row "(dropped)" |
+| Host tests, pkgcheck, debug ranges | ALL PASS; `unit-names` (new clip and look names grepped first); new debug numbers claimed in DUEL_GAMEPLAY first: the free 87416-87419 (NS3 a / b / c, the SA on their own) and 87460-87489 (the AS segments, 爆炎's segments, the three cinematics) |
+| Stills | per segment and per stance: match camera + side (2109), landscape + portrait (`--mobile --size 390x844`); 8-frame strips side + front; one still per cinematic beat, both aspects |
+| Build, smoke | `./build.sh duel` last, `run.mjs` exit 0 |
+
+No balance gate (the user, 2026-10-29). Bounded waits only in every brief; never `pkill -f` / `pgrep -f`.
+
+### 21.7 Questions for the user (AskUserQuestion; recommended first)
+
+| # | Question | Options | Consequence |
+|---|---|---|---|
+| Q1 | 花熱量時，火焰的大小差多少？ How far apart are heat 0 and a full spend? | **a. Clear but moderate (recommended)**: heat 0 is real fire at 60 % height, orange only; a full spend is full height with a white-hot core. **b. Extreme**: heat 0 is low embers (35 %), a full spend towers (130 %) and whites out. **c. Colour only**: the same size, orange to white | a: the hit box is always fully drawn, the spend reads by the core. b: the strongest read of Y3, but small fire undersells an unchanged hit box and tall fire hides the foe from behind. c: the safest for the camera, the weakest read. The ground edge never changes in any of them |
+| Q2 | 爆炎要有自己的架式與毀魂技演出嗎？ Does 爆炎 get its own stances and Kikon cinematics? | **a. The Shikai's, in 爆炎's dress (recommended)**: same stances, same three cinematics, shown bared, scarred and white-hot. **b. One difference**: pointer 2's Kikon is ENNETSU JIGOKU only in 爆炎; the Shikai's becomes the cage round the victim alone. **c. Its own three cinematics**. **d. Its own stances too** | a: no new storyboard, no new tick cost (§4's reasons). b: +1 storyboard, and it settles Q3 as "cage". c: +3 storyboards and a batch, for a state of ≤ 10 s. d: the player relearns three reads |
+| Q3 | 城郭炎上的毀魂技要多貼近原作的焱熱地獄？ How literal is ENNETSU JIGOKU? | **a. Literal (recommended)**: the pillars rise round both and he stands inside the dome, a dark shape in the fire, his hem alight (§5.2; no Reishi is taken). **b. The cage**: the ring, the walls and the dome close on the victim alone; he stands outside, pointing (ep. 215's Jōkaku Enjō). **c. Literal and it costs him**: a Reishi cost on the Kikon | a: §7.1's line as agreed in Y12; canon ch. 393. b: nearer the pointer's own name, a calmer image, and the caption becomes 城郭炎上 (bake 城 郭 炎). c is a rule change, not a look: it would need its own decision and gate |
+| Q4 | 撫斬「晚一拍裂開」要畫到多明顯？ How literal is NADEGIRI's late split? | **a. A seam of fire (recommended)**: nothing at the hit but a hairline; 24 f later a seam opens through the victim's spot and the flames part in a V, scaled by heat. **b. Almost nothing**: the hairline, then he just falls; the split only in the cinematic. **c. The world splits**: the old look, a scorch line racing 8 m past him | a: reads as the result arriving late; the model is never cut. b: the purest economy, but a 110 / 200 damage finisher with no effect in play. c: the biggest, but 5.6 m of it lies beyond the 2.4 m reach (K5's caveat: decoration read as reach) |
+
+The lead decides the rest from stills, as §15.4: stance 3's offset, the ring's and the dome's heights, the tornado's band count, frame
+counts, every camera angle that an actor blocks.
+
+The user's answers to Q1-Q4 go in §21.8.
