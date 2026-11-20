@@ -2434,3 +2434,14 @@ entry's scorch (FEEDBACK `:hellfire`'s `stage-mark`), one per scene.
 - The cancel burn stays a sound (25.1): a look would need its own event in YAMA-BURN! (a sim-file edit).
 - 爆炎 NS2b still plays NS2c's clip at x18/16 (its frame 0 0.15 m off 爆炎 NS2a's landing, §24.6 dev 5): not in §21.4's table.
 - The SA's frame 0 against its six predecessors (§18.9) is unchanged. S5: the three Kikon cinematics on 87482-87489.
+
+### 25.9 The lead's merge (2026-11-20)
+
+- Reviewed the diff: `kit.lisp` only its `:smear` docstring; `vfx.lisp` look 5 a new branch (looks 0-4 take the old ones); `yama.lisp` clip
+  wiring, `:smear 5`, the `:planted` hook, debug 87490. No sim number moved.
+- Re-run on main after the merge: host 4252 ALL PASS, pkgcheck as before, debug ranges 88 / 0 errors, `./build.sh duel` then `git checkout --
+  vendor`, smoke exit 0, `--cvc` II / IK / KK PASS (33 / 28 / 27 lines).
+- Looks against `looks-base-s3`: 83/83 byte-identical, every sim line PASS, as predicted (none). A first run with `--keep-base` failed on
+  nearly every still, menus included: it compared against base renders left in `build/style/looks/` by an earlier run, not renders of
+  `looks-base-s3`. Re-run without `--keep-base`: PASS. The base is now this merge's dist (`looks-base-s4`); S5's wiring changes YK again.
+- Playtest v458 (index.js / index.wasm / manual.html hashes verified). The manual's Yamamoto line now names 爆炎's art.
