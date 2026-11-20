@@ -82,3 +82,12 @@ fn fxt_shade(i: FxT, fringe: bool) -> vec4f {   // FRINGE: the soft band only (R
 }
 @fragment fn fs_fx_toon(i: FxT) -> @location(0) vec4f { return fxt_shade(i, false); }
 @fragment fn fs_fx_toon_f(i: FxT) -> @location(0) vec4f { return fxt_shade(i, true); }
+// The flame layer's cut (RP_FXT_L, §15.6): alpha-to-coverage by hand. The coverage picks round(4 a) of the samples and each
+// one stores alpha 1, so the resolved layer is premultiplied (colour x share, share) and a glass flame keeps g of 4 samples
+// as before; without MSAA the one sample is kept when a >= 1/8 (the cut already discards below F.clk.y).
+struct FxTL { @location(0) c: vec4f, @builtin(sample_mask) m: u32 }
+@fragment fn fs_fx_toon_l(i: FxT) -> FxTL {
+  let o = fxt_shade(i, false);
+  let n = u32(clamp(floor(o.a * 4.0 + 0.5), 0.0, 4.0));
+  return FxTL(vec4f(o.rgb, 1.0), (1u << n) - 1u);
+}
