@@ -2382,6 +2382,10 @@ travel), so it cannot be slow; it was stretched to 12 frames and the drive keyed
 7. **The flame trail draws behind every 爆炎 swing** (`:smear` is per form), not J1 / J2 alone.
 8. **Debug 87490** (new, claimed in DUEL_GAMEPLAY): P2 moved 3 m to P1's right, so the tornado has an off-axis victim to turn after (87000+k
    always places him dead ahead).
+9. **ENNETSU's front row is centred on the box**, so its far face is 0.1 m inside the box's front (§21.4: "the front row's far face is the
+   hazard's x"): the hit begins at the box's front (S1 dev 2's precedent: heads on the box's front), so the pillars stand over the hit.
+10. **The tornado's lean was raised from 0.6 m to 1.0 m at the top band** after the first stills, where it hardly read; it is still slight
+   (the hazard turns after the victim at 60°/s, so the lateral share of his bearing shrinks as it tracks).
 
 ### 25.6 Stills (untracked)
 
@@ -2396,8 +2400,11 @@ travel), so it cannot be slow; it was stretched to 12 frames and the drive keyed
   scripts regenerated: the clip indices moved).
 - Contact sheets: `tests/shots/duel-yama-s4-sheet-<behind|side>[-phone].png`, `duel-yama-s4-top-sheet.png`, `duel-yama-s4-strips-<side|front>.png`.
 
-Checked by eye: the three heats read apart on his chest from the SIDE camera (from behind only the back scar shows); IKKOTSU's blade stands
-in the plaza at his right from f2, the fist burst on S into Kenpachi; the entry's ring runs out from the point (the big orange disc of f6-f9 is
+Checked by eye: the three heats read apart on his chest from the SIDE camera (from behind only the back scar shows); the last-10 pulse is
+**not** shown by the stills (`heat-10` and `heat-10b` landed on the same look: the pulse is proven by 87449's `scars-5` row and the code
+only); IKKOTSU's blade stands in the plaza at his right from f2, the fist burst on S into Kenpachi (the in-play still names past `ikk-s` run
+behind the clip by J3's hitstop: `ikk-back` / `ikk-hilt` still show the fist out, so no still shows the hand back on the hilt; the f24 grip is
+proven by the host check, 0.01 m, and the viewer strip draws the blade in his hand); the entry's ring runs out from the point (the big orange disc of f6-f9 is
 FEEDBACK `:hellfire`'s existing shockwave, not S4's); NS2b's ring coils round Kenpachi f12-15 and the dome stands after; ENNETSU's rows
 stand behind the front and from above the front row fills the box with the tell circles a row ahead; the true NADEGIRI's seam runs past
 Kenpachi to 8 m and he stands turned away with the blade low. The tornado's lean is slight at play distance (the hazard turns after the
