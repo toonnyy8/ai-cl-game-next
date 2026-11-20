@@ -2640,6 +2640,17 @@ to the first wired run's (so 26.4's diff against BASE holds line for line); the 
 - 爆炎's version is the Shikai's staging in its dress (Q2); 不知火's "the 一 in its rhombus" and 焱熱地獄's haori hem have bared answers
   (deviation 4).
 
+### 26.8 The merge (the lead, 2026-11-20)
+
+- Merged as 3f69e585 on top of F1 and Z1, playtest v462. Conflicts: the 87448 probe (Z1 rewinds after every run, S5 only with EACH:
+  kept Z1's, EACH stays as an ignored argument), the debug docstring / DUEL_GAMEPLAY row (both kept), `tests/scripts/duel.py` (both
+  blocks), this doc (§26 before §27).
+- On merged main: host tests 4262 pass, debug ranges 0 errors, pkgcheck as before, build and smoke (exit 0) pass. `--cvc` and the looks
+  gate (BASE = main's dist before the merge, `looks-base-s5`; expected: `cvc-yk/w3-0` and the YK hash lines from t=4200 only, §26.0) are
+  recorded below when they finish.
+- The lead's read of the sheets, for the user: 不知火's columns read as traffic cones and its tornado as stacked rings; the composed 焱 is
+  lighter than 熱地獄; 撫斬's 28 f still face then 54 f lowering is slow; 焱熱地獄's near pillars sink to stubs side-on.
+
 ## 27. 殘日獄衣's mantle: the reference look (batch Z1, 2026-11-20)
 
 The user, 2026-11-20, attaching a fan illustration of the flame cloak: 「殘日獄衣的造型應該是像附圖這樣，請你在做造型前先搜尋範例圖」. The
