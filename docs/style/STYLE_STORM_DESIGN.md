@@ -2194,11 +2194,14 @@ pk < 128 before), and f32 keeps k to about 1e-5 at pk ≈ 256.
 
 **Left out, deliberately:**
 - The flecks of every aura (`%t-blob`).
-- Kenpachi's REIATSU aura is not flagged: its yellow tongues and ring are in the class by palette; its white cores and
-  Nozarashi's three inner HIT tongues stay out (so the menus' backdrop aura is unchanged). They have the same wash since J0: in
-  `tests/shots/duel-j0b-aura-a10.png` / `-a08.png` (main's checkout) the cores are white at 1.0 and yellowed at 0.8 (open point).
-- `:breaker`'s INK backing under the REIATSU layer: a tongue aura by the rule, but outside the lead's list and under a layer whose
-  cores and backing were never discussed (open point below).
+- `:breaker`'s INK backing and its REIATSU layer (the lead, 2026-11-21: the INK backing stays unflagged).
+
+**Kenpachi's REIATSU aura (the lead's follow-up, 2026-11-21: "flag Kenpachi's REIATSU aura white cores (and Nozarashi's inner HIT
+tongues) the same way, so the 0.8 layer stops washing them yellow (J0's side effect); menus moving is fine").** Its yellow tongues
+and ring were in the class by palette since §15.4, but its white cores and Nozarashi's three inner HIT tongues stayed in the scene
+pass, so since J0 the 0.8 yellow layer was laid over them (`tests/shots/duel-j0b-aura-a10.png` / `-a08.png` in main's checkout:
+white at 1.0, yellowed at 0.8). `%reiatsu-aura`'s palette offset is now `32 g + +TOON-FLAME+`: the tongues, the inner HIT tongues,
+the ring and (through `wpal`) the white cores, in every cup. Commit 2b below.
 - Blood trails, chains, smears (the comet), crescents (the black Getsuga, `ichigo-charged-blades`), rifts, impact stars, the
   breaker ring, the clones' BLOOD ring and 残像's HIT ring: untouched.
 
@@ -2207,7 +2210,25 @@ look; it is the literal 37 now. Every shape in the look takes a constant seed (t
 and also the ash, the pass's crescents and the column, whose seeds only moved with him), so the noise flows instead of churning.
 A one-line diff.
 
-**Commits:** 2c69e435 the flag (shader + Lisp, cores stripped); bf84e09b 西's seed; 6eaec9bb the cores flagged (Lisp only).
+**Commits:** 2c69e435 the flag (shader + Lisp, cores stripped); bf84e09b 西's seed; 6eaec9bb the cores flagged (Lisp only);
+then (2b) the REIATSU aura flagged (Lisp only, the commit that carries this paragraph).
+
+**Gates (2b, the REIATSU aura flagged):**
+- Host tests 4259 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 90, 0 errors. Smoke exit 0. `--cvc` PASS on
+  II / IK / KK (33 / 28 / 27 lines). Consing: every row the same as main's (2328's `nomihose` 0, `aura settled` 0, `crossfading` 624
+  as on main).
+- **Looks gate** against `looks-base-f1s`, no `--keep-base`, noise 0: 59 differ, 24 byte-identical, 16 / 16 sim and fighter lines
+  PASS. The 24 of 6eaec9bb's run still differ; the 35 new are every still with Kenpachi's REIATSU aura in frame, checked by diff crop
+  (the cores whiter): `menus/title`, `mode`, `settings`, `controls`, `select-3`; `cine-ken/ken-nozarashi-026/096`, `cine-ko/ko-060`,
+  `results`, `cine-ichigo/ichigo-awaken-110`; `cvc-kh/intro`, `start`, `w0-0`, `w2-0`, `cvc-hk/start`, `w2-0`, `cvc-ik/start`,
+  `w1-1`, `w3-0`, `cvc-yk/start`, `w0-0`, `w1-0`, `w1-1`, `w2-0`; `fx-a/hud-0`, `hud-4`, `smear-a/b`, `meteor`, `guard-break`, `sig`,
+  `sp2`; `mobile/cine`, `hud-0`, `hud-4`. Identical, with no REIATSU aura in frame: `menus/select-0/1/2`,
+  `mobile/intro/neutral/close/paused/mode/select`, `cvc-ii/intro/start/w0-0/w2-0`, `cvc-ik/intro/w0-0/w1-0/w2-0`, `cvc-hk/intro`,
+  `cvc-yk/intro/w3-0`, `fx-a/hud-battle`, `cine-ken/ken-bankai-030`, `cine-ko/ko-012`, `cine-ichigo/ichigo-awaken-060`. The written
+  expectation guessed `menus/select-1` and the mobile battle stills would differ; they have no REIATSU aura in frame.
+- **Stills** (84000 the sealed form, 84001 the Shikai; before = main 5bb4a9fb): `tests/shots/duel-f1b-reiatsu-{sealed,shikai}-{before,after}[-phone].png`,
+  sheets `duel-f1b-reiatsu-sheet[-phone].png` (untracked). Changed pixels: sealed 624 / phone 2104, Shikai 84 / phone 386 (from
+  that camera the inner HIT tongues sit behind him and barely show). The white cores read white again.
 
 **Gates** (on 6eaec9bb unless noted):
 - Host tests 4259 ALL PASS. pkgcheck shows only the existing `DUEL::APP`. Debug ranges: 90, 0 errors. Smoke exit 0. `--cvc` PASS on
@@ -2244,10 +2265,8 @@ A one-line diff.
   after, cropped) and `duel-f1b-strip[-phone].png` (rows before / after) (untracked).
 
 **Open points:**
-- **Kenpachi's REIATSU aura's white cores** (and Nozarashi's inner HIT tongues) have the core wash since J0: the yellow tongue in
-  the layer is laid at 0.8 over the core in the scene pass. Flagging them (`%reiatsu-aura`'s palettes + `+TOON-FLAME+`) would fix it
-  the way 6eaec9bb fixed the flagged auras, and would move every still with the backdrop aura in it (the menus). The lead's call.
-- `:breaker`'s INK backing is unflagged (above); one constant if the lead wants it.
+- (Closed by 2b: Kenpachi's REIATSU aura's white cores and inner HIT tongues are flagged, above.)
+- `:breaker`'s INK backing stays unflagged (the lead); its REIATSU layer's white cores keep the J0 wash.
 - No still of the Kikon rush aura: no debug scene starts the rush (84006-84008 cut to the card), and no looks still catches one. It
   is the same `%brush-aura` + `%tring` path as the blue burst shown; checked by reading only.
 - The soul flame's white core is now see-through with its ribbon (0.8 over the dark sky reads light grey, not white).

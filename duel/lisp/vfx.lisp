@@ -144,8 +144,9 @@ white core lines in the back three, and a flat BLOOD ring at the feet. A macro: 
 0.45 m, 0.8 x his height, white core lines, white flecks rising. Nozarashi (AWAKE 1): 9 wider tongues at 0.5 m, 1.05 x,
 3 thin inner white tongues, a flat REIATSU ring at the feet and a yellow light (its soft additive glow cut in Phase 6).
 GLASS (0..3): the tongues, cores and ring see-through, GLASS / 4 of them drawn (*REIATSU-GLASS*; the user's request
-2026-09-28: cup 3's pillar hid the view). A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (g (* 32f0 (i->f ,glass))))
+2026-09-28: cup 3's pillar hid the view). Every palette carries +TOON-FLAME+ (STYLE_STORM_DESIGN §15.8: the white cores and the
+inner HIT tongues join the yellow in the 0.8 flame layer, which washed them yellow from the scene pass). A macro: 0 B."
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (g (+ (* 32f0 (i->f ,glass)) +toon-flame+)))   ; (the glass level + the flame flag)
     (declare (single-float x y z h k g))
     (if (= ,awake 1)
         (progn
