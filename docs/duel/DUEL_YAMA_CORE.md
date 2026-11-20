@@ -2487,3 +2487,101 @@ Checks:
 - the looks gate: the expected diff is written first (the YK match's stills if seed 28 shows 西, and `select-3` if the select model draws it);
 - stills of the stance, each flare and each cinematic beat: the match camera, the side, behind, portrait;
 - the side-by-side with the user's image.
+
+### 27.3 The looks gate's expected diff (written before the gate ran)
+
+BASE = `dist/duel` built at 76b9be01 before any Z1 change. The mantle draws only for the Bankai (西's stance with no move, the flares of NS2a /
+NS2b / AS2b, the 西 Kikon cinematic). Checked on BASE's own renders of the pinned YK match (seed 28, `--once --only cvc-yk`): Yamamoto is in
+the Shikai in all seven stills (intro, start, w0-0 .. w3-0), so none shows 西. The select screen's models are drawn in their base form (no
+Bankai). The other scenarios have no Yamamoto. Shared code: none touched (the consing probe's rewind is a debug line). **Expected: 83 of 83
+stills byte-identical, no still listed.**
+
+### 27.4 As built (batch Z1, 2026-11-20)
+
+Code: `duel/lisp/yama-look.lisp` "殘日獄衣's mantle" (`*ya-mantle-keys*`, `*ya-skirt-keys*`, `ya-mantle-sample`, `ya-mantle-table`, the
+`ya-mantle` macro, `ya-mantle-draw`), called from `yama-stance-look` (西's stance), `%ya-flare` (NS2a / NS2b / AS2b) and `%ya-garb` in
+`yama-cine.lisp` (the 西 Kikon cinematic, f52-168). Presentation only: no sim file, no sim number.
+
+**The shape.** One closed outline in a cylindrical billboard: U along the camera's horizontal right from his vertical axis, V up from the
+floor, so it reads the same from the front, the side and behind (laid in his own right / up plane it would go edge-on from the SIDE
+camera and in K4's side-on walk). The table is the right half in keys; it is mirrored and sampled 2 a key gap (Hermite; sharp keys at the
+tips): 130 outline points.
+
+| Item | Full (flares, cinematic) | Stance (Z-Q1: small) |
+|---|---|---|
+| Hem | 0.10 m (the sandals show below), 0.13 m out at the ankle | the same |
+| Hem lobes | knee lobe tip 0.64 m out at 0.60 m, hip lobe 0.82 m out at 1.04 m | their reach out of the body's 0.24 m x 0.6 |
+| Wings | 4 lobes each (the tip curled up 1.80 m out at 2.12 m, A 1.50 m at 2.18 m, B 1.10 m at 2.06 m, one hanging under the wing, hooked out) | spread x 0.34: the tip 0.61 m out |
+| Column | 5 lobes over his head: the centre 2.38 m (1.44 x his 1.65 m), the inner pair 2.28 m, the outer pair 2.12 m; a valley at the neck (1.56 m, 0.50 m out) sets the wings apart from it | height over 1.3 m x 0.34: the top 1.66 m (his head) |
+| Motion | the outline billows 0.07 m x its flex (0 at the hem's edge .. 1 at a tip), a sway out and a lick up, its phase by the length along the outline so neighbours move together, on the effect clock's twos | 0.03 m; the size breathes 8 % of the way to full on the stance's 2.4 s loop (twos) |
+
+The fill is the strip between each outline point and its anchor on a skeleton tree inside the shape (the trunk, the hem lobes' branches,
+the wing spines, the lobes' branches). A walk entry keeps the outline point and moves its anchor along the tree, so the anchor chain runs
+the tree's edges and the strips cover the inside with no gap (a fan round a valley). Host-checked (`tests/duel-rules/art.lisp`): wing
+<= 1.9 m (1.80), top / 1.65 in 1.3-1.5 (1.44), hem >= 0.08 m, worst strip fold -0.011 m² (a sliver), every anchor in the half it serves,
+the front layer within 0.32 m and below 1.12 m.
+
+**The layers** (all on the toon fx path, its existing shapes and palettes):
+- the fill: one fan-flagged FIRE shape whose UV sits on the palette's core spot, so it is all the core #FFE483 (yellow-white), no shade,
+  no edge, and the strips never seam; 0.5 m behind his body along the view ray (the body draws over it: his face, arms and blade show in
+  front, the reference's "face in an opening");
+- the white rim (HIT, -0.025 .. +0.035 m across the outline) and outside it the orange edge (FLAME, +0.015 .. +0.095 m; its shade is the
+  outer line), each its own small offset on the view ray;
+- 14 flame marks (8 in the stance) inside: FIRE (red-orange) and every third EMBER (dark red) tongues 0.14-0.28 m, rising 0.2 m and
+  shrinking as they go, re-cycled on the clock;
+- 12 white sparks (6 in the stance) drifting up off the outline;
+- the front layer (`*ya-skirt-keys*`) at full size only: the same fill and rim 0.35 m in front of his body, body-wide (0.13 m at the
+  ankle, 0.30 m at the hip) and below his hands (a flame at the hip 1.04 m, the centre flame 1.10 m), so his legs are engulfed and the
+  hand and blade stay outside;
+- an orange light at his chest.
+Kept: the flares' molten ring on the 2.0 m edge with its white-hot first two frames, the cinematic's ring at his soles, L9's hexagon.
+
+**Z-Q2.** The solidity S = 1 + (his facing · the way to the eye) / 0.17, clamped: solid from the front round to 90 deg, hollow from 100
+deg. Measured with 87448's new line: the match camera stands 106 deg round at 2 m apart, 112 at 4 m, 141 at 12 m (always hollow); the SIDE
+camera 78 deg (solid). Hollow, the fill is a band 0.07 m (x the size) in from the outline toward the anchors, widening with S (+3 S² m, so
+solid well before S = 1); the rim, the orange edge, the marks (kept near the band) and the sparks stay; the front layer's presence is x S
+(it erodes away as the camera goes round).
+
+**Size and timing.** The flares grow from the stance's size to full over 2 frames from each pulse (`%ya-flare`'s old timing and fades
+kept: NS2a f16 and f26, NS2b S14, AS2b S12). The cinematic builds it from f52 (size full in 3 f, presence 0 .. 0.98 over f52-56: the fill
+grows from the skeleton out) and gutters f156-168 (the fill erodes from the outline in); from f124, when he stands turned away, its right
+is his. The stance's small mantle does not draw while the 西 Kikon draws the full one (f124-168, the stance clip is back on).
+
+**Vertices** (87448's line, one draw, of the toon batch's 16384): the stance 2520, a flare 2856 (behind; 3216 with the front layer, side),
+the cinematic's f62 look 3408 with its rings. The 87448 probe now rewinds the fx batches after every run (ten mantle draws exceed one batch).
+
+**Debug** (claimed in DUEL_GAMEPLAY): 87491-87493 a camera on P1 from his front / 45 deg / 135 deg, 6.5 m out (`yama-orbit-cam`).
+Stills: `tests/scripts/duel-yama-z1.json` (and `-phone`).
+
+**Deviations, with reasons.**
+- The fill is FIRE's core (#FFE483), not FLAME's cream: the Bankai's world grade (spot-keep: hue 10 / 48 deg above saturation 0.45)
+  greyed FLAME's cream core (#FADBA5, saturation 0.34) to white-grey in the first build; FIRE's core keeps its yellow.
+- No hole for the face: the sheet sits behind his body, so his head (and arms, blade) draw over it; the column's lobes frame the head.
+- The arms are not engulfed (the reference shows only the hands): the front layer stops below the hands so the blade stays outside, as the
+  spec asks.
+- The stance has no front layer (small mantle only, behind him).
+
+### 27.5 Checks and stills (batch Z1)
+
+| Check | Result |
+|---|---|
+| Host tests (`tests/duel-rules-test.lisp`) | 4259 checks ALL PASS (the mantle's 7 new) |
+| `tools/pkgcheck.sh duel` | no undefined / redefined; the one `DUEL::APP` note is BASE's too |
+| `tests/debug-ranges-check.py` | 88 ranges, 0 errors |
+| Native trials (`combo-trial.py --log`: yamamoto-core / -blaze / -bankai) | identical to 76b9be01's, every line (242 / 268 / 513) |
+| Browser `duel-yama-core.json` (`--secs 40`) / `duel-yama-blaze.json` | identical to BASE dist's combat / duel / scene lines (123 / 46), exit 0 |
+| `style-gates.py cvc dist/duel` | PASS II IK KK |
+| Looks gate (BASE at 76b9be01, no `--keep-base`) | 83 of 83 byte-identical, noise floor 0: as written in §27.3 |
+| 87448 consing probe | every row 0 B after the cinematic run (the mantle rows `garb`, `mantle-flare`, `mantle-throw`, `west-ignite`, `west-full`, `west-walk` ...); `fx-dropped 0`, no "(dropped)". In a fresh Bankai scene `south-dead` / `south-pile` / `south-burst` read 80 B: BASE reads the same (not the mantle) |
+| Smoke (`run.mjs --secs 8`) | exit 0 |
+
+Stills (`tests/shots/duel-yama-z1-*.png`, untracked): `stance-` / `ns2a-` / `ns2b-` / `as2b-` × `behind` (the match camera, hollow),
+`side` (SIDE camera, solid), `front` (87491), `q45`, `q135`, and `-behind-phone`; the 西 Kikon `cine-f54 f62 f80 f100 f128 f146 f160
+f170`; `sheet-ref` (the user's image beside the front / side flares and the cinematic), `sheet-before-after` (L8 vs the mantle).
+
+Open (for the user's eyes):
+- The lobes are pointed teeth and the outline zigzags under the rim's boil; the reference's lobes are broad, rounded and swept, its wing
+  tips long hooks. The key table is the knob (`*ya-mantle-keys*`).
+- From the match camera it is the hollow outline: on a phone it reads as a zigzag line of white and orange round him.
+- The fill is flat yellow-white; the reference whitens toward his body.
+- In the cinematic's close shots (f62, f146) it fills most of the frame.
