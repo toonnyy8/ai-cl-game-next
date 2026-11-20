@@ -648,8 +648,8 @@ first), 5 BLACK SMOKE puffs off the shoulders and 12 ASH shards falling."
   (vfx-fire-dome (hazard-x hz) (hazard-z hz) (hazard-size hz) (+ 0.8 (/ (hazard-age hz) 60.0)) 1.0 (f32 rdt)))
 
 (defun yama-nade-look (hz rdt)
-  "NADEGIRI's split, 24 f after the cut (the hit was on S): the old white crescent and scorch line, once."
-  (declare (ignore rdt))
-  (when (and (<= (hazard-delay hz) 0) (not (eq (hazard-data hz) :done)))
-    (setf (hazard-data hz) :done)
-    (let ((yaw (hazard-yaw hz))) (vfx-nadegiri (hazard-x hz) (hazard-z hz) (fwd-x yaw) (fwd-z yaw)))))
+  "The look of NADEGIRI's split entity (YAMA-NADE-SPLIT: :delay 24 :life 2): nothing since art S1 (DUEL_YAMA_CORE §22). The seam, SL7, is
+drawn from the move's frames by YAMA-DRAW (14 f: longer than this entity lives); the entity stays, the state hash counts hazards (F6).
+Before S1 it stamped the old crescent and 8 m scorch once and marked the hazard's data (F5: a look never writes)."
+  (declare (ignore hz rdt))
+  nil)
