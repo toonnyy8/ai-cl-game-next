@@ -88,6 +88,26 @@ bodies or the floor with a straight depth line."
   "The fx clock's drawing number (0..63): 12 a second = twos (fire, energy), 8 = threes (smoke, charcoal)."
   `(i->f (logand (f->i (* ,per-second (fx-clock))) 63)))
 
+;;; Flame flow (docs/style/STYLE_STORM_DESIGN.md §15.7): the flame-class looks use these continuous counterparts of DRAWING-NO, so
+;;; their tongues sway and lick smoothly frame by frame instead of popping on twos (the toon shader scrolls their noise on the
+;;; same clock, §15.4). Both stay on the fx clock: hitstop and a cinematic's DT 0 freeze them. Non-flame looks keep DRAWING-NO.
+(defconstant +flow-sway+ 12f0 "FLOW-PH's rate, radians a second: the old per-drawing phase step (1 a drawing at 12 drawings a second).")
+(defconstant +flow-lick+ 6f0 "FLOW01's rate, keys a second: a tongue's height / lean / angle turns over 6 times a second (the old jump
+was 12 a second; 6 chosen to be gentler, 12 not compared: a knob for the playtest, §15.7).")
+(defmacro flow-ph (&optional (per-second '+flow-sway+))
+  "A continuous phase for a ribbon's :PH (FX-RIBBON's sway / width flicker): PER-SECOND radians a second on the fx clock, wrapped to
+20 pi (exact for FX-RIBBON's sin(ph), sin(1.7 ph), sin(2.3 ph) and any multiple of 0.1). Replaces DRAWING-NO in flame looks' phases."
+  `(f-mod (* ,per-second (fx-clock)) 62.831852f0))
+(defmacro flow01 (i seed &optional (per-second '+flow-lick+))
+  "A smooth pseudo-random 0..1 of (I SEED) drifting on the fx clock: value noise over HASH01 (I + n, SEED) with n the clock in keys of
+PER-SECOND (wrapped to 64), smoothstep between neighbouring keys. It equals HASH01 (I + n) on each key, so it replaces
+(HASH01 (+ I DR) SEED) in flame looks' heights, leans and angles. Single-float forms; 0 B."
+  (let ((tt (gensym "T")) (n (gensym "N")) (u (gensym "U")) (ii (gensym "I")) (sd (gensym "SD")) (a (gensym "A")) (b (gensym "B")))
+    `(let* ((,tt (f-mod (* ,per-second (fx-clock)) 64f0)) (,n (i->f (f->i ,tt))) (,u (- ,tt ,n)) (,ii ,i) (,sd ,seed)
+            (,a (hash01 (+ ,ii ,n) ,sd)) (,b (hash01 (+ ,ii (if (>= ,n 63f0) 0f0 (+ ,n 1f0))) ,sd)))
+       (declare (single-float ,tt ,n ,u ,ii ,sd ,a ,b))
+       (+ ,a (* ,u ,u (- 3f0 (* 2f0 ,u)) (- ,b ,a))))))
+
 (defmacro with-cam ((rx ry rz ux uy uz) &body body)
   "Bind the caller's six names RX RY RZ UX UY UZ to the camera's right / up axes for camera-facing shapes:
 (with-cam (rx ry rz ux uy uz) ...). The names come from the call, so they are the caller's own symbols."
@@ -274,7 +294,8 @@ argument forms in its positional order (forms repeated there are repeated here, 
 (defmacro %tongue (x y z ax ay az w pal k seed ph sway &key (segs 6) (wob 0.3f0))
   "One toon flame tongue (an along ribbon, w1 = 0: heat 1 at the base .. 0.2 at the tip, so it erodes from the tip
 as K fades) from (X Y Z) along (AX AY AZ), base half-width W, palette PAL, presence K; SEED (made negative: along)
-re-draws it when it changes (pass a per-drawing seed). A macro: 0 B."
+re-draws it when it changes (a per-drawing seed pops it each drawing; a flame passes a constant one and FLOW-PH as PH, its noise
+flowing in the shader: STYLE_STORM_DESIGN §15.7). A macro: 0 B."
   `(let* ((%sd (- -1f0 (f-abs ,seed))) (%pk (toon-a ,pal ,k)))
      (declare (single-float %sd %pk))
      (toon-ribbon (,x ,y ,z) (,ax ,ay ,az) (,w 0f0) :seed %sd :wob ,wob :k %pk :ph ,ph :sway ,sway :segs ,segs)))

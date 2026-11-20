@@ -269,7 +269,7 @@ where it started. A look."
     (toon-ground-seg (- x (* trav fx)) (- z (* trav fz)) x z 0.012f0 (* 0.5f0 w) 0.2f0 1f0 (+ 3f0 sd) 0.3f0 (toon-a +pal-ash+ (* 0.5f0 k)))
     (toon-ground-seg (- x (* trav fx)) (- z (* trav fz)) x z 0.014f0 (* 0.3f0 w) 0.2f0 1f0 (+ 4f0 sd) 0.2f0 (toon-a +pal-ink+ (* 0.8f0 k)))
     (%ya-band (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) px pz (+ w 0.1f0) 0.05f0 1.8f0 0.95f0 +pal-ink+ k (+ 40f0 sd))   ; the ink behind it
-    (%ya-band x z px pz w 0.12f0 1.8f0 0.8f0 +pal-flame+ k (+ 45f0 sd))                     ; the flame rims (above and below the white)
+    (%ya-band x z px pz w 0.12f0 1.8f0 0.8f0 +pal-flame+ k 45f0)                     ; the flame rims (above and below the white; one seed: it flows, §15.7)
     (%ya-band (- x (* 0.03f0 fx)) (- z (* 0.03f0 fz)) px pz w 0.2f0 1.8f0 0.64f0 +pal-hit+ k (+ 50f0 sd))   ; the white band
     (%light x 1.3f0 z 1f0 0.55f0 0.3f0 6f0 (* 2f0 k) 7)
     nil))
@@ -503,14 +503,14 @@ rising off the blade from BASE to TIP, building over f0-15 and gone through the 
   (declare (type f32vec tip base) (fixnum sf))
   (when (<= sf 20)
     (let* ((k (if (<= sf 15) (f-min 0.98f0 (+ 0.35f0 (* 0.045f0 (i->f sf)))) (* 0.98f0 (/ (i->f (- 20 sf)) 5f0))))
-           (dr (drawing-no)) (bx (aref base 0)) (by (aref base 1)) (bz (aref base 2))
-           (dx (- (aref tip 0) bx)) (dy (- (aref tip 1) by)) (dz (- (aref tip 2) bz)) (seed (+ (* 3f0 bx) bz)))
-      (declare (single-float k dr bx by bz dx dy dz seed))
+           (fp (flow-ph)) (bx (aref base 0)) (by (aref base 1)) (bz (aref base 2))   ; (flowing, one seed a tongue: the blade moves,
+           (dx (- (aref tip 0) bx)) (dy (- (aref tip 1) by)) (dz (- (aref tip 2) bz)))   ;  so no seed from its position, §15.7)
+      (declare (single-float k fp bx by bz dx dy dz))
       (dotimes (i 5)
-        (let* ((f (i->f i)) (u (+ 0.2f0 (* 0.19f0 f))) (h (* (+ 0.32f0 (* 0.08f0 f)) (+ 0.75f0 (* 0.5f0 (hash01 (+ f dr) seed))))))
+        (let* ((f (i->f i)) (u (+ 0.2f0 (* 0.19f0 f))) (h (* (+ 0.32f0 (* 0.08f0 f)) (+ 0.75f0 (* 0.5f0 (flow01 f 7.7f0))))))
           (declare (single-float f u h))
           (%tongue (+ bx (* u dx)) (+ by (* u dy)) (+ bz (* u dz)) (* -0.25f0 dx h) h (* -0.25f0 dz h) 0.08f0 +pal-flame+ k
-                   (+ seed f dr) (+ dr f) 0.03f0 :segs 4)))))
+                   (+ 80f0 f) (+ fp f) 0.03f0 :segs 4)))))
   nil)
 
 ;;; ---------------------------------------------------------------- L9 西's armour (FEEDBACK-SYSTEM's :armored event, the kit hook :armored-fx)
@@ -608,11 +608,11 @@ back. A look."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (w (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz)) (life (hazard-life hz))
          (ti (ya-hz-tier hz)) (hf (%ya-hf ti))
-         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
+         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (flow-ph))   ; (DR: a flowing phase, §15.7)
          (k (f-clamp (* 0.98f0 (/ (i->f (- life age)) 6f0)) 0f0 0.98f0))
          (tail (f-min 2.5f0 (* (i->f age) (/ +ya-spiral-speed+ 60f0)))) (len (+ +ya-wave-half+ tail))
          (hx (+ x (* +ya-wave-half+ fx))) (hz2 (+ z (* +ya-wave-half+ fz)))
-         (rv (* 0.75f0 hf)) (yc (+ 0.2f0 rv)) (spin (* 1.5708f0 dr)) (seed (* 7f0 yaw)))
+         (rv (* 0.75f0 hf)) (yc (+ 0.2f0 rv)) (spin (flow-ph 18.849556f0)) (seed (* 7f0 yaw)))   ; (spin: 90 deg a drawing, now turning smoothly)
     (declare (single-float x z w yaw hf fx fz px pz dr k tail len hx hz2 rv yc spin seed) (fixnum age life ti))
     (toon-ground-seg hx hz2 (- hx (* len fx)) (- hz2 (* len fz)) 0.012f0 w 1f0 0.3f0 (+ 20f0 seed) 0.2f0 (toon-a +pal-ember+ (* 0.5f0 k)))
     (when (= ti 2)                                     ; T2: the scorch over the last 30 f of the lane
@@ -626,7 +626,7 @@ back. A look."
       (%away-from-eye (sx sy sz) 0.35f0
         (toon-ribbon (sx sy sz) ((* len fx) 0f0 (* len fz)) ((* 0.2f0 rv) (* 0.8f0 rv)) :heat (0.3f0 0.25f0) :seed (- -40f0 (f-abs seed))
                      :wob 0.3f0 :pal +pal-ember+ :k (%ya-k (* 0.9f0 k)) :ph dr :sway 0.05f0 :segs 5)))
-    (dotimes (st 2)                                    ; the two strands, wound round the axis (they turn on twos)
+    (dotimes (st 2)                                    ; the two strands, wound round the axis (turning continuously since §15.7; on twos before)
       (dotimes (i 10)
         (let* ((u0 (* 0.1f0 (i->f i))) (u1 (+ u0 0.1f0)) (ph (* 3.1416f0 (i->f st)))
                (s0 (- +ya-wave-half+ 0.12f0 (* u0 len))) (s1 (- +ya-wave-half+ 0.12f0 (* u1 len)))
@@ -640,7 +640,7 @@ back. A look."
                      (+ x (* s1 fx) (* c1 px)) (+ yc (* v1 (f-sin a1))) (+ z (* s1 fz) (* c1 pz))
                      (* 0.12f0 (- 1f0 (* 0.7f0 u0))) (* 0.12f0 (- 1f0 (* 0.7f0 u1))) ti k (+ seed (* 13f0 (i->f st)) (i->f i)) (+ dr (i->f i)))))))
     (dotimes (j 6)                                     ; the rolling head: a ball of tongues, its front the box's
-      (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.5f0 spin))) (l (* (+ 0.32f0 (* 0.18f0 (hash01 (+ f dr) 4.7f0))) (+ 0.5f0 (* 0.5f0 hf))))
+      (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.5f0 spin))) (l (* (+ 0.32f0 (* 0.18f0 (flow01 f 4.7f0))) (+ 0.5f0 (* 0.5f0 hf))))
              (ca (f-cos an)) (sa (f-sin an)))
         (declare (single-float f an l ca sa))
         (when (<= (hash01 f 6.1f0) hf)
@@ -668,7 +668,7 @@ bowed back 0.7 m, HW either side across (SX SZ), shifted by (OX OZ). 0 B."
   "NS2a's stream (the :wave 2 x HAZARD-SIZE = 1.2 m wide): batch 1's fire wave back (05acf777 VFX-FIRE-WAVE, re-ported by batch J1, the
 user 2026-11-20: 「NS 跟 AS 的 城郭炎上 反而是重作前的版本更有魄力」, §28.3; SL4's 1.1 m lens before). ONE FIRE wall on a crescent as
 wide as the box, its middle on the box's front and its ends bowed back 0.7 m (inside the box), 2.6 m tall x %YA-UP in the middle, its top
-cut into 6 tongues re-drawn every drawing (seen edge-on, 5 camera-facing tongues give it body); an EMBER backing wall 20 % taller behind
+cut into 6 tongues flowing (§15.7; re-drawn every drawing before) (seen edge-on, 5 camera-facing tongues give it body); an EMBER backing wall 20 % taller behind
 it (away from the eye); a FIRE lens riding it at 1.2 m; an EMBER scorch on the floor behind; T光 along the base; flame scraps flung ahead.
 Envelope (1 3 hold 18) over its life: a white flash on its first drawing, it grows, holds, erodes. Passing the lens (the behind camera)
 it sinks to 0.4 of its height. T1 / T2 (and 爆炎): a white (HIT) wall inside, %YA-CORE of the height. A look; 0 B (scraps by RDT)."
@@ -677,12 +677,12 @@ it sinks to 0.4 of its height. T1 / T2 (and 爆炎): a white (HIT) wall inside, 
          (width (* 2f0 size)) (ti (ya-hz-tier hz)) (up (%ya-up ti)) (cw (%ya-core ti))   ; (the reads bound typed first: 0 B)
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (sx (- fz)) (sz fx)
          (x (+ x0 (* +ya-wave-half+ fx))) (z (+ z0 (* +ya-wave-half+ fz)))   ; (the box's front)
-         (dr (drawing-no)) (a (sage (/ (i->f age) 60f0) 2f0))
+         (dr (drawing-no)) (fp (flow-ph)) (a (sage (/ (i->f age) 60f0) 2f0))   ; (DR: the flash drawing; FP: the flowing fire, §15.7)
          (hold (f-max 0f0 (- (i->f life) 22f0))) (e (camera-eye *camera*))
          (vx (- x (aref e 0))) (vz (- z (aref e 2))) (vl (f-max 0.01f0 (f-hypot vx vz)))
-         (ox (* 0.35f0 (/ vx vl))) (oz (* 0.35f0 (/ vz vl))) (sd (i->f (mod (f->i dr) 7))))
+         (ox (* 0.35f0 (/ vx vl))) (oz (* 0.35f0 (/ vz vl))) (sd 0f0))
     (declare (type f32vec e) (fixnum age life ti)
-             (single-float yaw size x0 z0 width up cw fx fz sx sz x z dr a hold vx vz vl ox oz sd))
+             (single-float yaw size x0 z0 width up cw fx fz sx sz x z dr fp a hold vx vz vl ox oz sd))
     (fx-envelope (es k fl ph) (a 1 3 hold 18)
       (let* ((hw (* 0.5f0 width es))                   ; the eye's nearest point of the wall: passing the lens it sinks to 0.4
              (al (f-clamp (+ (* sx vx) (* sz vz)) (- hw) hw))
@@ -703,12 +703,12 @@ it sinks to 0.4 of its height. T1 / T2 (and 爆炎): a white (HIT) wall inside, 
           (when (> tw 0f0)                             ; seen along the wall (edge-on): camera-facing tongues give it body
             (dotimes (j 5)
               (let* ((i (+ 1 (floor (* 6 j) 4))) (f (i->f j)) (tsd (- -60f0 f sd))
-                     (th (* hgt (+ 0.55f0 (* 0.35f0 (hash01 (+ f dr) 4.3f0))))) (tl (* 0.3f0 (- (hash01 (+ f dr) 6.7f0) 0.5f0))))
+                     (th (* hgt (+ 0.55f0 (* 0.35f0 (flow01 f 4.3f0))))) (tl (* 0.3f0 (- (flow01 f 6.7f0) 0.5f0))))
                 (declare (fixnum i) (single-float f tsd th tl))
                 (toon-ribbon ((aref *wave-xs* i) 0.02f0 (aref *wave-zs* i)) ((* tl fx) th (* tl fz)) (tw 0f0) :seed tsd :wob 0.25f0
-                             :pal +pal-fire+ :k k :ph (+ dr f) :sway 0.08f0)))))
+                             :pal +pal-fire+ :k k :ph (+ fp f) :sway 0.08f0)))))
         (fx-crescent (aref *wave-xs* 0) 1.2f0 (aref *wave-zs* 0) (aref *wave-xs* 8) 1.2f0 (aref *wave-zs* 8)
-                     (+ x (* 0.7f0 fx)) 1.2f0 (+ z (* 0.7f0 fz)) (* 0.16f0 es) :lens 0.05f0 (+ 9f0 dr) +pal-fire+ k :push 0.5f0)
+                     (+ x (* 0.7f0 fx)) 1.2f0 (+ z (* 0.7f0 fz)) (* 0.16f0 es) :lens 0.05f0 9f0 +pal-fire+ k :push 0.5f0)
         (toon-ground-seg x z (- x (* 1.4f0 fx)) (- z (* 1.4f0 fz)) 0.03f0 (* 0.3f0 hw) 1f0 0.2f0 (+ 40f0 sd) 0.3f0
                          (toon-a +pal-ember+ (* 0.9f0 k)))
         (fx-ribbon x 0.05f0 z (* sx hw) 0f0 (* sz hw) 0.02f0 0.02f0 1f0 0.7f0 0.3f0 (* -0.4f0 k) 1f0 0.7f0 0.3f0 (* -0.4f0 k)
@@ -728,18 +728,18 @@ it sinks to 0.4 of its height. T1 / T2 (and 爆炎): a white (HIT) wall inside, 
 ;;; ---------------------------------------------------------------- SL2 NS1b's ghost lights and column (:ya-col, r 1.2)
 (defun-fast yama-column-look (hz rdt)
   "NS1b's 'unknown fire' (SL2: the :ya-col disc of HAZARD-SIZE at his bearing, :delay 13, hot 6, life 30). Through the delay the tell: an
-EMBER ring on the disc's edge pulsing on twos and five small flames (不知火, ghost lights) hovering 0.3-0.8 m over it, circling in. On the
+EMBER ring on the disc's edge pulsing (6 Hz, smooth since §15.7) and five small flames (不知火, ghost lights) hovering 0.3-0.8 m over it, circling in. On the
 eruption (age 0, the hit frame: full at once) one FIRE column as wide as the disc at its foot, tapering, a crown of tongues, *YA-FIRE-H* x
 the tier's share high (2.4 m at T2: the hit's height), EMBER behind it, the tier's white core; it holds through the hot frames and erodes
 from 12 to 30. The ring on the edge stays (the footprint). A look."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (d (hazard-delay hz)) (age (hazard-age hz)) (life (hazard-life hz))
-         (ti (ya-hz-tier hz)) (hf (%ya-hf ti)) (cw (%ya-core ti)) (dr (drawing-no)) (seed (+ x (* 3f0 z)))
+         (ti (ya-hz-tier hz)) (hf (%ya-hf ti)) (cw (%ya-core ti)) (dr (flow-ph)) (seed (+ x (* 3f0 z)))   ; (DR: a flowing phase, §15.7)
          (q (%near-cam x z 2f0 8f0)) (ws (f-max 0.15f0 (%near-cam x z 0f0 9f0)))
          (k (if (> d 0) 0.98f0 (f-clamp (* 0.98f0 (/ (i->f (- life age)) 18f0)) 0f0 0.98f0))))
     (declare (single-float x z r dr seed hf cw q ws k) (fixnum d age life ti))
     (if (> d 0)
-        (let ((p (- 1f0 (/ (i->f d) +ya-col-delay+))) (pulse (if (evenp (f->i dr)) 0.95f0 0.55f0)))
+        (let ((p (- 1f0 (/ (i->f d) +ya-col-delay+))) (pulse (+ 0.75f0 (* 0.2f0 (f-cos (flow-ph 37.699112f0))))))   ; (6 Hz as before, smooth)
           (declare (single-float p pulse))
           (%tring x 0f0 z r 0.05f0 +pal-ember+ pulse (+ seed 1f0))
           (dotimes (i 5)                               ; the ghost lights circling in
@@ -749,7 +749,7 @@ from 12 to 30. The ring on the edge stays (the footprint). A look."
               (%ya-tongue lx (- y 0.06f0) lz 0f0 (* 0.22f0 (+ 0.7f0 (* 0.3f0 pulse))) 0f0 0.06f0 0 (* 0.9f0 pulse) (+ 80f0 f seed) (+ dr f)
                           :back nil :segs 3))))
         (let* ((h (* +ya-fire-h+ hf (+ 0.4f0 (* 0.6f0 q))))  ; (near the lens a column shortens and thins: the behind camera keeps the fight)
-               (sd (- -3f0 (i->f (mod (f->i dr) 7)) (f-abs seed))))
+               (sd (- -3f0 (f-abs seed))))
           (declare (single-float h sd))
           (%tring x 0f0 z r 0.06f0 +pal-ember+ k (+ seed 1f0))
           (when (= ti 2) (%tring x 0f0 z (* 0.5f0 r) (* 0.5f0 r) +pal-ember+ (* 0.45f0 k) (+ seed 2f0)))   ; T2: the scorch, its life (30 f)
@@ -767,7 +767,7 @@ from 12 to 30. The ring on the edge stays (the footprint). A look."
                 (toon-ribbon (cx cy cz) (0f0 (* 0.85f0 h) 0f0) ((* cw 0.6f0 r ws) (* cw 0.15f0 r ws)) :heat (0.3f0 0.15f0) :seed (- sd 40f0)
                              :wob 0.2f0 :pal +pal-hit+ :k (%ya-k k) :ph dr :sway 0.04f0 :segs 5))))
           (dotimes (j 6)                               ; the crown
-            (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.5f0 (hash01 (+ f dr) 5.1f0)))) (hc (* 0.35f0 h (+ 0.6f0 (* 0.4f0 (hash01 (+ f dr) 2.3f0))))))
+            (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.5f0 (flow01 f 5.1f0)))) (hc (* 0.35f0 h (+ 0.6f0 (* 0.4f0 (flow01 f 2.3f0))))))
               (declare (single-float f an hc))
               (when (<= (hash01 f 8.3f0) hf)
                 (%ya-tongue (+ x (* 0.2f0 r ws (f-cos an))) (* 0.85f0 h) (+ z (* 0.2f0 r ws (f-sin an))) (* 0.5f0 hc (f-cos an)) hc
@@ -777,7 +777,7 @@ from 12 to 30. The ring on the edge stays (the footprint). A look."
 
 ;;; ---------------------------------------------------------------- SL3 NS1c's tornado (the :wave, 3.5 m, 10 m/s)
 (defun-fast yama-tornado-look (hz rdt)
-  "NS1c's tornado (SL3: the :wave 2 x HAZARD-SIZE = 3.5 m wide): four stacked, tilted bands of fire turning on twos, FIRE on the camera's
+  "NS1c's tornado (SL3: the :wave 2 x HAZARD-SIZE = 3.5 m wide): four stacked, tilted bands of fire turning (smoothly since §15.7; on twos before), FIRE on the camera's
 side and INK on the far one, gaps between them (the foe in view from behind); the lowest band is the box (an ellipse 2 x size across, 2 x
 +YA-WAVE-HALF+ along), the upper ones narrow across, up to 3.2 m x the tier's share; an EMBER stripe climbing round them; on the floor the
 box as an EMBER patch (the footprint: never the round funnel's). Near the lens the bands shorten. By tier: height, share, core; T2 the scorch
@@ -786,7 +786,7 @@ travel, up to 1.0 m at the top (its turn rate is not stored; the lowest band, th
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (w (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz)) (life (hazard-life hz))
          (ti (ya-hz-tier hz)) (hf (%ya-hf ti)) (e (camera-eye *camera*))
-         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no)) (seed (* 9f0 yaw))
+         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (flow-ph)) (seed (* 9f0 yaw))   ; (DR: a flowing phase, §15.7)
          (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))
          (q (%near-cam x z 1.5f0 6f0)) (hs (* hf (+ 0.45f0 (* 0.55f0 q))))
          (k (f-clamp (* 0.98f0 (/ (i->f (- life age)) 6f0)) 0f0 0.98f0))
@@ -805,7 +805,7 @@ travel, up to 1.0 m at the top (its turn rate is not stored; the lowest band, th
                            0.1f0 (+ 25f0 seed) 0.3f0 (toon-a +pal-ember+ (* 0.5f0 k))))))
     (dotimes (b 4)
       (let* ((bf (i->f b)) (ra (* w (- 1f0 (* 0.22f0 bf)))) (rl (if (= b 0) +ya-wave-half+ (f-min ra (+ 0.5f0 (* 0.2f0 bf)))))
-             (yb (* hs (+ 0.18f0 (* 0.85f0 bf)))) (tk (* 0.17f0 hs)) (spin (+ (* 0.55f0 dr) (* 0.9f0 bf))) (tilt (* 0.18f0 hs))
+             (yb (* hs (+ 0.18f0 (* 0.85f0 bf)))) (tk (* 0.17f0 hs)) (spin (+ (flow-ph 6.6f0) (* 0.9f0 bf))) (tilt (* 0.18f0 hs))
              (lb (* lean (/ bf 3f0))) (x (+ x (* lb px))) (z (+ z (* lb pz))))   ; (this band's centre, leaned: band 0 never)
         (declare (single-float bf ra rl yb tk spin tilt lb x z))
         (dotimes (i 12)
@@ -838,11 +838,11 @@ already up at AGE 0 (s; the hit frame shows it, §22.2), and erodes from the tip
 (the old 0.32; the caller keeps it inside its footprint). TIER 1 / 2: a white (HIT) core up its lower part (heat's own, §21.2). Near the
 lens it shortens and thins. Single-float forms (TIER fixnum); 0 B."
   `(let* ((%x ,x) (%z ,z) (%age ,age) (%life ,life) (%hgt ,height) (%w0 ,w0) (%ti ,tier) (%dt ,dt)
-          (%a1 (sage %age 1f0)) (%rise (f-clamp (/ (i->f (1+ (f->i (* 24f0 %a1)))) 3f0) 0f0 1f0)) (%dr (drawing-no))
+          (%a1 (sage %age 1f0)) (%rise (f-clamp (/ (i->f (1+ (f->i (* 24f0 %a1)))) 3f0) 0f0 1f0)) (%dr (flow-ph))   ; (%DR: a flowing phase, §15.7)
           (%k (* 0.98f0 (f-clamp (/ (- %life %age) 0.25f0) 0f0 1f0))) (%q (%near-cam %x %z 2f0 8f0))
           (%ws (* (/ %w0 0.32f0) (f-max 0.1f0 (%near-cam %x %z 0f0 9f0))))
-          (%h (* %hgt %rise (+ 0.4f0 (* 0.6f0 %q)) (+ 0.9f0 (* 0.1f0 (hash01 %dr (* 0.37f0 %x))))))
-          (%sd (+ (i->f (mod (f->i %dr) 7)) (f-abs (* 3.1f0 %z)) (f-abs (* 1.3f0 %x)))))
+          (%h (* %hgt %rise (+ 0.4f0 (* 0.6f0 %q)) (+ 0.9f0 (* 0.1f0 (flow01 0f0 (* 0.37f0 %x))))))
+          (%sd (+ (f-abs (* 3.1f0 %z)) (f-abs (* 1.3f0 %x)))))
      (declare (single-float %x %z %age %life %hgt %w0 %dt %a1 %rise %dr %k %q %ws %h %sd) (fixnum %ti))
      (when (> %k 0.02f0)
        (%tring %x 0f0 %z (- %w0 0.08f0) 0.08f0 +pal-ember+ (* 0.9f0 %k) %sd 16)
@@ -866,8 +866,8 @@ lens it shortens and thins. Single-float forms (TIER fixnum); 0 B."
                           :seed (- -30f0 %sd) :wob 0.2f0 :pal +pal-hit+ :k %k :ph %dr :sway 0.04f0 :segs 5))))
        (when (and (>= %rise 1f0) (> %q 0.5f0))          ; the crown: 6 tongues flaring out of the top
          (dotimes (%j 6)
-           (let* ((%f (i->f %j)) (%an (+ (* 1.0472f0 %f) (* 0.5f0 (hash01 (+ %f %dr) 5.1f0))))
-                  (%hc (* 0.18f0 %hgt (+ 0.7f0 (* 0.5f0 (hash01 (+ %f %dr) 2.3f0))))))
+           (let* ((%f (i->f %j)) (%an (+ (* 1.0472f0 %f) (* 0.5f0 (flow01 %f 5.1f0))))
+                  (%hc (* 0.18f0 %hgt (+ 0.7f0 (* 0.5f0 (flow01 %f 2.3f0))))))
              (declare (single-float %f %an %hc))
              (%tongue (+ %x (* 0.16f0 (f-cos %an))) (* 0.94f0 %h) (+ %z (* 0.16f0 (f-sin %an))) (* 0.6f0 %hc (f-cos %an)) %hc
                       (* 0.6f0 %hc (f-sin %an)) 0.11f0 +pal-fire+ %k (+ 60f0 %f %sd) (+ %dr %f) 0.03f0 :segs 4))))
@@ -903,16 +903,16 @@ the circle, 1.4 m x %YA-UP high, their bases inside the band, rising in 3 drawin
   "The dome (:ya-dome, radius HAZARD-SIZE; NS2c, AS2b, 爆炎's NS2b): batch 1's Jokaku Enjo back (05acf777 VFX-FIRE-DOME from its seethe on,
 re-ported by batch J1, the user 2026-11-20: 「NS 跟 AS 的 城郭炎上 反而是重作前的版本更有魄力」, §28.3; SL6's 12 leaning tongues before),
 a function of the hazard's age (no *DOME-LAST*, no stamp). Ages 0-2 (the hit frame and the hot ones): three tiers of FIRE tongues (12 + 9
-+ 6, the outer over EMBER backings) leaning in, closed, boiling on twos, 1.15 r x %YA-UP high; from age 3 the detonation: a white flash,
++ 6, the outer over EMBER backings) leaning in, closed, boiling (flowing since §15.7; on twos before), 1.15 r x %YA-UP high; from age 3 the detonation: a white flash,
 a 14-spike FIRE star over an EMBER one with a white core for 2 drawings (batch 1's :boom), a FIRE shockwave ring running out (its :ring),
 flame / smoke / ember scraps over ages 3-5 (by RDT), a 16 m light fading in 9 f. An EMBER ring inside the disc's edge (the footprint);
 T1 / T2 (and 爆炎) a white core in each tongue; T2 an EMBER scorch disc to the end. A look; 0 B."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (hazard-age hz)) (life (hazard-life hz))
          (ti (ya-hz-tier hz)) (up (%ya-up ti)) (cw (%ya-core ti)) (big-h (* 1.15f0 r up))
-         (dr (drawing-no)) (drawing dr) (sd (i->f (mod (f->i dr) 7))) (seed (+ (* 3f0 x) z))
+         (drawing (drawing-no)) (fp (flow-ph)) (sd 0f0) (seed (+ (* 3f0 x) z))   ; (the tongues flow, §15.7; the :boom's stars keep DRAWING)
          (kl (f-clamp (* 0.98f0 (/ (i->f (- life age)) 14f0)) 0f0 0.98f0)))
-    (declare (single-float x z r up cw big-h dr drawing sd seed kl) (fixnum age life ti))
+    (declare (single-float x z r up cw big-h drawing fp sd seed kl) (fixnum age life ti))
     (when (= ti 2) (%tring x 0f0 z (* 0.5f0 r) (* 0.5f0 r) +pal-ember+ (* 0.45f0 kl) (+ seed 2f0)))
     (if (< age 3)
         (let* ((ua (+ 0.8f0 (sage (/ (i->f age) 60f0) 1f0))) (seethe (f-clamp (/ (- ua 0.7f0) 0.15f0) 0f0 1f0)))
@@ -927,20 +927,20 @@ T1 / T2 (and 爆炎) a white core in each tongue; T2 an EMBER scorch disc to the
                 (let* ((f (i->f i)) (an (+ spin (/ (* 6.2832f0 f) nf))) (ca (f-cos an)) (sa (f-sin an))
                        (bx (+ x (* rad ca))) (bz (+ z (* rad sa)))
                        (hh (* big-h (- 0.95f0 (* 0.25f0 tf)) 0.7f0
-                              (+ (- 0.8f0 (* 0.15f0 seethe)) (* (+ 0.4f0 (* 0.5f0 seethe)) (hash01 (+ f dr) (+ 3.7f0 tf))))))
+                              (+ (- 0.8f0 (* 0.15f0 seethe)) (* (+ 0.4f0 (* 0.5f0 seethe)) (flow01 f (+ 3.7f0 tf))))))
                        (ax (* (- lean) rad ca)) (az (* (- lean) rad sa)) (tsd (+ (* 13f0 tf) f sd)))
                   (declare (single-float f an ca sa bx bz hh ax az tsd))
                   (when (= tier 0)
                     (let ((kx bx) (ky y0) (kz bz))
                       (declare (single-float kx ky kz))
                       (%away-from-eye (kx ky kz) 0.1f0
-                        (%tongue kx ky kz (* 1.1f0 ax) (* 1.15f0 hh) (* 1.1f0 az) (* 1.2f0 w) +pal-ember+ 0.95f0 (+ 100f0 tsd) (+ dr f) 0.05f0))))
-                  (%tongue bx y0 bz ax hh az w +pal-fire+ 0.95f0 tsd (+ dr f) 0.05f0)
+                        (%tongue kx ky kz (* 1.1f0 ax) (* 1.15f0 hh) (* 1.1f0 az) (* 1.2f0 w) +pal-ember+ 0.95f0 (+ 100f0 tsd) (+ fp f) 0.05f0))))
+                  (%tongue bx y0 bz ax hh az w +pal-fire+ 0.95f0 tsd (+ fp f) 0.05f0)
                   (when (> ti 0)                       ; the tier's white core, the lower half of each tongue, in front
                     (let ((cx bx) (cy y0) (cz bz))
                       (declare (single-float cx cy cz))
                       (%away-from-eye (cx cy cz) -0.05f0
-                        (%tongue cx cy cz (* 0.5f0 ax) (* 0.5f0 hh) (* 0.5f0 az) (* cw w) +pal-hit+ 0.95f0 (+ 200f0 tsd) (+ dr f) 0.05f0))))))))
+                        (%tongue cx cy cz (* 0.5f0 ax) (* 0.5f0 hh) (* 0.5f0 az) (* cw w) +pal-hit+ 0.95f0 (+ 200f0 tsd) (+ fp f) 0.05f0))))))))
           (dotimes (i (n-of 40f0 rdt))
             (let* ((an (rnd-range 0f0 6.2832f0)) (rr (* r (rnd-range 0.3f0 1f0))))
               (declare (single-float an rr))
@@ -981,31 +981,31 @@ T1 / T2 (and 爆炎) a white core in each tongue; T2 an EMBER scorch disc to the
 ;;; ---------------------------------------------------------------- the moves' own looks (YAMA-DRAW): SL0 the blade, SL7-SL9
 (defun-fast yama-blade-fire (tip base mode ti rdt)
   "SL0, Ryujin Jakka engulfed (canon: the blade lit from the tip down; %BLADE-FIRE's drawing, revived): a FIRE sheath along the blade BASE ..
-TIP, three tongues licking up on twos, a thin warm line in it, the tier's white core; flame scraps only inside a move (MODE 1: none at rest,
+TIP, three tongues licking up (flowing since §15.7; on twos before), a thin warm line in it, the tier's white core; flame scraps only inside a move (MODE 1: none at rest,
 so the cosmetic stream stays as it was there). Power: 0.5 at rest (MODE 0), 1.0 in a move's startup to S + A (MODE 1), the tier's share in
 an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
   (declare (type f32vec tip base) (fixnum mode ti) (single-float rdt))
   (let* ((blaze (>= mode 10)) (m (mod mode 10)) (tier (if blaze 2 ti))
          (p (* (if blaze 1.3f0 1f0) (case m (0 0.5f0) (1 1f0) (t (%ya-hf tier)))))
          (x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (bx (- (aref tip 0) x0)) (by (- (aref tip 1) y0)) (bz (- (aref tip 2) z0))
-         (dr (drawing-no)) (sd (- -3f0 (i->f (mod (f->i dr) 5)))) (cw (if (= m 0) (if blaze 0.4f0 0f0) (%ya-core tier))))
-    (declare (single-float p x0 y0 z0 bx by bz dr sd cw) (fixnum m tier))
-    (toon-ribbon (x0 y0 z0) (bx by bz) ((* 0.075f0 p) (* 0.045f0 p)) :heat (0.3f0 0.15f0) :seed sd :wob 0.2f0 :pal +pal-fire+ :k 0.95f0 :ph dr
+         (fp (flow-ph)) (sd -3f0) (cw (if (= m 0) (if blaze 0.4f0 0f0) (%ya-core tier))))   ; (flowing, one seed: §15.7)
+    (declare (single-float p x0 y0 z0 bx by bz fp sd cw) (fixnum m tier))
+    (toon-ribbon (x0 y0 z0) (bx by bz) ((* 0.075f0 p) (* 0.045f0 p)) :heat (0.3f0 0.15f0) :seed sd :wob 0.2f0 :pal +pal-fire+ :k 0.95f0 :ph fp
                  :sway 0.01f0 :segs 4)
     (when (> cw 0f0)
       (let ((cx x0) (cy y0) (cz z0))
         (declare (single-float cx cy cz))
         (%away-from-eye (cx cy cz) -0.02f0
           (toon-ribbon (cx cy cz) ((* 0.9f0 bx) (* 0.9f0 by) (* 0.9f0 bz)) ((* cw 0.06f0 p) (* cw 0.03f0 p)) :heat (0.3f0 0.15f0)
-                       :seed (- sd 30f0) :wob 0.15f0 :pal +pal-hit+ :k 0.95f0 :ph dr :segs 3))))
+                       :seed (- sd 30f0) :wob 0.15f0 :pal +pal-hit+ :k 0.95f0 :ph fp :segs 3))))
     (dotimes (j 3)
-      (let* ((f (i->f j)) (u (+ 0.25f0 (* 0.27f0 f))) (h (* p (+ 0.26f0 (* 0.26f0 (hash01 (+ f dr) 3.1f0)))))
-             (lx (* 0.14f0 (- (hash01 (+ f dr) 5.3f0) 0.5f0))) (lz (* 0.14f0 (- (hash01 (+ f dr) 7.9f0) 0.5f0)))
+      (let* ((f (i->f j)) (u (+ 0.25f0 (* 0.27f0 f))) (h (* p (+ 0.26f0 (* 0.26f0 (flow01 f 3.1f0)))))
+             (lx (* 0.14f0 (- (flow01 f 5.3f0) 0.5f0))) (lz (* 0.14f0 (- (flow01 f 7.9f0) 0.5f0)))
              (tx (+ x0 (* u bx))) (ty (+ y0 (* u by))) (tz (+ z0 (* u bz))))
         (declare (single-float f u h lx lz tx ty tz))
         (%away-from-eye (tx ty tz) 0.04f0
           (toon-ribbon (tx ty tz) (lx h lz) ((* 0.09f0 p) 0f0) :heat (0.3f0 0.12f0) :seed (- sd (* 7f0 (+ f 1f0))) :wob 0.25f0 :pal +pal-fire+
-                       :k 0.95f0 :ph (+ dr f) :sway 0.03f0 :segs 5))))
+                       :k 0.95f0 :ph (+ fp f) :sway 0.03f0 :segs 5))))
     (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.55f0 0.25f0 -0.25f0 1f0 0.5f0 0.2f0 -0.15f0 0f0 0f0 :segs 1)   ; the warm line (no white centre)
     (when (> m 0)
       (dotimes (i (n-of (* 10f0 p) rdt))               ; scraps peeling off the swing (inside a move only)
@@ -1018,13 +1018,13 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
 (defun-fast %ya-pommel-fire (v)
   "SL9's burning pommel (J3 TSUKABI, the user's 「右手刀柄回擊」): a fist-sized flame on the handle's end V, two tongues. A look; 0 B."
   (declare (type f32vec v))
-  (let* ((x (aref v 0)) (y (aref v 1)) (z (aref v 2)) (dr (drawing-no)))
-    (declare (single-float x y z dr))
+  (let* ((x (aref v 0)) (y (aref v 1)) (z (aref v 2)) (fp (flow-ph)))   ; (flowing: §15.7)
+    (declare (single-float x y z fp))
     (dotimes (j 2)
       (let ((f (i->f j)))
         (declare (single-float f))
-        (%ya-tongue x (- y 0.04f0) z (* 0.06f0 (- (hash01 (+ f dr) 2.7f0) 0.5f0)) (+ 0.16f0 (* 0.08f0 (hash01 (+ f dr) 1.9f0))) 0f0 0.06f0 0 0.95f0
-                    (+ 140f0 f) (+ dr f) :segs 3))))
+        (%ya-tongue x (- y 0.04f0) z (* 0.06f0 (- (flow01 f 2.7f0) 0.5f0)) (+ 0.16f0 (* 0.08f0 (flow01 f 1.9f0))) 0f0 0.06f0 0 0.95f0
+                    (+ 140f0 f) (+ fp f) :segs 3))))
   nil)
 
 ;;; the pointer stances' fire on the blade (art S3, DUEL_YAMA_CORE §21.3 / §24; out of a move, over SL0's rest sheath; 撫斬's stance has none)
@@ -1033,10 +1033,10 @@ an NS (MODE 2), x 1.3 in 爆炎 (MODE + 10, always cored). A look; 0 B."
 a slow corkscrew of fire, two strands wound 1.5 turns round the blade, turning once in 4 s; CODE 2 城郭炎上, a drip of fire off the point: a
 flame hanging 0.26 m from the tip and three drops falling from it 0.8 m in turn, one every 0.4 s, thinning as they fall. By tier: the size
 and the white core (%YA-SEG). CODE 3 撫斬 (batch J3, DUEL_YAMA_CORE §28.5; TI ignored): still no fire, a thin EMBER line down the blade
-and a small EMBER ring where the point meets the plaza, breathing on twos, so the blade reads from the behind camera. Pure of the fx clock (no random stream). A look; 0 B."
+and a small EMBER ring where the point meets the plaza, breathing (continuously, §15.7), so the blade reads from the behind camera. Pure of the fx clock (no random stream). A look; 0 B."
   (declare (type f32vec tip base) (fixnum code ti))
   (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2))
-         (bx (- tx x0)) (by (- ty y0)) (bz (- tz z0)) (c (fx-clock)) (dr (drawing-no)) (hf (%ya-hf ti)))
+         (bx (- tx x0)) (by (- ty y0)) (bz (- tz z0)) (c (fx-clock)) (dr (flow-ph)) (hf (%ya-hf ti)))   ; (DR: a flowing phase, §15.7)
     (declare (single-float x0 y0 z0 tx ty tz bx by bz c dr hf))
     (case code
       (1 (let* ((bl (f-max 0.01f0 (f-sqrt (+ (* bx bx) (* by by) (* bz bz)))))   ; a frame round the blade: N1 = B x up, N2 = N1 x B
@@ -1061,8 +1061,8 @@ and a small EMBER ring where the point meets the plaza, breathing on twos, so th
                   (y (- ty 0.12f0 (* 0.8f0 ph ph))) (w (* 0.04f0 hf (- 1f0 (* 0.6f0 ph)))))
              (declare (single-float p ph y w))
              (%ya-seg tx (+ y (* 0.13f0 hf)) tz tx y tz w (* 0.5f0 w) ti (- 0.95f0 (* 0.5f0 ph)) (+ 220f0 (i->f j)) (+ dr (i->f j))))))
-      (3 (let ((b (+ 0.8f0 (* 0.15f0 (f-sin (* 2.618f0 (- c (f-mod c 0.083333f0))))))))   ; 撫斬 (J3, §28.5): no fire, an EMBER line down the
-           (declare (single-float b))                                                   ;  edge (the blade reads from behind), breathing on twos
+      (3 (let ((b (+ 0.8f0 (* 0.15f0 (f-sin (* 2.618f0 c))))))   ; 撫斬 (J3, §28.5): no fire, an EMBER line down the edge (the blade reads
+           (declare (single-float b))                     ;  from behind), breathing (continuously since §15.7: on twos before)
            (let ((ex x0) (ey y0) (ez z0))
              (declare (single-float ex ey ez))
              (%away-from-eye (ex ey ez) -0.03f0
@@ -1086,8 +1086,8 @@ him. 5 AS1's burst (SL9, S10-12, fading to 14): SL1's corkscrew from 0.2 m out t
 NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), its V tallest at the reach, lower past it, gone by f65. A look;
 0 B."
   (declare (type f32vec pos) (single-float yaw) (fixnum code sf ti))
-  (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
-         (hf (%ya-hf ti)) (seed (+ (* 3f0 x) z)))
+  (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (flow-ph))   ; (DR: a flowing phase; the tongues'
+         (hf (%ya-hf ti)) (seed (+ (* 3f0 x) z)))                                                 ;  seeds no longer his position: §15.7)
     (declare (single-float x z fx fz px pz dr hf seed))
     (case code
       (1 (when (<= 14 sf 15)                            ; the unseen cut: a hairline, 2 frames
@@ -1103,11 +1103,11 @@ NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), it
                               0.1f0 (toon-a +pal-ember+ k))
              (dotimes (j 14)                            ; 7 a side, rising toward 2.4 m, leaning out
                (let* ((sd (if (< j 7) -1f0 1f0)) (i (i->f (mod j 7))) (u (/ (+ i 0.5f0) 7f0)) (along (+ 0.6f0 (* 1.8f0 u)))
-                      (off (* sd (+ 0.05f0 (* 0.3f0 g u)))) (hh (* hf g (+ 0.4f0 (* 1.4f0 u)) (+ 0.8f0 (* 0.3f0 (hash01 (+ i dr sd) seed))))))
+                      (off (* sd (+ 0.05f0 (* 0.3f0 g u)))) (hh (* hf g (+ 0.4f0 (* 1.4f0 u)) (+ 0.8f0 (* 0.3f0 (flow01 (+ i (* 8f0 sd)) 4.1f0))))))
                  (declare (single-float sd i u along off hh))
                  (when (<= (hash01 (+ i (* 3f0 sd)) 6.3f0) hf)
                    (%ya-tongue (+ x (* along fx) (* off px)) 0.02f0 (+ z (* along fz) (* off pz)) (* sd 0.35f0 hh px) hh (* sd 0.35f0 hh pz)
-                               0.13f0 ti k (+ 160f0 i sd seed) (+ dr i)))))
+                               0.13f0 ti k (+ 160f0 i (* 8f0 sd)) (+ dr i)))))
              (%light (+ x (* 1.6f0 fx)) 0.8f0 (+ z (* 1.6f0 fz)) 1f0 0.45f0 0.12f0 3f0 (* 0.7f0 k) 7))))
       ((2 3) (when (<= 12 sf 27)                        ; the halo: full on S16, to S + A (23), fading to 27
                (let* ((rr (if (= code 3) 3.2f0 2.4f0)) (g (f-clamp (/ (i->f (- sf 11)) 5f0) 0f0 1f0))
@@ -1124,10 +1124,10 @@ NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), it
                      (let* ((f (i->f i)) (an (+ (f-atan2 fz fx) (* 0.349f0 f))) (c (f-cos an)) (s (f-sin an))
                             (tx (+ x (* rad c))) (tz (+ z (* rad s)))
                             (nq (%near-cam tx tz 1.5f0 4.5f0))
-                            (hh (* hf (+ 0.75f0 (* 0.5f0 (hash01 (+ f dr) seed))) (+ 0.08f0 (* 0.92f0 nq nq)))))
+                            (hh (* hf (+ 0.75f0 (* 0.5f0 (flow01 f 4.9f0))) (+ 0.08f0 (* 0.92f0 nq nq)))))
                        (declare (single-float f an c s tx tz nq hh))
                        (when (<= (hash01 f 3.7f0) hf)
-                         (%ya-tongue tx 0.03f0 tz (* 0.35f0 hh c) hh (* 0.35f0 hh s) 0.17f0 ti k (+ 180f0 f seed) (+ dr f))))))
+                         (%ya-tongue tx 0.03f0 tz (* 0.35f0 hh c) hh (* 0.35f0 hh s) 0.17f0 ti k (+ 180f0 f) (+ dr f))))))
                  (%light x 1.2f0 z 1f0 0.45f0 0.12f0 (* 1.5f0 rr) (* 1.1f0 k) 7))))
       (8 (when (<= 14 sf 15)                            ; 爆炎's true NADEGIRI (art S4): code 1's hairline on S and S+1
            (fx-crescent (+ x (* 1.54f0 fx) (* -1.84f0 px)) 1.45f0 (+ z (* 1.54f0 fz) (* -1.84f0 pz))
@@ -1143,13 +1143,13 @@ NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), it
              (dotimes (j 20)                            ; 10 a side
                (let* ((sd (if (< j 10) -1f0 1f0)) (i (i->f (mod j 10))) (u (/ (+ i 0.5f0) 10f0)) (along (+ 0.6f0 (* 7.4f0 u)))
                       (rise (if (<= along 2.4f0) (+ 0.4f0 (* 0.78f0 (- along 0.6f0))) (- 1.8f0 (* 0.21f0 (- along 2.4f0)))))
-                      (off (* sd (+ 0.05f0 (* 0.3f0 g (f-min 1f0 (* 3f0 u)))))) (hh (* hf g rise (+ 0.8f0 (* 0.3f0 (hash01 (+ i dr sd) seed))))))
+                      (off (* sd (+ 0.05f0 (* 0.3f0 g (f-min 1f0 (* 3f0 u)))))) (hh (* hf g rise (+ 0.8f0 (* 0.3f0 (flow01 (+ i (* 12f0 sd)) 4.1f0))))))
                  (declare (single-float sd i u along rise off hh))
                  (%ya-tongue (+ x (* along fx) (* off px)) 0.02f0 (+ z (* along fz) (* off pz)) (* sd 0.35f0 hh px) hh (* sd 0.35f0 hh pz)
-                             0.13f0 ti k (+ 160f0 i sd seed) (+ dr i) :back nil)))
+                             0.13f0 ti k (+ 160f0 i (* 12f0 sd)) (+ dr i) :back nil)))
              (%light (+ x (* 2.4f0 fx)) 0.8f0 (+ z (* 2.4f0 fz)) 1f0 0.45f0 0.12f0 3.5f0 (* 0.8f0 k) 7))))
       (5 (when (<= 10 sf 14)                            ; AS1: the point-blank corkscrew to the reach
-           (let* ((k (if (<= sf 12) 0.98f0 (* 0.98f0 (/ (i->f (- 15 sf)) 3f0)))) (spin (* 1.5708f0 dr)))
+           (let* ((k (if (<= sf 12) 0.98f0 (* 0.98f0 (/ (i->f (- 15 sf)) 3f0)))) (spin (flow-ph 18.849556f0)))
              (declare (single-float k spin))
              (dotimes (st 2)
                (dotimes (i 5)
@@ -1159,7 +1159,7 @@ NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), it
                    (declare (single-float u0 u1 ph s0 s1 a0 a1 r0 r1))
                    (%ya-seg (+ x (* s0 fx) (* r0 (f-cos a0) px)) (+ 1.1f0 (* r0 (f-sin a0))) (+ z (* s0 fz) (* r0 (f-cos a0) pz))
                             (+ x (* s1 fx) (* r1 (f-cos a1) px)) (+ 1.1f0 (* r1 (f-sin a1))) (+ z (* s1 fz) (* r1 (f-cos a1) pz))
-                            (* 0.09f0 (- 1f0 (* 0.5f0 u0))) (* 0.09f0 (- 1f0 (* 0.5f0 u1))) ti k (+ 190f0 seed (* 7f0 (i->f st)) (i->f i))
+                            (* 0.09f0 (- 1f0 (* 0.5f0 u0))) (* 0.09f0 (- 1f0 (* 0.5f0 u1))) ti k (+ 190f0 (* 7f0 (i->f st)) (i->f i))
                             (+ dr (i->f i))))))))))
     nil))
 
@@ -1226,15 +1226,15 @@ floor an EMBER circle at each pillar spot of the next row ahead of the box (the 
 the rows. Every row fades over the hazard's last 6 f (its life cannot grow: the state hash counts hazards). T2 in 爆炎. A look."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (w (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz)) (life (hazard-life hz))
-         (ti (ya-hz-tier hz)) (hf (%ya-hf ti)) (cw (%ya-core ti)) (dr (drawing-no))
+         (ti (ya-hz-tier hz)) (hf (%ya-hf ti)) (cw (%ya-core ti)) (dr (flow-ph))   ; (DR: a flowing phase, §15.7)
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx)
          (step (/ +ya-ennetsu-speed+ 60f0)) (trav (* step (i->f age))) (sx (- x (* trav fx))) (sz (- z (* trav fz)))
          (r (/ w 3f0)) (kend (f-clamp (* 0.98f0 (/ (i->f (- life age)) 6f0)) 0f0 0.98f0)) (seed (* 11f0 yaw)))
     (declare (single-float x z w yaw hf cw dr fx fz px pz step trav sx sz r kend seed) (fixnum age life ti))
-    (macrolet ((pillar (cx cz k back)                  ; one pillar of radius R at (CX CZ), presence K: FIRE, the core, a crown of two; BACK:
+    (macrolet ((pillar (cx cz k back id)               ; one pillar of radius R at (CX CZ), presence K: FIRE, the core, a crown of two; BACK:
                  `(let* ((%x ,cx) (%z ,cz) (%k ,k) (%q (%near-cam %x %z 2f0 8f0)) (%ws (f-max 0.15f0 (%near-cam %x %z 0f0 9f0)))   ;  EMBER behind
-                         (%h (* +ya-fire-h+ hf (+ 0.45f0 (* 0.55f0 %q)) (+ 0.85f0 (* 0.25f0 (hash01 (+ %x %z dr) seed)))))
-                         (%sd (- -5f0 (i->f (mod (f->i dr) 7)) (f-abs (+ %x %z)))))
+                         (%h (* +ya-fire-h+ hf (+ 0.45f0 (* 0.55f0 %q)) (+ 0.85f0 (* 0.25f0 (flow01 ,id seed)))))   ; (ID: the pillar's own
+                         (%sd (- -5f0 (* 3f0 ,id))))                                      ;  seed, the front row moves: §15.7)
                     (declare (single-float %x %z %k %q %ws %h %sd))
                     ,@(when back
                         `((let ((%bx %x) (%by 0f0) (%bz %z))
@@ -1251,10 +1251,10 @@ the rows. Every row fades over the hazard's last 6 f (its life cannot grow: the 
                           (toon-ribbon (%cx %cy %cz) (0f0 (* 0.8f0 %h) 0f0) ((* cw 0.6f0 r %ws) (* cw 0.15f0 r %ws)) :heat (0.3f0 0.15f0)
                                        :seed (- %sd 40f0) :wob 0.2f0 :pal +pal-hit+ :k (%ya-k %k) :ph dr :sway 0.04f0 :segs 3))))
                     (dotimes (%j 2)
-                      (let* ((%f (i->f %j)) (%an (+ (* 3.1416f0 %f) (hash01 (+ %f dr) seed))) (%hc (* 0.3f0 %h (+ 0.6f0 (* 0.4f0 (hash01 (+ %f dr) 2.3f0))))))
+                      (let* ((%f (i->f %j)) (%an (+ (* 3.1416f0 %f) (flow01 (+ %f (* 2f0 ,id)) seed))) (%hc (* 0.3f0 %h (+ 0.6f0 (* 0.4f0 (flow01 (+ %f (* 2f0 ,id)) 2.3f0))))))
                         (declare (single-float %f %an %hc))
                         (%ya-tongue (+ %x (* 0.25f0 r %ws (f-cos %an))) (* 0.85f0 %h) (+ %z (* 0.25f0 r %ws (f-sin %an))) (* 0.4f0 %hc (f-cos %an)) %hc
-                                    (* 0.4f0 %hc (f-sin %an)) (* 0.32f0 r %ws) 0 %k (+ 300f0 %f seed) (+ dr %f) :back nil :segs 3))))))
+                                    (* 0.4f0 %hc (f-sin %an)) (* 0.32f0 r %ws) 0 %k (+ 300f0 %f (* 2f0 ,id)) (+ dr %f) :back nil :segs 3))))))
       (%ya-floor-box x z fx fz w (* 0.55f0 kend) (+ 26f0 seed))
       (dotimes (n 9)                                   ; the rows the box has passed (every 1.0 m from where it was spawned)
         (let* ((d (+ 0.5f0 (i->f n))) (ra (- (i->f age) (/ d step))))   ; (the row's age, frames since the box's centre crossed it)
@@ -1265,9 +1265,9 @@ the rows. Every row fades over the hazard's last 6 f (its life cannot grow: the 
               (when (= ti 2)
                 (toon-ground-seg (- rx (* 0.45f0 fx)) (- rz (* 0.45f0 fz)) (+ rx (* 0.45f0 fx)) (+ rz (* 0.45f0 fz)) 0.011f0 w 0.8f0 0.2f0
                                  (+ 27f0 seed d) 0.3f0 (toon-a +pal-ember+ (* 0.45f0 k))))
-              (dotimes (i 3) (let ((u (* (- (i->f i) 1f0) 2f0 r))) (declare (single-float u)) (pillar (+ rx (* u px)) (+ rz (* u pz)) k nil)))))))
+              (dotimes (i 3) (let ((u (* (- (i->f i) 1f0) 2f0 r))) (declare (single-float u)) (pillar (+ rx (* u px)) (+ rz (* u pz)) k nil (i->f (+ (* 3 n) i)))))))))
       (dotimes (i 3)                                   ; the front row, on the box
-        (let ((u (* (- (i->f i) 1f0) 2f0 r))) (declare (single-float u)) (pillar (+ x (* u px)) (+ z (* u pz)) kend t)))
+        (let ((u (* (- (i->f i) 1f0) 2f0 r))) (declare (single-float u)) (pillar (+ x (* u px)) (+ z (* u pz)) kend t (i->f (+ 30 i)))))
       (let* ((nn (f->i (+ trav 0.5f0 0.5f0))) (d (+ 0.5f0 (i->f nn))))   ; the tell: the next row's spots ahead of the box's front
         (declare (fixnum nn) (single-float d))
         (when (<= d 9f0)
@@ -1292,13 +1292,13 @@ tongues on SL5's band; on S the dome hazard stands closed (the hit frame draws i
                (cx (+ (aref p 0) (* rr ux))) (cz (+ (aref p 2) (* rr uz))) (cd (f-hypot cx cz)))
           (declare (single-float dx dz d rr ux uz cx cz cd))
           (if (<= cd +ya-arena-in+) (setf x cx z cz) (setf x (* cx (/ +ya-arena-in+ cd)) z (* cz (/ +ya-arena-in+ cd))))))
-    (let* ((coil (f-min 1f0 (/ (i->f (- sf 11)) 4f0))) (dr (drawing-no)) (seed (+ x (* 5f0 z)))
+    (let* ((coil (f-min 1f0 (/ (i->f (- sf 11)) 4f0))) (dr (flow-ph)) (seed 3.7f0)   ; (flowing; one seed: the spot may follow the victim, §15.7)
            (a0 (f-atan2 (- (aref p 2) z) (- (aref p 0) x))))   ; (from the point nearest him, both ways round)
       (declare (single-float coil dr seed a0))
       (%tring x 0f0 z 1.6f0 +ya-ring-band+ +pal-ember+ 0.8f0 (+ seed 1f0))
       (dotimes (i 24)
         (let* ((f (i->f i)) (u (/ f 24f0)) (an (+ a0 (* 6.2832f0 (if (evenp i) (* 0.5f0 u) (- 1f0 (* 0.5f0 u))))))
-               (c (f-cos an)) (s (f-sin an)) (hh (* 0.55f0 (+ 0.7f0 (* 0.3f0 (hash01 (+ f dr) seed))))))
+               (c (f-cos an)) (s (f-sin an)) (hh (* 0.55f0 (+ 0.7f0 (* 0.3f0 (flow01 f seed))))))
           (declare (single-float f u an c s hh))
           (when (<= u coil)
             (%ya-tongue (+ x (* 1.6f0 c)) 0.02f0 (+ z (* 1.6f0 s)) (* 0.1f0 hh c) hh (* 0.1f0 hh s) (* 0.8f0 +ya-ring-band+) 2 0.95f0
@@ -1313,7 +1313,7 @@ point stands, to 2.5 m by f16, guttering by f21. A look; 0 B."
   (declare (type f32vec tip base) (fixnum sf))
   (when (<= 7 sf 21)
     (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (tx (aref tip 0)) (tz (aref tip 2))
-           (bx (- tx x0)) (by (- (aref tip 1) y0)) (bz (- tz z0)) (dr (drawing-no)) (seed (+ (* 3f0 tx) tz))
+           (bx (- tx x0)) (by (- (aref tip 1) y0)) (bz (- tz z0)) (dr (flow-ph)) (seed (+ (* 3f0 tx) tz))   ; (DR: flowing, §15.7)
            (u (f-min 1f0 (/ (i->f (- sf 6)) 4f0))) (k (if (<= sf 16) 0.98f0 (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)))))
       (declare (single-float x0 y0 z0 tx tz bx by bz dr seed u k))
       (when (<= sf 16)                                 ; down the edge
@@ -1324,7 +1324,7 @@ point stands, to 2.5 m by f16, guttering by f21. A look; 0 B."
           (%tring tx 0f0 tz rr 0.07f0 +pal-ember+ k (+ seed 1f0))
           (dotimes (i 16)
             (let* ((f (i->f i)) (an (+ (* 0.3927f0 f) (* 0.2f0 (hash01 f seed)))) (c (f-cos an)) (s (f-sin an))
-                   (hh (* (- 0.75f0 (* 0.15f0 rr)) (+ 0.7f0 (* 0.3f0 (hash01 (+ f dr) seed))))))
+                   (hh (* (- 0.75f0 (* 0.15f0 rr)) (+ 0.7f0 (* 0.3f0 (flow01 f seed))))))
               (declare (single-float f an c s hh))
               (%ya-tongue (+ tx (* rr c)) 0.02f0 (+ tz (* rr s)) (* 0.25f0 hh c) hh (* 0.25f0 hh s) 0.12f0 2 k (+ 240f0 f seed) (+ dr f)))))
         (%light tx 0.5f0 tz 1f0 0.45f0 0.12f0 3.5f0 (* 0.8f0 k) 7))))
@@ -1335,11 +1335,11 @@ point stands, to 2.5 m by f16, guttering by f21. A look; 0 B."
 fading by f13. White-cored (T2). A look; 0 B."
   (declare (type f32vec v) (single-float yaw) (fixnum sf))
   (when (<= 9 sf 13)
-    (let* ((x (aref v 0)) (y (aref v 1)) (z (aref v 2)) (dr (drawing-no)) (k (if (<= sf 11) 0.98f0 (* 0.98f0 (/ (i->f (- 14 sf)) 3f0))))
+    (let* ((x (aref v 0)) (y (aref v 1)) (z (aref v 2)) (dr (flow-ph)) (k (if (<= sf 11) 0.98f0 (* 0.98f0 (/ (i->f (- 14 sf)) 3f0))))
            (fx (- (f-sin yaw))) (fz (- (f-cos yaw))))
       (declare (single-float x y z dr k fx fz))
       (dotimes (j 6)
-        (let* ((f (i->f j)) (an (* 1.0472f0 f)) (l (* 0.32f0 (+ 0.6f0 (* 0.4f0 (hash01 (+ f dr) 3.9f0))))) (c (f-cos an)) (s (f-sin an)))
+        (let* ((f (i->f j)) (an (* 1.0472f0 f)) (l (* 0.32f0 (+ 0.6f0 (* 0.4f0 (flow01 f 3.9f0))))) (c (f-cos an)) (s (f-sin an)))
           (declare (single-float f an l c s))
           (%ya-tongue x y z (* l (+ fx (* 0.45f0 c fz))) (* l 0.45f0 s) (* l (- fz (* 0.45f0 c fx))) 0.06f0 2 k (+ 250f0 f) (+ dr f) :segs 3)))
       (%light x y z 1f0 0.5f0 0.15f0 2.5f0 (* 0.8f0 k) 7)))

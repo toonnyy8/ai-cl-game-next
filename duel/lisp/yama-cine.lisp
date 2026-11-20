@@ -152,7 +152,7 @@ from f52 (built in 4 f, guttering from f156); molten footprints behind him on th
 smoke from f150. A look; 0 B."
   (declare (fixnum cf))
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let ((rdt (aref *ya-rdt* 0)) (seed (+ (* 3f0 px) pz)) (dr (drawing-no)))
+    (let ((rdt (aref *ya-rdt* 0)) (seed (+ (* 3f0 px) pz)) (dr (flow-ph)))   ; (DR: a flowing phase, §15.7)
       (declare (single-float rdt seed dr))
       (when (and (<= 40 cf) (< cf 53))                    ; the ash creeping from the tip toward the hilt
         (let ((m (model v)))
@@ -168,7 +168,7 @@ smoke from f150. A look; 0 B."
                   (declare (single-float s))
                   (fx-disc (+ x0 (* s ddx)) (+ y0 (* s ddy)) (+ z0 (* s ddz)) (+ 0.05f0 (* 0.02f0 (hash01 (i->f i) seed))) 0.3f0
                            (+ seed (i->f i)) +pal-ash+ 0.95f0 :push 0.08f0)))
-              (fx-disc (+ x0 (* u ddx)) (+ y0 (* u ddy)) (+ z0 (* u ddz)) 0.05f0 0.2f0 (+ seed 20f0 dr) +pal-ember+ 0.9f0 :push 0.1f0)
+              (fx-disc (+ x0 (* u ddx)) (+ y0 (* u ddy)) (+ z0 (* u ddz)) 0.05f0 0.2f0 (+ seed 20f0) +pal-ember+ 0.9f0 :push 0.1f0)
               (dotimes (i (n-of 90f0 rdt))                ; flakes shed as it goes
                 (let ((s (rnd-range 0f0 u)))
                   (declare (single-float s))
@@ -202,10 +202,10 @@ smoke from f150. A look; 0 B."
           (declare (single-float g hc k))
           (dotimes (i 10)                                 ; (thin and apart: the charred body shows between them)
             (let* ((f (i->f i)) (an (+ (* 0.6283f0 f) (* 0.3f0 (hash01 f seed)))) (c (f-cos an)) (s (f-sin an))
-                   (hh (* hc (+ 0.55f0 (* 0.6f0 (hash01 (+ f dr) seed))))))
+                   (hh (* hc (+ 0.55f0 (* 0.6f0 (flow01 f 5.5f0))))))
               (declare (single-float f an c s hh))
               (%tongue (+ qx (* 0.55f0 c)) 0.04f0 (+ qz (* 0.55f0 s)) (* -0.05f0 hh c) hh (* -0.05f0 hh s) 0.11f0 +pal-flame+ k
-                       (+ seed f dr 50f0) (+ dr f) 0.06f0 :segs 6)))
+                       (+ f 50f0) (+ dr f) 0.06f0 :segs 6)))
           (%tring qx 0f0 qz 0.7f0 0.06f0 +pal-flame+ k (+ seed 60f0))
           (%light qx 1.5f0 qz 1f0 0.5f0 0.2f0 7f0 (* 3f0 k) 8)))
       (when (>= cf 134)                                   ; ash streaming up off the charred body, then black smoke
@@ -424,10 +424,10 @@ a look that needs only the feet binds them here.)"
 base half-width R, nearly as wide at the top (0.6 R) as at the foot, as the canon's Ennetsu columns (sheet_EnnetsuJigoku 11-20 s): an
 EMBER backing behind it, two FIRE masses side by side swaying out of step (the sides ragged, licking), an EMBER stripe twisting up its
 front (batch 1's VFX-FIRE-PILLAR's spiral), the tier's white core (TI 1 / 2: 25 / 42 % of the width, wavering), two tongues licking off
-its sides and three flaring out of its top, re-drawn on twos. K the presence (0 .. 0.98). Single-float forms (TI fixnum); about 450
+its sides and three flaring out of its top, flowing (FLOW01 / FLOW-PH, §15.7; re-drawn on twos before). K the presence (0 .. 0.98). Single-float forms (TI fixnum); about 450
 vertices; 0 B."
-  `(let* ((%x ,x) (%z ,z) (%lx ,lx) (%lz ,lz) (%r ,r) (%h ,h) (%k0 ,k) (%k (%ya-k %k0)) (%ti ,ti) (%dr (drawing-no))
-          (%s0 (f-abs ,seed)) (%sd (- -5f0 (i->f (mod (f->i %dr) 7)) %s0)) (%ux (/ %lx (f-max 0.01f0 %h))) (%uz (/ %lz (f-max 0.01f0 %h)))
+  `(let* ((%x ,x) (%z ,z) (%lx ,lx) (%lz ,lz) (%r ,r) (%h ,h) (%k0 ,k) (%k (%ya-k %k0)) (%ti ,ti) (%dr (flow-ph))
+          (%s0 (f-abs ,seed)) (%sd (- -5f0 %s0)) (%ux (/ %lx (f-max 0.01f0 %h))) (%uz (/ %lz (f-max 0.01f0 %h)))
           (%rt (camera-right *camera*)) (%rx (aref %rt 0)) (%rz (aref %rt 2)))   ; (the camera's right on the floor: the masses side by side)
      (declare (single-float %x %z %lx %lz %r %h %k0 %k %dr %s0 %sd %ux %uz %rx %rz) (fixnum %ti) (type f32vec %rt))
      (let ((%bx %x) (%by 0f0) (%bz %z))
@@ -436,7 +436,7 @@ vertices; 0 B."
          (toon-ribbon (%bx %by %bz) ((* 1.04f0 %lx) (* 1.06f0 %h) (* 1.04f0 %lz)) ((* 1.2f0 %r) (* 0.8f0 %r)) :heat (0.3f0 0.15f0)
                       :seed (- %sd 20f0) :wob 0.3f0 :pal +pal-ember+ :k %k :ph %dr :sway (* 0.05f0 %h) :segs 6)))
      (dotimes (%m 2)                                     ; the two masses, a quarter of the width apart, swaying out of step
-       (let* ((%o (* %r (if (= %m 0) -0.3f0 0.3f0))) (%mf (if (= %m 0) 1f0 (+ 0.82f0 (* 0.12f0 (hash01 %dr %s0)))))
+       (let* ((%o (* %r (if (= %m 0) -0.3f0 0.3f0))) (%mf (if (= %m 0) 1f0 (+ 0.82f0 (* 0.12f0 (flow01 0f0 %s0)))))
               (%ox (* %o %rx)) (%oz (* %o %rz)))
          (declare (single-float %o %mf %ox %oz))
          (toon-ribbon ((+ %x %ox) 0f0 (+ %z %oz)) ((* %lx %mf) (* %h %mf) (* %lz %mf)) ((* 0.78f0 %r) (* 0.45f0 %r)) :heat (0.3f0 0.15f0)
@@ -452,8 +452,8 @@ vertices; 0 B."
          (%away-from-eye (%cx %cy %cz) -0.1f0
            (toon-ribbon (%cx %cy %cz) ((* 0.8f0 %lx) (* 0.78f0 %h) (* 0.8f0 %lz)) ((* %cw %r) (* 0.45f0 %cw %r)) :heat (0.3f0 0.15f0)
                         :seed (- %sd 40f0) :wob 0.25f0 :pal +pal-hit+ :k %k :ph (+ %dr 1f0) :sway (* 0.035f0 %h) :segs 5))))
-     (dotimes (%j 5)                                     ; two licks off the sides, three flaring out of the top (on twos: DRAWING-NO)
-       (let* ((%f (i->f %j)) (%hq (hash01 (+ %f %dr) %s0)) (%top (>= %j 2))
+     (dotimes (%j 5)                                     ; two licks off the sides, three flaring out of the top (flowing: FLOW01)
+       (let* ((%f (i->f %j)) (%hq (flow01 %f %s0)) (%top (>= %j 2))
               (%u (if %top 0.9f0 (+ 0.35f0 (* 0.35f0 %hq))))
               (%sd2 (if %top (* 0.55f0 (- %f 3f0)) (if (= %j 0) -1f0 1f0)))
               (%cx (+ %x (* %u %lx) (* %sd2 0.55f0 %r %rx))) (%cy (* %u %h)) (%cz (+ %z (* %u %lz) (* %sd2 0.55f0 %r %rz)))
@@ -488,7 +488,7 @@ thrust (f58-62); CODE 2 焱熱地獄: the rest sheath throughout, and f22-34 the
 strand growing guard to point). It leaves the tip in *YA-CT* (焱熱地獄's floor line starts there). A look; 0 B."
   (declare (fixnum cf code))
   (%ya-cform (bl ti hs) a
-    (let ((dr (drawing-no)))
+    (let ((dr (flow-ph)))                                 ; (DR: a flowing phase, §15.7)
       (declare (single-float dr))
       (%ya-cblade (tip base) a
         (if (= code 1)
@@ -501,7 +501,7 @@ strand growing guard to point). It leaves the tip in *YA-CT* (焱熱地獄's flo
                    (n1x (- az)) (n1z ax) (nl (f-max 0.01f0 (f-sqrt (+ (* n1x n1x) (* n1z n1z))))) (n1x (/ n1x nl)) (n1z (/ n1z nl))
                    (n2x (* n1z ay)) (n2y (- (* n1x az) (* n1z ax))) (n2z (- (* n1x ay)))
                    (cov (f-min 1f0 (/ (i->f (- cf 10)) 24f0))) (rr (* hs (- 0.17f0 (* 0.09f0 (f-min 1f0 (/ (i->f (- cf 10)) 30f0))))))
-                   (k (if (< cf 58) 0.95f0 (* 0.95f0 (/ (i->f (- 62 cf)) 4f0)))) (spin (* 3.1416f0 dr)))
+                   (k (if (< cf 58) 0.95f0 (* 0.95f0 (/ (i->f (- 62 cf)) 4f0)))) (spin (flow-ph 37.699112f0)))   ; (180 deg a drawing: turning smoothly)
               (declare (single-float x0 y0 z0 bx by bz bl2 ax ay az n1x n1z nl n2x n2y n2z cov rr k spin))
               (dotimes (s 2)                             ; two strands, 1.1 turns over what they cover, from the tip down
                 (dotimes (i 8)
@@ -534,7 +534,7 @@ the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.
   (yama-s5-blade a cf 1)
   (%ya-cform (bl ti hs) a
     (%ya-feet (px pz qx qz) a v
-      (let ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))) (e (camera-eye *camera*)))
+      (let ((dr (flow-ph)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))) (e (camera-eye *camera*)))   ; (DR: flowing, §15.7)
         (declare (single-float dr rdt seed) (type f32vec e))
         (when (and (<= 40 cf) (< cf 126))                ; the nine lights, then the columns
           (let* ((rise (f-clamp (/ (i->f (- cf 64)) 8f0) 0f0 1f0)) (u (f-clamp (/ (i->f (- cf 76)) 44f0) 0f0 1f0))
@@ -549,12 +549,13 @@ the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.
                        (lx (+ qx (* rad c))) (lz (+ qz (* rad s))))
                   (declare (single-float fi an c s lx lz))
                   (if (< cf 64)
-                      (let ((pulse (if (evenp (+ i (f->i dr))) 0.95f0 0.6f0)) (y (+ 0.35f0 (* 0.4f0 (hash01 (+ fi 3f0) seed)))))
+                      (let ((pulse (+ 0.775f0 (* 0.175f0 (f-cos (+ (flow-ph 37.699112f0) (* 3.1415927f0 fi))))))   ; (6 Hz, smooth: §15.7)
+                            (y (+ 0.35f0 (* 0.4f0 (hash01 (+ fi 3f0) seed)))))
                         (declare (single-float pulse y))
                         (%tring lx 0f0 lz 0.35f0 0.06f0 +pal-ember+ pulse (+ seed fi 2f0) 8)
                         (%ya-tongue lx (+ y (* 0.05f0 (f-sin (+ dr fi)))) lz 0f0 (* 0.8f0 (+ 0.7f0 (* 0.3f0 pulse))) 0f0 0.15f0 0
                                     (* 0.95f0 pulse) (+ 410f0 fi seed) (+ dr fi) :back nil :segs 3 :pal +pal-hit+))
-                      (let* ((h (* hs rise (+ 3.2f0 (* 1.6f0 u)) (+ 0.85f0 (* 0.25f0 (hash01 (+ fi dr) seed)))))
+                      (let* ((h (* hs rise (+ 3.2f0 (* 1.6f0 u)) (+ 0.85f0 (* 0.25f0 (flow01 fi seed)))))
                              (ws (f-max 0.2f0 (%near-cam lx lz 0.5f0 4f0))))
                         (declare (single-float h ws))
                         (%ya-cpillar lx lz (* (- lean) c) (* (- lean) s) (* 0.45f0 ws (+ 0.4f0 (* 0.6f0 rise))) (* h (+ 0.3f0 (* 0.7f0 ws))) kc 2 (+ 420f0 fi seed)))))))))
@@ -573,7 +574,7 @@ the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.
                              :wob 0.35f0 :pal +pal-fire+ :k (%ya-k k) :ph dr :sway (* 0.06f0 h) :segs 8)))
             (dotimes (st 6)                              ; six strands wound up it (1.3 turns floor to top), the radius widening
               (dotimes (i 9)                             ; 1.0 -> 2.6 m: EMBER on the far side, FIRE T2 on the camera's (gaps between turns)
-                (let* ((u0 (/ (i->f i) 9f0)) (u1 (/ (i->f (1+ i)) 9f0)) (sp (+ (* 0.55f0 dr) (* 1.0472f0 (i->f st))))
+                (let* ((u0 (/ (i->f i) 9f0)) (u1 (/ (i->f (1+ i)) 9f0)) (sp (+ (flow-ph 6.6f0) (* 1.0472f0 (i->f st))))
                        (a0 (+ sp (* 8.17f0 u0))) (a1 (+ sp (* 8.17f0 u1)))
                        (r0 (* (/ h 10f0) (+ 1f0 (* 1.6f0 u0)))) (r1 (* (/ h 10f0) (+ 1f0 (* 1.6f0 u1))))
                        (ca0 (f-cos a0)) (sa0 (f-sin a0)) (ca1 (f-cos a1)) (sa1 (f-sin a1))
@@ -585,9 +586,9 @@ the victim from f150. T2 (the storyboard's) for the columns and the tornado; x1.
                                (* 0.8f0 w0) (* 0.8f0 w1) 0 k (+ seed (* 12f0 (i->f st)) (i->f i)) (+ dr (i->f i)) :pal +pal-ember+)
                       (%ya-seg (+ qx (* r0 ca0)) (* h u0) (+ qz (* r0 sa0)) (+ qx (* r1 ca1)) (* h u1) (+ qz (* r1 sa1))
                                w0 w1 2 k (+ seed (* 12f0 (i->f st)) (i->f i)) (+ dr (i->f i)))))))
-            (dotimes (j 6)                               ; tongues licking off its rim, on twos
-              (let* ((fj (i->f j)) (an (+ (* 0.3f0 dr) (* 1.0472f0 fj))) (u (+ 0.25f0 (* 0.12f0 fj))) (ra (* (/ h 10f0) (+ 1f0 (* 1.6f0 u))))
-                     (c (f-cos an)) (s (f-sin an)) (tl (* h (+ 0.06f0 (* 0.06f0 (hash01 (+ fj dr) seed))))))
+            (dotimes (j 6)                               ; tongues licking off its rim (flowing since §15.7)
+              (let* ((fj (i->f j)) (an (+ (flow-ph 3.6f0) (* 1.0472f0 fj))) (u (+ 0.25f0 (* 0.12f0 fj))) (ra (* (/ h 10f0) (+ 1f0 (* 1.6f0 u))))
+                     (c (f-cos an)) (s (f-sin an)) (tl (* h (+ 0.06f0 (* 0.06f0 (flow01 fj seed))))))
                 (declare (single-float fj an u ra c s tl))
                 (when (> (+ (* ex c) (* ez s)) 0f0)
                   (%ya-tongue (+ qx (* ra c)) (* h u) (+ qz (* ra s)) (* 0.6f0 tl c) tl (* 0.6f0 tl s) (* 0.04f0 h) 2 k (+ 440f0 fj seed) (+ dr fj)
@@ -646,7 +647,8 @@ YAMA-S5-BLADE. A look; 0 B."
   (yama-s5-blade a cf 2)
   (%ya-cform (bl ti hs) a
     (%ya-feet (px pz qx qz) a v
-      (let* ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (mx (* 0.5f0 (+ px qx))) (mz (* 0.5f0 (+ pz qz))) (seed (+ (* 3f0 mx) mz))
+      (let* ((dr (flow-ph)) (rdt (aref *ya-rdt* 0)) (mx (* 0.5f0 (+ px qx)))   ; (DR: flowing, §15.7)
+             (mz (* 0.5f0 (+ pz qz))) (seed (+ (* 3f0 mx) mz))
              (e (camera-eye *camera*)) (kp (if (< cf 160) 0.95f0 (f-clamp (* 0.95f0 (/ (i->f (- 186 cf)) 26f0)) 0f0 0.95f0)))
              (th0 (f-atan2 (- qz pz) (- qx px))))       ; (§28.5: the pattern and the marks turn with the pair's line, so the side-on shot
         (declare (single-float dr rdt mx mz seed kp th0) (type f32vec e))   ;  looks through the gap between two pillars at each of them)
@@ -695,7 +697,7 @@ YAMA-S5-BLADE. A look; 0 B."
             (dotimes (i 20)
               (let* ((fi (i->f i)) (an (+ (* 0.31416f0 fi) (* 0.1f0 (hash01 fi seed)))) (c (f-cos an)) (s (f-sin an))
                      (bx (+ mx (* 5f0 c))) (bz (+ mz (* 5f0 s))) (far (< (+ (* ex c) (* ez s)) 0f0))
-                     (hh (* h (+ 0.85f0 (* 0.25f0 (hash01 (+ fi dr) seed))))) (wd 0.62f0))
+                     (hh (* h (+ 0.85f0 (* 0.25f0 (flow01 fi seed))))) (wd 0.62f0))
                 (declare (single-float fi an c s bx bz hh wd))
                 (when (and far (not inside))
                   (let ((kx bx) (ky 0f0) (kz bz))
@@ -709,17 +711,17 @@ YAMA-S5-BLADE. A look; 0 B."
           (let* ((on-v (< cf 136)) (cx (if on-v qx px)) (cz (if on-v qz pz)) (k (if (< cf 154) 0.98f0 (* 0.98f0 (/ (i->f (- 160 cf)) 6f0)))))
             (declare (single-float cx cz k))
             (dotimes (i 10)
-              (let* ((fi (i->f i)) (an (+ (* 0.6283f0 fi) (* 0.4f0 (hash01 (+ fi dr) seed)))) (r (+ 1.2f0 (* 0.8f0 (hash01 fi seed))))
-                     (x (+ cx (* r (f-cos an)))) (z (+ cz (* r (f-sin an)))) (hh (* hs (+ 1.4f0 (* 0.9f0 (hash01 (+ fi dr 7f0) seed))))))
+              (let* ((fi (i->f i)) (an (+ (* 0.6283f0 fi) (* 0.4f0 (flow01 fi seed)))) (r (+ 1.2f0 (* 0.8f0 (hash01 fi seed))))
+                     (x (+ cx (* r (f-cos an)))) (z (+ cz (* r (f-sin an)))) (hh (* hs (+ 1.4f0 (* 0.9f0 (flow01 (+ fi 7f0) seed))))))
                 (declare (single-float fi an r x z hh))
                 (%ya-tongue x 0.02f0 z (* -0.15f0 hh (f-cos an)) hh (* -0.15f0 hh (f-sin an)) 0.22f0 2 k (+ 560f0 fi seed) (+ dr fi) :back nil)))
             (unless on-v                                 ; his hem alight (爆炎: the hakama's hem, bared to the waist)
               (let ((hy (if bl 0.12f0 0.55f0)) (hr (if bl 0.26f0 0.34f0)))
                 (declare (single-float hy hr))
                 (dotimes (i 7)
-                  (let* ((fi (i->f i)) (an (+ (* 0.8976f0 fi) (* 0.3f0 (hash01 (+ fi dr) seed)))))
+                  (let* ((fi (i->f i)) (an (+ (* 0.8976f0 fi) (* 0.3f0 (flow01 fi seed)))))
                     (declare (single-float fi an))
-                    (%ya-tongue (+ px (* hr (f-cos an))) hy (+ pz (* hr (f-sin an))) 0f0 (* 0.24f0 (+ 0.7f0 (* 0.3f0 (hash01 (+ fi dr) 2.1f0)))) 0f0
+                    (%ya-tongue (+ px (* hr (f-cos an))) hy (+ pz (* hr (f-sin an))) 0f0 (* 0.24f0 (+ 0.7f0 (* 0.3f0 (flow01 fi 2.1f0)))) 0f0
                                 0.05f0 ti k (+ 580f0 fi seed) (+ dr fi) :back nil :segs 3)))))))
         (when (>= cf 160)                                ; the scorched ring, ash, black smoke
           (%tring mx 0f0 mz 5f0 0.3f0 +pal-ember+ (* 0.8f0 kp) (+ seed 7f0) 40))
@@ -777,7 +779,7 @@ look; 0 B."
   (declare (fixnum cf))
   (%ya-cform (bl ti hs) a
     (%ya-line (px pz qx qz fx fz rx rz d) a v
-      (let ((dr (drawing-no)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))))
+      (let ((dr (flow-ph)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))))   ; (DR: flowing, §15.7)
         (declare (single-float dr rdt seed))
         (when (<= 40 cf 41)                              ; the hairline across the frame, at the victim's neck
           (let ((cx (- qx (* 0.3f0 fx))) (cz (- qz (* 0.3f0 fz))))
@@ -799,9 +801,9 @@ look; 0 B."
               (let* ((sd (if (< j 12) -1f0 1f0)) (i (i->f (mod j 12))) (s (+ -0.6f0 (* 6.6f0 (/ (+ i 0.5f0) 12f0))))
                      (x0 (+ qx (* s fx))) (z0 (+ qz (* s fz))) (off (* sd (+ 0.08f0 (* 0.45f0 g (f-min 1f0 (+ 0.3f0 (* 0.3f0 (f-abs s))))))))
                      (x (+ x0 (* off rx))) (z (+ z0 (* off rz))) (nq (f-max 0.15f0 (%near-cam x z 0.8f0 3.5f0)))
-                     (hh (* hs g nq (- 3f0 (* 0.32f0 (f-abs s))) (+ 0.8f0 (* 0.3f0 (hash01 (+ i dr sd) seed))))))
+                     (hh (* hs g nq (- 3f0 (* 0.32f0 (f-abs s))) (+ 0.8f0 (* 0.3f0 (flow01 (+ i (* 12f0 sd)) seed))))))
                 (declare (single-float sd i s x0 z0 off x z nq hh))
-                (%ya-tongue x 0.02f0 z (* sd 0.4f0 hh rx) hh (* sd 0.4f0 hh rz) (* 0.18f0 nq) 2 k (+ 620f0 i sd seed) (+ dr i) :back nil)))
+                (%ya-tongue x 0.02f0 z (* sd 0.4f0 hh rx) hh (* sd 0.4f0 hh rz) (* 0.18f0 nq) 2 k (+ 620f0 i (* 12f0 sd) seed) (+ dr i) :back nil)))
             (toon-ground-seg qx qz (+ qx (* sl fx)) (+ qz (* sl fz)) 0.012f0 0.07f0 1f0 0.6f0 (+ seed 3f0) 0.15f0 (toon-a +pal-ink+ 0.95f0))
             (toon-ground-seg qx qz (+ qx (* sl fx)) (+ qz (* sl fz)) 0.014f0 0.025f0 1f0 0.6f0 (+ seed 4f0) 0.1f0 (toon-a +pal-ember+ k))
             (%light qx 1f0 qz 1f0 0.45f0 0.12f0 4f0 (* 0.9f0 k) 7)))

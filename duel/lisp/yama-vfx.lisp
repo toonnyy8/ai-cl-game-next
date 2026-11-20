@@ -15,14 +15,15 @@
 ;;; (DRAWING-NO, engine fx.lisp).
 (defun-fast vfx-blade-embers (x0 y0 z0 x1 y1 z1 dt)
   "Zanka no Tachi (§4.1 Bankai): every flame is gone. One thin EMBER line along the charred blade (drawn just in
-front of it, a glowing additive core in it), its presence breathing on threes, and a few ember flecks drifting up; the heat is the :HEAT aura's
+front of it, a glowing additive core in it), its presence breathing (continuously since the flow sweep, STYLE_STORM_DESIGN §15.7;
+on threes before), and a few ember flecks drifting up; the heat is the :HEAT aura's
 charcoal wisps. Under the Bankai grade (spot-keep, hue 10) this line is the only colour in the frame."
   (with-floats (x0 y0 z0 x1 y1 z1 dt)
-    (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0)) (d3 (drawing-no 8f0)) (pal +pal-ember+)
-           (pk (toon-a pal (+ 0.75f0 (* 0.2f0 (hash01 d3 2.3f0))))) (sd (- -2f0 (i->f (mod (f->i d3) 3)))))
-      (declare (single-float bx by bz d3 pal pk sd))
+    (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0)) (fp (flow-ph)) (pal +pal-ember+)
+           (pk (toon-a pal (+ 0.75f0 (* 0.2f0 (flow01 0f0 2.3f0 4f0))))) (sd -2f0))
+      (declare (single-float bx by bz fp pal pk sd))
       (%away-from-eye (x0 y0 z0) -0.03f0
-        (toon-ribbon (x0 y0 z0) (bx by bz) (0.026f0 0.016f0) :heat (1f0 0.5f0) :seed sd :wob 0.05f0 :k pk :ph d3 :segs 3)
+        (toon-ribbon (x0 y0 z0) (bx by bz) (0.026f0 0.016f0) :heat (1f0 0.5f0) :seed sd :wob 0.05f0 :k pk :ph fp :segs 3)
         (fx-ribbon x0 y0 z0 bx by bz 0.012f0 0.008f0 1f0 0.3f0 0.08f0 -0.9f0 1f0 0.3f0 0.08f0 -0.7f0 0f0 0f0 :segs 1))
       (dotimes (i (n-of 5f0 dt))
         (let* ((u (rnd01)))
@@ -33,19 +34,19 @@ charcoal wisps. Under the Bankai grade (spot-keep, hue 10) this line is the only
 ;;; ---------------------------------------------------------------- fireball
 
 (defun-fast vfx-fireball (x y z size dirx dirz dt)
-  "Shiranui (§4.1, Phase 5): a drawn FIRE disc of radius SIZE m (wobble 0.3, re-drawn every drawing), 5 tongues licking
+  "Shiranui (§4.1, Phase 5): a drawn FIRE disc of radius SIZE m (wobble 0.3), 5 tongues licking (flowing: §15.7)
 back along the flight (DIRX DIRZ, unit) and curling up, a white-hot HIT core disc, flame scraps and a BLACK SMOKE wake
 left behind (toon puffs, stepped on threes). The position never steps (the hazard moves it)."
   (with-floats (x y z size dirx dirz dt)
-    (let* ((s size) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 7))))
-      (declare (single-float s dr sd))
+    (let* ((s size) (fp (flow-ph)) (sd 0f0))
+      (declare (single-float s fp sd))
       (dotimes (k 5)                                     ; the tongues first: they stand behind the disc
-        (let* ((f (i->f k)) (a (+ (* 1.2566f0 f) (* 0.6f0 (hash01 (+ f dr) 2.1f0)))) (ca (f-cos a)) (sa (f-sin a))
-               (l (* s (+ 1.5f0 (* 1.1f0 (hash01 (+ f dr) 4.7f0)))))
+        (let* ((f (i->f k)) (a (+ (* 1.2566f0 f) (* 0.6f0 (flow01 f 2.1f0)))) (ca (f-cos a)) (sa (f-sin a))
+               (l (* s (+ 1.5f0 (* 1.1f0 (flow01 f 4.7f0)))))
                (ox (* 0.6f0 s ca (- dirz))) (oy (* 0.6f0 s sa)) (oz (* 0.6f0 s ca dirx)))
           (declare (single-float f a ca sa l ox oy oz))
           (%tongue (+ x ox) (+ y oy) (+ z oz) (+ (* (- l) dirx) (* 0.5f0 ox)) (+ (* 0.35f0 l) (* 0.5f0 oy)) (+ (* (- l) dirz) (* 0.5f0 oz))
-                   (* 0.42f0 s) +pal-fire+ 0.95f0 (+ 40f0 (* 3f0 f) sd) (+ dr f) 0.04f0 :segs 5)))
+                   (* 0.42f0 s) +pal-fire+ 0.95f0 (+ 40f0 (* 3f0 f) sd) (+ fp f) 0.04f0 :segs 5)))
       (fx-disc x y z s 0.3f0 (+ 30f0 sd) +pal-fire+ 0.95f0 :push (* 0.5f0 s))
       (fx-disc x y z (* 0.3f0 s) 0.2f0 (+ 35f0 sd) +pal-hit+ 0.98f0 :push (* 0.6f0 s))   ; the white-hot core (was a soft sprite)
       (dotimes (i (n-of 12f0 dt))                        ; scraps
@@ -242,11 +243,12 @@ the first 2 drawings (threes) — then 6 BLACK SMOKE wisps rise off the shoulder
         (when (< ph 5)
           (when (and (< a 0.2f0) (> n 0.5f0))
             (dotimes (i 9)
-              (let* ((f (i->f i)) (an (+ (* 0.698f0 f) (* 0.3f0 (hash01 f seed)))) (hh (* (- 1f0 (* 5f0 a)) (+ 0.7f0 (* 0.6f0 (hash01 (+ f d3) seed))))))
+              (let* ((f (i->f i)) (an (+ (* 0.698f0 f) (* 0.3f0 (hash01 f seed))))   ; (the fire sinks and licks continuously, §15.7)
+                     (hh (* (- 1f0 (* 5f0 age)) (+ 0.7f0 (* 0.6f0 (flow01 f seed))))))
                 (declare (single-float f an hh))
                 (when (> hh 0.05f0)
-                  (%tongue (+ x (* 0.4f0 (f-cos an))) (+ y 0.05f0) (+ z (* 0.4f0 (f-sin an))) 0f0 hh 0f0 0.15f0 +pal-fire+ 0.9f0 (+ seed f) (+ d3 f) 0.03f0
-                           :segs 4)))))
+                  (%tongue (+ x (* 0.4f0 (f-cos an))) (+ y 0.05f0) (+ z (* 0.4f0 (f-sin an))) 0f0 hh 0f0 0.15f0 +pal-fire+ 0.9f0 (+ seed f)
+                           (+ (flow-ph) f) 0.03f0 :segs 4)))))
           (dotimes (j 6)
             (let* ((f (i->f j)) (an (+ (* 1.0472f0 f) (* 0.3f0 (hash01 f (+ seed 1f0))))) (c (f-cos an)) (sn (f-sin an))
                    (hh (* es (+ 0.5f0 (* 1.5f0 a)) (+ 0.8f0 (* 0.4f0 (hash01 (+ f d3) seed))))))

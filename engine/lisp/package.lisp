@@ -125,7 +125,7 @@
    ;; fx.lisp, the toon kit (0 B macros over the toon batch): hash, particles, rings, sectors, ribbons, ground strips,
    ;; lights, the camera's axes (WITH-CAM binds the six names its caller gives), drawings
    #:hash01 #:%t-blob #:%t-shard #:%tring #:%sector-verts #:toon-ribbon #:%tongue #:toon-ground-seg #:%light #:with-cam
-   #:drawing-no #:%away-from-eye #:%near-cam
+   #:drawing-no #:flow-ph #:flow01 #:+flow-sway+ #:+flow-lick+ #:%away-from-eye #:%near-cam
    ;; cine.lisp: the cinematic director (scripted cutscenes inside the fixed step)
    #:defcine #:cine #:*cine* #:cine-name #:cine-cf #:cine-a #:cine-v #:cine-hold #:cine-hold-frame
    #:start-cine #:end-cine #:abort-cine #:skip-cine #:cine-step #:cine-draw #:cine-cam
