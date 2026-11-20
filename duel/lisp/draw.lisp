@@ -78,6 +78,7 @@ ground): up over the first 8 f of the dash (or the dash-in), down over the strik
 
 (defparameter *hurt-cines* '(ken-kr-kikon-cine ken-zh-kikon-cine soul-break-cine
                              yama-higashi-cine yama-nishi-cine yama-minami-cine   ; (Yamamoto's Bankai, art K4: as the generic one they replace)
+                             yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine   ; (his Shikai / 爆炎, art S5: the same)
                              ko-cine)
   "The cinematics whose victim (V) shows the hurt face; their attacker (A) shouts (every cinematic's A does but the intro's,
 TIME's and the K.O.'s winner).")

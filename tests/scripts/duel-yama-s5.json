@@ -1,0 +1,542 @@
+[
+{
+"at": 8.4,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 8.95,
+"eval": "console.log('=== shikai shiranui')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(87482)"
+},
+{
+"at": 11.53,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 11.93,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b0-held.png"
+},
+{
+"at": 11.98,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 12.68,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b1-caption.png"
+},
+{
+"at": 12.73,
+"eval": "Module._debug_cmd(87627)"
+},
+{
+"at": 13.43,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b2-lights.png"
+},
+{
+"at": 13.48,
+"eval": "Module._debug_cmd(87634)"
+},
+{
+"at": 14.01,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b3-thrust.png"
+},
+{
+"at": 14.06,
+"eval": "Module._debug_cmd(87650)"
+},
+{
+"at": 14.9,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b4-columns.png"
+},
+{
+"at": 14.95,
+"eval": "Module._debug_cmd(87662)"
+},
+{
+"at": 15.65,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b5-shatter.png"
+},
+{
+"at": 15.7,
+"eval": "Module._debug_cmd(87669)"
+},
+{
+"at": 16.23,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b6-tornado.png"
+},
+{
+"at": 16.28,
+"eval": "Module._debug_cmd(87681)"
+},
+{
+"at": 16.98,
+"shot": "tests/shots/duel-yama-s5-shikai-shiranui-b7-back.png"
+},
+{
+"at": 17.03,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 17.58,
+"eval": "console.log('=== shikai ennetsu')"
+},
+{
+"at": 17.63,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 20.13,
+"eval": "Module._debug_cmd(87483)"
+},
+{
+"at": 20.16,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 20.56,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b0-held.png"
+},
+{
+"at": 20.61,
+"eval": "Module._debug_cmd(87614)"
+},
+{
+"at": 21.28,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b1-edge.png"
+},
+{
+"at": 21.33,
+"eval": "Module._debug_cmd(87631)"
+},
+{
+"at": 22.19,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b2-pattern.png"
+},
+{
+"at": 22.24,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 23.11,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b3-pillars.png"
+},
+{
+"at": 23.16,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 23.86,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b4-dome.png"
+},
+{
+"at": 23.91,
+"eval": "Module._debug_cmd(87667)"
+},
+{
+"at": 24.44,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b5-shatter.png"
+},
+{
+"at": 24.49,
+"eval": "Module._debug_cmd(87674)"
+},
+{
+"at": 25.03,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b6-inside.png"
+},
+{
+"at": 25.08,
+"eval": "Module._debug_cmd(87686)"
+},
+{
+"at": 25.78,
+"shot": "tests/shots/duel-yama-s5-shikai-ennetsu-b7-wide.png"
+},
+{
+"at": 25.83,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 26.38,
+"eval": "console.log('=== shikai nadegiri')"
+},
+{
+"at": 26.43,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 28.93,
+"eval": "Module._debug_cmd(87484)"
+},
+{
+"at": 28.96,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 29.36,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b0-held.png"
+},
+{
+"at": 29.41,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 30.11,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b1-face.png"
+},
+{
+"at": 30.16,
+"eval": "Module._debug_cmd(87624)"
+},
+{
+"at": 30.76,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b2-strike.png"
+},
+{
+"at": 30.81,
+"eval": "Module._debug_cmd(87626)"
+},
+{
+"at": 31.17,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b3-cut.png"
+},
+{
+"at": 31.22,
+"eval": "Module._debug_cmd(87627)"
+},
+{
+"at": 31.56,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b3b-out.png"
+},
+{
+"at": 31.61,
+"eval": "Module._debug_cmd(87645)"
+},
+{
+"at": 32.51,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b4-turn.png"
+},
+{
+"at": 32.56,
+"eval": "Module._debug_cmd(87655)"
+},
+{
+"at": 33.19,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b5-seam.png"
+},
+{
+"at": 33.24,
+"eval": "Module._debug_cmd(87657)"
+},
+{
+"at": 33.61,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b5b-shatter.png"
+},
+{
+"at": 33.66,
+"eval": "Module._debug_cmd(87663)"
+},
+{
+"at": 34.16,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b6-split.png"
+},
+{
+"at": 34.21,
+"eval": "Module._debug_cmd(87675)"
+},
+{
+"at": 34.91,
+"shot": "tests/shots/duel-yama-s5-shikai-nadegiri-b7-wide.png"
+},
+{
+"at": 35.26,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 35.56,
+"eval": "Module._debug_cmd(87449)"
+},
+{
+"at": 35.81,
+"eval": "console.log('=== gokuen shiranui')"
+},
+{
+"at": 35.86,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 35.91,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 38.36,
+"eval": "Module._debug_cmd(87485)"
+},
+{
+"at": 38.39,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 38.79,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b0-held.png"
+},
+{
+"at": 38.84,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 39.54,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b1-caption.png"
+},
+{
+"at": 39.59,
+"eval": "Module._debug_cmd(87627)"
+},
+{
+"at": 40.29,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b2-lights.png"
+},
+{
+"at": 40.34,
+"eval": "Module._debug_cmd(87634)"
+},
+{
+"at": 40.87,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b3-thrust.png"
+},
+{
+"at": 40.92,
+"eval": "Module._debug_cmd(87650)"
+},
+{
+"at": 41.75,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b4-columns.png"
+},
+{
+"at": 41.8,
+"eval": "Module._debug_cmd(87662)"
+},
+{
+"at": 42.5,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b5-shatter.png"
+},
+{
+"at": 42.55,
+"eval": "Module._debug_cmd(87669)"
+},
+{
+"at": 43.09,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b6-tornado.png"
+},
+{
+"at": 43.14,
+"eval": "Module._debug_cmd(87681)"
+},
+{
+"at": 43.84,
+"shot": "tests/shots/duel-yama-s5-gokuen-shiranui-b7-back.png"
+},
+{
+"at": 43.89,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 44.44,
+"eval": "console.log('=== gokuen ennetsu')"
+},
+{
+"at": 44.49,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 44.54,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 46.99,
+"eval": "Module._debug_cmd(87486)"
+},
+{
+"at": 47.02,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 47.42,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b0-held.png"
+},
+{
+"at": 47.47,
+"eval": "Module._debug_cmd(87614)"
+},
+{
+"at": 48.13,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b1-edge.png"
+},
+{
+"at": 48.18,
+"eval": "Module._debug_cmd(87631)"
+},
+{
+"at": 49.05,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b2-pattern.png"
+},
+{
+"at": 49.1,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 49.97,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b3-pillars.png"
+},
+{
+"at": 50.02,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 50.72,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b4-dome.png"
+},
+{
+"at": 50.77,
+"eval": "Module._debug_cmd(87667)"
+},
+{
+"at": 51.3,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b5-shatter.png"
+},
+{
+"at": 51.35,
+"eval": "Module._debug_cmd(87674)"
+},
+{
+"at": 51.88,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b6-inside.png"
+},
+{
+"at": 51.93,
+"eval": "Module._debug_cmd(87686)"
+},
+{
+"at": 52.63,
+"shot": "tests/shots/duel-yama-s5-gokuen-ennetsu-b7-wide.png"
+},
+{
+"at": 52.68,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 53.23,
+"eval": "console.log('=== gokuen nadegiri')"
+},
+{
+"at": 53.28,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 53.33,
+"eval": "Module._debug_cmd(87600)"
+},
+{
+"at": 55.78,
+"eval": "Module._debug_cmd(87487)"
+},
+{
+"at": 55.81,
+"eval": "Module._debug_cmd(87603)"
+},
+{
+"at": 56.21,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b0-held.png"
+},
+{
+"at": 56.26,
+"eval": "Module._debug_cmd(87615)"
+},
+{
+"at": 56.96,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b1-face.png"
+},
+{
+"at": 57.01,
+"eval": "Module._debug_cmd(87624)"
+},
+{
+"at": 57.61,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b2-strike.png"
+},
+{
+"at": 57.66,
+"eval": "Module._debug_cmd(87626)"
+},
+{
+"at": 58.03,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b3-cut.png"
+},
+{
+"at": 58.08,
+"eval": "Module._debug_cmd(87627)"
+},
+{
+"at": 58.41,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b3b-out.png"
+},
+{
+"at": 58.46,
+"eval": "Module._debug_cmd(87645)"
+},
+{
+"at": 59.36,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b4-turn.png"
+},
+{
+"at": 59.41,
+"eval": "Module._debug_cmd(87655)"
+},
+{
+"at": 60.05,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b5-seam.png"
+},
+{
+"at": 60.1,
+"eval": "Module._debug_cmd(87657)"
+},
+{
+"at": 60.46,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b5b-shatter.png"
+},
+{
+"at": 60.51,
+"eval": "Module._debug_cmd(87663)"
+},
+{
+"at": 61.01,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b6-split.png"
+},
+{
+"at": 61.06,
+"eval": "Module._debug_cmd(87675)"
+},
+{
+"at": 61.76,
+"shot": "tests/shots/duel-yama-s5-gokuen-nadegiri-b7-wide.png"
+},
+{
+"at": 62.41,
+"eval": "Module._debug_cmd(87449)"
+},
+{
+"at": 62.71,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 63.01,
+"eval": "console.log('=== END')"
+}
+]

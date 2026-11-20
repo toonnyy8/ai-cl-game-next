@@ -117,7 +117,8 @@
   :core (:ns (:ya-n1a :ya-n2a :ya-n3a) :as (:ya-as1 :ya-as2 :ya-as3) :sa :ya-sa
          :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)   ; by pointer: the blade drawn back level at the hip / the point held out at the
                                                            ;  foe / the blade stood point-down at his right front (art S2, §23)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)   ; (placeholders: the storyboards come last, §7.4)
+         :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; 不知火 / 焱熱地獄 / 撫斬 (art S5, §26; the Soul Break
+                                                                                    ;  under a pointer plays its one too)
          :as-by-press (1 2 3)
          :ns-range ((3.0 7.0) (3.0 9.0) nil)   ; the CPU casts the spiral / the stream from range under pointers 1 / 2
          :mult 1.0)
@@ -178,7 +179,7 @@
   :strings ((:ya-b-j1 :q :ya-b-j2) (:ya-b-j2 :q :ya-b-j3))
   :core (:ns (:ya-b-n1a :ya-b-n2a :ya-b-n3a) :as (:ya-b-as1 :ya-b-as2 :ya-b-as3) :sa :ya-b-sa
          :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)
-         :kikon-cines (soul-break-cine soul-break-cine soul-break-cine)
+         :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; (the Shikai's three, drawn bared: §21.8 Q2)
          :as-by-press (1 2 3)
          :ns-range ((3.0 7.0) (3.0 9.0) nil)
          :sp-free t                                   ; NS / AS free of flash-step, as in a burst (§3; KIT-SP-FREE-P)
@@ -700,15 +701,18 @@ else the marks held (MARK 1 / 12 / ... : LHUD-MARKS draws them next to the point
              (if hz (format nil "~,2f ~,2f age ~d" (hazard-x hz) (hazard-z hz) (hazard-age hz)) "-")
              (state-of *p2*) (gauges-reishi (gauges *p2*)) (fighter-dist f))))
 
-(defun yama-cine-at (name)
-  "Stills (art K4): the Bankai's Kikon cinematic NAME from frame 0, P1 Yamamoto in the Bankai 3 m from an idle Kenpachi, both set down
-mid-stage first (CINE-STAGE, as SETTLE-SOULS does); no AFTER (the round goes on). When NAME already runs, nothing (87601+k holds it)."
-  (unless (and *cine* (eq (cine-name *cine*) name))
+(defun yama-cine-at (name &optional (form :bankai))
+  "Stills (art K4): the Kikon cinematic NAME from frame 0, P1 Yamamoto in FORM (the Bankai; art S5: the Shikai :base or 爆炎 :blaze, the
+latter with heat 100 for the scars) 3 m from an idle Kenpachi, both set down mid-stage first (CINE-STAGE, as SETTLE-SOULS does); no AFTER
+(the round goes on). When NAME already runs in FORM, nothing (87601+k holds it)."
+  (unless (and *cine* (eq (cine-name *cine*) name) (eq (fighter-form (fighter *p1*)) form))
     (abort-cine) (stamps-clear)                          ; (the last one's stamps: the stills run one after another)
     (setf *cine-hold* nil)
     (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (full-gauges! *p1*) (full-gauges! *p2*)
-    (unless (eq (fighter-form (fighter *p1*)) :bankai)   ; (the stills run 87446 first: its callout gone)
-      (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
+    (unless (eq (fighter-form (fighter *p1*)) form)      ; (the K4 stills run 87446 first: its callout gone)
+      (setf (gauges-awakened (gauges *p1*)) (eq form :bankai)) (set-form *p1* form) (to-idle *p1* 0)
+      (unless (eq form :bankai) (setf *words* nil)))   ; (art S5: the form's callout left out of the stills)
+    (when (eq form :blaze) (setf (gauges-meter (gauges *p1*)) 100f0))
     (cine-stage *p1* *p2*)
     (start-cine name *p1* *p2*)))
 
@@ -765,7 +769,9 @@ nothing when it already runs); 87601-87699 the running cinematic held at frame 2
 (§22): 87416+i P1 starts NS3a / b / c or the SA (i 0-3) on its own; 87460+i the Shikai's AS segment i of AS1, AS2a / b, AS3a / b / c (0-5);
 87470+i 爆炎's segment i of NS1a-c, NS2a-c, NS3a-c, the SA (0-9; P1 in 爆炎); 87480 the top-down camera on / off (YAMA-TOPDOWN-CAM); 87481
 his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING). Art S4 (§25):
-87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean). Batch Z1 (§27): 87491-87493 a camera on P1 from his front /
+87490 P2 moved 3 m to P1's right (the off-axis victim of 爆炎's tornado lean). Art S5 (§26): 87482+i the Shikai's Kikon cinematic i
+(不知火 / 焱熱地獄 / 撫斬, 0-2) from frame 0, P1 in the Shikai, and 87485+i the same in 爆炎 (heat 100), 3 m from an idle Kenpachi, set down
+mid-stage (YAMA-CINE-AT; nothing when it already runs in that form); 87601-87699 holds them as K4's. Batch Z1 (§27): 87491-87493 a camera on P1 from his front /
 45 deg round to his right / 135 deg (three quarters behind), again: the game's camera (YAMA-ORBIT-CAM)."
   (flet ((scene (c2 dist)
            (ensure-battle :yamamoto c2)
@@ -805,6 +811,7 @@ his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing o
           ((= c 87446) (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
           ((= c 87448) (yama-look-consing))
           ((<= 87450 c 87452) (yama-cine-at (nth (- c 87450) '(yama-higashi-cine yama-nishi-cine yama-minami-cine))))   ; (art K4)
+          ((<= 87482 c 87487) (yama-cine-at (nth (mod (- c 87482) 3) *ya-s5-cines*) (if (< c 87485) :base :blaze)))   ; (art S5)
           ((<= 87601 c 87699) (when *cine* (setf (cine-hold *cine*) (* 2 (- c 87600)))))
           ((= c 87447) (log-msg "duel yamamoto switch t ~d open ~a north ~a" *match-tick* (and (core-switch-open-p *p1* (fighter *p1*)) t)
                                 (yss-north (ys *p1*))))
