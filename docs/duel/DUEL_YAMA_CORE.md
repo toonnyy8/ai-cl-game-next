@@ -2289,3 +2289,13 @@ point, its drops are faint at play distance (deviation 6).
   recovery (`ya-b-n3c`), the entry pose `ya-hellfire` (the root-yaw guard's one exemption). S5: the cinematics on 87482-87489.
 - The SA's frame 0 against its six predecessors (§18.9): 1.50-2.84 m, unchanged in kind.
 - Stance 3 has no fire (an ember on the point is the user's call).
+
+### 24.10 Merged (the lead, 2026-11-20)
+
+Merged into main as built. The lead re-ran the fast checks on the merge: host tests 4241 ALL PASS, pkgcheck as before, debug ranges 0 errors,
+build, smoke exit 0, `--cvc` II / IK / KK identical. Playtest page v457.
+**The looks gate, by its rule, failed**: the expected list (cvc-yk start, maybe w2-0) missed the two stills that changed (w1-1, 8 px; w3-0,
+2030 px). The lead read the w3-0 diff image: every changed pixel lies on his blade in stance 1, where the new corkscrew strands are, and the
+YK sim lines are identical. The cause is a mis-prediction (the CPU idles in stance 1 on those ticks), not a leak, so the lead accepts it and
+**re-bases** at this merge (BASE = a dist built here). Lesson for the next expected list: a look drawn on a stance shows on every idle tick of
+the YK match.
