@@ -1424,8 +1424,9 @@ write("yama-s4-phone", yama_s4_script(True))
 # camera (behind), the SIDE camera (2109), and P1's orbit cameras (87491 the front, 87492 45 deg, 87493 135 deg: three quarters behind,
 # Z-Q2's fade); then the 西 Kikon cinematic from the ignite on (87451, K4's holds 87600+k: f54 f62 f80 f100 f128 f146 f160 f170). 87448's
 # consing line (and the mantle's vertex count) ends the run. PHONE: the deck on (87901), stills -phone, the behind camera only.
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 110 --script tests/scripts/duel-yama-z1.json
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 60 --mobile --size 390x844 --script tests/scripts/duel-yama-z1-phone.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 82 --timeout 7200 --script tests/scripts/duel-yama-z1.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 24 --timeout 3600 --mobile --size 390x844 --script tests/scripts/duel-yama-z1-phone.json
+#   (slow under SwiftShader: the default wall timeout ended one run at virtual 79 s, after its END)
 YAMA_Z1_CAMS = (("behind", None, 87020), ("side", 2109, 87020), ("front", 87491, 87120), ("q45", 87492, 87120), ("q135", 87493, 87040))
                   # (camera, its command, the scene: P2 2 m off; 12 m for the front cameras, behind the lens; 4 m three quarters behind)
 YAMA_Z1_FLARES = (("ns2a", 87423, 20), ("ns2b", 87424, 17), ("as2b", 87432, 15))

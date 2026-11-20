@@ -2537,8 +2537,9 @@ the front layer within 0.32 m and below 1.12 m.
 Kept: the flares' molten ring on the 2.0 m edge with its white-hot first two frames, the cinematic's ring at his soles, L9's hexagon.
 
 **Z-Q2.** The solidity S = 1 + (his facing · the way to the eye) / 0.17, clamped: solid from the front round to 90 deg, hollow from 100
-deg. Measured with 87448's new line: the match camera stands 106 deg round at 2 m apart, 112 at 4 m, 141 at 12 m (always hollow); the SIDE
-camera 78 deg (solid). Hollow, the fill is a band 0.07 m (x the size) in from the outline toward the anchors, widening with S (+3 S² m, so
+deg. Measured with 87448's new line: the match camera stands 106 deg round at 2 m apart and closer (1.0 / 1.4 / 1.6 m: the same 105.8, the
+close swing's cap), 112 at 4 m, 141 at 12 m; portrait 108 deg at 1.0-2.0 m (always hollow, 6 deg of margin); the SIDE camera 78 deg
+(solid). Hollow, the fill is a band 0.07 m (x the size) in from the outline toward the anchors, widening with S (+3 S² m, so
 solid well before S = 1); the rim, the orange edge, the marks (kept near the band) and the sparks stay; the front layer's presence is x S
 (it erodes away as the camera goes round).
 
@@ -2574,6 +2575,7 @@ Stills: `tests/scripts/duel-yama-z1.json` (and `-phone`).
 | Looks gate (BASE at 76b9be01, no `--keep-base`) | 83 of 83 byte-identical, noise floor 0: as written in §27.3 |
 | 87448 consing probe | every row 0 B after the cinematic run (the mantle rows `garb`, `mantle-flare`, `mantle-throw`, `west-ignite`, `west-full`, `west-walk` ...); `fx-dropped 0`, no "(dropped)". In a fresh Bankai scene `south-dead` / `south-pile` / `south-burst` read 80 B: BASE reads the same (not the mantle) |
 | Smoke (`run.mjs --secs 8`) | exit 0 |
+| Stills runs | `duel-yama-z1-phone.json` exit 0; `duel-yama-z1.json` exit 1 from run.mjs's wall timeout at virtual 79.3 s, after its `=== END`: every still and the 87448 line were written before it (the header now passes `--timeout`) |
 
 Stills (`tests/shots/duel-yama-z1-*.png`, untracked): `stance-` / `ns2a-` / `ns2b-` / `as2b-` × `behind` (the match camera, hollow),
 `side` (SIDE camera, solid), `front` (87491), `q45`, `q135`, and `-behind-phone`; the 西 Kikon `cine-f54 f62 f80 f100 f128 f146 f160
@@ -2585,3 +2587,6 @@ Open (for the user's eyes):
 - From the match camera it is the hollow outline: on a phone it reads as a zigzag line of white and orange round him.
 - The fill is flat yellow-white; the reference whitens toward his body.
 - In the cinematic's close shots (f62, f146) it fills most of the frame.
+- At f168-180 of the 西 Kikon, after the full mantle gutters out, the stance's small mantle comes back (the stance clip is on; BASE's
+  stance tongues showed there too): extending the guard in `yama-stance-look` to the whole cinematic (`cf < 180`) would end it on the
+  gutter, as the storyboard has it.
