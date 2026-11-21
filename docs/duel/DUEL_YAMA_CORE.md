@@ -3185,3 +3185,16 @@ The user (verbatim, after v470): 「1. 火衣的肩膀的部分沒有固定在�
    distance from the root, the tips most).
 2. The 西 Kikon's walk (f66-124): the camera 30° off straight behind him on his right, at about his eye height, looking level forward
    along his walk (no high angle). The footfalls no longer shake the camera (the heat ring, the roar and the garb's steps stay).
+
+### 29.3 More tilt on the wings; the walk at 南's pace, the garb trailing, the flash behind him after three steps (the user, 2026-11-21)
+
+The user (verbatim, after v471): 「我希望肩膀火焰飄蕩的角度更傾斜。然後毀魂技走路節奏請做成跟火火十萬億死的節奏一樣，然後每走完一步就放大火焰，全身的火焰朝後方飄蕩，總共走三步後就瞬移到對手身後」
+
+1. The shoulder wings trail at a steeper angle than §29.2's (about twice the bend; in play and in the cinematic).
+2. The 西 Kikon's walk takes 南's (DAISOJIN's) pace: `:sh-walk-f` at speed 0.55 and 0.02 m a frame (a 0.9 s cycle, so about 49 f a step),
+   in real time (§29's slow motion goes: 南's walk has none). Three full steps take about 147 f against the old 58 f, so the cinematic
+   grows by about 90 f (180 → about 270 f); like every Kikon length this is sim timing (§19.2: the reset after a 西 Kikon comes about 90
+   ticks later; no gate plays it).
+3. The garb steps up when each step completes (K 1 → 1.3 → 1.6 → 2.0, as §29), and through the walk the whole garb trails back clearly (a
+   lean set by the cinematic, not only the spring's 0.02 m a frame).
+4. Right after the third step he flash-steps behind the victim (the pass, §19.1's 124 beat and everything after it, moved to follow it).
