@@ -84,10 +84,8 @@ a level gained in the route opens segments from the next route on). No hook: 99 
   (<= (getf (mv-params mv) :lv 0) (fighter-lv-cap f)))
 
 (defun core-sp-start! (e f)
-  "SP from a free state: NS under the pointer (the next segment pointer's style), or the move the kit's :ns-pick hook names instead (an
-armed 北, DUEL_YAMA_CORE §7.4: the pointer stays as it is). T when it started."
-  (let ((mv (or (let ((h (kit-hook (fighter-kit f) :ns-pick))) (and h (funcall h e f)))
-                (kit-core-move (fighter-kit f) :ns (fighter-ptr f)))))
+  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it started."
+  (let ((mv (kit-core-move (fighter-kit f) :ns (fighter-ptr f))))
     (when mv
       (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
       (core-snap-lv! e f)
@@ -145,8 +143,7 @@ T when something started."
   "May E (fighter F) switch pointer now (DUEL_SP §3, DUEL_SUBLIMATION §17.8)? SP-SWITCH-OK-P over his gauges and route: not switched yet
 (FIGHTER-TMP), a second NS route, the awakening gauge full once (AW-FULL-P), and SP above 0. Reads no brain: a human's stick, or a CPU's
 press (CORE-AI's CAI-SWITCH-PRESS decides whether a CPU presses one), reach it through the vpad alone (REFACTOR_2026-11 §11.5.7 item 6)."
-  (and (sp-switch-ok-p (gauges-fs (gauges e)) (aw-full-p (gauges e)) (plusp (fighter-tmp f)) (length (getf (kit-core (fighter-kit f)) :ns)))
-       (let ((h (kit-hook (fighter-kit f) :switch-ok))) (or (null h) (funcall h e f)))))   ; (a kit's refusal: Yamamoto's 北, DUEL_YAMA_CORE §7.4)
+  (sp-switch-ok-p (gauges-fs (gauges e)) (aw-full-p (gauges e)) (plusp (fighter-tmp f)) (length (getf (kit-core (fighter-kit f)) :ns))))
 
 (defun core-switch-target (e f)
   "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: once a route, before the awakening

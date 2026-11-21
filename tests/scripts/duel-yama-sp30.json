@@ -1,0 +1,644 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== west base garb (0.6)')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87026)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 10.0,
+"shot": "tests/shots/duel-yama-sp30-garb-base.png"
+},
+{
+"at": 10.45,
+"eval": "console.log('=== west NSa > SA > J2 > J3 (2.6 m)')"
+},
+{
+"at": 10.5,
+"eval": "Module._debug_cmd(87026)"
+},
+{
+"at": 10.55,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 10.6,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 10.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.25,
+"shot": "tests/shots/duel-yama-sp30-garb-1.png"
+},
+{
+"at": 11.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.65,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.7,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.45,
+"eval": "console.log('=== west NSa > NSb > SA > J2 > J3 (4.4 m)')"
+},
+{
+"at": 13.5,
+"eval": "Module._debug_cmd(87044)"
+},
+{
+"at": 13.55,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 13.6,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 13.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.45,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.5,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.75,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.8,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.8,
+"shot": "tests/shots/duel-yama-sp30-garb-2.png"
+},
+{
+"at": 15.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.45,
+"eval": "console.log('=== west neutral again (0.6)')"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 16.7,
+"shot": "tests/shots/duel-yama-sp30-garb-after.png"
+},
+{
+"at": 17.05,
+"eval": "console.log('=== the third mark: J1-J3 > AS3, NORTH at the next neutral')"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 17.15,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 17.2,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 17.25,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 17.3,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 17.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.65,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.7,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.9,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.95,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.56,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.58,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.85,
+"shot": "tests/shots/duel-yama-sp30-north-in.png"
+},
+{
+"at": 20.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 20.5,
+"shot": "tests/shots/duel-yama-sp30-north.png"
+},
+{
+"at": 21.05,
+"eval": "console.log('=== NORTH NS a-b-c (5 m)')"
+},
+{
+"at": 21.1,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(87444)"
+},
+{
+"at": 21.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 22.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 22.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.08,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 22.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 22.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.05,
+"eval": "console.log('=== NORTH J1 > AS (1.4 m)')"
+},
+{
+"at": 24.1,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 24.15,
+"eval": "Module._debug_cmd(87444)"
+},
+{
+"at": 24.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.05,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.11,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.13,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.55,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.56,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.61,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.63,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 27.05,
+"eval": "console.log('=== NORTH J1 > AS held: the Kikon pauses the count')"
+},
+{
+"at": 27.1,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 27.15,
+"eval": "Module._debug_cmd(87444)"
+},
+{
+"at": 27.2,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 27.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.05,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 28.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 29.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 29.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 30.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 30.1,
+"shot": "tests/shots/duel-yama-sp30-north-kikon.png"
+},
+{
+"at": 30.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 31.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 31.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 32.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 32.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 33.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 33.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 34.55,
+"eval": "console.log('=== NORTH counts on to its end')"
+},
+{
+"at": 34.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 35.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 35.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 36.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 36.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 37.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 37.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 38.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 38.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 39.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 39.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 40.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 40.6,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 41.1,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 42.1,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 42.6,
+"eval": "console.log('=== END')"
+}
+]

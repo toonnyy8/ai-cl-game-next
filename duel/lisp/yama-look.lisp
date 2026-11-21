@@ -528,16 +528,36 @@ blade's smoke thread only (YAMA-DRAW). YAW unused (kept for the callers). A look
 
 (declaim (type f32vec *ya-garb-p*))
 (defvar *ya-garb-p* (make-f32 3) "YAMA-GARB-AT's pelvis point.")
-(defun-fast yama-garb-at (jm)
+(declaim (type f32vec *ya-garb-sizes*))
+(defparameter *ya-garb-sizes* (let ((a (make-f32 3))) (setf (aref a 0) 0.6f0 (aref a 1) 1.0f0 (aref a 2) 1.4f0) a)
+  "西's garb in play by 西's charge level 0 / 1 / 2 (§30.2, the user 2026-11-21: 「縮小基礎狀態下的火衣大小」, then NSa / NSb grow it): its K
+at the base 0.6 (1.0 until §30.2), after NSa 1.0, after NSb 1.4 (YAMA-GARB-K). The 西 Kikon's sizes (§29) stay. A look.")
+(defun-fast-inline yama-garb-k (f)
+  "西's garb K now for fighter F (§30.2; *YA-GARB-SIZES* by level): through NSa level 0 -> 1 over its startup, through NSb 1 -> 2, NSc 2
+(its level baked in), else the charge his string carries (FIGHTER-CHARGE-MULT's level, YA-CHARGE-LEVEL's thresholds: 0 again at
+neutral). 0 B."
+  (let* ((mv (fighter-move f)) (nm (and mv (eq (fighter-state f) :move) (mv-name mv))) (sz *ya-garb-sizes*)
+         (cm (fighter-charge-mult f))
+         (lv (case nm
+               (:ya-e-n2a (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv))))))
+               (:ya-e-n2b (+ 1f0 (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv)))))))
+               (:ya-e-n2c 2f0)
+               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp: keep the two equal)
+    (declare (type f32vec sz) (single-float cm lv))
+    (if (<= lv 1f0)
+        (+ (aref sz 0) (* lv (- (aref sz 1) (aref sz 0))))
+        (+ (aref sz 1) (* (- lv 1f0) (- (aref sz 2) (aref sz 1)))))))
+(defun-fast yama-garb-at (jm f)
   "西's form aura (J2's follow-up, §28.4; the lead, 2026-11-21: the TYBW kit drew the garb as the West form's aura through every move):
 殘日獄衣 at K 1 on the floor under his pelvis (JM his posed joints), so it goes with him when a clip lunges (NS2c, AS2a carry the body
 about 1 m ahead of his sim position; the old form aura stayed at the sim position). YAMA-DRAW calls it every frame he is in the Bankai
-under 西, but while a flare draws it flared, while the 西 Kikon cinematic draws its own, and while his body is hidden. A look; 0 B."
+under 西, but while a flare draws it flared, while the 西 Kikon cinematic draws its own, and while his body is hidden. Its K: fighter F's
+西 charge (YAMA-GARB-K, §30.2). A look; 0 B."
   (declare (type f32vec jm))
   (let ((v *ya-garb-p*))
     (declare (type f32vec v))
     (joint-point! v jm (ji :pelvis) 0f0 0f0 0f0)
-    (ya-garb (aref v 0) (aref v 2) 1f0))
+    (ya-garb (aref v 0) (aref v 2) (yama-garb-k f)))
   nil)
 
 ;;; ---------------------------------------------------------------- art K3 (§18): the planted blade, 北's burn
@@ -1464,10 +1484,10 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
                      (cons-per "crescent" (yama-bk-moves pos yaw 8 11 0.016f0))
-                     (cons-per "garb" (yama-garb-at (model-joints (model *p1*))))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
+                     (cons-per "garb" (yama-garb-at (model-joints (model *p1*)) (fighter *p1*)))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
                      (cons-per "garb-lean" (progn (setf (aref *ya-lean* 4) 0.4f0 (aref *ya-lean* 5) 0.2f0)   ; (§29.1: the spring stepped,
                                                   (yama-lean-draw (model-joints (model *p1*)) 0)               ;  the garb bent)
-                                                  (yama-garb-at (model-joints (model *p1*)))))
+                                                  (yama-garb-at (model-joints (model *p1*)) (fighter *p1*))))
                      (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
                      (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))

@@ -17,7 +17,8 @@
   '((:kenpachi :base "Kenpachi base") (:kenpachi :nozarashi "Kenpachi Shikai (NOZARASHI)") (:kenpachi :bankai "Kenpachi Bankai")
     (:kenpachi :bankai-2 "Kenpachi Bankai-2") (:ichigo :base "Ichigo Shikai") (:ichigo :kessa "Ichigo KESSA")
     (:hisagi :base "Hisagi Shikai") (:hisagi :bankai "Hisagi Bankai, ranged") (:hisagi :bankai-bind "Hisagi Bankai, bind")
-    (:yamamoto :base "Yamamoto Shikai") (:yamamoto :bankai "Yamamoto Bankai (ZANKA NO TACHI)"))
+    (:yamamoto :base "Yamamoto Shikai") (:yamamoto :bankai "Yamamoto Bankai (ZANKA NO TACHI)")
+    (:yamamoto :north "Yamamoto 北 (TENCHI KAIJIN, DUEL_YAMA_CORE §30.4)"))
   "(character form title): every live core form, in DUEL_SP §4's order.")
 (defparameter *sct-begin* "<!-- sp-cost-table begin (generated: tools/sp-cost-table.lisp; do not edit by hand) -->")
 (defparameter *sct-end* "<!-- sp-cost-table end -->")
@@ -33,7 +34,7 @@
         (let* ((k (find-kit c f)) (core (kit-core k)) (mult (getf core :sp-cost-mult 1.0)))
           (format o "~%**~a** (`(find-kit ~(~s ~s~))`, cost multiplier ~a)~%~%| Pointer | Segments: move damage / cost | Total |~%|---|---|---|~%"
                   title c f (format nil "~,2f" mult))
-          (dolist (role '(:ns :as :ns-extra :as-extra))   ; (the extras: routes a kit hook picks, Yamamoto's 北)
+          (dolist (role '(:ns :as))
             (loop for first in (getf core role) for i from 1
                   do (let* ((segs (core-segments first))
                             (costs (mapcar (lambda (n) (kit-sp-cost k (kit-move k n))) segs)))

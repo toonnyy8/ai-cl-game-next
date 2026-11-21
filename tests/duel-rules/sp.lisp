@@ -91,8 +91,8 @@
 (defun sp-kit-costs (character form)
   "((:ns c1 c2 ..) (:as c1 c2 ..)): the route costs of a kit's :core grammar, in order."
   (let* ((k (kit character form)) (core (kit-core k)))
-    (list (cons :ns (mapcar (lambda (n) (sp-route-cost k n)) (append (getf core :ns) (getf core :ns-extra))))   ; (the extras last: 北)
-          (cons :as (mapcar (lambda (n) (sp-route-cost k n)) (append (getf core :as) (getf core :as-extra)))))))
+    (list (cons :ns (mapcar (lambda (n) (sp-route-cost k n)) (getf core :ns)))
+          (cons :as (mapcar (lambda (n) (sp-route-cost k n)) (getf core :as))))))
 ;; (character form :sp-cost-mult NS... | AS...: §4's cells, then the extra AS pointers)
 (defparameter *sp-table*
   '((:kenpachi :base 0.76 (55 55 60) (25 50 75))
@@ -105,7 +105,8 @@
     (:hisagi :bankai 1.0 (40 80) (15 55 35))
     (:hisagi :bankai-bind 1.0 (65 80) (20 50 70))
     (:yamamoto :base 1.0 (95 55 80) (20 40 80))     ; (DUEL_YAMA_CORE batch 1 stage A, 2026-11-19)
-    (:yamamoto :bankai 1.0 (110 85 65 60) (20 45 75 60))))   ; (stage C: 東 西 南, then 北's NS / AS, the :ns-extra / :as-extra)
+    (:yamamoto :bankai 1.0 (110 80 65) (20 45 75))   ; (stage C: 東 西 南; §30.2: 西's charges 10 + 10, NSc 153 -> 60)
+    (:yamamoto :north 1.0 (115) (90))))              ; (§30.4: 北's NS a-c 25 + 30 + 60, its AS 15 + 20 + 55)
 (let ((mism 0))
   (dolist (row *sp-table*)
     (destructuring-bind (c f mult ns as) row
