@@ -3305,7 +3305,7 @@ presentation). The defaults below are the plan's (D), for the user's yes before 
 
 ### 30.4 北: a 10 s state with its own moves (R4; invented, D)
 
-> Superseded in part by §31 (2026-11-22): the marks are kept at entry and cleared at its end; NS c left; the AS after J1-3 is the grip > the cut, J4's AS is AS4 天地灰尽.
+> Superseded: by §31 (2026-11-22, AS4 天地灰尽) and then wholly by §33 (2026-11-22): there is no 北 form any more.
 
 Canon gives North one technique (天地灰尽, ch. 509), so the set below is a proposal.
 
@@ -3629,3 +3629,26 @@ The user, 2026-11-22: 「另外，始解進入爆炎狀態時，NS 消耗的量�
 - Checks: host tests 4330 ALL PASS (the pure spend 8.33 / what is left / nothing for the ring, the sim's 90 -> 81.67); trials
   `yamamoto-blaze.lisp` B7 (heat 20: 8.3 + 8.2, out at the next neutral) and B7b (heat 50: 8.3 + 8.3, still in 爆炎); pkgcheck (only
   `DUEL::APP`), build, smoke exit 0; `--cvc` II / IK / KK identical (no shared file changed).
+
+## 33. No 北 form: three marks enter nothing (the user, 2026-11-22; built)
+
+The user, 2026-11-22: 「現在集齊三個方位又會跑到北的模式，請修改掉，北不再是一個獨立的指針了」.
+
+北 is now only AS4 天地灰尽 (§31). Removed: the kit `:north` (its NS 灰線 / 灰燼步, its AS grip / cut, the entry pose `:ya-n-in`, the stance
+`:ya-st-kita` pose and clip, the 600-tick meter), `ya-north-next`, `yama-north-in!` / `-tick` / `-sp` / `-tag`, `*ya-north-ticks*`,
+`*ya-north-in-frames*`, `*ya-north-keeps-marks*`, the `yss` slot `north-ptr`; the HUD's 北 seal ("ZANKA NO TACHI NORTH"), the NORTH tag and
+kit strip kind 6 (lhud-data, lhud-plate); the probe's `north` field; the SP table's 北 form (DUEL_DESIGN §5.1 regenerated). `ya-mark-add`
+returns the marks only. The marks (東 西 南) stay until AS4 spends them at his next neutral after it, so a Bankai AS4 can now carry all three
+(x1.75, 5 Konpaku). Debug: 87444 free, 87455 = AS4's third segment, 87453 / 87454 / 87456-87458 free. The §30.4 question (does 北 keep the
+marks) is moot.
+
+**Checks.**
+
+| Check | Result |
+|---|---|
+| Host tests | 4295 ALL PASS (the 北 checks out; a stand-in AS4 then neutral clears the marks, not before; no `:north` kit) |
+| Trials `yamamoto-sp30.lisp` | N1 the third mark: marks 7, still the Bankai; A1-A3b as §31; A4 three marks x1.75 (278), A5 held -5 Konpaku; `AS4 spent: marks 7 -> 0` |
+| `yamamoto-bankai.lisp` | 29 rows (C13a / C18, 北's, left) |
+| `duel-yama-sp30b.json`, `duel-yama-bankai.json` | exit 0; the third mark leaves him in the Bankai with 東 西 南 lit by the pointer (still `duel-yama-marks-3.png`); three marks J1-J4 > AS4 held: -5, `cine YAMA-TENCHI-CINE` |
+| pkgcheck, debug ranges, build, smoke | only `DUEL::APP`; 90 ranges 0 errors; built; exit 0 |
+| `--cvc` | II / IK / KK identical (33 / 28 / 27 lines) |

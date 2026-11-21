@@ -884,8 +884,8 @@ write("yama-blaze", yama_blaze_script())
 # Yamamoto's Bankai, batch 1 stage C (DUEL_YAMA_CORE "As built (batch 1 C)"; the browser path of tests/trials/yamamoto-bankai.lisp, and
 # the cinematics the native trials skip): human P1 vs an idle Kenpachi. The awakening from heat 40 (87440: the old yama-bankai-cine, a
 # still on its card), the Bankai's plate (東 西 南, heat gone), 東 NS a-b-c from 3 m, J1-J3 > AS3 (mark 南), two marks by the pointer
-# (87441 87443, a still), 北 armed (87444: the label 北 · TENCHI KAIJIN, a still), AS 北 after J1 held (the Kikon: yama-tenchi-cine, a still).
-# Read the `AWAKEN` / `ZANKA` / `MARK` / `NORTH` / `-> P2` / `KIKON` lines per `===` scene. PHONE: the same on the deck (87901), stills -phone.
+# (87441 87443, a still), all three marks then J1-J4 > AS4 held (the Kikon: yama-tenchi-cine, a still; 北's form left, DUEL_YAMA_CORE §33).
+# Read the `AWAKEN` / `ZANKA` / `MARK` / `-> P2` / `KIKON` lines per `===` scene. PHONE: the same on the deck (87901), stills -phone.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --script tests/scripts/duel-yama-bankai.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --mobile --size 390x844 --script tests/scripts/duel-yama-bankai-phone.json
 def yama_bankai_script(phone=False):
@@ -901,8 +901,8 @@ def yama_bankai_script(phone=False):
     scene("BANKAI J1-J3 AS3: mark south", (87014, 87301, 87445)); [ev.extend(tap(t + 0.3 + 0.25 * i, "KeyJ", 0.05)) for i in range(3)]
     sp(t + 1.1); sp(t + 1.4); sp(t + 1.7); t += 3.5
     scene("two marks by the pointer", (87040, 87445, 87441, 87443, 87900)); ev.append(shot(t + 0.6, "yama-marks" + sx)); t += 1.5
-    scene("NORTH armed: the label", (87444, 87900)); ev.append(shot(t + 0.6, "yama-north" + sx)); t += 1.5
-    scene("AS NORTH after J1, held: the Kikon", (87014, 87302, 87445, 87444)); ev.extend(tap(t + 0.3, "KeyJ", 0.05)); sp(t + 0.62, 1.4)
+    scene("three marks: J1-J4 > AS4 held, the Kikon", (87014, 87302, 87445, 87441, 87442, 87443))
+    [ev.extend(tap(t + 0.3 + 0.25 * i, "KeyJ", 0.05)) for i in range(4)]; sp(t + 1.4, 1.4)
     ev.append(shot(t + 2.6, "yama-tenchi-cine" + sx)); t += 6.0
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
@@ -1013,10 +1013,6 @@ YAMA_K3 = (   # scene, setup commands, presses (("j" | "sp", seconds after the s
     ("J1-J3 > AS3 a-b-c", (87014, 87301, 87445), (("j", 0), ("j", 0.25), ("j", 0.5), ("sp", 0.75), ("sp", 1.05), ("sp", 1.35)),
      ((48 + 6, "as3a-tell"), (48 + 10, "as3a-s"), (69, "as3a-end"), (69 + 7, "as3b-tell"), (69 + 10, "as3b-s"), (89, "as3b-end"),
       (89 + 6, "as3c-tell"), (89 + 12, "as3c-s"), (89 + 12 + 8 + 20, "as3c-end"))),
-    ("NORTH NS (armed)", (87060, 87302, 87445, 87444), (("sp", 0),),
-     ((8, "n4ns-gather"), (15, "n4ns-tell"), (19, "n4ns-coil"), (24, "n4ns-s"), (40, "n4ns-end"))),
-    ("J1 > NORTH AS (armed)", (87014, 87303, 87445, 87444), (("j", 0), ("sp", 0.2)),
-     ((19 + 6, "n4as-tell"), (19 + 10, "n4as-s"), (19 + 10 + 8 + 20, "n4as-end"))),
     ("SA in the west NSa gap", (87016, 87302, 87445), (("sp", 0), ("j", 0.4)),
      ((44 + 1, "sa-tell"), (44 + 6, "sa-s"), (44 + 6 + 8 + 16, "sa-end"))),
     ("west armour", (87020, 87302, 87445), (), ()),
@@ -1700,11 +1696,10 @@ def yama_sp30_script():
 write("yama-sp30", yama_sp30_script())
 
 # Yamamoto §30 (DUEL_YAMA_CORE §30.2 / §30.4, as built §30.6; the browser path of tests/trials/yamamoto-sp30.lisp, and what the native trials
-# skip: 北's Kikon cinematic). P1 in the Bankai (87446) vs an idle Kenpachi: 西 NSa > SA > J2 > J3 from 2.6 m and NSa > NSb > SA > J2 > J3
-# from 4.4 m (the `WEST charge` lines: x, reach, distance; stills of the garb at 0.6 / 1.0 / 1.4), the third mark (東 西 held, J1-J3 > AS3)
-# and 北's entry at the next neutral (stills: the entry pose, the plate's 北 bar), 北's NS a-b-c from 5 m, J1 > AS, then J1 > AS a held (the
-# Kikon: yama-tenchi-cine) with probe lines (87900) before, through and after it: 北's ticks stop while it plays; then idle until `NORTH
-# over` (the match ticks between the entry and that line = 624 + the cinematic's). 87448's consing line ends the run.
+# skip: AS4's Kikon cinematic). P1 in the Bankai (87446) vs an idle Kenpachi: 西 NSa > SA > J2 > J3 from 2.6 m and NSa > NSb > SA > J2 > J3
+# from 4.4 m (the `WEST charge` lines: x, reach, distance; stills of the garb at 0.6 / 1.0 / 1.4), the third mark (東 西 held, J1-J3 > AS3:
+# no 北 form since §33, the marks stay), then J1-J4 > AS4 held with two marks (§31: 4 Konpaku, 天地灰尽's cinematic, `AS4 spent`).
+# 87448's consing line ends the run.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 60 --script tests/scripts/duel-yama-sp30b.json
 def yama_sp30b_script():
     ev, t = [], T0
@@ -1720,17 +1715,9 @@ def yama_sp30b_script():
     scene("west NSa > NSb > SA > J2 > J3 (4.4 m)", (87044, 87302, 87445)); sp(t + 0.3); sp(t + 0.6); j(t + 0.95); j(t + 1.25); j(t + 1.5)
     ev.append(shot(t + 1.3, "yama-sp30-garb-2")); t += 3.0
     scene("west neutral again (0.6)", (87900,)); ev.append(shot(t + 0.2, "yama-sp30-garb-after")); t += 0.6
-    scene("the third mark: J1-J3 > AS3, NORTH at the next neutral", (87014, 87301, 87445, 87441, 87442))
+    scene("the third mark: J1-J3 > AS3, the marks stay (no 北 form)", (87014, 87301, 87445, 87441, 87442))
     [j(t + 0.3 + 0.25 * i) for i in range(3)]; sp(t + 1.1); sp(t + 1.4); sp(t + 1.7)
-    ev.append(cmd(t + 3.0, 87900)); ev.append(shot(t + 2.75, "yama-sp30-north-in")); ev.append(shot(t + 3.4, "yama-sp30-north")); t += 4.0
-    scene("NORTH NS a-b (5 m)", (87050, 87444)); sp(t + 0.6); sp(t + 0.9); t += 3.0
-    scene("NORTH J1 > AS (1.4 m)", (87014, 87444)); j(t + 0.6); sp(t + 0.95); sp(t + 1.2); sp(t + 1.45); t += 3.0
-    scene("NORTH J1 > AS held: the Kikon pauses the count", (87014, 87444, 87900)); j(t + 0.6); sp(t + 0.95, 1.4)
-    for k in range(12): ev.append(cmd(t + 1.0 + 0.5 * k, 87900))
-    ev.append(shot(t + 3.0, "yama-sp30-north-kikon")); t += 7.5
-    scene("NORTH counts on to its end", ())
-    for k in range(14): ev.append(cmd(t + 0.5 * k, 87900))
-    t += 7.5
+    ev.append(cmd(t + 3.0, 87900)); ev.append(shot(t + 3.1, "yama-marks-3")); t += 4.0
     # §31 (2026-11-22): J4 > AS4 天地灰尽, held into its own Kikon; 東 西 held: 4 Konpaku, then neutral clears the marks
     scene("AS4: Bankai J1-J4 > AS4 held, 2 marks", (87014, 87446, 87302, 87445, 87441, 87442))
     [j(t + 0.3 + 0.25 * i) for i in range(4)]; sp(t + 1.4, 1.4)

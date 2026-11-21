@@ -344,28 +344,27 @@ CY. Nothing for any other kit."
   "Yamamoto's heat strip (DUEL_YAMA_CORE §3; the precedents' lesson: the state, its drain and the floor at a glance): kind 4 the Shikai's
 炎 and the heat bar (0-100, ticks at each NS segment's 25, the boost it buys; white at the top: 爆炎 at his next neutral), kind 5 爆炎's
 爆炎 and the same bar white-hot, draining (its decay), then the Reishi drain's word: -2%/s, or MIN 1 pulsing once the drain is held at its
-floor (V o+21 = 2); kind 6 北's 北 and its ticks left as the same bar in ash white, draining, no ticks, no word (§30.4). *LHUD-A*: x (the
+floor (V o+21 = 2) (kind 6, 北's ticks, left with the 北 form: DUEL_YAMA_CORE §33). *LHUD-A*: x (the
 start edge), the strip's centre y, u. MIR: from the right."
   (declare (fixnum side))
   (let* ((a *lhud-a*) (x (aref a 0)) (cy (aref a 1)) (u (aref a 2)) (now (aref *ui-clock* 0)) (o (side-o side))
-         (blaze (= (side-c side 8) 5)) (north (= (side-c side 8) 6)) (v (max 0 (hv (+ o 15)))) (mx (max 1 (hv (+ o 16)))) (k (f-min 1f0 (/ (i->f v) (i->f mx))))
+         (blaze (= (side-c side 8) 5)) (v (max 0 (hv (+ o 15)))) (mx (max 1 (hv (+ o 16)))) (k (f-min 1f0 (/ (i->f v) (i->f mx))))
          (dir (if mir -1f0 1f0)) (kz (* 1.15f0 u)) (bw (* 6.5f0 u)) (bh (* 0.55f0 u)) (by (- cy (* 0.5f0 bh)))
-         (kn (cond (north (kj "北")) (blaze (kj "爆炎")) (t (kj "炎")))) (kw (text-w kn +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0)))
+         (kn (if blaze (kj "爆炎") (kj "炎"))) (kw (text-w kn +f-kanji+ kz)) (ky (+ (- cy (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0)))
          (pulse (- 0.5f0 (* 0.5f0 (f-cos (* 7.854f0 now))))))
     (declare (single-float x cy u now k dir kz bw bh by kw ky pulse) (fixnum o v mx) (type f32vec a))
     (paint-pen! (f-floor+ (if mir (- x kw) x)) (+ (f-floor+ ky) (lay-dpr)) kz) (paint-text kn +f-kanji+ +c-shade+)
-    (paint-pen! (f-floor+ (if mir (- x kw) x)) (f-floor+ ky) kz) (paint-text kn +f-kanji+ (if (or blaze north) +c-heat-hot+ +c-burst-o+))
+    (paint-pen! (f-floor+ (if mir (- x kw) x)) (f-floor+ ky) kz) (paint-text kn +f-kanji+ (if blaze +c-heat-hot+ +c-burst-o+))
     (setf x (+ x (* dir (+ kw (* 0.7f0 u)))))
     (let ((bx (if mir (- x bw) x)))
       (declare (single-float bx))
       (paint-rect bx by bw bh +c-cell+)
       (when (> k 0.001f0)
         (paint-rect (if mir (+ bx (* bw (- 1f0 k))) bx) by (* bw k) bh
-                    (cond (north +c-heat-hot+)
-                          (blaze (col-mix! *lhud-mix* +c-burst-o+ +c-heat-hot+ (+ 0.5f0 (* 0.5f0 k))))
+                    (cond (blaze (col-mix! *lhud-mix* +c-burst-o+ +c-heat-hot+ (+ 0.5f0 (* 0.5f0 k))))
                           ((>= v mx) (col-mix! *lhud-mix* +c-burst-o+ +c-white+ (* 0.6f0 pulse)))
                           (t +c-burst-o+))))
-      (unless (or blaze north)                              ; the NS segment's price: a tick each 25
+      (unless blaze                                         ; the NS segment's price: a tick each 25
         (dotimes (i 3)
           (paint-rect (- (+ bx (* bw 0.25f0 (i->f (1+ i)))) (* 0.5f0 (lay-dpr))) by (lay-dpr) bh +c-ink+))))
     (when blaze                                             ; the Reishi drain, and its floor
@@ -382,7 +381,7 @@ start edge), the strip's centre y, u. MIR: from the right."
 the right); Yamamoto's heat (kinds 4 / 5: LHUD-HEAT). *LHUD-A*: x (the start edge), the strip's centre y, u. (NOME's cups went with the
 cups, DUEL_KEN_V3 §8: not drawn.)"
   (declare (fixnum side))
-  (when (member (side-c side 8) '(4 5 6)) (return-from lhud-kit (lhud-heat side mir)))
+  (when (member (side-c side 8) '(4 5)) (return-from lhud-kit (lhud-heat side mir)))
   (let* ((a *lhud-a*) (x0 (aref a 0)) (cy (aref a 1)) (u (aref a 2)) (now (aref *ui-clock* 0)) (o (side-o side))
          (kind (side-c side 8)) (v (max 0 (hv (+ o 15)))) (mx (max 1 (hv (+ o 16)))) (top (>= v mx)) (pts *lhud-pts*)
          (dir (if mir -1f0 1f0)) (x x0) (kz (* 1.15f0 u)) (pw (* 2.4f0 u)) (ph (* 1.5f0 u)))

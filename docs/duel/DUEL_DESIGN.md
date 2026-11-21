@@ -502,14 +502,6 @@ route totals and fails first).
 | AS3 | YA-E-AS3 40 / 15, YA-E-AS3B 50 / 20, YA-E-AS3C 100 / 40 | 75 |
 | AS4 | YA-E-AS4A 40 / 15, YA-E-AS4B 50 / 20, YA-E-AS4C 60 / 25, YA-E-AS4 140 / 55 | 115 |
 
-**Yamamoto 北 (TENCHI KAIJIN, DUEL_YAMA_CORE §30.4)** (`(find-kit :yamamoto :north)`, cost multiplier 1.00)
-
-| Pointer | Segments: move damage / cost | Total |
-|---|---|---|
-| NS1 | YA-N-N1A 60 / 25, YA-N-N1B 70 / 30 | 55 |
-| AS1 | YA-N-AS 40 / 15, YA-N-AS2 50 / 20 | 35 |
-| AS2 | YA-E-AS4A 40 / 15, YA-E-AS4B 50 / 20, YA-E-AS4C 60 / 25, YA-E-AS4 140 / 55 | 115 |
-
 <!-- sp-cost-table end -->
 
 ## 6. Characters

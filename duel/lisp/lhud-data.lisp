@@ -20,10 +20,9 @@
   ;; FULL the intro's vertical name column (hud.js full; its display tier: lhud-charset.lisp's bigkj)
   (vector (list "YAMAMOTO" (kj "山本")
                 (list (list (kj "火") (zh "不知火 · SHIRANUI")) (list (kj "城") (zh "城郭炎上 · JOKAKU ENJO")) (list (kj "撫") (zh "撫斬 · NADEGIRI")))
-                ;; the Bankai's 東 / 西 / 南 (§7.3, stage C); NORTH (the tag in 北, the form :north, §30.4): its one pointer 北 · TENCHI KAIJIN
+                ;; the Bankai's 東 / 西 / 南 (§7.3, stage C; 北's form and its seal left, DUEL_YAMA_CORE §33)
                 (list (list "ZANKA NO TACHI" (list (kj "東") (zh "東 · KYOKUJITSUJIN")) (list (kj "西") (zh "西 · ZANJITSU GOKUI"))
-                            (list (kj "南") (zh "南 · DAISOJIN")))
-                      (list "ZANKA NO TACHI NORTH" (list (kj "北") (zh "北 · TENCHI KAIJIN"))))
+                            (list (kj "南") (zh "南 · DAISOJIN"))))
                 (kj "山本元柳斎重國"))   ; (his Shikai's pointers, DUEL_YAMA_CORE §7.1; batch 1, 2026-11-19)
           (list "KENPACHI" (kj "更木")
                 (list (list (kj "拖") (zh "拖 · DRAG")) (list (kj "肩") (zh "肩 · SHOULDER")) (list (kj "構") (zh "構 · CHUDAN")))
@@ -108,7 +107,7 @@ sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / 
                       ((string= tg "KAZESHINI OUT") (list (cons (zh "風死") nil) (cons " · " t) (cons "THROWN" nil)))
                       ((string= tg "KAZESHINI ...") (list (cons (zh "風死") nil) (cons " · " t) (cons "RETURNING" nil)))
                       (n (list (cons (zh "分身") nil) (cons " · " t) (cons (format nil (zh "×~d") n) nil)))
-                      ((member tg '("NOME" "UDE" "KAIHO" "HEAT" "GOKUEN" "NORTH" "") :test #'string=) nil)
+                      ((member tg '("NOME" "UDE" "KAIHO" "HEAT" "GOKUEN" "") :test #'string=) nil)
                       ((lhud-mark-tag-p tg) nil)                           ; (Yamamoto's marks: drawn by the pointer, LHUD-MARKS)
                       (t (list (cons (string-upcase tg) nil)))))
            (out (if kin (append out (when out (list (cons " · " t))) (list (cons (zh "近") nil))) out)))   ; (one glyph: the phone's plate, §29)
@@ -121,16 +120,14 @@ sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / 
   (and (> (length tag) 5) (string= "MARK " tag :end2 5)))
 
 (defun lhud-marks (tag)
-  "The marks drawn next to the pointer by the tag (DUEL_YAMA_CORE §4: Yamamoto's Bankai): \"MARK 13\" -> (東 南); else NIL (in 北, the tag
-NORTH, the marks are cleared: §30.4)."
+  "The marks drawn next to the pointer by the tag (DUEL_YAMA_CORE §4: Yamamoto's Bankai): \"MARK 13\" -> (東 南); else NIL."
   (let ((tg (or tag "")) (k (list (kj "東") (kj "西") (kj "南"))))
     (when (lhud-mark-tag-p tg) (loop for i from 1 to 3 when (find (digit-char i) tg :start 5) collect (nth (1- i) k)))))
 
 (defun lhud-kit-kind (tag)
   "The kit strip under the bar by the tag (DUEL_WEBUI §13): 1 NOME, 2 UDE, 3 KAIHO, 4 Yamamoto's HEAT, 5 his 爆炎 GOKUEN (DUEL_YAMA_CORE §3),
-6 his 北 NORTH (the ticks left, §30.4), 0 none."
-  (cond ((equal tag "NOME") 1) ((equal tag "UDE") 2) ((equal tag "KAIHO") 3) ((equal tag "HEAT") 4) ((equal tag "GOKUEN") 5)
-        ((equal tag "NORTH") 6) (t 0)))
+0 none (6, his 北's ticks, left with the 北 form: §33)."
+  (cond ((equal tag "NOME") 1) ((equal tag "UDE") 2) ((equal tag "KAIHO") 3) ((equal tag "HEAT") 4) ((equal tag "GOKUEN") 5) (t 0)))
 
 ;;; ---------------------------------------------------------------- the overlays' tables (DUEL_LISP_HUD §14: hud.js CRY, PAUSE)
 (defparameter *lhud-cry* (list (cons "KARE, KAZESHINI" (zh "刈れ")) (cons "ZANGETSU" (zh "斬月")))

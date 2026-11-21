@@ -251,11 +251,11 @@
       (loop for nx = (kit-next k (mv-name x) :q) while (and nx (< n 9)) do (setf x nx) (incf n))
       (check (and (= n 5) (eq (mv-name x) :hs-j3) (member :ender (mv-flags x)))))))
 ;; §28.4 (generic, off for every other kit): an AS writes its pointer unless the kit's :as-writes says none; a :no-kikon segment
-;; holds into no Kikon; only Hisagi's Bankai has :as-writes or a :no-kikon segment (and Yamamoto's Bankai / 北: AS4, DUEL_YAMA_CORE §31)
+;; holds into no Kikon; only Hisagi's Bankai has :as-writes or a :no-kikon segment (and Yamamoto's Bankai: AS4, DUEL_YAMA_CORE §31)
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
              always (loop for (f . k) in alist
                           always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
-                                     (and (eq c :yamamoto) (member f '(:bankai :north)))   ; (AS4 writes no pointer: DUEL_YAMA_CORE §31)
+                                     (and (eq c :yamamoto) (eq f :bankai))   ; (AS4 writes no pointer: DUEL_YAMA_CORE §31)
                                      (and (eq c :kenpachi) (member f '(:bankai :bankai-2)))   ; (V3's Bankai: one pointer, every AS keeps it, §26)
                                      (and (eq c :kenpachi) (eq f :nozarashi) (null (getf (kit-core k) :as-writes))   ; (its Bankai
                                           (equal (remove-if-not (lambda (n) (getf (mv-params (find-move n)) :no-kikon))  ;  burst AS

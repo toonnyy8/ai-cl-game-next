@@ -132,8 +132,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
           (format t "yamamoto bankai FK (move, drawn tip, volume end, delta):~%")
           (dolist (n '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-as1 :ya-e-n2c :ya-e-as2 :ya-e-as2b   ; (NS2a / NS2b hit
                        :ya-e-as4 :ya-e-sa :ya-e-ns-strike))                                                              ;  nothing since §30.2)
-            (multiple-value-bind (art edge) (let ((k (if (gethash n (kit-moves k)) k (find-kit :yamamoto :north))))   ; (北's: §30.4)
-                                              (ya-tip k (kit-move k n) (and (member n hand) :hand)))
+            (multiple-value-bind (art edge) (ya-tip k (kit-move k n) (and (member n hand) :hand))
               (let* ((d (- art edge)) (ok (and (<= d 0.15) (or (>= d -0.15) (member n one-sided)))))
                 (format t "  ~a ~(~a~)~:[~; (hand)~] | ~,2f | ~,2f | ~,2@f~:[~; (known off)~]~%" (if ok "ok " "OFF") n (member n hand) art edge d
                         (member n known-off))
@@ -154,7 +153,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                        (:ya-e-n2b 14 :hand "the arms open low" ,(lambda (x y a) (declare (ignore a)) (and (>= x 0.5) (<= y 1.2))))
                        (:ya-e-as2b 12 :hand "the hand opened upward" ,(lambda (x y a) (declare (ignore x a)) (>= y 1.7)))))
             (destructuring-bind (n sf what desc test) c
-              (let* ((k (if (gethash n (kit-moves k)) k (find-kit :yamamoto :north))) (mv (kit-move k n)))   ; (北's in 北: §30.4)
+              (let* ((mv (kit-move k n)))
                 (ya-pose k (kit-move-clip k (mv-clip mv)) sf (mv-clip-speed mv))
                 (case what
                   (:tip (ya-wtip k))

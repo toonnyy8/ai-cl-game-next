@@ -260,7 +260,7 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
   "KIT-HOOK :pose: the hem's swing on the posed joints (%YA-HEM-POSE; none in the Bankai's robe)."
   (let ((f (fighter e)))
     (%ya-hem-pose (model-joints m) *ya-hem* (* 16 (fighter-side f))
-                  (if (member (kit-form (fighter-kit f)) '(:bankai :north)) 0 1))))   ; (北, §30.4: the Bankai's dress)
+                  (if (eq (kit-form (fighter-kit f)) :bankai) 0 1))))
 
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
@@ -283,16 +283,16 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
                (not (and mv (let ((c (yama-bk-code mv)))                                  ;  Kikon draws its own
                               (and (<= 4 c 6) (yama-bk-flare-p c (fighter-sf f)))))))
       (yama-garb-at (model-joints m) f))   ; (its size by 西's charge: YAMA-GARB-K, §30.2)
-    (when (and mv (member (kit-form (fighter-kit f)) '(:bankai :north)))
+    (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
         (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt))))
       (when (and (eq (mv-name mv) :ya-e-as4) (eq (fighter-phase f) :main) (<= (fighter-sf f) 20) (model-weapon m))   ; 天地灰尽's burn (art K3; AS4's last since §31)
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) *ya-tip*)
         (body-weapon-base (model-body m) (model-weapon m) (model-joints m) *ya-base*)
         (%ya-blade-burn *ya-tip* *ya-base* (fighter-sf f))))
-    (when (and (null mv) (member (kit-form (fighter-kit f)) '(:bankai :north)) (> (model-alpha m) 0.5))   ; 南's cracks (art K2)
+    (when (and (null mv) (eq (kit-form (fighter-kit f)) :bankai) (> (model-alpha m) 0.5))   ; 南's cracks (art K2)
       (yama-stance-look (pos-of e) (yaw-of e) (model-anim m)))
-    (unless (member (kit-form (fighter-kit f)) '(:bankai :north))   ; the Shikai / 爆炎 (art S1, DUEL_YAMA_CORE §22): SL0 the blade's fire, SL7-SL9
+    (unless (eq (kit-form (fighter-kit f)) :bankai)   ; the Shikai / 爆炎 (art S1, DUEL_YAMA_CORE §22): SL0 the blade's fire, SL7-SL9
       (let* ((main (and mv (eq (fighter-phase f) :main))) (ti (ya-sk-tier e f mv)) (jm (model-joints m))
              (blaze (eq (kit-form (fighter-kit f)) :blaze)) (c (anim-clip (model-anim m))))
         (when (and blaze (> (model-alpha m) 0.5))         ; 爆炎's scars by heat (art S4)
@@ -328,7 +328,7 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
                         (%ya-fist-fire *ya-tip* (yaw-of e) (fighter-sf f))))
             (:ya-b-n2b (when (<= 12 (fighter-sf f) 15) (yama-ring-close e (fighter-sf f))))))))
     (when *ya-footprints* (yama-footprints e))           ; (debug 87481: the sim footprints outlined, art S1's top-down stills)
-    (when (and (member (kit-form (fighter-kit f)) '(:bankai :north)) (model-weapon m) (> (model-alpha m) 0.5)
+    (when (and (eq (kit-form (fighter-kit f)) :bankai) (model-weapon m) (> (model-alpha m) 0.5)
                (not (planted-spot e f mv)))                 ; (no smoke from a blade left in the plaza)
       (let ((tp *ya-tip*))
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) tp)
@@ -1581,12 +1581,6 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
   (:arm-r :flex 0 :side 130) (:elbow-r :flex 140) (:hand-r :twist 50 :flex -60))             ; the blade vertical, point down
 (defclip :ya-st-minami (2.4 :loop t :base :ya-st-minami)
   (0) (1.2 (:root :u 0.01) (:head :flex 8) (:arm-r :side 128)))
-(defpose :ya-st-kita (:base :ya-e-stance)             ; 北 (§30.4, the user 2026-11-21: 「北的架式改成刀放在左側預備揮出的樣子」): the blade
-  (:root :yaw 14 :u -0.06) (:spine :flex 8) (:chest :twist 26)   ;  carried low at his left, cocked to swing out (J2's first frame,
-  (:arm-r :flex 40 :side -30) (:elbow-r :flex 30) (:hand-r :twist 10 :flex -110)   ;  :YA-E-Q2-FROM, without the lunge; a placeholder:
-  (:arm-l :flex -20 :side 20) (:knees :flex 14))                 ;  art later)
-(defclip :ya-st-kita (2.4 :loop t :base :ya-st-kita)
-  (0) (1.2 (:chest :twist 28) (:root :u -0.07)))
 
 ;; E1 J1 HIZASHI: a deep fencer's lunge (the right foot far forward, the rear leg straight), a level cut at face height
 ;; right to left; at S the blade crosses his centre line 1.5 m ahead (tip ahead 1.52). Art K2 (DUEL_YAMA_CORE §17): keyed at the move's

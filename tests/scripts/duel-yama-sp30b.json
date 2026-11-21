@@ -197,7 +197,7 @@
 },
 {
 "at": 17.05,
-"eval": "console.log('=== the third mark: J1-J3 > AS3, NORTH at the next neutral')"
+"eval": "console.log('=== the third mark: J1-J3 > AS3, the marks stay (no \u5317 form)')"
 },
 {
 "at": 17.1,
@@ -310,439 +310,143 @@
 "down": false
 },
 {
-"at": 19.85,
-"shot": "tests/shots/duel-yama-sp30-north-in.png"
-},
-{
 "at": 20.1,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 20.5,
-"shot": "tests/shots/duel-yama-sp30-north.png"
+"at": 20.2,
+"shot": "tests/shots/duel-yama-marks-3.png"
 },
 {
 "at": 21.05,
-"eval": "console.log('=== NORTH NS a-b (5 m)')"
-},
-{
-"at": 21.1,
-"eval": "Module._debug_cmd(87050)"
-},
-{
-"at": 21.15,
-"eval": "Module._debug_cmd(87444)"
-},
-{
-"at": 21.7,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 21.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 21.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 21.78,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 22.0,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 22.01,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.06,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.08,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 24.05,
-"eval": "console.log('=== NORTH J1 > AS (1.4 m)')"
-},
-{
-"at": 24.1,
-"eval": "Module._debug_cmd(87014)"
-},
-{
-"at": 24.15,
-"eval": "Module._debug_cmd(87444)"
-},
-{
-"at": 24.7,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 24.75,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 25.05,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 25.06,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 25.11,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 25.13,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 25.3,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 25.31,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 25.36,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 25.38,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 25.55,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 25.56,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 25.61,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 25.63,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 27.05,
-"eval": "console.log('=== NORTH J1 > AS held: the Kikon pauses the count')"
-},
-{
-"at": 27.1,
-"eval": "Module._debug_cmd(87014)"
-},
-{
-"at": 27.15,
-"eval": "Module._debug_cmd(87444)"
-},
-{
-"at": 27.2,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 27.7,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 27.75,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 28.05,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 28.06,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 28.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 28.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 29.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 29.46,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 29.48,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 29.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 30.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 30.1,
-"shot": "tests/shots/duel-yama-sp30-north-kikon.png"
-},
-{
-"at": 30.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 31.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 31.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 32.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 32.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 33.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 33.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 34.55,
-"eval": "console.log('=== NORTH counts on to its end')"
-},
-{
-"at": 34.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 35.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 35.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 36.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 36.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 37.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 37.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 38.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 38.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 39.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 39.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 40.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 40.6,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 41.1,
-"eval": "Module._debug_cmd(87900)"
-},
-{
-"at": 42.05,
 "eval": "console.log('=== AS4: Bankai J1-J4 > AS4 held, 2 marks')"
 },
 {
-"at": 42.1,
+"at": 21.1,
 "eval": "Module._debug_cmd(87014)"
 },
 {
-"at": 42.15,
+"at": 21.15,
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 42.2,
+"at": 21.2,
 "eval": "Module._debug_cmd(87302)"
 },
 {
-"at": 42.25,
+"at": 21.25,
 "eval": "Module._debug_cmd(87445)"
 },
 {
-"at": 42.3,
+"at": 21.3,
 "eval": "Module._debug_cmd(87441)"
 },
 {
-"at": 42.35,
+"at": 21.35,
 "eval": "Module._debug_cmd(87442)"
 },
 {
-"at": 42.4,
+"at": 21.4,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 42.45,
+"at": 21.45,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 42.65,
+"at": 21.65,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 42.7,
+"at": 21.7,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 42.9,
+"at": 21.9,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 42.95,
+"at": 21.95,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 43.15,
+"at": 22.15,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 43.2,
+"at": 22.2,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 43.5,
+"at": 22.5,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 43.51,
+"at": 22.51,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 43.6,
+"at": 22.6,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 44.1,
+"at": 23.1,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 44.6,
+"at": 23.6,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 44.91,
+"at": 23.91,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 44.93,
+"at": 23.93,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 45.1,
+"at": 24.1,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 45.3,
+"at": 24.3,
 "shot": "tests/shots/duel-yama-as4-kikon.png"
 },
 {
-"at": 45.6,
+"at": 24.6,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 46.1,
+"at": 25.1,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 46.6,
+"at": 25.6,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 47.1,
+"at": 26.1,
 "eval": "Module._debug_cmd(87900)"
 },
 {
-"at": 49.1,
+"at": 28.1,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 49.6,
+"at": 28.6,
 "eval": "console.log('=== END')"
 }
 ]
