@@ -3167,3 +3167,11 @@ Length 180 f and `:hold 140` stay, so no sim tick moves (presentation only, §19
 | 52-66 | side-on, the pair, wide | f52 what is left of the weapon falls (as built); the victim leaps back to about 4 m, weaponless, off balance; Yamamoto does not move, the garb at the stance's size | a whoosh, the sizzle |
 | 66-124 | diagonally behind him (about 150° off his front, above his shoulder, the victim visible past him), tracking him | `cine-slow` over the walk; three slow dragging steps (the footfalls about f74 / f92 / f110), the victim backing off, cowering; at each footfall the garb steps up in size (stance → 3 stages, the last at least the play flare's peak, K 1.9), a heat ring at the foot, a molten footprint; caption 残日獄衣 at the first footfall | the footfall, a heat roar that grows each step, the shake growing (about 0.1 / 0.2 / 0.3) |
 | 124-180 | as §19.1 | the pass, the column, the Konpaku, the wide | as §19.1 |
+
+### 29.1 The garb trails behind him as he walks (the user, 2026-11-21)
+
+The user (verbatim): 「請讓火衣在行走時會向反方向自然飄蕩」
+
+The lead's reading: whenever he moves under 西 (play: walking, stepping, the NS2 advance; the 西 Kikon's walk), the garb's tongues and
+wings lean away from his direction of travel, more with speed, and settle back upright with a soft lag and a small overshoot when he stops
+(a damped spring on his drawn velocity, cosmetic state only, 0 B). The sim is untouched; the looks gate's 西 stills may change.
