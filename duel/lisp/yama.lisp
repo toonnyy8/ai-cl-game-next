@@ -755,7 +755,8 @@ c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBAC
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
 the planted blade, 北's burn, the :planted hook; art K4: the three Kikon cinematics' looks). Art K4 (§19): 87450+i the Bankai's Kikon
 cinematic i (東 / 西 / 南, 0-2) from frame 0, P1 in the Bankai 3 m from an idle Kenpachi, set down mid-stage as a Kikon is (YAMA-CINE-AT;
-nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills). Art S1
+nothing when it already runs); 87601-87699 the running cinematic held at frame 2 x (c - 87600) (it runs on to it: the stills), 87910-87999 at 2 x (c - 87810)
+(frames 200-378: the 西 Kikon is 272 f since §29.3). Art S1
 (§22): 87416+i P1 starts NS3a / b / c or the SA (i 0-3) on its own; 87460+i the Shikai's AS segment i of AS1, AS2a / b, AS3a / b / c (0-5);
 87470+i 爆炎's segment i of NS1a-c, NS2a-c, NS3a-c, the SA (0-9; P1 in 爆炎); 87480 the top-down camera on / off (YAMA-TOPDOWN-CAM); 87481
 his hazards' footprints outlined on / off (YAMA-FOOTPRINTS); 87449 the consing of every Shikai look (YAMA-SHIKAI-CONSING). Art S4 (§25):
@@ -802,6 +803,7 @@ its mantle, left with the mantle: batch J2, §28.)"
           ((<= 87450 c 87452) (yama-cine-at (nth (- c 87450) '(yama-higashi-cine yama-nishi-cine yama-minami-cine))))   ; (art K4)
           ((<= 87482 c 87487) (yama-cine-at (nth (mod (- c 87482) 3) *ya-s5-cines*) (if (< c 87485) :base :blaze)))   ; (art S5)
           ((<= 87601 c 87699) (when *cine* (setf (cine-hold *cine*) (* 2 (- c 87600)))))
+          ((<= 87910 c 87999) (when *cine* (setf (cine-hold *cine*) (* 2 (- c 87810)))))   ; (frames 200-378: the 西 Kikon's 272 f, §29.3)
           ((= c 87447) (log-msg "duel yamamoto switch t ~d open ~a north ~a" *match-tick* (and (core-switch-open-p *p1* (fighter *p1*)) t)
                                 (yss-north (ys *p1*))))
           ((<= 87500 c 87600) (setf (gauges-meter (gauges *p1*)) (f32 (- c 87500))))
