@@ -180,14 +180,14 @@ each snapped in over 2 frames with a 0.15 overshoot fading over 6: a jump per st
 
 (defun-fast-inline yama-nishi-lean (c)
   "西's garb trailing on the walk (§29.3: 「全身的火焰朝後方飄蕩」): the lean the cinematic sets (the tips' trail per metre, as *YA-LEAN*'s)
-at frame C: 0 before f66, eased in to the 25 deg cap (0.466, §29.4; 0.48 before) by f90, held to the flash (f216); the play spring alone would give 0.11 at 0.02 m a frame.
+at frame C: 0 before f66, eased in to 1 (70 deg off upright, GARB-TILT-ANGLE, §29.5; 0.466 and 0.48 before) by f90, held to the flash (f216).
 Pure; 0 B."
   (declare (single-float c))
   (if (or (< c 66f0) (>= c 216f0))
       0f0
       (let ((u (f-clamp (/ (- c 66f0) 24f0) 0f0 1f0)))
         (declare (single-float u))
-        (* 0.466f0 u u (- 3f0 (* 2f0 u))))))
+        (* u u (- 3f0 (* 2f0 u))))))
 
 (defun-fast yama-nishi-look (a v cf)
   "西's look at cinematic frame CF: f40-52 the victim's weapon turning to ash from the tip toward the hilt (§15.3.4 flag 4: ash drawn over

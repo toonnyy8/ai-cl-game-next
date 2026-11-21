@@ -99,6 +99,29 @@ end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width,
     nil))
 
 ;;; ---------------------------------------------------------------- auras
+;;; 殘日獄衣's trailing tilt (DUEL_YAMA_CORE §29.5, the user 2026-11-21: 「是以水平算 25° 所以是最少要傾斜 65°」): every part turns about its
+;;; root, its upright direction toward the downwind (DX DZ, unit) by the angle whose cos / sin are TC TS (GARB-TILT-ANGLE), its length kept,
+;;; then curls: the root side lower, the tip licking up (KB x its length x u^2, FX-RIBBON :BEND), the root-to-tip chord still at the angle.
+(defun-fast-inline garb-tilt-angle (m)
+  "The garb's tilt from upright (radians) for a spring lean of size M (0 upright, 1 a walk or faster): 70 deg x M, at most 77 deg
+(a tongue's root side reaches about the floor's plane there). A steady walk: 70 deg, 20 deg above the horizontal (the user: at least 65).
+Pure; 0 B."
+  (declare (single-float m))
+  (* 1.2217305f0 (f-min m 1.1f0)))
+
+(defmacro with-garb-tilt ((ax ay az bx by bz) (vx vy vz) (dx dz tc ts kb) &body body)
+  "Bind AX AY AZ (the axis to draw) and BX BY BZ (its :BEND) for a part whose upright axis is (VX VY VZ), tilted as the comment above
+says: the axis turned about (DZ 0 -DX) by the angle (Rodrigues), less the curl, so the tip lands where the turned axis ends. 0 B."
+  (let ((x (gensym)) (y (gensym)) (z (gensym)) (kv (gensym)) (l (gensym)) (u (gensym)) (cx (gensym)) (cy (gensym)) (cz (gensym)))
+    `(let* ((,x ,vx) (,y ,vy) (,z ,vz) (,kv (- (* ,dz ,x) (* ,dx ,z))) (,l (f-hypot ,x ,y ,z)) (,u (- 1f0 ,tc))
+            (,cx (+ (* ,x ,tc) (* ,dx ,y ,ts) (* ,dz ,kv ,u)))
+            (,cy (- (* ,y ,tc) (* (+ (* ,dx ,x) (* ,dz ,z)) ,ts)))
+            (,cz (- (+ (* ,z ,tc) (* ,dz ,y ,ts)) (* ,dx ,kv ,u)))
+            (,bx (- (* ,kb ,l ,tc ,dx))) (,by (* ,kb ,l ,ts)) (,bz (- (* ,kb ,l ,tc ,dz)))
+            (,ax (- ,cx ,bx)) (,ay (- ,cy ,by)) (,az (- ,cz ,bz)))
+       (declare (single-float ,x ,y ,z ,kv ,l ,u ,cx ,cy ,cz ,bx ,by ,bz ,ax ,ay ,az))
+       ,@body)))
+
 (defmacro %brush-aura (x y z h k pal n rad w white &optional all shear)
   "A brush-flame aura (docs/style/STYLE_STORM_DESIGN.md §4.2 reiatsu, §4.3 Kikon rush): N tongues of palette PAL around
 the body at radius RAD (half-width W at the base), drawn only behind and at the sides (the ones between the camera and the body are left
@@ -107,8 +130,8 @@ x 0.8..1.25 with a lean, both drifting continuously (FLOW01 / FLOW-PH: the flow 
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
 level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. PAL may carry +TOON-FLAME+ (the flame
 class whatever the palette, STYLE_STORM_DESIGN §15.8); the white cores carry it too (with the tongue in the flame layer and the
-core in the scene pass, the 0.8 tongue washed over the core). SHEAR, a list of two single-float variables (sx sz), bends each tongue
-back by them x its height at the tip, x u^2 along it (FX-RIBBON :BEND: its root kept: 殘日獄衣 trailing, DUEL_YAMA_CORE §29.1); without it the expansion is as before. A macro (the auras run
+core in the scene pass, the 0.8 tongue washed over the core). SHEAR, a list of five single-float variables (dx dz tc ts kb), tilts each
+tongue about its root (WITH-GARB-TILT: 殘日獄衣 trailing, DUEL_YAMA_CORE §29.1, §29.5); without it the expansion is as before. A macro (the auras run
 every frame: 0 B); N and WHITE literal fixnums."
   (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
     `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (fp (flow-ph)) (pk (toon-a pal (* 0.95f0 k)))
@@ -125,8 +148,10 @@ every frame: 0 B); N and WHITE literal fixnums."
              (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (flow01 f 3.7f0))))) (lean (* 0.25f0 (- (flow01 f 5.9f0) 0.5f0)))   ; (§15.7: flowing,
                     (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 f)))                             ;  one seed a tongue)
                (declare (single-float hh lean bx bz sd))
-               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0
-                            ,@(when shear `(:bend ((* ,(first shear) hh) 0f0 (* ,(second shear) hh)))))
+               ,(if shear
+                    `(with-garb-tilt (gax gay gaz gbx gby gbz) ((* lean c) hh (* lean sn)) ,shear
+                       (toon-ribbon (bx y bz) (gax gay gaz) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0 :bend (gbx gby gbz)))
+                    '(toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0))
                ,@(when (eql white 1)
                    '((when (< front -0.4f0)
                        (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0
@@ -165,14 +190,6 @@ inner HIT tongues join the yellow in the 0.8 flame layer, which washed them yell
 pillar 2 (the user's request 2026-09-28: it hid the view); the Bankai's red-and-black pillar (:oni, the same day): its
 BLOOD tongues 2, its taller INK tongues 3 (at 2 the black read as a grey smear). Render only.")
 
-;;; The garb's tilt cap (DUEL_YAMA_CORE §29.4, the user 2026-11-21: 「火衣成水平傾斜最高不超過 25°」).
-(defconstant +garb-tilt-max+ 0.466f0 "tan 25 deg: the most any part of 殘日獄衣 leans (its tip's offset per metre of its length).")
-(defun-fast-inline garb-bend-k (sl factor)
-  "The bend per unit of lean for a garb part that trails FACTOR x the lean (1 a tongue, 2.4 a wing) when the lean's size is SL: FACTOR,
-cut so SL x it never passes +GARB-TILT-MAX+ (25 deg). Pure; 0 B."
-  (declare (single-float sl factor))
-  (f-min factor (/ +garb-tilt-max+ (f-max 1f-3 sl))))
-
 (defmacro %garb-aura (x y z h k dt &optional sx sz)
   "Yamamoto's 殘日獄衣 (the :GARB kind of VFX-AURA; the TYBW kit's garb, canon manga colour, DUEL_YAMA_TYBW §3.1; ported back by batch J2,
 DUEL_YAMA_CORE §28, the user 2026-11-20: 「ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」): orange FLAME
@@ -181,19 +198,19 @@ brush tongues from the feet up round the body (0.8 x H x 9 at 0.34 m, 0.62 x H x
 over his head and ~0.6 m out), a molten double ring at his feet, flame scraps rising, a warm light. Since J2 the camera-side tongues draw
 too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
 fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). SX SZ (optional,
-single-float forms): the trailing lean in metres sideways per metre (DUEL_YAMA_CORE §29.1, §29.2): every tongue and wing keeps its root
-where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 2.4 x, §29.3) and x u^2 along it
-(FX-RIBBON :BEND: cloth / flame, not a sheared stick); every part's lean cut at 25 deg (GARB-BEND-K, §29.4); without them the expansion
-is as before.
+single-float forms): the trailing lean (DUEL_YAMA_CORE §29.1, §29.5: its direction downwind, its size 0 upright .. 1 at a walk): every
+tongue and wing keeps its root where it is (the wings at his shoulders) and turns about it toward the downwind by GARB-TILT-ANGLE (70 deg
+at a walk: at most 25 deg above the horizontal, the user's rule), the tips curling up (WITH-GARB-TILT); without them the expansion is as before.
 A macro: 0 B."
   `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt)
-          ,@(when sx `((shx ,sx) (shz ,sz) (shl (f-hypot shx shz)) (shk (garb-bend-k shl 1f0)) (wbk (garb-bend-k shl 2.4f0))))
+          ,@(when sx `((shx ,sx) (shz ,sz) (shl (f-hypot shx shz)) (shok (if (> shl 1f-3) 1f0 0f0))
+                       (gdx (if (> shok 0f0) (/ shx shl) 1f0)) (gdz (if (> shok 0f0) (/ shz shl) 0f0))
+                       (gth (* shok (garb-tilt-angle shl))) (gtc (f-cos gth)) (gts (f-sin gth)) (gkb (* 0.18f0 (f-min 1f0 shl)))))
           (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
           (fp (flow-ph)) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))   ; (flowing: §15.7)
-     (declare (single-float x y z h k dt kc fl fr fp pk ,@(when sx '(shx shz shl shk wbk))))
-     ,@(when sx '((setf shx (* shk shx) shz (* shk shz))))   ; (the tongues: 1 x the lean, at most 25 deg)
-     (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t ,(when sx '(shx shz)))
-     (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t ,(when sx '(shx shz)))
+     (declare (single-float x y z h k dt kc fl fr fp pk ,@(when sx '(shx shz shl shok gdx gdz gth gtc gts gkb))))
+     (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t ,(when sx '(gdx gdz gtc gts gkb)))
+     (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t ,(when sx '(gdx gdz gtc gts gkb)))
      (with-cam (rx ry rz ux uy uz)
        (let* ((rl (f-max 1f-3 (f-hypot rx rz))) (hx (/ rx rl)) (hz (/ rz rl)))
          (declare (single-float rl hx hz))
@@ -209,10 +226,9 @@ A macro: 0 B."
                     (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
                ,(if sx
-                    '(let ((wl (* (/ wbk (f-max 1f-3 shk)) (f-hypot ax ay az))))   ; (trailing, §29.2: the root on his shoulder, the tip
-                       (declare (single-float wl))                                ;  bent back; §29.3-§29.4: 2.4 x the lean, at most 25 deg)
-                       (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6
-                                    :bend ((* shx wl) 0f0 (* shz wl))))
+                    '(with-garb-tilt (gax gay gaz gbx gby gbz) (ax ay az) (gdx gdz gtc gts gkb)   ; (trailing, §29.5: the root on his
+                       (toon-ribbon (bx by bz) (gax gay gaz) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6  ;  shoulder)
+                                    :bend (gbx gby gbz)))
                     '(toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6)))))))
      (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) 0f0 24)   ; the plaza melting under him
      (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) 2f0 24)

@@ -3208,3 +3208,22 @@ The user (verbatim, after v472): 「改成後方 15° 拍攝，並將鏡頭拉�
 2. No part of the garb tilts more than 25° from its upright direction (tan 25° = 0.466 m sideways per metre): the spring's cap (was 0.6 =
    31°), the cinematic's walk lean (was 0.48) and the wings' 2.4× bend (which reached about 50° in the walk) are all clamped to it. The
    wings still trail more than the body at a walk (their bend reaches the cap sooner).
+
+Point 2 was a misreading; §29.5 replaces it (the angle is measured from the horizontal).
+
+### 29.5 The garb at least 65° off upright while he moves (the user, 2026-11-21)
+
+The user (verbatim, after v473): 「火衣不是最多斜 25° ，是以水平算 25° 所以是最少要傾斜 65°」
+
+1. While he moves, every part of the garb (tongues and wings) leans downwind at least 65° off upright, i.e. at most 25° above the
+   horizontal. Standing still, it stays upright (the spring settles it back, with its overshoot).
+2. The quadratic bend could not reach that without stretching a tongue 2.4× or more (tan 65° = 2.14 m per metre), so each part now turns
+   rigidly about its root (`with-garb-tilt` in `vfx.lisp`, Rodrigues about the horizontal axis across the downwind), its length kept, then
+   curls: the root side lower, the tip licking up (0.18 × its length × u², FX-RIBBON :bend), the root-to-tip chord still at the angle.
+3. The spring's target is now a direction and a size: 0 under 0.3 m/s, 1 from 0.8 m/s (his walk is 3.2). `garb-tilt-angle`: 70° × the
+   size, at most 77°, so a walk or anything faster draws 70° (20° above the horizontal). The 西 Kikon's walk sets 1 (eased in f66-90).
+   The wings' 2.4× factor and the 25° cap (`+garb-tilt-max+`, `garb-bend-k`) are gone: every part tilts by the same angle.
+4. Checks (presentation only, §847's rule: no match tests): host tests ALL PASS, pkgcheck clean, build, smoke 0; 87448: every row 0 B,
+   `yama garb tilt (deg off upright): walk 70.0 (above the horizontal 20.0), most 77.0`.
+5. For the user's eyes: in the 15° shot the garb now points back toward the camera, so it reads foreshortened, streaming to the frame's
+   left, and no longer hides his body. In play, a lunge or a dash also lays it flat.
