@@ -1,0 +1,118 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(87451)"
+},
+{
+"at": 11.53,
+"eval": "Module._debug_cmd(87610)"
+},
+{
+"at": 12.16,
+"shot": "tests/shots/duel-yama-nishi2-f020.png"
+},
+{
+"at": 12.21,
+"eval": "Module._debug_cmd(87623)"
+},
+{
+"at": 12.95,
+"shot": "tests/shots/duel-yama-nishi2-f046.png"
+},
+{
+"at": 13.0,
+"eval": "Module._debug_cmd(87628)"
+},
+{
+"at": 13.46,
+"shot": "tests/shots/duel-yama-nishi2-f056.png"
+},
+{
+"at": 13.51,
+"eval": "Module._debug_cmd(87632)"
+},
+{
+"at": 13.95,
+"shot": "tests/shots/duel-yama-nishi2-f064.png"
+},
+{
+"at": 14.0,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.4,
+"shot": "tests/shots/duel-yama-nishi2-f070.png"
+},
+{
+"at": 14.45,
+"eval": "Module._debug_cmd(87638)"
+},
+{
+"at": 14.85,
+"shot": "tests/shots/duel-yama-nishi2-f076.png"
+},
+{
+"at": 14.9,
+"eval": "Module._debug_cmd(87647)"
+},
+{
+"at": 15.5,
+"shot": "tests/shots/duel-yama-nishi2-f094.png"
+},
+{
+"at": 15.55,
+"eval": "Module._debug_cmd(87656)"
+},
+{
+"at": 16.15,
+"shot": "tests/shots/duel-yama-nishi2-f112.png"
+},
+{
+"at": 16.2,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 16.63,
+"shot": "tests/shots/duel-yama-nishi2-f120.png"
+},
+{
+"at": 16.68,
+"eval": "Module._debug_cmd(87663)"
+},
+{
+"at": 17.08,
+"shot": "tests/shots/duel-yama-nishi2-f126.png"
+},
+{
+"at": 17.13,
+"eval": "Module._debug_cmd(87670)"
+},
+{
+"at": 17.66,
+"shot": "tests/shots/duel-yama-nishi2-f140.png"
+},
+{
+"at": 17.71,
+"eval": "Module._debug_cmd(87685)"
+},
+{
+"at": 18.51,
+"shot": "tests/shots/duel-yama-nishi2-f170.png"
+},
+{
+"at": 19.16,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 19.46,
+"eval": "console.log('=== END')"
+}
+]

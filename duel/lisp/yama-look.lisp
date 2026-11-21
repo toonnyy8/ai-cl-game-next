@@ -1417,9 +1417,11 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "east-open" (yama-higashi-look *p1* *p2* 86))   ; (art K5: the tear opening, then at full)
                      (cons-per "east-full" (yama-higashi-look *p1* *p2* 120))
                      (cons-per "west-ash" (yama-nishi-look *p1* *p2* 46))
-                     (cons-per "west-ignite" (yama-nishi-look *p1* *p2* 54))   ; (the garb building, then full)
-                     (cons-per "west-full" (yama-nishi-look *p1* *p2* 62))
+                     (cons-per "west-leap" (yama-nishi-look *p1* *p2* 58))   ; (§29: the garb at the stance's size, then
+                     (cons-per "west-step1" (yama-nishi-look *p1* *p2* 75))   ;  each footfall's step up, ring and print)
+                     (cons-per "west-step2" (yama-nishi-look *p1* *p2* 94))
                      (cons-per "west-walk" (yama-nishi-look *p1* *p2* 100))
+                     (cons-per "west-step3" (yama-nishi-look *p1* *p2* 112))
                      (cons-per "west-pass" (yama-nishi-look *p1* *p2* 128))
                      (cons-per "west-column" (yama-nishi-look *p1* *p2* 140))
                      (cons-per "south-dead" (yama-minami-look *p1* *p2* 90))

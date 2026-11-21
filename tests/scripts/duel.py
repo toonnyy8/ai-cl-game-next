@@ -1117,6 +1117,33 @@ def yama_k4_script(phone=False):
 write("yama-k4", yama_k4_script())
 write("yama-k4-phone", yama_k4_script(True))
 
+# Yamamoto's 西 Kikon re-boarded (DUEL_YAMA_CORE §29): K4's holds (87451, 87600+k) at the new board's frames: the strike, the ash, the
+# leap back, the walk from behind with each footfall's garb step (74 / 92 / 110), the pass, the column, the wide. Stills
+# tests/shots/duel-yama-nishi2-fNNN[-phone].png; 87448's consing line ends the run.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-nishi2.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --mobile --size 390x844 --script tests/scripts/duel-yama-nishi2-phone.json
+YAMA_NISHI2 = (20, 46, 56, 64, 70, 76, 94, 112, 120, 126, 140, 170)
+def yama_nishi2_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]                              # (idle in the Bankai first: the form's callout gone)
+    t += 2.5
+    ev.append(cmd(t, 87451))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    ev.append(cmd(t + 0.03, 87600 + YAMA_NISHI2[0] // 2))
+    a, f0 = t + 0.03, 0
+    for j, f in enumerate(YAMA_NISHI2):
+        a += (f - f0) / 60 + 0.3
+        ev.append(shot(a, f"yama-nishi2-f{f:03d}{sx}"))
+        if j + 1 < len(YAMA_NISHI2): ev.append(cmd(a + 0.05, 87600 + YAMA_NISHI2[j + 1] // 2))
+        a += 0.05
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-nishi2", yama_nishi2_script())
+write("yama-nishi2-phone", yama_nishi2_script(True))
+
 # Yamamoto's Bankai art K5 (DUEL_YAMA_CORE §20.1): the 東 void as a ragged radial tear, every place it shows. L6 in play (K2's scenes):
 # 東 NS a-b-c from 3 m, NS1c's void at its S18+2 / +6 / +14 / +26 (growing, full, held, filling with ash), J1 > AS1's notch at its S10
 # +0 / +4 / +11; from the behind camera, then the SIDE camera (2109); then the K4 東 cinematic's frames 90 (opening), 96 (b4-void), 120

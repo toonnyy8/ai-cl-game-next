@@ -144,10 +144,49 @@ mantle lay in it; the call kept). Single-float forms; 0 B."
      (%tring ,x 0f0 ,z 0.6f0 0.07f0 +pal-flame+ %k (+ ,seed 3f0))
      (%tring ,x 0.008f0 ,z 0.6f0 0.02f0 +pal-hit+ (* 0.8f0 %k) (+ ,seed 4f0))))
 
+;;; The walk (§29, f66-124, under CINE-SLOW 0.5): three footfalls at f74 / f92 / f110 (74 + 18 i). YAMA-NISHI-WALKED / -BACKED are the
+;;; metres walked / backed off by a frame, so the step-mode mover (YAMA-NISHI-WALK) and the look (the prints, the rings) agree.
+(defun-fast-inline yama-nishi-walked (c)
+  "西's walk (§29): the metres Yamamoto has walked by cinematic frame C (a single float): per footfall F (74 + 18 i) 0.42 m eased over
+the 8 frames before it (the foot lifts and lands: :YA-E-ADVANCE's frames 3-7 at half speed) and 0.08 m over the 8 after (the other foot
+dragged up), 1.5 m in all. Pure; 0 B."
+  (declare (single-float c))
+  (let ((s 0f0))
+    (declare (single-float s))
+    (dotimes (i 3 s)
+      (let* ((f (+ 74f0 (* 18f0 (i->f i)))) (u (f-clamp (/ (- c (- f 8f0)) 8f0) 0f0 1f0)))
+        (declare (single-float f u))
+        (setf s (+ s (* 0.42f0 u u (- 3f0 (* 2f0 u))) (* 0.08f0 (f-clamp (/ (- c f) 8f0) 0f0 1f0))))))))
+
+(defun-fast-inline yama-nishi-backed (c)
+  "... and the metres the victim has backed off by frame C: 0.3 m eased out over the 10 frames after each footfall (he recoils from the
+heat), 0.9 m in all, so the gap closes from 4 m to 3.4 m. Pure; 0 B."
+  (declare (single-float c))
+  (let ((s 0f0))
+    (declare (single-float s))
+    (dotimes (i 3 s)
+      (let ((u (f-clamp (/ (- c (+ 74f0 (* 18f0 (i->f i)))) 10f0) 0f0 1f0)))
+        (declare (single-float u))
+        (setf s (+ s (* 0.3f0 u (- 2f0 u))))))))
+
+(defun-fast-inline yama-nishi-garb-k (c)
+  "西's garb at frame C of the walk (§29: 「每走一步都會讓火焰的威勢擴大」): the stance's K 1 until the first footfall, then a step up at
+each, to 1.3, 1.6 and 2.0 (the last above the play flare's peak 1.9, %YA-FLARE), each snapped in over 2 frames with a 0.15 overshoot
+fading over 6: a jump per step, not a ramp. Pure; 0 B."
+  (declare (single-float c))
+  (let ((k 1f0))
+    (declare (single-float k))
+    (dotimes (i 3 k)
+      (let ((d (- c (+ 74f0 (* 18f0 (i->f i))))))
+        (declare (single-float d))
+        (when (>= d 0f0)
+          (setf k (+ k (* (if (= i 2) 0.4f0 0.3f0) (f-min 1f0 (/ (+ d 1f0) 2f0))) (* 0.15f0 (f-max 0f0 (- 1f0 (/ d 6f0)))))))))))
+
 (defun-fast yama-nishi-look (a v cf)
   "西's look at cinematic frame CF: f40-52 the victim's weapon turning to ash from the tip toward the hilt (§15.3.4 flag 4: ash drawn over
-it, the model untouched; at f52 the cinematic hides what is left, CINE-END's REFRESH-LOOK gives it back however it ends); the garb at full
-from f52 (built in 4 f, guttering from f156); molten footprints behind him on the walk (f72-124); the white-hot streak of the pass
+it, the model untouched; at f52 the cinematic hides what is left, CINE-END's REFRESH-LOOK gives it back however it ends); the garb at the
+stance's size from f52, stepping up at each footfall of the walk (YAMA-NISHI-GARB-K, §29), at full after the pass (guttering from f156);
+at each footfall a heat ring out from the foot and a molten print cooling where it landed (f74-124); the white-hot streak of the pass
 (f124-134); the column of flame rising off the victim (f130-170: 西's fire); the ash streaming up off his charred body from f134, black
 smoke from f150. A look; 0 B."
   (declare (fixnum cf))
@@ -175,22 +214,35 @@ smoke from f150. A look; 0 B."
                   (declare (single-float s))
                   (%t-shard (+ x0 (* s ddx)) (+ y0 (* s ddy)) (+ z0 (* s ddz)) (rnd-range -0.4f0 0.4f0) (rnd-range -0.2f0 0.4f0)
                             (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.3f0) (rnd-range 0.03f0 0.06f0) 0.6f0 +pal-ash+)))))))
-      (when (and (<= 52 cf) (< cf 168))                   ; the garb at full
-        (%ya-garb px pz (if (< cf 124) rx (- rx)) (if (< cf 124) rz (- rz))   ; (his right: from f124 he stands turned away)
-                  (f-min 1f0 (* 0.34f0 (i->f (- cf 52))))   ; (from the stance's size to full in 3 f)
-                  (if (< cf 56) (* 0.25f0 (i->f (- cf 52))) (if (< cf 156) 0.98f0 (* 0.98f0 (/ (i->f (- 168 cf)) 12f0))))
-                  seed))
-      (when (and (<= 72 cf) (< cf 124))                   ; molten footprints: where he stood every 9 f (he walks 0.029 m a frame)
-        (dotimes (i 6)
-          (let ((fi (+ 72 (* 9 i))))
-            (declare (fixnum fi))
-            (when (<= fi cf)
-              (let* ((back (* 0.029f0 (i->f (- cf fi)))) (sd (if (evenp i) 0.14f0 -0.14f0))
-                     (k (f-clamp (- 0.95f0 (* 0.012f0 (i->f (- cf fi)))) 0f0 0.95f0))
-                     (x (+ px (* (- back) fx) (* sd rx))) (z (+ pz (* (- back) fz) (* sd rz))))
-                (declare (single-float back sd k x z))
-                (toon-ground-seg (- x (* 0.12f0 fx)) (- z (* 0.12f0 fz)) (+ x (* 0.12f0 fx)) (+ z (* 0.12f0 fz)) 0.014f0 0.06f0 1f0 0.4f0
-                                 (+ seed (i->f i)) 0.2f0 (toon-a +pal-flame+ k)))))))
+      (when (and (<= 52 cf) (< cf 124))                   ; the garb (§29): the stance's size, a step up at each footfall
+        (ya-garb px pz (yama-nishi-garb-k (i->f cf))))
+      (when (and (<= 124 cf) (< cf 168))                  ; the garb at full after the pass (his right: he stands turned away)
+        (%ya-garb px pz (- rx) (- rz) 1f0 (if (< cf 156) 0.98f0 (* 0.98f0 (/ (i->f (- 168 cf)) 12f0))) seed))
+      (when (and (<= 74 cf) (< cf 124))                   ; each footfall: a heat ring out from the foot, a molten print cooling
+        (let ((w (yama-nishi-walked (i->f cf))))
+          (declare (single-float w))
+          (dotimes (i 3)
+            (let ((fi (+ 74 (* 18 i))))
+              (declare (fixnum fi))
+              (when (<= fi cf)
+                (let* ((age (i->f (- cf fi))) (ah (- 0.22f0 (- w (yama-nishi-walked (i->f fi))))) (fl (i->f i))   ; (his right foot,
+                       (x (+ px (* ah fx) (* 0.15f0 rx))) (z (+ pz (* ah fz) (* 0.15f0 rz)))                     ;  0.22 m ahead as it lands)
+                       (kp (f-clamp (- 0.98f0 (* 0.008f0 age)) 0.35f0 0.98f0)) (kc (- 0.98f0 (* 0.07f0 age))))
+                  (declare (single-float age ah fl x z kp kc))
+                  (toon-ground-seg (- x (* 0.24f0 fx)) (- z (* 0.24f0 fz)) (+ x (* 0.24f0 fx)) (+ z (* 0.24f0 fz)) 0.012f0 0.17f0 0.8f0 0.8f0
+                                   (+ seed 66f0 fl) 0.3f0 (toon-a +pal-ember+ kp))   ; the print: a pool of molten plaza (ep. 372),
+                  (toon-ground-seg (- x (* 0.18f0 fx)) (- z (* 0.18f0 fz)) (+ x (* 0.18f0 fx)) (+ z (* 0.18f0 fz)) 0.015f0 0.11f0 1f0 0.7f0
+                                   (+ seed 70f0 fl) 0.25f0 (toon-a +pal-flame+ kp))   ;  ember rim, flame
+                  (when (> kc 0f0)                        ; its white-hot core, cooling
+                    (toon-ground-seg (- x (* 0.12f0 fx)) (- z (* 0.12f0 fz)) (+ x (* 0.12f0 fx)) (+ z (* 0.12f0 fz)) 0.018f0 0.055f0 1f0 0.6f0
+                                     (+ seed 74f0 fl) 0.2f0 (toon-a +pal-hit+ kc)))
+                  (when (< age 14f0)                      ; the heat ring, wider each step
+                    (let ((u (/ age 14f0)))
+                      (declare (single-float u))
+                      (%tring x 0f0 z (+ 0.2f0 (* (+ 1.4f0 (* 0.4f0 fl)) u)) (* 0.07f0 (- 1f0 (* 0.5f0 u))) +pal-flame+ (* 0.98f0 (- 1f0 u))
+                              (+ seed 80f0 fl))
+                      (when (< age 4f0) (%tring x 0.008f0 z (+ 0.2f0 (* (+ 1.4f0 (* 0.4f0 fl)) u)) 0.025f0 +pal-hit+ 0.98f0 (+ seed 84f0 fl)))
+                      (%light x 0.3f0 z 1f0 0.55f0 0.25f0 4f0 (* 2.5f0 (- 1f0 u)) 7)))))))))
       (when (and (<= 124 cf) (< cf 134))                  ; the pass: a white-hot streak from his old side through the victim to him
         (let* ((k (* 0.98f0 (/ (i->f (- 134 cf)) 10f0))) (x0 (+ px (* 0.2f0 fx))) (z0 (+ pz (* 0.2f0 fz)))
                (x1 (+ qx (* 1.3f0 fx))) (z1 (+ qz (* 1.3f0 fz))))
@@ -249,14 +301,57 @@ CINE-END gives it back, played, skipped or aborted)."
                       (rnd-range -0.6f0 0.6f0) (rnd-range 1.0f0 1.6f0) (rnd-range 0.04f0 0.08f0) 1.2f0 +pal-ash+))))
       (setf (model-weapon m) nil))))
 
-(defun yama-nishi-walk (a v)
-  "西's walk, one step (f73-123): he drags forward 0.029 m a frame, the lost victim backs away 0.026 m (each ~1.5 m over the shot); the
-tracking side-on pair. Their places are given back at CINE-END (CINE-SAVE)."
+(defun yama-nishi-wide (a v)
+  "西's f52 shot (§29): side-on from his left, wide and still, framed on where the pair will stand once the victim has leapt back (2 m
+ahead of him, 4 m apart): 5.6 m off that middle (portrait 7.6), 1.3 m up. No subject (a pair shot)."
+  (setf *cine-close* nil *cine-subject* nil)
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let ((p (pos-of a)) (q (pos-of v)))
-      (setf (aref p 0) (+ px (* 0.029f0 fx)) (aref p 2) (+ pz (* 0.029f0 fz))
-            (aref q 0) (+ qx (* 0.026f0 fx)) (aref q 2) (+ qz (* 0.026f0 fz)))))
-  (shot-pair a v 1 (if (portrait-p) 6.4 4.6) 1.2))
+    (let ((mx (+ px (* 2f0 fx))) (mz (+ pz (* 2f0 fz))) (dd (if (portrait-p) 7.6f0 5.6f0)))
+      (declare (single-float mx mz dd))
+      (cine-cam (- mx (* dd rx)) 1.3 (- mz (* dd rz)) mx 1.0 mz))))
+
+(defun yama-nishi-leap (a v cf)
+  "西's f53-64 (§29: 「隨即拉開距離」): the weaponless victim leaps back from 1.4 m to 4 m in front of him (eased out, a 0.4 m hop); he
+does not move. Given back at CINE-END (CINE-SAVE)."
+  (declare (fixnum cf))
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let* ((u (f-clamp (/ (i->f (- cf 52)) 12f0) 0f0 1f0)) (g (+ 1.4f0 (* 2.6f0 u (- 2f0 u)))) (q (pos-of v)))
+      (declare (single-float u g) (type f32vec q))
+      (setf (aref q 0) (+ px (* g fx)) (aref q 1) (* 1.6f0 u (- 1f0 u)) (aref q 2) (+ pz (* g fz))))))
+
+(defun yama-nishi-track (a v)
+  "西's walk shot (§29: 「從斜後方拍攝」): from diagonally behind him, 145 deg off his front on his left, 5.0 m back and 3.4 m up, aimed
+1.5 m ahead of him 1.0 m up (portrait 3.6 m back, 2.5 m up, aimed 2 m ahead 1.0 m up: %PORTRAIT-DOLLY backs it off): over his shoulder,
+the whole garb in the frame so each step up reads, the prints behind him on the floor, the victim past him clear of its wings (at K 2
+they reach ~3.5 m up and ~1.3 m out; at 3.0 m back on 16:9 the garb filled the frame). A CINE-CAM with no subject: %KEEP-SUBJECT would
+centre him on a phone, in front of the victim."
+  (setf *cine-close* nil *cine-subject* nil)
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let* ((pt (portrait-p)) (dd (if pt 3.6f0 5.0f0)) (ey (if pt 2.5f0 3.4f0)) (ah (if pt 2.0f0 1.5f0)) (ty 1.0f0)
+           (bx (- (* -0.8192f0 fx) (* 0.5736f0 rx))) (bz (- (* -0.8192f0 fz) (* 0.5736f0 rz))))   ; (cos / sin 145 deg; his left = -R)
+      (declare (single-float dd ey ah ty bx bz))
+      (cine-cam (+ px (* dd bx)) ey (+ pz (* dd bz)) (+ px (* ah fx)) ty (+ pz (* ah fz))))))
+
+(defun yama-nishi-walk (a v cf)
+  "西's walk, one step (f66-123, §29): he moves on by YAMA-NISHI-WALKED's gain since the last frame, the victim backs off by
+YAMA-NISHI-BACKED's (both along their line); the shot follows (YAMA-NISHI-TRACK). Given back at CINE-END (CINE-SAVE)."
+  (declare (fixnum cf))
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let* ((c (i->f cf)) (dw (- (yama-nishi-walked c) (yama-nishi-walked (- c 1f0))))
+           (db (- (yama-nishi-backed c) (yama-nishi-backed (- c 1f0)))) (p (pos-of a)) (q (pos-of v)))
+      (declare (single-float c dw db) (type f32vec p q))
+      (setf (aref p 0) (+ px (* dw fx)) (aref p 2) (+ pz (* dw fz))
+            (aref q 0) (+ qx (* db fx)) (aref q 2) (+ qz (* db fz)))))
+  (yama-nishi-track a v))
+
+(defun yama-nishi-fall (v i)
+  "西's footfall I (0-2: f74 / f92 / f110, §29): the step lands with the heat roar and the shake growing each time (0.1 / 0.2 / 0.3); the
+victim recoils (the garb's step up, the heat ring and the print are the look's)."
+  (let ((g (* 0.1 (1+ i))))
+    (shake g 0.4)
+    (play-sfx :land :pitch 0.55 :gain (+ 0.5 g)) (play-sfx :sizzle :pitch 0.7 :gain (+ 0.4 g))
+    (play-sfx :awaken-rise :pitch (+ 0.5 g) :gain (+ 0.3 (* 2 g))))
+  (cine-clip v :sh-stagger :blend 3))
 
 (defun yama-nishi-pass (a v)
   "西's f124, the instant (§15.3.2: a hard cut between two placements, no body crossing): he stands 2 m beyond the victim, the two back
@@ -268,8 +363,10 @@ to back (each turned away from the other); CINE-END gives the places back and RE
   "殘日獄衣 ZANJITSU GOKUI, the Bankai's 西 Kikon: the user's storyboard (2026-11-20, DUEL_YAMA_CORE §15.3.2: 「西 殘日獄衣：對手先出手，
 武器碰到火衣就從刀尖化成灰。山本燃起灼熱的火衣並緩步走向不知所措的對手。最終瞬間穿過對手，使其被升騰的高溫烈焰燒成灰燼。」). Beat 0, he
 stands chin up, the blade low; over the victim's shoulder in slow motion the victim strikes first and he does not move; on his chest the
-weapon meets the garb and turns to ash from the tip; low in front the garb ignites under the 残日獄衣 stamp; tracking side-on he walks the
-lost victim down, molten footprints behind; the instant: a white-hot streak, a hard cut, he stands beyond the victim, back to back; low in
+weapon meets the garb and turns to ash from the tip; side-on and wide the weaponless victim leaps back to 4 m (re-boarded 2026-11-21,
+§29: 「對手靠近攻擊後武器損毀，隨即拉開距離」); from diagonally behind him, in slow motion, he takes three slow dragging steps, the garb
+stepping up at each footfall with a heat ring and a molten print, the 残日獄衣 stamp on the first, the victim recoiling (「從斜後放拍攝山本
+緩步向前，每走一步都會讓火焰的威勢擴大」); the instant: a white-hot streak, a hard cut, he stands beyond the victim, back to back; low in
 front of him, looking past him, the flames rise off the victim, his Konpaku shatters, he chars black and the ash streams up as he falls;
 wide, the old man never turns, the garb gutters out."
   (at 0 (cine-place a v 1.4)
@@ -283,15 +380,20 @@ wide, the old man never turns, the garb gutters out."
         (vfx-garb-block (+ px (* 0.35f0 fx)) 1.2 (+ pz (* 0.35f0 fz)) fx fz))
       (let ((h *ya-ct*)) (joint-point! h (model-joints (model v)) (ji :hand-r) 0f0 0f0 0f0) (vfx-scorch (aref h 0) (aref h 1) (aref h 2))))
   (at 44 (cine-clip v :sh-flinch :blend 2))
-  (at 52 (yama-weapon-ash v) (cine-slow 1)
-      (shot-on a 40 (if (portrait-p) 4.6 3.4) 0.5 :look 1.1) (lens 40) (cine-clip a :ya-e-advance :blend 4 :speed 0.0)   ; (its frame 0: the arms open)
-      (play-sfx :explode :pitch 0.5) (play-sfx :awaken-rise :pitch 0.7) (shake 0.15 0.3))
-  (at 56 (caption "残日獄衣" :mark "西" :reading "ZANJITSU GOKUI" :sub "ZANKA NO TACHI" :side 0 :hanko t))
-  (at 72 (lens 46) (cine-clip a :ya-e-advance :blend 4) (cine-clip v :sh-stagger :blend 4 :speed 0.5) (yama-nishi-walk a v))
-  (when (and step-p (< 72 cf 124)) (yama-nishi-walk a v))
-  (at 80 (play-sfx :step :pitch 0.7)) (at 89 (cine-clip a :ya-e-advance :blend 4)) (at 97 (play-sfx :step :pitch 0.7))
-  (at 98 (cine-clip v :sh-stagger :blend 4 :speed 0.5)) (at 106 (cine-clip a :ya-e-advance :blend 4)) (at 114 (play-sfx :step :pitch 0.7))
-  (at 124 (yama-nishi-pass a v) (impact-frame :negative 2) (play-sfx :cut-heavy :pitch 1.2)
+  (at 52 (yama-weapon-ash v) (cine-slow 1) (yama-nishi-wide a v) (lens 40)   ; (§29: the old ignition beat left; the garb at the
+      (play-sfx :sizzle :pitch 0.8 :gain 0.7))                                ;  stance's size, he does not move)
+  (at 53 (cine-clip v :sh-step-b :blend 2 :speed 1.7) (play-sfx :whoosh-heavy :pitch 0.7 :gain 0.7))   ; (the leap back: 24 f in 14)
+  (when (and step-p (< 52 cf 65)) (yama-nishi-leap a v cf))
+  (at 64 (cine-clip v :sh-stagger :blend 2) (play-sfx :land :pitch 0.9 :gain 0.5))   ; (lands off balance)
+  (at 66 (cine-slow 0.5) (lens 46))                    ; the walk from behind; :YA-E-ADVANCE from its frame 3 (the right foot lifts)
+  (when (and step-p (<= 66 cf 123)) (yama-nishi-walk a v cf))   ;  at half speed: down on its frame 7, 8 frames on (74 / 92 / 110)
+  (at 66 (cine-clip a :ya-e-advance :blend 6 :time (/ 3.0 60.0)))
+  (at 84 (cine-clip a :ya-e-advance :blend 4 :time (/ 3.0 60.0)))
+  (at 102 (cine-clip a :ya-e-advance :blend 4 :time (/ 3.0 60.0)))
+  (at 74 (yama-nishi-fall v 0) (caption "残日獄衣" :mark "西" :reading "ZANJITSU GOKUI" :sub "ZANKA NO TACHI" :side 0 :hanko t))
+  (at 92 (yama-nishi-fall v 1))
+  (at 110 (yama-nishi-fall v 2))
+  (at 124 (yama-nishi-pass a v) (impact-frame :negative 2) (play-sfx :cut-heavy :pitch 1.2) (cine-slow 1)
       (cine-clip a :ya-st-nishi :blend 0) (cine-clip v :sh-kikon-victim :blend 0)
       (shot-on v 0 2.6 1.4 :look 1.3) (lens 50))
   (at 130 (lens 40) (play-sfx :explode :pitch 0.7) (play-sfx :sizzle)   ; low, in front of him, looking past him at the victim
