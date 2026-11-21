@@ -165,6 +165,14 @@ inner HIT tongues join the yellow in the 0.8 flame layer, which washed them yell
 pillar 2 (the user's request 2026-09-28: it hid the view); the Bankai's red-and-black pillar (:oni, the same day): its
 BLOOD tongues 2, its taller INK tongues 3 (at 2 the black read as a grey smear). Render only.")
 
+;;; The garb's tilt cap (DUEL_YAMA_CORE §29.4, the user 2026-11-21: 「火衣成水平傾斜最高不超過 25°」).
+(defconstant +garb-tilt-max+ 0.466f0 "tan 25 deg: the most any part of 殘日獄衣 leans (its tip's offset per metre of its length).")
+(defun-fast-inline garb-bend-k (sl factor)
+  "The bend per unit of lean for a garb part that trails FACTOR x the lean (1 a tongue, 2.4 a wing) when the lean's size is SL: FACTOR,
+cut so SL x it never passes +GARB-TILT-MAX+ (25 deg). Pure; 0 B."
+  (declare (single-float sl factor))
+  (f-min factor (/ +garb-tilt-max+ (f-max 1f-3 sl))))
+
 (defmacro %garb-aura (x y z h k dt &optional sx sz)
   "Yamamoto's 殘日獄衣 (the :GARB kind of VFX-AURA; the TYBW kit's garb, canon manga colour, DUEL_YAMA_TYBW §3.1; ported back by batch J2,
 DUEL_YAMA_CORE §28, the user 2026-11-20: 「ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」): orange FLAME
@@ -174,14 +182,16 @@ over his head and ~0.6 m out), a molten double ring at his feet, flame scraps ri
 too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
 fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). SX SZ (optional,
 single-float forms): the trailing lean in metres sideways per metre (DUEL_YAMA_CORE §29.1, §29.2): every tongue and wing keeps its root
-where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 2.4 x, §29.3, their tips at
-most 0.9 x their length back: no hook at the 0.6 cap) and x u^2 along it
-(FX-RIBBON :BEND: cloth / flame, not a sheared stick); without them the expansion is as before.
+where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 2.4 x, §29.3) and x u^2 along it
+(FX-RIBBON :BEND: cloth / flame, not a sheared stick); every part's lean cut at 25 deg (GARB-BEND-K, §29.4); without them the expansion
+is as before.
 A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt) ,@(when sx `((shx ,sx) (shz ,sz)))
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt)
+          ,@(when sx `((shx ,sx) (shz ,sz) (shl (f-hypot shx shz)) (shk (garb-bend-k shl 1f0)) (wbk (garb-bend-k shl 2.4f0))))
           (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
           (fp (flow-ph)) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))   ; (flowing: §15.7)
-     (declare (single-float x y z h k dt kc fl fr fp pk ,@(when sx '(shx shz))))
+     (declare (single-float x y z h k dt kc fl fr fp pk ,@(when sx '(shx shz shl shk wbk))))
+     ,@(when sx '((setf shx (* shk shx) shz (* shk shz))))   ; (the tongues: 1 x the lean, at most 25 deg)
      (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t ,(when sx '(shx shz)))
      (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t ,(when sx '(shx shz)))
      (with-cam (rx ry rz ux uy uz)
@@ -199,9 +209,8 @@ A macro: 0 B."
                     (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
                ,(if sx
-                    '(let* ((sl (f-max 1f-3 (f-hypot shx shz)))   ; (trailing, §29.2: the root on his shoulder, the tip bent back;
-                            (wl (* (f-min 2.4f0 (/ 0.9f0 sl)) (f-hypot ax ay az))))   ;  §29.3: 2.4 x, the tip at most 0.9 x its length back)
-                       (declare (single-float sl wl))
+                    '(let ((wl (* (/ wbk (f-max 1f-3 shk)) (f-hypot ax ay az))))   ; (trailing, §29.2: the root on his shoulder, the tip
+                       (declare (single-float wl))                                ;  bent back; §29.3-§29.4: 2.4 x the lean, at most 25 deg)
                        (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6
                                     :bend ((* shx wl) 0f0 (* shz wl))))
                     '(toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6)))))))
