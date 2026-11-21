@@ -174,7 +174,8 @@ over his head and ~0.6 m out), a molten double ring at his feet, flame scraps ri
 too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
 fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). SX SZ (optional,
 single-float forms): the trailing lean in metres sideways per metre (DUEL_YAMA_CORE §29.1, §29.2): every tongue and wing keeps its root
-where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 1.2 x) and x u^2 along it
+where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 2.4 x, §29.3, their tips at
+most 0.9 x their length back: no hook at the 0.6 cap) and x u^2 along it
 (FX-RIBBON :BEND: cloth / flame, not a sheared stick); without them the expansion is as before.
 A macro: 0 B."
   `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt) ,@(when sx `((shx ,sx) (shz ,sz)))
@@ -198,8 +199,9 @@ A macro: 0 B."
                     (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
                ,(if sx
-                    '(let ((wl (* 1.2f0 (f-hypot ax ay az))))   ; (trailing, §29.2: the root on his shoulder, the tip bent back)
-                       (declare (single-float wl))
+                    '(let* ((sl (f-max 1f-3 (f-hypot shx shz)))   ; (trailing, §29.2: the root on his shoulder, the tip bent back;
+                            (wl (* (f-min 2.4f0 (/ 0.9f0 sl)) (f-hypot ax ay az))))   ;  §29.3: 2.4 x, the tip at most 0.9 x its length back)
+                       (declare (single-float sl wl))
                        (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6
                                     :bend ((* shx wl) 0f0 (* shz wl))))
                     '(toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6)))))))

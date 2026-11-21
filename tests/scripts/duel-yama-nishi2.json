@@ -45,74 +45,106 @@
 },
 {
 "at": 14.0,
-"eval": "Module._debug_cmd(87635)"
+"eval": "Module._debug_cmd(87645)"
 },
 {
-"at": 14.4,
-"shot": "tests/shots/duel-yama-nishi2-f070.png"
+"at": 14.73,
+"shot": "tests/shots/duel-yama-nishi2-f090.png"
 },
 {
-"at": 14.45,
-"eval": "Module._debug_cmd(87638)"
-},
-{
-"at": 14.85,
-"shot": "tests/shots/duel-yama-nishi2-f076.png"
-},
-{
-"at": 14.9,
-"eval": "Module._debug_cmd(87647)"
-},
-{
-"at": 15.5,
-"shot": "tests/shots/duel-yama-nishi2-f094.png"
-},
-{
-"at": 15.55,
+"at": 14.78,
 "eval": "Module._debug_cmd(87656)"
 },
 {
-"at": 16.15,
+"at": 15.45,
 "shot": "tests/shots/duel-yama-nishi2-f112.png"
 },
 {
-"at": 16.2,
-"eval": "Module._debug_cmd(87660)"
+"at": 15.5,
+"eval": "Module._debug_cmd(87659)"
 },
 {
-"at": 16.63,
-"shot": "tests/shots/duel-yama-nishi2-f120.png"
+"at": 15.9,
+"shot": "tests/shots/duel-yama-nishi2-f118.png"
 },
 {
-"at": 16.68,
-"eval": "Module._debug_cmd(87663)"
-},
-{
-"at": 17.08,
-"shot": "tests/shots/duel-yama-nishi2-f126.png"
-},
-{
-"at": 17.13,
+"at": 15.95,
 "eval": "Module._debug_cmd(87670)"
 },
 {
-"at": 17.66,
+"at": 16.61,
 "shot": "tests/shots/duel-yama-nishi2-f140.png"
 },
 {
-"at": 17.71,
-"eval": "Module._debug_cmd(87685)"
+"at": 16.66,
+"eval": "Module._debug_cmd(87681)"
 },
 {
-"at": 18.51,
-"shot": "tests/shots/duel-yama-nishi2-f170.png"
+"at": 17.33,
+"shot": "tests/shots/duel-yama-nishi2-f162.png"
 },
 {
-"at": 19.16,
+"at": 17.38,
+"eval": "Module._debug_cmd(87683)"
+},
+{
+"at": 17.75,
+"shot": "tests/shots/duel-yama-nishi2-f166.png"
+},
+{
+"at": 17.8,
+"eval": "Module._debug_cmd(87695)"
+},
+{
+"at": 18.5,
+"shot": "tests/shots/duel-yama-nishi2-f190.png"
+},
+{
+"at": 18.55,
+"eval": "Module._debug_cmd(87916)"
+},
+{
+"at": 19.21,
+"shot": "tests/shots/duel-yama-nishi2-f212.png"
+},
+{
+"at": 19.26,
+"eval": "Module._debug_cmd(87919)"
+},
+{
+"at": 19.66,
+"shot": "tests/shots/duel-yama-nishi2-f218.png"
+},
+{
+"at": 19.71,
+"eval": "Module._debug_cmd(87924)"
+},
+{
+"at": 20.18,
+"shot": "tests/shots/duel-yama-nishi2-f228.png"
+},
+{
+"at": 20.23,
+"eval": "Module._debug_cmd(87928)"
+},
+{
+"at": 20.66,
+"shot": "tests/shots/duel-yama-nishi2-f236.png"
+},
+{
+"at": 20.71,
+"eval": "Module._debug_cmd(87941)"
+},
+{
+"at": 21.45,
+"shot": "tests/shots/duel-yama-nishi2-f262.png"
+},
+{
+"at": 22.1,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 19.46,
+"at": 22.4,
 "eval": "console.log('=== END')"
 }
 ]

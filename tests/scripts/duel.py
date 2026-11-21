@@ -1117,24 +1117,26 @@ def yama_k4_script(phone=False):
 write("yama-k4", yama_k4_script())
 write("yama-k4-phone", yama_k4_script(True))
 
-# Yamamoto's 西 Kikon re-boarded (DUEL_YAMA_CORE §29): K4's holds (87451, 87600+k) at the new board's frames: the strike, the ash, the
-# leap back, the walk from behind with each footfall's garb step (74 / 92 / 110), the pass, the column, the wide. Stills
+# Yamamoto's 西 Kikon re-boarded (DUEL_YAMA_CORE §29, retimed §29.3: 272 f): K4's holds (87451, 87600+k; frames over 198: 87810+k) at the
+# board's frames: the strike, the ash, the leap back, the walk at 南's pace with each footfall's garb step (115 / 164 / 213, the frame
+# before and after), the flash behind him (216), the column, the shatter (226), the wide. Stills
 # tests/shots/duel-yama-nishi2-fNNN[-phone].png; 87448's consing line ends the run.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-nishi2.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --mobile --size 390x844 --script tests/scripts/duel-yama-nishi2-phone.json
-YAMA_NISHI2 = (20, 46, 56, 64, 70, 76, 94, 112, 120, 126, 140, 170)
+YAMA_NISHI2 = (20, 46, 56, 64, 90, 112, 118, 140, 162, 166, 190, 212, 218, 228, 236, 262)
+def yama_hold(f): return 87600 + f // 2 if f <= 198 else 87810 + f // 2   # (87601-87699: frames 2-198; 87910-87999: 200-378)
 def yama_nishi2_script(phone=False):
     ev, t, sx = [], T0, ("-phone" if phone else "")
     ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]                              # (idle in the Bankai first: the form's callout gone)
     t += 2.5
     ev.append(cmd(t, 87451))
     if phone: ev.append(cmd(t + 0.02, 87901))
-    ev.append(cmd(t + 0.03, 87600 + YAMA_NISHI2[0] // 2))
+    ev.append(cmd(t + 0.03, yama_hold(YAMA_NISHI2[0])))
     a, f0 = t + 0.03, 0
     for j, f in enumerate(YAMA_NISHI2):
         a += (f - f0) / 60 + 0.3
         ev.append(shot(a, f"yama-nishi2-f{f:03d}{sx}"))
-        if j + 1 < len(YAMA_NISHI2): ev.append(cmd(a + 0.05, 87600 + YAMA_NISHI2[j + 1] // 2))
+        if j + 1 < len(YAMA_NISHI2): ev.append(cmd(a + 0.05, yama_hold(YAMA_NISHI2[j + 1])))
         a += 0.05
         f0 = f
     t = a + 0.6
@@ -1146,7 +1148,7 @@ write("yama-nishi2-phone", yama_nishi2_script(True))
 
 # Yamamoto's 西 garb trailing (DUEL_YAMA_CORE §29.1): P1 in the Bankai under 西 (87302, 87446), Kenpachi 8 m away (87080), W held 1.2 s
 # then let go; stills mid-walk, just stopped, the overshoot (+0.3 s) and settled (+1.0 s), from the behind camera, then the SIDE camera
-# (2109); then the 西 Kikon's walk at its footfalls 76 / 94 / 112 (87451, 87600+k), each shot 2 frames after the hold (a held frame stands
+# (2109); then the 西 Kikon's walk at its footfalls 116 / 164 / 212 (87451, 87600+k; §29.3's retiming), each shot 2 frames after the hold (a held frame stands
 # still: the spring settles). Stills tests/shots/duel-yama-lean-*[-phone].png; 87448's consing line ends the run.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --script tests/scripts/duel-yama-lean.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --mobile --size 390x844 --script tests/scripts/duel-yama-lean-phone.json
@@ -1168,13 +1170,13 @@ def yama_lean_script(phone=False):
     t += 2.5
     ev.append(cmd(t, 87451))
     if phone: ev.append(cmd(t + 0.02, 87901))
-    frames = (76, 94, 112)
-    ev.append(cmd(t + 0.03, 87600 + frames[0] // 2))
+    frames = (116, 164, 212)
+    ev.append(cmd(t + 0.03, yama_hold(frames[0])))
     a, f0 = t + 0.03, 0
     for j, f in enumerate(frames):
         a += (f - f0) / 60 + 0.03
         ev.append(shot(a, f"yama-lean-kikon-f{f:03d}{sx}"))
-        if j + 1 < len(frames): ev.append(cmd(a + 0.02, 87600 + frames[j + 1] // 2))
+        if j + 1 < len(frames): ev.append(cmd(a + 0.02, yama_hold(frames[j + 1])))
         a += 0.02
         f0 = f
     t = a + 0.6

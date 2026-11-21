@@ -117,34 +117,34 @@
 },
 {
 "at": 21.33,
-"eval": "Module._debug_cmd(87638)"
+"eval": "Module._debug_cmd(87658)"
 },
 {
-"at": 22.63,
-"shot": "tests/shots/duel-yama-lean-kikon-f076-phone.png"
+"at": 23.29,
+"shot": "tests/shots/duel-yama-lean-kikon-f116-phone.png"
 },
 {
-"at": 22.65,
-"eval": "Module._debug_cmd(87647)"
+"at": 23.31,
+"eval": "Module._debug_cmd(87682)"
 },
 {
-"at": 22.98,
-"shot": "tests/shots/duel-yama-lean-kikon-f094-phone.png"
+"at": 24.14,
+"shot": "tests/shots/duel-yama-lean-kikon-f164-phone.png"
 },
 {
-"at": 23.0,
-"eval": "Module._debug_cmd(87656)"
+"at": 24.16,
+"eval": "Module._debug_cmd(87916)"
 },
 {
-"at": 23.33,
-"shot": "tests/shots/duel-yama-lean-kikon-f112-phone.png"
+"at": 24.99,
+"shot": "tests/shots/duel-yama-lean-kikon-f212-phone.png"
 },
 {
-"at": 23.95,
+"at": 25.61,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 24.25,
+"at": 25.91,
 "eval": "console.log('=== END')"
 }
 ]
