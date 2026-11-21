@@ -3198,3 +3198,13 @@ The user (verbatim, after v471): 「我希望肩膀火焰飄蕩的角度更傾�
 3. The garb steps up when each step completes (K 1 → 1.3 → 1.6 → 2.0, as §29), and through the walk the whole garb trails back clearly (a
    lean set by the cinematic, not only the spring's 0.02 m a frame).
 4. Right after the third step he flash-steps behind the victim (the pass, §19.1's 124 beat and everything after it, moved to follow it).
+
+### 29.4 The walk shot from 15° behind and closer; the garb's tilt at most 25° (the user, 2026-11-21)
+
+The user (verbatim, after v472): 「改成後方 15° 拍攝，並將鏡頭拉近，火衣成水平傾斜最高不超過 25°」
+
+1. The 西 Kikon's walk camera: 15° off straight behind him (on his right, as §29.2), still at eye level and level, closer than §29.3's
+   7.0 m (phone 6.0).
+2. No part of the garb tilts more than 25° from its upright direction (tan 25° = 0.466 m sideways per metre): the spring's cap (was 0.6 =
+   31°), the cinematic's walk lean (was 0.48) and the wings' 2.4× bend (which reached about 50° in the walk) are all clamped to it. The
+   wings still trail more than the body at a walk (their bend reaches the cap sooner).
