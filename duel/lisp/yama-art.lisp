@@ -275,6 +275,7 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
   (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
+    (yama-lean-draw (model-joints m) (fighter-side f))   ; the garb's trailing spring, every frame in any form (§29.1)
     (ya-dead-reset)
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (eql (fighter-ptr f) 2)   ; 西's form aura, 殘日獄衣 at K 1 (J2, §28.4),
                (> (model-alpha m) 0.5) (not (eql e *aura-off*))                 ;  every frame under 西 but while a flare draws

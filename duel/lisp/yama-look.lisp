@@ -281,7 +281,65 @@ where it started. A look."
 ;;; NS2a / NS2b / AS2b (K > 1) and the 西 Kikon cinematic (yama-cine.lisp %YA-GARB).
 (defconstant +ya-garb-h+ 1.815f0 "The garb's height: 1.1 x his hurt height 1.65 m, as DRAW-AURA passes a form's aura.")
 (declaim (type f32vec *ya-garb-args*))
-(defvar *ya-garb-args* (make-f32 3) "YA-GARB's arguments: x z k (YA-GARB-DRAW reads them: no boxed float).")
+(defvar *ya-garb-args* (make-f32 5)
+  "YA-GARB's arguments: x z k, and [3] [4] the trailing lean x z (a shear, metres sideways per metre up: YAMA-LEAN-USE sets it for the
+fighter whose garb is drawn next). YA-GARB-DRAW reads them: no boxed float.")
+
+;;; The garb trails behind him (§29.1, the user, 2026-11-21: 「請讓火衣在行走時會向反方向自然飄蕩」): a damped spring per side on his drawn
+;;; velocity (his posed pelvis frame to frame), stepped in YAMA-DRAW every frame; its lean shears the garb's tongues and wings away from
+;;; where he goes (the roots stay on the floor, the tips go furthest) and settles back upright, with a small overshoot, when he stops.
+(declaim (type f32vec *ya-lean*))
+(defvar *ya-lean* (make-f32 16)
+  "The garb's trailing spring, 8 slots a side (at 8 x side): his pelvis's last drawn x z, his filtered velocity x z (m/s), the lean x z
+(the shear) and its rate x z. Cosmetic: the sim never reads it.")
+
+(defun-fast-inline yama-lean-step (side x z dt vt)
+  "Step side SIDE's garb spring (*YA-LEAN*) to his pelvis at X Z after DT effect seconds (0 while frozen: hitstop, a pause; nothing moves,
+the place is still kept). The velocity is the drawn delta over VT, the frame's seconds without a cinematic's slow motion (the 西 Kikon's
+walk moves its actors at the script's rate while CINE-SLOW halves DT: over DT it read twice as fast and pinned the lean at its cap), its speed clamped to 10 m/s, low-passed (25 / s, so a render rate above
+the sim's 60 Hz steps reads as a mean), and a jump over 0.6 m in a frame (a placement, CINE-PLACE / CINE-STAGE, a round reset, a teleport)
+is not a velocity at all. Target lean: -0.09 x the velocity (a shear), at most 0.6 (31 deg: reached from 6.7 m/s, his run is 8; his walk
+3.2 m/s leans 0.29, 16 deg). The spring: omega 10 / s, damping 0.4 (about a 25 % overshoot on a stop), semi-implicit Euler in steps of at
+most 1/60 s. 0 B."
+  (declare (fixnum side) (single-float x z dt vt))
+  (let* ((v *ya-lean*) (o (* 8 side)) (dx (- x (aref v o))) (dz (- z (aref v (+ o 1)))) (d (f-hypot dx dz)))
+    (declare (type f32vec v) (fixnum o) (single-float dx dz d))
+    (setf (aref v o) x (aref v (+ o 1)) z)
+    (when (> dt 0f0)
+      (unless (> d 0.6f0)                                ; (a jump: no velocity this frame)
+        (let* ((sp (/ d vt)) (s (if (> sp 10f0) (/ 10f0 sp) 1f0)) (a (f-min 1f0 (* 25f0 dt))))
+          (declare (single-float sp s a))
+          (setf (aref v (+ o 2)) (+ (aref v (+ o 2)) (* a (- (* s (/ dx vt)) (aref v (+ o 2)))))
+                (aref v (+ o 3)) (+ (aref v (+ o 3)) (* a (- (* s (/ dz vt)) (aref v (+ o 3))))))))
+      (let* ((tx (* -0.09f0 (aref v (+ o 2)))) (tz (* -0.09f0 (aref v (+ o 3)))) (tl (f-hypot tx tz))
+             (c (if (> tl 0.6f0) (/ 0.6f0 tl) 1f0)) (n (min 4 (max 1 (f->i (+ 0.99f0 (* 60f0 dt)))))) (h (/ dt (i->f n))))
+        (declare (single-float tx tz tl c h) (fixnum n))
+        (setf tx (* c tx) tz (* c tz))
+        (dotimes (i n)
+          (setf (aref v (+ o 6)) (+ (aref v (+ o 6)) (* h (- (* 100f0 (- tx (aref v (+ o 4)))) (* 8f0 (aref v (+ o 6))))))
+                (aref v (+ o 7)) (+ (aref v (+ o 7)) (* h (- (* 100f0 (- tz (aref v (+ o 5)))) (* 8f0 (aref v (+ o 7))))))
+                (aref v (+ o 4)) (+ (aref v (+ o 4)) (* h (aref v (+ o 6))))
+                (aref v (+ o 5)) (+ (aref v (+ o 5)) (* h (aref v (+ o 7)))))))))
+  nil)
+
+(defun-fast yama-lean-draw (jm side)
+  "YAMA-DRAW's every frame: step side SIDE's garb spring to his posed pelvis (JM his joints) on this frame's effect seconds (*YA-RDT*),
+then make it the lean of the garbs he draws (YAMA-LEAN-USE). The velocity's seconds: those over *CINE-TIME-SCALE* (1 out of a
+cinematic). 0 B."
+  (declare (type f32vec jm) (fixnum side))
+  (let* ((o (* 16 (ji :pelvis))) (dt (aref *ya-rdt* 0)) (vt (/ dt (f-max 0.05f0 (the single-float *cine-time-scale*)))))
+    (declare (fixnum o) (single-float dt vt))
+    (yama-lean-step side (aref jm (+ o 12)) (aref jm (+ o 14)) dt vt))
+  (yama-lean-use side)
+  nil)
+
+(defun-fast yama-lean-use (side)
+  "The next garbs drawn (YA-GARB) lean as side SIDE's spring says (*YA-LEAN* into *YA-GARB-ARGS* [3] [4]). 0 B."
+  (declare (fixnum side))
+  (let ((v *ya-lean*) (ar *ya-garb-args*) (o (* 8 side)))
+    (declare (type f32vec v ar) (fixnum o))
+    (setf (aref ar 3) (aref v (+ o 4)) (aref ar 4) (aref v (+ o 5))))
+  nil)
 
 (defmacro ya-garb (x z k)
   "Draw 殘日獄衣 (YA-GARB-DRAW) at his feet (X Z), K its presence (< 1) or flare (> 1: taller x K, wider). Single-float forms, written
@@ -293,10 +351,10 @@ into *YA-GARB-ARGS*: 0 B."
 
 (defun-fast ya-garb-draw ()
   "殘日獄衣 from *YA-GARB-ARGS* (YA-GARB): %GARB-AURA at the floor, +YA-GARB-H+ tall, the scraps on this frame's effect seconds (*YA-RDT*,
-kept by YAMA-DRAW). A look; 0 B."
-  (let* ((ar *ya-garb-args*) (x (aref ar 0)) (z (aref ar 1)) (k (aref ar 2)) (dt (aref *ya-rdt* 0)))
-    (declare (type f32vec ar) (single-float x z k dt))
-    (%garb-aura x 0f0 z +ya-garb-h+ k dt))
+kept by YAMA-DRAW), sheared by the trailing lean in [3] [4] (YAMA-LEAN-USE, §29.1). A look; 0 B."
+  (let* ((ar *ya-garb-args*) (x (aref ar 0)) (z (aref ar 1)) (k (aref ar 2)) (dt (aref *ya-rdt* 0)) (sx (aref ar 3)) (sz (aref ar 4)))
+    (declare (type f32vec ar) (single-float x z k dt sx sz))
+    (%garb-aura x 0f0 z +ya-garb-h+ k dt sx sz))
   nil)
 
 ;;; ---------------------------------------------------------------- the moves' own looks (the :draw hook: YAMA-DRAW)
@@ -1405,6 +1463,9 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
                      (cons-per "crescent" (yama-bk-moves pos yaw 8 11 0.016f0))
                      (cons-per "garb" (yama-garb-at (model-joints (model *p1*))))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
+                     (cons-per "garb-lean" (progn (setf (aref *ya-lean* 4) 0.4f0 (aref *ya-lean* 5) 0.2f0)   ; (§29.1: the spring stepped,
+                                                  (yama-lean-draw (model-joints (model *p1*)) 0)               ;  the garb sheared)
+                                                  (yama-garb-at (model-joints (model *p1*)))))
                      (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
                      (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))

@@ -188,8 +188,9 @@ it, the model untouched; at f52 the cinematic hides what is left, CINE-END's REF
 stance's size from f0 (the play garb carried on; the coordinator, 2026-11-21: through the whole 西 form), stepping up at each footfall of the walk (YAMA-NISHI-GARB-K, §29), at full after the pass (guttering from f156);
 at each footfall a heat ring out from the foot and a molten print cooling where it landed (f74-124); the white-hot streak of the pass
 (f124-134); the column of flame rising off the victim (f130-170: 西's fire); the ash streaming up off his charred body from f134, black
-smoke from f150. A look; 0 B."
+smoke from f150. The garb trails behind him as he walks (§29.1: his side's spring, YAMA-LEAN-USE). A look; 0 B."
   (declare (fixnum cf))
+  (yama-lean-use (fighter-side (fighter a)))
   (%ya-line (px pz qx qz fx fz rx rz d) a v
     (let ((rdt (aref *ya-rdt* 0)) (seed 37f0) (dr (flow-ph)))   ; (DR: a flowing phase, §15.7; SEED a literal: his position
                                                                    ;  churned the noise through the walk, §15.8)
