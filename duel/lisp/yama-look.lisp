@@ -298,7 +298,7 @@ fighter whose garb is drawn next). YA-GARB-DRAW reads them: no boxed float.")
 the place is still kept). The velocity is the drawn delta over VT, the frame's seconds without a cinematic's slow motion (the 西 Kikon's
 walk moves its actors at the script's rate while CINE-SLOW halves DT: over DT it read twice as fast and pinned the lean at its cap), its speed clamped to 10 m/s, low-passed (25 / s, so a render rate above
 the sim's 60 Hz steps reads as a mean), and a jump over 0.6 m in a frame (a placement, CINE-PLACE / CINE-STAGE, a round reset, a teleport)
-is not a velocity at all. Target lean: -0.09 x the velocity (the tips' trail per metre), at most 0.6 (31 deg: reached from 6.7 m/s, his run is 8; his walk
+is not a velocity at all. Target lean: -0.09 x the velocity (the tips' trail per metre), at most 0.466 (tan 25 deg, §29.4: the user 「最高不超過 25°」; 0.6 = 31 deg before; reached from 5.2 m/s, his run is 8; his walk
 3.2 m/s leans 0.29, 16 deg). The spring: omega 10 / s, damping 0.4 (about a 25 % overshoot on a stop), semi-implicit Euler in steps of at
 most 1/60 s. 0 B."
   (declare (fixnum side) (single-float x z dt vt))
@@ -312,7 +312,7 @@ most 1/60 s. 0 B."
           (setf (aref v (+ o 2)) (+ (aref v (+ o 2)) (* a (- (* s (/ dx vt)) (aref v (+ o 2)))))
                 (aref v (+ o 3)) (+ (aref v (+ o 3)) (* a (- (* s (/ dz vt)) (aref v (+ o 3))))))))
       (let* ((tx (* -0.09f0 (aref v (+ o 2)))) (tz (* -0.09f0 (aref v (+ o 3)))) (tl (f-hypot tx tz))
-             (c (if (> tl 0.6f0) (/ 0.6f0 tl) 1f0)) (n (min 4 (max 1 (f->i (+ 0.99f0 (* 60f0 dt)))))) (h (/ dt (i->f n))))
+             (c (if (> tl 0.466f0) (/ 0.466f0 tl) 1f0)) (n (min 4 (max 1 (f->i (+ 0.99f0 (* 60f0 dt)))))) (h (/ dt (i->f n))))
         (declare (single-float tx tz tl c h) (fixnum n))
         (setf tx (* c tx) tz (* c tz))
         (dotimes (i n)
@@ -1488,7 +1488,10 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "south-dead" (yama-minami-look *p1* *p2* 90))
                      (cons-per "south-pile" (yama-minami-look *p1* *p2* 130))
                      (cons-per "south-burst" (yama-minami-look *p1* *p2* 150))))))
-    (ya-dead-reset)))
+    (ya-dead-reset)
+    (log-msg "yama garb tilt max (deg, leans 0..2 m/m): tongue ~,1f wing ~,1f (cap 25)"   ; (§29.4: GARB-BEND-K's cut, every part)
+             (loop for i to 40 for sl = (* 0.05f0 i) maximize (* 57.29578 (atan (* sl (garb-bend-k sl 1f0)))))
+             (loop for i to 40 for sl = (* 0.05f0 i) maximize (* 57.29578 (atan (* sl (garb-bend-k sl 2.4f0))))))))
 
 (defun yama-shikai-consing ()
   "Debug 87449 (art S1, DUEL_YAMA_CORE §22): bytes consed by 10 draws of each Shikai / 爆炎 look (0 B each wanted), per tier, on stand-in

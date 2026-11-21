@@ -180,14 +180,14 @@ each snapped in over 2 frames with a 0.15 overshoot fading over 6: a jump per st
 
 (defun-fast-inline yama-nishi-lean (c)
   "西's garb trailing on the walk (§29.3: 「全身的火焰朝後方飄蕩」): the lean the cinematic sets (the tips' trail per metre, as *YA-LEAN*'s)
-at frame C: 0 before f66, eased in to 0.48 by f90, held to the flash (f216); the play spring alone would give 0.11 at 0.02 m a frame.
+at frame C: 0 before f66, eased in to the 25 deg cap (0.466, §29.4; 0.48 before) by f90, held to the flash (f216); the play spring alone would give 0.11 at 0.02 m a frame.
 Pure; 0 B."
   (declare (single-float c))
   (if (or (< c 66f0) (>= c 216f0))
       0f0
       (let ((u (f-clamp (/ (- c 66f0) 24f0) 0f0 1f0)))
         (declare (single-float u))
-        (* 0.48f0 u u (- 3f0 (* 2f0 u))))))
+        (* 0.466f0 u u (- 3f0 (* 2f0 u))))))
 
 (defun-fast yama-nishi-look (a v cf)
   "西's look at cinematic frame CF: f40-52 the victim's weapon turning to ash from the tip toward the hilt (§15.3.4 flag 4: ash drawn over
@@ -337,15 +337,14 @@ does not move. Given back at CINE-END (CINE-SAVE)."
       (setf (aref q 0) (+ px (* g fx)) (aref q 1) (* 1.6f0 u (- 1f0 u)) (aref q 2) (+ pz (* g fz))))))
 
 (defun yama-nishi-track (a v)
-  "西's walk shot (§29.2, the user: 「從右後方 30° 平視往前拍攝」): 30 deg off straight behind him on his right (150 deg off his front),
-7.0 m back on a long lens (38; portrait 6.0, %PORTRAIT-DOLLY backs it off), at his eye height (1.5 m x his drawn scale), looking level
-along the walk at the pair's middle at the same height: he on the left, the victim past him on the right, clear of the K 2 garb (at 4 m
-the victim stood behind its right wing: from further back the two part by more than the garb's width), the whole garb in the frame. (§29's shot, 145 deg on his left from 5 m
-back and 3.4 m up looking down, left.) A CINE-CAM with no subject: %KEEP-SUBJECT would centre him on a phone, in front of the victim."
+  "西's walk shot (§29.4, the user: 「改成後方 15° 拍攝，並將鏡頭拉近」; §29.2's 「平視」): 15 deg off straight behind him on his right
+(165 deg off his front), 4.3 m back on lens 50 (portrait 3.8, %PORTRAIT-DOLLY backs it off), at his eye height (1.5 m x his drawn scale),
+looking level along the walk at the pair's middle at the same height: he on the left, the victim just past his right side, partly behind
+the garb as they close. (§29.2-§29.3: 30 deg from 7.0 m on lens 38; §29: 145 deg on his left from 5 m back and 3.4 m up looking down.) A CINE-CAM with no subject: %KEEP-SUBJECT would centre him on a phone, in front of the victim."
   (setf *cine-close* nil *cine-subject* nil)
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let* ((dd (if (portrait-p) 6.0f0 7.0f0)) (ey (* 1.5f0 (draw-scale-of a)))
-           (bx (+ (* -0.866f0 fx) (* 0.5f0 rx))) (bz (+ (* -0.866f0 fz) (* 0.5f0 rz))))   ; (cos / sin 150 deg; his right = +R)
+    (let* ((dd (if (portrait-p) 3.8f0 4.3f0)) (ey (* 1.5f0 (draw-scale-of a)))
+           (bx (+ (* -0.9659f0 fx) (* 0.2588f0 rx))) (bz (+ (* -0.9659f0 fz) (* 0.2588f0 rz))))   ; (cos / sin 165 deg; his right = +R)
       (declare (single-float dd ey bx bz))
       (cine-cam (+ px (* dd bx)) ey (+ pz (* dd bz)) (* 0.5f0 (+ px qx)) ey (* 0.5f0 (+ pz qz))))))
 
@@ -403,7 +402,7 @@ wide, the old man never turns, the garb gutters out."
   (at 53 (cine-clip v :sh-step-b :blend 2 :speed 1.7) (play-sfx :whoosh-heavy :pitch 0.7 :gain 0.7))   ; (the leap back: 24 f in 14)
   (when (and step-p (< 52 cf 65)) (yama-nishi-leap a v cf))
   (at 64 (cine-clip v :sh-stagger :blend 2) (play-sfx :land :pitch 0.9 :gain 0.5))   ; (lands off balance)
-  (at 66 (lens 38) (cine-clip a :sh-walk-f :blend 8 :speed 0.55))   ; the walk from behind at 南's pace, real time (§29.3): a step
+  (at 66 (lens 50) (cine-clip a :sh-walk-f :blend 8 :speed 0.55))   ; the walk from behind at 南's pace, real time (§29.3): a step
   (when (and step-p (<= 66 cf 215)) (yama-nishi-walk a v cf))       ;  each 49.1 f, landing f115 / f164 / f213
   (at 115 (yama-nishi-fall v 0) (caption "残日獄衣" :mark "西" :reading "ZANJITSU GOKUI" :sub "ZANKA NO TACHI" :side 0 :hanko t))
   (at 164 (yama-nishi-fall v 1))
