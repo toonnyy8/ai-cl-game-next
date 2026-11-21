@@ -286,7 +286,7 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
     (when (and mv (member (kit-form (fighter-kit f)) '(:bankai :north)))
       (let ((c (yama-bk-code mv)))
         (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt))))
-      (when (and (eq (mv-name mv) :ya-e-n4) (eq (fighter-phase f) :main) (<= (fighter-sf f) 20) (model-weapon m))   ; 北's burn (art K3)
+      (when (and (eq (mv-name mv) :ya-e-as4) (eq (fighter-phase f) :main) (<= (fighter-sf f) 20) (model-weapon m))   ; 天地灰尽's burn (art K3; AS4's last since §31)
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) *ya-tip*)
         (body-weapon-base (model-body m) (model-weapon m) (model-joints m) *ya-base*)
         (%ya-blade-burn *ya-tip* *ya-base* (fighter-sf f))))

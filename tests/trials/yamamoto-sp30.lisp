@@ -26,8 +26,8 @@
 (:name "N1 the third mark: 東 西 held, J1-J3 > AS3, 北 at the next neutral (pointer 3, the AS3 write, saved)" :p1 :yamamoto :form :bankai :p2 :kenpachi
  :ptr 1 :dist 1.4 :fs 300 :p1-cmd (87445 87441 87442)
  :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 300)
-(:name "N2 北 NS a > b > c (5 m)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 5.0 :fs 300 :p1-cmd (87445 87444)
- :script ((:quick 1 :modded t :wait 30) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)
+(:name "N2 北 NS a > b (5 m): b the knockdown (c left for AS4, §31)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 5.0 :fs 300
+ :p1-cmd (87445 87444) :script ((:quick 1 :modded t :wait 30) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)
 (:name "N3 北 J1 > AS (1.4 m)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300 :p1-cmd (87445 87444)
  :script ((:quick 1 :wait 30) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)
 (:name "N4 北 J1 J2 J3 > AS (1.4 m)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300 :p1-cmd (87445 87444)
@@ -36,3 +36,27 @@
  :p1-cmd (87445 87444) :script ((:quick 1 :wait 30) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 60 :modded t)) :frames 300)
 (:name "N6 北's count: 600 live ticks after the entry pose, back to the Bankai under pointer 2" :p1 :yamamoto :form :bankai :p2 :kenpachi
  :ptr 2 :dist 3.0 :fs 300 :p1-cmd (87445 87444) :script () :frames 660)
+;; AS4 天地灰尽 (§31): J4's AS, x (1 + 0.25 a mark) on its four segments 40 > 50 > 60 > 140, its Kikon 2 / 3 / 4 / 5 Konpaku by the marks;
+;; his next neutral after it clears the marks (`AS4 spent`); 北 keeps the marks it entered with and clears them when it ends
+(:name "A1 Bankai J1-J4 > AS4 (1.4 m), no mark: x1.0, no pointer written" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)
+                          (:quick 1 :modded t)) :frames 300)
+(:name "A2 the same with 東 西 held: x1.5, then neutral clears them" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87441 87442) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t)
+                                      (:quick 1 :modded t) (:quick 1 :modded t)) :frames 300)
+(:name "A3 Bankai J1-J4 > AS4a held, 東 西 held: the Kikon takes 4" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87441 87442) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 300)
+(:name "A3b control: no mark: the Kikon takes 2" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 300)
+(:name "A4 北 with 東 西 南 kept: J1-J4 > AS4 x1.75, then neutral clears them, 北 goes on" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2
+ :dist 1.4 :fs 300 :p1-cmd (87445 87441 87442 87443 87444)
+ :script ((:quick 1 :wait 30) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)
+          (:quick 1 :modded t)) :frames 330)
+(:name "A5 北 with three marks: AS4a held, the Kikon takes 5" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87441 87442 87443 87444) :script ((:quick 1 :wait 30) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit))
+ :frames 330)
+(:name "A6 北 J1 J2 J3 > AS (1.4 m): grip > cut, the cut the knockdown" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87444) :script ((:quick 1 :wait 30) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t))
+ :frames 240)
+(:name "A7 北 entered with three marks, its count to 0: the marks clear as it ends" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 3.0
+ :fs 300 :p1-cmd (87445 87441 87442 87443 87444) :script () :frames 660)

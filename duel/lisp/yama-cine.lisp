@@ -19,7 +19,7 @@ after the reset: dropped.)"
   (during (68 168) (vfx-tenchi-slash (/ (- cf 68) 60.0) 0.8))
   (at 68 (card nil) (play-sfx :kikon-slash) (impact-frame :two-tone 4) (shot-pair a v 1 5.0 1.4) (lens 55))
   (at 72 (impact-frame :manga 12))
-  (at 86 (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-ash-burst x y z) (vfx-konpaku-shatter x y z 3))
+  (at 86 (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-ash-burst x y z) (vfx-konpaku-shatter x y z (fighter-kikon-n (fighter a))))
       (impact-splash-at v 0.0 14 0.07)
       (play-sfx :konpaku-shatter) (play-sfx :sizzle) (shake 0.2 0.3))
   (at 110 (shot-on a -35 4.6 0.5 :look 1.3) (lens 48) (caption-exit)))

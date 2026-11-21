@@ -43,7 +43,7 @@
 (:name "C17 南 NSc's bone wall stops Ichigo's Getsuga" :p1 :yamamoto :form :bankai :p2 :ichigo :ptr 3 :dist 8.0 :fs 300 :p1-cmd (87445 87428)
  :script () :p2-start ((22 :ic-as2b)) :frames 120)
 (:name "C18 AS 北 held after J1: the Kikon at pointer 3's profile (the Bankai's 3 - 1 = 2 Konpaku)" :p1 :yamamoto :form :bankai
- :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300 :p1-cmd (87445 87444) :script ((:quick 1) (:quick 60 :modded t :on :hit)) :frames 200)
+ :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300 :p1-cmd (87445 87444) :script ((:quick 1 :wait 30) (:quick 60 :modded t :on :hit)) :frames 200)
 (:name "C18b control: AS2 held after J1 J2 under pointer 2 (no 北): pointer 2's profile, 3 Konpaku" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2
  :dist 1.4 :fs 300 :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 200)
 ;;; §30.3 (2026-11-21): 南's skeleton tower. NSa raises it 2.5 m before him (the `tower level 1 at ... m from him` line): a victim at 2.5 m

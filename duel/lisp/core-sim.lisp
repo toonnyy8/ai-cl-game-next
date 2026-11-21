@@ -446,9 +446,12 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
   (or (core-pointer-cine att (fighter-ptr (fighter att))) (kit-kikon-cine (kit-of att))))
 
 (defun core-set-kikon-n! (att red)
-  "The Konpaku the Kikon about to follow takes: the kit's count in the style of the SP that struck (CORE-KIKON-COUNT)."
-  (let ((f (fighter att)))
-    (setf (fighter-kikon-n f) (core-kikon-count (kit-kikon-konpaku (fighter-kit f)) (fighter-sp-ptr f) red))))
+  "The Konpaku the Kikon about to follow takes: the kit's count in the style of the SP that struck (CORE-KIKON-COUNT), or what the kit's
+:kikon-n hook (ATT N) makes of it (Yamamoto's AS4 by his marks, DUEL_YAMA_CORE §31; no hook: N)."
+  (let* ((f (fighter att))
+         (n (core-kikon-count (kit-kikon-konpaku (fighter-kit f)) (fighter-sp-ptr f) red))
+         (h (kit-hook (fighter-kit f) :kikon-n)))
+    (setf (fighter-kikon-n f) (if h (funcall h att n) n))))
 
 (defun core-confirm-frames (f mv)
   "Frames of F's dash-in (phase :follow) after his held SP MV's hit that the hold is judged on: *CORE-KIKON-CONFIRM*, on the phone

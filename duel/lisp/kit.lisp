@@ -636,6 +636,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      CPU's MV-MIN-REACH; no hook: M): Hisagi (his cancel unlock, DUEL_HISAGI §29)
       :sp-gain-mult (att)            x his flash-step gain on a hit (SP-ATK-HIT!): Hisagi's Bankai
       :kikon-worth (e)               the Konpaku his Kikon would take now (KIKON-WORTH): Ichigo's KESSA
+      :kikon-n (att n) -> n          the Konpaku a core Kikon takes, given the pointer profile's N (CORE-SET-KIKON-N!): Yamamoto
+                                     (AS4 by his marks)
       :threat (e o slack)            values the frames and class of his soonest classed hit still to come that no window of
                                      his move shows (PRACTICE's GUARD ALL dummy O, DUMMY-WAVE-THREAT): Ichigo's KESSA (clones)
       :reset (e)                     a Kikon / Soul Break reset put him back (RESET-ROUND): Hisagi

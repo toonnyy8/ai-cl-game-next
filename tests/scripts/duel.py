@@ -925,7 +925,6 @@ YAMA_K1 = (   # look, P2 metres, the segment's command, ((frames after it, still
     ("lance", 8.0, 87420, ((22, "l7-lance"),)),
     ("flare", 3.0, 87423, ((18, "l8-flare"), (28, "l8-flare-2"))),
     ("armour", 2.0, 87437, ((4, "l9-armour"),)),
-    ("north", 12.0, 87429, ((30, "l10-north"),)),
     ("crescent", 4.0, 87436, ((11, "l10-crescent"),)),
 )
 def yama_k1_script(phone=False):
@@ -1724,7 +1723,7 @@ def yama_sp30b_script():
     scene("the third mark: J1-J3 > AS3, NORTH at the next neutral", (87014, 87301, 87445, 87441, 87442))
     [j(t + 0.3 + 0.25 * i) for i in range(3)]; sp(t + 1.1); sp(t + 1.4); sp(t + 1.7)
     ev.append(cmd(t + 3.0, 87900)); ev.append(shot(t + 2.75, "yama-sp30-north-in")); ev.append(shot(t + 3.4, "yama-sp30-north")); t += 4.0
-    scene("NORTH NS a-b-c (5 m)", (87050, 87444)); sp(t + 0.6); sp(t + 0.9); sp(t + 1.2); t += 3.0
+    scene("NORTH NS a-b (5 m)", (87050, 87444)); sp(t + 0.6); sp(t + 0.9); t += 3.0
     scene("NORTH J1 > AS (1.4 m)", (87014, 87444)); j(t + 0.6); sp(t + 0.95); sp(t + 1.2); sp(t + 1.45); t += 3.0
     scene("NORTH J1 > AS held: the Kikon pauses the count", (87014, 87444, 87900)); j(t + 0.6); sp(t + 0.95, 1.4)
     for k in range(12): ev.append(cmd(t + 1.0 + 0.5 * k, 87900))
@@ -1732,6 +1731,11 @@ def yama_sp30b_script():
     scene("NORTH counts on to its end", ())
     for k in range(14): ev.append(cmd(t + 0.5 * k, 87900))
     t += 7.5
+    # §31 (2026-11-22): J4 > AS4 天地灰尽, held into its own Kikon; 東 西 held: 4 Konpaku, then neutral clears the marks
+    scene("AS4: Bankai J1-J4 > AS4 held, 2 marks", (87014, 87446, 87302, 87445, 87441, 87442))
+    [j(t + 0.3 + 0.25 * i) for i in range(4)]; sp(t + 1.4, 1.4)
+    for k in range(8): ev.append(cmd(t + 1.5 + 0.5 * k, 87900))
+    ev.append(shot(t + 3.2, "yama-as4-kikon")); t += 7.0
     ev.append(cmd(t, 87448)); t += 0.5
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])

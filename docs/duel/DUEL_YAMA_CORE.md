@@ -3571,3 +3571,46 @@ No balance gates, no looks gate, no CPU match.
 - NSa's length.
 - The CPU plays 西's charges and 北 with the generic core CPU, untuned (北's `:ns-range` (2.0 5.0) for 灰線).
 - DUEL_DESIGN §5.1 must be regenerated again after merging §30.1 (Shikai pointer 2's costs).
+
+## 31. AS4 天地灰尽: J4's AS and its own Kikon, by the marks held (the user, 2026-11-22; built)
+
+The user, 2026-11-22: 「天地灰盡改成 AS4 與接入的特殊毀魂技好了，只要持有越多方位標記 AS4 與毀魂技的傷害就越高。」
+
+The lead's question: the marks clear when 北 starts and the third mark always enters 北, so "more marks" had nothing to scale. The user's
+answer: 「增加 J4 可以接入 AS4，AS4 能使出特殊毀魂技，當使用過 AS4 並回到中立後就會消除目前的方位記號」. 北's NS c: 「No preference」 (the
+lead's default: NS a / b only).
+
+**As built.**
+
+| Piece | Rule |
+|---|---|
+| E-J4 `:ya-e-j4` | the Bankai string's fourth link (S9, 46, reach 1.52, stagger; E-J1's clip retimed, a placeholder); 北 inherits it; 西's charge reaches with it (`*ya-reach-moves*`) |
+| AS4 | J4's AS only (`:as-by-press (1 2 3 4)` in the Bankai, `(1 1 1 2)` in 北); four segments (AS n = n): the ash grip `:ya-e-as4a` 40 > the ash cut `-as4b` 50 > the ash line `-as4c` 60 > 天地灰尽 point-blank `:ya-e-as4` 140 (a knockdown); SP 15 / 20 / 25 / 55 |
+| Pointer | AS4 writes none (`:as-writes (1 2 3 nil)`, 北 `(nil nil)`) and gives no mark |
+| Damage | every AS4 segment (`:params :as4`) x (1 + `*ya-as4-mark-x*` 0.25 x the marks held): 0 / 1 / 2 / 3 marks = x1.0 / 1.25 / 1.5 / 1.75 (`yama-dmg-mult`); 西's charge x stacks on it |
+| Its Kikon | any AS4 segment held: 天地灰尽's cinematic (`:cine` on every segment; round.lisp reads the struck move's first), taking `*ya-as4-konpaku*` 2 / 3 / 4 / 5 Konpaku by the marks (the new generic kit hook `:kikon-n` in `core-set-kikon-n!`, default off; 5 is past `*core-kikon-max*` 4); the cinematic shatters that many |
+| The marks spent | AS4's frame 0 marks it used (`yama-as4-start`); his next neutral clears the marks (`yama-as4-spent`, in both kits' `:tick`) |
+| 北 | entry keeps the marks (`*ya-north-keeps-marks*` T; §30.4 cleared them), so 北's AS4 has all three; 北's end clears them (else the Bankai's next tick enters 北 again). NS a 灰線 > b 灰燼步 (now the knockdown); the AS after J1-3 the grip > the cut (now the knockdown); the old NS c wave `:ya-e-n4` and its strike left |
+| Trade-off | in the Bankai AS4 sees at most 2 marks (the third enters 北 at the next neutral), and spends them: progress toward 北 |
+| Debug | 87429 = AS4's first segment, 87436 = AS4's last, 87455 = AS4's third (was 北's NS c) |
+
+**Checks** (a sim change: rules, shared hook).
+
+| Check | Result |
+|---|---|
+| Host tests | 4329 ALL PASS; control, input, touch, cine pass |
+| `python3 tests/sp-costs-check.py` | 116 PASS, 0 FAIL |
+| `debug-ranges-check.py` | 90 ranges, 0 errors |
+| pkgcheck | only `DUEL::APP` (sim-state.lisp, older) |
+| Build, smoke | built; exit 0 |
+| `--cvc` | II / IK / KK identical (33 / 28 / 27 lines) |
+| Trials `yamamoto-sp30.lisp` A1-A7 | A1 no mark: total 186, `AS4 pointer kept 2`; A2 東 西: 248, `AS4 spent: marks 3 -> 0`; A3 held with 2 marks -4 Konpaku, A3b none -2; A4 北 with three: 278, marks 7 -> 0, 北 goes on; A5 北 held -5; A6 北's AS grip > cut; A7 `NORTH over ... marks cleared` |
+| `yamamoto-bankai.lisp` | C18 (北's AS held: -2) fixed with a 30 f wait past the entry pose (it pressed J1 inside it and lost the press, before §31 too) |
+| `duel-yama-sp30b.json` | exit 0; `AS4: Bankai J1-J4 > AS4 held, 2 marks`: `KIKON on P2: -4`, `cine YAMA-TENCHI-CINE`, `AS4 spent: marks 3 -> 0`; consing as before (south 80 B, the rest 0) |
+
+**Open.**
+- The user: does 北 keep the marks at entry (built: yes)? The numbers x0.25 a mark and 2-5 Konpaku are the lead's placeholders.
+- The plate's at-stake hint (`core-kikon-stake`) doesn't see the `:kikon-n` hook; a Soul Break off AS4 plays the pointer's cinematic.
+- 北's plate shows `NORTH`, not the marks it keeps.
+- Art: E-J4's own clip, AS4's segment clips, the wave look `yama-north-look` (kept for it).
+- CPU untuned for J4 / AS4.

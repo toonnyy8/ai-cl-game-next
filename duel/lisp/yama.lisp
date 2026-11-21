@@ -206,6 +206,15 @@ lead's placeholder, §14).")
 (defparameter *ya-north-ticks* 600
   "北's length (§30.4, the user 2026-11-21: R4 「a 10 s timer」): live sim steps its meter counts down (cinematics and hitstop pause it).")
 (defparameter *ya-north-in-frames* 24 "北's entry pose (§30.4): frames, invulnerable (爆炎's *YA-BLAZE-IN-FRAMES*).")
+(defparameter *ya-as4-mark-x* 0.25
+  "AS4 天地灰尽 (§31, the user 2026-11-22: 「只要持有越多方位標記 AS4 與毀魂技的傷害就越高」): each mark held adds this to its segments' damage
+x (0 / 1 / 2 / 3 marks: x1.0 / 1.25 / 1.5 / 1.75). The lead's placeholder, tuned by play. New, §31.")
+(defparameter *ya-as4-konpaku* '(2 3 4 5)
+  "AS4's Kikon (§31): the Konpaku it takes by the marks held (0-3), over the pointer's profile (YAMA-KIKON-N; 5 = a Soul Break's cap,
+past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
+(defparameter *ya-north-keeps-marks* t
+  "Does 北 keep the marks it was entered with (§31: T, so 北's AS4 has all three; they clear when 北 ends or after AS4 at neutral)? NIL:
+they clear at entry (§30.4, 2026-11-21 to 2026-11-22). Open for the user (§31).")
 
 ;; NA: the fencer's lunge (§6, A): E-J1 S14 (its own clip at S14 since art K2: the opener's held tell) > E-J2 the rising backhand S7 >
 ;; E-J3 the dropped-knee thrust S8 (a stagger, no knockdown, no :ender push: the AS follows). Reach the old clips' drawn tips (1.52 / 1.59 /
@@ -217,11 +226,14 @@ lead's placeholder, §14).")
   :reach 1.59 :arc 100 :on-hit :flinch)
 (defmove :ya-e-j3 :kind :quick :clip :ya-e-q3 :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
   :reach 1.71 :arc 60 :on-hit :stagger)
+;; E-J4 (§31, the user 2026-11-22: 「增加 J4 可以接入 AS4」): the string's fourth link, the only one AS4 follows (:as-by-press (1 2 3 4)).
+;; ponytail: E-J1's clip retimed (:clip-s 14) as a placeholder; its own clip in the art batch
+(defmove :ya-e-j4 :kind :quick :clip :ya-e-q1 :clip-s 14 :startup 9 :active 3 :recovery 20 :dmg 46 :adv-block -6
+  :reach 1.52 :arc 100 :on-hit :stagger)
 ;; the hazard segments' Kikon strikes (one per class, §7.4); 北's wave has its own, carrying 天地灰尽's cinematic (the Kikon's cinematic is the
 ;; landing strike's :cine, round.lisp SETTLE-SOULS)
 (defmove-copy :ya-e-ns-strike :ya-e-j1 :reach 1.6 :params (:follow-cap 40.0 :look :flash-step))
 (defmove-copy :ya-e-as-strike :ya-e-ns-strike)
-(defmove-copy :ya-e-n4-strike :ya-e-ns-strike :cine yama-tenchi-cine)
 
 ;;; ---------------------------------------------------------------- 1 東 KYOKUJITSUJIN: short, exact reach, the highest single hits
 ;; a: KYOKKO, the longest lunge (a 4.6 m line, slide 1.6); b: the sunrise, a rising cut out of the lunge; c: the tip touches the floor and the
@@ -295,28 +307,38 @@ lead's placeholder, §14).")
 
 ;;; ---------------------------------------------------------------- 北 TENCHI KAIJIN: a 10 s form, the kit :north (§30.4)
 ;;; The user, 2026-11-21: 「北要重新思考退出狀態的方式，目前進入難度高，但表現時長嚴重不足」 (R4: a 10 s timer, a full 北 move set). The third
-;;; distinct mark latches it; at his next neutral he enters (YAMA-NORTH-IN!: the entry pose, invulnerable; the marks clear; his pointer saved);
+;;; distinct mark latches it; at his next neutral he enters (YAMA-NORTH-IN!: the entry pose, invulnerable; the marks kept since §31; his pointer saved);
 ;;; its kit meter counts *YA-NORTH-TICKS* live steps down (YAMA-NORTH-TICK: the :tick hook runs on live steps only, so cinematics and hitstop
 ;;; pause it); at 0 he leaves at his next neutral, back to the Bankai under the pointer he had. A Kikon landed or taken does not end it. One
-;;; pointer (no switch): NS a 灰線 > b 灰燼步 > c 天地灰尽 (the old 北 wave); the AS after any J count: the grip > the cut > 天地灰尽 point-blank;
-;;; the NA and the SA the Bankai's; every SP of it takes pointer 3's Kikon / Soul Break profile (YAMA-NORTH-SP). Clips placeholders (art later).
+;;; pointer (no switch): NS a 灰線 > b 灰燼步 (a knockdown; c 天地灰尽, the old 北 wave, left for AS4 in §31); the AS after J1-3: the grip > the
+;;; cut; after J4 the Bankai's AS4; the NA and the SA the Bankai's; every SP of it takes pointer 3's Kikon / Soul Break profile (YAMA-NORTH-SP).
+;;; Clips placeholders (art later).
 (defmove :ya-n-in :kind :flash :clip :ya-st-kita :blend 4 :startup 23 :active 1 :recovery 0 :reach 0.0)   ; the entry pose (24 f, 爆炎's shape)
 ;; a 灰線: a quick diagonal cut, a thin white line 5 m ahead at chest height; b 灰燼步: he passes through him with a cross cut (slide 3 m)
 (defmove :ya-n-n1a :kind :flash :clip :ya-e-f1 :startup 16 :active 3 :recovery 22 :dmg 60 :adv-block -8 :vol (:cap 0.2 5.0 1.2 0.25)
   :on-hit :stagger :callout "TENCHI KAIJIN" :on-frame ((0 yama-north-sp)) :params (:ns-next :ya-n-n1b))
 (defmove :ya-n-n1b :kind :flash :clip :ya-e-f2 :startup 12 :active 4 :recovery 24 :dmg 70 :adv-block -6 :slide 3.0 :reach 2.0 :arc 140
-  :on-hit :stagger :params (:ns-next :ya-e-n4))
-;; c 天地灰尽: flame gathers (S24), one enormous wave (4 m wide, 14 m), a knockdown; its Kikon strike carries the cinematic
-(defmove :ya-e-n4 :kind :flash :clip :ya-e-tenchi :blend 4 :startup 24 :active 2 :recovery 30 :reach 14.0 :callout "TENCHI KAIJIN"
-  :on-frame ((24 yama-wave-fire))
-  :params (:width 4.0 :speed 20.0 :range 14.0 :dmg 220 :react :knockdown :look yama-north-look :kikon-strike :ya-e-n4-strike))
-;; the AS (any J count: :as-by-press (1 1 1)): the ash grip (40) > the ash cut (50) > 天地灰尽 point-blank (140, a knockdown, its cinematic)
+  :on-hit :knockdown)
+;; the AS after J1-3 (:as-by-press (1 1 1 2)): the ash grip (40) > the ash cut (50, a knockdown); J4's is AS4 below
 (defmove :ya-n-as :kind :sp :clip :ya-e-grab :startup 10 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
   :callout "TENCHI KAIJIN" :on-frame ((0 yama-north-sp)) :params (:ns-next :ya-n-as2))
-(defmove :ya-n-as2 :kind :sp :clip :ya-e-gokui-cut :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :stagger
-  :params (:ns-next :ya-e-as4))
+(defmove :ya-n-as2 :kind :sp :clip :ya-e-gokui-cut :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :knockdown)
+
+;;; ---------------------------------------------------------------- AS4 天地灰尽 (§31): J4's AS, in the Bankai and in 北
+;;; The user, 2026-11-22: 「天地灰盡改成 AS4 與接入的特殊毀魂技好了，只要持有越多方位標記 AS4 與毀魂技的傷害就越高」, 「增加 J4 可以接入 AS4，AS4
+;;; 能使出特殊毀魂技，當使用過 AS4 並回到中立後就會消除目前的方位記號」. Four segments (AS n = n, DUEL_CORE §6): the ash grip (40) > the ash cut
+;;; (50) > the ash line (60) > 天地灰尽 point-blank (140, a knockdown). Every segment (:params :as4) does x (1 + *YA-AS4-MARK-X* x the marks
+;;; held) (YAMA-DMG-MULT) and Kikons into 天地灰尽's cinematic (:cine: ROUND's SETTLE-SOULS reads the struck move's first) taking
+;;; *YA-AS4-KONPAKU* by the marks (YAMA-KIKON-N). It writes no pointer (:as-writes nil) and gives no mark; once used, his next neutral clears
+;;; the marks (YAMA-AS4-START, YAMA-AS4-SPENT). West's charge x still carries into it (CORE-CHARGE-MULT). Clips placeholders (art later).
+(defmove :ya-e-as4a :kind :sp :clip :ya-e-grab :startup 10 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
+  :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-as4-start)) :params (:ns-next :ya-e-as4b :as4 t))
+(defmove :ya-e-as4b :kind :sp :clip :ya-e-gokui-cut :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :stagger
+  :cine yama-tenchi-cine :params (:ns-next :ya-e-as4c :as4 t))
+(defmove :ya-e-as4c :kind :sp :clip :ya-e-f2 :startup 10 :active 3 :recovery 16 :dmg 60 :reach 2.0 :arc 140 :on-hit :stagger
+  :cine yama-tenchi-cine :params (:ns-next :ya-e-as4 :as4 t))
 (defmove :ya-e-as4 :kind :sp :clip :ya-e-f1 :startup 10 :active 2 :recovery 30 :dmg 140 :reach 2.4 :arc 110
-  :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine)
+  :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :params (:as4 t))
 ;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; it follows any NS
 ;; segment's S+A, six poses, so its frame 0 matches none: a blend over its fast wind-up drew a larger jump, DUEL_YAMA_CORE §18.3)
 (defmove :ya-e-sa :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
@@ -328,7 +350,7 @@ lead's placeholder, §14).")
 ;; ... and the string's reach (Hisagi's precedent, *HS-K1-SCALED*): same-name copies of E-J2, E-J3 and the melee AS segments parsed at
 ;; (r + add) / r (PARSE-MOVE :reach-mult: the arc's r), one list per charge level, so the strings, the hooks, the SP table and the CPU see the
 ;; moves they know; YAMA-REACH-SWAP puts the level's copy in play (classed as its move: below the kit)
-(defparameter *ya-reach-moves* '(:ya-e-j2 :ya-e-j3 :ya-e-as1 :ya-e-as2 :ya-e-as2b)
+(defparameter *ya-reach-moves* '(:ya-e-j2 :ya-e-j3 :ya-e-j4 :ya-e-as1 :ya-e-as2 :ya-e-as2b)
   "The moves 西's charge reaches further with (§30.2; not 南's hazard AS, not E-J1: an SA's string goes on at J2).")
 (defparameter *ya-reach-copies*
   (coerce (loop for add in *ya-charge-reach*
@@ -348,15 +370,15 @@ lead's placeholder, §14).")
   :enter-hook yama-bankai-enter                 ; heat leaves with the Shikai (§3)
   :meter (:name "ZANKA" :max 1)                 ; (its own: the HUD inherits no heat strip; no sim reads it)
   :commands (:q :ya-e-j1)
-  :strings ((:ya-e-j1 :q :ya-e-j2) (:ya-e-j2 :q :ya-e-j3))
-  :core (:ns (:ya-e-n1a :ya-e-n2a :ya-e-n3a) :as (:ya-e-as1 :ya-e-as2 :ya-e-as3) :sa :ya-e-sa
+  :strings ((:ya-e-j1 :q :ya-e-j2) (:ya-e-j2 :q :ya-e-j3) (:ya-e-j3 :q :ya-e-j4))   ; (E-J4: §31)
+  :core (:ns (:ya-e-n1a :ya-e-n2a :ya-e-n3a) :as (:ya-e-as1 :ya-e-as2 :ya-e-as3 :ya-e-as4a) :sa :ya-e-sa
          :stances (:ya-st-higashi :ya-st-nishi :ya-st-minami) ; 東 the blade level across / 西 the arms open low / 南 the blade
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19)
-         :as-by-press (1 2 3)
+         :as-by-press (1 2 3 4) :as-writes (1 2 3 nil)   ; (J4 > AS4 天地灰尽, no pointer written: §31)
          :ns-range ((2.0 5.5) nil (1.0 4.0))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 2.5 m ahead (was 4-9 m, §30.3)
          :mult 1.0)
-  :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult   ; (its hazards carry x 1.0: no heat)
+  :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n   ; (its hazards carry x 1.0: no heat)
           :tick yama-bk-tick :hud-tag yama-bk-tag     ; (西's charged reach; 北 at the next neutral after the third mark: §30)
           :armored-fx yama-armored-fx                  ; (西's armour absorbing an NA: L9, a look, art K1; it replaces the spark, K3)
           :planted yama-planted))                      ; (the blade left in the plaza: the grab / throw, AS3b / AS3c; a look, art K3)
@@ -371,14 +393,14 @@ lead's placeholder, §14).")
 (defkit :yamamoto :north :inherit :bankai
   :callout "TENCHI KAIJIN" :stance :ya-st-kita :enter-hook nil
   :meter (:name "NORTH" :max 600)               ; (*YA-NORTH-TICKS*: the HUD's bar max)
-  :core (:ns (:ya-n-n1a) :as (:ya-n-as) :sa :ya-e-sa
+  :core (:ns (:ya-n-n1a) :as (:ya-n-as :ya-e-as4a) :sa :ya-e-sa
          :stances (:ya-st-kita)
          :kikon-cines (yama-tenchi-cine yama-tenchi-cine yama-tenchi-cine)
-         :as-by-press (1 1 1)                  ; (its one AS after any J count)
+         :as-by-press (1 1 1 2) :as-writes (nil nil)   ; (its AS after J1-3, AS4 after J4: §31)
          :ns-range ((2.0 5.0))                 ; (灰線's line from mid range)
          :also (:ya-n-in)                      ; (the entry pose, in the kit's table)
          :mult 1.0)
-  :hooks (:pose yama-pose :draw yama-draw :dmg-mult yama-dmg-mult :tick yama-north-tick :hud-tag yama-north-tag
+  :hooks (:pose yama-pose :draw yama-draw :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n :tick yama-north-tick :hud-tag yama-north-tag
           :planted yama-planted))
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules/yamamoto.lisp)
@@ -455,10 +477,27 @@ short-pay x (SP-SCALE) and, for a hazard, the SP x frozen at its fire frame (HAZ
   (let* ((s (and e (yss e))) (f (and s (fighter e))))
     (if (and f mv (eq mv (fighter-move f)) (= (yss-seg-t s) (fighter-cls-t f))) (yss-x s) 1.0)))
 
+(defun ya-as4-x (marks)
+  "AS4's damage x by the MARKS held (bits 東 1 / 西 2 / 南 4; §31): 1 + *YA-AS4-MARK-X* per mark."
+  (+ 1.0 (* *ya-as4-mark-x* (logcount marks))))
+
+(defun ya-as4-konpaku (marks n)
+  "AS4's Kikon by the MARKS held (§31): *YA-AS4-KONPAKU*'s entry for their count, over the pointer profile's N."
+  (declare (ignore n))
+  (nth (logcount marks) *ya-as4-konpaku*))
+
 (defun yama-dmg-mult (att def hw mv hazard d2)
-  "KIT-HOOK :dmg-mult: a hazard's segment x as frozen at its fire frame (its data :x), else his own move's (YAMA-SEG-X)."
+  "KIT-HOOK :dmg-mult: a hazard's segment x as frozen at its fire frame (its data :x), else his own move's (YAMA-SEG-X); an AS4 segment's
+x by the marks held (YA-AS4-X, §31)."
   (declare (ignore def hw d2))
-  (if hazard (or (getf (hazard-data hazard) :x) 1.0) (yama-seg-x att mv)))
+  (cond (hazard (or (getf (hazard-data hazard) :x) 1.0))
+        ((and mv (getf (mv-params mv) :as4)) (ya-as4-x (yss-marks (ys att))))
+        (t (yama-seg-x att mv))))
+
+(defun yama-kikon-n (att n)
+  "KIT-HOOK :kikon-n (CORE-SET-KIKON-N!): a Kikon off an AS4 segment takes YA-AS4-KONPAKU by the marks held (§31); else the profile's N."
+  (let ((mv (fighter-move (fighter att))))
+    (if (and mv (getf (mv-params mv) :as4)) (ya-as4-konpaku (yss-marks (ys att)) n) n)))
 
 ;;; ================================================================ heat and 爆炎 in the sim (§3, §7.4)
 ;;; Heat is the kit meter (GAUGES-METER: 0 at each match's fresh fighter, kept through a Konpaku reset with the form). His own state: a
@@ -471,6 +510,7 @@ reset for the match (§7.4)."
   (seg-t -1 :type fixnum) (paid 0f0 :type single-float) (x 1f0 :type single-float) (back nil)
   (gain-t -1 :type fixnum) (burn-t -1 :type fixnum)
   (marks 0 :type fixnum)                       ; the Bankai's marks (bits 東 1 / 西 2 / 南 4; all three: 北 due, §30.4): kept for the match
+  (as4 nil)                                    ; AS4 used since his last neutral: the next one clears the marks (§31, YAMA-AS4-SPENT)
   (north-ptr 1 :type fixnum))                  ; the pointer he had when 北 started (restored when it ends: SET-FORM clamps it to 北's one)
 (defun ys (e)
   "E's heat state (his YSS component, attached on the first call: a new match's fighter gets a fresh one)."
@@ -784,34 +824,53 @@ a cancel's dead mark follows it). Every live step, so a link swaps before its fi
           (setf (fighter-move f) c))))))
 
 (defun yama-bk-tick (e f g)
-  "The Bankai's KIT-HOOK :tick (live sim steps only): 西's charged reach (YAMA-REACH-SWAP); 北 at his next neutral after the third distinct
-mark (YA-NORTH-NEXT, YAMA-NORTH-IN!)."
+  "The Bankai's KIT-HOOK :tick (live sim steps only): 西's charged reach (YAMA-REACH-SWAP); the marks spent at his neutral after AS4
+(YAMA-AS4-SPENT, §31); 北 at his next neutral after the third distinct mark (YA-NORTH-NEXT, YAMA-NORTH-IN!)."
   (declare (ignore g))
   (yama-reach-swap f)
+  (yama-as4-spent e f)
   (when (ya-north-next (fighter-form f) (yss-marks (ys e)) 0 (yama-free-p f))
     (yama-north-in! e f)))
 
+(defun yama-as4-start (e)
+  "AS4's frame 0 (§31): AS4 is used (the next neutral clears the marks: YAMA-AS4-SPENT); in 北, pointer 3's profile as 北's SPs (YAMA-NORTH-SP)."
+  (setf (yss-as4 (ys e)) t)
+  (when (eq (fighter-form (fighter e)) :north) (yama-north-sp e)))
+
+(defun yama-as4-spent (e f)
+  "At E's first neutral after AS4 (§31, the user 2026-11-22: 「當使用過 AS4 並回到中立後就會消除目前的方位記號」): the marks clear."
+  (let ((s (ys e)))
+    (when (and (yss-as4 s) (yama-free-p f))
+      (setf (yss-as4 s) nil)
+      (clog "~a AS4 spent: marks ~d -> 0" (side-name e) (yss-marks s))
+      (setf (yss-marks s) 0))))
+
 (defun yama-north-in! (e f)
-  "北 starts (§30.4): the marks clear, his pointer is saved (SET-FORM clamps it to 北's one), the form :north, its meter full
-(*YA-NORTH-TICKS*), the entry pose (:ya-n-in, *YA-NORTH-IN-FRAMES* invulnerable; the count waits for its end)."
+  "北 starts (§30.4): the marks kept (*YA-NORTH-KEEPS-MARKS*, §31; they cleared here until then), his pointer is saved (SET-FORM clamps
+it to 北's one), the form :north, its meter full (*YA-NORTH-TICKS*), the entry pose (:ya-n-in, *YA-NORTH-IN-FRAMES* invulnerable; the count
+waits for its end)."
   (let ((s (ys e)) (g (gauges e)) (ptr (fighter-ptr f)))
-    (setf (yss-marks s) 0 (yss-north-ptr s) ptr)
+    (unless *ya-north-keeps-marks* (setf (yss-marks s) 0))
+    (setf (yss-north-ptr s) ptr)
     (set-form e :north)
     (setf (gauges-meter g) (f32 *ya-north-ticks*))
     (start-move e (find-move :ya-n-in))
     (setf (fighter-invuln f) *ya-north-in-frames*)
-    (clog "~a NORTH: the entry pose, invulnerable ~d f, ~d ticks, marks cleared (pointer ~d saved)"
-          (side-name e) *ya-north-in-frames* *ya-north-ticks* ptr)))
+    (clog "~a NORTH: the entry pose, invulnerable ~d f, ~d ticks, marks ~d (pointer ~d saved)"
+          (side-name e) *ya-north-in-frames* *ya-north-ticks* (yss-marks s) ptr)))
 
 (defun yama-north-tick (e f g)
-  "北's KIT-HOOK :tick (live sim steps only: cinematics and hitstop pause it): one tick off its meter outside the entry pose; at 0, back to
-the Bankai at his next neutral under the pointer he had (YA-NORTH-NEXT)."
+  "北's KIT-HOOK :tick (live sim steps only: cinematics and hitstop pause it): one tick off its meter outside the entry pose; the marks spent
+at his neutral after AS4 (YAMA-AS4-SPENT, §31); at 0, back to the Bankai at his next neutral under the pointer he had, the marks cleared
+(YA-NORTH-NEXT; else the Bankai's next tick would enter 北 again, §31)."
   (unless (eq (fighter-move f) (find-move :ya-n-in))
     (setf (gauges-meter g) (f32 (max 0.0 (- (gauges-meter g) 1.0)))))
+  (yama-as4-spent e f)
   (when (ya-north-next (fighter-form f) 0 (gauges-meter g) (yama-free-p f))
     (set-form e :bankai)                                ; (its :enter-hook zeroes the meter)
+    (setf (yss-marks (ys e)) 0 (yss-as4 (ys e)) nil)
     (setf (fighter-ptr f) (max 1 (min 3 (yss-north-ptr (ys e)))))
-    (clog "~a NORTH over: the Bankai, pointer ~d" (side-name e) (fighter-ptr f))))
+    (clog "~a NORTH over: the Bankai, pointer ~d, marks cleared" (side-name e) (fighter-ptr f))))
 
 (defun yama-north-sp (e)
   "北's SP routes' frame 0 (NS a, the AS's grip; §30.4): the SP in play takes pointer 3's Kikon / Soul Break profile (FIGHTER-SP-PTR; 北's
@@ -886,13 +945,13 @@ a disc of HAZARD-SIZE; the ring's band), to set against the looks' ground edges.
 pointer 1-3; 87400+n P1 starts his NS under the pointer (n 0) / J1 (1); 87410+i P1 starts NS segment i of NS1a b c NS2a b c (0-5) on
 its own (CORE-START!: paid as a press); 87500+h P1's heat h (h 0-100: 100 enters 爆炎 at his next neutral); 87700+r P1's Reishi r, 87800+r
 P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as the setting would have it: a portrait window). The Bankai
-(stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, 北's NS c (0-9) on its own (CORE-START!; P1 in the Bankai,
+(stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, AS4's first (0-9; was 北's NS c until §31) on its own (CORE-START!; P1 in the Bankai,
 北's in 北); 87440 P1 awakens now (AWAKEN!, the cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!: the third makes 北 due at
 his next neutral); 87444 P1 into 北 now (YAMA-NORTH-IN!: the entry pose, the 10 s count; awakened; §30.4); 87445 P1's marks cleared (in 北:
 its count to 0, so he leaves at his next neutral); 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
-c, AS 北's last (0-6) on its own (CORE-START!; 北's in 北); §30 (2026-11-21): 87453+i P1 starts 北's segment i of NS a / b / c, AS a / b / c
-(0-5) on its own (CORE-START!; P1 in 北); 
+c, AS4's last (0-6) on its own (CORE-START!); §30 (2026-11-21): 87453+i P1 starts 北's segment i of NS a / b, AS4's third (§31; was
+北's NS c), 北's AS a / b, AS4's last (0-5) on its own (CORE-START!; P1 in 北); 
 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87438 P1 starts 南's
 SA, the shatter, on its own (§30.3: CORE-START!, P1 in the Bankai; it spends a standing tower); 87448 the consing of every
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
@@ -933,7 +992,7 @@ its mantle, left with the mantle: batch J2, §28.) The probe line carries 北's 
                          (setf (aref q 0) (f32 (+ (aref q 0) (* 3.0 (cos yaw)))) (aref q 2) (f32 (- (aref q 2) (* 3.0 (sin yaw)))))))
           ((<= 87420 c 87429)
            (core-start! *p1* (km (nth (- c 87420) '(:ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c
-                                                    :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-n4)))))
+                                                    :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-as4a)))))
           ((<= 87430 c 87436)                       ; (art K1's stills: an AS segment on its own)
            (core-start! *p1* (km (nth (- c 87430) '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-as4)))))
           ((= c 87437) (let ((p (pos-of *p1*))) (emit :armored *p1* (aref p 0) 1.2 (aref p 2))))   ; (西's armour look, L9: an event only)
@@ -957,7 +1016,7 @@ its mantle, left with the mantle: batch J2, §28.) The probe line carries 北's 
           ((= c 87900))
           ((= c 87901) (setf *one-hand* (one-hand-effective-p)))   ; (the phone's deck: run with --mobile --size 390x844)
           ((<= 87453 c 87458)                       ; (§30: 北's segments on their own; P1 in 北)
-           (core-start! *p1* (km (nth (- c 87453) '(:ya-n-n1a :ya-n-n1b :ya-e-n4 :ya-n-as :ya-n-as2 :ya-e-as4)))))
+           (core-start! *p1* (km (nth (- c 87453) '(:ya-n-n1a :ya-n-n1b :ya-e-as4c :ya-n-as :ya-n-as2 :ya-e-as4)))))
           (t (log-msg "duel yamamoto: no debug command ~d" c))))
   (yama-probe-line (format nil "cmd ~d" c)))
 (define-debug-range (87000 87999) yama-debug)
