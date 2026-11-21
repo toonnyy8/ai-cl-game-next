@@ -322,17 +322,17 @@ does not move. Given back at CINE-END (CINE-SAVE)."
       (setf (aref q 0) (+ px (* g fx)) (aref q 1) (* 1.6f0 u (- 1f0 u)) (aref q 2) (+ pz (* g fz))))))
 
 (defun yama-nishi-track (a v)
-  "西's walk shot (§29: 「從斜後方拍攝」): from diagonally behind him, 145 deg off his front on his left, 5.0 m back and 3.4 m up, aimed
-1.5 m ahead of him 1.0 m up (portrait 3.6 m back, 2.5 m up, aimed 2 m ahead 1.0 m up: %PORTRAIT-DOLLY backs it off): over his shoulder,
-the whole garb in the frame so each step up reads, the prints behind him on the floor, the victim past him clear of its wings (at K 2
-they reach ~3.5 m up and ~1.3 m out; at 3.0 m back on 16:9 the garb filled the frame). A CINE-CAM with no subject: %KEEP-SUBJECT would
-centre him on a phone, in front of the victim."
+  "西's walk shot (§29.2, the user: 「從右後方 30° 平視往前拍攝」): 30 deg off straight behind him on his right (150 deg off his front),
+7.0 m back on a long lens (38; portrait 6.0, %PORTRAIT-DOLLY backs it off), at his eye height (1.5 m x his drawn scale), looking level
+along the walk at the pair's middle at the same height: he on the left, the victim past him on the right, clear of the K 2 garb (at 4 m
+the victim stood behind its right wing: from further back the two part by more than the garb's width), the whole garb in the frame. (§29's shot, 145 deg on his left from 5 m
+back and 3.4 m up looking down, left.) A CINE-CAM with no subject: %KEEP-SUBJECT would centre him on a phone, in front of the victim."
   (setf *cine-close* nil *cine-subject* nil)
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let* ((pt (portrait-p)) (dd (if pt 3.6f0 5.0f0)) (ey (if pt 2.5f0 3.4f0)) (ah (if pt 2.0f0 1.5f0)) (ty 1.0f0)
-           (bx (- (* -0.8192f0 fx) (* 0.5736f0 rx))) (bz (- (* -0.8192f0 fz) (* 0.5736f0 rz))))   ; (cos / sin 145 deg; his left = -R)
-      (declare (single-float dd ey ah ty bx bz))
-      (cine-cam (+ px (* dd bx)) ey (+ pz (* dd bz)) (+ px (* ah fx)) ty (+ pz (* ah fz))))))
+    (let* ((dd (if (portrait-p) 6.0f0 7.0f0)) (ey (* 1.5f0 (draw-scale-of a)))
+           (bx (+ (* -0.866f0 fx) (* 0.5f0 rx))) (bz (+ (* -0.866f0 fz) (* 0.5f0 rz))))   ; (cos / sin 150 deg; his right = +R)
+      (declare (single-float dd ey bx bz))
+      (cine-cam (+ px (* dd bx)) ey (+ pz (* dd bz)) (* 0.5f0 (+ px qx)) ey (* 0.5f0 (+ pz qz))))))
 
 (defun yama-nishi-walk (a v cf)
   "西's walk, one step (f66-123, §29): he moves on by YAMA-NISHI-WALKED's gain since the last frame, the victim backs off by
@@ -347,10 +347,9 @@ YAMA-NISHI-BACKED's (both along their line); the shot follows (YAMA-NISHI-TRACK)
   (yama-nishi-track a v))
 
 (defun yama-nishi-fall (v i)
-  "西's footfall I (0-2: f74 / f92 / f110, §29): the step lands with the heat roar and the shake growing each time (0.1 / 0.2 / 0.3); the
-victim recoils (the garb's step up, the heat ring and the print are the look's)."
+  "西's footfall I (0-2: f74 / f92 / f110, §29): the step lands with the heat roar growing each time; the victim recoils (the garb's step
+up, the heat ring and the print are the look's). No camera shake (§29.2, the user: 「走路時不要震動鏡頭」; §29 shook 0.1 / 0.2 / 0.3)."
   (let ((g (* 0.1 (1+ i))))
-    (shake g 0.4)
     (play-sfx :land :pitch 0.55 :gain (+ 0.5 g)) (play-sfx :sizzle :pitch 0.7 :gain (+ 0.4 g))
     (play-sfx :awaken-rise :pitch (+ 0.5 g) :gain (+ 0.3 (* 2 g))))
   (cine-clip v :sh-stagger :blend 3))
@@ -387,7 +386,7 @@ wide, the old man never turns, the garb gutters out."
   (at 53 (cine-clip v :sh-step-b :blend 2 :speed 1.7) (play-sfx :whoosh-heavy :pitch 0.7 :gain 0.7))   ; (the leap back: 24 f in 14)
   (when (and step-p (< 52 cf 65)) (yama-nishi-leap a v cf))
   (at 64 (cine-clip v :sh-stagger :blend 2) (play-sfx :land :pitch 0.9 :gain 0.5))   ; (lands off balance)
-  (at 66 (cine-slow 0.5) (lens 46))                    ; the walk from behind; :YA-E-ADVANCE from its frame 3 (the right foot lifts)
+  (at 66 (cine-slow 0.5) (lens 38))                    ; the walk from behind; :YA-E-ADVANCE from its frame 3 (the right foot lifts)
   (when (and step-p (<= 66 cf 123)) (yama-nishi-walk a v cf))   ;  at half speed: down on its frame 7, 8 frames on (74 / 92 / 110)
   (at 66 (cine-clip a :ya-e-advance :blend 6 :time (/ 3.0 60.0)))
   (at 84 (cine-clip a :ya-e-advance :blend 4 :time (/ 3.0 60.0)))

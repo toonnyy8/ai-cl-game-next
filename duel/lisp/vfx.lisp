@@ -107,8 +107,8 @@ x 0.8..1.25 with a lean, both drifting continuously (FLOW01 / FLOW-PH: the flow 
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
 level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. PAL may carry +TOON-FLAME+ (the flame
 class whatever the palette, STYLE_STORM_DESIGN §15.8); the white cores carry it too (with the tongue in the flame layer and the
-core in the scene pass, the 0.8 tongue washed over the core). SHEAR, a list of two single-float variables (sx sz), leans each tongue by
-them x its height (its root kept: 殘日獄衣 trailing, DUEL_YAMA_CORE §29.1); without it the expansion is as before. A macro (the auras run
+core in the scene pass, the 0.8 tongue washed over the core). SHEAR, a list of two single-float variables (sx sz), bends each tongue
+back by them x its height at the tip, x u^2 along it (FX-RIBBON :BEND: its root kept: 殘日獄衣 trailing, DUEL_YAMA_CORE §29.1); without it the expansion is as before. A macro (the auras run
 every frame: 0 B); N and WHITE literal fixnums."
   (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
     `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (fp (flow-ph)) (pk (toon-a pal (* 0.95f0 k)))
@@ -125,9 +125,8 @@ every frame: 0 B); N and WHITE literal fixnums."
              (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (flow01 f 3.7f0))))) (lean (* 0.25f0 (- (flow01 f 5.9f0) 0.5f0)))   ; (§15.7: flowing,
                     (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 f)))                             ;  one seed a tongue)
                (declare (single-float hh lean bx bz sd))
-               (toon-ribbon (bx y bz) (,(if shear `(+ (* lean c) (* ,(first shear) hh)) '(* lean c)) hh
-                                       ,(if shear `(+ (* lean sn) (* ,(second shear) hh)) '(* lean sn)))
-                            (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0)
+               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0
+                            ,@(when shear `(:bend ((* ,(first shear) hh) 0f0 (* ,(second shear) hh)))))
                ,@(when (eql white 1)
                    '((when (< front -0.4f0)
                        (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0
@@ -174,8 +173,9 @@ brush tongues from the feet up round the body (0.8 x H x 9 at 0.34 m, 0.62 x H x
 over his head and ~0.6 m out), a molten double ring at his feet, flame scraps rising, a warm light. Since J2 the camera-side tongues draw
 too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
 fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). SX SZ (optional,
-single-float forms): the trailing lean, a shear in metres sideways per metre up (DUEL_YAMA_CORE §29.1): every tongue leans by it from its
-root, the wings by 1.2 x it from the floor (their bases ride along, their tips trail furthest); without them the expansion is as before.
+single-float forms): the trailing lean in metres sideways per metre (DUEL_YAMA_CORE §29.1, §29.2): every tongue and wing keeps its root
+where it is (the wings at his shoulders) and bends back from it, by the lean x its length at the tip (the wings 1.2 x) and x u^2 along it
+(FX-RIBBON :BEND: cloth / flame, not a sheared stick); without them the expansion is as before.
 A macro: 0 B."
   `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt) ,@(when sx `((shx ,sx) (shz ,sz)))
           (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
@@ -197,9 +197,12 @@ A macro: 0 B."
                     (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
                     (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
-               ,@(when sx '((setf bx (+ bx (* 1.2f0 shx (- by y))) bz (+ bz (* 1.2f0 shz (- by y)))   ; (trailing: the shear)
-                                  ax (+ ax (* 1.2f0 shx ay)) az (+ az (* 1.2f0 shz ay)))))
-               (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6))))))
+               ,(if sx
+                    '(let ((wl (* 1.2f0 (f-hypot ax ay az))))   ; (trailing, §29.2: the root on his shoulder, the tip bent back)
+                       (declare (single-float wl))
+                       (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6
+                                    :bend ((* shx wl) 0f0 (* shz wl))))
+                    '(toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6)))))))
      (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) 0f0 24)   ; the plaza melting under him
      (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) 2f0 24)
      (dotimes (i (n-of (* 14f0 kc) dt))
