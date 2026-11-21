@@ -3227,3 +3227,18 @@ The user (verbatim, after v473): 「火衣不是最多斜 25° ，是以水平�
    `yama garb tilt (deg off upright): walk 70.0 (above the horizontal 20.0), most 77.0`.
 5. For the user's eyes: in the 15° shot the garb now points back toward the camera, so it reads foreshortened, streaming to the frame's
    left, and no longer hides his body. In play, a lunge or a dash also lays it flat.
+
+### 29.6 Only the shoulder flames lie flat, only in the 西 Kikon (the user, 2026-11-21)
+
+The user (verbatim, after v474): 「只有毀魂技才平倒，而且僅限於肩膀的火焰，其他火焰照之前的步行設定」
+
+1. §29.5's flat garb now applies only to the two shoulder wings (three ribbons each), and only on the 西 Kikon's walk: 70° off upright
+   (`garb-tilt-angle`, 20° above the horizontal), turned about their roots on his shoulders, the tips curling up (`with-garb-tilt`), eased
+   in f66-90 with the walk's lean and held to the flash (f216). *YA-GARB-ARGS* [5] carries the flatness; YAMA-LEAN-USE zeroes it, so
+   nothing else draws it.
+2. Everything else is §29.3's walk setting again (「之前的步行設定」, read as the setting before §29.4's misread cap): the spring -0.09 x
+   the velocity, capped at 0.6; the quadratic bend on the tongues; in play the wings bend 2.4×, their tips at most 0.9 × their length
+   back; the Kikon's tongues lean 0.48. §29.4's 25° cap and §29.5's play-wide tilt are gone. §29.4's camera (15° behind, 4.3 m, lens 50) stays.
+3. Checks (presentation only, §847): host tests ALL PASS, pkgcheck clean, build, smoke 0; 87448 every row 0 B, `the Kikon wings flat at
+   70.0 deg off upright (20.0 above the horizontal)`; the play stills (yama-lean) match §29.3's.
+

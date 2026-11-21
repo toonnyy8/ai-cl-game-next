@@ -180,8 +180,8 @@ each snapped in over 2 frames with a 0.15 overshoot fading over 6: a jump per st
 
 (defun-fast-inline yama-nishi-lean (c)
   "西's garb trailing on the walk (§29.3: 「全身的火焰朝後方飄蕩」): the lean the cinematic sets (the tips' trail per metre, as *YA-LEAN*'s)
-at frame C: 0 before f66, eased in to 1 (70 deg off upright, GARB-TILT-ANGLE, §29.5; 0.466 and 0.48 before) by f90, held to the flash (f216).
-Pure; 0 B."
+at frame C: 0 before f66, eased in to 1 by f90, held to the flash (f216). The tongues lean 0.48 x it (§29.3; §29.6 the user: 「其他火焰照之前的
+步行設定」), the wings lie flat by it (70 deg off upright at 1, GARB-TILT-ANGLE: 「只有毀魂技才平倒，而且僅限於肩膀的火焰」). Pure; 0 B."
   (declare (single-float c))
   (if (or (< c 66f0) (>= c 216f0))
       0f0
@@ -228,7 +228,7 @@ side's spring, YAMA-LEAN-USE; on the walk the cinematic's own lean, YAMA-NISHI-L
         (when (> l 0f0)
           (let ((ar *ya-garb-args*))
             (declare (type f32vec ar))
-            (setf (aref ar 3) (* (- l) fx) (aref ar 4) (* (- l) fz)))))
+            (setf (aref ar 3) (* -0.48f0 l fx) (aref ar 4) (* -0.48f0 l fz) (aref ar 5) l))))   ; (§29.6: the wings flat)
       (when (< cf 216)                                    ; the garb (§29): the stance's size from f0 (YAMA-DRAW leaves 西's form
                                                           ;  aura to this look; the weapon dies on it at f40), a step up as each step lands
         (ya-garb px pz (yama-nishi-garb-k (i->f cf))))

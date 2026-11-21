@@ -281,9 +281,10 @@ where it started. A look."
 ;;; NS2a / NS2b / AS2b (K > 1) and the 西 Kikon cinematic (yama-cine.lisp %YA-GARB).
 (defconstant +ya-garb-h+ 1.815f0 "The garb's height: 1.1 x his hurt height 1.65 m, as DRAW-AURA passes a form's aura.")
 (declaim (type f32vec *ya-garb-args*))
-(defvar *ya-garb-args* (make-f32 5)
+(defvar *ya-garb-args* (make-f32 6)
   "YA-GARB's arguments: x z k, and [3] [4] the trailing lean x z (metres back per metre of tongue at its tip, §29.2: YAMA-LEAN-USE sets it for the
-fighter whose garb is drawn next). YA-GARB-DRAW reads them: no boxed float.")
+fighter whose garb is drawn next), [5] how flat the wings lie (0 .. 1: 70 deg off upright, the 西 Kikon's walk only, §29.6; YAMA-LEAN-USE
+zeroes it). YA-GARB-DRAW reads them: no boxed float.")
 
 ;;; The garb trails behind him (§29.1, the user, 2026-11-21: 「請讓火衣在行走時會向反方向自然飄蕩」): a damped spring per side on his drawn
 ;;; velocity (his posed pelvis frame to frame), stepped in YAMA-DRAW every frame; its lean bends the garb's tongues and wings away from
@@ -298,9 +299,8 @@ fighter whose garb is drawn next). YA-GARB-DRAW reads them: no boxed float.")
 the place is still kept). The velocity is the drawn delta over VT, the frame's seconds without a cinematic's slow motion (the 西 Kikon's
 walk moves its actors at the script's rate while CINE-SLOW halves DT: over DT it read twice as fast and pinned the lean at its cap), its speed clamped to 10 m/s, low-passed (25 / s, so a render rate above
 the sim's 60 Hz steps reads as a mean), and a jump over 0.6 m in a frame (a placement, CINE-PLACE / CINE-STAGE, a round reset, a teleport)
-is not a velocity at all. Target lean: downwind (against the velocity), its size 0 under 0.3 m/s rising to 1 at 0.8 m/s and over (his walk is
-3.2 m/s): 1 draws the garb 70 deg off upright (GARB-TILT-ANGLE, §29.5: the user 「最少要傾斜 65°」; before, -0.09 x the velocity capped
-at tan 25 deg, §29.4's misreading). The spring: omega 10 / s, damping 0.4 (about a 25 % overshoot on a stop), semi-implicit Euler in steps of at
+is not a velocity at all. Target lean: -0.09 x the velocity (the tips' trail per metre), at most 0.6 (31 deg: reached from 6.7 m/s, his run is 8; his walk
+3.2 m/s leans 0.29, 16 deg). The spring: omega 10 / s, damping 0.4 (about a 25 % overshoot on a stop), semi-implicit Euler in steps of at
 most 1/60 s. 0 B."
   (declare (fixnum side) (single-float x z dt vt))
   (let* ((v *ya-lean*) (o (* 8 side)) (dx (- x (aref v o))) (dz (- z (aref v (+ o 1)))) (d (f-hypot dx dz)))
@@ -312,11 +312,10 @@ most 1/60 s. 0 B."
           (declare (single-float sp s a))
           (setf (aref v (+ o 2)) (+ (aref v (+ o 2)) (* a (- (* s (/ dx vt)) (aref v (+ o 2)))))
                 (aref v (+ o 3)) (+ (aref v (+ o 3)) (* a (- (* s (/ dz vt)) (aref v (+ o 3))))))))
-      (let* ((vl (f-hypot (aref v (+ o 2)) (aref v (+ o 3))))
-             (c (if (> vl 1f-3) (/ (f-clamp (/ (- vl 0.3f0) 0.5f0) 0f0 1f0) vl) 0f0))
-             (tx (* (- c) (aref v (+ o 2)))) (tz (* (- c) (aref v (+ o 3))))
-             (n (min 4 (max 1 (f->i (+ 0.99f0 (* 60f0 dt)))))) (h (/ dt (i->f n))))
-        (declare (single-float vl c tx tz h) (fixnum n))
+      (let* ((tx (* -0.09f0 (aref v (+ o 2)))) (tz (* -0.09f0 (aref v (+ o 3)))) (tl (f-hypot tx tz))
+             (c (if (> tl 0.6f0) (/ 0.6f0 tl) 1f0)) (n (min 4 (max 1 (f->i (+ 0.99f0 (* 60f0 dt)))))) (h (/ dt (i->f n))))
+        (declare (single-float tx tz tl c h) (fixnum n))
+        (setf tx (* c tx) tz (* c tz))
         (dotimes (i n)
           (setf (aref v (+ o 6)) (+ (aref v (+ o 6)) (* h (- (* 100f0 (- tx (aref v (+ o 4)))) (* 8f0 (aref v (+ o 6))))))
                 (aref v (+ o 7)) (+ (aref v (+ o 7)) (* h (- (* 100f0 (- tz (aref v (+ o 5)))) (* 8f0 (aref v (+ o 7))))))
@@ -340,7 +339,7 @@ cinematic). 0 B."
   (declare (fixnum side))
   (let ((v *ya-lean*) (ar *ya-garb-args*) (o (* 8 side)))
     (declare (type f32vec v ar) (fixnum o))
-    (setf (aref ar 3) (aref v (+ o 4)) (aref ar 4) (aref v (+ o 5))))
+    (setf (aref ar 3) (aref v (+ o 4)) (aref ar 4) (aref v (+ o 5)) (aref ar 5) 0f0))   ; ([5] the wings flat: the 西 Kikon only, §29.6)
   nil)
 
 (defmacro ya-garb (x z k)
@@ -354,9 +353,10 @@ into *YA-GARB-ARGS*: 0 B."
 (defun-fast ya-garb-draw ()
   "殘日獄衣 from *YA-GARB-ARGS* (YA-GARB): %GARB-AURA at the floor, +YA-GARB-H+ tall, the scraps on this frame's effect seconds (*YA-RDT*,
 kept by YAMA-DRAW), bent back by the trailing lean in [3] [4] (YAMA-LEAN-USE, §29.1-§29.2). A look; 0 B."
-  (let* ((ar *ya-garb-args*) (x (aref ar 0)) (z (aref ar 1)) (k (aref ar 2)) (dt (aref *ya-rdt* 0)) (sx (aref ar 3)) (sz (aref ar 4)))
-    (declare (type f32vec ar) (single-float x z k dt sx sz))
-    (%garb-aura x 0f0 z +ya-garb-h+ k dt sx sz))
+  (let* ((ar *ya-garb-args*) (x (aref ar 0)) (z (aref ar 1)) (k (aref ar 2)) (dt (aref *ya-rdt* 0)) (sx (aref ar 3)) (sz (aref ar 4))
+         (wf (aref ar 5)))
+    (declare (type f32vec ar) (single-float x z k dt sx sz wf))
+    (%garb-aura x 0f0 z +ya-garb-h+ k dt sx sz wf))
   nil)
 
 ;;; ---------------------------------------------------------------- the moves' own looks (the :draw hook: YAMA-DRAW)
@@ -1491,8 +1491,8 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "south-pile" (yama-minami-look *p1* *p2* 130))
                      (cons-per "south-burst" (yama-minami-look *p1* *p2* 150))))))
     (ya-dead-reset)
-    (log-msg "yama garb tilt (deg off upright): walk ~,1f (above the horizontal ~,1f; want >= 65 / <= 25), most ~,1f"   ; (§29.5)
-             (* 57.29578 (garb-tilt-angle 1f0)) (- 90 (* 57.29578 (garb-tilt-angle 1f0))) (* 57.29578 (garb-tilt-angle 2f0)))))
+    (log-msg "yama garb: the Kikon wings flat at ~,1f deg off upright (~,1f above the horizontal; want >= 65 / <= 25)"   ; (§29.6)
+             (* 57.29578 (garb-tilt-angle 1f0)) (- 90 (* 57.29578 (garb-tilt-angle 1f0))))))
 
 (defun yama-shikai-consing ()
   "Debug 87449 (art S1, DUEL_YAMA_CORE §22): bytes consed by 10 draws of each Shikai / 爆炎 look (0 B each wanted), per tier, on stand-in
