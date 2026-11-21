@@ -69,3 +69,7 @@
  :dist 7.0 :fs 300 :p1-cmd (87445 87428) :script () :frames 60)
 (:name "C19h 南 NSa > the SA (J in its gap) at 2.5 m: the bind, the shatter binds again" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
  :dist 2.5 :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1)) :frames 140)
+(:name "C19i 南 NSa > the shatter > J2 (the SA's string)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
+ :dist 2.5 :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1) (:quick 1)) :frames 160)
+(:name "C19j 南 NSa > the shatter > AS (SP on its hit)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
+ :dist 2.5 :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1) (:quick 1 :modded t :on :hit)) :frames 200)

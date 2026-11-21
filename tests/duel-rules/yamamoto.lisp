@@ -349,20 +349,16 @@
     (check (and (equal (mv-on-frame (m :ya-e-n3a)) '((22 yama-tower-fire))) (equal (mv-on-frame (m :ya-e-n3b)) '((16 yama-tower-fire)))
                 (equal (mv-on-frame (m :ya-e-n3c)) '((18 yama-topple-fire))) (null (getf (mv-params (m :ya-e-n3c)) :sa))
                 (= 100 (getf (mv-params (m :ya-e-n3c)) :dmg-2))))
+    (let ((w (svref (mv-hits (m :ya-e-sa3)) 0)))   ; (its own window: the SA's string and AS read his own contact)
+      (check (and (= 1 (length (mv-hits (m :ya-e-sa3)))) (= 55 (hw-dmg w)) (= *ya-bind-stun* (hw-stun w)) (= 6 (hw-from w))
+                  (equal (hw-flags w) '(:keep-bind :ranged)) (~= 6.0 (mv-reach (m :ya-e-sa3))))))
     (check (and (eq (cls :ya-e-sa3) :sa) (eq (kit-next kb :ya-e-sa3 :q) (m :ya-e-j2)) (eq (react :ya-e-sa3) :bind)
-                (getf (mv-params (m :ya-e-sa3)) :keep-bind) (= 55 (getf (mv-params (m :ya-e-sa3)) :dmg)) (zerop (length (mv-hits (m :ya-e-sa3))))
                 (eq (mv-sa-move kb (m :ya-e-n3a)) (m :ya-e-sa3)) (eq (mv-sa-move kb (m :ya-e-n3b)) (m :ya-e-sa3)) (null (mv-sa-move kb (m :ya-e-n3c)))))
     (check (equal (mapcar #'react '(:ya-e-as3 :ya-e-as3b :ya-e-as3c)) '(:stagger :stagger :knockdown)))
     (check (equal (third (getf core :ns-range)) '(1.0 4.0)))
-    ;; the pure pieces: the topple's way (toward the victim, his facing when the victim stands on the base), the shatter's cone
+    ;; the pure piece: the topple's way (toward the victim, his facing when the victim stands on the base)
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 3.0 6.5 0.0)) '(0.6 0.8)))
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 0.1 2.6 0.0)) (list (fwd-x 0.0) (fwd-z 0.0))))
-    (check (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 5.9 0.3))           ; on the axis, at the far end
-    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 1.5 2.5 0.0)))     ; 31 deg off the axis: out (the edge 1.44 m across there) ...
-    (check (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 1.5 2.5 0.1))           ; ... but a cylinder of r 0.1 reaches it
-    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 2.0 2.5 0.3)))     ; 39 deg off: out
-    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 6.5 0.3)))     ; past 6 m
-    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 -1.0 0.3)))    ; behind him
     ;; 西 NSb / NSc: the turn moves' armour (only those two); 西 NSa two hits of 45 round him; AS1 steals 30; the marks by AS
     (check (equal (loop for n being the hash-keys of (kit-moves kb) using (hash-value mv)
                         when (getf (mv-params mv) :turn-armor) collect n into l finally (return (sort l #'string< :key #'symbol-name)))
@@ -455,7 +451,7 @@
     ;; §30.3 the tower on stand-in fighters: NSa raises it 2.5 m before him at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
     ;; after the segment) with its bind disc at the base (40, :keep-bind, delay 17); NSb climbs it (level 2, the stand renewed, a bind disc 50);
     ;; NSc topples it toward the victim: a 6 m line (100), the tower spent; a line that touches along its length, not beside it; the shatter
-    ;; spends a standing tower and flings a cone from him
+    ;; spends a standing tower
     (multiple-value-bind (a b) (t-pair kb (kit :kenpachi :base))
       (setf *t-hz* nil)
       (t-at a 0 0 (dir-yaw 0.0 5.0)) (t-at b 3.0 4.0)
@@ -484,12 +480,8 @@
           (setf *t-hz* nil)
           (in :ya-e-n3a) (yama-tower-fire a)
           (in :ya-e-sa3) (yama-shatter-fire a)
-          (let ((c (cdr (find :ya-cone *t-hz* :key (lambda (x) (hazard-kind (cdr x)))))))
-            (check (and (notany (lambda (x) (eq (hazard-kind (cdr x)) :ya-tower)) *t-hz*) c (= 55 (hw-dmg (hazard-hw c))) (eq :bind (hw-react (hazard-hw c)))
-                        (eq (hazard-cls c) :sa) (~= 3.0 (hazard-size c))))
-            (flet ((touch (x z) (yama-hz nil c :touches (f32 x) 0f0 (f32 z) 0.36f0 1.65f0)))
-              (check (and (touch 0.0 2.5) (touch 1.0 2.5) (touch 0.0 6.2)))     ; 2.5 m ahead, 1 m beside that, at the cone's end
-              (check (not (or (touch 2.5 2.5) (touch 0.0 6.8) (touch 0.0 -1.0))))))))   ; outside the 60 deg, past 6 m, behind him
+          (check (and (notany (lambda (x) (eq (hazard-kind (cdr x)) :ya-tower)) *t-hz*)   ; the shatter spends the tower; its hit is
+                      (find :fx *t-hz* :key (lambda (x) (hazard-kind (cdr x))))))))                   ;  the window, the look a hitless :fx
       (setf *t-hz* nil))
     ;; the Lisp HUD's side: the seals 東 西 南, NORTH's names, the marks next to the pointer; the tag line shows none of them
     (let ((e (lhud-fighter 1)))

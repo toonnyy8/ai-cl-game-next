@@ -9,7 +9,8 @@
 ;;;; looks are yama-art.lisp / yama-vfx.lisp. His fire is hazards (DUEL_CORE §2: a hazard is judged with the class of the segment
 ;;;; that fired it, spawned inside that segment so SPAWN-HAZARD freezes its class, SP scale and start tick at the fire frame):
 ;;;; :wave (the generic moving box), and three of his own kinds through YAMA-HZ: :ya-col (a column at a point, NS1b), :ya-ring (the
-;;;; burning ring, no collision: crossing it burns, Y8; one at a time), :ya-dome (the walls closed on the ring, NS2c / AS2b).
+;;;; burning ring, no collision: crossing it burns, Y8; one at a time), :ya-dome (the walls closed on the ring, NS2c / AS2b); 南's
+;;;; skeleton tower (§30.3): :ya-tower (hitless, one at a time) and :ya-fall (its topple, a 2 m wide line).
 (in-package :duel)
 
 ;;; ================================================================ knobs (debug 87000-87999, YAMA-DEBUG)
@@ -264,10 +265,11 @@ lead's placeholder, §14).")
 (defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 8.0
   :on-frame ((18 yama-topple-fire))
   :params (:dmg 70 :dmg-2 100 :react :crumple :kikon-strike :ya-e-ns-strike))
-;; the SA in NSa / NSb's gap: the shatter, the skeletons flung forward (a 60 deg cone 6 m from him along his facing: YAMA-HZ :ya-cone), a
-;; bind that keeps; the tower spent. The Bankai SA's clip
-(defmove :ya-e-sa3 :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :reach 6.0 :on-frame ((6 yama-shatter-fire))
-  :params (:range 6.0 :dmg 55 :react :bind :stun *ya-bind-stun* :keep-bind t))
+;; the SA in NSa / NSb's gap: the shatter, the skeletons flung forward: its own window, a 60 deg sector 6 m from him along his facing
+;; (:ranged: no parry catches it), 55, a bind that keeps (the window's :keep-bind); the tower spent (YAMA-SHATTER-FIRE). A window, not a
+;; hazard: an SA's string (J2) and its AS read his own contact (core-sim.lisp's SA > AS, FIGHTER-CONTACT). The Bankai SA's clip
+(defmove :ya-e-sa3 :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 55 :reach 6.0 :arc 60 :on-hit :bind
+  :hits ((6 9 :stun *ya-bind-stun*)) :flags (:keep-bind :ranged) :on-frame ((6 yama-shatter-fire)))
 ;; AS3 (§30.3): the hands seize at him (40, a stagger) > the tower climbs round him (50, a stagger; was the swarm's :wave) > the pile topples
 ;; on him (100, a knockdown); mark 南
 (defmove :ya-e-as3c :kind :sp :clip :ya-e-as3c :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
@@ -553,8 +555,6 @@ defaults), its segment x frozen (YAMA-SEG-X: the data's :x); HOT: frames it may 
             (:ya-ring (ya-ring-touch-p (hazard-x hz) (hazard-z hz) (hazard-size hz) *ya-ring-band* tx tz tr))
             (:ya-fall (obox-cyl-hit-p (hazard-x hz) 1f0 (hazard-z hz) (hazard-yaw hz) 1f0 1.2f0 (hazard-size hz) tx ty tz tr th))   ; 南's
                                                         ;  topple: a 2 m wide line, 2 x HAZARD-SIZE long, centred on the hazard
-            (:ya-cone (let* ((s (hazard-size hz)) (fx (fwd-x (hazard-yaw hz))) (fz (fwd-z (hazard-yaw hz))))   ; 南's shatter: the apex
-                        (ya-cone-touch-p (- (hazard-x hz) (* s fx)) (- (hazard-z hz) (* s fz)) fx fz (* 2 s) tx tz tr)))   ;  HAZARD-SIZE behind it
             (t (cyl-cyl-hit-p (hazard-x hz) 0f0 (hazard-z hz) (hazard-size hz) (f32 *ya-fire-h*) tx ty tz tr th)))))))
 
 (defun yama-wave-fire (e)
@@ -666,19 +666,13 @@ it is tall (*YA-TOWER-H* x level), 2 m wide (YAMA-HZ :ya-fall), :dmg at level 1,
           (clog "~a tower topples: level ~d, ~,1f m from ~,2f ~,2f" (side-name e) lv (* 2 half) bx bz))))
     (emit :sfx :ground-crack e)))
 
-(defun ya-cone-touch-p (ax az fx fz range tx tz tr)
-  "Is a hurt cylinder at (TX TZ), radius TR, in the 60 deg cone from (AX AZ) along the unit (FX FZ), RANGE m long (南's shatter)?"
-  (let* ((dx (- tx ax)) (dz (- tz az)) (along (+ (* dx fx) (* dz fz))) (lat (abs (- (* dx fz) (* dz fx)))))
-    (and (<= (- tr) along (+ range tr)) (<= lat (+ (* along 0.57735) tr)))))   ; (tan 30 deg)
-
 (defun yama-shatter-fire (e)
-  "南's SA (the shatter) on S: the tower (if one stands) is spent and the skeletons fly forward, a 60 deg cone :range m from him along his
-facing (YAMA-HZ :ya-cone; the hazard at the cone's middle, HAZARD-SIZE half its length), :dmg :react :stun :keep-bind, hot 4."
-  (let ((tw (yama-live-hz e :ya-tower)) (half (* 0.5 (move-param e :range))))
+  "南's SA (the shatter) on S: the tower, if one stands, is spent (its hit is the move's own window); the skeletons flung over the sector's
+6 m, a look (the fall's, a placeholder)."
+  (let ((tw (yama-live-hz e :ya-tower)))
     (when tw (destroy-entity tw))
-    (multiple-value-bind (x z) (ahead e half)
-      (yama-fire e :ya-cone x z :size half :life 30 :hot 4 :look 'yama-fall-look
-                 :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))))
+    (multiple-value-bind (x z) (ahead e 3.0)
+      (spawn-look e 'yama-fall-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30))
     (clog "~a shatter~:[~; (the tower spent)~]" (side-name e) tw)
     (emit :sfx :ground-crack e)))
 

@@ -3359,10 +3359,12 @@ Built in a worktree batch alongside 西 / 北 (§30.2, §30.4: another batch). S
   level 1, 100 at level 2 (`:dmg-2`), a crumple, hot 4; the tower spent. With no tower standing (a debug start, or NSa cancelled before S)
   NSb raises one at the spot and NSc topples a level-1 one there (the same code, one `or`).
 - The SA in NSa / NSb's gap: `:ya-e-sa3`, the shatter (their `:params :sa`; CORE-SEGMENT-SAS tags it SA and gives it the J2 string):
-  S6 A3 R24 on the Bankai SA's clip, no melee window; on S a `:ya-cone` hazard: a 60 deg cone 6 m from him along his facing (YA-CONE-TOUCH-P;
-  the hazard 3 m ahead, HAZARD-SIZE 3), 55, a bind (60 f) that keeps; a standing tower is spent. Aimed from him, not from the tower: a victim
-  bound at the tower's base (within 1.6 m of it) can stand beside or behind the tower, and the cone from him covers him there. NSc's gap
-  keeps the Bankai's SA.
+  S6 A3 R24 on the Bankai SA's clip, its own window: a 60 deg sector 6 m from him along his facing (`:reach 6.0 :arc 60`), 55, a bind
+  (60 f) that keeps, `:flags (:keep-bind :ranged)` (no parry catches the flung dead); on S YAMA-SHATTER-FIRE spends a standing tower and
+  draws the fall's look 3 m ahead (a hitless :fx). A window, not a hazard: the SA's J2 string and its AS read his own contact
+  (FIGHTER-CONTACT, set only by his own move's hit); a first build with a `:ya-cone` hazard landed but J2 and the AS never followed
+  (C19i / C19j). Aimed from him, not from the tower: a victim bound at the tower's base (within 1.6 m of it) can stand beside or behind
+  the tower, and the sector from him covers him there. NSc's gap keeps the Bankai's SA.
 - The binds mid-route: a hit window's opt-in flag `:keep-bind` (YAMA-FIRE-HW sets it from the move's `:keep-bind`; NSa, NSb and the
   shatter carry it). COMBO-STEP takes it as a new optional last argument: a bind with hits > 0 stays a bind and books hits + 1 (only
   the opener books `*burst-min-hits*`); without the flag nothing changes (a flag, not a new react keyword: the stun override at
@@ -3386,7 +3388,8 @@ DUEL_DESIGN §5.1 with no change (every changed segment kept its damage: NS2a 40
    FK test's one-sided list ("the flame carries the rest") until the slash has its own clip. For the lead / the art batch.
 2. The topple's line is a box (OBOX-CYL-HIT-P, the engine's), not a segment-distance test: exact for a yaw-only box and a vertical
    cylinder, no rounded ends (a 2 m wide line from the base).
-3. The shatter's cone starts at him, not at the tower (above). Its range is 6 m from him (the tower stands at 2.5).
+3. The shatter's sector starts at him, not at the tower, and is his own window, not a hazard (above). Its range is 6 m from him (the
+   tower stands at 2.5). As a window it also gains the SA hit's +15 SP (DUEL_SP §5) like any SA.
 4. AS3b's tower is a disc at the victim with the tower's placeholder look, not a `:ya-tower` entity (nothing spends it: AS3c's pile hits
    where he stands).
 5. The no-tower branches are not debug-only in play (a cancel before NSa's S skips its fire, and the gap's SA / NSb can follow): handled
@@ -3394,9 +3397,10 @@ DUEL_DESIGN §5.1 with no change (every changed segment kept its damage: NS2a 40
 6. art.lisp: the `+ya-lance-speed+` / `+ya-ennetsu-speed+` checks dropped (no move has those speeds now; the looks stay, unused by the
    sim).
 
-**Checks** (the batch's final build): host tests 4291 checks ALL PASS (new pins: COMBO-STEP's flag both ways, NS2a / 爆炎 NS2a's melee
-window and chain, the far 3.0s, ENNETSU's disc, 南's params / SA / reacts / `:ns-range`, YA-TOPPLE-DIR, YA-CONE-TOUCH-P, the tower on
-stand-in fighters: spot 2.5 m, life 37 + 90, level 2, the 6 m topple's touches, the shatter's cone and class); duel-control / input /
+**Checks** (the batch's final build): host tests 4284 checks ALL PASS (new pins: COMBO-STEP's flag both ways, NS2a / 爆炎 NS2a's melee
+window and chain, the far 3.0s, ENNETSU's disc, 南's params / SA / reacts / `:ns-range`, YA-TOPPLE-DIR, the tower on
+stand-in fighters: spot 2.5 m, life 37 + 90, level 2, the 6 m topple's touches, the shatter spending the tower; its window 55 / 60 f /
+`(:keep-bind :ranged)`); duel-control / input /
 touch / cine tests pass; `tools/pkgcheck.sh duel` clean (the old `DUEL::APP` note only); `./build.sh duel`; smoke exit 0;
 `tests/debug-ranges-check.py` 0 errors; `python3 tests/style-gates.py cvc dist/duel` II / IK / KK identical to `tests/style-cvc-ref.txt`.
 Native trials (`python3 tools/combo-trial.py tests/trials/yamamoto-{core,blaze,bankai}.lisp --log`, new rows Y14, B17, C19):
@@ -3415,7 +3419,8 @@ Native trials (`python3 tools/combo-trial.py tests/trials/yamamoto-{core,blaze,b
 | C19d NS a-b-c at 2.5 m | 40 bind, 50 bind, `topples: level 2, 6.0 m`, 100 crumple |
 | C19e NS a-b-c at 7 m | the binds miss, the level-2 topple 100 |
 | C19f / C19g NSc alone (level 1) at 5 / 7 m | `level 1, 3.0 m`, 70 / no hit |
-| C19h NSa > J at 2.5 m | 40 bind, `shatter (the tower spent)`, YA-CONE HIT 55 `bind stun 60` |
+| C19h NSa > J at 2.5 m | 40 bind, `shatter (the tower spent)`, YA-E-SA3 HIT 55 `bind stun 60` (combo 3) |
+| C19i / C19j NSa > J > J / > SP | the shatter's hit, then J2 starts / AS1 starts (whiffing: the victim bound 2.5 m out) |
 | C8 J1-J3 > AS3 | 34, 38, 42, AS3 40 (stagger, MARK SOUTH), 50, 100 |
 | C5 南 NS a-b-c at 4 m (old row) | 40, 50, 100 (was hands 40, swarm 50, the wall's fall 70) |
 
