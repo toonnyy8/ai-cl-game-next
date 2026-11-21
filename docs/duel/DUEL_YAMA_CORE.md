@@ -3305,6 +3305,8 @@ presentation). The defaults below are the plan's (D), for the user's yes before 
 
 ### 30.4 北: a 10 s state with its own moves (R4; invented, D)
 
+> Superseded in part by §31 (2026-11-22): the marks are kept at entry and cleared at its end; NS c left; the AS after J1-3 is the grip > the cut, J4's AS is AS4 天地灰尽.
+
 Canon gives North one technique (天地灰尽, ch. 509), so the set below is a proposal.
 
 | Slot | Move |
@@ -3436,6 +3438,8 @@ level-2 topple 100; NSa > J: the shatter 55 `bind stun 60`; AS3 40 / 50 / 100 an
 will differ at the next re-pin.
 
 ### 30.6 As built (§30.2 西's garb charge and §30.4 北 as a 10 s form, 2026-11-21)
+
+> 北's NS c (`:ya-e-n4`, `:ya-e-n4-strike`), its AS's third segment and `:as-by-press (1 1 1)` below were replaced by §31 (2026-11-22).
 
 Scope: §30.2 and §30.4 (§30.1 / §30.3 are another batch). Files: `duel/lisp/yama.lisp` (the 西 moves, the reach copies, 北's moves and the
 kit `:north`, the hooks), `yama-art.lisp` (北's placeholder stance `:ya-st-kita`; the Bankai's looks also drawn in 北), `yama-look.lisp`
