@@ -61,6 +61,11 @@ Read this first. It is the map; the detail lives in the files it points to. The 
 - **No balance gates from now on** (the user, 2026-10-29: 「以後不用跑平衡測試」, DEVLOG §468): don't run the seed / pacing gate, the
   awaken A/B or `aieval` unless the user asks (`assistgate` / `roguegate` left with ASSIST / DANGAI, 2026-11-13). Still run the fast checks (host tests, pkgcheck, build,
   smoke) and the G2 `--cvc` reference check, which proves a shared hook stays off for the other kits.
+- **No match tests for presentation-only changes** (the user, 2026-10-28: 「沒改戰鬥系統所以不用跑對戰測試」, DEVLOG §462; made a standing
+  rule 2026-11-21: 「我不是說過只改角色造型或過場動畫這些不影響對戰結果的東西就不用進行對戰測試嗎？」, DEVLOG §847): a change to looks,
+  clips, VFX, HUD or cinematics that cannot change a match's result runs no match test (no G2 `--cvc`, no looks gate, no CPU match). Run
+  the fast checks (host tests, pkgcheck, build, smoke), the 0 B probe, and the character's native combo trials when its files changed;
+  then stills for the user. A change to rules, frame data, moves' params, shared sim files or the CPU still runs `--cvc`.
 - **Test a move with a written control script** (the user, 2026-10-29: 「以後要測什麼招式就直接寫好指定的控制腳本，如非必要就不再依賴 CPU 賭機率」):
   `tools/run.mjs --script` key steps or a debug setup that drives both sides' inputs, never a CPU match hoping the move comes up.
 - **Find where to change with the graph first** (the user, 2026-11-01, DEVLOG §550): when a request is vague or touches several
