@@ -25,11 +25,8 @@
 (:name "C10 the third mark arms 北: 東 西 held, J1-J3 > AS3" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 1 :dist 1.4 :fs 300
  :p1-cmd (87445 87441 87442)
  :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 240)
-(:name "C11 NS 北 (armed, pointer 2): the marks cleared, the pointer stays 2, the wave 220" :p1 :yamamoto :form :bankai :p2 :kenpachi
- :ptr 2 :dist 6.0 :fs 300 :p1-cmd (87445 87444) :script ((:quick 1 :modded t)) :frames 120)
-(:name "C12 AS 北 after J1 (armed, pointer 3): no pointer written, no mark" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 1.4
- :fs 300 :p1-cmd (87445 87444) :script ((:quick 1) (:quick 1 :modded t :on :hit)) :frames 120)
-(:name "C13a the switch while 北 is armed: refused" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 1 :dist 4.0 :fs 300
+;; (C11 / C12, 北 armed as a flag, left 2026-11-21: 北 is a form since DUEL_YAMA_CORE §30.4; its NS / AS rows are yamamoto-sp30.lisp N2-N4)
+(:name "C13a the switch in 北 (87444: the form :north): refused" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 1 :dist 4.0 :fs 300
  :p1-cmd (87445 87444 87447) :script () :frames 2)
 (:name "C13b control: the switch with no 北: open" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 1 :dist 4.0 :fs 300
  :p1-cmd (87445 87447) :script () :frames 2)

@@ -3434,3 +3434,140 @@ level-2 topple 100; NSa > J: the shatter 55 `bind stun 60`; AS3 40 / 50 / 100 an
 **Open.** NS2a's own slash clip (deviation 1); the tower / topple / shatter / ENNETSU disc looks (placeholders); the K1 still script's
 87427 / 87428 scenes (`duel-yama-k1.json`: the swarm and the wall) now show the tower's NSb and the topple; the looks gate's YK scenario
 will differ at the next re-pin.
+
+### 30.6 As built (§30.2 西's garb charge and §30.4 北 as a 10 s form, 2026-11-21)
+
+Scope: §30.2 and §30.4 (§30.1 / §30.3 are another batch). Files: `duel/lisp/yama.lisp` (the 西 moves, the reach copies, 北's moves and the
+kit `:north`, the hooks), `yama-art.lisp` (北's placeholder stance `:ya-st-kita`; the Bankai's looks also drawn in 北), `yama-look.lisp`
+(the garb's size by the charge), `lhud-data.lisp` / `lhud-plate.lisp` (北's seal and bar), the shared `kit.lisp` / `core-sim.lisp` /
+`webhud.lisp` (dead hooks removed, below), `tools/sp-cost-table.lisp`, the tests, `tests/trials/yamamoto-sp30.lisp`,
+`tests/scripts/duel-yama-sp30b.json`.
+
+**西 (§30.2).**
+- NSa (S16 A12 R24, in place) and NSb (S14 A3 R20, the 1.5 m advance, `:turn-armor` f6 to S) hit nothing; both stay NS-classed and cost the
+  setup's 10 SP (`:params :sp-cost 10`). Each names its gap's SA by `:params :sa` (Ichigo's path): `:ya-e-sa-c1` (84, reach 2.8,
+  `:charge-mult` 1.4) and `:ya-e-sa-c2` (102, reach 3.6, `:charge-mult` 1.7), copies of the SA with their level baked in.
+- The x rides the string through `fighter-charge-mult` (CORE-NOTE-START!, CORE-CHARGE-MULT; the Hoho carries it), dropped at neutral,
+  by an NS or by any opener.
+- The reach: `*ya-reach-copies*`, same-name copies of E-J2, E-J3, AS1, AS2a and AS2b (`*ya-reach-moves*`) parsed at `:reach-mult (r + add) / r`
+  for add 0.8 / 1.6 (`*ya-charge-reach*`). The Bankai's new `:tick` hook (`yama-bk-tick` → `yama-reach-swap`) swaps the level's copy in on
+  every live step (a cancel's dead mark goes with it). The copies are classed in the kit's table as their moves, since KIT-CLASS is by
+  object (COMBAT's AS hit, the CPU). 南's hazard AS is unboosted (no copy; a hazard skips CORE-CHARGE-MULT).
+- AS2b used to copy NSb (`defmove-copy`); it is now its own move with the same numbers (S12 A3 R24, 70, reach 2.0, 360°, a launch, mark 2).
+- NSc: 90 x 1.7 = 153, reach 2.0 + 1.6 = 3.6, everything else as it was.
+- The garb in play: `*ya-garb-sizes*` 0.6 / 1.0 / 1.4 by level (`yama-garb-k`). It grows 0.6 → 1.0 through NSa's startup and 1.0 → 1.4
+  through NSb's, holds 1.4 in NSc, else follows the carried charge. The 西 Kikon's sizes (§29) and the NSa / NSb / AS2b flares are unchanged.
+- A charged hit logs `P1 WEST charge x1.4: YA-E-J2 reach 2.39 at 2.10 m` (the playtest's reading).
+
+**北 (§30.4).**
+- The third distinct mark logs `NORTH due at his next neutral`. The Bankai's tick then enters 北 (`ya-north-next`, `yama-north-in!`) on
+  the first free step:
+  - the form `:north`;
+  - the marks cleared;
+  - the pointer saved (`yss-north-ptr`);
+  - the meter set to `*ya-north-ticks*` 600;
+  - the entry pose `:ya-n-in` (24 f, invulnerable 24).
+- 北's `:tick` (`yama-north-tick`) takes one off the meter per live step outside the entry pose (the kit tick never runs in cinematics or
+  hitstop). At 0, at his next neutral, it returns to the Bankai and restores the pointer (`NORTH over: the Bankai, pointer n`).
+- The kit `:north` (`:inherit :bankai`):
+  - inherited: the dress, the NA, the SA and the smear;
+  - `:enter-hook nil` (the Bankai's zeroes the meter);
+  - meter `(:name "NORTH" :max 600)`, stance `:ya-st-kita`, callout TENCHI KAIJIN;
+  - hooks: no `:hit` (no marks in 北), no armour.
+- One pointer (no switch: SP-SWITCH-OK-P needs a second route), NS a 灰線 `:ya-n-n1a` → b 灰燼步 `:ya-n-n1b` → c 天地灰尽 `:ya-e-n4`:
+
+  | Segment | S | Damage | Hit | React | SP |
+  |---|---|---|---|---|---|
+  | a 灰線 | 16 | 60 | a `:cap` 0.2–5.0 m at 1.2 m, r 0.25 | stagger | 25 |
+  | b 灰燼步 | 12 | 70 | slide 3.0, reach 2.0, arc 140 | stagger | 30 |
+  | c 天地灰尽 | 24 | 220 | the old wave; Kikon strike `:ya-e-n4-strike` with `yama-tenchi-cine` | knockdown | 60 |
+
+- The AS after any J count (`:as-by-press (1 1 1)`):
+
+  | Segment | S | Damage | React | SP |
+  |---|---|---|---|---|
+  | a the grip `:ya-n-as` | 10 | 40 | stagger | 15 |
+  | b the cut `:ya-n-as2` | 10 | 50 | stagger | 20 |
+  | c point-blank 天地灰尽 `:ya-e-as4` | 10 | 140 | knockdown, `:cine yama-tenchi-cine` | 55 |
+
+- NS a's and AS a's frame 0 (`yama-north-sp`) set `fighter-sp-ptr` 3, so the Kikon takes pointer 3's profile. `:kikon-cines` lists
+  `yama-tenchi-cine` three times, because that list is indexed by the SP's pointer (3).
+- HUD:
+  - the tag `NORTH` (`yama-north-tag`);
+  - lhud-data's "ZANKA NO TACHI NORTH" is now one seal, 北 · 北 · TENCHI KAIJIN;
+  - `lhud-marks "NORTH"` is NIL (the marks are cleared in 北);
+  - `lhud-kit-kind "NORTH"` = 6: LHUD-HEAT draws 北 and the ticks left as an ash-white draining bar (no ticks, no word).
+  - No new glyph: 北 was baked already.
+- Removed (dead once 北 is a form):
+  - the armed flag (`yss-north`) and `ya-north-pick` / `ya-north-start` / `ya-switch-ok-p`;
+  - `yama-ns-pick` / `yama-as-pick` / `yama-switch-ok` / `yama-north-start`;
+  - the shared `:ns-extra` / `:as-extra` keys (kit.lisp CORE-ROUTES, BUILD-CORE-CLASSES, KIT-SP-START-P; sp-cost-table) and the `:ns-pick`
+    / `:switch-ok` hooks (core-sim.lisp CORE-SP-START! / CORE-SWITCH-OPEN-P, webhud's next-NSa price). No other kit had any of them.
+- Debug:
+  - 87444 = 北 now (`yama-north-in!`, awakened);
+  - 87445 = the marks cleared, and in 北 its count to 0;
+  - 87453+i = 北's NS a / b / c, AS a / b / c on its own;
+  - 87429 / 87436 take P1's kit's move (北's in 北);
+  - the probe line carries `north N` (ticks left) and `charge x`.
+
+**SP costs** (DUEL_DESIGN §5.1 regenerated): the Bankai NS2 0 / 10, 0 / 10, 153 / 60 (route 80, was 85); 北 NS 115 (25 + 30 + 60), AS 90
+(15 + 20 + 55). The old NS-EXTRA / AS-EXTRA rows are gone.
+
+**Readings.** Native trials `tests/trials/yamamoto-sp30.lisp` (combo-trial.py; P2 Kenpachi standing). The `dealt` numbers are after the
+combo scaling.
+
+| Trial | Reading |
+|---|---|
+| W1 NSa > SA > J2 > J3 (2.6 m) | SA-C1 84 at 2.10 m; J2 reach 2.39 hits at 2.10 m, dealt 22; J3 reach 2.51 at 2.10 m |
+| W1b the same from 3.0 m | J2 hits at 2.50 m (uncharged reach 1.59) |
+| W2 NSa > NSb > SA > J2 > J3 (4.4 m) | SA-C2 102 at 2.51 m; J2 reach 3.19 at 2.51 m, dealt 27; J3 reach 3.31 |
+| W3 NSa > SA > J2 > AS2 (2.6 m) | AS2a reach 2.40 and AS2b reach 2.80 both hit at 2.10 m, x1.4 |
+| W4 AS2a on its own at 2.1 m, no charge | whiffs (reach 1.6) |
+| W5 J1 > J2 (1.4 m), no charge | J2 dealt 16 as the 2nd hit: x1.4 → 22, x1.7 → 27 (W1, W2) |
+| W6 NSa > SA, then neutral, J1 > J2 | J2 dealt 16, no `WEST charge` line: the charge dropped at neutral |
+| W7 西 NS a-b-c (4.4 m) | NSc 153 at reach 3.6; SP 10 + 10 + 60 |
+| N1 東 西 held, J1-J3 > AS3 | `MARK SOUTH (marks 7)`, `NORTH due`; at his next neutral `form NORTH`, the entry pose, `pointer 3 saved` |
+| N2 北 NS a > b > c (5 m) | 60 > 70 > the wave 220, gaps 0 2; SP 25 + 30 + 60 |
+| N3 / N4 北 J1 (J1-J3) > AS | 40 > 50 > 140 after J1 and after J3 alike (`AS1 pointer 1`) |
+| N5 北 J1 > AS a > b held | the Kikon -2 Konpaku (pointer 3's profile: 3 - 1), `cine YAMA-TENCHI-CINE` |
+| N6 北 left idle | entry at tick 2579, `NORTH over: the Bankai, pointer 2` at 3202: 24 (pose) + 600 |
+
+The browser script `duel-yama-sp30b.json` reads the same lines through the page, and the stills `tests/shots/duel-yama-sp30-*.png` show the
+garb at 0.6 / 1.0 / 1.4 / 0.6, the entry pose, and the plate (北 bar, 北 · TENCHI KAIJIN).
+- 北's Kikon: entry at tick 1088, `NORTH over` at 1892 (804 = 624 + 180 paused). Through the cinematic the probes read `north 508` from t
+  1235 to 1355, then the count went on.
+- 87448's consing line: every row 0 B but `south-dead` / `-pile` / `-burst` 80 B in a fresh scene, as on BASE (§27.5).
+
+**Deviations, each with its reason.**
+1. NSa keeps S16 A12 R24, so its gap opens at f28. Ichigo's charge opens at f20 (A 0). Keeping NSa's frames keeps its clip, its flare looks
+   (f16 / f26) and the art cast checks valid; shortening it is a feel call for the playtest.
+2. 北's Soul Break outside an SP move counts by his pointer, 1 in 北's one-pointer kit (base + 1), not pointer 3's (base + 3). Inside an SP of
+   北, `sp-ptr` 3 gives pointer 3's numbers; for a Kikon, pointers 1 and 3 take the same count. Making the pointer itself 3 would need three
+   identical NS / AS entries plus a switch refusal: more machinery than the case is worth.
+3. The entry pose's clip is 北's stance loop `:ya-st-kita` (a placeholder). The stance itself is a placeholder pose: J2's first frame,
+   `:ya-e-q2-from`, without the lunge. NS a / b and the AS segments play old Bankai clips (`ya-e-f1`, `ya-e-f2`, `ya-e-grab`,
+   `ya-e-gokui-cut`). Art later, as §30.4 says. NSc's drawn reach is 1.6 m short of its hit (the FK test lists it one-sided): the garb's flame
+   sweep is the later art batch.
+4. Leaving 北 runs the Bankai's `:enter-hook`, so the log shows one extra `ZANKA NO TACHI: heat 0.0 -> 0` line. It is harmless.
+5. The 北 kit keeps the Bankai's callout table entry. Its form callout is TENCHI KAIJIN (天地灰尽 is in `*lhud-moves*`), so entering 北
+   shows it; leaving it shows ZANKA NO TACHI again.
+
+**Checks.**
+
+| Check | Result |
+|---|---|
+| Host tests | ALL PASS, 4288 checks: 西's segments / SAs / reach copies and the swap on a stand-in, the `:north` kit (classes, numbers, costs, reacts, no mid-route knockdown, tells, the Kikon wiring), `ya-north-next`, the HUD (seal, marks, kind 6), `*sp-table*` (Bankai (110 80 65) (20 45 75), 北 (115) (90)), the FK / cast checks taking 北's moves from 北's kit |
+| `tools/pkgcheck.sh duel` | as main (the one `DUEL::APP` line) |
+| `python3 tests/sp-costs-check.py` | 116 PASS, 0 FAIL |
+| `python3 tests/debug-ranges-check.py` | 90 ranges, 0 errors |
+| `./build.sh duel` | built |
+| Smoke | `run.mjs` exit 0 |
+| `python3 tests/style-gates.py cvc dist/duel` | II / IK / KK identical to `tests/style-cvc-ref.txt` (33 / 28 / 27 lines) |
+
+No balance gates, no looks gate, no CPU match.
+
+**Open.**
+- The art: 北's stance, entry pose and moves' own clips, the ash looks, the garb's flames swept along the blade.
+- NSa's length.
+- The CPU plays 西's charges and 北 with the generic core CPU, untuned (北's `:ns-range` (2.0 5.0) for 灰線).
+- DUEL_DESIGN §5.1 must be regenerated again after merging §30.1 (Shikai pointer 2's costs).

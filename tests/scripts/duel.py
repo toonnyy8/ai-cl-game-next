@@ -1699,3 +1699,40 @@ def yama_sp30_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-sp30", yama_sp30_script())
+
+# Yamamoto §30 (DUEL_YAMA_CORE §30.2 / §30.4, as built §30.6; the browser path of tests/trials/yamamoto-sp30.lisp, and what the native trials
+# skip: 北's Kikon cinematic). P1 in the Bankai (87446) vs an idle Kenpachi: 西 NSa > SA > J2 > J3 from 2.6 m and NSa > NSb > SA > J2 > J3
+# from 4.4 m (the `WEST charge` lines: x, reach, distance; stills of the garb at 0.6 / 1.0 / 1.4), the third mark (東 西 held, J1-J3 > AS3)
+# and 北's entry at the next neutral (stills: the entry pose, the plate's 北 bar), 北's NS a-b-c from 5 m, J1 > AS, then J1 > AS a held (the
+# Kikon: yama-tenchi-cine) with probe lines (87900) before, through and after it: 北's ticks stop while it plays; then idle until `NORTH
+# over` (the match ticks between the entry and that line = 624 + the cinematic's). 87448's consing line ends the run.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 60 --script tests/scripts/duel-yama-sp30b.json
+def yama_sp30b_script():
+    ev, t = [], T0
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def j(s): ev.extend(tap(s, "KeyJ", 0.05))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+    scene("west base garb (0.6)", (87026, 87302, 87446, 87445)); ev.append(shot(t + 1.0, "yama-sp30-garb-base")); t += 1.5
+    scene("west NSa > SA > J2 > J3 (2.6 m)", (87026, 87302, 87445)); sp(t + 0.3); j(t + 0.55); j(t + 0.9); j(t + 1.15)
+    ev.append(shot(t + 0.75, "yama-sp30-garb-1")); t += 3.0
+    scene("west NSa > NSb > SA > J2 > J3 (4.4 m)", (87044, 87302, 87445)); sp(t + 0.3); sp(t + 0.6); j(t + 0.95); j(t + 1.25); j(t + 1.5)
+    ev.append(shot(t + 1.3, "yama-sp30-garb-2")); t += 3.0
+    scene("west neutral again (0.6)", (87900,)); ev.append(shot(t + 0.2, "yama-sp30-garb-after")); t += 0.6
+    scene("the third mark: J1-J3 > AS3, NORTH at the next neutral", (87014, 87301, 87445, 87441, 87442))
+    [j(t + 0.3 + 0.25 * i) for i in range(3)]; sp(t + 1.1); sp(t + 1.4); sp(t + 1.7)
+    ev.append(cmd(t + 3.0, 87900)); ev.append(shot(t + 2.75, "yama-sp30-north-in")); ev.append(shot(t + 3.4, "yama-sp30-north")); t += 4.0
+    scene("NORTH NS a-b-c (5 m)", (87050, 87444)); sp(t + 0.6); sp(t + 0.9); sp(t + 1.2); t += 3.0
+    scene("NORTH J1 > AS (1.4 m)", (87014, 87444)); j(t + 0.6); sp(t + 0.95); sp(t + 1.2); sp(t + 1.45); t += 3.0
+    scene("NORTH J1 > AS held: the Kikon pauses the count", (87014, 87444, 87900)); j(t + 0.6); sp(t + 0.95, 1.4)
+    for k in range(12): ev.append(cmd(t + 1.0 + 0.5 * k, 87900))
+    ev.append(shot(t + 3.0, "yama-sp30-north-kikon")); t += 7.5
+    scene("NORTH counts on to its end", ())
+    for k in range(14): ev.append(cmd(t + 0.5 * k, 87900))
+    t += 7.5
+    ev.append(cmd(t, 87448)); t += 0.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-sp30b", yama_sp30b_script())

@@ -288,16 +288,19 @@
                        always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :blaze)) (not (kit-sp-free-p kk)))))))))))
 
 ;;; ================================================================ stage C: the Bankai ZANKA NO TACHI, the marks and 北 (DUEL_YAMA_CORE §4, §7.3,
-;;; §7.4)
-(let* ((kb (kit :yamamoto :bankai)) (core (kit-core kb)))
+;;; §7.4); §30 (2026-11-21): 西's garb charge (§30.2) and 北 as a 10 s form, the kit :north (§30.4)
+(let* ((kb (kit :yamamoto :bankai)) (core (kit-core kb)) (kn (kit :yamamoto :north)) (ncore (kit-core kn)))
   (flet ((m (n) (kit-move kb n)) (cls (n) (kit-class kb (kit-move kb n)))
-         (react (n) (let ((mv (kit-move kb n))) (or (getf (mv-params mv) :react) (hw-react (svref (mv-hits mv) 0))))))
-    ;; the kit: an awakened form of its own (no :inherit: no heat hooks), the TYBW dress, ZANKA, East's stance, the old awakening cinematic
+         (react (n) (let ((mv (kit-move kb n))) (or (getf (mv-params mv) :react) (hw-react (svref (mv-hits mv) 0)))))
+         (nm (n) (kit-move kn n)) (ncls (n) (kit-class kn (kit-move kn n)))
+         (nreact (n) (let ((mv (kit-move kn n))) (or (getf (mv-params mv) :react) (hw-react (svref (mv-hits mv) 0))))))
+    ;; the kit: an awakened form of its own (no :inherit: no heat hooks), the TYBW dress, ZANKA, East's stance, the old awakening cinematic;
+    ;; its :tick since §30 (西's charged reach, 北 at the next neutral)
     (check (and (kit-awakening kb) (null (kit-inherit kb)) (eq (kit-body kb) :yamamoto-tybw) (eq (kit-weapon kb) :zanka)
                 (eq (kit-stance kb) :ya-e-stance) (eq (kit-cine kb) 'yama-bankai-cine) (equal (kit-form-name kb) "ZANKA NO TACHI")
-                (null (kit-hook kb :tick)) (null (kit-hook kb :cancel)) (not (kit-sp-free-p kb)) (zerop (kit-burn kb))
-                (equal (getf (kit-meter kb) :name) "ZANKA") (~= 1.0 (getf core :mult))))
-    ;; every class tag: NA E-J1-J3, the three NS routes, the three AS, the SA, 北's NS / AS (the extras), each Kikon strike as its segment
+                (eq (kit-hook kb :tick) 'yama-bk-tick) (null (kit-hook kb :cancel)) (not (kit-sp-free-p kb)) (zerop (kit-burn kb))
+                (null (kit-hook kb :as-pick)) (equal (getf (kit-meter kb) :name) "ZANKA") (~= 1.0 (getf core :mult))))
+    ;; every class tag: NA E-J1-J3, the three NS routes, the three AS, the SA and 西's two charged SAs, each Kikon strike as its segment
     (check (every (lambda (n) (eq (cls n) :na)) '(:ya-e-j1 :ya-e-j2 :ya-e-j3)))
     (check (equal (mapcar #'core-segments (getf core :ns))
                   '((:ya-e-n1a :ya-e-n1b :ya-e-n1c) (:ya-e-n2a :ya-e-n2b :ya-e-n2c) (:ya-e-n3a :ya-e-n3b :ya-e-n3c))))
@@ -305,37 +308,35 @@
     (check (equal (mapcar (lambda (r) (length (core-segments r))) (getf core :as)) '(1 2 3)))   ; AS n: n segments
     (check (every (lambda (r) (every (lambda (n) (eq (cls n) :ns)) (core-segments r))) (getf core :ns)))
     (check (every (lambda (r) (every (lambda (n) (eq (cls n) :as)) (core-segments r))) (getf core :as)))
-    (check (and (equal (getf core :ns-extra) '(:ya-e-n4)) (equal (getf core :as-extra) '(:ya-e-as4))
-                (eq (cls :ya-e-n4) :ns) (eq (cls :ya-e-as4) :as) (null (mv-ns-next kb (m :ya-e-n4))) (null (mv-ns-next kb (m :ya-e-as4)))))
     (check (and (eq (cls :ya-e-sa) :sa) (eq (kit-next kb :ya-e-sa :q) (m :ya-e-j2)) (equal (getf core :as-by-press) '(1 2 3))))
-    (check (and (eq (cls :ya-e-ns-strike) :ns) (eq (cls :ya-e-as-strike) :as) (eq (cls :ya-e-n4-strike) :ns)))
-    ;; 北 is no pointer: the grammar's three routes each, so the clamp, the stances, the Kikon table and the switch's route count stay 1-3
+    (check (and (eq (cls :ya-e-ns-strike) :ns) (eq (cls :ya-e-as-strike) :as)))
+    (check (notany (lambda (n) (gethash n (kit-moves kb))) '(:ya-e-n4 :ya-e-as4 :ya-n-n1a :ya-n-as)))   ; (北's moves are 北's kit's, §30.4)
     (check (and (= 3 (length (getf core :ns))) (= 3 (length (getf core :as))) (= 3 (length (getf core :stances)))
                 (= 3 (length (getf core :kikon-cines)))))
-    ;; the openers' tells: E-J1 and every NS first segment S >= 14, 北's NS 24 (§7.3)
-    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ya-e-j1 :ya-e-n1a :ya-e-n2a :ya-e-n3a :ya-e-n4)) '(14 20 16 22 24)))
-    (check (every (lambda (n) (>= (- (mv-s (m n)) (mv-enter (m n))) 14)) '(:ya-e-j1 :ya-e-n1a :ya-e-n2a :ya-e-n3a :ya-e-n4)))
-    ;; §7.3's damage as built (before :mult 1.0)
+    ;; the openers' tells: E-J1 and every NS first segment S >= 14 (§7.3)
+    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ya-e-j1 :ya-e-n1a :ya-e-n2a :ya-e-n3a)) '(14 20 16 22)))
+    (check (every (lambda (n) (>= (- (mv-s (m n)) (mv-enter (m n))) 14)) '(:ya-e-j1 :ya-e-n1a :ya-e-n2a :ya-e-n3a)))
+    ;; §7.3's damage as built (before :mult 1.0); §30.2: 西 NSa / NSb hit nothing, NSc 90 x1.7 = 153, the charged SAs 84 / 102
     (check (equal (mapcar (lambda (n) (mv-sp-damage (m n)))
                           '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c :ya-e-n3a :ya-e-n3b :ya-e-n3c
-                            :ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-n4 :ya-e-as4 :ya-e-sa))
-                  '(34 38 42 80 70 120 90 40 90 40 50 70 50 40 70 40 50 100 220 180 60)))
-    ;; no mid-route knockdown / crumple / launch; the routes' last segments carry them; 北 knocks down both ways; E-J3 a stagger
-    (dolist (r (append (getf core :ns) (getf core :as)))
-      (dolist (n (butlast (core-segments r)))
-        (let ((mv (m n)))
-          (check (not (or (member (getf (mv-params mv) :react) '(:knockdown :launch :crumple))
-                          (loop for w across (mv-hits mv) thereis (member (hw-react w) '(:knockdown :launch :crumple)))))))))
-    (check (equal (mapcar #'react '(:ya-e-j3 :ya-e-n1c :ya-e-n2c :ya-e-n3c :ya-e-as1 :ya-e-as2b :ya-e-as3c :ya-e-n4 :ya-e-as4))
-                  '(:stagger :knockback :knockback :crumple :knockdown :launch :knockdown :knockdown :knockdown)))
+                            :ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-sa :ya-e-sa-c1 :ya-e-sa-c2))
+                  '(34 38 42 80 70 120 0 0 153 40 50 70 50 40 70 40 50 100 60 84 102)))
+    ;; no mid-route knockdown / crumple / launch (the Bankai's and 北's routes); the routes' last segments carry them; E-J3 a stagger
+    (dolist (kr (list (cons kb core) (cons kn ncore)))
+      (dolist (r (append (getf (cdr kr) :ns) (getf (cdr kr) :as)))
+        (dolist (n (butlast (core-segments r)))
+          (let ((mv (kit-move (car kr) n)))
+            (check (not (or (member (getf (mv-params mv) :react) '(:knockdown :launch :crumple))
+                            (loop for w across (mv-hits mv) thereis (member (hw-react w) '(:knockdown :launch :crumple))))))))))
+    (check (equal (mapcar #'react '(:ya-e-j3 :ya-e-n1c :ya-e-n2c :ya-e-n3c :ya-e-as1 :ya-e-as2b :ya-e-as3c))
+                  '(:stagger :knockback :knockback :crumple :knockdown :launch :knockdown)))
     (check (and (eq (react :ya-e-n3a) :bind) (eq (react :ya-e-as3) :stagger)))   ; 南 NSa binds; AS3a a stagger, not a bind (§7.4)
     ;; each hazard segment names a Kikon strike of its own class (one per class; 北's own, with 天地灰尽's cinematic)
-    (dolist (n '(:ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-n4))
+    (dolist (n '(:ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-as3 :ya-e-as3b :ya-e-as3c))
       (let* ((mv (m n)) (s (getf (mv-params mv) :kikon-strike)) (smv (and s (m s))))
         (check (and smv (eq (kit-class kb smv) (kit-class kb mv)) (>= (getf (mv-params smv) :follow-cap) 40.0)
                     (zerop (length (mv-hits mv)))))))
-    (check (and (eq (mv-cine (m :ya-e-n4-strike)) 'yama-tenchi-cine) (eq (mv-cine (m :ya-e-as4)) 'yama-tenchi-cine)
-                (null (mv-cine (m :ya-e-ns-strike)))))
+    (check (null (mv-cine (m :ya-e-ns-strike))))
     ;; 南 NSa: the point on S, the hands 16 f later inside [S, S + A) (a hazard spawned on S counts its first delay frame there)
     (let ((mv (m :ya-e-n3a)))
       (check (and (= 17 (getf (mv-params mv) :delay)) (= (+ 22 16) (+ (mv-s mv) 17 -1)) (< (+ 22 16) (+ (mv-s mv) (mv-a mv)))
@@ -359,20 +360,55 @@
     ;; the pure piece: the topple's way (toward the victim, his facing when the victim stands on the base)
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 3.0 6.5 0.0)) '(0.6 0.8)))
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 0.1 2.6 0.0)) (list (fwd-x 0.0) (fwd-z 0.0))))
-    ;; 西 NSb / NSc: the turn moves' armour (only those two); 西 NSa two hits of 45 round him; AS1 steals 30; the marks by AS
+    ;; 西 NSb / NSc: the turn moves' armour (only those two); AS1 steals 30; the marks by AS
     (check (equal (loop for n being the hash-keys of (kit-moves kb) using (hash-value mv)
                         when (getf (mv-params mv) :turn-armor) collect n into l finally (return (sort l #'string< :key #'symbol-name)))
                   '(:ya-e-n2b :ya-e-n2c)))
-    (check (and (= 2 (length (mv-hits (m :ya-e-n2a)))) (~= 2.0 (mv-reach (m :ya-e-n2b))) (= 30 (getf (mv-params (m :ya-e-as1)) :steal-fs))))
+    (check (= 30 (getf (mv-params (m :ya-e-as1)) :steal-fs)))
     (check (equal (mapcar (lambda (n) (getf (mv-params (m n)) :mark))
-                          '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-as4 :ya-e-n1a))
-                  '(1 2 2 3 3 3 nil nil)))
-    (check (and (getf (mv-params (m :ya-e-n4)) :north) (getf (mv-params (m :ya-e-as4)) :north)
-                (eq 'yama-north-start (second (assoc 0 (mv-on-frame (m :ya-e-n4))))) (eq 'yama-north-start (second (assoc 0 (mv-on-frame (m :ya-e-as4)))))))
+                          '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-n1a))
+                  '(1 2 2 3 3 3 nil)))
     (check (notany (lambda (n) (assoc 0 (mv-on-frame (m n)))) '(:ya-e-n1a :ya-e-n2a :ya-e-n3a :ya-e-n3b)))   ; no heat spend in the Bankai
-    ;; 北's NS starts as a route's first segment (at fs 0, as any NSa); its SP from its damage (DUEL_SP §4)
-    (check (and (kit-sp-start-p kb (m :ya-e-n4) 0.0 nil) (not (kit-sp-start-p kb (m :ya-e-n1b) 0.0 nil))
-                (~= 60.0 (kit-sp-cost kb (m :ya-e-n4))) (~= 60.0 (kit-sp-cost kb (m :ya-e-as4)))))
+    ;; §30.2 西's garb charge: NSa / NSb no hit, still NS-classed, a setup's 10 SP, each naming its charged SA (x1.4 / x1.7, its own damage
+    ;; and reach baked: 2.0 + 0.8 / 1.6), the SA's string goes on at E-J2; NSb keeps the 1.5 m advance and its armour; NSc reach 3.6
+    (check (and (zerop (length (mv-hits (m :ya-e-n2a)))) (zerop (length (mv-hits (m :ya-e-n2b))))
+                (eq (cls :ya-e-n2a) :ns) (eq (cls :ya-e-n2b) :ns) (~= 10.0 (kit-sp-cost kb (m :ya-e-n2a))) (~= 10.0 (kit-sp-cost kb (m :ya-e-n2b)))
+                (~= 1.5 (mv-slide (m :ya-e-n2b))) (getf (mv-params (m :ya-e-n2b)) :turn-armor)
+                (~= 3.6 (mv-reach (m :ya-e-n2c))) (~= 60.0 (kit-sp-cost kb (m :ya-e-n2c)))))
+    (check (and (eq (mv-sa-move kb (m :ya-e-n2a)) (m :ya-e-sa-c1)) (eq (mv-sa-move kb (m :ya-e-n2b)) (m :ya-e-sa-c2))
+                (null (mv-sa-move kb (m :ya-e-n1a)))))
+    (check (and (eq (cls :ya-e-sa-c1) :sa) (eq (cls :ya-e-sa-c2) :sa) (null (kit-sp-cost kb (m :ya-e-sa-c1)))
+                (~= 1.4 (getf (mv-params (m :ya-e-sa-c1)) :charge-mult)) (~= 1.7 (getf (mv-params (m :ya-e-sa-c2)) :charge-mult))
+                (~= 2.8 (mv-reach (m :ya-e-sa-c1))) (~= 3.6 (mv-reach (m :ya-e-sa-c2)))
+                (eq (kit-next kb :ya-e-sa-c1 :q) (m :ya-e-j2)) (eq (kit-next kb :ya-e-sa-c2 :q) (m :ya-e-j2))))
+    (check (and (= 2 (length *ya-reach-copies*)) (equal *ya-reach-moves* '(:ya-e-j2 :ya-e-j3 :ya-e-as1 :ya-e-as2 :ya-e-as2b))))
+    ;; the reach copies: the same name, class (registered in the kit's table), SP cost, damage, frames, react and params; reach + 0.8 / + 1.6
+    (loop for add in '(0.8 1.6) for lv from 1
+          do (dolist (n *ya-reach-moves*)
+               (let ((c (ya-reach-copy n lv)) (mv (m n)))
+                 (check (and c (not (eq c mv)) (eq (mv-name c) n) (eq (kit-class kb c) (kit-class kb mv))
+                             (eql (kit-sp-cost kb c) (kit-sp-cost kb mv)) (= (mv-sp-damage c) (mv-sp-damage mv))
+                             (= (mv-s c) (mv-s mv)) (= (mv-a c) (mv-a mv)) (= (mv-r c) (mv-r mv)) (equal (mv-params c) (mv-params mv))
+                             (eq (hw-react (svref (mv-hits c) 0)) (hw-react (svref (mv-hits mv) 0)))
+                             (~= (+ (mv-reach mv) add) (mv-reach c)) (~= (+ (mv-reach mv) add) (aref (first (hw-vols (svref (mv-hits c) 0))) 1)))))))
+    (check (and (null (ya-reach-copy :ya-e-j1 1)) (null (ya-reach-copy :ya-e-as3 2)) (null (ya-reach-copy :ya-e-j2 0))))
+    (check (equal (mapcar #'ya-charge-level '(1.0 1.4 1.7)) '(0 1 2)))
+    ;; YAMA-REACH-SWAP on a stand-in fighter: charged, a reach move swaps to the level's copy (a cancel's dead mark with it); else nothing
+    (let ((f (make-fighter :kit kb)))
+      (setf (fighter-move f) (m :ya-e-j2) (fighter-charge-mult f) 1.7 (fighter-dead-mv f) (m :ya-e-j2))
+      (yama-reach-swap f)
+      (check (and (eq (fighter-move f) (ya-reach-copy :ya-e-j2 2)) (eq (fighter-dead-mv f) (fighter-move f)) (~= 3.19 (mv-reach (fighter-move f)))))
+      (yama-reach-swap f)                                                ; (again: already the copy)
+      (check (eq (fighter-move f) (ya-reach-copy :ya-e-j2 2)))
+      (setf (fighter-move f) (m :ya-e-as2) (fighter-charge-mult f) 1.4)
+      (yama-reach-swap f)
+      (check (and (eq (fighter-move f) (ya-reach-copy :ya-e-as2 1)) (~= 2.4 (mv-reach (fighter-move f)))))
+      (setf (fighter-move f) (m :ya-e-as3) (fighter-charge-mult f) 1.7)   ; 南's hazard AS: unboosted
+      (yama-reach-swap f)
+      (check (eq (fighter-move f) (m :ya-e-as3)))
+      (setf (fighter-move f) (m :ya-e-j2) (fighter-charge-mult f) 1.0)    ; no charge: as written
+      (yama-reach-swap f)
+      (check (eq (fighter-move f) (m :ya-e-j2))))
     ;; stance by pointer
     (check (equal (getf core :stances) '(:ya-st-higashi :ya-st-nishi :ya-st-minami)))
     (let ((f (make-fighter :kit kb)))
@@ -383,18 +419,54 @@
     (check (eq :hit (core-turn-armor-verdict (core-verdict :as :ns) :as t)))
     (check (eq :cancel (core-turn-armor-verdict (core-verdict :sa :ns) :sa t)))
     (check (eq :cancel (core-turn-armor-verdict (core-verdict :na :ns) :na nil)))
-    ;; the marks and 北 (pure): one bit per AS, a repeated mark stays one, the third distinct arms 北; its start clears; the switch refused
+    ;; §30.4 北, the kit :north: the Bankai's dress, NA and SA inherited; one pointer (NS a b c, the AS's three segments after any J count);
+    ;; no :enter-hook (the Bankai's zeroes the meter), its own meter (the ticks: the HUD's bar), tick and tag; no :hit (no marks in 北)
+    (check (and (eq (kit-inherit kn) :bankai) (kit-awakening kn) (eq (kit-body kn) :yamamoto-tybw) (eq (kit-weapon kn) :zanka)
+                (eq (kit-stance kn) :ya-st-kita) (equal (kit-form-name kn) "ZANKA NO TACHI") (null (kit-enter-hook kn))
+                (equal (kit-meter kn) '(:name "NORTH" :max 600)) (= 600 *ya-north-ticks*)
+                (eq (kit-hook kn :tick) 'yama-north-tick) (eq (kit-hook kn :hud-tag) 'yama-north-tag) (null (kit-hook kn :hit))
+                (null (kit-hook kn :armored-fx)) (not (kit-sp-free-p kn)) (~= 1.0 (getf ncore :mult))))
+    (check (and (equal (mapcar #'core-segments (getf ncore :ns)) '((:ya-n-n1a :ya-n-n1b :ya-e-n4)))
+                (equal (mapcar #'core-segments (getf ncore :as)) '((:ya-n-as :ya-n-as2 :ya-e-as4)))
+                (every (lambda (n) (eq (ncls n) :ns)) '(:ya-n-n1a :ya-n-n1b :ya-e-n4))
+                (every (lambda (n) (eq (ncls n) :as)) '(:ya-n-as :ya-n-as2 :ya-e-as4))
+                (every (lambda (n) (eq (ncls n) :na)) '(:ya-e-j1 :ya-e-j2 :ya-e-j3))
+                (eq (getf ncore :sa) :ya-e-sa) (eq (ncls :ya-e-sa) :sa) (eq (kit-next kn :ya-e-sa :q) (nm :ya-e-j2))
+                (equal (getf ncore :as-by-press) '(1 1 1)) (equal (getf ncore :stances) '(:ya-st-kita))
+                (equal (getf ncore :kikon-cines) '(yama-tenchi-cine yama-tenchi-cine yama-tenchi-cine))
+                (eq (ncls :ya-e-n4-strike) :ns) (null (ncls :ya-n-in)) (gethash :ya-n-in (kit-moves kn))))
+    (check (equal (mapcar (lambda (p) (min (core-as-pointer p '(1 1 1)) 1)) '(1 2 3)) '(1 1 1)))   ; the AS after any J count
+    ;; its numbers (§30.4): NS a 灰線 S16 60 (a line 5 m ahead at chest height), b 灰燼步 S12 70 slide 3, c 天地灰尽 S24 220; the AS 40 > 50 >
+    ;; 140; the opener's tell S >= 14; reacts; the SP costs (DUEL_SP §4: 25 30 60, 15 20 55)
+    (check (and (= 16 (mv-s (nm :ya-n-n1a))) (>= (- (mv-s (nm :ya-n-n1a)) (mv-enter (nm :ya-n-n1a))) 14) (= 12 (mv-s (nm :ya-n-n1b)))
+                (= 24 (mv-s (nm :ya-e-n4))) (~= 3.0 (mv-slide (nm :ya-n-n1b))) (~= 5.0 (mv-reach (nm :ya-n-n1a)))))
+    (check (equal (mapcar (lambda (n) (mv-sp-damage (nm n))) '(:ya-n-n1a :ya-n-n1b :ya-e-n4 :ya-n-as :ya-n-as2 :ya-e-as4))
+                  '(60 70 220 40 50 140)))
+    (check (equal (mapcar #'nreact '(:ya-n-n1a :ya-n-n1b :ya-e-n4 :ya-n-as :ya-n-as2 :ya-e-as4))
+                  '(:stagger :stagger :knockdown :stagger :stagger :knockdown)))
+    (check (equal (mapcar (lambda (n) (round (kit-sp-cost kn (nm n)))) '(:ya-n-n1a :ya-n-n1b :ya-e-n4 :ya-n-as :ya-n-as2 :ya-e-as4))
+                  '(25 30 60 15 20 55)))
+    (check (and (kit-sp-start-p kn (nm :ya-n-n1a) 0.0 nil) (not (kit-sp-start-p kn (nm :ya-n-n1b) 0.0 nil))))
+    ;; its Kikon: the wave's strike and the AS's last carry 天地灰尽's cinematic; NS a and the AS's grip take pointer 3's profile on frame 0
+    (check (and (eq (getf (mv-params (nm :ya-e-n4)) :kikon-strike) :ya-e-n4-strike) (eq (mv-cine (nm :ya-e-n4-strike)) 'yama-tenchi-cine)
+                (eq (mv-cine (nm :ya-e-as4)) 'yama-tenchi-cine) (zerop (length (mv-hits (nm :ya-e-n4))))
+                (eq 'yama-north-sp (second (assoc 0 (mv-on-frame (nm :ya-n-n1a))))) (eq 'yama-north-sp (second (assoc 0 (mv-on-frame (nm :ya-n-as)))))))
+    (check (and (= 24 (mv-total (nm :ya-n-in))) (= 24 *ya-north-in-frames*)))   ; the entry pose: 爆炎's shape
+    ;; the marks and 北 (pure): one bit per AS, a repeated mark stays one, the third distinct makes 北 due; 北's change at the next neutral
     (check (equal (multiple-value-list (ya-mark-add 0 1)) '(1 nil)))
     (check (equal (multiple-value-list (ya-mark-add 1 1)) '(1 nil)))
     (check (equal (multiple-value-list (ya-mark-add 1 3)) '(5 nil)))
     (check (equal (multiple-value-list (ya-mark-add 5 2)) '(7 t)))
     (check (equal (multiple-value-list (ya-mark-add 7 2)) '(7 t)))
-    (check (equal (multiple-value-list (ya-north-start 7 t)) '(0 nil)))
-    (check (equal (multiple-value-list (ya-north-pick t :n :a)) '(:n :a)))
-    (check (null (ya-north-pick nil :n :a)))
-    (check (and (ya-switch-ok-p nil nil) (not (ya-switch-ok-p t nil)) (not (ya-switch-ok-p nil t))))
-    ;; the sim side on stand-in fighters: an AS hit's mark (a block, an NA, 北's AS none), the third arms 北, the picks, the start (the
-    ;; marks cleared, the pointer never 4, the Kikon profile 3), the switch's refusal, the heat leaving on the awakening
+    (check (eq :north (ya-north-next :bankai 7 0 t)))
+    (check (null (ya-north-next :bankai 7 0 nil)))                       ; mid-route: the route ends in the Bankai
+    (check (null (ya-north-next :bankai 5 0 t)))
+    (check (null (ya-north-next :north 0 1 t)))                          ; ticks left: stays
+    (check (eq :bankai (ya-north-next :north 0 0 t)))
+    (check (null (ya-north-next :north 0 0 nil)))                        ; at 0 mid-route: at his next neutral
+    (check (null (ya-north-next :base 7 0 t)))                           ; (only the Bankai enters it)
+    ;; the sim side on stand-in fighters: an AS hit's mark (a block, an NA, the Kikon's follow-up none), the third makes 北 due (marks 7);
+    ;; the heat leaving on the awakening; the HUD's tags
     (multiple-value-bind (a b) (t-pair kb (kit :kenpachi :base))
       (t-at a 0 0) (t-at b 0 1.6)
       (let ((fa (fighter a)) (*match-tick* 900))
@@ -402,7 +474,7 @@
                               (setf (fighter-state fa) :move (fighter-move fa) mv (fighter-cls fa) (kit-class kb mv) (fighter-cls-t fa) tick
                                     (fighter-sf fa) 0 (fighter-phase fa) :main (fighter-follow fa) nil)
                               mv))
-               (marks () (yss-marks (ys a))) (north () (yss-north (ys a))))
+               (marks () (yss-marks (ys a))))
           (setf (fighter-form fa) :bankai (fighter-kit fa) kb (fighter-character fa) :yamamoto (fighter-ptr fa) 2 (gauges-meter (gauges a)) 55f0)
           (yama-bankai-enter a)                                            ; heat leaves with the Shikai (§3)
           (check (~= 0.0 (gauges-meter (gauges a))))
@@ -413,41 +485,27 @@
           (yama-bk-hit a b :hit nil (in :ya-e-as1 910) nil nil)            ; AS1 lands: 東
           (check (= 1 (marks)))
           (yama-bk-hit a b :hit nil (in :ya-e-as1 920) nil nil)            ; again: still one
-          (check (and (= 1 (marks)) (not (north))))
+          (check (= 1 (marks)))
           (let ((hz (make-hazard :kind :ya-col :owner a :cls :as :sp-src 930 :data (list :mark 3))))   ; AS3's hands (a hazard): 南
             (yama-bk-hit a b :hit nil nil hz nil))
-          (check (and (= 5 (marks)) (not (north))))
+          (check (= 5 (marks)))
           (setf (fighter-follow fa) t)                                     ; the Kikon's follow-up strike: none
           (yama-bk-hit a b :hit nil (m :ya-e-as2) nil nil)
           (setf (fighter-follow fa) nil)
           (check (= 5 (marks)))
-          (check (null (yama-ns-pick a fa)))                               ; not armed: the pointer's
-          (check (null (yama-as-pick a fa 2)))
-          (check (yama-switch-ok a fa))
-          (yama-bk-hit a b :hit nil (in :ya-e-as2b 940) nil nil)           ; the third distinct mark: 北 armed, the pointer untouched
-          (check (and (= 7 (marks)) (north) (= 2 (fighter-ptr fa))))
-          (check (eq (yama-ns-pick a fa) (m :ya-e-n4)))                    ; the NS / AS pick is 北's
-          (check (equal (multiple-value-list (yama-as-pick a fa 1)) (list (m :ya-e-as4) nil)))   ; any J count; writes no pointer
-          (check (equal (multiple-value-list (yama-as-pick a fa 3)) (list (m :ya-e-as4) nil)))
-          (setf (fighter-state fa) :idle (fighter-move fa) nil)
-          (check (not (yama-switch-ok a fa)))                              ; refused while armed
-          (setf (fighter-sp-ptr fa) 2)
-          (in :ya-e-n4 950) (yama-north-start a)                           ; 北 starts: the marks clear, the pointer stays 2, profile 3
-          (check (and (= 0 (marks)) (not (north)) (= 2 (fighter-ptr fa)) (= 3 (fighter-sp-ptr fa))))
-          (check (not (yama-switch-ok a fa)))                              ; in 北's move: still refused
-          (yama-bk-hit a b :hit nil (m :ya-e-n4) nil nil)                  ; its hit: no mark
-          (yama-bk-hit a b :hit nil (in :ya-e-as4 960) nil nil)
-          (check (= 0 (marks)))
-          (check (<= 1 (fighter-ptr fa) 3))                                ; never pointer 4
-          (setf (fighter-state fa) :idle (fighter-move fa) nil)
-          (check (yama-switch-ok a fa))
-          ;; the HUD's tag: NORTH while armed (the seals' names 北 · TENCHI KAIJIN), the marks by number, constant strings
+          (in :ya-e-as2b 940) (setf (fighter-move fa) (ya-reach-copy :ya-e-as2b 2))   ; (a charged copy: its :mark as its move's)
+          (yama-bk-hit a b :hit nil (fighter-move fa) nil nil)              ; the third distinct mark: 北 due, the pointer untouched
+          (check (and (= 7 (marks)) (= 2 (fighter-ptr fa))))
+          (check (eq :north (ya-north-next (fighter-form fa) (marks) 0 t)))
+          ;; the HUD's tag: the marks by number, constant strings; 北's NORTH
+          (setf (yss-marks (ys a)) 0)
           (check (null (yama-bk-tag a)))
           (yama-mark! a 1) (yama-mark! a 3)
           (check (and (equal (yama-bk-tag a) "MARK 13") (eq (yama-bk-tag a) (yama-bk-tag a))))
           (yama-mark! a 2)
-          (check (equal (yama-bk-tag a) "NORTH"))
-          (setf (yss-marks (ys a)) 0 (yss-north (ys a)) nil))))
+          (check (equal (yama-bk-tag a) "MARK 123"))
+          (check (and (equal (yama-north-tag a) "NORTH") (eq (yama-north-tag a) (yama-north-tag b))))
+          (setf (yss-marks (ys a)) 0))))
     ;; §30.3 the tower on stand-in fighters: NSa raises it 2.5 m before him at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
     ;; after the segment) with its bind disc at the base (40, :keep-bind, delay 17); NSb climbs it (level 2, the stand renewed, a bind disc 50);
     ;; NSc topples it toward the victim: a 6 m line (100), the tower spent; a line that touches along its length, not beside it; the shatter
@@ -483,41 +541,45 @@
           (check (and (notany (lambda (x) (eq (hazard-kind (cdr x)) :ya-tower)) *t-hz*)   ; the shatter spends the tower; its hit is
                       (find :fx *t-hz* :key (lambda (x) (hazard-kind (cdr x))))))))                   ;  the window, the look a hitless :fx
       (setf *t-hz* nil))
-    ;; the Lisp HUD's side: the seals 東 西 南, NORTH's names, the marks next to the pointer; the tag line shows none of them
+    ;; the Lisp HUD's side: the seals 東 西 南, 北's one seal, the marks next to the pointer (none in 北); the tag line shows none of them;
+    ;; 北's kit strip (kind 6: the ticks left)
     (let ((e (lhud-fighter 1)))
       (check (equal (mapcar #'first (lhud-seals e "ZANKA NO TACHI" "MARK 13")) '("東" "西" "南")))
       (check (equal (second (first (lhud-seals e "ZANKA NO TACHI" nil))) "東 · KYOKUJITSUJIN"))
-      (check (every (lambda (sl) (equal (second sl) "北 · TENCHI KAIJIN")) (lhud-seals e "ZANKA NO TACHI" "NORTH")))
+      (check (equal (lhud-seals e "ZANKA NO TACHI" "NORTH") '(("北" "北 · TENCHI KAIJIN"))))
       (check (equal (mapcar #'first (lhud-seals e "" "HEAT")) '("火" "城" "撫"))))   ; (the Shikai's, unchanged)
-    (check (and (equal (lhud-marks "MARK 13") '("東" "南")) (equal (lhud-marks "NORTH") '("東" "西" "南")) (null (lhud-marks "HEAT"))
-                (null (lhud-marks nil))))
+    (check (and (equal (lhud-marks "MARK 13") '("東" "南")) (equal (lhud-marks "MARK 123") '("東" "西" "南")) (null (lhud-marks "NORTH"))
+                (null (lhud-marks "HEAT")) (null (lhud-marks nil))))
+    (check (and (= 6 (lhud-kit-kind "NORTH")) (= 5 (lhud-kit-kind "GOKUEN")) (= 0 (lhud-kit-kind "MARK 13"))))
     (check (and (equal (lhud-tag-segments "YAMAMOTO  ZANKA NO TACHI" "MARK 12") (list (cons "ZANKA NO TACHI" nil)))
                 (equal (lhud-tag-segments "YAMAMOTO  ZANKA NO TACHI" "NORTH") (list (cons "ZANKA NO TACHI" nil)))))
-    ;; the new hooks and the armour param stay off for every other kit
+    ;; the armour hook and param stay off for every other kit (北's kit has no armoured move either)
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . kk) in alist
                               always (or (and (eq c :yamamoto) (eq f :bankai))
-                                         (and (null (kit-hook kk :ns-pick)) (null (kit-hook kk :switch-ok)) (null (kit-hook kk :armored-fx))
+                                         (and (null (kit-hook kk :armored-fx))
                                               (or (eq c :yamamoto) (null (kit-hook kk :planted)))   ; (art K3: the planted blade, PLANTED-SPOT;
                                                                                                      ;  art S4: 爆炎's IKKOTSU, every form of his)
-                                              (null (getf (kit-core kk) :ns-extra)) (null (getf (kit-core kk) :as-extra))
                                               (loop for mv being the hash-values of (kit-moves kk) never (getf (mv-params mv) :turn-armor)))))))
     ;; art K2 (DUEL_YAMA_CORE §17): the Bankai's smear is the ink wash with an ember hairline (look 3); art S1 (§22): the Shikai's a thin
     ;; fire wash with an orange hairline (look 4); art S4 (§25): 爆炎's flame trail (look 5); every other form keeps the REIATSU comet
-    ;; (KIT :smear NIL: DRAW-FIGHTER passes 1, as before)
+    ;; (KIT :smear NIL: DRAW-FIGHTER passes 1, as before); 北 inherits the Bankai's
     (check (eql 3 (kit-smear kb)))
+    (check (eql 3 (kit-smear kn)))
     (check (eql 4 (kit-smear (find-kit :yamamoto :base))))
     (check (eql 5 (kit-smear (find-kit :yamamoto :blaze))))
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . kk) in alist always (or (eq c :yamamoto) (null (kit-smear kk))))))
     ;; art K3 (§18): the hooks that replace the armour spark and plant the blade are the Bankai's (the planting one every form's since art
     ;; S4); no move in any kit sets :planted (the generic 0.7 m spot is unused), and a :blend is only on the Bankai's E-J1 (+ its Kikon
-    ;; copies) and 北's NS (looks)
-    (check (and (kit-hook kb :armored-fx) (kit-hook kb :planted) (kit-hook (find-kit :yamamoto :blaze) :planted)))
+    ;; copies), 北's wave and its entry pose (looks)
+    (check (and (kit-hook kb :armored-fx) (kit-hook kb :planted) (kit-hook kn :planted) (kit-hook (find-kit :yamamoto :blaze) :planted)))
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (nil . kk) in alist always (loop for mv being the hash-values of (kit-moves kk) never (mv-planted mv)))))
     (check (equal (sort (loop for mv being the hash-values of (kit-moves kb) unless (zerop (mv-blend mv)) collect (mv-name mv)) #'string<)
-                  '(:ya-e-as-strike :ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-e-ns-strike)))
+                  '(:ya-e-as-strike :ya-e-j1 :ya-e-ns-strike)))
+    (check (equal (sort (loop for mv being the hash-values of (kit-moves kn) unless (zerop (mv-blend mv)) collect (mv-name mv)) #'string<)
+                  '(:ya-e-j1 :ya-e-n4 :ya-e-n4-strike :ya-n-in)))
     ;; art S2 (§23): in the Shikai and 爆炎 only J1 (it starts from three stances) and its copies (the Kikon strikes, 爆炎's J1) blend in;
     ;; art S4 (§25): 爆炎's entry pose too (it starts from any stance)
     (check (equal (sort (loop for mv being the hash-values of (kit-moves (find-kit :yamamoto :blaze)) unless (zerop (mv-blend mv)) collect (mv-name mv))
