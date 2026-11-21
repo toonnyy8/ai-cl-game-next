@@ -3242,3 +3242,89 @@ The user (verbatim, after v474): 「只有毀魂技才平倒，而且僅限於�
 3. Checks (presentation only, §847): host tests ALL PASS, pkgcheck clean, build, smoke 0; 87448 every row 0 B, `the Kikon wings flat at
    70.0 deg off upright (20.0 above the horizontal)`; the play stills (yama-lean) match §29.3's.
 
+
+## 30. The SP moves reworked: Shikai range, 西's garb charge, 南's tower, a timed 北 (the user, 2026-11-21; plan, for the user's yes)
+
+The user (verbatim): 「我想要修改山本目前的 SP 攻擊方式」, then:
+「1. 目前始解的遠距離攻擊方式太多了
+2. 殘日獄衣我想縮小基礎狀態下的火衣大小，然後做成類似一護月牙續力的效果，讓 NSa 跟 NSb 會放大火衣，放大的火衣會強化之後會到中立前的攻擊力與攻擊範圍（攻擊時火衣的烈焰跟著攻擊一同掃出）
+3.  南的 NSa 與 NSb 會召喚骷髏群聚攀爬成高塔（這時候對敵人有定身效果），NSc 會讓高塔向敵人傾倒砸毀，SA 則會主動打碎高塔使無數骷髏向前方飛散（對手被打中有定身效果）
+4. 北要重新思考退出狀態的方式，目前進入難度高，但表現時長嚴重不足」
+
+Decisions (AskUserQuestion, 2026-11-21; the user's pick in bold, the rejected listed):
+
+| # | Question | Pick | Rejected |
+|---|---|---|---|
+| R1 | Shikai: 6 of 9 NS are ranged (NS1 a-c, NS2 a-c, 3-10 m) | **不知火 keeps its range, the rest close** (pointer 2 within 0-3 m) | only each pointer's c ranged; every NS capped at ~4 m; only NS1b and NS2a made close |
+| R2 | 西: do NSa / NSb still hit? | **charge only, no hit** (as Ichigo's Getsuga charges, DUEL_CORE §423) | charge and keep the burn r 2 |
+| R3 | 南: where does the tower stand? | **in front of him** (2-3 m) | at the victim's bearing 4-10 m |
+| R4 | 北: how does it end? | **a 10 s timer, a full 北 move set** | a gauge like 爆炎 with 天地灰尽 as the closer; three uses; until he is hit |
+
+This is a sim change (ranges, hits, a timed state): Yamamoto's scripted scenes per changed move and `--cvc` (§847's rule exempts only
+presentation). The defaults below are the plan's (D), for the user's yes before any code.
+
+### 30.1 Shikai (R1)
+
+- Pointer 1 不知火 unchanged (the flying fire is its theme).
+- Pointer 2 城郭炎上 close: a the stream becomes a flame slash (melee, arc 120°, 2.4 m, S20, 40); b the ring lands at the victim's bearing
+  clamped to 0-3 m; c the dome on the ring, or at 0-3 m. 爆炎's NS2 follows: b the dome at 0-3 m; c ENNETSU becomes a ring of pillars round
+  him (r 2.5 m, 104, crumple) instead of rows along the lane. The CPU's `:ns-range` for pointer 2 becomes about 0-3.5 m.
+- Pointer 3 撫斬 unchanged.
+
+### 30.2 西: the garb charge (R2)
+
+| State | Garb size (today's = 1) | Damage x | Reach + |
+|---|---|---|---|
+| base (pointer 2, neutral) | 0.6 | 1.0 | 0 |
+| after NSa (charge 1, in place) | 1.0 | 1.4 | 0.8 m |
+| after NSb (charge 2, today's 1.5 m advance with armour f6 to S) | 1.4 | 1.7 | 1.6 m |
+
+- NSa / NSb hit nothing (the triangle still classes them). The charge is armed by the SA in a charge's gap and carried by the string after
+  it (J links, the AS segments), dropped by any opener, NS or neutral, exactly as `fighter-charge-mult` (DUEL_CORE §423); the garb shrinks
+  back with it.
+- Every boosted swing throws the garb's flames along the blade's path (a look; the reach itself is real, so the hit volume grows).
+- NSc keeps the counter-cut, boosted at level 2 baked into its own numbers (x1.7, reach +1.6: it can only follow NSb, and any NS resets the
+  carried x, CORE-NOTE-START!). The two charge SAs carry their level's x and reach in their own numbers too (CORE-CHARGE-MULT skips the move
+  that carries `:charge-mult`).
+- Build (the Fable review, 2026-11-21): the damage through Ichigo's path (NSa / NSb `:params :sa` -> SA copies with `:charge-mult` 1.4 /
+  1.7: the string's carry, the Hoho carry, the core CPU's charge-gap play); the reach by Hisagi's same-name copies parsed at `:reach-mult`
+  (E-J2, E-J3, the melee AS segments; a Bankai `:tick` swaps them in by `fighter-charge-mult`); 南's hazard AS segments stay unboosted. In
+  play only the garb shrinks to 0.6; the 西 Kikon walk's sizes (§29) stay.
+- The 西 Kikon's walk keeps its garb growth (§29.3) from the new base.
+
+### 30.3 南: the skeleton tower (R3)
+
+- NSa: skeletons swarm up into a tower 2.5 m before him (level 1, ~3 m tall); a victim inside r 1.6 m at its base is bound while it climbs.
+  NSb: the tower climbs to level 2 (~6 m) and binds again.
+- NSc: the tower topples toward the victim's bearing: a line as long as the tower is tall (3 / 6 m, 2 m wide), 70 / 100, a crumple; with
+  no tower standing, a short one rises and falls (3 m).
+- SA in a gap with a tower standing: he shatters it and the skeletons fly forward (a 60° cone, 6 m, 55, a bind on hit: the bind must
+  survive `combo-step`'s rule that a bind inside a combo is a flinch). With no tower, the Bankai's usual SA.
+- The tower stands 90 f after the route; NSc or the SA spends it.
+- AS3 follows the theme: the hands seize (40, stagger) > the tower climbs round him (50) > it topples on him (100, a knockdown).
+
+### 30.4 北: a 10 s state with its own moves (R4; invented, D)
+
+Canon gives North one technique (天地灰尽, ch. 509), so the set below is a proposal.
+
+| Slot | Move |
+|---|---|
+| Entry | the third mark starts 北 when he next reaches neutral after that AS (or its Kikon): a short invulnerable entry pose, ash falling |
+| Timer | 600 sim ticks (10 s), counted in play only (paused during cinematics); at 0 the state ends at his next neutral, back to pointer n; the marks clear at entry; no pointer switch while it runs; a Kikon landed or taken does not end it |
+| Stance | the blade held low on his left, cocked to swing out (the user, 2026-11-21: 「北的架式改成刀放在左側預備揮出的樣子」; was: raised high over the right shoulder), the edge white |
+| NS a | 灰線: a quick diagonal cut, a thin white line 5 m long at chest height (S16, 60) |
+| NS b | 灰燼步: he passes through the victim with a cross cut (slide 3 m, S12, 70) |
+| NS c | 天地灰尽: today's wave (S24, 4 m wide, 14 m, 220, a knockdown) |
+| AS (any J count) | the ash grip (40) > the ash cut (50) > 天地灰尽 point-blank (140, a knockdown) |
+| SA | the Bankai's SA with an ash trail |
+| Kikon | the 天地灰尽 cinematic on NS c and the AS's last segment |
+| HUD | a 10 s bar in 爆炎's decay-bar style; the label 北 · TENCHI KAIJIN |
+
+SP costs follow DUEL_SP §4 (damage x 0.4, rounded to 5, clamped 10-60).
+
+Build (the Fable review, 2026-11-21): 北 is a form `:north` (爆炎's shape: latched at the next neutral, the invulnerable entry pose, a kit
+meter counting down on live steps only, so cinematics and hitstop pause it; out at the next neutral at 0), one pointer of NS a / b / c, its
+AS after any J count; the pointer n is saved on entry and restored on exit (SET-FORM clamps it); the Kikon keeps pointer 3's profile.
+南 (§30.3): the tower's binds mid-route need an opt-in react that keeps the bind and still counts the hit (COMBO-STEP turns a bind into a
+flinch once hits > 0), a shared-file change, so `--cvc`; NSc / the SA without a tower are debug-only and left out; the Bankai's
+`:ns-range` for pointer 3 moves in (the tower stands 2.5 m ahead).
