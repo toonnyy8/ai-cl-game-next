@@ -3175,3 +3175,13 @@ The user (verbatim): 「請讓火衣在行走時會向反方向自然飄蕩」
 The lead's reading: whenever he moves under 西 (play: walking, stepping, the NS2 advance; the 西 Kikon's walk), the garb's tongues and
 wings lean away from his direction of travel, more with speed, and settle back upright with a soft lag and a small overshoot when he stops
 (a damped spring on his drawn velocity, cosmetic state only, 0 B). The sim is untouched; the looks gate's 西 stills may change.
+
+### 29.2 The garb stays on his shoulders; the walk shot from 30° right-behind, level, no shake (the user, 2026-11-21)
+
+The user (verbatim, after v470): 「1. 火衣的肩膀的部分沒有固定在身體上，反而整體往後飄移 2. 殘日獄衣毀魂技請從右後方 30° 平視往前拍攝，走路時不要震動鏡頭」
+
+1. §29.1's lean sheared the whole garb from the floor, so at shoulder height the wings' roots slid back off him (about 0.4 m at a walk).
+   Now every tongue and wing keeps its root where it is on the body; only the part beyond the root trails (the offset grows with the
+   distance from the root, the tips most).
+2. The 西 Kikon's walk (f66-124): the camera 30° off straight behind him on his right, at about his eye height, looking level forward
+   along his walk (no high angle). The footfalls no longer shake the camera (the heat ring, the roar and the garb's steps stay).
