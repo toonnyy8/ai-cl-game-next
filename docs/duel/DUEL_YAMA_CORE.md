@@ -3148,3 +3148,22 @@ Open (for the lead and the user):
 - Stance 3 now has an ember, which §21.3 kept out ("no fire at all"): it is EMBER (a dull line, no FIRE, no tongues), the S2 lead's
   anticipated option (§23.10).
 - `yama.lisp` line 155 (爆炎 NS2b's `:clip`) sits next to J1's `:near 0` on line 156: a merge may show them as one hunk.
+
+## 29. 西's Kikon cinematic re-boarded (the user, 2026-11-21)
+
+The user (verbatim): 「殘日獄衣的毀魂技動畫分鏡是 1. 對手靠近攻擊後武器損毀，隨即拉開距離 2. 從斜後放拍攝山本緩步向前，每走一步都會讓火焰的威勢擴大（這部分可以透過時緩來增加壓迫感） 3. 隨後瞬間穿過對手，使對手受到高溫焚燒殆盡」
+
+Against the K4 build (§19.1): beats 0-52 (the victim's attack, the weapon to ash) and 124-180 (the pass, the burn, the wide) stay. What changes:
+
+1. After the weapon dies the victim **opens the distance** (a leap back); there is no separate ignition beat any more.
+2. The walk is shot **from diagonally behind him** (over his shoulder toward the victim), not side-on. **Each footfall makes the garb
+   bigger** (a step up per footfall, not a steady build), and the walk plays in **slow motion** for the pressure.
+3. The pass and the burn as built; "焚燒殆盡" = the victim charred black with the ash streaming up (no alpha 0, §14 deviation 7).
+
+Length 180 f and `:hold 140` stay, so no sim tick moves (presentation only, §19.2). The lead's beat table for 52-124 (the rest as §19.1):
+
+| Frames | Shot | Action | Effects / sound |
+|---|---|---|---|
+| 52-66 | side-on, the pair, wide | f52 what is left of the weapon falls (as built); the victim leaps back to about 4 m, weaponless, off balance; Yamamoto does not move, the garb at the stance's size | a whoosh, the sizzle |
+| 66-124 | diagonally behind him (about 150° off his front, above his shoulder, the victim visible past him), tracking him | `cine-slow` over the walk; three slow dragging steps (the footfalls about f74 / f92 / f110), the victim backing off, cowering; at each footfall the garb steps up in size (stance → 3 stages, the last at least the play flare's peak, K 1.9), a heat ring at the foot, a molten footprint; caption 残日獄衣 at the first footfall | the footfall, a heat roar that grows each step, the shake growing (about 0.1 / 0.2 / 0.3) |
+| 124-180 | as §19.1 | the pass, the column, the Konpaku, the wide | as §19.1 |
