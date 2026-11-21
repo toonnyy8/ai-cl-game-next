@@ -185,7 +185,7 @@ fading over 6: a jump per step, not a ramp. Pure; 0 B."
 (defun-fast yama-nishi-look (a v cf)
   "西's look at cinematic frame CF: f40-52 the victim's weapon turning to ash from the tip toward the hilt (§15.3.4 flag 4: ash drawn over
 it, the model untouched; at f52 the cinematic hides what is left, CINE-END's REFRESH-LOOK gives it back however it ends); the garb at the
-stance's size from f52, stepping up at each footfall of the walk (YAMA-NISHI-GARB-K, §29), at full after the pass (guttering from f156);
+stance's size from f0 (the play garb carried on; the coordinator, 2026-11-21: through the whole 西 form), stepping up at each footfall of the walk (YAMA-NISHI-GARB-K, §29), at full after the pass (guttering from f156);
 at each footfall a heat ring out from the foot and a molten print cooling where it landed (f74-124); the white-hot streak of the pass
 (f124-134); the column of flame rising off the victim (f130-170: 西's fire); the ash streaming up off his charred body from f134, black
 smoke from f150. A look; 0 B."
@@ -214,7 +214,8 @@ smoke from f150. A look; 0 B."
                   (declare (single-float s))
                   (%t-shard (+ x0 (* s ddx)) (+ y0 (* s ddy)) (+ z0 (* s ddz)) (rnd-range -0.4f0 0.4f0) (rnd-range -0.2f0 0.4f0)
                             (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.3f0) (rnd-range 0.03f0 0.06f0) 0.6f0 +pal-ash+)))))))
-      (when (and (<= 52 cf) (< cf 124))                   ; the garb (§29): the stance's size, a step up at each footfall
+      (when (< cf 124)                                    ; the garb (§29): the stance's size from f0 (YAMA-DRAW leaves 西's form
+                                                          ;  aura to this look; the weapon dies on it at f40), a step up at each footfall
         (ya-garb px pz (yama-nishi-garb-k (i->f cf))))
       (when (and (<= 124 cf) (< cf 168))                  ; the garb at full after the pass (his right: he stands turned away)
         (%ya-garb px pz (- rx) (- rz) 1f0 (if (< cf 156) 0.98f0 (* 0.98f0 (/ (i->f (- 168 cf)) 12f0))) seed))
