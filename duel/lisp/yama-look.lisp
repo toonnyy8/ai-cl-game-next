@@ -158,8 +158,8 @@ straight ahead: the behind camera sees the foe through it); 1.1-1.4 m high (RISE
            (fx-disc (+ %bx (* 0.045f0 %acx)) (+ %sk 0.02f0) (+ %bz (* 0.045f0 %acz)) 0.022f0 0f0 (+ ,seed %f 10f0) +pal-blood+ %k :push 0.3f0))))))
 
 (defun-fast yama-wall-look (hz rdt)
-  "南's bone wall (L3: the hitless :ya-wall, 1.2 m ahead, half width 1.6, *YA-WALL-LIFE* frames): the rampart standing (it rose over NS3c's
-startup: YAMA-BK-MOVES), crumbling into ash over its last 10 f. A look."
+  "南's bone wall (L3; since §30.3 the skeleton tower's placeholder: the hitless :ya-tower 2.5 m ahead, and AS3b's disc): the rampart
+standing, crumbling into ash over its last 10 f. A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (left (- (hazard-life hz) (hazard-age hz)))
          (u (f-clamp (/ (i->f left) 10f0) 0f0 1f0)) (seed (+ x z)))
@@ -444,8 +444,7 @@ before this file, calls it)."
 (defun-fast yama-bk-moves (pos yaw code sf rdt)
   "The Bankai moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-DRAW's table): 1 KYOKKO's lance (L7, S20-22), 2
 KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once as a ragged tear, YAMA-TEAR, held 20 f, then filled by ash), 3 AS1's
-notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12), 7 the bone wall
-rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
+notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12), 8 北's AS crescent (L10, S10). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
 0 B."
   (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
@@ -486,8 +485,6 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
                                    seed)))
       (5 (when (yama-bk-flare-p 5 sf) (%ya-flare x z (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
       (6 (when (yama-bk-flare-p 6 sf) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
-      (7 (when (<= 6 sf 17)                              ; (from S18 the :ya-wall hazard draws it: YAMA-WALL-LOOK)
-           (%ya-rampart (+ x (* 1.2f0 fx)) (+ z (* 1.2f0 fz)) yaw (/ (i->f (- sf 5)) 13f0) 0.98f0 (+ (* 1.2f0 fx) x z))))
       (8 (when (<= 10 sf 15)                             ; the crescent: from over his right shoulder down to his low left, its far edge 2.4 m
            (let* ((k (if (<= sf 12) 0.98f0 (* 0.98f0 (/ (i->f (- 16 sf)) 4f0))))
                   (ax (+ x (* 1.26f0 fx) (* 1.8f0 px))) (az (+ z (* 1.26f0 fz) (* 1.8f0 pz)))
@@ -502,7 +499,7 @@ rising (L3, f6 to S18), 8 北's AS crescent (L10, S10). RDT: the frame's effect 
 (defun yama-bk-code (mv)
   "YAMA-BK-MOVES's code for the Bankai move MV, or 0."
   (case (mv-name mv)
-    (:ya-e-n1a 1) (:ya-e-n1c 2) (:ya-e-as1 3) (:ya-e-n2a 4) (:ya-e-n2b 5) (:ya-e-as2b 6) (:ya-e-n3c 7) (:ya-e-as4 8) (t 0)))
+    (:ya-e-n1a 1) (:ya-e-n1c 2) (:ya-e-as1 3) (:ya-e-n2a 4) (:ya-e-n2b 5) (:ya-e-as2b 6) (:ya-e-as4 8) (t 0)))
 
 ;;; ---------------------------------------------------------------- the pointer stances' looks (art K2, §17: YAMA-DRAW)
 (defun-fast yama-stance-look (pos yaw an)
@@ -1239,7 +1236,7 @@ NADEGIRI (art S4): code 1's hairline, then from f38 the seam to 8 m (§21.4), it
 ;;; fire is T2 (white-cored). Read only, 0 B (debug 87449's rows), cosmetics on the fx clock / HASH01 / RND.
 (defconstant +ya-ennetsu-speed+ 12f0 "爆炎 NS2c ENNETSU's :speed (host-checked): where its rows of pillars stand.")
 (defconstant +ya-dome-near+ 0f0 "爆炎 NS2b's :near (host-checked): the ring's predicted spot (YAMA-RING-CLOSE). 3 until batch J1 (§28.3).")
-(defconstant +ya-dome-far+ 8f0 "爆炎 NS2b's :far (host-checked).")
+(defconstant +ya-dome-far+ 3f0 "爆炎 NS2b's :far (host-checked). 8 until §30.1 (2026-11-21: pointer 2 close).")
 (defconstant +ya-arena-in+ 14.5f0 "*ARENA-RADIUS* less 0.5 (host-checked): YA-BEARING-POINT's circle.")
 
 (declaim (type f32vec *ya-scar-v* *ya-sc0* *ya-sc1*))
@@ -1435,7 +1432,7 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
-        (wall (make-hazard :kind :ya-wall :x 0f0 :z -1.2f0 :size 1.6f0 :life 90 :age 84))
+        (wall (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 90 :age 84))
         (fall (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.6f0 :life 30 :age 2))
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
         (north (make-hazard :kind :wave :x 0f0 :z -6f0 :px 0f0 :pz -5.67f0 :size 2f0 :life 42 :age 15 :speed 20f0))

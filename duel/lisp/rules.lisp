@@ -696,15 +696,17 @@ when STORED >= *STANCE-CRUSH-AT*)."
   (values (+ *stance-base-damage* stored) (>= stored *stance-crush-at*)))
 
 ;;; ================================================================ combos (§3)
-(defun combo-step (react airborne hits launches air-hits)
+(defun combo-step (react airborne hits launches air-hits &optional keep-bind)
   "Book one more connected hit of a combo (counters reset when the victim returns to neutral).
 REACT the move's reaction, AIRBORNE the victim's state, HITS / LAUNCHES / AIR-HITS the combo so
 far. The combo limits turn REACT: a 2nd launch -> :knockback, the *COMBO-AIR-HITS*th airborne hit -> :knockdown (no
 hit-count cap since the user 2026-09-30: the hidden stun tolerance ends long combos). A :bind (South) only opens a combo: on a victim already in one it
-is a :flinch; as the opener it books *BURST-MIN-HITS* hits, so the bound victim may Burst at once.
+is a :flinch; as the opener it books *BURST-MIN-HITS* hits, so the bound victim may Burst at once. KEEP-BIND (the hit window's
+:keep-bind flag, opt-in: Yamamoto's 南 tower, DUEL_YAMA_CORE §30.3): a bind inside a combo stays a bind and counts one hit more.
 Values: react hits launches air-hits (the new HITS is this hit's COMBO-INDEX for HIT-DAMAGE)."
-  (let* ((bind (and (eq react :bind) (zerop hits)))
-         (hits (if bind *burst-min-hits* (1+ hits)))
+  (let* ((open (and (eq react :bind) (zerop hits)))
+         (bind (or open (and keep-bind (eq react :bind))))
+         (hits (if open *burst-min-hits* (1+ hits)))
          (air-hits (if airborne (1+ air-hits) air-hits))
          (react (cond (bind :bind)
                       ((eq react :bind) :flinch)

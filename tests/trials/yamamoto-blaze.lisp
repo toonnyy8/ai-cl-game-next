@@ -43,3 +43,11 @@
  :dist 5.0 :fs 300 :meter 60 :script ((:quick 1 :modded t) (:quick 1 :modded t)) :p2-at ((26 :j)) :frames 140)
 (:name "B16 J1 hit in his ORANGE burst: no heat" :p1 :yamamoto :p2 :kenpachi :dist 1.6 :fs 300 :meter 0 :burst :orange
  :script ((:quick 1)) :frames 60)
+;;; §30.1 (2026-11-21): 爆炎's NS2 close. ENNETSU a disc of fire round him (r 2.5, 104, a crumple; 87475: on its own): a hit at 2.4 m, a
+;;; miss at 3.5 m; the route from 2.2 m (the slash 52, the dome at 0-3 m, ENNETSU).
+(:name "B17a 爆炎 ENNETSU alone (87475) at 2.4 m: the disc hits" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 2 :dist 2.4 :fs 300 :meter 100
+ :p1-cmd (87475) :script () :frames 70)
+(:name "B17b 爆炎 ENNETSU alone (87475) at 3.5 m: out of the disc" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 2 :dist 3.5 :fs 300 :meter 100
+ :p1-cmd (87475) :script () :frames 70)
+(:name "B17c 爆炎 NS2 a-b-c from 2.2 m" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 2 :dist 2.2 :fs 300 :meter 100
+ :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)

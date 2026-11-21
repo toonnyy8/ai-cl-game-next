@@ -9,7 +9,8 @@
 ;;;; looks are yama-art.lisp / yama-vfx.lisp. His fire is hazards (DUEL_CORE §2: a hazard is judged with the class of the segment
 ;;;; that fired it, spawned inside that segment so SPAWN-HAZARD freezes its class, SP scale and start tick at the fire frame):
 ;;;; :wave (the generic moving box), and three of his own kinds through YAMA-HZ: :ya-col (a column at a point, NS1b), :ya-ring (the
-;;;; burning ring, no collision: crossing it burns, Y8; one at a time), :ya-dome (the walls closed on the ring, NS2c / AS2b).
+;;;; burning ring, no collision: crossing it burns, Y8; one at a time), :ya-dome (the walls closed on the ring, NS2c / AS2b); 南's
+;;;; skeleton tower (§30.3): :ya-tower (hitless, one at a time) and :ya-fall (its topple, a 2 m wide line).
 (in-package :duel)
 
 ;;; ================================================================ knobs (debug 87000-87999, YAMA-DEBUG)
@@ -61,20 +62,21 @@
   :params (:width 3.5 :speed 10.0 :range 8.0 :dmg 90 :react :knockback :kb 3.0 :look yama-tornado-look :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 2 城郭炎上 JOKAKU ENJO: control, the lane shaped by fire
-;; a: the stream, a lance of fire down the lane (a :wave, 10 m); b: the ring lands round the victim at his bearing (0-8 m, r 1.6 m,
-;; 90 f; one at a time; its burn :ring-dmg on a crossing, its SP the setup minimum); c: the walls close into a dome on the ring (it is
-;; spent), or at his bearing when none stands. :near 0 (was 3.0 until batch J1, the user 2026-11-20: 「現在 NS 的火圈在靠太近時反而
-;; 包不住人」, DUEL_YAMA_CORE §28.3): a victim closer than :near stood outside the ring and the dome
-(defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :reach 10.0
-  :on-frame ((0 yama-ns-start) (20 yama-wave-fire)) :callout "JOKAKU ENJO"
-  :params (:ns-next :ya-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 40 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
-(defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 8.0
+;; close (0-3 m) since §30.1 (the user, 2026-11-21: 「目前始解的遠距離攻擊方式太多了」, R1): a: a melee flame slash (arc 120, 2.4 m; the
+;; stream's clip for now: its blade falls short, the flame carries the rest; was a lance of fire down the lane, a :wave, 10 m); b: the
+;; ring lands round the victim at his bearing (0-3 m, was 0-8; r 1.6 m, 90 f; one at a time; its burn :ring-dmg on a crossing, its SP
+;; the setup minimum); c: the walls close into a dome on the ring (it is spent), or at his bearing (0-3 m, was 0-8) when none stands.
+;; :near 0 (was 3.0 until batch J1, the user 2026-11-20: 「現在 NS 的火圈在靠太近時反而包不住人」, DUEL_YAMA_CORE §28.3): a victim closer
+;; than :near stood outside the ring and the dome
+(defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :dmg 40 :reach 2.4 :arc 120 :on-hit :stagger
+  :on-frame ((0 yama-ns-start)) :callout "JOKAKU ENJO" :params (:ns-next :ya-n2b))
+(defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 3.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
-  :params (:ns-next :ya-n2c :near 0.0 :far 8.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
+  :params (:ns-next :ya-n2c :near 0.0 :far 3.0 :radius 1.6 :life 90 :hits 2 :ring-dmg 20 :react :flinch :sp-cost 10
            :kikon-strike :ya-ns-strike))
-(defmove :ya-n2c :kind :flash :clip :ya-n2c :startup 18 :active 2 :recovery 30 :reach 8.0
+(defmove :ya-n2c :kind :flash :clip :ya-n2c :startup 18 :active 2 :recovery 30 :reach 3.0
   :on-frame ((0 yama-ns-start) (18 yama-dome-fire))
-  :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
+  :params (:near 0.0 :far 3.0 :radius 1.6 :dmg 80 :react :crumple :kikon-strike :ya-ns-strike))
 
 ;;; ---------------------------------------------------------------- pointer 3 撫斬 NADEGIRI: the finisher
 ;; a: the walking jab of the point; b: the closing step-cut; c: NADEGIRI, one snap, the hit on S (the split is a look 24 f later)
@@ -90,7 +92,7 @@
 (defmove :ya-as1 :kind :sp :clip :ya-as1 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
   :on-hit :knockdown :callout "SHIRANUI" :params (:steal-fs 30))
 ;; AS2: the ring snaps round him at the contact (40, its own hit; the ring left there) -> the dome on it (NS2c's copy: 60, a launch)
-(defmove-copy :ya-as2b :ya-n2c :kind :sp :clip :ya-as2b :callout "JOKAKU ENJO"
+(defmove-copy :ya-as2b :ya-n2c :kind :sp :clip :ya-as2b :callout "JOKAKU ENJO" :reach 8.0   ; (its reach as before §30.1)
   :params (:near 0.0 :far 8.0 :radius 1.6 :dmg 60 :react :launch :kikon-strike :ya-as-strike))
 (defmove :ya-as2 :kind :sp :clip :ya-as2a :startup 12 :active 3 :recovery 16 :dmg 40 :reach 2.0 :arc 120
   :on-hit :stagger :on-land yama-ring-snap
@@ -121,7 +123,7 @@
          :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; 不知火 / 焱熱地獄 / 撫斬 (art S5, §26; the Soul Break
                                                                                     ;  under a pointer plays its one too)
          :as-by-press (1 2 3)
-         :ns-range ((3.0 7.0) (3.0 9.0) nil)   ; the CPU casts the spiral / the stream from range under pointers 1 / 2
+         :ns-range ((3.0 7.0) nil nil)   ; the CPU casts the spiral from range under pointer 1 (pointer 2 close since §30.1)
          :mult 1.0)
   :awaken-form :bankai                         ; the Bankai ZANKA NO TACHI (stage C; 爆炎 inherits it: awakening there ends 爆炎, §3)
   :meter (:name "HEAT" :max 100 :label yama-hud-label)   ; the heat gauge (GAUGES-METER, 0-100; the plate's kit strip: lhud-plate.lisp)
@@ -149,15 +151,15 @@
 (defmove-copy :ya-b-n1c :ya-n1c
   :params (:width 3.5 :speed 10.0 :range 8.0 :dmg 117 :react :knockback :kb 3.0 :track 60.0 :look yama-tornado-look
            :kikon-strike :ya-ns-strike))
-;; NS2 城郭炎上: a the stream x1.3; b the ring closes at once (b and c in one: the dome at his bearing, a stagger mid-route); c ENNETSU, the
-;; pillars along the lane (a :wave drawn as columns)
-(defmove-copy :ya-b-n2a :ya-n2a
-  :params (:ns-next :ya-b-n2b :width 1.2 :speed 18.0 :range 10.0 :dmg 52 :react :stagger :look yama-lance-look :kikon-strike :ya-ns-strike))
+;; NS2 城郭炎上 (close since §30.1): a the melee flame slash x1.3; b the ring closes at once (b and c in one: the dome at his bearing 0-3 m,
+;; was 0-8; a stagger mid-route); c ENNETSU, a disc of fire round him (r 2.5 m: a :ya-col on his feet; was rows of pillars along the lane,
+;; a :wave 9 m). ENNETSU is its own DEFMOVE: a copy of NS2a would carry NS2a's melee window
+(defmove-copy :ya-b-n2a :ya-n2a :dmg 52 :params (:ns-next :ya-b-n2b))
 (defmove-copy :ya-b-n2b :ya-n2c :clip :ya-b-n2b :startup 16 :recovery 20 :on-frame ((0 yama-ns-start) (16 yama-dome-fire))
-  :params (:ns-next :ya-b-n2c :near 0.0 :far 8.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
-(defmove-copy :ya-b-n2c :ya-n2a :clip :ya-b-n2c :startup 18 :recovery 30 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
-  :on-frame ((0 yama-ns-start) (18 yama-wave-fire))
-  :params (:width 2.4 :speed 12.0 :range 9.0 :dmg 104 :react :crumple :look yama-ennetsu-look :kikon-strike :ya-ns-strike))   ; (rows of pillars, art S4)
+  :params (:ns-next :ya-b-n2c :near 0.0 :far 3.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
+(defmove :ya-b-n2c :kind :flash :clip :ya-b-n2c :startup 18 :active 2 :recovery 30 :reach 2.5 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
+  :on-frame ((0 yama-ns-start) (18 yama-column-fire))
+  :params (:near 0.0 :far 0.0 :radius 2.5 :delay 0 :dmg 104 :react :crumple :kikon-strike :ya-ns-strike))   ; (the column's look, a placeholder)
 ;; NS3 撫斬 x1.3; c the true NADEGIRI: 200, a long recovery (RoS's "huge opening", B)
 (defmove-copy :ya-b-n3a :ya-n3a :dmg 52 :params (:ns-next :ya-b-n3b))
 (defmove-copy :ya-b-n3b :ya-n3b :dmg 65 :params (:ns-next :ya-b-n3c))
@@ -182,8 +184,8 @@
          :stances (:ya-shiranui :ya-st-enjo :ya-st-cane)
          :kikon-cines (yama-shiranui-cine yama-ennetsu-cine yama-nadegiri-cine)   ; (the Shikai's three, drawn bared: §21.8 Q2)
          :as-by-press (1 2 3)
-         :ns-range ((3.0 7.0) (3.0 9.0) nil)
-         :sp-free t                                   ; NS / AS free of flash-step, as in a burst (§3; KIT-SP-FREE-P)
+         :ns-range ((3.0 7.0) nil nil)
+         :sp-free t                                  ; NS / AS free of flash-step, as in a burst (§3; KIT-SP-FREE-P)
          :also (:ya-blaze-in)                         ; (the entry pose, in the kit's table)
          :mult 1.0))
 
@@ -193,8 +195,11 @@
 ;;; right reach (placeholders, §8); damage before :mult 1.0. A mark is fighter state (YSS-MARKS) given by an AS's first real hit (its
 ;;; :params :mark); the third distinct mark arms 北 (YSS-NORTH, a flag): the next NS / AS is 天地灰尽's (the :ns-pick / :as-pick hooks), which
 ;;; on its frame 0 clears the marks and takes pointer 3's Kikon profile (YAMA-NORTH-START); the pointer itself stays 1-3.
-(defparameter *ya-bind-stun* 60 "南 NSa's bind: frames the victim's feet are held (the old kit's *BIND-STUN*; the lead's placeholder, §14).")
-(defparameter *ya-wall-life* 90 "南 NSc's bone wall: frames it stands, stopping the opponent's waves (§7.3).")
+(defparameter *ya-bind-stun* 60 "南's binds (the tower's climbs, the shatter): frames the victim's feet are held (the old kit's *BIND-STUN*; the
+lead's placeholder, §14).")
+(defparameter *ya-tower-stand* 90 "南's skeleton tower: frames it stands after the segment that last raised it ends (§30.3; NSc or the SA spends it).")
+(defparameter *ya-tower-ahead* 2.5 "南's tower: how far before him it rises, at the victim's bearing (m, §30.3 R3).")
+(defparameter *ya-tower-h* 3.0 "南's tower: its height a level (m): the topple's line is as long as the tower is tall (3 / 6 m, §30.3).")
 
 ;; NA: the fencer's lunge (§6, A): E-J1 S14 (its own clip at S14 since art K2: the opener's held tell) > E-J2 the rising backhand S7 >
 ;; E-J3 the dropped-knee thrust S8 (a stagger, no knockdown, no :ender push: the AS follows). Reach the old clips' drawn tips (1.52 / 1.59 /
@@ -241,26 +246,37 @@
   :callout "ZANJITSU GOKUI" :params (:ns-next :ya-e-as2b :mark 2))
 
 ;;; ---------------------------------------------------------------- 3 南 DAISOJIN: the dead rise
-;; a: the plant: dead hands at the victim's bearing 4-10 m (r 1.2), the point taken on S, the hands 16 f later (:delay 17 inside A 17, as
-;; NS1b's column: a Step after S dodges), a bind; b: the swarm crawls along the floor (a :wave, 6 m/s); c: the bone wall rises before him
-;; (its fall the hit, a disc 3 m ahead, r 1.6) and stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-HZ :ya-wall)
-(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 10.0 :callout "DAISOJIN"
-  :on-frame ((22 yama-column-fire))
-  :params (:ns-next :ya-e-n3b :near 4.0 :far 10.0 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun*
+;; The skeleton tower (§30.3, the user 2026-11-21: 「南的 NSa 與 NSb 會召喚骷髏群聚攀爬成高塔（這時候對敵人有定身效果），NSc 會讓高塔向敵人傾倒
+;; 砸毀，SA 則會主動打碎高塔使無數骷髏向前方飛散（對手被打中有定身效果）」, R3: before him). The tower is a hitless :ya-tower hazard (its level
+;; in its data); each segment's hit is its own hazard (YAMA-FIRE: frozen in that segment). a: the dead swarm up into a tower *YA-TOWER-AHEAD*
+;; m before him at the victim's bearing, the point taken on S, its base's hands 16 f later (:delay 17 inside A 17, as NS1b's column: a Step
+;; after S dodges), r 1.6, a bind; b: it climbs to level 2 and binds again; c: it topples toward the victim (a line from its base as long as
+;; it is tall, 3 / 6 m, 2 m wide: YAMA-HZ :ya-fall), spent. The binds keep (:keep-bind: COMBO-STEP keeps a bind inside the route and counts
+;; the hit). The SA in a or b's gap is the shatter (their :sa). Was (§7.3): the hands at the victim's bearing 4-10 m, the swarm's :wave,
+;; the bone wall that stopped waves
+(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 4.1 :callout "DAISOJIN"
+  :on-frame ((22 yama-tower-fire))
+  :params (:ns-next :ya-e-n3b :sa :ya-e-sa3 :radius 1.6 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun* :keep-bind t
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 8.0
-  :on-frame ((16 yama-wave-fire))
-  :params (:ns-next :ya-e-n3c :width 2.0 :speed 6.0 :range 8.0 :dmg 50 :react :stagger :look yama-swarm-look :kikon-strike :ya-e-ns-strike))
-(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 4.0
-  :on-frame ((18 yama-wall-fire))
-  :params (:ahead 3.0 :radius 1.6 :dmg 70 :react :crumple :kikon-strike :ya-e-ns-strike))
-;; AS3: the hands seize at him (40, a stagger: a bind inside a combo would be a flinch, COMBO-STEP) > the swarm (50) > the pile collapses
-;; (100, a knockdown); mark 南
+(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 4.1
+  :on-frame ((16 yama-tower-fire))
+  :params (:ns-next :ya-e-n3c :sa :ya-e-sa3 :level 2 :radius 1.6 :delay 0 :dmg 50 :react :bind :stun *ya-bind-stun* :keep-bind t
+           :kikon-strike :ya-e-ns-strike :look yama-hands-look))
+(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 8.0
+  :on-frame ((18 yama-topple-fire))
+  :params (:dmg 70 :dmg-2 100 :react :crumple :kikon-strike :ya-e-ns-strike))
+;; the SA in NSa / NSb's gap: the shatter, the skeletons flung forward: its own window, a 60 deg sector 6 m from him along his facing
+;; (:ranged: no parry catches it), 55, a bind that keeps (the window's :keep-bind); the tower spent (YAMA-SHATTER-FIRE). A window, not a
+;; hazard: an SA's string (J2) and its AS read his own contact (core-sim.lisp's SA > AS, FIGHTER-CONTACT). The Bankai SA's clip
+(defmove :ya-e-sa3 :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 55 :reach 6.0 :arc 60 :on-hit :bind
+  :hits ((6 9 :stun *ya-bind-stun*)) :flags (:keep-bind :ranged) :on-frame ((6 yama-shatter-fire)))
+;; AS3 (§30.3): the hands seize at him (40, a stagger) > the tower climbs round him (50, a stagger; was the swarm's :wave) > the pile topples
+;; on him (100, a knockdown); mark 南
 (defmove :ya-e-as3c :kind :sp :clip :ya-e-as3c :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
   :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike :look yama-pile-look))
-(defmove :ya-e-as3b :kind :sp :clip :ya-e-as3b :startup 10 :active 2 :recovery 18 :reach 6.0 :on-frame ((10 yama-wave-fire))
-  :params (:ns-next :ya-e-as3c :width 2.0 :speed 8.0 :range 6.0 :dmg 50 :react :stagger :look yama-swarm-look :mark 3
-           :kikon-strike :ya-e-as-strike))
+(defmove :ya-e-as3b :kind :sp :clip :ya-e-as3b :startup 10 :active 2 :recovery 18 :reach 4.0 :on-frame ((10 yama-column-fire))
+  :params (:ns-next :ya-e-as3c :near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 50 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
+           :look yama-wall-look))   ; (the tower's placeholder look)
 (defmove :ya-e-as3 :kind :sp :clip :ya-e-as3a :startup 10 :active 3 :recovery 16 :reach 4.0 :callout "DAISOJIN"
   :on-frame ((10 yama-column-fire))
   :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
@@ -297,7 +313,7 @@
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19;
                                                                              ;  北's: its moves' :cine, yama-tenchi-cine)
          :as-by-press (1 2 3)
-         :ns-range ((2.0 5.5) nil (4.0 9.0))   ; the CPU lunges KYOKKO from mid range, plants 南's hands from range
+         :ns-range ((2.0 5.5) nil (1.0 4.0))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 2.5 m ahead (was 4-9 m, §30.3)
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult   ; (its hazards carry x 1.0: no heat)
           :ns-pick yama-ns-pick :as-pick yama-as-pick :switch-ok yama-switch-ok :hud-tag yama-bk-tag
@@ -510,13 +526,14 @@ the drain wait for its end)."
 
 ;;; ================================================================ his fire (hazards; the on-frame hooks of the moves above)
 (defun yama-fire-hw (e dmg react)
-  "The HITWIN of his fire: DMG, REACT, the move's :kb, a heavy hitstop."
-  (make-hitwin :dmg dmg :react react :kb (or (move-param e :kb) 0.0) :hs *hitstop-heavy* :stun (move-param e :stun)))
+  "The HITWIN of his fire: DMG, REACT, the move's :kb and :stun, a heavy hitstop; the move's :keep-bind as the window's flag."
+  (make-hitwin :dmg dmg :react react :kb (or (move-param e :kb) 0.0) :hs *hitstop-heavy* :stun (move-param e :stun)
+               :flags (and (move-param e :keep-bind) '(:keep-bind))))   ; (南's binds keep inside a route: COMBO-STEP, §30.3)
 
-(defun yama-fire (e kind x z &key (size 1.0) (life 30) (delay 0) (hits 1) (hot life) look hw)
-  "Spawn his fire hazard KIND at (X Z), in his segment now (its class, SP scale, start tick: SPAWN-HAZARD's defaults), its segment x
-frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then it is only a look)."
-  (spawn-hazard kind e :x x :z z :yaw (yaw-of e) :size size :life life :delay delay :hits hits :look look :hook 'yama-hz
+(defun yama-fire (e kind x z &key (size 1.0) (life 30) (delay 0) (hits 1) (hot life) look hw (yaw (yaw-of e)))
+  "Spawn his fire hazard KIND at (X Z) facing YAW (his, by default), in his segment now (its class, SP scale, start tick: SPAWN-HAZARD's
+defaults), its segment x frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then it is only a look)."
+  (spawn-hazard kind e :x x :z z :yaw yaw :size size :life life :delay delay :hits hits :look look :hook 'yama-hz
                        :hw hw :data (list :hot hot :x (yama-seg-x e (fighter-move (fighter e))) :heat (yama-seg-heat e)
                                         :mark (move-param e :mark))))
 
@@ -526,7 +543,6 @@ frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then
   (case ev
     (:step (when (and (<= (hazard-delay hz) 0) (>= (hazard-age hz) (getf (hazard-data hz) :hot 0)))
              (setf (hazard-hits-left hz) 0))
-           (when (and (eq (hazard-kind hz) :ya-wall) (<= (hazard-delay hz) 0)) (yama-wall-stop hz))   ; 南's wall stops waves
            (let ((tr (getf (hazard-data hz) :track)) (o (hazard-target hz)))   ; 爆炎's tornado turns after him (deg / s)
              (when (and tr o)
                (let ((q (pos-of o)))
@@ -537,6 +553,8 @@ frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then
      (and (<= ty *ya-fire-h*)
           (case (hazard-kind hz)
             (:ya-ring (ya-ring-touch-p (hazard-x hz) (hazard-z hz) (hazard-size hz) *ya-ring-band* tx tz tr))
+            (:ya-fall (obox-cyl-hit-p (hazard-x hz) 1f0 (hazard-z hz) (hazard-yaw hz) 1f0 1.2f0 (hazard-size hz) tx ty tz tr th))   ; 南's
+                                                        ;  topple: a 2 m wide line, 2 x HAZARD-SIZE long, centred on the hazard
             (t (cyl-cyl-hit-p (hazard-x hz) 0f0 (hazard-z hz) (hazard-size hz) (f32 *ya-fire-h*) tx ty tz tr th)))))))
 
 (defun yama-wave-fire (e)
@@ -559,19 +577,14 @@ erupts there :delay frames later, hot 6 frames."
                  :look (or (move-param e :look) 'yama-column-look)
                  :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))))))
 
-(defun yama-live-ring (e)
-  "E's burning ring now (a :ya-ring hazard entity), or NIL."
-  (let ((found nil))
-    (do-entities (h (hz hazard))
-      (when (and (eq (hazard-kind hz) :ya-ring) (eql (hazard-owner hz) e) (< (hazard-age hz) (hazard-life hz))) (setf found h)))
-    found))
+(defun yama-live-ring (e) "E's burning ring now (a :ya-ring hazard entity), or NIL." (yama-live-hz e :ya-ring))
 
 (defun yama-ring-at (e x z)
   "A burning ring round (X Z) from the move's :params (:radius :life :hits :ring-dmg :react); one at a time: the old one goes out."
   (let ((old (yama-live-ring e))) (when old (destroy-entity old) (clog "~a ring out (one at a time)" (side-name e))))
   (yama-fire e :ya-ring x z :size (move-param e :radius) :life (move-param e :life) :hits (move-param e :hits)
              :look 'yama-ring-look :hw (yama-fire-hw e (move-param e :ring-dmg) (move-param e :react)))
-  (clog "~a ring at ~,2f ~,2f" (side-name e) x z)
+  (clog "~a ring at ~,2f ~,2f, ~,2f m from him" (side-name e) x z (let ((p (pos-of e))) (sqrt (+ (expt (- x (aref p 0)) 2) (expt (- z (aref p 2)) 2)))))
   (emit :sfx :explode e))
 
 (defun yama-ring-fire (e)
@@ -604,28 +617,64 @@ hot 4 frames."
     (spawn-look e 'yama-nade-look :x x :z z :yaw (yaw-of e) :delay 24 :life 2))
   (emit :sfx :kikon-slash e))
 
-(defun yama-wall-fire (e)
-  "南 NSc on S: the bone wall rises before him and falls forward: its hit (:dmg, :react) on a disc :ahead m out (r :radius, hot 4); the wall
-itself a hitless :ya-wall 1.2 m out that stands *YA-WALL-LIFE* frames, stopping the opponent's waves (YAMA-WALL-STOP)."
-  (multiple-value-bind (x z) (ahead e (move-param e :ahead))
-    (yama-fire e :ya-col x z :size (move-param e :radius) :life 30 :hot 4 :look 'yama-fall-look   ; (the looks: yama-look.lisp, art K1)
-               :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))))
-  (multiple-value-bind (x z) (ahead e 1.2)
-    (spawn-hazard :ya-wall e :x x :z z :yaw (yaw-of e) :size 1.6 :life *ya-wall-life* :hook 'yama-hz :look 'yama-wall-look))
-  (clog "~a bone wall (~d f)" (side-name e) *ya-wall-life*)
-  (emit :sfx :ground-crack e))
-
-(defun yama-wall-stop (wall)
-  "His bone wall (a :ya-wall hazard) each step: every opponent :wave / :fireball whose centre comes within its half width + the wave's of it
-is spent there (CORE-HAZARD-NOHIT! :absorb, as a classless blade cuts one: no refund, no exchange). His own hook, no shared machinery."
-  (let ((owner (hazard-owner wall)))
+;; 南's skeleton tower (§30.3): a hitless :ya-tower hazard (its level in its data), one at a time; each segment's hit its own hazard
+(defun yama-live-hz (e kind)
+  "E's live hazard of KIND now (an entity: his ring, his tower), or NIL."
+  (let ((found nil))
     (do-entities (h (hz hazard))
-      (when (and (not (eql (hazard-owner hz) owner)) (member (hazard-kind hz) '(:wave :fireball)) (<= (hazard-delay hz) 0)
-                 (< (+ (expt (- (hazard-x hz) (hazard-x wall)) 2) (expt (- (hazard-z hz) (hazard-z wall)) 2))
-                    (expt (+ (hazard-size wall) (hazard-size hz)) 2)))
-        (clog "~a's bone wall stops ~a's ~(~a~)" (side-name owner) (side-name (hazard-owner hz)) (hazard-kind hz))
-        (core-hazard-nohit! hz owner :absorb)
-        (destroy-entity h)))))
+      (when (and (eq (hazard-kind hz) kind) (eql (hazard-owner hz) e) (< (hazard-age hz) (hazard-life hz))) (setf found h)))
+    found))
+
+(defun yama-tower-spot (e)
+  "Where 南's tower rises: *YA-TOWER-AHEAD* m before E at the victim's bearing, inside the arena. Values x z."
+  (let ((p (pos-of e)) (q (pos-of (opp-of e))))
+    (ya-bearing-point (aref p 0) (aref p 2) (aref q 0) (aref q 2) *ya-tower-ahead* *ya-tower-ahead*)))
+
+(defun yama-tower-fire (e)
+  "南 NSa / NSb on S: the tower rises at YAMA-TOWER-SPOT (or the standing one climbs) to the move's :level (1 by default) and stands
+*YA-TOWER-STAND* frames after this segment ends; the dead clawing up at its base are the hit (:dmg :react :stun :keep-bind, r :radius,
+:delay frames later, hot 6)."
+  (let* ((tw (yama-live-hz e :ya-tower)) (hz (and tw (hazard tw))) (f (fighter e)) (lv (or (move-param e :level) 1))
+         (life (+ (- (mv-total (fighter-move f)) (fighter-sf f)) *ya-tower-stand*)))
+    (multiple-value-bind (x z) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
+      (if hz
+          (setf (hazard-life hz) (+ (hazard-age hz) life) (getf (hazard-data hz) :level) lv)
+          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size 1.6 :life life :hook 'yama-hz :look 'yama-wall-look   ; (the bone
+                                   :data (list :level lv)))                                                                ;  wall's look: a placeholder)
+      (yama-fire e :ya-col x z :size (move-param e :radius) :delay (move-param e :delay) :life 30 :hot 6 :look (move-param e :look)
+                 :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react)))
+      (clog "~a tower level ~d at ~,2f ~,2f, ~,2f m from him (~d f)" (side-name e) lv x z
+            (let ((p (pos-of e))) (sqrt (+ (expt (- x (aref p 0)) 2) (expt (- z (aref p 2)) 2)))) life)
+      (emit :sfx :ground-crack e))))
+
+(defun ya-topple-dir (bx bz qx qz yaw)
+  "The way 南's tower at (BX BZ) falls: toward the victim at (QX QZ), or along YAW (his facing) when the victim is within 0.5 m of its
+base. Values the unit vector x z."
+  (let* ((dx (- qx bx)) (dz (- qz bz)) (d (sqrt (+ (* dx dx) (* dz dz)))))
+    (if (> d 0.5) (values (/ dx d) (/ dz d)) (values (fwd-x yaw) (fwd-z yaw)))))
+
+(defun yama-topple-fire (e)
+  "南 NSc on S: the tower (or, none standing, a level-1 one at YAMA-TOWER-SPOT) topples toward the victim: a line from its base as long as
+it is tall (*YA-TOWER-H* x level), 2 m wide (YAMA-HZ :ya-fall), :dmg at level 1, :dmg-2 at level 2, hot 4; the tower is spent."
+  (let* ((tw (yama-live-hz e :ya-tower)) (hz (and tw (hazard tw))) (lv (if hz (getf (hazard-data hz) :level 1) 1)) (q (pos-of (opp-of e))))
+    (multiple-value-bind (bx bz) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
+      (when tw (destroy-entity tw))
+      (multiple-value-bind (ux uz) (ya-topple-dir bx bz (aref q 0) (aref q 2) (yaw-of e))
+        (let ((half (* 0.5 *ya-tower-h* lv)))
+          (yama-fire e :ya-fall (+ bx (* half ux)) (+ bz (* half uz)) :size half :yaw (dir-yaw ux uz) :life 30 :hot 4 :look 'yama-fall-look
+                     :hw (yama-fire-hw e (move-param e (if (>= lv 2) :dmg-2 :dmg)) (move-param e :react)))
+          (clog "~a tower topples: level ~d, ~,1f m from ~,2f ~,2f" (side-name e) lv (* 2 half) bx bz))))
+    (emit :sfx :ground-crack e)))
+
+(defun yama-shatter-fire (e)
+  "南's SA (the shatter) on S: the tower, if one stands, is spent (its hit is the move's own window); the skeletons flung over the sector's
+6 m, a look (the fall's, a placeholder)."
+  (let ((tw (yama-live-hz e :ya-tower)))
+    (when tw (destroy-entity tw))
+    (multiple-value-bind (x z) (ahead e 3.0)
+      (spawn-look e 'yama-fall-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30))
+    (clog "~a shatter~:[~; (the tower spent)~]" (side-name e) tw)
+    (emit :sfx :ground-crack e)))
 
 ;;; ================================================================ the Bankai in the sim (§4, §7.4): the marks, 北, the awakening
 (defun yama-bankai-enter (e)
@@ -751,7 +800,8 @@ P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as th
 87440 P1 awakens now (AWAKEN!, the cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!: the third arms 北); 87444 P1's 北 armed
 (all three marks); 87445 P1's marks and 北 cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
-c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87448 the consing of every
+c, AS 北 (0-6) on its own (CORE-START!); 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87438 P1 starts 南's
+SA, the shatter, on its own (§30.3: CORE-START!, P1 in the Bankai; it spends a standing tower); 87448 the consing of every
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
 the planted blade, 北's burn, the :planted hook; art K4: the three Kikon cinematics' looks). Art K4 (§19): 87450+i the Bankai's Kikon
 cinematic i (東 / 西 / 南, 0-2) from frame 0, P1 in the Bankai 3 m from an idle Kenpachi, set down mid-stage as a Kikon is (YAMA-CINE-AT;
@@ -794,6 +844,7 @@ its mantle, left with the mantle: batch J2, §28.)"
            (core-start! *p1* (kit-move (kit-of *p1*) (nth (- c 87430) '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c
                                                                        :ya-e-as4)))))
           ((= c 87437) (let ((p (pos-of *p1*))) (emit :armored *p1* (aref p 0) 1.2 (aref p 2))))   ; (西's armour look, L9: an event only)
+          ((= c 87438) (core-start! *p1* (kit-move (kit-of *p1*) :ya-e-sa3)))   ; (§30.3: 南's SA, the shatter, on its own; P1 in the Bankai)
           ((= c 87440) (awaken! *p1*))
           ((<= 87441 c 87443) (yama-mark! *p1* (- c 87440)))
           ((= c 87444) (dolist (n '(1 2 3)) (yama-mark! *p1* n)))
