@@ -39,7 +39,15 @@
     (check (equal (mapcar #'react '(:ya-n1c :ya-n2c :ya-n3c :ya-as1 :ya-as2b :ya-as3c)) '(:knockback :crumple :crumple :knockdown :launch :knockdown)))
     ;; each hazard segment names a Kikon strike of its own class (a flash step that closes 40 m/s, Ichigo's wave rule); one strike per
     ;; class, never shared across classes
-    (let ((hz '(:ya-n1a :ya-n1b :ya-n1c :ya-n2a :ya-n2b :ya-n2c :ya-as2 :ya-as2b)))
+    ;; §30.1: pointer 2 close (0-3 m): NS2a a melee flame slash (S20, 40, 2.4 m, arc 120, a stagger, no hazard, no Kikon strike of its
+    ;; own); NS2b's ring and NS2c's dome at the victim's bearing clamped to 0-3 m; AS2b's dome as before; the CPU casts no NS2 from range
+    (let ((mv (m :ya-n2a)))
+      (check (and (= 1 (length (mv-hits mv))) (= 40 (hw-dmg (svref (mv-hits mv) 0))) (~= 2.4 (mv-reach mv)) (eq (react :ya-n2a) :stagger)
+                  (null (getf (mv-params mv) :kikon-strike)) (null (getf (mv-params mv) :speed)) (eq (mv-ns-next k mv) (m :ya-n2b))
+                  (equal (mv-on-frame mv) '((0 yama-ns-start))))))
+    (check (equal (mapcar (lambda (n) (getf (mv-params (m n)) :far)) '(:ya-n2b :ya-n2c :ya-as2b)) '(3.0 3.0 8.0)))
+    (check (and (~= 8.0 (mv-reach (m :ya-as2b))) (equal (getf core :ns-range) '((3.0 7.0) nil nil))))
+    (let ((hz '(:ya-n1a :ya-n1b :ya-n1c :ya-n2b :ya-n2c :ya-as2 :ya-as2b)))
       (dolist (n hz)
         (let* ((mv (m n)) (s (getf (mv-params mv) :kikon-strike)) (smv (and s (m s))))
           (check (and smv (eq (kit-class k smv) (kit-class k mv)) (>= (getf (mv-params smv) :follow-cap) 40.0)
@@ -73,7 +81,8 @@
     (check (ya-ring-touch-p 0.0 0.0 1.6 0.25 1.6 0.0 0.36))              ; on the line: burns
     (check (ya-ring-touch-p 0.0 0.0 1.6 0.25 1.0 0.0 0.36))              ; the cylinder reaching it
     (check (not (ya-ring-touch-p 0.0 0.0 1.6 0.25 3.0 0.0 0.36)))        ; well outside: free
-    ;; one ring at a time (stand-in entities): a second NS2b's ring puts the first out; the dome lands on the ring and spends it
+    ;; one ring at a time (stand-in entities): a second NS2b's ring puts the first out; the dome lands on the ring and spends it; a victim at
+    ;; 5 m gets the ring at 3 m (§30.1's 0-3 m)
     (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))
       (setf *t-hz* nil)
       (t-at a 0 0) (t-at b 0 5.0)
@@ -83,15 +92,15 @@
           (in :ya-n2b) (yama-ring-fire a)
           (check (= 1 (rings)))
           (let ((h1 (cdr (find :ya-ring *t-hz* :key (lambda (x) (hazard-kind (cdr x)))))))
-            (check (and (~= 5.0 (hazard-z h1)) (eq (hazard-cls h1) :ns) (~= 1.6 (hazard-size h1)) (= 90 (hazard-life h1))
+            (check (and (~= 3.0 (hazard-z h1)) (eq (hazard-cls h1) :ns) (~= 1.6 (hazard-size h1)) (= 90 (hazard-life h1))
                         (= 20 (hw-dmg (hazard-hw h1))) (~= 1.0 (getf (hazard-data h1) :x)))))
-          (t-at b 0 6.0) (yama-ring-fire a)
+          (t-at b 0 2.0) (yama-ring-fire a)
           (check (= 1 (rings)))                                            ; the first went out
-          (check (~= 6.0 (hazard-z (cdr (find :ya-ring *t-hz* :key (lambda (x) (hazard-kind (cdr x))))))))
+          (check (~= 2.0 (hazard-z (cdr (find :ya-ring *t-hz* :key (lambda (x) (hazard-kind (cdr x))))))))
           (t-at b 3.0 6.0) (in :ya-n2c) (yama-dome-fire a)
           (check (= 0 (rings)))                                            ; spent by the dome
           (let ((d (cdr (find :ya-dome *t-hz* :key (lambda (x) (hazard-kind (cdr x)))))))
-            (check (and d (~= 0.0 (hazard-x d)) (~= 6.0 (hazard-z d)) (eq (hazard-cls d) :ns) (= 80 (hw-dmg (hazard-hw d))))))
+            (check (and d (~= 0.0 (hazard-x d)) (~= 2.0 (hazard-z d)) (eq (hazard-cls d) :ns) (= 80 (hw-dmg (hazard-hw d))))))
           (setf *t-hz* nil))))))
 
 ;;; ================================================================ stage B: the heat gauge and 爆炎 (DUEL_YAMA_CORE §3, §7.2, §7.4)
@@ -160,7 +169,17 @@
     ;; every NS segment (both sets) spends at its start; each hazard segment keeps a Kikon strike of its class
     (dolist (n (append (loop for r in (getf (kit-core k) :ns) append (core-segments r)) (loop for r in (getf core :ns) append (core-segments r))))
       (check (eq 'yama-ns-start (second (assoc 0 (mv-on-frame (kit-move (if (search "-B-" (symbol-name n)) kb k) n)))))))
-    (dolist (n '(:ya-b-n1a :ya-b-n1b :ya-b-n1c :ya-b-n2a :ya-b-n2b :ya-b-n2c :ya-b-as2 :ya-b-as2b))
+    ;; §30.1 in 爆炎: NS2a the melee slash x1.3 (its copy's own chain); NS2b's dome at 0-3 m; ENNETSU a disc of fire round him (r 2.5, 104,
+    ;; a crumple: a column on his feet), its own move (no melee window inherited from NS2a)
+    (let ((a (m :ya-b-n2a)) (c (m :ya-b-n2c)))
+      (check (and (= 1 (length (mv-hits a))) (= 52 (hw-dmg (svref (mv-hits a) 0))) (~= 2.4 (mv-reach a)) (eq (mv-ns-next kb a) (m :ya-b-n2b))
+                  (null (getf (mv-params a) :kikon-strike))))
+      (check (and (zerop (length (mv-hits c))) (eq (mv-clip c) :ya-b-n2c)
+                  (equal (mv-on-frame c) '((0 yama-ns-start) (18 yama-column-fire)))
+                  (equal (loop for key in '(:near :far :radius :delay :dmg :react) collect (getf (mv-params c) key)) '(0.0 0.0 2.5 0 104 :crumple))
+                  (eq (getf (mv-params c) :kikon-strike) :ya-ns-strike)))
+      (check (and (~= 3.0 (getf (mv-params (m :ya-b-n2b)) :far)) (equal (getf core :ns-range) '((3.0 7.0) nil nil)))))
+    (dolist (n '(:ya-b-n1a :ya-b-n1b :ya-b-n1c :ya-b-n2b :ya-b-n2c :ya-b-as2 :ya-b-as2b))
       (let* ((mv (m n)) (smv (m (getf (mv-params mv) :kikon-strike))))
         (check (and smv (eq (kit-class kb smv) (kit-class kb mv))))))
     ;; free SP in 爆炎 (KIT-SP-START-P): a later NS segment at fs 0 starts there, not in the Shikai
@@ -321,6 +340,29 @@
     (let ((mv (m :ya-e-n3a)))
       (check (and (= 17 (getf (mv-params mv) :delay)) (= (+ 22 16) (+ (mv-s mv) 17 -1)) (< (+ 22 16) (+ (mv-s mv) (mv-a mv)))
                   (= *ya-bind-stun* (getf (mv-params mv) :stun)))))
+    ;; §30.3 南's skeleton tower: NSa raises it (40, a bind, r 1.6 at its base), NSb climbs it to level 2 (50, a bind), NSc topples it (70 /
+    ;; 100 by level, a crumple); NSa / NSb's binds keep inside the route (:keep-bind) and name the shatter as their gap's SA (55, a bind that
+    ;; keeps, its SA class, J2 after it as after any SA); AS3 the hands (40) > the tower's disc (50) > the pile (100), each a mark 南; the CPU
+    ;; raises it from 1-4 m
+    (check (equal (loop for n in '(:ya-e-n3a :ya-e-n3b) collect (loop for key in '(:sa :level :radius :dmg :react :keep-bind) collect (getf (mv-params (m n)) key)))
+                  '((:ya-e-sa3 nil 1.6 40 :bind t) (:ya-e-sa3 2 1.6 50 :bind t))))
+    (check (and (equal (mv-on-frame (m :ya-e-n3a)) '((22 yama-tower-fire))) (equal (mv-on-frame (m :ya-e-n3b)) '((16 yama-tower-fire)))
+                (equal (mv-on-frame (m :ya-e-n3c)) '((18 yama-topple-fire))) (null (getf (mv-params (m :ya-e-n3c)) :sa))
+                (= 100 (getf (mv-params (m :ya-e-n3c)) :dmg-2))))
+    (check (and (eq (cls :ya-e-sa3) :sa) (eq (kit-next kb :ya-e-sa3 :q) (m :ya-e-j2)) (eq (react :ya-e-sa3) :bind)
+                (getf (mv-params (m :ya-e-sa3)) :keep-bind) (= 55 (getf (mv-params (m :ya-e-sa3)) :dmg)) (zerop (length (mv-hits (m :ya-e-sa3))))
+                (eq (mv-sa-move kb (m :ya-e-n3a)) (m :ya-e-sa3)) (eq (mv-sa-move kb (m :ya-e-n3b)) (m :ya-e-sa3)) (null (mv-sa-move kb (m :ya-e-n3c)))))
+    (check (equal (mapcar #'react '(:ya-e-as3 :ya-e-as3b :ya-e-as3c)) '(:stagger :stagger :knockdown)))
+    (check (equal (third (getf core :ns-range)) '(1.0 4.0)))
+    ;; the pure pieces: the topple's way (toward the victim, his facing when the victim stands on the base), the shatter's cone
+    (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 3.0 6.5 0.0)) '(0.6 0.8)))
+    (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 0.1 2.6 0.0)) (list (fwd-x 0.0) (fwd-z 0.0))))
+    (check (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 5.9 0.3))           ; on the axis, at the far end
+    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 1.5 2.5 0.0)))     ; 31 deg off the axis: out (the edge 1.44 m across there) ...
+    (check (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 1.5 2.5 0.1))           ; ... but a cylinder of r 0.1 reaches it
+    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 2.0 2.5 0.3)))     ; 39 deg off: out
+    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 6.5 0.3)))     ; past 6 m
+    (check (not (ya-cone-touch-p 0.0 0.0 0.0 1.0 6.0 0.0 -1.0 0.3)))    ; behind him
     ;; 西 NSb / NSc: the turn moves' armour (only those two); 西 NSa two hits of 45 round him; AS1 steals 30; the marks by AS
     (check (equal (loop for n being the hash-keys of (kit-moves kb) using (hash-value mv)
                         when (getf (mv-params mv) :turn-armor) collect n into l finally (return (sort l #'string< :key #'symbol-name)))
@@ -410,6 +452,45 @@
           (yama-mark! a 2)
           (check (equal (yama-bk-tag a) "NORTH"))
           (setf (yss-marks (ys a)) 0 (yss-north (ys a)) nil))))
+    ;; §30.3 the tower on stand-in fighters: NSa raises it 2.5 m before him at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
+    ;; after the segment) with its bind disc at the base (40, :keep-bind, delay 17); NSb climbs it (level 2, the stand renewed, a bind disc 50);
+    ;; NSc topples it toward the victim: a 6 m line (100), the tower spent; a line that touches along its length, not beside it; the shatter
+    ;; spends a standing tower and flings a cone from him
+    (multiple-value-bind (a b) (t-pair kb (kit :kenpachi :base))
+      (setf *t-hz* nil)
+      (t-at a 0 0 (dir-yaw 0.0 5.0)) (t-at b 3.0 4.0)
+      (let ((fa (fighter a)))
+        (flet ((in (n) (let ((mv (m n))) (setf (fighter-state fa) :move (fighter-move fa) mv (fighter-cls fa) (kit-class kb mv) (fighter-sf fa) (mv-s mv))))
+               (kind (k) (mapcar #'cdr (remove k *t-hz* :key (lambda (x) (hazard-kind (cdr x))) :test-not #'eq))))
+          (in :ya-e-n3a) (yama-tower-fire a)
+          (let ((tw (first (kind :ya-tower))) (d (first (kind :ya-col))))
+            (check (and tw (null (hazard-hw tw)) (~= 1.5 (hazard-x tw)) (~= 2.0 (hazard-z tw)) (= 1 (getf (hazard-data tw) :level))
+                        (= (+ 37 90) (hazard-life tw))))
+            (check (and d (~= 1.5 (hazard-x d)) (~= 1.6 (hazard-size d)) (= 17 (hazard-delay d)) (= 40 (hw-dmg (hazard-hw d)))
+                        (eq :bind (hw-react (hazard-hw d))) (= *ya-bind-stun* (hw-stun (hazard-hw d))) (equal (hw-flags (hazard-hw d)) '(:keep-bind))
+                        (eq (hazard-cls d) :ns))))
+          (setf (hazard-age (first (kind :ya-tower))) 50)
+          (in :ya-e-n3b) (yama-tower-fire a)
+          (let ((tw (first (kind :ya-tower))) (d (second (kind :ya-col))))
+            (check (and (= 1 (length (kind :ya-tower))) (= 2 (getf (hazard-data tw) :level)) (= (+ 50 24 90) (hazard-life tw))))
+            (check (and d (~= 1.5 (hazard-x d)) (= 0 (hazard-delay d)) (= 50 (hw-dmg (hazard-hw d))) (eq :bind (hw-react (hazard-hw d))))))
+          (in :ya-e-n3c) (yama-topple-fire a)
+          (let ((fl (first (kind :ya-fall))))
+            (check (and (null (kind :ya-tower)) fl (= 100 (hw-dmg (hazard-hw fl))) (eq :crumple (hw-react (hazard-hw fl))) (~= 3.0 (hazard-size fl))
+                        (~= (+ 1.5 (* 3.0 0.6)) (hazard-x fl)) (~= (+ 2.0 (* 3.0 0.8)) (hazard-z fl))))
+            (flet ((touch (x z) (yama-hz nil fl :touches (f32 x) 0f0 (f32 z) 0.36f0 1.65f0)))
+              (check (and (touch 1.5 2.0) (touch 3.0 4.0) (touch 4.8 6.4)))   ; the base, the victim, the tip (6 m out)
+              (check (not (or (touch 5.5 7.4) (touch 3.9 2.7) (touch 0.0 0.0))))))   ; past the tip, 1.5 m beside it, him
+          (setf *t-hz* nil)
+          (in :ya-e-n3a) (yama-tower-fire a)
+          (in :ya-e-sa3) (yama-shatter-fire a)
+          (let ((c (cdr (find :ya-cone *t-hz* :key (lambda (x) (hazard-kind (cdr x)))))))
+            (check (and (notany (lambda (x) (eq (hazard-kind (cdr x)) :ya-tower)) *t-hz*) c (= 55 (hw-dmg (hazard-hw c))) (eq :bind (hw-react (hazard-hw c)))
+                        (eq (hazard-cls c) :sa) (~= 3.0 (hazard-size c))))
+            (flet ((touch (x z) (yama-hz nil c :touches (f32 x) 0f0 (f32 z) 0.36f0 1.65f0)))
+              (check (and (touch 0.0 2.5) (touch 1.0 2.5) (touch 0.0 6.2)))     ; 2.5 m ahead, 1 m beside that, at the cone's end
+              (check (not (or (touch 2.5 2.5) (touch 0.0 6.8) (touch 0.0 -1.0))))))))   ; outside the 60 deg, past 6 m, behind him
+      (setf *t-hz* nil))
     ;; the Lisp HUD's side: the seals 東 西 南, NORTH's names, the marks next to the pointer; the tag line shows none of them
     (let ((e (lhud-fighter 1)))
       (check (equal (mapcar #'first (lhud-seals e "ZANKA NO TACHI" "MARK 13")) '("東" "西" "南")))

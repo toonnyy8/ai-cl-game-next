@@ -178,7 +178,9 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
         ;; carries the rest (NADEGIRI's seam SL7, TAIMATSU's halo SL8); TSUKABI (J3) strikes with the POMMEL (the handle's end), IKKOTSU with
         ;; the FIST. KNOWN-OFF: the borrowed clips S1's print found off (§22.1); S2 / S3 / S4 took them out (§23, §24, §25: IKKOTSU), and a
         ;; move put back in it must be off. F10: IKKOTSU's clip on its move (both S9 since art S4), the fist per frame.
-        (let ((one-sided '(:ya-n3c :ya-as3c :ya-sa :ya-b-n3c :ya-b-as3c :ya-b-sa))
+        (let ((one-sided '(:ya-n3c :ya-as3c :ya-sa :ya-b-n3c :ya-b-as3c :ya-b-sa
+                           :ya-n2a :ya-b-n2a))   ; (§30.1: the melee flame slash on the stream's clip, its tip 1.89 of 2.4 m: the flame
+                                                 ;  carries the rest until it has its own clip)
               (pommel '(:ya-j3)) (fist '(:ya-b-j3))
               (known-off '()))   ; (S2: J3's pommel and AS1; S3: AS2a, AS3a, NS3a / NS3b, the Kikon strikes and 爆炎's copies; S4: IKKOTSU)
           (dolist (f '(:base :blaze))
@@ -312,9 +314,8 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
        (reach (form name) (mv-reach (kit-move (find-kit :yamamoto form) name))))
   (check (= +ya-wave-half+ (second *wave-box*)))
   (check (= +ya-spiral-speed+ (par :base :ya-n1a :speed) (par :blaze :ya-b-n1a :speed)))
-  (check (= +ya-lance-speed+ (par :base :ya-n2a :speed) (par :blaze :ya-b-n2a :speed)))
+  ;; (NS2a's lance and ENNETSU's rows are no move's since §30.1: the melee slash, the disc round him; their looks' speeds left unchecked)
   (check (= +ya-tornado-speed+ (par :base :ya-n1c :speed) (par :blaze :ya-b-n1c :speed)))
-  (check (= +ya-ennetsu-speed+ (par :blaze :ya-b-n2c :speed)))   ; (ENNETSU's rows of pillars, art S4)
   (check (= +ya-dome-near+ (par :blaze :ya-b-n2b :near)))         ; (爆炎 NS2b's ring at its dome's spot: YA-BEARING-POINT's rule)
   (check (= +ya-dome-far+ (par :blaze :ya-b-n2b :far)))
   (check (= +ya-arena-in+ (- *arena-radius* 0.5)))

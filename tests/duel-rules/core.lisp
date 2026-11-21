@@ -481,6 +481,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (equal (multiple-value-list (combo-step :flinch t 3 1 1)) '(:flinch 4 1 2)))
 (check (equal (multiple-value-list (combo-step :flinch t 4 1 2)) '(:knockdown 5 1 3)))     ; 3 air hits
 (check (equal (multiple-value-list (combo-step :flinch nil 9 0 0)) '(:flinch 10 0 0)))  ; no hit cap (the user 2026-09-30)
+;; a bind opens a combo (*burst-min-hits* booked), inside one it is a flinch; the opt-in :keep-bind flag keeps it a bind, one hit more
+;; (Yamamoto's 南 tower, DUEL_YAMA_CORE §30.3); the flag changes nothing else
+(check (equal (multiple-value-list (combo-step :bind nil 0 0 0)) (list :bind *burst-min-hits* 0 0)))
+(check (equal (multiple-value-list (combo-step :bind nil 3 0 0)) '(:flinch 4 0 0)))
+(check (equal (multiple-value-list (combo-step :bind nil 0 0 0 t)) (list :bind *burst-min-hits* 0 0)))
+(check (equal (multiple-value-list (combo-step :bind nil 3 0 0 t)) '(:bind 4 0 0)))
+(check (equal (multiple-value-list (combo-step :stagger nil 3 0 0 t)) '(:stagger 4 0 0)))
 ;; the hidden hit-stun tolerance (docs/duel/DUEL_DESIGN.md, the user 2026-09-29)
 (check (= (stun-weight :flinch nil) 1))
 (check (= (stun-weight :stagger nil) 2))

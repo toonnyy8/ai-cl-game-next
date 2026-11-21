@@ -33,3 +33,13 @@
  :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t :on :free) (:quick 1 :modded t)) :frames 320)
 (:name "Y13 NS2 a-b, P2 steps back out of the ring (it burns)" :p1 :yamamoto :p2 :kenpachi :ptr 2 :dist 5.0 :fs 300
  :script ((:quick 1 :modded t) (:quick 1 :modded t)) :p2-press ((75 :step 1 nil -1.0)) :frames 160)
+;;; §30.1 (2026-11-21): pointer 2 close. NS2a the melee flame slash (2.4 m): a hit at 2.2 m, a whiff at 3.0 m; NS2b's ring at the victim's
+;;; bearing clamped to 3 m (the `ring at ... m from him` line) with the victim at 6 m (87414: NS2b on its own); the route from 2.2 m.
+(:name "Y14a NS2a at 2.2 m: the slash hits" :p1 :yamamoto :p2 :kenpachi :ptr 2 :dist 2.2 :fs 300
+ :script ((:quick 1 :modded t)) :frames 80)
+(:name "Y14b NS2a at 3.0 m: the slash whiffs" :p1 :yamamoto :p2 :kenpachi :ptr 2 :dist 3.0 :fs 300
+ :script ((:quick 1 :modded t)) :frames 80)
+(:name "Y14c NS2b alone (87414), the victim at 6 m: the ring lands 3 m from him" :p1 :yamamoto :p2 :kenpachi :ptr 2 :dist 6.0 :fs 300
+ :p1-cmd (87414) :script () :frames 60)
+(:name "Y14d NS2 a-b-c from 2.2 m (the slash, the ring round him, the dome on it)" :p1 :yamamoto :p2 :kenpachi :ptr 2 :dist 2.2 :fs 300
+ :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)

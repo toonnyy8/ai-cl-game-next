@@ -165,7 +165,7 @@ result (NIL = no effect)."
           ((:hit :counter)
            (multiple-value-bind (react hits launches air)
                (combo-step (if follow :stagger (hw-react hw)) (eq (fighter-state fd) :air) (fighter-combo-hits fd)
-                           (fighter-combo-launches fd) (fighter-combo-air fd))
+                           (fighter-combo-launches fd) (fighter-combo-air fd) (and (member :keep-bind flags) t))
              (setf (fighter-combo-hits fd) hits (fighter-combo-launches fd) launches (fighter-combo-air fd) air)
              ;; the hidden stun (every connected hit, hazards and clones too); past his tolerance this hit blows him away:
              ;; a knockdown sliding ~5 m, the gauge back to 0. A Kikon rush's strike never does (its Kikon / follow-up
