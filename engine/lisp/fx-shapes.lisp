@@ -233,10 +233,13 @@ N and SCALLOPS fixnums."
 ;;; PH. Flames, pillars, dome walls, auras and blade sheaths are layers of it.
 ;;; FX-RIBBON (a macro) writes its arguments into *RIBBON-ARGS*, so the call conses nothing.
 (declaim (type f32vec *ribbon-args*))
-(defvar *ribbon-args* (make-f32 18) "x y z ax ay az w0 w1 r0 g0 b0 a0 r1 g1 b1 a1 phase sway")
+(defvar *ribbon-args* (make-f32 21)
+  "x y z ax ay az w0 w1 r0 g0 b0 a0 r1 g1 b1 a1 phase sway, and [18..20] the bend x y z (FX-RIBBON :BEND; 0 but for the one call that
+sets it: %FX-RIBBON zeroes it after drawing)")
 
 (defun-fast %fx-ribbon (segs mode)
-  "FX-RIBBON's body: SEGS segments into the MODE (:add / :alpha) fx batch."
+  "FX-RIBBON's body: SEGS segments into the MODE (:add / :alpha) fx batch; the bend (*RIBBON-ARGS* [18..20]) moves the centre line by
+bend x u^2 (u 0 at the base .. 1 at the tip: the base stays, the tip moves most), then is zeroed."
   (declare (fixnum segs))
   (let* ((rb *ribbon-args*) (eye (camera-eye *camera*)) (rt (camera-right *camera*))
          (x (aref rb 0)) (y (aref rb 1)) (z (aref rb 2)) (ax (aref rb 3)) (ay (aref rb 4)) (az (aref rb 5))
@@ -247,10 +250,10 @@ N and SCALLOPS fixnums."
              (ex (- (aref eye 0) x)) (ey (- (aref eye 1) y)) (ez (- (aref eye 2) z))
              (sx (- (* ny ez) (* nz ey))) (sy (- (* nz ex) (* nx ez))) (sz (- (* nx ey) (* ny ex)))
              (sl (f-hypot sx sy sz))
-             (w0 (aref rb 6)) (w1 (aref rb 7)) (ph (aref rb 16)) (sw (aref rb 17))
+             (w0 (aref rb 6)) (w1 (aref rb 7)) (ph (aref rb 16)) (sw (aref rb 17)) (bx (aref rb 18)) (by (aref rb 19)) (bz (aref rb 20))
              (inv (/ 1f0 (i->f segs)))
              (lx 0f0) (ly 0f0) (lz 0f0) (qx 0f0) (qy 0f0) (qz 0f0) (pr 0f0) (pg 0f0) (pb 0f0) (pa 0f0))
-        (declare (single-float nx ny nz ex ey ez sx sy sz sl w0 w1 ph sw inv lx ly lz qx qy qz pr pg pb pa))
+        (declare (single-float nx ny nz ex ey ez sx sy sz sl w0 w1 ph sw bx by bz inv lx ly lz qx qy qz pr pg pb pa))
         (if (< sl 1f-5)
             (setf sx (aref rt 0) sy (aref rt 1) sz (aref rt 2))
             (setf sx (/ sx sl) sy (/ sy sl) sz (/ sz sl)))
@@ -259,7 +262,8 @@ N and SCALLOPS fixnums."
             (let* ((u (* (i->f i) inv))
                    (off (* sw u (+ (f-sin (+ ph (* 5f0 u))) (* 0.5f0 (f-sin (+ (* 1.7f0 ph) (* 11f0 u)))))))
                    (w (* (+ w0 (* (- w1 w0) u)) (+ 1f0 (* 0.14f0 (f-sin (+ (* 2.3f0 ph) (* 9f0 u)))))))
-                   (cx (+ x (* ax u) (* sx off))) (cy (+ y (* ay u) (* sy off))) (cz (+ z (* az u) (* sz off)))
+                   (cx (+ x (* ax u) (* sx off) (* bx u u))) (cy (+ y (* ay u) (* sy off) (* by u u)))
+                   (cz (+ z (* az u) (* sz off) (* bz u u)))
                    (r (+ (aref rb 8) (* u (- (aref rb 12) (aref rb 8)))))
                    (g (+ (aref rb 9) (* u (- (aref rb 13) (aref rb 9)))))
                    (b (+ (aref rb 10) (* u (- (aref rb 14) (aref rb 10)))))
@@ -270,30 +274,34 @@ N and SCALLOPS fixnums."
               (when (> i 0)
                 (vtx lx ly lz -1f0 0f0 pr pg pb pa) (vtx qx qy qz 1f0 0f0 pr pg pb pa) (vtx kx ky kz 1f0 0f0 r g b a)
                 (vtx lx ly lz -1f0 0f0 pr pg pb pa) (vtx kx ky kz 1f0 0f0 r g b a) (vtx mx my mz -1f0 0f0 r g b a))
-              (setf lx mx ly my lz mz qx kx qy ky qz kz pr r pg g pb b pa a))))))))
+              (setf lx mx ly my lz mz qx kx qy ky qz kz pr r pg g pb b pa a))))))
+    (setf (aref rb 18) 0f0 (aref rb 19) 0f0 (aref rb 20) 0f0)
+    nil))
 
-(defmacro fx-ribbon (x y z ax ay az w0 w1 r0 g0 b0 a0 r1 g1 b1 a1 ph sway &key (segs 6) (mode :add))
+(defmacro fx-ribbon (x y z ax ay az w0 w1 r0 g0 b0 a0 r1 g1 b1 a1 ph sway &key (segs 6) (mode :add) bend)
   "Draw a ribbon from (X Y Z) along the axis (AX AY AZ): half-width W0 at the base, W1 at the tip,
 colour (R0 G0 B0 A0) at the base, (R1 G1 B1 A1) at the tip, PH the flicker phase, SWAY the sideways
 sway amplitude (m), SEGS segments. All numeric arguments must be single-float expressions (no
-boxing). A0/A1 < 0 = additive without the white hot core; > 0 whitens the centre line (hot core)."
+boxing). A0/A1 < 0 = additive without the white hot core; > 0 whitens the centre line (hot core). BEND, a list of three
+single-float forms, curves it: the centre line moves by BEND x u^2 along it (the base kept, the tip by all of it)."
   (let ((rb (gensym "RB")))                       ; a gensym: the arguments may name any variable
     `(let* ((,rb *ribbon-args*))
        (declare (type f32vec ,rb))
        (setf (aref ,rb 0) ,x (aref ,rb 1) ,y (aref ,rb 2) ,z (aref ,rb 3) ,ax (aref ,rb 4) ,ay (aref ,rb 5) ,az
              (aref ,rb 6) ,w0 (aref ,rb 7) ,w1 (aref ,rb 8) ,r0 (aref ,rb 9) ,g0 (aref ,rb 10) ,b0 (aref ,rb 11) ,a0
-             (aref ,rb 12) ,r1 (aref ,rb 13) ,g1 (aref ,rb 14) ,b1 (aref ,rb 15) ,a1 (aref ,rb 16) ,ph (aref ,rb 17) ,sway)
+             (aref ,rb 12) ,r1 (aref ,rb 13) ,g1 (aref ,rb 14) ,b1 (aref ,rb 15) ,a1 (aref ,rb 16) ,ph (aref ,rb 17) ,sway
+             ,@(when bend `((aref ,rb 18) ,(first bend) (aref ,rb 19) ,(second bend) (aref ,rb 20) ,(third bend))))
        (%fx-ribbon ,segs ,mode))))
 
 (defmacro toon-ribbon ((x y z) (ax ay az) (w0 w1) &key (heat '(1f0 0.2f0)) seed (wob 0.3f0) pal k k1 (ph 0f0) (sway 0f0)
-                                                       (segs 6))
+                                                       (segs 6) bend)
   "FX-RIBBON :mode :toon with its colour lanes named: HEAT (base tip) = the heat lanes, SEED and WOB (both ends), and
 the presence lanes: with PAL, (TOON-A PAL K) at the base and (TOON-A PAL K1) at the tip (K1 defaults to K); without
-PAL, K / K1 are the lane values themselves (an already made TOON-A). Expands to the one FX-RIBBON call with the
+PAL, K / K1 are the lane values themselves (an already made TOON-A); BEND as FX-RIBBON's. Expands to the one FX-RIBBON call with the
 argument forms in its positional order (forms repeated there are repeated here, as written by hand)."
   (destructuring-bind (h0 h1) heat
     (let ((a0 (if pal `(toon-a ,pal ,k) k)) (a1 (if pal `(toon-a ,pal ,(or k1 k)) (or k1 k))))
-      `(fx-ribbon ,x ,y ,z ,ax ,ay ,az ,w0 ,w1 ,h0 ,seed ,wob ,a0 ,h1 ,seed ,wob ,a1 ,ph ,sway :segs ,segs :mode :toon))))
+      `(fx-ribbon ,x ,y ,z ,ax ,ay ,az ,w0 ,w1 ,h0 ,seed ,wob ,a0 ,h1 ,seed ,wob ,a1 ,ph ,sway :segs ,segs :mode :toon :bend ,bend))))
 
 (defmacro %tongue (x y z ax ay az w pal k seed ph sway &key (segs 6) (wob 0.3f0))
   "One toon flame tongue (an along ribbon, w1 = 0: heat 1 at the base .. 0.2 at the tip, so it erodes from the tip
