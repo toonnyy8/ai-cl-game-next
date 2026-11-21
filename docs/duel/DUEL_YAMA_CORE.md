@@ -3652,3 +3652,29 @@ marks) is moot.
 | `duel-yama-sp30b.json`, `duel-yama-bankai.json` | exit 0; the third mark leaves him in the Bankai with 東 西 南 lit by the pointer (still `duel-yama-marks-3.png`); three marks J1-J4 > AS4 held: -5, `cine YAMA-TENCHI-CINE` |
 | pkgcheck, debug ranges, build, smoke | only `DUEL::APP`; 90 ranges 0 errors; built; exit 0 |
 | `--cvc` | II / IK / KK identical (33 / 28 / 27 lines) |
+
+## 34. Art batch for §30-§33: the plan (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22: 「開始把新動畫完成」. References: `docs/research/yamamoto-rework/sp30-art-refs.md` (images in the git-ignored
+`.refs/yamamoto-sp30/`), plus `.refs/yamamoto/` and `.refs/yamamoto-zanjitsu/`. The user's answers (all four the lead's recommendation):
+
+| Q | Answer (verbatim choice) | What gets built |
+|---|---|---|
+| 南's tower | 「錐形骷髏堆」 | a tapering heap of black-ink skeletons climbing on each other, a crown of reaching hands, a blood-red eye spot each (Ep 372's slope of raised hands, the Sedlec skull pillars); level 1 3 m tall, level 2 6 m; the topple pivots on its base toward the victim and crashes into bones and ash along the line; the SA shatter throws bone shards forward in the 60° fan (ch. 509's pile shedding shards) |
+| AS4's last segment | 「斜向白色斬帶」 | a low-behind to high-front diagonal cut leaving a broad white diagonal band (ch. 509's panel), the victim's outline greying to ash with cinders falling; the grip / cut / line before it each their own clip with ash |
+| E-J4 | 「踏步袈裟斬」 | a step in, the blade from the right shoulder down to the lower left, the body low, a slow heavy recovery |
+| 西's flame along the swing | 「跟著蓄力等級變大」 | while charged, every J / AS swing throws a flame arc with curled tongues outside the blade's path (Rengoku's 昇り炎天), reaching 0.8 m past the tip after NSa, 1.6 m after NSb (the added reach) |
+
+Also in the batch (no question): Shikai NS2a's own clip, a 120° flame slash whose drawn tip reaches 2.4 m (it draws 1.89 m today, an FK
+one-sided exception), and 爆炎's 焱熱地獄 disc drawn as a ring of ground fire of r 2.5 m round him with spark fountains on its rim (it borrows
+the column's look today).
+
+**Batches** (one worktree each, presentation only: no frame data, reach, hit volume or sim change):
+- A 南: the tower (`:ya-tower`, NSa / NSb, AS3b), the topple (`:ya-fall`), the shatter (the SA's `:fx`).
+- B Shikai: NS2a's clip (and 爆炎's NS2a), the ENNETSU disc look.
+- C 西: the flame arc on charged swings (a draw hook by `fighter-charge-mult`).
+- D J4 / AS4: E-J4's clip, AS4's four clips, the white band and the victim's ash.
+
+**Checks per batch**: host tests (the FK reach test: drawn tip = hit reach ± 0.15 m; NS2a / AS4 leave the one-sided list), pkgcheck, build,
+smoke, the 0 B consing probe (87448 / 87449), Yamamoto's native trials byte-identical in numbers, stills from two cameras and both aspect
+ratios. No `--cvc`, no looks gate, no CPU match (presentation only, DEVLOG §847).
