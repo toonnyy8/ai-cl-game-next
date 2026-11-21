@@ -1144,6 +1144,46 @@ def yama_nishi2_script(phone=False):
 write("yama-nishi2", yama_nishi2_script())
 write("yama-nishi2-phone", yama_nishi2_script(True))
 
+# Yamamoto's 西 garb trailing (DUEL_YAMA_CORE §29.1): P1 in the Bankai under 西 (87302, 87446), Kenpachi 8 m away (87080), W held 1.2 s
+# then let go; stills mid-walk, just stopped, the overshoot (+0.3 s) and settled (+1.0 s), from the behind camera, then the SIDE camera
+# (2109); then the 西 Kikon's walk at its footfalls 76 / 94 / 112 (87451, 87600+k), each shot 2 frames after the hold (a held frame stands
+# still: the spring settles). Stills tests/shots/duel-yama-lean-*[-phone].png; 87448's consing line ends the run.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --script tests/scripts/duel-yama-lean.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 34 --mobile --size 390x844 --script tests/scripts/duel-yama-lean-phone.json
+YAMA_LEAN_WALK = ((1.0, "walk"), (1.23, "stop"), (1.5, "over"), (2.2, "settled"))
+def yama_lean_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== walk {cam}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate((87080, 87302, 87446) + deck))
+        t += 1.6
+        ev += [key(t, "KeyW"), key(t + 1.2, "KeyW", False)]
+        ev.extend(shot(t + dt, f"yama-lean-{cam}-{n}{sx}") for dt, n in YAMA_LEAN_WALK)
+        t += 3.0
+    ev.append(cmd(t, 2109)); t += 0.3                                     # (back to the behind camera)
+    ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== nishi')"})
+    ev += [cmd(t, 87030)]
+    t += 2.5
+    ev.append(cmd(t, 87451))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    frames = (76, 94, 112)
+    ev.append(cmd(t + 0.03, 87600 + frames[0] // 2))
+    a, f0 = t + 0.03, 0
+    for j, f in enumerate(frames):
+        a += (f - f0) / 60 + 0.03
+        ev.append(shot(a, f"yama-lean-kikon-f{f:03d}{sx}"))
+        if j + 1 < len(frames): ev.append(cmd(a + 0.02, 87600 + frames[j + 1] // 2))
+        a += 0.02
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-lean", yama_lean_script())
+write("yama-lean-phone", yama_lean_script(True))
+
 # Yamamoto's Bankai art K5 (DUEL_YAMA_CORE §20.1): the 東 void as a ragged radial tear, every place it shows. L6 in play (K2's scenes):
 # 東 NS a-b-c from 3 m, NS1c's void at its S18+2 / +6 / +14 / +26 (growing, full, held, filling with ash), J1 > AS1's notch at its S10
 # +0 / +4 / +11; from the behind camera, then the SIDE camera (2109); then the K4 東 cinematic's frames 90 (opening), 96 (b4-void), 120

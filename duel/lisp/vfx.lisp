@@ -99,7 +99,7 @@ end (the kit's :smear, art S4 §25). SM: x0 y0 z0 x1 y1 z1 bx by bz, half-width,
     nil))
 
 ;;; ---------------------------------------------------------------- auras
-(defmacro %brush-aura (x y z h k pal n rad w white &optional all)
+(defmacro %brush-aura (x y z h k pal n rad w white &optional all shear)
   "A brush-flame aura (docs/style/STYLE_STORM_DESIGN.md §4.2 reiatsu, §4.3 Kikon rush): N tongues of palette PAL around
 the body at radius RAD (half-width W at the base), drawn only behind and at the sides (the ones between the camera and the body are left
 out, so the fighter stays readable inside; ALL literal T draws those too: 殘日獄衣, the user 2026-11-20, DUEL_YAMA_CORE §28), H tall
@@ -107,7 +107,9 @@ x 0.8..1.25 with a lean, both drifting continuously (FLOW01 / FLOW-PH: the flow 
 the palette's dark hairline, and when WHITE is 1 a white core line in the back ones. K = presence. PAL may carry a glass
 level (+ 32 x g, fx-toon.frag.wgsl: see-through); the white cores take the same level. PAL may carry +TOON-FLAME+ (the flame
 class whatever the palette, STYLE_STORM_DESIGN §15.8); the white cores carry it too (with the tongue in the flame layer and the
-core in the scene pass, the 0.8 tongue washed over the core). A macro (the auras run every frame: 0 B); N and WHITE literal fixnums."
+core in the scene pass, the 0.8 tongue washed over the core). SHEAR, a list of two single-float variables (sx sz), leans each tongue by
+them x its height (its root kept: 殘日獄衣 trailing, DUEL_YAMA_CORE §29.1); without it the expansion is as before. A macro (the auras run
+every frame: 0 B); N and WHITE literal fixnums."
   (let ((sides (or (not (eq all t)) (eql white 1))))   ; (the eye's side is read: an unused float bound here would be boxed, 8 B)
     `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (pal ,pal) (rad ,rad) (w ,w) (fp (flow-ph)) (pk (toon-a pal (* 0.95f0 k)))
             (step (/ 6.2831855f0 ,(float n 1f0)))
@@ -123,7 +125,9 @@ core in the scene pass, the 0.8 tongue washed over the core). A macro (the auras
              (let* ((hh (* h (+ 0.8f0 (* 0.45f0 (flow01 f 3.7f0))))) (lean (* 0.25f0 (- (flow01 f 5.9f0) 0.5f0)))   ; (§15.7: flowing,
                     (bx (+ x (* rad c))) (bz (+ z (* rad sn))) (sd (- -1f0 f)))                             ;  one seed a tongue)
                (declare (single-float hh lean bx bz sd))
-               (toon-ribbon (bx y bz) ((* lean c) hh (* lean sn)) (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0)
+               (toon-ribbon (bx y bz) (,(if shear `(+ (* lean c) (* ,(first shear) hh)) '(* lean c)) hh
+                                       ,(if shear `(+ (* lean sn) (* ,(second shear) hh)) '(* lean sn)))
+                            (w 0f0) :seed sd :k pk :ph (+ f fp) :sway 0.12f0)
                ,@(when (eql white 1)
                    '((when (< front -0.4f0)
                        (toon-ribbon (bx (+ y 0.1f0) bz) ((* 0.7f0 lean c) (* 0.6f0 hh) (* 0.7f0 lean sn)) (0.035f0 0f0) :seed sd :wob 0.1f0
@@ -162,20 +166,23 @@ inner HIT tongues join the yellow in the 0.8 flame layer, which washed them yell
 pillar 2 (the user's request 2026-09-28: it hid the view); the Bankai's red-and-black pillar (:oni, the same day): its
 BLOOD tongues 2, its taller INK tongues 3 (at 2 the black read as a grey smear). Render only.")
 
-(defmacro %garb-aura (x y z h k dt)
+(defmacro %garb-aura (x y z h k dt &optional sx sz)
   "Yamamoto's 殘日獄衣 (the :GARB kind of VFX-AURA; the TYBW kit's garb, canon manga colour, DUEL_YAMA_TYBW §3.1; ported back by batch J2,
 DUEL_YAMA_CORE §28, the user 2026-11-20: 「ai-cl-game-test 的原版就做的不錯阿？只要把面對鏡頭的火焰也顯示出來就很好了」): orange FLAME
 brush tongues from the feet up round the body (0.8 x H x 9 at 0.34 m, 0.62 x H x 6 at 0.25 m), flaring at the shoulders into two wings
 (a fan of 3 ribbons each, to the camera's left and right so the shape reads from any camera: out ~30 deg from the shoulders, the tips ~0.5 m
 over his head and ~0.6 m out), a molten double ring at his feet, flame scraps rising, a warm light. Since J2 the camera-side tongues draw
 too and the wings sit where they are (the old garb left the camera side out and pushed the wings 0.22 m back along the view ray). K < 1
-fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). A macro: 0 B."
-  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt)
+fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the frame's effect seconds (the scraps). SX SZ (optional,
+single-float forms): the trailing lean, a shear in metres sideways per metre up (DUEL_YAMA_CORE §29.1): every tongue leans by it from its
+root, the wings by 1.2 x it from the floor (their bases ride along, their tips trail furthest); without them the expansion is as before.
+A macro: 0 B."
+  `(let* ((x ,x) (y ,y) (z ,z) (h ,h) (k ,k) (dt ,dt) ,@(when sx `((shx ,sx) (shz ,sz)))
           (kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
           (fp (flow-ph)) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))   ; (flowing: §15.7)
-     (declare (single-float x y z h k dt kc fl fr fp pk))
-     (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t)
-     (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t)
+     (declare (single-float x y z h k dt kc fl fr fp pk ,@(when sx '(shx shz))))
+     (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0 t ,(when sx '(shx shz)))
+     (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0 t ,(when sx '(shx shz)))
      (with-cam (rx ry rz ux uy uz)
        (let* ((rl (f-max 1f-3 (f-hypot rx rz))) (hx (/ rx rl)) (hz (/ rz rl)))
          (declare (single-float rl hx hz))
@@ -190,6 +197,8 @@ fades it, K > 1 flares it taller (x K) and wider (x 1 + 0.3 (K - 1)). DT the fra
                     (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
                     (wsd (- -40f0 jf (* 3f0 (i->f sg)))))
                (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
+               ,@(when sx '((setf bx (+ bx (* 1.2f0 shx (- by y))) bz (+ bz (* 1.2f0 shz (- by y)))   ; (trailing: the shear)
+                                  ax (+ ax (* 1.2f0 shx ay)) az (+ az (* 1.2f0 shz ay)))))
                (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ fp jf) :sway 0.07f0 :segs 6))))))
      (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) 0f0 24)   ; the plaza melting under him
      (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) 2f0 24)

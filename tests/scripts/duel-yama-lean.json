@@ -1,0 +1,138 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== walk behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 10.6,
+"key": "KeyW",
+"down": true
+},
+{
+"at": 11.6,
+"shot": "tests/shots/duel-yama-lean-behind-walk.png"
+},
+{
+"at": 11.8,
+"key": "KeyW",
+"down": false
+},
+{
+"at": 11.83,
+"shot": "tests/shots/duel-yama-lean-behind-stop.png"
+},
+{
+"at": 12.1,
+"shot": "tests/shots/duel-yama-lean-behind-over.png"
+},
+{
+"at": 12.8,
+"shot": "tests/shots/duel-yama-lean-behind-settled.png"
+},
+{
+"at": 13.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 13.85,
+"eval": "console.log('=== walk side')"
+},
+{
+"at": 13.9,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 13.95,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 14.0,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 15.5,
+"key": "KeyW",
+"down": true
+},
+{
+"at": 16.5,
+"shot": "tests/shots/duel-yama-lean-side-walk.png"
+},
+{
+"at": 16.7,
+"key": "KeyW",
+"down": false
+},
+{
+"at": 16.73,
+"shot": "tests/shots/duel-yama-lean-side-stop.png"
+},
+{
+"at": 17.0,
+"shot": "tests/shots/duel-yama-lean-side-over.png"
+},
+{
+"at": 17.7,
+"shot": "tests/shots/duel-yama-lean-side-settled.png"
+},
+{
+"at": 18.5,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 18.75,
+"eval": "console.log('=== nishi')"
+},
+{
+"at": 18.8,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 21.3,
+"eval": "Module._debug_cmd(87451)"
+},
+{
+"at": 21.33,
+"eval": "Module._debug_cmd(87638)"
+},
+{
+"at": 22.63,
+"shot": "tests/shots/duel-yama-lean-kikon-f076.png"
+},
+{
+"at": 22.65,
+"eval": "Module._debug_cmd(87647)"
+},
+{
+"at": 22.98,
+"shot": "tests/shots/duel-yama-lean-kikon-f094.png"
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(87656)"
+},
+{
+"at": 23.33,
+"shot": "tests/shots/duel-yama-lean-kikon-f112.png"
+},
+{
+"at": 23.95,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 24.25,
+"eval": "console.log('=== END')"
+}
+]
