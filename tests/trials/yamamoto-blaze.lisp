@@ -19,8 +19,8 @@
  :script ((:quick 1 :modded t)) :frames 80)
 (:name "B6b GOKUEN NS1a at fs 100: free (fs unchanged), 91" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 1 :dist 5.0 :fs 100 :meter 100
  :script ((:quick 1 :modded t)) :frames 80)
-(:name "B7 GOKUEN NS3 a-b from heat 50: 25 + 25, out at the next neutral" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 3 :dist 1.8
- :fs 300 :meter 50 :script ((:quick 1 :modded t) (:quick 1 :modded t)) :frames 150)
+(:name "B7 GOKUEN NS3 a-b from heat 20: 8.3 + what is left (1/3 of 25 since §32), out at the next neutral" :p1 :yamamoto :form :blaze
+ :p2 :kenpachi :ptr 3 :dist 1.8 :fs 300 :meter 20 :script ((:quick 1 :modded t) (:quick 1 :modded t)) :frames 150)
 (:name "B8a GOKUEN NS1a wave x P2 J1: the burn 23" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 1 :dist 5.0 :fs 300 :meter 100
  :script ((:quick 1 :modded t)) :p2-at ((26 :j)) :frames 120)
 (:name "B8b the same, P2 at Reishi 5: the burn stops at 1" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 1 :dist 5.0 :fs 300 :meter 100
@@ -51,3 +51,5 @@
  :p1-cmd (87475) :script () :frames 70)
 (:name "B17c 爆炎 NS2 a-b-c from 2.2 m" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 2 :dist 2.2 :fs 300 :meter 100
  :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 200)
+(:name "B7b GOKUEN NS3 a-b from heat 50: 8.3 + 8.3, still in 爆炎 (§32)" :p1 :yamamoto :form :blaze :p2 :kenpachi :ptr 3 :dist 1.8
+ :fs 300 :meter 50 :script ((:quick 1 :modded t) (:quick 1 :modded t)) :frames 150)

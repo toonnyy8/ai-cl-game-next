@@ -27,6 +27,9 @@
   "Heat a move of each class adds on its first hit or cancel (§3, Y1: 「命中或相消才加」; NS adds nothing, a whiff nothing). Once a move
 (an AS: once a segment).")
 (defparameter *ya-heat-ns* 25.0 "Heat each NS segment spends, or what is left when short (§3, Y2 / Y3; 爆炎's too, Y9).")
+(defparameter *ya-blaze-ns-share* (/ 1.0 3.0)
+  "爆炎's NS segment spends this share of *YA-HEAT-NS* (§32, the user 2026-11-22: 「始解進入爆炎狀態時，NS 消耗的量表太多了，請減少到 1/3」:
+25 -> 8.33; was 1, Y9).")
 (defparameter *ya-heat-boost* 0.3 "A Shikai NS segment's damage x 1 + this x paid / *YA-HEAT-NS* (§3, Y3: in proportion to what it paid).")
 (defparameter *ya-blaze-decay* 10.0 "Heat 爆炎 loses a second (§3: 10 s from full), live sim steps only (§7.4).")
 (defparameter *ya-blaze-drain* 0.02 "爆炎's Reishi drain, a fraction of max a second (§3), never below 1 (Y4: BURN).")
@@ -425,8 +428,8 @@ at *YA-HEAT-MAX*."
 (defun ya-ns-spend (heat hit-p blaze)
   "An NS segment starting at HEAT (§3, §7.4; Y2 / Y3 / Y9): values (heat it pays, its damage x). It pays *YA-HEAT-NS* or what is left;
 nothing when it has no hit of its own (HIT-P NIL: NS2b's ring). Its x: 1 + *YA-HEAT-BOOST* x paid / *YA-HEAT-NS* in the Shikai, 1 in
-爆炎 (BLAZE: its variants are the strong set, the spend only shortens it)."
-  (let ((paid (if hit-p (max 0.0 (min *ya-heat-ns* heat)) 0.0)))
+爆炎 (BLAZE: its variants are the strong set, the spend only shortens it; it pays *YA-BLAZE-NS-SHARE* of *YA-HEAT-NS*, §32)."
+  (let ((paid (if hit-p (max 0.0 (min (if blaze (* *ya-heat-ns* *ya-blaze-ns-share*) *ya-heat-ns*) heat)) 0.0)))
     (values paid (if blaze 1.0 (+ 1.0 (* *ya-heat-boost* (/ paid *ya-heat-ns*)))))))
 
 (defun ya-heat-refund (heat paid)

@@ -111,14 +111,15 @@
     (check (~= 100.0 (ya-heat-gain 95.0 :as)))
     ;; J1-J2-J3 > AS3 adds 60 (§7.4's watch line)
     (check (~= 60.0 (reduce #'ya-heat-gain '(:na :na :na :as :as :as) :initial-value 0.0)))
-    ;; the NS spend (Y2 / Y3): 25 or what is left, the boost in proportion; no hit of its own: nothing; 爆炎: 25, x1 (Y9)
+    ;; the NS spend (Y2 / Y3): 25 or what is left, the boost in proportion; no hit of its own: nothing; 爆炎: 25 / 3, x1 (Y9; 1/3 since §32)
     (flet ((sp (h hit b) (multiple-value-list (ya-ns-spend h hit b))))
       (check (every #'~= (sp 40.0 t nil) '(25.0 1.3)))
       (check (every #'~= (sp 10.0 t nil) '(10.0 1.12)))
       (check (every #'~= (sp 0.0 t nil) '(0.0 1.0)))
       (check (every #'~= (sp 40.0 nil nil) '(0.0 1.0)))                 ; NS2b's ring
-      (check (every #'~= (sp 60.0 t t) '(25.0 1.0)))
-      (check (every #'~= (sp 7.0 t t) '(7.0 1.0))))
+      (check (every #'~= (sp 60.0 t t) (list (/ 25.0 3.0) 1.0)))
+      (check (every #'~= (sp 7.0 t t) '(7.0 1.0)))
+      (check (every #'~= (sp 40.0 nil t) '(0.0 1.0))))
     (check (and (~= 40.0 (ya-heat-refund 15.0 25.0)) (~= 100.0 (ya-heat-refund 90.0 25.0))))
     ;; the decay: 10 / s, never below 0 (600 steps from full)
     (check (and (~= (- 100.0 (/ 10.0 60.0)) (ya-blaze-decay 100.0)) (~= 0.0 (ya-blaze-decay 0.1))))
@@ -233,9 +234,9 @@
           (setf (gauges-reishi gb) 500)
           (let ((mv (in kb :ya-b-n1a 500)))
             (yama-ns-start a)
-            (check (~= 65.0 (gauges-meter ga) 0.01))                       ; 爆炎's NS: 25
+            (check (~= (- 90.0 (/ 25.0 3.0)) (gauges-meter ga) 0.01))      ; 爆炎's NS: 25 / 3 (§32; 25 before)
             (yama-cancel a b mv nil) (yama-cancel a b mv nil)
-            (check (and (= 477 (gauges-reishi gb)) (~= 90.0 (gauges-meter ga) 0.01))))   ; 91 x 0.25 = 23; the 25 back
+            (check (and (= 477 (gauges-reishi gb)) (~= 90.0 (gauges-meter ga) 0.01))))   ; 91 x 0.25 = 23; the 8.3 back
           (setf (gauges-reishi gb) 5)
           (let ((*match-tick* 501)) (yama-cancel a b (fighter-move fa) nil))
           (check (= 1 (gauges-reishi gb)))

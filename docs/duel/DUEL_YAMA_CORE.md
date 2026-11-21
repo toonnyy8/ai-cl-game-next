@@ -40,7 +40,7 @@ look per form, the motion bars) and DUEL_YAMA_REWORK (the old Bankai), the canon
 | 爆炎 decay | heat falls 10 / s (`*ya-blaze-decay*`: 10 s from full); no gain of any kind until it ends |
 | 爆炎 Reishi drain | 2 % of max Reishi / s (`*ya-blaze-drain*`), never below 1 (Y4) |
 | 爆炎 SP | NS and AS segments cost no flash-step gauge (as during a burst, DUEL_SP §2); NA / SA as usual |
-| 爆炎 early exit | each NS segment spends 25 heat (`*ya-heat-ns*`) at the 爆炎 move's fixed power (no proportional boost: 爆炎's variants are already the strong set); heat at 0 ends 爆炎 (Y9; a cancelled segment gets its heat back, §7.4) |
+| 爆炎 early exit | each NS segment spends 25 heat (`*ya-heat-ns*`; a third, 8.33, since §32, 2026-11-22: `*ya-blaze-ns-share*`) at the 爆炎 move's fixed power (no proportional boost: 爆炎's variants are already the strong set); heat at 0 ends 爆炎 (Y9; a cancelled segment gets its heat back, §7.4) |
 | 爆炎 cancel burn | a cancel between his move and the opponent's (any class, either side's hit) burns the opponent 25 % of his cancelled move's base damage (`*ya-blaze-burn*` 0.25), never below 1 (Y10); no hitstun, no combo count |
 | 爆炎 end | back to the Shikai's set, heat 0 |
 | Awakening in 爆炎 | allowed; 爆炎 ends, heat leaves with the Shikai (the Bankai has no heat) |
@@ -3618,3 +3618,14 @@ lead's default: NS a / b only).
 - 北's plate shows `NORTH`, not the marks it keeps.
 - Art: E-J4's own clip, AS4's segment clips, the wave look `yama-north-look` (kept for it).
 - CPU untuned for J4 / AS4.
+
+## 32. 爆炎's NS spends a third (the user, 2026-11-22; built)
+
+The user, 2026-11-22: 「另外，始解進入爆炎狀態時，NS 消耗的量表太多了，請減少到 1/3」.
+
+- `*ya-blaze-ns-share*` 1/3 (new): an NS segment in 爆炎 pays 25 / 3 = 8.33 heat, or what is left (YA-NS-SPEND); the Shikai's 25 and its x1.3
+  boost are unchanged; a cancelled segment gets back what it paid. A full 爆炎 thus takes 12 NS segments to spend instead of 4 (the decay
+  10 / s unchanged).
+- Checks: host tests 4330 ALL PASS (the pure spend 8.33 / what is left / nothing for the ring, the sim's 90 -> 81.67); trials
+  `yamamoto-blaze.lisp` B7 (heat 20: 8.3 + 8.2, out at the next neutral) and B7b (heat 50: 8.3 + 8.3, still in 爆炎); pkgcheck (only
+  `DUEL::APP`), build, smoke exit 0; `--cvc` II / IK / KK identical (no shared file changed).
