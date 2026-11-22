@@ -4125,7 +4125,7 @@ black void with white edges, then closed again; the white diagonal band and the 
 |---|---|---|
 | AS4's segments (`:core :as`, its route) | `:ya-e-as4a` 40 > `-as4b` 50 > `-as4c` 60 > `:ya-e-as4` 140 (only the last a knockdown) | `:ya-e-as4` alone: 200, S10 A2 R30, reach 2.4, arc 110, a knockdown, callout TENCHI KAIJIN, `yama-as4-start` on frame 0, `:as4 t`, `:cine yama-tenchi-cine` (the user's exception to AS n = n segments, DUEL_CORE §6; an AS's last segment knocks down, here the only one) |
 | Its damage by the marks (`*ya-as4-mark-x*` 0.25) | 290 x 1 / 1.25 / 1.5 / 1.75 over four hits | 200 / 250 / 300 / 350 in one |
-| Its SP cost (the rule, `*sp-cost-rate*` 0.4, cap 60) | 15 + 20 + 25 + 55 = 115 | 200 x 0.4 = 80 → the cap **60** (DUEL_DESIGN §5.1 regenerated). Not the user's decision: a `:params :sp-cost` override can put it back at 115 if the cheaper AS4 plays wrong |
+| Its SP cost (the rule, `*sp-cost-rate*` 0.4, cap 60) | 15 + 20 + 25 + 55 = 115 | 200 x 0.4 = 80 → the cap **60** (DUEL_DESIGN §5.1 regenerated). Kept by the user (2026-11-22, asked 60 / 115 / 90: 「維持 60 (Recommended)」) |
 | The Kikon (`*ya-as4-konpaku*` 2 / 3 / 4 / 5 by the marks, the `:kikon-n` hook) | held on any segment | held on the one cut (a knockdown hit Kikons as a stagger did: trials A3 / A3b / A5) |
 | Marks spent | at the next neutral after AS4 | unchanged |
 | Debug | 87429 = AS4's first segment, 87436 = its last, 87455 = its third | 87429 and 87436 = AS4; 87455 free |
@@ -4220,7 +4220,7 @@ Every other row of the four files is identical to the baseline (`yamamoto-core` 
 | Stills | `tests/scripts/duel-yama-as4-cut{,-phone}.json` (new; exit 0): J1-J4 > AS4, S-6 / S-2 / S / S+2 / S+6 / S+12 / S+20 from the behind and side cameras, landscape and 390x844 (on the phone the deck keeps its own framing: the side stills look nearly like the behind ones), and the Kikon's cut beat held at cf 70 / 72 / 76 / 84 (played without the deck: on the deck the Kikon is the thumb kept down on the touch); `duel-yama-art-d.json` rewritten for the one cut and run (exit 0: AS4 hits, the held one Kikons -4); its phone twin not run |
 
 ### 40.6 Open
-- The SP cost 115 → 60 follows the rule, not a decision of the user's.
+- The SP cost 115 → 60 follows the rule; the user kept it (「維持 60 (Recommended)」, 2026-11-22; 115 and 90 rejected).
 - On the phone's close camera the in-play line runs through the upper-right corner (the band's centre projects high there), off the
   victim's body.
 - Black wedges show at the screen edges where a shifted half runs out of image (inherent to moving the halves).
