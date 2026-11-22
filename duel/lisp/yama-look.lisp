@@ -1165,7 +1165,8 @@ flame fan (SL4b, art batch B, DUEL_YAMA_CORE §34; 爆炎's too): the slash's 12
 height round him (RoS's spiral arcs; the opponent stays seen through them), the outer one at 2.35 m over an EMBER backing with curled tongues
 leaning out off it (Rengoku's 昇り炎天), the middle at 1.85 m, an EMBER one at 1.3 m, a hooked tongue at the front: on f19 behind the
 blade (+60 .. +38 deg), from S to S + A the whole hit (+60 .. -60: the fire thrown ahead of the blade; hitstop freezes it there), then
-burning out from its +60 end f23-30, the tongues rising. The radius never moves with heat (the hit's): the tier sets the widths, the
+burning out from its +60 end f23-30, the tongues rising; 10 NS2b's f0-8 (it starts on NS2a's S+A): code 9's f22-30, so the burn-out
+survives the link. The radius never moves with heat (the hit's): the tier sets the widths, the
 tongues' height and share and the white core. A look; 0 B."
   (declare (type f32vec pos) (single-float yaw) (fixnum code sf ti))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (flow-ph))   ; (DR: a flowing phase; the tongues'
@@ -1266,6 +1267,8 @@ tongues' height and share and the white core. A look; 0 B."
                (%ya-tongue (+ x (* 2.3f0 dx)) (- 0.98f0 (* 0.1f0 (/ b1 1.0472f0))) (+ z (* 2.3f0 dz)) (* 0.3f0 hh (- dz)) hh (* 0.3f0 hh dx)
                            (* 0.12f0 hf) ti k 250f0 dr :segs 4))
              (%light (+ x (* 1.6f0 fx)) 1f0 (+ z (* 1.6f0 fz)) 1f0 0.45f0 0.12f0 3.5f0 (* 0.9f0 k) 7))))
+      (10 (when (<= sf 8) (yama-sk-moves pos yaw 9 (+ sf 22) ti)))   ; NS2b (reached from NS2a's S+A): the fan burns out across the link (debug
+                                                                      ;  87414's NS2b alone draws that burn-out too)
       (5 (when (<= 10 sf 14)                            ; AS1: the point-blank corkscrew to the reach
            (let* ((k (if (<= sf 12) 0.98f0 (* 0.98f0 (/ (i->f (- 15 sf)) 3f0)))) (spin (flow-ph 18.849556f0)))
              (declare (single-float k spin))
@@ -1284,7 +1287,7 @@ tongues' height and share and the white core. A look; 0 B."
 (defun yama-sk-code (mv)
   "YAMA-SK-MOVES's code for the Shikai / 爆炎 move MV, or 0."
   (case (mv-name mv)
-    ((:ya-n3c :ya-as3c :ya-b-as3c) 1) (:ya-sa 2) (:ya-b-sa 3) ((:ya-as1 :ya-b-as1) 5) (:ya-b-n3c 8) ((:ya-n2a :ya-b-n2a) 9) (t 0)))
+    ((:ya-n3c :ya-as3c :ya-b-as3c) 1) (:ya-sa 2) (:ya-b-sa 3) ((:ya-as1 :ya-b-as1) 5) (:ya-b-n3c 8) ((:ya-n2a :ya-b-n2a) 9) ((:ya-n2b :ya-b-n2b) 10) (t 0)))
 
 (defun ya-sk-tier (e f mv)
   "The tier of E's own move MV (fighter F) for SL0 / SL7-SL9: 2 in 爆炎; in the Shikai the heat his NS segment in play paid (YAMA-SEG-HEAT),

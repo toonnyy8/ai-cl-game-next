@@ -1763,6 +1763,11 @@ def yama_art_b_script(phone=False):
             for f, n in frames: ev.append(shot(a + f / 60, f"yama-art-b-{n}-{cam}{sx}"))
             t = a + max(f for f, n in frames) / 60 + 1.0
             if blaze: a = scene(f"out {cam}", (87050, 87500)); t = a + 1.0   # (heat 0: back to the Shikai)
+        a = scene(f"NS2a > NS2b by presses {cam}", (87020, 87302, 87525) + deck) + 0.5   # (the fan burns out across the link: code 10)
+        for s in (a, a + 0.3):
+            ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+        for f in (24, 26, 28, 30, 32): ev.append(shot(a + f / 60, f"yama-art-b-route-f{f}-{cam}{sx}"))
+        t = a + 2.0
         if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
     ev.append(cmd(t, 87500)); t += 0.3
     ev.append(cmd(t, 87449)); t += 0.3
