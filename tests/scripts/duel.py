@@ -1727,3 +1727,51 @@ def yama_sp30b_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-sp30b", yama_sp30b_script())
+
+# Yamamoto's art batch B (DUEL_YAMA_CORE §34): the Shikai NS2a's own slash clip and its flame fan (87413, pointer 2), and 爆炎's ENNETSU
+# disc of ground fire round him (87475, after 87600's entry). NS2a with Kenpachi 10 m away (no hit, no hitstop: the clip's own frames; the
+# frame after the start command is sf 1) at heat 25, then 2 m away (the hit: hitstop freezes S, the fan's whole 120 deg) at heat 0 / 12 / 25
+# (T0 / T1 / T2), and 爆炎's NS2a at 2 m (87473); ENNETSU at 10 m (its timeline: rising from S18, full, dying) and at 2 m (the hit). The
+# behind camera, then the SIDE camera (2109). Last the consing line (87449). PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 60 --script tests/scripts/duel-yama-art-b.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 60 --mobile --size 390x844 --script tests/scripts/duel-yama-art-b-phone.json
+YAMA_ART_B = (   # scene, setup, 爆炎, start command, ((frame, still) ...)
+    ("NS2a 10 m h25", (87100, 87302, 87525), False, 87413,
+     ((6, "n2a-f06"), (11, "n2a-f11"), (15, "n2a-held"), (18, "n2a-f18"), (19, "n2a-sweep"), (20, "n2a-s"), (21, "n2a-f21"), (22, "n2a-a"),
+      (25, "n2a-f25"), (28, "n2a-f28"), (34, "n2a-f34"))),
+    ("NS2a 2 m h0", (87020, 87302, 87500), False, 87413, ((21, "n2a-hit-h0"),)),
+    ("NS2a 2 m h12", (87020, 87302, 87512), False, 87413, ((21, "n2a-hit-h12"),)),
+    ("NS2a 2 m h25", (87020, 87302, 87525), False, 87413, ((21, "n2a-hit-h25"), (30, "n2a-hit-h25-after"))),
+    ("blaze NS2a 2 m", (87020, 87302), True, 87473, ((19, "b-n2a-sweep"), (21, "b-n2a-hit"))),
+    ("ENNETSU 10 m", (87100, 87302), True, 87475,
+     ((12, "ennetsu-held"), (18, "ennetsu-rise"), (20, "ennetsu-f20"), (24, "ennetsu-f24"), (30, "ennetsu-full"), (36, "ennetsu-f36"),
+      (40, "ennetsu-dying"), (44, "ennetsu-f44"), (48, "ennetsu-out"))),
+    ("ENNETSU 2 m", (87020, 87302), True, 87475, ((19, "ennetsu-hit"), (30, "ennetsu-hit-f30"))),
+)
+def yama_art_b_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for name, setup, blaze, start, frames in YAMA_ART_B:
+            a = scene(f"{name} {cam}", setup + ((87600,) if blaze else ()) + deck) + (0.9 if blaze else 0.5)
+            ev.append(cmd(a, start))
+            for f, n in frames: ev.append(shot(a + f / 60, f"yama-art-b-{n}-{cam}{sx}"))
+            t = a + max(f for f, n in frames) / 60 + 1.0
+            if blaze: a = scene(f"out {cam}", (87050, 87500)); t = a + 1.0   # (heat 0: back to the Shikai)
+        a = scene(f"NS2a > NS2b by presses {cam}", (87020, 87302, 87525) + deck) + 0.5   # (the fan burns out across the link: code 10)
+        for s in (a, a + 0.3):
+            ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", 0.05)); ev.append(key(s + 0.09, "ShiftLeft", False))
+        for f in (24, 26, 28, 30, 32): ev.append(shot(a + f / 60, f"yama-art-b-route-f{f}-{cam}{sx}"))
+        t = a + 2.0
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append(cmd(t, 87500)); t += 0.3
+    ev.append(cmd(t, 87449)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-art-b", yama_art_b_script())
+write("yama-art-b-phone", yama_art_b_script(True))

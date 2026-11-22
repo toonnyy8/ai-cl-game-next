@@ -657,67 +657,53 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
 (defclip :ya-st-cane (2.4 :loop t :base :ya-st-nade)
   (0) (0.6 (:head :flex -27)) (1.2 (:neck :flex -11) (:head :flex -28)) (1.8 (:head :flex -27)))
 ;; Pointer 2 城郭炎上 JOKAKU ENJO, art S3 (DUEL_YAMA_CORE §21.3 / §24): each segment on its own clip at its move's S, frame 0 the pose its link
-;; lands on: NS2a from pointer 2's stance (:YA-ST-JOKAKU), NS2b from NS2a's S+A (:YA-N2A-LAND), NS2c from NS2b's S+A (:YA-N2B-LAND), AS2a
+;; lands on: NS2a from pointer 2's stance (:YA-ST-JOKAKU), NS2b from NS2a's S+A (:YA-N2A-SWEEP), NS2c from NS2b's S+A (:YA-N2B-LAND), AS2a
 ;; from J2's S+1 (:YA-Q2-THRU), AS2b from AS2a's S+A (:YA-AS2A-LAND) on NS2c's poses. One arm, no root-yaw turn.
-;; NS2a (S20, the opener's tell), the spear: the pointing arm drawn back to the shoulder like a spear f1-12 (a key a frame, slow and even),
-;; held f13-17 (a tremble), locked out on S (the tip 1.88 m ahead at the shoulder's height: the lance leaves the tip), held to S+A
-(defpose :ya-n2a-cock (:base :ya-st-jokaku)                 ; the elbow out at the shoulder, the forearm forward, the blade level by the cheek
-  (:root :yaw 4 :u -0.06) (:chest :twist -18) (:spine :flex 4) (:head :flex -12)
-  (:arm-r :flex 2.5 :side 87 :twist -48) (:elbow-r :flex 136.5) (:hand-r :flex -114 :twist 24 :side -4))
-(defpose :ya-n2a-hit (:base :ya-st-jokaku)                  ; locked out on a short step
+;; NS2a (S20, the opener's tell; its own clip since art batch B, DUEL_YAMA_CORE §34: the melee flame slash of §30.1, reach 2.4, arc 120;
+;; it played the old stream's spear clip :YA-ENJO, its tip 1.89 m): a level sweep R -> L at the waist. From stance 2 the blade is drawn back
+;; to his right f1-12 (eased: barely moving to f6, gathering to f12), held f13-17 low behind his right hip, the chest wound right, the
+;; weight back (the coil trembles); the hips lead on f18, the blade sweeps through his front on a long lunge (f19 linear), level on S with
+;; the tip 2.41 m out at the waist's height, dead ahead (the FK test: the volume's 2.4 m), and on to his left front on S+A (-41 deg); the
+;; follow-through drags it round to his left, low, and the weight settles back. The lunge is drawn (the move has no :slide): the root's
+;; 0.62 m is cosmetic, NS2b draws him back over 4 f. The flame fan along the blade's path is YAMA-SK-MOVES code 9 (SL4b)
+(defpose :ya-n2a-hit (:base :ya-st-jokaku)                  ; (the old spear's lock-out: NS2c's hit pose is built on it)
   (:root :yaw 14 :f 0.15 :u -0.07) (:chest :twist 18) (:spine :flex 6) (:head :flex -14) (:thigh-l :flex 38) (:knee-l :flex 34) (:thigh-r :flex -16)
   (:arm-r :flex 133 :side -51.5 :twist -17.5) (:elbow-r :flex 1.5) (:hand-r :twist -6.5 :flex -83 :side 0))
-(defpose :ya-n2a-land (:base :ya-n2a-hit) (:root :f 0.16 :u -0.075) (:arm-r :flex 131))   ; (S+A: NS2b starts here)
-(defstrike :ya-enjo (20 2 22 :base :ya-stance)
+(defpose :ya-n2a-land (:base :ya-n2a-hit) (:root :f 0.16 :u -0.075) (:arm-r :flex 131))   ; (the point ahead: NS2b's circle starts here)
+(defpose :ya-n2a-coil (:base :ya-stance)                    ; the blade drawn back level at his right, the point 0.4 m behind him
+  (:root :yaw -25 :u -0.14 :f -0.05) (:chest :twist -40) (:spine :flex 14) (:head :flex -20 :twist 16)   ; (NS3b's wind-up, wound further)
+  (:arm-r :flex 24 :side 33.5 :twist -1) (:elbow-r :flex 84) (:hand-r :flex -142.5 :twist -41 :side 10.5)
+  (:thigh-r :flex 30) (:knee-r :flex 40) (:thigh-l :flex -5) (:knee-l :flex 15))
+(defpose :ya-n2a-slash (:base :ya-n2a-hit)                  ; S: lunged, leaning in, the arm and the blade one line at the waist
+  (:root :f 0.62 :u -0.17) (:spine :flex 24) (:chest :twist 30) (:thigh-l :flex 64) (:knee-l :flex 52) (:thigh-r :flex -36) (:knee-r :flex 12)
+  (:arm-r :flex 152))
+(defpose :ya-n2a-sweep (:base :ya-n2a-slash)                ; S+A: swept on to his left front (NS2b starts here)
+  (:root :yaw 40 :f 0.5) (:chest :twist 55) (:arm-r :side -60) (:hand-r :side -35))
+(defstrike :ya-n2a (20 2 22 :base :ya-stance)
   (0 :ya-st-jokaku)
-  (1 (:root :u -0.022 :yaw 11.6) (:spine :flex 2.1) (:chest :twist 8.6) (:head :flex -10.1) (:arm-r :flex 110.5 :twist -6.1 :side -42.9)
-        (:elbow-r :flex 10.5) (:hand-r :flex -84.0 :twist -4.5 :side -0.2))
-  (2 (:root :u -0.025 :yaw 11.0) (:spine :flex 2.2) (:chest :twist 6.6) (:head :flex -10.2) (:arm-r :flex 102.4 :twist -9.3 :side -33.1)
-        (:elbow-r :flex 19.9) (:hand-r :flex -86.3 :twist -2.4 :side -0.5))
-  (3 (:root :u -0.028 :yaw 10.4) (:spine :flex 2.4) (:chest :twist 4.3) (:head :flex -10.4) (:arm-r :flex 93.0 :twist -12.9 :side -21.8)
-        (:elbow-r :flex 30.9) (:hand-r :flex -88.9 :twist 0.1 :side -0.8))
-  (4 (:root :u -0.032 :yaw 9.6) (:spine :flex 2.6) (:chest :twist 1.7) (:head :flex -10.6) (:arm-r :flex 82.5 :twist -17.0 :side -9.2)
-        (:elbow-r :flex 43.1) (:hand-r :flex -91.8 :twist 2.9 :side -1.2))
-  (5 (:root :u -0.036 :yaw 8.8) (:spine :flex 2.8) (:chest :twist -1.0) (:head :flex -10.8) (:arm-r :flex 71.2 :twist -21.4 :side 4.3)
-        (:elbow-r :flex 56.3) (:hand-r :flex -94.9 :twist 5.8 :side -1.6))
-  (6 (:root :u -0.04 :yaw 8.0) (:spine :flex 3.0) (:chest :twist -4.0) (:head :flex -11.0) (:arm-r :flex 59.2 :twist -26.0 :side 18.7)
-        (:elbow-r :flex 70.3) (:hand-r :flex -98.2 :twist 9.0 :side -2.0))
-  (7 (:root :u -0.044 :yaw 7.2) (:spine :flex 3.2) (:chest :twist -7.0) (:head :flex -11.2) (:arm-r :flex 47.3 :twist -30.6 :side 33.2)
-        (:elbow-r :flex 84.2) (:hand-r :flex -101.6 :twist 12.2 :side -2.4))
-  (8 (:root :u -0.048 :yaw 6.4) (:spine :flex 3.4) (:chest :twist -9.7) (:head :flex -11.4) (:arm-r :flex 36.0 :twist -35.0 :side 46.7)
-        (:elbow-r :flex 97.4) (:hand-r :flex -104.7 :twist 15.1 :side -2.8))
-  (9 (:root :u -0.052 :yaw 5.6) (:spine :flex 3.6) (:chest :twist -12.3) (:head :flex -11.6) (:arm-r :flex 25.5 :twist -39.1 :side 59.3)
-        (:elbow-r :flex 109.6) (:hand-r :flex -107.6 :twist 17.9 :side -3.2))
-  (10 (:root :u -0.055 :yaw 5.0) (:spine :flex 3.8) (:chest :twist -14.6) (:head :flex -11.8) (:arm-r :flex 16.1 :twist -42.7 :side 70.6)
-        (:elbow-r :flex 120.6) (:hand-r :flex -110.2 :twist 20.4 :side -3.5))
-  (11 (:root :u -0.058 :yaw 4.4) (:spine :flex 3.9) (:chest :twist -16.6) (:head :flex -11.9) (:arm-r :flex 8.0 :twist -45.9 :side 80.4)
-        (:elbow-r :flex 130.0) (:hand-r :flex -112.5 :twist 22.5 :side -3.8))
-  (12 (:root :u -0.06 :yaw 4.0) (:spine :flex 4.0) (:chest :twist -18.0) (:head :flex -12.0) (:arm-r :flex 2.5 :twist -48.0 :side 87.0)
-        (:elbow-r :flex 136.5) (:hand-r :flex -114.0 :twist 24.0 :side -4.0))
-  (13 :ya-n2a-cock (:arm-r :side 88) (:root :u -0.065))                                        ; held, trembling
-  (14 :ya-n2a-cock (:arm-r :side 86.5) (:hand-r :twist 25))
-  (15 :ya-n2a-cock (:arm-r :side 88) (:root :u -0.065))
-  (16 :ya-n2a-cock (:arm-r :side 86.5) (:hand-r :twist 23))
-  (17 :ya-n2a-cock (:arm-r :side 87.5))
-  (18 :snap :ya-n2a-cock (:root :u -0.062 :f 0.033 :yaw 6.2) (:spine :flex 4.4) (:chest :twist -10.1) (:head :flex -12.4)
-        (:arm-r :flex 31.2 :twist -41.3 :side 56.5) (:elbow-r :flex 106.8) (:hand-r :flex -107.2 :twist 17.3 :side -3.1) (:thigh-r :flex -9.8)
-        (:thigh-l :flex 22.4) (:knee-l :flex 24.6))
-  (19 :snap :ya-n2a-cock (:root :u -0.066 :f 0.09 :yaw 10.0) (:spine :flex 5.2) (:chest :twist 3.6) (:head :flex -13.2)
-        (:arm-r :flex 80.8 :twist -29.7 :side 3.9) (:elbow-r :flex 55.5) (:hand-r :flex -95.4 :twist 5.7 :side -1.6) (:thigh-r :flex -12.8)
-        (:thigh-l :flex 30.0) (:knee-l :flex 29.2))
-  (:s :snap :ya-n2a-hit)
-  (:a :ya-n2a-land)
-  (32 (:root :yaw 8 :f 0.08 :u -0.05) (:chest :twist 4) (:spine :flex 10) (:thigh-l :flex 20) (:knee-l :flex 22) (:thigh-r :flex -8)
-      (:arm-r :flex 70 :side -20 :twist 0) (:elbow-r :flex 22) (:hand-r :twist 0 :flex -80))
+  (6 :ya-st-jokaku (:root :yaw 6 :u -0.05) (:chest :twist 0) (:arm-r :flex 100 :side -20 :twist -10) (:elbow-r :flex 20)   ; barely moving
+        (:hand-r :flex -90))
+  (12 :ya-n2a-coil)                                                                                  ; drawn back, gathering
+  (13 :ya-n2a-coil (:root :u -0.145) (:hand-r :flex -144))                                          ; held, trembling
+  (14 :ya-n2a-coil (:chest :twist -41.5) (:hand-r :twist -43))
+  (15 :ya-n2a-coil (:root :u -0.145) (:hand-r :flex -141))
+  (16 :ya-n2a-coil (:chest :twist -41) (:hand-r :twist -39.5))
+  (17 :ya-n2a-coil)
+  (18 :snap :ya-n2a-coil (:root :yaw -8 :f 0.12 :u -0.15) (:chest :twist -26) (:pelvis :side -2) (:thigh-l :flex 28) (:knee-l :flex 30)   ; the hips lead
+        (:thigh-r :flex 6) (:knee-r :flex 26))
+  (19 :snap :ya-n2a-slash (:root :yaw -4 :f 0.4 :u -0.16) (:spine :flex 20) (:chest :twist 8) (:hand-r :side 30))           ; the sweep, level
+  (:s :snap :ya-n2a-slash)
+  (:a :ya-n2a-sweep)
+  (30 :ya-n2a-sweep (:root :f 0.42 :u -0.13) (:chest :twist 60) (:spine :flex 20) (:arm-r :flex 120) (:hand-r :side -55))   ; dragged round, low
   (:end :ya-stance))
 ;; NS2b (S16), the point draws: the wrist draws one circle with the point f4-13 (r 0.25 m at the tip: the hand's flex and side in quadrature,
-;; +-15 deg, a key every 45 deg, linear; no twist), a stop on S, the point dipped at the ring's spot
+;; +-15 deg, a key every 45 deg, linear; no twist), a stop on S, the point dipped at the ring's spot. Frame 0 is NS2a's S+A (the slash swept
+;; to his left front, lunged, art batch B): the point brought back ahead and the lunge drawn back over f1-4
 (defpose :ya-n2b-hit (:base :ya-n2a-land) (:root :u -0.08) (:hand-r :flex -90))
 (defpose :ya-n2b-land (:base :ya-n2b-hit) (:arm-r :flex 130) (:hand-r :flex -91))   ; (S+A: NS2c starts here)
 (defstrike :ya-n2b (16 2 20 :base :ya-stance)
-  (0 :ya-n2a-land)
-  (2 (:root :u -0.078) (:hand-r :flex -84))
-  (4 :snap (:root :u -0.08) (:hand-r :flex -83))                                             ; the circle
+  (0 :ya-n2a-sweep)
+  (4 :ya-n2a-land (:root :u -0.08) (:hand-r :flex -83))                                       ; the circle
   (5.125 :snap (:hand-r :flex -72.4 :side -4.4))
   (6.25 :snap (:hand-r :flex -68.0 :side -15.0))
   (7.375 :snap (:hand-r :flex -72.4 :side -25.6))
@@ -865,13 +851,12 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
       (:arm-r :flex 70 :side -20 :twist 0) (:elbow-r :flex 22) (:hand-r :twist 0 :flex -80))
   (:end :ya-stance))
 ;; 爆炎 NS2b (S16; batch J3, DUEL_YAMA_CORE §28.5): its own clip (it played NS2c's at x18/16). "The ring closes at once" (§21.4): from
-;; 爆炎 NS2a's landing (:YA-N2A-LAND, as the Shikai's NS2b) the wrist flicks one circle with the point f2-6 (a key a frame: the ring
+;; 爆炎 NS2a's landing (:YA-N2A-SWEEP, as the Shikai's NS2b; the point back ahead on :YA-N2A-LAND by f2) the wrist flicks one circle with the point f2-6 (a key a frame: the ring
 ;; YAMA-RING-CLOSE draws f12-15), the blade swept up point-up overhead f7-11 (NS2c's rise, twice as fast), held f11-13 trembling, chopped
 ;; down f14-15 (NS2c's two snaps) to the level point on S (:YA-N2C-HIT: the dome stands); S+A is ENNETSU's frame 0 exactly (link jump 0)
 (defstrike :ya-b-n2b (16 2 20 :base :ya-stance)
-  (0 :ya-n2a-land)
-  (1 (:root :u -0.078) (:hand-r :flex -84))
-  (2 (:root :u -0.08) (:hand-r :flex -83 :side 0))                                            ; the circle, a key a frame
+  (0 :ya-n2a-sweep)                                                                           ; (NS2a's S+A since art batch B: the point
+  (2 :ya-n2a-land (:root :u -0.08) (:hand-r :flex -83 :side 0))                               ;  back ahead f1-2) the circle, a key a frame
   (3 (:hand-r :flex -68 :side -15))
   (4 (:hand-r :flex -83 :side -30))
   (5 (:hand-r :flex -98 :side -15))

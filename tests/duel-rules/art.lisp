@@ -177,9 +177,8 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
         ;; carries the rest (NADEGIRI's seam SL7, TAIMATSU's halo SL8); TSUKABI (J3) strikes with the POMMEL (the handle's end), IKKOTSU with
         ;; the FIST. KNOWN-OFF: the borrowed clips S1's print found off (§22.1); S2 / S3 / S4 took them out (§23, §24, §25: IKKOTSU), and a
         ;; move put back in it must be off. F10: IKKOTSU's clip on its move (both S9 since art S4), the fist per frame.
-        (let ((one-sided '(:ya-n3c :ya-as3c :ya-sa :ya-b-n3c :ya-b-as3c :ya-b-sa
-                           :ya-n2a :ya-b-n2a))   ; (§30.1: the melee flame slash on the stream's clip, its tip 1.89 of 2.4 m: the flame
-                                                 ;  carries the rest until it has its own clip)
+        (let ((one-sided '(:ya-n3c :ya-as3c :ya-sa :ya-b-n3c :ya-b-as3c :ya-b-sa))   ; (§30.1's NS2a / 爆炎 NS2a left it with their own
+                                                                                      ;  slash clip, art batch B, §34: 2.41 of 2.4 m)
               (pommel '(:ya-j3)) (fist '(:ya-b-j3))
               (known-off '()))   ; (S2: J3's pommel and AS1; S3: AS2a, AS3a, NS3a / NS3b, the Kikon strikes and 爆炎's copies; S4: IKKOTSU)
           (dolist (f '(:base :blaze))
@@ -208,7 +207,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                          (:ya-n1b 9 "the point on the plaza ahead" ,plaza) (:ya-n1b 12 "still on the plaza" ,plaza)
                          (:ya-n1b 16 "the blade overhead" ,(lambda (x y a) (declare (ignore x a)) (>= y 2.2)))
                          (:ya-n1c 18 "flung past 1 m ahead" ,(lambda (x y a) (declare (ignore x y)) (>= a 1.0)))
-                         (:ya-n2a 20 "the point locked out past 1 m ahead" ,(lambda (x y a) (declare (ignore x y)) (>= a 1.0)))
+                         (:ya-n2a 20 "the slash level at the waist, dead ahead" ,(lambda (x y a) (and (<= (abs x) 0.2) (<= 0.8 y 1.2) (>= a 2.25))))
                          ,@(loop for n in '(:ya-n2c :ya-as2b)
                                  append (append (loop for sf from 9 to 14 collect (list n sf "the blade overhead" (lambda (x y a) (declare (ignore x a)) (>= y 2.2))))
                                                 (list (list n 18 "chopped to the level point, past 1 m" (lambda (x y a) (declare (ignore x)) (and (>= a 1.0) (<= 0.9 y 1.5)))))))))
