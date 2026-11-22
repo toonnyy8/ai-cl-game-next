@@ -1727,3 +1727,42 @@ def yama_sp30b_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-sp30b", yama_sp30b_script())
+
+# Yamamoto art batch C (DUEL_YAMA_CORE §34): 西's flame on the charged swings. The match camera (behind), each swing at its first active
+# frame (S) and the next (S+1): an uncharged J1 > J2 for comparison, NSa > SA > J2 > J3 from 2.6 m (level 1: the edge 0.8 m past the tip),
+# NSa > NSb > SA > J2 > J3 from 4.4 m (level 2: 1.6 m); the behind camera, then the side camera (2109). Shot times are the move starts' ticks in a probe run (the `duel probe` lines, 87900):
+# A + frames after the scene's first press. PHONE: the deck on (87901), run with --mobile --size 390x844, stills -phone.
+def yama_art_c_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def j(s): ev.extend(tap(s, "KeyJ", 0.05))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds + deck))
+        return t + 0.05 * len(cmds + deck) + 1.6           # (after the form's callout)
+    def shots(a, frames, cam):                              # (frame mids, to the ms: a still per frame, the probe line just before)
+        for f, n in frames:
+            m = a + (f + 0.5) / 60
+            ev.append({"at": round(m - 0.002, 3), "eval": "Module._debug_cmd(87900)"})
+            ev.append({"at": round(m, 3), "shot": f"{SHOTS}yama-art-c-{n}-{cam}{sx}.png"})
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        a = scene(f"plain J1 > J2 {cam}", (87014, 87302, 87446, 87445)); j(a); j(a + 0.3)
+        shots(a, J_PLAIN, cam); t = a + 2.5
+        a = scene(f"west NSa > SA > J2 > J3 (2.6 m) {cam}", (87026, 87302, 87446, 87445)); sp(a); j(a + 0.25); j(a + 0.6); j(a + 0.85)
+        shots(a, J_LV1, cam); t = a + 3.0
+        a = scene(f"west NSa > NSb > SA > J2 > J3 (4.4 m) {cam}", (87044, 87302, 87446, 87445))
+        sp(a); sp(a + 0.3); j(a + 0.65); j(a + 0.95); j(a + 1.2)
+        shots(a, J_LV2, cam); t = a + 3.0
+    ev.append(cmd(t, 87448)); t += 0.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+J_PLAIN = ((27, "plain-j2-1"), (28, "plain-j2-2"))                       # (each swing's tick S and the next drawn tick, by the probe
+J_LV1 = ((35, "lv1-sa-1"), (36, "lv1-sa-2"), (49, "lv1-j2-1"), (51, "lv1-j2-2"), (64, "lv1-j3-1"), (66, "lv1-j3-2"))   #  lines (each logged
+J_LV2 = ((52, "lv2-sa-1"), (54, "lv2-sa-2"), (66, "lv2-j2-1"), (67, "lv2-j2-2"), (81, "lv2-j3-1"), (82, "lv2-j3-2"))   #  after its still);
+                                                                          #  the drawn clip runs a step ahead of the move frame; lv1's SA
+                                                                          #  never draws its tick S: S-1 and S+1)
+write("yama-art-c", yama_art_c_script())
+write("yama-art-c-phone", yama_art_c_script(True))
