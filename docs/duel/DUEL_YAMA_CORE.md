@@ -4077,3 +4077,37 @@ merged on its own. The lead re-ran on main:
 
 The lead accepts the three `:reach` changes §38 made beyond the brief (NSa / NSb 4.1 → 2.7, NSc 8.0 → 6.0): they are the CPUs' threat
 range and only follow the new volumes. Manual updated; DEVLOG §862 (§37) and §863 (§38).
+
+## 39. 西's NS charges in place, and the garb no longer pulses (the user, 2026-11-22)
+
+The user, 2026-11-22: 「為什麼西的 NS 會位移，火衣的大小還會抖動？」. The lead explained both causes before changing anything:
+- **The move.** NSb was the advance. It had a 1.5 m slide from the lead's own Y design, after canon's "walking forward under fire", and it
+  outlived §30.2's change to charge only. NSc slides 0.6 m and its clip carries the body 0.4 m further (that last part is a look only).
+- **The garb.** Two looks drove its size. YAMA-GARB-K's charge sizes (0.6 → 1.0 → 1.4, §30.2) and the old flare pulse from batch J2
+  (NSa f16-35, NSb S14-23, AS2b S12-21) alternated: the pulse drew the garb at 1.9 x a K 1 base, faded towards 0 with its alpha K, then
+  the form garb came back at its charge size. In NSa that read 0.6 → 1.0 → 1.86 (f16) → 1.1 (f23) → a second pulse (f26) → near 0 →
+  1.0 (f36).
+
+The user picked: 「NSa / NSb 都原地蓄力」 and 「拿掉暴漲脈衝」.
+
+| Knob | Old | New |
+|---|---|---|
+| `:ya-e-n2b :slide` | 1.5 | none (0); NSc keeps its 0.6 |
+| clip `:ya-e-advance` | two dragging steps | rooted: he sinks into a wide planted stance (f4-9), trembles (f12-13), the chest rises and the arms throw open low on S |
+| `%ya-flare` | drew the garb at `K x (1 + 0.9 g)` | rings only; the garb is never drawn here |
+| NSa / NSb looks (codes 4 / 5) | the flare: garb pulse plus the 2.0 m burn ring | one white-hot flash on S (the inner 0.45 m ring and the outer 2.0 m ring, 2 f); no burn ring (they hit nothing since §30.2) |
+| YAMA-DRAW | left the form garb out while a flare drew | always draws the form garb (YAMA-GARB-AT at YAMA-GARB-K) but in the 西 Kikon; AS2b keeps its molten ring |
+
+Tests:
+- host test `yamamoto.lisp`: NSb's slide 1.5 → 0.0;
+- trial W2 (yamamoto-sp30) re-aimed 4.4 → 2.9 m, because NSb no longer steps in (SA 102, J2 38, J3 42 again);
+- C14a's name says "in place"; its J is still ABSORBED;
+- the other trial lines that moved are end distances only: C4 3.85 → 4.05 m, C14a 0.89 → 2.07, C15 1.87 → 2.47.
+
+Checks:
+- host tests 4333, ALL PASS; pkgcheck only `DUEL::APP`; build and smoke exit 0;
+- `--cvc` II / IK / KK identical;
+- stills: scratchpad `west-garb/sheet.png`, NSa f2-46 and NSb f2-34 from the match camera: the garb grows smoothly and holds, he stays put.
+
+One thing is left as before: if he goes back to neutral after NSa without an SA, the charge is gone and the garb drops 1.0 → 0.6 at once
+(§30.2's rule).

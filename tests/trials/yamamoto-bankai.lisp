@@ -28,7 +28,7 @@
 ;; (C11 / C12, 北 armed as a flag, left 2026-11-21: 北 is a form since DUEL_YAMA_CORE §30.4; its NS / AS rows are yamamoto-sp30.lisp N2-N4)
 (:name "C13b control: the switch with no 北: open" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 1 :dist 4.0 :fs 300
  :p1-cmd (87445 87447) :script () :frames 2)
-(:name "C14a 西 NSb's armour takes P2's J (NSa whiffs at 2.6 m, NSb steps in)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 2.6
+(:name "C14a 西 NSb's armour takes P2's J (NSa whiffs at 2.6 m, NSb charges in place since §39)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 2.6
  :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1 :modded t)) :p2-at ((27 :j)) :log-simf t :frames 120)
 (:name "C14b control: the same J on NSa's startup (no armour): a cancel" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.6
  :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t)) :p2-at ((3 :j)) :frames 80)

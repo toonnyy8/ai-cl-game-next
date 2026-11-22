@@ -377,7 +377,7 @@
     ;; and reach baked: 2.0 + 0.8 / 1.6), the SA's string goes on at E-J2; NSb keeps the 1.5 m advance and its armour; NSc reach 3.6
     (check (and (zerop (length (mv-hits (m :ya-e-n2a)))) (zerop (length (mv-hits (m :ya-e-n2b))))
                 (eq (cls :ya-e-n2a) :ns) (eq (cls :ya-e-n2b) :ns) (~= 10.0 (kit-sp-cost kb (m :ya-e-n2a))) (~= 10.0 (kit-sp-cost kb (m :ya-e-n2b)))
-                (~= 1.5 (mv-slide (m :ya-e-n2b))) (getf (mv-params (m :ya-e-n2b)) :turn-armor)
+                (~= 0.0 (mv-slide (m :ya-e-n2b))) (getf (mv-params (m :ya-e-n2b)) :turn-armor)
                 (~= 3.6 (mv-reach (m :ya-e-n2c))) (~= 60.0 (kit-sp-cost kb (m :ya-e-n2c)))))
     (check (and (eq (mv-sa-move kb (m :ya-e-n2a)) (m :ya-e-sa-c1)) (eq (mv-sa-move kb (m :ya-e-n2b)) (m :ya-e-sa-c2))
                 (null (mv-sa-move kb (m :ya-e-n1a)))))

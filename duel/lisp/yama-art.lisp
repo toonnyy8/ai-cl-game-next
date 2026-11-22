@@ -280,9 +280,8 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
     (ya-dead-reset)
     (when (and (eq (kit-form (fighter-kit f)) :bankai) (eql (fighter-ptr f) 2)   ; 西's form aura, 殘日獄衣 at K 1 (J2, §28.4),
                (> (model-alpha m) 0.5) (not (eql e *aura-off*))                 ;  every frame under 西 but while a flare draws
-               (not (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine))))        ;  it flared (YAMA-BK-MOVES below) or the 西
-               (not (and mv (let ((c (yama-bk-code mv)))                                  ;  Kikon draws its own
-                              (and (<= 4 c 6) (yama-bk-flare-p c (fighter-sf f)))))))
+               (not (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))))      ;  but while the 西 Kikon draws its own (§39: a
+                                                                                          ;  flare no longer replaces it: no size pulse)
       (yama-garb-at (model-joints m) f))   ; (its size by 西's charge: YAMA-GARB-K, §30.2)
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
@@ -2233,25 +2232,27 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
       (:thigh-r :flex 18) (:knee-r :flex 22) (:thigh-l :flex -6) (:knee-l :flex 10))
   (:end :ya-e-stance))
 
-;; 西 (West), art K3 (DUEL_YAMA_CORE §15.2.2 / §18). NS2b the advance (S14): from SHONETSU's open arms two slow dragging steps (the move's
-;; 1.5 m slide carries him), chin up, the blade low at his right, the arms open low; the flare on S (L8); S+A (:YA-E-ADVANCE-A, f17) is
-;; NS2c's first frame. He takes a hit without a flinch (the armour f6-S): nothing in the clip reacts
+;; 西 (West), art K3 (DUEL_YAMA_CORE §15.2.2 / §18). NS2b, the second charge (S14): rooted since §39 (the user, 2026-11-22: 「為什麼西的 NS
+;; 會位移」 -> NSa / NSb charge in place; until then two dragging steps carried by a 1.5 m slide). From SHONETSU's open arms he sinks into a
+;; wide planted stance and gathers (f4-9), a held tremble (f12-13), then the chest rises and the arms throw open low on S as the garb grows
+;; to its level-2 size; S+A (:YA-E-ADVANCE-A, f17) is NS2c's first frame. He takes a hit without a flinch (the armour f6-S): nothing reacts
 (defpose :ya-e-advance-hit (:base :ya-st-nishi)
   (:root :u -0.12) (:spine :flex -16) (:neck :flex -12) (:head :flex -18)
-  (:thigh-l :flex 14 :side 10) (:knee-l :flex 22) (:thigh-r :flex -10 :side 10) (:knee-r :flex 14)
+  (:thigh-l :flex 6 :side 14) (:knee-l :flex 18) (:thigh-r :flex 6 :side 14) (:knee-r :flex 18)
   (:arm-r :flex 12 :side 62) (:arm-l :flex 12 :side 56))
 (defpose :ya-e-advance-a (:base :ya-e-advance-hit)
   (:root :u -0.11) (:spine :flex -15) (:arm-r :side 60) (:arm-l :side 54))
 (defstrike :ya-e-advance (14 3 20 :base :ya-e-stance)
   (0 :ya-shonetsu-a)
-  (3 :ya-st-nishi (:root :u -0.07) (:spine :flex -14) (:head :flex -16) (:thigh-r :flex 34 :side 10) (:knee-r :flex 46)   ; the right
-     (:thigh-l :flex -8 :side 12) (:knee-l :flex 18) (:arm-r :side 50) (:arm-l :side 42))                                  ;  foot lifts
-  (7 (:root :u -0.13) (:thigh-r :flex 16) (:knee-r :flex 16) (:thigh-l :flex -16) (:knee-l :flex 16) (:arm-r :side 54) (:arm-l :side 46))   ; down,
-  (10 (:root :u -0.08) (:thigh-r :flex 4) (:knee-r :flex 16) (:thigh-l :flex 30) (:knee-l :flex 42))                     ; heavy; the
-  (12 (:root :u -0.09) (:thigh-l :flex 22) (:knee-l :flex 30) (:arm-r :side 56) (:arm-l :side 50))                        ;  left drags up
+  (4 (:root :u -0.10) (:spine :flex -8) (:neck :flex -6) (:head :flex -8) (:thigh-l :flex 14 :side 14) (:knee-l :flex 26)   ; sinks,
+     (:thigh-r :flex 14 :side 14) (:knee-r :flex 26) (:arm-r :side 48) (:arm-l :side 40))                                  ;  gathers
+  (9 (:root :u -0.15) (:spine :flex -6) (:thigh-l :flex 22) (:knee-l :flex 36) (:thigh-r :flex 22) (:knee-r :flex 36)
+     (:arm-r :side 42) (:arm-l :side 36))                                                                                    ; held low
+  (12 (:root :u -0.155) (:spine :flex -6.5) (:arm-r :side 43))                                                              ; the
+  (13 (:root :u -0.15) (:spine :flex -6) (:arm-r :side 42))                                                                 ;  tremble
   (:s :snap :ya-e-advance-hit)
   (:a :ya-e-advance-a)
-  (26 (:root :u -0.09) (:spine :flex -12) (:head :flex -14) (:thigh-l :flex 10) (:knee-l :flex 20) (:thigh-r :flex -6) (:knee-r :flex 18)
+  (26 (:root :u -0.09) (:spine :flex -12) (:head :flex -14) (:thigh-l :flex 6) (:knee-l :flex 16) (:thigh-r :flex 6) (:knee-r :flex 16)
       (:arm-r :flex 10 :side 54) (:arm-l :flex 10 :side 46))
   (:end :ya-e-stance))
 ;; NS2c the counter-cut (S12, ZANJITSU GOKUI): still f0-7 (taking it, the chin up), then a rising forehand from the low carry at his right

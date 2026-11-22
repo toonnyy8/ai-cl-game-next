@@ -250,7 +250,7 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 
 ;;; ---------------------------------------------------------------- 2 西 ZANJITSU GOKUI: close pressure, armour, the burning body
 ;; The garb charge (§30.2, the user 2026-11-21: 「讓 NSa 跟 NSb 會放大火衣，放大的火衣會強化之後會到中立前的攻擊力與攻擊範圍」; R2 charge only, no
-;; hit, as Ichigo's Getsuga charges, DUEL_CORE §423): a SHONETSU, no swing, the garb flares (charge 1); b the advance (slide 1.5) under the
+;; hit, as Ichigo's Getsuga charges, DUEL_CORE §423): a SHONETSU, no swing, the garb flares (charge 1); b the charge in place (no slide since §39, the user 2026-11-22: 「為什麼西的 NS 會位移」 -> rooted; was the advance, slide 1.5) under the
 ;; turn moves' armour (f6 to S: an NA is absorbed, an AS still beats it, CORE-TURN-ARMOR-VERDICT) (charge 2); neither hits (setup segments,
 ;; the SP minimum). Each names its gap's SA (:params :sa), a charged copy of the SA (:ya-e-sa-c1 / -c2 below) whose :charge-mult x1.4 / x1.7
 ;; the string after it carries (E-J2 / E-J3, the AS: CORE-CHARGE-MULT), with its reach + *YA-CHARGE-REACH* (YAMA-REACH-SWAP), until his next
@@ -258,7 +258,7 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 ;; (x1.7: 90 -> 153, reach 2.0 + 1.6: it follows NSb only, and an NS resets the carried x, CORE-NOTE-START!)
 (defmove :ya-e-n2a :kind :flash :clip :ya-shonetsu :startup 16 :active 12 :recovery 24 :callout "SHONETSU JIGOKU"
   :params (:ns-next :ya-e-n2b :sa :ya-e-sa-c1 :sp-cost 10))
-(defmove :ya-e-n2b :kind :flash :clip :ya-e-advance :startup 14 :active 3 :recovery 20 :slide 1.5
+(defmove :ya-e-n2b :kind :flash :clip :ya-e-advance :startup 14 :active 3 :recovery 20   ; no slide since §39 (was 1.5)
   :params (:ns-next :ya-e-n2c :sa :ya-e-sa-c2 :turn-armor t :sp-cost 10))
 (defmove :ya-e-n2c :kind :flash :clip :ya-e-gokui-cut :startup 12 :active 3 :recovery 24 :dmg 153 :adv-block -12 :slide 0.6
   :reach 3.6 :arc 120 :on-hit :knockback :kb 3.0 :callout "ZANJITSU GOKUI" :params (:turn-armor t))

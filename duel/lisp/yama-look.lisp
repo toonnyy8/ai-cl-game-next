@@ -630,12 +630,12 @@ kept by YAMA-DRAW), bent back by the trailing lean in [3] [4] (YAMA-LEAN-USE, §
 
 ;;; ---------------------------------------------------------------- the moves' own looks (the :draw hook: YAMA-DRAW)
 (defmacro %ya-flare (x z u k seed)
-  "西's flare (L8; batch J2, §28: 殘日獄衣 flared) at his feet (X Z), U frames after its pulse, K its fade: the garb (YA-GARB) flares from
-the stance's K 1 to 1.9 x K over 2 frames (1 + 0.9 x the growth; the old kit's flare), so as K fades it shrinks back to its stance size,
-then fades; the molten ring on the burn's 2.0 m edge; a white-hot ring on the pulse's first two frames. Single-float forms; 0 B."
-  `(let* ((%g (f-min 1f0 (/ (+ ,u 1f0) 3f0))) (%k ,k))
-     (declare (single-float %g %k))
-     (ya-garb ,x ,z (* %k (+ 1f0 (* 0.9f0 %g))))
+  "西's flare (L8; batch J2, §28) at his feet (X Z), U frames after its pulse, K its fade: the molten ring on the burn's 2.0 m edge and a
+white-hot ring on the pulse's first two frames. The garb itself no longer pulses here (§39, the user 2026-11-22: 「火衣的大小還會抖動」:
+the old 1.9 x pulse on a K 1 base fought YAMA-GARB-K's charge sizes and shrank to nothing as K faded); YAMA-GARB-AT draws it at its
+charge size every frame. Single-float forms; 0 B."
+  `(let* ((%k ,k))
+     (declare (single-float %k))
      (%tring ,x 0f0 ,z 2.0f0 0.06f0 +pal-flame+ %k (+ ,seed 3f0))
      (when (< ,u 2f0)
        (%tring ,x 0.01f0 ,z 2.0f0 0.025f0 +pal-hit+ 0.98f0 (+ ,seed 4f0))
@@ -704,9 +704,8 @@ the shader's wobble breaks it like dry brush). 24N + 12M vertices; inline, 0 B."
   nil)
 
 (defun yama-bk-flare-p (code sf)
-  "T while YAMA-BK-MOVES' garb flare CODE (4 SHONETSU f16-35, 5 the advance S14-23, 6 the throw S12-21) draws at move frame SF: then
-西's K 1 form garb is left out (YAMA-DRAW, J2's follow-up, §28.4). Fixnums; pure (a function: yama-art.lisp's YAMA-DRAW, compiled
-before this file, calls it)."
+  "T while YAMA-BK-MOVES' flare rings CODE (6 the throw S12-21; 4 / 5 kept for the record: NSa / NSb draw only their S flash since §39)
+draw at move frame SF. Since §39 the form garb is never left out for a flare (it pulsed against YAMA-GARB-K's charge sizes). Fixnums; pure."
   (declare (fixnum code sf))
   (case code (4 (<= 16 sf 35)) (5 (<= 14 sf 23)) (6 (<= 12 sf 21)) (t nil)))
 
@@ -751,10 +750,11 @@ the move). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-
                        (declare (single-float u v))
                        (%t-blob (+ x (* u fx) (* v px)) (rnd-range 0.6f0 1.6f0) (+ z (* u fz) (* v pz)) 0f0 (rnd-range -0.9f0 -0.4f0) 0f0
                                 (rnd-range 0.8f0 1.2f0) (rnd-range 0.04f0 0.08f0) 0.2f0 0.2f0 +pal-ash+)))))))
-      (4 (when (yama-bk-flare-p 4 sf) (%ya-flare x z (i->f (if (< sf 26) (- sf 16) (- sf 26))) (if (< sf 26) (if (< sf 23) 0.98f0 0.6f0)
-                                                                                         (f-clamp (* 0.98f0 (/ (i->f (- 36 sf)) 6f0)) 0f0 0.98f0))
-                                   seed)))
-      (5 (when (yama-bk-flare-p 5 sf) (%ya-flare x z (i->f (- sf 14)) (f-clamp (* 0.98f0 (/ (i->f (- 24 sf)) 6f0)) 0f0 0.98f0) seed)))
+      ((4 5) (let ((u (- sf (if (= code 4) 16 14))))     ; NSa / NSb (charge only, §30.2): the charge done on S, a white-hot flash; no burn
+               (declare (fixnum u))                     ;  ring (they hit nothing) and no garb pulse (§39)
+               (when (<= 0 u 1)
+                 (%tring x 0.01f0 z 2.0f0 0.025f0 +pal-hit+ 0.98f0 (+ seed 4f0))
+                 (%tring x 0.01f0 z 0.45f0 0.05f0 +pal-hit+ 0.98f0 (+ seed 5f0)))))
       (6 (when (yama-bk-flare-p 6 sf) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
       (9 (when (<= 10 sf 24)                             ; the ash grip: a grey puff bursting out of the chest where the pommel went in
            (let* ((u (/ (i->f (- sf 10)) 14f0)) (e (- 1f0 (* (- 1f0 u) (- 1f0 u)))) (k (* 0.95f0 (- 1f0 u)))   ; (1.55 m ahead, 1.2 up)

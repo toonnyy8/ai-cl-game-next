@@ -10,7 +10,7 @@
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1) (:quick 1) (:quick 1)) :frames 160)
 (:name "W1b the same from 3.0 m: J2 at 2.50 m" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 3.0 :fs 300
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1) (:quick 1) (:quick 1)) :frames 160)
-(:name "W2 西 NSa > NSb > SA > J2 > J3 (4.4 m): x1.7, J2 at 2.51 m" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 4.4 :fs 300
+(:name "W2 西 NSa > NSb > SA > J2 > J3 (2.9 m; 4.4 until §39: NSb no longer steps in): x1.7, J2 at 2.51 m" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 2.9 :fs 300
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1) (:quick 1) (:quick 1)) :frames 220)
 (:name "W3 西 NSa > SA > J2 > AS2 (2.6 m): the AS charged" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 2.6 :fs 300
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t)) :frames 220)
