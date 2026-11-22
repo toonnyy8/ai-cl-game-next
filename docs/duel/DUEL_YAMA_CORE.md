@@ -3728,3 +3728,16 @@ break height boxed 16 B a call: now a macro), fx-dropped 0, `yamamoto-bankai.lis
 The user, 2026-11-22: 「斷裂處改成在目前斷裂處的一半」. `ya-tower-break` 0.28 → 0.14 of the height: 0.84 → 0.42 m at level 1, 1.68 → 0.84 m
 at level 2. Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B, fx-dropped 0), `yamamoto-bankai.lisp`
 rows identical; a before / after sheet.
+
+## 35. 南's tower rises closer to him (the user, 2026-11-22; a sim change)
+
+The user, 2026-11-22: 「長出的位置請更靠近山本」; asked how near (2.5 m today): 「1.5 m」 (the lead's recommendation; 2.0 and 1.0 rejected).
+
+- `*ya-tower-ahead*` 2.5 → 1.5 m (at the victim's bearing): the tower, its bind disc (r 1.6: now 0-3.1 m before him, was 0.9-4.1) and the
+  topple's base (a level-1 topple reaches 4.5 m from him, level 2 7.5 m; were 5.5 / 8.5) all move with it. The shatter's look reads
+  `+ya-tower-ahead+` (host-checked equal). The CPU's `:ns-range` for pointer 3 (1.0 4.0) → (0.5 3.0).
+- Trials `yamamoto-bankai.lisp` re-aimed: C16a / C16b at 2.5 m (stale at 5 m since §30.3: C16b had 0 hits; now the bind 40 and the
+  Step-dodge 0); C19b misses at 4 m (was 6), C19f's level-1 topple reaches 4 m (was 5), C19g falls short at 5.5 m (was 7); C19a / c / d / e /
+  h / i / j unchanged in numbers. The browser log: `tower level 1 at ..., 1.50 m from him`.
+- Checks: host tests 4327 ALL PASS, pkgcheck (only `DUEL::APP`), build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B but the
+  south-* 80 B rows as before), `--cvc` II / IK / KK identical. Manual updated.

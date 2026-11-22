@@ -202,7 +202,8 @@
 (defparameter *ya-bind-stun* 60 "南's binds (the tower's climbs, the shatter): frames the victim's feet are held (the old kit's *BIND-STUN*; the
 lead's placeholder, §14).")
 (defparameter *ya-tower-stand* 90 "南's skeleton tower: frames it stands after the segment that last raised it ends (§30.3; NSc or the SA spends it).")
-(defparameter *ya-tower-ahead* 2.5 "南's tower: how far before him it rises, at the victim's bearing (m, §30.3 R3).")
+(defparameter *ya-tower-ahead* 1.5 "南's tower: how far before him it rises, at the victim's bearing (m, §30.3 R3; 2.5 until 2026-11-22, the user:
+「長出的位置請更靠近山本」 -> 1.5, §35; yama-look.lisp's +YA-TOWER-AHEAD+ copies it).")
 (defparameter *ya-tower-h* 3.0 "南's tower: its height a level (m): the topple's line is as long as the tower is tall (3 / 6 m, §30.3).")
 (defparameter *ya-charge-reach* '(0.8 1.6)
   "西's garb charge (§30.2, the user 2026-11-21): the reach (m) the string after the SA of NSa / NSb (charge 1 / 2, x1.4 / x1.7: the SA copies'
@@ -356,7 +357,7 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19)
          :as-by-press (1 2 3 4) :as-writes (1 2 3 nil)   ; (J4 > AS4 天地灰尽, no pointer written: §31)
-         :ns-range ((2.0 5.5) nil (1.0 4.0))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 2.5 m ahead (was 4-9 m, §30.3)
+         :ns-range ((2.0 5.5) nil (0.5 3.0))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 1.5 m ahead (§35; 2.5 m / (1.0 4.0) until then, 4-9 m before §30.3)
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n   ; (its hazards carry x 1.0: no heat)
           :tick yama-bk-tick :hud-tag yama-bk-tag     ; (西's charged reach; 北 at the next neutral after the third mark: §30)

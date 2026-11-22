@@ -135,6 +135,7 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
 ;;; charcoal core, a crown of splayed hands on top. One drawer (%YA-CONE-DRAW, its arguments in *YA-CONE*) serves the standing tower, the
 ;;; topple's first frames, the shatter's burst and AS3b's hollow ring, so the hand-off from the spent :ya-tower to :ya-fall does not pop.
 (defconstant +ya-tower-h+ 3f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m).")
+(defconstant +ya-tower-ahead+ 1.5f0 "*YA-TOWER-AHEAD* (host-checked): where the shatter's heap stands before him (m; 2.5 until §35).")
 (defconstant +ya-cone-r1+ 0.5f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5).")
 (defconstant +ya-cone-r2+ 0.65f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65).")
 (defconstant +ya-tower-raise2+ 114
@@ -266,7 +267,7 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
                 (rnd-range 0.5f0 0.9f0) (rnd-range 0.06f0 0.13f0) 0.4f0 0.25f0 (if (< (rnd01) 0.35f0) +pal-ink+ +pal-ash+)))))
 
 (defun-fast yama-tower-look (hz rdt)
-  "南's tower (§34 A: the :ya-tower 2.5 m before him, its level in its data): the heap swarming up out of the ground over 16 f to
+  "南's tower (§34 A: the :ya-tower *YA-TOWER-AHEAD* (1.5 m since §35) before him, its level in its data): the heap swarming up out of the ground over 16 f to
 *YA-TOWER-H* x level (3 / 6 m; the climb 3 -> 6 over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
 (:sk-grab); while NSc winds up it creaks and leans toward the victim (to 50 deg at its S: YAMA-TOPPLE-LOOK takes it over from there);
 crumbling to ash from the top over its last 14 f when nothing spent it. A look."
@@ -375,14 +376,14 @@ line, an INK crack down its middle; eroding from 18 f to 30. A look."
     nil))
 
 (defun-fast yama-shatter-look (hz rdt)
-  "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap 2.5 m ahead bursting (age 0), its
+  "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap +YA-TOWER-AHEAD+ ahead bursting (age 0), its
 dead flung forward over the 60 deg fan out to 6 m from him (ch. 509's pile shedding shards; the heap gone by age 4): six whole dead tumbling, skulls and bones,
 an ink streak behind each while it flies; most of the way out by age 1 (the hit's hitstop holds the burst), down on the ground by 14, ash
 from 18 to 30. A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (sz (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (ox (- x (* sz fx))) (oz (- z (* sz fz))) (rng (* 2f0 sz))
-         (bx (+ ox (* 2.5f0 fx))) (bz (+ oz (* 2.5f0 fz))) (seed (+ (* 5f0 x) z 90f0)) (dr (drawing-no))
+         (bx (+ ox (* +ya-tower-ahead+ fx))) (bz (+ oz (* +ya-tower-ahead+ fz))) (seed (+ (* 5f0 x) z 90f0)) (dr (drawing-no))
          (tt (f-min 1f0 (/ (i->f (1+ age)) 7f0))) (e (- 1f0 (* (- 1f0 tt) (- 1f0 tt) (- 1f0 tt))))
          (tp (f-min 1f0 (/ (i->f age) 7f0))) (ep (- 1f0 (* (- 1f0 tp) (- 1f0 tp) (- 1f0 tp))))
          (land (f-clamp (/ (i->f (- age 8)) 6f0) 0f0 1f0)) (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))

@@ -34,21 +34,21 @@
  :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t)) :p2-at ((3 :j)) :frames 80)
 (:name "C15 西 NSb loses to an AS (P2's AS1 started under it)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 2.6 :fs 300
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1 :modded t)) :p2-start ((27 :ke-z-as1)) :log-simf t :frames 120)
-(:name "C16a 南 NSa's hands, P2 steps after S: dodged" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 5.0 :fs 300 :p1-cmd (87445)
+(:name "C16a 南 NSa's hands (the tower 1.5 m ahead), P2 at 2.5 m steps after S: dodged" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 2.5 :fs 300 :p1-cmd (87445)
  :script ((:quick 1 :modded t)) :p2-press ((24 :step 1)) :frames 90)
-(:name "C16b control: no Step: the hands bind" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 5.0 :fs 300 :p1-cmd (87445)
+(:name "C16b control: no Step: the hands bind" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 2.5 :fs 300 :p1-cmd (87445)
  :script ((:quick 1 :modded t)) :frames 90)
 (:name "C17 南 NSc's bone wall stops Ichigo's Getsuga" :p1 :yamamoto :form :bankai :p2 :ichigo :ptr 3 :dist 8.0 :fs 300 :p1-cmd (87445 87428)
  :script () :p2-start ((22 :ic-as2b)) :frames 120)
 (:name "C18b control: AS2 held after J1 J2 under pointer 2 (no 北): pointer 2's profile, 3 Konpaku" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2
  :dist 1.4 :fs 300 :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 200)
-;;; §30.3 (2026-11-21): 南's skeleton tower. NSa raises it 2.5 m before him (the `tower level 1 at ... m from him` line): a victim at 2.5 m
+;;; §30.3 (2026-11-21): 南's skeleton tower. NSa raises it 1.5 m before him (2.5 until §35) (the `tower level 1 at ... m from him` line): a victim at 2.5 m
 ;;; is bound (40, `bind stun 60`), one at 6 m is not; NSb's second bind stays a bind (50, the combo counter up); NSc topples it along the
 ;;; victim's bearing: level 2 (a-b-c) reaches a victim at 7 m (100), level 1 (NSc alone, 87428: a level-1 tower at the spot) reaches one at
-;;; 5 m (70) and not one at 7 m; the SA in NSa's gap is the shatter (55, a bind that keeps); AS3's three hits and MARK SOUTH are C8.
+;;; 4 m (70) and not one at 5.5 m (5 / 7 m until §35); the SA in NSa's gap is the shatter (55, a bind that keeps); AS3's three hits and MARK SOUTH are C8.
 (:name "C19a 南 NSa at 2.5 m: the tower binds" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 2.5 :fs 300 :p1-cmd (87445)
  :script ((:quick 1 :modded t)) :frames 100)
-(:name "C19b 南 NSa at 6 m: the tower misses" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 6.0 :fs 300 :p1-cmd (87445)
+(:name "C19b 南 NSa at 4 m: the tower misses (6 m until §35)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 4.0 :fs 300 :p1-cmd (87445)
  :script ((:quick 1 :modded t)) :frames 100)
 (:name "C19c 南 NS a-b at 2.5 m: NSb's bind is a bind" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 2.5 :fs 300 :p1-cmd (87445)
  :script ((:quick 1 :modded t) (:quick 1 :modded t)) :frames 140)
@@ -56,10 +56,10 @@
  :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 220)
 (:name "C19e 南 NS a-b-c at 7 m: the binds miss, the level-2 topple reaches him (100)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
  :dist 7.0 :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 220)
-(:name "C19f 南 NSc alone (87428) at 5 m: a level-1 topple, 3 m, reaches him (70)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
- :dist 5.0 :fs 300 :p1-cmd (87445 87428) :script () :frames 60)
-(:name "C19g 南 NSc alone (87428) at 7 m: the level-1 topple falls short" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
- :dist 7.0 :fs 300 :p1-cmd (87445 87428) :script () :frames 60)
+(:name "C19f 南 NSc alone (87428) at 4 m: a level-1 topple, 3 m from 1.5, reaches him (70)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
+ :dist 4.0 :fs 300 :p1-cmd (87445 87428) :script () :frames 60)
+(:name "C19g 南 NSc alone (87428) at 5.5 m: the level-1 topple falls short" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
+ :dist 5.5 :fs 300 :p1-cmd (87445 87428) :script () :frames 60)
 (:name "C19h 南 NSa > the SA (J in its gap) at 2.5 m: the bind, the shatter binds again" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3
  :dist 2.5 :fs 300 :p1-cmd (87445) :script ((:quick 1 :modded t) (:quick 1)) :frames 140)
 (:name "C19i 南 NSa > the shatter > J2 (the SA's string)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3

@@ -359,7 +359,7 @@
     (check (and (eq (cls :ya-e-sa3) :sa) (eq (kit-next kb :ya-e-sa3 :q) (m :ya-e-j2)) (eq (react :ya-e-sa3) :bind)
                 (eq (mv-sa-move kb (m :ya-e-n3a)) (m :ya-e-sa3)) (eq (mv-sa-move kb (m :ya-e-n3b)) (m :ya-e-sa3)) (null (mv-sa-move kb (m :ya-e-n3c)))))
     (check (equal (mapcar #'react '(:ya-e-as3 :ya-e-as3b :ya-e-as3c)) '(:stagger :stagger :knockdown)))
-    (check (equal (third (getf core :ns-range)) '(1.0 4.0)))
+    (check (equal (third (getf core :ns-range)) '(0.5 3.0)))
     ;; the pure piece: the topple's way (toward the victim, his facing when the victim stands on the base)
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 3.0 6.5 0.0)) '(0.6 0.8)))
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 0.1 2.6 0.0)) (list (fwd-x 0.0) (fwd-z 0.0))))
@@ -483,7 +483,7 @@
           (yama-mark! a 2)
           (check (equal (yama-bk-tag a) "MARK 123"))
           (setf (yss-marks (ys a)) 0))))
-    ;; §30.3 the tower on stand-in fighters: NSa raises it 2.5 m before him at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
+    ;; §30.3 the tower on stand-in fighters: NSa raises it 1.5 m before him (2.5 until §35) at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
     ;; after the segment) with its bind disc at the base (40, :keep-bind, delay 17); NSb climbs it (level 2, the stand renewed, a bind disc 50);
     ;; NSc topples it toward the victim: a 6 m line (100), the tower spent; a line that touches along its length, not beside it; the shatter
     ;; spends a standing tower
@@ -495,23 +495,23 @@
                (kind (k) (mapcar #'cdr (remove k *t-hz* :key (lambda (x) (hazard-kind (cdr x))) :test-not #'eq))))
           (in :ya-e-n3a) (yama-tower-fire a)
           (let ((tw (first (kind :ya-tower))) (d (first (kind :ya-col))))
-            (check (and tw (null (hazard-hw tw)) (~= 1.5 (hazard-x tw)) (~= 2.0 (hazard-z tw)) (= 1 (getf (hazard-data tw) :level))
+            (check (and tw (null (hazard-hw tw)) (~= 0.9 (hazard-x tw)) (~= 1.2 (hazard-z tw)) (= 1 (getf (hazard-data tw) :level))
                         (= (+ 37 90) (hazard-life tw))))
-            (check (and d (~= 1.5 (hazard-x d)) (~= 1.6 (hazard-size d)) (= 17 (hazard-delay d)) (= 40 (hw-dmg (hazard-hw d)))
+            (check (and d (~= 0.9 (hazard-x d)) (~= 1.6 (hazard-size d)) (= 17 (hazard-delay d)) (= 40 (hw-dmg (hazard-hw d)))
                         (eq :bind (hw-react (hazard-hw d))) (= *ya-bind-stun* (hw-stun (hazard-hw d))) (equal (hw-flags (hazard-hw d)) '(:keep-bind))
                         (eq (hazard-cls d) :ns))))
           (setf (hazard-age (first (kind :ya-tower))) 50)
           (in :ya-e-n3b) (yama-tower-fire a)
           (let ((tw (first (kind :ya-tower))) (d (second (kind :ya-col))))
             (check (and (= 1 (length (kind :ya-tower))) (= 2 (getf (hazard-data tw) :level)) (= (+ 50 24 90) (hazard-life tw))))
-            (check (and d (~= 1.5 (hazard-x d)) (= 0 (hazard-delay d)) (= 50 (hw-dmg (hazard-hw d))) (eq :bind (hw-react (hazard-hw d))))))
+            (check (and d (~= 0.9 (hazard-x d)) (= 0 (hazard-delay d)) (= 50 (hw-dmg (hazard-hw d))) (eq :bind (hw-react (hazard-hw d))))))
           (in :ya-e-n3c) (yama-topple-fire a)
           (let ((fl (first (kind :ya-fall))))
             (check (and (null (kind :ya-tower)) fl (= 100 (hw-dmg (hazard-hw fl))) (eq :crumple (hw-react (hazard-hw fl))) (~= 3.0 (hazard-size fl))
-                        (~= (+ 1.5 (* 3.0 0.6)) (hazard-x fl)) (~= (+ 2.0 (* 3.0 0.8)) (hazard-z fl))))
+                        (~= (+ 0.9 (* 3.0 0.6)) (hazard-x fl)) (~= (+ 1.2 (* 3.0 0.8)) (hazard-z fl))))
             (flet ((touch (x z) (yama-hz nil fl :touches (f32 x) 0f0 (f32 z) 0.36f0 1.65f0)))
-              (check (and (touch 1.5 2.0) (touch 3.0 4.0) (touch 4.8 6.4)))   ; the base, the victim, the tip (6 m out)
-              (check (not (or (touch 5.5 7.4) (touch 3.9 2.7) (touch 0.0 0.0))))))   ; past the tip, 1.5 m beside it, him
+              (check (and (touch 0.9 1.2) (touch 3.0 4.0) (touch 4.5 6.0)))   ; the base, the victim, the tip (6 m out)
+              (check (not (or (touch 5.1 6.8) (touch 3.9 2.7) (touch -0.3 -0.4))))))   ; past the tip, 1.5 m beside it, him
           (setf *t-hz* nil)
           (in :ya-e-n3a) (yama-tower-fire a)
           (in :ya-e-sa3) (yama-shatter-fire a)
