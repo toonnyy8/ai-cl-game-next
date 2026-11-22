@@ -4368,3 +4368,29 @@ What they show:
 
 The manual's tear sentence (`duel/web/manual.html`, the Bankai paragraph: 「一道邊緣呈放射狀尖刺的黑色虛空從刀尖裂開吞沒對手（對戰中 NS 第三段和 AS1
 留下的虛空也是這個形狀）」) still describes §20's spikes. It is updated by the lead with the DEVLOG entry.
+
+## 42. 東's tear shorter and wider, 西's garb until neutral, 南's tower slimmer and lower (2026-11-23)
+
+The user, 2026-11-23: 「旭日刃 NS 的裂口太窄又太長，而且煙塵衝起的速度太慢，反而變得像溫泉熱氣一樣 / 然後殘日獄衣的強化要回到中立才解除，因此當指針臨時切換時也要有強化效果（包含旭日刀攻擊上升、斬擊裂痕變大，南的高塔變大、附帶火焰效果以增加傷害等等） / 另外，南的骷髏塔請再縮緊，然後塔高減少，NSa 跟山本一樣高、NSb 變成 a 的 1.75 倍」; then, on the lead's note that AS3 stayed unboosted by §30.2: 「南的 AS3 也要吃強化，骷髏塔的定身圈半徑跟著塔身作對應的收縮」. A sim change (merge 1f6f92ac; branch commits 9ff7418a, 3c41406b, 30749992).
+
+### 42.1 東 NS1c (sim) and the dust (look)
+- `:ya-e-n1c` `:vol` (:cap 0.2 6.0 0.3 0.4) -> **(:cap 0.2 4.5 0.3 0.7)** (the lead's placeholder). The diamond runs 0.2-4.5 m, widest 0.665 m a side (teeth to 0.83 m), about 2.5:1 (5.5:1 before). Only NS1c's YAMA-TEAR call changed; the tent, AS1's and the Kikon's calls are as §41 (the Kikon's victim still stands on the diamond, re-shot cf84-96).
+- The dust (%YA-TEAR-DUST, every caller): an analytic burst, a pure function of the frames since the split. The engine's toon blobs have no drag, so particles rose at a constant speed (the hot-spring look). Each puff eases out by a cube over 12-18 f, 0.35-0.9 m out, size x0.55-1.45; two grit flakes per puff are flung and fall within 0.4 s. It is held open through hitstop, out by S+5-8 and gone by S+11. References (the user's rule): Demon Slayer's Thunderclap frames (billows thrown out flat and big at once, dark flecks flying straight) and a ground dust ring bursting outward; slow billows kept as the look to avoid.
+
+### 42.2 西's garb until neutral (sim)
+- A new YSS slot `garb` (0 / 1 / 2): 西 NSa sets it to at least 1 and NSb to 2 on their S frame (the higher kept); YAMA-BK-TICK clears it at his next neutral (YAMA-FREE-P), logged `GARB a -> b`. CORE-NOTE-START!'s reset of the carried x is untouched (shared: Ichigo's charge).
+- While garb > 0, through a temporary pointer switch (DUEL_SUBLIMATION §17):
+  - 東 NS1a / NS1b / NS1c's own hits x `*ya-garb-x*` (1.4 1.7) (`*ya-garb-moves*`); NS1c swaps to a copy whose cap's length and radius are x `*ya-garb-size*` (1.2 1.4): 5.4 x 0.84 / 6.3 x 0.98 m, its tear drawn to match. Both knobs are the lead's placeholders.
+  - Every hazard he fires (南's tower hands, the topple, and AS3's hands / tower / pile: the user's 「南的 AS3 也要吃強化」 reverses §30.2's "南's hazard AS stays unboosted") gets the garb x frozen into its `:x`, its size (tower height, disc radius, the topple's length, AS3's radius) x the garb size, and flame tongues on the heap.
+  - Not doubled: the NA, the SA and the AS's own hits keep only the charged SA's x (CORE-CHARGE-MULT, carried across the switch by FIGHTER-CSA); NS2c's 153 bakes x1.7. The Kikon strikes take no garb x.
+  - The garb copies keep the base damage, so their SP cost is unchanged.
+  - 西's own garb look stays at max(charge level, garb) until neutral.
+
+### 42.3 南's tower (sim: the topple is as long as the tower is tall)
+- Height: level 1 = his drawn height, **1.68 m** (the skull top by FK in `:ya-e-stance`, 1.673-1.681 over the loop; art.lisp checks it ±0.03), level 2 = x `*ya-tower-l2*` 1.75 = **2.94 m** (was 2 / 4 m). Under garb 2: 2.35 / 4.12 m. YA-TOWER-HEIGHT is the one rule; the look's copies are host-checked.
+- Slimmer x0.75: base radius 0.4 / 0.52 -> 0.3 / 0.39 m; climbers x0.75 / x0.9 (were 1.0 / 1.2), their spacing with them.
+- The bind disc shrinks with it (the user): r 1.2 -> **0.9** (1.26 under garb 2). NSa / NSb `:reach` 2.7 -> 2.4; NSc `:reach` 6.0 -> 4.94 (1.5 + 2.94 + 0.5); the CPU's 南 `:ns-range` (0.3 2.7) -> (0.6 2.4).
+- The shatter's heap takes the spent tower's level and garb size (it popped to 2.4 m before).
+
+### 42.4 Checks
+Host tests 4347 ALL PASS (pinned: the volume, garb set / kept / cleared, NS1c under garb 2 = 204 vs 120 fresh, a charged J2 65 not doubled, NS2c 153, the tower hands 40 -> 68 and the topple 100 -> 170 at 4.116 m under garb 2, AS3's hands 40 -> 68 with disc 1.68, tower heights 1.68 / 2.94); sp-costs 116 PASS; debug ranges 0 errors; build, smoke exit 0; `--cvc` II / IK / KK identical; 0 B rows all 0 (new: tower-garb, fall-garb, hands-garb, as3b-garb, pile-garb, void-burst, void-garb). Trials: core / blaze / sp30 tables identical (sp30's log gains the GARB lines); bankai's C19e / C19f re-aimed for the lower tower (5.8 -> 4.7, 3.8 -> 3.4 m; they missed), C19e2 / C19g moved to keep bracketing the new edge; new G1-G4 (NS1c x1.4 / x1.7 over its control, 南 a-b-c 126 vs 74, AS3's hands 29 vs 17; G4 by real presses 西 NSa > SA > J2 > J3 > AS3, the string boosted once). Scripted switch scenes `tests/scripts/duel-yama-garb.json` (+ phone). Debug 87456 / 87457 set garb 1 / 2; 87445 clears it. Stills: scratchpad `garb-batch/`. Open: AS1's tear look scales x1.2 / x1.4 while its charged reach adds +0.8 / +1.6 m; NS1c's capsule reaches 5.2 m at a constant half-width while the diamond tapers to a point at 4.5 m.
