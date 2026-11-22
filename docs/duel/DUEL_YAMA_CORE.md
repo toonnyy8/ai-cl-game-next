@@ -3698,3 +3698,11 @@ the victim stands off-axis); a victim within 0.5 m of the base sees the topple f
 the fan reads as a fire band; ENNETSU's camera-side tongues cover the phone's lower screen. 西: AS2b's ring runs under the phone's HUD.
 AS4: the white band reads partly as a board from the oblique camera; the cinders are small in landscape; J4's tell hides under the ink
 smear from the match camera. Stale mentions of `ya-e-f1` remain in §15.2.2 / §18 (history).
+
+### 34.2 A denser tower (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22: 「通過縮小半徑讓骷髏塔變得更密集一些」. The cone's base radius 0.95 → 0.7 m at level 1 and 1.25 → 0.9 m at level 2
+(`+ya-cone-r1+` / `+ya-cone-r2+`, the tower, its topple and the shatter's heap alike), the climbers packed closer: 0.62 → 0.5 m apart round a
+ring, rings 0.5 → 0.42 m up the axis (`%ya-cone-draw`, AS3b's heap too). The hazards (the hitless tower, the bind disc r 1.6, the topple's
+2 m line) are unchanged. Checks: host tests 4326 ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing as before, fx-dropped
+0), `yamamoto-bankai.lisp` rows identical; a before / after sheet of the tower (level 1 far / level 2 / level 1 binding).
