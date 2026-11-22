@@ -1525,7 +1525,7 @@
 },
 {
 "at": 266.65,
-"shot": "tests/shots/duel-view-strip-sh-wakeup.png"
+"shot": "tests/shots/duel-view-strip-sh-struggle.png"
 },
 {
 "at": 266.85,
@@ -1533,7 +1533,7 @@
 },
 {
 "at": 268.0,
-"shot": "tests/shots/duel-view-strip-sh-walk-b.png"
+"shot": "tests/shots/duel-view-strip-sh-swallowed.png"
 },
 {
 "at": 268.2,
@@ -1541,6 +1541,22 @@
 },
 {
 "at": 269.35,
+"shot": "tests/shots/duel-view-strip-sh-wakeup.png"
+},
+{
+"at": 269.55,
+"eval": "Module._debug_cmd(1193000)"
+},
+{
+"at": 270.7,
+"shot": "tests/shots/duel-view-strip-sh-walk-b.png"
+},
+{
+"at": 270.9,
+"eval": "Module._debug_cmd(1194000)"
+},
+{
+"at": 272.05,
 "shot": "tests/shots/duel-view-strip-sh-walk-f.png"
 }
 ]

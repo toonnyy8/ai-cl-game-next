@@ -712,9 +712,8 @@ draw at move frame SF. Since §39 the form garb is never left out for a flare (i
 (defun-fast yama-bk-moves (pos yaw code sf rdt)
   "The Bankai moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-DRAW's table): 1 KYOKKO's lance (L7, S20-22), 2
 KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once as a ragged tear, YAMA-TEAR, held 20 f, then filled by ash), 3 AS1's
-notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12); AS4 (art batch D, §34): 9 the ash grip's puff at the pommel (S10), 10 the ash
-cut's ash off the rising arc (S10), 11 the ash line's thin white line at chest height (S10); 天地灰尽's band is YAMA-AS4-LOOK (it outlasts
-the move). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
+notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12); 9-11 left with AS4's ash grip / cut / line segments (§40); 天地灰尽's band
+and split are YAMA-AS4-LOOK (they outlast the move). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
 0 B."
   (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
@@ -755,50 +754,13 @@ the move). RDT: the frame's effect seconds (the ash). The flares' windows: YAMA-
                (when (<= 0 u 1)
                  (%tring x 0.01f0 z 2.0f0 0.025f0 +pal-hit+ 0.98f0 (+ seed 4f0))
                  (%tring x 0.01f0 z 0.45f0 0.05f0 +pal-hit+ 0.98f0 (+ seed 5f0)))))
-      (6 (when (yama-bk-flare-p 6 sf) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed)))
-      (9 (when (<= 10 sf 24)                             ; the ash grip: a grey puff bursting out of the chest where the pommel went in
-           (let* ((u (/ (i->f (- sf 10)) 14f0)) (e (- 1f0 (* (- 1f0 u) (- 1f0 u)))) (k (* 0.95f0 (- 1f0 u)))   ; (1.55 m ahead, 1.2 up)
-                  (cx (+ x (* 1.55f0 fx))) (cz (+ z (* 1.55f0 fz))))
-             (declare (single-float u e k cx cz))
-             (when (<= sf 12)                             ; the blow: a small ink star on it
-               (fx-star cx 1.2f0 cz 0.08f0 0.22f0 7 (* 6.2831855f0 (hash01 1.7f0 seed)) 0f0 0f0 0.1f0 (+ 70f0 sd) +pal-ink+ 0.98f0 :push 0.4f0))
-             (dotimes (i 8)
-               (let* ((f (i->f i)) (a (* 6.2831855f0 (hash01 f (+ seed 3f0)))) (d (* e (+ 0.25f0 (* 0.35f0 (hash01 f 9.1f0)))))
-                      (ox (* d (f-cos a))) (oy (- (* d (f-sin a) 0.8f0) (* 0.25f0 u u))) (ah (+ (* 0.3f0 e) (* 0.1f0 (hash01 f 4.4f0)))))
-                 (declare (single-float f a d ox oy ah))
-                 (fx-disc (+ cx (* ah fx) (* ox px)) (+ 1.2f0 oy) (+ cz (* ah fz) (* ox pz)) (+ 0.06f0 (* 0.14f0 e)) 0.25f0 (+ 72f0 f)
-                          +pal-ash+ k :push 0.2f0))))))
-      (10 (when (<= 10 sf 28)                            ; the ash cut: an ash comet on the rising arc (f9 low right > S > f13 high left,
-           (let* ((u (/ (i->f (- sf 10)) 18f0)) (k (* 0.9f0 (- 1f0 u))) (dn (* 0.5f0 u u))   ;  the clip's tip; the control so it
-                  (ax (+ x (* 1.52f0 fx) (* 0.7f0 px))) (az (+ z (* 1.52f0 fz) (* 0.7f0 pz)))  ;  passes S's 2.0 m)
-                  (bx (+ x (* 1.21f0 fx) (* -0.94f0 px))) (bz (+ z (* 1.21f0 fz) (* -0.94f0 pz)))
-                  (cx (+ x (* 2.64f0 fx) (* 0.12f0 px))) (cz (+ z (* 2.64f0 fz) (* 0.12f0 pz))))
-             (declare (single-float u k dn ax az bx bz cx cz))
-             (when (<= sf 18)
-               (fx-crescent ax (- 0.26f0 dn) az bx (- 2.16f0 dn) bz cx (- 1.29f0 dn) cz 0.13f0 :comet 0.15f0 (+ 80f0 sd) +pal-ash+
-                            (* 0.9f0 (- 1f0 (/ (i->f (- sf 10)) 9f0))) :push 0.15f0))
-             (dotimes (i 14)                              ; ash flakes peeling off the arc, drifting down
-               (let* ((f (i->f i)) (v (hash01 f 2.3f0)) (w (- 1f0 v))
-                      (bx2 (+ (* w w 0.7f0) (* 2f0 v w 0.12f0) (* v v -0.94f0))) (by2 (+ (* w w 0.26f0) (* 2f0 v w 1.29f0) (* v v 2.16f0)))
-                      (ba2 (+ (* w w 1.52f0) (* 2f0 v w 2.64f0) (* v v 1.21f0)))
-                      (sx (* (- (hash01 f 5.7f0) 0.5f0) 0.6f0 u)) (fall (* (+ 0.3f0 (* 0.5f0 (hash01 f 6.1f0))) u)))
-                 (declare (single-float f v w bx2 by2 ba2 sx fall))
-                 (fx-disc (+ x (* ba2 fx) (* (+ bx2 sx) px)) (- by2 fall) (+ z (* ba2 fz) (* (+ bx2 sx) pz)) (+ 0.025f0 (* 0.02f0 (hash01 f 8f0)))
-                          0.3f0 (+ 90f0 f) (if (< (hash01 f 3.3f0) 0.25f0) +pal-ember+ +pal-ash+) k :push 0.15f0))))))
-      (11 (when (<= 10 sf 22)                            ; the ash line: one thin white line along the level arc at chest height, his
-           (let* ((k (if (<= sf 14) 0.98f0 (* 0.98f0 (/ (i->f (- 23 sf)) 9f0))))       ;  left to his right (r 2.0, 140 deg: the
-                  (ax (+ x (* 0.68f0 fx) (* -1.88f0 px))) (az (+ z (* 0.68f0 fz) (* -1.88f0 pz)))   ;  volume), held 4 f, then eroding
-                  (bx (+ x (* 0.68f0 fx) (* 1.88f0 px))) (bz (+ z (* 0.68f0 fz) (* 1.88f0 pz)))
-                  (cx (+ x (* 3.32f0 fx))) (cz (+ z (* 3.32f0 fz))))
-             (declare (single-float k ax az bx bz cx cz))
-             (fx-crescent ax 1.3f0 az bx 1.25f0 bz cx 1.32f0 cz 0.035f0 :lens 0.03f0 (+ 100f0 sd) +pal-ink+ k :push 0.1f0)
-             (fx-crescent ax 1.3f0 az bx 1.25f0 bz cx 1.32f0 cz 0.014f0 :lens 0.02f0 (+ 101f0 sd) +pal-hit+ k :push 0.14f0)))))
+      (6 (when (yama-bk-flare-p 6 sf) (%ya-flare x z (i->f (- sf 12)) (f-clamp (* 0.98f0 (/ (i->f (- 22 sf)) 6f0)) 0f0 0.98f0) seed))))
     nil))
 
 (defun yama-bk-code (mv)
   "YAMA-BK-MOVES's code for the Bankai move MV, or 0."
   (case (mv-name mv)
-    (:ya-e-n1a 1) (:ya-e-n1c 2) (:ya-e-as1 3) (:ya-e-n2a 4) (:ya-e-n2b 5) (:ya-e-as2b 6) (:ya-e-as4a 9) (:ya-e-as4b 10) (:ya-e-as4c 11)
+    (:ya-e-n1a 1) (:ya-e-n1c 2) (:ya-e-as1 3) (:ya-e-n2a 4) (:ya-e-n2b 5) (:ya-e-as2b 6)
     (t 0)))
 
 ;;; ---------------------------------------------------------------- 天地灰尽's band and the victim's ash (art batch D, DUEL_YAMA_CORE §34)
@@ -909,9 +871,71 @@ m/s, the flakes 0.4) with a little sway, gone in 36 f (the flakes 44): a slow ra
                       (fx-disc x y z 0.022f0 0.1f0 (+ 130f0 f) +pal-hit+ k :push 0.14f0))))))))))
   nil)
 
+;;; The screen split along the cut (§40, the user 2026-11-22: 「AS4 請改成只有一刀「帶有斬穿空間特效」的斬擊」, 「畫面沿刀線錯開」): the whole world
+;;; image split in two along the cut line, the halves slid apart for about 0.3 s (the upper half up-left, the lower down-right, a few % of
+;;; the screen) over a black void with white edges, then closed again. The engine's composite does it (*GRADE-CUT*, a one-frame latch: the
+;;; HUD stays whole); this sets it each drawn frame it is open.
+(defconstant +ya-cut-slide+ 0.035f0 "How far each half slides at the widest (x the window height): the upper half up-left, the lower down-right.")
+(defconstant +ya-cut-open+ 0.012f0 "The least each half moves off the line at the widest (x the window height): half the void's width.")
+(defconstant +ya-cut-tilt+ 0.6f0 "The in-play cut line's slant on the screen (radians off the horizontal, 34 deg: ch. 509's band).")
+(defvar *ya-cut-scr* (make-f32 3) "World-to-screen scratch for the split's line.")
+(declaim (type f32vec *ya-cut-scr*))
+
+(defun-fast-inline ya-cut-k (age)
+  "How far the split is open AGE frames after the cut: 0 -> 1 over 3 f, held to 10, closed (smooth) by 18 (0.3 s). Pure."
+  (declare (fixnum age))
+  (cond ((or (< age 0) (>= age 18)) 0f0)
+        ((< age 3) (/ (i->f (+ age 1)) 3f0))
+        ((< age 10) 1f0)
+        (t (let ((u (/ (i->f (- 18 age)) 8f0))) (declare (single-float u)) (* u u (- 3f0 (* 2f0 u)))))))
+
+(defun-fast-inline ya-cut-split (x y a k)
+  "Open the screen split K (0..1) along the line through window point X Y at angle A (radians, window y down: *GRADE-CUT*'s): the half
+above the line moves up-left by +YA-CUT-SLIDE+ of the window height x K, the one below down-right (along the line where the line runs
+that way, off it where it does not), and each at least +YA-CUT-OPEN+ x K off the line (the void). Writes the engine's latch. A look; 0 B."
+  (declare (single-float x y a k))
+  (when (> k 0f0)
+    (let* ((h (i->f (window-height))) (m (* +ya-cut-slide+ h k 0.70710677f0))
+           (up (> (f-cos a) 0f0)) (a2 (if up a (+ a 3.1415927f0)))   ; (the normal (sin a, -cos a) up: the upper half)
+           (dx (f-cos a2)) (dy (f-sin a2)) (nx dy) (ny (- dx))
+           (sh (- 0f0 (* m dx) (* m dy))) (op (f-max (- 0f0 (* m nx) (* m ny)) (* +ya-cut-open+ h k)))
+           (c *grade-cut*))
+      (declare (single-float h m a2 dx dy nx ny sh op) (type f32vec c))
+      (setf (aref c 0) x (aref c 1) y (aref c 2) a2 (aref c 3) sh (aref c 4) op)))
+  nil)
+
+(defun-fast yama-as4-split (at q age)
+  "天地灰尽's split in play (AGE frames after the hit; AT's floats Q, Q+1, Q+2 where he stood and his yaw): the line through the cut's
+middle (the band's, +YA-BAND-AHEAD+ ahead, 1.1 m up) at +YA-CUT-TILT+ off the horizontal, slanting as the band reads on the screen (his
+right low end and his left high end projected). A look; 0 B."
+  (declare (type f32vec at) (fixnum q age))
+  (let ((k (ya-cut-k age)))
+    (declare (single-float k))
+    (when (> k 0f0)
+      (let* ((x (aref at q)) (z (aref at (+ q 1))) (yaw (aref at (+ q 2))) (fx (- (f-sin yaw))) (fz (- (f-cos yaw)))
+             (ux (- (f-cos yaw))) (uz (f-sin yaw)) (s *ya-cut-scr*)
+             (cx (+ x (* +ya-band-ahead+ fx))) (cz (+ z (* +ya-band-ahead+ fz)))
+             (w (i->f (window-width))) (h (i->f (window-height))) (sx (* 0.5f0 w)) (sy (* 0.5f0 h)) (lx 0f0) (rx 1f0))
+        (declare (single-float x z yaw fx fz ux uz cx cz w h sx sy lx rx) (type f32vec s))
+        (when (world-to-screen s cx 1.1f0 cz) (setf sx (aref s 0) sy (aref s 1)))
+        (when (world-to-screen s (+ cx (* 1.5f0 ux)) 2.2f0 (+ cz (* 1.5f0 uz))) (setf lx (aref s 0)))   ; his left, high
+        (when (world-to-screen s (- cx (* 1.5f0 ux)) 0f0 (- cz (* 1.5f0 uz))) (setf rx (aref s 0)))    ; his right, low
+        (ya-cut-split sx sy (if (< lx rx) +ya-cut-tilt+ (- +ya-cut-tilt+)) k))))   ; (high end on the left: "\", else "/")
+  nil)
+
+(defun-fast yama-tenchi-split (cf)
+  "天地灰尽's Kikon (YAMA-TENCHI-CINE): the split along VFX-TENCHI-SLASH's line (from 5 % left of the screen at 80 % down, rising 0.6 of
+the height over 1.1 of the width), CF frames after its cut, opened twice as far as in play (the slash drawn over it is 0.03-0.1 of the
+height wide). A look; 0 B."
+  (declare (fixnum cf))
+  (let ((w (i->f (window-width))) (h (i->f (window-height))))
+    (declare (single-float w h))
+    (ya-cut-split (* -0.05f0 w) (* 0.8f0 h) (f-atan2 (* -0.6f0 h) (* 1.1f0 w)) (* 2f0 (ya-cut-k cf)))))   ; (twice as wide: the slash
+                                                                                                      ;  covers a void of play's width)
+
 (defun yama-as4-look (e f)
   "YAMA-DRAW's every frame (any form, any state): note 天地灰尽's hit (YAMA-AS4-NOTE), then while its look lasts, the white band where he
-cut (YAMA-AS4-BAND) and the cinders off the victim (YAMA-AS4-CINDERS, on his drawn joints). A held last segment's Kikon follow-up (his
+cut (YAMA-AS4-BAND), the screen split along it (YAMA-AS4-SPLIT, §40) and the cinders off the victim (YAMA-AS4-CINDERS, on his drawn joints). A held last segment's Kikon follow-up (his
 phase :follow) or any cinematic ends it at once (the store's tick cleared: the victim is told to guard, then the cinematic places the
 actors; nothing of it comes back after). A look."
   (when (or *cine* (eq (fighter-phase f) :follow))
@@ -924,6 +948,7 @@ actors; nothing of it comes back after). A look."
       (let ((a *ya-as4-at*) (q (* 3 (fighter-side f))) (o (opp-of e)))
         (declare (type f32vec a) (fixnum q))
         (yama-as4-band a q age)
+        (yama-as4-split a q age)                         ; the screen split along the cut (§40)
         (when o (yama-as4-cinders (model-joints (model o)) age))))))
 
 (defun yama-victim-look (att v)
@@ -2071,9 +2096,9 @@ after 10 unmeasured draws; the probe's draws are taken off the frame's queue aga
 stances' garb / cracks (YAMA-STANCE-LOOK on stand-in anims) and the smear (VFX-SMEAR look 3 on a stand-in trail); art K3 the planted blade
 (DRAW-PLANTED-WEAPON at a *YA-PLANTS* spot), 北's burn (%YA-BLADE-BURN on stand-in ends) and the :planted hook itself; art K4 the
 three Kikon cinematics' looks (YAMA-HIGASHI-LOOK / -NISHI- / -MINAMI-, yama-cine.lisp) at their busiest frames, P1 and P2 as the actors;
-art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and at full (east-full); art D AS4's segment looks (codes 9-11),
-天地灰尽's band (running out, full), the cinders on P2's joints, the whole YAMA-AS4-LOOK and the victim's ash (YAMA-VICTIM-LOOK) on a stand-in
-hit 20 f old (the north band and the crescent left: no move draws them since §33 / art D)."
+art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and at full (east-full); art D 天地灰尽's band (running out, full), the cinders on P2's joints, the whole YAMA-AS4-LOOK and the victim's ash (YAMA-VICTIM-LOOK) on a stand-in
+hit 20 f old (the north band and the crescent left: no move draws them since §33 / art D); §40 the screen split open (in play and the
+Kikon's; AS4's segment looks, codes 9-11, left with its segments)."
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
@@ -2133,9 +2158,8 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
                      (cons-per "notch" (yama-bk-moves pos yaw 3 12 0.016f0))
                      (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
                      (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
-                     (cons-per "as4-grip" (yama-bk-moves pos yaw 9 14 0.016f0))   ; (art D: AS4's segment looks, the band, the cinders,
-                     (cons-per "as4-cut" (yama-bk-moves pos yaw 10 14 0.016f0))   ;  the victim's ash tint: the store set to a hit 20 f ago)
-                     (cons-per "as4-line" (yama-bk-moves pos yaw 11 12 0.016f0))
+                     (cons-per "as4-split" (yama-as4-split *ya-as4-at* 0 6))   ; (art D: the band, the cinders, the victim's ash tint: the
+                     (cons-per "tenchi-split" (yama-tenchi-split 5))              ;  store set to a hit 20 f ago; §40: the split open, in play and in the Kikon)
                      (cons-per "as4-band" (yama-as4-band *ya-as4-at* 0 1))
                      (cons-per "as4-band-full" (yama-as4-band *ya-as4-at* 0 20))
                      (cons-per "as4-cinders" (yama-as4-cinders (model-joints (model *p2*)) 20))

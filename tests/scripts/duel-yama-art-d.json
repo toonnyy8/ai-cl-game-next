@@ -109,114 +109,34 @@
 },
 {
 "at": 10.7,
-"key": "ShiftLeft",
-"down": true
+"shot": "tests/shots/duel-yama-art-d-as4-sweep.png"
 },
 {
-"at": 10.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 10.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 10.78,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 10.85,
-"shot": "tests/shots/duel-yama-art-d-as4a-hit.png"
-},
-{
-"at": 10.93,
-"shot": "tests/shots/duel-yama-art-d-as4a-puff.png"
-},
-{
-"at": 11.05,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 11.06,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 11.11,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 11.13,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 11.2,
-"shot": "tests/shots/duel-yama-art-d-as4b-hit.png"
-},
-{
-"at": 11.28,
-"shot": "tests/shots/duel-yama-art-d-as4b-ash.png"
-},
-{
-"at": 11.4,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 11.41,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 11.46,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 11.48,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 11.55,
-"shot": "tests/shots/duel-yama-art-d-as4c-hit.png"
-},
-{
-"at": 11.6,
-"shot": "tests/shots/duel-yama-art-d-as4c-line.png"
-},
-{
-"at": 11.77,
+"at": 10.77,
 "shot": "tests/shots/duel-yama-art-d-as4-coil.png"
 },
 {
-"at": 11.9,
+"at": 10.85,
 "shot": "tests/shots/duel-yama-art-d-as4-hit.png"
 },
 {
-"at": 12.03,
+"at": 10.98,
 "shot": "tests/shots/duel-yama-art-d-as4-band.png"
 },
 {
-"at": 12.27,
+"at": 11.22,
 "shot": "tests/shots/duel-yama-art-d-as4-ash.png"
 },
 {
-"at": 12.57,
+"at": 11.52,
 "shot": "tests/shots/duel-yama-art-d-as4-cinders.png"
 },
 {
-"at": 12.93,
+"at": 11.88,
 "shot": "tests/shots/duel-yama-art-d-as4-fade.png"
 },
 {
-"at": 13.18,
+"at": 12.13,
 "shot": "tests/shots/duel-yama-art-d-as4-after.png"
 },
 {
@@ -288,14 +208,18 @@
 "down": false
 },
 {
-"at": 15.5,
+"at": 15.4,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 15.51,
+"at": 15.41,
 "key": "KeyJ",
 "down": true
+},
+{
+"at": 15.8,
+"shot": "tests/shots/duel-yama-art-d-kikon-14.png"
 },
 {
 "at": 16.0,
@@ -310,12 +234,12 @@
 "shot": "tests/shots/duel-yama-art-d-kikon-24.png"
 },
 {
-"at": 16.91,
+"at": 16.81,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 16.93,
+"at": 16.83,
 "key": "ShiftLeft",
 "down": false
 },
@@ -328,179 +252,11 @@
 "shot": "tests/shots/duel-yama-art-d-kikon-32.png"
 },
 {
-"at": 21.35,
-"eval": "console.log('=== J1-J4 > AS4 a-b-c > the last held: the band ends at the Kikon')"
-},
-{
 "at": 21.4,
-"eval": "Module._debug_cmd(87014)"
-},
-{
-"at": 21.45,
-"eval": "Module._debug_cmd(87446)"
-},
-{
-"at": 21.5,
-"eval": "Module._debug_cmd(87301)"
-},
-{
-"at": 21.55,
-"eval": "Module._debug_cmd(87445)"
-},
-{
-"at": 21.6,
-"eval": "Module._debug_cmd(87441)"
-},
-{
-"at": 21.65,
-"eval": "Module._debug_cmd(87442)"
-},
-{
-"at": 21.7,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 21.75,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 21.95,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.0,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.2,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.25,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.45,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.5,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.7,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 22.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.78,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 22.8,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 22.81,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 22.86,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 22.88,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 23.15,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 23.16,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 23.21,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 23.23,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 23.5,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 23.51,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 24.03,
-"shot": "tests/shots/duel-yama-art-d-held4-hit.png"
-},
-{
-"at": 24.45,
-"shot": "tests/shots/duel-yama-art-d-held4-rush.png"
-},
-{
-"at": 24.91,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 24.93,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 24.95,
-"shot": "tests/shots/duel-yama-art-d-held4-rush2.png"
-},
-{
-"at": 28.87,
-"shot": "tests/shots/duel-yama-art-d-held4-after.png"
-},
-{
-"at": 29.53,
-"shot": "tests/shots/duel-yama-art-d-held4-after2.png"
-},
-{
-"at": 30.7,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 31.2,
+"at": 21.9,
 "eval": "console.log('=== END')"
 }
 ]

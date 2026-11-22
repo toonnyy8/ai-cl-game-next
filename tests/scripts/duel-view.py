@@ -118,10 +118,10 @@ def yama_s4(cmd, shot, t):
         for k, view in ((1, "side"), (2, "front")):
             cmd(1000000 + 1000 * YA_CLIPS.index(n.upper()) + k); shot(f"yama-s4-{n}-{view}", 0.9)
 
-# Art batch D (DUEL_YAMA_CORE §34): E-J4's stepping kesa cut and AS4's four clips (the ash grip, the ash cut, the ash line, 天地灰尽):
+# Art batch D (DUEL_YAMA_CORE §34): E-J4's stepping kesa cut and AS4's clip (天地灰尽; its ash grip / cut / line left with §40's one cut):
 # tests/shots/duel-view-yama-d-<clip>-<side|front>.png
 #   node tools/run.mjs dist/duelview --secs 25 --script tests/scripts/duel-view-yama-d.json
-YA_D = ("ya-e-q4", "ya-e-as4a", "ya-e-as4b", "ya-e-as4c", "ya-e-as4")
+YA_D = ("ya-e-q4", "ya-e-as4")
 def yama_d(cmd, shot, t):
     for n in YA_D:
         for k, view in ((1, "side"), (2, "front")):

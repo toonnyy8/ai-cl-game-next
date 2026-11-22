@@ -3589,14 +3589,14 @@ lead's default: NS a / b only).
 | Piece | Rule |
 |---|---|
 | E-J4 `:ya-e-j4` | the Bankai string's fourth link (S9, 46, reach 1.52, stagger; E-J1's clip retimed, a placeholder); 北 inherits it; 西's charge reaches with it (`*ya-reach-moves*`) |
-| AS4 | J4's AS only (`:as-by-press (1 2 3 4)` in the Bankai, `(1 1 1 2)` in 北); four segments (AS n = n): the ash grip `:ya-e-as4a` 40 > the ash cut `-as4b` 50 > the ash line `-as4c` 60 > 天地灰尽 point-blank `:ya-e-as4` 140 (a knockdown); SP 15 / 20 / 25 / 55 |
+| AS4 | J4's AS only (`:as-by-press (1 2 3 4)` in the Bankai, `(1 1 1 2)` in 北); four segments (AS n = n): the ash grip `:ya-e-as4a` 40 > the ash cut `-as4b` 50 > the ash line `-as4c` 60 > 天地灰尽 point-blank `:ya-e-as4` 140 (a knockdown); SP 15 / 20 / 25 / 55. **One cut since §40**: `:ya-e-as4` 200, S10 A2 R30, a knockdown, SP 60 |
 | Pointer | AS4 writes none (`:as-writes (1 2 3 nil)`, 北 `(nil nil)`) and gives no mark |
-| Damage | every AS4 segment (`:params :as4`) x (1 + `*ya-as4-mark-x*` 0.25 x the marks held): 0 / 1 / 2 / 3 marks = x1.0 / 1.25 / 1.5 / 1.75 (`yama-dmg-mult`); 西's charge x stacks on it |
-| Its Kikon | any AS4 segment held: 天地灰尽's cinematic (`:cine` on every segment; round.lisp reads the struck move's first), taking `*ya-as4-konpaku*` 2 / 3 / 4 / 5 Konpaku by the marks (the new generic kit hook `:kikon-n` in `core-set-kikon-n!`, default off; 5 is past `*core-kikon-max*` 4); the cinematic shatters that many |
+| Damage | every AS4 segment (the one cut since §40: 200 / 250 / 300 / 350) (`:params :as4`) x (1 + `*ya-as4-mark-x*` 0.25 x the marks held): 0 / 1 / 2 / 3 marks = x1.0 / 1.25 / 1.5 / 1.75 (`yama-dmg-mult`); 西's charge x stacks on it |
+| Its Kikon | any AS4 segment held (the one cut since §40): 天地灰尽's cinematic (`:cine` on every segment; round.lisp reads the struck move's first), taking `*ya-as4-konpaku*` 2 / 3 / 4 / 5 Konpaku by the marks (the new generic kit hook `:kikon-n` in `core-set-kikon-n!`, default off; 5 is past `*core-kikon-max*` 4); the cinematic shatters that many |
 | The marks spent | AS4's frame 0 marks it used (`yama-as4-start`); his next neutral clears the marks (`yama-as4-spent`, in both kits' `:tick`) |
 | 北 | entry keeps the marks (`*ya-north-keeps-marks*` T; §30.4 cleared them), so 北's AS4 has all three; 北's end clears them (else the Bankai's next tick enters 北 again). NS a 灰線 > b 灰燼步 (now the knockdown); the AS after J1-3 the grip > the cut (now the knockdown); the old NS c wave `:ya-e-n4` and its strike left |
 | Trade-off | in the Bankai AS4 sees at most 2 marks (the third enters 北 at the next neutral), and spends them: progress toward 北 |
-| Debug | 87429 = AS4's first segment, 87436 = AS4's last, 87455 = AS4's third (was 北's NS c) |
+| Debug | 87429 = AS4's first segment, 87436 = AS4's last, 87455 = AS4's third (was 北's NS c); since §40 87429 and 87436 = the one AS4, 87455 free |
 
 **Checks** (a sim change: rules, shared hook).
 
@@ -3639,7 +3639,7 @@ The user, 2026-11-22: 「現在集齊三個方位又會跑到北的模式，請�
 `*ya-north-in-frames*`, `*ya-north-keeps-marks*`, the `yss` slot `north-ptr`; the HUD's 北 seal ("ZANKA NO TACHI NORTH"), the NORTH tag and
 kit strip kind 6 (lhud-data, lhud-plate); the probe's `north` field; the SP table's 北 form (DUEL_DESIGN §5.1 regenerated). `ya-mark-add`
 returns the marks only. The marks (東 西 南) stay until AS4 spends them at his next neutral after it, so a Bankai AS4 can now carry all three
-(x1.75, 5 Konpaku). Debug: 87444 free, 87455 = AS4's third segment, 87453 / 87454 / 87456-87458 free. The §30.4 question (does 北 keep the
+(x1.75, 5 Konpaku). Debug: 87444 free, 87455 = AS4's third segment (free since §40), 87453 / 87454 / 87456-87458 free. The §30.4 question (does 北 keep the
 marks) is moot.
 
 **Checks.**
@@ -3673,7 +3673,7 @@ the column's look today).
 - A 南: the tower (`:ya-tower`, NSa / NSb, AS3b), the topple (`:ya-fall`), the shatter (the SA's `:fx`).
 - B Shikai: NS2a's clip (and 爆炎's NS2a), the ENNETSU disc look.
 - C 西: the flame arc on charged swings (a draw hook by `fighter-charge-mult`).
-- D J4 / AS4: E-J4's clip, AS4's four clips, the white band and the victim's ash.
+- D J4 / AS4: E-J4's clip, AS4's four clips, the white band and the victim's ash (AS4 one cut and one clip since §40).
 
 **Checks per batch**: host tests (the FK reach test: drawn tip = hit reach ± 0.15 m; NS2a / AS4 leave the one-sided list), pkgcheck, build,
 smoke, the 0 B consing probe (87448 / 87449), Yamamoto's native trials byte-identical in numbers, stills from two cameras and both aspect
@@ -3686,7 +3686,7 @@ ratios. No `--cvc`, no looks gate, no CPU match (presentation only, DEVLOG §847
 | A 南 | `%ya-climber` (one ink skeleton, a blood-red eye), `%ya-cone-draw` (rings of climbers tapering up, hands on the crown and the base, a charcoal core, a pivot on the base, a crumble from the top) serving `yama-tower-look` (16 f to 3 m / 6 m; NSb's climb over 16 f via `+ya-tower-raise2+` 114; leans to 50° by NSc's S), `yama-topple-look` (72° / 86° on ages 0 / 1, then skeletons, skulls, bones and ash along the 3 / 6 m line, gone by 30 f), `yama-shatter-look` (24 pieces in ±28.6° out to 6 m, ash by 30 f), `yama-as3b-look` (a hollow heap round the victim); `yama-wall-look`, `%ya-rampart`, `yama-fall-look` removed | looks only (the hazards' numbers untouched) |
 | B Shikai | clip `:ya-n2a` (the old `:ya-enjo` renamed) for NS2a and 爆炎 NS2a: drawn back right f1-12, a trembling hold f13-17, the sweep f18-20, level ahead on a 0.62 m lunge at S; NS2b's frame 0 = its S+A pose; the flame fan (three arcs, curled tongues, by heat tier; codes 9 / 10 in `yama-sk-moves`); `yama-ennetsu-look` rewritten as the ground-fire disc (a bed of 32 tongues, a rim curtain of 24, six fountains with sparks, erupting on the hit, dying over 16 f) | NS2a 2.41 vs 2.40 (was 1.89), off the one-sided list |
 | C 西 | `yama-west-flame` / `ya-west-arc`: while charged, the blade tip's path FK-sampled every half frame from S−2 to S+A+1, a tongue per sample hooked back along the cut, the edge at the striking point + 0.8 / 1.6 m (`ya-flame-out!`), held and faded over 6 f; the SA copies, E-J2 / J3 / J4, AS1, AS2a (the hand), NS2c at level 2; AS2b a ring of 20 tongues at the copy's reach | flame edge within 0.06 m of the charged volume (new host check) |
-| D J4 / AS4 | clip `:ya-e-q4` (frame 0 = J3's f11; the blade up over the right shoulder, a held tell f6-7, the kesa cut at S9, sunk low to f22, a slow rise); `:ya-e-as4a` (the pommel into the chest, an ash puff), `-as4b` (a rising forehand, an ash comet), `-as4c` (a level backhand, a thin white line), `:ya-e-as4` (blade low behind, the diagonal from low right behind to high left in front on a 0.9 m lunge); the white band (3 m wide, holds 12 f, erodes by 44 f) and the victim greyed to ash with cinders (~1.1 s, ended by a Kikon or any cinematic) through a new look-only kit hook `:victim-look` (draw.lisp VICTIM-LOOK: the same tint and flash for every other kit); `yama-north-look` and clip `ya-e-f1` removed | J4 1.52 / 1.52, AS4a 1.63 / 1.60 (pommel), AS4b 2.00 / 2.00, AS4c 2.03 / 2.00, AS4 2.44 / 2.40 (off the one-sided list) |
+| D J4 / AS4 | clip `:ya-e-q4` (frame 0 = J3's f11; the blade up over the right shoulder, a held tell f6-7, the kesa cut at S9, sunk low to f22, a slow rise); `:ya-e-as4a` (the pommel into the chest, an ash puff), `-as4b` (a rising forehand, an ash comet), `-as4c` (a level backhand, a thin white line), `:ya-e-as4` (blade low behind, the diagonal from low right behind to high left in front on a 0.9 m lunge); the white band (3 m wide, holds 12 f, erodes by 44 f) and the victim greyed to ash with cinders (~1.1 s, ended by a Kikon or any cinematic) through a new look-only kit hook `:victim-look` (draw.lisp VICTIM-LOOK: the same tint and flash for every other kit); `yama-north-look` and clip `ya-e-f1` removed | J4 1.52 / 1.52, AS4a 1.63 / 1.60 (pommel), AS4b 2.00 / 2.00, AS4c 2.03 / 2.00, AS4 2.44 / 2.40 (off the one-sided list); AS4a-c and their clips left with §40's one cut |
 
 **Checks on merged main.** Host tests 4326 ALL PASS; pkgcheck only `DUEL::APP`; debug ranges 90, 0 errors; build; smoke exit 0; the stills
 scripts `duel-yama-art-{a,b,c,d}.json` exit 0; consing 87448 / 87449: every new row 0 B (south-dead / pile / burst 80 B as before); trials
@@ -4111,3 +4111,118 @@ Checks:
 
 One thing is left as before: if he goes back to neutral after NSa without an SA, the charge is gone and the garb drops 1.0 → 0.6 at once
 (§30.2's rule).
+
+## 40. AS4 one cut that splits the screen (the user, 2026-11-22; a sim change, an engine feature)
+
+The user, 2026-11-22: 「AS4 請改成只有一刀「帶有斬穿空間特效」的斬擊」. Their choices: **one cut of 200** (x the marks as before: 200 / 250 /
+300 / 350; it was four segments, 40 + 50 + 60 + 140 = 290), and for the space-cut 「畫面沿刀線錯開」: the whole screen split in two along the
+diagonal cut line, the halves slid apart for about 0.3 s (the upper half up-left, the lower down-right, a few % of the screen) over a pure
+black void with white edges, then closed again; the white diagonal band and the victim's ash of §34 D stay.
+
+### 40.1 Sim (knobs old → new)
+
+| Knob | Old | New |
+|---|---|---|
+| AS4's segments (`:core :as`, its route) | `:ya-e-as4a` 40 > `-as4b` 50 > `-as4c` 60 > `:ya-e-as4` 140 (only the last a knockdown) | `:ya-e-as4` alone: 200, S10 A2 R30, reach 2.4, arc 110, a knockdown, callout TENCHI KAIJIN, `yama-as4-start` on frame 0, `:as4 t`, `:cine yama-tenchi-cine` (the user's exception to AS n = n segments, DUEL_CORE §6; an AS's last segment knocks down, here the only one) |
+| Its damage by the marks (`*ya-as4-mark-x*` 0.25) | 290 x 1 / 1.25 / 1.5 / 1.75 over four hits | 200 / 250 / 300 / 350 in one |
+| Its SP cost (the rule, `*sp-cost-rate*` 0.4, cap 60) | 15 + 20 + 25 + 55 = 115 | 200 x 0.4 = 80 → the cap **60** (DUEL_DESIGN §5.1 regenerated). Not the user's decision: a `:params :sp-cost` override can put it back at 115 if the cheaper AS4 plays wrong |
+| The Kikon (`*ya-as4-konpaku*` 2 / 3 / 4 / 5 by the marks, the `:kikon-n` hook) | held on any segment | held on the one cut (a knockdown hit Kikons as a stagger did: trials A3 / A3b / A5) |
+| Marks spent | at the next neutral after AS4 | unchanged |
+| Debug | 87429 = AS4's first segment, 87436 = its last, 87455 = its third | 87429 and 87436 = AS4; 87455 free |
+
+**Naming.** The survivor is `:ya-e-as4`, not `:ya-e-as4a`: the band / ash note (`yama-as4-note`), the blade burn and the clip nearest the new
+cut already keyed on it, so only `:core :as`, the debug list and the tests changed name. Removed: `:ya-e-as4a` / `-b` / `-c`, their clips and
+poses, `yama-bk-moves` codes 9-11 (the ash puff, the ash comet, the thin white line) and the probe rows `as4-grip / -cut / -line`. No CPU
+table named them. One move serves one class (`:as`).
+
+**Recovery R30**, as the old last segment: the clip `(10 2 30)` keeps its marks equal to the move's frames (the art test), the knockdown's
+advantage and okizeme after it are unchanged, and on block the punish window is the one the old ender had. A heavier R would only lengthen
+a recovery the knockdown already hides on hit.
+
+### 40.2 The clip (presentation)
+
+`:ya-e-as4` from J4's S+1 pose (`:ya-e-q4-thru`: the link J4 f10 > AS4 f0 jumps 0.000 m). References looked at first: ch. 509's colour
+spread (`.refs/yamamoto-zanjitsu/509Zanka_no_Tachi__Kita_-_Tenchi_Kaijin.png`: one broad white band from upper left to lower right, the body
+inside it, the blade a smear trailing behind), Ep 372's frame (red-magenta streaks across the whole image), `docs/research/yamamoto-rework/`
+canon-looks §4.5 / motion-refs §1.6 (flame gathered on the blade, one blazing slash). Built: the blade swept round low (f2), the whole body
+wound down onto it low behind his right (`:ya-e-as4-coil`, f5, held and trembling to f8: the tell, the edge burning), released f9, the hit
+pose on S10 unchanged (FK tip 2.44 / volume 2.40), through to his high left at S+A, carried on past the cut onto the toes (f16) and held there
+to f26 while the screen closes, a slow rise to f36.
+
+### 40.3 The screen split (an engine feature, `*grade-cut*`)
+
+The engine already split the screen: `*grade-split*` (Kenpachi's 斬壞 rift, Nozarashi's sky split) sheared the left and right halves along
+the vertical centre line in the composite. That pass is generalised, no new pass and no render target:
+
+- `engine/shaders/split.wgsl` (new, included by both composite shaders): `split_uv` maps each pixel by its signed distance to a line through a
+  point at an angle: the normal's side reads the image moved OPEN along the normal and SHEAR along the line, the other side the opposite;
+  |distance| < OPEN is the void, black, its outer 0.3 x OPEN on each side white. OPEN < 0 runs the old split's exact formula.
+- `render.lisp` `*grade-cut*` (f32vec 5: x y window px, angle, shear, open window px), exported; a **one-frame latch**: END-FRAME copies it
+  into `*rp*` 25-29 and zeroes it, so it is set from draw code each frame it is wanted and a K.O., a pause or a cinematic cut never leaves it
+  on; shear and open 0 = off.
+- `render.c`: the cut (in window heights) goes to all four composite pipelines (plain, transparent, impact `RP_COMP_FX`, the paint stream's
+  back layer `RP_COMP_AO`) as one more vec4 (`r_fs_pass` takes it as an optional second vec4; the bloom passes push their one vec4 as
+  before); while the cut is on its shear replaces `*grade-split*`'s.
+- The UI and the paint stream draw after the composite in the same pass: **the HUD stays whole** for free.
+- Cost: one ALU function per composite pixel (a dot, a compare, a sign), no texture fetch added, no blocking call, 0 B (floats written in
+  place; the same scenes' `cons/frame` equal on both builds, 1667 / 1948 B). Off-path proof: Kenpachi's 斬壞 Kikon held at frames 40 and 60
+  (no split) and 100 and 106 (`*grade-split*` open: its rift's v 4 / 10, the left half visibly up) rendered byte-identical on this build and
+  on the parent's (2ee4d3a1) `dist/duel`.
+
+The game side (yama-look.lisp):
+- `ya-cut-split` (inline): given the line through a window point at an angle and an amount K, it writes the latch so the half above the line
+  moves up-left by `+ya-cut-slide+` 0.035 of the window height x K and the one below down-right (along the line where the line runs that
+  way, off it where it does not), each at least `+ya-cut-open+` 0.012 x K off the line (the void).
+- `ya-cut-k`: 0 → 1 over 3 f, held to 10, closed (smoothstep) by 18 f (0.3 s), by the frames since the hit counted on `*match-tick*`, which
+  runs through hitstop and slow motion, so the split never hangs in a freeze.
+- In play (`yama-as4-split`, from YAMA-AS4-LOOK, with the band): the line through the cut's middle (the band's centre, 1.9 m ahead, 1.1 m
+  up) at `+ya-cut-tilt+` 0.6 rad (34°, ch. 509's band) off the horizontal, slanting as the band reads on screen (his left high end and right
+  low end projected: "\" or "/"). A held Kikon's follow-up or any cinematic ends it with the band.
+- The Kikon (`yama-tenchi-cine`): its cut beat at cf 68 (the two-tone frame, then the manga page) already draws VFX-TENCHI-SLASH, a
+  full-screen white slash rising from the lower left; `(during (68 86) (yama-tenchi-split (- cf 68)))` opens the split along the slash's
+  own line, twice as wide as in play (the slash, 0.03-0.1 of the height, would cover a void of play's width); the impact frames apply it
+  (RP_COMP_FX carries the cut).
+- Portrait and landscape alike: everything in window heights, the aspect read from the scene texture.
+
+Space-cut references: the web search turned up TV Tropes' "Diagonal Cut" page (Kubo's habit throughout Bleach: the target slides apart
+along the line after a beat) and a written description of a Judgment Cut End recreation (DMC5: the space ruptures along the slashes, the
+pieces shift, then close); no still of either could be fetched (the one image page refused). Taken from those descriptions: the image moving
+as rigid pieces offset along the cut, not only pushed apart, then closing. From this repo's own `*grade-split*` beats (Kenpachi's rift,
+Nozarashi's sky split): a pure black gap with no glow.
+
+### 40.4 Trials (`tests/trials/yamamoto-sp30.lisp`; baseline of all four files taken before the change)
+
+| Row | Before (§33) | Now |
+|---|---|---|
+| A1 J1-J4 > AS4, no mark | 186 dealt, 8 hits (AS4A 40 / B 50 / C 60 / AS4 140), SP -115 | 148, 5 hits (YA-E-AS4 HIT 200), SP -60; the three presses after the AS dropped (with one segment they would start an NS after its recovery) |
+| A2 東 西 held, x1.5 | 248, 8 hits | 190, 5 hits (AS4's share 126 = 84 x 1.5); `AS4 spent: marks 3 -> 0` |
+| A3 held, 東 西: the Kikon | -4 (held on AS4A, a stagger) | -4 (held on the one knockdown cut), `YA-E-AS4 KIKON 200` |
+| A3b held, no mark | -2 | -2 |
+| A4 three marks, x1.75 | 278, 8 hits | 211, 5 hits (AS4's share 147); `marks 7 -> 0` |
+| A5 held, three marks | -5 | -5 |
+| A8 (new) AS4 on its own, no mark | — | 84 dealt (the HIT line logs the base 200; Kenpachi's intake) |
+| A9 (new) AS4 on its own, three marks | — | 147 dealt = 84 x 1.75 |
+
+Every other row of the four files is identical to the baseline (`yamamoto-core` 20 rows, `-blaze` 26, `-bankai` 30, sp30's W / N rows).
+
+### 40.5 Checks
+
+| Check | Result |
+|---|---|
+| Host tests | 4320 ALL PASS (AS4 = one segment `(1 2 3 1)`, 200, S10 A2 R30, reach 2.4, knockdown, callout, cinematic, frame 0, SP 60, 200 / 250 / 300 / 350 by the marks, the three old moves gone; the FK `ya-e-as4 2.44 / 2.40`; the link J4 f10 > AS4 f0 0.000 m; DUEL_SP's table AS4 115 → 60) |
+| pkgcheck | only `DUEL::APP` |
+| `debug-ranges-check.py` | 90 ranges, 0 errors |
+| `sp-costs-check.py` | 116 PASS, 0 FAIL |
+| Build, smoke | built; exit 0 |
+| 0 B (87448) | every row 0 B, the new `as4-split` and `tenchi-split` included |
+| `--cvc` | II / IK / KK identical (33 / 28 / 27 lines; no Yamamoto in them) |
+| Engine | `tests/engine-check.sh` ENGINE-CHECK OK, 73 pass, 0 fail; a new step (debug 19, still `ec-cut.png`) sets `*grade-cut*` every frame (a diagonal, shear -20 px, open 10 px: the void black with white edges, the UI text whole) and the next step's still shows it gone (the latch); the off path byte-identical (§40.3) |
+| Stills | `tests/scripts/duel-yama-as4-cut{,-phone}.json` (new; exit 0): J1-J4 > AS4, S-6 / S-2 / S / S+2 / S+6 / S+12 / S+20 from the behind and side cameras, landscape and 390x844 (on the phone the deck keeps its own framing: the side stills look nearly like the behind ones), and the Kikon's cut beat held at cf 70 / 72 / 76 / 84 (played without the deck: on the deck the Kikon is the thumb kept down on the touch); `duel-yama-art-d.json` rewritten for the one cut and run (exit 0: AS4 hits, the held one Kikons -4); its phone twin not run |
+
+### 40.6 Open
+- The SP cost 115 → 60 follows the rule, not a decision of the user's.
+- On the phone's close camera the in-play line runs through the upper-right corner (the band's centre projects high there), off the
+  victim's body.
+- Black wedges show at the screen edges where a shifted half runs out of image (inherent to moving the halves).
+- Paused on the hit, the split should stay open (the draw still sets the latch while `*match-tick*` stands): inferred, not tested.
+- The duel/web/manual.html AS4 lines (the row in Yamamoto's table and the 標記 paragraph) still quote four segments and 15 / 20 / 25 / 55.

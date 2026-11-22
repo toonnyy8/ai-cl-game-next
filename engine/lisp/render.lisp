@@ -212,11 +212,18 @@ quality ladder's two light steps do nothing there).")
 (defvar *lp* (make-f32 (* 4 +max-lights+)))
 (defvar *lc* (make-f32 (* 4 +max-lights+)))
 (defvar *fu* (make-f32 +fu-floats+) "Frame uniforms, filled by FILL-FRAME-UNIFORMS.")
-(defvar *rp* (make-f32 25) "r_frame parameters (see r_frame).")
+(defvar *rp* (make-f32 30) "r_frame parameters (see r_frame).")
 (defvar *grade-desat* 0.0 "Composite desaturation: 0 = the image unchanged, 1 = greyscale (KO / flashback grading).")
 (defvar *grade-split* 0.0
   "Composite split, window pixels: the left half of the frame is shifted up and the right half down by
-this much along the vertical centre line (the uncovered strips are black). 0 = off.")
+this much along the vertical centre line (the uncovered strips are black). 0 = off. *GRADE-CUT* replaces it while on.")
+(declaim (type f32vec *grade-cut*))
+(defvar *grade-cut* (make-f32 5)
+  "The composite's cut, a one-frame latch (END-FRAME sends it and clears it: set it from draw code every frame it is wanted):
+x y (window px: a point on the line), the angle (radians: the line runs along (cos a, sin a), window y down), SHEAR and OPEN (window px).
+The side the normal (sin a, -cos a) points to moves OPEN along the normal and SHEAR along the line, the other side the opposite way;
+between them a void 2 x OPEN wide, black, its outer 0.3 x OPEN on each side white (engine/shaders/split.wgsl). SHEAR and OPEN both 0 (the
+default): off, *GRADE-SPLIT* as before. The UI and the paint stream are drawn after it, unsplit. 0 B: write its floats in place.")
 (defvar *render-transparent* nil
   "T: this frame only (END-FRAME clears it), the scene keeps its alpha: no sky is drawn (the scene target clears to
 0,0,0,0) and the composite writes the scene's alpha, so a page configured premultiplied shows through around what was
@@ -520,6 +527,7 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
           (aref p 23) (aref *soft-flame-knobs* (+ 1 (* 2 (the fixnum *soft-flame*))))   ; the soft flame's glow (§15)
           (aref p 24) *flame-alpha*)                                                    ; the flame layer (§15.6)
     (replace p *impact-params* :start1 12)
+    (let ((c *grade-cut*)) (dotimes (i 5) (setf (aref p (+ 25 i)) (aref c i) (aref c i) 0f0)))   ; the cut (a one-frame latch)
     (setf (aref p 22) (if *render-transparent* 1f0 0f0) *render-transparent* nil)   ; a one-frame latch
     (fill-frame-uniforms (select-lights))
     (let* ((fa *fx-alpha*) (fb *fx-add*) (ft *fx-toon*) (ui *ui-batch*) (hb *hud-batch*) (hk *hud-back*)

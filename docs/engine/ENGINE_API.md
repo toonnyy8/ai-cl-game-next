@@ -279,6 +279,14 @@ drawn after it and keeps its colors.
 and the right half shifted down by this much, split along the vertical centre line; the strips
 that uncovers are black (a "the sky is cut in two" beat, e.g. 24). 0 = the plain image. The UI is
 not split.
+`*grade-cut*` (f32vec 5, all 0): the split along any line, a **one-frame latch** (`end-frame` sends it and clears it, so a game
+sets it from draw code every frame it is wanted and nothing is left over after a K.O., a pause or a menu): x y (window px, a point on
+the line), the angle (radians: the line runs along (cos a, sin a), window y down), SHEAR and OPEN (window px). The side the normal
+(sin a, -cos a) points to moves OPEN along the normal and SHEAR along the line, the other side the opposite way; between them a void
+2 x OPEN wide, black, its outer 0.3 x OPEN on each side white. SHEAR and OPEN both 0 = off (`*grade-split*` as before, every pixel
+unchanged); while on it replaces `*grade-split*`. One function in the composite (`engine/shaders/split.wgsl`, all four composite
+pipelines: plain, impact, transparent, the paint stream's back layer), no extra pass; the UI and the paint stream draw after it, whole.
+Write its floats in place (0 B). SOUL DUEL: Yamamoto's AS4 天地灰尽 (DUEL_YAMA_CORE §40).
 `*render-transparent*` (NIL): a one-frame latch (`end-frame` clears it; set it again every frame it is wanted). T: no
 sky is drawn (the scene clears to 0,0,0,0) and the composite (`fs_comp_a`, pipeline slot 18) writes the scene's alpha,
 raised to the brightest channel where bloom or additive fx glow; it wins over `*grade-impact*`. A page whose

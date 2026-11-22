@@ -210,8 +210,8 @@ lead's placeholder, §14).")
   "西's garb charge (§30.2, the user 2026-11-21): the reach (m) the string after the SA of NSa / NSb (charge 1 / 2, x1.4 / x1.7: the SA copies'
 :charge-mult) adds to E-J2, E-J3 and the melee AS segments (*YA-REACH-MOVES*; 南's hazard AS stays unboosted). New, §30.2.")
 (defparameter *ya-as4-mark-x* 0.25
-  "AS4 天地灰尽 (§31, the user 2026-11-22: 「只要持有越多方位標記 AS4 與毀魂技的傷害就越高」): each mark held adds this to its segments' damage
-x (0 / 1 / 2 / 3 marks: x1.0 / 1.25 / 1.5 / 1.75). The lead's placeholder, tuned by play. New, §31.")
+  "AS4 天地灰尽 (§31, the user 2026-11-22: 「只要持有越多方位標記 AS4 與毀魂技的傷害就越高」): each mark held adds this to its damage x
+(0 / 1 / 2 / 3 marks: x1.0 / 1.25 / 1.5 / 1.75: 200 / 250 / 300 / 350 since its one cut, §40). The lead's placeholder, tuned by play. New, §31.")
 (defparameter *ya-as4-konpaku* '(2 3 4 5)
   "AS4's Kikon (§31): the Konpaku it takes by the marks held (0-3), over the pointer's profile (YAMA-KIKON-N; 5 = a Soul Break's cap,
 past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
@@ -305,22 +305,17 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
   :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
            :look yama-hands-look))
 
-;;; ---------------------------------------------------------------- AS4 天地灰尽 (§31): J4's AS (北 is no form since §33)
+;;; ---------------------------------------------------------------- AS4 天地灰尽 (§31, §40): J4's AS (北 is no form since §33)
 ;;; The user, 2026-11-22: 「天地灰盡改成 AS4 與接入的特殊毀魂技好了，只要持有越多方位標記 AS4 與毀魂技的傷害就越高」, 「增加 J4 可以接入 AS4，AS4
-;;; 能使出特殊毀魂技，當使用過 AS4 並回到中立後就會消除目前的方位記號」. Four segments (AS n = n, DUEL_CORE §6): the ash grip (40) > the ash cut
-;;; (50) > the ash line (60) > 天地灰尽 point-blank (140, a knockdown). Every segment (:params :as4) does x (1 + *YA-AS4-MARK-X* x the marks
-;;; held) (YAMA-DMG-MULT) and Kikons into 天地灰尽's cinematic (:cine: ROUND's SETTLE-SOULS reads the struck move's first) taking
-;;; *YA-AS4-KONPAKU* by the marks (YAMA-KIKON-N). It writes no pointer (:as-writes nil) and gives no mark; once used, his next neutral clears
-;;; the marks (YAMA-AS4-START, YAMA-AS4-SPENT). West's charge x still carries into it (CORE-CHARGE-MULT). Its own four clips and looks since
-;;; art batch D (§34: the ash grip, the ash cut, the ash line, 天地灰尽's white band and the victim's ash; yama-art.lisp, yama-look.lisp).
-(defmove :ya-e-as4a :kind :sp :clip :ya-e-as4a :startup 10 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
-  :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-as4-start)) :params (:ns-next :ya-e-as4b :as4 t))
-(defmove :ya-e-as4b :kind :sp :clip :ya-e-as4b :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :stagger
-  :cine yama-tenchi-cine :params (:ns-next :ya-e-as4c :as4 t))
-(defmove :ya-e-as4c :kind :sp :clip :ya-e-as4c :startup 10 :active 3 :recovery 16 :dmg 60 :reach 2.0 :arc 140 :on-hit :stagger
-  :cine yama-tenchi-cine :params (:ns-next :ya-e-as4 :as4 t))
-(defmove :ya-e-as4 :kind :sp :clip :ya-e-as4 :startup 10 :active 2 :recovery 30 :dmg 140 :reach 2.4 :arc 110
-  :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :params (:as4 t))
+;;; 能使出特殊毀魂技，當使用過 AS4 並回到中立後就會消除目前的方位記號」; then 「AS4 請改成只有一刀「帶有斬穿空間特效」的斬擊」 (§40): ONE cut, 200,
+;;; a knockdown (the user's exception to AS n = n segments, DUEL_CORE §6; it was four: the ash grip 40 > cut 50 > line 60 > 天地灰尽 140).
+;;; It (:params :as4) does x (1 + *YA-AS4-MARK-X* x the marks held) (YAMA-DMG-MULT: 200 / 250 / 300 / 350) and Kikons into 天地灰尽's
+;;; cinematic (:cine: ROUND's SETTLE-SOULS reads the struck move's) taking *YA-AS4-KONPAKU* by the marks (YAMA-KIKON-N). It writes no
+;;; pointer (:as-writes nil) and gives no mark; once used, his next neutral clears the marks (YAMA-AS4-START, YAMA-AS4-SPENT). West's charge
+;;; x still carries into it (CORE-CHARGE-MULT). S10 A2 R30: the old last segment's frames (its clip; the knockdown's advantage and the
+;;; block punish unchanged). Looks: the clip :ya-e-as4, the white band, the victim's ash and the screen split along the cut (yama-look.lisp).
+(defmove :ya-e-as4 :kind :sp :clip :ya-e-as4 :startup 10 :active 2 :recovery 30 :dmg 200 :reach 2.4 :arc 110
+  :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-as4-start)) :params (:as4 t))
 ;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; it follows any NS
 ;; segment's S+A, six poses, so its frame 0 matches none: a blend over its fast wind-up drew a larger jump, DUEL_YAMA_CORE §18.3)
 (defmove :ya-e-sa :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 60 :adv-block -12 :slide 0.6 :reach 2.0 :arc 120
@@ -353,7 +348,7 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
   :meter (:name "ZANKA" :max 1)                 ; (its own: the HUD inherits no heat strip; no sim reads it)
   :commands (:q :ya-e-j1)
   :strings ((:ya-e-j1 :q :ya-e-j2) (:ya-e-j2 :q :ya-e-j3) (:ya-e-j3 :q :ya-e-j4))   ; (E-J4: §31)
-  :core (:ns (:ya-e-n1a :ya-e-n2a :ya-e-n3a) :as (:ya-e-as1 :ya-e-as2 :ya-e-as3 :ya-e-as4a) :sa :ya-e-sa
+  :core (:ns (:ya-e-n1a :ya-e-n2a :ya-e-n3a) :as (:ya-e-as1 :ya-e-as2 :ya-e-as3 :ya-e-as4) :sa :ya-e-sa
          :stances (:ya-st-higashi :ya-st-nishi :ya-st-minami) ; 東 the blade level across / 西 the arms open low / 南 the blade
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19)
@@ -448,7 +443,7 @@ short-pay x (SP-SCALE) and, for a hazard, the SP x frozen at its fire frame (HAZ
   (nth (logcount marks) *ya-as4-konpaku*))
 
 (defun yama-dmg-mult (att def hw mv hazard d2)
-  "KIT-HOOK :dmg-mult: a hazard's segment x as frozen at its fire frame (its data :x), else his own move's (YAMA-SEG-X); an AS4 segment's
+  "KIT-HOOK :dmg-mult: a hazard's segment x as frozen at its fire frame (its data :x), else his own move's (YAMA-SEG-X); AS4's
 x by the marks held (YA-AS4-X, §31)."
   (declare (ignore def hw d2))
   (cond (hazard (or (getf (hazard-data hazard) :x) 1.0))
@@ -456,7 +451,7 @@ x by the marks held (YA-AS4-X, §31)."
         (t (yama-seg-x att mv))))
 
 (defun yama-kikon-n (att n)
-  "KIT-HOOK :kikon-n (CORE-SET-KIKON-N!): a Kikon off an AS4 segment takes YA-AS4-KONPAKU by the marks held (§31); else the profile's N."
+  "KIT-HOOK :kikon-n (CORE-SET-KIKON-N!): a Kikon off AS4 takes YA-AS4-KONPAKU by the marks held (§31); else the profile's N."
   (let ((mv (fighter-move (fighter att))))
     (if (and mv (getf (mv-params mv) :as4)) (ya-as4-konpaku (yss-marks (ys att)) n) n)))
 
@@ -861,11 +856,11 @@ a disc of HAZARD-SIZE; the ring's band), to set against the looks' ground edges.
 pointer 1-3; 87400+n P1 starts his NS under the pointer (n 0) / J1 (1); 87410+i P1 starts NS segment i of NS1a b c NS2a b c (0-5) on
 its own (CORE-START!: paid as a press); 87500+h P1's heat h (h 0-100: 100 enters 爆炎 at his next neutral); 87700+r P1's Reishi r, 87800+r
 P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as the setting would have it: a portrait window). The Bankai
-(stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, AS4's first (0-9; was 北's NS c until §31) on its own (CORE-START!; P1 in the Bankai); 87440 P1 awakens now (AWAKEN!, the
+(stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, AS4 (0-9; was 北's NS c until §31; AS4's first segment until §40) on its own (CORE-START!; P1 in the Bankai); 87440 P1 awakens now (AWAKEN!, the
 cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!); 87444 free (P1 into the 北 form until §33); 87445 P1's marks cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
-c, AS4's last (0-6) on its own (CORE-START!); 87455 P1 starts AS4's third segment on its own
-(§31; 87453-87458 were 北's segments until §33, the others free); 
+c, AS4 (0-6; its last segment until §40) on its own (CORE-START!); 87455 free (AS4's third segment until §40;
+87453-87458 were 北's segments until §33, the others free); 
 87437 an :armored event on P1 (FEEDBACK-SYSTEM only: 西's armour look); 87438 P1 starts 南's
 SA, the shatter, on its own (§30.3: CORE-START!, P1 in the Bankai; it spends a standing tower); 87448 the consing of every
 Bankai look (yama-look.lisp YAMA-LOOK-CONSING; art K2: the stances' garb / cracks and the smear too; art K3:
@@ -906,7 +901,7 @@ its mantle, left with the mantle: batch J2, §28.) The probe line carries 北's 
                          (setf (aref q 0) (f32 (+ (aref q 0) (* 3.0 (cos yaw)))) (aref q 2) (f32 (- (aref q 2) (* 3.0 (sin yaw)))))))
           ((<= 87420 c 87429)
            (core-start! *p1* (km (nth (- c 87420) '(:ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-n2a :ya-e-n2b :ya-e-n2c
-                                                    :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-as4a)))))
+                                                    :ya-e-n3a :ya-e-n3b :ya-e-n3c :ya-e-as4)))))   ; (AS4: one move since §40)
           ((<= 87430 c 87436)                       ; (art K1's stills: an AS segment on its own)
            (core-start! *p1* (km (nth (- c 87430) '(:ya-e-as1 :ya-e-as2 :ya-e-as2b :ya-e-as3 :ya-e-as3b :ya-e-as3c :ya-e-as4)))))
           ((= c 87437) (let ((p (pos-of *p1*))) (emit :armored *p1* (aref p 0) 1.2 (aref p 2))))   ; (西's armour look, L9: an event only)
@@ -927,7 +922,6 @@ its mantle, left with the mantle: batch J2, §28.) The probe line carries 北's 
           ((<= 87801 c 87899) (setf (gauges-reishi (gauges *p2*)) (- c 87800)))
           ((= c 87900))
           ((= c 87901) (setf *one-hand* (one-hand-effective-p)))   ; (the phone's deck: run with --mobile --size 390x844)
-          ((= c 87455) (core-start! *p1* (km :ya-e-as4c)))   ; (§31: AS4's third segment on its own)
           (t (log-msg "duel yamamoto: no debug command ~d" c))))
   (yama-probe-line (format nil "cmd ~d" c)))
 (define-debug-range (87000 87999) yama-debug)

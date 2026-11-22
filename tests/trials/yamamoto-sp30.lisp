@@ -26,21 +26,24 @@
 (:name "N1 the third mark: 東 西 held, J1-J3 > AS3: marks 7, still the Bankai (no 北 form, §33)" :p1 :yamamoto :form :bankai :p2 :kenpachi
  :ptr 1 :dist 1.4 :fs 300 :p1-cmd (87445 87441 87442)
  :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 300)
-;; AS4 天地灰尽 (§31): J4's AS, x (1 + 0.25 a mark) on its four segments 40 > 50 > 60 > 140, its Kikon 2 / 3 / 4 / 5 Konpaku by the marks;
-;; his next neutral after it clears the marks (`AS4 spent`)
+;; AS4 天地灰尽 (§31; one cut since §40, the user: 「AS4 請改成只有一刀「帶有斬穿空間特效」的斬擊」): J4's AS, ONE knockdown of 200 x (1 + 0.25 a mark)
+;; (200 / 250 / 300 / 350; four segments 40 > 50 > 60 > 140 until §40), its Kikon 2 / 3 / 4 / 5 Konpaku by the marks; his next neutral
+;; after it clears the marks (`AS4 spent`). The HIT line logs the move's base 200; the mark x shows in `dealt` (A8 / A9: the cut on its own,
+;; no combo before it, x1.0 vs x1.75). Since §40 no presses after the AS (a fourth modded press would start an NS after its recovery).
 (:name "A1 Bankai J1-J4 > AS4 (1.4 m), no mark: x1.0, no pointer written" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
- :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)
-                          (:quick 1 :modded t)) :frames 300)
+ :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit)) :frames 300)
 (:name "A2 the same with 東 西 held: x1.5, then neutral clears them" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
- :p1-cmd (87445 87441 87442) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t)
-                                      (:quick 1 :modded t) (:quick 1 :modded t)) :frames 300)
-(:name "A3 Bankai J1-J4 > AS4a held, 東 西 held: the Kikon takes 4" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87441 87442) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit)) :frames 300)
+(:name "A3 Bankai J1-J4 > AS4 held, 東 西 held: the Kikon takes 4" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
  :p1-cmd (87445 87441 87442) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 300)
 (:name "A3b control: no mark: the Kikon takes 2" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
  :p1-cmd (87445) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 300)
 (:name "A4 three marks in the Bankai: J1-J4 > AS4 x1.75, then neutral clears them" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2
  :dist 1.4 :fs 300 :p1-cmd (87445 87441 87442 87443)
- :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)
-          (:quick 1 :modded t)) :frames 300)
-(:name "A5 three marks: AS4a held, the Kikon takes 5" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit)) :frames 300)
+(:name "A5 three marks: AS4 held, the Kikon takes 5" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
  :p1-cmd (87445 87441 87442 87443) :script ((:quick 1) (:quick 1) (:quick 1) (:quick 1) (:quick 60 :modded t :on :hit)) :frames 300)
+(:name "A8 AS4 on its own (1.4 m), no mark: the cut x1.0 (§40)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87436) :script () :frames 80)
+(:name "A9 AS4 on its own (1.4 m), three marks: the cut x1.75 (§40)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 2 :dist 1.4 :fs 300
+ :p1-cmd (87445 87441 87442 87443 87436) :script () :frames 80)

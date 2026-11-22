@@ -1,5 +1,5 @@
 // composite-fx.frag.wgsl — RP_COMP_FX: composite.frag.wgsl's image (scene + bloom + vignette + desaturate +
-// split, P[0] = its lane) followed by a screen punctuation mode (docs/style/STYLE_STORM_DESIGN.md §3.6), chosen by
+// split, P[0] = its lane, P[4] = the cut: split.wgsl) followed by a screen punctuation mode (docs/style/STYLE_STORM_DESIGN.md §3.6), chosen by
 // r_frame only while *GRADE-IMPACT* is not 0 (RP_COMP stays untouched for every other frame):
 //   P[1] = mode, luma threshold, keep-saturation, keep-hue (degrees); P[2].rgb = ink, P[2].w = keep-hue-2;
 //   P[3].rgb = paper
@@ -8,7 +8,8 @@
 //   3 manga page      two-tone, but pixels with HSV saturation > keep-sat (and value > 0.25) keep their colour
 //   4 spot-keep       greyscale except saturated pixels within 25 degrees of keep-hue or keep-hue-2
 // #include "fullscreen.vert.wgsl"
-@group(3) @binding(0) var<uniform> P: array<vec4f, 4>;
+// #include "split.wgsl"
+@group(3) @binding(0) var<uniform> P: array<vec4f, 5>;
 @group(2) @binding(0) var t0: texture_2d<f32>;
 @group(2) @binding(1) var s0: sampler;
 @group(2) @binding(2) var t1: texture_2d<f32>;
@@ -24,13 +25,17 @@ fn hsv(c: vec3f) -> vec3f {
 }
 @fragment fn fs_comp_fx(i: Post) -> @location(0) vec4f {
   let L = P[0];
-  let uv = vec2f(i.uv.x, i.uv.y + select(-L.w, L.w, i.uv.x < 0.5));
-  let inside = f32(uv.y >= 0.0 && uv.y <= 1.0);
+  let dim = vec2f(textureDimensions(t0));
+  let k = split_uv(i.uv, L.w, P[4], dim.x / dim.y);
+  let uv = k.xy;
+  let inside = f32(k.z == 1.0);
   var c = (textureSample(t0, s0, uv).rgb + (textureSample(t1, s1, uv).rgb * 0.6 + textureSample(t2, s2, uv).rgb) * L.x) * inside;
   let q = i.uv - 0.5;
   c *= 1.0 - L.y * dot(q, q) * 2.0;
-  let luma = dot(c, vec3f(0.2126, 0.7152, 0.0722));
-  c = clamp(mix(c, vec3f(luma), L.z), vec3f(0.0), vec3f(1.0));
+  let luma0 = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+  c = clamp(mix(c, vec3f(luma0), L.z), vec3f(0.0), vec3f(1.0));
+  c = select(c, vec3f(1.0), k.z > 1.5);   // the cut's white edges
+  let luma = select(luma0, 1.0, k.z > 1.5);
   let m = P[1];
   let h = hsv(c);
   let spot = h.y > m.z && h.z > 0.25;
