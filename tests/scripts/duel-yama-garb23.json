@@ -1,0 +1,690 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== ns1c behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 10.7,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 11.02,
+"shot": "tests/shots/duel-garb23-ns1c-s1-behind.png"
+},
+{
+"at": 11.03,
+"shot": "tests/shots/duel-garb23-ns1c-s2-behind.png"
+},
+{
+"at": 11.05,
+"shot": "tests/shots/duel-garb23-ns1c-s3-behind.png"
+},
+{
+"at": 11.08,
+"shot": "tests/shots/duel-garb23-ns1c-s5-behind.png"
+},
+{
+"at": 11.13,
+"shot": "tests/shots/duel-garb23-ns1c-s8-behind.png"
+},
+{
+"at": 11.18,
+"shot": "tests/shots/duel-garb23-ns1c-s11-behind.png"
+},
+{
+"at": 11.23,
+"shot": "tests/shots/duel-garb23-ns1c-s14-behind.png"
+},
+{
+"at": 11.28,
+"shot": "tests/shots/duel-garb23-ns1c-s17-behind.png"
+},
+{
+"at": 12.65,
+"eval": "console.log('=== ns1c-garb behind')"
+},
+{
+"at": 12.7,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 12.75,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 12.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87422)"
+},
+{
+"at": 14.75,
+"shot": "tests/shots/duel-garb23-ns1c-garb-s3-behind.png"
+},
+{
+"at": 14.87,
+"shot": "tests/shots/duel-garb23-ns1c-garb-s10-behind.png"
+},
+{
+"at": 16.35,
+"eval": "console.log('=== ns1c side')"
+},
+{
+"at": 16.4,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 16.45,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 17.8,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 18.1,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 18.42,
+"shot": "tests/shots/duel-garb23-ns1c-s1-side.png"
+},
+{
+"at": 18.43,
+"shot": "tests/shots/duel-garb23-ns1c-s2-side.png"
+},
+{
+"at": 18.45,
+"shot": "tests/shots/duel-garb23-ns1c-s3-side.png"
+},
+{
+"at": 18.48,
+"shot": "tests/shots/duel-garb23-ns1c-s5-side.png"
+},
+{
+"at": 18.53,
+"shot": "tests/shots/duel-garb23-ns1c-s8-side.png"
+},
+{
+"at": 18.58,
+"shot": "tests/shots/duel-garb23-ns1c-s11-side.png"
+},
+{
+"at": 18.63,
+"shot": "tests/shots/duel-garb23-ns1c-s14-side.png"
+},
+{
+"at": 18.68,
+"shot": "tests/shots/duel-garb23-ns1c-s17-side.png"
+},
+{
+"at": 19.3,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 20.05,
+"eval": "console.log('=== ns1c top')"
+},
+{
+"at": 20.1,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 20.15,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 20.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.5,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 21.8,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 22.12,
+"shot": "tests/shots/duel-garb23-ns1c-s1-top.png"
+},
+{
+"at": 22.13,
+"shot": "tests/shots/duel-garb23-ns1c-s2-top.png"
+},
+{
+"at": 22.15,
+"shot": "tests/shots/duel-garb23-ns1c-s3-top.png"
+},
+{
+"at": 22.18,
+"shot": "tests/shots/duel-garb23-ns1c-s5-top.png"
+},
+{
+"at": 22.23,
+"shot": "tests/shots/duel-garb23-ns1c-s8-top.png"
+},
+{
+"at": 22.28,
+"shot": "tests/shots/duel-garb23-ns1c-s11-top.png"
+},
+{
+"at": 22.33,
+"shot": "tests/shots/duel-garb23-ns1c-s14-top.png"
+},
+{
+"at": 22.38,
+"shot": "tests/shots/duel-garb23-ns1c-s17-top.png"
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 23.75,
+"eval": "console.log('=== ns1c-garb top')"
+},
+{
+"at": 23.8,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 23.85,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 23.9,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 25.2,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 25.5,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87422)"
+},
+{
+"at": 25.85,
+"shot": "tests/shots/duel-garb23-ns1c-garb-s3-top.png"
+},
+{
+"at": 25.97,
+"shot": "tests/shots/duel-garb23-ns1c-garb-s10-top.png"
+},
+{
+"at": 26.7,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 27.45,
+"eval": "console.log('=== tower side')"
+},
+{
+"at": 27.5,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 27.55,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 27.6,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 28.9,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 29.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.9,
+"shot": "tests/shots/duel-garb23-tower-l1-side.png"
+},
+{
+"at": 29.95,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.96,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 30.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 30.03,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.56,
+"shot": "tests/shots/duel-garb23-tower-l2-side.png"
+},
+{
+"at": 30.58,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 30.59,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 30.64,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 30.66,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.96,
+"shot": "tests/shots/duel-garb23-tower-topple-side.png"
+},
+{
+"at": 32.4,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 32.95,
+"eval": "console.log('=== tower-garb side')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 33.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 34.4,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 34.7,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 35.4,
+"shot": "tests/shots/duel-garb23-tower-garb-l1-side.png"
+},
+{
+"at": 35.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 35.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 35.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 35.53,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 36.06,
+"shot": "tests/shots/duel-garb23-tower-garb-l2-side.png"
+},
+{
+"at": 36.08,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 36.09,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 36.14,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.16,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 36.46,
+"shot": "tests/shots/duel-garb23-tower-garb-topple-side.png"
+},
+{
+"at": 37.9,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 38.45,
+"eval": "console.log('=== towerA side')"
+},
+{
+"at": 38.5,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 38.55,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 38.6,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 39.9,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 40.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 40.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 41.45,
+"shot": "tests/shots/duel-garb23-towerA-side.png"
+},
+{
+"at": 41.8,
+"shot": "tests/shots/duel-garb23-towerA-late-side.png"
+},
+{
+"at": 42.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 43.05,
+"eval": "console.log('=== towerA-garb side')"
+},
+{
+"at": 43.1,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 43.15,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 43.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 44.5,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 44.8,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 46.05,
+"shot": "tests/shots/duel-garb23-towerA-garb-side.png"
+},
+{
+"at": 46.4,
+"shot": "tests/shots/duel-garb23-towerA-garb-late-side.png"
+},
+{
+"at": 47.2,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 47.65,
+"eval": "console.log('=== shatter side')"
+},
+{
+"at": 47.7,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 47.75,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 47.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 49.1,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 49.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 49.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.28,
+"shot": "tests/shots/duel-garb23-shatter-0-side.png"
+},
+{
+"at": 50.35,
+"shot": "tests/shots/duel-garb23-shatter-1-side.png"
+},
+{
+"at": 50.45,
+"shot": "tests/shots/duel-garb23-shatter-2-side.png"
+},
+{
+"at": 51.4,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 51.85,
+"eval": "console.log('=== shatter-garb side')"
+},
+{
+"at": 51.9,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 51.95,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 52.0,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 53.3,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 53.6,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 54.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 54.48,
+"shot": "tests/shots/duel-garb23-shatter-garb-0-side.png"
+},
+{
+"at": 54.55,
+"shot": "tests/shots/duel-garb23-shatter-garb-1-side.png"
+},
+{
+"at": 54.65,
+"shot": "tests/shots/duel-garb23-shatter-garb-2-side.png"
+},
+{
+"at": 55.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 56.05,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 56.1,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 56.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 58.6,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 58.63,
+"eval": "Module._debug_cmd(87642)"
+},
+{
+"at": 60.33,
+"shot": "tests/shots/duel-garb23-cine-f84.png"
+},
+{
+"at": 60.38,
+"eval": "Module._debug_cmd(87643)"
+},
+{
+"at": 60.71,
+"shot": "tests/shots/duel-garb23-cine-f86.png"
+},
+{
+"at": 60.76,
+"eval": "Module._debug_cmd(87644)"
+},
+{
+"at": 61.1,
+"shot": "tests/shots/duel-garb23-cine-f88.png"
+},
+{
+"at": 61.15,
+"eval": "Module._debug_cmd(87645)"
+},
+{
+"at": 61.48,
+"shot": "tests/shots/duel-garb23-cine-f90.png"
+},
+{
+"at": 61.53,
+"eval": "Module._debug_cmd(87646)"
+},
+{
+"at": 61.86,
+"shot": "tests/shots/duel-garb23-cine-f92.png"
+},
+{
+"at": 61.91,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 62.28,
+"shot": "tests/shots/duel-garb23-cine-f96.png"
+},
+{
+"at": 62.93,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 63.23,
+"eval": "console.log('=== END')"
+}
+]

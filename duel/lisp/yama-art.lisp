@@ -282,10 +282,11 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
                (> (model-alpha m) 0.5) (not (eql e *aura-off*))                 ;  every frame under 西 but while a flare draws
                (not (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))))      ;  but while the 西 Kikon draws its own (§39: a
                                                                                           ;  flare no longer replaces it: no size pulse)
-      (yama-garb-at (model-joints m) f))   ; (its size by 西's charge: YAMA-GARB-K, §30.2)
+      (yama-garb-at (model-joints m) f (let ((s (yss e))) (if s (yss-garb s) 0))))   ; (its size by 西's charge or garb level: YAMA-GARB-K)
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
-        (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt))))
+        (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt) mv   ; (NS1c: its volume in play; AS1: the charge's level,
+                                     (let ((cm (fighter-charge-mult f))) (cond ((>= cm 1.65f0) 2) ((>= cm 1.35f0) 1) (t 0))))))   ;  YA-CHARGE-LEVEL's, inline)
       (yama-west-flame e f m mv)                          ; 西's flame on a charged swing (art batch C, §34)
       (when (and (eq (mv-name mv) :ya-e-as4) (eq (fighter-phase f) :main) (<= (fighter-sf f) 10) (model-weapon m))   ; 天地灰尽's burn (art K3; AS4's
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) *ya-tip*)                                    ;  last since §31, at

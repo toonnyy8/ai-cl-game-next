@@ -2066,3 +2066,114 @@ J_AS2 = ((92, "lv2-as2a"), (114, "lv2-as2b"))                             # (S o
 J_J4 = ((81, "lv1-j4"),)                                                  # (J4: E-J1's clip until batch D's own)
 write("yama-art-c", yama_art_c_script())
 write("yama-art-c-phone", yama_art_c_script(True))
+
+# 西's garb across the temporary switch (2026-11-23, the user: 「殘日獄衣的強化要回到中立才解除，因此當指針臨時切換時也要有強化效果」): P1
+# Yamamoto in the Bankai (87446, awakened: the switch is open) vs an idle Kenpachi. G1: 西 NSa (SP), then A + SP in its gap = the
+# temporary switch to 東 (`NS pointer 2 -> 1`), SP SP: NS1a-c at x1.4 (`GARB 0 -> 1`, NS1c 168 on its x1.2 capsule). G2: 西 NSa NSb,
+# D + SP = 南, SP SP: the tower 2.35 / 4.12 m (`tower level ... garb 2`), its hands x1.7 (68 / 85), the topple 170. G3 (after his
+# neutral: `GARB 2 -> 0 (neutral)`): a fresh 東 NS a-b-c, NS1c 120. Stills on the way (`duel-yama-garb-*.png`). Read the `-> P2`,
+# `GARB`, `NS pointer`, `tower` lines per `===` scene.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 32 --script tests/scripts/duel-yama-garb.json [--size 390x844 --mobile]
+def yama_garb_script(phone=False):
+    ev, t = [], T0
+    sfx = "-phone" if phone else ""
+    def say(s, x): ev.append({"at": round(s, 2), "eval": f"console.log('=== {x}')"})
+    def sp(s, hold=0.05): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def sw(s, k): ev.append(key(s - 0.05, k)); sp(s); ev.append(key(s + 0.15, k, False))
+    for name, dist, ptr, steps, shots in (
+            ("G1 west NSa, A+SP: east NS a-b-c under garb 1", 87030, 87302, [("s", 0.3), ("A", 0.65), ("s", 1.25), ("s", 1.75)],
+             ((2.45, "g1-tear"), (2.6, "g1-tear-b"))),
+            ("G2 west NSa NSb, D+SP: south NS a-b-c under garb 2", 87025, 87302, [("s", 0.3), ("s", 0.85), ("D", 1.3), ("s", 2.1), ("s", 2.55)],
+             ((2.45, "g2-tower1"), (2.95, "g2-tower2"), (3.35, "g2-topple"))),
+            ("G3 after neutral: a fresh east NS a-b-c (garb 0)", 87030, 87301, [("s", 0.3), ("s", 0.9), ("s", 1.4)],
+             ((2.1, "g3-tear"),))):
+        say(t - 0.05, name)
+        ev += [cmd(t, dist), cmd(t + 0.03, 87446), cmd(t + 0.06, ptr), cmd(t + 0.09, 87445)]
+        for kind, dt in steps:
+            if kind == "s": sp(t + dt)
+            else: sw(t + dt, "Key" + kind)
+        for dt, n in shots: ev.append(shot(t + dt, f"yama-garb-{n}{sfx}"))
+        ev.append(cmd(t + 4.2, 87900))
+        t += 5.0
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-garb", yama_garb_script())
+write("yama-garb-phone", yama_garb_script(True))
+
+# The 2026-11-23 batch's stills (DUEL_YAMA_CORE: NS1c's tear 0.2-4.5 m x r 0.7, the dust burst, 南's slimmer / lower tower, 西's garb
+# on NS1c and on the tower): NS1c on its own (87422, Kenpachi 8 m away: no hit; S18) at S+1 .. S+17 (the dust strip: S+1 2 3 5 8 11 14 17)
+# from behind, the side (2109) and above (87480); the same under garb 2 (87457 with 87422 in one frame: his neutral would clear it) at
+# S+3 / S+10; 南 NSa / NSb beside him from the side (87015: Kenpachi 1.5 m, SP, SP: the tower level 1 = his height, level 2 x1.75) and
+# under garb 2 (87457 + 87426 in one frame, SP: the tower x1.4 with fire), the topple after NSc; the 東 Kikon at cf84-92 (unchanged: the
+# victim on the diamond). PHONE: the deck on (87901). Shots tests/shots/duel-garb23-*.png (move them off).
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 70 --script tests/scripts/duel-yama-garb23.json
+def yama_garb23_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def two(s, a, b): ev.append({"at": round(s, 2), "eval": f"Module._debug_cmd({a});Module._debug_cmd({b})"})
+    def sp(s, hold=0.05): ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side", "top"):
+        for nm, garb, frames in (("ns1c", None, (1, 2, 3, 5, 8, 11, 14, 17)), ("ns1c-garb", 87457, (3, 10))):
+            if cam == "side" and garb: continue
+            a = scene(f"{nm} {cam}", (87080, 87301, 87446) + deck) + 1.6
+            if cam == "top": ev.append(cmd(a - 0.3, 87480))
+            if cam == "side": ev.append(cmd(a - 0.3, 2109))
+            if garb: two(a, garb, 87422)
+            else: ev.append(cmd(a, 87422))
+            for k in frames: ev.append(shot(a + (18 + k) / 60, f"garb23-{nm}-s{k}-{cam}{sx}"))
+            if cam == "top": ev.append(cmd(a + 1.2, 87480))
+            if cam == "side": ev.append(cmd(a + 1.2, 2109))
+            t = a + 2.0
+    for nm, garb in (("tower", None), ("tower-garb", 87457)):
+        a = scene(f"{nm} side", (87040, 87303, 87446) + deck) + 1.6    # (Kenpachi 4 m away: out of the discs, the tower alone beside him)
+        ev.append(cmd(a - 0.3, 2109))
+        if garb: two(a, garb, 87426)
+        else: sp(a)
+        ev.append(shot(a + 0.7, f"garb23-{nm}-l1-side{sx}"))         # (NSa's S22 + the 16 f rise = 38 f)
+        sp(a + 0.75)                                                  # NSb (NSa's active frames are over: it starts at once)
+        ev.append(shot(a + 1.36, f"garb23-{nm}-l2-side{sx}"))        # (its S16 + the 16 f climb)
+        sp(a + 1.38)                                                  # NSc: the topple on its S18
+        ev.append(shot(a + 1.76, f"garb23-{nm}-topple-side{sx}"))
+        ev.append(cmd(a + 3.2, 2109))
+        t = a + 3.8
+    for nm, garb in (("towerA", None), ("towerA-garb", 87457)):     # NSa only: he back in his stance beside the level-1 tower
+        a = scene(f"{nm} side", (87040, 87303, 87446) + deck) + 1.6
+        ev.append(cmd(a - 0.3, 2109))
+        if garb: two(a, garb, 87426)
+        else: sp(a)
+        ev.append(shot(a + 1.25, f"garb23-{nm}-side{sx}")); ev.append(shot(a + 1.6, f"garb23-{nm}-late-side{sx}"))
+        ev.append(cmd(a + 2.4, 2109))
+        t = a + 2.9
+    for nm, garb in (("shatter", None), ("shatter-garb", 87457)):   # NSa > the SA (J in its gap): the heap's hand-off at the shatter
+        a = scene(f"{nm} side", (87025, 87303, 87446) + deck) + 1.6
+        ev.append(cmd(a - 0.3, 2109))
+        if garb: two(a, garb, 87426)
+        else: sp(a)
+        ev.extend(tap(a + 0.4, "KeyJ", 0.05))
+        for k, dt in enumerate((0.88, 0.95, 1.05)): ev.append(shot(a + dt, f"garb23-{nm}-{k}-side{sx}"))   # (after the bind's hitstop)
+        ev.append(cmd(a + 2.0, 2109))
+        t = a + 2.5
+    ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== higashi')"})
+    ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]
+    t += 2.5
+    ev.append(cmd(t, 87450))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    beats = (84, 86, 88, 90, 92, 96)
+    ev.append(cmd(t + 0.03, 87600 + beats[0] // 2))
+    a, f0 = t + 0.03, 0
+    for j, f in enumerate(beats):
+        a += (f - f0) / 60 + 0.3
+        ev.append(shot(a, f"garb23-cine-f{f}{sx}"))
+        if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1] // 2))
+        a += 0.05
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-garb23", yama_garb23_script())
+write("yama-garb23-phone", yama_garb23_script(True))

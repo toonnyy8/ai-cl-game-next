@@ -78,7 +78,7 @@ look reads no boxed struct float.")
   "東's look at cinematic frame CF: the void (D3 「黑色虛空帶」, §15.3.4 flag 1: no stage geometry is removed, a flat INK wedge on the
 floor shot from above) opens from where the tip touched, 1.86 m ahead of him (NS1c's tip by FK), through the victim's spot: a ragged
 rhombus (YAMA-TEAR, the user's §41; §20's radial tear before) running out to 12 m in 10 f from f84 and opening out to 2.5 m a side at its
-widest over 14 f, 18 stations a side; a dust kick along it while it runs out (f85-91, §41); no ember hairline (§20.1); ash falling into
+widest over 14 f, 18 stations a side; a dust burst along it as it runs out (%YA-TEAR-DUST, §41, a burst since 2026-11-23); no ember hairline (§20.1); ash falling into
 it to the end. A look; 0 B."
   (declare (fixnum cf))
   (when (>= cf 84)
@@ -91,8 +91,8 @@ it to the end. A look; 0 B."
         (declare (single-float tx tz u l g w pk rdt))
         (when (> l 0.05f0)                                ; the tear (YAMA-TEAR, §41): opening over 14 f, a fixed seed
           (yama-tear tx tz fx fz l w g 18 78f0 pk)
-          (when (< cf 92)                                 ; the dust kick along it as the floor splits (f85-91, its run out: ~8 puffs)
-            (%ya-tear-dust tx tz fx fz l (* w (- 1f0 (* (- 1f0 g) (- 1f0 g)))) 70f0 0.28f0 rdt))
+          (when (< cf 114)                                ; the dust burst along it as the floor splits (2026-11-23: 12 puffs, each
+            (%ya-tear-dust tx tz fx fz 13.2f0 (* 0.5f0 w) (- cf 84) 10 12 0.28f0 78f0))   ;  born where the run reaches at f84-94, 12-18 f)
           (dotimes (i (n-of 60f0 rdt))                    ; ash falling into it
             (let* ((s (rnd-range 0f0 l)) (w (* w (%ya-tent (/ s l)) (rnd-range -0.9f0 0.9f0))))
               (declare (single-float s w))
