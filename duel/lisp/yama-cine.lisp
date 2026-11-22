@@ -523,7 +523,7 @@ of them. A look; 0 B."
            (tn (/ (f-sin (* 0.5f0 *lens-fov*)) (f-cos (* 0.5f0 *lens-fov*))))
            (cone (/ 1f0 (f-sqrt (+ 1f0 (* 6.25f0 tn tn)))))   ; (the frame's corner: 2.5 x the vertical half, a phone's widened lens too)
            (w (%ya-ease (/ (- c 160f0) 40f0))) (lean (+ 0.45f0 (* 0.8f0 w)))
-           (k (* 0.98f0 (- 1f0 (%ya-ease (/ (- c 226f0) 12f0))))) (dr (drawing-no)) (used 0) (cap (cond ((>= cf 200) 4000) ((>= cf 180) 6600) (t +ya-sea-all+))))
+           (k (* 0.98f0 (- 1f0 (%ya-ease (/ (- c 226f0) 12f0))))) (dr (drawing-no)) (used 0) (cap (cond ((>= cf 200) 3200) ((>= cf 180) 5400) (t +ya-sea-all+))))
       (declare (type f32vec e cw) (single-float c ex ey ez cfx cfy cfz tn cone w lean k dr) (fixnum used cap))
       (when (> k 0.02f0)
         (dotimes (j 18)
@@ -626,8 +626,8 @@ web) over 4 f; the old crack to the victim kept. Under the sea's ground until it
   "南's look at cinematic frame CF (§36): the crack web from the blade (YAMA-MINAMI-WEB, f51 on); the charcoal ground of the sea (its uv the
 plaza's x z, so its field is the distance from him) closing in from 10 m to him over f62-96 with an INK ring and an EMBER hairline on its front and dust thrown up along it, ragged as it sinks back; the sea (YAMA-MINAMI-SEA); on him eight bone hands out of the floor, each
 under a skull breaking it (from f86, one every 6 f, none from the lens's side: the floor is seen to cut him), reaching to his knees, waist,
-sword hand, arms and chest, each gone once its joint is under (round 2: the posed dead read as boulders at his shins), and 14 climbers
-behind him (f96-186; on the lens's side only from f116; drawn in over the last beat); the mound of climbers over the spot (f180, 1.6 m by
+sword hand, arms and chest, each gone once its joint is under (round 2: the posed dead read as boulders at his shins), and 14 of the
+bone dead (%YA-WIGHT) behind him (f96-186; on the lens's side only from f116; drawn in over the last beat); the mound of the bone dead over the spot (round 2b: not the tower's ink climbers) (f180, 1.6 m by
 f196) with one last hand out of its crest (f188-206), the ember light and cracks under it at the Konpaku (f200), crumbling to ash as it
 sinks back (f206-228); ash falling over the plaza from f200. A look; 0 B."
   (declare (fixnum cf))
@@ -683,27 +683,42 @@ sinks back (f206-228); ash falling over the plaza from f200. A look; 0 B."
                       (%ya-skull ax 0.07f0 az 0.085f0 0.98f0 (+ seed 40f0 fi) nil crx cry crz cux cuy cuz)
                       (%ya-bone-hand ax 0.08f0 az (/ dx l) (/ dy l) (/ dz l) (* u (- l 0.08f0)) 0.03f0 0.98f0 (+ seed 50f0 (* 5f0 fi))
                                      (/ (- dz) hl) 0f0 (/ dx hl) 3)))))))))
-      (when (and (<= 96 cf) (< cf 186))                   ; 14 climbers reaching in from every side behind them, drawn in at the end
-        (let* ((e (camera-eye *camera*)) (ux (- (aref e 0) qx)) (uz (- (aref e 2) qz)) (ul (f-max 0.01f0 (f-hypot ux uz))))
-          (declare (type f32vec e) (single-float ux uz ul))
-          (dotimes (i 14)
-            (let* ((fi (i->f i)) (h (hash01 fi 5.3f0)) (fr (+ 96f0 (* 2f0 (i->f (mod (* 5 i) 14))))) (u (f-clamp (/ (- c fr) 10f0) 0f0 1f0))
-                   (an (+ (* 0.4488f0 fi) (* 0.3f0 h))) (ca (f-cos an)) (sa (f-sin an)))
-              (declare (single-float fi h fr u an ca sa))
-              (when (and (> u 0f0) (or (>= cf 116) (< (/ (+ (* ca ux) (* sa uz)) ul) 0.7f0)))   ; (not between him and the lens yet)
-                (let* ((rr (* (+ 1.0f0 (* 0.5f0 h)) (- 1f0 (* 0.6f0 w))))
-                       (y (+ (* -0.8f0 (- 1f0 (* u (- 2f0 u)))) -0.1f0 (* -0.3f0 h) (* 0.3f0 sink))))
-                  (declare (single-float rr y))
-                  (%ya-climber (+ qx (* rr ca)) y (+ qz (* rr sa)) (* -0.5f0 ca) 0.866f0 (* -0.5f0 sa) (- sa) 0f0 ca
-                               (+ 1f0 (* 0.2f0 h)) 0.98f0 (+ seed (* 11f0 fi)) (+ (* 0.9f0 dr) (* 6.2832f0 h)) t)))))))
-      (when (and (<= 180 cf) (< cf 230))                  ; the mound over the spot: a heap of climbers with hands, crumbling as the
-        (let* ((e1 (%ya-ease (/ (- c 180f0) 16f0))) (crum (f-clamp (/ (- c 206f0) 22f0) 0f0 1f0)) (h (* 1.6f0 e1)))   ;  sea sinks back
-          (declare (single-float e1 crum h))
-          (%ya-cone! qx qz fx fz 0f0 h 1.1f0 0.98f0 crum 1f0 (+ seed 5f0) (* 1.6f0 (- 1f0 e1)) 1f0 (* 0.9f0 dr))
+      (with-cam (crx cry crz cux cuy cuz)                 ; (round 2b: the climbers here are the sea's bone dead, not the tower's ink
+        (when (and (<= 96 cf) (< cf 186))                 ;  climbers, which read as black bombs on the climax frames)
+          (let* ((e (camera-eye *camera*)) (ux (- (aref e 0) qx)) (uz (- (aref e 2) qz)) (ul (f-max 0.01f0 (f-hypot ux uz))))
+            (declare (type f32vec e) (single-float ux uz ul))   ; 14 of the dead reaching in from every side behind him, drawn in at the end
+            (dotimes (i 14)
+              (let* ((fi (i->f i)) (h (hash01 fi 5.3f0)) (fr (+ 96f0 (* 2f0 (i->f (mod (* 5 i) 14))))) (u (f-clamp (/ (- c fr) 10f0) 0f0 1f0))
+                     (an (+ (* 0.4488f0 fi) (* 0.3f0 h))) (ca (f-cos an)) (sa (f-sin an)))
+                (declare (single-float fi h fr u an ca sa))
+                (when (and (> u 0f0) (or (>= cf 116) (< (/ (+ (* ca ux) (* sa uz)) ul) 0.7f0)))   ; (not between him and the lens yet)
+                  (let* ((rr (* (+ 1.0f0 (* 0.5f0 h)) (- 1f0 (* 0.6f0 w))))
+                         (y (+ (* -0.8f0 (- 1f0 (* u (- 2f0 u)))) -0.05f0 (* -0.2f0 h) (* 0.3f0 sink))))
+                    (declare (single-float rr y))
+                    (%ya-wight (+ qx (* rr ca)) y (+ qz (* rr sa)) (- ca) (- sa) (+ 1.15f0 (* 0.2f0 h)) 0.98f0 (+ seed (* 11f0 fi))
+                               (+ (* 0.9f0 dr) (* 6.2832f0 h)) 2 1.0f0 t crx cry crz cux cuy cuz)))))))
+        (when (and (<= 180 cf) (< cf 230))                ; the mound over the spot: rings of the bone dead heaped up, every arm
+          (let* ((e1 (%ya-ease (/ (- c 180f0) 16f0))) (crum (f-clamp (/ (- c 206f0) 22f0) 0f0 1f0)) (h (* 1.6f0 e1))   ;  reaching up and in to
+                 (yc (* h (- 1f0 (* 1.15f0 crum)))) (ce (camera-eye *camera*)) (ex (- (aref ce 0) qx)) (ez (- (aref ce 2) qz)))   ;  the crest, the
+            (declare (single-float e1 crum h yc ex ez) (type f32vec ce))                                                   ;  near half drawn;
+            (when (> h 0.1f0)                                                                                               ;  crumbling from the top
+              (dotimes (j 5)
+                (let* ((fj (i->f j)) (y0 (* h (/ (+ fj 0.2f0) 5f0))) (q (/ y0 h)) (r (+ (* 1.1f0 (- 1f0 q) (+ 1f0 (* 0.3f0 q))) 0.12f0))
+                       (m (max 2 (f->i (/ (* 6.2832f0 r) 0.42f0)))))
+                  (declare (single-float fj y0 q r) (fixnum m))
+                  (dotimes (i m)
+                    (let* ((fi (i->f i)) (hs (hash01 (+ fi (* 7f0 fj)) (+ seed 5f0)))
+                           (an (+ (* 6.2832f0 (/ (+ fi (* 0.5f0 (i->f (logand j 1))) (* 0.3f0 hs)) (i->f m))) (* 1.6f0 (- 1f0 e1) (- 1f0 q))))
+                           (ca (f-cos an)) (sa (f-sin an)) (f (if (> y0 yc) (f-clamp (/ (- y0 yc) (* 0.25f0 h)) 0f0 1f0) 0f0)))
+                      (declare (single-float fi hs an ca sa f))
+                      (when (and (< f 0.98f0) (> (+ (* ca ex) (* sa ez)) (* (if (>= cf 200) -0.2f0 -0.7f0) (f-hypot ex ez))))
+                        (%ya-wight (+ qx (* r ca)) (- y0 (* 0.35f0 (- 1f0 q)) (* 0.8f0 f)) (+ qz (* r sa)) (- ca) (- sa) (+ 0.9f0 (* 0.25f0 hs))
+                                   (* 0.98f0 (- 1f0 f)) (+ seed (* 13f0 fj) fi) (+ (* 0.9f0 dr) (* 6.2832f0 hs)) (if (> hs 0.75f0) 2 1)
+                                   (+ 0.6f0 (* 0.5f0 (- 1f0 q))) t crx cry crz cux cuy cuz)))))))
           (%ya-tower-ash qx qz h 1.1f0 crum rdt)
           (when (and (>= cf 188) (< cf 206))              ; one last hand out of its crest
             (%ya-bone-hand (+ qx (* 0.1f0 rx)) (* 0.9f0 h) (+ qz (* 0.1f0 rz)) (* 0.33f0 rx) 0.89f0 (* 0.33f0 rz) 0.6f0 0.035f0 0.98f0
-                           (+ seed 60f0) fx 0f0 fz 3))))
+                           (+ seed 60f0) fx 0f0 fz 3)))))
       (when (and (<= 200 cf) (< cf 222))                  ; the Konpaku: ember light and cracks from under the mound
         (let ((g (- 1f0 (/ (- c 200f0) 22f0))))
           (declare (single-float g))

@@ -3823,3 +3823,11 @@ sea at its 8000 cap), f156 12408 / 12402, f170 10458 / 10392, f182-f192 12504 / 
 The stills script now holds each beat 0.75 s (the counts above were read with 2.2 s holds). A hold artifact: in the held stills a cloud
 of ash puffs stands round his blade at f156 and at the frame's left at f192 (it builds up over the earlier holds; none of this look's
 emitters runs there; not traced further). The cinematic played straight (no holds, stills by time at f130 / f156 / f192) has no cloud.
+
+Round 2b (the lead, 2026-11-22: the mound at f182-f200 still drew the tower's ink climbers, the black bombs, on the climax frame): the
+mound and the 14 dead behind him no longer call `%ya-cone!` / `%ya-climber` (the tower's look in play is untouched); the mound is 5 rings of
+`%ya-wight` (bone skull faces, 1-2 bone hands reaching up and in to the crest, the swirl as before, crumbling from the top from f206),
+85 % of the ring drawn up to f200 (from above the far side shows), the near half in the wide; the 14 are `%ya-wight` with two hands
+each. Caps: the sea 5400 from f180 (was 6600), 3200 from f200 (was 4000). Measured (held beats, the temporary readout), landscape /
+phone: f170 11430 / 11424, f182 8826 / 8844, f192 12780 / 12846, f200 10590 / 10632, f210 12336 / 12012; `fx-dropped 0`; 87448 at the
+f182 hold 0 B on every row (both).
