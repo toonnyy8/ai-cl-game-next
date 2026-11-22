@@ -164,12 +164,16 @@
 "eval": "Module._debug_cmd(87438)"
 },
 {
-"at": 19.3,
+"at": 19.28,
 "shot": "tests/shots/duel-yama-art-a-shatter-s0-phone.png"
 },
 {
-"at": 19.32,
+"at": 19.3,
 "shot": "tests/shots/duel-yama-art-a-shatter-s1-phone.png"
+},
+{
+"at": 19.32,
+"shot": "tests/shots/duel-yama-art-a-shatter-s2-phone.png"
 },
 {
 "at": 19.35,

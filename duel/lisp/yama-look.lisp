@@ -343,7 +343,7 @@ line, an INK crack down its middle; eroding from 18 f to 30. A look."
 
 (defun-fast yama-shatter-look (hz rdt)
   "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap 2.5 m ahead bursting (age 0), its
-dead flung forward over the 60 deg fan out to 6 m from him (ch. 509's pile shedding shards): six whole dead tumbling, skulls and bones,
+dead flung forward over the 60 deg fan out to 6 m from him (ch. 509's pile shedding shards; the heap gone by age 4): six whole dead tumbling, skulls and bones,
 an ink streak behind each while it flies; most of the way out by age 1 (the hit's hitstop holds the burst), down on the ground by 14, ash
 from 18 to 30. A look."
   (declare (single-float rdt))
@@ -354,7 +354,10 @@ from 18 to 30. A look."
          (tp (f-min 1f0 (/ (i->f age) 7f0))) (ep (- 1f0 (* (- 1f0 tp) (- 1f0 tp) (- 1f0 tp))))
          (land (f-clamp (/ (i->f (- age 8)) 6f0) 0f0 1f0)) (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
     (declare (single-float x z sz yaw fx fz ox oz rng bx bz seed dr tt e tp ep land k) (fixnum age))
-    (when (= age 0) (%ya-cone! bx bz fx fz 0f0 2.4f0 0.95f0 0.98f0 0.35f0 1f0 seed 0f0 1f0 (* 0.9f0 dr)))
+    (when (< age 4)                                      ; the heap coming apart as its dead leave: 2.4 m -> gone over 4 f
+      (let ((u (* 0.25f0 (i->f age))))
+        (declare (single-float u))
+        (%ya-cone! bx bz fx fz 0f0 (* 2.4f0 (- 1f0 u)) 0.95f0 0.98f0 (+ 0.35f0 (* 0.65f0 u)) 1f0 seed 0f0 1f0 (* 0.9f0 dr))))
     (dotimes (i 24)
       (let* ((fi (i->f i)) (an (* 0.5f0 (- (* 2f0 (hash01 fi seed)) 1f0))) (ca (f-cos an)) (sa (f-sin an))
              (dx (- (* ca fx) (* sa fz))) (dz (+ (* sa fx) (* ca fz)))   ; (FX FZ) turned by AN: inside +-28.6 deg
@@ -1656,6 +1659,8 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
         (tw-climb (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 49 :data (list :level 2)))
         (tw-2 (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 80 :data (list :level 2)))
         (tw-ash (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 148 :data (list :level 2)))
+        (tw-lean (make-hazard :kind :ya-tower :owner *p1* :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 90 :data (list :level 2)))
+        (mv-n3c (kit-move (find-kit :yamamoto :bankai) :ya-e-n3c))
         (fall-0 (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 0))
         (fall (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 5))
         (shat-0 (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 0))
@@ -1682,6 +1687,10 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                      (cons-per "tower-climb" (progn (fresh) (yama-tower-look tw-climb 0.016f0))) ;  AS3b's ring)
                      (cons-per "tower-2" (progn (fresh) (yama-tower-look tw-2 0.016f0)))
                      (cons-per "tower-ash" (progn (fresh) (yama-tower-look tw-ash 0.016f0)))
+                     (let ((m0 (fighter-move fp)) (s0 (fighter-sf fp)))   ; (NSc's wind-up: the lean read off P1's move, frame 12)
+                       (unwind-protect (progn (setf (fighter-move fp) mv-n3c (fighter-sf fp) 12)
+                                              (cons-per "tower-lean" (progn (fresh) (yama-tower-look tw-lean 0.016f0))))
+                         (setf (fighter-move fp) m0 (fighter-sf fp) s0)))
                      (cons-per "topple-fall" (progn (fresh) (yama-topple-look fall-0 0.016f0)))
                      (cons-per "topple" (progn (fresh) (yama-topple-look fall 0.016f0)))
                      (cons-per "shatter-0" (yama-shatter-look shat-0 0.016f0))
