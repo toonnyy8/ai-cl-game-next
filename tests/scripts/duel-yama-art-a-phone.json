@@ -1,0 +1,254 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== tower a-b-c, P2 at 5.0 m')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87050)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 9.7,
+"shot": "tests/shots/duel-yama-art-a-far-rise-phone.png"
+},
+{
+"at": 9.95,
+"shot": "tests/shots/duel-yama-art-a-far-l1-phone.png"
+},
+{
+"at": 10.5,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 10.9,
+"shot": "tests/shots/duel-yama-art-a-far-climb-phone.png"
+},
+{
+"at": 11.25,
+"shot": "tests/shots/duel-yama-art-a-far-l2-phone.png"
+},
+{
+"at": 11.8,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 12.05,
+"shot": "tests/shots/duel-yama-art-a-far-lean-phone.png"
+},
+{
+"at": 12.1,
+"shot": "tests/shots/duel-yama-art-a-far-fall-0-phone.png"
+},
+{
+"at": 12.12,
+"shot": "tests/shots/duel-yama-art-a-far-fall-1-phone.png"
+},
+{
+"at": 12.2,
+"shot": "tests/shots/duel-yama-art-a-far-debris-phone.png"
+},
+{
+"at": 12.55,
+"shot": "tests/shots/duel-yama-art-a-far-after-phone.png"
+},
+{
+"at": 13.35,
+"eval": "console.log('=== tower a-b-c, P2 at 2.5 m')"
+},
+{
+"at": 13.4,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 13.45,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 13.5,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 13.55,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 13.6,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 14.1,
+"shot": "tests/shots/duel-yama-art-a-close-rise-phone.png"
+},
+{
+"at": 14.35,
+"shot": "tests/shots/duel-yama-art-a-close-l1-phone.png"
+},
+{
+"at": 14.9,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 15.3,
+"shot": "tests/shots/duel-yama-art-a-close-climb-phone.png"
+},
+{
+"at": 15.65,
+"shot": "tests/shots/duel-yama-art-a-close-l2-phone.png"
+},
+{
+"at": 16.2,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 16.45,
+"shot": "tests/shots/duel-yama-art-a-close-lean-phone.png"
+},
+{
+"at": 16.5,
+"shot": "tests/shots/duel-yama-art-a-close-fall-0-phone.png"
+},
+{
+"at": 16.52,
+"shot": "tests/shots/duel-yama-art-a-close-fall-1-phone.png"
+},
+{
+"at": 16.6,
+"shot": "tests/shots/duel-yama-art-a-close-debris-phone.png"
+},
+{
+"at": 16.95,
+"shot": "tests/shots/duel-yama-art-a-close-after-phone.png"
+},
+{
+"at": 17.75,
+"eval": "console.log('=== shatter after NSa, P2 at 4 m')"
+},
+{
+"at": 17.8,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 17.85,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 17.9,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 17.95,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 18.0,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 19.2,
+"eval": "Module._debug_cmd(87438)"
+},
+{
+"at": 19.3,
+"shot": "tests/shots/duel-yama-art-a-shatter-s0-phone.png"
+},
+{
+"at": 19.32,
+"shot": "tests/shots/duel-yama-art-a-shatter-s1-phone.png"
+},
+{
+"at": 19.35,
+"shot": "tests/shots/duel-yama-art-a-shatter-s3-phone.png"
+},
+{
+"at": 19.43,
+"shot": "tests/shots/duel-yama-art-a-shatter-s8-phone.png"
+},
+{
+"at": 19.63,
+"shot": "tests/shots/duel-yama-art-a-shatter-s20-phone.png"
+},
+{
+"at": 20.15,
+"eval": "console.log('=== AS3b, P2 at 3 m')"
+},
+{
+"at": 20.2,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 20.25,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 20.3,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 20.35,
+"eval": "Module._debug_cmd(87434)"
+},
+{
+"at": 20.57,
+"shot": "tests/shots/duel-yama-art-a-as3b-rise-phone.png"
+},
+{
+"at": 20.65,
+"shot": "tests/shots/duel-yama-art-a-as3b-up-phone.png"
+},
+{
+"at": 20.92,
+"shot": "tests/shots/duel-yama-art-a-as3b-crumble-phone.png"
+},
+{
+"at": 21.65,
+"eval": "console.log('=== unspent tower crumbling, P2 at 6 m')"
+},
+{
+"at": 21.7,
+"eval": "Module._debug_cmd(87060)"
+},
+{
+"at": 21.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.8,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 21.85,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 21.9,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 24.23,
+"shot": "tests/shots/duel-yama-art-a-tower-crumble-phone.png"
+},
+{
+"at": 24.7,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 25.0,
+"eval": "console.log('=== END')"
+}
+]
