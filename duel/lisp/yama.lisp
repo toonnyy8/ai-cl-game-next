@@ -297,7 +297,7 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
   :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike :look yama-pile-look))
 (defmove :ya-e-as3b :kind :sp :clip :ya-e-as3b :startup 10 :active 2 :recovery 18 :reach 4.0 :on-frame ((10 yama-column-fire))
   :params (:ns-next :ya-e-as3c :near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 50 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
-           :look yama-wall-look))   ; (the tower's placeholder look)
+           :look yama-as3b-look))   ; (the tower round him, §34 A)
 (defmove :ya-e-as3 :kind :sp :clip :ya-e-as3a :startup 10 :active 3 :recovery 16 :reach 4.0 :callout "DAISOJIN"
   :on-frame ((10 yama-column-fire))
   :params (:ns-next :ya-e-as3b :near 0.0 :far 4.0 :radius 1.2 :delay 0 :dmg 40 :react :stagger :mark 3 :kikon-strike :ya-e-as-strike
@@ -697,8 +697,8 @@ hot 4 frames."
     (multiple-value-bind (x z) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
       (if hz
           (setf (hazard-life hz) (+ (hazard-age hz) life) (getf (hazard-data hz) :level) lv)
-          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size 1.6 :life life :hook 'yama-hz :look 'yama-wall-look   ; (the bone
-                                   :data (list :level lv)))                                                                ;  wall's look: a placeholder)
+          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size 1.6 :life life :hook 'yama-hz :look 'yama-tower-look
+                                   :data (list :level lv)))
       (yama-fire e :ya-col x z :size (move-param e :radius) :delay (move-param e :delay) :life 30 :hot 6 :look (move-param e :look)
                  :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react)))
       (clog "~a tower level ~d at ~,2f ~,2f, ~,2f m from him (~d f)" (side-name e) lv x z
@@ -719,18 +719,18 @@ it is tall (*YA-TOWER-H* x level), 2 m wide (YAMA-HZ :ya-fall), :dmg at level 1,
       (when tw (destroy-entity tw))
       (multiple-value-bind (ux uz) (ya-topple-dir bx bz (aref q 0) (aref q 2) (yaw-of e))
         (let ((half (* 0.5 *ya-tower-h* lv)))
-          (yama-fire e :ya-fall (+ bx (* half ux)) (+ bz (* half uz)) :size half :yaw (dir-yaw ux uz) :life 30 :hot 4 :look 'yama-fall-look
+          (yama-fire e :ya-fall (+ bx (* half ux)) (+ bz (* half uz)) :size half :yaw (dir-yaw ux uz) :life 30 :hot 4 :look 'yama-topple-look
                      :hw (yama-fire-hw e (move-param e (if (>= lv 2) :dmg-2 :dmg)) (move-param e :react)))
           (clog "~a tower topples: level ~d, ~,1f m from ~,2f ~,2f" (side-name e) lv (* 2 half) bx bz))))
     (emit :sfx :ground-crack e)))
 
 (defun yama-shatter-fire (e)
   "南's SA (the shatter) on S: the tower, if one stands, is spent (its hit is the move's own window); the skeletons flung over the sector's
-6 m, a look (the fall's, a placeholder)."
+6 m, a look (YAMA-SHATTER-LOOK)."
   (let ((tw (yama-live-hz e :ya-tower)))
     (when tw (destroy-entity tw))
     (multiple-value-bind (x z) (ahead e 3.0)
-      (spawn-look e 'yama-fall-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30))
+      (spawn-look e 'yama-shatter-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30))
     (clog "~a shatter~:[~; (the tower spent)~]" (side-name e) tw)
     (emit :sfx :ground-crack e)))
 

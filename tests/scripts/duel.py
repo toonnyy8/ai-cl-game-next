@@ -1775,3 +1775,37 @@ def yama_art_b_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-art-b", yama_art_b_script())
 write("yama-art-b-phone", yama_art_b_script(True))
+
+# Yamamoto's art batch A (DUEL_YAMA_CORE §34: 南's 「錐形骷髏堆」): the skeleton tower on its own segments (87426 NSa, 87427 NSb, 87428 NSc,
+# P1 in the Bankai at once: 87446), P2 an idle Kenpachi at k / 10 m (87000+k): the tower rising and standing at level 1, NSb's climb to
+# level 2, NSc's lean and topple (mid-fall, the debris), the shatter (87438 after NSa) mid-flight, AS3b's ring (87434), an unspent tower
+# crumbling; from the behind camera. 87448's consing line ends the run. PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-art-a.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --mobile --size 390x844 --script tests/scripts/duel-yama-art-a-phone.json
+def yama_art_a_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    def shots(s, fs, n):
+        for f, m in fs: ev.append(shot(s + f / 60, f"yama-art-a-{n}-{m}{sx}"))
+    for m, n in ((5.0, "far"), (2.5, "close")):   # NSa > NSb > NSc, each on its own (S 22 / 16 / 18)
+        s0 = scene(f"tower a-b-c, P2 at {m} m", (87000 + round(10 * m), 87446, 87303) + deck + (87426,))
+        shots(s0, ((30, "rise"), (45, "l1")), n)
+        s1 = s0 + 1.3; ev.append(cmd(s1, 87427)); shots(s1, ((24, "climb"), (45, "l2")), n)
+        s2 = s1 + 1.3; ev.append(cmd(s2, 87428)); shots(s2, ((15, "lean"), (18, "fall-0"), (19, "fall-1"), (24, "debris"), (45, "after")), n)
+        t += 4.4
+    s0 = scene("shatter after NSa, P2 at 4 m", (87040, 87446, 87303) + deck + (87426,))
+    s1 = s0 + 1.2; ev.append(cmd(s1, 87438)); shots(s1, ((5, "s0"), (6, "s1"), (7, "s2"), (9, "s3"), (14, "s8"), (26, "s20")), "shatter")
+    t += 2.4
+    s0 = scene("AS3b, P2 at 3 m", (87030, 87446) + deck + (87434,)); shots(s0, ((13, "rise"), (18, "up"), (34, "crumble")), "as3b")
+    t += 1.5
+    s0 = scene("unspent tower crumbling, P2 at 6 m", (87060, 87446, 87303) + deck + (87426,)); shots(s0, ((22 + 118, "crumble"),), "tower")
+    t += 3.0
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-art-a", yama_art_a_script())
+write("yama-art-a-phone", yama_art_a_script(True))

@@ -1,5 +1,5 @@
 ;;;; yama-look.lisp — YAMAMOTO's Bankai looks, art batch K1 (docs/duel/DUEL_YAMA_CORE.md §15.2.1 L1-L11, §16): the dead of 南 (the hands, the
-;;;; swarm, the bone wall and its fall, the pile), KYOKUJITSUJIN's void line, KYOKKO's lance, 西's flare and armour, 北's band. Each look sits
+;;;; swarm, the skeleton tower, its topple and shatter (§34 A), the pile), KYOKUJITSUJIN's void line, KYOKKO's lance, 西's flare and armour, 北's band. Each look sits
 ;;;; on its sim footprint (the hazard's disc / box, the move's volume) and its frames; the sim never reads any of it.
 ;;;; Colour (§15.2, the user's D4 「只有西和北有火」): charcoal / ink + bone-ash white + one ember hairline; orange flame (+PAL-FLAME+) only in
 ;;;; 西 (L8, L9) and 北's rim (L10). The dead (D1 「焦黑骷髏配上紅色高光」): the :skeleton body (yama-art.lisp), black with thin red highlights.
@@ -129,78 +129,280 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
                  (rnd-range 0.5f0 0.9f0) (rnd-range 0.06f0 0.12f0) -0.1f0 0.25f0 +pal-ash+)))
     nil))
 
-;;; ---------------------------------------------------------------- L3 the bone wall (:ya-wall), L4 its fall, L5 the pile
-(defmacro %ya-rampart (x z yaw rise k seed)
-  "The bone wall (L3) centred at (X Z) across YAW: four piles of the dead (charcoal torsos, a skull on top with red sockets, red rib
-hairlines) at -1.35 / -0.45 / 0.45 / 1.35 m across, each 0.5 m wide, so it spans the hazard's 3.2 m with three 0.4 m gaps (the centre one
-straight ahead: the behind camera sees the foe through it); 1.1-1.4 m high (RISE x: 0 sunk .. 1 standing). Single-float forms; 0 B."
-  `(let* ((%fx (- (f-sin ,yaw))) (%fz (- (f-cos ,yaw))) (%acx (- %fz)) (%acz %fx) (%ri ,rise) (%k ,k))
-     (declare (single-float %fx %fz %acx %acz %ri %k))
-     (when (> %ri 0.02f0)
-       (toon-ground-seg (- ,x (* 1.6f0 %acx)) (- ,z (* 1.6f0 %acz)) (+ ,x (* 1.6f0 %acx)) (+ ,z (* 1.6f0 %acz)) 0.011f0 0.16f0 1f0 1f0
-                        (+ ,seed 5f0) 0.3f0 (toon-a +pal-ink+ (* 0.9f0 %k)))
-       (dotimes (%i 4)
-         (let* ((%f (i->f %i)) (%u (- (* 0.9f0 %f) 1.35f0)) (%h (* %ri (if (or (= %i 0) (= %i 3)) 1.4f0 1.15f0)))
-                (%bx (+ ,x (* %u %acx))) (%bz (+ ,z (* %u %acz))) (%sk (- %h 0.13f0)))
-           (declare (single-float %f %u %h %bx %bz %sk))
-           (fx-disc %bx (* 0.24f0 %h) %bz 0.27f0 0.2f0 (+ ,seed %f) +pal-black-smoke+ %k)            ; the heap's base
-           (fx-disc (+ %bx (* 0.08f0 %acx)) (* 0.55f0 %h) (+ %bz (* 0.08f0 %acz)) 0.22f0 0.2f0 (+ ,seed %f 3f0) +pal-ink+ %k)   ; a torso
-           (fx-crescent (- %bx (* 0.15f0 %acx)) (* 0.5f0 %h) (- %bz (* 0.15f0 %acz)) (+ %bx (* 0.2f0 %acx)) (* 0.52f0 %h) (+ %bz (* 0.2f0 %acz))
-                        %bx (* 0.58f0 %h) %bz 0.008f0 :lens 0.05f0 (+ ,seed %f 6f0) +pal-blood+ %k :push 0.3f0)   ; a rib's red edge
-           (dotimes (%b 2)                               ; two bones jutting out of the heap
-             (let* ((%sd (if (= %b 0) -1f0 1f0)) (%y0 (* %h (+ 0.35f0 (* 0.3f0 (hash01 (+ %f %sd) ,seed))))))
-               (declare (single-float %sd %y0))
-               (fx-crescent %bx %y0 %bz (+ %bx (* %sd 0.42f0 %acx)) (+ %y0 (* 0.25f0 %h)) (+ %bz (* %sd 0.42f0 %acz))
-                            (+ %bx (* %sd 0.2f0 %acx)) (+ %y0 0.18f0) (+ %bz (* %sd 0.2f0 %acz)) 0.03f0 :lens 0.1f0 (+ ,seed %f %sd 11f0)
-                            +pal-ink+ %k :push 0.2f0)))
-           (fx-disc %bx %sk %bz 0.13f0 0.08f0 (+ ,seed %f 8f0) +pal-ink+ %k :push 0.15f0)              ; the skull
-           (fx-disc (- %bx (* 0.045f0 %acx)) (+ %sk 0.02f0) (- %bz (* 0.045f0 %acz)) 0.022f0 0f0 (+ ,seed %f 9f0) +pal-blood+ %k :push 0.3f0)
-           (fx-disc (+ %bx (* 0.045f0 %acx)) (+ %sk 0.02f0) (+ %bz (* 0.045f0 %acz)) 0.022f0 0f0 (+ ,seed %f 10f0) +pal-blood+ %k :push 0.3f0))))))
+;;; ---------------------------------------------------------------- 南's skeleton tower (§30.3, §34 A: 「錐形骷髏堆」), its topple, the shatter
+;;; A tapering heap of black-ink skeletons climbing on each other (Ep 372's slope of raised hands, the Sedlec skull pillars): rings of
+;;; climbers (%YA-CLIMBER: an ink torso and skull with one blood-red eye spot, pale ribs, two arms reaching up) round a
+;;; charcoal core, a crown of splayed hands on top. One drawer (%YA-CONE-DRAW, its arguments in *YA-CONE*) serves the standing tower, the
+;;; topple's first frames, the shatter's burst and AS3b's hollow ring, so the hand-off from the spent :ya-tower to :ya-fall does not pop.
+(defconstant +ya-tower-h+ 3f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m).")
+(defconstant +ya-tower-raise2+ 114
+  "NSb's raise sets the tower's life to its age + this (host-checked: NSb's frames after its S + *YA-TOWER-STAND*): frames since the
+climb to level 2 = this - (life - age), a pure function of the hazard (no look state).")
 
-(defun-fast yama-wall-look (hz rdt)
-  "南's bone wall (L3; since §30.3 the skeleton tower's placeholder: the hitless :ya-tower 2.5 m ahead, and AS3b's disc): the rampart
-standing, crumbling into ash over its last 10 f. A look."
-  (declare (single-float rdt))
-  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (left (- (hazard-life hz) (hazard-age hz)))
-         (u (f-clamp (/ (i->f left) 10f0) 0f0 1f0)) (seed (+ x z)))
-    (declare (single-float x z yaw u seed) (fixnum left))
-    (%ya-rampart x z yaw (+ 0.3f0 (* 0.7f0 u)) (* 0.98f0 u) seed)
-    (when (< left 12)
-      (dotimes (i (n-of 60f0 rdt))
-        (let* ((v (rnd-range -1.6f0 1.6f0)))
-          (declare (single-float v))
-          (%t-blob (+ x (* v (f-cos yaw))) (rnd-range 0.2f0 1.2f0) (- z (* v (f-sin yaw))) (rnd-range -0.3f0 0.3f0) (rnd-range 0.2f0 0.8f0)
-                   (rnd-range -0.3f0 0.3f0) (rnd-range 0.6f0 1.1f0) (rnd-range 0.06f0 0.12f0) -0.1f0 0.25f0 +pal-ash+))))
-    nil))
+(defmacro %ya-climber (px py pz ax ay az tx ty tz sc k seed ph hand)
+  "One of the dead climbing (a vector-ink figure about 0.65 SC m tall) standing at (PX PY PZ) along the unit axis A, its arms spread along
+the unit tangent T: a small INK torso crossed by two pale ASH ribs, two INK arms reaching up and out (PH swings them), an INK skull with
+one BLOOD eye spot; HAND true: three ink fingers splayed off each arm's end. Single-float forms (HAND a boolean form); 66 toon verts (+72
+with hands); 0 B."
+  `(let* ((%ox ,px) (%oy ,py) (%oz ,pz) (%ax ,ax) (%ay ,ay) (%az ,az) (%tx ,tx) (%ty ,ty) (%tz ,tz) (%sc ,sc) (%k ,k) (%sd ,seed)
+          (%ph ,ph) (%sx (+ %ox (* 0.32f0 %sc %ax))) (%sy (+ %oy (* 0.32f0 %sc %ay))) (%sz (+ %oz (* 0.32f0 %sc %az))))
+     (declare (single-float %ox %oy %oz %ax %ay %az %tx %ty %tz %sc %k %sd %ph %sx %sy %sz))
+     (fx-disc (+ %ox (* 0.18f0 %sc %ax)) (+ %oy (* 0.18f0 %sc %ay)) (+ %oz (* 0.18f0 %sc %az)) (* 0.12f0 %sc) 0.15f0 %sd
+              +pal-ink+ %k :push 0.05f0)                                                                ; the torso
+     (dotimes (%b 2)                                                                                    ; two pale ribs across it
+       (let ((%u (+ 0.13f0 (* 0.09f0 (i->f %b)))))
+         (declare (single-float %u))
+         (fx-shard (+ %ox (* %u %sc %ax)) (+ %oy (* %u %sc %ay)) (+ %oz (* %u %sc %az)) %tx %ty %tz (* 0.22f0 %sc) (* 0.016f0 %sc)
+                   0.05f0 (+ %sd 1f0 (i->f %b)) +pal-ash+ %k :push 0.12f0)))
+     (dotimes (%b 2)                                                                                    ; the arms
+       (let* ((%sg (if (= %b 0) -1f0 1f0)) (%w (+ 0.24f0 (* 0.14f0 (f-sin (+ %ph (* 1.7f0 %sg))))))
+              (%vx (* %sc (+ (* 0.5f0 %ax) (* %sg %w %tx)))) (%vy (* %sc (+ (* 0.5f0 %ay) (* %sg %w %ty))))
+              (%vz (* %sc (+ (* 0.5f0 %az) (* %sg %w %tz)))) (%l (f-max 0.01f0 (f-sqrt (+ (* %vx %vx) (* %vy %vy) (* %vz %vz)))))
+              (%dx (/ %vx %l)) (%dy (/ %vy %l)) (%dz (/ %vz %l)))
+         (declare (single-float %sg %w %vx %vy %vz %l %dx %dy %dz))
+         (fx-shard (+ %sx (* 0.4f0 %vx)) (+ %sy (* 0.4f0 %vy)) (+ %sz (* 0.4f0 %vz)) %dx %dy %dz %l (* 0.045f0 %sc)
+                   0.05f0 (+ %sd 2f0 %sg) +pal-ink+ %k :push 0.08f0)
+         (when ,hand                                                                                    ; the splayed fingers
+           (dotimes (%g 3)
+             (let* ((%e (* 0.6f0 (- (i->f %g) 1f0))) (%fx (+ %dx (* %e %tx))) (%fy (+ %dy (* %e %ty))) (%fz (+ %dz (* %e %tz)))
+                    (%fl (f-max 0.01f0 (f-sqrt (+ (* %fx %fx) (* %fy %fy) (* %fz %fz))))) (%n (* 0.15f0 %sc)))
+               (declare (single-float %e %fx %fy %fz %fl %n))
+               (fx-shard (+ %sx %vx (* 0.4f0 %n (/ %fx %fl))) (+ %sy %vy (* 0.4f0 %n (/ %fy %fl))) (+ %sz %vz (* 0.4f0 %n (/ %fz %fl)))
+                         (/ %fx %fl) (/ %fy %fl) (/ %fz %fl) %n (* 0.022f0 %sc) 0.05f0 (+ %sd 4f0 %sg (i->f %g)) +pal-ink+ %k
+                         :push 0.1f0))))))
+     (fx-disc (+ %ox (* 0.47f0 %sc %ax)) (+ %oy (* 0.47f0 %sc %ay)) (+ %oz (* 0.47f0 %sc %az)) (* 0.12f0 %sc) 0.08f0 (+ %sd 6f0)
+              +pal-ink+ %k :push 0.16f0)                                                                ; the skull
+     (fx-disc (+ %ox (* 0.47f0 %sc %ax) (* 0.035f0 %sc %tx)) (+ %oy (* 0.49f0 %sc %ay) (* 0.035f0 %sc %ty))
+              (+ %oz (* 0.47f0 %sc %az) (* 0.035f0 %sc %tz)) (* 0.034f0 %sc) 0f0 (+ %sd 7f0) +pal-blood+ %k :push 0.24f0)))   ; its eye
 
-(defun-fast yama-fall-look (hz rdt)
-  "南's wall falling (L4: NS3c's hit, a disc of HAZARD-SIZE 3 m ahead, hot 4 f): ten bones and skulls toppling from the wall's crest (1.8 m
-nearer him, 1.3 m up) onto the disc in 4 f, lying there till they erode by 30; an ASH ring opening to the disc's edge, an ember hairline
-on it while it is hot. A look."
+(declaim (type f32vec *ya-cone*))
+(defvar *ya-cone* (make-f32 14)
+  "%YA-CONE-DRAW's arguments (%YA-CONE! writes them): base x z, the lean's unit direction ux uz, the lean (rad, about the base), height h
+(m along the axis), base radius r0, presence k, crumble 0..1 (the top first), the climbers' scale, seed, the swarm's swirl (rad), core
+(1 a charcoal core, 0 hollow), the arms' phase.")
+
+(defmacro %ya-cone! (bx bz ux uz th h r0 k crum sc seed swirl core ph)
+  "Write *YA-CONE* (single-float forms) and draw the heap (%YA-CONE-DRAW). 0 B."
+  `(let ((%a *ya-cone*))
+     (declare (type f32vec %a))
+     (setf (aref %a 0) ,bx (aref %a 1) ,bz (aref %a 2) ,ux (aref %a 3) ,uz (aref %a 4) ,th (aref %a 5) ,h (aref %a 6) ,r0 (aref %a 7) ,k
+           (aref %a 8) ,crum (aref %a 9) ,sc (aref %a 10) ,seed (aref %a 11) ,swirl (aref %a 12) ,core (aref %a 13) ,ph)
+     (%ya-cone-draw)))
+
+(defun-fast %ya-cone-draw ()
+  "The heap of the dead from *YA-CONE*: rings of climbers every 0.5 x scale m up the axis (its radius r0 (1 - q)(1 + 0.3 q) + 0.1 x scale
+at height share q, so a heap that grows widens as it climbs), as many round each ring as fit 0.62 x scale apart, the far side left out
+(the camera sees the near half); the top two rings and the bottom one with splayed hands (the crown; the hands that bind); a charcoal
+core of discs up the axis (core 1). The axis leans by the lean toward (ux uz), pivoting at the base; nothing drawn below 6 cm. Crumble c: the
+climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
+  (let* ((a *ya-cone*) (bx (aref a 0)) (bz (aref a 1)) (ux (aref a 2)) (uz (aref a 3)) (th (aref a 4)) (h (aref a 5)) (r0 (aref a 6))
+         (k (aref a 7)) (crum (aref a 8)) (sc (aref a 9)) (seed (aref a 10)) (swirl (aref a 11)) (core (aref a 12)) (ph (aref a 13))
+         (s (f-sin th)) (c (f-cos th)) (ax (* s ux)) (ay c) (az (* s uz)) (ppx (- uz)) (ppz ux) (qx (* c ux)) (qy (- s)) (qz (* c uz))
+         (e (camera-eye *camera*)) (ex (- (aref e 0) bx)) (ez (- (aref e 2) bz)) (el (f-max 0.01f0 (f-hypot ex ez)))
+         (dy (* 0.5f0 sc)) (yc (* h (- 1f0 (* 1.15f0 crum)))) (nr (f->i (/ h dy))))
+    (declare (type f32vec a e) (single-float bx bz ux uz th h r0 k crum sc seed swirl core ph s c ax ay az ppx ppz qx qy qz ex ez el dy yc)
+             (fixnum nr))
+    (when (> h 0.05f0)
+      (when (and (> core 0.5f0) (< th 0.3f0))            ; the core: a charcoal mass up the axis behind the climbers (off once it leans
+                                                         ;  past 17 deg: the climbers carry the shape; each puff kept off the floor)
+        (dotimes (j (1+ (f->i (/ h (* 0.4f0 sc)))))
+          (let* ((y (* 0.4f0 sc (+ 0.4f0 (i->f j)))) (q (f-min 1f0 (/ y h))) (r (+ (* 0.42f0 r0 (- 1f0 q) (+ 1f0 (* 0.3f0 q))) (* 0.06f0 sc)))
+                 (kj (if (> y yc) (* k (f-clamp (- 1f0 (/ (- y yc) (* 0.25f0 h))) 0f0 1f0)) k)))
+            (declare (single-float y q r kj))
+            (when (and (< y h) (> kj 0.02f0))
+              (fx-disc (+ bx (* y ax)) (f-max (* 0.85f0 r) (* y ay)) (+ bz (* y az)) r 0.25f0 (+ seed (i->f j) 20f0) +pal-black-smoke+ kj
+                       :push 0f0)))))
+      (dotimes (j (1+ nr))
+        (let* ((fj (i->f j)) (y0 (* dy (+ 0.45f0 fj))) (q0 (f-min 1f0 (/ y0 h)))
+               (r (+ (* r0 (- 1f0 q0) (+ 1f0 (* 0.3f0 q0))) (* 0.1f0 sc)))
+               (m (max 1 (f->i (/ (* 6.2832f0 r) (* 0.62f0 sc))))) (hand (or (= j 0) (>= j (- nr 1)))))
+          (declare (single-float fj y0 q0 r) (fixnum m))
+          (when (< y0 (- h (* 0.15f0 sc)))
+            (dotimes (i m)
+              (let* ((fi (i->f i)) (hs (hash01 (+ fi (* 7f0 fj)) seed))
+                     (an (+ (* 6.2832f0 (/ (+ fi (* 0.5f0 (i->f (logand j 1))) (* 0.3f0 hs)) (i->f m))) (* swirl (- 1f0 q0))))
+                     (ca (f-cos an)) (sa (f-sin an))
+                     (y (+ y0 (* dy 0.25f0 (- hs 0.5f0))))
+                     (f (if (> y yc) (f-clamp (/ (- y yc) (* 0.25f0 h)) 0f0 1f0) 0f0)) (kf (* k (- 1f0 f))) (yy (- y (* 0.8f0 f)))
+                     (rx (+ (* ca ppx) (* sa qx))) (ry (* sa qy)) (rz (+ (* ca ppz) (* sa qz))))
+                (declare (single-float fi hs an ca sa y f kf yy rx ry rz))
+                (when (and (> kf 0.02f0) (> (+ (* rx ex) (* rz ez)) (* -0.2f0 el)))   ; (the near half and its rims)
+                  (%ya-climber (+ bx (* yy ax) (* r rx)) (f-max 0.06f0 (+ (* yy ay) (* r ry))) (+ bz (* yy az) (* r rz))
+                               (+ ax (* 0.25f0 rx)) (+ ay (* 0.25f0 ry)) (+ az (* 0.25f0 rz))
+                               (- (* ca qx) (* sa ppx)) (* ca qy) (- (* ca qz) (* sa ppz))
+                               (* sc (+ 0.9f0 (* 0.25f0 hs))) kf (+ seed (* 13f0 fj) fi) (+ ph (* 6.2832f0 hs)) hand)))))))))
+  nil)
+
+(defmacro %ya-tower-ash (bx bz h r0 crum rdt)
+  "Ash shed off the crumbling band of a heap (above (1 - 1.15 CRUM) H) at (BX BZ). Single-float forms; 0 B."
+  `(let* ((%yc (* ,h (- 1f0 (* 1.15f0 ,crum)))))
+     (declare (single-float %yc))
+     (dotimes (%i (n-of (* 90f0 ,crum) ,rdt))
+       (let* ((%y (rnd-range (f-max 0f0 %yc) ,h)) (%r (* ,r0 (- 1f0 (/ %y (f-max 0.1f0 ,h))))) (%a (rnd-range 0f0 6.2832f0)))
+         (declare (single-float %y %r %a))
+         (%t-blob (+ ,bx (* %r (f-cos %a))) %y (+ ,bz (* %r (f-sin %a))) (rnd-range -0.4f0 0.4f0) (rnd-range -0.6f0 0.3f0)
+                  (rnd-range -0.4f0 0.4f0) (rnd-range 0.6f0 1.1f0) (rnd-range 0.07f0 0.15f0) 0.3f0 0.25f0 +pal-ash+)))))
+
+(defun-fast yama-tower-look (hz rdt)
+  "南's tower (§34 A: the :ya-tower 2.5 m before him, its level in its data): the heap swarming up out of the ground over 16 f to
+*YA-TOWER-H* x level (3 / 6 m; the climb 3 -> 6 over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
+(:sk-grab); while NSc winds up it creaks and leans toward the victim (to 50 deg at its S: YAMA-TOPPLE-LOOK takes it over from there);
+crumbling to ash from the top over its last 14 f when nothing spent it. A look."
   (declare (single-float rdt))
-  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
-         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (u (f-min 1f0 (/ (i->f (1+ age)) 4f0)))
-         (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 20f0)) 0f0 0.98f0)) (seed (+ (* 2f0 x) z)))
-    (declare (single-float x z r yaw fx fz px pz u k seed) (fixnum age))
-    (%tring x 0f0 z (* r u) 0.07f0 +pal-ash+ k (+ seed 1f0))
-    (when (< age 4) (%tring x 0.006f0 z r 0.02f0 +pal-ember+ 0.9f0 (+ seed 2f0)))
-    (dotimes (i 10)
-      (let* ((f (i->f i)) (sx (* 1.4f0 (- (* 2f0 (hash01 f seed)) 1f0)))
-             (a (* 6.2832f0 (hash01 (+ f 3f0) seed))) (rr (* 0.9f0 r (f-sqrt (hash01 (+ f 5f0) seed))))
-             (x0 (+ x (* -1.8f0 fx) (* sx px))) (z0 (+ z (* -1.8f0 fz) (* sx pz)))
-             (x1 (+ x (* rr (f-cos a)))) (z1 (+ z (* rr (f-sin a)))) (y (+ 0.1f0 (* 1.2f0 (- 1f0 u) (- 1f0 u))))
-             (sk (< i 3)))
-        (declare (single-float f sx a rr x0 z0 x1 z1 y))
-        (fx-disc (+ x0 (* u (- x1 x0))) (if sk (+ y 0.04f0) y) (+ z0 (* u (- z1 z0))) (if sk 0.13f0 0.16f0) 0.2f0 (+ seed f)
-                 (if sk +pal-ink+ +pal-black-smoke+) k)))
-    (when (< age 8)
+  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (age (hazard-age hz)) (life (hazard-life hz)) (lv (or (getf (hazard-data hz) :level) 1))
+         (since (if (>= lv 2) (max 0 (- +ya-tower-raise2+ (- life age))) -1))   ; frames since the climb to level 2
+         (u1 (f-min 1f0 (/ (i->f (if (>= since 0) since age)) 16f0)))
+         (e1 (- 1f0 (* (- 1f0 u1) (- 1f0 u1))))
+         (h (if (>= since 0)
+                (let ((h0 (if (= since age) 0f0 +ya-tower-h+)))   ; (life = its age + 114 from its first frame: NSb raised it, 0 -> 6)
+                  (declare (single-float h0))
+                  (+ h0 (* (- (* 2f0 +ya-tower-h+) h0) e1)))
+                (* +ya-tower-h+ e1)))
+         (big (>= lv 2)) (sc (if big 1.2f0 1f0)) (r0 (if big 1.25f0 0.95f0))
+         (crum (f-clamp (/ (i->f (- 14 (- life age))) 14f0) 0f0 1f0)) (seed (+ (* 3f0 x) z 50f0))
+         (dr (drawing-no)) (fx 0f0) (fz -1f0) (th 0f0))
+    (declare (single-float x z u1 e1 h sc r0 crum seed dr fx fz th) (fixnum age life lv since))
+    (let ((o (hazard-owner hz)))                         ; NSc's wind-up: the lean toward the victim (YA-TOPPLE-DIR's rule)
+      (when (and o (entity-alive-p o))
+        (let* ((f (fighter o)) (mv (fighter-move f)))
+          (when (and mv (eq (mv-name mv) :ya-e-n3c))
+            (let* ((u (f-clamp (/ (i->f (- (fighter-sf f) 2)) 16f0) 0f0 1f0)) (v (opp-of o)) (q (pos-of v)) (p (pos-of o))
+                   (dx (- (aref q 0) x)) (dz (- (aref q 2) z)) (d (f-hypot dx dz)))
+              (declare (single-float u dx dz d) (type f32vec q p))
+              (setf th (+ (* 1.05f0 u u u) (if (and (> u 0f0) (evenp (f->i dr))) 0.015f0 0f0)))
+              (if (> d 0.5f0)
+                  (setf fx (/ dx d) fz (/ dz d))
+                  (let* ((px (- x (aref p 0))) (pz (- z (aref p 2))) (pl (f-max 0.01f0 (f-hypot px pz))))
+                    (declare (single-float px pz pl))
+                    (setf fx (/ px pl) fz (/ pz pl)))))))))
+    (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed (* 1.4f0 (- 1f0 e1)) 1f0 (* 0.9f0 dr))
+    (when (and (< th 0.05f0) (< crum 0.2f0) (> e1 0.6f0))   ; the crown: two of the dead clawing out of the tip
+      (dotimes (b 2)
+        (let ((ya (+ (* 3.1416f0 (i->f b)) (* 6.2832f0 (hash01 (i->f b) seed)))))
+          (declare (single-float ya))
+          (%ya-at (+ x (* 0.12f0 (f-sin ya))) (- h (* 0.55f0 sc)) (+ z (* 0.12f0 (f-cos ya))) ya)
+          (ya-dead :sk-grab (min 40 (+ (* 6 b) (if (>= since 0) since age)))))))
+    (when (< age 10)                                     ; the ground breaking as they swarm up
       (dotimes (i (n-of 50f0 rdt))
-        (let* ((a (rnd-range 0f0 6.2832f0)) (rr (rnd-range 0f0 r)))
-          (declare (single-float a rr))
-          (%t-blob (+ x (* rr (f-cos a))) 0.1f0 (+ z (* rr (f-sin a))) (* 1.5f0 (f-cos a)) (rnd-range 0.3f0 1.2f0) (* 1.5f0 (f-sin a))
-                   (rnd-range 0.5f0 0.8f0) (rnd-range 0.12f0 0.25f0) -0.2f0 0.25f0 +pal-ash+))))
+        (let ((a (rnd-range 0f0 6.2832f0)))
+          (declare (single-float a))
+          (%t-blob (+ x (* r0 (f-cos a))) 0.1f0 (+ z (* r0 (f-sin a))) (* 0.8f0 (f-cos a)) (rnd-range 0.3f0 1.2f0) (* 0.8f0 (f-sin a))
+                   (rnd-range 0.4f0 0.7f0) (rnd-range 0.12f0 0.22f0) -0.2f0 0.25f0 +pal-dust+))))
+    (%ya-tower-ash x z h r0 crum rdt)
+    (%light x (* 0.5f0 h) z 1f0 0.2f0 0.12f0 3f0 (* 0.6f0 (- 1f0 crum)) 6)
     nil))
 
+(defun-fast yama-topple-look (hz rdt)
+  "南's topple (§34 A: :ya-fall, a 2 m wide line from the tower's base, HAZARD-SIZE half its length, hot 4): the heap carried on from the
+tower's lean (50 deg) down onto the line, 72 deg at age 0 and 86 at 1 (the hit's hitstop freezes the crash), then broken along the line:
+whole dead lying reaching toward the far end, skulls and bones bouncing, two crawling on (:sk-crawl), an ASH bed and cloud over the
+line, an INK crack down its middle; eroding from 18 f to 30. A look."
+  (declare (single-float rdt))
+  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (half (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
+         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (ll (* 2f0 half)) (bx (- x (* half fx))) (bz (- z (* half fz)))
+         (big (> ll 4.5f0)) (sc (if big 1.2f0 1f0)) (r0 (if big 1.25f0 0.95f0)) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
+         (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
+    (declare (single-float x z half yaw fx fz px pz ll bx bz sc r0 seed dr k) (fixnum age))
+    (if (< age 2)
+        (%ya-cone! bx bz fx fz (if (= age 0) 1.25f0 1.5f0) ll r0 0.98f0 0f0 sc seed 0f0 1f0 (* 0.9f0 dr))
+        (let ((t1 (/ (i->f (- age 2)) 60f0)))
+          (declare (single-float t1))
+          (toon-ground-seg bx bz (+ bx (* ll fx)) (+ bz (* ll fz)) 0.01f0 0.95f0 1f0 0.4f0 seed 0.3f0 (toon-a +pal-ash+ (* 0.6f0 k)))
+          (toon-ground-seg bx bz (+ bx (* ll fx)) (+ bz (* ll fz)) 0.014f0 0.09f0 1f0 0.3f0 (+ seed 1f0) 0.25f0 (toon-a +pal-ink+ k))
+          (dotimes (i (if big 6 4))                      ; whole dead thrown along the line, reaching on toward its end
+            (let* ((fi (i->f i)) (u (* ll (+ 0.12f0 (* 0.8f0 (/ fi (if big 6f0 4f0))) (* 0.08f0 (hash01 fi seed)))))
+                   (v (* 0.7f0 (- (* 2f0 (hash01 (+ fi 3f0) seed)) 1f0))))
+              (declare (single-float fi u v))
+              (%ya-climber (+ bx (* u fx) (* v px)) 0.12f0 (+ bz (* u fz) (* v pz)) fx 0.15f0 fz px 0f0 pz (* 1.1f0 sc) k
+                           (+ seed (* 9f0 fi)) (+ (* 0.9f0 dr) fi) t)))
+          (dotimes (i (if big 22 14))                    ; skulls and bones bouncing out of the crash, settling inside the line
+            (let* ((fi (i->f i)) (u (* ll (hash01 fi seed))) (v (* 0.9f0 (- (* 2f0 (hash01 (+ fi 5f0) seed)) 1f0)))
+                   (vy (+ 1.2f0 (* 2.2f0 (hash01 (+ fi 9f0) seed)))) (y0 (+ 0.1f0 (* 0.6f0 r0 (- 1f0 (/ u ll)))))
+                   (y (f-max 0.07f0 (- (+ y0 (* vy t1)) (* 4.9f0 t1 t1)))) (cx (+ bx (* u fx) (* v px))) (cz (+ bz (* u fz) (* v pz)))
+                   (sp (+ (* 6.2832f0 (hash01 (+ fi 2f0) seed)) (* 0.5f0 (i->f (min age 14))))))
+              (declare (single-float fi u v vy y0 y cx cz sp))
+              (if (= (mod i 3) 0)
+                  (progn (fx-disc cx (+ y 0.05f0) cz (* 0.12f0 sc) 0.08f0 (+ seed fi 30f0) +pal-ink+ k :push 0.12f0)
+                         (fx-disc (+ cx (* 0.03f0 px)) (+ y 0.07f0) (+ cz (* 0.03f0 pz)) (* 0.032f0 sc) 0f0 (+ seed fi 31f0) +pal-blood+ k
+                                  :push 0.2f0))
+                  (fx-shard cx y cz (* (f-cos sp) fx) (* 0.3f0 (f-sin sp)) (* (f-cos sp) fz) (* 0.36f0 sc) (* 0.04f0 sc) 0.05f0
+                            (+ seed fi 32f0) (if (= (mod i 3) 1) +pal-ink+ +pal-ash+) k :push 0.1f0))))
+          (when (< age 26)                               ; two crawling on toward the far end
+            (dotimes (b 2)
+              (%ya-at (+ bx (* ll (+ 0.45f0 (* 0.35f0 (i->f b))) fx) (* (if (= b 0) 0.4f0 -0.35f0) px))
+                      (* -0.03f0 (i->f (max 0 (- age 16))))
+                      (+ bz (* ll (+ 0.45f0 (* 0.35f0 (i->f b))) fz) (* (if (= b 0) 0.4f0 -0.35f0) pz)) yaw)
+              (ya-dead :sk-crawl (mod (+ (logand age -2) (* 11 b)) 36))))
+          (when (< age 9)                                ; the ash cloud thrown up along the line
+            (dotimes (i (n-of 90f0 rdt))
+              (let* ((u (rnd-range 0f0 ll)) (v (rnd-range -1f0 1f0)))
+                (declare (single-float u v))
+                (%t-blob (+ bx (* u fx) (* v px)) 0.15f0 (+ bz (* u fz) (* v pz)) (* 1.2f0 v px) (rnd-range 0.4f0 1.8f0) (* 1.2f0 v pz)
+                         (rnd-range 0.6f0 1.1f0) (rnd-range 0.1f0 0.2f0) -0.2f0 0.25f0 +pal-ash+))))))
+    nil))
+
+(defun-fast yama-shatter-look (hz rdt)
+  "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap 2.5 m ahead bursting (age 0), its
+dead flung forward over the 60 deg fan out to 6 m from him (ch. 509's pile shedding shards; the heap gone by age 4): six whole dead tumbling, skulls and bones,
+an ink streak behind each while it flies; most of the way out by age 1 (the hit's hitstop holds the burst), down on the ground by 14, ash
+from 18 to 30. A look."
+  (declare (single-float rdt))
+  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (sz (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
+         (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (ox (- x (* sz fx))) (oz (- z (* sz fz))) (rng (* 2f0 sz))
+         (bx (+ ox (* 2.5f0 fx))) (bz (+ oz (* 2.5f0 fz))) (seed (+ (* 5f0 x) z 90f0)) (dr (drawing-no))
+         (tt (f-min 1f0 (/ (i->f (1+ age)) 7f0))) (e (- 1f0 (* (- 1f0 tt) (- 1f0 tt) (- 1f0 tt))))
+         (tp (f-min 1f0 (/ (i->f age) 7f0))) (ep (- 1f0 (* (- 1f0 tp) (- 1f0 tp) (- 1f0 tp))))
+         (land (f-clamp (/ (i->f (- age 8)) 6f0) 0f0 1f0)) (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
+    (declare (single-float x z sz yaw fx fz ox oz rng bx bz seed dr tt e tp ep land k) (fixnum age))
+    (when (< age 4)                                      ; the heap coming apart as its dead leave: 2.4 m -> gone over 4 f
+      (let ((u (* 0.25f0 (i->f age))))
+        (declare (single-float u))
+        (%ya-cone! bx bz fx fz 0f0 (* 2.4f0 (- 1f0 u)) 0.95f0 0.98f0 (+ 0.35f0 (* 0.65f0 u)) 1f0 seed 0f0 1f0 (* 0.9f0 dr))))
+    (dotimes (i 24)
+      (let* ((fi (i->f i)) (an (* 0.5f0 (- (* 2f0 (hash01 fi seed)) 1f0))) (ca (f-cos an)) (sa (f-sin an))
+             (dx (- (* ca fx) (* sa fz))) (dz (+ (* sa fx) (* ca fz)))   ; (FX FZ) turned by AN: inside +-28.6 deg
+             (r1 (+ 3.4f0 (* (- rng 3.6f0) (hash01 (+ fi 4f0) seed)))) (r (+ 2.1f0 (* (- r1 2.1f0) e))) (rp (+ 2.1f0 (* (- r1 2.1f0) ep)))
+             (y0 (+ 0.4f0 (* 2.2f0 (hash01 (+ fi 7f0) seed)))) (yf (+ (* y0 (- 1f0 (* 0.5f0 e))) (* 0.9f0 (f-sin (* 3.1416f0 e)))))
+             (y (+ (* yf (- 1f0 land)) (* 0.08f0 land))) (cx (+ ox (* r dx))) (cz (+ oz (* r dz)))
+             (sp (+ (* 6.2832f0 (hash01 (+ fi 2f0) seed)) (* 0.45f0 (i->f (min age 14))))))
+        (declare (single-float fi an ca sa dx dz r1 r rp y0 yf y cx cz sp))
+        (when (and (< age 6) (> (- r rp) 0.05f0))         ; the streak behind it
+          (fx-shard (+ ox (* 0.5f0 (+ r rp) dx)) y (+ oz (* 0.5f0 (+ r rp) dz)) dx 0f0 dz (* 1.6f0 (- r rp)) 0.02f0 0.05f0 (+ seed fi 40f0)
+                    +pal-ink+ (* 0.7f0 k) :push 0.05f0))
+        (cond ((< i 6) (%ya-climber cx y cz (* (f-cos sp) dx) (f-sin sp) (* (f-cos sp) dz) (- dz) 0f0 dx 1f0 k (+ seed (* 9f0 fi))
+                                    (+ (* 0.9f0 dr) fi) t))
+              ((< i 14) (fx-disc cx (+ y 0.05f0) cz 0.12f0 0.08f0 (+ seed fi 30f0) +pal-ink+ k :push 0.12f0)
+                        (fx-disc (- cx (* 0.03f0 dz)) (+ y 0.07f0) (+ cz (* 0.03f0 dx)) 0.032f0 0f0 (+ seed fi 31f0) +pal-blood+ k :push 0.2f0))
+              (t (fx-shard cx y cz (* (f-cos sp) dx) (f-sin sp) (* (f-cos sp) dz) 0.36f0 0.04f0 0.05f0 (+ seed fi 32f0)
+                           (if (evenp i) +pal-ink+ +pal-ash+) k :push 0.1f0)))))
+    (when (< age 4)                                      ; the burst's ash thrown into the fan
+      (dotimes (i (n-of 160f0 rdt))
+        (let* ((an (rnd-range -0.5f0 0.5f0)) (ca (f-cos an)) (sa (f-sin an)) (sp (rnd-range 2f0 7f0)))
+          (declare (single-float an ca sa sp))
+          (%t-blob bx (rnd-range 0.3f0 2.4f0) bz (* sp (- (* ca fx) (* sa fz))) (rnd-range -0.3f0 1f0) (* sp (+ (* sa fx) (* ca fz)))
+                   (rnd-range 0.4f0 0.8f0) (rnd-range 0.1f0 0.22f0) -0.2f0 0.25f0 +pal-ash+))))
+    (when (and (>= age 18) (< age 30))                   ; the landed dead going to ash
+      (dotimes (i (n-of 40f0 rdt))
+        (let* ((an (rnd-range -0.5f0 0.5f0)) (rr (rnd-range 3.4f0 rng)))
+          (declare (single-float an rr))
+          (%t-blob (+ ox (* rr (- (* (f-cos an) fx) (* (f-sin an) fz)))) 0.1f0 (+ oz (* rr (+ (* (f-sin an) fx) (* (f-cos an) fz)))) 0f0
+                   (rnd-range 0.3f0 0.8f0) 0f0 (rnd-range 0.6f0 1f0) (rnd-range 0.05f0 0.1f0) -0.1f0 0.2f0 +pal-ash+))))
+    nil))
+
+(defun-fast yama-as3b-look (hz rdt)
+  "AS3b's tower round him (§34 A: the :ya-col at the victim, r HAZARD-SIZE 1.4, hot 6): the crack star on its disc and a hollow heap of
+the dead (no core: he shows through) swarming up round him to 2.4 m in 5 f, crumbling to ash over its last 10 f. A look."
+  (declare (single-float rdt))
+  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (hazard-age hz)) (life (hazard-life hz))
+         (u (f-min 1f0 (/ (i->f (+ 2 age)) 7f0))) (h (* 2.4f0 (- 1f0 (* (- 1f0 u) (- 1f0 u)))))
+         (crum (f-clamp (/ (i->f (- 10 (- life age))) 10f0) 0f0 1f0)) (seed (+ x (* 3f0 z) 110f0)) (dr (drawing-no)))
+    (declare (single-float x z r u h crum seed dr) (fixnum age life))
+    (%ya-crack-star x z r (* 0.98f0 (- 1f0 crum)) 0.45f0 seed)
+    (%ya-cone! x z 0f0 -1f0 0f0 h (* 0.75f0 r) 0.98f0 crum 0.8f0 seed (* 1.4f0 (- 1f0 u)) 0f0 (* 0.9f0 dr))
+    (%ya-tower-ash x z h (* 0.75f0 r) crum rdt)
+    nil))
+
+;;; ---------------------------------------------------------------- L5 the pile (AS3c)
 (defun-fast yama-pile-look (hz rdt)
   "南's pile (L5: AS3c, a disc of HAZARD-SIZE at the victim, hot 6 f): the dead close in from three sides (three bodies clawing in at the
 disc's edge, three charcoal heaps sliding to its centre and climbing to 1.8 m) in 8 f, the mound bursting to ash from 16 f; the ink ring
@@ -1482,8 +1684,18 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
-        (wall (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 90 :age 84))
-        (fall (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.6f0 :life 30 :age 2))
+        (tw-rise (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 127 :age 6 :data (list :level 1)))
+        (tw-1 (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 127 :age 40 :data (list :level 1)))
+        (tw-climb (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 49 :data (list :level 2)))
+        (tw-2 (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 80 :data (list :level 2)))
+        (tw-ash (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 148 :data (list :level 2)))
+        (tw-lean (make-hazard :kind :ya-tower :owner *p1* :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 90 :data (list :level 2)))
+        (mv-n3c (kit-move (find-kit :yamamoto :bankai) :ya-e-n3c))
+        (fall-0 (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 0))
+        (fall (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 5))
+        (shat-0 (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 0))
+        (shat (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 3))
+        (as3b (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.4f0 :life 30 :age 8))
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
         (north (make-hazard :kind :wave :x 0f0 :z -6f0 :px 0f0 :pz -5.67f0 :size 2f0 :life 42 :age 15 :speed 20f0))
         (pos (pos-of *p1*)) (yaw (yaw-of *p1*))
@@ -1500,8 +1712,20 @@ art K5 the 東 tear (YAMA-TEAR) while its spikes grow (void-grow, east-open) and
                (list (cons-per "hands" (progn (fresh) (yama-hands-look hands 0.016f0)))
                      (cons-per "tell" (progn (fresh) (yama-hands-look tell 0.016f0)))
                      (cons-per "swarm" (progn (fresh) (yama-swarm-look swarm 0.016f0)))
-                     (cons-per "wall" (yama-wall-look wall 0.016f0))
-                     (cons-per "fall" (yama-fall-look fall 0.016f0))
+                     (cons-per "tower-rise" (progn (fresh) (yama-tower-look tw-rise 0.016f0)))   ; (§34 A: the tower, its climb, its
+                     (cons-per "tower" (progn (fresh) (yama-tower-look tw-1 0.016f0)))           ;  crumble, the topple, the shatter,
+                     (cons-per "tower-climb" (progn (fresh) (yama-tower-look tw-climb 0.016f0))) ;  AS3b's ring)
+                     (cons-per "tower-2" (progn (fresh) (yama-tower-look tw-2 0.016f0)))
+                     (cons-per "tower-ash" (progn (fresh) (yama-tower-look tw-ash 0.016f0)))
+                     (let ((m0 (fighter-move fp)) (s0 (fighter-sf fp)))   ; (NSc's wind-up: the lean read off P1's move, frame 12)
+                       (unwind-protect (progn (setf (fighter-move fp) mv-n3c (fighter-sf fp) 12)
+                                              (cons-per "tower-lean" (progn (fresh) (yama-tower-look tw-lean 0.016f0))))
+                         (setf (fighter-move fp) m0 (fighter-sf fp) s0)))
+                     (cons-per "topple-fall" (progn (fresh) (yama-topple-look fall-0 0.016f0)))
+                     (cons-per "topple" (progn (fresh) (yama-topple-look fall 0.016f0)))
+                     (cons-per "shatter-0" (yama-shatter-look shat-0 0.016f0))
+                     (cons-per "shatter" (yama-shatter-look shat 0.016f0))
+                     (cons-per "as3b-tower" (yama-as3b-look as3b 0.016f0))
                      (cons-per "pile" (progn (fresh) (yama-pile-look pile 0.016f0)))
                      (cons-per "north" (yama-north-look north 0.016f0))
                      (cons-per "lance" (yama-bk-moves pos yaw 1 21 0.016f0))
