@@ -4062,3 +4062,18 @@ a-b-c at 5.8 m (was 7).
 - Level 2 now fits the phone's frame (its crown left it at 6 m).
 - The SA shatter's heap is still drawn 2.4 m tall (taller than a level-1 tower).
 - The manual (`duel/web/manual.html` line 605) still quotes 3 / 6 m, 4.5 / 7.5 m and r 1.6, and does not describe the cut.
+
+### 38.x Merged with §37 (the lead, 2026-11-22)
+
+§37 and §38 were merged into main together. The only conflict was this doc's two appended sections; `yama-look.lisp`'s probe list
+merged on its own. The lead re-ran on main:
+- host tests: 4333, ALL PASS;
+- pkgcheck: only `DUEL::APP`;
+- debug ranges: 90, 0 errors;
+- build and smoke: exit 0;
+- the native trials against §38's pre-change baseline: core differs only in its build line; blaze and sp30 are identical; bankai's rows
+  C19b / e / e2 / f / g are the re-aimed ones;
+- `--cvc` II / IK / KK: identical.
+
+The lead accepts the three `:reach` changes §38 made beyond the brief (NSa / NSb 4.1 → 2.7, NSc 8.0 → 6.0): they are the CPUs' threat
+range and only follow the new volumes. Manual updated; DEVLOG §862 (§37) and §863 (§38).
