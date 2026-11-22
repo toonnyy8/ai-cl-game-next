@@ -1,0 +1,362 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== G1 west NSa, A+SP: east NS a-b-c under garb 1')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.03,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.06,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 9.09,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 9.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.6,
+"key": "KeyA",
+"down": true
+},
+{
+"at": 9.65,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.66,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.71,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.73,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.8,
+"key": "KeyA",
+"down": false
+},
+{
+"at": 10.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.33,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.83,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.45,
+"shot": "tests/shots/duel-yama-garb-g1-tear-phone.png"
+},
+{
+"at": 11.6,
+"shot": "tests/shots/duel-yama-garb-g1-tear-b-phone.png"
+},
+{
+"at": 13.2,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 13.95,
+"eval": "console.log('=== G2 west NSa NSb, D+SP: south NS a-b-c under garb 2')"
+},
+{
+"at": 14.0,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 14.03,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 14.06,
+"eval": "Module._debug_cmd(87302)"
+},
+{
+"at": 14.09,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 14.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.85,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.86,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.93,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.25,
+"key": "KeyD",
+"down": true
+},
+{
+"at": 15.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.45,
+"key": "KeyD",
+"down": false
+},
+{
+"at": 16.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.45,
+"shot": "tests/shots/duel-yama-garb-g2-tower1-phone.png"
+},
+{
+"at": 16.55,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.56,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.61,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.63,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 16.95,
+"shot": "tests/shots/duel-yama-garb-g2-tower2-phone.png"
+},
+{
+"at": 17.35,
+"shot": "tests/shots/duel-yama-garb-g2-topple-phone.png"
+},
+{
+"at": 18.2,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 18.95,
+"eval": "console.log('=== G3 after neutral: a fresh east NS a-b-c (garb 0)')"
+},
+{
+"at": 19.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 19.03,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 19.06,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 19.09,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 19.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 20.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 20.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.1,
+"shot": "tests/shots/duel-yama-garb-g3-tear-phone.png"
+},
+{
+"at": 23.2,
+"eval": "Module._debug_cmd(87900)"
+},
+{
+"at": 24.0,
+"eval": "console.log('=== END')"
+}
+]

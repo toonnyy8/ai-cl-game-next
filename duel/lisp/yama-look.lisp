@@ -70,6 +70,23 @@ tell), six radial INK cracks with ember cores. Single-float forms; 0 B."
          (toon-ground-seg (+ ,x (* 0.3f0 ,r %c)) (+ ,z (* 0.3f0 ,r %s)) (+ ,x (* 0.8f0 %r2 %c)) (+ ,z (* 0.8f0 %r2 %s)) 0.013f0 0.012f0 1f0
                           0.3f0 (+ ,seed %f 9f0) 0.1f0 (toon-a +pal-ember+ (* ,k ,pulse)))))))
 
+(defmacro %ya-garb-tongues (x z r h k seed n)
+  "Fire licking up a heap of the dead under 西's garb (the user 2026-11-23: 「南的高塔變大、附帶火焰效果」): N flame tongues (the garb's
++PAL-FLAME+, one hue; the flame layer's opacity *FLAME-ALPHA*) on a heap of base radius R and height H at (X Z), each at a hashed height
+share up to 0.85 and angle, standing off the heap's ring there and leaning out, 0.35-0.65 m long (shorter near the top), their noise flowing
+(FLOW-PH); a warm light at mid height. H small (0.3) = a ring of tongues round a disc on the floor. Single-float forms but N; 0 B."
+  `(let* ((%x ,x) (%z ,z) (%r ,r) (%h ,h) (%k ,k) (%sd ,seed) (%fp (flow-ph)))
+     (declare (single-float %x %z %r %h %k %sd %fp))
+     (dotimes (%i ,n)
+       (let* ((%fi (i->f %i)) (%q (* 0.85f0 (hash01 (+ %fi 3f0) %sd)))
+              (%an (+ (* 6.2832f0 (/ %fi (i->f ,n))) (* 0.6f0 (hash01 %fi %sd)))) (%ca (f-cos %an)) (%sa (f-sin %an))
+              (%rr (+ (* %r (- 1f0 %q) (+ 1f0 (* 0.3f0 %q))) 0.06f0)) (%y (+ 0.04f0 (* %q %h)))
+              (%ln (* (+ 0.35f0 (* 0.3f0 (flow01 %fi 3.1f0))) (+ 0.6f0 (* 0.4f0 (- 1f0 %q))))))
+         (declare (single-float %fi %q %an %ca %sa %rr %y %ln))
+         (%tongue (+ %x (* %rr %ca)) %y (+ %z (* %rr %sa)) (* 0.3f0 %ln %ca) %ln (* 0.3f0 %ln %sa) 0.07f0 +pal-flame+ %k
+                  (+ 600f0 %fi) (+ %fp %fi) 0.04f0 :segs 4)))
+     (%light %x (* 0.5f0 %h) %z 1f0 0.55f0 0.25f0 (+ 2f0 %h) (* 0.8f0 %k) 6)))
+
 ;;; ---------------------------------------------------------------- L1 the dead hands (NS3a, AS3a: :ya-col via YAMA-COLUMN-FIRE)
 (defun-fast yama-hands-look (hz rdt)
   "南's hands (L1): the crack star on the hit's disc (r = HAZARD-SIZE), its ember hairline pulsing through the delay (NS3a's 17 f: the tell a
@@ -83,6 +100,8 @@ dust as they break out, ash as they go. A look."
          (fr (if (> d 0) (- 8 d) (+ 8 age))))
     (declare (single-float x z r dr seed k pulse) (fixnum d age life fr))
     (%ya-crack-star x z r k pulse seed)
+    (when (and (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0) (<= d 0))   ; 西's garb (2026-11-23): a ring of fire on the disc
+      (%ya-garb-tongues x z (* 0.8f0 r) 0.25f0 k seed 10))
     (when (>= fr 0)
       (dotimes (i 3)
         (let* ((f (i->f i)) (a (+ (* 2.0944f0 f) (* 0.6f0 (hash01 f seed)))) (c (f-cos a)) (s (f-sin a))
@@ -134,11 +153,25 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
 ;;; climbers (%YA-CLIMBER: an ink torso and skull with one blood-red eye spot, pale ribs, two arms reaching up) round a
 ;;; charcoal core, a crown of splayed hands on top. One drawer (%YA-CONE-DRAW, its arguments in *YA-CONE*) serves the standing tower, the
 ;;; topple's first frames, the shatter's burst and AS3b's hollow ring, so the hand-off from the spent :ya-tower to :ya-fall does not pop.
-(defconstant +ya-tower-h+ 2f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m; 3 until §38).")
+(defconstant +ya-tower-h+ 1.68f0 "*YA-TOWER-H* (host-checked): the tower's height at level 1 (m: his drawn height since 2026-11-23; 2 a level until
+then, 3 until §38).")
+(defconstant +ya-tower-l2+ 1.75f0 "*YA-TOWER-L2* (host-checked): level 2's height over level 1's (2026-11-23; x2 until then).")
+(defconstant +ya-garb-s1+ 1.2f0 "*YA-GARB-SIZE*'s level 1 (host-checked): 西's garb's size x on 南's heaps (2026-11-23).")
+(defconstant +ya-garb-s2+ 1.4f0 "... its level 2 (host-checked).")
+(defmacro %ya-gsz (g)
+  "西's garb size x of the fixnum garb level G (YA-GARB-SIZE's, from the host-checked copies): a macro, no boxed float."
+  `(case ,g (1 +ya-garb-s1+) (2 +ya-garb-s2+) (t 1f0)))
+(defmacro %ya-tower-hgt (lv g)
+  "南's tower's height at the fixnum level LV under garb level G (YA-TOWER-HEIGHT's rule, from the host-checked copies). 0 B."
+  `(* +ya-tower-h+ (if (>= ,lv 2) +ya-tower-l2+ 1f0) (%ya-gsz ,g)))
 (defconstant +ya-tower-ahead+ 1.5f0 "*YA-TOWER-AHEAD* (host-checked): where the shatter's heap stands before him (m; 2.5 until §35).")
-(defconstant +ya-cone-r1+ 0.4f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5;
-x0.8 with the height, §38: 0.4; the climbers' spacing kept, so as dense).")
-(defconstant +ya-cone-r2+ 0.52f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65, §38: 0.52).")
+(defconstant +ya-cone-r1+ 0.3f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5;
+x0.8 with the height, §38: 0.4; the climbers' spacing kept, so as dense; x0.75 on 2026-11-23, the user: 「南的骷髏塔請再縮緊」: 0.3, with the
+climbers' scale +YA-CONE-SC1+ and its bind disc, r 1.2 -> 0.9).")
+(defconstant +ya-cone-r2+ 0.39f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65, §38: 0.52, 2026-11-23: 0.39).")
+(defconstant +ya-cone-sc1+ 0.75f0 "The tower's climbers' scale at level 1 (their size, the rings' 0.34 and the round's 0.4 spacing x it; 1.0 until
+2026-11-23: x0.75 with the base radius).")
+(defconstant +ya-cone-sc2+ 0.9f0 "... at level 2 (1.2 until 2026-11-23).")
 (defconstant +ya-tower-cut+ 11
   "NSc's frame on which his low sweep crosses the tower near its base (§38, the user 2026-11-22: 「NSc 的斷塔傾倒增加一個山本將塔斬斷的動作」;
 host-checked against the clip's blade tip by FK, tests/duel-rules/art.lisp): the break, the slash and the bones from here, the lean from
@@ -313,24 +346,26 @@ bones spat out of the cut along the blade's way (to his left) and up, falling. S
 
 (defun-fast yama-tower-look (hz rdt)
   "南's tower (§34 A: the :ya-tower *YA-TOWER-AHEAD* (1.5 m since §35) before him, its level in its data): the heap swarming up out of the ground over 16 f to
-*YA-TOWER-H* x level (2 / 4 m since §38; the climb 2 -> 4 over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
+YA-TOWER-HEIGHT (1.68 / 2.94 m since 2026-11-23, x the garb's size; the climb over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
 (:sk-grab); in NSc his low sweep cuts it at the break on +YA-TOWER-CUT+ (§38: the slash, the bones spat from the cut) and the section
 above leans toward the victim from there (60 deg at its S: YAMA-TOPPLE-LOOK takes it over); crumbling to ash from the top over its last
-14 f when nothing spent it. A look."
+14 f when nothing spent it. Under 西's garb (its data's :garb) its height, radius and climbers x the garb's size, and fire licks up it
+(%YA-GARB-TONGUES). A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (age (hazard-age hz)) (life (hazard-life hz)) (lv (or (getf (hazard-data hz) :level) 1))
+         (g (or (getf (hazard-data hz) :garb) 0)) (gs (%ya-gsz g))
          (since (if (>= lv 2) (max 0 (- +ya-tower-raise2+ (- life age))) -1))   ; frames since the climb to level 2
          (u1 (f-min 1f0 (/ (i->f (if (>= since 0) since age)) 16f0)))
          (e1 (- 1f0 (* (- 1f0 u1) (- 1f0 u1))))
          (h (if (>= since 0)
-                (let ((h0 (if (= since age) 0f0 +ya-tower-h+)))   ; (life = its age + 114 from its first frame: NSb raised it, 0 -> 4)
+                (let ((h0 (if (= since age) 0f0 (%ya-tower-hgt 1 g))))   ; (life = its age + 114 from its first frame: NSb raised it from 0)
                   (declare (single-float h0))
-                  (+ h0 (* (- (* 2f0 +ya-tower-h+) h0) e1)))
-                (* +ya-tower-h+ e1)))
-         (big (>= lv 2)) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+))
+                  (+ h0 (* (- (%ya-tower-hgt 2 g) h0) e1)))
+                (* (%ya-tower-hgt 1 g) e1)))
+         (big (>= lv 2)) (sc (* gs (if big +ya-cone-sc2+ +ya-cone-sc1+))) (r0 (* gs (if big +ya-cone-r2+ +ya-cone-r1+)))
          (crum (f-clamp (/ (i->f (- 14 (- life age))) 14f0) 0f0 1f0)) (seed (+ (* 3f0 x) z 50f0))
          (dr (drawing-no)) (fx 0f0) (fz -1f0) (th 0f0) (cut -99) (ox x) (oz z))
-    (declare (single-float x z u1 e1 h sc r0 crum seed dr fx fz th ox oz) (fixnum age life lv since cut))
+    (declare (single-float x z gs u1 e1 h sc r0 crum seed dr fx fz th ox oz) (fixnum age life lv g since cut))
     (let ((o (hazard-owner hz)))                         ; NSc: his cut, then the lean toward the victim (YA-TOPPLE-DIR's rule)
       (when (and o (entity-alive-p o))
         (let* ((f (fighter o)) (mv (fighter-move f)))
@@ -371,19 +406,23 @@ above leans toward the victim from there (60 deg at its S: YAMA-TOPPLE-LOOK take
                    (rnd-range 0.4f0 0.7f0) (rnd-range 0.12f0 0.22f0) -0.2f0 0.25f0 +pal-dust+))))
     (%ya-tower-ash x z h r0 crum rdt)
     (%light x (* 0.5f0 h) z 1f0 0.2f0 0.12f0 3f0 (* 0.6f0 (- 1f0 crum)) 6)
+    (when (and (> g 0) (< cut 0) (> h 0.3f0))           ; 西's garb: fire licking up it (upright only: the cut's lean hands over to the topple)
+      (%ya-garb-tongues x z r0 h (* 0.95f0 (- 1f0 crum)) seed 14))
     nil))
 
 (defun-fast yama-topple-look (hz rdt)
   "南's topple (§34 A: :ya-fall, a 2 m wide line from the tower's base, HAZARD-SIZE half its length, hot 4): the heap carried on from the
 tower's lean (50 deg) down onto the line, 72 deg at age 0 and 86 at 1 (the hit's hitstop freezes the crash), then broken along the line:
 whole dead lying reaching toward the far end, skulls and bones bouncing, two crawling on (:sk-crawl), an ASH bed and cloud over the
-line, an INK crack down its middle; eroding from 18 f to 30. A look."
+line, an INK crack down its middle; eroding from 18 f to 30. The heap's radius and climbers by the tower's level and garb (its data's :level
+and :tower-garb); fire along the line when it was fired under the garb (:garb). A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (half (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (ll (* 2f0 half)) (bx (- x (* half fx))) (bz (- z (* half fz)))
-         (big (> ll (* 1.5f0 +ya-tower-h+))) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+)) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
+         (big (>= (the fixnum (or (getf (hazard-data hz) :level) 1)) 2)) (gs (%ya-gsz (or (getf (hazard-data hz) :tower-garb) 0)))
+         (sc (* gs (if big +ya-cone-sc2+ +ya-cone-sc1+))) (r0 (* gs (if big +ya-cone-r2+ +ya-cone-r1+))) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
          (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
-    (declare (single-float x z half yaw fx fz px pz ll bx bz sc r0 seed dr k) (fixnum age))
+    (declare (single-float x z half yaw fx fz px pz ll bx bz gs sc r0 seed dr k) (fixnum age))
     (let ((hb (ya-tower-break ll)))                     ; the stump below the break stands, then crumbles (§34.4)
       (declare (single-float hb))
       (%ya-cone! bx bz fx fz 0f0 ll r0 0.98f0 (+ 0.6f0 (* 0.4f0 (f-clamp (/ (i->f (- age 2)) 18f0) 0f0 1f0))) sc seed 0f0 1f0 (* 0.9f0 dr)
@@ -424,7 +463,17 @@ line, an INK crack down its middle; eroding from 18 f to 30. A look."
               (let* ((u (rnd-range 0f0 ll)) (v (rnd-range -1f0 1f0)))
                 (declare (single-float u v))
                 (%t-blob (+ bx (* u fx) (* v px)) 0.15f0 (+ bz (* u fz) (* v pz)) (* 1.2f0 v px) (rnd-range 0.4f0 1.8f0) (* 1.2f0 v pz)
-                         (rnd-range 0.6f0 1.1f0) (rnd-range 0.1f0 0.2f0) -0.2f0 0.25f0 +pal-ash+))))))
+                         (rnd-range 0.6f0 1.1f0) (rnd-range 0.1f0 0.2f0) -0.2f0 0.25f0 +pal-ash+)))
+          (when (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0)   ; 西's garb: fire along the fallen dead (2026-11-23)
+            (let ((fp (flow-ph)))
+              (declare (single-float fp))
+              (dotimes (i 10)
+                (let* ((fi (i->f i)) (u (* ll (+ 0.05f0 (* 0.09f0 fi) (* 0.04f0 (hash01 fi seed)))))
+                       (v (* 0.6f0 (- (* 2f0 (hash01 (+ fi 7f0) seed)) 1f0))) (ln (* (+ 0.4f0 (* 0.3f0 (flow01 fi 2.3f0))) (f-min 1f0 (* 2f0 k)))))
+                  (declare (single-float fi u v ln))
+                  (%tongue (+ bx (* u fx) (* v px)) 0.08f0 (+ bz (* u fz) (* v pz)) (* 0.15f0 ln fx) ln (* 0.15f0 ln fz) 0.08f0 +pal-flame+ k
+                           (+ 620f0 fi) (+ fp fi) 0.04f0 :segs 4)))
+              (%light (+ bx (* 0.5f0 ll fx)) 0.5f0 (+ bz (* 0.5f0 ll fz)) 1f0 0.55f0 0.25f0 (+ 1f0 ll) (* 0.8f0 k) 6))))))
     nil))
 
 (defun-fast yama-shatter-look (hz rdt)
@@ -486,6 +535,8 @@ the dead (no core: he shows through) swarming up round him to 2.4 m in 5 f, crum
     (%ya-crack-star x z r (* 0.98f0 (- 1f0 crum)) 0.45f0 seed)
     (%ya-cone! x z 0f0 -1f0 0f0 h (* 0.75f0 r) 0.98f0 crum 0.8f0 seed (* 1.4f0 (- 1f0 u)) 0f0 (* 0.9f0 dr))
     (%ya-tower-ash x z h (* 0.75f0 r) crum rdt)
+    (when (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0)   ; 西's garb (AS3 under it, 2026-11-23): fire up the heap
+      (%ya-garb-tongues x z (* 0.75f0 r) h (* 0.95f0 (- 1f0 crum)) seed 12))
     nil))
 
 ;;; ---------------------------------------------------------------- L5 the pile (AS3c)
@@ -499,6 +550,8 @@ on the disc's edge with an ember hairline while it is hot. A look."
     (declare (single-float x z r seed u k) (fixnum age))
     (%tring x 0f0 z r 0.07f0 +pal-ink+ k (+ seed 1f0))
     (when (< age 6) (%tring x 0.006f0 z (* 0.95f0 r) 0.02f0 +pal-ember+ 0.9f0 (+ seed 2f0)))
+    (when (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0)   ; 西's garb (AS3 under it, 2026-11-23): fire up the mound
+      (%ya-garb-tongues x z (* 0.6f0 r) (* 1.5f0 u) k seed 12))
     (dotimes (i 3)
       (let* ((f (i->f i)) (a (+ 0.5f0 (* 2.0944f0 f))) (c (f-cos a)) (s (f-sin a)) (rr (* r (- 1f0 (* 0.6f0 u)))))
         (declare (single-float f a c s rr))
@@ -690,23 +743,46 @@ like dry brush). 24N vertices; inline, 0 B."
                   (v s0 0f0 0f0 0f0) (v s1 (* sg l1) 1f0 (* 0.4f0 sg)) (v s1 0f0 0f0 0f0)))))))))
   nil)
 
-(defmacro %ya-tear-dust (ax az fx fz len w rate sz rdt)
-  "The dust kicked up as 東's tear splits the floor open (the user, 2026-11-22: 「斬裂地面的瞬間要有少量煙塵噴起的特效」, §41): RATE puffs a
-second (of RDT, the frame's effect seconds: 0 while paused or in a held beat; and none while the sim is in a hit's hitstop (*HITSTOP*),
-whose effect seconds run on while the move frame stands still: so the caller's window of move frames alone sets the total) of low grey DUST along the rhombus from AX AZ, LEN m along FX FZ, W wide (YAMA-TEAR's), each SZ m and lifting off its edge, and as
-many grains of ASH grit tossed up to fall back within about 0.5 s. Single-float forms; rnd only (cosmetic); 0 B."
-  `(let ((%ax ,ax) (%az ,az) (%fx ,fx) (%fz ,fz) (%len ,len) (%w ,w) (%sz ,sz) (%rdt (if (> *hitstop* 0) 0f0 ,rdt)))
-     (declare (single-float %ax %az %fx %fz %len %w %sz %rdt))
-     (dotimes (%i (n-of ,rate %rdt))
-       (let* ((%c (rnd-range 0.08f0 0.92f0)) (%sg (if (< (rnd01) 0.5f0) -1f0 1f0))
-              (%l (* %sg %w (%ya-tent %c) (rnd-range 0.6f0 1f0))) (%u (* %c %len)) (%o (* %sg (rnd-range 0.2f0 0.6f0))))
-         (declare (single-float %c %sg %l %u %o))
-         (%t-blob (+ %ax (* %u %fx) (* %l (- %fz))) (rnd-range 0.04f0 0.12f0) (+ %az (* %u %fz) (* %l %fx))
-                  (+ (* %o (- %fz)) (rnd-range -0.15f0 0.15f0)) (rnd-range 0.35f0 0.8f0) (+ (* %o %fx) (rnd-range -0.15f0 0.15f0))
-                  (rnd-range 0.4f0 0.6f0) (* %sz (rnd-range 0.7f0 1.2f0)) -0.2f0 0.25f0 +pal-dust+)
-         (%t-blob (+ %ax (* %u %fx) (* %l (- %fz))) 0.05f0 (+ %az (* %u %fz) (* %l %fx))
-                  (* 2f0 %o (- %fz)) (rnd-range 1.2f0 2.2f0) (* 2f0 %o %fx)
-                  (rnd-range 0.4f0 0.55f0) (* %sz (rnd-range 0.2f0 0.35f0)) 6f0 0.1f0 +pal-ash+)))))
+(defmacro %ya-tear-dust (ax az fx fz len w age run n sz seed)
+  "The dust kicked up as 東's tear splits the floor open (§41; the user 2026-11-22: 「斬裂地面的瞬間要有少量煙塵噴起的特效」, then 2026-11-23:
+「煙塵衝起的速度太慢，反而變得像溫泉熱氣一樣」): a burst thrown out sideways, not a rising steam. AGE frames since the split began (a fixnum
+form: the move frame or the cinematic's, so hitstop holds it already open and a still is the same every run), RUN the frames it takes to run
+the rhombus' length (0 at once; a point a share c along splits at RUN x c), along the rhombus from AX AZ, LEN m along FX FZ, W wide at its
+widest (YAMA-TEAR's). N puffs of low grey DUST (SZ x 0.55-1.45 m, on alternate sides): each born at 0.5-1 of the edge's width at its
+split and thrown out 0.35-0.9 m (and +-0.2 m along), up 0.15-0.5 m (x SZ / 0.16) on an ease-out cube over its 12-18 f life (half its way in
+its first 3 frames: the burst), growing 0.7 -> 1.5 x, fading over its last 45 %; two grains of grit each (INK and ASH kites along their velocity) flung out at 2.5-4.5 m/s
+and up at 2-3.5 m/s (x SZ / 0.16), falling under gravity, gone after 0.4 s or on the floor. The reference (.refs/yama-dust/): Demon
+Slayer's Thunderclap, billows thrown out flat along the dash and dark flecks flying straight. A pure function of AGE and SEED (no particle,
+no rnd); single-float forms but AGE RUN N (fixnums); 0 B."
+  `(let* ((%ax ,ax) (%az ,az) (%fx ,fx) (%fz ,fz) (%len ,len) (%w ,w) (%sz ,sz) (%sd ,seed) (%q (/ %sz 0.16f0))
+          (%age (i->f ,age)) (%run (i->f ,run)) (%dn (i->f ,n)) (%nx (- %fz)) (%nz %fx))
+     (declare (single-float %ax %az %fx %fz %len %w %sz %sd %q %age %run %dn %nx %nz))
+     (dotimes (%i ,n)
+       (let* ((%fi (i->f %i)) (%h1 (hash01 %fi %sd)) (%h2 (hash01 (+ %fi 31f0) %sd)) (%h3 (hash01 (+ %fi 57f0) %sd))
+              (%h4 (hash01 (+ %fi 83f0) %sd)) (%c (+ 0.06f0 (* 0.88f0 (/ (+ %fi %h1) %dn)))) (%sg (if (evenp %i) 1f0 -1f0))
+              (%a (- %age (* %run %c))) (%life (+ 12f0 (* 6f0 %h2))) (%t (/ (+ %a 1f0) %life)))
+         (declare (single-float %fi %h1 %h2 %h3 %h4 %c %sg %a %life %t))
+         (when (and (>= %a 0f0) (< %t 1f0))
+           (let* ((%m (- 1f0 %t)) (%e (- 1f0 (* %m %m %m)))
+                  (%lat (* %sg (+ (* %w (%ya-tent %c) (+ 0.5f0 (* 0.5f0 %h3))) (* %q (+ 0.35f0 (* 0.55f0 %h4)) %e))))
+                  (%u (+ (* %c %len) (* %q 0.4f0 (- %h3 0.5f0) %e))) (%r (* %sz (+ 0.7f0 (* 0.8f0 %e)) (+ 0.55f0 (* 0.9f0 %h1))))
+                  (%y (+ 0.04f0 (* %q (+ 0.15f0 (* 0.35f0 %h2)) %e) (* 0.6f0 %r)))
+                  (%k (* 0.92f0 (f-clamp (/ %m 0.45f0) 0f0 1f0))))
+             (declare (single-float %m %e %lat %u %r %y %k))
+             (fx-disc (+ %ax (* %u %fx) (* %lat %nx)) %y (+ %az (* %u %fz) (* %lat %nz)) %r 0.25f0 (+ %sd 100f0 %fi) +pal-dust+ %k)))
+         (dotimes (%j 2)                                  ; its grit: flung out and up, falling
+           (let* ((%fj (+ (* 2f0 %fi) (i->f %j))) (%g1 (hash01 (+ %fj 7f0) %sd)) (%g2 (hash01 (+ %fj 13f0) %sd))
+                  (%ts (/ %a 60f0)) (%vo (* %sg %q (+ 2.5f0 (* 2f0 %g1)))) (%va (* 0.8f0 (- %g2 0.5f0) %q))
+                  (%vy (* %q (+ 2f0 (* 1.5f0 %g2)))) (%gy (+ 0.05f0 (- (* %vy %ts) (* 4.9f0 %ts %ts)))))
+             (declare (single-float %fj %g1 %g2 %ts %vo %va %vy %gy))
+             (when (and (>= %a 0f0) (< %ts 0.4f0) (> %gy 0.03f0))
+               (let* ((%l0 (* %sg %w (%ya-tent %c) 0.8f0)) (%lat (+ %l0 (* %vo %ts))) (%u (+ (* %c %len) (* %va %ts)))
+                      (%dy (- %vy (* 9.8f0 %ts))) (%dl (f-max 1f-3 (f-sqrt (+ (* %vo %vo) (* %va %va) (* %dy %dy))))))
+                 (declare (single-float %l0 %lat %u %dy %dl))
+                 (fx-shard (+ %ax (* %u %fx) (* %lat %nx)) %gy (+ %az (* %u %fz) (* %lat %nz))
+                           (/ (+ (* %vo %nx) (* %va %fx)) %dl) (/ %dy %dl) (/ (+ (* %vo %nz) (* %va %fz)) %dl)
+                           (* %q (+ 0.08f0 (* 0.06f0 %g1))) (* 0.022f0 %q) 0.05f0 (+ %sd 200f0 %fj) (if (evenp %j) +pal-ink+ +pal-ash+)
+                           (* 0.95f0 (f-clamp (/ (- 0.4f0 %ts) 0.1f0) 0f0 1f0)) :push 0.1f0)))))))))
 
 (defun yama-bk-flare-p (code sf)
   "T while YAMA-BK-MOVES' flare rings CODE (6 the throw S12-21; 4 / 5 kept for the record: NSa / NSb draw only their S flash since §39)
@@ -714,14 +790,16 @@ draw at move frame SF. Since §39 the form garb is never left out for a flare (i
   (declare (fixnum code sf))
   (case code (4 (<= 16 sf 35)) (5 (<= 14 sf 23)) (6 (<= 12 sf 21)) (t nil)))
 
-(defun-fast yama-bk-moves (pos yaw code sf rdt)
+(defun-fast yama-bk-moves (pos yaw code sf rdt mv lv)
   "The Bankai moves' own looks at his feet POS facing YAW, frame SF of the move CODE (YAMA-DRAW's table): 1 KYOKKO's lance (L7, S20-22), 2
-KYOKUJITSUJIN's slit and void line (L6, S18: the full 6 m at once as a ragged rhombus, YAMA-TEAR, with a dust kick, held 20 f, then filled
-by ash; §41), 3 AS1's notch (L6, S10), 4 SHONETSU's two pulses (L8, f16 and f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12);
+KYOKUJITSUJIN's slit and void line (L6, S18: a ragged rhombus from 0.2 m to the hit capsule's end b of MV, the move in play (4.5 m; its garb
+copy's 5.4 / 6.3), its widest the capsule's r x 0.95 (the teeth to 1.19 r), YAMA-TEAR, at once, with a dust burst, held 20 f, then filled by
+ash; §41, 2026-11-23), 3 AS1's notch (L6, S10; its tear x1.2 / x1.4 at the charge level LV, a fixnum), 4 SHONETSU's two pulses (L8, f16 and
+f26), 5 / 6 the advance's / the throw's flare (L8, S14 / S12);
 9-11 left with AS4's ash grip / cut / line segments (§40); 天地灰尽's band and split are YAMA-AS4-LOOK (they outlast the move). RDT: the
 frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
 0 B."
-  (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf))
+  (declare (type f32vec pos) (single-float yaw rdt) (fixnum code sf lv))
   (let* ((x (aref pos 0)) (z (aref pos 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (dr (drawing-no))
          (sd (i->f (mod (f->i dr) 5))) (seed (+ (* 3f0 x) z)))
     (declare (single-float x z fx fz px pz dr sd seed))
@@ -737,8 +815,11 @@ frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
              (fx-disc x1 1.1f0 z1 0.3f0 0.1f0 (+ 40f0 sd) +pal-ink+ k :push 0.1f0)
              (fx-disc x1 1.1f0 z1 0.2f0 0.1f0 (+ 41f0 sd) +pal-ember+ k :push 0.14f0)
              (%light x1 1.1f0 z1 1f0 0.4f0 0.25f0 4f0 (* 1.6f0 k) 7))))
-      ((2 3) (let* ((s (if (= code 2) 18 10)) (len (if (= code 2) 6f0 1.6f0)) (hw (if (= code 2) 0.4f0 0.3f0)))
-               (declare (fixnum s) (single-float len hw))
+      ((2 3) (let* ((s (if (= code 2) 18 10))
+                    (v (and (= code 2) (first (hw-vols (svref (mv-hits mv) 0)))))   ; (NS1c: its capsule, drawn = hit)
+                    (gk (case lv (1 1.2f0) (2 1.4f0) (t 1f0)))                       ; (AS1: x1.2 / x1.4 by the charge, a look)
+                    (len (if v (aref (the f32vec v) 2) (* gk 1.6f0))) (hw (if v (aref (the f32vec v) 4) (* gk 0.3f0))))
+               (declare (fixnum s) (single-float gk len hw))
                (when (and (>= sf s) (< sf (+ s 4)))     ; the white down-cut slit (%ST-SLIT's shape)
                  (fx-crescent (+ x (* 0.5f0 fx)) 2.3f0 (+ z (* 0.5f0 fz)) (+ x (* 1.6f0 fx)) 0.05f0 (+ z (* 1.6f0 fz))
                               (+ x (* 1.5f0 fx)) 1.6f0 (+ z (* 1.5f0 fz)) 0.1f0 :lens 0.1f0 (+ 50f0 sd) +pal-hit+ 0.98f0 :push 0.3f0))
@@ -746,14 +827,14 @@ frame's effect seconds (the ash). The flares' windows: YAMA-BK-FLARE-P. A look;
                                                         ;  out from the line in 4 f; one fixed shape a move (a constant seed:
                                                         ;  nothing he does mid-cast can re-roll it)
                  (let* ((k (if (< sf (+ s 20)) 0.98f0 (f-clamp (* 0.98f0 (/ (i->f (- (+ s 31) sf)) 11f0)) 0f0 0.98f0)))
-                        (g (f-min 1f0 (/ (i->f (+ 1 (- sf s))) 4f0))) (w (* 1.05f0 hw)))   ; (widest 1.05 x the hit's half-width:
-                   (declare (single-float k g w))                                          ;  the teeth reach 1.31 x at most)
+                        (g (f-min 1f0 (/ (i->f (+ 1 (- sf s))) 4f0))) (w (* (if v 0.95f0 1.05f0) hw)))   ; (NS1c widest 0.95 x the
+                   (declare (single-float k g w))                                          ;  capsule's r, the teeth 1.19 x at most;
+                                                                                           ;  AS1 1.05 x, the teeth 1.31 x)
                    (yama-tear (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) fx fz (- len 0.2f0) w g
                               (if (= code 2) 14 5) (if (= code 2) 32f0 46f0) (toon-a +pal-ink+ k t))
-                   (when (< sf (+ s 4))                 ; the dust kicked up as it splits open (S..S+3: about 10 puffs on the 6 m
-                     (%ya-tear-dust (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) fx fz (- len 0.2f0)    ;  line, 2-3 on the notch; on the
-                                    (* w (- 1f0 (* (- 1f0 g) (- 1f0 g))))                     ;  opened width)
-                                    (* 26f0 (- len 0.2f0)) 0.16f0 rdt))
+                   (when (< sf (+ s 20))                ; the dust burst from the split (S: about 14 puffs on NS1c's 4.3 m, 4 on
+                     (%ya-tear-dust (+ x (* 0.2f0 fx)) (+ z (* 0.2f0 fz)) fx fz (- len 0.2f0) w   ;  the notch; their life 12-18 f)
+                                    (- sf s) 0 (if (= code 2) 14 4) 0.16f0 (if (= code 2) 32f0 46f0)))
                    (dotimes (i (n-of (if (< sf (+ s 20)) 18f0 60f0) rdt))   ; ash falling in (more as it fills)
                      (let* ((u (rnd-range 0.2f0 len)) (v (* w (%ya-tent (/ (- u 0.2f0) (- len 0.2f0))) (rnd-range -0.9f0 0.9f0))))
                        (declare (single-float u v))
@@ -997,32 +1078,34 @@ blade's smoke thread only (YAMA-DRAW). YAW unused (kept for the callers). A look
 (defparameter *ya-garb-sizes* (let ((a (make-f32 3))) (setf (aref a 0) 0.6f0 (aref a 1) 1.0f0 (aref a 2) 1.4f0) a)
   "西's garb in play by 西's charge level 0 / 1 / 2 (§30.2, the user 2026-11-21: 「縮小基礎狀態下的火衣大小」, then NSa / NSb grow it): its K
 at the base 0.6 (1.0 until §30.2), after NSa 1.0, after NSb 1.4 (YAMA-GARB-K). The 西 Kikon's sizes (§29) stay. A look.")
-(defun-fast-inline yama-garb-k (f)
+(defun-fast-inline yama-garb-k (f garb)
   "西's garb K now for fighter F (§30.2; *YA-GARB-SIZES* by level): through NSa level 0 -> 1 over its startup, through NSb 1 -> 2, NSc 2
 (its level baked in), else the charge his string carries (FIGHTER-CHARGE-MULT's level, YA-CHARGE-LEVEL's thresholds: 0 again at
-neutral). 0 B."
+neutral); never under GARB, his garb level (YSS-GARB, a fixnum: kept until his neutral across a temporary switch, 2026-11-23). 0 B."
+  (declare (fixnum garb))
   (let* ((mv (fighter-move f)) (nm (and mv (eq (fighter-state f) :move) (mv-name mv))) (sz *ya-garb-sizes*)
          (cm (fighter-charge-mult f))
-         (lv (case nm
-               (:ya-e-n2a (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv))))))
-               (:ya-e-n2b (+ 1f0 (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv)))))))
-               (:ya-e-n2c 2f0)
-               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp; YAMA-WEST-FLAME's: keep the three equal)
+         (lv (f-max (i->f garb)
+                    (case nm
+                      (:ya-e-n2a (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv))))))
+                      (:ya-e-n2b (+ 1f0 (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv)))))))
+                      (:ya-e-n2c 2f0)
+                      (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0)))))))   ; (YA-CHARGE-LEVEL's, yama.lisp; YAMA-WEST-FLAME's: keep the three equal)
     (declare (type f32vec sz) (single-float cm lv))
     (if (<= lv 1f0)
         (+ (aref sz 0) (* lv (- (aref sz 1) (aref sz 0))))
         (+ (aref sz 1) (* (- lv 1f0) (- (aref sz 2) (aref sz 1)))))))
-(defun-fast yama-garb-at (jm f)
+(defun-fast yama-garb-at (jm f garb)
   "西's form aura (J2's follow-up, §28.4; the lead, 2026-11-21: the TYBW kit drew the garb as the West form's aura through every move):
 殘日獄衣 at K 1 on the floor under his pelvis (JM his posed joints), so it goes with him when a clip lunges (NS2c, AS2a carry the body
 about 1 m ahead of his sim position; the old form aura stayed at the sim position). YAMA-DRAW calls it every frame he is in the Bankai
 under 西, but while a flare draws it flared, while the 西 Kikon cinematic draws its own, and while his body is hidden. Its K: fighter F's
-西 charge (YAMA-GARB-K, §30.2). A look; 0 B."
-  (declare (type f32vec jm))
+西 charge or GARB level (YAMA-GARB-K, §30.2). A look; 0 B."
+  (declare (type f32vec jm) (fixnum garb))
   (let ((v *ya-garb-p*))
     (declare (type f32vec v))
     (joint-point! v jm (ji :pelvis) 0f0 0f0 0f0)
-    (ya-garb (aref v 0) (aref v 2) (yama-garb-k f)))
+    (ya-garb (aref v 0) (aref v 2) (yama-garb-k f garb)))
   nil)
 
 ;;; ---------------------------------------------------------------- 西's flame on the charged swings (art batch C, §34, §30.2)
@@ -2126,6 +2209,13 @@ screen split open (in play and the Kikon's; AS4's segment looks, codes 9-11, lef
         (shat (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 3))
         (as3b (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.4f0 :life 30 :age 8))
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
+        ;; 2026-11-23: 西's garb on 南's dead (the tower 2.35 m tall with fire, its topple, AS3's heaps), NS1c and AS1's tears
+        (tw-garb (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.26f0 :life 155 :age 80 :data (list :level 2 :garb 2)))
+        (fall-garb (make-hazard :kind :ya-fall :x 0f0 :z -3.5f0 :size 2.06f0 :life 30 :age 5 :data (list :level 2 :tower-garb 2 :garb 2)))
+        (hands-garb (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.68f0 :life 30 :age 3 :data (list :garb 2)))
+        (as3b-garb (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.96f0 :life 30 :age 8 :data (list :garb 2)))
+        (pile-garb (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.96f0 :life 30 :age 17 :data (list :garb 2)))
+        (n1c (kit-move (find-kit :yamamoto :bankai) :ya-e-n1c)) (as1 (kit-move (find-kit :yamamoto :bankai) :ya-e-as1))
         (pos (pos-of *p1*)) (yaw (yaw-of *p1*))
         (an-m (let ((a (make-anim))) (anim-play a :ya-st-minami :blend 0) a))
         (an-q2 (let ((a (make-anim))) (anim-play a :ya-e-q2 :blend 0 :time (/ 8 60f0)) a))   ; (art C: the drawn clip's time)
@@ -2162,15 +2252,22 @@ screen split open (in play and the Kikon's; AS4's segment looks, codes 9-11, lef
                      (cons-per "shatter-0" (yama-shatter-look shat-0 0.016f0))
                      (cons-per "shatter" (yama-shatter-look shat 0.016f0))
                      (cons-per "as3b-tower" (yama-as3b-look as3b 0.016f0))
+                     (cons-per "tower-garb" (progn (fresh) (yama-tower-look tw-garb 0.016f0)))   ; (2026-11-23: 西's garb on 南's dead)
+                     (cons-per "fall-garb" (progn (fresh) (yama-topple-look fall-garb 0.016f0)))
+                     (cons-per "hands-garb" (progn (fresh) (yama-hands-look hands-garb 0.016f0)))
+                     (cons-per "as3b-garb" (yama-as3b-look as3b-garb 0.016f0))
+                     (cons-per "pile-garb" (progn (fresh) (yama-pile-look pile-garb 0.016f0)))
                      (cons-per "pile" (progn (fresh) (yama-pile-look pile 0.016f0)))
-                     (cons-per "lance" (yama-bk-moves pos yaw 1 21 0.016f0))
-                     (cons-per "void" (yama-bk-moves pos yaw 2 30 0.016f0))
-                     (cons-per "void-grow" (yama-bk-moves pos yaw 2 19 0.016f0))   ; (art K5: the tear's spikes growing; §41: opening)
-                     (cons-per "void-dust" (yama-bk-moves pos yaw 2 18 0.016f0))   ; (§41: the dust kick on S, the rhombus a line)
-                     (cons-per "notch" (yama-bk-moves pos yaw 3 12 0.016f0))
-                     (cons-per "notch-dust" (yama-bk-moves pos yaw 3 10 0.016f0))
-                     (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0))
-                     (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0))
+                     (cons-per "lance" (yama-bk-moves pos yaw 1 21 0.016f0 as1 0))
+                     (cons-per "void" (yama-bk-moves pos yaw 2 30 0.016f0 n1c 0))
+                     (cons-per "void-grow" (yama-bk-moves pos yaw 2 19 0.016f0 n1c 0))   ; (art K5: the tear's spikes growing; §41: opening)
+                     (cons-per "void-dust" (yama-bk-moves pos yaw 2 18 0.016f0 n1c 0))   ; (§41: the dust burst on S, the rhombus a line)
+                     (cons-per "void-burst" (yama-bk-moves pos yaw 2 21 0.016f0 n1c 0))  ; (2026-11-23: the burst 3 f on, puffs and grit)
+                     (cons-per "void-garb" (yama-bk-moves pos yaw 2 21 0.016f0 (svref *ya-garb-copies* 1) 0))   ; (NS1c's garb-2 copy)
+                     (cons-per "notch" (yama-bk-moves pos yaw 3 12 0.016f0 as1 2))
+                     (cons-per "notch-dust" (yama-bk-moves pos yaw 3 10 0.016f0 as1 0))
+                     (cons-per "flare" (yama-bk-moves pos yaw 4 17 0.016f0 as1 0))
+                     (cons-per "rise" (yama-bk-moves pos yaw 7 12 0.016f0 as1 0))
                      (cons-per "as4-split" (yama-as4-split *ya-as4-at* 0 6))   ; (art D: the band, the cinders, the victim's ash tint: the
                      (cons-per "tenchi-split" (yama-tenchi-split 5))              ;  store set to a hit 20 f ago; §40: the split open, in play and in the Kikon)
                      (cons-per "as4-band" (yama-as4-band *ya-as4-at* 0 1))
@@ -2178,12 +2275,12 @@ screen split open (in play and the Kikon's; AS4's segment looks, codes 9-11, lef
                      (cons-per "as4-cinders" (yama-as4-cinders (model-joints (model *p2*)) 20))
                      (cons-per "as4-look" (yama-as4-look *p1* fp))
                      (cons-per "victim-ash" (yama-victim-look *p1* *p2*))
-                     (cons-per "garb" (yama-garb-at (model-joints (model *p1*)) (fighter *p1*)))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
+                     (cons-per "garb" (yama-garb-at (model-joints (model *p1*)) (fighter *p1*) 2))   ; (J2: 殘日獄衣 at K 1, 西's form aura)
                      (cons-per "garb-lean" (progn (setf (aref *ya-lean* 4) 0.4f0 (aref *ya-lean* 5) 0.2f0)   ; (§29.1: the spring stepped,
                                                   (yama-lean-draw (model-joints (model *p1*)) 0)               ;  the garb bent)
-                                                  (yama-garb-at (model-joints (model *p1*)) (fighter *p1*))))
-                     (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
-                     (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
+                                                  (yama-garb-at (model-joints (model *p1*)) (fighter *p1*) 2)))
+                     (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0 as1 0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
+                     (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0 as1 0))   ; (AS2b's, growing)
                      (cons-per "west-arc-2" (ya-west-arc *p1* (find-clip (kit-move-clip bk (mv-clip j2c))) j2c 9 1.6f0 0 zb zw an-m))   ; (art C, §34:
                      (cons-per "west-arc-anim" (ya-west-arc *p1* (find-clip :ya-e-q2) j2c 7 1.6f0 0 zb zw an-q2))
                      (cons-per "west-arc-sa1" (ya-west-arc *p1* (find-clip (kit-move-clip bk (mv-clip sac))) sac 8 0.8f0 0 zb zw an-m))   ;  J2 at level

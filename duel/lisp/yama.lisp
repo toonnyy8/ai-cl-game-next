@@ -204,11 +204,23 @@ lead's placeholder, §14).")
 (defparameter *ya-tower-stand* 90 "南's skeleton tower: frames it stands after the segment that last raised it ends (§30.3; NSc or the SA spends it).")
 (defparameter *ya-tower-ahead* 1.5 "南's tower: how far before him it rises, at the victim's bearing (m, §30.3 R3; 2.5 until 2026-11-22, the user:
 「長出的位置請更靠近山本」 -> 1.5, §35; yama-look.lisp's +YA-TOWER-AHEAD+ copies it).")
-(defparameter *ya-tower-h* 2.0 "南's tower: its height a level (m): the topple's line is as long as the tower is tall (2 / 4 m, §30.3; 3.0
-(3 / 6 m) until 2026-11-22, the user: 「南 NS 的骷髏塔縮小規模」, §38; yama-look.lisp's +YA-TOWER-H+ copies it).")
+(defparameter *ya-tower-h* 1.68 "南's tower: its height at level 1 (m): the topple's line is as long as the tower is tall (YA-TOWER-HEIGHT). 1.68 =
+his drawn height (the skull's top by FK in the Bankai stance, host-checked in tests/duel-rules/art.lisp), the user 2026-11-23: 「塔高減少，NSa
+跟山本一樣高、NSb 變成 a 的 1.75 倍」; 2.0 a level (2 / 4 m) until then (§38), 3.0 (3 / 6 m) until 2026-11-22. yama-look.lisp's +YA-TOWER-H+
+copies it.")
+(defparameter *ya-tower-l2* 1.75 "南's tower: level 2's height over level 1's (the user 2026-11-23: 「NSb 變成 a 的 1.75 倍」: 2.94 m; x2 until then).
+yama-look.lisp's +YA-TOWER-L2+ copies it.")
 (defparameter *ya-charge-reach* '(0.8 1.6)
   "西's garb charge (§30.2, the user 2026-11-21): the reach (m) the string after the SA of NSa / NSb (charge 1 / 2, x1.4 / x1.7: the SA copies'
 :charge-mult) adds to E-J2, E-J3 and the melee AS segments (*YA-REACH-MOVES*; 南's hazard AS stays unboosted). New, §30.2.")
+(defparameter *ya-garb-x* '(1.4 1.7)
+  "殘日獄衣's garb level 1 / 2 (西 NSa / NSb, YSS-GARB, kept until his next neutral): the damage x of 東's NS segments and of every hazard he
+fires meanwhile (南's tower, its topple, AS3's dead: frozen at the fire, YAMA-FIRE), the same x as the charged SAs' :charge-mult (x1.4 /
+x1.7: :ya-e-sa-c1 / -c2). The user 2026-11-23: 「殘日獄衣的強化要回到中立才解除，因此當指針臨時切換時也要有強化效果（包含旭日刀攻擊上升、斬擊裂痕變大，
+南的高塔變大、附帶火焰效果以增加傷害等等）」, then 「南的 AS3 也要吃強化」. New (before: the charge rode only the SA's string, CORE-CHARGE-MULT).")
+(defparameter *ya-garb-size* '(1.2 1.4)
+  "... and the size x by garb level 1 / 2: NS1c's hit capsule's length and radius (*YA-GARB-COPIES*), 南's tower's height and bind disc,
+AS3's discs. The lead's placeholder (2026-11-23), tuned by play. New.")
 (defparameter *ya-as4-mark-x* 0.25
   "AS4 天地灰尽 (§31, the user 2026-11-22: 「只要持有越多方位標記 AS4 與毀魂技的傷害就越高」): each mark held adds this to its damage x
 (0 / 1 / 2 / 3 marks: x1.0 / 1.25 / 1.5 / 1.75: 200 / 250 / 300 / 350 since its one cut, §40). The lead's placeholder, tuned by play. New, §31.")
@@ -237,13 +249,15 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 
 ;;; ---------------------------------------------------------------- 1 東 KYOKUJITSUJIN: short, exact reach, the highest single hits
 ;; a: KYOKKO, the longest lunge (a 4.6 m line, slide 1.6); b: the sunrise, a rising cut out of the lunge; c: the tip touches the floor and the
-;; line ahead is erased (a low line, 6 m)
+;; floor ahead tears open (a low capsule 0.2-4.5 m, r 0.7: the drawn diamond's span and width; 6 m x 0.4 until 2026-11-23); under 西's garb
+;; (YSS-GARB, a temporary switch out of 西's gap) its copy at x1.2 / x1.4 the length and radius (*YA-GARB-COPIES*) and x1.4 / x1.7 damage
 (defmove :ya-e-n1a :kind :flash :clip :ya-e-kyokko :startup 20 :active 3 :recovery 26 :dmg 80 :adv-block -12 :slide 1.6
   :vol (:cap 0.2 4.6 1.1 0.3) :on-hit :stagger :callout "KYOKKO" :params (:ns-next :ya-e-n1b))
 (defmove :ya-e-n1b :kind :flash :clip :ya-e-f2 :startup 14 :active 4 :recovery 24 :dmg 70 :adv-block -3 :slide 1.6
   :vol (:cap 0.2 1.56 1.3 0.35) :on-hit :stagger :params (:ns-next :ya-e-n1c))
 (defmove :ya-e-n1c :kind :flash :clip :ya-kyoku :startup 18 :active 5 :recovery 26 :dmg 120 :adv-block -16
-  :vol (:cap 0.2 6.0 0.3 0.4) :on-hit :knockback :kb 3.0 :callout "KYOKUJITSUJIN")
+  :vol (:cap 0.2 4.5 0.3 0.7) :on-hit :knockback :kb 3.0 :callout "KYOKUJITSUJIN")   ; (4.5 m x r 0.7: the user 2026-11-23, 「旭日刃 NS 的
+                                                                                     ;  裂口太窄又太長」; 6.0 x 0.4 until then)
 ;; AS1: the tip-touch point-blank, stealing flash-step (30, §7.4); mark 東
 (defmove :ya-e-as1 :kind :sp :clip :ya-e-as1 :startup 10 :active 3 :recovery 24 :dmg 50 :reach 1.6 :arc 90
   :on-hit :knockdown :callout "KYOKUJITSUJIN" :params (:steal-fs 30 :mark 1))
@@ -256,10 +270,14 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 ;; the string after it carries (E-J2 / E-J3, the AS: CORE-CHARGE-MULT), with its reach + *YA-CHARGE-REACH* (YAMA-REACH-SWAP), until his next
 ;; neutral, NS or opener. c: the counter-cut (Y11), armoured the same way, always swinging (no catch: not a parry), at charge 2 baked in
 ;; (x1.7: 90 -> 153, reach 2.0 + 1.6: it follows NSb only, and an NS resets the carried x, CORE-NOTE-START!)
+;; Each also sets the garb level on its S (YAMA-GARB-SET: 1 / 2, the higher kept, YSS-GARB) that his NS segments and hazards carry until his
+;; next neutral, across a temporary switch (*YA-GARB-X*, the user 2026-11-23); CORE-NOTE-START!'s reset of the carried x is untouched.
 (defmove :ya-e-n2a :kind :flash :clip :ya-shonetsu :startup 16 :active 12 :recovery 24 :callout "SHONETSU JIGOKU"
-  :params (:ns-next :ya-e-n2b :sa :ya-e-sa-c1 :sp-cost 10))
+  :on-frame ((16 yama-garb-set))
+  :params (:ns-next :ya-e-n2b :sa :ya-e-sa-c1 :sp-cost 10 :garb 1))
 (defmove :ya-e-n2b :kind :flash :clip :ya-e-advance :startup 14 :active 3 :recovery 20   ; no slide since §39 (was 1.5)
-  :params (:ns-next :ya-e-n2c :sa :ya-e-sa-c2 :turn-armor t :sp-cost 10))
+  :on-frame ((14 yama-garb-set))
+  :params (:ns-next :ya-e-n2c :sa :ya-e-sa-c2 :turn-armor t :sp-cost 10 :garb 2))
 (defmove :ya-e-n2c :kind :flash :clip :ya-e-gokui-cut :startup 12 :active 3 :recovery 24 :dmg 153 :adv-block -12 :slide 0.6
   :reach 3.6 :arc 120 :on-hit :knockback :kb 3.0 :callout "ZANJITSU GOKUI" :params (:turn-armor t))
 ;; AS2: the grab after the hit (40) > the flare throws him (70, a launch, the burn round him r 2.0; NSb's hit until §30.2); mark 西
@@ -273,19 +291,22 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 ;; 砸毀，SA 則會主動打碎高塔使無數骷髏向前方飛散（對手被打中有定身效果）」, R3: before him). The tower is a hitless :ya-tower hazard (its level
 ;; in its data); each segment's hit is its own hazard (YAMA-FIRE: frozen in that segment). a: the dead swarm up into a tower *YA-TOWER-AHEAD*
 ;; m before him at the victim's bearing, the point taken on S, its base's hands 16 f later (:delay 17 inside A 17, as NS1b's column: a Step
-;; after S dodges), r 1.2 (1.6 until §38), a bind; b: it climbs to level 2 and binds again; c: it topples toward the victim (a line from its base as long as
-;; it is tall, 2 / 4 m (3 / 6 until §38), 2 m wide: YAMA-HZ :ya-fall), spent. The binds keep (:keep-bind: COMBO-STEP keeps a bind inside the route and counts
+;; after S dodges), r 0.9 (x0.75 with the slimmed tower, the user 2026-11-23: 「骷髏塔的定身圈半徑跟著塔身作對應的收縮」; 1.2 until then, 1.6
+;; until §38), a bind; b: it climbs to level 2 and binds again; c: it topples toward the victim (a line from its base as long as it is tall,
+;; YA-TOWER-HEIGHT: 1.68 / 2.94 m since 2026-11-23 (2 / 4 until then, 3 / 6 until §38), 2 m wide: YAMA-HZ :ya-fall), spent. Under 西's garb
+;; (YSS-GARB) the tower's height and its discs x *YA-GARB-SIZE*, its hits x *YA-GARB-X*, flames on it (the tower's data :garb). The binds keep (:keep-bind: COMBO-STEP keeps a bind inside the route and counts
 ;; the hit). The SA in a or b's gap is the shatter (their :sa). Was (§7.3): the hands at the victim's bearing 4-10 m, the swarm's :wave,
 ;; the bone wall that stopped waves
-(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 2.7 :callout "DAISOJIN"   ; (the disc's far rim: 1.5 + 1.2; 4.1 until §38)
-  :on-frame ((22 yama-tower-fire))
-  :params (:ns-next :ya-e-n3b :sa :ya-e-sa3 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun* :keep-bind t
+(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 2.4 :callout "DAISOJIN"   ; (the disc's far rim: 1.5 + 0.9;
+  :on-frame ((22 yama-tower-fire))                                                                                       ;  2.7 until 2026-11-23, 4.1 until §38)
+  :params (:ns-next :ya-e-n3b :sa :ya-e-sa3 :radius 0.9 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun* :keep-bind t
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 2.7
+(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 2.4
   :on-frame ((16 yama-tower-fire))
-  :params (:ns-next :ya-e-n3c :sa :ya-e-sa3 :level 2 :radius 1.2 :delay 0 :dmg 50 :react :bind :stun *ya-bind-stun* :keep-bind t
+  :params (:ns-next :ya-e-n3c :sa :ya-e-sa3 :level 2 :radius 0.9 :delay 0 :dmg 50 :react :bind :stun *ya-bind-stun* :keep-bind t
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 6.0   ; (level 2's line end 5.5 + 0.5; 8.0 until §38)
+(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 4.94   ; (level 2's line end 1.5 + 2.94, + 0.5; 6.0
+                                                                                                       ;  until 2026-11-23, 8.0 until §38)
   :on-frame ((18 yama-topple-fire))
   :params (:dmg 70 :dmg-2 100 :react :crumple :kikon-strike :ya-e-ns-strike))
 ;; the SA in NSa / NSb's gap: the shatter, the skeletons flung forward: its own window, a 60 deg sector 6 m from him along his facing
@@ -294,7 +315,8 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 (defmove :ya-e-sa3 :kind :quick :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 55 :reach 6.0 :arc 60 :on-hit :bind
   :hits ((6 9 :stun *ya-bind-stun*)) :flags (:keep-bind :ranged) :on-frame ((6 yama-shatter-fire)))
 ;; AS3 (§30.3): the hands seize at him (40, a stagger) > the tower climbs round him (50, a stagger; was the swarm's :wave) > the pile topples
-;; on him (100, a knockdown); mark 南
+;; on him (100, a knockdown); mark 南. Under 西's garb (YSS-GARB: AS3 reached through the charged SA's string) its hazards carry x1.4 / x1.7
+;; and discs x1.2 / x1.4 (YAMA-FIRE; the user 2026-11-23: 「南的 AS3 也要吃強化」; unboosted until then, §30.2)
 (defmove :ya-e-as3c :kind :sp :clip :ya-e-as3c :startup 12 :active 3 :recovery 30 :reach 4.0 :on-frame ((12 yama-column-fire))
   :params (:near 0.0 :far 4.0 :radius 1.4 :delay 0 :dmg 100 :react :knockdown :mark 3 :kikon-strike :ya-e-as-strike :look yama-pile-look))
 (defmove :ya-e-as3b :kind :sp :clip :ya-e-as3b :startup 10 :active 2 :recovery 18 :reach 4.0 :on-frame ((10 yama-column-fire))
@@ -336,6 +358,15 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
                                         (parse-move n (mv-spec mv) :reach-mult (/ (+ r add) r)))))
           'simple-vector)
   "*YA-REACH-MOVES*' copies by charge level 1 / 2 (index 0 / 1): each reach + its *YA-CHARGE-REACH*.")
+(defparameter *ya-garb-copies*
+  (let* ((mv (find-move :ya-e-n1c)) (v (getf (mv-spec mv) :vol)))
+    (destructuring-bind (a b h r) (rest v)   ; (built explicitly: SCALE-VOL-SPEC scales a and b, never r)
+      (coerce (loop for k in *ya-garb-size*
+                    collect (parse-move :ya-e-n1c (list* :vol (list :cap a (* k b) h (* k r)) (mv-spec mv))))
+              'simple-vector)))
+  "NS1c under 西's garb level 1 / 2 (index 0 / 1; the user 2026-11-23: 「斬擊裂痕變大」): same-name copies whose capsule's length b and radius r
+are x *YA-GARB-SIZE* (4.5 x 0.7 -> 5.4 x 0.84 / 6.3 x 0.98), damage as the base move's (the x is YAMA-DMG-MULT's); YAMA-REACH-SWAP puts
+the level's copy in play, the tear's look draws the volume in play (drawn = hit).")
 
 (defkit :yamamoto :bankai
   :awakening t :form-name "ZANKA NO TACHI" :name "YAMAMOTO" :body :yamamoto-tybw :hide (:haori) :weapon :zanka :stance :ya-e-stance
@@ -353,17 +384,19 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19)
          :as-by-press (1 2 3 4) :as-writes (1 2 3 nil)   ; (J4 > AS4 天地灰尽, no pointer written: §31)
-         :ns-range ((2.0 5.5) nil (0.3 2.7))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 1.5 m ahead where its bind disc (r 1.2) reaches him
-                                               ;  (§38; (0.5 3.0) at r 1.6 until then, 2.5 m / (1.0 4.0) before §35, 4-9 m before §30.3)
+         :ns-range ((2.0 5.5) nil (0.6 2.4))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 1.5 m ahead where its bind disc (r 0.9) reaches him
+                                               ;  (2026-11-23; (0.3 2.7) at r 1.2 until then (§38), (0.5 3.0) at r 1.6, 2.5 m / (1.0 4.0) before §35,
+                                               ;  4-9 m before §30.3)
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n   ; (its hazards carry x 1.0: no heat)
           :tick yama-bk-tick :hud-tag yama-bk-tag     ; (西's charged reach; 北 at the next neutral after the third mark: §30)
           :armored-fx yama-armored-fx                  ; (西's armour absorbing an NA: L9, a look, art K1; it replaces the spark, K3)
           :planted yama-planted                        ; (the blade left in the plaza: the grab / throw, AS3b / AS3c; a look, art K3)
           :victim-look yama-victim-look))              ; (天地灰尽's ash on the victim's drawn body; a look, art batch D)
-(let ((k (find-kit :yamamoto :bankai)))   ; 西's reach copies classed as their moves (KIT-CLASS is by object: COMBAT's AS hit, the CPU's reads)
+(let ((k (find-kit :yamamoto :bankai)))   ; 西's reach and garb copies classed as their moves (KIT-CLASS is by object: COMBAT's AS hit, the CPU's reads)
   (loop for copies across *ya-reach-copies*
-        do (dolist (c copies) (setf (gethash c (kit-cls k)) (kit-class k (kit-move k (mv-name c)))))))
+        do (dolist (c copies) (setf (gethash c (kit-cls k)) (kit-class k (kit-move k (mv-name c))))))
+  (loop for c across *ya-garb-copies* do (setf (gethash c (kit-cls k)) (kit-class k (kit-move k (mv-name c))))))
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules/yamamoto.lisp)
 (defun ya-bearing-point (px pz qx qz near far)
@@ -426,6 +459,23 @@ thresholds are inlined (no boxed float) in yama-look.lisp's YAMA-GARB-K and YAMA
   (let ((i (position name *ya-reach-moves*)))
     (and i (<= 1 lv 2) (nth i (svref *ya-reach-copies* (1- lv))))))
 
+(defun ya-garb-x (garb)
+  "The damage x of 西's garb level GARB (0 / 1 / 2, YSS-GARB): 1, else *YA-GARB-X*'s entry."
+  (if (<= 1 garb 2) (nth (1- garb) *ya-garb-x*) 1.0))
+
+(defun ya-garb-size (garb)
+  "The size x of 西's garb level GARB (0 / 1 / 2): 1, else *YA-GARB-SIZE*'s entry."
+  (if (<= 1 garb 2) (nth (1- garb) *ya-garb-size*) 1.0))
+
+(defun ya-tower-height (lv garb)
+  "南's tower's height (m) at level LV (1 / 2) under garb level GARB: *YA-TOWER-H* (his drawn height), x *YA-TOWER-L2* at level 2, x
+YA-GARB-SIZE (1.68 / 2.94 m; garb 2: 2.35 / 4.12 m). The topple's line is as long."
+  (* *ya-tower-h* (if (>= lv 2) *ya-tower-l2* 1.0) (ya-garb-size garb)))
+
+(defparameter *ya-garb-moves* '(:ya-e-n1a :ya-e-n1b :ya-e-n1c)
+  "His own hits the garb's x reaches (YAMA-DMG-MULT; 東's NS segments: 南's NS segments hit through hazards, which carry it frozen; not 西's
+NS2c, its x1.7 baked; not NA / SA / AS, whose charge the charged SA's string carries, CORE-CHARGE-MULT; not the Kikon strikes).")
+
 (defun yama-seg-x (e mv)
   "The damage x a segment of E's (MV) carries, frozen when it starts (YAMA-NS-START; a hazard's copied when it fires): his heat boost
 (§3, §7.4: 1 + 0.3 x paid / 25) while MV is the NS segment the boost was stored for, else 1.0. APPLY-HIT multiplies it with the SP
@@ -444,10 +494,11 @@ short-pay x (SP-SCALE) and, for a hazard, the SP x frozen at its fire frame (HAZ
 
 (defun yama-dmg-mult (att def hw mv hazard d2)
   "KIT-HOOK :dmg-mult: a hazard's segment x as frozen at its fire frame (its data :x), else his own move's (YAMA-SEG-X); AS4's
-x by the marks held (YA-AS4-X, §31)."
+x by the marks held (YA-AS4-X, §31); 東's NS segments x 西's garb level (YA-GARB-X of YSS-GARB, *YA-GARB-MOVES*; 2026-11-23)."
   (declare (ignore def hw d2))
   (cond (hazard (or (getf (hazard-data hazard) :x) 1.0))
         ((and mv (getf (mv-params mv) :as4)) (ya-as4-x (yss-marks (ys att))))
+        ((and mv (member (mv-name mv) *ya-garb-moves*)) (* (yama-seg-x att mv) (ya-garb-x (yss-garb (ys att)))))
         (t (yama-seg-x att mv))))
 
 (defun yama-kikon-n (att n)
@@ -462,11 +513,12 @@ x by the marks held (YA-AS4-X, §31)."
   "Yamamoto's own state (YS): the heat bookkeeping (the NS segment that last spent: its start tick SEG-T, what it PAID, its damage X, whether
 a cancel gave it BACK; the start tick of the move or segment that last gained heat, GAIN-T: once each; the tick of the last cancel burn,
 BURN-T: once a step), the Bankai's MARKS and AS4's use AS4. On his fighter entity, so they live through every form change and Konpaku
-reset for the match (§7.4)."
+reset for the match (§7.4). GARB: 西's garb level (2026-11-23), cleared at his next neutral."
   (seg-t -1 :type fixnum) (paid 0f0 :type single-float) (x 1f0 :type single-float) (back nil)
   (gain-t -1 :type fixnum) (burn-t -1 :type fixnum)
   (marks 0 :type fixnum)                       ; the Bankai's marks (bits 東 1 / 西 2 / 南 4): kept for the match, until AS4 spends them (§31)
-  (as4 nil))                                   ; AS4 used since his last neutral: the next one clears the marks (§31, YAMA-AS4-SPENT)
+  (as4 nil)                                    ; AS4 used since his last neutral: the next one clears the marks (§31, YAMA-AS4-SPENT)
+  (garb 0 :type fixnum))                       ; 西's garb level 0 / 1 / 2 (NSa / NSb's S, the higher kept) until his next neutral (YAMA-GARB-SET)
 (defun ys (e)
   "E's heat state (his YSS component, attached on the first call: a new match's fighter gets a fresh one)."
   (or (yss e) (let ((st (make-yss))) (add-component e st) st)))
@@ -589,12 +641,15 @@ the drain wait for its end)."
   (make-hitwin :dmg dmg :react react :kb (or (move-param e :kb) 0.0) :hs *hitstop-heavy* :stun (move-param e :stun)
                :flags (and (move-param e :keep-bind) '(:keep-bind))))   ; (南's binds keep inside a route: COMBO-STEP, §30.3)
 
-(defun yama-fire (e kind x z &key (size 1.0) (life 30) (delay 0) (hits 1) (hot life) look hw (yaw (yaw-of e)))
+(defun yama-fire (e kind x z &key (size 1.0) (life 30) (delay 0) (hits 1) (hot life) look hw (yaw (yaw-of e)) data)
   "Spawn his fire hazard KIND at (X Z) facing YAW (his, by default), in his segment now (its class, SP scale, start tick: SPAWN-HAZARD's
-defaults), its segment x frozen (YAMA-SEG-X: the data's :x); HOT: frames it may hit after its delay (then it is only a look)."
-  (spawn-hazard kind e :x x :z z :yaw yaw :size size :life life :delay delay :hits hits :look look :hook 'yama-hz
-                       :hw hw :data (list :hot hot :x (yama-seg-x e (fighter-move (fighter e))) :heat (yama-seg-heat e)
-                                        :mark (move-param e :mark))))
+defaults), its segment x frozen (YAMA-SEG-X x 西's garb x now, YA-GARB-X of YSS-GARB: the data's :x; the garb level as :garb, its looks'
+flames); HOT: frames it may hit after its delay (then it is only a look). DATA: more of the hazard's data (the topple's tower). The garb is
+the Bankai's (0 in the Shikai and 爆炎), so in the Bankai it reaches 南's NS hazards and AS3's, the only ones he fires (2026-11-23)."
+  (let ((g (yss-garb (ys e))))
+    (spawn-hazard kind e :x x :z z :yaw yaw :size size :life life :delay delay :hits hits :look look :hook 'yama-hz
+                         :hw hw :data (list* :hot hot :x (* (yama-seg-x e (fighter-move (fighter e))) (ya-garb-x g)) :heat (yama-seg-heat e)
+                                             :mark (move-param e :mark) :garb g data))))
 
 (defun yama-hz (h hz ev &optional tx ty tz tr th)
   "His fire's hazard hook: :step closes the hit after its HOT frames (the look stays); :touches is its shape."
@@ -629,10 +684,10 @@ defaults), its segment x frozen (YAMA-SEG-X: the data's :x); HOT: frames it may 
 
 (defun yama-column-fire (e)
   "NS1b on S (南's hands, NSa and AS3a / AS3c, the same way): the point at the victim's bearing (:near .. :far) taken now; the column
-erupts there :delay frames later, hot 6 frames."
+erupts there :delay frames later, hot 6 frames; its disc x 西's garb size (YA-GARB-SIZE: AS3 under the garb, 2026-11-23)."
   (let ((p (pos-of e)) (q (pos-of (opp-of e))))
     (multiple-value-bind (x z) (ya-bearing-point (aref p 0) (aref p 2) (aref q 0) (aref q 2) (move-param e :near) (move-param e :far))
-      (yama-fire e :ya-col x z :size (move-param e :radius) :delay (move-param e :delay) :life 30 :hot 6
+      (yama-fire e :ya-col x z :size (* (move-param e :radius) (ya-garb-size (yss-garb (ys e)))) :delay (move-param e :delay) :life 30 :hot 6
                  :look (or (move-param e :look) 'yama-column-look)
                  :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react))))))
 
@@ -692,18 +747,21 @@ hot 4 frames."
 (defun yama-tower-fire (e)
   "南 NSa / NSb on S: the tower rises at YAMA-TOWER-SPOT (or the standing one climbs) to the move's :level (1 by default) and stands
 *YA-TOWER-STAND* frames after this segment ends; the dead clawing up at its base are the hit (:dmg :react :stun :keep-bind, r :radius,
-:delay frames later, hot 6)."
+:delay frames later, hot 6). Its data: :level, :garb (西's garb level now: the height, the disc x YA-GARB-SIZE, the flames), :h its height
+(YA-TOWER-HEIGHT: the topple's line; a climb makes a new list, never a shared cons changed: the MCTS snapshot)."
   (let* ((tw (yama-live-hz e :ya-tower)) (hz (and tw (hazard tw))) (f (fighter e)) (lv (or (move-param e :level) 1))
+         (g (yss-garb (ys e))) (h (ya-tower-height lv g)) (r (* (move-param e :radius) (ya-garb-size g)))
          (life (+ (- (mv-total (fighter-move f)) (fighter-sf f)) *ya-tower-stand*)))
     (multiple-value-bind (x z) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
       (if hz
-          (setf (hazard-life hz) (+ (hazard-age hz) life) (getf (hazard-data hz) :level) lv)
-          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size (move-param e :radius) :life life :hook 'yama-hz :look 'yama-tower-look
-                                   :data (list :level lv)))
-      (yama-fire e :ya-col x z :size (move-param e :radius) :delay (move-param e :delay) :life 30 :hot 6 :look (move-param e :look)
+          (setf (hazard-life hz) (+ (hazard-age hz) life)
+                (hazard-data hz) (list :level lv :garb g :h h))
+          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size r :life life :hook 'yama-hz :look 'yama-tower-look
+                                   :data (list :level lv :garb g :h h)))
+      (yama-fire e :ya-col x z :size r :delay (move-param e :delay) :life 30 :hot 6 :look (move-param e :look)
                  :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react)))
-      (clog "~a tower level ~d at ~,2f ~,2f, ~,2f m from him (~d f)" (side-name e) lv x z
-            (let ((p (pos-of e))) (sqrt (+ (expt (- x (aref p 0)) 2) (expt (- z (aref p 2)) 2)))) life)
+      (clog "~a tower level ~d at ~,2f ~,2f, ~,2f m from him (~d f): ~,2f m tall, disc r ~,2f, garb ~d" (side-name e) lv x z
+            (let ((p (pos-of e))) (sqrt (+ (expt (- x (aref p 0)) 2) (expt (- z (aref p 2)) 2)))) life h r g)
       (emit :sfx :ground-crack e))))
 
 (defun ya-topple-dir (bx bz qx qz yaw)
@@ -713,16 +771,19 @@ base. Values the unit vector x z."
     (if (> d 0.5) (values (/ dx d) (/ dz d)) (values (fwd-x yaw) (fwd-z yaw)))))
 
 (defun yama-topple-fire (e)
-  "南 NSc on S: the tower (or, none standing, a level-1 one at YAMA-TOWER-SPOT) topples toward the victim: a line from its base as long as
-it is tall (*YA-TOWER-H* x level), 2 m wide (YAMA-HZ :ya-fall), :dmg at level 1, :dmg-2 at level 2, hot 4; the tower is spent."
-  (let* ((tw (yama-live-hz e :ya-tower)) (hz (and tw (hazard tw))) (lv (if hz (getf (hazard-data hz) :level 1) 1)) (q (pos-of (opp-of e))))
+  "南 NSc on S: the tower (or, none standing, a level-1 one at YAMA-TOWER-SPOT under the garb now) topples toward the victim: a line from
+its base as long as it is tall (its data's :h, YA-TOWER-HEIGHT), 2 m wide (YAMA-HZ :ya-fall), :dmg at level 1, :dmg-2 at level 2, x 西's
+garb x now (YAMA-FIRE), hot 4; the tower is spent. The fall's data carries the tower's :level and :tower-garb (its look's size)."
+  (let* ((tw (yama-live-hz e :ya-tower)) (hz (and tw (hazard tw))) (d (and hz (hazard-data hz))) (lv (if hz (getf d :level 1) 1))
+         (tg (if hz (getf d :garb 0) (yss-garb (ys e)))) (q (pos-of (opp-of e))))
     (multiple-value-bind (bx bz) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
       (when tw (destroy-entity tw))
       (multiple-value-bind (ux uz) (ya-topple-dir bx bz (aref q 0) (aref q 2) (yaw-of e))
-        (let ((half (* 0.5 *ya-tower-h* lv)))
+        (let ((half (* 0.5 (if hz (getf d :h) (ya-tower-height 1 tg)))))
           (yama-fire e :ya-fall (+ bx (* half ux)) (+ bz (* half uz)) :size half :yaw (dir-yaw ux uz) :life 30 :hot 4 :look 'yama-topple-look
-                     :hw (yama-fire-hw e (move-param e (if (>= lv 2) :dmg-2 :dmg)) (move-param e :react)))
-          (clog "~a tower topples: level ~d, ~,1f m from ~,2f ~,2f" (side-name e) lv (* 2 half) bx bz))))
+                     :hw (yama-fire-hw e (move-param e (if (>= lv 2) :dmg-2 :dmg)) (move-param e :react))
+                     :data (list :level lv :tower-garb tg))
+          (clog "~a tower topples: level ~d, ~,2f m from ~,2f ~,2f, garb ~d" (side-name e) lv (* 2 half) bx bz (yss-garb (ys e))))))
     (emit :sfx :ground-crack e)))
 
 (defun yama-shatter-fire (e)
@@ -765,23 +826,40 @@ a block or the Kikon's follow-up strike gives none; AS4 has no mark). A hit of �
                       (if hazard (getf (hazard-data hazard) :mark) (getf (mv-params mv) :mark)))))
           (when n (yama-mark! att n)))))))
 
-(defun yama-reach-swap (f)
+(defun yama-reach-swap (e f)
   "西's charged string (§30.2): while F carries a charge (FIGHTER-CHARGE-MULT, YA-CHARGE-LEVEL), a move of *YA-REACH-MOVES* in play is
 swapped for its copy at the level's reach (YA-REACH-COPY: the same name, so the string, the SP table and the CPU see the move they know;
-a cancel's dead mark follows it). Every live step, so a link swaps before its first active frame (each has S >= 7). 0 B."
-  (let* ((mv (fighter-move f)) (lv (ya-charge-level (fighter-charge-mult f))))
-    (when (and mv (plusp lv) (member (mv-name mv) *ya-reach-moves*))
-      (let ((c (ya-reach-copy (mv-name mv) lv)))
-        (unless (eq c mv)
-          (when (eq (fighter-dead-mv f) mv) (setf (fighter-dead-mv f) c))
-          (setf (fighter-move f) c))))))
+a cancel's dead mark follows it). Every live step, so a link swaps before its first active frame (each has S >= 7). NS1c the same way
+by 西's garb level (YSS-GARB: *YA-GARB-COPIES*, 2026-11-23; its S 18). 0 B."
+  (let* ((mv (fighter-move f)) (lv (ya-charge-level (fighter-charge-mult f))) (g (yss-garb (ys e)))
+         (c (and mv (cond ((and (plusp lv) (member (mv-name mv) *ya-reach-moves*)) (ya-reach-copy (mv-name mv) lv))
+                          ((and (plusp g) (eq (mv-name mv) :ya-e-n1c)) (svref *ya-garb-copies* (1- g)))))))
+    (when (and c (not (eq c mv)))
+      (when (eq (fighter-dead-mv f) mv) (setf (fighter-dead-mv f) c))
+      (setf (fighter-move f) c))))
 
 (defun yama-bk-tick (e f g)
-  "The Bankai's KIT-HOOK :tick (live sim steps only): 西's charged reach (YAMA-REACH-SWAP); the marks spent at his neutral after AS4
-(YAMA-AS4-SPENT, §31)."
+  "The Bankai's KIT-HOOK :tick (live sim steps only): 西's charged reach and NS1c's garb copy (YAMA-REACH-SWAP); the marks spent at his
+neutral after AS4 (YAMA-AS4-SPENT, §31); 西's garb level cleared at his neutral (YAMA-GARB-SPENT, 2026-11-23)."
   (declare (ignore g))
-  (yama-reach-swap f)
-  (yama-as4-spent e f))
+  (yama-reach-swap e f)
+  (yama-as4-spent e f)
+  (yama-garb-spent e f))
+
+(defun yama-garb-set (e)
+  "西 NSa / NSb's S (on-frame): 西's garb level := the higher of it and the move's :garb (1 / 2), kept until his next neutral, across a
+temporary switch (the user 2026-11-23: 「殘日獄衣的強化要回到中立才解除，因此當指針臨時切換時也要有強化效果」; YAMA-GARB-SPENT)."
+  (let* ((s (ys e)) (g (max (yss-garb s) (or (move-param e :garb) 0))))
+    (unless (= g (yss-garb s))
+      (clog "~a GARB ~d -> ~d" (side-name e) (yss-garb s) g)
+      (setf (yss-garb s) g))))
+
+(defun yama-garb-spent (e f)
+  "At E's next neutral (YAMA-FREE-P) 西's garb level clears (YAMA-GARB-SET)."
+  (let ((s (ys e)))
+    (when (and (plusp (yss-garb s)) (yama-free-p f))
+      (clog "~a GARB ~d -> 0 (neutral)" (side-name e) (yss-garb s))
+      (setf (yss-garb s) 0))))
 
 (defun yama-as4-start (e)
   "AS4's frame 0 (§31): AS4 is used (the next neutral clears the marks: YAMA-AS4-SPENT)."
@@ -803,11 +881,13 @@ tag changes, by EQ).")
   (let ((s (yss e))) (and s (svref *ya-bk-tags* (yss-marks s)))))
 ;;; ================================================================ debug (87000-87999), probes
 (defun yama-probe-line (tag)
-  "A `duel probe yamamoto` line: P1's form, state, move, pointer, flash-step, heat (the kit meter), Reishi, the marks, 西's charge x, his live ring; P2's state and Reishi; the distance."
+  "A `duel probe yamamoto` line: P1's form, state, move, pointer, flash-step, heat (the kit meter), Reishi, the marks, 西's charge x and garb
+level, his live ring; P2's state and Reishi; the distance."
   (let* ((f (fighter *p1*)) (r (yama-live-ring *p1*)) (hz (and r (hazard r))))
-    (log-msg "duel probe yamamoto ~a t ~d p1 ~a ~a ~a ptr ~d fs ~,1f heat ~,1f r~d marks ~d charge ~,1f ring ~a | p2 ~a r~d | d ~,2f"
+    (log-msg "duel probe yamamoto ~a t ~d p1 ~a ~a ~a ptr ~d fs ~,1f heat ~,1f r~d marks ~d charge ~,1f garb ~d ring ~a | p2 ~a r~d | d ~,2f"
              tag *match-tick* (fighter-form f) (state-of *p1*) (and (fighter-move f) (mv-name (fighter-move f))) (fighter-ptr f)
              (gauges-fs (gauges *p1*)) (gauges-meter (gauges *p1*)) (gauges-reishi (gauges *p1*)) (yss-marks (ys *p1*)) (fighter-charge-mult f)
+             (yss-garb (ys *p1*))
              (if hz (format nil "~,2f ~,2f age ~d" (hazard-x hz) (hazard-z hz) (hazard-age hz)) "-")
              (state-of *p2*) (gauges-reishi (gauges *p2*)) (fighter-dist f))))
 
@@ -857,7 +937,9 @@ pointer 1-3; 87400+n P1 starts his NS under the pointer (n 0) / J1 (1); 87410+i 
 its own (CORE-START!: paid as a press); 87500+h P1's heat h (h 0-100: 100 enters 爆炎 at his next neutral); 87700+r P1's Reishi r, 87800+r
 P2's (r 1-99); 87900 the probe line; 87901 the phone's deck on (*ONE-HAND* as the setting would have it: a portrait window). The Bankai
 (stage C): 87420+i P1 starts Bankai segment i of 東 a b c, 西 a b c, 南 a b c, AS4 (0-9; was 北's NS c until §31; AS4's first segment until §40) on its own (CORE-START!; P1 in the Bankai); 87440 P1 awakens now (AWAKEN!, the
-cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!); 87444 free (P1 into the 北 form until §33); 87445 P1's marks cleared; 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
+cinematic); 87441-87443 P1 gets mark 東 / 西 / 南 (YAMA-MARK!); 87444 free (P1 into the 北 form until §33); 87445 P1's marks (and 西's garb
+level, 2026-11-23) cleared; 87456 / 87457 P1's 西 garb level 1 / 2 (YSS-GARB; his next neutral clears it, so start a segment in the same
+command list: 87457 87422 = NS1c under garb 2); 87446 P1 into the Bankai at once (no cinematic, awakened); 87447 a `duel yamamoto
 switch` line: may P1 switch pointer now (CORE-SWITCH-OPEN-P). Art K1 (§16): 87430+i P1 starts Bankai AS segment i of AS1, AS2a / b, AS3a / b /
 c, AS4 (0-6; its last segment until §40) on its own (CORE-START!); 87455 free (AS4's third segment until §40;
 87453-87458 were 北's segments until §33, the others free); 
@@ -908,7 +990,8 @@ its mantle, left with the mantle: batch J2, §28.) The probe line carries 北's 
           ((= c 87438) (core-start! *p1* (kit-move (kit-of *p1*) :ya-e-sa3)))   ; (§30.3: 南's SA, the shatter, on its own; P1 in the Bankai)
           ((= c 87440) (awaken! *p1*))
           ((<= 87441 c 87443) (yama-mark! *p1* (- c 87440)))
-          ((= c 87445) (setf (yss-marks (ys *p1*)) 0 (yss-as4 (ys *p1*)) nil))
+          ((= c 87445) (setf (yss-marks (ys *p1*)) 0 (yss-as4 (ys *p1*)) nil (yss-garb (ys *p1*)) 0))
+          ((<= 87456 c 87457) (setf (yss-garb (ys *p1*)) (- c 87455)))   ; (2026-11-23: 西's garb 1 / 2, then a segment in the same list)
           ((= c 87446) (setf (gauges-awakened (gauges *p1*)) t) (set-form *p1* :bankai) (to-idle *p1* 0))
           ((= c 87448) (yama-look-consing))
           ((<= 87450 c 87452) (yama-cine-at (nth (- c 87450) '(yama-higashi-cine yama-nishi-cine yama-minami-cine))))   ; (art K4)
