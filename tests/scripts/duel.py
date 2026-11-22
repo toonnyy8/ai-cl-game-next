@@ -1272,6 +1272,48 @@ def yama_k5_script(phone=False):
 write("yama-k5", yama_k5_script())
 write("yama-k5-phone", yama_k5_script(True))
 
+# Yamamoto's 東 tear as a ragged rhombus with a dust kick (DUEL_YAMA_CORE §41): NS1c on its own (87422, Kenpachi 8 m away: no hit, so no
+# hitstop and the move frames count from the command; S18) at S+1 / +3 / +6 / +16, and AS1 on its own (87430, 3 m: no hit; S10) at S+1 /
+# +3 / +6 / +14, from the behind camera, then from above (87480 after the placement, off again after); the 東 Kikon held at f86 / 88 / 92 /
+# 96 / 120. The pointer 1 (87301) for 東's looks. PHONE: the deck on (87901). Shots tests/shots/duel-east41-*.png (move them off).
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --script tests/scripts/duel-yama-east41.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --mobile --size 390x844 --script tests/scripts/duel-yama-east41-phone.json
+def yama_east41_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "top"):
+        for nm, place, start, s, frames in (("ns1c", 87080, 87422, 18, (1, 3, 6, 16)), ("as1", 87030, 87430, 10, (1, 3, 6, 14))):
+            a = scene(f"{nm} {cam}", (place, 87301, 87446) + deck) + 1.6
+            if cam == "top": ev.append(cmd(a - 0.3, 87480))
+            ev.append(cmd(a, start))
+            for k in frames: ev.append(shot(a + (s + k) / 60, f"east41-{nm}-s{k}-{cam}{sx}"))
+            if cam == "top": ev.append(cmd(a + 1.2, 87480))
+            t = a + 2.0
+    ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== higashi')"})
+    ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]
+    t += 2.5
+    ev.append(cmd(t, 87450))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    beats = (86, 88, 92, 96, 120)
+    ev.append(cmd(t + 0.03, 87600 + beats[0] // 2))
+    a, f0 = t + 0.03, 0
+    for j, f in enumerate(beats):
+        a += (f - f0) / 60 + 0.3
+        ev.append(shot(a, f"east41-cine-f{f}{sx}"))
+        if j + 1 < len(beats): ev.append(cmd(a + 0.05, 87600 + beats[j + 1] // 2))
+        a += 0.05
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-east41", yama_east41_script())
+write("yama-east41-phone", yama_east41_script(True))
+
 # Yamamoto's Shikai art S1 (DUEL_YAMA_CORE §21.2, §22): every look SL0-SL9 in play. Each segment started on its own (87410+i NS1a-NS2c,
 # 87416+i NS3a-c / the SA, 87460 AS1) in a fresh placement (87000+k: Kenpachi k / 10 m away), the heat set first (87500+h) at 0 / 12 /
 # 25 (T0 / T1 / T2) for the NS looks; the ring, the SA and AS1 pay none (T0 by rule: one heat). Stills at move frames (the frame after

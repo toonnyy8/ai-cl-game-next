@@ -4111,3 +4111,130 @@ Checks:
 
 One thing is left as before: if he goes back to neutral after NSa without an SA, the charge is gone and the garb drops 1.0 → 0.6 at once
 (§30.2's rule).
+
+## 41. 東's tear as a ragged diamond, with a dust kick (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22:
+
+> 旭日刀的地面裂口請改成邊緣不規則的菱形，而不是目前的條狀帶，然後斬裂地面的瞬間要有少量煙塵噴起的特效
+
+Two changes:
+- the ground opening of 旭日刃 becomes a rhombus with irregular edges instead of §20.1's strip with spikes;
+- a small burst of dust kicks up at the moment the floor is cut open.
+
+All three places that draw the shared tear change together, because the manual says they share one shape: NS1c's 6 m line and AS1's
+notch (`yama-bk-moves` codes 2 / 3) and the 東 Kikon (`yama-higashi-look`). Each place keeps its own length and timing. Presentation
+only: no rule, frame or volume moved.
+
+### 41.1 References
+
+Kept in the git-ignored `.refs/yamamoto-east-tear/`:
+- `katori-crack.jpg`: an earthquake crack in a road at Katori, Japan (Wikimedia Commons, "Crack in the ground caused by the
+  earthquake, Kogaishima, Katori-city, Japan").
+- `oregon-crack.jpg`: Crack in the Ground, Oregon, from the air (Wikimedia Commons, BLM "My Public Lands Roadtrip").
+- `psm-cracks.png`: cracks in shaken marshy ground (Wikimedia Commons, Popular Science Monthly v. 69).
+- `anime-stomp-dust-80lv.jpg` and `earth-slam-80lv.jpg`: anime-style ground dust and an earth-slam crack in Unity (80.lv, "Impactful
+  anime-style stomp dust VFX" and "Creating earth slam attack VFX in Unity").
+- `.refs/yamamoto-rework/ch507-p10-kyokujitsujin-tear.png`: §20's manga page, again.
+
+What was taken from them:
+- A real split never has parallel lips. The opening pinches out to a point at both ends and is widest where it gave most. The two
+  lips are not mirror images.
+- The lips break at two scales: a few deep chips and many small uneven notches, with no regular period.
+- Ground dust in anime is a few low, clumpy puffs that hug the floor along the break, with fine grit tossed up that falls straight
+  back. It never makes a column.
+
+### 41.2 The shape (`yama-tear`, `yama-look.lisp`)
+
+The tear is still one flat INK toon fan shape 1.2 cm above the floor, with the same vertex law as §20.1:
+- heat 0 on the cut's line and 1 on the ragged outline;
+- uv.x -2 ± 0.4, which keeps it one flat black;
+- shader wobble 0.14, which gives the dry-brush lift;
+- the white value-opposite rim.
+
+What changed is the width law along the cut:
+- **A linear tent** (`%ya-tent`): width 0 at the tip's touch point and at the far end, full width W at the corner. The sides are
+  straight lines, not a sine or a lens, so the corner reads as a rhombus. Each side's corner sits 0.44-0.56 of the way along (a seeded
+  hash), so the two lips differ.
+- **A slow swell** bends each straight edge by 0.8-1.0 x, about two bulges along it.
+- **The rag**: 2N uneven stations a side, jittered ±0.3 / ±0.45 of a step. Notches sit at 0.47-0.92 x the local width (cubed: most
+  shallow, a few deep chips). Teeth sit at 1.0-1.25 x (cubed: most small, a few sharp). Every rag is a fraction of the local width, so
+  it shrinks to nothing at the two points.
+- **Gone**: §20.1's spikes (G x (SL + 0.9 w) x 0.2..2.2), the fans round both ends (M) and the forward shear. Those were what drew past
+  the hit volume.
+- **Growth**: G (0..1) opens the width out from the line (x 1 - (1 - G)²). L6 opens in 4 f from S, as the spikes grew before. The
+  cinematic runs the length out over 10 f from f84 (as before) and opens the width over 14 f.
+- **Fixed per cast**: a pure function of the seed, and the seeds stay the constants 32 / 46 / 78.
+
+The signature changed: `(yama-tear ax az fx fz len w g n seed pk)`, one W in place of W0 / W1 / SL, and no M.
+
+| Call | Origin, length | W (widest, the tent) | Drawn half-width max (1.25 W) | Hit half-width | Corner from his feet | N | Vertices (24N) | Before |
+|---|---|---|---|---|---|---|---|---|
+| NS1c KYOKUJITSUJIN (code 2) | 0.2 m ahead, 5.8 m (to 6.0) | 0.42 (1.05 x 0.4) | 0.525 | 0.4 (`:cap 0.2 6.0 0.3 0.4`) | 2.75-3.45 m | 14 | 336 | 336 |
+| AS1's notch (code 3) | 0.2 m ahead, 1.4 m (to 1.6) | 0.315 (1.05 x 0.3) | 0.39 | the 90° sector r 1.6 (its half-width ≥ 0.39 past 0.4 m out) | 0.82-0.98 m | 5 | 120 | 132 |
+| 東 Kikon | NS1c's tip (1.86 m ahead), 12 m | 2.5 | 3.1 | none (a cinematic) | 5.3-6.7 m past the tip | 18 | 432 | 444 |
+
+**Drawn against hit (NS1c).** The tear spans the hit line's length exactly (0.2-6.0 m ahead). At most it draws 0.125 m past the
+capsule's 0.4 m side, and only at the corner's few teeth, inside the ±0.15 m rule. The bound is analytic (1.25 x 1.05 x 0.4), the same
+for every seed, so no seed sweep is needed. §20.1's spikes reached a median 0.8 m (at most 1.0 m) past the sides and 1.0 m (at most
+1.7 m) past the end, plus up to 0.6 m behind the touch point. All of that is gone: nothing draws behind the origin or past 6.0 m.
+Toward the two points the drawn tear is narrower than the hit, because the capsule is 0.4 m all along. A foe at 5.8 m is hit while
+the black there is a point.
+
+### 41.3 The dust (`%ya-tear-dust`, `yama-look.lisp`)
+
+One macro serves all three places:
+- puffs of low grey DUST along the rhombus, inside its opened width (0.6-1.0 x the tent at a random 8-92 % of the length), 4-12 cm up.
+  Each lifts at 0.35-0.8 m/s and drifts 0.2-0.6 m/s out from the line. Life 0.4-0.6 s, size SZ x 0.7-1.2, buoyancy -0.2;
+- one grain of ASH grit per puff, tossed up at 1.2-2.2 m/s and out at 0.4-1.2 m/s. It falls back under gravity 6 within about 0.5 s
+  (life 0.4-0.55 s), size SZ x 0.2-0.35.
+
+It is the existing palettes only (DUST, ASH: grey; no new hue) and the existing particles (`%t-blob`). It follows the pattern of
+`yama-hands-look`'s dust: a rate (`n-of`) over a window of move frames, scaled by the frame's effect seconds RDT. RDT is 0 while
+frozen, so a hitstop or a pause adds none and a cancel simply ends the window. No spawned flag, no history.
+
+| Call | Window | Rate | About | SZ |
+|---|---|---|---|---|
+| NS1c | S18-S21 (the opening 4 f) | 26 / s per metre (151 / s) | 10 puffs + 10 grains | 0.16 m |
+| AS1 | S10-S13 | 26 / s per metre (36 / s) | 2-3 puffs | 0.16 m |
+| 東 Kikon | f85-91 (its run out) | 70 / s | 8 puffs | 0.28 m |
+
+The first cinematic try (110 / s, 0.45 m, f85-93) still filled the void at the b4 beat (f96) and was cut to the row above.
+
+### 41.4 Stills
+
+`tests/scripts/duel.py` `yama_east41_script` writes `duel-yama-east41.json` and `-phone.json`. The shots:
+- NS1c on its own (87422, Kenpachi 8 m away: no hit, so no hitstop) at S+1 / +3 / +6 / +16;
+- AS1 on its own (87430, 3 m) at S+1 / +3 / +6 / +14;
+- both from the match's behind camera and from above (87480);
+- the 東 Kikon (87450) held at f86 / 88 / 92 / 96 / 120.
+
+The before / after contact sheets (a 2ee4d3a1 dist, then this build) are in the session scratchpad `east-tear/`, landscape and
+portrait.
+
+What they show:
+- **The 東 Kikon** (high camera, f88-f96) reads as a ragged black diamond at once, clearest in portrait, where its upper point shows.
+  The edge is a fine, uneven saw, with a few deeper chips and sharper teeth. The dust is a handful of grey clumps that are gone by the
+  low shot (f120).
+- **NS1c from above** is a long, thin, ragged spindle: two points and a corner near the middle. It is 5.8 m long and at most about
+  1 m wide (the hit's 0.8 m plus the teeth), close to 6:1. From the behind camera it reads as a jagged black wedge from his blade along
+  the line, with about ten small grey puffs kicking up along it on S, settling within half a second.
+- **AS1's notch** is a short diamond, 1.4 x 0.6-0.8 m, mostly under the two bodies, as before.
+
+**For the user.** NS1c's rhombus is held to the hit's width (drawn = hit), so it is a long, narrow diamond, not a broad one. A diamond
+that reads broad from the match camera would need the line's hit width raised, to about 1 m a side. That is a sim change (it widens
+what the move hits), so it is left to the user.
+
+### 41.5 Checks
+
+| Check | Result |
+|---|---|
+| Host tests | `duel-rules-test.lisp`: 4333 checks, ALL PASS |
+| pkgcheck, debug ranges | only `DUEL::APP`; 0 redefinitions, 0 undefined; `tests/debug-ranges-check.py` 90 ranges, 0 errors |
+| Build, smoke | `./build.sh duel` (then `git checkout -- vendor`), 15 compiler warnings, as base; `run.mjs --secs 8` smoke exit 0 |
+| 0 B a frame | debug 87448, landscape and portrait: `void 0, void-grow 0, void-dust 0, notch 0, notch-dust 0, ... east-void 0, east-open 0, east-full 0, east-dust 0`, every row 0, none "(dropped)"; `fx-dropped 0` on every stats line. New rows: `void-dust` (code 2 at S), `notch-dust` (code 3 at S), `east-dust` (f88) |
+| Native trials | `combo-trial.py --log` for `tests/trials/yamamoto-{core,blaze,bankai,sp30}.lisp` (280 / 296 / 591 / 404 lines): identical, byte for byte, to the 2ee4d3a1 baseline |
+| Not run | `--cvc`, the looks gate, balance gates and CPU matches (presentation only, the user's rule of 2026-11-21) |
+
+The manual's tear sentence (`duel/web/manual.html`, the Bankai paragraph: 「一道邊緣呈放射狀尖刺的黑色虛空從刀尖裂開吞沒對手（對戰中 NS 第三段和 AS1
+留下的虛空也是這個形狀）」) still describes §20's spikes. It is updated by the lead with the DEVLOG entry.
