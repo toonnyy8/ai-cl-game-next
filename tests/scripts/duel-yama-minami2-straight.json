@@ -1,0 +1,34 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(87452)"
+},
+{
+"at": 14.44,
+"shot": "tests/shots/duel-yama-minami2-straight-f176.png"
+},
+{
+"at": 14.61,
+"shot": "tests/shots/duel-yama-minami2-straight-f186.png"
+},
+{
+"at": 14.78,
+"shot": "tests/shots/duel-yama-minami2-straight-f196.png"
+},
+{
+"at": 14.94,
+"shot": "tests/shots/duel-yama-minami2-straight-f206.png"
+},
+{
+"at": 17.0,
+"eval": "console.log('=== END')"
+}
+]

@@ -1287,7 +1287,7 @@ The lengths, against the generic cinematic the three replace (`soul-break-cine`,
 |---|---|---|---|
 | 東 | 96 / 44 | 168 / 96 | +72 |
 | 西 | 96 / 44 | 180 / 140 | +84 |
-| 南 | 96 / 44 | 240 / 150 (192 / 120 before §36) | +144 (+96 before §36) |
+| 南 | 96 / 44 | 300 / 188 (240 / 150 before §37, 192 / 120 before §36) | +204 (+144 before §37, +96 before §36) |
 
 They are built at the storyboards' lengths (fitting 168-192 f of storyboard into 96 f would rewrite the user's own 西 storyboard, a decision
 of its own) and the wiring is a separate commit, so the lead can merge the cinematics without moving any tick. The precedent: DUEL_LILLE §23
@@ -1306,7 +1306,7 @@ Konpaku): its 147 hash / probe / combat lines against the same script on a dist 
 
 So the cinematics move no rule, damage or state; only when the reset (or the K.O.) happens, by the length added.
 
-**Merged wired (the lead, 2026-11-20).** The storyboards' lengths stay: they are the user's storyboards (西 is theirs word for word), every other kit's per-pointer Kikon cinematic already runs longer than the generic 96 f, the damage frame does not move, and no gate reads the shift (the trials skip cinematics, `--cvc` plays no Yamamoto, the looks gate's YK match never awakens). The cost is +72 / +84 / +96 ticks (南 +144 since §36) before the reset after a Bankai Kikon under 東 / 西 / 南; reverting is one line (`:kikon-cines` back to `soul-break-cine`).
+**Merged wired (the lead, 2026-11-20).** The storyboards' lengths stay: they are the user's storyboards (西 is theirs word for word), every other kit's per-pointer Kikon cinematic already runs longer than the generic 96 f, the damage frame does not move, and no gate reads the shift (the trials skip cinematics, `--cvc` plays no Yamamoto, the looks gate's YK match never awakens). The cost is +72 / +84 / +96 ticks (南 +144 since §36, +204 since §37) before the reset after a Bankai Kikon under 東 / 西 / 南; reverting is one line (`:kikon-cines` back to `soul-break-cine`).
 
 ### 19.3 Deviations, each with its reason
 
@@ -3839,3 +3839,100 @@ smoke exit 0, and `--cvc` II / IK / KK identical to `tests/style-cvc-ref.txt`. `
 only ticks after a Bankai 南 Kikon, and those matches play no Yamamoto. The §19.2 table now reads 240 / 150, +144. Manual updated; DEVLOG §861.
 Known and left: the held stills show an ash cloud that a straight run does not; the mound's top is a little hollow from 50°; only Kenpachi
 was shot as the victim.
+
+## 37. 南's Kikon slowed and a struggle close-up (the user, 2026-11-22; presentation only, 240 → 300 f)
+
+The user, 2026-11-22: 「請放慢被吞噬的速度並給對手增加掙扎的特寫」; the user picked: lengthen the cinematic 240 → 300 f. The beat table was
+agreed with the user before building (the lead's brief): the sink slowed, a new close-up of him struggling at f170-215, everything after it
++55-60 f.
+
+References viewed first (`.refs/yamamoto-south-kikon/commons_dore_inferno_c8_mire.jpg`, `commons_jigoku_zoshi.jpg`,
+`.refs/yamamoto-sp30/south_ep372_royd_among_skeletons.jpg`), what went into the shot:
+- Doré's mire: the waterline cuts the bodies at the waist or chest, and the arms are what struggle: out at the surface, a hand gripping
+  the boat's edge, one arm thrown up, heads tilted back. So the clip keeps his arms near level at the waterline (palms on the floor), the
+  sword driven into the floor to hold on, one arm up, the head back between the yanks.
+- Jigoku zōshi: the figures inside the mass are small and every one reaches up; the mass dwarfs them. Kept as the sea's raised hands
+  behind him, filling the frame's upper half.
+- Ep 372 (Royd among the skeletons): one arm out reaching, the body twisted, skeleton hands gripping the arm and torso from every side.
+  Hence the seven bone hands that climb his shoulders, arms, throat and at last the reaching wrist.
+
+### 37.1 The beats as built (`yama-minami-cine`, yama-cine.lisp; `:len` 300, `:hold` 188)
+
+| Frames | Shot | As built |
+|---|---|---|
+| 0-60 | unchanged | the incantation, the blade in at f51, the crack web |
+| 60-130 | the victim, 35° / 4.6 m (phone 6.6), as before | the front closes in f62-96 (unchanged); bone hands on his joints from f86 (one every 6 f, unchanged); the sink to -0.6 m now by f130 (was f116) |
+| 130-170 | Yamamoto from 20° / 9 m, lens 26, as before | his turn and walk now at f130 (was f116), steps f179 / 228 / 277; the victim sunk to his waist (-H/2) by f170 (was f150) |
+| 170-215 | **new**: the victim from 25° off his front, 2.4 m (phone 3.0), 0.6 m up, look 0.55, lens 45, a fixed camera | `:sh-struggle` (new, body.lisp); waist → chest (-0.7 H) in three tugs (5 f smoothsteps at f175 / 190 / 205, each with `:bones` and a small shake, the clip's yanks on the same frames); seven more bone hands from the floor 0.42 m out (from f172, one every 5 f) on his left shoulder, right forearm, right shoulder, chest, left upper arm, neck and at last (f202) his reaching left wrist; the sea at his waterline (clearance 0.8 m, lens cull 1.1 m, nothing within 0.9 m of the lens line in front of him); the 14 bone dead behind him only off the lens's side |
+| 215-260 | 50° top-down, as before (was 160-200) | `:sh-swallowed`; the flow in over f215-260; head and hand only by f240, under by f252; the mound from f240 (1.6 m by f256), the last hand out of its crest f248-266 |
+| 260 | same | the Konpaku (was f200); f262 the manga frame |
+| 266-300 | the wide, as before (was 206-240) | `:sh-down`; the dead sink back each at its own frame f268-296, the ground ragged f272 and gone by f286, the mound crumbles f266-288, ash from f260; the stage cracks at f296; he walks on |
+
+`:hold` (the debug default stop frame, engine `cine.lisp`; nothing in the sim reads it) 150 → 188, the same 0.625 of the length as 120 / 192
+and 150 / 240; it lands in the struggle. Debug: 87601-87699 / 87910-87999 already reach frame 378, no range change.
+
+### 37.2 Knobs, old → new
+
+| Knob | Before (§36) | Now |
+|---|---|---|
+| `:len` / `:hold` | 240 / 150 | 300 / 188 |
+| `%ya-sink` | -0.6 by f116, -H/2 by f150, -0.7 H by f170, -(H - 0.35) by f180, under by f192, 0 from f206 | -0.6 by f130, -H/2 by f170, -0.7 H by f215 (three tugs), -(H - 0.35) by f240, under by f252, 0 from f266 |
+| The walk shot / walk | f116 | f130 |
+| The top-down, `:sh-swallowed` | f160 | f215 |
+| The flow `w` | f160-200 | f215-260 |
+| Sea caps | 8000; 5400 from f180; 3200 from f200 | 8000; 7600 from f215 (the top-down); 5000 from f240; 3200 from f260 |
+| Sea clearance round him | 1.3 m to f160, 0.8 to f186 | 1.3 m to f170, 0.8 in the close-up, 0.8 to f246 |
+| Sea lens cull | 5 m | 5 m; 1.1 m in the close-up, and nothing within 0.9 m of the lens-to-him line in front of him |
+| Bone hands on him | 8, f86-196 | 8, f86-256, + 7 from f172 in the close-up |
+| The 14 behind him | f96-186, lens side from f116 | f96-246, lens side from f130, not in the close-up (dot < 0.35) |
+| Mound / last hand / Konpaku light / ash | f180-230 / f188-206 / f200-222 / f200 | f240-290 / f248-266 / f260-282 / f260 |
+| Konpaku, manga, wide, stage cracks | f200, 202, 206, 236 | f260, 262, 266, 296 |
+| The ground's fade / ragged / end | f216 / f212 / f238 | f276 / f272 / f298 |
+| The sea's sink-back / fade | f208-236 / f226 | f268-296 / f286 |
+
+`:sh-struggle` (body.lisp, next to `:sh-swallowed`; generic, any victim): 45 f at 60 fps, looped, keys at f0 / 5 / 8 / 14 / 19 / 23 / 29 /
+34 / 38; `:snap` yanks at f8, f23, f38 (the head snapped down, the arms flung, the torso wrenched ±20-28°), heaves up on the palms at f5
+and f34, the left arm raised overhead by abduction (side 145-165; a forward raise crossed in front of his face from the lens) at f14-19
+and f34, the sword arm low and out on his right with the blade down (it hid his face in a first pass), the blade driven into the floor at
+f29.
+
+Stills passes (all presentation): first at 35° / 1.9 m, he read as standing still with the sword in front of his face; then 50° / 2.4 m,
+the reaching arm came toward the lens; then the face hidden by the head thrown back -45 under a 0.8 m lens. As built: 25°, 0.6 m, the
+head back -28 to -30.
+
+### 37.3 Vertex budget and checks
+
+Whole-frame toon verts per held beat (16384 a frame, render.c R_FX_VERTS; a temporary readout of the toon batch's peak fill on the stats
+line, each beat held 2.2 s, not committed; where a beat shows two numbers the first stats window also holds the frames run on to it),
+landscape / phone:
+
+| Beat | f60 | f100 | f130 | f160 | f180 | f186 | f194 | f202 | f210 | f224 | f240 | f250 | f260 | f274 | f298 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Landscape | 1050 | 10068 | 11700 | 11736 | 11592 / 11100 | 11172 | 11232 / 11088 | 12864 | 12948 | 12942 / 12420 | 12420 | **13248** / 12792 | 12792 | 12876 | 11754 / 9690 |
+| Phone | 1050 | 10110 | 11706 | 11724 | 11580 / 11094 | 11166 | 11238 / 11202 | 12870 | 12966 | 12978 / 12498 | 12498 | **13260** / 12834 | 12834 | 12912 | 11334 / 9078 |
+
+The peak is the run on to f250 (the top-down: the sea, the rising mound, the hands still on him): 13248 / 13260, 3124 left; `fx-dropped 0`
+on every stats line of both runs; no `slow frame` / `late frame` line. A first pass with the sea at 8000 to f240 and 5400 to f260 read
+13662 there and 13320 on the way to f224: hence 7600 in the top-down and 5000 once the mound stands. The close-up itself sits at
+11.1-12.9k (the sea's near spots take the mid tier; its far ones stay specks behind him).
+
+Checks:
+
+| Check | Result |
+|---|---|
+| Host tests | 4327 checks, ALL PASS |
+| pkgcheck | only `DUEL::APP` |
+| `tests/debug-ranges-check.py` | 90 ranges, 0 errors (no range changed) |
+| Build | `./build.sh duel`, then `git checkout -- vendor` |
+| Smoke | `run.mjs --secs 8`: exit 0 |
+| Probe 87448 | `south-web` (f56), `south-rise` (90), `south-sea` (150), `south-struggle` (194, new), `south-flow` (240), `south-burst` (260), `south-sink` (280): 0 B in all three lines (during the f194 close-up hold, the f240 top-down hold, the end), landscape and phone |
+| Native trials | `yamamoto-core` / `-blaze` / `-bankai` / `-sp30` (`combo-trial.py --log`): identical to the base commit 082148e2's, every line (the trials skip cinematics) |
+| `--cvc` | `tests/style-gates.py cvc dist/duel`: II / IK / KK identical to `tests/style-cvc-ref.txt` (they play no Yamamoto; the only sim change is +60 ticks after a Bankai 南 Kikon) |
+| Sim timing | +204 ticks before the reset after a Bankai Kikon under 南 (§19.2: +144 → +204); nothing else in the sim moves (the victim's root y is written in step mode and given back at CINE-END) |
+
+Stills: `tests/scripts/duel-yama-minami2[-phone].json` (duel.py `yama_minami2_script`, 15 beats f60-f298, 0.75 s holds, `--secs 34`) and
+`duel-yama-minami2-straight.json` (no holds: the close-up at f176 / 186 / 196 / 206 by time). The `south-*` probe rows in yama-look.lisp
+moved with the frames (the only lines this batch touches there). Known and left: the held stills still pile ash puffs up over the holds
+(f210, f250: §36.4's artifact; the straight run has none); the bone hands on his shoulders and throat read as white strokes, small at this
+size; on the phone the close-up's caption (kept to the Konpaku, f260) lies over his left side and at f210 his hair; only Kenpachi was
+shot as the victim.
