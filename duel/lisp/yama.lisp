@@ -72,7 +72,7 @@
 ;; the setup minimum); c: the walls close into a dome on the ring (it is spent), or at his bearing (0-3 m, was 0-8) when none stands.
 ;; :near 0 (was 3.0 until batch J1, the user 2026-11-20: 「現在 NS 的火圈在靠太近時反而包不住人」, DUEL_YAMA_CORE §28.3): a victim closer
 ;; than :near stood outside the ring and the dome
-(defmove :ya-n2a :kind :flash :clip :ya-enjo :startup 20 :active 2 :recovery 22 :dmg 40 :reach 2.4 :arc 120 :on-hit :stagger
+(defmove :ya-n2a :kind :flash :clip :ya-n2a :startup 20 :active 2 :recovery 22 :dmg 40 :reach 2.4 :arc 120 :on-hit :stagger
   :on-frame ((0 yama-ns-start)) :callout "JOKAKU ENJO" :params (:ns-next :ya-n2b))
 (defmove :ya-n2b :kind :flash :clip :ya-n2b :startup 16 :active 2 :recovery 20 :reach 3.0
   :on-frame ((0 yama-ns-start) (16 yama-ring-fire))
@@ -163,7 +163,8 @@
   :params (:ns-next :ya-b-n2c :near 0.0 :far 3.0 :radius 1.6 :dmg 80 :react :stagger :kikon-strike :ya-ns-strike))
 (defmove :ya-b-n2c :kind :flash :clip :ya-b-n2c :startup 18 :active 2 :recovery 30 :reach 2.5 :callout "ENNETSU JIGOKU"   ; (its own clip: art S4)
   :on-frame ((0 yama-ns-start) (18 yama-column-fire))
-  :params (:near 0.0 :far 0.0 :radius 2.5 :delay 0 :dmg 104 :react :crumple :kikon-strike :ya-ns-strike))   ; (the column's look, a placeholder)
+  :params (:near 0.0 :far 0.0 :radius 2.5 :delay 0 :dmg 104 :react :crumple :kikon-strike :ya-ns-strike   ; (its own look since art
+           :look yama-ennetsu-look))                                                                          ;  batch B: the ground fire)
 ;; NS3 撫斬 x1.3; c the true NADEGIRI: 200, a long recovery (RoS's "huge opening", B)
 (defmove-copy :ya-b-n3a :ya-n3a :dmg 52 :params (:ns-next :ya-b-n3b))
 (defmove-copy :ya-b-n3b :ya-n3b :dmg 65 :params (:ns-next :ya-b-n3c))

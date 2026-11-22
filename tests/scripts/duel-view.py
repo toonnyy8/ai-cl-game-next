@@ -102,7 +102,7 @@ def yama_s2(cmd, shot, t):
 # Art S3 (DUEL_YAMA_CORE §24): the same strips for pointer 2 / 3, AS2 / AS3, the SA and the Kikon strike:
 # tests/shots/duel-view-yama-s3-<clip>-<side|front>.png
 #   node tools/run.mjs dist/duelview --secs 50 --script tests/scripts/duel-view-yama-s3.json
-YA_S3 = ("ya-enjo", "ya-n2b", "ya-n2c", "ya-as2a", "ya-as2b", "ya-n3a", "ya-n3b", "ya-nadegiri", "ya-as3a", "ya-as3b", "ya-as3c", "ya-taimatsu",
+YA_S3 = ("ya-n2a", "ya-n2b", "ya-n2c", "ya-as2a", "ya-as2b", "ya-n3a", "ya-n3b", "ya-nadegiri", "ya-as3a", "ya-as3b", "ya-as3c", "ya-taimatsu",
          "ya-strike")
 def yama_s3(cmd, shot, t):
     for n in YA_S3:
