@@ -264,8 +264,8 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; a new frame for the dead (YA-DEAD-RESET: the hazards draw after the fighters); the Bankai moves'
-own looks (yama-look.lisp YAMA-BK-MOVES, art K1) and 天地灰尽's burn on the gather (%YA-BLADE-BURN, art K3), its white band and the victim's
-cinders (YAMA-AS4-LOOK, art D: they outlast the move); out of a move, the pointer stances'
+own looks (yama-look.lisp YAMA-BK-MOVES, art K1), 西's flame on a charged swing (YAMA-WEST-FLAME, art C, §34) and 天地灰尽's burn on the
+gather (%YA-BLADE-BURN, art K3), its white band and the victim's cinders (YAMA-AS4-LOOK, art D: they outlast the move); out of a move, the pointer stances'
 looks (YAMA-STANCE-LOOK, art K2); under 西 the garb as the form's aura (YAMA-GARB-AT, J2 §28.4); Bankai East's smoke thread from the drawn blade's tip (not while it stands in the plaza). The Shikai and
 爆炎 (art S1): Ryujin Jakka's fire on the drawn blade (YAMA-BLADE-FIRE, SL0; not on the intro's cane, not in 撫斬's stance), J3's burning
 pommel and the moves' own looks (YAMA-SK-MOVES: NADEGIRI's hairline and seam, TAIMATSU's halo, AS1's burst), by the tier of the heat his
@@ -287,6 +287,7 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
     (when (and mv (eq (kit-form (fighter-kit f)) :bankai))
       (let ((c (yama-bk-code mv)))
         (when (> c 0) (yama-bk-moves (pos-of e) (yaw-of e) c (fighter-sf f) (f32 rdt))))
+      (yama-west-flame e f m mv)                          ; 西's flame on a charged swing (art batch C, §34)
       (when (and (eq (mv-name mv) :ya-e-as4) (eq (fighter-phase f) :main) (<= (fighter-sf f) 10) (model-weapon m))   ; 天地灰尽's burn (art K3; AS4's
         (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) *ya-tip*)                                    ;  last since §31, at
         (body-weapon-base (model-body m) (model-weapon m) (model-joints m) *ya-base*)                                  ;  its S10 since art D:

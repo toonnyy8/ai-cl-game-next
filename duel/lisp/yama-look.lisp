@@ -886,7 +886,7 @@ neutral). 0 B."
                (:ya-e-n2a (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv))))))
                (:ya-e-n2b (+ 1f0 (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv)))))))
                (:ya-e-n2c 2f0)
-               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp: keep the two equal)
+               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp; YAMA-WEST-FLAME's: keep the three equal)
     (declare (type f32vec sz) (single-float cm lv))
     (if (<= lv 1f0)
         (+ (aref sz 0) (* lv (- (aref sz 1) (aref sz 0))))
@@ -903,6 +903,166 @@ under 西, but while a flare draws it flared, while the 西 Kikon cinematic draw
     (joint-point! v jm (ji :pelvis) 0f0 0f0 0f0)
     (ya-garb (aref v 0) (aref v 2) (yama-garb-k f)))
   nil)
+
+;;; ---------------------------------------------------------------- 西's flame on the charged swings (art batch C, §34, §30.2)
+;;; The user, 2026-11-22 (「跟著蓄力等級變大」): while 西's charge rides his string, every swing (the charged SA copies, the J / AS links of
+;;; *YA-REACH-MOVES*, NS2c's level-2 cut) throws the garb's flame along the blade's path: a flame arc in the cut's plane with curled tongues
+;;; on its outer edge (Rengoku's 昇り炎天, sp30-art-refs.md §3), its edge 0.8 / 1.6 m past the drawn tip (*YA-CHARGE-REACH*: the reach the
+;;; copies add, so the flame shows where the volume now ends). AS2b's 360 deg burn throws a ring of tongues out to its reach instead.
+;;; The arc is sampled from the move's clip by FK (as tests/duel-rules/art.lisp measures the reach): a pure function of the move frame, so
+;;; hitstop, slow motion and a cancel need no history. Colour: the garb's +PAL-FLAME+ (flame class: the 0.8 flame layer). A look; 0 B.
+(declaim (type f32vec *ya-arc-pose* *ya-arc-jm* *ya-arc-v* *ya-arc-o* *ya-arc-pts*))
+(defvar *ya-arc-pose* (make-f32 +pose-n+) "YA-WEST-ARC's sampled pose (its own: YA-DEAD poses in the same frame).")
+(defvar *ya-arc-jm* (make-f32 (* 16 +nj+)) "YA-WEST-ARC's sampled joints, FK'd at the origin facing yaw 0.")
+(defvar *ya-arc-v* (make-f32 3) "YA-WEST-ARC's sampled point.")
+(defvar *ya-arc-o* (make-f32 3) "YA-FLAME-OUT!'s point.")
+(defconstant +ya-arc-n+ 24 "The most samples of one arc (half frames: S-2 .. S+A+1 is 2 (A + 3) + 1).")
+(defvar *ya-arc-pts* (make-f32 (* 9 +ya-arc-n+))
+  "YA-WEST-ARC's samples, oldest first, 9 floats each (world): the inner point (along the blade), the striking point, the flame's edge.")
+(declaim (type f32vec *ya-arc-sm*))
+(defvar *ya-arc-sm* (make-f32 (* 12 +ya-arc-n+)) "YA-WEST-ARC's path smoothed (2n - 1 points, 6 floats each: the striking point, the span to the edge).")
+(defvar *ya-tm2* (let ((v (make-array 256))) (dotimes (i 256 v) (setf (svref v i) (/ i 120f0))))
+  "Half frame i's clip time (s), boxed once (*YA-TM*'s halves: the arc's samples).")
+
+(defun-fast-inline ya-flame-out! (out vx vy vz add)
+  "西's flame edge (§34 C) for a striking point (VX VY VZ) from his feet (FK at the origin, facing -Z): OUT = the point ADD m further out on
+the floor plane, away from his axis (the arc volume's radial measure: the edge sits where the charged copy's volume ends, tip + ADD), raised
+or lowered along the cut's lean from his chest (0.6 x the point's slope from 1.25 m up, at most 45 deg) but kept 0.1 m off the floor. A
+point on his axis (< 5 cm) goes ahead. Pure; host-checked (tests/duel-rules/art.lisp). 0 B."
+  (declare (type f32vec out) (single-float vx vy vz add))
+  (let* ((q (f-hypot vx vz)) (ux (if (> q 0.05f0) (/ vx q) 0f0)) (uz (if (> q 0.05f0) (/ vz q) -1f0))
+         (e (f-clamp (/ (* 0.6f0 (- vy 1.25f0)) (f-max q 0.3f0)) -1f0 1f0)))
+    (declare (single-float q ux uz e))
+    (setf (aref out 0) (+ vx (* add ux)) (aref out 1) (f-max 0.1f0 (+ vy (* add e))) (aref out 2) (+ vz (* add uz))))
+  nil)
+
+(defun %ya-arc-fk (clip ti body)
+  "YA-WEST-ARC's sample: CLIP's pose at half frame TI (*YA-TM2*) FK'd at the origin facing yaw 0 into *YA-ARC-JM* (YA-DEAD's way: the time
+boxed once, the origin literal, BODY's numbers read here). 0 B."
+  (declare (fixnum ti))
+  (clip-sample! *ya-arc-pose* clip (svref *ya-tm2* (min 255 (max 0 ti))))
+  (pose-fk! *ya-arc-jm* *ya-arc-pose* 0f0 0f0 0f0 0f0 (body-scale body) (body-hunch body) (body-props body))
+  nil)
+
+(defun-fast ya-west-arc (e clip mv sf add hand body weapon an)
+  "西's flame arc (§34 C) for E's charged swing MV (its CLIP, at move frame SF; BODY his body, WEAPON the held weapon), ADD the charge's
+reach (m). HAND 1: the free hand strikes (AS2a's grab, the blade planted), else the blade's tip. The path is sampled every half frame from
+S-2 to now (at most S+A+1, then held and gone over 6 frames; now = his drawn clip's time, AN his anim, so the flame leaves the blade
+he is seen holding: the clip runs a step ahead of SF, FIGHTER-STEP advances it after the move frame; SF while AN plays another clip), each
+sample's inner point (0.55 along the blade / the forearm), striking point and edge (YA-FLAME-OUT!). Drawn: the arc, the path smoothed (a
+Catmull-Rom point between two samples) with a camera-facing flame tongue at every point from 0.3 of the way out to the edge, hooked back
+along the cut and up, and a short one back in past the striking point, overlapping into a band with a ragged hooked edge (Rengoku's arc),
+thinner and fainter toward its tail; the newest blade sheathed in flame from its middle to the edge (the reach reads edge-on too); a warm light. A look; 0 B."
+  (declare (fixnum sf hand) (single-float add))
+  (let* ((s (mv-s mv)) (a (mv-a mv)) (sp (the single-float (mv-clip-speed mv)))
+         (cur (if (eq (anim-clip an) clip) (/ (* 60f0 (the single-float (anim-time an))) sp) (i->f sf)))   ; (move frames)
+         (lo (- s 2)) (top (+ s a 1)) (hi2 (min (f->i (+ 0.5f0 (* 2f0 cur))) (* 2 top)))
+         (fade (if (> cur (i->f top)) (- 1f0 (/ (- cur (i->f top)) 6f0)) 1f0)))
+    (declare (fixnum s a lo top hi2) (single-float sp cur fade))
+    (when (and (>= cur (i->f lo)) (> fade 0f0))
+      (let* ((p (pos-of e)) (yaw (the single-float (yaw-of e))) (c (f-cos yaw)) (sn (f-sin yaw))
+             (px (aref p 0)) (py (aref p 1)) (pz (aref p 2))
+             (wl (if (= hand 0) (the single-float (weapon-len weapon)) 0f0))
+             (jm *ya-arc-jm*) (v *ya-arc-v*) (o *ya-arc-o*) (pts *ya-arc-pts*) (n 0))
+        (declare (type f32vec p jm v o pts) (single-float yaw c sn px py pz wl) (fixnum n))
+        (loop for h of-type fixnum from (* 2 (max 0 lo)) to hi2
+              while (< n +ya-arc-n+)
+              do (%ya-arc-fk clip (f->i (+ 0.5f0 (* sp (i->f h)))) body)
+                 (let ((b (* 9 n)))
+                   (declare (fixnum b))
+                   (macrolet ((put (k) `(let ((vx (aref v 0)) (vz (aref v 2)))   ; (V turned to his yaw at his feet, as POSE-FK!)
+                                          (declare (single-float vx vz))
+                                          (setf (aref pts (+ b ,k)) (+ px (* c vx) (* sn vz)) (aref pts (+ b ,(+ k 1))) (+ py (aref v 1))
+                                                (aref pts (+ b ,(+ k 2))) (+ pz (- (* c vz) (* sn vx)))))))
+                     (if (= hand 0)
+                         (joint-point! v jm (ji :weapon-r) 0f0 0f0 (* -0.55f0 wl))
+                         (joint-point! v jm (ji :lower-arm-r) 0f0 -0.1f0 0f0))
+                     (put 0)
+                     (if (= hand 0)
+                         (joint-point! v jm (ji :weapon-r) 0f0 0f0 (- wl))
+                         (joint-point! v jm (ji :hand-r) 0f0 0f0 0f0))
+                     (ya-flame-out! o (aref v 0) (aref v 1) (aref v 2) add)
+                     (put 3)
+                     (setf (aref v 0) (aref o 0) (aref v 1) (aref o 1) (aref v 2) (aref o 2))
+                     (put 6)))
+                 (incf n))
+        (let* ((k (* 0.95f0 fade)) (pk (toon-a +pal-flame+ k)) (fp (flow-ph)) (wt (+ 0.07f0 (* 0.05f0 add)))
+               (sm *ya-arc-sm*) (m (1- (* 2 n))) (im (/ 1f0 (i->f (max 1 (1- m))))))
+          (declare (single-float k pk fp wt im) (type f32vec sm) (fixnum m))
+          (macrolet ((pt (j i) `(aref pts (+ (* 9 ,j) ,i))))
+            (dotimes (kk m)                               ; the path smoothed: each sample, and a Catmull-Rom point between two (6 floats:
+              (let* ((j (the fixnum (floor kk 2))) (b (* 6 kk)) (j0 (max 0 (1- j))) (j1 (min (1- n) (1+ j))) (j2 (min (1- n) (+ j 2))))
+                (declare (fixnum j b j0 j1 j2))           ;  the striking point, the span to the edge)
+                (dotimes (i 3)
+                  (if (evenp kk)
+                      (setf (aref sm (+ b i)) (pt j (+ 3 i)) (aref sm (+ b 3 i)) (- (pt j (+ 6 i)) (pt j (+ 3 i))))
+                      (setf (aref sm (+ b i)) (- (* 0.5625f0 (+ (pt j (+ 3 i)) (pt j1 (+ 3 i)))) (* 0.0625f0 (+ (pt j0 (+ 3 i)) (pt j2 (+ 3 i)))))
+                            (aref sm (+ b 3 i)) (* 0.5f0 (+ (- (pt j (+ 6 i)) (pt j (+ 3 i))) (- (pt j1 (+ 6 i)) (pt j1 (+ 3 i)))))))
+                  nil)))
+            (dotimes (kk m)                               ; the arc: a tongue at every point, rooted 0.3 of the way out from the striking
+              (let* ((b (* 6 kk)) (ba (* 6 (max 0 (- kk 2)))) (u (* im (i->f kk)))   ;  point, its tip on the edge (every other one 0.7 as
+                     (sx (aref sm (+ b 3))) (sy (aref sm (+ b 4))) (sz (aref sm (+ b 5)))  ;  long), hooked back along the cut (toward the
+                     (rx (+ (aref sm b) (* 0.3f0 sx))) (ry (+ (aref sm (+ b 1)) (* 0.3f0 sy))) (rz (+ (aref sm (+ b 2)) (* 0.3f0 sz)))
+                     (lk (* 0.7f0 (if (oddp (- m kk)) 1f0 0.7f0) (+ 0.85f0 (* 0.3f0 (flow01 (i->f kk) 3.3f0)))))   ;  older point) and up, and a
+                     (ax (* lk sx)) (ay (* lk sy)) (az (* lk sz)) (al (f-hypot ax ay az))   ;  short one back in past the blade's path (no
+                     (tx (- (aref sm ba) (aref sm b))) (ty (- (aref sm (+ ba 1)) (aref sm (+ b 1))))   ;  blunt root): the overlapping
+                     (tz (- (aref sm (+ ba 2)) (aref sm (+ b 2)))) (tl (f-max 1f-3 (f-hypot tx ty tz)))   ;  tongues make the band, their
+                     (cu (if (= kk 0) 0f0 (/ (* 0.4f0 al) tl)))                                          ;  tips its ragged edge;
+                     (w (* wt (+ 0.45f0 (* 0.55f0 u)))) (pq (toon-a +pal-flame+ (* k (+ 0.55f0 (* 0.45f0 u))))))   ;  thinner and shorter-
+                (declare (fixnum b ba) (single-float u sx sy sz rx ry rz lk ax ay az al tx ty tz tl cu w pq))   ;  lived (heat) toward the tail
+                (toon-ribbon (rx ry rz) (ax ay az) (w 0f0) :heat (1f0 (+ 0.1f0 (* 0.15f0 u))) :seed (- -530f0 (i->f kk))
+                             :wob 0.3f0 :k pq :ph (+ fp (i->f kk)) :sway 0.05f0 :segs 5
+                             :bend ((* cu tx) (+ (* cu ty) (* 0.25f0 al)) (* cu tz)))
+                (toon-ribbon (rx ry rz) ((* -0.38f0 sx) (* -0.38f0 sy) (* -0.38f0 sz)) ((* 0.8f0 w) 0f0) :heat (1f0 0.3f0) :seed (- -590f0 (i->f kk))
+                             :wob 0.25f0 :k pq :ph (+ fp (i->f kk) 0.5f0) :sway 0.03f0 :segs 3)))
+            (let* ((j (1- n)) (ix (pt j 0)) (iy (pt j 1)) (iz (pt j 2)))   ; the newest blade sheathed: its middle out to the edge
+              (declare (fixnum j) (single-float ix iy iz))
+              (toon-ribbon (ix iy iz) ((- (pt j 6) ix) (- (pt j 7) iy) (- (pt j 8) iz)) ((* 1.2f0 wt) 0f0) :seed -560f0 :wob 0.25f0 :k pk
+                           :ph fp :sway 0.04f0 :segs 6)
+              (%light (pt j 3) (pt j 4) (pt j 5) 1f0 0.58f0 0.28f0 3.5f0 k 7)))))))
+  nil)
+
+(defun-fast ya-west-ring (e mv sf)
+  "西's flame for AS2b's charged throw (§34 C): its burn is round him (arc 360, the copy's reach the charge's further), so the flame is a
+ring of curled tongues on the floor whose tips stand at that reach (MV-REACH of the copy in play), the garb's molten ring at 2.0 m
+(%YA-FLARE) inside it. Rises over S-1 .. S+1 (from 0.6 of the radius), holds to S+A+1, gone over 6 frames. A look; 0 B."
+  (declare (fixnum sf))
+  (let* ((s (mv-s mv)) (a (mv-a mv)) (top (+ s a 1)) (r (the single-float (mv-reach mv)))
+         (g (f-clamp (/ (i->f (- sf (- s 2))) 3f0) 0f0 1f0))
+         (fade (if (> sf top) (- 1f0 (/ (i->f (- sf top)) 6f0)) 1f0)))
+    (declare (fixnum s a top) (single-float r g fade))
+    (when (and (>= sf (- s 1)) (> fade 0f0))
+      (let* ((p (pos-of e)) (x (aref p 0)) (z (aref p 2)) (rr (* r (+ 0.6f0 (* 0.4f0 g)))) (k (* 0.95f0 fade))
+             (pk (toon-a +pal-flame+ k)) (fp (flow-ph)) (b0 (- rr 0.45f0)))
+        (declare (type f32vec p) (single-float x z rr k pk fp b0))
+        (%tring x 0f0 z (- rr 0.3f0) 0.12f0 +pal-flame+ k 7f0 48)
+        (dotimes (i 20)
+          (let* ((f (i->f i)) (an (+ (* 0.31416f0 f) (* 0.2f0 (hash01 f 5.3f0)))) (co (f-cos an)) (si (f-sin an))
+                 (lk (+ 0.8f0 (* 0.4f0 (flow01 f 2.7f0)))))
+            (declare (single-float f an co si lk))
+            (toon-ribbon ((+ x (* b0 co)) 0.04f0 (+ z (* b0 si))) ((* 0.45f0 co) (* 0.6f0 lk) (* 0.45f0 si)) (0.1f0 0f0)
+                         :seed (- -570f0 f) :wob 0.3f0 :k pk :ph (+ fp f) :sway 0.05f0 :segs 5
+                         :bend ((* -0.18f0 si) (* 0.15f0 lk) (* 0.18f0 co)))))
+        (%light x 0.6f0 z 1f0 0.58f0 0.28f0 (+ r 1f0) (* 0.9f0 k) 7))))
+  nil)
+
+(defun yama-west-flame (e f m mv)
+  "YAMA-DRAW's 西 flame (§34 C) for E's Bankai move MV: the charge level the swing carries (a charged SA copy its own :charge-mult, NS2c its
+baked level 2, a move of *YA-REACH-MOVES* the string's FIGHTER-CHARGE-MULT; YA-CHARGE-LEVEL's thresholds), then YA-WEST-RING for AS2b,
+YA-WEST-ARC from the free hand for AS2a, from the blade for the rest. Nothing at level 0, out of the main phase or while his body is hidden.
+A look."
+  (let* ((n (mv-name mv)) (cm (plist-get (mv-params mv) :charge-mult))
+         (lv (cond (cm (ya-charge-level cm))
+                   ((eq n :ya-e-n2c) 2)
+                   ((member n *ya-reach-moves*) (let ((c (fighter-charge-mult f)))   ; (YA-CHARGE-LEVEL's thresholds, inline: no
+                                                  (cond ((>= c 1.65) 2) ((>= c 1.35) 1) (t 0))))   ;  boxed float; YAMA-GARB-K's too: keep the three equal)
+                   (t 0))))
+    (when (and (plusp lv) (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (> (model-alpha m) 0.5))
+      (let ((add (nth (1- lv) *ya-charge-reach*)) (w (model-weapon m)))
+        (cond ((eq n :ya-e-as2b) (ya-west-ring e mv (fighter-sf f)))
+              ((or w (eq n :ya-e-as2))
+               (ya-west-arc e (find-clip (kit-move-clip (fighter-kit f) (mv-clip mv))) mv (fighter-sf f) add (if (eq n :ya-e-as2) 1 0)
+                            (model-body m) (and w (find-weapon w)) (model-anim m))))))))
 
 ;;; ---------------------------------------------------------------- art K3 (§18): the planted blade, 北's burn
 (defparameter *ya-plants*
@@ -1846,12 +2006,15 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
         (pile (make-hazard :kind :ya-col :x 0f0 :z -1f0 :size 1.4f0 :life 30 :age 17))
         (pos (pos-of *p1*)) (yaw (yaw-of *p1*))
         (an-m (let ((a (make-anim))) (anim-play a :ya-st-minami :blend 0) a))
+        (an-q2 (let ((a (make-anim))) (anim-play a :ya-e-q2 :blend 0 :time (/ 8 60f0)) a))   ; (art C: the drawn clip's time)
         (tr (let ((tr (make-trail))) (dotimes (i 5 tr) (trail-push tr 0f0 1f0 (- -0.3f0 (* 0.1f0 i)) (* 0.25f0 i) 1.5f0 -1.2f0))))
         (sm (make-f32 12))
         (px (aref (pos-of *p1*) 0)) (pz (aref (pos-of *p1*) 2)) (sp (fourth (first *ya-plants*)))   ; (art K3: boxed once, as DRAW-FIGHTER's)
         (tp (let ((v (make-f32 3))) (setf (aref v 0) 0.4f0 (aref v 1) 0.2f0 (aref v 2) 0.6f0) v))
         (bs (let ((v (make-f32 3))) (setf (aref v 0) 0.3f0 (aref v 1) 0.8f0 (aref v 2) 0.1f0) v))
-        (fp (fighter *p1*)) (mv-as2 (kit-move (find-kit :yamamoto :bankai) :ya-e-as2)))
+        (fp (fighter *p1*)) (mv-as2 (kit-move (find-kit :yamamoto :bankai) :ya-e-as2))
+        (bk (find-kit :yamamoto :bankai)) (j2c (ya-reach-copy :ya-e-j2 2)) (as2bc (ya-reach-copy :ya-e-as2b 1))   ; (art C: 西's flame,
+        (sac (kit-move (find-kit :yamamoto :bankai) :ya-e-sa-c1)) (zb (find-body :yamamoto-tybw)) (zw (find-weapon :zanka)))   ;  stand-ins)
     (setf (aref *ya-as4-hit* 0) -2 (aref *ya-as4-hit* 1) (- *match-tick* 20))   ; (a stand-in 天地灰尽 hit 20 f ago, cleared below)
     (macrolet ((cons-per (name form) `(%ya-cons-per ,name ,form)))
      (flet ((fresh () (ya-dead-reset)))
@@ -1894,6 +2057,18 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
                                                   (yama-garb-at (model-joints (model *p1*)) (fighter *p1*))))
                      (cons-per "garb-flare" (yama-bk-moves pos yaw 5 17 0.016f0))   ; (batch J2: 殘日獄衣 flared, NS2b's)
                      (cons-per "garb-throw" (yama-bk-moves pos yaw 6 13 0.016f0))   ; (AS2b's, growing)
+                     (cons-per "west-arc-2" (ya-west-arc *p1* (find-clip (kit-move-clip bk (mv-clip j2c))) j2c 9 1.6f0 0 zb zw an-m))   ; (art C, §34:
+                     (cons-per "west-arc-anim" (ya-west-arc *p1* (find-clip :ya-e-q2) j2c 7 1.6f0 0 zb zw an-q2))
+                     (cons-per "west-arc-sa1" (ya-west-arc *p1* (find-clip (kit-move-clip bk (mv-clip sac))) sac 8 0.8f0 0 zb zw an-m))   ;  J2 at level
+                     (cons-per "west-arc-hand" (ya-west-arc *p1* (find-clip :ya-e-grab) mv-as2 13 0.8f0 1 zb nil an-m))           ;  2, the SA's 1,
+                     (cons-per "west-ring" (ya-west-ring *p1* as2bc 13))
+                     (let ((st (fighter-state fp)) (ph (fighter-phase fp)) (mv0 (fighter-move fp)) (sf0 (fighter-sf fp))   ; (the whole hook,
+                           (cm0 (fighter-charge-mult fp)))                                                                  ;  P1 put in a
+                       (setf (fighter-state fp) :move (fighter-phase fp) :main (fighter-move fp) j2c (fighter-sf fp) 8   ;  charged J2 and
+                             (fighter-charge-mult fp) 1.7f0)                                                             ;  back: no sim step
+                       (prog1 (cons-per "west-flame" (yama-west-flame *p1* fp (model *p1*) j2c))                         ;  runs between)
+                         (setf (fighter-state fp) st (fighter-phase fp) ph (fighter-move fp) mv0 (fighter-sf fp) sf0
+                               (fighter-charge-mult fp) cm0)))                                                       ;  the grab, the throw)
                      (cons-per "cracks" (yama-stance-look pos yaw an-m))
                      (cons-per "smear" (vfx-smear tr sm 3))
                      (cons-per "planted" (draw-planted-weapon :zanka px pz yaw :ahead (first sp) :right (second sp)))   ; (art K3)
