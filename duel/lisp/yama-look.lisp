@@ -195,9 +195,9 @@ lifted GAP m along its axis off the crack). 0 B."
      (%ya-cone-draw)))
 
 (defmacro ya-tower-break (h)
-  "Where the tower breaks before it topples (§34.4, the user 2026-11-22: 「塔請在下面斷裂開後，上截才往前傾倒」): 0.28 of its height H
-(0.84 m at level 1, 1.68 m at level 2). A macro: a function would box the float (0 B rule)."
-  `(* 0.28f0 ,h))
+  "Where the tower breaks before it topples (§34.4, the user 2026-11-22: 「塔請在下面斷裂開後，上截才往前傾倒」): 0.14 of its height H
+(0.42 m at level 1, 0.84 m at level 2; 0.28 until §34.5: 「斷裂處改成在目前斷裂處的一半」). A macro: a function would box the float (0 B rule)."
+  `(* 0.14f0 ,h))
 
 (defun-fast %ya-cone-draw ()
   "The heap of the dead from *YA-CONE*: rings of climbers every 0.34 x scale m up the axis (0.5 until §34.2, 0.42 until §34.3) (its radius r0 (1 - q)(1 + 0.3 q) + 0.1 x scale

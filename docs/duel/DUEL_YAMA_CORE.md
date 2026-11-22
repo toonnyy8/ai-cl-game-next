@@ -3722,3 +3722,9 @@ height's), bones and ash spitting out of the crack while the lean is young (`%ya
 (72° / 86°) while the stump stands, then crumbles over 18 f. The hazards are unchanged. Checks: host tests 4326 ALL PASS, pkgcheck (only
 `DUEL::APP`), build, smoke exit 0, `duel-yama-art-a.json` exit 0, consing 0 B on tower-lean / topple-fall / topple (a function returning the
 break height boxed 16 B a call: now a macro), fx-dropped 0, `yamamoto-bankai.lisp` rows identical.
+
+### 34.5 The break at half the height (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22: 「斷裂處改成在目前斷裂處的一半」. `ya-tower-break` 0.28 → 0.14 of the height: 0.84 → 0.42 m at level 1, 1.68 → 0.84 m
+at level 2. Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B, fx-dropped 0), `yamamoto-bankai.lisp`
+rows identical; a before / after sheet.
