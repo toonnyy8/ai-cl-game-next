@@ -73,17 +73,17 @@ tell), six radial INK cracks with ember cores. Single-float forms; 0 B."
 (defmacro %ya-garb-tongues (x z r h k seed n)
   "Fire licking up a heap of the dead under 西's garb (the user 2026-11-23: 「南的高塔變大、附帶火焰效果」): N flame tongues (the garb's
 +PAL-FLAME+, one hue; the flame layer's opacity *FLAME-ALPHA*) on a heap of base radius R and height H at (X Z), each at a hashed height
-share up to 0.85 and angle, standing off the heap's ring there and leaning out, 0.35-0.65 m long (shorter near the top), their noise flowing
-(FLOW-PH); a warm light at mid height. H small (0.3) = a ring of tongues round a disc on the floor. Single-float forms but N; 0 B."
+share up to 0.85 and angle, standing 0.22 m off the heap's ring there (outside its climbers) and leaning out, 0.5-0.95 m long (shorter near
+the top), 0.11 m wide at the base, their noise flowing (FLOW-PH); a warm light at mid height. H small (0.3) = a ring of tongues round a disc on the floor. Single-float forms but N; 0 B."
   `(let* ((%x ,x) (%z ,z) (%r ,r) (%h ,h) (%k ,k) (%sd ,seed) (%fp (flow-ph)))
      (declare (single-float %x %z %r %h %k %sd %fp))
      (dotimes (%i ,n)
        (let* ((%fi (i->f %i)) (%q (* 0.85f0 (hash01 (+ %fi 3f0) %sd)))
               (%an (+ (* 6.2832f0 (/ %fi (i->f ,n))) (* 0.6f0 (hash01 %fi %sd)))) (%ca (f-cos %an)) (%sa (f-sin %an))
-              (%rr (+ (* %r (- 1f0 %q) (+ 1f0 (* 0.3f0 %q))) 0.06f0)) (%y (+ 0.04f0 (* %q %h)))
-              (%ln (* (+ 0.35f0 (* 0.3f0 (flow01 %fi 3.1f0))) (+ 0.6f0 (* 0.4f0 (- 1f0 %q))))))
+              (%rr (+ (* %r (- 1f0 %q) (+ 1f0 (* 0.3f0 %q))) 0.22f0)) (%y (+ 0.04f0 (* %q %h)))
+              (%ln (* (+ 0.5f0 (* 0.45f0 (flow01 %fi 3.1f0))) (+ 0.6f0 (* 0.4f0 (- 1f0 %q))))))
          (declare (single-float %fi %q %an %ca %sa %rr %y %ln))
-         (%tongue (+ %x (* %rr %ca)) %y (+ %z (* %rr %sa)) (* 0.3f0 %ln %ca) %ln (* 0.3f0 %ln %sa) 0.07f0 +pal-flame+ %k
+         (%tongue (+ %x (* %rr %ca)) %y (+ %z (* %rr %sa)) (* 0.4f0 %ln %ca) %ln (* 0.4f0 %ln %sa) 0.11f0 +pal-flame+ %k
                   (+ 600f0 %fi) (+ %fp %fi) 0.04f0 :segs 4)))
      (%light %x (* 0.5f0 %h) %z 1f0 0.55f0 0.25f0 (+ 2f0 %h) (* 0.8f0 %k) 6)))
 
@@ -407,7 +407,7 @@ above leans toward the victim from there (60 deg at its S: YAMA-TOPPLE-LOOK take
     (%ya-tower-ash x z h r0 crum rdt)
     (%light x (* 0.5f0 h) z 1f0 0.2f0 0.12f0 3f0 (* 0.6f0 (- 1f0 crum)) 6)
     (when (and (> g 0) (< cut 0) (> h 0.3f0))           ; 西's garb: fire licking up it (upright only: the cut's lean hands over to the topple)
-      (%ya-garb-tongues x z r0 h (* 0.95f0 (- 1f0 crum)) seed 14))
+      (%ya-garb-tongues x z r0 h (* 0.95f0 (- 1f0 crum)) seed 22))
     nil))
 
 (defun-fast yama-topple-look (hz rdt)
@@ -467,11 +467,11 @@ and :tower-garb); fire along the line when it was fired under the garb (:garb). 
           (when (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0)   ; 西's garb: fire along the fallen dead (2026-11-23)
             (let ((fp (flow-ph)))
               (declare (single-float fp))
-              (dotimes (i 10)
-                (let* ((fi (i->f i)) (u (* ll (+ 0.05f0 (* 0.09f0 fi) (* 0.04f0 (hash01 fi seed)))))
-                       (v (* 0.6f0 (- (* 2f0 (hash01 (+ fi 7f0) seed)) 1f0))) (ln (* (+ 0.4f0 (* 0.3f0 (flow01 fi 2.3f0))) (f-min 1f0 (* 2f0 k)))))
+              (dotimes (i 14)
+                (let* ((fi (i->f i)) (u (* ll (+ 0.04f0 (* 0.065f0 fi) (* 0.03f0 (hash01 fi seed)))))
+                       (v (* 0.8f0 (- (* 2f0 (hash01 (+ fi 7f0) seed)) 1f0))) (ln (* (+ 0.6f0 (* 0.4f0 (flow01 fi 2.3f0))) (f-min 1f0 (* 2f0 k)))))
                   (declare (single-float fi u v ln))
-                  (%tongue (+ bx (* u fx) (* v px)) 0.08f0 (+ bz (* u fz) (* v pz)) (* 0.15f0 ln fx) ln (* 0.15f0 ln fz) 0.08f0 +pal-flame+ k
+                  (%tongue (+ bx (* u fx) (* v px)) 0.08f0 (+ bz (* u fz) (* v pz)) (* 0.15f0 ln fx) ln (* 0.15f0 ln fz) 0.12f0 +pal-flame+ k
                            (+ 620f0 fi) (+ fp fi) 0.04f0 :segs 4)))
               (%light (+ bx (* 0.5f0 ll fx)) 0.5f0 (+ bz (* 0.5f0 ll fz)) 1f0 0.55f0 0.25f0 (+ 1f0 ll) (* 0.8f0 k) 6))))))
     nil))
@@ -536,7 +536,7 @@ the dead (no core: he shows through) swarming up round him to 2.4 m in 5 f, crum
     (%ya-cone! x z 0f0 -1f0 0f0 h (* 0.75f0 r) 0.98f0 crum 0.8f0 seed (* 1.4f0 (- 1f0 u)) 0f0 (* 0.9f0 dr))
     (%ya-tower-ash x z h (* 0.75f0 r) crum rdt)
     (when (> (the fixnum (or (getf (hazard-data hz) :garb) 0)) 0)   ; 西's garb (AS3 under it, 2026-11-23): fire up the heap
-      (%ya-garb-tongues x z (* 0.75f0 r) h (* 0.95f0 (- 1f0 crum)) seed 12))
+      (%ya-garb-tongues x z (* 0.75f0 r) h (* 0.95f0 (- 1f0 crum)) seed 16))
     nil))
 
 ;;; ---------------------------------------------------------------- L5 the pile (AS3c)
