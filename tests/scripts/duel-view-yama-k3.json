@@ -1,7 +1,7 @@
 [
 {
 "at": 9.0,
-"eval": "Module._debug_cmd(1243001)"
+"eval": "Module._debug_cmd(1248001)"
 },
 {
 "at": 10.15,
@@ -9,7 +9,7 @@
 },
 {
 "at": 10.35,
-"eval": "Module._debug_cmd(1243002)"
+"eval": "Module._debug_cmd(1248002)"
 },
 {
 "at": 11.5,
@@ -17,7 +17,7 @@
 },
 {
 "at": 11.7,
-"eval": "Module._debug_cmd(1207001)"
+"eval": "Module._debug_cmd(1208001)"
 },
 {
 "at": 12.85,
@@ -25,7 +25,7 @@
 },
 {
 "at": 13.05,
-"eval": "Module._debug_cmd(1207002)"
+"eval": "Module._debug_cmd(1208002)"
 },
 {
 "at": 14.2,
@@ -33,7 +33,7 @@
 },
 {
 "at": 14.4,
-"eval": "Module._debug_cmd(1215001)"
+"eval": "Module._debug_cmd(1219001)"
 },
 {
 "at": 15.55,
@@ -41,7 +41,7 @@
 },
 {
 "at": 15.75,
-"eval": "Module._debug_cmd(1215002)"
+"eval": "Module._debug_cmd(1219002)"
 },
 {
 "at": 16.9,
@@ -49,7 +49,7 @@
 },
 {
 "at": 17.1,
-"eval": "Module._debug_cmd(1216001)"
+"eval": "Module._debug_cmd(1220001)"
 },
 {
 "at": 18.25,
@@ -57,7 +57,7 @@
 },
 {
 "at": 18.45,
-"eval": "Module._debug_cmd(1216002)"
+"eval": "Module._debug_cmd(1220002)"
 },
 {
 "at": 19.6,
@@ -65,7 +65,7 @@
 },
 {
 "at": 19.8,
-"eval": "Module._debug_cmd(1225001)"
+"eval": "Module._debug_cmd(1230001)"
 },
 {
 "at": 20.95,
@@ -73,7 +73,7 @@
 },
 {
 "at": 21.15,
-"eval": "Module._debug_cmd(1225002)"
+"eval": "Module._debug_cmd(1230002)"
 },
 {
 "at": 22.3,
@@ -81,7 +81,7 @@
 },
 {
 "at": 22.5,
-"eval": "Module._debug_cmd(1231001)"
+"eval": "Module._debug_cmd(1236001)"
 },
 {
 "at": 23.65,
@@ -89,7 +89,7 @@
 },
 {
 "at": 23.85,
-"eval": "Module._debug_cmd(1231002)"
+"eval": "Module._debug_cmd(1236002)"
 },
 {
 "at": 25.0,
@@ -97,7 +97,7 @@
 },
 {
 "at": 25.2,
-"eval": "Module._debug_cmd(1218001)"
+"eval": "Module._debug_cmd(1222001)"
 },
 {
 "at": 26.35,
@@ -105,7 +105,7 @@
 },
 {
 "at": 26.55,
-"eval": "Module._debug_cmd(1218002)"
+"eval": "Module._debug_cmd(1222002)"
 },
 {
 "at": 27.7,
@@ -113,7 +113,7 @@
 },
 {
 "at": 27.9,
-"eval": "Module._debug_cmd(1219001)"
+"eval": "Module._debug_cmd(1223001)"
 },
 {
 "at": 29.05,
@@ -121,7 +121,7 @@
 },
 {
 "at": 29.25,
-"eval": "Module._debug_cmd(1219002)"
+"eval": "Module._debug_cmd(1223002)"
 },
 {
 "at": 30.4,
@@ -129,7 +129,7 @@
 },
 {
 "at": 30.6,
-"eval": "Module._debug_cmd(1209001)"
+"eval": "Module._debug_cmd(1210001)"
 },
 {
 "at": 31.75,
@@ -137,7 +137,7 @@
 },
 {
 "at": 31.95,
-"eval": "Module._debug_cmd(1209002)"
+"eval": "Module._debug_cmd(1210002)"
 },
 {
 "at": 33.1,
@@ -145,7 +145,7 @@
 },
 {
 "at": 33.3,
-"eval": "Module._debug_cmd(1210001)"
+"eval": "Module._debug_cmd(1211001)"
 },
 {
 "at": 34.45,
@@ -153,7 +153,7 @@
 },
 {
 "at": 34.65,
-"eval": "Module._debug_cmd(1210002)"
+"eval": "Module._debug_cmd(1211002)"
 },
 {
 "at": 35.8,
@@ -161,7 +161,7 @@
 },
 {
 "at": 36.0,
-"eval": "Module._debug_cmd(1211001)"
+"eval": "Module._debug_cmd(1212001)"
 },
 {
 "at": 37.15,
@@ -169,7 +169,7 @@
 },
 {
 "at": 37.35,
-"eval": "Module._debug_cmd(1211002)"
+"eval": "Module._debug_cmd(1212002)"
 },
 {
 "at": 38.5,
@@ -177,7 +177,7 @@
 },
 {
 "at": 38.7,
-"eval": "Module._debug_cmd(1224001)"
+"eval": "Module._debug_cmd(1229001)"
 },
 {
 "at": 39.85,
@@ -185,26 +185,10 @@
 },
 {
 "at": 40.05,
-"eval": "Module._debug_cmd(1224002)"
+"eval": "Module._debug_cmd(1229002)"
 },
 {
 "at": 41.2,
 "shot": "tests/shots/duel-view-yama-k3-ya-e-tenchi-front.png"
-},
-{
-"at": 41.4,
-"eval": "Module._debug_cmd(1213001)"
-},
-{
-"at": 42.55,
-"shot": "tests/shots/duel-view-yama-k3-ya-e-f1-side.png"
-},
-{
-"at": 42.75,
-"eval": "Module._debug_cmd(1213002)"
-},
-{
-"at": 43.9,
-"shot": "tests/shots/duel-view-yama-k3-ya-e-f1-front.png"
 }
 ]

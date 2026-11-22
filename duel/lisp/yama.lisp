@@ -224,8 +224,8 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 (defmove :ya-e-j3 :kind :quick :clip :ya-e-q3 :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
   :reach 1.71 :arc 60 :on-hit :stagger)
 ;; E-J4 (§31, the user 2026-11-22: 「增加 J4 可以接入 AS4」): the string's fourth link, the only one AS4 follows (:as-by-press (1 2 3 4)).
-;; ponytail: E-J1's clip retimed (:clip-s 14) as a placeholder; its own clip in the art batch
-(defmove :ya-e-j4 :kind :quick :clip :ya-e-q1 :clip-s 14 :startup 9 :active 3 :recovery 20 :dmg 46 :adv-block -6
+;; Its own clip since art batch D (§34: the user's 「踏步袈裟斬」, the stepping kesa cut; was E-J1's at :clip-s 14).
+(defmove :ya-e-j4 :kind :quick :clip :ya-e-q4 :startup 9 :active 3 :recovery 20 :dmg 46 :adv-block -6
   :reach 1.52 :arc 100 :on-hit :stagger)
 ;; the hazard segments' Kikon strikes (one per class, §7.4); 北's wave has its own, carrying 天地灰尽's cinematic (the Kikon's cinematic is the
 ;; landing strike's :cine, round.lisp SETTLE-SOULS)
@@ -308,14 +308,15 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 ;;; (50) > the ash line (60) > 天地灰尽 point-blank (140, a knockdown). Every segment (:params :as4) does x (1 + *YA-AS4-MARK-X* x the marks
 ;;; held) (YAMA-DMG-MULT) and Kikons into 天地灰尽's cinematic (:cine: ROUND's SETTLE-SOULS reads the struck move's first) taking
 ;;; *YA-AS4-KONPAKU* by the marks (YAMA-KIKON-N). It writes no pointer (:as-writes nil) and gives no mark; once used, his next neutral clears
-;;; the marks (YAMA-AS4-START, YAMA-AS4-SPENT). West's charge x still carries into it (CORE-CHARGE-MULT). Clips placeholders (art later).
-(defmove :ya-e-as4a :kind :sp :clip :ya-e-grab :startup 10 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
+;;; the marks (YAMA-AS4-START, YAMA-AS4-SPENT). West's charge x still carries into it (CORE-CHARGE-MULT). Its own four clips and looks since
+;;; art batch D (§34: the ash grip, the ash cut, the ash line, 天地灰尽's white band and the victim's ash; yama-art.lisp, yama-look.lisp).
+(defmove :ya-e-as4a :kind :sp :clip :ya-e-as4a :startup 10 :active 3 :recovery 16 :dmg 40 :reach 1.6 :arc 120 :on-hit :stagger
   :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :on-frame ((0 yama-as4-start)) :params (:ns-next :ya-e-as4b :as4 t))
-(defmove :ya-e-as4b :kind :sp :clip :ya-e-gokui-cut :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :stagger
+(defmove :ya-e-as4b :kind :sp :clip :ya-e-as4b :startup 10 :active 3 :recovery 16 :dmg 50 :reach 2.0 :arc 120 :on-hit :stagger
   :cine yama-tenchi-cine :params (:ns-next :ya-e-as4c :as4 t))
-(defmove :ya-e-as4c :kind :sp :clip :ya-e-f2 :startup 10 :active 3 :recovery 16 :dmg 60 :reach 2.0 :arc 140 :on-hit :stagger
+(defmove :ya-e-as4c :kind :sp :clip :ya-e-as4c :startup 10 :active 3 :recovery 16 :dmg 60 :reach 2.0 :arc 140 :on-hit :stagger
   :cine yama-tenchi-cine :params (:ns-next :ya-e-as4 :as4 t))
-(defmove :ya-e-as4 :kind :sp :clip :ya-e-f1 :startup 10 :active 2 :recovery 30 :dmg 140 :reach 2.4 :arc 110
+(defmove :ya-e-as4 :kind :sp :clip :ya-e-as4 :startup 10 :active 2 :recovery 30 :dmg 140 :reach 2.4 :arc 110
   :on-hit :knockdown :callout "TENCHI KAIJIN" :cine yama-tenchi-cine :params (:as4 t))
 ;; SA (J in an NS gap, any pointer): a short backhand at chest height (the old counter's clip, its home since art K3; it follows any NS
 ;; segment's S+A, six poses, so its frame 0 matches none: a blend over its fast wind-up drew a larger jump, DUEL_YAMA_CORE §18.3)
@@ -359,7 +360,8 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n   ; (its hazards carry x 1.0: no heat)
           :tick yama-bk-tick :hud-tag yama-bk-tag     ; (西's charged reach; 北 at the next neutral after the third mark: §30)
           :armored-fx yama-armored-fx                  ; (西's armour absorbing an NA: L9, a look, art K1; it replaces the spark, K3)
-          :planted yama-planted))                      ; (the blade left in the plaza: the grab / throw, AS3b / AS3c; a look, art K3)
+          :planted yama-planted                        ; (the blade left in the plaza: the grab / throw, AS3b / AS3c; a look, art K3)
+          :victim-look yama-victim-look))              ; (天地灰尽's ash on the victim's drawn body; a look, art batch D)
 (let ((k (find-kit :yamamoto :bankai)))   ; 西's reach copies classed as their moves (KIT-CLASS is by object: COMBAT's AS hit, the CPU's reads)
   (loop for copies across *ya-reach-copies*
         do (dolist (c copies) (setf (gethash c (kit-cls k)) (kit-class k (kit-move k (mv-name c)))))))

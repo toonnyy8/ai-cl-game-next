@@ -126,16 +126,17 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                                           (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))
                          (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1))))))
         (let ((k (find-kit :yamamoto :bankai))
-              (one-sided '(:ya-e-n1a :ya-e-n1c :ya-e-n2c :ya-e-as2b :ya-e-as4))   ; (§30.2: NS2c's +1.6 m is the garb's flame, art later)
-              (hand '(:ya-e-as2 :ya-e-as2b))
+              (one-sided '(:ya-e-n1a :ya-e-n1c :ya-e-n2c :ya-e-as2b))   ; (§30.2: NS2c's +1.6 m is the garb's flame, art later; AS4 left
+              (hand '(:ya-e-as2 :ya-e-as2b))                             ;  with its own clip, art D §34)
+              (pommel '(:ya-e-as4a))                                     ; (art D: the ash grip strikes with the pommel)
               (known-off '()))   ; (K2: AS1 left with ya-e-as1, §17; K3: AS2 with ya-e-grab, §18)
           (format t "yamamoto bankai FK (move, drawn tip, volume end, delta):~%")
-          (dolist (n '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-as1 :ya-e-n2c :ya-e-as2 :ya-e-as2b   ; (NS2a / NS2b hit
-                       :ya-e-as4 :ya-e-sa :ya-e-ns-strike))                                                              ;  nothing since §30.2)
-            (multiple-value-bind (art edge) (ya-tip k (kit-move k n) (and (member n hand) :hand))
+          (dolist (n '(:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-j4 :ya-e-n1a :ya-e-n1b :ya-e-n1c :ya-e-as1 :ya-e-n2c :ya-e-as2 :ya-e-as2b   ; (NS2a / NS2b
+                       :ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4 :ya-e-sa :ya-e-ns-strike))                                     ;  hit nothing
+            (multiple-value-bind (art edge) (ya-tip k (kit-move k n) (cond ((member n hand) :hand) ((member n pommel) :pommel)))   ; since §30.2)
               (let* ((d (- art edge)) (ok (and (<= d 0.15) (or (>= d -0.15) (member n one-sided)))))
-                (format t "  ~a ~(~a~)~:[~; (hand)~] | ~,2f | ~,2f | ~,2@f~:[~; (known off)~]~%" (if ok "ok " "OFF") n (member n hand) art edge d
-                        (member n known-off))
+                (format t "  ~a ~(~a~)~:[~; (hand)~]~:[~; (pommel)~] | ~,2f | ~,2f | ~,2@f~:[~; (known off)~]~%" (if ok "ok " "OFF") n (member n hand)
+                        (member n pommel) art edge d (member n known-off))
                 (if (member n known-off)
                     (check (not ok))                      ; (a fixed clip must leave the list)
                     (check (or ok (format t "yamamoto bankai ~a: the volume ends ~,2f m, the art ~,2f m~%" n edge art)))))))
@@ -162,6 +163,21 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                 (let ((ok (funcall test (aref v 0) (aref v 1) (- (aref v 2)))))
                   (format t "  ~a ~(~a~) f~d ~(~a~) ~a | ~,2f ~,2f ~,2f~%" (if ok "ok " "OFF") n sf what desc (aref v 0) (aref v 1) (- (aref v 2)))
                   (check ok)))))
+          ;; art batch D (§34): E-J4 and AS4's four segments on their own clips at their moves' frames (S, S+A, the end at x1), and each link's
+          ;; frame 0 on the pose the link lands on (J3 > J4 at J3's S+A; J4 > AS4a at J4's S+1; each AS4 segment at the one before's S+A: trial
+          ;; A1's log), the tip's jump < 0.02 m (links start with no blend)
+          (flet ((tip-at (n sf) (let ((mv (kit-move k n))) (ya-pose k (kit-move-clip k (mv-clip mv)) sf (mv-clip-speed mv)) (ya-wtip k)
+                                  (list (aref v 0) (aref v 1) (aref v 2)))))
+            (dolist (n '(:ya-e-j4 :ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4))
+              (let* ((mv (kit-move k n)) (c (find-clip (kit-move-clip k (mv-clip mv)))))
+                (check (or (and (= 1.0 (mv-clip-speed mv)) (= (mv-s mv) (round (* 60 (clip-mark c :s))))
+                                (= (+ (mv-s mv) (mv-a mv)) (round (* 60 (clip-mark c :a)))) (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur c)))))
+                           (format t "yamamoto bankai ~a: its clip's frames are not its move's~%" n)))))
+            (dolist (l '((:ya-e-j3 11 :ya-e-j4) (:ya-e-j4 10 :ya-e-as4a) (:ya-e-as4a 13 :ya-e-as4b) (:ya-e-as4b 13 :ya-e-as4c) (:ya-e-as4c 13 :ya-e-as4)))
+              (destructuring-bind (a sf b) l
+                (let ((d (sqrt (reduce #'+ (mapcar (lambda (p q) (expt (- p q) 2)) (tip-at a sf) (tip-at b 0))))))
+                  (format t "  ~a link ~(~a~) f~d > ~(~a~) f0: the tip jumps ~,3f m~%" (if (< d 0.02) "ok " "OFF") a sf b d)
+                  (check (< d 0.02))))))
           ;; the planted windows: the clip's grip on the spot when the blade is left there and when the hand comes back (art S4: 爆炎's
           ;; IKKOTSU too, posed on its own kit's body)
           (dolist (p plants)

@@ -1,0 +1,338 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== J1-J4 > AS4, three marks, un-held')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 9.25,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 9.3,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 9.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.85,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.9,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.35,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.4,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.48,
+"shot": "tests/shots/duel-yama-art-d-j4-rise.png"
+},
+{
+"at": 10.55,
+"shot": "tests/shots/duel-yama-art-d-j4-tell.png"
+},
+{
+"at": 10.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.6,
+"shot": "tests/shots/duel-yama-art-d-j4-hit.png"
+},
+{
+"at": 10.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.65,
+"shot": "tests/shots/duel-yama-art-d-j4-low.png"
+},
+{
+"at": 10.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.85,
+"shot": "tests/shots/duel-yama-art-d-as4a-hit.png"
+},
+{
+"at": 10.93,
+"shot": "tests/shots/duel-yama-art-d-as4a-puff.png"
+},
+{
+"at": 11.05,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.11,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.13,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.2,
+"shot": "tests/shots/duel-yama-art-d-as4b-hit.png"
+},
+{
+"at": 11.28,
+"shot": "tests/shots/duel-yama-art-d-as4b-ash.png"
+},
+{
+"at": 11.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.55,
+"shot": "tests/shots/duel-yama-art-d-as4c-hit.png"
+},
+{
+"at": 11.6,
+"shot": "tests/shots/duel-yama-art-d-as4c-line.png"
+},
+{
+"at": 11.77,
+"shot": "tests/shots/duel-yama-art-d-as4-coil.png"
+},
+{
+"at": 11.9,
+"shot": "tests/shots/duel-yama-art-d-as4-hit.png"
+},
+{
+"at": 12.03,
+"shot": "tests/shots/duel-yama-art-d-as4-band.png"
+},
+{
+"at": 12.27,
+"shot": "tests/shots/duel-yama-art-d-as4-ash.png"
+},
+{
+"at": 12.57,
+"shot": "tests/shots/duel-yama-art-d-as4-cinders.png"
+},
+{
+"at": 12.93,
+"shot": "tests/shots/duel-yama-art-d-as4-fade.png"
+},
+{
+"at": 13.18,
+"shot": "tests/shots/duel-yama-art-d-as4-after.png"
+},
+{
+"at": 14.05,
+"eval": "console.log('=== J1-J4 > AS4 held: the Kikon')"
+},
+{
+"at": 14.1,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 14.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 14.2,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 14.25,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 14.3,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 14.35,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 14.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.65,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.7,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.9,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.95,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.15,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.2,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.0,
+"shot": "tests/shots/duel-yama-art-d-kikon-16.png"
+},
+{
+"at": 16.4,
+"shot": "tests/shots/duel-yama-art-d-kikon-20.png"
+},
+{
+"at": 16.8,
+"shot": "tests/shots/duel-yama-art-d-kikon-24.png"
+},
+{
+"at": 16.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.93,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 17.2,
+"shot": "tests/shots/duel-yama-art-d-kikon-28.png"
+},
+{
+"at": 17.6,
+"shot": "tests/shots/duel-yama-art-d-kikon-32.png"
+},
+{
+"at": 21.4,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 21.9,
+"eval": "console.log('=== END')"
+}
+]

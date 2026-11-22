@@ -1727,3 +1727,39 @@ def yama_sp30b_script():
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-sp30b", yama_sp30b_script())
+
+# Yamamoto art batch D (DUEL_YAMA_CORE §34): the Bankai string J1-J4 > AS4 from 1.4 m with the three marks (87441-87443), un-held (trial
+# A1's presses: J every 15 f, SP on J4's hit, then right after each AS4 segment starts; pointer 1, so 西's garb stays off), from the match camera: J4's tell (the blade over
+# his shoulder, the step) and hit, each AS4 segment's hit (the ash grip's puff, the ash cut's ash, the ash line, 天地灰尽's cut), the white
+# band, the victim's ash and cinders, the fade; then J1-J4 > AS4 held (sp30b's): the Kikon's start. Frames counted from J1's press (the
+# trial's ticks: J4 starts at 50, hits 59; AS4a hits 74, b 95, c 116, the last 137). PHONE: the deck on (87901), stills -phone.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-art-d.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --mobile --size 390x844 --script tests/scripts/duel-yama-art-d-phone.json
+def yama_art_d_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def sp(s, hold=0.05):
+        ev.append(key(s, "ShiftLeft")); ev.extend(tap(s + 0.01, "KeyJ", hold)); ev.append(key(s + hold + 0.03, "ShiftLeft", False))
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+    scene("J1-J4 > AS4, three marks, un-held", (87014, 87446, 87301, 87445, 87441, 87442, 87443) + deck)
+    a = t + 0.6
+    for i in range(4): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
+    for f in (60, 66, 87, 108): sp(a + f / 60)
+    for f, n in ((53, "j4-rise"), (57, "j4-tell"), (60, "j4-hit"), (63, "j4-low"), (75, "as4a-hit"), (80, "as4a-puff"), (96, "as4b-hit"),
+                 (101, "as4b-ash"), (117, "as4c-hit"), (120, "as4c-line"), (130, "as4-coil"), (138, "as4-hit"), (146, "as4-band"),
+                 (160, "as4-ash"), (178, "as4-cinders"), (200, "as4-fade"), (215, "as4-after")):
+        ev.append(shot(a + f / 60, f"yama-art-d-{n}{sx}"))
+    t = a + 4.5
+    scene("J1-J4 > AS4 held: the Kikon", (87014, 87446, 87301, 87445, 87441, 87442) + deck)
+    a = t + 0.3
+    for i in range(4): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
+    sp(a + 1.1, 1.4)
+    for s in (1.6, 2.0, 2.4, 2.8, 3.2): ev.append(shot(a + s, f"yama-art-d-kikon-{int(s * 10)}{sx}"))
+    t = a + 7.0
+    ev.append(cmd(t, 87448)); t += 0.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-art-d", yama_art_d_script())
+write("yama-art-d-phone", yama_art_d_script(True))
