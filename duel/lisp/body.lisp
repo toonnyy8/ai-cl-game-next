@@ -563,6 +563,30 @@ a float argument would box). 0 B."
      (:arm-r :side 45 :flex 20) (:elbow-r :flex 30))
   (0.35 (:root :u -0.07) (:spine :flex -6 :twist -8) (:head :flex -30) (:arm-l :flex 150 :side 28) (:elbow-l :flex 30)
      (:arm-r :side 40 :flex 30) (:elbow-r :flex 40)))
+;; struggling against the pull (South's close-up, DUEL_YAMA_CORE §37; any victim): 45 f, a key every 3-6 f, three yanks (:snap) at
+;; f8 / f23 / f38 that the cinematic's sink tugs match; between them he heaves on his palms at the waterline (arms out near level, as
+;; Doré's mire), throws his head back with the free left arm reaching up, claws at the floor; the torso wrenches side to side. The sword
+;; arm stays low on his right, the blade down into the floor (it hid his face in front of him)
+(defclip :sh-struggle (45 :loop t :fps 60)
+  (0 (:root :u 0) (:spine :flex 15 :twist 0) (:chest :twist 0) (:head :flex 10 :twist 0)
+     (:arm-l :flex 15 :side 75) (:elbow-l :flex 30) (:hand-l :flex -60)
+     (:arm-r :flex -10 :side 80) (:elbow-r :flex 15) (:hand-r :flex 70))
+  (5 :snap (:root :u 0.07) (:spine :flex 0) (:head :flex -25) (:elbow-l :flex 5) (:elbow-r :flex 5))   ; heaves up on his palms
+  (8 :snap (:root :u -0.06) (:spine :flex 25 :twist 20) (:chest :twist 15) (:head :flex 35 :twist 10)   ; yanked: the head snaps down,
+     (:arm-l :side 100 :flex 35) (:elbow-l :flex 60) (:arm-r :side 95 :flex -5) (:elbow-r :flex 30))     ;  the arms fly out
+  (14 (:root :u 0) (:spine :flex -8 :twist -5) (:chest :twist 0) (:head :flex -28 :twist 10)           ; the head thrown back, the
+      (:arm-l :flex 25 :side 150) (:elbow-l :flex 25) (:hand-l :flex -20)                               ;  left hand reaching up beside
+      (:arm-r :flex -25 :side 70) (:elbow-r :flex 35))                                                  ;  it, the right clawing behind
+  (19 (:spine :flex -10 :twist -10) (:chest :twist -5) (:head :flex -30 :twist 15) (:arm-l :flex 15 :side 165) (:elbow-l :flex 5))
+  (23 :snap (:root :u -0.07) (:spine :flex 22 :twist 28) (:chest :twist 25) (:head :flex 25 :twist -20)   ; yanked: wrenched the other
+      (:arm-l :flex 80 :side 85) (:elbow-l :flex 70) (:arm-r :flex 10 :side 60) (:elbow-r :flex 40))      ;  way, the reaching arm torn down
+  (29 (:root :u -0.02) (:spine :flex 20 :twist 10) (:chest :twist 5) (:head :flex 5 :twist -5)           ; the blade driven into the
+      (:arm-r :flex 25 :side 55) (:elbow-r :flex 20) (:hand-r :flex 85)                                  ;  floor to hold on, the other
+      (:arm-l :flex 15 :side 80) (:elbow-l :flex 25) (:hand-l :flex -60))                                ;  palm slapped down
+  (34 :snap (:root :u 0.05) (:spine :flex -8 :twist -5) (:chest :twist 0) (:head :flex -28 :twist 10)    ; up again, the head back, the
+      (:arm-l :flex 25 :side 145) (:elbow-l :flex 15) (:arm-r :flex -15 :side 85) (:elbow-r :flex 25))   ;  left arm up once more
+  (38 :snap (:root :u -0.07) (:spine :flex 22 :twist 22) (:chest :twist 18) (:head :flex 30 :twist 15)   ; yanked
+      (:arm-l :flex 60 :side 95) (:elbow-l :flex 55) (:arm-r :flex 0 :side 95) (:elbow-r :flex 30) (:hand-r :flex 70)))
 (defclip :sh-kikon-victim (1.0 :loop t)
   (0 (:root :u -0.08) (:spine :flex -18) (:head :flex -25) (:arms :side 35 :flex 15) (:elbows :flex 10) (:knees :flex 30))
   (0.5 (:root :u -0.1) (:spine :flex -22) (:head :flex -30) (:arms :side 40 :flex 18)))
