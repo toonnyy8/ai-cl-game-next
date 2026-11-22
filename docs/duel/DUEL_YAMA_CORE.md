@@ -3706,3 +3706,9 @@ The user, 2026-11-22: 「通過縮小半徑讓骷髏塔變得更密集一些」.
 ring, rings 0.5 → 0.42 m up the axis (`%ya-cone-draw`, AS3b's heap too). The hazards (the hitless tower, the bind disc r 1.6, the topple's
 2 m line) are unchanged. Checks: host tests 4326 ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing as before, fx-dropped
 0), `yamamoto-bankai.lisp` rows identical; a before / after sheet of the tower (level 1 far / level 2 / level 1 binding).
+
+### 34.3 Denser again (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22: 「再更密集」. Base radius 0.7 → 0.5 m (level 1), 0.9 → 0.65 m (level 2); climbers 0.5 → 0.4 m apart round a ring,
+rings 0.42 → 0.34 m up the axis. Hazards unchanged. Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0
+(consing as before, fx-dropped 0 on every stats line), `yamamoto-bankai.lisp` rows identical; a three-way sheet (§34.1 / §34.2 / now).

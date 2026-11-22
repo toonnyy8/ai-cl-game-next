@@ -135,8 +135,8 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
 ;;; charcoal core, a crown of splayed hands on top. One drawer (%YA-CONE-DRAW, its arguments in *YA-CONE*) serves the standing tower, the
 ;;; topple's first frames, the shatter's burst and AS3b's hollow ring, so the hand-off from the spent :ya-tower to :ya-fall does not pop.
 (defconstant +ya-tower-h+ 3f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m).")
-(defconstant +ya-cone-r1+ 0.7f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2).")
-(defconstant +ya-cone-r2+ 0.9f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2).")
+(defconstant +ya-cone-r1+ 0.5f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5).")
+(defconstant +ya-cone-r2+ 0.65f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65).")
 (defconstant +ya-tower-raise2+ 114
   "NSb's raise sets the tower's life to its age + this (host-checked: NSb's frames after its S + *YA-TOWER-STAND*): frames since the
 climb to level 2 = this - (life - age), a pure function of the hazard (no look state).")
@@ -192,8 +192,8 @@ with hands); 0 B."
      (%ya-cone-draw)))
 
 (defun-fast %ya-cone-draw ()
-  "The heap of the dead from *YA-CONE*: rings of climbers every 0.42 x scale m up the axis (0.5 until §34.2) (its radius r0 (1 - q)(1 + 0.3 q) + 0.1 x scale
-at height share q, so a heap that grows widens as it climbs), as many round each ring as fit 0.5 x scale apart (0.62 until §34.2), the far side left out
+  "The heap of the dead from *YA-CONE*: rings of climbers every 0.34 x scale m up the axis (0.5 until §34.2, 0.42 until §34.3) (its radius r0 (1 - q)(1 + 0.3 q) + 0.1 x scale
+at height share q, so a heap that grows widens as it climbs), as many round each ring as fit 0.4 x scale apart (0.62 until §34.2, 0.5 until §34.3), the far side left out
 (the camera sees the near half); the top two rings and the bottom one with splayed hands (the crown; the hands that bind); a charcoal
 core of discs up the axis (core 1). The axis leans by the lean toward (ux uz), pivoting at the base; nothing drawn below 6 cm. Crumble c: the
 climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
@@ -201,7 +201,7 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
          (k (aref a 7)) (crum (aref a 8)) (sc (aref a 9)) (seed (aref a 10)) (swirl (aref a 11)) (core (aref a 12)) (ph (aref a 13))
          (s (f-sin th)) (c (f-cos th)) (ax (* s ux)) (ay c) (az (* s uz)) (ppx (- uz)) (ppz ux) (qx (* c ux)) (qy (- s)) (qz (* c uz))
          (e (camera-eye *camera*)) (ex (- (aref e 0) bx)) (ez (- (aref e 2) bz)) (el (f-max 0.01f0 (f-hypot ex ez)))
-         (dy (* 0.42f0 sc)) (yc (* h (- 1f0 (* 1.15f0 crum)))) (nr (f->i (/ h dy))))
+         (dy (* 0.34f0 sc)) (yc (* h (- 1f0 (* 1.15f0 crum)))) (nr (f->i (/ h dy))))
     (declare (type f32vec a e) (single-float bx bz ux uz th h r0 k crum sc seed swirl core ph s c ax ay az ppx ppz qx qy qz ex ez el dy yc)
              (fixnum nr))
     (when (> h 0.05f0)
@@ -217,7 +217,7 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
       (dotimes (j (1+ nr))
         (let* ((fj (i->f j)) (y0 (* dy (+ 0.45f0 fj))) (q0 (f-min 1f0 (/ y0 h)))
                (r (+ (* r0 (- 1f0 q0) (+ 1f0 (* 0.3f0 q0))) (* 0.1f0 sc)))
-               (m (max 1 (f->i (/ (* 6.2832f0 r) (* 0.5f0 sc))))) (hand (or (= j 0) (>= j (- nr 1)))))
+               (m (max 1 (f->i (/ (* 6.2832f0 r) (* 0.4f0 sc))))) (hand (or (= j 0) (>= j (- nr 1)))))
           (declare (single-float fj y0 q0 r) (fixnum m))
           (when (< y0 (- h (* 0.15f0 sc)))
             (dotimes (i m)
