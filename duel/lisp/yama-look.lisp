@@ -2120,9 +2120,12 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
                      (cons-per "west-step3" (yama-nishi-look *p1* *p2* 214))
                      (cons-per "west-pass" (yama-nishi-look *p1* *p2* 220))
                      (cons-per "west-column" (yama-nishi-look *p1* *p2* 232))
-                     (cons-per "south-dead" (yama-minami-look *p1* *p2* 90))
-                     (cons-per "south-pile" (yama-minami-look *p1* *p2* 130))
-                     (cons-per "south-burst" (yama-minami-look *p1* *p2* 150))))))
+                     (cons-per "south-web" (yama-minami-look *p1* *p2* 56))   ; (§36: the web, the sea rising, the sea round
+                     (cons-per "south-rise" (yama-minami-look *p1* *p2* 90))  ;  him, its flow in and the mound, the Konpaku,
+                     (cons-per "south-sea" (yama-minami-look *p1* *p2* 130))  ;  sinking back)
+                     (cons-per "south-flow" (yama-minami-look *p1* *p2* 180))
+                     (cons-per "south-burst" (yama-minami-look *p1* *p2* 200))
+                     (cons-per "south-sink" (yama-minami-look *p1* *p2* 220))))))
     (setf (aref *ya-as4-hit* 0) -1 (aref *ya-as4-hit* 1) -1)
     (ya-dead-reset)
     (log-msg "yama garb: the Kikon wings flat at ~,1f deg off upright (~,1f above the horizontal; want >= 65 / <= 25)"   ; (§29.6)

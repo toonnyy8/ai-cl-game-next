@@ -3741,3 +3741,55 @@ The user, 2026-11-22: 「長出的位置請更靠近山本」; asked how near (2
   h / i / j unchanged in numbers. The browser log: `tower level 1 at ..., 1.50 m from him`.
 - Checks: host tests 4327 ALL PASS, pkgcheck (only `DUEL::APP`), build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B but the
   south-* 80 B rows as before), `--cvc` II / IK / KK identical. Manual updated.
+
+## 36. 南's Kikon re-boarded: the sea of the dead (the user, 2026-11-22; presentation only, 192 → 240 f)
+
+The user, 2026-11-22: 「南的毀魂技我希望呈現從地底湧出數以萬計的骷髏，並從四面八方將對手逐漸拖入地下覆蓋」; the user picked: keep his
+back-turned walk shot intercut, length 192 → 240 f. References viewed first: `south_ep372_royd_among_skeletons.jpg` (a slope of reaching
+dead, the enemy small in it), `south_508_manga.jpg` (black silhouettes all round, one near skull for scale), Doré's Inferno VIII mire (the
+floor as a waterline cutting the bodies). K4's colour rule kept: ink / charcoal, bone-ash white, an ember hairline, blood eye spots, no
+orange flame.
+
+### 36.1 The beats as built (`yama-minami-cine`, yama-cine.lisp; `:len` 240, `:hold` 150)
+
+| Frames | Shot | As built |
+|---|---|---|
+| 0-50 | unchanged | the incantation, the two-column caption |
+| 50-60 | unchanged high front shot | f51 the blade in; the crack web races out from it (YAMA-MINAMI-WEB): 13 rays 6-13 m, three kinked ink segments with an ember hairline each and a branch off each kink, out in 9 f; chords between neighbouring kinks from f58 (the web); the old crack to the victim and the three `stage-crack-add` marks kept (no new stage marks: they would persist into the round) |
+| 60-116 | the victim from 35° off his front, 4.2 m (phone 6.4), 0.6 m up, lens 40 | the charcoal ground and its ink / ember front close in from 10 m to 0.6 m over f62-96 (dust thrown up along it, none on the lens); the sea's dead come out of the ground as the front passes; on him 8 posed dead (YA-DEAD, one every 4 f from f64: ankles / knees / sword arm, dragged down with him) and 14 climbers reaching in from every side (f70+); `:sh-bound`; his root y 0 → -0.4 m over f72-116 |
+| 116-160 | Yamamoto from 20° off his front, 9 m, lens 30 | he turns his back and walks toward us (0.02 m/f, steps f116 / 165 / 214); behind him the sea to the plaza's edge, the victim small in it, sunk to -H/2 (his waist) by f160 |
+| 160-200 | high over the victim, 23° off vertical (6.8 m up, phone 8.0), lens 36 | the sea drawn in and round (a spiral; the inner ones all the way in); `:sh-swallowed` (new clip, body.lisp: head back, the free left hand reaching up); only his head and that hand left at f180 (-(H - 0.35)), under at f192 (-(H + 0.15)); the mound of the dead over the spot from f180 (%YA-CONE!, 1.1 m by f196) |
+| 200 | same shot | the Konpaku: impact `:negative` 2, `vfx-konpaku-shatter` and three ash bursts at the mound (at ground height: the victim is under the floor), ember light and a crack star under the mound (f200-222), konpaku-shatter sfx, caption exit; f202 impact `:manga` 10 |
+| 206-240 | wide and high (`shot-pair` 10 m / phone 13, 4.2 / 5.0 up), lens 44 | the victim lies (`:sh-down`, y back to 0 at the cut, inside the manga frame); the sea sinks back (down 0.6 m over f212-238, eroding f220-238), the mound crumbles to ash (f206-228), ash falls over the plaza; the web shows again in the bare ground; he walks on |
+
+Deviations: the wide cuts at f206, not f202 (the burst reads 6 f from above first; the victim's y is reset at the cut). The 0-60 beats and
+the shot at f50 are as before; the victim shot moved from f56 to f60.
+
+### 36.2 Tiers and the vertex budget (the toon batch holds 16384 verts a frame, render.c R_FX_VERTS, unchanged)
+
+- Near: the 8 posed dead (meshes, no fx verts) and 14 `%ya-climber`s with hands (138 verts each, about 1900).
+- Mid: `%ya-wight` (new): an ink skull with a blood eye and one reaching arm (24 verts), a quarter with two arms (36).
+- Far: a skull speck (6), an eye on a third (+6), a raised hand on a quarter (+12). From above (camera forward y < -0.7) specks only, two a
+  spot (the top-down shot would otherwise be sparse dots).
+- Ground: one flat annulus (48 segments, 288 verts) of charcoal black smoke whose uv is the plaza's x z (so the toon field is the distance
+  from the victim and its noise lies in 2-D; a `%sector-verts` disc drew concentric bands: its uv runs only across its radii).
+- The sea's spots: a fixed polar grid round the victim (rings 0.55 m apart to 10 m, the dead 0.55 m apart round each, about 1200; HASH01,
+  no flicker), left out: a 1.2 m clearing round the old man and anything past him, outside the arena (14.1 m), within 3 m of the lens,
+  out of the frame (a cone 2.5 x the vertical half-angle); within 1.3 m of the victim before f160 (his own dead show), 0.8 m before f186
+  (his head shows). Caps: mid while the sea has used < 4000 verts, nothing past 6000 (`+ya-sea-mid+`, `+ya-sea-all+`).
+- Measured (a temporary toon-fill readout on the stats line, each beat held 2.2 s, not committed): the sea at its cap, 6000-6012 verts, on
+  every beat from f84; the whole frame's toon fill about 10000 on the f84-f192 beats, 11052 at f200, the peak 13140 at f210 (the wide: the
+  sea, the crumbling mound, the ash) (phone peak 12960), so 3244 / 3424 left; `fx-dropped 0` on every stats line of both runs; no `slow
+  frame` line.
+
+### 36.3 Sim timing and checks
+
+- The length: +144 ticks before the reset after a Bankai Kikon under 南 (§19.2's table: +96 → +144); nothing else in the sim moves (the
+  victim's root y is written in step mode and given back at CINE-END by `cine-place`'s save; the native trials skip cinematics).
+- Removed: `*ya-chz*` / `*ya-cpz*` (the stand-in hazards) and `yama-minami-stand-ins`; the old look's hands / pile calls.
+- Probe 87448: the 南 rows are now `south-web` (f56), `south-rise` (90), `south-sea` (130), `south-flow` (180), `south-burst` (200),
+  `south-sink` (220). The stills script also calls it during the f130 and f182 holds (the sea's mid tier and its from-above specks
+  run only under those cameras): all 0 B in all three lines. The first build read 80 B on every 南 row inside the cinematic: the look's
+  `(aref (pos-of v) 1)` (the victim's sunk y) read boxed through an undeclared vector (0 B only while y is 0); now read through a
+  declared f32vec. That is likely the old "south-* 80 B in a fresh scene" rows' kind too (§35); they are gone with the old look.
+- Stills: `tests/scripts/duel-yama-minami2[-phone].json` (duel.py `yama_minami2_script`), 15 beats f54-f238.
