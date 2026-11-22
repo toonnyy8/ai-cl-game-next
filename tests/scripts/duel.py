@@ -1141,6 +1141,37 @@ def yama_nishi2_script(phone=False):
 write("yama-nishi2", yama_nishi2_script())
 write("yama-nishi2-phone", yama_nishi2_script(True))
 
+# Yamamoto's 南 Kikon re-boarded (DUEL_YAMA_CORE §36: the sea of the dead, 240 f): K4's holds (87452, yama_hold) at the board's beats: the
+# web racing out (54), the victim shot as the front closes in (60-114), the walk with the sea behind him (130, 156), the flow from above
+# (170-192), the Konpaku (200), the wide as the sea sinks back (210-238). Each beat held 0.75 s (the vertex counts of §36 were read with
+# 2.2 s holds and a temporary stats readout). Stills tests/shots/duel-yama-minami2-fNNN[-phone].png; 87448's consing line during the f130 and f182 holds (the sea's mid
+# tier and its from-above specks run only under those cameras) and at the end.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-minami2.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --mobile --size 390x844 --script tests/scripts/duel-yama-minami2-phone.json
+YAMA_MINAMI2 = (54, 60, 70, 84, 100, 114, 130, 156, 170, 182, 192, 200, 210, 226, 238)
+def yama_minami2_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]                              # (idle in the Bankai first: the form's callout gone)
+    t += 2.5
+    ev.append(cmd(t, 87452))
+    if phone: ev.append(cmd(t + 0.02, 87901))
+    ev.append(cmd(t + 0.03, yama_hold(YAMA_MINAMI2[0])))
+    a, f0 = t + 0.03, 0
+    for j, f in enumerate(YAMA_MINAMI2):
+        a += (f - f0) / 60 + 0.4                                            # (holds pile up ash puffs round his blade by f156 / f192:
+        ev.append(shot(a, f"yama-minami2-f{f:03d}{sx}"))                    #  played straight they are not there, §36.4)
+        if f in (130, 182): ev.append(cmd(a + 0.2, 87448))                  # (the probe under the walk's / the top-down's camera)
+        a += 0.3
+        if j + 1 < len(YAMA_MINAMI2): ev.append(cmd(a + 0.05, yama_hold(YAMA_MINAMI2[j + 1])))
+        a += 0.05
+        f0 = f
+    t = a + 0.6
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-minami2", yama_minami2_script())
+write("yama-minami2-phone", yama_minami2_script(True))
+
 # Yamamoto's 西 garb trailing (DUEL_YAMA_CORE §29.1): P1 in the Bankai under 西 (87302, 87446), Kenpachi 8 m away (87080), W held 1.2 s
 # then let go; stills mid-walk, just stopped, the overshoot (+0.3 s) and settled (+1.0 s), from the behind camera, then the SIDE camera
 # (2109); then the 西 Kikon's walk at its footfalls 116 / 164 / 212 (87451, 87600+k; §29.3's retiming), each shot 2 frames after the hold (a held frame stands

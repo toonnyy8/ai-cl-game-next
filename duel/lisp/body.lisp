@@ -558,6 +558,11 @@ a float argument would box). 0 B."
 (defclip :sh-bound (1.0 :loop t)                     ; bound by the feet (South): the legs held, the body straining
   (0 (:root :u -0.1) (:spine :flex 30 :twist 15) (:head :flex -20) (:arms :side 40 :flex 30) (:elbows :flex 40) (:knees :flex 25))
   (0.5 (:root :u -0.12) (:spine :flex 22 :twist -15) (:head :flex -10) (:arms :side 50 :flex 10) (:elbows :flex 20) (:knees :flex 30)))
+(defclip :sh-swallowed (0.7 :loop t)                ; dragged under (South): the head thrown back, the free left hand reaching up
+  (0 (:root :u -0.05) (:spine :flex -12 :twist 10) (:head :flex -38) (:arm-l :flex 165 :side 18) (:elbow-l :flex 12)
+     (:arm-r :side 45 :flex 20) (:elbow-r :flex 30))
+  (0.35 (:root :u -0.07) (:spine :flex -6 :twist -8) (:head :flex -30) (:arm-l :flex 150 :side 28) (:elbow-l :flex 30)
+     (:arm-r :side 40 :flex 30) (:elbow-r :flex 40)))
 (defclip :sh-kikon-victim (1.0 :loop t)
   (0 (:root :u -0.08) (:spine :flex -18) (:head :flex -25) (:arms :side 35 :flex 15) (:elbows :flex 10) (:knees :flex 30))
   (0.5 (:root :u -0.1) (:spine :flex -22) (:head :flex -30) (:arms :side 40 :flex 18)))

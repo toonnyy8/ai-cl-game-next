@@ -64,9 +64,6 @@ splash; the charcoal burst and the plaza cracks in the grey world."
 (defvar *ya-cw* (let ((v (make-f32 2))) (setf (aref v 0) 1f0 (aref v 1) 0.25f0) v)
   "西: the victim's weapon's length and blade base (grip to tip / base, WEAPON-LEN / -BASE), kept at f40 (YAMA-WEAPON-KEEP) so the
 look reads no boxed struct float.")
-(defvar *ya-chz* (make-hazard :kind :ya-col :size 1.2f0 :life 400)
-  "南's hands at cinematic scale: a stand-in hazard for YAMA-HANDS-LOOK (a plain struct, never an entity: the sim never sees it).")
-(defvar *ya-cpz* (make-hazard :kind :ya-col :size 1.4f0 :life 400) "... and 南's pile: the same for YAMA-PILE-LOOK.")
 
 (defmacro %ya-line ((px pz qx qz fx fz rx rz d) a v &body body)
   "Bind A's and V's feet (PX PZ, QX QZ), the unit from A to V (FX FZ), its right normal (RX RZ) and their distance D (single floats)."
@@ -425,88 +422,372 @@ wide, the old man never turns, the garb gutters out."
       (let ((p (pos-of a))) (vfx-burnout (aref p 0) (aref p 2) t)))
   (during (0 272) (yama-nishi-look a v cf)))
 
-;;; ---------------------------------------------------------------- 南 火火十万億死大葬陣 DAISOJIN (§15.3.3, 192 f)
-(defun-fast yama-minami-look (a v cf)
-  "南's look at cinematic frame CF: the ember crack from where the blade went in to the victim (f50, run out in 6 f); the dead breaking
-the floor round him (L1 at his feet through a stand-in hazard, then one more every 5 f to 8 bodies, §15.3.4 flag 3: YA-DEAD, cap 8);
-the pile climbing over him from f96 (L5, a stand-in hazard), an arm clawing out of its crest; it bursts to ash from f140. A look; 0 B."
+;;; ---------------------------------------------------------------- 南 火火十万億死大葬陣 DAISOJIN (§15.3.3, §36: 240 f)
+;;; §36 (the user, 2026-11-22: 「南的毀魂技我希望呈現從地底湧出數以萬計的骷髏，並從四面八方將對手逐漸拖入地下覆蓋」): the dead surge
+;;; out of the whole plaza and drag the victim under from every side. "Tens of thousands" in the 16384-vertex toon batch (render.c
+;;; R_FX_VERTS) is tiers: near, bone hands out of the floor on his joints and the vector climbers (%YA-CLIMBER) behind him; mid, a skull
+;;; face (bone cranium, two ink sockets, a jaw) with one or two raised three-fingered bone hands (%YA-WIGHT); far, a skull and on half a raised hand; under
+;;; them the charcoal ground they boil out of (one flat annulus, its uv on the plaza). The sea's spots are a fixed polar grid round the victim (HASH01: nothing
+;;; flickers), culled to the lens, the mid tier and the whole sea each capped by vertex count (+YA-SEA-MID+ / +YA-SEA-ALL+). The victim
+;;; sinks by his root height (pos y, given back at CINE-END), so the plaza's floor cuts him like Doré's mire (the Inferno VIII reference).
+(declaim (type f32vec *ya-sea* *ya-web*))
+(defvar *ya-sea* (make-f32 1) "南's cinematic: [0] the victim's drawn height (m), kept at f0 so no look reads a boxed struct float.")
+(defvar *ya-web* (make-f32 (* 13 4 2)) "南's crack web: each of its 13 rays' four points (x z), written by the look as it draws them.")
+(defconstant +ya-sea-mid+ 3600 "南's sea: the mid tier's dead are drawn while the sea has used fewer toon verts than this (then specks).")
+(defconstant +ya-sea-all+ 8000 "南's sea: nothing more once it has used this many toon verts (6600 once the mound stands, 4000 in the wide; 16384 a frame for every toon look).")
+
+(defmacro %ya-ease (u) "Smoothstep of U clamped to 0..1 (a single-float form; 0 B)."
+  `(let ((%e (f-clamp ,u 0f0 1f0))) (declare (single-float %e)) (* %e %e (- 3f0 (* 2f0 %e)))))
+
+(defmacro %ya-sink (h c)
+  "南's victim's root height at cinematic frame C (a single-float form) for his drawn height H (§36, round 2: the sink must be
+visible): 0 until f72, -0.6 m by f116 (ankles, then knees under), his waist (-H/2) by f150, his chest (-0.7 H) by f170, only his head
+and the reaching hand left (-(H - 0.35)) by f180, under (-(H + 0.15)) by f192, held there; 0 again from f206 (lying, in the wide). A
+macro (0 B)."
+  `(let ((%h ,h) (%c ,c))
+     (declare (single-float %h %c))
+     (cond ((< %c 72f0) 0f0)
+           ((< %c 116f0) (* -0.6f0 (%ya-ease (/ (- %c 72f0) 44f0))))
+           ((< %c 150f0) (- -0.6f0 (* (- (* 0.5f0 %h) 0.6f0) (%ya-ease (/ (- %c 116f0) 34f0)))))
+           ((< %c 170f0) (- (* -0.5f0 %h) (* 0.2f0 %h (%ya-ease (/ (- %c 150f0) 20f0)))))
+           ((< %c 180f0) (- (* -0.7f0 %h) (* (- (* 0.3f0 %h) 0.35f0) (%ya-ease (/ (- %c 170f0) 10f0)))))
+           ((< %c 206f0) (- 0.35f0 %h (* 0.5f0 (%ya-ease (/ (- %c 180f0) 12f0)))))
+           (t 0f0))))
+
+(defmacro %ya-skull (x y z r k seed jaw crx cry crz cux cuy cuz)
+  "A skull face toward the lens (§36, round 2, after Ep 372 / ch. 508: two sockets and a jaw, never one centred dot): an ASH (bone) cranium
+of radius R at (X Y Z), two INK sockets side by side along the camera's right (CR), a little above its middle, and, when JAW, an ASH jaw
+hanging below it along the camera's down (CU = the camera's up). Single-float forms (JAW a boolean form); 18 toon verts (+12 the jaw); 0 B."
+  `(let* ((%x ,x) (%y ,y) (%z ,z) (%r ,r) (%k ,k) (%sd ,seed) (%crx ,crx) (%cry ,cry) (%crz ,crz) (%cux ,cux) (%cuy ,cuy) (%cuz ,cuz))
+     (declare (single-float %x %y %z %r %k %sd %crx %cry %crz %cux %cuy %cuz))
+     (fx-disc %x %y %z %r 0.06f0 %sd +pal-ash+ %k :push 0.12f0)
+     (when ,jaw
+       (fx-shard (- %x (* 0.95f0 %r %cux)) (- %y (* 0.95f0 %r %cuy)) (- %z (* 0.95f0 %r %cuz)) (- %cux) (- %cuy) (- %cuz) (* 0.95f0 %r)
+                 (* 0.55f0 %r) 0.04f0 (+ %sd 3f0) +pal-ash+ %k :push 0.13f0))
+     (dotimes (%e 2)
+       (let ((%o (if (= %e 0) -0.4f0 0.4f0)))
+         (declare (single-float %o))
+         (fx-disc (+ %x (* %o %r %crx) (* 0.05f0 %r %cux)) (+ %y (* %o %r %cry) (* 0.05f0 %r %cuy)) (+ %z (* %o %r %crz) (* 0.05f0 %r %cuz))
+                  (* 0.27f0 %r) 0.05f0 (+ %sd 1f0 (i->f %e)) +pal-ink+ %k :push 0.2f0)))))
+
+(defmacro %ya-bone-hand (x y z dx dy dz len w k seed tx ty tz fingers)
+  "A bone arm reaching (§36, round 2: raised open hands with fingers everywhere): an ASH stroke from (X Y Z) LEN m along the unit (DX DY
+DZ), half-width W, a small ASH palm at its end and FINGERS (2 or 3) ASH fingers splayed along the unit T. Single-float forms (FINGERS a
+fixnum form); 18 toon verts + 12 a finger; 0 B."
+  `(let* ((%x ,x) (%y ,y) (%z ,z) (%dx ,dx) (%dy ,dy) (%dz ,dz) (%l ,len) (%w ,w) (%k ,k) (%sd ,seed) (%tx ,tx) (%ty ,ty) (%tz ,tz)
+          (%hx (+ %x (* %l %dx))) (%hy (+ %y (* %l %dy))) (%hz (+ %z (* %l %dz))) (%n ,fingers))
+     (declare (single-float %x %y %z %dx %dy %dz %l %w %k %sd %tx %ty %tz %hx %hy %hz) (fixnum %n))
+     (fx-shard (+ %x (* 0.4f0 %l %dx)) (+ %y (* 0.4f0 %l %dy)) (+ %z (* 0.4f0 %l %dz)) %dx %dy %dz %l %w 0.04f0 %sd +pal-ash+ %k :push 0.1f0)
+     (fx-disc %hx %hy %hz (* 1.6f0 %w) 0.05f0 (+ %sd 1f0) +pal-ash+ %k :push 0.12f0)
+     (dotimes (%g %n)
+       (let* ((%e (if (= %n 2) (if (= %g 0) -0.35f0 0.35f0) (* 0.5f0 (- (i->f %g) 1f0))))
+              (%fx (+ %dx (* %e %tx))) (%fy (+ %dy (* %e %ty))) (%fz (+ %dz (* %e %tz)))
+              (%fl (f-max 0.01f0 (f-sqrt (+ (* %fx %fx) (* %fy %fy) (* %fz %fz))))) (%f (* 0.3f0 %l)))
+         (declare (single-float %e %fx %fy %fz %fl %f))
+         (setf %fx (/ %fx %fl) %fy (/ %fy %fl) %fz (/ %fz %fl))
+         (fx-shard (+ %hx (* 0.4f0 %f %fx)) (+ %hy (* 0.4f0 %f %fy)) (+ %hz (* 0.4f0 %f %fz)) %fx %fy %fz %f (* 0.55f0 %w) 0.04f0
+                   (+ %sd 2f0 (i->f %g)) +pal-ash+ %k :push 0.13f0)))))
+
+(defmacro %ya-wight (x y z vx vz sc k seed ph arms lean jaw crx cry crz cux cuy cuz)
+  "One of 南's sea (§36, round 2): standing at (X Y Z) (Y < 0: still coming out of the ground), its skull (%YA-SKULL) 0.4 SC m up, ARMS
+(0-2) bone arms with three-fingered hands (%YA-BONE-HAND) raised from its shoulders, leaning LEAN toward the unit (VX VZ) on the ground
+(the victim; more as the sea flows in), PH swinging them. Single-float forms (ARMS a fixnum, JAW a boolean form); 18-30 toon verts + 54
+an arm; 0 B."
+  `(let* ((%x ,x) (%y ,y) (%z ,z) (%vx ,vx) (%vz ,vz) (%sc ,sc) (%k ,k) (%sd ,seed) (%ph ,ph) (%ln ,lean) (%tx (- %vz)) (%tz %vx))
+     (declare (single-float %x %y %z %vx %vz %sc %k %sd %ph %ln %tx %tz))
+     (%ya-skull (+ %x (* 0.08f0 %sc %vx)) (+ %y (* 0.4f0 %sc)) (+ %z (* 0.08f0 %sc %vz)) (* 0.085f0 %sc) %k %sd ,jaw
+                ,crx ,cry ,crz ,cux ,cuy ,cuz)
+     (dotimes (%b ,arms)
+       (let* ((%sg (if (= %b 0) 1f0 -1f0)) (%w (* %sg (+ 0.25f0 (* 0.15f0 (f-sin (+ %ph (* 2.1f0 %sg)))))))
+              (%dx (+ (* %ln %vx) (* %w %tx))) (%dy (+ 0.9f0 (* 0.2f0 (f-sin (* 0.7f0 %ph))))) (%dz (+ (* %ln %vz) (* %w %tz)))
+              (%l (f-max 0.01f0 (f-sqrt (+ (* %dx %dx) (* %dy %dy) (* %dz %dz))))))
+         (declare (single-float %sg %w %dx %dy %dz %l))
+         (setf %dx (/ %dx %l) %dy (/ %dy %l) %dz (/ %dz %l))
+         (%ya-bone-hand (+ %x (* 0.11f0 %sg %sc %tx)) (+ %y (* 0.3f0 %sc)) (+ %z (* 0.11f0 %sg %sc %tz)) %dx %dy %dz (* 0.38f0 %sc)
+                        (* 0.022f0 %sc) %k (+ %sd 5f0 (* 4f0 %sg)) %tx 0f0 %tz 3)))))
+
+(defun-fast yama-minami-sea (a v cf)
+  "南's sea at cinematic frame CF (§36): a polar grid round the victim, rings 0.55 m apart out to 10 m, the dead 0.55 m apart round each
+(about 1200 spots); each comes out of the ground over 9 f when the front passes it (the front closes from 10 m at f62 to 0.6 m at f96:
+from the outside in), reaching toward him; drawn in and round (a spiral, the inner ones all the way into the mound) over f160-200, their
+arms leaning in harder; back into the ground over f208-236, each at its own frame. Left out: a clearing of 1.2 m round the old man and
+nothing past him (he walks out of it, his back to it), outside the arena, within 5 m of the lens, out of the frame. Mid tier (a skull with
+a jaw, one or two raised hands, %YA-WIGHT) while near enough to read (the half frame height there under 2.5 m) and under +YA-SEA-MID+;
+then the far tier to +YA-SEA-ALL+ (6600 once the mound stands, 4000 from f200): a skull (two from above), a raised two-fingered hand on half
+of them. A look; 0 B."
   (declare (fixnum cf))
-  (ya-dead-reset)
   (%ya-line (px pz qx qz fx fz rx rz d) a v
-    (let ((rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))))
-      (declare (single-float rdt seed))
-      (when (>= cf 50)                                    ; the crack from the blade (4.1 m short of the victim) to him
-        (let* ((l (* 4.1f0 (f-min 1f0 (/ (i->f (- cf 49)) 6f0)))) (x0 (- qx (* 4.1f0 fx))) (z0 (- qz (* 4.1f0 fz)))
-               (x1 (+ x0 (* l fx))) (z1 (+ z0 (* l fz))))
-          (declare (single-float l x0 z0 x1 z1))
-          (toon-ground-seg x0 z0 x1 z1 0.012f0 0.06f0 1f0 0.5f0 (+ seed 1f0) 0.35f0 (toon-a +pal-ink+ 0.95f0))
-          (toon-ground-seg x0 z0 x1 z1 0.016f0 0.018f0 0.3f0 0.3f0 (+ seed 2f0) 0.3f0 (toon-a +pal-ember+ 0.95f0))))
-      (when (and (<= 56 cf) (< cf 100))                   ; L1 at his feet: the crack star and three of the dead
-        (let ((hz *ya-chz*))                              ; (its place is set at f56: YAMA-MINAMI-STAND-INS; a float slot's SETF boxes)
-          (setf (hazard-age hz) (min 16 (- cf 56)))
-          (yama-hands-look hz rdt)))
-      (when (and (<= 61 cf) (< cf 112))                   ; one more of the dead every 5 f, clawing at his knees and sword arm
-        (dotimes (j 5)
-          (let ((sp (+ 61 (* 5 j))))
-            (declare (fixnum sp))
-            (when (<= sp cf)
-              (let* ((f (i->f j)) (an (+ 0.9f0 (* 1.2566f0 f))) (c (f-cos an)) (s (f-sin an)) (r (if (evenp j) 0.55f0 0.7f0)))
-                (declare (single-float f an c s r))
-                (%ya-at (+ qx (* r c)) (f-min 0.3f0 (+ -0.6f0 (* 0.15f0 (i->f (- cf sp))))) (+ qz (* r s)) (f-atan2 c s))
-                (ya-dead :sk-grab (min 40 (+ 8 (- cf sp)))))))))
-      (when (and (<= 96 cf) (< cf 172))                   ; L5: the pile closing over him, held, bursting at f140
-        (let ((hz *ya-cpz*))
-          (setf (hazard-age hz) (cond ((< cf 110) (- cf 96)) ((< cf 140) 14) (t (+ 16 (floor (- cf 140) 2)))))
-          (yama-pile-look hz rdt)))
-      (when (and (<= 126 cf) (< cf 140))                  ; an arm last, out of the crest
-        (%ya-at qx 1.0f0 qz (f-atan2 fx fz))
-        (ya-dead :sk-grab (+ 8 (- cf 126))))))
+    (with-cam (crx cry crz cux cuy cuz)
+    (let* ((c (i->f cf)) (e (camera-eye *camera*)) (cw (camera-forward *camera*))
+           (ex (aref e 0)) (ey (aref e 1)) (ez (aref e 2)) (cfx (aref cw 0)) (cfy (aref cw 1)) (cfz (aref cw 2))
+           (tn (/ (f-sin (* 0.5f0 *lens-fov*)) (f-cos (* 0.5f0 *lens-fov*))))
+           (cone (/ 1f0 (f-sqrt (+ 1f0 (* 6.25f0 tn tn)))))   ; (the frame's corner: 2.5 x the vertical half, a phone's widened lens too)
+           (w (%ya-ease (/ (- c 160f0) 40f0))) (lean (+ 0.45f0 (* 0.8f0 w)))
+           (k (* 0.98f0 (- 1f0 (%ya-ease (/ (- c 226f0) 12f0))))) (dr (drawing-no)) (used 0) (cap (cond ((>= cf 200) 3200) ((>= cf 180) 5400) (t +ya-sea-all+))))
+      (declare (type f32vec e cw) (single-float c ex ey ez cfx cfy cfz tn cone w lean k dr) (fixnum used cap))
+      (when (> k 0.02f0)
+        (dotimes (j 18)
+          (let* ((fj (i->f j)) (rj (+ 0.6f0 (* 0.55f0 fj))) (m (f->i (/ (* 6.2832f0 rj) 0.55f0))))
+            (declare (single-float fj rj) (fixnum m))
+            (dotimes (i m)
+              (let* ((fi (i->f i)) (h1 (hash01 (+ fi (* 31f0 fj)) 3.7f0)) (h2 (hash01 (+ fi (* 31f0 fj)) 8.3f0))
+                     (r0 (+ rj (* 0.36f0 (- h2 0.5f0)))) (fr (+ 62f0 (* 34f0 (- 1f0 (/ (- r0 0.6f0) 9.4f0))) (* 5f0 h1)))
+                     (u (f-clamp (/ (- c fr) 9f0) 0f0 1f0))
+                     (down (* 0.75f0 (%ya-ease (/ (- c 208f0 (* 18f0 h2)) 10f0)))))   ; (back in, each at its own frame f208-236)
+                (declare (single-float fi h1 h2 r0 fr u down))
+                (when (and (> u 0f0) (< down 0.74f0))
+                  (let* ((rr (f-max 0f0 (- r0 (* w (f-min r0 (+ 1.6f0 (* 0.2f0 r0)))))))
+                         (an (+ (* 6.2832f0 (/ (+ fi (* 0.5f0 (i->f (logand j 1))) (* 0.4f0 h1)) (i->f m))) (/ (* 1.3f0 w) (+ 1f0 (* 0.3f0 r0)))))
+                         (ca (f-cos an)) (sa (f-sin an)) (x (+ qx (* rr ca))) (z (+ qz (* rr sa)))
+                         (y (- (* -0.5f0 (- 1f0 (* u (- 2f0 u)))) down))
+                         (sc (* (+ 0.9f0 (* 0.3f0 h2)) (f-clamp (/ (- rr 0.35f0) 0.4f0) 0f0 1f0)))
+                         (gx (- x ex)) (gy (- 0.3f0 ey)) (gz (- z ez)) (de (f-max 0.01f0 (f-sqrt (+ (* gx gx) (* gy gy) (* gz gz))))))
+                    (declare (single-float rr an ca sa x z y sc gx gy gz de))
+                    (when (and (> sc 0.05f0)
+                               (> rr (cond ((< cf 160) 1.3f0) ((< cf 186) 0.8f0) (t 0f0)))   ; (his own dead first, his head last)
+                               (> (f-hypot (- x px) (- z pz)) 1.2f0)                         ; the old man's clearing
+                               (< (- (+ (* (- x qx) fx) (* (- z qz) fz))) (+ d 0.6f0))     ; nothing past him
+                               (< (+ (* x x) (* z z)) 200f0)                                  ; inside the arena (14.1 m)
+                               (> de 5f0)                                                     ; not near the lens
+                               (> (+ (* gx cfx) (* gy cfy) (* gz cfz)) (- (* cone de) 0.7f0)))   ; in the frame
+                      (if (and (< used +ya-sea-mid+) (< (* de tn) 2.5f0))
+                          (let ((arms (cond ((< h1 0.1f0) 0) ((< h1 0.8f0) 1) (t 2))))
+                            (declare (fixnum arms))
+                            (%ya-wight x y z (- ca) (- sa) sc k (+ (* 7f0 fi) fj) (+ (* 0.8f0 dr) (* 6.2832f0 h2)) arms lean t
+                                       crx cry crz cux cuy cuz)
+                            (incf used (+ 30 (* 54 arms))))
+                          (when (< used cap)                                             ; far: a skull, a raised hand on a third
+                            (%ya-skull x (+ y (* 0.36f0 sc)) z (* 0.09f0 sc) k (+ (* 7f0 fi) fj) nil crx cry crz cux cuy cuz)
+                            (incf used 18)
+                            (when (< cfy -0.6f0)                                        ; (from above: a second skull)
+                              (%ya-skull (- x (* 0.27f0 sa)) (+ y (* 0.3f0 sc)) (+ z (* 0.27f0 ca)) (* 0.09f0 sc) k (+ (* 7f0 fi) fj 20f0) nil
+                                         crx cry crz cux cuy cuz)
+                              (incf used 18))
+                            (when (< h1 0.5f0)
+                              (let* ((hx (+ (* -0.5f0 ca lean) (* 0.3f0 (- h2 0.3f0) (- sa)))) (hz (+ (* -0.5f0 sa lean) (* 0.3f0 (- h2 0.3f0) ca)))
+                                     (hl (f-sqrt (+ (* hx hx) 0.81f0 (* hz hz)))))
+                                (declare (single-float hx hz hl))
+                                (%ya-bone-hand (+ x (* 0.1f0 sa)) (+ y (* 0.3f0 sc)) (- z (* 0.1f0 ca)) (/ hx hl) (/ 0.9f0 hl) (/ hz hl)
+                                               (* 0.4f0 sc) (* 0.024f0 sc) k (+ (* 7f0 fi) fj 9f0) (- sa) 0f0 ca 2))
+                              (incf used 42))))))))))))
+      used)))
   nil)
 
-(defun yama-minami-stand-ins (v)
-  "南's f0: the stand-in hazards (L1's hands, L5's pile) at the victim's feet, who does not move in this cinematic."
-  (let ((q (pos-of v)))
-    (dolist (hz (list *ya-chz* *ya-cpz*)) (setf (hazard-x hz) (aref q 0) (hazard-z hz) (aref q 2) (hazard-delay hz) 0 (hazard-age hz) 0))))
+(defun-fast yama-minami-web (a v cf)
+  "南's crack web from where the blade went in (f51, §36: 「from the blade across the whole plaza」): 13 rays 6-13 m long racing out in 9 f
+(three kinked INK segments with an EMBER hairline each, a branch off each kink), then the chords between neighbouring rays' kinks (the
+web) over 4 f; the old crack to the victim kept. Under the sea's ground until it sinks back. A look; 0 B."
+  (declare (fixnum cf))
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let* ((c (i->f cf)) (bx (- qx (* 4.1f0 fx))) (bz (- qz (* 4.1f0 fz))) (g (f-min 1f0 (/ (- c 50f0) 9f0))) (wb *ya-web*)
+           (l1 (* 4.1f0 (f-min 1f0 (/ (- c 49f0) 6f0)))))
+      (declare (single-float c bx bz g l1) (type f32vec wb))
+      (toon-ground-seg bx bz (+ bx (* l1 fx)) (+ bz (* l1 fz)) 0.012f0 0.06f0 1f0 0.5f0 (+ qx 1f0) 0.35f0 (toon-a +pal-ink+ 0.95f0))
+      (toon-ground-seg bx bz (+ bx (* l1 fx)) (+ bz (* l1 fz)) 0.016f0 0.018f0 0.3f0 0.3f0 (+ qx 2f0) 0.3f0 (toon-a +pal-ember+ 0.95f0))
+      (dotimes (i 13)
+        (let* ((fi (i->f i)) (th (+ (* 0.4833f0 fi) (* 0.35f0 (hash01 fi 2.9f0)))) (l (+ 6f0 (* 7f0 (hash01 fi 6.1f0))))
+               (ct (f-cos th)) (st (f-sin th)) (gi (* 3f0 (f-clamp (- (* 1.15f0 g) (* 0.15f0 (hash01 fi 4.4f0))) 0f0 1f0)))
+               (o (* 8 i)) (x0 bx) (z0 bz))
+          (declare (single-float fi th l ct st gi x0 z0) (fixnum o))
+          (setf (aref wb o) bx (aref wb (1+ o)) bz)
+          (dotimes (q 3)
+            (let* ((fk (i->f q)) (s1 (/ (+ fk 1f0) 3f0)) (jt (if (= q 2) 0f0 (* 0.2f0 l(- (hash01 (+ fi (* 3f0 fk)) 7.7f0) 0.5f0))))
+                   (x1 (- (+ bx (* s1 l ct)) (* jt st))) (z1 (+ bz (* s1 l st) (* jt ct))) (u (f-clamp (- gi fk) 0f0 1f0))
+                   (wd (* 0.055f0 (- 1f0 (* 0.28f0 fk)))) (sd (+ fi (* 3f0 fk) 40f0)))
+              (declare (single-float fk s1 jt x1 z1 u wd sd))
+              (setf (aref wb (+ o 2 (* 2 q))) x1 (aref wb (+ o 3 (* 2 q))) z1)
+              (when (> u 0f0)
+                (let ((xe (+ x0 (* u (- x1 x0)))) (ze (+ z0 (* u (- z1 z0)))))
+                  (declare (single-float xe ze))
+                  (toon-ground-seg x0 z0 xe ze 0.012f0 wd 1f0 0.5f0 sd 0.35f0 (toon-a +pal-ink+ 0.95f0))
+                  (toon-ground-seg x0 z0 xe ze 0.016f0 (* 0.3f0 wd) 0.3f0 0.3f0 (+ sd 30f0) 0.3f0 (toon-a +pal-ember+ 0.95f0))
+                  (when (and (>= u 1f0) (< q 2))                ; a branch off the kink
+                    (let* ((ba (+ th (if (> (hash01 sd 1.3f0) 0.5f0) 0.7f0 -0.7f0))) (bl (* 0.18f0 l (+ 0.5f0 (hash01 sd 2.3f0)))))
+                      (declare (single-float ba bl))
+                      (toon-ground-seg x1 z1 (+ x1 (* bl (f-cos ba))) (+ z1 (* bl (f-sin ba))) 0.012f0 (* 0.6f0 wd) 1f0 0.3f0 (+ sd 60f0) 0.35f0
+                                       (toon-a +pal-ink+ 0.95f0))))))
+              (setf x0 x1 z0 z1)))))
+      (when (> c 58f0)                                    ; the chords between neighbouring rays' kinks
+        (let ((u (f-min 1f0 (/ (- c 58f0) 4f0))))
+          (declare (single-float u))
+          (dotimes (i 13)
+            (dotimes (q 2)
+              (let ((sd (+ (i->f i) (* 13f0 (i->f q)) 90f0)))
+                (declare (single-float sd))
+                (when (> (hash01 sd 5.9f0) 0.35f0)
+                  (let* ((o (+ (* 8 i) 2 (* 2 q))) (o2 (+ (* 8 (mod (1+ i) 13)) 2 (* 2 q)))
+                         (xa (aref wb o)) (za (aref wb (1+ o))) (xb (+ xa (* u (- (aref wb o2) xa)))) (zb (+ za (* u (- (aref wb (1+ o2)) za)))))
+                    (declare (fixnum o o2) (single-float xa za xb zb))
+                    (toon-ground-seg xa za xb zb 0.012f0 0.035f0 1f0 0.4f0 sd 0.35f0 (toon-a +pal-ink+ 0.95f0))
+                    (toon-ground-seg xa za xb zb 0.016f0 0.011f0 0.3f0 0.3f0 (+ sd 50f0) 0.3f0 (toon-a +pal-ember+ 0.9f0)))))))))))
+  nil)
+
+(defun-fast yama-minami-look (a v cf)
+  "南's look at cinematic frame CF (§36): the crack web from the blade (YAMA-MINAMI-WEB, f51 on); the charcoal ground of the sea (its uv the
+plaza's x z, so its field is the distance from him) closing in from 10 m to him over f62-96 with an INK ring and an EMBER hairline on its front and dust thrown up along it, ragged as it sinks back; the sea (YAMA-MINAMI-SEA); on him eight bone hands out of the floor, each
+under a skull breaking it (from f86, one every 6 f, none from the lens's side: the floor is seen to cut him), reaching to his knees, waist,
+sword hand, arms and chest, each gone once its joint is under (round 2: the posed dead read as boulders at his shins), and 14 of the
+bone dead (%YA-WIGHT) behind him (f96-186; on the lens's side only from f116; drawn in over the last beat); the mound of the bone dead over the spot (round 2b: not the tower's ink climbers) (f180, 1.6 m by
+f196) with one last hand out of its crest (f188-206), the ember light and cracks under it at the Konpaku (f200), crumbling to ash as it
+sinks back (f206-228); ash falling over the plaza from f200. A look; 0 B."
+  (declare (fixnum cf))
+  (when (>= cf 50) (yama-minami-web a v cf))
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let* ((c (i->f cf)) (rdt (aref *ya-rdt* 0)) (seed (+ qx (* 3f0 qz))) (dr (drawing-no)) (sink (let ((q (pos-of v))) (declare (type f32vec q)) (aref q 1)))
+           (w (%ya-ease (/ (- c 160f0) 40f0))) (k (* 0.98f0 (- 1f0 (%ya-ease (/ (- c 216f0) 10f0)))))
+           (rf (f-max 0.2f0 (- 10f0 (* 9.4f0 (f-clamp (/ (- c 62f0) 34f0) 0f0 1f0))))))   ; the front (the sea's rise frame inverted)
+      (declare (single-float c rdt seed dr sink w k rf))
+      (when (and (<= 62 cf) (< cf 238))                   ; the ground the dead boil out of
+        (let ((ri (f-max 0f0 (- rf 0.3f0))) (pk (toon-a +pal-black-smoke+ (* 0.95f0 k))) (sd (+ 1061f0 (f-mod (f-abs seed) 100f0)))
+              (wb (+ 0.3f0 (* 0.9f0 (%ya-ease (/ (- c 212f0) 20f0))))))   ; (ragged as it sinks back)
+          (declare (single-float ri pk sd wb))            ; (charcoal; its uv the ground's x z over 10.7 m, so the field is the
+          (with-fx-verts (o2 o :toon 288)                 ;  distance from him and the noise lies on the plaza in 2-D: a
+            (dotimes (sg 48)                              ;  sector's uv runs only across its radii, which draws bands)
+              (let* ((a0 (* 0.1309f0 (i->f sg))) (a1 (+ a0 0.1309f0)) (c0 (f-cos a0)) (s0 (f-sin a0)) (c1 (f-cos a1)) (s1 (f-sin a1))
+                     (iu (/ ri 10.7f0)) (ou (/ 10.4f0 10.7f0)))
+                (declare (single-float a0 a1 c0 s0 c1 s1 iu ou))
+                (vtx (+ qx (* ri c0)) 0.03f0 (+ qz (* ri s0)) (* iu c0) (* iu s0) 1f0 sd wb pk)
+                (vtx (+ qx (* 10.4f0 c0)) 0.03f0 (+ qz (* 10.4f0 s0)) (* ou c0) (* ou s0) 1f0 sd wb pk)
+                (vtx (+ qx (* 10.4f0 c1)) 0.03f0 (+ qz (* 10.4f0 s1)) (* ou c1) (* ou s1) 1f0 sd wb pk)
+                (vtx (+ qx (* ri c0)) 0.03f0 (+ qz (* ri s0)) (* iu c0) (* iu s0) 1f0 sd wb pk)
+                (vtx (+ qx (* 10.4f0 c1)) 0.03f0 (+ qz (* 10.4f0 s1)) (* ou c1) (* ou s1) 1f0 sd wb pk)
+                (vtx (+ qx (* ri c1)) 0.03f0 (+ qz (* ri s1)) (* iu c1) (* iu s1) 1f0 sd wb pk))))))
+      (when (and (< 62 cf) (< cf 98))                     ; its front: ink, an ember hairline, dust thrown up
+        (%tring qx 0.03f0 qz rf 0.09f0 +pal-ink+ 0.95f0 (+ seed 3f0))
+        (%tring qx 0.04f0 qz (+ rf 0.06f0) 0.022f0 +pal-ember+ 0.9f0 (+ seed 4f0))
+        (dotimes (i (if (> rf 2f0) (n-of 90f0 rdt) 0))
+          (let* ((an (rnd-range 0f0 6.2832f0)) (e (camera-eye *camera*)))
+            (declare (single-float an) (type f32vec e))
+            (when (> (f-hypot (- (+ qx (* rf (f-cos an))) (aref e 0)) (- (+ qz (* rf (f-sin an))) (aref e 2))) 6f0)   ; (none near the lens)
+            (%t-blob (+ qx (* rf (f-cos an))) 0.1f0 (+ qz (* rf (f-sin an))) (* -0.6f0 (f-cos an)) (rnd-range 0.3f0 1.2f0) (* -0.6f0 (f-sin an))
+                     (rnd-range 0.4f0 0.7f0) (rnd-range 0.12f0 0.22f0) -0.2f0 0.25f0 +pal-dust+)))))
+      (when (>= cf 62) (yama-minami-sea a v cf))
+      (when (and (<= 86 cf) (< cf 196))                   ; bone hands out of the floor on his knees, waist, sword arm, arms, chest
+        (with-cam (crx cry crz cux cuy cuz)               ; (round 2: none from the lens's side, so the floor is seen to cut him;
+          (let* ((jm (model-joints (model v))) (hp *ya-ct*) (e (camera-eye *camera*))   ;  one every 6 f; dropped when the joint is under)
+                 (be (f-atan2 (- (aref e 2) qz) (- (aref e 0) qx))))
+            (declare (type f32vec jm hp e) (single-float be))
+            (dotimes (i 8)
+              (let* ((fi (i->f i)) (u (f-clamp (/ (- c 86f0 (* 6f0 fi)) 8f0) 0f0 1f0)))
+                (declare (single-float fi u))
+                (when (> u 0f0)
+                  (joint-point! hp jm (case i (0 (ji :shin-r)) (1 (ji :shin-l)) (2 (ji :pelvis)) (3 (ji :hand-r)) (4 (ji :lower-arm-l))
+                                        (5 (ji :upper-arm-r)) (6 (ji :upper-arm-l)) (t (ji :chest)))
+                                0f0 0f0 0f0)
+                  (let* ((an (+ be 0.75f0 (* 0.68f0 fi))) (ax (+ qx (* 0.6f0 (f-cos an)))) (az (+ qz (* 0.6f0 (f-sin an))))
+                         (jx (aref hp 0)) (jy (aref hp 1)) (jz (aref hp 2))
+                         (dx (- jx ax)) (dy (- jy 0.08f0)) (dz (- jz az)) (l (f-max 0.05f0 (f-sqrt (+ (* dx dx) (* dy dy) (* dz dz)))))
+                         (hl (f-max 0.01f0 (f-hypot dx dz))))
+                    (declare (single-float an ax az jx jy jz dx dy dz l hl))
+                    (when (> jy 0.15f0)
+                      (%ya-skull ax 0.07f0 az 0.085f0 0.98f0 (+ seed 40f0 fi) nil crx cry crz cux cuy cuz)
+                      (%ya-bone-hand ax 0.08f0 az (/ dx l) (/ dy l) (/ dz l) (* u (- l 0.08f0)) 0.03f0 0.98f0 (+ seed 50f0 (* 5f0 fi))
+                                     (/ (- dz) hl) 0f0 (/ dx hl) 3)))))))))
+      (with-cam (crx cry crz cux cuy cuz)                 ; (round 2b: the climbers here are the sea's bone dead, not the tower's ink
+        (when (and (<= 96 cf) (< cf 186))                 ;  climbers, which read as black bombs on the climax frames)
+          (let* ((e (camera-eye *camera*)) (ux (- (aref e 0) qx)) (uz (- (aref e 2) qz)) (ul (f-max 0.01f0 (f-hypot ux uz))))
+            (declare (type f32vec e) (single-float ux uz ul))   ; 14 of the dead reaching in from every side behind him, drawn in at the end
+            (dotimes (i 14)
+              (let* ((fi (i->f i)) (h (hash01 fi 5.3f0)) (fr (+ 96f0 (* 2f0 (i->f (mod (* 5 i) 14))))) (u (f-clamp (/ (- c fr) 10f0) 0f0 1f0))
+                     (an (+ (* 0.4488f0 fi) (* 0.3f0 h))) (ca (f-cos an)) (sa (f-sin an)))
+                (declare (single-float fi h fr u an ca sa))
+                (when (and (> u 0f0) (or (>= cf 116) (< (/ (+ (* ca ux) (* sa uz)) ul) 0.7f0)))   ; (not between him and the lens yet)
+                  (let* ((rr (* (+ 1.0f0 (* 0.5f0 h)) (- 1f0 (* 0.6f0 w))))
+                         (y (+ (* -0.8f0 (- 1f0 (* u (- 2f0 u)))) -0.05f0 (* -0.2f0 h) (* 0.3f0 sink))))
+                    (declare (single-float rr y))
+                    (%ya-wight (+ qx (* rr ca)) y (+ qz (* rr sa)) (- ca) (- sa) (+ 1.15f0 (* 0.2f0 h)) 0.98f0 (+ seed (* 11f0 fi))
+                               (+ (* 0.9f0 dr) (* 6.2832f0 h)) 2 1.0f0 t crx cry crz cux cuy cuz)))))))
+        (when (and (<= 180 cf) (< cf 230))                ; the mound over the spot: rings of the bone dead heaped up, every arm
+          (let* ((e1 (%ya-ease (/ (- c 180f0) 16f0))) (crum (f-clamp (/ (- c 206f0) 22f0) 0f0 1f0)) (h (* 1.6f0 e1))   ;  reaching up and in to
+                 (yc (* h (- 1f0 (* 1.15f0 crum)))) (ce (camera-eye *camera*)) (ex (- (aref ce 0) qx)) (ez (- (aref ce 2) qz)))   ;  the crest, the
+            (declare (single-float e1 crum h yc ex ez) (type f32vec ce))                                                   ;  near half drawn;
+            (when (> h 0.1f0)                                                                                               ;  crumbling from the top
+              (dotimes (j 5)
+                (let* ((fj (i->f j)) (y0 (* h (/ (+ fj 0.2f0) 5f0))) (q (/ y0 h)) (r (+ (* 1.1f0 (- 1f0 q) (+ 1f0 (* 0.3f0 q))) 0.12f0))
+                       (m (max 2 (f->i (/ (* 6.2832f0 r) 0.42f0)))))
+                  (declare (single-float fj y0 q r) (fixnum m))
+                  (dotimes (i m)
+                    (let* ((fi (i->f i)) (hs (hash01 (+ fi (* 7f0 fj)) (+ seed 5f0)))
+                           (an (+ (* 6.2832f0 (/ (+ fi (* 0.5f0 (i->f (logand j 1))) (* 0.3f0 hs)) (i->f m))) (* 1.6f0 (- 1f0 e1) (- 1f0 q))))
+                           (ca (f-cos an)) (sa (f-sin an)) (f (if (> y0 yc) (f-clamp (/ (- y0 yc) (* 0.25f0 h)) 0f0 1f0) 0f0)))
+                      (declare (single-float fi hs an ca sa f))
+                      (when (and (< f 0.98f0) (> (+ (* ca ex) (* sa ez)) (* (if (>= cf 200) -0.2f0 -0.7f0) (f-hypot ex ez))))
+                        (%ya-wight (+ qx (* r ca)) (- y0 (* 0.35f0 (- 1f0 q)) (* 0.8f0 f)) (+ qz (* r sa)) (- ca) (- sa) (+ 0.9f0 (* 0.25f0 hs))
+                                   (* 0.98f0 (- 1f0 f)) (+ seed (* 13f0 fj) fi) (+ (* 0.9f0 dr) (* 6.2832f0 hs)) (if (> hs 0.75f0) 2 1)
+                                   (+ 0.6f0 (* 0.5f0 (- 1f0 q))) t crx cry crz cux cuy cuz)))))))
+          (%ya-tower-ash qx qz h 1.1f0 crum rdt)
+          (when (and (>= cf 188) (< cf 206))              ; one last hand out of its crest
+            (%ya-bone-hand (+ qx (* 0.1f0 rx)) (* 0.9f0 h) (+ qz (* 0.1f0 rz)) (* 0.33f0 rx) 0.89f0 (* 0.33f0 rz) 0.6f0 0.035f0 0.98f0
+                           (+ seed 60f0) fx 0f0 fz 3)))))
+      (when (and (<= 200 cf) (< cf 222))                  ; the Konpaku: ember light and cracks from under the mound
+        (let ((g (- 1f0 (/ (- c 200f0) 22f0))))
+          (declare (single-float g))
+          (%ya-crack-star qx qz 1.1f0 (* 0.98f0 g) 0.98f0 (+ seed 9f0))
+          (%light qx 0.3f0 qz 1f0 0.3f0 0.12f0 5f0 (* 2f0 g) 6)))
+      (when (>= cf 200)                                   ; ash falling over the plaza
+        (dotimes (i (n-of 70f0 rdt))
+          (%t-blob (+ qx (rnd-range -7f0 7f0)) (rnd-range 1.5f0 4.5f0) (+ qz (rnd-range -7f0 7f0)) (rnd-range -0.2f0 0.2f0) -0.35f0
+                   (rnd-range -0.2f0 0.2f0) (rnd-range 1.4f0 2.2f0) (rnd-range 0.04f0 0.09f0) 0.08f0 0.25f0 +pal-ash+)))))
+  nil)
 
 (defun yama-minami-walk (a v)
-  "南's walk, one step (f97 on): he walks away from the victim 0.02 m a frame, his back to him (his place is given back at CINE-END)."
+  "南's walk, one step (f117 on): he walks away from the victim 0.02 m a frame, his back to him (his place is given back at CINE-END)."
   (%ya-line (px pz qx qz fx fz rx rz d) a v
     (let ((p (pos-of a))) (setf (aref p 0) (- px (* 0.02f0 fx)) (aref p 2) (- pz (* 0.02f0 fz))))))
 
-(defcine yama-minami-cine (a v :len 192 :hold 120)
-  "火火十万億死大葬陣 DAISOJIN, the Bankai's 南 Kikon (DUEL_YAMA_CORE §15.3.3, §19): beat 0, the blade upright before his face; close and
-low in front, the incantation, the blade splitting his face, the two-column stamp; from high in front, the blade driven down, an ember
-crack running out to the victim; at the victim on the ground the dead break the floor round him, three then eight, and take his ankles,
-knees and sword arm; in front of the old man, long lens: he has turned his back and walks toward us while far behind him the pile climbs
-over the victim; the Konpaku, unseen by him: the pile bursts; wide and high, the ash falls, the victim lies in the cracks, he walks on."
-  (at 0 (cine-place a v 5.0) (yama-minami-stand-ins v)
+(defun yama-minami-top (a v)
+  "南's f160 shot (§36): high over the victim, looking down 50 deg from the old man's side (round 2: 23 deg off vertical read as
+bubbles; at 50 deg the dead and their raised hands show in profile), the sea flowing in round him. A CINE-CAM with no subject (as
+YAMA-NISHI-TRACK): %KEEP-SUBJECT would move it on a phone."
+  (setf *cine-close* nil *cine-subject* nil)
+  (%ya-line (px pz qx qz fx fz rx rz d) a v
+    (let ((hh (if (portrait-p) 6.6f0 5.6f0)))
+      (declare (single-float hh))
+      (cine-cam (- qx (* 0.84f0 hh fx)) hh (- qz (* 0.84f0 hh fz)) qx 0.3f0 qz))))
+
+(defcine yama-minami-cine (a v :len 240 :hold 150)
+  "火火十万億死大葬陣 DAISOJIN, the Bankai's 南 Kikon (DUEL_YAMA_CORE §15.3.3, §19; re-boarded §36, the user 2026-11-22: 「南的毀魂技我希望
+呈現從地底湧出數以萬計的骷髏，並從四面八方將對手逐漸拖入地下覆蓋」): beat 0, the blade upright before his face; close and low in front,
+the incantation, the blade splitting his face, the two-column stamp; from high in front, the blade driven down and the cracks racing out
+from it across the whole plaza; low at the victim the ground boils, the dead breaking out in rings from the outside in, hands from every
+side on his ankles, knees and sword arm, and he starts to sink; in front of the old man, long lens: he has turned his back and walks
+toward us while behind him the whole plaza is a sea of the dead, the victim small in it, sunk to his waist; from high above the sea
+flows in from every side until only his head and a reaching hand are left and he goes under, the dead heaping over the spot; the
+Konpaku, unseen by him: ember light from under the mound, an ash burst; wide and high, the sea sinks back into the ground, ash falling,
+the victim lies in the cracks, he walks on."
+  (at 0 (cine-place a v 5.0) (setf (aref *ya-sea* 0) (body-hurt-h (model-body (model v))))
       (cine-clip a :ya-kaka :blend 2 :time (/ 16.0 60.0) :speed 0.0) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-both a v 12) (impact-frame :negative 2) (cine-grade :spot))
   (at 12 (shot-on a 15 2.2 1.0 :look 1.45 :off 0.6) (lens 50 6) (silence 38) (play-sfx :awaken-rise :pitch 0.5 :gain 0.6)
       (caption "火火十万億死" :kanji2 "大葬陣" :mark "南" :reading "DAISOJIN" :sub "ZANKA NO TACHI" :side 0 :hanko t))
   (at 48 (cine-clip a :ya-kaka :blend 0 :time (/ 19.0 60.0)))   ; lifted on f19, driven down f20-21: in the plaza on f51
   (at 50 (shot-on a 0 4.0 4.5 :look 0.0 :ahead 1.5) (lens 44))
-  (at 51 (play-sfx :ground-crack) (shake 0.3 0.4)
-      (%ya-line (px pz qx qz fx fz rx rz d) a v           ; the ember cracks along the line (the stage's marks, kept for the round)
-        (dolist (s '(1.6 2.8 4.0)) (stage-crack-add (+ px (* s fx)) (+ pz (* s fz)) 0.9))))
-  (at 60 (cine-clip a :ya-kaka :blend 2 :time (/ 30.0 60.0) :speed 0.0))   ; kneeling, the point in the plaza
-  (at 56 (shot-on v 140 (if (portrait-p) 4.6 3.6) 0.3 :look 0.6) (lens 50)   ; (50: at 32 deg his back filled the frame, the dead hidden)
-      (cine-clip v :sh-bound :blend 6) (play-sfx :bones))
-  (at 61 (play-sfx :bones :pitch 0.9)) (at 71 (play-sfx :bones :pitch 1.1)) (at 81 (play-sfx :bones :pitch 0.8))
-  (at 96 (setf (transform-yaw (transform a)) (f32 (+ (yaw-of a) 3.1415927)))   ; his back to the victim
+  (at 51 (play-sfx :ground-crack) (shake 0.3 0.4))
+  (at 236 (%ya-line (px pz qx qz fx fz rx rz d) a v      ; the ember cracks along the line (the stage's marks, kept for the round): laid
+            (dolist (s '(3.4 2.2 1.0)) (stage-crack-add (- qx (* s fx)) (- qz (* s fz)) 0.9))))   ;  once the sea has gone (round 2:
+                                                                                                     ;  they drew over it); f51's places
+  (at 60 (cine-clip a :ya-kaka :blend 2 :time (/ 30.0 60.0) :speed 0.0)   ; kneeling, the point in the plaza
+      (shot-on v 35 (if (portrait-p) 6.6 4.6) 0.45 :look 0.55) (lens 40)
+      (cine-clip v :sh-bound :blend 6) (play-sfx :ground-crack :pitch 0.6 :gain 0.6) (play-sfx :bones))
+  (at 68 (play-sfx :bones :pitch 0.9)) (at 76 (play-sfx :bones :pitch 1.1)) (at 84 (play-sfx :bones :pitch 0.8))
+  (at 92 (play-sfx :bones :pitch 1.0))
+  (when step-p (setf (aref (pos-of v) 1) (%ya-sink (aref *ya-sea* 0) (i->f cf))))   ; dragged under (given back at CINE-END)
+  (at 116 (setf (transform-yaw (transform a)) (f32 (+ (yaw-of a) 3.1415927)))   ; his back to the victim
       (cine-clip a :sh-walk-f :blend 8 :speed 0.55)
-      (shot-on a 20 9.0 1.1 :look 1.2) (lens 30) (play-sfx :step :pitch 0.6))   ; (a long lens: 30 deg here, 20 deg off the line so the
-                                                                                ;  pile shows beside him)
-  (when (and step-p (> cf 96)) (yama-minami-walk a v))
-  (at 120 (play-sfx :step :pitch 0.6)) (at 130 (play-sfx :bones :pitch 0.7))
-  (at 140 (impact-frame :negative 2) (back-rim 6) (caption-exit)   ; (out before the wide: there he walks under its column)
-      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (shot-on a 20 9.0 2.0 :look 1.0) (lens 26) (play-sfx :step :pitch 0.6) (play-sfx :bones :pitch 0.7))
+  (when (and step-p (> cf 116)) (yama-minami-walk a v))
+  (at 165 (play-sfx :step :pitch 0.6)) (at 214 (play-sfx :step :pitch 0.6))
+  (at 160 (yama-minami-top a v) (lens 36) (cine-clip v :sh-swallowed :blend 10) (play-sfx :bones :pitch 0.6))
+  (at 176 (play-sfx :bones :pitch 0.5)) (at 190 (play-sfx :ground-crack :pitch 0.5 :gain 0.7))
+  (at 200 (impact-frame :negative 2) (back-rim 6) (caption-exit)   ; (out before the wide: there he walks under its column)
+      (%ya-line (px pz qx qz fx fz rx rz d) a v           ; (at the mound: the victim is under the floor)
+        (vfx-konpaku-shatter qx 0.9f0 qz (fighter-kikon-n (fighter a)))
+        (vfx-ash-burst qx 0.5f0 qz) (vfx-ash-burst (+ qx 0.5f0) 0.4f0 qz) (vfx-ash-burst qx 0.4f0 (+ qz 0.5f0)))
       (play-sfx :konpaku-shatter) (shake 0.35 0.4))
-  (at 142 (impact-frame :manga 10))
-  (at 146 (shot-pair a v 1 (if (portrait-p) 13.0 9.5) (if (portrait-p) 4.0 3.0)) (lens 44) (cine-clip v :sh-down :blend 6)
-      (multiple-value-bind (x y z) (actor-point v 0.0)
-        (vfx-ash-burst x y z) (vfx-ash-burst (+ x 0.5) y z) (vfx-ash-burst x y (+ z 0.5))))
-  (during (0 192) (yama-minami-look a v cf)))
+  (at 202 (impact-frame :manga 10))
+  (at 206 (shot-pair a v 1 (if (portrait-p) 13.0 10.0) (if (portrait-p) 5.0 4.2)) (lens 44) (cine-clip v :sh-down :blend 0)
+      (play-sfx :bones :pitch 0.5 :gain 0.6))
+  (during (0 240) (yama-minami-look a v cf)))
 
 ;;; ================================================================ art S5: the Shikai's 不知火 / 焱熱地獄 / 撫斬 Kikons (DUEL_YAMA_CORE §21.5, §26)
 ;;; Kept apart (§21.5): 1 = fire that comes from nowhere (he thrusts, nothing leaves the blade; lights wake round the victim, stand up as

@@ -1,0 +1,150 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 11.5,
+"eval": "Module._debug_cmd(87452)"
+},
+{
+"at": 11.53,
+"eval": "Module._debug_cmd(87627)"
+},
+{
+"at": 12.83,
+"shot": "tests/shots/duel-yama-minami2-f054.png"
+},
+{
+"at": 13.18,
+"eval": "Module._debug_cmd(87630)"
+},
+{
+"at": 13.68,
+"shot": "tests/shots/duel-yama-minami2-f060.png"
+},
+{
+"at": 14.03,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.6,
+"shot": "tests/shots/duel-yama-minami2-f070.png"
+},
+{
+"at": 14.95,
+"eval": "Module._debug_cmd(87642)"
+},
+{
+"at": 15.58,
+"shot": "tests/shots/duel-yama-minami2-f084.png"
+},
+{
+"at": 15.93,
+"eval": "Module._debug_cmd(87650)"
+},
+{
+"at": 16.6,
+"shot": "tests/shots/duel-yama-minami2-f100.png"
+},
+{
+"at": 16.95,
+"eval": "Module._debug_cmd(87657)"
+},
+{
+"at": 17.58,
+"shot": "tests/shots/duel-yama-minami2-f114.png"
+},
+{
+"at": 17.93,
+"eval": "Module._debug_cmd(87665)"
+},
+{
+"at": 18.6,
+"shot": "tests/shots/duel-yama-minami2-f130.png"
+},
+{
+"at": 18.8,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 18.95,
+"eval": "Module._debug_cmd(87678)"
+},
+{
+"at": 19.78,
+"shot": "tests/shots/duel-yama-minami2-f156.png"
+},
+{
+"at": 20.13,
+"eval": "Module._debug_cmd(87685)"
+},
+{
+"at": 20.76,
+"shot": "tests/shots/duel-yama-minami2-f170.png"
+},
+{
+"at": 21.11,
+"eval": "Module._debug_cmd(87691)"
+},
+{
+"at": 21.71,
+"shot": "tests/shots/duel-yama-minami2-f182.png"
+},
+{
+"at": 21.91,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 22.06,
+"eval": "Module._debug_cmd(87696)"
+},
+{
+"at": 22.63,
+"shot": "tests/shots/duel-yama-minami2-f192.png"
+},
+{
+"at": 22.98,
+"eval": "Module._debug_cmd(87910)"
+},
+{
+"at": 23.51,
+"shot": "tests/shots/duel-yama-minami2-f200.png"
+},
+{
+"at": 23.86,
+"eval": "Module._debug_cmd(87915)"
+},
+{
+"at": 24.43,
+"shot": "tests/shots/duel-yama-minami2-f210.png"
+},
+{
+"at": 24.78,
+"eval": "Module._debug_cmd(87923)"
+},
+{
+"at": 25.45,
+"shot": "tests/shots/duel-yama-minami2-f226.png"
+},
+{
+"at": 25.8,
+"eval": "Module._debug_cmd(87929)"
+},
+{
+"at": 26.4,
+"shot": "tests/shots/duel-yama-minami2-f238.png"
+},
+{
+"at": 27.35,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 27.65,
+"eval": "console.log('=== END')"
+}
+]
