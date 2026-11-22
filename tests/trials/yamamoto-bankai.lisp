@@ -95,3 +95,9 @@
  :fs 300 :p1-cmd (87445 87422) :script () :frames 70)
 (:name "G3b control: AS3's hands alone at 2.0 m, no garb (G3's x1.7 over this)" :p1 :yamamoto :form :bankai :p2 :kenpachi :ptr 3 :dist 2.0 :fs 300
  :p1-cmd (87445 87433) :script () :frames 60)
+;;; ... and the garb reached by real presses (no debug): 西 NSa sets it (`GARB 0 -> 1`), its charged SA, J2, J3 carry x1.4 by the charge alone
+;;; (CORE-CHARGE-MULT; W1's), AS3's three hazards x1.4 by the garb alone (a hazard gets no charge x): no free frame from NSa to AS3c, then
+;;; `GARB 1 -> 0 (neutral)`. Its control: STRAT_SET='*ya-garb-x*=(1.0 1.0)' (the same route, the garb's x off) gives AS3's hits x1.0.
+(:name "G4 西 NSa > SA > J2 > J3 > AS3 a-b-c (2.6 m): the string x1.4 by its charge, AS3's dead x1.4 by the garb" :p1 :yamamoto :form :bankai
+ :p2 :kenpachi :ptr 2 :dist 2.6 :fs 300 :p1-cmd (87445)
+ :script ((:quick 1 :modded t) (:quick 1) (:quick 1) (:quick 1) (:quick 1 :modded t :on :hit) (:quick 1 :modded t) (:quick 1 :modded t)) :frames 300)

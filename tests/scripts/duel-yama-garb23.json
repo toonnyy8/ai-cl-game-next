@@ -413,74 +413,278 @@
 },
 {
 "at": 38.45,
-"eval": "console.log('=== higashi')"
+"eval": "console.log('=== towerA side')"
 },
 {
 "at": 38.5,
-"eval": "Module._debug_cmd(87030)"
+"eval": "Module._debug_cmd(87040)"
 },
 {
 "at": 38.55,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 38.6,
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 41.0,
+"at": 39.9,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 40.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 40.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 41.45,
+"shot": "tests/shots/duel-garb23-towerA-side.png"
+},
+{
+"at": 41.8,
+"shot": "tests/shots/duel-garb23-towerA-late-side.png"
+},
+{
+"at": 42.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 43.05,
+"eval": "console.log('=== towerA-garb side')"
+},
+{
+"at": 43.1,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 43.15,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 43.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 44.5,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 44.8,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 46.05,
+"shot": "tests/shots/duel-garb23-towerA-garb-side.png"
+},
+{
+"at": 46.4,
+"shot": "tests/shots/duel-garb23-towerA-garb-late-side.png"
+},
+{
+"at": 47.2,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 47.65,
+"eval": "console.log('=== shatter side')"
+},
+{
+"at": 47.7,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 47.75,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 47.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 49.1,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 49.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 49.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.28,
+"shot": "tests/shots/duel-garb23-shatter-0-side.png"
+},
+{
+"at": 50.35,
+"shot": "tests/shots/duel-garb23-shatter-1-side.png"
+},
+{
+"at": 50.45,
+"shot": "tests/shots/duel-garb23-shatter-2-side.png"
+},
+{
+"at": 51.4,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 51.85,
+"eval": "console.log('=== shatter-garb side')"
+},
+{
+"at": 51.9,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 51.95,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 52.0,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 53.3,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 53.6,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 54.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 54.48,
+"shot": "tests/shots/duel-garb23-shatter-garb-0-side.png"
+},
+{
+"at": 54.55,
+"shot": "tests/shots/duel-garb23-shatter-garb-1-side.png"
+},
+{
+"at": 54.65,
+"shot": "tests/shots/duel-garb23-shatter-garb-2-side.png"
+},
+{
+"at": 55.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 56.05,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 56.1,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 56.15,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 58.6,
 "eval": "Module._debug_cmd(87450)"
 },
 {
-"at": 41.03,
+"at": 58.63,
 "eval": "Module._debug_cmd(87642)"
 },
 {
-"at": 42.73,
+"at": 60.33,
 "shot": "tests/shots/duel-garb23-cine-f84.png"
 },
 {
-"at": 42.78,
+"at": 60.38,
 "eval": "Module._debug_cmd(87643)"
 },
 {
-"at": 43.11,
+"at": 60.71,
 "shot": "tests/shots/duel-garb23-cine-f86.png"
 },
 {
-"at": 43.16,
+"at": 60.76,
 "eval": "Module._debug_cmd(87644)"
 },
 {
-"at": 43.5,
+"at": 61.1,
 "shot": "tests/shots/duel-garb23-cine-f88.png"
 },
 {
-"at": 43.55,
+"at": 61.15,
 "eval": "Module._debug_cmd(87645)"
 },
 {
-"at": 43.88,
+"at": 61.48,
 "shot": "tests/shots/duel-garb23-cine-f90.png"
 },
 {
-"at": 43.93,
+"at": 61.53,
 "eval": "Module._debug_cmd(87646)"
 },
 {
-"at": 44.26,
+"at": 61.86,
 "shot": "tests/shots/duel-garb23-cine-f92.png"
 },
 {
-"at": 44.31,
+"at": 61.91,
 "eval": "Module._debug_cmd(87648)"
 },
 {
-"at": 44.68,
+"at": 62.28,
 "shot": "tests/shots/duel-garb23-cine-f96.png"
 },
 {
-"at": 45.33,
+"at": 62.93,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 45.63,
+"at": 63.23,
 "eval": "console.log('=== END')"
 }
 ]

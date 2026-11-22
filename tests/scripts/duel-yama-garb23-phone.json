@@ -441,78 +441,298 @@
 },
 {
 "at": 38.8,
-"eval": "console.log('=== higashi')"
+"eval": "console.log('=== towerA side')"
 },
 {
 "at": 38.85,
-"eval": "Module._debug_cmd(87030)"
+"eval": "Module._debug_cmd(87040)"
 },
 {
 "at": 38.9,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 38.95,
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 41.35,
-"eval": "Module._debug_cmd(87450)"
-},
-{
-"at": 41.37,
+"at": 39.0,
 "eval": "Module._debug_cmd(87901)"
 },
 {
-"at": 41.38,
+"at": 40.3,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 40.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 40.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 41.85,
+"shot": "tests/shots/duel-garb23-towerA-side-phone.png"
+},
+{
+"at": 42.2,
+"shot": "tests/shots/duel-garb23-towerA-late-side-phone.png"
+},
+{
+"at": 43.0,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 43.45,
+"eval": "console.log('=== towerA-garb side')"
+},
+{
+"at": 43.5,
+"eval": "Module._debug_cmd(87040)"
+},
+{
+"at": 43.55,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 43.6,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 43.65,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 44.95,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 45.25,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 46.5,
+"shot": "tests/shots/duel-garb23-towerA-garb-side-phone.png"
+},
+{
+"at": 46.85,
+"shot": "tests/shots/duel-garb23-towerA-garb-late-side-phone.png"
+},
+{
+"at": 47.65,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 48.1,
+"eval": "console.log('=== shatter side')"
+},
+{
+"at": 48.15,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 48.2,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 48.25,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 48.3,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 49.6,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 49.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 50.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 50.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.78,
+"shot": "tests/shots/duel-garb23-shatter-0-side-phone.png"
+},
+{
+"at": 50.85,
+"shot": "tests/shots/duel-garb23-shatter-1-side-phone.png"
+},
+{
+"at": 50.95,
+"shot": "tests/shots/duel-garb23-shatter-2-side-phone.png"
+},
+{
+"at": 51.9,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 52.35,
+"eval": "console.log('=== shatter-garb side')"
+},
+{
+"at": 52.4,
+"eval": "Module._debug_cmd(87025)"
+},
+{
+"at": 52.45,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 52.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 52.55,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 53.85,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 54.15,
+"eval": "Module._debug_cmd(87457);Module._debug_cmd(87426)"
+},
+{
+"at": 54.55,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.6,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 55.03,
+"shot": "tests/shots/duel-garb23-shatter-garb-0-side-phone.png"
+},
+{
+"at": 55.1,
+"shot": "tests/shots/duel-garb23-shatter-garb-1-side-phone.png"
+},
+{
+"at": 55.2,
+"shot": "tests/shots/duel-garb23-shatter-garb-2-side-phone.png"
+},
+{
+"at": 56.15,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 56.6,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 56.65,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 56.7,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 59.15,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 59.17,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 59.18,
 "eval": "Module._debug_cmd(87642)"
 },
 {
-"at": 43.08,
+"at": 60.88,
 "shot": "tests/shots/duel-garb23-cine-f84-phone.png"
 },
 {
-"at": 43.13,
+"at": 60.93,
 "eval": "Module._debug_cmd(87643)"
 },
 {
-"at": 43.46,
+"at": 61.26,
 "shot": "tests/shots/duel-garb23-cine-f86-phone.png"
 },
 {
-"at": 43.51,
+"at": 61.31,
 "eval": "Module._debug_cmd(87644)"
 },
 {
-"at": 43.85,
+"at": 61.65,
 "shot": "tests/shots/duel-garb23-cine-f88-phone.png"
 },
 {
-"at": 43.9,
+"at": 61.7,
 "eval": "Module._debug_cmd(87645)"
 },
 {
-"at": 44.23,
+"at": 62.03,
 "shot": "tests/shots/duel-garb23-cine-f90-phone.png"
 },
 {
-"at": 44.28,
+"at": 62.08,
 "eval": "Module._debug_cmd(87646)"
 },
 {
-"at": 44.61,
+"at": 62.41,
 "shot": "tests/shots/duel-garb23-cine-f92-phone.png"
 },
 {
-"at": 44.66,
+"at": 62.46,
 "eval": "Module._debug_cmd(87648)"
 },
 {
-"at": 45.03,
+"at": 62.83,
 "shot": "tests/shots/duel-garb23-cine-f96-phone.png"
 },
 {
-"at": 45.68,
+"at": 63.48,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 45.98,
+"at": 63.78,
 "eval": "console.log('=== END')"
 }
 ]

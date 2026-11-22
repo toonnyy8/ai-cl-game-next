@@ -789,10 +789,11 @@ garb x now (YAMA-FIRE), hot 4; the tower is spent. The fall's data carries the t
 (defun yama-shatter-fire (e)
   "南's SA (the shatter) on S: the tower, if one stands, is spent (its hit is the move's own window); the skeletons flung over the sector's
 6 m, a look (YAMA-SHATTER-LOOK)."
-  (let ((tw (yama-live-hz e :ya-tower)))
+  (let* ((tw (yama-live-hz e :ya-tower)) (d (and tw (hazard-data (hazard tw)))))
     (when tw (destroy-entity tw))
-    (multiple-value-bind (x z) (ahead e 3.0)
-      (spawn-look e 'yama-shatter-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30))
+    (multiple-value-bind (x z) (ahead e 3.0)   ; (its look's heap: the spent tower's level and garb, so the hand-off keeps its size)
+      (spawn-look e 'yama-shatter-look :x x :z z :yaw (yaw-of e) :size 3.0 :life 30
+                    :data (list :level (getf d :level 1) :garb (getf d :garb 0))))
     (clog "~a shatter~:[~; (the tower spent)~]" (side-name e) tw)
     (emit :sfx :ground-crack e)))
 

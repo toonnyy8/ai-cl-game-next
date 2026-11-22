@@ -477,7 +477,8 @@ and :tower-garb); fire along the line when it was fired under the garb (:garb). 
     nil))
 
 (defun-fast yama-shatter-look (hz rdt)
-  "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap +YA-TOWER-AHEAD+ ahead bursting (age 0), its
+  "南's shatter (§34 A: the SA's hitless :fx, 3 m before him along his facing, HAZARD-SIZE 3): the heap +YA-TOWER-AHEAD+ ahead bursting (age 0; the
+spent tower's height, radius and climbers by its data's :level and :garb since 2026-11-23, 2.4 m at sc 1 before), its
 dead flung forward over the 60 deg fan out to 6 m from him (ch. 509's pile shedding shards; the heap gone by age 4): six whole dead tumbling, skulls and bones,
 an ink streak behind each while it flies; most of the way out by age 1 (the hit's hitstop holds the burst), down on the ground by 14, ash
 from 18 to 30. A look."
@@ -487,12 +488,14 @@ from 18 to 30. A look."
          (bx (+ ox (* +ya-tower-ahead+ fx))) (bz (+ oz (* +ya-tower-ahead+ fz))) (seed (+ (* 5f0 x) z 90f0)) (dr (drawing-no))
          (tt (f-min 1f0 (/ (i->f (1+ age)) 7f0))) (e (- 1f0 (* (- 1f0 tt) (- 1f0 tt) (- 1f0 tt))))
          (tp (f-min 1f0 (/ (i->f age) 7f0))) (ep (- 1f0 (* (- 1f0 tp) (- 1f0 tp) (- 1f0 tp))))
-         (land (f-clamp (/ (i->f (- age 8)) 6f0) 0f0 1f0)) (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
-    (declare (single-float x z sz yaw fx fz ox oz rng bx bz seed dr tt e tp ep land k) (fixnum age))
-    (when (< age 4)                                      ; the heap coming apart as its dead leave: 2.4 m -> gone over 4 f
+         (land (f-clamp (/ (i->f (- age 8)) 6f0) 0f0 1f0)) (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0))
+         (lv (the fixnum (or (getf (hazard-data hz) :level) 1))) (g (the fixnum (or (getf (hazard-data hz) :garb) 0))) (gs (%ya-gsz g)))
+    (declare (single-float x z sz yaw fx fz ox oz rng bx bz seed dr tt e tp ep land k gs) (fixnum age lv g))
+    (when (< age 4)                                      ; the heap coming apart as its dead leave: the tower's height -> gone over 4 f
       (let ((u (* 0.25f0 (i->f age))))
         (declare (single-float u))
-        (%ya-cone! bx bz fx fz 0f0 (* 2.4f0 (- 1f0 u)) +ya-cone-r1+ 0.98f0 (+ 0.35f0 (* 0.65f0 u)) 1f0 seed 0f0 1f0 (* 0.9f0 dr))))
+        (%ya-cone! bx bz fx fz 0f0 (* (%ya-tower-hgt lv g) (- 1f0 u)) (* gs (if (>= lv 2) +ya-cone-r2+ +ya-cone-r1+)) 0.98f0
+                   (+ 0.35f0 (* 0.65f0 u)) (* gs (if (>= lv 2) +ya-cone-sc2+ +ya-cone-sc1+)) seed 0f0 1f0 (* 0.9f0 dr))))
     (dotimes (i 24)
       (let* ((fi (i->f i)) (an (* 0.5f0 (- (* 2f0 (hash01 fi seed)) 1f0))) (ca (f-cos an)) (sa (f-sin an))
              (dx (- (* ca fx) (* sa fz))) (dz (+ (* sa fx) (* ca fz)))   ; (FX FZ) turned by AN: inside +-28.6 deg

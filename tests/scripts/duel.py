@@ -2140,6 +2140,23 @@ def yama_garb23_script(phone=False):
         ev.append(shot(a + 1.76, f"garb23-{nm}-topple-side{sx}"))
         ev.append(cmd(a + 3.2, 2109))
         t = a + 3.8
+    for nm, garb in (("towerA", None), ("towerA-garb", 87457)):     # NSa only: he back in his stance beside the level-1 tower
+        a = scene(f"{nm} side", (87040, 87303, 87446) + deck) + 1.6
+        ev.append(cmd(a - 0.3, 2109))
+        if garb: two(a, garb, 87426)
+        else: sp(a)
+        ev.append(shot(a + 1.25, f"garb23-{nm}-side{sx}")); ev.append(shot(a + 1.6, f"garb23-{nm}-late-side{sx}"))
+        ev.append(cmd(a + 2.4, 2109))
+        t = a + 2.9
+    for nm, garb in (("shatter", None), ("shatter-garb", 87457)):   # NSa > the SA (J in its gap): the heap's hand-off at the shatter
+        a = scene(f"{nm} side", (87025, 87303, 87446) + deck) + 1.6
+        ev.append(cmd(a - 0.3, 2109))
+        if garb: two(a, garb, 87426)
+        else: sp(a)
+        ev.extend(tap(a + 0.4, "KeyJ", 0.05))
+        for k, dt in enumerate((0.88, 0.95, 1.05)): ev.append(shot(a + dt, f"garb23-{nm}-{k}-side{sx}"))   # (after the bind's hitstop)
+        ev.append(cmd(a + 2.0, 2109))
+        t = a + 2.5
     ev.append({"at": round(t - 0.05, 2), "eval": "console.log('=== higashi')"})
     ev += [cmd(t, 87030), cmd(t + 0.05, 87446)]
     t += 2.5
