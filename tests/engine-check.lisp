@@ -24,7 +24,7 @@
 ;;;; Screenshots (look at them): tests/shots/ec-flame.png (three flame columns), ec-grey.png
 ;;;; (*grade-desat* 1), ec-color.png (back to 0), ec-cleared.png (after FX-CLEAR: no flames),
 ;;;; ec-flame-high.png / ec-flame-low.png (bright sky, flame ALPHA 1 / 0.35), ec-split.png
-;;;; (*grade-split* 24), ec-sun-1.png / ec-sun-3.png (env-sun-size 1 / 3, glow 0.25 / 0.8),
+;;;; (*grade-split* 24), ec-cut.png (*grade-cut*: a diagonal, the void black with white edges; gone in ec-sun-1), ec-sun-1.png / ec-sun-3.png (env-sun-size 1 / 3, glow 0.25 / 0.8),
 ;;;; ec-rig.png (left: standard rig, right: shoulders 1.3 arms 1.15 legs 1.2 spine 1.1, same pose;
 ;;;; floor :env-rim 0, boxes behind: env rim on (left) / :env-rim 0 (right)).
 (defpackage :engine-check (:use :cl :engine))
@@ -373,6 +373,7 @@
 ;;; ---------------------------------------------------------------- scene
 (defvar *m* (m4))
 (defvar *emit* t "Flame columns emitting.")
+(defvar *cut* nil "*GRADE-CUT* set every frame (debug 19; 8 stops it: the latch clears itself).")
 (defvar *flame-alpha* 1.0 "FX-EMIT ALPHA of the flame columns.")
 (defvar *mode* :flames ":flames / :sun (camera on the sky disc) / :rig (two posed rigs + rim boxes)")
 (defvar *seen* nil "Keys / clicks seen so far (checked by debug command 9).")
@@ -442,6 +443,9 @@
 
 (defun frame (dt)
   (incf *frame-no*)
+  (when *cut*                                   ; the cut split: a latch, so set each frame (window px; 0.6 rad, shear -20, open 10)
+    (let ((c *grade-cut*))
+      (setf (aref c 0) (* 0.5f0 (window-width)) (aref c 1) (* 0.5f0 (window-height)) (aref c 2) 0.6f0 (aref c 3) -20f0 (aref c 4) 10f0)))
   (dolist (k '(:kp-1 :kp-enter :kp-plus))
     (when (key-pressed k) (log-msg "key-pressed ~s" k) (pushnew k *seen*)))
   (when (mouse-pressed :left)
@@ -516,7 +520,8 @@
     (5 (bright-look) (setf *emit* t *flame-alpha* 1.0) (log-msg "bright sky, flame alpha 1.0"))
     (6 (setf *flame-alpha* 0.35) (log-msg "flame alpha 0.35"))
     (7 (setf *grade-split* 24.0) (log-msg "*grade-split* 24"))
-    (8 (setf *grade-split* 0.0 *emit* nil *mode* :sun) (fx-clear)
+    (19 (setf *grade-split* 0.0 *cut* t) (log-msg "*grade-cut* on (a diagonal, shear -20 px, open 10 px)"))
+    (8 (setf *grade-split* 0.0 *cut* nil *emit* nil *mode* :sun) (fx-clear)
        (v3-set! (env-moon-dir *env*) 0.0 0.2 -1.0) (v3-normalize! (env-moon-dir *env*) (env-moon-dir *env*))
        (log-msg "sun: size ~,2f glow ~,2f" (env-sun-size *env*) (env-sun-glow *env*)))
     (10 (setf (env-sun-size *env*) 3.0 (env-sun-glow *env*) 0.8) (log-msg "sun: size 3 glow 0.8"))

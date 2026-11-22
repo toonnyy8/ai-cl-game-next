@@ -105,7 +105,7 @@
     (:hisagi :bankai 1.0 (40 80) (15 55 35))
     (:hisagi :bankai-bind 1.0 (65 80) (20 50 70))
     (:yamamoto :base 1.0 (95 55 80) (20 40 80))     ; (DUEL_YAMA_CORE batch 1 stage A, 2026-11-19)
-    (:yamamoto :bankai 1.0 (110 80 65) (20 45 75 115))))   ; (stage C: 東 西 南; §30.2: 西's charges 10 + 10, NSc 153 -> 60; §31 AS4 15 + 20 + 25 + 55; 北's form left, §33)
+    (:yamamoto :bankai 1.0 (110 80 65) (20 45 75 60))))   ; (stage C: 東 西 南; §30.2: 西's charges 10 + 10, NSc 153 -> 60; §31 AS4 15 + 20 + 25 + 55, one cut of 200 -> the cap 60 since §40; 北's form left, §33)
 (let ((mism 0))
   (dolist (row *sp-table*)
     (destructuring-bind (c f mult ns as) row

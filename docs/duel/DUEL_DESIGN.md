@@ -500,7 +500,7 @@ route totals and fails first).
 | AS1 | YA-E-AS1 50 / 20 | 20 |
 | AS2 | YA-E-AS2 40 / 15, YA-E-AS2B 70 / 30 | 45 |
 | AS3 | YA-E-AS3 40 / 15, YA-E-AS3B 50 / 20, YA-E-AS3C 100 / 40 | 75 |
-| AS4 | YA-E-AS4A 40 / 15, YA-E-AS4B 50 / 20, YA-E-AS4C 60 / 25, YA-E-AS4 140 / 55 | 115 |
+| AS4 | YA-E-AS4 200 / 60 | 60 |
 
 <!-- sp-cost-table end -->
 

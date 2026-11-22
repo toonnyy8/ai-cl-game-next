@@ -101,7 +101,7 @@ scene pass    MSAA 4x RGBA8 + D32 at window × *render-scale*: sky → opaque �
               (ENV-TOON: the toon sky; opaque draws with DRAW-MESH :TOON lanes use the toon pipelines)
               └ resolves into the scene texture
 bloom         bright (1/2) → blur H/V (1/2) → blur H/V (1/4)          5 small full-screen passes
-swapchain     composite (scene + bloom + vignette, desaturate *grade-desat*, split *grade-split*;
+swapchain     composite (scene + bloom + vignette, desaturate *grade-desat*, split *grade-split* / *grade-cut*;
               RP_COMP_FX instead while *grade-impact* ≠ 0) → UI batch (font atlas, nearest)
 ```
 * Per-frame uniforms (WGSL `Frame`: matrices, fog, ambient, moon, rim, 8 lights) are pushed once to

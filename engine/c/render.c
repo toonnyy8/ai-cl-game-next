@@ -219,17 +219,19 @@ static void r_draw_batch(SDL_GPURenderPass *rp, int pipe, SDL_GPUBuffer *buf, in
   SDL_BindGPUVertexBuffers(rp, 0, &b, 1);
   SDL_DrawGPUPrimitives(rp, nverts, 1, 0, 0);
 }
-/* Full-screen pass into DST reading textures SRC[0..NSRC-1] (linear), fragment uniform U (vec4). */
+/* Full-screen pass into DST reading textures SRC[0..NSRC-1] (linear), fragment uniform U (vec4), or U and X (two vec4: the
+   composite's lane and its cut, split.wgsl) when X is not NULL. */
 static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *dst, int pipe, SDL_GPUTexture **src, int nsrc,
-                                    float u0, float u1, float u2, float u3, int keep_open) {
+                                    float u0, float u1, float u2, float u3, const float *x, int keep_open) {
   SDL_GPUColorTargetInfo ct = {0};
   ct.texture = dst; ct.load_op = SDL_GPU_LOADOP_DONT_CARE; ct.store_op = SDL_GPU_STOREOP_STORE;
   SDL_GPURenderPass *rp = SDL_BeginGPURenderPass(cb, &ct, 1, NULL);
-  SDL_GPUTextureSamplerBinding b[3]; float u[4] = { u0, u1, u2, u3 };
+  SDL_GPUTextureSamplerBinding b[3]; float u[8] = { u0, u1, u2, u3, 0, 0, 0, 0 };
+  if (x) SDL_memcpy(u + 4, x, 4 * sizeof *u);
   for (int i = 0; i < nsrc; i++) { b[i].texture = src[i]; b[i].sampler = r_linear; }
   SDL_BindGPUGraphicsPipeline(rp, r_pipe[pipe]);
   SDL_BindGPUFragmentSamplers(rp, 0, b, nsrc);
-  SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
+  SDL_PushGPUFragmentUniformData(cb, 0, u, (x ? 8 : 4) * sizeof *u);
   SDL_DrawGPUPrimitives(rp, 3, 1, 0, 0);
   if (keep_open) return rp;
   SDL_EndGPURenderPass(rp); return NULL;
@@ -239,7 +241,8 @@ static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *ds
    11 impact mode (0 = RP_COMP; 1..4 = RP_COMP_FX, see composite-fx.frag.wgsl) 12 threshold 13 keep-saturation
    14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2 22 transparent (no sky, RP_COMP_A: the scene's alpha out,
    *RENDER-TRANSPARENT*; it wins over the impact mode) 23 the soft flame's glow (bright.frag.wgsl P.y, 0 = off)
-   24 the flame layer's opacity (*FLAME-ALPHA*, STYLE_STORM_DESIGN §15.6: < 1 = the flame-class toon fx in their own layer)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
+   24 the flame layer's opacity (*FLAME-ALPHA*, STYLE_STORM_DESIGN §15.6: < 1 = the flame-class toon fx in their own layer)
+   25..29 the cut (*GRADE-CUT*: x y window px, angle, shear and open window px; shear and open 0 = off: then *GRADE-SPLIT*)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
    paint stream, drawn after the UI; HUDB: its back layer, drawn into the cleared swapchain under the composite, which then
    blends premultiplied over it (RP_COMP_AO), only on a transparent frame; nothing when the count is 0 or no atlas was made,
    so a frame without them takes the old path unchanged).
@@ -322,21 +325,26 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
   int bloom = rp[0] != 0, hw = r_fw / 2 > 0 ? r_fw / 2 : 1, hh = r_fh / 2 > 0 ? r_fh / 2 : 1, qw = r_fw / 4 > 0 ? r_fw / 4 : 1, qh = r_fh / 4 > 0 ? r_fh / 4 : 1;
   if (bloom) {
     SDL_GPUTexture *bsrc[2] = { r_scene, r_flame };   /* the flame layer's glow is read from the layer itself (§15.6) */
-    if (layer) r_fs_pass(cb, r_half[0], RP_BRIGHT_FL, bsrc, 2, rp[1], rp[23], rp[24], 0, 0);
-    else r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], rp[23], 0, 0, 0);   /* rp[23]: the soft flame's glow */
-    r_fs_pass(cb, r_half[1], RP_BLUR, &r_half[0], 1, 1.0f / hw, 0, 0, 0, 0);
-    r_fs_pass(cb, r_half[0], RP_BLUR, &r_half[1], 1, 0, 1.0f / hh, 0, 0, 0);
-    r_fs_pass(cb, r_q[0], RP_BLUR, &r_half[0], 1, 1.0f / qw, 0, 0, 0, 0);
-    r_fs_pass(cb, r_q[1], RP_BLUR, &r_q[0], 1, 0, 1.0f / qh, 0, 0, 0);
+    if (layer) r_fs_pass(cb, r_half[0], RP_BRIGHT_FL, bsrc, 2, rp[1], rp[23], rp[24], 0, NULL, 0);
+    else r_fs_pass(cb, r_half[0], RP_BRIGHT, &r_scene, 1, rp[1], rp[23], 0, 0, NULL, 0);   /* rp[23]: the soft flame's glow */
+    r_fs_pass(cb, r_half[1], RP_BLUR, &r_half[0], 1, 1.0f / hw, 0, 0, 0, NULL, 0);
+    r_fs_pass(cb, r_half[0], RP_BLUR, &r_half[1], 1, 0, 1.0f / hh, 0, 0, NULL, 0);
+    r_fs_pass(cb, r_q[0], RP_BLUR, &r_half[0], 1, 1.0f / qw, 0, 0, 0, NULL, 0);
+    r_fs_pass(cb, r_q[1], RP_BLUR, &r_q[0], 1, 0, 1.0f / qh, 0, 0, NULL, 0);
   }
+  /* the split (split.wgsl), in window heights: *GRADE-SPLIT*'s shear, or the cut's while it is on (its open >= 0) */
+  float wh = rp[7] > 0 ? rp[7] : 1.0f, cut_on = rp[28] != 0 || rp[29] != 0;
+  float shear = cut_on ? rp[28] / wh : rp[7] > 0 ? rp[9] / rp[7] : 0.0f;
+  float cut[4] = { cut_on ? (rp[25] - 0.5f * rp[6]) / wh : 0, cut_on ? (rp[26] - 0.5f * wh) / wh : 0, cut_on ? rp[27] : 0,
+                   cut_on ? rp[29] / wh : -1.0f };
   /* composite to the swapchain, then the UI on top in the same pass */
   SDL_GPUTexture *src[3] = { r_scene, r_half[0], r_q[1] };
   if (rp[11] != 0 && rp[22] == 0) {   /* impact frame / spot-keep grade: RP_COMP_FX with 4 vec4 (the RP_COMP lane, mode + params, ink + keep-hue-2, paper) */
     SDL_GPUColorTargetInfo sct = {0};
     sct.texture = swt; sct.load_op = SDL_GPU_LOADOP_DONT_CARE; sct.store_op = SDL_GPU_STOREOP_STORE;
     pass = SDL_BeginGPURenderPass(cb, &sct, 1, NULL);
-    SDL_GPUTextureSamplerBinding b[3]; float u[16] = { bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f,
-      rp[11], rp[12], rp[13], rp[14], rp[15], rp[16], rp[17], rp[21], rp[18], rp[19], rp[20], 0 };
+    SDL_GPUTextureSamplerBinding b[3]; float u[20] = { bloom ? rp[2] : 0.0f, rp[3], rp[8], shear,
+      rp[11], rp[12], rp[13], rp[14], rp[15], rp[16], rp[17], rp[21], rp[18], rp[19], rp[20], 0, cut[0], cut[1], cut[2], cut[3] };
     for (int i = 0; i < 3; i++) { b[i].texture = src[i]; b[i].sampler = r_linear; }
     SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_COMP_FX]);
     SDL_BindGPUFragmentSamplers(pass, 0, b, 3);
@@ -352,14 +360,14 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
     SDL_BindGPUFragmentSamplers(pass, 0, &fb, 1);
     SDL_PushGPUVertexUniformData(cb, 0, s, sizeof s);
     SDL_DrawGPUPrimitives(pass, nhudb / 16, 1, 0, 0);
-    SDL_GPUTextureSamplerBinding b[3]; float u[4] = { bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f };
+    SDL_GPUTextureSamplerBinding b[3]; float u[8] = { bloom ? rp[2] : 0.0f, rp[3], rp[8], shear, cut[0], cut[1], cut[2], cut[3] };
     for (int i = 0; i < 3; i++) { b[i].texture = src[i]; b[i].sampler = r_linear; }
     SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_COMP_AO]);
     SDL_BindGPUFragmentSamplers(pass, 0, b, 3);
     SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
     SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
   } else
-    pass = r_fs_pass(cb, swt, rp[22] != 0 ? RP_COMP_A : RP_COMP, src, 3, bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f, 1);
+    pass = r_fs_pass(cb, swt, rp[22] != 0 ? RP_COMP_A : RP_COMP, src, 3, bloom ? rp[2] : 0.0f, rp[3], rp[8], shear, cut, 1);
   if (nui > 0) {
     float s[4] = { rp[6], rp[7], 0, 0 }; SDL_GPUTextureSamplerBinding fb = { r_font, r_nearest }; SDL_GPUBufferBinding b = { r_uib, 0 };
     SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_UI]);

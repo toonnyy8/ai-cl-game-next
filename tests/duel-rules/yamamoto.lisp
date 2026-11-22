@@ -305,8 +305,8 @@
     (check (equal (mapcar #'core-segments (getf core :ns))
                   '((:ya-e-n1a :ya-e-n1b :ya-e-n1c) (:ya-e-n2a :ya-e-n2b :ya-e-n2c) (:ya-e-n3a :ya-e-n3b :ya-e-n3c))))
     (check (equal (mapcar #'core-segments (getf core :as)) '((:ya-e-as1) (:ya-e-as2 :ya-e-as2b) (:ya-e-as3 :ya-e-as3b :ya-e-as3c)
-                                                             (:ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4))))   ; (AS4 天地灰尽: §31)
-    (check (equal (mapcar (lambda (r) (length (core-segments r))) (getf core :as)) '(1 2 3 4)))   ; AS n: n segments
+                                                             (:ya-e-as4))))   ; (AS4 天地灰尽: §31, one cut since §40)
+    (check (equal (mapcar (lambda (r) (length (core-segments r))) (getf core :as)) '(1 2 3 1)))   ; AS n: n segments, but AS4 one (the user's exception, §40)
     (check (every (lambda (r) (every (lambda (n) (eq (cls n) :ns)) (core-segments r))) (getf core :ns)))
     (check (every (lambda (r) (every (lambda (n) (eq (cls n) :as)) (core-segments r))) (getf core :as)))
     (check (and (eq (cls :ya-e-sa) :sa) (eq (kit-next kb :ya-e-sa :q) (m :ya-e-j2)) (equal (getf core :as-by-press) '(1 2 3 4))
@@ -423,16 +423,20 @@
     (check (eq :hit (core-turn-armor-verdict (core-verdict :as :ns) :as t)))
     (check (eq :cancel (core-turn-armor-verdict (core-verdict :sa :ns) :sa t)))
     (check (eq :cancel (core-turn-armor-verdict (core-verdict :na :ns) :na nil)))
-    ;; §31 AS4 天地灰尽 (J4's): E-J4 the string's fourth link; its four segments 40 > 50 > 60 > 140 (only the last knocks down),
-    ;; each tagged :as4 and carrying 天地灰尽's cinematic; frame 0 marks it used; the x and the Konpaku by the marks held
+    ;; §31 AS4 天地灰尽 (J4's): E-J4 the string's fourth link; AS4 one cut since §40 (the user: 「AS4 請改成只有一刀「帶有斬穿空間特效」的斬擊」):
+    ;; 200, S10 A2 R30, reach 2.4 arc 110, a knockdown, tagged :as4 and carrying 天地灰尽's cinematic and callout; frame 0 marks it used;
+    ;; the x and the Konpaku by the marks held: 200 / 250 / 300 / 350 and 2 / 3 / 4 / 5; its SP cost the rule's cap (200 x 0.4 -> 60)
     (check (and (eq (kit-next kb :ya-e-j3 :q) (m :ya-e-j4)) (eq (cls :ya-e-j4) :na) (= 46 (mv-sp-damage (m :ya-e-j4)))
                 (member :ya-e-j4 *ya-reach-moves*)))
-    (check (equal (mapcar (lambda (n) (mv-sp-damage (m n))) '(:ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4)) '(40 50 60 140)))
-    (check (equal (mapcar #'react '(:ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4))
-                  '(:stagger :stagger :stagger :knockdown)))
-    (check (every (lambda (n) (and (getf (mv-params (m n)) :as4) (eq (mv-cine (m n)) 'yama-tenchi-cine)))
-                  '(:ya-e-as4a :ya-e-as4b :ya-e-as4c :ya-e-as4)))
-    (check (eq 'yama-as4-start (second (assoc 0 (mv-on-frame (m :ya-e-as4a))))))
+    (let ((as4 (m :ya-e-as4)))
+      (check (and (equal (core-segments :ya-e-as4) '(:ya-e-as4)) (null (mv-ns-next kb as4)) (eq (cls :ya-e-as4) :as)
+                  (= 200 (mv-sp-damage as4)) (eq (react :ya-e-as4) :knockdown)
+                  (= 10 (mv-s as4)) (= 2 (mv-a as4)) (= 30 (mv-r as4)) (~= 2.4 (mv-reach as4))
+                  (getf (mv-params as4) :as4) (eq (mv-cine as4) 'yama-tenchi-cine) (equal (mv-callout as4) "TENCHI KAIJIN")
+                  (eq 'yama-as4-start (second (assoc 0 (mv-on-frame as4))))
+                  (~= 60.0 (kit-sp-cost kb as4))))
+      (check (equal (mapcar (lambda (mk) (round (* (mv-sp-damage as4) (ya-as4-x mk)))) '(0 1 3 7)) '(200 250 300 350)))
+      (check (every (lambda (n) (null (gethash n (kit-moves kb)))) '(:ya-e-as4a :ya-e-as4b :ya-e-as4c))))
     (check (and (~= 1.0 (ya-as4-x 0)) (~= 1.25 (ya-as4-x 1)) (~= 1.5 (ya-as4-x 5)) (~= 1.75 (ya-as4-x 7))))
     (check (equal (mapcar (lambda (m) (ya-as4-konpaku m 3)) '(0 2 6 7)) '(2 3 4 5)))
     (check (eq (kit-hook kb :kikon-n) 'yama-kikon-n))
@@ -470,7 +474,7 @@
           (yama-bk-hit a b :hit nil (fighter-move fa) nil nil)              ; the third distinct mark, the pointer untouched
           (check (and (= 7 (marks)) (= 2 (fighter-ptr fa))))
           ;; AS4 used: his next neutral clears the marks (not before)
-          (in :ya-e-as4a 950) (yama-as4-start a)
+          (in :ya-e-as4 950) (yama-as4-start a)
           (yama-as4-spent a fa)
           (check (= 7 (marks)))
           (setf (fighter-state fa) :idle (fighter-move fa) nil)

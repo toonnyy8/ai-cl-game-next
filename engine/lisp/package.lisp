@@ -54,7 +54,7 @@
    #:env-fog-falloff #:env-fog-max #:env-ambient-sky #:env-ambient-ground #:env-ambient-intensity
    #:env-moon-dir #:env-moon-color #:env-moon-intensity #:env-rim-color #:env-rim-intensity #:env-rim-power
    #:env-specular #:env-shininess #:env-exposure #:env-bloom #:env-bloom-threshold #:env-bloom-strength
-   #:env-vignette #:env-sun-size #:env-sun-glow #:*grade-desat* #:*grade-split*
+   #:env-vignette #:env-sun-size #:env-sun-glow #:*grade-desat* #:*grade-split* #:*grade-cut*
    #:env-toon #:env-key-light #:env-toon-threshold #:env-toon-band #:env-toon-gradient #:env-toon-gradient-height
    #:env-toon-light-gain #:env-shade-value #:env-shade-saturation #:env-shade-hue #:env-shade-lift
    #:env-cin-rim #:env-cin-width #:*grade-impact* #:*render-transparent* #:*impact-params* #:grade-impact #:*fx-clock* #:*soft-flame* #:*flame-alpha* #:*msaa-samples*

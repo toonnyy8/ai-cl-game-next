@@ -1934,14 +1934,14 @@ def yama_tower_cut_script(phone=False):
 write("yama-tower-cut", yama_tower_cut_script())
 write("yama-tower-cut-phone", yama_tower_cut_script(True))
 
-# Yamamoto art batch D (DUEL_YAMA_CORE §34): the Bankai string J1-J4 > AS4 from 1.4 m with the three marks (87441-87443), un-held (trial
-# A1's presses: J every 15 f, SP on J4's hit, then right after each AS4 segment starts; pointer 1, so 西's garb stays off), from the match camera: J4's tell (the blade over
-# his shoulder, the step) and hit, each AS4 segment's hit (the ash grip's puff, the ash cut's ash, the ash line, 天地灰尽's cut), the white
-# band, the victim's ash and cinders, the fade; then J1-J4 > AS4 held (sp30b's): the Kikon's start; then the last segment held: the band
-# and the ash end at its Kikon follow-up (YAMA-AS4-LOOK), and nothing of them is left after the cinematic. Frames counted from J1's press (the
-# trial's ticks: J4 starts at 50, hits 59; AS4a hits 74, b 95, c 116, the last 137). PHONE: the deck on (87901), stills -phone.
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --script tests/scripts/duel-yama-art-d.json
-#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 40 --mobile --size 390x844 --script tests/scripts/duel-yama-art-d-phone.json
+# Yamamoto art batch D (DUEL_YAMA_CORE §34; AS4 one cut since §40): the Bankai string J1-J4 > AS4 from 1.4 m with the three marks
+# (87441-87443), un-held (trial A1's presses: J every 15 f, SP on J4's hit; pointer 1, so 西's garb stays off), from the match camera: J4's
+# tell (the blade over his shoulder, the step) and hit, AS4's sweep, coil and cut, the white band, the victim's ash and cinders, the fade;
+# then J1-J4 > AS4 held (sp30b's): the Kikon's start (the band and the ash end at its follow-up, YAMA-AS4-LOOK). Frames counted from J1's
+# press (J4 starts at 50, hits 59; AS4 starts 64, hits 74; until §40 its four segments hit 74 / 95 / 116 / 137). PHONE: the deck on
+# (87901), stills -phone. The split frame by frame: duel-yama-as4-cut.json (§40).
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --script tests/scripts/duel-yama-art-d.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 30 --mobile --size 390x844 --script tests/scripts/duel-yama-art-d-phone.json
 def yama_art_d_script(phone=False):
     ev, t, sx = [], T0, ("-phone" if phone else "")
     deck = (87901,) if phone else ()
@@ -1953,31 +1953,69 @@ def yama_art_d_script(phone=False):
     scene("J1-J4 > AS4, three marks, un-held", (87014, 87446, 87301, 87445, 87441, 87442, 87443) + deck)
     a = t + 0.6
     for i in range(4): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
-    for f in (60, 66, 87, 108): sp(a + f / 60)
-    for f, n in ((53, "j4-rise"), (57, "j4-tell"), (60, "j4-hit"), (63, "j4-low"), (75, "as4a-hit"), (80, "as4a-puff"), (96, "as4b-hit"),
-                 (101, "as4b-ash"), (117, "as4c-hit"), (120, "as4c-line"), (130, "as4-coil"), (138, "as4-hit"), (146, "as4-band"),
-                 (160, "as4-ash"), (178, "as4-cinders"), (200, "as4-fade"), (215, "as4-after")):
+    sp(a + 60 / 60)
+    for f, n in ((53, "j4-rise"), (57, "j4-tell"), (60, "j4-hit"), (63, "j4-low"), (66, "as4-sweep"), (70, "as4-coil"), (75, "as4-hit"),
+                 (83, "as4-band"), (97, "as4-ash"), (115, "as4-cinders"), (137, "as4-fade"), (152, "as4-after")):
         ev.append(shot(a + f / 60, f"yama-art-d-{n}{sx}"))
     t = a + 4.5
     scene("J1-J4 > AS4 held: the Kikon", (87014, 87446, 87301, 87445, 87441, 87442) + deck)
     a = t + 0.3
     for i in range(4): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
-    sp(a + 1.1, 1.4)
-    for s in (1.6, 2.0, 2.4, 2.8, 3.2): ev.append(shot(a + s, f"yama-art-d-kikon-{int(s * 10)}{sx}"))
+    sp(a + 1.0, 1.4)
+    for s in (1.4, 1.6, 2.0, 2.4, 2.8, 3.2): ev.append(shot(a + s, f"yama-art-d-kikon-{int(s * 10)}{sx}"))
     t = a + 7.0
-    scene("J1-J4 > AS4 a-b-c > the last held: the band ends at the Kikon", (87014, 87446, 87301, 87445, 87441, 87442) + deck)
-    a = t + 0.3
-    for i in range(4): ev.extend(tap(a + 0.25 * i, "KeyJ", 0.05))
-    for f in (60, 66, 87): sp(a + f / 60)
-    sp(a + 108 / 60, 1.4)
-    for f, n in ((140, "hit"), (165, "rush"), (195, "rush2"), (430, "after"), (470, "after2")):
-        ev.append(shot(a + f / 60, f"yama-art-d-held4-{n}{sx}"))
-    t = a + 9.0
     ev.append(cmd(t, 87448)); t += 0.5
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
 write("yama-art-d", yama_art_d_script())
 write("yama-art-d-phone", yama_art_d_script(True))
+
+# Yamamoto §40 (DUEL_YAMA_CORE §40: AS4 one cut that splits the screen): J1-J4 > AS4 from 1.4 m (three marks, pointer 1), un-held, one scene
+# per still (stills a frame apart need their own run of the string): AS4's hit frame S and S-6, S-2, S+2, S+6, S+12, S+20 (the coil, the
+# release, the cut, the split opening, at its widest, closing, closed), from the behind camera, then the side camera (2109); first AS4 held:
+# its Kikon's cut beat (yama-tenchi-cine cf 68: the slash and the split along it) held at frames 70 / 72 / 76 / 84 (87635 / 36 / 38 / 42).
+# The presses on the frame grid (round 4): J every 15 f from G, SP on J4's hit (f60); AS4 hits on f74 + K_AS4 (calibrated by the log).
+# PHONE: the deck on (87901). 87448's consing line ends the run.
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 90 --script tests/scripts/duel-yama-as4-cut.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 90 --mobile --size 390x844 --script tests/scripts/duel-yama-as4-cut-phone.json
+K_AS4 = 1   # (S+0 drew frame 9 at 0: the still is a frame behind the press)
+def yama_as4_cut_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def at(s): return round(s, 4)
+    def tapx(s, k, hold): ev.append({"at": at(s), "key": k, "down": True}); ev.append({"at": at(s + hold), "key": k, "down": False})
+    def string(g, hold):
+        for i in range(4): tapx(g + (15 * i + 0.5) / 60, "KeyJ", 3 / 60)
+        ev.append({"at": at(g + 59.6 / 60), "key": "ShiftLeft", "down": True}); tapx(g + 60.5 / 60, "KeyJ", hold)
+        ev.append({"at": at(g + 60.5 / 60 + hold + 2 / 60), "key": "ShiftLeft", "down": False})
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return (int((t + 0.05 * len(cmds) + 0.3) * 60) + 1) / 60
+    setup = (87014, 87446, 87301, 87445, 87441, 87442, 87443) + deck
+    # the Kikon first, without the deck (on the deck the Kikon is the thumb kept down on the touch: a held key does not reach it)
+    g = scene("J1-J4 > AS4 held: the Kikon's cut", setup[:7])
+    string(g, 1.4)
+    for k in range(int(1.2 * 60), int(5.0 * 60)):   # (a hold acts only while the cinematic runs: asked every frame until it starts)
+        ev.append({"at": at(g + (k + 0.5) / 60), "eval": "Module._debug_cmd(87635)"})
+    a = g + 5.3
+    for j, f in enumerate((70, 72, 76, 84)):
+        if j: ev.append({"at": at(a), "eval": f"Module._debug_cmd({87600 + f // 2})"}); a += 0.4
+        ev.append({"at": at(a), "shot": f"{SHOTS}yama-as4-cut-kikon-{f}{sx}.png"}); a += 0.1
+    t = a + 0.5
+    ev.append(cmd(t, 87699)); t += 3.0                 # (the hold let go: 198 is past its 168 f, so it runs out)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for d in (-6, -2, 0, 2, 6, 12, 20):
+            g = scene(f"J1-J4 > AS4, S{d:+d} {cam}", setup)
+            string(g, 3 / 60)
+            ev.append({"at": at(g + (74 + K_AS4 + d + 0.5) / 60), "shot": f"{SHOTS}yama-as4-cut-s{d:+03d}-{cam}{sx}.png"})
+            t = g + 3.2
+    ev.append(cmd(t, 87448)); t += 0.5
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-as4-cut", yama_as4_cut_script())
+write("yama-as4-cut-phone", yama_as4_cut_script(True))
 
 # Yamamoto art batch C (DUEL_YAMA_CORE §34): 西's flame on the charged swings. The match camera (behind), each swing at its first active
 # frame (S) and the next (S+1): an uncharged J1 > J2 for comparison, NSa > SA > J2 > J3 from 2.6 m (level 1: the edge 0.8 m past the tip),

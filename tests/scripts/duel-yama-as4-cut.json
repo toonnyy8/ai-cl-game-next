@@ -1,0 +1,2394 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== J1-J4 > AS4 held: the Kikon's cut')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 9.2,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 9.25,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 9.3,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 9.675,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.725,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.925,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.975,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.175,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.225,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.425,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.475,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.66,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.675,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.875,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.8917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.9083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.925,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.9417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.9583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.975,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 10.9917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.0083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.025,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.0417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.0583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.075,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.0917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.1083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.125,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.1417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.1583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.175,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.1917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.2083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.225,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.2417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.2583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.275,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.2917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.3083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.325,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.3417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.3583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.375,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.3917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.4083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.425,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.4417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.4583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.475,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.4917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.5083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.525,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.5417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.5583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.575,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.5917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.6083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.625,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.6417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.6583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.675,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.6917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.7083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.725,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.7417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.7583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.775,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.7917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.8083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.825,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.8417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.8583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.875,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.8917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.9083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.925,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.9417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.9583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.975,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 11.9917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.0083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.025,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.0417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.0583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.075,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 12.075,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.0917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.1083,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.1083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.125,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.1417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.1583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.175,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.1917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.2083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.225,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.2417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.2583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.275,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.2917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.3083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.325,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.3417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.3583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.375,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.3917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.4083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.425,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.4417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.4583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.475,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.4917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.5083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.525,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.5417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.5583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.575,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.5917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.6083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.625,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.6417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.6583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.675,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.6917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.7083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.725,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.7417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.7583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.775,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.7917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.8083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.825,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.8417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.8583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.875,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.8917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.9083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.925,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.9417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.9583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.975,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 12.9917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.0083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.025,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.0417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.0583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.075,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.0917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.1083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.125,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.1417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.1583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.175,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.1917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.2083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.225,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.2417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.2583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.275,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.2917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.3083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.325,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.3417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.3583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.375,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.3917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.4083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.425,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.4417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.4583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.475,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.4917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.5083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.525,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.5417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.5583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.575,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.5917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.6083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.625,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.6417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.6583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.675,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.6917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.7083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.725,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.7417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.7583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.775,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.7917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.8083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.825,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.8417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.8583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.875,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.8917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.9083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.925,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.9417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.9583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.975,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 13.9917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.0083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.025,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.0417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.0583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.075,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.0917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.1083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.125,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.1417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.1583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.175,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.1917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.2083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.225,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.2417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.2583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.275,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.2917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.3083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.325,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.3417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.3583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.375,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.3917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.4083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.425,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.4417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.4583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.475,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.4917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.5083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.525,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.5417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.5583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.575,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.5917,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.6083,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.625,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.6417,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.6583,
+"eval": "Module._debug_cmd(87635)"
+},
+{
+"at": 14.9667,
+"shot": "tests/shots/duel-yama-as4-cut-kikon-70.png"
+},
+{
+"at": 15.0667,
+"eval": "Module._debug_cmd(87636)"
+},
+{
+"at": 15.4667,
+"shot": "tests/shots/duel-yama-as4-cut-kikon-72.png"
+},
+{
+"at": 15.5667,
+"eval": "Module._debug_cmd(87638)"
+},
+{
+"at": 15.9667,
+"shot": "tests/shots/duel-yama-as4-cut-kikon-76.png"
+},
+{
+"at": 16.0667,
+"eval": "Module._debug_cmd(87642)"
+},
+{
+"at": 16.4667,
+"shot": "tests/shots/duel-yama-as4-cut-kikon-84.png"
+},
+{
+"at": 17.07,
+"eval": "Module._debug_cmd(87699)"
+},
+{
+"at": 20.02,
+"eval": "console.log('=== J1-J4 > AS4, S-6 behind')"
+},
+{
+"at": 20.07,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 20.12,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 20.17,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 20.22,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 20.27,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 20.32,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 20.37,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 20.7417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.7917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.9917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.0417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.2417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.2917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.4917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.5417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.7267,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.7417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.7917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.825,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.8917,
+"shot": "tests/shots/duel-yama-as4-cut-s-06-behind.png"
+},
+{
+"at": 23.88,
+"eval": "console.log('=== J1-J4 > AS4, S-2 behind')"
+},
+{
+"at": 23.93,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 23.98,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 24.03,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 24.08,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 24.13,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 24.18,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 24.23,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 24.6083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.6583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.8583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.9083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.1083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.1583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.3583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.4083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.5933,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.6083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.6583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.6917,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.825,
+"shot": "tests/shots/duel-yama-as4-cut-s-02-behind.png"
+},
+{
+"at": 27.75,
+"eval": "console.log('=== J1-J4 > AS4, S+0 behind')"
+},
+{
+"at": 27.8,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 27.85,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 27.9,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 27.95,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 28.0,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 28.05,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 28.1,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 28.475,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.525,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.725,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.775,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.975,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.025,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.225,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.275,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.46,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.475,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.525,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.5583,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.725,
+"shot": "tests/shots/duel-yama-as4-cut-s+00-behind.png"
+},
+{
+"at": 31.62,
+"eval": "console.log('=== J1-J4 > AS4, S+2 behind')"
+},
+{
+"at": 31.67,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 31.72,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 31.77,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 31.82,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 31.87,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 31.92,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 31.97,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 32.325,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.375,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.575,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.625,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.825,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.875,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.075,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.125,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.31,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.325,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.375,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.4083,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 33.6083,
+"shot": "tests/shots/duel-yama-as4-cut-s+02-behind.png"
+},
+{
+"at": 35.47,
+"eval": "console.log('=== J1-J4 > AS4, S+6 behind')"
+},
+{
+"at": 35.52,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 35.57,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 35.62,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 35.67,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 35.72,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 35.77,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 35.82,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 36.1917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 36.2417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.4417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 36.4917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.6917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 36.7417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.9417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 36.9917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.1767,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 37.1917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.2417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.275,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 37.5417,
+"shot": "tests/shots/duel-yama-as4-cut-s+06-behind.png"
+},
+{
+"at": 39.33,
+"eval": "console.log('=== J1-J4 > AS4, S+12 behind')"
+},
+{
+"at": 39.38,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 39.43,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 39.48,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 39.53,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 39.58,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 39.63,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 39.68,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 40.0583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.1083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.3083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.3583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.5583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.6083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 40.8083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 40.8583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 41.0433,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 41.0583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 41.1083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 41.1417,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 41.5083,
+"shot": "tests/shots/duel-yama-as4-cut-s+12-behind.png"
+},
+{
+"at": 43.2,
+"eval": "console.log('=== J1-J4 > AS4, S+20 behind')"
+},
+{
+"at": 43.25,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 43.3,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 43.35,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 43.4,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 43.45,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 43.5,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 43.55,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 43.925,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.975,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.175,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.225,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.425,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.475,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.675,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.725,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.91,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.925,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.975,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 45.0083,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 45.5083,
+"shot": "tests/shots/duel-yama-as4-cut-s+20-behind.png"
+},
+{
+"at": 47.12,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 47.37,
+"eval": "console.log('=== J1-J4 > AS4, S-6 side')"
+},
+{
+"at": 47.42,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 47.47,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 47.52,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 47.57,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 47.62,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 47.67,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 47.72,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 48.0917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.1417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 48.3417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.3917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 48.5917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.6417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 48.8417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.8917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.0767,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.0917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.1417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.175,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 49.2417,
+"shot": "tests/shots/duel-yama-as4-cut-s-06-side.png"
+},
+{
+"at": 51.23,
+"eval": "console.log('=== J1-J4 > AS4, S-2 side')"
+},
+{
+"at": 51.28,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 51.33,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 51.38,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 51.43,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 51.48,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 51.53,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 51.58,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 51.9583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 52.0083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.2083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 52.2583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.4583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 52.5083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.7083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 52.7583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.9433,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 52.9583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 53.0083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 53.0417,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 53.175,
+"shot": "tests/shots/duel-yama-as4-cut-s-02-side.png"
+},
+{
+"at": 55.1,
+"eval": "console.log('=== J1-J4 > AS4, S+0 side')"
+},
+{
+"at": 55.15,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 55.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 55.25,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 55.3,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 55.35,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 55.4,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 55.45,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 55.825,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 55.875,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 56.075,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 56.125,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 56.325,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 56.375,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 56.575,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 56.625,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 56.81,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 56.825,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 56.875,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 56.9083,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 57.075,
+"shot": "tests/shots/duel-yama-as4-cut-s+00-side.png"
+},
+{
+"at": 58.97,
+"eval": "console.log('=== J1-J4 > AS4, S+2 side')"
+},
+{
+"at": 59.02,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 59.07,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 59.12,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 59.17,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 59.22,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 59.27,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 59.32,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 59.6917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 59.7417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 59.9417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 59.9917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.1917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.2417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.4417,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.4917,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.6767,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 60.6917,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.7417,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.775,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 60.975,
+"shot": "tests/shots/duel-yama-as4-cut-s+02-side.png"
+},
+{
+"at": 62.83,
+"eval": "console.log('=== J1-J4 > AS4, S+6 side')"
+},
+{
+"at": 62.88,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 62.93,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 62.98,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 63.03,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 63.08,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 63.13,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 63.18,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 63.5583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 63.6083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 63.8083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 63.8583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 64.0583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 64.1083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 64.3083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 64.3583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 64.5433,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 64.5583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 64.6083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 64.6417,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 64.9083,
+"shot": "tests/shots/duel-yama-as4-cut-s+06-side.png"
+},
+{
+"at": 66.7,
+"eval": "console.log('=== J1-J4 > AS4, S+12 side')"
+},
+{
+"at": 66.75,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 66.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 66.85,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 66.9,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 66.95,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 67.0,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 67.05,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 67.4083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 67.4583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 67.6583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 67.7083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 67.9083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 67.9583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 68.1583,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 68.2083,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 68.3933,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 68.4083,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 68.4583,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 68.4917,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 68.8583,
+"shot": "tests/shots/duel-yama-as4-cut-s+12-side.png"
+},
+{
+"at": 70.55,
+"eval": "console.log('=== J1-J4 > AS4, S+20 side')"
+},
+{
+"at": 70.6,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 70.65,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 70.7,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 70.75,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 70.8,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 70.85,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 70.9,
+"eval": "Module._debug_cmd(87443)"
+},
+{
+"at": 71.275,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 71.325,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 71.525,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 71.575,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 71.775,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 71.825,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 72.025,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 72.075,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 72.26,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 72.275,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 72.325,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 72.3583,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 72.8583,
+"shot": "tests/shots/duel-yama-as4-cut-s+20-side.png"
+},
+{
+"at": 74.47,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 74.97,
+"eval": "console.log('=== END')"
+}
+]

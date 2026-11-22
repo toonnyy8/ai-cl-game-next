@@ -8,7 +8,7 @@
 (defcine yama-tenchi-cine (a v :len 168 :hold 26)
   "Tenchi Kaijin (北's Kikon: the NS 北 wave's strike and AS 北 carry it as their :cine; §4.1 of DUEL_YAMA_REWORK, paced by user review 3):
 beat 0 in the Bankai's grey; a long black card, Yamamoto silhouetted with a white back-rim under the 北 / 天地灰尽 stamp, silence; the slash:
-a white / ink two-tone frame with the hard white slash, then a manga page; the victim flakes into ash (an ink splash) in the same shot; a
+a white / ink two-tone frame with the hard white slash, the screen split along it for 0.3 s (§40), then a manga page; the victim flakes into ash (an ink splash) in the same shot; a
 low wide of him standing in the grey world. (The old script hid the victim's body after the ash, MODEL-ALPHA 0, which nothing restores
 after the reset: dropped.)"
   (at 0 (face-each-other a v 2.4)
@@ -17,6 +17,7 @@ after the reset: dropped.)"
   (at 12 (card :black a) (back-rim 56) (shot-on a 70 3.2 0.9 :look 1.2 :off 0.8) (lens 42 -8) (silence 56)
       (caption "天地灰尽" :mark "北" :reading "TENCHI KAIJIN" :sub "ZANKA NO TACHI" :side 0 :hanko t))
   (during (68 168) (vfx-tenchi-slash (/ (- cf 68) 60.0) 0.8))
+  (during (68 86) (yama-tenchi-split (- cf 68)))   ; the screen split along the slash (§40; yama-look.lisp)
   (at 68 (card nil) (play-sfx :kikon-slash) (impact-frame :two-tone 4) (shot-pair a v 1 5.0 1.4) (lens 55))
   (at 72 (impact-frame :manga 12))
   (at 86 (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-ash-burst x y z) (vfx-konpaku-shatter x y z (fighter-kikon-n (fighter a))))
