@@ -3793,3 +3793,33 @@ the shot at f50 are as before; the victim shot moved from f56 to f60.
   `(aref (pos-of v) 1)` (the victim's sunk y) read boxed through an undeclared vector (0 B only while y is 0); now read through a
   declared f32vec. That is likely the old "south-* 80 B in a fresh scene" rows' kind too (§35); they are gone with the old look.
 - Stills: `tests/scripts/duel-yama-minami2[-phone].json` (duel.py `yama_minami2_script`), 15 beats f54-f238.
+
+### 36.4 Round 2 (the lead's review of round 1, 2026-11-22: 「the look fails its one job」)
+
+The lead: the sea read as black bombs / bubbles (a black disc, a white rim, one red dot = an eyeball), the top-down as bubbles, the sink not
+visible, near-lens balls, the posed dead at his shins as grey boulders, the stage cracks over the sea, the sink-back as a tar puddle.
+Re-read the references (Ep 372: a mound mostly of open hands; ch. 508: skull faces). As built:
+
+| Item | Round 1 | Round 2 |
+|---|---|---|
+| The figure (`%ya-wight`) | ink disc + one blood dot + ink kite arms (24 / 36 verts) | `%ya-skull`: an ASH (bone) cranium, two INK sockets side by side along the camera's right, an ASH jaw below (30); `%ya-bone-hand`: an ASH bone stroke, a palm and three splayed fingers (54 an arm); 0 / 1 / 2 arms on 10 / 70 / 20 % of spots, leaning toward the victim, harder as the sea flows in (0.45 → 1.25) |
+| Far tier | a 6-vert speck | a skull face without the jaw (18) and on half the spots a raised two-fingered bone hand (+42); a second skull a spot when the camera looks down (forward y < -0.6) |
+| Tiers / caps | mid under a half frame of 5 m; mid < 4000, all < 6000 | mid under 2.5 m (only near the lens's range: the long lens draws the far tier); mid < 3600, all < 8000 (6600 once the mound stands, 4000 from f200) |
+| Lens cull | 3 m | 5 m (and no dust within 6 m) |
+| The sink | -0.4 by f116, -H/2 by f160 | -0.6 m by f116, -H/2 by f150, -0.7 H by f170, -(H - 0.35) by f180, under by f192 |
+| On him | 8 posed `ya-dead` (grey boulders) + 14 climbers at 0.6-1.15 m | the posed dead removed; 8 bone hands out of the floor, each under a skull breaking it, reaching to his shins, pelvis, sword hand, forearm, upper arms and chest (joint points of his posed body, from f86, one every 6 f, none from the lens's side, each dropped once its joint is under); 14 climbers at 1.0-1.5 m from f96, none between him and the lens before f116 |
+| Close shot | 35° / 4.2 m / 0.6 m up, look 0.85 | 35° / 4.6 m (phone 6.6) / 0.45 m up, look 0.55: his feet and the floor in frame |
+| Walk shot | 9 m, 1.4 m up, lens 30 | 9 m, 2.0 m up (over the sea onto him), lens 26 |
+| Top-down | 23° off vertical, 6.8 m up | 50° down from the old man's side, 5.6 m up (phone 6.6), looking at 0.3 m: profiles and raised hands show |
+| Mound | `%ya-cone!` h 1.1, r0 0.85, sc 0.85 | h 1.6, r0 1.1, sc 1.0 (climbers with hands), one last bone hand out of its crest f188-206 |
+| Stage cracks | `stage-crack-add` x3 at f51 | at f236 (the same places, from the victim's side), once the sea has gone |
+| Sink-back | the figures down together f212-238, the ground's k fading f220-238 (a receding contour) | each figure down at its own frame (f208-236), the ground ragged (wobble 0.3 → 1.2 from f212) and gone f216-226 |
+
+Measured (the temporary toon-fill readout again, each beat held, not committed), whole-frame toon verts per beat, landscape / phone: f70
+9846 / 9828, f84 9834 / 9894, f100 10446 / 10518, f114 11646-11718 / 11664-11736, f130 **13080** / 13014 (the peak: the walk shot, the
+sea at its 8000 cap), f156 12408 / 12402, f170 10458 / 10392, f182-f192 12504 / 12528, f200 10494 / 10578, f210 12516 / 12630, f226 9786 /
+9888; 3304 left at the peak; `fx-dropped 0` on every stats line, no `slow frame`. (A first round-2 run with the sea at 8800 / 6600 read
+15120 at f210 and 13884 at f156: hence 8000 and 4000 from f200.) Probe 87448: every row 0 B in all three lines (f130, f182, the end).
+The stills script now holds each beat 0.75 s (the counts above were read with 2.2 s holds). A hold artifact: in the held stills a cloud
+of ash puffs stands round his blade at f156 and at the frame's left at f192 (it builds up over the earlier holds; none of this look's
+emitters runs there; not traced further). The cinematic played straight (no holds, stills by time at f130 / f156 / f192) has no cloud.
