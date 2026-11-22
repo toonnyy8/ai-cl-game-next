@@ -3678,3 +3678,23 @@ the column's look today).
 **Checks per batch**: host tests (the FK reach test: drawn tip = hit reach ± 0.15 m; NS2a / AS4 leave the one-sided list), pkgcheck, build,
 smoke, the 0 B consing probe (87448 / 87449), Yamamoto's native trials byte-identical in numbers, stills from two cameras and both aspect
 ratios. No `--cvc`, no looks gate, no CPU match (presentation only, DEVLOG §847).
+
+### 34.1 As built (2026-11-22; merged 924a0d18)
+
+| Batch | As built | Drawn vs hit |
+|---|---|---|
+| A 南 | `%ya-climber` (one ink skeleton, a blood-red eye), `%ya-cone-draw` (rings of climbers tapering up, hands on the crown and the base, a charcoal core, a pivot on the base, a crumble from the top) serving `yama-tower-look` (16 f to 3 m / 6 m; NSb's climb over 16 f via `+ya-tower-raise2+` 114; leans to 50° by NSc's S), `yama-topple-look` (72° / 86° on ages 0 / 1, then skeletons, skulls, bones and ash along the 3 / 6 m line, gone by 30 f), `yama-shatter-look` (24 pieces in ±28.6° out to 6 m, ash by 30 f), `yama-as3b-look` (a hollow heap round the victim); `yama-wall-look`, `%ya-rampart`, `yama-fall-look` removed | looks only (the hazards' numbers untouched) |
+| B Shikai | clip `:ya-n2a` (the old `:ya-enjo` renamed) for NS2a and 爆炎 NS2a: drawn back right f1-12, a trembling hold f13-17, the sweep f18-20, level ahead on a 0.62 m lunge at S; NS2b's frame 0 = its S+A pose; the flame fan (three arcs, curled tongues, by heat tier; codes 9 / 10 in `yama-sk-moves`); `yama-ennetsu-look` rewritten as the ground-fire disc (a bed of 32 tongues, a rim curtain of 24, six fountains with sparks, erupting on the hit, dying over 16 f) | NS2a 2.41 vs 2.40 (was 1.89), off the one-sided list |
+| C 西 | `yama-west-flame` / `ya-west-arc`: while charged, the blade tip's path FK-sampled every half frame from S−2 to S+A+1, a tongue per sample hooked back along the cut, the edge at the striking point + 0.8 / 1.6 m (`ya-flame-out!`), held and faded over 6 f; the SA copies, E-J2 / J3 / J4, AS1, AS2a (the hand), NS2c at level 2; AS2b a ring of 20 tongues at the copy's reach | flame edge within 0.06 m of the charged volume (new host check) |
+| D J4 / AS4 | clip `:ya-e-q4` (frame 0 = J3's f11; the blade up over the right shoulder, a held tell f6-7, the kesa cut at S9, sunk low to f22, a slow rise); `:ya-e-as4a` (the pommel into the chest, an ash puff), `-as4b` (a rising forehand, an ash comet), `-as4c` (a level backhand, a thin white line), `:ya-e-as4` (blade low behind, the diagonal from low right behind to high left in front on a 0.9 m lunge); the white band (3 m wide, holds 12 f, erodes by 44 f) and the victim greyed to ash with cinders (~1.1 s, ended by a Kikon or any cinematic) through a new look-only kit hook `:victim-look` (draw.lisp VICTIM-LOOK: the same tint and flash for every other kit); `yama-north-look` and clip `ya-e-f1` removed | J4 1.52 / 1.52, AS4a 1.63 / 1.60 (pommel), AS4b 2.00 / 2.00, AS4c 2.03 / 2.00, AS4 2.44 / 2.40 (off the one-sided list) |
+
+**Checks on merged main.** Host tests 4326 ALL PASS; pkgcheck only `DUEL::APP`; debug ranges 90, 0 errors; build; smoke exit 0; the stills
+scripts `duel-yama-art-{a,b,c,d}.json` exit 0; consing 87448 / 87449: every new row 0 B (south-dead / pile / burst 80 B as before); trials
+`yamamoto-{core,blaze,bankai,sp30}.lisp` exit 0, bankai / sp30 rows identical to §33's, core / blaze identical to 799599f0 (batch B's diff).
+No `--cvc`, looks gate or CPU match (presentation only).
+
+**Open for the user.** 南: level 2's crown leaves the behind camera's frame; the shatter starts 2.5 m along his facing (not at the tower when
+the victim stands off-axis); a victim within 0.5 m of the base sees the topple fall along his facing (the sim's rule). Shikai: from behind
+the fan reads as a fire band; ENNETSU's camera-side tongues cover the phone's lower screen. 西: AS2b's ring runs under the phone's HUD.
+AS4: the white band reads partly as a board from the oblique camera; the cinders are small in landscape; J4's tell hides under the ink
+smear from the match camera. Stale mentions of `ya-e-f1` remain in §15.2.2 / §18 (history).
