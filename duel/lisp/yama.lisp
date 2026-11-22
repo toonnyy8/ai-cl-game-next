@@ -416,7 +416,8 @@ all three no longer enter 北: §33)."
   (logior marks (ash 1 (1- n))))
 
 (defun ya-charge-level (cm)
-  "西's garb charge carried by a string whose charged SA's x is CM (FIGHTER-CHARGE-MULT, §30.2): 2 at x1.7, 1 at x1.4, else 0."
+  "西's garb charge carried by a string whose charged SA's x is CM (FIGHTER-CHARGE-MULT, §30.2): 2 at x1.7, 1 at x1.4, else 0. Its
+thresholds are inlined (no boxed float) in yama-look.lisp's YAMA-GARB-K and YAMA-WEST-FLAME: keep the three equal."
   (cond ((>= cm 1.65) 2) ((>= cm 1.35) 1) (t 0)))
 
 (defun ya-reach-copy (name lv)

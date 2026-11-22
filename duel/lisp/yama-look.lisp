@@ -539,7 +539,7 @@ neutral). 0 B."
                (:ya-e-n2a (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv))))))
                (:ya-e-n2b (+ 1f0 (f-min 1f0 (/ (i->f (fighter-sf f)) (i->f (max 1 (mv-s mv)))))))
                (:ya-e-n2c 2f0)
-               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp: keep the two equal)
+               (t (cond ((>= cm 1.65f0) 2f0) ((>= cm 1.35f0) 1f0) (t 0f0))))))   ; (YA-CHARGE-LEVEL's, yama.lisp; YAMA-WEST-FLAME's: keep the three equal)
     (declare (type f32vec sz) (single-float cm lv))
     (if (<= lv 1f0)
         (+ (aref sz 0) (* lv (- (aref sz 1) (aref sz 0))))
@@ -708,7 +708,7 @@ A look."
          (lv (cond (cm (ya-charge-level cm))
                    ((eq n :ya-e-n2c) 2)
                    ((member n *ya-reach-moves*) (let ((c (fighter-charge-mult f)))   ; (YA-CHARGE-LEVEL's thresholds, inline: no
-                                                  (cond ((>= c 1.65) 2) ((>= c 1.35) 1) (t 0))))   ;  boxed float; keep the two equal)
+                                                  (cond ((>= c 1.65) 2) ((>= c 1.35) 1) (t 0))))   ;  boxed float; YAMA-GARB-K's too: keep the three equal)
                    (t 0))))
     (when (and (plusp lv) (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (> (model-alpha m) 0.5))
       (let ((add (nth (1- lv) *ya-charge-reach*)) (w (model-weapon m)))

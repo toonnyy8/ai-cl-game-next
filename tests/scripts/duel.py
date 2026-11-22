@@ -1730,7 +1730,8 @@ write("yama-sp30b", yama_sp30b_script())
 
 # Yamamoto art batch C (DUEL_YAMA_CORE §34): 西's flame on the charged swings. The match camera (behind), each swing at its first active
 # frame (S) and the next (S+1): an uncharged J1 > J2 for comparison, NSa > SA > J2 > J3 from 2.6 m (level 1: the edge 0.8 m past the tip),
-# NSa > NSb > SA > J2 > J3 from 4.4 m (level 2: 1.6 m); the behind camera, then the side camera (2109). Shot times are the move starts' ticks in a probe run (the `duel probe` lines, 87900):
+# NSa > NSb > SA > J2 > J3 from 4.4 m (level 2: 1.6 m); then the rest of the string: level 2's AS1, AS2a > AS2b (the ring), level 1's J4;
+# the behind camera, then the side camera (2109). Shot times are the move starts' ticks in a probe run (the `duel probe` lines, 87900):
 # A + frames after the scene's first press. PHONE: the deck on (87901), run with --mobile --size 390x844, stills -phone.
 def yama_art_c_script(phone=False):
     ev, t, sx = [], T0, ("-phone" if phone else "")
@@ -1756,6 +1757,13 @@ def yama_art_c_script(phone=False):
         a = scene(f"west NSa > NSb > SA > J2 > J3 (4.4 m) {cam}", (87044, 87302, 87446, 87445))
         sp(a); sp(a + 0.3); j(a + 0.65); j(a + 0.95); j(a + 1.2)
         shots(a, J_LV2, cam); t = a + 3.0
+        a = scene(f"west lv2 SA > AS1 {cam}", (87044, 87302, 87446, 87445)); sp(a); sp(a + 0.3); j(a + 0.65); sp(a + 1.0)
+        shots(a, J_AS1, cam); t = a + 2.5
+        a = scene(f"west lv2 SA > J2 > AS2a > AS2b {cam}", (87044, 87302, 87446, 87445))
+        sp(a); sp(a + 0.3); j(a + 0.65); j(a + 0.95); sp(a + 1.3); sp(a + 1.65)
+        shots(a, J_AS2, cam); t = a + 3.0
+        a = scene(f"west lv1 SA > J2 > J3 > J4 {cam}", (87026, 87302, 87446, 87445)); sp(a); j(a + 0.25); j(a + 0.6); j(a + 0.85); j(a + 1.1)
+        shots(a, J_J4, cam); t = a + 2.5
     ev.append(cmd(t, 87448)); t += 0.5
     ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
     return sorted(ev, key=lambda x: x["at"])
@@ -1764,5 +1772,8 @@ J_LV1 = ((35, "lv1-sa-1"), (36, "lv1-sa-2"), (49, "lv1-j2-1"), (51, "lv1-j2-2"),
 J_LV2 = ((52, "lv2-sa-1"), (54, "lv2-sa-2"), (66, "lv2-j2-1"), (67, "lv2-j2-2"), (81, "lv2-j3-1"), (82, "lv2-j3-2"))   #  after its still);
                                                                           #  the drawn clip runs a step ahead of the move frame; lv1's SA
                                                                           #  never draws its tick S: S-1 and S+1)
+J_AS1 = ((72, "lv2-as1"),)                                                # (AS1's S+1, the cut into the floor)
+J_AS2 = ((92, "lv2-as2a"), (114, "lv2-as2b"))                             # (S of each: the grab's hand, the throw's ring)
+J_J4 = ((81, "lv1-j4"),)                                                  # (J4: E-J1's clip until batch D's own)
 write("yama-art-c", yama_art_c_script())
 write("yama-art-c-phone", yama_art_c_script(True))
