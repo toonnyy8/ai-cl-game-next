@@ -4191,7 +4191,11 @@ One macro serves all three places:
 
 It is the existing palettes only (DUST, ASH: grey; no new hue) and the existing particles (`%t-blob`). It follows the pattern of
 `yama-hands-look`'s dust: a rate (`n-of`) over a window of move frames, scaled by the frame's effect seconds RDT. RDT is 0 while
-frozen, so a hitstop or a pause adds none and a cancel simply ends the window. No spawned flag, no history.
+paused or in a held beat, and a cancel simply ends the window. A hit's hitstop does not stop the effect seconds (`game-frame`'s FDT
+runs on while the sim, and so the move frame, stands still), so the macro emits nothing while `*hitstop*` > 0. The burst then comes
+in the window's 4 sim frames after the freeze, the same total as on a whiff. No spawned flag, no history. Slow motion (`slowmo`) is
+not scaled out: a slowed window emits for longer. NS1c and AS1 run no slow motion of their own, and the cinematic's CINE-SLOW already
+scales RDT.
 
 | Call | Window | Rate | About | SZ |
 |---|---|---|---|---|
@@ -4204,10 +4208,11 @@ The first cinematic try (110 / s, 0.45 m, f85-93) still filled the void at the b
 ### 41.4 Stills
 
 `tests/scripts/duel.py` `yama_east41_script` writes `duel-yama-east41.json` and `-phone.json`. The shots:
-- NS1c on its own (87422, Kenpachi 8 m away: no hit, so no hitstop) at S+1 / +3 / +6 / +16;
+- NS1c on its own (87422, Kenpachi 8 m away: no hit, so no hitstop) at S+1 / +3 / +6 / +16, and hitting him 3 m away (its hitstop)
+  at S+2 / +8 / +14 / +22 from behind;
 - AS1 on its own (87430, 3 m) at S+1 / +3 / +6 / +14;
 - both from the match's behind camera and from above (87480);
-- the 東 Kikon (87450) held at f86 / 88 / 92 / 96 / 120.
+- the 東 Kikon (87450) held at f86 / 88 / 92 / 96 / 104 / 120.
 
 The before / after contact sheets (a 2ee4d3a1 dist, then this build) are in the session scratchpad `east-tear/`, landscape and
 portrait.
@@ -4220,10 +4225,20 @@ What they show:
   1 m wide (the hit's 0.8 m plus the teeth), close to 6:1. From the behind camera it reads as a jagged black wedge from his blade along
   the line, with about ten small grey puffs kicking up along it on S, settling within half a second.
 - **AS1's notch** is a short diamond, 1.4 x 0.6-0.8 m, mostly under the two bodies, as before.
+- **NS1c on a hit**: through the hitstop the tear stays a thin line (its move frame stands at S) and no dust rises. The few puffs come
+  once the freeze ends, about as many as on a whiff.
+- **The 東 Kikon's victim beat (f100-104) changed.** The victim stands about 0.34 m past the tip's touch point. There the tent's
+  opened half-width is only about 0.14 m, against §20.1's wedge of 0.4 m plus spikes. §15.3.1's "behind the victim, half on the black,
+  his Konpaku shatters" no longer has him on the black: at f104 (the negative frame) and f120 the void lies beyond him, not under his
+  feet. The origin stays at the tip's touch point, as the brief fixed it.
 
-**For the user.** NS1c's rhombus is held to the hit's width (drawn = hit), so it is a long, narrow diamond, not a broad one. A diamond
-that reads broad from the match camera would need the line's hit width raised, to about 1 m a side. That is a sim change (it widens
-what the move hits), so it is left to the user.
+**For the user.**
+- NS1c's rhombus is held to the hit's width (drawn = hit), so it is a long, narrow diamond (about 5.5:1), not a broad one. From the
+  match camera it reads as a jagged wedge. A diamond that reads broad there would need the line's hit width raised, to about 1 m a
+  side. That is a sim change (it widens what the move hits), so it is left to the user.
+- In the Kikon the victim is no longer on the black at the shatter (above). Moving the corner toward him, or starting the tear behind
+  the touch point, would put him back on it.
+- The Kikon's edge reads as a fine, fairly even saw: one station every 0.33 m. The knobs are N and the station jitter.
 
 ### 41.5 Checks
 

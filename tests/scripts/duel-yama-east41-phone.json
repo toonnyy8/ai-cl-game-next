@@ -81,11 +81,11 @@
 },
 {
 "at": 16.45,
-"eval": "console.log('=== ns1c top')"
+"eval": "console.log('=== ns1chit behind')"
 },
 {
 "at": 16.5,
-"eval": "Module._debug_cmd(87080)"
+"eval": "Module._debug_cmd(87030)"
 },
 {
 "at": 16.55,
@@ -100,40 +100,32 @@
 "eval": "Module._debug_cmd(87901)"
 },
 {
-"at": 17.95,
-"eval": "Module._debug_cmd(87480)"
-},
-{
 "at": 18.25,
 "eval": "Module._debug_cmd(87422)"
 },
 {
-"at": 18.57,
-"shot": "tests/shots/duel-east41-ns1c-s1-top-phone.png"
+"at": 18.58,
+"shot": "tests/shots/duel-east41-ns1chit-s2-behind-phone.png"
 },
 {
-"at": 18.6,
-"shot": "tests/shots/duel-east41-ns1c-s3-top-phone.png"
+"at": 18.68,
+"shot": "tests/shots/duel-east41-ns1chit-s8-behind-phone.png"
 },
 {
-"at": 18.65,
-"shot": "tests/shots/duel-east41-ns1c-s6-top-phone.png"
+"at": 18.78,
+"shot": "tests/shots/duel-east41-ns1chit-s14-behind-phone.png"
 },
 {
-"at": 18.82,
-"shot": "tests/shots/duel-east41-ns1c-s16-top-phone.png"
-},
-{
-"at": 19.45,
-"eval": "Module._debug_cmd(87480)"
+"at": 18.92,
+"shot": "tests/shots/duel-east41-ns1chit-s22-behind-phone.png"
 },
 {
 "at": 20.2,
-"eval": "console.log('=== as1 top')"
+"eval": "console.log('=== ns1c top')"
 },
 {
 "at": 20.25,
-"eval": "Module._debug_cmd(87030)"
+"eval": "Module._debug_cmd(87080)"
 },
 {
 "at": 20.3,
@@ -153,23 +145,23 @@
 },
 {
 "at": 22.0,
-"eval": "Module._debug_cmd(87430)"
+"eval": "Module._debug_cmd(87422)"
 },
 {
-"at": 22.18,
-"shot": "tests/shots/duel-east41-as1-s1-top-phone.png"
+"at": 22.32,
+"shot": "tests/shots/duel-east41-ns1c-s1-top-phone.png"
 },
 {
-"at": 22.22,
-"shot": "tests/shots/duel-east41-as1-s3-top-phone.png"
-},
-{
-"at": 22.27,
-"shot": "tests/shots/duel-east41-as1-s6-top-phone.png"
+"at": 22.35,
+"shot": "tests/shots/duel-east41-ns1c-s3-top-phone.png"
 },
 {
 "at": 22.4,
-"shot": "tests/shots/duel-east41-as1-s14-top-phone.png"
+"shot": "tests/shots/duel-east41-ns1c-s6-top-phone.png"
+},
+{
+"at": 22.57,
+"shot": "tests/shots/duel-east41-ns1c-s16-top-phone.png"
 },
 {
 "at": 23.2,
@@ -177,7 +169,7 @@
 },
 {
 "at": 23.95,
-"eval": "console.log('=== higashi')"
+"eval": "console.log('=== as1 top')"
 },
 {
 "at": 24.0,
@@ -185,62 +177,118 @@
 },
 {
 "at": 24.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 24.1,
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 26.5,
-"eval": "Module._debug_cmd(87450)"
-},
-{
-"at": 26.52,
+"at": 24.15,
 "eval": "Module._debug_cmd(87901)"
 },
 {
-"at": 26.53,
+"at": 25.45,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 25.75,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 25.93,
+"shot": "tests/shots/duel-east41-as1-s1-top-phone.png"
+},
+{
+"at": 25.97,
+"shot": "tests/shots/duel-east41-as1-s3-top-phone.png"
+},
+{
+"at": 26.02,
+"shot": "tests/shots/duel-east41-as1-s6-top-phone.png"
+},
+{
+"at": 26.15,
+"shot": "tests/shots/duel-east41-as1-s14-top-phone.png"
+},
+{
+"at": 26.95,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 27.7,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 27.75,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 27.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 30.25,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 30.27,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 30.28,
 "eval": "Module._debug_cmd(87643)"
 },
 {
-"at": 28.26,
+"at": 32.01,
 "shot": "tests/shots/duel-east41-cine-f86-phone.png"
 },
 {
-"at": 28.31,
+"at": 32.06,
 "eval": "Module._debug_cmd(87644)"
 },
 {
-"at": 28.65,
+"at": 32.4,
 "shot": "tests/shots/duel-east41-cine-f88-phone.png"
 },
 {
-"at": 28.7,
+"at": 32.45,
 "eval": "Module._debug_cmd(87646)"
 },
 {
-"at": 29.06,
+"at": 32.81,
 "shot": "tests/shots/duel-east41-cine-f92-phone.png"
 },
 {
-"at": 29.11,
+"at": 32.86,
 "eval": "Module._debug_cmd(87648)"
 },
 {
-"at": 29.48,
+"at": 33.23,
 "shot": "tests/shots/duel-east41-cine-f96-phone.png"
 },
 {
-"at": 29.53,
+"at": 33.28,
+"eval": "Module._debug_cmd(87652)"
+},
+{
+"at": 33.71,
+"shot": "tests/shots/duel-east41-cine-f104-phone.png"
+},
+{
+"at": 33.76,
 "eval": "Module._debug_cmd(87660)"
 },
 {
-"at": 30.23,
+"at": 34.33,
 "shot": "tests/shots/duel-east41-cine-f120-phone.png"
 },
 {
-"at": 30.88,
+"at": 34.98,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 31.18,
+"at": 35.28,
 "eval": "console.log('=== END')"
 }
 ]

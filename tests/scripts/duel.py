@@ -1275,7 +1275,7 @@ write("yama-k5-phone", yama_k5_script(True))
 # Yamamoto's 東 tear as a ragged rhombus with a dust kick (DUEL_YAMA_CORE §41): NS1c on its own (87422, Kenpachi 8 m away: no hit, so no
 # hitstop and the move frames count from the command; S18) at S+1 / +3 / +6 / +16, and AS1 on its own (87430, 3 m: no hit; S10) at S+1 /
 # +3 / +6 / +14, from the behind camera, then from above (87480 after the placement, off again after); the 東 Kikon held at f86 / 88 / 92 /
-# 96 / 120. The pointer 1 (87301) for 東's looks. PHONE: the deck on (87901). Shots tests/shots/duel-east41-*.png (move them off).
+# 96 / 104 / 120; NS1c hitting Kenpachi 3 m away (its hitstop) at S+2 / +8 / +14 / +22 from behind. The pointer 1 (87301) for 東's looks. PHONE: the deck on (87901). Shots tests/shots/duel-east41-*.png (move them off).
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --script tests/scripts/duel-yama-east41.json
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --mobile --size 390x844 --script tests/scripts/duel-yama-east41-phone.json
 def yama_east41_script(phone=False):
@@ -1286,7 +1286,9 @@ def yama_east41_script(phone=False):
         ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
         return t + 0.05 * (len(cmds) - 1)
     for cam in ("behind", "top"):
-        for nm, place, start, s, frames in (("ns1c", 87080, 87422, 18, (1, 3, 6, 16)), ("as1", 87030, 87430, 10, (1, 3, 6, 14))):
+        for nm, place, start, s, frames in (("ns1c", 87080, 87422, 18, (1, 3, 6, 16)), ("as1", 87030, 87430, 10, (1, 3, 6, 14)),
+                                            ("ns1chit", 87030, 87422, 18, (2, 8, 14, 22))):
+            if nm == "ns1chit" and cam == "top": continue   # (a hit: the dust held through the hitstop, then its 4 f)
             a = scene(f"{nm} {cam}", (place, 87301, 87446) + deck) + 1.6
             if cam == "top": ev.append(cmd(a - 0.3, 87480))
             ev.append(cmd(a, start))
@@ -1298,7 +1300,7 @@ def yama_east41_script(phone=False):
     t += 2.5
     ev.append(cmd(t, 87450))
     if phone: ev.append(cmd(t + 0.02, 87901))
-    beats = (86, 88, 92, 96, 120)
+    beats = (86, 88, 92, 96, 104, 120)
     ev.append(cmd(t + 0.03, 87600 + beats[0] // 2))
     a, f0 = t + 0.03, 0
     for j, f in enumerate(beats):

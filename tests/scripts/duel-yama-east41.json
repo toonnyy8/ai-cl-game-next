@@ -73,11 +73,11 @@
 },
 {
 "at": 16.35,
-"eval": "console.log('=== ns1c top')"
+"eval": "console.log('=== ns1chit behind')"
 },
 {
 "at": 16.4,
-"eval": "Module._debug_cmd(87080)"
+"eval": "Module._debug_cmd(87030)"
 },
 {
 "at": 16.45,
@@ -88,40 +88,32 @@
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 17.8,
-"eval": "Module._debug_cmd(87480)"
-},
-{
 "at": 18.1,
 "eval": "Module._debug_cmd(87422)"
 },
 {
-"at": 18.42,
-"shot": "tests/shots/duel-east41-ns1c-s1-top.png"
+"at": 18.43,
+"shot": "tests/shots/duel-east41-ns1chit-s2-behind.png"
 },
 {
-"at": 18.45,
-"shot": "tests/shots/duel-east41-ns1c-s3-top.png"
+"at": 18.53,
+"shot": "tests/shots/duel-east41-ns1chit-s8-behind.png"
 },
 {
-"at": 18.5,
-"shot": "tests/shots/duel-east41-ns1c-s6-top.png"
+"at": 18.63,
+"shot": "tests/shots/duel-east41-ns1chit-s14-behind.png"
 },
 {
-"at": 18.67,
-"shot": "tests/shots/duel-east41-ns1c-s16-top.png"
-},
-{
-"at": 19.3,
-"eval": "Module._debug_cmd(87480)"
+"at": 18.77,
+"shot": "tests/shots/duel-east41-ns1chit-s22-behind.png"
 },
 {
 "at": 20.05,
-"eval": "console.log('=== as1 top')"
+"eval": "console.log('=== ns1c top')"
 },
 {
 "at": 20.1,
-"eval": "Module._debug_cmd(87030)"
+"eval": "Module._debug_cmd(87080)"
 },
 {
 "at": 20.15,
@@ -137,23 +129,23 @@
 },
 {
 "at": 21.8,
-"eval": "Module._debug_cmd(87430)"
+"eval": "Module._debug_cmd(87422)"
 },
 {
-"at": 21.98,
-"shot": "tests/shots/duel-east41-as1-s1-top.png"
+"at": 22.12,
+"shot": "tests/shots/duel-east41-ns1c-s1-top.png"
 },
 {
-"at": 22.02,
-"shot": "tests/shots/duel-east41-as1-s3-top.png"
-},
-{
-"at": 22.07,
-"shot": "tests/shots/duel-east41-as1-s6-top.png"
+"at": 22.15,
+"shot": "tests/shots/duel-east41-ns1c-s3-top.png"
 },
 {
 "at": 22.2,
-"shot": "tests/shots/duel-east41-as1-s14-top.png"
+"shot": "tests/shots/duel-east41-ns1c-s6-top.png"
+},
+{
+"at": 22.37,
+"shot": "tests/shots/duel-east41-ns1c-s16-top.png"
 },
 {
 "at": 23.0,
@@ -161,7 +153,7 @@
 },
 {
 "at": 23.75,
-"eval": "console.log('=== higashi')"
+"eval": "console.log('=== as1 top')"
 },
 {
 "at": 23.8,
@@ -169,58 +161,110 @@
 },
 {
 "at": 23.85,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 23.9,
 "eval": "Module._debug_cmd(87446)"
 },
 {
-"at": 26.3,
+"at": 25.2,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 25.5,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 25.68,
+"shot": "tests/shots/duel-east41-as1-s1-top.png"
+},
+{
+"at": 25.72,
+"shot": "tests/shots/duel-east41-as1-s3-top.png"
+},
+{
+"at": 25.77,
+"shot": "tests/shots/duel-east41-as1-s6-top.png"
+},
+{
+"at": 25.9,
+"shot": "tests/shots/duel-east41-as1-s14-top.png"
+},
+{
+"at": 26.7,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 27.45,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 27.5,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 27.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 30.0,
 "eval": "Module._debug_cmd(87450)"
 },
 {
-"at": 26.33,
+"at": 30.03,
 "eval": "Module._debug_cmd(87643)"
 },
 {
-"at": 28.06,
+"at": 31.76,
 "shot": "tests/shots/duel-east41-cine-f86.png"
 },
 {
-"at": 28.11,
+"at": 31.81,
 "eval": "Module._debug_cmd(87644)"
 },
 {
-"at": 28.45,
+"at": 32.15,
 "shot": "tests/shots/duel-east41-cine-f88.png"
 },
 {
-"at": 28.5,
+"at": 32.2,
 "eval": "Module._debug_cmd(87646)"
 },
 {
-"at": 28.86,
+"at": 32.56,
 "shot": "tests/shots/duel-east41-cine-f92.png"
 },
 {
-"at": 28.91,
+"at": 32.61,
 "eval": "Module._debug_cmd(87648)"
 },
 {
-"at": 29.28,
+"at": 32.98,
 "shot": "tests/shots/duel-east41-cine-f96.png"
 },
 {
-"at": 29.33,
+"at": 33.03,
+"eval": "Module._debug_cmd(87652)"
+},
+{
+"at": 33.46,
+"shot": "tests/shots/duel-east41-cine-f104.png"
+},
+{
+"at": 33.51,
 "eval": "Module._debug_cmd(87660)"
 },
 {
-"at": 30.03,
+"at": 34.08,
 "shot": "tests/shots/duel-east41-cine-f120.png"
 },
 {
-"at": 30.68,
+"at": 34.73,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 30.98,
+"at": 35.03,
 "eval": "console.log('=== END')"
 }
 ]

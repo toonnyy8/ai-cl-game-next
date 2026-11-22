@@ -692,10 +692,10 @@ like dry brush). 24N vertices; inline, 0 B."
 
 (defmacro %ya-tear-dust (ax az fx fz len w rate sz rdt)
   "The dust kicked up as 東's tear splits the floor open (the user, 2026-11-22: 「斬裂地面的瞬間要有少量煙塵噴起的特效」, §41): RATE puffs a
-second (of RDT, the frame's effect seconds: 0 while frozen, so a hitstop or a pause adds none and the caller's frame window alone sets the
-total) of low grey DUST along the rhombus from AX AZ, LEN m along FX FZ, W wide (YAMA-TEAR's), each SZ m and lifting off its edge, and as
+second (of RDT, the frame's effect seconds: 0 while paused or in a held beat; and none while the sim is in a hit's hitstop (*HITSTOP*),
+whose effect seconds run on while the move frame stands still: so the caller's window of move frames alone sets the total) of low grey DUST along the rhombus from AX AZ, LEN m along FX FZ, W wide (YAMA-TEAR's), each SZ m and lifting off its edge, and as
 many grains of ASH grit tossed up to fall back within about 0.5 s. Single-float forms; rnd only (cosmetic); 0 B."
-  `(let ((%ax ,ax) (%az ,az) (%fx ,fx) (%fz ,fz) (%len ,len) (%w ,w) (%sz ,sz) (%rdt ,rdt))
+  `(let ((%ax ,ax) (%az ,az) (%fx ,fx) (%fz ,fz) (%len ,len) (%w ,w) (%sz ,sz) (%rdt (if (> *hitstop* 0) 0f0 ,rdt)))
      (declare (single-float %ax %az %fx %fz %len %w %sz %rdt))
      (dotimes (%i (n-of ,rate %rdt))
        (let* ((%c (rnd-range 0.08f0 0.92f0)) (%sg (if (< (rnd01) 0.5f0) -1f0 1f0))
