@@ -76,18 +76,24 @@ look reads no boxed struct float.")
 (defun-fast yama-higashi-look (a v cf)
   "東's look at cinematic frame CF: the void (D3 「黑色虛空帶」, §15.3.4 flag 1: no stage geometry is removed, a flat INK wedge on the
 floor shot from above) opens from where the tip touched, 1.86 m ahead of him (NS1c's tip by FK), through the victim's spot: a ragged
-radial tear (YAMA-TEAR, the user's §20) whose body runs 0.8 m wide at the tip to 5 m at 12 m in 10 f from f84, 16 spikes a side and 5 round
-each end growing out over 14 f; no ember hairline (§20.1); ash falling into it to the end. A look; 0 B."
+rhombus (YAMA-TEAR, the user's §41; §20's radial tear before) running out to 12 m in 10 f from f84 and opening out to 2.5 m a side at its
+widest over 14 f, 18 stations a side; a dust kick along it while it runs out (f85-91, §41); no ember hairline (§20.1); ash falling into
+it to the end. A look; 0 B."
   (declare (fixnum cf))
   (when (>= cf 84)
     (%ya-line (px pz qx qz fx fz rx rz d) a v
-      (let* ((tx (+ px (* 1.86f0 fx))) (tz (+ pz (* 1.86f0 fz))) (u (f-min 1f0 (/ (i->f (- cf 84)) 10f0))) (l (* 12f0 u))
-             (w0 0.4f0) (w1 (+ 0.4f0 (* 2.1f0 u))) (pk (toon-a +pal-ink+ 0.98f0 t)) (rdt (aref *ya-rdt* 0)))
-        (declare (single-float tx tz u l w0 w1 pk rdt))
-        (when (> l 0.05f0)                                ; the tear (YAMA-TEAR, §20.1): its spikes out over 14 f, a fixed seed
-          (yama-tear tx tz fx fz l w0 w1 0.35f0 (f-min 1f0 (/ (i->f (- cf 83)) 14f0)) 16 5 78f0 pk)
+      ;; The diamond starts 1.2 m short of the tip (0.66 m ahead of him) and runs 13.2 m, so its far end stays at the old 12 m past
+      ;; the tip and the victim (2.2 m) stands 1.54 m along it on ~0.6 m a side of black, as §15.3.1 boards him ("half on the black");
+      ;; from the tip itself his feet sat on its point (§41.4).
+      (let* ((tx (+ px (* 0.66f0 fx))) (tz (+ pz (* 0.66f0 fz))) (u (f-min 1f0 (/ (i->f (- cf 84)) 10f0))) (l (* 13.2f0 u))
+             (g (f-min 1f0 (/ (i->f (- cf 83)) 14f0))) (w 2.5f0) (pk (toon-a +pal-ink+ 0.98f0 t)) (rdt (aref *ya-rdt* 0)))
+        (declare (single-float tx tz u l g w pk rdt))
+        (when (> l 0.05f0)                                ; the tear (YAMA-TEAR, §41): opening over 14 f, a fixed seed
+          (yama-tear tx tz fx fz l w g 18 78f0 pk)
+          (when (< cf 92)                                 ; the dust kick along it as the floor splits (f85-91, its run out: ~8 puffs)
+            (%ya-tear-dust tx tz fx fz l (* w (- 1f0 (* (- 1f0 g) (- 1f0 g)))) 70f0 0.28f0 rdt))
           (dotimes (i (n-of 60f0 rdt))                    ; ash falling into it
-            (let* ((s (rnd-range 0f0 l)) (w (* (+ w0 (* (- w1 w0) (/ s 12f0))) (rnd-range -0.9f0 0.9f0))))
+            (let* ((s (rnd-range 0f0 l)) (w (* w (%ya-tent (/ s l)) (rnd-range -0.9f0 0.9f0))))
               (declare (single-float s w))
               (%t-blob (+ tx (* s fx) (* w rx)) (rnd-range 0.8f0 2.4f0) (+ tz (* s fz) (* w rz)) 0f0 (rnd-range -1.1f0 -0.5f0) 0f0
                        (rnd-range 0.9f0 1.4f0) (rnd-range 0.04f0 0.08f0) 0.2f0 0.2f0 +pal-ash+)))))))

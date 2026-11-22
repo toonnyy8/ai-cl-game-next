@@ -1,0 +1,270 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== ns1c behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 10.7,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 11.02,
+"shot": "tests/shots/duel-east41-ns1c-s1-behind.png"
+},
+{
+"at": 11.05,
+"shot": "tests/shots/duel-east41-ns1c-s3-behind.png"
+},
+{
+"at": 11.1,
+"shot": "tests/shots/duel-east41-ns1c-s6-behind.png"
+},
+{
+"at": 11.27,
+"shot": "tests/shots/duel-east41-ns1c-s16-behind.png"
+},
+{
+"at": 12.65,
+"eval": "console.log('=== as1 behind')"
+},
+{
+"at": 12.7,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 12.75,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 12.8,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 14.58,
+"shot": "tests/shots/duel-east41-as1-s1-behind.png"
+},
+{
+"at": 14.62,
+"shot": "tests/shots/duel-east41-as1-s3-behind.png"
+},
+{
+"at": 14.67,
+"shot": "tests/shots/duel-east41-as1-s6-behind.png"
+},
+{
+"at": 14.8,
+"shot": "tests/shots/duel-east41-as1-s14-behind.png"
+},
+{
+"at": 16.35,
+"eval": "console.log('=== ns1chit behind')"
+},
+{
+"at": 16.4,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 16.45,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 18.1,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 18.43,
+"shot": "tests/shots/duel-east41-ns1chit-s2-behind.png"
+},
+{
+"at": 18.53,
+"shot": "tests/shots/duel-east41-ns1chit-s8-behind.png"
+},
+{
+"at": 18.63,
+"shot": "tests/shots/duel-east41-ns1chit-s14-behind.png"
+},
+{
+"at": 18.77,
+"shot": "tests/shots/duel-east41-ns1chit-s22-behind.png"
+},
+{
+"at": 20.05,
+"eval": "console.log('=== ns1c top')"
+},
+{
+"at": 20.1,
+"eval": "Module._debug_cmd(87080)"
+},
+{
+"at": 20.15,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 20.2,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.5,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 21.8,
+"eval": "Module._debug_cmd(87422)"
+},
+{
+"at": 22.12,
+"shot": "tests/shots/duel-east41-ns1c-s1-top.png"
+},
+{
+"at": 22.15,
+"shot": "tests/shots/duel-east41-ns1c-s3-top.png"
+},
+{
+"at": 22.2,
+"shot": "tests/shots/duel-east41-ns1c-s6-top.png"
+},
+{
+"at": 22.37,
+"shot": "tests/shots/duel-east41-ns1c-s16-top.png"
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 23.75,
+"eval": "console.log('=== as1 top')"
+},
+{
+"at": 23.8,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 23.85,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 23.9,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 25.2,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 25.5,
+"eval": "Module._debug_cmd(87430)"
+},
+{
+"at": 25.68,
+"shot": "tests/shots/duel-east41-as1-s1-top.png"
+},
+{
+"at": 25.72,
+"shot": "tests/shots/duel-east41-as1-s3-top.png"
+},
+{
+"at": 25.77,
+"shot": "tests/shots/duel-east41-as1-s6-top.png"
+},
+{
+"at": 25.9,
+"shot": "tests/shots/duel-east41-as1-s14-top.png"
+},
+{
+"at": 26.7,
+"eval": "Module._debug_cmd(87480)"
+},
+{
+"at": 27.45,
+"eval": "console.log('=== higashi')"
+},
+{
+"at": 27.5,
+"eval": "Module._debug_cmd(87030)"
+},
+{
+"at": 27.55,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 30.0,
+"eval": "Module._debug_cmd(87450)"
+},
+{
+"at": 30.03,
+"eval": "Module._debug_cmd(87643)"
+},
+{
+"at": 31.76,
+"shot": "tests/shots/duel-east41-cine-f86.png"
+},
+{
+"at": 31.81,
+"eval": "Module._debug_cmd(87644)"
+},
+{
+"at": 32.15,
+"shot": "tests/shots/duel-east41-cine-f88.png"
+},
+{
+"at": 32.2,
+"eval": "Module._debug_cmd(87646)"
+},
+{
+"at": 32.56,
+"shot": "tests/shots/duel-east41-cine-f92.png"
+},
+{
+"at": 32.61,
+"eval": "Module._debug_cmd(87648)"
+},
+{
+"at": 32.98,
+"shot": "tests/shots/duel-east41-cine-f96.png"
+},
+{
+"at": 33.03,
+"eval": "Module._debug_cmd(87652)"
+},
+{
+"at": 33.46,
+"shot": "tests/shots/duel-east41-cine-f104.png"
+},
+{
+"at": 33.51,
+"eval": "Module._debug_cmd(87660)"
+},
+{
+"at": 34.08,
+"shot": "tests/shots/duel-east41-cine-f120.png"
+},
+{
+"at": 34.73,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 35.03,
+"eval": "console.log('=== END')"
+}
+]
