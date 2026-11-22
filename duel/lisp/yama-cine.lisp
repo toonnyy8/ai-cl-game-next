@@ -82,7 +82,10 @@ it to the end. A look; 0 B."
   (declare (fixnum cf))
   (when (>= cf 84)
     (%ya-line (px pz qx qz fx fz rx rz d) a v
-      (let* ((tx (+ px (* 1.86f0 fx))) (tz (+ pz (* 1.86f0 fz))) (u (f-min 1f0 (/ (i->f (- cf 84)) 10f0))) (l (* 12f0 u))
+      ;; The diamond starts 1.2 m short of the tip (0.66 m ahead of him) and runs 13.2 m, so its far end stays at the old 12 m past
+      ;; the tip and the victim (2.2 m) stands 1.54 m along it on ~0.6 m a side of black, as §15.3.1 boards him ("half on the black");
+      ;; from the tip itself his feet sat on its point (§41.4).
+      (let* ((tx (+ px (* 0.66f0 fx))) (tz (+ pz (* 0.66f0 fz))) (u (f-min 1f0 (/ (i->f (- cf 84)) 10f0))) (l (* 13.2f0 u))
              (g (f-min 1f0 (/ (i->f (- cf 83)) 14f0))) (w 2.5f0) (pk (toon-a +pal-ink+ 0.98f0 t)) (rdt (aref *ya-rdt* 0)))
         (declare (single-float tx tz u l g w pk rdt))
         (when (> l 0.05f0)                                ; the tear (YAMA-TEAR, §41): opening over 14 f, a fixed seed

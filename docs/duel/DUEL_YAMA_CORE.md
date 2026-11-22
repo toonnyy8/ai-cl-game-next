@@ -4230,14 +4230,14 @@ What they show:
 - **The 東 Kikon's victim beat (f100-104) changed.** The victim stands about 0.34 m past the tip's touch point. There the tent's
   opened half-width is only about 0.14 m, against §20.1's wedge of 0.4 m plus spikes. §15.3.1's "behind the victim, half on the black,
   his Konpaku shatters" no longer has him on the black: at f104 (the negative frame) and f120 the void lies beyond him, not under his
-  feet. The origin stays at the tip's touch point, as the brief fixed it.
+  feet. **Fixed by the lead after the hand-back:** the Kikon's diamond now starts 1.2 m short of the tip (0.66 m ahead of him) and runs
+  13.2 m, so its far end stays 12 m past the tip and the victim stands 1.54 m along it on about 0.6 m a side of black (f88 / f92 show
+  him on it; f104 / f120 the black at his feet). NS1c and AS1 keep their origin at the touch point (their hit volumes start there).
 
 **For the user.**
 - NS1c's rhombus is held to the hit's width (drawn = hit), so it is a long, narrow diamond (about 5.5:1), not a broad one. From the
   match camera it reads as a jagged wedge. A diamond that reads broad there would need the line's hit width raised, to about 1 m a
   side. That is a sim change (it widens what the move hits), so it is left to the user.
-- In the Kikon the victim is no longer on the black at the shatter (above). Moving the corner toward him, or starting the tear behind
-  the touch point, would put him back on it.
 - The Kikon's edge reads as a fine, fairly even saw: one station every 0.33 m. The knobs are N and the station jitter.
 
 ### 41.5 Checks
