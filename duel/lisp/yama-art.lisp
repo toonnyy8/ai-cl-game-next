@@ -2035,27 +2035,43 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
   (30 (:root :u -0.24) (:spine :flex 12) (:head :flex -4) (:arm-r :flex 80 :side 0) (:elbow-r :flex 24) (:hand-r :twist -40 :flex -70)
       (:thigh-r :flex 10) (:knee-r :flex 44) (:thigh-l :flex 40) (:knee-l :flex 46))
   (:end :ya-e-stance))
-;; NS3c the wall (S18): he rises, ripping the blade up out of the plaza to overhead on S (the bone wall rises over f6-17: YAMA-BK-MOVES 7);
-;; the recovery turns his chest away from it (no root yaw: the chest and head turn, the feet stay)
-(defpose :ya-e-minami-c-hit (:base :ya-e-stance)
-  (:root :u 0.0 :f 0.05) (:spine :flex -12) (:chest :twist 0) (:head :flex -16)
-  (:arm-r :flex 172 :side 6) (:elbow-r :flex 4) (:hand-r :twist -5 :flex -95) (:arm-l :flex -10 :side 30)
-  (:thigh-r :flex 14) (:knee-r :flex 10) (:thigh-l :flex -8) (:knee-l :flex 6))
+;; NS3c the cut and the topple (S18; §38, the user 2026-11-22: 「NSc 的斷塔傾倒增加一個山本將塔斬斷的動作」; until then he rose, ripping
+;; the blade up out of the plaza to overhead): from NSb's kneel (f0 = :YA-E-MINAMI-B-A) the blade ripped out and drawn back low to his
+;; right, coiled f6-8 (held), then one low forehand sweep right to left on a 0.42 m lunge, crouched, the tip a hand above the plaza
+;; crossing his centre line 1.74 m ahead on +YA-TOWER-CUT+ (f11: through the tower 1.5 m ahead, at its break), rising through his
+;; left and up over his left shoulder by S (the topple; the tip 2.5 m up). Motion refs (docs/research/yamamoto-rework/motion-refs.md):
+;; E1's level forehand R->L (ch. 507's lunge), S4's waist-high sweep with the torso turning, the charred blade one-handed.
+(defpose :ya-e-minami-c-cut (:base :ya-e-stance)
+  (:root :yaw 0 :f 0.42 :u -0.3) (:pelvis :side -4) (:spine :flex 26) (:chest :twist 0) (:head :flex 10)
+  (:arm-r :flex 55 :side 15) (:elbow-r :flex 4) (:hand-r :twist 0 :flex -17) (:arm-l :flex -30 :side 34)
+  (:thigh-r :flex 72 :side 4) (:knee-r :flex 80) (:thigh-l :flex -40 :side 6) (:knee-l :flex 14))
+(defpose :ya-e-minami-c-hit (:base :ya-e-minami-c-cut)
+  (:root :yaw 24 :f 0.35 :u -0.1) (:pelvis :side -2) (:spine :flex 4) (:chest :twist 30) (:head :flex -10 :twist -14)
+  (:arm-r :flex 140 :side -20 :twist 20) (:elbow-r :flex 10) (:hand-r :twist 10 :flex -40) (:arm-l :flex -36 :side 36)
+  (:thigh-r :flex 56) (:knee-r :flex 48) (:thigh-l :flex -38) (:knee-l :flex 4))
 (defstrike :ya-e-minami-c (18 2 30 :base :ya-e-stance)
   (0 :ya-e-minami-b-a)
-  (6 (:root :u -0.4) (:spine :flex 22) (:head :flex -6) (:arm-r :flex 109.8 :side -17.9) (:elbow-r :flex 9.9)   ; the grip taken,
-     (:hand-r :twist -161.5 :flex 2.9))                                                           ;  sunk (the point still in)
-  (10 (:root :u -0.41) (:spine :flex 23))                                                         ; held
-  (11 (:root :u -0.4) (:spine :flex 22.5) (:arm-r :flex 108))
-  (13 :snap (:root :u -0.24) (:spine :flex 14) (:head :flex -10) (:arm-r :flex 110 :side -10) (:elbow-r :flex 10)   ; ripped
-      (:hand-r :twist -60 :flex -40) (:thigh-r :flex 6) (:knee-r :flex 60) (:thigh-l :flex 50) (:knee-l :flex 56))  ;  up
-  (16 :snap (:root :u -0.06) (:spine :flex -4) (:head :flex -14) (:arm-r :flex 150 :side 0) (:elbow-r :flex 6) (:hand-r :twist -20 :flex -80)
-      (:thigh-r :flex 12) (:knee-r :flex 20) (:thigh-l :flex 10) (:knee-l :flex 14))
+  (3 (:root :yaw -12 :f 0.05 :u -0.34) (:spine :flex 20) (:chest :twist -20) (:head :flex 0 :twist 10)
+     (:arm-r :flex 40 :side 30) (:elbow-r :flex 10) (:hand-r :twist -20 :flex -48) (:arm-l :flex 10 :side 20)
+     (:thigh-r :flex 60 :side 4) (:knee-r :flex 84) (:thigh-l :flex -10) (:knee-l :flex 40))
+  (6 (:root :yaw -28 :f 0.08 :u -0.36) (:spine :flex 22) (:chest :twist -42) (:head :twist 18)
+     (:arm-r :flex 6 :side 38) (:elbow-r :flex 4) (:hand-r :twist -24 :flex -42) (:arm-l :flex 20 :side 22))
+  (8 (:root :yaw -27 :u -0.37) (:chest :twist -41) (:arm-r :side 39))
+  (9 :snap (:root :yaw -22 :f 0.25 :u -0.33) (:spine :flex 24) (:chest :twist -34) (:head :twist 10)
+     (:arm-r :flex 26 :side 34) (:hand-r :twist -14 :flex -36) (:arm-l :flex -10 :side 28)
+     (:thigh-r :flex 68) (:knee-r :flex 82) (:thigh-l :flex -30) (:knee-l :flex 20))
+  (10 :snap (:root :yaw -12 :f 0.38 :u -0.31) (:chest :twist -18) (:head :twist 4) (:arm-r :flex 44 :side 26) (:hand-r :twist -6 :flex -23))
+  (11 :snap :ya-e-minami-c-cut)
+  (12 :snap (:root :yaw 14 :f 0.46 :u -0.28) (:spine :flex 24) (:chest :twist 20) (:head :twist -6)
+      (:arm-r :flex 62 :side -6) (:hand-r :twist 6 :flex -22))
+  (13 :snap (:root :yaw 22 :f 0.45 :u -0.25) (:chest :twist 34) (:head :twist -10) (:arm-r :flex 74 :side -22) (:hand-r :twist 10 :flex -20))
+  (15 (:root :yaw 24 :f 0.42 :u -0.18) (:spine :flex 14) (:chest :twist 34) (:arm-r :flex 110 :side -26 :twist 14) (:hand-r :flex -30))
   (:s :snap :ya-e-minami-c-hit)
-  (:a (:root :u 0.01) (:arm-r :flex 174))
-  (32 (:root :u -0.04) (:spine :flex 2) (:chest :twist -46) (:head :flex 0 :twist -40)            ; turned away from it
-      (:arm-r :flex 50 :side 24) (:elbow-r :flex 20) (:hand-r :twist 0 :flex -80) (:arm-l :flex 6 :side 16))
-  (44 (:chest :twist -40) (:head :twist -34))
+  (:a (:root :u -0.09) (:arm-r :flex 142))
+  (32 (:root :yaw 10 :f 0.2 :u -0.06) (:spine :flex 4) (:chest :twist 6) (:head :flex 0 :twist 0)
+      (:arm-r :flex 50 :side 20 :twist 0) (:elbow-r :flex 20) (:hand-r :twist 0 :flex -80) (:arm-l :flex 6 :side 16)
+      (:thigh-r :flex 20) (:knee-r :flex 24) (:thigh-l :flex -6) (:knee-l :flex 10))
+  (44 (:root :yaw 2 :f 0.04 :u -0.03) (:chest :twist -2))
   (:end :ya-e-stance))
 ;; AS3a the hands (S10): from J3's dropped knee (:YA-E-Q3-THRU) a reverse stab into the plaza by the front foot, the blade upright in the
 ;; plaza on S and held (:YA-E-AS3A-A, f13 = AS3b's first frame: the planted spot of YAMA-PLANTED, so the blade stays where it went in)

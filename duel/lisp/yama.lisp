@@ -11,7 +11,7 @@
 ;;;; that fired it, spawned inside that segment so SPAWN-HAZARD freezes its class, SP scale and start tick at the fire frame):
 ;;;; :wave (the generic moving box), and three of his own kinds through YAMA-HZ: :ya-col (a column at a point, NS1b), :ya-ring (the
 ;;;; burning ring, no collision: crossing it burns, Y8; one at a time), :ya-dome (the walls closed on the ring, NS2c / AS2b); 南's
-;;;; skeleton tower (§30.3): :ya-tower (hitless, one at a time) and :ya-fall (its topple, a 2 m wide line).
+;;;; skeleton tower (§30.3, §38): :ya-tower (hitless, one at a time) and :ya-fall (its topple, a 2 m wide line).
 (in-package :duel)
 
 ;;; ================================================================ knobs (debug 87000-87999, YAMA-DEBUG)
@@ -204,7 +204,8 @@ lead's placeholder, §14).")
 (defparameter *ya-tower-stand* 90 "南's skeleton tower: frames it stands after the segment that last raised it ends (§30.3; NSc or the SA spends it).")
 (defparameter *ya-tower-ahead* 1.5 "南's tower: how far before him it rises, at the victim's bearing (m, §30.3 R3; 2.5 until 2026-11-22, the user:
 「長出的位置請更靠近山本」 -> 1.5, §35; yama-look.lisp's +YA-TOWER-AHEAD+ copies it).")
-(defparameter *ya-tower-h* 3.0 "南's tower: its height a level (m): the topple's line is as long as the tower is tall (3 / 6 m, §30.3).")
+(defparameter *ya-tower-h* 2.0 "南's tower: its height a level (m): the topple's line is as long as the tower is tall (2 / 4 m, §30.3; 3.0
+(3 / 6 m) until 2026-11-22, the user: 「南 NS 的骷髏塔縮小規模」, §38; yama-look.lisp's +YA-TOWER-H+ copies it).")
 (defparameter *ya-charge-reach* '(0.8 1.6)
   "西's garb charge (§30.2, the user 2026-11-21): the reach (m) the string after the SA of NSa / NSb (charge 1 / 2, x1.4 / x1.7: the SA copies'
 :charge-mult) adds to E-J2, E-J3 and the melee AS segments (*YA-REACH-MOVES*; 南's hazard AS stays unboosted). New, §30.2.")
@@ -272,19 +273,19 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
 ;; 砸毀，SA 則會主動打碎高塔使無數骷髏向前方飛散（對手被打中有定身效果）」, R3: before him). The tower is a hitless :ya-tower hazard (its level
 ;; in its data); each segment's hit is its own hazard (YAMA-FIRE: frozen in that segment). a: the dead swarm up into a tower *YA-TOWER-AHEAD*
 ;; m before him at the victim's bearing, the point taken on S, its base's hands 16 f later (:delay 17 inside A 17, as NS1b's column: a Step
-;; after S dodges), r 1.6, a bind; b: it climbs to level 2 and binds again; c: it topples toward the victim (a line from its base as long as
-;; it is tall, 3 / 6 m, 2 m wide: YAMA-HZ :ya-fall), spent. The binds keep (:keep-bind: COMBO-STEP keeps a bind inside the route and counts
+;; after S dodges), r 1.2 (1.6 until §38), a bind; b: it climbs to level 2 and binds again; c: it topples toward the victim (a line from its base as long as
+;; it is tall, 2 / 4 m (3 / 6 until §38), 2 m wide: YAMA-HZ :ya-fall), spent. The binds keep (:keep-bind: COMBO-STEP keeps a bind inside the route and counts
 ;; the hit). The SA in a or b's gap is the shatter (their :sa). Was (§7.3): the hands at the victim's bearing 4-10 m, the swarm's :wave,
 ;; the bone wall that stopped waves
-(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 4.1 :callout "DAISOJIN"
+(defmove :ya-e-n3a :kind :flash :clip :ya-kaka :startup 22 :active 17 :recovery 20 :reach 2.7 :callout "DAISOJIN"   ; (the disc's far rim: 1.5 + 1.2; 4.1 until §38)
   :on-frame ((22 yama-tower-fire))
-  :params (:ns-next :ya-e-n3b :sa :ya-e-sa3 :radius 1.6 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun* :keep-bind t
+  :params (:ns-next :ya-e-n3b :sa :ya-e-sa3 :radius 1.2 :delay 17 :dmg 40 :react :bind :stun *ya-bind-stun* :keep-bind t
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 4.1
+(defmove :ya-e-n3b :kind :flash :clip :ya-e-minami-b :startup 16 :active 2 :recovery 22 :reach 2.7
   :on-frame ((16 yama-tower-fire))
-  :params (:ns-next :ya-e-n3c :sa :ya-e-sa3 :level 2 :radius 1.6 :delay 0 :dmg 50 :react :bind :stun *ya-bind-stun* :keep-bind t
+  :params (:ns-next :ya-e-n3c :sa :ya-e-sa3 :level 2 :radius 1.2 :delay 0 :dmg 50 :react :bind :stun *ya-bind-stun* :keep-bind t
            :kikon-strike :ya-e-ns-strike :look yama-hands-look))
-(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 8.0
+(defmove :ya-e-n3c :kind :flash :clip :ya-e-minami-c :startup 18 :active 2 :recovery 30 :reach 6.0   ; (level 2's line end 5.5 + 0.5; 8.0 until §38)
   :on-frame ((18 yama-topple-fire))
   :params (:dmg 70 :dmg-2 100 :react :crumple :kikon-strike :ya-e-ns-strike))
 ;; the SA in NSa / NSb's gap: the shatter, the skeletons flung forward: its own window, a 60 deg sector 6 m from him along his facing
@@ -357,7 +358,8 @@ past *CORE-KIKON-MAX* 4). The lead's placeholder. New, §31.")
                                                               ;  upright beside the face (art K2, DUEL_YAMA_CORE §17)
          :kikon-cines (yama-higashi-cine yama-nishi-cine yama-minami-cine)   ; 旭日刃 / 殘日獄衣 / 火火十万億死大葬陣 (art K4, §19)
          :as-by-press (1 2 3 4) :as-writes (1 2 3 nil)   ; (J4 > AS4 天地灰尽, no pointer written: §31)
-         :ns-range ((2.0 5.5) nil (0.5 3.0))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 1.5 m ahead (§35; 2.5 m / (1.0 4.0) until then, 4-9 m before §30.3)
+         :ns-range ((2.0 5.5) nil (0.3 2.7))   ; the CPU lunges KYOKKO from mid range, raises 南's tower 1.5 m ahead where its bind disc (r 1.2) reaches him
+                                               ;  (§38; (0.5 3.0) at r 1.6 until then, 2.5 m / (1.0 4.0) before §35, 4-9 m before §30.3)
          :mult 1.0)
   :hooks (:pose yama-pose :draw yama-draw :hit yama-bk-hit :dmg-mult yama-dmg-mult :kikon-n yama-kikon-n   ; (its hazards carry x 1.0: no heat)
           :tick yama-bk-tick :hud-tag yama-bk-tag     ; (西's charged reach; 北 at the next neutral after the third mark: §30)
@@ -701,7 +703,7 @@ hot 4 frames."
     (multiple-value-bind (x z) (if hz (values (hazard-x hz) (hazard-z hz)) (yama-tower-spot e))
       (if hz
           (setf (hazard-life hz) (+ (hazard-age hz) life) (getf (hazard-data hz) :level) lv)
-          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size 1.6 :life life :hook 'yama-hz :look 'yama-tower-look
+          (spawn-hazard :ya-tower e :x x :z z :yaw (yaw-of e) :size (move-param e :radius) :life life :hook 'yama-hz :look 'yama-tower-look
                                    :data (list :level lv)))
       (yama-fire e :ya-col x z :size (move-param e :radius) :delay (move-param e :delay) :life 30 :hot 6 :look (move-param e :look)
                  :hw (yama-fire-hw e (move-param e :dmg) (move-param e :react)))

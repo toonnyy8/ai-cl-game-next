@@ -134,10 +134,15 @@ its front edge; an ASH strip dragged behind over the ground it crossed. A look."
 ;;; climbers (%YA-CLIMBER: an ink torso and skull with one blood-red eye spot, pale ribs, two arms reaching up) round a
 ;;; charcoal core, a crown of splayed hands on top. One drawer (%YA-CONE-DRAW, its arguments in *YA-CONE*) serves the standing tower, the
 ;;; topple's first frames, the shatter's burst and AS3b's hollow ring, so the hand-off from the spent :ya-tower to :ya-fall does not pop.
-(defconstant +ya-tower-h+ 3f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m).")
+(defconstant +ya-tower-h+ 2f0 "*YA-TOWER-H* (host-checked): the tower's height a level (m; 3 until §38).")
 (defconstant +ya-tower-ahead+ 1.5f0 "*YA-TOWER-AHEAD* (host-checked): where the shatter's heap stands before him (m; 2.5 until §35).")
-(defconstant +ya-cone-r1+ 0.5f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5).")
-(defconstant +ya-cone-r2+ 0.65f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65).")
+(defconstant +ya-cone-r1+ 0.4f0 "The tower's base radius at level 1 (m; 0.95 until 2026-11-22, the user: 「通過縮小半徑讓骷髏塔變得更密集一些」, §34.2: 0.7; 「再更密集」, §34.3: 0.5;
+x0.8 with the height, §38: 0.4; the climbers' spacing kept, so as dense).")
+(defconstant +ya-cone-r2+ 0.52f0 "... at level 2 (m; 1.25 until 2026-11-22, §34.2: 0.9, §34.3: 0.65, §38: 0.52).")
+(defconstant +ya-tower-cut+ 11
+  "NSc's frame on which his low sweep crosses the tower near its base (§38, the user 2026-11-22: 「NSc 的斷塔傾倒增加一個山本將塔斬斷的動作」;
+host-checked against the clip's blade tip by FK, tests/duel-rules/art.lisp): the break, the slash and the bones from here, the lean from
+here to the topple on S (18).")
 (defconstant +ya-tower-raise2+ 114
   "NSb's raise sets the tower's life to its age + this (host-checked: NSb's frames after its S + *YA-TOWER-STAND*): frames since the
 climb to level 2 = this - (life - age), a pure function of the hazard (no look state).")
@@ -194,6 +199,11 @@ lifted GAP m along its axis off the crack). 0 B."
            (aref %a 8) ,crum (aref %a 9) ,sc (aref %a 10) ,seed (aref %a 11) ,swirl (aref %a 12) ,core (aref %a 13) ,ph
            (aref %a 14) ,lo (aref %a 15) ,hi (aref %a 16) ,gap)
      (%ya-cone-draw)))
+
+(defmacro ya-tower-gap (h)
+  "How far the section above the break is lifted off it (§34.4; 0.45 m at the old 3 m level until §38, now 0.15 of the height H: 0.3 / 0.6 m).
+A macro (0 B)."
+  `(* 0.15f0 ,h))
 
 (defmacro ya-tower-break (h)
   "Where the tower breaks before it topples (§34.4, the user 2026-11-22: 「塔請在下面斷裂開後，上截才往前傾倒」): 0.14 of its height H
@@ -266,46 +276,88 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
        (%t-blob (+ ,x (* ,r0 %ca)) ,hb (+ ,z (* ,r0 %sa)) (+ (* 1.4f0 %ca) (* 0.8f0 ,fx)) (rnd-range -0.2f0 0.9f0) (+ (* 1.4f0 %sa) (* 0.8f0 ,fz))
                 (rnd-range 0.5f0 0.9f0) (rnd-range 0.06f0 0.13f0) 0.4f0 0.25f0 (if (< (rnd01) 0.35f0) +pal-ink+ +pal-ash+)))))
 
+(defmacro %ya-tower-cut-fx (x z hb ox oz r0 cut)
+  "NSc's cut (§38): his charred blade's low sweep across the tower at (X Z), from his right to his left round him at (OX OZ), at the break
+height HB, CUT (0..7) frames after the blade crossed it: an INK sword smear along the arc from 49 deg on his right (:comet, its head at the tower's axis on the cut, 49 deg on his left after:
+behind the blade, as the clip's tip runs) with an ASH-white band down its middle (a :lens, widest over the tower: it reads on the black
+dead from behind him, as AS4's white band, §34), eroding over 8 f;
+bones spat out of the cut along the blade's way (to his left) and up, falling. Single-float forms but CUT (a fixnum); 0 B."
+  `(let* ((%dx (- ,x ,ox)) (%dz (- ,z ,oz)) (%r (f-max 0.3f0 (f-hypot %dx %dz))) (%bx (/ %dx %r)) (%bz (/ %dz %r))
+          (%rx (- %bz)) (%rz %bx) (%al 0.85f0) (%ca (f-cos %al)) (%sa (f-sin %al))
+          (%hd (if (= ,cut 0) 0f0 (- %al)))                      ; the head's angle: at the tower's axis on the cut, then on his left
+          (%hc (f-cos %hd)) (%hs (f-sin %hd)) (%mid (* 0.5f0 (+ %al %hd))) (%cm (f-cos %mid)) (%sm (f-sin %mid))
+          (%rm (/ %r (f-max 0.3f0 (f-cos (* 0.5f0 (- %al %hd))))))
+          (%k (* 0.98f0 (f-clamp (- 1f0 (/ (i->f (max 0 ,cut)) 8f0)) 0f0 1f0))) (%y ,hb)
+          (%x0 (+ ,ox (* %r (+ (* %ca %bx) (* %sa %rx))))) (%z0 (+ ,oz (* %r (+ (* %ca %bz) (* %sa %rz)))))
+          (%x1 (+ ,ox (* %r (+ (* %hc %bx) (* %hs %rx))))) (%z1 (+ ,oz (* %r (+ (* %hc %bz) (* %hs %rz)))))
+          (%xm (+ ,ox (* %rm (+ (* %cm %bx) (* %sm %rx))))) (%zm (+ ,oz (* %rm (+ (* %cm %bz) (* %sm %rz))))))
+     (declare (single-float %dx %dz %r %bx %bz %rx %rz %al %ca %sa %hd %hc %hs %mid %cm %sm %rm %k %y %x0 %z0 %x1 %z1 %xm %zm))
+     (fx-crescent %x0 (- %y 0.06f0) %z0 %x1 (+ %y 0.06f0) %z1 %xm %y %zm 0.17f0 :comet 0.1f0 31f0 +pal-ink+ %k :push 0.9f0)   ; (over the climbers)
+     (fx-crescent %x0 (- %y 0.05f0) %z0 %x1 (+ %y 0.07f0) %z1 %xm (+ %y 0.01f0) %zm 0.09f0 :lens 0.05f0 32f0 +pal-ash+ %k :push 0.95f0)
+     (when (>= ,cut 0)                                           ; the bones spat from the cut: shards and skulls, out and up, falling
+       (let ((%t (* (i->f ,cut) 0.0167f0)))
+         (declare (single-float %t))
+         (dotimes (%i 10)
+           (let* ((%fi (i->f %i)) (%h1 (hash01 %fi 47f0)) (%h2 (hash01 (+ %fi 3f0) 47f0)) (%h3 (hash01 (+ %fi 6f0) 47f0))
+                  (%s (+ 1.8f0 (* 2.6f0 %h1))) (%u (- (* 2f0 %h2) 1f0))       ; speed; spread across the blade's way
+                  (%vx (* %s (- (* -0.8f0 %rx) (* 0.5f0 %u %bx)))) (%vz (* %s (- (* -0.8f0 %rz) (* 0.5f0 %u %bz))))
+                  (%vy (+ 0.8f0 (* 2.2f0 %h3)))
+                  (%qx (+ ,x (* -0.9f0 ,r0 %rx) (* %vx %t))) (%qz (+ ,z (* -0.9f0 ,r0 %rz) (* %vz %t)))
+                  (%qy (f-max 0.06f0 (- (+ %y (* %vy %t)) (* 4.9f0 %t %t)))) (%sp (+ (* 6.2832f0 %h1) (* 0.7f0 (i->f ,cut)))))
+             (declare (single-float %fi %h1 %h2 %h3 %s %u %vx %vz %vy %qx %qz %qy %sp))
+             (if (= (mod %i 4) 0)
+                 (progn (fx-disc %qx (+ %qy 0.04f0) %qz 0.1f0 0.08f0 (+ 40f0 %fi) +pal-ink+ %k :push 0.6f0)
+                        (fx-disc %qx (+ %qy 0.06f0) %qz 0.028f0 0f0 (+ 41f0 %fi) +pal-blood+ %k :push 0.68f0))
+                 (fx-shard %qx %qy %qz (f-cos %sp) (* 0.4f0 (f-sin %sp)) (f-sin %sp) 0.3f0 0.035f0 0.05f0 (+ 42f0 %fi)
+                           (if (evenp %i) +pal-ash+ +pal-ink+) %k :push 0.6f0))))))))
+
 (defun-fast yama-tower-look (hz rdt)
   "南's tower (§34 A: the :ya-tower *YA-TOWER-AHEAD* (1.5 m since §35) before him, its level in its data): the heap swarming up out of the ground over 16 f to
-*YA-TOWER-H* x level (3 / 6 m; the climb 3 -> 6 over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
-(:sk-grab); while NSc winds up it creaks and leans toward the victim (to 50 deg at its S: YAMA-TOPPLE-LOOK takes it over from there);
-crumbling to ash from the top over its last 14 f when nothing spent it. A look."
+*YA-TOWER-H* x level (2 / 4 m since §38; the climb 2 -> 4 over 16 f from NSb's raise, +YA-TOWER-RAISE2+), the crown's two dead clawing out of its tip
+(:sk-grab); in NSc his low sweep cuts it at the break on +YA-TOWER-CUT+ (§38: the slash, the bones spat from the cut) and the section
+above leans toward the victim from there (60 deg at its S: YAMA-TOPPLE-LOOK takes it over); crumbling to ash from the top over its last
+14 f when nothing spent it. A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (age (hazard-age hz)) (life (hazard-life hz)) (lv (or (getf (hazard-data hz) :level) 1))
          (since (if (>= lv 2) (max 0 (- +ya-tower-raise2+ (- life age))) -1))   ; frames since the climb to level 2
          (u1 (f-min 1f0 (/ (i->f (if (>= since 0) since age)) 16f0)))
          (e1 (- 1f0 (* (- 1f0 u1) (- 1f0 u1))))
          (h (if (>= since 0)
-                (let ((h0 (if (= since age) 0f0 +ya-tower-h+)))   ; (life = its age + 114 from its first frame: NSb raised it, 0 -> 6)
+                (let ((h0 (if (= since age) 0f0 +ya-tower-h+)))   ; (life = its age + 114 from its first frame: NSb raised it, 0 -> 4)
                   (declare (single-float h0))
                   (+ h0 (* (- (* 2f0 +ya-tower-h+) h0) e1)))
                 (* +ya-tower-h+ e1)))
          (big (>= lv 2)) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+))
          (crum (f-clamp (/ (i->f (- 14 (- life age))) 14f0) 0f0 1f0)) (seed (+ (* 3f0 x) z 50f0))
-         (dr (drawing-no)) (fx 0f0) (fz -1f0) (th 0f0))
-    (declare (single-float x z u1 e1 h sc r0 crum seed dr fx fz th) (fixnum age life lv since))
-    (let ((o (hazard-owner hz)))                         ; NSc's wind-up: the lean toward the victim (YA-TOPPLE-DIR's rule)
+         (dr (drawing-no)) (fx 0f0) (fz -1f0) (th 0f0) (cut -99) (ox x) (oz z))
+    (declare (single-float x z u1 e1 h sc r0 crum seed dr fx fz th ox oz) (fixnum age life lv since cut))
+    (let ((o (hazard-owner hz)))                         ; NSc: his cut, then the lean toward the victim (YA-TOPPLE-DIR's rule)
       (when (and o (entity-alive-p o))
         (let* ((f (fighter o)) (mv (fighter-move f)))
           (when (and mv (eq (mv-name mv) :ya-e-n3c))
-            (let* ((u (f-clamp (/ (i->f (- (fighter-sf f) 2)) 16f0) 0f0 1f0)) (v (opp-of o)) (q (pos-of v)) (p (pos-of o))
+            (let* ((v (opp-of o)) (q (pos-of v)) (p (pos-of o))
                    (dx (- (aref q 0) x)) (dz (- (aref q 2) z)) (d (f-hypot dx dz)))
-              (declare (single-float u dx dz d) (type f32vec q p))
-              (setf th (+ (* 1.05f0 u u u) (if (and (> u 0f0) (evenp (f->i dr))) 0.015f0 0f0)))
+              (declare (single-float dx dz d) (type f32vec q p))
+              (setf cut (- (fighter-sf f) +ya-tower-cut+) ox (aref p 0) oz (aref p 2))   ; (frames since the blade crossed it)
+              (when (>= cut 0)                           ; the lean: 0 on the cut, eased in to 1.05 rad on S
+                (let ((u (f-clamp (/ (i->f cut) (i->f (max 1 (- (mv-s mv) +ya-tower-cut+)))) 0f0 1f0)))
+                  (declare (single-float u))
+                  (setf th (+ (* 1.05f0 u u) (if (and (> u 0f0) (evenp (f->i dr))) 0.015f0 0f0)))))
               (if (> d 0.5f0)
                   (setf fx (/ dx d) fz (/ dz d))
                   (let* ((px (- x (aref p 0))) (pz (- z (aref p 2))) (pl (f-max 0.01f0 (f-hypot px pz))))
                     (declare (single-float px pz pl))
                     (setf fx (/ px pl) fz (/ pz pl)))))))))
-    (if (> th 0f0)                                       ; NSc's wind-up (§34.4): broken low, the stump stands, the section above leans
-        (let ((hb (ya-tower-break h)))
+    (if (>= cut 0)                                       ; NSc after the cut (§34.4, §38): broken low, the stump stands, the section
+        (let ((hb (ya-tower-break h)))                   ;  above lifted off the cut and leaning
           (declare (single-float hb))
           (%ya-cone! x z fx fz 0f0 h r0 0.98f0 crum sc seed 0f0 1f0 (* 0.9f0 dr) :hi hb)
-          (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb :gap (* 0.45f0 (f-min 1f0 (/ th 0.4f0))))
-          (%ya-tower-break-fx x z hb fx fz r0 th rdt))
+          (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb
+                     :gap (* (ya-tower-gap h) (f-min 1f0 (/ (i->f (1+ cut)) 2f0))))
+          (%ya-tower-break-fx x z hb fx fz r0 th rdt)
+          (when (< cut 8) (%ya-tower-cut-fx x z hb ox oz r0 cut)))
         (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed (* 1.4f0 (- 1f0 e1)) 1f0 (* 0.9f0 dr)))
-    (when (and (< th 0.05f0) (< crum 0.2f0) (> e1 0.6f0))   ; the crown: two of the dead clawing out of the tip
+    (when (and (< cut 0) (< crum 0.2f0) (> e1 0.6f0))   ; the crown: two of the dead clawing out of the tip (none once it is cut)
       (dotimes (b 2)
         (let ((ya (+ (* 3.1416f0 (i->f b)) (* 6.2832f0 (hash01 (i->f b) seed)))))
           (declare (single-float ya))
@@ -329,14 +381,14 @@ line, an INK crack down its middle; eroding from 18 f to 30. A look."
   (declare (single-float rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (half (hazard-size hz)) (yaw (hazard-yaw hz)) (age (hazard-age hz))
          (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (ll (* 2f0 half)) (bx (- x (* half fx))) (bz (- z (* half fz)))
-         (big (> ll 4.5f0)) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+)) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
+         (big (> ll (* 1.5f0 +ya-tower-h+))) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+)) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
          (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
     (declare (single-float x z half yaw fx fz px pz ll bx bz sc r0 seed dr k) (fixnum age))
     (let ((hb (ya-tower-break ll)))                     ; the stump below the break stands, then crumbles (§34.4)
       (declare (single-float hb))
       (%ya-cone! bx bz fx fz 0f0 ll r0 0.98f0 (+ 0.6f0 (* 0.4f0 (f-clamp (/ (i->f (- age 2)) 18f0) 0f0 1f0))) sc seed 0f0 1f0 (* 0.9f0 dr)
                  :hi hb)
-      (when (< age 2) (%ya-cone! bx bz fx fz (if (= age 0) 1.25f0 1.5f0) ll r0 0.98f0 0f0 sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb :gap 0.45f0)))
+      (when (< age 2) (%ya-cone! bx bz fx fz (if (= age 0) 1.25f0 1.5f0) ll r0 0.98f0 0f0 sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb :gap (ya-tower-gap ll))))
     (if (< age 2)
         nil
         (let ((t1 (/ (i->f (- age 2)) 60f0)))
@@ -2025,15 +2077,15 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
   (let ((hands (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :age 3))
         (tell (make-hazard :kind :ya-col :x 0f0 :z -5f0 :size 1.2f0 :life 30 :delay 5))
         (swarm (make-hazard :kind :wave :x 0f0 :z -4f0 :px 0f0 :pz -3.9f0 :size 1f0 :life 80 :age 20 :speed 6f0))
-        (tw-rise (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 127 :age 6 :data (list :level 1)))
-        (tw-1 (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 127 :age 40 :data (list :level 1)))
-        (tw-climb (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 49 :data (list :level 2)))
-        (tw-2 (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 80 :data (list :level 2)))
-        (tw-ash (make-hazard :kind :ya-tower :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 148 :data (list :level 2)))
-        (tw-lean (make-hazard :kind :ya-tower :owner *p1* :x 0f0 :z -2.5f0 :size 1.6f0 :life 155 :age 90 :data (list :level 2)))
+        (tw-rise (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.2f0 :life 127 :age 6 :data (list :level 1)))
+        (tw-1 (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.2f0 :life 127 :age 40 :data (list :level 1)))
+        (tw-climb (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.2f0 :life 155 :age 49 :data (list :level 2)))
+        (tw-2 (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.2f0 :life 155 :age 80 :data (list :level 2)))
+        (tw-ash (make-hazard :kind :ya-tower :x 0f0 :z -1.5f0 :size 1.2f0 :life 155 :age 148 :data (list :level 2)))
+        (tw-lean (make-hazard :kind :ya-tower :owner *p1* :x 0f0 :z -1.5f0 :size 1.2f0 :life 155 :age 90 :data (list :level 2)))
         (mv-n3c (kit-move (find-kit :yamamoto :bankai) :ya-e-n3c))
-        (fall-0 (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 0))
-        (fall (make-hazard :kind :ya-fall :x 0f0 :z -5.5f0 :size 3f0 :life 30 :age 5))
+        (fall-0 (make-hazard :kind :ya-fall :x 0f0 :z -3.5f0 :size 2f0 :life 30 :age 0))   ; (level 2's 4 m line, §38)
+        (fall (make-hazard :kind :ya-fall :x 0f0 :z -3.5f0 :size 2f0 :life 30 :age 5))
         (shat-0 (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 0))
         (shat (make-hazard :kind :fx :x 0f0 :z -3f0 :size 3f0 :life 30 :age 3))
         (as3b (make-hazard :kind :ya-col :x 0f0 :z -3f0 :size 1.4f0 :life 30 :age 8))
@@ -2061,8 +2113,12 @@ hit 20 f old (the north band and the crescent left: no move draws them since §3
                      (cons-per "tower-climb" (progn (fresh) (yama-tower-look tw-climb 0.016f0))) ;  AS3b's ring)
                      (cons-per "tower-2" (progn (fresh) (yama-tower-look tw-2 0.016f0)))
                      (cons-per "tower-ash" (progn (fresh) (yama-tower-look tw-ash 0.016f0)))
-                     (let ((m0 (fighter-move fp)) (s0 (fighter-sf fp)))   ; (NSc's wind-up: the lean read off P1's move, frame 12)
-                       (unwind-protect (progn (setf (fighter-move fp) mv-n3c (fighter-sf fp) 12)
+                     (let ((m0 (fighter-move fp)) (s0 (fighter-sf fp)))   ; (NSc: the cut read off P1's move on +YA-TOWER-CUT+: the
+                       (unwind-protect (progn (setf (fighter-move fp) mv-n3c (fighter-sf fp) +ya-tower-cut+)   ;  slash, the bones; §38)
+                                              (cons-per "tower-cut" (progn (fresh) (yama-tower-look tw-lean 0.016f0))))
+                         (setf (fighter-move fp) m0 (fighter-sf fp) s0)))
+                     (let ((m0 (fighter-move fp)) (s0 (fighter-sf fp)))   ; (... and the lean, frame 14)
+                       (unwind-protect (progn (setf (fighter-move fp) mv-n3c (fighter-sf fp) 14)
                                               (cons-per "tower-lean" (progn (fresh) (yama-tower-look tw-lean 0.016f0))))
                          (setf (fighter-move fp) m0 (fighter-sf fp) s0)))
                      (cons-per "topple-fall" (progn (fresh) (yama-topple-look fall-0 0.016f0)))

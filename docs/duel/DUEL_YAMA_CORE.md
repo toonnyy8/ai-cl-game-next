@@ -3295,9 +3295,9 @@ presentation). The defaults below are the plan's (D), for the user's yes before 
 ### 30.3 南: the skeleton tower (R3)
 
 - NSa: skeletons swarm up into a tower 2.5 m before him (level 1, ~3 m tall); a victim inside r 1.6 m at its base is bound while it climbs.
-  NSb: the tower climbs to level 2 (~6 m) and binds again.
-- NSc: the tower topples toward the victim's bearing: a line as long as the tower is tall (3 / 6 m, 2 m wide), 70 / 100, a crumple; with
-  no tower standing, a short one rises and falls (3 m).
+  NSb: the tower climbs to level 2 (~6 m) and binds again. (1.5 m ahead since §35; 2 / 4 m tall and r 1.2 since §38.)
+- NSc: the tower topples toward the victim's bearing: a line as long as the tower is tall (3 / 6 m, 2 m wide; 2 / 4 m since §38), 70 / 100, a crumple; with
+  no tower standing, a short one rises and falls (3 m; 2 m since §38).
 - SA in a gap with a tower standing: he shatters it and the skeletons fly forward (a 60° cone, 6 m, 55, a bind on hit: the bind must
   survive `combo-step`'s rule that a bind inside a combo is a flinch). With no tower, the Bankai's usual SA.
 - The tower stands 90 f after the route; NSc or the SA spends it.
@@ -3354,10 +3354,10 @@ Built in a worktree batch alongside 西 / 北 (§30.2, §30.4: another batch). S
   rises at `*ya-tower-ahead*` 2.5 m before him at the victim's bearing (YA-BEARING-POINT with near = far = 2.5, inside the arena) and
   stands `*ya-tower-stand*` 90 f after the segment that last raised it ends (its life reset on each raise). Each segment's hit is its own
   hazard through YAMA-FIRE, so its class, SP scale, start tick and mark freeze in that segment.
-- NSa (S22 A17 R20, clip `:ya-kaka`): the tower, level 1; the bind disc at its base r 1.6, `:delay 17` (the old hands' Step tell kept),
+- NSa (S22 A17 R20, clip `:ya-kaka`): the tower, level 1; the bind disc at its base r 1.6 (1.2 since §38), `:delay 17` (the old hands' Step tell kept),
   40, a bind, `*ya-bind-stun*` 60. NSb (S16 A2 R22): it climbs to level 2, the bind disc again (delay 0), 50. NSc (S18 A2 R30): it topples
   toward the victim (YA-TOPPLE-DIR: his facing when the victim stands within 0.5 m of the base): a `:ya-fall` box 2 m wide from the base,
-  `*ya-tower-h*` 3 m x level long (YAMA-HZ :touches: OBOX-CYL-HIT-P, the hazard at the line's middle, HAZARD-SIZE half its length), 70 at
+  `*ya-tower-h*` 3 m (2 m since §38) x level long (YAMA-HZ :touches: OBOX-CYL-HIT-P, the hazard at the line's middle, HAZARD-SIZE half its length), 70 at
   level 1, 100 at level 2 (`:dmg-2`), a crumple, hot 4; the tower spent. With no tower standing (a debug start, or NSa cancelled before S)
   NSb raises one at the spot and NSc topples a level-1 one there (the same code, one `or`).
 - The SA in NSa / NSb's gap: `:ya-e-sa3`, the shatter (their `:params :sa`; CORE-SEGMENT-SAS tags it SA and gives it the J2 string):
@@ -3660,7 +3660,7 @@ The user, 2026-11-22: 「開始把新動畫完成」. References: `docs/research
 
 | Q | Answer (verbatim choice) | What gets built |
 |---|---|---|
-| 南's tower | 「錐形骷髏堆」 | a tapering heap of black-ink skeletons climbing on each other, a crown of reaching hands, a blood-red eye spot each (Ep 372's slope of raised hands, the Sedlec skull pillars); level 1 3 m tall, level 2 6 m; the topple pivots on its base toward the victim and crashes into bones and ash along the line; the SA shatter throws bone shards forward in the 60° fan (ch. 509's pile shedding shards) |
+| 南's tower | 「錐形骷髏堆」 | a tapering heap of black-ink skeletons climbing on each other, a crown of reaching hands, a blood-red eye spot each (Ep 372's slope of raised hands, the Sedlec skull pillars); level 1 3 m tall, level 2 6 m (2 / 4 m since §38); the topple pivots on its base toward the victim and crashes into bones and ash along the line; the SA shatter throws bone shards forward in the 60° fan (ch. 509's pile shedding shards) |
 | AS4's last segment | 「斜向白色斬帶」 | a low-behind to high-front diagonal cut leaving a broad white diagonal band (ch. 509's panel), the victim's outline greying to ash with cinders falling; the grip / cut / line before it each their own clip with ash |
 | E-J4 | 「踏步袈裟斬」 | a step in, the blade from the right shoulder down to the lower left, the body low, a slow heavy recovery |
 | 西's flame along the swing | 「跟著蓄力等級變大」 | while charged, every J / AS swing throws a flame arc with curled tongues outside the blade's path (Rengoku's 昇り炎天), reaching 0.8 m past the tip after NSa, 1.6 m after NSb (the added reach) |
@@ -3703,7 +3703,7 @@ smear from the match camera. Stale mentions of `ya-e-f1` remain in §15.2.2 / §
 
 The user, 2026-11-22: 「通過縮小半徑讓骷髏塔變得更密集一些」. The cone's base radius 0.95 → 0.7 m at level 1 and 1.25 → 0.9 m at level 2
 (`+ya-cone-r1+` / `+ya-cone-r2+`, the tower, its topple and the shatter's heap alike), the climbers packed closer: 0.62 → 0.5 m apart round a
-ring, rings 0.5 → 0.42 m up the axis (`%ya-cone-draw`, AS3b's heap too). The hazards (the hitless tower, the bind disc r 1.6, the topple's
+ring, rings 0.5 → 0.42 m up the axis (`%ya-cone-draw`, AS3b's heap too). The hazards (the hitless tower, the bind disc r 1.6 (1.2 since §38), the topple's
 2 m line) are unchanged. Checks: host tests 4326 ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing as before, fx-dropped
 0), `yamamoto-bankai.lisp` rows identical; a before / after sheet of the tower (level 1 far / level 2 / level 1 binding).
 
@@ -3726,7 +3726,7 @@ break height boxed 16 B a call: now a macro), fx-dropped 0, `yamamoto-bankai.lis
 ### 34.5 The break at half the height (the user, 2026-11-22; presentation only)
 
 The user, 2026-11-22: 「斷裂處改成在目前斷裂處的一半」. `ya-tower-break` 0.28 → 0.14 of the height: 0.84 → 0.42 m at level 1, 1.68 → 0.84 m
-at level 2. Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B, fx-dropped 0), `yamamoto-bankai.lisp`
+at level 2 (0.28 / 0.56 m on the smaller tower since §38). Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0 (consing 0 B, fx-dropped 0), `yamamoto-bankai.lisp`
 rows identical; a before / after sheet.
 
 ## 35. 南's tower rises closer to him (the user, 2026-11-22; a sim change)
@@ -3735,7 +3735,8 @@ The user, 2026-11-22: 「長出的位置請更靠近山本」; asked how near (2
 
 - `*ya-tower-ahead*` 2.5 → 1.5 m (at the victim's bearing): the tower, its bind disc (r 1.6: now 0-3.1 m before him, was 0.9-4.1) and the
   topple's base (a level-1 topple reaches 4.5 m from him, level 2 7.5 m; were 5.5 / 8.5) all move with it. The shatter's look reads
-  `+ya-tower-ahead+` (host-checked equal). The CPU's `:ns-range` for pointer 3 (1.0 4.0) → (0.5 3.0).
+  `+ya-tower-ahead+` (host-checked equal). The CPU's `:ns-range` for pointer 3 (1.0 4.0) → (0.5 3.0). (§38: r 1.2, 0.3-2.7 m; the
+  topples 3.5 / 5.5 m; `:ns-range` (0.3 2.7).)
 - Trials `yamamoto-bankai.lisp` re-aimed: C16a / C16b at 2.5 m (stale at 5 m since §30.3: C16b had 0 hits; now the bind 40 and the
   Step-dodge 0); C19b misses at 4 m (was 6), C19f's level-1 topple reaches 4 m (was 5), C19g falls short at 5.5 m (was 7); C19a / c / d / e /
   h / i / j unchanged in numbers. The browser log: `tower level 1 at ..., 1.50 m from him`.
@@ -3839,3 +3840,128 @@ smoke exit 0, and `--cvc` II / IK / KK identical to `tests/style-cvc-ref.txt`. `
 only ticks after a Bankai 南 Kikon, and those matches play no Yamamoto. The §19.2 table now reads 240 / 150, +144. Manual updated; DEVLOG §861.
 Known and left: the held stills show an ash cloud that a straight run does not; the mound's top is a little hollow from 50°; only Kenpachi
 was shot as the victim.
+
+## 38. 南's tower smaller, and NSc cuts it (the user, 2026-11-22; a sim change and a new NSc clip)
+
+The user, 2026-11-22: 「南 NS 的骷髏塔縮小規模，NSc 的斷塔傾倒增加一個山本將塔斬斷的動作」. Their choices: shrink the look **and** the hit
+volumes together (a sim change); NSc keeps its 18 f startup (the topple still fires on f18) and inside it Yamamoto cuts the tower low (presentation only).
+
+### 38.1 Knobs (old → new)
+
+| Knob | Old | New | Effect |
+|---|---|---|---|
+| `*ya-tower-h*` (yama.lisp) / `+ya-tower-h+` (yama-look.lisp, host-checked equal) | 3.0 | 2.0 | a level 2 m, two levels 4 m (were 3 / 6); the topple's line as long as the tower is tall, from its base 1.5 m ahead: it reaches 3.5 m from him at level 1, 5.5 m at level 2 (were 4.5 / 7.5) |
+| NSa / NSb `:radius` (the bind disc at the base) | 1.6 | 1.2 | the disc covers 0.3-2.7 m before him (was 0-3.1); the hitless tower's `:size` now reads the same param |
+| `*ya-tower-ahead*` | 1.5 | 1.5 | unchanged: the tower still rises 1.5 m ahead |
+| CPU `:ns-range` pointer 3 | (0.5 3.0) | (0.3 2.7) | the disc's span at its centre; the victim's hurt radius (0.36-0.45) is the slack for his drift over NSa's 22 f + 17 f delay. The near bound is under the push-apart floor (about 0.8 m), so it never limits |
+| NSa / NSb `:reach` | 4.1 | 2.7 | the disc's far rim (4.1 was 2.5 + 1.6 from §30.3, stale since §35); the CPUs read it as the threat's reach (cpu-perceive SNAP, the MCTS's light model) |
+| NSc `:reach` | 8.0 | 6.0 | level 2's line end 5.5 + 0.5 (as 7.5 → 8.0 was) |
+| `+ya-cone-r1+` / `+ya-cone-r2+` (base radius) | 0.5 / 0.65 | 0.4 / 0.52 | x0.8 with the height. The climbers' spacing (0.4 x scale round a ring) and the rings' (0.34 x scale up the axis) are kept from §34.3, so the heap stays as dense; a 2 m level has fewer rings, not sparser ones |
+| `ya-tower-break` | 0.14 H | 0.14 H | 0.28 m at level 1, 0.56 m at level 2 (were 0.42 / 0.84) |
+| the break's gap (new macro `ya-tower-gap`, the tower and the topple alike) | 0.45 m | 0.15 H | 0.3 / 0.6 m (0.45 was 0.15 of the old 3 m level) |
+| `yama-topple-look`'s level-2 test | line > 4.5 m | line > 1.5 x `+ya-tower-h+` (3 m) | without it the 4 m level-2 line drew with level 1's radius and scale |
+| `+ya-tower-cut+` (new) | | 11 | NSc's frame on which the blade crosses the tower: the break, the slash and the bones start here (host-checked against the clip by FK) |
+
+`yama-hands-look`'s crack star reads the hazard's size, so it follows r 1.2 by itself. The SA shatter (`:ya-e-sa3`, a 60° sector 6 m along
+his facing) keeps its rules; its look reads `+ya-tower-ahead+` only (not the height), so it is unchanged: its heap is still 2.4 m tall, now
+taller than a level-1 tower (left: the brief kept it). AS3's pile (`yama-pile-look`, r 1.4) is another move: untouched.
+
+### 38.2 NSc's cut (presentation only)
+
+References looked at first: `.refs/yamamoto-sp30/` (south_509_manga, sheet_ep372_anime: the dead and Royd, no sword cut) and
+`.refs/yamamoto/` (sheet_Taimatsu226: a one-armed sweep with the whole torso turning; 338 Nadegiri: the unseen cut, the split after). No
+reference frame shows him cutting low, so the motion comes from `docs/research/yamamoto-rework/motion-refs.md`: E1's level forehand right to
+left from a deep lunge (ch. 507, `507Yamamoto attacks`: the arm locked out, the torso tipped forward), S4's waist-high sweep with the
+torso turning, and the charred blade held one-handed (the Bankai's).
+
+Clip `:ya-e-minami-c` (yama-art.lisp; frame 0 still NSb's S+A pose `:ya-e-minami-b-a`, so the NSb > NSc link does not jump):
+
+| Frames | Pose |
+|---|---|
+| 0-3 | the blade ripped up out of the plaza and drawn back low to his right, the chest turning away (yaw -12, chest -20) |
+| 6-8 | coiled and held: crouched (root -0.36), the blade low behind his right hip (the tip 1.2 m right, 0.5 up, 0.7 behind) |
+| 9-10 | released: a step-in lunge to 0.38 m, the blade coming round low from his right |
+| 11 (`+ya-tower-cut+`) | `:ya-e-minami-c-cut`: the lunge at 0.42 m, crouched (root -0.3, spine 26°), the arm out low, the blade nearly level: the tip crosses his centre line 1.73 m ahead, 0.46 m up |
+| 12-15 | through to his left, rising (the tip 0.65 m up at f12, 1.4 m at f14) |
+| 18 (S, the topple) | `:ya-e-minami-c-hit`: risen, the blade up over his left shoulder (the tip -0.31 / 2.48 / 0.99) |
+| 18-50 | the old recovery's timing, from the new S pose back to the stance |
+
+The blade tip by FK (tests/duel-rules/art.lisp, printed per frame, x right / y up / ahead):
+
+| f | 9 | 10 | 11 | 12 | 13 | 14 |
+|---|---|---|---|---|---|---|
+| tip | 1.43 0.32 0.26 | 0.90 0.37 1.39 | -0.00 0.46 1.73 | -0.84 0.65 1.63 | -1.15 0.98 1.48 | -1.05 1.42 1.53 |
+
+On f11 the tip is 0.69 m past the level-1 tower's near side (1.04 m ahead: the axis 1.5 minus the ring at the break, 0.46) and 0.82 m past
+level 2's (0.91 ahead), 0.00 m off the axis, 0.18 m above level 1's break and 0.10 m below level 2's. On f10 it is right of the ring, on
+f12 left of it: the sweep goes through the tower right to left inside one frame each side of the cut. The host test checks all of that
+for both levels, and that `+ya-tower-cut+` is before S. The cast check at S became "up over his left" (y ≥ 2.2 as before, and x < 0).
+
+The look (`yama-tower-look` while the owner is in NSc, `%ya-tower-cut-fx`):
+- Before `+ya-tower-cut+` the tower stands whole (it no longer creaks and leans from f2).
+- From the cut frame the break draws: the stump stands, the section above is lifted off the cut by `ya-tower-gap` within 2 f. It leans
+  toward the victim from 0 on the cut to 1.05 rad on S (eased in, u²; was u³ over f2-18), and the topple takes it over as before.
+- An ink sword smear along his blade's arc at the break height: from 49° on his right, its head at the tower's axis on the cut and 49° on
+  his left after. An ash-white band runs down its middle, widest over the tower. It is drawn 0.9 m toward the eye, over the climbers, and
+  erodes over 8 f. The white is what reads on the black dead from behind him, as AS4's white band (§34).
+- Bones spat out of the cut along the blade's way (to his left) and up, falling: ten pieces, every fourth a skull with its blood eye.
+- `%ya-tower-break-fx`'s bones and ash from the crack, as §34.4.
+- The crown's two dead go once it is cut.
+
+### 38.3 Trials re-aimed (`tests/trials/yamamoto-bankai.lisp`)
+
+The bind disc touches Kenpachi (hurt r 0.45) out to 2.7 + 0.45 = 3.15 m. The topples touch him to 3.5 + 0.45 = 3.95 m at level 1 and
+5.5 + 0.45 = 5.95 m at level 2.
+
+| Row | Before | Now | Result |
+|---|---|---|---|
+| C19b NSa misses | 4.0 m | 3.4 m | no hit (just past the disc) |
+| C19e NS a-b-c, the level-2 topple reaches him | 7.0 m | 5.8 m | YA-FALL HIT 100, the binds miss |
+| C19e2 (new) NS a-b-c, the level-2 topple falls short | | 6.2 m | no hit |
+| C19f NSc alone (87428), the level-1 topple reaches him | 4.0 m | 3.8 m | YA-FALL HIT 70 |
+| C19g NSc alone, the level-1 topple falls short | 5.5 m | 4.2 m | no hit |
+
+C16a / C16b (the Step dodge, the bind at 2.5 m) and C19a / c / d / h / i / j are unchanged in numbers (2.5 m: 1.0 m from the disc's centre).
+Their logs differ only where the length is quoted: `topples: level 2, 6.0 m` became 4.0 m in C5 / C19d, and `level 1, 3.0 m` became 2.0 m
+in C17. The `tower level ... at` x positions moved in C19e / C19f / C19g with the new distances. C19h / i / j's ticks moved +220 for the
+new row. `yamamoto-core.lisp`, `-blaze.lisp` and `-sp30.lisp` are identical to the baseline taken before the change.
+
+The browser script `duel-yama-sp30.json` (the path of the C19 trials) is re-aimed the same way: NSa then NSc alone at 3.8 m (was 5), NS
+a-b-c at 5.8 m (was 7).
+
+### 38.4 Checks
+
+- Host tests: 4333 checks, ALL PASS. Changed or new checks:
+  - NSa / NSb `:radius` 1.2;
+  - `:ns-range` (0.3 2.7);
+  - `*ya-tower-h*` 2.0, and the disc's far rim at 2.7;
+  - the stand-in tower's disc 1.2;
+  - the 4 m topple (half 2.0, its middle, touching the base, the victim and the tip at 4 m, not 0.7 m past it);
+  - NSc's cut FK checks and per-frame print (above);
+  - the S cast check.
+- pkgcheck: only `DUEL::APP`. Debug ranges: 90, 0 errors.
+- Build, then `git checkout -- vendor`. Smoke exit 0.
+- `--cvc` II / IK / KK identical to `tests/style-cvc-ref.txt`. It plays no Yamamoto, so it proves the shared code is untouched.
+- 0 B probe 87448 (landscape and phone): every row 0 B. Two rows are new and also 0 B:
+  - `tower-cut`: NSc on `+ya-tower-cut+`, the slash and the bones;
+  - `tower-lean`: now frame 14 (was 12).
+- The stand-in hazards moved to the new sizes. No `fx-dropped`, no `slow frame` in the stills runs.
+- No looks gate, balance gate or CPU match.
+- Native trials: see §38.3.
+- Stills: `tests/scripts/duel-yama-tower-cut.json` / `-phone.json`, from the behind and side cameras.
+  - level 1 and level 2 standing, before (§35's build) / after;
+  - NSc f6, f10, f11, f12, f14, f18, f20, f24.
+
+  Each NSc frame is its own scene. `cmd`'s 0.01 s rounding put the NSc command and the still on drifting sub-frame phases, so stills
+  one frame apart came out the same. The command and the still now sit mid-frame on the 1/60 grid (4-decimal times, `K_CUT` 0), and
+  the f11 still shows the smear's head on the tower's axis (the cut). The game's tick still drifts about one frame against the
+  virtual clock from scene to scene, so a label can be off by one frame. Without a hit (P2 at 6.5 m), the "f18" still already shows
+  the topple down along its line: its 72° / 86° first frames only hold under a hit's hitstop (§34.1).
+
+### 38.5 Open
+
+- From the match camera his own back hides the blade at the crossing; what shows is the white band and the split. The side camera shows
+  the whole sweep.
+- Level 2 now fits the phone's frame (its crown left it at 6 m).
+- The SA shatter's heap is still drawn 2.4 m tall (taller than a level-1 tower).
+- The manual (`duel/web/manual.html` line 605) still quotes 3 / 6 m, 4.5 / 7.5 m and r 1.6, and does not describe the cut.

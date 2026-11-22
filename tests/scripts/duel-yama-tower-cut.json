@@ -1,0 +1,546 @@
+[
+{
+"at": 8.95,
+"eval": "console.log('=== tower a-b-c, NSc f6 behind')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 9.15,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 9.9,
+"shot": "tests/shots/duel-yama-cut-l1-behind.png"
+},
+{
+"at": 10.45,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 11.2,
+"shot": "tests/shots/duel-yama-cut-l2-behind.png"
+},
+{
+"at": 11.775,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 11.875,
+"shot": "tests/shots/duel-yama-cut-f06-behind.png"
+},
+{
+"at": 12.52,
+"eval": "console.log('=== tower a-b-c, NSc f10 behind')"
+},
+{
+"at": 12.57,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 12.62,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 12.67,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 12.72,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 14.02,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 15.3417,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 15.5083,
+"shot": "tests/shots/duel-yama-cut-f10-behind.png"
+},
+{
+"at": 16.08,
+"eval": "console.log('=== tower a-b-c, NSc f11 behind')"
+},
+{
+"at": 16.13,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 16.18,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 16.23,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 16.28,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 17.58,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 18.9083,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 19.0917,
+"shot": "tests/shots/duel-yama-cut-f11-behind.png"
+},
+{
+"at": 19.65,
+"eval": "console.log('=== tower a-b-c, NSc f12 behind')"
+},
+{
+"at": 19.7,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 19.75,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 19.85,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 22.475,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 22.675,
+"shot": "tests/shots/duel-yama-cut-f12-behind.png"
+},
+{
+"at": 23.22,
+"eval": "console.log('=== tower a-b-c, NSc f14 behind')"
+},
+{
+"at": 23.27,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 23.32,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 23.37,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 23.42,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 24.72,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 26.0417,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 26.275,
+"shot": "tests/shots/duel-yama-cut-f14-behind.png"
+},
+{
+"at": 26.78,
+"eval": "console.log('=== tower a-b-c, NSc f18 behind')"
+},
+{
+"at": 26.83,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 26.88,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 26.93,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 26.98,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 28.28,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 29.6083,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 29.9083,
+"shot": "tests/shots/duel-yama-cut-f18-behind.png"
+},
+{
+"at": 30.35,
+"eval": "console.log('=== tower a-b-c, NSc f20 behind')"
+},
+{
+"at": 30.4,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 30.45,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 30.5,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 30.55,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 31.85,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 33.175,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 33.5083,
+"shot": "tests/shots/duel-yama-cut-f20-behind.png"
+},
+{
+"at": 33.92,
+"eval": "console.log('=== tower a-b-c, NSc f24 behind')"
+},
+{
+"at": 33.97,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 34.02,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 34.07,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 34.12,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 35.42,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 36.725,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 37.125,
+"shot": "tests/shots/duel-yama-cut-f24-behind.png"
+},
+{
+"at": 37.52,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 37.77,
+"eval": "console.log('=== tower a-b-c, NSc f6 side')"
+},
+{
+"at": 37.82,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 37.87,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 37.92,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 37.97,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 38.72,
+"shot": "tests/shots/duel-yama-cut-l1-side.png"
+},
+{
+"at": 39.27,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 40.02,
+"shot": "tests/shots/duel-yama-cut-l2-side.png"
+},
+{
+"at": 40.575,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 40.675,
+"shot": "tests/shots/duel-yama-cut-f06-side.png"
+},
+{
+"at": 41.32,
+"eval": "console.log('=== tower a-b-c, NSc f10 side')"
+},
+{
+"at": 41.37,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 41.42,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 41.47,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 41.52,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 42.82,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 44.125,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 44.2917,
+"shot": "tests/shots/duel-yama-cut-f10-side.png"
+},
+{
+"at": 44.87,
+"eval": "console.log('=== tower a-b-c, NSc f11 side')"
+},
+{
+"at": 44.92,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 44.97,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 45.02,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 45.07,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 46.37,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 47.675,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 47.8583,
+"shot": "tests/shots/duel-yama-cut-f11-side.png"
+},
+{
+"at": 48.42,
+"eval": "console.log('=== tower a-b-c, NSc f12 side')"
+},
+{
+"at": 48.47,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 48.52,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 48.57,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 48.62,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 49.92,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 51.225,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 51.425,
+"shot": "tests/shots/duel-yama-cut-f12-side.png"
+},
+{
+"at": 51.97,
+"eval": "console.log('=== tower a-b-c, NSc f14 side')"
+},
+{
+"at": 52.02,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 52.07,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 52.12,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 52.17,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 53.47,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 54.775,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 55.0083,
+"shot": "tests/shots/duel-yama-cut-f14-side.png"
+},
+{
+"at": 55.52,
+"eval": "console.log('=== tower a-b-c, NSc f18 side')"
+},
+{
+"at": 55.57,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 55.62,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 55.67,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 55.72,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 57.02,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 58.325,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 58.625,
+"shot": "tests/shots/duel-yama-cut-f18-side.png"
+},
+{
+"at": 59.07,
+"eval": "console.log('=== tower a-b-c, NSc f20 side')"
+},
+{
+"at": 59.12,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 59.17,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 59.22,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 59.27,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 60.57,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 61.875,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 62.2083,
+"shot": "tests/shots/duel-yama-cut-f20-side.png"
+},
+{
+"at": 62.62,
+"eval": "console.log('=== tower a-b-c, NSc f24 side')"
+},
+{
+"at": 62.67,
+"eval": "Module._debug_cmd(87065)"
+},
+{
+"at": 62.72,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 62.77,
+"eval": "Module._debug_cmd(87303)"
+},
+{
+"at": 62.82,
+"eval": "Module._debug_cmd(87426)"
+},
+{
+"at": 64.12,
+"eval": "Module._debug_cmd(87427)"
+},
+{
+"at": 65.425,
+"eval": "Module._debug_cmd(87428)"
+},
+{
+"at": 65.825,
+"shot": "tests/shots/duel-yama-cut-f24-side.png"
+},
+{
+"at": 66.22,
+"eval": "Module._debug_cmd(2109)"
+},
+{
+"at": 66.52,
+"eval": "Module._debug_cmd(87448)"
+},
+{
+"at": 66.82,
+"eval": "console.log('=== END')"
+}
+]
