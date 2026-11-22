@@ -169,6 +169,13 @@ once, on the draw that first sees the frame (MODEL-LAST-SF)."
   (let ((h (kit-hook (fighter-kit f) :planted)))
     (if h (funcall h e f mv) (and mv (mv-planted mv) (eq (fighter-phase f) :main) '(0.7f0 0f0)))))
 
+(defun victim-look (e)
+  "The look E's opponent's kit gives E's drawn body (its hook :victim-look, called (att e)): values a tint (replacing MODEL-TINT for this
+draw) and a flash (0 .. 1, at least the hit flash's), or NIL NIL (none: every kit but Yamamoto's Bankai, 天地灰尽's ash, art batch D). A
+look: nothing is written, so nothing is left to restore."
+  (let* ((o (opp-of e)) (h (and o (kit-hook (fighter-kit (fighter o)) :victim-look))))
+    (if h (funcall h o e) (values nil nil))))
+
 (defun body-lift (kit b)
   "The drawn height of KIT's :lift for body B: the lift while B is the form's own body (a cinematic that still shows the
 form before, e.g. an awakening's first beats, stands on the ground)."
@@ -209,15 +216,16 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
     (when (and flashing (> rdt 0) (zerop (mod (fighter-hold f) 4))) (start-ghost e))   ; a new afterimage every 4 f
     (draw-ghost e rdt)
     (when (and (>= (model-alpha m) 0.999) (not flashing))   ; a vanishing Hoho body is not drawn: its afterimage is
+      (multiple-value-bind (vt vf) (victim-look e)       ; (the opponent's mark on his body: VICTIM-LOOK)
       (let ((face (face-accent m (face-of e f m mv))))    ; (a form's hidden parts: FACE-HIDE-LIST)
         (draw-body b (model-joints m) x y z yaw :weapon weapon :hide (face-hide-list m face) :face face
-                                              :tint (model-tint m)
+                                              :tint (or vt (model-tint m))
                                               :rim (if (> (model-super m) 0) *super-rim* (model-rim m))
-                                              :flash (if (> (model-flash m) 0) 0.45 0.0)
+                                              :flash (let ((hf (if (> (model-flash m) 0) 0.45 0.0))) (if (and vf (> vf hf)) vf hf))
                                               :alpha (let ((ba (kit-hook kit :body-alpha)))   ; a form drawn see-through
                                                        (if ba (funcall ba e) 1f0))
                                               :shadow (= sc 1f0))
-        (unless (= sc 1f0) (draw-shadow x y z (* 1.2 sc (body-hurt-r b))))))   ; (the giant's shadow)
+        (unless (= sc 1f0) (draw-shadow x y z (* 1.2 sc (body-hurt-r b)))))))   ; (the giant's shadow)
     (let ((h (kit-hook kit :draw))) (when h (funcall h e rdt)))   ; a character's own looks on the posed body (KIT-HOOK)
     (when (and planted (model-weapon m))
       (draw-planted-weapon (model-weapon m) x z yaw :ahead (first planted) :right (second planted)))

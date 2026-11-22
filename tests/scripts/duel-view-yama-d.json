@@ -1,0 +1,82 @@
+[
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(1227001)"
+},
+{
+"at": 10.15,
+"shot": "tests/shots/duel-view-yama-d-ya-e-q4-side.png"
+},
+{
+"at": 10.35,
+"eval": "Module._debug_cmd(1227002)"
+},
+{
+"at": 11.5,
+"shot": "tests/shots/duel-view-yama-d-ya-e-q4-front.png"
+},
+{
+"at": 11.7,
+"eval": "Module._debug_cmd(1214001)"
+},
+{
+"at": 12.85,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4a-side.png"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(1214002)"
+},
+{
+"at": 14.2,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4a-front.png"
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(1215001)"
+},
+{
+"at": 15.55,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4b-side.png"
+},
+{
+"at": 15.75,
+"eval": "Module._debug_cmd(1215002)"
+},
+{
+"at": 16.9,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4b-front.png"
+},
+{
+"at": 17.1,
+"eval": "Module._debug_cmd(1216001)"
+},
+{
+"at": 18.25,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4c-side.png"
+},
+{
+"at": 18.45,
+"eval": "Module._debug_cmd(1216002)"
+},
+{
+"at": 19.6,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4c-front.png"
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(1213001)"
+},
+{
+"at": 20.95,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4-side.png"
+},
+{
+"at": 21.15,
+"eval": "Module._debug_cmd(1213002)"
+},
+{
+"at": 22.3,
+"shot": "tests/shots/duel-view-yama-d-ya-e-as4-front.png"
+}
+]

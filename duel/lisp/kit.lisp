@@ -662,6 +662,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
       :planted (e f mv)              where his weapon stands planted in the plaza now, a constant list (ahead right), or NIL (in his
                                      hand) (DRAW.LISP PLANTED-SPOT, instead of a :planted move's 0.7 m ahead): Yamamoto's Bankai
                                      (the grab, the throw, AS3b / AS3c, DUEL_YAMA_CORE §18)
+      :victim-look (att v)           values a tint and a flash for the opponent V's drawn body, or NIL NIL (DRAW.LISP VICTIM-LOOK, read
+                                     each frame, nothing written): Yamamoto's Bankai (天地灰尽's ash, DUEL_YAMA_CORE §34)
       :hud-tag (e)                   the plate's tag (WEBHUD-TAG): Ichigo's KESSA, Hisagi
       :deck (e x y d)                the one-hand thumb ring (HUD-STICK): Ichigo's KESSA, Hisagi
       :soul-break-cine               a cinematic's name, not a function: the form's Soul Break cinematic (KIT-KIKON-CINE):

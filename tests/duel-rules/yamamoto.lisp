@@ -548,6 +548,10 @@
     ;; S4); no move in any kit sets :planted (the generic 0.7 m spot is unused), and a :blend is only on the Bankai's E-J1 (+ its Kikon
     ;; copies) (looks; 北's wave and entry pose too until §31 / §33)
     (check (and (kit-hook kb :armored-fx) (kit-hook kb :planted) (kit-hook (find-kit :yamamoto :blaze) :planted)))
+    ;; art batch D (§34): 天地灰尽's ash on the victim's drawn body (DRAW-FIGHTER's VICTIM-LOOK) is the Bankai's hook alone
+    (check (eq (kit-hook kb :victim-look) 'yama-victim-look))
+    (check (loop for c being the hash-keys of *kits* using (hash-value alist)
+                 always (loop for (f . kk) in alist always (or (and (eq c :yamamoto) (eq f :bankai)) (null (kit-hook kk :victim-look))))))
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (nil . kk) in alist always (loop for mv being the hash-values of (kit-moves kk) never (mv-planted mv)))))
     (check (equal (sort (loop for mv being the hash-values of (kit-moves kb) unless (zerop (mv-blend mv)) collect (mv-name mv)) #'string<)
