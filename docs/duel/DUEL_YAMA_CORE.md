@@ -1287,7 +1287,7 @@ The lengths, against the generic cinematic the three replace (`soul-break-cine`,
 |---|---|---|---|
 | 東 | 96 / 44 | 168 / 96 | +72 |
 | 西 | 96 / 44 | 180 / 140 | +84 |
-| 南 | 96 / 44 | 192 / 120 | +96 |
+| 南 | 96 / 44 | 240 / 150 (192 / 120 before §36) | +144 (+96 before §36) |
 
 They are built at the storyboards' lengths (fitting 168-192 f of storyboard into 96 f would rewrite the user's own 西 storyboard, a decision
 of its own) and the wiring is a separate commit, so the lead can merge the cinematics without moving any tick. The precedent: DUEL_LILLE §23
@@ -1306,7 +1306,7 @@ Konpaku): its 147 hash / probe / combat lines against the same script on a dist 
 
 So the cinematics move no rule, damage or state; only when the reset (or the K.O.) happens, by the length added.
 
-**Merged wired (the lead, 2026-11-20).** The storyboards' lengths stay: they are the user's storyboards (西 is theirs word for word), every other kit's per-pointer Kikon cinematic already runs longer than the generic 96 f, the damage frame does not move, and no gate reads the shift (the trials skip cinematics, `--cvc` plays no Yamamoto, the looks gate's YK match never awakens). The cost is +72 / +84 / +96 ticks before the reset after a Bankai Kikon under 東 / 西 / 南; reverting is one line (`:kikon-cines` back to `soul-break-cine`).
+**Merged wired (the lead, 2026-11-20).** The storyboards' lengths stay: they are the user's storyboards (西 is theirs word for word), every other kit's per-pointer Kikon cinematic already runs longer than the generic 96 f, the damage frame does not move, and no gate reads the shift (the trials skip cinematics, `--cvc` plays no Yamamoto, the looks gate's YK match never awakens). The cost is +72 / +84 / +96 ticks (南 +144 since §36) before the reset after a Bankai Kikon under 東 / 西 / 南; reverting is one line (`:kikon-cines` back to `soul-break-cine`).
 
 ### 19.3 Deviations, each with its reason
 
@@ -3831,3 +3831,11 @@ mound and the 14 dead behind him no longer call `%ya-cone!` / `%ya-climber` (the
 each. Caps: the sea 5400 from f180 (was 6600), 3200 from f200 (was 4000). Measured (held beats, the temporary readout), landscape /
 phone: f170 11430 / 11424, f182 8826 / 8844, f192 12780 / 12846, f200 10590 / 10632, f210 12336 / 12012; `fx-dropped 0`; 87448 at the
 f182 hold 0 B on every row (both).
+
+### 36.5 Merged (the lead, 2026-11-22)
+
+Rounds 1, 2 and 2b merged into main. The lead re-ran the checks on main: host tests 4327 ALL PASS, pkgcheck (only `DUEL::APP`), build,
+smoke exit 0, and `--cvc` II / IK / KK identical to `tests/style-cvc-ref.txt`. `--cvc` is a cheap proof: the longer cinematic shifts
+only ticks after a Bankai 南 Kikon, and those matches play no Yamamoto. The §19.2 table now reads 240 / 150, +144. Manual updated; DEVLOG §861.
+Known and left: the held stills show an ash cloud that a straight run does not; the mound's top is a little hollow from 50°; only Kenpachi
+was shot as the victim.

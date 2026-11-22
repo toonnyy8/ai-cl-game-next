@@ -100,3 +100,23 @@ inference (D):
 - Dropped after viewing: ep. 372 soldiers frame (not skeletons), Royd dismembered / cutting flames (no ash or flame-trail content),
   a Berserk Eclipse anime frame, 507 "original Bankai" panel (too small), the 508 South gif's second sheet (dark, nothing readable),
   a kendo men-strike photo.
+
+## 3. 南 Kikon: the sea of the dead dragging him under (2026-11-22)
+
+The user: 「南的毀魂技我希望呈現從地底湧出數以萬計的骷髏，並從四面八方將對手逐漸拖入地下覆蓋」. New images in `.refs/yamamoto-south-kikon/`
+(Wikimedia Commons / FMA wiki through their MediaWiki APIs); the canon ones are §1's.
+
+| File | Source URL | What it shows | Grade |
+|---|---|---|---|
+| `commons_dore_inferno_c8_mire.jpg` | commons.wikimedia.org/wiki/File:Inferno_Canto_8_lines_39-41.jpg | Doré, Inferno VIII: the damned half-sunk in the mire, the surface cutting heads, shoulders and reaching arms | D |
+| `commons_jigoku_zoshi.jpg` | commons.wikimedia.org/wiki/File:Jigoku-Zoshi.jpg | Jigoku-zōshi hell scroll: small figures swallowed by a mass of flame (the crowd as one shape) | D |
+| `commons_rodin_gates_of_hell.jpg` | commons.wikimedia.org/wiki/File:Rodin_Porte_enfer.jpg | Rodin's Gates of Hell: bodies boiling out of one surface | D |
+| `commons_kuniyoshi_skeleton.jpg` | commons.wikimedia.org/wiki/File:Mitsukuni_defying_the_skeleton_spectre_invoked_by_princess_Takiyasha.jpg | Kuniyoshi's giant skeleton spectre: one huge skull as the scale cue | D |
+
+Dropped: the FMA Gate of Truth files (the wiki holds only the door's relief and a 320 px Gluttony frame, no frame of the black hands).
+
+What makes it read:
+- **The floor as a waterline** (Doré): the victim cut by the plaza at the ankles, the knees, the waist, then a head and one hand; the
+  hands closing over him from every side carry "dragged", not a pile dropped on top.
+- **A mass as texture** (ep. 372, ch. 508, the hell scroll): near skeletons whole, the middle ones a skull and an arm, the far ones specks
+  and raised-hand ticks to the plaza edge; one near skull for scale.
