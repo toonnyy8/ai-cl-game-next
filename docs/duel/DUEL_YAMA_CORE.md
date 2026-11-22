@@ -3712,3 +3712,13 @@ ring, rings 0.5 → 0.42 m up the axis (`%ya-cone-draw`, AS3b's heap too). The h
 The user, 2026-11-22: 「再更密集」. Base radius 0.7 → 0.5 m (level 1), 0.9 → 0.65 m (level 2); climbers 0.5 → 0.4 m apart round a ring,
 rings 0.42 → 0.34 m up the axis. Hazards unchanged. Checks: host tests ALL PASS, build, smoke exit 0, `duel-yama-art-a.json` exit 0
 (consing as before, fx-dropped 0 on every stats line), `yamamoto-bankai.lisp` rows identical; a three-way sheet (§34.1 / §34.2 / now).
+
+### 34.4 The tower breaks low, then the top topples (the user, 2026-11-22; presentation only)
+
+The user, 2026-11-22: 「塔請在下面斷裂開後，上截才往前傾倒」. The heap breaks at `ya-tower-break` = 0.28 of its height (0.84 m at level 1,
+1.68 m at level 2): from NSc's wind-up the stump below the break stands upright and the section above leans, pivoting on the crack and lifted
+off it by a gap that opens to 0.45 m (`%ya-cone!`'s new `:lo` / `:hi` / `:gap`: draw only that part of the heap, its shape still the whole
+height's), bones and ash spitting out of the crack while the lean is young (`%ya-tower-break-fx`); in the topple the upper section falls on
+(72° / 86°) while the stump stands, then crumbles over 18 f. The hazards are unchanged. Checks: host tests 4326 ALL PASS, pkgcheck (only
+`DUEL::APP`), build, smoke exit 0, `duel-yama-art-a.json` exit 0, consing 0 B on tower-lean / topple-fall / topple (a function returning the
+break height boxed 16 B a call: now a macro), fx-dropped 0, `yamamoto-bankai.lisp` rows identical.

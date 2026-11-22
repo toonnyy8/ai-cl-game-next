@@ -178,31 +178,41 @@ with hands); 0 B."
               (+ %oz (* 0.47f0 %sc %az) (* 0.035f0 %sc %tz)) (* 0.034f0 %sc) 0f0 (+ %sd 7f0) +pal-blood+ %k :push 0.24f0)))   ; its eye
 
 (declaim (type f32vec *ya-cone*))
-(defvar *ya-cone* (make-f32 14)
+(defvar *ya-cone* (make-f32 17)
   "%YA-CONE-DRAW's arguments (%YA-CONE! writes them): base x z, the lean's unit direction ux uz, the lean (rad, about the base), height h
 (m along the axis), base radius r0, presence k, crumble 0..1 (the top first), the climbers' scale, seed, the swarm's swirl (rad), core
 (1 a charcoal core, 0 hollow), the arms' phase.")
 
-(defmacro %ya-cone! (bx bz ux uz th h r0 k crum sc seed swirl core ph)
-  "Write *YA-CONE* (single-float forms) and draw the heap (%YA-CONE-DRAW). 0 B."
+(defmacro %ya-cone! (bx bz ux uz th h r0 k crum sc seed swirl core ph &key (lo 0f0) (hi 1f4) (gap 0f0))
+  "Write *YA-CONE* (single-float forms) and draw the heap (%YA-CONE-DRAW). LO / HI: only the part of the heap between those heights (its
+shape still the whole H's), the lean pivoting at LO (§34.4: the stump below the break, HI the break; the section above it, LO the break,
+lifted GAP m along its axis off the crack). 0 B."
   `(let ((%a *ya-cone*))
      (declare (type f32vec %a))
      (setf (aref %a 0) ,bx (aref %a 1) ,bz (aref %a 2) ,ux (aref %a 3) ,uz (aref %a 4) ,th (aref %a 5) ,h (aref %a 6) ,r0 (aref %a 7) ,k
-           (aref %a 8) ,crum (aref %a 9) ,sc (aref %a 10) ,seed (aref %a 11) ,swirl (aref %a 12) ,core (aref %a 13) ,ph)
+           (aref %a 8) ,crum (aref %a 9) ,sc (aref %a 10) ,seed (aref %a 11) ,swirl (aref %a 12) ,core (aref %a 13) ,ph
+           (aref %a 14) ,lo (aref %a 15) ,hi (aref %a 16) ,gap)
      (%ya-cone-draw)))
+
+(defmacro ya-tower-break (h)
+  "Where the tower breaks before it topples (§34.4, the user 2026-11-22: 「塔請在下面斷裂開後，上截才往前傾倒」): 0.28 of its height H
+(0.84 m at level 1, 1.68 m at level 2). A macro: a function would box the float (0 B rule)."
+  `(* 0.28f0 ,h))
 
 (defun-fast %ya-cone-draw ()
   "The heap of the dead from *YA-CONE*: rings of climbers every 0.34 x scale m up the axis (0.5 until §34.2, 0.42 until §34.3) (its radius r0 (1 - q)(1 + 0.3 q) + 0.1 x scale
 at height share q, so a heap that grows widens as it climbs), as many round each ring as fit 0.4 x scale apart (0.62 until §34.2, 0.5 until §34.3), the far side left out
 (the camera sees the near half); the top two rings and the bottom one with splayed hands (the crown; the hands that bind); a charcoal
-core of discs up the axis (core 1). The axis leans by the lean toward (ux uz), pivoting at the base; nothing drawn below 6 cm. Crumble c: the
+core of discs up the axis (core 1). The axis leans by the lean toward (ux uz), pivoting at the height LO (the base by default); only the
+rings from LO up to HI drawn; nothing drawn below 6 cm. Crumble c: the
 climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
   (let* ((a *ya-cone*) (bx (aref a 0)) (bz (aref a 1)) (ux (aref a 2)) (uz (aref a 3)) (th (aref a 4)) (h (aref a 5)) (r0 (aref a 6))
          (k (aref a 7)) (crum (aref a 8)) (sc (aref a 9)) (seed (aref a 10)) (swirl (aref a 11)) (core (aref a 12)) (ph (aref a 13))
+         (lo (aref a 14)) (hi (aref a 15)) (gap (aref a 16))
          (s (f-sin th)) (c (f-cos th)) (ax (* s ux)) (ay c) (az (* s uz)) (ppx (- uz)) (ppz ux) (qx (* c ux)) (qy (- s)) (qz (* c uz))
          (e (camera-eye *camera*)) (ex (- (aref e 0) bx)) (ez (- (aref e 2) bz)) (el (f-max 0.01f0 (f-hypot ex ez)))
          (dy (* 0.34f0 sc)) (yc (* h (- 1f0 (* 1.15f0 crum)))) (nr (f->i (/ h dy))))
-    (declare (type f32vec a e) (single-float bx bz ux uz th h r0 k crum sc seed swirl core ph s c ax ay az ppx ppz qx qy qz ex ez el dy yc)
+    (declare (type f32vec a e) (single-float bx bz ux uz th h r0 k crum sc seed swirl core ph lo hi gap s c ax ay az ppx ppz qx qy qz ex ez el dy yc)
              (fixnum nr))
     (when (> h 0.05f0)
       (when (and (> core 0.5f0) (< th 0.3f0))            ; the core: a charcoal mass up the axis behind the climbers (off once it leans
@@ -211,25 +221,27 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
           (let* ((y (* 0.4f0 sc (+ 0.4f0 (i->f j)))) (q (f-min 1f0 (/ y h))) (r (+ (* 0.42f0 r0 (- 1f0 q) (+ 1f0 (* 0.3f0 q))) (* 0.06f0 sc)))
                  (kj (if (> y yc) (* k (f-clamp (- 1f0 (/ (- y yc) (* 0.25f0 h))) 0f0 1f0)) k)))
             (declare (single-float y q r kj))
-            (when (and (< y h) (> kj 0.02f0))
-              (fx-disc (+ bx (* y ax)) (f-max (* 0.85f0 r) (* y ay)) (+ bz (* y az)) r 0.25f0 (+ seed (i->f j) 20f0) +pal-black-smoke+ kj
-                       :push 0f0)))))
+            (when (and (< y h) (>= y lo) (< y hi) (> kj 0.02f0))
+              (let ((yl (+ (- y lo) gap)))
+                (declare (single-float yl))
+                (fx-disc (+ bx (* yl ax)) (f-max (* 0.85f0 r) (+ lo (* yl ay))) (+ bz (* yl az)) r 0.25f0 (+ seed (i->f j) 20f0)
+                         +pal-black-smoke+ kj :push 0f0))))))
       (dotimes (j (1+ nr))
         (let* ((fj (i->f j)) (y0 (* dy (+ 0.45f0 fj))) (q0 (f-min 1f0 (/ y0 h)))
                (r (+ (* r0 (- 1f0 q0) (+ 1f0 (* 0.3f0 q0))) (* 0.1f0 sc)))
                (m (max 1 (f->i (/ (* 6.2832f0 r) (* 0.4f0 sc))))) (hand (or (= j 0) (>= j (- nr 1)))))
           (declare (single-float fj y0 q0 r) (fixnum m))
-          (when (< y0 (- h (* 0.15f0 sc)))
+          (when (and (< y0 (- h (* 0.15f0 sc))) (>= y0 lo) (< y0 hi))
             (dotimes (i m)
               (let* ((fi (i->f i)) (hs (hash01 (+ fi (* 7f0 fj)) seed))
                      (an (+ (* 6.2832f0 (/ (+ fi (* 0.5f0 (i->f (logand j 1))) (* 0.3f0 hs)) (i->f m))) (* swirl (- 1f0 q0))))
                      (ca (f-cos an)) (sa (f-sin an))
                      (y (+ y0 (* dy 0.25f0 (- hs 0.5f0))))
-                     (f (if (> y yc) (f-clamp (/ (- y yc) (* 0.25f0 h)) 0f0 1f0) 0f0)) (kf (* k (- 1f0 f))) (yy (- y (* 0.8f0 f)))
+                     (f (if (> y yc) (f-clamp (/ (- y yc) (* 0.25f0 h)) 0f0 1f0) 0f0)) (kf (* k (- 1f0 f))) (yy (+ (- y (* 0.8f0 f) lo) gap))
                      (rx (+ (* ca ppx) (* sa qx))) (ry (* sa qy)) (rz (+ (* ca ppz) (* sa qz))))
                 (declare (single-float fi hs an ca sa y f kf yy rx ry rz))
                 (when (and (> kf 0.02f0) (> (+ (* rx ex) (* rz ez)) (* -0.2f0 el)))   ; (the near half and its rims)
-                  (%ya-climber (+ bx (* yy ax) (* r rx)) (f-max 0.06f0 (+ (* yy ay) (* r ry))) (+ bz (* yy az) (* r rz))
+                  (%ya-climber (+ bx (* yy ax) (* r rx)) (f-max 0.06f0 (+ lo (* yy ay) (* r ry))) (+ bz (* yy az) (* r rz))
                                (+ ax (* 0.25f0 rx)) (+ ay (* 0.25f0 ry)) (+ az (* 0.25f0 rz))
                                (- (* ca qx) (* sa ppx)) (* ca qy) (- (* ca qz) (* sa ppz))
                                (* sc (+ 0.9f0 (* 0.25f0 hs))) kf (+ seed (* 13f0 fj) fi) (+ ph (* 6.2832f0 hs)) hand)))))))))
@@ -244,6 +256,14 @@ climbers above (1 - 1.15 c) h fade and drop. A look; 0 B."
          (declare (single-float %y %r %a))
          (%t-blob (+ ,bx (* %r (f-cos %a))) %y (+ ,bz (* %r (f-sin %a))) (rnd-range -0.4f0 0.4f0) (rnd-range -0.6f0 0.3f0)
                   (rnd-range -0.4f0 0.4f0) (rnd-range 0.6f0 1.1f0) (rnd-range 0.07f0 0.15f0) 0.3f0 0.25f0 +pal-ash+)))))
+
+(defmacro %ya-tower-break-fx (x z hb fx fz r0 th rdt)
+  "The break (§34.4): bones and ash spitting out of the crack at height HB round (X Z), most while the lean is young (TH small). 0 B."
+  `(dotimes (%i (n-of (* 120f0 (f-clamp (- 1f0 (* 1.2f0 ,th)) 0.15f0 1f0)) ,rdt))
+     (let* ((%a (rnd-range 0f0 6.2832f0)) (%ca (f-cos %a)) (%sa (f-sin %a)))
+       (declare (single-float %a %ca %sa))
+       (%t-blob (+ ,x (* ,r0 %ca)) ,hb (+ ,z (* ,r0 %sa)) (+ (* 1.4f0 %ca) (* 0.8f0 ,fx)) (rnd-range -0.2f0 0.9f0) (+ (* 1.4f0 %sa) (* 0.8f0 ,fz))
+                (rnd-range 0.5f0 0.9f0) (rnd-range 0.06f0 0.13f0) 0.4f0 0.25f0 (if (< (rnd01) 0.35f0) +pal-ink+ +pal-ash+)))))
 
 (defun-fast yama-tower-look (hz rdt)
   "南's tower (§34 A: the :ya-tower 2.5 m before him, its level in its data): the heap swarming up out of the ground over 16 f to
@@ -277,7 +297,13 @@ crumbling to ash from the top over its last 14 f when nothing spent it. A look."
                   (let* ((px (- x (aref p 0))) (pz (- z (aref p 2))) (pl (f-max 0.01f0 (f-hypot px pz))))
                     (declare (single-float px pz pl))
                     (setf fx (/ px pl) fz (/ pz pl)))))))))
-    (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed (* 1.4f0 (- 1f0 e1)) 1f0 (* 0.9f0 dr))
+    (if (> th 0f0)                                       ; NSc's wind-up (§34.4): broken low, the stump stands, the section above leans
+        (let ((hb (ya-tower-break h)))
+          (declare (single-float hb))
+          (%ya-cone! x z fx fz 0f0 h r0 0.98f0 crum sc seed 0f0 1f0 (* 0.9f0 dr) :hi hb)
+          (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb :gap (* 0.45f0 (f-min 1f0 (/ th 0.4f0))))
+          (%ya-tower-break-fx x z hb fx fz r0 th rdt))
+        (%ya-cone! x z fx fz th h r0 0.98f0 crum sc seed (* 1.4f0 (- 1f0 e1)) 1f0 (* 0.9f0 dr)))
     (when (and (< th 0.05f0) (< crum 0.2f0) (> e1 0.6f0))   ; the crown: two of the dead clawing out of the tip
       (dotimes (b 2)
         (let ((ya (+ (* 3.1416f0 (i->f b)) (* 6.2832f0 (hash01 (i->f b) seed)))))
@@ -305,8 +331,13 @@ line, an INK crack down its middle; eroding from 18 f to 30. A look."
          (big (> ll 4.5f0)) (sc (if big 1.2f0 1f0)) (r0 (if big +ya-cone-r2+ +ya-cone-r1+)) (seed (+ (* 2f0 x) z 70f0)) (dr (drawing-no))
          (k (f-clamp (* 0.98f0 (/ (i->f (- 30 age)) 12f0)) 0f0 0.98f0)))
     (declare (single-float x z half yaw fx fz px pz ll bx bz sc r0 seed dr k) (fixnum age))
+    (let ((hb (ya-tower-break ll)))                     ; the stump below the break stands, then crumbles (§34.4)
+      (declare (single-float hb))
+      (%ya-cone! bx bz fx fz 0f0 ll r0 0.98f0 (+ 0.6f0 (* 0.4f0 (f-clamp (/ (i->f (- age 2)) 18f0) 0f0 1f0))) sc seed 0f0 1f0 (* 0.9f0 dr)
+                 :hi hb)
+      (when (< age 2) (%ya-cone! bx bz fx fz (if (= age 0) 1.25f0 1.5f0) ll r0 0.98f0 0f0 sc seed 0f0 0f0 (* 0.9f0 dr) :lo hb :gap 0.45f0)))
     (if (< age 2)
-        (%ya-cone! bx bz fx fz (if (= age 0) 1.25f0 1.5f0) ll r0 0.98f0 0f0 sc seed 0f0 1f0 (* 0.9f0 dr))
+        nil
         (let ((t1 (/ (i->f (- age 2)) 60f0)))
           (declare (single-float t1))
           (toon-ground-seg bx bz (+ bx (* ll fx)) (+ bz (* ll fz)) 0.01f0 0.95f0 1f0 0.4f0 seed 0.3f0 (toon-a +pal-ash+ (* 0.6f0 k)))
