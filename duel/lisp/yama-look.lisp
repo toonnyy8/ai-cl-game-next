@@ -622,12 +622,17 @@ m/s, the flakes 0.4) with a little sway, gone in 36 f (the flakes 44): a slow ra
   nil)
 
 (defun yama-as4-look (e f)
-  "YAMA-DRAW's every frame (any form, any state): note 天地灰尽's hit (YAMA-AS4-NOTE), then while its look lasts and no cinematic runs, the
-white band where he cut (YAMA-AS4-BAND) and the cinders off the victim (YAMA-AS4-CINDERS, on his drawn joints). A look."
+  "YAMA-DRAW's every frame (any form, any state): note 天地灰尽's hit (YAMA-AS4-NOTE), then while its look lasts, the white band where he
+cut (YAMA-AS4-BAND) and the cinders off the victim (YAMA-AS4-CINDERS, on his drawn joints). A held last segment's Kikon follow-up (his
+phase :follow) or any cinematic ends it at once (the store's tick cleared: the victim is told to guard, then the cinematic places the
+actors; nothing of it comes back after). A look."
+  (when (or *cine* (eq (fighter-phase f) :follow))
+    (setf (aref *ya-as4-hit* (+ 1 (* 2 (fighter-side f)))) -1)
+    (return-from yama-as4-look nil))
   (yama-as4-note e f)
   (let ((age (ya-as4-age (fighter-side f))))
     (declare (fixnum age))
-    (when (and (<= 0 age) (< age +ya-as4-life+) (null *cine*))
+    (when (and (<= 0 age) (< age +ya-as4-life+))
       (let ((a *ya-as4-at*) (q (* 3 (fighter-side f))) (o (opp-of e)))
         (declare (type f32vec a) (fixnum q))
         (yama-as4-band a q age)

@@ -336,11 +336,183 @@
 "shot": "tests/shots/duel-yama-art-d-kikon-32-phone.png"
 },
 {
+"at": 21.35,
+"eval": "console.log('=== J1-J4 > AS4 a-b-c > the last held: the band ends at the Kikon')"
+},
+{
 "at": 21.4,
+"eval": "Module._debug_cmd(87014)"
+},
+{
+"at": 21.45,
+"eval": "Module._debug_cmd(87446)"
+},
+{
+"at": 21.5,
+"eval": "Module._debug_cmd(87301)"
+},
+{
+"at": 21.55,
+"eval": "Module._debug_cmd(87445)"
+},
+{
+"at": 21.6,
+"eval": "Module._debug_cmd(87441)"
+},
+{
+"at": 21.65,
+"eval": "Module._debug_cmd(87442)"
+},
+{
+"at": 21.7,
+"eval": "Module._debug_cmd(87901)"
+},
+{
+"at": 21.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.95,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.0,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.45,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.5,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 22.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 22.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 22.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 22.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 22.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.15,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.03,
+"shot": "tests/shots/duel-yama-art-d-held4-hit-phone.png"
+},
+{
+"at": 24.45,
+"shot": "tests/shots/duel-yama-art-d-held4-rush-phone.png"
+},
+{
+"at": 24.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.93,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.95,
+"shot": "tests/shots/duel-yama-art-d-held4-rush2-phone.png"
+},
+{
+"at": 28.87,
+"shot": "tests/shots/duel-yama-art-d-held4-after-phone.png"
+},
+{
+"at": 29.53,
+"shot": "tests/shots/duel-yama-art-d-held4-after2-phone.png"
+},
+{
+"at": 30.7,
 "eval": "Module._debug_cmd(87448)"
 },
 {
-"at": 21.9,
+"at": 31.2,
 "eval": "console.log('=== END')"
 }
 ]
