@@ -205,11 +205,11 @@
 },
 {
 "at": 22.95,
-"eval": "console.log('=== BANKAI south NSa then NSc alone at 5 m: the level-1 topple')"
+"eval": "console.log('=== BANKAI south NSa then NSc alone at 3.8 m: the level-1 topple')"
 },
 {
 "at": 23.0,
-"eval": "Module._debug_cmd(87050)"
+"eval": "Module._debug_cmd(87038)"
 },
 {
 "at": 23.05,
@@ -225,11 +225,11 @@
 },
 {
 "at": 25.95,
-"eval": "console.log('=== BANKAI south NS a-b-c at 7 m: the level-2 topple')"
+"eval": "console.log('=== BANKAI south NS a-b-c at 5.8 m: the level-2 topple')"
 },
 {
 "at": 26.0,
-"eval": "Module._debug_cmd(87070)"
+"eval": "Module._debug_cmd(87058)"
 },
 {
 "at": 26.05,

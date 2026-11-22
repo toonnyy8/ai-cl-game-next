@@ -166,7 +166,7 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
           (format t "yamamoto bankai cast checks (move, frame, what, x y ahead):~%")
           (dolist (c `((:ya-e-n3a 22 :tip "the point in the plaza, ahead" ,(lambda (x y a) (declare (ignore x)) (and (<= -0.2 y 0.05) (<= 0.4 a 1.2))))
                        (:ya-e-n3b 16 :tip "still in the plaza" ,(lambda (x y a) (declare (ignore x)) (and (<= -0.2 y 0.05) (<= 0.4 a 1.2))))
-                       (:ya-e-n3c 18 :tip "overhead" ,(lambda (x y a) (declare (ignore x a)) (>= y 2.2)))
+                       (:ya-e-n3c 18 :tip "up over his left (the cut's follow-through, §38)" ,(lambda (x y a) (declare (ignore a)) (and (>= y 2.2) (< x 0))))
                        (:ya-e-as3 10 :tip "the point in the plaza by the front foot" ,(lambda (x y a) (declare (ignore x)) (and (<= -0.2 y 0.05) (<= 0.4 a 1.2))))
                        (:ya-e-as3b 10 :hand "the hand low, swept forward" ,(lambda (x y a) (declare (ignore x)) (and (<= y 0.9) (>= a 0.5))))
                        (:ya-e-as3c 12 :tip "drawn out low" ,(lambda (x y a) (declare (ignore x a)) (<= y 0.6)))
@@ -184,6 +184,29 @@ SAIDAN -- left with their code on 2026-11-12, branch `retired-kits`.)")
                   (:hand-l (joint-point! v jm (ji :hand-l) 0f0 0f0 0f0)))
                 (let ((ok (funcall test (aref v 0) (aref v 1) (- (aref v 2)))))
                   (format t "  ~a ~(~a~) f~d ~(~a~) ~a | ~,2f ~,2f ~,2f~%" (if ok "ok " "OFF") n sf what desc (aref v 0) (aref v 1) (- (aref v 2)))
+                  (check ok)))))
+;; §38 (the user 2026-11-22: 「NSc 的斷塔傾倒增加一個山本將塔斬斷的動作」): NSc's low sweep cuts the tower +YA-TOWER-AHEAD+ ahead at its
+          ;; break (+YA-TOWER-CUT+, the look's slash and break): the tip per frame f6-f18; on the cut frame inside both levels' rings at the
+          ;; break (ahead past the near side, |x| < the ring's radius, at the break's height +- 0.25 m), the frame before right of the
+          ;; ring, the frame after left of it (a sweep right to left through it)
+          (let* ((mv (kit-move k :ya-e-n3c)) (clip (kit-move-clip k (mv-clip mv))) (tips nil))
+            (format t "yamamoto bankai NSc's cut (frame, tip x y ahead):~%")
+            (loop for sf from 6 to 18
+                  do (ya-pose k clip sf (mv-clip-speed mv)) (ya-wtip k)
+                     (push (list sf (aref v 0) (aref v 1) (- (aref v 2))) tips)
+                     (format t "  f~2d | ~5,2f ~5,2f ~5,2f~:[~; (the cut)~]~%" sf (aref v 0) (aref v 1) (- (aref v 2)) (= sf +ya-tower-cut+)))
+            (check (< +ya-tower-cut+ (mv-s mv)))
+            (dolist (lv '((0.4 1.0 2.0) (0.52 1.2 4.0)))   ; (r0 scale height: +YA-CONE-R1+ / -R2+, the climbers' scale, the height)
+              (destructuring-bind (r0 sc h) lv
+                (check (and (= r0 (if (= sc 1.0) +ya-cone-r1+ +ya-cone-r2+)) (= h (* (if (= sc 1.0) 1 2) +ya-tower-h+))))
+                (let* ((hb (* 0.14 h)) (q 0.14) (r (+ (* r0 (- 1 q) (+ 1 (* 0.3 q))) (* 0.1 sc)))   ; (%YA-CONE-DRAW's ring radius)
+                       (at (rest (assoc +ya-tower-cut+ tips))) (before (rest (assoc (1- +ya-tower-cut+) tips)))
+                       (after (rest (assoc (1+ +ya-tower-cut+) tips)))
+                       (ok (and (>= (third at) (- +ya-tower-ahead+ r)) (< (abs (first at)) r) (<= (abs (- (second at) hb)) 0.25)
+                                (> (first before) r) (< (first after) (- r)))))
+                  (format t "  ~a level ~d: the tip ~,2f past the near side (~,2f ahead), ~,2f m off the axis, ~,2f m from the break (~,2f up)~%"
+                          (if ok "ok " "OFF") (round h 2.0) (- (third at) (- +ya-tower-ahead+ r)) (- +ya-tower-ahead+ r) (first at)
+                          (- (second at) hb) hb)
                   (check ok)))))
           ;; art batch D (§34): E-J4 and AS4's four segments on their own clips at their moves' frames (S, S+A, the end at x1), and each link's
           ;; frame 0 on the pose the link lands on (J3 > J4 at J3's S+A; J4 > AS4a at J4's S+1; each AS4 segment at the one before's S+A: trial

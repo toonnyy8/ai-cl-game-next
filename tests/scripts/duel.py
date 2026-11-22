@@ -1711,7 +1711,8 @@ write("yama-j3-phone", yama_j3_script(True))
 # Yamamoto's SP rework, §30.1 and §30.3 (DUEL_YAMA_CORE §30.5; the browser path of the Y14 / B17 / C19 native trials): human P1 vs an idle
 # Kenpachi (87000 + 10 x m). The Shikai's NS2a slash at 2.2 m (a hit) and 3.0 m (a whiff), NS2b on its own (87414) with the victim at 6 m (its
 # ring 3 m from him); then the Bankai (87446) under 南 (87303): NSa at 2.5 m (a bind) and 6 m (none), NS a-b at 2.5 m (NSb's bind), NSa then
-# NSc on their own (87426, 87428) at 5 m (the standing level-1 tower topples 3 m: a hit), NS a-b-c at 7 m (the level-2 topple), NSa > J (the
+# NSc on their own (87426, 87428) at 3.8 m (the standing level-1 tower topples 2 m: a hit), NS a-b-c at 5.8 m (the level-2 topple; 5 / 7 m
+# with the 3 / 6 m tower until DUEL_YAMA_CORE §38), NSa > J (the
 # shatter) at 2.5 m, J1-J3 > AS3 (MARK SOUTH); the two 0 B probes (87448, 87449). Read the `tower` / `topple` / `shatter` / `ring at` /
 # `dealt` / `MARK` lines per `===` scene.
 #   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 50 --script tests/scripts/duel-yama-sp30.json
@@ -1728,8 +1729,8 @@ def yama_sp30_script():
     scene("BANKAI south NSa at 2.5 m: the bind", (87025, 87446, 87445, 87303)); sp(t + 0.3); t += 2.5
     scene("BANKAI south NSa at 6 m: no bind", (87060, 87303)); sp(t + 0.3); t += 2.5
     scene("BANKAI south NS a-b at 2.5 m: NSb binds", (87025, 87303)); sp(t + 0.3); sp(t + 0.6); t += 3.0
-    scene("BANKAI south NSa then NSc alone at 5 m: the level-1 topple", (87050, 87303, 87426)); ev.append(cmd(t + 1.2, 87428)); t += 3.0
-    scene("BANKAI south NS a-b-c at 7 m: the level-2 topple", (87070, 87303)); sp(t + 0.3); sp(t + 0.6); sp(t + 1.2); t += 3.5
+    scene("BANKAI south NSa then NSc alone at 3.8 m: the level-1 topple", (87038, 87303, 87426)); ev.append(cmd(t + 1.2, 87428)); t += 3.0
+    scene("BANKAI south NS a-b-c at 5.8 m: the level-2 topple", (87058, 87303)); sp(t + 0.3); sp(t + 0.6); sp(t + 1.2); t += 3.5
     scene("BANKAI south NSa > J: the shatter", (87025, 87303)); sp(t + 0.3); ev.extend(tap(t + 0.6, "KeyJ", 0.05)); t += 3.0
     scene("BANKAI J1-J3 AS3: mark south", (87014, 87301, 87445)); [ev.extend(tap(t + 0.3 + 0.25 * i, "KeyJ", 0.05)) for i in range(3)]
     sp(t + 1.1); sp(t + 1.4); sp(t + 1.7); t += 3.5
@@ -1852,6 +1853,42 @@ def yama_art_a_script(phone=False):
     return sorted(ev, key=lambda x: x["at"])
 write("yama-art-a", yama_art_a_script())
 write("yama-art-a-phone", yama_art_a_script(True))
+
+# Yamamoto §38 (DUEL_YAMA_CORE §38: the tower smaller, NSc cuts it): NSa > NSb > NSc on their own (87426 / 87427 / 87428, P1 in the Bankai
+# under 南), P2 an idle Kenpachi at 6.5 m (past the level-2 topple's 5.5 m end: no hit, no hitstop, the clip's own frames): level 1 and
+# level 2 standing, NSc's frames 6 (coiled), 10 (the sweep coming in), 11 (the cut, +YA-TOWER-CUT+), 12, 14 (the lean), 18 (S: the topple),
+# 20 (landing) and 24, one scene per frame; from the behind camera, then the side camera (2109). 87448's consing line ends the run.
+# PHONE: the deck on (87901).
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 75 --script tests/scripts/duel-yama-tower-cut.json
+#   node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 75 --mobile --size 390x844 --script tests/scripts/duel-yama-tower-cut-phone.json
+K_CUT = 0   # (frames from the command to its move's frame 0 on screen: calibrated by pose, f18 = the topple's first 72 deg frame)
+def yama_tower_cut_script(phone=False):
+    ev, t, sx = [], T0, ("-phone" if phone else "")
+    deck = (87901,) if phone else ()
+    def scene(name, cmds):
+        ev.append({"at": round(t - 0.05, 2), "eval": f"console.log('=== {name}')"})
+        ev.extend(cmd(t + 0.05 * i, c) for i, c in enumerate(cmds))
+        return t + 0.05 * (len(cmds) - 1)
+    for cam in ("behind", "side"):
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+        for i, f in enumerate((6, 10, 11, 12, 14, 18, 20, 24)):   # (a scene per NSc frame: stills a frame apart come out the same)
+            s0 = scene(f"tower a-b-c, NSc f{f} {cam}", (87065, 87446, 87303) + deck + (87426,))
+            s1 = s0 + 1.3; ev.append(cmd(s1, 87427))
+            if i == 0:
+                ev.append(shot(s0 + 45 / 60, f"yama-cut-l1-{cam}{sx}")); ev.append(shot(s1 + 45 / 60, f"yama-cut-l2-{cam}{sx}"))
+            # NSc's command mid-frame on the frame grid and the still F frames after it, mid-frame too (CMD's 0.01 s rounding put the
+            # two on drifting phases: stills a frame apart came out the same)
+            g = (int((s1 + 1.3) * 60) + 1) / 60
+            ev.append({"at": round(g + 0.5 / 60, 4), "eval": "Module._debug_cmd(87428)"})
+            ev.append({"at": round(g + (f + K_CUT + 0.5) / 60, 4), "shot": f"{SHOTS}yama-cut-f{f:02d}-{cam}{sx}.png"})
+            s2 = g
+            t = s2 + 0.8
+        if cam == "side": ev.append(cmd(t, 2109)); t += 0.3
+    ev.append(cmd(t, 87448)); t += 0.3
+    ev.append({"at": round(t, 2), "eval": "console.log('=== END')"})
+    return sorted(ev, key=lambda x: x["at"])
+write("yama-tower-cut", yama_tower_cut_script())
+write("yama-tower-cut-phone", yama_tower_cut_script(True))
 
 # Yamamoto art batch D (DUEL_YAMA_CORE §34): the Bankai string J1-J4 > AS4 from 1.4 m with the three marks (87441-87443), un-held (trial
 # A1's presses: J every 15 f, SP on J4's hit, then right after each AS4 segment starts; pointer 1, so 西's garb stays off), from the match camera: J4's tell (the blade over

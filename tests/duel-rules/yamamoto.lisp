@@ -344,12 +344,12 @@
     (let ((mv (m :ya-e-n3a)))
       (check (and (= 17 (getf (mv-params mv) :delay)) (= (+ 22 16) (+ (mv-s mv) 17 -1)) (< (+ 22 16) (+ (mv-s mv) (mv-a mv)))
                   (= *ya-bind-stun* (getf (mv-params mv) :stun)))))
-    ;; §30.3 南's skeleton tower: NSa raises it (40, a bind, r 1.6 at its base), NSb climbs it to level 2 (50, a bind), NSc topples it (70 /
+    ;; §30.3 南's skeleton tower: NSa raises it (40, a bind, r 1.2 at its base since §38, was 1.6), NSb climbs it to level 2 (50, a bind), NSc topples it (70 /
     ;; 100 by level, a crumple); NSa / NSb's binds keep inside the route (:keep-bind) and name the shatter as their gap's SA (55, a bind that
     ;; keeps, its SA class, J2 after it as after any SA); AS3 the hands (40) > the tower's disc (50) > the pile (100), each a mark 南; the CPU
-    ;; raises it from 1-4 m
+    ;; raises it from 0.3-2.7 m (the disc's span 1.5 m ahead, §38)
     (check (equal (loop for n in '(:ya-e-n3a :ya-e-n3b) collect (loop for key in '(:sa :level :radius :dmg :react :keep-bind) collect (getf (mv-params (m n)) key)))
-                  '((:ya-e-sa3 nil 1.6 40 :bind t) (:ya-e-sa3 2 1.6 50 :bind t))))
+                  '((:ya-e-sa3 nil 1.2 40 :bind t) (:ya-e-sa3 2 1.2 50 :bind t))))
     (check (and (equal (mv-on-frame (m :ya-e-n3a)) '((22 yama-tower-fire))) (equal (mv-on-frame (m :ya-e-n3b)) '((16 yama-tower-fire)))
                 (equal (mv-on-frame (m :ya-e-n3c)) '((18 yama-topple-fire))) (null (getf (mv-params (m :ya-e-n3c)) :sa))
                 (= 100 (getf (mv-params (m :ya-e-n3c)) :dmg-2))))
@@ -359,7 +359,8 @@
     (check (and (eq (cls :ya-e-sa3) :sa) (eq (kit-next kb :ya-e-sa3 :q) (m :ya-e-j2)) (eq (react :ya-e-sa3) :bind)
                 (eq (mv-sa-move kb (m :ya-e-n3a)) (m :ya-e-sa3)) (eq (mv-sa-move kb (m :ya-e-n3b)) (m :ya-e-sa3)) (null (mv-sa-move kb (m :ya-e-n3c)))))
     (check (equal (mapcar #'react '(:ya-e-as3 :ya-e-as3b :ya-e-as3c)) '(:stagger :stagger :knockdown)))
-    (check (equal (third (getf core :ns-range)) '(0.5 3.0)))
+    (check (equal (third (getf core :ns-range)) '(0.3 2.7)))
+    (check (and (~= 2.0 *ya-tower-h*) (~= 2.7 (+ *ya-tower-ahead* (getf (mv-params (m :ya-e-n3a)) :radius)))))   ; (§38: 2 / 4 m, the disc's far rim)
     ;; the pure piece: the topple's way (toward the victim, his facing when the victim stands on the base)
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 3.0 6.5 0.0)) '(0.6 0.8)))
     (check (every #'~= (multiple-value-list (ya-topple-dir 0.0 2.5 0.1 2.6 0.0)) (list (fwd-x 0.0) (fwd-z 0.0))))
@@ -485,7 +486,7 @@
           (setf (yss-marks (ys a)) 0))))
     ;; §30.3 the tower on stand-in fighters: NSa raises it 1.5 m before him (2.5 until §35) at the victim's bearing (a hitless :ya-tower, level 1, standing 90 f
     ;; after the segment) with its bind disc at the base (40, :keep-bind, delay 17); NSb climbs it (level 2, the stand renewed, a bind disc 50);
-    ;; NSc topples it toward the victim: a 6 m line (100), the tower spent; a line that touches along its length, not beside it; the shatter
+    ;; NSc topples it toward the victim: a 4 m line (100; 6 m until §38), the tower spent; a line that touches along its length, not beside it; the shatter
     ;; spends a standing tower
     (multiple-value-bind (a b) (t-pair kb (kit :kenpachi :base))
       (setf *t-hz* nil)
@@ -497,7 +498,7 @@
           (let ((tw (first (kind :ya-tower))) (d (first (kind :ya-col))))
             (check (and tw (null (hazard-hw tw)) (~= 0.9 (hazard-x tw)) (~= 1.2 (hazard-z tw)) (= 1 (getf (hazard-data tw) :level))
                         (= (+ 37 90) (hazard-life tw))))
-            (check (and d (~= 0.9 (hazard-x d)) (~= 1.6 (hazard-size d)) (= 17 (hazard-delay d)) (= 40 (hw-dmg (hazard-hw d)))
+            (check (and d (~= 0.9 (hazard-x d)) (~= 1.2 (hazard-size d)) (= 17 (hazard-delay d)) (= 40 (hw-dmg (hazard-hw d)))
                         (eq :bind (hw-react (hazard-hw d))) (= *ya-bind-stun* (hw-stun (hazard-hw d))) (equal (hw-flags (hazard-hw d)) '(:keep-bind))
                         (eq (hazard-cls d) :ns))))
           (setf (hazard-age (first (kind :ya-tower))) 50)
@@ -507,11 +508,11 @@
             (check (and d (~= 0.9 (hazard-x d)) (= 0 (hazard-delay d)) (= 50 (hw-dmg (hazard-hw d))) (eq :bind (hw-react (hazard-hw d))))))
           (in :ya-e-n3c) (yama-topple-fire a)
           (let ((fl (first (kind :ya-fall))))
-            (check (and (null (kind :ya-tower)) fl (= 100 (hw-dmg (hazard-hw fl))) (eq :crumple (hw-react (hazard-hw fl))) (~= 3.0 (hazard-size fl))
-                        (~= (+ 0.9 (* 3.0 0.6)) (hazard-x fl)) (~= (+ 1.2 (* 3.0 0.8)) (hazard-z fl))))
+            (check (and (null (kind :ya-tower)) fl (= 100 (hw-dmg (hazard-hw fl))) (eq :crumple (hw-react (hazard-hw fl))) (~= 2.0 (hazard-size fl))
+                        (~= (+ 0.9 (* 2.0 0.6)) (hazard-x fl)) (~= (+ 1.2 (* 2.0 0.8)) (hazard-z fl))))
             (flet ((touch (x z) (yama-hz nil fl :touches (f32 x) 0f0 (f32 z) 0.36f0 1.65f0)))
-              (check (and (touch 0.9 1.2) (touch 3.0 4.0) (touch 4.5 6.0)))   ; the base, the victim, the tip (6 m out)
-              (check (not (or (touch 5.1 6.8) (touch 3.9 2.7) (touch -0.3 -0.4))))))   ; past the tip, 1.5 m beside it, him
+              (check (and (touch 0.9 1.2) (touch 3.0 4.0) (touch 3.3 4.4)))   ; the base, the victim, the tip (4 m out; 6 until §38)
+              (check (not (or (touch 3.72 4.96) (touch 3.9 2.7) (touch -0.3 -0.4))))))   ; 0.7 m past the tip, 1.5 m beside it, him
           (setf *t-hz* nil)
           (in :ya-e-n3a) (yama-tower-fire a)
           (in :ya-e-sa3) (yama-shatter-fire a)
