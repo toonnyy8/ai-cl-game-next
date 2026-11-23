@@ -132,7 +132,10 @@ T when something started."
 ;; stick left / right + SP in an NS gap (a human, awakened, DRIVE >= *DRIVE-SWITCH*, not already switched): the first segment of
     ;; the previous / next pointer's NS, latched like a next segment (DUEL_SUBLIMATION §17)
     ((:ns :as) (let ((to (and (eq (fighter-cls f) :ns) (core-switch-target e f))))
-           (cond (to (setf (fighter-queued f) :sw (fighter-sw f) to)
+           (cond ((member (fighter-queued f) '(:sw :sw-ns))   ; a press after a latched switch, before it starts: the switched route's
+                  (setf (fighter-queued f) :sw-ns)               ;  next segment, latched behind it (it was eaten / replaced the switch;
+                  (vpad-consume! vp button))                     ;  the user 2026-11-23: 「切換到西後有時首次點擊 SP 不會觸發 NS」)
+                 (to (setf (fighter-queued f) :sw (fighter-sw f) to)
                      (vpad-consume! vp button))
                  ((let ((nx (mv-ns-next (fighter-kit f) mv))) (and nx (core-seg-ok-p f nx)))   ; (a segment above the route's level: none)
                   (setf (fighter-queued f) :ns)
@@ -196,7 +199,7 @@ CORE-SA-START!): a guess, so it counts as started on the cancel's tick (FIGHTER-
 step), and a J side's AS started after the hitstop is the later start and beats it (CORE-LATER; DUEL_CORE §2.1.1). T when it started."
   (let* ((q (fighter-queued f))
          (cancelled (and (eq q :sa) (core-seg-cancelled-p f))))
-    (when (and (member q '(:ns :sa :sw))
+    (when (and (member q '(:ns :sa :sw :sw-ns))
                (if (eq q :sa)
                    (if (and *core-as-sa-out* (eq (fighter-cls f) :as))   ; (research R4: an AS segment's latched SA fires only on a cancel)
                        cancelled
@@ -210,13 +213,14 @@ step), and a J side's AS started after the hitstop is the later start and beats 
             (setf (fighter-cls-t f) xch))
           (return-from core-latch-step t)))
       (setf (fighter-queued f) nil)
-      (when (eq q :sw)                                  ; the temporary pointer: its NS route from segment 1, paid in SP like any NS segment
+      (when (member q '(:sw :sw-ns))                    ; the temporary pointer: its NS route from segment 1, paid in SP like any NS segment
         (let ((to (fighter-sw f)) (from (fighter-ptr f)))
           (let ((sa (mv-sa-move (fighter-kit f) mv)))   ; a charge on the segment he leaves stays for his next SA
             (when (and sa (getf (mv-params sa) :charge-mult)) (setf (fighter-csa f) sa)))
           (setf (fighter-sp-ptr f) to)
           (when (core-start! e (kit-core-move (fighter-kit f) :ns to) :quick)   ; (the one paying place: scaled at a short gauge, Q14)
             (setf (fighter-tmp f) to)                   ; (after START-MOVE, which clears it for a non-NS)
+            (when (eq q :sw-ns) (setf (fighter-queued f) :ns))   ; (a press after the switch's: its NSb, latched; START-MOVE cleared the latch)
             (clog "~a NS pointer ~d -> ~d (SP; DRIVE ~,1f SUB ~,1f unchanged)" (side-name e) from to (gauges-drive (gauges e)) (gauges-sub (gauges e))))
           (return-from core-latch-step t)))
       (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (core-sa-move f mv))))

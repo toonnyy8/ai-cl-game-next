@@ -75,7 +75,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (hits 0 :type fixnum)                 ; bitmask: hit windows of the current move that connected
   (contact nil)                         ; what the move's hits did: NIL (whiff) :hit :block
   (hz-hit nil)                          ; a hazard of his hit the opponent during this move (APPLY-HIT; :r-cancel-from)
-  (queued nil)                          ; the latch: the J / K link (:q / :f) pressed during this string link
+  (queued nil)                          ; the latch: the J / K link (:q / :f) pressed during this string link; :ns / :sa / :sw (a switch) / :sw-ns (a switch, then its next segment) in an NS route
                                         ; (fires when its chain opens after contact; dropped on a whiff)
   (chained nil)                         ; this move is a string follow-up link started by the latch: an earlier link of
                                         ; the string touched him, so it chases (STRING-CHASE) and carries the gate

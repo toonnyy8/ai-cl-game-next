@@ -278,7 +278,10 @@ attacker of a Shikai Kikon cinematic (YAMA-S5-CINE-P): its look draws the blade 
     (setf (aref *ya-rdt* 0) (f32 rdt))                  ; (the K4 cinematics' looks read it)
     (yama-lean-draw (model-joints m) (fighter-side f))   ; the garb's trailing spring, every frame in any form (§29.1)
     (ya-dead-reset)
-    (when (and (eq (kit-form (fighter-kit f)) :bankai) (eql (fighter-ptr f) 2)   ; 西's form aura, 殘日獄衣 at K 1 (J2, §28.4),
+    (when (and (eq (kit-form (fighter-kit f)) :bankai)                           ; 西's form aura, 殘日獄衣 at K 1 (J2, §28.4),
+               (or (eql (fighter-ptr f) 2)                                       ;  under 西, a temporary switch's 西 NS (FIGHTER-TMP,
+                   (and (eql (fighter-tmp f) 2) (eq (fighter-state f) :move))    ;  in a move: it is left stale after) or a garb level
+                   (let ((s (yss e))) (and s (plusp (yss-garb s)))))             ;  held to his neutral (the user 2026-11-23, §43)
                (> (model-alpha m) 0.5) (not (eql e *aura-off*))                 ;  every frame under 西 but while a flare draws
                (not (let ((c *cine*)) (and c (eq (cine-name c) 'yama-nishi-cine)))))      ;  but while the 西 Kikon draws its own (§39: a
                                                                                           ;  flare no longer replaces it: no size pulse)

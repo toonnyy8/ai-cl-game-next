@@ -236,6 +236,12 @@ condition (§17.5 / §17.6 included); the route rules, the temporary pointer, th
   `tests/duel-rules/sp.lisp` (the gate); scripted `duel-drive-switch.json` / `duel-drive-switch-phone.json` / `duel-switch-routes.json` (debug 86107 never full
   refused, 86111 SP 15 scaled, 86112 SP 0 refused).
 
+### 17.9 An SP pressed before a latched switch starts (the user, 2026-11-23)
+
+The user: 「1. 臨時指針切換到西時不會有火衣 / 2. 切換到西後有時首次點擊 SP 不會觸發 NS」. An SP pressed while the switch is latched (`:sw`, before the segment's active frames end) was eaten (stick held) or replaced
+the switch with the old route's next segment (stick released). Now it latches `:sw-ns`: the switch starts as before, then the switched route's
+next segment is latched (`core-move-sp!`, `core-latch-step`). DUEL_YAMA_CORE §43.2 has the scripted check; `--cvc` identical.
+
 ## 18. SUBLIMATION and DRIVE filled by attacking (the user, 2026-11-01)
 
 User: 「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」. Asked (AskUserQuestion), answered: what counts 「傷害 + 讓對手失去魂魄 + 爆氣都加，橙色爆氣造成傷害時回覆量提昇」; the rate 「×3（約 950 點滿）」.

@@ -4394,3 +4394,29 @@ The user, 2026-11-23: 「旭日刃 NS 的裂口太窄又太長，而且煙塵衝
 
 ### 42.4 Checks
 Host tests 4347 ALL PASS (pinned: the volume, garb set / kept / cleared, NS1c under garb 2 = 204 vs 120 fresh, a charged J2 65 not doubled, NS2c 153, the tower hands 40 -> 68 and the topple 100 -> 170 at 4.116 m under garb 2, AS3's hands 40 -> 68 with disc 1.68, tower heights 1.68 / 2.94); sp-costs 116 PASS; debug ranges 0 errors; build, smoke exit 0; `--cvc` II / IK / KK identical; 0 B rows all 0 (new: tower-garb, fall-garb, hands-garb, as3b-garb, pile-garb, void-burst, void-garb). Trials: core / blaze / sp30 tables identical (sp30's log gains the GARB lines); bankai's C19e / C19f re-aimed for the lower tower (5.8 -> 4.7, 3.8 -> 3.4 m; they missed), C19e2 / C19g moved to keep bracketing the new edge; new G1-G4 (NS1c x1.4 / x1.7 over its control, 南 a-b-c 126 vs 74, AS3's hands 29 vs 17; G4 by real presses 西 NSa > SA > J2 > J3 > AS3, the string boosted once). Scripted switch scenes `tests/scripts/duel-yama-garb.json` (+ phone). Debug 87456 / 87457 set garb 1 / 2; 87445 clears it. Stills: scratchpad `garb-batch/`. Open: AS1's tear look scales x1.2 / x1.4 while its charged reach adds +0.8 / +1.6 m; NS1c's capsule reaches 5.2 m at a constant half-width while the diamond tapers to a point at 4.5 m.
+
+## 43. The garb under a temporary switch to 西, and an SP pressed before a latched switch starts (the user, 2026-11-23)
+
+The user, 2026-11-23 (playtest v491): 「1. 臨時指針切換到西時不會有火衣 / 2. 切換到西後有時首次點擊 SP 不會觸發 NS」
+
+### 43.1 The garb's look under a temporary 西 (presentation)
+- Cause: YAMA-DRAW drew 殘日獄衣 only while `fighter-ptr` was 2. A temporary switch (DUEL_SUBLIMATION §17) leaves `fighter-ptr` alone and sets
+  `fighter-tmp`, so a 東 / 南 route switched into 西 NSa / NSb drew no garb.
+- Now (yama-art.lisp): drawn while `fighter-ptr` is 2, **or** `fighter-tmp` is 2 in a move (it is left stale after the route), **or** his garb level
+  (YSS-GARB, §42.2) is above 0, so the garb he charged stays on him to his neutral, as §42's report said. Its size is YAMA-GARB-K's, unchanged.
+
+### 43.2 An SP pressed between the switch press and the switch (sim, core-sim.lisp, shared)
+- Cause: the switch press (stick + SP) latches `:sw` until the segment's active frames are over. A second SP pressed in that window either
+  re-latched `:sw` (stick still held: the press was eaten, so 西 NSb never came: the user's 「首次點擊 SP 不會觸發」) or latched `:ns` over it (stick
+  released: the old route's next segment played instead of the switch). Scripted before the fix: second SP 0.12 / 0.22 s after the switch press
+  -> `YA-E-N1B`, no `NS pointer 1 -> 2`.
+- Now: an SP pressed while `:sw` is latched latches **`:sw-ns`**: CORE-LATCH-STEP starts the switch as before, then latches `:ns` for the
+  switched route's next segment (its usual rules: after NSa's active frames, `core-seg-ok-p`). A J press still replaces the latch with the SA (last
+  press wins, unchanged). Every kit's switch shares the code; the shipped CPU never switches, so `--cvc` is unchanged.
+- Scripted (`scratchpad`, Bankai 87446, 東 87301, 3 m): stick held / released, second SP at +0.10 / +0.12 / +0.22 / +0.50 s ->
+  `NS pointer 1 -> 2`, `YA-E-N2A`, then `YA-E-N2B` 28 f later (its S16 + A12); a third SP -> `YA-E-N2C`. Phone (`--mobile`, 87901): SP tap,
+  flick right, tap -> the same.
+
+### 43.3 Checks
+Host tests 4347 ALL PASS; pkgcheck only the old `DUEL::APP`; build; `--cvc` II / IK / KK identical (33 / 28 / 27 lines); stills of the 東 route
+switched into 西 NSa / NSb show the garb growing 0 -> 1 -> 2.
