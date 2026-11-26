@@ -291,11 +291,15 @@ impl HookKey {
     }
 }
 
-/// A resolved hook function. Each hook point has its own signature, so the kit tasks (11 Kenpachi, 12 Ichigo) add one
-/// variant per ported function; until then every known kit symbol resolves to `Unported`, whose caller hits `unported!`.
+/// A resolved hook function. Each hook point has its own signature: a hook that takes only the fighter runs through
+/// `fighter::call_hook`, a typed one (:armor, :dmg-mult, :lv, :as-pick, :link-ok, :hit) at its own call site.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HookFn {
+    /// Not ported yet (Ichigo's: Task 12; Hisagi's / Yamamoto's: M4): its caller hits `unported!`.
     Unported,
+    /// A look the data names as a hook (`:draw`, `:hit-fx`): the sim never calls it.
+    Look,
+    Ken(crate::ken::Hook),
 }
 
 /// A kit's hook table: one slot per hook key.
@@ -308,18 +312,23 @@ impl Default for Hooks {
     }
 }
 
-/// The Kenpachi / Ichigo hook symbols of the live data (kits.json), not ported yet: the checked list Tasks 11 (KEN-) and
-/// 12 (ICHIGO- / IC-) empty, each entry replaced by its `HookFn` variant. A Kenpachi / Ichigo symbol outside it does not resolve.
-pub const PENDING_HOOKS: [&str; 21] = [
+/// The Ichigo hook symbols of the live data (kits.json), not ported yet: the checked list Task 12 empties, each entry replaced by
+/// its `HookFn` variant. An Ichigo symbol outside it does not resolve.
+pub const PENDING_HOOKS: [&str; 12] = [
     "IC-KESSA-GETSUGA-CINE", "ICHIGO-CATCH", "ICHIGO-CLOAK-POSE", "ICHIGO-DECK", "ICHIGO-DRAW", "ICHIGO-HIT", "ICHIGO-HUD-TAG",
-    "ICHIGO-KIKON-WORTH", "ICHIGO-OK", "ICHIGO-STRUCK", "ICHIGO-THREAT", "ICHIGO-TICK", "KEN-ARMOR", "KEN-AS-PICK", "KEN-BK-HIT-FX",
-    "KEN-BK-TICK", "KEN-DMG-MULT", "KEN-DRAW", "KEN-HIT", "KEN-LINK-OK", "KEN-LV",
+    "ICHIGO-KIKON-WORTH", "ICHIGO-OK", "ICHIGO-STRUCK", "ICHIGO-THREAT", "ICHIGO-TICK",
 ];
 
-// port: the symbol a defkit's :hooks names → its function. A Kenpachi / Ichigo symbol resolves only through PENDING_HOOKS
-// (a stub until Tasks 11 / 12) and anything else of theirs is None, so `hooks_of` fails at load naming it; a Hisagi /
-// Yamamoto symbol is an `Unported` stub (M4).
+// port: the symbol a defkit's :hooks (or a move's hook slot) names → its function. Kenpachi's resolve to their ports (his looks to
+// `Look`); an Ichigo symbol only through PENDING_HOOKS (a stub until Task 12) and anything else of his is None, so `hooks_of` fails
+// at load naming it; a Hisagi / Yamamoto symbol is an `Unported` stub (M4).
 pub fn resolve(name: &str) -> Option<HookFn> {
+    if let Some(h) = crate::ken::Hook::from_name(name) {
+        return Some(HookFn::Ken(h));
+    }
+    if crate::ken::LOOKS.contains(&name) {
+        return Some(HookFn::Look);
+    }
     if PENDING_HOOKS.contains(&name) {
         return Some(HookFn::Unported);
     }

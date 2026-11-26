@@ -110,7 +110,13 @@ pub fn own_armor_p(m: &mut Match, e: Entity, id: MoveId) -> bool {
         } else {
             f.phase == Some(Phase::Main) && m.knobs.armor_from <= f.sf && f.sf < mvd.s as i64
         };
-    own || kit_hook_sym(m, e, "armor").is_some_and(|h| call_hook(m, e, h))
+    own || match kit_hook_sym(m, e, "armor") {
+        None => false,
+        Some(h) => match ken_hook(h) {
+            Some(crate::ken::Hook::Armor) => crate::ken::hooks::armor(m, e, mvd),
+            _ => crate::unported!(m, h, false),
+        },
+    }
 }
 
 /// port: DEFENDER-STATE: E's side of the triangle for RESOLVE-CONTACT.

@@ -11,7 +11,7 @@ use crate::core_sim::{
 };
 use crate::ecs::Entity;
 use crate::fighter::{
-    breaker_phase, call_hook, defender_state, ender_push, fighter, fighter_mut, gauges_red_p, id_of, kit_hook_sym, kit_of, mv,
+    breaker_phase, call_hook, defender_state, ender_push, fighter, fighter_mut, gauges_red_p, id_of, ken_hook, kit_hook_sym, kit_of, mv,
     passive_p, pos_of, respect, set_blockstun, set_reaction, set_slide, side_name, yaw_of,
 };
 use crate::gauges::{bind_hook, bind_of, drain_guard, gain_gauges, siphon_of, sp_atk_hit, sub_of};
@@ -424,17 +424,21 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
         let fa = fighter(m, att);
         let charge = core_charge_mult(fa, mvd, own, hazard.is_some());
         let sub = sub_of(m, att);
-        if let Some(h) = kit_hook_sym(m, att, "dmg-mult") {
-            call_hook(m, att, h); // (a kit's distance x: KEN-DMG-MULT, Hisagi's tip; its port must use the value it returns)
-            return None;
-        }
+        let x = match kit_hook_sym(m, att, "dmg-mult") {
+            None => 1.0,
+            Some(h) => match ken_hook(h) {
+                Some(crate::ken::Hook::DmgMult) => crate::ken::hooks::dmg_mult(m, att, hw.dmg, mvd, hazard.is_some()),
+                _ => crate::unported!(m, h, None), // (Hisagi's tip, M4)
+            },
+        };
+        let fa = fighter(m, att);
         let sps = match hazard {
             Some(h) => m.hazard_of(h).unwrap().sp_scale,
             None if own => crate::sp::sp_scale(fa.sp_paid, fa.sp_cost),
             None => 1.0,
         };
         let lost = m.knobs.konpaku_max - m.gauges.get(att).unwrap().konpaku;
-        kit_atk_mods(&m.knobs, kit_of(m, att), lost, hit_px(&m.knobs, charge, sub, 1.0, sps), None) // (:form-mult: no live move)
+        kit_atk_mods(&m.knobs, kit_of(m, att), lost, hit_px(&m.knobs, charge, sub, x, sps), None) // (:form-mult: no live move)
     };
     let dmods = if flat { DefMods::default() } else { sub_taken_mods(&m.knobs, kit_def_mods(kit_of(m, def)), sub_of(m, def)) };
     let base = hw.dmg + bonus;
@@ -715,11 +719,13 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
         }
     }
     bail!();
-    for (e, key) in [(att, "hit"), (def, "struck")] {
-        if let Some(h) = kit_hook_sym(m, e, key)
-            && !call_hook(m, e, h)
-        {
-            return None; // a character's own hit rules (ICHIGO-HIT / -STRUCK, KEN-HIT: the kit tasks)
+    for (e, o, key) in [(att, def, "hit"), (def, att, "struck")] {
+        // a character's own hit rules (KEN-HIT; ICHIGO-HIT / -STRUCK: Task 12)
+        if let Some(h) = kit_hook_sym(m, e, key) {
+            match ken_hook(h) {
+                Some(crate::ken::Hook::Hit) if key == "hit" => crate::ken::hooks::hit(m, e, o, r, mvd, hazard.is_some()),
+                _ => crate::unported!(m, h, None),
+            }
         }
     }
     if matches!(r, Res::Hit | Res::Counter) {

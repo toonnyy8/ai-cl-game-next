@@ -17,6 +17,7 @@ pub mod ecs;
 pub mod flow;
 pub mod hashline;
 pub mod hitvol;
+pub mod ken;
 pub mod kit;
 pub mod knobs;
 pub mod log;

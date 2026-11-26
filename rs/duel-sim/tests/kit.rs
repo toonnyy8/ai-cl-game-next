@@ -104,12 +104,17 @@ fn hooks_resolve_or_fail_by_name() {
 
 #[test]
 fn pending_hooks_are_the_live_symbols() {
-    // PENDING_HOOKS lists exactly the Kenpachi / Ichigo hook symbols of the data (no stale or missing entry)
+    // PENDING_HOOKS lists exactly the Ichigo hook symbols of the data (no stale or missing entry); every Kenpachi one is ported
+    // (Task 11: his hooks, his looks as `Look`)
     let d = Data::embedded();
-    let mut live: Vec<&str> = ["kenpachi", "ichigo"].iter().flat_map(|c| d.kits.kits[*c].values()).flat_map(|k| k.hooks.values().map(|s| s.as_str())).collect();
-    live.sort();
-    live.dedup();
-    assert_eq!(live, PENDING_HOOKS.to_vec());
+    let live = |c: &str| {
+        let mut v: Vec<&str> = d.kits.kits[c].values().flat_map(|k| k.hooks.values().map(|s| s.as_str())).collect();
+        v.sort();
+        v.dedup();
+        v
+    };
+    assert_eq!(live("ichigo"), PENDING_HOOKS.to_vec());
+    assert!(live("kenpachi").iter().all(|s| matches!(resolve(s), Some(HookFn::Ken(_) | HookFn::Look))));
 }
 
 #[test]

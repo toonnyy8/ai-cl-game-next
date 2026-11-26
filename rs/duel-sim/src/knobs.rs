@@ -35,6 +35,9 @@ knobs! {
     ken_tategoto_stop: i64, // ken.lisp
     ke_glass_rays: i64, // ken.lisp
     ken_lv_max: i64, // ken.lisp
+    chigiri_burst: i64, // ken-art.lisp (KEN-CHIGIRI-OPEN's look life)
+    tategoto_cut: i64, // ken-art.lisp (KEN-TATEGOTO-SPLIT's look life)
+    tategoto_wave_len: f32, // ken-art.lisp (KEN-TATEGOTO-SPLIT's ground line)
     walk_ichigo: f32, // ichigo.lisp
     run_ichigo: f32, // ichigo.lisp
     walk_kessa: f32, // ichigo.lisp

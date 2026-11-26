@@ -12,12 +12,22 @@ use crate::rules::{
     kikon_rush_next_phase, move_end_frame, ray_room, string_chase_speed, track_step,
 };
 
-/// port: FUNCALL of hook symbol NAME on E (a move's :on-frame / :tick / :release / :on-land, a kit's :hooks entry), resolved through
-/// `kit::resolve`. Every Kenpachi / Ichigo hook is still a stub (Tasks 11 / 12; a move hook isn't in PENDING_HOOKS, a Hisagi /
-/// Yamamoto one is M4), so this records `unported!(NAME)` and returns false: the caller returns.
-pub fn call_hook(m: &mut Match, _e: Entity, name: &'static str) -> bool {
+/// port: FUNCALL of hook symbol NAME on E alone (a move's :on-frame / :tick / :release / :on-land, a kit's :tick / :reset / ...),
+/// resolved through `kit::resolve`. True when the run goes on; an unported hook (Ichigo's: Task 12, Hisagi's / Yamamoto's: M4)
+/// records `unported!(NAME)` and returns false: the caller returns.
+pub fn call_hook(m: &mut Match, e: Entity, name: &'static str) -> bool {
     match crate::kit::resolve(name) {
+        Some(crate::kit::HookFn::Ken(h)) => crate::ken::call(m, e, h),
+        Some(crate::kit::HookFn::Look) => true,
         Some(crate::kit::HookFn::Unported) | None => crate::unported!(m, name, false),
+    }
+}
+
+/// The Kenpachi hook symbol NAME names, if it is one (a typed hook's call site dispatches on it).
+pub fn ken_hook(name: &str) -> Option<crate::ken::Hook> {
+    match crate::kit::resolve(name) {
+        Some(crate::kit::HookFn::Ken(h)) => Some(h),
+        _ => None,
     }
 }
 
@@ -435,7 +445,14 @@ pub fn move_commands(m: &mut Match, e: Entity, id: MoveId, sf: i64) -> bool {
         crate::unported!(m, h, false) // (a kit's :link-move: Hisagi's gathered J, M4)
     }
     if let Some(h) = kit_hook_sym(m, e, "link-ok") {
-        crate::unported!(m, h, false) // (KEN-LINK-OK: Task 11; a refusal clears the latch, nothing starts)
+        let ok = match ken_hook(h) {
+            Some(crate::ken::Hook::LinkOk) => crate::ken::hooks::link_ok(m, e, n),
+            _ => crate::unported!(m, h, false),
+        };
+        if !ok {
+            fighter_mut(m, e).queued = None; // the kit refuses this link: it ends
+            return false;
+        }
     }
     let next = id_of(m, n);
     start_move(m, e, next, Some(if q == Queued::Q { Button::Quick } else { Button::Flash }));

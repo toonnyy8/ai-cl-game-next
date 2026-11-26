@@ -254,8 +254,8 @@ fn cancel_lands_for_both() {
 }
 
 /// sim.lisp 255-259: START-MOVE of an AS out of a J1 that took part in a cancel starts *CORE-XCH-AS-DELAY* (6) frames early, its start
-/// tick the press's, its first-frame hook not run yet (here: a first-frame hook ran = `unported` names it, Task 11); after a real hit
-/// since the cancel, without one, or for a J link, as before.
+/// tick the press's, its first-frame hook not run yet (here: KEN-BK-COST ran = his Reishi burnt); after a real hit since the cancel,
+/// without one, or for a J link, as before.
 #[test]
 fn pre_roll_out_of_a_cancel() {
     use duel_sim::components::{Cls, Form, KitId};
@@ -273,10 +273,10 @@ fn pre_roll_out_of_a_cancel() {
         let f = m.fighter.get_mut(a).unwrap();
         (f.state, f.phase, f.mv, f.cls, f.cls_t, f.contact, f.xch, f.xch_done) =
             (State::Move, Some(Phase::Main), Some(j1), Some(Cls::Na), 30, Some(Contact::Hit), xch, done);
-        m.unported = None;
+        let r0 = m.gauges.get(a).unwrap().reishi;
         start_move(m, a, id, Some(Button::Quick));
         let f = m.fighter.get(a).unwrap();
-        (f.sf, f.pre, f.cls_t, m.unported.is_some())
+        (f.sf, f.pre, f.cls_t, m.gauges.get(a).unwrap().reishi < r0)
     };
     assert_eq!(from_j1(&mut m, 40, false, as1), (enter - 6, 6, 50, false)); // 256 (out of the cancel: 6 more, hook later)
     assert_eq!(from_j1(&mut m, 40, true, as1), (enter, 0, 50, true)); // 257 (a real hit since: as before)

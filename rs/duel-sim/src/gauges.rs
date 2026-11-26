@@ -336,7 +336,7 @@ fn form_named(s: &Option<String>) -> Form {
 }
 
 /// port: AWAKEN!: once per match: E breaks free (REPEL!), the awakening's regen, SUBLIMATION frozen, the awakened form, the meter's
-/// :start, *AWAKEN-HEAL* of max Reishi, then the form's :cine (a kit cinematic: Tasks 11-12) or idle.
+/// :start, *AWAKEN-HEAL* of max Reishi, then the form's :cine (both idle after it) or idle.
 pub fn awaken(m: &mut Match, e: Entity) {
     repel(m, e);
     let k = &m.knobs;
@@ -355,7 +355,7 @@ pub fn awaken(m: &mut Match, e: Entity) {
     heal(m, e, r);
     // look: emit :awaken
     match &kit_of(m, e).cine {
-        Some(c) => crate::unported!(m, c.as_str()), // (START-CINE of the kit's cinematic, both idle after it: Tasks 11-12)
+        Some(c) => start_kit_cine(m, e, c),
         None => to_idle(m, e),
     }
 }
@@ -381,9 +381,16 @@ pub fn bankai(m: &mut Match, e: Entity, form: Form, restore: bool, cine: bool) {
     // look: refresh-look, emit :bankai
     crate::clog!(m, "{} BANKAI (konpaku kept, -{})", side_name(m, e), lost);
     match &kit_of(m, e).cine {
-        Some(c) if cine => crate::unported!(m, c.as_str()), // (KEN-BANKAI-CINE: Task 11)
+        Some(c) if cine => start_kit_cine(m, e, c),
         _ => to_idle(m, e),
     }
+}
+
+/// START-CINE of E's form's :cine C, both fighters idle after it (an unported one, Ichigo's: `unported!`).
+fn start_kit_cine(m: &mut Match, e: Entity, c: &'static str) {
+    let Some(name) = crate::cine::CineName::from_lisp(c) else { crate::unported!(m, c) };
+    let o = opp_of(m, e);
+    crate::cine::start_cine(m, name, e, o, Some(crate::cine::After::IdleBoth(e, o)));
 }
 
 // ---------------------------------------------------------------- gauges per step

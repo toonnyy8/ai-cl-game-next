@@ -11,7 +11,7 @@ use crate::combat::{Pending, Queue, PENDING_MAX};
 use crate::ecs::Entity;
 use crate::gauges::pay_gauges;
 use crate::fighter::{
-    call_hook, enter_main, fighter, fighter_mut, id_of, kit_hook_sym, kit_of, mv, opp_of, pos_of, refund_fs, run_velocity,
+    call_hook, enter_main, fighter, fighter_mut, id_of, ken_hook, kit_hook_sym, kit_of, mv, opp_of, pos_of, refund_fs, run_velocity,
     set_reaction, set_slide, side_name, spend_fs, start_move, stick_relative, to_idle, turn_to_opp, yaw_of,
 };
 use crate::kit::{kit_class, kit_core_move, kit_move, kit_sa_move, kit_sp_cost, kit_sp_free_p, kit_sp_start_p, mv_first_hit, mv_ns_next, mv_sa_move, mv_total, Role};
@@ -135,13 +135,17 @@ pub fn core_start(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
     true
 }
 
-/// port: CORE-SNAP-LV!: a new NS route or AS starts: its unlock level is the kit's :lv hook now (KEN-LV, Task 11), else 99. False when
-/// the hook is unported.
+/// port: CORE-SNAP-LV!: a new NS route or AS starts: its unlock level is the kit's :lv hook now (KEN-LV), else 99. False when the
+/// hook is unported.
 pub fn core_snap_lv(m: &mut Match, e: Entity) -> bool {
-    if let Some(h) = kit_hook_sym(m, e, "lv") {
-        return call_hook(m, e, h);
-    }
-    fighter_mut(m, e).lv_cap = 99;
+    let cap = match kit_hook_sym(m, e, "lv") {
+        None => 99,
+        Some(h) => match ken_hook(h) {
+            Some(crate::ken::Hook::Lv) => crate::ken::hooks::lv(m, e),
+            _ => crate::unported!(m, h, false),
+        },
+    };
+    fighter_mut(m, e).lv_cap = cap;
     true
 }
 
@@ -173,24 +177,33 @@ pub fn core_next_as(m: &Match, e: Entity) -> i64 {
 }
 
 /// port: CORE-AS-START!: SP after an attack hit: the AS of the attack press count, writing the pointer (its :as-writes; a kit's :as-pick
-/// hook may pick another: KEN-AS-PICK, Task 11). T when it started.
+/// hook may pick another move and the pointer it writes: KEN-AS-PICK). T when it started.
 pub fn core_as_start(m: &mut Match, e: Entity) -> bool {
     if !core_snap_lv(m, e) {
         return false;
     }
     let n = core_next_as(m, e);
-    if let Some(h) = kit_hook_sym(m, e, "as-pick") {
-        return call_hook(m, e, h);
-    }
-    let kit = kit_of(m, e);
-    let w = match &kit.core.as_writes {
-        Some(ws) => ws.get((n - 1) as usize).copied().flatten().map(i64::from),
-        None => [1, 2, 3].get((n - 1) as usize).copied(), // (the default '(1 2 3))
+    let pick = match kit_hook_sym(m, e, "as-pick") {
+        None => None,
+        Some(h) => match ken_hook(h) {
+            Some(crate::ken::Hook::AsPick) => crate::ken::hooks::as_pick(m, e, n),
+            _ => crate::unported!(m, h, false), // (Hisagi's may also answer :TAKEN, M4)
+        },
     };
-    let Some(mvd) = kit_core_move(m.data, kit, Role::As, n) else { return false };
+    let kit = kit_of(m, e);
+    let (id, w) = match pick {
+        Some((id, pw)) => (id, pw),
+        None => {
+            let w = match &kit.core.as_writes {
+                Some(ws) => ws.get((n - 1) as usize).copied().flatten().map(i64::from),
+                None => [1, 2, 3].get((n - 1) as usize).copied(), // (the default '(1 2 3))
+            };
+            let Some(mvd) = kit_core_move(m.data, kit, Role::As, n) else { return false };
+            (id_of(m, mvd), w)
+        }
+    };
     let f = fighter_mut(m, e);
     f.sp_ptr = f.ptr;
-    let id = id_of(m, mvd);
     core_start(m, e, id, None);
     let f = fighter_mut(m, e);
     (f.ptr, f.as_done) = (w.unwrap_or(f.ptr), true);

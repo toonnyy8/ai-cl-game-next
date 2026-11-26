@@ -166,8 +166,8 @@ fn blue_and_orange() {
     assert_eq!((m.fighter.get(a).unwrap().chain, m.fighter.get(b).unwrap().combo_from), (m.knobs.chain_window, 4));
 }
 
-/// AWAKEN!: the regen (333 f), SUBLIMATION frozen, the awakened form and its meter's :start, *AWAKEN-HEAL*; the kit's cinematic is
-/// Task 11's (unported, named).
+/// AWAKEN!: the regen (333 f), SUBLIMATION frozen, the awakened form and its meter's :start, *AWAKEN-HEAL*; the kit's cinematic
+/// starts (both actors in :cine), and both are idle once it ends.
 #[test]
 fn awaken_into_nozarashi() {
     let mut m = pair(Character::Kenpachi, Character::Ichigo);
@@ -181,7 +181,13 @@ fn awaken_into_nozarashi() {
     assert_eq!((g.meter, g.meter_idle), (0.0, 0)); // NOME's :start 0 still writes
     assert_eq!(g.reishi, (1000 + (0.2f32 * g.reishi_max as f32).round_ties_even() as i64).min(g.reishi_max));
     assert!(m.log.iter().any(|l| l.ends_with("P1 form NOZARASHI")));
-    assert_eq!(m.unported, Some("KEN-NOZARASHI-CINE"));
+    let c = m.cine.as_ref().map(|c| (c.name.lisp(), c.len, c.a, c.v));
+    assert_eq!((m.unported, c), (None, Some(("KEN-NOZARASHI-CINE", 108, a, m.p2))));
+    assert!([a, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == duel_sim::components::State::Cine));
+    while m.cine.is_some() {
+        duel_sim::cine::cine_step(&mut m);
+    }
+    assert!([a, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == duel_sim::components::State::Idle)); // (its :after)
 }
 
 /// GAUGE-SYSTEM: a full guard gauge ends guardless (GUARD BACK); EVOLUTION once at a full awakening gauge, its tick kept.

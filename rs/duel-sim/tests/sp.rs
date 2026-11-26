@@ -140,8 +140,10 @@ fn hooks_load() {
         }
     }
     let kb = kit(&d, "kenpachi", "base");
-    let (key, _) = kb.hooks.iter().next().unwrap();
-    assert_eq!(kit_hook(&hooks_of(kb).unwrap(), HookKey::from_name(key).unwrap()), Some(HookFn::Unported));
+    assert_eq!(kit_hook(&hooks_of(kb).unwrap(), HookKey::Armor), Some(HookFn::Ken(duel_sim::ken::Hook::Armor)));
+    let ib = kit(&d, "ichigo", "base");
+    let (key, _) = ib.hooks.iter().next().unwrap();
+    assert_eq!(kit_hook(&hooks_of(ib).unwrap(), HookKey::from_name(key).unwrap()), Some(HookFn::Unported)); // (Task 12)
     assert!(resolve("NOT-A-KIT-FN").is_none());
 }
 

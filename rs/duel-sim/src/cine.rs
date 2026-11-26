@@ -1,6 +1,6 @@
 //! port: engine/lisp/cine.lisp (the director) and duel/lisp/cinema.lisp (its hooks, the staging helpers, the generic
 //! cinematics' step-mode AT events). Shots, clips, captions, lenses, impact frames and sounds are looks (M3): only what
-//! touches sim state is here. A kit's script is `unported!` until Tasks 11-12.
+//! touches sim state is here. Kenpachi's scripts are in ken/cine.rs; Ichigo's are `unported!` until Task 12.
 use crate::components::State;
 use crate::ecs::Entity;
 use crate::math::{dir_yaw, hypot};
@@ -13,6 +13,7 @@ pub enum CineName {
     Ko,
     SoulBreak,
     Time,
+    Ken(crate::ken::cine::KenCine),
 }
 
 impl CineName {
@@ -22,6 +23,7 @@ impl CineName {
             CineName::Ko => 150,
             CineName::SoulBreak => 96,
             CineName::Time => 120,
+            CineName::Ken(c) => c.frames(),
         }
     }
     /// The Lisp symbol (CINE-BEGIN's log line).
@@ -31,6 +33,14 @@ impl CineName {
             CineName::Ko => "KO-CINE",
             CineName::SoulBreak => "SOUL-BREAK-CINE",
             CineName::Time => "TIME-CINE",
+            CineName::Ken(c) => c.lisp(),
+        }
+    }
+    /// The cinematic of symbol S, if ported (the generic Soul Break's, a kit's).
+    pub fn from_lisp(s: &str) -> Option<CineName> {
+        match s {
+            "SOUL-BREAK-CINE" => Some(CineName::SoulBreak),
+            _ => crate::ken::cine::KenCine::from_lisp(s).map(CineName::Ken),
         }
     }
 }
@@ -44,6 +54,8 @@ pub enum After {
     ResetRound(Entity, Entity),
     /// SETTLE-SOULS' K.O.: MATCH-OVER of the winner (None: a draw).
     MatchOver(Option<Entity>),
+    /// AWAKEN! / BANKAI!'s: both fighters idle.
+    IdleBoth(Entity, Entity),
 }
 
 /// The running cinematic (`*cine*`, CINE): HOLD is the debug freeze (`*cine-hold*`, never set by the ported commands).
@@ -89,6 +101,10 @@ fn run_after(m: &mut Match, after: After) {
         After::GoResults => crate::flow::go_results(m),
         After::ResetRound(a, v) => crate::round::reset_round(m, a, v),
         After::MatchOver(w) => crate::flow::match_over(m, w),
+        After::IdleBoth(e, o) => {
+            crate::fighter::to_idle(m, e);
+            crate::fighter::to_idle(m, o);
+        }
     }
 }
 
@@ -148,6 +164,7 @@ pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
         }
         // look: the caption, the negative frame, the shot
         CineName::Time => {}
+        CineName::Ken(c) => crate::ken::cine::script(c, cf, a, v, m),
     }
 }
 
