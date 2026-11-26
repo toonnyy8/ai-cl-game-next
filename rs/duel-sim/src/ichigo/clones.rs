@@ -120,9 +120,9 @@ fn icc_of(m: &Match, h: Entity) -> Option<usize> {
 
 // ---------------------------------------------------------------- pure rules
 
-/// port: CLONE-KONPAKU: the Kikon's Konpaku with N clones at the O press (*CLONE-KONPAKU* '(2 2 3 4)).
-pub fn clone_konpaku(n: i64) -> i64 {
-    [2, 2, 3, 4][n.clamp(0, 3) as usize] // ponytail: *clone-konpaku* is a list knob, kept here (one reader)
+/// port: CLONE-KONPAKU: the Kikon's Konpaku with N clones at the O press, `(nth (max 0 (min 3 n)) table)` (TABLE: *CLONE-KONPAKU*).
+pub fn clone_konpaku(table: &[i64], n: i64) -> i64 {
+    table[n.clamp(0, 3) as usize]
 }
 
 /// port: CLONE-MOVE: the clone's move for WEIGHT at LINK (3: the ender's).
@@ -155,14 +155,28 @@ pub fn clone_evict(borns: &[i64], max: i64) -> Option<usize> {
     borns.iter().position(|&b| b == lo)
 }
 
+/// A data hit-window flag (`"ranged"`) as its keyword: every flag APPLY-HIT's `flag_bits` knows (any other panics there too).
 fn flag_sym(f: &str) -> Sym {
     Sym(match f {
+        "breaker" => ":BREAKER",
+        "guard-crush" => ":GUARD-CRUSH",
+        "unguardable" => ":UNGUARDABLE",
+        "rend" => ":REND",
+        "flat" => ":FLAT",
+        "unscaled" => ":UNSCALED",
+        "keep-bind" => ":KEEP-BIND",
+        "spare" => ":SPARE",
         "ranged" => ":RANGED",
         "ender" => ":ENDER",
-        "through" => ":THROUGH",
-        "parry" => ":PARRY",
-        "step-branch" => ":STEP-BRANCH",
         "no-close" => ":NO-CLOSE",
+        "parry" => ":PARRY",
+        "ranged-ward" => ":RANGED-WARD",
+        "stance" => ":STANCE",
+        "step-branch" => ":STEP-BRANCH",
+        "through" => ":THROUGH",
+        "ice" => ":ICE",
+        "blade" => ":BLADE",
+        "thread" => ":THREAD",
         x => panic!("a hit window flag ECHO-HITWIN does not know: {x}"),
     })
 }
@@ -478,19 +492,16 @@ pub fn clone_replay_watch(m: &mut Match, e: Entity) {
     }
 }
 
-/// port: CLONE-REPLAY-LAG (*CLONE-REPLAY-LAGS* '(:ns-a 4 :ns-b 8), default 4).
-fn clone_replay_lag(c: &Icc) -> i64 {
-    match c.src {
-        Some(Src::NsB) => 8,
-        _ => 4, // ponytail: a plist knob with one reader, kept here
-    }
+/// port: CLONE-REPLAY-LAG: `(getf *clone-replay-lags* (icc-src c) 4)`.
+fn clone_replay_lag(m: &Match, c: &Icc) -> i64 {
+    c.src.map_or(4, |s| m.knobs.clone_replay_lags.get(s.name(), 4))
 }
 
 /// port: CLONE-REPLAY-NEXT: the queued move whose time has come: C plays it from its frame 0 (the :enter frame his started on).
 fn clone_replay_next(m: &mut Match, c: usize) {
     let cc = icc(m, c);
     let Some(&(tick, id, mult)) = cc.rq.first() else { return };
-    if m.match_tick < tick + clone_replay_lag(cc) {
+    if m.match_tick < tick + clone_replay_lag(m, cc) {
         return;
     }
     let enter = mv(m, id).enter as i64;
@@ -556,7 +567,7 @@ fn clone_replay_step(m: &mut Match, e: Entity, h: Entity, c: usize) {
     let mvd = mv(m, icc(m, c).mv.expect("a replay's move"));
     icc_mut(m, c).sf += 1;
     let cc = icc(m, c);
-    let (sf, mult, lag, side) = (cc.sf, cc.rmult, clone_replay_lag(cc), if cc.src == Some(Src::NsA) { 1 } else { -1 });
+    let (sf, mult, lag, side) = (cc.sf, cc.rmult, clone_replay_lag(m, cc), if cc.src == Some(Src::NsA) { 1 } else { -1 });
     let (hx, hzz, hyaw) = hist_at(ics(m, e), lag);
     let (x, z) = ns_slot(m, side, hx, hzz, hyaw);
     let q = pos_of(m, opp_of(m, e));
@@ -704,12 +715,12 @@ pub fn o_press(m: &mut Match, e: Entity) {
         }
     }
     // pace: O-RED / O-POKE n
-    let (bonus, tick) = (n * m.knobs.clone_burst_dmg, m.match_tick);
+    let (bonus, tick, worth) = (n * m.knobs.clone_burst_dmg, m.match_tick, clone_konpaku(&m.knobs.clone_konpaku.0, n));
     let f = fighter_mut(m, e);
-    (f.kikon_n, f.dmg_bonus) = (clone_konpaku(n), bonus);
+    (f.kikon_n, f.dmg_bonus) = (worth, bonus);
     let st = m.ics.get_mut(e).unwrap();
     (st.o_at, st.o_n) = (tick, n);
-    crate::clog!(m, "{} KAGE-UCHI clones {} konpaku {}", side_name(m, e), n, clone_konpaku(n));
+    crate::clog!(m, "{} KAGE-UCHI clones {} konpaku {}", side_name(m, e), n, worth);
 }
 
 // ---------------------------------------------------------------- 残像 ZANZO, the afterimages

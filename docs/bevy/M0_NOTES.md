@@ -339,6 +339,17 @@ host reach test: 12 of 12 Yamamoto tip reaches agree to 2 decimals.
 index summaries with sha1s; regenerate it from `build/oracle/INDEX.json` after `gen.py`) and `docs/bevy/cvc-tag.txt` (the `--cvc`
 reference at `lisp-freeze`).
 
+**Re-pinned 2026-11-27 (musl's `sincosf` / `fminf` / `fmaxf` in the preload, commit e0666342).** The first key's native image took
+glibc's `sincosf` wherever gcc -O2 had fused a `sinf` + `cosf` pair (musl's preload had none), and glibc's `fminf` / `fmaxf`; the
+shipped wasm never fuses and calls musl everywhere, so those bits were not the game's. The preload now serves musl's three (musl's
+`sincosf` equals its `sinf` / `cosf` bit for bit on 6M inputs), and the key was re-recorded with `ORACLE_OUT=build/oracle2 gen.py
+sim / look / replay` (63 of 63 replay OK), then swapped in as `build/oracle` (the old key kept at `build/oracle-glibc`, reference only).
+What changed: 2 traces, both 1 ulp in NS3 clones' places at ICHIGO-NS-SLOT, no fighter field, H, vpad or combat line, same steps and
+last tick: **cvc-ik-s1** from replay step 11399 (`hz1.z`) and **cvc-ii-s3** from step 13587 (`hz0.z`); trial-sp-costs's sha1 changed
+by its header path only. **FK**: 388 of 400 clips, by ≤ 8e-7 (`_pose_fk_` / `m4_euler_` are fused); `fk/INDEX.json` unchanged.
+Sounds and stills identical; cvc-tag.txt's data lines identical (header date / commit only). Detail:
+`.superpowers/sdd/2026-11-26-m1-sim-core/oracle2-report.md`.
+
 **What H proves and does not.** The per-tick `H` is `state-hash-line` (duel/lisp/gate.lisp), a QUANTISED state line: positions rounded
 to cm, yaw to 0.01 rad, gauges rounded, a hazard count only; velocities, timers and hazard state are absent. A Rust float bug under
 0.5 cm passes H at the tick it happens and only shows when it grows into a visible difference. So H is a coarse sync check, not a

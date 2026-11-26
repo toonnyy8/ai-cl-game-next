@@ -411,11 +411,13 @@ fn look_hazards_and_hitstops() {
     assert_eq!(m.time.hitstop, 10);
 }
 
-/// APPLY-HIT through HIT-SYSTEM with Kenpachi's real hooks, ECL-verified (Task 11 review, the native sim): P1 at 0, P2 at 1.5, P1 in
-/// his move at its first window's frame with fs 100, one step (re-run against ECL in Task 12: tools/simgate's native sim). ARMORED via
-/// KEN-ARMOR: P2 in KE-Z-N2A at sf = s + 1 (past the startup: only the hook covers it), classless (two NS segments would cancel) →
-/// `ARMORED 65`, Reishi 1267, armour spent; P2's own window lands too (`HIT 85`, hitstop 10). BLOCKED: P2 guarding (guard-t 99) → `BLOCKED 35`,
-/// blockstun 10, guard gauge 92, hitstop 3.
+/// APPLY-HIT through one HIT-SYSTEM call (not a whole step) with Kenpachi's real hooks, ECL-verified (Task 11 review, re-run in Task 12
+/// on tools/simgate's native sim): both seats CPUs (`spawn-pair :cpu1 t :cpu2 t`), P1 at 0, P2 at 1.5, FACE-EACH-OTHER, P1 in his move
+/// at its first window's frame with fs 100. The moves are the base kit's structs (KIT-MOVE), not FIND-MOVE's `*moves*` registry copies:
+/// KE-Z-N2A's hs is 10 in the kit, 8 in the registry, so the hitstop below is 10 (8 with FIND-MOVE). ARMORED via KEN-ARMOR: P2 in
+/// KE-Z-N2A at sf = s + 1 (past the startup: only the hook covers it), classless (two NS segments would cancel) → `ARMORED 65`, Reishi
+/// 1267, armour spent; P2's own window lands too (`HIT 85`, hitstop 10). BLOCKED: P2 guarding (guard-t 99) → `BLOCKED 35`, blockstun 10,
+/// guard gauge 92, hitstop 3.
 #[test]
 fn apply_hit_armored_and_blocked_as_ecl() {
     let setup = |p1: &str| {

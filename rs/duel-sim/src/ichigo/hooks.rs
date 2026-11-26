@@ -110,7 +110,7 @@ pub fn catch(m: &mut Match, e: Entity, att: Entity) {
 /// port: ICHIGO-KIKON-WORTH (KESSA's :kikon-worth): what 千影 would take if O were pressed now.
 pub fn kikon_worth(m: &mut Match, e: Entity) -> i64 {
     let n = clone_count(m, e);
-    clone_konpaku(n)
+    clone_konpaku(&m.knobs.clone_konpaku.0, n)
 }
 
 // ---------------------------------------------------------------- the moves' frame / land hooks

@@ -282,6 +282,19 @@ knobs! {
     hoho_iframes: Window, // tuning.lisp
     air_vy: KwFloats, // tuning.lisp (SET-REACTION, Task 8)
     wave_box: F2, // tuning.lisp (HAZARD-TOUCHES-P, Task 10)
+    clone_konpaku: Ints, // ichigo.lisp (CLONE-KONPAKU)
+    clone_replay_lags: KwInts, // ichigo.lisp (CLONE-REPLAY-LAG)
+}
+
+/// A list knob of integers (`*clone-konpaku*` `(2 2 3 4)`).
+#[derive(Debug, Clone, Default)]
+pub struct Ints(pub Vec<i64>);
+
+impl duel_data::tuning::Knob for Ints {
+    const KIND: &'static str = "a list of integers";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Ints> {
+        v.as_array()?.iter().map(|x| x.as_i64()).collect::<Option<Vec<_>>>().map(Ints)
+    }
 }
 
 /// A frame window knob `(from to)`.

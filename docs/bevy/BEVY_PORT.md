@@ -159,7 +159,13 @@ A Cargo workspace at `rs/`, one crate per job:
   from `d0`, `(float x 1d0)`, double data and `pi` (a long-float).
   `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
   and differ from the wasm game in the lowest bits (accepted, presentation only; the sim must not read them; M0_NOTES 5). Mixed-type arithmetic follows CL's contagion rules.
-- Transcendentals use the `libm` crate, a port of musl, on both the native and the wasm build. The answer key's native sim also uses musl.
+- Every transcendental f32 call goes through the `libm` crate (a port of musl), on both the native and the wasm build, with no
+  exceptions: the shipped wasm calls musl's `sinf` / `cosf` / ... (emcc never fuses a `sinf` + `cosf` pair; its values equal `libm`'s
+  on 200,000 inputs). `math::sincosf` is just `(libm::sinf, libm::cosf)`, kept as the one call for the sites where gcc fused them.
+- The answer key's native sim must give musl's bits too, so its preload (`tools/simlib.py` `MUSL_MATH`) serves musl's `sincosf`,
+  `fminf` and `fmaxf` beside `sinf` / `cosf` / ...: gcc -O2 fuses a C function's `sinf(a)` + `cosf(a)` into one `sincosf(a)` call
+  (emcc doesn't), and without musl's in the preload those calls bound to glibc's, 1 ulp off on ~2 % of inputs; glibc's `fminf` /
+  `fmaxf` pick a different zero for (+0, -0). Fixed and the key re-pinned on 2026-11-27 (M0_NOTES §4, M1_NOTES §4).
 - No FMA and no fast-math.
 - Integer overflow: Lisp fixnums promote to bignums. Each counter's range is checked; the default is `i64` where a counter could pass `i32`.
 - `round` follows CL's banker's rounding, which the hash line depends on.

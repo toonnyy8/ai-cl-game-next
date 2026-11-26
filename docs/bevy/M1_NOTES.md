@@ -85,23 +85,33 @@ cvctag traces stopped at the same name and step as with Task 8's gauge stub (0 D
 Task 12: 0 DIVERGED on all 51 (the 15 Kenpachi / Ichigo traces `OK`, the rest stopping at a Hisagi / Yamamoto hook: Task 12's report).
 Delete the mode once M4 ports their ticks.
 
-## 4. The answer key's sin / cos: musl, but glibc's sincosf where gcc fused them (Task 12)
+## 4. sin / cos: musl everywhere; the answer key once took glibc's at gcc's fused sites (Task 12, fixed 2026-11-27)
 
-The native sim (`build/simgate/duel.fas`, and the recorder's image built the same way) preloads musl's math (tools/simlib.py
-`MUSL_MATH`: sinf, cosf, …) so the host matches wasm. musl has no `sincosf` in that list, and gcc -O2 replaces a C function's `sinf(a)`
-and `cosf(a)` of one value by one `sincosf(a)` call, which then resolves to the system glibc's (2.39 i686, the SSE2 IFUNC: ARM's
-optimized-routines algorithm in strict double). It differs from musl's sinf / cosf in the last bit on ~2 % of arguments. So at those
-sites the trace holds glibc's values: cvc-ik-s1 diverged at step 11399 on an NS3 clone's z (ICHIGO-NS-SLOT, 2 ulp).
+**The finding (Task 12).** cvc-ik-s1 diverged at replay step 11399 on an NS3 clone's z (ICHIGO-NS-SLOT, `hz1.z` want 3E98FA3A got
+3E98FA38). The native sim (`build/simgate/duel.fas`, and the recorder's image built the same way) preloads musl's math (tools/simlib.py
+`MUSL_MATH`) so the host matches wasm, but the list had no `sincosf`. gcc -O2 replaces a C function's `sinf(a)` and `cosf(a)` of one
+value by one `sincosf(a)` call, which then bound to the system glibc's (2.39 i686; 1 ulp off musl's on ~2 % of arguments); `fminf` /
+`fmaxf` also bound to glibc's (a different zero for (+0, -0)). Task 12 first ported glibc's `sincosf` to match that key.
 
-`math::sincosf` ports glibc's routine (table and constants read off `/lib/i386-linux-gnu/libm.so.6`; 0 differences on 2M inputs against
-it). The fused functions are the unit's calls to `sincosf` (`objdump -dr` of the object `compile-file` leaves with `c::*delete-files*`
-nil). Sim ones and their port: VOL-HIT-P's yawed cap, OBOX-CYL-HIT-P (Task 12 moved both to `sincosf`), ICHIGO-NS-SLOT,
-ICHIGO-HASTE-DASH, CLONE-WAVE. Not yet ported, use `sincosf` when they are: WAVE-ARRIVAL (control.lisp), STICK-TOWARD-STRAFE (a
-human's stick, M2), RUN-CLIP and the looks (M3), Hisagi's and Yamamoto's (`_hs-*`, `yama-*`, `ya-*`: M4). Every other `(sin x)` /
-`(cos x)` / FWD-X / FWD-Z stays musl's (`libm`): AHEAD, for one, computes both of one yaw but gcc did not fuse them there.
+**The probe (the lead, 2026-11-27).** The shipped wasm is the game's truth, and emcc never fuses the pair: it calls musl's separate
+`sinf` / `cosf`, whose values equal the Rust `libm` crate on 200,000 inputs. So the old key was wrong at the fused sites, not the port.
 
-The image's other glibc math imports outside the preload (`objdump -T build/simgate/duel.fas | grep GLIBC`): `floorf`, `fmodf`,
-`lrintf`, `sqrtf` (exact), `sincosl` (only in the load-time code, long double) and `fminf` / `fmaxf`. Those two differ from musl's for
-(+0, -0) and NaN only: glibc's returns its second argument for two zeros, musl's the negative one (`math::f_min`'s choice). Their one sim
-caller is FIGHTER-PHYSICS; no trace has diverged on them, a mixed-zero argument there would.
+**The fix.**
+- The preload serves musl's `sincosf`, `fminf` and `fmaxf` (commit e0666342). musl's `sincosf` equals its `sinf` / `cosf` bit for bit
+  (0 differences on 6M inputs), so every native ECL run gives musl's bits at the fused sites from 2026-11-27 04:06.
+- The answer key was re-recorded and re-pinned (M0_NOTES §4): cvc-ik-s1 (from step 11399) and cvc-ii-s3 (from 13587) changed by 1 ulp
+  in NS3 clones' places; 388 FK clips by ≤ 8e-7. The old key is at `build/oracle-glibc` (reference only: against it the port now
+  diverges at exactly those two steps).
+- `math::sincosf` is `(libm::sinf(y), libm::cosf(y))`; the glibc port and its test are gone. **Rule: every transcendental f32 call goes
+  through `libm`.** The fused sites keep calling `math::sincosf` only as a marker of where gcc fused them (VOL-HIT-P's yawed cap,
+  OBOX-CYL-HIT-P, ICHIGO-NS-SLOT, ICHIGO-HASTE-DASH, CLONE-WAVE; unported: WAVE-ARRIVAL, STICK-TOWARD-STRAFE, RUN-CLIP, `_pose_fk_`,
+  `m4_euler_`, FEEDBACK-SYSTEM, the looks, Hisagi's and Yamamoto's): a fused site, listed or found later (`objdump -d` callers of
+  `sincosf`), calls `math::sincosf`; every other transcendental calls `libm` directly. The bits are the same either way; the marker
+  keeps the fused-site list trustworthy.
+- The ECL-pinned tests at the fused sites (`tests/ichigo.rs` `o_press_charges_and_bursts`, `haste_dash_and_renzan`) were re-run in ECL
+  on the musl preload: the same bits as pinned (their inputs are not among the ~2 % where glibc and musl differ).
+
+The image's glibc math imports the preload still does not serve (`objdump -T build/simgate/duel.fas | grep GLIBC`): `floorf`, `fmodf`,
+`lrintf`, `sqrtf` (exact) and `sincosl` (load-time code only, long double). `fminf` / `fmaxf` are musl's now (`math::f_min` /
+`f_max`'s choice); their sim callers are FIGHTER-PHYSICS (`fmaxf`) and SLOWMO-SCALE (`fminf`).
 

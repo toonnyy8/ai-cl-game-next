@@ -100,7 +100,7 @@ fn zanzo_echo_strikes_behind() {
     assert!(!ok(&m, a, "sp2") && ok(&m, a, "q")); // (SP2 refused while ZANZO runs)
 }
 
-/// NS3's two clones (at his sides, ICHIGO-NS-SLOT), KIKON-WORTH 3, ICHIGO-O-PRESS (both charge; worth 3, +60), and the charge's step
+/// NS3's two clones (at his sides, ICHIGO-NS-SLOT: `math::sincosf`; re-run in ECL on the musl preload 2026-11-27, the same bits), KIKON-WORTH 3, ICHIGO-O-PRESS (both charge; worth 3, +60), and the charge's step
 /// with no rush running: each runs at him and bursts (two ICHIGO-BURST-LOOKs where they reached), the clones gone.
 #[test]
 fn o_press_charges_and_bursts() {
@@ -159,7 +159,8 @@ fn chain_kikon_reels_in() {
 }
 
 /// TSUKI-STEP: a human's J press (unmodified) at the stance's f6 starts RANGETSU (its :tsuki-j string), the press consumed; the turn
-/// toward him as ECL's (whose CPU seat took the brain's branch, ICHIGO-AI-STANCE, to the same move).
+/// toward him as ECL's. The test runs the human-press branch (brain off), not ICHIGO-AI-STANCE; ECL ran the same branch (the brain
+/// removed, `vpad-stamp! :quick`, ICHIGO-TICK: Task 12 review) and gave the same move, yaw, consumed press and `dashed` NIL.
 #[test]
 fn stance_j_branch() {
     let (mut m, a, _) = pair(Character::Ichigo, Character::Kenpachi, Form::Base);
@@ -173,7 +174,8 @@ fn stance_j_branch() {
     assert!(!m.ics.get(a).unwrap().dashed && !m.pilot.get(a).unwrap().vpad.pressed(Button::Quick as usize, None));
 }
 
-/// ICHIGO-HASTE-DASH (0.8 m past him over 12 frames, his facing from the fused sincosf) and KAGE-RENZAN's third cut (IC-K-RZ-B's window
+/// ICHIGO-HASTE-DASH (0.8 m past him over 12 frames, his facing through `math::sincosf`: gcc fuses the sin / cos there; re-run in ECL
+/// on the musl preload 2026-11-27, the same bits) and KAGE-RENZAN's third cut (IC-K-RZ-B's window
 /// at x1: 25 / guard 8.0, classless, his place, facing the opponent; the slash look on him, data 3).
 #[test]
 fn haste_dash_and_renzan() {
@@ -193,7 +195,8 @@ fn haste_dash_and_renzan() {
 #[test]
 fn pure_rules() {
     use duel_sim::rules::Res;
-    assert_eq!([-1, 0, 1, 2, 3, 9].map(clone_konpaku), [2, 2, 2, 3, 4, 4]);
+    let t = &Match::new(data()).knobs.clone_konpaku.0; // ((2 2 3 4))
+    assert_eq!([-1, 0, 1, 2, 3, 9].map(|n| clone_konpaku(t, n)), [2, 2, 2, 3, 4, 4]);
     assert_eq!(
         [clone_after_string(true, 50), clone_after_string(false, 0), clone_after_string(false, 1)],
         [IccState::Fade, IccState::Fade, IccState::Idle]
@@ -205,4 +208,7 @@ fn pure_rules() {
     let w = echo_hitwin(hw, 0.7);
     assert_eq!((w.dmg, w.guard, w.react, w.flags.clone()), (10, Some(Num::F(0.7 * 22.0)), Phase::Flinch, vec![Sym(":BLADE"), Sym(":RANGED")]));
     assert_eq!(echo_hitwin(hw, 0.01).dmg, 1); // (at least 1)
+    let mut bw = hw.clone();
+    bw.flags = vec!["blade".into(), "breaker".into()]; // (ADJOIN: :blade already there, not added again)
+    assert_eq!(echo_hitwin(&bw, 1.0).flags, [Sym(":BLADE"), Sym(":BREAKER")]);
 }
