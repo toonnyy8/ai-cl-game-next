@@ -120,3 +120,27 @@ fn kit_run() {
     assert!((b.run - 10.0).abs() < 1e-3 && (n.run - 10.0).abs() < 1e-3);
     assert!(n.run_clips == b.run_clips && b.run_clips[0].eq_ignore_ascii_case("ke-run"));
 }
+
+#[test]
+fn kit_sanity() {
+    let d = Data::embedded();
+    // core.lisp lines 631, 634 (every form of the data): each command names a move or is empty; each string resolves
+    for forms in d.kits.kits.values() {
+        for k in forms.values() {
+            assert!(k.commands.iter().all(|(c, m)| m.is_none() || kit_command_move(&d, k, c).is_some()), "{} {}", k.character, k.form);
+            assert!(k.strings.iter().all(|[from, cmd, _]| kit_move(&d, k, from).is_some() && kit_next(&d, k, from, cmd).is_some()));
+        }
+    }
+    // lines 651, 665, 666, 668
+    let (kb, kn) = (kit(&d, "kenpachi", "base"), kit(&d, "kenpachi", "nozarashi"));
+    assert!((kn.mult - 1.0).abs() < 1e-3 && (kb.mult - 1.0).abs() < 1e-3);
+    assert!(kn.duration.is_none());
+    assert!((kn.walk - 4.4).abs() < 1e-3);
+    assert_eq!(kit_next(&d, kn, "ke-s-j1", "q").map(|m| &m.id), kit_move(&d, kn, "ke-s-j2").map(|m| &m.id));
+    // line 743
+    assert_eq!(d.kits.roster, s(&["yamamoto", "kenpachi", "rukia", "ichigo", "senjumaru", "lille", "barro", "hisagi"]));
+    // line 749: the flurry, 4 more cuts + the launcher
+    let fl = find_move(&d, "ke-flurry").unwrap();
+    assert!(fl.hits.len() == 5 && fl.hits[4].dmg == 60 && fl.hits[4].react.eq_ignore_ascii_case("launch"));
+    assert_eq!(25 + 4 * 25 + 60, find_move(&d, "ke-charge").unwrap().dmg + fl.hits.iter().map(|w| w.dmg).sum::<i32>());
+}
