@@ -18,7 +18,7 @@ pub fn kikon_worth(m: &mut Match, e: Entity) -> Option<i64> {
         return Some(f.kikon_n);
     }
     if let Some(h) = kit_hook_sym(m, e, "kikon-worth") {
-        call_hook(m, e, h);
+        call_hook(m, e, h); // (its port must use the worth it returns)
         return None;
     }
     Some(kit_of(m, e).kikon_konpaku as i64)
@@ -42,9 +42,10 @@ pub fn settle_konpaku(m: &mut Match, att: Entity, def: Entity, soul_break: bool)
     let (left, lost, ko) = crate::core_sim::core_konpaku_result(m, konpaku, att, soul_break);
     let gd = m.gauges.get_mut(def).unwrap();
     (gd.konpaku, gd.reishi) = (left, gd.reishi_max);
-    if let Some(h) = kit_hook_sym(m, def, "settled") {
-        call_hook(m, def, h); // (no kit holds one: HookKey has no :settled)
-        return false;
+    if let Some(h) = kit_hook_sym(m, def, "settled")
+        && !call_hook(m, def, h)
+    {
+        return false; // (no kit holds one: HookKey has no :settled)
     }
     if siphon_of(m, def).is_none() {
         let x = awakening_gain(&m.knobs, 0, 0, lost);
@@ -167,9 +168,10 @@ pub fn reset_round(m: &mut Match, a: Entity, v: Entity) {
         m.motion.get_mut(e).unwrap().vel = [0.0; 3];
         m.pilot.get_mut(e).expect("a pilot").vpad.clear();
         // cpu: the brain lets go of what it held (brain-press-left 0, brain-fresh t): detached in a replay, M2
-        if let Some(h) = kit_hook_sym(m, e, "reset") {
-            call_hook(m, e, h); // (the form's own reset: Hisagi's sickle, M4)
-            return;
+        if let Some(h) = kit_hook_sym(m, e, "reset")
+            && !call_hook(m, e, h)
+        {
+            return; // (the form's own reset: Hisagi's sickle, M4)
         }
         to_idle(m, e);
     }

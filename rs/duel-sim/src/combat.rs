@@ -422,7 +422,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
         let charge = core_charge_mult(fa, mvd, own, hazard.is_some());
         let sub = sub_of(m, att);
         if let Some(h) = kit_hook_sym(m, att, "dmg-mult") {
-            call_hook(m, att, h); // (a kit's distance x: KEN-DMG-MULT, Hisagi's tip: the kit tasks)
+            call_hook(m, att, h); // (a kit's distance x: KEN-DMG-MULT, Hisagi's tip; its port must use the value it returns)
             return None;
         }
         let sps = match hazard {
@@ -504,7 +504,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                 }
                 || match kit_hook_sym(m, att, "unscaled") {
                     Some(h) => {
-                        call_hook(m, att, h); // (Hisagi's tip, M4)
+                        call_hook(m, att, h); // (Hisagi's tip, M4; its port must use the value it returns)
                         return None;
                     }
                     None => false,
@@ -642,9 +642,9 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             fighter_mut(m, att).armor_left = 0;
             if let Some(h) = kit_hook_sym(m, def, "parried")
                 && siphon_of(m, def).is_none()
+                && !call_hook(m, def, h)
             {
-                call_hook(m, def, h); // (its own catch: KESSA's, Task 12)
-                return None;
+                return None; // (its own catch: KESSA's, Task 12)
             }
             // look: emit :parried
             let c = fighter(m, def).mv.and_then(|id| kit_next(m.data, kit_of(m, def), &mv(m, id).name, "land"));
@@ -713,9 +713,10 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     }
     bail!();
     for (e, key) in [(att, "hit"), (def, "struck")] {
-        if let Some(h) = kit_hook_sym(m, e, key) {
-            call_hook(m, e, h); // a character's own hit rules (ICHIGO-HIT / -STRUCK, KEN-HIT: the kit tasks)
-            return None;
+        if let Some(h) = kit_hook_sym(m, e, key)
+            && !call_hook(m, e, h)
+        {
+            return None; // a character's own hit rules (ICHIGO-HIT / -STRUCK, KEN-HIT: the kit tasks)
         }
     }
     if matches!(r, Res::Hit | Res::Counter) {
@@ -724,8 +725,8 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     if first
         && m.cine.is_none()
         && let Some(h) = mvd.and_then(|x| x.on_land.as_deref())
+        && !call_hook(m, att, h)
     {
-        call_hook(m, att, h);
         return None;
     }
     res
@@ -738,7 +739,7 @@ fn string_opener_p(m: &mut Match, e: Entity, mvd: &Move) -> bool {
         return false;
     }
     if let Some(h) = kit_hook_sym(m, e, "command") {
-        call_hook(m, e, h); // (KIT-COMMAND-MOVE with E: Hisagi's :command hook, M4)
+        call_hook(m, e, h); // (KIT-COMMAND-MOVE with E: Hisagi's :command hook, M4; its port must use the move it returns)
         return false;
     }
     crate::kit::string_opener_p(m.data, kit_of(m, e), mvd)
@@ -775,7 +776,7 @@ pub fn collect_melee(m: &mut Match, e: Entity) {
         if w.min.is_some()
             && let Some(h) = kit_hook_sym(m, e, "min-reach")
         {
-            call_hook(m, e, h); // (Hisagi's cancel unlock, M4)
+            call_hook(m, e, h); // (Hisagi's cancel unlock, M4; its port must use the reach it returns)
             return;
         }
         let far = w.min.is_none_or(|mn| f.follow || crate::math::hypot(q[0] - p[0], q[2] - p[2]) >= mn);
