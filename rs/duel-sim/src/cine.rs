@@ -69,13 +69,16 @@ pub struct Cine {
     pub v: Entity,
     pub after: Option<After>,
     pub skip: bool,
+    /// A kit cinematic's scratch line (ken-look.lisp `*ke-kk*`: KE-KK-LINE's victim x z and unit toward the attacker), set by the
+    /// script at its frame 0 and read only inside the same cinematic: zeroed by START-CINE (the Lisp global is never read stale).
+    pub line: [f32; 4],
 }
 
 /// port: START-CINE.
 pub fn start_cine(m: &mut Match, name: CineName, a: Entity, v: Entity, after: Option<After>) {
     m.time.reset();
     // look: *grade-split*, *cine-cam*
-    m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false });
+    m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false, line: [0.0; 4] });
     m.cine_serial += 1;
     cine_begin(m, name, a, v);
     if m.skip_cines {

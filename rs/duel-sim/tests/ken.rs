@@ -411,6 +411,51 @@ fn look_hazards_and_hitstops() {
     assert_eq!(m.time.hitstop, 10);
 }
 
+/// APPLY-HIT through HIT-SYSTEM with Kenpachi's real hooks, ECL-verified (Task 11 review, the native sim): P1 at 0, P2 at 1.5, P1 in
+/// his move at its first window's frame with fs 100, one step (re-run against ECL in Task 12: tools/simgate's native sim). ARMORED via
+/// KEN-ARMOR: P2 in KE-Z-N2A at sf = s + 1 (past the startup: only the hook covers it), classless (two NS segments would cancel) →
+/// `ARMORED 65`, Reishi 1267, armour spent; P2's own window lands too (`HIT 85`, hitstop 10). BLOCKED: P2 guarding (guard-t 99) → `BLOCKED 35`,
+/// blockstun 10, guard gauge 92, hitstop 3.
+#[test]
+fn apply_hit_armored_and_blocked_as_ecl() {
+    let setup = |p1: &str| {
+        let mut m = Match::new(data());
+        m.picks = [Character::Kenpachi, Character::Kenpachi];
+        duel_sim::flow::spawn_pair(&mut m, true, true);
+        m.log_on = true;
+        let (a, b) = (m.p1, m.p2);
+        m.transform.get_mut(a).unwrap().pos = [0.0, 0.0, 0.0];
+        m.transform.get_mut(b).unwrap().pos = [1.5, 0.0, 0.0];
+        duel_sim::cine::face_each_other(&mut m, a, b, None);
+        let x = id(&m, "base", p1);
+        duel_sim::fighter::start_move(&mut m, a, x, None);
+        m.fighter.get_mut(a).unwrap().sf = km(kit("base"), p1).hits[0].from as i64;
+        m.gauges.get_mut(a).unwrap().fs = 100.0;
+        (m, a, b)
+    };
+    let tail = |m: &Match| m.log.iter().map(|l| l.split_once("] ").unwrap().1.to_string()).collect::<Vec<_>>();
+    let (mut m, _, b) = setup("ke-z-n1a");
+    let n2a = id(&m, "base", "ke-z-n2a");
+    duel_sim::fighter::start_move(&mut m, b, n2a, None);
+    m.fighter.get_mut(b).unwrap().sf = km(kit("base"), "ke-z-n2a").s as i64 + 1;
+    m.fighter.get_mut(b).unwrap().cls = None; // (classless: two NS segments would cancel)
+    m.log.clear();
+    duel_sim::combat::hit_system(&mut m);
+    assert_eq!(m.unported, None);
+    assert_eq!(tail(&m), ["P1 KE-Z-N1A -> P2 ARMORED 65", "P2 KE-Z-N2A -> P1 HIT 85", "P2 dealt 43: crumple stun 40"]);
+    assert_eq!((m.gauges.get(b).unwrap().reishi, m.fighter.get(b).unwrap().armor_left, m.time.hitstop), (1267, 0, 10));
+
+    let (mut m, _, b) = setup("ke-z-j1");
+    let f = m.fighter.get_mut(b).unwrap();
+    (f.state, f.guard_t) = (State::Guard, 99);
+    m.log.clear();
+    duel_sim::combat::hit_system(&mut m);
+    assert_eq!(m.unported, None);
+    assert_eq!(tail(&m), ["P1 KE-Z-J1 -> P2 BLOCKED 35"]);
+    let (fb, gb) = (m.fighter.get(b).unwrap(), m.gauges.get(b).unwrap());
+    assert_eq!((fb.state, fb.stun, gb.gg, m.time.hitstop), (State::GuardHit, 10, 92.0, 3));
+}
+
 /// KEN-STANCE-RELEASE (100 + stored, guard-crushing at 150), KEN-CHARGE-TICK (crush when the button is down on frame S; the dash at
 /// 14 m/s while active, untouched and beyond 1.2 m) and KEN-FLURRY (the :land string on a hit).
 #[test]
@@ -465,7 +510,7 @@ fn kikon_cines_move_the_actors() {
         let (mut m, a, v) = pair_in(data(), Form::Bankai);
         start_cine(&mut m, CineName::Ken(c), a, v, None);
         assert_eq!(p(&m, a), [1.1 - gap, 0.0, 0.0]);
-        assert_eq!(m.ke_kk, [1.1, 0.0, -1.0, 0.0]);
+        assert_eq!(m.cine.as_ref().unwrap().line, [1.1, 0.0, -1.0, 0.0]);
         run_to(&mut m, at - 1);
         assert_eq!(p(&m, v), [1.1, 0.0, 0.0]);
         cine_step(&mut m);

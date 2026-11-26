@@ -93,8 +93,6 @@ pub struct Match {
     pub hz_keep: bool,
     /// The hazards destroyed during this HIT-APPLY, by full handle (`hazard_of`); emptied at its end.
     pub hz_dead: Vec<(Entity, Hazard)>,
-    /// ken-look.lisp `*ke-kk*`: a Kenpachi Kikon cinematic's line (KE-KK-LINE: the victim's x z, the unit toward the attacker).
-    pub ke_kk: [f32; 4],
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
@@ -156,7 +154,6 @@ impl Match {
             soul_breaks: Default::default(),
             hz_keep: false,
             hz_dead: Vec::new(),
-            ke_kk: [0.0; 4],
             unported: None,
             stubs: Vec::new(),
         }

@@ -51,18 +51,18 @@ fn kk_line(m: &mut Match, a: Entity, v: Entity) {
     let (p, q) = (crate::fighter::pos_of(m, a), crate::fighter::pos_of(m, v));
     let (dx, dz) = (p[0] - q[0], p[2] - q[2]);
     let d = crate::cl::max_f32(0.01, hypot(dx, dz));
-    m.ke_kk = [q[0], q[2], dx / d, dz / d];
+    m.cine.as_mut().expect("a cinematic").line = [q[0], q[2], dx / d, dz / d];
 }
 
 /// port: KE-KK-AT: E put S metres from the victim along the line (S < 0: past him), Y up.
 fn kk_at(m: &mut Match, e: Entity, s: f32, y: f32) {
-    let k = m.ke_kk;
+    let k = m.cine.as_ref().expect("a cinematic").line;
     m.transform.get_mut(e).expect("a transform").pos = [k[0] + s * k[2], y, k[1] + s * k[3]];
 }
 
 /// port: KE-KK-YAW: E turned to the line's direction plus ANG degrees.
 fn kk_yaw(m: &mut Match, e: Entity, ang: f32) {
-    let k = m.ke_kk;
+    let k = m.cine.as_ref().expect("a cinematic").line;
     m.transform.get_mut(e).expect("a transform").yaw = dir_yaw(k[2], k[3]) + deg(ang);
 }
 
