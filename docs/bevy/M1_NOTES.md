@@ -122,21 +122,27 @@ Machine: i7-13700K (24 threads), one thread per run. The Lisp native sim is the 
 `build/simgate/duel.fas` with the musl preload (`LD_PRELOAD=build/simgate/muslm.so`); Rust is `rs/target/release/duel-tools` (x86_64)
 and the same crate built for `wasm32-wasip1` under node 22.18.0.
 
-**The gate.** `tools/port/replay-gate.sh` (no flag): the 18 M1 traces `replay OK` at their pinned step counts. Since commit 1eec77f6 the gate also runs the four scripted outcome traces (M0_NOTES §4): scr-counter-stance-break, scr-bursts-chain-cut
-and scr-draw are OK. scr-blocked-guard-crush-back stops `UNPORTED ICHIGO parry rim (a mirror P2's *mirror-rim*)` at step 62, so the
-script exits 1 until that hook is ported (open; it predates Task 14's changes, per that commit). `cargo test --workspace
+**The gate.** `tools/port/replay-gate.sh` (no flag) runs **22 traces**, all `replay OK` at their pinned step counts, exit 0:
+- the 18 M1 traces: 12 cvc, 3 cvc-tag, 3 trials;
+- since commit 1eec77f6, the four scripted outcome traces (M0_NOTES §4): scr-counter-stance-break 159, scr-bursts-chain-cut 179,
+  scr-blocked-guard-crush-back 1659, scr-draw 36000.
+
+scr-blocked-guard-crush-back first stopped at step 62 on PARRY-WATCH's mirror rim, which Task 14's follow-up ported. In a mirror
+match P2's model rim is `*mirror-rim*`, and PARRY-WATCH saves it in `ics-rim`, which B prints. With that port, Rust replays BLOCKED
+(ticks 74 and 539), GUARDLESS BLOCK + GUARD CRUSH (539) and GUARD BACK (1532) bit-exact on the first run; nothing else needed a
+fix. `cargo test --workspace
 --release` passes; `cargo clippy -p duel-sim --all-targets -- -D warnings` and `cargo clippy -p duel-tools --all-targets` are clean.
 
 **Snapshots** (`duel-tools replay TRACE --snap N`; snaptest.lisp's idea): every N battle ticks, at a step's end after its comparison,
 the live `Match` is cloned. Its sim stream is reseeded as snaptest reseeds (`(state ^ 0x5BD1E995) | 1`), it plays 40 sim steps (`flow::sim_step`, not
 frames: a turbo frame is 120 steps) on the vpads as they hold (no reader), and then the clone is put back. The replay must stay OK, so the clone holds the whole sim state (no state
-outside `Match`, no shallow copy). With `--snap 40` all 18 gate traces stay `replay OK`. cvc-ki-s1 is the brief's case: `replay OK 21368
+outside `Match`, no shallow copy). With `--snap 40` all 22 gate traces stay `replay OK`. cvc-ki-s1 is the brief's case: `replay OK 21368
 ticks`, 534 rollouts. Every rollout moved the B line (so none was a no-op) and none reached an `unported!` path (which the restore
 would forget).
 
 **wasm32.** `cargo build --release -p duel-tools --target wasm32-wasip1` (the target was installed with `rustup target add wasm32-wasip1`)
 gives a 6.7 MB `duel-tools.wasm` with the data embedded. `node tools/port/replay-wasm.mjs TRACE [args]` runs it under `node:wasi` with
-the trace's directory preopened as `/t`, and passes the exit code through. All 18 gate traces give `replay OK` at the native counts (cvc-ik-s1: `replay OK 14268 ticks` in
+the trace's directory preopened as `/t`, and passes the exit code through. All 22 gate traces give `replay OK` at the native counts (cvc-ik-s1: `replay OK 14268 ticks` in
 0.35 s; trial-sp-xch-r3: 359); a broken trace exits 1. So native and wasm32 agree bit for bit on the whole gate (BEVY_PORT §6.3).
 
 **Speed** (BEVY_PORT §6.4; the gate is ≥ 3× the Lisp native sim). Both sides do the same work:
@@ -192,6 +198,13 @@ cvc-ii-s1's 19,200 battle steps and 215 in cvc-ki-s1's 21,240 (the two Ichigo fi
 returning `Vec<Entity>`, `clone_spawn`'s `borns` Vec, the Icc arena and `rq` pushes, `wave` / `clone_wave`'s one-element `vec!`.
 They need fixed-capacity HitWin fields (M2, before the CPU's rollouts). Also for M2: a `Match` clone has tight Vec capacities, so the
 first growth after a restore allocates. Rollouts should restore with `clone_from` or a capacity-keeping clone.
+
+**Dead by data for M1's kits** (ported, but no Kenpachi / Ichigo match can reach them; the scripted traces cover every other APPLY-HIT
+outcome):
+- **BLOWN AWAY**: `*stun-blow-away*` is NIL (the user, DEVLOG §173). The stun still adds and decays.
+- **GUARD-BREAK**: a core kit never guards, and neither kit has a ranged hit that crushes a guard.
+
+These wait for a kit or a knob that reaches them (M4 at the earliest).
 
 ## 6. Host tests: `rs/duel-sim/tests/PORTED.md` totals
 

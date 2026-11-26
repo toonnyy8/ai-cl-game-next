@@ -521,8 +521,9 @@ pub struct Ics {
     pub rseen: i64,
     pub hist: [f32; 48],
     pub hist_i: i64,
-    /// ponytail: model-rim's colour (a look); NIL in every gate trace.
-    pub rim: Option<[f32; 4]>,
+    /// model-rim's colour saved by PARRY-WATCH (a look, a RIM-VEC of 3 floats): NIL, or a mirror match P2's `*mirror-rim*`. Kept
+    /// after the restore (the Lisp leaves the slot), so B prints it.
+    pub rim: Option<[f32; 3]>,
     pub rim_saved: bool,
     pub parry_sf: i64,
     pub bs_key: i64,
