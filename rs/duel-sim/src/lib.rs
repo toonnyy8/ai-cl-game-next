@@ -1,9 +1,13 @@
 //! The deterministic sim (no Bevy): port of the Lisp core, fixed 60 Hz steps.
+pub mod cine;
 pub mod cl;
 pub mod components;
 pub mod consts;
 pub mod control;
 pub mod core;
+pub mod debug;
+pub mod fighter;
+pub mod gate;
 pub mod sp;
 pub mod ecs;
 pub mod flow;
