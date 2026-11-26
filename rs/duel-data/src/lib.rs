@@ -71,6 +71,15 @@ pub struct Data {
 }
 
 impl Data {
+    /// tables.json `mirror_rim`: body.lisp `*mirror-rim*`, a mirror match P2's model rim (RIM-VEC, 3 linear-rgb floats; read as
+    /// serde reads an f32: f64, then `as f32`, the float checksum's bits).
+    pub fn mirror_rim(&self) -> [f32; 3] {
+        let v = self.tables.get("mirror_rim").and_then(|v| v.as_array()).expect("tables.json mirror_rim");
+        let f = |i: usize| v.get(i).and_then(|x| x.as_f64()).expect("mirror_rim: 3 floats") as f32;
+        assert_eq!(v.len(), 3, "mirror_rim: 3 floats");
+        [f(0), f(1), f(2)]
+    }
+
     /// From the files on disk (development; hot reload later).
     pub fn load(dir: &Path) -> Result<Data, String> {
         Self::parse(|f| std::fs::read(dir.join(f)).map(Cow::Owned).map_err(|e| format!("{f}: {e}")))

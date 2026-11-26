@@ -1,8 +1,9 @@
 //! Port tools. `check-data [dir]`: load the data (from DIR, else the embedded copy), print the counts and the float checksum,
 //! exit 1 unless both equal the manifest's. `replay <trace> [--max-steps N] [--data DIR]`: the brainless replay of an oracle
 //! trace (exit 0 OK, 1 diverged / trace error, 3 unported). `--stub a,b --mask x,y`: the stubbed mode (docs/bevy/M1_NOTES.md §3).
-//! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK). `--bench`: a cmds trace's T lines read
-//! first, then the match timed on them alone (`steps <n> secs <s> steps/s <r>`; exit 1 unless the steps and the last H equal the trace's).
+//! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK; its summary line after the outcome).
+//! `--bench`: a cmds trace's T lines read first, then the match timed on them alone, 11 runs (`steps <n> secs <s> steps/s <r>`, the
+//! median; exit 1 unless every run's steps and last H equal the trace's).
 mod replay;
 #[allow(dead_code)]
 mod trace;
@@ -64,9 +65,17 @@ fn replay_cmd(args: &[String]) -> ExitCode {
     };
     let data: &'static Data = Box::leak(Box::new(data));
     if args.iter().any(|a| a == "--bench") {
-        return match replay::bench(&args[0], data) {
+        return match replay::bench(&args[0], data, 11) {
             Ok((n, secs, same)) => {
-                println!("steps {n} secs {secs:.3} steps/s {:.0}{}", n as f64 / secs, if same { "" } else { "  (NOT the trace's run)" });
+                let med = secs[secs.len() / 2];
+                println!(
+                    "steps {n} secs {med:.4} steps/s {:.0} (median of {} runs; {:.0}-{:.0}){}",
+                    n as f64 / med,
+                    secs.len(),
+                    n as f64 / secs[secs.len() - 1],
+                    n as f64 / secs[0],
+                    if same { "" } else { "  (NOT the trace's run)" }
+                );
                 if same { ExitCode::SUCCESS } else { ExitCode::FAILURE }
             }
             Err(e) => {
@@ -76,10 +85,8 @@ fn replay_cmd(args: &[String]) -> ExitCode {
         };
     }
     let (out, snaps) = replay::run_snap(&args[0], max, data, &stubs, &mask, snap);
-    if snap.is_some() {
-        eprintln!("snap: {} rollouts, {} moved the state, {} reached an unported path", snaps.0, snaps.1, snaps.2);
-    }
-    match out {
+    // (the outcome line first: replay-gate.sh reads the first line)
+    let code = match out {
         replay::Outcome::Ok(n) => {
             println!("replay OK {n} ticks");
             ExitCode::SUCCESS
@@ -96,7 +103,11 @@ fn replay_cmd(args: &[String]) -> ExitCode {
             println!("replay: {s}");
             ExitCode::FAILURE
         }
+    };
+    if snap.is_some() {
+        println!("snap: {} rollouts of 40 sim steps, {} reached an unported path", snaps.0, snaps.1);
     }
+    code
 }
 
 /// `parse-trace <trace>`: stream the whole trace through the parser, print the item counts (exit 1 on a trace error).

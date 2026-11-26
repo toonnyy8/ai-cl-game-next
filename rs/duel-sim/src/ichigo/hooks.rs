@@ -260,10 +260,6 @@ fn parry_from_blockstun(m: &mut Match, e: Entity) {
     crate::clog!(m, "{} parry from blockstun", side_name(m, e));
 }
 
-/// port: body.lisp `*mirror-rim*` = `(rim-vec #x5A8CFF 0.9)` (meshgen.lisp RIM-VEC: k × c^2.2 per sRGB channel): its bits as ECL makes
-/// them (scr-blocked-guard-crush-back's `p2.ics-rim`, `[3DBA6E46,3E7665B0,3F666666]`). A look value; the sim only saves it in ICS.
-const MIRROR_RIM: [f32; 3] = [f32::from_bits(0x3DBA_6E46), f32::from_bits(0x3E76_65B0), f32::from_bits(0x3F66_6666)];
-
 /// port: PARRY-WATCH: the parry frame kept for the practice judge (ICHIGO-STRUCK); the window's white rim saves the model's rim (a look
 /// value, in ICS: NIL but for a mirror's P2).
 fn parry_watch(m: &mut Match, e: Entity) {
@@ -279,8 +275,9 @@ fn parry_watch(m: &mut Match, e: Entity) {
             // (the model's rim, saved: SPAWN-FIGHTER's `:rim (and mirror *mirror-rim*)`, a mirror match's P2 (flow.lisp 103:
             // `:mirror (eq c1 c2)` on side 1); nothing else writes model-rim but this hook, which restores it)
             let mirror = fighter(m, m.p1).character == fighter(m, m.p2).character && fighter(m, e).side == 1;
+            let rim = mirror.then(|| m.data.mirror_rim()); // (tables.json, body.lisp's *mirror-rim*)
             let st = m.ics.get_mut(e).unwrap();
-            (st.rim_saved, st.rim) = (true, mirror.then_some(MIRROR_RIM)); // look: model-rim = parry-rim
+            (st.rim_saved, st.rim) = (true, rim); // look: model-rim = parry-rim
         }
     } else if st.rim_saved {
         m.ics.get_mut(e).unwrap().rim_saved = false; // look: model-rim restored

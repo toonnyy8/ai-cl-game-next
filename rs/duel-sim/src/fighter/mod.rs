@@ -109,7 +109,7 @@ impl KitTable {
         for (ci, &c) in Character::ALL.iter().enumerate() {
             for (fi, &f) in Form::ALL.iter().enumerate() {
                 let kit = data.kits.kits.get(&c.name().to_lowercase()).and_then(|fs| fs.get(&f.name().to_lowercase()));
-                t[ci][fi] = kit.map(|k| (k, data.bodies.get(&k.body).map_or(f32::NAN, |b| b.hurt_r)));
+                t[ci][fi] = kit.map(|k| (k, data.bodies.get(&k.body).unwrap_or_else(|| panic!("kit {c} {f}: unknown body {}", k.body)).hurt_r));
             }
         }
         KitTable(t)

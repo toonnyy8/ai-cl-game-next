@@ -135,14 +135,20 @@ fix. `cargo test --workspace
 
 **Snapshots** (`duel-tools replay TRACE --snap N`; snaptest.lisp's idea): every N battle ticks, at a step's end after its comparison,
 the live `Match` is cloned. Its sim stream is reseeded as snaptest reseeds (`(state ^ 0x5BD1E995) | 1`), it plays 40 sim steps (`flow::sim_step`, not
-frames: a turbo frame is 120 steps) on the vpads as they hold (no reader), and then the clone is put back. The replay must stay OK, so the clone holds the whole sim state (no state
-outside `Match`, no shallow copy). With `--snap 40` all 22 gate traces stay `replay OK`. cvc-ki-s1 is the brief's case: `replay OK 21368
-ticks`, 534 rollouts. Every rollout moved the B line (so none was a no-op) and none reached an `unported!` path (which the restore
-would forget).
+frames: a turbo frame is 120 steps) on the vpads as they hold (no reader), and then the clone is put back as a full replacement (`*m = saved`).
+
+What this proves:
+- **That nothing leaks: by construction, not by test.** duel-sim holds no `Rc` / `RefCell` / `Cell` / `Arc` and no statics, and
+  `Data` is `&'static` and immutable.
+- **What a pass does show:** 40 reseeded steps from each snapshot reach no panic and no `unported!`.
+
+With `--snap 40` all 22 gate traces stay `replay OK`. The gate runs them that way with `tools/port/replay-gate.sh --snap`; the outcome
+line stays first, and the summary `snap: N rollouts of 40 sim steps, K reached an unported path` follows it. cvc-ki-s1 is the brief's
+case: `replay OK 21368 ticks`, 534 rollouts, none reaching `unported!`.
 
 **wasm32.** `cargo build --release -p duel-tools --target wasm32-wasip1` (the target was installed with `rustup target add wasm32-wasip1`)
 gives a 6.7 MB `duel-tools.wasm` with the data embedded. `node tools/port/replay-wasm.mjs TRACE [args]` runs it under `node:wasi` with
-the trace's directory preopened as `/t`, and passes the exit code through. All 22 gate traces give `replay OK` at the native counts (cvc-ik-s1: `replay OK 14268 ticks` in
+the trace's directory preopened as `/t`, and passes the exit code through (a `--data DIR` is preopened as `/d`). All 22 gate traces give `replay OK` at the native counts (cvc-ik-s1: `replay OK 14268 ticks` in
 0.35 s; trial-sp-xch-r3: 359); a broken trace exits 1. So native and wasm32 agree bit for bit on the whole gate (BEVY_PORT §6.3).
 
 **Speed** (BEVY_PORT §6.4; the gate is ≥ 3× the Lisp native sim). Both sides do the same work:
@@ -152,16 +158,21 @@ the trace's directory preopened as `/t`, and passes the exit code through. All 2
 - the trace read and the commands' first frame run before the clock starts;
 - on the Lisp side, its two hooks (the reader that injects, the step hook that detaches) compiled to native code first.
 
-Each run checks it reproduced the trace (its step count and its last H line). Runs were interleaved, three per side; the table gives
-medians.
+Each run checks it reproduced the trace (its step count and its last H line). The figures (fix round 1):
+- Rust `--bench`: the median of 11 runs in one process, each from a fresh setup (one run is 15-22 ms; the spread across runs is
+  under 1.5 %);
+- Lisp: the median of 5 process runs (spread ±4 %).
 
 | Trace | Lisp `tools/port/sim-bench.lisp` | Rust `replay --bench` | Ratio | Rust wasm32 (node) |
 |---|---|---|---|---|
-| cvc-kk-s1 (18133 steps) | 247,000 steps/s (0.073 s) | 1,092,000 (0.017 s) | **4.4×** | 499,000 |
-| cvc-ki-s1 (21368) | 233,000 | 958,000 | **4.1×** | 459,000 |
-| cvc-ii-s1 (19423) | 231,000 | 817,000 | **3.5×** | 419,000 |
+| cvc-kk-s1 (18133 steps) | 249,000 steps/s (0.073 s) | 1,200,000 (0.015 s) | **4.8×** | 649,000 |
+| cvc-ki-s1 (21368) | 231,000 | 1,038,000 | **4.5×** | 578,000 |
+| cvc-ii-s1 (19423) | 239,000 | 884,000 | **3.7×** | 500,000 |
 
-The gate passes: 3.5-4.4× native. Rust in wasm32 under node runs at 1.8-2.0× the Lisp native sim. The step counts include the intro
+The gate passes: 3.7-4.8× native. Rust in wasm32 under node runs at 2.1-2.6× the Lisp native sim.
+
+**M2 re-runs this gate with the CPU on.** BEVY_PORT §6.4 defines the measure as "cvc turbo", i.e. with the CPUs playing. M1 has no
+CPU, so both sides here run brainless on recorded inputs. The step counts include the intro
 and the hitstop / slow-motion steps, the same on both sides.
 
 How the gate was reached:
@@ -204,7 +215,21 @@ outcome):
 - **BLOWN AWAY**: `*stun-blow-away*` is NIL (the user, DEVLOG §173). The stun still adds and decays.
 - **GUARD-BREAK**: a core kit never guards, and neither kit has a ranged hit that crushes a guard.
 
-These wait for a kit or a knob that reaches them (M4 at the earliest).
+  No core-kit defender ever stands in `:guard-hit` (blockstun) either. DEFENDER-STATE maps that state to `:guard` (fighter.lisp 1054),
+  but KESSA's `:parry-block` is a ward in APPLY-HIT (combat.lisp 115), and its `:blocked` branch gives no blockstun (266-270).
+- **Kenpachi's KE-BUTTAGIRU (KEN-GROUND-CRACK), KE-CHARGE (KEN-CHARGE-TICK, `fighter-crush`) and KE-FLURRY**: never start in the 22
+  gate traces. Their commands (`:sp1` / `:sp2`, ken.lisp 180) sit in MOVE-COMMANDS' dead clauses (DIVERGENCES §1), so no press reaches
+  them; only a debug drive such as `:p2-start` could. Carried to M2 in case the CPU starts one. (KE-ZH-SP, TATEGOTO's split / cut,
+  does start: 3 times.)
+- **KEN-BANKAI-CINE**: never plays, although the Bankai is entered (cvc-ki-s1 tick 14108 `P2 form BANKAI`). Its one match caller,
+  KEN-BURST (ken.lisp 365), calls `(bankai! e form nil nil)` with CINE NIL ("卍解的瞬間不再接入特寫", DUEL_KEN_V3 §32). Only debug
+  commands play it: debug.lisp 387 (force-cine) and ken.lisp 931. Its director path (`ken/cine.rs`, 186 steps) is ported and read line
+  by line (Task 11's review), but untraced. Carried to M3 with the cinematics' looks, or to M5 with the debug commands.
+
+These wait for a kit, a knob or a debug drive that reaches them (M2 at the earliest).
+
+**Coverage unknown:** the resumed Hoho (HOHO-RESUME) and CUT-HAZARDS print no log line, so a trace grep can't tell whether the 22
+traces reach them. They are ported and read line by line (Tasks 10-11), and are carried to M2 for a coverage run.
 
 ## 6. Host tests: `rs/duel-sim/tests/PORTED.md` totals
 
@@ -267,8 +292,14 @@ or records why it stays out.
     AI-HOHO-SPARE-P, FINISH-ROLE);
   - VIEW-STEP for a `cam_relative` pilot (§2);
   - input-test's device checks;
-  - the clone allocations and the capacity-keeping restore (§5).
-- **M3 (looks):** the `// look:` list (§8), the deferred look checks (§6), the event queue (`emit` / `take-events`).
+  - the clone allocations and the capacity-keeping restore (§5);
+  - re-run the speed gate with the CPU on both sides (§5);
+  - Kenpachi's KE-BUTTAGIRU / KE-CHARGE / KE-FLURRY if the CPU starts them;
+  - a coverage run for the resumed Hoho and CUT-HAZARDS (§5).
+- **M3 (looks):**
+  - the `// look:` list (§8), the deferred look checks (§6), the event queue (`emit` / `take-events`);
+  - KEN-BANKAI-CINE's looks (only debug commands play it, §5);
+  - the mirror P2's look: `Data::mirror_rim()` and tables.json `mirror_tint` are extracted (fix round 1), never hand constants.
 - **M4 (Hisagi, Yamamoto):**
   - their hooks, ticks and traces; delete the stubbed mode (§3);
   - `kit::find_move` returns the kit's copy, while Lisp FIND-MOVE returns the registry's (KE-Z-N2A hs 10 vs 8), and 7 Yamamoto names

@@ -32,7 +32,7 @@ fn embedded_equals_load() {
 fn float_checksum_matches_manifest() {
     let d = data();
     assert_eq!(format!("{:016x}", checksum::floats(&d)), d.manifest.float_checksum);
-    assert_eq!(d.manifest.float_checksum, "6640f0fd66ac0848");
+    assert_eq!(d.manifest.float_checksum, "3ddcd77c9a34edf5"); // (2026-11-27: + mirror_rim / mirror_tint; was 6640f0fd66ac0848)
 }
 
 /// The typed structs read numbers through serde_json (f64, then `as f32`); the checksum parses each token exactly

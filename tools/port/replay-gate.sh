@@ -2,15 +2,17 @@
 # The M1 replay gate: the 22 gate traces (18 + the 4 scripted outcome traces, docs/bevy/M0_NOTES.md §4) through `duel-tools replay`, 4 at a time. Prints "name status first-step" rows.
 # Exit 0 when every trace is OK (with --allow-unported: OK or UNPORTED). ORACLE defaults to this checkout's build/oracle.
 # --stubbed: the replay's stubbed mode (docs/bevy/M1_NOTES.md §3: guarded stubs for the unported kit :tick hooks, kit
-# state and H masked); not the gate's verdict, a check of the code behind them. NAMES (env): other trace names instead of the 22.
+# state and H masked); not the gate's verdict, a check of the code behind them. --snap: a 40-step rollout every 40 battle ticks,
+# restored (M1_NOTES §5; the outcome line stays first). NAMES (env): other trace names instead of the 22.
 set -u
 cd "$(dirname "$0")/../.."
 allow=0; extra=()
 for a in "$@"; do
   case "$a" in
     --allow-unported) allow=1 ;;
-    --stubbed) extra=(--stub HS-TICK,YAMA-TICK --mask 'hss-,yss-') ;;
-    *) echo "usage: $0 [--allow-unported] [--stubbed]"; exit 2 ;;
+    --stubbed) extra+=(--stub HS-TICK,YAMA-TICK --mask 'hss-,yss-') ;;
+    --snap) extra+=(--snap 40) ;;
+    *) echo "usage: $0 [--allow-unported] [--stubbed] [--snap]"; exit 2 ;;
   esac
 done
 ORACLE=${ORACLE:-$PWD/build/oracle}
