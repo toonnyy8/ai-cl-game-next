@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """gen.py — the Bevy port's answer key into build/oracle/ (git-ignored; docs/bevy/BEVY_PORT.md §6.1, M0 plan Task 7: the sim traces).
 
-  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, and write neither INDEX.json nor cvc-tag.txt)
+  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, merge their entries into INDEX.json by name,
+                                                     and leave cvc-tag.txt alone)
                                                      record every trace (record.lisp on the recorder's image, build-rec.lisp), check
                                                      each against a plain run of the stock image (non-perturbation), write
                                                      build/oracle/INDEX.json and cvc-tag.txt, then replay three (one per kind)
@@ -16,7 +17,7 @@ The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
 RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal to it); every combo trial file of tools/simgate/trial.lisp
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
-its trials). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
+its trials); the scripted outcome traces, trial files in tools/port/oracle/scenarios/ (scr-<file name>). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
 """
 import concurrent.futures as cf, datetime, glob, hashlib, importlib.util, json, os, re, shutil, subprocess, sys
 
@@ -38,6 +39,7 @@ RESEARCH_TRIALS = {'ki-ai-kenpachi': 'docs/research/ki-ai/kenpachi/trials.lisp',
                    'sp-xch-r4': 'docs/research/strategy-drsi/sp/arms6/xch/r4-trial.lisp'}
 EXCLUDED = {p: 'Rukia is retired (2026-11-12): her kit is not in the image'
             for p in sorted(glob.glob('docs/research/rukia-cpu/*.lisp', root_dir=ROOT))}
+SCENARIOS = 'tools/port/oracle/scenarios'   # the scripted outcome traces (M0_NOTES §4), trial files: scr-<file name>
 PICKS = ('cvc-hk-s2', 'cvc-yy-s3', 'trial-sp-costs')   # gen.py sim's replays: a cross pairing, a mirror, a trial file
 JOBS, TIMEOUT = 6, 3600
 
@@ -93,6 +95,7 @@ def jobs():
     files = {f'trial-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob('tests/trials/*.lisp', root_dir=ROOT))}
     files |= {f'trial-{k}': p for k, p in RESEARCH_TRIALS.items()}
     files['trial-sp-costs'] = sp_costs_file()
+    files |= {f'scr-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob(f'{SCENARIOS}/*.lisp', root_dir=ROOT))}
     out += [{'name': n, 'kind': 'trials', 'file': p, 'start': ['trials', p]} for n, p in files.items()]
     return out
 
@@ -147,13 +150,21 @@ def sim(names=()):
     build_rec()
     os.makedirs(TRACES, exist_ok=True)
     js = jobs()
-    if names:   # ponytail: a subset is a spot check, never a new index
+    if names:   # a subset: those recorded and replayed, their INDEX.json entries replaced or added by name (the rest kept as it is)
         js = [j for j in js if j['name'] in names]
         with cf.ThreadPoolExecutor(JOBS) as ex:
             done = list(ex.map(record, js))
         for j in done:
             print(f"{j['name']}: {j.get('steps')} steps, last tick {j.get('last_tick')}, sha1 {j.get('sha1')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
-        sys.exit(1 if len(done) != len(names) or any('error' in j for j in done) or replay([j['name'] for j in done]) else 0)
+        bad = len(done) != len(names) or any('error' in j for j in done)
+        if not bad:
+            path = os.path.join(OUT, 'INDEX.json')
+            index = json.load(open(path))
+            new = {j['name']: j for j in done}
+            index['traces'] = [new.pop(t['name'], t) for t in index['traces']] + list(new.values())
+            with open(path, 'w') as f:
+                json.dump(index, f, indent=1)
+        sys.exit(1 if bad or replay([j['name'] for j in done]) else 0)
     with cf.ThreadPoolExecutor(JOBS) as ex:
         done = list(ex.map(record, js))
     for j in done:

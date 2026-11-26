@@ -446,6 +446,34 @@
    "steps": 22649,
    "last_tick": 180,
    "sha1": "f1751b03d2ab89153e6cf46163afa27b296cb56c"
+  },
+  {
+   "name": "scr-blocked-guard-crush-back",
+   "kind": "trials",
+   "steps": 1659,
+   "last_tick": 1659,
+   "sha1": "622d667eb10de60564d4359311c7649fb9a815ae"
+  },
+  {
+   "name": "scr-bursts-chain-cut",
+   "kind": "trials",
+   "steps": 179,
+   "last_tick": 179,
+   "sha1": "7e984200b57884d0ec1d95160a6865eef03026f2"
+  },
+  {
+   "name": "scr-counter-stance-break",
+   "kind": "trials",
+   "steps": 159,
+   "last_tick": 159,
+   "sha1": "c52eed9c9e8279a5bbb21920d4174fb49f38f515"
+  },
+  {
+   "name": "scr-draw",
+   "kind": "trials",
+   "steps": 36000,
+   "last_tick": 36000,
+   "sha1": "1be140e59d68bfd6b71a96c7f33e847502fc829f"
   }
  ],
  "excluded": {

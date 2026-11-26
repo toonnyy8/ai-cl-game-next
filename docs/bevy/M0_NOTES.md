@@ -355,6 +355,37 @@ to cm, yaw to 0.01 rad, gauges rounded, a hazard count only; velocities, timers 
 0.5 cm passes H at the tick it happens and only shows when it grows into a visible difference. So H is a coarse sync check, not a
 bit-exact proof; M1 needs a finer line (§6).
 
+### Scripted outcome traces (M1 Task 14)
+
+The 18 gate traces never reach some combat outcomes, so four short traces drive both sides by written script (Kenpachi and Ichigo only).
+They are trial files in `tools/port/oracle/scenarios/`, in `tools/simgate/trial.lisp`'s format with its existing keys (P1's script; P2's
+moves through `:p2-start`, i.e. `CORE-START!`, recorded as `E core-start 1 <move>`). `gen.py` records them as `scr-<file name>`
+(`gen.py sim scr-...`: a names subset now merges its entries into `INDEX.json` by name). They are pinned in `oracle-index.json` and run by
+`tools/port/replay-gate.sh`. Steps below are 1-based (the trace's Nth `H`). They equal the tick, because the trials run from tick 0.
+
+| Trace (steps) | Setup | Proves (sim log line, step) |
+|---|---|---|
+| `scr-counter-stance-break` (159) | C1: Kenpachi vs Kenpachi at 2.2 m. P2 starts `:ke-breaker` on frame 0, and P1 presses J. C2: P1 on pointer 3 presses SP (TAME, NS3a, a `:parry` window f2-28) at 1.4 m, and P2 starts `:ke-breaker` on frame 0 | `P1 KE-Z-J1 -> P2 COUNTER 35` (10): a hit on the Breaker's aura is `:breaker`, so `:counter`. `P2 KE-BREAKER -> P1 STANCE-BREAK 150` (100): a Breaker on a parry |
+| `scr-bursts-chain-cut` (179) | B1: Ichigo idle presses P. B2: Ichigo at 1.6 m presses J1, then P on its hit, then J1 again | `P1 BURST WHITE` (1). `P1 BURST ORANGE` (79), then `P1 chain cut 5 f` (89): the J1 started inside `*chain-window*` |
+| `scr-blocked-guard-crush-back` (1659) | Ichigo base (pointer 2: NS2 a-b-c, GETSUGA JUJISHO) vs Ichigo KESSA 6 m away. K1: P2 starts `:ic-k-parry` (f2-25) on frame 60. K2: P2 parries 9 times, 46 f apart (each parry costs 10 guard, and the regen waits 60), so the gauge sits at 10 when the wave lands | `P1 WAVE -> P2 BLOCKED 150` (74, 539). `P2 GUARDLESS BLOCK` + `P2 GUARD CRUSH` (539). `P2 GUARD BACK` (1532) |
+| `scr-draw` (36000) | Kenpachi vs Ichigo, both idle (no script, P2's brain off), with full Konpaku and Reishi from TRIAL-RUN's setup, until its 36000 f timer runs out | `[ 36000] cine TIME-CINE` (36000). The draw itself is not a combat line (`duel -> RESULTS winner DRAW` is a `log-msg`): the last B line has `*flow*` `:RESULTS` and both `fighter-state` `:LOSE` (`TIME-UP-WINNER` gives `:draw`, so neither side won) |
+
+Why these routes, and what is out of reach:
+
+- **The core system has no guard.** `GUARD-HELD-P` is NIL for a `:core` kit, and `:dummy :guard`'s `:guard` state drops at P2's first
+  `NEUTRAL-STEP`. The one guard a core kit has is KESSA's `:parry-block` ward: `RESOLVE-CONTACT` turns a ranged or hazard hit on the
+  parry into `:guard`. So BLOCKED, GUARD CRUSH and GUARD BACK come from the ward. The scene is an Ichigo mirror, because only Ichigo's waves are
+  ranged hits a press can fire. Kenpachi's one ranged window, Buttagiru's beyond 2.6 m, has no core command.
+- **No press starts a Breaker, a stance or the KESSA parry** (`*commands*` has no `:sig` / `:breaker`). Only `:p2-start` reaches them.
+  So the Breaker is P2's, and the parry it breaks is P1's TAME.
+- **BLOWN AWAY is unreachable.** `*stun-blow-away*` has been NIL since 2026-10-10 (tuning.lisp). It is neither a debug knob nor an `E set`
+  global.
+- **GUARD-BREAK is unreachable.** It needs a crushing hit (`:breaker`, `:guard-crush` or the attacker's `fighter-crush`) on a `:guard`
+  defender. The ward makes only ranged hits `:guard`. No ranged window or hazard of either kit crushes: their waves carry `(:blade)`,
+  and a hazard's pending hit has no crush. A Breaker on the parry is a STANCE-BREAK instead.
+- `scr-draw` runs the whole 600 s idle instead of a short timer. `trial-run` sets `*timer*` itself, and the debug command that would
+  shorten it (2449) is unported in Rust.
+
 ## 5. Rulings (from the M0 ledger)
 
 - **Device loss** (Task 1): Bevy 0.20.1 GPU clustering buffers that wgpu's web backend never destroys; the port sets
