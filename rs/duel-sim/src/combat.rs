@@ -147,22 +147,24 @@ mod flag {
 }
 
 fn flag_bits<'a>(flags: impl Iterator<Item = &'a str>) -> u16 {
+    const KNOWN: [(&str, u16); 19] = [
+        ("breaker", flag::BREAKER),
+        ("guard-crush", flag::GUARD_CRUSH),
+        ("unguardable", flag::UNGUARDABLE),
+        ("rend", flag::REND),
+        ("flat", flag::FLAT),
+        ("unscaled", flag::UNSCALED),
+        ("keep-bind", flag::KEEP_BIND),
+        ("spare", flag::SPARE),
+        ("ranged", flag::RANGED),
+        // read elsewhere or looks only: the move flags a window carries (kit.lisp passes a move's :flags to its windows; every
+        // one in today's data), and the hazards' look flags (Ichigo's waves: :blade)
+        ("ender", 0), ("no-close", 0), ("parry", 0), ("ranged-ward", 0), ("stance", 0), ("step-branch", 0), ("through", 0),
+        ("ice", 0), ("blade", 0), ("thread", 0),
+    ];
     flags.fold(0, |b, f| {
-        b | match f.trim_start_matches(':').to_ascii_lowercase().as_str() {
-            "breaker" => flag::BREAKER,
-            "guard-crush" => flag::GUARD_CRUSH,
-            "unguardable" => flag::UNGUARDABLE,
-            "rend" => flag::REND,
-            "flat" => flag::FLAT,
-            "unscaled" => flag::UNSCALED,
-            "keep-bind" => flag::KEEP_BIND,
-            "spare" => flag::SPARE,
-            "ranged" => flag::RANGED,
-            // read elsewhere or looks only: the move flags a window carries (kit.lisp passes a move's :flags to its windows; every
-            // one in today's data), and the hazards' look flags (Ichigo's waves: :blade)
-            "ender" | "no-close" | "parry" | "ranged-ward" | "stance" | "step-branch" | "through" | "ice" | "blade" | "thread" => 0,
-            x => panic!("a hit window flag APPLY-HIT does not know: {x}"),
-        }
+        let f = f.trim_start_matches(':'); // (any case: data names are lower case, Syms upper; compared in place, no allocation)
+        b | KNOWN.iter().find(|(n, _)| n.eq_ignore_ascii_case(f)).unwrap_or_else(|| panic!("a hit window flag APPLY-HIT does not know: {f}")).1
     })
 }
 
@@ -474,6 +476,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     }
     {
         let what = match (mvd, hazard) {
+            _ if !m.log_on => String::new(), // (the log line's only: no allocation with the log off)
             (Some(x), _) => x.name.to_uppercase(),
             (None, Some(h)) => m.hazard_of(h).unwrap().kind.map_or("NIL", |k| k.name()).to_string(),
             (None, None) => "COUNTER".to_string(),

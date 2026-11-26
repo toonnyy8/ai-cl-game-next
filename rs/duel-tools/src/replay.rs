@@ -11,18 +11,15 @@ use duel_sim::vpad::Vpad;
 pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
     let w = |i: usize| words.get(i).map(String::as_str).ok_or(format!("E {}: too few words", words.join(" ")));
     let val = |i: usize| LispValue::parse(w(i)?);
-    let side = |m: &Match, i: usize| match val(i)?.int()? {
-        0 => Ok(m.p1),
-        1 => Ok(m.p2),
-        k => Err(format!("E {}: no side {k}", words.join(" "))),
-    };
+    // port: TR-ENTITY: 0 is P1, any other integer P2
+    let side = |m: &Match, i: usize| Ok::<_, String>(if val(i)?.int()? == 0 { m.p1 } else { m.p2 });
     let kw = |i: usize| -> Result<String, String> { Ok(val(i)?.kw()?.to_string()) };
     let ch = |i: usize| Character::from_name(&kw(i)?).ok_or(format!("E {}: no character", words.join(" ")));
     match w(0)? {
         "set" => {
             let s = match w(1)? {
                 "-" => None,
-                k => Some(k.parse().map_err(|_| format!("E set: side {k}"))?),
+                k => Some((k.parse::<i64>().map_err(|_| format!("E set: side {k}"))? != 0) as usize), // (TR-ENTITY's rule)
             };
             debug::set_field(m, s, w(2)?, &val(3)?)?
         }
@@ -47,7 +44,7 @@ pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
             let e = side(m, 1)?;
             let meter = match val(2)? {
                 LispValue::Nil => None,
-                v => Some(v.real()?),
+                v => Some(v.float()?), // (the meter slot is a single-float: an integer is never recorded)
             };
             debug::full_gauges(m, e, meter)
         }
@@ -132,6 +129,11 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
     max: Option<u64>,
     trials: bool,
     out: Option<Outcome>,
+    /// `--snap N`: every N battle ticks a rollout on the live match, then restored from its clone (`snap_rollout`).
+    snap: Option<i64>,
+    pub snaps: u64,
+    pub snaps_moved: u64,
+    pub snaps_unported: u64,
 }
 
 impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
@@ -224,6 +226,12 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         if !self.trials {
             self.detach(m);
         }
+        if self.snap.is_some_and(|n| flow::battle_p(m) && m.match_tick % n == 0) {
+            self.snaps += 1;
+            let (moved, unp) = snap_rollout(m);
+            self.snaps_moved += moved as u64;
+            self.snaps_unported += unp as u64;
+        }
         if self.max.is_some_and(|n| self.steps >= n) {
             self.out.get_or_insert(Outcome::Ok(self.steps));
             return;
@@ -235,7 +243,19 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
 /// Replays PATH (at most MAX steps): replay.lisp's cmds start (SG-INIT, the S line's commands queued, TR-RUN-FRAMES' loop
 /// until the gate and the match are over), or a trials trace's RP-DRIVE (one frame, then its E lines applied and F lines run in order).
 /// STUBS / MASK: the stubbed mode (docs/bevy/M1_NOTES.md §3; both empty = the gate's full comparison).
+#[cfg(test)]
 pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: &[String], mask: &[String]) -> Outcome {
+    run_snap(path, max, data, stubs, mask, None).0
+}
+
+/// `run` with `--snap N` (SNAP); also returns how many rollouts ran, moved the state, reached an `unported!` path.
+pub fn run_snap(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: &[String], mask: &[String], snap: Option<i64>) -> (Outcome, (u64, u64, u64)) {
+    let mut snaps = (0, 0, 0);
+    let out = run_with(path, max, data, stubs, mask, snap, &mut snaps);
+    (out, snaps)
+}
+
+fn run_with(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: &[String], mask: &[String], snap: Option<i64>, snaps: &mut (u64, u64, u64)) -> Outcome {
     let mut r = match trace::open(path) {
         Ok(r) => r,
         Err(e) => return Outcome::Error(e),
@@ -248,11 +268,17 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: 
     let mut m = Match::new(data);
     m.stubs = stubs.to_vec();
     flow::go_title(&mut m); // (SG-INIT: START-GAME)
-    let mut rp = Replayer { it: r, inj: Injector::new(), fields, mask: mask.to_vec(), cur: None, steps: 0, items: 0, max, trials, out: None };
+    let mut rp = Replayer { it: r, inj: Injector::new(), fields, mask: mask.to_vec(), cur: None, steps: 0, items: 0, max, trials, out: None, snap, snaps: 0, snaps_moved: 0, snaps_unported: 0 };
+    let out = drive(&mut m, &mut rp, &start, trials);
+    *snaps = (rp.snaps, rp.snaps_moved, rp.snaps_unported);
+    out
+}
+
+fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, rp: &mut Replayer<I>, start: &[String], trials: bool) -> Outcome {
     rp.advance();
     if trials {
-        flow::frame(&mut m, &mut rp); // (trial.lisp's start: one frame, no step)
-        rp.check_unported(&m);
+        flow::frame(m, rp); // (trial.lisp's start: one frame, no step)
+        rp.check_unported(m);
         while rp.out.is_none() {
             match rp.cur.take() {
                 None => return Outcome::Ok(rp.steps),
@@ -260,30 +286,30 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: 
                     // port: RP-DRIVE's :event: what the action prints must equal its e lines
                     rp.items += 1;
                     m.log.clear();
-                    if let Err(e) = apply_event(&mut m, &words) {
+                    if let Err(e) = apply_event(m, &words) {
                         return Outcome::Error(e);
                     }
-                    rp.check_unported(&m);
+                    rp.check_unported(m);
                     let got = std::mem::take(&mut m.log);
                     if rp.out.is_none() && !trace::log_equal(&e_lines, &got) {
-                        rp.fail(&m, format!("event {} printed: want {e_lines:?} got {got:?}", words.join(" ")));
+                        rp.fail(m, format!("event {} printed: want {e_lines:?} got {got:?}", words.join(" ")));
                     }
                     rp.advance();
                 }
                 Some(Item::Frame) => {
                     rp.items += 1;
-                    rp.detach(&mut m);
+                    rp.detach(m);
                     rp.advance();
-                    flow::frame(&mut m, &mut rp);
-                    rp.check_unported(&m);
+                    flow::frame(m, rp);
+                    rp.check_unported(m);
                 }
                 Some(step) => {
                     rp.cur = Some(step);
-                    rp.fail(&m, "a step outside a frame".into());
+                    rp.fail(m, "a step outside a frame".into());
                 }
             }
         }
-        return rp.out.unwrap();
+        return rp.out.take().unwrap();
     }
     for c in &start[1..] {
         match c.parse() {
@@ -291,30 +317,131 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: 
             Err(_) => return Outcome::Error(format!("trace: bad command {c} on the S line")),
         }
     }
-    flow::frame(&mut m, &mut rp);
-    rp.check_unported(&m);
+    flow::frame(m, rp);
+    rp.check_unported(m);
     for _ in 0..2_000_000 {
         if let Some(out) = rp.out.take() {
             return out;
         }
-        if !flow::frame(&mut m, &mut rp) {
+        if !flow::frame(m, rp) {
             return Outcome::Error("the frame stopped".into());
         }
-        rp.check_unported(&m);
+        rp.check_unported(m);
         if let Some(out) = rp.out.take() {
             return out;
         }
-        if m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+        if m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m) {
             return match rp.cur {
                 None => Outcome::Ok(rp.steps),
                 Some(_) => {
-                    rp.fail(&m, "the run ended before the trace's end".into());
-                    rp.out.unwrap()
+                    rp.fail(m, "the run ended before the trace's end".into());
+                    rp.out.take().unwrap()
                 }
             };
         }
     }
     Outcome::Error("no end after 2000000 frames".into())
+}
+
+/// A pilot input that reads nothing (the vpads keep what they hold) and counts the steps.
+struct Null(u32);
+impl PilotInput for Null {
+    fn read(&mut self, _m: &mut Match, _side: usize) {}
+    fn step_end(&mut self, _m: &mut Match) {
+        self.0 += 1;
+    }
+}
+
+/// `--snap`'s rollout (tools/simgate/snaptest.lisp's idea): clone the match, reseed the sim stream as snaptest does, play 40 steps on
+/// the live match with the vpads as they are, then restore the clone. The replay must stay OK: the clone holds the whole sim state.
+/// (whether the rollout moved the state: its B line differs from the clone's, so a pass is not a no-op's; whether it reached an
+/// `unported!` path, which the restore then forgets).
+fn snap_rollout(m: &mut Match) -> (bool, bool) {
+    let saved = m.clone();
+    m.rng.set_state((m.rng.state() ^ 0x5BD1_E995) | 1);
+    let mut n = Null(0);
+    for _ in 0..400 {
+        if n.0 >= 40 || !flow::sim_running_p(m) || m.unported.is_some() {
+            break;
+        }
+        flow::frame(m, &mut n);
+    }
+    let r = (bits_line(m) != bits_line(&saved), m.unported.is_some());
+    *m = saved;
+    r
+}
+
+/// `--bench`'s input: the trace's T lines, read before the clock starts, injected as the replay does (RP-INJECT, RP-DETACH); no
+/// comparison, no log.
+pub struct BenchInput {
+    inj: Injector,
+    ts: Vec<TLine>,
+    pub steps: usize,
+}
+
+impl PilotInput for BenchInput {
+    fn read(&mut self, m: &mut Match, side: usize) {
+        self.inj.t = self.ts.get(self.steps).cloned();
+        self.inj.read(m, side);
+    }
+    fn step_end(&mut self, m: &mut Match) {
+        self.steps += 1;
+        for (k, e) in [m.p1, m.p2].into_iter().enumerate() {
+            if let Some(f) = m.fighter.get_mut(e).filter(|f| f.has_brain) {
+                f.has_brain = false;
+                self.inj.last[k] = m.pilot.get(e).map_or(0, |p| p.vpad.tick);
+            }
+        }
+    }
+}
+
+/// A cmds trace read for `--bench`: the match after its S line's commands and first frame (the combat log off), its input, the
+/// trace's last H.
+pub fn bench_setup(path: &str, data: &'static duel_data::Data) -> Result<(Match, BenchInput, String), String> {
+    use std::io::BufRead;
+    let f = std::fs::File::open(path).map_err(|e| format!("{path}: {e}"))?;
+    let (mut start, mut ts, mut h) = (vec![], vec![], String::new());
+    for l in std::io::BufReader::with_capacity(1 << 20, f).lines() {
+        let l = l.map_err(|e| e.to_string())?;
+        if let Some(r) = l.strip_prefix("T ") {
+            ts.push(trace::parse_t(r)?);
+        } else if let Some(r) = l.strip_prefix("H ") {
+            h = r.to_string();
+        } else if let Some(r) = l.strip_prefix("S ") {
+            start = r.split(' ').map(String::from).collect();
+        }
+    }
+    if start.first().is_none_or(|w| w != "cmds") {
+        return Err("--bench: a cmds trace only".into());
+    }
+    let mut m = Match::new(data);
+    flow::go_title(&mut m);
+    for c in &start[1..] {
+        m.cmds.push_back(c.parse().map_err(|_| format!("bad command {c}"))?);
+    }
+    let mut inp = BenchInput { inj: Injector::new(), ts, steps: 0 };
+    flow::frame(&mut m, &mut inp);
+    m.log_on = false; // (DEBUG-COMMAND turns it on; the gate's matches run with it off)
+    Ok((m, inp, h))
+}
+
+/// One frame of the bench loop; false once the run is over (the replay's end test).
+pub fn bench_frame(m: &mut Match, inp: &mut BenchInput) -> bool {
+    flow::frame(m, inp);
+    m.log.clear();
+    !(m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m))
+}
+
+/// `--bench`: (steps, seconds, whether the run reproduced the trace: its step count and final H equal).
+pub fn bench(path: &str, data: &'static duel_data::Data) -> Result<(usize, f64, bool), String> {
+    let (mut m, mut inp, h) = bench_setup(path, data)?;
+    let t0 = std::time::Instant::now();
+    while bench_frame(&mut m, &mut inp) {}
+    let secs = t0.elapsed().as_secs_f64();
+    if let Some(n) = m.unported {
+        return Err(format!("--bench: unported {n}"));
+    }
+    Ok((inp.steps, secs, inp.steps == inp.ts.len() && state_hash_line(&m) == h))
 }
 
 /// The stubbed mode's mask (docs/bevy/M1_NOTES.md §3): field-name prefixes after `pN.`; an entry `!prefix` keeps a field a plain
@@ -440,6 +567,45 @@ mod tests {
             "DIVERGED tick 0 (step 0, item 6): event form 0 :BASE printed: want [] got [\"[     0] P1 form BASE\"]"
         );
         assert!(run_str("err", &format!("{head}E set 0 GAUGES-NOPE 1\n")).starts_with("ERROR set: no field GAUGES-NOPE"));
+    }
+
+    /// The 0 B / step rule: cvc-kk-s1 under `--bench`'s driver (the combat log off) allocates nothing in any frame that starts and
+    /// ends in the battle (its ~17,800 battle steps; the brief's bar is 600). The final frame's gate result push is outside it.
+    #[test]
+    fn bench_allocs() {
+        let dir = std::env::var("ORACLE").unwrap_or_else(|_| "/media/8tsp/projects/ai-cl-game-next-bevy/build/oracle".into());
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let (mut m, mut inp, _) = bench_setup(&format!("{dir}/traces/cvc-kk-s1.trace"), data).unwrap();
+        let (mut steps, mut allocs) = (0, 0);
+        loop {
+            let (s0, a0, before) = (inp.steps, crate::alloc_count::count(), flow::battle_p(&m));
+            let go = bench_frame(&mut m, &mut inp);
+            if before && flow::battle_p(&m) {
+                (steps, allocs) = (steps + inp.steps - s0, allocs + crate::alloc_count::count() - a0);
+            }
+            if !go {
+                break;
+            }
+        }
+        assert!(!m.log_on && steps >= 600, "log {} steps {steps}", m.log_on);
+        assert_eq!(allocs, 0, "allocations in {steps} battle steps");
+    }
+
+    /// `E core-start`, `E cmd`, `E skip-cine` (a recorded trial, rs/duel-tools/tests/fixtures/core-start-cmd.*): P2 starts KE-Z-AS1
+    /// through CORE-START! (its move and SP log lines, then its hit, compared step by step), a debug command between frames; the
+    /// skip-cine line was added by hand (no cinematic runs there: ECL's replay.lisp passes the same file). Without the core-start
+    /// line (and its e lines, the fixture's only ones) the run diverges.
+    #[test]
+    fn core_start_cmd_fixture() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/core-start-cmd.trace");
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        assert!(matches!(run(path, None, data, &[], &[]), Outcome::Ok(29)));
+        let cut: String = std::fs::read_to_string(path).unwrap().lines().filter(|l| !l.starts_with("E core-start") && !l.starts_with("e ")).map(|l| l.to_string() + "\n").collect();
+        let p = std::env::temp_dir().join(format!("replay-fixture-{}.trace", std::process::id()));
+        std::fs::write(&p, cut).unwrap();
+        let out = run(p.to_str().unwrap(), None, data, &[], &[]);
+        let _ = std::fs::remove_file(&p);
+        assert!(matches!(out, Outcome::Diverged(_)), "a run without the core-start line still passed");
     }
 
     #[test]

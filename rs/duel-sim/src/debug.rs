@@ -103,7 +103,7 @@ impl LispValue {
     pub fn int(&self) -> Result<i64, String> {
         if let LispValue::Int(n) = self { Ok(*n) } else { Err(format!("{self:?}: not an integer")) }
     }
-    fn float(&self) -> Result<f32, String> {
+    pub fn float(&self) -> Result<f32, String> {
         if let LispValue::Float(x) = self { Ok(*x) } else { Err(format!("{self:?}: not a single-float")) }
     }
     /// A number as a single-float (a distance, a meter: `(f32 x)`, or a float the reader made).

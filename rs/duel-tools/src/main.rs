@@ -1,7 +1,8 @@
 //! Port tools. `check-data [dir]`: load the data (from DIR, else the embedded copy), print the counts and the float checksum,
 //! exit 1 unless both equal the manifest's. `replay <trace> [--max-steps N] [--data DIR]`: the brainless replay of an oracle
 //! trace (exit 0 OK, 1 diverged / trace error, 3 unported). `--stub a,b --mask x,y`: the stubbed mode (docs/bevy/M1_NOTES.md §3).
-#[allow(dead_code)] // ponytail: compare / Diverged / read wait for the frame loop (rest of Task 6)
+//! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK). `--bench`: a cmds trace's T lines read
+//! first, then the match timed on them alone (`steps <n> secs <s> steps/s <r>`; exit 1 unless the steps and the last H equal the trace's).
 mod replay;
 #[allow(dead_code)]
 mod trace;
@@ -15,7 +16,7 @@ fn main() -> ExitCode {
         Some("parse-trace") if args.len() > 1 => parse_trace(&args[1]),
         Some("replay") if args.len() > 1 => replay_cmd(&args[1..]),
         _ => {
-            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..]");
+            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..] [--snap N] [--bench]");
             ExitCode::from(2)
         }
     }
@@ -50,6 +51,7 @@ fn replay_cmd(args: &[String]) -> ExitCode {
     let max = opt("--max-steps").and_then(|s| s.parse().ok());
     let list = |k: &str| -> Vec<String> { opt(k).map_or(vec![], |s| s.split(',').filter(|x| !x.is_empty()).map(String::from).collect()) };
     let (stubs, mask) = (list("--stub"), list("--mask"));
+    let snap = opt("--snap").and_then(|s| s.parse().ok());
     let data = match opt("--data") {
         Some(p) => match Data::load(p.as_ref()) {
             Ok(d) => d,
@@ -60,7 +62,24 @@ fn replay_cmd(args: &[String]) -> ExitCode {
         },
         None => Data::embedded(),
     };
-    match replay::run(&args[0], max, Box::leak(Box::new(data)), &stubs, &mask) {
+    let data: &'static Data = Box::leak(Box::new(data));
+    if args.iter().any(|a| a == "--bench") {
+        return match replay::bench(&args[0], data) {
+            Ok((n, secs, same)) => {
+                println!("steps {n} secs {secs:.3} steps/s {:.0}{}", n as f64 / secs, if same { "" } else { "  (NOT the trace's run)" });
+                if same { ExitCode::SUCCESS } else { ExitCode::FAILURE }
+            }
+            Err(e) => {
+                println!("replay: {e}");
+                ExitCode::FAILURE
+            }
+        };
+    }
+    let (out, snaps) = replay::run_snap(&args[0], max, data, &stubs, &mask, snap);
+    if snap.is_some() {
+        eprintln!("snap: {} rollouts, {} moved the state, {} reached an unported path", snaps.0, snaps.1, snaps.2);
+    }
+    match out {
         replay::Outcome::Ok(n) => {
             println!("replay OK {n} ticks");
             ExitCode::SUCCESS
@@ -104,5 +123,33 @@ fn parse_trace(path: &str) -> ExitCode {
             println!("parse-trace: {e}");
             ExitCode::FAILURE
         }
+    }
+}
+
+/// The test binary's allocator: the system's, counting this thread's allocations (`replay::tests::bench_allocs`).
+#[cfg(test)]
+pub mod alloc_count {
+    use std::alloc::{GlobalAlloc, Layout, System};
+    use std::cell::Cell;
+    thread_local! { static N: Cell<u64> = const { Cell::new(0) }; }
+    pub struct Counting;
+    unsafe impl GlobalAlloc for Counting {
+        unsafe fn alloc(&self, l: Layout) -> *mut u8 {
+            let _ = N.try_with(|n| n.set(n.get() + 1));
+            unsafe { System.alloc(l) }
+        }
+        unsafe fn realloc(&self, p: *mut u8, l: Layout, size: usize) -> *mut u8 {
+            let _ = N.try_with(|n| n.set(n.get() + 1));
+            unsafe { System.realloc(p, l, size) }
+        }
+        unsafe fn dealloc(&self, p: *mut u8, l: Layout) {
+            unsafe { System.dealloc(p, l) }
+        }
+    }
+    #[global_allocator]
+    static A: Counting = Counting;
+    /// This thread's allocations so far.
+    pub fn count() -> u64 {
+        N.with(Cell::get)
     }
 }

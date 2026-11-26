@@ -95,7 +95,19 @@ pub fn state_of(m: &Match, e: Entity) -> Option<State> {
 /// port: components.lisp KIT-OF: the kit data of E's form.
 pub fn kit_of(m: &Match, e: Entity) -> &'static Kit {
     let k = m.fighter.get(e).and_then(|f| f.kit).expect("a fighter has a kit");
-    crate::kit::find_kit(m.data, &k.character.name().to_lowercase(), &k.form.name().to_lowercase())
+    kit_for(m.data, k.character, k.form)
+}
+/// The kit of CHARACTER in FORM (the data's keys are lower case: lowered on the stack, no allocation: kit_of runs many times a step).
+pub fn kit_for(data: &'static duel_data::Data, character: Character, form: Form) -> &'static Kit {
+    let lower = |s: &'static str, buf: &mut [u8; 32]| {
+        buf[..s.len()].copy_from_slice(s.as_bytes());
+        buf[..s.len()].make_ascii_lowercase();
+        s.len()
+    };
+    let (mut bc, mut bf) = ([0u8; 32], [0u8; 32]);
+    let (nc, nf) = (lower(character.name(), &mut bc), lower(form.name(), &mut bf));
+    let s = std::str::from_utf8;
+    crate::kit::find_kit(data, s(&bc[..nc]).expect("ASCII"), s(&bf[..nf]).expect("ASCII"))
 }
 /// The move data of a MoveId.
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {

@@ -475,7 +475,7 @@ pub fn clone_replay_watch(m: &mut Match, e: Entity) {
     let kit = kit_of(m, e);
     let not_in = |names: &Vec<String>| {
         let third = names.get(2).expect("a third route");
-        !crate::kit::core_segments(m.data, third).contains(&mvd.name)
+        !crate::kit::core_segments_iter(m.data, third).any(|x| x == mvd.name)
     };
     let replay = !f.follow
         && ((matches!(f.cls, Some(Cls::Na | Cls::As)) && not_in(&kit.core.as_segs))

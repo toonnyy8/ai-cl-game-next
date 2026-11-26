@@ -90,7 +90,7 @@ pub struct Store<T> {
 
 impl<T> Default for Store<T> {
     fn default() -> Self {
-        Store { items: Vec::new() }
+        Store { items: Vec::with_capacity(MAX_ENTITIES) } // (never grows in a step: the 0 B / step rule)
     }
 }
 

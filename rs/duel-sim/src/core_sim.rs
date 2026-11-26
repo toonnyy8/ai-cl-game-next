@@ -171,8 +171,13 @@ pub fn core_sp_start(m: &mut Match, e: Entity) -> bool {
 pub fn core_next_as(m: &Match, e: Entity) -> i64 {
     let f = fighter(m, e);
     let core = &kit_of(m, e).core;
-    let by_press: Vec<i64> = core.as_by_press.as_deref().unwrap_or(&[]).iter().map(|&x| x as i64).collect();
-    let n = f.mv.and_then(|id| mv(m, id).params.as_ptr).map_or_else(|| core_as_pointer(&m.knobs, f.presses, &by_press), i64::from);
+    let src = core.as_by_press.as_deref().unwrap_or(&[]);
+    let mut by_press = [0i64; 16]; // (widened on the stack: the 0 B / step rule; a kit's :as-by-press is a few entries)
+    for (d, &x) in by_press.iter_mut().zip(src) {
+        *d = x as i64;
+    }
+    let by_press = &by_press[..src.len()]; // (panics past 16 entries rather than truncate)
+    let n = f.mv.and_then(|id| mv(m, id).params.as_ptr).map_or_else(|| core_as_pointer(&m.knobs, f.presses, by_press), i64::from);
     n.min(1.max(core.as_segs.len() as i64)) // (no AS of that number in this kit: the last it has)
 }
 
@@ -415,7 +420,10 @@ pub fn core_nohit(m: &mut Match, h: &Pending, verdict: Verdict) {
         return;
     }
     let (dw, dm) = (core_window_class(m, fighter(m, def)), fighter(m, def).mv); // (his window now)
-    let name = h.mv.map_or(String::new(), |x| mv(m, x).name.to_uppercase());
+    let name = match h.mv {
+        Some(x) if m.log_on => mv(m, x).name.to_uppercase(), // (the log lines' only: no allocation with the log off)
+        _ => String::new(),
+    };
     match verdict {
         Verdict::Cancel => {
             core_cancel_landed(m, att, true);

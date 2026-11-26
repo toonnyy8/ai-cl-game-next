@@ -243,13 +243,12 @@ pub fn kit_def_mods(kit: &Kit) -> crate::rules::DefMods {
 
 // port: kit.lisp CORE-SEGMENTS (FIND-MOVE's ERROR on an unknown name: a panic naming it)
 pub fn core_segments(data: &Data, name: &str) -> Vec<String> {
-    let mut out = vec![];
-    let mut n = Some(name.to_string());
-    while let Some(x) = n {
-        n = find_move(data, &x).unwrap_or_else(|| panic!("unknown move {x}")).params.ns_next.clone();
-        out.push(x);
-    }
-    out
+    core_segments_iter(data, name).map(String::from).collect()
+}
+
+/// CORE-SEGMENTS without the list (no allocation: the sim's step reads it through this).
+pub fn core_segments_iter<'d>(data: &'d Data, name: &'d str) -> impl Iterator<Item = &'d str> {
+    std::iter::successors(Some(name), move |x| find_move(data, x).unwrap_or_else(|| panic!("unknown move {x}")).params.ns_next.as_deref())
 }
 
 // port: kit.lisp CORE-ROUTES
