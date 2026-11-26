@@ -335,3 +335,34 @@ fn find_kit_lookup() {
     assert_eq!(find_kit(&d, "ichigo", "kessa").form, "kessa");
     assert!(std::panic::catch_unwind(|| find_kit(&Data::embedded(), "ichigo", "nope").form.len()).is_err());
 }
+
+/// triangle.lisp 255 (Task 12): an AS writes its pointer unless the kit's :as-writes says none, and no :no-kikon segment, but in the
+/// listed forms; over the Kenpachi and Ichigo kits (Hisagi's Bankai / Yamamoto's: M4). CORE-MOVE-NAMES: :also, every route's
+/// segments with their :kikon-strike moves, the segments' SAs, the SA.
+#[test]
+fn as_writes_and_no_kikon() {
+    let d = Data::embedded();
+    let names = |k: &Kit| {
+        let core = &k.core;
+        let mut v: Vec<String> = core.also.clone().unwrap_or_default();
+        for n in core_routes(core) {
+            for m in core_segments(&d, &n) {
+                let ks = find_move(&d, &m).unwrap().params.kikon_strike.clone();
+                v.push(m);
+                v.extend(ks);
+            }
+        }
+        v.extend(core_segment_sas(&d, core));
+        v.push(core.sa.clone());
+        v
+    };
+    let no_kikon = |k: &Kit| -> Vec<String> { names(k).into_iter().filter(|n| find_move(&d, n).unwrap().params.no_kikon).collect() };
+    for (c, forms) in [("kenpachi", &d.kits.kits["kenpachi"]), ("ichigo", &d.kits.kits["ichigo"])] {
+        for (f, k) in forms {
+            let ok = (c == "kenpachi" && (f == "bankai" || f == "bankai-2"))
+                || (c == "kenpachi" && f == "nozarashi" && k.core.as_writes.is_none() && no_kikon(k) == ["ke-s-bankai"])
+                || (k.core.as_writes.is_none() && no_kikon(k).is_empty());
+            assert!(ok, "{c} {f}");
+        }
+    }
+}

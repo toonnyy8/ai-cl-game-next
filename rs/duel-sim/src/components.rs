@@ -511,7 +511,7 @@ impl Default for Hazard {
     }
 }
 
-/// port: duel/lisp/ichigo.lisp ICS (Ichigo's state; attached on first use). Task 12 ports its readers.
+/// port: duel/lisp/ichigo.lisp ICS (Ichigo's state; attached on first use by ICHIGO-TICK: ichigo/hooks.rs `ic`).
 #[derive(Clone, Debug, PartialEq)]
 pub struct Ics {
     pub dashed: bool,

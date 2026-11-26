@@ -66,7 +66,7 @@ pub fn settle_konpaku(m: &mut Match, att: Entity, def: Entity, soul_break: bool)
     ko && !bound
 }
 
-/// The cinematic named SYM: the generic Soul Break's, or a kit's (Ichigo's: Task 12, `unported!`, None).
+/// The cinematic named SYM: the generic Soul Break's, or a kit's (an unknown one: `unported!`, None).
 fn cine_named(m: &mut Match, sym: &'static str) -> Option<CineName> {
     match CineName::from_lisp(sym) {
         Some(c) => Some(c),

@@ -13,7 +13,7 @@ use crate::rules::{
 };
 
 /// port: FUNCALL of hook symbol NAME on E alone (a move's :on-frame / :tick / :release / :on-land, a kit's :tick / :reset / ...),
-/// resolved through `kit::resolve`. True when the run goes on; an unported hook (Ichigo's: Task 12, Hisagi's / Yamamoto's: M4)
+/// resolved through `kit::resolve`. True when the run goes on; an unported hook (Hisagi's / Yamamoto's: M4)
 /// records `unported!(NAME)` and returns false: the caller returns.
 pub fn call_hook(m: &mut Match, e: Entity, name: &'static str) -> bool {
     match crate::kit::resolve(name) {
