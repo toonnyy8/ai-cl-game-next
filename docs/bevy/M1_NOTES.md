@@ -115,3 +115,138 @@ The image's glibc math imports the preload still does not serve (`objdump -T bui
 `lrintf`, `sqrtf` (exact) and `sincosl` (load-time code only, long double). `fminf` / `fmaxf` are musl's now (`math::f_min` /
 `f_max`'s choice); their sim callers are FIGHTER-PHYSICS (`fmaxf`) and SLOWMO-SCALE (`fminf`).
 
+
+## 5. Closing numbers (Task 14, 2026-11-27)
+
+Machine: i7-13700K (24 threads), one thread per run. The Lisp native sim is the host ECL 24.5.10 (32-bit i686) on
+`build/simgate/duel.fas` with the musl preload (`LD_PRELOAD=build/simgate/muslm.so`); Rust is `rs/target/release/duel-tools` (x86_64)
+and the same crate built for `wasm32-wasip1` under node 22.18.0.
+
+**The gate.** `tools/port/replay-gate.sh` (no flag): the 18 M1 traces `replay OK` at their pinned step counts. Since commit 1eec77f6 the gate also runs the four scripted outcome traces (M0_NOTES §4): scr-counter-stance-break, scr-bursts-chain-cut
+and scr-draw are OK. scr-blocked-guard-crush-back stops `UNPORTED ICHIGO parry rim (a mirror P2's *mirror-rim*)` at step 62, so the
+script exits 1 until that hook is ported (open; it predates Task 14's changes, per that commit). `cargo test --workspace
+--release` passes; `cargo clippy -p duel-sim --all-targets -- -D warnings` and `cargo clippy -p duel-tools --all-targets` are clean.
+
+**Snapshots** (`duel-tools replay TRACE --snap N`; snaptest.lisp's idea): every N battle ticks, at a step's end after its comparison,
+the live `Match` is cloned. Its sim stream is reseeded as snaptest reseeds (`(state ^ 0x5BD1E995) | 1`), it plays 40 steps on the vpads
+as they hold (no reader), and then the clone is put back. The replay must stay OK, so the clone holds the whole sim state (no state
+outside `Match`, no shallow copy). With `--snap 40` all 18 gate traces stay `replay OK`. cvc-ki-s1 is the brief's case: `replay OK 21368
+ticks`, 534 rollouts. Every rollout moved the B line (so none was a no-op) and none reached an `unported!` path (which the restore
+would forget).
+
+**wasm32.** `cargo build --release -p duel-tools --target wasm32-wasip1` (the target was installed with `rustup target add wasm32-wasip1`)
+gives a 6.7 MB `duel-tools.wasm` with the data embedded. `node tools/port/replay-wasm.mjs TRACE [args]` runs it under `node:wasi` with
+the trace's directory preopened as `/t`, and passes the exit code through. `cvc-ik-s1` gives `replay OK 14268 ticks` (0.35 s) and
+`trial-sp-xch-r3` gives `replay OK 359 ticks`; a broken trace exits 1. Native and wasm32 agree bit for bit (BEVY_PORT §6.3).
+
+**Speed** (BEVY_PORT §6.4; the gate is ≥ 3× the Lisp native sim). Both sides do the same work: a cmds trace's match with the brains
+detached, each sim frame's recorded inputs injected, no comparison, the console or log off, the trace read before the clock starts.
+Each run checks it reproduced the trace (its step count and its last H line).
+
+| Trace | Lisp `tools/port/sim-bench.lisp` | Rust `replay --bench` | Ratio | Rust wasm32 (node) |
+|---|---|---|---|---|
+| cvc-kk-s1 (18133 steps) | 172,000 steps/s (0.105 s) | 820,000 (0.022 s) | **4.8×** | 425,000 |
+| cvc-ki-s1 (21368) | 163,000 | 685,000 | **4.2×** | 395,000 |
+| cvc-ii-s1 (19423) | 153,000 | 607,000 | **4.0×** | 355,000 |
+
+The gate passes: 4.0-4.8× native. Rust in wasm32 under node runs at 2.3-2.5× the Lisp native sim. The step counts include the intro
+and the hitstop / slow-motion steps, the same on both sides. The Lisp hook (the reader that injects, the step hook that detaches) runs
+interpreted, since `load` of a source file is ECL's bytecode. It is a few calls per step against the compiled sim, so the Lisp figure
+is slightly pessimistic. Run three times, the spread is within 1 %.
+
+The brief's literal method, `gen.py replay cvc-kk-s1` minus a zero-command image start (`tools/simgate/run.lisp` with no commands:
+0.50 s), gives 20.6 s - 0.5 s, about 900 steps/s, which would put Rust at ~900×. That figure is not a sim speed. replay.lisp spends
+almost all of its time interpreting TR-B-LINE (430 fields formatted per step) and reading the trace. The like-for-like replay with full
+comparison is Rust `replay` at 0.20 s against Lisp `replay.lisp` at 20.6 s (~100×). For reference, `run.lisp 30000 31101 200110` (the
+same match with the Lisp CPUs playing it) takes 0.63 s including the 0.50 s start.
+
+**No allocation per step** (`duel-tools` test `bench_allocs`, with a counting global allocator in the test binary that counts per
+thread). Under `--bench`'s driver with the combat log off, cvc-kk-s1 allocates **0 times** in every frame that starts and ends in the
+battle: its whole battle, ~17,800 steps, where the brief's bar is 600. The one allocation left is the gate's result push on the frame
+that leaves the battle. Before Task 14 the same run allocated 258,646 times (~14 per step). What the counter found, and the fixes:
+- `kit_of` lower-cased the kit keys into two Strings per call (1,822 of the 1,827 allocations in one battle frame). Now `fighter::kit_for` lowers them on
+  the stack; `gauges::set_form` uses it too.
+- APPLY-HIT's and CORE-NOHIT!'s move name for the log line was built with the log off. It is built only with the log on.
+- `core_next_as` collected `:as-by-press` into a Vec. It now widens on the stack (16 entries; more panics rather than truncates).
+- `Store` grew its Vec when the hazards first exceeded its capacity. It now reserves `MAX_ENTITIES` (256).
+- Ichigo's: `flag_bits` lower-cased every flag (it now compares in place) and `core_segments` built a Vec per CLONE-REPLAY-WATCH (it
+  now walks `core_segments_iter`).
+
+Still allocating, on Ichigo's clone events only (not per step; cvc-kk-s2 also gives 0). In the same battle-frame count they total 218 in
+cvc-ii-s1's 19,200 battle steps and 215 in cvc-ki-s1's 21,240 (the two Ichigo fixes above took out about 1,100 in cvc-ii-s1): `echo_hitwin` (a HitWin's `flags` / `vols` Vecs, the `:BLADE` insert), `ichigo_clones` / `live_clones`
+returning `Vec<Entity>`, `clone_spawn`'s `borns` Vec, the Icc arena and `rq` pushes, `wave` / `clone_wave`'s one-element `vec!`.
+They need fixed-capacity HitWin fields (M2, before the CPU's rollouts). Also for M2: a `Match` clone has tight Vec capacities, so the
+first growth after a restore allocates. Rollouts should restore with `clone_from` or a capacity-keeping clone.
+
+## 6. Host tests: `rs/duel-sim/tests/PORTED.md` totals
+
+Ten Lisp test files, **780 checks: 674 ported, 106 deferred or not ported**, each with its reason in PORTED.md. The deferred ones by
+milestone: the CPU (M2: input-test's 7 device checks, core.lisp 307-317 / 466 / 468 / 471 / 576), the looks (M3: clip speeds, clip names,
+stance clips, poses, the event queue, the cine's DURING / actor hook / eye / hold), Hisagi and Yamamoto (M4: 22 triangle checks plus
+steal values, sim.lisp's test binder kit, sp.lisp's `*sp-table*` rows, core 203). Not ported, each for a stated reason: sp 78, triangle
+269, core 216 / 219 / 648 / 663 / 751, sublimation 5, ken 122. Per file: input 26/33, ecs 8/12, sp 70/75, triangle 111/142, core 282/309,
+sim 48/70, sublimation 31/32, systems 13/13, ken 74/76, cine 11/18.
+Beyond the Lisp checks the port holds its own ECL-verified tests on untraced paths: Kenpachi's armoured / blocked hits, Ichigo's hooks,
+the trial actions, and now `core_start_cmd_fixture` (below).
+
+## 7. Brain branches left for M2 (decision 3)
+
+Every path that reads `Fighter.has_brain` (in the Lisp, a BRAIN component). A replay detaches both brains, so in M1 none of these fired
+on a trace:
+- `unported!` until the CPU ports:
+  - `flow::sim_systems`: BRAIN-SYSTEM with a brain attached (`"brain-system"`).
+  - `round::reset_round`: the brain's clear (`"brain-clear"`: brain-press-left 0, brain-fresh t).
+  - `ichigo::hooks::parry_from_blockstun`: a CPU's parry press (`"ichigo brain parry-from-blockstun"`: brain-off / -masher / -habit,
+    AI-MASH-P, IC-P).
+- Ported but never run on a trace (they need a brain): `ichigo::hooks::tsuki_dash`, where a brain's dash aims at the opponent with no
+  stick, and `tsuki_step`, where a brain picks its stance command at f`up` through `ai_stance`, drawing from the sim stream.
+- Log lines that differ with a brain: `fighter/moves.rs:125` (`P move X`) and `fighter/states.rs:42` (`P step`) print a brain's "why"
+  suffix in the Lisp. With brains attached they need a `has_brain` branch.
+- `// cpu:` markers where a CPU call sits in the step or the match flow: `flow.rs` (`mc-full-step`, `mc-full-reset`, `strat-lookup` /
+  `fq-attach!` / `masher-apply!`, `fq-match-end` / `mc-full-log` / `strat-log`), `gate.rs` (the gate difficulty, `*blow-aways*`).
+- `debug::ensure_battle`'s BRAIN-OFF; `fighter::spawn_fighter`'s brain (difficulty, delay).
+- Hisagi's `hs-tick-brain` is M4.
+
+## 8. `// look:` call sites (M3's list)
+
+114 `// look:` markers in `rs/duel-sim/src`, each a Lisp call or write the sim skips because only the looks read it (clips, fx,
+sound, cues, camera, HUD, music): `fighter/states.rs` 18, `flow.rs` 14, `cine.rs` 11, `combat.rs` 10, `gauges.rs` 9,
+`fighter/moves.rs` 9, `core_sim.rs` 9, `fighter/mod.rs` 8, `ichigo/hooks.rs` 7, `ichigo/clones.rs` 6, `round.rs` 4, `ken/hooks.rs` 4,
+`ichigo/mod.rs` 2, `fighter/react.rs` 2, `ken/mod.rs` 1 (`grep -rc '// look:' rs/duel-sim/src`). M3 wires each one to the look side,
+or records why it stays out.
+
+## 9. Task 14's other items
+
+- **E core-start / cmd / skip-cine fixture** (`duel-tools` test `core_start_cmd_fixture`, `rs/duel-tools/tests/fixtures/core-start-cmd.*`):
+  - A one-trial Kenpachi mirror recorded by `record.lisp`: P2 starts KE-Z-AS1 through CORE-START! at sim frame 2, and `E cmd 30007` runs
+    between frames. The `move` / `SP … paid 25.0` e lines and the hit 16 frames later are compared step by step.
+  - An `E skip-cine` was added by hand. No cinematic runs there (a trial runner calls SKIP-CINE only `(when *cine*)`, and
+    `*skip-cines*` is T in trials), so it checks only that the line parses and is a no-op. No gate trial has one.
+  - ECL's `replay.lisp` and the Rust replay both give `replay OK 29 ticks`, and without the core-start line the Rust replay diverges.
+  - The scripted outcome traces (M0_NOTES §4 "Scripted outcome traces") cover the rest of the untraced combat outcomes.
+- **Task 13's carries**: `E full-gauges` reads its meter with `float()`, so an integer is an error (the slot is a single-float and the
+  recorder never prints one). Both `E` side readings (`side()` and `set`) follow TR-ENTITY's rule: 0 is P1, any other integer is P2.
+- **M0's crash-as-OK** (Task 1): M0's `gen.py replay` counted an ECL crash as OK, because the debugger exits 0 at stdin's end, so two
+  failures hid in M0's "63/63". It now needs a `replay OK` line, and all 63 truly pass.
+
+## 10. What M1 hands on (from the ledger, `.superpowers/sdd/2026-11-26-m1-sim-core/progress.md`)
+
+- **M2 (the CPU):**
+  - the brain branches (§7);
+  - `id_of` scans the 549 moves per move start / latch / CHAIN-MORE-P (index it before rollouts; the speed gate didn't need it);
+  - the rollout clears `Match.pacing_log` (rollout.lisp binds `*pacing-log*` nil);
+  - the CPU's Reishi readers need `cl::Num` if trials replay with brains (cpu-kh-ken.lisp:88, REISHI-FRAC, AI-BURST-WANTED-P /
+    AI-HOHO-SPARE-P, FINISH-ROLE);
+  - VIEW-STEP for a `cam_relative` pilot (§2);
+  - input-test's device checks;
+  - the clone allocations and the capacity-keeping restore (§5).
+- **M3 (looks):** the `// look:` list (§8), the deferred look checks (§6), the event queue (`emit` / `take-events`).
+- **M4 (Hisagi, Yamamoto):**
+  - their hooks, ticks and traces; delete the stubbed mode (§3);
+  - `kit::find_move` returns the kit's copy, while Lisp FIND-MOVE returns the registry's (KE-Z-N2A hs 10 vs 8), and 7 Yamamoto names
+    have a `var/` entry first;
+  - `E core-start`'s lower-case key lookup is unverified for their moves;
+  - SIPHON-OF / BIND-OF are no-ops until their hook keys exist;
+  - PULL-OPP-TO moves to fighter;
+  - `trial-sp-costs` and `trial-sp-kits-*` join the gate.
+- **M5:** the `debug_ranges.json` name map and `tests/scripts/*.json`.
