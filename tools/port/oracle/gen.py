@@ -8,7 +8,7 @@
 
 The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (1), Ichigo (3), Hisagi (7), seeds 1-3 (the pairing gate's
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
-RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format; that file is stale); every combo trial file of tools/simgate/trial.lisp
+RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal to it); every combo trial file of tools/simgate/trial.lisp
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
 its trials). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
 """
@@ -144,20 +144,23 @@ def sim():
     for j in done:
         print(f"{j['name']}: {j.get('steps')} steps, {j.get('bytes', 0) / 1e6:.1f} MB, start-miss {j.get('start_miss')}, "
               f"post-draw {j.get('post_draw')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
-    tag = [f'{j["name"][-2:]} {l}' for j in done if j['kind'] == 'cvc-tag' for l in j.pop('tag_lines', [])]
+    tag_lines = [f'{j["name"][-2:]} {l}' for j in done if j['kind'] == 'cvc-tag' for l in j.pop('tag_lines', [])]
     head = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    tag, same = provenance()
+    freeze, same = provenance()
     with open(os.path.join(OUT, 'cvc-tag.txt'), 'w') as f:
-        f.write(f'# cvc-tag.txt (tools/port/oracle/gen.py, {datetime.date.today()}, at {head}; lisp-freeze {tag}, sources equal to the tag: {same}; the native image): G2\'s three CPU matches, '
+        f.write(f'# cvc-tag.txt (tools/port/oracle/gen.py, {datetime.date.today()}, at {head}; lisp-freeze {freeze}, sources equal to the tag: {same}; the native image): G2\'s three CPU matches, '
                 'seed 7 II / IK / KK (debug 2102 + 3007 / 4007 / 5007), their RESULTS and 600-tick hash lines in tests/style-cvc-ref.txt\'s '
-                'format; it replaces that stale file for M2.\n' + '\n'.join(tag) + '\n')
-    index = {'generated': str(datetime.date.today()), 'commit': head, 'lisp_freeze': tag, 'sources_equal_tag': same, 'format': 'tools/port/oracle/trace.lisp (header)',
+                'format (M2\'s reference; equal to that file at the tag).\n' + '\n'.join(tag_lines) + '\n')
+    with open(os.path.join(ROOT, 'tests/style-cvc-ref.txt')) as f:
+        ref = [l.rstrip('\n') for l in f if not l.startswith('#')]
+    print(f'[oracle] cvc-tag.txt: {len(tag_lines)} lines, {"equal to" if tag_lines == ref else "DIFFERENT from"} tests/style-cvc-ref.txt\'s', flush=True)
+    index = {'generated': str(datetime.date.today()), 'commit': head, 'lisp_freeze': freeze, 'sources_equal_tag': same, 'format': 'tools/port/oracle/trace.lisp (header)',
              'image': 'build/simgate/duel.fas (replay); build/oracle/rec/duel.fas (record: the same unit plus *oracle-brain-hook*)',
              'cvc_tag': 'cvc-tag.txt', 'traces': done, 'excluded': EXCLUDED,
              'deferred': 'tests/scripts/*.json (browser scripts): M1 brings the scripted-input path on the native image'}
     with open(os.path.join(OUT, 'INDEX.json'), 'w') as f:
         json.dump(index, f, indent=1)
-    errors = [j['name'] for j in done if 'error' in j]
+    errors = [j['name'] for j in done if 'error' in j] + ([] if tag_lines == ref else ['cvc-tag.txt'])
     total = sum(j.get('bytes', 0) for j in done)
     print(f'[oracle] {len(done)} traces, {sum(j.get("steps", 0) for j in done)} steps, {total / 1e6:.0f} MB; errors: {errors or "none"}')
     bad = replay([p for p in PICKS if p not in errors])

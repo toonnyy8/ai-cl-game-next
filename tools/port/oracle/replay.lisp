@@ -4,9 +4,10 @@
 ;;;; PILOT-SYSTEM (main.lisp SIM-STEP) just before BRAIN-SYSTEM / FIGHTER-SYSTEM, and that read (a vpad READER) writes the recorded
 ;;;; buttons (VPAD-SET! in *VPAD-ACTIONS* order, as the CPU's AI-PRESS-WRITE!), the stick and the sim stream. At every step's end
 ;;;; (*STEP-HOOK*) the step's sim log lines (C lines excepted), T's tick, vpad ticks and sim stream, and STATE-HASH-LINE must equal the
-;;;; trace's. A cmds trace detaches the brains once (at the first step's end: the intro runs no sim frame, which is checked); a trials
-;;;; trace runs trial.lisp's TRIAL-RUN, whose setup and between-frame drives read the brains, so they are detached around each frame
-;;;; (ENGINE::%FRAME wrapped) and put back after it.
+;;;; trace's. A cmds trace detaches the brains once (at the first step's end: the intro runs no sim frame, which is checked). A trials
+;;;; trace is self-describing: after SG-INIT and one frame its E lines are applied (TR-APPLY-EVENT; what each prints must equal its e
+;;;; lines) and each F line runs one frame, the brains taken off before it (a new match's included). Neither trial.lisp nor its TRIAL-RUN
+;;;; is loaded: R lines (the runner's own) and C lines (the CPUs') are skipped.
 ;;;; Prints "replay OK N ticks" (exit 0) or "replay DIVERGED at tick T (step I): what" (exit 1).
 ;;;; Usage: ecl-host --norc --load tools/port/oracle/replay.lisp -- <duel.fas> <trace>
 (load (merge-pathnames "../../simgate/prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
@@ -14,11 +15,11 @@
 (in-package :duel)
 
 (defvar *rp-start* nil "The trace's S line, its words.")
-(defvar *rp-recs* nil "Vector of steps: (sim-log-lines t-fields h-line).")
-(defvar *rp-trials* nil "A trials trace: brains detached around each frame only.")
-(defvar *rp-i* 0 "Steps checked.")
+(defvar *rp-recs* nil "The trace's items (TR-READ): steps, events, frames.")
+(defvar *rp-trials* nil "A trials trace: E and F lines drive it.")
+(defvar *rp-i* 0 "Items consumed.")
+(defvar *rp-steps* 0 "Steps checked.")
 (defvar *rp-last* (vector -1 -1) "Per side, the vpad tick last injected.")
-(defvar *rp-brains* (vector nil nil) "Per side, the brain taken off for the frame (a trials trace).")
 (defvar *rp-real* *standard-output*)
 (defvar *rp-cap* (make-string-output-stream))
 
@@ -26,12 +27,15 @@
 (setf *rp-trials* (string= (first *rp-start*) "trials"))
 
 (defun rp-fail (fmt &rest args)
-  (format *rp-real* "~&replay DIVERGED at tick ~d (step ~d): ~?~%" *match-tick* *rp-i* fmt args)
+  (format *rp-real* "~&replay DIVERGED at tick ~d (step ~d, item ~d): ~?~%" *match-tick* *rp-steps* *rp-i* fmt args)
   (finish-output *rp-real*)
   (ext:quit 1))
 
 (defun rp-rec ()
-  (if (< *rp-i* (length *rp-recs*)) (aref *rp-recs* *rp-i*) (rp-fail "the replay runs past the trace's ~d steps" (length *rp-recs*))))
+  "The step record due now (the next item must be one), as (sim-log-lines t-fields h-line)."
+  (let ((it (if (< *rp-i* (length *rp-recs*)) (aref *rp-recs* *rp-i*) (rp-fail "the replay runs past the trace's end"))))
+    (unless (eq (first it) :step) (rp-fail "a step ran where the trace has ~s" (first it)))
+    (rest it)))
 
 (defun rp-inject (vp k)
   "A sim frame's pilot read (VPAD-BEGIN-STEP! advanced the clock): side K's recorded buttons, stick and the sim stream."
@@ -57,13 +61,7 @@
         (let ((k (fighter-side (fighter e))) (vp (pilot-vpad (pilot e))))
           (when (and (not *rp-trials*) (plusp (vpad-tick vp)))
             (rp-fail "P~d's brain ran ~d sim frames before it could be detached" (1+ k) (vpad-tick vp)))
-          (setf (svref *rp-brains* k) b (svref *rp-last* k) (vpad-tick vp) (vpad-reader vp) (rp-reader k)))))))
-
-(defun rp-attach ()
-  "A trials trace, after a frame: the brains back for TRIAL-RUN's setup and drives (never stepped: BRAIN-SYSTEM runs inside frames)."
-  (do-sides (e)
-    (let ((k (fighter-side (fighter e))))
-      (when (svref *rp-brains* k) (add-component e (svref *rp-brains* k)) (setf (svref *rp-brains* k) nil)))))
+          (setf (svref *rp-last* k) (vpad-tick vp) (vpad-reader vp) (rp-reader k)))))))
 
 (defun rp-step ()
   (setf *combat-log* t)
@@ -74,18 +72,34 @@
     (unless (and (= (first tf) (first want)) (= (nth 1 tf) (nth 1 want)) (= (nth 5 tf) (nth 5 want)) (= (tr-rnd tf) (tr-rnd want)))
       (rp-fail "T (tick, vpad ticks, sim stream)~%  want ~a~%  got  ~a" (tr-t-line want) (tr-t-line tf)))
     (unless (string= h (third rec)) (rp-fail "H~%  want ~a~%  got  ~a" (third rec) h))
-    (incf *rp-i*))
+    (incf *rp-i*) (incf *rp-steps*))
   (unless *rp-trials* (rp-detach)))
 
+(defun rp-drive ()
+  "A trials trace's driver: its E lines applied, its F lines run, in order (the steps are checked by RP-STEP inside the frames)."
+  (loop while (< *rp-i* (length *rp-recs*))
+        do (let ((it (aref *rp-recs* *rp-i*)))
+             (incf *rp-i*)
+             (ecase (first it)
+               (:event (get-output-stream-string *rp-cap*)
+                       (let ((*standard-output* *rp-cap*)) (tr-apply-event (second it)))
+                       (let ((got (remove-if-not #'tr-log-p (tr-lines (get-output-stream-string *rp-cap*)))))
+                         (unless (tr-log-equal (third it) got)
+                           (rp-fail "event ~{~a~^ ~} printed~%  want ~s~%  got  ~s" (second it) (third it) got))))
+               (:frame (rp-detach)
+                       (get-output-stream-string *rp-cap*)
+                       (let ((*standard-output* *rp-cap*)) (engine::%frame)))
+               (:step (decf *rp-i*) (rp-fail "a step outside a frame"))))))
+
 (cond (*rp-trials*
-       (tr-load-trial-lib)
+       (cl-user::sg-init)
+       (engine::%frame)                                  ; (trial.lisp's start: one frame, no step)
        (setf *step-hook* #'rp-step)
-       (tr-wrap-frame #'rp-detach #'rp-attach)
-       (tr-run-trials (second *rp-start*) *rp-cap*))
+       (rp-drive))
       (t (cl-user::sg-init)
          (setf *step-hook* #'rp-step)
          (dolist (c (rest *rp-start*)) (engine::simgate-cmd (parse-integer c)))
          (tr-run-frames *rp-cap*)))
 (if (= *rp-i* (length *rp-recs*))
-    (progn (format *rp-real* "~&replay OK ~d ticks~%" *rp-i*) (finish-output *rp-real*) (ext:quit 0))
-    (rp-fail "the run ended after ~d of the trace's ~d steps" *rp-i* (length *rp-recs*)))
+    (progn (format *rp-real* "~&replay OK ~d ticks~%" *rp-steps*) (finish-output *rp-real*) (ext:quit 0))
+    (rp-fail "the run ended after ~d of the trace's ~d items" *rp-i* (length *rp-recs*)))
