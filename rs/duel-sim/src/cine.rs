@@ -16,7 +16,7 @@ pub enum CineName {
 }
 
 impl CineName {
-    pub fn len(self) -> i64 {
+    pub fn frames(self) -> i64 {
         match self {
             CineName::Intro => 300,
             CineName::Ko => 150,
@@ -59,7 +59,7 @@ pub struct Cine {
 pub fn start_cine(m: &mut Match, name: CineName, a: Entity, v: Entity, after: Option<After>) {
     m.time.reset();
     // look: *grade-split*, *cine-cam*
-    m.cine = Some(Cine { name, cf: 0, len: name.len(), a, v, after, skip: false });
+    m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false });
     m.cine_serial += 1;
     cine_begin(m, name, a, v);
     if m.skip_cines {

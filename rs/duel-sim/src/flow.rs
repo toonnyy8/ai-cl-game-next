@@ -21,6 +21,7 @@ pub trait PilotInput {
 pub fn raw_dt(k: i64) -> f32 {
     let ns = |f: i64| ((f as f64 * (50.0 / 3.0)) * 1e6) as u64;
     let raw = (ns(k) - ns(k - 1)) as f32 * 1e-9f32;
+    #[allow(clippy::manual_clamp)] // (CL MIN / MAX, in their order)
     f32::min(0.1, f32::max(0.0, raw))
 }
 

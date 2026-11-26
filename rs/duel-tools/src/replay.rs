@@ -1,6 +1,7 @@
 //! port: tools/port/oracle/replay.lisp — the brainless replay of a trace, compared step by step.
 use crate::trace::{self, Item, TLine};
 use duel_sim::flow::{self, PilotInput};
+use duel_sim::hashline::{bits_line, state_hash_line};
 use duel_sim::state::Match;
 use duel_sim::vpad::Vpad;
 
@@ -39,6 +40,10 @@ impl Injector {
 impl PilotInput for Injector {
     fn read(&mut self, m: &mut Match, side: usize) {
         let e = if side == 0 { m.p1 } else { m.p2 };
+        // (a CPU seat's vpad has no reader: the brain writes it; the replay reads only detached seats)
+        if m.fighter.get(e).is_none_or(|f| f.has_brain) {
+            return;
+        }
         let Some(p) = m.pilot.get_mut(e) else { return };
         if let Some(r) = self.inject(&mut p.vpad, side) {
             m.rng.set_state(r);
@@ -54,8 +59,112 @@ pub enum Outcome {
     Error(String),
 }
 
-/// Replays PATH (at most MAX steps). ponytail: `frame` is unported until the rest of Task 6 lands, so a trace stops at its
-/// first frame with UNPORTED; the step comparison below is what the frame loop will call.
+/// port: replay.lisp's state: the step due now, the counts, the outcome once there is one (then reads and step ends are no-ops).
+struct Replayer<I: Iterator<Item = Result<Item, String>>> {
+    it: I,
+    inj: Injector,
+    fields: Vec<String>,
+    cur: Option<Item>,
+    steps: u64,
+    items: u64,
+    max: Option<u64>,
+    trials: bool,
+    out: Option<Outcome>,
+}
+
+impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
+    /// The next item becomes the one due (a step's T goes to the injector).
+    fn advance(&mut self) {
+        self.cur = match self.it.next() {
+            None => None,
+            Some(Err(e)) => {
+                self.out = Some(Outcome::Error(e));
+                None
+            }
+            Some(Ok(item)) => {
+                if let Item::Step { t, .. } = &item {
+                    self.inj.t = Some(t.clone());
+                }
+                Some(item)
+            }
+        };
+    }
+
+    fn fail(&mut self, m: &Match, what: String) {
+        let s = format!("tick {} (step {}, item {}): {what}", m.match_tick, self.steps, self.items);
+        self.out.get_or_insert(Outcome::Diverged(s));
+    }
+
+    /// port: RP-DETACH: both brains off once a match has spawned them; their vpads read the trace from their current tick.
+    fn detach(&mut self, m: &mut Match) {
+        for (k, e) in [m.p1, m.p2].into_iter().enumerate() {
+            let Some(f) = m.fighter.get_mut(e) else { continue };
+            if !f.has_brain {
+                continue;
+            }
+            f.has_brain = false;
+            let vt = m.pilot.get(e).map_or(0, |p| p.vpad.tick);
+            if !self.trials && vt > 0 {
+                self.fail(m, format!("P{}'s brain ran {vt} sim frames before it could be detached", k + 1));
+            }
+            self.inj.last[k] = vt;
+        }
+    }
+}
+
+impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
+    fn read(&mut self, m: &mut Match, side: usize) {
+        if self.out.is_none() {
+            self.inj.read(m, side);
+        }
+    }
+
+    /// port: RP-STEP.
+    fn step_end(&mut self, m: &mut Match) {
+        if self.out.is_some() {
+            return;
+        }
+        if let Some(name) = m.unported {
+            self.out = Some(Outcome::Unported(format!("{name} at tick {} (step {})", m.match_tick, self.steps + 1)));
+            return;
+        }
+        m.log_on = true;
+        let log = std::mem::take(&mut m.log);
+        if let Some(f) = self.inj.fail.take() {
+            return self.fail(m, f);
+        }
+        let want = match self.cur.take() {
+            Some(it @ Item::Step { .. }) => it,
+            Some(other) => return self.fail(m, format!("a step ran where the trace has {other:?}")),
+            None => return self.fail(m, "the replay runs past the trace's end".into()),
+        };
+        let side = |e| {
+            m.pilot.get(e).map_or((0, 0, (0.0, 0.0)), |p| {
+                let downs = p.vpad.downs.iter().enumerate().fold(0u16, |a, (i, &d)| a | ((d as u16 & 1) << i));
+                (p.vpad.tick, downs, (p.vpad.sx, p.vpad.sy))
+            })
+        };
+        let (s1, s2) = (side(m.p1), side(m.p2));
+        let t = TLine { tick: m.match_tick, vt: [s1.0, s2.0], downs: [s1.1, s2.1], stick: [s1.2, s2.2], rnd: m.rng.state() };
+        let (h, b) = (state_hash_line(m), bits_line(m));
+        if let Some(what) = compare(&self.fields, &want, &log, &t, &h, b.strip_prefix("B ").unwrap_or(&b)) {
+            return self.fail(m, what);
+        }
+        self.steps += 1;
+        self.items += 1;
+        if !self.trials {
+            self.detach(m);
+        }
+        if self.max.is_some_and(|n| self.steps >= n) {
+            self.out.get_or_insert(Outcome::Ok(self.steps));
+            return;
+        }
+        self.advance();
+    }
+}
+
+/// Replays PATH (at most MAX steps): replay.lisp's cmds start (SG-INIT, the S line's commands queued, TR-RUN-FRAMES' loop
+/// until the gate and the match are over). A trials trace is driven by its F lines; its E lines are Task 13 (UNPORTED).
 pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outcome {
     let mut r = match trace::open(path) {
         Ok(r) => r,
@@ -65,35 +174,62 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
         Ok(x) => x,
         Err(e) => return Outcome::Error(e),
     };
-    let _ = (start, fields);
+    let trials = start.first().is_some_and(|w| w == "trials");
     let mut m = Match::new(data);
-    let mut inj = Injector::new();
-    let mut steps = 0u64;
-    let mut it = r.peekable();
-    while let Some(item) = it.peek() {
-        if max.is_some_and(|n| steps >= n) {
-            break;
+    flow::go_title(&mut m); // (SG-INIT: START-GAME)
+    let mut rp = Replayer { it: r, inj: Injector::new(), fields, cur: None, steps: 0, items: 0, max, trials, out: None };
+    rp.advance();
+    if trials {
+        flow::frame(&mut m, &mut rp); // (trial.lisp's start: one frame, no step)
+        while rp.out.is_none() {
+            match rp.cur.take() {
+                None => return Outcome::Ok(rp.steps),
+                Some(Item::Event { words, .. }) => {
+                    let w = words.first().map_or("?", String::as_str);
+                    return Outcome::Unported(format!("E {w} at tick {} (step {})", m.match_tick, rp.steps + 1));
+                }
+                Some(Item::Frame) => {
+                    rp.items += 1;
+                    rp.detach(&mut m);
+                    rp.advance();
+                    flow::frame(&mut m, &mut rp);
+                }
+                Some(step) => {
+                    rp.cur = Some(step);
+                    rp.fail(&m, "a step outside a frame".into());
+                }
+            }
         }
-        match item {
-            Err(e) => return Outcome::Error(e.clone()),
-            Ok(Item::Event { words, .. }) => {
-                let w = format!("E {}", words[0]);
-                return Outcome::Unported(format!("{w} at tick {} (step {})", m.match_tick, steps + 1));
-            }
-            Ok(Item::Frame) | Ok(Item::Step { .. }) => {
-                if matches!(item, Ok(Item::Frame)) {
-                    it.next();
-                }
-                let tick = m.match_tick;
-                if !flow::frame(&mut m, &mut inj) || m.unported.is_some() {
-                    let name = m.unported.unwrap_or("frame stopped");
-                    return Outcome::Unported(format!("{name} at tick {tick} (step {})", steps + 1));
-                }
-                steps += 1; // the frame loop will compare each step's record via `compare`
-            }
+        return rp.out.unwrap();
+    }
+    for c in &start[1..] {
+        match c.parse() {
+            Ok(n) => m.cmds.push_back(n),
+            Err(_) => return Outcome::Error(format!("trace: bad command {c} on the S line")),
         }
     }
-    Outcome::Ok(steps)
+    flow::frame(&mut m, &mut rp);
+    for _ in 0..2_000_000 {
+        if let Some(out) = rp.out.take() {
+            return out;
+        }
+        if !flow::frame(&mut m, &mut rp) {
+            return Outcome::Error("the frame stopped".into());
+        }
+        if let Some(out) = rp.out.take() {
+            return out;
+        }
+        if m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+            return match rp.cur {
+                None => Outcome::Ok(rp.steps),
+                Some(_) => {
+                    rp.fail(&m, "the run ended before the trace's end".into());
+                    rp.out.unwrap()
+                }
+            };
+        }
+    }
+    Outcome::Error("no end after 2000000 frames".into())
 }
 
 /// One step's comparison: the log, T's tick / vpad ticks / rnd, H, B (the first differing B field named).
@@ -141,5 +277,36 @@ mod tests {
         assert_eq!(injected, [Some(0xABCD), None]);
         assert!(vp.down(0) && vp.down(1) && !vp.down(2));
         assert_eq!((vp.sx, inj.fail), (0.5, None));
+    }
+
+    /// The intro of cvc-ki-s1 (its first 14 steps): equal as recorded; a changed B field is named at its step; a run past
+    /// the trace's end is a divergence.
+    #[test]
+    fn replay_intro_head_and_its_divergences() {
+        let dir = std::env::var("ORACLE").unwrap_or_else(|_| "/media/8tsp/projects/ai-cl-game-next-bevy/build/oracle".into());
+        let head: Vec<String> = {
+            use std::io::BufRead;
+            let f = std::fs::File::open(format!("{dir}/traces/cvc-ki-s1.trace")).expect("ORACLE trace");
+            std::io::BufReader::new(f).lines().take(42).map(Result::unwrap).collect()
+        };
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let run_with = |lines: &[String], max: Option<u64>| {
+            let p = std::env::temp_dir().join(format!("replay-test-{}-{}.trace", std::process::id(), lines.len() + max.unwrap_or(0) as usize));
+            std::fs::write(&p, lines.join("\n") + "\n").unwrap();
+            let out = run(p.to_str().unwrap(), max, data);
+            let _ = std::fs::remove_file(&p);
+            match out {
+                Outcome::Ok(n) => format!("OK {n}"),
+                Outcome::Diverged(s) => format!("DIVERGED {s}"),
+                Outcome::Unported(s) => format!("UNPORTED {s}"),
+                Outcome::Error(s) => format!("ERROR {s}"),
+            }
+        };
+        assert_eq!(run_with(&head, Some(13)), "OK 13");
+        assert_eq!(run_with(&head, None), "DIVERGED tick 14 (step 13, item 13): the replay runs past the trace's end");
+        let mut bad = head.clone();
+        let full_b = bad.iter().rev().find(|l| l.starts_with("B 18000")).unwrap().clone();
+        bad[20] = full_b.replacen("B 18000", "B 17999", 1); // step 6's B line
+        assert_eq!(run_with(&bad, Some(13)), "DIVERGED tick 6 (step 5, item 5): B field *timer*: want 17999 got 18000");
     }
 }
