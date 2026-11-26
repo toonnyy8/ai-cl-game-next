@@ -329,9 +329,9 @@ impl Default for Fighter {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Gauges {
-    /// ponytail: i64. The trials' `E set … GAUGES-REISHI 300.0` stores a single-float here (B prints its bits, H `r300.0`);
-    /// Task 13 decides how a replay carries that (the cvc traces never do it).
-    pub reishi: i64,
+    /// A fixnum slot, but a trial's `E set … GAUGES-REISHI 300.0` stores a single-float in it (B prints its bits, H `r300.0`), and
+    /// the arithmetic on it is then CL's generic one: `Num` (cl.rs).
+    pub reishi: crate::cl::Num,
     pub reishi_max: i64,
     pub konpaku: i64,
     pub fs: f32,
@@ -371,7 +371,7 @@ impl Gauges {
     /// MAKE-GAUGES with its defaults (the maxima are knobs read at construction, as the Lisp's slot initforms).
     pub fn new(k: &Knobs) -> Gauges {
         Gauges {
-            reishi: k.reishi_max,
+            reishi: crate::cl::Num::I(k.reishi_max),
             reishi_max: k.reishi_max,
             konpaku: k.konpaku_max,
             fs: k.fs_max,

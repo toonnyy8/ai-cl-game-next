@@ -73,6 +73,89 @@ pub fn max_f32(a: f32, b: f32) -> f32 {
     if a < b || a.is_nan() { b } else { a }
 }
 
+/// A Lisp number that is an integer or a single-float: GAUGES-REISHI, a fixnum slot a trial's `(setf (gauges-reishi g) (f32 x))`
+/// fills with a float (the readers are untyped, so the arithmetic on it is CL's generic one). Contagion: integer ± float is the
+/// float of the integer ± the float (exact at these magnitudes); MIN / MAX return the winning operand as it is, the first on a tie
+/// (`(max 0 0.0)` = 0, `(min 1300 1300.0)` = 1300; ECL's minmax.d, checked compiled on the native image); comparisons are exact.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Num {
+    I(i64),
+    F(f32),
+}
+
+impl Num {
+    fn exact(self) -> f64 {
+        match self {
+            Num::I(n) => n as f64,
+            Num::F(x) => x as f64,
+        }
+    }
+    /// The value as a single-float (`(float x)` / a single-float context: RED-P's compare, exact at these magnitudes).
+    pub fn f(self) -> f32 {
+        match self {
+            Num::I(n) => n as f32,
+            Num::F(x) => x,
+        }
+    }
+    /// The integer, or None for a float.
+    pub fn int(self) -> Option<i64> {
+        if let Num::I(n) = self { Some(n) } else { None }
+    }
+    /// `(min self o)`.
+    pub fn min(self, o: Num) -> Num {
+        if o.exact() < self.exact() { o } else { self }
+    }
+    /// `(max self o)`.
+    pub fn max(self, o: Num) -> Num {
+        if o.exact() > self.exact() { o } else { self }
+    }
+    pub fn le(self, n: i64) -> bool {
+        self.exact() <= n as f64
+    }
+}
+
+/// `(+ x n)`.
+impl std::ops::Add<i64> for Num {
+    type Output = Num;
+    fn add(self, n: i64) -> Num {
+        match self {
+            Num::I(a) => Num::I(a + n),
+            Num::F(x) => Num::F(x + n as f32),
+        }
+    }
+}
+/// `(- x n)`.
+impl std::ops::Sub<i64> for Num {
+    type Output = Num;
+    fn sub(self, n: i64) -> Num {
+        match self {
+            Num::I(a) => Num::I(a - n),
+            Num::F(x) => Num::F(x - n as f32),
+        }
+    }
+}
+impl From<i64> for Num {
+    fn from(n: i64) -> Num {
+        Num::I(n)
+    }
+}
+/// The integer N (a float is never equal: EQL, as the B line tells them apart).
+impl PartialEq<i64> for Num {
+    fn eq(&self, n: &i64) -> bool {
+        *self == Num::I(*n)
+    }
+}
+
+/// `~d` / `~a` / PRIN1 of the number: an integer in decimal, a float as `fmt_f32` (`300.0`).
+impl std::fmt::Display for Num {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Num::I(n) => write!(f, "{n}"),
+            Num::F(x) => f.write_str(&fmt_f32(*x)),
+        }
+    }
+}
+
 /// port: ECL src/c/printer/float_to_digits.d (Burger-Dybvig) for a positive single: the fewest digits inside its rounding interval,
 /// the nearest of them, an exact tie rounding up (21040.3125 → `21040.313`; Rust goes to even). Free format (PRIN1, `cut` 0)
 /// never takes a boundary (low_ok = high_ok = 0: 5088799744 prints `5.0887997e9`, Rust's shortest says `5.0888e9`); a FORMAT
@@ -275,6 +358,21 @@ pub(crate) mod vectors {
 mod tests {
     use super::vectors::{all, rows};
     use super::*;
+
+    /// Reishi as a float, the native image's answers (host ECL on build/simgate/duel.fas: DEAL-DAMAGE, HEAL!, BURN on P2's
+    /// GAUGES-REISHI set to a float; STATE-HASH-LINE's `r300.0`).
+    #[test]
+    fn num_contagion_as_ecl() {
+        use crate::rules::burn;
+        let (z, f) = (Num::I(0), Num::F);
+        assert_eq!(z.max(f(40.0) - 10), f(30.0)); // DEAL-DAMAGE 10: 30.0
+        assert_eq!(z.max(f(40.0) - 40), Num::I(0)); // 40: the integer 0 (the first on a tie)
+        assert_eq!(Num::I(1300).min(f(300.0) + 5), f(305.0)); // HEAL! 5: 305.0
+        assert_eq!(Num::I(1300).min(f(1299.0) + 1), Num::I(1300)); // to the cap: 1300
+        assert_eq!(Num::I(1300).min(f(1299.5) + 1), Num::I(1300));
+        assert_eq!((burn(f(300.0), 10), burn(f(5.0), 10), burn(f(1.0), 3)), (f(290.0), Num::I(1), f(1.0)));
+        assert_eq!((f(300.0).to_string(), Num::I(1300).to_string()), ("300.0".to_string(), "1300".to_string()));
+    }
 
     #[test]
     fn round_half_even() {

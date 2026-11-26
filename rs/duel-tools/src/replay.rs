@@ -2,8 +2,69 @@
 use crate::trace::{self, Item, TLine};
 use duel_sim::flow::{self, PilotInput};
 use duel_sim::hashline::{bits_line, state_hash_line};
+use duel_sim::components::{Button, Character, Form};
+use duel_sim::debug::{self, LispValue};
 use duel_sim::state::Match;
 use duel_sim::vpad::Vpad;
+
+/// port: trace.lisp TR-APPLY-EVENT: one E line's WORDS (after `E`), applied now (the grammar: trace.lisp's header).
+pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
+    let w = |i: usize| words.get(i).map(String::as_str).ok_or(format!("E {}: too few words", words.join(" ")));
+    let val = |i: usize| LispValue::parse(w(i)?);
+    let side = |m: &Match, i: usize| match val(i)?.int()? {
+        0 => Ok(m.p1),
+        1 => Ok(m.p2),
+        k => Err(format!("E {}: no side {k}", words.join(" "))),
+    };
+    let kw = |i: usize| -> Result<String, String> { Ok(val(i)?.kw()?.to_string()) };
+    let ch = |i: usize| Character::from_name(&kw(i)?).ok_or(format!("E {}: no character", words.join(" ")));
+    match w(0)? {
+        "set" => {
+            let s = match w(1)? {
+                "-" => None,
+                k => Some(k.parse().map_err(|_| format!("E set: side {k}"))?),
+            };
+            debug::set_field(m, s, w(2)?, &val(3)?)?
+        }
+        "battle" => debug::ensure_battle(m, ch(1)?, ch(2)?),
+        "form" => {
+            let (e, f) = (side(m, 1)?, Form::from_name(&kw(2)?).ok_or(format!("E {}: no form", words.join(" ")))?);
+            debug::force_form(m, e, f)
+        }
+        "hisagi-reset" => duel_sim::unported!(m, "hisagi-reset", Ok(())), // (Hisagi's: M4)
+        "place" => debug::place(m, val(1)?.real()?),
+        "vpad-clear" => {
+            let e = side(m, 1)?;
+            m.pilot.get_mut(e).ok_or("vpad-clear: no pilot")?.vpad.clear()
+        }
+        "clear-hazards" => duel_sim::hazards::clear_hazards(m),
+        "skip-cine" => duel_sim::cine::skip_cine(m),
+        "burst-end" => {
+            let e = side(m, 1)?;
+            duel_sim::gauges::burst_end(m, e)
+        }
+        "full-gauges" => {
+            let e = side(m, 1)?;
+            let meter = match val(2)? {
+                LispValue::Nil => None,
+                v => Some(v.real()?),
+            };
+            debug::full_gauges(m, e, meter)
+        }
+        // (between frames, as the trial ran it: not queued for the next frame's start)
+        "cmd" => debug::debug_command(m, val(1)?.int()?),
+        "core-start" => {
+            let e = side(m, 1)?;
+            let key = kw(2)?.to_lowercase();
+            let kit = duel_sim::fighter::kit_of(m, e);
+            let mv = duel_sim::kit::kit_move(m.data, kit, &key).ok_or(format!("core-start: no move {key}"))?;
+            let id = duel_sim::fighter::id_of(m, mv);
+            duel_sim::core_sim::core_start(m, e, id, Some(Button::Quick));
+        }
+        a => return Err(format!("trace: unknown event {a}")),
+    }
+    Ok(())
+}
 
 /// port: RP-INJECT / RP-READER. Injects side K's recorded buttons (VPAD-SET! in bit order), stick and the sim stream, only
 /// when the vpad tick moved since the last injection for that side (VPAD-CLEAR! keeps the tick; PILOT-READ leaves it).
@@ -172,7 +233,7 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
 }
 
 /// Replays PATH (at most MAX steps): replay.lisp's cmds start (SG-INIT, the S line's commands queued, TR-RUN-FRAMES' loop
-/// until the gate and the match are over). A trials trace is driven by its F lines; its E lines are Task 13 (UNPORTED).
+/// until the gate and the match are over), or a trials trace's RP-DRIVE (one frame, then its E lines applied and F lines run in order).
 /// STUBS / MASK: the stubbed mode (docs/bevy/M1_NOTES.md §3; both empty = the gate's full comparison).
 pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: &[String], mask: &[String]) -> Outcome {
     let mut r = match trace::open(path) {
@@ -195,9 +256,19 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: 
         while rp.out.is_none() {
             match rp.cur.take() {
                 None => return Outcome::Ok(rp.steps),
-                Some(Item::Event { words, .. }) => {
-                    let w = words.first().map_or("?", String::as_str);
-                    return Outcome::Unported(format!("E {w} at tick {} (step {})", m.match_tick, rp.steps + 1));
+                Some(Item::Event { words, e_lines }) => {
+                    // port: RP-DRIVE's :event: what the action prints must equal its e lines
+                    rp.items += 1;
+                    m.log.clear();
+                    if let Err(e) = apply_event(&mut m, &words) {
+                        return Outcome::Error(e);
+                    }
+                    rp.check_unported(&m);
+                    let got = std::mem::take(&mut m.log);
+                    if rp.out.is_none() && !trace::log_equal(&e_lines, &got) {
+                        rp.fail(&m, format!("event {} printed: want {e_lines:?} got {got:?}", words.join(" ")));
+                    }
+                    rp.advance();
                 }
                 Some(Item::Frame) => {
                     rp.items += 1;
@@ -340,6 +411,35 @@ mod tests {
         let full_b = bad.iter().rev().find(|l| l.starts_with("B 18000")).unwrap().clone();
         bad[20] = full_b.replacen("B 18000", "B 17999", 1); // step 6's B line
         assert_eq!(run_with(&bad, Some(13)), "DIVERGED tick 6 (step 5, item 5): B field *timer*: want 17999 got 18000");
+    }
+
+    /// RP-DRIVE's events: what an E action prints is compared with its e lines (a trial file's start, as trial-sp-xch-r3's).
+    #[test]
+    fn event_log_compared() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let run_str = |name: &str, s: &str| {
+            let p = std::env::temp_dir().join(format!("replay-event-{}-{name}.trace", std::process::id()));
+            std::fs::write(&p, s).unwrap();
+            let out = run(p.to_str().unwrap(), None, data, &[], &[]);
+            let _ = std::fs::remove_file(&p);
+            match out {
+                Outcome::Ok(n) => format!("OK {n}"),
+                Outcome::Diverged(s) => format!("DIVERGED {s}"),
+                Outcome::Unported(s) => format!("UNPORTED {s}"),
+                Outcome::Error(s) => format!("ERROR {s}"),
+            }
+        };
+        let head = "S trials f.lisp\nE set - *COMBAT-LOG* NIL\nE battle :ICHIGO :KENPACHI\nE form 1 :NOZARASHI\nE place 1.6\nE set - *COMBAT-LOG* T\n";
+        assert_eq!(run_str("ok", &format!("{head}E form 0 :BASE\ne [     0] P1 form BASE\n")), "OK 0");
+        assert_eq!(
+            run_str("bad", &format!("{head}E form 0 :BASE\ne [     0] P1 form KESSA\n")),
+            "DIVERGED tick 0 (step 0, item 6): event form 0 :BASE printed: want [\"[     0] P1 form KESSA\"] got [\"[     0] P1 form BASE\"]"
+        );
+        assert_eq!(
+            run_str("none", &format!("{head}E form 0 :BASE\n")),
+            "DIVERGED tick 0 (step 0, item 6): event form 0 :BASE printed: want [] got [\"[     0] P1 form BASE\"]"
+        );
+        assert!(run_str("err", &format!("{head}E set 0 GAUGES-NOPE 1\n")).starts_with("ERROR set: no field GAUGES-NOPE"));
     }
 
     #[test]

@@ -31,7 +31,7 @@ fn move_id(m: &Match, name: &str) -> MoveId {
 fn heal_and_no_bind() {
     let (mut m, a, b) = t_pair(Character::Ichigo, Character::Kenpachi);
     assert!(bind_of(&m, a).is_none() && bind_of(&m, b).is_none()); // 37
-    m.gauges.get_mut(a).unwrap().reishi = 1200;
+    m.gauges.get_mut(a).unwrap().reishi = 1200.into();
     heal(&mut m, a, 500);
     let g = m.gauges.get(a).unwrap();
     assert_eq!(g.reishi, g.reishi_max); // 40
@@ -273,10 +273,10 @@ fn pre_roll_out_of_a_cancel() {
         let f = m.fighter.get_mut(a).unwrap();
         (f.state, f.phase, f.mv, f.cls, f.cls_t, f.contact, f.xch, f.xch_done) =
             (State::Move, Some(Phase::Main), Some(j1), Some(Cls::Na), 30, Some(Contact::Hit), xch, done);
-        let r0 = m.gauges.get(a).unwrap().reishi;
+        let r0 = m.gauges.get(a).unwrap().reishi.f();
         start_move(m, a, id, Some(Button::Quick));
         let f = m.fighter.get(a).unwrap();
-        (f.sf, f.pre, f.cls_t, m.gauges.get(a).unwrap().reishi < r0)
+        (f.sf, f.pre, f.cls_t, m.gauges.get(a).unwrap().reishi.f() < r0)
     };
     assert_eq!(from_j1(&mut m, 40, false, as1), (enter - 6, 6, 50, false)); // 256 (out of the cancel: 6 more, hook later)
     assert_eq!(from_j1(&mut m, 40, true, as1), (enter, 0, 50, true)); // 257 (a real hit since: as before)

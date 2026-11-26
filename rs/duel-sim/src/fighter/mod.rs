@@ -204,7 +204,7 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
         },
     );
     let reishi = kit.reishi as i64;
-    m.gauges.insert(e, Gauges { reishi, reishi_max: reishi, konpaku: m.knobs.konpaku_max, ..Gauges::new(&m.knobs) });
+    m.gauges.insert(e, Gauges { reishi: crate::cl::Num::I(reishi), reishi_max: reishi, konpaku: m.knobs.konpaku_max, ..Gauges::new(&m.knobs) });
     let vpad = Vpad::duel(m.data, &m.knobs).unwrap_or_else(|err| panic!("vpad: {err}"));
     m.pilot.insert(e, Pilot { vpad, cam_relative: !cpu });
     // look: refresh-look, the stance clip

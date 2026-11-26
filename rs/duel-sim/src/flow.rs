@@ -283,7 +283,10 @@ pub fn time_up(m: &mut Match) {
         crate::unported!(m, "bind-resolve!") // (Hisagi's bind: M4)
     }
     let (g1, g2) = (m.gauges.get(m.p1).unwrap(), m.gauges.get(m.p2).unwrap());
-    let w = match crate::rules::time_up_winner(g1.konpaku, g1.reishi, g1.reishi_max, g2.konpaku, g2.reishi, g2.reishi_max) {
+    let (Some(r1), Some(r2)) = (g1.reishi.int(), g2.reishi.int()) else {
+        crate::unported!(m, "time-up of a float Reishi") // ponytail: a trial's float, never at a time-up (its timer is 36000)
+    };
+    let w = match crate::rules::time_up_winner(g1.konpaku, r1, g1.reishi_max, g2.konpaku, r2, g2.reishi_max) {
         Some(k) => Winner::Side(k),
         None => Winner::Draw,
     };

@@ -228,11 +228,11 @@ fn id(m: &Match, form: &str, n: &str) -> duel_sim::components::MoveId {
 fn bankai_restore_cine_and_not() {
     let (mut m, a, b) = pair_in(data(), Form::Nozarashi);
     let g = m.gauges.get_mut(a).unwrap();
-    (g.reishi, g.konpaku, g.awake_regen) = (500, 3, 0);
+    (g.reishi, g.konpaku, g.awake_regen) = (500.into(), 3, 0);
     m.transform.get_mut(a).unwrap().yaw = 1.0;
     duel_sim::gauges::bankai(&mut m, a, Form::Bankai, true, true);
     let (g, f) = (m.gauges.get(a).unwrap(), m.fighter.get(a).unwrap());
-    assert_eq!((g.awake_regen, g.reishi, g.konpaku, f.form), (333, 1300, 3, Form::Bankai));
+    assert_eq!((g.awake_regen, g.reishi.int(), g.konpaku, f.form), (333, Some(1300), 3, Form::Bankai));
     assert!(m.log.iter().any(|l| l.ends_with("P1 BANKAI (konpaku kept, -0)")));
     let c = m.cine.as_ref().map(|c| (c.name.lisp(), c.len, c.after));
     assert_eq!(c, Some(("KEN-BANKAI-CINE", 186, Some(duel_sim::cine::After::IdleBoth(a, b)))));
@@ -244,10 +244,10 @@ fn bankai_restore_cine_and_not() {
 
     let (mut m, a, _) = pair_in(data(), Form::Nozarashi);
     let g = m.gauges.get_mut(a).unwrap();
-    (g.reishi, g.awake_regen) = (500, 0);
+    (g.reishi, g.awake_regen) = (500.into(), 0);
     duel_sim::gauges::bankai(&mut m, a, Form::Bankai2, false, false);
     let (g, f) = (m.gauges.get(a).unwrap(), m.fighter.get(a).unwrap());
-    assert_eq!((g.awake_regen, g.reishi, f.form, f.state, m.cine.is_none()), (0, 500, Form::Bankai2, State::Idle, true));
+    assert_eq!((g.awake_regen, g.reishi.int(), f.form, f.state, m.cine.is_none()), (0, Some(500), Form::Bankai2, State::Idle, true));
 }
 
 /// GAUGE-SYSTEM's timed form (no kit in the data has a :duration: a copy gives the Bankai 0.5 s and a 5 %/s burn): BURN-AMOUNT's whole
@@ -261,16 +261,16 @@ fn timed_form_burn_and_end() {
     let d: &'static Data = Box::leak(Box::new(d));
     let (mut m, a, _) = pair_in(d, Form::Bankai);
     assert_eq!(m.gauges.get(a).unwrap().form_left, 30);
-    let r0 = m.gauges.get(a).unwrap().reishi;
+    let r0 = m.gauges.get(a).unwrap().reishi.int().unwrap();
     let mut burnt = vec![];
     for _ in 0..30 {
-        let r = m.gauges.get(a).unwrap().reishi;
+        let r = m.gauges.get(a).unwrap().reishi.int().unwrap();
         duel_sim::gauges::gauge_system(&mut m);
-        burnt.push(r - m.gauges.get(a).unwrap().reishi);
+        burnt.push(r - m.gauges.get(a).unwrap().reishi.int().unwrap());
     }
     let want: Vec<i64> = (0..30).map(|n| (65 * (n + 1)) / 60 - (65 * n) / 60).collect();
     assert_eq!(burnt, want);
-    assert_eq!(r0 - m.gauges.get(a).unwrap().reishi, 32);
+    assert_eq!(r0 - m.gauges.get(a).unwrap().reishi.int().unwrap(), 32);
     let f = m.fighter.get(a).unwrap();
     assert_eq!((f.form, m.gauges.get(a).unwrap().form_left), (Form::Base, 0)); // (its :inherit, :base)
     assert!(m.log.iter().any(|l| l.ends_with("P1 form BASE")));
@@ -360,7 +360,7 @@ fn as_pick_branches() {
 fn bankai_cost_and_way_back() {
     use duel_sim::ken::hooks::*;
     let (mut m, a, _) = pair_in(data(), Form::Bankai2);
-    m.gauges.get_mut(a).unwrap().reishi = 41;
+    m.gauges.get_mut(a).unwrap().reishi = 41.into();
     bk_cost(&mut m, a);
     bk_cost(&mut m, a);
     assert_eq!(m.gauges.get(a).unwrap().reishi, 1);
@@ -445,7 +445,7 @@ fn apply_hit_armored_and_blocked_as_ecl() {
     duel_sim::combat::hit_system(&mut m);
     assert_eq!(m.unported, None);
     assert_eq!(tail(&m), ["P1 KE-Z-N1A -> P2 ARMORED 65", "P2 KE-Z-N2A -> P1 HIT 85", "P2 dealt 43: crumple stun 40"]);
-    assert_eq!((m.gauges.get(b).unwrap().reishi, m.fighter.get(b).unwrap().armor_left, m.time.hitstop), (1267, 0, 10));
+    assert_eq!((m.gauges.get(b).unwrap().reishi.int(), m.fighter.get(b).unwrap().armor_left, m.time.hitstop), (Some(1267), 0, 10));
 
     let (mut m, _, b) = setup("ke-z-j1");
     let f = m.fighter.get_mut(b).unwrap();

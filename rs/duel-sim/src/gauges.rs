@@ -81,7 +81,7 @@ pub fn bind_grey_souls(m: &mut Match, e: Entity) -> i64 {
 /// port: HEAL!: E's Reishi + N, at most his max; in a bind the binder's :bind-heal follows.
 pub fn heal(m: &mut Match, e: Entity, n: i64) {
     let g = g_mut(m, e);
-    g.reishi = g.reishi_max.min(g.reishi + n);
+    g.reishi = crate::cl::Num::I(g.reishi_max).min(g.reishi + n);
     let b = bind_of(m, e);
     if let Some(h) = bind_hook(m, b, "bind-heal") {
         call_hook(m, e, h);
@@ -376,7 +376,7 @@ pub fn bankai(m: &mut Match, e: Entity, form: Form, restore: bool, cine: bool) {
     }
     if restore {
         let g = g_mut(m, e);
-        g.reishi = g.reishi_max;
+        g.reishi = crate::cl::Num::I(g.reishi_max);
     }
     // look: refresh-look, emit :bankai
     crate::clog!(m, "{} BANKAI (konpaku kept, -{})", side_name(m, e), lost);

@@ -24,6 +24,7 @@ use crate::rules::{
     stance_store, stun_add, stun_over_p, sub_taken_mods, threat_window_p, AtkMods, ContactKeys, DefMods, DefState, KikonOutcome,
     Res,
 };
+use crate::cl::Num;
 use crate::state::Match;
 use duel_data::{MoveClass, Move};
 
@@ -301,7 +302,7 @@ pub fn deal_damage(m: &mut Match, att: Entity, def: Entity, dmg: i64, n: i64) ->
     let bd = bind_of(m, def);
     let h = bind_hook(m, bd, "bind-damage");
     let gd = m.gauges.get_mut(def).expect("gauges");
-    gd.reishi = 0.max(gd.reishi - dmg);
+    gd.reishi = Num::I(0).max(gd.reishi - dmg);
     m.gauges.get_mut(att).expect("gauges").dealt += dmg;
     if bd.is_some() {
         m.gauges.get_mut(att).unwrap().grey += dmg;
@@ -520,7 +521,16 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             let idx = (hits - combo_from).max(1);
             let orange = m.gauges.get(att).unwrap().burst == Some(crate::components::Burst::Orange);
             let d = hit_damage(&m.knobs, base, atk, dmods, if unscaled { 1 } else { idx }, !flat && counter, orange);
-            let dmg = if hw.has(flag::SPARE) { d.min(0.max(m.gauges.get(def).unwrap().reishi - 1)) } else { d };
+            let dmg = if hw.has(flag::SPARE) {
+                let r = m.gauges.get(def).unwrap().reishi;
+                match Num::I(d).min(Num::I(0).max(r - 1)).int() {
+                    Some(x) => x,
+                    // ponytail: a float Reishi (a trial's) under the hit makes the damage a float, then DEALT, COMBO-DMG, the gains
+                    None => crate::unported!(m, "float damage (:spare under a float Reishi)", None),
+                }
+            } else {
+                d
+            };
             let stun = if follow {
                 kikon_follow_stun(&m.knobs, red, mv(m, wave.or(mvid).expect("a follow's move")).s as i64)
             } else if let Some(s) = hw.stun.filter(|_| react == hw.react) {
@@ -682,7 +692,9 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                 None => m.knobs.hazard_blockstun,
             };
             let v = hw.guard.unwrap_or(m.knobs.gg_hazard as f32);
-            let chip = chip_damage(base, hw.chip, m.gauges.get(def).unwrap().reishi);
+            let Some(chip) = chip_damage(base, hw.chip, m.gauges.get(def).unwrap().reishi).int() else {
+                crate::unported!(m, "float damage (chip under a float Reishi)", None) // ponytail: as :spare's
+            };
             if drain_guard(m, def, v, "BLOCK") {
                 let (st, kb) = (m.knobs.guard_crush_stun, m.knobs.block_pushback);
                 set_reaction(m, def, Some(Phase::GuardBreak), st, sx, sz, kb);

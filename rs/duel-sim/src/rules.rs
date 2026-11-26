@@ -2,7 +2,7 @@
 //! are fixnums (i64); positions, gauges, speeds are single-floats (f32): the sim's callers pass those. Where a Lisp
 //! function has a single-float fast path (gauge-add, fs-regen, gg-regen, stun-decay, toward-strafe-dir, red-p) that path is
 //! the one ported, bit for bit. CPU-only rules (ai-burst-wanted-p, ai-guard-mult, ai-hoho-spare-p, finish-role) are M2.
-use crate::cl::{floor_div, floor_f32, max_f32, min_f32, round_f32};
+use crate::cl::{floor_div, floor_f32, max_f32, min_f32, round_f32, Num};
 use crate::components::{Burst, Contact, Phase};
 use crate::knobs::Knobs;
 use crate::math::{deg, f_cos, f_sqrt, fwd_x, fwd_z, hypot};
@@ -359,11 +359,11 @@ pub fn hit_damage(k: &Knobs, base: i64, atk: AtkMods, def: DefMods, combo_index:
     1.max(round_f32(x))
 }
 
-// port: rules.lisp CHIP-DAMAGE (RATE `None` = NIL)
-pub fn chip_damage(dmg: i64, rate: Option<f32>, reishi: i64) -> i64 {
+// port: rules.lisp CHIP-DAMAGE (RATE `None` = NIL; a float REISHI below the chip makes it a float)
+pub fn chip_damage(dmg: i64, rate: Option<f32>, reishi: impl Into<Num>) -> Num {
     match rate {
-        Some(r) if r > 0.0 => 0.max(round_f32(dmg as f32 * r).min(reishi - 1)),
-        _ => 0,
+        Some(r) if r > 0.0 => Num::I(0).max(Num::I(round_f32(dmg as f32 * r)).min(reishi.into() - 1)),
+        _ => Num::I(0),
     }
 }
 
@@ -374,13 +374,14 @@ pub fn burn_amount(max_reishi: i64, fraction_per_second: f32, step: i64) -> i64 
 }
 
 // port: rules.lisp BURN
-pub fn burn(reishi: i64, amount: i64) -> i64 {
-    if reishi <= 1 { reishi } else { 1.max(reishi - amount) }
+pub fn burn(reishi: impl Into<Num>, amount: i64) -> Num {
+    let r = reishi.into();
+    if r.le(1) { r } else { Num::I(1).max(r - amount) }
 }
 
-// port: rules.lisp RED-P (the fixnum / single path)
-pub fn red_p(k: &Knobs, reishi: i64, max_reishi: i64) -> bool {
-    (reishi as f32) < max_reishi as f32 * k.red_threshold
+// port: rules.lisp RED-P (the fixnum / single path; a float Reishi's generic `<` against the single product is the same compare)
+pub fn red_p(k: &Knobs, reishi: impl Into<Num>, max_reishi: i64) -> bool {
+    reishi.into().f() < max_reishi as f32 * k.red_threshold
 }
 
 /// KIKON-OUTCOME's results.
@@ -433,8 +434,8 @@ pub fn kikon_follow_speed(k: &Knobs, dist: f32, frames_left: i64, cap: f32) -> f
 }
 
 // port: rules.lisp SOUL-BREAK-P
-pub fn soul_break_p(reishi: i64) -> bool {
-    reishi <= 0
+pub fn soul_break_p(reishi: impl Into<Num>) -> bool {
+    reishi.into().le(0)
 }
 
 // port: rules.lisp BROKEN-SOULS — the queues in the order queued (the Lisp's lists reversed): KIKONS as they are, SOUL-BREAKS without

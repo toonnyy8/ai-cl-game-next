@@ -128,14 +128,14 @@ fn white_burst_runs_out() {
     let mut m = pair(Character::Kenpachi, Character::Ichigo);
     let a = m.p1;
     let g = m.gauges.get_mut(a).unwrap();
-    (g.fs, g.reishi) = (2.0, 100);
+    (g.fs, g.reishi) = (2.0, 100.into());
     burst(&mut m, a, Burst::White);
     let g = m.gauges.get(a).unwrap();
     assert_eq!((g.burst, g.burst_t, g.burn, m.time.hitstop), (Some(Burst::White), 0, m.knobs.fs_max, 8));
     assert_eq!(m.log.last().unwrap(), "[     0] P1 BURST WHITE fs 2.0");
     burst_step(&mut m, a); // frame 1: 0.9 drained; 70/s → 1 point on frame 1 (floor 70/60)
     let g = m.gauges.get(a).unwrap();
-    assert_eq!((g.burst_t, g.reishi), (1, 101));
+    assert_eq!((g.burst_t, g.reishi.int()), (1, Some(101)));
     assert!(ap(g.fs, 1.1));
     burst_step(&mut m, a);
     burst_step(&mut m, a); // 2.0 - 2.7 → 0: the end
@@ -173,7 +173,7 @@ fn awaken_into_nozarashi() {
     let mut m = pair(Character::Kenpachi, Character::Ichigo);
     let a = m.p1;
     let g = m.gauges.get_mut(a).unwrap();
-    (g.sub, g.awaken, g.reishi, g.meter_idle) = (60.0, 100.0, 1000, 5);
+    (g.sub, g.awaken, g.reishi, g.meter_idle) = (60.0, 100.0, 1000.into(), 5);
     awaken(&mut m, a);
     let (g, f) = (m.gauges.get(a).unwrap(), m.fighter.get(a).unwrap());
     assert_eq!((g.awake_regen, g.awakened, g.awaken, f.form), (333, true, 0.0, Form::Nozarashi));

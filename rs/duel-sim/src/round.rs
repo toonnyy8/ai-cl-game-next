@@ -43,7 +43,7 @@ pub fn settle_konpaku(m: &mut Match, att: Entity, def: Entity, soul_break: bool)
     let konpaku = m.gauges.get(def).unwrap().konpaku;
     let (left, lost, ko) = crate::core_sim::core_konpaku_result(m, konpaku, att, soul_break);
     let gd = m.gauges.get_mut(def).unwrap();
-    (gd.konpaku, gd.reishi) = (left, gd.reishi_max);
+    (gd.konpaku, gd.reishi) = (left, crate::cl::Num::I(gd.reishi_max));
     if let Some(h) = kit_hook_sym(m, def, "settled")
         && !call_hook(m, def, h)
     {

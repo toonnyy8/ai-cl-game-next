@@ -35,3 +35,7 @@ the eleven Ichigo traces do not reach (JUJISHO's cut, ZANZO's echo, O's charge a
 stance's J branch, NUKI-GIRI's dash, KAGE-RENZAN's cut), each expected value taken from the native sim (host ECL on
 build/simgate/duel.fas, the same setup, bits printed), and his pure rules (ichigo.lisp 389-405); not Lisp checks. `tests/ken.rs`'s
 `apply_hit_armored_and_blocked_as_ecl` pins APPLY-HIT's :armored (KEN-ARMOR) and :blocked results, ECL-verified.
+Task 13 (trials, the E actions): no Lisp test covers the debug helpers or the replay's event layer. `debug.rs`'s `lisp_value_parses`,
+`set_unknown_field_is_error`, `duel-tools replay.rs`'s `event_log_compared` (a trial's start: an E action's printed lines against its
+e lines), and `cl.rs`'s `num_contagion_as_ecl` (Reishi as an integer or a float: DEAL-DAMAGE, HEAL!, BURN, the printed `300.0`, each
+value taken from the native image) are not Lisp checks; the three trial traces replay whole.

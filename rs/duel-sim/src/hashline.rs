@@ -29,6 +29,14 @@ impl Enc for i64 {
         write!(s, "{self}").unwrap();
     }
 }
+impl Enc for crate::cl::Num {
+    fn enc(&self, d: &Data, s: &mut String) {
+        match self {
+            crate::cl::Num::I(n) => n.enc(d, s),
+            crate::cl::Num::F(x) => x.enc(d, s),
+        }
+    }
+}
 impl Enc for bool {
     fn enc(&self, _: &Data, s: &mut String) {
         s.push_str(if *self { "T" } else { "NIL" });

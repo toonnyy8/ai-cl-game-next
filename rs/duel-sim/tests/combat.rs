@@ -69,7 +69,7 @@ fn broken_souls_core_lisp() {
 #[test]
 fn deal_damage_queues_the_soul_break() {
     let (mut m, a, b) = t_pair(Character::Ichigo, Character::Kenpachi);
-    m.gauges.get_mut(a).unwrap().reishi = 5;
+    m.gauges.get_mut(a).unwrap().reishi = 5.into();
     assert!(deal_damage(&mut m, b, a, 7, 1)); // 43
     assert_eq!(m.soul_breaks.iter().collect::<Vec<_>>(), [(b, a)]); // 44
     let gb = m.gauges.get(b).unwrap();
@@ -80,7 +80,7 @@ fn deal_damage_queues_the_soul_break() {
     m.fighter.get_mut(b).unwrap().kikon_n = 3;
     assert!(settle_konpaku(&mut m, b, a, false)); // 47
     let ga = m.gauges.get(a).unwrap();
-    assert_eq!((ga.konpaku, ga.reishi, m.gauges.get(b).unwrap().kikons), (0, ga.reishi_max, 1));
+    assert_eq!((ga.konpaku, ga.reishi.int().unwrap(), m.gauges.get(b).unwrap().kikons), (0, ga.reishi_max, 1));
     assert_eq!(m.log.last().map(|l| l.split_once("] ").unwrap().1), Some("P2 KIKON on P1: -2 konpaku, 0 left (BASE)"));
     assert_eq!(m.unported, None);
 }
@@ -184,7 +184,7 @@ fn hit_system_lands_a_j1() {
     ]);
     let (fa, fb, gb) = (m.fighter.get(a).unwrap(), m.fighter.get(b).unwrap(), m.gauges.get(b).unwrap());
     assert_eq!((fb.state, fb.phase, fb.stun, fb.combo_hits), (State::Stun, Some(Phase::Flinch), stun, 1));
-    assert_eq!((gb.reishi, gb.taken_melee, m.gauges.get(a).unwrap().dealt), (gb.reishi_max - dmg, dmg, dmg));
+    assert_eq!((gb.reishi.int().unwrap(), gb.taken_melee, m.gauges.get(a).unwrap().dealt), (gb.reishi_max - dmg, dmg, dmg));
     assert_eq!((fa.contact, fa.hits, fa.land_sf), (Some(duel_sim::components::Contact::Hit), 1, 9));
     assert_eq!(m.time.hitstop, duel_sim::cl::round_f32(4.0 * m.time.hitstop_mult));
     assert!(m.motion.get(a).unwrap().kb_left > 0); // J1, the string's opener: he closes in (*STRING-PULL-TO*)
