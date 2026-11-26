@@ -2,7 +2,6 @@
 //! Hooks, cines, aura and the meter's label are the Lisp function's name.
 use crate::{lbool, Datum};
 use serde::Deserialize;
-use serde_json::{Map, Value};
 use std::collections::BTreeMap;
 
 #[derive(Deserialize, Debug)]
@@ -76,8 +75,8 @@ pub struct Kit {
     pub clip_map: BTreeMap<String, String>,
     pub push_reach: Option<f32>,
     pub look_clips: BTreeMap<String, String>,
-    /// The core system's plist (:ns :as :sa :range ...; typed in M1).
-    pub core: Map<String, Value>,
+    /// The core system's plist (:core).
+    pub core: Core,
     pub open_s: Option<i32>,
     /// `[base, per, min, max]`.
     pub hs_dmg: Option<Vec<i32>>,
@@ -91,6 +90,29 @@ pub struct Kit {
     pub strings: Vec<[String; 3]>,
     /// This form's move ids (sorted).
     pub moves: Vec<String>,
+}
+
+/// A form's :core plist (DUEL_CORE). The six keys every form has are required; the rest are per kit (absent = NIL; Lisp
+/// defaults such as :sp-cost-mult 1 stay at the reader).
+#[derive(Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
+pub struct Core {
+    pub ns: Vec<String>,
+    #[serde(rename = "as")]
+    pub as_segs: Vec<String>,
+    pub sa: String,
+    pub stances: Vec<String>,
+    pub kikon_cines: Vec<String>,
+    pub mult: f32,
+    pub as_by_press: Option<Vec<i32>>,
+    pub as_writes: Option<Vec<Option<i32>>>,
+    /// Per NS pointer: `[near, far]` or NIL.
+    pub ns_range: Option<Vec<Option<[f32; 2]>>>,
+    pub range: Option<[f32; 2]>,
+    pub sp_cost_mult: Option<f32>,
+    #[serde(default, deserialize_with = "lbool")]
+    pub sp_free: bool,
+    pub also: Option<Vec<String>>,
 }
 
 /// The form's gauge (empty when the form has none).

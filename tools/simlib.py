@@ -11,7 +11,9 @@ MUSLM = os.path.join(ROOT, 'build/simgate/muslm.so')
 MUSL_MATH = ('sinf cosf tanf __sindf __cosdf __tandf __rem_pio2f __rem_pio2_large atan2f atanf acosf asinf tanhf expm1f '
              'expf exp2f_data powf powf_data logf logf_data log2f_data sin cos tan __sin __cos __tan __rem_pio2 atan2 atan '
              'exp exp_data pow pow_data log log_data __math_oflowf __math_uflowf __math_xflowf __math_invalidf '
-             '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero')
+             '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero '
+             # gcc -O2 fuses a C function's sinf(a) + cosf(a) into sincosf(a) (emcc never does): musl's, or glibc's answers it
+             'sincosf fminf fmaxf')
 ROW = re.compile(r'duel gate row seed (\d+) \S+ \S+ secs [\d.]+ winner (\S+)')   # a gate row: (seed, winner)
 ROW_KO = re.compile(r' ko ([01])$')   # the row's last field since 2026-11-14: 1 = ended before the bell (a K.O.), 0 = the time-out bell
 
@@ -49,16 +51,17 @@ def build():
     # glibc (LD_PRELOAD): the Lisp's inline calls and libecl's (SIN, EXP, EXPT ...) both land there.
     # Every tool that runs build/simgate/duel.fas calls this first (a stale build played the wrong code: DEVLOG §700).
     os.makedirs(os.path.dirname(MUSLM), exist_ok=True)   # (a fresh checkout has no build/simgate)
-    if not os.path.exists(MUSLM):
+    if not os.path.exists(MUSLM) or os.path.getmtime(MUSLM) < os.path.getmtime(__file__):   # (MUSL_MATH changed)
         m = f'{EMSDK}/upstream/emscripten/system/lib/libc/musl'
         gcc_inc = subprocess.run(['gcc', '-print-file-name=include'], capture_output=True, text=True).stdout.strip()
         r = subprocess.run(['gcc', '-m32', '-msse2', '-mfpmath=sse', '-ffp-contract=off', '-O2', '-fPIC', '-shared', '-w',
                             '-nostdinc'] + [f'-I{m}/{d}' for d in ('src/include', 'src/internal', 'arch/emscripten',
                                                                   'arch/generic', 'include')] +
-                           [f'-I{gcc_inc}', '-o', MUSLM] + [f'{m}/src/math/{f}.c' for f in MUSL_MATH.split()],
+                           [f'-I{gcc_inc}', '-o', MUSLM + '.tmp'] + [f'{m}/src/math/{f}.c' for f in MUSL_MATH.split()],
                            capture_output=True, text=True)
         if r.returncode:
             sys.exit(r.stderr[-3000:] + '\n[simgate] musl libm BUILD FAILED')
+        os.replace(MUSLM + '.tmp', MUSLM)   # (a running sim keeps the old file mapped)
     if os.path.exists(FAS) and os.path.getmtime(FAS) >= max(os.path.getmtime(s) for s in sources()):
         return
     print('[simgate] building build/simgate/duel.fas (~2 min)', file=sys.stderr, flush=True)

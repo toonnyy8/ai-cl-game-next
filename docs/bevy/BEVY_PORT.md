@@ -155,10 +155,17 @@ A Cargo workspace at `rs/`, one crate per job:
 - Where data is code, for example a clip key computed by a function or a hook, the extractor flags it and it is ported by hand.
 
 ### 5.3 Floats
-- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. Literals without an `f0` suffix are doubles in ECL
-  and promote. `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
+- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. A bare float literal is a single-float in ECL (its read format is single: M1 Task 2 checked it in the image); doubles come only
+  from `d0`, `(float x 1d0)`, double data and `pi` (a long-float).
+  `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
   and differ from the wasm game in the lowest bits (accepted, presentation only; the sim must not read them; M0_NOTES 5). Mixed-type arithmetic follows CL's contagion rules.
-- Transcendentals use the `libm` crate, a port of musl, on both the native and the wasm build. The answer key's native sim also uses musl.
+- Every transcendental f32 call goes through the `libm` crate (a port of musl), on both the native and the wasm build, with no
+  exceptions: the shipped wasm calls musl's `sinf` / `cosf` / ... (emcc never fuses a `sinf` + `cosf` pair; its values equal `libm`'s
+  on 200,000 inputs). `math::sincosf` is just `(libm::sinf, libm::cosf)`, kept as the one call for the sites where gcc fused them.
+- The answer key's native sim must give musl's bits too, so its preload (`tools/simlib.py` `MUSL_MATH`) serves musl's `sincosf`,
+  `fminf` and `fmaxf` beside `sinf` / `cosf` / ...: gcc -O2 fuses a C function's `sinf(a)` + `cosf(a)` into one `sincosf(a)` call
+  (emcc doesn't), and without musl's in the preload those calls bound to glibc's, 1 ulp off on ~2 % of inputs; glibc's `fminf` /
+  `fmaxf` pick a different zero for (+0, -0). Fixed and the key re-pinned on 2026-11-27 (M0_NOTES §4, M1_NOTES §4).
 - No FMA and no fast-math.
 - Integer overflow: Lisp fixnums promote to bignums. Each counter's range is checked; the default is `i64` where a counter could pass `i32`.
 - `round` follows CL's banker's rounding, which the hash line depends on.
@@ -225,10 +232,10 @@ Artifact** for the user; the current Lisp page stays as it is until switch-over.
 |---|---|---|
 | M0a | **Speed test** (the user: 「先測速再繼續」): a throwaway Bevy wasm page drawing one fighter's body (extracted or hand-built mesh) with the toon / ink shader through a Bevy `Material`, a stage floor and the HUD's text, next to the frozen build: startup to first frame, `index.wasm` size, frame time under `run.mjs`, and the user's Android + Chrome phone (the sim's speed is measured later, at M1) | The numbers and the page go to the user; the port continues on their word |
 | M0 | `lisp-freeze` tag; extractor and answer key; baseline numbers; workspace with Bevy pinned; a wasm pipeline (`wasm-bindgen-cli`, `wasm-opt`) producing a blank Bevy canvas that `run.mjs` loads and `_debug_cmd` reaches | Extractor reproducible; key generated; blank page smoke |
-| M1 | Sim core plus Kenpachi and Ichigo (all forms), driven by input traces, no CPU | Their CPU-free traces (scripted scenes, combo trials) hash-identical; their host tests pass. CPU matches wait for M2: the CPU draws from the sim stream, so its traces cannot replay without it |
+| M1 | Sim core plus Kenpachi and Ichigo (all forms), driven by input traces, no CPU | Their CPU-free traces (scripted scenes, combo trials) hash-identical; their host tests pass. CPU matches wait for M2: the CPU draws from the sim stream, so its traces cannot replay without it. **Done 2026-11-27** (M1_NOTES §5-§10): the 22 gate traces (12 cvc, 3 cvc-tag, 3 trials, 4 scripted outcomes) replay bit-exact natively and in wasm32, and also with a 40-step rollout every 40 ticks (`--snap 40`); host checks 674 of 780 ported, the rest deferred with reasons; sim speed 3.7-4.8× the Lisp native sim (cvc-kk-s1 1.20M vs 249k steps/s; M2 re-runs it with the CPU on); 0 allocations in cvc-kk-s1's battle steps |
 | M2 | The CPU (perceive, core-ai, MCTS, strategies, fq tables, online learner) | cvc II / IK / KK identical to the `--cvc` output regenerated at `lisp-freeze` (`build/oracle/cvc-tag.txt`, generated at `lisp-freeze`, equals the checked-in `tests/style-cvc-ref.txt`, so that file is not stale; M0_NOTES 5) and to the key's extra seeds |
 | M3 | Presentation: bodies, rig, clips, poses, the toon / ink renderer, FX, stage, camera, cinematics, HUD and menus, sound, the touch deck. **First playable Artifact** (Kenpachi and Ichigo) | FK / draw lists / sound equal; stills sheets reviewed by the user |
-| M4 | Hisagi, then Yamamoto: sim, CPU, looks, cinematics | All pairings' traces and cvc identical; their stills reviewed |
+| M4 | Hisagi, then Yamamoto: sim, CPU, looks, cinematics. **Prerequisite** (M1's final review, finding 1): M1 dispatches kit hooks by per-kit arms in about ten generic modules (`kit.rs`, `fighter/moves.rs`, `combat.rs`, `core_sim.rs`, `fighter/react.rs`, `fighter/mod.rs`, `round.rs`, `hazards.rs`, `cine.rs`), and `kit::Hooks` is built only to validate; before Hisagi, replace them with one typed `Option<fn>` table per kit, registered in one place (§4; M1_NOTES §10) | All pairings' traces and cvc identical; their stills reviewed |
 | M5 | Parity sweep: practice, every debug command the scripts use, the manual, the phone, performance targets | Every gate of §6; the user's playtest and phone check |
 | M6 | Switch-over, **only after the user says so**: the tools, gates, skills, AGENTS.md and README point at `rs/`; the Lisp build moves to a branch `lisp-archive` (`duel/` and `engine/` leave `main`) | The user's go-ahead |
 

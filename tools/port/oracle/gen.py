@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """gen.py — the Bevy port's answer key into build/oracle/ (git-ignored; docs/bevy/BEVY_PORT.md §6.1, M0 plan Task 7: the sim traces).
 
-  python3 tools/port/oracle/gen.py sim               record every trace (record.lisp on the recorder's image, build-rec.lisp), check
+  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, merge their entries into INDEX.json by name,
+                                                     and leave cvc-tag.txt alone)
+                                                     record every trace (record.lisp on the recorder's image, build-rec.lisp), check
                                                      each against a plain run of the stock image (non-perturbation), write
                                                      build/oracle/INDEX.json and cvc-tag.txt, then replay three (one per kind)
   python3 tools/port/oracle/gen.py replay [NAME ...] replay.lisp on the stock image (default: every trace in INDEX.json)
@@ -15,7 +17,7 @@ The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
 RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal to it); every combo trial file of tools/simgate/trial.lisp
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
-its trials). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
+its trials); the scripted outcome traces, trial files in tools/port/oracle/scenarios/ (scr-<file name>). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
 """
 import concurrent.futures as cf, datetime, glob, hashlib, importlib.util, json, os, re, shutil, subprocess, sys
 
@@ -24,7 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..'))
 from simlib import ROOT, ECL, FAS, MUSLM, build   # noqa: E402
 
-OUT = os.path.join(ROOT, 'build/oracle')
+OUT = os.path.join(ROOT, os.environ.get('ORACLE_OUT', 'build/oracle'))   # ORACLE_OUT=build/oracle2: record a new key beside the pinned one
 TRACES = os.path.join(OUT, 'traces')
 REC_FAS = os.path.join(OUT, 'rec/duel.fas')
 FIGHTERS = {'y': (0, 'YAMAMOTO'), 'k': (1, 'KENPACHI'), 'i': (3, 'ICHIGO'), 'h': (7, 'HISAGI')}
@@ -37,6 +39,7 @@ RESEARCH_TRIALS = {'ki-ai-kenpachi': 'docs/research/ki-ai/kenpachi/trials.lisp',
                    'sp-xch-r4': 'docs/research/strategy-drsi/sp/arms6/xch/r4-trial.lisp'}
 EXCLUDED = {p: 'Rukia is retired (2026-11-12): her kit is not in the image'
             for p in sorted(glob.glob('docs/research/rukia-cpu/*.lisp', root_dir=ROOT))}
+SCENARIOS = 'tools/port/oracle/scenarios'   # the scripted outcome traces (M0_NOTES §4), trial files: scr-<file name>
 PICKS = ('cvc-hk-s2', 'cvc-yy-s3', 'trial-sp-costs')   # gen.py sim's replays: a cross pairing, a mirror, a trial file
 JOBS, TIMEOUT = 6, 3600
 
@@ -51,6 +54,8 @@ def build_rec():
     src = [unit, os.path.join(HERE, 'build-rec.lisp')]
     if os.path.exists(REC_FAS) and os.path.getmtime(REC_FAS) >= max(map(os.path.getmtime, src)):
         return
+    if REC_FAS != os.path.join(ROOT, 'build/oracle/rec/duel.fas'):   # (build-rec.lisp writes there only)
+        sys.exit(f'[oracle] {REC_FAS} missing or stale: build it with ORACLE_OUT unset, then cp -a build/oracle/rec {OUT}/')
     print('[oracle] building the recorder image build/oracle/rec/duel.fas (~3 min)', file=sys.stderr, flush=True)
     r = subprocess.run([ECL, '--norc', '--load', 'tools/port/oracle/build-rec.lisp'], cwd=ROOT, capture_output=True, text=True)
     if r.returncode or not os.path.exists(REC_FAS):
@@ -62,7 +67,7 @@ def sp_costs_file():
     spec = importlib.util.spec_from_file_location('sp_costs_check', os.path.join(ROOT, 'tests/sp-costs-check.py'))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
-    path = 'build/oracle/sp-costs-trials.lisp'
+    path = os.path.relpath(os.path.join(OUT, 'sp-costs-trials.lisp'), ROOT)
     with open(os.path.join(ROOT, path), 'w') as f:
         f.write('\n'.join(m.trials()) + '\n')
     return path
@@ -90,6 +95,7 @@ def jobs():
     files = {f'trial-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob('tests/trials/*.lisp', root_dir=ROOT))}
     files |= {f'trial-{k}': p for k, p in RESEARCH_TRIALS.items()}
     files['trial-sp-costs'] = sp_costs_file()
+    files |= {f'scr-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob(f'{SCENARIOS}/*.lisp', root_dir=ROOT))}
     out += [{'name': n, 'kind': 'trials', 'file': p, 'start': ['trials', p]} for n, p in files.items()]
     return out
 
@@ -135,15 +141,30 @@ def replay(names):
     with cf.ThreadPoolExecutor(JOBS) as ex:
         for n, rc, line in ex.map(one, names):
             print(f'{n}: {line}', flush=True)
-            bad += rc != 0
+            bad += rc != 0 or not line.startswith('replay OK')   # (an ECL error drops into the debugger, which exits 0 at stdin's end)
     return bad
 
 
-def sim():
+def sim(names=()):
     build()
     build_rec()
     os.makedirs(TRACES, exist_ok=True)
     js = jobs()
+    if names:   # a subset: those recorded and replayed, their INDEX.json entries replaced or added by name (the rest kept as it is)
+        js = [j for j in js if j['name'] in names]
+        with cf.ThreadPoolExecutor(JOBS) as ex:
+            done = list(ex.map(record, js))
+        for j in done:
+            print(f"{j['name']}: {j.get('steps')} steps, last tick {j.get('last_tick')}, sha1 {j.get('sha1')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
+        bad = len(done) != len(names) or any('error' in j for j in done)
+        if not bad:
+            path = os.path.join(OUT, 'INDEX.json')
+            index = json.load(open(path))
+            new = {j['name']: j for j in done}
+            index['traces'] = [new.pop(t['name'], t) for t in index['traces']] + list(new.values())
+            with open(path, 'w') as f:
+                json.dump(index, f, indent=1)
+        sys.exit(1 if bad or replay([j['name'] for j in done]) else 0)
     with cf.ThreadPoolExecutor(JOBS) as ex:
         done = list(ex.map(record, js))
     for j in done:
@@ -212,7 +233,11 @@ def look_sound(out):
 
 def look_stills(render):
     """The frozen dist's looks-gate stills (style-gates looks BASE = NEW = the frozen dist: three renders) -> build/oracle/stills/.
-    RENDER false: reuse the render already in build/style/looks/ (its log: build/oracle/looks-gate.log)."""
+    RENDER false: reuse the render already in build/style/looks/ (its log: build/oracle/looks-gate.log). Stills already in place
+    (83, e.g. copied from the pinned key: the browser's, never the native image's) are kept."""
+    if os.path.isdir(STILLS) and len([f for f in os.listdir(STILLS) if f.endswith('.png')]) == N_STILLS:
+        print(f'[oracle] stills: {N_STILLS} already in {STILLS}, kept', flush=True)
+        return
     wasm = hashlib.sha256(open(os.path.join(FROZEN_DIST, 'index.wasm'), 'rb').read()).hexdigest()
     if not wasm.startswith('e35032a7'):
         sys.exit(f'[oracle] {FROZEN_DIST}/index.wasm is {wasm[:8]}, not the frozen build e35032a7')
@@ -277,7 +302,7 @@ def main():
             sys.exit(0 if look_check() else 1)
         look()
     if cmd == 'sim':
-        sim()
+        sim(sys.argv[2:])
     elif cmd == 'replay':
         names = sys.argv[2:] or [j['name'] for j in json.load(open(os.path.join(OUT, 'INDEX.json')))['traces'] if 'error' not in j]
         sys.exit(1 if replay(names) else 0)
