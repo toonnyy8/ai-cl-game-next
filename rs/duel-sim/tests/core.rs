@@ -89,6 +89,33 @@ fn systems_lisp() {
         burst_mode(&k(), State::GuardHit, false, 0, false) == Some(Burst::Blue)
             && !guard_locked_p(State::Idle, true, 5, State::Move, Some(duel_sim::components::Phase::Main), 20, 10, 3, 12, true, true)
     );
+    // lines 4-13: the guard lock
+    use duel_sim::components::Phase as P;
+    use State::*;
+    let gl = |was, cl, st, ph, sf, s, a, r, t, more| guard_locked_p(GuardHit, was, cl, st, ph, sf, s, a, r, t, more);
+    assert!(gl(false, 0, Move, Some(P::Main), 20, 10, 3, 12, true, true));
+    assert!(!gl(false, 0, Move, Some(P::Main), 24, 10, 3, 12, true, true));
+    assert!(!gl(false, 0, Move, Some(P::Main), 20, 10, 3, 12, true, false));
+    assert!(!gl(false, 0, Move, Some(P::Main), 20, 10, 3, 12, false, true));
+    assert!(!gl(true, 0, Idle, None, 0, 0, 0, 0, false, false));
+    assert!(!gl(true, 0, Step, None, 0, 0, 0, 0, false, false));
+    assert!(
+        gl(true, 0, Move, Some(P::Main), 3, 10, 3, 12, true, false)
+            && gl(true, 0, Move, Some(P::Hold), 0, 10, 3, 12, true, false)
+            && gl(true, 0, Move, Some(P::Main), 12, 10, 3, 12, true, false)
+            && !gl(true, 0, Move, Some(P::Main), 13, 10, 3, 12, true, false)
+    );
+    assert!(gl(true, 5, Idle, None, 0, 0, 0, 0, false, false) && !gl(true, 5, Step, None, 0, 0, 0, 0, false, false));
+    // line 53: no live move has :x-axis / :reflectable (the Kenpachi / Ichigo / Hisagi / Yamamoto kits' moves)
+    let d = Data::embedded();
+    for forms in d.kits.kits.values() {
+        for kit in forms.values() {
+            for id in &kit.moves {
+                let m = d.moves.iter().find(|m| &m.id == id).unwrap();
+                assert!(!m.flags.iter().any(|f| f == "x-axis" || f == "reflectable"), "{id}");
+            }
+        }
+    }
 }
 
 /// RESOLVE-CONTACT's keys at their Lisp defaults (IN-FRONT T).
