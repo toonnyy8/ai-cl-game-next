@@ -47,6 +47,7 @@
       (setf (sim-rnd-state) (tr-rnd tf)))))
 
 (defun rp-reader (k)
+  ;; Injection is skipped when the vpad tick equals the last injected tick: VPAD-CLEAR! keeps the tick, so a re-read in one tick must not rewrite.
   (lambda (vp)
     (unless (= (vpad-tick vp) (svref *rp-last* k))   ; (PILOT-READ, a step without a sim frame, leaves the clock: nothing to write)
       (setf (svref *rp-last* k) (vpad-tick vp))

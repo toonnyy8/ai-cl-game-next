@@ -173,7 +173,7 @@ def sim():
 
 
 FK, SOUND, STILLS = (os.path.join(OUT, d) for d in ('fk', 'sound', 'stills'))
-FROZEN_DIST = '/media/8tsp/projects/ai-cl-game-next/dist/duel'   # the frozen browser build (index.wasm sha256 e35032a7...)
+FROZEN_DIST = os.path.join(OUT, 'frozen-dist') if os.path.isdir(os.path.join(OUT, 'frozen-dist')) else '/media/8tsp/projects/ai-cl-game-next/dist/duel'   # the frozen browser build (index.wasm sha256 e35032a7...)
 N_SOUNDS, N_STILLS, FK_JOBS = 51, 83, 6
 
 

@@ -78,7 +78,7 @@ fn edge_floats() {
     assert!(matches!(typed[4], Datum::Int(7)));
 }
 
-/// ECL's (integer-decode-float x) triples from task-5-report.md and its two 13-byte vectors.
+/// ECL's (integer-decode-float x) triples from docs/bevy/M0_NOTES.md §3 (tools/port/extract/json.lisp) and its two 13-byte vectors.
 #[test]
 fn decode_matches_ecl() {
     let f32s: [(u32, u64, i32, i8); 8] = [

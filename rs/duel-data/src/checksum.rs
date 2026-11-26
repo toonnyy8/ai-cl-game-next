@@ -1,4 +1,4 @@
-//! The extractor's float checksum (task-5-report.md "Float checksum"): one FNV-1a 64 state over the data files in name order;
+//! The extractor's float checksum (docs/bevy/M0_NOTES.md §3; the writer is tools/port/extract/json.lisp): one FNV-1a 64 state over the data files in name order;
 //! in each file every float in document order, hashed as ECL's (integer-decode-float x) in 13 bytes.
 //! A float = a number token holding '.', 'e' or 'E' (parsed exactly as f32), or an object whose only key is "f64" with a string
 //! value (parsed as f64). Integer tokens and string contents are not floats.

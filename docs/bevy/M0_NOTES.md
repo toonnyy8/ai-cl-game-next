@@ -35,9 +35,9 @@ headless Chrome 158 with SwiftShader WebGPU (run.mjs's default flags), 1280x720,
   themselves. The fix removes both, so the runs prove that GPU clustering being on is the cause, not which part of it. The
   exact Dawn / SwiftShader check is unknown: Chrome is stripped and the GPU process logs nothing before it dies.
 
-**Not headless-only.** Bevy turns GPU clustering off only for `target_os = "android"` and the iOS simulator. A wasm build's
+**Possibly not headless-only.** Bevy turns GPU clustering off only for `target_os = "android"` and the iOS simulator. A wasm build's
 `target_os` is `unknown`, so Chrome on an Android phone runs GPU clustering and makes the same buffers. Whether a phone's GPU
-process dies of it is unproven: the user's phone session was short and saw no error. The fix is a code change either way.
+process dies of it is unproven (so "not headless-only" is a suspicion, not a result): the user's phone session was short and saw no error. The fix is a code change either way.
 
 **Fix (kept by the port): no light clustering.** On the main world, set `GlobalClusterSettings::gpu_clustering = None`, and
 put `ClusterConfig::None` on every camera. Both are needed:
@@ -83,7 +83,7 @@ frame 0; the plan's "145" is the frozen build's draw count).**
   M0a's single runs).
 - Unfixed runs before the fix, one page each: lost at about 78 s (release), 44 s, 15 s and 39 s (web-dev); all exited
   run.mjs with 0.
-- C and D drew 3.5 times the frames at which A died, and their GPU RSS is flat. The fixed pages still create Bevy's other
+- C and D drew 3.5 times the frames at which A died, and their GPU RSS is nearly flat (run B +0.08 GB over 265 s; run C 473 -> 505 MB). The fixed pages still create Bevy's other
   per-frame buffers: 2 of 18 B a frame on the static page, about 150 small ones a second (about 25 KB/s) on the animated
   one. B's 0.08 GB rise over 265 s is that, and it flattens. That churn is a count of small buffers, about 7-25 MB over
   300 s, two orders of magnitude under A's 1.3 GB: low risk, to be checked again once duel-app draws a real match.
@@ -129,6 +129,8 @@ its shell `rs/duel-app/web/index.html`, `tools/port/build-web.sh <crate> <out_di
 - `web-dev` builds skip wasm-opt: 109 MB wasm, 15.4 MB gzip (over the Artifact's 15 MB binary limit; for local runs only).
 
 ## 3. Data files (Tasks 4-6)
+
+Not extracted: the sim-side defconstants (engine/lisp/input.lisp `+no-press+`, two in rules.lisp, ten in mcts-lite.lisp, `+pi+` / `+two-pi+`); M1 ports them by hand.
 
 `rs/duel-data/data/*.json` (7.96 MB with the two hud-font copies), extracted from the frozen native image
 `build/simgate/duel.fas` (tag `lisp-freeze`). Loaded by `rs/duel-data` (typed structs, serde); `cargo run -p duel-tools --
@@ -206,7 +208,8 @@ sounds, stills, ~8 min; `--check` only counts and sanity-checks).
 
 | Path | Content |
 |---|---|
-| `build/oracle/*.trace`, `INDEX.json` | 63 per-tick traces (1.9 M steps): 48 seeded CvC (every ordered pairing of Y K I H, seeds 1-3), 3 cvc-tag (II / IK / KK seed 7), 12 trial files. INDEX has per trace name, kind, start, steps, sha1, nonperturbed, trials; `excluded` (Rukia's research trials) and `deferred` (`tests/scripts/*.json`, waits for M1) |
+| `build/oracle/traces/*.trace`, `INDEX.json` | 63 per-tick traces (1.9 M steps): 48 seeded CvC (every ordered pairing of Y K I H, seeds 1-3), 3 cvc-tag (II / IK / KK seed 7), 12 trial files. INDEX has per trace name, kind, start, steps, sha1, nonperturbed, trials; `excluded` (Rukia's research trials) and `deferred` (`tests/scripts/*.json`, waits for M1) |
+| `build/oracle/frozen-dist/` | a copy of the frozen browser build (`index.wasm` sha256 `e35032a7...`), the source of the stills; `gen.py look` prefers it over the main checkout's `dist/duel` and keeps the sha check |
 | `build/oracle/cvc-tag.txt` | the `--cvc` reference at `lisp-freeze`; equal to `tests/style-cvc-ref.txt` (M2's reference) |
 | `build/oracle/fk/<clip>.json` | 400 files (107 MB): 21 joint world matrices per frame per rig (column-major), plus weapon tip / base per form |
 | `build/oracle/sound/<key>.f32` | 51 sounds, 48 kHz mono f32 LE, rendered twice, identical; `INDEX.json` |
@@ -299,12 +302,21 @@ by a kit are sampled for that kit's forms (310); 62 unowned clips go to the form
 `sh-` clips to every form; victim clips carry all 4 rigs (standard, Kenpachi's, Yamamoto's, skeleton). Cross-checked against the
 host reach test: 12 of 12 Yamamoto tip reaches agree to 2 decimals.
 
+**Committed pins** (build/ is git-ignored): `docs/bevy/oracle-index.json` (per trace name, kind, steps, last tick, sha1, plus the sound and FK
+index summaries with sha1s; regenerate it from `build/oracle/INDEX.json` after `gen.py`) and `docs/bevy/cvc-tag.txt` (the `--cvc`
+reference at `lisp-freeze`).
+
+**What H proves and does not.** The per-tick `H` is `state-hash-line` (duel/lisp/gate.lisp), a QUANTISED state line: positions rounded
+to cm, yaw to 0.01 rad, gauges rounded, a hazard count only; velocities, timers and hazard state are absent. A Rust float bug under
+0.5 cm passes H at the tick it happens and only shows when it grows into a visible difference. So H is a coarse sync check, not a
+bit-exact proof; M1 needs a finer line (§6).
+
 ## 5. Rulings (from the M0 ledger)
 
 - **Device loss** (Task 1): Bevy 0.20.1 GPU clustering buffers that wgpu's web backend never destroys; the port sets
-  `gpu_clustering = None` plus `ClusterConfig::None` on every camera. 131 meshes / 141-153 draws instead of the brief's 145 (the
+  `gpu_clustering = None` plus `ClusterConfig::None` on every camera. 131 meshes / 141-153 draws instead of the planned 145 (the
   capture holds every mesh the frozen frames draw; 145 was the browser's draw count).
-- `check-deps.sh` counts `cargo tree -e normal --prefix none | grep -c ^bevy` (the brief's `^.*bevy` matched the worktree path).
+- `check-deps.sh` counts `cargo tree -e normal --prefix none | grep -c ^bevy` (an earlier `^.*bevy` pattern matched the worktree path).
 - **Float checksum order**: data files sorted by name, within a file JSON float tokens in document order (untagged f32, `f64`-tagged
   f64); keys are written sorted, so Rust walks `serde_json::Value` in the same order; a separate test checks typed fields equal
   those bits.
@@ -339,6 +351,8 @@ host reach test: 12 of 12 Yamamoto tip reaches agree to 2 decimals.
 ## 6. Open items for M1-M3
 
 M1 (sim):
+- Bit-level oracle line: record.lisp (the recorder image, no duel/ edit) should also emit a per-step line of raw float bits (pos, vel,
+  yaw, gauges, fighter timers, hazards) so M1's replay compares exact state, not only the quantised H (§4).
 - Trial traces replay through their E lines; the grammar and the E-action list must be implemented, and `trial-run`'s between-frame
   `core-start!` calls come as `E core-start`.
 - Sim code that branches on whether a brain is attached (Ichigo's parry and tsuki stance, Hisagi's `hs-tick-brain`, the round
@@ -349,7 +363,7 @@ M1 (sim):
 - PI-derived values (long-float) must never be read by the sim; add the assertion.
 - Replay's rnd comparison checks injected against itself (not RNG verification); the recorder wraps a fixed trial action list (a new
   `trial-run` action would surface as a divergence); same-name moves with identical JSON could swap `#0` / `#1` (none today).
-- Tool hygiene: `check-deps.sh` hides a failing `cargo tree`; page-smoke's tmp dir is hard-coded `/tmp/claude-1000`; 'Caught
+- Tool hygiene: page-smoke's tmp dir is hard-coded `/tmp/claude-1000`; 'Caught
   rendering error' is not in the page's on-screen regex; smoke row 1 has little headroom at 11.6 fps; the JSON reader maps
   unknown escapes to the letter; `provenance()` compares commits, not the working tree.
 
