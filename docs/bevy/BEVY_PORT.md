@@ -155,8 +155,9 @@ A Cargo workspace at `rs/`, one crate per job:
 - Where data is code, for example a clip key computed by a function or a hook, the extractor flags it and it is ported by hand.
 
 ### 5.3 Floats
-- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. Literals without an `f0` suffix are doubles in ECL
-  and promote. `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
+- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. A bare float literal is a single-float in ECL (its read format is single: M1 Task 2 checked it in the image); doubles come only
+  from `d0`, `(float x 1d0)`, double data and `pi` (a long-float).
+  `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
   and differ from the wasm game in the lowest bits (accepted, presentation only; the sim must not read them; M0_NOTES 5). Mixed-type arithmetic follows CL's contagion rules.
 - Transcendentals use the `libm` crate, a port of musl, on both the native and the wasm build. The answer key's native sim also uses musl.
 - No FMA and no fast-math.
