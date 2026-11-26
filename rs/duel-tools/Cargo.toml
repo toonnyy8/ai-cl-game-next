@@ -1,0 +1,10 @@
+[package]
+name = "duel-tools"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+duel-sim = { path = "../duel-sim" }
+duel-data = { path = "../duel-data" }
+serde_json.workspace = true

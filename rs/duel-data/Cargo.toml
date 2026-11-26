@@ -1,0 +1,9 @@
+[package]
+name = "duel-data"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true

@@ -1,10 +1,13 @@
 # The Rust + Bevy port (docs/bevy/BEVY_PORT.md). Bevy is pinned for the whole port (=0.20.1).
 [workspace]
 resolver = "3"
-members = ["spikes/m0a"]
+members = ["spikes/m0a", "duel-sim", "duel-data", "duel-look", "duel-app", "duel-tools"]
 
 [workspace.dependencies]
 bevy = { version = "=0.20.1", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+libm = "0.2"
 
 [profile.release]
 opt-level = "z"
