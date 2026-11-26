@@ -13,16 +13,23 @@ use crate::state::Match;
 use crate::time::STEP;
 
 /// A hazard's `:hook` function, resolved from its symbol (as `kit::resolve` does a kit's hooks). The kit tasks add their hazards'
-/// hooks (Ichigo's clones, ICHIGO-CLONE-HZ: Task 12).
+/// hooks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HzHook {
     DelayHit,
+    /// Ichigo's clones (ICHIGO-CLONE-HZ), their strikes (ICHIGO-STRIKE-HZ), 残像's afterimages (ICHIGO-ECHO-HZ).
+    IcClone,
+    IcStrike,
+    IcEcho,
 }
 
 impl HzHook {
     pub fn resolve(name: &str) -> Option<HzHook> {
         match name {
             "DELAY-HIT-HOOK" => Some(HzHook::DelayHit),
+            "ICHIGO-CLONE-HZ" => Some(HzHook::IcClone),
+            "ICHIGO-STRIKE-HZ" => Some(HzHook::IcStrike),
+            "ICHIGO-ECHO-HZ" => Some(HzHook::IcEcho),
             _ => None,
         }
     }
@@ -176,6 +183,15 @@ pub fn hazard_step(m: &mut Match, h: Entity) {
         let k = hook_of(m, h);
         let skip = match k {
             Some(HzHook::DelayHit) => crate::combat::delay_hit_hook(m, h),
+            Some(HzHook::IcClone) => {
+                crate::ichigo::clones::clone_hz_step(m, h);
+                true
+            }
+            Some(HzHook::IcEcho) => {
+                crate::ichigo::clones::echo_hz_step(m, h);
+                true
+            }
+            Some(HzHook::IcStrike) => false, // (it answers :touches only)
             None => return, // (unported)
         };
         if skip || m.unported.is_some() || !m.ents.alive(h) {
@@ -231,7 +247,8 @@ pub fn hazard_touches_p(m: &mut Match, h: Entity, tx: f32, ty: f32, tz: f32, tr:
         return false;
     }
     match hook_of(m, h) {
-        Some(HzHook::DelayHit) => false, // (DELAY-HIT-HOOK answers only :step)
+        Some(HzHook::IcStrike) => crate::ichigo::clones::strike_touches(m, h, tx, ty, tz, tr, th),
+        Some(HzHook::DelayHit | HzHook::IcClone | HzHook::IcEcho) => false, // (they answer only :step)
         None => false,                    // (unported)
     }
 }

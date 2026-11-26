@@ -18,8 +18,18 @@ use crate::rules::{
 pub fn call_hook(m: &mut Match, e: Entity, name: &'static str) -> bool {
     match crate::kit::resolve(name) {
         Some(crate::kit::HookFn::Ken(h)) => crate::ken::call(m, e, h),
+        Some(crate::kit::HookFn::Ichigo(h)) => crate::ichigo::call(m, e, h),
         Some(crate::kit::HookFn::Look) => true,
+        Some(crate::kit::HookFn::Cine) => unreachable!("{name}: a cinematic, never called"),
         Some(crate::kit::HookFn::Unported) | None => crate::unported!(m, name, false),
+    }
+}
+
+/// The Ichigo hook symbol NAME names, if it is one (a typed hook's call site dispatches on it).
+pub fn ichigo_hook(name: &str) -> Option<crate::ichigo::Hook> {
+    match crate::kit::resolve(name) {
+        Some(crate::kit::HookFn::Ichigo(h)) => Some(h),
+        _ => None,
     }
 }
 

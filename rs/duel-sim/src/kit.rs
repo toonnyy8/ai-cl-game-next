@@ -295,11 +295,14 @@ impl HookKey {
 /// `fighter::call_hook`, a typed one (:armor, :dmg-mult, :lv, :as-pick, :link-ok, :hit) at its own call site.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HookFn {
-    /// Not ported yet (Ichigo's: Task 12; Hisagi's / Yamamoto's: M4): its caller hits `unported!`.
+    /// Not ported yet (Hisagi's / Yamamoto's: M4): its caller hits `unported!`.
     Unported,
-    /// A look the data names as a hook (`:draw`, `:hit-fx`): the sim never calls it.
+    /// A look the data names as a hook (`:draw`, `:hit-fx`, `:pose`, `:deck`, `:hud-tag`): the sim never calls it.
     Look,
+    /// A cinematic's name in a hook slot (`:soul-break-cine`: KIT-KIKON-CINE reads the symbol, never calls it).
+    Cine,
     Ken(crate::ken::Hook),
+    Ichigo(crate::ichigo::Hook),
 }
 
 /// A kit's hook table: one slot per hook key.
@@ -312,25 +315,21 @@ impl Default for Hooks {
     }
 }
 
-/// The Ichigo hook symbols of the live data (kits.json), not ported yet: the checked list Task 12 empties, each entry replaced by
-/// its `HookFn` variant. An Ichigo symbol outside it does not resolve.
-pub const PENDING_HOOKS: [&str; 12] = [
-    "IC-KESSA-GETSUGA-CINE", "ICHIGO-CATCH", "ICHIGO-CLOAK-POSE", "ICHIGO-DECK", "ICHIGO-DRAW", "ICHIGO-HIT", "ICHIGO-HUD-TAG",
-    "ICHIGO-KIKON-WORTH", "ICHIGO-OK", "ICHIGO-STRUCK", "ICHIGO-THREAT", "ICHIGO-TICK",
-];
-
-// port: the symbol a defkit's :hooks (or a move's hook slot) names → its function. Kenpachi's resolve to their ports (his looks to
-// `Look`); an Ichigo symbol only through PENDING_HOOKS (a stub until Task 12) and anything else of his is None, so `hooks_of` fails
-// at load naming it; a Hisagi / Yamamoto symbol is an `Unported` stub (M4).
+// port: the symbol a defkit's :hooks (or a move's hook slot) names → its function. Kenpachi's and Ichigo's resolve to their ports
+// (their looks to `Look`, a cinematic to `Cine`); anything else of theirs is None, so `hooks_of` fails at load naming it; a Hisagi /
+// Yamamoto symbol is an `Unported` stub (M4).
 pub fn resolve(name: &str) -> Option<HookFn> {
     if let Some(h) = crate::ken::Hook::from_name(name) {
         return Some(HookFn::Ken(h));
     }
-    if crate::ken::LOOKS.contains(&name) {
+    if let Some(h) = crate::ichigo::Hook::from_name(name) {
+        return Some(HookFn::Ichigo(h));
+    }
+    if crate::ken::LOOKS.contains(&name) || crate::ichigo::LOOKS.contains(&name) {
         return Some(HookFn::Look);
     }
-    if PENDING_HOOKS.contains(&name) {
-        return Some(HookFn::Unported);
+    if crate::cine::CineName::from_lisp(name).is_some() {
+        return Some(HookFn::Cine);
     }
     const LATER: [&str; 4] = ["HS-", "HISAGI-", "YAMA-", "YAMAMOTO-"];
     LATER.iter().any(|p| name.starts_with(p)).then_some(HookFn::Unported)

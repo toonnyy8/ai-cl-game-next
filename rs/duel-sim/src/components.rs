@@ -434,11 +434,16 @@ pub struct HitWin {
     pub flags: Vec<Sym>,
 }
 
-/// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (Task 12), DELAY-HIT's list (combat.rs).
+/// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (shared by the clone and its strikes: `Match.iccs[index]`), his
+/// afterimage's `#ICE{…}`, a strike's keyword (`:ECHO`, `:RENZAN`), a look's integer (KAGE-RENZAN's cut number), DELAY-HIT's list.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum HzData {
     #[default]
     Nil,
+    Icc(usize),
+    Ice { mv: MoveId, sf: i64, end: i64 },
+    Kw(Sym),
+    Int(i64),
     /// DELAY-HIT's `(def dmg n react stun sx sz kb mv red)`.
     DelayHit { def: Entity, dmg: i64, n: i64, react: Phase, stun: i64, sx: f32, sz: f32, kb: f32, mv: MoveId, red: bool },
 }

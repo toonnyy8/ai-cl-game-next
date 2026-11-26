@@ -132,8 +132,7 @@ fn stubbed(m: &Match, name: &str) -> bool {
 }
 
 /// A form's :tick hook H (GAUGE-SYSTEM, every step) the run may skip: stubbed by its name and provably writing nothing unmasked and
-/// logging nothing now. ICHIGO-TICK (Task 12): outside KESSA, an `ic-tsuki*` move and with no hazard (JUJISHO's cut) it only attaches
-/// and writes his ICS (masked `ics-`). HS-TICK (M4): always skipped. It writes his HSS (masked `hss-`); its other writes (the K1 copy
+/// logging nothing now. HS-TICK (M4): always skipped. It writes his HSS (masked `hss-`); its other writes (the K1 copy
 /// swapped into FIGHTER-MOVE, the SICKLE / KIN off / ZANDEN log lines) each need a state only one of his own unported hooks sets first
 /// (`hss-kstr`: HS-KAZA-TICK / HS-KAZA-START; `:out`: HS-THROW-OUT; `hss-kin`: HS-CLASH; `zan-pend`: HS-HIT), and the run stops at that
 /// hook, so the skip is exact on every state it can reach. (A skipped move swap would not show as DIVERGED: B prints a move by name
@@ -145,10 +144,6 @@ pub(crate) fn stub_tick(m: &Match, e: Entity, h: &str) -> bool {
     }
     let f = m.fighter.get(e).unwrap();
     match h {
-        "ICHIGO-TICK" => {
-            let tsuki = crate::fighter::current_move(f).is_some_and(|id| m.data.moves[id.0 as usize].name.starts_with("ic-tsuki"));
-            f.form != crate::components::Form::Kessa && !tsuki && m.hazard.is_empty()
-        }
         "HS-TICK" => true,
         "YAMA-TICK" => {
             let max = crate::fighter::kit_of(m, e).meter.max.unwrap_or(0) as f32; // (*ya-heat-max* 100.0 = his Shikai meter's :max)
@@ -344,7 +339,7 @@ mod tests {
     }
 
     /// cvc-ki-s1's start (START-CVC) and its 300 intro steps: the battle begins at tick 0, both IDLE; step 301 runs
-    /// every system up to GAUGE-SYSTEM's ICHIGO-TICK.
+    /// every system, ICHIGO-TICK attaching his ICS (the pacing log on: START-CVC's).
     #[test]
     fn intro_runs_300_steps_into_the_battle() {
         let mut m = crate::hashline::tests::new_match();
@@ -362,6 +357,7 @@ mod tests {
         assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle));
         assert_eq!(m.unported, None);
         sim_step(&mut m, &mut Null);
-        assert_eq!((m.match_tick, m.unported), (1, Some("ICHIGO-TICK"))); // (GAUGE-SYSTEM's :tick of his form: Task 12)
+        assert_eq!((m.match_tick, m.unported, m.pacing_log), (1, None, true));
+        assert!(m.ics.has(m.p2) && !m.ics.has(m.p1));
     }
 }

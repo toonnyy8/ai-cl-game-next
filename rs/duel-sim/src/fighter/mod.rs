@@ -277,7 +277,7 @@ pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -
             }
             let kit = kit_of(m, e);
             let Some(mvd) = crate::kit::kit_command_move(m.data, kit, "q") else { return false };
-            if !kit_command_ok_p(m, e, kit_command_index(cmd), None) {
+            if !kit_command_ok_p(m, e, "q", None) {
                 return false;
             }
             if mvd.cooldown > 0 {
@@ -291,16 +291,29 @@ pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -
     }
 }
 
-/// port: KIT-COMMAND-OK-P: may E start the kit command at FIGHTER-CD index I (None: no cooldown slot) now: not cooling down, and the
-/// form's :ok hook (COMBO: a chained follow-up)?
-pub fn kit_command_ok_p(m: &mut Match, e: Entity, i: Option<usize>, _combo: Option<MoveId>) -> bool {
-    if i.is_some_and(|i| fighter(m, e).cd[i] != 0) {
+/// port: kit.lisp `*kit-commands*`: a kit command's FIGHTER-CD slot.
+fn kit_cd_index(cmd: &str) -> Option<usize> {
+    ["q", "f", "sig", "sp1", "sp2", "breaker", "kikon"].iter().position(|c| *c == cmd)
+}
+
+/// port: the form's :ok hook on kit command CMD (COMBO: a chained follow-up; ICHIGO-OK ignores it).
+fn kit_ok_hook(m: &mut Match, e: Entity, cmd: &str) -> bool {
+    match kit_hook_sym(m, e, "ok") {
+        None => true,
+        Some(h) => match ichigo_hook(h) {
+            Some(crate::ichigo::Hook::Ok) => crate::ichigo::hooks::ok(m, e, cmd),
+            _ => crate::unported!(m, h, false),
+        },
+    }
+}
+
+/// port: KIT-COMMAND-OK-P: may E start kit command CMD (`q`, `sig`, …) now: not cooling down, and the form's :ok hook (COMBO: a
+/// chained follow-up)?
+pub fn kit_command_ok_p(m: &mut Match, e: Entity, cmd: &str, _combo: Option<MoveId>) -> bool {
+    if kit_cd_index(cmd).is_some_and(|i| fighter(m, e).cd[i] != 0) {
         return false;
     }
-    match kit_hook_sym(m, e, "ok") {
-        Some(h) => call_hook(m, e, h), // (ICHIGO-OK: Task 12)
-        None => true,
-    }
+    kit_ok_hook(m, e, cmd)
 }
 
 /// port: REFUSED-CUE: a kit command cooling down, or one its kit's :ok hook refuses: the press eaten with a cue. Always NIL.
@@ -311,10 +324,13 @@ pub fn refused_cue(m: &mut Match, e: Entity, cmd: Cmd, button: Button) -> bool {
             vpad(m, e).consume(button as usize);
             // look: emit :refused
             crate::clog!(m, "{} refused {}: cooling {}", side_name(m, e), cmd.name(), cd);
-        } else if let Some(h) = kit_hook_sym(m, e, "ok")
+        } else if kit_hook_sym(m, e, "ok").is_some()
             && crate::kit::kit_command_move(m.data, kit_of(m, e), "q").is_some()
+            && !kit_ok_hook(m, e, "q")
         {
-            crate::unported!(m, h, false) // (the :ok hook, ICHIGO-OK: Task 12; its refusal logs `~a refused ~a: kit`)
+            vpad(m, e).consume(button as usize);
+            // look: emit :refused
+            crate::clog!(m, "{} refused {}: kit", side_name(m, e), cmd.name());
         }
     }
     false
@@ -379,8 +395,8 @@ pub fn chain_more_p(m: &mut Match, o: Entity, id: MoveId) -> bool {
     }
     if let Some(l) = crate::kit::kit_l_link(m.data, kit, name) {
         let l = id_of(m, l);
-        if kit_command_ok_p(m, o, Some(2), Some(l)) {
-            return true; // ((position :sig *kit-commands*) = 2)
+        if kit_command_ok_p(m, o, "sig", Some(l)) {
+            return true;
         }
     }
     let f = fighter(m, o);

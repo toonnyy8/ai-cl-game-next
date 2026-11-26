@@ -93,6 +93,11 @@ pub struct Match {
     pub hz_keep: bool,
     /// The hazards destroyed during this HIT-APPLY, by full handle (`hazard_of`); emptied at its end.
     pub hz_dead: Vec<(Entity, Hazard)>,
+    /// Ichigo's clone structs (ICC), shared by a clone hazard and its strikes (`HzData::Icc(index)`); emptied with the entities.
+    /// ponytail: never freed inside a match (a few hundred per match at most).
+    pub iccs: Vec<crate::ichigo::clones::Icc>,
+    /// `*pacing-log*`: T once START-CVC ran (never reset): Ichigo's pacing log writes its ICS slots (IC-ACC-WATCH).
+    pub pacing_log: bool,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
@@ -154,6 +159,8 @@ impl Match {
             soul_breaks: Default::default(),
             hz_keep: false,
             hz_dead: Vec::new(),
+            iccs: Vec::new(),
+            pacing_log: false,
             unported: None,
             stubs: Vec::new(),
         }
@@ -214,6 +221,7 @@ impl Match {
                 self.destroy(e);
             }
         }
+        self.iccs.clear();
     }
 
     /// FNV-1a 64 over the bytes of `bits_line` (the trace's exact B text, leading `B` included).

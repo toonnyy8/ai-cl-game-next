@@ -9,7 +9,7 @@ allow=0; extra=()
 for a in "$@"; do
   case "$a" in
     --allow-unported) allow=1 ;;
-    --stubbed) extra=(--stub ICHIGO-TICK,HS-TICK,YAMA-TICK --mask 'ics-,hss-,yss-') ;;
+    --stubbed) extra=(--stub HS-TICK,YAMA-TICK --mask 'hss-,yss-') ;;
     *) echo "usage: $0 [--allow-unported] [--stubbed]"; exit 2 ;;
   esac
 done

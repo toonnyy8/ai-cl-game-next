@@ -1,6 +1,6 @@
 //! port: engine/lisp/cine.lisp (the director) and duel/lisp/cinema.lisp (its hooks, the staging helpers, the generic
 //! cinematics' step-mode AT events). Shots, clips, captions, lenses, impact frames and sounds are looks (M3): only what
-//! touches sim state is here. Kenpachi's scripts are in ken/cine.rs; Ichigo's are `unported!` until Task 12.
+//! touches sim state is here. Kenpachi's scripts are in ken/cine.rs, Ichigo's in ichigo/cine.rs.
 use crate::components::State;
 use crate::ecs::Entity;
 use crate::math::{dir_yaw, hypot};
@@ -14,6 +14,7 @@ pub enum CineName {
     SoulBreak,
     Time,
     Ken(crate::ken::cine::KenCine),
+    Ichigo(crate::ichigo::cine::IcCine),
 }
 
 impl CineName {
@@ -24,6 +25,7 @@ impl CineName {
             CineName::SoulBreak => 96,
             CineName::Time => 120,
             CineName::Ken(c) => c.frames(),
+            CineName::Ichigo(c) => c.frames(),
         }
     }
     /// The Lisp symbol (CINE-BEGIN's log line).
@@ -34,13 +36,16 @@ impl CineName {
             CineName::SoulBreak => "SOUL-BREAK-CINE",
             CineName::Time => "TIME-CINE",
             CineName::Ken(c) => c.lisp(),
+            CineName::Ichigo(c) => c.lisp(),
         }
     }
     /// The cinematic of symbol S, if ported (the generic Soul Break's, a kit's).
     pub fn from_lisp(s: &str) -> Option<CineName> {
         match s {
             "SOUL-BREAK-CINE" => Some(CineName::SoulBreak),
-            _ => crate::ken::cine::KenCine::from_lisp(s).map(CineName::Ken),
+            _ => crate::ken::cine::KenCine::from_lisp(s)
+                .map(CineName::Ken)
+                .or_else(|| crate::ichigo::cine::IcCine::from_lisp(s).map(CineName::Ichigo)),
         }
     }
 }
@@ -168,6 +173,7 @@ pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
         // look: the caption, the negative frame, the shot
         CineName::Time => {}
         CineName::Ken(c) => crate::ken::cine::script(c, cf, a, v, m),
+        CineName::Ichigo(c) => crate::ichigo::cine::script(c, cf, a, v, m),
     }
 }
 

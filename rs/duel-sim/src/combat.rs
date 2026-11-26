@@ -355,7 +355,7 @@ pub struct HitKeys {
     pub red: bool,
 }
 
-fn res_name(r: Res) -> &'static str {
+pub fn res_name(r: Res) -> &'static str {
     match r {
         Res::StanceBreak => "STANCE-BREAK",
         Res::Parried => "PARRIED",
@@ -650,9 +650,11 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             fighter_mut(m, att).armor_left = 0;
             if let Some(h) = kit_hook_sym(m, def, "parried")
                 && siphon_of(m, def).is_none()
-                && !call_hook(m, def, h)
             {
-                return None; // (its own catch: KESSA's, Task 12)
+                match crate::fighter::ichigo_hook(h) {
+                    Some(crate::ichigo::Hook::Catch) => crate::ichigo::hooks::catch(m, def, att), // its own catch: KESSA's
+                    _ => crate::unported!(m, h, None),
+                }
             }
             // look: emit :parried
             let c = fighter(m, def).mv.and_then(|id| kit_next(m.data, kit_of(m, def), &mv(m, id).name, "land"));
@@ -721,12 +723,16 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     }
     bail!();
     for (e, o, key) in [(att, def, "hit"), (def, att, "struck")] {
-        // a character's own hit rules (KEN-HIT; ICHIGO-HIT / -STRUCK: Task 12)
+        // a character's own hit rules (KEN-HIT; ICHIGO-HIT / -STRUCK)
         if let Some(h) = kit_hook_sym(m, e, key) {
-            match ken_hook(h) {
-                Some(crate::ken::Hook::Hit) if key == "hit" => crate::ken::hooks::hit(m, e, o, r, mvd, hazard.is_some()),
+            use crate::kit::HookFn::{Ichigo, Ken};
+            match crate::kit::resolve(h) {
+                Some(Ken(crate::ken::Hook::Hit)) if key == "hit" => crate::ken::hooks::hit(m, e, o, r, mvd, hazard.is_some()),
+                Some(Ichigo(crate::ichigo::Hook::Hit)) if key == "hit" => crate::ichigo::hooks::hit(m, e, o, r, hazard),
+                Some(Ichigo(crate::ichigo::Hook::Struck)) if key == "struck" => crate::ichigo::hooks::struck(m, e, o, r),
                 _ => crate::unported!(m, h, None),
             }
+            bail!();
         }
     }
     if matches!(r, Res::Hit | Res::Counter) {

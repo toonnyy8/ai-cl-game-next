@@ -103,9 +103,9 @@ fn hooks_resolve_or_fail_by_name() {
 }
 
 #[test]
-fn pending_hooks_are_the_live_symbols() {
-    // PENDING_HOOKS lists exactly the Ichigo hook symbols of the data (no stale or missing entry); every Kenpachi one is ported
-    // (Task 11: his hooks, his looks as `Look`)
+fn live_hooks_all_ported() {
+    // every Kenpachi (Task 11) and Ichigo (Task 12) hook symbol of the data resolves to its port, a look or (IC-KESSA-GETSUGA-CINE in
+    // :soul-break-cine) a cinematic: none is left `Unported`
     let d = Data::embedded();
     let live = |c: &str| {
         let mut v: Vec<&str> = d.kits.kits[c].values().flat_map(|k| k.hooks.values().map(|s| s.as_str())).collect();
@@ -113,8 +113,9 @@ fn pending_hooks_are_the_live_symbols() {
         v.dedup();
         v
     };
-    assert_eq!(live("ichigo"), PENDING_HOOKS.to_vec());
     assert!(live("kenpachi").iter().all(|s| matches!(resolve(s), Some(HookFn::Ken(_) | HookFn::Look))));
+    assert!(live("ichigo").iter().all(|s| matches!(resolve(s), Some(HookFn::Ichigo(_) | HookFn::Look | HookFn::Cine))));
+    assert_eq!(resolve("IC-KESSA-GETSUGA-CINE"), Some(HookFn::Cine));
 }
 
 #[test]

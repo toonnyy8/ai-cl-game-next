@@ -11,15 +11,17 @@ use crate::rules::{awakening_gain, reset_placement, sub_attack_gain};
 use crate::state::Match;
 
 /// port: KIKON-WORTH: Konpaku E's Kikon would take now: a running rush's worth (fixed at its start), else the kit's :kikon-worth hook
-/// (ICHIGO-KIKON-WORTH: Task 12), else the kit's :kikon-konpaku. (None: the hook is unported, `m.unported` set.)
+/// (ICHIGO-KIKON-WORTH), else the kit's :kikon-konpaku. (None: the hook is unported, `m.unported` set.)
 pub fn kikon_worth(m: &mut Match, e: Entity) -> Option<i64> {
     let f = fighter(m, e);
     if f.mv.is_some_and(|id| f.state == State::Move && mv(m, id).kind == "kikon") {
         return Some(f.kikon_n);
     }
     if let Some(h) = kit_hook_sym(m, e, "kikon-worth") {
-        call_hook(m, e, h); // (its port must use the worth it returns)
-        return None;
+        return match crate::fighter::ichigo_hook(h) {
+            Some(crate::ichigo::Hook::KikonWorth) => Some(crate::ichigo::hooks::kikon_worth(m, e)),
+            _ => crate::unported!(m, h, None),
+        };
     }
     Some(kit_of(m, e).kikon_konpaku as i64)
 }

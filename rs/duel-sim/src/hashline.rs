@@ -148,10 +148,88 @@ impl Enc for HitWin {
         s.push('}');
     }
 }
+/// HAZARD-DATA (an ICC is the match's shared struct: `m.iccs`).
+fn enc_hz_data(m: &Match, v: &HzData, s: &mut String) {
+    let d = m.data;
+    match v {
+        HzData::Icc(i) => {
+            let c = &m.iccs[*i];
+            s.push_str("#ICC{:");
+            s.push_str(c.state.name());
+            s.push(',');
+            c.born.enc(d, s);
+            s.push(',');
+            c.life.enc(d, s);
+            s.push(',');
+            c.fade.enc(d, s);
+            s.push(',');
+            match c.src {
+                Some(x) => {
+                    s.push(':');
+                    s.push_str(x.name());
+                }
+                None => s.push_str("NIL"),
+            }
+            s.push(',');
+            c.link.enc(d, s);
+            s.push(',');
+            c.mv.enc(d, s);
+            s.push(',');
+            c.sf.enc(d, s);
+            s.push(',');
+            let q: Vec<Sym> = c.queued.iter().map(|w| Sym(if *w == crate::ichigo::clones::Weight::Q { ":Q" } else { ":F" })).collect();
+            q.enc(d, s);
+            s.push(',');
+            c.hit.enc(d, s);
+            s.push(',');
+            c.touched.enc(d, s);
+            s.push(',');
+            if c.rq.is_empty() {
+                s.push_str("NIL");
+            } else {
+                s.push('(');
+                for (k, (t, mv, x)) in c.rq.iter().enumerate() {
+                    if k > 0 {
+                        s.push(',');
+                    }
+                    s.push('(');
+                    t.enc(d, s);
+                    s.push(',');
+                    mv.enc(d, s);
+                    s.push(',');
+                    x.enc(d, s);
+                    s.push(')');
+                }
+                s.push(')');
+            }
+            s.push(',');
+            c.rmult.enc(d, s);
+            s.push(',');
+            c.rt.enc(d, s);
+            s.push(',');
+            c.sscale.enc(d, s);
+            s.push('}');
+        }
+        _ => v.enc(d, s),
+    }
+}
+
 impl Enc for HzData {
     fn enc(&self, d: &Data, s: &mut String) {
         match self {
             HzData::Nil => s.push_str("NIL"),
+            HzData::Icc(_) => unreachable!("an ICC is encoded with its match (enc_hz_data)"),
+            HzData::Ice { mv, sf, end } => {
+                s.push_str("#ICE{");
+                mv.enc(d, s);
+                s.push(',');
+                sf.enc(d, s);
+                s.push(',');
+                end.enc(d, s);
+                s.push('}');
+            }
+            HzData::Kw(k) => k.enc(d, s),
+            HzData::Int(n) => n.enc(d, s),
             HzData::DelayHit { def, dmg, n, react, stun, sx, sz, kb, mv, red } => {
                 let vs: [&dyn Enc; 10] = [def, dmg, n, react, stun, sx, sz, kb, mv, red];
                 s.push('(');
@@ -251,8 +329,10 @@ pub fn bits_line(m: &Match) -> String {
             o if o == m.p2 => s.push_str(":P2"),
             o => o.enc(d, &mut s),
         }
-        fields!(d, &mut s, h; x, y, z, px, pz, yaw, speed, size, age, life, delay, hits_left, rehit, hw, src, hook, data, sp,
-            sp_mv, cls, sp_paid, sp_scale, sp_src, look);
+        fields!(d, &mut s, h; x, y, z, px, pz, yaw, speed, size, age, life, delay, hits_left, rehit, hw, src, hook);
+        s.push(' ');
+        enc_hz_data(m, &h.data, &mut s);
+        fields!(d, &mut s, h; sp, sp_mv, cls, sp_paid, sp_scale, sp_src, look);
     }
     s
 }
