@@ -267,7 +267,7 @@ docs/bevy/M0_NOTES.md                 create: device-loss findings, data file sc
   - `(hash-table-count *clips*)`;
   - `(hash-table-count *poses*)`;
   - `*bodies*` and `*weapons*` counts;
-  - `(length *glyph-outline*s)`;
+  - `(length *glyph-outlines*)`;
   - `(length *debug-ranges*)`;
   - the source defparameter count = `tuning.json` entries (written + skipped).
 
@@ -324,6 +324,8 @@ docs/bevy/M0_NOTES.md                 create: device-loss findings, data file sc
     - `--cvc`'s II / IK / KK at the tag (`cvc-tag.txt`, replacing the stale `tests/style-cvc-ref.txt` for M2);
     - every combo trial of `tools/simgate/trial.lisp`.
   - `build/oracle/INDEX.json` lists them with tick counts.
+  - The traces of the browser scripts (`tests/scripts/*.json`, spec §6.1) wait for M1: they need the scripted-input path on the
+    native image, which M1's replay harness brings. Host-test expectations are ported with the tests in M1.
 
 - [ ] **Step 1: Write the replay check first.** `replay.lisp TRACE`:
   - detaches both brains;
