@@ -1,6 +1,6 @@
 //! Port of tests/duel-rules/sp.lisp's checks over sp.lisp (one assert per Lisp `(check …)`, same expected values).
 use duel_data::Data;
-use duel_data::kits::MoveClass::{As, Na, Ns, Sa};
+use duel_data::MoveClass::{self, As, Na, Ns, Sa};
 use duel_sim::components::State;
 use duel_sim::knobs::Knobs;
 use duel_sim::sp::*;
@@ -89,4 +89,58 @@ fn sp_spending() {
     assert!(!sp_switch_ok_p(50.0, false, false, 2));
     assert!(!sp_switch_ok_p(50.0, true, true, 2));
     assert!(!sp_switch_ok_p(50.0, true, false, 1));
+}
+
+fn kit<'d>(d: &'d Data, c: &str, f: &str) -> &'d duel_data::Kit {
+    &d.kits.kits[c][f]
+}
+
+#[test]
+fn kit_sp_costs() {
+    use duel_sim::kit::*;
+    let d = Data::embedded();
+    // line 125: every NS / AS segment but a Kikon strike has a single-float cost, everything else none (Kenpachi / Ichigo kits;
+    // the Hisagi rows of *sp-table* are M4)
+    for c in ["kenpachi", "ichigo"] {
+        for k in d.kits.kits[c].values() {
+            let by_id = |n: &str| d.moves.iter().find(|m| m.id == n);
+            let strikes: Vec<&str> = k.cls.keys().filter_map(|n| by_id(n)?.params.kikon_strike.as_deref()).collect();
+            for (n, cls) in &k.cls {
+                let mv = by_id(n);
+                let want = matches!(cls, MoveClass::Ns | MoveClass::As) && !strikes.contains(&mv_name(mv.unwrap()));
+                assert_eq!(kit_sp_cost(k, mv).is_some(), want, "{c} {n}");
+            }
+        }
+    }
+    let ic = kit(&d, "ichigo", "base");
+    let ke = kit(&d, "kenpachi", "base");
+    assert!(kit_sp_cost(ic, kit_move(&d, ic, &ic.core.sa)).is_none());
+    let (n1a, n1b) = (kit_move(&d, ic, "ic-n1a").unwrap(), kit_move(&d, ic, "ic-n1b").unwrap());
+    let n2a = kit_core_move(&d, ic, Role::Ns, 2).unwrap();
+    assert!(kit_sp_start_p(ic, n1a, 0.0, false));
+    assert!(kit_sp_start_p(ic, n2a, 0.0, false));
+    assert!(!kit_sp_start_p(ic, n1b, 0.0, false));
+    assert!(kit_sp_start_p(ic, n1b, 0.5, false));
+    assert!(kit_sp_start_p(ic, n1b, 0.0, true));
+    let n3b = kit_move(&d, ke, "ke-z-n3b").unwrap();
+    assert!(!kit_sp_start_p(ke, n3b, 0.0, false));
+    assert!(kit_sp_start_p(ke, n3b, 20.0, false));
+    assert!(kit_sp_start_p(ic, kit_core_move(&d, ic, Role::As, 3).unwrap(), 0.0, false));
+    assert!(kit_sp_start_p(ic, kit_move(&d, ic, "ic-j1").unwrap(), 0.0, false));
+    assert!(kit_sp_start_p(ic, kit_sa_move(&d, ic).unwrap(), 0.0, false));
+}
+
+#[test]
+fn hooks_load() {
+    use duel_sim::kit::*;
+    let d = Data::embedded();
+    for forms in d.kits.kits.values() {
+        for k in forms.values() {
+            hooks_of(k).unwrap();
+        }
+    }
+    let kb = kit(&d, "kenpachi", "base");
+    let (key, _) = kb.hooks.iter().next().unwrap();
+    assert_eq!(kit_hook(&hooks_of(kb).unwrap(), HookKey::from_name(key).unwrap()), Some(HookFn::Unported));
+    assert!(resolve("NOT-A-KIT-FN").is_none());
 }

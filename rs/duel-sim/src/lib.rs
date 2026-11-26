@@ -7,6 +7,7 @@ pub mod sp;
 pub mod ecs;
 pub mod hashline;
 pub mod hitvol;
+pub mod kit;
 pub mod knobs;
 pub mod log;
 pub mod math;
