@@ -185,3 +185,24 @@ fn ichigo_steal_values() {
     assert_eq!(vals("base", "ic-as1"), [Some(40)]);
     assert_eq!(vals("kessa", "ic-k-as1"), [Some(15); 4]);
 }
+
+#[test]
+fn first_window_first() {
+    // triangle.lisp line 36: in every kit's moves, no hit window starts before the first one
+    let d = duel_data::Data::embedded();
+    for forms in d.kits.kits.values() {
+        for k in forms.values() {
+            for id in &k.moves {
+                let w = &d.moves.iter().find(|m| &m.id == id).unwrap().hits;
+                assert!(w.iter().skip(1).all(|x| x.from >= w[0].from), "{id}");
+            }
+        }
+    }
+}
+
+#[test]
+fn five_j_pointer() {
+    // triangle.lisp line 171: J1-2 -> AS1, J3-4 -> AS2, J5 -> AS3
+    let k = &k();
+    assert_eq!((0..=6).map(|n| core_as_pointer(k, n, &[1, 1, 2, 2, 3])).collect::<Vec<_>>(), [1, 1, 1, 2, 2, 3, 3]);
+}
