@@ -23,8 +23,9 @@ may change them with a reason. The DEVLOG § and the plan come later.
   - A speed test before the big work? → **「先測速再繼續」** (§7 M0a).
   - The phone that judges performance → **「Android + Chrome」**.
   - M0a's verdict (docs/bevy/M0A_SPEED.md), after trying the Bevy replay page against the Lisp page on that phone → **「可以接受」**, given on a page that
-    drew about a fifth of A's pixels on the phone; asked again on the corrected page (M0A_SPEED.md "Corrections"). Open: Bevy's
-    page loses its GPU device after about 700-900 drawn frames in headless Chrome.
+    drew about a fifth of A's pixels on the phone; asked again on the corrected page (M0A_SPEED.md "Corrections") →
+    **「速度順暢，像素顯示 1079×1938，沒有錯誤訊息」** (2.09 MP, smooth, no error): M0a passed. Open: Bevy's page loses its GPU device
+    after about 700-900 drawn frames in headless Chrome only so far; the automated checks run there, so M0 deals with it first.
 - The lead then played back four more points and the user confirmed them (「沒有遺漏，萊醬你可以開始了」):
   - the frozen Lisp build is the answer key;
   - the browser and phone targets;

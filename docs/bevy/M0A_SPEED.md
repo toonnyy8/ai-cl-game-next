@@ -111,3 +111,8 @@ smooth and quick enough to start, compared with A, to go on with Bevy's own rend
 **The user's answer (2026-11-26, after trying both pages on the phone): 「可以接受」**, given on the first page (0.33 MP on a
 DPR-3 phone, see the corrections above): asked again on the corrected page. MSAA stays the original's 4x unless the user asks otherwise; B' showed it can be dropped if a phone
 needs it.
+
+**The retest on the corrected page (2026-11-26): 「速度順暢，像素顯示 1079×1938，沒有錯誤訊息」.** On the user's Android + Chrome the
+Bevy page drew 1079x1938 px (2.09 MP, more than A's 1.6 MP phone cap) smoothly, with no error shown. M0a passes; the device loss
+has so far been seen only in headless Chrome (SwiftShader), where every automated still and smoke of the port runs, so it stays
+the first item of M0.
