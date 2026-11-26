@@ -269,7 +269,7 @@ pub fn body_of(m: &Match, e: Entity) -> (f32, f32) {
 /// port: HAZARD-CONNECTED: HZ's hit took effect: one hit fewer (a wave is spent: gone at the next step), a multi-hit one waits.
 pub fn hazard_connected(m: &mut Match, h: Entity) {
     let rehit = m.knobs.hazard_rehit;
-    let Some(hz) = m.hazard.get_mut(h) else { return };
+    let Some(hz) = m.hazard_of_mut(h) else { return }; // (a hazard destroyed earlier this HIT-APPLY: its struct, as the Lisp's)
     hz.hits_left -= 1;
     hz.rehit = rehit;
     if hz.hits_left <= 0 && hz.kind == Some(HazardKind::Wave) {

@@ -364,7 +364,7 @@ pub fn core_verdicts(m: &Match, hits: &Queue<Pending, PENDING_MAX>) -> Queue<Ver
     for h in hits.iter() {
         out.push({
             let (fa, fd) = (fighter(m, h.att), fighter(m, h.def));
-            let hz = h.hazard.map(|x| m.hazard.get(x).expect("a hazard"));
+            let hz = h.hazard.map(|x| m.hazard_of(x).expect("a hazard"));
             let ca = match hz {
                 Some(hz) => hz.cls,
                 None => h.mv.filter(|&x| Some(x) == fa.mv).and(fa.cls),
@@ -475,12 +475,12 @@ fn hz_tag(kind: Option<HazardKind>, cls: Option<Cls>) -> String {
 /// port: CORE-HAZARD-NOHIT!: a :cancel or :absorb verdict between hazard HZ (judged as the segment that fired it) and fighter OTHER.
 /// The caller removes the hazard.
 pub fn core_hazard_nohit(m: &mut Match, hz: Entity, other: Entity, verdict: Verdict) {
-    let h = m.hazard.get(hz).expect("a hazard").clone();
+    let h = m.hazard_of(hz).expect("a hazard").clone();
     let owner = h.owner;
     match verdict {
         Verdict::Cancel => {
             let paid = h.sp_paid;
-            m.hazard.get_mut(hz).unwrap().sp_paid = 0.0; // ponytail (the Lisp's): one refund per hazard
+            m.hazard_of_mut(hz).unwrap().sp_paid = 0.0; // ponytail (the Lisp's): one refund per hazard
             let fo = fighter(m, owner);
             if fo.state == State::Move && fo.cls_t == h.sp_src {
                 core_cancel_landed(m, owner, paid > 0.0);
@@ -730,7 +730,7 @@ pub fn core_kikon_undo(m: &mut Match, e: Entity) {
 /// Kikon's first strike (the hold kept, ATT still in that segment or free). Else NIL.
 pub fn core_wave_strike(m: &Match, att: Entity, hz: Option<Entity>) -> Option<MoveId> {
     let f = fighter(m, att);
-    let from = hz.and_then(|h| m.hazard.get(h)).and_then(|h| h.sp_mv)?;
+    let from = hz.and_then(|h| m.hazard_of(h)).and_then(|h| h.sp_mv)?;
     if !(f.sp_held && ((f.state == State::Move && f.mv == Some(from)) || f.state == State::Idle)) {
         return None;
     }

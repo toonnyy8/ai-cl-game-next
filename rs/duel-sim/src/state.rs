@@ -88,6 +88,11 @@ pub struct Match {
     pub kikons: crate::combat::Queue<crate::combat::KikonQ, { crate::combat::SOULS_MAX }>,
     /// `*soul-breaks*`: (attacker, victim) of every Reishi that reached 0 this step, in the order queued.
     pub soul_breaks: crate::combat::Queue<(Entity, Entity), { crate::combat::SOULS_MAX }>,
+    /// While HIT-APPLY applies the step's hits: a hazard destroyed then is kept in `hz_dead` (the Lisp's PENDING holds the HAZARD
+    /// struct itself, which outlives DESTROY-ENTITY: a clone ICHIGO-VANISH removes still deals its collected hit).
+    pub hz_keep: bool,
+    /// The hazards destroyed during this HIT-APPLY, by full handle (`hazard_of`); emptied at its end.
+    pub hz_dead: Vec<(Entity, Hazard)>,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
@@ -147,6 +152,8 @@ impl Match {
             pending: Default::default(),
             kikons: Default::default(),
             soul_breaks: Default::default(),
+            hz_keep: false,
+            hz_dead: Vec::new(),
             unported: None,
             stubs: Vec::new(),
         }
@@ -179,9 +186,25 @@ impl Match {
             self.fighter.remove(e);
             self.gauges.remove(e);
             self.pilot.remove(e);
-            self.hazard.remove(e);
+            if let Some(h) = self.hazard.take(e)
+                && self.hz_keep
+            {
+                self.hz_dead.push((e, h));
+            }
             self.ics.remove(e);
         }
+    }
+
+    /// The HAZARD struct of handle H as a pending hit holds it: the live one, else (during HIT-APPLY) the one destroyed since it was
+    /// collected.
+    pub fn hazard_of(&self, h: Entity) -> Option<&Hazard> {
+        self.hazard.get(h).or_else(|| self.hz_dead.iter().find(|(e, _)| *e == h).map(|(_, z)| z))
+    }
+    pub fn hazard_of_mut(&mut self, h: Entity) -> Option<&mut Hazard> {
+        if self.hazard.has(h) {
+            return self.hazard.get_mut(h);
+        }
+        self.hz_dead.iter_mut().find(|(e, _)| *e == h).map(|(_, z)| z)
     }
 
     /// port: clear-entities.

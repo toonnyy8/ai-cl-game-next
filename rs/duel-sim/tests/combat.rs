@@ -190,3 +190,52 @@ fn hit_system_lands_a_j1() {
     assert!(m.motion.get(a).unwrap().kb_left > 0); // J1, the string's opener: he closes in (*STRING-PULL-TO*)
     assert!(m.pending.is_empty() && m.kikons.is_empty() && m.soul_breaks.is_empty());
 }
+
+/// A hazard destroyed earlier in the same HIT-APPLY still deals its collected hit, from the struct it had (the Lisp's PENDING holds
+/// the HAZARD itself; ICHIGO-STRUCK's ICHIGO-VANISH removes his clones before their own hits apply): the same result as with the hazard
+/// alive, no panic, and a hazard spawned into the freed slot is not touched.
+#[test]
+fn destroyed_hazard_still_hits() {
+    use duel_sim::combat::{apply_hit, HitKeys};
+    use duel_sim::components::{HazardKind, HitWin, HzData, Sym};
+    use duel_sim::hazards::{collect_hazard_hits, hazard_connected, spawn_hazard, spawn_look, HzArgs};
+    let mut d = Data::embedded();
+    d.kits.kits.get_mut("kenpachi").unwrap().get_mut("base").unwrap().hooks.clear();
+    let d: &'static Data = Box::leak(Box::new(d));
+    let mut m = Match::new(d);
+    m.picks = [Character::Kenpachi, Character::Kenpachi];
+    duel_sim::flow::spawn_pair(&mut m, true, true);
+    m.log_on = true;
+    let (a, b) = (m.p1, m.p2);
+    let p = m.transform.get(a).unwrap().pos;
+    let hw = HitWin {
+        from: 0, to: 0, dmg: 50, vols: vec![], react: Phase::Stagger, kb: 1.0, hs: 6, chip: None, stun: None, guard: None, seg: None,
+        min: None, steal: None, flags: vec![Sym(":BLADE")],
+    };
+    let h = spawn_hazard(&mut m, HazardKind::Wave, b, HzArgs { x: p[0], z: p[2], size: 1.0, hw: Some(hw), ..HzArgs::default() });
+    collect_hazard_hits(&mut m);
+    assert_eq!(m.pending.len(), 1);
+    let apply = |m: &mut Match| {
+        let hits = m.pending;
+        for h in hits.iter() {
+            let k = HitKeys { mv: h.mv, hazard: h.hazard, def_state: h.state, bonus: h.bonus, crush: h.crush, red: h.red };
+            assert!(apply_hit(m, h.att, h.def, h.hw, h.sx, h.sz, k).is_some());
+            hazard_connected(m, h.hazard.unwrap());
+        }
+    };
+    let mut alive = m.clone();
+    apply(&mut alive);
+    m.hz_keep = true;
+    m.destroy(h);
+    let look = spawn_look(&mut m, a, Sym("KEN-CHIGIRI-LOOK"), None, None, 0.0, 1.0, 30, 0, HzData::Nil);
+    assert_eq!(look.slot(), h.slot()); // (the freed slot, a new generation)
+    let before = m.hazard.get(look).unwrap().clone();
+    apply(&mut m);
+    assert_eq!(m.unported, None);
+    assert_eq!(m.log, alive.log);
+    for e in [a, b] {
+        assert_eq!((m.fighter.get(e), m.gauges.get(e)), (alive.fighter.get(e), alive.gauges.get(e)));
+    }
+    assert_eq!(m.hazard_of(h).map(|z| z.hits_left), alive.hazard.get(h).map(|z| z.hits_left)); // its own struct took the connect
+    assert_eq!(m.hazard.get(look), Some(&before));
+}

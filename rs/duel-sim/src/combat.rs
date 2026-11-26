@@ -156,7 +156,10 @@ fn flag_bits<'a>(flags: impl Iterator<Item = &'a str>) -> u16 {
             "keep-bind" => flag::KEEP_BIND,
             "spare" => flag::SPARE,
             "ranged" => flag::RANGED,
-            _ => 0,
+            // read elsewhere or looks only: the move flags a window carries (kit.lisp passes a move's :flags to its windows; every
+            // one in today's data), and the hazards' look flags (Ichigo's waves: :blade)
+            "ender" | "no-close" | "parry" | "ranged-ward" | "stance" | "step-branch" | "through" | "ice" | "blade" | "thread" => 0,
+            x => panic!("a hit window flag APPLY-HIT does not know: {x}"),
         }
     })
 }
@@ -227,7 +230,7 @@ pub fn hw_of(m: &Match, hw: HwRef) -> Hw {
             steal: None,
             flags: 0,
         },
-        HwRef::Hazard(h) => hw_of_runtime(m.hazard.get(h).expect("a pending hazard").hw.as_ref().expect("a hit hazard's window")),
+        HwRef::Hazard(h) => hw_of_runtime(m.hazard_of(h).expect("a pending hazard").hw.as_ref().expect("a hit hazard's window")),
     }
 }
 
@@ -426,7 +429,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             return None;
         }
         let sps = match hazard {
-            Some(h) => m.hazard.get(h).unwrap().sp_scale,
+            Some(h) => m.hazard_of(h).unwrap().sp_scale,
             None if own => crate::sp::sp_scale(fa.sp_paid, fa.sp_cost),
             None => 1.0,
         };
@@ -466,7 +469,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     {
         let what = match (mvd, hazard) {
             (Some(x), _) => x.name.to_uppercase(),
-            (None, Some(h)) => m.hazard.get(h).unwrap().kind.map_or("NIL", |k| k.name()).to_string(),
+            (None, Some(h)) => m.hazard_of(h).unwrap().kind.map_or("NIL", |k| k.name()).to_string(),
             (None, None) => "COUNTER".to_string(),
         };
         crate::clog!(m, "{} {} -> {} {} {}", side_name(m, att), what, side_name(m, def), res_name(r), base);
@@ -499,7 +502,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             let unscaled = flat
                 || hw.has(flag::UNSCALED)
                 || match hazard {
-                    Some(h) => m.hazard.get(h).unwrap().sp,
+                    Some(h) => m.hazard_of(h).unwrap().sp,
                     None => mvd.is_some_and(|x| sp_move_p(m.data, kit_of(m, att), x)),
                 }
                 || match kit_hook_sym(m, att, "unscaled") {
@@ -898,6 +901,7 @@ pub fn hit_apply(m: &mut Match) {
     let hits = m.pending;
     let verdicts = core_verdicts(m, &hits);
     m.pending.clear();
+    m.hz_keep = true; // (a hazard destroyed by an earlier hit still deals its own: `Match::hazard_of`)
     for (h, verdict) in hits.iter().zip(verdicts.iter()) {
         let hit = if verdict == Verdict::Hit {
             let k = HitKeys { mv: h.mv, hazard: h.hazard, def_state: h.state, bonus: h.bonus, crush: h.crush, red: h.red };
@@ -907,7 +911,7 @@ pub fn hit_apply(m: &mut Match) {
             true
         };
         if m.unported.is_some() {
-            return;
+            break;
         }
         if hit {
             if let Some(hz) = h.hazard {
@@ -918,6 +922,8 @@ pub fn hit_apply(m: &mut Match) {
             }
         }
     }
+    m.hz_keep = false; // (nothing holds a destroyed hazard past the step's hits)
+    m.hz_dead.clear();
 }
 
 // ---------------------------------------------------------------- perfect Hoho

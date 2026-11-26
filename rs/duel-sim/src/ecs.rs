@@ -107,10 +107,13 @@ impl<T> Store<T> {
     }
     /// port: remove-component (a stale handle removes nothing).
     pub fn remove(&mut self, e: Entity) {
-        if let Ok(i) = self.find(e.slot())
-            && self.items[i].0 == e
-        {
-            self.items.remove(i);
+        self.take(e);
+    }
+    /// REMOVE, giving the component back.
+    pub fn take(&mut self, e: Entity) -> Option<T> {
+        match self.find(e.slot()) {
+            Ok(i) if self.items[i].0 == e => Some(self.items.remove(i).1),
+            _ => None,
         }
     }
     /// The component getter `(name e)`: None for an absent component or a stale handle.
