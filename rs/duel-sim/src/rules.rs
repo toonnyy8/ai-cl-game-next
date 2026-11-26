@@ -243,7 +243,8 @@ pub fn recovery_frames(k: &Knobs, r: i64, contact: Option<Contact>, whiff: Optio
     }
 }
 
-// port: rules.lisp CHAIN-OPEN-P
+// port: rules.lisp CHAIN-OPEN-P — a CONTACT of T (fighter.lisp:804 LANDED, ichigo.lisp:654 ICC-HIT / -TOUCHED) is not
+// :hit, so it takes the block timing: callers pass `Some(Contact::Block)` for T (RECOVERY-FRAMES treats T as a hit instead).
 pub fn chain_open_p(k: &Knobs, sf: i64, s: i64, a: i64, r: i64, contact: Option<Contact>) -> bool {
     let total = s + a + r;
     match contact {

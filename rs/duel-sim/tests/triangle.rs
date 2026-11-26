@@ -86,6 +86,16 @@ fn triangle_cancels_and_exchanges() {
 }
 
 #[test]
+fn triangle_first_land() {
+    use duel_sim::components::Contact;
+    use duel_sim::rules::first_land_p;
+    assert!(first_land_p(None, 0));
+    assert!(first_land_p(Some(Contact::Block), 1));
+    assert!(first_land_p(Some(Contact::Hit), 0));
+    assert!(!first_land_p(Some(Contact::Hit), 1));
+}
+
+#[test]
 fn triangle_pointer_profiles() {
     let k = &k();
     let m = |f: &dyn Fn(i64) -> i64, xs: &[i64]| xs.iter().map(|&x| f(x)).collect::<Vec<_>>();
