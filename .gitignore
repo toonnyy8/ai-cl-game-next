@@ -21,3 +21,4 @@
 # batch sheets and WebGL-era stills: kept on disk, no longer tracked (R8, D6)
 /tests/shots/batch-*
 /tests/shots/webgl-*
+rs/target/

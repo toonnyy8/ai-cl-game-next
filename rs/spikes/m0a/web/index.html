@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>SOUL DUEL M0a</title>
+<link rel="icon" href="data:,">
+<style>
+:root { --bg: #141419; --fg: #eeeeee; --link: #99ccff; --muted: #cccccc; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #141419; --fg: #eeeeee; --link: #99ccff; --muted: #cccccc; } }
+  :root[data-theme="dark"] { --bg: #141419; --fg: #eeeeee; --link: #99ccff; --muted: #cccccc; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden; }
+  #aa a { color: var(--link); }
+  #bevy { display: block; width: 100vw !important; height: 100vh !important; touch-action: none; }
+  #fatal { display: none; position: fixed; inset: 0; padding: 24px; color: var(--fg); background: var(--bg); font: 16px/1.5 sans-serif; }
+</style>
+</head>
+<body>
+<canvas id="bevy"></canvas>
+<div id="fatal"></div>
+<div id="aa" style="position:fixed;right:16px;top:10px;font:13px sans-serif;color:var(--muted)">
+  <a href="?">MSAA 4x</a> · <a href="?msaa=off">MSAA off</a><br><span id="px"></span>
+</div>
+<script type="module">
+// M0a speed test page (docs/bevy/plans/2026-11-26-m0a-speed-test.md): the Bevy replay of frames captured from the frozen game.
+// window.Module keeps tools/run.mjs scripts that call Module._debug_cmd from throwing; failures print `engine fatal: ...` and show.
+window.Module = { _debug_cmd(n) {} };
+function fatal(msg) {
+  console.log('engine fatal: ' + msg);
+  const d = document.getElementById('fatal'); d.textContent = 'Cannot start: ' + msg; d.style.display = 'block';
+}
+import init from './index.js';
+// Anything that breaks after the start (a refused device, a shader error on the phone's driver, a panic, a lost device) shows
+// too, not a frozen canvas (review I1 / C2): errors, rejected promises, and Bevy's own log lines about a lost device.
+const benign = m => String(m).includes('Using exceptions for control flow');
+addEventListener('error', e => { if (!benign(e.message)) fatal(e.message); });
+addEventListener('unhandledrejection', e => { if (!benign(e.reason)) fatal(String(e.reason)); });
+for (const k of ['log', 'info', 'warn', 'error']) {
+  const f = console[k].bind(console);
+  console[k] = (...a) => { f(...a); const t = a.join(' '); if (/DeviceLost|panicked at/.test(t) && !t.startsWith('engine fatal')) fatal(t.replace(/%c/g, '').slice(0, 300)); };
+}
+(async () => {
+  if (!navigator.gpu || location.search.includes('nogpu')) { fatal('WebGPU is not available in this browser'); return; }   // (?nogpu: the smoke of this path)
+  let adapter = null;
+  try { adapter = await navigator.gpu.requestAdapter(); } catch (e) {}
+  window.__m0aAdapter = adapter;   // kept alive (tried against the device loss of review C2: it did not help; harmless)
+  if (!adapter) { fatal('no WebGPU adapter'); return; }
+  // index.gzip.wasm first (gzip bytes under a served name: the Artifact's binary files stop at 15 MB and .gz is not served; the raw wasm is 24 MB), unzipped here; else index.wasm
+  let src = 'index.wasm';
+  try {
+    const r = await fetch('index.gzip.wasm');
+    if (r.ok) {
+      const b = await r.arrayBuffer(), h = new Uint8Array(b, 0, 2);
+      src = h[0] === 0x1f && h[1] === 0x8b   // still gzip (not already decoded by the server's content encoding)
+        ? await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer() : b;
+    }
+  } catch (e) {}
+  setTimeout(() => { const c = document.getElementById('bevy'); console.log(`m0a: canvas ${c.width}x${c.height} css ${c.clientWidth}x${c.clientHeight} dpr ${devicePixelRatio}`); }, 6000);
+  setInterval(() => {   // the canvas's real pixels on screen (the phone has no console; the frozen build caps its scene at 1.6 MP)
+    const c = document.getElementById('bevy'), mp = (c.width * c.height / 1e6).toFixed(2);
+    document.getElementById('px').textContent = `canvas ${c.width}x${c.height} (${mp} MP, dpr ${devicePixelRatio})`;
+  }, 2000);
+  try { await init({ module_or_path: src }); }
+  catch (e) { if (!String(e).includes('Using exceptions for control flow')) fatal(String(e)); }   // (winit's web loop start, not an error)
+})();
+</script>
+</body>
+</html>
