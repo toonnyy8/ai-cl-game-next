@@ -275,7 +275,7 @@ fn parry_watch(m: &mut Match, e: Entity) {
             // (the model's rim, saved: SPAWN-FIGHTER's `:rim (and mirror *mirror-rim*)`, a mirror match's P2 (flow.lisp 103:
             // `:mirror (eq c1 c2)` on side 1); nothing else writes model-rim but this hook, which restores it)
             let mirror = fighter(m, m.p1).character == fighter(m, m.p2).character && fighter(m, e).side == 1;
-            let rim = mirror.then(|| m.data.mirror_rim()); // (tables.json, body.lisp's *mirror-rim*)
+            let rim = mirror.then_some(m.mirror_rim); // (tables.json, body.lisp's *mirror-rim*, read at load)
             let st = m.ics.get_mut(e).unwrap();
             (st.rim_saved, st.rim) = (true, rim); // look: model-rim = parry-rim
         }

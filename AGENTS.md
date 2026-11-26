@@ -87,7 +87,7 @@ rs/            the Bevy port's Cargo workspace (docs/bevy/BEVY_PORT.md): duel-si
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
 skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below), plus the submodule
                sakurai-skill (a third-party skill, linked as .claude/skills/sakurai)
-docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/ bevy/ (BEVY_PORT.md, M0A_SPEED.md, M0_NOTES.md, plans/)
+docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/ bevy/ (BEVY_PORT.md, M0A_SPEED.md, M0_NOTES.md, M1_NOTES.md, DIVERGENCES.md, plans/ incl. the M1 plan)
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
 ```

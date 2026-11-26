@@ -84,6 +84,8 @@ pub struct Match {
     pub data: &'static Data,
     /// `data`'s kits by (character, form) (not a Lisp special: an index of the data for `kit_of` / `hurt_r`).
     pub kits: crate::fighter::KitTable,
+    /// body.lisp `*mirror-rim*` (`Data::mirror_rim`), read and checked once at load: a mirror match P2's model rim (PARRY-WATCH).
+    pub mirror_rim: [f32; 3],
     /// `*pending*`: hits collected this step, applied together (combat.rs).
     pub pending: crate::combat::Queue<crate::combat::Pending, { crate::combat::PENDING_MAX }>,
     /// `*kikons*`: (attacker victim move) of every Kikon confirmed this step, in the order queued.
@@ -157,6 +159,7 @@ impl Match {
             knobs: Knobs::from(data).expect("knobs"),
             data,
             kits: crate::fighter::KitTable::new(data),
+            mirror_rim: data.mirror_rim(),
             pending: Default::default(),
             kikons: Default::default(),
             soul_breaks: Default::default(),

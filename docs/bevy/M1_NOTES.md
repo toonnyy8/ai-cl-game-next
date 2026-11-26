@@ -85,6 +85,15 @@ cvctag traces stopped at the same name and step as with Task 8's gauge stub (0 D
 Task 12: 0 DIVERGED on all 51 (the 15 Kenpachi / Ichigo traces `OK`, the rest stopping at a Hisagi / Yamamoto hook: Task 12's report).
 Delete the mode once M4 ports their ticks.
 
+**"0 DIVERGED on all 51" holds only under `--stubbed`** (the final review, finding 5). The mask turns H off. In the default mode the
+21 Hisagi cvc traces report `replay DIVERGED at tick 1 (step 0, item 0): H: …`, not UNPORTED: `hashline.rs` (313, 383) leaves out the
+kit's `:hash` hook and HSS / YSS without a marker (`state_hash_line` takes `&Match`, so it cannot call `unported!`). That is a missing
+port, not a port bug. Carry to M4: port the `:hash` hook with Hisagi, or have the replayer report UNPORTED while a side's kit has a
+`hash` hook. The Yamamoto traces stop UNPORTED as they should.
+
+Since the final review's fix pass a stubbed or masked run says so on its outcome line, `replay OK (stubbed: HS-TICK,YAMA-TICK;
+masked: hss-,yss-) N ticks`, and the gate's `--stubbed` rows read `OK-MASKED`, so a pasted row can't pass for the gate's verdict.
+
 ## 4. sin / cos: musl everywhere; the answer key once took glibc's at gcc's fused sites (Task 12, fixed 2026-11-27)
 
 **The finding (Task 12).** cvc-ik-s1 diverged at replay step 11399 on an NS3 clone's z (ICHIGO-NS-SLOT, `hz1.z` want 3E98FA3A got
@@ -145,6 +154,19 @@ What this proves:
 With `--snap 40` all 22 gate traces stay `replay OK`. The gate runs them that way with `tools/port/replay-gate.sh --snap`; the outcome
 line stays first, and the summary `snap: N rollouts of 40 sim steps, K reached an unported path` follows it. cvc-ki-s1 is the brief's
 case: `replay OK 21368 ticks`, 534 rollouts, none reaching `unported!`.
+
+Since the final review's fix pass, a rollout that reaches an `unported!` path is never OK:
+- the restored match keeps the name in `m.unported`;
+- the run stops with `replay UNPORTED NAME in a --snap rollout from tick T (step S)` (exit 3);
+- the gate fails that row as `SNAP-UNP`, even with `--allow-unported`.
+
+Before the fix the count was only on the summary line, which the gate never read. Checked on cvc-kh-s1 (stubbed): `HS-MIN-REACH in a
+--snap rollout from tick 40 (step 340)`, gate exit 1. A unit test covers it too (`snap_rollout_keeps_unported`).
+
+**`cargo test` is not trace coverage.** The tests that read the answer key skip when `build/oracle` (or `ORACLE`) is absent: replay.rs's
+intro test and `bench_allocs`, and the hashline trace-head test. Each skip leaves a note on stderr, which a passing `cargo test` hides.
+So a green suite without the key, or with a mistyped `ORACLE`, says nothing about the traces. The verdict is
+`tools/port/replay-gate.sh`.
 
 **wasm32.** `cargo build --release -p duel-tools --target wasm32-wasip1` (the target was installed with `rustup target add wasm32-wasip1`)
 gives a 6.7 MB `duel-tools.wasm` with the data embedded. `node tools/port/replay-wasm.mjs TRACE [args]` runs it under `node:wasi` with
@@ -284,7 +306,19 @@ or records why it stays out.
 
 ## 10. What M1 hands on (from the ledger, `.superpowers/sdd/2026-11-26-m1-sim-core/progress.md`)
 
+**`unported!` is a replay-only mechanism** (the final review, findings 2 and 13). The macro (`lib.rs`) records the first unported path
+in `m.unported`. Nothing else in the sim reacts to it:
+- `flow::frame` still returns true;
+- `flow::advance_sim` just stops stepping, while `ft` / `frame_n` keep counting;
+- `flow::sim_step` has no guard of its own.
+
+The replayer is the only reader: it reports UNPORTED, and since the fix pass a `--snap` rollout's cut fails the run too (§5). M2's game
+loop and its rollouts must check `m.unported` themselves and surface it. A rollout cut short gives the MCTS a wrong value with no
+signal; for example, `frame` returns false or names the path, and the rollout driver counts cut rollouts. In M3's playable page an
+unported path would be a frozen fight with no message.
+
 - **M2 (the CPU):**
+  - check and surface `m.unported` in the game loop and the rollouts (above);
   - the brain branches (§7);
   - `id_of` scans the 549 moves per move start / latch / CHAIN-MORE-P (index it before rollouts; the speed gate passed without it);
   - the rollout clears `Match.pacing_log` (rollout.lisp binds `*pacing-log*` nil);
@@ -299,9 +333,29 @@ or records why it stays out.
 - **M3 (looks):**
   - the `// look:` list (§8), the deferred look checks (§6), the event queue (`emit` / `take-events`);
   - KEN-BANKAI-CINE's looks (only debug commands play it, §5);
-  - the mirror P2's look: `Data::mirror_rim()` and tables.json `mirror_tint` are extracted (fix round 1), never hand constants.
+  - the mirror P2's look: `Data::mirror_rim()` (read once into `Match.mirror_rim` since the fix pass) and tables.json `mirror_tint`
+    are extracted (fix round 1), never hand constants;
+  - **the touch deck's sim branches** (the final review, finding 3). The phone's thumb pad changes the Kikon hold rule for P1 on
+    `*one-hand*`, and the port stubs each branch to a constant, marked `// port: touch stub`: `core_sim.rs` `core_note_start`'s
+    `sp_held` (never `:rearm`; core-sim.lisp 14), `core_hold_step` / `core_touch_p` / `core_touch_sp_p` (no `:rearm` arm, always NIL;
+    418-431), `core_confirm_frames` (no `*core-kikon-confirm-touch*`; 463). `Match` has no `one_hand` field, so no `unported!` can
+    fire. No trace has touch input, so the gate cannot see these: each needs its own test (a recorded touch trace or a host test);
+  - `flow::frame` is the headless platform's frame (the final review, finding 12): it derives dt from `frame_n` (stubs.c's virtual
+    clock, `raw_dt`) and drains the debug queue and the gate. A real loop needs dt as an argument.
 - **M4 (Hisagi, Yamamoto):**
-  - their hooks, ticks and traces; delete the stubbed mode (§3);
+  - **before either kit: one hook table per kit** (the final review, finding 1; the lead's ruling: not fixed in M1, an M4
+    prerequisite). BEVY_PORT §4 says kit hooks become per-kit function tables. M1 dispatches them by per-kit arms (`Ken` / `Ichigo`,
+    `_ => unported!`) at the typed hook sites in about ten generic modules: `kit.rs` (`HookFn`, `resolve`, `hooks_of`, `kit_hook`),
+    `fighter/moves.rs` (`call_hook`, `ken_hook`, `ichigo_hook`), `combat.rs`, `core_sim.rs`, `fighter/react.rs`, `fighter/mod.rs`,
+    `round.rs`, `hazards.rs`, `cine.rs`. `kit::Hooks` (33 slots) is built in `Match::new` only to validate and then dropped, and the
+    step path finds a hook through a `BTreeMap<String, String>` (`kit_hook_sym`) and string scans on every call. Replace that with one
+    typed `Option<fn>` per hook key per kit, registered in one place and held per (character, form) next to `KitTable`; the generic
+    sites call through it. Do it as its own gated task with the 22-trace gate as the net, before Hisagi;
+  - their hooks, ticks and traces; delete the stubbed mode (§3) and the rest of the replay-era scaffolding with it: `flow::stub_tick`
+    (called from the production `gauges.rs:450`), `Match.stubs` (cloned with every snapshot), the `m.unported` guards (about 38 reads in
+    17 files, not only combat / hazards / gauges / round / ichigo: `grep -rn unported rs/duel-sim/src`), and the `unported!` macro
+    with `Match.unported` once the last kit is ported;
+  - the kit `:hash` hook and HSS / YSS in `hashline.rs` (313, 383): the Hisagi traces say DIVERGED at step 0 on H until then (§3);
   - `kit::find_move` returns the kit's copy, while Lisp FIND-MOVE returns the registry's (KE-Z-N2A hs 10 vs 8), and 7 Yamamoto names
     have a `var/` entry first;
   - `E core-start`'s lower-case key lookup is unverified for their moves;
@@ -309,3 +363,53 @@ or records why it stays out.
   - PULL-OPP-TO moves to fighter;
   - `trial-sp-costs` and `trial-sp-kits-*` join the gate.
 - **M5:** the `debug_ranges.json` name map and `tests/scripts/*.json`.
+
+### Deferred minors (from the ledger; each line names its task)
+
+- **M2:**
+  - `--snap` read only the outcome line, so a cut rollout passed (T14): **fixed in the final review's fix pass** (§5);
+  - `SimRng.state` is a pub field that bypasses `set_state`'s 0 → 1 rule; M2's rollouts reseed (T2);
+  - `Params` f32 keys holding integer tokens lose integer-ness: audit each key when its reader is ported (T3; also M4);
+  - `gen.py` with a names subset merges INDEX.json before the Lisp replay check: a failed replay leaves its entry, and a cvc-tag name
+    in a subset leaves `cvc-tag.txt` stale; matters when M2 / M4 add traces (T14);
+  - the wasm32 run is not in `replay-gate.sh` (a manual `replay-wasm.mjs` loop); add `--wasm` (final review 11);
+  - B holds motion only partly (8 fields); the pilot / brain / model components are not in B (T1);
+  - ICHIGO-AI-STANCE is untested (T12);
+  - TIME-UP bails on a float Reishi before the Konpaku compare; the bail is needed only in the tie branch (T13);
+  - a coverage run for Task 11's untraced Kenpachi list beyond §5 (the KR / ZH / Z2 Kikon cinematics, the stance / charge / flurry /
+    cracks), now pinned only by hand-computed unit tests (T11).
+- **M3:**
+  - §1's anim table misses feedback.lisp:148 and draw.lisp:205 (looks only) (T7).
+- **M4:**
+  - the per-kit hook table: a prerequisite, not a minor (above, final review 1);
+  - `cd[0]` / `Some(2)` hard-coded instead of `kit_command_index` (`fighter/mod.rs` ~332, ~430) (T8), and `refused_cue`'s kit branch
+    hard-codes `"q"` (T12): both wait for a kit whose command order differs;
+  - `HookFn::Cine` is `unreachable!` where an unported kit would want `unported!` (T12; goes with the hook table);
+  - `tests/fighter.rs:195` `cancel_lands_for_both` runs a half step after Hisagi's `:clash` is unported (T8);
+  - the YAMA-TICK stub's guard reads the kit meter's `:max`, not `*ya-heat-max*` (T9);
+  - `kit.rs` (120, 130) takes `&mut Match` only to call `unported!` for Hisagi's `:seg-fn` (final review 14).
+- **M5:**
+  - `HwRef::Perfect` reads the knobs live where `*perfect-hw*` is built at load (differs only if a debug command changes knobs
+    mid-run) (T10);
+  - `control::wave_arrival` / `practice_reishi` are PRACTICE-only extras; sp.lisp:78 (the 0.6d0 row) is not ported (T5).
+- **After the merge:** delete `build/oracle-glibc` (the pre-musl answer key, reference only; §4).
+- **Any time (tidiness, no milestone):**
+  - `rules.rs` is generic over `combat::Queue`: move `Queue` to `ecs.rs` or its own file (T10, final review 14);
+  - `Str` does not escape `"` and `\` as PRIN1 does; the hazard owner's NIL arm; `Store::insert` has no alive check; `bits_line` /
+    `hash64` allocate (T4);
+  - `f_min` / `f_max`: the musl preload serves `fminf` / `fmaxf` now (§4); still add ±0 vectors before any signed-zero use (T2);
+  - the test-vector file has no image provenance header, its parser lives in `cl.rs`, and it lacks clamp ±0 ties and hypot rows; the
+    printer helpers lack `// port:` tags (T2);
+  - the knob field list has no compile-time link to the Lisp names (`knobs_load` catches a mismatch) (T3);
+  - no `tests/systems.rs` (its checks sit in core.rs / kit.rs, mapped in PORTED.md); `stun_weight` takes `&str` where `combo_step`
+    takes a `Phase` (T5);
+  - the replayer: check B before H (the Lisp's order), stop the turbo frame after a verdict, the injector finds a seat by side, not
+    entity; a stale `#[allow(dead_code)]` in duel-tools `main.rs`; a machine-specific oracle path fallback in a test (T6);
+  - `replay-gate.sh`'s empty array under `set -u` fails on bash < 4.4 (T8);
+  - `gain_gauges_split` / `hit_system_lands_a_j1` compute their expectations with port functions; `hazards.rs:259` sets the state
+    twice (T10);
+  - `ken/mod.rs:80` `panic!` → `unreachable!`; `ken/hooks.rs:77-80` `nth_as` expects where Lisp's NTH past the end gives NIL (no live
+    kit is short) (T11);
+  - the oracle pin's commit field is the parent commit (documented, easy to misread) (T1);
+  - `tools/simlib.py`: two tools building `muslm.so` at once write the same `.tmp` (fan-out tools call `build()` once first)
+    (final review 16).

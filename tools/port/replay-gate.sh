@@ -3,7 +3,8 @@
 # Exit 0 when every trace is OK (with --allow-unported: OK or UNPORTED). ORACLE defaults to this checkout's build/oracle.
 # --stubbed: the replay's stubbed mode (docs/bevy/M1_NOTES.md §3: guarded stubs for the unported kit :tick hooks, kit
 # state and H masked); not the gate's verdict, a check of the code behind them. --snap: a 40-step rollout every 40 battle ticks,
-# restored (M1_NOTES §5; the outcome line stays first). NAMES (env): other trace names instead of the 22.
+# restored (M1_NOTES §5; the outcome line stays first): a rollout that reaches an `unported!` path fails the row (SNAP-UNP), even
+# with --allow-unported. A stubbed row reads OK-MASKED. NAMES (env): other trace names instead of the 22.
 set -u
 cd "$(dirname "$0")/../.."
 allow=0; extra=()
@@ -33,7 +34,9 @@ ok=1
 for n in $names; do
   line=$(head -1 "$out/$n")
   case "$line" in
+    "replay OK (stubbed"*) st=OK-MASKED ;;
     "replay OK"*) st=OK ;;
+    "replay UNPORTED"*"--snap rollout"*) st=SNAP-UNP; ok=0 ;;
     "replay UNPORTED"*) st=UNPORTED; [ $allow = 1 ] || ok=0 ;;
     "replay DIVERGED"*) st=DIVERGED; ok=0 ;;
     *) st=ERROR; ok=0 ;;

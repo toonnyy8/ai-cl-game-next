@@ -43,7 +43,8 @@ pub fn core_note_start(m: &mut Match, e: Entity, id: MoveId, old: Option<MoveId>
     let tick = m.match_tick;
     let f = fighter_mut(m, e);
     (f.cls, f.cls_t) = (cls, tick);
-    // ponytail: SP-HELD's :rearm (a phone tap, CORE-TOUCH-P) never: no thumb pad in the sim (M2)
+    // port: touch stub (core-sim.lisp 14): SP-HELD's :rearm (a phone tap, CORE-TOUCH-P) never: no `*one-hand*` in the sim yet.
+    // Carry to the touch deck (M3); needs its own test: no trace has touch input, the gate cannot see it (M1_NOTES §10).
     f.sp_held = matches!(cls, Some(Cls::Ns | Cls::As));
     f.charge_mult = match mvd.params.charge_mult {
         Some(c) => c, // a charged SA arms it; its string keeps it
@@ -626,19 +627,25 @@ pub fn core_kikon_p(m: &Match, e: Entity, mvd: Option<&Move>) -> bool {
 /// port: CORE-HOLD-STEP: inside an NS / AS segment a let-go of the SP button clears the hold. Its value: T only for a phone's :rearm
 /// (none in the sim), so always NIL here.
 pub fn core_hold_step(m: &mut Match, e: Entity) -> bool {
+    // port: touch stub (core-sim.lisp 418-423): the :rearm arm (a new SP touch re-arms the hold) is missing;
+    // touch deck (M3), needs its own test: no trace has touch input, the gate cannot see it (M1_NOTES §10).
     if fighter(m, e).sp_held && !core_held_p(m, e) {
         fighter_mut(m, e).sp_held = false;
     }
     false
 }
 
-/// port: CORE-TOUCH-P: is F P1 on the phone's thumb pad (`*one-hand*`)? NIL: the sim has no thumb pad (M2).
+/// port: CORE-TOUCH-P: is F P1 on the phone's thumb pad (`*one-hand*`)? NIL: the sim has no thumb pad (M3).
 pub fn core_touch_p(_m: &Match, _e: Entity) -> bool {
+    // port: touch stub (core-sim.lisp 423-425, `*one-hand*` P1): a constant NIL;
+    // touch deck (M3), needs its own test: no trace has touch input, the gate cannot see it (M1_NOTES §10).
     false
 }
 
-/// port: CORE-TOUCH-SP-P: a contact down in the pad's SP zone. NIL without a thumb pad (M2).
+/// port: CORE-TOUCH-SP-P: a contact down in the pad's SP zone. NIL without a thumb pad (M3).
 pub fn core_touch_sp_p(_m: &Match) -> bool {
+    // port: touch stub (core-sim.lisp 427-431, the thumb pad's SP zone): a constant NIL;
+    // touch deck (M3), needs its own test: no trace has touch input, the gate cannot see it (M1_NOTES §10).
     false
 }
 
@@ -673,8 +680,10 @@ pub fn core_set_kikon_n(m: &mut Match, att: Entity, red: bool) {
     fighter_mut(m, att).kikon_n = n;
 }
 
-/// port: CORE-CONFIRM-FRAMES: frames of the dash-in the hold is judged on (*CORE-KIKON-CONFIRM*; the phone's, M2).
+/// port: CORE-CONFIRM-FRAMES: frames of the dash-in the hold is judged on (*CORE-KIKON-CONFIRM*; the phone's, M3).
 pub fn core_confirm_frames(m: &Match, _f: &Fighter, _mvd: &Move) -> i64 {
+    // port: touch stub (core-sim.lisp 463): `*core-kikon-confirm-touch*` (and its :dash) for a CORE-TOUCH-P fighter is missing; touch
+    // deck (M3), needs its own test: no trace has touch input, the gate cannot see it (M1_NOTES §10).
     m.knobs.core_kikon_confirm
 }
 

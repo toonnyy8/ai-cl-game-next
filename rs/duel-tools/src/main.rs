@@ -1,7 +1,9 @@
 //! Port tools. `check-data [dir]`: load the data (from DIR, else the embedded copy), print the counts and the float checksum,
 //! exit 1 unless both equal the manifest's. `replay <trace> [--max-steps N] [--data DIR]`: the brainless replay of an oracle
 //! trace (exit 0 OK, 1 diverged / trace error, 3 unported). `--stub a,b --mask x,y`: the stubbed mode (docs/bevy/M1_NOTES.md §3).
-//! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK; its summary line after the outcome).
+//! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK: a rollout that reaches an `unported!` path
+//! stops the run `UNPORTED … in a --snap rollout`, exit 3; its summary line after the outcome). A stubbed / masked OK says so
+//! (`replay OK (stubbed: …; masked: …) N ticks`). A number flag with a bad value exits 2.
 //! `--bench`: a cmds trace's T lines read first, then the match timed on them alone, 11 runs (`steps <n> secs <s> steps/s <r>`, the
 //! median; exit 1 unless every run's steps and last H equal the trace's).
 mod replay;
@@ -49,10 +51,25 @@ fn check_data(dir: Option<&String>) -> ExitCode {
 
 fn replay_cmd(args: &[String]) -> ExitCode {
     let opt = |k: &str| args.iter().position(|a| a == k).and_then(|i| args.get(i + 1));
-    let max = opt("--max-steps").and_then(|s| s.parse().ok());
+    // a number flag: absent = None; a missing, non-numeric or non-positive value is a usage error (exit 2), never ignored
+    let num = |k: &str| -> Result<Option<u64>, ExitCode> {
+        if !args.iter().any(|a| a == k) {
+            return Ok(None);
+        }
+        match opt(k).and_then(|s| s.parse::<u64>().ok()).filter(|&n| n > 0) {
+            Some(n) => Ok(Some(n)),
+            None => {
+                eprintln!("replay: {k} needs a positive integer, got {:?}", opt(k).map_or("nothing", String::as_str));
+                Err(ExitCode::from(2))
+            }
+        }
+    };
+    let (max, snap) = match (num("--max-steps"), num("--snap")) {
+        (Ok(a), Ok(b)) => (a, b.map(|n| n as i64)),
+        (Err(c), _) | (_, Err(c)) => return c,
+    };
     let list = |k: &str| -> Vec<String> { opt(k).map_or(vec![], |s| s.split(',').filter(|x| !x.is_empty()).map(String::from).collect()) };
     let (stubs, mask) = (list("--stub"), list("--mask"));
-    let snap = opt("--snap").and_then(|s| s.parse().ok());
     let data = match opt("--data") {
         Some(p) => match Data::load(p.as_ref()) {
             Ok(d) => d,
@@ -87,6 +104,11 @@ fn replay_cmd(args: &[String]) -> ExitCode {
     let (out, snaps) = replay::run_snap(&args[0], max, data, &stubs, &mask, snap);
     // (the outcome line first: replay-gate.sh reads the first line)
     let code = match out {
+        // (a stubbed / masked run says so on the outcome line: not the gate's full verdict)
+        replay::Outcome::Ok(n) if !stubs.is_empty() || !mask.is_empty() => {
+            println!("replay OK (stubbed: {}; masked: {}) {n} ticks", stubs.join(","), mask.join(","));
+            ExitCode::SUCCESS
+        }
         replay::Outcome::Ok(n) => {
             println!("replay OK {n} ticks");
             ExitCode::SUCCESS

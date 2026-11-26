@@ -227,7 +227,12 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         }
         if self.snap.is_some_and(|n| flow::battle_p(m) && m.match_tick % n == 0) {
             self.snaps += 1;
-            self.snaps_unported += snap_rollout(m) as u64;
+            if let Some(name) = snap_rollout(m) {
+                // (kept on the restored match, so the sim stops too: a --snap run with a cut rollout is never OK)
+                self.snaps_unported += 1;
+                self.out = Some(Outcome::Unported(format!("{name} in a --snap rollout from tick {} (step {})", m.match_tick, self.steps)));
+                return;
+            }
         }
         if self.max.is_some_and(|n| self.steps >= n) {
             self.out.get_or_insert(Outcome::Ok(self.steps));
@@ -351,10 +356,10 @@ impl PilotInput for Null {
 
 /// `--snap`'s rollout (tools/simgate/snaptest.lisp's idea): clone the match, reseed the sim stream as snaptest does, play 40 sim steps on
 /// the live match with the vpads as they are, then restore the clone. The replay must stay OK: the clone holds the whole sim state.
-/// Whether the rollout reached an `unported!` path (which the restore then forgets). The restore is a full replacement and duel-sim
-/// holds no Rc / RefCell / Cell / Arc or statics, so it cannot leak by construction: what a pass proves is that 40 reseeded steps from
-/// each snapshot reach no panic and no `unported!`.
-fn snap_rollout(m: &mut Match) -> bool {
+/// Returns the `unported!` path the rollout reached, if any, and keeps it in the restored match's `unported` (the restore would
+/// otherwise forget it). The restore is a full replacement and duel-sim holds no Rc / RefCell / Cell / Arc or statics, so it cannot
+/// leak by construction: what a pass proves is that 40 reseeded steps from each snapshot reach no panic and no `unported!`.
+fn snap_rollout(m: &mut Match) -> Option<&'static str> {
     let saved = m.clone();
     m.rng.set_state((m.rng.state() ^ 0x5BD1_E995) | 1);
     let mut n = Null(0);
@@ -364,9 +369,10 @@ fn snap_rollout(m: &mut Match) -> bool {
         }
         flow::sim_step(m, &mut n); // (steps, not frames: a turbo frame is 120 steps)
     }
-    let r = m.unported.is_some();
+    let cut = m.unported;
     *m = saved;
-    r
+    m.unported = m.unported.or(cut);
+    cut
 }
 
 /// `--bench`'s input: the trace's T lines, read before the clock starts, injected as the replay does (RP-INJECT, RP-DETACH); no
@@ -625,6 +631,20 @@ mod tests {
         let out = run(p.to_str().unwrap(), None, data, &[], &[]);
         let _ = std::fs::remove_file(&p);
         assert!(matches!(out, Outcome::Diverged(_)), "a run without the core-start line still passed");
+    }
+
+    /// A `--snap` rollout that reaches an `unported!` path reports it and the restored match keeps it (Hisagi's `:tick` hook, M4).
+    #[test]
+    fn snap_rollout_keeps_unported() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let mut m = Match::new(data);
+        flow::go_title(&mut m);
+        debug::ensure_battle(&mut m, Character::Hisagi, Character::Kenpachi);
+        assert!(flow::sim_running_p(&m) && m.unported.is_none());
+        let tick = m.match_tick;
+        let cut = snap_rollout(&mut m);
+        assert!(cut.is_some());
+        assert_eq!((m.unported, m.match_tick), (cut, tick));
     }
 
     #[test]
