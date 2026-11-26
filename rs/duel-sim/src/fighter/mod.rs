@@ -3,9 +3,12 @@
 //! are Task 8 (`unported!("start-move")` / `unported!("react")`). Animation is a sink (docs/bevy/M1_NOTES.md §1): every clip
 //! the Lisp plays is a `// look:` line here. PILOT-SYSTEM stays in flow.rs (it was ported there with the step, Task 6).
 mod physics;
+mod react;
 mod states;
 
+pub use crate::flow::pilot_system;
 pub use physics::{fighter_physics, separate_fighters, set_slide};
+pub use react::*;
 pub use states::*;
 
 use crate::components::{Burst, Button, Character, Contact, Fighter, Form, Gauges, KitId, MoveId, Motion, Phase, Pilot, State, Str, Transform};
@@ -285,9 +288,14 @@ pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -
                 false
             }
         }
-        // ponytail: :awaken is only the form's :p hook (no live kit has one, no :core holds :no-awaken); the awakening itself
-        // is AWAKEN-PRESS!'s
-        Cmd::Awaken => false,
+        // :awaken is only the form's :p hook (no live kit has one; `:no-awaken` cannot be in the data: duel_data's Core denies
+        // unknown keys); the awakening itself is AWAKEN-PRESS!'s
+        Cmd::Awaken => {
+            if let Some(h) = kit_of(m, e).hooks.get("p") {
+                crate::unported!(m, h.as_str(), false) // (a form's :p hook: Hisagi's bind throw, M4)
+            }
+            false
+        }
         Cmd::Burst => match burst_ok_p(m, e) {
             Some(md) => {
                 fighter_mut(m, e).burst = Some(md); // applied after both stepped

@@ -259,17 +259,17 @@ pub fn core_segment_sas(data: &Data, core: &duel_data::Core) -> Vec<String> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HookKey {
     Armor, ArmoredFx, AsPick, Cancel, Clash, Command, Deck, DmgMult, Draw, Hash, Hit, HitFx, HudTag, KikonN, KikonWorth,
-    LinkMove, LinkOk, Lv, MinReach, Ok, Parried, Planted, Pose, Reset, SoulBreakCine, SpGainMult, StepDist, Struck, Threat,
+    LinkMove, LinkOk, Lv, MinReach, Ok, P, Parried, Planted, Pose, Reset, SoulBreakCine, SpGainMult, StepDist, Struck, Threat,
     Tick, Unscaled, VictimLook,
 }
 
-const HOOK_NAMES: [(&str, HookKey); 32] = {
+const HOOK_NAMES: [(&str, HookKey); 33] = {
     use HookKey::*;
     [
         ("armor", Armor), ("armored-fx", ArmoredFx), ("as-pick", AsPick), ("cancel", Cancel), ("clash", Clash),
         ("command", Command), ("deck", Deck), ("dmg-mult", DmgMult), ("draw", Draw), ("hash", Hash), ("hit", Hit),
         ("hit-fx", HitFx), ("hud-tag", HudTag), ("kikon-n", KikonN), ("kikon-worth", KikonWorth), ("link-move", LinkMove),
-        ("link-ok", LinkOk), ("lv", Lv), ("min-reach", MinReach), ("ok", Ok), ("parried", Parried), ("planted", Planted),
+        ("link-ok", LinkOk), ("lv", Lv), ("min-reach", MinReach), ("ok", Ok), ("p", P), ("parried", Parried), ("planted", Planted),
         ("pose", Pose), ("reset", Reset), ("soul-break-cine", SoulBreakCine), ("sp-gain-mult", SpGainMult),
         ("step-dist", StepDist), ("struck", Struck), ("threat", Threat), ("tick", Tick), ("unscaled", Unscaled),
         ("victim-look", VictimLook),
@@ -290,8 +290,14 @@ pub enum HookFn {
 }
 
 /// A kit's hook table: one slot per hook key.
-#[derive(Debug, Clone, Default)]
-pub struct Hooks(pub [Option<HookFn>; 32]);
+#[derive(Debug, Clone)]
+pub struct Hooks(pub [Option<HookFn>; 33]);
+
+impl Default for Hooks {
+    fn default() -> Self {
+        Hooks([None; 33])
+    }
+}
 
 /// The Kenpachi / Ichigo hook symbols of the live data (kits.json), not ported yet: the checked list Tasks 11 (KEN-) and
 /// 12 (ICHIGO- / IC-) empty, each entry replaced by its `HookFn` variant. A Kenpachi / Ichigo symbol outside it does not resolve.

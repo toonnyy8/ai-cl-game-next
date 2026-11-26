@@ -5,7 +5,6 @@ use crate::components::{Character, Flow, State};
 use crate::ecs::Entity;
 use crate::fighter::{fighter_system, spawn_fighter, to_idle};
 use crate::math::deg;
-use crate::sp::{sp_exchange_open_p, sp_neutral_p};
 use crate::state::{Match, Mode, Winner};
 use crate::time::STEP;
 
@@ -120,17 +119,111 @@ pub fn sim_systems(m: &mut Match) {
     if m.cine.is_none() {
         match_system(m);
     }
-    core_xch_step(m);
+    crate::core_sim::core_xch_step(m);
 }
 
 fn hazard_system(m: &mut Match) {
+    if stubbed(m, "hazard-system") && m.hazard.is_empty() {
+        return; // (no hazard: HAZARD-SYSTEM does nothing)
+    }
     crate::unported!(m, "hazard-system")
 }
 fn hit_system(m: &mut Match) {
+    if stubbed(m, "hit-system") && !stub_hit_possible(m) {
+        return;
+    }
     crate::unported!(m, "hit-system")
 }
 fn gauge_system(m: &mut Match) {
+    if stubbed(m, "gauge-system") && stub_gauge_step(m) {
+        return;
+    }
     crate::unported!(m, "gauge-system")
+}
+
+// ---------------------------------------------------------------- the replay's stubbed mode (docs/bevy/M1_NOTES.md §3)
+// Not a port: `Match.stubs` (empty unless a tool sets it) lets a replay run past HAZARD- / HIT- / GAUGE-SYSTEM while they are unported
+// (Tasks 9-10). Each stub does nothing only while the real system provably writes nothing outside the fields the replay masks;
+// else it is `unported!` with the system's name. Delete with the systems' ports.
+
+fn stubbed(m: &Match, name: &str) -> bool {
+    m.stubs.iter().any(|s| s == name)
+}
+
+/// Could HIT-SYSTEM do anything this step? A hazard (cuts, hazard hits), a Breaker clash, a perfect Hoho's counter frame, or a
+/// melee window COLLECT-MELEE would collect (its exact tests: open at SF, unused, the :min dead zone, WINDOW-TOUCHES-P).
+fn stub_hit_possible(m: &mut Match) -> bool {
+    if !m.hazard.is_empty() {
+        return true;
+    }
+    let mut hit = false;
+    m.do_entities(|m, e| m.fighter.has(e), |m, e| {
+        let f = m.fighter.get(e).unwrap().clone();
+        let o = f.opp;
+        if hit || !m.ents.alive(o) {
+            return;
+        }
+        if f.state == State::Hoho && f.perfect && f.sf == m.knobs.hoho_counter_strike {
+            hit = true;
+            return;
+        }
+        let Some(id) = f.mv.filter(|_| f.state == State::Move && f.phase == Some(crate::components::Phase::Main)) else { return };
+        if crate::core_sim::core_dead_p(&f) {
+            return;
+        }
+        let mvd = &m.data.moves[id.0 as usize];
+        let (p, q, yaw) = (crate::fighter::pos_of(m, e), crate::fighter::pos_of(m, o), crate::fighter::yaw_of(m, e));
+        let (fx, fz) = (crate::math::fwd_x(yaw), crate::math::fwd_z(yaw));
+        let body = &m.data.bodies[&crate::fighter::kit_of(m, o).body];
+        let (tr, th) = (body.hurt_r, body.hurt_h);
+        for (i, w) in mvd.hits.iter().enumerate() {
+            if (w.from as i64) <= f.sf && f.sf < w.to as i64 && (f.hits >> i) & 1 == 0 {
+                if w.min.is_some() && crate::fighter::kit_of(m, e).hooks.contains_key("min-reach") {
+                    hit = true; // (a :min-reach hook: Hisagi, M4)
+                    return;
+                }
+                let far = w.min.is_none_or(|mn| f.follow || crate::math::hypot(q[0] - p[0], q[2] - p[2]) >= mn);
+                if far && crate::kit::window_touches_p(m, w, e, p[0], p[1], p[2], fx, fz, q[0], q[1], q[2], tr, th) {
+                    hit = true;
+                    return;
+                }
+            }
+        }
+    });
+    if hit {
+        return true;
+    }
+    let (a, b) = (m.p1, m.p2);
+    let (pa, pb) = (crate::fighter::breaker_phase(m, a), crate::fighter::breaker_phase(m, b));
+    pa.is_some() && pb.is_some() && crate::rules::breaker_clash_p(&m.knobs, pa, pb, m.fighter.get(a).unwrap().dist)
+}
+
+/// GAUGE-SYSTEM's flash-step regen (its no-burst branch, exact: the SP lines print fs and SP-PAY reads it); false when anything
+/// else it does could write an unmasked field or log a line: a burst, the awakening's regen, a timed form, guardless, a combo's
+/// damage, the EVOLUTION threshold, ICHIGO-TICK beyond his ICS (KESSA, a JUJI wave's cut, the Shikai stance), KEN-BK-TICK.
+fn stub_gauge_step(m: &mut Match) -> bool {
+    let mut ok = true;
+    m.do_entities(|m, e| m.fighter.has(e) && m.gauges.has(e), |m, e| {
+        let (f, g) = (m.fighter.get(e).unwrap(), m.gauges.get(e).unwrap());
+        let tsuki = crate::fighter::current_move(f).is_some_and(|id| m.data.moves[id.0 as usize].name.starts_with("ic-tsuki"));
+        if g.burst.is_some() || g.awake_regen > 0 || g.form_left > 0 || g.guardless || f.combo_dmg > 0
+            || (!g.awakened && !g.evolution && g.awaken >= m.knobs.awaken_max)
+            || f.form == crate::components::Form::Kessa || tsuki || f.bk_out
+        {
+            ok = false;
+        }
+    });
+    if !ok {
+        return false;
+    }
+    m.do_entities(|m, e| m.fighter.has(e) && m.gauges.has(e), |m, e| {
+        let k = &m.knobs;
+        let g = m.gauges.get(e).unwrap();
+        let fs = crate::rules::fs_regen(k, g.fs, g.fs_idle, k.fs_regen);
+        let g = m.gauges.get_mut(e).unwrap();
+        (g.fs, g.fs_idle) = (fs, 9999.min(g.fs_idle + 1));
+    });
+    true
 }
 
 fn side_of(m: &Match, e: Entity) -> usize {
@@ -154,21 +247,6 @@ pub fn pilot_system(m: &mut Match, input: &mut dyn PilotInput) {
             input.read(m, side);
         }
     });
-}
-
-/// port: core-sim.lisp CORE-XCH-STEP.
-pub fn core_xch_step(m: &mut Match) {
-    let (Some(a), Some(b)) = (m.fighter.get(m.p1), m.fighter.get(m.p2)) else { return };
-    let sliding = |e| m.motion.get(e).is_some_and(|mo| mo.kb_left > 0);
-    if sp_exchange_open_p(a.xch, b.xch)
-        && (m.cine.is_some() || (sp_neutral_p(a.state, sliding(m.p1)) && sp_neutral_p(b.state, sliding(m.p2))))
-    {
-        for e in [m.p1, m.p2] {
-            let f = m.fighter.get_mut(e).unwrap();
-            (f.xch, f.xch_done) = (-1, false);
-        }
-        crate::clog!(m, "exchange over");
-    }
 }
 
 pub fn battle_p(m: &Match) -> bool {

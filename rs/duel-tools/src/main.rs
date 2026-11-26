@@ -1,6 +1,6 @@
 //! Port tools. `check-data [dir]`: load the data (from DIR, else the embedded copy), print the counts and the float checksum,
 //! exit 1 unless both equal the manifest's. `replay <trace> [--max-steps N] [--data DIR]`: the brainless replay of an oracle
-//! trace (exit 0 OK, 1 diverged / trace error, 3 unported).
+//! trace (exit 0 OK, 1 diverged / trace error, 3 unported). `--stub a,b --mask x,y`: the stubbed mode (docs/bevy/M1_NOTES.md §3).
 #[allow(dead_code)] // ponytail: compare / Diverged / read wait for the frame loop (rest of Task 6)
 mod replay;
 #[allow(dead_code)]
@@ -15,7 +15,7 @@ fn main() -> ExitCode {
         Some("parse-trace") if args.len() > 1 => parse_trace(&args[1]),
         Some("replay") if args.len() > 1 => replay_cmd(&args[1..]),
         _ => {
-            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR]");
+            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..]");
             ExitCode::from(2)
         }
     }
@@ -48,6 +48,8 @@ fn check_data(dir: Option<&String>) -> ExitCode {
 fn replay_cmd(args: &[String]) -> ExitCode {
     let opt = |k: &str| args.iter().position(|a| a == k).and_then(|i| args.get(i + 1));
     let max = opt("--max-steps").and_then(|s| s.parse().ok());
+    let list = |k: &str| -> Vec<String> { opt(k).map_or(vec![], |s| s.split(',').filter(|x| !x.is_empty()).map(String::from).collect()) };
+    let (stubs, mask) = (list("--stub"), list("--mask"));
     let data = match opt("--data") {
         Some(p) => match Data::load(p.as_ref()) {
             Ok(d) => d,
@@ -58,7 +60,7 @@ fn replay_cmd(args: &[String]) -> ExitCode {
         },
         None => Data::embedded(),
     };
-    match replay::run(&args[0], max, Box::leak(Box::new(data))) {
+    match replay::run(&args[0], max, Box::leak(Box::new(data)), &stubs, &mask) {
         replay::Outcome::Ok(n) => {
             println!("replay OK {n} ticks");
             ExitCode::SUCCESS

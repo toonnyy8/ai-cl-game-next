@@ -84,6 +84,8 @@ pub struct Match {
     pub data: &'static Data,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
+    /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
+    pub stubs: Vec<String>,
 }
 
 impl Match {
@@ -137,6 +139,7 @@ impl Match {
             knobs: Knobs::from(data).expect("knobs"),
             data,
             unported: None,
+            stubs: Vec::new(),
         }
     }
 

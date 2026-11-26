@@ -64,6 +64,7 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
     it: I,
     inj: Injector,
     fields: Vec<String>,
+    mask: Vec<String>,
     cur: Option<Item>,
     steps: u64,
     items: u64,
@@ -154,7 +155,7 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         let (s1, s2) = (side(m.p1), side(m.p2));
         let t = TLine { tick: m.match_tick, vt: [s1.0, s2.0], downs: [s1.1, s2.1], stick: [s1.2, s2.2], rnd: m.rng.state() };
         let (h, b) = (state_hash_line(m), bits_line(m));
-        if let Some(what) = compare(&self.fields, &want, &log, &t, &h, b.strip_prefix("B ").unwrap_or(&b)) {
+        if let Some(what) = compare(&self.fields, &self.mask, &want, &log, &t, &h, b.strip_prefix("B ").unwrap_or(&b)) {
             return self.fail(m, what);
         }
         self.steps += 1;
@@ -172,7 +173,8 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
 
 /// Replays PATH (at most MAX steps): replay.lisp's cmds start (SG-INIT, the S line's commands queued, TR-RUN-FRAMES' loop
 /// until the gate and the match are over). A trials trace is driven by its F lines; its E lines are Task 13 (UNPORTED).
-pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outcome {
+/// STUBS / MASK: the stubbed mode (docs/bevy/M1_NOTES.md §3; both empty = the gate's full comparison).
+pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: &[String], mask: &[String]) -> Outcome {
     let mut r = match trace::open(path) {
         Ok(r) => r,
         Err(e) => return Outcome::Error(e),
@@ -183,8 +185,9 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
     };
     let trials = start.first().is_some_and(|w| w == "trials");
     let mut m = Match::new(data);
+    m.stubs = stubs.to_vec();
     flow::go_title(&mut m); // (SG-INIT: START-GAME)
-    let mut rp = Replayer { it: r, inj: Injector::new(), fields, cur: None, steps: 0, items: 0, max, trials, out: None };
+    let mut rp = Replayer { it: r, inj: Injector::new(), fields, mask: mask.to_vec(), cur: None, steps: 0, items: 0, max, trials, out: None };
     rp.advance();
     if trials {
         flow::frame(&mut m, &mut rp); // (trial.lisp's start: one frame, no step)
@@ -243,8 +246,17 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
     Outcome::Error("no end after 2000000 frames".into())
 }
 
-/// One step's comparison: the log, T's tick / vpad ticks / rnd, H, B (the first differing B field named).
-pub fn compare(fields: &[String], want: &Item, log: &[String], t: &TLine, h: &str, b: &str) -> Option<String> {
+/// The stubbed mode's mask (docs/bevy/M1_NOTES.md §3): field-name prefixes after `pN.`; an entry `!prefix` keeps a field a plain
+/// entry would mask. Non-empty: H is not compared either (it hashes masked fields).
+pub fn masked(mask: &[String], field: &str) -> bool {
+    let f = field.split_once('.').map_or(field, |(_, f)| f);
+    let hit = |p: &str| f.starts_with(p);
+    mask.iter().any(|p| !p.starts_with('!') && hit(p)) && !mask.iter().any(|p| p.strip_prefix('!').is_some_and(hit))
+}
+
+/// One step's comparison: the log, T's tick / vpad ticks / rnd, H, B (the first differing B field named). MASK: the stubbed mode's
+/// (`masked`), empty = everything compared.
+pub fn compare(fields: &[String], mask: &[String], want: &Item, log: &[String], t: &TLine, h: &str, b: &str) -> Option<String> {
     let Item::Step { log: wl, t: wt, h: wh, b: wb } = want else { return Some("not a step".into()) };
     if !trace::log_equal(wl, log) {
         return Some(format!("log: want {wl:?} got {log:?}"));
@@ -252,14 +264,16 @@ pub fn compare(fields: &[String], want: &Item, log: &[String], t: &TLine, h: &st
     if (wt.tick, wt.vt, wt.rnd) != (t.tick, t.vt, t.rnd) {
         return Some(format!("T: want {} {:?} {:08X} got {} {:?} {:08X}", wt.tick, wt.vt, wt.rnd, t.tick, t.vt, t.rnd));
     }
-    if wh != h {
+    if mask.is_empty() && wh != h {
         return Some(format!("H: want {wh} got {h}"));
     }
     if wb != b {
         let (wv, gv): (Vec<&str>, Vec<&str>) = (wb.split(' ').collect(), b.split(' ').collect());
-        let i = (0..wv.len().max(gv.len())).find(|&i| wv.get(i) != gv.get(i)).unwrap_or(0);
-        let name = fields.get(i).map_or("?", String::as_str);
-        return Some(format!("B field {name}: want {} got {}", wv.get(i).unwrap_or(&"-"), gv.get(i).unwrap_or(&"-")));
+        let skip = |i: usize| fields.get(i).is_some_and(|n| masked(mask, n));
+        if let Some(i) = (0..wv.len().max(gv.len())).find(|&i| wv.get(i) != gv.get(i) && !skip(i)) {
+            let name = fields.get(i).map_or("?", String::as_str);
+            return Some(format!("B field {name}: want {} got {}", wv.get(i).unwrap_or(&"-"), gv.get(i).unwrap_or(&"-")));
+        }
     }
     None
 }
@@ -304,7 +318,7 @@ mod tests {
         let run_with = |lines: &[String], max: Option<u64>| {
             let p = std::env::temp_dir().join(format!("replay-test-{}-{}.trace", std::process::id(), lines.len() + max.unwrap_or(0) as usize));
             std::fs::write(&p, lines.join("\n") + "\n").unwrap();
-            let out = run(p.to_str().unwrap(), max, data);
+            let out = run(p.to_str().unwrap(), max, data, &[], &[]);
             let _ = std::fs::remove_file(&p);
             match out {
                 Outcome::Ok(n) => format!("OK {n}"),
@@ -319,5 +333,13 @@ mod tests {
         let full_b = bad.iter().rev().find(|l| l.starts_with("B 18000")).unwrap().clone();
         bad[20] = full_b.replacen("B 18000", "B 17999", 1); // step 6's B line
         assert_eq!(run_with(&bad, Some(13)), "DIVERGED tick 6 (step 5, item 5): B field *timer*: want 17999 got 18000");
+    }
+
+    #[test]
+    fn mask_prefixes_and_keeps() {
+        let mask: Vec<String> = ["gauges-", "!gauges-fs", "ics-"].iter().map(|s| s.to_string()).collect();
+        assert!(masked(&mask, "p1.gauges-gg") && masked(&mask, "p2.ics-hist"));
+        assert!(!masked(&mask, "p1.gauges-fs") && !masked(&mask, "p1.gauges-fs-idle") && !masked(&mask, "p1.fighter-sf"));
+        assert!(!masked(&[], "p1.gauges-gg"));
     }
 }

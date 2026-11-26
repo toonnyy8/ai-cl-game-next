@@ -40,6 +40,15 @@ fn awaken_command_without_p() {
     m.gauges.get_mut(a).unwrap().awaken = 0.0;
     assert!(!try_command(&mut m, a, Cmd::Awaken, None)); // 136
     assert_eq!(m.unported, None);
+    // the branch it skips: a form with a :p hook (sim.lisp's test binder; Hisagi's bind throw, M4) is not ported yet
+    let mut d = Data::embedded();
+    d.kits.kits.get_mut("ichigo").unwrap().get_mut("base").unwrap().hooks.insert("p".into(), "HS-TEST-P".into());
+    let mut m = Match::new(Box::leak(Box::new(d)));
+    m.picks = [Character::Ichigo, Character::Kenpachi];
+    duel_sim::flow::spawn_pair(&mut m, true, true);
+    let a = m.p1;
+    assert!(!try_command(&mut m, a, Cmd::Awaken, None));
+    assert_eq!(m.unported, Some("HS-TEST-P"));
 }
 
 /// sim.lisp 176, 178, 180: the Kikon lock holds while the rusher's follow-up is coming.
