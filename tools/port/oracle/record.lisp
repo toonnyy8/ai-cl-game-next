@@ -7,7 +7,7 @@
 ;;;;     sim's / the trial runner's (between frames), and the sim stream there is compared with the last step's end (start-miss);
 ;;;;   - the brain hook: what was printed since the reader is the CPUs' (C lines), and T is taken (the vpads as the brains wrote them,
 ;;;;     the sim stream after their draws);
-;;;;   - *STEP-HOOK*: the rest of the step's lines, T, H. A sim stream there that differs from the brain hook's counts as post-draw
+;;;;   - *STEP-HOOK*: the rest of the step's lines, T, H, B. A sim stream there that differs from the brain hook's counts as post-draw
 ;;;;     (a draw after BRAIN-SYSTEM: Ichigo's CPU-only parry / stance branches in his :tick hook).
 ;;;; A trial file: trial.lisp's TRIAL-RUN is run as it is (its definitions evaluated, so its calls go through the symbols), and every
 ;;;; out-of-band action it takes between frames becomes an E line (trace.lisp's grammar): its sim actions (ENSURE-BATTLE, FORCE-FORM,
@@ -19,6 +19,7 @@
 (load (merge-pathnames "../../simgate/prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (load (merge-pathnames "trace.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (in-package :duel)
+(unless (tr-bits-selftest) (format t "record.lisp: TR-BITS-SELFTEST failed~%") (ext:quit 2))
 
 (defvar *rec-start* (cddr cl-user::*sg-args*) "\"cmds\" and the commands, or \"trials\" and the file.")
 (defvar *rec-out* (open (second cl-user::*sg-args*) :direction :output :if-exists :supersede))
@@ -32,6 +33,7 @@
 (defvar *rec-prev-rnd* nil)
 (defvar *rec-start-miss* nil "Steps (index) whose sim stream at the first vpad read differs from the last step's end.")
 (defvar *rec-post-draw* nil "Steps (index) whose sim stream at the end differs from the brain hook's.")
+(defvar *rec-prev-b* nil "The last B line's full text (a repeat is written \"B =\").")
 
 (defun rec-drain ()
   (let ((s (get-output-stream-string *rec-cap*))) (write-string s *rec-real*) s))
@@ -62,6 +64,7 @@
     (rec-write-lines sim)
     (write-line (tr-t-line tf) *rec-out*)
     (format *rec-out* "H ~a~%" (state-hash-line))
+    (let ((b (tr-b-line))) (write-line (if (equal b *rec-prev-b*) "B =" b) *rec-out*) (setf *rec-prev-b* b))
     (when (and *rec-start-rnd* *rec-prev-rnd* (/= *rec-start-rnd* *rec-prev-rnd*)) (push *rec-steps* *rec-start-miss*))
     (when (and *rec-t* (/= rnd (tr-rnd *rec-t*))) (push *rec-steps* *rec-post-draw*))
     (setf *rec-pre* "" *rec-cpu* "" *rec-t* nil *rec-start-rnd* nil *rec-prev-rnd* rnd)
@@ -131,7 +134,7 @@ through the symbols, so the wrappers are seen), without its prelude load (the im
     (let ((*package* (find-package :duel)))
       (loop for tr = (read in nil in) until (eq tr in) do (let ((*standard-output* *rec-cap*)) (trial-run tr))))))
 
-(format *rec-out* "# oracle trace v1: tools/port/oracle/record.lisp~%S~{ ~a~}~%" *rec-start*)
+(format *rec-out* "# oracle trace v1: tools/port/oracle/record.lisp~%# B fields:~{ ~a~}~%S~{ ~a~}~%" (tr-b-names) *rec-start*)
 (unless (boundp '*oracle-brain-hook*) (format *rec-real* "record.lisp: not the recorder's image (build-rec.lisp)~%") (ext:quit 2))
 (setf *oracle-brain-hook* #'rec-brain)
 (cond ((string= (first *rec-start*) "cmds")

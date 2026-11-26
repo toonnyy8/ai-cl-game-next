@@ -4,7 +4,7 @@
 ;;;; PILOT-SYSTEM (main.lisp SIM-STEP) just before BRAIN-SYSTEM / FIGHTER-SYSTEM, and that read (a vpad READER) writes the recorded
 ;;;; buttons (VPAD-SET! in *VPAD-ACTIONS* order, as the CPU's AI-PRESS-WRITE!), the stick and the sim stream. At every step's end
 ;;;; (*STEP-HOOK*) the step's sim log lines (C lines excepted), T's tick, vpad ticks and sim stream, and STATE-HASH-LINE must equal the
-;;;; trace's. A cmds trace detaches the brains once (at the first step's end: the intro runs no sim frame, which is checked). A trials
+;;;; trace's, and so must the raw-bits B line (TR-B-LINE; the first differing field is named). A cmds trace detaches the brains once (at the first step's end: the intro runs no sim frame, which is checked). A trials
 ;;;; trace is self-describing: after SG-INIT and one frame its E lines are applied (TR-APPLY-EVENT; what each prints must equal its e
 ;;;; lines) and each F line runs one frame, the brains taken off before it (a new match's included). Neither trial.lisp nor its TRIAL-RUN
 ;;;; is loaded: R lines (the runner's own) and C lines (the CPUs') are skipped.
@@ -13,9 +13,11 @@
 (load (merge-pathnames "../../simgate/prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (load (merge-pathnames "trace.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (in-package :duel)
+(unless (tr-bits-selftest) (format t "replay.lisp: TR-BITS-SELFTEST failed~%") (ext:quit 2))
 
 (defvar *rp-start* nil "The trace's S line, its words.")
 (defvar *rp-recs* nil "The trace's items (TR-READ): steps, events, frames.")
+(defvar *rp-b-names* nil "The trace header's B field names.")
 (defvar *rp-trials* nil "A trials trace: E and F lines drive it.")
 (defvar *rp-i* 0 "Items consumed.")
 (defvar *rp-steps* 0 "Steps checked.")
@@ -23,7 +25,7 @@
 (defvar *rp-real* *standard-output*)
 (defvar *rp-cap* (make-string-output-stream))
 
-(multiple-value-setq (*rp-start* *rp-recs*) (tr-read (second cl-user::*sg-args*)))
+(multiple-value-setq (*rp-start* *rp-recs* *rp-b-names*) (tr-read (second cl-user::*sg-args*)))
 (setf *rp-trials* (string= (first *rp-start*) "trials"))
 
 (defun rp-fail (fmt &rest args)
@@ -32,7 +34,7 @@
   (ext:quit 1))
 
 (defun rp-rec ()
-  "The step record due now (the next item must be one), as (sim-log-lines t-fields h-line)."
+  "The step record due now (the next item must be one), as (sim-log-lines t-fields h-line b-line)."
   (let ((it (if (< *rp-i* (length *rp-recs*)) (aref *rp-recs* *rp-i*) (rp-fail "the replay runs past the trace's end"))))
     (unless (eq (first it) :step) (rp-fail "a step ran where the trace has ~s" (first it)))
     (rest it)))
@@ -72,6 +74,9 @@
       (rp-fail "combat log~%  want ~s~%  got  ~s" (first rec) got-log))
     (unless (and (= (first tf) (first want)) (= (nth 1 tf) (nth 1 want)) (= (nth 5 tf) (nth 5 want)) (= (tr-rnd tf) (tr-rnd want)))
       (rp-fail "T (tick, vpad ticks, sim stream)~%  want ~a~%  got  ~a" (tr-t-line want) (tr-t-line tf)))
+    (unless (fourth rec) (rp-fail "the trace has no B line for this step"))
+    (let ((b (tr-b-line)))
+      (unless (string= b (fourth rec)) (rp-fail "~a" (or (tr-b-diff *rp-b-names* (fourth rec) b) "B (equal fields, other text)"))))
     (unless (string= h (third rec)) (rp-fail "H~%  want ~a~%  got  ~a" (third rec) h))
     (incf *rp-i*) (incf *rp-steps*))
   (unless *rp-trials* (rp-detach)))

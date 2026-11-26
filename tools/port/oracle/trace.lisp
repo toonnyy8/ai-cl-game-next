@@ -16,7 +16,13 @@
 ;;;;   C [  tick] ...              a combat log line the CPUs printed inside BRAIN-SYSTEM (for reference: a sim without the CPU cannot
 ;;;;                               print it; never compared)
 ;;;;   T tick vt1 downs1 sx1 sy1 vt2 downs2 sx2 sy2 rnd
-;;;;   H duel hash t=...           STATE-HASH-LINE at the step's end; a step's record is its [ / C lines, T, H
+;;;;   H duel hash t=...           STATE-HASH-LINE at the step's end
+;;;;   B <field> ...               the sim state's raw bits at the step's end (TR-B-LINE), or "B =": the same text as the trace's last B
+;;;;                               line. A step's record is its [ / C lines, T, H, B
+;;;;   # B fields: <name> ...      (the second line) the B fields' names in order (TR-B-NAMES): the globals, p1.*, p2.*, "|", then one
+;;;;                               hazard's fields, repeated per live hazard in entity order after the "|". A single-float is its IEEE
+;;;;                               bits as 8 upper-case hex digits, a double-float 16 (the width tells which), an integer decimal,
+;;;;                               anything else PRIN1 (keywords, T / NIL)
 ;;;; T: on a step that ran the sim's systems (a sim frame: the vpad ticks advance) the values right after BRAIN-SYSTEM, i.e. what the
 ;;;; brains wrote for FIGHTER-SYSTEM to read and the sim stream after their draws; on any other step (intro / cinematic / hitstop /
 ;;;; slow-motion wait) the values at the step's end. vtK = side K's vpad tick, downsK = its nine buttons as 3 hex digits (bit i =
@@ -76,12 +82,13 @@
 (defun tr-rnd (tf) (nth 9 tf))
 
 (defun tr-read (path)
-  "A trace -> (values start items): START the S line's words after S; ITEMS a vector, in order, of (:step sim-log-lines t-fields h-line),
-(:event words e-lines) and (:frame)."
+  "A trace -> (values start items b-names): START the S line's words after S; ITEMS a vector, in order, of (:step sim-log-lines t-fields
+h-line b-line), (:event words e-lines) and (:frame); B-NAMES the header's B field names. A \"B =\" line is expanded to the last B text."
   (with-open-file (in path)
-    (let ((start nil) (log nil) (tf nil) (items (make-array 0 :adjustable t :fill-pointer t)))
+    (let ((start nil) (log nil) (tf nil) (items (make-array 0 :adjustable t :fill-pointer t)) (names nil) (prev-b nil))
       (loop for l = (read-line in nil) while l
             do (cond ((zerop (length l)))
+                     ((eql 0 (search "# B fields: " l)) (setf names (rest (rest (rest (tr-split l))))))
                      ((member (char l 0) '(#\# #\C #\R)))
                      ((char= (char l 0) #\S) (setf start (rest (tr-split l))))
                      ((char= (char l 0) #\E) (vector-push-extend (list :event (rest (tr-split l)) nil) items))
@@ -90,10 +97,13 @@
                      ((char= (char l 0) #\[) (push l log))
                      ((char= (char l 0) #\T) (setf tf (tr-parse-t l)))
                      ((char= (char l 0) #\H)
-                      (vector-push-extend (list :step (nreverse log) tf (subseq l 2)) items)
-                      (setf log nil tf nil))))
+                      (vector-push-extend (list :step (nreverse log) tf (subseq l 2) nil) items)
+                      (setf log nil tf nil))
+                     ((char= (char l 0) #\B)
+                      (unless (string= l "B =") (setf prev-b (coerce l 'simple-base-string)))   ; (1 byte a char: the 426 MB trace fits the 1 GB heap)
+                      (setf (fifth (aref items (1- (fill-pointer items)))) prev-b))))
       (loop for it across items when (eq (first it) :event) do (setf (third it) (reverse (third it))))
-      (values start items))))
+      (values start items names))))
 
 (defun tr-lines (text)
   (with-input-from-string (in text) (loop for l = (read-line in nil) while l collect l)))
@@ -176,3 +186,103 @@ string stream CAP (the hooks drain it). Exits 3 / 4 as run.lisp does."
             ((string= a "cmd") (debug-command (first args)))
             ((string= a "core-start") (let ((e (side 0))) (core-start! e (gethash (second args) (kit-moves (kit-of e))))))
             (t (error "trace: unknown event ~s" words))))))
+
+;;; ---------------------------------------------------------------- the B line: the sim state's raw bits (M1 Task 1)
+(defun tr-f32-bits (x)
+  "X's IEEE bits as an integer: 32 for a single-float, 64 for a double-float (INTEGER-DECODE-FLOAT, no FFI; ECL hands back a subnormal's
+mantissa normalized, so it is renormalized here). A NaN or an infinity is an error."
+  (when (or (ext:float-nan-p x) (ext:float-infinity-p x)) (error "trace: ~s is not finite" x))
+  (multiple-value-bind (p bias w) (if (typep x 'double-float) (values 53 1075 64) (values 24 150 32))
+    (multiple-value-bind (m e s) (integer-decode-float x)
+      (let ((sign (if (minusp s) (ash 1 (1- w)) 0)))
+        (if (zerop m)
+            sign
+            (let* ((n (integer-length m)) (m (ash m (- p n))) (biased (+ e (- n p) bias)))
+              (logior sign (if (<= biased 0)
+                               (ash m (1- biased))
+                               (logior (ash biased (1- p)) (- m (ash 1 (1- p))))))))))))
+
+(defun tr-bits-selftest ()
+  "TR-F32-BITS on known values (record.lisp / replay.lisp exit 2 when it fails)."
+  (every (lambda (c) (= (tr-f32-bits (car c)) (cdr c)))
+         (list (cons 1.0f0 #x3F800000) (cons -0.0f0 #x80000000) (cons 0.1f0 #x3DCCCCCD) (cons least-positive-single-float #x00000001)
+               (cons 1.0d0 #x3FF0000000000000))))
+
+(defun tr-b-value (v)
+  "One B field: a single-float as its 8 hex digits, a double-float 16 (the width tells them apart), an integer decimal, else PRIN1."
+  (typecase v
+    (single-float (format nil "~8,'0X" (tr-f32-bits v)))
+    (double-float (format nil "~16,'0X" (tr-f32-bits v)))
+    (integer (format nil "~d" v))
+    (t (tr-print v))))
+
+(defparameter *tr-components* (merge-pathnames "../../../duel/lisp/components.lisp" (directory-namestring *load-truename*)))
+
+(defun tr-slots (component type)
+  "The slots of (DEFCOMPONENT COMPONENT ...) in duel/lisp/components.lisp whose :TYPE is TYPE, in slot order."
+  (with-open-file (in *tr-components*)
+    (let ((*package* (find-package :duel)) (*read-eval* nil) (*read-default-float-format* 'single-float))
+      (loop for form = (read in nil in) until (eq form in)
+            when (and (consp form) (eq (first form) 'defcomponent) (eq (second form) component))
+              return (loop for s in (cddr form) when (and (consp s) (equal (getf (cddr s) :type) type)) collect (first s))
+            finally (error "trace: no (defcomponent ~s) in ~a" component *tr-components*)))))
+
+(defun tr-acc (component slot)
+  "(e) -> SLOT of E's COMPONENT."
+  (let ((get (fdefinition component)) (acc (fdefinition (intern (format nil "~a-~a" component slot) :duel))))
+    (lambda (e) (funcall acc (funcall get e)))))
+
+(defun tr-checked (component slots type)
+  (dolist (s slots slots)
+    (unless (member s (tr-slots component type)) (error "trace: ~s-~s is not a ~s slot" component s type))))
+
+(defparameter *tr-b-globals*
+  (append (list (cons "*timer*" (lambda () *timer*)) (cons "*hitstop*" (lambda () *hitstop*)) (cons "*slow-acc*" (lambda () *slow-acc*)))
+          (loop for i below (length engine::*slowmo*) collect (let ((i i)) (cons (format nil "*slowmo*[~d]" i) (lambda () (aref engine::*slowmo* i)))))
+          (list (cons "*flow*" (lambda () *flow*)) (cons "cine-cf" (lambda () (if *cine* (cine-cf *cine*) -1)))))
+  "The B line's globals: (name . thunk).")
+
+(defparameter *tr-b-side*
+  (flet ((slots (c names) (loop for s in names collect (cons (string-downcase (format nil "~a-~a" c s)) (tr-acc c s)))))
+    (append (loop for i below 3 for n in '("x" "y" "z") collect (let ((i i)) (cons (format nil "pos-~a" n) (lambda (e) (aref (pos-of e) i)))))
+            (list (cons "yaw" #'yaw-of))
+            (loop for i below 3 for n in '("x" "y" "z") collect (let ((i i)) (cons (format nil "motion-vel-~a" n) (lambda (e) (aref (motion-vel (motion e)) i)))))
+            (loop for i below 3 for n in '("x" "y" "z") collect (let ((i i)) (cons (format nil "motion-kb-~a" n) (lambda (e) (aref (motion-kb (motion e)) i)))))
+            (slots 'motion '(kb-left grounded))
+            (slots 'fighter (tr-slots 'fighter 'single-float))
+            (slots 'fighter (tr-checked 'fighter '(sf hold stun freeze lock hoho-lock hoho-left guard-t gc-left guard-exit pre invuln armor-left
+                                                   land-sf combo-hits) 'fixnum))
+            (slots 'gauges (tr-slots 'gauges 'single-float))
+            (slots 'gauges (tr-checked 'gauges '(reishi konpaku burn-step) 'fixnum))))
+  "The B line's per-side fields: (name . (lambda (entity))), names qualified by component (fighter-stun is a fixnum, gauges-stun a float).")
+
+(defparameter *tr-b-hazard*
+  (loop for s in '(kind x y z px pz yaw speed size age life delay hits-left)
+        collect (cons (string-downcase (symbol-name s)) (fdefinition (intern (format nil "HAZARD-~a" s) :duel))))
+  "The B line's per-hazard fields (after the |): (name . hazard accessor).")
+
+(defun tr-b-names ()
+  "The B fields' names, as the trace header's \"# B fields:\" line lists them: the globals, p1.*, p2.*, |, then one hazard's."
+  (append (mapcar #'car *tr-b-globals*)
+          (loop for p in '("p1" "p2") append (loop for f in *tr-b-side* collect (format nil "~a.~a" p (car f))))
+          (list "|") (mapcar #'car *tr-b-hazard*)))
+
+(defun tr-b-line ()
+  "The B line now (\"B ...\", full: the recorder writes \"B =\" for a repeat)."
+  (with-output-to-string (s)
+    (write-string "B" s)
+    (dolist (f *tr-b-globals*) (write-char #\Space s) (write-string (tr-b-value (funcall (cdr f))) s))
+    (dolist (e (list *p1* *p2*)) (dolist (f *tr-b-side*) (write-char #\Space s) (write-string (tr-b-value (funcall (cdr f) e)) s)))
+    (write-string " |" s)
+    (do-entities (h (hz hazard))
+      (dolist (f *tr-b-hazard*) (write-char #\Space s) (write-string (tr-b-value (funcall (cdr f) hz)) s)))))
+
+(defun tr-b-diff (names want got)
+  "The first field where the B lines WANT and GOT differ, named through the header's NAMES, or NIL if equal."
+  (let* ((w (rest (tr-split want))) (g (rest (tr-split got))) (fixed (position "|" names :test #'string=))
+         (nh (- (length names) fixed 1)) (i (mismatch w g :test #'string=)))
+    (when i
+      (flet ((name (i) (if (<= i fixed) (nth i names)
+                           (multiple-value-bind (h j) (floor (- i fixed 1) nh) (format nil "hz~d.~a" h (nth (+ fixed 1 j) names)))))
+             (at (l) (or (nth i l) "<none>")))
+        (format nil "B field ~a: want ~a got ~a" (name i) (at w) (at g))))))

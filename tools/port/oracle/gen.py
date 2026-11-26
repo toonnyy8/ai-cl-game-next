@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """gen.py — the Bevy port's answer key into build/oracle/ (git-ignored; docs/bevy/BEVY_PORT.md §6.1, M0 plan Task 7: the sim traces).
 
-  python3 tools/port/oracle/gen.py sim               record every trace (record.lisp on the recorder's image, build-rec.lisp), check
+  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, and write neither INDEX.json nor cvc-tag.txt)
+                                                     record every trace (record.lisp on the recorder's image, build-rec.lisp), check
                                                      each against a plain run of the stock image (non-perturbation), write
                                                      build/oracle/INDEX.json and cvc-tag.txt, then replay three (one per kind)
   python3 tools/port/oracle/gen.py replay [NAME ...] replay.lisp on the stock image (default: every trace in INDEX.json)
@@ -135,15 +136,22 @@ def replay(names):
     with cf.ThreadPoolExecutor(JOBS) as ex:
         for n, rc, line in ex.map(one, names):
             print(f'{n}: {line}', flush=True)
-            bad += rc != 0
+            bad += rc != 0 or not line.startswith('replay OK')   # (an ECL error drops into the debugger, which exits 0 at stdin's end)
     return bad
 
 
-def sim():
+def sim(names=()):
     build()
     build_rec()
     os.makedirs(TRACES, exist_ok=True)
     js = jobs()
+    if names:   # ponytail: a subset is a spot check, never a new index
+        js = [j for j in js if j['name'] in names]
+        with cf.ThreadPoolExecutor(JOBS) as ex:
+            done = list(ex.map(record, js))
+        for j in done:
+            print(f"{j['name']}: {j.get('steps')} steps, last tick {j.get('last_tick')}, sha1 {j.get('sha1')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
+        sys.exit(1 if len(done) != len(names) or any('error' in j for j in done) or replay([j['name'] for j in done]) else 0)
     with cf.ThreadPoolExecutor(JOBS) as ex:
         done = list(ex.map(record, js))
     for j in done:
@@ -277,7 +285,7 @@ def main():
             sys.exit(0 if look_check() else 1)
         look()
     if cmd == 'sim':
-        sim()
+        sim(sys.argv[2:])
     elif cmd == 'replay':
         names = sys.argv[2:] or [j['name'] for j in json.load(open(os.path.join(OUT, 'INDEX.json')))['traces'] if 'error' not in j]
         sys.exit(1 if replay(names) else 0)
