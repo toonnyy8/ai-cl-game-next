@@ -113,6 +113,135 @@ pub fn mv_ns_next<'d>(data: &'d Data, kit: &Kit, mv: &Move) -> Option<&'d Move> 
     kit_move(data, kit, mv.params.ns_next.as_deref()?)
 }
 
+// port: kit.lisp WINDOW-TOUCHES-P (ATT: the attacker, for a :seg-fn window's capsule)
+#[allow(clippy::too_many_arguments)]
+pub fn window_touches_p(
+    m: &mut crate::state::Match, w: &duel_data::HitWin, _att: crate::ecs::Entity, ax: f32, ay: f32, az: f32, fx: f32, fz: f32,
+    tx: f32, ty: f32, tz: f32, tr: f32, th: f32,
+) -> bool {
+    if w.seg.is_some() {
+        crate::unported!(m, "kit.lisp WINDOW-TOUCHES-P :seg-fn (Hisagi, M4)", false);
+    }
+    w.vols.iter().any(|v| crate::hitvol::vol_hit_p(v, ax, ay, az, fx, fz, tx, ty, tz, tr, th, 0.0))
+}
+
+// port: kit.lisp SEG-GAP (NIL = None: no window of MV has a :seg-fn, every Kenpachi / Ichigo move)
+pub fn seg_gap(m: &mut crate::state::Match, mv: &Move, _att: crate::ecs::Entity, _tx: f32, _tz: f32) -> Option<f32> {
+    if mv.hits.iter().any(|w| w.seg.is_some()) {
+        crate::unported!(m, "kit.lisp SEG-GAP :seg-fn (Hisagi, M4)", None);
+    }
+    None
+}
+
+// port: kit.lisp KIT-COMMAND-MOVE (without E: the :command hook is Hisagi's, M4; the form's :commands entry)
+pub fn kit_command_move<'d>(data: &'d Data, kit: &Kit, command: &str) -> Option<&'d Move> {
+    kit_move(data, kit, kit.commands.get(command)?.as_deref()?)
+}
+
+// port: kit.lisp KIT-NEXT
+pub fn kit_next<'d>(data: &'d Data, kit: &Kit, move_name: &str, command: &str) -> Option<&'d Move> {
+    let [_, _, to] = kit.strings.iter().find(|[from, cmd, _]| from == move_name && cmd == command)?;
+    kit_move(data, kit, to)
+}
+
+// port: kit.lisp STRING-LINK-P
+pub fn string_link_p(data: &Data, kit: &Kit, move_name: &str) -> bool {
+    kit_next(data, kit, move_name, "q").is_some() || kit_next(data, kit, move_name, "f").is_some()
+}
+
+fn link_p(kit: &Kit, move_name: &str, command: &str) -> bool {
+    kit.commands.get(command).is_some_and(|n| n.as_deref() == Some(move_name))
+        || kit.strings.iter().any(|[_, cmd, to]| cmd == command && to == move_name)
+}
+
+// port: kit.lisp KIT-K-LINK-P
+pub fn kit_k_link_p(kit: &Kit, move_name: &str) -> bool {
+    link_p(kit, move_name, "f")
+}
+
+// port: kit.lisp KIT-J-LINK-P
+pub fn kit_j_link_p(kit: &Kit, move_name: &str) -> bool {
+    link_p(kit, move_name, "q")
+}
+
+// port: kit.lisp KIT-L-LINK ("T" = the form's :sig; a per-link plist, Rukia's, is not in the live data)
+pub fn kit_l_link<'d>(data: &'d Data, kit: &Kit, move_name: &str) -> Option<&'d Move> {
+    let l = if kit_k_link_p(kit, move_name) {
+        kit.l_after_k.as_deref()
+    } else if kit_j_link_p(kit, move_name) {
+        kit.l_after_j.as_deref()
+    } else {
+        None
+    }?;
+    if l.eq_ignore_ascii_case("t") { kit_command_move(data, kit, "sig") } else { kit_move(data, kit, l) }
+}
+
+// port: kit.lisp STRING-LATCH (QUEUED / the result: the latched command, NIL = None)
+pub fn string_latch<'a>(data: &Data, kit: &Kit, move_name: &str, command: &'a str, queued: Option<&'a str>) -> Option<&'a str> {
+    if kit_next(data, kit, move_name, command).is_some() { Some(command) } else { queued }
+}
+
+// port: kit.lisp STRING-OPENER-P (without E, as KIT-COMMAND-MOVE)
+pub fn string_opener_p(data: &Data, kit: &Kit, mv: &Move) -> bool {
+    matches!(mv.kind.as_str(), "quick" | "flash")
+        && !mv.flags.iter().any(|f| f == "no-close")
+        && kit_command_move(data, kit, if mv.kind == "quick" { "q" } else { "f" }).is_some_and(|c| c.id == mv.id)
+}
+
+// port: kit.lisp MOVE-EDGE (a capsule volume: shape tag 1.0, radius at index 4)
+pub fn move_edge(mv: &Move) -> f32 {
+    match mv.hits.first().and_then(|w| w.vols.first()) {
+        Some(v) if v[0] == 1.0 => mv.reach + v[4],
+        _ => mv.reach,
+    }
+}
+
+// port: kit.lisp SP-MOVE-P
+pub fn sp_move_p(data: &Data, kit: &Kit, mv: &Move) -> bool {
+    let is = |c| kit_command_move(data, kit, c).is_some_and(|x| x.id == mv.id);
+    mv.kind == "sp" || is("sp1") || is("sp2")
+}
+
+// port: kit.lisp ENDER-PUSH-REACH
+pub fn ender_push_reach(kit: &Kit, mv: &Move, opener: &Move) -> f32 {
+    match kit.push_reach {
+        Some(r) if mv.kind != "quick" => r,
+        _ => move_edge(opener),
+    }
+}
+
+// port: kit.lisp KIT-ATK-MODS (FORM-MULT: a move's :params :form-mult, NIL = None; a kit has a :core when it has NS routes)
+pub fn kit_atk_mods(k: &crate::knobs::Knobs, kit: &Kit, lost: i64, hit_x: f32, form_mult: Option<f32>) -> crate::rules::AtkMods {
+    let core = if kit.core.ns.is_empty() { 1.0 } else { k.core_damage * kit.core.mult };
+    crate::rules::AtkMods { mult: form_mult.unwrap_or(kit.mult) * hit_x * core, cornered: kit.cornered, cornered_max: kit.cornered_max, lost }
+}
+
+// port: kit.lisp KIT-DEF-MODS
+pub fn kit_def_mods(kit: &Kit) -> crate::rules::DefMods {
+    crate::rules::DefMods { mult: kit.taken }
+}
+
+// port: kit.lisp CORE-SEGMENTS (FIND-MOVE's ERROR on an unknown name: a panic naming it)
+pub fn core_segments(data: &Data, name: &str) -> Vec<String> {
+    let mut out = vec![];
+    let mut n = Some(name.to_string());
+    while let Some(x) = n {
+        n = find_move(data, &x).unwrap_or_else(|| panic!("unknown move {x}")).params.ns_next.clone();
+        out.push(x);
+    }
+    out
+}
+
+// port: kit.lisp CORE-ROUTES
+pub fn core_routes(core: &duel_data::Core) -> Vec<String> {
+    core.ns.iter().chain(&core.as_segs).cloned().collect()
+}
+
+// port: kit.lisp CORE-SEGMENT-SAS
+pub fn core_segment_sas(data: &Data, core: &duel_data::Core) -> Vec<String> {
+    core.ns.iter().flat_map(|n| core_segments(data, n)).filter_map(|m| find_move(data, &m).and_then(|x| x.params.sa.clone())).collect()
+}
+
 // ---------------------------------------------------------------- hooks (KIT-HOOK)
 
 /// The hook points of a kit's `:hooks` plist (every key the data uses).
@@ -153,11 +282,23 @@ pub enum HookFn {
 #[derive(Debug, Clone, Default)]
 pub struct Hooks(pub [Option<HookFn>; 32]);
 
-// port: the symbol a defkit's :hooks names → its function. A Kenpachi / Ichigo symbol is a load error once its task ports
-// the kit (today all four characters' symbols are `Unported` stubs); any other unknown symbol is None (a load error).
+/// The Kenpachi / Ichigo hook symbols of the live data (kits.json), not ported yet: the checked list Tasks 11 (KEN-) and
+/// 12 (ICHIGO- / IC-) empty, each entry replaced by its `HookFn` variant. A Kenpachi / Ichigo symbol outside it does not resolve.
+pub const PENDING_HOOKS: [&str; 21] = [
+    "IC-KESSA-GETSUGA-CINE", "ICHIGO-CATCH", "ICHIGO-CLOAK-POSE", "ICHIGO-DECK", "ICHIGO-DRAW", "ICHIGO-HIT", "ICHIGO-HUD-TAG",
+    "ICHIGO-KIKON-WORTH", "ICHIGO-OK", "ICHIGO-STRUCK", "ICHIGO-THREAT", "ICHIGO-TICK", "KEN-ARMOR", "KEN-AS-PICK", "KEN-BK-HIT-FX",
+    "KEN-BK-TICK", "KEN-DMG-MULT", "KEN-DRAW", "KEN-HIT", "KEN-LINK-OK", "KEN-LV",
+];
+
+// port: the symbol a defkit's :hooks names → its function. A Kenpachi / Ichigo symbol resolves only through PENDING_HOOKS
+// (a stub until Tasks 11 / 12) and anything else of theirs is None, so `hooks_of` fails at load naming it; a Hisagi /
+// Yamamoto symbol is an `Unported` stub (M4).
 pub fn resolve(name: &str) -> Option<HookFn> {
-    const KITS: [&str; 7] = ["KEN-", "ICHIGO-", "IC-", "HS-", "HISAGI-", "YAMA-", "YAMAMOTO-"];
-    KITS.iter().any(|p| name.starts_with(p)).then_some(HookFn::Unported)
+    if PENDING_HOOKS.contains(&name) {
+        return Some(HookFn::Unported);
+    }
+    const LATER: [&str; 4] = ["HS-", "HISAGI-", "YAMA-", "YAMAMOTO-"];
+    LATER.iter().any(|p| name.starts_with(p)).then_some(HookFn::Unported)
 }
 
 /// The kit's hook table from its data (`Kit.hooks`, key → symbol), or an error naming a key / symbol that does not resolve.
