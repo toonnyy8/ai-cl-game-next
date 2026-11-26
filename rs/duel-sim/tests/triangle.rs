@@ -118,3 +118,70 @@ fn triangle_pointer_profiles() {
     // (core.lisp's by-press list, Ichigo's (1 1 2 2 3): not a triangle.lisp check)
     assert_eq!(m(&|p| core_as_pointer(k, p, &[1, 1, 2, 2, 3]), &[1, 2, 3, 4, 5, 6]), [1, 1, 2, 2, 3, 3]);
 }
+
+#[test]
+fn steal() {
+    let k = &duel_sim::knobs::Knobs::from(&duel_data::Data::embedded()).unwrap();
+    use duel_sim::rules::steal_take as st;
+    // triangle.lisp lines 268, 270-278
+    assert_eq!(k.steal_fs_gain, 0.5);
+    assert_eq!(st(k, 30.0, 300.0), (30.0, 15.0));
+    assert_eq!(st(k, 80.0, 300.0), (80.0, 40.0));
+    assert_eq!(st(k, 120.0, 25.0), (25.0, 12.5));
+    assert_eq!(st(k, 30.0, 0.0), (0.0, 0.0));
+    assert_eq!(st(k, 3.0, 300.0), (3.0, 1.5));
+    assert_eq!([5.0, 10.0, 15.0, 20.0].iter().map(|&w| st(k, w, 300.0).0).sum::<f32>(), 50.0);
+    assert!(st(k, 120.0, 100.0) == (100.0, 50.0) && st(k, 500.0, 300.0) == (300.0, 150.0));
+    let (mut v, mut tot) = (300.0, 0.0);
+    for w in [120.0, 120.0, 120.0] {
+        let tk = st(k, w, v).0;
+        v -= tk;
+        tot += tk;
+    }
+    assert!(v == 0.0 && tot == 300.0);
+}
+
+#[test]
+fn ichigo_core_moves() {
+    use duel_sim::kit::*;
+    let d = duel_data::Data::embedded();
+    let k = &d.kits.kits["ichigo"]["base"];
+    let m = |n: &str| kit_move(&d, k, n).unwrap();
+    let id = |x: Option<&duel_data::Move>| x.map(|m| m.id.clone());
+    // lines 107-109
+    assert!(["ic-j1", "ic-n1a", "ic-n2a", "ic-n3a"].iter().all(|n| m(n).s >= 14));
+    assert!(m("ic-n1a").s > m("ic-n1b").s);
+    assert!(m("ic-n2a").hits.is_empty() && m("ic-n2b").hits.is_empty() && m("ic-n2c").params.range.unwrap() >= 10.0);
+    // line 113
+    assert!(
+        id(mv_sa_move(&d, k, m("ic-n2a"))) == id(Some(m("ic-sa-g1"))) && id(mv_sa_move(&d, k, m("ic-n2b"))) == id(Some(m("ic-sa-g2")))
+            && mv_sa_move(&d, k, m("ic-n1a")).is_none()
+            && ["ic-sa", "ic-sa-g1", "ic-sa-g2"].iter().all(|n| kit_class(k, Some(m(n))) == Some(duel_data::MoveClass::Sa))
+            && m("ic-sa").dmg < m("ic-sa-g1").dmg && m("ic-sa-g1").dmg < m("ic-sa-g2").dmg
+            && ["ic-sa", "ic-sa-g1", "ic-sa-g2"].iter().all(|n| kit_next(&d, k, n, "q").is_some())
+    );
+    // line 118
+    assert_eq!(k.core.stances, ["ic-st-heavy", "ic-tsuki", "ic-st-rush"]);
+    // lines 148-152 (KESSA)
+    let kk = &d.kits.kits["ichigo"]["kessa"];
+    let mk = |n: &str| kit_move(&d, kk, n).unwrap();
+    assert_eq!(id(kit_core_move(&d, kk, Role::Ns, 3)), id(Some(mk("ic-k-n3a"))));
+    assert!(["ic-k-n3a", "ic-k-n3b", "ic-k-n3c"].iter().all(|n| mk(n).hits.is_empty() && id(mv_sa_move(&d, kk, mk(n))) == id(Some(mk("ic-k-sa")))));
+    assert_eq!(kk.core.stances, ["ic-k-st-chain", "ic-tsuki", "ic-k-stance"]);
+    assert_eq!(id(kit_core_move(&d, k, Role::Ns, 3)), id(Some(m("ic-n3a"))));
+    // line 169
+    assert!(kk.core.kikon_cines.iter().map(|c| c.to_ascii_lowercase()).eq(["ic-chain-kikon-cine", "ic-kessa-getsuga-cine", "ic-kessa-kikon-cine"]));
+}
+
+#[test]
+fn ichigo_steal_values() {
+    // triangle.lisp lines 282-283: per-hit steal values as written
+    let d = duel_data::Data::embedded();
+    let vals = |f: &str, n: &str| {
+        let k = &d.kits.kits["ichigo"][f];
+        let mv = duel_sim::kit::kit_move(&d, k, n).unwrap();
+        mv.hits.iter().map(|w| w.steal.or(mv.params.steal_fs)).collect::<Vec<_>>()
+    };
+    assert_eq!(vals("base", "ic-as1"), [Some(40)]);
+    assert_eq!(vals("kessa", "ic-k-as1"), [Some(15); 4]);
+}
