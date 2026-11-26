@@ -81,6 +81,8 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 
 ## Babylon 移植版（已停止）
 
+Rust + Bevy 移植（2026-11-26 起，設計中）：`docs/bevy/BEVY_PORT.md`，Lisp 版在 `lisp-freeze`（395fd0b6）凍結作為標準答案。
+
 Babylon.js + TypeScript 移植版 2026-10-06 起不再開發；它的程式碼和紀錄（BABYLON_PORT、BABYLON_LOOK）2026-10-27 起只在 `babylon` 分支的 `babylon/` 與 `docs/babylon/`。
 
 ## 研究（`research/`）
