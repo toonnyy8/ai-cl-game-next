@@ -63,6 +63,15 @@ def sp_costs_file():
     return path
 
 
+def provenance():
+    """(lisp-freeze's short sha, whether every source of the image and the trial files equals the tag's). tools/simgate/build.lisp is
+    left out: since the tag it only takes SG_STUBS, whose default writes the same unit (build-rec.lisp copies that unit)."""
+    git = lambda *a: subprocess.run(['git', *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    paths = ['duel', 'engine', 'tools/simgate/stubs.c', 'tools/simgate/prelude.lisp', 'tools/simgate/run.lisp', 'tools/simgate/trial.lisp',
+             'tests/trials', 'tests/sp-costs-check.py'] + list(RESEARCH_TRIALS.values())
+    return git('rev-parse', '--short', 'lisp-freeze'), git('diff', '--stat', 'lisp-freeze', 'HEAD', '--', *paths) == ''
+
+
 def jobs():
     out = []
     for a in FIGHTERS:
@@ -137,11 +146,12 @@ def sim():
               f"post-draw {j.get('post_draw')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
     tag = [f'{j["name"][-2:]} {l}' for j in done if j['kind'] == 'cvc-tag' for l in j.pop('tag_lines', [])]
     head = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    tag, same = provenance()
     with open(os.path.join(OUT, 'cvc-tag.txt'), 'w') as f:
-        f.write(f'# cvc-tag.txt (tools/port/oracle/gen.py, {datetime.date.today()}, at {head}, the native image): G2\'s three CPU matches, '
+        f.write(f'# cvc-tag.txt (tools/port/oracle/gen.py, {datetime.date.today()}, at {head}; lisp-freeze {tag}, sources equal to the tag: {same}; the native image): G2\'s three CPU matches, '
                 'seed 7 II / IK / KK (debug 2102 + 3007 / 4007 / 5007), their RESULTS and 600-tick hash lines in tests/style-cvc-ref.txt\'s '
                 'format; it replaces that stale file for M2.\n' + '\n'.join(tag) + '\n')
-    index = {'generated': str(datetime.date.today()), 'commit': head, 'format': 'tools/port/oracle/trace.lisp (header)',
+    index = {'generated': str(datetime.date.today()), 'commit': head, 'lisp_freeze': tag, 'sources_equal_tag': same, 'format': 'tools/port/oracle/trace.lisp (header)',
              'image': 'build/simgate/duel.fas (replay); build/oracle/rec/duel.fas (record: the same unit plus *oracle-brain-hook*)',
              'cvc_tag': 'cvc-tag.txt', 'traces': done, 'excluded': EXCLUDED,
              'deferred': 'tests/scripts/*.json (browser scripts): M1 brings the scripted-input path on the native image'}
