@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The M1 replay gate: the 18 gate traces through `duel-tools replay`, 4 at a time. Prints "name status first-step" rows.
 # Exit 0 when every trace is OK (with --allow-unported: OK or UNPORTED). ORACLE defaults to this checkout's build/oracle.
-# --stubbed: the replay's stubbed mode (docs/bevy/M1_NOTES.md §3: guarded stubs for the unported hazard / hit systems and kit :tick hooks, kit
+# --stubbed: the replay's stubbed mode (docs/bevy/M1_NOTES.md §3: guarded stubs for the unported kit :tick hooks, kit
 # state and H masked); not the gate's verdict, a check of the code behind them. NAMES (env): other trace names instead of the 18.
 set -u
 cd "$(dirname "$0")/../.."
@@ -9,7 +9,7 @@ allow=0; extra=()
 for a in "$@"; do
   case "$a" in
     --allow-unported) allow=1 ;;
-    --stubbed) extra=(--stub hazard-system,hit-system,ICHIGO-TICK,HS-TICK,YAMA-TICK --mask 'ics-,hss-,yss-') ;;
+    --stubbed) extra=(--stub ICHIGO-TICK,HS-TICK,YAMA-TICK --mask 'ics-,hss-,yss-') ;;
     *) echo "usage: $0 [--allow-unported] [--stubbed]"; exit 2 ;;
   esac
 done

@@ -7,6 +7,7 @@ use crate::core::{
     core_as_pointer, core_as_sa_out_p, core_cancel_land_sf, core_cancelled_p, core_kikon_count, core_kikon_ptr, core_sa_open_p,
     core_seg_dead_p, core_soul_break_count, core_turn_armor_verdict, core_verdict, core_xch_as_p, Verdict,
 };
+use crate::combat::{Pending, Queue, PENDING_MAX};
 use crate::ecs::Entity;
 use crate::gauges::pay_gauges;
 use crate::fighter::{
@@ -357,21 +358,11 @@ pub fn core_latch_step(m: &mut Match, e: Entity, id: MoveId, sf: i64) -> bool {
 
 // ---------------------------------------------------------------- judging a step's hits
 
-/// combat.lisp PENDING: the fields core-sim reads (Task 10's combat.rs owns the struct: move it there and add the rest).
-#[derive(Clone, Debug)]
-pub struct Pending {
-    pub att: Entity,
-    pub def: Entity,
-    pub mv: Option<MoveId>,
-    pub hazard: Option<Entity>,
-    /// DEFENDER-STATE when it was collected.
-    pub state: Option<DefState>,
-}
-
 /// port: CORE-VERDICTS: the triangle's verdict on each pending hit of this step, all judged against the states they were collected in.
-pub fn core_verdicts(m: &Match, hits: &[Pending]) -> Vec<Verdict> {
-    hits.iter()
-        .map(|h| {
+pub fn core_verdicts(m: &Match, hits: &Queue<Pending, PENDING_MAX>) -> Queue<Verdict, PENDING_MAX> {
+    let mut out = Queue::default();
+    for h in hits.iter() {
+        out.push({
             let (fa, fd) = (fighter(m, h.att), fighter(m, h.def));
             let hz = h.hazard.map(|x| m.hazard.get(x).expect("a hazard"));
             let ca = match hz {
@@ -379,15 +370,16 @@ pub fn core_verdicts(m: &Match, hits: &[Pending]) -> Vec<Verdict> {
                 None => h.mv.filter(|&x| Some(x) == fa.mv).and(fa.cls),
             };
             let cd = core_window_class(m, fd);
-            if ca.is_some() && cd.is_some() && h.state != Some(DefState::Parry) {
+            if ca.is_some() && cd.is_some() && h.state != DefState::Parry {
                 let simul = hits.iter().any(|h2| h2.att == h.def && h2.def == h.att && h2.mv.is_some() && h2.hazard.is_none());
                 let att_t = hz.map_or(fa.cls_t, |hz| hz.sp_src);
                 core_turn_armor_verdict(core_verdict(mc(ca), mc(cd), simul, Some(att_t), Some(fd.cls_t)), mc(ca), core_turn_armor_p(m, fd))
             } else {
                 Verdict::Hit
             }
-        })
-        .collect()
+        });
+    }
+    out
 }
 
 /// port: CORE-TURN-ARMOR-P: is F inside the turn-move armour of his move (:params :turn-armor, *ARMOR-FROM* to its startup's end)?

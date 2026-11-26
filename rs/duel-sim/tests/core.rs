@@ -462,8 +462,8 @@ fn gauges_2() {
             && gv(Some("sig"), Some(-6), Some(10)) == 10
     );
     // lines 443-460
-    assert_eq!(gg_drain(100.0, 8), (92.0, false));
-    assert_eq!(gg_drain(5.0, 8), (0.0, true));
+    assert_eq!(gg_drain(100.0, 8.0), (92.0, false));
+    assert_eq!(gg_drain(5.0, 8.0), (0.0, true));
     assert!(k.gg_delay == 60 && ap(k.gg_regen, 5.5) && ap(k.gg_regen_guardless, 6.5));
     let gm = k.gg_max;
     let gr = |g, i, gl, gd| gg_regen(k, g, i, gl, gd, false, 1.0, gm);

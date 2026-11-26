@@ -108,10 +108,10 @@ pub fn sim_systems(m: &mut Match) {
     }
     fighter_system(m);
     if m.cine.is_none() {
-        hazard_system(m);
+        crate::hazards::hazard_system(m);
     }
     if m.cine.is_none() {
-        hit_system(m);
+        crate::combat::hit_system(m);
     }
     if m.cine.is_none() {
         crate::gauges::gauge_system(m);
@@ -122,84 +122,23 @@ pub fn sim_systems(m: &mut Match) {
     crate::core_sim::core_xch_step(m);
 }
 
-fn hazard_system(m: &mut Match) {
-    if stubbed(m, "hazard-system") && m.hazard.is_empty() {
-        return; // (no hazard: HAZARD-SYSTEM does nothing)
-    }
-    crate::unported!(m, "hazard-system")
-}
-fn hit_system(m: &mut Match) {
-    if stubbed(m, "hit-system") && !stub_hit_possible(m) {
-        return;
-    }
-    crate::unported!(m, "hit-system")
-}
-
 // ---------------------------------------------------------------- the replay's stubbed mode (docs/bevy/M1_NOTES.md §3)
-// Not a port: `Match.stubs` (empty unless a tool sets it) lets a replay run past HAZARD- / HIT-SYSTEM while they are unported (Task 10)
-// and past the forms' :tick hooks (the kit tasks). Each stub does nothing only while the real code provably writes nothing outside the
-// fields the replay masks; else it is `unported!` with its name. Delete with those ports.
+// Not a port: `Match.stubs` (empty unless a tool sets it) lets a replay run past the forms' :tick hooks while the kit tasks have not
+// ported them. Each stub does nothing only while the real hook provably writes nothing outside the fields the replay masks and logs
+// nothing; else it is `unported!` with its name. Delete with those ports.
 
 fn stubbed(m: &Match, name: &str) -> bool {
     m.stubs.iter().any(|s| s == name)
 }
 
-/// Could HIT-SYSTEM do anything this step? A hazard (cuts, hazard hits), a Breaker clash, a perfect Hoho's counter frame, or a
-/// melee window COLLECT-MELEE would collect (its exact tests: open at SF, unused, the :min dead zone, WINDOW-TOUCHES-P).
-fn stub_hit_possible(m: &mut Match) -> bool {
-    if !m.hazard.is_empty() {
-        return true;
-    }
-    let mut hit = false;
-    m.do_entities(|m, e| m.fighter.has(e), |m, e| {
-        let f = m.fighter.get(e).unwrap().clone();
-        let o = f.opp;
-        if hit || !m.ents.alive(o) {
-            return;
-        }
-        if f.state == State::Hoho && f.perfect && f.sf == m.knobs.hoho_counter_strike {
-            hit = true;
-            return;
-        }
-        let Some(id) = f.mv.filter(|_| f.state == State::Move && f.phase == Some(crate::components::Phase::Main)) else { return };
-        if crate::core_sim::core_dead_p(&f) {
-            return;
-        }
-        let mvd = &m.data.moves[id.0 as usize];
-        let (p, q, yaw) = (crate::fighter::pos_of(m, e), crate::fighter::pos_of(m, o), crate::fighter::yaw_of(m, e));
-        let (fx, fz) = (crate::math::fwd_x(yaw), crate::math::fwd_z(yaw));
-        let body = &m.data.bodies[&crate::fighter::kit_of(m, o).body];
-        let (tr, th) = (body.hurt_r, body.hurt_h);
-        for (i, w) in mvd.hits.iter().enumerate() {
-            if (w.from as i64) <= f.sf && f.sf < w.to as i64 && (f.hits >> i) & 1 == 0 {
-                if w.min.is_some()
-                    && let Some(h) = crate::fighter::kit_hook_sym(m, e, "min-reach")
-                {
-                    hit = true; // (COLLECT-MELEE calls the :min-reach hook: Hisagi's, M4; reported by its name)
-                    m.unported.get_or_insert(h);
-                    return;
-                }
-                let far = w.min.is_none_or(|mn| f.follow || crate::math::hypot(q[0] - p[0], q[2] - p[2]) >= mn);
-                if far && crate::kit::window_touches_p(m, w, e, p[0], p[1], p[2], fx, fz, q[0], q[1], q[2], tr, th) {
-                    hit = true;
-                    return;
-                }
-            }
-        }
-    });
-    if hit {
-        return true;
-    }
-    let (a, b) = (m.p1, m.p2);
-    let (pa, pb) = (crate::fighter::breaker_phase(m, a), crate::fighter::breaker_phase(m, b));
-    pa.is_some() && pb.is_some() && crate::rules::breaker_clash_p(&m.knobs, pa, pb, m.fighter.get(a).unwrap().dist)
-}
-
 /// A form's :tick hook H (GAUGE-SYSTEM, every step) the run may skip: stubbed by its name and provably writing nothing unmasked and
 /// logging nothing now. ICHIGO-TICK (Task 12): outside KESSA, an `ic-tsuki*` move and with no hazard (JUJISHO's cut) it only attaches
-/// and writes his ICS (masked `ics-`). HS-TICK (M4): writes his HSS (masked `hss-`) and, from states only his unported hooks set
-/// (the sickle out, a K string, KIN, a pending ZANDEN), the move / log lines: a skip there would show as DIVERGED, not pass. YAMA-TICK
-/// (M4): nothing in the Shikai with the heat below the top (YA-FORM-NEXT is NIL; 爆炎 comes only through his hooks).
+/// and writes his ICS (masked `ics-`). HS-TICK (M4): always skipped. It writes his HSS (masked `hss-`); its other writes (the K1 copy
+/// swapped into FIGHTER-MOVE, the SICKLE / KIN off / ZANDEN log lines) each need a state only one of his own unported hooks sets first
+/// (`hss-kstr`: HS-KAZA-TICK / HS-KAZA-START; `:out`: HS-THROW-OUT; `hss-kin`: HS-CLASH; `zan-pend`: HS-HIT), and the run stops at that
+/// hook, so the skip is exact on every state it can reach. (A skipped move swap would not show as DIVERGED: B prints a move by name
+/// only, and the copy has the same name. Whoever ports one of those hooks must replace this skip with a bail.) YAMA-TICK (M4): nothing
+/// in the Shikai with the heat below the top (YA-FORM-NEXT is NIL; 爆炎 comes only through his hooks).
 pub(crate) fn stub_tick(m: &Match, e: Entity, h: &str) -> bool {
     if !stubbed(m, h) {
         return false;
@@ -289,7 +228,8 @@ pub fn start_match(m: &mut Match) {
     m.winner = None;
     m.match_tick = 0;
     m.timer = 60 * m.knobs.match_seconds;
-    // port: *pending* / *soul-breaks* nil — combat.lisp's specials, cleared here once they join `Match` with combat's port
+    m.pending.clear(); // (*kikons* is not cleared by the Lisp: TAKE-BROKEN-SOULS empties it every HIT-SYSTEM, so it is empty here)
+    m.soul_breaks.clear();
     m.slow_acc = 0.0;
     // cpu: mc-full-reset
     cine::abort_cine(m);
@@ -403,8 +343,8 @@ mod tests {
         assert_eq!(raw_dt(3), 16_666_667u64 as f32 * 1e-9f32);
     }
 
-    /// cvc-ki-s1's start (START-CVC) and its 300 intro steps: the battle begins at tick 0, both IDLE; step 301's fighters
-    /// stand (no input), then HAZARD-SYSTEM is not ported.
+    /// cvc-ki-s1's start (START-CVC) and its 300 intro steps: the battle begins at tick 0, both IDLE; step 301 runs
+    /// every system up to GAUGE-SYSTEM's ICHIGO-TICK.
     #[test]
     fn intro_runs_300_steps_into_the_battle() {
         let mut m = crate::hashline::tests::new_match();
@@ -422,6 +362,6 @@ mod tests {
         assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle));
         assert_eq!(m.unported, None);
         sim_step(&mut m, &mut Null);
-        assert_eq!((m.match_tick, m.unported), (1, Some("hazard-system")));
+        assert_eq!((m.match_tick, m.unported), (1, Some("ICHIGO-TICK"))); // (GAUGE-SYSTEM's :tick of his form: Task 12)
     }
 }

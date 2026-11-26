@@ -197,7 +197,7 @@ fn gauge_system_guard_back_evolution() {
     let g = m.gauges.get(a).unwrap();
     assert!(!g.guardless && g.evolution && g.evo_t == 77);
     assert_eq!(m.log, ["[    77] P1 GUARD BACK", "[    77] P1 EVOLUTION"]);
-    assert!(drain_guard(&mut m, a, 9999, "BLOCK"));
+    assert!(drain_guard(&mut m, a, 9999.0, "BLOCK"));
     assert_eq!(m.log.last().unwrap(), "[    77] P1 GUARDLESS BLOCK");
     assert_eq!(m.unported, None);
 }

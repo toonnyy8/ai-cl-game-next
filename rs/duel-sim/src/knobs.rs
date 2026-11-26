@@ -278,6 +278,7 @@ knobs! {
     step_iframes: Window, // tuning.lisp
     hoho_iframes: Window, // tuning.lisp
     air_vy: KwFloats, // tuning.lisp (SET-REACTION, Task 8)
+    wave_box: F2, // tuning.lisp (HAZARD-TOUCHES-P, Task 10)
 }
 
 /// A frame window knob `(from to)`.
@@ -289,6 +290,20 @@ impl duel_data::tuning::Knob for Window {
     fn from_value(v: &duel_data::tuning::Value) -> Option<Window> {
         match v.as_array()?.as_slice() {
             [a, b] => Some(Window(a.as_i64()?, b.as_i64()?)),
+            _ => None,
+        }
+    }
+}
+
+/// A list knob of two single-floats (`*wave-box*` `(1.2 0.5)`).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct F2(pub f32, pub f32);
+
+impl duel_data::tuning::Knob for F2 {
+    const KIND: &'static str = "a list of two floats";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<F2> {
+        match v.as_array()?.as_slice() {
+            [a, b] => Some(F2(a.as_f64()? as f32, b.as_f64()? as f32)),
             _ => None,
         }
     }

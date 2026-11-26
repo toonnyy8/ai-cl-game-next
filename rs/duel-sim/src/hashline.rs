@@ -149,9 +149,20 @@ impl Enc for HitWin {
     }
 }
 impl Enc for HzData {
-    fn enc(&self, _: &Data, s: &mut String) {
+    fn enc(&self, d: &Data, s: &mut String) {
         match self {
             HzData::Nil => s.push_str("NIL"),
+            HzData::DelayHit { def, dmg, n, react, stun, sx, sz, kb, mv, red } => {
+                let vs: [&dyn Enc; 10] = [def, dmg, n, react, stun, sx, sz, kb, mv, red];
+                s.push('(');
+                for (i, v) in vs.iter().enumerate() {
+                    if i > 0 {
+                        s.push(',');
+                    }
+                    v.enc(d, s);
+                }
+                s.push(')');
+            }
         }
     }
 }

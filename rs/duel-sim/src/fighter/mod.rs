@@ -147,6 +147,16 @@ pub fn callout(m: &mut Match, e: Entity, text: &'static str) {
     (f.callout, f.callout_t) = (Some(Str(text)), t);
 }
 
+/// port: components.lisp PASSIVE-P: does E's current form have passive P (`projectile-cut`, `parry-block`)?
+pub fn passive_p(m: &Match, e: Entity, p: &str) -> bool {
+    kit_of(m, e).passives.iter().any(|x| x == p)
+}
+
+/// port: GAUGES-RED-P: is G's Reishi in the red (RED-P)?
+pub fn gauges_red_p(k: &crate::knobs::Knobs, g: &Gauges) -> bool {
+    crate::rules::red_p(k, g.reishi, g.reishi_max)
+}
+
 /// port: combat.lisp RESPECT: E's form's :respect-callout, if any.
 pub fn respect(m: &mut Match, e: Entity) {
     if let Some(c) = &kit_of(m, e).respect_callout {

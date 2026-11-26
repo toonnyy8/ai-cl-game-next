@@ -82,6 +82,12 @@ pub struct Match {
     /// Per-match mutable copy of the tuning (Task 3 ruling).
     pub knobs: Knobs,
     pub data: &'static Data,
+    /// `*pending*`: hits collected this step, applied together (combat.rs).
+    pub pending: crate::combat::Queue<crate::combat::Pending, { crate::combat::PENDING_MAX }>,
+    /// `*kikons*`: (attacker victim move) of every Kikon confirmed this step, in the order queued.
+    pub kikons: crate::combat::Queue<crate::combat::KikonQ, { crate::combat::SOULS_MAX }>,
+    /// `*soul-breaks*`: (attacker, victim) of every Reishi that reached 0 this step, in the order queued.
+    pub soul_breaks: crate::combat::Queue<(Entity, Entity), { crate::combat::SOULS_MAX }>,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
@@ -138,6 +144,9 @@ impl Match {
             gate_seeds: 20,
             knobs: Knobs::from(data).expect("knobs"),
             data,
+            pending: Default::default(),
+            kikons: Default::default(),
+            soul_breaks: Default::default(),
             unported: None,
             stubs: Vec::new(),
         }

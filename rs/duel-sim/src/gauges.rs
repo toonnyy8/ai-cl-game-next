@@ -160,7 +160,7 @@ pub fn gain_gauges(m: &mut Match, e: Entity, dealt: i64, taken: i64, n: i64) {
 
 /// port: DRAIN-GUARD: E's guard gauge loses V (its regen waits again); at 0 he is guardless (WHY: the keyword's name, `BLOCK`).
 /// T when this drain emptied it.
-pub fn drain_guard(m: &mut Match, e: Entity, v: i64, why: &str) -> bool {
+pub fn drain_guard(m: &mut Match, e: Entity, v: f32, why: &str) -> bool {
     let g = g_mut(m, e);
     let (n, crushed) = rules::gg_drain(g.gg, v);
     (g.gg, g.gg_idle) = (n, 0);

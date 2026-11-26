@@ -40,6 +40,10 @@ impl CineName {
 pub enum After {
     BeginBattle,
     GoResults,
+    /// SETTLE-SOULS' with no K.O.: RESET-ROUND of A V.
+    ResetRound(Entity, Entity),
+    /// SETTLE-SOULS' K.O.: MATCH-OVER of the winner (None: a draw).
+    MatchOver(Option<Entity>),
 }
 
 /// The running cinematic (`*cine*`, CINE): HOLD is the debug freeze (`*cine-hold*`, never set by the ported commands).
@@ -83,6 +87,8 @@ fn run_after(m: &mut Match, after: After) {
     match after {
         After::BeginBattle => crate::flow::begin_battle(m),
         After::GoResults => crate::flow::go_results(m),
+        After::ResetRound(a, v) => crate::round::reset_round(m, a, v),
+        After::MatchOver(w) => crate::flow::match_over(m, w),
     }
 }
 

@@ -61,16 +61,6 @@ pub fn start_run(m: &mut Match, e: Entity) {
     // look: emit :step
 }
 
-/// port: combat.lisp PERFECT-NOW-P: an opponent hit volume (his move's, a hazard's) about to touch E, or his Breaker / Kikon dash
-/// near its trigger. Both need a move or a hazard, which only START-MOVE makes: Task 10 ports the tests.
-pub fn perfect_now_p(m: &mut Match, e: Entity) -> bool {
-    let fo = fighter(m, opp_of(m, e));
-    if (fo.state == State::Move && matches!(fo.phase, Some(Phase::Main | Phase::Dash))) || !m.hazard.is_empty() {
-        crate::unported!(m, "hit-system", false) // (PERFECT-NOW-P's hit tests, HAZARD-THREAT-P: combat / hazards, Task 10)
-    }
-    false
-}
-
 /// port: START-HOHO: flash-step spent, vanish (HOHO-STEP brings him back behind the opponent); PERFECT checked now.
 pub fn start_hoho(m: &mut Match, e: Entity) {
     let g = m.gauges.get(e).expect("gauges");
@@ -86,7 +76,7 @@ pub fn start_hoho(m: &mut Match, e: Entity) {
             .flatten();
         (f.hoho_from, f.hoho_cls, f.hoho_presses, f.hoho_mult, f.hoho_left, f.queued) = (from, f.cls, f.presses, f.charge_mult, 0, None);
     }
-    let perfect = perfect_now_p(m, e); // (before leaving the move: a cancel Hoho)
+    let perfect = crate::combat::perfect_now_p(m, e); // (before leaving the move: a cancel Hoho)
     let (tick, lock) = (m.match_tick, m.knobs.hoho_frames + m.knobs.hoho_lockout);
     let f = fighter_mut(m, e);
     (f.perfect, f.state, f.sf, f.mv, f.state_t, f.hoho_lock) = (perfect, State::Hoho, 0, None, tick, lock);

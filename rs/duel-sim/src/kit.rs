@@ -117,19 +117,19 @@ pub fn mv_ns_next<'d>(data: &'d Data, kit: &Kit, mv: &Move) -> Option<&'d Move> 
 // port: kit.lisp WINDOW-TOUCHES-P (ATT: the attacker, for a :seg-fn window's capsule)
 #[allow(clippy::too_many_arguments)]
 pub fn window_touches_p(
-    m: &mut crate::state::Match, w: &duel_data::HitWin, _att: crate::ecs::Entity, ax: f32, ay: f32, az: f32, fx: f32, fz: f32,
-    tx: f32, ty: f32, tz: f32, tr: f32, th: f32,
+    m: &mut crate::state::Match, w: &'static duel_data::HitWin, _att: crate::ecs::Entity, ax: f32, ay: f32, az: f32, fx: f32,
+    fz: f32, tx: f32, ty: f32, tz: f32, tr: f32, th: f32,
 ) -> bool {
-    if w.seg.is_some() {
-        crate::unported!(m, "kit.lisp WINDOW-TOUCHES-P :seg-fn (Hisagi, M4)", false);
+    if let Some(seg) = &w.seg {
+        crate::unported!(m, seg.as_str(), false); // (a :seg-fn: Hisagi's, M4)
     }
     w.vols.iter().any(|v| crate::hitvol::vol_hit_p(v, ax, ay, az, fx, fz, tx, ty, tz, tr, th, 0.0))
 }
 
 // port: kit.lisp SEG-GAP (NIL = None: no window of MV has a :seg-fn, every Kenpachi / Ichigo move)
-pub fn seg_gap(m: &mut crate::state::Match, mv: &Move, _att: crate::ecs::Entity, _tx: f32, _tz: f32) -> Option<f32> {
-    if mv.hits.iter().any(|w| w.seg.is_some()) {
-        crate::unported!(m, "kit.lisp SEG-GAP :seg-fn (Hisagi, M4)", None);
+pub fn seg_gap(m: &mut crate::state::Match, mv: &'static Move, _att: crate::ecs::Entity, _tx: f32, _tz: f32) -> Option<f32> {
+    if let Some(seg) = mv.hits.iter().find_map(|w| w.seg.as_ref()) {
+        crate::unported!(m, seg.as_str(), None); // (a :seg-fn: Hisagi's, M4)
     }
     None
 }

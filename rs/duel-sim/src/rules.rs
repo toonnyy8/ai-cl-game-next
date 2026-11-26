@@ -437,6 +437,20 @@ pub fn soul_break_p(reishi: i64) -> bool {
     reishi <= 0
 }
 
+// port: rules.lisp BROKEN-SOULS — the queues in the order queued (the Lisp's lists reversed): KIKONS as they are, SOUL-BREAKS without
+// a Kikon's victim (VICTIM: a Kikon entry's victim). Fresh queues; the inputs are not changed.
+pub fn broken_souls<K: Copy, E: Copy + PartialEq, const N: usize>(
+    kikons: &crate::combat::Queue<K, N>, soul_breaks: &crate::combat::Queue<(E, E), N>, victim: impl Fn(&K) -> E,
+) -> (crate::combat::Queue<K, N>, crate::combat::Queue<(E, E), N>) {
+    let mut sb = crate::combat::Queue::default();
+    for s in soul_breaks.iter() {
+        if !kikons.iter().any(|k| victim(&k) == s.1) {
+            sb.push(s);
+        }
+    }
+    (*kikons, sb)
+}
+
 // port: rules.lisp KIKON-RESULT → (left, lost, out)
 pub fn kikon_result(k: &Knobs, konpaku: i64, count: i64, soul_break: bool) -> (i64, i64, bool) {
     let cap = if soul_break { k.soul_break_max_event } else { k.kikon_max_event };
@@ -645,9 +659,9 @@ pub fn guard_value(k: &Knobs, kind: Option<&str>, adv: Option<i64>, override_: O
     }
 }
 
-// port: rules.lisp GG-DRAIN → (gg, broken)
-pub fn gg_drain(gg: f32, v: i64) -> (f32, bool) {
-    let n = max_f32(0.0, gg - v as f32);
+// port: rules.lisp GG-DRAIN → (gg, broken) (V a fixnum or a single: `(- gg v)` of a fixnum is `gg - v as f32`)
+pub fn gg_drain(gg: f32, v: f32) -> (f32, bool) {
+    let n = max_f32(0.0, gg - v);
     (n, n <= 0.0)
 }
 

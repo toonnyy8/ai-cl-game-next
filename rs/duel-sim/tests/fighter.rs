@@ -213,7 +213,9 @@ fn kikon_reel_cancel() {
 fn cancel_lands_for_both() {
     use duel_sim::components::{Cls, Form, KitId};
     use duel_sim::core::Verdict;
-    use duel_sim::core_sim::{core_nohit, Pending};
+    use duel_sim::combat::Pending;
+    use duel_sim::core_sim::core_nohit;
+    use duel_sim::rules::DefState;
     let (mut m, a, b) = t_pair(Character::Kenpachi, Character::Hisagi);
     m.fighter.get_mut(b).unwrap().kit = Some(KitId { character: Character::Hisagi, form: Form::Bankai });
     let (ns, j1, kj1) = (kit_id(&m, "kenpachi", "base", "ke-z-n1a"), kit_id(&m, "hisagi", "bankai", "hs-r-j1"), kit_id(&m, "kenpachi", "base", "ke-z-j1"));
@@ -225,7 +227,7 @@ fn cancel_lands_for_both() {
     };
     let cancel = |m: &mut Match| {
         let mvid = m.fighter.get(a).unwrap().mv;
-        core_nohit(m, &Pending { att: a, def: b, mv: mvid, hazard: None, state: None }, Verdict::Cancel);
+        core_nohit(m, &Pending { att: a, def: b, mv: mvid, ..Pending::new(DefState::Neutral) }, Verdict::Cancel);
     };
     let (fns, fj1) = (first(&m, ns), first(&m, j1));
     put(&mut m, a, ns, Cls::Ns, fns);

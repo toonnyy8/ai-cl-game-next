@@ -434,11 +434,13 @@ pub struct HitWin {
     pub flags: Vec<Sym>,
 }
 
-/// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (Task 12), DELAY-HIT's list (Task 10): they add their variants.
+/// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (Task 12), DELAY-HIT's list (combat.rs).
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum HzData {
     #[default]
     Nil,
+    /// DELAY-HIT's `(def dmg n react stun sx sz kb mv red)`.
+    DelayHit { def: Entity, dmg: i64, n: i64, react: Phase, stun: i64, sx: f32, sz: f32, kb: f32, mv: MoveId, red: bool },
 }
 
 #[derive(Clone, Debug, PartialEq)]
