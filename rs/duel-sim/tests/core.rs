@@ -302,3 +302,103 @@ fn kikon_konpaku_soul_break() {
     let (ax, az, bx, bz) = reset_placement(k, 10.0, 0.0, 12.0, 0.0);
     assert!(ap(ax, -4.0) && ap(az, 0.0) && ap(bx, 4.0) && ap(bz, 0.0));
 }
+
+#[test]
+fn gauges() {
+    use Burst::*;
+    use State::*;
+    let k = &k();
+    let cg = |n| combo_gain_mult(k, n);
+    assert!(ap(1.0, cg(1)) && ap(1.0, cg(0)) && ap(1.1, cg(2)) && ap(1.5, cg(6)) && ap(2.0, cg(11)) && ap(2.0, cg(30)));
+    let (fs, aw, _) = hit_gains(k, 500, 0, false, 1.0, 1);
+    let (ft, _, _) = hit_gains(k, 0, 100, false, 1.0, 6);
+    assert!(ap(ft, 20.25) && fs == 0.0 && aw > 0.0);
+    assert!(ap(awakening_gain(k, 100, 100, 1), 18.9));
+    assert!(ap(k.awaken_dealt, 0.035) && ap(k.awaken_taken, 0.049) && ap(k.awaken_per_konpaku, 10.5));
+    assert!(ap(gauge_add(290.0, 20.0, 300.0), 300.0) && ap(gauge_add(5.0, -10.0, 300.0), 0.0));
+    let ha = |st, fs, lo, b| hoho_allowed_p(st, fs, lo, b, k.fs_hoho as f32);
+    assert!(ha(false, 100.0, 0, None) && !ha(true, 300.0, 0, None) && !ha(false, 300.0, 10, None) && !ha(false, 99.0, 0, None));
+    let aa = |f, g, u| awaken_allowed_p(k, f, g, u);
+    assert!(aa(true, 100.0, false) && !aa(true, 100.0, true) && !aa(false, 100.0, false) && !aa(true, 99.0, false));
+    assert!([Idle, Guard, GuardHit, Stun, Air, Down, Wakeup, Move, Step, Run].iter().all(|&s| awaken_state_ok_p(s, false, false)));
+    assert!([Hoho, Cine, Intro, Win, Lose].iter() /* (NIL: a fighter's state is never NIL in the port) */.all(|&s| !awaken_state_ok_p(s, false, false)));
+    assert!([Idle, Stun, Air, Move, Down].iter().all(|&s| !awaken_state_ok_p(s, true, false)));
+    assert!([Idle, Stun, Air, Move, Down].iter().all(|&s| !awaken_state_ok_p(s, false, true)));
+    assert!(aa(awaken_state_ok_p(Stun, false, false), 100.0, false) && !aa(awaken_state_ok_p(Stun, false, false), 100.0, true));
+    let bm = |s, l, h, c| burst_mode(k, s, l, h, c);
+    assert!(
+        bm(Stun, false, 2, false) == Some(Blue) && bm(Air, false, 3, false) == Some(Blue) && bm(Stun, false, 1, false).is_none()
+            && bm(GuardHit, false, 0, false) == Some(Blue)
+            && bm(Move, false, 0, true) == Some(Orange) && bm(Move, false, 0, false).is_none()
+            && bm(Idle, false, 0, false) == Some(White) && bm(Guard, false, 0, false) == Some(White) && bm(Run, false, 0, false) == Some(White)
+            && bm(Step, false, 0, false).is_none() && bm(Hoho, false, 0, false).is_none() && bm(Down, false, 5, false).is_none()
+            && bm(Cine, false, 0, false).is_none() && bm(Idle, true, 0, false).is_none() && bm(Stun, true, 5, false).is_none()
+    );
+    let ba = |m, fs, act| burst_allowed_p(k, m, fs, act);
+    assert!(
+        ba(Some(White), 100.0, false) && ba(Some(Orange), 100.0, false) && ba(Some(Blue), 100.0, false) && ba(Some(Blue), 300.0, false)
+            && !ba(Some(White), 99.9, false) && !ba(Some(Blue), 99.0, false) && !ba(Some(Orange), 70.0, false)
+            && !ba(None, 300.0, false) && !ba(Some(White), 300.0, true)
+    );
+    assert!(k.burst_drain == 54.0 && ap(burst_drain(k, 50.0), 50.0 - 0.9) && ap(burst_drain(k, 0.1), 0.0));
+    let frames = |mut fs: f32| (1..).find(|_| { fs = burst_drain(k, fs); fs <= 0.0 }).unwrap();
+    assert!((110..=112).contains(&frames(100.0)) && (221..=223).contains(&frames(200.0)) && (332..=334).contains(&frames(300.0)));
+    assert!(ap(burst_fs_gain(12.0, None), 12.0) && ap(burst_fs_gain(12.0, Some(White)), 0.0) && ap(burst_fs_gain(15.0, Some(Orange)), 0.0));
+    assert!(
+        ha(false, 12.0, 0, Some(White)) && ha(false, 0.1, 0, Some(Blue)) && !ha(false, 0.0, 0, Some(Blue))
+            && !ha(false, 12.0, 0, None) && !ha(false, 12.0, 5, Some(White)) && !ha(true, 50.0, 0, Some(White))
+    );
+    let hc = |fs, b, burn| hoho_cost(k, fs, b, burn);
+    let fm = k.fs_max as f32;
+    assert!(ap(hc(12.0, Some(White), fm), 12.0) && ap(hc(180.0, Some(White), fm), 100.0) && ap(hc(180.0, None, fm), 100.0));
+    assert!(k.blue_burn == 100.0 && ap(burst_budget(k, Some(Blue)), 100.0) && ap(burst_budget(k, Some(White)), 300.0) && ap(burst_budget(k, Some(Orange)), 300.0));
+    let run = |mut fs: f32, mut burn: f32| {
+        for n in 1.. {
+            (fs, burn) = burst_burn(k, fs, burn);
+            if fs <= 0.0 || burn <= 0.0 {
+                return (n, fs, burn);
+            }
+        }
+        unreachable!()
+    };
+    let r = run(100.0, 100.0);
+    assert!((110..=112).contains(&r.0) && r.1 == 0.0 && r.2 <= 0.01);
+    let r = run(100.0, 300.0);
+    assert!((110..=112).contains(&r.0) && r.1 == 0.0 && (r.2 - 200.0).abs() < 0.01);
+    let r = run(300.0, 100.0);
+    assert!((111..=113).contains(&r.0) && ap(r.1, 200.0) && r.2 == 0.0);
+    let r = run(230.0, 100.0);
+    assert!((111..=113).contains(&r.0) && ap(r.1, 130.0) && r.2 == 0.0);
+    let r = run(300.0, 300.0);
+    assert!((332..=334).contains(&r.0) && r.1 == 0.0);
+    let r = run(40.0, 100.0);
+    assert!((44..=46).contains(&r.0) && r.1 == 0.0 && ap(r.2, 60.0));
+    let r = run(0.5, 100.0);
+    assert!(r.1 == 0.0 && ap(r.2, 99.5));
+    assert!(
+        ap(hc(300.0, Some(Blue), 60.0), 60.0) && ap(hc(300.0, Some(Blue), 100.0), 100.0) && ap(hc(300.0, Some(Blue), 0.5), 0.5)
+            && ap(hc(30.0, Some(Blue), 60.0), 30.0) && ap(hc(300.0, Some(Orange), 60.0), 100.0) && ap(hc(300.0, Some(White), fm), 100.0)
+    );
+    assert!(
+        (1..=60).map(|n| burst_heal(n, k.white_reishi)).sum::<i64>() == 70 && (1..=333).map(|n| burst_heal(n, 12.0)).sum::<i64>() == 66
+            && burst_heal(5, 12.0) == 1 && burst_heal(4, 12.0) == 0
+    );
+    assert!(ap(k.white_reishi, 70.0) && ap(k.white_awaken, 1.4));
+    let gm = k.gg_max as f32;
+    let gr = |g, i, gl, gd, b, m| gg_regen(k, g, i, gl, gd, b, m, gm);
+    assert!(ap(gr(50.0, 999, false, false, false, 0.25), 50.0 + (0.25 * k.gg_regen) / 60.0) && ap(gr(50.0, 999, true, false, false, 0.25), 50.0 + k.gg_regen_guardless / 60.0));
+    assert!(
+        ap(gr(50.0, 0, false, false, true, 1.0), 50.0 + 11.0 / 60.0) && ap(gr(50.0, 0, false, true, true, 1.0), 50.0 + 2.75 / 60.0)
+            && ap(gr(50.0, 0, true, false, true, 1.0), 50.0 + 13.0 / 60.0) && ap(gr(99.99, 0, false, true, true, 1.0), 100.0)
+            && ap(gr(50.0, 999, false, true, false, 1.0), 50.0)
+    );
+    assert!(cancel_open_p(12, 10, 30, true) && !cancel_open_p(9, 10, 30, true) && !cancel_open_p(30, 10, 30, true) && !cancel_open_p(12, 10, 30, false));
+    let gc = |sf, c| guard_cancel_open_p(k, sf, 21, 4, 24, c, None, None, None);
+    assert!(
+        k.guard_cancel == 0.75 && !gc(30, H) && gc(31, H) && gc(48, H) && !gc(49, H) && !gc(40, B) && !gc(40, None)
+    );
+    assert!(
+        (ray_room(0.0, 0.0, 1.0, 0.0, 5.0) - 5.0).abs() < 1e-4 && (ray_room(4.0, 0.0, 1.0, 0.0, 5.0) - 1.0).abs() < 1e-4
+            && (ray_room(4.0, 0.0, -1.0, 0.0, 5.0) - 9.0).abs() < 1e-4 && ray_room(5.0, 0.0, 1.0, 0.0, 5.0) == 0.0
+    );
+}
