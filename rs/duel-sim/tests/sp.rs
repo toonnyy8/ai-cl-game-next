@@ -144,3 +144,11 @@ fn hooks_load() {
     assert_eq!(kit_hook(&hooks_of(kb).unwrap(), HookKey::from_name(key).unwrap()), Some(HookFn::Unported));
     assert!(resolve("NOT-A-KIT-FN").is_none());
 }
+
+#[test]
+fn hit_px_sp_scale() {
+    let k = &k();
+    // lines 81-82 (line 78's row with 0.6d0 is a double: the sim's only caller passes singles)
+    assert!(ap(duel_sim::rules::hit_px(k, 1.0, 0.0, 1.0, 0.5), 0.5));
+    assert!(ap(duel_sim::rules::hit_px(k, 1.3, 0.0, 1.0, sp_scale(30.0, 60.0)), 1.3 * 0.75));
+}

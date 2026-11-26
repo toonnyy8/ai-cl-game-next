@@ -135,9 +135,9 @@ pub struct ContactKeys {
 pub fn resolve_contact(def_state: DefState, c: ContactKeys) -> Option<Res> {
     use DefState as D;
     let crush = c.breaker || c.guard_crush;
-    let state = if def_state == D::Guard && !c.in_front && !c.ward {
-        D::Neutral
-    } else if c.unguardable && matches!(def_state, D::Guard | D::StanceIn | D::Stance | D::Parry) {
+    let state = if (def_state == D::Guard && !c.in_front && !c.ward)
+        || (c.unguardable && matches!(def_state, D::Guard | D::StanceIn | D::Stance | D::Parry))
+    {
         D::Neutral
     } else if c.hazard && def_state == D::Parry {
         if c.ward { D::Guard } else { D::Neutral }

@@ -2,6 +2,7 @@
 pub mod cl;
 pub mod components;
 pub mod consts;
+pub mod control;
 pub mod core;
 pub mod sp;
 pub mod ecs;
