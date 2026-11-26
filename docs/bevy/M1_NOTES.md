@@ -60,7 +60,9 @@ nothing only while the real system provably writes nothing outside the masked fi
 - `hazard-system`: no-op while no hazard exists.
 - `hit-system`: no-op unless a hazard exists, a perfect Hoho is on its counter-strike frame, both fighters are in Breaker phases
   (BREAKER-CLASH-P), or a fighter's move window would be collected (COLLECT-MELEE's own tests: `:move :main`, not a dead segment,
-  open at SF, unused, the `:min` dead zone, WINDOW-TOUCHES-P; a `:min-reach` hook bails). So the run stops at the first contact.
+  open at SF, unused, the `:min` dead zone, WINDOW-TOUCHES-P; a window with `:min` of a form with a `:min-reach` hook stops
+  with the hook's name, Hisagi's HS-MIN-REACH). So the run stops at the first contact (or a little before: an invulnerable defender's
+  collected hit logs nothing).
 - `gauge-system`: runs its flash-step regen exactly (the no-burst branch: FS-REGEN, `fs-idle` + 1 capped at 9999), since the SP log
   lines print fs and SP-PAY reads it; bails on a burst, the awakening's regen, a timed form, guardless, a combo's damage, the
   EVOLUTION threshold, ICHIGO-TICK beyond his ICS (KESSA, an `ic-tsuki*` move; a JUJI wave's cut needs a hazard) and KEN-BK-TICK

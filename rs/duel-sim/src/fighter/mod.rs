@@ -1,12 +1,14 @@
 //! port: duel/lisp/fighter.lisp — FIGHTER-SYSTEM: creation, the small helpers, commands, the system section. The neutral
-//! state changes and per-state steps are in `states`, physics in `physics`. Starting a move, the `:move` step and the reactions
-//! are Task 8 (`unported!("start-move")` / `unported!("react")`). Animation is a sink (docs/bevy/M1_NOTES.md §1): every clip
-//! the Lisp plays is a `// look:` line here. PILOT-SYSTEM stays in flow.rs (it was ported there with the step, Task 6).
+//! state changes and per-state steps are in `states`, starting a move and the `:move` step in `moves`, the reactions in `react`,
+//! physics in `physics`. Animation is a sink (docs/bevy/M1_NOTES.md §1): every clip the Lisp plays is a `// look:` line. PILOT-SYSTEM
+//! stays in flow.rs (it was ported there with the step, Task 6), re-exported here.
+mod moves;
 mod physics;
 mod react;
 mod states;
 
 pub use crate::flow::pilot_system;
+pub use moves::*;
 pub use physics::{fighter_physics, separate_fighters, set_slide};
 pub use react::*;
 pub use states::*;
@@ -98,6 +100,10 @@ pub fn kit_of(m: &Match, e: Entity) -> &'static Kit {
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {
     &m.data.moves[id.0 as usize]
 }
+/// The MoveId of a move of the data (kit.rs readers return `&Move`). ponytail: a scan over 549 moves per move start; index if hot.
+pub fn id_of(m: &Match, x: &Move) -> MoveId {
+    MoveId(m.data.moves.iter().position(|y| std::ptr::eq(x, y)).expect("a move of the data") as u16)
+}
 /// port: CURRENT-MOVE: F's move while his state is :move.
 pub fn current_move(f: &Fighter) -> Option<MoveId> {
     if f.state == State::Move { f.mv } else { None }
@@ -164,6 +170,15 @@ pub fn spend_fs(m: &mut Match, e: Entity, amount: f32) {
 pub fn refund_fs(m: &mut Match, e: Entity, amount: f32) {
     let fs = crate::sp::sp_refund(&m.knobs, m.gauges.get(e).expect("gauges").fs, amount);
     m.gauges.get_mut(e).unwrap().fs = fs;
+}
+
+/// port: gauges.lisp PAY-GAUGES: E gains FS flash-step (capped at *FS-MAX*; nothing in a burst: FS-GAIN, x (1 + *SUB-FS* x SUB-OF)).
+/// (The third fs writer beside SPEND-FS / REFUND-FS; Task 9 owns gauges.lisp: move it there rather than duplicate it.)
+pub fn pay_gauges(m: &mut Match, e: Entity, fs: f32) {
+    let g = m.gauges.get(e).expect("gauges");
+    let sub = crate::rules::sub_frac(&m.knobs, g.awakened, g.sub, g.sub_s, g.drive);
+    let v = crate::rules::gauge_add(g.fs, crate::rules::fs_gain(&m.knobs, fs, g.burst, sub), m.knobs.fs_max);
+    m.gauges.get_mut(e).unwrap().fs = v;
 }
 
 /// port: HOHO-READY-P.
@@ -264,8 +279,8 @@ pub fn world_dir(m: &Match, e: Entity, to: f32, st: f32) -> (f32, f32) {
 
 // ---------------------------------------------------------------- commands
 
-/// port: TRY-COMMAND (without WITH: a chained L is Task 8): start CMD (pressed with BUTTON) if the rules allow it now. T when
-/// something started.
+/// port: TRY-COMMAND: start CMD (pressed with BUTTON) if the rules allow it now. T when something started. (WITH, a chained L
+/// after a K link, comes only from MOVE-COMMANDS' :sig clause, unreachable: :sig is not in `*commands*`.)
 pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -> bool {
     match cmd {
         Cmd::Step => {
@@ -303,8 +318,36 @@ pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -
             }
             None => false,
         },
-        // CORE-SP-START! and the kit command's move (START-MOVE): Task 8
-        Cmd::Sp | Cmd::Q => crate::unported!(m, "start-move", false),
+        Cmd::Sp => crate::core_sim::core_sp_start(m, e),
+        Cmd::Q => {
+            if let Some(h) = kit_hook_sym(m, e, "command") {
+                crate::unported!(m, h, false) // (KIT-COMMAND-MOVE with E: the :command hook, Hisagi's, M4)
+            }
+            let kit = kit_of(m, e);
+            let Some(mvd) = crate::kit::kit_command_move(m.data, kit, "q") else { return false };
+            if !kit_command_ok_p(m, e, kit_command_index(cmd), None) {
+                return false;
+            }
+            if mvd.cooldown > 0 {
+                fighter_mut(m, e).cd[0] = mvd.cooldown as i64; // ((position :q *kit-commands*))
+            }
+            // ((eq cmd :kikon): KIKON-N fixed now; :kikon is not in *commands*)
+            let id = id_of(m, mvd);
+            start_move(m, e, id, button);
+            true
+        }
+    }
+}
+
+/// port: KIT-COMMAND-OK-P: may E start the kit command at FIGHTER-CD index I (None: no cooldown slot) now: not cooling down, and the
+/// form's :ok hook (COMBO: a chained follow-up)?
+pub fn kit_command_ok_p(m: &mut Match, e: Entity, i: Option<usize>, _combo: Option<MoveId>) -> bool {
+    if i.is_some_and(|i| fighter(m, e).cd[i] != 0) {
+        return false;
+    }
+    match kit_hook_sym(m, e, "ok") {
+        Some(h) => call_hook(m, e, h), // (ICHIGO-OK: Task 12)
+        None => true,
     }
 }
 
@@ -316,8 +359,10 @@ pub fn refused_cue(m: &mut Match, e: Entity, cmd: Cmd, button: Button) -> bool {
             vpad(m, e).consume(button as usize);
             // look: emit :refused
             crate::clog!(m, "{} refused {}: cooling {}", side_name(m, e), cmd.name(), cd);
-        } else if kit_of(m, e).hooks.contains_key("ok") {
-            crate::unported!(m, "start-move", false) // (the :ok hook, ICHIGO-OK: Task 12)
+        } else if let Some(h) = kit_hook_sym(m, e, "ok")
+            && crate::kit::kit_command_move(m.data, kit_of(m, e), "q").is_some()
+        {
+            crate::unported!(m, h, false) // (the :ok hook, ICHIGO-OK: Task 12; its refusal logs `~a refused ~a: kit`)
         }
     }
     false
@@ -373,9 +418,21 @@ pub fn kikon_lock_holds_p(m: &Match, f: &Fighter) -> bool {
     })
 }
 
-/// port: CHAIN-MORE-P (the guard lock's MORE): asked only for a defender in blockstun, which only a reaction starts (Task 8).
-fn chain_more_p(m: &mut Match) -> bool {
-    crate::unported!(m, "react", false) // (CHAIN-MORE-P: a blocked string's follow-ups, Task 8)
+/// port: CHAIN-MORE-P: can O's move ID still go on into a follow-up (the guard lock's MORE): a next J / K link, an L link L may start,
+/// the on-hit cancels, or ORANGE?
+pub fn chain_more_p(m: &mut Match, o: Entity, id: MoveId) -> bool {
+    let (kit, name) = (kit_of(m, o), mv(m, id).name.as_str());
+    if crate::kit::string_link_p(m.data, kit, name) {
+        return true;
+    }
+    if let Some(l) = crate::kit::kit_l_link(m.data, kit, name) {
+        let l = id_of(m, l);
+        if kit_command_ok_p(m, o, Some(2), Some(l)) {
+            return true; // ((position :sig *kit-commands*) = 2)
+        }
+    }
+    let f = fighter(m, o);
+    (f.contact == Some(Contact::Hit) && matches!(mv(m, id).kind.as_str(), "quick" | "flash")) || burst_ok_p(m, o) == Some(Burst::Orange)
 }
 
 /// port: GUARD-LOCK-OF.
@@ -384,10 +441,11 @@ pub fn guard_lock_of(m: &mut Match, e: Entity) -> bool {
     let (fstate, fglock, o) = (f.state, f.glock, f.opp);
     let Some(fo) = m.ents.alive(o).then(|| m.fighter.get(o)).flatten() else { return false };
     let (chain, ostate, ophase, osf) = (fo.chain, fo.state, fo.phase, fo.sf);
-    let mvd = current_move(fo).map(|id| mv(m, id));
+    let cur = current_move(fo);
+    let mvd = cur.map(|id| mv(m, id));
     let (s, a, r) = mvd.map_or((0, 0, 0), |x| (x.s as i64, x.a as i64, x.r as i64));
     let touched = mvd.is_some() && (fo.contact.is_some() || fo.chained);
-    let more = mvd.is_some() && fstate == State::GuardHit && chain_more_p(m);
+    let more = fstate == State::GuardHit && cur.is_some_and(|id| chain_more_p(m, o, id));
     crate::rules::guard_locked_p(fstate, fglock, chain, ostate, ophase, osf, s, a, r, touched, more)
 }
 
@@ -440,13 +498,12 @@ pub fn fighter_step(m: &mut Match, e: Entity) {
     if !awaken_press(m, e) {
         match fighter(m, e).state {
             State::Idle | State::Guard => neutral_step(m, e),
-            State::Move => crate::unported!(m, "start-move"), // (MOVE-STEP: only START-MOVE enters :move, Task 8)
-            State::Stun | State::GuardHit => crate::unported!(m, "react"), // (STUN-STEP: Task 8)
+            State::Move => move_step(m, e),
+            State::Stun | State::GuardHit => stun_step(m, e),
             State::Step => step_step(m, e),
             State::Run => run_step(m, e),
             State::Hoho => hoho_step(m, e),
-            State::Air => crate::unported!(m, "react"), // (AIR-STEP's :air, a reaction's: Task 8)
-            State::Down | State::Wakeup => air_step(m, e),
+            State::Air | State::Down | State::Wakeup => air_step(m, e),
             State::Cine | State::Intro | State::Win | State::Lose => {}
         }
     }

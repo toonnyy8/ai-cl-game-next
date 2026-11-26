@@ -34,6 +34,30 @@ kw_enum!(
     // (a value of BREAKER-NEXT-PHASE / KIKON-RUSH-NEXT-PHASE, never stored)
     Strike = "STRIKE" });
 kw_enum!(Cls { Na = "NA", Ns = "NS", As = "AS", Sa = "SA" });
+
+impl From<duel_data::MoveClass> for Cls {
+    fn from(c: duel_data::MoveClass) -> Cls {
+        use duel_data::MoveClass as M;
+        match c {
+            M::Na => Cls::Na,
+            M::Ns => Cls::Ns,
+            M::As => Cls::As,
+            M::Sa => Cls::Sa,
+        }
+    }
+}
+
+impl From<Cls> for duel_data::MoveClass {
+    fn from(c: Cls) -> duel_data::MoveClass {
+        use duel_data::MoveClass as M;
+        match c {
+            Cls::Na => M::Na,
+            Cls::Ns => M::Ns,
+            Cls::As => M::As,
+            Cls::Sa => M::Sa,
+        }
+    }
+}
 kw_enum!(Form { Base = "BASE", Nozarashi = "NOZARASHI", Bankai = "BANKAI", Bankai2 = "BANKAI-2", Kessa = "KESSA",
     BankaiBind = "BANKAI-BIND", Blaze = "BLAZE" });
 kw_enum!(Character { Yamamoto = "YAMAMOTO", Kenpachi = "KENPACHI", Rukia = "RUKIA", Ichigo = "ICHIGO", Senjumaru = "SENJUMARU",

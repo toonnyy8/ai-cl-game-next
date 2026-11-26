@@ -206,3 +206,29 @@ fn five_j_pointer() {
     let k = &k();
     assert_eq!((0..=6).map(|n| core_as_pointer(k, n, &[1, 1, 2, 2, 3])).collect::<Vec<_>>(), [1, 1, 1, 2, 2, 3, 3]);
 }
+
+/// triangle.lisp 137, 138, 140, 142, 144: a charged SA's x on its string (J2 / J3 / the AS), not on itself, a hazard, or a new opener.
+#[test]
+fn charged_sa_string() {
+    use duel_sim::components::{Character, MoveId};
+    use duel_sim::core_sim::{core_charge_mult, core_note_start};
+    let d: &'static Data = Box::leak(Box::new(Data::embedded()));
+    let mut m = duel_sim::state::Match::new(d);
+    m.picks = [Character::Ichigo, Character::Kenpachi];
+    duel_sim::flow::spawn_pair(&mut m, true, true);
+    let a = m.p1;
+    let id = |n: &str| MoveId(d.moves.iter().position(|x| x.id == format!("ichigo/base/{n}")).unwrap() as u16);
+    let (sa, j2, as1, j1, n2b) = (id("ic-sa-g2"), id("ic-j2"), id("ic-as1"), id("ic-j1"), id("ic-n2b"));
+    let mvd = |x: MoveId| Some(&d.moves[x.0 as usize]);
+    core_note_start(&mut m, a, sa, Some(n2b));
+    let f = || m.fighter.get(a).unwrap().clone();
+    assert_eq!(f().charge_mult, 1.7); // 137
+    assert_eq!(core_charge_mult(&f(), mvd(sa), true, false), 1.0); // 138
+    core_note_start(&mut m, a, j2, Some(sa));
+    let f = m.fighter.get(a).unwrap().clone();
+    assert!(core_charge_mult(&f, mvd(j2), true, false) == 1.7 && core_charge_mult(&f, mvd(j2), true, true) == 1.0); // 140
+    core_note_start(&mut m, a, as1, Some(j2));
+    assert_eq!(core_charge_mult(m.fighter.get(a).unwrap(), mvd(as1), true, false), 1.7); // 142
+    core_note_start(&mut m, a, j1, None);
+    assert_eq!(core_charge_mult(m.fighter.get(a).unwrap(), mvd(j1), true, false), 1.0); // 144
+}

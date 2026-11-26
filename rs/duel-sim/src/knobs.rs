@@ -277,6 +277,7 @@ knobs! {
     // frame windows DEFENDER-STATE reads (Task 7: in tuning.json all along; Task 3 listed scalar keys only)
     step_iframes: Window, // tuning.lisp
     hoho_iframes: Window, // tuning.lisp
+    air_vy: KwFloats, // tuning.lisp (SET-REACTION, Task 8)
 }
 
 /// A frame window knob `(from to)`.
@@ -312,5 +313,27 @@ impl duel_data::tuning::Knob for KwInts {
             return None;
         }
         a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), c[1].as_i64()?))).collect::<Option<Vec<_>>>().map(KwInts)
+    }
+}
+
+/// A keyword -> single-float plist knob (`*air-vy*`: `(:launch 7.5 :knockdown 3.5 :air 4.0)`), read with `get` = GETF.
+#[derive(Debug, Clone, Default)]
+pub struct KwFloats(pub Vec<(String, f32)>);
+
+impl KwFloats {
+    /// port: GETF over the plist (KEY in any case, without the colon); a missing key panics (the Lisp's F32 of NIL errors).
+    pub fn get(&self, key: &str) -> f32 {
+        self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map(|&(_, v)| v).unwrap_or_else(|| panic!("no key {key}"))
+    }
+}
+
+impl duel_data::tuning::Knob for KwFloats {
+    const KIND: &'static str = "a plist of keyword / float pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<KwFloats> {
+        let a = v.as_array()?;
+        if a.len() % 2 != 0 {
+            return None;
+        }
+        a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), c[1].as_f64()? as f32))).collect::<Option<Vec<_>>>().map(KwFloats)
     }
 }

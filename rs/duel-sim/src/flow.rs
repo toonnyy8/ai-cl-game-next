@@ -178,8 +178,11 @@ fn stub_hit_possible(m: &mut Match) -> bool {
         let (tr, th) = (body.hurt_r, body.hurt_h);
         for (i, w) in mvd.hits.iter().enumerate() {
             if (w.from as i64) <= f.sf && f.sf < w.to as i64 && (f.hits >> i) & 1 == 0 {
-                if w.min.is_some() && crate::fighter::kit_of(m, e).hooks.contains_key("min-reach") {
-                    hit = true; // (a :min-reach hook: Hisagi, M4)
+                if w.min.is_some()
+                    && let Some(h) = crate::fighter::kit_hook_sym(m, e, "min-reach")
+                {
+                    hit = true; // (COLLECT-MELEE calls the :min-reach hook: Hisagi's, M4; reported by its name)
+                    m.unported.get_or_insert(h);
                     return;
                 }
                 let far = w.min.is_none_or(|mn| f.follow || crate::math::hypot(q[0] - p[0], q[2] - p[2]) >= mn);

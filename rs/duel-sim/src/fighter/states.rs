@@ -260,11 +260,6 @@ pub fn hoho_press(m: &mut Match, e: Entity) -> Option<(Cmd, Button)> {
         .map(|(c, b, _)| (c, b))
 }
 
-/// HOHO-RESUME!: the combo a Hoho cancelled resumes with a move (CORE-START! / CORE-AS-START!): Task 8.
-pub fn hoho_resume(m: &mut Match, _e: Entity, _cmd: Cmd) -> bool {
-    crate::unported!(m, "start-move", false) // (HOHO-RESUME!: Task 8)
-}
-
 /// port: HOHO-RESUME-PRESS!: neutral, inside the resume window after a combo's Hoho, J / SP resumes it.
 pub fn hoho_resume_press(m: &mut Match, e: Entity) -> bool {
     let f = fighter(m, e);
@@ -311,13 +306,24 @@ pub fn hoho_step(m: &mut Match, e: Entity) {
     }
 }
 
-/// port: AIR-STEP's :down / :wakeup (both invulnerable): down *REACTION-FRAMES* :down f, then a wakeup (a back roll with a
-/// stick), facing the opponent. Its :air part is a reaction's (Task 8).
+/// port: AIR-STEP: airborne until landing (Burst Reverse may be pressed), then :down *REACTION-FRAMES* :down f and :wakeup (a back
+/// roll with a stick), both invulnerable, facing the opponent.
 pub fn air_step(m: &mut Match, e: Entity) {
+    let f = fighter(m, e);
+    if f.state == State::Air && f.lock == 0 {
+        command(m, e, &[Cmd::Burst, Cmd::Awaken]);
+    }
     let f = fighter_mut(m, e);
     f.sf += 1;
     let (sf, state, phase) = (f.sf, f.state, f.phase);
     match state {
+        State::Air => {
+            if m.motion.get(e).unwrap().grounded && sf > 2 {
+                let f = fighter_mut(m, e);
+                (f.state, f.sf) = (State::Down, 0);
+                // look: the down clip, emit :land
+            }
+        }
         State::Down => {
             if sf >= m.knobs.reaction_frames.get("down", i64::MAX) {
                 let f = fighter_mut(m, e);

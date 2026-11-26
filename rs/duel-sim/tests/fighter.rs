@@ -123,12 +123,22 @@ fn no_bind_hooks_outside_hisagi_bankai() {
     }
 }
 
-/// sim.lisp 110, 114, 116: SPEND-FS (the regen's wait restarts) and REFUND-FS (exactly what was paid, capped, also in a burst,
-/// no SUBLIMATION factor, the wait untouched). (Lines 101-108's PAY-GAUGES set fs 165 there: Task 9; set directly here.)
+/// sim.lisp 101, 105, 108, 110, 114, 116: PAY-GAUGES (nothing in a burst), SPEND-FS (the regen's wait restarts) and REFUND-FS
+/// (exactly what was paid, capped, also in a burst, no SUBLIMATION factor, the wait untouched).
 #[test]
 fn spend_and_refund_fs() {
     let (mut m, a, _) = t_pair(Character::Ichigo, Character::Kenpachi);
-    m.gauges.get_mut(a).unwrap().fs = 165.0;
+    m.gauges.get_mut(a).unwrap().fs = 50.0;
+    pay_gauges(&mut m, a, 10.0);
+    assert_eq!(m.gauges.get(a).unwrap().fs, 60.0); // 101
+    m.gauges.get_mut(a).unwrap().burst = Some(duel_sim::components::Burst::White);
+    let refund = m.knobs.kikon_fs_refund;
+    pay_gauges(&mut m, a, refund);
+    pay_gauges(&mut m, a, 50.0);
+    assert_eq!(m.gauges.get(a).unwrap().fs, 60.0); // 105
+    m.gauges.get_mut(a).unwrap().burst = None;
+    pay_gauges(&mut m, a, refund);
+    assert_eq!(m.gauges.get(a).unwrap().fs, 165.0); // 108
     spend_fs(&mut m, a, 30.0);
     let g = m.gauges.get(a).unwrap();
     assert!(g.fs == 135.0 && g.fs_idle == 0); // 110
@@ -140,4 +150,150 @@ fn spend_and_refund_fs() {
     assert!(g.fs == 175.0 && g.fs_idle == 17); // 114
     refund_fs(&mut m, a, 200.0);
     assert_eq!(m.gauges.get(a).unwrap().fs, m.knobs.fs_max); // 116
+}
+
+fn kit_id(m: &Match, character: &str, form: &str, name: &str) -> MoveId {
+    MoveId(m.data.moves.iter().position(|x| x.id == format!("{character}/{form}/{name}")).unwrap() as u16)
+}
+
+/// sim.lisp 182, 184, 186: in the Kikon's reel, lock 1 (not red): an attack cancels the follow-up (CORE-KIKON-CANCEL!: both bounce
+/// to neutral); lock 2 (red): nothing does; no attack: he reels on. (sim.lisp stubs CORE-KIKON-CANCEL!; here it runs, its log line
+/// and the bounce are the "cancelled".)
+#[test]
+fn kikon_reel_cancel() {
+    let (mut m, a, b) = t_pair(Character::Ichigo, Character::Kenpachi);
+    m.log_on = true;
+    let kikon = kit_id(&m, "ichigo", "base", "ic-kikon");
+    let quick = Button::Quick as usize;
+    let reel = |m: &mut Match, lock: i64, press: bool| {
+        let fa = m.fighter.get_mut(a).unwrap();
+        (fa.state, fa.mv, fa.follow, fa.phase) = (State::Move, Some(kikon), true, Some(Phase::Follow));
+        let fb = m.fighter.get_mut(b).unwrap();
+        (fb.state, fb.stun, fb.sf, fb.kikon_lock) = (State::Stun, 40, 0, lock);
+        let vp = &mut m.pilot.get_mut(b).unwrap().vpad;
+        vp.begin_step();
+        if press {
+            vp.stamp(quick, false);
+        } else {
+            vp.consume(quick);
+        }
+        m.log.clear();
+        stun_step(m, b);
+        m.log.iter().any(|l| l.contains("P2 cancels the Kikon follow-up"))
+    };
+    assert!(reel(&mut m, 1, true) && m.fighter.get(b).unwrap().state == State::Idle && m.fighter.get(a).unwrap().state == State::Idle); // 182
+    let fb = |m: &Match| (m.fighter.get(b).unwrap().state, m.fighter.get(b).unwrap().sf);
+    assert!(!reel(&mut m, 2, true) && fb(&m) == (State::Stun, 1)); // 184 (red: nothing does)
+    assert!(!reel(&mut m, 1, false) && fb(&m) == (State::Stun, 1)); // 186 (no attack: he reels on)
+    assert_eq!(m.unported, None);
+}
+
+/// sim.lisp 210-212, 221, 230, 234: CORE-NOHIT!'s :cancel counts as landed for both (the defender only inside his classed window);
+/// it opens the exchange on both; a same-class tie bounces both after landing. (sim.lisp stubs CORE-CLASH! / CORE-BOUNCE!; here they
+/// run: Hisagi's :clash hook is M4, so `unported` is set and ignored; the bounce shows as both idle.)
+#[test]
+fn cancel_lands_for_both() {
+    use duel_sim::components::{Cls, Form, KitId};
+    use duel_sim::core::Verdict;
+    use duel_sim::core_sim::{core_nohit, Pending};
+    let (mut m, a, b) = t_pair(Character::Kenpachi, Character::Hisagi);
+    m.fighter.get_mut(b).unwrap().kit = Some(KitId { character: Character::Hisagi, form: Form::Bankai });
+    let (ns, j1, kj1) = (kit_id(&m, "kenpachi", "base", "ke-z-n1a"), kit_id(&m, "hisagi", "bankai", "hs-r-j1"), kit_id(&m, "kenpachi", "base", "ke-z-j1"));
+    assert_eq!(duel_sim::kit::kit_core_move(m.data, kit_of(&m, a), duel_sim::kit::Role::Ns, 1).unwrap().name, "ke-z-n1a");
+    let first = |m: &Match, id: MoveId| duel_sim::kit::mv_first_hit(mv(m, id));
+    let put = |m: &mut Match, e, id, cls, sf| {
+        let f = m.fighter.get_mut(e).unwrap();
+        (f.state, f.phase, f.mv, f.cls, f.sf, f.contact, f.land_sf) = (State::Move, Some(Phase::Main), Some(id), Some(cls), sf, None, -1);
+    };
+    let cancel = |m: &mut Match| {
+        let mvid = m.fighter.get(a).unwrap().mv;
+        core_nohit(m, &Pending { att: a, def: b, mv: mvid, hazard: None, state: None }, Verdict::Cancel);
+    };
+    let (fns, fj1) = (first(&m, ns), first(&m, j1));
+    put(&mut m, a, ns, Cls::Ns, fns);
+    put(&mut m, b, j1, Cls::Na, 5);
+    cancel(&mut m);
+    let (fa, fb) = (m.fighter.get(a).unwrap().clone(), m.fighter.get(b).unwrap().clone());
+    assert!(fa.contact == Some(Contact::Hit) && fa.land_sf == fns); // 210
+    assert!(fb.contact == Some(Contact::Hit) && fb.land_sf == fj1 && fj1 > 5); // 211
+    assert!(fa.state == State::Move && fb.state == State::Move); // 212 (cross-class: no bounce)
+    assert!(fa.xch >= 0 && fa.xch == fb.xch); // 221 (222-226: hoho_refused_in_an_exchange)
+    let sa = { let mvd = mv(&m, j1); (mvd.s + mvd.a) as i64 };
+    put(&mut m, a, ns, Cls::Ns, fns);
+    put(&mut m, b, j1, Cls::Na, sa); // (he is in his recovery: no cancel for him)
+    cancel(&mut m);
+    let (fa, fb) = (m.fighter.get(a).unwrap().clone(), m.fighter.get(b).unwrap().clone());
+    assert!(fa.contact == Some(Contact::Hit) && fb.contact.is_none() && fb.land_sf == -1); // 230
+    m.fighter.get_mut(b).unwrap().kit = Some(KitId { character: Character::Kenpachi, form: Form::Base });
+    let fk = first(&m, kj1);
+    put(&mut m, a, kj1, Cls::Na, fk);
+    put(&mut m, b, kj1, Cls::Na, fk);
+    cancel(&mut m);
+    let (fa, fb) = (m.fighter.get(a).unwrap().clone(), m.fighter.get(b).unwrap().clone());
+    assert!(fa.contact == Some(Contact::Hit) && fb.contact == Some(Contact::Hit) && fa.state == State::Idle && fb.state == State::Idle); // 234
+}
+
+/// sim.lisp 255-259: START-MOVE of an AS out of a J1 that took part in a cancel starts *CORE-XCH-AS-DELAY* (6) frames early, its start
+/// tick the press's, its first-frame hook not run yet (here: a first-frame hook ran = `unported` names it, Task 11); after a real hit
+/// since the cancel, without one, or for a J link, as before.
+#[test]
+fn pre_roll_out_of_a_cancel() {
+    use duel_sim::components::{Cls, Form, KitId};
+    let (mut m, a, _) = t_pair(Character::Kenpachi, Character::Hisagi);
+    m.fighter.get_mut(a).unwrap().kit = Some(KitId { character: Character::Kenpachi, form: Form::Bankai });
+    m.match_tick = 50;
+    let kit = kit_of(&m, a);
+    let j1 = duel_sim::kit::kit_command_move(m.data, kit, "q").unwrap();
+    let as1 = duel_sim::kit::kit_core_move(m.data, kit, duel_sim::kit::Role::As, 1).unwrap();
+    let link = duel_sim::kit::kit_next(m.data, kit, &j1.name, "q").unwrap();
+    let (j1, as1, link) = (id_of(&m, j1), id_of(&m, as1), id_of(&m, link));
+    let enter = mv(&m, as1).enter as i64;
+    assert!(mv(&m, as1).on_frame.iter().any(|x| x[0].as_f32() == Some(enter as f32))); // 255 (KE-KR-AS1 has a first-frame hook)
+    let from_j1 = |m: &mut Match, xch: i64, done: bool, id: MoveId| {
+        let f = m.fighter.get_mut(a).unwrap();
+        (f.state, f.phase, f.mv, f.cls, f.cls_t, f.contact, f.xch, f.xch_done) =
+            (State::Move, Some(Phase::Main), Some(j1), Some(Cls::Na), 30, Some(Contact::Hit), xch, done);
+        m.unported = None;
+        start_move(m, a, id, Some(Button::Quick));
+        let f = m.fighter.get(a).unwrap();
+        (f.sf, f.pre, f.cls_t, m.unported.is_some())
+    };
+    assert_eq!(from_j1(&mut m, 40, false, as1), (enter - 6, 6, 50, false)); // 256 (out of the cancel: 6 more, hook later)
+    assert_eq!(from_j1(&mut m, 40, true, as1), (enter, 0, 50, true)); // 257 (a real hit since: as before)
+    assert_eq!(from_j1(&mut m, -1, false, as1), (enter, 0, 50, true)); // 258 (no cancel: a normal combo)
+    assert_eq!(from_j1(&mut m, 40, false, link).1, 0); // 259 (the J link out of the cancel: no wait)
+}
+
+/// sim.lisp 279, 285-287, 291: ACT-START of a started move is its start tick, kept through hitstop / slow motion / a hold reset; an AS
+/// out of the cancel starts on its press tick despite its pre-roll.
+#[test]
+fn act_start_of_moves() {
+    use duel_sim::components::{Form, KitId};
+    let (mut m, a, _) = t_pair(Character::Kenpachi, Character::Hisagi);
+    m.fighter.get_mut(a).unwrap().kit = Some(KitId { character: Character::Kenpachi, form: Form::Bankai });
+    m.match_tick = 50;
+    let kit = kit_of(&m, a);
+    let (j1, as1) = (duel_sim::kit::kit_command_move(m.data, kit, "q").unwrap(), duel_sim::kit::kit_core_move(m.data, kit, duel_sim::kit::Role::As, 1).unwrap());
+    let (j1, as1) = (id_of(&m, j1), id_of(&m, as1));
+    let f = m.fighter.get_mut(a).unwrap();
+    (f.state, f.mv, f.xch) = (State::Idle, None, -1);
+    start_move(&mut m, a, j1, Some(Button::Quick));
+    assert_eq!(act_start(m.fighter.get(a).unwrap()), 50); // 279
+    m.fighter.get_mut(a).unwrap().sf += 3;
+    m.match_tick += 3 + 12; // (3 plain frames, the cancel's hitstop: ticks, no frame)
+    let f = m.fighter.get_mut(a).unwrap();
+    (f.xch, f.contact) = (65, Some(Contact::Hit));
+    for _ in 0..5 {
+        m.fighter.get_mut(a).unwrap().sf += 1;
+        m.match_tick += 5;
+    }
+    m.fighter.get_mut(a).unwrap().hold = 0;
+    let f = m.fighter.get(a).unwrap();
+    assert_eq!(act_start(f), 50); // 285
+    assert_ne!(m.match_tick - f.sf - f.hold, 50); // 286 (the old read: drifted)
+    assert!(65 > act_start(f)); // 287
+    let press = m.match_tick;
+    start_move(&mut m, a, as1, Some(Button::Quick));
+    let f = m.fighter.get(a).unwrap();
+    assert!(f.pre == 6 && act_start(f) == press && act_start(f) > 65); // 291
 }

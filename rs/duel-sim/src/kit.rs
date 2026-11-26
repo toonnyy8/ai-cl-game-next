@@ -216,6 +216,15 @@ pub fn ender_push_reach(kit: &Kit, mv: &Move, opener: &Move) -> f32 {
     }
 }
 
+// port: kit.lisp KIT-KIKON-CINE (the form's :soul-break-cine hook, else its :kikon move's :cine, else SOUL-BREAK-CINE)
+pub fn kit_kikon_cine<'d>(data: &'d Data, kit: &'d Kit) -> &'d str {
+    kit.hooks
+        .get("soul-break-cine")
+        .map(String::as_str)
+        .or_else(|| kit_command_move(data, kit, "kikon").and_then(|m| m.cine.as_deref()))
+        .unwrap_or("SOUL-BREAK-CINE")
+}
+
 // port: kit.lisp STUN-TOLERANCE-OF
 pub fn stun_tolerance_of(k: &crate::knobs::Knobs, kit: &Kit) -> f32 {
     kit.stun_tolerance.unwrap_or(k.stun_tolerance)
