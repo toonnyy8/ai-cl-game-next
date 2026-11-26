@@ -95,21 +95,30 @@ pub fn state_of(m: &Match, e: Entity) -> Option<State> {
 /// port: components.lisp KIT-OF: the kit data of E's form.
 pub fn kit_of(m: &Match, e: Entity) -> &'static Kit {
     let k = m.fighter.get(e).and_then(|f| f.kit).expect("a fighter has a kit");
-    kit_for(m.data, k.character, k.form)
+    m.kits.get(k.character, k.form).0
 }
-/// The kit of CHARACTER in FORM (the data's keys are lower case: lowered on the stack, no allocation: kit_of runs many times a step).
-pub fn kit_for(data: &'static duel_data::Data, character: Character, form: Form) -> &'static Kit {
-    let lower = |s: &'static str, buf: &mut [u8; 32]| {
-        buf[..s.len()].copy_from_slice(s.as_bytes());
-        buf[..s.len()].make_ascii_lowercase();
-        s.len()
-    };
-    let (mut bc, mut bf) = ([0u8; 32], [0u8; 32]);
-    let (nc, nf) = (lower(character.name(), &mut bc), lower(form.name(), &mut bf));
-    let s = std::str::from_utf8;
-    crate::kit::find_kit(data, s(&bc[..nc]).expect("ASCII"), s(&bf[..nf]).expect("ASCII"))
+const NC: usize = Character::ALL.len();
+const NF: usize = Form::ALL.len();
+/// Every kit of the data by (character, form), with its body's hurt radius: built once per match, since `kit_of` / `hurt_r` run many
+/// times a step (two map lookups by name each, before).
+#[derive(Clone, Copy)]
+pub struct KitTable([[Option<(&'static Kit, f32)>; NF]; NC]);
+impl KitTable {
+    pub fn new(data: &'static duel_data::Data) -> KitTable {
+        let mut t = [[None; NF]; NC];
+        for (ci, &c) in Character::ALL.iter().enumerate() {
+            for (fi, &f) in Form::ALL.iter().enumerate() {
+                let kit = data.kits.kits.get(&c.name().to_lowercase()).and_then(|fs| fs.get(&f.name().to_lowercase()));
+                t[ci][fi] = kit.map(|k| (k, data.bodies.get(&k.body).map_or(f32::NAN, |b| b.hurt_r)));
+            }
+        }
+        KitTable(t)
+    }
+    /// (the kit, its body's hurt_r); panics on a kit the data lacks, as `find_kit`.
+    pub fn get(&self, c: Character, f: Form) -> (&'static Kit, f32) {
+        self.0[c as usize][f as usize].unwrap_or_else(|| panic!("unknown kit {c} {f}"))
+    }
 }
-/// The move data of a MoveId.
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {
     &m.data.moves[id.0 as usize]
 }
@@ -124,7 +133,8 @@ pub fn current_move(f: &Fighter) -> Option<MoveId> {
 /// `(body-hurt-r (model-body (model e)))`: the current kit's body (every body of a character has the same hurt_r / hurt_h,
 /// docs/bevy/M1_NOTES.md §1).
 pub fn hurt_r(m: &Match, e: Entity) -> f32 {
-    m.data.bodies[&kit_of(m, e).body].hurt_r
+    let k = m.fighter.get(e).and_then(|f| f.kit).expect("a fighter has a kit");
+    m.kits.get(k.character, k.form).1
 }
 pub(crate) fn fighter(m: &Match, e: Entity) -> &Fighter {
     m.fighter.get(e).expect("a fighter")
@@ -200,7 +210,7 @@ pub fn hoho_ready_p(m: &Match, e: Entity) -> bool {
 /// port: SPAWN-FIGHTER: SIDE's fighter playing CHARACTER's :base kit at (X 0 Z) facing YAW; CPU seats get a brain
 /// (`has_brain`: its difficulty and delay are the CPU's, M2) and no device reader (`cam_relative` false).
 pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: f32, yaw: f32, cpu: bool) -> Entity {
-    let kit = crate::kit::find_kit(m.data, &character.name().to_lowercase(), "base");
+    let kit = m.kits.get(character, Form::Base).0;
     let e = m.spawn();
     m.transform.insert(e, Transform { pos: [x, 0.0, z], yaw });
     m.motion.insert(e, Motion::default());

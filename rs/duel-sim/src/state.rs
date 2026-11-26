@@ -82,6 +82,8 @@ pub struct Match {
     /// Per-match mutable copy of the tuning (Task 3 ruling).
     pub knobs: Knobs,
     pub data: &'static Data,
+    /// `data`'s kits by (character, form) (not a Lisp special: an index of the data for `kit_of` / `hurt_r`).
+    pub kits: crate::fighter::KitTable,
     /// `*pending*`: hits collected this step, applied together (combat.rs).
     pub pending: crate::combat::Queue<crate::combat::Pending, { crate::combat::PENDING_MAX }>,
     /// `*kikons*`: (attacker victim move) of every Kikon confirmed this step, in the order queued.
@@ -154,6 +156,7 @@ impl Match {
             gate_seeds: 20,
             knobs: Knobs::from(data).expect("knobs"),
             data,
+            kits: crate::fighter::KitTable::new(data),
             pending: Default::default(),
             kikons: Default::default(),
             soul_breaks: Default::default(),

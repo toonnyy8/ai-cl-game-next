@@ -304,7 +304,7 @@ pub fn start_awake_regen(k: &Knobs, g: &mut Gauges) {
 pub fn set_form(m: &mut Match, e: Entity, form: Form) -> bool {
     let old = kit_of(m, e);
     let character = fighter(m, e).character.expect("a character");
-    let new = crate::fighter::kit_for(m.data, character, form);
+    let new = m.kits.get(character, form).0;
     if let Some(h) = &old.exit_hook
         && !std::ptr::eq(old, new)
         && !call_hook(m, e, h)

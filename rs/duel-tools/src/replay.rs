@@ -352,7 +352,7 @@ impl PilotInput for Null {
     }
 }
 
-/// `--snap`'s rollout (tools/simgate/snaptest.lisp's idea): clone the match, reseed the sim stream as snaptest does, play 40 steps on
+/// `--snap`'s rollout (tools/simgate/snaptest.lisp's idea): clone the match, reseed the sim stream as snaptest does, play 40 sim steps on
 /// the live match with the vpads as they are, then restore the clone. The replay must stay OK: the clone holds the whole sim state.
 /// (whether the rollout moved the state: its B line differs from the clone's, so a pass is not a no-op's; whether it reached an
 /// `unported!` path, which the restore then forgets).
@@ -360,11 +360,11 @@ fn snap_rollout(m: &mut Match) -> (bool, bool) {
     let saved = m.clone();
     m.rng.set_state((m.rng.state() ^ 0x5BD1_E995) | 1);
     let mut n = Null(0);
-    for _ in 0..400 {
-        if n.0 >= 40 || !flow::sim_running_p(m) || m.unported.is_some() {
+    for _ in 0..40 {
+        if !flow::sim_running_p(m) || m.unported.is_some() {
             break;
         }
-        flow::frame(m, &mut n);
+        flow::sim_step(m, &mut n); // (steps, not frames: a turbo frame is 120 steps)
     }
     let r = (bits_line(m) != bits_line(&saved), m.unported.is_some());
     *m = saved;

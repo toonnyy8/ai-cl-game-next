@@ -1,7 +1,9 @@
 ;;;; sim-bench.lisp — the Lisp side of M1's speed gate (docs/bevy/M1_NOTES.md §5), the same work as `duel-tools replay <trace> --bench`:
 ;;;; a cmds trace's match on the STOCK native image (build/simgate/duel.fas) with both CPU brains detached, each sim frame's recorded
 ;;;; buttons, stick and sim stream injected as tools/port/oracle/replay.lisp does, no comparison, the console dropped. The trace is read
-;;;; before the clock starts; only the frame loop is timed. Checks the run reproduced the trace (its step count, its last H line).
+;;;; before the clock starts; only the frame loop is timed (the commands' first frame runs before it, as the Rust bench does); the two
+;;;; hooks are compiled to native code first (ECL's `load` of a source file would interpret them). Checks the run reproduced the trace
+;;;; (its step count, its last H line).
 ;;;; Prints "lisp steps N secs S steps/s R" (exit 0) or "sim-bench: NOT the trace's run ..." (exit 1).
 ;;;; Usage: LD_PRELOAD=build/simgate/muslm.so ecl-host --norc --load tools/port/sim-bench.lisp -- build/simgate/duel.fas <trace>
 (load (merge-pathnames "../simgate/prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
@@ -33,13 +35,20 @@
       (let ((k (fighter-side (fighter e))) (vp (pilot-vpad (pilot e))))
         (setf (svref *sb-last* k) (vpad-tick vp) (vpad-reader vp) (sb-reader k))))))
 
+(require :cmp)
+(let ((*compile-verbose* nil) (*compile-print* nil)) (compile 'sb-reader) (compile 'sb-step))
 (cl-user::sg-init)
 (setf *step-hook* #'sb-step)
 (dolist (c (rest *sb-start*)) (engine::simgate-cmd (parse-integer c)))
-(let* ((out (make-broadcast-stream)) (t0 (get-internal-real-time)))
-  (tr-run-frames out)
+(let* ((out (make-broadcast-stream)) (t0 (progn (let ((*standard-output* out)) (engine::%frame)) (get-internal-real-time))))
+  (let ((*standard-output* out))   ; (tr-run-frames' loop, after its first frame)
+    (unless (loop repeat 2000000
+                  do (unless (engine::%frame) (ext:quit 3))
+                  thereis (and (null *gate*) (not *gate-busy*) (null *gate-results*) (not (battle-p))))
+      (ext:quit 4)))
   (let ((secs (/ (- (get-internal-real-time) t0) (float internal-time-units-per-second 1d0)))
         (n (length *sb-recs*)) (h (fourth (aref *sb-recs* (1- (length *sb-recs*))))))
+    (format t "~&sb-reader compiled ~a~%" (compiled-function-p #'sb-reader))
     (if (and (= *sb-i* n) (string= (state-hash-line) h))
         (progn (format t "~&lisp steps ~d secs ~,3f steps/s ~d~%" *sb-i* secs (round *sb-i* secs)) (finish-output) (ext:quit 0))
         (progn (format t "~&sim-bench: NOT the trace's run (steps ~d of ~d)~%" *sb-i* n) (finish-output) (ext:quit 1)))))

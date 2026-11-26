@@ -128,31 +128,46 @@ script exits 1 until that hook is ported (open; it predates Task 14's changes, p
 --release` passes; `cargo clippy -p duel-sim --all-targets -- -D warnings` and `cargo clippy -p duel-tools --all-targets` are clean.
 
 **Snapshots** (`duel-tools replay TRACE --snap N`; snaptest.lisp's idea): every N battle ticks, at a step's end after its comparison,
-the live `Match` is cloned. Its sim stream is reseeded as snaptest reseeds (`(state ^ 0x5BD1E995) | 1`), it plays 40 steps on the vpads
-as they hold (no reader), and then the clone is put back. The replay must stay OK, so the clone holds the whole sim state (no state
+the live `Match` is cloned. Its sim stream is reseeded as snaptest reseeds (`(state ^ 0x5BD1E995) | 1`), it plays 40 sim steps (`flow::sim_step`, not
+frames: a turbo frame is 120 steps) on the vpads as they hold (no reader), and then the clone is put back. The replay must stay OK, so the clone holds the whole sim state (no state
 outside `Match`, no shallow copy). With `--snap 40` all 18 gate traces stay `replay OK`. cvc-ki-s1 is the brief's case: `replay OK 21368
 ticks`, 534 rollouts. Every rollout moved the B line (so none was a no-op) and none reached an `unported!` path (which the restore
 would forget).
 
 **wasm32.** `cargo build --release -p duel-tools --target wasm32-wasip1` (the target was installed with `rustup target add wasm32-wasip1`)
 gives a 6.7 MB `duel-tools.wasm` with the data embedded. `node tools/port/replay-wasm.mjs TRACE [args]` runs it under `node:wasi` with
-the trace's directory preopened as `/t`, and passes the exit code through. `cvc-ik-s1` gives `replay OK 14268 ticks` (0.35 s) and
-`trial-sp-xch-r3` gives `replay OK 359 ticks`; a broken trace exits 1. Native and wasm32 agree bit for bit (BEVY_PORT §6.3).
+the trace's directory preopened as `/t`, and passes the exit code through. All 18 gate traces give `replay OK` at the native counts (cvc-ik-s1: `replay OK 14268 ticks` in
+0.35 s; trial-sp-xch-r3: 359); a broken trace exits 1. So native and wasm32 agree bit for bit on the whole gate (BEVY_PORT §6.3).
 
-**Speed** (BEVY_PORT §6.4; the gate is ≥ 3× the Lisp native sim). Both sides do the same work: a cmds trace's match with the brains
-detached, each sim frame's recorded inputs injected, no comparison, the console or log off, the trace read before the clock starts.
-Each run checks it reproduced the trace (its step count and its last H line).
+**Speed** (BEVY_PORT §6.4; the gate is ≥ 3× the Lisp native sim). Both sides do the same work:
+- a cmds trace's match, with the brains detached;
+- each sim frame's recorded inputs injected;
+- no comparison, and the console or log off;
+- the trace read and the commands' first frame run before the clock starts;
+- on the Lisp side, its two hooks (the reader that injects, the step hook that detaches) compiled to native code first.
+
+Each run checks it reproduced the trace (its step count and its last H line). Runs were interleaved, three per side; the table gives
+medians.
 
 | Trace | Lisp `tools/port/sim-bench.lisp` | Rust `replay --bench` | Ratio | Rust wasm32 (node) |
 |---|---|---|---|---|
-| cvc-kk-s1 (18133 steps) | 172,000 steps/s (0.105 s) | 820,000 (0.022 s) | **4.8×** | 425,000 |
-| cvc-ki-s1 (21368) | 163,000 | 685,000 | **4.2×** | 395,000 |
-| cvc-ii-s1 (19423) | 153,000 | 607,000 | **4.0×** | 355,000 |
+| cvc-kk-s1 (18133 steps) | 247,000 steps/s (0.073 s) | 1,092,000 (0.017 s) | **4.4×** | 499,000 |
+| cvc-ki-s1 (21368) | 233,000 | 958,000 | **4.1×** | 459,000 |
+| cvc-ii-s1 (19423) | 231,000 | 817,000 | **3.5×** | 419,000 |
 
-The gate passes: 4.0-4.8× native. Rust in wasm32 under node runs at 2.3-2.5× the Lisp native sim. The step counts include the intro
-and the hitstop / slow-motion steps, the same on both sides. The Lisp hook (the reader that injects, the step hook that detaches) runs
-interpreted, since `load` of a source file is ECL's bytecode. It is a few calls per step against the compiled sim, so the Lisp figure
-is slightly pessimistic. Run three times, the spread is within 1 %.
+The gate passes: 3.5-4.4× native. Rust in wasm32 under node runs at 1.8-2.0× the Lisp native sim. The step counts include the intro
+and the hitstop / slow-motion steps, the same on both sides.
+
+How the gate was reached:
+- **The first measure flattered Rust.** Its Lisp hooks were interpreted (ECL's `load` of a source file is bytecode) and its timer held
+  the commands' frame. That gave 4.0-4.8×.
+- **Made fair**, the same Rust code gave 2.7-3.3× (cvc-kk-s1 820k vs ~250k, cvc-ki-s1 685k vs 233k, cvc-ii-s1 607k vs ~225k): two of
+  the three failed.
+- **The time went to name lookups.** `kit_of` and `hurt_r` ran two `BTreeMap<String, _>` lookups by name on every call, many times a
+  step.
+- **The fix.** `fighter::KitTable` indexes the data's kits once per match by (character, form) with each body's `hurt_r`, held in
+  `Match.kits`. `kit_of`, `hurt_r`, `set_form` and `spawn_fighter` read it. That brought Rust to the table's numbers.
+- `id_of`'s 549-move scan per move start is still unindexed (M2).
 
 The brief's literal method, `gen.py replay cvc-kk-s1` minus a zero-command image start (`tools/simgate/run.lisp` with no commands:
 0.50 s), gives 20.6 s - 0.5 s, about 900 steps/s, which would put Rust at ~900×. That figure is not a sim speed. replay.lisp spends
@@ -164,8 +179,8 @@ same match with the Lisp CPUs playing it) takes 0.63 s including the 0.50 s star
 thread). Under `--bench`'s driver with the combat log off, cvc-kk-s1 allocates **0 times** in every frame that starts and ends in the
 battle: its whole battle, ~17,800 steps, where the brief's bar is 600. The one allocation left is the gate's result push on the frame
 that leaves the battle. Before Task 14 the same run allocated 258,646 times (~14 per step). What the counter found, and the fixes:
-- `kit_of` lower-cased the kit keys into two Strings per call (1,822 of the 1,827 allocations in one battle frame). Now `fighter::kit_for` lowers them on
-  the stack; `gauges::set_form` uses it too.
+- `kit_of` lower-cased the kit keys into two Strings per call (1,822 of the 1,827 allocations in one battle frame). Now it reads
+  `Match.kits` (the `KitTable` above); so do `gauges::set_form` and `spawn_fighter`.
 - APPLY-HIT's and CORE-NOHIT!'s move name for the log line was built with the log off. It is built only with the log on.
 - `core_next_as` collected `:as-by-press` into a Vec. It now widens on the stack (16 entries; more panics rather than truncates).
 - `Store` grew its Vec when the hazards first exceeded its capacity. It now reserves `MAX_ENTITIES` (256).
@@ -233,7 +248,7 @@ or records why it stays out.
 
 - **M2 (the CPU):**
   - the brain branches (§7);
-  - `id_of` scans the 549 moves per move start / latch / CHAIN-MORE-P (index it before rollouts; the speed gate didn't need it);
+  - `id_of` scans the 549 moves per move start / latch / CHAIN-MORE-P (index it before rollouts; the speed gate passed without it);
   - the rollout clears `Match.pacing_log` (rollout.lisp binds `*pacing-log*` nil);
   - the CPU's Reishi readers need `cl::Num` if trials replay with brains (cpu-kh-ken.lisp:88, REISHI-FRAC, AI-BURST-WANTED-P /
     AI-HOHO-SPARE-P, FINISH-ROLE);
