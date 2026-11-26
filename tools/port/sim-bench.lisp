@@ -48,7 +48,6 @@
       (ext:quit 4)))
   (let ((secs (/ (- (get-internal-real-time) t0) (float internal-time-units-per-second 1d0)))
         (n (length *sb-recs*)) (h (fourth (aref *sb-recs* (1- (length *sb-recs*))))))
-    (format t "~&sb-reader compiled ~a~%" (compiled-function-p #'sb-reader))
     (if (and (= *sb-i* n) (string= (state-hash-line) h))
         (progn (format t "~&lisp steps ~d secs ~,3f steps/s ~d~%" *sb-i* secs (round *sb-i* secs)) (finish-output) (ext:quit 0))
         (progn (format t "~&sim-bench: NOT the trace's run (steps ~d of ~d)~%" *sb-i* n) (finish-output) (ext:quit 1)))))
