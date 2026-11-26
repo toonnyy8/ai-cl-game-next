@@ -2,6 +2,8 @@
 pub mod cl;
 pub mod components;
 pub mod consts;
+pub mod core;
+pub mod sp;
 pub mod ecs;
 pub mod hashline;
 pub mod hitvol;
