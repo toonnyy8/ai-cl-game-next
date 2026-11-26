@@ -28,12 +28,14 @@ macro_rules! unported {
     }};
 }
 
-/// port: CLOG — `clog!(m, "fmt", args…)`; the arguments are not evaluated while the log is off.
+/// port: CLOG — `clog!(m, "fmt", args…)` with `m: &mut Match` (an owned match: `clog!(&mut m, …)`); the arguments are not evaluated while the log is off.
 #[macro_export]
 macro_rules! clog {
     ($m:expr, $($arg:tt)*) => {
         if $m.log_on {
-            $crate::log::clog(&mut $m, format_args!($($arg)*));
+            // (formatted first: the arguments may read the match `$m` is the `&mut` of)
+            let line = format!($($arg)*);
+            $crate::log::clog($m, format_args!("{line}"));
         }
     };
 }
