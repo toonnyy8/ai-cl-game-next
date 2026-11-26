@@ -100,3 +100,8 @@ ICHIGO-HASTE-DASH, CLONE-WAVE. Not yet ported, use `sincosf` when they are: WAVE
 human's stick, M2), RUN-CLIP and the looks (M3), Hisagi's and Yamamoto's (`_hs-*`, `yama-*`, `ya-*`: M4). Every other `(sin x)` /
 `(cos x)` / FWD-X / FWD-Z stays musl's (`libm`): AHEAD, for one, computes both of one yaw but gcc did not fuse them there.
 
+The image's other glibc math imports outside the preload (`objdump -T build/simgate/duel.fas | grep GLIBC`): `floorf`, `fmodf`,
+`lrintf`, `sqrtf` (exact), `sincosl` (only in the load-time code, long double) and `fminf` / `fmaxf`. Those two differ from musl's for
+(+0, -0) and NaN only: glibc's returns its second argument for two zeros, musl's the negative one (`math::f_min`'s choice). Their one sim
+caller is FIGHTER-PHYSICS; no trace has diverged on them, a mixed-zero argument there would.
+
