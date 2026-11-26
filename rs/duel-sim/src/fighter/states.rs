@@ -3,6 +3,7 @@
 use super::*;
 use crate::cl::{fmt_fixed_f32, min_f32};
 use crate::components::Queued;
+use crate::gauges::{burst_end, sub_speed_mult};
 use crate::math::{angle_wrap, deg, dir_yaw, fwd_x, fwd_z, hypot, turn_toward};
 use crate::rules::{brake_speed, hoho_cost, hoho_destination, run_carry, run_stop_p, step_direction, track_step};
 

@@ -114,7 +114,7 @@ pub fn sim_systems(m: &mut Match) {
         hit_system(m);
     }
     if m.cine.is_none() {
-        gauge_system(m);
+        crate::gauges::gauge_system(m);
     }
     if m.cine.is_none() {
         match_system(m);
@@ -134,17 +134,11 @@ fn hit_system(m: &mut Match) {
     }
     crate::unported!(m, "hit-system")
 }
-fn gauge_system(m: &mut Match) {
-    if stubbed(m, "gauge-system") && stub_gauge_step(m) {
-        return;
-    }
-    crate::unported!(m, "gauge-system")
-}
 
 // ---------------------------------------------------------------- the replay's stubbed mode (docs/bevy/M1_NOTES.md §3)
-// Not a port: `Match.stubs` (empty unless a tool sets it) lets a replay run past HAZARD- / HIT- / GAUGE-SYSTEM while they are unported
-// (Tasks 9-10). Each stub does nothing only while the real system provably writes nothing outside the fields the replay masks;
-// else it is `unported!` with the system's name. Delete with the systems' ports.
+// Not a port: `Match.stubs` (empty unless a tool sets it) lets a replay run past HAZARD- / HIT-SYSTEM while they are unported (Task 10)
+// and past the forms' :tick hooks (the kit tasks). Each stub does nothing only while the real code provably writes nothing outside the
+// fields the replay masks; else it is `unported!` with its name. Delete with those ports.
 
 fn stubbed(m: &Match, name: &str) -> bool {
     m.stubs.iter().any(|s| s == name)
@@ -201,32 +195,28 @@ fn stub_hit_possible(m: &mut Match) -> bool {
     pa.is_some() && pb.is_some() && crate::rules::breaker_clash_p(&m.knobs, pa, pb, m.fighter.get(a).unwrap().dist)
 }
 
-/// GAUGE-SYSTEM's flash-step regen (its no-burst branch, exact: the SP lines print fs and SP-PAY reads it); false when anything
-/// else it does could write an unmasked field or log a line: a burst, the awakening's regen, a timed form, guardless, a combo's
-/// damage, the EVOLUTION threshold, ICHIGO-TICK beyond his ICS (KESSA, a JUJI wave's cut, the Shikai stance), KEN-BK-TICK.
-fn stub_gauge_step(m: &mut Match) -> bool {
-    let mut ok = true;
-    m.do_entities(|m, e| m.fighter.has(e) && m.gauges.has(e), |m, e| {
-        let (f, g) = (m.fighter.get(e).unwrap(), m.gauges.get(e).unwrap());
-        let tsuki = crate::fighter::current_move(f).is_some_and(|id| m.data.moves[id.0 as usize].name.starts_with("ic-tsuki"));
-        if g.burst.is_some() || g.awake_regen > 0 || g.form_left > 0 || g.guardless || f.combo_dmg > 0
-            || (!g.awakened && !g.evolution && g.awaken >= m.knobs.awaken_max)
-            || f.form == crate::components::Form::Kessa || tsuki || f.bk_out
-        {
-            ok = false;
-        }
-    });
-    if !ok {
+/// A form's :tick hook H (GAUGE-SYSTEM, every step) the run may skip: stubbed by its name and provably writing nothing unmasked and
+/// logging nothing now. ICHIGO-TICK (Task 12): outside KESSA, an `ic-tsuki*` move and with no hazard (JUJISHO's cut) it only attaches
+/// and writes his ICS (masked `ics-`). HS-TICK (M4): writes his HSS (masked `hss-`) and, from states only his unported hooks set
+/// (the sickle out, a K string, KIN, a pending ZANDEN), the move / log lines: a skip there would show as DIVERGED, not pass. YAMA-TICK
+/// (M4): nothing in the Shikai with the heat below the top (YA-FORM-NEXT is NIL; 爆炎 comes only through his hooks).
+pub(crate) fn stub_tick(m: &Match, e: Entity, h: &str) -> bool {
+    if !stubbed(m, h) {
         return false;
     }
-    m.do_entities(|m, e| m.fighter.has(e) && m.gauges.has(e), |m, e| {
-        let k = &m.knobs;
-        let g = m.gauges.get(e).unwrap();
-        let fs = crate::rules::fs_regen(k, g.fs, g.fs_idle, k.fs_regen);
-        let g = m.gauges.get_mut(e).unwrap();
-        (g.fs, g.fs_idle) = (fs, 9999.min(g.fs_idle + 1));
-    });
-    true
+    let f = m.fighter.get(e).unwrap();
+    match h {
+        "ICHIGO-TICK" => {
+            let tsuki = crate::fighter::current_move(f).is_some_and(|id| m.data.moves[id.0 as usize].name.starts_with("ic-tsuki"));
+            f.form != crate::components::Form::Kessa && !tsuki && m.hazard.is_empty()
+        }
+        "HS-TICK" => true,
+        "YAMA-TICK" => {
+            let max = crate::fighter::kit_of(m, e).meter.max.unwrap_or(0) as f32; // (*ya-heat-max* 100.0 = his Shikai meter's :max)
+            f.form == crate::components::Form::Base && m.gauges.get(e).unwrap().meter < max
+        }
+        _ => false,
+    }
 }
 
 fn side_of(m: &Match, e: Entity) -> usize {

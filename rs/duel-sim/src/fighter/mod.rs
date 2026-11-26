@@ -8,6 +8,7 @@ mod react;
 mod states;
 
 pub use crate::flow::pilot_system;
+use crate::gauges::{awaken, burst, burst_ok_p};
 pub use moves::*;
 pub use physics::{fighter_physics, separate_fighters, set_slide};
 pub use react::*;
@@ -153,12 +154,6 @@ pub fn respect(m: &mut Match, e: Entity) {
     }
 }
 
-/// port: gauges.lisp SUB-SPEED-MULT (SUB-OF: rules SUB-FRAC). (Task 9 owns gauges.lisp; this reader is the fighter's.)
-pub fn sub_speed_mult(m: &Match, e: Entity) -> f32 {
-    let g = m.gauges.get(e).expect("gauges");
-    1.0 + m.knobs.sub_speed * crate::rules::sub_frac(&m.knobs, g.awakened, g.sub, g.sub_s, g.drive)
-}
-
 /// port: SPEND-FS.
 pub fn spend_fs(m: &mut Match, e: Entity, amount: f32) {
     let g = m.gauges.get_mut(e).expect("gauges");
@@ -172,63 +167,10 @@ pub fn refund_fs(m: &mut Match, e: Entity, amount: f32) {
     m.gauges.get_mut(e).unwrap().fs = fs;
 }
 
-/// port: gauges.lisp PAY-GAUGES: E gains FS flash-step (capped at *FS-MAX*; nothing in a burst: FS-GAIN, x (1 + *SUB-FS* x SUB-OF)).
-/// (The third fs writer beside SPEND-FS / REFUND-FS; Task 9 owns gauges.lisp: move it there rather than duplicate it.)
-pub fn pay_gauges(m: &mut Match, e: Entity, fs: f32) {
-    let g = m.gauges.get(e).expect("gauges");
-    let sub = crate::rules::sub_frac(&m.knobs, g.awakened, g.sub, g.sub_s, g.drive);
-    let v = crate::rules::gauge_add(g.fs, crate::rules::fs_gain(&m.knobs, fs, g.burst, sub), m.knobs.fs_max);
-    m.gauges.get_mut(e).unwrap().fs = v;
-}
-
 /// port: HOHO-READY-P.
 pub fn hoho_ready_p(m: &Match, e: Entity) -> bool {
     let (f, g) = (fighter(m, e), m.gauges.get(e).expect("gauges"));
     crate::core::core_hoho_open_p(f.xch, f.xch_done) && crate::rules::hoho_allowed_p(false, g.fs, f.hoho_lock, g.burst, m.knobs.fs_hoho)
-}
-
-/// port: gauges.lisp BURST-MODE-OF (read by BURST-OK-P; Task 9 owns gauges.lisp).
-pub fn burst_mode_of(m: &Match, e: Entity) -> Option<Burst> {
-    let f = fighter(m, e);
-    let st = f.state;
-    let os = if m.ents.alive(f.opp) { state_of(m, f.opp) } else { None };
-    if matches!(st, State::Idle | State::Guard | State::Run) && matches!(os, Some(State::Stun | State::Air)) && f.lock == 0 {
-        return Some(Burst::Orange);
-    }
-    let chain_open = st == State::Move
-        && f.phase == Some(Phase::Main)
-        && f.mv.is_some_and(|id| {
-            let mv = mv(m, id);
-            if matches!(mv.kind.as_str(), "sig" | "kikon") {
-                matches!(os, Some(State::Stun | State::GuardHit | State::Air))
-            } else {
-                matches!(os, Some(State::Stun | State::Air))
-                    || crate::rules::cancel_open_p(f.sf, f.land_sf, crate::kit::mv_total(mv), f.contact == Some(Contact::Hit))
-            }
-        });
-    crate::rules::burst_mode(&m.knobs, st, f.lock > 0, f.combo_hits, chain_open)
-}
-
-/// port: gauges.lisp BURST-OK-P.
-pub fn burst_ok_p(m: &Match, e: Entity) -> Option<Burst> {
-    let md = burst_mode_of(m, e);
-    let g = m.gauges.get(e).expect("gauges");
-    if crate::rules::burst_allowed_p(&m.knobs, md, g.fs, g.burst.is_some()) { md } else { None }
-}
-
-/// gauges.lisp BURST! (Task 9).
-fn burst(m: &mut Match, _e: Entity, _mode: Burst) {
-    crate::unported!(m, "gauge-system") // (BURST!, gauges.lisp: Task 9)
-}
-
-/// gauges.lisp BURST-END! (Task 9).
-pub(crate) fn burst_end(m: &mut Match, _e: Entity) {
-    crate::unported!(m, "gauge-system") // (BURST-END!, gauges.lisp: Task 9)
-}
-
-/// gauges.lisp AWAKEN! (Task 9).
-fn awaken(m: &mut Match, _e: Entity) {
-    crate::unported!(m, "gauge-system") // (AWAKEN!, gauges.lisp: Task 9)
 }
 
 // ---------------------------------------------------------------- creation

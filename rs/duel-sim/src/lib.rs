@@ -8,6 +8,7 @@ pub mod core;
 pub mod core_sim;
 pub mod debug;
 pub mod fighter;
+pub mod gauges;
 pub mod gate;
 pub mod sp;
 pub mod ecs;

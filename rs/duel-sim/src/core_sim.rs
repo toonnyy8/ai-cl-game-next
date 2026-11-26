@@ -8,8 +8,9 @@ use crate::core::{
     core_seg_dead_p, core_soul_break_count, core_turn_armor_verdict, core_verdict, core_xch_as_p, Verdict,
 };
 use crate::ecs::Entity;
+use crate::gauges::pay_gauges;
 use crate::fighter::{
-    call_hook, enter_main, fighter, fighter_mut, id_of, kit_hook_sym, kit_of, mv, opp_of, pay_gauges, pos_of, refund_fs, run_velocity,
+    call_hook, enter_main, fighter, fighter_mut, id_of, kit_hook_sym, kit_of, mv, opp_of, pos_of, refund_fs, run_velocity,
     set_reaction, set_slide, side_name, spend_fs, start_move, stick_relative, to_idle, turn_to_opp, yaw_of,
 };
 use crate::kit::{kit_class, kit_core_move, kit_move, kit_sa_move, kit_sp_cost, kit_sp_free_p, kit_sp_start_p, mv_first_hit, mv_ns_next, mv_sa_move, mv_total, Role};
@@ -232,8 +233,7 @@ pub fn core_move_sp(m: &mut Match, e: Entity, id: MoveId, _sf: i64, button: Butt
 /// once (AW-FULL-P), SP above 0)?
 pub fn core_switch_open_p(m: &Match, e: Entity) -> bool {
     let (g, f) = (m.gauges.get(e).expect("gauges"), fighter(m, e));
-    let aw_full = g.aw_full || g.awakened || g.awaken >= m.knobs.awaken_max; // (gauges.lisp AW-FULL-P)
-    sp_switch_ok_p(g.fs, aw_full, f.tmp > 0, kit_of(m, e).core.ns.len() as i64)
+    sp_switch_ok_p(g.fs, crate::gauges::aw_full_p(&m.knobs, g), f.tmp > 0, kit_of(m, e).core.ns.len() as i64)
 }
 
 /// port: CORE-SWITCH-TARGET: the pointer a stick left / right + SP in an NS gap switches to, or NIL.

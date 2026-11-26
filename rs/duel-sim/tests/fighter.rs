@@ -3,6 +3,7 @@ use duel_data::Data;
 use duel_sim::components::{Button, Character, Contact, MoveId, Phase, State};
 use duel_sim::ecs::Entity;
 use duel_sim::fighter::*;
+use duel_sim::gauges::{bind_grey_frac, bind_grey_souls, bind_of, bind_resolve, bind_snapshot_of, bind_step, heal, pay_gauges};
 use duel_sim::state::Match;
 use std::sync::OnceLock;
 
@@ -22,6 +23,23 @@ fn t_pair(ka: Character, kb: Character) -> (Match, Entity, Entity) {
 
 fn move_id(m: &Match, name: &str) -> MoveId {
     MoveId(m.data.moves.iter().position(|x| x.name == name).unwrap() as u16)
+}
+
+/// sim.lisp 37, 40, 41, 51: no binder (no kit holds a :bind hook); HEAL! caps at max; no snapshot, no grey; the bind's fixed points
+/// call nothing unbound (Task 9).
+#[test]
+fn heal_and_no_bind() {
+    let (mut m, a, b) = t_pair(Character::Ichigo, Character::Kenpachi);
+    assert!(bind_of(&m, a).is_none() && bind_of(&m, b).is_none()); // 37
+    m.gauges.get_mut(a).unwrap().reishi = 1200;
+    heal(&mut m, a, 500);
+    let g = m.gauges.get(a).unwrap();
+    assert_eq!(g.reishi, g.reishi_max); // 40
+    assert!(bind_snapshot_of(&mut m, a).is_none() && bind_grey_frac(&mut m, a) == 0.0 && bind_grey_souls(&mut m, a) == 0); // 41
+    bind_step(&mut m, a, "hits");
+    bind_step(&mut m, a, "release");
+    bind_resolve(&mut m, a);
+    assert!(bind_of(&m, a).is_none() && m.unported.is_none()); // 51
 }
 
 /// sim.lisp 33: *RUN-COMMANDS-P* is *RUN-COMMANDS* with :awaken in front.

@@ -256,7 +256,7 @@ pub fn state_hash_line(m: &Match) -> String {
             m.fighter.get(e).expect("H line: FIGHTER"),
             m.gauges.get(e).expect("H line: GAUGES"),
         );
-        let aw_full = g.aw_full || g.awakened || g.awaken >= m.knobs.awaken_max; // gauges.lisp AW-FULL-P
+        let aw_full = crate::gauges::aw_full_p(&m.knobs, g);
         write!(
             s,
             " | {} {} {} {} {} {} r{} k{} f{} g{}{} w{}{} m{} n{} s{}",
