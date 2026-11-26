@@ -98,9 +98,9 @@ pub fn core_window_class(m: &Match, f: &Fighter) -> Option<Cls> {
 
 // ---------------------------------------------------------------- starting moves
 
-/// port: CORE-START!: start core move ID (START-MOVE with BUTTON, default :quick), the one place an SP segment pays. T when it started.
+/// port: CORE-START!: start core move ID (START-MOVE with BUTTON: the Lisp's default :quick is the caller's `Some(Button::Quick)`; an
+/// explicit NIL, the parry's catch, is None), the one place an SP segment pays. T when it started.
 pub fn core_start(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) -> bool {
-    let button = button.or(Some(Button::Quick));
     let (kit, mvd) = (kit_of(m, e), mv(m, id));
     let Some(cost) = kit_sp_cost(kit, Some(mvd)) else {
         start_move(m, e, id, button);
@@ -164,7 +164,7 @@ pub fn core_sp_start(m: &mut Match, e: Entity) -> bool {
         return false;
     }
     let id = id_of(m, mvd);
-    core_start(m, e, id, None)
+    core_start(m, e, id, Some(Button::Quick))
 }
 
 /// port: CORE-NEXT-AS: the AS an SP pressed now would start in F's combo (the move's :as-ptr, else CORE-AS-POINTER).
@@ -204,7 +204,7 @@ pub fn core_as_start(m: &mut Match, e: Entity) -> bool {
     };
     let f = fighter_mut(m, e);
     f.sp_ptr = f.ptr;
-    core_start(m, e, id, None);
+    core_start(m, e, id, Some(Button::Quick));
     let f = fighter_mut(m, e);
     (f.ptr, f.as_done) = (w.unwrap_or(f.ptr), true);
     match w {
@@ -285,7 +285,7 @@ pub fn core_sa_start(m: &mut Match, e: Entity, id: MoveId, _sf: i64, button: But
     if core_seg_cancelled_p(fighter(m, e)) {
         fighter_mut(m, e).queued = None;
         let sa = core_sa_move(m, e, mv(m, id)).expect("an SA");
-        core_start(m, e, sa, None)
+        core_start(m, e, sa, Some(Button::Quick))
     } else {
         fighter_mut(m, e).queued = Some(Queued::Sa);
         false
@@ -302,7 +302,7 @@ pub fn core_as_sa_press(m: &mut Match, e: Entity, id: MoveId, button: Button) ->
         m.pilot.get_mut(e).unwrap().vpad.consume(button as usize);
         fighter_mut(m, e).queued = None;
         let sa = core_sa_move(m, e, mv(m, id)).expect("an SA");
-        core_start(m, e, sa, None)
+        core_start(m, e, sa, Some(Button::Quick))
     } else {
         if f.queued.is_none() {
             m.pilot.get_mut(e).unwrap().vpad.consume(button as usize);
@@ -334,7 +334,7 @@ pub fn core_latch_step(m: &mut Match, e: Entity, id: MoveId, sf: i64) -> bool {
         let xch = f.xch;
         fighter_mut(m, e).queued = None;
         let sa = core_sa_move(m, e, mvd).expect("an SA");
-        if core_start(m, e, sa, None) {
+        if core_start(m, e, sa, Some(Button::Quick)) {
             fighter_mut(m, e).cls_t = xch;
         }
         return true;
@@ -364,7 +364,7 @@ pub fn core_latch_step(m: &mut Match, e: Entity, id: MoveId, sf: i64) -> bool {
     }
     let next = if q == Queued::Ns { mv_ns_next(m.data, kit_of(m, e), mvd).map(|x| id_of(m, x)) } else { core_sa_move(m, e, mvd) };
     match next {
-        Some(n) if q != Queued::Ns || core_seg_ok_p(fighter(m, e), mv(m, n)) => core_start(m, e, n, None),
+        Some(n) if q != Queued::Ns || core_seg_ok_p(fighter(m, e), mv(m, n)) => core_start(m, e, n, Some(Button::Quick)),
         _ => false,
     }
 }

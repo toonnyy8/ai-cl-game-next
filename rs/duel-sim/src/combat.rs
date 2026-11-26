@@ -657,7 +657,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             let c = fighter(m, def).mv.and_then(|id| kit_next(m.data, kit_of(m, def), &mv(m, id).name, "land"));
             if let Some(c) = c {
                 let c = id_of(m, c);
-                core_start(m, def, c, None);
+                core_start(m, def, c, None); // ((core-start! def c nil): no button)
             }
         }
         Res::Absorbed => {
