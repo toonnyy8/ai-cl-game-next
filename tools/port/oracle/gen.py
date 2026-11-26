@@ -5,6 +5,11 @@
                                                      each against a plain run of the stock image (non-perturbation), write
                                                      build/oracle/INDEX.json and cvc-tag.txt, then replay three (one per kind)
   python3 tools/port/oracle/gen.py replay [NAME ...] replay.lisp on the stock image (default: every trace in INDEX.json)
+  python3 tools/port/oracle/gen.py look [--check] [--no-stills]
+                                                     the look data (Task 8, look.lisp's header): build/oracle/fk/<clip>.json, sound/<key>.f32
+                                                     (rendered twice in two fresh processes and compared), stills/ (the frozen dist's 83
+                                                     looks-gate stills, tests/style-gates.py looks, ~minutes; --no-stills copies an
+                                                     earlier render left in build/style/looks/), then the check. --check: only the check
 
 The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (1), Ichigo (3), Hisagi (7), seeds 1-3 (the pairing gate's
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
@@ -12,7 +17,7 @@ RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal t
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
 its trials). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
 """
-import concurrent.futures as cf, datetime, glob, hashlib, importlib.util, json, os, re, subprocess, sys
+import concurrent.futures as cf, datetime, glob, hashlib, importlib.util, json, os, re, shutil, subprocess, sys
 
 sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -167,8 +172,110 @@ def sim():
     sys.exit(1 if errors or bad else 0)
 
 
+FK, SOUND, STILLS = (os.path.join(OUT, d) for d in ('fk', 'sound', 'stills'))
+FROZEN_DIST = '/media/8tsp/projects/ai-cl-game-next/dist/duel'   # the frozen browser build (index.wasm sha256 e35032a7...)
+N_SOUNDS, N_STILLS, FK_JOBS = 51, 83, 6
+
+
+def look_check():
+    """The look side of the key is complete: one FK file per clip of clips.json, 51 nonzero finite sounds, 83 stills."""
+    import math, struct
+    bad = []
+    clips = json.load(open(os.path.join(ROOT, 'rs/duel-data/data/clips.json')))
+    have = {f[:-5] for f in os.listdir(FK) if f.endswith('.json') and f != 'INDEX.json'} if os.path.isdir(FK) else set()
+    if have != set(clips):
+        bad.append(f'fk: {len(have)} files, {len(set(clips) - have)} clips missing, {len(have - set(clips))} extra')
+    snd = sorted(f for f in os.listdir(SOUND) if f.endswith('.f32')) if os.path.isdir(SOUND) else []
+    if len(snd) != N_SOUNDS:
+        bad.append(f'sound: {len(snd)} files, want {N_SOUNDS}')
+    for f in snd:
+        data = open(os.path.join(SOUND, f), 'rb').read()
+        xs = struct.unpack(f'<{len(data) // 4}f', data)
+        if not xs or len(data) % 4 or not all(map(math.isfinite, xs)) or not any(xs):
+            bad.append(f'sound {f}: empty, not finite or all zero')
+    st = [f for f in os.listdir(STILLS) if f.endswith('.png')] if os.path.isdir(STILLS) else []
+    if len(st) != N_STILLS:
+        bad.append(f'stills: {len(st)}, want {N_STILLS}')
+    print(f'[oracle] look check: {len(have)} FK files / {len(clips)} clips, {len(snd)} sounds, {len(st)} stills; '
+          f'{"PASS" if not bad else "FAIL: " + "; ".join(bad)}', flush=True)
+    return not bad
+
+
+def look_sound(out):
+    """look.lisp sound into OUT (a fresh process); -> {key: (samples, loop, peak, bad)}."""
+    shutil.rmtree(out, ignore_errors=True)
+    r = lisp('tools/port/oracle/look.lisp', FAS, ['sound', out])
+    if r.returncode:
+        sys.exit(r.stdout[-2000:] + r.stderr[-2000:] + '\n[oracle] look sound FAILED')
+    return {m[0]: (int(m[1]), m[2] != 'NIL', m[3], int(m[4])) for m in re.findall(r'^sound (\S+) (\d+) (\S+) (\S+) (\d+)$', r.stdout, re.M)}
+
+
+def look_stills(render):
+    """The frozen dist's looks-gate stills (style-gates looks BASE = NEW = the frozen dist: three renders) -> build/oracle/stills/.
+    RENDER false: reuse the render already in build/style/looks/ (its log: build/oracle/looks-gate.log)."""
+    wasm = hashlib.sha256(open(os.path.join(FROZEN_DIST, 'index.wasm'), 'rb').read()).hexdigest()
+    if not wasm.startswith('e35032a7'):
+        sys.exit(f'[oracle] {FROZEN_DIST}/index.wasm is {wasm[:8]}, not the frozen build e35032a7')
+    src = os.path.join(ROOT, 'build/style/looks')
+    rc = 'not run (--no-stills)'
+    if render:
+        shutil.rmtree(src, ignore_errors=True)
+        r = subprocess.run([sys.executable, 'tests/style-gates.py', 'looks', FROZEN_DIST, FROZEN_DIST, '--jobs', '4'], cwd=ROOT,
+                           capture_output=True, text=True, timeout=TIMEOUT)
+        with open(os.path.join(OUT, 'looks-gate.log'), 'w') as f:
+            f.write(r.stdout + r.stderr)
+        rc = r.returncode
+    shutil.rmtree(STILLS, ignore_errors=True)
+    os.makedirs(STILLS)
+    for p in glob.glob(os.path.join(src, 'base1', '*.png')):
+        shutil.copy2(p, STILLS)
+    same = sum(open(p, 'rb').read() == open(os.path.join(src, t, os.path.basename(p)), 'rb').read()
+               for p in glob.glob(os.path.join(src, 'base1', '*.png')) for t in ('base2', 'new'))
+    print(f'[oracle] stills: {len(os.listdir(STILLS))} copied (frozen dist {wasm[:8]}); byte-identical to the other two renders: '
+          f'{same} of {2 * len(os.listdir(STILLS))}; style-gates exit {rc} (build/oracle/looks-gate.log)', flush=True)
+
+
+def look():
+    build()
+    look_stills('--no-stills' not in sys.argv)
+    a, b = look_sound(SOUND), look_sound(os.path.join(OUT, 'sound-2'))
+    diff = [k for k in a if open(os.path.join(SOUND, k + '.f32'), 'rb').read() != open(os.path.join(OUT, 'sound-2', k + '.f32'), 'rb').read()]
+    print(f'[oracle] sound: {len(a)} rendered twice in two fresh processes; {len(a) - len(diff)} identical'
+          f'{", DIFFER: " + " ".join(diff) if diff or a.keys() != b.keys() else ""}', flush=True)
+    shutil.rmtree(os.path.join(OUT, 'sound-2'))
+    with open(os.path.join(SOUND, 'INDEX.json'), 'w') as f:
+        json.dump({k: {'samples': n, 'loop': lp, 'peak': pk, 'nan_inf_zeroed': bad,
+                       'sha1': hashlib.sha1(open(os.path.join(SOUND, k + '.f32'), 'rb').read()).hexdigest()}
+                   for k, (n, lp, pk, bad) in a.items()}, f, indent=1)
+    shutil.rmtree(FK, ignore_errors=True)
+    with cf.ThreadPoolExecutor(FK_JOBS) as ex:
+        rs = list(ex.map(lambda s: lisp('tools/port/oracle/look.lisp', FAS, ['fk', FK, s, FK_JOBS]), range(FK_JOBS)))
+    for r in rs:
+        if r.returncode:
+            sys.exit(r.stdout[-2000:] + r.stderr[-2000:] + '\n[oracle] look fk FAILED')
+    lines = [l for r in rs for l in r.stdout.splitlines() if l.startswith('fk ')]
+    size = sum(os.path.getsize(os.path.join(FK, f)) for f in os.listdir(FK))
+    index = {}
+    for f in sorted(os.listdir(FK)):
+        d = json.load(open(os.path.join(FK, f)))
+        index[d['clip']] = {'frames': d['frames'], 'dur': d['dur'], 'loop': d['loop'], 'rigs': [r['bodies'] for r in d['rigs']],
+                            'forms': [[x['form'], x['by'], x['weapon']] for x in d['forms']]}
+    with open(os.path.join(FK, 'INDEX.json'), 'w') as f:
+        json.dump(index, f, indent=1)
+    by = {}
+    for c in index.values():
+        k = c['forms'][0][1] if c['forms'] else 'none'
+        by[k] = by.get(k, 0) + 1
+    print(f'[oracle] fk: {len(lines)} clips, {size / 1e6:.0f} MB; clips by attribution {by} (fk/INDEX.json)', flush=True)
+    sys.exit(0 if look_check() and not diff and a.keys() == b.keys() else 1)
+
+
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
+    if cmd == 'look':
+        if '--check' in sys.argv:
+            sys.exit(0 if look_check() else 1)
+        look()
     if cmd == 'sim':
         sim()
     elif cmd == 'replay':
