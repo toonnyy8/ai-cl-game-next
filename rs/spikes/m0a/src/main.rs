@@ -22,6 +22,29 @@ static FRAMES_BIN: &[u8] = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/
 /// The scene size the frozen build measured at (Task 1: 1280x720, render-scale 1.00); the window's physical size.
 const SCENE_W: u32 = 1280;
 const SCENE_H: u32 = 720;
+/// The frozen build's scene pixel budget on a phone (engine/lisp/render.lisp *SCENE-SCALE-CAP*, set by duel/lisp/onehand.lisp: the
+/// scene stays near 1.6 MP at a high DPR). The window's scale factor follows it, so B renders as many pixels as A (Review Focus 2).
+const SCENE_MP_CAP: f64 = 1.6e6;
+
+/// (scale factor, render scale, physical width, height): device pixels per CSS pixel cut so the physical size stays under
+/// SCENE_MP_CAP, that cut, and the canvas's physical size (CSS size x the scale factor; desktop runs keep SCENE_W x SCENE_H).
+fn scene_scale() -> (f32, f32, u32, u32) {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let w = web_sys::window().unwrap();
+        let dpr = w.device_pixel_ratio();
+        let cw = w.inner_width().ok().and_then(|v| v.as_f64()).unwrap_or(1280.0);
+        let ch = w.inner_height().ok().and_then(|v| v.as_f64()).unwrap_or(720.0);
+        let k = (SCENE_MP_CAP / (cw * ch * dpr * dpr).max(1.0)).sqrt().min(1.0);
+        let s = dpr * k;
+        (s as f32, k as f32, (cw * s).round() as u32, (ch * s).round() as u32)
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        (1.0, 1.0, SCENE_W, SCENE_H)
+    }
+}
+
 /// Frames drawn with every slot visible before `startup:` (the pipelines compile during load, Review Focus 3).
 const WARM_FRAMES: u32 = 12;
 
@@ -145,8 +168,13 @@ struct Replay {
     worst_affine: f32,
 }
 
+/// The on-screen line with the render size and the frame time (the phone has no console).
+#[derive(Component)]
+struct HudLine;
+
 #[derive(Resource, Default)]
 struct Perf {
+    render_scale: f32,
     frames: u32,
     started: Option<f64>,
     win_t0: f64,
@@ -157,11 +185,18 @@ struct Perf {
 }
 
 fn main() {
+    let (scale, render_scale, pw, ph) = scene_scale();
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
             title: "SOUL DUEL M0a".into(),
-            resolution: bevy::window::WindowResolution::new(SCENE_W, SCENE_H).with_scale_factor_override(1.0),
+            // wasm: no scale override (with one, winit kept the canvas at its CSS size: 0.33 MP on a DPR-3 phone, review C1), so
+            // the canvas has the device's full pixels, more than A's scene cap of 1.6 MP: the comparison leans against B
+            resolution: if cfg!(target_arch = "wasm32") {
+                bevy::window::WindowResolution::new(pw, ph)
+            } else {
+                bevy::window::WindowResolution::new(pw, ph).with_scale_factor_override(scale)
+            },
             canvas: Some("#bevy".into()),
             fit_canvas_to_parent: true,
             prevent_default_event_handling: true,
@@ -177,7 +212,7 @@ fn main() {
     .insert_resource(Time::<Fixed>::from_hz(60.0))
     .insert_resource(ClearColor(Color::srgb(0.08, 0.08, 0.1)))
     .insert_resource(bevy::winit::WinitSettings::game())
-    .init_resource::<Perf>()
+    .insert_resource(Perf { render_scale, ..default() })
     .insert_resource(exp_from_url())
     .add_systems(Startup, setup)
     .add_systems(FixedUpdate, replay)
@@ -239,6 +274,12 @@ fn setup(
     let toon = pool!(nt, toon_m, ToonMaterial);
     let hull = pool!(nh, hull_m, HullMaterial);
     let hull_cw = pool!(nc, hull_cw_m, HullCwMaterial);
+    commands.spawn((
+        HudLine,
+        Text::new("…"),
+        TextFont { font_size: bevy::text::FontSize::Px(16.0), ..default() },
+        Node { position_type: PositionType::Absolute, bottom: Val::Px(10.0), left: Val::Px(16.0), ..default() },
+    ));
     let cam = commands
         .spawn((Camera3d::default(), Tonemapping::None, Projection::custom(CapProj::default()), Transform::default()))
         .id();
@@ -349,7 +390,7 @@ fn replay(
 }
 
 /// The frozen build's console lines: `startup: heap ..` once after the warm-up, `perf: ..` every 2 s (render.c r_timing's format).
-fn perf(mut p: ResMut<Perf>, r: Option<Res<Replay>>) {
+fn perf(mut p: ResMut<Perf>, r: Option<Res<Replay>>, windows: Query<&Window>, mut hud: Query<&mut Text, With<HudLine>>) {
     let now = now_ms();
     p.frames += 1;
     if p.frames == WARM_FRAMES {
@@ -374,10 +415,15 @@ fn perf(mut p: ResMut<Perf>, r: Option<Res<Replay>>) {
         let avg = p.win_sum / p.win_n as f64;
         let draws = r.as_ref().map_or(0, |r| r.cap.frames[r.frame].draws.len());
         say(&format!(
-            "perf: startup {st:.0} ms | frame {avg:.1} ms avg ({:.1} fps) max {:.1} | render-scale 1.00 pixel-lights 0 | draws {draws} tris 0",
+            "perf: startup {st:.0} ms | frame {avg:.1} ms avg ({:.1} fps) max {:.1} | render-scale {:.2} pixel-lights 0 | draws {draws} tris 0",
             1000.0 / avg,
-            p.win_max
+            p.win_max,
+            p.render_scale
         ));
+        let (pw, ph) = windows.iter().next().map(|w| (w.physical_width(), w.physical_height())).unwrap_or((0, 0));
+        if let Ok(mut t) = hud.single_mut() {
+            t.0 = format!("{pw}x{ph} px ({:.2} MP)  {avg:.1} ms  max {:.0} ms  startup {st:.0} ms", (pw * ph) as f64 / 1e6, p.win_max);
+        }
         (p.win_t0, p.win_n, p.win_sum, p.win_max) = (now, 0, 0.0, 0.0);
     }
 }
