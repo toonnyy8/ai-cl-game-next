@@ -30,7 +30,9 @@ kw_enum!(
     /// FIGHTER-PHASE: a move's pre-strike phase, the run's, or the stun's reaction kind (also a hitwin's REACT).
     Phase { Hold = "HOLD", Aura = "AURA", Dash = "DASH", Follow = "FOLLOW", Main = "MAIN", Run = "RUN", Brake = "BRAKE", Roll = "ROLL",
     Bind = "BIND", Flinch = "FLINCH", Stagger = "STAGGER", Knockback = "KNOCKBACK", Launch = "LAUNCH", Knockdown = "KNOCKDOWN",
-    GuardBreak = "GUARD-BREAK", Crumple = "CRUMPLE", Clash = "CLASH" });
+    GuardBreak = "GUARD-BREAK", Crumple = "CRUMPLE", Clash = "CLASH",
+    // (a value of BREAKER-NEXT-PHASE / KIKON-RUSH-NEXT-PHASE, never stored)
+    Strike = "STRIKE" });
 kw_enum!(Cls { Na = "NA", Ns = "NS", As = "AS", Sa = "SA" });
 kw_enum!(Form { Base = "BASE", Nozarashi = "NOZARASHI", Bankai = "BANKAI", Bankai2 = "BANKAI-2", Kessa = "KESSA",
     BankaiBind = "BANKAI-BIND", Blaze = "BLAZE" });

@@ -1,6 +1,6 @@
 //! tuning.json: every DEFPARAMETER, keyed by symbol name, lossless positional values (or {"kind":"skipped","why":…}).
 //! Scalars are read through `knob` (typed by the JSON token); lists and plists stay `Value` until a system ports them.
-use serde_json::Value;
+pub use serde_json::Value;
 use std::collections::BTreeMap;
 
 pub type Tuning = BTreeMap<String, Value>;

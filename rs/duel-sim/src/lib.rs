@@ -11,6 +11,7 @@ pub mod knobs;
 pub mod log;
 pub mod math;
 pub mod rng;
+pub mod rules;
 pub mod state;
 pub mod time;
 pub mod vpad;

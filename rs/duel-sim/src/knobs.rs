@@ -267,4 +267,47 @@ knobs! {
     core_pointer_max: i64, // tuning.lisp
     core_kikon_max: i64, // tuning.lisp
     core_soul_break_max: i64, // tuning.lisp
+    // keyword -> integer plists (Task 5: rules.lisp's readers)
+    reaction_frames: KwInts, // tuning.lisp
+    block_add: KwInts, // tuning.lisp
+    whiff_add: KwInts, // tuning.lisp
+    gg_kind: KwInts, // tuning.lisp
+    stun_weights: KwInts, // tuning.lisp
+    parry_window: Window, // tuning.lisp
+}
+
+/// A frame window knob `(from to)`.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Window(pub i64, pub i64);
+
+impl duel_data::tuning::Knob for Window {
+    const KIND: &'static str = "a list of two integers";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Window> {
+        match v.as_array()?.as_slice() {
+            [a, b] => Some(Window(a.as_i64()?, b.as_i64()?)),
+            _ => None,
+        }
+    }
+}
+
+/// A keyword -> integer plist knob (`(:flinch 18 :stagger 26 …)`), read with `get` = `(getf plist key default)`.
+#[derive(Debug, Clone, Default)]
+pub struct KwInts(pub Vec<(String, i64)>);
+
+impl KwInts {
+    /// port: GETF over the plist; KEY is the keyword's name in any case, without the colon.
+    pub fn get(&self, key: &str, default: i64) -> i64 {
+        self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map_or(default, |&(_, v)| v)
+    }
+}
+
+impl duel_data::tuning::Knob for KwInts {
+    const KIND: &'static str = "a plist of keyword / integer pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<KwInts> {
+        let a = v.as_array()?;
+        if a.len() % 2 != 0 {
+            return None;
+        }
+        a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), c[1].as_i64()?))).collect::<Option<Vec<_>>>().map(KwInts)
+    }
 }
