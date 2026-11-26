@@ -274,6 +274,9 @@ knobs! {
     gg_kind: KwInts, // tuning.lisp
     stun_weights: KwInts, // tuning.lisp
     parry_window: Window, // tuning.lisp
+    // frame windows DEFENDER-STATE reads (Task 7: in tuning.json all along; Task 3 listed scalar keys only)
+    step_iframes: Window, // tuning.lisp
+    hoho_iframes: Window, // tuning.lisp
 }
 
 /// A frame window knob `(from to)`.

@@ -57,7 +57,7 @@ pub fn flow_update(m: &mut Match, rdt: f32) {
 pub fn advance_sim(m: &mut Match, rdt: f32, input: &mut dyn PilotInput) {
     if m.turbo {
         for _ in 0..120 {
-            if sim_running_p(m) {
+            if sim_running_p(m) && m.unported.is_none() {
                 sim_step(m, input);
             }
         }
@@ -65,7 +65,8 @@ pub fn advance_sim(m: &mut Match, rdt: f32, input: &mut dyn PilotInput) {
     }
     m.time.step_acc += rdt;
     let mut n = 0;
-    while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) {
+    // (`m.unported`: a step past an unported path would run on a state the Lisp never had; the replay stops there anyway)
+    while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) && m.unported.is_none() {
         m.time.step_acc -= STEP;
         n += 1;
         sim_step(m, input);
@@ -331,8 +332,8 @@ mod tests {
         assert_eq!(raw_dt(3), 16_666_667u64 as f32 * 1e-9f32);
     }
 
-    /// cvc-ki-s1's start (START-CVC) and its 300 intro steps: the battle begins at tick 0, both IDLE; step 301 needs the
-    /// fighters' systems.
+    /// cvc-ki-s1's start (START-CVC) and its 300 intro steps: the battle begins at tick 0, both IDLE; step 301's fighters
+    /// stand (no input), then HAZARD-SYSTEM is not ported.
     #[test]
     fn intro_runs_300_steps_into_the_battle() {
         let mut m = crate::hashline::tests::new_match();
@@ -350,6 +351,6 @@ mod tests {
         assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle));
         assert_eq!(m.unported, None);
         sim_step(&mut m, &mut Null);
-        assert_eq!((m.match_tick, m.unported), (1, Some("fighter-system")));
+        assert_eq!((m.match_tick, m.unported), (1, Some("hazard-system")));
     }
 }

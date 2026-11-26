@@ -648,3 +648,14 @@ fn hit_volumes() {
     assert!(!cyl_cyl_hit_p(3.0, 0.0, 0.0, 0.6, 3.0, 4.1, 0.0, 0.0, 0.4, 1.8)); // line 607
     assert!(!cyl_cyl_hit_p(3.0, 0.0, 0.0, 0.6, 3.0, 3.5, 3.5, 0.0, 0.4, 1.8)); // line 608
 }
+
+/// core.lisp 118: the Step's and the Hoho's invulnerable frames (*STEP-IFRAMES* (3 9), *HOHO-IFRAMES* (1 14), inclusive).
+#[test]
+fn iframes() {
+    let k = &k();
+    let (st, ho) = (Some((k.step_iframes.0, k.step_iframes.1)), Some((k.hoho_iframes.0, k.hoho_iframes.1)));
+    assert!(
+        invulnerable_frame_p(3, st) && invulnerable_frame_p(9, st) && !invulnerable_frame_p(10, st) && invulnerable_frame_p(14, ho)
+            && !invulnerable_frame_p(0, ho)
+    );
+}
