@@ -169,13 +169,8 @@ Conventions: `T` is `true`, `NIL` is `null` or `[]` / `{}` by slot type, so bool
 fields stay integers (move.track, move.blend, params.chain, positional tuples); a double is `{"f64":"..."}`; a plist is an object
 only where the extractor forces it or the shape guess finds distinct keyword keys and even length.
 
-**Code fields** are written as symbol names (the port ports them by hand; the full per-field lists are in the task-4 / task-5
-reports): kit `aura`, `cine`, `enter_hook`, `hooks.*` (armor, as-pick, cancel, clash, command, deck, dmg-mult, draw, hash, hit, hit-fx,
-hud-tag, kikon-n, kikon-worth, link-move, link-ok, lv, min-reach, ok, parried, planted, pose, reset, soul-break-cine, sp-gain-mult,
-step-dist, struck, threat, tick, unscaled, victim-look), `core.kikon-cines`, `meter.label`; move `cine`, `hits.seg`, `on_frame`,
-`on_land`, `params.look`, `release`, `tick`; `tables.strat_*` `:fn` (the ten `*-STYLE` functions); `tuning`: `*CAI-STYLES*`,
-`*CINE-NAMES*`, `*DEBUG-KNOBS*`, `*HS-HOOKS*` / `*HS-BK-HOOKS*` / `*HS-R-HOOKS*` / `*ICHIGO-HOOKS*` / `*KESSA-HOOKS*`,
-`*HURT-CINES*`, `*YA-S5-CINES*`. Not swept by the census: closures and symbol plists.
+**Code fields** (hooks, cinematics, tick / on-frame callbacks, style functions) are written as symbol names; every name, grouped by
+field path, is in [M0_CODE_FIELDS.md](M0_CODE_FIELDS.md) (the port writes them by hand). Not swept by the census: closures and symbol plists.
 
 **Float checksum** (`manifest.json`, recomputed by `rs/duel-data` `checksum.rs`): FNV-1a 64 (basis `0xcbf29ce484222325`, prime
 `0x100000001b3`, per byte `h = (h ^ b) * prime`) over the data files sorted by name (bodies, clips, debug_ranges, glyphs, kits,
@@ -185,6 +180,22 @@ integer tokens are skipped. 13 bytes per float from CL `(integer-decode-float x)
 (i32 LE), mantissa (u64 LE). F32 zero is (0, 0); a denormal is normalised first (frac shifted until bit 23, exponent
 -149 - k); f64 likewise (bit 52, -1074 - k). Test vectors: `1.0f0` is `00 e9 ff ff ff 00 00 80 00 00 00 00 00`; `-0.0f0` is
 `01` then 12 zero bytes.
+
+**Loader quirks** (`rs/duel-data`, Task 6; M1 types the rest): `Data` has `load(dir)`, `embedded()` (include_bytes!), `files()`,
+`file(name)`, `counts()`; `FILES` is the checksum order. Typed with `deny_unknown_fields`: Move, HitWin (`vols: [f32; 6]`, MAKE-VOL's
+layout), Kit, Kits, Meter, Clip (`loop` as `looping: bool`), Body, Weapon / Section (tagged by kind), Rig, RigJoint, Manifest.
+`adv_block` is `Option<AdvBlock>` (`Frames(i32)` or `Key(GuardBreak)`). Left as `serde_json::Value` until M1: `Move.params`, `Kit.core`,
+tables.json, tuning.json. `Datum` (Null, Bool, Int, F32, F64, Str, List) holds the positional lists (`Body.spec` and `ink`,
+`Move.on_frame`, `Kit.blade`, `Kit.intro_weapon`; hisagi-bankai mixes f32 and `{"f64"}` in one slot). Number fields that hold some
+integers (track, blend, duration, push_reach, stun_tolerance) are `f32`. Null-only fields are typed from the slot's meaning and
+fail loudly if another kind appears (`chip: Option<f32>`, `open_s: Option<i32>`, `exit_hook` / `face` / `reset_form`:
+`Option<String>`, `ink_color: Option<i64>`; `l_after_k` / `l_after_j`: `Option<String>`, though the Lisp slot may be T or a plist).
+`deny_unknown_fields` catches an added key only; a nullable key the extractor stops writing reads as None. No serde_json features
+beyond the default (preserve_order / float_roundtrip / arbitrary_precision would unify into the Bevy crates). The checksum is a scanner
+over the raw text (strings skipped, `{"f64":"..."}` counted only when it is the sole key). `cargo test -p duel-data` runs 8 tests
+(loads_every_file, embedded_equals_load, float_checksum_matches_manifest, serde_float_path_is_exact (floor 500000 f32 tokens, 526441
+today), edge_floats, decode_matches_ecl, garb_copy_present, typed_vols_match_walk); mutation checks (a changed rig offset fails the
+checksum; an unknown key fails the load) were run by hand.
 
 ## 4. The answer key (Tasks 7-8)
 
@@ -201,24 +212,87 @@ sounds, stills, ~8 min; `--check` only counts and sanity-checks).
 | `build/oracle/sound/<key>.f32` | 51 sounds, 48 kHz mono f32 LE, rendered twice, identical; `INDEX.json` |
 | `build/oracle/stills/` | 83 PNGs of the looks gate (frozen dist `e35032a7`), byte-identical across 3 renders |
 
-**Trace grammar** (header of `tools/port/oracle/trace.lisp` is the spec):
+**Trace grammar** (the header of `tools/port/oracle/trace.lisp` is authoritative; if this copy differs, the header wins):
 
 ```
-S cmds <debug cmd> ...      CvC / gate start: sg-init, queue the commands, run frames
-S trials <file>             trial start: sg-init + one frame; then E / F lines
-E <action> <args>           an out-of-band action between frames (set, battle, form, place, vpad-clear, core-start, cmd, ...)
-e [  tick] ...              combat log line that the E action printed (compared)
-R [  tick] ...              line the trial runner printed between frames (never compared)
-F                           run one frame (%frame, 1/60 s); its step records follow
-[  tick] ...                sim combat log line (compared)      C [  tick] ...   CPU log line (not compared)
-T tick vt1 downs1 sx1 sy1 vt2 downs2 sx2 sy2 rnd    inputs + sim RNG right after brain-system
-H duel hash t=...           the hash line
+# ...                       comments ("# trial begin NAME" / "# trial end NAME | ..." are trial.lisp's own lines)
+S cmds <debug cmd> ...      CvC / gate start: sg-init, queue the commands, run run.lisp's frames until the gate / match is over (no E / F lines)
+S trials <file>             trial start: sg-init + one frame (no step), then E / F lines in order; <file> is reference only, a replay never reads it
+E <action> <args>           an out-of-band action taken between frames: apply it now
+e [  tick] ...              a combat log line that the E action printed (compared)
+R [  tick] ...              a line the trial runner printed between frames outside any E action (never compared)
+F                           run one frame (%frame, 1/60 s, not turbo); its step records follow
+[  tick] ...                sim combat log line (compared)      C [  tick] ...   CPU log line from brain-system (never compared)
+T tick vt1 downs1 sx1 sy1 vt2 downs2 sx2 sy2 rnd
+H duel hash t=...           STATE-HASH-LINE at the step's end; a step's record is its [ / C lines, T, H
 ```
 
-`downs` is 3 hex digits, bit i = `*vpad-actions*`[i] (0 mod, 1 quick, 2 flash, 3 sig, 4 guard, 5 breaker, 6 kikon, 7 step, 8
-awaken); sx / sy are shortest-round-trip f32; rnd is 8 hex digits. Records are keyed by order, not tick (`begin-battle` resets
-the tick). CPU pilots keep `cam-relative` nil. The recorder runs on a second compiled image (the stock unit plus one hook after
-`brain-system`, `build-rec.lisp`); non-perturbation is checked per trace. Replay uses the stock image and attaches no brains.
+T: on a sim frame (the vpad ticks advance) the values right after `brain-system` (what the brains wrote for `fighter-system`, and the sim
+stream after their draws); on any other step (intro, cinematic, hitstop, slow-motion wait) the values at the step's end. `vtK` is side K's
+vpad tick; `downsK` its nine buttons as 3 hex digits (bit i = `*vpad-actions*` element i: 0 :mod, 1 :quick, 2 :flash, 3 :sig, 4 :guard,
+5 :breaker, 6 :kikon, 7 :step, 8 :awaken); `sxK` / `syK` the stick as single-floats printed shortest round-trip (`0.3`, `-1.0`, `-0.0`;
+Rust's `f32::from_str` reads them back exactly); `rnd` = `(sim-rnd-state)` as 8 hex digits. A replay writes the downs with `vpad-set!`
+in bit order after the step's `vpad-begin-step!`. Records are keyed by order, not tick (`begin-battle` resets `*match-tick*` after the
+intro; a trial file's trials share one match). CPU pilots keep `cam-relative` nil.
+
+E grammar (SIDE is 0 for P1, 1 for P2; values are Lisp-printed: integers, single-floats as in T, keywords `:NAME`, `T` / `NIL`):
+
+| E line | Applies |
+|---|---|
+| `E set SIDE <accessor> <value>` | `(setf (<accessor> obj) value)`; obj is GAUGES for `gauges-*`, FIGHTER for `fighter-*`, HS (Hisagi's state, attached if missing) for `hss-*`. Emitted for each field that changed since the last E / F line. Fields (`*TR-SIDE-FIELDS*`): gauges-awakened gauges-konpaku gauges-sub gauges-sub-s gauges-drive gauges-awaken gauges-meter gauges-fs gauges-burst gauges-burn gauges-reishi fighter-xch fighter-xch-done fighter-hoho-lock fighter-ptr fighter-state fighter-guard-t hss-bound hss-bind-arm hss-unbind |
+| `E set - <global> <value>` | a global (`*TR-GLOBALS*`): `*COMBAT-LOG*` `*SKIP-CINES*` `*TIMER*` by `symbol-value`; `SIM-RND-STATE` by `(setf (sim-rnd-state))` |
+| `E battle <C1> <C2>` | `(ensure-battle C1 C2 :cpu t)`: a CPU vs CPU match of those characters (a new one, cinematics skipped, unless one is already in battle) |
+| `E form SIDE <form>` | `(force-form e form)` |
+| `E hisagi-reset SIDE` | `(hs-reset e)` |
+| `E place <dist>` | `(place P1 P2 dist)`: DIST m apart on the x axis around the centre, facing, idle, no hazards |
+| `E vpad-clear SIDE` | `(vpad-clear! his vpad)` |
+| `E clear-hazards` | `(clear-hazards)` |
+| `E skip-cine` | `(skip-cine)` (defined; no trace uses it) |
+| `E burst-end SIDE` | `(burst-end! e)` |
+| `E full-gauges SIDE <meter>` | `(full-gauges! e meter)` |
+| `E cmd <n>` | `(debug-command n)` (the Yamamoto trials' `:p1-cmd`) |
+| `E core-start SIDE <move>` | `(core-start! e move)`, move = the key of his kit's `kit-moves` table (`:p2-start`) |
+
+The recorder hook is `*oracle-brain-hook*`, a `defvar` plus `(when *oracle-brain-hook* (funcall *oracle-brain-hook*))` right after
+`(brain-system)` in `sim-systems` of the scratch unit `build/oracle/rec/duel.fas` (`build-rec.lisp`, ~3 min; gen.py rebuilds it only
+when the stock unit or build-rec.lisp is newer). Its unit differs from the stock one by those two forms only; the hook is ignored inside
+rollouts (`*in-rollout*`). `post-draw` counts sim frames whose state at the step's end differs from the hook's (0 in all 63 traces:
+`sim-rnd01` appears only in CPU code). `tr-log-equal` allows a recorded move / step / dash line to end in the brain's " TRIAL" why,
+which a brainless replay cannot print. A replay's rnd check compares injected against itself; it is not RNG verification. The event
+layer covers what `trial-run` does today (`*rec-actions*` plus the fields above); a new trial key that mutates something outside them
+shows up as a replay divergence. Exit codes: record exits 2 on a wrong image; run frames exit 3 / 4 as `run.lisp` does.
+
+**INDEX.json schemas.** `build/oracle/INDEX.json`: provenance (`lisp-freeze` commit, whether the sources equal it, the commit of the
+run), `traces` (per trace: name, kind, start, pair / seed or file, steps, last_tick, bytes, sha1, start_miss, post_draw, compared_lines,
+nonperturbed, trials), `excluded` (Rukia's research trial files, retired) and `deferred` (`tests/scripts/*.json`). `fk/INDEX.json`: per
+clip the frames, dur, loop, each rig's bodies and each form's [form, by, weapon]. `sound/INDEX.json`: per key the samples, loop, peak,
+NaN / Inf zeroed count (0 for all), sha1.
+
+**FK file** `build/oracle/fk/<clip>.json` (keys sorted, single-floats shortest round-trip):
+
+```
+{"clip", "dur", "loop" (true | null), "fps": 60, "frames": N+1, "t": [t_0..t_N], "key_ease": 1,
+ "joint_names": [21 joints in *RIG* order: pelvis spine chest neck head shoulder-r upper-arm-r lower-arm-r hand-r weapon-r
+                 shoulder-l upper-arm-l lower-arm-l hand-l weapon-l thigh-r shin-r foot-r thigh-l shin-l foot-l],
+ "rigs": [{"bodies": [...], "scale", "hunch" (rad), "props": 64 f32 (MAKE-RIG-PROPORTIONS) | null,
+           "joints": per frame 336 f32 = 21 x 16; joint j's world matrix at [16j, 16j+16), column-major
+                     (p -> m[0..2]*x + m[4..6]*y + m[8..10]*z + m[12..14])}],
+ "forms": [{"form": "character/form", "body", "rig": index into rigs, "by": "kit" | "prefix" | "shared",
+            "weapon", "weapon_len", "weapon_base", "tip": per frame [x,y,z], "base": per frame [x,y,z]}]}
+```
+
+Frames: t_i = i / 60 (single-float), i = 0..N, N = floor(dur * 60 + 0.001); a loop clip at t = dur wraps to its start, a one-shot clamps.
+Rigs are deduplicated by (scale, hunch, props); the live bodies form 4: standard (hisagi, hisagi-bankai, ichigo, ichigo-kessa), Kenpachi's
+(kenpachi, kenpachi-nomi, kenpachi-oni: scale 1.07 + props), Yamamoto's (yamamoto, yamamoto-bare, yamamoto-tybw: 0.95, hunch 0.244,
+props), skeleton (hunch 0.349). The pose is sampled at the origin, yaw 0 (facing -Z); tip / base are `weapon-r` applied to
+(0, 0, -weapon-len) / (0, 0, -weapon-base). `by`: "kit" = a form whose `kit-clips` name the clip (310 clips), "prefix" = the clip no
+kit names (62), given to every form of the character named by the prefix, "shared" = the 26 `sh-` clips for every form (kenpachi
+bankai / bankai-2 drop the 7 shared clips their body replaces); 2 clips (sk-crawl, sk-grab) have no form. Clips attributed by prefix or
+shared carry the joints of all 4 rigs (victim clips play on the opponent's body).
+
+**Sound file** `build/oracle/sound/<key>.f32`: raw little-endian f32, 48 kHz mono, rendered in a fresh process right after the image
+loads (no `sg-init`; `au_rng` starts at 0x9E3779B9) in `*au-defs*` order: funcall, `au-sanitize!`, `au-finish!` unless looping,
+`au-normalize!` to its peak. A render after `sg-init` is identical (the `:load` steps draw nothing from `au_rng`).
 
 Look data: the FK is the engine's clip-level FK (`clip-sample!` then `pose-fk!`, `*key-ease*` = 1 as the game sets it). Clips owned
 by a kit are sampled for that kit's forms (310); 62 unowned clips go to the forms of the prefix character (ya- ke- ic- hs-) and 26

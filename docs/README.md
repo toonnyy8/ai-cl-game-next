@@ -81,16 +81,19 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 
 ## Babylon 移植版（已停止）
 
-Rust + Bevy 移植（2026-11-26 起，設計中）：`docs/bevy/BEVY_PORT.md`，Lisp 版在 `lisp-freeze`（395fd0b6）凍結作為標準答案。
+Babylon.js + TypeScript 移植版 2026-10-06 起不再開發；它的程式碼和紀錄（BABYLON_PORT、BABYLON_LOOK）2026-10-27 起只在 `babylon` 分支的 `babylon/` 與 `docs/babylon/`。
+
+## Bevy 移植版（`bevy/`）
+
+Rust + Bevy 移植（2026-11-26 起，設計中）：Lisp 版在 `lisp-freeze`（395fd0b6）凍結作為標準答案。
 
 | 文件 | 內容 |
 |---|---|
 | [BEVY_PORT.md](bevy/BEVY_PORT.md) | Bevy 移植的設計：目標、架構、驗證方式（凍結版當標準答案）、里程碑 |
 | [M0A_SPEED.md](bevy/M0A_SPEED.md) | M0a 速度測試的數字 |
 | [M0_NOTES.md](bevy/M0_NOTES.md) | M0 筆記（英文）：無頭裝置遺失、空白頁合約、資料檔與浮點校驗、標準答案（`build/oracle`）、裁決、M1–M3 待辦 |
+| [M0_CODE_FIELDS.md](bevy/M0_CODE_FIELDS.md) | 資料檔裡以符號名寫出的程式欄位（掛鉤、演出、tick 回呼、風格函式）全表 |
 | `bevy/plans/` | M0a / M0 的實作計畫；工具在 `tools/port/`，Rust workspace 在 `rs/` |
-
-Babylon.js + TypeScript 移植版 2026-10-06 起不再開發；它的程式碼和紀錄（BABYLON_PORT、BABYLON_LOOK）2026-10-27 起只在 `babylon` 分支的 `babylon/` 與 `docs/babylon/`。
 
 ## 研究（`research/`）
 
