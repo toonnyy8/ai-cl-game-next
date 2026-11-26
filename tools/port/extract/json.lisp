@@ -196,19 +196,20 @@
 (defun json-floats (tree) (let ((out nil)) (json-map-floats (lambda (x) (push x out)) tree) (nreverse out)))
 (defun json-tree-fnv (h tree) (json-map-floats (lambda (x) (setf h (json-fnv-float h x))) tree) h)
 
-;;; ---------------------------------------------------------------- the shape rule (the controller's ruling 4)
-;;; A path is the keys and array indices from the file's root joined by '.', with the segments at the depths in COLLAPSE (the entry
-;;; levels: a list's top-level index, a name-keyed file's top-level key, kits.json's char and form) written '*'. Inner array indices stay
-;;; literal, so a positional tuple ([antecedents, outputs]) is no conflict. A conflict: one path holding an object somewhere and an array
-;;; elsewhere. An {"f64":...} tag is a number, not an object.
-(defun json-shape-conflicts (tree collapse)
+;;; ---------------------------------------------------------------- the shape rule (the controller's ruling 4, fix round 1)
+;;; A path is the keys and array positions from the file's root joined by '.'. Every array index is written "[]", so all the elements of
+;;; one array share one path; object keys at the depths in COLLAPSE (the entry levels: a name-keyed file's top-level key, kits.json's char
+;;; and form) are written "*". TUPLES lists the paths of arrays that are genuine positional tuples ([antecedents, outputs]): their children
+;;; keep literal indices. A conflict: one path holding an object somewhere and an array elsewhere. An {"f64":...} tag is a number.
+(defun json-shape-conflicts (tree collapse &optional tuples)
   (let ((shapes (make-hash-table :test 'equal)))
     (labels ((walk (v path depth)
                (when (and (consp v) (member (car v) '(:object :array)) (not (json-f64-tag-p v)))
                  (let ((key (format nil "~{~a~^.~}" (reverse path))))
-                   (pushnew (car v) (gethash key shapes)))
-                 (if (eq (car v) :object)
-                     (dolist (p (cdr v)) (walk (cdr p) (cons (if (member depth collapse) "*" (car p)) path) (1+ depth)))
-                     (loop for x in (cdr v) for i from 0 do (walk x (cons (if (member depth collapse) "*" i) path) (1+ depth)))))))
+                   (pushnew (car v) (gethash key shapes))
+                   (if (eq (car v) :object)
+                       (dolist (p (cdr v)) (walk (cdr p) (cons (if (member depth collapse) "*" (car p)) path) (1+ depth)))
+                       (let ((tuple (member key tuples :test #'string=)))
+                         (loop for x in (cdr v) for i from 0 do (walk x (cons (if tuple i "[]") path) (1+ depth)))))))))
       (walk tree nil 0))
     (sort (loop for k being the hash-keys of shapes using (hash-value s) when (cdr s) collect k) #'string<)))

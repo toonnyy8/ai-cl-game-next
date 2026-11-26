@@ -70,6 +70,16 @@ the entries of each table; tuning.json none: its values are unrelated).")
         (write-sequence (x-bytes (merge-pathnames (concatenate 'string "duel/" f) *x-root*)) out))
       (format t "copied ~a~%" (namestring to)))))
 (defun x-collapse (file) (cdr (assoc file *x-collapse* :test #'string=)))
+(defparameter *x-tuples*
+  (flet ((rules (prefixes) (loop for p in prefixes append (list (format nil "~a.[].rules.[]" p)))))
+    (list (cons "tables.json" (append (rules '("strat_data" "strat_units" "strat_units_expanded" "strat_library"))
+                                      '("strat_library.[].fq.arms.[].rules.[]")))
+          (cons "tuning.json" (append (rules '("*STRAT-DATA*" "*STRAT-UNITS*" "*STRAT-UNITS-EXPANDED*" "*STRAT-LIBRARY*"))
+                                      '("*STRAT-LIBRARY*.[].fq.arms.[].rules.[]")))))
+  "The shape rule's exemptions per file: paths (JSON-SHAPE-CONFLICTS' form) of arrays that are genuine positional tuples, whose elements
+are compared by position instead of as one path. Only the strategy rules (antecedents outputs): strategy.lisp STRAT-VALUE reads
+(first r) as the antecedent list and (second r) as the output plist.")
+(defun x-tuples (file) (cdr (assoc file *x-tuples* :test #'string=)))
 (defparameter *x-defparams* (let ((*default-pathname-defaults* *x-root*)) (cl-user::source-defparameters '("engine" "duel")))
   "Every source DEFPARAMETER name of the engine and the game, MANIFEST order.")
 (defun x-count (file tree)
@@ -327,9 +337,18 @@ down, except that a unit (a plist keyed :ID first) is an object even when every 
         ((cl-user::json-plist-p x) (cl-user::json-object (loop for (k v) on x by #'cddr append (list k (x-strat v)))))
         ((and (consp x) (null (cdr (last x))) (some #'consp x)) (cl-user::json-array (mapcar #'x-strat x)))
         (t x)))
+(defun x-strat-var-p (var) (let ((n (symbol-name var))) (and (> (length n) 7) (string= n "*STRAT-" :end1 7))))
 (defun x-table-value (var)
-  "VAR's value as tables.json (and tuning.json, for the same variable) writes it."
-  (if (string= (symbol-name var) "*STRAT-" :end1 (min 7 (length (symbol-name var)))) (x-strat (symbol-value var)) (symbol-value var)))
+  "VAR's value as tables.json writes it: a *STRAT-* table through X-STRAT (tuning.json writes it the same), any other as it is."
+  (if (x-strat-var-p var) (x-strat (symbol-value var)) (symbol-value var)))
+(defun x-pos (x)
+  "A tuning value written losslessly (fix round 1): every list (deep, a dotted tail its last element) and every general vector a
+positional array, a hash table an object of converted values; atoms as they are (a hitwin through X-OTHER). Never the plist guess:
+a knob's rows are positional ((:sp 0.15 :quick t) = name chance action modded, *MASHER-BUTTONS*)."
+  (cond ((consp x) (cl-user::json-array (mapcar #'x-pos (if (null (cdr (last x))) x (append (butlast x 0) (list (cdr (last x))))))))
+        ((and (vectorp x) (not (stringp x)) (eq (array-element-type x) t)) (cl-user::json-array (map 'list #'x-pos x)))
+        ((hash-table-p x) (cl-user::json-object (loop for k being the hash-keys of x using (hash-value v) collect k collect (x-pos v))))
+        (t x)))
 (defun x-tables ()
   (loop for (name . var) in *x-tables*
         do (x-note-syms (symbol-value var) (format nil "tables.~a" name))
@@ -368,8 +387,8 @@ can't write, or an error writing it)."
         for why = (x-tuning-reason v)
         do (if why (push (cons (symbol-name sym) why) *x-skipped*) (x-note-syms v (format nil "tuning.~a" (symbol-name sym))))
         collect (cons (symbol-name sym) (cond (why (cl-user::json-object (list "kind" "skipped" "why" why)))
-                                              ((rassoc sym *x-tables*) (x-table-value sym))
-                                              (t v)))))
+                                              ((x-strat-var-p sym) (x-strat v))
+                                              (t (x-pos v))))))
 
 (defun x-write-rest ()
   "Task 5's files (weapons last: their section lambdas touch the mesh builder globals), then the checks of every data file read back
@@ -392,7 +411,7 @@ and manifest.json."
   (let ((trees (make-hash-table :test 'equal)) (fail nil))
     (dolist (f *x-files*) (setf (gethash f trees) (cl-user::json-read-file (merge-pathnames f *x-out*))))
     (dolist (f *x-files*)
-      (let ((c (cl-user::json-shape-conflicts (gethash f trees) (x-collapse f))))
+      (let ((c (cl-user::json-shape-conflicts (gethash f trees) (x-collapse f) (x-tuples f))))
         (when c (setf fail t) (format t "extract FAIL: ~a: an object and an array at one path: ~{~a~^, ~}~%" f c)))
       (let ((w (gethash f *x-write-hash*)) (r (cl-user::json-tree-fnv cl-user::+fnv-basis+ (gethash f trees))))
         (unless (eql w r) (setf fail t) (format t "extract FAIL: ~a: the floats read back differ from the ones written (~x / ~x)~%" f w r))))
@@ -509,7 +528,7 @@ the source DEFPARAMETERs, the manifest's counts and checksum against the files. 
             (dolist (s skipped) (unless (member (cdr s) '("function" "move" "unprintable") :test #'equal) (bad "tuning ~a skipped for ~a" (car s) (cdr s)))))))
       (dolist (f *x-files*)
         (let ((tree (gethash f trees)))
-          (when tree (let ((c (cl-user::json-shape-conflicts tree (x-collapse f)))) (when c (bad "~a: object and array at one path: ~{~a~^, ~}" f c))))))
+          (when tree (let ((c (cl-user::json-shape-conflicts tree (x-collapse f) (x-tuples f)))) (when c (bad "~a: object and array at one path: ~{~a~^, ~}" f c))))))
       (dolist (f *x-copies*)
         (let ((to (merge-pathnames f *x-out*)))
           (unless (and (probe-file to) (equalp (x-bytes to) (x-bytes (merge-pathnames (concatenate 'string "duel/" f) *x-root*))))

@@ -41,9 +41,14 @@
 ;; a float's hashed bytes: sign (0 = +, 1 = -), exponent i32 LE, mantissa u64 LE, from INTEGER-DECODE-FLOAT
 (check-eq "bytes 1.0" (json-float-bytes 1f0) '(0 #xe9 #xff #xff #xff 0 0 #x80 0 0 0 0 0))
 (check-eq "bytes -0.0" (json-float-bytes -0f0) '(1 0 0 0 0 0 0 0 0 0 0 0 0))
-;; ruling 4: one path holding an object in one entry and an array in another fails; a positional tuple does not
-(check-eq "shape conflict" (json-shape-conflicts (json-read-string "[{\"x\":{}},{\"x\":[1]}]") '(0)) '("*.x"))
-(check-eq "shape tuple" (json-shape-conflicts (json-read-string "[[[1],{\"a\":1}],[[2],{}]]") '(0)) nil)
-(check-eq "shape f64 is a number" (json-shape-conflicts (json-read-string "[{\"x\":{\"f64\":\"1.0\"}},{\"x\":2.0}]") '(0)) nil)
+;; ruling 4: one path holding an object somewhere and an array elsewhere fails. Fix round 1: every array index is collapsed to "[]" (all
+;; elements of one array are one path); a listed tuple path keeps literal indices for its array's children.
+(check-eq "shape conflict" (json-shape-conflicts (json-read-string "[{\"x\":{}},{\"x\":[1]}]") nil) '("[].x"))
+(check-eq "shape mixed rows" (json-shape-conflicts (json-read-string "{\"k\":[[\"hisagi\",\"bankai\"],{\"hisagi\":true}]}") nil) '("k.[]"))
+(check-eq "shape mixed deep" (json-shape-conflicts (json-read-string "{\"k\":[[[1]],[{\"a\":1}]]}") nil) '("k.[].[]"))
+(check-eq "shape tuple unlisted" (json-shape-conflicts (json-read-string "[[[1],{\"a\":1}],[[2],{}]]") nil) '("[].[]"))
+(check-eq "shape tuple listed" (json-shape-conflicts (json-read-string "[[[1],{\"a\":1}],[[2],{}]]") nil '("[]")) nil)
+(check-eq "shape entry keys" (json-shape-conflicts (json-read-string "{\"a\":{\"x\":[]},\"b\":{\"x\":{}}}") '(0)) '("*.x"))
+(check-eq "shape f64 is a number" (json-shape-conflicts (json-read-string "[{\"x\":{\"f64\":\"1.0\"}},{\"x\":2.0}]") nil) nil)
 (format t "~:[ALL PASS~;~:*~d FAIL~]~%" (and (plusp *fails*) *fails*))
 (ext:quit (if (zerop *fails*) 0 1))
