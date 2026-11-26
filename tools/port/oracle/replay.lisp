@@ -34,7 +34,7 @@
   (ext:quit 1))
 
 (defun rp-rec ()
-  "The step record due now (the next item must be one), as (sim-log-lines t-fields h-line b-line)."
+  "The step record due now (the next item must be one), as (sim-log-lines t-fields h-line b-pos)."
   (let ((it (if (< *rp-i* (length *rp-recs*)) (aref *rp-recs* *rp-i*) (rp-fail "the replay runs past the trace's end"))))
     (unless (eq (first it) :step) (rp-fail "a step ran where the trace has ~s" (first it)))
     (rest it)))
@@ -76,7 +76,8 @@
       (rp-fail "T (tick, vpad ticks, sim stream)~%  want ~a~%  got  ~a" (tr-t-line want) (tr-t-line tf)))
     (unless (fourth rec) (rp-fail "the trace has no B line for this step"))
     (let ((b (tr-b-line)))
-      (unless (string= b (fourth rec)) (rp-fail "~a" (or (tr-b-diff *rp-b-names* (fourth rec) b) "B (equal fields, other text)"))))
+      (let ((want (tr-b-at (second cl-user::*sg-args*) (fourth rec))))
+        (unless (string= b want) (rp-fail "~a" (or (tr-b-diff *rp-b-names* want b) "B (equal fields, other text)")))))
     (unless (string= h (third rec)) (rp-fail "H~%  want ~a~%  got  ~a" (third rec) h))
     (incf *rp-i*) (incf *rp-steps*))
   (unless *rp-trials* (rp-detach)))
