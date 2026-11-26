@@ -615,3 +615,36 @@ fn perfect_hoho_facing() {
     assert!(ap(run_carry(k, 5.0), 1.0) && ap(run_carry(k, 1.7), 0.5) && ap(run_carry(k, 1.0), 0.0));
     assert!(ap(brake_speed(k, 9.0, 3), 4.5) && ap(brake_speed(k, 9.0, 6), 0.0) && ap(brake_speed(k, 9.0, 9), 0.0));
 }
+
+#[test]
+fn hit_volumes() {
+    use duel_sim::hitvol::*;
+    use duel_sim::math::deg;
+    let hits = |v: &Vol, x: f32, z: f32, y: f32| vol_hit_p(v, 0.0, 0.0, 0.0, 0.0, -1.0, x, y, z, 0.38, 1.8, 0.0);
+    // lines 584-590 (MAKE-VOL: :arc 0 r half-angle y0 y1; :cap 1 a b h r yaw; :sph 2 fwd up r)
+    let arc: Vol = [0.0, 2.4, deg(100.0 / 2.0), 0.2, 2.0, 0.0];
+    assert!(ap(arc[2], deg(50.0)));
+    assert!(hits(&arc, 0.0, -2.0, 0.0));
+    assert!(!hits(&arc, 0.0, 2.0, 0.0));
+    assert!(!hits(&arc, 0.0, -3.0, 0.0));
+    assert!(!hits(&arc, 0.0, -2.0, 3.0));
+    assert!(hits(&[1.0, 0.3, 8.0, 1.0, 0.5, 0.0], 0.5, -7.5, 0.0));
+    assert!(hits(&[2.0, 2.0, 0.0, 1.0, 0.0, 0.0], 0.0, -2.5, 0.0));
+    let yaw = deg(90.0);
+    assert!(capsule_cyl_hit_p(0.0, 1.0, 0.0, 0.0, 1.0, -9.0, 0.3, 0.5, 0.0, -5.0, 0.4, 1.8)); // line 592
+    assert!(!capsule_cyl_hit_p(0.0, 1.0, 0.0, 0.0, 1.0, -9.0, 0.3, 1.0, 0.0, -5.0, 0.4, 1.8)); // line 593
+    assert!(!capsule_cyl_hit_p(0.0, 1.0, 0.0, 0.0, 1.0, -9.0, 0.3, 0.0, 0.0, -10.0, 0.4, 1.8)); // line 594
+    assert!(!capsule_cyl_hit_p(0.0, 3.0, 0.0, 0.0, 3.0, -9.0, 0.3, 0.0, 0.0, -5.0, 0.4, 1.8)); // line 595
+    assert!(capsule_cyl_hit_p(0.0, 0.5, 0.0, 2.0, 1.5, 0.0, 0.3, 2.5, 0.0, 0.0, 0.4, 1.8)); // line 596
+    assert!(capsule_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 1.0, -5.0, 0.5, 0.6, 0.0, -5.0, 0.4, 1.8)); // line 597
+    assert!(obox_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 3.0, 1.0, 0.5, 2.5, 0.0, -5.0, 0.4, 1.8)); // line 598
+    assert!(!obox_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 3.0, 1.0, 0.5, 3.5, 0.0, -5.0, 0.4, 1.8)); // line 599
+    assert!(obox_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 3.0, 1.0, 0.5, 0.0, 0.0, -5.8, 0.4, 1.8)); // line 600
+    assert!(!obox_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 3.0, 1.0, 0.5, 0.0, 0.0, -6.0, 0.4, 1.8)); // line 601
+    assert!(obox_cyl_hit_p(0.0, 1.0, -5.0, yaw, 3.0, 1.0, 0.5, 0.0, 0.0, -7.5, 0.4, 1.8)); // line 603
+    assert!(!obox_cyl_hit_p(0.0, 1.0, -5.0, yaw, 3.0, 1.0, 0.5, 0.0, 0.0, -8.5, 0.4, 1.8)); // line 604
+    assert!(!obox_cyl_hit_p(0.0, 1.0, -5.0, 0.0, 3.0, 1.0, 0.5, 0.0, 3.0, -5.0, 0.4, 1.8)); // line 605
+    assert!(cyl_cyl_hit_p(3.0, 0.0, 0.0, 0.6, 3.0, 3.8, 0.0, 0.0, 0.4, 1.8)); // line 606
+    assert!(!cyl_cyl_hit_p(3.0, 0.0, 0.0, 0.6, 3.0, 4.1, 0.0, 0.0, 0.4, 1.8)); // line 607
+    assert!(!cyl_cyl_hit_p(3.0, 0.0, 0.0, 0.6, 3.0, 3.5, 3.5, 0.0, 0.4, 1.8)); // line 608
+}
