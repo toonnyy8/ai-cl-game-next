@@ -25,7 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..'))
 from simlib import ROOT, ECL, FAS, MUSLM, build   # noqa: E402
 
-OUT = os.path.join(ROOT, 'build/oracle')
+OUT = os.path.join(ROOT, os.environ.get('ORACLE_OUT', 'build/oracle'))   # ORACLE_OUT=build/oracle2: record a new key beside the pinned one
 TRACES = os.path.join(OUT, 'traces')
 REC_FAS = os.path.join(OUT, 'rec/duel.fas')
 FIGHTERS = {'y': (0, 'YAMAMOTO'), 'k': (1, 'KENPACHI'), 'i': (3, 'ICHIGO'), 'h': (7, 'HISAGI')}
@@ -52,6 +52,8 @@ def build_rec():
     src = [unit, os.path.join(HERE, 'build-rec.lisp')]
     if os.path.exists(REC_FAS) and os.path.getmtime(REC_FAS) >= max(map(os.path.getmtime, src)):
         return
+    if REC_FAS != os.path.join(ROOT, 'build/oracle/rec/duel.fas'):   # (build-rec.lisp writes there only)
+        sys.exit(f'[oracle] {REC_FAS} missing or stale: build it with ORACLE_OUT unset, then cp -a build/oracle/rec {OUT}/')
     print('[oracle] building the recorder image build/oracle/rec/duel.fas (~3 min)', file=sys.stderr, flush=True)
     r = subprocess.run([ECL, '--norc', '--load', 'tools/port/oracle/build-rec.lisp'], cwd=ROOT, capture_output=True, text=True)
     if r.returncode or not os.path.exists(REC_FAS):
@@ -63,7 +65,7 @@ def sp_costs_file():
     spec = importlib.util.spec_from_file_location('sp_costs_check', os.path.join(ROOT, 'tests/sp-costs-check.py'))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
-    path = 'build/oracle/sp-costs-trials.lisp'
+    path = os.path.relpath(os.path.join(OUT, 'sp-costs-trials.lisp'), ROOT)
     with open(os.path.join(ROOT, path), 'w') as f:
         f.write('\n'.join(m.trials()) + '\n')
     return path
@@ -220,7 +222,11 @@ def look_sound(out):
 
 def look_stills(render):
     """The frozen dist's looks-gate stills (style-gates looks BASE = NEW = the frozen dist: three renders) -> build/oracle/stills/.
-    RENDER false: reuse the render already in build/style/looks/ (its log: build/oracle/looks-gate.log)."""
+    RENDER false: reuse the render already in build/style/looks/ (its log: build/oracle/looks-gate.log). Stills already in place
+    (83, e.g. copied from the pinned key: the browser's, never the native image's) are kept."""
+    if os.path.isdir(STILLS) and len([f for f in os.listdir(STILLS) if f.endswith('.png')]) == N_STILLS:
+        print(f'[oracle] stills: {N_STILLS} already in {STILLS}, kept', flush=True)
+        return
     wasm = hashlib.sha256(open(os.path.join(FROZEN_DIST, 'index.wasm'), 'rb').read()).hexdigest()
     if not wasm.startswith('e35032a7'):
         sys.exit(f'[oracle] {FROZEN_DIST}/index.wasm is {wasm[:8]}, not the frozen build e35032a7')
