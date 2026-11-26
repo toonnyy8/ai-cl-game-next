@@ -6,6 +6,7 @@ pub mod control;
 pub mod core;
 pub mod sp;
 pub mod ecs;
+pub mod flow;
 pub mod hashline;
 pub mod hitvol;
 pub mod kit;
