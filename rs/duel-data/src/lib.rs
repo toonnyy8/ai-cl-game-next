@@ -16,8 +16,8 @@ pub mod tuning;
 
 pub use body::{Body, Rig, RigJoint, Section, Weapon};
 pub use clips::Clip;
-pub use kits::{Kit, Kits, Meter, MoveClass};
-pub use moves::{AdvBlock, HitWin, Move};
+pub use kits::{Core, Kit, Kits, Meter, MoveClass};
+pub use moves::{AdvBlock, HitWin, Move, Params};
 pub use tables::{DebugRange, Glyph};
 
 /// The data files, in the checksum's order (by name). manifest.json is read apart; hud-font/ is raw bytes for the HUD.

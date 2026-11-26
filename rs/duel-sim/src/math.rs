@@ -2,10 +2,7 @@
 //! throughout. Yaw 0 faces -Z; the facing direction is (fwd_x, 0, fwd_z) = (-sin yaw, 0, -cos yaw).
 use crate::cl::{max_f32, min_f32};
 
-/// port: duel/lisp/rules.lisp +PI+ `#.(float pi 1f0)`.
-pub const PI: f32 = std::f32::consts::PI; // 0x40490FDB
-/// port: duel/lisp/rules.lisp +TWO-PI+ `#.(float (* 2 pi) 1f0)` (also ANGLE-WRAP's TAU).
-pub const TWO_PI: f32 = std::f32::consts::TAU; // 0x40C90FDB
+pub use crate::consts::{PI, TWO_PI};
 /// `#.(float (/ pi 180) 1f0)` from the image (the long-float pi, rounded once).
 const DEG_PER_RAD: f32 = f32::from_bits(0x3C8E_FA35);
 

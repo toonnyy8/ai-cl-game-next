@@ -153,3 +153,22 @@ fn typed_vols_match_walk() {
     }
     assert!(n > 2000, "{n}");
 }
+
+/// Move.params and Kit.core typed (Task 3, M1): every move and form loads, spot values per key kind.
+#[test]
+fn params_typed_for_every_move() {
+    let d = data();
+    assert_eq!(d.moves.len(), 549);
+    let m = |id: &str| &d.moves.iter().find(|m| m.id == id).unwrap_or_else(|| panic!("{id}")).params;
+    assert_eq!(m("kenpachi/nozarashi/ke-s-n1a").ns_next.as_deref(), Some("ke-s-n1b"));
+    assert!(d.moves.iter().any(|x| x.params.burst == Some([100, 150, 200, 260])));
+    assert!(d.moves.iter().any(|x| x.params.chain == Some([-70.0, 70.0, 3.0, 0.8, 1.4])));
+    assert!(d.moves.iter().any(|x| x.params.window == Some([2, 25])));
+    assert_eq!(d.moves.iter().filter(|x| x.params.lv_up).count(), 16);
+    assert_eq!(d.moves.iter().filter(|x| x.params.melee_range.is_some()).count(), 109);
+    let k = &d.kits.kits["kenpachi"]["nozarashi"].core;
+    assert_eq!(k.ns, ["ke-s-n1a", "ke-s-n2a"]);
+    assert!(k.sp_cost_mult.is_some() && !k.sp_free);
+    assert_eq!(d.kits.kits["hisagi"]["bankai"].core.range, Some([3.0, 4.5]));
+    assert!(d.kits.kits.values().flat_map(|f| f.values()).all(|k| !k.core.as_segs.is_empty() && k.core.mult > 0.0));
+}
