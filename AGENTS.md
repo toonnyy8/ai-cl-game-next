@@ -83,10 +83,11 @@ engine/        package ENGINE; knows no game. lisp/ (package math hitvol input t
                body time fx cine ecs app), c/ (engine.h main.c platform.c render.c audio.c rng.c), shaders/ (WGSL), web/, MANIFEST
 duel/          SOUL DUEL (package DUEL): lisp/, hud-font/ (the Lisp HUD's baked SDF atlas), web/ (head.html pwa.js sw.js manual.html manifest icons: the page services and the manual; every screen is drawn by Lisp, DUEL_LISP_HUD), MANIFEST
 tools/         build + test + gate tools (table below)
+rs/            the Bevy port's Cargo workspace (docs/bevy/BEVY_PORT.md): duel-sim duel-data duel-look duel-app duel-tools, spikes/ (M0a)
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
 skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below), plus the submodule
                sakurai-skill (a third-party skill, linked as .claude/skills/sakurai)
-docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/
+docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/ bevy/ (BEVY_PORT.md, M0A_SPEED.md, M0_NOTES.md, plans/)
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
 ```
@@ -235,6 +236,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/toon_check.py` | pixel checks of the ink style rules |
 | `tools/glyph-bake.py`, `tools/pwa-icons.py`, `tools/pose-solve.py` | offline generators (glyph polygons, app icons, arm pose solving) |
 | `tools/sdf-bake.py` | the Lisp HUD's SDF text atlas from the tag forms of `duel/lisp/lhud-*.lisp` (`--fetch` the faces into build/font-cache/; writes duel/hud-font/; DUEL_LISP_HUD §9, §16; the charset test is `tests/duel-rules/lhud-charset.lisp`) |
+| `tools/port/` | the Bevy port's tools: `capture/` (frame capture), `extract/` (Lisp image to `rs/duel-data/data`), `oracle/` (`gen.py sim\|replay\|look [--check]`: the answer key in `build/oracle`), `build-web.sh`, `page-smoke.sh`, `check-deps.sh` (docs/bevy/M0_NOTES.md) |
 | `tools/deploy-pages.sh` | publish `dist/duel` to `gh-pages` (only on request) |
 | `tools/vendor-*.sh` | rebuild `vendor/` |
 | `tools/setup-cloud-env.sh` | recreate the whole toolchain in a fresh cloud container (~15 min) at the hard-coded paths |

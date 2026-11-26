@@ -127,3 +127,161 @@ its shell `rs/duel-app/web/index.html`, `tools/port/build-web.sh <crate> <out_di
 - `Tonemapping::None` on the camera: the default TonyMcMapFace needs the `tonemapping_luts` feature and logs an error without it
   (the port grades in its own shaders, as M0a did).
 - `web-dev` builds skip wasm-opt: 109 MB wasm, 15.4 MB gzip (over the Artifact's 15 MB binary limit; for local runs only).
+
+## 3. Data files (Tasks 4-6)
+
+`rs/duel-data/data/*.json` (7.96 MB with the two hud-font copies), extracted from the frozen native image
+`build/simgate/duel.fas` (tag `lisp-freeze`). Loaded by `rs/duel-data` (typed structs, serde); `cargo run -p duel-tools --
+check-data [dir]` loads them and prints the counts and the float checksum.
+
+**Re-extract** (needs the musl libm, as the sim gate: weapon sections call sin / cos, rims call pow; the extractor exits 1 if
+`muslm.so` is not mapped):
+
+```sh
+env LD_PRELOAD=$PWD/build/simgate/muslm.so $ECL --norc --load tools/port/extract/extract.lisp -- build/simgate/duel.fas all
+env LD_PRELOAD=$PWD/build/simgate/muslm.so $ECL --norc --load tools/port/extract/extract.lisp -- build/simgate/duel.fas census
+```
+
+`all` (~25 s) writes the files (optional 3rd arg: another out dir; modes `moves` / `kits` write only that file). `census`
+(~15 s) re-reads them and checks them against the image (counts, an independent symbol sweep that reaches the same 549 moves,
+tuning key set = source names, no shape conflict, manifest checksum). Two `all` runs are byte-identical. `tools/port/extract/test-json.lisp`
+tests the writer (`$ECL --norc --load ...`).
+
+**Counts (`manifest.json`)**: bodies 11, clips 400, debug_ranges 90, glyphs 248, kits 12 (forms), moves 549, poses 443, rig 21
+(joints), tables 25, tuning 1146, weapons 11; `skipped_tuning` 3; `float_checksum` `6640f0fd66ac0848`.
+
+| File | Shape |
+|---|---|
+| `moves.json` | list of every MOVE object, one per line, id `<char>/<form>/<name>`; copies found only in a variable get `var/<variable>/<name>#<n>` (`var/ya-garb-copies/ya-e-n1c#0`). A move shared by inheritance is claimed by the form that defines it. `spec` slots are not written (no runtime reader) |
+| `kits.json` | `{"kits":{char:{form:{...}}},"roster":[...],"retired":[...]}`; per form also `cls` (move id to na/ns/as/sa), `sp`, `moves` (sorted ids). Duplicate `commands` keys keep the first (GETF) |
+| `clips.json` | `{name:{dur,loop,marks{},poses[[68]],snaps[n],times[n]}}`, `loop` true or null |
+| `poses.json` | `{name:[68 f32]}` |
+| `rig.json` | `{aliases,joints[{name,parent,offset,flex_sign,mirror}],key_ease,mirror_pairs}`; `offset` = `*RIG-OFF*` in engine coords |
+| `bodies.json` | every BODY slot but name and mesh handles; spec / palette / girth / ink are positional arrays |
+| `weapons.json` | `{name:{len,base,sections[{kind:"solid"\|"glow",...,verts}]}}`, verts in groups of 9 (position, normal, colour); ink hulls not written (the port runs `mb-hull`) |
+| `glyphs.json` | `[[code,advance,[[x0,y0,...]...]]...]` |
+| `debug_ranges.json` | `[[lo,hi,NAME\|null]...]`; 72 of 90 names are null (inline handlers) |
+| `tables.json` | 25 named tables (stage, fz_*, strat_*, lhud_*, commands, vpad_actions); `*STRAT-*` tables are forced objects, repeated `:base` keys keep the first |
+| `tuning.json` | `{SYMBOL-NAME: value}`, every `defparameter` of `duel/` and `engine/` (3 skipped as `{"kind":"skipped","why":"move"}`); `*PERFECT-HW*` is a hitwin object |
+| `hud-font/` | byte copies of `duel/hud-font/` (atlas.r8, metrics.bin) |
+
+Conventions: `T` is `true`, `NIL` is `null` or `[]` / `{}` by slot type, so booleans are true or null; integer values in float
+fields stay integers (move.track, move.blend, params.chain, positional tuples); a double is `{"f64":"..."}`; a plist is an object
+only where the extractor forces it or the shape guess finds distinct keyword keys and even length.
+
+**Code fields** are written as symbol names (the port ports them by hand; the full per-field lists are in the task-4 / task-5
+reports): kit `aura`, `cine`, `enter_hook`, `hooks.*` (armor, as-pick, cancel, clash, command, deck, dmg-mult, draw, hash, hit, hit-fx,
+hud-tag, kikon-n, kikon-worth, link-move, link-ok, lv, min-reach, ok, parried, planted, pose, reset, soul-break-cine, sp-gain-mult,
+step-dist, struck, threat, tick, unscaled, victim-look), `core.kikon-cines`, `meter.label`; move `cine`, `hits.seg`, `on_frame`,
+`on_land`, `params.look`, `release`, `tick`; `tables.strat_*` `:fn` (the ten `*-STYLE` functions); `tuning`: `*CAI-STYLES*`,
+`*CINE-NAMES*`, `*DEBUG-KNOBS*`, `*HS-HOOKS*` / `*HS-BK-HOOKS*` / `*HS-R-HOOKS*` / `*ICHIGO-HOOKS*` / `*KESSA-HOOKS*`,
+`*HURT-CINES*`, `*YA-S5-CINES*`. Not swept by the census: closures and symbol plists.
+
+**Float checksum** (`manifest.json`, recomputed by `rs/duel-data` `checksum.rs`): FNV-1a 64 (basis `0xcbf29ce484222325`, prime
+`0x100000001b3`, per byte `h = (h ^ b) * prime`) over the data files sorted by name (bodies, clips, debug_ranges, glyphs, kits,
+moves, poses, rig, tables, tuning, weapons; manifest and hud-font excluded), and within a file over the float tokens in document
+order. A float is a number token containing `.`, `e` or `E` (parsed as f32) or the string of an `{"f64":...}` object (f64);
+integer tokens are skipped. 13 bytes per float from CL `(integer-decode-float x)`: sign (1 byte: 0 for +, 1 for -), exponent
+(i32 LE), mantissa (u64 LE). F32 zero is (0, 0); a denormal is normalised first (frac shifted until bit 23, exponent
+-149 - k); f64 likewise (bit 52, -1074 - k). Test vectors: `1.0f0` is `00 e9 ff ff ff 00 00 80 00 00 00 00 00`; `-0.0f0` is
+`01` then 12 zero bytes.
+
+## 4. The answer key (Tasks 7-8)
+
+Generated by `tools/port/oracle/gen.py` into `build/oracle/` (git-ignored, ~620 MB), from the frozen native image. Provenance
+is in `INDEX.json` (the `lisp-freeze` commit and whether the sources equal it). Run `gen.py sim` (traces, ~9 min), `gen.py
+replay [NAME...]` (verifies traces on the stock image with the brains detached, 63 in ~5 min), `gen.py look [--check]` (FK,
+sounds, stills, ~8 min; `--check` only counts and sanity-checks).
+
+| Path | Content |
+|---|---|
+| `build/oracle/*.trace`, `INDEX.json` | 63 per-tick traces (1.9 M steps): 48 seeded CvC (every ordered pairing of Y K I H, seeds 1-3), 3 cvc-tag (II / IK / KK seed 7), 12 trial files. INDEX has per trace name, kind, start, steps, sha1, nonperturbed, trials; `excluded` (Rukia's research trials) and `deferred` (`tests/scripts/*.json`, waits for M1) |
+| `build/oracle/cvc-tag.txt` | the `--cvc` reference at `lisp-freeze`; equal to `tests/style-cvc-ref.txt` (M2's reference) |
+| `build/oracle/fk/<clip>.json` | 400 files (107 MB): 21 joint world matrices per frame per rig (column-major), plus weapon tip / base per form |
+| `build/oracle/sound/<key>.f32` | 51 sounds, 48 kHz mono f32 LE, rendered twice, identical; `INDEX.json` |
+| `build/oracle/stills/` | 83 PNGs of the looks gate (frozen dist `e35032a7`), byte-identical across 3 renders |
+
+**Trace grammar** (header of `tools/port/oracle/trace.lisp` is the spec):
+
+```
+S cmds <debug cmd> ...      CvC / gate start: sg-init, queue the commands, run frames
+S trials <file>             trial start: sg-init + one frame; then E / F lines
+E <action> <args>           an out-of-band action between frames (set, battle, form, place, vpad-clear, core-start, cmd, ...)
+e [  tick] ...              combat log line that the E action printed (compared)
+R [  tick] ...              line the trial runner printed between frames (never compared)
+F                           run one frame (%frame, 1/60 s); its step records follow
+[  tick] ...                sim combat log line (compared)      C [  tick] ...   CPU log line (not compared)
+T tick vt1 downs1 sx1 sy1 vt2 downs2 sx2 sy2 rnd    inputs + sim RNG right after brain-system
+H duel hash t=...           the hash line
+```
+
+`downs` is 3 hex digits, bit i = `*vpad-actions*`[i] (0 mod, 1 quick, 2 flash, 3 sig, 4 guard, 5 breaker, 6 kikon, 7 step, 8
+awaken); sx / sy are shortest-round-trip f32; rnd is 8 hex digits. Records are keyed by order, not tick (`begin-battle` resets
+the tick). CPU pilots keep `cam-relative` nil. The recorder runs on a second compiled image (the stock unit plus one hook after
+`brain-system`, `build-rec.lisp`); non-perturbation is checked per trace. Replay uses the stock image and attaches no brains.
+
+Look data: the FK is the engine's clip-level FK (`clip-sample!` then `pose-fk!`, `*key-ease*` = 1 as the game sets it). Clips owned
+by a kit are sampled for that kit's forms (310); 62 unowned clips go to the forms of the prefix character (ya- ke- ic- hs-) and 26
+`sh-` clips to every form; victim clips carry all 4 rigs (standard, Kenpachi's, Yamamoto's, skeleton). Cross-checked against the
+host reach test: 12 of 12 Yamamoto tip reaches agree to 2 decimals.
+
+## 5. Rulings (from the M0 ledger)
+
+- **Device loss** (Task 1): Bevy 0.20.1 GPU clustering buffers that wgpu's web backend never destroys; the port sets
+  `gpu_clustering = None` plus `ClusterConfig::None` on every camera. 131 meshes / 141-153 draws instead of the brief's 145 (the
+  capture holds every mesh the frozen frames draw; 145 was the browser's draw count).
+- `check-deps.sh` counts `cargo tree -e normal --prefix none | grep -c ^bevy` (the brief's `^.*bevy` matched the worktree path).
+- **Float checksum order**: data files sorted by name, within a file JSON float tokens in document order (untagged f32, `f64`-tagged
+  f64); keys are written sorted, so Rust walks `serde_json::Value` in the same order; a separate test checks typed fields equal
+  those bits.
+- **Var move ids**: moves found only in a variable are `var/<variable-lowercase-no-stars>/<name>#<index>`; `garb_copy_present` asserts
+  at least three `ya-e-n1c` moves with capsule lengths 4.5, 5.4, 6.3 (the test compares against the game's f32 `4.5f32 * 1.4` =
+  6.2999997, not the decimal 6.3).
+- **kits.json** is `{"kits":{char:{form}},"roster","retired"}` so roster / retired cannot collide with a character name.
+- Lisp `T` is JSON `true`; NIL is `false` / `null` per slot. Duplicate kit `commands` keys keep the first (GETF). Integers in float
+  fields stay integers; the checksum counts float tokens only. 12 kits load (the survey said 11).
+- A MOVE shared through inheritance is claimed by the form that defines it (kit-inherit parent first): 23 `kenpachi/bankai/*` ids
+  became `kenpachi/base/*`. The extractor fails when one JSON path holds both object and array shapes. `*STRAT-*` plists are forced
+  to objects, a repeated `:base` key keeps the first. `*PERFECT-HW*` is dumped as a hitwin in tuning.json.
+- **`pi` is a long-float** in ECL (80-bit x87 natively, IEEE quad on wasm). 339 f64 values in hisagi-bankai's body spec and ~1821
+  near-zero weapon vertex floats come from the native image and differ from the wasm game in the lowest bits. Accepted: presentation
+  only, far inside the spec 6.2 look tolerance (1e-5); the sim never takes PI (native and wasm hashes always matched). M1 asserts that
+  no sim field reads these values.
+- A nullable field the extractor stops writing reads as None silently (accepted: files are generated once at the freeze; the census
+  guards the writer).
+- **Page-smoke** (Task 3): the deterministic-stills row proves the harness on a clear-colour page only (`preinitializedWebGPUDevice` is
+  a separate idle device, so run.mjs settle does not wait on Bevy's GPU work); deterministic drawn stills are an M3 requirement.
+  Smoke row 2 runs `--secs 10`, fixed-dt rows `--timeout 180`, and the stills row also requires `startup:` (SwiftShader runs 11.6 fps).
+- **Recorder** (Task 7): a second compiled image with one hook after `brain-system` (a runtime wrapper cannot intercept the compiled
+  direct call; `duel/` is untouched); proven non-perturbing on all 63 traces. The recorded T holds the vpads and sim RNG right after
+  `brain-system`.
+- **Trial traces are self-describing** (E / e / R / F lines): M1 needs no port of `trial-run`.
+- `tests/style-cvc-ref.txt` is not stale: `cvc-tag.txt` generated at `lisp-freeze` equals it (BEVY_PORT 7 corrected).
+- **FK key** is the engine's clip-level FK; draw-time looks (kit `:pose` hooks, two-hand grip, beats, lift, cinematic scale) are ported
+  in M3 and checked there by draw lists / stills. Clips with no owning kit are assigned to forms by name prefix, victim clips sampled
+  on all 4 rigs.
+- **Split** (Task 9): a subagent wrote these notes; the controller writes the DEVLOG section, runs the gates, merges and pushes.
+
+## 6. Open items for M1-M3
+
+M1 (sim):
+- Trial traces replay through their E lines; the grammar and the E-action list must be implemented, and `trial-run`'s between-frame
+  `core-start!` calls come as `E core-start`.
+- Sim code that branches on whether a brain is attached (Ichigo's parry and tsuki stance, Hisagi's `hs-tick-brain`, the round
+  reset's brain clear) never fired in the 63 traces; decide how the Rust sim treats it.
+- Typed knobs for `tuning.json` (the file repeats tables.json's ~460 KB); `adv_block` is int / "guard-break" / null (an enum); `f64`
+  tag versus plain f32 in one positional slot (hisagi-bankai spec); `loop` true / null.
+- `debug_ranges.json` has 72 of 90 names null (inline handlers): another map to the handlers is needed (read `debug.lisp`).
+- PI-derived values (long-float) must never be read by the sim; add the assertion.
+- Replay's rnd comparison checks injected against itself (not RNG verification); the recorder wraps a fixed trial action list (a new
+  `trial-run` action would surface as a divergence); same-name moves with identical JSON could swap `#0` / `#1` (none today).
+- Tool hygiene: `check-deps.sh` hides a failing `cargo tree`; page-smoke's tmp dir is hard-coded `/tmp/claude-1000`; 'Caught
+  rendering error' is not in the page's on-screen regex; smoke row 1 has little headroom at 11.6 fps; the JSON reader maps
+  unknown escapes to the letter; `provenance()` compares commits, not the working tree.
+
+M3 (presentation):
+- Deterministic drawn stills need a Bevy-side settle hook (the wgpu device or a frame-done signal).
+- Every camera must go through `camera_bundle()` (the clustering fix); nothing enforces it yet.
+- A draw-level FK key (hooks, grip, beats, lift, cinematic scale) on top of the clip-level FK.
+- Victim clips on all rigs: `lk-players` gives kit-owned clips only that kit's rigs; confirm for clips also named by a victim.
+- The sound and still outputs are not tied to the build hash in INDEX; `look_check` does not sanity-check FK content.

@@ -96,7 +96,8 @@ may change them with a reason. The DEVLOG § and the plan come later.
   - The native and wasm builds must agree bit for bit.
 - **Browser.**
   - The wasm build must:
-    - load from `index.html` + `index.js` + `index.wasm` (+ `manual.html`) as today, so the Artifact publish flow and its sha256 check stay
+    - load from `index.html` + `index.js` + `index.wasm` (+ `manual.html`) as today (the Bevy page loads `index.gzip.wasm`, gzip bytes
+      under a served name for the Artifact's 15 MB binary limit, and falls back to `index.wasm`), so the Artifact publish flow and its sha256 check stay
       the same;
     - run under `tools/run.mjs` (headless Chrome, `--fixed-dt`, `--script`, `--shot`, `--mobile`);
     - expose `Module._debug_cmd(n)` with the same integer codes (DUEL_GAMEPLAY "Debug commands"), so every `tests/scripts/*.json` drives
@@ -149,11 +150,14 @@ A Cargo workspace at `rs/`, one crate per job:
 - It walks the registries (kits, moves, clips, sounds, …) after load and writes `rs/duel-data/src/gen/*.rs` (or RON plus a loader; the
   builder decides). Writing the values after load means macros have already expanded and the values are exactly what the game used.
 - The generated files are committed. Re-running the extractor at the tag must reproduce them byte for byte.
+- `duel-app` sets `GlobalClusterSettings::gpu_clustering = None` and `ClusterConfig::None` on every camera (M0_NOTES 1; Bevy 0.20.1's GPU clustering
+  crashes the GPU process on the web).
 - Where data is code, for example a clip key computed by a function or a hook, the extractor flags it and it is ported by hand.
 
 ### 5.3 Floats
-- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. `pi` and literals without an `f0` suffix are doubles in ECL
-  and promote. Mixed-type arithmetic follows CL's contagion rules.
+- `single-float` → `f32`, `double-float` → `f64`, exactly where Lisp has them. Literals without an `f0` suffix are doubles in ECL
+  and promote. `pi` is a long-float (80-bit x87 natively, IEEE quad on wasm), not a double: PI-derived look values come from the native image
+  and differ from the wasm game in the lowest bits (accepted, presentation only; the sim must not read them; M0_NOTES 5). Mixed-type arithmetic follows CL's contagion rules.
 - Transcendentals use the `libm` crate, a port of musl, on both the native and the wasm build. The answer key's native sim also uses musl.
 - No FMA and no fast-math.
 - Integer overflow: Lisp fixnums promote to bignums. Each counter's range is checked; the default is `i64` where a counter could pass `i32`.
@@ -222,7 +226,7 @@ Artifact** for the user; the current Lisp page stays as it is until switch-over.
 | M0a | **Speed test** (the user: 「先測速再繼續」): a throwaway Bevy wasm page drawing one fighter's body (extracted or hand-built mesh) with the toon / ink shader through a Bevy `Material`, a stage floor and the HUD's text, next to the frozen build: startup to first frame, `index.wasm` size, frame time under `run.mjs`, and the user's Android + Chrome phone (the sim's speed is measured later, at M1) | The numbers and the page go to the user; the port continues on their word |
 | M0 | `lisp-freeze` tag; extractor and answer key; baseline numbers; workspace with Bevy pinned; a wasm pipeline (`wasm-bindgen-cli`, `wasm-opt`) producing a blank Bevy canvas that `run.mjs` loads and `_debug_cmd` reaches | Extractor reproducible; key generated; blank page smoke |
 | M1 | Sim core plus Kenpachi and Ichigo (all forms), driven by input traces, no CPU | Their CPU-free traces (scripted scenes, combo trials) hash-identical; their host tests pass. CPU matches wait for M2: the CPU draws from the sim stream, so its traces cannot replay without it |
-| M2 | The CPU (perceive, core-ai, MCTS, strategies, fq tables, online learner) | cvc II / IK / KK identical to the `--cvc` output regenerated at `lisp-freeze` (the checked-in `tests/style-cvc-ref.txt` is dated 2026-11-18 and predates later shared-rule commits) and to the key's extra seeds |
+| M2 | The CPU (perceive, core-ai, MCTS, strategies, fq tables, online learner) | cvc II / IK / KK identical to the `--cvc` output regenerated at `lisp-freeze` (`build/oracle/cvc-tag.txt`, generated at `lisp-freeze`, equals the checked-in `tests/style-cvc-ref.txt`, so that file is not stale; M0_NOTES 5) and to the key's extra seeds |
 | M3 | Presentation: bodies, rig, clips, poses, the toon / ink renderer, FX, stage, camera, cinematics, HUD and menus, sound, the touch deck. **First playable Artifact** (Kenpachi and Ichigo) | FK / draw lists / sound equal; stills sheets reviewed by the user |
 | M4 | Hisagi, then Yamamoto: sim, CPU, looks, cinematics | All pairings' traces and cvc identical; their stills reviewed |
 | M5 | Parity sweep: practice, every debug command the scripts use, the manual, the phone, performance targets | Every gate of §6; the user's playtest and phone check |
