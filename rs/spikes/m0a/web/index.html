@@ -39,6 +39,16 @@ for (const k of ['log', 'info', 'warn', 'error']) {
   const f = console[k].bind(console);
   console[k] = (...a) => { f(...a); const t = a.join(' '); if (/DeviceLost|panicked at/.test(t) && !t.startsWith('engine fatal')) fatal(t.replace(/%c/g, '').slice(0, 300)); };
 }
+// ?gpucount (M0 Task 1, docs/bevy/M0_NOTES.md §1): counts the WebGPU objects created and the buffer bytes each 2 s, to find
+// what is created per frame (wgpu's web backend never calls destroy() on a dropped buffer: its GPU memory waits for JS GC).
+if (location.search.includes('gpucount') && window.GPUDevice) {
+  const n = {}, P = GPUDevice.prototype;
+  for (const k of ['createBuffer', 'createTexture', 'createBindGroup', 'createSampler', 'createCommandEncoder', 'createQuerySet'])
+    if (P[k]) { const f = P[k]; P[k] = function (d) { n[k] = (n[k] || 0) + 1; if (k === 'createBuffer') { n.bytes = (n.bytes || 0) + d.size; const l = 'buf:' + (d.label || '?'); n[l] = (n[l] || 0) + 1; } return f.call(this, d); }; }
+  setInterval(() => { console.log('gpucount: ' + JSON.stringify(n)); for (const k in n) delete n[k]; }, 2000);
+}
+// ?forcegc (M0 Task 1, suspect (a)): a full GC every 5 s; needs Chrome's --js-flags=--expose-gc (window.gc).
+if (location.search.includes('forcegc')) setInterval(() => { if (window.gc) { gc(); console.log('forcegc: gc() done'); } else console.log('forcegc: no window.gc'); }, 5000);
 (async () => {
   if (!navigator.gpu || location.search.includes('nogpu')) { fatal('WebGPU is not available in this browser'); return; }   // (?nogpu: the smoke of this path)
   let adapter = null;

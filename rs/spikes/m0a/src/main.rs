@@ -48,12 +48,14 @@ fn scene_scale() -> (f32, f32, u32, u32) {
 /// Frames drawn with every slot visible before `startup:` (the pipelines compile during load, Review Focus 3).
 const WARM_FRAMES: u32 = 12;
 
-/// Diagnostic switches from the page URL's query (`?msaa=off`, `?empty`, `?static`): the speed test's breakdown.
+/// Diagnostic switches from the page URL's query (`?msaa=off`, `?empty`, `?static`): the speed test's breakdown. `?gpuclust`
+/// puts back Bevy's GPU light clustering (the headless device loss, docs/bevy/M0_NOTES.md §1).
 #[derive(Resource, Clone, Copy, Default)]
 struct Exp {
     msaa_off: bool,
     empty: bool,
     still: bool,
+    gpu_clust: bool,
 }
 
 fn exp_from_url() -> Exp {
@@ -61,7 +63,7 @@ fn exp_from_url() -> Exp {
     let q = web_sys::window().and_then(|w| w.location().search().ok()).unwrap_or_default();
     #[cfg(not(target_arch = "wasm32"))]
     let q = std::env::var("M0A_EXP").unwrap_or_default();
-    Exp { msaa_off: q.contains("msaa=off"), empty: q.contains("empty"), still: q.contains("static") }
+    Exp { msaa_off: q.contains("msaa=off"), empty: q.contains("empty"), still: q.contains("static"), gpu_clust: q.contains("gpuclust") }
 }
 
 /// Platform log: the browser console on wasm (plain text, no tracing prefix: run.mjs matches line starts), stdout natively.
@@ -83,6 +85,23 @@ fn now_ms() -> f64 {
         use std::sync::OnceLock;
         static T0: OnceLock<std::time::Instant> = OnceLock::new();
         T0.get_or_init(std::time::Instant::now).elapsed().as_secs_f64() * 1000.0
+    }
+}
+
+/// Chrome's performance.memory.usedJSHeapSize in MB (0 where absent).
+fn js_heap_mb() -> f64 {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let m = web_sys::window()
+            .and_then(|w| w.performance())
+            .and_then(|p| js_sys::Reflect::get(&p, &"memory".into()).ok())
+            .and_then(|m| js_sys::Reflect::get(&m, &"usedJSHeapSize".into()).ok())
+            .and_then(|v| v.as_f64());
+        m.unwrap_or(0.0) / 1048576.0
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        0.0
     }
 }
 
@@ -229,7 +248,14 @@ fn setup(
     mut hull_cw_m: ResMut<Assets<HullCwMaterial>>,
     windows: Query<&Window>,
     exp: Res<Exp>,
+    mut clusters: ResMut<bevy::light::cluster::GlobalClusterSettings>,
 ) {
+    // No light clustering (M0_NOTES §1): Bevy 0.20.1's GPU clustering makes 5 new GPU buffers per view per frame and wgpu's web
+    // backend never destroys a dropped buffer, so the GPU process grows until it dies. CPU clustering with ClusterConfig::None
+    // on the camera keeps 2 buffers of 18 B a frame; ClusterConfig::None alone fails (an empty "clustering dummy texture").
+    if !exp.gpu_clust {
+        clusters.gpu_clustering = None;
+    }
     let cap = Capture::parse(FRAMES_BIN).expect("frames.bin");
     let mut mh = HashMap::new();
     let mut nverts = 0usize;
@@ -286,6 +312,9 @@ fn setup(
     if exp.msaa_off {
         commands.entity(cam).insert(Msaa::Off);
     }
+    if !exp.gpu_clust {
+        commands.entity(cam).insert(bevy::light::cluster::ClusterConfig::None);
+    }
     commands.spawn((
         Text::new("YAMAMOTO 山本 284"),
         TextFont { font_size: bevy::text::FontSize::Px(22.0), ..default() },
@@ -300,7 +329,7 @@ fn setup(
         px.0,
         px.1
     ));
-    say(&format!("m0a: exp msaa_off {} empty {} static {}", exp.msaa_off, exp.empty, exp.still));
+    say(&format!("m0a: exp msaa_off {} empty {} static {} gpuclust {}", exp.msaa_off, exp.empty, exp.still, exp.gpu_clust));
     say("m0a: left out of the toon shader: point lights (stage pools, the character's warm shadow); Frame lanes frozen at frame 0");
     commands.insert_resource(Replay { cap, meshes: mh, frame_lanes: fl, toon, hull, hull_cw, cam, frame: 0, worst_affine: 0.0 });
 }
@@ -414,6 +443,7 @@ fn perf(mut p: ResMut<Perf>, r: Option<Res<Replay>>, windows: Query<&Window>, mu
     if now - p.win_t0 >= 2000.0 && p.win_n > 0 {
         let avg = p.win_sum / p.win_n as f64;
         let draws = r.as_ref().map_or(0, |r| r.cap.frames[r.frame].draws.len());
+        say(&format!("mem: wasm {:.1} MB js heap {:.1} MB frames {}", heap_mb(), js_heap_mb(), p.frames));
         say(&format!(
             "perf: startup {st:.0} ms | frame {avg:.1} ms avg ({:.1} fps) max {:.1} | render-scale {:.2} pixel-lights 0 | draws {draws} tris 0",
             1000.0 / avg,

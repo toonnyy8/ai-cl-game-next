@@ -1,0 +1,23 @@
+[package]
+name = "duel-app"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[features]
+dev = ["bevy/file_watcher"]
+
+[dependencies]
+duel-sim = { path = "../duel-sim" }
+duel-data = { path = "../duel-data" }
+duel-look = { path = "../duel-look" }
+bevy = { workspace = true, features = [
+  "default_app", "std", "bevy_winit", "x11", "default_font", "common_api",
+  "bevy_render", "bevy_core_pipeline", "bevy_pbr", "bevy_light", "ui_api", "ui_bevy_render", "webgpu",
+] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "0.3", features = ["console", "Window", "Performance", "Location"] }
+js-sys = "0.3"
+wasm-bindgen = "0.2"
+getrandom = { version = "0.4", features = ["wasm_js"] }

@@ -1,0 +1,2266 @@
+{
+ "source": "build/oracle/INDEX.json",
+ "generated": "2026-11-26",
+ "commit": "0488f890",
+ "lisp_freeze": "395fd0b6",
+ "sources_equal_tag": true,
+ "frozen_dist_wasm_sha256_prefix": "e35032a7",
+ "traces": [
+  {
+   "name": "cvc-yy-s1",
+   "kind": "cvc",
+   "steps": 24631,
+   "last_tick": 24331,
+   "sha1": "8079648216e8886f171f1fd845bab300d5b900f9"
+  },
+  {
+   "name": "cvc-yy-s2",
+   "kind": "cvc",
+   "steps": 23774,
+   "last_tick": 23474,
+   "sha1": "e85d6320812b0f3328f25ff46114111a8f4b57b3"
+  },
+  {
+   "name": "cvc-yy-s3",
+   "kind": "cvc",
+   "steps": 24684,
+   "last_tick": 24384,
+   "sha1": "ced30194d372aa540e484aae97d19642b8276f8c"
+  },
+  {
+   "name": "cvc-yk-s1",
+   "kind": "cvc",
+   "steps": 24864,
+   "last_tick": 24564,
+   "sha1": "3724daa011bba15b28ceb70a6b4ff62c49a62b0a"
+  },
+  {
+   "name": "cvc-yk-s2",
+   "kind": "cvc",
+   "steps": 25101,
+   "last_tick": 24801,
+   "sha1": "62af111fafb5e8ccfaab9cc2cae0d40859165956"
+  },
+  {
+   "name": "cvc-yk-s3",
+   "kind": "cvc",
+   "steps": 23453,
+   "last_tick": 23153,
+   "sha1": "7c496ae0c1d9872ffeec19dee8ee92c9ce9ac123"
+  },
+  {
+   "name": "cvc-yi-s1",
+   "kind": "cvc",
+   "steps": 19368,
+   "last_tick": 19068,
+   "sha1": "04d572f30c3143296353a606dc08b0a176314264"
+  },
+  {
+   "name": "cvc-yi-s2",
+   "kind": "cvc",
+   "steps": 22292,
+   "last_tick": 21992,
+   "sha1": "f00057c483620a422bee2a4c4bae6481a51caabb"
+  },
+  {
+   "name": "cvc-yi-s3",
+   "kind": "cvc",
+   "steps": 21058,
+   "last_tick": 20758,
+   "sha1": "669fe5990001b0222e152f19c0bbe9c9b0409418"
+  },
+  {
+   "name": "cvc-yh-s1",
+   "kind": "cvc",
+   "steps": 15622,
+   "last_tick": 15322,
+   "sha1": "2237d5a5581aea235495e1f672fbc687c8b74bfc"
+  },
+  {
+   "name": "cvc-yh-s2",
+   "kind": "cvc",
+   "steps": 17026,
+   "last_tick": 16726,
+   "sha1": "bfd6ee64af1ce1aa4fab0b4e708de23c235a9aa7"
+  },
+  {
+   "name": "cvc-yh-s3",
+   "kind": "cvc",
+   "steps": 22991,
+   "last_tick": 22691,
+   "sha1": "c5be6bf592c8594f4f123b1efd18144aeef41551"
+  },
+  {
+   "name": "cvc-ky-s1",
+   "kind": "cvc",
+   "steps": 24828,
+   "last_tick": 24528,
+   "sha1": "ddf0c3a30c99e332dd75f6d0a43ea5625e4f9a96"
+  },
+  {
+   "name": "cvc-ky-s2",
+   "kind": "cvc",
+   "steps": 21165,
+   "last_tick": 20865,
+   "sha1": "bab1622d746a44d31aff5239df51a511203db84f"
+  },
+  {
+   "name": "cvc-ky-s3",
+   "kind": "cvc",
+   "steps": 15340,
+   "last_tick": 15040,
+   "sha1": "072187209e5d252d22a52afc9f3bb8f910f9a63f"
+  },
+  {
+   "name": "cvc-kk-s1",
+   "kind": "cvc",
+   "steps": 18133,
+   "last_tick": 17833,
+   "sha1": "4e2c271f9851134adeeac96aa3a998cabd5260dc"
+  },
+  {
+   "name": "cvc-kk-s2",
+   "kind": "cvc",
+   "steps": 15866,
+   "last_tick": 15566,
+   "sha1": "ea6b385351a21f753efe09edc11f803766dc18d7"
+  },
+  {
+   "name": "cvc-kk-s3",
+   "kind": "cvc",
+   "steps": 16860,
+   "last_tick": 16560,
+   "sha1": "4a2b679330126d50ee7b0edeb0f941dc5b3bbbd1"
+  },
+  {
+   "name": "cvc-ki-s1",
+   "kind": "cvc",
+   "steps": 21368,
+   "last_tick": 21068,
+   "sha1": "dbcca1f435bf2f030599edfc5b29cb7f5327bd23"
+  },
+  {
+   "name": "cvc-ki-s2",
+   "kind": "cvc",
+   "steps": 17119,
+   "last_tick": 16819,
+   "sha1": "e38ecc0966fa730d3b3453a950b494487f6e9526"
+  },
+  {
+   "name": "cvc-ki-s3",
+   "kind": "cvc",
+   "steps": 14935,
+   "last_tick": 14635,
+   "sha1": "a1041720d21020e75070262132bb1e79d45d6495"
+  },
+  {
+   "name": "cvc-kh-s1",
+   "kind": "cvc",
+   "steps": 25526,
+   "last_tick": 25226,
+   "sha1": "5b96eaf64ec6eb5e993d35cea9c245e8d82bfb5a"
+  },
+  {
+   "name": "cvc-kh-s2",
+   "kind": "cvc",
+   "steps": 24053,
+   "last_tick": 23753,
+   "sha1": "8e74bb619ed7203241cf8ba339269561c5313dc9"
+  },
+  {
+   "name": "cvc-kh-s3",
+   "kind": "cvc",
+   "steps": 25121,
+   "last_tick": 24821,
+   "sha1": "acd7230841bc9ee644f79a774cb45b7a21656efe"
+  },
+  {
+   "name": "cvc-iy-s1",
+   "kind": "cvc",
+   "steps": 22101,
+   "last_tick": 21801,
+   "sha1": "b585ad7cdaa91e990a3f0ac300c94267cb9884be"
+  },
+  {
+   "name": "cvc-iy-s2",
+   "kind": "cvc",
+   "steps": 23565,
+   "last_tick": 23265,
+   "sha1": "a92d3daf0adeb319fb83e75cc6e157e1e54575d8"
+  },
+  {
+   "name": "cvc-iy-s3",
+   "kind": "cvc",
+   "steps": 16076,
+   "last_tick": 15776,
+   "sha1": "d73596307cb75af88842a2db227aaef00cb15d61"
+  },
+  {
+   "name": "cvc-ik-s1",
+   "kind": "cvc",
+   "steps": 14268,
+   "last_tick": 13968,
+   "sha1": "f1bc5e1504206ba6e9fdae79a82067b227f52274"
+  },
+  {
+   "name": "cvc-ik-s2",
+   "kind": "cvc",
+   "steps": 15908,
+   "last_tick": 15608,
+   "sha1": "385943027993f6cfb7a8b5910fa7f674fa7dbfee"
+  },
+  {
+   "name": "cvc-ik-s3",
+   "kind": "cvc",
+   "steps": 20794,
+   "last_tick": 20494,
+   "sha1": "2b93a3b8fdac6994499d576c71a0092c1ca30855"
+  },
+  {
+   "name": "cvc-ii-s1",
+   "kind": "cvc",
+   "steps": 19423,
+   "last_tick": 19123,
+   "sha1": "46794a45e37151d869052e90ea5698011019e5ba"
+  },
+  {
+   "name": "cvc-ii-s2",
+   "kind": "cvc",
+   "steps": 15761,
+   "last_tick": 15461,
+   "sha1": "c58bbfa279052be0b5db6f45c922b70ff5a592fe"
+  },
+  {
+   "name": "cvc-ii-s3",
+   "kind": "cvc",
+   "steps": 22197,
+   "last_tick": 21897,
+   "sha1": "69e677ce2c28fbcb49370e09afa29d86e6f1e12f"
+  },
+  {
+   "name": "cvc-ih-s1",
+   "kind": "cvc",
+   "steps": 15739,
+   "last_tick": 15439,
+   "sha1": "5ce69ed47c7264aa7ef3f34c42c27a4265d99531"
+  },
+  {
+   "name": "cvc-ih-s2",
+   "kind": "cvc",
+   "steps": 23558,
+   "last_tick": 23258,
+   "sha1": "9769e77533bc7b2a7a9577dbf812084fc3b90c83"
+  },
+  {
+   "name": "cvc-ih-s3",
+   "kind": "cvc",
+   "steps": 20159,
+   "last_tick": 19859,
+   "sha1": "c403c0e81ebfe450a286bc71fbeffa016d1f7a24"
+  },
+  {
+   "name": "cvc-hy-s1",
+   "kind": "cvc",
+   "steps": 23875,
+   "last_tick": 23575,
+   "sha1": "0de9b5b02dc5b71fdb159a5d02b944933d79dcb9"
+  },
+  {
+   "name": "cvc-hy-s2",
+   "kind": "cvc",
+   "steps": 22789,
+   "last_tick": 22489,
+   "sha1": "ec910e7911c91a5d0767aafdce8626816c3c734d"
+  },
+  {
+   "name": "cvc-hy-s3",
+   "kind": "cvc",
+   "steps": 16795,
+   "last_tick": 16495,
+   "sha1": "463990b43629fabb8680436ac4eb1de3162702fc"
+  },
+  {
+   "name": "cvc-hk-s1",
+   "kind": "cvc",
+   "steps": 24675,
+   "last_tick": 24375,
+   "sha1": "e9263f9f0760bc989aace47198927a1c75bb95c2"
+  },
+  {
+   "name": "cvc-hk-s2",
+   "kind": "cvc",
+   "steps": 25610,
+   "last_tick": 25310,
+   "sha1": "65e030dda4f3392eec8f91b9a311ab89de153d81"
+  },
+  {
+   "name": "cvc-hk-s3",
+   "kind": "cvc",
+   "steps": 24124,
+   "last_tick": 23824,
+   "sha1": "a7b21e17ec654b52f40e47f98b121c7e1bdc194e"
+  },
+  {
+   "name": "cvc-hi-s1",
+   "kind": "cvc",
+   "steps": 20216,
+   "last_tick": 19916,
+   "sha1": "8caa6d20454bac29eb60b3e27e611e517fc660cb"
+  },
+  {
+   "name": "cvc-hi-s2",
+   "kind": "cvc",
+   "steps": 23195,
+   "last_tick": 22895,
+   "sha1": "35aeb45e6debb21f7f2d2bdbbc0ab10303247915"
+  },
+  {
+   "name": "cvc-hi-s3",
+   "kind": "cvc",
+   "steps": 24623,
+   "last_tick": 24323,
+   "sha1": "493d967f42aa84a3c22f3323eafa6d5ec4cc0329"
+  },
+  {
+   "name": "cvc-hh-s1",
+   "kind": "cvc",
+   "steps": 23047,
+   "last_tick": 22747,
+   "sha1": "1f75af9da2b4d47ec5c8e1d92b526fb91cd80fa3"
+  },
+  {
+   "name": "cvc-hh-s2",
+   "kind": "cvc",
+   "steps": 20157,
+   "last_tick": 19857,
+   "sha1": "84e1c340520d7efbded89a945019a9b8f00a4714"
+  },
+  {
+   "name": "cvc-hh-s3",
+   "kind": "cvc",
+   "steps": 17112,
+   "last_tick": 16812,
+   "sha1": "111f0596b865c9f5e84c1e83bdd563e600b27131"
+  },
+  {
+   "name": "cvctag-ii",
+   "kind": "cvc-tag",
+   "steps": 19668,
+   "last_tick": 19368,
+   "sha1": "3fa90ea62210ecebba2f24ae853a08fdabd4ce86"
+  },
+  {
+   "name": "cvctag-ik",
+   "kind": "cvc-tag",
+   "steps": 16848,
+   "last_tick": 16548,
+   "sha1": "b57dfb619005e767f3b7da23736d5c340b67b6f8"
+  },
+  {
+   "name": "cvctag-kk",
+   "kind": "cvc-tag",
+   "steps": 16354,
+   "last_tick": 16054,
+   "sha1": "ef0a4c113b8b98c40c6322cdb2ba1790d2cfb069"
+  },
+  {
+   "name": "trial-yamamoto-bankai",
+   "kind": "trials",
+   "steps": 5441,
+   "last_tick": 3160,
+   "sha1": "1180129c44cda9eb11053b933c96863f9b25d1bf"
+  },
+  {
+   "name": "trial-yamamoto-blaze",
+   "kind": "trials",
+   "steps": 3199,
+   "last_tick": 3199,
+   "sha1": "7f3d4abfab2fa73a9385ea08355e0b1d8bbc02cc"
+  },
+  {
+   "name": "trial-yamamoto-core",
+   "kind": "trials",
+   "steps": 3049,
+   "last_tick": 3049,
+   "sha1": "8045b93b479a59bf2539f9f0fa4b9f08c23f83c2"
+  },
+  {
+   "name": "trial-yamamoto-sp30",
+   "kind": "trials",
+   "steps": 3599,
+   "last_tick": 3599,
+   "sha1": "7363a71dd2d25566e3b1a012faf84d8ddf633d02"
+  },
+  {
+   "name": "trial-ki-ai-kenpachi",
+   "kind": "trials",
+   "steps": 34619,
+   "last_tick": 34619,
+   "sha1": "8c1e26ee757fd28916b79ec1cd6437bae5dd4e60"
+  },
+  {
+   "name": "trial-ki-ai-ichigo",
+   "kind": "trials",
+   "steps": 29249,
+   "last_tick": 29249,
+   "sha1": "5e55fc89955bc3283c9b9a758250ad2ead309c34"
+  },
+  {
+   "name": "trial-sp-kits-kenpachi",
+   "kind": "trials",
+   "steps": 245159,
+   "last_tick": 6600,
+   "sha1": "cf2ac979b85b4538cec78e3b24453deca1596f83"
+  },
+  {
+   "name": "trial-sp-kits-ichigo",
+   "kind": "trials",
+   "steps": 114299,
+   "last_tick": 3300,
+   "sha1": "c66dcc62930635abd31e9d188e35712aff6cad8f"
+  },
+  {
+   "name": "trial-sp-kits-hisagi",
+   "kind": "trials",
+   "steps": 387479,
+   "last_tick": 1080,
+   "sha1": "9d4d94a188a317103bdf100e549842686b1a788a"
+  },
+  {
+   "name": "trial-sp-xch-r3",
+   "kind": "trials",
+   "steps": 359,
+   "last_tick": 359,
+   "sha1": "6b0634a112e0f8833de248b080bcd9920d1c64e2"
+  },
+  {
+   "name": "trial-sp-xch-r4",
+   "kind": "trials",
+   "steps": 399,
+   "last_tick": 399,
+   "sha1": "5df9cdfe14c9d63f9e3b0eb5f4a7ad2c32221399"
+  },
+  {
+   "name": "trial-sp-costs",
+   "kind": "trials",
+   "steps": 22649,
+   "last_tick": 180,
+   "sha1": "a7233c007e544561ea8556900b729ba0efef0639"
+  }
+ ],
+ "excluded": {
+  "docs/research/rukia-cpu/trials-m18.lisp": "Rukia is retired (2026-11-12): her kit is not in the image",
+  "docs/research/rukia-cpu/trials-m50.lisp": "Rukia is retired (2026-11-12): her kit is not in the image",
+  "docs/research/rukia-cpu/trials-shikai.lisp": "Rukia is retired (2026-11-12): her kit is not in the image",
+  "docs/research/rukia-cpu/trials-zero.lisp": "Rukia is retired (2026-11-12): her kit is not in the image"
+ },
+ "deferred": "tests/scripts/*.json (browser scripts): M1 brings the scripted-input path on the native image",
+ "sound": {
+  "whoosh-light": {
+   "sha1": "6d8b8c67a3a55c52a06952346fcddcc5133dc1f9",
+   "samples": 12480
+  },
+  "whoosh-heavy": {
+   "sha1": "22788f9574aa715ba3d4867dd4c8e20195de11c4",
+   "samples": 21600
+  },
+  "whoosh-cleaver": {
+   "sha1": "8c7a4369f12fb2e8ac9c2a4f46258268cc01ce96",
+   "samples": 36000
+  },
+  "cut": {
+   "sha1": "679997d39bdbd6ae3c96839a051b5a4fbc1f20cf",
+   "samples": 16800
+  },
+  "cut-heavy": {
+   "sha1": "d3dc0d19926071ca90b509981cfcec9dc0929d89",
+   "samples": 33600
+  },
+  "punch": {
+   "sha1": "70ee429213d4c222b1fd2174c021470fccde5727",
+   "samples": 28800
+  },
+  "clang": {
+   "sha1": "d5987fc5f86a8a270633fc63752500aabf6873dd",
+   "samples": 43200
+  },
+  "hs-tip": {
+   "sha1": "ec090660bd62a72afc0061ab31ea7cc58878a681",
+   "samples": 33600
+  },
+  "guard-break": {
+   "sha1": "f74f422a5e1a8b98755d31f7a6ef3ba0d789d08c",
+   "samples": 57600
+  },
+  "breaker-hum": {
+   "sha1": "5d1ece6a8e3ca25e8edf4358403c14da963011e0",
+   "samples": 48000
+  },
+  "clash": {
+   "sha1": "356a3e502657265042a81298c0d412b0487eaa38",
+   "samples": 67200
+  },
+  "step": {
+   "sha1": "da68217fdd048280b88fc5f22b5a1ec4804e100f",
+   "samples": 10560
+  },
+  "hoho-out": {
+   "sha1": "940f056509a147161ede5ad0fd5df876605bad26",
+   "samples": 13440
+  },
+  "hoho-in": {
+   "sha1": "4cc21bd47f91418c06ef9e32fb338a67a664f9b5",
+   "samples": 12000
+  },
+  "perfect": {
+   "sha1": "b57a99b642d6241b7759533518f95c0b9c4e4da6",
+   "samples": 67200
+  },
+  "launch": {
+   "sha1": "f7205393425bb56643a2dc0c82330b0198b9c645",
+   "samples": 19200
+  },
+  "land": {
+   "sha1": "5bff69a60a7682fe10e3b035c4232e9112578a2e",
+   "samples": 16800
+  },
+  "explode": {
+   "sha1": "1682673cec4d26e4844511e4e9938d8521c1619e",
+   "samples": 72000
+  },
+  "sizzle": {
+   "sha1": "46b0495a442a1d6094e6194d6d97d50b871092bb",
+   "samples": 38400
+  },
+  "ground-crack": {
+   "sha1": "40c4dcd8a7e0e292e18ff323f7b6407aaa795103",
+   "samples": 62400
+  },
+  "bones": {
+   "sha1": "31a9fefd107fccc3b1a06af3081d29b5e66b3234",
+   "samples": 38400
+  },
+  "kikon-slash": {
+   "sha1": "c61c4147cfa848eee4f4fd40cfc0e341a4086554",
+   "samples": 72000
+  },
+  "konpaku-shatter": {
+   "sha1": "f5aab16a5291c0a947217d106999a22c9a40cd4e",
+   "samples": 48000
+  },
+  "awaken-boom": {
+   "sha1": "c20a29b8f30c0d2684b8ecb2fa0a3484611d77e0",
+   "samples": 72000
+  },
+  "awaken-rise": {
+   "sha1": "1cbddb0d59edfedc12e8cd518729c7d8546392ce",
+   "samples": 72000
+  },
+  "evolution": {
+   "sha1": "a3517d4d308cdb6709396f172d243b97ae9939c5",
+   "samples": 43200
+  },
+  "laugh": {
+   "sha1": "49f963cca3b3737c4e12a6b564d8fed6b3642509",
+   "samples": 62400
+  },
+  "oni-roar": {
+   "sha1": "346403a85b6945805aaef32b51e242990c2ff4d1",
+   "samples": 36000
+  },
+  "gulp": {
+   "sha1": "e9556547e44d4c8304eba39ce345fc48481237b4",
+   "samples": 21600
+  },
+  "arm-crack": {
+   "sha1": "8ee5f9555e337f9d06571fb2cc432f7f49df5ce2",
+   "samples": 24000
+  },
+  "arm-burst": {
+   "sha1": "d5defba3aa0799bc0c391d7c500ae2671f9f53b4",
+   "samples": 48000
+  },
+  "yachiru-call": {
+   "sha1": "05ba822e888b10dbac6ef1d8d36ff1bb9014c1d8",
+   "samples": 57600
+  },
+  "freeze": {
+   "sha1": "0fb31209c32d07cd3990e06e6ca52fec6dcfde3a",
+   "samples": 38400
+  },
+  "rift-open": {
+   "sha1": "850f6a666d1f335604e5b953708ab28c63581046",
+   "samples": 33600
+  },
+  "rift-cut": {
+   "sha1": "9928a13663fb7ae361120a9adff41db134718b36",
+   "samples": 38400
+  },
+  "tier-up": {
+   "sha1": "1bfa3af3ee30baf94effd74d6525123d607a113e",
+   "samples": 48000
+  },
+  "bell": {
+   "sha1": "42b36966099be9cd93af430f3c3b59eff0605f65",
+   "samples": 72000
+  },
+  "ken-bells": {
+   "sha1": "2d9c13aa2dde4764a243b8104eef56c016b9ad5c",
+   "samples": 48000
+  },
+  "fight": {
+   "sha1": "b04fd2d405c23cdb80cb60c56cc58f3dbeb5300b",
+   "samples": 72000
+  },
+  "ko": {
+   "sha1": "55b19a20dfa10b4fd8532878e9c60cb49f55ac80",
+   "samples": 72000
+  },
+  "select": {
+   "sha1": "32393373320f9668377a066ac340b9391f22a25d",
+   "samples": 3840
+  },
+  "confirm": {
+   "sha1": "170dbd20d8c33a5f72e6708845845b860d6a7d52",
+   "samples": 16800
+  },
+  "back": {
+   "sha1": "f3ad058d0ee29d5f8819dfffd292582c12835262",
+   "samples": 12000
+  },
+  "music": {
+   "sha1": "81415bd449aeab54a542cd1b31e11f68bc4e654a",
+   "samples": 921600
+  },
+  "music-title": {
+   "sha1": "ae1c87cd54f972745f1f9ccb2fe15453c3bd04d8",
+   "samples": 768000
+  },
+  "chain-rattle": {
+   "sha1": "818ecea684eddf46f0632bb0999774b221dce37e",
+   "samples": 28800
+  },
+  "chain-snap": {
+   "sha1": "d54eca5b29dd978a3de865009120b0d7d23acd69",
+   "samples": 24000
+  },
+  "getsuga": {
+   "sha1": "5051659554d33ea530c283893916ef7a09a8c8aa",
+   "samples": 52800
+  },
+  "clone": {
+   "sha1": "8ff888cbccd7f1e6f23713e29cc700be5e16b174",
+   "samples": 33600
+  },
+  "parry-ting": {
+   "sha1": "e2b2c8ea51b3ab334146cb5ebb4d88d7caae2b49",
+   "samples": 38400
+  },
+  "parry-open": {
+   "sha1": "dafc077397cda4b83fc50deb0d8693d191d2da8d",
+   "samples": 19200
+  }
+ },
+ "fk": {
+  "hs-aw-catch": {
+   "sha1": "5fa09efbe4377c4af9a9bb17f98cd283ff6c9f6d",
+   "frames": 61
+  },
+  "hs-aw-rise": {
+   "sha1": "50981f47513d6a13e48b8b9883c87d765390b976",
+   "frames": 73
+  },
+  "hs-aw-still": {
+   "sha1": "a07d974179a2bbf117b6259f9b583965b1d68d24",
+   "frames": 61
+  },
+  "hs-aw-throw": {
+   "sha1": "adb744481b882ff54dc0a7fd6ac9be8a55b5f916",
+   "frames": 79
+  },
+  "hs-chikuden": {
+   "sha1": "99dd5e35b89a04585946971057539f1959bd5c5b",
+   "frames": 49
+  },
+  "hs-cine-choke-v": {
+   "sha1": "268bd8f75c8208f074cd2a1f6057d86d4ec002d6",
+   "frames": 13
+  },
+  "hs-cine-ka-spread": {
+   "sha1": "1436a6de994a6f321b6093fcb5f9aaa43556400a",
+   "frames": 151
+  },
+  "hs-cine-kb-haul": {
+   "sha1": "3899206b267b92f677009af6639557a32ed751ce",
+   "frames": 37
+  },
+  "hs-cine-kg-cuts": {
+   "sha1": "d237f2fb7152539108da2700728995ce5b09b303",
+   "frames": 37
+  },
+  "hs-cine-kg-flick": {
+   "sha1": "7bab186531efce435ce7fcb3f2f1e9a9a592d17b",
+   "frames": 49
+  },
+  "hs-cine-kg-haul": {
+   "sha1": "e56e5893706da0d66fabb4a467377ce366e24702",
+   "frames": 13
+  },
+  "hs-cine-kg-rip": {
+   "sha1": "5de398b42af1df331685bbe1362e464b6fb84eea",
+   "frames": 31
+  },
+  "hs-cine-kg-strain": {
+   "sha1": "048f2bdb60b9a771f9570370a6853fdda8d6b3f2",
+   "frames": 13
+  },
+  "hs-cine-kr-chiburi": {
+   "sha1": "6285d3afdf941c85ed6a2f514613cfa667e44cd9",
+   "frames": 49
+  },
+  "hs-cine-kr-pass": {
+   "sha1": "a0164bf0ccba28be15f5d55417a2c57f4280e85b",
+   "frames": 37
+  },
+  "hs-cine-kr-spin": {
+   "sha1": "93ea0b890ef92e2cbb85287174ca15d74c69bfbb",
+   "frames": 26
+  },
+  "hs-cine-ks-blow": {
+   "sha1": "0465c2e26b777a47f78e43e205d755981bf3a91b",
+   "frames": 31
+  },
+  "hs-cine-ks-haul": {
+   "sha1": "34a4482b7fbb75b0f4f0217c6ad6d33000a6dd26",
+   "frames": 14
+  },
+  "hs-cine-raise": {
+   "sha1": "f0d40a396cb572cdf0944b0b54bcbcb0715e3ae0",
+   "frames": 13
+  },
+  "hs-cine-rd-hold": {
+   "sha1": "2f214da9a6b989547bef4b914459db622d0d4cef",
+   "frames": 13
+  },
+  "hs-cine-shake": {
+   "sha1": "00a0709c4c4e9a3fa7d365e7292a86ea822d617c",
+   "frames": 9
+  },
+  "hs-cine-shock-v": {
+   "sha1": "3fdae531e60de3ecc1d5602b716892803db7b5bd",
+   "frames": 7
+  },
+  "hs-cine-wound-v": {
+   "sha1": "5e8f47b46d9798e5938193a37b6d60df05aa6083",
+   "frames": 19
+  },
+  "hs-hoden": {
+   "sha1": "67e2050b29b412bc58dd585b48546df2b3fe985a",
+   "frames": 38
+  },
+  "hs-intro": {
+   "sha1": "cc8b4dfd9f65c3e0ed6a22b1a8715af1da5b69af",
+   "frames": 121
+  },
+  "hs-k-ame": {
+   "sha1": "4e1b4691f1b12ff984058786261b5ce9797db1ec",
+   "frames": 75
+  },
+  "hs-k-breaker": {
+   "sha1": "1f2a59990b2b51c167970321f4a42584dc0ad1de",
+   "frames": 25
+  },
+  "hs-k-g-j2": {
+   "sha1": "4ff3afce72c06a0ada3047a43c5cbc7b04ab0576",
+   "frames": 39
+  },
+  "hs-k-g-j3": {
+   "sha1": "7befebedd175af7de122aec822a5a048b5dcedac",
+   "frames": 44
+  },
+  "hs-k-g-k2": {
+   "sha1": "63cf0aa7fc8079ba5368b483f169f4d1546eac2b",
+   "frames": 62
+  },
+  "hs-k-g-k3": {
+   "sha1": "3bdc0294454755a57692cb6f7bb53d705d4464ca",
+   "frames": 67
+  },
+  "hs-k-g-sa": {
+   "sha1": "196a0b4dafdd9acb089fc0e813419027910dbd5e",
+   "frames": 33
+  },
+  "hs-k-hammer": {
+   "sha1": "41c928997c7b7a6a5c4eee02db6e9a335adc6818",
+   "frames": 31
+  },
+  "hs-k-hosoku": {
+   "sha1": "3ad8d62be13eafbeb60aa8f3aee6176db23a53b7",
+   "frames": 43
+  },
+  "hs-k-issei": {
+   "sha1": "b8aa329d07a93cac5e4037fa72232cab154c117d",
+   "frames": 61
+  },
+  "hs-k-jibashiri": {
+   "sha1": "743e91d0da7281c174da89b4dfb8520705ecdaf3",
+   "frames": 68
+  },
+  "hs-k-kaeshi": {
+   "sha1": "60da0b45762ab684b4cf674f9f50275d7381e649",
+   "frames": 27
+  },
+  "hs-k-kake": {
+   "sha1": "dae4c22ad7dd0a0718998cb34c828ec42e5685ce",
+   "frames": 59
+  },
+  "hs-k-kosa-aim": {
+   "sha1": "60e0e4409bb86287342f717e0ca0919e86ccb226",
+   "frames": 31
+  },
+  "hs-k-kosa": {
+   "sha1": "3ad791449ffb72ff60793174ee4a35da72fd457a",
+   "frames": 53
+  },
+  "hs-k-kubikake": {
+   "sha1": "e566277f8e8af7d49fafb38ef96d30c4edebd5dc",
+   "frames": 59
+  },
+  "hs-k-maki": {
+   "sha1": "d1d07e2106a884d45fc8f5823cb32737f95daa1a",
+   "frames": 62
+  },
+  "hs-k-na3": {
+   "sha1": "c7f283cce1ca3f58e6d091533a6241ed7bf082d5",
+   "frames": 27
+  },
+  "hs-k-na4": {
+   "sha1": "ed0e52ab96236095651e099d8331267ad8d70090",
+   "frames": 27
+  },
+  "hs-k-ogi": {
+   "sha1": "a04bb700fe18e9779b5e3d73988512f2a77edfe1",
+   "frames": 50
+  },
+  "hs-k-raiden": {
+   "sha1": "7b791a712d9f7f1c924a1955e393a35befd34995",
+   "frames": 48
+  },
+  "hs-k-ransa": {
+   "sha1": "26e4fd5f713c9955315768ce2a15719015ad77c5",
+   "frames": 61
+  },
+  "hs-k-run": {
+   "sha1": "acf6701d0028cc5e6866f805edd451bd6e17c8fa",
+   "frames": 31
+  },
+  "hs-k-s-k2": {
+   "sha1": "94b703224477dce4aebbd64796944f1a28a3c102",
+   "frames": 50
+  },
+  "hs-k-s-k3": {
+   "sha1": "bab2761004f985675dca32a9af2ab3d040480cf2",
+   "frames": 61
+  },
+  "hs-k-saben": {
+   "sha1": "041d47eb4182317d02029f2ceca2fba5c764370d",
+   "frames": 28
+  },
+  "hs-k-saharai": {
+   "sha1": "ed667ede1489df155c45cd4d31e593041113955d",
+   "frames": 55
+  },
+  "hs-k-sensa": {
+   "sha1": "af7349615c2c4300ec7930bdfcb8e02e9c1c8873",
+   "frames": 32
+  },
+  "hs-k-skate-b": {
+   "sha1": "0fb9e5bbc98c74a733693fa8ff264d339d57e698",
+   "frames": 31
+  },
+  "hs-k-slide-l": {
+   "sha1": "67fd0e5e8cc3df5aecf7f5ffe4801eba7853b87c",
+   "frames": 31
+  },
+  "hs-k-slide-r": {
+   "sha1": "99d274d85cf7870ee8beb088029b30f17d036742",
+   "frames": 31
+  },
+  "hs-k-st-shu": {
+   "sha1": "f173949f31907df28ad320442b6205c7b4127c61",
+   "frames": 121
+  },
+  "hs-k-stance": {
+   "sha1": "724d21474d8bf605c3d1ce9e2a08f1899ae3a839",
+   "frames": 181
+  },
+  "hs-k-strafe-l": {
+   "sha1": "a26bdb3aaa25ba6f6af0895e192fa8f7f7b4b49d",
+   "frames": 55
+  },
+  "hs-k-strafe-r": {
+   "sha1": "7d764946ba6ed84f8bcc3fa89693d0040f5cf047",
+   "frames": 55
+  },
+  "hs-k-sweep": {
+   "sha1": "988bff2a18d16cbccb14ec9b158f683fd66f5cc1",
+   "frames": 68
+  },
+  "hs-k-tataki": {
+   "sha1": "155621b50d43a7642a5781909f777d0624d468f4",
+   "frames": 68
+  },
+  "hs-k-uchi": {
+   "sha1": "1b41e2aa29745c3f88837de476f22a85d8bd26aa",
+   "frames": 27
+  },
+  "hs-k-walk-b": {
+   "sha1": "822bbb5dc1f250182c4277ca437cde98c24f2a11",
+   "frames": 67
+  },
+  "hs-k-walk-f": {
+   "sha1": "370f124dc24428230a7ca0b900604c17e1366d7d",
+   "frames": 67
+  },
+  "hs-kari-o": {
+   "sha1": "446985bb7ae2904482cc5ff8dffbce0524592faa",
+   "frames": 53
+  },
+  "hs-kb-gen": {
+   "sha1": "82519e6f762e8bad51d31556d7c48a3fd5e173a6",
+   "frames": 24
+  },
+  "hs-kb-hikigiri": {
+   "sha1": "547381dd3021338909f09c8a9718f344467718fa",
+   "frames": 43
+  },
+  "hs-kb-juji": {
+   "sha1": "bdc65f9b6410319462179e0ac31fb0bdc099479d",
+   "frames": 36
+  },
+  "hs-kb-kaeshi": {
+   "sha1": "1892861ad2d8b54fa374a6a93e77749cdf38017e",
+   "frames": 25
+  },
+  "hs-kb-kagiyose-giri": {
+   "sha1": "b83c391295a28180dcda519f2ec89ff526112645",
+   "frames": 43
+  },
+  "hs-kb-kagiyose": {
+   "sha1": "f058d1b93c9c88f9214816eabc01e6e21ee397f5",
+   "frames": 43
+  },
+  "hs-kb-kaibaku": {
+   "sha1": "e18199a7a954c08a52e5f89874de7c99eb6e578c",
+   "frames": 51
+  },
+  "hs-kb-kojo": {
+   "sha1": "410a181701fdd4e52375fc6fd10abfcc389911bc",
+   "frames": 71
+  },
+  "hs-kb-koshu-run": {
+   "sha1": "6bf570f44410a96a20a7beebb4fa5f8af85200b3",
+   "frames": 25
+  },
+  "hs-kb-koshu": {
+   "sha1": "206f167340aa6ed9ebcd30440aa8dd18a5b4eceb",
+   "frames": 36
+  },
+  "hs-kb-makigiri": {
+   "sha1": "dd2603809c37ad020fc2ba117744827363a1c5c6",
+   "frames": 49
+  },
+  "hs-kb-matoi": {
+   "sha1": "9886cbbb8a62810637782df0859011ecad2b2494",
+   "frames": 45
+  },
+  "hs-kb-raiden": {
+   "sha1": "0407fdba0764475841b47e2453e5442eb99d4a4f",
+   "frames": 42
+  },
+  "hs-kb-san": {
+   "sha1": "2d3b57c2b6443a3e5b9a3cfb4085611ba74a562a",
+   "frames": 31
+  },
+  "hs-kb-sengen": {
+   "sha1": "dc956f12560195d96e70a8edb8f32a05080ff5b3",
+   "frames": 36
+  },
+  "hs-kb-shibori": {
+   "sha1": "f5cefca562747cfbe59cf0e915e8e34abf5a7c00",
+   "frames": 62
+  },
+  "hs-kb-shime": {
+   "sha1": "fe70e32216ea2e628993e88080b97ca0582c3f4e",
+   "frames": 49
+  },
+  "hs-kb-sogen": {
+   "sha1": "b8984e53a79e34590477da1631f844b340854dba",
+   "frames": 31
+  },
+  "hs-kb-st-shibori": {
+   "sha1": "b1c1b4135c45e69a6ecca84d0aaafb514f21a9c3",
+   "frames": 121
+  },
+  "hs-kb-stance": {
+   "sha1": "eff20c6bf76361e2564aad730dc28fa9d75a371b",
+   "frames": 121
+  },
+  "hs-kb-strafe-l": {
+   "sha1": "1d5b6a771e34dbf1031e44d90a5a61a45fd906bc",
+   "frames": 49
+  },
+  "hs-kb-strafe-r": {
+   "sha1": "df5b1d7b27b3fcd67fa469b7176725b2fa23e711",
+   "frames": 49
+  },
+  "hs-kb-tsuri": {
+   "sha1": "8942164757b741ab370ef58bf0ba6de01cb3c5e1",
+   "frames": 62
+  },
+  "hs-kb-unwind": {
+   "sha1": "5e8226baa77fdbf2517314260b6dff0db4a7cc67",
+   "frames": 21
+  },
+  "hs-kb-walk-b": {
+   "sha1": "d05c2589cc6d2cba6980390de6edf3ca4136a997",
+   "frames": 55
+  },
+  "hs-kb-walk-f": {
+   "sha1": "be8bc071f4659d37cb6be00e70f002e05d30d885",
+   "frames": 55
+  },
+  "hs-kr-age": {
+   "sha1": "73407cac4e458f60595577612a9193c1fbcea3f8",
+   "frames": 31
+  },
+  "hs-kr-ko": {
+   "sha1": "1feb32c8ebd194c8b0d21fb17e39bf2d72e67e8b",
+   "frames": 25
+  },
+  "hs-kr-ren": {
+   "sha1": "b88c614887b2399f039cac049bf40ce76421903e",
+   "frames": 28
+  },
+  "hs-kr-sen": {
+   "sha1": "0acb4c0f4cdc012b8ac5761405e6d536293cd8d3",
+   "frames": 38
+  },
+  "hs-kr-tan": {
+   "sha1": "5f64cbcd5453f4dc964a67d0f6e3ff848009499e",
+   "frames": 33
+  },
+  "hs-look-weapon": {
+   "sha1": "c7f5e59bafd51616101c39065457979422bc75da",
+   "frames": 61
+  },
+  "hs-na1": {
+   "sha1": "408cfb230b9424e6f23f01c9f3aae0bce0529ba2",
+   "frames": 30
+  },
+  "hs-s-breaker": {
+   "sha1": "75f4ce295dcdab930a63defaa1a0ed5843843970",
+   "frames": 25
+  },
+  "hs-s-hiki": {
+   "sha1": "74131dfd3f1f75ac789d9adb98e46f6bd1b5ea30",
+   "frames": 49
+  },
+  "hs-s-hodoki": {
+   "sha1": "1aa8fcc367dc79e8bf4e80b030a5c53bddb8f8ec",
+   "frames": 62
+  },
+  "hs-s-intro": {
+   "sha1": "1fa9ea98f77da9c5bbbed2129df81124feb6e655",
+   "frames": 121
+  },
+  "hs-s-kaeshi-1h": {
+   "sha1": "9158a0d85ea5824f1ebbc63af1b7516c804ac501",
+   "frames": 25
+  },
+  "hs-s-kaeshi": {
+   "sha1": "ef9875603713d43e39866444db260c19617db554",
+   "frames": 25
+  },
+  "hs-s-kari-aim": {
+   "sha1": "3c0f2528c2d24b285eeb91086a5029067c149480",
+   "frames": 31
+  },
+  "hs-s-kari-o": {
+   "sha1": "1264ab49651d3ac9cc927a824bf7af139bb221ef",
+   "frames": 53
+  },
+  "hs-s-kari": {
+   "sha1": "fdd8cfe47a93f6b3e480074a955bd7f5536483b0",
+   "frames": 62
+  },
+  "hs-s-kaza": {
+   "sha1": "86379ee4a6319efe324bcc24c0b244a6baad5a1a",
+   "frames": 81
+  },
+  "hs-s-kubikake": {
+   "sha1": "dec8658fb2de1e5e009be465021fb670bded6399",
+   "frames": 31
+  },
+  "hs-s-maki": {
+   "sha1": "f32d26f66aecd24e92a019afbc6c2b9c6f8ddac6",
+   "frames": 49
+  },
+  "hs-s-modoshi": {
+   "sha1": "16c5ca7666abc9f77ea3a183e6be11ae2ccfbaeb",
+   "frames": 13
+  },
+  "hs-s-nage": {
+   "sha1": "58dd09f702447c61a52b20332f34c1ad1467ed0a",
+   "frames": 45
+  },
+  "hs-s-nagi": {
+   "sha1": "76724556da0231bc527f333223c414342c691396",
+   "frames": 45
+  },
+  "hs-s-noko": {
+   "sha1": "d2616e5a4f9ef67f4f952b1a3575ddffe978ad51",
+   "frames": 49
+  },
+  "hs-s-raiden": {
+   "sha1": "787554ead1d702005b3081189fc6df401928c850",
+   "frames": 48
+  },
+  "hs-s-rin-1h": {
+   "sha1": "d9d669f8d63ade468e62e4f0f064277c7989e5ac",
+   "frames": 31
+  },
+  "hs-s-rin": {
+   "sha1": "2930e54a5ee230e74d504357930321c9c4b5332a",
+   "frames": 31
+  },
+  "hs-s-run": {
+   "sha1": "210ff2f11e8f81a7ca6851f33a4a3f14c483fe4d",
+   "frames": 31
+  },
+  "hs-s-sen": {
+   "sha1": "16836f554059e5bb2958474dd42ce1c0bef5cdf4",
+   "frames": 24
+  },
+  "hs-s-shibari": {
+   "sha1": "2d6f09ec771415d8ae2f68c5af56c48c54a44c0d",
+   "frames": 77
+  },
+  "hs-s-skate-b": {
+   "sha1": "8f4f71dd3833a3d9f9951c98711d5fb3fe2c5a4a",
+   "frames": 31
+  },
+  "hs-s-slide-l": {
+   "sha1": "95fe146d4492b9f7203acebe1e247049674f517d",
+   "frames": 31
+  },
+  "hs-s-slide-r": {
+   "sha1": "f7f5f24cc25bc7723fa89de58efbabd99258cfb8",
+   "frames": 31
+  },
+  "hs-s-stance": {
+   "sha1": "a278a446aacc346ea8e28353e103fcbd358dde6d",
+   "frames": 121
+  },
+  "hs-s-strafe-l": {
+   "sha1": "5e7a5b2883fe706593fd5594a2628dff0623dae2",
+   "frames": 49
+  },
+  "hs-s-strafe-r": {
+   "sha1": "fc1e9d3b7f13b60ddc998df7eafb7163e674faf3",
+   "frames": 49
+  },
+  "hs-s-tobi-kaeshi": {
+   "sha1": "32026c56a2183bca8467e9457819bd90376659d0",
+   "frames": 31
+  },
+  "hs-s-tobi-rin": {
+   "sha1": "c44fe18a36cce90c59601ff7edc64a53e926a564",
+   "frames": 36
+  },
+  "hs-s-tsui": {
+   "sha1": "4a82869df2222667c4817b881f383b83ec303cc2",
+   "frames": 62
+  },
+  "hs-s-walk-b": {
+   "sha1": "3c1d51dabe36391e831aba29f59c8d2daf995910",
+   "frames": 55
+  },
+  "hs-s-walk-f": {
+   "sha1": "2b3f247a5f209576d0ea26d0295a72797270a9a6",
+   "frames": 55
+  },
+  "hs-s-win": {
+   "sha1": "b3858b8043683a5f44f71e25737e559fc0b5f6c6",
+   "frames": 121
+  },
+  "hs-st-bind": {
+   "sha1": "f590a78b25178a2f3ca94316b44ab2c2b2084514",
+   "frames": 121
+  },
+  "hs-st-kari": {
+   "sha1": "bf60f4408436aa9315cbc560c708e812bdf924ee",
+   "frames": 121
+  },
+  "hs-st-raiden": {
+   "sha1": "cf1e8ea9120be14570b00442af5713f82c1d4bab",
+   "frames": 121
+  },
+  "hs-stance": {
+   "sha1": "a7c0ae528bf730b24f73d3bff31c813f1a992664",
+   "frames": 121
+  },
+  "hs-tsumuji": {
+   "sha1": "c0e00c4f1cb31b9399cfeb672d8246ff05d6d8b2",
+   "frames": 51
+  },
+  "hs-win": {
+   "sha1": "204d731fdd7bf412e3a33b0848e385432644aee1",
+   "frames": 121
+  },
+  "ic-awaken": {
+   "sha1": "c084c385e90a1e83891194016883750d395e467a",
+   "frames": 169
+  },
+  "ic-breaker": {
+   "sha1": "239241523d62bc2cedb6874c04a7f4f5d118f819",
+   "frames": 25
+  },
+  "ic-cero-raise": {
+   "sha1": "6806fbddcc65a83ee6f141ca3460d12e0c6cc770",
+   "frames": 61
+  },
+  "ic-chg1": {
+   "sha1": "8e4fcc06ed034c829c70cd762256482e52f0d932",
+   "frames": 35
+  },
+  "ic-chg2": {
+   "sha1": "2309c5affb3efa5d60a5c0ab267974d07b845c13",
+   "frames": 31
+  },
+  "ic-cross-j": {
+   "sha1": "813cc760ee0a76ead7ed61d20e5d3b85525e4f3f",
+   "frames": 24
+  },
+  "ic-cross": {
+   "sha1": "51b3072d8a062285793d664b30413f88c17285f5",
+   "frames": 35
+  },
+  "ic-drop": {
+   "sha1": "fe5efe2ae0f3e366b96fd1f4d654e5c9cc008195",
+   "frames": 61
+  },
+  "ic-f1": {
+   "sha1": "07e76cd3c8c513565de8c1dffd8a028c13d77582",
+   "frames": 41
+  },
+  "ic-f2": {
+   "sha1": "3a11c440c42e3165eba61dc1cdd4eba1cb3de6d4",
+   "frames": 49
+  },
+  "ic-getsuga": {
+   "sha1": "a480b953346c43f5f8ba8bf05533f4732996db73",
+   "frames": 39
+  },
+  "ic-intro": {
+   "sha1": "604b7323b350963cae185fac9243b465dd847b23",
+   "frames": 121
+  },
+  "ic-juji-x": {
+   "sha1": "ee86958dd36ffb3210b322d67e95029ceb7dad89",
+   "frames": 35
+  },
+  "ic-juji": {
+   "sha1": "0af4f2f77999668e417a195857626a2a1709843f",
+   "frames": 47
+  },
+  "ic-k-back": {
+   "sha1": "1d3154940e8a7b72e6a001ad3fff68256dce02bf",
+   "frames": 25
+  },
+  "ic-k-chg1": {
+   "sha1": "5cadb2f6e6996116810f92f46267f64e49be3522",
+   "frames": 35
+  },
+  "ic-k-chg2": {
+   "sha1": "51c260437a139803a407547cec646ac0730a6397",
+   "frames": 31
+  },
+  "ic-k-cut": {
+   "sha1": "0363152cf9a3738f528b3a24eaa8189ebefa60c2",
+   "frames": 24
+  },
+  "ic-k-f1": {
+   "sha1": "673808053a04b86d1ca288d8e78a3a02db61a88a",
+   "frames": 43
+  },
+  "ic-k-f2": {
+   "sha1": "3bd22102405d2cb45f37e3074e194c9b8013a3ed",
+   "frames": 49
+  },
+  "ic-k-f3": {
+   "sha1": "40f7602bc28e1319830d2959c6dd7fd845f1426b",
+   "frames": 61
+  },
+  "ic-k-gaeshi": {
+   "sha1": "1d6c659305f59232100426551d3bf415ad521037",
+   "frames": 32
+  },
+  "ic-k-jab": {
+   "sha1": "f2f25786ba63dcf1ab771a7bcf4405556b1a3863",
+   "frames": 24
+  },
+  "ic-k-lash-a": {
+   "sha1": "4a4f694dedaa52ca3d3b381336cb6094fdf0d91e",
+   "frames": 45
+  },
+  "ic-k-lash-b": {
+   "sha1": "327575520848228a87c2d24adcfc6ad6bc145391",
+   "frames": 37
+  },
+  "ic-k-lash-c": {
+   "sha1": "45320de30928081a5a76addfb829c8efe3c1acee",
+   "frames": 50
+  },
+  "ic-k-parry": {
+   "sha1": "5bc7b8e3241634f40d3cc5e6d926732f07cb5f78",
+   "frames": 45
+  },
+  "ic-k-pass": {
+   "sha1": "b0de50daabfe7fd98e11f2180216ca743a621325",
+   "frames": 61
+  },
+  "ic-k-st-chain": {
+   "sha1": "189e3a2af6d732a8b3b79c1bd0aece8b402300dd",
+   "frames": 121
+  },
+  "ic-k-st-haste": {
+   "sha1": "915a21285cb5f6f8807834685d54109a439099c2",
+   "frames": 61
+  },
+  "ic-k-stance": {
+   "sha1": "49688b12865d766d749d6d813fad3aeea7809ffe",
+   "frames": 145
+  },
+  "ic-k-summon": {
+   "sha1": "c937425e813aa55dc41c0b36e4503c5143c84c86",
+   "frames": 31
+  },
+  "ic-k-uchi": {
+   "sha1": "72304c62dfdff4a397903c5aa19b56803b86926d",
+   "frames": 35
+  },
+  "ic-k-whip": {
+   "sha1": "09665510228fe4a13eb68553568502e7583d78fc",
+   "frames": 51
+  },
+  "ic-k-wrap-j": {
+   "sha1": "20da7ed3827a1ee2c18ac2ba8fd8b4b8bf6d2331",
+   "frames": 31
+  },
+  "ic-k-wrap": {
+   "sha1": "d9e8b32a05acbe2c339dc2a5fa9113968872a2ef",
+   "frames": 31
+  },
+  "ic-k-xa": {
+   "sha1": "d16239dbc6661df5ddb1d3f57a2dec126072b469",
+   "frames": 28
+  },
+  "ic-k-xb": {
+   "sha1": "593e30a5439593722ab1f3288504328dc72d2280",
+   "frames": 28
+  },
+  "ic-k-yank": {
+   "sha1": "33d54a3fba25815fa52d2d1fbe6f271b3a9a6338",
+   "frames": 44
+  },
+  "ic-k-zanzo": {
+   "sha1": "6011793056aea3a6b11fbb041fdb4c0b3b3192ef",
+   "frames": 29
+  },
+  "ic-mine": {
+   "sha1": "537489ea8bfac324ecffe3c30845cac3b78c1819",
+   "frames": 31
+  },
+  "ic-na1": {
+   "sha1": "1583bcf1caa87808d6e407baa37e32941d0ad260",
+   "frames": 30
+  },
+  "ic-ns1": {
+   "sha1": "0acc504a3049a30288a462b5566ab5221fdc4c1a",
+   "frames": 47
+  },
+  "ic-ns3": {
+   "sha1": "15206698a72388bd39a56e17f35519aefb3848a3",
+   "frames": 49
+  },
+  "ic-q1": {
+   "sha1": "1d010a64b7e2eb6e856e13eb44aa1b4ab1f344cf",
+   "frames": 23
+  },
+  "ic-q2": {
+   "sha1": "6775fd738da07610fde65a8dfa732ef65b874b41",
+   "frames": 24
+  },
+  "ic-rangetsu": {
+   "sha1": "424ca4761e334113f6dd1a9d7ca6a336ac0bea15",
+   "frames": 39
+  },
+  "ic-soga": {
+   "sha1": "10c5ca606ca4a587a9466321b2188b54056071c8",
+   "frames": 49
+  },
+  "ic-spin": {
+   "sha1": "f49f1d93f060eac9c2e9321ce0d0cd91eabe767a",
+   "frames": 30
+  },
+  "ic-st-heavy": {
+   "sha1": "e54aa3e8550b38e8e4cf78341edb9dad0e88633a",
+   "frames": 109
+  },
+  "ic-st-rush": {
+   "sha1": "2d472cf5971b6420ad202522438031361db2edb6",
+   "frames": 61
+  },
+  "ic-stance": {
+   "sha1": "4316f4270d2b61bb4f7f4fa494c168e16866f5d6",
+   "frames": 97
+  },
+  "ic-tsuki-otoshi": {
+   "sha1": "3e7d395b3bf071db0f301cc591f249a598db957c",
+   "frames": 53
+  },
+  "ic-tsuki": {
+   "sha1": "3a7c4ad9619be80b43fdd783bb588d073492a773",
+   "frames": 73
+  },
+  "ic-win": {
+   "sha1": "219978dfb4b74980f1a2ab37def7f7eb1442b757",
+   "frames": 121
+  },
+  "ke-b-guard-hit": {
+   "sha1": "5766f1caa94b85cd00cb12f5676f4af83836862f",
+   "frames": 13
+  },
+  "ke-b-guard": {
+   "sha1": "da87ecad081eb999bf134b917f3041fe0e5fe547",
+   "frames": 37
+  },
+  "ke-b-kikon": {
+   "sha1": "ef93f9b10faebf3fc665134f5998783f9a074dbe",
+   "frames": 91
+  },
+  "ke-b-kr-stance": {
+   "sha1": "48bac0fbb057d9808bf6ece064f92b5d9a161976",
+   "frames": 61
+  },
+  "ke-b-roar": {
+   "sha1": "93e198bdb68da196fd7d72757eec966a79ee3691",
+   "frames": 61
+  },
+  "ke-b-run": {
+   "sha1": "bf3b89a66123d25d7b27588166f412c94c03eb0c",
+   "frames": 31
+  },
+  "ke-b-skate-b": {
+   "sha1": "ce9ad1110ce3b58e364a2a5b8867c07449639766",
+   "frames": 31
+  },
+  "ke-b-slide-l": {
+   "sha1": "cd825584efa370d4420acc5ccd06c86d7b929f4c",
+   "frames": 31
+  },
+  "ke-b-slide-r": {
+   "sha1": "1cd20a68bd9185658ec1169f049b73329da0a1c7",
+   "frames": 31
+  },
+  "ke-b-stance": {
+   "sha1": "12097046faef37fa8a9d6bce5f18bd68c8cdf20d",
+   "frames": 49
+  },
+  "ke-b-step-b": {
+   "sha1": "36da15231295014a2e6cc117030410e97585084f",
+   "frames": 25
+  },
+  "ke-b-strafe-l": {
+   "sha1": "da00d5965903c4951b7ea81358d774b61ffe849a",
+   "frames": 49
+  },
+  "ke-b-strafe-r": {
+   "sha1": "e4e994bbbdd21eb5ec59bcddb4a3724d875b15f1",
+   "frames": 49
+  },
+  "ke-b-walk-b": {
+   "sha1": "b2da252314121128dd61f35d30a94f9dd45900ed",
+   "frames": 55
+  },
+  "ke-b-walk-f": {
+   "sha1": "21229bd376c133336cc189d74551535aded2ac95",
+   "frames": 55
+  },
+  "ke-b-zh-stance": {
+   "sha1": "4cadb5f0ab99477ebae060a4a83359f3650b7ae5",
+   "frames": 49
+  },
+  "ke-breaker": {
+   "sha1": "fe7c0a767e3fd16f6ab72fc939324098d51bf2bd",
+   "frames": 25
+  },
+  "ke-buttagiru": {
+   "sha1": "394cea598b85a45c320394ed771f4d5107333d45",
+   "frames": 53
+  },
+  "ke-charge": {
+   "sha1": "3d3d389f784c8dc3bbf92f498f21176ff4b69a8a",
+   "frames": 25
+  },
+  "ke-f1": {
+   "sha1": "f7def6e5085518bbdc9de32d98efcf31d0ca5991",
+   "frames": 41
+  },
+  "ke-f2": {
+   "sha1": "972bd3378439ccfd5991584971f7312a0769541a",
+   "frames": 54
+  },
+  "ke-flurry": {
+   "sha1": "87a81a315c9f967e6ae286482de191259aa1347a",
+   "frames": 65
+  },
+  "ke-intro": {
+   "sha1": "65f3dc93644ba8d506a5627e83775089eeca62d7",
+   "frames": 121
+  },
+  "ke-kick": {
+   "sha1": "3bdab92751285cab426599490e7b0e0ac000a8bc",
+   "frames": 30
+  },
+  "ke-kikon-n": {
+   "sha1": "33cc364b9bf6a08898f17779eb6c42e6cb16ed82",
+   "frames": 91
+  },
+  "ke-kr-chigiri": {
+   "sha1": "3d435b5c676c16c2f476784b891fcad72cbbdad0",
+   "frames": 61
+  },
+  "ke-kr-cut1": {
+   "sha1": "4f3b24614d488a9ab82f249e2b8ca5111b3b3c7c",
+   "frames": 22
+  },
+  "ke-kr-cut2": {
+   "sha1": "3b8f1a506b4f6c08b23e366904844903c222a925",
+   "frames": 23
+  },
+  "ke-kr-cut3": {
+   "sha1": "6600b2538712c1dc5ced1452a4a93e27bff068e5",
+   "frames": 24
+  },
+  "ke-kr-cut4": {
+   "sha1": "437cc4ef09415e6cde45454ea836627e454bc68f",
+   "frames": 25
+  },
+  "ke-kr-cut5": {
+   "sha1": "bed9614f3131b054131ae12c2a9eeb0c9637736b",
+   "frames": 33
+  },
+  "ke-kr-fin": {
+   "sha1": "7ec91c93cc7463dad5aa32945a5132c1d43e1d80",
+   "frames": 39
+  },
+  "ke-kr-ns-a": {
+   "sha1": "6a3cf1fb4c97363fa184b133fe8c44d5c0a42b20",
+   "frames": 39
+  },
+  "ke-kr-ns-b": {
+   "sha1": "91f7e0f0f7f9a0c1bb469e4800388d7032581c73",
+   "frames": 33
+  },
+  "ke-kr-ns-c": {
+   "sha1": "3ce4408579f126496177bac7f638cb0b14825483",
+   "frames": 33
+  },
+  "ke-kr-ns-d": {
+   "sha1": "47fb1c72b882386c96459e6030b4900558a335c1",
+   "frames": 31
+  },
+  "ke-n-stance": {
+   "sha1": "490efdae3d8a99879ae2abe277177626d9ca1346",
+   "frames": 121
+  },
+  "ke-nome": {
+   "sha1": "4a824a900de9302981c2f7ce84bc63a39c38f053",
+   "frames": 43
+  },
+  "ke-q1": {
+   "sha1": "411e7f6fc6151435ef7b0cf24a90afb5c44a0b97",
+   "frames": 23
+  },
+  "ke-q2": {
+   "sha1": "b517bddecde9602f96379e301de7481dfbe63b2a",
+   "frames": 24
+  },
+  "ke-q3": {
+   "sha1": "f1d4885bc214d0af3335053afd378fb618633701",
+   "frames": 38
+  },
+  "ke-release": {
+   "sha1": "6bd70292f702739e4bb3394a3ce4ab0998429dee",
+   "frames": 31
+  },
+  "ke-run": {
+   "sha1": "fd6f7d3094e437a58bec967134c88b6347c28652",
+   "frames": 31
+  },
+  "ke-s-bankai": {
+   "sha1": "f81665689110766102065036a584560fa8393363",
+   "frames": 40
+  },
+  "ke-s-cut-sa": {
+   "sha1": "f51a1a5a630507fec6826b6b1b460a701726fda6",
+   "frames": 24
+  },
+  "ke-s-cut1": {
+   "sha1": "3296028a531b0e84bf17889dad3ca7121af1df75",
+   "frames": 25
+  },
+  "ke-s-cut2": {
+   "sha1": "5a054d3df9d126ef1cb89499a20bdac5bd962ceb",
+   "frames": 26
+  },
+  "ke-s-cut3": {
+   "sha1": "24abecbff4231572acb33086d69cdfd22459b4a8",
+   "frames": 34
+  },
+  "ke-s-cut4": {
+   "sha1": "2d62d4ebeec046545bf7ab902a172aa00ff4cb5b",
+   "frames": 25
+  },
+  "ke-s-cut5": {
+   "sha1": "29dbc4f284da87de10db775a3f4b62e820284a97",
+   "frames": 26
+  },
+  "ke-s-cut6": {
+   "sha1": "abb2a4723beebd408fc88cba133f5b03ede2c48d",
+   "frames": 26
+  },
+  "ke-s-cut7": {
+   "sha1": "2a97db9ec8a95e0e23a817b76bf99095d6520048",
+   "frames": 35
+  },
+  "ke-s-flick": {
+   "sha1": "fc94fe88a9a651403048b1d8572b0a93d3c202d1",
+   "frames": 30
+  },
+  "ke-s-issen": {
+   "sha1": "d9c4df1d48c9b6d08cc1062cdc2625fe026bb52d",
+   "frames": 44
+  },
+  "ke-s-jab": {
+   "sha1": "4f7675c029e45c538070f50041485a8fde6104d1",
+   "frames": 34
+  },
+  "ke-s-meteor": {
+   "sha1": "63f5a5955483d2e50b8d7b3a93152716c3e05919",
+   "frames": 55
+  },
+  "ke-s-p1a": {
+   "sha1": "0c101a56f99aaf792e22ec59a89eebbaef914125",
+   "frames": 43
+  },
+  "ke-s-p1b": {
+   "sha1": "f9f69e41d1cb8ce3ede1e283904f8514997f73af",
+   "frames": 37
+  },
+  "ke-s-p1c": {
+   "sha1": "b6b8cda557f90d2e90724231cdd4c3bd20769f82",
+   "frames": 37
+  },
+  "ke-s-p1d": {
+   "sha1": "0cc546288e2e1495c2ad8edc6f3521ae966082fe",
+   "frames": 35
+  },
+  "ke-s-p1e": {
+   "sha1": "08e8e7af32fb0377368732d282711ec8394fdfa8",
+   "frames": 43
+  },
+  "ke-s-p2c": {
+   "sha1": "23c6bac37858fb4ad17766b603c8652e913233e2",
+   "frames": 46
+  },
+  "ke-s-p2d": {
+   "sha1": "517b291bece6b6e354e4b2430939ec7cdba4489d",
+   "frames": 39
+  },
+  "ke-s-p2e": {
+   "sha1": "1f23f9c3259ccdbcb54a8e2a187cfe42cd66c89e",
+   "frames": 52
+  },
+  "ke-s-st-1": {
+   "sha1": "68e51812178782c288a6beee6ef7c00588ea4e92",
+   "frames": 73
+  },
+  "ke-s-st-2": {
+   "sha1": "35702a6730534cccbd58a9d508c18d43c87a7513",
+   "frames": 145
+  },
+  "ke-s-wheel": {
+   "sha1": "78828af350ce15730ba9349485f20f6050a22154",
+   "frames": 53
+  },
+  "ke-s-zangaeshi": {
+   "sha1": "f9b431eaa7053863b9b493e667a0f74533608f44",
+   "frames": 46
+  },
+  "ke-shoulder": {
+   "sha1": "f1c481afe65ff6c52ff324da502c99f2aee456d5",
+   "frames": 31
+  },
+  "ke-skate-b": {
+   "sha1": "d9503d6329da2073e8f2464bdc280b4af86a45c6",
+   "frames": 31
+  },
+  "ke-slide-l": {
+   "sha1": "11add0c2be24806bdc749235d765207018f9d24e",
+   "frames": 31
+  },
+  "ke-slide-r": {
+   "sha1": "36293d6b98c59937f847954ca265b60e7b57e73c",
+   "frames": 31
+  },
+  "ke-stance-cut": {
+   "sha1": "f3bb81e1e926f16f2986d93d4ab7d661ee8d352e",
+   "frames": 37
+  },
+  "ke-stance-hold": {
+   "sha1": "6395bd110ba0024221b39d7f73fc5ed943089678",
+   "frames": 61
+  },
+  "ke-stance": {
+   "sha1": "7d1e58cf7bd9f9b95719c8f0566a17c9c24c6fda",
+   "frames": 121
+  },
+  "ke-win": {
+   "sha1": "60273d58fab1c22ae83cd11ec3be2f70f61fa454",
+   "frames": 121
+  },
+  "ke-z-as1": {
+   "sha1": "5f2a8d855d145bc72421bad5fd5fe46c87c453d7",
+   "frames": 37
+  },
+  "ke-z-cut1": {
+   "sha1": "44a59d8485bab9afa92353693fac82eb84df3974",
+   "frames": 22
+  },
+  "ke-z-cut2": {
+   "sha1": "c93bffa83f4f55f6a5ea4b2afbda73ef374041e5",
+   "frames": 22
+  },
+  "ke-z-cut3": {
+   "sha1": "1f89c3c300f5da2d0e238ae0d1b06f5e10eec542",
+   "frames": 23
+  },
+  "ke-z-cut4": {
+   "sha1": "1e9e24bdf36851ee734696e0447f2319bd02d8ad",
+   "frames": 25
+  },
+  "ke-z-cut5": {
+   "sha1": "821bddc46640468c0a26b87f48f6edc980e76d44",
+   "frames": 33
+  },
+  "ke-z-kote": {
+   "sha1": "97bfe8417c6de18a04f97910a2c64138c52db304",
+   "frames": 23
+  },
+  "ke-z-men": {
+   "sha1": "751aa6822f7c81d06a31f23453bba98ae4369dbe",
+   "frames": 39
+  },
+  "ke-z-open": {
+   "sha1": "4738e69fb5e5198a9c7fe23a050d628552bdd411",
+   "frames": 97
+  },
+  "ke-z-p1a": {
+   "sha1": "3ccbc7e73e0d3ae833d403dd80c1a4aba97d3dbc",
+   "frames": 39
+  },
+  "ke-z-p1b": {
+   "sha1": "a356603b4e047d15e06f8cae0cf10af24e8fd03e",
+   "frames": 32
+  },
+  "ke-z-p1c": {
+   "sha1": "0ffd9a19a717359d402a57f9b8bebf668a183b1f",
+   "frames": 37
+  },
+  "ke-z-p2a": {
+   "sha1": "f224fba176f7fc7cf78e7a19360d4045a2a34df2",
+   "frames": 43
+  },
+  "ke-z-p2b": {
+   "sha1": "51e47799b7ba964758ab4c2120b266db7aadec86",
+   "frames": 41
+  },
+  "ke-z-ram": {
+   "sha1": "3b5d786d61af520b622d6f421c244731d3419c6e",
+   "frames": 26
+  },
+  "ke-z-scoop": {
+   "sha1": "3d353e7a617d1de04edc1ea8f1bd12b059dfe477",
+   "frames": 37
+  },
+  "ke-z-shove": {
+   "sha1": "d5e0daf904e42269c6bf7ae458db450d34fafae5",
+   "frames": 26
+  },
+  "ke-z-st-1": {
+   "sha1": "bba0ec85a79a265942a4afd55aeee8f346f58534",
+   "frames": 97
+  },
+  "ke-z-st-2": {
+   "sha1": "8d05dc67ca3fcc6f695b81b7a062c44c302b7dd0",
+   "frames": 85
+  },
+  "ke-z-st-3": {
+   "sha1": "24c2da450853c2b11f34055391d6da34c6c4a7ba",
+   "frames": 121
+  },
+  "ke-z-tame": {
+   "sha1": "65bc94c6aa616894453867565b3c1b1b6d561cfb",
+   "frames": 31
+  },
+  "ke-z-tsuki": {
+   "sha1": "7fc761dc40521e653ab85b1628048fda19a1ea9a",
+   "frames": 37
+  },
+  "ke-z-tsuki2": {
+   "sha1": "709dbfe2f3d2bf1d114a989792a021e2a5143167",
+   "frames": 39
+  },
+  "ke-z-wound": {
+   "sha1": "10897fc25509e7ba6c8a725e5be468102e6a048e",
+   "frames": 97
+  },
+  "ke-zh-cut1": {
+   "sha1": "baa076846b0ea5ed3e6870dd67838d56d959fb0d",
+   "frames": 25
+  },
+  "ke-zh-cut2": {
+   "sha1": "e5dd6be84d65009d086c4ba53393050554a6c12c",
+   "frames": 27
+  },
+  "ke-zh-cut3": {
+   "sha1": "7bcbfcdc24fe6f8105fbfb74c70fc0fd11c1a359",
+   "frames": 31
+  },
+  "ke-zh-cut4": {
+   "sha1": "e182d8b8c2f88b28e73787c2741b969eb8706f40",
+   "frames": 31
+  },
+  "ke-zh-cut5": {
+   "sha1": "6460c4e22c31c9ac47c5054b9d2694ce025a4f98",
+   "frames": 38
+  },
+  "ke-zh-fin": {
+   "sha1": "e6e68c4979fdb2f5d6f5e7f78a489246b260f629",
+   "frames": 48
+  },
+  "ke-zh-ns-a": {
+   "sha1": "fcef5ecddcd6a693a938e7eb9e57e94c7feb9ac2",
+   "frames": 46
+  },
+  "ke-zh-ns-b": {
+   "sha1": "50375ea7f33f0dc10d829c317eea3cc4a43b6662",
+   "frames": 37
+  },
+  "ke-zh-ns-c": {
+   "sha1": "3eb61403f26d2451999868d08304215095ed219d",
+   "frames": 39
+  },
+  "ke-zh-ns-d": {
+   "sha1": "7bb596097f6a412830a8533272ff9dcd76f1625a",
+   "frames": 48
+  },
+  "ke-zh-tategoto": {
+   "sha1": "2d5d09e398c22993da5673f116aed80614f0d9f9",
+   "frames": 55
+  },
+  "sh-bound": {
+   "sha1": "7a75addf245fe031845525ff4d3f38fa33fd5706",
+   "frames": 61
+  },
+  "sh-clash": {
+   "sha1": "84d38ffdee96d590022666fbcacc823c02dcee14",
+   "frames": 25
+  },
+  "sh-crumple": {
+   "sha1": "888875277f30552b80166bfcf55a5ab23a1ff059",
+   "frames": 61
+  },
+  "sh-down": {
+   "sha1": "15f043c086eb8e581062c9090859db98cc522aa9",
+   "frames": 61
+  },
+  "sh-flinch": {
+   "sha1": "2b84b8732602e6fe937a440d3956419a6620ad7a",
+   "frames": 19
+  },
+  "sh-guard-break": {
+   "sha1": "2f101b27347b8e869d3601ebdd367a665f51256b",
+   "frames": 50
+  },
+  "sh-guard-hit": {
+   "sha1": "117624f970c23eff2a546ba1ac72ac8932f4a537",
+   "frames": 13
+  },
+  "sh-guard": {
+   "sha1": "11826120b0129f1133212513b507018fc427f820",
+   "frames": 31
+  },
+  "sh-hoho-in": {
+   "sha1": "769e6dd9a0a2b9ebc3ec014eff4f24d736e9b408",
+   "frames": 25
+  },
+  "sh-kikon-victim": {
+   "sha1": "0a30a3c930bb87159111f6125c345bee94196658",
+   "frames": 61
+  },
+  "sh-knockback": {
+   "sha1": "11c866233140f9792e41c36739abf98f2e8bf9fc",
+   "frames": 31
+  },
+  "sh-launch": {
+   "sha1": "bb2768fcb6723f0f51f670aca484972834e7697d",
+   "frames": 31
+  },
+  "sh-lose": {
+   "sha1": "58505ac89c39d9353f847bb68ccf66d49ba8a3aa",
+   "frames": 121
+  },
+  "sh-roll": {
+   "sha1": "e02e3902583d3aa0a8292bdf68e0eb4585d85f91",
+   "frames": 31
+  },
+  "sh-run": {
+   "sha1": "292dc40fcbc9f4b437f6201da0c329f8060b03aa",
+   "frames": 31
+  },
+  "sh-skate-b": {
+   "sha1": "95345b0d2600a2eaa49601bc26b71f6f432f3805",
+   "frames": 31
+  },
+  "sh-slide-l": {
+   "sha1": "ab0b8b72b7c37cc44bb2646175cb5e7b768fa7c9",
+   "frames": 31
+  },
+  "sh-slide-r": {
+   "sha1": "e1ba60417d4ddbb72159ae4e26be6f2fc3d8bd3b",
+   "frames": 31
+  },
+  "sh-stagger": {
+   "sha1": "96eff7a755a3046532e3d6cd9971d7ff27f35e70",
+   "frames": 26
+  },
+  "sh-step-b": {
+   "sha1": "265e7b6764ece85c7a14cb7a3cf65e556aaa808c",
+   "frames": 25
+  },
+  "sh-step-f": {
+   "sha1": "8b209e705a61fe323a8e1290c548bd283c96fa25",
+   "frames": 25
+  },
+  "sh-step-l": {
+   "sha1": "5682de9cedb01a8d70f4de140fef065d5e63fdf5",
+   "frames": 25
+  },
+  "sh-step-r": {
+   "sha1": "28c81b121dfbfb8af3c1de130b833b1e1c70a205",
+   "frames": 25
+  },
+  "sh-strafe-l": {
+   "sha1": "57ed866b6e6b93b06970e39bd1f33eb17213d4f2",
+   "frames": 49
+  },
+  "sh-strafe-r": {
+   "sha1": "cfeb19762325e73bfb0320b4ecf636d3cc87d10e",
+   "frames": 49
+  },
+  "sh-struggle": {
+   "sha1": "895bfc63ba1f439d67d2e4ed7e0b252f7d3beb8e",
+   "frames": 46
+  },
+  "sh-swallowed": {
+   "sha1": "94bcbceacc01b412d23c0078cb4c9380b7b0a9f0",
+   "frames": 43
+  },
+  "sh-wakeup": {
+   "sha1": "0ed7a71c13eb6d70e86d1c50f4f7974846e8dcd8",
+   "frames": 31
+  },
+  "sh-walk-b": {
+   "sha1": "580d3fe7f66e339bd7e580b48ce1b3b11f6b4c1b",
+   "frames": 55
+  },
+  "sh-walk-f": {
+   "sha1": "fe0b67fdbe1eca1bc01b6722216c5cdc0a766157",
+   "frames": 55
+  },
+  "sk-crawl": {
+   "sha1": "90f1e127e6b4a36f2e6fac52efd0115fbc1d6ad1",
+   "frames": 37
+  },
+  "sk-grab": {
+   "sha1": "f288cb8a460291ea356ca690e5f264c0bc7e8fc9",
+   "frames": 92
+  },
+  "ya-as1": {
+   "sha1": "adccfeb7459dcbac33a0dd89402b36d942dc7e6a",
+   "frames": 38
+  },
+  "ya-as2a": {
+   "sha1": "ae2c3f4642620c5643d558d9a4c0ade65c5dd53a",
+   "frames": 32
+  },
+  "ya-as2b": {
+   "sha1": "1db792cba36c356201e976170802a7d3c1d28aee",
+   "frames": 51
+  },
+  "ya-as3a": {
+   "sha1": "912e5aaf0b9e0c2bef1310c42ef7a5af3f0be316",
+   "frames": 26
+  },
+  "ya-as3b": {
+   "sha1": "2444a025245d70f1cb54d841ec177b0cb120575c",
+   "frames": 30
+  },
+  "ya-as3c": {
+   "sha1": "ceb3ec8eeb6b49977cd678e852f0aabbd05a70e9",
+   "frames": 53
+  },
+  "ya-b-n2b": {
+   "sha1": "7dd1b23417ef054c5cb9d27bd13e533f743c40f7",
+   "frames": 39
+  },
+  "ya-b-n2c": {
+   "sha1": "b8dcfe4273e7ba443a3517435a8b8fca7adf91c0",
+   "frames": 51
+  },
+  "ya-b-n3c": {
+   "sha1": "0c72e5b221adc732a0c7f6e688acc8f2f4aeb3e2",
+   "frames": 79
+  },
+  "ya-bankai": {
+   "sha1": "e7817f2ea99a9c9586e5dd306664ab169d185483",
+   "frames": 133
+  },
+  "ya-blaze-in": {
+   "sha1": "c3f4b2174554c6b2f43a1ad0df81829300b15d98",
+   "frames": 25
+  },
+  "ya-breaker": {
+   "sha1": "bec4c317fc059701b99a88bfcb69ca8ef5c9f048",
+   "frames": 25
+  },
+  "ya-e-advance": {
+   "sha1": "58c00f1184dfecd86547b1fae6d1d157b485fab0",
+   "frames": 38
+  },
+  "ya-e-as1": {
+   "sha1": "45232ae575c8597610be0c0e90dac784b958817d",
+   "frames": 38
+  },
+  "ya-e-as3a": {
+   "sha1": "ed94d392a8a0ded9de1a22826dbada70b226daa8",
+   "frames": 30
+  },
+  "ya-e-as3b": {
+   "sha1": "ba69199450319840fb3a59f5f88d18bae6700fd8",
+   "frames": 31
+  },
+  "ya-e-as3c": {
+   "sha1": "44aa5efbe41844909d2ccaec169b06e8a588491a",
+   "frames": 46
+  },
+  "ya-e-as4": {
+   "sha1": "68635e1fde9c66ea6e9bd39cfe05628bdbe15e6e",
+   "frames": 43
+  },
+  "ya-e-drop": {
+   "sha1": "d1658a150856ba02926f990dd815afda921d609c",
+   "frames": 61
+  },
+  "ya-e-f2": {
+   "sha1": "d450c5280eb20310e13738277aa8f1069387c90d",
+   "frames": 43
+  },
+  "ya-e-gokui-cut": {
+   "sha1": "4934768bd3433e12c0ddecc729cc9ac8e34c20f1",
+   "frames": 40
+  },
+  "ya-e-grab": {
+   "sha1": "ad95b652a4d8ac3731216260bc9d92c9763a1da7",
+   "frames": 32
+  },
+  "ya-e-kyokko": {
+   "sha1": "a657ce9ea76f09ac953271e5c87071c624ea4a4e",
+   "frames": 50
+  },
+  "ya-e-minami-b": {
+   "sha1": "ebe6f8f622442c5ab0dfd9f3ad7b5e11f29d0436",
+   "frames": 41
+  },
+  "ya-e-minami-c": {
+   "sha1": "f6a43872ea4d8780f515fb33b69f3c4934599afa",
+   "frames": 51
+  },
+  "ya-e-q1": {
+   "sha1": "5f1474f72347874e8ddd3f1d172baa06a1a034a2",
+   "frames": 30
+  },
+  "ya-e-q2": {
+   "sha1": "32622d0b0c16a9c7d8c0a02d47240266dbae52ef",
+   "frames": 24
+  },
+  "ya-e-q3": {
+   "sha1": "e3fab3bc9f517e46bbfde9ec2092c98ba98ff3f9",
+   "frames": 30
+  },
+  "ya-e-q4": {
+   "sha1": "676ef66157f6d53c2bdab55b664ad2197e3e84bc",
+   "frames": 33
+  },
+  "ya-e-stance": {
+   "sha1": "ba21dda647d92e9f8762a7695ac07fc3cea2d7ab",
+   "frames": 145
+  },
+  "ya-e-tenchi": {
+   "sha1": "944eb01a70ec72c21e9bb08b80540d6582831e4d",
+   "frames": 57
+  },
+  "ya-e-throw": {
+   "sha1": "9d1a3425a537d6d5f9f0c35b10f48f9ca2d03c26",
+   "frames": 40
+  },
+  "ya-f2": {
+   "sha1": "6ee8665c9043b043d869ae8a80652c6ad6f5fa05",
+   "frames": 50
+  },
+  "ya-hisen": {
+   "sha1": "5e8d0e24f024f0037142ecae02fbf2f815bd25cf",
+   "frames": 30
+  },
+  "ya-ikkotsu": {
+   "sha1": "b805eed2184cac5183117f4c27265defed3ce0bf",
+   "frames": 31
+  },
+  "ya-intro": {
+   "sha1": "b178c1ac5bac30a371f7766b0c8dd27afe4bf1f7",
+   "frames": 121
+  },
+  "ya-kaka": {
+   "sha1": "45d22ca386061c797198249ee2de6802b15eb3d0",
+   "frames": 60
+  },
+  "ya-kikon": {
+   "sha1": "b611e2bacee06cbb36480b30a1261dacf0cf4d71",
+   "frames": 109
+  },
+  "ya-kyoku": {
+   "sha1": "6f1b48af2d683f761c9d04c813555858c6a3f357",
+   "frames": 50
+  },
+  "ya-n1a": {
+   "sha1": "40f66f54daf392ac3ada19cff836305abc9a06c8",
+   "frames": 49
+  },
+  "ya-n1c": {
+   "sha1": "6d136f92c279316c7c16c8cb9b124cc743584633",
+   "frames": 51
+  },
+  "ya-n2a": {
+   "sha1": "0d9e5c3049aa84a8401908c15dc2a858aa26380a",
+   "frames": 45
+  },
+  "ya-n2b": {
+   "sha1": "7d5ce65b796ae7f4515e4ce0bf4b79d378c95d90",
+   "frames": 39
+  },
+  "ya-n2c": {
+   "sha1": "e7c3b5b11e2e44d594829755358fca59c6dd2e3d",
+   "frames": 51
+  },
+  "ya-n3a": {
+   "sha1": "93da1a59212aac14aa10e6d8f2933bb84e994477",
+   "frames": 40
+  },
+  "ya-n3b": {
+   "sha1": "8323faf3d9b0efa47cee0e0f567d427f33cbf4e1",
+   "frames": 34
+  },
+  "ya-nadegiri": {
+   "sha1": "1919a6afe008dd4078b8cac65d6fc390b8bc998d",
+   "frames": 53
+  },
+  "ya-q2": {
+   "sha1": "a05c079630a1258b3e161591ac224f6d75157ea5",
+   "frames": 25
+  },
+  "ya-shiranui": {
+   "sha1": "8db61cfd3d05fff01b4b7ca979e0b6635a006f24",
+   "frames": 145
+  },
+  "ya-shonetsu": {
+   "sha1": "57ae901a029246b73a1a21d40634eee4f102732e",
+   "frames": 53
+  },
+  "ya-st-cane": {
+   "sha1": "00817770309b47e3f59a9499724b1763a0f3f58b",
+   "frames": 145
+  },
+  "ya-st-enjo": {
+   "sha1": "6225d9359c22f69dfa53550db72e60dab7f3811b",
+   "frames": 145
+  },
+  "ya-st-higashi": {
+   "sha1": "f867d1ac5a4accb4ad988d1d19831b075bdf82ca",
+   "frames": 145
+  },
+  "ya-st-minami": {
+   "sha1": "3a0c5993dee69baaebba0acf8a428a7a6d5b53db",
+   "frames": 145
+  },
+  "ya-st-nishi": {
+   "sha1": "7e1115e1f559f1450e24a935b0f8029f5f510e89",
+   "frames": 145
+  },
+  "ya-stance": {
+   "sha1": "7747bae427acc2b10a6b8280319ad5c02a97ad6f",
+   "frames": 145
+  },
+  "ya-strike": {
+   "sha1": "7b5960dc2a5bae2b40e85ede7b92522f7f44d2a9",
+   "frames": 30
+  },
+  "ya-taimatsu": {
+   "sha1": "4b9d0d3f3ae21e95d37bb568ead9f29d2525682c",
+   "frames": 49
+  },
+  "ya-tenchi": {
+   "sha1": "7bdb0a53ad6de1c73ab065554ded7c8dc38511a4",
+   "frames": 79
+  },
+  "ya-tsuka": {
+   "sha1": "1b8b78812ae1b1ac5483b6d3ea79a4c870859d68",
+   "frames": 31
+  },
+  "ya-w-counter": {
+   "sha1": "d7b8e445e9d148997537ad6bb19b22fc1b460cf9",
+   "frames": 34
+  },
+  "ya-w-parry": {
+   "sha1": "a86916eb0a38a44bcdfd5c9d2d420d72e56ff2e6",
+   "frames": 47
+  },
+  "ya-win": {
+   "sha1": "b52dfda129fdf7f8965d6d4be1724338bebcd1f2",
+   "frames": 121
+  }
+ }
+}
