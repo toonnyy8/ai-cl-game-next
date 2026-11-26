@@ -278,3 +278,54 @@ fn move_active_end_fake_moves() {
     sanren.hits = [(12, 14), (22, 24), (32, 34)].iter().map(|&(f, t)| duel_data::moves::HitWin { from: f, to: t, ..shot.hits[0].clone() }).collect();
     assert_eq!(move_active_end(&sanren), 34);
 }
+
+#[test]
+fn ichigo_segment_rules() {
+    let d = Data::embedded();
+    let react_in = |r: &str, set: &[&str]| set.iter().any(|x| r.eq_ignore_ascii_case(x));
+    // triangle.lisp line 129: AS n's segments, only the last knocks down / launches
+    let k = kit(&d, "ichigo", "base");
+    for n in &k.core.as_segs {
+        let segs = core_segments(&d, n);
+        let (last, rest) = segs.split_last().unwrap();
+        assert!(rest.iter().all(|m| !react_in(&kit_move(&d, k, m).unwrap().hits[0].react, &["knockdown", "launch", "crumple"])), "{n}");
+        let h = &kit_move(&d, k, last).unwrap().hits;
+        assert!(h.is_empty() || react_in(&h[h.len() - 1].react, &["knockdown", "launch"]), "{n}");
+    }
+    // line 183: a Getsuga wave's Kikon strike, classed as its segment, a flash step that can close 12 m
+    for (f, segs) in [("base", ["ic-n2c", "ic-as2b"]), ("kessa", ["ic-k-n2c", "ic-k-as2b"])] {
+        let k = kit(&d, "ichigo", f);
+        for n in segs {
+            let mv = kit_move(&d, k, n).unwrap();
+            let s = kit_move(&d, k, mv.params.kikon_strike.as_deref().unwrap()).unwrap();
+            assert!(kit_class(k, Some(s)).is_some() && kit_class(k, Some(s)) == kit_class(k, Some(mv)), "{n}");
+            assert!(s.params.look.as_deref().is_some_and(|l| l.eq_ignore_ascii_case("flash-step")) && s.params.follow_cap.unwrap() >= 40.0, "{n}");
+        }
+    }
+    // line 194 (the Kenpachi / Ichigo forms of its list; the Hisagi forms are M4): a segment something follows never knocks down / launches
+    for (c, f) in [("ichigo", "base"), ("ichigo", "kessa"), ("kenpachi", "base")] {
+        let k = kit(&d, c, f);
+        for n in core_routes(&k.core) {
+            for m in core_segments(&d, &n) {
+                if let Some(mv) = kit_move(&d, k, &m) {
+                    let p = &mv.params;
+                    if p.ns_next.is_some() || p.sa.is_some() {
+                        let kd = ["knockdown", "launch"];
+                        assert!(!(p.react.as_deref().is_some_and(|r| react_in(r, &kd)) || mv.hits.iter().any(|w| react_in(&w.react, &kd))), "{c} {f} {m}");
+                    }
+                }
+            }
+        }
+    }
+    // line 196: KESSA's clone X staggers
+    assert!(["ic-c-xa", "ic-c-xb"].iter().all(|n| find_move(&d, n).unwrap().hits[0].react.eq_ignore_ascii_case("stagger")));
+    // core.lisp line 199, its KESSA clause (its Hisagi clause is M4)
+    assert!(sp_move_p(&d, kit(&d, "ichigo", "kessa"), find_move(&d, "ic-k-zanzo").unwrap()));
+}
+
+#[test]
+fn find_kit_lookup() {
+    let d = Data::embedded();
+    assert_eq!(find_kit(&d, "ichigo", "kessa").form, "kessa");
+    assert!(std::panic::catch_unwind(|| find_kit(&Data::embedded(), "ichigo", "nope").form.len()).is_err());
+}

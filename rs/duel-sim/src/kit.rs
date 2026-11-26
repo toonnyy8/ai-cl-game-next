@@ -9,9 +9,10 @@ pub fn find_move<'d>(data: &'d Data, name: &str) -> Option<&'d Move> {
     data.moves.iter().find(|m| mv_name(m) == name)
 }
 
-/// MV-NAME: a move's symbol name (the data id is `character/form/name`; names are unique across the data).
+/// MV-NAME: a move's symbol name (`Move.name`; the data id is `character/form/name`, or `var/moves/name#0` for a move in no
+/// kit, Ichigo's clone X, so the id's last segment is not the name).
 pub fn mv_name(mv: &Move) -> &str {
-    short(&mv.id)
+    &mv.name
 }
 
 fn short(id: &str) -> &str {
@@ -131,6 +132,11 @@ pub fn seg_gap(m: &mut crate::state::Match, mv: &Move, _att: crate::ecs::Entity,
         crate::unported!(m, "kit.lisp SEG-GAP :seg-fn (Hisagi, M4)", None);
     }
     None
+}
+
+// port: kit.lisp FIND-KIT (an unknown kit is the Lisp's ERROR: a panic naming it)
+pub fn find_kit<'d>(data: &'d Data, character: &str, form: &str) -> &'d Kit {
+    data.kits.kits.get(character).and_then(|f| f.get(form)).unwrap_or_else(|| panic!("unknown kit {character} {form}"))
 }
 
 // port: kit.lisp KIT-COMMAND-MOVE (without E: the :command hook is Hisagi's, M4; the form's :commands entry)
@@ -316,7 +322,7 @@ pub fn hooks_of(kit: &Kit) -> Result<Hooks, String> {
     Ok(h)
 }
 
-// port: kit.lisp KIT-HOOK
+// port: kit.lisp KIT-HOOK — takes the kit's resolved `Hooks` table (`hooks_of`), not the kit: the symbols are resolved once at load.
 pub fn kit_hook(hooks: &Hooks, key: HookKey) -> Option<HookFn> {
     hooks.0[key as usize]
 }
