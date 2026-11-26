@@ -87,7 +87,7 @@ if (fixed) await send('Page.addScriptToEvaluateOnNewDocument', { source: `(() =>
     if (d && !busy) { busy = true; d.queue.onSubmittedWorkDone().then(() => { busy = false; }); }
   });
 })();` });
-await send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html` });
+await send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html${process.env.RUN_QUERY || ''}` });   // RUN_QUERY: e.g. ?msaa=off (the Bevy M0a page's switches)
 const t0 = Date.now(), wall = () => (Date.now() - t0) / 1000;
 const vnow = async () => (await send('Runtime.evaluate', { expression: 'window.__vt ? __vt() / 1000 : -1', returnByValue: true })).result?.value ?? -1;
 const held = async t => (await send('Runtime.evaluate', { expression: `!!window.__hold && __hold(${t})`, returnByValue: true })).result?.value;

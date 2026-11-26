@@ -1,0 +1,16 @@
+# The Rust + Bevy port (docs/bevy/BEVY_PORT.md). Bevy is pinned for the whole port (=0.20.1).
+[workspace]
+resolver = "3"
+members = ["spikes/m0a"]
+
+[workspace.dependencies]
+bevy = { version = "=0.20.1", default-features = false }
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[profile.dev.package."*"]
+opt-level = 2
