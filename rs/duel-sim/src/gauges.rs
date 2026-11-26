@@ -446,7 +446,7 @@ pub fn gauge_system(m: &mut Match) {
             }
         }
         if let Some(h) = kit.hooks.get("tick") {
-            // the form's own per-step mechanics (ICHIGO-TICK Task 12, KEN-BK-TICK Task 11, HS- / YAMA- M4)
+            // the form's own per-step mechanics (KEN-BK-TICK; ICHIGO-TICK Task 12, HS- / YAMA- M4)
             if !crate::flow::stub_tick(m, e, h) && !call_hook(m, e, h) {
                 return;
             }

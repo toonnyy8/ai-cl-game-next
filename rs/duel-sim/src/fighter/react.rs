@@ -101,7 +101,7 @@ pub fn set_blockstun(m: &mut Match, e: Entity, stun: i64, from_x: f32, from_z: f
 }
 
 /// port: OWN-ARMOR-P: is E's move ID armoured now: its :armor-hits left (from *ARMOR-FROM* to its startup's end, or a Kikon rush's
-/// dash), or the kit's :armor hook (KEN-ARMOR, Task 11: unported, false)?
+/// dash), or the kit's :armor hook (KEN-ARMOR)?
 pub fn own_armor_p(m: &mut Match, e: Entity, id: MoveId) -> bool {
     let (f, mvd) = (fighter(m, e), mv(m, id));
     let own = f.armor_left > 0

@@ -69,10 +69,11 @@ it is `unported!` with its name, so the run reports the first UNPORTED it can't 
 - `YAMA-TICK` (M4): skipped in the Shikai with the heat below the top (YA-FORM-NEXT is NIL).
 - KEN-BK-TICK is not stubbed (the Bankai forms come only through Kenpachi's hooks, Task 11).
 
-Every other `unported!` stops the run: the kit hooks (KEN-ARMOR, KEN-DMG-MULT, ICHIGO-HIT, HS-CLASH, YAMA-DMG-MULT, ...) and the kit
-cinematics. Since every kit's hit calls one of its hooks (`:dmg-mult`, `:hit`, `:struck`, or KEN-ARMOR in the defender's state), no
-trace finishes an APPLY-HIT step before Tasks 11-12; Task 10's trace evidence is the steps around it (collection, the clash, the
-cancels and absorbs of CORE-NOHIT!, perfect-Hoho tests), and `rs/duel-sim/tests/combat.rs` covers the rest.
+Every other `unported!` stops the run: the kit hooks (ICHIGO-HIT, ICHIGO-STRUCK, HS-CLASH, YAMA-DMG-MULT, ...) and the kit
+cinematics. Until Task 11 every kit's hit called one of its hooks, so no trace finished an APPLY-HIT step; since Task 11 (Kenpachi's
+hooks and cinematics, `rs/duel-sim/src/ken/`) the four Kenpachi mirrors replay whole matches bit-exact (cvc-kk-s1/s2/s3, cvctag-kk:
+`replay OK`, with or without `--stubbed`), and the Kenpachi-vs-Ichigo / -Yamamoto traces run on to Ichigo's / Yamamoto's first hook.
+The mode references nothing of Kenpachi's (KEN-BK-TICK runs as ported).
 
 **What it masks** (`--mask`, replay.rs `masked`: B field-name prefixes after `pN.`, `!prefix` keeps one): the kit state the stubbed
 ticks write, `ics-*` (Ichigo's ICS, attached and filled by ICHIGO-TICK from step 301: Task 12's), `hss-*` / `yss-*` (Hisagi's /

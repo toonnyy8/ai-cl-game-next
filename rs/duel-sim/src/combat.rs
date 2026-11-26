@@ -2,7 +2,8 @@
 //! hazard's hits, then APPLY them all in collection order: a trade is a trade; then the souls they broke, handed to round.rs),
 //! APPLY-HIT (the triangle, damage, reactions, chip, gauges, hitstop; the Kikon rush's strike; the parry), DEAL-DAMAGE, the step's three
 //! hit queues (`Match.pending`, `.kikons`, `.soul_breaks`, fixed capacity), a delayed hit (DELAY-HIT), Nozarashi's cuts, the
-//! perfect-Hoho test (PERFECT-NOW-P). EMITs are looks (`// look:`). Every hook goes through `call_hook` (the kit tasks port them).
+//! perfect-Hoho test (PERFECT-NOW-P). EMITs are looks (`// look:`). A hook of the fighter alone goes through `call_hook`, a value
+//! hook dispatches at its site (`ken_hook`).
 use crate::components::{Contact, HazardKind, HitWin, HzData, KikonUndo, MoveId, Phase, State, Sym};
 use crate::core::Verdict;
 use crate::core_sim::{
