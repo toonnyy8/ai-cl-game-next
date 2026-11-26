@@ -210,6 +210,11 @@ pub fn ender_push_reach(kit: &Kit, mv: &Move, opener: &Move) -> f32 {
     }
 }
 
+// port: kit.lisp STUN-TOLERANCE-OF
+pub fn stun_tolerance_of(k: &crate::knobs::Knobs, kit: &Kit) -> f32 {
+    kit.stun_tolerance.unwrap_or(k.stun_tolerance)
+}
+
 // port: kit.lisp KIT-ATK-MODS (FORM-MULT: a move's :params :form-mult, NIL = None; a kit has a :core when it has NS routes)
 pub fn kit_atk_mods(k: &crate::knobs::Knobs, kit: &Kit, lost: i64, hit_x: f32, form_mult: Option<f32>) -> crate::rules::AtkMods {
     let core = if kit.core.ns.is_empty() { 1.0 } else { k.core_damage * kit.core.mult };

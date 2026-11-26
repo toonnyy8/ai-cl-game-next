@@ -111,3 +111,12 @@ fn pending_hooks_are_the_live_symbols() {
     live.dedup();
     assert_eq!(live, PENDING_HOOKS.to_vec());
 }
+
+#[test]
+fn kit_run() {
+    // core.lisp lines 569, 571
+    let d = Data::embedded();
+    let (b, n) = (kit(&d, "kenpachi", "base"), kit(&d, "kenpachi", "nozarashi"));
+    assert!((b.run - 10.0).abs() < 1e-3 && (n.run - 10.0).abs() < 1e-3);
+    assert!(n.run_clips == b.run_clips && b.run_clips[0].eq_ignore_ascii_case("ke-run"));
+}

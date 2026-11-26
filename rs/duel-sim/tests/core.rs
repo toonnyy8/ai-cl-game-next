@@ -316,7 +316,7 @@ fn gauges() {
     assert!(ap(awakening_gain(k, 100, 100, 1), 18.9));
     assert!(ap(k.awaken_dealt, 0.035) && ap(k.awaken_taken, 0.049) && ap(k.awaken_per_konpaku, 10.5));
     assert!(ap(gauge_add(290.0, 20.0, 300.0), 300.0) && ap(gauge_add(5.0, -10.0, 300.0), 0.0));
-    let ha = |st, fs, lo, b| hoho_allowed_p(st, fs, lo, b, k.fs_hoho as f32);
+    let ha = |st, fs, lo, b| hoho_allowed_p(st, fs, lo, b, k.fs_hoho);
     assert!(ha(false, 100.0, 0, None) && !ha(true, 300.0, 0, None) && !ha(false, 300.0, 10, None) && !ha(false, 99.0, 0, None));
     let aa = |f, g, u| awaken_allowed_p(k, f, g, u);
     assert!(aa(true, 100.0, false) && !aa(true, 100.0, true) && !aa(false, 100.0, false) && !aa(true, 99.0, false));
@@ -349,7 +349,7 @@ fn gauges() {
             && !ha(false, 12.0, 0, None) && !ha(false, 12.0, 5, Some(White)) && !ha(true, 50.0, 0, Some(White))
     );
     let hc = |fs, b, burn| hoho_cost(k, fs, b, burn);
-    let fm = k.fs_max as f32;
+    let fm = k.fs_max;
     assert!(ap(hc(12.0, Some(White), fm), 12.0) && ap(hc(180.0, Some(White), fm), 100.0) && ap(hc(180.0, None, fm), 100.0));
     assert!(k.blue_burn == 100.0 && ap(burst_budget(k, Some(Blue)), 100.0) && ap(burst_budget(k, Some(White)), 300.0) && ap(burst_budget(k, Some(Orange)), 300.0));
     let run = |mut fs: f32, mut burn: f32| {
@@ -384,7 +384,7 @@ fn gauges() {
             && burst_heal(5, 12.0) == 1 && burst_heal(4, 12.0) == 0
     );
     assert!(ap(k.white_reishi, 70.0) && ap(k.white_awaken, 1.4));
-    let gm = k.gg_max as f32;
+    let gm = k.gg_max;
     let gr = |g, i, gl, gd, b, m| gg_regen(k, g, i, gl, gd, b, m, gm);
     assert!(ap(gr(50.0, 999, false, false, false, 0.25), 50.0 + (0.25 * k.gg_regen) / 60.0) && ap(gr(50.0, 999, true, false, false, 0.25), 50.0 + k.gg_regen_guardless / 60.0));
     assert!(
@@ -488,4 +488,130 @@ fn gauges_2() {
     assert!(stance_store(k, 150, 80) == 200 && stance_store(k, 0, 45) == 45);
     assert_eq!(stance_release(k, 150), (250, true));
     assert_eq!(stance_release(k, 100), (200, false));
+}
+
+#[test]
+fn combo_limits() {
+    use duel_sim::components::Phase::*;
+    let k = &k();
+    let cs = |r, a, h, l, ah, kb| combo_step(k, r, a, h, l, ah, kb);
+    assert_eq!(cs(Launch, false, 0, 0, 0, false), (Launch, 1, 1, 0));
+    assert_eq!(cs(Launch, false, 2, 1, 0, false), (Knockback, 3, 1, 0));
+    assert_eq!(cs(Flinch, true, 3, 1, 1, false), (Flinch, 4, 1, 2));
+    assert_eq!(cs(Flinch, true, 4, 1, 2, false), (Knockdown, 5, 1, 3));
+    assert_eq!(cs(Flinch, false, 9, 0, 0, false), (Flinch, 10, 0, 0));
+    assert_eq!(cs(Bind, false, 0, 0, 0, false), (Bind, k.burst_min_hits, 0, 0));
+    assert_eq!(cs(Bind, false, 3, 0, 0, false), (Flinch, 4, 0, 0));
+    assert_eq!(cs(Bind, false, 0, 0, 0, true), (Bind, k.burst_min_hits, 0, 0));
+    assert_eq!(cs(Bind, false, 3, 0, 0, true), (Bind, 4, 0, 0));
+    assert_eq!(cs(Stagger, false, 3, 0, 0, true), (Stagger, 4, 0, 0));
+    assert_eq!(stun_weight(k, "flinch", false), 1);
+    assert_eq!(stun_weight(k, "stagger", false), 2);
+    assert!(["crumple", "knockback", "launch", "knockdown"].iter().all(|r| stun_weight(k, r, false) == 3));
+    assert_eq!(stun_weight(k, "flinch", true), 3);
+    assert_eq!(stun_weight(k, "clash", false), 1);
+    assert_eq!(stun_add(k, 4.0, "stagger", false), 6.0);
+    assert_eq!(stun_decay(k, 10.0, k.stun_delay - 1), 10.0);
+    assert!(ap(stun_decay(k, 10.0, k.stun_delay), 10.0 - k.stun_decay / 60.0));
+    assert_eq!(stun_decay(k, 0.01, 999), 0.0);
+    let mut s = 12.0;
+    for i in 0..k.stun_delay + 60 {
+        s = stun_decay(k, s, i);
+    }
+    assert!((s - (12.0 - k.stun_decay)).abs() < 0.05);
+    assert!(!stun_over_p(16.0, 16.0) && stun_over_p(16.5, 16.0));
+    // stun-tolerance-of per kit (lines 503-508)
+    let d = Data::embedded();
+    let kit = |c: &str, f: &str| &d.kits.kits[c][f];
+    use duel_sim::kit::stun_tolerance_of;
+    assert_eq!(stun_tolerance_of(k, kit("ichigo", "base")), 16.0);
+    assert_eq!(stun_tolerance_of(k, kit("kenpachi", "base")), 26.0);
+    assert_eq!(stun_tolerance_of(k, kit("kenpachi", "bankai")), 26.0);
+    assert_eq!(stun_tolerance_of(k, kit("ichigo", "kessa")), 16.0);
+    assert!(d.kits.kits.values().flat_map(|f| f.values()).all(|x| stun_tolerance_of(k, x) > 0.0));
+    let mut bare = kit("ichigo", "base").clone();
+    bare.stun_tolerance = None;
+    assert_eq!(stun_tolerance_of(k, &bare), k.stun_tolerance);
+    // lines 510, 519: strings to the stun limit
+    let (mut s, mut idle, tol, mut strings) = (0.0, 0, 16.0, 0);
+    for _ in 0..20 {
+        if stun_over_p(s, tol) {
+            break;
+        }
+        strings += 1;
+        for r in ["flinch", "flinch", "stagger"] {
+            if !stun_over_p(s, tol) {
+                s = stun_add(k, s, r, false);
+                idle = 0;
+                for _ in 0..20 {
+                    s = stun_decay(k, s, idle);
+                    idle += 1;
+                }
+            }
+        }
+        for _ in 0..20 {
+            s = stun_decay(k, s, idle);
+            idle += 1;
+        }
+    }
+    assert!(stun_over_p(s, tol) && strings <= 5);
+    let (mut s, mut idle, mut over) = (0.0, 0, false);
+    for _ in 0..20 {
+        for r in ["flinch", "flinch", "stagger"] {
+            s = stun_add(k, s, r, false);
+            idle = 0;
+            over = over || stun_over_p(s, 16.0);
+        }
+        for _ in 0..120 {
+            s = stun_decay(k, s, idle);
+            idle += 1;
+        }
+    }
+    assert!(!over);
+}
+
+#[test]
+fn perfect_hoho_facing() {
+    use duel_sim::math::{angle_wrap, deg, turn_toward};
+    let k = &k();
+    // lines 532-540
+    let vols: [duel_sim::hitvol::Vol; 1] = [[0.0, 1.4, deg(100.0 / 2.0), -0.5, 2.5, 0.0]]; // (MAKE-VOL :arc: 0 r half-angle y0 y1)
+    let perfect = |sf, from, to, z: f32| perfect_hoho_p(k, sf, from, to, &vols, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, z, 0.4, 1.8);
+    assert!(perfect(3, 9, 12, -2.0));
+    assert!(perfect(0, 9, 12, -2.0));
+    assert!(!perfect(0, 13, 16, -2.0));
+    assert!(perfect(10, 9, 12, -2.0));
+    assert!(!perfect(12, 9, 12, -2.0));
+    assert!(perfect(3, 9, 12, -2.2));
+    assert!(perfect(3, 9, 12, -2.6));
+    assert!(!perfect(3, 9, 12, -3.0));
+    // lines 543-568
+    assert!(ap(turn_toward(0.0, deg(90.0), deg(18.0)), deg(18.0)));
+    assert!(ap(turn_toward(0.0, deg(10.0), deg(18.0)), deg(10.0)));
+    assert!(ap(angle_wrap(turn_toward(deg(170.0), deg(-170.0), deg(18.0))), deg(-172.0)));
+    assert!(ap(track_step(360.0), deg(6.0)));
+    assert!(
+        in_front_p(0.0, 0.0, 0.0, deg(95.0).sin(), -deg(95.0).cos(), k.guard_arc)
+            && !in_front_p(0.0, 0.0, 0.0, deg(105.0).sin(), -deg(105.0).cos(), k.guard_arc)
+    );
+    let (to, st) = stick_toward_strafe(0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -5.0);
+    assert!(ap(to, 1.0) && ap(st, 0.0));
+    let (to, st) = stick_toward_strafe(1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -5.0);
+    assert!(ap(to, 0.0) && ap(st, 1.0));
+    let (to, st) = stick_toward_strafe(0.0, 1.0, 0.0, 0.0, 0.0, 5.0, 0.0);
+    assert!(ap(to, 0.0) && ap(st, -1.0));
+    let (dx, dz) = toward_strafe_dir(0.6, 0.8, 1.0, 1.0, 1.0, -4.0);
+    let (to, st) = stick_toward_strafe(dx, -dz, 0.0, 1.0, 1.0, 1.0, -4.0);
+    assert!(ap(to, 0.6) && ap(st, 0.8));
+    let (x, z) = clamp_to_circle(20.0, 0.0, 15.0);
+    assert!(ap(x, 15.0) && ap(z, 0.0));
+    let (x, z) = clamp_to_circle(3.0, 4.0, 15.0);
+    assert!(ap(x, 3.0) && ap(z, 4.0));
+    let (x, z, yaw) = hoho_destination(k, 0.0, 0.0, 0.0);
+    assert!(ap(x, 0.0) && ap(z, 1.6) && ap(yaw, 0.0));
+    assert_eq!(step_direction(0.0, 0.1, -1.0), (-1.0, 0.0));
+    assert_eq!(step_direction(0.0, 0.1, 1.0), (1.0, 0.0));
+    assert!(!run_stop_p(k, 1.4, 1.0, 8.0) && run_stop_p(k, 1.3, 1.0, 8.0) && !run_stop_p(k, 1.0, -1.0, 8.0) && !run_stop_p(k, 1.25, 0.0, 10.0));
+    assert!(ap(run_carry(k, 5.0), 1.0) && ap(run_carry(k, 1.7), 0.5) && ap(run_carry(k, 1.0), 0.0));
+    assert!(ap(brake_speed(k, 9.0, 3), 4.5) && ap(brake_speed(k, 9.0, 6), 0.0) && ap(brake_speed(k, 9.0, 9), 0.0));
 }
