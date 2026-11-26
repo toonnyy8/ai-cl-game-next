@@ -90,6 +90,13 @@ impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
         };
     }
 
+    /// An `unported!` hit outside a step (a debug command, a gate between matches): UNPORTED at the step due.
+    fn check_unported(&mut self, m: &Match) {
+        if let (None, Some(n)) = (&self.out, m.unported) {
+            self.out = Some(Outcome::Unported(format!("{n} at tick {} (step {})", m.match_tick, self.steps + 1)));
+        }
+    }
+
     fn fail(&mut self, m: &Match, what: String) {
         let s = format!("tick {} (step {}, item {}): {what}", m.match_tick, self.steps, self.items);
         self.out.get_or_insert(Outcome::Diverged(s));
@@ -181,6 +188,7 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
     rp.advance();
     if trials {
         flow::frame(&mut m, &mut rp); // (trial.lisp's start: one frame, no step)
+        rp.check_unported(&m);
         while rp.out.is_none() {
             match rp.cur.take() {
                 None => return Outcome::Ok(rp.steps),
@@ -193,6 +201,7 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
                     rp.detach(&mut m);
                     rp.advance();
                     flow::frame(&mut m, &mut rp);
+                    rp.check_unported(&m);
                 }
                 Some(step) => {
                     rp.cur = Some(step);
@@ -209,6 +218,7 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
         }
     }
     flow::frame(&mut m, &mut rp);
+    rp.check_unported(&m);
     for _ in 0..2_000_000 {
         if let Some(out) = rp.out.take() {
             return out;
@@ -216,6 +226,7 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data) -> Outc
         if !flow::frame(&mut m, &mut rp) {
             return Outcome::Error("the frame stopped".into());
         }
+        rp.check_unported(&m);
         if let Some(out) = rp.out.take() {
             return out;
         }

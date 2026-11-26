@@ -237,3 +237,51 @@ pub fn cine_place(m: &mut Match, a: Entity, v: Entity, gap: f32) {
     cine_save(m, a, v);
     face_each_other(m, a, v, Some(gap));
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::{Character, Flow};
+
+    /// A fresh KI match at its intro's frame 0 (the AFTER: BEGIN-BATTLE, so it shows as flow BATTLE).
+    fn intro() -> Match {
+        let mut m = crate::hashline::tests::new_match();
+        crate::flow::go_title(&mut m);
+        m.picks = [Character::Kenpachi, Character::Ichigo];
+        m.mode = crate::state::Mode::CpuCpu; // (a human seat's BEGIN-BATTLE needs VIEW-STEP: M2)
+        crate::flow::start_match(&mut m);
+        m
+    }
+
+    /// tests/cine-test.lisp's director checks on the INTRO script (lines 37, 40, 45, 48, 49, 65, 67, 71, 74).
+    #[test]
+    fn cine_test_lisp() {
+        let mut m = intro();
+        assert_eq!(m.cine.as_ref().map(|c| c.cf), Some(0)); // frame 0 ran at the start
+        assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Cine)); // the begin hook
+        let mut cfs = Vec::new();
+        while let Some(c) = m.cine.as_ref() {
+            cfs.push(c.cf);
+            cine_step(&mut m);
+        }
+        assert_eq!((cfs.len(), cfs.last()), (300, Some(&299))); // one step per frame, the end after frame LEN
+        assert_eq!(m.flow, Flow::Battle); // the end hook, then AFTER
+
+        let mut m = intro();
+        skip_cine(&mut m);
+        assert!(m.cine.is_some()); // still running until the next fixed step
+        cine_step(&mut m);
+        assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle));
+
+        let mut m = intro();
+        abort_cine(&mut m);
+        assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Intro)); // AFTER dropped
+
+        let mut m = crate::hashline::tests::new_match();
+        crate::flow::go_title(&mut m);
+        m.skip_cines = true;
+        m.mode = crate::state::Mode::CpuCpu;
+        crate::flow::start_match(&mut m);
+        assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle)); // *skip-cines*: ended at once, AFTER ran
+    }
+}
