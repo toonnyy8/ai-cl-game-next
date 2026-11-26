@@ -78,3 +78,7 @@ Rust 1.99, Bevy =0.20.1.
 Pages: A = the Lisp playtest page (https://claude.ai/artifact/JFuuxi3T1FQf6mA2n58YcV, v492); B = the Bevy replay page
 (https://claude.ai/artifact/93Vi4g42Ge1SGWyj99VfV1, links at the top right switch MSAA 4x / off: B'). The question: is B (and B')
 smooth and quick enough to start, compared with A, to go on with Bevy's own rendering?
+
+**The user's answer (2026-11-26, after trying both pages on the phone): 「可以接受」.** The port goes on with Bevy's own rendering
+(BEVY_PORT §7 M0a passed). MSAA stays the original's 4x unless the user asks otherwise; B' showed it can be dropped if a phone
+needs it.
