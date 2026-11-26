@@ -13,4 +13,5 @@ mv "$out/index_bg.wasm" "$out/index.wasm"
 "$WASM_OPT" -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext --enable-mutable-globals \
   --enable-reference-types --enable-multivalue "$out/index.wasm" -o "$out/index.wasm"
 cp "$here/web/index.html" "$out/index.html"
+gzip -9 -c -n "$out/index.wasm" > "$out/index.gzip.wasm"   # gzip bytes under a served name: what the Artifact page loads (binary files stop at 15 MB, .gz is not served)
 ls -l "$out"

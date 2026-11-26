@@ -227,6 +227,20 @@ Artifact** for the user; the current Lisp page stays as it is until switch-over.
 The milestones are large. The builder splits each into batches of one worktree and one subagent each (AGENTS.md "Big work"), ordered by the
 MANIFEST dependency order.
 
+## 7.1 Rebuild speed (the user, 2026-11-26: 「你能透過熱重載減少更改後的編譯時間嗎」; the lead's answer)
+
+- Data and shaders hot-reload: the extracted data (moves, clips, tuning, bodies, sounds' parameters) is runtime-loaded data
+  files (RON or a binary form, typed by serde, checked on load and by the tests), and the shaders are files. In development
+  they are read from disk and reloaded on change (Bevy's `file_watcher`), so a number or a shader changes with no compile; the
+  release page embeds them (`embedded_asset!` / `include_bytes!`), so it still ships as one page. This settles §5.2's
+  "generated Rust or RON" toward data files.
+- Code does not hot-patch: Bevy 0.20's `hotpatching` is native-only and experimental, and this machine has no display (every
+  check runs in headless Chrome on wasm). Instead: `duel-sim` has no Bevy (its tests and the parity tools build in seconds);
+  wasm development uses `--profile web-dev` (M0a measured: 95 s the first time, then about 1 s a change plus 3 s of
+  wasm-bindgen, against 2 min 51 s a release build); native tests may use Bevy's `dynamic_linking`.
+- The release page loads a gzip copy of the wasm (M0a: the Artifact serves binary files up to 15 MB and no `.gz`; Bevy's
+  release wasm was 17.4 MB of code and data before the game's own).
+
 ## 8. Left to the builder
 
 - Crate internals and module layout inside each crate, generated Rust vs RON, and naming.
