@@ -104,3 +104,26 @@ Diagnostics left in the spike:
 
 Ruling: the device loss is Bevy 0.20.1's per-frame GPU-clustering buffers that wgpu's web backend never destroys. The port
 keeps Bevy at =0.20.1 and turns light clustering off: `gpu_clustering = None` plus `ClusterConfig::None` on every camera.
+
+## 2. The blank page and its contract (Task 3, 2026-11-26)
+
+`rs/duel-app` (`src/page.rs`: `DebugQueue`, `debug_cmd`, `say`, the `startup:` / `perf:` lines, `camera_bundle` with the §1 fix),
+its shell `rs/duel-app/web/index.html`, `tools/port/build-web.sh <crate> <out_dir> [release|web-dev]`, and the smoke
+`tools/port/page-smoke.sh [DIST]` (default `dist/rs-blank`).
+
+- **Stills.** Two `--fixed-dt 16.666667` runs to virtual 10 s give byte-identical PNGs. The page draws only its clear colour, so
+  this proves the harness path (the virtual clock starts, frames present, `__settle` returns), not determinism of drawn frames.
+  The canvas does present: the centre pixel is the clear colour (20, 20, 26), one off the page background `#141419` (20, 20, 25);
+  the row also requires a `startup:` line in both logs.
+- **`Module.preinitializedWebGPUDevice`** is an idle device the page requests from its own adapter before `init`; Bevy / wgpu
+  make their own. run.mjs's rAF tick (not only `__settle`) chains `onSubmittedWorkDone` on it, so neither waits for Bevy's GPU
+  work. Harmless for a clear colour; once frames draw (Task 9), stills may need that wait on wgpu's device.
+- **Frames before `startup:` vary run to run** under the virtual clock: `perf: startup 217 ms` in one run, `233 ms` in the
+  next (13 vs 14 virtual frames before Bevy's 12th update), so Bevy's update count is not tied 1:1 to rAF ticks at startup.
+  `FixedUpdate` reads Bevy's `Time` (performance.now, the virtual clock), so the sim steps by virtual time T should still match;
+  Task 9's traces check that.
+- **Wall speed.** The blank page runs 11.6 fps (86 ms frames) in headless SwiftShader at 1280x720, MSAA 4x; the M0a page with
+  `?empty` measured the same that hour (11.4 fps), so it is the machine's SwiftShader, not the page.
+- `Tonemapping::None` on the camera: the default TonyMcMapFace needs the `tonemapping_luts` feature and logs an error without it
+  (the port grades in its own shaders, as M0a did).
+- `web-dev` builds skip wasm-opt: 109 MB wasm, 15.4 MB gzip (over the Artifact's 15 MB binary limit; for local runs only).
