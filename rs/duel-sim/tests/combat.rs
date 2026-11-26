@@ -178,7 +178,7 @@ fn hit_system_lands_a_j1() {
     let log: Vec<&str> = m.log.iter().map(|l| l.split_once("] ").unwrap().1).collect();
     let fs1 = fs0 + k.sp_gain_j;
     assert_eq!(log[..3], [
-        format!("P1 KE-Z-J1 -> P2 HIT 35"),
+        "P1 KE-Z-J1 -> P2 HIT 35".to_string(),
         format!("P1 dealt {dmg}: flinch stun {stun}"),
         format!("P1 SP hit gain {:.1} (fs {fs1:.1})", k.sp_gain_j),
     ]);
