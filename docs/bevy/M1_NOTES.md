@@ -31,50 +31,48 @@ current kit's body (`fighter::hurt_r`) and the B line needs no anim field.
 ## 2. VIEW-STEP and RESET-SLOW-CLOCK (Task 7)
 
 **VIEW-STEP** (fighter.lisp 229, called by FIGHTER-SYSTEM every step, and with RESET by BEGIN-BATTLE, flow.lisp 159, and the Kikon
-reset, round.lisp 78: Task 10 inherits the same rule) writes only
+reset, round.lisp 78: Task 10's `round::reset_round` follows the same rule) writes only
 `*view-x*`, `*view-z*`, `*view-side*` and `*behind-yaw*`. Their readers: STICK-RELATIVE for a `cam-relative` pilot (a human seat;
 CPU pilots keep `cam-relative` nil, M0_NOTES §4), camera.lisp (a look), sim-state.lisp's snapshot list (the CPU's rollouts, M2).
 Neither `state-hash-line` (gate.lisp) nor the B line (trace.lisp `tr-b-line`: 29 globals, none of them) reads them. So in a
 CPU-only match (every gate trace) VIEW-STEP is invisible to H and B; the port skips it and hits `unported!("view-step")` when a
-`cam_relative` pilot exists (BEGIN-BATTLE and FIGHTER-SYSTEM; M2 ports it with the human input).
+`cam_relative` pilot exists (BEGIN-BATTLE, FIGHTER-SYSTEM and RESET-ROUND; M2 ports it with the human input).
 
 **RESET-SLOW-CLOCK** (main.lisp 13) is `(setf *slow-acc* 0.0)` and nothing else (a single-float 0); START-MATCH's call is
 `m.slow_acc = 0.0` in `flow::start_match`.
 
-## 3. The replay's stubbed mode (Task 8; Task 9 dropped the gauge stub)
+## 3. The replay's stubbed mode (Task 8; Task 9 dropped the gauge stub, Task 10 the hazard / hit stubs)
 
-The official gate (`tools/port/replay-gate.sh --allow-unported`) stops every cvc trace at `UNPORTED hazard-system` on step 301, before
-any fighter code is compared, until Task 10 ports the hazards. The **stubbed mode** checks the fighter / core-sim / gauges port in the
-meantime:
+Until Task 10 the official gate (`tools/port/replay-gate.sh --allow-unported`) stopped every cvc trace at `UNPORTED hazard-system` on
+step 301. HAZARD-SYSTEM and HIT-SYSTEM are real since Task 10, so the official gate now stops at the first kit hook: every Ichigo trace
+at ICHIGO-TICK (GAUGE-SYSTEM's `:tick`, step 301), the Kenpachi mirrors at their first contact (KEN-ARMOR / KEN-DMG-MULT). The
+**stubbed mode** runs past the forms' `:tick` hooks so the code behind them is compared further:
 
 ```sh
 tools/port/replay-gate.sh --allow-unported --stubbed          # the 18 gate traces
 NAMES="cvc-kh-s1 cvc-yi-s2" tools/port/replay-gate.sh --allow-unported --stubbed
-rs/target/release/duel-tools replay TRACE --stub hazard-system,hit-system,ICHIGO-TICK,HS-TICK,YAMA-TICK --mask 'ics-,hss-,yss-'
+rs/target/release/duel-tools replay TRACE --stub ICHIGO-TICK,HS-TICK,YAMA-TICK --mask 'ics-,hss-,yss-'
 ```
 
 Off by default: without `--stubbed` the gate and `duel-tools replay` are unchanged. It is not the gate's verdict.
 
-**What it stubs** (`Match.stubs`, flow.rs): HAZARD-SYSTEM and HIT-SYSTEM at their entry points, and three forms' `:tick` hooks (called
-by GAUGE-SYSTEM every step, gauges.rs), each by its name. A stub does nothing only while the real code provably writes nothing outside
-the masked fields and logs nothing; otherwise it is `unported!` with its name, so the run reports the first UNPORTED it can't stub,
-never a silent divergence:
-- `hazard-system`: no-op while no hazard exists.
-- `hit-system`: no-op unless a hazard exists, a perfect Hoho is on its counter-strike frame, both fighters are in Breaker phases
-  (BREAKER-CLASH-P), or a fighter's move window would be collected (COLLECT-MELEE's own tests: `:move :main`, not a dead segment,
-  open at SF, unused, the `:min` dead zone, WINDOW-TOUCHES-P; a window with `:min` of a form with a `:min-reach` hook stops
-  with the hook's name, Hisagi's HS-MIN-REACH). So the run stops at the first contact (or a little before: an invulnerable defender's
-  collected hit logs nothing).
+**What it stubs** (`Match.stubs`, flow.rs `stub_tick`): three forms' `:tick` hooks (called by GAUGE-SYSTEM every step, gauges.rs), each
+by its name. A stub does nothing only while the real hook provably writes nothing outside the masked fields and logs nothing; otherwise
+it is `unported!` with its name, so the run reports the first UNPORTED it can't stub, never a silent divergence:
 - `ICHIGO-TICK` (Task 12): skipped outside KESSA, an `ic-tsuki*` move and with no hazard (ICHIGO-CUT); there it only attaches and
-  writes his ICS. `HS-TICK` (M4): always skipped; it writes his HSS, and its move / log writes need states only his own (unported)
-  hooks set, so a skip there would show as DIVERGED, not pass. `YAMA-TICK` (M4): skipped in the Shikai with the heat below the
-  top (YA-FORM-NEXT is NIL). KEN-BK-TICK is not stubbed (the Bankai forms come only through Kenpachi's hooks, Task 11).
+  writes his ICS.
+- `HS-TICK` (M4): always skipped. It writes his HSS (masked); each of its other writes (the K1 copy swapped into FIGHTER-MOVE, the
+  SICKLE / KIN off / ZANDEN log lines) needs a state that only one of his own unported hooks sets first (`hss-kstr`: HS-KAZA-TICK /
+  HS-KAZA-START; `:out`: HS-THROW-OUT; `hss-kin`: HS-CLASH; `zan-pend`: HS-HIT), and the run stops at that hook. So the skip is exact
+  on every state the run can reach. It is not caught by B: the move swap puts in a same-named copy, and B prints a move by name only.
+  Whoever ports one of those hooks (M4) must replace the skip with a bail first.
+- `YAMA-TICK` (M4): skipped in the Shikai with the heat below the top (YA-FORM-NEXT is NIL).
+- KEN-BK-TICK is not stubbed (the Bankai forms come only through Kenpachi's hooks, Task 11).
 
-GAUGE-SYSTEM itself is real since Task 9 (the gauge stub and its `gauges-` mask are gone), so every gauge field is compared. Without the
-three tick stubs every Ichigo / Hisagi / Yamamoto trace would stop at its `:tick` hook on step 301.
-
-Every other `unported!` still stops the run: PERFECT-NOW-P (`hit-system`), the kit hooks and the kit cinematics (an awakening's
-`KEN-NOZARASHI-CINE`, ...).
+Every other `unported!` stops the run: the kit hooks (KEN-ARMOR, KEN-DMG-MULT, ICHIGO-HIT, HS-CLASH, YAMA-DMG-MULT, ...) and the kit
+cinematics. Since every kit's hit calls one of its hooks (`:dmg-mult`, `:hit`, `:struck`, or KEN-ARMOR in the defender's state), no
+trace finishes an APPLY-HIT step before Tasks 11-12; Task 10's trace evidence is the steps around it (collection, the clash, the
+cancels and absorbs of CORE-NOHIT!, perfect-Hoho tests), and `rs/duel-sim/tests/combat.rs` covers the rest.
 
 **What it masks** (`--mask`, replay.rs `masked`: B field-name prefixes after `pN.`, `!prefix` keeps one): the kit state the stubbed
 ticks write, `ics-*` (Ichigo's ICS, attached and filled by ICHIGO-TICK from step 301: Task 12's), `hss-*` / `yss-*` (Hisagi's /
@@ -83,7 +81,7 @@ sp-paid, xch / xch-done, ptr, cd and the hazard count, all in B, plus gauge fiel
 `hss-`); Task 7's review checked every item is in B or a masked field. B still compares the globals (`*timer*`, `*hitstop*`,
 `*slow-acc*`, `*slowmo*`), T and the combat log on every step.
 
-Proof (Task 8 part 0, on fbbed2bd): the mode reproduced Task 7's scratch check exactly (every one of the 51 cvc / cvctag traces ran to
-`UNPORTED start-move` at the same step, with fs checked). Task 9: with the real GAUGE-SYSTEM and the new defaults, all 51 stop at the
-same name and step as with Task 8's gauge stub (0 DIVERGED). Delete the mode once Task 10 ports the hazards and hits and the kit tasks
-port the ticks.
+Proof (Task 8 part 0, on fbbed2bd): the mode reproduced Task 7's scratch check exactly. Task 9: with the real GAUGE-SYSTEM, all 51 cvc /
+cvctag traces stopped at the same name and step as with Task 8's gauge stub (0 DIVERGED). Task 10: with the real HAZARD- / HIT-SYSTEM,
+0 DIVERGED on all 51, each stopping at a kit hook (the per-trace table: `.superpowers/sdd/2026-11-26-m1-sim-core/task-10-report.md`).
+Delete the mode once the kit tasks port the ticks.
