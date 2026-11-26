@@ -271,7 +271,14 @@ pub fn compare(fields: &[String], mask: &[String], want: &Item, log: &[String], 
         let (wv, gv): (Vec<&str>, Vec<&str>) = (wb.split(' ').collect(), b.split(' ').collect());
         let skip = |i: usize| fields.get(i).is_some_and(|n| masked(mask, n));
         if let Some(i) = (0..wv.len().max(gv.len())).find(|&i| wv.get(i) != gv.get(i) && !skip(i)) {
-            let name = fields.get(i).map_or("?", String::as_str);
+            let name = match fields.iter().position(|f| f == "|") {
+                // a hazard's field: hz<n>.<slot> (the header names one hazard's slots after the bar)
+                Some(bar) if i > bar && fields.len() > bar + 1 => {
+                    let (k, n) = (i - bar - 1, fields.len() - bar - 1);
+                    format!("hz{}.{}", k / n, fields[bar + 1 + k % n])
+                }
+                _ => fields.get(i).map_or("?", String::as_str).to_string(),
+            };
             return Some(format!("B field {name}: want {} got {}", wv.get(i).unwrap_or(&"-"), gv.get(i).unwrap_or(&"-")));
         }
     }

@@ -2,7 +2,6 @@
 //! (every literal there is a single). Hurt volumes are vertical cylinders (radius tr, height th) standing on (tx ty tz).
 #![allow(clippy::too_many_arguments)]
 use crate::cl::{max_f32, min_f32};
-use crate::math::{fwd_x, fwd_z};
 
 /// port: engine/lisp/hitvol.lisp MAKE-VOL's six floats: [type, p1..p4, p5]; type 0 ARC (r half-angle y0 y1), 1 CAP (a b h r
 /// yaw), 2 SPH (fwd up r), 3 TSPH (r). duel-data carries them made (`MoveDef::vols`).
@@ -43,7 +42,7 @@ pub fn vol_hit_p(
         let (mut fx, mut fz) = (fx, fz);
         let yo = v[5];
         if yo != 0.0 {
-            let (c, sn) = (libm::cosf(yo), libm::sinf(yo));
+            let (sn, c) = crate::math::sincosf(yo); // (gcc's fused sincosf: math::sincosf)
             (fx, fz) = (fx * c + fz * sn, fz * c - fx * sn);
         }
         let (a, b, h, r) = (v[1], v[2], ay + v[3], v[4]);
@@ -147,7 +146,8 @@ pub fn obox_cyl_hit_p(
     tr: f32,
     th: f32,
 ) -> bool {
-    let (fx, fz) = (fwd_x(yaw), fwd_z(yaw));
+    let (s, c) = crate::math::sincosf(yaw); // (FWD-X / FWD-Z of one yaw: gcc's fused sincosf, math::sincosf)
+    let (fx, fz) = (-s, -c);
     let (dx, dz) = (tx - cx, tz - cz);
     let lx = dx * -fz + dz * fx;
     let lz = dx * fx + dz * fz;
