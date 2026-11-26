@@ -402,3 +402,90 @@ fn gauges() {
             && (ray_room(4.0, 0.0, -1.0, 0.0, 5.0) - 9.0).abs() < 1e-4 && ray_room(5.0, 0.0, 1.0, 0.0, 5.0) == 0.0
     );
 }
+
+#[test]
+fn gauges_2() {
+    use Burst::*;
+    let k = &k();
+    // line 402
+    let kw = |x: &duel_sim::knobs::KwInts| ["quick", "flash", "kikon"].map(|n| x.get(n, -1));
+    assert!(kw(&k.block_add) == [4, 6, 6] && kw(&k.whiff_add) == [8, 8, 8] && k.block_add.0.len() == 3 && k.whiff_add.0.len() == 3);
+    // line 403
+    let gc = |sf, s, a, r, c, kind, wh| guard_cancel_open_p(k, sf, s, a, r, c, kind, wh, None);
+    let q = Some("quick");
+    assert!(
+        gc(16, 9, 3, 12, B, q, None) && !gc(15, 9, 3, 12, B, q, None) && gc(27, 9, 3, 12, B, q, None) && !gc(28, 9, 3, 12, B, q, None)
+            && gc(19, 9, 3, 12, None, q, Some(20)) && !gc(18, 9, 3, 12, None, q, Some(20))
+            && gc(15, 9, 3, 12, H, q, None) && !gc(14, 9, 3, 12, H, q, None)
+            && !gc(40, 21, 4, 24, None, Some("sig"), Some(30)) && !gc(40, 21, 4, 24, B, Some("sp"), None)
+    );
+    // line 408
+    let rf = |r, c, w, kind| recovery_frames(k, r, c, w, Some(kind));
+    assert!(
+        rf(12, B, None, "quick") == 16 && rf(20, B, None, "flash") == 26 && rf(24, B, None, "kikon") == 30 && rf(12, H, None, "quick") == 12
+            && rf(12, None, Some(20), "quick") == 28 && rf(20, None, Some(32), "flash") == 40 && rf(30, None, Some(30), "kikon") == 38
+            && rf(24, B, None, "sp") == 24 && rf(24, None, Some(30), "sig") == 30
+    );
+    // line 412
+    assert_eq!(move_end_frame(k, 9, 3, 12, Some(20), B, false, q), 28);
+    // line 413
+    let cut = |s, e| chain_startup_cut(k, s, e);
+    assert!(cut(10, 0) == 4 && cut(20, 0) == 8 && cut(2, 0) == 0 && cut(1, 0) == 0 && cut(3, 0) == 1 && cut(12, 2) == 4 && k.chain_window == 12);
+    // lines 415-416
+    assert!(ap(burst_gain_mult(k, Some(Orange)), 1.5) && ap(burst_gain_mult(k, Some(White)), 1.0) && ap(burst_gain_mult(k, None), 1.0));
+    assert!(ap(hit_gains(k, 100, 0, false, 1.5, 1).1, 5.25) && ap(hit_gains(k, 0, 100, false, 1.5, 1).0, hit_gains(k, 0, 100, false, 1.0, 1).0));
+    // lines 420-423
+    assert!(ap(fs_gain(k, 10.0, None, 0.0), 10.0) && ap(fs_gain(k, 10.0, Some(Blue), 0.5), 0.0) && ap(fs_gain(k, 10.0, None, 1.0), 10.0 * (1.0 + k.sub_fs)));
+    assert!(k.kikon_fs_refund == 105.0 && ap(burst_fs_gain(k.kikon_fs_refund, None), 105.0) && ap(burst_fs_gain(k.kikon_fs_refund, Some(White)), 0.0));
+    assert!(k.fs_hoho == 100.0 && k.fs_burst == 100.0 && ap(k.fs_taken, 0.135) && k.fs_max == 300.0); // ((boundp '*fs-refund*): no such knob)
+    // lines 424-429
+    let fr = |f, i| fs_regen(k, f, i, k.fs_regen);
+    assert!(ap(fr(50.0, 59), 50.0) && ap(fr(50.0, 60), 50.075) && ap(fr(99.99, 600), 100.0));
+    let mut f = 40.0;
+    for _ in 0..2000 {
+        f = fr(f, 600);
+    }
+    assert!(ap(f, 100.0));
+    assert!(fr(100.0, 600) == 100.0 && fr(180.0, 600) == 180.0 && fr(300.0, 600) == 300.0 && fr(180.0, 0) == 180.0);
+    let mut f = 0.0;
+    for _ in 0..60 {
+        f = fr(f, 60);
+    }
+    assert!(ap(4.5, f));
+    assert!((1333.0 - k.fs_hoho / (k.fs_regen / 60.0)).abs() < 0.5);
+    // line 431
+    let gv = |kind, adv, o| guard_value(k, kind, adv, o);
+    assert!(
+        gv(q, Some(-2), None) == 8 && gv(q, Some(-12), None) == 12 && gv(Some("flash"), Some(-4), None) == 14
+            && gv(Some("flash"), Some(-14), None) == 18 && gv(Some("sig"), Some(-6), None) == 18 && gv(Some("sig"), Some(-14), None) == 22
+            && gv(Some("sp"), Some(-16), None) == 22 && gv(Some("kikon"), Some(-14), None) == 20 && gv(None, None, None) == 12
+            && gv(Some("sig"), Some(-6), Some(10)) == 10
+    );
+    // lines 443-460
+    assert_eq!(gg_drain(100.0, 8), (92.0, false));
+    assert_eq!(gg_drain(5.0, 8), (0.0, true));
+    assert!(k.gg_delay == 60 && ap(k.gg_regen, 5.5) && ap(k.gg_regen_guardless, 6.5));
+    let gm = k.gg_max;
+    let gr = |g, i, gl, gd| gg_regen(k, g, i, gl, gd, false, 1.0, gm);
+    assert!(ap(gr(50.0, 59, false, false), 50.0) && ap(gr(50.0, 60, false, false), 50.0 + 5.5 / 60.0) && ap(gr(50.0, 60, true, false), 50.0 + 6.5 / 60.0) && ap(gr(99.99, 99, false, false), 100.0));
+    let mut g = 0.0;
+    let n = (0..).find(|&f| { if g >= gm { return true; } g = gr(g, f, true, false); false }).unwrap();
+    assert!((983..=984).contains(&n));
+    assert!(ap(gr(50.0, 999, false, true), 50.0) && gg_idle_next(40, true) == 40 && gg_idle_next(40, false) == 41 && gg_idle_next(9999, false) == 9999);
+    let mut idle = 0;
+    (0..40).for_each(|_| idle = gg_idle_next(idle, false));
+    (0..30).for_each(|_| idle = gg_idle_next(idle, true));
+    (0..20).for_each(|_| idle = gg_idle_next(idle, false));
+    assert_eq!(idle, 60);
+    assert_eq!(chip_damage(85, Some(1.0), 50), 49);
+    assert!(ap(gr(40.0, 9999, false, true), 40.0) && gg_idle_next(30, true) == 30);
+    assert!(can_guard_p(1.0, false) && !can_guard_p(0.0, false) && !can_guard_p(99.0, true));
+    // line 464 (463's Kenpachi J1 rides with Task 11), 469
+    assert_eq!(k.gg_breaker, 35);
+    assert_eq!(k.reishi_max, 1300);
+    // lines 473-476
+    assert!(seconds_to_frames(10.0) == 600 && ap(timer_fill(300, 600, 100.0), 50.0));
+    assert!(stance_store(k, 150, 80) == 200 && stance_store(k, 0, 45) == 45);
+    assert_eq!(stance_release(k, 150), (250, true));
+    assert_eq!(stance_release(k, 100), (200, false));
+}
