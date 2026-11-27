@@ -430,7 +430,8 @@ address in `data.moves`). A rollout that hits `unported!` stops; `Search.cut_rol
 the live replay fails with `replay UNPORTED <name> in a rollout from tick T (step S)` (`cut_rollout_fails_the_run`). IKS-MODE-PICK with
 every weight an integer is `unported!` (CL ratios; no shipped arm). `tsuki_dash_brain_aims_at_him` tests TSUKI-DASH's brain aim.
 IKW-GAP-WATCH's gap-off arm (IKW-ALT) is ported: `Now::gap_off` reads the arm with `:iks-gap-p 0.0` first in its :BASE (the reseeded
-`--snap` rollouts of cvctag-ii reached it at tick 9640); IKW's ALT and CELL print as the Lisp's.
+`--snap` rollouts of cvctag-ii reached it at tick 9640). IKW's ALT and CELL are printed from it (`#s:<id>`, the cell through `Now`'s
+encoder), ported but unverified: no compared trace reaches gap-off, and `Now`'s encoder has never been checked against a key.
 
 **`--snap` is SIM-ROLLOUT now** (snaptest.lisp's): a scratch copy, WITH-ROLLOUT's bindings with the styles kept, 40 lean steps, stopping
 when the flow leaves the battle or a cinematic runs; the live match is never touched. A plain sim step there would have run MC-NEUTRAL's
@@ -444,7 +445,9 @@ fields: the `*mc-*` search knobs, `*strat-bias-keys*` (`OptNames`), `*cai-cont-p
 **Where the live replay stands: all 15 gate traces `replay OK`, whole matches**, with and without `--snap 40` (0 rollouts reaching an
 unported path), every T / A (the job sections included) / C / H / B equal; the M1 gate gives 22 OK with and without `--snap`; cvc-ii-s1
 live also replays OK in wasm32 under node. `--inject-plan` is now redundant (MC-FULL-STEP writes the same plan) and still passes.
-`vs-cpu` / `vs-learn` stop at step 1 (`vs-start`, `debug 2504`: Task 9).
+`vs-cpu` / `vs-learn` stop at step 1 (`vs-start`, `debug 2504`: Task 9). A cut CPU rollout prints `replay UNPORTED … in a rollout`,
+which `replay-gate.sh --allow-unported` would accept (a `--snap` cut is always `SNAP-UNP`); the M1 gate's brainless traces run no CPU
+rollout, but a live gate must fail that line as SNAP-UNP is failed.
 
 **Allocations** (`duel-tools` `live_allocs`: the commands run live, no reader, the combat log off, every frame that starts and ends in the
 battle). cvc-ki-s1: 210 in 21,120 battle steps (12 decisions, 24 rollouts), MC-FULL-STEP's share 0. cvc-ii-s1: 217 in 19,080 (66

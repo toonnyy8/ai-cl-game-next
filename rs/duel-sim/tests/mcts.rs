@@ -175,8 +175,16 @@ fn with_a_job() -> (Match, Search) {
     panic!("no job in 30000 steps");
 }
 
+/// Everything of `Search` a rollout must leave alone (the port's rollouts run on a scratch match, so pollution could only show here):
+/// the jobs after the first, the strategy jobs, the decisions count, the strategy stats and picks, the page, a cut.
+fn search_rest(s: &Search) -> String {
+    let jobs: Vec<String> = s.mc_jobs.iter().skip(1).map(|j| format!("{} {} {} {:?} {} {} {} {}", j.side, j.a1, j.a2, j.dif, j.n, j.v1, j.v2, j.rng)).collect();
+    let st: Vec<String> = s.strat_jobs.iter().map(|j| format!("{} {:?} {:?} {:?} {:?} {}", j.side, j.sums, j.ns, j.hsums, j.hns, j.n)).collect();
+    format!("{jobs:?} {st:?} {} {:?} {:?} {:?} {:?}", s.mc_stats[0], s.strat_stats, s.strat_picks, s.page, s.cut)
+}
+
 /// Review Focus 1 (fulltest.lisp): one extra rollout of the oldest job, the way MC-FULL-STEP runs one: the live match is as before
-/// (the B line, the brains, the plan, the sim stream) and the job holds the new score.
+/// (the B line, the brains, the plan, the sim stream), the job holds the new score, and the rest of `Search` is untouched.
 #[test]
 fn rollout_leaves_live_state_and_keeps_search() {
     let (mut m, mut s) = with_a_job();
@@ -185,9 +193,12 @@ fn rollout_leaves_live_state_and_keeps_search() {
     let pool = s.pool.len();
     m.mc_plan[5 * s.mc_jobs[0].side as usize] = 1; // (its plan still running)
     let plan = m.mc_plan;
-    let jobs = s.mc_jobs.len();
+    let (jobs, rest) = (s.mc_jobs.len(), search_rest(&s));
     mc_full_step(&mut m, &mut s);
     assert_eq!(digest(&m, &s), before);
+    if n == 0 {
+        assert_eq!(search_rest(&s), rest);
+    }
     assert_eq!(m.mc_plan == plan, n == 0, "the plan is written only when both actions are scored");
     if n == 0 {
         assert_eq!((s.mc_jobs.len(), s.mc_jobs[0].n), (jobs, 1), "the job's first score kept");
@@ -208,17 +219,29 @@ fn rollout_leaves_live_state_and_keeps_search() {
 /// (their slots back in the pool) and every plan cleared.
 #[test]
 fn jobs_dropped_when_snapshot_not_ok() {
-    let (mut m, mut s) = with_a_job();
+    let (m0, mut s) = with_a_job();
     let slots = s.pool.len() + s.mc_jobs.iter().filter(|j| j.snap.is_some()).count();
-    m.paused = true;
-    assert!(!sim_snapshot_ok_p(&m));
-    m.mc_plan = [1, 3, 8, 0, 0, 2, 1, 2, 10, 5];
-    mc_full_step(&mut m, &mut s);
-    assert!(s.mc_jobs.is_empty());
-    assert_eq!((m.mc_plan, s.pool.len()), ([0; 10], slots));
-    m.paused = false;
-    m.flow = Flow::Finish;
-    assert!(!sim_snapshot_ok_p(&m));
+    let cine = {
+        let mut x = m0.clone();
+        let (a, v) = (x.p1, x.p2);
+        duel_sim::cine::start_cine(&mut x, duel_sim::cine::CineName::Intro, a, v, None);
+        x.cine.clone()
+    };
+    assert!(cine.is_some());
+    let cases: [fn(&mut Match, &Option<duel_sim::cine::Cine>); 3] =
+        [|m, c| m.cine = c.clone(), |m, _| m.paused = true, |m, _| m.flow = Flow::Finish];
+    for (i, set) in cases.into_iter().enumerate() {
+        let mut m = m0.clone();
+        if s.mc_jobs.is_empty() {
+            s.mc_jobs.push(McJob { e: m.p1, side: 0, a1: 3, a2: 8, dif: Difficulty::Normal, snap: None, n: 0, v1: 0.0, v2: 0.0, rng: 0 });
+        }
+        set(&mut m, &cine);
+        assert!(!sim_snapshot_ok_p(&m), "case {i}");
+        m.mc_plan = [1, 3, 8, 0, 0, 2, 1, 2, 10, 5];
+        mc_full_step(&mut m, &mut s);
+        assert!(s.mc_jobs.is_empty(), "case {i}");
+        assert_eq!((m.mc_plan, s.pool.len()), ([0; 10], slots), "case {i}");
+    }
 }
 
 /// Review Focus 2: a rollout that reaches a K.O. stops at :finish, without GO-RESULTS (no results screen, no win / lose states); the
