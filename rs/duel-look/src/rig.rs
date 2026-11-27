@@ -54,7 +54,7 @@ impl Proportions {
 
 /// port: engine/lisp/anim.lisp %EULER! — T(p) Ry(yaw) Rx(pitch) Rz(roll) S(s).
 #[allow(clippy::too_many_arguments)]
-fn euler(m: &mut Mat4, px: f32, py: f32, pz: f32, yaw: f32, pitch: f32, roll: f32, ss: f32) {
+pub(crate) fn euler(m: &mut Mat4, px: f32, py: f32, pz: f32, yaw: f32, pitch: f32, roll: f32, ss: f32) {
     let (cy, sy, cp, sp, cr, sr) = (f_cos(yaw), f_sin(yaw), f_cos(pitch), f_sin(pitch), f_cos(roll), f_sin(roll));
     *m = [
         ss * (cy * cr + sy * sp * sr),

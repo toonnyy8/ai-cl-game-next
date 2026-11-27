@@ -37,6 +37,8 @@ pub struct FrameOut {
     /// `*lp*` / `*lc*`: the selected lights (never cleared).
     lp: [f32; 4 * MAX_LIGHTS],
     lc: [f32; 4 * MAX_LIGHTS],
+    /// render.lisp `*fx-dropped*`: fx shapes dropped by a full batch (STREAM-ROOM-P), since boot.
+    pub fx_dropped: u64,
 }
 
 impl Default for FrameOut {
@@ -57,6 +59,7 @@ impl Default for FrameOut {
             light_n: 0,
             lp: [0.0; 4 * MAX_LIGHTS],
             lc: [0.0; 4 * MAX_LIGHTS],
+            fx_dropped: 0,
         }
     }
 }

@@ -1,6 +1,6 @@
-//! The draw core against the draw key (docs/bevy/M3A_NOTES.md §5): `duel-tools draw --check` on the quiet and slowmo scenes,
-//! `fu` / `p` / `dq` with the lanes later tasks fill masked (the point lights: Task 6; the fighters: Task 7). Each fails when the key
-//! is missing (`$ORACLE`, else `build/oracle`); none skips.
+//! The draw core and the FX against the draw key (docs/bevy/M3A_NOTES.md §5, §6): `duel-tools draw --check` on the quiet and slowmo
+//! scenes with the fighters' dq records masked (Task 7). Each fails when the key is missing (`$ORACLE`, else `build/oracle`); none
+//! skips.
 use std::process::Command;
 
 fn oracle() -> String {
@@ -27,7 +27,7 @@ const QUIET: [&str; 12] = [
 #[test]
 fn quiet_core_matches() {
     for s in QUIET {
-        check(s, "fu,p,dq", "lights,fighters");
+        check(s, "fu,p,dq", "fighters");
     }
 }
 
@@ -35,5 +35,19 @@ fn quiet_core_matches() {
 /// frame 0-239: the camera reads the drawn places.
 #[test]
 fn slowmo_frames_match() {
-    check("slowmo-2513", "fu,p,dq", "lights,fighters");
+    check("slowmo-2513", "fu,p,dq,fxa,fxb,ft", "fighters");
+}
+
+/// The FX (Task 6) on the quiet scenes: the point lights in `fu`, the particle pool (the ash, the aura's flecks) in `fxa` / `ft`, the
+/// body auras in `ft`, the stage's chips in `dq`, and the cosmetic RNG they draw. quiet-2395's P1 is KESSA: his aura
+/// (ICHIGO-AURA-KESSA) and his :draw hook's wisps and chains read the posed joints (Task 7), so it checks `fu,p,dq` only. // task 7
+#[test]
+fn quiet_fx_matches() {
+    for s in QUIET {
+        if s == "quiet-2395" {
+            check(s, "fu,p,dq", "fighters"); // task 7: KESSA's posed-joint looks
+        } else {
+            check(s, "fu,p,dq,fxa,fxb,ft,rng", "fighters");
+        }
+    }
 }

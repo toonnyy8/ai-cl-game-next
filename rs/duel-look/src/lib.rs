@@ -1,6 +1,7 @@
 //! Look data and pure presentation math (no Bevy).
 pub mod anim;
 pub mod draw;
+pub mod fx;
 pub mod mesh;
 pub mod rig;
 pub mod rng;

@@ -71,6 +71,8 @@ pub struct Scene<'d> {
     pub draw: crate::draw::DrawState,
     /// SLOW-DRAW's state.
     pub slow: crate::draw::slow::SlowDraw,
+    /// The FX state (particles, rings, lights, auras, the stage's marks, stamps).
+    pub fx: crate::fx::FxState<'d>,
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
 }
@@ -86,6 +88,7 @@ impl<'d> Scene<'d> {
             cos: CosRng::default(),
             draw: crate::draw::DrawState::new(data),
             slow: crate::draw::slow::SlowDraw::with_reserve(),
+            fx: crate::fx::FxState::new(data),
             unported: None,
         }
     }

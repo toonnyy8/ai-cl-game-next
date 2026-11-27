@@ -253,7 +253,7 @@ pub fn duel_camera_landscape(st: &mut CamState, cam: &mut Camera, kn: &CamKnobs,
 }
 
 /// port: camera.lisp %POW2: `(expt x 2)` of a single float as ECL computes it (C powf).
-fn pow2(x: f32) -> f32 {
+pub(crate) fn pow2(x: f32) -> f32 {
     duel_sim::cl::musl_powf(x, 2.0)
 }
 

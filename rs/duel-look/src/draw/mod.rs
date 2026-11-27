@@ -13,6 +13,7 @@ use camera::{CamKnobs, CamState, Camera, Pair};
 use duel_sim::components::Flow;
 use duel_sim::ecs::Entity;
 use duel_sim::state::Match;
+use crate::fx::{self, vfx::AuraIn, Ctx};
 use frame::{Env, Post};
 use stage::{StageMeshes, StageState};
 
@@ -137,8 +138,12 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     sc.draw.camera.update(aspect);
     if !m.turbo {
         draw_scene(sc, m, fdt, out);
+        // HUD-DRAW (M3b) unless turbo; its first form, AURA-CAP-UPDATE (hud-screens.lisp), sets the next frame's `*aura-cap*` from
+        // the drawn places (before SLOW-DRAW-END), HUD or not (ruling R4)
+        let alive = |e: Entity| m.ents.alive(e) && m.fighter.get(e).is_some();
+        let pq = (alive(m.p1) && alive(m.p2)).then(|| (sc.drawn_pos(m, m.p1), sc.drawn_pos(m, m.p2)));
+        crate::fx::vfx::aura_cap_update(&mut sc.fx.aura_cap, pq);
     }
-    // M3b: HUD-DRAW (task 6 runs its AURA-CAP-UPDATE here: ruling R4)
     slow::end(sc, m);
     end_frame(sc, out);
 }
@@ -146,17 +151,36 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
 /// port: draw.lisp DRAW-SCENE (RDT the effect seconds).
 fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     // (*scene-transparent*: SELECT's, M3b; *no-draw*: debug 2120+, not ported; a card beat: task 8)
-    let tg = sc.draw.camera.target;
-    let d = &mut sc.draw;
-    stage::stage_draw(out, &d.stage_meshes, &mut d.stage, &mut sc.cos, tg, rdt);
+    {
+        let d = &mut sc.draw;
+        let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
+        stage::stage_draw(&mut c, &d.stage_meshes, &mut d.stage, rdt);
+    }
     if m.cine.is_none() {
         sc.draw.post.grade_desat = 0.0;
         form_grade(sc, m);
     }
-    // task 7: DRAW-FIGHTER of P1, then P2
+    for e in [m.p1, m.p2] {
+        if m.ents.alive(e) && m.fighter.get(e).is_some() {
+            // task 7: DRAW-FIGHTER's body, weapon, blade, hooks before its auras
+            let Some(md) = sc.model(e) else { continue };
+            let a = AuraIn { e, p: sc.drawn_pos(m, e), body: md.body, alpha: md.alpha, aura_off: false }; // (*aura-off*: task 8)
+            let d = &mut sc.draw;
+            let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
+            if let Some(u) = fx::vfx::fighter_auras(&mut c, m, &a, rdt) {
+                sc.unported.get_or_insert(u);
+            }
+        }
+    }
     // task 6: HAZARD-DRAW
     duel_sim::cine::cine_draw(m); // (CINE-DRAW: task 8 adds the look hook here, ruling R9)
-    // task 6: STAMPS-DRAW, the queued impact frame and the Burst beat, FX-UPDATE, FX-DRAW-PARTICLES, FX-RINGS-UPDATE, LIGHTS-FLUSH
+    let d = &mut sc.draw;
+    let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
+    // task 6: STAMPS-DRAW; task 8: the queued impact frame and the Burst beat
+    c.fx.update(rdt);
+    fx::draw_particles(&mut c);
+    fx::rings_update(&mut c, rdt);
+    fx::vfx::lights_flush(&mut c);
 }
 
 /// port: draw.lisp FORM-GRADE — a form's world grade (kit :grade :spot, the composite's mode 4) while the form is on; else mode 0.
