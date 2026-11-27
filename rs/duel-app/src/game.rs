@@ -108,6 +108,18 @@ impl Game {
         self.pending.push((at, c));
     }
 
+    /// This update's keys (`input::Key` bits held now and gone down since the last update). While no frame can run (the renderer not
+    /// ready, the fight stopped) the presses are dropped: KEY-PRESSED sees only the presses of the frame it runs in, so an Enter during
+    /// the load must not skip the intro on the first frame (the held keys are still taken).
+    pub fn keys(&mut self, held: u32, pressed: u32, ready: bool) {
+        if ready && self.stopped.is_none() {
+            self.kb.set(held, pressed);
+        } else {
+            self.kb.set(held, 0);
+            self.kb.take_pressed();
+        }
+    }
+
     /// port: flow.lisp NEW-SEED — a fresh match seed from the clock (`(mod (floor (now-ms)) 100000)`).
     fn new_seed(&self) -> i64 {
         (self.now_ms.max(0.0).floor() as i64) % 100000
@@ -159,9 +171,12 @@ impl Game {
     /// port: flow.lisp FLOW-SCREENS' battle parts that read keys, on this frame's presses (the first frame of an update: the frames
     /// after it in the same update see none): BATTLE's PAUSE-P toggles `*paused*` (the pause screen's rows are M3b's); INTRO /
     /// FINISH's PAUSE-P or CONFIRM-P skips the running cinematic (SKIP-CINE); RESULTS' REMATCH row (CONFIRM-P after 2.5 s: NEW-SEED,
-    /// START-MATCH) where the frozen page shows RESULTS. Run before `flow::frame`, so before the commands and SCREEN-FX-UPDATE, where
-    /// the Lisp runs FLOW-UPDATE after both: a pause press stops the screen effects' timers one frame later on the page than the
-    /// Lisp's would (M3A_NOTES §10).
+    /// START-MATCH) where the frozen page shows RESULTS. Run before `flow::frame`, so before the debug commands, SCREEN-FX-UPDATE and
+    /// FLOW-UPDATE's `(incf *ft* rdt)`, where the Lisp runs FLOW-SCREENS after all three. The page is therefore one frame off on a
+    /// human press (presentation only, ruling R30; M3A_NOTES §10): a pause stops the screen effects' timers and `ft` a frame earlier,
+    /// and a resume restarts them a frame earlier; RESULTS' 2.5 s guard reads last frame's `ft`, so it opens a frame late; after a
+    /// rematch or an intro skip `ft` holds this frame's rdt where the Lisp's is 0; a press on a debug command's frame acts on the flow
+    /// before the command. Carried to M3b: a hook that runs these keys after `flow_update` (R30).
     fn screens(&mut self) {
         let p = self.kb.take_pressed();
         if p == 0 {
@@ -331,6 +346,20 @@ mod tests {
         g.queue_cmd(2102, 100); // (stamped at page frame 100: long gone after the rebase)
         assert_eq!(g.due_now(1200), START_CATCH_UP); // (rebased by 300: page frame 1000 is game frame 700)
         assert_eq!(g.pending, [(700, 2005), (1, 2102)]);
+    }
+
+    /// Review F3: an Enter pressed while the page loads (no frame runs) is dropped, so the first frame plays the intro.
+    #[test]
+    fn a_press_during_the_load_is_dropped() {
+        let mut g = Game::new(data(), inputs());
+        let mut out = FrameOut::default();
+        g.start = Some(Start::default());
+        g.keys(0, crate::input::Key::Return.bit(), false);
+        g.keys(0, 0, true);
+        for _ in 0..3 {
+            g.frame(&mut out, 1.0 / 60.0);
+        }
+        assert!(g.m.flow == Flow::Intro && g.m.cine.is_some(), "the intro plays");
     }
 
     #[test]

@@ -85,8 +85,9 @@ fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window
         held |= if keys.pressed(c) { k.bit() } else { 0 };
         pressed |= if keys.just_pressed(c) { k.bit() } else { 0 };
     }
-    g.kb.set(held, pressed);
-    if !render::ready() || g.stopped.is_some() {
+    let ready = render::ready();
+    g.keys(held, pressed, ready);
+    if !ready || g.stopped.is_some() {
         return; // (stopped: logged once and drawn, on the frame that stopped; the page keeps drawing that frame)
     }
     let n = g.due_now(due);
