@@ -910,6 +910,10 @@ pub fn b_diff(fields: &[String], mask: &[String], wb: &str, b: &str) -> Option<S
 mod tests {
     use super::*;
 
+    /// The 15 cvc gate traces (the live gate's cmds rows).
+    const CVC_GATE: [&str; 15] = ["cvc-kk-s1", "cvc-kk-s2", "cvc-kk-s3", "cvc-ki-s1", "cvc-ki-s2", "cvc-ki-s3", "cvc-ik-s1", "cvc-ik-s2",
+        "cvc-ik-s3", "cvc-ii-s1", "cvc-ii-s2", "cvc-ii-s3", "cvctag-ii", "cvctag-ik", "cvctag-kk"];
+
     /// An answer-key trace's path: `ORACLE`, else this checkout's git-ignored build/oracle; None (the test skips, with a note) when
     /// it is absent.
     fn oracle_trace(name: &str) -> Option<String> {
@@ -1028,58 +1032,40 @@ mod tests {
         assert_eq!(allocs, 0, "allocations in {steps} battle steps");
     }
 
-    /// The 0 B / step rule with both CPUs thinking (M2 Task 8): cvc-ki-s1's and cvc-ii-s1's commands run live (no reader, the combat
-    /// log off), counted over every frame that starts and ends in the battle. MC-FULL-STEP's share (from a step's `step_end` to the next
-    /// step's first read: the snapshots into the preallocated slots by `clone_from`, the rollouts on the scratch match) is pinned: 0 in
-    /// KI; 4 in II, two copies (a slot, then the scratch) of an Ichigo clone whose replay queue (`Icc.rq`, a Vec) the slot never held,
-    /// twice. The rest is M1's known Ichigo clone events (M1_NOTES §5: Vec fields of `Icc` / `HitWin`); both go with fixed-capacity
-    /// fields.
+    /// The 0 B / step rule with both CPUs thinking (ruling R8): each of the 15 cvc gate traces' commands (its S line) run live (no
+    /// reader, the combat log off after the commands' frame) allocate nothing in any frame that starts and ends in the battle: the styles, the strategies, the
+    /// MCTS's snapshots into the preallocated slots and its rollouts on the scratch match, Ichigo's clones (fixed-capacity `Few` lists
+    /// since Task 10). A learning VS match is outside it (M2_NOTES §9: BRAIN-FQL's records, FQ-NOTE's list, as the Lisp conses).
     #[test]
     fn live_allocs() {
-        struct Count {
-            mark: Option<u64>,
-            mc: u64,
-        }
-        impl Count {
-            fn settle(&mut self) {
-                if let Some(k) = self.mark.take() {
-                    self.mc += crate::alloc_count::count() - k;
-                }
-            }
-        }
-        impl PilotInput for Count {
-            fn read(&mut self, _m: &mut Match, _side: usize) {
-                self.settle();
-            }
-            fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {
-                self.settle();
-                self.mark = Some(crate::alloc_count::count());
-            }
-        }
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        for (name, cmd) in [("cvc-ki-s1", 200130), ("cvc-ii-s1", 200330)] {
+        for name in CVC_GATE {
+            let Some(path) = oracle_trace(name) else { return };
+            let s_line = std::io::BufRead::lines(std::io::BufReader::new(std::fs::File::open(&path).unwrap()))
+                .map(Result::unwrap)
+                .find_map(|l| l.strip_prefix("S cmds ").map(String::from))
+                .unwrap();
             let mut m = Match::new(data);
             flow::go_title(&mut m);
-            m.cmds.extend([30000, 31101, cmd]);
+            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
             let s = &mut Search::new();
-            let mut c = Count { mark: None, mc: 0 };
-            let (mut allocs, mut steps, mut mc) = (0, 0, 0);
+            flow::frame(&mut m, s, &mut flow::NoInput);
+            m.log_on = false; // (as `--bench`: the debug commands turn the combat log on)
+            let (mut allocs, mut steps) = (0, 0);
             for _ in 0..200_000 {
-                let (a0, m0, t0, before) = (crate::alloc_count::count(), c.mc, m.match_tick, flow::battle_p(&m));
-                flow::frame(&mut m, s, &mut c);
-                c.settle();
-                if before && flow::battle_p(&m) && !m.log_on {
-                    (allocs, steps, mc) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0), mc + c.mc - m0);
+                let (a0, t0, before) = (crate::alloc_count::count(), m.match_tick, flow::battle_p(&m));
+                flow::frame(&mut m, s, &mut flow::NoInput);
+                if before && flow::battle_p(&m) {
+                    (allocs, steps) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0));
                 }
                 if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
                     break;
                 }
             }
             assert_eq!(m.unported, None);
-            eprintln!("live_allocs {name}: {allocs} allocations in {steps} battle steps, MC-FULL-STEP's {mc}; {} decisions, {} rollouts",
-                      s.mc_stats[0], s.mc_stats[1]);
-            assert!(s.mc_stats[1] > 0 && steps > 10_000, "{name} {:?} {steps}", s.mc_stats);
-            assert_eq!(mc, if name == "cvc-ki-s1" { 0 } else { 4 }, "{name}: MC-FULL-STEP's allocations");
+            eprintln!("live_allocs {name}: {allocs} allocations in {steps} battle steps; {} decisions, {} rollouts", s.mc_stats[0], s.mc_stats[1]);
+            assert!(steps > 10_000, "{name} {steps}");
+            assert_eq!(allocs, 0, "{name}: allocations in {steps} battle steps");
         }
     }
 

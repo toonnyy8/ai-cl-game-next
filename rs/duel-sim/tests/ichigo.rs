@@ -67,7 +67,7 @@ fn juji_waves_and_the_cut() {
     wave(&mut m, b, look);
     let w = |x, z, yaw| (HazardKind::Wave, [x, z, yaw], 51, 0x3FE66666, Some((150, Some(Num::I(22)))), Some("ICHIGO-JUJI-LOOK"));
     assert_eq!(hzs(&m), [w(0xBDF7D920, 0x3DC4B3A0, 0xBFAEC575), w(0x3EA45CAC, 0x3B8192A0, 0x3FE35A40)]);
-    assert!(m.hazard.iter().all(|(_, h)| h.cls == Some(duel_sim::components::Cls::Ns) && h.hw.as_ref().unwrap().flags == [Sym(":BLADE")]));
+    assert!(m.hazard.iter().all(|(_, h)| h.cls == Some(duel_sim::components::Cls::Ns) && *h.hw.as_ref().unwrap().flags == [Sym(":BLADE")]));
     m.log.clear();
     cut(&mut m, a);
     assert_eq!(tail(&m), ["P1 cuts WAVE"]);
@@ -206,9 +206,9 @@ fn pure_rules() {
     assert_eq!((clone_evict(&[5, 3], 3), clone_evict(&[5, 3, 4], 3), clone_evict(&[3, 2, 2], 3)), (None, Some(1), Some(1)));
     let hw = &duel_sim::kit::find_move(data(), "ic-k-as1").unwrap().hits[0]; // (14, guard 22, :ranged)
     let w = echo_hitwin(hw, 0.7);
-    assert_eq!((w.dmg, w.guard, w.react, w.flags.clone()), (10, Some(Num::F(0.7 * 22.0)), Phase::Flinch, vec![Sym(":BLADE"), Sym(":RANGED")]));
+    assert_eq!((w.dmg, w.guard, w.react, w.flags.to_vec()), (10, Some(Num::F(0.7 * 22.0)), Phase::Flinch, vec![Sym(":BLADE"), Sym(":RANGED")]));
     assert_eq!(echo_hitwin(hw, 0.01).dmg, 1); // (at least 1)
     let mut bw = hw.clone();
     bw.flags = vec!["blade".into(), "breaker".into()]; // (ADJOIN: :blade already there, not added again)
-    assert_eq!(echo_hitwin(&bw, 1.0).flags, [Sym(":BLADE"), Sym(":BREAKER")]);
+    assert_eq!(*echo_hitwin(&bw, 1.0).flags, [Sym(":BLADE"), Sym(":BREAKER")]);
 }

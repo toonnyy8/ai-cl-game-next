@@ -28,6 +28,13 @@ impl Entity {
     }
 }
 
+/// NIL (a fixed list's unused slot).
+impl Default for Entity {
+    fn default() -> Self {
+        Entity::NIL
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Entities {
     generation: [u32; MAX_ENTITIES],

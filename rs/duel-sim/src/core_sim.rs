@@ -497,7 +497,7 @@ fn hz_tag(kind: Option<HazardKind>, cls: Option<Cls>) -> String {
 /// port: CORE-HAZARD-NOHIT!: a :cancel or :absorb verdict between hazard HZ (judged as the segment that fired it) and fighter OTHER.
 /// The caller removes the hazard.
 pub fn core_hazard_nohit(m: &mut Match, hz: Entity, other: Entity, verdict: Verdict) {
-    let h = m.hazard_of(hz).expect("a hazard").clone();
+    let h = *m.hazard_of(hz).expect("a hazard");
     let owner = h.owner;
     match verdict {
         Verdict::Cancel => {
