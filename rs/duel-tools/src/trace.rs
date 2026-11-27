@@ -103,7 +103,8 @@ impl<R: BufRead> Iterator for Reader<R> {
             let l = match l { Ok(l) => l, Err(e) => return Some(Err(e)) };
             let in_step = !log.is_empty() || t.is_some();
             match l.split_once(' ').map_or((l.as_str(), ""), |(a, b)| (a, b)) {
-                ("#", _) | ("R", _) | ("C", _) => {}
+                // `A` (M2 Task 1, the CPU state after B) is skipped until the live replayer parses it (M2 Task 2).
+                ("#", _) | ("R", _) | ("C", _) | ("A", _) => {}
                 ("F", _) if !in_step => return Some(Ok(Item::Frame)),
                 ("E", rest) if !in_step => {
                     let words: Vec<String> = rest.split(' ').map(String::from).collect();

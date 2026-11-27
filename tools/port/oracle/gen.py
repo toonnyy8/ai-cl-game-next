@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """gen.py — the Bevy port's answer key into build/oracle/ (git-ignored; docs/bevy/BEVY_PORT.md §6.1, M0 plan Task 7: the sim traces).
 
-  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, merge their entries into INDEX.json by name,
-                                                     and leave cvc-tag.txt alone)
+  python3 tools/port/oracle/gen.py sim [NAME ...]    (NAMEs: record and replay only those, then merge the entries of those whose replay
+                                                     passed into INDEX.json by name; a cvctag-* among them rewrites its own lines of
+                                                     cvc-tag.txt, the rest of the file kept)
                                                      record every trace (record.lisp on the recorder's image, build-rec.lisp), check
                                                      each against a plain run of the stock image (non-perturbation), write
                                                      build/oracle/INDEX.json and cvc-tag.txt, then replay three (one per kind)
-  python3 tools/port/oracle/gen.py replay [NAME ...] replay.lisp on the stock image (default: every trace in INDEX.json)
+  python3 tools/port/oracle/gen.py replay [--live] [NAME ...]
+                                                     replay.lisp on the stock image (default: every trace in INDEX.json); --live: the
+                                                     brains think and the whole A line is compared (a vs-* trace on the recorder's image,
+                                                     its in-memory page on)
   python3 tools/port/oracle/gen.py look [--check] [--no-stills]
                                                      the look data (Task 8, look.lisp's header): build/oracle/fk/<clip>.json, sound/<key>.f32
                                                      (rendered twice in two fresh processes and compared), stills/ (the frozen dist's 83
@@ -17,7 +21,9 @@ The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
 RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal to it); every combo trial file of tools/simgate/trial.lisp
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
-its trials); the scripted outcome traces, trial files in tools/port/oracle/scenarios/ (scr-<file name>). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
+its trials); the scripted outcome traces, trial files in tools/port/oracle/scenarios/ (scr-<file name>); the vs-human traces (M2 Task 1),
+scenarios/vs-*.lisp (record.lisp's vs driver; the name is the file's), whose non-perturbation run is the same driver on the recorder's
+image with no hook (its in-memory page is what the stock image lacks). The browser scripts (tests/scripts/*.json) wait for M1. Trace format: trace.lisp's header.
 """
 import concurrent.futures as cf, datetime, glob, hashlib, importlib.util, json, os, re, shutil, subprocess, sys
 
@@ -95,15 +101,18 @@ def jobs():
     files = {f'trial-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob('tests/trials/*.lisp', root_dir=ROOT))}
     files |= {f'trial-{k}': p for k, p in RESEARCH_TRIALS.items()}
     files['trial-sp-costs'] = sp_costs_file()
-    files |= {f'scr-{os.path.splitext(os.path.basename(p))[0]}': p for p in sorted(glob.glob(f'{SCENARIOS}/*.lisp', root_dir=ROOT))}
+    scen = sorted(glob.glob(f'{SCENARIOS}/*.lisp', root_dir=ROOT))
+    files |= {f'scr-{os.path.splitext(os.path.basename(p))[0]}': p for p in scen if not os.path.basename(p).startswith('vs-')}
     out += [{'name': n, 'kind': 'trials', 'file': p, 'start': ['trials', p]} for n, p in files.items()]
+    out += [{'name': os.path.splitext(os.path.basename(p))[0], 'kind': 'vs', 'file': p, 'start': ['vs', p]}
+            for p in scen if os.path.basename(p).startswith('vs-')]
     return out
 
 
 def compared(out, kind):
     """The console lines a recording must share with the plain run: the 600-tick hash lines and RESULTS (a match), the combat log and
     the trial end lines (a trial file, whose runner keeps the log on)."""
-    pat = r'\[|trial end ' if kind == 'trials' else r'duel (hash|-> RESULTS winner)'
+    pat = {'trials': r'\[|trial end ', 'vs': r'\[|duel (hash|-> RESULTS winner|fq )'}.get(kind, r'duel (hash|-> RESULTS winner)')
     return [l for l in out.splitlines() if re.match(pat, l)]
 
 
@@ -111,6 +120,7 @@ def record(j):
     trace = os.path.join(TRACES, j['name'] + '.trace')
     rec = lisp('tools/port/oracle/record.lisp', REC_FAS, [trace] + j['start'])
     plain = (lisp('tools/simgate/trial.lisp', FAS, [j['file']]) if j['kind'] == 'trials'
+             else lisp('tools/port/oracle/record.lisp', REC_FAS, ['-', 'vs', j['file']]) if j['kind'] == 'vs'
              else lisp('tools/simgate/run.lisp', FAS, j['start'][1:]))
     m = re.search(r'^rec steps (\d+) start-miss (\d+).* post-draw (\d+)', rec.stdout, re.M)
     j = dict(j, path=os.path.relpath(trace, OUT))
@@ -125,6 +135,10 @@ def record(j):
           'start_miss': int(m[2]), 'post_draw': int(m[3]), 'compared_lines': len(want), 'nonperturbed': got == want}
     if j['kind'] == 'trials':
         j['trials'] = re.findall(r'^# trial begin (.*)$', text, re.M)
+    if j['kind'] == 'vs':
+        j['p1_presses'] = p1_presses(text)
+        j['fq_lines'] = re.findall(r'^R (duel fq .*)$', text, re.M)
+        j['page_writes'] = len(re.findall(r'^R page-set ', text, re.M))
     if j['kind'] == 'cvc-tag':
         j['tag_lines'] = [l for l in rec.stdout.splitlines() if re.match(r'duel (-> RESULTS winner|hash)', l)]
     if not j['nonperturbed']:
@@ -132,16 +146,29 @@ def record(j):
     return j
 
 
-def replay(names):
+def p1_presses(text):
+    """P1's presses in a trace: the rising edges of his buttons (Mod excluded) between consecutive T lines."""
+    n, prev = 0, 0
+    for l in text.splitlines():
+        if l.startswith('T '):
+            d = int(l.split()[3], 16) & ~1
+            n += bin(d & ~prev).count('1')
+            prev = d
+    return n
+
+
+def replay(names, live=False):
     def one(n):
-        r = lisp('tools/port/oracle/replay.lisp', FAS, [os.path.join(TRACES, n + '.trace')])
+        fas = REC_FAS if live and n.startswith('vs-') else FAS
+        r = lisp('tools/port/oracle/replay.lisp', fas, [os.path.join(TRACES, n + '.trace')] + (['live'] if live else []))
         line = next((l for l in r.stdout.splitlines() if l.startswith('replay ')), f'replay: no verdict (exit {r.returncode})')
         return n, r.returncode, line
-    bad = 0
+    bad = []
     with cf.ThreadPoolExecutor(JOBS) as ex:
         for n, rc, line in ex.map(one, names):
             print(f'{n}: {line}', flush=True)
-            bad += rc != 0 or not line.startswith('replay OK')   # (an ECL error drops into the debugger, which exits 0 at stdin's end)
+            if rc != 0 or not line.startswith('replay OK'):   # (an ECL error drops into the debugger, which exits 0 at stdin's end)
+                bad.append(n)
     return bad
 
 
@@ -156,15 +183,25 @@ def sim(names=()):
             done = list(ex.map(record, js))
         for j in done:
             print(f"{j['name']}: {j.get('steps')} steps, last tick {j.get('last_tick')}, sha1 {j.get('sha1')}{', ERROR ' + j['error'] if 'error' in j else ''}", flush=True)
-        bad = len(done) != len(names) or any('error' in j for j in done)
-        if not bad:
-            path = os.path.join(OUT, 'INDEX.json')
-            index = json.load(open(path))
-            new = {j['name']: j for j in done}
-            index['traces'] = [new.pop(t['name'], t) for t in index['traces']] + list(new.values())
-            with open(path, 'w') as f:
-                json.dump(index, f, indent=1)
-        sys.exit(1 if bad or replay([j['name'] for j in done]) else 0)
+        recorded = [j for j in done if 'error' not in j]
+        failed = set(replay([j['name'] for j in recorded]))
+        good = [j for j in recorded if j['name'] not in failed]
+        path = os.path.join(OUT, 'INDEX.json')
+        index = json.load(open(path))
+        new = {j['name']: j for j in good}
+        tags = {j['name'][-2:]: [f'{j["name"][-2:]} {l}' for l in j.pop('tag_lines', [])] for j in good if j['kind'] == 'cvc-tag'}
+        index['traces'] = [new.pop(t['name'], t) for t in index['traces']] + list(new.values())
+        with open(path, 'w') as f:
+            json.dump(index, f, indent=1)
+        if tags:   # (its own pair's lines replaced, the header and the other pairs kept)
+            with open(os.path.join(OUT, 'cvc-tag.txt')) as f:
+                lines = f.read().splitlines()
+            head, body = [l for l in lines if l.startswith('#')], [l for l in lines if not l.startswith('#')]
+            body = [l for p in TAG for l in (tags[p] if p in tags else [x for x in body if x.startswith(p + ' ')])]
+            with open(os.path.join(OUT, 'cvc-tag.txt'), 'w') as f:
+                f.write('\n'.join(head + body) + '\n')
+        print(f'[oracle] merged {len(good)} of {len(names)} into INDEX.json; cvc-tag.txt pairs rewritten: {sorted(tags) or "none"}', flush=True)
+        sys.exit(0 if len(good) == len(names) else 1)
     with cf.ThreadPoolExecutor(JOBS) as ex:
         done = list(ex.map(record, js))
     for j in done:
@@ -304,8 +341,9 @@ def main():
     if cmd == 'sim':
         sim(sys.argv[2:])
     elif cmd == 'replay':
-        names = sys.argv[2:] or [j['name'] for j in json.load(open(os.path.join(OUT, 'INDEX.json')))['traces'] if 'error' not in j]
-        sys.exit(1 if replay(names) else 0)
+        live = '--live' in sys.argv
+        names = [a for a in sys.argv[2:] if a != '--live'] or [j['name'] for j in json.load(open(os.path.join(OUT, 'INDEX.json')))['traces'] if 'error' not in j]
+        sys.exit(1 if replay(names, live) else 0)
     else:
         sys.exit(__doc__)
 

@@ -542,7 +542,8 @@ mod tests {
         let head: Vec<String> = {
             use std::io::BufRead;
             let f = std::fs::File::open(path).expect("ORACLE trace");
-            std::io::BufReader::new(f).lines().take(42).map(Result::unwrap).collect()
+            // (the M1 grammar's lines: the M2 `A` lines and their header are left out, as the reader skips them)
+            std::io::BufReader::new(f).lines().map(Result::unwrap).filter(|l| !l.starts_with('A') && !l.starts_with("# A ")).take(42).collect()
         };
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         let run_with = |lines: &[String], max: Option<u64>| {

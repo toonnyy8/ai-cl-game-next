@@ -116,42 +116,42 @@
    "kind": "cvc",
    "steps": 18133,
    "last_tick": 17833,
-   "sha1": "8475025e2766bf86632a58ff955306d6dcf48ae6"
+   "sha1": "5ecdd9f961705fc3cea122c88dfa8acfcdb2b255"
   },
   {
    "name": "cvc-kk-s2",
    "kind": "cvc",
    "steps": 15866,
    "last_tick": 15566,
-   "sha1": "27214d57d6ab4ce2ec8ccf242ec2abb1d348c32e"
+   "sha1": "e1a38ef372b0533f8d69f30a74d1248d2dcc8e98"
   },
   {
    "name": "cvc-kk-s3",
    "kind": "cvc",
    "steps": 16860,
    "last_tick": 16560,
-   "sha1": "cd2d99d511f55d6be6e00eedc9af904f1088e632"
+   "sha1": "bf0aeffd82a02d0baa04a112b7e5819aa2150d88"
   },
   {
    "name": "cvc-ki-s1",
    "kind": "cvc",
    "steps": 21368,
    "last_tick": 21068,
-   "sha1": "0aae5f37f407a9f9c223b9db48afbec3e3ee6f4d"
+   "sha1": "d7cf3e9467014c6c809f3a2552b13a5778beaa86"
   },
   {
    "name": "cvc-ki-s2",
    "kind": "cvc",
    "steps": 17119,
    "last_tick": 16819,
-   "sha1": "144e1265ecd3500dc7f05015a38acba37243d5e8"
+   "sha1": "19567d69367681be6cc17b9c84c8a6d00c6ffa45"
   },
   {
    "name": "cvc-ki-s3",
    "kind": "cvc",
    "steps": 14935,
    "last_tick": 14635,
-   "sha1": "eadf68acb05aa9cee45083fe4b6cb3453b19f9e3"
+   "sha1": "1b8fbf3a5155b8d116fec98d8c3cc569a39e861d"
   },
   {
    "name": "cvc-kh-s1",
@@ -200,42 +200,42 @@
    "kind": "cvc",
    "steps": 14268,
    "last_tick": 13968,
-   "sha1": "8528ccf0f15ba1013a4e7d99a575c82c2a89dab4"
+   "sha1": "0d0244b3cd2b8f51ad79588062f872a6574fd810"
   },
   {
    "name": "cvc-ik-s2",
    "kind": "cvc",
    "steps": 15908,
    "last_tick": 15608,
-   "sha1": "a5506cbe98b433208a6e75ef031e1b4d82f26f2a"
+   "sha1": "9c16d48be27b4691de591fde8bbf77ca3615ba61"
   },
   {
    "name": "cvc-ik-s3",
    "kind": "cvc",
    "steps": 20794,
    "last_tick": 20494,
-   "sha1": "e5c153320f91bcfb41038b74909c8c21230b69ff"
+   "sha1": "8d941db56c772d85463b88f5939d3f80795e65bf"
   },
   {
    "name": "cvc-ii-s1",
    "kind": "cvc",
    "steps": 19423,
    "last_tick": 19123,
-   "sha1": "dc7e124affc0aa4a593e2e10e34212f4c982728d"
+   "sha1": "48e1639f0e614b7e01a940d952cde4930398eeab"
   },
   {
    "name": "cvc-ii-s2",
    "kind": "cvc",
    "steps": 15761,
    "last_tick": 15461,
-   "sha1": "1dc5b68b6b3d549a23e6be39e1d1bb5d04c1b120"
+   "sha1": "f7a3a75ec4420d0dc71635114c917d0ebaea2363"
   },
   {
    "name": "cvc-ii-s3",
    "kind": "cvc",
    "steps": 22197,
    "last_tick": 21897,
-   "sha1": "7dd97cb801f44ca4b710d200c61c9aa3fb7432e5"
+   "sha1": "9315275fe737e218f2a03ef3a63903e99f92fade"
   },
   {
    "name": "cvc-ih-s1",
@@ -347,21 +347,21 @@
    "kind": "cvc-tag",
    "steps": 19668,
    "last_tick": 19368,
-   "sha1": "9254336b851c0dfd5bd16d6a17057183ace23066"
+   "sha1": "629428fc52a710594dc6b914ae173545bb8556c4"
   },
   {
    "name": "cvctag-ik",
    "kind": "cvc-tag",
    "steps": 16848,
    "last_tick": 16548,
-   "sha1": "9c6881dbba0b55e1f94923aa458795f199aaaea0"
+   "sha1": "998cd86d25688d239603caeb208e20aa767ceaf7"
   },
   {
    "name": "cvctag-kk",
    "kind": "cvc-tag",
    "steps": 16354,
    "last_tick": 16054,
-   "sha1": "2333aa3f46d553776e95503e11ca1f71c0086214"
+   "sha1": "9c275f558bee153fb6dd04a4fb8a04b910a4fcce"
   },
   {
    "name": "trial-yamamoto-bankai",
@@ -474,6 +474,20 @@
    "steps": 36000,
    "last_tick": 36000,
    "sha1": "1be140e59d68bfd6b71a96c7f33e847502fc829f"
+  },
+  {
+   "name": "vs-learn",
+   "kind": "vs",
+   "steps": 22413,
+   "last_tick": 9218,
+   "sha1": "3006de87389e16217e796ee6b5e9c3401aa9237e"
+  },
+  {
+   "name": "vs-cpu",
+   "kind": "vs",
+   "steps": 12835,
+   "last_tick": 12535,
+   "sha1": "a18db71fd6cbb98f3378ea21a87fcca9a381b005"
   }
  ],
  "excluded": {

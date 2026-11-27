@@ -14,15 +14,23 @@
 ;;;; PLACE, CORE-START! ...: *REC-ACTIONS*, wrapped for its calls; the image's compiled callers never see the wrappers, and they record
 ;;;; only between frames) and the fields it sets (*TR-SIDE-FIELDS*, *TR-GLOBALS*: diffed before each action and each frame). What an
 ;;;; action prints is its e lines; the rest the runner prints between frames is R lines; each frame is an F line.
-;;;; Usage: ecl-host --norc --load tools/port/oracle/record.lisp -- <rec duel.fas> <out.trace> cmds <debug command> ...
-;;;;                                                                                          trials <trial file>
+;;;; A vs scenario (M2 Task 1, tools/port/oracle/scenarios/vs-*.lisp, one plist: :seed P1's device seed, :matches a list of (:cmd N) /
+;;;; (:vs-start C1 C2 DIF SEED)): SG-INIT and one frame, then per match its start action (an E line, through the same wrappers), P1's
+;;;; device (REC-VS-DEVICE) on his vpad, and frames (F lines) until the flow leaves the battle. The page is the image's in-memory one
+;;;; (build-rec.lisp ENGINE::*ORACLE-PAGE*); its writes and the learner's "duel fq" console lines go into the trace as R lines. OUT "-" runs
+;;;; the scenario plain (no hook, no trace: gen.py's non-perturbation run for a vs trace, on the same image).
+;;;; Usage: ecl-host --norc --load tools/port/oracle/record.lisp -- <rec duel.fas> <out.trace | -> cmds <debug command> ...
+;;;;                                                                                                trials <trial file>
+;;;;                                                                                                vs <scenario file>
 (load (merge-pathnames "../../simgate/prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (load (merge-pathnames "trace.lisp" (directory-namestring *load-truename*)) :verbose nil)
 (in-package :duel)
 (unless (tr-bits-selftest) (format t "record.lisp: TR-BITS-SELFTEST failed~%") (ext:quit 2))
+(unless (tr-a-selftest) (format t "record.lisp: TR-A-SELFTEST failed~%") (ext:quit 2))
 
 (defvar *rec-start* (cddr cl-user::*sg-args*) "\"cmds\" and the commands, or \"trials\" and the file.")
-(defvar *rec-out* (open (second cl-user::*sg-args*) :direction :output :if-exists :supersede))
+(defvar *rec-plain* (string= (second cl-user::*sg-args*) "-") "A plain run (a vs scenario, no hook, no trace).")
+(defvar *rec-out* (unless *rec-plain* (open (second cl-user::*sg-args*) :direction :output :if-exists :supersede)))
 (defvar *rec-real* *standard-output*)
 (defvar *rec-cap* (make-string-output-stream))
 (defvar *rec-steps* 0)
@@ -34,14 +42,21 @@
 (defvar *rec-start-miss* nil "Steps (index) whose sim stream at the first vpad read differs from the last step's end.")
 (defvar *rec-post-draw* nil "Steps (index) whose sim stream at the end differs from the brain hook's.")
 (defvar *rec-prev-b* nil "The last B line's full text (a repeat is written \"B =\").")
+(defvar *rec-prev-a* nil "The last A line's full text (a repeat is written \"A =\").")
 
 (defun rec-drain ()
   (let ((s (get-output-stream-string *rec-cap*))) (write-string s *rec-real*) s))
 
 (defun rec-write-lines (text &optional (prefix ""))
-  (dolist (l (tr-lines text))
-    (cond ((tr-log-p l) (format *rec-out* "~a~a~%" prefix l))
-          ((tr-trial-p l) (format *rec-out* "# ~a~%" l)))))
+  "TEXT's combat log lines with PREFIX, trial.lisp's lines as comments, then (a vs trace) its page writes and fq console lines as R lines
+(after the rest: an R line never splits an E line's e lines)."
+  (let ((r nil))
+    (dolist (l (tr-lines text))
+      (cond ((tr-log-p l) (format *rec-out* "~a~a~%" prefix l))
+            ((tr-trial-p l) (format *rec-out* "# ~a~%" l))
+            ((eql 0 (search "oracle page-set " l)) (push (subseq l 7) r))
+            ((eql 0 (search "duel fq " l)) (push l r))))
+    (dolist (l (nreverse r)) (format *rec-out* "R ~a~%" l))))
 
 (defun rec-reader (vp)
   (declare (ignore vp))
@@ -65,6 +80,7 @@
     (write-line (tr-t-line tf) *rec-out*)
     (format *rec-out* "H ~a~%" (state-hash-line))
     (let ((b (tr-b-line))) (write-line (if (equal b *rec-prev-b*) "B =" b) *rec-out*) (setf *rec-prev-b* b))
+    (let ((a (tr-a-line))) (write-line (if (equal a *rec-prev-a*) "A =" a) *rec-out*) (setf *rec-prev-a* a))
     (when (and *rec-start-rnd* *rec-prev-rnd* (/= *rec-start-rnd* *rec-prev-rnd*)) (push *rec-steps* *rec-start-miss*))
     (when (and *rec-t* (/= rnd (tr-rnd *rec-t*))) (push *rec-steps* *rec-post-draw*))
     (setf *rec-pre* "" *rec-cpu* "" *rec-t* nil *rec-start-rnd* nil *rec-prev-rnd* rnd)
@@ -95,7 +111,8 @@
         (cons 'burst-end! (lambda (e) (list "burst-end" (tr-side-of e))))
         (cons 'full-gauges! (lambda (e &optional meter) (list "full-gauges" (tr-side-of e) meter)))
         (cons 'debug-command (lambda (c) (list "cmd" c)))
-        (cons 'core-start! (lambda (e mv) (list "core-start" (tr-side-of e) (tr-move-key e mv)))))
+        (cons 'core-start! (lambda (e mv) (list "core-start" (tr-side-of e) (tr-move-key e mv))))
+        (cons 'tr-vs-start (lambda (c1 c2 dif seed) (list "vs-start" c1 c2 dif seed))))
   "The sim actions TRIAL-RUN calls between frames and their E lines (trace.lisp's grammar; TR-APPLY-EVENT applies them).")
 
 (defun rec-wrap-actions ()
@@ -134,7 +151,67 @@ through the symbols, so the wrappers are seen), without its prelude load (the im
     (let ((*package* (find-package :duel)))
       (loop for tr = (read in nil in) until (eq tr in) do (let ((*standard-output* *rec-cap*)) (trial-run tr))))))
 
-(format *rec-out* "# oracle trace v1: tools/port/oracle/record.lisp~%# B fields:~{ ~a~}~%S~{ ~a~}~%" (tr-b-names) *rec-start*)
+;;; ---------------------------------------------------------------- a vs scenario: P1's device, the driver
+(defun rec-vs-device (seed)
+  "P1's device for a vs scenario: (reader . reset). Its own generator (Park-Miller over SEED; never the sim stream), stepped once per new
+vpad tick outside rollouts: the stick changes every 15-90 ticks (forward, back, strafe, diagonals, neutral); a press is a held button
+pattern (J, Mod+J, Step, Mod+Step, P, Mod+P; short taps of 3-8 ticks, the press-ms rule's 40 ms being 2.4, and some long holds),
+then a gap of 1-10 ticks. Every call writes the held state again (VPAD-SET! in *VPAD-ACTIONS* order, then the stick), as a real
+device's reader does. RESET (the vpad's tick now) releases everything and starts at that tick (a new match's new vpad)."
+  (let ((s (max 1 (mod seed 2147483647))) (last -1) (downs 0) (sx 0f0) (sy 0f0) (hold 0) (gap 0) (stick 0))
+    (labels ((rnd (n) (setf s (mod (* s 48271) 2147483647)) (floor (* s n) 2147483647))
+             (bits (&rest as) (loop for a in as sum (ash 1 (position a *vpad-actions*))))
+             (advance ()
+               (when (<= (decf stick) 0)
+                 (setf stick (+ 15 (rnd 76)))
+                 (destructuring-bind (x y) (nth (rnd 10) '((0f0 1f0) (0f0 1f0) (0f0 1f0) (0f0 1f0) (0f0 -1f0) (-1f0 0f0) (1f0 0f0)
+                                                            (-0.7071f0 0.7071f0) (0.7071f0 0.7071f0) (0f0 0f0)))
+                   (setf sx x sy y)))
+               (cond ((plusp hold) (when (zerop (decf hold)) (setf downs 0 gap (+ 1 (rnd 10)))))
+                     ((plusp gap) (decf gap))
+                     (t (let ((r (rnd 100)))
+                          (multiple-value-setq (downs hold)
+                            (cond ((< r 40) (values (bits :quick) (+ 3 (rnd 6))))
+                                  ((< r 46) (values (bits :quick) (+ 20 (rnd 40))))
+                                  ((< r 64) (values (bits :mod :quick) (+ 3 (rnd 6))))
+                                  ((< r 69) (values (bits :mod :quick) (+ 25 (rnd 50))))
+                                  ((< r 81) (values (bits :step) (+ 3 (rnd 8))))
+                                  ((< r 86) (values (bits :step) (+ 20 (rnd 40))))
+                                  ((< r 94) (values (bits :mod :step) (+ 3 (rnd 6))))
+                                  ((< r 97) (values (bits :awaken) (+ 3 (rnd 5))))
+                                  (t (values (bits :mod :awaken) (+ 3 (rnd 5)))))))))))
+      (cons (lambda (vp)
+              (when (and (not *in-rollout*) (/= (vpad-tick vp) last))
+                (setf last (vpad-tick vp))
+                (advance))
+              (loop for a across *vpad-actions* for bit from 0 do (vpad-set! vp a (logbitp bit downs)))
+              (setf (vpad-sx vp) sx (vpad-sy vp) sy))
+            (lambda (tick) (setf last tick downs 0 sx 0f0 sy 0f0 hold 0 gap 0 stick 0))))))
+
+(defun rec-run-vs (path)
+  "A vs scenario's matches (the file header): each start action, P1's device on his new vpad, frames until the flow leaves the battle."
+  (let* ((spec (with-open-file (in path) (let ((*package* (find-package :duel)) (*read-eval* nil)) (read in))))
+         (dev (rec-vs-device (getf spec :seed))))
+    (setf engine::*oracle-page* (make-hash-table))
+    (setf *combat-log* t)
+    (dolist (m (getf spec :matches))
+      (ecase (first m)
+        (:cmd (debug-command (second m)))
+        (:vs-start (apply #'tr-vs-start (rest m))))
+      (let ((vp (pilot-vpad (pilot *p1*))))
+        (when (brain *p1*) (error "record: P1 of a vs scenario has a brain"))
+        (funcall (cdr dev) (vpad-tick vp))
+        (setf (vpad-reader vp) (car dev)))
+      (unless (loop repeat 200000 while (battle-p) do (unless (engine::%frame) (ext:quit 3)) finally (return (not (battle-p))))
+        (ext:quit 4)))))
+
+(when *rec-plain*                                         ; (a plain run: the scenario on this image, nothing recorded)
+  (cl-user::sg-init) (engine::%frame)
+  (rec-run-vs (fourth cl-user::*sg-args*))
+  (finish-output) (ext:quit 0))
+
+(format *rec-out* "# oracle trace v1: tools/port/oracle/record.lisp~%# B fields:~{ ~a~}~%# A fields:~{ ~a~}~%S~{ ~a~}~%"
+        (tr-b-names) (tr-a-names) *rec-start*)
 (unless (boundp '*oracle-brain-hook*) (format *rec-real* "record.lisp: not the recorder's image (build-rec.lisp)~%") (ext:quit 2))
 (setf *oracle-brain-hook* #'rec-brain)
 (cond ((string= (first *rec-start*) "cmds")
@@ -142,6 +219,12 @@ through the symbols, so the wrappers are seen), without its prelude load (the im
        (setf *step-hook* #'rec-step)
        (dolist (c (rest *rec-start*)) (engine::simgate-cmd (parse-integer c)))
        (tr-run-frames *rec-cap*))
+      ((string= (first *rec-start*) "vs")
+       (cl-user::sg-init) (engine::%frame)                ; (as a trials trace starts: one frame, no step, before any hook)
+       (setf *step-hook* #'rec-step)
+       (rec-wrap-actions)
+       (rec-wrap-frame)
+       (let ((*standard-output* *rec-cap*)) (rec-run-vs (second *rec-start*))))
       (t (rec-load-trial-lib)
          (setf *step-hook* #'rec-step)
          (rec-wrap-actions)
