@@ -261,7 +261,7 @@ fn rollout_never_ends_the_match() {
     duel_sim::flow::match_over(&mut r, Some(p1));
     assert_eq!(r.flow, Flow::Finish);
     assert!([r.p1, r.p2].iter().all(|&e| !matches!(r.fighter.get(e).unwrap().state, State::Win | State::Lose)));
-    let n = duel_sim::cpu::mcts::sim_rollout(&mut r, &mut Search::new(), 40);
+    let n = duel_sim::cpu::mcts::sim_rollout(&mut r, &mut Search::new(), &mut duel_sim::flow::InRollout(&mut NoInput), 40);
     assert_eq!((n, r.flow), (0, Flow::Finish), "a rollout stops when the flow leaves the battle");
     m.skip_cines = true;
     duel_sim::flow::match_over(&mut m, Some(p1));

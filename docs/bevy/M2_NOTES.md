@@ -473,7 +473,9 @@ recorder (REC-READER skips rollouts) but not necessarily a vs trace.
 equal. vs-learn's A lines carry the learner whole: the copy `#s::T0-KI-ICHIGO/fq(<matches>,<q codes>)` (TR-A-STRAT), BRAIN-FQL with its
 record count and newest record (TR-A-FQL), the TD update at each match's end (the go-results step's A prints the updated codes), and the
 second match's load from the page (`/fq(1,…)` from its first step). The page at the end equals the trace's `R page-set` lines (627 at
-71000, `duel-tools` `vs_traces_replay_whole`). The 15 live gate traces stay OK with `--live` and with `--live --snap 40`; the M1 gate 22 OK.
+71000, `duel-tools` `vs_traces_replay_whole`). Both also replay OK with `--snap 40` (321 and 559 SIM-ROLLOUTs, none cut). The 15 live
+gate traces stay OK with `--live` and with `--live --snap 40`; the M1 gate 22 OK; `live_allocs` unchanged (cvc-ki-s1 210, MC-FULL-STEP's
+0; cvc-ii-s1 217, 4).
 
 **fq.rs** (fq-online.lisp). `fq_table`, `fq_attach` (FQ-ATTACH!'s whole test: the table chance >= 1, HARD, `fq_learn_force` or VS CPU
 against a brainless opponent with `Search.learn` 0 and no debug command), `fq_explore` / `fq_note` (in `glue::strat_switch_step`, outside
@@ -514,6 +516,8 @@ looking round, blown away, Kenpachi through him. The CvC gate traces run in turb
 `cine::cine_draw` (called by `flow::frame` unless `turbo`) runs `ken::cine::draw`: the DURING forms of KR / ZH / Z-1 / S-1 / S-2 that
 write sim state, U as the macro computes it. Every other DURING (the generic cinematics', Ichigo's: VFX, cameras, `*ic-w*` scratch) and
 the rest of the draw (SLOW-DRAW puts back what it moves; hazard draw functions write nothing of the sim) were checked to be looks.
+Trace coverage: vs-cpu plays KEN-Z-KIKON1 once and KEN-S-KIKON1 twice, vs-learn KEN-Z-KIKON1 once (and NOZARASHI, Ichigo's, INTRO, KO);
+KR-KIKON, ZH-KIKON and S-KIKON2's DURING ports are read from the Lisp, unchecked by any trace.
 
 **The human's device inside a rollout (ledger T8).** The Lisp's stand-in brain (MC-FULL-ROLL / STRAT-ROLL's, for a brainless opponent)
 runs CORE-BRAIN-STEP, whose VPAD-BEGIN-STEP! calls the vpad's reader: the human's device, which in a rollout writes its held state (every
@@ -521,7 +525,8 @@ button, then the stick) without advancing, before AI-PRESS-WRITE! sets every but
 pressed afresh in each rollout step (a new press stamp) and a button the stand-in holds is released and pressed again each step
 (DIVERGENCES §1: not what the stand-in was for). The port does the same: `PilotInput::rollout_read` (default nothing: a CPU's vpad has no
 reader, the recorder's REC-READER skips rollouts), called through `flow::InRollout`, which `mc_full_step` (now given the live input) passes
-to MC-FULL-ROLL and STRAT-ROLL's lean steps. The replayer's is the vs device: `Injector.held`, the buttons and stick last injected, written
+to MC-FULL-ROLL and STRAT-ROLL's lean steps, and `sim_rollout` (SIM-ROLLOUT: there a brainless human's PILOT-SYSTEM reads the device;
+the replayer's `--snap` passes itself). The replayer's is the vs device: `Injector.held`, the buttons and stick last injected, written
 again; the live reads also write it again on a step without a new vpad tick, as REC-VS-DEVICE does. Test `tests/mcts.rs`
 `vs_device_writes_in_rollouts` (a held :sig moves its press stamp inside the rollout; with `NoInput` it stays).
 

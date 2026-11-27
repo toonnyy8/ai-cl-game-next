@@ -586,7 +586,7 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         }
         if self.snap.is_some_and(|n| flow::battle_p(m) && m.match_tick % n == 0) {
             self.snaps += 1;
-            if let Some(name) = snap_rollout(m, s) {
+            if let Some(name) = snap_rollout(m, s, self) {
                 // (kept on the restored match, so the sim stops too: a --snap run with a cut rollout is never OK)
                 self.snaps_unported += 1;
                 self.out = Some(Outcome::Unported(format!("{name} in a --snap rollout from tick {} (step {})", m.match_tick, self.steps)));
@@ -768,11 +768,12 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
 /// `--snap`'s rollout (tools/simgate/snaptest.lisp's: SIM-ROLLOUT, the styles kept, every log off, cinematics skipped): a scratch copy
 /// of the match, its sim stream reseeded as snaptest does, 40 lean steps on the vpads as they are; the live match is never touched
 /// (Lisp's restore). Returns the `unported!` path the rollout reached, if any, and keeps it in the live match's `unported` (a run with
-/// a cut rollout is never OK). The search S is the live one: inside a rollout nothing writes it (`*in-rollout*`'s guards).
-fn snap_rollout(m: &mut Match, s: &mut Search) -> Option<&'static str> {
+/// a cut rollout is never OK). The search S is the live one: inside a rollout nothing writes it (`*in-rollout*`'s guards). INPUT: the
+/// live readers, whose in-rollout calls run (a vs trace's human: his held keys, PILOT-SYSTEM's read of a brainless seat).
+fn snap_rollout(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> Option<&'static str> {
     let mut r = m.clone();
     r.rng.set_state((r.rng.state() ^ 0x5BD1_E995) | 1);
-    duel_sim::cpu::mcts::sim_rollout(&mut r, s, 40);
+    duel_sim::cpu::mcts::sim_rollout(&mut r, s, &mut flow::InRollout(input), 40);
     let cut = r.unported;
     m.unported = m.unported.or(cut);
     cut
@@ -1108,7 +1109,7 @@ mod tests {
         debug::ensure_battle(&mut m, &mut Search::new(), Character::Hisagi, Character::Kenpachi);
         assert!(flow::sim_running_p(&m) && m.unported.is_none());
         let tick = m.match_tick;
-        let cut = snap_rollout(&mut m, &mut Search::new());
+        let cut = snap_rollout(&mut m, &mut Search::new(), &mut flow::NoInput);
         assert!(cut.is_some());
         assert_eq!((m.unported, m.match_tick), (cut, tick));
     }

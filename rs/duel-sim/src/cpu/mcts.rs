@@ -12,7 +12,7 @@ use crate::cl::{max_f32, min_f32, round_f32, Num};
 use crate::components::{Difficulty, Flow, Phase, State, Sym};
 use crate::ecs::Entity;
 use crate::fighter::{fighter, hoho_ready_p, hurt_r, kit_of, mv};
-use crate::flow::{InRollout, NoInput, PilotInput};
+use crate::flow::{InRollout, PilotInput};
 use crate::kit::{kit_class, kit_command_move, kit_core_move, kit_sa_move, mv_ns_next, Role};
 use crate::knobs::Knobs;
 use crate::state::Match;
@@ -32,11 +32,12 @@ pub fn with_rollout(r: &mut Match, styles_off: bool) {
 
 /// port: SIM-ROLLOUT — up to STEPS lean steps as a search's rollout (the styles kept), stopping when the flow leaves the battle, a
 /// cinematic runs, or an `unported!` path is hit (`r.unported`). Returns the steps run. R is a scratch match (the caller's restore).
-pub fn sim_rollout(r: &mut Match, s: &mut Search, steps: i64) -> i64 {
+/// DEV: the vpad readers inside it (a brainless human's device, read by PILOT-SYSTEM, writes his held keys).
+pub fn sim_rollout(r: &mut Match, s: &mut Search, dev: &mut InRollout, steps: i64) -> i64 {
     with_rollout(r, false);
     let mut i = 0;
     while i < steps && r.flow == Flow::Battle && r.cine.is_none() && r.unported.is_none() {
-        crate::flow::sim_step_lean(r, s, &mut NoInput);
+        crate::flow::sim_step_lean(r, s, dev);
         i += 1;
     }
     i
