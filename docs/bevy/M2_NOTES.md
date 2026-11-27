@@ -578,9 +578,10 @@ RESULTS, at `*step-hook*`'s place: its tick and Konpaku are that step's; secs `~
 not ported. Task 8's unused `mc_full_log` is deleted; `Search.mc_stats` / `strat_stats` keep the counts (the speed bench reads the
 rollouts from them). `Search.clock` stays the caller's (MC-FULL-STEP's and STRAT-FULL-STEP's time sums).
 
-**The game loop's frame.** `flow::frame` returns false once the sim reached an `unported!` path, in the match (`m.unported`; no step runs
-past it) or in a CPU rollout (`Search.cut`), so M3's loop stops and shows the name instead of freezing or playing on silently (M1 §10's
-carry). dt as an argument stays M3's. `PilotInput::rollout_read` is a required method (an M3 device can't forget its in-rollout write).
+**The game loop's frame.** `flow::frame` returns false once the sim reached an `unported!` path, in the match (`m.unported`) or in a CPU
+rollout (`Search.cut`). No step runs past either: `advance_sim`'s loops stop on both (the rest of the frame's steps are skipped, up to 119
+in turbo), and a frame called again returns false at once without running anything. So M3's loop stops and shows the name instead of
+freezing or playing on silently (M1 §10's carry; fix round 1). dt as an argument stays M3's. `PilotInput::rollout_read` is a required method (an M3 device can't forget its in-rollout write).
 
 **Strict arguments.** `duel-tools` refuses an unknown token, a flag without its value or with a bad one, and two flags pasted into one
 token (exit 2 with the usage); `replay --live` refuses `--stub` / `--mask` (a live run compares everything); `--bench` takes only `--live`
@@ -600,8 +601,7 @@ in the battle: **0 in each** (13,920-21,840 battle steps a trace; cvc-ii-s1 66 d
 - `Fighter.brain` is boxed (speed, §10); `Option<Box<Brain>>::clone_from` restores in place, so a snapshot still allocates nothing.
 
 Outside the gate, as the Lisp conses: a learning VS match (vs-learn's) clones BRAIN-FQL's records with each snapshot and rollout
-(`Brain.fql`, `clone_from`) and pushes a record per judgement (FQ-NOTE); the leaked copy per learned match (§12, M3). FZ-MU lower-cases
-an upper-case set name into a fresh string (no data name has one).
+(`Brain.fql`, `clone_from`) and pushes a record per judgement (FQ-NOTE); the leaked copy per learned match (§12, M3).
 
 ## 10. Speed with both CPUs on (Task 10)
 
@@ -670,10 +670,19 @@ their `fn` line (closures are not counted separately).
   HOHO-RESUME-PRESS! (the press in the neutral window after the Hoho: `fighter/states.rs` 0 past its test).
 - CUT-HAZARDS (`combat.rs`): runs every step, Nozarashi's open windows 6,910 times, but **no Ichigo wave is ever inside one**: the cut's
   verdict (lines 860-877) never runs.
-- Kenpachi: KE-BUTTAGIRU's `ground_crack`, KE-CHARGE's `charge_tick`, KE-FLURRY's `flurry`: **0** (no CPU starts them either: their
-  `:sp1` / `:sp2` commands stay in MOVE-COMMANDS' dead clauses). KEN-BANKAI-CINE: **0** (the Bankai is entered 6 times, without it, as M1
-  found). Their host tests stay the only check (`tests/ken.rs`).
-- Task 9's DURING ports: KR-KIKON, ZH-KIKON and S-KIKON2's draw arms **0** (`ken/cine.rs`); Z-KIKON1 and S-KIKON1's run.
+- Task 11's untraced Kenpachi list (M1 §10: "the KR / ZH / Z2 Kikon cinematics, the stance / charge / flurry / cracks"), item by item, in
+  the 17 live rows with and without `--snap 40` (`ken/hooks.rs`, `ken/cine.rs`):
+  - KE-BUTTAGIRU's `ground_crack`, KE-CHARGE's `charge_tick`, KE-FLURRY's `flurry`: **0** (no CPU starts them either: their `:sp1` /
+    `:sp2` commands stay in MOVE-COMMANDS' dead clauses);
+  - the stance: KEN-STANCE-RELEASE (`stance_release`, the stance's cut) **0**;
+  - KR-KIKON and ZH-KIKON **never play**: their director scripts (`script`'s `(KrKikon, 0)` / `(ZhKikon, 0)` arms) are 0, and so their
+    DURING draw arms;
+  - Z-KIKON2 **plays**: its script's frame 0 runs twice (its DURING is looks only); Z-KIKON1 and S-KIKON1 play and their DURING draw
+    arms run; S-KIKON2's script starts once but its DURING draw arm is 0 (no frame of it was drawn);
+  - also 0, beyond the list: KEN-BK-SLAM (`bk_slam`), KEN-TATEGOTO-SPLIT (`tategoto_split`), KEN-TATEGOTO-CUT (`tategoto_cut`). M1 saw
+    TATEGOTO start 3 times in its 22, so in the brainless trial / scripted rows, which are not live;
+  - KEN-BANKAI-CINE: **0** (the Bankai is entered 6 times, without it, as M1 found).
+  Their host tests (`tests/ken.rs`) stay the only check of every 0 here.
 
 **HARD-only paths:** the only HARD CPU in the 17 is vs-learn's learner (the cvc gate is NORMAL, vs-cpu NORMAL), and its MC-NEUTRAL
 (entered 897 times) never gets past the state test, so no HARD search runs: the decoupled UCT branch of `Lite::search` 0, the HARD outcome
@@ -707,7 +716,12 @@ FQ-ATTACH!'s HARD test and the HARD table chance are reached (vs-learn learns).
 - input-test.lisp's 7 device checks (PORTED.md) go with the touch deck's tests (the devices are the page's input);
 - the loop stops when `flow::frame` returns false and shows `m.unported` / `Search.cut`; dt as an argument;
 - each device implements `PilotInput::rollout_read` (the held keys written again inside a rollout, DIVERGENCES §1);
-- M1's touch stubs (M1 §10) still hold for the human seat.
+- M1's touch stubs (M1 §10) still hold for the human seat;
+- the fixed-capacity lists' memory (fix round 1, measured): `size_of::<Icc>()` is 336 bytes (`rq`'s 16 inline entries are 256 of them;
+  about 110 with the two Vecs, estimated, plus their heap), and every `Match` reserves `ICC_RESERVE` = 1024 of them: 344 kB a match, 2.06 MB for the six a CPU match
+  holds (the live one, `cpu::POOL`'s 4 snapshot slots, the rollout scratch). Lowering the reserve needs a bound the Lisp does not give
+  (ICCs are never freed inside a match and each NS3 / AS3 clone makes one), so it stays; M3's phone budget counts it (or the iccs could be
+  reclaimed when their hazards die, a redesign).
 
 **Carries to M4:** Hisagi's and Yamamoto's CPUs (`cpu-hisagi-*`, `cpu-ih-*`, `cpu-hk-*`, their styles resolve to `unported!`); CAI-NEUTRAL's
 finish passes no E to KIT-COMMAND-MOVE, and STRAT-FEATS reads the :q move from the match's `KitTable` (no E either): both are wrong for a

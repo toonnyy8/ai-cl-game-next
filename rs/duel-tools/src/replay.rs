@@ -1130,8 +1130,12 @@ mod tests {
         assert!(!flow::frame(&mut m, &mut Search::new(), &mut flow::NoInput));
         assert_eq!(m.match_tick, tick);
         let (mut m2, mut s2) = (Match::new(data), Search::new());
+        flow::go_title(&mut m2);
+        debug::ensure_battle(&mut m2, &mut s2, Character::Kenpachi, Character::Kenpachi);
+        let t2 = m2.match_tick;
         s2.cut = Some(("x", 1));
         assert!(!flow::frame(&mut m2, &mut s2, &mut flow::NoInput));
+        assert_eq!(m2.match_tick, t2);
     }
 
     fn args(s: &str) -> Vec<String> {

@@ -46,10 +46,14 @@ pub fn raw_dt(k: i64) -> f32 {
 }
 
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
-/// steps). False once the sim has reached an `unported!` path, in the match (`m.unported` names it; no step runs past it) or in a CPU
-/// rollout (`Search.cut`: the CPU's value was wrong): the game loop must stop and show the name instead of freezing or playing on
-/// silently (M1_NOTES §10). The Lisp never stops (it has no unported path).
+/// steps). False once the sim has reached an `unported!` path, in the match (`m.unported` names it) or in a CPU rollout (`Search.cut`:
+/// the CPU's value was wrong): no step runs past either (the rest of the frame's steps are skipped, and a frame called again does
+/// nothing and returns false), so the game loop must stop and show the name instead of freezing or playing on silently (M1_NOTES §10).
+/// The Lisp never stops (it has no unported path).
 pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool {
+    if m.unported.is_some() || s.cut.is_some() {
+        return false;
+    }
     m.frame_n += 1;
     let rdt = raw_dt(m.frame_n);
     while let Some(c) = m.cmds.pop_front() {
@@ -83,7 +87,7 @@ pub fn flow_update(m: &mut Match, rdt: f32) {
 pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn PilotInput) {
     if m.turbo {
         for _ in 0..120 {
-            if sim_running_p(m) && m.unported.is_none() {
+            if sim_running_p(m) && m.unported.is_none() && s.cut.is_none() {
                 sim_step(m, s, input);
             }
         }
@@ -91,8 +95,9 @@ pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn Pilo
     }
     m.time.step_acc += rdt;
     let mut n = 0;
-    // (`m.unported`: a step past an unported path would run on a state the Lisp never had; the replay stops there anyway)
-    while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) && m.unported.is_none() {
+    // (`m.unported`, `s.cut`: a step past an unported path, in the match or a CPU rollout, would run on a state the Lisp never had; the
+    // replay stops there anyway)
+    while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) && m.unported.is_none() && s.cut.is_none() {
         m.time.step_acc -= STEP;
         n += 1;
         sim_step(m, s, input);

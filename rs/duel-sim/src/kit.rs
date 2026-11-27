@@ -20,6 +20,7 @@ pub fn mv_name(mv: &Move) -> &str {
 // first entry of a name, as FIND's).
 pub fn kit_move<'d>(data: &'d Data, kit: &Kit, name: &str) -> Option<&'d Move> {
     let ix = &kit.move_ix;
+    assert_eq!(ix.len(), kit.moves.len(), "kit {}/{}: a stale move_ix (moves edited after Data::parse)", kit.character, kit.form);
     let (n, i) = ix.get(ix.partition_point(|(n, _)| n.as_str() < name))?;
     (n == name).then(|| i.map(|i| &data.moves[i as usize]))?
 }

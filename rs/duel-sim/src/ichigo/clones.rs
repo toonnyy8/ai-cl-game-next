@@ -70,7 +70,7 @@ pub struct Icc {
     pub link: i64,
     pub mv: Option<MoveId>,
     pub sf: i64,
-    pub queued: Few<Weight, 4>,
+    pub queued: Few<Weight, 4>, // (never pushed, in the Lisp either: only POP and NIL)
     pub hit: Option<Contact>,
     pub touched: bool,
     pub rq: Few<(i64, MoveId, f32), RQ_MAX>,
@@ -101,9 +101,11 @@ impl Default for Icc {
     }
 }
 
-/// The most clone hazards one fighter has at once, live or fading (CLONE-MAX live, plus the ones still fading out), and the most moves
-/// a clone queues for its replay: fixed lists (the 15 cvc gate traces, live: at most 3 clones and 1 queued move; M2_NOTES §9); more
-/// panics.
+/// The most clone hazards one fighter has at once, live or fading, and the most moves a clone queues for its replay: fixed lists, more
+/// panics. The Lisp's bounds: live clones <= `*clone-max*` (3, no debug command sets it), plus up to 3 charging (the O press) and the
+/// fading ones (8 frames): about 8 hazards; CLONE-REPLAY-WATCH pushes at most one move per new `fighter-cls-t` (once a step) onto a live
+/// NS3 clone and ICHIGO-CLONE-STEP takes one each step once its lag (`*clone-replay-lags*`: 4 / 8) has run, so `rq` <= lag + 1 = 9. The
+/// 15 cvc gate traces, live: at most 3 clones and 1 queued move (M2_NOTES §9). A larger lag or clone max must re-derive these.
 pub const CLONES_MAX: usize = 16;
 pub const RQ_MAX: usize = 16;
 /// A fighter's clone hazards (ICHIGO-CLONES' list), oldest first.

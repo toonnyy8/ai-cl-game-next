@@ -532,8 +532,9 @@ impl Clone for Pilot {
     }
 }
 
-/// A hazard's runtime HITWIN (kit.lisp, slot order): built by the sim, so GUARD may be a float. The data's windows hold one volume and
-/// up to two flags (ECHO-HITWIN adds :BLADE).
+/// A hazard's runtime HITWIN (kit.lisp, slot order): built by the sim, so GUARD may be a float. Its fixed lists hold 2 volumes and 4
+/// flags: the data's 549 moves have windows of at most 1 volume and 2 flags, ECHO-HITWIN (the only data copy) adjoins :BLADE, so <= 3;
+/// the waves' windows hold 0 volumes and 1 flag.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct HitWin {
     pub from: i64,

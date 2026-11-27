@@ -22,3 +22,5 @@
 /tests/shots/batch-*
 /tests/shots/webgl-*
 rs/target/
+# coverage builds (-C instrument-coverage) write profiles where their build scripts run
+*.profraw
