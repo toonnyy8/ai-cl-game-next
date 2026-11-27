@@ -15,7 +15,7 @@ fn check(scene: &str, arrays: &str, mask: &str) {
     let out = String::from_utf8_lossy(&o.stdout);
     println!("{out}");
     assert!(o.status.success() && out.starts_with(&format!("draw OK {scene} ")), "{scene}: {out}{}", String::from_utf8_lossy(&o.stderr));
-    assert!(out.contains("allocs 0 in "), "{scene}: allocations in steady state: {out}");
+    assert!(out.contains("; allocs 0 in ") && out.contains("draw_frame allocs 0 in "), "{scene}: allocations in steady state: {out}");
 }
 
 const QUIET: [&str; 12] = [

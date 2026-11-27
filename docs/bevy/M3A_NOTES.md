@@ -562,8 +562,9 @@ rs/target/release/duel-tools draw --check $ORACLE/draw/quiet-2394.bin --arrays f
 ```
 
 **Result: bit-exact.** The 12 quiet scenes (121 keyed frames each) and `slowmo-2513` (240): 1,692 frames, 426,384 floats of `fu` / `p`
-/ `dq`, largest |a − b| / max(1, |b|) = 0 in every array, with the `lights` and `fighters` lanes masked. 0 heap allocations in every frame
-after frame 0 (the frames with a command left out; the combat log turned off after the commands' frame, as the sim's 0-alloc gate).
+/ `dq`, largest |a − b| / max(1, |b|) = 0 in every array, with the `lights` and `fighters` lanes masked. 0 heap allocations: in every
+whole frame after frame 0 that runs no command (the combat log turned off after the commands' frame, as the sim's 0-alloc gate), and in
+`draw_frame` alone on every frame from 1 (command frames too: slowmo-2513's frame 30 is its first SLOW-DRAW).
 `rs/duel-tools/tests/draw.rs`: `quiet_core_matches`, `slowmo_frames_match` (both fail without `$ORACLE`'s key).
 
 ### How a frame is drawn
@@ -625,8 +626,8 @@ those lanes; there is nothing to mask in `dq` for them.
 ### For later tasks
 
 - **Review Focus 2 is only half covered here.** In slowmo-2513 both fighters stand idle, so the drawn places equal the sim's and the camera
-  cannot show SLOW-DRAW; the clips' drawn times are in the fighters' records. Task 7's `quiet_full_matches` on slowmo-2513 is SLOW-DRAW's
-  real check.
+  cannot show SLOW-DRAW; the clips' drawn times are in the fighters' records. Measured: with SLOW-DRAW-BEGIN disabled, slowmo-2513 still
+  passes `--mask lights,fighters`. Task 7's `quiet_full_matches` on slowmo-2513 is SLOW-DRAW's real check.
 - Task 6: ST-ASH-FX computes each flake's FX-EMIT arguments (`stage.rs`, marked) for the pool; SHAKE (the request) writes
   `CamState.shake`; `*screen-fx*` is `DrawState.screen_fx` (FX-FROZEN-P reads [6], FORM-GRADE [0]); LIGHTS-FLUSH and the cracks, marks
   and chips go where `draw_scene` marks them; then drop `--mask lights,chips`.

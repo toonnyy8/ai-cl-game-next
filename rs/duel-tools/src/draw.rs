@@ -11,8 +11,9 @@
 //! the mesh's registry path (tables.json `mesh_ids`, equal to the key's meshes.json), never by a record's place.
 //! Tolerance: `|a - b| <= 1e-5 max(1, |b|)` per float; a record count, a stream length, a mesh id and the RNG state exactly.
 //! Prints `draw OK <scene> <frames>` (exit 0) or the first mismatch (scene, frame, array, index, both values; exit 1), a line with
-//! the largest error per array, and the heap allocations per frame after frame 0 (the combat log off after the commands' frame, as
-//! the sim's 0-alloc gate). Exit 3: the replay reached an `unported!` sim path or a `look_unported`; exit 2: bad arguments.
+//! the largest error per array, and the heap allocations: the whole frame's (sink and draw included) in the frames after frame 0
+//! that run no command (the combat log off after the commands' frame, as the sim's 0-alloc gate), and `draw_frame`'s alone in every
+//! frame from frame 1 (command frames too). Exit 3: the replay reached an `unported!` sim path or a `look_unported`; exit 2: bad arguments.
 use duel_data::Data;
 use duel_look::{draw_frame, FrameOut, Scene, SceneInputs};
 use duel_sim::cpu::Search;
@@ -244,7 +245,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let mut sc = Scene::new(data, inputs);
     let mut out = FrameOut::default();
     let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0 };
-    let (mut allocs, mut counted, mut compared, mut ki) = (0u64, 0u64, 0u32, 0usize);
+    let (mut allocs, mut counted, mut compared, mut ki, mut draw_allocs) = (0u64, 0u64, 0u32, 0usize, 0u64);
     let (mut got_dq, mut want_dq): (Vec<f32>, Vec<f32>) = (Vec::new(), Vec::new());
     for f in 0..=last {
         let has_cmd = cmds.iter().any(|c| c.0 == f);
@@ -252,7 +253,11 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
         let a0 = crate::alloc_count::count();
         let rdt = flow::raw_dt(m.frame_n + 1);
         flow::frame(&mut m, &mut s, &mut NoInput, &mut sc, rdt);
+        let d0 = crate::alloc_count::count();
         draw_frame(&mut sc, &mut m, rdt, &mut out);
+        if f > 0 {
+            draw_allocs += crate::alloc_count::count() - d0; // (draw_frame alone, every frame from 1, command frames too)
+        }
         flow::frame_end(&mut m, &mut s);
         if f > 0 && !has_cmd {
             (allocs, counted) = (allocs + crate::alloc_count::count() - a0, counted + 1);
@@ -307,7 +312,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     }
     let worst: Vec<String> = cmp.worst.iter().map(|(a, e)| format!("{a} {e:.2e}")).collect();
     let per = if counted > 0 { allocs as f64 / counted as f64 } else { 0.0 };
-    let tail = format!("largest error: {}; {} floats; allocs {allocs} in {counted} frames after frame 0 ({per:.2} per frame)", worst.join(", "), cmp.floats);
+    let tail = format!("largest error: {}; {} floats; allocs {allocs} in {counted} frames after frame 0 ({per:.2} per frame; commandless frames), draw_frame allocs {draw_allocs} in {last} frames from frame 1", worst.join(", "), cmp.floats);
     let masks = if o.mask.is_empty() { String::new() } else { format!(" (masked: {})", o.mask.join(",")) };
     match cmp.first {
         Some(e) => {
