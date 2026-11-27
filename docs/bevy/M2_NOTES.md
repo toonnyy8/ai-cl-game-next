@@ -355,7 +355,15 @@ Three lookup rules apply:
 | cvc-ii-s1..3, cvctag-ii | `mc-neutral` at step 326 |
 | cvctag-ik | `mc-neutral` at step 1024 |
 
-Each stop is the key's MC-SETUP: the recorded A line of that step opens a job (cvc-ii-s1 step 326: plan `1 3 8`, job `0 3 8 :NORMAL 0`).
+At seven stops the key opens a job at that step: cvc-ki-s2 / -s3, cvc-ik-s2, cvc-ii-s1..3 and cvctag-ii (for example cvc-ii-s1 step 326:
+plan `1 3 8`, job `0 3 8 :NORMAL 0`). At the other four the key shows no plan, job or `*mc-next*` change: cvc-ki-s1 812, cvc-ik-s1 2411,
+cvc-ik-s3 1666 and cvctag-ik 1024. At those steps MC-SETUP returns NIL in the Lisp, because the opponent's perceived state is none the
+light model starts from (its `(t nil)` case: :air / :down / :wakeup).
+
+The port stops earlier than MC-SETUP, so a check was run outside the commit. MC-NEUTRAL was given only that NIL case (return NIL on such
+a SNAP state; MC-SIDE-SETUP's scratch is Search-only and rewritten at every search). With it, those four replays ran on with no
+mismatch to steps 826 / 2413 / 1670 / 1079, and the key opens a job at each of those steps. So the style's NIL and the generic CPU after
+it equal the key there too. Task 8 can take that case first.
 Ichigo HARD is off the MCTS (`*mc-off-at*`), but every gate CPU is NORMAL. A NORMAL `:generic` episode returns NIL, because IKS-GENERIC
 runs only under `*iks-generic-kikon*` (HARD), so it falls through to MC-NEUTRAL. `--inject-plan` cannot move these stops, because no
 plan reaches 1 before Task 8 (ruling R5).
