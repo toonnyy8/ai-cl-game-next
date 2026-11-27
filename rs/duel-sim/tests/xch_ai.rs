@@ -108,7 +108,7 @@ fn knobs_keep_their_order() {
 fn kessa_summons_hit_at() {
     let d = data();
     let mvd = |n: &str| find_move(d, n).unwrap_or_else(|| panic!("no move {n}"));
-    let at = |n: &str| mvd(n).params.hit_at.unwrap() as i32;
+    let at = |n: &str| mvd(n).params.hit_at.unwrap();
     let on = |n: &str| mvd(n).on_frame[0][0].as_f32().unwrap() as i32;
     assert_eq!(at("ic-k-n3a"), on("ic-k-n3a") + mvd("ic-c-light").s - 1);
     assert_eq!(at("ic-k-n3b"), on("ic-k-n3b") + mvd("ic-c-light").s - 1);

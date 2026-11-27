@@ -173,9 +173,10 @@ pub fn strat_mul(b: &Brain, key: &str, v: f32) -> f32 {
 pub fn strat_mul_int(b: &Brain, key: &str, v: i64) -> i64 {
     strat_out(b, key, None).map_or(v, |k| 0.max(floor_f32(v as f32 * k + 0.5)))
 }
-/// port: strategy-glue.lisp STRAT-HOLD-AWAKEN-P — E's active strategy's :HOLD-AWAKEN (none, or no brain: NIL).
-pub fn strat_hold_awaken_p(m: &Match, e: Entity) -> bool {
-    let h = m.fighter.get(e).and_then(|f| f.brain.as_ref()).and_then(|b| strat_out(b, "hold-awaken", None));
+/// port: strategy-glue.lisp STRAT-HOLD-AWAKEN-P — E's active strategy's :HOLD-AWAKEN (none, or no brain: NIL). B is E's brain, `(brain e)`
+/// (taken out of its fighter while the CPU steps, so the caller passes it).
+pub fn strat_hold_awaken_p(m: &Match, e: Entity, b: Option<&Brain>) -> bool {
+    let h = b.and_then(|b| strat_out(b, "hold-awaken", None));
     h.is_some_and(|h| m.gauges.get(e).unwrap().sub / m.knobs.sub_max < h)
 }
 /// port: strategy-glue.lisp STRAT-REACH — MV's reach plus its forward slide (m).
@@ -568,7 +569,7 @@ fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &S
     b.decide_t = m.knobs.cai_think.get(b.difficulty.name(), 22) + floor_f32(12.0 * m.rng.rnd01());
     if d > 7.0 {
         ai_dash(&m.knobs, b, 1.0, 4.5);
-    } else if gauges_awakened_ok_p(m, e) && m.rng.rnd01() < strat_scale(b, "awaken", m.knobs.cai_awaken_p) {
+    } else if gauges_awakened_ok_p(m, e, Some(b)) && m.rng.rnd01() < strat_scale(b, "awaken", m.knobs.cai_awaken_p) {
         ai_press(b, AWAKEN, 1, true, AWAKEN);
     } else if nr.is_some_and(|[near, far]| d > hi + 0.6 && near <= d && d <= far) && m.rng.rnd01() < m.knobs.cai_ranged_p {
         (b.own_key, b.r_kikon, b.decide_t) = (-1, 1.0, m.knobs.cai_ranged_gap); // a shot from where he would walk in
@@ -608,7 +609,7 @@ fn cai_finish(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Sn
 /// port: CAI-AWAKEN-BREAK — the awakening out of his combo or Kikon: when E may awaken now, one roll of P scaled by KEY (CAI-ROLL).
 /// T when it pressed Mod + P.
 fn cai_awaken_break(m: &mut Match, e: Entity, b: &mut Brain, key: &str, p: f32) -> bool {
-    if !(awaken_ready_p(m, e) && !strat_hold_awaken_p(m, e) && cai_roll(m, b, key, p)) {
+    if !(awaken_ready_p(m, e) && !strat_hold_awaken_p(m, e, Some(b)) && cai_roll(m, b, key, p)) {
         return false;
     }
     let what = if fighter(m, e).kikon_lock > 0 { "the Kikon" } else { "the combo" };
@@ -618,10 +619,10 @@ fn cai_awaken_break(m: &mut Match, e: Entity, b: &mut Brain, key: &str, p: f32) 
 }
 
 /// port: GAUGES-AWAKENED-OK-P — may E awaken now (the gauge full, not yet awakened, free; not held by a strategy)?
-pub fn gauges_awakened_ok_p(m: &Match, e: Entity) -> bool {
+pub fn gauges_awakened_ok_p(m: &Match, e: Entity, b: Option<&Brain>) -> bool {
     let (g, f) = (m.gauges.get(e).unwrap(), fighter(m, e));
     // ((getf core :no-awaken): no kit has the key)
-    !g.awakened && g.awaken >= m.knobs.awaken_max && matches!(f.state, State::Idle | State::Run) && !strat_hold_awaken_p(m, e)
+    !g.awakened && g.awaken >= m.knobs.awaken_max && matches!(f.state, State::Idle | State::Run) && !strat_hold_awaken_p(m, e, b)
 }
 
 /// port: cpu-mcts.lisp MC-FULL-REEL-P.
@@ -647,7 +648,7 @@ fn mc_neutral(m: &mut Match, e: Entity, b: &mut Brain, d: f32) -> bool {
         && !k.mc_off_at.has(ch.map_or("", |c| c.name()), b.difficulty.name())
         && !(tick < next && next < tick + k.mc_defer_gap + 1)
         && d <= k.mc_far
-        && !gauges_awakened_ok_p(m, e)
+        && !gauges_awakened_ok_p(m, e, Some(b))
     {
         crate::unported!(m, "mc-neutral", false) // (MC-SETUP, the light search, MC-FULL-REQUEST: Task 8)
     }

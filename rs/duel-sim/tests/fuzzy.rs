@@ -20,7 +20,10 @@ fn approx(a: f32, b: f32) -> bool {
     (a - b).abs() < 1e-3
 }
 
-fn rules(rs: &[(&[(&str, &str)], f32, bool)]) -> FzRules {
+/// A hand-made rule: (antecedents, output, :must).
+type R<'a> = (&'a [(&'a str, &'a str)], f32, bool);
+
+fn rules(rs: &[R]) -> FzRules {
     FzRules(rs.iter().map(|&(a, out, must)| FzRule { ante: a.iter().map(|&(f, s)| (f.into(), s.into())).collect(), out, must }).collect())
 }
 
@@ -77,7 +80,8 @@ fn rule_bases_read_as_intended() {
 #[test]
 fn rule_bases_match_the_native_image() {
     let k = k();
-    let cases: [(&FzRules, &[(&str, Num)], _, Kind, f32); 11] = [
+    type Case<'a> = (&'a FzRules, &'a [(&'a str, Num)], duel_sim::components::Difficulty, Kind, f32);
+    let cases: [Case; 11] = [
         (&k.fz_as_now, &[("ons", I(0)), ("ored", I(0)), ("press", F(0.4))], Normal, Kind::Choice, 0.35533333),
         (&k.fz_as_now, &[("ons", I(0)), ("ored", I(1)), ("press", F(0.75))], Easy, Kind::Choice, 0.59000003),
         (&k.fz_hoho, &[("margin", F(0.05)), ("frames", I(11))], Normal, Kind::Skill, 0.11366667),

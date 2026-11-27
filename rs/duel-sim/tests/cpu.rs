@@ -309,7 +309,7 @@ fn mc_plan_apply_picks_and_clears() {
     let e = m.p1;
     let mut b = m.fighter.get_mut(e).unwrap().brain.take().unwrap();
     m.mc_plan[..5].copy_from_slice(&[2, 7, 8, 900, 100]); // (a gap of 0.8 > NORMAL's budget 0.05: the best, :wait)
-    let rng = m.rng.clone();
+    let rng = m.rng;
     assert!(mc_plan_apply(&mut m, e, &mut b));
     assert_eq!((m.mc_plan[0], b.press, b.press_left, m.rng.state()), (0, Some(Sym(":NONE")), 20, rng.state()));
     m.mc_plan[..5].copy_from_slice(&[1, 2, -1, 0, 0]); // (still running: the light model's best, a Hoho)
