@@ -4,13 +4,15 @@
 //!
 //! **The copy's identity** (M2 ledger T5). A player's copy is a fresh plist (FQ-TABLE: COPY-TREE of the library entry, or the page's
 //! q in a copy), so BRAIN-STRAT, BRAIN-SW-SUB and :PREV's POSITION hold objects EQ to no library entry, and FQ-MATCH-END updates it in
-//! place. The port leaks each copy into a `&'static Value`: `Strat` stays a Copy pointer compared by `ptr::eq` (a library entry's case
-//! unchanged), and the copy's arms are values of their own, as COPY-TREE's. FQ-MATCH-END's in-place update makes a new leaked value
-//! and repoints the cell and every brain that held the old one (`fq_match_end_apply`). Nothing writes a copy during a match (the TD
-//! update runs only from GO-RESULTS, which returns in a rollout), so the Lisp snapshot's walk into the copy's conses has nothing to
-//! undo (M2 ledger T2, docs/bevy/M2_NOTES.md §1 and §8).
-//! ponytail: one table leaked per load and per learned match (tens of kB each, a human's matches only); an arena of copies in
-//! `Search` if a session's count ever matters.
+//! place. The port leaks the copy's structure once, when its cell is made (`fq_table`): `Strat` stays a Copy pointer compared by
+//! `ptr::eq` (a library entry's case unchanged), and the copy's arms are values of their own, as COPY-TREE's. Its q values, the only
+//! part FQ-MATCH-END writes, live in the cell (`FqCell.q`, the arena `Search` owns, M3a Task 10): STRAT-JUDGE reads them from there
+//! (`strat_judge`'s override), and FQ-MATCH-END updates them in place, so the copy keeps its identity across matches as the Lisp's
+//! does and a learned match leaks nothing. Nothing writes a copy during a match (the TD update runs only from GO-RESULTS, which returns
+//! in a rollout), so the Lisp snapshot's walk into the copy's conses has nothing to undo (M2 ledger T2, docs/bevy/M2_NOTES.md §1 and
+//! §8). The leaked structure's own q are the cell's at its making, never read once the cell exists.
+//! ponytail: one structure leaked per cell made (at most the 3 x 3 playable pairings; again after debug 2504 or RESET LEARNING forget
+//! the cells): a pool keyed by (me, vs, library entry) if a session's resets ever matter.
 use super::strategy::{fq_decode, fq_encode, fq_explore_arm, fq_td_update, fq_transitions, fq_u01, plist_get, strat_fq_fire, Strat};
 use super::{Brain, Search};
 use crate::components::{Character, Difficulty};
@@ -25,14 +27,37 @@ use duel_data::Data;
 pub const PG_FQ: i64 = 40000;
 
 /// One `*fq-tables*` cell: roster indices (me . vs) -> (strategy . matches).
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct FqCell {
     pub me: i64,
     pub vs: i64,
-    /// The player's copy (a leaked value: see the module's header).
+    /// The player's copy (its structure leaked once: see the module's header).
     pub st: Strat,
     /// The matches it learned from.
     pub n: i64,
+    /// The copy's live q: every rule's q in rule order (`rule_q`'s single-floats), what FQ-MATCH-END updates in place.
+    pub q: Vec<f32>,
+}
+
+/// The q of FQ's rules in rule order, as `rule_q` reads them (a cell's overlay).
+pub fn q_of(fq: &Value) -> Vec<f32> {
+    let rules = plist_get(fq, "rules").and_then(Value::as_array).map_or(&[][..], |a| a.as_slice());
+    rules.iter().flat_map(|r| r.as_array().unwrap()[1..].iter().map(|q| super::fuzzy::num_of(q).expect("a q").f())).collect()
+}
+
+/// FQ with its rules' q set from Q (rule order): the inverse of `q_of` (FQ-TD-UPDATE! writes a double from a single, read back exact).
+fn set_q(fq: &mut Value, q: &[f32]) {
+    let mut qs = q.iter();
+    for r in fq.get_mut("rules").and_then(Value::as_array_mut).expect(":rules") {
+        for c in r.as_array_mut().unwrap()[1..].iter_mut() {
+            *c = Value::from(*qs.next().expect("the overlay's length") as f64);
+        }
+    }
+}
+
+/// The live q of the copy ST when it is a cell's (STRAT-JUDGE's override), else None (a library entry reads its own).
+pub fn copy_q(cells: &[FqCell], st: Strat) -> Option<&[f32]> {
+    cells.iter().find(|c| c.st == st).map(|c| c.q.as_slice())
 }
 
 /// One judgement's record (FQ-NOTE): the firing vector, the arm played, my health balance then.
@@ -102,12 +127,13 @@ fn roster(c: Character) -> i64 {
 }
 
 /// A leaked copy of the strategy plist LIB with its :FQ replaced by FQ (FQ-TABLE's `(list* :fq fq <lib's other entries>)`; the order of
-/// a JSON object's keys is GETF-neutral: no library plist repeats a key).
-fn leak_with_fq(lib: &Value, fq: Option<Value>) -> Strat {
+/// a JSON object's keys is GETF-neutral: no library plist repeats a key). The port's only leak of a copy (`Search.fq_leaks` counts).
+fn leak_with_fq(s: &mut Search, lib: &Value, fq: Option<Value>) -> Strat {
     let mut copy = lib.clone();
     if let Some(fq) = fq {
         *copy.get_mut("fq").expect("a Q selector's :fq") = fq;
     }
+    s.fq_leaks += 1;
     Strat(Box::leak(Box::new(copy)))
 }
 
@@ -125,7 +151,8 @@ pub fn fq_table(s: &mut Search, me: i64, vs: i64, lib: Strat, unit: i64) -> usiz
         None => (None, 0),
     };
     // log-msg: "duel fq load ME VS page|fresh matches M checksum C" (a console line: the trace's R line, never compared)
-    s.fq_tables.insert(0, FqCell { me, vs, st: leak_with_fq(lib.0, fq), n: m }); // (PUSH)
+    let st = leak_with_fq(s, lib.0, fq);
+    s.fq_tables.insert(0, FqCell { me, vs, st, n: m, q: q_of(st.fq().unwrap()) }); // (PUSH)
     0
 }
 
@@ -201,10 +228,10 @@ pub fn fq_match_end_take(m: &mut Match) {
     }
 }
 
-/// port: FQ-MATCH-END's second half: every queued record (in side order) updates its cell's copy (FQ-TD-UPDATE! of its transitions,
-/// the table's own :SCALE / :GAMMA), counts the match and saves the copy to the page (the codes, then their count). An empty record
-/// changes nothing. The copy is replaced by an updated one (see the module's header): the cell and every brain holding the old one
-/// point to the new.
+/// port: FQ-MATCH-END's second half: every queued record (in side order) updates its cell's copy in place (FQ-TD-UPDATE! of its
+/// transitions, the table's own :SCALE / :GAMMA), counts the match and saves the copy to the page (the codes, then their count). An
+/// empty record changes nothing. The update runs on a scratch value of the copy with the cell's q and writes them back to the cell
+/// (see the module's header): the copy's identity, and every brain holding it, stay.
 pub fn fq_match_end_apply(m: &mut Match, s: &mut Search) {
     if m.fq_end.is_empty() {
         return;
@@ -216,26 +243,17 @@ pub fn fq_match_end_apply(m: &mut Match, s: &mut Search) {
             continue;
         }
         let ci = s.fq_tables.iter().position(|c| (c.me, c.vs) == (me, vs)).expect("the learner's cell");
-        let old = s.fq_tables[ci].st;
-        let q0 = old.fq().expect("a Q selector");
+        let cell = &mut s.fq_tables[ci];
+        let q0 = cell.st.fq().expect("a Q selector");
         let num = |key: &str, default: f32| plist_get(q0, key).and_then(super::fuzzy::num_of).map_or(default, |v| v.f());
         let (scale, gamma) = (num("scale", m.knobs.fq_online_scale), num("gamma", m.knobs.fq_online_gamma));
-        let mut copy = old.0.clone();
-        let fq = copy.get_mut("fq").expect("a Q selector's :fq");
-        fq_td_update(fq, base, &fq_transitions(&recs, h, won, scale), eta, gamma, cap, unit);
-        let st = Strat(Box::leak(Box::new(copy)));
-        let cell = &mut s.fq_tables[ci];
-        cell.st = st;
+        let mut fq = q0.clone(); // (outside the battle: GO-RESULTS' step end, the frame's end or START-MATCH)
+        set_q(&mut fq, &cell.q);
+        fq_td_update(&mut fq, base, &fq_transitions(&recs, h, won, scale), eta, gamma, cap, unit);
+        cell.q.clear();
+        cell.q.extend(q_of(&fq));
         cell.n += 1;
-        let n = cell.n;
-        for e in [m.p1, m.p2] {
-            if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut())
-                && b.strat == Some(old)
-            {
-                b.strat = Some(st);
-            }
-        }
-        let codes = fq_encode(st.fq().unwrap(), base, n, unit);
+        let codes = fq_encode(&fq, base, cell.n, unit);
         let pg = fq_page_base(me, vs);
         for (j, &c) in codes.iter().enumerate() {
             page_set(s, pg + 1 + j as i64, c);
@@ -246,13 +264,13 @@ pub fn fq_match_end_apply(m: &mut Match, s: &mut Search) {
 }
 
 /// TR-A-STRAT's suffix for a player's copy (the strategy of a cell): `/fq(<matches>,<q codes>...)` (FQ-ENCODE's codes after its
-/// three-word head), else nothing.
+/// three-word head, from the cell's q), else nothing.
 pub fn enc_copy(st: Strat, cells: &[FqCell], unit: i64, s: &mut String) {
     use std::fmt::Write;
     if let Some(c) = cells.iter().find(|c| c.st == st) {
         write!(s, "/fq({}", c.n).unwrap();
-        for x in &fq_encode(st.fq().unwrap(), st.fq().unwrap(), c.n, unit)[3..] {
-            write!(s, ",{x}").unwrap();
+        for &q in &c.q {
+            write!(s, ",{}", crate::cl::round_f32(q * unit as f32)).unwrap();
         }
         s.push(')');
     }

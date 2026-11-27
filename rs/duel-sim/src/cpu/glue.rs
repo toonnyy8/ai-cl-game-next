@@ -205,8 +205,9 @@ pub fn judge_feats(m: &Match, e: Entity, s: &Snap, d: f32, sw: Strat, sub: Optio
 }
 
 /// port: STRAT-SWITCH-STEP — the active sub of the composite or Q selector SW for brain B: judged on the match's first step and every
-/// period (the table's :PERIOD, else *strat-switch-period*) in neutral, else held. Counts the judgements (BRAIN-SW-N / -WON).
-pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f32, sw: Strat) -> Option<Strat> {
+/// period (the table's :PERIOD, else *strat-switch-period*) in neutral, else held. Counts the judgements (BRAIN-SW-N / -WON). CELLS:
+/// `*fq-tables*`, whose live q a player's copy judges by (fq.rs's header).
+pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f32, sw: Strat, cells: &[super::fq::FqCell]) -> Option<Strat> {
     strat_window_step(m, b, sw);
     let fq = sw.fq();
     let period = fq.and_then(|q| strategy::plist_get(q, "period")).and_then(Value::as_i64).unwrap_or(m.knobs.strat_switch_period);
@@ -221,7 +222,7 @@ pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f
     } else {
         let feats = judge_feats(m, e, s, d, sw, b.sw_sub);
         // (*strat-judge-hook*: a tool's, NIL in the game)
-        let (mut sub, mut i) = strategy::strat_judge(&m.knobs.fz_sets, sw, feats.as_slice());
+        let (mut sub, mut i) = strategy::strat_judge(&m.knobs.fz_sets, sw, feats.as_slice(), super::fq::copy_q(cells, sw));
         // (the online fuzzy Q: its exploration and record, outside rollouts, when the brain learns)
         if fq.is_some() && b.fql.is_some() && !m.in_rollout {
             (sub, i) = super::fq::fq_explore(m, e, sw, sub, i);
