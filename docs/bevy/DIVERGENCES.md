@@ -38,3 +38,29 @@ trace reaches today. Fix each before the milestone that reaches it.
 | `core_sim::core_next_as` | any length of `:as-by-press` | widens on the stack, up to 16 entries, and panics past that | a kit with more than 16 |
 | `components::Few` (a runtime HITWIN's volumes / flags, an ICC's queued presses / replays, the clone lists; M2 Task 10) | lists of any length | inline, panics past 2 volumes, 4 flags, 4 presses, 16 clones, 16 queued replays. The Lisp's own bounds: the data has <= 1 volume and <= 3 flags after ECHO-HITWIN; `*clone-max*` is 3, about 8 clone hazards with the charging and fading ones; `rq` <= lag + 1 = 9; `queued` is never pushed | a data window with more volumes or flags; more than 16 clones of one fighter; more than 16 queued replays (a `*clone-replay-lags*` entry above 15); the gate's most: 3 clones, 1 queued replay |
 | `fighter/moves.rs` `HookFn::Cine` | a cinematic name in a hook slot | `unreachable!` | none in the data |
+
+## 3. The native key against the frozen wasm page
+
+The draw key comes from the native image (32-bit host ECL, its libecl x87, an 80-bit long-float). The port replaces the wasm page (ruling
+R26): where the two disagree, the wasm page is the truth.
+
+| Where | Native key | Frozen wasm page | Port | Status |
+|---|---|---|---|---|
+| The long-float `pi` in looks (VFX-IC-C-CUT's `(sin (* pi u))` in cine-ic-kessa-getsuga, IC-MIST, VFX-IC-CHAIN-BIND; M3A_NOTES §7, §8) | `pi` is an 80-bit long-float (sinl, powl) | `pi` is a double on wasm32 (AGENTS.md "Gotchas"; BEVY_PORT §5.3) | doubles | **The port agrees with wasm.** The 2.05e-7 gap against the key is the native key's own artifact. No re-key. |
+| ken-nozarashi-026's held pose (debug 11026: ken-nozarashi-cine held at 26; the looks gate's cine-ken script; M3A_NOTES §9) | `page-nozarashi`, fed the page's own dt, title frames and command frame, holds Kenpachi's sword arm raised up-left from cine-frame 26 on (key frames 264 onward) | holds it low-left from page frame 266 on. Through frame 264 it is the same as the port to the noise floor (mean grey difference 0.23, the HUD's) | equals the native key bit for bit (`--exact`) | **Open, cause not found** (Task 9 fix round 3, one bounded round). |
+
+What was ruled out for the nozarashi pose, and how:
+
+- **The clip time.** In a native replay, a held pose moves continuously with the clip time: ±1e-6 s moves records by about 2e-5, and
+  ±1/60 s by 0.2–0.3. There is no flip in time.
+- **The cosmetic RNG.** Resetting it at the command changes no draw record (only the camera's shake, in fu).
+- **The command's frame.** Moving the command between frames 1, 240, 241 and 243 changes 6 records, none of them the arm.
+- **The x87 MOD.** A strict-single `mod_f32` re-rendered on the page left nozarashi-026 at SSIM 0.8277; MOD is not on the pose's path.
+- **The dt.** The page-dt key settles it.
+
+The frozen page's arm at frame 266 continues smoothly from its frame 264. The port's has swung up by its cine-frame-26 clip time.
+
+Candidates not yet checked:
+- a pose hook or placement that reads the long-float `pi` and hits a discrete branch, such as an angle wrap or a facing decision;
+- a hash-table iteration order that differs between native and wasm;
+- a page input the key does not model. MSAA (4 on the page, 1 in the key) is one, though nothing seen reads it outside the toon fx cut.

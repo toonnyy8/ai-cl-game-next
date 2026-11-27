@@ -856,7 +856,8 @@ state on every keyed frame), with no mask and 0 heap allocations a frame, bit fo
 cinematic scenes and `cine-84094-portrait`, both battles (`battle-2005`, `battle-2006`: 491 and 552 keyed frames, the hitstop window
 422-434 every frame) and `portrait-2005`, and again the quiet, slowmo, forms and portrait scenes, now with `ui`. The one: cine-ic-kessa-getsuga's
 `fxa` (the black C, VFX-IC-C-CUT) is within 2.05e-7 (first at frame 110, `fxa[14743]` 0.04981986 vs 0.049819864): its band goes through
-`(sin (* pi u))`, and the native image's `pi` is an 80-bit long-float (sinl, powl), which the port computes in doubles (the accepted
+`(sin (* pi u))`, and the native image's `pi` is an 80-bit long-float (sinl, powl), which the port computes in doubles: as the wasm page
+does, whose `pi` is a double (Task 9 fix round 3, DIVERGENCES §3: the gap is the native key's, the port agrees with wasm) (the accepted
 pi deviation, BEVY_PORT §5.3; the tolerance holds it). Tests:
 `rs/duel-tools/tests/draw.rs` `cines_match`, `cine_portrait_matches`, `battles_match` (and the earlier four with `ui` added).
 
@@ -1134,14 +1135,17 @@ difference, the pixels that differ of 230,400) are after:
     write-up had put down to the cosmetic RNG.
   - **The nozarashi cinematic's frames** (debug 11026 at virtual 4.0 s, shots every second frame from 242 to 274) now match the frozen
     page to the noise floor through frame 264. Before the fix, 260-264 differed: the frozen page ran a frame ahead.
-- **ken-nozarashi-026's held pose (0.8277): the frozen page differs from its own native image (ruling needed).** From the hold (frame
-  266 on) the frozen page holds Kenpachi's arm and sword lower than the Rust page. It is not a frame offset: Rust's holds at cine-frames
-  26 and 27 both differ from it, and 28 on are other shots. The page-dt key (below) settles where the gap sits:
-  - `page-nozarashi`: the native image, fed the frozen page's own dt over the stills script's 239 title frames and the command's frame,
-    equals the port on every array and the cosmetic RNG at every keyed frame 239-330, bit for bit (`--exact`).
-  - So the native image holds the arm as the Rust page does. The frozen page (wasm) holds it otherwise under the same Lisp, dt and
-    command frame, and its frames 242-264 still match the Rust page to the noise floor.
-  - This is a native-vs-wasm difference. It is reported, not patched around, for the controller's ruling.
+- **ken-nozarashi-026's held pose (0.8277): the frozen page differs from its own native image.** Ruling R26 makes the wasm page the
+  truth.
+  - From the hold (frame 266 on), the frozen page holds Kenpachi's arm and sword low-left: its arm continues smoothly from frame 264.
+    The port and the native key hold it raised up-left, by the clip time of cine-frame 26.
+  - `page-nozarashi`, fed the page's own dt, title frames and command frame, equals the port at every keyed frame 239-330, bit for bit.
+  - Fix round 3 had one bounded round to find the discrete flip and did not find it. The first suspect, the x87 form of `mod_f32`,
+    re-rendered strict on the page, leaves the still at 0.8277: MOD is not on the pose's path.
+  - The held pose has no flip in the clip time (±1e-6 s moves records by about 2e-5), and neither the cosmetic RNG nor the command's
+    frame moves the arm.
+  - Recorded as a native-vs-wasm divergence in DIVERGENCES §3, with the candidates left: a long-float `pi` branch, a hash-table order,
+    a page input the key lacks.
 - **ko-012 / ko-060's darker floor is the Lisp HUD.** The native `hb` at both frames holds four triangles of colour (0.043 0.043 0.063)
   at alpha 0.41 over y 208-361, the screen below the horizon: the K.O. screen's shade, M3b's paint stream.
 - **Bounded by M3b (the coordinator's ruling):** the cosmetic RNG and the fx clock enter the fight from a title that runs M3b's menus and
