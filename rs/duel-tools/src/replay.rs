@@ -1135,8 +1135,9 @@ mod tests {
                 .unwrap();
             let mut m = Match::new(data);
             flow::go_title(&mut m);
-            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
             let (s, t) = (&mut Search::new(), &mut Tally([0; 2]));
+            t.frame(&mut m); // (the title's calls drained before the match starts, as the page's frames do: `warm`'s slots see less)
+            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
             flow::frame_headless(&mut m, s, &mut flow::NoInput, t);
             m.log_on = false;
             let (mut allocs, mut steps) = (0, 0);

@@ -289,10 +289,11 @@ their vertex counts.
 - **The sink's place** (`main.lisp:30-45`): `sim_step` = `sim_core` (the tick, then the cinematic, a hitstop step, a slow-motion wait
   or the systems), FQ-MATCH-END's Search half, `look.step(m)`, HASH-LOG's `step_end`, MC-FULL-STEP. GOD-UPDATE / PROBE-UPDATE are not
   ported (debug). `LookSink::step` drains the queue and reads the match; it writes nothing else.
-- **The frame pass** (`LookSink::frame`): `frame_headless` calls it after the steps and before CINE-DRAW. It applies and removes the
+- **The frame pass** (`LookSink::frame`): `flow::frame` calls it last, after the steps, so it is done before any caller draws. It applies and removes the
   immediate calls still queued, and keeps the EMITs for the next step's FEEDBACK-SYSTEM. Those calls come from a debug command, or from
   a frame that ran no step: `raw_dt(1)` is under a step, so the frame that spawns the fighters runs none; at 120 Hz every other frame
-  runs none; a pause or a menu runs none. The Lisp made them at once, before that frame's draw. Task 5's `draw_frame` calls it first.
+  runs none; a pause or a menu runs none. The Lisp made them at once, before that frame's draw. (Fix round 1: it was in `frame_headless`
+  only, so the documented loop would have drawn with them still queued.)
 - **The mute.** `Match::look` / `Match::emit` do nothing while `m.in_rollout`. No site calls `m.looks.push` directly
   (`grep -rn 'looks.push' rs/duel-sim/src` finds only look.rs). `sim_step_lean` (SIM-STEP-LEAN) ends with `NoLook` (its TAKE-EVENTS).
   The Lisp rollout runs no feedback, drops `*events*` (no snapshot root), and its restore puts back the ECS, whose MODEL holds the clip
@@ -302,10 +303,15 @@ their vertex counts.
 - **SPAWN-PAIR's TAKE-EVENTS** is `LookQueue::take_events`. It drops the EMITs only: the immediate calls queued before it were already
   made in the Lisp.
 - **The frame split** (M1_NOTES §10, M2_NOTES §12):
-  - `flow::frame(m, s, input, look, rdt) -> bool`: the commands, FLOW-UPDATE, GATE-UPDATE, the steps; RDT is an argument;
+  - `flow::frame(m, s, input, look, rdt) -> bool`: the commands, FLOW-UPDATE, GATE-UPDATE, the steps, then the frame pass; RDT is an
+    argument;
   - `flow::frame_end(m, s)`: FQ-MATCH-END's apply;
-  - `flow::frame_headless(m, s, input, look)`: `frame` with `raw_dt(frame_n + 1)` (unchanged arithmetic), the frame pass, `cine_draw`
-    unless turbo, `frame_end`. That is the replayer's order before this task, and all the tools use it.
+  - `flow::frame_headless(m, s, input, look)`: `frame` with `raw_dt(frame_n + 1)` (unchanged arithmetic), `cine_draw` unless turbo,
+    `frame_end`. That is the replayer's order before this task, and all the tools use it. The game's loop is the same three calls:
+    `frame`, `draw_frame` (whose DRAW-SCENE runs `cine_draw`), `frame_end`.
+  - `Match`'s `Clone` reserves the look queue's whole `LOOK_RESERVE` (beside `iccs` and `hz_dead`): a snapshot slot made from a short
+    queue at `warm` takes a later mid-step snapshot (the strategy layer's, inside BRAIN-SYSTEM, after SLOW-SNAPSHOT's events) with no
+    allocation (fix round 1; `state::tests::clone_keeps_the_look_reserve`).
   - The four frame-time `// look:` sites in `flow.rs` (SCREEN-FX-UPDATE / ONEHAND-FRAME, the menus' idle ANIM-ADVANCE by RDT,
     SLOW-DRAW / the fx clock / the camera, the HUD) are not queued: they belong to the drawer (Tasks 5-7, 10).
 - **`to_idle` takes TO-IDLE's blend.** The Lisp's callers pass 0 (BEGIN-BATTLE, REPEL!, ORANGE, the awakening / Bankai AFTERs,

@@ -118,7 +118,7 @@ fn rollout_leaves_scene_and_cosrng() {
 }
 
 /// Review Focus 3: cvc-ki-s1 (turbo off after its commands) rendered at 60, 120 and 30 Hz (`flow::frame` with dt = 1/60, 1/120 (a step every other frame), 1/30 (two
-/// steps a frame); the frame pass, CINE-DRAW unless turbo, `frame_end`, as `frame_headless` orders them): the Scene's clip players and
+/// steps a frame; its frame pass included); CINE-DRAW unless turbo, `frame_end`, as `frame_headless` orders them): the Scene's clip players and
 /// the sim's state hash equal at the same battle ticks, read inside the step's sink. The ticks are before the match's first cinematic
 /// (a Kikon's DURING forms move actors once per rendered frame: DIVERGENCES §1, Task 10's check).
 #[test]
@@ -147,7 +147,6 @@ fn frame_rate_120_and_30() {
         let (mut m, mut s) = start("cvc-ki-s1", &mut p);
         while p.got.len() < AT.len() {
             assert!(flow::frame(&mut m, &mut s, &mut NoInput, &mut p, dt), "{:?}", m.unported);
-            p.frame(&mut m);
             if !m.turbo {
                 duel_sim::cine::cine_draw(&mut m);
             }

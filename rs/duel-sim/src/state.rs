@@ -156,6 +156,9 @@ macro_rules! match_clone {
                 // (Vec::clone is tight: keep the reserves, so a restore into this copy does not grow them)
                 c.iccs.reserve_exact(self.iccs.capacity() - c.iccs.len());
                 c.hz_dead.reserve_exact(self.hz_dead.capacity() - c.hz_dead.len());
+                // (the look queue's whole reserve: a snapshot taken mid-step holds what the step queued so far, and a slot restored into
+                // the live match must not grow it)
+                c.looks.v.reserve_exact(crate::look::LOOK_RESERVE.saturating_sub(c.looks.v.len()));
                 c
             }
             fn clone_from(&mut self, src: &Match) {
@@ -355,5 +358,20 @@ mod tests {
         assert_eq!(live.knobs.ken_lv_max, old, "make_mut copies a shared table, the live one is untouched");
         slot.clone_from(&live);
         assert_eq!(slot.knobs.ken_lv_max, old);
+    }
+
+    /// A snapshot slot keeps the look queue's whole reserve, whatever the queue held when it was made (an empty queue at `warm`): a
+    /// later snapshot taken mid-step, its events queued, is written into it with no allocation (the 0 B / step rule).
+    #[test]
+    fn clone_keeps_the_look_reserve() {
+        let mut live = crate::hashline::tests::new_match();
+        live.looks.clear();
+        let slot = live.clone();
+        assert!(slot.looks.v.capacity() >= crate::look::LOOK_RESERVE, "{}", slot.looks.v.capacity());
+        live.looks.v.resize(crate::look::LOOK_RESERVE, crate::look::LookEvent::CamCut);
+        let mut slot = slot;
+        let cap = slot.looks.v.capacity();
+        slot.clone_from(&live);
+        assert_eq!(slot.looks.v.capacity(), cap);
     }
 }

@@ -48,8 +48,10 @@ pub fn raw_dt(k: i64) -> f32 {
 
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
 /// steps, each with its `LookSink` at FEEDBACK-SYSTEM's place), RDT the frame's real seconds (RUN-FRAME's clamped dt: `raw_dt` in the
-/// headless tools, the page's clock in the game). The rest of GAME-FRAME is the caller's: the draw (DRAW-SCENE, whose CINE-DRAW runs a
-/// script's DURING forms, `cine::cine_draw`), then `frame_end` (`frame_headless` runs all three in that order). False once the sim
+/// headless tools, the page's clock in the game); last, LOOK's frame pass (`LookSink::frame`: the immediate calls queued outside a step,
+/// a command's or a frame's that ran no step, applied before the draw; the EMITs wait for the next step). The rest of GAME-FRAME is
+/// the caller's: the draw (DRAW-SCENE, whose CINE-DRAW runs a script's DURING forms, `cine::cine_draw`), then `frame_end`
+/// (`frame_headless` runs all three in that order). False once the sim
 /// has reached an `unported!` path, in the match (`m.unported` names it) or in a CPU rollout (`Search.cut`: the CPU's value was
 /// wrong): no step runs past either (the rest of the frame's steps are skipped, and a frame called again does nothing and returns
 /// false), so the game loop must stop and show the name instead of freezing or playing on silently (M1_NOTES §10). The Lisp never
@@ -72,6 +74,7 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &m
         // look: the menus' idle clips (frame time: the drawer's ANIM-ADVANCE by RDT; not queued)
     }
     // look: slow-draw (it puts back what it moves), the fx clock, the camera (frame time: the drawer's; not queued)
+    look.frame(m); // (the immediate calls queued outside a step, before the draw)
     m.unported.is_none() && s.cut.is_none()
 }
 
@@ -81,8 +84,8 @@ pub fn frame_end(m: &mut Match, s: &mut Search) {
     crate::cpu::fq::fq_match_end_apply(m, s);
 }
 
-/// The headless platform's whole frame (the tools' path; the replayer's order): `frame` with `raw_dt` of the next pump, then
-/// LOOK's frame pass (the immediate calls queued outside a step), DRAW-SCENE's CINE-DRAW unless turbo (a played cinematic's DURING
+/// The headless platform's whole frame (the tools' path; the replayer's order): `frame` (its frame pass included) with `raw_dt` of
+/// the next pump, then DRAW-SCENE's CINE-DRAW unless turbo (a played cinematic's DURING
 /// forms move the actors: DIVERGENCES §1), then `frame_end`. No drawer: LOOK sees the looks only.
 pub fn frame_headless(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn LookSink) -> bool {
     if m.unported.is_some() || s.cut.is_some() {
@@ -90,7 +93,6 @@ pub fn frame_headless(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput,
     }
     let rdt = raw_dt(m.frame_n + 1);
     frame(m, s, input, look, rdt);
-    look.frame(m); // (the immediate calls queued outside a step, before the draw)
     if !m.turbo {
         cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
     }
