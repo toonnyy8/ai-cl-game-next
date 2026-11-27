@@ -851,9 +851,12 @@ captions, the big words, fx-shapes.lisp's UI punctuation, ui.lisp's shapes); `rs
 (the hook, the hold, the scene commands).
 
 **Result: bit-exact.** All 41 scenes of the key match on every array but `hb` / `hk` (`fu,p,dq,fxa,fxb,ui,ft` and the cosmetic RNG's
-state on every keyed frame), with no mask, the largest |a − b| / max(1, |b|) 0 everywhere, 0 heap allocations a frame: the 20
+state on every keyed frame), with no mask and 0 heap allocations a frame, bit for bit (`duel-tools draw --exact`) but one array: the 20
 cinematic scenes and `cine-84094-portrait`, both battles (`battle-2005`, `battle-2006`: 491 and 552 keyed frames, the hitstop window
-422-434 every frame) and `portrait-2005`, and again the quiet, slowmo, forms and portrait scenes, now with `ui`. Tests:
+422-434 every frame) and `portrait-2005`, and again the quiet, slowmo, forms and portrait scenes, now with `ui`. The one: cine-ic-kessa-getsuga's
+`fxa` (the black C, VFX-IC-C-CUT) is within 2.05e-7 (first at frame 110, `fxa[14743]` 0.04981986 vs 0.049819864): its band goes through
+`(sin (* pi u))`, and the native image's `pi` is an 80-bit long-float (sinl, powl), which the port computes in doubles (the accepted
+pi deviation, BEVY_PORT §5.3; the tolerance holds it). Tests:
 `rs/duel-tools/tests/draw.rs` `cines_match`, `cine_portrait_matches`, `battles_match` (and the earlier four with `ui` added).
 
 ### The cinematics' look hook (ruling R9)
