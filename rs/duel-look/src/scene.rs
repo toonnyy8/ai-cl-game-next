@@ -23,9 +23,9 @@ pub struct SceneInputs {
     /// `*render-scale*`, `*pixel-lights*`.
     pub render_scale: f32,
     pub pixel_lights: u32,
-    /// `*coarse*`, `*one-hand*`, `*scene-scale-cap*` (the phone's; a desktop window: NIL NIL 1.0).
+    /// `*coarse*` and `*scene-scale-cap*` (the phone's; a desktop window: NIL, 1.0). `coarse` and `density` are carried but read by
+    /// nothing in M3a (the touch deck's, M3b). `*one-hand*` is the sim's: `Match.settings.one_hand` (SET-CAM-BEHIND reads it).
     pub coarse: bool,
-    pub one_hand: bool,
     pub scene_scale_cap: f32,
 }
 

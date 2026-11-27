@@ -44,7 +44,6 @@ fn key_inputs() -> SceneInputs {
         render_scale: val("render-scale").parse().unwrap(),
         pixel_lights: val("pixel-lights").parse().unwrap(),
         coarse: val("coarse") != "NIL",
-        one_hand: val("one-hand") != "NIL",
         scene_scale_cap: val("scene-scale-cap").parse().unwrap(),
     }
 }

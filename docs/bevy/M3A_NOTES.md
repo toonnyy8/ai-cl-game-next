@@ -593,7 +593,8 @@ from `Match.settings` (below); nothing in the draw code holds them.
   quiet-2394 and quiet-84004 at frame 0 (`fu[12]`); quiet-2500 still passes (no PLACE, so `*cam-cut*` snaps to the same places).
 - **`LookEvent::Place`** (new): debug PLACE's looks, FX-CLEAR, `*punch-t*` 0, the models' flash / super 0. The sink applies `*punch-t*`;
   the rest are marked for Tasks 6 / 7.
-- **`Match.settings`** (new, `duel_sim::state::Settings`): the page's SETTINGS line (`*setting-ix*`, each row's default from tuning.json
+- **`Match.settings`** (new, `duel_sim::state::Settings`), the one holder of `*one-hand*` (the draw tool sets it from the key's fixed
+  input; `SceneInputs` has no `one_hand`): the page's SETTINGS line (`*setting-ix*`, each row's default from tuning.json
   `*SETTINGS*`: `(0 1 2 2 0 0 0 0 0 0 5)`) and `*one-hand*`. START-MATCH's SET-CAM-BEHIND is now its rule, `(and (or *cam-behind*
   *one-hand*) (vs-cpu-p) t)` with `*cam-behind*` = APPLY-SETTINGS' `(zerop (setting :camera))` (M2_NOTES §12's carry). The page (M3b) sets
   them; the tools keep the defaults, which give the old hard-wired value.
@@ -626,8 +627,14 @@ those lanes; there is nothing to mask in `dq` for them.
 ### For later tasks
 
 - **Review Focus 2 is only half covered here.** In slowmo-2513 both fighters stand idle, so the drawn places equal the sim's and the camera
-  cannot show SLOW-DRAW; the clips' drawn times are in the fighters' records. Measured: with SLOW-DRAW-BEGIN disabled, slowmo-2513 still
-  passes `--mask lights,fighters`. Task 7's `quiet_full_matches` on slowmo-2513 is SLOW-DRAW's real check.
+  cannot show SLOW-DRAW. Measured: with SLOW-DRAW-BEGIN disabled, slowmo-2513 still passes `--mask lights,fighters`. Its two halves are
+  proven later, each by mutation:
+  - the clip-time rewind (the drawn clip one sim frame's share back, the blend): Task 7's unmasked slowmo-2513 run (idle fighters still
+    play their stance clips);
+  - the position / yaw interpolation (`slow.rs` SLOW-MIX) and `Scene::drawn_pos` feeding the camera: not provable on slowmo-2513 (with
+    nothing moving SLOW-MIX gives the same place for any weight); Task 8 proves it on a keyed slowmo window with motion, a core-clash
+    slow motion inside battle-2005 / 2006.
+  - Task 6's hazards (and Task 7's fighters) must read `Scene::drawn_pos` / `drawn_yaw`, never `fighter::pos_of`.
 - Task 6: ST-ASH-FX computes each flake's FX-EMIT arguments (`stage.rs`, marked) for the pool; SHAKE (the request) writes
   `CamState.shake`; `*screen-fx*` is `DrawState.screen_fx` (FX-FROZEN-P reads [6], FORM-GRADE [0]); LIGHTS-FLUSH and the cracks, marks
   and chips go where `draw_scene` marks them; then drop `--mask lights,chips`.

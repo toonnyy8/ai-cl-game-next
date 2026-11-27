@@ -110,8 +110,8 @@ fn parse_args(a: &[String]) -> Result<Opts, String> {
     Ok(o)
 }
 
-/// A scene's name, its commands (frame, command) and its fixed inputs.
-type SceneEntry = (String, Vec<(u32, i64)>, SceneInputs);
+/// A scene's name, its commands (frame, command), its fixed inputs and `*one-hand*` (the sim's: `Match.settings.one_hand`).
+type SceneEntry = (String, Vec<(u32, i64)>, SceneInputs, bool);
 
 /// The scene's INDEX.json entry.
 fn scene_entry(file: &str) -> Result<SceneEntry, String> {
@@ -140,11 +140,10 @@ fn scene_entry(file: &str) -> Result<SceneEntry, String> {
         msaa: val("msaa")?.parse().map_err(|_| "msaa")?,
         render_scale: val("render-scale")?.parse().map_err(|_| "render-scale")?,
         pixel_lights: val("pixel-lights")?.parse().map_err(|_| "pixel-lights")?,
-        coarse: val("coarse")? != "NIL",
-        one_hand: val("one-hand")? != "NIL",
+        coarse: val("coarse")? != "NIL", // (read by nothing in M3a, as density: the touch deck's, M3b)
         scene_scale_cap: val("scene-scale-cap")?.parse().map_err(|_| "scene-scale-cap")?,
     };
-    Ok((name, cmds, inputs))
+    Ok((name, cmds, inputs, val("one-hand")? != "NIL"))
 }
 
 /// The mesh ids of the masked dq lanes (by the registry's paths).
@@ -227,7 +226,7 @@ pub fn draw_cmd(args: &[String]) -> ExitCode {
 }
 
 fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
-    let (name, cmds, inputs) = scene_entry(&o.file)?;
+    let (name, cmds, inputs, one_hand) = scene_entry(&o.file)?;
     let (w, h, key) = read_key(&o.file)?;
     if (w, h) != (inputs.width, inputs.height) {
         return Err(format!("{name}: the key's viewport {w}x{h} is not INDEX's {}x{}", inputs.width, inputs.height));
@@ -240,6 +239,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let want = |a: &str| o.arrays.iter().any(|x| x == a);
 
     let mut m = Match::new(data);
+    m.settings.one_hand = one_hand; // (the key's `*one-hand*`: its one holder)
     flow::go_title(&mut m);
     let mut s = Search::new();
     let mut sc = Scene::new(data, inputs);
