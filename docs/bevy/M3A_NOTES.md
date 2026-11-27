@@ -965,3 +965,184 @@ Restored, all pass.
 - Task 9 / 10: the page's loop is unchanged (three calls); `draw_frame` now also draws the canvas words. The dev text line replaces only
   the Lisp HUD (`hb` / `hk`). `Scene.sounds` gains `Play`'s pitch and `Silence`.
 - M3b: the Lisp HUD and its pause grade, the menus' camera, PERFECT HINT (the settings), the one-hand stick.
+
+## 9. The Bevy renderer, the page, the stills sheets (Task 9)
+
+`rs/duel-app/src/render/` (`mod.rs`: the plugin, the copy, render.c's `r_frame` pass for pass, the frame counters; `pipes.rs`: the RP_*
+table and `r_make_pipe`; `meshes.rs`: `r_mesh_new`'s chunks; `ui.rs`: ui.lisp's font atlas; `camera.rs`: `camera_bundle`),
+`rs/duel-app/assets/shaders/` (engine/shaders/*.wgsl copied unchanged, the `hud.*` pair left for M3b), `rs/duel-app/src/driver.rs` (ruling
+R17's driver), `rs/duel-app/src/main.rs`, `rs/duel-app/web/index.html`, `rs/duel-app/tests/alloc.rs`, `tools/port/stills.py`,
+`tools/port/page-smoke.sh`.
+
+**Result.** The page boots to the title and plays the fight a debug command starts (`Module._debug_cmd(2005)`). Every pass of render.c
+runs. Static geometry matches the frozen page pixel for pixel: the stage, the sky and the fog read the same RGB at sampled points of a
+2005 frame, so the gamma and the orientation are right. Two runs give byte-identical stills (27 of 27, and page-smoke's drawn 2005
+still). The page passes page-smoke: 1009 frames finished by virtual 16.9 s, no error, startup heap 92.9 MB. Rust's combat log for
+cvc-ik is the frozen page's, line for line (832 lines). The SSIM gaps are the Lisp HUD (M3b) and the cosmetic RNG (below).
+
+### How a frame is drawn (and what differs from SDL_GPU)
+
+- **One render-graph system, not Materials plus an entity pool.** The brief named M0a's toon `Material` and a pool of entities. Both are
+  replaced here, and each needs the controller's ruling:
+  - `camera_bundle()` gives the camera its own render-graph schedule (`CameraRenderGraph(DuelGraph)`). That schedule holds one
+    system, `duel_frame` (a `ViewQuery` and a `RenderContext`), which encodes `r_frame`'s passes in render.c's order.
+  - Every RP_* slot is a pipeline queued in Bevy's `PipelineCache` from a port of `r_make_pipe` (layout, target, depth, blend, cull) and
+    RENDER-INIT's table.
+  - Bevy's Opaque3d / Transparent3d phases would re-bin the opaque records and distance-sort the transparent ones. render.c draws the
+    sky first, the transparent records in record order, the flame layer in three passes, and the UI in the composite's pass. So the phases
+    cannot reproduce it.
+  - The draw records go to a storage buffer read at `instance_index` (lit.vert / toon.vert's `draws[ii]`), as render.c does, so no
+    entity exists per record. This is the global constraint's "render-graph node" form. M0a's toon WGSL is the engine's own
+    toon.vert / toon.frag, used unchanged.
+- **The WGSL is unchanged.** The SDL backend's group convention is kept: 0 the vertex storage, 1 the vertex uniform (Frame or S), 2
+  the fragment textures, 3 the fragment uniform (Frame or P). Unused groups get an empty layout and an empty bind group. render.lisp's
+  READ-WGSL is ported (`pipes::expand`): it resolves `// #include` textually and strips comments. naga_oil's `#import` cannot replace
+  it, because frame.wgsl's functions read `F`, which only the including file declares.
+- **The shaders are embedded, not loaded at run time.** `include_str!` of assets/shaders/, then `Shader::from_wgsl`. This deviates from
+  BEVY_PORT §7.1's hot reload: the include resolution has to run before Bevy sees the text. A loader that resolves includes on reload can
+  come when someone edits shaders live. `duel-data` stays embedded too, as before.
+- **The colour path.** The engine shaders write sRGB-encoded values (tonemap's and toon's `pow`) into `R8G8B8A8_UNORM` targets. All
+  offscreen targets are `Rgba8Unorm`.
+  - Bevy writes the swapchain through an sRGB-suffixed view (`ExtractedWindow::set_swapchain_texture`), which would encode a second time.
+    The composite and UI pass instead write a view created each frame from the surface texture in the surface's own format (Chrome's
+    canvas: `rgba8unorm` or `bgra8unorm`, never sRGB).
+  - A native surface that is itself sRGB is written as it is (doubly encoded natively; the page is the target, and no native run was
+    made). Bevy draws nothing into its ViewTarget, so a Bevy-drawn dev line (Task 10) would not show without its own pass.
+- **Presenting.** Bevy presents a window only when its ViewTarget's output attachment was taken that frame, and keeps an unpresented
+  swapchain texture for the next update. The web canvas has already expired that texture by then: the first try failed with "Destroyed
+  texture used in a submit". So `duel_frame` takes the attachment every frame, which marks it presented, and clears the canvas while the
+  meshes and pipelines load.
+- **Load ops.** render.c's `DONT_CARE` loads, used by the post passes and the composite, become `Clear(0)`: WebGPU has no don't-care
+  load, and every pixel is written anyway. `RESOLVE` becomes `Discard` with a resolve target. Pass C's `LOAD` keeps the MSAA scene: pass
+  A stores it when the flame layer is on, as in render.c. A pipeline with target 0 always has the D32 depth state (depth 0 →
+  `Always`, no write; the sky and RP_COMP_FL included), as r_make_pipe does.
+- **MSAA.** `render::SCENE_MSAA` = 4 (r_init's 4, which WebGPU guarantees for RGBA8 and D32) sizes the targets and is `SceneInputs.msaa`,
+  so fu[157] is 0 and alpha-to-coverage is on, as on the frozen page. The camera has `Msaa::Off`: Camera3d still makes Bevy's ViewTarget
+  main textures and a depth texture (single-sample, unused). That costs memory, not speed; dropping Camera3d is a Task 11 option.
+- **The meshes** upload once, 2 MB a frame during the load (`meshes::BUDGET`), into 4 MB chunks indexed by the Lisp mesh id
+  (`r_mesh_new`). The driver starts only when every mesh is uploaded, every pipeline is `Ok`, and the targets exist (`render::ready()`).
+  A pipeline error prints `render: pipeline N failed: …`, which run.mjs fails on.
+- **The copy** (`extract_frame`) writes fu, the records (clamped to R_MAX_DRAWS 4096) and the four streams into fixed GPU buffers sized
+  as render.c's. The CPU side (`copy_frame`: the records r_draw_queue reads, p, fu[159], the fills) goes into a `Mirror` reserved once.
+  The post passes' uniforms each have their own small buffer and bind group. The texture bind groups are rebuilt only with the targets.
+- **hb / hk** (the Lisp HUD and the menus) are not drawn: RP_HUD and RP_COMP_AO are M3b's. So the intro's letterbox and name card, the
+  battle HUD, the 斬 glyph and RESULTS are missing on the Rust side.
+
+### The driver and the page (ruling R17)
+
+- **One Update system** (`main.rs` `drive`) runs `Game::frame`, which is `flow::frame` → `draw_frame` → `frame_end` in duel-tools
+  draw.rs's order, with the Scene as the sink, `raw_dt(frame_n)`, and `NoInput`. `FixedUpdate` is gone, and so is M0's drain.
+- **Pacing.** The page clock (performance.now, run.mjs's virtual clock) gives the frames due (`due_at`). Each update runs the frames
+  due since the last one; the first update after `ready()` catches up from the page's start (at most 900 frames, then 6 an update; a
+  wall-clock stall rebases). Bevy's update count at startup varies (M0_NOTES §2), so this ties a game frame to a page time: the same
+  script gives the same frame at the same virtual time.
+- **Debug commands.** Each one is logged `debug N`, as M0 did, and stamped with the frame it applies in: the next frame run, never
+  earlier than the clock's frame. An update during run.mjs's hold and the resumed tick therefore agree. page-smoke's row 2 sends 2005
+  instead of M0's 42, because Rust's `debug_command` stops the fight on an unported 42.
+- **The menus' camera** (`Scene.unported_camera` on title frames, M3b) is not a stop. The title draws with the camera it has, as
+  duel-tools replay reads it and clears it after every frame. Any other unported path stops the fight and logs
+  `duel: stopped: unported …` once (Task 10 owns the on-page message).
+- **Diagnostics in the URL.**
+  - `?log` keeps the combat log on and prints it, as the frozen page does after a debug command. It allocates, so it is off by default.
+  - `?dt=clock` sets dt to the page clock's frame (1/60 s as f32 = +STEP+, the frozen page's dt under `--fixed-dt 16.666667`) in
+    place of R17's raw_dt. Under raw_dt a frame now and then runs no step (raw_dt is a hair under STEP), and the frozen page's never does.
+    On cvc-ik / cvc-ii, `?dt=clock` did not raise SSIM (12 of 14 stills within ±0.1 of raw_dt, 2 worse), and the combat log is identical
+    under raw_dt. R17 stays the default; the choice is Task 10's.
+
+### The frame-done counter (M0_NOTES §2, §6)
+
+- `render::count_frames` (RenderSystems::Cleanup, after the submit and present) counts a drawn frame as submitted. It registers
+  `queue.on_submitted_work_done`, which counts the frame as done once the GPU has finished it. The page exports
+  `Module._frames_done()` / `_frames_submitted()`.
+- **run.mjs is unchanged.** Its rAF tick holds each frame until `Module.preinitializedWebGPUDevice.queue.onSubmittedWorkDone()`
+  resolves, and `__settle` awaits it. The page now sets that object to `{device, queue: {onSubmittedWorkDone}}`: the real idle device,
+  plus a promise that resolves once `_frames_done() >= _frames_submitted()`, polled on wall-time timeouts (rAF is run.mjs's clock).
+  run.mjs therefore waits on Bevy's real GPU work, and the frozen dist's runs are untouched.
+- **Proof.** page-smoke row 3 (two 2005 stills at virtual 6 s, byte-identical) and `stills.py --twice` (27 stills of five scenarios,
+  each rendered twice, all byte-identical).
+
+### Stills: `tools/port/stills.py`
+
+- The scenarios are the looks gate's (`tests/style-gates.py` `looks_scenarios()`, imported read-only): cvc-ik (the brief's "2005": seed
+  5), cvc-ii ("2006": seed 6), cine-ken, cine-ichigo and cine-ko, at 640x360 under `--fixed-dt 16.666667`.
+- Both sides render the same script with its key steps removed. The M3a page has no keyboard (Task 10), so the cvc scenarios' Enter
+  (skip the intro) would move only the frozen side. The frozen side is therefore rendered fresh (build/oracle/frozen-dist) rather than
+  taken from build/oracle/stills.
+- SSIM is Wang 2004 on luma: an 11 x 11 Gaussian window with σ 1.5, numpy only (no skimage; no pip dependency added). The output is
+  build/port/stills/ (`<scene>-<still>.png`: Lisp | Rust | diff x4, with the SSIM on top) and `stills.tsv`.
+
+SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest channel difference and "px" the pixels that differ, of 230,400:
+
+| still | SSIM | max | px | what differs |
+|---|---|---|---|---|
+| cvc-ik intro | 0.7610 | 209 | 60373 | the letterbox and name card (hb) |
+| cvc-ik start | 0.8024 | 192 | 61294 | the battle HUD (hb) |
+| cvc-ik w0-0 | 0.8065 | 241 | 93803 | HUD, 斬 (hb); speed lines and sparks (cosmetic RNG) |
+| cvc-ik w1-0 | 0.2652 | 244 | 134827 | the same; full-screen speed lines dominate |
+| cvc-ik w1-1 | 0.7443 | 239 | 58824 | HUD; cosmetic RNG |
+| cvc-ik w2-0 | 0.1078 | 255 | 228217 | the frozen frame is in a negative impact grade (blue = inverted yellow), Rust's is not; speed lines |
+| cvc-ik w3-0 | 0.2220 | 247 | 168018 | speed lines; HUD |
+| cvc-ii intro | 0.7619 | 209 | 60235 | letterbox and name card (hb) |
+| cvc-ii start | 0.8090 | 183 | 51756 | HUD |
+| cvc-ii w0-0 | 0.8017 | 234 | 125655 | HUD; cosmetic RNG |
+| cvc-ii w1-0 | 0.3336 | 240 | 151492 | speed lines; HUD |
+| cvc-ii w1-1 | 0.7934 | 241 | 42964 | HUD; cosmetic RNG |
+| cvc-ii w2-0 | 0.1906 | 255 | 228184 | impact grade / speed lines |
+| cvc-ii w3-0 | 0.6942 | 225 | 71150 | HUD; cosmetic RNG |
+| cine-ken ken-nozarashi-026 | 0.8058 | 223 | 69999 | cosmetic RNG (tongues, debris) |
+| cine-ken ken-nozarashi-096 | 0.9869 | 236 | 15747 | the same |
+| cine-ken ken-bankai-030 | 0.9931 | 237 | 2345 | the same |
+| cine-ken ken-bankai-080 | 0.8845 | 247 | 27359 | the aura's tongues and blood drops (cosmetic RNG) |
+| cine-ken ken-bankai-120 | 0.9236 | 248 | 14467 | the same |
+| cine-ichigo ichigo-awaken-020 | 0.9892 | 245 | 4229 | the same |
+| cine-ichigo ichigo-awaken-060 | 0.9833 | 244 | 4056 | the same |
+| cine-ichigo ichigo-awaken-110 | 0.8941 | 227 | 48197 | the same |
+| cine-ko soul-break-030 | 0.9678 | 245 | 6979 | the same |
+| cine-ko soul-break-090 | 0.9931 | 186 | 6696 | the same |
+| cine-ko ko-012 | 0.8978 | 205 | 97723 | the same |
+| cine-ko ko-060 | 0.8389 | 221 | 112381 | the same |
+| cine-ko results | 0.4089 | 241 | 230398 | RESULTS is the Lisp HUD (M3b) |
+
+**Why the cosmetic RNG differs (a finding for M3b, not a renderer fault).**
+- The fight is the same: the combat logs agree tick for tick, and the static pixels are equal.
+- The randomness of the looks is not. The cosmetic stream (`rng_float`, never reseeded) runs from boot on the frozen page through
+  about 4 s of title and menu frames before the command: the menus, their idle clips and the HUD (all M3b). The Rust page's title draws
+  neither. So `CosRng` enters the fight in another state, and every `rnd01` look comes out different: speed lines, sparks, flame tongues,
+  debris, perhaps the impact frame's roll.
+- The draw key never shows this, because its scenes start their commands on frame 0 of the stub's boot.
+- Once M3b runs the title's draws, the two streams should meet. Until then the gap marks where the stills differ, not by how much the
+  renderer is wrong.
+
+### 0 allocations
+
+- `rs/duel-app/tests/alloc.rs` runs a counting global allocator over a 2005 fight, 3,600 frames of `Game::frame` + `copy_frame`. The
+  result is 0 allocations in the 3,599 frames after the command frame.
+- `extract_frame` writes the GPU buffers from slices, and `duel_frame` walks the mirror (no Vec in either).
+- Outside the count, all wgpu's and Bevy's own per-frame objects:
+  - the swapchain view created each frame;
+  - `on_submitted_work_done`'s boxed callback;
+  - the render pass objects;
+  - `queue.write_buffer`'s staging.
+- Not measured natively: no native window was run (the page is the target).
+
+### Speed (not a gate here; Task 11 measures)
+
+- Headless SwiftShader, web-dev build (no wasm-opt), 1280x720, wall clock, `perf:` lines:
+  - the title: 26.0-26.5 fps (37.7-38.4 ms);
+  - the 2005 fight: 19.9-27.3 fps (36.7-50.2 ms, max 119 ms).
+- The frozen page in the same run reports 53-107 fps in its own `stats:` line (its loop does not wait for the GPU, so the two are not
+  comparable).
+- Startup heap: 92.9 MB (run.mjs's budget is 110). `startup` 233-250 ms virtual.
+- Candidates for Task 11:
+  - drop Camera3d's unused main / depth textures;
+  - the release build;
+  - skipping the 2 MB / frame upload cap;
+  - creating the swapchain view less often.
+
+### Rulings needed
+
+1. A render-graph system with cached pipelines and a storage buffer of records, in place of Materials and an entity pool (above).
+2. Shaders embedded, not hot-reloaded (BEVY_PORT §7.1).
+3. The frame-done shim lives on the page's `preinitializedWebGPUDevice.queue` (run.mjs untouched).
+4. R17's raw_dt stays the default; `?dt=clock` is there if Task 10 wants the frozen page's dt.
+5. The menus' camera is not a stop on the page (the title draws with the default camera until M3b).

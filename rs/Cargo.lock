@@ -2367,6 +2367,7 @@ name = "duel-app"
 version = "0.0.0"
 dependencies = [
  "bevy",
+ "bytemuck",
  "duel-data",
  "duel-look",
  "duel-sim",
@@ -2374,6 +2375,7 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
+ "wgpu",
 ]
 
 [[package]]

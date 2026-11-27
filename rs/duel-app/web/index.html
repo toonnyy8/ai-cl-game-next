@@ -18,10 +18,18 @@
 <canvas id="bevy"></canvas>
 <div id="fatal"></div>
 <script type="module">
-// SOUL DUEL's Bevy page (docs/bevy/BEVY_PORT.md §3 "Browser", from the M0a page). window.Module: _debug_cmd (a no-op until the
-// wasm is up) and preinitializedWebGPUDevice (tools/run.mjs --fixed-dt starts its virtual clock once it exists, and __settle
-// awaits its queue; Bevy / wgpu make their own device). Failures print `engine fatal: ...` and show.
-window.Module = { _debug_cmd(n) {} };
+// SOUL DUEL's Bevy page (docs/bevy/BEVY_PORT.md §3 "Browser", from the M0a page). window.Module: _debug_cmd (queued until the
+// wasm is up), _frames_done / _frames_submitted (the renderer's frame counters: render/mod.rs) and preinitializedWebGPUDevice
+// (tools/run.mjs --fixed-dt starts its virtual clock once it exists, holds each frame until its queue's onSubmittedWorkDone
+// resolves, and __settle awaits it). Bevy / wgpu make their own device, so that queue is the frame counters' (M3A_NOTES §9): it
+// resolves once every frame Bevy submitted has finished on the GPU, and run.mjs waits on Bevy's real work. Failures print
+// `engine fatal: ...` and show.
+const early = [];
+window.Module = { _debug_cmd(n) { early.push(n); }, _frames_done: () => 0, _frames_submitted: () => 0 };
+const caughtUp = () => new Promise(res => {
+  const poll = () => Module._frames_done() >= Module._frames_submitted() ? res() : setTimeout(poll, 1);   // (wall-time poll: rAF is run.mjs's clock)
+  poll();
+});
 function fatal(msg) {
   console.log('engine fatal: ' + msg);
   const d = document.getElementById('fatal'); d.textContent = 'Cannot start: ' + msg; d.style.display = 'block';
@@ -41,7 +49,9 @@ for (const k of ['log', 'info', 'warn', 'error']) {
   let adapter = null;
   try { adapter = await navigator.gpu.requestAdapter(); } catch (e) {}
   if (!adapter) { fatal('no WebGPU adapter'); return; }
-  try { Module.preinitializedWebGPUDevice = await adapter.requestDevice(); } catch (e) { fatal('no WebGPU device: ' + e); return; }
+  let device;
+  try { device = await adapter.requestDevice(); } catch (e) { fatal('no WebGPU device: ' + e); return; }
+  Module.preinitializedWebGPUDevice = { device, queue: { onSubmittedWorkDone: caughtUp } };
   // index.gzip.wasm first (gzip bytes under a served name: the Artifact's binary files stop at 15 MB and .gz is not served), unzipped here; else index.wasm
   let src = 'index.wasm';
   try {
@@ -56,6 +66,8 @@ for (const k of ['log', 'info', 'warn', 'error']) {
   try { await init({ module_or_path: src }); }
   catch (e) { if (!benign(e)) { fatal(String(e)); return; } }   // (winit's web loop start, not an error)
   Module._debug_cmd = n => wasm.debug_cmd(n);
+  Module._frames_done = () => wasm.frames_done(); Module._frames_submitted = () => wasm.frames_submitted();
+  for (const n of early.splice(0)) wasm.debug_cmd(n);
 })();
 </script>
 </body>

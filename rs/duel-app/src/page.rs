@@ -1,17 +1,23 @@
 //! The page contract (docs/bevy/BEVY_PORT.md §3 "Browser"): debug commands from `Module._debug_cmd(n)`, the console lines
 //! tools/run.mjs reads (`startup: heap ..`, `perf: ..`, M0a's formats), and the camera setup every view needs.
-use bevy::light::cluster::{ClusterConfig, GlobalClusterSettings};
+use bevy::light::cluster::GlobalClusterSettings;
 use bevy::prelude::*;
-use bevy::render::view::Tonemapping;
 use std::collections::VecDeque;
 use std::sync::Mutex;
 
-/// Debug commands waiting for the next `FixedUpdate` (filled from `PENDING` each frame, drained by the sim step).
-#[derive(Resource, Default)]
-pub struct DebugQueue(pub VecDeque<i32>);
+pub use crate::render::camera::camera_bundle;
 
-/// Commands from JS between frames: the exported function cannot reach the World, so `pull_debug` moves them in.
+/// Commands from JS between frames: the exported function cannot reach the World, so the driver (main.rs) takes them each update
+/// (`take_debug`) into the Match's command queue.
 static PENDING: Mutex<VecDeque<i32>> = Mutex::new(VecDeque::new());
+
+/// The debug commands that arrived since the last call, in order (each logged `debug N`, as M0's drain did).
+pub fn take_debug(mut f: impl FnMut(i32)) {
+    for n in PENDING.lock().unwrap().drain(..) {
+        say(&format!("debug {n}"));
+        f(n);
+    }
+}
 
 /// `Module._debug_cmd(n)` (index.html: `window.Module._debug_cmd = n => wasm.debug_cmd(n)`).
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
@@ -56,9 +62,6 @@ pub fn heap_mb() -> f64 {
     }
 }
 
-/// The sim step's rate (the frozen game's fixed 60 Hz).
-pub const SIM_HZ: f64 = 60.0;
-
 /// Frames drawn before `startup:` (M0a: the pipelines compile during load).
 const WARM_FRAMES: u32 = 12;
 
@@ -66,13 +69,7 @@ pub struct PagePlugin;
 
 impl Plugin for PagePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Time::<Fixed>::from_hz(SIM_HZ))
-            .init_resource::<DebugQueue>()
-            .init_resource::<Perf>()
-            .add_systems(Startup, no_light_clustering)
-            .add_systems(First, pull_debug)
-            .add_systems(FixedUpdate, drain_debug)
-            .add_systems(Last, perf);
+        app.init_resource::<Perf>().add_systems(Startup, no_light_clustering).add_systems(Last, perf);
     }
 }
 
@@ -82,23 +79,6 @@ impl Plugin for PagePlugin {
 /// lights (the toon shader takes its own lanes), so nothing is lost.
 fn no_light_clustering(mut s: ResMut<GlobalClusterSettings>) {
     s.gpu_clustering = None;
-}
-
-/// Spawn every camera with this: the other half of `no_light_clustering`, and no tonemapping (the port grades in its own
-/// shaders, as M0a; the default TonyMcMapFace also needs the `tonemapping_luts` feature and logs an error without it).
-pub fn camera_bundle() -> impl Bundle {
-    (Camera3d::default(), ClusterConfig::None, Tonemapping::None)
-}
-
-fn pull_debug(mut q: ResMut<DebugQueue>) {
-    q.0.extend(PENDING.lock().unwrap().drain(..));
-}
-
-/// Runs each 60 Hz step; M0 only logs (`debug N`), the sim's handlers come with M1.
-fn drain_debug(mut q: ResMut<DebugQueue>) {
-    for n in q.0.drain(..) {
-        say(&format!("debug {n}"));
-    }
 }
 
 #[derive(Resource, Default)]
