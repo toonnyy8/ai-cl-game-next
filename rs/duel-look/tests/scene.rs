@@ -45,6 +45,8 @@ fn key_inputs() -> SceneInputs {
         pixel_lights: val("pixel-lights").parse().unwrap(),
         coarse: val("coarse") != "NIL",
         scene_scale_cap: val("scene-scale-cap").parse().unwrap(),
+        safe_top: 0.0, // (INDEX fixed_inputs.page: pf_page_get 0)
+        safe_bottom: 0.0,
     }
 }
 

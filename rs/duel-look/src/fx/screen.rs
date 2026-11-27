@@ -96,7 +96,12 @@ pub fn screen_fx_clear(d: &mut DrawState, sounds: &mut Vec<SoundReq>) {
 
 /// port: engine/lisp/fx.lisp SHAKE — AMP metres decaying over DUR s; the larger amplitude wins.
 pub fn shake(d: &mut DrawState, amp: f32, dur: f32) {
-    let (s, amp) = (&mut d.cam.shake, amp * d.knobs.shake_mult);
+    shake_on(&mut d.cam.shake, d.knobs.shake_mult, amp, dur);
+}
+
+/// SHAKE on the state S (`*shake*`) with `*shake-mult*` MULT (a caller holding the camera borrowed: DRAW-FIGHTER's hooks).
+pub fn shake_on(s: &mut [f32; 8], mult: f32, amp: f32, dur: f32) {
+    let amp = amp * mult;
     let cur = if s[1] > 0.0 { s[0] * (s[2] / s[1]) } else { 0.0 };
     if amp >= cur {
         (s[0], s[1], s[2]) = (amp, dur, dur);

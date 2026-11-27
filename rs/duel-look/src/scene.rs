@@ -3,6 +3,8 @@
 //! (engine/lisp/anim.lisp, duel/lisp/fighter.lisp PLAY-CLIP / REFRESH-LOOK), SLOW-SNAPSHOT's places, the cinematic time scale, the
 //! cosmetic RNG. It reads the match and never writes it (only the queue it drains).
 use crate::anim::Anim;
+use crate::fx::vfx::Trail;
+use crate::rig::{Mat4, NJ};
 use crate::rng::CosRng;
 use duel_data::{Clip, Data, Kit};
 use duel_sim::cl::{max_f32, min_f32};
@@ -27,6 +29,10 @@ pub struct SceneInputs {
     /// nothing in M3a (the touch deck's, M3b). `*one-hand*` is the sim's: `Match.settings.one_hand` (SET-CAM-BEHIND reads it).
     pub coarse: bool,
     pub scene_scale_cap: f32,
+    /// The page's safe-area insets, CSS px (`pf_page_get` +PG-SAFE-TOP+ / -BOTTOM+: 0 on a desktop window and on the recorder):
+    /// DECK-UPDATE's `*safe-top*` / `*safe-bot*`, which place the portrait frame (`*band*`).
+    pub safe_top: f32,
+    pub safe_bottom: f32,
 }
 
 /// A sound the looks asked for (feedback.lisp's SFX-AT / SFX-ON / PLAY-SFX, the Breaker hum's START-LOOP / STOP-LOOP, the silence
@@ -80,6 +86,68 @@ pub struct Model<'d> {
     /// ICHIGO's ICS-RIM while the parry window's rim is up (ICS-RIM-SAVED).
     pub rim_saved: Option<Rim>,
     pub anim: Anim<'d>,
+    /// The draw-time slots (components.lisp DEFCOMPONENT MODEL; DRAW-FIGHTER's, the feedback's looks): the posed joints (POSE-FK!), the
+    /// hit flash and the SP super flash (real seconds left), the held pose, the one-drawing smear and its ground direction, the
+    /// Hoho afterimage's joints and age (< 0: none), the held face and its seconds, the head-back beat, the move frame the last draw
+    /// saw, the face drawn last, LOOKS ([0] the grip's ease, [1] the fx clock when the face changed).
+    pub joints: [Mat4; NJ],
+    pub flash: f32,
+    pub sup: f32,
+    pub hold: f32,
+    pub smear: f32,
+    pub smear_dir: [f32; 2],
+    pub ghost: [Mat4; NJ],
+    pub ghost_age: f32,
+    pub face: Face,
+    pub face_t: f32,
+    pub beat: f32,
+    pub last_sf: i64,
+    pub face_was: Face,
+    pub looks: [f32; 2],
+    /// MAKE-BLADE: the sword trail's samples (BLADE-POINTS) and the comet smear held for the drawing (BLADE-SMEAR).
+    pub trail: Trail,
+    pub blade_smear: [f32; 12],
+}
+
+/// An expression (draw.lisp FACE-OF; `*face-hides*`' rows).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Face {
+    Neutral,
+    Shout,
+    Hurt,
+}
+
+impl<'d> Model<'d> {
+    /// port: fighter.lisp SPAWN-FIGHTER's MAKE-MODEL (the struct's defaults) and MAKE-BLADE.
+    fn new(e: Entity, body: &'d str, mirror: bool) -> Model<'d> {
+        Model {
+            e,
+            body,
+            weapon: "",
+            hide: &[],
+            alpha: 1.0,
+            tint: mirror,
+            rim: if mirror { Rim::Mirror } else { Rim::None },
+            rim_saved: None,
+            anim: Anim::default(),
+            joints: [[0.0; 16]; NJ],
+            flash: 0.0,
+            sup: 0.0,
+            hold: 0.0,
+            smear: 0.0,
+            smear_dir: [0.0; 2],
+            ghost: [[0.0; 16]; NJ],
+            ghost_age: -1.0,
+            face: Face::Neutral,
+            face_t: 0.0,
+            beat: 0.0,
+            last_sf: -1,
+            face_was: Face::Neutral,
+            looks: [0.0; 2],
+            trail: [0.0; 6 * crate::fx::vfx::TRAIL_N + 1],
+            blade_smear: [0.0; 12],
+        }
+    }
 }
 
 /// The look side of one match (and of the page's matches after it: `CosRng` runs on).
@@ -102,6 +170,10 @@ pub struct Scene<'d> {
     /// The sounds asked for since the loop last cleared them (M3b plays them), and feedback.lisp `*hums*` (a Breaker hum runs, per side).
     pub sounds: Vec<SoundReq>,
     pub hums: [bool; 2],
+    /// The fighters' draw state outside MODEL (the mesh ids, proportions, knobs, the kits' per-side look state).
+    pub fl: crate::draw::fighter::FighterLooks<'d>,
+    /// A cinematic's draw scale and aura-off actor (CINE-SCALE, `*aura-off*`: Task 8 writes them).
+    pub cine: crate::draw::fighter::CineLooks,
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
 }
@@ -120,6 +192,8 @@ impl<'d> Scene<'d> {
             fx: crate::fx::FxState::new(data),
             sounds: Vec::with_capacity(SOUNDS_MAX),
             hums: [false; 2],
+            fl: crate::draw::fighter::FighterLooks::new(data),
+            cine: crate::draw::fighter::CineLooks::default(),
             unported: None,
         }
     }
@@ -150,19 +224,9 @@ impl<'d> Scene<'d> {
     fn call(&mut self, ev: &LookEvent) {
         match *ev {
             LookEvent::Model { e, kit: KitRef(kit), mirror } => {
-                // port: SPAWN-FIGHTER's MAKE-MODEL (+ MAKE-BLADE: the blade's trail is Task 7's): the slot's earlier model goes
+                // port: SPAWN-FIGHTER's MAKE-MODEL and MAKE-BLADE: the slot's earlier model goes
                 self.models.retain(|m| m.e.slot() != e.slot());
-                self.models.push(Model {
-                    e,
-                    body: &kit.body,
-                    weapon: "",
-                    hide: &[],
-                    alpha: 1.0,
-                    tint: mirror,
-                    rim: if mirror { Rim::Mirror } else { Rim::None },
-                    rim_saved: None,
-                    anim: Anim::default(),
-                });
+                self.models.push(Model::new(e, &kit.body, mirror));
             }
             LookEvent::RefreshLook { e, kit: KitRef(kit) } => {
                 if let Some(m) = self.model_mut(e) {

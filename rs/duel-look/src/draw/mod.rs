@@ -1,7 +1,10 @@
 //! The draw core (docs/bevy/M3A_NOTES.md §5): a rendered frame's picture as the arrays `r_frame` gets (`FrameOut`), made by
 //! `draw_frame` in GAME-FRAME's order after the steps (duel/lisp/main.lisp GAME-FRAME, draw.lisp DRAW-SCENE, render.lisp END-FRAME).
 pub mod camera;
+pub mod fighter;
 pub mod frame;
+pub mod ichigo;
+pub mod ken;
 pub mod queue;
 pub mod slow;
 pub mod stage;
@@ -13,7 +16,7 @@ use camera::{CamKnobs, CamState, Camera, Pair};
 use duel_sim::components::Flow;
 use duel_sim::ecs::Entity;
 use duel_sim::state::Match;
-use crate::fx::{self, vfx::AuraIn, Ctx};
+use crate::fx::{self, Ctx};
 use frame::{Env, Post};
 use stage::{StageMeshes, StageState};
 
@@ -84,15 +87,17 @@ impl Scene<'_> {
         }
     }
 
-    /// port: camera.lisp DUEL-CAMERA (A = P1, B = P2 as PR gives them): a cinematic's shot (task 8), the portrait camera (task 7) or
-    /// the landscape ones. A path not ported yet sets `unported` (the page shows it) and leaves the camera where it was.
+    /// port: camera.lisp DUEL-CAMERA (A = P1, B = P2 as PR gives them): a cinematic's shot (task 8), the portrait camera (a tall
+    /// window, whatever the mode) or the landscape ones. A path not ported yet sets `unported` (the page shows it) and leaves the camera where it was.
     pub(crate) fn duel_camera(&mut self, pr: &Pair, rdt: f32, snap: bool) {
-        if self.inputs.height > self.inputs.width {
-            self.unported.get_or_insert("the portrait camera (camera.lisp %PORTRAIT-CAMERA: task 7)");
-            return;
-        }
         let aspect = self.aspect();
         let d = &mut self.draw;
+        if self.inputs.height > self.inputs.width {
+            let i = &self.inputs;
+            let v = camera::View { w: i.width, h: i.height, density: i.density, safe_top: i.safe_top, safe_bottom: i.safe_bottom };
+            camera::duel_camera_portrait(&mut d.cam, &mut d.camera, &d.knobs, pr, rdt, snap, &v);
+            return;
+        }
         camera::duel_camera_landscape(&mut d.cam, &mut d.camera, &d.knobs, pr, rdt, snap, aspect);
     }
 
@@ -163,16 +168,13 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
         sc.draw.post.grade_desat = 0.0;
         form_grade(sc, m);
     }
-    for e in [m.p1, m.p2] {
-        if m.ents.alive(e) && m.fighter.get(e).is_some() {
-            // task 7: DRAW-FIGHTER's body, weapon, blade, hooks before its auras
-            let Some(md) = sc.model(e) else { continue };
-            let a = AuraIn { e, p: sc.drawn_pos(m, e), body: md.body, alpha: md.alpha, aura_off: false }; // (*aura-off*: task 8)
-            let d = &mut sc.draw;
-            let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
-            if let Some(u) = fx::vfx::fighter_auras(&mut c, m, &a, rdt) {
-                sc.unported.get_or_insert(u);
-            }
+    // (*card-only*: a cinematic's, task 8; *no-draw*: debug 2120+, not ported)
+    let sides = fighter::Sides::of(sc, m);
+    for (i, e) in sides.e.into_iter().enumerate() {
+        if sides.alive[i]
+            && let Some(u) = fighter::draw_fighter(sc, m, e, &sides, rdt, out)
+        {
+            sc.unported.get_or_insert(u);
         }
     }
     {

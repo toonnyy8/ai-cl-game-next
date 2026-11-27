@@ -1,14 +1,10 @@
-//! `duel-tools draw --check FILE.bin [--arrays LIST] [--mask LANES] [--frames A-B] [--data DIR]`: replays a draw-key scene
+//! `duel-tools draw --check FILE.bin [--arrays LIST] [--frames A-B] [--data DIR]`: replays a draw-key scene
 //! (docs/bevy/M3A_NOTES.md §1, §5) with the key's inputs and compares each keyed frame's `FrameOut` with the key.
 //!
 //! The scene's commands, viewport and fixed inputs come from FILE's INDEX.json (same directory, entry named by FILE's stem). Each
 //! frame is the game loop's three calls: `flow::frame` (dt `raw_dt` of the next pump), `duel_look::draw_frame`, `flow::frame_end`.
 //! Key frame F is pump F + 1. `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
-//! compared here). `--mask`: lanes a later task fills, left out of both sides: `lights` (fu 70..=135: the point lights, vfx.lisp's
-//! ADD-POINT-LIGHT), `fighters` (dq records of a body, weapon or the ink shadow mesh: DRAW-FIGHTER, Task 7; Ichigo's look bodies use
-//! the same meshes, so they are in this lane too), `chips` (dq records of the stage's rubble chips and their hulls, ST-CHIPS: Task 6).
-//! The cracks and marks draw into `ft` only and the hazards draw no dq record: there is no dq lane for them. A lane is chosen by
-//! the mesh's registry path (tables.json `mesh_ids`, equal to the key's meshes.json), never by a record's place.
+//! compared here). Nothing is masked: every float of a compared array is compared (Task 7 removed the last test-only mask).
 //! Tolerance: `|a - b| <= 1e-5 max(1, |b|)` per float; a record count, a stream length, a mesh id and the RNG state exactly.
 //! Prints `draw OK <scene> <frames>` (exit 0) or the first mismatch (scene, frame, array, index, both values; exit 1), a line with
 //! the largest error per array, and the heap allocations: the whole frame's (sink and draw included) in the frames after frame 0
@@ -22,9 +18,8 @@ use duel_sim::state::Match;
 use std::collections::BTreeMap;
 use std::process::ExitCode;
 
-pub const USAGE: &str = "duel-tools draw --check FILE.bin [--arrays fu,p,dq,fxa,fxb,ui,ft,rng] [--mask lights,fighters,chips] [--frames A-B] [--data DIR]";
+pub const USAGE: &str = "duel-tools draw --check FILE.bin [--arrays fu,p,dq,fxa,fxb,ui,ft,rng] [--frames A-B] [--data DIR]";
 const ARRAYS: [&str; 9] = ["fu", "p", "dq", "fxa", "fxb", "ui", "ft", "hb", "hk"];
-const LANES: [&str; 3] = ["lights", "fighters", "chips"];
 
 /// One keyed frame of the key: its number, `*tick*`, the RNG state and the nine arrays.
 pub struct KeyFrame {
@@ -71,20 +66,18 @@ pub fn read_key(path: &str) -> Result<(u32, u32, Vec<KeyFrame>), String> {
 struct Opts {
     file: String,
     arrays: Vec<String>,
-    mask: Vec<String>,
     frames: Option<(u32, u32)>,
     data: Option<String>,
 }
 
 fn parse_args(a: &[String]) -> Result<Opts, String> {
-    let mut o = Opts { file: String::new(), arrays: "fu,p,dq,fxa,fxb,ui,ft,rng".split(',').map(String::from).collect(), mask: vec![], frames: None, data: None };
+    let mut o = Opts { file: String::new(), arrays: "fu,p,dq,fxa,fxb,ui,ft,rng".split(',').map(String::from).collect(), frames: None, data: None };
     let mut it = a.iter();
     let list = |v: Option<&String>| -> Result<Vec<String>, String> { Ok(v.ok_or("a flag without its value")?.split(',').filter(|s| !s.is_empty()).map(String::from).collect()) };
     while let Some(x) = it.next() {
         match x.as_str() {
             "--check" => o.file = it.next().ok_or("--check without FILE")?.clone(),
             "--arrays" => o.arrays = list(it.next())?,
-            "--mask" => o.mask = list(it.next())?,
             "--data" => o.data = Some(it.next().ok_or("--data without DIR")?.clone()),
             "--frames" => {
                 let v = it.next().ok_or("--frames without A-B")?;
@@ -100,11 +93,6 @@ fn parse_args(a: &[String]) -> Result<Opts, String> {
     for x in &o.arrays {
         if !(ARRAYS[..7].contains(&x.as_str()) || x == "rng") {
             return Err(format!("--arrays: {x} (one of fu p dq fxa fxb ui ft rng; hb / hk are M3b's)"));
-        }
-    }
-    for x in &o.mask {
-        if !LANES.contains(&x.as_str()) {
-            return Err(format!("--mask: {x} (one of {})", LANES.join(" ")));
         }
     }
     Ok(o)
@@ -142,25 +130,11 @@ fn scene_entry(file: &str) -> Result<SceneEntry, String> {
         pixel_lights: val("pixel-lights")?.parse().map_err(|_| "pixel-lights")?,
         coarse: val("coarse")? != "NIL", // (read by nothing in M3a, as density: the touch deck's, M3b)
         scene_scale_cap: val("scene-scale-cap")?.parse().map_err(|_| "scene-scale-cap")?,
+        // INDEX fixed_inputs.page: "pf_page_get 0 for every key", so the safe-area insets (+PG-SAFE-TOP+ / -BOTTOM+) are 0
+        safe_top: if j["fixed_inputs"]["page"].as_str().is_some_and(|s| s.starts_with("pf_page_get 0")) { 0.0 } else { return Err("INDEX fixed_inputs.page: not pf_page_get 0".into()) },
+        safe_bottom: 0.0,
     };
     Ok((name, cmds, inputs, val("one-hand")? != "NIL"))
-}
-
-/// The mesh ids of the masked dq lanes (by the registry's paths).
-fn masked_ids(d: &Data, mask: &[String]) -> Vec<bool> {
-    let ids = d.mesh_ids();
-    let mut v = vec![false; ids.iter().map(|r| r.0 as usize + 1).max().unwrap_or(0)];
-    for (id, path, _) in &ids {
-        let lane = if path.starts_with("*BODIES*") || path.starts_with("*WEAPONS*") || path == "*SHADOW-MESH*" {
-            "fighters"
-        } else if path.starts_with("*ST-ROCKS*") {
-            "chips"
-        } else {
-            continue;
-        };
-        v[*id as usize] = mask.iter().any(|m| m == lane);
-    }
-    v
 }
 
 fn close(a: f32, b: f32) -> (bool, f64) {
@@ -181,14 +155,11 @@ impl Cmp {
     fn fail(&mut self, msg: String) {
         self.first.get_or_insert(msg);
     }
-    fn floats(&mut self, scene: &str, frame: u32, arr: &'static str, got: &[f32], want: &[f32], skip: impl Fn(usize) -> bool) {
+    fn floats(&mut self, scene: &str, frame: u32, arr: &'static str, got: &[f32], want: &[f32]) {
         if got.len() != want.len() {
             return self.fail(format!("{scene} frame {frame} {arr}: {} floats, key {}", got.len(), want.len()));
         }
         for (i, (a, b)) in got.iter().zip(want).enumerate() {
-            if skip(i) {
-                continue;
-            }
             let (ok, e) = close(*a, *b);
             self.floats += 1;
             *self.count.entry(arr).or_insert(0) += 1;
@@ -236,9 +207,6 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     }
     let key: Vec<&KeyFrame> = key.iter().filter(|k| o.frames.is_none_or(|(a, b)| a <= k.frame && k.frame <= b)).collect();
     let last = key.last().map_or(0, |k| k.frame);
-    let masked = masked_ids(data, &o.mask);
-    let is_masked = |id: f32| masked.get(id as usize).copied().unwrap_or(false);
-    let mask_lights = o.mask.iter().any(|m| m == "lights");
     let want = |a: &str| o.arrays.iter().any(|x| x == a);
 
     let mut m = Match::new(data);
@@ -249,7 +217,9 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let mut out = FrameOut::default();
     let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0, count: BTreeMap::new() };
     let (mut allocs, mut counted, mut compared, mut ki, mut draw_allocs) = (0u64, 0u64, 0u32, 0usize, 0u64);
-    let (mut got_dq, mut want_dq): (Vec<f32>, Vec<f32>) = (Vec::new(), Vec::new());
+    let mut got_dq: Vec<f32> = Vec::new();
+    let paths = data.mesh_ids();
+    let mesh_path = |id: f32| paths.iter().find(|r| r.0 == id as u32).map_or("?", |r| r.1.as_str());
     for f in 0..=last {
         let has_cmd = cmds.iter().any(|c| c.0 == f);
         m.cmds.extend(cmds.iter().filter(|c| c.0 == f).map(|c| c.1));
@@ -282,30 +252,29 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
             cmp.fail(format!("{name} frame {f} rng: {:#010x} key {:#010x}", sc.cos.state(), k.rng));
         }
         if want("fu") {
-            cmp.floats(&name, f, "fu", &out.fu, &k.arrays[0], |i| mask_lights && (70..=135).contains(&i));
+            cmp.floats(&name, f, "fu", &out.fu, &k.arrays[0]);
         }
         if want("p") {
-            cmp.floats(&name, f, "p", &out.p, &k.arrays[1], |_| false);
+            cmp.floats(&name, f, "p", &out.p, &k.arrays[1]);
         }
         if want("dq") {
             got_dq.clear();
-            want_dq.clear();
-            got_dq.extend(out.dq.iter().filter(|r| !is_masked(r[23])).flatten());
-            want_dq.extend(k.arrays[2].as_chunks::<32>().0.iter().filter(|r| !is_masked(r[23])).flatten());
+            got_dq.extend(out.dq.iter().flatten());
+            let want_dq = &k.arrays[2];
             if got_dq.len() != want_dq.len() {
-                cmp.fail(format!("{name} frame {f} dq: {} records, key {} (unmasked)", got_dq.len() / 32, want_dq.len() / 32));
+                cmp.fail(format!("{name} frame {f} dq: {} records, key {}", got_dq.len() / 32, want_dq.len() / 32));
             }
             for (i, (a, b)) in got_dq.as_chunks::<32>().0.iter().zip(want_dq.as_chunks::<32>().0).enumerate() {
                 if a[23] != b[23] {
-                    cmp.fail(format!("{name} frame {f} dq record {i} (unmasked): mesh {} key {}", a[23], b[23]));
+                    cmp.fail(format!("{name} frame {f} dq record {i}: mesh {} ({}) key {} ({})", a[23], mesh_path(a[23]), b[23], mesh_path(b[23])));
                     break;
                 }
             }
-            cmp.floats(&name, f, "dq", &got_dq, &want_dq, |_| false);
+            cmp.floats(&name, f, "dq", &got_dq, want_dq);
         }
         for (i, arr, v) in [(3, "fxa", &out.fxa), (4, "fxb", &out.fxb), (5, "ui", &out.ui), (6, "ft", &out.ft)] {
             if want(arr) {
-                cmp.floats(&name, f, arr, v, &k.arrays[i], |_| false);
+                cmp.floats(&name, f, arr, v, &k.arrays[i]);
             }
         }
         if let Some(e) = cmp.first.take() {
@@ -316,7 +285,6 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let worst: Vec<String> = cmp.worst.iter().map(|(a, e)| format!("{a} {e:.2e} ({} floats)", cmp.count[a])).collect();
     let per = if counted > 0 { allocs as f64 / counted as f64 } else { 0.0 };
     let tail = format!("largest error: {}; {} floats; allocs {allocs} in {counted} frames after frame 0 ({per:.2} per frame; commandless frames), draw_frame allocs {draw_allocs} in {last} frames from frame 1", worst.join(", "), cmp.floats);
-    let masks = if o.mask.is_empty() { String::new() } else { format!(" (masked: {})", o.mask.join(",")) };
     match cmp.first {
         Some(e) => {
             println!("draw MISMATCH {e}");
@@ -324,7 +292,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
             Ok(1)
         }
         None => {
-            println!("draw OK {name} {compared}{masks} [{}]", o.arrays.join(","));
+            println!("draw OK {name} {compared} [{}]", o.arrays.join(","));
             println!("{tail}");
             Ok(0)
         }

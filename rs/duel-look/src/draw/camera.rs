@@ -173,6 +173,20 @@ pub struct CamKnobs {
     /// fx.lisp `*shake-hz*` (START-GAME sets 12) and `*shake-mult*`.
     pub shake_hz: f32,
     pub shake_mult: f32,
+    /// The portrait camera's: `*pt-back*` `*pt-up*` `*pt-shoulder*` `*pt-close*` `*pt-side*` `*pt-lead*` `*pt-head*`
+    /// `*pt-frame-bottom*` `*pt-band-fov*` `*pt-fov-min*` `*pt-fov-max*`, and onehand.lisp `*pt-center-lift*` (CSS px).
+    pub pt_back: f32,
+    pub pt_up: f32,
+    pub pt_shoulder: f32,
+    pub pt_close: f32,
+    pub pt_side: f32,
+    pub pt_lead: f32,
+    pub pt_head: f32,
+    pub pt_frame_bottom: f32,
+    pub pt_band_fov: f32,
+    pub pt_fov_min: f32,
+    pub pt_fov_max: f32,
+    pub pt_center_lift: f32,
 }
 
 impl CamKnobs {
@@ -194,6 +208,18 @@ impl CamKnobs {
             behind_rate: k("*BEHIND-RATE*"),
             shake_hz: k("*SHAKE-HZ*"),
             shake_mult: k("*SHAKE-MULT*"),
+            pt_back: k("*PT-BACK*"),
+            pt_up: k("*PT-UP*"),
+            pt_shoulder: k("*PT-SHOULDER*"),
+            pt_close: k("*PT-CLOSE*"),
+            pt_side: k("*PT-SIDE*"),
+            pt_lead: k("*PT-LEAD*"),
+            pt_head: k("*PT-HEAD*"),
+            pt_frame_bottom: k("*PT-FRAME-BOTTOM*"),
+            pt_band_fov: k("*PT-BAND-FOV*"),
+            pt_fov_min: k("*PT-FOV-MIN*"),
+            pt_fov_max: k("*PT-FOV-MAX*"),
+            pt_center_lift: k("*PT-CENTER-LIFT*"),
         }
     }
 }
@@ -213,11 +239,14 @@ pub struct CamState {
     pub pt_lens: bool,
     /// `*shake*`: amp dur left noise-t ox oy oz.
     pub shake: [f32; 8],
+    /// `*pcam*`: [0] the portrait orbit's lead over `*behind-yaw*`, [2] the smoothed vertical FOV ([1], DECK-UPDATE's lens lift, is
+    /// `Band::lift`).
+    pub pcam: [f32; 3],
 }
 
 impl Default for CamState {
     fn default() -> Self {
-        CamState { eye: [0.0, 3.0, 12.0], at: [0.0, 1.0, 0.0], ang: 0.0, dist: 7.0, cut: true, punch_t: 0.0, anchor: [0.0; 3], pt_lens: false, shake: [0.0; 8] }
+        CamState { eye: [0.0, 3.0, 12.0], at: [0.0, 1.0, 0.0], ang: 0.0, dist: 7.0, cut: true, punch_t: 0.0, anchor: [0.0; 3], pt_lens: false, shake: [0.0; 8], pcam: [0.0; 3] }
     }
 }
 
@@ -250,6 +279,125 @@ pub fn duel_camera_landscape(st: &mut CamState, cam: &mut Camera, kn: &CamKnobs,
     cam.up = [0.0, 1.0, 0.0];
     (cam.pos, cam.target) = (st.eye, st.at);
     cam.update(aspect);
+}
+
+/// The page's geometry the portrait camera reads (SceneInputs): the window in pixels, the density, the safe-area insets (CSS px).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct View {
+    pub w: u32,
+    pub h: u32,
+    pub density: f32,
+    pub safe_top: f32,
+    pub safe_bottom: f32,
+}
+
+/// onehand.lisp DECK-UPDATE's portrait frame: `*band*` [0 1] (the frame under P2's HUD block down to `*pt-frame-bottom*`) and
+/// `*pcam*` [1] (the lens's lift, NDC).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Band {
+    pub top: f32,
+    pub bottom: f32,
+    pub lift: f32,
+}
+
+/// port: onehand.lisp DECK-UPDATE's `*band*` / `*pcam*` [1] for the view V, with engine/lisp/ui.lisp UI-SCALE (ONEHAND-FRAME's
+/// `*ui-min-css*`: 11 on a portrait window, else 0) and hud.lisp PORTRAIT-HUD-BOTTOM / PORTRAIT-P1-TOP (a block 29 x scale px tall).
+pub fn band(kn: &CamKnobs, v: &View) -> Band {
+    let (w, h, d) = (v.w as i64, v.h as i64, v.density);
+    let min_css: i64 = if h > w { 11 } else { 0 };
+    // (round h 360): CL ROUND, half to even, of the ratio; (floor w 480)
+    let rq = |a: i64, b: i64| {
+        let (q, r) = (a.div_euclid(b), a.rem_euclid(b));
+        if 2 * r > b || (2 * r == b && q % 2 != 0) { q + 1 } else { q }
+    };
+    let mut s = 1.max(rq(h, 360).min(w.div_euclid(480)));
+    if min_css > 0 {
+        s = s.max(((min_css as f32 * d) / 7.0).ceil() as i64); // (ceiling (* *ui-min-css* (pixel-density)) 7)
+    }
+    let block = (29 * s) as f32;
+    let hud_bottom = (v.safe_top * d + (2 * s) as f32) + block;
+    let p1_top = (h as f32 - max_f32(8.0, v.safe_bottom + 4.0) * d) - block;
+    let (hb, pt) = (hud_bottom / h as f32, p1_top / h as f32);
+    Band { top: hb + 0.03, bottom: f_min(kn.pt_frame_bottom, pt - 0.03), lift: (2.0 * kn.pt_center_lift * d) / h.max(1) as f32 }
+}
+
+/// port: camera.lisp %PORTRAIT-CAMERA — `*cam-eye*` / `*cam-at*` and the lens for the portrait camera behind P1 toward P2 (SNAP: no
+/// smoothing); then DUEL-CAMERA's tail (`*cam-cut*` cleared, the up vector, the camera placed and updated).
+pub fn duel_camera_portrait(st: &mut CamState, cam: &mut Camera, kn: &CamKnobs, pr: &Pair, rdt: f32, snap: bool, v: &View) {
+    st.punch_t = max_f32(0.0, st.punch_t - rdt);
+    let snap = snap || st.cut;
+    let bd = band(kn, v);
+    let (p, q) = (pr.p, pr.q);
+    let (dx, dz) = (q[0] - p[0], q[2] - p[2]);
+    let sep = f_sqrt(dx * dx + dz * dz);
+    let sim = pr.behind_yaw;
+    let lim = 0.017453292 * kn.pt_lead;
+    let clamp = |x: f32, lo: f32, hi: f32| f_min(f_max(x, lo), hi);
+    let wrap = crate::anim::f_wrap;
+    let atan2 = |y: f32, x: f32| duel_sim::math::yaw_to(-y, -x);
+    let want = if sep > 0.01 { clamp(wrap(atan2(-dx, -dz) - sim), -lim, lim) } else { 0.0 };
+    let k = if snap { 1.0 } else { 1.0 - expf(-8.0 * rdt) };
+    let pc = &mut st.pcam;
+    let lead = pc[0] + k * (want - pc[0]);
+    let yaw = sim + lead;
+    let (fx, fz) = (-f_sin(yaw), -f_cos(yaw));
+    let wide = kn.behind_widen * f_max(0.0, sep - 4.0);
+    let back = kn.close * (kn.pt_back + wide) * if st.punch_t > 0.0 { 0.8 } else { 1.0 };
+    let off = 0.017453292 * (kn.pt_side + (kn.pt_close - kn.pt_side) * clamp((kn.behind_blend_far - sep) / (kn.behind_blend_far - 2.0), 0.0, 1.0));
+    let side = kn.pt_shoulder + back * f_sin(off);
+    let bk = back * f_cos(off);
+    let ka = if snap { 1.0 } else { 1.0 - expf(-kn.behind_rate * rdt) };
+    pc[0] = lead;
+    let c = &mut st.anchor;
+    c[0] += ka * (p[0] - c[0]);
+    c[2] += ka * (p[2] - c[2]);
+    let mut ex = c[0] + -bk * fx + side * -fz;
+    let mut ez = c[2] + -bk * fz + side * fx;
+    let r = f_sqrt(ex * ex + ez * ez);
+    let kr = f_min(1.0, kn.max_r / f_max(0.01, r));
+    let h = kn.pt_up + 0.33 * wide + 0.4 * (r - kr * r);
+    (ex, ez) = (kr * ex, kr * ez);
+    for o in [p, q] {
+        // (never inside a fighter)
+        let (ddx, ddz) = (ex - o[0], ez - o[2]);
+        let d = f_sqrt(ddx * ddx + ddz * ddz);
+        if d < 1.0 && d > 0.001 {
+            (ex, ez) = (o[0] + ddx / d, o[2] + ddz / d);
+        }
+    }
+    st.eye = [ex, h, ez];
+    let (ax, az, bx, bz) = (p[0] - ex, p[2] - ez, q[0] - ex, q[2] - ez);
+    let (d1, d2) = (f_sqrt(ax * ax + az * az), f_sqrt(bx * bx + bz * bz));
+    let (a1, a2) = (atan2(-ax, -az), atan2(-bx, -bz));
+    let da = wrap(a2 - a1);
+    let want = wrap((a1 + 0.5 * da) - yaw);
+    let dy = clamp(want, -(lim + off), lim + off);
+    let aim = yaw + dy;
+    let t1 = atan2(h, f_max(0.5, d1 - 0.6));
+    let t2 = atan2(h - kn.pt_head - 0.3, d2 + 0.6);
+    let pitch = 0.5 * (t1 + t2);
+    let cp = 5.0 * f_cos(pitch);
+    let b = f_max(0.1, bd.bottom - bd.top);
+    let hb = f_max(0.0087266462 * kn.pt_band_fov, 0.5 * (t1 - t2) + 0.026);
+    let hz = 0.5 * duel_sim::math::f_abs(da) + duel_sim::math::f_abs(want - dy) + atan2(0.7, f_max(0.5, f_min(d1, d2) - 0.6));
+    let asp = v.w as f32 / v.h.max(1) as f32;
+    let hz1 = f_min(hz, 1.4);
+    let fov = clamp(2.0 * f_max(atan2(f_sin(hb) / f_cos(hb), b), atan2(f_sin(hz1) / f_cos(hz1), asp)), 0.017453292 * kn.pt_fov_min, 0.017453292 * kn.pt_fov_max);
+    let pc = &mut st.pcam;
+    let sm = if snap || !st.pt_lens { fov } else { pc[2] + k * (fov - pc[2]) };
+    let sh = (1.0 - (bd.top + bd.bottom)) + bd.lift;
+    st.at = [ex + cp * -f_sin(aim), h - 5.0 * f_sin(pitch), ez + cp * -f_cos(aim)];
+    (pc[2], st.pt_lens) = (sm, true);
+    if duel_sim::math::f_abs(cam.fov - sm) > 0.002 {
+        cam.fov = sm;
+    }
+    if cam.shift_y != sh {
+        cam.shift_y = sh;
+    }
+    st.cut = false;
+    cam.up = [0.0, 1.0, 0.0];
+    (cam.pos, cam.target) = (st.eye, st.at);
+    cam.update(asp);
 }
 
 /// port: camera.lisp %POW2: `(expt x 2)` of a single float as ECL computes it (C powf).

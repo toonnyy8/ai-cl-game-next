@@ -1164,7 +1164,7 @@ mod tests {
     fn scene_sink_no_alloc() {
         use duel_sim::look::LookSink;
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0 };
+        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0, safe_top: 0.0, safe_bottom: 0.0 };
         for name in CVC_GATE {
             let Some(path) = oracle_trace(name) else { panic!("no answer key (set ORACLE)") };
             let s_line = std::io::BufRead::lines(std::io::BufReader::new(std::fs::File::open(&path).unwrap()))
@@ -1205,7 +1205,7 @@ mod tests {
     fn scene_draw_no_alloc() {
         use duel_sim::look::LookSink;
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0 };
+        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0, safe_top: 0.0, safe_bottom: 0.0 };
         let mut out = duel_look::FrameOut::default();
         for name in CVC_GATE {
             let Some(path) = oracle_trace(name) else { panic!("no answer key (set ORACLE)") };

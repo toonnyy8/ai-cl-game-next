@@ -3,11 +3,7 @@
 //! AURA-CAP-UPDATE.
 use super::shapes::*;
 use super::{Ctx, Em, P_T_BLOB};
-use duel_sim::cl::min_f32;
-use duel_sim::components::{Burst, Phase, State};
-use duel_sim::ecs::Entity;
 use duel_sim::math::{f_cos, f_hypot, f_max, f_min, f_mod, f_sin, f_sqrt};
-use duel_sim::state::Match;
 
 /// vfx.lisp +LIVE-CAP+: no new VFX particles while the pool holds this many.
 const LIVE_CAP: usize = 1150;
@@ -88,10 +84,7 @@ fn flecks(c: &mut Em, n: usize, x: f32, y: f32, z: f32, h: f32, rad: f32, hy: [f
 #[allow(clippy::too_many_arguments)]
 pub fn vfx_aura(c: &mut Ctx, x: f32, y: f32, z: f32, height: f32, kind: &str, dt: f32, k: f32) -> Option<&'static str> {
     let h = height;
-    let e = c.cam.eye;
-    let (ex, ey, ez) = (e[0] - x, e[1] - (y + 0.6 * h), e[2] - z);
-    let near = f_clamp((super::f_hypot3(ex, ey, ez) - 1.5) / 2.5, 0.35, 1.0);
-    let ka = near * c.fx.aura_cap * f_clamp(k, 0.0, 1.0);
+    let ka = aura_ka(c, x, y, z, h, k);
     let glass = c.fx.knobs.glass;
     match kind {
         "burst-white" | "burst-blue" | "burst-orange" => {
@@ -168,11 +161,19 @@ pub fn vfx_aura(c: &mut Ctx, x: f32, y: f32, z: f32, height: f32, kind: &str, dt
             flecks(&mut c.em(), n, x, y, z, h, 0.4, [0.2, 0.9], [1.0, 2.0], [0.3, 0.6], [0.03, 0.05], 0.2, PAL_BLOOD);
             c.light(x, y + 1.0, z, 1.0, 0.3, 0.2, 5.0, 1.2 * pk, 5);
         }
-        "ICHIGO-AURA-BASE" => {} // (its afterimages: the caller's, `ichigo_aura_base`)
-        "ICHIGO-AURA-KESSA" => {} // task 7: ICHIGO-AURA-KESSA reads ic-joint (posed joints); quiet-2395 compares fu,p,dq until Task 7
+        // (a kit's aura function: draw/fighter.rs's dispatch calls it with the fighters it reads, never this one)
+        "ICHIGO-AURA-BASE" | "ICHIGO-AURA-KESSA" => return Some("a kit aura function outside DRAW-AURA"),
         _ => return Some("a Yamamoto / Hisagi aura (vfx.lisp VFX-AURA :hellfire / :garb, a kit's aura function: M4)"),
     }
     None
+}
+
+/// VFX-AURA's presence KA: K clamped, faded within ~4 m of the eye and by `*aura-cap*` (what it passes a kit's aura function).
+pub fn aura_ka(c: &Ctx, x: f32, y: f32, z: f32, h: f32, k: f32) -> f32 {
+    let e = c.cam.eye;
+    let (ex, ey, ez) = (e[0] - x, e[1] - (y + 0.6 * h), e[2] - z);
+    let near = f_clamp((super::f_hypot3(ex, ey, ez) - 1.5) / 2.5, 0.35, 1.0);
+    near * c.fx.aura_cap * f_clamp(k, 0.0, 1.0)
 }
 
 /// port: vfx.lisp %REIATSU-AURA — Kenpachi's yellow brush flame (AWAKE: the Nozarashi's 9 wider tongues, the inner white ones, the
@@ -198,137 +199,6 @@ pub fn vfx_breaker_ring(c: &mut Ctx, x: f32, z: f32, age: f32) {
     let dr = drawing_no(c.clock, 12.0);
     tring(c, x, 0.0, z, 0.8, 0.08, PAL_BLOOD, 0.95, ((duel_sim::cl::floor_f32(dr) as i32) % 5) as f32, 24);
     tring(c, x, 0.0, z, 0.95 + 1.4 * f, 0.05, PAL_INK, 0.95 * (1.0 - f), 3.0, 24);
-}
-
-/// port: draw.lisp ONI-AURA-K — the oni pillar's presence for side I, eased toward `*oni-k-attack*` while ATTACKING.
-fn oni_aura_k(c: &mut Ctx, i: usize, attacking: bool, rdt: f32) -> f32 {
-    let k = c.fx.oni_k[i];
-    let want = if attacking { c.fx.knobs.oni_k_attack } else { 1.0 };
-    c.fx.oni_k[i] = k + (want - k) * min_f32(1.0, 10.0 * rdt);
-    c.fx.oni_k[i]
-}
-
-/// port: draw.lisp DRAW-AURA — side I's body AURA (crossfaded over 350 / 300 ms when it changes), height H, presence K.
-#[allow(clippy::too_many_arguments)]
-fn draw_aura<'d>(c: &mut Ctx<'_, 'd>, i: usize, aura: Option<&'d str>, x: f32, y: f32, z: f32, h: f32, rdt: f32, k: f32) -> Option<&'static str> {
-    if aura != c.fx.aura_now[i] {
-        (c.fx.aura_was[i], c.fx.aura_now[i], c.fx.aura_t[i]) = (c.fx.aura_now[i], aura, c.clock);
-    }
-    let ms = (duel_sim::cl::floor_f32(1000.0 * (c.clock - c.fx.aura_t[i])) as i32).min(100000);
-    let mut un = None;
-    if let Some(was) = c.fx.aura_was[i]
-        && ms < 350
-    {
-        un = un.or(vfx_aura(c, x, y, z, h, was, rdt, k * (1.0 - ms as f32 / 350.0)));
-    }
-    if let Some(a) = aura {
-        un = un.or(if ms >= 300 {
-            vfx_aura(c, x, y, z, h, a, rdt, k)
-        } else {
-            vfx_aura(c, x, y, z, h * (1.0 + 0.35 * (1.0 - ms as f32 / 300.0)), a, rdt, k * min_f32(1.0, 0.2 + ms as f32 / 120.0))
-        });
-    }
-    un
-}
-
-/// The scene's reads of a fighter for its aura tail.
-pub struct AuraIn<'a> {
-    pub e: Entity,
-    /// The drawn feet (SLOW-DRAW's place) and the model's body, alpha and `*aura-off*` (a cinematic's: task 8).
-    pub p: [f32; 3],
-    pub body: &'a str,
-    pub alpha: f32,
-    pub aura_off: bool,
-}
-
-/// port: draw.lisp DRAW-FIGHTER's aura tail (its lines 247-275): the form's aura, the bind's ash, EVOLUTION, a burst, the Breaker,
-/// the Kikon rush, with the Y DRAW-FIGHTER computed (RUSH-LIFT, BODY-LIFT). RDT the frame's effect seconds.
-pub fn fighter_auras(c: &mut Ctx, m: &Match, a: &AuraIn, rdt: f32) -> Option<&'static str> {
-    let Some(f) = m.fighter.get(a.e) else { return None };
-    let kit = duel_sim::fighter::kit_of(m, a.e);
-    let mv = duel_sim::fighter::current_move(f).map(|id| duel_sim::fighter::mv(m, id));
-    let look = mv.filter(|mv| mv.kind == "kikon" || f.phase == Some(Phase::Follow)).and_then(|mv| mv.params.look.as_deref());
-    let rush_dashing = match f.phase {
-        Some(Phase::Dash) => true,
-        Some(Phase::Follow) => f.dist > m.knobs.kikon_trigger + 0.05,
-        _ => false,
-    };
-    let flashing = look == Some("flash-step") && rush_dashing;
-    let hh = m.data.bodies.get(a.body).map_or(0.0, |b| b.hurt_h);
-    // ponytail: RUSH-LIFT is 0 (no in-scope move has :lift); BODY-LIFT is the kit's :lift on its own body (0 in every in-scope kit);
-    // DRAW-SCALE-OF is a cinematic giant's (task 8: 1 here).
-    let body_lift = if kit.lift != 0.0 && kit.body == a.body { kit.lift } else { 0.0 };
-    let (x, y, z) = (a.p[0], a.p[1] + 0.0 + body_lift, a.p[2]);
-    let side = f.side as usize;
-    let mut un = None;
-    if !(flashing || a.alpha <= 0.0 || a.aura_off) {
-        let aura = kit.aura.as_deref();
-        if aura == Some("ICHIGO-AURA-BASE") {
-            un = un.or(ichigo_aura_base(f, mv)); // (VFX-AURA's funcall of the kit's aura function)
-        }
-        let k = if look == Some("charge") && f.phase != Some(Phase::Main) {
-            1.5
-        } else if mv.is_some_and(|mv| mv.kind == "kikon") && aura == Some("oni") {
-            0.15
-        } else if aura == Some("oni") {
-            let attacking = mv.is_some_and(|mv| f.phase == Some(Phase::Main) && matches!(mv.kind.as_str(), "quick" | "flash" | "sp"));
-            oni_aura_k(c, side, attacking, rdt)
-        } else {
-            1.0
-        };
-        un = un.or(draw_aura(c, side, aura, x, y, z, 1.1 * hh, rdt, k));
-    }
-    if f.state == State::Stun && f.phase == Some(Phase::Bind) {
-        un = un.or(vfx_aura(c, x, y, z, hh, "bound", rdt, 1.0));
-    }
-    let g = m.gauges.get(a.e);
-    if g.is_some_and(|g| g.evolution) {
-        un = un.or(vfx_aura(c, x, y, z, hh, "evolution", rdt, 0.5));
-    }
-    let bm = g.and_then(|g| g.burst);
-    if let Some(bm) = bm
-        && a.alpha > 0.0
-        && f.state != State::Cine
-    {
-        let kind = match bm {
-            Burst::White => "burst-white",
-            Burst::Blue => "burst-blue",
-            _ => "burst-orange",
-        };
-        un = un.or(vfx_aura(c, x, y, z, hh, kind, rdt, 1.0));
-    }
-    if bm.is_none() && g.is_some_and(|g| g.awake_regen > 0) && a.alpha > 0.0 && f.state != State::Cine {
-        un = un.or(vfx_aura(c, x, y, z, hh, "burst-white", rdt, 0.6));
-    }
-    if let Some(mv) = mv
-        && mv.kind == "breaker"
-    {
-        if f.phase != Some(Phase::Main) {
-            un = un.or(vfx_aura(c, x, y, z, hh, "breaker", rdt, if f.phase == Some(Phase::Dash) { 1.0 } else { 0.5 }));
-            let age = c.clock;
-            vfx_breaker_ring(c, x, z, age);
-        }
-        if f.phase == Some(Phase::Main) && (f.sf as i32) < mv.s {
-            un = un.or(vfx_aura(c, x, y, z, hh, "breaker", rdt, 1.0 + f.sf as f32 / mv.s as f32));
-        }
-    }
-    if let Some(mv) = mv
-        && mv.kind == "kikon"
-        && f.state == State::Move
-        && !flashing
-        && (f.phase != Some(Phase::Main) || (f.sf as i32) < mv.s)
-    {
-        un = un.or(vfx_aura(c, x, y, z, hh, "kikon", rdt, 1.0));
-    }
-    un
-}
-
-/// port: ichigo-look.lisp ICHIGO-AURA-BASE — SOGA's and TSUKIWATARI's flash steps start an ink afterimage every 4 f of their startup.
-/// The afterimage is DRAW-FIGHTER's ghost (task 7): reaching it here is a look not ported yet.
-fn ichigo_aura_base(f: &duel_sim::components::Fighter, mv: Option<&duel_data::Move>) -> Option<&'static str> {
-    let mv = mv?;
-    (matches!(mv.name.as_str(), "IC-SOGA" | "IC-TSUKI-DASH") && f.phase == Some(Phase::Main) && (f.sf as i32) < mv.s && f.sf % 4 == 0)
-        .then_some("Ichigo's flash-step afterimage (draw.lisp START-GHOST: task 7)")
 }
 
 /// port: hud-screens.lisp AURA-CAP-UPDATE — `*aura-cap*` for the next frame: 0.5 within 2.5 m, 1 from 3.5 m (P / Q the drawn places

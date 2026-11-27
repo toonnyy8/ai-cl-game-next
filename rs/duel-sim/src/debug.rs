@@ -27,6 +27,8 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
         200000..=209999 => start_pair_gate(m, s, c / 100 % 10, c / 10 % 10),
         2394..=2397 => string_test(m, s, (c - 2394) as usize),
         2500..=2503 => debug_vs_idle(m, s, (c - 2500) as usize),
+        2505 => lhud_scene(m, s),
+        2508 => lhud_p2_form(m),
         2513 => m.time.slowmo(m.knobs.core_clash_slowmo_scale, 3.0, false),
         84000 | 84001 | 84004 | 84005 => ken_core_scene(m, s, c),
         // ponytail: leaked once per run, on the path that stops it
@@ -56,6 +58,35 @@ fn debug_vs_idle(m: &mut Match, s: &mut Search, k: usize) {
     crate::flow::start_match(m, s);
     m.skip_cines = skip;
     brain_off(m, m.p2, true);
+}
+
+/// port: debug.lisp LHUD-SCENE (2505: PRACTICE nil, no intro, the default picks) — human Ichigo (P1) vs Kenpachi with his CPU off, VS
+/// CPU, `*match-seed*` 1, cinematics skipped. (`*probe*` NIL: never set by a ported command. `*one-hand*` is ONE-HAND-EFFECTIVE-P: the
+/// page's, `Match.settings.one_hand`, left as the caller set it.)
+fn lhud_scene(m: &mut Match, s: &mut Search) {
+    (m.picks, m.mode, m.match_seed) = ([Ichigo, Kenpachi], Mode::VsCpu, 1);
+    let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* (not intro))) …)
+    crate::flow::start_match(m, s);
+    m.skip_cines = skip;
+    brain_off(m, m.p2, true);
+    brain_off(m, m.p1, true); // ((when (brain *p1*) …): a human P1 has none)
+}
+
+/// port: debug.lisp LHUD-P2-FORM (2508) — P2 to his next form: sealed -> the Shikai (meter 2, its idle timer cleared) -> the Bankai
+/// KYORAN -> ZANKAI -> sealed.
+fn lhud_p2_form(m: &mut Match) {
+    let p2 = m.p2;
+    let next = match m.fighter.get(p2).expect("P2").form {
+        Form::Base => Form::Nozarashi,
+        Form::Nozarashi => Form::Bankai,
+        Form::Bankai => Form::Bankai2,
+        _ => Form::Base,
+    };
+    force_form(m, p2, next);
+    if next == Form::Nozarashi {
+        let g = m.gauges.get_mut(p2).expect("gauges");
+        (g.meter, g.meter_idle) = (2.0, 0);
+    }
 }
 
 /// port: debug.lisp STRING-TEST (2394+k): human P1 in form K (Ichigo's Shikai, KESSA, Kenpachi's base, his Shikai) 2.2 m from an idle

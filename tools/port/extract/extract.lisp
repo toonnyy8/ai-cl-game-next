@@ -371,7 +371,7 @@ polygons), never the plist guess (a shape (:sphere 0.1 :c :skin) would pass for 
     ("strat_rule_bases" . *strat-rule-bases*) ("strat_units_expanded" . *strat-units-expanded*) ("strat_library" . *strat-library*)
     ("strat_payoff" . *strat-payoff*) ("strat_lookup" . *strat-lookup*)
     ("lhud_fighters" . *lhud-fighters*) ("lhud_moves" . *lhud-moves*) ("commands" . *commands*) ("vpad_actions" . *vpad-actions*)
-    ("mirror_rim" . *mirror-rim*) ("mirror_tint" . *mirror-tint*))
+    ("mirror_rim" . *mirror-rim*) ("mirror_tint" . *mirror-tint*) ("grip_clips" . *grip-clips*))
   "tables.json: name -> the variable (its value after load: *STRAT-LIBRARY* expanded, with its :FQ Q tables).")
 (defun x-strat-unit-p (x)
   (and (consp x) (eq (car x) :id) (null (cdr (last x))) (evenp (length x)) (loop for (k) on x by #'cddr always (keywordp k))))
