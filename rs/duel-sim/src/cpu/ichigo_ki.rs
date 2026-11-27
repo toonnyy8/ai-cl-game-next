@@ -6,11 +6,12 @@
 //! per event from the sim stream, in the Lisp's order; the opponent is read only through the perceived SNAP and distance.
 //!
 //! Not ported: cpu-ki-ichigo-r2b1a1.lisp (ICHIGO-KI-R2B1A1-STYLE, IR2): no `*cai-styles*` entry and no strategy's :FN names it, so
-//! nothing reaches it. IKW-GAP-WATCH's gap-off arm (IKW-ALT: a fresh strategy plist swapped into BRAIN-NOW) is `unported!` (never
-//! in a gate trace; a strategy that is not a tables.json value is Task 9's owned `Strat`).
+//! nothing reaches it. IKW-GAP-WATCH's gap-off arm (IKW-ALT: a fresh strategy plist swapped into BRAIN-NOW) is the arm it was made
+//! from with `Now::gap_off` (never in a gate trace's play; reseeded `--snap` rollouts reach it).
 use super::core_ai::{cai_class_of, cai_move_step, cai_neutral, cai_next_ok_p, cai_press, chance_roll, gauges_awakened_ok_p, mv_min_reach};
 use super::glue::{strat_out, style_dif, style_knob, style_on};
 use super::perceive::{ai_dash, ai_press, ai_strafe, ai_walk, snap_lead_seen, snap_live_p, snap_near_p, snap_punishable_p, snap_recovering_p, Snap};
+use super::strategy::{Now, Strat};
 use super::style::{take_style, StyleState};
 use super::{Brain, Search};
 use crate::cl::{expt2, floor_f32, fmt_fixed_f32, max_f32, min_f32, modulo, Num};
@@ -246,14 +247,16 @@ impl Enc for Ikst {
     }
 }
 
-/// port: (DEFSTRUCT (IKW (:INCLUDE IKST))) — ICHIGO-KI-R2B2A1-STYLE's state. ALT is always NIL here and CELL its `(nil . nil)`
-/// (the gap-off arm that would set them is `unported!`).
+/// port: (DEFSTRUCT (IKW (:INCLUDE IKST))) — ICHIGO-KI-R2B2A1-STYLE's state. ALT is IKW-ALT, the gap-off arm, held as the arm it was
+/// made from (`Now::gap_off` says how it reads); CELL the cons swapped into BRAIN-NOW, `(alt . cues)` (NIL: its fresh `(nil . nil)`).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Ikw {
     pub k: Ikst,
     pub roll: Option<Sym>,
     pub lunge_t: i64,
     pub stepped: i64,
+    pub alt: Option<Strat>,
+    pub cell: Option<Now>,
     pub rsig: Num,
     pub ksig: i64,
     pub still_t: i64,
@@ -262,7 +265,7 @@ pub struct Ikw {
 impl Ikw {
     /// port: (MAKE-IKW).
     pub fn new() -> Ikw {
-        Ikw { k: Ikst::new(), roll: None, lunge_t: -999, stepped: 0, rsig: Num::I(-1), ksig: -1, still_t: 0 }
+        Ikw { k: Ikst::new(), roll: None, lunge_t: -999, stepped: 0, alt: None, cell: None, rsig: Num::I(-1), ksig: -1, still_t: 0 }
     }
 }
 
@@ -279,7 +282,13 @@ impl Enc for Ikw {
             s.push(',');
             x.enc(d, s);
         }
-        s.push_str(",NIL,(NIL)"); // (alt, cell)
+        s.push(',');
+        self.alt.enc(d, s);
+        s.push(',');
+        match &self.cell {
+            Some(c) => c.enc(d, s),
+            None => s.push_str("(NIL)"),
+        }
         for x in [&self.rsig as &dyn Enc, &self.ksig, &self.still_t] {
             s.push(',');
             x.enc(d, s);
@@ -372,7 +381,7 @@ fn iks_pick(plist: &[(String, f32)], r: f32) -> Mode {
 
 /// port: IKS-MODE-PICK — this episode's mode for roll R: IKS-PICK over *IKS-MIX* at B's difficulty, its weights replaced by the arm's
 /// :IKS-MIX-<MODE> keys when it names any (all weights 0: :generic).
-fn iks_mode_pick(m: &Match, b: &Brain, r: f32) -> Mode {
+fn iks_mode_pick(m: &mut Match, b: &Brain, r: f32) -> Mode {
     let k = &m.knobs;
     let mix = k.iks_mix.chance(b.difficulty).map_or(&[][..], |x| x.0.as_slice());
     let keys = &k.iks_mix_keys.0;
@@ -384,9 +393,13 @@ fn iks_mode_pick(m: &Match, b: &Brain, r: f32) -> Mode {
     if !Num::I(0).lt(sum) {
         return Mode::Generic;
     }
+    if let Num::I(_) = sum {
+        // (every weight an integer: each (/ w sum) a CL ratio, converted to a single by ECL's own rule; no shipped arm or mix has one)
+        crate::unported!(m, "iks-mode-pick integer weights", Mode::Generic)
+    }
     let mut acc = 0.0f32;
     for c in keys.chunks(2) {
-        acc += w(c).f() / sum.f(); // ponytail: an all-integer arm set would make CL ratios; every arm's weight is a float
+        acc += w(c).f() / sum.f();
         if r < acc {
             return Mode::of(&c[0]);
         }
@@ -1315,7 +1328,7 @@ fn ikw_roll_step(m: &mut Match, e: Entity, b: &Brain, st: &mut Ikw) {
 }
 
 /// port: IKW-GAP-WATCH — after ICHIGO-KI-STYLE's step: a far lunge pressed now starts the watch; his Step seen inside it counts one;
-/// at :ikw-gap-off-n the lunge would go off (IKW-ALT: `unported!`).
+/// at :ikw-gap-off-n the lunge goes off (IKW-ALT).
 fn ikw_gap_watch(m: &mut Match, e: Entity, b: &Brain, st: &mut Ikw, s: &Snap, d: f32) {
     if b.press_left > 0
         && b.press == Some(QUICK)
@@ -1328,10 +1341,9 @@ fn ikw_gap_watch(m: &mut Match, e: Entity, b: &Brain, st: &mut Ikw, s: &Snap, d:
         st.lunge_t = -999;
         st.stepped += 1;
         let n = sknob(m, b, "ikw-gap-off-n", Num::I(m.knobs.ikw_gap_off_n));
-        if Num::I(0).lt(n) && !Num::I(st.stepped).lt(n) && b.now.is_some() {
-            // (IKW-ALT, the arm with :iks-gap-p 0 in front: a strategy that is not a tables.json value, Task 9's owned `Strat`)
+        if let Some(now) = b.now.filter(|_| st.alt.is_none() && Num::I(0).lt(n) && !Num::I(st.stepped).lt(n)) {
+            st.alt = Some(now.st); // (the arm with :iks-gap-p 0.0 first in its :base; the first :base / key wins: GETF)
             crate::clog!(m, "{} ki-style gap off d {}", side_name(m, e), fmt_fixed_f32(d, 1));
-            crate::unported!(m, "ikw gap-off")
         }
     }
 }
@@ -1353,7 +1365,10 @@ pub fn ichigo_ki_r2b2a1_style(m: &mut Match, _: &mut Search, e: Entity, b: &mut 
     let st = take_style(b, |x| matches!(x, StyleState::Ikw(_)), || StyleState::Ikw(Ikw::new()));
     let StyleState::Ikw(mut st) = st else { unreachable!() };
     let state = fighter(m, e).state;
-    // ((ikw-alt st): always NIL here, see IKW-GAP-WATCH)
+    if let (Some(alt), Some(now)) = (st.alt, b.now) {
+        let c = Now { st: alt, cues: now.cues, gap_off: true }; // (the cell: (car c) the alt, (cdr c) NOW's cues; NOW becomes it)
+        (st.cell, b.now) = (Some(c), Some(c));
+    }
     let r = if ikw_stale_p(m, e, b, &mut st) && free(state) {
         let kit = kit_of(m, e);
         iks_generic(m, e, b, kit, &s, d);
@@ -1405,14 +1420,14 @@ mod tests {
     /// 0.88, then 0.03 each), the roll's place deciding; EASY's single row is always :generic.
     #[test]
     fn mode_pick_by_the_mix() {
-        let m = Match::new(crate::hashline::tests::data());
+        let mut m = Match::new(crate::hashline::tests::data());
         let b = Brain::new(Difficulty::Normal, 14);
         for (r, want) in [(0.0, Mode::Generic), (0.8799, Mode::Generic), (0.8801, Mode::Space), (0.9101, Mode::Whiff), (0.9401, Mode::Ptr3),
                           (0.9701, Mode::Kessa), (0.9999, Mode::Kessa)] {
-            assert_eq!(iks_mode_pick(&m, &b, r), want, "{r}");
+            assert_eq!(iks_mode_pick(&mut m, &b, r), want, "{r}");
         }
         let b = Brain::new(Difficulty::Easy, 14);
-        assert_eq!(iks_mode_pick(&m, &b, 0.9999), Mode::Generic);
+        assert_eq!(iks_mode_pick(&mut m, &b, 0.9999), Mode::Generic);
     }
 
     /// The struct prints as TR-B-ENC prints it: IKW's 36 slots, ALT NIL and CELL `(NIL)` among them (the key's first IKW, its fresh

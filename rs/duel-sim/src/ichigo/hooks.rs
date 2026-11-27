@@ -50,7 +50,7 @@ pub fn ic(m: &mut Match, e: Entity) {
 /// carries his move's effects. HAZARD: the hazard that dealt it (its struct even if destroyed this HIT-APPLY).
 pub fn hit(m: &mut Match, att: Entity, def: Entity, res: Res, hazard: Option<Entity>) {
     // pace: GETSUGA-WAVE / JUJI-WAVE by contact
-    let Some(HzData::Icc(c)) = hazard.and_then(|h| m.hazard_of(h)).map(|hz| hz.data.clone()) else { return };
+    let Some(HzData::Icc(c)) = hazard.and_then(|h| m.hazard_of(h)).map(|hz| hz.data) else { return };
     let Some(ct) = contact_of(Some(res)) else { return };
     let cc = &mut m.iccs[c]; // pace: CLONE contact
     (cc.hit, cc.touched) = (Some(ct), true);
@@ -401,10 +401,33 @@ mod tests {
     fn ik_battle() -> Match {
         let mut m = Match::new(crate::hashline::tests::data());
         crate::flow::go_title(&mut m);
-        crate::gate::start_cvc(&mut m, 1, Some([Character::Ichigo, Character::Kenpachi]));
+        crate::gate::start_cvc(&mut m, &mut crate::cpu::Search::new(), 1, Some([Character::Ichigo, Character::Kenpachi]));
         let e = m.p1;
         ic(&mut m, e);
         m
+    }
+
+    /// TSUKI-DASH with a brain: the slide is aimed at him (to 1.0, strafe 0.0), whatever the stick says; without one it follows the
+    /// stick (a sideways stick: across the line to him).
+    #[test]
+    fn tsuki_dash_brain_aims_at_him() {
+        let line = |m: &Match| {
+            let (a, b) = (m.transform.get(m.p1).unwrap().pos, m.transform.get(m.p2).unwrap().pos);
+            (b[0] - a[0], b[2] - a[2])
+        };
+        let mut m = ik_battle();
+        let p1 = m.p1;
+        m.pilot.get_mut(p1).unwrap().vpad.stick(1.0, 0.0); // (sideways: a human's dash would go across)
+        tsuki_dash(&mut m, p1);
+        let (mo, (lx, lz)) = (m.motion.get(p1).unwrap().clone(), line(&m));
+        assert_eq!(mo.kb_left, 12);
+        assert!(mo.kb[0] * lx + mo.kb[2] * lz > 0.0 && (mo.kb[0] * lz - mo.kb[2] * lx).abs() < 1e-4, "{:?} vs {lx} {lz}", mo.kb);
+        let mut m = ik_battle();
+        fighter_mut(&mut m, p1).brain = None;
+        m.pilot.get_mut(p1).unwrap().vpad.stick(1.0, 0.0);
+        tsuki_dash(&mut m, p1);
+        let (mo, (lx, lz)) = (m.motion.get(p1).unwrap().clone(), line(&m));
+        assert!((mo.kb[0] * lz - mo.kb[2] * lx).abs() > 0.1, "a human's stick: {:?}", mo.kb);
     }
 
     /// ICHIGO-AI-STANCE's pick at the stance's f6, one draw: for each band (him reeling; within 4.2 m, him guarding, then free; to

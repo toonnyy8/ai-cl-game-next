@@ -79,6 +79,16 @@ impl Enc for Strat {
     }
 }
 
+/// `(length *strat-library*)`.
+pub fn strat_library_len(d: &Data) -> usize {
+    arr(d.tables.get("strat_library")).len()
+}
+
+/// `(position id *strat-library* :key (lambda (st) (getf st :id)))`.
+pub fn strat_library_pos(d: &Data, id: &str) -> Option<usize> {
+    arr(d.tables.get("strat_library")).iter().position(|s| s["id"].as_str().is_some_and(|x| x.eq_ignore_ascii_case(id)))
+}
+
 /// port: STRAT-BY-ID — the library entry ID, or NIL.
 pub fn strat_by_id(d: &'static Data, id: &str) -> Option<Strat> {
     arr(d.tables.get("strat_library")).iter().find(|s| s["id"].as_str().is_some_and(|x| x.eq_ignore_ascii_case(id))).map(Strat)
@@ -124,6 +134,9 @@ pub fn cue(feats: &[(&str, Num)], key: &str) -> Num {
 pub struct Now {
     pub st: Strat,
     pub cues: Cues,
+    /// ST stands for IKW-ALT (cpu-ki-ichigo-r2b2a1.lisp IKW-GAP-WATCH): the fresh plist `(:base (:iks-gap-p 0.0 . base) . st)`, ST's
+    /// own entries but `:iks-gap-p` 0.0 first in its :BASE (GETF's first match). Prints as ST does (its :ID is ST's).
+    pub gap_off: bool,
 }
 
 /// TR-B-ENC of the cons `(strategy . cues)` (never in a step-end A line: NOW is NIL there).
@@ -158,6 +171,11 @@ pub fn strat_ante(sets: &FzSets, ante: &Value, feats: &[(&str, Num)]) -> f32 {
 /// port: STRAT-VALUE — ST's output KEY for FEATS: the rules naming KEY averaged by strength, else its :BASE value (an integer stays
 /// one), else NIL.
 pub fn strat_value(sets: &FzSets, st: Strat, key: &str, feats: &[(&str, Num)]) -> Option<Num> {
+    strat_value_of(sets, st, false, key, feats)
+}
+
+/// STRAT-VALUE of ST, or with GAP_OFF of its IKW-ALT plist (`Now::gap_off`: its :BASE starts with `:iks-gap-p 0.0`).
+fn strat_value_of(sets: &FzSets, st: Strat, gap_off: bool, key: &str, feats: &[(&str, Num)]) -> Option<Num> {
     let (mut num, mut den) = (0.0f32, 0.0f32);
     for r in arr(st.get("rules")) {
         if let Some(v) = plist_get(&r[1], key).and_then(num_of) {
@@ -168,12 +186,18 @@ pub fn strat_value(sets: &FzSets, st: Strat, key: &str, feats: &[(&str, Num)]) -
             }
         }
     }
-    if den > 0.0 { Some(Num::F(num / den)) } else { st.get("base").and_then(|b| plist_get(b, key)).and_then(num_of) }
+    if den > 0.0 {
+        Some(Num::F(num / den))
+    } else if gap_off && key == "iks-gap-p" {
+        Some(Num::F(0.0))
+    } else {
+        st.get("base").and_then(|b| plist_get(b, key)).and_then(num_of)
+    }
 }
 
 /// port: STRAT-OUT — the active strategy's KEY now, or DEFAULT (no strategy, or it leaves KEY alone).
 pub fn strat_out(sets: &FzSets, now: Option<&Now>, key: &str, default: Option<Num>) -> Option<Num> {
-    now.and_then(|n| strat_value(sets, n.st, key, n.cues.as_slice())).or(default)
+    now.and_then(|n| strat_value_of(sets, n.st, n.gap_off, key, n.cues.as_slice())).or(default)
 }
 
 /// port: STRAT-SCALE — chance P times the active strategy's scale KEY (none: P), kept within 0-1.

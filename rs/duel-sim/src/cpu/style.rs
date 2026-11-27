@@ -60,7 +60,9 @@ pub fn resolve(name: &str) -> Option<StyleFn> {
 }
 
 /// BRAIN-STYLE: a style's state struct (each style makes its own on a NIL or another type's slot, or a lower tick: a new match).
-/// Every slot is a scalar, so it is `Copy` and a step allocates nothing.
+/// Every slot is a scalar, so it is `Copy` and a step allocates nothing (IKW's CELL holds a NOW and its cues inline: a Box would
+/// allocate).
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum StyleState {
     /// cpu-ki-ken.lisp KKS (KEN-KI-STYLE's).

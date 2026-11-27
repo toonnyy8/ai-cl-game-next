@@ -131,7 +131,7 @@ impl Default for Motion {
 }
 
 /// FIGHTER-KIKON-UNDO (combat.lisp APPLY-HIT): (def react stun sx sz kb wave react stun).
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct KikonUndo {
     pub def: Entity,
     pub react: Phase,
@@ -144,7 +144,7 @@ pub struct KikonUndo {
     pub kstun: i64,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Fighter {
     pub side: i64,
     pub opp: Entity,
@@ -234,6 +234,18 @@ pub struct Fighter {
     pub callout_t: i64,
     /// Not a slot: the BRAIN component (M2; not in the B line, in A).
     pub brain: Option<crate::cpu::Brain>,
+}
+
+/// `clone_from` (a rollout's restore) reuses the brain's heap (`Brain::clone_from`); every other slot is `Copy` (`..*src` checks it).
+impl Clone for Fighter {
+    fn clone(&self) -> Fighter {
+        Fighter { brain: self.brain.clone(), ..*self }
+    }
+    fn clone_from(&mut self, src: &Fighter) {
+        let mut brain = self.brain.take();
+        brain.clone_from(&src.brain);
+        *self = Fighter { brain, ..*src };
+    }
 }
 
 impl Fighter {
@@ -419,14 +431,50 @@ impl Gauges {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Pilot {
     pub vpad: Vpad,
     pub cam_relative: bool,
 }
 
+/// `clone_from` reuses the vpad's Vecs (`Vpad::clone_from`).
+impl Clone for Pilot {
+    fn clone(&self) -> Pilot {
+        Pilot { vpad: self.vpad.clone(), cam_relative: self.cam_relative }
+    }
+    fn clone_from(&mut self, src: &Pilot) {
+        self.vpad.clone_from(&src.vpad);
+        self.cam_relative = src.cam_relative;
+    }
+}
+
+/// `clone_from` reuses the two Vecs (every other slot is `Copy`).
+impl Clone for HitWin {
+    fn clone(&self) -> HitWin {
+        HitWin { vols: self.vols.clone(), flags: self.flags.clone(), ..*self }
+    }
+    fn clone_from(&mut self, src: &HitWin) {
+        let (mut vols, mut flags) = (std::mem::take(&mut self.vols), std::mem::take(&mut self.flags));
+        vols.clone_from(&src.vols);
+        flags.clone_from(&src.flags);
+        *self = HitWin { vols, flags, ..*src };
+    }
+}
+
+/// `clone_from` reuses the hit window's Vecs (`HitWin::clone_from`; every other slot is `Copy`).
+impl Clone for Hazard {
+    fn clone(&self) -> Hazard {
+        Hazard { hw: self.hw.clone(), ..*self }
+    }
+    fn clone_from(&mut self, src: &Hazard) {
+        let mut hw = self.hw.take();
+        hw.clone_from(&src.hw);
+        *self = Hazard { hw, ..*src };
+    }
+}
+
 /// A hazard's runtime HITWIN (kit.lisp, slot order): built by the sim, so GUARD may be a float.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct HitWin {
     pub from: i64,
     pub to: i64,
@@ -446,7 +494,7 @@ pub struct HitWin {
 
 /// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (shared by the clone and its strikes: `Match.iccs[index]`), his
 /// afterimage's `#ICE{…}`, a strike's keyword (`:ECHO`, `:RENZAN`), a look's integer (KAGE-RENZAN's cut number), DELAY-HIT's list.
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum HzData {
     #[default]
     Nil,
@@ -458,7 +506,7 @@ pub enum HzData {
     DelayHit { def: Entity, dmg: i64, n: i64, react: Phase, stun: i64, sx: f32, sz: f32, kb: f32, mv: MoveId, red: bool },
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Hazard {
     pub kind: Option<HazardKind>,
     pub owner: Entity,

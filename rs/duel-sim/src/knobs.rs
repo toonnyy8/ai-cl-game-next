@@ -325,6 +325,30 @@ knobs! {
     mc_budget: KwFloats, // cpu-mcts.lisp
     mc_tau: KwFloats, // cpu-mcts.lisp
     mc_actions: Names, // mcts-lite.lisp
+    // the MCTS's search, its full sim and the strategy layer's rollouts (mcts-lite.lisp, cpu-mcts.lisp, strategy-glue.lisp; M2 Task 8)
+    mc_full: bool, // cpu-mcts.lisp
+    mc_full_lite: KwInts, // cpu-mcts.lisp
+    mc_full_h: i64, // cpu-mcts.lisp
+    mc_iters: KwInts, // cpu-mcts.lisp
+    mc_select_by: Names, // cpu-mcts.lisp (a plist of keywords: GETF)
+    mc_sure: KwFloats, // cpu-mcts.lisp
+    mc_horizon: i64, // mcts-lite.lisp
+    mc_horizon_max: i64, // mcts-lite.lisp
+    mc_wait_busy: bool, // mcts-lite.lisp
+    mc_ucb_c: f32, // mcts-lite.lisp
+    mc_react_p: KwFloats, // mcts-lite.lisp
+    mc_prior: Ints, // mcts-lite.lisp
+    mc_opp_search: bool, // mcts-lite.lisp
+    mc_opp_delay: KwInts, // mcts-lite.lisp
+    mc_outcomes: McOutcomes, // mcts-lite.lisp
+    mc_outcomes_hard: McOutcomes, // mcts-lite.lisp
+    strat_bias_keys: OptNames, // strategy.lisp (MC-EST's bias key per action code)
+    cai_cont_p: KwFloats, // tuning.lisp (MC-SETUP's NS going on)
+    cai_turn_p: KwFloats, // tuning.lisp (MC-SETUP's turn into the SA)
+    strat_c: f32, // strategy.lisp
+    strat_h: i64, // strategy.lisp
+    strat_swing: f32, // strategy.lisp
+    strat_rolls: i64, // strategy.lisp
     strat_layer: bool, // strategy.lisp (NIL; T or a list / seat would fail the load: STRAT-LAYER-P reads it as T)
     // the strategies and their glue (strategy.lisp, strategy-glue.lisp, core-ai.lisp; M2 Task 5)
     strat_table_chance: KwFloats, // tuning.lisp
@@ -768,5 +792,50 @@ impl duel_data::tuning::Knob for KwFloats {
             return None;
         }
         a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), c[1].as_f64()? as f32))).collect::<Option<Vec<_>>>().map(KwFloats)
+    }
+}
+
+/// `*mc-outcomes*` / `*mc-outcomes-hard*`: rows ((character form) 7 values), T written `true` (None here), in their order (ASSOC's
+/// first match).
+#[derive(Debug, Clone, Default)]
+pub struct McOutcomes(pub Vec<(Option<String>, Option<String>, [f32; 7])>);
+
+impl McOutcomes {
+    /// port: mcts-lite.lisp MC-OUTCOMES-OF's lookup in this table: (CHARACTER FORM), else (CHARACTER T), else (T T).
+    pub fn row(&self, character: &str, form: &str) -> [f32; 7] {
+        let is = |x: &Option<String>, n: Option<&str>| match (x, n) {
+            (Some(x), Some(n)) => x.eq_ignore_ascii_case(n),
+            (None, None) => true,
+            _ => false,
+        };
+        let find = |c: Option<&str>, f: Option<&str>| self.0.iter().find(|(a, b, _)| is(a, c) && is(b, f)).map(|r| r.2);
+        find(Some(character), Some(form)).or_else(|| find(Some(character), None)).or_else(|| find(None, None)).expect("a (t t) row")
+    }
+}
+
+impl duel_data::tuning::Knob for McOutcomes {
+    const KIND: &'static str = "a list of ((character form) 7 floats) rows";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<McOutcomes> {
+        let key = |x: &duel_data::tuning::Value| if x.as_bool() == Some(true) { Some(None) } else { x.as_str().map(|s| Some(s.to_string())) };
+        let row = |r: &duel_data::tuning::Value| {
+            let r = r.as_array()?;
+            let (k, vs) = r.split_first()?;
+            let [c, f] = k.as_array()?.as_slice() else { return None };
+            let vs: Vec<f32> = vs.iter().map(|x| x.as_f64().map(|f| f as f32)).collect::<Option<_>>()?;
+            Some((key(c)?, key(f)?, <[f32; 7]>::try_from(vs).ok()?))
+        };
+        v.as_array()?.iter().map(row).collect::<Option<Vec<_>>>().map(McOutcomes)
+    }
+}
+
+/// A list knob of keyword-or-NIL names (`*strat-bias-keys*` `(:b-j1 … nil …)`), lower case as the data.
+#[derive(Debug, Clone, Default)]
+pub struct OptNames(pub Vec<Option<String>>);
+
+impl duel_data::tuning::Knob for OptNames {
+    const KIND: &'static str = "a list of keywords or NIL";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<OptNames> {
+        let name = |x: &duel_data::tuning::Value| if x.is_null() { Some(None) } else { x.as_str().map(|s| Some(s.to_string())) };
+        v.as_array()?.iter().map(name).collect::<Option<Vec<_>>>().map(OptNames)
     }
 }

@@ -281,7 +281,7 @@ mod tests {
         crate::flow::go_title(&mut m);
         m.picks = [Character::Kenpachi, Character::Ichigo];
         m.mode = crate::state::Mode::CpuCpu; // (a human seat's BEGIN-BATTLE needs VIEW-STEP: M2)
-        crate::flow::start_match(&mut m);
+        crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
         m
     }
 
@@ -313,7 +313,7 @@ mod tests {
         crate::flow::go_title(&mut m);
         m.skip_cines = true;
         m.mode = crate::state::Mode::CpuCpu;
-        crate::flow::start_match(&mut m);
+        crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
         assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle)); // *skip-cines*: ended at once, AFTER ran
     }
 }

@@ -83,9 +83,28 @@ impl Entities {
 }
 
 /// One component kind: (handle, component), sorted by slot. Small (a few entities live), so clones stay cheap.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Store<T> {
     items: Vec<(Entity, T)>,
+}
+
+/// A clone keeps the `MAX_ENTITIES` reserve, and `clone_from` (a rollout's restore) reuses each slot's own heap (the entries'
+/// `clone_from`): a snapshot restored into a slot allocates nothing while its capacities hold (the 0 B / step rule).
+impl<T: Clone> Clone for Store<T> {
+    fn clone(&self) -> Self {
+        let mut items = Vec::with_capacity(MAX_ENTITIES.max(self.items.len()));
+        items.extend(self.items.iter().cloned());
+        Store { items }
+    }
+    fn clone_from(&mut self, src: &Self) {
+        self.items.truncate(src.items.len());
+        let n = self.items.len();
+        for (d, s) in self.items.iter_mut().zip(&src.items) {
+            d.0 = s.0;
+            d.1.clone_from(&s.1);
+        }
+        self.items.extend(src.items[n..].iter().cloned());
+    }
 }
 
 impl<T> Default for Store<T> {

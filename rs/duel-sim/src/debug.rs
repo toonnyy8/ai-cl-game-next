@@ -6,21 +6,22 @@ use crate::components::Character::{Ichigo, Kenpachi};
 use crate::components::{Burst, Character, Flow, Form, State};
 use crate::ecs::Entity;
 use crate::gate::{start_cvc, start_pair_gate};
+use crate::cpu::Search;
 use crate::state::{Match, Mode};
 
 /// port: DEBUG-COMMAND (`*stats-log*` / `*learn-debug-off*` are the logs' and the learner's; `*cine-hold*` is never set by
 /// these commands, so clearing it is moot).
-pub fn debug_command(m: &mut Match, c: i64) {
+pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
     m.log_on = true;
     // log-msg: "debug cmd C"
     match c {
         2102 => m.turbo = !m.turbo,
-        3000..=3999 => start_cvc(m, c - 3000, Some([Ichigo, Ichigo])),
-        4000..=4999 => start_cvc(m, c - 4000, Some([Ichigo, Kenpachi])),
-        5000..=5999 => start_cvc(m, c - 5000, Some([Kenpachi, Kenpachi])),
+        3000..=3999 => start_cvc(m, s, c - 3000, Some([Ichigo, Ichigo])),
+        4000..=4999 => start_cvc(m, s, c - 4000, Some([Ichigo, Kenpachi])),
+        5000..=5999 => start_cvc(m, s, c - 5000, Some([Kenpachi, Kenpachi])),
         30000..=30999 => m.gate_seed0 = c - 30000,
         31101..=31199 => m.gate_seeds = c - 31100,
-        200000..=209999 => start_pair_gate(m, c / 100 % 10, c / 10 % 10),
+        200000..=209999 => start_pair_gate(m, s, c / 100 % 10, c / 10 % 10),
         // ponytail: leaked once per run, on the path that stops it
         _ => crate::unported!(m, Box::leak(format!("debug {c}").into_boxed_str())),
     }
@@ -30,14 +31,14 @@ pub fn debug_command(m: &mut Match, c: i64) {
 
 /// port: ENSURE-BATTLE with `:cpu t` (the only form a trace records): a CPU vs CPU battle of C1 and C2, cinematics skipped into the
 /// fight, unless one of exactly those is already in battle; both brains on (BRAIN-OFF NIL).
-pub fn ensure_battle(m: &mut Match, c1: Character, c2: Character) {
+pub fn ensure_battle(m: &mut Match, s: &mut Search, c1: Character, c2: Character) {
     let ch = |e: Entity| m.fighter.get(e).and_then(|f| f.character);
     if m.flow == Flow::Battle && ch(m.p1) == Some(c1) && ch(m.p2) == Some(c2) {
         return;
     }
     (m.picks, m.mode) = ([c1, c2], Mode::CpuCpu);
     let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
-    crate::flow::start_match(m);
+    crate::flow::start_match(m, s);
     m.skip_cines = skip;
     for e in [m.p2, m.p1] {
         if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {

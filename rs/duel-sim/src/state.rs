@@ -26,7 +26,6 @@ pub enum Winner {
     Draw,
 }
 
-#[derive(Clone)]
 pub struct Match {
     pub ents: Entities,
     pub transform: Store<Transform>,
@@ -114,7 +113,46 @@ pub struct Match {
     pub gate_difficulty: crate::components::Difficulty,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
     pub stubs: Vec<String>,
+    /// rollout.lisp `*in-rollout*` (WITH-ROLLOUT's binding: only a rollout's scratch match holds T; the live one is never touched by
+    /// a rollout, so the binding's undo is free).
+    pub in_rollout: bool,
+    /// MC-FULL-ROLLOUT's `(*cai-styles* nil)`: no matchup style by `*cai-styles*` in this rollout (SIM-ROLLOUT keeps them).
+    pub styles_off: bool,
 }
+
+/// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
+/// a snapshot slot grows it in a battle step.
+pub const ICC_RESERVE: usize = 1024;
+
+/// Match's fields for its `Clone`: every field but `knobs` is restored by `clone_from` (a rollout's restore, field-wise: each keeps
+/// its heap, so a restore into a used slot allocates nothing while the capacities hold). `knobs` is configuration, written only by
+/// `Match::new` (no other writer: Lisp's knobs are no snapshot roots either), so `clone_from` leaves the slot's own copy. The
+/// destructuring has no `..`: a new field must be listed here.
+macro_rules! match_clone {
+    ($($f:ident),* $(,)?) => {
+        impl Clone for Match {
+            fn clone(&self) -> Match {
+                let Match { knobs, $($f),* } = self;
+                let mut c = Match { knobs: knobs.clone(), $($f: $f.clone()),* };
+                // (Vec::clone is tight: keep the reserves, so a restore into this copy does not grow them)
+                c.iccs.reserve_exact(self.iccs.capacity() - c.iccs.len());
+                c.hz_dead.reserve_exact(self.hz_dead.capacity() - c.hz_dead.len());
+                c
+            }
+            fn clone_from(&mut self, src: &Match) {
+                let Match { knobs: _, $($f),* } = src;
+                $(self.$f.clone_from($f);)*
+            }
+        }
+    };
+}
+
+match_clone!(
+    ents, transform, motion, fighter, gauges, pilot, hazard, ics, p1, p2, rng, time, match_tick, flow, timer, winner, slow_acc, cine,
+    cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
+    gate_results, gate_busy, gate_seed0, gate_seeds, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
+    pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off,
+);
 
 impl Match {
     pub fn new(data: &'static Data) -> Match {
@@ -172,8 +210,8 @@ impl Match {
             kikons: Default::default(),
             soul_breaks: Default::default(),
             hz_keep: false,
-            hz_dead: Vec::new(),
-            iccs: Vec::new(),
+            hz_dead: Vec::with_capacity(crate::consts::MAX_ENTITIES),
+            iccs: Vec::with_capacity(ICC_RESERVE),
             pacing_log: false,
             unported: None,
             stubs: Vec::new(),
@@ -181,6 +219,8 @@ impl Match {
             mc_next: [0; 2],
             difficulty: crate::components::Difficulty::Normal,
             gate_difficulty: crate::components::Difficulty::Normal,
+            in_rollout: false,
+            styles_off: false,
         }
     }
 

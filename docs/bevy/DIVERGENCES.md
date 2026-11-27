@@ -7,7 +7,7 @@ lists those bugs, and separately the places where the port knowingly differs fro
 
 **None found in M1** (the sim core, Kenpachi, Ichigo; checked 2026-11-27 against the Task 1-14 reports and reviews, and the port's
 comments). Every quirk the M1 tasks met is either intended by the Lisp or invisible to play. They are kept bit for bit and listed here
-so nobody "fixes" them by accident:
+so nobody "fixes" them by accident. **M2 found one real bug**, MC-SEARCH's UCB macro (its row below):
 
 | Where | What the Lisp does | Why it is kept, not a bug |
 |---|---|---|
@@ -15,6 +15,7 @@ so nobody "fixes" them by accident:
 | hazards.lisp HAZARD-CONNECTED during HIT-APPLY (`Match.hz_dead`, hazards.rs 289) | writes a hazard's struct after DESTROY-ENTITY took it (PENDING holds the struct) | the struct is unreachable after its hit; nothing reads the write |
 | tools/simgate/trial.lisp `:p2-reishi` / `:p1-reishi` (`cl::Num`) | writes `(f32 x)` into the fixnum Reishi slot, so Reishi becomes a float and flows through CL contagion | the trial runner's, not the game's; a real match never has a float Reishi. The port carries `Num` so trial traces replay. A float damage / time-up under a float Reishi is `unported!` (unreached) |
 | tuning.lisp `*stun-blow-away*` NIL | the hidden stun still adds and decays but never blows anyone away | the user's ruling (DEVLOG §173); the docstring says so |
+| mcts-lite.lisp MC-SEARCH's UCB macro (`cpu/mcts_lite.rs` `Lite::search`; found in M2 Task 8) | the macro's `(dotimes (a 10) …)` captures the caller's `a`: the tree's second level is called with BASE `(* 10 a)`, which is evaluated inside that loop, so the opponent's reply B is scored from `n2` / `sum2` at index 11 B (the reply's own diagonal) instead of 10 A + B, while the update after the rollout writes 10 A + B | a bug (the intended row is A's), but every recorded match plays it: ported as is (the closure's BASE is a function of the loop variable); without it cvc-ii-s1's first job picks another second action at step 325. Decoupled UCT (HARD's `:duct`, BASE 0) is unaffected. For the user to rule on after parity |
 | dead branches (RUN-STEP's guard branch, TSUKI-STEP's `(dash :tsuki-step)` clause, MOVE-COMMANDS' `:kikon` / `:f` / `:sig` / `:sp1` / `:sp2` clauses, the echo window's test for an existing `:blade`) | code no live data reaches | ported where cheap, or dropped with a comment; no behaviour either way |
 
 ## 2. Port differences on paths no trace reaches

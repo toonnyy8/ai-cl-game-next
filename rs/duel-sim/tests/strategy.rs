@@ -60,7 +60,7 @@ fn qs(fq: &Value) -> Vec<Vec<f32>> {
 fn now(st: Strat, feats: &[(&'static str, Num)]) -> Now {
     let mut cues = Cues::default();
     feats.iter().for_each(|&(k, v)| cues.push(k, v));
-    Now { st, cues }
+    Now { st, cues, gap_off: false }
 }
 fn unit() -> i64 {
     k().fq_unit

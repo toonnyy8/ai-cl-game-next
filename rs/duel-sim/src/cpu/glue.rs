@@ -22,7 +22,7 @@ use super::perceive::Snap;
 use super::strategy::{self, Cues, Strat};
 use super::style::{self, StyleFn, StyleId};
 use super::{Brain, Search, StratJob, Won};
-use crate::cl::{floor_div, Num};
+use crate::cl::{floor_div, max_f32, min_f32, Num};
 use crate::components::{Form, State};
 use crate::core::core_clamp_pointer;
 use crate::ecs::Entity;
@@ -221,8 +221,9 @@ pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f
         let feats = judge_feats(m, e, s, d, sw, b.sw_sub);
         // (*strat-judge-hook*: a tool's, NIL in the game)
         let judged = strategy::strat_judge(&m.knobs.fz_sets, sw, feats.as_slice());
-        // rollout: (not *in-rollout*). The online fuzzy Q's exploration and record (FQ-EXPLORE, FQ-NOTE) when the brain learns: Task 9.
+        // (the online fuzzy Q's exploration and record, FQ-EXPLORE / FQ-NOTE, outside rollouts when the brain learns: Task 9)
         if fq.is_some()
+            && !m.in_rollout
             && let Some(x) = b.fql
         {
             match x {}
@@ -261,19 +262,23 @@ pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f
         b.sw_fn = Some(fid);
     }
     b.sw_sub = sub;
-    // rollout: (unless *in-rollout* ...): the counts
-    let n = if fq.is_some() { arms.len() } else { sw.get("switch").and_then(Value::as_array).map_or(0, |a| a.len()) };
-    let won = b.sw_won.get_or_insert_with(|| Won::new(n));
-    b.sw_n += 1;
-    if i >= 0 {
-        won.v[i as usize] += 1;
+    if !m.in_rollout {
+        // (the counts: outside rollouts only)
+        let n = if fq.is_some() { arms.len() } else { sw.get("switch").and_then(Value::as_array).map_or(0, |a| a.len()) };
+        let won = b.sw_won.get_or_insert_with(|| Won::new(n));
+        b.sw_n += 1;
+        if i >= 0 {
+            won.v[i as usize] += 1;
+        }
     }
     b.sw_sub
 }
 
 /// port: core-ai.lisp CAI-STYLE-FN — E's matchup style against his opponent (`*cai-styles*`), or NIL.
 pub fn cai_style_fn(m: &Match, e: Entity) -> Option<StyleId> {
-    // rollout: MC-FULL-ROLLOUT binds *cai-styles* to NIL (Task 8)
+    if m.styles_off {
+        return None; // (MC-FULL-ROLLOUT binds *cai-styles* to NIL)
+    }
     let f = fighter(m, e);
     m.knobs.cai_styles.get(f.character?, fighter(m, f.opp).character?)
 }
@@ -285,12 +290,13 @@ pub fn strat_event_step(m: &Match, b: &mut Brain, s: &Snap, sw: Strat) -> Option
     let fq = sw.fq().expect("a Q selector");
     let (on, last) = strategy::strat_event_arm(fq, s.state, m.match_tick, b.ev_t, b.delay, m.knobs.strat_event_grace);
     b.ev_t = last;
-    // rollout: (unless *in-rollout* ...)
-    if on.is_some() && b.ev_on.is_none() {
-        b.ev_n += 1;
-    }
-    if on.is_some() {
-        b.ev_steps += 1;
+    if !m.in_rollout {
+        if on.is_some() && b.ev_on.is_none() {
+            b.ev_n += 1;
+        }
+        if on.is_some() {
+            b.ev_steps += 1;
+        }
     }
     b.ev_on = on.map(Strat);
     b.ev_on
@@ -353,16 +359,15 @@ pub fn strat_request(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, sn
         let a = strategy::strat_final(&sums, &ns, &prior, k.strat_lambda.get_or(dif.name(), 0.35));
         brain_set_strat(b, mine.get(a).copied());
     }
-    s.strat_jobs.push(StratJob { e, side, dif, mine, his, prior, sums, ns, hsums, hns, hprior, n: 0 });
+    s.strat_jobs.push(StratJob { e, side, dif, mine, his, prior, sums, ns, hsums, hns, hprior, n: 0, snap: None, rng: 0 });
     s.strat_stats[0] += 1;
 }
 
 /// port: STRAT-LAYER-STEP — in CORE-BRAIN-STEP, outside rollouts: a selection when he is free and one is due (the period is over, or he
 /// comes back to neutral after *strat-regain* steps out of it) and none of his is running.
 pub fn strat_layer_step(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: &Snap, d: f32) {
-    // rollout: (not *in-rollout*)
     let f = fighter(m, e);
-    if !(strat_layer_p(m) && matches!(f.state, State::Idle | State::Run)) {
+    if !(strat_layer_p(m) && !m.in_rollout && matches!(f.state, State::Idle | State::Run)) {
         return;
     }
     let side = f.side;
@@ -374,7 +379,61 @@ pub fn strat_layer_step(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain,
     b.st_free = t;
 }
 
-/// port: STRAT-FULL-STEP — one rollout of the oldest selection (MC-FULL-STEP's, when no action rollout is due): Task 8.
-pub fn strat_full_step(m: &mut Match) {
-    crate::unported!(m, "strat-full-step")
+/// port: STRAT-ROLL — the oldest selection's next rollout from its snapshot: both arms by their PUCT, both CPUs on them (a stand-in
+/// brain for a brainless opponent), `*strat-h*` lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing.
+pub fn strat_roll(s: &mut Search, live_tick: i64) -> (usize, usize, f32) {
+    let j = &s.strat_jobs[0];
+    let c = j.snap.as_ref().expect("a selection's snapshot").0.knobs.strat_c;
+    let (e, dif, rng) = (j.e, j.dif, j.rng);
+    let i = strategy::strat_puct(&j.sums, &j.ns, &j.prior, c);
+    let k = strategy::strat_puct(&j.hsums, &j.hns, &j.hprior, c);
+    let (mine, his) = (j.mine[i], j.his[k]);
+    let snap = s.strat_jobs[0].snap.take().unwrap();
+    let (mut sc, o) = super::mcts::rollout_start(s, &snap.0, rng, e, dif);
+    s.strat_jobs[0].snap = Some(snap);
+    let r = &mut *sc.0;
+    for (x, st) in [(e, mine), (o, his)] {
+        brain_set_strat(r.fighter.get_mut(x).unwrap().brain.as_mut().expect("a brain"), Some(st));
+    }
+    let (h, swing) = (r.knobs.strat_h, r.knobs.strat_swing);
+    let sw = super::mcts::mc_full_rollout(r, s, e, o, h, dif, false);
+    super::mcts::rollout_end(s, sc, live_tick);
+    (i, k, max_f32(0.0, min_f32(1.0, 0.5 + sw / (2.0 * swing))))
+}
+
+/// port: STRAT-FULL-STEP — one rollout of the oldest selection (MC-FULL-STEP, when no action rollout is due); its first takes the
+/// live state as its start. After `*strat-rolls*` the pick goes into his brain (the live one: the rollout never touched it).
+pub fn strat_full_step(m: &mut Match, s: &mut Search) {
+    if !super::mcts::sim_snapshot_ok_p(m) {
+        s.drop_strat_jobs(); // (a cinematic, the match's end: asked again on coming back)
+        return;
+    }
+    let t0 = (s.clock)();
+    if s.strat_jobs[0].snap.is_none() {
+        let slot = s.snapshot(m);
+        (s.strat_jobs[0].snap, s.strat_jobs[0].rng) = (Some(slot), m.rng.state());
+    }
+    let (i, k, v) = strat_roll(s, m.match_tick);
+    s.strat_stats[1] += 1;
+    let j = &mut s.strat_jobs[0];
+    j.sums[i] += v;
+    j.ns[i] += 1.0;
+    j.hsums[k] += 1.0 - v;
+    j.hns[k] += 1.0;
+    j.n += 1;
+    if j.n >= m.knobs.strat_rolls {
+        let j = s.strat_jobs.remove(0);
+        let a = strategy::strat_final(&j.sums, &j.ns, &j.prior, m.knobs.strat_lambda.get_or(j.dif.name(), 0.35));
+        let d = m.data;
+        if let Some(b) = m.fighter.get_mut(j.e).and_then(|f| f.brain.as_mut()) {
+            brain_set_strat(b, j.mine.get(a).copied());
+            let id = b.strat.and_then(|st| st.id()).expect("a library strategy");
+            let pos = strategy::strat_library_pos(d, id).expect("in the library");
+            s.strat_picks[strategy::strat_library_len(d) * j.side as usize + pos] += 1;
+        }
+        s.give_back(j.snap);
+    }
+    let dt = (s.clock)().saturating_sub(t0) as i64;
+    s.strat_stats[2] += dt;
+    s.strat_stats[3] = s.strat_stats[3].max(dt);
 }

@@ -21,7 +21,7 @@ fn move_id(m: &Match, name: &str) -> MoveId {
 fn ki_battle() -> Match {
     let mut m = Match::new(data());
     duel_sim::flow::go_title(&mut m);
-    duel_sim::gate::start_cvc(&mut m, 1, Some([Character::Kenpachi, Character::Ichigo]));
+    duel_sim::gate::start_cvc(&mut m, &mut duel_sim::cpu::Search::new(), 1, Some([Character::Kenpachi, Character::Ichigo]));
     m
 }
 
@@ -327,12 +327,12 @@ fn mc_plan_apply_picks_and_clears() {
 }
 
 /// The generic CPU with no strategy (every brain's BRAIN-STRAT cleared) in a Kenpachi mirror (no matchup style): it plays its
-/// neutral until the MCTS neutral's search, which is Task 8's, and never panics on the way.
+/// neutral and the MCTS neutral's search and full-sim jobs (Task 8), never reaching an unported path.
 #[test]
-fn generic_cpu_runs_to_the_mcts() {
+fn generic_cpu_runs_the_mcts() {
     let mut m = Match::new(data());
     duel_sim::flow::go_title(&mut m);
-    duel_sim::gate::start_cvc(&mut m, 2, Some([Character::Kenpachi, Character::Kenpachi]));
+    duel_sim::gate::start_cvc(&mut m, &mut duel_sim::cpu::Search::new(), 2, Some([Character::Kenpachi, Character::Kenpachi]));
     let s = &mut Search::new();
     for _ in 0..300 {
         duel_sim::flow::sim_step(&mut m, s, &mut Null);
@@ -345,8 +345,8 @@ fn generic_cpu_runs_to_the_mcts() {
         duel_sim::flow::sim_step(&mut m, s, &mut Null);
         n += 1;
     }
-    assert_eq!(m.unported, Some("mc-neutral"));
-    assert!(n > 1, "it walked in first ({n} steps)");
+    assert_eq!((m.unported, n), (None, 2000));
+    assert!(s.mc_stats[0] > 0 && s.mc_stats[1] > 0, "decisions and rollouts: {:?}", s.mc_stats);
 }
 
 

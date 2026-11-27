@@ -58,7 +58,20 @@ pub enum Weight {
 
 /// port: ICC, a clone's state (slot order; printed `#ICC{…}`). `queued` holds the presses waiting for its next links (nothing pushes
 /// them under the core system: the press answers left 2026-10-27); `rq` the moves of his it will replay, (tick move mult).
-#[derive(Clone, Debug, PartialEq)]
+/// `clone_from` (a rollout's restore) reuses the two Vecs (every other slot is `Copy`).
+impl Clone for Icc {
+    fn clone(&self) -> Icc {
+        Icc { queued: self.queued.clone(), rq: self.rq.clone(), ..*self }
+    }
+    fn clone_from(&mut self, src: &Icc) {
+        let (mut queued, mut rq) = (std::mem::take(&mut self.queued), std::mem::take(&mut self.rq));
+        queued.clone_from(&src.queued);
+        rq.clone_from(&src.rq);
+        *self = Icc { queued, rq, ..*src };
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Icc {
     pub state: IccState,
     pub born: i64,

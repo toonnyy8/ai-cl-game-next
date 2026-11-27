@@ -130,9 +130,13 @@ impl KitTable {
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {
     &m.data.moves[id.0 as usize]
 }
-/// The MoveId of a move of the data (kit.rs readers return `&Move`). ponytail: a scan over 549 moves per move start; index if hot.
+/// The MoveId of a move of the data (kit.rs readers return `&Move`): its index in `data.moves` from its address (O(1); the
+/// rollouts multiply the calls, M1 §10).
 pub fn id_of(m: &Match, x: &Move) -> MoveId {
-    MoveId(m.data.moves.iter().position(|y| std::ptr::eq(x, y)).expect("a move of the data") as u16)
+    let ms = &m.data.moves;
+    let p = x as *const Move;
+    assert!(ms.as_ptr_range().contains(&p), "a move of the data");
+    MoveId(((p as usize - ms.as_ptr() as usize) / std::mem::size_of::<Move>()) as u16)
 }
 /// port: CURRENT-MOVE: F's move while his state is :move.
 pub fn current_move(f: &Fighter) -> Option<MoveId> {

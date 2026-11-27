@@ -11,7 +11,7 @@ use duel_sim::state::Match;
 use duel_sim::vpad::Vpad;
 
 /// port: trace.lisp TR-APPLY-EVENT: one E line's WORDS (after `E`), applied now (the grammar: trace.lisp's header).
-pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
+pub fn apply_event(m: &mut Match, srch: &mut Search, words: &[String]) -> Result<(), String> {
     let w = |i: usize| words.get(i).map(String::as_str).ok_or(format!("E {}: too few words", words.join(" ")));
     let val = |i: usize| LispValue::parse(w(i)?);
     // port: TR-ENTITY: 0 is P1, any other integer P2
@@ -26,7 +26,7 @@ pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
             };
             debug::set_field(m, s, w(2)?, &val(3)?)?
         }
-        "battle" => debug::ensure_battle(m, ch(1)?, ch(2)?),
+        "battle" => debug::ensure_battle(m, srch, ch(1)?, ch(2)?),
         "form" => {
             let (e, f) = (side(m, 1)?, Form::from_name(&kw(2)?).ok_or(format!("E {}: no form", words.join(" ")))?);
             debug::force_form(m, e, f)
@@ -54,7 +54,7 @@ pub fn apply_event(m: &mut Match, words: &[String]) -> Result<(), String> {
             debug::full_gauges(m, e, meter)
         }
         // (between frames, as the trial ran it: not queued for the next frame's start)
-        "cmd" => debug::debug_command(m, val(1)?.int()?),
+        "cmd" => debug::debug_command(m, srch, val(1)?.int()?),
         "core-start" => {
             let e = side(m, 1)?;
             let key = kw(2)?.to_lowercase();
@@ -373,6 +373,14 @@ impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
         None
     }
 
+    /// A CPU rollout (MC-FULL-STEP's, at the last step's end) cut short by an `unported!` path: its value was wrong, so the run is
+    /// UNPORTED (never OK, as a `--snap` rollout's cut).
+    fn check_cut(&mut self, s: &Search) {
+        if let (None, Some((name, tick))) = (&self.out, s.cut) {
+            self.out = Some(Outcome::Unported(format!("{name} in a rollout from tick {tick} (step {})", self.steps)));
+        }
+    }
+
     /// An `unported!` hit outside a step (a debug command, a gate between matches): UNPORTED at the step due.
     fn check_unported(&mut self, m: &Match) {
         if let (None, Some(n)) = (&self.out, m.unported) {
@@ -469,6 +477,7 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
     fn step_end(&mut self, m: &mut Match, s: &mut Search) {
         let (t_done, c_got) = (std::mem::take(&mut self.t_done), std::mem::take(&mut self.c_got));
         self.pre = None;
+        self.check_cut(s);
         if self.out.is_some() {
             return;
         }
@@ -660,7 +669,7 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
                     // port: RP-DRIVE's :event: what the action prints must equal its e lines
                     rp.items += 1;
                     m.log.clear();
-                    if let Err(e) = apply_event(m, &words) {
+                    if let Err(e) = apply_event(m, s, &words) {
                         return Outcome::Error(e);
                     }
                     rp.check_unported(m);
@@ -680,6 +689,7 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
                     rp.advance();
                     flow::frame(m, s, rp);
                     rp.check_unported(m);
+                    rp.check_cut(s);
                 }
                 Some(step) => {
                     rp.cur = Some(step);
@@ -705,6 +715,7 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
             return Outcome::Error("the frame stopped".into());
         }
         rp.check_unported(m);
+        rp.check_cut(s);
         if let Some(out) = rp.out.take() {
             return out;
         }
@@ -721,33 +732,15 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
     Outcome::Error("no end after 2000000 frames".into())
 }
 
-/// A pilot input that reads nothing (the vpads keep what they hold) and counts the steps.
-struct Null(u32);
-impl PilotInput for Null {
-    fn read(&mut self, _m: &mut Match, _side: usize) {}
-    fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {
-        self.0 += 1;
-    }
-}
-
-/// `--snap`'s rollout (tools/simgate/snaptest.lisp's idea): clone the match, reseed the sim stream as snaptest does, play 40 sim steps on
-/// the live match with the vpads as they are, then restore the clone. The replay must stay OK: the clone holds the whole sim state.
-/// Returns the `unported!` path the rollout reached, if any, and keeps it in the restored match's `unported` (the restore would
-/// otherwise forget it). The restore is a full replacement and duel-sim holds no Rc / RefCell / Cell / Arc or statics, so it cannot
-/// leak by construction: what a pass proves is that 40 reseeded steps from each snapshot reach no panic and no `unported!`. The search
-/// S is the live one (Lisp's: a rollout never restores it).
+/// `--snap`'s rollout (tools/simgate/snaptest.lisp's: SIM-ROLLOUT, the styles kept, every log off, cinematics skipped): a scratch copy
+/// of the match, its sim stream reseeded as snaptest does, 40 lean steps on the vpads as they are; the live match is never touched
+/// (Lisp's restore). Returns the `unported!` path the rollout reached, if any, and keeps it in the live match's `unported` (a run with
+/// a cut rollout is never OK). The search S is the live one: inside a rollout nothing writes it (`*in-rollout*`'s guards).
 fn snap_rollout(m: &mut Match, s: &mut Search) -> Option<&'static str> {
-    let saved = m.clone();
-    m.rng.set_state((m.rng.state() ^ 0x5BD1_E995) | 1);
-    let mut n = Null(0);
-    for _ in 0..40 {
-        if !flow::sim_running_p(m) || m.unported.is_some() {
-            break;
-        }
-        flow::sim_step(m, s, &mut n); // (steps, not frames: a turbo frame is 120 steps)
-    }
-    let cut = m.unported;
-    *m = saved;
+    let mut r = m.clone();
+    r.rng.set_state((r.rng.state() ^ 0x5BD1_E995) | 1);
+    duel_sim::cpu::mcts::sim_rollout(&mut r, s, 40);
+    let cut = r.unported;
     m.unported = m.unported.or(cut);
     cut
 }
@@ -1001,6 +994,61 @@ mod tests {
         assert_eq!(allocs, 0, "allocations in {steps} battle steps");
     }
 
+    /// The 0 B / step rule with both CPUs thinking (M2 Task 8): cvc-ki-s1's and cvc-ii-s1's commands run live (no reader, the combat
+    /// log off), counted over every frame that starts and ends in the battle. MC-FULL-STEP's share (from a step's `step_end` to the next
+    /// step's first read: the snapshots into the preallocated slots by `clone_from`, the rollouts on the scratch match) is pinned: 0 in
+    /// KI; 4 in II, two copies (a slot, then the scratch) of an Ichigo clone whose replay queue (`Icc.rq`, a Vec) the slot never held,
+    /// twice. The rest is M1's known Ichigo clone events (M1_NOTES §5: Vec fields of `Icc` / `HitWin`); both go with fixed-capacity
+    /// fields.
+    #[test]
+    fn live_allocs() {
+        struct Count {
+            mark: Option<u64>,
+            mc: u64,
+        }
+        impl Count {
+            fn settle(&mut self) {
+                if let Some(k) = self.mark.take() {
+                    self.mc += crate::alloc_count::count() - k;
+                }
+            }
+        }
+        impl PilotInput for Count {
+            fn read(&mut self, _m: &mut Match, _side: usize) {
+                self.settle();
+            }
+            fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {
+                self.settle();
+                self.mark = Some(crate::alloc_count::count());
+            }
+        }
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        for (name, cmd) in [("cvc-ki-s1", 200130), ("cvc-ii-s1", 200330)] {
+            let mut m = Match::new(data);
+            flow::go_title(&mut m);
+            m.cmds.extend([30000, 31101, cmd]);
+            let s = &mut Search::new();
+            let mut c = Count { mark: None, mc: 0 };
+            let (mut allocs, mut steps, mut mc) = (0, 0, 0);
+            for _ in 0..200_000 {
+                let (a0, m0, t0, before) = (crate::alloc_count::count(), c.mc, m.match_tick, flow::battle_p(&m));
+                flow::frame(&mut m, s, &mut c);
+                c.settle();
+                if before && flow::battle_p(&m) && !m.log_on {
+                    (allocs, steps, mc) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0), mc + c.mc - m0);
+                }
+                if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+                    break;
+                }
+            }
+            assert_eq!(m.unported, None);
+            eprintln!("live_allocs {name}: {allocs} allocations in {steps} battle steps, MC-FULL-STEP's {mc}; {} decisions, {} rollouts",
+                      s.mc_stats[0], s.mc_stats[1]);
+            assert!(s.mc_stats[1] > 0 && steps > 10_000, "{name} {:?} {steps}", s.mc_stats);
+            assert_eq!(mc, if name == "cvc-ki-s1" { 0 } else { 4 }, "{name}: MC-FULL-STEP's allocations");
+        }
+    }
+
     /// `E core-start`, `E cmd`, `E skip-cine` (a recorded trial, rs/duel-tools/tests/fixtures/core-start-cmd.*): P2 starts KE-Z-AS1
     /// through CORE-START! (its move and SP log lines, then its hit, compared step by step), a debug command between frames; the
     /// skip-cine line was added by hand (no cinematic runs there: ECL's replay.lisp passes the same file). Without the core-start
@@ -1024,7 +1072,7 @@ mod tests {
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         let mut m = Match::new(data);
         flow::go_title(&mut m);
-        debug::ensure_battle(&mut m, Character::Hisagi, Character::Kenpachi);
+        debug::ensure_battle(&mut m, &mut Search::new(), Character::Hisagi, Character::Kenpachi);
         assert!(flow::sim_running_p(&m) && m.unported.is_none());
         let tick = m.match_tick;
         let cut = snap_rollout(&mut m, &mut Search::new());
@@ -1069,19 +1117,32 @@ mod tests {
         assert_eq!(report(&o, &r), (vec!["replay: --inject-side needs a vs trace, this one is S cmds".to_string()], 3));
     }
 
-    /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / C / H / B equal from the intro (A: the brains' first
-    /// state, the strategies from STRAT-LOOKUP) through both styles (Kenpachi's, Task 6; Ichigo's, Task 7) until the MCTS's first search
-    /// (MC-SETUP: Task 8) at step 812.
+    /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / C / H / B equal from the intro to the end: both styles
+    /// (Kenpachi's, Task 6; Ichigo's, Task 7), the MCTS's searches and its full-sim jobs (Task 8; the first at step 826, MC-SETUP's NIL
+    /// before it at step 812), the A line's job sections included.
     #[test]
-    fn live_ki_s1_reaches_the_mcts() {
+    fn live_ki_s1_replays_whole() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         // (--inject-plan reads one step record ahead each step: the order of the records must not change)
-        for flags in ["--live", "--live --inject-plan"] {
+        for flags in ["--live", "--live --inject-plan", "--live --snap 40"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED mc-neutral at tick 512 (step 812)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay OK 21368 ticks", "{flags}");
         }
+    }
+
+    /// A CPU rollout cut short by an `unported!` path (`Search.cut`, MC-FULL-STEP's after the last step) fails the run at the next
+    /// step's end, as UNPORTED naming it (never OK: its value was wrong).
+    #[test]
+    fn cut_rollout_fails_the_run() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let mut m = Match::new(data);
+        let s = &mut Search::new();
+        s.cut = Some(("hs-min-reach", 812));
+        let mut rp = bare_replayer(true);
+        rp.step_end(&mut m, s);
+        assert!(matches!(&rp.out, Some(Outcome::Unported(x)) if x == "hs-min-reach in a rollout from tick 812 (step 0)"));
     }
 
     /// `--live cvc-kk-s1`: both Kenpachi CPUs think for the whole match (the strategies, their event arm and :KEEP-STATE swaps, the
@@ -1136,7 +1197,7 @@ mod tests {
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         let mut m = Match::new(data);
         flow::go_title(&mut m);
-        duel_sim::gate::start_cvc(&mut m, 1, Some([duel_sim::components::Character::Kenpachi, duel_sim::components::Character::Ichigo]));
+        duel_sim::gate::start_cvc(&mut m, &mut Search::new(), 1, Some([duel_sim::components::Character::Kenpachi, duel_sim::components::Character::Ichigo]));
         let s = &mut Search::new();
         let mut rp = bare_replayer(true);
         m.log = vec!["[     1] a frame line".into()];
@@ -1211,7 +1272,7 @@ mod tests {
                 m.unported = None;
                 let p2 = m.p2;
                 if m.fighter.get(p2).unwrap().brain.as_ref().unwrap().sw_t < 0 {
-                    duel_sim::cpu::core_ai::core_brain_step(&mut m, s, &mut Null(0), p2); // (P1 stopped: P2's step, to its style)
+                    duel_sim::cpu::core_ai::core_brain_step(&mut m, s, &mut duel_sim::flow::NoInput, p2); // (P1 stopped: P2's step, to its style)
                 }
             }
             let got = duel_sim::cpu::a_line(&m, s);

@@ -392,3 +392,67 @@ Updated:
 - `live_first_step_matches_the_key` compares every brain slot of both sides at step 301 on all 15 traces.
 - tests/cpu.rs `brain_read_fires_inside_brain_system` expects no stop.
 - `first_perceive_fills_the_ring` reads his position before the step that now moves him.
+
+## 7. The light model, the full-sim MCTS and the strategy rollouts (Task 8)
+
+`cpu/mcts_lite.rs` ports mcts-lite.lisp: `Lite` holds the light model's specials (`*mc-f*` `*mc-i*` `*mc-slots*` `*mc-vals*` `*mc-g*`
+`*mc-w*` `*mc-n*` …) and is made afresh on the stack for each search, so none of it is CPU state (§1). `mc_move_rec` builds a record per
+call (no `*mc-recs*` cache: a pure function of the move). `cpu/mcts.rs` ports the rest of cpu-mcts.lisp (MC-SETUP, MC-NEUTRAL past its
+guard, MC-FULL-REQUEST, MC-FULL-STEP / -ROLL / -ROLLOUT / -CONTACT / -HEALTH / -RESET), rollout.lisp (`with_rollout`) and sim-state.lisp
+(`sim_snapshot_ok_p`, `sim_rollout`; `flow::sim_step_lean`). `glue::strat_roll` / `strat_full_step` port STRAT-ROLL / STRAT-FULL-STEP
+(ruling R4: host test only, `strat_full_step_picks_after_its_rolls`). MC-NEUTRAL now takes the SNAP and returns NIL on MC-SETUP's
+`(t nil)` states (:air / :down / :wakeup …), Task 7's four stops.
+
+**The snapshot boundary, as built.** A job's snapshot is a `cpu::Slot` (a boxed `Match`) taken from `Search.pool` and written with
+`clone_from`; a rollout restores it into `Search.scratch` and plays there. The live match is never touched by a rollout, so Lisp's
+`(sim-restore live)` after it has nothing to undo, and WITH-ROLLOUT's bindings are fields of the scratch match only: `Match.in_rollout`
+(`*in-rollout*`), `Match.styles_off` (MC-FULL-ROLLOUT's `(*cai-styles* nil)`), `log_on`, `pacing_log` (M1 §10's carry), `skip_cines`.
+What a rollout writes into `Search` (the job's two scores) stays, as in Lisp; a stand-in brain for a brainless opponent is added to the
+scratch and vanishes with its next restore; `strat_full_step` writes the pick into the live brain. Two jobs made in one step each take
+their own slot of the same state (Lisp shares one snapshot object; no rollout writes a snapshot, so it is the same). Every `*in-rollout*`
+reader is ported: MC-NEUTRAL, MC-FULL-STEP, GO-RESULTS (a rollout's K.O. stops at :finish), STRAT-LAYER-STEP, STRAT-SWITCH-STEP's counts,
+STRAT-EVENT-STEP's counts, the online learner's guard (Task 9). `Match`'s `Clone` is hand-written (`match_clone!`, an exhaustive
+destructuring): `clone_from` restores every field but `knobs` (configuration, written only by `Match::new`), and every component with a
+heap field restores in place (`Store`, `Fighter` / `Brain`, `Pilot` / `Vpad`, `Hazard` / `HitWin`, `Icc`; the rest are `Copy`, which the
+`..*src` updates check). A clone keeps `Store`'s `MAX_ENTITIES`, the brain's JSTARTS / SW-KEEP reserves and `iccs`' `ICC_RESERVE` (1024).
+`Search::warm` (end of START-MATCH) makes `cpu::POOL` = 4 slots and the scratch, outside the battle.
+
+**Found in the Lisp: MC-SEARCH's UCB macro captures A** (DIVERGENCES §1). Its second level is called with BASE `(* 10 a)`, evaluated
+inside the macro's own `(dotimes (a 10) …)`, so the opponent's reply B is scored from index 11 B while the update writes 10 A + B. Ported
+as the bug. Found by bisecting cvc-ii-s1's first job (step 325, a2 8 vs 0): single rollouts matched the native image for every (root,
+reply) pair from the same seed, an interpreted copy of MC-SEARCH as written reproduced the Rust's wrong result, and the compiled one
+differed: the capture.
+
+**Carried items done.** `SimRng.state` is private (`rng::crn_seed` is MC-FULL-ROLL's / STRAT-ROLL's seed). `start_match`, `start_cvc`,
+`start_pair_gate`, `gate_update`, `debug_command` and `ensure_battle` take `&mut Search`, so MC-FULL-RESET's Search part runs at the match
+start (it also sizes `strat_picks` to 2 × the library: strategy.lisp check 91). `fighter::id_of` is O(1) (the move's index from its
+address in `data.moves`). A rollout that hits `unported!` stops; `Search.cut_rollouts` counts it, `Search.cut` keeps the first name, and
+the live replay fails with `replay UNPORTED <name> in a rollout from tick T (step S)` (`cut_rollout_fails_the_run`). IKS-MODE-PICK with
+every weight an integer is `unported!` (CL ratios; no shipped arm). `tsuki_dash_brain_aims_at_him` tests TSUKI-DASH's brain aim.
+IKW-GAP-WATCH's gap-off arm (IKW-ALT) is ported: `Now::gap_off` reads the arm with `:iks-gap-p 0.0` first in its :BASE (the reseeded
+`--snap` rollouts of cvctag-ii reached it at tick 9640); IKW's ALT and CELL print as the Lisp's.
+
+**`--snap` is SIM-ROLLOUT now** (snaptest.lisp's): a scratch copy, WITH-ROLLOUT's bindings with the styles kept, 40 lean steps, stopping
+when the flow leaves the battle or a cinematic runs; the live match is never touched. A plain sim step there would have run MC-NEUTRAL's
+search and MC-FULL-STEP into the live `Search`.
+
+**Data.** `*mc-outcomes*` and `*mc-outcomes-hard*` (and every other `*mc-*` knob) were already in tuning.json (the extractor writes every
+source DEFPARAMETER): no extractor change, the data checksum stays `3ddcd77c9a34edf5` (`rs/duel-data/data/manifest.json`). New `Knobs`
+fields: the `*mc-*` search knobs, `*strat-bias-keys*` (`OptNames`), `*cai-cont-p*` / `*cai-turn-p*`, `*strat-c*` / `-h*` / `-swing*` /
+`-rolls*`; `McOutcomes` reads the outcome tables (T rows as `None`, ASSOC's first match).
+
+**Where the live replay stands: all 15 gate traces `replay OK`, whole matches**, with and without `--snap 40` (0 rollouts reaching an
+unported path), every T / A (the job sections included) / C / H / B equal; the M1 gate gives 22 OK with and without `--snap`; cvc-ii-s1
+live also replays OK in wasm32 under node. `--inject-plan` is now redundant (MC-FULL-STEP writes the same plan) and still passes.
+`vs-cpu` / `vs-learn` stop at step 1 (`vs-start`, `debug 2504`: Task 9).
+
+**Allocations** (`duel-tools` `live_allocs`: the commands run live, no reader, the combat log off, every frame that starts and ends in the
+battle). cvc-ki-s1: 210 in 21,120 battle steps (12 decisions, 24 rollouts), MC-FULL-STEP's share 0. cvc-ii-s1: 217 in 19,080 (66
+decisions, 132 rollouts), MC-FULL-STEP's share 4: a slot, then the scratch, copying an Ichigo clone whose replay queue (`Icc.rq`, a Vec)
+the slot never held, twice. The rest is M1's known Ichigo clone events (M1 §5); both go away with fixed-capacity `Icc` / `HitWin`
+fields. Without `ICC_RESERVE` the slots also grew `iccs` (2 per new high-water mark). A brainless (vs) opponent's stand-in brain is a
+fresh `Brain` per rollout (Task 9's case, not "both CPUs on").
+
+**For Task 9.** In a vs rollout the Lisp's human device reader still runs (the stand-in brain's VPAD-BEGIN-STEP! calls it: it rewrites
+his held state before AI-PRESS-WRITE! sets every button); the port's rollouts read nothing (`flow::NoInput`), which equals the cvc
+recorder (REC-READER skips rollouts) but not necessarily a vs trace.

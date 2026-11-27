@@ -1406,7 +1406,7 @@ mod tests {
     fn kk_battle() -> Match {
         let mut m = Match::new(crate::hashline::tests::data());
         crate::flow::go_title(&mut m);
-        crate::gate::start_cvc(&mut m, 1, Some([Character::Kenpachi, Character::Kenpachi]));
+        crate::gate::start_cvc(&mut m, &mut crate::cpu::Search::new(), 1, Some([Character::Kenpachi, Character::Kenpachi]));
         m
     }
 

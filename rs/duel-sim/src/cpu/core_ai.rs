@@ -2,9 +2,9 @@
 //! exchange after a cancel, the clash, the late-match finish, a strategy's tactics, the MCTS neutral, a matchup style, the generic
 //! CPU). Every chance is rolled once per event from the sim stream (`m.rng`, SIM-RND01), in the Lisp's order.
 //!
-//! Not ported here (each named where it would run): the MCTS neutral past its plan (`unported!("mc-neutral")`: Task 8). The matchup
-//! styles are ken_ki.rs / ichigo_ki.rs (`style::resolve`; Hisagi's: M4). The strategies and their glue are strategy.rs / glue.rs (Task 5). `// rollout:` marks a
-//! read of `*in-rollout*` / the rollout's `*cai-styles*` binding (no rollout runs before Task 8: both read as outside one).
+//! The MCTS neutral's search and its full-sim rollouts are cpu/mcts.rs and cpu/mcts_lite.rs. The matchup styles are ken_ki.rs /
+//! ichigo_ki.rs (`style::resolve`; Hisagi's: M4). The strategies and their glue are strategy.rs / glue.rs. `*in-rollout*` is
+//! `Match.in_rollout` (set only on a rollout's own match), the rollout's `*cai-styles*` binding `Match.styles_off`.
 use super::fuzzy::{fz_chance, Feats, FzRules, Kind};
 use super::perceive::{ai_dash, ai_event_rolls, ai_press, ai_press_write, ai_strafe, ai_walk, brain_snap_ago, snap_dist, snap_near_p, Snap};
 use super::xch_ai::{clash_opener, clash_window, xch_j_answer, xch_j_weights, xch_sa_now_p, xch_side, JAnswer};
@@ -62,7 +62,7 @@ fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d:
         None => b.strat,
     };
     let ev = sw.filter(|sw| sw.fq().is_some()).and_then(|sw| glue::strat_event_step(m, b, &snap, sw)); // (the event layer's arm)
-    b.now = ev.or(cur).map(|st| Now { st, cues: glue::strat_feats(m, e, &snap, d) }); // (read by STRAT-OUT's callers this step)
+    b.now = ev.or(cur).map(|st| Now { st, cues: glue::strat_feats(m, e, &snap, d), gap_off: false }); // (read by STRAT-OUT's callers this step)
     let kit = kit_of(m, e);
     m.pilot.get_mut(e).unwrap().vpad.stick(0.0, 0.0);
     ai_event_rolls(&mut m.rng, b, &snap);
@@ -93,7 +93,7 @@ fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d:
             || (free && cai_finish(m, e, b, kit, &snap, d))
             || glue::strat_fn_step(m, s, e, b, snap, d, ev.is_some()) // a strategy's own tactics first (DUEL_AI_STRATEGY §9)
             || m.unported.is_some()
-            || mc_neutral(m, e, b, d)
+            || mc_neutral(m, s, e, b, &snap, d)
             || m.unported.is_some()
             // a matchup style (under the strategy layer only as its strategy; not while a strategy is active)
             || (!glue::strat_layer_p(m) && cur.is_none() && ev.is_none() && cai_style(m, s, e, b, &snap, d))
@@ -659,15 +659,17 @@ pub fn mc_full_reel_p(st: State) -> bool {
 
 // ---------------------------------------------------------------- the MCTS neutral's plan (cpu-mcts.lisp; its search: Task 8)
 
-/// port: cpu-mcts.lisp MC-NEUTRAL — a plan made a reaction time ago comes due (MC-PLAN-APPLY); else, past its guard, the light
-/// search (`unported!`: Task 8). T when it pressed.
-fn mc_neutral(m: &mut Match, e: Entity, b: &mut Brain, d: f32) -> bool {
+/// port: cpu-mcts.lisp MC-NEUTRAL — a plan made a reaction time ago comes due (MC-PLAN-APPLY); else, past its guard and MC-SETUP (S
+/// his SNAP of the opponent), the light search and the full sim's job (cpu/mcts.rs). T when it pressed.
+fn mc_neutral(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: &Snap, d: f32) -> bool {
     let f = fighter(m, e);
     let (side, state, ch) = (f.side as usize, f.state, f.character);
     if m.mc_plan[5 * side] > 0 {
         return mc_plan_apply(m, e, b);
     }
-    // rollout: (when *in-rollout* (return-from mc-neutral nil))
+    if m.in_rollout {
+        return false; // (a rollout's later decisions: the generic CPU's)
+    }
     let k = &m.knobs;
     let (tick, next) = (m.match_tick, m.mc_next[side]);
     if k.mc_on
@@ -676,8 +678,9 @@ fn mc_neutral(m: &mut Match, e: Entity, b: &mut Brain, d: f32) -> bool {
         && !(tick < next && next < tick + k.mc_defer_gap + 1)
         && d <= k.mc_far
         && !gauges_awakened_ok_p(m, e, Some(b))
+        && let Some(lite) = super::mcts::mc_setup(m, e, snap, d, b.difficulty)
     {
-        crate::unported!(m, "mc-neutral", false) // (MC-SETUP, the light search, MC-FULL-REQUEST: Task 8)
+        return super::mcts::mc_decide(m, s, e, b, lite);
     }
     false
 }

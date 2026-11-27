@@ -33,11 +33,11 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool 
     m.frame_n += 1;
     let rdt = raw_dt(m.frame_n);
     while let Some(c) = m.cmds.pop_front() {
-        crate::debug::debug_command(m, c);
+        crate::debug::debug_command(m, s, c);
     }
     // look: screen-fx-update, onehand-frame
     flow_update(m, rdt);
-    crate::gate::gate_update(m);
+    crate::gate::gate_update(m, s);
     if sim_running_p(m) {
         advance_sim(m, s, rdt, input);
     } else {
@@ -78,8 +78,30 @@ pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn Pilo
     }
 }
 
-/// port: SIM-STEP.
+/// A pilot input that reads nothing (the vpads keep what they hold): a rollout's (no device; the recorder's reader skips rollouts).
+pub struct NoInput;
+impl PilotInput for NoInput {
+    fn read(&mut self, _m: &mut Match, _side: usize) {}
+    fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+}
+
+/// port: SIM-STEP: the lean step, then (`look:` feedback-system) HASH-LOG's `*step-hook*` and MC-FULL-STEP.
 pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+    sim_core(m, s, input);
+    // look: feedback-system
+    // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
+    input.step_end(m, s);
+    crate::cpu::mcts::mc_full_step(m, s);
+}
+
+/// port: sim-state.lisp SIM-STEP-LEAN — SIM-STEP for a rollout: the sim without the presentation (no slow-motion snapshot, no
+/// feedback, no hash log, no full-sim step; TAKE-EVENTS drops the events: none in the port yet, M3).
+pub fn sim_step_lean(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+    sim_core(m, s, input);
+}
+
+/// SIM-STEP's and SIM-STEP-LEAN's shared part: the tick, then the cinematic, a hitstop step, a slow-motion wait or the systems.
+fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
     m.match_tick += 1;
     if m.cine.is_some() {
         pilot_read(m, input);
@@ -98,10 +120,6 @@ pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
         }
     }
     // debug: god-update, probe-update (*god* / *probe*: set only by commands M1 does not port)
-    // look: feedback-system
-    // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
-    input.step_end(m, s);
-    // cpu: mc-full-step
 }
 
 /// port: SIM-SYSTEMS (INPUT's `after_brain`: the recorder's hook after BRAIN-SYSTEM).
@@ -222,8 +240,8 @@ pub fn go_title(m: &mut Match) {
     set_flow(m, Flow::Title);
 }
 
-/// port: START-MATCH.
-pub fn start_match(m: &mut Match) {
+/// port: START-MATCH (S: MC-FULL-RESET's jobs, stats and picks; then its snapshot slots made, outside the battle).
+pub fn start_match(m: &mut Match, s: &mut Search) {
     m.paused = false;
     m.winner = None;
     m.match_tick = 0;
@@ -231,8 +249,7 @@ pub fn start_match(m: &mut Match) {
     m.pending.clear(); // (*kikons* is not cleared by the Lisp: TAKE-BROKEN-SOULS empties it every HIT-SYSTEM, so it is empty here)
     m.soul_breaks.clear();
     m.slow_acc = 0.0;
-    m.mc_plan = [0; 10]; // port: MC-FULL-RESET's root (*mc-next* is not reset)
-    // cpu: mc-full-reset's Search part (the jobs, stats and picks: Task 8; none exists before)
+    crate::cpu::mcts::mc_full_reset(m, s); // (*mc-next* is not reset)
     cine::abort_cine(m);
     // look: clear-words
     m.rng.seed(m.match_seed);
@@ -251,6 +268,7 @@ pub fn start_match(m: &mut Match) {
     set_flow(m, Flow::Intro);
     let (p1, p2) = (m.p1, m.p2);
     cine::start_cine(m, CineName::Intro, p1, p2, Some(After::BeginBattle));
+    s.warm(m); // (not Lisp's: the slots a battle step's snapshot writes, made here so a step allocates nothing)
 }
 
 /// port: BEGIN-BATTLE.
@@ -299,9 +317,12 @@ pub fn time_up(m: &mut Match) {
     cine::start_cine(m, CineName::Time, a, v, Some(After::GoResults));
 }
 
-/// port: GO-RESULTS (no rollouts in the sim yet: `*in-rollout*` is the CPU's, M2).
+/// port: GO-RESULTS (a rollout's K.O. stops at :finish: no results, no learner).
 pub fn go_results(m: &mut Match) {
-    // cpu: fq-match-end; log-msg: the RESULTS line; mc-full-log, strat-log
+    if m.in_rollout {
+        return;
+    }
+    // cpu: fq-match-end (Task 9); log-msg: the RESULTS line, MC-FULL-LOG (`cpu::mcts::mc_full_log`), STRAT-LOG
     set_flow(m, Flow::Results);
     for e in [m.p1, m.p2] {
         let f = m.fighter.get_mut(e).unwrap();
@@ -350,7 +371,7 @@ mod tests {
     fn intro_runs_300_steps_into_the_battle() {
         let mut m = crate::hashline::tests::new_match();
         go_title(&mut m);
-        crate::gate::start_cvc(&mut m, 1, Some([Character::Kenpachi, Character::Ichigo]));
+        crate::gate::start_cvc(&mut m, &mut Search::new(), 1, Some([Character::Kenpachi, Character::Ichigo]));
         assert_eq!((m.flow, m.cine.as_ref().map(|c| c.cf)), (Flow::Intro, Some(0)));
         assert_eq!(m.p1.0, 256); // generation 1: the title's pair was cleared
         for e in [m.p1, m.p2] {

@@ -15,6 +15,8 @@ pub mod fuzzy;
 pub mod glue;
 pub mod ichigo_ki;
 pub mod ken_ki;
+pub mod mcts;
+pub mod mcts_lite;
 pub mod perceive;
 pub mod strategy;
 pub mod style;
@@ -88,7 +90,7 @@ impl SwKeep {
 
 /// port: (DEFCOMPONENT BRAIN): every slot, in slot order. Fixnums i64, single-floats f32, T / NIL flags bool, a keyword-or-NIL
 /// slot `Option<Sym>` (`press` keeps :NONE apart from NIL: MC-FULL-REQUEST tests `(eq press :none)`).
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Brain {
     pub difficulty: Difficulty,
     pub delay: i64,
@@ -152,6 +154,25 @@ pub struct Brain {
     pub off: bool,
     /// Not a slot: `style` is EQ to `sw_keep`'s entry of `sw_fn` (see `SwKeep`).
     pub style_live: bool,
+}
+
+/// A copy that keeps the two Vecs' reserves (JSTARTS' `*ai-mash-window*` + 2, SW-KEEP's `MAX_ARMS`), and `clone_from` (a rollout's
+/// restore) that reuses them: no allocation per snapshot (every other slot is `Copy`, which the `..*src` updates check).
+impl Clone for Brain {
+    fn clone(&self) -> Brain {
+        let mut jstarts = Vec::with_capacity(self.jstarts.capacity());
+        jstarts.extend_from_slice(&self.jstarts);
+        let mut keep = Vec::with_capacity(self.sw_keep.0.capacity());
+        keep.extend_from_slice(&self.sw_keep.0);
+        Brain { jstarts, sw_keep: SwKeep(keep), ..*self }
+    }
+    fn clone_from(&mut self, src: &Brain) {
+        let mut jstarts = std::mem::take(&mut self.jstarts);
+        jstarts.clone_from(&src.jstarts);
+        let mut keep = std::mem::take(&mut self.sw_keep.0);
+        keep.clone_from(&src.sw_keep.0);
+        *self = Brain { jstarts, sw_keep: SwKeep(keep), ..*src };
+    }
 }
 
 /// BRAIN's slot count (a fighter without a brain prints this many `:ABSENT`).
@@ -258,22 +279,35 @@ impl Brain {
     }
 }
 
-/// One `*mc-jobs*` decision (cpu-mcts.lisp MC-FULL-REQUEST's vector): the A line's slots 1 2 3 4 6 8 9. ponytail: Task 8 adds the
-/// entity, the snapshot slot and the seed (slots 0, 5, 10).
-#[derive(Clone, Debug, PartialEq)]
+/// A job's snapshot (SIM-SNAPSHOT's SIMSNAP): a preallocated `Match` from `Search.pool`, written with `clone_from` (no allocation
+/// while its capacities hold) and given back to the pool when the job ends.
+pub struct Slot(pub Box<Match>);
+
+impl std::fmt::Debug for Slot {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "#<snapshot tick {}>", self.0.match_tick)
+    }
+}
+
+/// One `*mc-jobs*` decision (cpu-mcts.lisp MC-FULL-REQUEST's vector): slot 0 the entity, 1-4 side a1 a2 dif, 5 the snapshot, 6 the
+/// rollouts done, 8 / 9 their values, 10 the sim stream's state at the snapshot (slot 7 is never written).
+#[derive(Debug)]
 pub struct McJob {
+    pub e: crate::ecs::Entity,
     pub side: i64,
     pub a1: i64,
     pub a2: i64,
     pub dif: Difficulty,
+    pub snap: Option<Slot>,
     pub n: i64,
     pub v1: f32,
     pub v2: f32,
+    pub rng: u32,
 }
 
 /// One `*strat-jobs*` selection (strategy-glue.lisp STJOB): E's side, difficulty, his arms and the opponent's, the prior and both
-/// PUCTs' statistics, rollouts done. ponytail: Task 8 adds the snapshot and the seed (STJOB-SNAP, -RNG).
-#[derive(Clone, Debug, PartialEq)]
+/// PUCTs' statistics, rollouts done, the snapshot and the sim stream's state at it (STJOB-SNAP, -RNG).
+#[derive(Debug)]
 pub struct StratJob {
     pub e: crate::ecs::Entity,
     pub side: i64,
@@ -287,6 +321,8 @@ pub struct StratJob {
     pub hns: Vec<f32>,
     pub hprior: Vec<f32>,
     pub n: i64,
+    pub snap: Option<Slot>,
+    pub rng: u32,
 }
 
 /// The CPU state Lisp keeps outside its snapshot roots (M2_NOTES §1): a rollout's restore never touches it, so a job's scores
@@ -301,7 +337,7 @@ pub struct Search {
     pub mc_stats: [i64; 4],
     /// `*strat-stats*`: the same for the strategy layer.
     pub strat_stats: [i64; 4],
-    /// `*strat-picks*`: per side a slot per library entry (sized by the strategy layer's task).
+    /// `*strat-picks*`: per side a slot per library entry (sized by MC-FULL-RESET).
     pub strat_picks: Vec<i64>,
     /// `*fq-tables*` (Task 9).
     pub fq_tables: Vec<NotYet>,
@@ -309,7 +345,18 @@ pub struct Search {
     pub page: BTreeMap<i64, i64>,
     /// GET-INTERNAL-REAL-TIME for the stats lines' milliseconds (never compared): the caller's clock, else always 0.
     pub clock: fn() -> u64,
+    /// Not Lisp's: spare snapshot slots (a job takes one, its end gives it back; `warm` fills it at a match's start).
+    pub pool: Vec<Slot>,
+    /// Not Lisp's: the match a rollout plays on (a job's snapshot restored into it; the live match is never touched).
+    pub scratch: Option<Slot>,
+    /// Rollouts cut short by an `unported!` path (`m.unported` of the rollout's match): their value is wrong, so the replay fails.
+    pub cut_rollouts: u64,
+    /// The first such path and the live tick of its rollout.
+    pub cut: Option<(&'static str, i64)>,
 }
+
+/// Snapshot slots made at a match's start (`Search::warm`): the jobs alive at once (one per side, a second while a job finishes).
+pub const POOL: usize = 4;
 
 impl Search {
     pub fn new() -> Search {
@@ -322,6 +369,59 @@ impl Search {
             fq_tables: Vec::new(),
             page: BTreeMap::new(),
             clock: || 0,
+            pool: Vec::new(),
+            scratch: None,
+            cut_rollouts: 0,
+            cut: None,
+        }
+    }
+
+    /// Preallocate the snapshot slots and the rollout match from M (outside the battle: the battle steps then allocate nothing).
+    pub fn warm(&mut self, m: &Match) {
+        self.mc_jobs.reserve(POOL);
+        self.pool.reserve(2 * POOL);
+        while self.pool.len() < POOL {
+            self.pool.push(Slot(Box::new(m.clone())));
+        }
+        if self.scratch.is_none() {
+            self.scratch = Some(Slot(Box::new(m.clone())));
+        }
+    }
+
+    /// A slot holding M now (from the pool, else a new one).
+    pub fn snapshot(&mut self, m: &Match) -> Slot {
+        match self.pool.pop() {
+            Some(mut s) => {
+                (*s.0).clone_from(m);
+                s
+            }
+            None => Slot(Box::new(m.clone())),
+        }
+    }
+
+    /// A job's slot back to the pool.
+    pub fn give_back(&mut self, s: Option<Slot>) {
+        if let Some(s) = s {
+            self.pool.push(s);
+        }
+    }
+
+    /// The oldest action job ends (POP).
+    pub fn pop_mc_job(&mut self) {
+        let j = self.mc_jobs.remove(0);
+        self.give_back(j.snap);
+    }
+
+    /// `(setf *mc-jobs* nil)` / `(setf *strat-jobs* nil)`: their slots back to the pool.
+    pub fn drop_mc_jobs(&mut self) {
+        while !self.mc_jobs.is_empty() {
+            self.pop_mc_job();
+        }
+    }
+    pub fn drop_strat_jobs(&mut self) {
+        while !self.strat_jobs.is_empty() {
+            let j = self.strat_jobs.remove(0);
+            self.give_back(j.snap);
         }
     }
 }
