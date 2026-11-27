@@ -16,7 +16,7 @@ Rust side a second time into rust2/ and checks every still byte for byte (the pa
 SSIM: Wang et al. 2004 on the luma (BT.601), an 11 x 11 Gaussian window (sigma 1.5), K1 0.01, K2 0.03, L 255, the mean over the
 image (numpy only: skimage is not installed and no pip dependency is added).
 """
-import importlib.util, json, os, subprocess, sys, time
+import hashlib, importlib.util, json, os, subprocess, sys, time
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -91,6 +91,10 @@ def main():
     jobs = int(opt("--jobs", "3"))
     skip = {i + 1 for i, x in enumerate(a) if x in ("--rust", "--lisp", "--jobs", "--out")}
     names = [ALIAS.get(x, x) for i, x in enumerate(a) if not x.startswith("--") and i not in skip] or DEFAULT
+    # the frozen browser build only (as tools/port/oracle/gen.py checks it: index.wasm sha256 e35032a7...)
+    wasm = hashlib.sha256(open(os.path.join(lisp, "index.wasm"), "rb").read()).hexdigest()
+    if not wasm.startswith("e35032a7"):
+        sys.exit(f"stills: {lisp}/index.wasm is {wasm[:8]}, not the frozen build e35032a7")
     sc = scenarios()
     for n in names:
         if n not in sc: sys.exit(f"stills: no scenario {n} (have: {', '.join(sorted(sc))})")
@@ -120,6 +124,8 @@ def main():
             if not (os.path.exists(lp) and os.path.exists(rp)):
                 rows.append((n, e["shot"], "missing", "", "")); continue
             s, mx, px = sheet(n, e["shot"], lp, rp)
+            if s is None:
+                rows.append((n, e["shot"], "size mismatch", "", "")); continue
             same = ""
             if "--twice" in a:
                 r2 = os.path.join(OUT, "rust2", f"{n}-{e['shot']}.png")
@@ -130,7 +136,7 @@ def main():
         for r in rows: f.write("\t".join(map(str, r[:5])) + "\n")
     for r in rows: print("  ".join(map(str, r)))
     print(f"sheets: {OUT}/<scene>-<still>.png, table {OUT}/stills.tsv")
-    sys.exit(1 if bad or any(r[2] == "missing" for r in rows) or any("DIFFER" in str(r[-1]) for r in rows) else 0)
+    sys.exit(1 if bad or any(r[2] in ("missing", "size mismatch") for r in rows) or any("DIFFER" in str(r[-1]) for r in rows) else 0)
 
 
 if __name__ == "__main__":

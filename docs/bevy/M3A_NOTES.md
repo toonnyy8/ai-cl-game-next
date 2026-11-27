@@ -977,7 +977,7 @@ R17's driver), `rs/duel-app/src/main.rs`, `rs/duel-app/web/index.html`, `rs/duel
 **Result.** The page boots to the title and plays the fight a debug command starts (`Module._debug_cmd(2005)`). Every pass of render.c
 runs. Static geometry matches the frozen page pixel for pixel: the stage, the sky and the fog read the same RGB at sampled points of a
 2005 frame, so the gamma and the orientation are right. Two runs give byte-identical stills (27 of 27, and page-smoke's drawn 2005
-still). The page passes page-smoke: 1009 frames finished by virtual 16.9 s, no error, startup heap 92.9 MB. Rust's combat log for
+still). The page passes page-smoke: 1007 frames finished by virtual 16.9 s (1009 before the targets waited for the first drawn frame), no error, startup heap 92.9 MB. Rust's combat log for
 cvc-ik is the frozen page's, line for line (832 lines). After concern 1's fix (the page's dt), most cinematic stills read 0.95-1.0. What
 is left is the Lisp HUD (M3b), the title's state (M3b) and one held pose (below).
 
@@ -1021,7 +1021,7 @@ is left is the Lisp HUD (M3b), the title's state (M3b) and one held pose (below)
   so fu[157] is 0 and alpha-to-coverage is on, as on the frozen page. The camera has `Msaa::Off`: Camera3d still makes Bevy's ViewTarget
   main textures and a depth texture (single-sample, unused). That costs memory, not speed; dropping Camera3d is a Task 11 option.
 - **The meshes** upload once, 2 MB a frame during the load (`meshes::BUDGET`), into 4 MB chunks indexed by the Lisp mesh id
-  (`r_mesh_new`). The driver starts only when every mesh is uploaded, every pipeline is `Ok`, and the targets exist (`render::ready()`).
+  (`r_mesh_new`). The driver starts only when every mesh is uploaded, every pipeline is `Ok` (`render::ready()`); the targets are made at the first drawn frame's size (no 1x1 targets first).
   A pipeline error prints `render: pipeline N failed: …`, which run.mjs fails on.
 - **The copy** (`extract_frame`) writes fu, the records (clamped to R_MAX_DRAWS 4096) and the four streams into fixed GPU buffers sized
   as render.c's. The CPU side (`copy_frame`: the records r_draw_queue reads, p, fu[159], the fills) goes into a `Mirror` reserved once.
@@ -1180,10 +1180,14 @@ difference, the pixels that differ of 230,400) are after:
   modified.
 - ken-nozarashi-026's held pose (open, above).
 
-### Rulings needed
+### Rulings (the controller's, in progress.md)
 
-1. A render-graph system with cached pipelines and a storage buffer of records, in place of Materials and an entity pool (above).
-2. Shaders embedded, not hot-reloaded (BEVY_PORT §7.1).
-3. The frame-done shim lives on the page's `preinitializedWebGPUDevice.queue` (run.mjs untouched).
-4. The page's dt is the frozen page's whole-ms clock; the tools keep R17's `raw_dt` (concern 1).
-5. The menus' camera is not a stop on the page (the title draws with the default camera until M3b).
+- R17 (amended by concern 1): the minimal driver; the page's dt is the frozen page's whole-ms clock, the tools keep `raw_dt`.
+- R18: one render-graph system with PipelineCache pipelines and a storage buffer of records, in place of Materials and an entity pool.
+- R19: the shaders embedded (no hot reload; BEVY_PORT §7.1).
+- R20: the swapchain through a per-frame non-sRGB view; Task 10's dev line draws through the ui pass.
+- R21: the frame-done shim on the page's `preinitializedWebGPUDevice.queue` (run.mjs untouched).
+- R22: the page-clock pacing; `?log` stays a diagnostic for Task 10 (`?dt=clock` went with concern 1's fix).
+- R23: the menus' camera does not stop the page.
+- R24: the dependencies `bytemuck` and `wgpu =30.0.2` (no features of its own; the version Bevy pins).
+- For Task 10: a rebase after 900 load frames would skew the stamps of commands queued during the load (the reviewer's item 7).

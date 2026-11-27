@@ -52,8 +52,8 @@ fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window
     let g = &mut *g;
     take_debug(|n| g.queue_cmd(n as i64, due));
     g.sc.inputs = inputs(win.physical_width(), win.physical_height(), win.scale_factor());
-    if !render::ready() {
-        return;
+    if !render::ready() || g.stopped.is_some() {
+        return; // (stopped: logged once, on the frame that stopped)
     }
     let n = g.due_now(due);
     if n == 0 {

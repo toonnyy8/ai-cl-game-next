@@ -1,7 +1,8 @@
-//! 0 allocations per drawn frame on the page's CPU path (M3a Task 9): the driver's frame (`Game::frame`: the commands due, the
-//! loop's three calls) and the render world's copy (`render::copy_frame`: the draw records into the reserved mirror), counted by a
-//! global allocator over a CPU fight (debug 2005) after its command frame. The GPU half (wgpu's own per-frame objects, the swapchain
-//! view, the work-done callback's box) is wgpu's and Bevy's, outside this count (M3A_NOTES §9).
+//! 0 allocations per drawn frame on the CPU half of the page's path (M3a Task 9): the driver's frame (`Game::frame`: the commands
+//! due, the loop's three calls) and the render world's CPU copy (`render::copy_frame`: the draw records into the reserved mirror),
+//! counted by a global allocator over a CPU fight (debug 2005) after its command frame. Not counted (they need a GPU device):
+//! `extract_frame`'s `write_buffer` calls (wgpu's staging), `duel_frame` (its pass objects and the swapchain view's `create_view`), and
+//! `count_frames`' work-done callback box (M3A_NOTES §9).
 use duel_app::driver::Game;
 use duel_app::render::{copy_frame, Mirror};
 use duel_data::Data;
@@ -31,7 +32,7 @@ fn count() -> u64 {
 }
 
 #[test]
-fn page_frames_allocate_nothing() {
+fn page_cpu_half_allocates_nothing() {
     let data: &'static Data = Box::leak(Box::new(Data::embedded()));
     let inputs = SceneInputs { width: 640, height: 360, density: 1.0, msaa: 4, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0, safe_top: 0.0, safe_bottom: 0.0 };
     let mut g = Game::new(data, inputs);

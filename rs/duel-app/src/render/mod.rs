@@ -280,7 +280,7 @@ pub fn copy_frame(f: &FrameOut, mir: &mut Mirror) {
     mir.fu159 = f.fu[159];
     let verts = |v: &Vec<f32>, stride: usize, cap: u64| ((v.len() / stride) as u64).min(cap) as u32;
     (mir.nfa, mir.nfb, mir.nft, mir.nui) = (verts(&f.fxa, 9, FX_VERTS), verts(&f.fxb, 9, FX_VERTS), verts(&f.ft, 9, FX_VERTS), verts(&f.ui, 8, UI_VERTS));
-    mir.live = true;
+    mir.live = f.p[4] > 0.0; // (no frame drawn yet: no 1x1 targets first)
 }
 
 /// The load (the meshes, a few per frame), the pipelines (once the swapchain's format is known), the targets (render.c r_targets),
@@ -316,7 +316,7 @@ fn prepare(mut gpu: Option<ResMut<Gpu>>, dev: Res<RenderDevice>, queue: Res<Rend
             _ => ok = false,
         }
     }
-    READY.store(ok && g.meshes.done() && g.targets.is_some(), Relaxed);
+    READY.store(ok && g.meshes.done(), Relaxed); // (the targets follow the first drawn frame's size: `mir.live`)
 }
 
 /// port: render.c r_targets (+ the bind groups that read them).
