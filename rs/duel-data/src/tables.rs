@@ -1,4 +1,4 @@
-//! tables.json (27 load-time tables: stage, fuzzy sets, strategies, the mirror P2's rim / tint ...; typed when a system ports them), glyphs.json,
+//! tables.json (28 load-time tables: stage, fuzzy sets, strategies, the mirror P2's rim / tint, the mesh registry `mesh_ids` ...; typed when a system ports them), glyphs.json,
 //! debug_ranges.json.
 use serde::Deserialize;
 use serde_json::Value;

@@ -150,9 +150,9 @@ tuning key set = source names, no shape conflict, manifest checksum). Two `all` 
 tests the writer (`$ECL --norc --load ...`).
 
 **Counts (`manifest.json`)**: bodies 11, clips 400, debug_ranges 90, glyphs 248, kits 12 (forms), moves 549, poses 443, rig 21
-(joints), tables 27, tuning 1146, weapons 11; `skipped_tuning` 3; `float_checksum` `3ddcd77c9a34edf5` (since 2026-11-27, M1 Task 14
+(joints), tables 28, tuning 1146, weapons 11; `skipped_tuning` 3; `float_checksum` `3ddcd77c9a34edf5` (since 2026-11-27, M1 Task 14
 fix 1: + `mirror_rim` / `mirror_tint`, body.lisp's `*mirror-rim*` / `*mirror-tint*`, defvars the defparameter census skips; was tables 25,
-`6640f0fd66ac0848`).
+`6640f0fd66ac0848`; M3a Task 3 added `mesh_ids`, tables 27 -> 28: integers and strings only, so the float checksum stayed).
 
 | File | Shape |
 |---|---|
@@ -165,7 +165,7 @@ fix 1: + `mirror_rim` / `mirror_tint`, body.lisp's `*mirror-rim*` / `*mirror-tin
 | `weapons.json` | `{name:{len,base,sections[{kind:"solid"\|"glow",...,verts}]}}`, verts in groups of 9 (position, normal, colour); ink hulls not written (the port runs `mb-hull`) |
 | `glyphs.json` | `[[code,advance,[[x0,y0,...]...]]...]` |
 | `debug_ranges.json` | `[[lo,hi,NAME\|null]...]`; 72 of 90 names are null (inline handlers) |
-| `tables.json` | 25 named tables (stage, fz_*, strat_*, lhud_*, commands, vpad_actions); `*STRAT-*` tables are forced objects, repeated `:base` keys keep the first |
+| `tables.json` | 28 named tables (stage, fz_*, strat_*, lhud_*, commands, vpad_actions, mirror_rim / mirror_tint, mesh_ids: `[[id, path, verts] ...]`, the mesh registry, M3A_NOTES §3); `*STRAT-*` tables are forced objects, repeated `:base` keys keep the first |
 | `tuning.json` | `{SYMBOL-NAME: value}`, every `defparameter` of `duel/` and `engine/` (3 skipped as `{"kind":"skipped","why":"move"}`); `*PERFECT-HW*` is a hitwin object |
 | `hud-font/` | byte copies of `duel/hud-font/` (atlas.r8, metrics.bin) |
 

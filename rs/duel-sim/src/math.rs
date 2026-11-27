@@ -97,6 +97,15 @@ pub fn f_sin(a: f32) -> f32 {
 pub fn f_cos(a: f32) -> f32 {
     libm::cosf(a)
 }
+/// CL SIN of a double / long-float (`pi`-derived look values: the native image's long-float, the wasm game's double; BEVY_PORT
+/// §5.3). musl's sin, as libecl's.
+pub fn sin_d(a: f64) -> f64 {
+    libm::sin(a)
+}
+/// CL COS of a double / long-float (see `sin_d`).
+pub fn cos_d(a: f64) -> f64 {
+    libm::cos(a)
+}
 /// port: engine/lisp/package.lisp F-MOD (fmodf).
 pub fn f_mod(x: f32, y: f32) -> f32 {
     libm::fmodf(x, y)

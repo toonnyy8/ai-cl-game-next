@@ -80,6 +80,12 @@ impl Data {
         [f(0), f(1), f(2)]
     }
 
+    /// tables.json `mesh_ids`: the frozen image's mesh registry, `(id, path, verts)` by id ascending (tools/port/extract/extract.lisp
+    /// X-MESH-IDS: the shortest path to each MESH from a special variable, as the draw key's meshes.json names it).
+    pub fn mesh_ids(&self) -> Vec<(u32, String, u32)> {
+        serde_json::from_value(self.tables.get("mesh_ids").expect("tables.json mesh_ids").clone()).expect("mesh_ids: [[id, path, verts] ...]")
+    }
+
     /// From the files on disk (development; hot reload later).
     pub fn load(dir: &Path) -> Result<Data, String> {
         Self::parse(|f| std::fs::read(dir.join(f)).map(Cow::Owned).map_err(|e| format!("{f}: {e}")))

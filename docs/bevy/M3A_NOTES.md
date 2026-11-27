@@ -201,3 +201,74 @@ frame): **bit-exact** (largest |a-b| / max(1, |b|) = 0 over 11,474,064 matrix fl
   Task 7: GRIP-LEFT! / GRIP-TARGET-OK-P / GRIP-GAP with %ROT-TO! / %ROT-COLS! (the left fist pulled onto the handle after the FK, for
   *GRIP-CLIPS*), DRAW-WEAPON / DRAW-PLANTED-WEAPON / %PLANTED-M!, DRAW-BODY, DRAW-SHADOW; its BODY-WEAPON-POINT / -TIP / -BASE are
   ported here (`rig.rs`), its DEFPOSE / DEFCLIP / DEFRUN forms are data (clips.json, poses.json).
+
+## 3. Meshes (Task 3)
+
+`rs/duel-look/src/mesh/`: `meshgen.rs` (engine/lisp/meshgen.lisp: the builder, WITH-XFORM, %MB-TRI with the smooth normals,
+MB-POLY-OUT, the box / bevel box / cylinder / cone / sphere / wedge, MB-HULL), `body.rs` (engine/lisp/body.lisp BUILD-PARTS /
+BUILD-SOLID / BUILD-SHAPE / SHAPE-INK-K, duel/lisp/body.lisp GIRTH-SPEC), `stage.rs` (stage.lisp STAGE-INIT's meshes), `mod.rs`
+(`Meshes::build(&Data)`, the weapons, the ink shadow, `Ids`). `tests/mesh.rs`:
+- `mesh_table_matches_key`: duel-data's registry equals the key's meshes.json (670 entries);
+- `meshes_match_key`: the filled ids are exactly the 368 in scope. Every in-scope id has the registry's vertex count, and the 277 the 41
+  scenes draw equal the key. That is 1,002,618 floats; the largest |a − b| / max(1, |b|) is 3.9e-14 (`*ST-FLOOR*`, a near-zero
+  coordinate from a long-float cos). 8,409 floats are not bit-equal, all of them within 4e-14 of zero (signed zeros and pi-noise). Every
+  other float is bit-exact.
+
+Both tests fail when `ORACLE` is unset.
+
+### The mesh registry (the controller's ruling R1)
+
+`tables.json` `mesh_ids` = `[[id, path, verts] ...]` by id. `tools/port/extract/extract.lisp` X-MESH-IDS builds it after SG-INIT with a
+copy of draw.lisp's naming walk (DW-NAME-MESHES: the shortest path from a DUEL / ENGINE special, BFS, hash keys sorted). It is read by
+`Data::mesh_ids()`. The extract image (`build/simgate/duel.fas`, stubs.c) makes the same 670 meshes in the same order as the draw
+image, so the table equals the key's meshes.json entry for entry, and the app never reads the key.
+- Tables went from 27 to 28. The float checksum stays `3ddcd77c9a34edf5`: the table holds only integers and strings, and JSON-TREE-FNV
+  folds floats only.
+- Every other data file re-extracted byte-identical, and the census passes.
+
+`Meshes::build` writes each mesh into the id its Lisp path names (`*BODIES*{:KENPACHI}.EXTRAS[9][1]`, `*WEAPONS*{:TENSA}.MESHES[0][3]`,
+`*ST-ROCKS*[2].` ...). The ids never come from counting creation order.
+
+### Findings
+
+- **Weapons are data.** weapons.json's section verts (the extractor ran each DEFWEAPON section on a fresh builder, as BUILD-WEAPON
+  does) are the meshes bit for bit. Only their hulls are built here (MB-HULL k = the section's ink, c 0.8). MB-BLADE, MB-TUBE and the
+  section lambdas are not ported.
+- **ken-art.lisp, ichigo-art.lisp and brush.lisp build no meshes.** Their bodies are DEFBODY / BODY-VARIANT specs, already extracted
+  into bodies.json with the variant merge applied. So the brief's `brush.rs`, `ken.rs` and `ichigo.rs` do not exist. The only mesh
+  builders are engine/lisp/body.lisp, duel/lisp/body.lisp (BUILD-WEAPON, BODIES-INIT's shadow) and stage.lisp.
+- **`gen.rs` is `meshgen.rs`**: `gen` is a reserved word in edition 2024.
+- **No cosmetic RNG at build time.** Jitter is 0 on every builder (BUILD-SOLID's `*part-jitter*` 0.0, BUILD-MESH's default), so
+  MB-RAND never runs. The stage's randomness is ST-RND, an integer LCG seeded with 7771 and ported exactly in i64, called in the Lisp's
+  evaluation order.
+- **Long-float sites** (every `pi`: rings, sphere rows, the shadow disc, the stage's annuli, walls and houses) are computed in f64 through
+  `duel_sim::math::sin_d` / `cos_d` (musl via `libm`, new). The rational factors `(/ k n)` are f64 divisions, narrowed where the Lisp
+  narrows (V3, XFORM's F32). Single sites stay single: the cracks' ST-STRIP, hull and ink-k math, and M4-EULER! with cosf / sinf.
+- **MB-HULL's groups** use CL ROUND's single quotient `x / 1e-4` (half to even). Each group's normal sum runs newest first (the Lisp
+  pushes), and its MIN / MAX keep CL's tie rule.
+- **BUILD-PARTS' lists** are push lists: EXTRAS / HULLS index i is the reverse of build order. Tags come from REMOVE-DUPLICATES, which
+  keeps the last occurrence.
+- **Not ported** (no Kenpachi / Ichigo / stage shape uses them): a shape's `:squash` (it asserts), MB-BOX `:colors`, MB-PLANE.
+
+### Interfaces as built (what Tasks 5 / 7 call)
+
+`Meshes::build(&Data) -> Meshes`. `Meshes::get(id) -> Option<&MeshData>` (`floats`, 9 a vertex), and `filled()`. `Meshes.ids: Ids`:
+- `bodies[name]`: `parts[joint] -> Option<id>`, plus `extras` and `hulls` in the Lisp's list order with their joint, tint, emissive
+  and tag (DRAW-PARTS' inputs);
+- `weapons[name]`: the sections with id, tint, emissive and hull id (DRAW-WEAPON's);
+- `shadow`;
+- `stage`: floor, walls, town, burnt, and rocks as (chip, hull).
+
+The keys are the data's lower-case names.
+
+### M4: ids left empty
+
+302 of the 670 meshes:
+- the bodies `hisagi`, `hisagi-bankai`, `yamamoto`, `yamamoto-bare`, `yamamoto-tybw` and `skeleton`;
+- the weapons `kazeshini`, `hs-sealed`, `hs-orb`, `ryujin-jakka`, `zanka` and `ya-cane`.
+
+`mesh::PORTED` (`kenpachi`, `ichigo`) selects the bodies (the name or `<name>-…`) and the kits' weapons. M4 adds a name there and
+checks those meshes, all drawn by no M3a scene, against a key that draws them.
+
+91 in-scope meshes are drawn by no scene: `kenpachi-nomi` 52, `kenpachi-oni` 21, `ichigo` 17, `ichigo-kessa` 1. The test checks only
+their vertex counts.
