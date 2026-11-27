@@ -12,8 +12,9 @@
 ;;;;                                   (none: no line; gen.py names it "?" and fails); those made at startup first, then those made
 ;;;;                                   while it ran
 ;;;;   draw seed <frame> <seed>        *MATCH-SEED* at frame 0 and whenever it changes (after that frame)
-;;;;   draw f <frame> <tick> <match-tick> <flow> <cine> <cf> <held> <hitstop>   after each frame: ENGINE::*TICK*, *MATCH-TICK*, *FLOW*,
-;;;;                                   the running cinematic's name and frame (- -1: none), 1 when debug-held (CINE-HELD-P), ENGINE::*HITSTOP*
+;;;;   draw f <frame> <tick> <match-tick> <flow> <cine> <cf> <held> <hitstop> <slowmo>   after each frame: ENGINE::*TICK*, *MATCH-TICK*,
+;;;;                                   *FLOW*, the running cinematic's name and frame (- -1: none), 1 when debug-held (CINE-HELD-P),
+;;;;                                   ENGINE::*HITSTOP*, (ENGINE::SLOWMO-SCALE NIL) (1.0: no slow motion)
 ;;;;   draw inputs start|end render-scale R pixel-lights N scene-scale-cap C msaa M coarse B one-hand B   the fixed inputs, read
 ;;;;                                   after SG-INIT and at the end
 ;;;; (the recorder's own lines start "draw: ", stubs-draw.c's header.)
@@ -93,8 +94,8 @@
     (dolist (c *dw-cmds*) (when (= (car c) f) (engine::simgate-cmd (cdr c))))
     (unless (engine::%frame) (ext:quit 3))
     (unless (eql seed *match-seed*) (setf seed *match-seed*) (format t "draw seed ~d ~d~%" f seed))
-    (format t "draw f ~d ~d ~d ~a ~a ~d ~a ~d~%" f engine::*tick* *match-tick* *flow* (if *cine* (cine-name *cine*) "-")
-            (if *cine* (cine-cf *cine*) -1) (if (cine-held-p) 1 0) engine::*hitstop*)
+    (format t "draw f ~d ~d ~d ~a ~a ~d ~a ~d ~a~%" f engine::*tick* *match-tick* *flow* (if *cine* (cine-name *cine*) "-")
+            (if *cine* (cine-cf *cine*) -1) (if (cine-held-p) 1 0) engine::*hitstop* (engine::slowmo-scale nil))
     (when (ext:getenv "DRAW_DONE")
       (dw-inputs "end")
       (dw-name-meshes)

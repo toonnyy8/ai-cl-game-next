@@ -22,7 +22,7 @@ python3 tools/port/oracle/gen.py draw --check     # only the check
 | `tools/port/oracle/draw-scenes.json` | the scenes (commands, viewport, frames, named frame ranges), each command's meaning, the fixed inputs |
 | `build/oracle/draw-img/duel.fas` | the image: `tools/simgate/build.lisp`'s unit with `SG_STUBS=tools/port/oracle/stubs-draw.c` |
 | `build/oracle/draw/<scene>.bin` | the key, one file per scene |
-| `build/oracle/draw/<scene>.log` | run 1's stdout: the game's log plus one `draw f` line per frame (`*tick*`, `*match-tick*`, `*flow*`, cinematic name / frame / held, `*hitstop*`), the mesh names, the seeds, the fixed inputs |
+| `build/oracle/draw/<scene>.log` | run 1's stdout: the game's log plus one `draw f` line per frame (`*tick*`, `*match-tick*`, `*flow*`, cinematic name / frame / held, `*hitstop*`, the slow-motion scale), the mesh names, the seeds, the fixed inputs |
 | `build/oracle/draw/meshes.json` | mesh id -> what made it and its vertex count |
 | `build/oracle/draw/INDEX.json` | per scene: commands, viewport, frame list, named ranges, `match_seed`, `rng_start`, sha1, size, meshes made / drawn; once: the fixed inputs (as written and as read from the image), every command's meaning, the image's and the stub's sha1, provenance (`lisp_freeze`, `sources_equal_tag`) |
 
@@ -86,7 +86,7 @@ Every command's meaning, checked in the code, is in `draw-scenes.json` / INDEX `
 | Group | Scenes | Commands | Frames keyed |
 |---|---|---|---|
 | quiet (Tasks 5-7) | `quiet-2500` … `-2503`, `quiet-2394` … `-2397`, `quiet-84000`, `-84001`, `-84004`, `-84005` | the one command at frame 0 | every 5th of 10 s (`0-600/5`) |
-| slowmo | `slowmo-2513` | 2500 at 0, 2513 at 30 | every frame `0-239` (named `slowmo` 30-215) |
+| slowmo | `slowmo-2513` | 2500 at 0, 2513 at 30 | every frame `0-239` (named `slowmo` 30-209: SLOWMO-SCALE 0.2 at frames 30-203, easing to 1 at 204-209, 1.0 from 210, read from the log) |
 | forms | `forms-ken-p2` (2505, then 2508 at 80 / 160 / 240: P2 Kenpachi sealed -> Shikai L2 -> KYORAN -> ZANKAI), `forms-ken-p1` (84001, 84004 at 80, 84005 at 160), `forms-ichigo` (2394, 2395 at 80) | as listed | frame 0, then each form on 3 frames 20 apart (30 / 50 / 70 after its command; named) |
 | battle (Task 8) | `battle-2005` (Ichigo vs Kenpachi, seed 5), `battle-2006` (Ichigo vs Ichigo, seed 6) | the one command | every 10th frame of the first 60 s, the looks windows, the hitstop window (2005), each mid-match cinematic every 5th frame (named) |
 | portrait | `portrait-2501`, `portrait-2005` (390x844) | the one command | every 30th of 30 s |
@@ -97,8 +97,10 @@ What was checked from each scene's `draw f` lines:
   `*skip-cines*`, so INTRO-CINE starts and ends inside frame 0's command (its `[0] cine INTRO-CINE` log line). No `P1` / `P2 move`
   line: both fighters stand (no input reaches P1 natively; P2's brain is off).
 - **held cinematics:** each one plays from frame 0, one cinematic frame per frame, and holds at the listed frame (`held` 1 from there).
-  A single command with f = length − 1 (Ichigo's: 3k ≤ length − 1) plays the whole cinematic and holds on its last frame, so one
-  command per cinematic is enough. The looks gate's several commands per cinematic only move the hold point.
+  The CINE-AT ones use f = length − 1, so the whole cinematic plays and holds on its last frame. Ichigo's commands can hold only at
+  3k: each holds at the last multiple of 3 below its length (183 of 186, 189 of 192, 165 of 168, 177 of 180). Their last 2-3 frames
+  and their ends have no key here; the battle scenes' played Ichigo Kikons (heavy, rush, the awakening) cover those three's ends. One
+  command per cinematic is enough: the looks gate's several commands per cinematic only move the hold point.
 - **played Kikons:** the cinematic runs its full length, then the scene runs on (BATTLE, no cinematic).
 - **forms:** the log has `P2 form NOZARASHI / BANKAI / BANKAI-2` at the commands' frames (forms-ken-p2).
 - **battle:** the intro holds the first 300 frames, so the battle starts at frame 300. `*match-tick*` restarts there, and from then on
@@ -109,7 +111,7 @@ What was checked from each scene's `draw f` lines:
 1. **75300+k replaced by all seven Ichigo cinematics.** `ichigo-debug` decodes 75000 + 80 i + k as cinematic i held at frame 3k. So
    75300 is i 3 (`ic-kessa-getsuga-cine`) at frame 180, and 75320 and up is i 4. It is no longer "the awakening at frame 2k": that is
    the old 150 i + 2k numbering, which `tests/style-gates.py` LOOKS_CINES's comment still quotes. The awakening is i 2 (`ic-kessa-cine`).
-   The key holds each i = 0 … 6 at its last frame, which covers every 75000+ still.
+   The key holds each i = 0 … 6 at 3k = the last multiple of 3 below its length, which covers every 75000+ still.
 2. **`ic-haste-kikon-cine` (超速連斬) added through 86110** (ichigo.lisp ICHIGO-SUB-DEBUG). It is outside 74000-75599, and 86110 is the
    only command that starts it, so it is keyed up to its hold at frame 40 only (frames 0-60). Its frames 41-159 have no key.
 3. **84096 / 84097 added**: the Bankai's Kikons (`ken-kr-kikon-cine`, `ken-zh-kikon-cine`), in the same KEN-CORE-DEBUG block as 84094 /
@@ -149,3 +151,10 @@ was thinned.
   test card and the transparent scene fill it, and no scene turns either on. `ui` (the canvas words) appears in the cinematics and in
   the battle's captions. `fxb` (additive) appears in the battles and the Kikons.
 - `fu[157]` = 0.5 in every frame (MSAA 1).
+- **HUD-DRAW writes one value the next frame's picture reads: `*aura-cap*`.** AURA-CAP-UPDATE (hud-screens.lisp:10, the first form
+  of HUD-DRAW) sets it from the fighters' distance (0.5 within 2.5 m, 1 from 3.5 m). The next frame's VFX-AURA multiplies its presence
+  by it (vfx.lisp:277), and its emission counts (`n-of`) draw `rnd01`. So whatever replaces the HUD on M3a's page must still run
+  AURA-CAP-UPDATE at HUD-DRAW's place, or the cosmetic RNG leaves the key. Measured: the same scenes with debug 2120 at frame 0 (no
+  HUD-DRAW at all) keep every keyed `rng_state` in battle-2005 and cine-84094. battle-2006 differs from frame 6437 on: the frame after
+  a hit at match tick 6136 brings the fighters close while Ichigo's KESSA aura burns. No `lhud-*`, `hud*`, `webhud` or `paint*` file
+  calls `rnd01`: the HUD itself draws no cosmetic randomness.
