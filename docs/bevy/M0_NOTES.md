@@ -382,11 +382,12 @@ the `# A fields:` header, line 3; slot lists read at load from `defcomponent bra
    A mismatch in a job is named `job<k>.<field>` / `stjob<k>.<field>`.
 
 Values are `tr-b-enc`'s, nesting cut at depth 8 (B's: 4; no A field is cut today), with three A-only forms: a strategy plist (a plist
-of keyword keys with a symbol `:ID`, wherever it sits: `brain-strat`, `-sw-sub`, `-ev-on`, inside `-now` ...) is `#s:<id>`; when it is
+of keyword keys with a symbol `:ID`, wherever it sits: `brain-strat`, `-sw-sub`, `-ev-on`, inside `-now` ...) is `#s:<id>` (the ids are keywords, so a real token is `#s::A5-I-ANSWER`, double colon); when it is
 a player's fq copy (EQ to the strategy of an `*fq-tables*` cell) `#s:<id>/fq(<matches>,<q codes>...)` (`fq-encode`'s q codes, so a TD
 update shows on the step it lands); `brain-fql` (me vs base recs) is `(me,vs,#fq:<fq-checksum of base>,<record count>,<newest record>)`
-(the record only grows by `push`, so the newest record on each step covers it). The brainless replay compares only the pilot fields
-(its brains are gone); `replay.lisp ... live` (`gen.py replay --live`) keeps the brains thinking and compares the whole A line, with
+(the record only grows by `push`, so the newest record on each step covers it). A function is `#FN` (`brain-sw-fn`, `-sw-keep`'s style
+functions; in 14568 of vs-learn's A lines): which function is not checked. The brainless replay compares only the pilot fields (its
+brains are gone; the first differing one named); `replay.lisp ... live` (`gen.py replay --live`) keeps the brains thinking and compares the whole A line, with
 T's tick and vpad ticks, H and B (not the log, where the CPUs' C lines print, nor T's buttons / stick / stream, which the recorder
 takes mid-step).
 

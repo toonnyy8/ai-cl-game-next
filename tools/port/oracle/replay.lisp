@@ -109,8 +109,7 @@
       (let ((a (tr-a-line)) (want (tr-b-at (second cl-user::*sg-args*) (fifth rec))))
         (if *rp-live*
             (unless (string= a want) (rp-fail "~a" (or (tr-a-diff *rp-a-names* want a) "A (equal fields, other text)")))
-            (let ((w (tr-a-pilot *rp-a-names* want)) (g (tr-a-pilot *rp-a-names* a)))
-              (unless (string= w g) (rp-fail "A pilot fields~%  want ~a~%  got  ~a" w g))))))
+            (let ((d (tr-a-pilot-diff *rp-a-names* want a))) (when d (rp-fail "~a" d))))))
     (unless (string= h (third rec)) (rp-fail "H~%  want ~a~%  got  ~a" (third rec) h))
     (incf *rp-i*) (incf *rp-steps*))
   (unless (or *rp-trials* *rp-live*) (rp-detach)))

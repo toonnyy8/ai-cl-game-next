@@ -47,10 +47,11 @@
 ;;;;                               fields (job.side a1 a2 dif n v1 v2: *MC-JOBS* vector slots 1 2 3 4 6 8 9) repeated per job in order;
 ;;;;                               "|", one strategy job's (stjob.side n sums ns hsums hns) repeated per job. Values as TR-B-ENC writes
 ;;;;                               them, with these A-only forms: a strategy plist (one with :ID, wherever it sits: BRAIN-STRAT, -SW-SUB,
-;;;;                               -EV-ON, -NOW, ...) is #s:<id>, and when it is a player's fq copy (the strategy of an *FQ-TABLES* cell)
+;;;;                               -EV-ON, -NOW, ...) is #s:<id> (ids are keywords: #s::T0-KI-ICHIGO), and when it is a player's fq copy (the strategy of an *FQ-TABLES* cell)
 ;;;;                               #s:<id>/fq(<matches>,<q codes>...) (FQ-ENCODE's q codes); BRAIN-FQL is (me,vs,#fq:<checksum of the
 ;;;;                               offline table>,<record count>,<newest record>) (the record only grows by PUSH, so the newest on each
-;;;;                               step covers it); nesting is cut at depth 8 (B's: 4). The brainless replay compares the pilot fields;
+;;;;                               step covers it); nesting is cut at depth 8 (B's: 4). A function is #FN (BRAIN-SW-FN, -SW-KEEP's style functions): its identity is
+;;;;                               not in the line. The brainless replay compares the pilot fields;
 ;;;;                               a live replay (replay.lisp's "live": the brains think) compares every field
 ;;;; T: on a step that ran the sim's systems (a sim frame: the vpad ticks advance) the values right after BRAIN-SYSTEM, i.e. what the
 ;;;; brains wrote for FIGHTER-SYSTEM to read and the sim stream after their draws; on any other step (intro / cinematic / hitstop /
@@ -456,10 +457,11 @@ stjob<k>.<field>), or NIL if equal."
                (at (l) (or (nth i l) "<none>")))
           (format nil "A field ~a: want ~a got ~a" (name i) (at w) (at g)))))))
 
-(defun tr-a-pilot (names line)
-  "The pilot fields of A line LINE (those named p1.pilot-* / p2.pilot-*), as one string: what a brainless replay reproduces."
-  (format nil "~{~a~^ ~}" (loop for w in (rest (tr-split line)) for n in names
-                                when (or (eql 0 (search "p1.pilot-" n)) (eql 0 (search "p2.pilot-" n))) collect w)))
+(defun tr-a-pilot-diff (names want got)
+  "The first pilot field (p1.pilot-* / p2.pilot-*: what a brainless replay reproduces) where the A lines WANT and GOT differ, named, or NIL."
+  (loop for n in names for w in (rest (tr-split want)) for g in (rest (tr-split got))
+        when (and (or (eql 0 (search "p1.pilot-" n)) (eql 0 (search "p2.pilot-" n))) (string/= w g))
+          return (format nil "A field ~a: want ~a got ~a" n w g)))
 
 (defun tr-a-selftest ()
   "A hand-made brain's A fields print as expected (record.lisp / replay.lisp exit 2 when not)."
