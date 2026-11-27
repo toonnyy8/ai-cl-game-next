@@ -169,7 +169,7 @@ pub fn vfx_aura(c: &mut Ctx, x: f32, y: f32, z: f32, height: f32, kind: &str, dt
             c.light(x, y + 1.0, z, 1.0, 0.3, 0.2, 5.0, 1.2 * pk, 5);
         }
         "ICHIGO-AURA-BASE" => {} // (its afterimages: the caller's, `ichigo_aura_base`)
-        "ICHIGO-AURA-KESSA" => {} // task 7: KESSA's wisps read the posed joints (ICHIGO-AURA-KESSA: ic-joint)
+        "ICHIGO-AURA-KESSA" => {} // task 7: ICHIGO-AURA-KESSA reads ic-joint (posed joints); quiet-2395 compares fu,p,dq until Task 7
         _ => return Some("a Yamamoto / Hisagi aura (vfx.lisp VFX-AURA :hellfire / :garb, a kit's aura function: M4)"),
     }
     None

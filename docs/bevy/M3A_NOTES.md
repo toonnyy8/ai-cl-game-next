@@ -688,17 +688,20 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
   checks on the 17 cvc gate rows (whole matches):
   - `replay.rs` `scene_sink_no_alloc`: the real `Scene` as the sink (12,840-21,840 battle steps a row, 1,000-1,600 sound requests): no
     panic, 0 allocations;
-  - `replay.rs` `scene_draw_no_alloc`: the page's loop (`frame_begin`, `flow::frame`, `draw_frame`, `flow::frame_end`), turbo off, so
+  - `replay.rs` `scene_draw_no_alloc`: the page's loop (`flow::frame`, `draw_frame`, `flow::frame_end`), turbo off, so
     STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw (13,059-22,077 battle frames a row, 2-3.5e8 fx
     floats, none dropped): no panic, 0 allocations. It caught one: matching a look's name through `to_ascii_uppercase` allocated in
     every frame with an Ichigo hazard (now `eq_ignore_ascii_case` against a fixed table).
 
 ### Decisions and findings
 
-- **`frame_begin(sc, m, rdt)`** (new, `duel_look`): GAME-FRAME's SCREEN-FX-UPDATE runs before FLOW-UPDATE, with this frame's RDT, so the
-  loop calls it first: `frame_begin`, `flow::frame`, `draw_frame`, `flow::frame_end` (the draw tool does; Task 10's page must).
-- **`Scene.sounds: Vec<SoundReq>`** (At / Play / HumStart / HumStop / SilenceEnd), bounded at 256, reserved once; the loop clears it
-  after the draw (the draw tool does), M3b plays it. `Scene.hums` is feedback.lisp `*hums*` (a Breaker hum runs, per side).
+- **`LookSink::frame_begin(m, rdt)`** (new, default no-op; ruling R12): GAME-FRAME's SCREEN-FX-UPDATE runs before FLOW-UPDATE with this
+  frame's RDT, and the debug commands arrive between the Lisp's frames, so `flow::frame` calls it after its commands and before
+  FLOW-UPDATE and the steps (a pause a command sets already holds: 0 s). `Scene`'s impl clears last frame's `sounds`, then runs
+  SCREEN-FX-UPDATE. The loop stays three calls: `flow::frame`, `draw_frame`, `flow::frame_end`. (Fix round 1: it was a free function the
+  loop called before `flow::frame`, so it ran before the commands.)
+- **`Scene.sounds: Vec<SoundReq>`** (At / Play / HumStart / HumStop / SilenceEnd), bounded at 256, reserved once; readable after the
+  draw (M3b plays it), cleared at the next frame's start (`frame_begin`). `Scene.hums` is feedback.lisp `*hums*` (a Breaker hum runs, per side).
 - **`Em`, not a FrameOut in the sink.** FEEDBACK-SYSTEM runs inside the step, where the Rust sink has no `FrameOut` (the Lisp's frame
   arrays exist then: BEGIN-FRAME precedes the steps). No feedback call writes a frame array (they start stamps, particles, the hit light,
   marks, the shake), so the sink draws through `Em`. Task 8's step-mode cinematic looks may need the frame's arrays during the step.
@@ -712,13 +715,13 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
 ### Left to later tasks (`// task N` in the code)
 
 - **Task 7 (the fighters' draw):** DRAW-FIGHTER before its auras (body, weapon, hooks, VFX-CHARGE's call, the trails' pushes and
-  VFX-SMEAR's call); KESSA's aura (ICHIGO-AURA-KESSA: posed joints; a no-op, so quiet-2395 checks `fu,p,dq` only); the model looks
+  VFX-SMEAR's call); KESSA's aura (ICHIGO-AURA-KESSA reads IC-JOINT: posed joints; a no-op marked at its call site, so quiet-2395 checks `fu,p,dq` only: ruling R13); the model looks
   feedback starts (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, FACE-BEAT); START-GHOST and DRAW-GHOST (the Hoho's, a flash step's,
   ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); the hazard looks that read posed joints (ICHIGO-CLONE-LOOK and
   ICHIGO-ECHO-LOOK through IC-GHOST, ICHIGO-FLARE-LOOK through IC-JOINT: reaching one sets `unported`); DRAW-FIGHTER's per-frame
   STOP-HUM.
 - **Task 8 (cinematics, canvas):** ANNOUNCE's words, FOCUS-LINES' centre on a world point (WORLD-TO-SCREEN: the centre stays -1),
-  `*ui-flash*`'s drawing (stored in `FxState.ui_flash`), `*cine-grade*` coming back in SCREEN-FX-UPDATE, CINE-HELD-P in `frame_begin`,
+  `*ui-flash*`'s drawing (stored in `FxState.ui_flash`), `*cine-grade*` coming back in SCREEN-FX-UPDATE, CINE-HELD-P in `Scene::frame_begin`,
   CINE-END's SCREEN-FX-CLEAR (`fx::screen::screen_fx_clear`, its only caller; STAMPS-CLEAR has none outside debug),
   `*aura-off*`, DRAW-SCALE-OF, the cinematic step forms' FX (KE-Z-DUST etc.), `*card-only*`.
 - **M3b:** WEBHUD-REFUSED! / WEBHUD-BREAK! (the HUD's cues), playing `Scene.sounds`.

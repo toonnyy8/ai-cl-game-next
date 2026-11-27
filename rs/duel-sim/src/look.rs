@@ -199,6 +199,10 @@ impl LookQueue {
 /// state; it writes nothing else of the match.
 pub trait LookSink {
     fn step(&mut self, m: &mut Match);
+    /// The frame's start, inside `flow::frame` after its debug commands and before FLOW-UPDATE and the steps (main.lisp GAME-FRAME's
+    /// SCREEN-FX-UPDATE place; the commands arrive between the Lisp's frames, so a pause they set already holds here). RDT the frame's
+    /// real seconds. The default does nothing.
+    fn frame_begin(&mut self, _m: &Match, _rdt: f32) {}
     /// Before the draw, after the frame's steps: the immediate calls still queued (a debug command's, a frame that ran no step: the
     /// Lisp made them at once, before this frame's draw) applied and removed; the EMITs stay for the next step's FEEDBACK-SYSTEM. The
     /// default drops the calls.

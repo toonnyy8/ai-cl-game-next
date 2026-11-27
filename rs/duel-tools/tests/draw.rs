@@ -45,7 +45,7 @@ fn slowmo_frames_match() {
 fn quiet_fx_matches() {
     for s in QUIET {
         if s == "quiet-2395" {
-            check(s, "fu,p,dq", "fighters"); // task 7: KESSA's posed-joint looks
+            check(s, "fu,p,dq", "fighters"); // task 7: ICHIGO-AURA-KESSA reads ic-joint (posed joints); quiet-2395 compares fu,p,dq until Task 7
         } else {
             check(s, "fu,p,dq,fxa,fxb,ft,rng", "fighters");
         }

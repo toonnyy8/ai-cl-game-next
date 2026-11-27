@@ -3,7 +3,7 @@
 //!
 //! The scene's commands, viewport and fixed inputs come from FILE's INDEX.json (same directory, entry named by FILE's stem). Each
 //! frame is the game loop's three calls: `flow::frame` (dt `raw_dt` of the next pump), `duel_look::draw_frame`, `flow::frame_end`.
-//! Key frame F is pump F + 1. (`duel_look::frame_begin` comes first, SCREEN-FX-UPDATE's place; the sounds are cleared after.) `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
+//! Key frame F is pump F + 1. `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
 //! compared here). `--mask`: lanes a later task fills, left out of both sides: `lights` (fu 70..=135: the point lights, vfx.lisp's
 //! ADD-POINT-LIGHT), `fighters` (dq records of a body, weapon or the ink shadow mesh: DRAW-FIGHTER, Task 7; Ichigo's look bodies use
 //! the same meshes, so they are in this lane too), `chips` (dq records of the stage's rubble chips and their hulls, ST-CHIPS: Task 6).
@@ -15,7 +15,7 @@
 //! that run no command (the combat log off after the commands' frame, as the sim's 0-alloc gate), and `draw_frame`'s alone in every
 //! frame from frame 1 (command frames too). Exit 3: the replay reached an `unported!` sim path or a `look_unported`; exit 2: bad arguments.
 use duel_data::Data;
-use duel_look::{draw_frame, frame_begin, FrameOut, Scene, SceneInputs};
+use duel_look::{draw_frame, FrameOut, Scene, SceneInputs};
 use duel_sim::cpu::Search;
 use duel_sim::flow::{self, NoInput};
 use duel_sim::state::Match;
@@ -255,7 +255,6 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
         m.cmds.extend(cmds.iter().filter(|c| c.0 == f).map(|c| c.1));
         let a0 = crate::alloc_count::count();
         let rdt = flow::raw_dt(m.frame_n + 1);
-        frame_begin(&mut sc, &m, rdt);
         flow::frame(&mut m, &mut s, &mut NoInput, &mut sc, rdt);
         let d0 = crate::alloc_count::count();
         draw_frame(&mut sc, &mut m, rdt, &mut out);
@@ -263,7 +262,6 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
             draw_allocs += crate::alloc_count::count() - d0; // (draw_frame alone, every frame from 1, command frames too)
         }
         flow::frame_end(&mut m, &mut s);
-        sc.sounds.clear(); // (the page's player takes them here: M3b)
         if f > 0 && !has_cmd {
             (allocs, counted) = (allocs + crate::alloc_count::count() - a0, counted + 1);
         }

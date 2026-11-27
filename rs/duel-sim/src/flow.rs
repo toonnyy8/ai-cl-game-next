@@ -64,7 +64,8 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &m
     while let Some(c) = m.cmds.pop_front() {
         crate::debug::debug_command(m, s, c);
     }
-    // look: screen-fx-update, onehand-frame (frame time: the drawer's, before the steps; not queued)
+    // look: screen-fx-update (LookSink::frame_begin), onehand-frame (frame time: the drawer's, before the steps; not queued)
+    look.frame_begin(m, rdt);
     flow_update(m, rdt);
     crate::gate::gate_update(m, s);
     if sim_running_p(m) {

@@ -1159,8 +1159,7 @@ mod tests {
     }
 
     /// The real look sink (`duel_look::Scene`) on the 17 cvc gate rows: FEEDBACK-SYSTEM's port (stamps, particles, the shake, the
-    /// stage's marks, the sounds) runs on every event of whole matches with no panic and no allocation in a battle frame (the sounds
-    /// cleared each frame, as the page's loop does). The draw key cannot check these looks before Task 8's battle scenes.
+    /// stage's marks, the sounds) runs on every event of whole matches with no panic and no allocation in a battle frame. The draw key cannot check these looks before Task 8's battle scenes.
     #[test]
     fn scene_sink_no_alloc() {
         use duel_sim::look::LookSink;
@@ -1183,8 +1182,7 @@ mod tests {
             for _ in 0..200_000 {
                 let (a0, t0, before) = (crate::alloc_count::count(), m.match_tick, flow::battle_p(&m));
                 flow::frame_headless(&mut m, s, &mut flow::NoInput, sc);
-                sounds += sc.sounds.len();
-                sc.sounds.clear();
+                sounds += sc.sounds.len(); // (the frame's requests: the next frame's start clears them)
                 if before && flow::battle_p(&m) {
                     (allocs, steps) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0));
                 }
@@ -1199,7 +1197,7 @@ mod tests {
         }
     }
 
-    /// The draw side on battle data: the page's loop (`frame_begin`, `flow::frame`, `draw_frame`, `frame_end`) with the real `Scene` on
+    /// The draw side on battle data: the page's loop (`flow::frame`, `draw_frame`, `flow::frame_end`) with the real `Scene` on
     /// the 17 cvc gate rows, so STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw on whole matches: no
     /// panic, 0 allocations in a battle frame. Turbo is off after the commands (drawn frames, one step each). (`Scene.unported` is set
     /// at the first cinematic's camera, Task 8; drawing goes on.)
@@ -1222,13 +1220,11 @@ mod tests {
             m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
             let mut frame = |m: &mut Match, s: &mut Search, sc: &mut duel_look::Scene, out: &mut duel_look::FrameOut| {
                 let rdt = flow::raw_dt(m.frame_n + 1);
-                duel_look::frame_begin(sc, m, rdt);
                 flow::frame(m, s, &mut flow::NoInput, sc, rdt);
                 let d0 = crate::alloc_count::count();
                 duel_look::draw_frame(sc, m, rdt, out);
                 let d = crate::alloc_count::count() - d0;
                 flow::frame_end(m, s);
-                sc.sounds.clear();
                 d
             };
             frame(&mut m, s, sc, &mut out);

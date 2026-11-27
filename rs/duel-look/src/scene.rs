@@ -30,7 +30,8 @@ pub struct SceneInputs {
 }
 
 /// A sound the looks asked for (feedback.lisp's SFX-AT / SFX-ON / PLAY-SFX, the Breaker hum's START-LOOP / STOP-LOOP, the silence
-/// beat's end): collected in `Scene.sounds` for the player (M3b). The loop clears them after each frame's draw.
+/// beat's end): collected in `Scene.sounds` for the player (M3b), which reads them after the frame's draw; the next frame's start
+/// (`LookSink::frame_begin`) clears them.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum SoundReq {
     /// A positional sound KEY at P.
@@ -281,6 +282,15 @@ impl LookSink for Scene<'_> {
             }
         }
         m.looks.clear();
+    }
+
+    /// port: main.lisp GAME-FRAME's first form, SCREEN-FX-UPDATE (cinema.lisp): last frame's impact frames, focus lines and silence
+    /// run out by this frame's RDT (0 while paused). Last frame's sound requests are dropped first (the page's player took them after
+    /// its draw; they stay readable until here). task 8: a debug-held cinematic (CINE-HELD-P) also stops the screen fx.
+    fn frame_begin(&mut self, m: &Match, rdt: f32) {
+        self.sounds.clear();
+        let dt = if m.paused { 0.0 } else { rdt };
+        crate::fx::screen::screen_fx_update(&mut self.draw, &mut self.sounds, dt);
     }
 
     fn frame(&mut self, m: &mut Match) {

@@ -111,14 +111,6 @@ impl Scene<'_> {
     }
 }
 
-/// port: main.lisp GAME-FRAME's first form, SCREEN-FX-UPDATE (cinema.lisp): last frame's impact frames, focus lines and silence run
-/// out by this frame's RDT (0 while paused). The loop calls it first, before `flow::frame` (as GAME-FRAME does before FLOW-UPDATE);
-/// task 8: a debug-held cinematic (CINE-HELD-P) also stops it.
-pub fn frame_begin(sc: &mut Scene, m: &Match, rdt: f32) {
-    let dt = if m.paused { 0.0 } else { rdt };
-    fx::screen::screen_fx_update(&mut sc.draw, &mut sc.sounds, dt);
-}
-
 /// port: GAME-FRAME after its steps, then END-FRAME (duel/lisp/main.lisp 133-149, engine/lisp/render.lisp END-FRAME): SLOW-DRAW-BEGIN,
 /// the effect seconds (FDT), the fx clock, the camera (DUEL-CAMERA, SHAKE-UPDATE), DRAW-SCENE unless turbo, SLOW-DRAW-END, then the
 /// post parameters, the lights and the frame uniforms into OUT. RDT is the frame's real seconds (the one `flow::frame` stepped by).
