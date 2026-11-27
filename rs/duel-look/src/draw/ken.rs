@@ -167,13 +167,13 @@ fn meteor_impact(c: &mut Ctx, shake: &mut Shake, x: f32, z: f32) {
 #[allow(clippy::too_many_arguments)]
 fn special_look(c: &mut Ctx, shake: &mut Shake, st: &[f32], o: usize, mv: &duel_data::Move, sf: i64, prev: i64, tip: [f32; 3], p: [f32; 3], yaw: f32) {
     match mv.name.as_str() {
-        "KE-S-SP1" => {
+        "ke-s-sp1" => {
             if (4..=40).contains(&sf) {
                 let k = f_min(1.0, (sf - 3) as f32 / 8.0) * f_min(1.0, (41 - sf) as f32 / 10.0);
                 tornado(c, p[0], p[2], sf as f32, k, 600.0 + drawing_no(c.clock, 12.0));
             }
         }
-        "KE-S-SP2" => {
+        "ke-s-sp2" => {
             if (15..=21).contains(&sf) {
                 meteor_tail(c, st, o + 3, tip, f_min(1.0, (sf - 14) as f32 / 3.0));
             }
@@ -200,7 +200,7 @@ pub fn ken_draw(c: &mut Ctx, mut shake: Shake, m: &Match, e: Entity, sides: &Sid
         .then_some(f.mv)
         .flatten()
         .map(|id| duel_sim::fighter::mv(m, id))
-        .filter(|mv| !(bk && matches!(mv.name.as_str(), "KE-KR-SP" | "KE-ZH-SP")));
+        .filter(|mv| !(bk && matches!(mv.name.as_str(), "ke-kr-sp" | "ke-zh-sp")));
     let sf = if mv.is_some() { f.sf } else { -1 };
     let prev = ic_frame(st, o + 6, sf);
     let rim = if bk { PAL_BLOOD } else { PAL_INK };

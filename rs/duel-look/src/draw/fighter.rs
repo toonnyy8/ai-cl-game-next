@@ -823,7 +823,7 @@ pub fn draw_fighter(sc: &mut Scene, m: &Match, e: Entity, sides: &Sides, rdt: f3
         md.last_sf = now;
         if let Some(mv) = mv
             && now != prev
-            && mv.name == "KE-CHARGE"
+            && mv.name == "ke-charge"
             && f.phase == Some(Phase::Main)
             && (mv.s as i64) <= now
             && now < (mv.s + mv.a) as i64

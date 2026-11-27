@@ -341,11 +341,11 @@ fn black_flame(c: &mut Ctx, p0: [f32; 3], p1: [f32; 3], big: bool, seed: f32, fx
 
 /// The move names of ICHIGO-CHARGED-BLADES' three cases (the move's name: 1 the short blade charged, 2 both, the string after the SA
 /// keeping the side's charge).
-const CHARGE_1: [&str; 5] = ["IC-N2A", "IC-SA-G1", "IC-K-N2A", "IC-K-SA-G1", "IC-K-AS2"];
-const CHARGE_2: [&str; 7] = ["IC-N2B", "IC-SA-G2", "IC-K-N2B", "IC-K-SA-G2", "IC-K-AS2B", "IC-AS2", "IC-AS2B"];
+const CHARGE_1: [&str; 5] = ["ic-n2a", "ic-sa-g1", "ic-k-n2a", "ic-k-sa-g1", "ic-k-as2"];
+const CHARGE_2: [&str; 7] = ["ic-n2b", "ic-sa-g2", "ic-k-n2b", "ic-k-sa-g2", "ic-k-as2b", "ic-as2", "ic-as2b"];
 const CHARGE_KEEP: [&str; 16] = [
-    "IC-J2", "IC-J3", "IC-NA3", "IC-NA4", "IC-K-NA3", "IC-K-NA4", "IC-AS1", "IC-AS3", "IC-AS3B", "IC-AS3C", "IC-K-J2", "IC-K-J3", "IC-K-AS1", "IC-K-AS3",
-    "IC-K-AS3B", "IC-K-AS3C",
+    "ic-j2", "ic-j3", "ic-na3", "ic-na4", "ic-k-na3", "ic-k-na4", "ic-as1", "ic-as3", "ic-as3b", "ic-as3c", "ic-k-j2", "ic-k-j3", "ic-k-as1", "ic-k-as3",
+    "ic-k-as3b", "ic-k-as3c",
 ];
 
 /// port: ichigo-look.lisp ICHIGO-CHARGED-BLADES — step the side's charge (set by the move he is in) and draw its glow and trails on the
@@ -533,7 +533,7 @@ pub fn aura_base(w: &mut AuraWorld, x: f32, z: f32) {
     let m = w.m;
     let Some(f) = m.fighter.get(e) else { return };
     let Some(mv) = (f.state == State::Move).then_some(f.mv).flatten().map(|id| duel_sim::fighter::mv(m, id)) else { return };
-    if matches!(mv.name.as_str(), "IC-SOGA" | "IC-TSUKI-DASH") && f.phase == Some(Phase::Main) && f.sf < mv.s as i64 && f.sf % 4 == 0 {
+    if matches!(mv.name.as_str(), "ic-soga" | "ic-tsuki-dash") && f.phase == Some(Phase::Main) && f.sf < mv.s as i64 && f.sf % 4 == 0 {
         let (p, yaw) = w.sides.at(m, e);
         if let Some(md) = w.models.iter_mut().find(|md| md.e == e) {
             start_ghost(md, p, yaw);
