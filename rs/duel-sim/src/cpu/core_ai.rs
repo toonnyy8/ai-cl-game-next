@@ -197,7 +197,7 @@ fn cls_name(c: Option<MoveClass>) -> &'static str {
 }
 
 /// port: CAI-PRESS — hold BUTTON for FRAMES steps (with :MOD when MODDED).
-fn cai_press(b: &mut Brain, button: Sym, frames: i64, modded: bool) {
+pub(crate) fn cai_press(b: &mut Brain, button: Sym, frames: i64, modded: bool) {
     ai_press(b, button, frames, modded, button);
 }
 
@@ -243,7 +243,7 @@ fn cai_margin(m: &Match, b: &Brain) -> f32 {
 }
 
 /// port: CAI-OWN-ROLLS — the rolls of his own move, made once when it starts (its CLS-T).
-fn cai_own_rolls(m: &mut Match, b: &mut Brain, cls_t: i64) {
+pub(crate) fn cai_own_rolls(m: &mut Match, b: &mut Brain, cls_t: i64) {
     if b.own_key != cls_t {
         b.own_key = cls_t;
         b.r_turn = m.rng.rnd01();
@@ -253,7 +253,7 @@ fn cai_own_rolls(m: &mut Match, b: &mut Brain, cls_t: i64) {
 }
 
 /// port: CAI-SP — press SP: held into a Kikon when this SP's roll says so, else a tap of FRAMES; NO-KIKON a tap.
-fn cai_sp(m: &Match, e: Entity, b: &mut Brain, frames: i64, no_kikon: bool) {
+pub(crate) fn cai_sp(m: &Match, e: Entity, b: &mut Brain, frames: i64, no_kikon: bool) {
     let o = fighter(m, e).opp;
     let want = !no_kikon && {
         let go = m.gauges.get(o).unwrap();
@@ -324,7 +324,7 @@ fn cai_dswitch(m: &mut Match, e: Entity, b: &mut Brain, kit: &Kit) -> bool {
 }
 
 /// port: CAI-NEXT-OK-P — would an SP pressed now in NS segment MVD start the next one? Refused: logs `cpu holds` and NIL.
-fn cai_next_ok_p(m: &mut Match, e: Entity, kit: &Kit, mvd: &Move) -> bool {
+pub(crate) fn cai_next_ok_p(m: &mut Match, e: Entity, kit: &Kit, mvd: &Move) -> bool {
     let Some(nx) = mv_ns_next(m.data, kit, mvd) else { return false };
     let g = m.gauges.get(e).unwrap();
     let (fs, burst) = (g.fs, g.burst.is_some());
@@ -351,7 +351,7 @@ fn cai_hoho_hold_p(m: &mut Match, e: Entity, b: &Brain, kit: &Kit) -> bool {
 // ---------------------------------------------------------------- his own move
 
 /// port: CAI-MOVE-STEP — inside his own move: continue, turn or end it (once per move).
-fn cai_move_step(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Snap) {
+pub(crate) fn cai_move_step(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Snap) {
     let f = fighter(m, e);
     let (mvid, cls, cls_t, o) = (f.mv, f.cls.map(MoveClass::from), f.cls_t, f.opp);
     let oc = cai_class_of(m, o, s);
@@ -562,7 +562,7 @@ fn cai_clash(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s0: &Sn
 /// port: CAI-NEUTRAL — free: Hoho out of an attack at him, else walk to the range and now and then start a move. FINISH: the kit's
 /// own range, no strategy's scale, and only a move out of its dead zone.
 #[allow(clippy::too_many_arguments)]
-fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Snap, d: f32, finish: bool) {
+pub(crate) fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Snap, d: f32, finish: bool) {
     let ptr = fighter(m, e).ptr;
     let k = &m.knobs;
     let nr = kit.core.ns_range.as_ref().and_then(|v| v.get((1.max(k.core_pointer_max.min(ptr)) - 1) as usize).copied().flatten());
