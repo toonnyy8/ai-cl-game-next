@@ -417,8 +417,8 @@ their own slot of the same state (Lisp shares one snapshot object; no rollout wr
 reader is ported: MC-NEUTRAL, MC-FULL-STEP, GO-RESULTS (a rollout's K.O. stops at :finish), STRAT-LAYER-STEP, STRAT-SWITCH-STEP's counts,
 STRAT-EVENT-STEP's counts, the online learner's guard (Task 9). `Match`'s `Clone` is hand-written (`match_clone!`, an exhaustive
 destructuring): `clone_from` restores every field but `knobs` (configuration, written only by `Match::new`), and every component with a
-heap field restores in place (`Store`, `Fighter` / `Brain`, `Pilot` / `Vpad`, `Hazard` / `HitWin`, `Icc`; the rest are `Copy`, which the
-`..*src` updates check). A clone keeps `Store`'s `MAX_ENTITIES`, the brain's JSTARTS / SW-KEEP reserves and `iccs`' `ICC_RESERVE` (1024).
+heap field restores in place (`Store`, `Fighter` / `Brain` (boxed since Task 10), `Pilot` / `Vpad`; the rest are `Copy`, which the
+`..*src` updates check: `Hazard` / `HitWin` / `Icc` too since Task 10's fixed-capacity lists, §9). A clone keeps `Store`'s `MAX_ENTITIES`, the brain's JSTARTS / SW-KEEP reserves and `iccs`' `ICC_RESERVE` (1024).
 `Search::warm` (end of START-MATCH) makes `cpu::POOL` = 4 slots and the scratch, outside the battle.
 
 **Found in the Lisp: MC-SEARCH's UCB macro captures A** (DIVERGENCES §1). The capture is in the source (mcts-lite.lisp:310-340) and
@@ -454,14 +454,14 @@ unported path), every T / A (the job sections included) / C / H / B equal; the M
 live also replays OK in wasm32 under node. `--inject-plan` is now redundant (MC-FULL-STEP writes the same plan) and still passes.
 `vs-cpu` / `vs-learn` stop at step 1 (`vs-start`, `debug 2504`: Task 9). A cut CPU rollout prints `replay UNPORTED … in a rollout`,
 which `replay-gate.sh --allow-unported` would accept (a `--snap` cut is always `SNAP-UNP`); the M1 gate's brainless traces run no CPU
-rollout, but a live gate must fail that line as SNAP-UNP is failed.
+rollout, but a live gate must fail that line as SNAP-UNP is failed (done in Task 10: `CPU-UNP`, §9).
 
 **Allocations** (`duel-tools` `live_allocs`: the commands run live, no reader, the combat log off, every frame that starts and ends in the
 battle). cvc-ki-s1: 210 in 21,120 battle steps (12 decisions, 24 rollouts), MC-FULL-STEP's share 0. cvc-ii-s1: 217 in 19,080 (66
 decisions, 132 rollouts), MC-FULL-STEP's share 4: a slot, then the scratch, copying an Ichigo clone whose replay queue (`Icc.rq`, a Vec)
 the slot never held, twice. The rest is M1's known Ichigo clone events (M1 §5); both go away with fixed-capacity `Icc` / `HitWin`
 fields. Without `ICC_RESERVE` the slots also grew `iccs` (2 per new high-water mark). A brainless (vs) opponent's stand-in brain is a
-fresh `Brain` per rollout (Task 9's case, not "both CPUs on").
+fresh `Brain` per rollout (Task 9's case, not "both CPUs on"). (Task 10 took both to 0 on all 15 cvc traces: §9.)
 
 **For Task 9.** In a vs rollout the Lisp's human device reader still runs (the stand-in brain's VPAD-BEGIN-STEP! calls it: it rewrites
 his held state before AI-PRESS-WRITE! sets every button); the port's rollouts read nothing (`flow::NoInput`), which equals the cvc
@@ -523,8 +523,8 @@ KR-KIKON, ZH-KIKON and S-KIKON2's DURING ports are read from the Lisp, unchecked
 runs CORE-BRAIN-STEP, whose VPAD-BEGIN-STEP! calls the vpad's reader: the human's device, which in a rollout writes its held state (every
 button, then the stick) without advancing, before AI-PRESS-WRITE! sets every button; a rollout's PILOT-READ calls it too. So a held key is
 pressed afresh in each rollout step (a new press stamp) and a button the stand-in holds is released and pressed again each step
-(DIVERGENCES §1: not what the stand-in was for). The port does the same: `PilotInput::rollout_read` (default nothing: a CPU's vpad has no
-reader, the recorder's REC-READER skips rollouts), called through `flow::InRollout`, which `mc_full_step` (now given the live input) passes
+(DIVERGENCES §1: not what the stand-in was for). The port does the same: `PilotInput::rollout_read` (required since Task 10; nothing for a CPU's vpad, which has no
+reader: the recorder's REC-READER skips rollouts), called through `flow::InRollout`, which `mc_full_step` (now given the live input) passes
 to MC-FULL-ROLL and STRAT-ROLL's lean steps, and `sim_rollout` (SIM-ROLLOUT: there a brainless human's PILOT-SYSTEM reads the device;
 the replayer's `--snap` passes itself). The replayer's is the vs device: `Injector.held`, the buttons and stick last injected, written
 again; the live reads also write it again on a step without a new vpad tick, as REC-VS-DEVICE does. Test `tests/mcts.rs`
@@ -542,3 +542,197 @@ learned q, one match, the same checksum; another offline table loads fresh; FQ-R
 after a debug command and at NORMAL: no learner; debug 2504 and `fq_learn_force`: learners), `a_line_prints_the_copy_and_the_record`.
 `tests/mcts.rs`: `vs_device_writes_in_rollouts`, `brain_reset_is_make_brain`. `duel-tools`: `vs_traces_replay_whole`. The fq checks of
 strategy.lisp were all ported by Task 5 (`online_fq_td_and_page`); none was left.
+
+## 9. Closing the gate (Task 10, 2026-11-27)
+
+The plan's Task 10 asked for "§1 boundary, §2 census, §3 rulings, §4 carries, §5 numbers"; those numbers predate the per-task sections
+(§1-§8 above, which the ledger quotes), so the closing sections follow them: the boundary and its census are §1, the gate and the 0 B
+rule here, the numbers §10, the coverage §11, the rulings, carries and deferred minors §12.
+
+**The gate, all re-run on the final commit** (i7-13700K):
+
+| Check | Result |
+|---|---|
+| `duel-tools cvc --check build/oracle/cvc-tag.txt` | `cvc OK seed 7 ii,ik,kk: 88 lines equal`, exit 0 |
+| `tools/port/replay-gate.sh` (M1's 22, brainless) | 22 OK |
+| `tools/port/replay-gate.sh --live` (the 15 cvc traces `--live`, vs-cpu / vs-learn `--live --inject-side 0`) | 17 OK |
+| `tools/port/replay-gate.sh --live --snap` | 17 OK (no rollout cut) |
+| `tools/port/replay-gate.sh --live --wasm` (wasm32-wasip1 under node) | 17 OK |
+| `tools/port/replay-gate.sh --wasm` | 22 OK |
+| `cargo test --release -p duel-sim -p duel-tools -p duel-data` (with `ORACLE`) | 243 passed, 0 failed |
+| `cargo clippy -p duel-sim -p duel-tools -p duel-data --all-targets --release -- -D warnings` | clean |
+
+BEVY_PORT §7's M2 gate, "cvc II / IK / KK identical to `cvc-tag.txt` and to the key's extra seeds": the tag is the `cvc --check` row;
+the extra seeds are the 12 cvc-* traces (seeds 1-3 of KK / KI / IK / II), replayed whole with the CPUs thinking (every T / A / C / H /
+B equal), which is stronger than their RESULTS and hash lines.
+
+**`duel-tools cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]`** (`rs/duel-tools/src/cvc.rs`): per pair, debug 2102 (turbo) then
+3000 / 4000 / 5000 + SEED (START-CVC), played by both CPUs to the end; prints GO-RESULTS's RESULTS line (built where the flow becomes
+RESULTS, at `*step-hook*`'s place: its tick and Konpaku are that step's; secs `~,1f` of the single `(/ tick 60.0)` through
+`cl::fmt_fixed_f32`) and HASH-LOG's 600-tick hash lines, after the pair's name. `--check` compares them with FILE's lines of the pairs run
+(its `#` lines skipped), exit 1 at the first difference. Only seed 7 is checked against a key; another seed's `~,1f` on a tick ≡ 3 mod 6
+(a tie at the second decimal) is untested. Test `cvc_equals_the_tag`.
+
+**MC-FULL-LOG and STRAT-LOG** (GO-RESULTS's cost lines: decisions, rollouts, milliseconds) are never compared and are not G2's lines:
+not ported. Task 8's unused `mc_full_log` is deleted; `Search.mc_stats` / `strat_stats` keep the counts (the speed bench reads the
+rollouts from them). `Search.clock` stays the caller's (MC-FULL-STEP's and STRAT-FULL-STEP's time sums).
+
+**The game loop's frame.** `flow::frame` returns false once the sim reached an `unported!` path, in the match (`m.unported`; no step runs
+past it) or in a CPU rollout (`Search.cut`), so M3's loop stops and shows the name instead of freezing or playing on silently (M1 §10's
+carry). dt as an argument stays M3's. `PilotInput::rollout_read` is a required method (an M3 device can't forget its in-rollout write).
+
+**Strict arguments.** `duel-tools` refuses an unknown token, a flag without its value or with a bad one, and two flags pasted into one
+token (exit 2 with the usage); `replay --live` refuses `--stub` / `--mask` (a live run compares everything); `--bench` takes only `--live`
+and `--data`. `replay-gate.sh` fails a CPU rollout cut short by an `unported!` path (`replay UNPORTED … in a rollout from tick …`) as
+`CPU-UNP`, even with `--allow-unported`, as it fails a `--snap` cut (`SNAP-UNP`).
+
+**0 allocations per battle step with both CPUs on** (ruling R8; `duel-tools` `live_allocs`): each of the 15 cvc gate traces' S-line
+commands run live (no reader; the combat log off after the commands' frame, as `--bench`), counted over every frame that starts and ends
+in the battle: **0 in each** (13,920-21,840 battle steps a trace; cvc-ii-s1 66 decisions / 132 rollouts, cvctag-ii 80 / 160). Before:
+210 (cvc-ki-s1) and 217 (cvc-ii-s1). What went:
+- a runtime HITWIN's `vols` / `flags`, an ICC's `queued` / `rq` and the clone lists (ICHIGO-CLONES, ICHIGO-LIVE-CLONES, CLONE-SPAWN's
+  births, ICHIGO-VANISH's places) are `components::Few<T, N>`: inline, Deref to a slice, `push` / `insert` past N panic (never truncate).
+  The caps: 2 volumes and 4 flags (the data's windows hold 1 and 2, ECHO-HITWIN adds :BLADE), 16 clones and 16 queued replays (the 15 cvc
+  traces at most 3 clones and 1 queued move);
+- with that `HitWin`, `Hazard` and `Icc` are `Copy`: their hand-written `clone_from` went, and with it MC-FULL-STEP's 4 (a slot, then the
+  scratch, copying an `Icc.rq` Vec) and CORE-HAZARD-NOHIT!'s hazard copy;
+- `Fighter.brain` is boxed (speed, §10); `Option<Box<Brain>>::clone_from` restores in place, so a snapshot still allocates nothing.
+
+Outside the gate, as the Lisp conses: a learning VS match (vs-learn's) clones BRAIN-FQL's records with each snapshot and rollout
+(`Brain.fql`, `clone_from`) and pushes a record per judgement (FQ-NOTE); the leaked copy per learned match (§12, M3). FZ-MU lower-cases
+an upper-case set name into a fresh string (no data name has one).
+
+## 10. Speed with both CPUs on (Task 10)
+
+BEVY_PORT §6.4's measure is "cvc turbo": the CPUs playing. Both sides run a cvc trace's match from its S line with both brains thinking,
+nothing injected, the combat log off after the commands' frame, the trace read and the first frame before the clock, no comparison; each
+run checks it reproduced the trace (its step count and last H). Rust: `duel-tools replay TRACE --live --bench`, the median of 11 runs in
+one process. Lisp: `tools/port/sim-bench.lisp … TRACE brains` (its new mode: the hooks only count; `*combat-log*` and `*stats-log*` off,
+the port having no stats work), the median of 5 process runs, on `build/simgate/duel.fas` with the musl preload (M1 §5). Rollouts a
+second = CPU rollouts (MC-FULL-STEP's and STRAT-ROLL's) over the match's wall time, not a rollout's own speed.
+
+| Trace | Lisp brains on | Rust `--live --bench` | Ratio | Rust wasm32 (node) | Rollouts: count, Lisp / Rust a second |
+|---|---|---|---|---|---|
+| cvc-kk-s1 (18133 steps) | 142,427 steps/s (0.127 s) | 450,895 (0.040 s) | **3.17×** | 277,878 | 0 (n/a: KK queues no job) |
+| cvc-ki-s1 (21368) | 118,099 | 402,225 | **3.41×** | 248,539 | 24, 133 / 452 |
+| cvc-ii-s1 (19423) | 74,925 | 268,818 | **3.59×** | 169,972 | 132, 509 / 1,827 |
+
+The gate (≥ 3×) passes. Lisp spread over 5 runs ±4 %; Rust's under 5 %. The brainless bench (M1's measure) on the same build: 1,177,064 /
+1,033,146 / 877,893 steps/s, 4.7 / 4.5 / 3.7× M1's Lisp figures, unchanged. `duel-tools.wasm` is 7.29 MB (M1: 6.7).
+
+How it got there (each step bit-exact on the 17 live rows): the first live measure, at Task 9's code, was 186k / 184k / 133k steps/s on KK / KI /
+II (1.3-1.8×). A sampling profile (gdb as the parent sending SIGUSR2 every 2 ms: `perf` is not allowed on this machine) put the time in
+name lookups, as M1's was:
+- KIT-MOVE scanned the kit's ids, then the 549 moves by id, per call (STRAT-FEATS calls it three times a brain step): `Kit.move_ix`, a
+  sorted name → move index built by `Data::parse` (derived, not data: no extractor change, the checksum `3ddcd77c9a34edf5` unchanged),
+  and the match's `KitTable` now holds each kit's KIT-COMMAND-MOVE :q and KIT-CORE-MOVE :ns 1-3 for STRAT-FEATS. That gave 2.4-2.9×;
+- the CPU took its 6.5 kB brain out of the fighter and put it back twice a brain step (CORE-BRAIN-STEP, BRAIN-PERCEIVE): `Fighter.brain`
+  is boxed (made at a fighter's spawn, outside the battle);
+- FZ-MU found a set by a case-folding scan of the 44 names for every antecedent of every rule: each name is also kept packed into a u64
+  (`fuzzy::key8`, ≤ 8 bytes; every set name has ≤ 7), one integer compare a set;
+- NOW's cues are written in place (no measurable change; kept).
+
+**StyleState** (the ledger's M7): 1,400 bytes, of which the inline `Now` 1,048. On the three traces `take_style` is 0.5 % of the samples
+and memory copies under a style function 0.2 %, so it stays unboxed (a box would allocate at each style switch, breaking the 0 B rule).
+The big copy was the brain's. Where the time is now (KK / KI / II samples together): BRAIN-SYSTEM 59 %, the styles (STRAT-FN-STEP) 20 %,
+MC-FULL-STEP's rollouts 13 % (most of it II's), the rest the sim. One more option, measured and not taken: `opt-level = 3` for duel-sim
+(release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call.
+
+## 11. Coverage of `cpu/` by the 17 live traces (Task 10)
+
+Method: duel-tools built with `-C instrument-coverage` in its own target directory (`rustup component add llvm-tools`: the system's
+llvm-profdata 18 cannot read rustc 1.99's LLVM 23 profiles), the 17 live rows run once plainly and once with `--snap 40`, merged with
+`llvm-profdata`, functions and lines read from `llvm-cov export` / `llvm-cov show`. Function names are those whose first region starts on
+their `fn` line (closures are not counted separately).
+
+**`rs/duel-sim/src/cpu/`: 399 functions, 339 reached by the 17 live traces, 60 never.** Only `mcts::sim_rollout` is reached by the
+`--snap` rollouts alone (it is SIM-ROLLOUT, the tool's). The 60, by file (trait impls `fmt` / `default` / `eq` / `get` / `enc` included):
+- `core_ai.rs`: `cai_switch_press`, `cai_switch_target` (CAI-DSWITCH's: Hisagi arms only), `cai_style` (the matchup style without a
+  strategy: every gate CPU has a strategy);
+- `glue.rs`: `strat_feats` (the copying form; the step writes in place), `style_roll`, `cai_style_fn`, `strat_event_call` (an event arm
+  running a style), the strategy layer (`brain_set_strat`, `strat_request`, `strat_layer_step`, `strat_roll`, `strat_full_step`: ruling R4,
+  host test `strat_full_step_picks_after_its_rolls`);
+- `ken_ki.rs`: `ken_ki_style` (KEN-KI-STYLE: the gate's Kenpachi plays the KH / stand-off styles), `kk_juji_start`, `kk_wave_tick`,
+  `kk_wave_mix`, `kk_attack_in`, `kk_close_hit`, `kk_chase_step`, `kk_facing_p`, three `default`s;
+- `ichigo_ki.rs`: `ichigo_ki_style` (the plain ICHIGO-KI-STYLE: the gate plays R2B2A1), two `default`s;
+- `strategy.rs`: the strategy layer's and the tools' pure part (`strat_arms`, `strat_seed_value`, `strat_prior`, `strat_puct`,
+  `strat_final`, `strat_library_pos`, `strat_switch_to` / `_dir`, `strat_own` (composites: every gate table is a Q selector),
+  `strat_unit_find`, `strat_compose`, `strat_arm`, `rule_keys`, `strat_with`, `strat_expand`, `switch_entry_expand`, `event_arm_expand`,
+  `pairs`, `object`), `strat_value` (callers use `strat_value_of`), `fmt`, `get`, `enc`; all host-tested in `tests/strategy.rs`;
+- `fq.rs`: `fq_reset_all` (RESET LEARNING, host test `page_roundtrip`), `eq`; `perceive.rs`: `snap_left_seen`, `ai_mash_p` (the masher,
+  M5); `mod.rs`: `Brain::reset` (the stand-in brain's reuse: no vs trace queues a job), `fmt`, `default`; `style.rs`: `kks_mut`,
+  `ikst_mut`, `get`; `xch_ai.rs`: `get`.
+
+**M1 §5's carried items:**
+- HOHO-RESUME (`fighter/moves.rs` `hoho_resume`): **reached, 3 times**, by the latched path (a J pressed during the Hoho step, resumed at
+  its end through KIT-NEXT :q from an NA / AS). Never: the NS route (MV-NS-NEXT / the SA), the SP command, the AS start, and
+  HOHO-RESUME-PRESS! (the press in the neutral window after the Hoho: `fighter/states.rs` 0 past its test).
+- CUT-HAZARDS (`combat.rs`): runs every step, Nozarashi's open windows 6,910 times, but **no Ichigo wave is ever inside one**: the cut's
+  verdict (lines 860-877) never runs.
+- Kenpachi: KE-BUTTAGIRU's `ground_crack`, KE-CHARGE's `charge_tick`, KE-FLURRY's `flurry`: **0** (no CPU starts them either: their
+  `:sp1` / `:sp2` commands stay in MOVE-COMMANDS' dead clauses). KEN-BANKAI-CINE: **0** (the Bankai is entered 6 times, without it, as M1
+  found). Their host tests stay the only check (`tests/ken.rs`).
+- Task 9's DURING ports: KR-KIKON, ZH-KIKON and S-KIKON2's draw arms **0** (`ken/cine.rs`); Z-KIKON1 and S-KIKON1's run.
+
+**HARD-only paths:** the only HARD CPU in the 17 is vs-learn's learner (the cvc gate is NORMAL, vs-cpu NORMAL), and its MC-NEUTRAL
+(entered 897 times) never gets past the state test, so no HARD search runs: the decoupled UCT branch of `Lite::search` 0, the HARD outcome
+table (`mc_outcomes_of`) 0 in vs-learn. Host tests `duct_search_matches_the_lisp` and `hard_defers_on_a_thin_margin` cover them.
+FQ-ATTACH!'s HARD test and the HARD table chance are reached (vs-learn learns).
+
+## 12. What M2 hands on (from the ledger, `.superpowers/sdd/2026-11-27-m2-cpu/progress.md`)
+
+**Rulings:**
+
+| | Ruling | Where it stands |
+|---|---|---|
+| R1 | Task 4 creates `cpu/style.rs` with `resolve()` naming no style (call site `unported!("style <NAME>")`); Task 5 fills the names | done: Tasks 6-7 ported the four gate styles; Hisagi's resolve to `unported!` (M4) |
+| R2 | Task 3 may modify `gate.rs` (the `// cpu:` difficulty marker) | done |
+| R3 | MCTS jobs are rare; the stand-in brain for a human stays host-tested (`stand_in_brain_for_human`), no extra trace | stands: no vs trace queues a job (§8, §11) |
+| R4 | the strategy layer (STRAT-FULL-STEP) is unreached; ported with host tests | stands: its functions 0 in §11 |
+| R5 | `--inject-plan` copies MC-FULL-STEP's plan changes from the next record; job sections not compared under it | done; redundant since Task 8, still passes |
+| R6 | musl's expf in `cl.rs`, checked over all 2^32 inputs; libm's sinf / cosf / atan2f stay | done (hash `eae4f603b90fd236`, `tools/port/musl-hash.c`) |
+| R7 | `(expt <single> 2)` is powf in ECL: every site through `cl::expt2` | done (combat.rs, hazards.rs) |
+| R8 | 0 allocations per battle step with both CPUs on, measured on the cvc gate traces; the learner's consing stays outside | done: 0 on all 15 (§9) |
+
+**Carries to M3:**
+- the fq copies are leaked `&'static` values, one per load and per learned match (~85 kB each; 5-9 MB per 100 learned matches on a wasm
+  heap that never shrinks): an owned arena in `Search` before the phone build (fq.rs `ponytail:`);
+- `view_behind` is hard-wired to `*cam-behind*` T; SET-CAM-BEHIND is `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)`: the settings
+  and the touch deck own it;
+- the game loop calls `cine::cine_draw` once per rendered frame after the frame's steps (a played cinematic's DURING forms move the
+  actors: DIVERGENCES §1); `flow::frame` does it today, M3's loop must keep the order (and skip it in turbo);
+- FQ-MATCH-END runs in two halves (`fq_match_end_take` in GO-RESULTS inside `sim_core`, `fq_match_end_apply` at `sim_step`'s end, §8): a
+  new caller of GO-RESULTS outside `sim_step` must apply the queued half;
+- input-test.lisp's 7 device checks (PORTED.md) go with the touch deck's tests (the devices are the page's input);
+- the loop stops when `flow::frame` returns false and shows `m.unported` / `Search.cut`; dt as an argument;
+- each device implements `PilotInput::rollout_read` (the held keys written again inside a rollout, DIVERGENCES §1);
+- M1's touch stubs (M1 §10) still hold for the human seat.
+
+**Carries to M4:** Hisagi's and Yamamoto's CPUs (`cpu-hisagi-*`, `cpu-ih-*`, `cpu-hk-*`, their styles resolve to `unported!`); CAI-NEUTRAL's
+finish passes no E to KIT-COMMAND-MOVE, and STRAT-FEATS reads the :q move from the match's `KitTable` (no E either): both are wrong for a
+kit with a `:command` hook (Hisagi only), so add an `unported!` guard there with Hisagi; CAI-DSWITCH (Hisagi arms only) untraced.
+
+**Carries to M5:** the masher (`masher.lisp`, debug 81030+: `unported!("masher-step")`, `ai_mash_p` unreached); the debug commands the
+scripts use.
+
+**Deferred minors** (none blocks M2; each kept as it is unless its milestone touches it):
+- Task 1: TR-A-STRAT collapses any keyword plist with an :ID to `#s:<id>` under `*tr-a*`; `*tr-a*` is a special read by TR-B-ENC (a
+  hidden channel in the recorder); vs-learn.lisp's comment says "fq load 1 3", the trace and M0_NOTES say "3 1"; the `#FN` fields are never
+  compared; the full no-name `gen.py sim` was not run.
+- Task 2: `--resync` turns an UNPORTED exit into 1 after any mismatch. (`--live` with `--mask` / `--stub`: refused since Task 10.)
+- Task 4: a nested `unported!` helper returns a default and THINK goes on (harmless: the replay stops at the step); `as_by_press` None
+  reads 3 where the Lisp's present NIL would (not in the data).
+- Task 5: a composite's NIL-arm sub becomes `Some([OWN])` (dead today); the "every shipped CPU" wording about CAI-DSWITCH overclaims;
+  `event_arm_expand` assumes serde_json's sorted object order (load / test time only).
+- Task 6: no scripted unit test of KK-WAVE-STEP's :cut → :chase hand-off (KK's waves are unreached, §11).
+- Task 7: ICHIGO-KI-R2B1A1-STYLE is not ported (nothing names it); `IKW::enc` hard-codes `,NIL,(NIL)` where the gap-off arm prints.
+- Task 8: IKW's ALT / CELL in the A line are unverified (no keyed trace reaches gap-off; a `--snap` rollout of cvctag-ii does).
+- Task 9: the KR / ZH / S-KIKON2 DURING ports (0 in §11) and the replayer's `rollout_read` are matched by reading only.
+
+**Ledger items closed in Task 10:** duel-tools' argument errors (T4 minor); `--live` with `--mask` / `--stub` (T2 minor); the cut CPU
+rollout in the gate (T8 M3); `mc_full_log` / STRAT-LOG (T8 M5: deleted, never compared); StyleState's copy (T8 M7: measured, left);
+the stale `Strat` comment (T9 M5); `rollout_read` required (T9 M7); the learning match's allocations documented (T9 M2); the live 0 B
+count (T6 minor, R8); the plan's M1 carries owned by Task 10 (the loop surfacing `m.unported`, the speed gate with the CPU on, the
+coverage run, wasm32 in the gate). Earlier tasks closed their own carries (T2-T9 lines in the ledger: jstarts / sw_keep capacity,
+Search through `start_match`, the C split, the snapshot walk into the fq copy, MC-SETUP's NIL case, IKW gap-off, IKS-MODE-PICK's
+ratios, TSUKI-DASH's test, the 77 defparameters, the KKS panic).

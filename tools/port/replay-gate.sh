@@ -26,7 +26,7 @@ if [ $live = 1 ] && [ $stub = 1 ]; then echo "$0: --stubbed is not for a live ru
 ORACLE=${ORACLE:-$PWD/build/oracle}
 if [ $wasm = 1 ]; then
   (cd rs && cargo build -q --release -p duel-tools --target wasm32-wasip1) || exit 1
-  cmd=(node tools/port/replay-wasm.mjs)
+  cmd=(node --no-warnings tools/port/replay-wasm.mjs) # (node:wasi's ExperimentalWarning would be the first line)
 else
   (cd rs && cargo build -q --release -p duel-tools) || exit 1
   cmd=("$PWD/rs/target/release/duel-tools" replay)

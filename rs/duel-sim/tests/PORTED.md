@@ -4,7 +4,7 @@ Per Lisp test file: its checks (as its own runner counts them), ported, deferred
 
 | Lisp test | Checks | Ported | Where | Deferred |
 |---|---|---|---|---|
-| `tests/input-test.lisp` | 33 | 26 | `rs/duel-sim/src/vpad.rs` tests (7 fns) | 7, M2: the device read through bindings (`vpad-read!`, `inputs-down-p`; 5 per-frame checks + the chord + the diagonal stick) is the app's input layer |
+| `tests/input-test.lisp` | 33 | 26 | `rs/duel-sim/src/vpad.rs` tests (7 fns) | 7, M3 (M2 ruling: devices are the page's input; they go with the touch deck's tests): the device read through bindings (`vpad-read!`, `inputs-down-p`; 5 per-frame checks + the chord + the diagonal stick) is the app's input layer |
 | `tests/ecs-test.lisp` | 12 | 8 | `rs/duel-sim/src/ecs.rs` `ecs_test_lisp` (spawn / getters / slot order / remove / destroy / slot reuse with a new generation / NIL handle / clear → top 0) | 4, not ported: the event queue (`emit` / `take-events` / `do-events`) only feeds the look side (feedback, sound): M3 if a look needs it |
 | `tests/duel-rules/sp.lisp` | 75 | 70 | `rs/duel-sim/tests/sp.rs` (`sp_spending` lines 4-75: 56; `hit_px_sp_scale` lines 81-82: 2; `kit_sp_costs` lines 125, 133, 139-149: 12, the line-125 loop over the Kenpachi / Ichigo kits only) | 5: line 78 not ported (its 0.6d0 row makes HIT-PX a double; the sim's one caller, combat.lisp, passes singles); lines 114, 116, 119, 122 (the `*sp-table*` per-route cost table, rows for Hisagi included) deferred M4 |
 | `tests/duel-rules/triangle.lisp` | 142 | 111 | `rs/duel-sim/tests/triangle.rs` (lines 8-104 but 36: the verdicts, cancels, exchanges, pointers, first-land-p, 71; line 36 `first_window_first`; 107, 108, 109 (its other clauses), 113, 118, 148, 149, 151, 152, 169 `ichigo_core_moves`; 171 `five_j_pointer`; 268, 270-276, 278 `steal`; 282, 283 `ichigo_steal_values`; 137, 138, 140, 142, 144 `charged_sa_string`, Task 8), `rs/duel-sim/tests/kit.rs` (109, 127, 128, 147 `core_segments_routes`; 163, 164, 175, 176 `strings_and_links`; 129, 183, 194 (its Kenpachi / Ichigo forms; the Hisagi forms M4), 196 `ichigo_segment_rules`; Task 12: 255 `as_writes_and_no_kikon`, the Kenpachi / Ichigo forms) | 31: 120, 121, 122, 124 (FIGHTER-STANCE-CLIP, a look read) M3; 155, 156 (DEFCLIP-MIRROR poses), 167 (KESSA's clip names) M3; 202-252 (22 Hisagi checks) and 281 (Hisagi's steal values) M4; 269 not ported (`(not (boundp '*steal-fs-max*))`: Knobs has no such field) |
@@ -69,3 +69,12 @@ M2 Task 9 (the online learner, the human side): no Lisp test covers fq-online.li
 all ported by Task 5). `tests/fq.rs` `page_roundtrip`, `cvc_never_learns`, `a_line_prints_the_copy_and_the_record`; `tests/mcts.rs`
 `vs_device_writes_in_rollouts` (ledger T8), `brain_reset_is_make_brain`; `duel-tools replay.rs` `vs_traces_replay_whole` (vs-cpu and
 vs-learn whole, the page against the trace's `R page-set` lines) are not Lisp checks.
+M2 Task 10 (closing): `src/components.rs` `few_list_ops` (the fixed-capacity list behind HitWin / Icc), `duel-tools cvc.rs`
+`cvc_equals_the_tag` (G2's three matches against `build/oracle/cvc-tag.txt`), `replay.rs` `live_allocs` (now all 15 cvc traces, 0 each),
+`live_flags_parse`'s strict-argument cases are not Lisp checks.
+
+**Totals at M2's end** (15 Lisp test files): **1,143 checks, 1,022 ported, 121 deferred or not ported**, each with its reason in its row.
+M1's ten files are 780 / 688 (674 at M1's end, plus core.lisp's CPU checks M2 Task 4 ported: 307-317, 468, 471, 576); M2's five add 363 /
+334 (fuzzy 18 / 18, xch-ai 58 / 58, strategy 233 / 228, mcts 16 / 15, style-knob 38 / 15). Deferred by milestone: M3 (input-test's 7 device checks, the looks' clip / pose /
+DURING checks, the event queue), M4 (Hisagi / Yamamoto: triangle 202-252 / 281, sim.lisp's binder kit, sp.lisp's `*sp-table*` rows, core
+203, style-knob 144-150); the rest not ported, each with its reason (tools-only or source-text checks, retired kits' knobs).

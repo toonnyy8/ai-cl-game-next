@@ -94,8 +94,9 @@ Rust + Bevy 移植（2026-11-26 起，設計中）：Lisp 版在 `lisp-freeze`�
 | [M0_NOTES.md](bevy/M0_NOTES.md) | M0 筆記（英文）：無頭裝置遺失、空白頁合約、資料檔與浮點校驗、標準答案（`build/oracle`）、裁決、M1–M3 待辦 |
 | [M0_CODE_FIELDS.md](bevy/M0_CODE_FIELDS.md) | 資料檔裡以符號名寫出的程式欄位（掛鉤、演出、tick 回呼、風格函式）全表 |
 | [M1_NOTES.md](bevy/M1_NOTES.md) | M1 筆記（英文）：模擬核心 + 劍八、一護、22 條閘門軌跡逐位元重播、快照、速度、`unported!` 只在重播器、交給 M2–M5 的待辦與延後小項 |
+| [M2_NOTES.md](bevy/M2_NOTES.md) | M2 筆記（英文）：CPU 移植（感知、核心 CPU、策略、風格、MCTS、線上學習）、快照邊界、`cvc` 指令、17 條活軌跡閘門、CPU 開啟時 0 配置與速度、覆蓋率、交給 M3–M5 的待辦與延後小項 |
 | [DIVERGENCES.md](bevy/DIVERGENCES.md) | 移植版與 Lisp 的差異（英文）：照搬的 Lisp 錯誤（M1 沒有）、刻意保留的怪癖、無軌跡到達之路徑上的移植版差異 |
-| `bevy/plans/` | M0a / M0 / M1 的實作計畫（M1：`2026-11-26-m1-sim-core.md`）；工具在 `tools/port/`，Rust workspace 在 `rs/` |
+| `bevy/plans/` | M0a / M0 / M1 / M2 的實作計畫（M1：`2026-11-26-m1-sim-core.md`；M2：`2026-11-27-m2-cpu.md`）；工具在 `tools/port/`，Rust workspace 在 `rs/` |
 
 ## 研究（`research/`）
 
