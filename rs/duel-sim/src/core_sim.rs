@@ -497,7 +497,7 @@ fn hz_tag(kind: Option<HazardKind>, cls: Option<Cls>) -> String {
 /// port: CORE-HAZARD-NOHIT!: a :cancel or :absorb verdict between hazard HZ (judged as the segment that fired it) and fighter OTHER.
 /// The caller removes the hazard.
 pub fn core_hazard_nohit(m: &mut Match, hz: Entity, other: Entity, verdict: Verdict) {
-    let h = m.hazard_of(hz).expect("a hazard").clone();
+    let h = *m.hazard_of(hz).expect("a hazard");
     let owner = h.owner;
     match verdict {
         Verdict::Cancel => {
@@ -726,7 +726,7 @@ pub fn core_follow_step(m: &mut Match, e: Entity, id: MoveId) {
 
 /// port: CORE-KIKON-KNOCK!: the hold confirmed: the victim knocked back into the Kikon's reel (the cues: looks).
 pub fn core_kikon_knock(m: &mut Match, e: Entity) {
-    let KikonUndo { def, sx, sz, kreact, kstun, .. } = fighter(m, e).kikon_undo.clone().expect("a Kikon undo");
+    let KikonUndo { def, sx, sz, kreact, kstun, .. } = fighter(m, e).kikon_undo.expect("a Kikon undo");
     set_reaction(m, def, kreact, kstun, sx, sz, m.knobs.kikon_follow_kb);
 }
 
@@ -739,7 +739,7 @@ pub fn core_follow_cues(_m: &mut Match, _att: Entity, _def: Entity) {
 /// reaction, E back in his move where it hit; a wave's strike: E free again).
 pub fn core_kikon_undo(m: &mut Match, e: Entity) {
     let f = fighter(m, e);
-    let KikonUndo { def, react, stun, sx, sz, kb, wave, .. } = f.kikon_undo.clone().expect("a Kikon undo");
+    let KikonUndo { def, react, stun, sx, sz, kb, wave, .. } = f.kikon_undo.expect("a Kikon undo");
     let hold = f.hold;
     let knocked = hold > core_kikon_defer(m, f) || matches!(react, Phase::Knockdown | Phase::Launch);
     let f = fighter_mut(m, e);

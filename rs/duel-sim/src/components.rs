@@ -1,7 +1,7 @@
 //! port: duel/lisp/components.lisp (+ engine/lisp/ecs.lisp TRANSFORM, duel/lisp/ichigo.lisp ICS): every slot of each
 //! DEFCOMPONENT the sim reads, same order, snake case. Fixnums are i64, single-floats f32, T / NIL slots bool, keyword slots
 //! enums whose `Display` is the Lisp name (upper case, no colon). `model` / `blade` are looks (M3); `brain` is
-//! `Fighter.has_brain` (decision 3).
+//! `Fighter.brain` (cpu::Brain, M2).
 use crate::ecs::Entity;
 use crate::knobs::Knobs;
 use crate::vpad::Vpad;
@@ -65,6 +65,9 @@ kw_enum!(Character { Yamamoto = "YAMAMOTO", Kenpachi = "KENPACHI", Rukia = "RUKI
 kw_enum!(HazardKind { Fx = "FX", IcHit = "IC-HIT", Line = "LINE", Wave = "WAVE", YaTower = "YA-TOWER" });
 kw_enum!(Contact { Hit = "HIT", Block = "BLOCK" });
 kw_enum!(
+    /// `*difficulty*`, a brain's difficulty (*DIFFICULTIES*).
+    Difficulty { Easy = "EASY", Normal = "NORMAL", Hard = "HARD" });
+kw_enum!(
     /// FIGHTER-QUEUED: the latch.
     Queued { Q = "Q", F = "F", Ns = "NS", Sa = "SA", Sw = "SW", SwNs = "SW-NS", Sp = "SP" });
 kw_enum!(Burst { White = "WHITE", Blue = "BLUE", Orange = "ORANGE" });
@@ -75,8 +78,91 @@ kw_enum!(
 kw_enum!(Flow { Title = "TITLE", Mode = "MODE", Settings = "SETTINGS", Controls = "CONTROLS", Select = "SELECT", Intro = "INTRO",
     Battle = "BATTLE", Finish = "FINISH", Results = "RESULTS" });
 
+/// A Lisp list of at most N items, held inline (no heap: the 0 B / step rule, M2_NOTES §9): a runtime hit window's volumes and flags,
+/// a clone's queues, a clone list. Derefs to its items. `push` / `insert` past N panic, never truncate (a lost item would be a
+/// silent divergence); `T::default()` only fills the unused slots.
+#[derive(Clone, Copy)]
+pub struct Few<T: Copy + Default, const N: usize> {
+    a: [T; N],
+    n: u8,
+}
+impl<T: Copy + Default, const N: usize> Few<T, N> {
+    pub fn new() -> Self {
+        Few { a: [T::default(); N], n: 0 }
+    }
+    pub fn push(&mut self, x: T) {
+        assert!((self.n as usize) < N, "more than {N} items in a fixed list");
+        self.a[self.n as usize] = x;
+        self.n += 1;
+    }
+    pub fn insert(&mut self, i: usize, x: T) {
+        self.push(x);
+        self[i..].rotate_right(1);
+    }
+    pub fn remove(&mut self, i: usize) -> T {
+        let x = self[i];
+        self[i..].rotate_left(1);
+        self.n -= 1;
+        x
+    }
+    pub fn clear(&mut self) {
+        self.n = 0;
+    }
+    /// Keeps the items F accepts, in order.
+    pub fn retain(&mut self, mut f: impl FnMut(&T) -> bool) {
+        let mut k = 0;
+        for i in 0..self.n as usize {
+            if f(&self.a[i]) {
+                self.a[k] = self.a[i];
+                k += 1;
+            }
+        }
+        self.n = k as u8;
+    }
+}
+impl<T: Copy + Default, const N: usize> Default for Few<T, N> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<T: Copy + Default, const N: usize> std::ops::Deref for Few<T, N> {
+    type Target = [T];
+    fn deref(&self) -> &[T] {
+        &self.a[..self.n as usize]
+    }
+}
+impl<T: Copy + Default, const N: usize> std::ops::DerefMut for Few<T, N> {
+    fn deref_mut(&mut self) -> &mut [T] {
+        &mut self.a[..self.n as usize]
+    }
+}
+impl<T: Copy + Default, const N: usize> IntoIterator for Few<T, N> {
+    type Item = T;
+    type IntoIter = std::iter::Take<std::array::IntoIter<T, N>>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.a.into_iter().take(self.n as usize)
+    }
+}
+impl<T: Copy + Default, const N: usize> FromIterator<T> for Few<T, N> {
+    fn from_iter<I: IntoIterator<Item = T>>(it: I) -> Self {
+        let mut f = Self::new();
+        it.into_iter().for_each(|x| f.push(x));
+        f
+    }
+}
+impl<T: Copy + Default + PartialEq, const N: usize> PartialEq for Few<T, N> {
+    fn eq(&self, o: &Self) -> bool {
+        **self == **o
+    }
+}
+impl<T: Copy + Default + fmt::Debug, const N: usize> fmt::Debug for Few<T, N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (**self).fmt(f)
+    }
+}
+
 /// An index into `Data.moves` (printed `#m::NAME`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct MoveId(pub u16);
 
 /// FIGHTER-KIT: the kit of a character and form (printed `#k::CHARACTER/:FORM`).
@@ -87,7 +173,7 @@ pub struct KitId {
 }
 
 /// A symbol slot printed as it is (a hook / look function name `ICHIGO-CLONE-HZ`, or a keyword with its colon `:CRACK`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Sym(pub &'static str);
 
 /// A Lisp string slot (FIGHTER-CALLOUT): printed with quotes, spaces as `_`.
@@ -128,7 +214,7 @@ impl Default for Motion {
 }
 
 /// FIGHTER-KIKON-UNDO (combat.lisp APPLY-HIT): (def react stun sx sz kb wave react stun).
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct KikonUndo {
     pub def: Entity,
     pub react: Phase,
@@ -141,7 +227,7 @@ pub struct KikonUndo {
     pub kstun: i64,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Fighter {
     pub side: i64,
     pub opp: Entity,
@@ -229,8 +315,28 @@ pub struct Fighter {
     pub combo_dmg: i64,
     pub callout: Option<Str>,
     pub callout_t: i64,
-    /// Not a slot: the BRAIN component's presence (decision 3; not in the B line).
-    pub has_brain: bool,
+    /// Not a slot: the BRAIN component (M2; not in the B line, in A). Boxed: a brain is 6.5 kB and the CPU takes it out of its fighter
+    /// for each step (a move of the pointer, not of the brain; made at a fighter's spawn, restored in place by `clone_from`).
+    pub brain: Option<Box<crate::cpu::Brain>>,
+}
+
+/// `clone_from` (a rollout's restore) reuses the brain's heap (`Brain::clone_from`); every other slot is `Copy` (`..*src` checks it).
+impl Clone for Fighter {
+    fn clone(&self) -> Fighter {
+        Fighter { brain: self.brain.clone(), ..*self }
+    }
+    fn clone_from(&mut self, src: &Fighter) {
+        let mut brain = self.brain.take();
+        brain.clone_from(&src.brain);
+        *self = Fighter { brain, ..*src };
+    }
+}
+
+impl Fighter {
+    /// The BRAIN component's presence (a CPU seat).
+    pub fn has_brain(&self) -> bool {
+        self.brain.is_some()
+    }
 }
 
 impl Default for Fighter {
@@ -322,7 +428,7 @@ impl Default for Fighter {
             combo_dmg: 0,
             callout: None,
             callout_t: 0,
-            has_brain: false,
+            brain: None,
         }
     }
 }
@@ -409,19 +515,32 @@ impl Gauges {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Pilot {
     pub vpad: Vpad,
     pub cam_relative: bool,
 }
 
-/// A hazard's runtime HITWIN (kit.lisp, slot order): built by the sim, so GUARD may be a float.
-#[derive(Clone, Debug, PartialEq)]
+/// `clone_from` reuses the vpad's Vecs (`Vpad::clone_from`).
+impl Clone for Pilot {
+    fn clone(&self) -> Pilot {
+        Pilot { vpad: self.vpad.clone(), cam_relative: self.cam_relative }
+    }
+    fn clone_from(&mut self, src: &Pilot) {
+        self.vpad.clone_from(&src.vpad);
+        self.cam_relative = src.cam_relative;
+    }
+}
+
+/// A hazard's runtime HITWIN (kit.lisp, slot order): built by the sim, so GUARD may be a float. Its fixed lists hold 2 volumes and 4
+/// flags: the data's 549 moves have windows of at most 1 volume and 2 flags, ECHO-HITWIN (the only data copy) adjoins :BLADE, so <= 3;
+/// the waves' windows hold 0 volumes and 1 flag.
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct HitWin {
     pub from: i64,
     pub to: i64,
     pub dmg: i64,
-    pub vols: Vec<[f32; 6]>,
+    pub vols: Few<[f32; 6], 2>,
     pub react: Phase,
     pub kb: f32,
     pub hs: i64,
@@ -431,12 +550,12 @@ pub struct HitWin {
     pub seg: Option<Sym>,
     pub min: Option<f32>,
     pub steal: Option<i64>,
-    pub flags: Vec<Sym>,
+    pub flags: Few<Sym, 4>,
 }
 
 /// HAZARD-DATA. Seen in the gate: NIL, Ichigo's clone `#ICC{…}` (shared by the clone and its strikes: `Match.iccs[index]`), his
 /// afterimage's `#ICE{…}`, a strike's keyword (`:ECHO`, `:RENZAN`), a look's integer (KAGE-RENZAN's cut number), DELAY-HIT's list.
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum HzData {
     #[default]
     Nil,
@@ -448,7 +567,7 @@ pub enum HzData {
     DelayHit { def: Entity, dmg: i64, n: i64, react: Phase, stun: i64, sx: f32, sz: f32, kb: f32, mv: MoveId, red: bool },
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Hazard {
     pub kind: Option<HazardKind>,
     pub owner: Entity,
@@ -558,5 +677,29 @@ impl Default for Ics {
             acc_hit: None,
             acc_kikons: 0,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Few;
+
+    /// `Few` as the Lisp list it stands for: PUSH at the front (`insert(0)`), POP (`remove(0)`), REMOVE-IF-NOT (`retain`), order kept;
+    /// one item past its capacity panics.
+    #[test]
+    fn few_list_ops() {
+        let mut f: Few<i64, 3> = [1, 2].into_iter().collect();
+        f.insert(0, 0);
+        assert_eq!(*f, [0, 1, 2]);
+        assert_eq!(f.remove(0), 0);
+        f.retain(|&x| x != 1);
+        assert_eq!((*f).to_vec(), [2]);
+        assert_eq!(f.into_iter().collect::<Vec<_>>(), [2]);
+        let full = std::panic::catch_unwind(|| {
+            let mut g: Few<i64, 1> = Few::new();
+            g.push(1);
+            g.push(2);
+        });
+        assert!(full.is_err());
     }
 }

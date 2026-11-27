@@ -80,6 +80,14 @@ pub fn opp_of(m: &Match, e: Entity) -> Entity {
 pub fn side_name(m: &Match, e: Entity) -> &'static str {
     if m.fighter.get(e).is_some_and(|f| f.side == 0) { "P1" } else { "P2" }
 }
+/// The log lines' `~@[ ~a~]` of `(brain-why b)` (fighter.lisp 319, 355, 376): " WHY" (a keyword without its colon) for a brain with
+/// one, else "". Only scripted.lisp's trial player sets one.
+pub fn why_suffix(m: &Match, e: Entity) -> String {
+    match m.fighter.get(e).and_then(|f| f.brain.as_ref()).and_then(|b| b.why) {
+        Some(w) => format!(" {}", w.0.trim_start_matches(':')),
+        None => String::new(),
+    }
+}
 /// port: ecs.lisp POS-OF.
 pub fn pos_of(m: &Match, e: Entity) -> [f32; 3] {
     m.transform.get(e).map_or([0.0; 3], |t| t.pos)
@@ -99,32 +107,56 @@ pub fn kit_of(m: &Match, e: Entity) -> &'static Kit {
 }
 const NC: usize = Character::ALL.len();
 const NF: usize = Form::ALL.len();
-/// Every kit of the data by (character, form), with its body's hurt radius: built once per match, since `kit_of` / `hurt_r` run many
-/// times a step (two map lookups by name each, before).
+/// Every kit of the data by (character, form), with its body's hurt radius and the moves the CPU's cues read each step (KIT-COMMAND-MOVE
+/// :q, KIT-CORE-MOVE :ns 1-3): built once per match, since `kit_of` / `hurt_r` / STRAT-FEATS run many times a step (map lookups by
+/// name each, before).
 #[derive(Clone, Copy)]
-pub struct KitTable([[Option<(&'static Kit, f32)>; NF]; NC]);
+pub struct KitTable([[Option<KitRow>; NF]; NC]);
+/// One kit's row of the `KitTable`.
+#[derive(Clone, Copy)]
+pub struct KitRow {
+    pub kit: &'static Kit,
+    pub hurt_r: f32,
+    /// KIT-COMMAND-MOVE :q (J).
+    pub q: Option<&'static Move>,
+    /// KIT-CORE-MOVE :ns 1, 2, 3.
+    pub ns: [Option<&'static Move>; 3],
+}
 impl KitTable {
     pub fn new(data: &'static duel_data::Data) -> KitTable {
         let mut t = [[None; NF]; NC];
         for (ci, &c) in Character::ALL.iter().enumerate() {
             for (fi, &f) in Form::ALL.iter().enumerate() {
                 let kit = data.kits.kits.get(&c.name().to_lowercase()).and_then(|fs| fs.get(&f.name().to_lowercase()));
-                t[ci][fi] = kit.map(|k| (k, data.bodies.get(&k.body).unwrap_or_else(|| panic!("kit {c} {f}: unknown body {}", k.body)).hurt_r));
+                t[ci][fi] = kit.map(|kit| KitRow {
+                    kit,
+                    hurt_r: data.bodies.get(&kit.body).unwrap_or_else(|| panic!("kit {c} {f}: unknown body {}", kit.body)).hurt_r,
+                    q: crate::kit::kit_command_move(data, kit, "q"),
+                    ns: [1, 2, 3].map(|n| crate::kit::kit_core_move(data, kit, crate::kit::Role::Ns, n)),
+                });
             }
         }
         KitTable(t)
     }
     /// (the kit, its body's hurt_r); panics on a kit the data lacks, as `find_kit`.
     pub fn get(&self, c: Character, f: Form) -> (&'static Kit, f32) {
-        self.0[c as usize][f as usize].unwrap_or_else(|| panic!("unknown kit {c} {f}"))
+        let r = self.row(c, f);
+        (r.kit, r.hurt_r)
+    }
+    pub fn row(&self, c: Character, f: Form) -> &KitRow {
+        self.0[c as usize][f as usize].as_ref().unwrap_or_else(|| panic!("unknown kit {c} {f}"))
     }
 }
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {
     &m.data.moves[id.0 as usize]
 }
-/// The MoveId of a move of the data (kit.rs readers return `&Move`). ponytail: a scan over 549 moves per move start; index if hot.
+/// The MoveId of a move of the data (kit.rs readers return `&Move`): its index in `data.moves` from its address (O(1); the
+/// rollouts multiply the calls, M1 §10).
 pub fn id_of(m: &Match, x: &Move) -> MoveId {
-    MoveId(m.data.moves.iter().position(|y| std::ptr::eq(x, y)).expect("a move of the data") as u16)
+    let ms = &m.data.moves;
+    let p = x as *const Move;
+    assert!(ms.as_ptr_range().contains(&p), "a move of the data");
+    MoveId(((p as usize - ms.as_ptr() as usize) / std::mem::size_of::<Move>()) as u16)
 }
 /// port: CURRENT-MOVE: F's move while his state is :move.
 pub fn current_move(f: &Fighter) -> Option<MoveId> {
@@ -179,6 +211,11 @@ pub fn gauges_red_p(k: &crate::knobs::Knobs, g: &Gauges) -> bool {
     crate::rules::red_p(k, g.reishi, g.reishi_max)
 }
 
+/// port: REISHI-FRAC — G's Reishi as a fraction of its maximum (a trial's float Reishi too: `cl::Num`).
+pub fn reishi_frac(g: &Gauges) -> f32 {
+    g.reishi.f() / g.reishi_max as f32
+}
+
 /// port: combat.lisp RESPECT: E's form's :respect-callout, if any.
 pub fn respect(m: &mut Match, e: Entity) {
     if let Some(c) = &kit_of(m, e).respect_callout {
@@ -207,8 +244,8 @@ pub fn hoho_ready_p(m: &Match, e: Entity) -> bool {
 
 // ---------------------------------------------------------------- creation
 
-/// port: SPAWN-FIGHTER: SIDE's fighter playing CHARACTER's :base kit at (X 0 Z) facing YAW; CPU seats get a brain
-/// (`has_brain`: its difficulty and delay are the CPU's, M2) and no device reader (`cam_relative` false).
+/// port: SPAWN-FIGHTER: SIDE's fighter playing CHARACTER's :base kit at (X 0 Z) facing YAW; CPU seats get a brain of `*difficulty*`
+/// (SPAWN-PAIR's) and no device reader (`cam_relative` false).
 pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: f32, yaw: f32, cpu: bool) -> Entity {
     let kit = m.kits.get(character, Form::Base).0;
     let e = m.spawn();
@@ -221,7 +258,13 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
             side,
             character: Some(character),
             kit: Some(KitId { character, form: Form::Base }),
-            has_brain: cpu,
+            brain: cpu.then(|| {
+                let mut b = crate::cpu::Brain::new(m.difficulty, m.knobs.ai_delay.get(m.difficulty.name(), 14));
+                // (JSTARTS holds at most a tick per step within *ai-mash-window*, plus the one BRAIN-PERCEIVE pushes before it drops: its whole
+                // size now, so a battle step never grows it)
+                b.jstarts.reserve(m.knobs.ai_mash_window as usize + 2);
+                Box::new(b)
+            }),
             ..Fighter::default()
         },
     );
@@ -235,14 +278,39 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
 
 // ---------------------------------------------------------------- the view humans steer by
 
+/// port: VIEW-STEP — keep the pair view on its side of the A (P1) -> B axis (of the two perpendiculars the one nearest last step's,
+/// so it never swings 180 deg after a Hoho) and turn the behind camera toward B by at most `*behind-turn*` a step; RESET (the battle's
+/// start, every Kikon reset): P1 on the left, the behind yaw snapped. Writes only `view_x` `view_z` `view_side` `behind_yaw` (roots).
+/// (%SET-FLOAT skips a write of the same bits: a plain write here.)
+pub fn view_step(m: &mut Match, a: Entity, b: Entity, reset: bool) {
+    let (p, q) = (pos_of(m, a), pos_of(m, b));
+    let (dx, dz) = (q[0] - p[0], q[2] - p[2]);
+    let d = libm::sqrtf(dx * dx + dz * dz); // (%sqrt)
+    if d > 0.01 {
+        let (nx, nz) = (-dz / d, dx / d);
+        let side = if reset || nx * m.view_x + nz * m.view_z >= 0.0 { 1.0 } else { -1.0 };
+        let yaw = crate::math::dir_yaw(dx, dz); // (%dir-yaw: the double atan2, rounded)
+        (m.view_side, m.view_x, m.view_z) = (side, side * nx, side * nz);
+        m.behind_yaw = if reset {
+            yaw
+        } else {
+            let step = crate::rules::track_step(m.knobs.behind_turn); // (%track-step)
+            crate::math::angle_wrap(crate::math::turn_toward(m.behind_yaw, yaw, step))
+        };
+    }
+}
+
 /// port: STICK-RELATIVE: E's stick as (toward, strafe) relative to his opponent. A CPU pilot writes (strafe, toward) directly;
-/// a human's (`cam_relative`) is read through VIEW-STEP's view, M2.
+/// a human's (`cam_relative`) is read through the view VIEW-STEP keeps: the behind camera's yaw, else the pair view's.
 pub fn stick_relative(m: &mut Match, e: Entity) -> (f32, f32) {
     let p = m.pilot.get(e).expect("a pilot");
+    let (sx, sy) = (p.vpad.sx, p.vpad.sy);
     if p.cam_relative {
-        crate::unported!(m, "view-step", (0.0, 0.0)) // (*view-x* / *behind-yaw*: a human's stick, M2)
+        let yaw = if m.view_behind { m.behind_yaw } else { crate::math::dir_yaw(-m.view_x, -m.view_z) };
+        let (pos, f) = (pos_of(m, e), fighter(m, e));
+        return crate::rules::stick_toward_strafe(sx, sy, yaw, pos[0], pos[2], f.ox, f.oz);
     }
-    (p.vpad.sy, p.vpad.sx)
+    (sy, sx)
 }
 
 /// port: WORLD-DIR: the world XZ direction of stick TO / ST relative to E's opponent (F's OX OZ).
@@ -524,8 +592,8 @@ pub fn fighter_system(m: &mut Match) {
             a = Some(e);
         }
     });
-    if a.is_some() && b.is_some() && m.pilot.iter().any(|(_, p)| p.cam_relative) {
-        crate::unported!(m, "view-step") // (VIEW-STEP: only a human's stick reads it, docs/bevy/M1_NOTES.md §2; M2)
+    if let (Some(a), Some(b)) = (a, b) {
+        view_step(m, a, b, false);
     }
     m.do_entities(|m, e| m.fighter.has(e), |m, e| {
         if fighter(m, e).state != State::Cine {

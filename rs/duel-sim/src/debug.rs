@@ -3,42 +3,70 @@
 //! FULL-GAUGES!, and the fields an `E set` line names.
 use crate::cl::Num;
 use crate::components::Character::{Ichigo, Kenpachi};
-use crate::components::{Burst, Character, Flow, Form, State};
+use crate::components::{Burst, Character, Difficulty, Flow, Form, State};
 use crate::ecs::Entity;
 use crate::gate::{start_cvc, start_pair_gate};
+use crate::cpu::Search;
 use crate::state::{Match, Mode};
 
-/// port: DEBUG-COMMAND (`*stats-log*` / `*learn-debug-off*` are the logs' and the learner's; `*cine-hold*` is never set by
-/// these commands, so clearing it is moot).
-pub fn debug_command(m: &mut Match, c: i64) {
+/// port: DEBUG-COMMAND (`*stats-log*` is the logs'; `*cine-hold*` is never set by these commands, so clearing it is moot). Every
+/// command sets `*learn-debug-off*`: no CPU learns in a debug run (debug 2504 clears it again).
+pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
     m.log_on = true;
+    s.learn_debug_off = true;
     // log-msg: "debug cmd C"
     match c {
+        2504 => debug_vs_learner(m, s),
         2102 => m.turbo = !m.turbo,
-        3000..=3999 => start_cvc(m, c - 3000, Some([Ichigo, Ichigo])),
-        4000..=4999 => start_cvc(m, c - 4000, Some([Ichigo, Kenpachi])),
-        5000..=5999 => start_cvc(m, c - 5000, Some([Kenpachi, Kenpachi])),
+        3000..=3999 => start_cvc(m, s, c - 3000, Some([Ichigo, Ichigo])),
+        4000..=4999 => start_cvc(m, s, c - 4000, Some([Ichigo, Kenpachi])),
+        5000..=5999 => start_cvc(m, s, c - 5000, Some([Kenpachi, Kenpachi])),
         30000..=30999 => m.gate_seed0 = c - 30000,
         31101..=31199 => m.gate_seeds = c - 31100,
-        200000..=209999 => start_pair_gate(m, c / 100 % 10, c / 10 % 10),
+        81020..=81022 => m.gate_difficulty = [Difficulty::Easy, Difficulty::Normal, Difficulty::Hard][(c - 81020) as usize],
+        200000..=209999 => start_pair_gate(m, s, c / 100 % 10, c / 10 % 10),
         // ponytail: leaked once per run, on the path that stops it
         _ => crate::unported!(m, Box::leak(format!("debug {c}").into_boxed_str())),
     }
 }
 
+/// port: debug 2504 — human Kenpachi vs a HARD Ichigo CPU that learns (DUEL_AI_STRATEGY §8.14): VS CPU, the learner on as in play,
+/// `*fq-tables*` forgotten (the attach reads the page), the match started with its cinematics skipped. (`*probe*` is never set here;
+/// `*one-hand*` is ONE-HAND-EFFECTIVE-P, NIL headless: the touch deck's branches are M3's.)
+fn debug_vs_learner(m: &mut Match, s: &mut Search) {
+    (m.picks, m.mode, m.difficulty) = ([Kenpachi, Ichigo], Mode::VsCpu, crate::components::Difficulty::Hard);
+    s.learn_debug_off = false;
+    s.fq_tables.clear();
+    let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
+    crate::flow::start_match(m, s);
+    m.skip_cines = skip;
+}
+
+/// port: trace.lisp TR-VS-START — a VS CPU match as the menu starts it (MODE's VS CPU row, SELECT's picks and difficulty, NEW-SEED
+/// fixed to SEED, START-MATCH): human C1 vs a CPU C2 at DIF, the intro played; `*learn-debug-off*` left as it is.
+pub fn vs_start(m: &mut Match, s: &mut Search, c1: Character, c2: Character, dif: crate::components::Difficulty, seed: i64) {
+    (m.mode, m.picks, m.difficulty, m.match_seed) = (Mode::VsCpu, [c1, c2], dif, seed);
+    crate::flow::start_match(m, s);
+}
+
 // ---------------------------------------------------------------- scenario helpers
 
 /// port: ENSURE-BATTLE with `:cpu t` (the only form a trace records): a CPU vs CPU battle of C1 and C2, cinematics skipped into the
-/// fight, unless one of exactly those is already in battle. (BRAIN-OFF: the CPU's, M2; a replay detaches the brains anyway.)
-pub fn ensure_battle(m: &mut Match, c1: Character, c2: Character) {
+/// fight, unless one of exactly those is already in battle; both brains on (BRAIN-OFF NIL).
+pub fn ensure_battle(m: &mut Match, s: &mut Search, c1: Character, c2: Character) {
     let ch = |e: Entity| m.fighter.get(e).and_then(|f| f.character);
     if m.flow == Flow::Battle && ch(m.p1) == Some(c1) && ch(m.p2) == Some(c2) {
         return;
     }
     (m.picks, m.mode) = ([c1, c2], Mode::CpuCpu);
     let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
-    crate::flow::start_match(m);
+    crate::flow::start_match(m, s);
     m.skip_cines = skip;
+    for e in [m.p2, m.p1] {
+        if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
+            b.off = false; // ((setf (brain-off …) (not cpu)): P2's brain, then P1's when he has one)
+        }
+    }
 }
 
 /// port: PLACE of P1 and P2: DIST m apart on the x axis around the centre, facing, idle; no hazards. (fx-clear, `*punch-t*` and

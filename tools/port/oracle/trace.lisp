@@ -7,10 +7,25 @@
 ;;;;   S trials <file>             start: a fresh image (SG-INIT) and one frame (tools/simgate/trial.lisp's start; it runs no step), then
 ;;;;                               the E and F lines below, in order. The trace is self-describing: <file> (the trial file it was
 ;;;;                               recorded from, from the repo root) is for reference; a replay never reads it or runs trial.lisp
+;;;;   S vs <file>                 start (M2 Task 1): a human P1 against the CPU. A fresh image (SG-INIT) and one frame, then E and F
+;;;;                               lines as in a trials trace (each match starts with E cmd 2504 or E vs-start; the recorder's driver,
+;;;;                               record.lisp REC-RUN-VS, runs a match's frames until the flow leaves the battle). <file> (a plist,
+;;;;                               tools/port/oracle/scenarios/vs-*.lisp: the matches and P1's input seed) is for reference only. P1 has
+;;;;                               no brain: his vpad is written by the scenario's device (record.lisp REC-VS-DEVICE, a seeded generator
+;;;;                               of its own, never the sim stream), and T records it as usual, so a replay injects P1 from T too. The
+;;;;                               device, like a real one, is a vpad READER: on a new vpad tick outside a rollout it advances; on every
+;;;;                               call (a step without a sim frame, PILOT-READ; a rollout's stand-in brain's VPAD-BEGIN-STEP!) it writes
+;;;;                               its current held state again (VPAD-SET! in *VPAD-ACTIONS* order, then the stick). The recorder's image
+;;;;                               keeps a page in memory for a vs trace (build-rec.lisp: PAGE-GET / PAGE-SET on a hash table, as the
+;;;;                               browser's gamePage; the stock image's page is a stub), so debug 2504's reload of the fq table reads
+;;;;                               the copy the last match saved
 ;;;;   E <action> <arg> ...        an out-of-band action the trial runner took between frames: apply it now (grammar below)
 ;;;;   e [  tick] ...              a combat log line that E line's action printed (compared with what the applied action prints)
 ;;;;   R [  tick] ...              a combat log line the trial runner printed between frames outside any E action (its script's "P1
 ;;;;                               press ...", "P1 at simf N", "simf N"): not the sim's, never compared
+;;;;   R page-set <k> <v>          (a vs trace, inside a step's record) a page write (FQ-MATCH-END saving the player's fq copy)
+;;;;   R duel fq ...               (a vs trace, inside a step's record) the online learner's console line: "duel fq load ME VS page|fresh
+;;;;                               matches N checksum C" (FQ-TABLE), "duel fq learn ..." (FQ-MATCH-END). R lines are never compared
 ;;;;   F                           run one frame (ENGINE::%FRAME, 1/60 s, not turbo): its steps' records follow
 ;;;;   [  tick] ...                a combat log line of the sim, printed during the step (in a cmds trace: or between its frames)
 ;;;;   C [  tick] ...              a combat log line the CPUs printed inside BRAIN-SYSTEM (for reference: a sim without the CPU cannot
@@ -23,6 +38,21 @@
 ;;;;                               hazard's fields, repeated per live hazard in entity order after the "|". Per side: pos, motion,
 ;;;;                               every slot of FIGHTER, GAUGES, ICS, HSS, YSS; per hazard every slot. Values as TR-B-ENC writes
 ;;;;                               them (a single-float its IEEE bits as 8 hex digits, a double 16, an integer decimal, ...)
+;;;;   A <field> ...               (M2 Task 1) the CPU state at the step's end (TR-A-LINE), after B, or "A =": the same text as the
+;;;;                               trace's last A line. Written at *STEP-HOOK* (gate.lisp HASH-LOG), i.e. BEFORE the step's MC-FULL-STEP:
+;;;;                               a job queued this step shows with no rollout yet, a rollout's result shows on the next step's A line
+;;;;   # A fields: <name> ...      (the third line) the A fields' names (TR-A-NAMES): *mc-plan*[0..9], *mc-next*[0..1], then per side
+;;;;                               (p1., p2.) every BRAIN slot in slot order (:ABSENT each without a brain), then the PILOT: its vpad's
+;;;;                               slots but READER (a device / recorder function, not state), then cam-relative; "|", one action job's
+;;;;                               fields (job.side a1 a2 dif n v1 v2: *MC-JOBS* vector slots 1 2 3 4 6 8 9) repeated per job in order;
+;;;;                               "|", one strategy job's (stjob.side n sums ns hsums hns) repeated per job. Values as TR-B-ENC writes
+;;;;                               them, with these A-only forms: a strategy plist (one with :ID, wherever it sits: BRAIN-STRAT, -SW-SUB,
+;;;;                               -EV-ON, -NOW, ...) is #s:<id> (ids are keywords: #s::T0-KI-ICHIGO), and when it is a player's fq copy (the strategy of an *FQ-TABLES* cell)
+;;;;                               #s:<id>/fq(<matches>,<q codes>...) (FQ-ENCODE's q codes); BRAIN-FQL is (me,vs,#fq:<checksum of the
+;;;;                               offline table>,<record count>,<newest record>) (the record only grows by PUSH, so the newest on each
+;;;;                               step covers it); nesting is cut at depth 8 (B's: 4). A function is #FN (BRAIN-SW-FN, -SW-KEEP's style functions): its identity is
+;;;;                               not in the line. The brainless replay compares the pilot fields;
+;;;;                               a live replay (replay.lisp's "live": the brains think) compares every field
 ;;;; T: on a step that ran the sim's systems (a sim frame: the vpad ticks advance) the values right after BRAIN-SYSTEM, i.e. what the
 ;;;; brains wrote for FIGHTER-SYSTEM to read and the sim stream after their draws; on any other step (intro / cinematic / hitstop /
 ;;;; slow-motion wait) the values at the step's end. vtK = side K's vpad tick, downsK = its nine buttons as 3 hex digits (bit i =
@@ -48,6 +78,9 @@
 ;;;;   E full-gauges SIDE <meter>      (FULL-GAUGES! e meter)
 ;;;;   E cmd <n>                       (DEBUG-COMMAND n)
 ;;;;   E core-start SIDE <move>        (CORE-START! e move), move = the key of his kit's KIT-MOVES table
+;;;;   E vs-start <C1> <C2> <DIF> <SEED>   (TR-VS-START) a VS CPU match as the menu starts one (flow.lisp: MODE's VS CPU row, then SELECT's
+;;;;                                   picks and difficulty, then START-MATCH), with the clock's seed (NEW-SEED) fixed to SEED: human C1 vs
+;;;;                                   a CPU C2 at DIF, no debug command (so *LEARN-DEBUG-OFF* is left as it is), the intro played
 (in-package :duel)
 
 (defun tr-split (s)
@@ -82,14 +115,20 @@
 (defun tr-rnd (tf) (nth 9 tf))
 
 (defun tr-read (path)
-  "A trace -> (values start items b-names): START the S line's words after S; ITEMS a vector, in order, of (:step sim-log-lines t-fields
-h-line b-pos), (:event words e-lines) and (:frame); B-NAMES the header's B field names. B-POS is the file position of the step's B text
-(a \"B =\" line: the last full B line's), read back with TR-B-AT."
+  "A trace -> (values start items b-names a-names): START the S line's words after S; ITEMS a vector, in order, of (:step sim-log-lines
+t-fields h-line b-pos a-pos), (:event words e-lines) and (:frame); B-NAMES / A-NAMES the header's B / A field names. B-POS is the file
+position of the step's B text (a \"B =\" line: the last full B line's), read back with TR-B-AT; A-POS the same for its A line (NIL: the
+trace has none, recorded before M2)."
   (with-open-file (in path)
-    (let ((start nil) (log nil) (tf nil) (items (make-array 0 :adjustable t :fill-pointer t)) (names nil) (prev-b nil))
+    (let ((start nil) (log nil) (tf nil) (items (make-array 0 :adjustable t :fill-pointer t)) (names nil) (a-names nil) (prev-b nil)
+          (prev-a nil))
       (loop for pos = (file-position in) for l = (read-line in nil) while l
             do (cond ((zerop (length l)))
                      ((eql 0 (search "# B fields: " l)) (setf names (rest (rest (rest (tr-split l))))))
+                     ((eql 0 (search "# A fields: " l)) (setf a-names (rest (rest (rest (tr-split l))))))
+                     ((char= (char l 0) #\A)
+                      (unless (string= l "A =") (setf prev-a pos))
+                      (setf (sixth (aref items (1- (fill-pointer items)))) prev-a))
                      ((member (char l 0) '(#\# #\C #\R)))
                      ((char= (char l 0) #\S) (setf start (rest (tr-split l))))
                      ((char= (char l 0) #\E) (vector-push-extend (list :event (rest (tr-split l)) nil) items))
@@ -98,17 +137,17 @@ h-line b-pos), (:event words e-lines) and (:frame); B-NAMES the header's B field
                      ((char= (char l 0) #\[) (push l log))
                      ((char= (char l 0) #\T) (setf tf (tr-parse-t l)))
                      ((char= (char l 0) #\H)
-                      (vector-push-extend (list :step (nreverse log) tf (subseq l 2) nil) items)
+                      (vector-push-extend (list :step (nreverse log) tf (subseq l 2) nil nil) items)
                       (setf log nil tf nil))
                      ((char= (char l 0) #\B)
                       (unless (string= l "B =") (setf prev-b pos))   ; (a position, not the text: the B lines outgrow the 32-bit host's heap)
                       (setf (fifth (aref items (1- (fill-pointer items)))) prev-b))))
       (loop for it across items when (eq (first it) :event) do (setf (third it) (reverse (third it))))
-      (values start items names))))
+      (values start items names a-names))))
 
 (defvar *tr-b-stream* nil "(path . stream): TR-B-AT's open trace.")
 (defun tr-b-at (path pos)
-  "The B line at file position POS of the trace PATH (TR-READ's b-pos), through one stream kept open."
+  "The B (or A) line at file position POS of the trace PATH (TR-READ's b-pos / a-pos), through one stream kept open."
   (unless (equal path (car *tr-b-stream*)) (setf *tr-b-stream* (cons path (open path))))
   (file-position (cdr *tr-b-stream*) pos)
   (read-line (cdr *tr-b-stream*)))
@@ -193,7 +232,14 @@ string stream CAP (the hooks drain it). Exits 3 / 4 as run.lisp does."
             ((string= a "full-gauges") (full-gauges! (side 0) (second args)))
             ((string= a "cmd") (debug-command (first args)))
             ((string= a "core-start") (let ((e (side 0))) (core-start! e (gethash (second args) (kit-moves (kit-of e))))))
+            ((string= a "vs-start") (apply #'tr-vs-start args))
             (t (error "trace: unknown event ~s" words))))))
+
+(defun tr-vs-start (c1 c2 dif seed)
+  "E vs-start: a VS CPU match as the menu starts it (flow.lisp: MODE's VS CPU row sets *MODE* and *ONE-HAND*, SELECT the picks and the
+difficulty, then NEW-SEED and START-MATCH), the clock's seed fixed to SEED."
+  (setf *mode* :vs-cpu *one-hand* (and (one-hand-effective-p) t) *picks* (list c1 c2) *difficulty* dif *match-seed* seed)
+  (start-match))
 
 ;;; ---------------------------------------------------------------- the B line: the sim state's raw bits (M1 Task 1)
 (defun tr-f32-bits (x)
@@ -216,15 +262,19 @@ mantissa normalized, so it is renormalized here). A NaN or an infinity is an err
          (list (cons 1.0f0 #x3F800000) (cons -0.0f0 #x80000000) (cons 0.1f0 #x3DCCCCCD) (cons least-positive-single-float #x00000001)
                (cons 1.0d0 #x3FF0000000000000))))
 
+(defvar *tr-a* nil "T while an A field is encoded: TR-B-ENC writes a strategy plist as #s:<id> (TR-A-STRAT).")
+
 (defun tr-b-enc (v s &optional (depth 0))
   "Write one B value to stream S (no spaces): single-float 8 hex digits of its bits, double-float 16, integer decimal, a symbol PRIN1
 (keywords :NAME, T / NIL), a string PRIN1 (spaces as _), a MOVE #m:NAME, a KIT #k:CHARACTER/FORM, another struct #TYPE{slot,...} (its slots in order), a list
-(a,b,...), a vector [a,b,...], a function #FN, a hash table #HASH:<count>, anything else #<TYPE>; nesting below depth 4 is #...."
+(a,b,...), a vector [a,b,...], a function #FN, a hash table #HASH:<count>, anything else #<TYPE>; nesting below depth 4 is #.... Under
+*TR-A* (an A field) a strategy plist is TR-A-STRAT's #s:<id>."
   (cond ((typep v 'single-float) (format s "~8,'0X" (tr-f32-bits v)))
         ((typep v 'double-float) (format s "~16,'0X" (tr-f32-bits v)))
         ((integerp v) (format s "~d" v))
         ((symbolp v) (write-string (tr-print v) s))
         ((stringp v) (write-string (substitute #\_ #\Space (tr-print v)) s))
+        ((and *tr-a* (consp v) (tr-strat-id v)) (tr-a-strat v s))
         ((> depth 3) (write-string "#..." s))
         ((typep v 'move) (write-string "#m:" s) (write-string (tr-print (mv-name v)) s))
         ((typep v 'kit) (format s "#k:~a/~a" (tr-print (kit-character v)) (tr-print (kit-form v))))
@@ -251,9 +301,10 @@ mantissa normalized, so it is renormalized here). A NaN or an infinity is an err
 
 (defun tr-src (file) (merge-pathnames (concatenate 'string "../../../duel/lisp/" file) (directory-namestring *load-truename*)))
 (defparameter *tr-sources* (list (cons 'fighter (tr-src "components.lisp")) (cons 'gauges (tr-src "components.lisp"))
+                                 (cons 'brain (tr-src "components.lisp"))
                                  (cons 'hazard (tr-src "components.lisp")) (cons 'ics (tr-src "ichigo.lisp"))
                                  (cons 'hss (tr-src "hisagi.lisp")) (cons 'yss (tr-src "yama.lisp")))
-  "Where each component the B line covers is defined.")
+  "Where each component the B and A lines cover is defined.")
 
 (defun tr-slots (component &optional type)
   "The slot names of (DEFCOMPONENT COMPONENT ...) in its source (*TR-SOURCES*), in slot order; only those whose :TYPE is TYPE if given."
@@ -322,3 +373,103 @@ GAUGES and the kit components ICS (Ichigo), HSS (Hisagi), YSS (Yamamoto) in slot
                            (multiple-value-bind (h j) (floor (- i fixed 1) nh) (format nil "hz~d.~a" h (nth (+ fixed 1 j) names)))))
              (at (l) (or (nth i l) "<none>")))
         (format nil "B field ~a: want ~a got ~a" (name i) (at w) (at g))))))
+
+;;; ---------------------------------------------------------------- the A line: the CPU state (M2 Task 1)
+(defun tr-strat-id (v)
+  "The :ID of plist V when V is a strategy (a plist of keyword keys holding a non-NIL symbol :ID), else NIL."
+  (loop for c = v then (cddr c)
+        while (and (consp c) (keywordp (car c)) (consp (cdr c)))
+        when (eq (car c) :id) return (and (cadr c) (symbolp (cadr c)) (cadr c))))
+
+(defun tr-a-strat (v s)
+  "Strategy V as #s:<id>; a player's fq copy (the strategy of an *FQ-TABLES* cell: (key strategy . matches)) also /fq(<matches>,<q codes>)."
+  (format s "#s:~a" (tr-print (tr-strat-id v)))
+  (let ((entry (find v *fq-tables* :key #'cadr :test #'eq)))
+    (when entry
+      (let ((fq (getf v :fq)) (n (cddr entry)))
+        (write-string "/fq" s)
+        (let ((*tr-a* nil)) (tr-b-enc (cons n (cdddr (fq-encode fq fq n))) s -4))))))   ; (FQ-ENCODE's codes after its 3-word head)
+
+(defun tr-a-fql (v s)
+  "BRAIN-FQL (me vs base recs) as (me,vs,#fq:<checksum of base>,<record count>,<newest record>); NIL / :ABSENT (no brain) as they are."
+  (if (symbolp v)
+      (write-string (tr-print v) s)
+      (destructuring-bind (me vs base recs) v
+        (format s "(~d,~d,#fq:~d,~d," me vs (fq-checksum base) (length recs))
+        (tr-b-enc (first recs) s -4)
+        (write-char #\) s))))
+
+(defun tr-a-enc (v s) "One A value (TR-B-ENC under *TR-A*, nesting to depth 8)." (let ((*tr-a* t)) (tr-b-enc v s -4)))
+
+(defparameter *tr-vpad-slots*
+  (remove 'engine::reader (mapcar #'clos:slot-definition-name (clos:class-slots (find-class 'engine::vpad))))
+  "The vpad slots an A line holds: all but READER (a device or a recorder's function: not state).")
+
+(defparameter *tr-a-side*
+  (append (loop for s in (tr-slots 'brain)
+                collect (let ((acc (tr-acc 'brain s)) (s s))
+                          (list (string-downcase (format nil "brain-~a" s)) acc (if (eq s 'fql) #'tr-a-fql #'tr-a-enc))))
+          (loop for s in *tr-vpad-slots*
+                collect (let ((s s)) (list (string-downcase (format nil "pilot-vpad-~a" s)) (lambda (e) (slot-value (pilot-vpad (pilot e)) s)) #'tr-a-enc)))
+          (list (list "pilot-cam-relative" (lambda (e) (pilot-cam-relative (pilot e))) #'tr-a-enc)))
+  "The A line's per-side fields: (name reader encoder). Every BRAIN slot (:ABSENT without a brain), then the pilot's.")
+
+(defparameter *tr-a-job* '(("side" . 1) ("a1" . 2) ("a2" . 3) ("dif" . 4) ("n" . 6) ("v1" . 8) ("v2" . 9))
+  "An action job's fields: (name . slot of its *MC-JOBS* vector). Slot 5, the snapshot, is never written.")
+(defparameter *tr-a-stjob* (list (cons "side" #'stjob-side) (cons "n" #'stjob-n) (cons "sums" #'stjob-sums) (cons "ns" #'stjob-ns)
+                                 (cons "hsums" #'stjob-hsums) (cons "hns" #'stjob-hns))
+  "A strategy job's fields: (name . reader).")
+
+(defun tr-a-names ()
+  "The A fields' names, as the trace header's \"# A fields:\" line lists them."
+  (append (loop for i below 10 collect (format nil "*mc-plan*[~d]" i))
+          (loop for i below 2 collect (format nil "*mc-next*[~d]" i))
+          (loop for p in '("p1" "p2") append (loop for f in *tr-a-side* collect (format nil "~a.~a" p (first f))))
+          (list "|") (loop for (n) in *tr-a-job* collect (format nil "job.~a" n))
+          (list "|") (loop for (n) in *tr-a-stjob* collect (format nil "stjob.~a" n))))
+
+(defun tr-a-line ()
+  "The A line now (\"A ...\", full: the recorder writes \"A =\" for a repeat)."
+  (let ((line (with-output-to-string (s)
+                (write-string "A" s)
+                (loop for x across *mc-plan* do (write-char #\Space s) (tr-a-enc x s))
+                (loop for x across *mc-next* do (write-char #\Space s) (tr-a-enc x s))
+                (dolist (e (list *p1* *p2*))
+                  (dolist (f *tr-a-side*) (write-char #\Space s) (funcall (third f) (funcall (second f) e) s)))
+                (write-string " |" s)
+                (dolist (j *mc-jobs*) (loop for (nil . i) in *tr-a-job* do (write-char #\Space s) (tr-a-enc (svref j i) s)))
+                (write-string " |" s)
+                (dolist (j *strat-jobs*) (loop for (nil . r) in *tr-a-stjob* do (write-char #\Space s) (tr-a-enc (funcall r j) s))))))
+    (when (find #\Newline line) (error "trace: an A line holds a newline"))
+    line))
+
+(defun tr-a-diff (names want got)
+  "The first field where the A lines WANT and GOT differ, named through the header's NAMES (a job's as job<k>.<field> /
+stjob<k>.<field>), or NIL if equal."
+  (let* ((w (rest (tr-split want))) (g (rest (tr-split got))) (i (mismatch w g :test #'string=)))
+    (when i
+      (let* ((s1 (position "|" names :test #'string=)) (s2 (position "|" names :test #'string= :start (1+ s1)))
+             (nj (- s2 s1 1)) (ns (- (length names) s2 1))
+             (w1 (position "|" w :test #'string=)) (w2 (and w1 (position "|" w :test #'string= :start (1+ w1)))))
+        (flet ((name (i) (cond ((or (null w1) (<= i w1)) (or (nth i names) "?"))
+                               ((or (null w2) (<= i w2)) (multiple-value-bind (k j) (floor (- i w1 1) nj) (format nil "job~d.~a" k (subseq (nth (+ s1 1 j) names) 4))))
+                               (t (multiple-value-bind (k j) (floor (- i w2 1) ns) (format nil "stjob~d.~a" k (subseq (nth (+ s2 1 j) names) 6))))))
+               (at (l) (or (nth i l) "<none>")))
+          (format nil "A field ~a: want ~a got ~a" (name i) (at w) (at g)))))))
+
+(defun tr-a-pilot-diff (names want got)
+  "The first pilot field (p1.pilot-* / p2.pilot-*: what a brainless replay reproduces) where the A lines WANT and GOT differ, named, or NIL."
+  (loop for n in names for w in (rest (tr-split want)) for g in (rest (tr-split got))
+        when (and (or (eql 0 (search "p1.pilot-" n)) (eql 0 (search "p2.pilot-" n))) (string/= w g))
+          return (format nil "A field ~a: want ~a got ~a" n w g)))
+
+(defun tr-a-selftest ()
+  "A hand-made brain's A fields print as expected (record.lisp / replay.lisp exit 2 when not)."
+  (let* ((b (make-brain :difficulty :hard :press :quick :strat '(:id ken-foo :p 0.5) :now (cons '(:id ichigo-bar) '(:d 1.0))
+                        :fql (list 1 3 '(:arms (nil) :rules ((r0 0.5))) (list (list (vector 1.0) 0 -0.25)))))
+         (got (loop for slot in '(difficulty press strat now fql)
+                    collect (with-output-to-string (s)
+                              (funcall (if (eq slot 'fql) #'tr-a-fql #'tr-a-enc)
+                                       (funcall (fdefinition (intern (format nil "BRAIN-~a" slot) :duel)) b) s)))))
+    (or (equal got '(":HARD" ":QUICK" "#s:KEN-FOO" "(#s:ICHIGO-BAR,:D,3F800000)" "(1,3,#fq:50992,1,([3F800000],0,BE800000))"))
+        (progn (format t "tr-a-selftest got ~s~%" got) nil))))

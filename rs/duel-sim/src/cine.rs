@@ -177,6 +177,17 @@ pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
     }
 }
 
+/// port: CINE-DRAW — per rendered frame (DRAW-SCENE, after the frame's steps; never in turbo): the running script's draw mode, its
+/// DURING forms at the cine frame now. Only those writing sim state are ported (Kenpachi's: `ken::cine::draw`); the generic and
+/// Ichigo's cinematics' DURING forms are looks.
+pub fn cine_draw(m: &mut Match) {
+    let Some(c) = m.cine.as_ref() else { return };
+    if let CineName::Ken(k) = c.name {
+        let (cf, a, v) = (c.cf, c.a, c.v);
+        crate::ken::cine::draw(k, cf, a, v, m);
+    }
+}
+
 /// port: CINE-BEGIN (*cine-begin-hook*).
 fn cine_begin(m: &mut Match, name: CineName, a: Entity, v: Entity) {
     // look: caption, lens, close-up flags
@@ -280,8 +291,8 @@ mod tests {
         let mut m = crate::hashline::tests::new_match();
         crate::flow::go_title(&mut m);
         m.picks = [Character::Kenpachi, Character::Ichigo];
-        m.mode = crate::state::Mode::CpuCpu; // (a human seat's BEGIN-BATTLE needs VIEW-STEP: M2)
-        crate::flow::start_match(&mut m);
+        m.mode = crate::state::Mode::CpuCpu;
+        crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
         m
     }
 
@@ -313,7 +324,7 @@ mod tests {
         crate::flow::go_title(&mut m);
         m.skip_cines = true;
         m.mode = crate::state::Mode::CpuCpu;
-        crate::flow::start_match(&mut m);
+        crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
         assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle)); // *skip-cines*: ended at once, AFTER ran
     }
 }

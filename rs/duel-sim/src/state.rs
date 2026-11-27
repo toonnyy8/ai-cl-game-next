@@ -26,7 +26,6 @@ pub enum Winner {
     Draw,
 }
 
-#[derive(Clone)]
 pub struct Match {
     pub ents: Entities,
     pub transform: Store<Transform>,
@@ -79,8 +78,10 @@ pub struct Match {
     pub gate_busy: bool,
     pub gate_seed0: i64,
     pub gate_seeds: i64,
-    /// Per-match mutable copy of the tuning (Task 3 ruling).
-    pub knobs: Knobs,
+    /// Per-match mutable copy of the tuning (Task 3 ruling), shared: a snapshot and its restore copy the pointer (no allocation), and
+    /// a writer goes through `Arc::make_mut`, which gives this match its own copy first, so a knob written after a snapshot is undone
+    /// by the restore like any other field (M2 final review minor 3: the old `clone_from` skipped it on a stated invariant).
+    pub knobs: std::sync::Arc<Knobs>,
     pub data: &'static Data,
     /// `data`'s kits by (character, form) (not a Lisp special: an index of the data for `kit_of` / `hurt_r`).
     pub kits: crate::fighter::KitTable,
@@ -104,9 +105,71 @@ pub struct Match {
     pub pacing_log: bool,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
+    /// `*mc-plan*` (cpu-mcts.lisp; a snapshot root, sim-state.lisp): per side 5 slots (state, best / second action, their values x 1000).
+    pub mc_plan: [i64; 10],
+    /// `*mc-next*` (a root): per side, the tick before which a deferred search does not run again.
+    pub mc_next: [i64; 2],
+    /// `*difficulty*`: the CPUs' difficulty at SPAWN-PAIR.
+    pub difficulty: crate::components::Difficulty,
+    /// `*gate-difficulty*` (debug 81020+i: 0 EASY, 1 NORMAL, 2 HARD): START-CVC's difficulty.
+    pub gate_difficulty: crate::components::Difficulty,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
     pub stubs: Vec<String>,
+    /// rollout.lisp `*in-rollout*` (WITH-ROLLOUT's binding: only a rollout's scratch match holds T; the live one is never touched by
+    /// a rollout, so the binding's undo is free).
+    pub in_rollout: bool,
+    /// MC-FULL-ROLLOUT's `(*cai-styles* nil)`: no matchup style by `*cai-styles*` in this rollout (SIM-ROLLOUT keeps them).
+    pub styles_off: bool,
+    /// fighter.lisp `*view-x*` / `*view-z*` (roots, sim-state.lisp): the pair view's unit direction from the fighters' midpoint (VIEW-STEP).
+    pub view_x: f32,
+    pub view_z: f32,
+    /// `*view-side*` (a root): +1 P1 on the left of the view, -1 on the right.
+    pub view_side: f32,
+    /// `*behind-yaw*` (a root): the behind camera's yaw, P1 toward P2, rate-limited.
+    pub behind_yaw: f32,
+    /// `*view-behind*` (configuration, SET-CAM-BEHIND at START-MATCH): humans steer by the behind view, else the pair view.
+    pub view_behind: bool,
+    /// Not a Lisp special: FQ-MATCH-END's Match half, done by GO-RESULTS (each learning brain's record taken, BRAIN-FQL set NIL, its
+    /// health balance and result then). GO-RESULTS runs deep in the sim (a K.O. cinematic's end), which has no `Search`; the Search
+    /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame`'s end (a
+    /// GO-RESULTS outside a step) and at `start_match`'s top (before FQ-ATTACH!). Nothing reads the tables or the page in between
+    /// (docs/bevy/M2_NOTES.md §8).
+    pub fq_end: Vec<crate::cpu::fq::FqEnd>,
 }
+
+/// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
+/// a snapshot slot grows it in a battle step.
+pub const ICC_RESERVE: usize = 1024;
+
+/// Match's fields for its `Clone`: every field is restored by `clone_from` (a rollout's restore, field-wise: each keeps its heap,
+/// so a restore into a used slot allocates nothing while the capacities hold; `knobs` is an `Arc`, a pointer copy). The
+/// destructuring has no `..`: a new field must be listed here.
+macro_rules! match_clone {
+    ($($f:ident),* $(,)?) => {
+        impl Clone for Match {
+            fn clone(&self) -> Match {
+                let Match { $($f),* } = self;
+                let mut c = Match { $($f: $f.clone()),* };
+                // (Vec::clone is tight: keep the reserves, so a restore into this copy does not grow them)
+                c.iccs.reserve_exact(self.iccs.capacity() - c.iccs.len());
+                c.hz_dead.reserve_exact(self.hz_dead.capacity() - c.hz_dead.len());
+                c
+            }
+            fn clone_from(&mut self, src: &Match) {
+                let Match { $($f),* } = src;
+                $(self.$f.clone_from($f);)*
+            }
+        }
+    };
+}
+
+match_clone!(
+    ents, transform, motion, fighter, gauges, pilot, hazard, ics, p1, p2, rng, time, match_tick, flow, timer, winner, slow_acc, cine,
+    cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
+    gate_results, gate_busy, gate_seed0, gate_seeds, knobs, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
+    pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
+    view_behind, fq_end,
+);
 
 impl Match {
     pub fn new(data: &'static Data) -> Match {
@@ -156,7 +219,7 @@ impl Match {
             gate_busy: false,
             gate_seed0: 0,
             gate_seeds: 20,
-            knobs: Knobs::from(data).expect("knobs"),
+            knobs: std::sync::Arc::new(Knobs::from(data).expect("knobs")),
             data,
             kits: crate::fighter::KitTable::new(data),
             mirror_rim: data.mirror_rim(),
@@ -164,11 +227,23 @@ impl Match {
             kikons: Default::default(),
             soul_breaks: Default::default(),
             hz_keep: false,
-            hz_dead: Vec::new(),
-            iccs: Vec::new(),
+            hz_dead: Vec::with_capacity(crate::consts::MAX_ENTITIES),
+            iccs: Vec::with_capacity(ICC_RESERVE),
             pacing_log: false,
             unported: None,
             stubs: Vec::new(),
+            mc_plan: [0; 10],
+            mc_next: [0; 2],
+            difficulty: crate::components::Difficulty::Normal,
+            gate_difficulty: crate::components::Difficulty::Normal,
+            in_rollout: false,
+            styles_off: false,
+            view_x: 0.0,
+            view_z: 1.0,
+            view_side: 1.0,
+            behind_yaw: 0.0,
+            view_behind: false,
+            fq_end: Vec::new(),
         }
     }
 
@@ -263,5 +338,18 @@ mod tests {
             }
         });
         assert_eq!(seen, [0, 1]);
+    }
+
+    /// A knob written after a snapshot is undone by the restore (`clone_from`), as every other field is (M2 final review minor 3).
+    #[test]
+    fn clone_from_restores_a_written_knob() {
+        let live = crate::hashline::tests::new_match();
+        let mut slot = live.clone();
+        let old = live.knobs.ken_lv_max;
+        std::sync::Arc::make_mut(&mut slot.knobs).ken_lv_max = old + 7;
+        assert_eq!(slot.knobs.ken_lv_max, old + 7);
+        assert_eq!(live.knobs.ken_lv_max, old, "make_mut copies a shared table, the live one is untouched");
+        slot.clone_from(&live);
+        assert_eq!(slot.knobs.ken_lv_max, old);
     }
 }

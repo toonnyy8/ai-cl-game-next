@@ -1,7 +1,7 @@
 //! port: Ichigo's cinematics (ichigo-look.lisp): their names, lengths and the step-mode events that touch sim state: FACE-EACH-OTHER
 //! (no CINE-PLACE in his), and 血鎖's reel-in, a step-mode form run on frames 89-99. Every other AT form (clips, shots, cards, captions,
 //! lenses, impact frames, silences, VFX, sounds, shakes, the stage's cracks, the model's weapon / hide, *aura-off*, the sky colours,
-//! cine-shatter) and every DURING (draw mode: never run in a turbo gate) is a look.
+//! cine-shatter) and every DURING (draw mode, CINE-DRAW: VFX, cameras, the `*ic-w*` scratch; none writes sim state) is a look.
 use crate::cine::face_each_other;
 use crate::ecs::Entity;
 use crate::state::Match;

@@ -197,7 +197,7 @@ fn hit_system_lands_a_j1() {
 #[test]
 fn destroyed_hazard_still_hits() {
     use duel_sim::combat::{apply_hit, HitKeys};
-    use duel_sim::components::{HazardKind, HitWin, HzData, Sym};
+    use duel_sim::components::{Few, HazardKind, HitWin, HzData, Sym};
     use duel_sim::hazards::{collect_hazard_hits, hazard_connected, spawn_hazard, spawn_look, HzArgs};
     let mut d = Data::embedded();
     d.kits.kits.get_mut("kenpachi").unwrap().get_mut("base").unwrap().hooks.clear();
@@ -209,8 +209,8 @@ fn destroyed_hazard_still_hits() {
     let (a, b) = (m.p1, m.p2);
     let p = m.transform.get(a).unwrap().pos;
     let hw = HitWin {
-        from: 0, to: 0, dmg: 50, vols: vec![], react: Phase::Stagger, kb: 1.0, hs: 6, chip: None, stun: None, guard: None, seg: None,
-        min: None, steal: None, flags: vec![Sym(":BLADE")],
+        from: 0, to: 0, dmg: 50, vols: Few::new(), react: Phase::Stagger, kb: 1.0, hs: 6, chip: None, stun: None, guard: None, seg: None,
+        min: None, steal: None, flags: [Sym(":BLADE")].into_iter().collect(),
     };
     let h = spawn_hazard(&mut m, HazardKind::Wave, b, HzArgs { x: p[0], z: p[2], size: 1.0, hw: Some(hw), ..HzArgs::default() });
     collect_hazard_hits(&mut m);
@@ -229,7 +229,7 @@ fn destroyed_hazard_still_hits() {
     m.destroy(h);
     let look = spawn_look(&mut m, a, Sym("KEN-CHIGIRI-LOOK"), None, None, 0.0, 1.0, 30, 0, HzData::Nil);
     assert_eq!(look.slot(), h.slot()); // (the freed slot, a new generation)
-    let before = m.hazard.get(look).unwrap().clone();
+    let before = *m.hazard.get(look).unwrap();
     apply(&mut m);
     assert_eq!(m.unported, None);
     assert_eq!(m.log, alive.log);

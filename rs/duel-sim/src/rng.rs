@@ -3,7 +3,7 @@
 /// port: engine/c/rng.c rng2_state (the generator word, never 0).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SimRng {
-    pub state: u32,
+    state: u32, // (private: every write goes through `seed` / `set_state`'s 0 → 1 rule)
 }
 
 impl Default for SimRng {
@@ -41,6 +41,12 @@ impl SimRng {
     pub fn set_state(&mut self, s: u32) {
         self.state = if s != 0 { s } else { 1 };
     }
+}
+
+/// The rollouts' common-random-numbers seed from the state RNG saved with the snapshot: `(logior 1 (logand #xFFFFFFF (+ rng 7919)))`
+/// (cpu-mcts.lisp MC-FULL-ROLL, strategy-glue.lisp STRAT-ROLL; RNG is SIM-RND-STATE, an unsigned 32-bit integer).
+pub fn crn_seed(rng: u32) -> u32 {
+    (((rng as u64 + 7919) & 0xFFF_FFFF) | 1) as u32
 }
 
 #[cfg(test)]

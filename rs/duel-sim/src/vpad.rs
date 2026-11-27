@@ -6,7 +6,32 @@ use crate::consts::NO_PRESS;
 use crate::knobs::Knobs;
 use duel_data::Data;
 
-#[derive(Debug, Clone, PartialEq)]
+/// `clone_from` (a rollout's restore) reuses the five Vecs: no allocation while the shapes match.
+impl Clone for Vpad {
+    fn clone(&self) -> Vpad {
+        Vpad {
+            actions: self.actions.clone(),
+            downs: self.downs.clone(),
+            since: self.since.clone(),
+            press: self.press.clone(),
+            modded: self.modded.clone(),
+            ..*self
+        }
+    }
+    fn clone_from(&mut self, src: &Vpad) {
+        let mut actions = std::mem::take(&mut self.actions);
+        actions.clone_from(&src.actions);
+        let [mut downs, mut since, mut press, mut modded] =
+            [&mut self.downs, &mut self.since, &mut self.press, &mut self.modded].map(std::mem::take);
+        downs.clone_from(&src.downs);
+        since.clone_from(&src.since);
+        press.clone_from(&src.press);
+        modded.clone_from(&src.modded);
+        *self = Vpad { actions, downs, since, press, modded, ..*src };
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Vpad {
     pub actions: Vec<String>,
     /// The modifier button (`mod-index`, -1 → None).

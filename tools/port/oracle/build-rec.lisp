@@ -1,5 +1,5 @@
 ;;;; build-rec.lisp — the recorder's image (record.lisp): tools/simgate/build.lisp's unit (build/simgate/simgate-all.lisp, the stock
-;;;; engine + duel sources) with ONE observation hook, a funcall of *ORACLE-BRAIN-HOOK* right after (BRAIN-SYSTEM) in SIM-SYSTEMS (the
+;;;; engine + duel sources) with an in-memory page for the vs traces (M2 Task 1: ENGINE::*ORACLE-PAGE*, below) and ONE observation hook, a funcall of *ORACLE-BRAIN-HOOK* right after (BRAIN-SYSTEM) in SIM-SYSTEMS (the
 ;;;; only point where the brains' writes, the sim stream after them and the CPUs' own log lines can be told apart: BRAIN-SYSTEM is a
 ;;;; compiled direct call, so a runtime wrapper never runs). NIL by default, so the image plays exactly as the stock one; record.lisp
 ;;;; proves it per trace (its 600-tick hash lines and RESULTS against a plain tools/simgate/run.lisp run, gen.py). Compiled with
@@ -19,7 +19,15 @@
   (setf text (replace-once text "(defun sim-systems ()"
                            (format nil "(defvar *oracle-brain-hook* nil \"tools/port/oracle/record.lisp's hook after BRAIN-SYSTEM.\")~%(defun sim-systems ()"))
         text (replace-once text "  (brain-system)                        ; CPU players write their vpads"
-                           "  (brain-system) (when *oracle-brain-hook* (funcall *oracle-brain-hook*))"))
+                           "  (brain-system) (when *oracle-brain-hook* (funcall *oracle-brain-hook*))")
+        ;; the page (M2 Task 1, vs traces): ENGINE::*ORACLE-PAGE* a hash table = the browser's gamePage in memory (PAGE-GET 0 for a key
+        ;; never set, as the stub and an empty page), each PAGE-SET printed "oracle page-set K V"; NIL (the default) = the stub
+        text (replace-once text "(defun page-get (k)"
+                           (format nil "(defvar *oracle-page* nil \"tools/port/oracle/record.lisp's in-memory page (a vs trace), else NIL.\")~%(defun page-get (k)"))
+        text (replace-once text "(ffi:c-inline (k) (:int) :int \"pf_page_get(#0)\" :one-liner t))"
+                           "(if *oracle-page* (values (gethash k *oracle-page* 0)) (ffi:c-inline (k) (:int) :int \"pf_page_get(#0)\" :one-liner t)))")
+        text (replace-once text "(ffi:c-inline (k v) (:int :int) :void \"pf_page_set(#0,#1)\" :one-liner t))"
+                           "(if *oracle-page* (progn (setf (gethash k *oracle-page*) v) (format t \"~&oracle page-set ~d ~d~%\" k v) nil) (ffi:c-inline (k v) (:int :int) :void \"pf_page_set(#0,#1)\" :one-liner t)))"))
   (ensure-directories-exist out)
   (with-open-file (o unit :direction :output :if-exists :supersede) (write-string text o))
   ;; tools/simgate/build.lisp's compile settings, as they are there

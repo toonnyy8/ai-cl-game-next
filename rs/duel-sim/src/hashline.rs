@@ -82,6 +82,16 @@ impl<T: Enc> Enc for Vec<T> {
         }
     }
 }
+/// A Lisp list held inline (`Few`), printed as `Vec`'s.
+impl<T: Enc + Copy + Default, const N: usize> Enc for crate::components::Few<T, N> {
+    fn enc(&self, d: &Data, s: &mut String) {
+        if self.is_empty() {
+            s.push_str("NIL")
+        } else {
+            seq(self.iter(), '(', ')', d, s)
+        }
+    }
+}
 impl Enc for Entity {
     fn enc(&self, d: &Data, s: &mut String) {
         if *self == Entity::NIL {
@@ -130,7 +140,7 @@ macro_rules! enc_kw {
     )*};
 }
 enc_kw!(
-    State, Phase, Cls, Form, Character, HazardKind, Contact, Queued, Burst, Button, Flow
+    State, Phase, Cls, Form, Character, HazardKind, Contact, Queued, Burst, Button, Flow, Difficulty
 );
 
 /// The slots of a struct in order, comma-separated.
@@ -562,7 +572,7 @@ pub(crate) mod tests {
             from: 0,
             to: 0,
             dmg: 150,
-            vols: vec![],
+            vols: Few::new(),
             react: Phase::Knockdown,
             kb: 2.0,
             hs: 8,
@@ -572,7 +582,7 @@ pub(crate) mod tests {
             seg: None,
             min: None,
             steal: None,
-            flags: vec![Sym(":BLADE")],
+            flags: [Sym(":BLADE")].into_iter().collect(),
         };
         assert_eq!(
             enc(&|s| hw.enc(d, s)),
@@ -586,8 +596,8 @@ pub(crate) mod tests {
             kb: 0.0,
             hs: 4,
             guard: Some(Num::F(f32::from_bits(0x40866666))),
-            vols: vec![[0.0, 2.4, f32::from_bits(0x3F75BE0B), 0.2, 2.0, 0.0]],
-            flags: vec![Sym(":BLADE"), Sym(":RANGED")],
+            vols: [[0.0, 2.4, f32::from_bits(0x3F75BE0B), 0.2, 2.0, 0.0]].into_iter().collect(),
+            flags: [Sym(":BLADE"), Sym(":RANGED")].into_iter().collect(),
             ..hw
         };
         assert_eq!(

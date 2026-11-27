@@ -3,7 +3,7 @@
 //! JUJISHO's cut, the vanish on a real hit and O's charge. An ICC is shared: the clone hazard and every strike it throws hold the same
 //! struct (`Match.iccs`, `HzData::Icc(index)`). The look functions and the EMITs are looks; PACE is the gate's debug counter (not ported).
 use crate::cl::{fmt_fixed_f32, max_f32, min_f32, round_f32};
-use crate::components::{Cls, Contact, HazardKind, HitWin, HzData, MoveId, Num, Phase, State, Sym};
+use crate::components::{Cls, Contact, Few, HazardKind, HitWin, HzData, MoveId, Num, Phase, State, Sym};
 use crate::ecs::Entity;
 use crate::fighter::{fighter, fighter_mut, id_of, kit_of, mv, opp_of, pos_of, side_name, yaw_of};
 use crate::hazards::{hazard_target, hazard_touches_p, spawn_hazard, spawn_look, HzArgs};
@@ -50,15 +50,17 @@ impl Src {
 }
 
 /// The answer weight of a press (CLONE-MOVE: :q a J, :f a K).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Weight {
+    #[default]
     Q,
     F,
 }
 
 /// port: ICC, a clone's state (slot order; printed `#ICC{…}`). `queued` holds the presses waiting for its next links (nothing pushes
-/// them under the core system: the press answers left 2026-10-27); `rq` the moves of his it will replay, (tick move mult).
-#[derive(Clone, Debug, PartialEq)]
+/// them under the core system: the press answers left 2026-10-27); `rq` the moves of his it will replay, (tick move mult): a move
+/// queued per start of his while the clone lives, taken after the clone's lag (`RQ_MAX`).
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Icc {
     pub state: IccState,
     pub born: i64,
@@ -68,10 +70,10 @@ pub struct Icc {
     pub link: i64,
     pub mv: Option<MoveId>,
     pub sf: i64,
-    pub queued: Vec<Weight>,
+    pub queued: Few<Weight, 4>, // (never pushed, in the Lisp either: only POP and NIL)
     pub hit: Option<Contact>,
     pub touched: bool,
-    pub rq: Vec<(i64, MoveId, f32)>,
+    pub rq: Few<(i64, MoveId, f32), RQ_MAX>,
     pub rmult: f32,
     pub rt: i64,
     pub sscale: f32,
@@ -88,16 +90,26 @@ impl Default for Icc {
             link: 0,
             mv: None,
             sf: 0,
-            queued: vec![],
+            queued: Few::new(),
             hit: None,
             touched: false,
-            rq: vec![],
+            rq: Few::new(),
             rmult: 1.0,
             rt: -1,
             sscale: 1.0,
         }
     }
 }
+
+/// The most clone hazards one fighter has at once, live or fading, and the most moves a clone queues for its replay: fixed lists, more
+/// panics. The Lisp's bounds: live clones <= `*clone-max*` (3, no debug command sets it), plus up to 3 charging (the O press) and the
+/// fading ones (8 frames): about 8 hazards; CLONE-REPLAY-WATCH pushes at most one move per new `fighter-cls-t` (once a step) onto a live
+/// NS3 clone and ICHIGO-CLONE-STEP takes one each step once its lag (`*clone-replay-lags*`: 4 / 8) has run, so `rq` <= lag + 1 = 9. The
+/// 15 cvc gate traces, live: at most 3 clones and 1 queued move (M2_NOTES §9). A larger lag or clone max must re-derive these.
+pub const CLONES_MAX: usize = 16;
+pub const RQ_MAX: usize = 16;
+/// A fighter's clone hazards (ICHIGO-CLONES' list), oldest first.
+pub type Clones = Few<Entity, CLONES_MAX>;
 
 const CLONE_HZ: &str = "ICHIGO-CLONE-HZ";
 const STRIKE_HZ: &str = "ICHIGO-STRIKE-HZ";
@@ -184,7 +196,7 @@ fn flag_sym(f: &str) -> Sym {
 /// port: ECHO-HITWIN: a copy of hit HW at MULT of its damage and guard value, with a blade's hit look (:blade adjoined: in front).
 pub fn echo_hitwin(hw: &duel_data::HitWin, mult: f32) -> HitWin {
     assert!(hw.seg.is_none(), "a :seg-fn window copied (Hisagi's, M4)");
-    let mut flags: Vec<Sym> = hw.flags.iter().map(|f| flag_sym(f)).collect();
+    let mut flags: Few<Sym, 4> = hw.flags.iter().map(|f| flag_sym(f)).collect();
     if !hw.flags.iter().any(|f| f == "blade") {
         flags.insert(0, Sym(":BLADE"));
     }
@@ -192,7 +204,7 @@ pub fn echo_hitwin(hw: &duel_data::HitWin, mult: f32) -> HitWin {
         from: hw.from as i64,
         to: hw.to as i64,
         dmg: 1.max(round_f32(mult * hw.dmg as f32)),
-        vols: hw.vols.clone(),
+        vols: hw.vols.iter().copied().collect(),
         react: Phase::from_name(&hw.react).unwrap_or_else(|| panic!("a react {}", hw.react)),
         kb: hw.kb,
         hs: hw.hs as i64,
@@ -214,8 +226,8 @@ pub fn clone_p(hz: &crate::components::Hazard) -> bool {
 }
 
 /// port: ICHIGO-CLONES: E's clone hazards, oldest first (the Lisp's PUSHed list, in reverse slot order, stably sorted by birth).
-pub fn ichigo_clones(m: &mut Match, e: Entity) -> Vec<Entity> {
-    let mut out = Vec::new();
+pub fn ichigo_clones(m: &mut Match, e: Entity) -> Clones {
+    let mut out = Clones::new();
     m.do_entities(|m, h| m.hazard.has(h), |m, h| {
         let hz = m.hazard.get(h).unwrap();
         if hz.owner == e && clone_p(hz) {
@@ -238,7 +250,7 @@ pub fn clone_count(m: &mut Match, e: Entity) -> i64 {
 }
 
 /// port: ICHIGO-LIVE-CLONES: E's live clone hazards, oldest first.
-pub fn live_clones(m: &mut Match, e: Entity) -> Vec<Entity> {
+pub fn live_clones(m: &mut Match, e: Entity) -> Clones {
     let mut v = ichigo_clones(m, e);
     v.retain(|&h| clone_live_p(icc(m, icc_of(m, h).unwrap())));
     v
@@ -251,7 +263,7 @@ fn clone_fade(c: &mut Icc) {
 /// port: ICHIGO-CLONE-SPAWN: a clone at (X Z) facing the opponent; at the cap the oldest live one fades out. Its ICC's index.
 pub fn clone_spawn(m: &mut Match, e: Entity, x: f32, z: f32, src: Src) -> usize {
     let live = live_clones(m, e);
-    let borns: Vec<i64> = live.iter().map(|&h| icc(m, icc_of(m, h).unwrap()).born).collect();
+    let borns: Few<i64, CLONES_MAX> = live.iter().map(|&h| icc(m, icc_of(m, h).unwrap()).born).collect();
     let i = clone_evict(&borns, m.knobs.clone_max);
     let q = pos_of(m, opp_of(m, e));
     if let Some(i) = i {
@@ -531,7 +543,7 @@ fn clone_wave(m: &mut Match, e: Entity, x: f32, z: f32, yaw: f32, mvd: &'static 
         from: 0,
         to: 0,
         dmg: 1.max(round_f32(mult * p.dmg.expect(":dmg") as f32)),
-        vols: vec![],
+        vols: Few::new(),
         react: Phase::from_name(p.react.as_deref().expect(":react")).expect("a react"),
         kb: p.kb.expect(":kb"),
         hs: m.knobs.hitstop_heavy,
@@ -541,7 +553,7 @@ fn clone_wave(m: &mut Match, e: Entity, x: f32, z: f32, yaw: f32, mvd: &'static 
         seg: None,
         min: None,
         steal: None,
-        flags: vec![Sym(":BLADE")],
+        flags: [Sym(":BLADE")].into_iter().collect(),
     };
     let mut a = HzArgs {
         x: x + fx,
@@ -684,7 +696,7 @@ fn clone_burst(m: &mut Match, e: Entity, h: Entity) {
 
 /// port: ICHIGO-VANISH: E was really hit: every clone, afterimage and their hits in the air vanish (a puff where each clone stood).
 pub fn vanish(m: &mut Match, e: Entity) {
-    let mut at = Vec::new();
+    let mut at = Few::<(f32, f32), CLONES_MAX>::new();
     m.do_entities(|m, h| m.hazard.has(h), |m, h| {
         let hz = m.hazard.get(h).unwrap();
         if hz.owner == e && (clone_p(hz) || matches!(hz.data, HzData::Ice { .. }) || hz.kind == Some(HazardKind::IcHit)) {
@@ -822,7 +834,7 @@ pub fn wave(m: &mut Match, e: Entity, look: Sym) {
         from: 0,
         to: 0,
         dmg: p.dmg.expect(":dmg") as i64,
-        vols: vec![],
+        vols: Few::new(),
         react: Phase::from_name(p.react.as_deref().expect(":react")).expect("a react"),
         kb: p.kb.expect(":kb"),
         hs: m.knobs.hitstop_heavy,
@@ -832,7 +844,7 @@ pub fn wave(m: &mut Match, e: Entity, look: Sym) {
         seg: None,
         min: None,
         steal: None,
-        flags: vec![Sym(":BLADE")],
+        flags: [Sym(":BLADE")].into_iter().collect(),
     };
     let args = HzArgs {
         x,

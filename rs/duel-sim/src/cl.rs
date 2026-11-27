@@ -56,6 +56,180 @@ pub fn rem(a: i64, b: i64) -> i64 {
     a % b
 }
 
+/// port: cpu-perceive.lisp %EXPT2 — CL's (EXPT X 2) of a single-float as ECL computes it: X x 2 for a zero, else C powf (X, 2.0).
+/// The C powf is musl's (the wasm build's, and the native sim's preload): `musl_powf`, which is not X x X on ~0.04 % of inputs
+/// (nor the `libm` crate's powf, whose y = 2 path returns X x X). Equal to musl on all 2^32 inputs (tests/cpu.rs).
+pub fn expt2(x: f32) -> f32 {
+    if x == 0.0 { x * 2.0 } else { musl_powf(x, 2.0) }
+}
+
+/// musl's `__exp2f_data.tab` (src/math/exp2f_data.c, EXP2F_TABLE_BITS 5): powf's and expf's 2^(i/32) table, as bits.
+const EXP2_TAB: [u64; 32] = [
+    0x3ff0000000000000, 0x3fefd9b0d3158574, 0x3fefb5586cf9890f, 0x3fef9301d0125b51, 0x3fef72b83c7d517b, 0x3fef54873168b9aa,
+    0x3fef387a6e756238, 0x3fef1e9df51fdee1, 0x3fef06fe0a31b715, 0x3feef1a7373aa9cb, 0x3feedea64c123422, 0x3feece086061892d,
+    0x3feebfdad5362a27, 0x3feeb42b569d4f82, 0x3feeab07dd485429, 0x3feea47eb03a5585, 0x3feea09e667f3bcd, 0x3fee9f75e8ec5f74,
+    0x3feea11473eb0187, 0x3feea589994cce13, 0x3feeace5422aa0db, 0x3feeb737b0cdc5e5, 0x3feec49182a3f090, 0x3feed503b23e255d,
+    0x3feee89f995ad3ad, 0x3feeff76f2fb5e47, 0x3fef199bdd85529c, 0x3fef3720dcef9069, 0x3fef5818dcfba487, 0x3fef7c97337b9b5f,
+    0x3fefa4afa2a490da, 0x3fefd0765b6e4540,
+];
+
+/// musl's `__exp2f_data.poly` (powf's; expf scales it by powers of 2).
+const EXP2_POLY: [u64; 3] = [0x3fac6af84b912394, 0x3fcebfce50fac4f3, 0x3fe62e42ff0c52d6];
+
+/// port: musl src/math/expf.c (ARM's: EXP2F_TABLE_BITS 5, EXP2F_POLY_ORDER 3, TOINT_INTRINSICS 0, double_t double) — C expf, which
+/// ECL's EXP of a single-float calls (ecl_exp: expf). The answer key's (the wasm build's, and the native sim's preload, tools/simlib.py
+/// MUSL_MATH); the `libm` crate's expf is FreeBSD's, which differs on ~10 % of inputs. Equal to musl on all 2^32 inputs (tests/cpu.rs).
+#[allow(clippy::assign_op_pattern)] // (the C's text: y = z * r2 + y)
+pub fn expf(x: f32) -> f32 {
+    let f = f64::from_bits;
+    let top12 = |x: f32| x.to_bits() >> 20;
+    let abstop = top12(x) & 0x7ff;
+    if abstop >= top12(88.0) {
+        if x.to_bits() == f32::NEG_INFINITY.to_bits() {
+            return 0.0;
+        }
+        if abstop >= top12(f32::INFINITY) {
+            return x + x;
+        }
+        if x > f32::from_bits(0x42b17217) {
+            let big = f32::from_bits(0x70000000); // (__math_oflowf (0): 0x1p97f squared)
+            return big * big;
+        }
+        if x < f32::from_bits(0xc2cff1b4) {
+            let tiny = f32::from_bits(0x10000000); // (__math_uflowf (0): 0x1p-95f squared)
+            return tiny * tiny;
+        }
+    }
+    const N: f64 = 32.0;
+    let shift = f(0x4338000000000000); // (0x1.8p+52)
+    let z = f(0x3ff71547652b82fe) * N * x as f64; // (InvLn2N = 0x1.71547652b82fep+0 * N, exact)
+    let mut kd = z + shift;
+    let ki = kd.to_bits();
+    kd -= shift;
+    let r = z - kd;
+    let t = EXP2_TAB[(ki % 32) as usize].wrapping_add(ki << (52 - 5));
+    let s = f(t);
+    let c = [f(EXP2_POLY[0]) / (N * N * N), f(EXP2_POLY[1]) / (N * N), f(EXP2_POLY[2]) / N]; // (poly_scaled: exact)
+    let z = c[0] * r + c[1];
+    let r2 = r * r;
+    let mut y = c[2] * r + 1.0;
+    y = z * r2 + y;
+    y *= s;
+    y as f32
+}
+
+/// musl's powf (src/math/powf.c, ARM's: POWF_LOG2_TABLE_BITS 4, EXP2F_TABLE_BITS 5, TOINT_INTRINSICS 0, double_t double), its
+/// tables as bits. ponytail: Y finite and non-zero only (powf's zeroinfnan(y) branch is not ported: a panic); `expt2` is the caller.
+#[allow(clippy::eq_op, clippy::assign_op_pattern)] // (the C's text: (x - x) / (x - x) is its NaN, q = p * r2 + q its order)
+fn musl_powf(x: f32, y: f32) -> f32 {
+    const LOG2_TAB: [(u64, u64); 16] = [
+        (0x3ff661ec79f8f3be, 0xbfdefec65b963019),
+        (0x3ff571ed4aaf883d, 0xbfdb0b6832d4fca4),
+        (0x3ff49539f0f010b0, 0xbfd7418b0a1fb77b),
+        (0x3ff3c995b0b80385, 0xbfd39de91a6dcf7b),
+        (0x3ff30d190c8864a5, 0xbfd01d9bf3f2b631),
+        (0x3ff25e227b0b8ea0, 0xbfc97c1d1b3b7af0),
+        (0x3ff1bb4a4a1a343f, 0xbfc2f9e393af3c9f),
+        (0x3ff12358f08ae5ba, 0xbfb960cbbf788d5c),
+        (0x3ff0953f419900a7, 0xbfaa6f9db6475fce),
+        (0x3ff0000000000000, 0x0000000000000000),
+        (0x3fee608cfd9a47ac, 0x3fb338ca9f24f53d),
+        (0x3feca4b31f026aa0, 0x3fc476a9543891ba),
+        (0x3feb2036576afce6, 0x3fce840b4ac4e4d2),
+        (0x3fe9c2d163a1aa2d, 0x3fd40645f0c6651c),
+        (0x3fe886e6037841ed, 0x3fd88e9c2c1b9ff8),
+        (0x3fe767dcf5534862, 0x3fdce0a44eb17bcc),
+    ];
+    const LOG2_POLY: [u64; 5] = [0x3fd27616c9496e0b, 0xbfd71969a075c67a, 0x3fdec70a6ca7badd, 0xbfe7154748bef6c8, 0x3ff71547652ab82b];
+    const SHIFT_SCALED: u64 = 0x42e8000000000000; // (0x1.8p+52 / 32)
+    const SIGN_BIAS: u64 = 1 << (5 + 11);
+    let f = f64::from_bits;
+    let checkint = |iy: u32| -> u32 {
+        let e = iy >> 23 & 0xff;
+        if e < 0x7f {
+            0
+        } else if e > 0x7f + 23 {
+            2
+        } else if iy & ((1 << (0x7f + 23 - e)) - 1) != 0 {
+            0
+        } else if iy & (1 << (0x7f + 23 - e)) != 0 {
+            1
+        } else {
+            2
+        }
+    };
+    let zeroinfnan = |i: u32| 2u32.wrapping_mul(i).wrapping_sub(1) >= 2u32.wrapping_mul(0x7f800000).wrapping_sub(1);
+    let mut sign_bias: u64 = 0;
+    let mut ix = x.to_bits();
+    let iy = y.to_bits();
+    assert!(!zeroinfnan(iy), "musl_powf: y {y} is zero, infinite or NaN (not ported)");
+    if ix.wrapping_sub(0x00800000) >= 0x7f800000 - 0x00800000 {
+        if zeroinfnan(ix) {
+            let mut x2 = x * x;
+            if ix & 0x80000000 != 0 && checkint(iy) == 1 {
+                x2 = -x2;
+            }
+            return if iy & 0x80000000 != 0 { 1.0 / x2 } else { x2 };
+        }
+        if ix & 0x80000000 != 0 {
+            match checkint(iy) {
+                0 => return (x - x) / (x - x), // (__math_invalidf: a NaN)
+                1 => sign_bias = SIGN_BIAS,
+                _ => {}
+            }
+            ix &= 0x7fffffff;
+        }
+        if ix < 0x00800000 {
+            ix = (x * f32::from_bits(0x4b000000)).to_bits() & 0x7fffffff; // (x * 0x1p23f: a subnormal normalized)
+            ix = ix.wrapping_sub(23 << 23);
+        }
+    }
+    // log2_inline
+    let tmp = ix.wrapping_sub(0x3f330000);
+    let i = ((tmp >> (23 - 4)) % 16) as usize;
+    let top = tmp & 0xff800000;
+    let iz = ix.wrapping_sub(top);
+    let k = (top as i32) >> 23;
+    let (invc, logc) = (f(LOG2_TAB[i].0), f(LOG2_TAB[i].1));
+    let z = f32::from_bits(iz) as f64;
+    let r = z * invc - 1.0;
+    let y0 = logc + k as f64;
+    let a = LOG2_POLY.map(f);
+    let r2 = r * r;
+    let mut lg = a[0] * r + a[1];
+    let p = a[2] * r + a[3];
+    let r4 = r2 * r2;
+    let mut q = a[4] * r + y0;
+    q = p * r2 + q;
+    lg = lg * r4 + q;
+    let ylogx = y as f64 * lg;
+    if (ylogx.to_bits() >> 47 & 0xffff) >= 126.0f64.to_bits() >> 47 {
+        if ylogx > f(0x405fffffffd1d571) {
+            let big = f32::from_bits(0x70000000); // (__math_oflowf: 0x1p97f squared, signed)
+            return if sign_bias != 0 { -big * big } else { big * big };
+        }
+        if ylogx <= -150.0 {
+            let tiny = f32::from_bits(0x10000000); // (__math_uflowf: 0x1p-95f squared, signed)
+            return if sign_bias != 0 { -tiny * tiny } else { tiny * tiny };
+        }
+    }
+    // exp2_inline
+    let shift = f(SHIFT_SCALED);
+    let mut kd = ylogx + shift;
+    let ki = kd.to_bits();
+    kd -= shift;
+    let r = ylogx - kd;
+    let ski = ki.wrapping_add(sign_bias);
+    let s = f(EXP2_TAB[(ki % 32) as usize].wrapping_add(ski << (52 - 5)));
+    let c = EXP2_POLY.map(f);
+    let z = c[0] * r + c[1];
+    let r2 = r * r;
+    let mut e = c[2] * r + 1.0;
+    e = z * r2 + e;
+    e *= s;
+    e as f32
+}
+
 /// port: engine/lisp/package.lisp F32 (a double narrowed to single, round to nearest).
 pub fn f32(x: f64) -> f32 {
     x as f32
@@ -111,6 +285,43 @@ impl Num {
     }
     pub fn le(self, n: i64) -> bool {
         self.exact() <= n as f64
+    }
+    /// `(< self o)` (CL compares an integer and a float exactly).
+    pub fn lt(self, o: Num) -> bool {
+        self.exact() < o.exact()
+    }
+}
+
+/// `(- x y)`: two integers stay one; else the singles' difference (an integer is converted to single first).
+impl std::ops::Sub<Num> for Num {
+    type Output = Num;
+    fn sub(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a - b),
+            _ => Num::F(self.f() - o.f()),
+        }
+    }
+}
+
+/// `(+ x y)`: two integers stay one; else the singles' sum.
+impl std::ops::Add<Num> for Num {
+    type Output = Num;
+    fn add(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a + b),
+            _ => Num::F(self.f() + o.f()),
+        }
+    }
+}
+
+/// `(* x n)`: a float times an integer is the float times the integer's single.
+impl std::ops::Mul<i64> for Num {
+    type Output = Num;
+    fn mul(self, n: i64) -> Num {
+        match self {
+            Num::I(a) => Num::I(a * n),
+            Num::F(x) => Num::F(x * n as f32),
+        }
     }
 }
 
