@@ -4,6 +4,8 @@
 //! and draws `CosRng`, never the sim stream.
 pub mod crack;
 pub mod feedback;
+pub mod hazard;
+pub mod screen;
 pub mod shapes;
 pub mod stamps;
 pub mod vfx;
@@ -64,7 +66,10 @@ pub struct FxState<'d> {
     pub stage: crack::StageFx,
     /// The stamps (vfx-stamps.lisp).
     pub stamps: stamps::Stamps,
+    /// cinema.lisp `*ui-flash*`: r g b alpha fade (the canvas draws it: task 8).
+    pub ui_flash: [f32; 5],
     pub knobs: Knobs,
+    pub ken: hazard::KenKnobs,
 }
 
 /// The FX knobs read from tuning.json (never retyped).
@@ -109,7 +114,9 @@ impl<'d> FxState<'d> {
             aura_cap: 1.0,
             stage: crack::StageFx::default(),
             stamps: stamps::Stamps::default(),
+            ui_flash: [0.0; 5],
             knobs: Knobs::new(d),
+            ken: hazard::KenKnobs::new(d),
         }
     }
 }
@@ -123,7 +130,30 @@ pub struct Ctx<'a, 'd> {
     pub clock: f32,
 }
 
-impl Ctx<'_, '_> {
+/// What a look that only starts things draws with (feedback's calls inside a step: stamps, particles, the hit light, the stage's
+/// marks): the cosmetic RNG, the FX state and the fx clock. A frame's drawing reborrows one from its `Ctx` (`Ctx::em`).
+pub struct Em<'a, 'd> {
+    pub cos: &'a mut CosRng,
+    pub fx: &'a mut FxState<'d>,
+    pub clock: f32,
+}
+
+impl Em<'_, '_> {
+    /// RND01.
+    pub fn rnd(&mut self) -> f32 {
+        self.cos.rnd01()
+    }
+    /// port: engine/lisp/package.lisp RND-RANGE: `(+ a (* (- b a) (rnd01)))`.
+    pub fn rr(&mut self, a: f32, b: f32) -> f32 {
+        a + (b - a) * self.cos.rnd01()
+    }
+}
+
+impl<'d> Ctx<'_, 'd> {
+    /// The starting half of this context.
+    pub fn em(&mut self) -> Em<'_, 'd> {
+        Em { cos: &mut *self.cos, fx: &mut *self.fx, clock: self.clock }
+    }
     /// RND01.
     pub fn rnd(&mut self) -> f32 {
         self.cos.rnd01()

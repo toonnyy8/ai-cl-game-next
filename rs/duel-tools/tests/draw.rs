@@ -35,7 +35,7 @@ fn quiet_core_matches() {
 /// frame 0-239: the camera reads the drawn places.
 #[test]
 fn slowmo_frames_match() {
-    check("slowmo-2513", "fu,p,dq,fxa,fxb,ft", "fighters");
+    check("slowmo-2513", "fu,p,dq,fxa,fxb,ft,rng", "fighters");
 }
 
 /// The FX (Task 6) on the quiet scenes: the point lights in `fu`, the particle pool (the ash, the aura's flecks) in `fxa` / `ft`, the

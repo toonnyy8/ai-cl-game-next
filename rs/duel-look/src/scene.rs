@@ -29,6 +29,31 @@ pub struct SceneInputs {
     pub scene_scale_cap: f32,
 }
 
+/// A sound the looks asked for (feedback.lisp's SFX-AT / SFX-ON / PLAY-SFX, the Breaker hum's START-LOOP / STOP-LOOP, the silence
+/// beat's end): collected in `Scene.sounds` for the player (M3b). The loop clears them after each frame's draw.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SoundReq {
+    /// A positional sound KEY at P.
+    At { key: &'static str, p: [f32; 3], gain: f32, pitch: f32 },
+    /// PLAY-SFX: KEY unplaced.
+    Play { key: &'static str, gain: f32 },
+    /// The side's Breaker hum starts (`:breaker-hum`) / stops (0.1 s).
+    HumStart { side: usize, gain: f32 },
+    HumStop { side: usize },
+    /// cinema.lisp SILENCE-END: the music and the sfx bus back to their levels.
+    SilenceEnd,
+}
+
+/// `Scene.sounds`' bound: a frame's requests past it are dropped (a frame makes a few dozen at most).
+pub const SOUNDS_MAX: usize = 256;
+
+/// Push a sound request, dropped past `SOUNDS_MAX` (0 allocations: the vector is reserved once).
+pub fn push_sound(v: &mut Vec<SoundReq>, r: SoundReq) {
+    if v.len() < SOUNDS_MAX {
+        v.push(r);
+    }
+}
+
 /// MODEL-RIM's value.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Rim {
@@ -73,6 +98,9 @@ pub struct Scene<'d> {
     pub slow: crate::draw::slow::SlowDraw,
     /// The FX state (particles, rings, lights, auras, the stage's marks, stamps).
     pub fx: crate::fx::FxState<'d>,
+    /// The sounds asked for since the loop last cleared them (M3b plays them), and feedback.lisp `*hums*` (a Breaker hum runs, per side).
+    pub sounds: Vec<SoundReq>,
+    pub hums: [bool; 2],
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
 }
@@ -89,6 +117,8 @@ impl<'d> Scene<'d> {
             draw: crate::draw::DrawState::new(data),
             slow: crate::draw::slow::SlowDraw::with_reserve(),
             fx: crate::fx::FxState::new(data),
+            sounds: Vec::with_capacity(SOUNDS_MAX),
+            hums: [false; 2],
             unported: None,
         }
     }
@@ -214,17 +244,29 @@ impl<'d> Scene<'d> {
                 self.duel_camera(&pr, 0.0, true);
             }
             LookEvent::Place => {
-                self.draw.cam.punch_t = 0.0; // task 6: its FX-CLEAR; task 7: the models' flash / super 0
+                self.fx_clear();
+                self.draw.cam.punch_t = 0.0; // task 7: the models' flash / super 0
             }
             LookEvent::Music { .. } | LookEvent::MusicStop { .. } => {} // M3b: sound
             LookEvent::ClearWords => {}                                  // task 8: the canvas words
-            LookEvent::FxClear | LookEvent::StageClearCracks | LookEvent::UiFlash { .. } => {} // task 6: FX
+            LookEvent::FxClear => self.fx_clear(),
+            LookEvent::StageClearCracks => self.fx.stage.clear_cracks(),
+            LookEvent::UiFlash { r, g, b, a, fade } => self.fx.ui_flash = [r, g, b, a, fade],
             LookEvent::Emit(_) => {}                                     // (the second pass)
         }
     }
 
-    /// An EMIT (the sink's second pass: FEEDBACK-SYSTEM's DO-EVENTS, oldest first). Task 6 ports feedback.lisp.
-    fn event(&mut self, _m: &Match, _ev: &Event) {}
+    /// An EMIT (the sink's second pass: FEEDBACK-SYSTEM's DO-EVENTS, oldest first): fx/feedback.rs.
+    fn event(&mut self, m: &Match, ev: &Event) {
+        self.feedback(m, ev);
+    }
+
+    /// port: engine/lisp/fx.lisp FX-CLEAR — every particle and ring gone, the shake stopped.
+    fn fx_clear(&mut self) {
+        self.fx.clear();
+        self.draw.cam.shake = [0.0; 8];
+        self.draw.camera.shake = [0.0; 3];
+    }
 }
 
 impl LookSink for Scene<'_> {

@@ -28,6 +28,8 @@ pub struct DrawState {
     pub stage: StageState,
     pub stage_meshes: StageMeshes,
     pub screen_fx: [f32; 8],
+    /// cinema.lisp `*impact-presets*`.
+    pub presets: crate::fx::screen::Presets,
 }
 
 impl DrawState {
@@ -44,6 +46,7 @@ impl DrawState {
             stage: StageState::default(),
             stage_meshes: StageMeshes::new(d),
             screen_fx: [0.0; 8],
+            presets: crate::fx::screen::Presets::new(d),
         }
     }
 }
@@ -106,6 +109,14 @@ impl Scene<'_> {
             view_behind: m.view_behind,
         }
     }
+}
+
+/// port: main.lisp GAME-FRAME's first form, SCREEN-FX-UPDATE (cinema.lisp): last frame's impact frames, focus lines and silence run
+/// out by this frame's RDT (0 while paused). The loop calls it first, before `flow::frame` (as GAME-FRAME does before FLOW-UPDATE);
+/// task 8: a debug-held cinematic (CINE-HELD-P) also stops it.
+pub fn frame_begin(sc: &mut Scene, m: &Match, rdt: f32) {
+    let dt = if m.paused { 0.0 } else { rdt };
+    fx::screen::screen_fx_update(&mut sc.draw, &mut sc.sounds, dt);
 }
 
 /// port: GAME-FRAME after its steps, then END-FRAME (duel/lisp/main.lisp 133-149, engine/lisp/render.lisp END-FRAME): SLOW-DRAW-BEGIN,
@@ -172,11 +183,31 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
             }
         }
     }
-    // task 6: HAZARD-DRAW
+    {
+        // HAZARD-DRAW (*no-draw*: debug 2120+, not ported)
+        let d = &mut sc.draw;
+        let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
+        let kn = c.fx.ken;
+        let slow = &sc.slow;
+        let at = |e: Entity| slow.at.iter().find(|a| a.0 == e).map(|a| a.1);
+        if let Some(u) = fx::hazard::hazard_draw(&mut c, m, &kn, at, rdt) {
+            sc.unported.get_or_insert(u);
+        }
+    }
     duel_sim::cine::cine_draw(m); // (CINE-DRAW: task 8 adds the look hook here, ruling R9)
     let d = &mut sc.draw;
     let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
-    // task 6: STAMPS-DRAW; task 8: the queued impact frame and the Burst beat
+    if let Some(u) = fx::stamps::stamps_draw(&mut c, rdt) {
+        sc.unported.get_or_insert(u);
+    }
+    // (*impact-next*: only the retired NOME ladder's :rung queues one)
+    if c.fx.stamps.burst_flag > 0.0 {
+        // a Burst ring fired: its beat (a negative frame, the white back-rim)
+        c.fx.stamps.burst_flag = 0.0;
+        fx::screen::impact_frame(d, "negative", 1.0);
+        fx::screen::back_rim(d, 3.0);
+    }
+    let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
     c.fx.update(rdt);
     fx::draw_particles(&mut c);
     fx::rings_update(&mut c, rdt);

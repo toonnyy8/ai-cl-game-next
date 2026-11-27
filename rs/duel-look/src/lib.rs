@@ -7,6 +7,6 @@ pub mod rig;
 pub mod rng;
 pub mod scene;
 
-pub use draw::{draw_frame, FrameOut};
+pub use draw::{draw_frame, frame_begin, FrameOut};
 pub use rng::CosRng;
-pub use scene::{Scene, SceneInputs};
+pub use scene::{Scene, SceneInputs, SoundReq};

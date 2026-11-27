@@ -2,7 +2,7 @@
 //! ST-DRAW-MARKS), the rubble chips (STAGE-DEBRIS, ST-CHIPS). Marks and cracks draw into the toon batch; a chip is two dq records
 //! (its rubble mesh and its ink hull).
 use super::shapes::{ground_seg, hash01, toon_a, PAL_BLACK_SMOKE, PAL_EMBER};
-use super::Ctx;
+use super::{Ctx, Em};
 use crate::draw::queue::{draw_mesh, DrawOpts};
 use crate::draw::stage::TOON_GROUND;
 use duel_sim::math::{f_abs, f_cos, f_sin};
@@ -54,7 +54,7 @@ impl StageFx {
 }
 
 /// port: stage.lisp STAGE-CRACK-ADD — 5 jagged rays of 4 segments from (x z), R long (the newest +CRACK-MAX+ kept).
-pub fn crack_add(c: &mut Ctx, x: f32, z: f32, r: f32) {
+pub fn crack_add(c: &mut Em, x: f32, z: f32, r: f32) {
     let o = (c.fx.stage.ncracks % CRACK_MAX) * CRACK_STRIDE;
     c.fx.stage.cracks[o..o + 4].copy_from_slice(&[x, z, r, 0.0]);
     let mut s = 4;
@@ -93,7 +93,7 @@ pub fn draw_cracks(c: &mut Ctx) {
 }
 
 /// port: stage.lisp STAGE-MARK — a :scorch (CRACK false) or :crack mark of radius R at (x z), inside the plaza only.
-pub fn stage_mark(c: &mut Ctx, crack: bool, x: f32, z: f32, r: f32) {
+pub fn stage_mark(c: &mut Em, crack: bool, x: f32, z: f32, r: f32) {
     if x * x + z * z < 14.5 * 14.5 {
         let o = (c.fx.stage.nmarks % MARK_N) * MARK_STRIDE;
         c.fx.stage.marks[o..o + 5].copy_from_slice(&[x, z, r, if crack { 1.0 } else { 0.0 }, c.clock]);
@@ -102,7 +102,7 @@ pub fn stage_mark(c: &mut Ctx, crack: bool, x: f32, z: f32, r: f32) {
 }
 
 /// port: stage.lisp STAGE-DEBRIS — N chips thrown up from (x z) at SPEED x 2.5-4.5 m/s.
-pub fn stage_debris(c: &mut Ctx, x: f32, z: f32, n: usize, speed: f32) {
+pub fn stage_debris(c: &mut Em, x: f32, z: f32, n: usize, speed: f32) {
     for _ in 0..n {
         let o = c.fx.stage.chip_i * CHIP_STRIDE;
         let a = c.rr(0.0, 6.2832);

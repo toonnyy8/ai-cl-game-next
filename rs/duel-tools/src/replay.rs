@@ -1158,6 +1158,47 @@ mod tests {
         }
     }
 
+    /// The real look sink (`duel_look::Scene`) on the 17 cvc gate rows: FEEDBACK-SYSTEM's port (stamps, particles, the shake, the
+    /// stage's marks, the sounds) runs on every event of whole matches with no panic and no allocation in a battle frame (the sounds
+    /// cleared each frame, as the page's loop does). The draw key cannot check these looks before Task 8's battle scenes.
+    #[test]
+    fn scene_sink_no_alloc() {
+        use duel_sim::look::LookSink;
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0 };
+        for name in CVC_GATE {
+            let Some(path) = oracle_trace(name) else { panic!("no answer key (set ORACLE)") };
+            let s_line = std::io::BufRead::lines(std::io::BufReader::new(std::fs::File::open(&path).unwrap()))
+                .map(Result::unwrap)
+                .find_map(|l| l.strip_prefix("S cmds ").map(String::from))
+                .unwrap();
+            let mut m = Match::new(data);
+            flow::go_title(&mut m);
+            let (s, sc) = (&mut Search::new(), &mut duel_look::Scene::new(data, inputs));
+            sc.frame(&mut m);
+            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
+            flow::frame_headless(&mut m, s, &mut flow::NoInput, sc);
+            m.log_on = false;
+            let (mut allocs, mut steps, mut sounds) = (0, 0, 0);
+            for _ in 0..200_000 {
+                let (a0, t0, before) = (crate::alloc_count::count(), m.match_tick, flow::battle_p(&m));
+                flow::frame_headless(&mut m, s, &mut flow::NoInput, sc);
+                sounds += sc.sounds.len();
+                sc.sounds.clear();
+                if before && flow::battle_p(&m) {
+                    (allocs, steps) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0));
+                }
+                if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+                    break;
+                }
+            }
+            assert_eq!(m.unported, None);
+            eprintln!("scene_sink_no_alloc {name}: {allocs} allocations in {steps} battle steps; {sounds} sounds; look unported: {:?}", sc.unported);
+            assert!(steps > 10_000 && sounds > 0, "{name} {steps} {sounds}");
+            assert_eq!(allocs, 0, "{name}: allocations in {steps} battle steps");
+        }
+    }
+
     /// `E core-start`, `E cmd`, `E skip-cine` (a recorded trial, rs/duel-tools/tests/fixtures/core-start-cmd.*): P2 starts KE-Z-AS1
     /// through CORE-START! (its move and SP log lines, then its hit, compared step by step), a debug command between frames; the
     /// skip-cine line was added by hand (no cinematic runs there: ECL's replay.lisp passes the same file). Without the core-start

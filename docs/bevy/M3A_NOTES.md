@@ -642,3 +642,78 @@ those lanes; there is nothing to mask in `dq` for them.
   `*band*`, DECK-UPDATE's) in `Scene::duel_camera`.
 - Task 8: the cinematic camera branch of DUEL-CAMERA (with %KEEP-SUBJECT / %PORTRAIT-DOLLY and the dutch roll), CINE-HELD-P in
   FX-FROZEN-P (no Rust cinematic holds yet), CINE-END's camera fov / up and STAGE-ENV, the card beat hiding the stage.
+
+## 6. The FX (Task 6)
+
+`rs/duel-look/src/fx/`:
+- `mod.rs`: `FxState` (in `Scene.fx`), `Ctx` (a frame's drawing: the arrays, the camera, `CosRng`, the state, the fx clock) and `Em`
+  (its starting half: feedback's calls inside a step), WITH-FX-VERTS / STREAM-ROOM-P (`Ctx::verts`: a full batch drops the whole shape
+  and counts `FrameOut.fx_dropped`), engine/lisp/fx.lisp's particle pool (%FX-SLOT, FX-EMIT, FX-UPDATE, FX-DRAW-PARTICLES), rings
+  (FX-RING, FX-RINGS-UPDATE) and FX-CLEAR;
+- `shapes.rs`: fx-shapes.lisp (TOON-A, %H01 / HASH01, DRAWING-NO, FLOW-PH / FLOW01, SAGE, %TOWARD-EYE, %TRING, FX-RIBBON / TOON-RIBBON /
+  %TONGUE, TOON-GROUND-SEG, %SECTOR-VERTS, FX-STAR, FX-SHARD, FX-CRESCENT, FX-DISC, FX-WALL) and render.lisp FX-LINE;
+- `vfx.rs`: vfx.lisp LIGHTS-FLUSH / FLASH-LIGHT / N-OF / %BRUSH-AURA / %REIATSU-AURA / %KIKON-AURA / VFX-AURA / VFX-BREAKER-RING,
+  draw.lisp's aura tail of DRAW-FIGHTER (`fighter_auras`: DRAW-AURA, ONI-AURA-K, BODY-LIFT; RUSH-LIFT is 0 in scope), ichigo-look.lisp
+  ICHIGO-AURA-BASE, hud-screens.lisp AURA-CAP-UPDATE, fx.lisp's trails and vfx.lisp VFX-SMEAR (looks 0-2);
+- `stamps.rs`: vfx-stamps.lisp (STAMP, STAMPS-DRAW, FX-ENVELOPE, %ST-HIT / -GUARD / -GUARD-BREAK / -GUARD-CRUSH / -CLASH / -HOHO /
+  -BURST / -KONPAKU / -RING / -GASH, the VFX-* calls) and vfx-ember.lisp (%ST-EMBER, VFX-EMBER, VFX-CHARGE);
+- `crack.rs`: stage.lisp 218-356 (STAGE-CRACK-ADD, ST-DRAW-CRACKS, STAGE-MARK, ST-DRAW-MARKS, STAGE-DEBRIS, ST-CHIPS);
+- `feedback.rs`: feedback.lisp FEEDBACK-SYSTEM (`Scene::feedback`, the sink's second pass), SHOW-HIT, GROUND-SCAR, hud.lisp
+  PIPS-SHATTER, ken-art.lisp VFX-KEN-BK-BURST / VFX-KEN-TATEGOTO-CUT;
+- `screen.rs`: cinema.lisp IMPACT-FRAME (`*impact-presets*` from tuning.json), FOCUS-LINES, BACK-RIM, SCREEN-FX-UPDATE / -CLEAR, and
+  fx.lisp SHAKE;
+- `hazard.rs`: hazards.lisp HAZARD-DRAW, vfx.lisp VFX-LINE-CUT :meteor / :crack and %CRACK, ken-art.lisp KEN-CHIGIRI-LOOK / -CUTS,
+  KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE(-AT).
+
+**Result: bit-exact.** The 12 quiet scenes (11 with `fu,p,dq,fxa,fxb,ft,rng`, quiet-2395 with `fu,p,dq`) and `slowmo-2513`
+(`fu,p,dq,fxa,fxb,ft,rng`), `--mask fighters` only: largest |a − b| / max(1, |b|) = 0 in every array; the cosmetic RNG's state equals the
+key's on all 1,571 frames it is checked on (11 quiet scenes and slowmo-2513). 0 heap allocations a frame. `rs/duel-tools/tests/draw.rs` `quiet_fx_matches`; the `lights`
+and `chips` masks are gone from every test (the tool keeps `--mask` for `fighters`, Task 7).
+
+### What the quiet key checks, and what it cannot
+
+- `fxa` is the falling ash (ST-ASH-FX's feathers through the pool), `ft` Kenpachi's aura (the brush tongues and their flecks through the
+  pool; Ichigo's Shikai aura draws nothing), `fu[70]` the hit flash's light (LIGHTS-FLUSH: `*flash-light*` starts zeroed at fx clock 0,
+  so frames 0-8 carry a black light) plus the :oni aura's light in 84004 / 84005. No chips, stamps or rings appear in a quiet scene.
+- **AURA-CAP-UPDATE (ruling R4)** runs in `draw_frame` at HUD-DRAW's place (unless turbo, after DRAW-SCENE, before SLOW-DRAW-END: it
+  reads the drawn places). Proven by mutation: with it off, quiet-2394 (fighters 2.2 m apart) fails at frame 5 (`ft[8]`, the reiatsu's
+  presence lane); 84004 (the :oni kind uses the uncapped K) and 2500 (far apart) still pass.
+- **R11 measured:** the cosmetic RNG matches the key on every quiet scene but 2395 already, because no fighter draw in those scenes
+  draws `rnd01` (Ichigo's Shikai :draw hook and every DRAW-FIGHTER step before the auras draw none when idle). The quiet test checks
+  `rng`; Task 7 keeps it and adds 2395.
+- **The unverified half.** Feedback, the stamps, VFX-EMBER / -CHARGE, the cracks / marks / chips, the hazards' looks, VFX-LINE-CUT and
+  VFX-SMEAR get no key check before Task 8's battle scenes (their intro cinematic stops at the cinematic camera, Task 8). They are ported
+  from the source line by line, in the Lisp's evaluation order for every `rnd01` (each macro argument bound in turn). The one runnable
+  check: `replay.rs` `scene_sink_no_alloc` runs the real `Scene` as the sink on the 17 cvc gate rows (whole matches, 12,840-21,840
+  battle steps each, 1,000-1,600 sound requests): no panic, 0 allocations.
+
+### Decisions and findings
+
+- **`frame_begin(sc, m, rdt)`** (new, `duel_look`): GAME-FRAME's SCREEN-FX-UPDATE runs before FLOW-UPDATE, with this frame's RDT, so the
+  loop calls it first: `frame_begin`, `flow::frame`, `draw_frame`, `flow::frame_end` (the draw tool does; Task 10's page must).
+- **`Scene.sounds: Vec<SoundReq>`** (At / Play / HumStart / HumStop / SilenceEnd), bounded at 256, reserved once; the loop clears it
+  after the draw (the draw tool does), M3b plays it. `Scene.hums` is feedback.lisp `*hums*` (a Breaker hum runs, per side).
+- **`Em`, not a FrameOut in the sink.** FEEDBACK-SYSTEM runs inside the step, where the Rust sink has no `FrameOut` (the Lisp's frame
+  arrays exist then: BEGIN-FRAME precedes the steps). No feedback call writes a frame array (they start stamps, particles, the hit light,
+  marks, the shake), so the sink draws through `Em`. Task 8's step-mode cinematic looks may need the frame's arrays during the step.
+- **Kit look names.** A hazard's keyword look is `Sym(":METEOR")`, a look function `Sym("KEN-CHIGIRI-LOOK")`; a kit's :aura is
+  `reiatsu` / `oni` (keywords, lower case) or a function name (`ICHIGO-AURA-BASE`).
+- **Knobs from data:** `*fire-density*`, `*reiatsu-glass*`, `*oni-k-attack*`, `*impact-presets*`, `*chigiri-cuts*` / `-burst*` /
+  `-quake*` / `-still-frames*`, `*tategoto-cut*`, `*tategoto-wave-len*` (all already in tuning.json; no re-extraction, the checksum pin
+  unchanged). `*shake-mult*` / `*shake-hz*` were Task 5's.
+- **`f_atan2`** is `duel_sim::math::yaw_to(-y, -x)` (atan2f(-a, -b)): duel-look calls no math crate, and duel-sim is unchanged.
+
+### Left to later tasks (`// task N` in the code)
+
+- **Task 7 (the fighters' draw):** DRAW-FIGHTER before its auras (body, weapon, hooks, VFX-CHARGE's call, the trails' pushes and
+  VFX-SMEAR's call); KESSA's aura (ICHIGO-AURA-KESSA: posed joints; a no-op, so quiet-2395 checks `fu,p,dq` only); the model looks
+  feedback starts (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, FACE-BEAT); START-GHOST and DRAW-GHOST (the Hoho's, a flash step's,
+  ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); Ichigo's hazard look functions (ichigo-look.lisp: the Getsuga /
+  JUJI waves, the clones' and echoes' posed bodies, RENZAN, the form / KX / flare / burst / zanzo looks: reaching one sets `unported`);
+  DRAW-FIGHTER's per-frame STOP-HUM.
+- **Task 8 (cinematics, canvas):** ANNOUNCE's words, FOCUS-LINES' centre on a world point (WORLD-TO-SCREEN: the centre stays -1),
+  `*ui-flash*`'s drawing (stored in `FxState.ui_flash`), `*cine-grade*` coming back in SCREEN-FX-UPDATE, CINE-HELD-P in `frame_begin`,
+  `*aura-off*`, DRAW-SCALE-OF, the cinematic step forms' FX (KE-Z-DUST etc.), `*card-only*`.
+- **M3b:** WEBHUD-REFUSED! / WEBHUD-BREAK! (the HUD's cues), playing `Scene.sounds`.
+- **M4:** Yamamoto's / Hisagi's aura kinds (:hellfire, :garb), stamp kinds (17-22, 25-30), line cuts (:enjo / :kyoku / :south /
+  :kyokko), smear looks 3-5, a kit's :hit-fx / :armored-fx: each sets `unported`.
