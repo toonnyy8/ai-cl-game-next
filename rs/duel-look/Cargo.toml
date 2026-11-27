@@ -7,3 +7,8 @@ publish = false
 [dependencies]
 duel-sim = { path = "../duel-sim" }
 duel-data = { path = "../duel-data" }
+
+[dev-dependencies]
+# tests/fk.rs reads the answer key's FK tables ($ORACLE/fk, JSON)
+serde.workspace = true
+serde_json.workspace = true

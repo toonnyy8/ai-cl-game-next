@@ -158,3 +158,40 @@ was thinned.
   HUD-DRAW at all) keep every keyed `rng_state` in battle-2005 and cine-84094. battle-2006 differs from frame 6437 on: the frame after
   a hit at match tick 6136 brings the fighters close while Ichigo's KESSA aura burns. No `lhud-*`, `hud*`, `webhud` or `paint*` file
   calls `rnd01`: the HUD itself draws no cosmetic randomness.
+
+## 2. Clip sampling and rig FK (Task 2)
+
+`rs/duel-look/src/anim.rs` (CLIP-SAMPLE!, ANIM-PLAY / -ADVANCE / -EVAL, F-WRAP, KIT-MOVE-CLIP, FIGHTER-STANCE-CLIP) and
+`src/rig.rs` (the rig tables, %EULER! / %AFFINE-MUL! / %JOINT-ROT!, %POSE-FK!, JOINT-POINT!, BODY-WEAPON-POINT / -TIP / -BASE).
+`tests/fk.rs` `fk_matches_key` replays all 400 clip files of `$ORACLE/fk` (every rig, every form's weapon tip and base, every
+frame): **bit-exact** (largest |a-b| / max(1, |b|) = 0 over 11,474,064 matrix floats and 273,552 weapon floats). The test fails when
+`ORACLE` is unset; it never skips.
+
+### Interfaces as built (what Task 7 calls)
+
+- `pose_fk(pose, props, px, py, pz, yaw, scale, hunch, out: &mut [Mat4; 21])`, not the plan's `root: &Mat4`: %POSE-FK! adds the
+  pose's root yaw (`pose[66]`) to YAW before one cos / sin, so a precomputed root matrix cannot round the same. DRAW-FIGHTER passes
+  the fighter's position and yaw, as here.
+- `Proportions::of(rig: &duel_data::Rig, body: &Body)` (the plan: `of(body)`): it carries the rig's parents, flex signs and mirrors
+  with the body's bone offsets and pelvis height, all POSE-FK! reads besides the pose. `bodies.json`'s `props` already holds
+  MAKE-RIG-PROPORTIONS' 64 floats (the image computed them), so MAKE-RIG-PROPORTIONS is not ported; a body without `props` takes
+  rig.json's offsets (*RIG-OFF*) and %POSE-FK!'s literal `0.98f0`.
+- `anim::sample(clip, t, key_ease, out)`: `key_ease` 0 smoothstep (the engine default; art.lisp's host load), else ease-out cubic
+  (the game: START-GAME sets *KEY-EASE* 1; rig.json's `key_ease` is 1). A :snap key is linear in both. The FK key is mode 1;
+  `tests/art.rs` runs mode 0.
+- `Anim<'d>` holds `&'d Clip`; `play(clip, blend, speed, time, restart)` takes all of ANIM-PLAY's keywords (the plan listed three:
+  PLAY-CLIP passes time and restart too). `eval(key_ease)` samples with the given mode; the crossfade itself is always smoothstep.
+  `advance` keeps a +0 blend at +0 (the Lisp's `signbit` guard). Everything is inline arrays: no allocation per frame.
+- sin / cos are `duel_sim::math::f_sin` / `f_cos` (libm = musl's sinf / cosf: the native image's preload, M1_NOTES §4); F-WRAP is its
+  c-inline literally (`x - 6.2831853f * floorf((x + 3.14159265f) * 0.15915494f)`), not ANGLE-WRAP.
+
+### Findings
+
+- The FK key needed no new extracted data: clips.json's times / snaps / poses / dur / loop, rig.json, bodies.json's scale / hunch /
+  props and weapons.json's len / base are all a clip's FK reads. The checksum pin is unchanged.
+- `fk_matches_key` also asserts the key's inputs equal the data's: each rig's scale, hunch and props bit for bit against every body
+  in it, each form's body and weapon against kits.json, t_i = i / 60 bit for bit, N = floor(dur x 60 + 0.001).
+- art.lisp's reach rows (62 links of the Kenpachi / Ichigo forms) equal a native-image run of the same loop under *KEY-EASE* 0 at
+  four decimals (a scratch runner on `build/simgate/duel.fas`), so the frame ranges, clip maps and clip speeds are the Lisp's, not only
+  inside ±0.15 m.
+- core.lisp 738's `*clips-5*` is read off the frozen test file's own text (`include_str!`), not retyped.

@@ -2390,6 +2390,8 @@ version = "0.0.0"
 dependencies = [
  "duel-data",
  "duel-sim",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
