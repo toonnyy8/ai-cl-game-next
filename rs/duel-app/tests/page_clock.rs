@@ -3,7 +3,7 @@
 //! driver with the page clock (`Game::rdt_of`, vt += 16.666667 ms a frame, one frame an update after a startup catch-up). The frozen
 //! page, shot at frames 452 / 453 / 454 (w2-0's window right after a turbo window), shows the negative impact frame at 452 only; with
 //! the stub's `raw_dt` the port drew it at 453 / 454 (the fx clock one frame off, so the Burst ring's beat fired a frame late).
-use duel_app::driver::{due_at, Game};
+use duel_app::game::{due_at, Game};
 use duel_data::Data;
 use duel_look::{FrameOut, SceneInputs};
 

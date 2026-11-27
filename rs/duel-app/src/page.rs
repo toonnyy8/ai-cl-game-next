@@ -1,5 +1,6 @@
 //! The page contract (docs/bevy/BEVY_PORT.md §3 "Browser"): debug commands from `Module._debug_cmd(n)`, the console lines
-//! tools/run.mjs reads (`startup: heap ..`, `perf: ..`, M0a's formats), and the camera setup every view needs.
+//! tools/run.mjs reads (`startup: heap ..`, `perf: ..`, M0a's formats), the URL's start parameters (`Params`), and the camera setup
+//! every view needs.
 use bevy::light::cluster::GlobalClusterSettings;
 use bevy::prelude::*;
 use std::collections::VecDeque;
@@ -59,6 +60,67 @@ pub fn heap_mb() -> f64 {
     #[cfg(not(target_arch = "wasm32"))]
     {
         0.0
+    }
+}
+
+/// The page URL's query (`location.search`; natively the env `DUEL_QUERY`).
+pub fn query() -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        web_sys::window().and_then(|w| w.location().search().ok()).unwrap_or_default()
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        std::env::var("DUEL_QUERY").unwrap_or_default()
+    }
+}
+
+/// The page's start parameters (M3A_NOTES §10): `?p1=ken&p2=ichigo&cpu=normal` (the defaults: human Kenpachi vs a NORMAL Ichigo, the
+/// cinematics played); `?stills` boots to the title with no match and no dev line (the looks gate's scripts start their own fight
+/// with a debug command: tools/port/stills.py, page-log-check.sh); `?log` prints the combat log and the 600-tick hash lines as the
+/// frozen page does after a debug command (they allocate: a diagnostic).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Params {
+    pub start: Option<crate::game::Start>,
+    pub log: bool,
+    /// Values no name matched (`p2=renji`): logged, the default kept.
+    pub bad: Vec<String>,
+}
+
+/// A fighter's URL name: the roster's (`kenpachi`, `ichigo`, `hisagi`, `yamamoto`, ...) or its short form (`ken`, `yama`).
+fn character(v: &str) -> Option<duel_sim::components::Character> {
+    use duel_sim::components::Character;
+    match v {
+        "ken" => Some(Character::Kenpachi),
+        "yama" => Some(Character::Yamamoto),
+        _ => Character::from_name(v),
+    }
+}
+
+impl Params {
+    pub fn parse(q: &str) -> Params {
+        use duel_sim::components::Difficulty;
+        let mut st = crate::game::Start::default();
+        let (mut stills, mut log, mut bad) = (false, false, Vec::new());
+        for kv in q.trim_start_matches('?').split('&').filter(|s| !s.is_empty()) {
+            let (k, v) = kv.split_once('=').unwrap_or((kv, ""));
+            let v = v.to_ascii_lowercase();
+            match k {
+                "stills" => stills = true,
+                "log" => log = true,
+                "p1" | "p2" => match character(&v) {
+                    Some(c) if k == "p1" => st.p1 = c,
+                    Some(c) => st.p2 = c,
+                    None => bad.push(kv.to_string()),
+                },
+                "cpu" => match Difficulty::from_name(&v) {
+                    Some(d) => st.cpu = d,
+                    None => bad.push(kv.to_string()),
+                },
+                _ => {}
+            }
+        }
+        Params { start: (!stills).then_some(st), log, bad }
     }
 }
 
@@ -122,5 +184,22 @@ fn perf(mut p: ResMut<Perf>) {
             p.win_max
         ));
         (p.win_t0, p.win_n, p.win_sum, p.win_max) = (now, 0, 0.0, 0.0);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::game::Start;
+    use duel_sim::components::{Character::*, Difficulty::*};
+
+    #[test]
+    fn params() {
+        assert_eq!(Params::parse(""), Params { start: Some(Start::default()), log: false, bad: vec![] });
+        assert_eq!(Start::default(), Start { p1: Kenpachi, p2: Ichigo, cpu: Normal });
+        let p = Params::parse("?p1=ichigo&p2=hisagi&cpu=HARD&log");
+        assert_eq!((p.start, p.log), (Some(Start { p1: Ichigo, p2: Hisagi, cpu: Hard }), true));
+        assert_eq!(Params::parse("?stills&log").start, None);
+        assert_eq!(Params::parse("?p2=renji&cpu=max").bad, ["p2=renji", "cpu=max"]);
     }
 }

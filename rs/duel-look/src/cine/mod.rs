@@ -520,7 +520,7 @@ impl<'d> Scene<'d> {
     fn intro_weapon(&mut self, m: &Match, e: Entity, _frame: i64) {
         let kit = duel_sim::fighter::kit_of(m, e);
         if kit.intro_weapon.is_some() {
-            self.unported.get_or_insert("a kit's :intro-weapon (Yamamoto's cane: M4)");
+            self.unported.get_or_insert("a kit's :intro-weapon (Yamamoto's cane, Hisagi's sealed blade: M4)");
             return;
         }
         self.set_weapon(e, &kit.weapon);
