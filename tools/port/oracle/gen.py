@@ -385,6 +385,9 @@ def draw_run(sc, out):
     w, h, dpr = sc['viewport']
     env = dict(os.environ, LD_PRELOAD=MUSLM, DRAW_FRAMES=sc['frames'], DRAW_OUT=out, DRAW_W=str(w), DRAW_H=str(h), DRAW_DPR=str(dpr))
     env.pop('DRAW_DONE', None)
+    env.pop('DRAW_DT', None)
+    if sc.get('dt', 'raw') == 'page':   # (the frozen page's whole-ms clock: stubs-draw.c DRAW_DT; every scene before it: the stub's)
+        env['DRAW_DT'] = 'page'
     args = [frames[-1] + 120] + [c if isinstance(c, int) else f'{c[0]}:{c[1]}' for c in sc['cmds']]
     if os.path.exists(out):
         os.remove(out)
@@ -405,7 +408,7 @@ def draw_scene(sc):
     out, out2 = os.path.join(DRAW, name + '.bin'), os.path.join(DRAW, '.run2', name + '.bin')
     with cf.ThreadPoolExecutor(2) as ex:
         (e1, o1), (e2, o2) = ex.map(lambda p: draw_run(sc, p), (out, out2))
-    j = {k: sc[k] for k in ('name', 'group', 'about', 'viewport', 'cmds', 'frames') if k in sc} | {'named': sc.get('named', {})}
+    j = {k: sc[k] for k in ('name', 'group', 'about', 'viewport', 'cmds', 'frames', 'dt') if k in sc} | {'named': sc.get('named', {})}
     if e1 or e2:
         return j | {'error': e1 or e2}
     with open(os.path.join(DRAW, name + '.log'), 'w') as f:   # run 1's stdout: the per-frame state lines (draw.lisp's header)

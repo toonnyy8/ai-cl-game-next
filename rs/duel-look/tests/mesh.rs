@@ -35,7 +35,7 @@ fn key_meshes() -> BTreeMap<u32, (String, Vec<f32>)> {
     let mut out: BTreeMap<u32, (String, Vec<f32>)> = BTreeMap::new();
     let mut files: Vec<_> = std::fs::read_dir(draw_dir()).unwrap().map(|e| e.unwrap().path()).filter(|p| p.extension().is_some_and(|x| x == "bin")).collect();
     files.sort();
-    assert_eq!(files.len(), 41, "41 scenes (M3A_NOTES §1)");
+    assert_eq!(files.len(), 44, "44 scenes (M3A_NOTES §1; the 3 page-dt ones since Task 9 fix round 2, §9)");
     for p in files {
         let scene = p.file_stem().unwrap().to_string_lossy().to_string();
         let mut r = std::io::BufReader::new(std::fs::File::open(&p).unwrap());

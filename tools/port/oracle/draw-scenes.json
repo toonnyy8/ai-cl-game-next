@@ -1,12 +1,12 @@
 {
- "about": "The draw key's scenes (tools/port/oracle/gen.py draw; docs/bevy/M3A_NOTES.md §1). A cmd is a debug command queued before frame 0 or [frame, cmd]; frames use stubs-draw.c's DRAW_FRAMES grammar (a, a-b, a-b/k); viewport is [w, h, dpr]; named labels frame ranges.",
+ "about": "The draw key's scenes (tools/port/oracle/gen.py draw; docs/bevy/M3A_NOTES.md §1). A cmd is a debug command queued before frame 0 or [frame, cmd]; frames use stubs-draw.c's DRAW_FRAMES grammar (a, a-b, a-b/k); viewport is [w, h, dpr]; named labels frame ranges. A scene with \"dt\": \"page\" runs on the frozen page's whole-ms clock (stubs-draw.c DRAW_DT=page; M3A_NOTES §9), the rest on the stub's raw_dt.",
  "fixed_inputs": {
   "viewport": "per scene (DRAW_W / DRAW_H / DRAW_DPR -> pf_width / pf_height / pf_density); DPR 1 everywhere",
   "msaa_samples": "1 (the stub's r_sample_count, so fu[157] = 0.5: render.lisp FILL-FRAME-UNIFORMS)",
   "render_scale": "1 (*render-scale*; r_timing returns 0, so the auto scale never moves it)",
   "pixel_lights": "8 (*pixel-lights*)",
   "page": "pf_page_get 0 for every key: a desktop window with nothing saved, so *coarse* NIL, *one-hand* NIL, *scene-scale-cap* 1 (onehand.lisp)",
-  "dt": "raw_dt from tools/simgate/stubs.c pf_pump: frame n's raw dt = (floor(n * 50/3 ms * 1e6) - floor((n-1) * 50/3 ms * 1e6)) * 1e-9f, so it alternates by 1 ns around 1/60 s",
+  "dt": "raw_dt from tools/simgate/stubs.c pf_pump: frame n's raw dt = (floor(n * 50/3 ms * 1e6) - floor((n-1) * 50/3 ms * 1e6)) * 1e-9f, so it alternates by 1 ns around 1/60 s; a scene with \"dt\": \"page\": the frozen page's clock under run.mjs --fixed-dt 16.666667 (SDL_GetTicksNS falls back to gettimeofday = Date.now on emscripten: d0 + Math.round(vt), vt += 16.666667 ms a frame; dt = (ns - prev) * 1e-9f over whole ms, 0 at the first pump)",
   "rng": "rng_float (engine/c/rng.c rng_state) runs from its seed 0x9E3779B9 at load; each scene records its state at the first pf_pump (rng_start) and at each keyed r_frame",
   "match_seed": "per scene (INDEX match_seed: [frame, *match-seed*] at frame 0 and at each change)",
   "hud_font": "the real atlas (duel/hud-font/atlas.r8 + metrics.bin through .incbin), so hb / hk are what the browser gets"
@@ -48,7 +48,13 @@
   "84095": "ken.lisp KEN-CORE-DEBUG: the 84001 scene 3 m apart, then the Shikai's pointer-2 Kikon 墜天斬 TSUITENZAN: ken-s-kikon2-cine (len 290) played through (not held), then the scene runs on",
   "84096": "ken.lisp KEN-CORE-DEBUG: the 84004 scene 3 m apart, then the Bankai's Kikon 狂嵐 千切・極: ken-kr-kikon-cine (len 180) played through (not held), then the scene runs on",
   "84097": "ken.lisp KEN-CORE-DEBUG: the 84005 scene 3 m apart, then the Bankai's Kikon 斬壞 盾ごと・極: ken-zh-kikon-cine (len 180) played through (not held), then the scene runs on",
-  "86110": "ichigo.lisp ICHIGO-SUB-DEBUG 86110: ICHIGO-CINE-AT ic-haste-kikon-cine (len 160, 超速連斬; P1 Ichigo in :kessa 3 m from Kenpachi) from frame 0, held at frame 40 (its only command)"
+  "86110": "ichigo.lisp ICHIGO-SUB-DEBUG 86110: ICHIGO-CINE-AT ic-haste-kikon-cine (len 160, 超速連斬; P1 Ichigo in :kessa 3 m from Kenpachi) from frame 0, held at frame 40 (its only command)",
+  "16030": "debug.lisp CINE-AT k 6 f 30: soul-break-cine from frame 0, held at 30",
+  "16090": "as 16030, held at 90",
+  "18012": "debug.lisp CINE-AT k 8 f 12: ko-cine from frame 0, held at 12",
+  "18060": "as 18012, held at 60",
+  "11026": "debug.lisp CINE-AT k 1 f 26: ken-nozarashi-cine from frame 0, held at 26",
+  "2102": "debug.lisp: turbo on / off (120 steps a frame, nothing drawn)"
  },
  "scenes": [
   {
@@ -691,6 +697,100 @@
     84094
    ],
    "frames": "0-200/5"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-nozarashi",
+   "about": "the looks gate's cine-ken script on the page clock: 239 title frames, then ken-nozarashi held at 26 (its still at key frame 324)",
+   "cmds": [
+    [
+     239,
+     11026
+    ]
+   ],
+   "frames": "239-330"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-ko",
+   "about": "the looks gate's cine-ko script on the page clock: the soul-break and K.O. stills (ko-012 at key frame 493, ko-060 at 568)",
+   "cmds": [
+    [
+     239,
+     16030
+    ],
+    [
+     335,
+     16090
+    ],
+    [
+     422,
+     18012
+    ],
+    [
+     500,
+     18060
+    ]
+   ],
+   "frames": "490-496,565-571"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-turbo-ik",
+   "about": "the looks gate's cvc-ik script on the page clock: the 2005 fight with its turbo windows; the w2-0 window's impact frame (key 450-452)",
+   "cmds": [
+    [
+     239,
+     2005
+    ],
+    [
+     383,
+     2102
+    ],
+    [
+     386,
+     2102
+    ],
+    [
+     395,
+     2102
+    ],
+    [
+     403,
+     2102
+    ],
+    [
+     430,
+     2102
+    ],
+    [
+     446,
+     2102
+    ],
+    [
+     455,
+     2102
+    ]
+   ],
+   "frames": "440-460"
   }
  ]
 }

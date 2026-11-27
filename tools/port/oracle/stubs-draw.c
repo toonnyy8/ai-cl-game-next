@@ -10,6 +10,10 @@
                   %FRAME): a comma list of items "a", "a-b" (both ends kept) or "a-b/k" (a, a+k, ... <= b). Required.
      DRAW_OUT     the .bin to write. Required.
      DRAW_W / DRAW_H / DRAW_DPR   pf_width / pf_height / pf_density (defaults 1280 / 720 / 1, the stock stub's).
+     DRAW_DT      "page": each pump's dt is the frozen page's under run.mjs --fixed-dt 16.666667 instead of the stub's raw_dt: on
+                  emscripten SDL_GetTicksNS falls back to gettimeofday (CLOCK_MONOTONIC_RAW is refused), so it reads Date.now() =
+                  d0 + Math.round(vt), vt += 16.666667 ms a frame; dt = (ns - prev) * 1e-9f over whole ms, 0 at the first pump (as
+                  duel_sim::flow::PageClock; docs/bevy/M3A_NOTES.md §9). Unset (every scene before Task 9's fix round 2): the stub's.
    Lines (stdout): "draw: rng at start 0x<rng_state>" at the first pf_pump (the scene's start: after startup, before frame 0's
    draws); "draw: <made> meshes made, <drawn> drawn, <n> frames -> <path>" once the file is written.
    After the last listed frame the file is written and the recorder sets DRAW_DONE=1 in the environment (draw.lisp polls it with
@@ -43,9 +47,24 @@
 /* the stock pump, observed: its first call (the first %FRAME's poll, after startup) prints the cosmetic RNG's state there, the start
    state duel_look::CosRng takes ("draw: rng at start 0x..."). Nothing else changes. */
 int pf_pump(float *f, float maxdt, int lock) {
-  static int first = 1;
+  static int first = 1, page = -1;
+  static double vt = 0;
+  static unsigned long long prev = 0;
   if (first) { first = 0; printf("draw: rng at start 0x%08x\n", rng_state); fflush(stdout); }
-  return sg_pf_pump(f, maxdt, lock);
+  if (page < 0) { const char *s = getenv("DRAW_DT"); page = s && !strcmp(s, "page"); }
+  float ema = f[12];
+  int r = sg_pf_pump(f, maxdt, lock);
+  if (page) {   /* the frozen page's clock (DRAW_DT above); the stub's own pump still runs (its frame counter, the virtual ms) */
+    vt += 16.666667;
+    unsigned long long ns = (unsigned long long)(vt + 0.5) * 1000000ull;   /* Math.round of a positive vt, in SDL's ns */
+    if (!prev) prev = ns;                                                   /* the first pump: dt 0 */
+    float raw = (ns - prev) * 1e-9f;
+    prev = ns;
+    f[11] = raw; f[9] = raw > maxdt ? maxdt : raw; f[10] = ns * 1e-9f;
+    f[12] = ema;
+    if (raw > 0) f[12] = f[12] <= 0 ? 1.0f / raw : f[12] * 0.95f + 0.05f / raw;   /* platform.c's fps average (it skips a 0 dt) */
+  }
+  return r;
 }
 
 static long dr_env(const char *k, long d) { const char *s = getenv(k); return s && *s ? atol(s) : d; }
