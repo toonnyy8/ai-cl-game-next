@@ -744,7 +744,8 @@ and the HARD table chance are reached (vs-learn learns).
 
 **Carries to M3:**
 - the fq copies are leaked `&'static` values, one per load and per learned match (~85 kB each; 5-9 MB per 100 learned matches on a wasm
-  heap that never shrinks): an owned arena in `Search` before the phone build (fq.rs `ponytail:`);
+  heap that never shrinks): an owned arena in `Search` before the phone build (fq.rs `ponytail:`). Done in M3a Task 10: the q live in
+  `FqCell.q`, one structure leaked per cell made, none per learned match (M3A_NOTES §10);
 - `view_behind` is hard-wired to `*cam-behind*` T; SET-CAM-BEHIND is `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)`: the settings
   and the touch deck own it;
 - the game loop calls `cine::cine_draw` once per rendered frame after the frame's steps (a played cinematic's DURING forms move the

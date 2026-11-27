@@ -1228,3 +1228,180 @@ CINE-DT from another source) would match the key and still drift on the page. A 
 - R23: the menus' camera does not stop the page.
 - R24: the dependencies `bytemuck` and `wgpu =30.0.2` (no features of its own; the version Bevy pins).
 - For Task 10: a rebase after 900 load frames would skew the stamps of commands queued during the load (the reviewer's item 7).
+
+## 10. The game loop, the keyboard, the page (Task 10)
+
+`rs/duel-app/src/game.rs` (Task 9's `driver.rs`, renamed and grown: `Game`, the screens' keys, the start, the dev line),
+`rs/duel-app/src/input.rs` (`Keyboard`), `rs/duel-app/src/page.rs` (`Params`, `query`), `rs/duel-app/src/main.rs`,
+`rs/duel-sim/src/cpu/fq.rs` (the fq arena), `rs/duel-app/tests/{alloc,game}.rs`, `tools/port/page-log-check.sh`, `tools/port/stills.py`.
+
+**Result.** The page is a playable game. It boots into a VS CPU fight: human Kenpachi on the keyboard against a NORMAL Ichigo, with the
+cinematics played. Esc pauses, Enter or J skips the intro and K.O. cinematics, and after a K.O. Enter plays the match again. A dev text
+line stands in for the HUD. On the console, the Rust page prints the same combat log and hash lines as the frozen page through a 60 s
+CPU fight (page-log-check). A pick the port has not got stops the fight with its reason on screen and in the log, once.
+
+### The loop
+
+- **One Update system** (`main.rs` `drive`) copies Bevy's key state into `Game.kb`, then runs the frames the page clock says are due.
+  Each frame (`Game::frame`) runs in this order:
+  1. the page's start, if one is queued;
+  2. the debug commands due;
+  3. the screens' keys;
+  4. `flow::frame` with the keyboard as the `PilotInput` and the Scene as the sink;
+  5. `draw_frame`;
+  6. the dev line;
+  7. `frame_end`.
+
+  The dt, the pacing and the Scene sink are Task 9's (R17 amended: `Game::rdt_of`, the page's whole-ms clock).
+- **The screens** (flow.lisp FLOW-SCREENS' battle parts) read the presses of the update's first frame; the update's other frames see
+  none:
+  - BATTLE: PAUSE-P (Esc) toggles `*paused*`. The pause screen's rows are M3b's.
+  - INTRO / FINISH with a cinematic: PAUSE-P or CONFIRM-P skips it (`cine::skip_cine`).
+  - RESULTS: after 2.5 s, CONFIRM-P is the REMATCH row (NEW-SEED, START-MATCH): "K.O. - Enter to rematch".
+
+  They run app-side, before `flow::frame`, so before the commands and SCREEN-FX-UPDATE. The Lisp runs FLOW-UPDATE after both, so on the
+  frame of a pause press the screen effects' timers (`frame_begin`'s dt) still run on the page and stop a frame later. This was left
+  rather than adding a device hook to duel-sim. No result changes: the sim reads the pause only through `sim_running_p` in that same frame.
+- **The page's start** is what the menus' VS CPU confirm calls in the Lisp. `lhud-menu-select.lisp` only draws SELECT; its START hot box
+  (11) sends a confirm press, which **flow.lisp SELECT-UPDATE** turns into `(new-seed) (start-match)` (line 258), with `*mode*` `:vs-cpu`
+  set by MODE and the picks and `*difficulty*` set by SELECT. The port calls **`duel_sim::debug::vs_start`** (trace.lisp TR-VS-START: mode,
+  picks, difficulty, seed, `flow::start_match`). The seed is NEW-SEED's `floor(now) mod 100000`, from the page clock (performance.now;
+  run.mjs's virtual clock under `--fixed-dt`, so a script's seed is fixed). No debug command runs, so `*learn-debug-off*` stays off: a
+  HARD Ichigo learns against the player (FQ-ATTACH!), as in the Lisp.
+- **The rebase** (Task 9's deferred minor): when the first update's catch-up passes 900 frames, the clock is rebased by k. The commands
+  already queued now move by −k with it, and are never put earlier than the next frame. Test:
+  `game::tests::rebase_after_a_long_load_keeps_the_commands_page_frame`.
+
+### The keyboard (`input::Keyboard: PilotInput`)
+
+- `read` is engine/lisp/input.lisp VPAD-READ! over control.lisp's default `:key` bindings. Every vpad action is set in `*vpad-actions*`
+  order, `:mod` first, so a J pressed in the same step as Shift is modified. Then the stick is set from the direction keys (VPAD-STICK!,
+  clamped; no analog stick).
+- Only a human side reads, from START-MATCH's SPAWN-PAIR rule (P1 unless CPU vs CPU, P2 in VS PLAYER). The rule does not use the
+  fighter's brain: the stepping CPU's brain is out of its fighter while it thinks.
+- `rollout_read` is the same read. The Lisp's P1-READER reads the same SDL state inside a rollout, so a human's held keys reach the
+  CPU's rollouts (DIVERGENCES §1, kept).
+- `step_end` is HASH-LOG's state hash line (every 600 battle ticks), pushed into `Match.log` under `?log`.
+- Pad, touch, CONTROLS' rebinding and FOCUS-LOST-P's pause are M3b's.
+
+| action | P1 | P2 |
+|---|---|---|
+| up / down / left / right | W S A D | ↑ ↓ ← → |
+| quick (J: attack, Mod+J: SP) | J | Numpad 1 |
+| step (Space: Step, Mod+Space: Hoho) | Space | Numpad 0 |
+| mod | Left Shift | Numpad Enter |
+| awaken (P: Burst, Mod+P: awaken) | P | Numpad + |
+| flash, sig, guard, breaker, kikon | (none) | (none) |
+| CONFIRM-P (skip a cinematic, rematch) | Enter, J, Numpad 1, Numpad Enter | |
+| PAUSE-P | Esc | |
+
+Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
+
+### The URL parameters (R22, decided here)
+
+| parameter | meaning |
+|---|---|
+| `?p1=ken&p2=ichigo&cpu=normal` | the VS CPU match: P1 (the human) and P2 (the CPU) by roster name (`kenpachi`, `ichigo`, `hisagi`, `yamamoto`, …) or short form (`ken`, `yama`), the CPU's difficulty `easy` / `normal` / `hard`. Defaults: human Kenpachi vs a NORMAL Ichigo, cinematics played. An unknown value is logged (`duel: unknown page parameter p2=renji (the default kept)`) and the default kept |
+| `?stills` | boot to the title with no match and no dev line: the looks gate's scripts start their own fight with a debug command (stills.py, page-log-check.sh) |
+| `?log` | the console prints the combat log (`[tick] P1 …`, once a debug command has turned it on, as on the frozen page) and HASH-LOG's `duel hash t=…` lines. Kept as a diagnostic, off by default: the lines allocate |
+
+- `?dt=clock` went with Task 9's concern 1. M0a's `?msaa` / `?nogpu` page switches stay as index.html's.
+- **The console lines.** Always printed:
+  - `debug N` for each debug command (page-smoke greps it; the frozen page prints `debug cmd N`);
+  - `duel: stopped: unported …`, once;
+  - `startup:` and `perf:`.
+
+  Under `?log`, the combat log and the hash lines are printed too. The frozen page's other LOG-MSG lines (`duel -> INTRO`, `duel match
+  seed …`, `stats:`) are not ported. **There are no `=== …` lines.** The brief named them, but neither the Lisp (no `===` in duel/ or
+  engine/) nor the frozen page's 60 s 2005 log has any.
+
+### The dev line (`// dev: M3b replaces`)
+
+- After `draw_frame`, `Game::dev_line` writes a line into the canvas stream (`FrameOut.ui`, drawn by the composite's ui pass, R20) at the
+  top left. The line holds both fighters' character, form, Reishi, Konpaku, flash-step gauge and meter, and the clock in seconds.
+- "PAUSED", or "K.O. - Enter to rematch" at RESULTS, is drawn centred at twice the size. The 5x7 font has no em dash: an unknown glyph
+  draws as `?` (UI-TEXT's rule), so the brief's "—" is written "-".
+- The text is a port of ui.lisp UI-TEXT / %GLYPH-RUN (`game::ui_text`: the atlas UVs of `render::ui`, a 1-scale shadow, STREAM-ROOM-P).
+  It is formatted into a `String` reserved once (`clear` + `write!`): no allocation per frame.
+- **Hidden for stills:** `?stills` turns the dev line off (`Game.dev`) and keeps the title boot. `tools/port/stills.py` passes
+  `RUN_QUERY=?stills` to the Rust side only (the frozen dist is unchanged), so its stills stay comparable with Task 9's table. The script's
+  key steps are still removed on both sides. With them, the cvc scenarios' Enter would now skip the intro on both pages; adopting that
+  would change the table, so it is left for Task 11.
+- **The stop** (Review Focus 5): on the frame that stops, `STOPPED: unported <reason>` is drawn in red, centred, at twice the size (or
+  smaller, to fit the width). It is written into `FrameOut`, which the page keeps drawing: `drive` runs no more frames, and the render
+  world copies the same `FrameRes` every update. The log line is printed once.
+
+### The fq arena (M2_NOTES §12)
+
+- A player's fq copy used to be leaked once per load and again per learned match: about 85 kB each, on a wasm heap that never shrinks.
+- Now the copy's **structure** is leaked once, when its cell is made (`fq_table`: COPY-TREE's identity, EQ to no library entry). Its
+  **q values**, the only part FQ-MATCH-END writes, live in the cell: `FqCell.q`, in rule order, in the arena `Search` owns.
+- STRAT-JUDGE reads a copy's q from its cell (`strat_judge(.., q)`, through `fq::copy_q` and `strat_switch_step(.., cells)`).
+  FQ-MATCH-END runs the unchanged `fq_td_update` on a scratch value holding the cell's q and writes them back. This happens outside the
+  battle.
+- The page codes and TR-A-STRAT's `/fq(…)` come from the cell's q. The copy keeps its identity across matches, as the Lisp's in-place
+  update does; the old repoint of every brain is gone.
+- Ceiling (`ponytail:` in fq.rs): one structure per cell made, so at most the 3 x 3 playable pairings, plus one more each time debug
+  2504 or RESET LEARNING forgets the cells.
+- Test: `duel-sim/tests/fq.rs` `fq_arena_no_leak` runs 100 learned matches in a row (the tool's force: both HARD CPUs learn in CPU vs
+  CPU, with a 3 s match timer). After the first match, the leak count (2), the cells (2) and their q's lengths and capacities stay the
+  same, and every match is counted.
+- `page_roundtrip` now checks the in-place update: the same copy, new q in the cell, the leaked structure unchanged.
+- The sim gates are unchanged: 22 / 20 / 88. vs-learn (the learner's A lines, `/fq(…)` included) replays bit for bit.
+
+### Review Focus 3 and 5
+
+- **RF3, `cine_draw_per_rendered_frame`** (`duel-app/tests/game.rs`). Kenpachi's Bankai 狂嵐 Kikon (debug 84096: KE-KK-AT blows the
+  victim away over cinematic frames 108-130) runs at dt 1/120 and 1/30. The page's `Game::frame` gives both fighters' places and facings
+  equal, bit for bit on every frame, to a hand loop of `flow::frame` + one `cine::cine_draw` + `frame_end`.
+  - The mutation (no CINE-DRAW) differs, so the window does run the DURING forms.
+  - The forms set places from the cinematic frame. They are absolute, so a second call in the same frame repeats the first, and a count
+    of two would not show. What the rate changes is which cinematic frames are drawn: every one at 1/120, every second at 1/30.
+  - The per-step sink at 1/30 is Task 4's `frame_rate_120_and_30`.
+- **RF5, `unported_surfaces_on_page`**, in two halves.
+  - Native (`duel-app/tests/game.rs`): Kenpachi vs Hisagi stops on frame 1, at the intro's `:intro-weapon` (a look: the Scene's
+    `unported`). The reason is drawn, and the frames after return false at once with the same `FrameOut`.
+  - The page (page-log-check row 2): `?p2=hisagi` logs `duel: stopped: unported a kit's :intro-weapon (Yamamoto's cane, Hisagi's
+    sealed blade: M4)` exactly once, with no error. `_frames_done` rises from 233 at virtual 4 s to 353 at 6 s, so the page draws on.
+  - The label named only Yamamoto's cane; Hisagi's kit has `:intro-weapon (:hs-sealed 70)` too, so it now names both.
+  - A cut CPU rollout and `m.unported` take the same path (`Game::frame`'s `stopped`).
+  - A Bevy device loss is not caught here: page-smoke and page-log-check fail on `DeviceLost` in the log, but the page does not draw a
+    reason for it.
+
+### page-log-check (`tools/port/page-log-check.sh`)
+
+- It runs the frozen dist (refused unless index.wasm's sha256 starts with e35032a7, as stills.py and gen.py check) and the Rust page,
+  started with `?stills&log`. Both get `run.mjs --fixed-dt 16.666667 --size 640x360`, debug 2005 at virtual 1.0 s, and 60 virtual
+  seconds, at once (each wait is on its PID).
+- It compares the `[tick] …` and `duel hash t=…` lines below the last tick both reached, and needs at least 300 combat lines and 4 hash
+  lines. Row 2 is RF5's.
+- **Result:** both pages reach tick 3212 with 416 lines. Below it, 410 combat lines and 5 hash lines are equal.
+
+### 0 allocations
+
+- `tests/alloc.rs` `page_cpu_half_allocates_nothing` (Task 9's 2005 fight) still counts 0.
+- New: `page_vs_cpu_keys_and_dev_line_allocate_nothing`. It plays the default VS CPU match with scripted held keys and presses (walk, J,
+  Shift+J, Space, an Esc pause and resume) through `Keyboard::set`, the dev line drawn every frame, and `copy_frame`.
+  - Counting starts the frame after the first rollout. That rollout makes the human's stand-in brain (`mcts::rollout_start`), which the
+    scratch match keeps and reuses from then on.
+  - Result: 0 allocations in 2,487 frames, from frame 2313 to 4800.
+- Allocations left by design: the `?log` lines, and FQ-MATCH-END's scratch value at a learned match's end (outside the battle).
+
+### Sizes and speed
+
+| build | index.wasm | index.gzip.wasm (what the Artifact page loads) | wall fps, headless SwiftShader, 1280x720, the default VS fight |
+|---|---|---|---|
+| web-dev (`tools/port/build-web.sh duel-app dist/rs-m3a web-dev`, no wasm-opt) | 118.3 MB | 17.0 MB: **over** the Artifact's 15 MB per binary | 21.9-27.0 fps (37.1-45.6 ms) |
+| release (`… dist/rs-m3a-release release`, wasm-opt -Oz) | 24.6 MB | 6.3 MB | 23.5-24.8 fps (40.2-42.6 ms) |
+
+- The Artifact has to be the release build: web-dev's gzip is over the limit.
+- The two builds run at the same speed under SwiftShader, so the page is GPU-bound there.
+- Startup heap: release 89.4 MB, web-dev 93.9 MB (run.mjs's budget is 110).
+- No new dependency.
+
+### For Task 11
+
+- The page's other LOG-MSG lines (`duel -> …`, `duel match seed …`), if the console should match the frozen page beyond the combat log.
+- stills.py's key steps: with the keyboard, the cvc scenarios' Enter could stay (the SSIM table would then be re-measured).
+- A device loss drawn as a reason on the page (RF5's last case); today only the log shows it.
+- The screens' keys before SCREEN-FX-UPDATE (above): a hook in `flow::frame` if the one-frame difference on a pause press matters.

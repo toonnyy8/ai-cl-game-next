@@ -6,8 +6,9 @@
 SCENE: a scenario of the looks gate (tests/style-gates.py looks_scenarios(), read, never edited): cvc-ik (alias 2005), cvc-ii
 (alias 2006), cine-ken, cine-ichigo, cine-ko; default all five. Each is rendered from the frozen dist (--lisp, default
 build/oracle/frozen-dist) and the Rust dist (--rust, default dist/rs-m3a) under `run.mjs --fixed-dt 16.666667 --size 640x360`
-(the looks gate's size), from the same script with its key steps removed on both sides: the M3a page has no keyboard yet (Task 10),
-so the cvc scenarios' Enter (skip the intro) would only move the frozen side. Output in build/port/stills/: lisp/ and rust/ (the
+(the looks gate's size), from the same script with its key steps removed on both sides (Task 9's choice, from before the page had a
+keyboard; kept so the SSIM table stays comparable: with the keys, the cvc scenarios' Enter would skip the intro on both sides). The
+Rust page runs with `?stills` (RUN_QUERY): the title boot, no dev line (M3A_NOTES §10). Output in build/port/stills/: lisp/ and rust/ (the
 stills and logs), one sheet per still (<scene>-<still>.png: Lisp | Rust | diff x4, the SSIM on top) and stills.tsv (scene, still,
 SSIM, max channel diff, pixels that differ). --reuse-lisp keeps the frozen side's stills from an earlier run; --twice renders the
 Rust side a second time into rust2/ and checks every still byte for byte (the page's determinism). --out: another output directory
@@ -43,7 +44,10 @@ def render(dist, name, steps, secs, tag):
     log = os.path.join(d, f"{name}.log")
     args = ["node", os.path.join(ROOT, "tools/run.mjs"), dist, "--secs", str(secs), "--script", sp, "--size", "640x360",
             "--fixed-dt", "16.666667", "--timeout", "3000"]
-    return subprocess.Popen(args, stdout=open(log, "w"), stderr=subprocess.STDOUT), log
+    # the Rust page boots into a VS CPU fight with its dev text line (M3A_NOTES §10); `?stills` keeps the title boot the looks gate's
+    # scripts expect (their debug command starts the fight) and draws no dev line
+    env = dict(os.environ, RUN_QUERY="?stills") if tag.startswith("rust") else None
+    return subprocess.Popen(args, stdout=open(log, "w"), stderr=subprocess.STDOUT, env=env), log
 
 
 def luma(p):
