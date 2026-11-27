@@ -33,6 +33,8 @@ pub struct DrawState {
     pub screen_fx: [f32; 8],
     /// cinema.lisp `*impact-presets*`.
     pub presets: crate::fx::screen::Presets,
+    /// draw.lisp `*form-grade*`: the form grade preset shown now (FORM-GRADE).
+    pub form_grade: Option<&'static str>,
 }
 
 impl DrawState {
@@ -50,6 +52,7 @@ impl DrawState {
             stage_meshes: StageMeshes::new(d),
             screen_fx: [0.0; 8],
             presets: crate::fx::screen::Presets::new(d),
+            form_grade: None,
         }
     }
 }
@@ -59,10 +62,15 @@ fn battle_p(m: &Match) -> bool {
     matches!(m.flow, Flow::Intro | Flow::Battle | Flow::Finish)
 }
 
-/// port: main.lisp FX-FROZEN-P — effect time stops: paused, a held beat (FREEZE, `*screen-fx*`[6]), or a debug-held cinematic at
-/// its hold frame (CINE-HELD-P: task 8, no Rust cinematic holds yet).
+/// port: draw.lisp CINE-HELD-P — a debug-held cinematic stands at its hold frame.
+pub fn cine_held_p(m: &Match) -> bool {
+    m.cine.as_ref().is_some_and(|c| c.hold.is_some_and(|h| c.cf >= h))
+}
+
+/// port: draw.lisp FX-FROZEN-P — effect time stops: paused, a held beat (FREEZE, `*screen-fx*`[6]), or a debug-held cinematic at
+/// its hold frame (CINE-HELD-P).
 fn fx_frozen_p(sc: &Scene, m: &Match) -> bool {
-    m.paused || sc.draw.screen_fx[6] > 0.0
+    m.paused || sc.draw.screen_fx[6] > 0.0 || cine_held_p(m)
 }
 
 impl Scene<'_> {
@@ -129,8 +137,8 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     sc.draw.post.fx_clock += fdt; // (FX-CLOCK-ADVANCE)
     sc.draw.camera.shift_x = 0.0;
     if battle_p(m) {
-        if m.cine.is_some() {
-            sc.unported_camera.get_or_insert("a cinematic's camera (cinema.lisp's shots: task 8)");
+        if sc.cine.cam {
+            sc.cine_camera(fdt);
         } else {
             let pr = sc.pair(m);
             sc.duel_camera(&pr, fdt, false);
@@ -145,7 +153,8 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     let aspect = sc.aspect();
     sc.draw.camera.update(aspect);
     if !m.turbo {
-        draw_scene(sc, m, fdt, out);
+        let cdt = if fx_frozen_p(sc, m) { 0.0 } else { rdt }; // (CINE-DT: unscaled)
+        draw_scene(sc, m, fdt, cdt, out);
         // HUD-DRAW (M3b) unless turbo; its first form, AURA-CAP-UPDATE (hud-screens.lisp), sets the next frame's `*aura-cap*` from
         // the drawn places (before SLOW-DRAW-END), HUD or not (ruling R4)
         let alive = |e: Entity| m.ents.alive(e) && m.fighter.get(e).is_some();
@@ -156,10 +165,10 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     end_frame(sc, out);
 }
 
-/// port: draw.lisp DRAW-SCENE (RDT the effect seconds).
-fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
-    // (*scene-transparent*: SELECT's, M3b; *no-draw*: debug 2120+, not ported; a card beat: task 8)
-    {
+/// port: draw.lisp DRAW-SCENE (RDT the effect seconds; CDT a cinematic DURING's CINE-DT).
+fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, cdt: f32, out: &mut FrameOut) {
+    // (*scene-transparent*: SELECT's, M3b; *no-draw*: debug 2120+, not ported); a card beat hides the stage
+    if sc.cine.card.is_none() {
         let d = &mut sc.draw;
         let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
         stage::stage_draw(&mut c, &d.stage_meshes, &mut d.stage, rdt);
@@ -168,10 +177,11 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
         sc.draw.post.grade_desat = 0.0;
         form_grade(sc, m);
     }
-    // (*card-only*: a cinematic's, task 8; *no-draw*: debug 2120+, not ported)
+    // (*no-draw*: debug 2120+, not ported); a card beat's one actor (*card-only*)
     let sides = fighter::Sides::of(sc, m);
     for (i, e) in sides.e.into_iter().enumerate() {
         if sides.alive[i]
+            && sc.cine.card_only.is_none_or(|o| o == e)
             && let Some(u) = fighter::draw_fighter(sc, m, e, &sides, rdt, out)
         {
             sc.unported.get_or_insert(u);
@@ -189,7 +199,7 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
             sc.unported.get_or_insert(u);
         }
     }
-    duel_sim::cine::cine_draw(m); // (CINE-DRAW: task 8 adds the look hook here, ruling R9)
+    duel_sim::cine::cine_draw(m, &mut crate::cine::CineDraw { sc: &mut *sc, out: &mut *out, dt: cdt }); // (CINE-DRAW, its looks inline: R9)
     let d = &mut sc.draw;
     let mut c = Ctx { out: &mut *out, cam: &d.camera, cos: &mut sc.cos, fx: &mut sc.fx, clock: d.post.fx_clock };
     if let Some(u) = fx::stamps::stamps_draw(&mut c, rdt) {
@@ -209,15 +219,19 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     fx::vfx::lights_flush(&mut c);
 }
 
-/// port: draw.lisp FORM-GRADE — a form's world grade (kit :grade :spot, the composite's mode 4) while the form is on; else mode 0.
-/// No Kenpachi / Ichigo kit has a grade (Yamamoto's Bankai does: M4, `unported`).
+/// port: draw.lisp FORM-GRADE — a form's world grade (kit :grade :spot: the composite's spot-keep mode 4) while the form is on, else
+/// mode 0; an impact frame owns the composite while it runs. (No Kenpachi / Ichigo kit has a grade; Yamamoto's Bankai does.)
 fn form_grade(sc: &mut Scene, m: &Match) {
     let spot = |e: Entity| m.ents.alive(e) && duel_sim::fighter::kit_of(m, e).grade.as_deref() == Some("spot");
-    let want = spot(m.p1) || spot(m.p2);
-    if want {
-        sc.unported.get_or_insert("a form's :spot grade (IMPACT-FRAME: M4)");
-    } else if sc.draw.screen_fx[0] <= 0.0 && sc.draw.post.grade_impact != 0 {
-        sc.draw.post.grade_impact(0); // (*form-grade* stays NIL: no in-scope kit sets it)
+    let want = (spot(m.p1) || spot(m.p2)).then_some("spot");
+    let mode = if want.is_some() { 4 } else { 0 };
+    let d = &mut sc.draw;
+    if d.screen_fx[0] <= 0.0 && (d.post.grade_impact != mode || want != d.form_grade) {
+        d.form_grade = want;
+        match want {
+            Some(k) => fx::screen::impact_frame(d, k, 0.0),
+            None => d.post.grade_impact(0),
+        }
     }
 }
 

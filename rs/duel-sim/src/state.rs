@@ -55,6 +55,9 @@ pub struct Match {
     /// The combat log lines (CLOG) since the caller last drained it.
     pub log: Vec<String>,
     pub skip_cines: bool,
+    /// `*cine-hold*`: a cinematic started now stops at its `:hold` frame (the still commands set it; DEBUG-COMMAND clears it for any
+    /// other command).
+    pub cine_hold: bool,
     pub turbo: bool,
     /// CINE-SAVE's actors (`*cine-placed-e*`).
     pub cine_placed_e: Option<(Entity, Entity)>,
@@ -205,7 +208,7 @@ macro_rules! match_clone {
 
 match_clone!(
     ents, transform, motion, fighter, gauges, pilot, hazard, ics, p1, p2, rng, time, match_tick, flow, timer, winner, slow_acc, cine,
-    cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
+    cine_placed, log_on, log, skip_cines, cine_hold, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
     gate_results, gate_busy, gate_seed0, gate_seeds, knobs, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
     pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
     view_behind, settings, fq_end, looks,
@@ -244,6 +247,7 @@ impl Match {
             log_on: false,
             log: Vec::new(),
             skip_cines: false,
+            cine_hold: false,
             turbo: false,
             cine_placed_e: None,
             cine_serial: 0,

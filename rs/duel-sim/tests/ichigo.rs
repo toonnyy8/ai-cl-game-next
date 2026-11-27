@@ -144,7 +144,7 @@ fn chain_kikon_reels_in() {
     start_cine(&mut m, CineName::Ichigo(IcCine::ChainKikon), a, b, None);
     let run_to = |m: &mut Match, cf| {
         while m.cine.as_ref().is_some_and(|c| c.cf < cf) {
-            cine_step(m);
+            cine_step(m, &mut duel_sim::look::NoLook);
         }
     };
     let p = |m: &Match| {

@@ -124,7 +124,7 @@ fn wind(c: &mut Ctx, shake: &mut Shake, kn: &Knobs, st: &[f32], d: usize, v: &[f
 
 /// port: ken-look.lisp %KE-TORNADO — the wind funnel round (PX PZ) at TM frames into it, presence K: four rings of three arcs widening
 /// upward, each turning faster than the one below; a dust ring on the floor.
-fn tornado(c: &mut Ctx, px: f32, pz: f32, tm: f32, k: f32, seed: f32) {
+pub(crate) fn tornado(c: &mut Ctx, px: f32, pz: f32, tm: f32, k: f32, seed: f32) {
     for lv in 0..4 {
         let fl = lv as f32;
         let (y, r, spin) = (0.3 + 0.8 * fl, 1.1 + 0.4 * fl, tm * (0.32 + 0.06 * fl));

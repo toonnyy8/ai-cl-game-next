@@ -637,6 +637,35 @@ fn ic_ghost(c: &mut Ctx, w: &mut HzBodies, m: &Match, hz: &duel_sim::components:
     }
 }
 
+/// port: ichigo-look.lisp IC-BODY-AT — a cinematic's clone of KESSA at (X Y Z) facing YAW, posed at TM s of CLIP, at ALPHA: the grey-
+/// black phantom (IC-GHOST's :mist look, one copy, flash 0.12) with its mist; SHIKAI: the Shikai's body and two blades (the rush
+/// Kikon's afterimages). It poses side 0's clone player and joints, as the Lisp does (`*ic-clone-anim*` 0).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn ic_body_at<'d>(c: &mut Ctx, fl: &mut super::fighter::FighterLooks<'d>, d: &'d Data, x: f32, y: f32, z: f32, yaw: f32, clip: &str, tm: f32, alpha: f32, shikai: bool) {
+    let bname = if shikai { "ichigo" } else { "ichigo-kessa" };
+    let b = &d.bodies[bname];
+    let super::fighter::FighterLooks { ids, props, kn, toon_y, ic, .. } = fl;
+    ic.clone_anim[0].play(&d.clips[clip], 0.0, 1.0, duel_sim::cl::max_f32(0.0, tm), true);
+    let pose = *ic.clone_anim[0].eval(kn.key_ease);
+    let pr = &props.iter().find(|q| q.0 == bname).expect("Ichigo's proportions").1;
+    crate::rig::pose_fk(&pose, pr, x, y, z, yaw, b.scale, b.hunch, &mut ic.clone_joints[0]);
+    let args = super::fighter::BodyArgs {
+        body: b,
+        ids: &ids.bodies[bname],
+        weapon: ids.weapons.get(if shikai { "zangetsu-long" } else { "tensa" }).map(Vec::as_slice),
+        hide: super::fighter::Hide { tags: &[], extra: if shikai { &["kessa", "mark"] } else { &["shikai", "mark"] }, face: kn.face_hides[0] },
+        tint: Some(kn.ic.mist_tint),
+        rim: Some(kn.ic.mist_rim),
+        flash: 0.12,
+        alpha,
+        shadow: false,
+    };
+    let jm = ic.clone_joints[0];
+    let mut bc = super::fighter::BodyCtx { ids, weapon_m: &kn.weapon_m, weapon_r: kn.ji.weapon_r, toon_y };
+    super::fighter::draw_body(c.out, &mut bc, &jm, x, y, z, &args);
+    ic_mist(c, x, z, 0.6 * alpha, x + z);
+}
+
 /// port: ichigo-look.lisp ICHIGO-CLONE-LOOK — a clone: a grey-black phantom of KESSA (IC-GHOST :mist) with a BLOOD ring: idle in the
 /// stance, answering with the answer's clip at its frame, charging in the run, fading over its last frames.
 pub fn clone_look(c: &mut Ctx, w: &mut HzBodies, m: &Match, hz: &duel_sim::components::Hazard, i: usize) {

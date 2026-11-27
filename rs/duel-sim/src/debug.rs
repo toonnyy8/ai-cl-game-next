@@ -9,13 +9,27 @@ use crate::gate::{start_cvc, start_pair_gate};
 use crate::cpu::Search;
 use crate::state::{Match, Mode};
 
-/// port: DEBUG-COMMAND (`*stats-log*` is the logs'; `*cine-hold*` is never set by these commands, so clearing it is moot). Every
-/// command sets `*learn-debug-off*`: no CPU learns in a debug run (debug 2504 clears it again).
+/// port: DEBUG-COMMAND (`*stats-log*` is the logs'). Every command sets `*learn-debug-off*`: no CPU learns in a debug run (debug 2504
+/// clears it again); any but a cinematic still's (CINE-STILL-COMMAND-P) clears `*cine-hold*`.
 pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
     m.log_on = true;
     s.learn_debug_off = true;
     // log-msg: "debug cmd C"
+    if !matches!(c, 2200..=2299 | 10000..=19999 | 35000..=35999) {
+        m.cine_hold = false;
+    }
     match c {
+        2000..=2099 => start_cvc(m, s, c - 2000, None),
+        2200..=2299 => force_cine(m, s, c - 2200),
+        10000..=19999 => cine_at(m, s, (c - 10000) / 1000, c % 1000),
+        35000..=35999 => cine_at(m, s, 9 + (c - 35000) / 1000, c % 1000),
+        75000..=75599 => {
+            use crate::ichigo::cine::IcCine::*;
+            let i = ((c - 75000) / 80).min(6) as usize;
+            ichigo_cine_at(m, s, [Kikon, KessaKikon, Kessa, KessaGetsuga, HeavyKikon, RushKikon, ChainKikon][i], 3 * ((c - 75000) % 80));
+        }
+        86110 => ichigo_cine_at(m, s, crate::ichigo::cine::IcCine::Haste, 40),
+        84006..=84008 | 84094..=84097 => ken_core_cine(m, s, c),
         2504 => debug_vs_learner(m, s),
         2102 => m.turbo = !m.turbo,
         3000..=3999 => start_cvc(m, s, c - 3000, Some([Ichigo, Ichigo])),
@@ -127,6 +141,109 @@ fn ken_core_scene(m: &mut Match, s: &mut Search, c: i64) {
         }
         _ => {}
     }
+}
+
+/// debug.lisp `*cine-names*` (FORCE-CINE's numbering; the NILs: retired kits' and removed cinematics).
+fn cine_name(k: i64) -> Option<crate::cine::CineName> {
+    use crate::cine::CineName;
+    use crate::ken::cine::KenCine;
+    match k {
+        1 => Some(CineName::Ken(KenCine::Nozarashi)),
+        6 => Some(CineName::SoulBreak),
+        7 => Some(CineName::Intro),
+        8 => Some(CineName::Ko),
+        9 => Some(CineName::Ken(KenCine::Bankai)),
+        _ => None,
+    }
+}
+
+/// port: debug.lisp FORCE-CINE (2200+k): cinematic K of `*cine-names*` now, held at its `:hold` frame.
+fn force_cine(m: &mut Match, s: &mut Search, k: i64) {
+    use crate::cine::{start_cine, CineName};
+    use crate::ken::cine::KenCine;
+    m.cine_hold = false;
+    match k {
+        1 | 9 => {
+            ensure_battle(m, s, Kenpachi, Ichigo, false);
+            place(m, 5.0);
+            let p1 = m.p1;
+            force_form(m, p1, if k == 1 { Form::Nozarashi } else { Form::Bankai });
+            start_cine(m, CineName::Ken(if k == 1 { KenCine::Nozarashi } else { KenCine::Bankai }), m.p1, m.p2, None);
+        }
+        6 | 8 => {
+            let (c1, c2, name) = if k == 6 { (Kenpachi, Ichigo, CineName::SoulBreak) } else { (Ichigo, Kenpachi, CineName::Ko) };
+            ensure_battle(m, s, c1, c2, false);
+            place(m, 3.0);
+            start_cine(m, name, m.p1, m.p2, None);
+        }
+        7 => crate::flow::start_match(m, s),
+        _ => crate::unported!(m, "force-cine of a retired kit's cinematic"),
+    }
+    m.cine_hold = true;
+    if let Some(c) = m.cine.as_mut() {
+        c.hold = Some(c.name.hold_frame());
+    }
+}
+
+/// port: debug.lisp CINE-AT (10000 + 1000 k + f; 35000 + f for k 9): cinematic K held at frame F; when it already runs, it goes on to F.
+fn cine_at(m: &mut Match, s: &mut Search, k: i64, f: i64) {
+    if m.cine.is_none() || m.cine.as_ref().map(|c| c.name) != cine_name(k) {
+        crate::cine::abort_cine(m); // (another one held: its looks end first)
+        force_cine(m, s, k);
+    }
+    if let Some(c) = m.cine.as_mut() {
+        m.cine_hold = true;
+        c.hold = Some(f);
+    }
+}
+
+/// port: ichigo.lisp ICHIGO-CINE-AT (75000 + 80 i + k: cinematic i at frame 3k; 86110 the 超速連斬 at 40): P1 Ichigo 3 m from Kenpachi
+/// in its form (4 Kikon souls for 千影), the cinematic held at frame F; when it already runs, it goes on to F.
+fn ichigo_cine_at(m: &mut Match, s: &mut Search, name: crate::ichigo::cine::IcCine, f: i64) {
+    use crate::ichigo::cine::IcCine::*;
+    let cn = crate::cine::CineName::Ichigo(name);
+    if m.cine.as_ref().map(|c| c.name) != Some(cn) {
+        crate::cine::abort_cine(m);
+        m.cine_hold = false;
+        ensure_battle(m, s, Ichigo, Kenpachi, false);
+        place(m, 3.0);
+        let p1 = m.p1;
+        force_form(m, p1, if matches!(name, Kikon | HeavyKikon | RushKikon) { Form::Base } else { Form::Kessa });
+        if name == KessaKikon {
+            m.fighter.get_mut(p1).unwrap().kikon_n = 4;
+        }
+        crate::cine::start_cine(m, cn, m.p1, m.p2, None);
+    }
+    if let Some(c) = m.cine.as_mut() {
+        m.cine_hold = true;
+        c.hold = Some(f);
+    }
+}
+
+/// port: ken.lisp KEN-CORE-DEBUG's played Kikon cinematics, each on its scene 3 m apart: 84094 / 84095 the Shikai's pointer 1 / 2 (on
+/// 84001), 84096 / 84097 the Bankai's 狂嵐 / 斬壞 (on 84004 / 84005, 4 souls, CINE-STAGE), 84006-84008 the sealed form's 鈴 / 斬ってみろよ /
+/// 両断 (on 84000, 3 souls, CINE-STAGE).
+fn ken_core_cine(m: &mut Match, s: &mut Search, c: i64) {
+    use crate::cine::{cine_stage, start_cine, CineName};
+    use crate::ken::cine::KenCine::*;
+    let (scene, name, souls) = match c {
+        84094 => (84001, SKikon1, None),
+        84095 => (84001, SKikon2, None),
+        84096 => (84004, KrKikon, Some(4)),
+        84097 => (84005, ZhKikon, Some(4)),
+        84006 => (84000, ZKikon1, Some(3)),
+        84007 => (84000, ZKikon2, Some(3)),
+        _ => (84000, ZKikon3, Some(3)),
+    };
+    ken_core_scene(m, s, scene);
+    place(m, 3.0);
+    m.cine_hold = false;
+    let (p1, p2) = (m.p1, m.p2);
+    if let Some(n) = souls {
+        m.fighter.get_mut(p1).unwrap().kikon_n = n;
+        cine_stage(m, p1, p2);
+    }
+    start_cine(m, CineName::Ken(name), p1, p2, None);
 }
 
 /// `(setf (brain-off (brain e)) off)` when E has a brain.

@@ -502,7 +502,7 @@ pub(crate) mod tests {
         }
         (m.p1, m.p2) = (p1, p2);
         (m.match_tick, m.timer, m.flow, m.cine) =
-            (1, 18000, Flow::Intro, Some(crate::cine::Cine { name: crate::cine::CineName::Intro, cf: 1, len: 300, a: p1, v: p2, after: None, skip: false, line: [0.0; 4] }));
+            (1, 18000, Flow::Intro, Some(crate::cine::Cine { name: crate::cine::CineName::Intro, cf: 1, len: 300, a: p1, v: p2, hold: None, after: None, skip: false, line: [0.0; 4] }));
         m
     }
 

@@ -6,7 +6,7 @@ use duel_sim::components::Flow;
 use duel_sim::cpu::Search;
 use duel_sim::flow::{self, InRollout, NoInput};
 use duel_sim::hashline::state_hash_line;
-use duel_sim::look::LookSink;
+use duel_sim::look::{CineLook, LookSink};
 use duel_sim::state::Match;
 use duel_sim::time::STEP;
 
@@ -130,6 +130,11 @@ fn frame_rate_120_and_30() {
         got: Vec<(i64, String, String)>,
         cine: bool,
     }
+    impl duel_sim::look::CineLook for Probe<'_> {
+        fn forms(&mut self, m: &mut Match, name: duel_sim::cine::CineName, cf: i64, a: duel_sim::ecs::Entity, v: duel_sim::ecs::Entity, step: bool) {
+            self.scene.forms(m, name, cf, a, v, step);
+        }
+    }
     impl LookSink for Probe<'_> {
         fn step(&mut self, m: &mut Match) {
             self.scene.step(m);
@@ -149,7 +154,7 @@ fn frame_rate_120_and_30() {
         while p.got.len() < AT.len() {
             assert!(flow::frame(&mut m, &mut s, &mut NoInput, &mut p, dt), "{:?}", m.unported);
             if !m.turbo {
-                duel_sim::cine::cine_draw(&mut m);
+                duel_sim::cine::cine_draw(&mut m, &mut duel_sim::look::NoLook);
             }
             flow::frame_end(&mut m, &mut s);
         }

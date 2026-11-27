@@ -80,8 +80,7 @@ pub fn stamp(c: &mut Em, kind: Kind, x: f32, y: f32, z: f32, dx: f32, dy: f32, d
             (oldest, best) = (st.s[o + 7], i);
         }
     }
-    let sd = st.seed + 7.31;
-    st.seed = if sd >= 40.0 { sd - 40.0 } else { sd }; // (mod (+ seed 7.31) 40.0): the seed stays in [0, 40)
+    st.seed = duel_sim::cl::mod_f32(st.seed + 7.31, 40.0); // (mod (+ seed 7.31) 40.0): ECL's float MOD, (p - floor p) * 40
     let o = best * STAMP_STRIDE;
     st.s[o..o + STAMP_STRIDE].copy_from_slice(&[kind as i32 as f32, x, y, z, dx, dy, dz, 0.0, scale, st.seed, n, 0.0]);
 }

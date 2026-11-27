@@ -13,8 +13,20 @@ pub fn start_cvc(m: &mut Match, s: &mut Search, seed: i64, pair: Option<[Charact
     m.difficulty = m.gate_difficulty;
     // cpu: *blow-aways* 0 and the pacing resets: the gate's log rows
     m.rng.seed(seed);
-    let Some(pair) = pair else { crate::unported!(m, "start-cvc random pairing") };
-    m.picks = pair;
+    m.picks = match pair {
+        Some(p) => p,
+        None => {
+            // (nth (floor (* (length r) (sim-rnd01))) r) twice over PLAYABLE-ROSTER (*roster* without *retired*), P1 first
+            let k = &m.data.kits; // (&'static data)
+            let n = k.roster.iter().filter(|c| !k.retired.contains(c)).count();
+            let mut pick = || {
+                let i = (n as f32 * m.rng.rnd01()).floor() as usize;
+                let name = k.roster.iter().filter(|c| !k.retired.contains(c)).nth(i).unwrap();
+                Character::from_name(name).unwrap()
+            };
+            [pick(), pick()]
+        }
+    };
     start_match(m, s);
 }
 

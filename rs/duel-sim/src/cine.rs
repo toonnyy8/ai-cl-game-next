@@ -1,7 +1,7 @@
 //! port: engine/lisp/cine.lisp (the director) and duel/lisp/cinema.lisp (its hooks, the staging helpers, the generic
 //! cinematics' step-mode AT events). Shots, clips, captions, lenses, impact frames and sounds are looks (M3): only what
 //! touches sim state is here. Kenpachi's scripts are in ken/cine.rs, Ichigo's in ichigo/cine.rs.
-use crate::look::LookEvent;
+use crate::look::{CineLook, LookEvent};
 use crate::components::State;
 use crate::ecs::Entity;
 use crate::math::{dir_yaw, hypot};
@@ -27,6 +27,17 @@ impl CineName {
             CineName::Time => 120,
             CineName::Ken(c) => c.frames(),
             CineName::Ichigo(c) => c.frames(),
+        }
+    }
+    /// `:hold` (CINE-HOLD-FRAME: the debug freeze START-CINE takes while `*cine-hold*`).
+    pub fn hold_frame(self) -> i64 {
+        match self {
+            CineName::Intro => 200,
+            CineName::Ko => 40,
+            CineName::SoulBreak => 44,
+            CineName::Time => 60,
+            CineName::Ken(c) => c.hold_frame(),
+            CineName::Ichigo(c) => c.hold_frame(),
         }
     }
     /// The Lisp symbol (CINE-BEGIN's log line).
@@ -64,7 +75,7 @@ pub enum After {
     IdleBoth(Entity, Entity),
 }
 
-/// The running cinematic (`*cine*`, CINE): HOLD is the debug freeze (`*cine-hold*`, never set by the ported commands).
+/// The running cinematic (`*cine*`, CINE): HOLD is the debug freeze (CINE-HOLD: the still commands set it, `Match.cine_hold`).
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cine {
     pub name: CineName,
@@ -75,22 +86,26 @@ pub struct Cine {
     pub v: Entity,
     pub after: Option<After>,
     pub skip: bool,
+    /// The frame it stops at (a debug still: FORCE-CINE / CINE-AT), or None.
+    pub hold: Option<i64>,
     /// A kit cinematic's scratch line (ken-look.lisp `*ke-kk*`: KE-KK-LINE's victim x z and unit toward the attacker), set by the
     /// script at its frame 0 and read only inside the same cinematic: zeroed by START-CINE (the Lisp global is never read stale).
     pub line: [f32; 4],
 }
 
-/// port: START-CINE.
+/// port: START-CINE. Frame 0's look forms are queued after its sim forms (`LookEvent::CineAt`): no sink is reachable here.
 pub fn start_cine(m: &mut Match, name: CineName, a: Entity, v: Entity, after: Option<After>) {
     m.time.reset();
     m.look(LookEvent::CineStart { name, a, v }); // look: (setf *grade-split* 0.0 … *cine-cam* nil)
-    m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false, line: [0.0; 4] });
+    let hold = m.cine_hold.then(|| name.hold_frame());
+    m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false, hold, line: [0.0; 4] });
     m.cine_serial += 1;
     cine_begin(m, name, a, v);
-    if m.skip_cines {
+    if m.skip_cines && !m.cine_hold {
         end_cine(m);
     } else {
         script(name, 0, a, v, m);
+        m.look(LookEvent::CineAt { name, cf: 0, a, v }); // look: the script's look forms at frame 0
     }
 }
 
@@ -132,16 +147,21 @@ pub fn skip_cine(m: &mut Match) {
     }
 }
 
-/// port: CINE-STEP (the hold frame is the debug freeze: never set here).
-pub fn cine_step(m: &mut Match) {
+/// port: CINE-STEP: a held cinematic (at or past its debug HOLD frame) stands still: no frame, no script, no actor step, no end. The
+/// script's look forms run through LOOK right after its sim forms (ruling R9).
+pub fn cine_step(m: &mut Match, look: &mut dyn CineLook) {
     let Some(c) = m.cine.as_mut() else { return };
     if c.skip {
         end_cine(m);
         return;
     }
+    if c.hold.is_some_and(|h| c.cf >= h) {
+        return;
+    }
     c.cf += 1;
     let (name, cf, a, v, len, serial) = (c.name, c.cf, c.a, c.v, c.len, m.cine_serial);
     script(name, cf, a, v, m);
+    look.forms(m, name, cf, a, v, true);
     if m.cine.is_some() && m.cine_serial == serial {
         for e in [a, v] {
             if m.ents.alive(e) {
@@ -154,30 +174,28 @@ pub fn cine_step(m: &mut Match) {
     }
 }
 
-/// The step-mode AT events of script NAME at frame CF that touch sim state.
+/// The step-mode AT events of script NAME at frame CF that touch sim state (its look forms: `CineLook::forms`, after these).
 pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
-    let pre = [a, v].map(|e| m.transform.get(e).map_or([0.0; 4], |t| [t.pos[0], t.pos[1], t.pos[2], t.yaw]));
-    m.look(LookEvent::CineAt { name, cf, a, v, pre }); // look: the script's look forms at CF (every script's: the arms below)
     match name {
-        // look: clips, shots, captions, intro weapons, the negative cut, FIGHT!'s sound (`LookEvent::CineAt` above)
+        // look: clips, shots, captions, intro weapons, the negative cut, FIGHT!'s sound (`CineLook::forms`)
         CineName::Intro => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: clips, hold-pose, the two-tone frame, shots, the stamp, the rain (`LookEvent::CineAt` above)
+        // look: clips, hold-pose, the two-tone frame, shots, the stamp, the rain (`CineLook::forms`)
         CineName::Ko => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: clips, hold-both, impact frames, shots, the stamp, silence, cine-shatter (vfx), shake (`LookEvent::CineAt` above)
+        // look: clips, hold-both, impact frames, shots, the stamp, silence, cine-shatter (vfx), shake (`CineLook::forms`)
         CineName::SoulBreak => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: the caption, the negative frame, the shot (`LookEvent::CineAt` above)
+        // look: the caption, the negative frame, the shot (`CineLook::forms`)
         CineName::Time => {}
         CineName::Ken(c) => crate::ken::cine::script(c, cf, a, v, m),
         CineName::Ichigo(c) => crate::ichigo::cine::script(c, cf, a, v, m),
@@ -185,14 +203,14 @@ pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
 }
 
 /// port: CINE-DRAW — per rendered frame (DRAW-SCENE, after the frame's steps; never in turbo): the running script's draw mode, its
-/// DURING forms at the cine frame now. Only those writing sim state are ported (Kenpachi's: `ken::cine::draw`); the generic and
-/// Ichigo's cinematics' DURING forms are looks.
-pub fn cine_draw(m: &mut Match) {
+/// DURING forms at the cine frame now: those writing sim state here (Kenpachi's: `ken::cine::draw`), then the looks through LOOK.
+pub fn cine_draw(m: &mut Match, look: &mut dyn CineLook) {
     let Some(c) = m.cine.as_ref() else { return };
-    if let CineName::Ken(k) = c.name {
-        let (cf, a, v) = (c.cf, c.a, c.v);
+    let (name, cf, a, v) = (c.name, c.cf, c.a, c.v);
+    if let CineName::Ken(k) = name {
         crate::ken::cine::draw(k, cf, a, v, m);
     }
+    look.forms(m, name, cf, a, v, false);
 }
 
 /// port: CINE-BEGIN (*cine-begin-hook*).
@@ -313,7 +331,7 @@ mod tests {
         let mut cfs = Vec::new();
         while let Some(c) = m.cine.as_ref() {
             cfs.push(c.cf);
-            cine_step(&mut m);
+            cine_step(&mut m, &mut crate::look::NoLook);
         }
         assert_eq!((cfs.len(), cfs.last()), (300, Some(&299))); // one step per frame, the end after frame LEN
         assert_eq!(m.flow, Flow::Battle); // the end hook, then AFTER
@@ -321,7 +339,7 @@ mod tests {
         let mut m = intro();
         skip_cine(&mut m);
         assert!(m.cine.is_some()); // still running until the next fixed step
-        cine_step(&mut m);
+        cine_step(&mut m, &mut crate::look::NoLook);
         assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle));
 
         let mut m = intro();

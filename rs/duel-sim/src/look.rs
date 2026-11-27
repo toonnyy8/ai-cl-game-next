@@ -116,9 +116,11 @@ pub enum LookEvent {
     CineStart { name: CineName, a: Entity, v: Entity },
     /// CINE-BEGIN's looks (caption, lens, close-up flags).
     CineBegin { name: CineName, a: Entity, v: Entity },
-    /// The script NAME's look forms at frame CF (AT on a step, the step-mode call): PRE the actors' x y z yaw before the script ran
-    /// (its sim forms move them in the same frame).
-    CineAt { name: CineName, cf: i64, a: Entity, v: Entity, pre: [[f32; 4]; 2] },
+    /// START-CINE's frame 0 (step mode): the script NAME's look forms at CF, after its sim forms. START-CINE runs inside a debug
+    /// command or a system (HIT-SYSTEM's SETTLE-SOULS, an awakening, TIME-UP, a K.O.'s MATCH-OVER) where no sink is reachable, so the
+    /// sink runs them at this place in the queue (`CineLook::forms` of the same code); every later frame runs them inline (CINE-STEP,
+    /// CINE-DRAW: ruling R9).
+    CineAt { name: CineName, cf: i64, a: Entity, v: Entity },
     /// `*cine-actor-hook*` (CINE-ACTOR-STEP): E's clip advances +STEP+ x `*cine-time-scale*`.
     CineActorStep { e: Entity },
     /// END-CINE's looks (`*cine-cam*` NIL, the grade reset).
@@ -195,14 +197,25 @@ impl LookQueue {
     }
 }
 
+/// A cinematic's look forms, run inline in script order (ruling R9): CINE-STEP calls `forms` right after the step-mode script's sim
+/// forms of frame CF (STEP true), CINE-DRAW right after its draw-mode sim forms (STEP false). In every in-scope script the forms that
+/// move an actor (FACE-EACH-OTHER, CINE-PLACE, KE-KK-LINE / -AT / -YAW, 血鎖's reel-in) come before the look forms of the same AT /
+/// DURING call that read the actors, so one call after them sees what each look form sees in the Lisp (docs/bevy/M3A_NOTES.md §8).
+/// The implementer first applies the immediate calls still queued (the step's earlier clips, END-CINE's look reset before a K.O.'s
+/// KO-CINE), then the forms. The headless path, a rollout and `NoLook` do nothing.
+pub trait CineLook {
+    fn forms(&mut self, _m: &mut Match, _name: CineName, _cf: i64, _a: Entity, _v: Entity, _step: bool) {}
+}
+
 /// What reads the looks: called by `flow::sim_step` at FEEDBACK-SYSTEM's place, once per sim step. It drains `m.looks` and reads the
-/// state; it writes nothing else of the match.
-pub trait LookSink {
+/// state; it writes nothing else of the match. It is also the step's `CineLook` (CINE-STEP's inline forms).
+pub trait LookSink: CineLook {
     fn step(&mut self, m: &mut Match);
     /// The frame's start, inside `flow::frame` after its debug commands and before FLOW-UPDATE and the steps (main.lisp GAME-FRAME's
-    /// SCREEN-FX-UPDATE place; the commands arrive between the Lisp's frames, so a pause they set already holds here). RDT the frame's
+    /// SCREEN-FX-UPDATE place; engine/lisp/app.lisp RUN-FRAME runs the commands after BEGIN-FRAME, before GAME-FRAME, so a pause they
+    /// set already holds here, and the immediate calls they queued were made before it: a sink applies them first). RDT the frame's
     /// real seconds. The default does nothing.
-    fn frame_begin(&mut self, _m: &Match, _rdt: f32) {}
+    fn frame_begin(&mut self, _m: &mut Match, _rdt: f32) {}
     /// Before the draw, after the frame's steps: the immediate calls still queued (a debug command's, a frame that ran no step: the
     /// Lisp made them at once, before this frame's draw) applied and removed; the EMITs stay for the next step's FEEDBACK-SYSTEM. The
     /// default drops the calls.
@@ -213,6 +226,7 @@ pub trait LookSink {
 
 /// No looks (the headless tools, a rollout's SIM-STEP-LEAN): the queue cleared.
 pub struct NoLook;
+impl CineLook for NoLook {}
 impl LookSink for NoLook {
     fn step(&mut self, m: &mut Match) {
         m.looks.clear();

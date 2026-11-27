@@ -238,7 +238,7 @@ fn bankai_restore_cine_and_not() {
     assert_eq!(c, Some(("KEN-BANKAI-CINE", 186, Some(duel_sim::cine::After::IdleBoth(a, b)))));
     assert_eq!(m.transform.get(a).unwrap().yaw, duel_sim::math::dir_yaw(2.2, 0.0)); // FACE-EACH-OTHER at frame 0
     while m.cine.is_some() {
-        duel_sim::cine::cine_step(&mut m);
+        duel_sim::cine::cine_step(&mut m, &mut duel_sim::look::NoLook);
     }
     assert!([a, b].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle) && m.unported.is_none());
 
@@ -504,7 +504,7 @@ fn kikon_cines_move_the_actors() {
     use duel_sim::ken::cine::KenCine;
     let run_to = |m: &mut Match, cf: i64| {
         while m.cine.as_ref().is_some_and(|c| c.cf < cf) {
-            cine_step(m);
+            cine_step(m, &mut duel_sim::look::NoLook);
         }
     };
     let p = |m: &Match, e: Entity| m.transform.get(e).unwrap().pos;
@@ -515,7 +515,7 @@ fn kikon_cines_move_the_actors() {
         assert_eq!(m.cine.as_ref().unwrap().line, [1.1, 0.0, -1.0, 0.0]);
         run_to(&mut m, at - 1);
         assert_eq!(p(&m, v), [1.1, 0.0, 0.0]);
-        cine_step(&mut m);
+        cine_step(&mut m, &mut duel_sim::look::NoLook);
         assert_eq!(p(&m, v), [1.1 - s, 0.0, 0.0]);
         run_to(&mut m, 999);
         assert_eq!((m.cine.is_none(), p(&m, v)), (true, [1.1 - s, 0.0, 0.0])); // (no CINE-SAVE in these: kept)

@@ -43,10 +43,12 @@ pub enum SoundReq {
     /// A positional sound KEY at P.
     At { key: &'static str, p: [f32; 3], gain: f32, pitch: f32 },
     /// PLAY-SFX: KEY unplaced.
-    Play { key: &'static str, gain: f32 },
+    Play { key: &'static str, gain: f32, pitch: f32 },
     /// The side's Breaker hum starts (`:breaker-hum`) / stops (0.1 s).
     HumStart { side: usize, gain: f32 },
     HumStop { side: usize },
+    /// cinema.lisp SILENCE: the music down to 0.1 of its level, the sfx bus muted (until `SilenceEnd`).
+    Silence,
     /// cinema.lisp SILENCE-END: the music and the sfx bus back to their levels.
     SilenceEnd,
 }
@@ -79,6 +81,8 @@ pub struct Model<'d> {
     pub body: &'d str,
     pub weapon: &'d str,
     pub hide: &'d [String],
+    /// A cinematic's own hidden tags (ichigo-look.lisp IC-KESSA-CINE's HIDE-SETs that are no kit's list), on top of HIDE.
+    pub hide_x: &'static [&'static str],
     pub alpha: f32,
     /// MODEL-TINT: `*mirror-tint*` when set (a mirror match's P2).
     pub tint: bool,
@@ -125,6 +129,7 @@ impl<'d> Model<'d> {
             body,
             weapon: "",
             hide: &[],
+            hide_x: &[],
             alpha: 1.0,
             tint: mirror,
             rim: if mirror { Rim::Mirror } else { Rim::None },
@@ -173,7 +178,9 @@ pub struct Scene<'d> {
     /// The fighters' draw state outside MODEL (the mesh ids, proportions, knobs, the kits' per-side look state).
     pub fl: crate::draw::fighter::FighterLooks<'d>,
     /// A cinematic's draw scale and aura-off actor (CINE-SCALE, `*aura-off*`: Task 8 writes them).
-    pub cine: crate::draw::fighter::CineLooks,
+    pub cine: crate::cine::CineLooks<'d>,
+    /// camera.lisp's cinematic knobs.
+    pub cine_knobs: crate::cine::CineCamKnobs,
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
     /// The cameras not ported yet (a cinematic's shots: Task 8; the menus': M3b), kept apart from `unported` so a frame that reaches
@@ -196,7 +203,8 @@ impl<'d> Scene<'d> {
             sounds: Vec::with_capacity(SOUNDS_MAX),
             hums: [false; 2],
             fl: crate::draw::fighter::FighterLooks::new(data),
-            cine: crate::draw::fighter::CineLooks::default(),
+            cine: crate::cine::CineLooks::default(),
+            cine_knobs: crate::cine::CineCamKnobs::new(data),
             unported: None,
             unported_camera: None,
         }
@@ -213,7 +221,7 @@ impl<'d> Scene<'d> {
     /// port: fighter.lisp PLAY-CLIP's choice and CLIP-OR-FALLBACK: the form's :look-clips entry, else the body's variant (BODY-CLIPS),
     /// else CLIP; a clip the art lacks falls back to the kit's stance. ponytail: the Lisp's "missing clip" log line (once per name) is
     /// not kept; no in-scope clip is missing.
-    fn resolve(&self, body: &str, kit: &'d Kit, clip: &'d str) -> Option<&'d Clip> {
+    pub(crate) fn resolve(&self, body: &str, kit: &'d Kit, clip: &'d str) -> Option<&'d Clip> {
         let data: &'d Data = self.data;
         let name = kit
             .look_clips
@@ -224,19 +232,34 @@ impl<'d> Scene<'d> {
         data.clips.get(name).or_else(|| data.clips.get(kit.stance.as_str()))
     }
 
+    /// port: fighter.lisp REFRESH-LOOK's model half: body, weapon and hidden parts of KIT, alpha 1.
+    pub(crate) fn refresh_look(&mut self, e: Entity, kit: &'d Kit) {
+        if let Some(m) = self.model_mut(e) {
+            (m.body, m.weapon, m.hide, m.hide_x, m.alpha) = (&kit.body, &kit.weapon, &kit.hide, &[], 1.0);
+        }
+    }
+
+    /// The immediate calls still queued, applied and removed (the EMITs stay for FEEDBACK-SYSTEM): the sink's frame pass, and
+    /// CINE-STEP's inline look forms first (ruling R9).
+    pub(crate) fn apply_calls(&mut self, m: &mut Match) {
+        {
+            let m: &Match = m;
+            for ev in m.looks.calls() {
+                self.call(m, ev);
+            }
+        }
+        m.looks.take_calls();
+    }
+
     /// An immediate call (the sink's first pass, in program order).
-    fn call(&mut self, ev: &LookEvent) {
+    fn call(&mut self, m: &Match, ev: &LookEvent) {
         match *ev {
             LookEvent::Model { e, kit: KitRef(kit), mirror } => {
                 // port: SPAWN-FIGHTER's MAKE-MODEL and MAKE-BLADE: the slot's earlier model goes
                 self.models.retain(|m| m.e.slot() != e.slot());
                 self.models.push(Model::new(e, &kit.body, mirror));
             }
-            LookEvent::RefreshLook { e, kit: KitRef(kit) } => {
-                if let Some(m) = self.model_mut(e) {
-                    (m.body, m.weapon, m.hide, m.alpha) = (&kit.body, &kit.weapon, &kit.hide, 1.0);
-                }
-            }
+            LookEvent::RefreshLook { e, kit: KitRef(kit) } => self.refresh_look(e, kit),
             LookEvent::Alpha { e, a } => {
                 if let Some(m) = self.model_mut(e) {
                     m.alpha = a;
@@ -302,10 +325,11 @@ impl<'d> Scene<'d> {
                     m.anim.advance(STEP * k);
                 }
             }
-            LookEvent::CineEndLook => {
-                self.cine_time_scale = 1.0; // task 8: the rest of CINE-END's looks
-            }
-            LookEvent::CineStart { .. } | LookEvent::CineBegin { .. } | LookEvent::CineAt { .. } | LookEvent::CineStop => {} // task 8
+            LookEvent::CineEndLook => self.cine_end_looks(),
+            LookEvent::CineAt { name, cf, a, v } => self.cine_at(m, name, cf, a, v),
+            LookEvent::CineStart { .. } => self.cine_start_looks(),
+            LookEvent::CineBegin { .. } => self.cine_begin_looks(),
+            LookEvent::CineStop => self.cine_stop_looks(),
             LookEvent::CamCut => self.draw.cam.cut = true,
             LookEvent::CameraSnap { p, q, hurt, behind_yaw, view_x, view_z, view_behind } => {
                 // port: BEGIN-BATTLE's (duel-camera *p1* *p2* 0.0 :snap t), on what the sim held then
@@ -335,7 +359,7 @@ impl<'d> Scene<'d> {
     }
 
     /// port: engine/lisp/fx.lisp FX-CLEAR — every particle and ring gone, the shake stopped.
-    fn fx_clear(&mut self) {
+    pub(crate) fn fx_clear(&mut self) {
         self.fx.clear();
         self.draw.cam.shake = [0.0; 8];
         self.draw.camera.shake = [0.0; 3];
@@ -347,7 +371,7 @@ impl LookSink for Scene<'_> {
         {
             let m: &Match = m;
             for ev in m.looks.calls() {
-                self.call(ev);
+                self.call(m, ev);
             }
             for ev in m.looks.events() {
                 self.event(m, ev);
@@ -357,18 +381,17 @@ impl LookSink for Scene<'_> {
     }
 
     /// port: main.lisp GAME-FRAME's first form, SCREEN-FX-UPDATE (cinema.lisp): last frame's impact frames, focus lines and silence
-    /// run out by this frame's RDT (0 while paused). Last frame's sound requests are dropped first (the page's player took them after
-    /// its draw; they stay readable until here). task 8: a debug-held cinematic (CINE-HELD-P) also stops the screen fx.
-    fn frame_begin(&mut self, m: &Match, rdt: f32) {
+    /// run out by this frame's RDT (0 while paused or a debug-held cinematic stands at its hold frame: CINE-HELD-P). Last frame's sound
+    /// requests are dropped first (the page's player took them after its draw; they stay readable until here), then the calls this
+    /// frame's debug commands queued are applied (RUN-FRAME made them before GAME-FRAME).
+    fn frame_begin(&mut self, m: &mut Match, rdt: f32) {
         self.sounds.clear();
-        let dt = if m.paused { 0.0 } else { rdt };
-        crate::fx::screen::screen_fx_update(&mut self.draw, &mut self.sounds, dt);
+        self.apply_calls(m); // (the frame's debug commands' calls: made before GAME-FRAME in the Lisp)
+        let dt = if m.paused || crate::draw::cine_held_p(m) { 0.0 } else { rdt };
+        crate::fx::screen::screen_fx_update(&mut self.draw, &mut self.sounds, dt, self.cine.grade);
     }
 
     fn frame(&mut self, m: &mut Match) {
-        for ev in m.looks.calls() {
-            self.call(ev);
-        }
-        m.looks.take_calls();
+        self.apply_calls(m);
     }
 }

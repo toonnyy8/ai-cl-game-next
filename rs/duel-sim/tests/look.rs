@@ -4,7 +4,7 @@
 use duel_sim::components::Flow;
 use duel_sim::cpu::Search;
 use duel_sim::flow::{self, NoInput};
-use duel_sim::look::{Event, LookEvent, LookSink};
+use duel_sim::look::{CineLook, Event, LookEvent, LookSink};
 use duel_sim::state::Match;
 
 fn data() -> &'static duel_data::Data {
@@ -39,6 +39,7 @@ type Step = (i64, Flow, Vec<String>, Vec<String>);
 struct Rec {
     steps: Vec<Step>,
 }
+impl CineLook for Rec {}
 impl LookSink for Rec {
     fn step(&mut self, m: &mut Match) {
         let kinds = m.looks.drain().map(|e| kind(&e)).collect();
@@ -96,13 +97,13 @@ fn queue_order_matches_sites() {
         "hit: {:?}",
         hit.3
     );
-    // the K.O. (tick 20918): the last soul's cinematic's last frame (CINE-STEP: its look forms, both actors' clips advance), its end
-    // (END-CINE's, CINE-END's looks, the actors' REFRESH-LOOK), then its AFTER, MATCH-OVER, starts KO-CINE (START-CINE, CINE-BEGIN,
-    // frame 0's look forms)
+    // the K.O. (tick 20918): the last soul's cinematic's last frame (CINE-STEP: its look forms run inline, R9; both actors' clips
+    // advance), its end (END-CINE's, CINE-END's looks, the actors' REFRESH-LOOK), then its AFTER, MATCH-OVER, starts KO-CINE
+    // (START-CINE, CINE-BEGIN, frame 0's look forms queued after its sim forms)
     let ko = at(&|(_, f, k, _)| *f == Flow::Finish && k.iter().any(|k| k == "CineStart"));
     assert_eq!(
         ko.2,
-        ["CineAt", "CineActorStep", "CineActorStep", "CineStop", "CineEndLook", "RefreshLook", "RefreshLook", "CineStart", "CineBegin", "CineAt"],
+        ["CineActorStep", "CineActorStep", "CineStop", "CineEndLook", "RefreshLook", "RefreshLook", "CineStart", "CineBegin", "CineAt"],
         "K.O. at tick {}: {:?}",
         ko.0,
         ko.3
@@ -114,6 +115,7 @@ fn queue_order_matches_sites() {
 #[test]
 fn rollout_pushes_nothing() {
     struct Count(usize);
+    impl CineLook for Count {}
     impl LookSink for Count {
         fn step(&mut self, m: &mut Match) {
             self.0 += m.looks.drain().count();

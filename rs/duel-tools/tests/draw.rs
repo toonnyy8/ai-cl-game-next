@@ -1,6 +1,6 @@
-//! The picture against the draw key (docs/bevy/M3A_NOTES.md §5-§7): `duel-tools draw --check` on the quiet, slowmo, forms and
-//! portrait scenes, every array but `ui` (the canvas words: Task 8) and `hb` / `hk` (M3b), the cosmetic RNG's state on every keyed
-//! frame. Each fails when the key is missing (`$ORACLE`, else `build/oracle`); none skips.
+//! The picture against the draw key (docs/bevy/M3A_NOTES.md §5-§8): `duel-tools draw --check` on the quiet, slowmo, forms, portrait
+//! and cinematic scenes, every array but `ui` (the canvas words) and `hb` / `hk` (M3b), the cosmetic RNG's state on every keyed frame. Each fails when the key is
+//! missing (`$ORACLE`, else `build/oracle`); none skips.
 use std::process::Command;
 
 fn oracle() -> String {
@@ -56,4 +56,27 @@ fn forms_draw_matches() {
 #[test]
 fn portrait_scene_matches() {
     check("portrait-2501");
+}
+
+/// The cinematics, held at their last frames by CINE-AT / ICHIGO-CINE-AT or played through by KEN-CORE-DEBUG (draw-scenes.json): the
+/// shots and the cinematic camera, the cards, lenses and dutch rolls, clips, holds, freezes, impact frames and grades, the scripts'
+/// VFX, the forms that move the actors (inline, ruling R9).
+const CINES: [&str; 20] = [
+    "cine-ken-nozarashi", "cine-soul-break", "cine-intro", "cine-ko", "cine-ken-bankai", "cine-84094", "cine-84095", "cine-84096",
+    "cine-84097", "cine-84006", "cine-84007", "cine-84008", "cine-ic-kikon", "cine-ic-kessa-kikon", "cine-ic-kessa",
+    "cine-ic-kessa-getsuga", "cine-ic-heavy-kikon", "cine-ic-rush-kikon", "cine-ic-chain-kikon", "cine-ic-haste-kikon",
+];
+
+/// Every cinematic scene.
+#[test]
+fn cines_match() {
+    for s in CINES {
+        check(s);
+    }
+}
+
+/// Review Focus 4: a cinematic at 390x844 (84094, the Shikai's pointer-1 Kikon): %PORTRAIT-DOLLY, the close-up rule, %KEEP-SUBJECT.
+#[test]
+fn cine_portrait_matches() {
+    check("cine-84094-portrait");
 }

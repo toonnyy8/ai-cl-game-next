@@ -44,8 +44,8 @@ pub fn impact_frame(d: &mut DrawState, kind: &str, frames: f32) {
     d.screen_fx[0] = frames / 60.0;
 }
 
-/// port: cinema.lisp FOCUS-LINES — ink focus lines for FRAMES 60 Hz frames. task 8: the centre on a world point (WORLD-TO-SCREEN)
-/// is the canvas's; it stays the screen centre (-1) here.
+/// port: cinema.lisp FOCUS-LINES — ink focus lines for FRAMES 60 Hz frames on the screen centre (-1; a cinematic's world point:
+/// `Scene::focus`).
 pub fn focus_lines(d: &mut DrawState, frames: f32) {
     (d.screen_fx[1], d.screen_fx[4], d.screen_fx[5]) = (frames / 60.0, -1.0, -1.0);
 }
@@ -64,8 +64,8 @@ fn back_rim_end(d: &mut DrawState) {
 }
 
 /// port: cinema.lisp SCREEN-FX-UPDATE — run the punctuation down by DT effect seconds; end what ran out (the silence's end is a
-/// sound request). task 8: a cinematic's base grade (`*cine-grade*`) coming back.
-pub fn screen_fx_update(d: &mut DrawState, sounds: &mut Vec<SoundReq>, dt: f32) {
+/// sound request; an impact frame's end brings back GRADE, the cinematic's base grade `*cine-grade*`, or none).
+pub fn screen_fx_update(d: &mut DrawState, sounds: &mut Vec<SoundReq>, dt: f32, grade: Option<&str>) {
     let f = &mut d.screen_fx;
     let mut run = |i: usize| {
         let was = f[i];
@@ -74,7 +74,10 @@ pub fn screen_fx_update(d: &mut DrawState, sounds: &mut Vec<SoundReq>, dt: f32) 
     };
     let (g, _, _, _, s, r) = (run(0), run(1), run(6), run(7), run(2), run(3));
     if g {
-        d.post.grade_impact(0);
+        match grade {
+            Some(k) => impact_frame(d, k, 0.0),
+            None => d.post.grade_impact(0),
+        }
     }
     if s {
         crate::scene::push_sound(sounds, SoundReq::SilenceEnd);

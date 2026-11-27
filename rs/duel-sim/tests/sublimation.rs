@@ -185,7 +185,7 @@ fn awaken_into_nozarashi() {
     assert_eq!((m.unported, c), (None, Some(("KEN-NOZARASHI-CINE", 108, a, m.p2))));
     assert!([a, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == duel_sim::components::State::Cine));
     while m.cine.is_some() {
-        duel_sim::cine::cine_step(&mut m);
+        duel_sim::cine::cine_step(&mut m, &mut duel_sim::look::NoLook);
     }
     assert!([a, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == duel_sim::components::State::Idle)); // (its :after)
 }

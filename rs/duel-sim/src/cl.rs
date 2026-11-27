@@ -238,6 +238,11 @@ pub fn f32(x: f64) -> f32 {
 pub fn f32_bits(x: f32) -> u32 {
     x.to_bits()
 }
+/// port: CL MOD of two singles as ECL computes it (numbers/floor.d ecl_floor2: p = x / y, q = floorf(p), the remainder (p - q) * y).
+pub fn mod_f32(x: f32, y: f32) -> f32 {
+    let p = x / y;
+    (p - libm::floorf(p)) * y
+}
 /// port: ECL src/c/numbers/minmax.d MIN of two singles: the first unless the second is strictly lower (or the first is a NaN).
 pub fn min_f32(a: f32, b: f32) -> f32 {
     if a > b || a.is_nan() { b } else { a }

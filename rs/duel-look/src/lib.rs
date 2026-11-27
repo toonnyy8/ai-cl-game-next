@@ -1,5 +1,7 @@
 //! Look data and pure presentation math (no Bevy).
 pub mod anim;
+pub mod canvas;
+pub mod cine;
 pub mod draw;
 pub mod fx;
 pub mod mesh;

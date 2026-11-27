@@ -1119,6 +1119,7 @@ mod tests {
     fn look_queue_no_alloc() {
         use duel_sim::look::{LookEvent, LookSink};
         struct Tally([u64; 2]);
+        impl duel_sim::look::CineLook for Tally {}
         impl LookSink for Tally {
             fn step(&mut self, m: &mut Match) {
                 for ev in m.looks.drain() {
@@ -1200,9 +1201,9 @@ mod tests {
     /// The draw side on battle data: the page's loop (`flow::frame`, `draw_frame`, `flow::frame_end`) with the real `Scene` on
     /// the 17 cvc gate rows, so STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw on whole matches: no
     /// panic, 0 allocations in a battle frame. Turbo is off after the commands (drawn frames, one step each). `Scene.unported` must stay
-    /// None on every frame (the fighters' hooks, the clones, the hazards, the stamps: every look these matches reach is ported); the
-    /// cameras not ported yet (a cinematic's: Task 8; the menus' after the match: M3b) go to `Scene.unported_camera`, read and cleared
-    /// after every frame and only listed.
+    /// None on every frame (the fighters' hooks, the clones, the hazards, the stamps, the cinematics: every look these matches reach
+    /// is ported); `Scene.unported_camera` may only ever name the menus' camera after the match (M3b), read and cleared after every
+    /// frame.
     #[test]
     fn scene_draw_no_alloc() {
         use duel_sim::look::LookSink;
@@ -1258,8 +1259,8 @@ mod tests {
             }
             assert_eq!(m.unported, None);
             eprintln!("scene_draw_no_alloc {name}: {allocs} allocations in {frames} battle frames ({dallocs} in draw_frame); {fx} fx floats; dropped {}; cameras missing: {missing:?}", out.fx_dropped);
-            // (a cinematic's camera: Task 8; the menus' camera after the match: M3b)
-            assert!(missing.iter().all(|u| u.starts_with("a cinematic's camera") || u.starts_with("the menus' camera")), "{name}: cameras: {missing:?}");
+            // (the menus' camera after the match: M3b; a cinematic's shots are ported since Task 8)
+            assert!(missing.iter().all(|u| u.starts_with("the menus' camera")), "{name}: cameras: {missing:?}");
             assert!(frames > 10_000 && fx > 0, "{name} {frames} {fx}");
             assert_eq!(allocs, 0, "{name}: allocations in {frames} battle frames");
         }

@@ -25,9 +25,6 @@ fn hit_dir(m: &Match, att: Entity, def: Entity) -> (f32, f32) {
 }
 
 impl<'d> Scene<'d> {
-    fn em(&mut self) -> Em<'_, 'd> {
-        Em { cos: &mut self.cos, fx: &mut self.fx, clock: self.draw.post.fx_clock }
-    }
     /// port: feedback.lisp SFX-ON — KEY at E's chest (pos + 1 m).
     fn sfx_on(&mut self, m: &Match, key: &'static str, e: Entity, gain: f32, pitch: f32) {
         let p = pos_of(m, e);
@@ -37,7 +34,7 @@ impl<'d> Scene<'d> {
         push_sound(&mut self.sounds, SoundReq::At { key, p: [x, y, z], gain, pitch });
     }
     fn play(&mut self, key: &'static str, gain: f32) {
-        push_sound(&mut self.sounds, SoundReq::Play { key, gain });
+        push_sound(&mut self.sounds, SoundReq::Play { key, gain, pitch: 1.0 });
     }
     /// port: feedback.lisp STOP-HUM — the side's Breaker hum, if one runs.
     fn stop_hum(&mut self, m: &Match, e: Entity) {

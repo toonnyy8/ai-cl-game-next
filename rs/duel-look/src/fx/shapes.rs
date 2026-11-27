@@ -19,6 +19,7 @@ pub const PAL_SOUL: f32 = 9.0;
 pub const PAL_BLOOD: f32 = 10.0;
 pub const PAL_BLACK_SMOKE: f32 = 11.0;
 pub const PAL_BLUE: f32 = 12.0;
+pub const PAL_GOLD: f32 = 14.0;
 pub const PAL_FLAME: f32 = 15.0;
 pub const TOON_FLAME: f32 = 128.0;
 

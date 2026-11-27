@@ -95,7 +95,7 @@ pub fn frame_headless(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput,
     let rdt = raw_dt(m.frame_n + 1);
     frame(m, s, input, look, rdt);
     if !m.turbo {
-        cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
+        cine::cine_draw(m, &mut NoLook); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
     }
     frame_end(m, s);
     // look: the HUD (frame time: the drawer's, before `frame_end`)
@@ -143,7 +143,7 @@ impl PilotInput for NoInput {
 
 /// port: SIM-STEP: the lean step, then FEEDBACK-SYSTEM (LOOK drains this step's looks), HASH-LOG's `*step-hook*` and MC-FULL-STEP.
 pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn LookSink) {
-    sim_core(m, s, input);
+    sim_core(m, s, input, look);
     crate::cpu::fq::fq_match_end_apply(m, s); // (FQ-MATCH-END's Search half: GO-RESULTS ran in this step)
     look.step(m); // FEEDBACK-SYSTEM's place
     // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
@@ -154,16 +154,16 @@ pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look:
 /// port: sim-state.lisp SIM-STEP-LEAN — SIM-STEP for a rollout: the sim without the presentation (no slow-motion snapshot, no
 /// feedback, no hash log, no full-sim step); TAKE-EVENTS drops the events (`NoLook`; a rollout's match never pushes: `Match::look`).
 pub fn sim_step_lean(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
-    sim_core(m, s, input);
+    sim_core(m, s, input, &mut NoLook);
     NoLook.step(m);
 }
 
 /// SIM-STEP's and SIM-STEP-LEAN's shared part: the tick, then the cinematic, a hitstop step, a slow-motion wait or the systems.
-fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn crate::look::CineLook) {
     m.match_tick += 1;
     if m.cine.is_some() {
         pilot_read(m, input);
-        cine::cine_step(m);
+        cine::cine_step(m, look);
     } else if !m.time.step() {
         pilot_read(m, input);
     } else {

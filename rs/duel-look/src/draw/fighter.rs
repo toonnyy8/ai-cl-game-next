@@ -393,19 +393,9 @@ fn rot_to(k: [f32; 3], c: f32, v: [f32; 3]) -> [f32; 3] {
     [c * x + (ky * z - kz * y) + d * kx, c * y + (kz * x - kx * z) + d * ky, c * z + (kx * y - ky * x) + d * kz]
 }
 
-/// port: body.lisp %ROT-COLS! — joint J's three axis columns by %ROT-TO!'s rotation.
-fn rot_cols(jm: &mut [Mat4; NJ], j: usize, k: [f32; 3], c: f32) {
-    for col in 0..3 {
-        let o = 4 * col;
-        let m = &mut jm[j];
-        let r = rot_to(k, c, [m[o], m[o + 1], m[o + 2]]);
-        (m[o], m[o + 1], m[o + 2]) = (r[0], r[1], r[2]);
-    }
-}
-
 /// port: body.lisp GRIP-LEFT! — two-bone IK after the FK: the left fist W of the way onto the right hand's handle (its :weapon-r +Z
 /// axis, 0.14-0.62 m behind the grip, the point nearest the posed fist), the elbow bent in the plane the pose gave it; a second pass
-/// at W 1.
+/// at W 1. As the Lisp runs it, only the elbow's, wrist's and fist's origins move (its axis rotations are a no-op: below).
 fn grip_left(jm: &mut [Mat4; NJ], w: f32, ji: &Ji) {
     let (ua, la, hd, wl, wr) = (ji.upper_arm_l, ji.lower_arm_l, ji.hand_l, ji.weapon_l, ji.weapon_r);
     let clamp = crate::fx::shapes::f_clamp;
@@ -450,13 +440,9 @@ fn grip_left(jm: &mut [Mat4; NJ], w: f32, ji: &Ji) {
         if c2 <= -0.999 {
             continue;
         }
-        rot_cols(jm, ua, k1, c1);
-        rot_cols(jm, la, k1, c1);
-        rot_cols(jm, la, k2, c2);
-        rot_cols(jm, hd, k1, c1);
-        rot_cols(jm, hd, k2, c2);
-        rot_cols(jm, wl, k1, c1);
-        rot_cols(jm, wl, k2, c2);
+        // (%ROT-COLS! of the upper arm, forearm, hand and :weapon-l by R1 and R2: a no-op in the Lisp, ported as one. Its column
+        // variables are named %X %Y %Z, the names %ROT-TO! binds inside it, so %ROT-TO!'s SETF writes its own bindings and the columns
+        // are stored back unrotated: only the joints' origins below move. docs/bevy/DIVERGENCES.md)
         let [qx, qy, qz] = rot_to(k2, c2, rot_to(k1, c1, q));
         (jm[la][12], jm[la][13], jm[la][14]) = (nex, ney, nez);
         (jm[hd][12], jm[hd][13], jm[hd][14]) = (nhx, nhy, nhz);
@@ -587,7 +573,7 @@ fn draw_ghost(c: &mut Ctx, md: &mut Model, ids: &Ids, kn: &Knobs, toon_y: &mut f
             body: b,
             ids: bids,
             weapon: None,
-            hide: Hide { tags: md.hide, extra: &[], face: kn.face_hides[0] },
+            hide: Hide { tags: md.hide, extra: md.hide_x, face: kn.face_hides[0] },
             tint: md.tint.then_some(kn.mirror_tint),
             rim: None,
             flash: 1.0,
@@ -746,21 +732,6 @@ fn fighter_auras<'d>(c: &mut Ctx<'_, 'd>, w: &mut AuraWorld<'_, 'd>, kit: &'d Ki
 
 // ---------------------------------------------------------------- DRAW-FIGHTER
 
-/// What a fighter's draw reaches that the Lisp keeps in specials beside MODEL: `*draw-scale-e*` / `*draw-scale*` (CINE-SCALE's giant)
-/// and `*aura-off*` (a cinematic's: Task 8 sets them; their defaults here).
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct CineLooks {
-    pub draw_scale_e: Option<Entity>,
-    pub draw_scale: f32,
-    pub aura_off: Option<Entity>,
-}
-
-impl Default for CineLooks {
-    fn default() -> Self {
-        CineLooks { draw_scale_e: None, draw_scale: 1.0, aura_off: None }
-    }
-}
-
 /// port: draw.lisp DRAW-FIGHTER — pose and queue fighter E: body, weapon (or the planted one), the hooks, the blade's trail, the
 /// auras. RDT = this frame's effect seconds. Returns the first look not ported (a Yamamoto / Hisagi fighter, hook or aura: M4).
 pub fn draw_fighter(sc: &mut Scene, m: &Match, e: Entity, sides: &Sides, rdt: f32, out: &mut FrameOut) -> Option<&'static str> {
@@ -876,7 +847,7 @@ pub fn draw_fighter(sc: &mut Scene, m: &Match, e: Entity, sides: &Sides, rdt: f3
             body: b,
             ids: &ids.bodies[body_name],
             weapon: weapon.and_then(|w| ids.weapons.get(w)).map(Vec::as_slice),
-            hide: Hide { tags: md.hide, extra: &[], face: kn.face_hides[fi] },
+            hide: Hide { tags: md.hide, extra: md.hide_x, face: kn.face_hides[fi] },
             tint: md.tint.then_some(kn.mirror_tint),
             rim,
             flash: if md.flash > 0.0 { 0.45 } else { 0.0 },

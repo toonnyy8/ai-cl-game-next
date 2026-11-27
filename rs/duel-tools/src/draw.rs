@@ -10,6 +10,8 @@
 //! the largest error per array, and the heap allocations: the whole frame's (sink and draw included) in the frames after frame 0
 //! that run no command (the combat log off after the commands' frame, as the sim's 0-alloc gate), and `draw_frame`'s alone in every
 //! frame from frame 1 (command frames too). Exit 3: the replay reached an `unported!` sim path or a `look_unported`; exit 2: bad arguments.
+//! With `DRAW_DUMP` set in the environment, the first mismatch also prints its whole record / vertex, ours and the key's (stderr); when
+//! its value ends in `.bin`, our whole mismatching array is also written there (f32 LE).
 use duel_data::Data;
 use duel_look::{draw_frame, FrameOut, Scene, SceneInputs};
 use duel_sim::cpu::Search;
@@ -166,6 +168,16 @@ impl Cmp {
             let w = self.worst.entry(arr).or_insert(0.0);
             *w = w.max(e);
             if !ok {
+                if let Some(path) = std::env::var_os("DRAW_DUMP").filter(|p| p.to_string_lossy().ends_with(".bin")) {
+                    // (debugging: the whole mismatching array, ours, f32 LE)
+                    let _ = std::fs::write(path, got.iter().flat_map(|x| x.to_le_bytes()).collect::<Vec<u8>>());
+                }
+                if std::env::var_os("DRAW_DUMP").is_some() {
+                    // (debugging: the whole record / vertex around the first mismatch, ours then the key's)
+                    let st = match arr { "dq" => 32, "fu" | "p" => 16, "ui" => 8, _ => 9 };
+                    let o = i / st * st;
+                    eprintln!("{arr} [{o}..]: {:?}\n   key: {:?}", &got[o..(o + st).min(got.len())], &want[o..(o + st).min(want.len())]);
+                }
                 return self.fail(format!("{scene} frame {frame} {arr}[{i}]: {a:?} key {b:?} (|a-b|/max(1,|b|) {e:.3e})"));
             }
         }
