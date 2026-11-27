@@ -178,3 +178,65 @@ fn fq_arena_no_leak() {
     let (leaks, cells, _) = sizes.unwrap();
     assert_eq!((leaks, cells), (2, 2));
 }
+
+/// M3a Task 10: the cell's q after learned matches are what the old in-value update gave. A reference copy of the library's :FQ is
+/// updated in place by FQ-TD-UPDATE! over the same records each match (the Lisp's in-place copy, and the port's repointed copy before
+/// the arena); after each of 5 matches the cell's q equal its q bit for bit, and STRAT-FQ-Q over the cell's q (`strat_fq_q_of`, what
+/// STRAT-JUDGE reads for a copy) equals STRAT-FQ-Q of the reference over 300 cue vectors. Both shapes: a plain Q selector
+/// (q1-ichigo-ken) and one with :GROUPS (t0-ki-ichigo, the one a HARD Ichigo learns with).
+#[test]
+fn learned_q_read_from_the_cell() {
+    use duel_data::tuning::Value;
+    use duel_sim::cl::Num::F;
+    use duel_sim::cpu::strategy::{fq_td_update, fq_transitions, plist_get, strat_fq_q, strat_fq_q_of};
+    let m0 = Match::new(data());
+    let k = &m0.knobs;
+    let sets = &k.fz_sets;
+    let seed = std::cell::Cell::new(12345u64);
+    let rnd = |n: u64| {
+        seed.set(seed.get().wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407));
+        (seed.get() >> 33) % n
+    };
+    for id in ["q1-ichigo-ken", "t0-ki-ichigo"] {
+        let lib = strat_by_id(data(), id).unwrap();
+        let base = lib.fq().unwrap();
+        assert_eq!(plist_get(base, "groups").is_some(), id.starts_with("t0"));
+        let narms = base["arms"].as_array().unwrap().len() as u64;
+        let mut cues: Vec<&str> = vec![];
+        for r in base["rules"].as_array().unwrap() {
+            for c in r[0].as_array().unwrap() {
+                let c = c[0].as_str().unwrap();
+                if !cues.contains(&c) {
+                    cues.push(c);
+                }
+            }
+        }
+        let vals = [-1.0f32, -0.4, 0.0, 0.3, 0.7, 1.0, 2.5];
+        let feats = || {
+            let mut f: Vec<(&str, duel_sim::cl::Num)> = cues.iter().map(|&c| (c, F(vals[rnd(vals.len() as u64) as usize]))).collect();
+            f.push(("prev", I(rnd(narms) as i64)));
+            f
+        };
+        let (mut m, mut s) = (Match::new(data()), Search::new());
+        let i = fq_table(&mut s, 3, 1, lib, k.fq_unit);
+        let mut reference = base.clone();
+        let num = |key: &str, d: f32| plist_get(base, key).and_then(|v| v.as_f64()).map_or(d, |v| v as f32);
+        let (scale, gamma) = (num("scale", k.fq_online_scale), num("gamma", k.fq_online_gamma));
+        for round in 0..5 {
+            let recs: Vec<Rec> = (0..8).map(|_| (strat_fq_fire(sets, base, &feats()), rnd(narms) as usize, rnd(1000) as f32 / 100.0 - 5.0)).collect();
+            let (h, won) = (rnd(1000) as f32 / 100.0 - 5.0, [1.0, 0.0, -1.0][rnd(3) as usize]);
+            m.fq_end.push(FqEnd { fql: Fql { me: 3, vs: 1, base, recs: recs.clone() }, h, won });
+            fq_match_end_apply(&mut m, &mut s);
+            fq_td_update(&mut reference, base, &fq_transitions(&recs, h, won, scale), k.fq_online_eta, gamma, k.fq_online_cap.0, k.fq_unit);
+            let cell = &s.fq_tables[i];
+            assert_eq!(cell.n, round + 1);
+            assert_eq!(cell.q.iter().map(|x| x.to_bits()).collect::<Vec<_>>(), q_of(&reference).iter().map(|x| x.to_bits()).collect::<Vec<_>>(), "{id} match {round}: the cell's q");
+            assert_ne!(cell.q, q_of(base), "{id} match {round}: learned");
+            let fq: &Value = cell.st.fq().unwrap();
+            for _ in 0..300 {
+                let f = feats();
+                assert_eq!(strat_fq_q_of(sets, fq, &f, Some(&cell.q)), strat_fq_q(sets, &reference, &f), "{id} match {round}: STRAT-FQ-Q at {f:?}");
+            }
+        }
+    }
+}

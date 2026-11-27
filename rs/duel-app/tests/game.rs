@@ -101,3 +101,37 @@ fn unported_surfaces_on_page() {
     }
     assert_eq!((g.stopped, &out.ui), (Some(why), &ui), "stopped stays, the frame is kept");
 }
+
+/// The rematch on the real path: a VS CPU match on a 3 s timer runs to TIME-UP's cinematic and GO-RESULTS, the dev line says "K.O. -
+/// Enter to rematch", an Enter before 2.5 s of RESULTS does nothing (RESULTS' masher guard), one after plays the same pairing again
+/// from its intro with a new seed.
+#[test]
+fn rematch_after_the_match_ends() {
+    use duel_app::input::CONFIRM;
+    use duel_sim::components::Flow;
+    let mut g = Game::new(data(), inputs());
+    let mut out = FrameOut::default();
+    std::sync::Arc::make_mut(&mut g.m.knobs).match_seconds = 3;
+    (g.start, g.dev, g.now_ms) = (Some(Start::default()), true, 1000.0);
+    let mut f = 0;
+    while g.m.flow != Flow::Results {
+        f += 1;
+        assert!(g.frame(&mut out, flow::raw_dt(f)), "{:?}", g.stopped);
+        assert!(f < 60 * 60, "never reached RESULTS");
+    }
+    assert_eq!(g.m.match_seed, 1000);
+    let ui = out.ui.len();
+    g.kb.set(0, CONFIRM);
+    f += 1;
+    g.frame(&mut out, flow::raw_dt(f));
+    assert_eq!(g.m.flow, Flow::Results, "an Enter at once does nothing");
+    assert!(ui > 0 && out.ui.len() >= ui, "the dev line and its K.O. line drawn");
+    while g.m.ft <= 2.5 {
+        f += 1;
+        g.frame(&mut out, flow::raw_dt(f));
+    }
+    (g.now_ms, f) = (77777.0, f + 1);
+    g.kb.set(0, CONFIRM);
+    assert!(g.frame(&mut out, flow::raw_dt(f)));
+    assert_eq!((g.m.flow, g.m.match_seed, g.m.picks), (Flow::Intro, 77777, [Character::Kenpachi, Character::Ichigo]));
+}

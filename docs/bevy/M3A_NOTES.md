@@ -1268,6 +1268,9 @@ CPU fight (page-log-check). A pick the port has not got stops the fight with its
   picks, difficulty, seed, `flow::start_match`). The seed is NEW-SEED's `floor(now) mod 100000`, from the page clock (performance.now;
   run.mjs's virtual clock under `--fixed-dt`, so a script's seed is fixed). No debug command runs, so `*learn-debug-off*` stays off: a
   HARD Ichigo learns against the player (FQ-ATTACH!), as in the Lisp.
+- **The rematch on the real path** (`duel-app/tests/game.rs` `rematch_after_the_match_ends`): a VS CPU match on a 3 s timer runs to
+  TIME-UP's cinematic and GO-RESULTS. An Enter before 2.5 s of RESULTS does nothing; one after plays the same pairing from its intro with
+  the new seed.
 - **The rebase** (Task 9's deferred minor): when the first update's catch-up passes 900 frames, the clock is rebased by k. The commands
   already queued now move by −k with it, and are never put earlier than the next frame. Test:
   `game::tests::rebase_after_a_long_load_keeps_the_commands_page_frame`.
@@ -1347,6 +1350,13 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
   CPU, with a 3 s match timer). After the first match, the leak count (2), the cells (2) and their q's lengths and capacities stay the
   same, and every match is counted.
 - `page_roundtrip` now checks the in-place update: the same copy, new q in the cell, the leaked structure unchanged.
+- `learned_q_read_from_the_cell` checks the values, not just the sizes. A reference copy of the library's :FQ is updated in place by
+  FQ-TD-UPDATE! over the same records each match: the Lisp's in-place copy, which is what the repointed copy gave before.
+  - Over 5 learned matches, the cell's q equal the reference's bit for bit.
+  - STRAT-FQ-Q over the cell's q (what STRAT-JUDGE reads for a copy) equals STRAT-FQ-Q of the reference at 300 cue vectors.
+  - Both shapes are covered: q1-ichigo-ken (plain) and t0-ki-ichigo (`:groups`, the table a HARD Ichigo learns with).
+  - A one-off shift of the overlay index fails it (a mutation check, reverted). vs-learn alone could not catch that: it only sees the
+    copy at 0 matches, where the cell's q equal the structure's.
 - The sim gates are unchanged: 22 / 20 / 88. vs-learn (the learner's A lines, `/fq(…)` included) replays bit for bit.
 
 ### Review Focus 3 and 5
@@ -1394,7 +1404,10 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
 | web-dev (`tools/port/build-web.sh duel-app dist/rs-m3a web-dev`, no wasm-opt) | 118.3 MB | 17.0 MB: **over** the Artifact's 15 MB per binary | 21.9-27.0 fps (37.1-45.6 ms) |
 | release (`… dist/rs-m3a-release release`, wasm-opt -Oz) | 24.6 MB | 6.3 MB | 23.5-24.8 fps (40.2-42.6 ms) |
 
-- The Artifact has to be the release build: web-dev's gzip is over the limit.
+- The Artifact has to be the release build: web-dev's gzip is over the limit. Publish index.html, index.js and index.gzip.wasm.
+  index.html fetches index.gzip.wasm first, decompresses it (DecompressionStream) and falls back to index.wasm. index.wasm (24.6 MB) stays
+  out: it is over 15 MB.
+- The release build passes page-smoke (4/4) and page-log-check (2/2) as web-dev does.
 - The two builds run at the same speed under SwiftShader, so the page is GPU-bound there.
 - Startup heap: release 89.4 MB, web-dev 93.9 MB (run.mjs's budget is 110).
 - No new dependency.
