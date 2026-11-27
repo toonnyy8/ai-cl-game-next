@@ -1199,8 +1199,9 @@ mod tests {
 
     /// The draw side on battle data: the page's loop (`flow::frame`, `draw_frame`, `flow::frame_end`) with the real `Scene` on
     /// the 17 cvc gate rows, so STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw on whole matches: no
-    /// panic, 0 allocations in a battle frame. Turbo is off after the commands (drawn frames, one step each). (`Scene.unported` is set
-    /// at the first cinematic's camera, Task 8; drawing goes on.)
+    /// panic, 0 allocations in a battle frame. Turbo is off after the commands (drawn frames, one step each). `Scene.unported` is read
+    /// and cleared after every frame: the only looks allowed to be missing are a cinematic's camera (Task 8) and the menus' camera
+    /// after the match (M3b); every other path these matches reach (the fighters' hooks, the clones, the hazards) must be ported.
     #[test]
     fn scene_draw_no_alloc() {
         use duel_sim::look::LookSink;
@@ -1230,6 +1231,7 @@ mod tests {
             frame(&mut m, s, sc, &mut out);
             (m.log_on, m.turbo) = (false, false); // (drawn: one step a frame, as the page)
             let (mut allocs, mut frames, mut fx, mut dallocs) = (0, 0, 0, 0);
+            let mut missing: Vec<&'static str> = vec![];
             for _ in 0..200_000 {
                 let (a0, before) = (crate::alloc_count::count(), flow::battle_p(&m));
                 let d = frame(&mut m, s, sc, &mut out);
@@ -1241,12 +1243,19 @@ mod tests {
                 if before && flow::battle_p(&m) {
                     (allocs, frames) = (allocs + crate::alloc_count::count() - a0, frames + 1);
                 }
+                if let Some(u) = sc.unported.take()
+                    && !missing.contains(&u)
+                {
+                    missing.push(u); // (after the count: the test's own vector)
+                }
                 if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
                     break;
                 }
             }
             assert_eq!(m.unported, None);
-            eprintln!("scene_draw_no_alloc {name}: {allocs} allocations in {frames} battle frames ({dallocs} in draw_frame); {fx} fx floats; dropped {}; look unported: {:?}", out.fx_dropped, sc.unported);
+            eprintln!("scene_draw_no_alloc {name}: {allocs} allocations in {frames} battle frames ({dallocs} in draw_frame); {fx} fx floats; dropped {}; looks missing: {missing:?}", out.fx_dropped);
+            // (a cinematic's camera: Task 8; the menus' camera after the match: M3b)
+            assert!(missing.iter().all(|u| u.starts_with("a cinematic's camera") || u.starts_with("the menus' camera")), "{name}: looks not ported: {missing:?}");
             assert!(frames > 10_000 && fx > 0, "{name} {frames} {fx}");
             assert_eq!(allocs, 0, "{name}: allocations in {frames} battle frames");
         }

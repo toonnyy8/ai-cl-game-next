@@ -6,7 +6,7 @@
 use super::shapes::*;
 use super::vfx::{n_of, t_blob};
 use super::{Ctx, P_T_SHARD};
-use duel_sim::components::{Hazard, HazardKind};
+use duel_sim::components::{Hazard, HazardKind, HzData};
 use duel_sim::math::{f_abs, f_cos, f_hypot, f_sin, fwd_x, fwd_z};
 use duel_sim::state::Match;
 
@@ -34,7 +34,8 @@ impl KenKnobs {
 }
 
 /// port: hazards.lisp HAZARD-DRAW (RDT the frame's effect seconds); AT the drawn place of a hazard (SLOW-DRAW's, else its own).
-pub fn hazard_draw(c: &mut Ctx, m: &Match, kn: &KenKnobs, at: impl Fn(duel_sim::ecs::Entity) -> Option<[f32; 4]>, rdt: f32) -> Option<&'static str> {
+pub fn hazard_draw(c: &mut Ctx, m: &Match, kn: &KenKnobs, at: impl Fn(duel_sim::ecs::Entity) -> Option<[f32; 4]>, bodies: &mut crate::draw::ichigo::HzBodies,
+                   rdt: f32) -> Option<&'static str> {
     let mut un = None;
     for s in 0..m.ents.top {
         let Some(e) = m.ents.at(s) else { continue };
@@ -55,7 +56,10 @@ pub fn hazard_draw(c: &mut Ctx, m: &Match, kn: &KenKnobs, at: impl Fn(duel_sim::
                 let owner = (m.ents.alive(hz.owner) && m.fighter.get(hz.owner).is_some()).then_some(hz.owner);
                 let kessa = owner.is_some_and(|o| duel_sim::fighter::kit_of(m, o).form == "kessa");
                 // (the name's case as the data spells it, compared without allocating)
-                const LOOKS: [&str; 7] = ["ICHIGO-GETSUGA-LOOK", "ICHIGO-JUJI-LOOK", "ICHIGO-FORM-LOOK", "ICHIGO-KX-LOOK", "ICHIGO-BURST-LOOK", "ICHIGO-ZANZO-LOOK", "ICHIGO-RENZAN-LOOK"];
+                const LOOKS: [&str; 10] = [
+                    "ICHIGO-GETSUGA-LOOK", "ICHIGO-JUJI-LOOK", "ICHIGO-FORM-LOOK", "ICHIGO-KX-LOOK", "ICHIGO-BURST-LOOK", "ICHIGO-ZANZO-LOOK", "ICHIGO-RENZAN-LOOK",
+                    "ICHIGO-CLONE-LOOK", "ICHIGO-ECHO-LOOK", "ICHIGO-FLARE-LOOK",
+                ];
                 match LOOKS.iter().copied().find(|n| n.eq_ignore_ascii_case(l)).unwrap_or("") {
                     "ICHIGO-GETSUGA-LOOK" => {
                         if hz.delay <= 0 {
@@ -89,7 +93,16 @@ pub fn hazard_draw(c: &mut Ctx, m: &Match, kn: &KenKnobs, at: impl Fn(duel_sim::
                         }
                     }
                     "ICHIGO-RENZAN-LOOK" => renzan_look(c, &hz, owner.map(pos)),
-                    _ => un = un.or(Some("a hazard's posed-body look (ichigo-look.lisp ICHIGO-CLONE-LOOK / -ECHO-LOOK / -FLARE-LOOK: task 7)")),
+                    "ICHIGO-CLONE-LOOK" => match hz.data {
+                        HzData::Icc(i) => crate::draw::ichigo::clone_look(c, bodies, m, &hz, i),
+                        _ => un = un.or(Some("a clone look without its clone")),
+                    },
+                    "ICHIGO-ECHO-LOOK" => match hz.data {
+                        HzData::Ice { mv, sf, end } => crate::draw::ichigo::echo_look(c, bodies, m, &hz, mv, sf, end),
+                        _ => un = un.or(Some("an echo look without its echo")),
+                    },
+                    "ICHIGO-FLARE-LOOK" => crate::draw::ichigo::flare_look(c, bodies, m, &hz, pos(hz.owner)),
+                    _ => un = un.or(Some("a Yamamoto / Hisagi hazard look (M4)")),
                 }
             }
             _ => {

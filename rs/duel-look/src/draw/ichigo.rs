@@ -29,6 +29,11 @@ pub struct Knobs<'d> {
     /// `*ic-chain-roots*`, `*ic-wisp-roots*`: (joint, local point, the neck's).
     pub chain_roots: Vec<(usize, [f32; 3])>,
     pub wisp_roots: Vec<(usize, [f32; 3], bool)>,
+    /// `*ic-mist-tint*` (hexc #x1E1E1E), `*ic-mist-rim*` (rim-vec #xFFFFFF 1.6), `*ic-clone-rim*` (rim-vec #xD0101C 1.4): the file's
+    /// load-time forms.
+    pub mist_tint: [f32; 3],
+    pub mist_rim: [f32; 3],
+    pub clone_rim: [f32; 3],
 }
 
 impl<'d> Knobs<'d> {
@@ -62,6 +67,9 @@ impl<'d> Knobs<'d> {
             hem: ["*YA-HEM-K*", "*YA-HEM-C*", "*YA-HEM-DRAG*", "*YA-HEM-TURN*", "*YA-HEM-MAX*"].map(f),
             chain_roots: roots("*IC-CHAIN-ROOTS*").into_iter().map(|r| (r.0, r.1)).collect(),
             wisp_roots: roots("*IC-WISP-ROOTS*"),
+            mist_tint: crate::draw::frame::hexc(0x1E1E1E),
+            mist_rim: super::fighter::rim_vec(0xFFFFFF, 1.6),
+            clone_rim: super::fighter::rim_vec(0xD0101C, 1.4),
         }
     }
 }
@@ -554,5 +562,124 @@ pub fn aura_kessa(c: &mut Ctx, w: &mut AuraWorld, x: f32, z: f32, k: f32, dt: f3
             let size = em.rr(0.02, 0.035);
             t_blob(em, v[0], v[1], v[2], vx, vy, vz, life, size, -0.1, 0.05, PAL_BLOOD);
         }
+    }
+}
+
+// ---------------------------------------------------------------- the hazards' posed-body looks (HAZARD-DRAW: (fn hazard rdt))
+
+/// What the clone / echo / flare looks reach besides the frame: the fighters' models (the flare reads its owner's joints), the
+/// fighters' draw state (the mesh ids, knobs, the clone poses, `*toon-body*`'s lane), the data.
+pub struct HzBodies<'a, 'd> {
+    pub models: &'a [Model<'d>],
+    pub fl: &'a mut super::fighter::FighterLooks<'d>,
+    pub data: &'d Data,
+}
+
+/// port: ichigo-look.lisp IC-MIST — grey-black mist rising off a phantom at (X Z): six soft wisps climbing past its head.
+fn ic_mist(c: &mut Ctx, x: f32, z: f32, alpha: f32, seed: f32) {
+    let clk = c.clock;
+    for i in 0..6 {
+        let v = 0.5 * clk + i as f32 / 6.0 + 0.13 * seed;
+        let ph = v - v.floor(); // ((mod v 1.0))
+        let a = 2.1 * i as f32 + seed + 0.6 * clk;
+        let r = 0.18 + 0.2 * ph;
+        let (x0, z0, y0) = (x + r * f_cos(a), z + r * f_sin(a), 0.1 + 1.9 * ph);
+        // (* alpha 0.8 (sin (* pi ph))): a long-float pi, so a double
+        let k = ((alpha * 0.8) as f64 * duel_sim::math::sin_d(std::f64::consts::PI * ph as f64)) as f32;
+        crate::fx::shapes::fx_line(c, [x0, y0, z0], [x0 + 0.15 * f_cos(a + 1.0), y0 + 0.55, z0 + 0.15 * f_sin(a + 1.0)], 0.25 + 0.3 * ph, 0.2, 0.2, 0.21, k,
+                                   crate::fx::Mode::Alpha, 0.45 + 0.4 * ph, 0.0);
+    }
+}
+
+/// port: ichigo-look.lisp IC-GHOST — KESSA's body at the hazard's spot and facing, posed at TM s of CLIP, at ALPHA; RIM a BLOOD ring at
+/// its feet; MIST (a clone) a grey-black phantom drawn twice (the second copy drifting) with mist rising, else pale (an echo).
+#[allow(clippy::too_many_arguments)]
+fn ic_ghost(c: &mut Ctx, w: &mut HzBodies, m: &Match, hz: &duel_sim::components::Hazard, clip: &str, tm: f32, alpha: f32, rim: bool, mist: bool) {
+    let o = hz.owner;
+    let side = if m.ents.alive(o) { m.fighter.get(o).map_or(0, |f| f.side as usize) } else { 0 };
+    let d = w.data;
+    let b = &d.bodies["ichigo-kessa"];
+    let (x, z, yaw) = (hz.x, hz.z, hz.yaw);
+    let super::fighter::FighterLooks { ids, props, kn, toon_y, ic, .. } = &mut *w.fl;
+    let an = &mut ic.clone_anim[side];
+    an.play(&d.clips[clip], 0.0, 1.0, duel_sim::cl::max_f32(0.0, tm), true);
+    let pr = &props.iter().find(|q| q.0 == "ichigo-kessa").expect("KESSA's proportions").1;
+    let hide = super::fighter::Hide { tags: &[], extra: &["shikai", "mark"], face: kn.face_hides[0] };
+    let mut copy = |c: &mut Ctx, x: f32, z: f32, a: f32| {
+        let pose = *ic.clone_anim[side].eval(kn.key_ease);
+        crate::rig::pose_fk(&pose, pr, x, 0.0, z, yaw, b.scale, b.hunch, &mut ic.clone_joints[side]);
+        let args = super::fighter::BodyArgs {
+            body: b,
+            ids: &ids.bodies["ichigo-kessa"],
+            weapon: ids.weapons.get("tensa").map(Vec::as_slice),
+            hide,
+            tint: mist.then_some(kn.ic.mist_tint),
+            rim: Some(if mist { kn.ic.mist_rim } else { kn.ic.clone_rim }),
+            flash: if mist { 0.25 } else { 0.35 },
+            alpha: a,
+            shadow: false,
+        };
+        let jm = ic.clone_joints[side];
+        let mut bc = super::fighter::BodyCtx { ids, weapon_m: &kn.weapon_m, weapon_r: kn.ji.weapon_r, toon_y };
+        super::fighter::draw_body(c.out, &mut bc, &jm, x, 0.0, z, &args);
+    };
+    if mist {
+        let clk = c.clock;
+        let (dx, dz) = (0.06 * f_sin(5.0 * clk), 0.06 * f_cos(4.0 * clk));
+        copy(c, x, z, 0.75 * alpha);
+        copy(c, x + dx, z + dz, 0.4 * alpha);
+        ic_mist(c, x, z, alpha, hz.x);
+    } else {
+        copy(c, x, z, alpha);
+    }
+    if rim {
+        crate::fx::shapes::tring(c, x, 0.0, z, 0.55, 0.04, PAL_BLOOD, 1.8 * alpha, 3.0, 24);
+    }
+}
+
+/// port: ichigo-look.lisp ICHIGO-CLONE-LOOK — a clone: a grey-black phantom of KESSA (IC-GHOST :mist) with a BLOOD ring: idle in the
+/// stance, answering with the answer's clip at its frame, charging in the run, fading over its last frames.
+pub fn clone_look(c: &mut Ctx, w: &mut HzBodies, m: &Match, hz: &duel_sim::components::Hazard, i: usize) {
+    use duel_sim::ichigo::clones::IccState;
+    let cl = &m.iccs[i];
+    let age = hz.age as f32 / 60.0;
+    let a = 0.45 * f_min(1.0, 0.max(cl.life) as f32 / 20.0) * f_min(1.0, hz.age as f32 / 6.0);
+    match cl.state {
+        IccState::Answer | IccState::Replay => {
+            let mv = duel_sim::fighter::mv(m, cl.mv.expect("an answering clone's move"));
+            ic_ghost(c, w, m, hz, &mv.clip, (0.max(cl.sf) as f32 * mv.clip_speed) / 60.0, duel_sim::cl::max_f32(a, 0.3), true, true);
+        }
+        IccState::Charge => ic_ghost(c, w, m, hz, "sh-run", 1.5 * age, 0.6, true, true),
+        IccState::Fade => ic_ghost(c, w, m, hz, "ic-k-stance", age, 0.45 * duel_sim::cl::max_f32(0.0, 1.0 - cl.fade as f32 / 8.0), false, true),
+        IccState::Idle => ic_ghost(c, w, m, hz, "ic-k-stance", age, a, true, true),
+    }
+}
+
+/// port: ichigo-look.lisp ICHIGO-ECHO-LOOK — an afterimage: his move replayed behind him, alpha 0.35, pale, no ring.
+pub fn echo_look(c: &mut Ctx, w: &mut HzBodies, m: &Match, hz: &duel_sim::components::Hazard, mv: duel_sim::components::MoveId, sf: i64, end: i64) {
+    let mv = duel_sim::fighter::mv(m, mv);
+    let clip = if mv.kind == "kikon" { mv.clip2.as_deref().expect("a Kikon's second clip") } else { mv.clip.as_str() };
+    if sf >= 0 {
+        ic_ghost(c, w, m, hz, clip, (sf as f32 * mv.clip_speed) / 60.0, 0.35 * f_min(1.0, (end - sf) as f32 / 6.0), false, false);
+    }
+}
+
+/// port: ichigo-look.lisp ICHIGO-FLARE-LOOK — KUSARI-TATE: the chains flaring out of his neck, wrists and ankles (the parry's tell);
+/// P the owner's drawn feet.
+pub fn flare_look(c: &mut Ctx, w: &HzBodies, m: &Match, hz: &duel_sim::components::Hazard, p: [f32; 3]) {
+    let e = hz.owner;
+    if !(m.ents.alive(e) && m.fighter.get(e).is_some()) {
+        return;
+    }
+    let Some(md) = w.models.iter().find(|md| md.e == e) else { return };
+    let k = duel_sim::cl::max_f32(0.02, 0.95 - 0.045 * hz.age as f32);
+    let g = f_min(1.0, (hz.age + 1) as f32 / 3.0);
+    let ji = &w.fl.kn.ji;
+    for j in [ji.neck, ji.hand_r, ji.hand_l, ji.foot_r, ji.foot_l] {
+        let [x, y, z] = joint_point(&md.joints[j], [0.0, 0.0, 0.0]);
+        let (dx, dz) = (x - p[0], z - p[2]);
+        let l = duel_sim::cl::max_f32(0.05, duel_sim::math::hypot(dx, dz));
+        let r = 0.9 * g;
+        vfx_ic_chain(c, [x, y, z], [x + r * (dx / l), y + 0.3 * g, z + r * (dz / l)], k);
     }
 }

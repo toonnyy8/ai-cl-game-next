@@ -1,13 +1,14 @@
 //! port: duel/lisp/feedback.lisp FEEDBACK-SYSTEM — every event a step emitted, shown oldest first (the sink's second pass): the
 //! stamps and scraps, the shake, the screen punctuation, the stage's marks, the sounds (collected in `Scene.sounds`), and
-//! ken-art.lisp's Bankai bursts. Model looks (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, START-GHOST, FACE-BEAT) are the fighters'
-//! draw (task 7); the big words (ANNOUNCE) and the HUD's cues the canvas / HUD (task 8, M3b).
+//! ken-art.lisp's Bankai bursts, and the model looks the fighters' draw shows (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, START-GHOST,
+//! FACE-BEAT: draw/fighter.rs). The big words (ANNOUNCE) and the HUD's cues are the canvas' / HUD's (task 8, M3b).
 use super::crack::{stage_debris, stage_mark};
 use super::screen::{focus_lines, impact_frame, shake};
 use super::shapes::{PAL_BLOOD, PAL_DUST, PAL_HIT};
 use super::stamps::*;
 use super::{Em, P_T_SHARD};
-use crate::scene::{push_sound, Scene, SoundReq};
+use crate::draw::fighter::{face_beat, hold_pose, smear, start_ghost};
+use crate::scene::{push_sound, Face, Scene, SoundReq};
 use duel_sim::components::Burst;
 use duel_sim::ecs::Entity;
 use duel_sim::fighter::{kit_of, pos_of, yaw_of};
@@ -46,9 +47,27 @@ impl<'d> Scene<'d> {
             push_sound(&mut self.sounds, SoundReq::HumStop { side: i });
         }
     }
+    /// E's model, when it has one (a fighter's: every event's subject).
+    fn md(&mut self, e: Entity) -> Option<&mut crate::scene::Model<'d>> {
+        self.models.iter_mut().find(|md| md.e == e)
+    }
+    /// port: draw.lisp SMEAR of E along its facing (the sim's yaw at the step).
+    fn smear_fwd(&mut self, m: &Match, e: Entity) {
+        let yaw = yaw_of(m, e);
+        if let Some(md) = self.md(e) {
+            smear(md, fwd_x(yaw), fwd_z(yaw));
+        }
+    }
+    /// port: draw.lisp START-GHOST of E at the step (the sim's place and yaw; the joints of its last drawing).
+    fn ghost(&mut self, m: &Match, e: Entity) {
+        let (p, yaw) = (pos_of(m, e), yaw_of(m, e));
+        if let Some(md) = self.md(e) {
+            start_ghost(md, p, yaw);
+        }
+    }
     /// port: feedback.lisp SHOW-HIT.
     #[allow(clippy::too_many_arguments)]
-    fn show_hit(&mut self, m: &Match, att: Entity, def: Entity, x: f32, y: f32, z: f32, counter: bool, dmg: i64, kind: &str) {
+    fn show_hit(&mut self, m: &Match, att: Entity, def: Entity, x: f32, y: f32, z: f32, hs: i64, counter: bool, dmg: i64, kind: &str) {
         let (dx, dz) = hit_dir(m, att, def);
         let look = if counter {
             "counter"
@@ -61,7 +80,14 @@ impl<'d> Scene<'d> {
             }
         };
         vfx_hit(&mut self.em(), x, y, z, look, dx, dz);
-        // task 7: a heavy / counter / breaker look holds the attacker's pose 3 f (HOLD-POSE) and smears the victim (SMEAR)
+        if matches!(look, "heavy" | "counter" | "breaker") {
+            if let Some(md) = self.md(att) {
+                hold_pose(md, 3.0);
+            }
+            if let Some(md) = self.md(def) {
+                smear(md, dx, dz);
+            }
+        }
         let key = match kind {
             "breaker" => "punch",
             "fire" => "explode",
@@ -71,7 +97,9 @@ impl<'d> Scene<'d> {
             _ => "cut-heavy",
         };
         self.sfx_at(key, x, y, z, if kind == "quick" { 0.8 } else { 1.0 }, 1.0);
-        // task 7: (setf (model-flash (model def)) (max 0.06 (/ hs 60.0)))
+        if let Some(md) = self.md(def) {
+            md.flash = duel_sim::cl::max_f32(0.06, hs as f32 / 60.0);
+        }
         let d = &mut self.draw;
         if dmg >= 150 {
             shake(d, 0.22, 0.3);
@@ -95,11 +123,19 @@ impl<'d> Scene<'d> {
     pub(crate) fn feedback(&mut self, m: &Match, ev: &Event) {
         match *ev {
             Event::Swing { e, kind } => {
-                // task 7: a heavy swing's SMEAR
+                if kind != "quick" {
+                    self.smear_fwd(m, e); // (a heavy swing starts)
+                }
                 let key = if kind == "quick" { "whoosh-light" } else { kit_of(m, e).swing_sfx.as_deref().unwrap_or("whoosh-heavy") };
                 self.sfx_on(m, key, e, 0.7, 1.0);
             }
-            Event::Super { e } => self.sfx_on(m, "whoosh-heavy", e, 1.0, 0.7), // task 7: MODEL-SUPER
+            Event::Super { e } => {
+                let k = self.fl.kn.super_flash / 60.0;
+                if let Some(md) = self.md(e) {
+                    md.sup = k;
+                }
+                self.sfx_on(m, "whoosh-heavy", e, 1.0, 0.7);
+            }
             Event::Breaker { e } => {
                 self.stop_hum(m, e);
                 let i = m.fighter.get(e).map_or(0, |f| f.side as usize);
@@ -109,7 +145,11 @@ impl<'d> Scene<'d> {
             Event::BreakerEnd { e } => self.stop_hum(m, e),
             Event::Rush { e } => {
                 let p = pos_of(m, e);
-                vfx_kikon_rush(&mut self.em(), p[0], p[2]); // task 7: SMEAR, MODEL-SUPER 0.12
+                vfx_kikon_rush(&mut self.em(), p[0], p[2]);
+                self.smear_fwd(m, e);
+                if let Some(md) = self.md(e) {
+                    md.sup = 0.12;
+                }
                 self.sfx_on(m, "whoosh-heavy", e, 1.0, 0.6);
             }
             Event::RushDash { e } => {
@@ -120,7 +160,7 @@ impl<'d> Scene<'d> {
                 }
                 vfx_rush_dash(&mut self.em(), p[0], p[2], fwd_x(yaw), fwd_z(yaw), mv.params.look.as_deref());
                 if mv.params.look.as_deref() == Some("flash-step") {
-                    self.unported.get_or_insert("a flash step's afterimage (draw.lisp START-GHOST: task 7)");
+                    self.ghost(m, e);
                 }
             }
             Event::KikonFollow { att, .. } => {
@@ -129,8 +169,8 @@ impl<'d> Scene<'d> {
                 self.sfx_on(m, "whoosh-heavy", att, 1.0, 0.6);
                 focus_lines(&mut self.draw, 10.0); // task 8: ANNOUNCE "KIKON"
             }
-            Event::Hit { att, def, x, y, z, hs: _, counter, dmg, kind } => {
-                self.show_hit(m, att, def, x, y, z, counter, dmg, kind);
+            Event::Hit { att, def, x, y, z, hs, counter, dmg, kind } => {
+                self.show_hit(m, att, def, x, y, z, hs, counter, dmg, kind);
                 match kit_of(m, att).hooks.get("hit-fx").map(|h| h.as_str()) {
                     Some("KEN-BK-HIT-FX") => {
                         // port: ken.lisp KEN-BK-HIT-FX (the Bankai kits' :hit-fx: a sound)
@@ -225,17 +265,23 @@ impl<'d> Scene<'d> {
                 let l = hypot(v[0], v[2]);
                 let yaw = yaw_of(m, e);
                 let (dx, dz) = if l > 1e-4 { (v[0] / l, v[2] / l) } else { (fwd_x(yaw), fwd_z(yaw)) };
-                vfx_step_dust(&mut self.em(), p[0], p[2], -dx, -dz); // task 7: SMEAR
+                vfx_step_dust(&mut self.em(), p[0], p[2], -dx, -dz);
+                if let Some(md) = self.md(e) {
+                    smear(md, dx, dz);
+                }
                 self.sfx_on(m, "step", e, 0.6, 1.0);
                 let leap = self.data.clips.get("ke-b-step-b");
                 if self.model(e).and_then(|md| md.anim.clip).zip(leap).is_some_and(|(a, b)| std::ptr::eq(a, b)) {
-                    self.sfx_on(m, "oni-roar", e, 1.0, 1.0); // task 7: FACE-BEAT :shout 0.4
+                    if let Some(md) = self.md(e) {
+                        face_beat(md, Face::Shout, 0.4, false);
+                    }
+                    self.sfx_on(m, "oni-roar", e, 1.0, 1.0);
                 }
             }
             Event::HohoOut { e, x, z } => {
                 let yaw = yaw_of(m, e);
                 vfx_hoho(&mut self.em(), x, 1.0, z, false, fwd_x(yaw), fwd_z(yaw));
-                self.unported.get_or_insert("the Hoho's afterimage (draw.lisp START-GHOST: task 7)");
+                self.ghost(m, e);
                 self.sfx_on(m, "hoho-out", e, 1.0, 1.0);
             }
             Event::HohoIn { e, x, z } => {
@@ -269,7 +315,12 @@ impl<'d> Scene<'d> {
                 vfx_konpaku_shatter(&mut self.em(), p[0], p[1] + 1.6, p[2], lost.max(0) as usize);
                 self.play("konpaku-shatter", 1.0);
             }
-            Event::Kikon { .. } => self.play("bell", 1.0), // task 7: MODEL-SUPER 0.15 of the attacker
+            Event::Kikon { att, .. } => {
+                self.play("bell", 1.0);
+                if let Some(md) = self.md(att) {
+                    md.sup = 0.15;
+                }
+            }
             Event::SoulBreak { .. } | Event::Bankai { .. } => {}
             Event::Awaken { e } => self.sfx_on(m, "awaken-boom", e, 1.0, 1.0),
             Event::Form { .. } => {}                                 // task 8: ANNOUNCE the kit's callout

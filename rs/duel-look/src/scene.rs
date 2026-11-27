@@ -310,7 +310,11 @@ impl<'d> Scene<'d> {
             }
             LookEvent::Place => {
                 self.fx_clear();
-                self.draw.cam.punch_t = 0.0; // task 7: the models' flash / super 0
+                self.draw.cam.punch_t = 0.0;
+                for md in self.models.iter_mut() {
+                    // (PLACE's two fighters: every live model; a cleared slot's model is never drawn)
+                    (md.flash, md.sup) = (0.0, 0.0);
+                }
             }
             LookEvent::Music { .. } | LookEvent::MusicStop { .. } => {} // M3b: sound
             LookEvent::ClearWords => {}                                  // task 8: the canvas words

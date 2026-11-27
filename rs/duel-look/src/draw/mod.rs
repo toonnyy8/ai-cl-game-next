@@ -184,7 +184,8 @@ fn draw_scene(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
         let kn = c.fx.ken;
         let slow = &sc.slow;
         let at = |e: Entity| slow.at.iter().find(|a| a.0 == e).map(|a| a.1);
-        if let Some(u) = fx::hazard::hazard_draw(&mut c, m, &kn, at, rdt) {
+        let mut bodies = ichigo::HzBodies { models: &sc.models, fl: &mut sc.fl, data: sc.data };
+        if let Some(u) = fx::hazard::hazard_draw(&mut c, m, &kn, at, &mut bodies, rdt) {
             sc.unported.get_or_insert(u);
         }
     }
