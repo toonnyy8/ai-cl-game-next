@@ -229,7 +229,12 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
             side,
             character: Some(character),
             kit: Some(KitId { character, form: Form::Base }),
-            brain: cpu.then(|| crate::cpu::Brain::new(m.difficulty, m.knobs.ai_delay.get(m.difficulty.name(), 14))),
+            brain: cpu.then(|| {
+                let mut b = crate::cpu::Brain::new(m.difficulty, m.knobs.ai_delay.get(m.difficulty.name(), 14));
+                // (JSTARTS holds at most a tick per step within *ai-mash-window*: its whole size now, so a battle step never grows it)
+                b.jstarts.reserve(m.knobs.ai_mash_window as usize + 1);
+                b
+            }),
             ..Fighter::default()
         },
     );
