@@ -3,7 +3,9 @@
 //!
 //! The scene's commands, viewport and fixed inputs come from FILE's INDEX.json (same directory, entry named by FILE's stem). Each
 //! frame is the game loop's three calls: `flow::frame` (dt `raw_dt` of the next pump), `duel_look::draw_frame`, `flow::frame_end`.
-//! Key frame F is pump F + 1. `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
+//! Key frame F is pump F + 1. dt: `raw_dt` of the pump, or for a scene whose INDEX entry says `"dt": "page"` the frozen page's clock
+//! (`flow::PageClock` at vt = (F + 1) x 16.666667 ms, as stubs-draw.c DRAW_DT=page feeds the native image). The menus' camera
+//! (M3b) on an unkeyed frame (a page-dt scene's title) is not a stop. `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
 //! compared here). Nothing is masked: every float of a compared array is compared (Task 7 removed the last test-only mask).
 //! Tolerance: `|a - b| <= 1e-5 max(1, |b|)` per float (`--exact`: bit for bit); a record count, a stream length, a mesh id and the RNG
 //! state exactly.
@@ -104,8 +106,9 @@ fn parse_args(a: &[String]) -> Result<Opts, String> {
     Ok(o)
 }
 
-/// A scene's name, its commands (frame, command), its fixed inputs and `*one-hand*` (the sim's: `Match.settings.one_hand`).
-type SceneEntry = (String, Vec<(u32, i64)>, SceneInputs, bool);
+/// A scene's name, its commands (frame, command), its fixed inputs, `*one-hand*` (the sim's: `Match.settings.one_hand`) and its dt:
+/// the stub's `raw_dt`, or (`"dt": "page"`, stubs-draw.c DRAW_DT=page) the frozen page's whole-ms clock (`flow::PageClock`).
+type SceneEntry = (String, Vec<(u32, i64)>, SceneInputs, bool, bool);
 
 /// The scene's INDEX.json entry.
 fn scene_entry(file: &str) -> Result<SceneEntry, String> {
@@ -140,7 +143,12 @@ fn scene_entry(file: &str) -> Result<SceneEntry, String> {
         safe_top: if j["fixed_inputs"]["page"].as_str().is_some_and(|s| s.starts_with("pf_page_get 0")) { 0.0 } else { return Err("INDEX fixed_inputs.page: not pf_page_get 0".into()) },
         safe_bottom: 0.0,
     };
-    Ok((name, cmds, inputs, val("one-hand")? != "NIL"))
+    let page_dt = match sc["dt"].as_str() {
+        None | Some("raw") => false,
+        Some("page") => true,
+        Some(x) => return Err(format!("INDEX.json {name}: dt {x} (raw or page)")),
+    };
+    Ok((name, cmds, inputs, val("one-hand")? != "NIL", page_dt))
 }
 
 fn close(a: f32, b: f32, exact: bool) -> (bool, f64) {
@@ -217,7 +225,7 @@ pub fn draw_cmd(args: &[String]) -> ExitCode {
 }
 
 fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
-    let (name, cmds, inputs, one_hand) = scene_entry(&o.file)?;
+    let (name, cmds, inputs, one_hand, page_dt) = scene_entry(&o.file)?;
     let (w, h, key) = read_key(&o.file)?;
     if (w, h) != (inputs.width, inputs.height) {
         return Err(format!("{name}: the key's viewport {w}x{h} is not INDEX's {}x{}", inputs.width, inputs.height));
@@ -235,13 +243,19 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0, count: BTreeMap::new(), exact: o.exact };
     let (mut allocs, mut counted, mut compared, mut ki, mut draw_allocs) = (0u64, 0u64, 0u32, 0usize, 0u64);
     let mut got_dq: Vec<f32> = Vec::new();
+    let (mut clock, mut vt) = (flow::PageClock::default(), 0.0f64); // (a page-dt scene's clock: pump F + 1 at vt (F + 1) x 16.666667)
     let paths = data.mesh_ids();
     let mesh_path = |id: f32| paths.iter().find(|r| r.0 == id as u32).map_or("?", |r| r.1.as_str());
     for f in 0..=last {
         let has_cmd = cmds.iter().any(|c| c.0 == f);
         m.cmds.extend(cmds.iter().filter(|c| c.0 == f).map(|c| c.1));
         let a0 = crate::alloc_count::count();
-        let rdt = flow::raw_dt(m.frame_n + 1);
+        let rdt = if page_dt {
+            vt += flow::PAGE_FRAME_MS;
+            clock.rdt(vt, 1, 1)
+        } else {
+            flow::raw_dt(m.frame_n + 1)
+        };
         flow::frame(&mut m, &mut s, &mut NoInput, &mut sc, rdt);
         let d0 = crate::alloc_count::count();
         draw_frame(&mut sc, &mut m, rdt, &mut out);
@@ -254,6 +268,11 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
         }
         if has_cmd {
             m.log_on = false; // (the commands turn the combat log on; its lines are the log's allocations, not the frame's)
+            m.log.clear(); // (and its lines are dropped: a CPU snapshot clones `Match.log`, new lines would allocate in the next steps)
+        }
+        // the menus' camera (M3b) on a frame that is not keyed (a page-dt scene's title before its command) is not a stop, as on the page
+        if !key.iter().any(|k| k.frame == f) && sc.unported_camera.is_some_and(|u| u.starts_with("the menus' camera")) {
+            sc.unported_camera = None;
         }
         if let Some(u) = m.unported.or(sc.unported).or(sc.unported_camera) {
             println!("draw UNPORTED {name} frame {f}: {u}");

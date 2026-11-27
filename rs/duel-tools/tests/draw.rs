@@ -96,3 +96,13 @@ fn battles_match() {
     check("battle-2005");
     check("battle-2006");
 }
+
+/// The page clock (M3A_NOTES §9, Task 9 fix round 2): the looks gate's cine-ken, cine-ko and cvc-ik scripts as the page runs them (their
+/// title frames, the commands' frames), the native image fed the frozen page's whole-ms dt (stubs-draw.c DRAW_DT=page) and the port
+/// `flow::PageClock`: ken-nozarashi through its hold, the K.O. stills, a turbo window's impact frame. Every array but hb / hk, bit for bit.
+#[test]
+fn page_dt_scenes_match() {
+    for s in ["page-nozarashi", "page-ko", "page-turbo-ik"] {
+        check(s);
+    }
+}

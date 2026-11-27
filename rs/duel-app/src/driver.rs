@@ -1,13 +1,12 @@
 //! The minimal frame driver (ruling R17; Task 10 owns the game loop's final shape): the game loop's three calls, `flow::frame` →
-//! `duel_look::draw_frame` → `flow::frame_end`, in rs/duel-tools/src/draw.rs's order, with the Scene as the look sink, dt = the key's
-//! `raw_dt(frame_n)` and no player input (CPU vs CPU, or what a debug command sets up). Debug commands from `Module._debug_cmd(n)`
-//! go to the Match's command queue, applied at the start of the frame they are due in.
+//! `duel_look::draw_frame` → `flow::frame_end`, in rs/duel-tools/src/draw.rs's order, with the Scene as the look sink and no player
+//! input (CPU vs CPU, or what a debug command sets up). Debug commands from `Module._debug_cmd(n)` go to the Match's command queue,
+//! applied at the start of the frame they are due in.
 //!
-//! dt (ruling R17 amended, concern 1 of Task 9): the page clock's, as the frozen page computes it: engine/c/platform.c pf_pump's
-//! `(now - prev) * 1e-9f` over SDL_GetTicksNS (emscripten's `Math.round(performance.now() * 1e6)` ns), clamped as RUN-FRAME clamps it.
-//! The key's `raw_dt` is the headless stub's clock (16666666 / 16666667 ns alternating, so a frame now and then runs no step); under
-//! run.mjs --fixed-dt 16.666667 the page's is 16666667 ns (+STEP+) but for the virtual clock's own rounding, and the sim and the looks'
-//! timers land on other frames than the frozen page's when fed raw_dt (M3A_NOTES §9 "Concern 1").
+//! dt (ruling R17 amended for the page, concern 1 of Task 9): the frozen page's RUN-FRAME dt, `duel_sim::flow::PageClock` (whole-ms
+//! Date.now through SDL's gettimeofday fallback on emscripten: 16 / 17 ms frames, a frame now and then with no step or two). The key's
+//! `raw_dt` (the headless stub's 16666666 / 16666667 ns) puts the steps, the fx clock and the looks' timers on other frames than the
+//! frozen page's (M3A_NOTES §9 "Concern 1"). `duel-tools draw` replays a page-dt scene with the same clock.
 //!
 //! Pacing: the page clock (performance.now: run.mjs's virtual clock under --fixed-dt) says how many 60 Hz frames are due; each Bevy
 //! update runs the frames due since the last one (the first update after the renderer is ready catches up from the page's start), so
@@ -42,16 +41,15 @@ pub struct Game {
     pub menu_camera: Option<&'static str>,
     /// Keep the combat log as the commands set it (`m.log` filled, as the frozen page prints it): the page's `?log` (a diagnostic).
     pub log: bool,
-    /// The page clock: the last update's time (ms) and the last frame's SDL_GetTicksNS (whole ns); this update's step per frame.
-    clock: Option<(f64, u64)>,
-    clock_step: f64,
+    /// The frozen page's clock (its RUN-FRAME dt).
+    clock: flow::PageClock,
 }
 
 impl Game {
     pub fn new(data: &'static Data, inputs: SceneInputs) -> Game {
         let mut m = Match::new(data);
         flow::go_title(&mut m);
-        Game { m, s: Search::new(), sc: Scene::new(data, inputs), frames: 0, base: 0, started: false, pending: Vec::with_capacity(64), stopped: None, menu_camera: None, log: false, clock: None, clock_step: 0.0 }
+        Game { m, s: Search::new(), sc: Scene::new(data, inputs), frames: 0, base: 0, started: false, pending: Vec::with_capacity(64), stopped: None, menu_camera: None, log: false, clock: flow::PageClock::default() }
     }
 
     /// A debug command that arrived while the page clock read DUE frames: it applies at the start of the next frame run, and never
@@ -80,6 +78,7 @@ impl Game {
         flow::frame_end(&mut self.m, &mut self.s);
         if !self.log {
             self.m.log_on = false; // (a command turns the combat log on; its lines allocate: the page keeps it off unless asked)
+            self.m.log.clear(); // (and drops the command frame's lines: never read here, and a CPU snapshot would clone them each step)
         }
         // the menus' camera (the title before a debug command starts a fight) is M3b's: not a stop, the frame keeps the camera it has
         // (as duel-tools replay reads and clears it after every frame)
@@ -104,28 +103,10 @@ impl Game {
 }
 
 impl Game {
-    /// Frame I (1..=N) of this update's N frames: its dt, Date.now() reading NOW_MS (whole ms). The frozen page's RUN-FRAME dt is
-    /// engine/c/platform.c pf_pump's `(now - prev) * 1e-9f` over SDL_GetTicksNS, and on emscripten that is whole milliseconds: SDL's
-    /// CLOCK_MONOTONIC_RAW (4) is refused by emscripten's clock_gettime (EINVAL above WASI's clock 3), so SDL falls back to
-    /// gettimeofday, which reads Date.now(). So each frame's dt is 0.016 or 0.017 at 60 Hz (run.mjs --fixed-dt: Date.now = d0 +
-    /// Math.round(vt)), and a frame now and then runs no step or two. Each frame here takes its whole-ms share of the clock since the
-    /// last update (the last frame at NOW exactly: one frame an update is pf_pump's dt bit for bit), clamped to 0..0.1 as RUN-FRAME's;
-    /// the page's first frame has dt 0.
+    /// Frame I (1..=N) of this update's N frames: its dt, the page clock reading NOW_MS: the frozen page's RUN-FRAME dt
+    /// (`duel_sim::flow::PageClock`: whole-ms Date.now through SDL's gettimeofday fallback, the first frame 0; M3A_NOTES §9).
     pub fn rdt_of(&mut self, now_ms: f64, i: i64, n: i64) -> f32 {
-        let ns = |t: f64| t.round() as u64 * 1_000_000; // (gettimeofday's µs of a whole-ms Date.now, x 1000 by SDL_GetTicksNS)
-        if i == 1 {
-            let t0 = self.clock.map_or(0.0, |c| c.0);
-            self.clock_step = (now_ms - t0) / n as f64;
-            if self.clock.is_none() {
-                self.clock = Some((0.0, ns(self.clock_step))); // (frame 1's own time: dt 0)
-            }
-        }
-        let (t0, prev) = self.clock.unwrap();
-        let t = if i == n { now_ms } else { t0 + self.clock_step * i as f64 };
-        let raw = (ns(t).saturating_sub(prev)) as f32 * 1e-9f32;
-        self.clock = Some((if i == n { now_ms } else { t0 }, ns(t)));
-        #[allow(clippy::manual_clamp)] // (CL MIN / MAX, in their order)
-        f32::min(0.1, f32::max(0.0, raw))
+        self.clock.rdt(now_ms, i, n)
     }
 }
 

@@ -46,6 +46,47 @@ pub fn raw_dt(k: i64) -> f32 {
     f32::min(0.1, f32::max(0.0, raw))
 }
 
+/// The frozen page's clock as its RUN-FRAME reads it, in SDL_GetTicksNS's nanoseconds, the page reading T_MS (performance.now /
+/// run.mjs's virtual clock): on emscripten SDL's CLOCK_MONOTONIC_RAW (4) is refused by `clock_gettime` (EINVAL above WASI's clock 3), so
+/// SDL falls back to `gettimeofday`, which reads `Date.now()`: whole milliseconds (run.mjs --fixed-dt: `d0 + Math.round(vt)`; Math.round
+/// = floor(x + 0.5), a truncation here as t >= 0). (M3A_NOTES §9 "Concern 1"; tools/port/oracle/stubs-draw.c DRAW_DT=page.)
+pub fn page_ns(t_ms: f64) -> u64 {
+    (t_ms + 0.5) as u64 * 1_000_000
+}
+
+/// port: engine/c/platform.c pf_pump's raw dt on the frozen page (`(now - prev) * 1e-9f` over `page_ns`), clamped as RUN-FRAME clamps
+/// it. The page's driver and `duel-tools draw` on a page-dt scene use it; the headless tools keep `raw_dt`.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct PageClock {
+    /// the last update's page time (ms) and the last frame's `page_ns`; this update's page time per frame
+    last: Option<(f64, u64)>,
+    step: f64,
+}
+
+impl PageClock {
+    /// Frame I (1..=N) of an update of N frames, the page reading NOW_MS: pf_pump's dt over the frame's whole-ms share of the clock
+    /// since the last update (the last frame at NOW exactly, so one frame an update is pf_pump's bit for bit). The first frame ever has
+    /// dt 0 (the page's first frame; stubs-draw.c's first pump under DRAW_DT=page).
+    pub fn rdt(&mut self, now_ms: f64, i: i64, n: i64) -> f32 {
+        if i == 1 {
+            let t0 = self.last.map_or(0.0, |c| c.0);
+            self.step = (now_ms - t0) / n as f64;
+            if self.last.is_none() {
+                self.last = Some((0.0, page_ns(self.step))); // (frame 1's own time: dt 0)
+            }
+        }
+        let (t0, prev) = self.last.unwrap();
+        let t = if i == n { now_ms } else { t0 + self.step * i as f64 };
+        let raw = page_ns(t).saturating_sub(prev) as f32 * 1e-9f32;
+        self.last = Some((if i == n { now_ms } else { t0 }, page_ns(t)));
+        #[allow(clippy::manual_clamp)] // (CL MIN / MAX, in their order)
+        f32::min(0.1, f32::max(0.0, raw))
+    }
+}
+
+/// run.mjs --fixed-dt's virtual frame (ms): `vt += 16.666667` per browser frame.
+pub const PAGE_FRAME_MS: f64 = 16.666667;
+
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
 /// steps, each with its `LookSink` at FEEDBACK-SYSTEM's place), RDT the frame's real seconds (RUN-FRAME's clamped dt: `raw_dt` in the
 /// headless tools, the page's clock in the game); last, LOOK's frame pass (`LookSink::frame`: the immediate calls queued outside a step,

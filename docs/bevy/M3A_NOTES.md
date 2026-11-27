@@ -1098,7 +1098,7 @@ difference, the pixels that differ of 230,400) are after:
 | cvc-ii w1-1 | 0.7934 → 0.8201 | 230 | 29174 | HUD; the title state (M3b) |
 | cvc-ii w2-0 | 0.1906 → 0.2307 | 239 | 109853 | the impact frame (the dt fix); speed lines |
 | cvc-ii w3-0 | 0.6942 → 0.7615 | 222 | 46237 | HUD; the title state (M3b) |
-| cine-ken ken-nozarashi-026 | 0.8058 → 0.8277 | 224 | 63754 | Kenpachi's held pose (open, below) |
+| cine-ken ken-nozarashi-026 | 0.8058 → 0.8277 | 224 | 63754 | Kenpachi's held pose: native-vs-wasm (below) |
 | cine-ken ken-nozarashi-096 | 0.9869 → 0.9987 | 228 | 2339 | was the dt offset (fixed); a residue of ~2,000 px |
 | cine-ken ken-bankai-030 | 0.9931 → 0.9988 | 228 | 2008 | was the dt offset (fixed); a residue of ~2,000 px |
 | cine-ken ken-bankai-080 | 0.8845 → 0.9593 | 246 | 15081 | the dt offset fixed; the aura's tongues still differ in places (not examined) |
@@ -1108,7 +1108,7 @@ difference, the pixels that differ of 230,400) are after:
 | cine-ichigo ichigo-awaken-110 | 0.8941 → 0.9520 | 220 | 26310 | the dt offset fixed; a residue not examined |
 | cine-ko soul-break-030 | 0.9678 → 0.9996 | 180 | 2012 | was the dt offset (fixed); a residue of ~2,000 px |
 | cine-ko soul-break-090 | 0.9931 → 0.9993 | 102 | 2024 | was the dt offset (fixed); a residue of ~2,000 px |
-| cine-ko ko-012 | 0.8978 → 0.9006 | 205 | 97728 | the 決着 caption (hb); the frozen floor is darker below the horizon, not examined (perhaps the HUD's shade) |
+| cine-ko ko-012 | 0.8978 → 0.9006 | 205 | 97728 | the 決着 caption and the K.O. shade over the floor (both hb) |
 | cine-ko ko-060 | 0.8389 → 0.8867 | 221 | 102885 | the same as ko-012 |
 | cine-ko results | 0.4089 → 0.4086 | 242 | 230399 | RESULTS is the Lisp HUD (M3b) |
 
@@ -1134,17 +1134,50 @@ difference, the pixels that differ of 230,400) are after:
     write-up had put down to the cosmetic RNG.
   - **The nozarashi cinematic's frames** (debug 11026 at virtual 4.0 s, shots every second frame from 242 to 274) now match the frozen
     page to the noise floor through frame 264. Before the fix, 260-264 differed: the frozen page ran a frame ahead.
-- **Open: ken-nozarashi-026's held pose (0.8277).** From the hold (frame 266 on), the frozen page holds Kenpachi's arm and sword lower
-  than the Rust page. It is not a frame offset: Rust's poses at the hold frames 26 and 27 both differ from it, and 28 on are other
-  shots.
-  - A second scratch native key, the command after 239 title frames as on the page, equals the port at every frame after the command,
-    under `raw_dt`. So the native image holds Rust's pose.
-  - The frozen page's input that moves it is not found. It is not the cosmetic RNG and not the command's frame: in the native replay,
-    changing either moves 6 records, none of them the arm. The native image under the page's whole-ms dt was not tried (it needs a
-    scratch stub image).
+- **ken-nozarashi-026's held pose (0.8277): the frozen page differs from its own native image (ruling needed).** From the hold (frame
+  266 on) the frozen page holds Kenpachi's arm and sword lower than the Rust page. It is not a frame offset: Rust's holds at cine-frames
+  26 and 27 both differ from it, and 28 on are other shots. The page-dt key (below) settles where the gap sits:
+  - `page-nozarashi`: the native image, fed the frozen page's own dt over the stills script's 239 title frames and the command's frame,
+    equals the port on every array and the cosmetic RNG at every keyed frame 239-330, bit for bit (`--exact`).
+  - So the native image holds the arm as the Rust page does. The frozen page (wasm) holds it otherwise under the same Lisp, dt and
+    command frame, and its frames 242-264 still match the Rust page to the noise floor.
+  - This is a native-vs-wasm difference. It is reported, not patched around, for the controller's ruling.
+- **ko-012 / ko-060's darker floor is the Lisp HUD.** The native `hb` at both frames holds four triangles of colour (0.043 0.043 0.063)
+  at alpha 0.41 over y 208-361, the screen below the horizon: the K.O. screen's shade, M3b's paint stream.
 - **Bounded by M3b (the coordinator's ruling):** the cosmetic RNG and the fx clock enter the fight from a title that runs M3b's menus and
   HUD on the frozen page, which Rust's title does not. What is left in the battle stills (the speed lines and the sparks in the w windows)
   is the Lisp HUD's area plus this state; M3b's title closes it.
+
+### The page-dt draw key (Task 9 fix round 2, ruling R25)
+
+The draw key fed every scene the stub's uniform `raw_dt`, so a look reading the wrong dt (STEP, raw_dt, an accumulator, HUD-DT /
+CINE-DT from another source) would match the key and still drift on the page. A scene can now run on the frozen page's clock.
+
+- **The recorder.** `tools/port/oracle/stubs-draw.c` takes `DRAW_DT=page` (tools/simgate/stubs.c untouched). Each pump still runs the
+  stub's own pump (its frame counter, the virtual ms); then `vt += 16.666667`, `ns = (u64)(vt + 0.5) x 1e6` (Math.round in SDL's ns),
+  `dt = (ns - prev) x 1e-9f` with 0 at the first pump, into the dt lanes (and platform.c's fps average, which skips a 0 dt).
+  `gen.py` sets it for a scene whose `draw-scenes.json` entry says `"dt": "page"` and copies `dt` into INDEX.
+- **The port.** The same arithmetic lives once, in `duel_sim::flow::PageClock` (with `page_ns` and `PAGE_FRAME_MS`). The page's driver
+  (`Game::rdt_of`) and `duel-tools draw` use it; for a page-dt scene the tool feeds frame F `PageClock::rdt` at vt = (F + 1) x
+  16.666667. The tool also lets the menus' camera (M3b) pass on an unkeyed frame, so a scene can start from the title as the page does.
+- **The scenes** (the looks gate's scripts at their command frames):
+
+  | scene | commands (key frame: debug) | keyed frames | `--exact` |
+  |---|---|---|---|
+  | `page-nozarashi` | 239: 11026 | 239-330 (the still at 324) | yes |
+  | `page-ko` | 239: 16030, 335: 16090, 422: 18012, 500: 18060 | 490-496, 565-571 (ko-012 at 493, ko-060 at 568) | yes |
+  | `page-turbo-ik` | 239: 2005, then 2102 at 383 386 395 403 430 446 455 | 440-460 (w2-0 at 451) | yes |
+
+  Pinned in docs/bevy/oracle-index.json (`dt: page`, `stubs_sha1` 4175bab7, `generated_page_dt`) and M0_NOTES §4's row. The draw suite
+  checks them (`rs/duel-tools/tests/draw.rs` `page_dt_scenes_match`).
+- **Provenance.** `gen.py draw` regenerated all 44 scenes with the new recorder image. The 41 earlier scenes are byte-identical to their
+  pins (every sha1 and meshes.json's), so the mode changes nothing by default.
+- **What it caught.** No look reads the wrong dt: all three scenes pass bit for bit at once, and duel-look's only STEP read is CINE-ACTOR-
+  STEP's (cinema.lisp's own). It caught one allocation bug on the CPU half: a command frame's combat-log lines stayed in `Match.log`,
+  and each CPU snapshot (`Search::snapshot`, a `Match` clone) cloned them again (38 and 72 allocations in `page-turbo-ik`'s turbo
+  frames). The page's driver and `duel-tools draw` now drop those lines with the log switched off.
+- **What it showed.** The page's remaining gaps are not the port's dt: nozarashi's held pose is native-vs-wasm (above), and ko's floor is
+  the HUD.
 
 ### 0 allocations
 
