@@ -1259,9 +1259,17 @@ CPU fight (page-log-check). A pick the port has not got stops the fight with its
   - INTRO / FINISH with a cinematic: PAUSE-P or CONFIRM-P skips it (`cine::skip_cine`).
   - RESULTS: after 2.5 s, CONFIRM-P is the REMATCH row (NEW-SEED, START-MATCH): "K.O. - Enter to rematch".
 
-  They run app-side, before `flow::frame`, so before the commands and SCREEN-FX-UPDATE. The Lisp runs FLOW-UPDATE after both, so on the
-  frame of a pause press the screen effects' timers (`frame_begin`'s dt) still run on the page and stop a frame later. This was left
-  rather than adding a device hook to duel-sim. No result changes: the sim reads the pause only through `sim_running_p` in that same frame.
+  They run app-side, before `flow::frame`. In the Lisp, the debug commands, SCREEN-FX-UPDATE and FLOW-UPDATE's `(incf *ft* rdt)` all
+  run before FLOW-SCREENS, so on a human press the page is one frame off (presentation only, ruling R30):
+  - a pause stops the screen effects' timers (`frame_begin`'s dt) and `ft` a frame **earlier** than the Lisp, and a resume restarts them
+    a frame earlier (the Lisp's frame of the press still runs them with the old `*paused*`);
+  - RESULTS' 2.5 s guard reads last frame's `ft`, so it opens a frame late;
+  - after a rematch or an intro skip, `ft` holds this frame's rdt, where the Lisp's is 0 (SET-FLOW's reset comes after its increment);
+  - a press on a debug command's frame acts on the flow before the command (the Lisp drains the commands first).
+
+  No match result changes: the sim reads the pause only through `sim_running_p`, and no `ft` reader exists outside game.rs today.
+  **Carried to M3b** (R30): a hook that runs the screens' keys after `flow_update`, in FLOW-SCREENS' slot (M3b's HUD reads `ft` and its
+  pause rows need the slot anyway).
 - **The page's start** is what the menus' VS CPU confirm calls in the Lisp. `lhud-menu-select.lisp` only draws SELECT; its START hot box
   (11) sends a confirm press, which **flow.lisp SELECT-UPDATE** turns into `(new-seed) (start-match)` (line 258), with `*mode*` `:vs-cpu`
   set by MODE and the picks and `*difficulty*` set by SELECT. The port calls **`duel_sim::debug::vs_start`** (trace.lisp TR-VS-START: mode,
@@ -1271,6 +1279,10 @@ CPU fight (page-log-check). A pick the port has not got stops the fight with its
 - **The rematch on the real path** (`duel-app/tests/game.rs` `rematch_after_the_match_ends`): a VS CPU match on a 3 s timer runs to
   TIME-UP's cinematic and GO-RESULTS. An Enter before 2.5 s of RESULTS does nothing; one after plays the same pairing from its intro with
   the new seed.
+- **A press while no frame runs** (review F3): `Game::keys` drops the presses collected while the renderer is not ready or the fight
+  has stopped (the held keys are still taken). KEY-PRESSED sees only the frame's own presses, so an Enter during the load no longer
+  skips the intro on frame 1. Test: `game::tests::a_press_during_the_load_is_dropped`. Presses in an update that runs no frame (the
+  page clock not yet due) are kept for the next frame.
 - **The rebase** (Task 9's deferred minor): when the first update's catch-up passes 900 frames, the clock is rebased by k. The commands
   already queued now move by −k with it, and are never put earlier than the next frame. Test:
   `game::tests::rebase_after_a_long_load_keeps_the_commands_page_frame`.
@@ -1344,10 +1356,17 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
   battle.
 - The page codes and TR-A-STRAT's `/fq(…)` come from the cell's q. The copy keeps its identity across matches, as the Lisp's in-place
   update does; the old repoint of every brain is gone.
-- Ceiling (`ponytail:` in fq.rs): one structure per cell made, so at most the 3 x 3 playable pairings, plus one more each time debug
-  2504 or RESET LEARNING forgets the cells.
+- **The pool** (review F1, ruling R27): the leaked structures are kept in `Search.fq_pool`, keyed by (me, vs, library entry). A cell made
+  again after debug 2504 or RESET LEARNING reuses its structure. Its q come from the page (after a clear) or are the entry's fresh ones
+  (after RESET LEARNING), never the forgotten cell's. The leak is bounded by the distinct keys: at most the 3 x 3 playable pairings
+  times the Q selectors the lookup gives them. It no longer grows with resets.
+  - One difference from the Lisp: a re-made cell is EQ to the forgotten one, where COPY-TREE makes a new object. Only a brain holding
+    the old copy across a reset could tell, and none does: 2504 starts a new match, and RESET LEARNING is a SETTINGS row.
+  - Test: `fq_pool_reuses_the_structure_across_resets` runs 10 rounds of a learned match, then a clear or a reset. The pool stays at 1,
+    the same structure is used every time, and the q start fresh or from the page. Reading the structure's own q in place of the
+    page's fails it (a mutation check, reverted).
 - Test: `duel-sim/tests/fq.rs` `fq_arena_no_leak` runs 100 learned matches in a row (the tool's force: both HARD CPUs learn in CPU vs
-  CPU, with a 3 s match timer). After the first match, the leak count (2), the cells (2) and their q's lengths and capacities stay the
+  CPU, with a 3 s match timer). After the first match, the pool (2), the cells (2) and their q's lengths and capacities stay the
   same, and every match is counted.
 - `page_roundtrip` now checks the in-place update: the same copy, new q in the cell, the leaked structure unchanged.
 - `learned_q_read_from_the_cell` checks the values, not just the sizes. A reference copy of the library's :FQ is updated in place by
@@ -1395,7 +1414,12 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
   - Counting starts the frame after the first rollout. That rollout makes the human's stand-in brain (`mcts::rollout_start`), which the
     scratch match keeps and reuses from then on.
   - Result: 0 allocations in 2,487 frames, from frame 2313 to 4800.
-- Allocations left by design: the `?log` lines, and FQ-MATCH-END's scratch value at a learned match's end (outside the battle).
+- Allocations left by design:
+  - the `?log` lines;
+  - FQ-MATCH-END's scratch value at a learned match's end (outside the battle);
+  - a HARD learner's FQ-NOTE records (`Brain.fql.recs`: one firing vector per judgement, M2 R8). The VS alloc test plays a NORMAL Ichigo,
+    so it covers no learner, and it counts only from the first rollout (frame 2313): the intro and the battle's first ~38 s are not
+    counted.
 
 ### Sizes and speed
 
@@ -1417,4 +1441,5 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
 - The page's other LOG-MSG lines (`duel -> …`, `duel match seed …`), if the console should match the frozen page beyond the combat log.
 - stills.py's key steps: with the keyboard, the cvc scenarios' Enter could stay (the SSIM table would then be re-measured).
 - A device loss drawn as a reason on the page (RF5's last case); today only the log shows it.
-- The screens' keys before SCREEN-FX-UPDATE (above): a hook in `flow::frame` if the one-frame difference on a pause press matters.
+- The screens' keys before the commands, SCREEN-FX-UPDATE and `ft`'s increment (above): carried to M3b as the after-`flow_update`
+  hook (R30), not Task 11's.
