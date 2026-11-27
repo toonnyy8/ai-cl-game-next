@@ -293,7 +293,7 @@ pub fn strat_fq_q_of(sets: &FzSets, fq: &Value, feats: &[(&str, Num)], q: Option
     let rules = arr(plist_get(fq, "rules"));
     let mut out = Qv { n, q: [0.0; MAX_ARMS] };
     // each rule's first q in the overlay (rules carry len - 1 q each)
-    let mut at = 0usize;
+    let mut qat = 0usize;
     let mut fire = |rs: &[Value], num: &mut [f32; MAX_ARMS]| -> f32 {
         let mut den = 0.0f32;
         for r in rs {
@@ -302,10 +302,10 @@ pub fn strat_fq_q_of(sets: &FzSets, fq: &Value, feats: &[(&str, Num)], q: Option
             if w > 0.0 {
                 den += w;
                 for (k, x) in num.iter_mut().enumerate().take(n.min(nq)) {
-                    *x += w * q.map_or_else(|| rule_q(r, k), |q| q[at + k]);
+                    *x += w * q.map_or_else(|| rule_q(r, k), |q| q[qat + k]);
                 }
             }
-            at += nq;
+            qat += nq;
         }
         den
     };

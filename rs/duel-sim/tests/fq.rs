@@ -49,7 +49,7 @@ fn page_roundtrip() {
     let learned = s.fq_tables[0].clone();
     assert!(learned.n == 1 && learned.st == c.st && learned.q != qs(lib));
     assert_eq!(qs(lib), qs(c.st)); // (the library entry and the copy's leaked structure are never written: the q are the cell's)
-    assert_eq!(s.fq_leaks, 1);
+    assert_eq!(s.fq_pool.len(), 1);
     let pg = fq_page_base(3, 1);
     assert_eq!(pg, 71000);
     let codes = fq_encode(&with_q(learned.st, &learned.q), base, 1, unit);
@@ -59,8 +59,8 @@ fn page_roundtrip() {
     s.fq_tables.clear();
     let i = fq_table(&mut s, 3, 1, lib, unit);
     let back = s.fq_tables[i].clone();
-    assert_eq!((back.n, qs(back.st), &back.q), (1, learned.q.clone(), &learned.q));
-    assert_eq!(fq_checksum(back.st.fq().unwrap(), unit), fq_checksum(&with_q(learned.st, &learned.q), unit));
+    assert_eq!((back.n, &back.q, back.st), (1, &learned.q, c.st)); // (the page's q in the cell; the pooled structure reused)
+    assert_eq!(fq_checksum(&with_q(back.st, &back.q), unit), fq_checksum(&with_q(learned.st, &learned.q), unit));
     assert_eq!(back.st.id(), lib.id());
     // (another offline table on the same page slot: fresh)
     s.fq_tables.clear();
@@ -169,7 +169,7 @@ fn fq_arena_no_leak() {
             assert!(frames < 60 * 60, "match {k} never reached RESULTS");
         }
         assert!(s.fq_tables.iter().all(|c| c.n == k + 1), "match {k}: every cell learned ({:?})", s.fq_tables.iter().map(|c| c.n).collect::<Vec<_>>());
-        let now = (s.fq_leaks, s.fq_tables.len(), s.fq_tables.iter().map(|c| (c.st, c.q.len(), c.q.capacity())).collect::<Vec<_>>());
+        let now = (s.fq_pool.len(), s.fq_tables.len(), s.fq_tables.iter().map(|c| (c.st, c.q.len(), c.q.capacity())).collect::<Vec<_>>());
         match &sizes {
             None => sizes = Some(now),
             Some(first) => assert_eq!(&now, first, "match {k}: the arena grew"),
@@ -239,4 +239,43 @@ fn learned_q_read_from_the_cell() {
             }
         }
     }
+}
+
+/// Ruling R27: the copies' structures are pooled by (me, vs, library entry). Ten rounds of one pairing, each a learned match then a
+/// forgetting (debug 2504's `fq_tables.clear()` on odd rounds, RESET LEARNING on even ones): the pool holds one structure throughout,
+/// every cell made again is that structure, and its q start where FQ-TABLE says: after RESET LEARNING the entry's fresh q (the page's
+/// length 0), after a clear the page's learned q with their match count, never the forgotten cell's own (a stale-q slip fails here).
+#[test]
+fn fq_pool_reuses_the_structure_across_resets() {
+    let m = Match::new(data());
+    let mut s = Search::new();
+    let unit = m.knobs.fq_unit;
+    let lib = strat_by_id(data(), "q1-ichigo-ken").unwrap();
+    let base = lib.fq().unwrap();
+    let feats = [("lead", I(-1)), ("ored", I(0)), ("ost", I(0)), ("awk", I(0)), ("prev", I(0))];
+    let fire = strat_fq_fire(&m.knobs.fz_sets, base, &feats);
+    let mut st0 = None;
+    let mut m = m;
+    for round in 0..10 {
+        let i = fq_table(&mut s, 3, 1, lib, unit);
+        let st = *st0.get_or_insert(s.fq_tables[i].st);
+        assert_eq!((s.fq_tables[i].st, s.fq_pool.len()), (st, 1), "round {round}: the pooled structure");
+        let before = s.fq_tables[i].clone();
+        m.fq_end.push(FqEnd { fql: Fql { me: 3, vs: 1, base, recs: vec![(fire.clone(), 0, 1.0), (fire.clone(), 1, 0.5)] }, h: 0.25, won: 1.0 });
+        fq_match_end_apply(&mut m, &mut s);
+        let learned = s.fq_tables[0].clone();
+        assert!(learned.q != before.q && learned.n == before.n + 1, "round {round}: learned");
+        if round % 2 == 1 {
+            s.fq_tables.clear(); // (debug 2504: the cells forgotten, the page kept)
+            let i = fq_table(&mut s, 3, 1, lib, unit);
+            assert_eq!((&s.fq_tables[i].q, s.fq_tables[i].n), (&learned.q, learned.n), "round {round}: the page's q after a clear");
+            s.fq_tables.clear();
+        } else {
+            fq_reset_all(&m, &mut s); // (RESET LEARNING: the page's lengths 0)
+            let i = fq_table(&mut s, 3, 1, lib, unit);
+            assert_eq!((&s.fq_tables[i].q, s.fq_tables[i].n), (&qs(lib), 0), "round {round}: the fresh q after a reset");
+            fq_reset_all(&m, &mut s);
+        }
+    }
+    assert_eq!(s.fq_pool.len(), 1);
 }

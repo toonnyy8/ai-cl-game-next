@@ -4,15 +4,18 @@
 //!
 //! **The copy's identity** (M2 ledger T5). A player's copy is a fresh plist (FQ-TABLE: COPY-TREE of the library entry, or the page's
 //! q in a copy), so BRAIN-STRAT, BRAIN-SW-SUB and :PREV's POSITION hold objects EQ to no library entry, and FQ-MATCH-END updates it in
-//! place. The port leaks the copy's structure once, when its cell is made (`fq_table`): `Strat` stays a Copy pointer compared by
-//! `ptr::eq` (a library entry's case unchanged), and the copy's arms are values of their own, as COPY-TREE's. Its q values, the only
-//! part FQ-MATCH-END writes, live in the cell (`FqCell.q`, the arena `Search` owns, M3a Task 10): STRAT-JUDGE reads them from there
-//! (`strat_judge`'s override), and FQ-MATCH-END updates them in place, so the copy keeps its identity across matches as the Lisp's
-//! does and a learned match leaks nothing. Nothing writes a copy during a match (the TD update runs only from GO-RESULTS, which returns
-//! in a rollout), so the Lisp snapshot's walk into the copy's conses has nothing to undo (M2 ledger T2, docs/bevy/M2_NOTES.md §1 and
-//! §8). The leaked structure's own q are the cell's at its making, never read once the cell exists.
-//! ponytail: one structure leaked per cell made (at most the 3 x 3 playable pairings; again after debug 2504 or RESET LEARNING forget
-//! the cells): a pool keyed by (me, vs, library entry) if a session's resets ever matter.
+//! place. The port leaks the copy's structure once per (me, vs, library entry) and keeps it in a pool (`Search.fq_pool`, ruling R27):
+//! a cell made again for the same key (after debug 2504 or RESET LEARNING forget the cells) reuses it. `Strat` stays a Copy pointer
+//! compared by `ptr::eq` (a library entry's case unchanged), and the copy's arms are values of their own, as COPY-TREE's. Its q values,
+//! the only part FQ-MATCH-END writes, live in the cell (`FqCell.q`, the arena `Search` owns, M3a Task 10): STRAT-JUDGE reads them from
+//! there (`strat_judge`'s override), and FQ-MATCH-END updates them in place, so the copy keeps its identity across matches as the
+//! Lisp's does and neither a learned match nor a reset leaks. Nothing writes a copy during a match (the TD update runs only from
+//! GO-RESULTS, which returns in a rollout), so the Lisp snapshot's walk into the copy's conses has nothing to undo (M2 ledger T2,
+//! docs/bevy/M2_NOTES.md §1 and §8). The pooled structure is the library entry's copy; its own q are never read (a cell's q are its
+//! own: the page's when loaded, else the entry's).
+//! The one difference from the Lisp: a cell made again after a reset is EQ to the forgotten one (the Lisp's COPY-TREE makes a new
+//! object). Only a brain holding the old copy across a reset could tell, and none does (2504 starts a new match; RESET LEARNING is a
+//! SETTINGS row, outside a match).
 use super::strategy::{fq_decode, fq_encode, fq_explore_arm, fq_td_update, fq_transitions, fq_u01, plist_get, strat_fq_fire, Strat};
 use super::{Brain, Search};
 use crate::components::{Character, Difficulty};
@@ -31,7 +34,7 @@ pub const PG_FQ: i64 = 40000;
 pub struct FqCell {
     pub me: i64,
     pub vs: i64,
-    /// The player's copy (its structure leaked once: see the module's header).
+    /// The player's copy (its structure pooled: see the module's header).
     pub st: Strat,
     /// The matches it learned from.
     pub n: i64,
@@ -126,15 +129,24 @@ fn roster(c: Character) -> i64 {
     c as i64
 }
 
-/// A leaked copy of the strategy plist LIB with its :FQ replaced by FQ (FQ-TABLE's `(list* :fq fq <lib's other entries>)`; the order of
-/// a JSON object's keys is GETF-neutral: no library plist repeats a key). The port's only leak of a copy (`Search.fq_leaks` counts).
-fn leak_with_fq(s: &mut Search, lib: &Value, fq: Option<Value>) -> Strat {
-    let mut copy = lib.clone();
-    if let Some(fq) = fq {
-        *copy.get_mut("fq").expect("a Q selector's :fq") = fq;
+/// One pooled structure: the copy of library entry LIB for roster indices ME / VS.
+#[derive(Clone, Copy, Debug)]
+pub struct FqShape {
+    pub me: i64,
+    pub vs: i64,
+    pub lib: Strat,
+    pub st: Strat,
+}
+
+/// The copy of the strategy plist LIB for ME / VS (FQ-TABLE's `(list* :fq fq <lib's other entries>)`, its q the cell's): the pooled one,
+/// else a new copy leaked into the pool. The port's only leak of a copy, bounded by the distinct keys (ruling R27).
+fn pooled_copy(s: &mut Search, me: i64, vs: i64, lib: Strat) -> Strat {
+    if let Some(p) = s.fq_pool.iter().find(|p| (p.me, p.vs, p.lib) == (me, vs, lib)) {
+        return p.st;
     }
-    s.fq_leaks += 1;
-    Strat(Box::leak(Box::new(copy)))
+    let st = Strat(Box::leak(Box::new(lib.0.clone())));
+    s.fq_pool.push(FqShape { me, vs, lib, st });
+    st
 }
 
 /// port: FQ-TABLE — the cell of the player's copy of LIB (the lookup's Q selector) for roster indices ME / VS: in memory, else the
@@ -151,8 +163,9 @@ pub fn fq_table(s: &mut Search, me: i64, vs: i64, lib: Strat, unit: i64) -> usiz
         None => (None, 0),
     };
     // log-msg: "duel fq load ME VS page|fresh matches M checksum C" (a console line: the trace's R line, never compared)
-    let st = leak_with_fq(s, lib.0, fq);
-    s.fq_tables.insert(0, FqCell { me, vs, st, n: m, q: q_of(st.fq().unwrap()) }); // (PUSH)
+    let st = pooled_copy(s, me, vs, lib);
+    let q = q_of(fq.as_ref().unwrap_or_else(|| lib.fq().unwrap())); // (the page's q, else the entry's: never a forgotten cell's)
+    s.fq_tables.insert(0, FqCell { me, vs, st, n: m, q }); // (PUSH)
     0
 }
 
