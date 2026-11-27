@@ -1,5 +1,5 @@
 //! The picture against the draw key (docs/bevy/M3A_NOTES.md §5-§8): `duel-tools draw --check` on the quiet, slowmo, forms, portrait
-//! and cinematic scenes, every array but `ui` (the canvas words) and `hb` / `hk` (M3b), the cosmetic RNG's state on every keyed frame. Each fails when the key is
+//! cinematic and battle scenes, every array but `hb` / `hk` (M3b), the cosmetic RNG's state on every keyed frame. Each fails when the key is
 //! missing (`$ORACLE`, else `build/oracle`); none skips.
 use std::process::Command;
 
@@ -7,8 +7,8 @@ fn oracle() -> String {
     std::env::var("ORACLE").unwrap_or_else(|_| concat!(env!("CARGO_MANIFEST_DIR"), "/../../build/oracle").into())
 }
 
-/// The arrays every scene here compares (R11's `cosrng_draw_order`: `rng`).
-const ARRAYS: &str = "fu,p,dq,fxa,fxb,ft,rng";
+/// The arrays every scene here compares (R11's `cosrng_draw_order`: `rng`; `ui`, the canvas words, since Task 8).
+const ARRAYS: &str = "fu,p,dq,fxa,fxb,ui,ft,rng";
 
 /// Runs `draw --check` on SCENE; asserts `draw OK` and 0 allocations a frame after frame 0.
 fn check(scene: &str) {
@@ -52,10 +52,12 @@ fn forms_draw_matches() {
     }
 }
 
-/// Review Focus 4: the 2501 battle scene at 390x844 (a narrow desktop window): the portrait camera and lens.
+/// Review Focus 4: the 2501 and 2005 battle scenes at 390x844 (a narrow desktop window): the portrait camera and lens, the intro's
+/// portrait dolly, the words' portrait lanes.
 #[test]
 fn portrait_scene_matches() {
     check("portrait-2501");
+    check("portrait-2005");
 }
 
 /// The cinematics, held at their last frames by CINE-AT / ICHIGO-CINE-AT or played through by KEN-CORE-DEBUG (draw-scenes.json): the
@@ -79,4 +81,14 @@ fn cines_match() {
 #[test]
 fn cine_portrait_matches() {
     check("cine-84094-portrait");
+}
+
+/// The two full battles (debug 2005 / 2006, seeded CPU vs CPU drawn from the roster: Ichigo vs Kenpachi, Ichigo vs Ichigo): the intro,
+/// every 10th frame of the first 60 s, the looks windows, the hitstop window (2005 frames 422-434, every frame: ruling R2), the slow
+/// motions drawn between sim frames (SLOW-DRAW's places feed the camera: M3A_NOTES §8), the mid-match Kikons and the awakening, the
+/// feedback, stamps, line cuts, hazard looks, words and world overlays: every look at once.
+#[test]
+fn battles_match() {
+    check("battle-2005");
+    check("battle-2006");
 }

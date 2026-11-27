@@ -498,7 +498,7 @@ impl<'d> Scene<'d> {
                 self.intro_weapon(m, a, 0);
                 let (kanji, reading) = brush_name(data, &kit(a).character);
                 let mut b = self.bcap(kanji);
-                (b.reading, b.sub, b.side) = (Some(reading), kit(a).intro_callout.as_deref(), 1);
+                (b.reading, b.sub, b.side, b.web) = (Some(reading), kit(a).intro_callout.as_deref(), 1, true);
                 self.caption(b);
             }
             120 => {
@@ -506,7 +506,7 @@ impl<'d> Scene<'d> {
                 self.impact("negative", 2.0);
                 let (kanji, reading) = brush_name(data, &kit(v).character);
                 let mut b = self.bcap(kanji);
-                (b.reading, b.sub, b.side) = (Some(reading), kit(v).intro_callout.as_deref(), 0);
+                (b.reading, b.sub, b.side, b.web) = (Some(reading), kit(v).intro_callout.as_deref(), 0, true);
                 self.caption(b);
             }
             _ => {}
@@ -544,7 +544,7 @@ impl<'d> Scene<'d> {
                 self.shot_on(m, a, 30.0, 3.0, 0.8, 1.3, 0.0, -0.8);
                 self.lens(42.0, 0.0);
                 let mut b = self.bcap("決着");
-                (b.reading, b.side) = (Some("K.O."), 1);
+                (b.reading, b.side, b.web) = (Some("K.O."), 1, true);
                 self.caption(b);
             }
             20 => self.lens(55.0, 0.0),
@@ -556,7 +556,7 @@ impl<'d> Scene<'d> {
     fn time_at(&mut self, cf: i64) {
         if cf == 0 {
             let mut b = self.bcap("時間切れ");
-            (b.reading, b.side) = (Some("TIME"), 0);
+            (b.reading, b.side, b.web) = (Some("TIME"), 0, true);
             self.caption(b);
             self.impact("negative", 2.0);
             self.sfx("ko", 1.0, 1.0);
@@ -750,5 +750,27 @@ impl CineLook for Scene<'_> {
     fn forms(&mut self, m: &mut Match, name: CineName, cf: i64, a: Entity, v: Entity, _step: bool) {
         self.apply_calls(m);
         self.cine_at(m, name, cf, a, v);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// tests/cine-test.lisp 43 / 44 (DURING runs in draw mode with U 0..1 across its range: `(during (1 3) …)` at frames 1 and 2 with
+    /// U 0 and 0.5, `(during (0 2 k) …)` at 0 and 1 with K 0 and 0.5) and 50 (CINE-CAM sets the shot's eye and target).
+    #[test]
+    fn cine_test_lisp_looks() {
+        let d: Vec<(i64, f32)> = (0..6).filter_map(|cf| during(cf, 1, 3).map(|u| (cf, u))).collect();
+        assert_eq!(d, [(1, 0.0), (2, 0.5)]); // 43
+        let k: Vec<f32> = (0..6).filter_map(|cf| during(cf, 0, 2)).collect();
+        assert_eq!(k, [0.0, 0.5]); // 44
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let inputs = crate::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0, safe_top: 0.0, safe_bottom: 0.0 };
+        let mut sc = Scene::new(data, inputs);
+        sc.cine_cam(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+        assert_eq!((sc.cine.cam, sc.cine.eye, sc.cine.target), (true, [1.0, 2.0, 3.0], [4.0, 5.0, 6.0])); // 50
+        sc.cine_stop_looks();
+        assert!(!sc.cine.cam); // (49's look half: END-CINE drops the shot)
     }
 }

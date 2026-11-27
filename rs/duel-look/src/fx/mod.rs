@@ -66,7 +66,7 @@ pub struct FxState<'d> {
     pub stage: crack::StageFx,
     /// The stamps (vfx-stamps.lisp).
     pub stamps: stamps::Stamps,
-    /// cinema.lisp `*ui-flash*`: r g b alpha fade (the canvas draws it: task 8).
+    /// cinema.lisp `*ui-flash*`: r g b alpha fade (the canvas draws it: `canvas.rs`).
     pub ui_flash: [f32; 5],
     pub knobs: Knobs,
     pub ken: hazard::KenKnobs,

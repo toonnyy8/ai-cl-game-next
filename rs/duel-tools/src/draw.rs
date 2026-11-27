@@ -5,7 +5,8 @@
 //! frame is the game loop's three calls: `flow::frame` (dt `raw_dt` of the next pump), `duel_look::draw_frame`, `flow::frame_end`.
 //! Key frame F is pump F + 1. `--arrays`: the arrays compared (default `fu,p,dq,fxa,fxb,ui,ft,rng`; `hb` / `hk` are M3b's and never
 //! compared here). Nothing is masked: every float of a compared array is compared (Task 7 removed the last test-only mask).
-//! Tolerance: `|a - b| <= 1e-5 max(1, |b|)` per float; a record count, a stream length, a mesh id and the RNG state exactly.
+//! Tolerance: `|a - b| <= 1e-5 max(1, |b|)` per float (`--exact`: bit for bit); a record count, a stream length, a mesh id and the RNG
+//! state exactly.
 //! Prints `draw OK <scene> <frames>` (exit 0) or the first mismatch (scene, frame, array, index, both values; exit 1), a line with
 //! the largest error per array, and the heap allocations: the whole frame's (sink and draw included) in the frames after frame 0
 //! that run no command (the combat log off after the commands' frame, as the sim's 0-alloc gate), and `draw_frame`'s alone in every
@@ -20,7 +21,7 @@ use duel_sim::state::Match;
 use std::collections::BTreeMap;
 use std::process::ExitCode;
 
-pub const USAGE: &str = "duel-tools draw --check FILE.bin [--arrays fu,p,dq,fxa,fxb,ui,ft,rng] [--frames A-B] [--data DIR]";
+pub const USAGE: &str = "duel-tools draw --check FILE.bin [--arrays fu,p,dq,fxa,fxb,ui,ft,rng] [--frames A-B] [--exact] [--data DIR]";
 const ARRAYS: [&str; 9] = ["fu", "p", "dq", "fxa", "fxb", "ui", "ft", "hb", "hk"];
 
 /// One keyed frame of the key: its number, `*tick*`, the RNG state and the nine arrays.
@@ -70,10 +71,12 @@ struct Opts {
     arrays: Vec<String>,
     frames: Option<(u32, u32)>,
     data: Option<String>,
+    /// `--exact`: every float bit for bit (no tolerance).
+    exact: bool,
 }
 
 fn parse_args(a: &[String]) -> Result<Opts, String> {
-    let mut o = Opts { file: String::new(), arrays: "fu,p,dq,fxa,fxb,ui,ft,rng".split(',').map(String::from).collect(), frames: None, data: None };
+    let mut o = Opts { file: String::new(), arrays: "fu,p,dq,fxa,fxb,ui,ft,rng".split(',').map(String::from).collect(), frames: None, data: None, exact: false };
     let mut it = a.iter();
     let list = |v: Option<&String>| -> Result<Vec<String>, String> { Ok(v.ok_or("a flag without its value")?.split(',').filter(|s| !s.is_empty()).map(String::from).collect()) };
     while let Some(x) = it.next() {
@@ -81,6 +84,7 @@ fn parse_args(a: &[String]) -> Result<Opts, String> {
             "--check" => o.file = it.next().ok_or("--check without FILE")?.clone(),
             "--arrays" => o.arrays = list(it.next())?,
             "--data" => o.data = Some(it.next().ok_or("--data without DIR")?.clone()),
+            "--exact" => o.exact = true,
             "--frames" => {
                 let v = it.next().ok_or("--frames without A-B")?;
                 let (a, b) = v.split_once('-').ok_or("--frames A-B")?;
@@ -139,9 +143,9 @@ fn scene_entry(file: &str) -> Result<SceneEntry, String> {
     Ok((name, cmds, inputs, val("one-hand")? != "NIL"))
 }
 
-fn close(a: f32, b: f32) -> (bool, f64) {
+fn close(a: f32, b: f32, exact: bool) -> (bool, f64) {
     let e = (a as f64 - b as f64).abs() / f64::max(1.0, (b as f64).abs());
-    (e <= 1e-5 || (a.is_nan() && b.is_nan()), e)
+    (if exact { a.to_bits() == b.to_bits() } else { e <= 1e-5 } || (a.is_nan() && b.is_nan()), e)
 }
 
 /// The comparison's running result.
@@ -151,6 +155,7 @@ struct Cmp {
     floats: u64,
     /// Floats compared per array.
     count: BTreeMap<&'static str, u64>,
+    exact: bool,
 }
 
 impl Cmp {
@@ -162,7 +167,7 @@ impl Cmp {
             return self.fail(format!("{scene} frame {frame} {arr}: {} floats, key {}", got.len(), want.len()));
         }
         for (i, (a, b)) in got.iter().zip(want).enumerate() {
-            let (ok, e) = close(*a, *b);
+            let (ok, e) = close(*a, *b, self.exact);
             self.floats += 1;
             *self.count.entry(arr).or_insert(0) += 1;
             let w = self.worst.entry(arr).or_insert(0.0);
@@ -227,7 +232,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let mut s = Search::new();
     let mut sc = Scene::new(data, inputs);
     let mut out = FrameOut::default();
-    let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0, count: BTreeMap::new() };
+    let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0, count: BTreeMap::new(), exact: o.exact };
     let (mut allocs, mut counted, mut compared, mut ki, mut draw_allocs) = (0u64, 0u64, 0u32, 0usize, 0u64);
     let mut got_dq: Vec<f32> = Vec::new();
     let paths = data.mesh_ids();

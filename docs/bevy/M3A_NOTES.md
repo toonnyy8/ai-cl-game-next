@@ -542,8 +542,8 @@ a phase is the Lisp's call order there; Tasks 5-8 pin it against the key's per-f
 
 ### For later tasks
 
-- **CINE-AT's interleaving (Task 8).** `CineAt.pre` holds the actors before the script ran. A look form that comes after a sim form in
-  the same frame (FACE-EACH-OTHER, CINE-PLACE) sees moved actors. Task 8 replays the script's sim forms on a copy, in order.
+- **CINE-AT's interleaving (Task 8; superseded by ruling R9, §8).** `CineAt.pre` held the actors before the script ran; Task 8 runs
+  the look forms inline after the sim forms instead (`CineLook`), and `CineAt` (no `pre`) is only START-CINE's queued frame 0.
 - **The menus' idle clips** (`main.lisp:135`: ANIM-ADVANCE by RDT when not running, the fighters alive and not paused) are the drawer's
   (Task 10's page; M3b's menus).
 - **Not queued:** debug PLACE's FX-CLEAR and its model flash / super reset (a debug helper); KEN-BANKAI-CINE's MODEL-BODY swap (a
@@ -842,3 +842,116 @@ position / yaw half stays Task 8's (§5).
   - the echo and flare looks, the beat, a planted weapon (no in-scope move is `:planted`).
 
   Task 8's battle keys check the reached ones' floats.
+
+## 8. The cinematics, the canvas words, the full battles (Task 8)
+
+`rs/duel-look/src/cine/` (`mod.rs`: the director's looks, the shot helpers, the cinematic camera, the generic scripts; `ken.rs`,
+`ichigo.rs`: the kits' scripts and their looks), `rs/duel-look/src/canvas.rs` (the canvas part of HUD-DRAW, brush.lisp's glyphs and
+captions, the big words, fx-shapes.lisp's UI punctuation, ui.lisp's shapes); `rs/duel-sim/src/cine.rs` / `debug.rs` / `look.rs`
+(the hook, the hold, the scene commands).
+
+**Result: bit-exact.** All 41 scenes of the key match on every array but `hb` / `hk` (`fu,p,dq,fxa,fxb,ui,ft` and the cosmetic RNG's
+state on every keyed frame), with no mask, the largest |a − b| / max(1, |b|) 0 everywhere, 0 heap allocations a frame: the 20
+cinematic scenes and `cine-84094-portrait`, both battles (`battle-2005`, `battle-2006`: 491 and 552 keyed frames, the hitstop window
+422-434 every frame) and `portrait-2005`, and again the quiet, slowmo, forms and portrait scenes, now with `ui`. Tests:
+`rs/duel-tools/tests/draw.rs` `cines_match`, `cine_portrait_matches`, `battles_match` (and the earlier four with `ui` added).
+
+### The cinematics' look hook (ruling R9)
+
+- **`duel_sim::look::CineLook`** (`forms(m, name, cf, a, v, step)`, default nothing; `LookSink: CineLook`). CINE-STEP calls it right
+  after the step-mode script's sim forms of frame CF (`cine_step(m, look)`, from `sim_core` with the step's sink; `sim_step_lean` and the
+  headless path pass `NoLook`); CINE-DRAW right after its draw-mode sim forms (`cine_draw(m, look)`; `draw_frame` passes a
+  `cine::CineDraw { sc, out, dt }`, which draws the DURING forms into the frame). `Scene`'s step-mode `forms` first applies the step's
+  queued immediate calls (`Scene::apply_calls`, the amended R9), then the AT forms.
+- **One call after the sim forms is the Lisp's order.** In every in-scope script (the 4 generic, 9 Kenpachi, 8 Ichigo), checked form by
+  form, the forms that move an actor (FACE-EACH-OTHER, CINE-PLACE, KE-KK-LINE / -AT / -YAW, 血鎖's reel-in) come before the look forms of
+  the same AT / DURING / `(when step-p …)` call that read the actors; a look form before them (a CARD, a CAPTION-EXIT, a CINE-CLIP) reads
+  no place. So no script's sim forms are replayed on a copy (the M3A_NOTES §4 bullet that planned one is superseded).
+- **START-CINE's frame 0 is queued** (`LookEvent::CineAt { name, cf: 0, a, v }`, pushed after the script's frame-0 sim forms; it lost its
+  `pre` field): START-CINE runs inside a debug command or a system (HIT-SYSTEM's SETTLE-SOULS, an awakening, TIME-UP, MATCH-OVER inside
+  END-CINE's AFTER) where no sink is reachable without threading one through every system. The sink runs the same `Scene::cine_at` at that
+  place in the queue, reading the live match. It sees what the Lisp's inline forms saw: after START-CINE in a system nothing moves the
+  actors in the rest of the step (`m.cine` set: HAZARD-, HIT-, GAUGE- and MATCH-SYSTEM are skipped; CORE-XCH-STEP moves no place; the
+  other fighter's FIGHTER-SYSTEM step is a halted `:cine` state); a debug command's START-CINE is its last form but the hold. The queue
+  keeps the order of the calls around it (END-CINE's `CineStop` / `CineEndLook` before a K.O.'s KO-CINE frame 0).
+- **The commands' calls before SCREEN-FX-UPDATE.** engine/lisp/app.lisp RUN-FRAME runs the debug commands after BEGIN-FRAME and before
+  GAME-FRAME, so a cinematic a command starts has made its frame-0 calls (a FREEZE, a HOLD-POSE) before SCREEN-FX-UPDATE runs them down.
+  `LookSink::frame_begin` now takes `&mut Match` and `Scene` applies the queued calls first (found by cine-soul-break: its 6-frame freeze
+  lasted one frame too long; `duel-sim` change, the gates rerun).
+- **`FrameOut` in the sink (Task 6's carry): not needed.** No step-mode form writes a frame array: they start particles, stamps, rings,
+  stage marks and debris, a shake, set the grade, the environment, a caption, the UI flash, and store a splash's or the focus lines'
+  screen point (WORLD-TO-SCREEN on the camera as it stands: END-FRAME's update, which BEGIN-FRAME's UPDATE-CAMERA repeats unchanged). The
+  sink draws through `Em`.
+
+### The hold and the scene commands (ruling R7)
+
+- `Cine.hold` and `Match.cine_hold` (`*cine-hold*`): START-CINE takes the script's `:hold` while `cine_hold` (`CineName::hold_frame`), and
+  `skip_cines` ends a cinematic only when not held; CINE-STEP stands still at or past the hold (no frame, no script, no actor step, no
+  end); DEBUG-COMMAND clears `cine_hold` unless CINE-STILL-COMMAND-P (2200-2299, 10000-19999, 35000-35999). The draw side: CINE-HELD-P
+  in FX-FROZEN-P and in `frame_begin`'s SCREEN-FX-UPDATE dt.
+- `debug.rs`: FORCE-CINE (2200+k) and CINE-AT (10000 + 1000 k + f; 35000 + f for k 9) for `*cine-names*` 1 6 7 8 9 (a retired kit's k:
+  `unported!`); ICHIGO-CINE-AT (75000 + 80 i + k at frame 3k; 86110 the 超速連斬 at 40; `IcCine::Haste` added, its sim forms FACE-EACH-OTHER
+  2.6 / 3.2); KEN-CORE-DEBUG's played Kikons 84094 / 84095 (on 84001), 84096 / 84097 (on 84004 / 84005, 4 souls, CINE-STAGE), 84006-84008
+  (on 84000, 3 souls, CINE-STAGE); 2000+seed: START-CVC's two `sim-rnd01` draws over PLAYABLE-ROSTER (`*roster*` less `*retired*`: seed 5
+  Ichigo vs Kenpachi, seed 6 Ichigo vs Ichigo).
+
+### The looks
+
+- **The cinematic camera** (`Scene::cine_camera`, DUEL-CAMERA's `*cine-cam*` branch): the shot's eye and target, %PORTRAIT-DOLLY on a
+  tall window (the lens at least `*pt-cine-fov*`, the dolly-back held in the arena ring; a close-up keeps the script's lens), %KEEP-SUBJECT
+  (the SHOT-ON subject's posed pelvis, its last drawn joints), `*cam-cut*`, %ROLL-UP's dutch up vector, the punch-in's clock. It runs
+  while `CineLooks.cam`, so a cinematic frame before its first shot (soul break's 0-5, a Kikon's beat 0) keeps the duel camera, as the
+  Lisp's `*cine-cam*` test does. `Scene.unported_camera` keeps only the menus' camera (M3b); `scene_draw_no_alloc` now allows nothing else.
+- **The director's looks** (START-CINE, CINE-BEGIN, END-CINE, CINE-END): `CineLooks` holds the shot, `*dutch*`, `*lens-fov*`,
+  `*cine-close*`, `*cine-subject*`, `*card*` / `*card-only*`, `*cine-grade*` (SCREEN-FX-UPDATE brings it back after an impact frame),
+  `*caption*` / `*caption-out*`, `*splash-args*`, `*aura-off*` and CINE-SCALE. A card skips STAGE-DRAW and draws only its actor; CINE-END
+  restores the lens, the up vector, STAGE-ENV and clears the screen punctuation. FORM-GRADE's :spot path is ported (no in-scope kit has
+  one; the `unported` note left). SILHOUETTE-BLACK is called by no in-scope script (not ported).
+- **Model slots a cinematic sets:** the body (the Bankai's kneel in the base body), the weapon, `*aura-off*`, and IC-KESSA-CINE's HIDE-SETs
+  that are no kit's list (`Model.hide_x`, cleared by REFRESH-LOOK).
+- **Floats that go through the long-float pi** (as Task 7's IC-MIST): VFX-IC-CHAIN-BIND's arc `(* 0.9 (sin (* pi s)) (- 1.0 s))` and
+  VFX-IC-C-CUT's band thickness `(expt (max 0.0 (sin (* pi u))) 0.6)`, and every C point built on it, are doubles rounded once by FX-LINE's
+  F32; where the sine is 0 MAX keeps its single 0.0 and the point is single arithmetic (`duel_sim::math::pow_d` added). CL MOD of singles
+  is ECL's `(p − floor p) · y` (`duel_sim::cl::mod_f32`): the impact splash's seed, KEN-FOREST's petals, the caption splash's seed.
+- **The canvas** (`Scene::hud_canvas`, after AURA-CAP-UPDATE at HUD-DRAW's place): the UI flash (faded by CINE-DT: HUD-DT), the impact
+  splash and the focus lines (a clash's on its world point now), the letterbox and brush title of a cinematic whose 2D layer is the canvas's
+  (not the intro's, the K.O.'s or TIME's: WEBHUD-CINE-P), an ended title slicing out unless it was such a cinematic's (`Bcap.web`, the
+  port of `*web-caption*`, which WEBHUD-SYNC sets to the running web cinematic's caption), the battle's world overlays (HUD-RUSH-LINES;
+  HUD-WORLD's red soul flame, drawn into `ft`; PERFECT HINT's HOHO! for a human with the setting on is `unported`: the settings are M3b),
+  the big words (ANNOUNCE from the feedback, DRAW-WORDS; `*panel-box*` is all zeros since the canvas HUD left). The cinematics' own UI
+  looks (KEN-FOREST, KE-GLASS, KE-RIFT-BAND, VFX-SKY-SPLIT) draw from CINE-DRAW, before it, as in the Lisp. Glyphs: BRUSH-INIT's EAR-CLIP
+  of glyphs.json once in `Scene::new`; DRAW-BCAP with the stamp's zoom and shake, the splash, the hanko, the reading, the chapter line and
+  the slice exit (%GLYPH-TRIS-CLIP).
+
+### Two earlier-task bugs the cinematics found
+
+- **The stamp seed (Task 6):** STAMP's `(mod (+ *stamp-seed* 7.31) 40.0)` was `sd − 40`; ECL's float MOD rounds differently (3.8600016 vs
+  3.8600006), inside the tolerance as a value but a hash seed for the stamp's star: cine-84096 frame 100's Konpaku star drew rotated.
+- **GRIP-LEFT!'s %ROT-COLS! is a no-op in the Lisp** (a variable capture: DIVERGENCES §1, to rule on): the two-handed grip moves only the
+  left arm's joint origins. Ported as is (cine-84097 frame 25: with the rotations the left upper arm missed by 7.9e-2). Task 7's port
+  rotated the columns; no earlier key drew a grip.
+
+### SLOW-DRAW's position half (Task 5's carry), proved by mutation
+
+On the battles' slow motions (battle-2005's first at frames 366-407, every 10th keyed; the looks window 583-600 inside 542-624):
+- with `slow.rs`'s place / yaw interpolation removed (the drawn place = the sim's, the clip rewind kept): `battle-2005 frame 410 fu[12]:
+  -0.5020692 key -0.5107775` (the camera eye, carried by the smoothing past the slow motion's end) and, run on 583-600 alone, `frame 583
+  dq[3072]: 0.7837914 key 0.7888575` (a fighter drawn at the sim's yaw);
+- with `Scene::pair` reading the sim's places instead of the drawn ones (DUEL-CAMERA not fed by SLOW-DRAW): `battle-2005 frame 410
+  fu[12]` the same, `battle-2006 frame 410 fu[1]: 0.035871245 key 0.035055127`, `portrait-2005 frame 420 fu[0]`.
+
+Restored, all pass.
+
+### Coverage left
+
+- TIME-CINE has no key (no keyed match runs out its timer); its looks are ported from source.
+- The keyed cinematics hold 3 Ichigo scripts short of their ends (`draw-scenes.json`); the battles play the heavy and rush Kikons and the
+  awakening through.
+- `unported` paths left: a kit's `:intro-weapon` (Yamamoto's cane), PERFECT HINT's HOHO!, FORM-GRADE's :spot (no in-scope kit), the menus'
+  camera (M3b).
+
+### For later tasks
+
+- Task 9 / 10: the page's loop is unchanged (three calls); `draw_frame` now also draws the canvas words. The dev text line replaces only
+  the Lisp HUD (`hb` / `hk`). `Scene.sounds` gains `Play`'s pitch and `Silence`.
+- M3b: the Lisp HUD and its pause grade, the menus' camera, PERFECT HINT (the settings), the one-hand stick.

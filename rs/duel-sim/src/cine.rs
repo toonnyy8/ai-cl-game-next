@@ -353,4 +353,27 @@ mod tests {
         crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
         assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle)); // *skip-cines*: ended at once, AFTER ran
     }
+
+    /// tests/cine-test.lisp's checks deferred from M1 (the debug hold and the actor hook), on the INTRO script: 76 (CINE-HOLD-FRAME is
+    /// the script's `:hold`), 56 (with `*cine-hold*` it stops at that frame), 59 (released, it runs to its end), 47 (the actor hook: two
+    /// actor steps a cinematic step, none while held). (43 / 44 DURING, 50 the shot's eye: duel-look `cine::tests`.)
+    #[test]
+    fn cine_test_lisp_hold() {
+        let mut m = crate::hashline::tests::new_match();
+        crate::flow::go_title(&mut m);
+        (m.picks, m.mode, m.cine_hold) = ([Character::Kenpachi, Character::Ichigo], crate::state::Mode::CpuCpu, true);
+        crate::flow::start_match(&mut m, &mut crate::cpu::Search::new());
+        assert_eq!(m.cine.as_ref().and_then(|c| c.hold), Some(200)); // 76: (cine-hold-frame 'intro-cine), started under *cine-hold*
+        m.looks.clear();
+        let actor = |m: &Match| m.looks.v.iter().filter(|e| matches!(e, LookEvent::CineActorStep { .. })).count();
+        for _ in 0..260 {
+            cine_step(&mut m, &mut crate::look::NoLook);
+        }
+        assert_eq!((m.cine.as_ref().map(|c| c.cf), actor(&m)), (Some(200), 400)); // 56: stopped at its hold frame; 47
+        (m.cine.as_mut().unwrap().hold, m.cine_hold) = (None, false);
+        while m.cine.is_some() {
+            cine_step(&mut m, &mut crate::look::NoLook);
+        }
+        assert_eq!((m.flow, actor(&m)), (Flow::Battle, 2 * 300)); // 59: it ran on to its end; 47: 2 actors x 300 steps
+    }
 }

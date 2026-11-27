@@ -6,7 +6,7 @@ use duel_sim::components::Flow;
 use duel_sim::cpu::Search;
 use duel_sim::flow::{self, InRollout, NoInput};
 use duel_sim::hashline::state_hash_line;
-use duel_sim::look::{CineLook, LookSink};
+use duel_sim::look::LookSink;
 use duel_sim::state::Match;
 use duel_sim::time::STEP;
 

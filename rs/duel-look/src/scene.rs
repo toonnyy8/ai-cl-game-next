@@ -163,7 +163,7 @@ pub struct Scene<'d> {
     pub models: Vec<Model<'d>>,
     /// SLOW-SNAPSHOT's `*slow-was*`: entity -> x y z yaw before the last sim frame.
     pub slow_was: Vec<(Entity, [f32; 4])>,
-    /// `*cine-time-scale*` (CINE-SLOW: Task 8; CINE-END resets it).
+    /// `*cine-time-scale*` (CINE-SLOW; CINE-END resets it).
     pub cine_time_scale: f32,
     pub cos: CosRng,
     /// The draw side (camera, environment, post globals, stage): `draw::draw_frame`'s.
@@ -177,13 +177,16 @@ pub struct Scene<'d> {
     pub hums: [bool; 2],
     /// The fighters' draw state outside MODEL (the mesh ids, proportions, knobs, the kits' per-side look state).
     pub fl: crate::draw::fighter::FighterLooks<'d>,
-    /// A cinematic's draw scale and aura-off actor (CINE-SCALE, `*aura-off*`: Task 8 writes them).
+    /// The cinematic look state (cine/: the shot, the lens, the card, the grade, the captions, CINE-SCALE, `*aura-off*` …).
     pub cine: crate::cine::CineLooks<'d>,
     /// camera.lisp's cinematic knobs.
     pub cine_knobs: crate::cine::CineCamKnobs,
+    /// brush.lisp `*glyphs*` (BRUSH-INIT) and hud.lisp `*words*` (the big words, newest first).
+    pub glyphs: crate::canvas::Glyphs,
+    pub words: Vec<crate::canvas::Word<'d>>,
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
-    /// The cameras not ported yet (a cinematic's shots: Task 8; the menus': M3b), kept apart from `unported` so a frame that reaches
+    /// The cameras not ported yet (the menus': M3b), kept apart from `unported` so a frame that reaches
     /// one still reports any other look it misses. The page shows either.
     pub unported_camera: Option<&'static str>,
 }
@@ -205,6 +208,8 @@ impl<'d> Scene<'d> {
             fl: crate::draw::fighter::FighterLooks::new(data),
             cine: crate::cine::CineLooks::default(),
             cine_knobs: crate::cine::CineCamKnobs::new(data),
+            glyphs: crate::canvas::Glyphs::new(data),
+            words: Vec::with_capacity(crate::canvas::WORDS_MAX),
             unported: None,
             unported_camera: None,
         }
@@ -345,7 +350,7 @@ impl<'d> Scene<'d> {
                 }
             }
             LookEvent::Music { .. } | LookEvent::MusicStop { .. } => {} // M3b: sound
-            LookEvent::ClearWords => {}                                  // task 8: the canvas words
+            LookEvent::ClearWords => self.words.clear(),
             LookEvent::FxClear => self.fx_clear(),
             LookEvent::StageClearCracks => self.fx.stage.clear_cracks(),
             LookEvent::UiFlash { r, g, b, a, fade } => self.fx.ui_flash = [r, g, b, a, fade],

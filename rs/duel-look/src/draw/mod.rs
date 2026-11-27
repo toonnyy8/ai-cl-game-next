@@ -95,7 +95,7 @@ impl Scene<'_> {
         }
     }
 
-    /// port: camera.lisp DUEL-CAMERA (A = P1, B = P2 as PR gives them): a cinematic's shot (task 8), the portrait camera (a tall
+    /// port: camera.lisp DUEL-CAMERA (A = P1, B = P2 as PR gives them): a cinematic's shot (`Scene::cine_camera`, the caller's), the portrait camera (a tall
     /// window, whatever the mode) or the landscape ones. A path not ported yet sets `unported` (the page shows it) and leaves the camera where it was.
     pub(crate) fn duel_camera(&mut self, pr: &Pair, rdt: f32, snap: bool) {
         let aspect = self.aspect();
@@ -155,11 +155,12 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     if !m.turbo {
         let cdt = if fx_frozen_p(sc, m) { 0.0 } else { rdt }; // (CINE-DT: unscaled)
         draw_scene(sc, m, fdt, cdt, out);
-        // HUD-DRAW (M3b) unless turbo; its first form, AURA-CAP-UPDATE (hud-screens.lisp), sets the next frame's `*aura-cap*` from
-        // the drawn places (before SLOW-DRAW-END), HUD or not (ruling R4)
+        // HUD-DRAW unless turbo: its first form, AURA-CAP-UPDATE (hud-screens.lisp), sets the next frame's `*aura-cap*` from the drawn
+        // places (before SLOW-DRAW-END; ruling R4), then its canvas part (`canvas.rs`); the Lisp HUD it draws next is M3b
         let alive = |e: Entity| m.ents.alive(e) && m.fighter.get(e).is_some();
         let pq = (alive(m.p1) && alive(m.p2)).then(|| (sc.drawn_pos(m, m.p1), sc.drawn_pos(m, m.p2)));
         crate::fx::vfx::aura_cap_update(&mut sc.fx.aura_cap, pq);
+        sc.hud_canvas(m, out, cdt); // (the canvas part of HUD-DRAW: its HUD-DT is CINE-DT's; the Lisp HUD is M3b)
     }
     slow::end(sc, m);
     end_frame(sc, out);

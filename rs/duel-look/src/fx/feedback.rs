@@ -1,7 +1,7 @@
 //! port: duel/lisp/feedback.lisp FEEDBACK-SYSTEM — every event a step emitted, shown oldest first (the sink's second pass): the
 //! stamps and scraps, the shake, the screen punctuation, the stage's marks, the sounds (collected in `Scene.sounds`), and
 //! ken-art.lisp's Bankai bursts, and the model looks the fighters' draw shows (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, START-GHOST,
-//! FACE-BEAT: draw/fighter.rs). The big words (ANNOUNCE) and the HUD's cues are the canvas' / HUD's (task 8, M3b).
+//! FACE-BEAT: draw/fighter.rs). The big words (ANNOUNCE) are the canvas' (`canvas.rs` draws them); the HUD's cues are M3b's.
 use super::crack::{stage_debris, stage_mark};
 use super::screen::{focus_lines, impact_frame, shake};
 use super::shapes::{PAL_BLOOD, PAL_DUST, PAL_HIT};
@@ -112,7 +112,8 @@ impl<'d> Scene<'d> {
             stage_debris(&mut self.em(), x, z, 3, 1.0);
         }
         if counter {
-            impact_frame(&mut self.draw, "manga", 2.0); // task 8: ANNOUNCE "COUNTER"
+            impact_frame(&mut self.draw, "manga", 2.0);
+            self.announce("COUNTER", None, [0.82, 0.06, 0.11, 1.0], 0.6, true, None);
         }
     }
 
@@ -164,7 +165,9 @@ impl<'d> Scene<'d> {
                 let p = pos_of(m, att);
                 vfx_kikon_rush(&mut self.em(), p[0], p[2]);
                 self.sfx_on(m, "whoosh-heavy", att, 1.0, 0.6);
-                focus_lines(&mut self.draw, 10.0); // task 8: ANNOUNCE "KIKON"
+                focus_lines(&mut self.draw, 10.0);
+                let sub = if duel_sim::round::kikon_ready_p(m, att) { None } else { Some("GUARD IT!") };
+                self.announce("KIKON", sub, [0.82, 0.06, 0.11, 1.0], 0.6, true, None);
             }
             Event::Hit { att, def, x, y, z, hs, counter, dmg, kind } => {
                 self.show_hit(m, att, def, x, y, z, hs, counter, dmg, kind);
@@ -207,7 +210,8 @@ impl<'d> Scene<'d> {
                 self.sfx_at("clang", x, y, z, 1.0, 1.0);
                 self.sfx_at("sizzle", x, y, z, 1.0, 1.0);
                 shake(&mut self.draw, 0.12, 0.2);
-                impact_frame(&mut self.draw, "negative", 1.0); // task 8: ANNOUNCE "PARRY"
+                impact_frame(&mut self.draw, "negative", 1.0);
+                self.announce("PARRY", None, [1.0, 0.55, 0.2, 1.0], 0.7, true, None);
             }
             Event::Refused { e, .. } => self.sfx_on(m, "clang", e, 0.35, 1.6), // M3b: WEBHUD-REFUSED!
             Event::SpBreak { .. } => {}                                          // M3b: WEBHUD-BREAK!
@@ -226,9 +230,14 @@ impl<'d> Scene<'d> {
                 self.sfx_at("guard-break", x, y, z, 1.0, 1.2);
                 self.sfx_at("clang", x, y, z, 1.0, 0.8);
                 shake(&mut self.draw, 0.15, 0.25);
-                impact_frame(&mut self.draw, "negative", 1.0); // task 8: ANNOUNCE "GUARD CRUSH"
+                impact_frame(&mut self.draw, "negative", 1.0);
+                self.announce("GUARD CRUSH", None, [0.78, 0.83, 0.89, 1.0], 1.0, false, None);
             }
-            Event::GuardBack { e } => self.sfx_on(m, "clang", e, 0.5, 1.4), // task 8: ANNOUNCE "GUARD"
+            Event::GuardBack { e } => {
+                self.sfx_on(m, "clang", e, 0.5, 1.4);
+                let side = m.fighter.get(e).map(|f| f.side as i32);
+                self.announce("GUARD", None, [0.78, 0.83, 0.89, 1.0], 0.7, false, side);
+            }
             Event::GuardBreak { att, def, x, y, z } => {
                 let (dx, dz) = hit_dir(m, att, def);
                 vfx_hit(&mut self.em(), x, y, z, "guard-break", dx, dz);
@@ -236,12 +245,14 @@ impl<'d> Scene<'d> {
                 shake(&mut self.draw, 0.2, 0.3);
                 self.fx.ui_flash = [1.0, 1.0, 1.0, 0.9, 50.0];
                 stage_mark(&mut self.em(), true, x, z, 1.1);
-                stage_debris(&mut self.em(), x, z, 4, 1.0); // task 8: ANNOUNCE "GUARD BREAK"
+                stage_debris(&mut self.em(), x, z, 4, 1.0);
+                self.announce("GUARD BREAK", None, [1.0; 4], 1.0, false, None);
             }
             Event::StanceBreak { att, def, x, y, z } => {
                 let (dx, dz) = hit_dir(m, att, def);
                 vfx_hit(&mut self.em(), x, y, z, "guard-break", dx, dz);
-                self.sfx_at("guard-break", x, y, z, 1.0, 1.0); // task 8: ANNOUNCE "BROKEN"
+                self.sfx_at("guard-break", x, y, z, 1.0, 1.0);
+                self.announce("BROKEN", None, [1.0; 4], 0.9, true, None);
             }
             Event::Clash { x, y, z } => {
                 vfx_hit(&mut self.em(), x, y, z, "clash", 0.0, -1.0);
@@ -250,7 +261,8 @@ impl<'d> Scene<'d> {
                 stage_mark(&mut self.em(), true, x, z, 1.2);
                 stage_debris(&mut self.em(), x, z, 4, 1.0);
                 impact_frame(&mut self.draw, "negative", 2.0);
-                focus_lines(&mut self.draw, 20.0); // task 8: the lines' centre (x y z), ANNOUNCE "CLASH"
+                self.focus(20.0, Some([x, y, z]));
+                self.announce("CLASH", None, [1.0; 4], 0.9, false, None);
             }
             Event::HazardCut { x, y, z } => {
                 vfx_hit(&mut self.em(), x, y, z, "heavy", 0.0, -1.0);
@@ -288,14 +300,22 @@ impl<'d> Scene<'d> {
             }
             Event::Perfect { .. } => {
                 self.play("perfect", 1.0);
-                self.draw.cam.punch_t = 0.5; // task 8: ANNOUNCE "PERFECT"
+                self.draw.cam.punch_t = 0.5;
+                self.announce("PERFECT", None, [1.0; 4], 0.9, false, None);
             }
             Event::Burst { e, mode, .. } => {
                 let p = pos_of(m, e);
                 vfx_burst(&mut self.em(), p[0], p[1], p[2]);
                 self.sfx_on(m, "clash", e, 1.0, if mode == Burst::White { 0.9 } else { 0.7 });
                 self.sfx_on(m, "hoho-in", e, 1.0, 1.0);
-                shake(&mut self.draw, 0.15, 0.25); // task 8: ANNOUNCE (BURST-NAME m)
+                shake(&mut self.draw, 0.15, 0.25);
+                // port: vfx.lisp BURST-NAME / BURST-COLOR (`*c-burst-white*` …)
+                let (name, col) = match mode {
+                    Burst::White => ("SOUL REVERSE", [0.95, 0.96, 1.0, 1.0]),
+                    Burst::Blue => ("BURST REVERSE", [0.4, 0.66, 1.0, 1.0]),
+                    _ => ("CHAIN REVERSE", [1.0, 0.58, 0.18, 1.0]),
+                };
+                self.announce(name, None, col, 1.0, true, None);
             }
             Event::BurstEnd { e } => self.sfx_on(m, "hoho-out", e, 0.5, 0.8),
             Event::Launch { e } => self.sfx_on(m, "launch", e, 0.8, 1.0),
@@ -320,8 +340,16 @@ impl<'d> Scene<'d> {
             }
             Event::SoulBreak { .. } | Event::Bankai { .. } => {}
             Event::Awaken { e } => self.sfx_on(m, "awaken-boom", e, 1.0, 1.0),
-            Event::Form { .. } => {}                                 // task 8: ANNOUNCE the kit's callout
-            Event::Evolution { .. } => self.play("evolution", 1.0), // task 8: ANNOUNCE "EVOLUTION"
+            Event::Form { e, .. } => {
+                if let Some(c) = duel_sim::fighter::kit_of(m, e).callout.as_deref() {
+                    self.announce(c, None, [1.0, 0.5, 0.15, 1.0], 1.0, true, None);
+                }
+            }
+            Event::Evolution { e } => {
+                self.play("evolution", 1.0);
+                let side = m.fighter.get(e).map(|f| f.side as i32);
+                self.announce("EVOLUTION", None, [1.0, 0.85, 0.3, 1.0], 1.0, true, side);
+            }
             Event::Sfx { key, e } => self.sfx_on(m, key, e, 1.0, 1.0),
             Event::GroundScar { x, z, yaw, ds, n, r } => {
                 // port: feedback.lisp GROUND-SCAR
