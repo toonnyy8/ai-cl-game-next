@@ -978,7 +978,8 @@ R17's driver), `rs/duel-app/src/main.rs`, `rs/duel-app/web/index.html`, `rs/duel
 runs. Static geometry matches the frozen page pixel for pixel: the stage, the sky and the fog read the same RGB at sampled points of a
 2005 frame, so the gamma and the orientation are right. Two runs give byte-identical stills (27 of 27, and page-smoke's drawn 2005
 still). The page passes page-smoke: 1009 frames finished by virtual 16.9 s, no error, startup heap 92.9 MB. Rust's combat log for
-cvc-ik is the frozen page's, line for line (832 lines). The SSIM gaps are the Lisp HUD (M3b) and the cosmetic RNG (below).
+cvc-ik is the frozen page's, line for line (832 lines). The SSIM gaps are the Lisp HUD (M3b) and, suspected, two inputs that depend on the
+title's length, plus a one-frame offset of the impact frames right after a turbo window (below).
 
 ### How a frame is drawn (and what differs from SDL_GPU)
 
@@ -1073,21 +1074,21 @@ cvc-ik is the frozen page's, line for line (832 lines). The SSIM gaps are the Li
 
 SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest channel difference and "px" the pixels that differ, of 230,400:
 
-| still | SSIM | max | px | what differs |
+| still | SSIM | max | px | what differs (HUD: seen; the rest suspected) |
 |---|---|---|---|---|
 | cvc-ik intro | 0.7610 | 209 | 60373 | the letterbox and name card (hb) |
 | cvc-ik start | 0.8024 | 192 | 61294 | the battle HUD (hb) |
 | cvc-ik w0-0 | 0.8065 | 241 | 93803 | HUD, 斬 (hb); speed lines and sparks (cosmetic RNG) |
 | cvc-ik w1-0 | 0.2652 | 244 | 134827 | the same; full-screen speed lines dominate |
 | cvc-ik w1-1 | 0.7443 | 239 | 58824 | HUD; cosmetic RNG |
-| cvc-ik w2-0 | 0.1078 | 255 | 228217 | the frozen frame is in a negative impact grade (blue = inverted yellow), Rust's is not; speed lines |
+| cvc-ik w2-0 | 0.1078 | 255 | 228217 | the frozen frame is in a negative impact grade (blue = inverted yellow), Rust's one frame later (below); speed lines |
 | cvc-ik w3-0 | 0.2220 | 247 | 168018 | speed lines; HUD |
 | cvc-ii intro | 0.7619 | 209 | 60235 | letterbox and name card (hb) |
 | cvc-ii start | 0.8090 | 183 | 51756 | HUD |
 | cvc-ii w0-0 | 0.8017 | 234 | 125655 | HUD; cosmetic RNG |
 | cvc-ii w1-0 | 0.3336 | 240 | 151492 | speed lines; HUD |
 | cvc-ii w1-1 | 0.7934 | 241 | 42964 | HUD; cosmetic RNG |
-| cvc-ii w2-0 | 0.1906 | 255 | 228184 | impact grade / speed lines |
+| cvc-ii w2-0 | 0.1906 | 255 | 228184 | the impact frame's offset (below); speed lines |
 | cvc-ii w3-0 | 0.6942 | 225 | 71150 | HUD; cosmetic RNG |
 | cine-ken ken-nozarashi-026 | 0.8058 | 223 | 69999 | cosmetic RNG (tongues, debris) |
 | cine-ken ken-nozarashi-096 | 0.9869 | 236 | 15747 | the same |
@@ -1103,15 +1104,36 @@ SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest chann
 | cine-ko ko-060 | 0.8389 | 221 | 112381 | the same |
 | cine-ko results | 0.4089 | 241 | 230398 | RESULTS is the Lisp HUD (M3b) |
 
-**Why the cosmetic RNG differs (a finding for M3b, not a renderer fault).**
-- The fight is the same: the combat logs agree tick for tick, and the static pixels are equal.
-- The randomness of the looks is not. The cosmetic stream (`rng_float`, never reseeded) runs from boot on the frozen page through
-  about 4 s of title and menu frames before the command: the menus, their idle clips and the HUD (all M3b). The Rust page's title draws
-  neither. So `CosRng` enters the fight in another state, and every `rnd01` look comes out different: speed lines, sparks, flame tongues,
-  debris, perhaps the impact frame's roll.
-- The draw key never shows this, because its scenes start their commands on frame 0 of the stub's boot.
-- Once M3b runs the title's draws, the two streams should meet. Until then the gap marks where the stills differ, not by how much the
-  renderer is wrong.
+**What the stills show, and what is only suspected.**
+
+- **Seen:** the HUD (hb / hk, M3b) is missing on the Rust side, as expected. The sim is the same: the combat logs agree tick for tick,
+  and the shots fall between the same log lines on both pages. Static pixels are equal.
+- **Checked: the impact grade renders, and after a turbo window it is one frame late.** `Game::frame` was replayed natively with
+  cvc-ik's command frames (a scratch test, not committed), listing the frames where `p[11]` (the impact mode) is not 0. Both pages were
+  then shot at those frames:
+  - frame 361, a negative impact in the intro with no turbo: both pages negative, the same image but the HUD. So RP_COMP_FX's
+    negative path is drawn and matches.
+  - frame 5928 of a 2006 fight (the command at virtual 4.0 s, the shot at 98.805 s; IC-RENZAN's Kikon, the manga mode 3): both pages
+    manga, the same image but the left fighter's pose. So RP_COMP_FX's manga path matches too. Mode 2 (the "red" two-tone) never comes
+    up in the two fights. Mode 4 (spot-keep) is Yamamoto's (M4).
+  - frames 452 to 454, the w2-0 window right after turbo: the frozen page is negative at 452 and back to normal at 453 / 454. Rust is
+    normal at 452 and negative at 453 / 454.
+
+  So the impact frame that follows a turbo window starts one frame later in Rust. That is a timing divergence in the looks (the screen
+  fx timers or the impact trigger around turbo frames, which no draw key covers), not in the renderer. It accounts for both w2-0
+  stills. It is left to Task 10's loop or a look fix: the draw key would need a turbo window to pin it.
+- **Suspected: two inputs that depend on the title's length differ between the pages.** Each would change every random or
+  noise-driven look: speed lines, sparks, flame tongues, debris.
+  - **The cosmetic RNG.** `rng_float` is never reseeded and runs from boot. On the frozen page it passes through about 4 s of title and
+    menu frames before the command (the menus, their idle clips and the HUD, all M3b). The Rust title draws none of them, so `CosRng`
+    reaches the fight in another state.
+  - **The fx clock.** `fx_clock` grows by `fdt` in every `draw_frame`. On the Rust page it starts with the catch-up at virtual 0; on the
+    frozen page it starts at its own first frame after its `:load` steps. The toon fx noise steps on `F.clk.x`, which is what the
+    flame tongues in the cine stills disagree on.
+
+  Neither is measured: the frozen page exposes neither state. The draw key never shows them, because its scenes start their commands on
+  frame 0 of the stub's boot. Until M3b runs the title's draws and Task 10 fixes the clock's start, the gap marks where the stills
+  differ, not how far the renderer is off.
 
 ### 0 allocations
 
@@ -1138,6 +1160,14 @@ SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest chann
   - the release build;
   - skipping the 2 MB / frame upload cap;
   - creating the swapchain view less often.
+
+### For Task 10
+
+- The URL switches `?log` and `?dt=clock` are diagnostics this task added. R17 gives the URL parameters to Task 10, which keeps or drops
+  them.
+- `tools/port/build-web.sh` needed no change: the shaders are embedded, so there is no `assets/` to copy. The brief listed it as
+  modified.
+- The impact frame after a turbo window, one frame late (above).
 
 ### Rulings needed
 
