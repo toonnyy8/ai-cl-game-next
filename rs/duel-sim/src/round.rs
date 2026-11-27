@@ -147,8 +147,11 @@ pub fn reset_round(m: &mut Match, a: Entity, v: Entity) {
     m.transform.get_mut(a).unwrap().pos = [ax, 0.0, az];
     m.transform.get_mut(v).unwrap().pos = [bx, 0.0, bz];
     crate::cine::face_each_other(m, a, v, None);
-    if m.pilot.iter().any(|(_, p)| p.cam_relative) {
-        crate::unported!(m, "view-step") // (VIEW-STEP with RESET: only a human's stick reads it, docs/bevy/M1_NOTES.md §2; M2)
+    // (VIEW-STEP with RESET, P1 first: P1 on the left of the view again)
+    if fighter(m, a).side == 0 {
+        crate::fighter::view_step(m, a, v, true);
+    } else {
+        crate::fighter::view_step(m, v, a, true);
     }
     clear_hazards(m);
     for e in [a, v] {

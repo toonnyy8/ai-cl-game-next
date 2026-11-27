@@ -9,12 +9,14 @@ use crate::gate::{start_cvc, start_pair_gate};
 use crate::cpu::Search;
 use crate::state::{Match, Mode};
 
-/// port: DEBUG-COMMAND (`*stats-log*` / `*learn-debug-off*` are the logs' and the learner's; `*cine-hold*` is never set by
-/// these commands, so clearing it is moot).
+/// port: DEBUG-COMMAND (`*stats-log*` is the logs'; `*cine-hold*` is never set by these commands, so clearing it is moot). Every
+/// command sets `*learn-debug-off*`: no CPU learns in a debug run (debug 2504 clears it again).
 pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
     m.log_on = true;
+    s.learn_debug_off = true;
     // log-msg: "debug cmd C"
     match c {
+        2504 => debug_vs_learner(m, s),
         2102 => m.turbo = !m.turbo,
         3000..=3999 => start_cvc(m, s, c - 3000, Some([Ichigo, Ichigo])),
         4000..=4999 => start_cvc(m, s, c - 4000, Some([Ichigo, Kenpachi])),
@@ -25,6 +27,25 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
         // ponytail: leaked once per run, on the path that stops it
         _ => crate::unported!(m, Box::leak(format!("debug {c}").into_boxed_str())),
     }
+}
+
+/// port: debug 2504 — human Kenpachi vs a HARD Ichigo CPU that learns (DUEL_AI_STRATEGY §8.14): VS CPU, the learner on as in play,
+/// `*fq-tables*` forgotten (the attach reads the page), the match started with its cinematics skipped. (`*probe*` is never set here;
+/// `*one-hand*` is ONE-HAND-EFFECTIVE-P, NIL headless: the touch deck's branches are M3's.)
+fn debug_vs_learner(m: &mut Match, s: &mut Search) {
+    (m.picks, m.mode, m.difficulty) = ([Kenpachi, Ichigo], Mode::VsCpu, crate::components::Difficulty::Hard);
+    s.learn_debug_off = false;
+    s.fq_tables.clear();
+    let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
+    crate::flow::start_match(m, s);
+    m.skip_cines = skip;
+}
+
+/// port: trace.lisp TR-VS-START — a VS CPU match as the menu starts it (MODE's VS CPU row, SELECT's picks and difficulty, NEW-SEED
+/// fixed to SEED, START-MATCH): human C1 vs a CPU C2 at DIF, the intro played; `*learn-debug-off*` left as it is.
+pub fn vs_start(m: &mut Match, s: &mut Search, c1: Character, c2: Character, dif: crate::components::Difficulty, seed: i64) {
+    (m.mode, m.picks, m.difficulty, m.match_seed) = (Mode::VsCpu, [c1, c2], dif, seed);
+    crate::flow::start_match(m, s);
 }
 
 // ---------------------------------------------------------------- scenario helpers

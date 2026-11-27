@@ -1,9 +1,15 @@
-//! port: Kenpachi's cinematics (ken.lisp, ken-look.lisp): their names, lengths and the step-mode AT events that touch sim state. Every
-//! other AT form (clips, shots, cards, captions, lenses, impact frames, silences, VFX, sounds, shakes, cine-scale / cine-slow, the
-//! model's body / weapon / hide, the cosmetic `rnd-range` dust and chips) and every DURING (draw mode: never run in a turbo gate, where
-//! the scene is not drawn) is a look.
+//! port: Kenpachi's cinematics (ken.lisp, ken-look.lisp): their names, lengths, the step-mode AT events that touch sim state and the
+//! draw-mode DURING forms that do (`draw`). Every other AT form (clips, shots, cards, captions, lenses, impact frames, silences, VFX,
+//! sounds, shakes, cine-scale / cine-slow, the model's body / weapon / hide, the cosmetic `rnd-range` dust and chips) and every other
+//! DURING is a look.
+//!
+//! A Lisp quirk kept for parity (docs/bevy/DIVERGENCES.md): the DURING forms that move an actor (KE-KK-AT / KE-KK-YAW: the victim
+//! blown away, looking round; Kenpachi through him) write his TRANSFORM, sim state, from CINE-DRAW, once per rendered frame after the
+//! frame's steps, with the cine frame then. A turbo gate never draws (no write); a played cinematic (VS CPU) does, and the actors'
+//! places then show in H and B until CINE-END gives the CINE-SAVE'd ones back (a yaw never: it stays as the last drawn frame left it).
 use crate::cine::{cine_place, face_each_other};
 use crate::ecs::Entity;
+use crate::cl::{expt2, min_f32};
 use crate::math::{deg, dir_yaw, hypot};
 use crate::state::Match;
 
@@ -105,5 +111,70 @@ pub fn script(c: KenCine, cf: i64, a: Entity, v: Entity, m: &mut Match) {
             kk_line(m, a, v);
         }
         _ => {} // KEN-NOZARASHI-CINE: looks only
+    }
+}
+
+/// port: the draw mode of script C (CINE-DRAW's call, STEP-P NIL) at cine frame CF: its DURING forms that write sim state, each with U
+/// 0..1 across its range (`(/ (float (- cf from)) (float (- to from)))`, singles). `(expt x 2)` is ECL's powf (`expt2`).
+pub fn draw(c: KenCine, cf: i64, a: Entity, v: Entity, m: &mut Match) {
+    // (the scripts' own literals, not pi: `(sin (* 3.1416 u))`, `(* 6.2832 …)`)
+    #[allow(clippy::approx_constant)]
+    const PI4: f32 = 3.1416;
+    #[allow(clippy::approx_constant)]
+    const TAU4: f32 = 6.2832;
+    let during = |from: i64, to: i64| (from <= cf && cf < to).then(|| (cf - from) as f32 / (to - from) as f32);
+    let blown = |u: f32| 1.0 - expt2(1.0 - u);
+    match c {
+        KenCine::KrKikon => {
+            if let Some(u) = during(108, 130) {
+                kk_at(m, v, -7.0 * blown(u), 1.6 * libm::sinf(PI4 * u)); // (blown away)
+            }
+        }
+        KenCine::ZhKikon => {
+            if let Some(u) = during(104, 126) {
+                kk_at(m, v, -7.0 * blown(u), 1.4 * libm::sinf(PI4 * u));
+            }
+        }
+        KenCine::ZKikon1 => {
+            if let Some(u) = during(78, 108) {
+                kk_yaw(m, v, 55.0 * libm::sinf(TAU4 * min_f32(1.0, 1.15 * u))); // (he looks left, right)
+            }
+            if let Some(u) = during(108, 122) {
+                let k = u * u * (3.0 - 2.0 * u);
+                kk_yaw(m, v, 120.0 * k); // (over his shoulder, turning back; the camera is a look)
+            }
+            if let Some(u) = during(144, 172) {
+                kk_at(m, v, 3.4 * blown(u), 2.6 * libm::sinf(PI4 * u)); // (up and away from him)
+            }
+        }
+        KenCine::SKikon1 => {
+            if let Some(u) = during(76, 90) {
+                kk_at(m, a, 3.2 - 6.4 * min_f32(1.0, 1.2 * u), 0.0); // (through him)
+            }
+            if let Some(u) = during(98, 112) {
+                kk_at(m, a, -3.2 + 5.2 * u, 0.0); // (spun back through him)
+            }
+        }
+        KenCine::SKikon2 => {
+            if let Some(u) = during(77, 125) {
+                kk_at(m, v, 0.0, 5.0 * blown(u)); // (up ...)
+            }
+            if let Some(u) = during(125, 196) {
+                kk_at(m, v, 0.0, 5.0 + 0.2 * min_f32(1.0, u / 0.6)); // (... hung at the top)
+            }
+            if let Some(u) = during(196, 228) {
+                kk_at(m, v, 0.0, 5.2 * (1.0 - u * u)); // (cut down)
+            }
+            if let Some(u) = during(122, 152) {
+                kk_at(m, a, 2.0 - 0.9 * u, 5.8 * blown(u)); // (the leap skyward)
+            }
+            if let Some(u) = during(152, 196) {
+                kk_at(m, a, 1.1, 5.8 + 0.1 * u); // (arched over him, the cut, held)
+            }
+            if let Some(u) = during(196, 228) {
+                kk_at(m, a, 1.1 - 0.3 * u, 5.9 * (1.0 - u * u)); // (and down with him)
+            }
+        }
+        KenCine::Nozarashi | KenCine::Bankai | KenCine::ZKikon2 | KenCine::ZKikon3 => {} // (looks only)
     }
 }

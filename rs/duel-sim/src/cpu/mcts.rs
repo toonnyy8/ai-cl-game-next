@@ -12,7 +12,7 @@ use crate::cl::{max_f32, min_f32, round_f32, Num};
 use crate::components::{Difficulty, Flow, Phase, State, Sym};
 use crate::ecs::Entity;
 use crate::fighter::{fighter, hoho_ready_p, hurt_r, kit_of, mv};
-use crate::flow::NoInput;
+use crate::flow::{InRollout, NoInput, PilotInput};
 use crate::kit::{kit_class, kit_command_move, kit_core_move, kit_sa_move, mv_ns_next, Role};
 use crate::knobs::Knobs;
 use crate::state::Match;
@@ -280,9 +280,9 @@ pub fn mc_full_contact(m: &Match, e: Entity, a: Entity, d: Entity, dif: Difficul
 
 /// port: MC-FULL-ROLLOUT — one rollout from R's state now (lean steps, the generic CPUs' styles off): E's score, the health swing to
 /// the first contact (or STEPS) plus the table's value of it. STOP false: no stop at a contact (the strategy layer's rollouts). An
-/// `unported!` path stops it (the caller counts it).
+/// `unported!` path stops it (the caller counts it). DEV: the vpad readers inside it (a human's device writes his held keys).
 #[allow(clippy::too_many_arguments)]
-pub fn mc_full_rollout(r: &mut Match, s: &mut Search, e: Entity, o: Entity, steps: i64, dif: Difficulty, stop: bool) -> f32 {
+pub fn mc_full_rollout(r: &mut Match, s: &mut Search, dev: &mut InRollout, e: Entity, o: Entity, steps: i64, dif: Difficulty, stop: bool) -> f32 {
     with_rollout(r, true);
     let (h0, ho0) = (mc_full_health(r, e), mc_full_health(r, o));
     let mut bonus = 0.0f32;
@@ -294,7 +294,7 @@ pub fn mc_full_rollout(r: &mut Match, s: &mut Search, e: Entity, o: Entity, step
         if !(r.flow == Flow::Battle && r.cine.is_none()) || r.unported.is_some() {
             break;
         }
-        crate::flow::sim_step_lean(r, s, &mut NoInput);
+        crate::flow::sim_step_lean(r, s, dev);
         if r.unported.is_some() {
             break;
         }
@@ -318,6 +318,14 @@ pub fn mc_full_rollout(r: &mut Match, s: &mut Search, e: Entity, o: Entity, step
 pub fn rollout_start(s: &mut Search, snap: &Match, rng: u32, e: Entity, dif: Difficulty) -> (super::Slot, Entity) {
     let mut sc = match s.scratch.take() {
         Some(mut sc) => {
+            // (the last rollout's stand-in, which the restore would drop, kept for this one)
+            for f in [sc.0.p1, sc.0.p2] {
+                if snap.fighter.get(f).is_some_and(|x| !x.has_brain())
+                    && let Some(b) = sc.0.fighter.get_mut(f).and_then(|x| x.brain.take())
+                {
+                    s.spare_brain = Some(b);
+                }
+            }
             (*sc.0).clone_from(snap);
             sc
         }
@@ -328,7 +336,14 @@ pub fn rollout_start(s: &mut Search, snap: &Match, rng: u32, e: Entity, dif: Dif
     let o = fighter(r, e).opp;
     if !fighter(r, o).has_brain() {
         let delay = r.knobs.ai_delay.get(dif.name(), 14);
-        r.fighter.get_mut(o).unwrap().brain = Some(Brain::new(dif, delay));
+        let b = match s.spare_brain.take() {
+            Some(mut b) => {
+                b.reset(dif, delay); // (MAKE-BRAIN, its reserves kept)
+                b
+            }
+            None => Brain::new(dif, delay),
+        };
+        r.fighter.get_mut(o).unwrap().brain = Some(b);
         r.pilot.get_mut(o).expect("a pilot").cam_relative = false;
     }
     (sc, o)
@@ -344,7 +359,7 @@ pub fn rollout_end(s: &mut Search, sc: super::Slot, live_tick: i64) {
 }
 
 /// port: MC-FULL-ROLL — the oldest job's next rollout (its N-th action) from its snapshot: that action planned for him.
-fn mc_full_roll(s: &mut Search, live_tick: i64) {
+fn mc_full_roll(s: &mut Search, dev: &mut InRollout, live_tick: i64) {
     let j = &s.mc_jobs[0];
     let (e, side, a1, a2, dif, n, rng) = (j.e, j.side, j.a1, j.a2, j.dif, j.n, j.rng);
     let snap = s.mc_jobs[0].snap.take().expect("a job's snapshot");
@@ -354,7 +369,7 @@ fn mc_full_roll(s: &mut Search, live_tick: i64) {
     let k = 5 * side as usize;
     (r.mc_plan[k], r.mc_plan[k + 1], r.mc_plan[k + 2]) = (2, if n == 0 { a1 } else { a2 }, -1);
     let steps = fighter(r, e).brain.as_ref().expect("his brain").delay + r.knobs.mc_full_h;
-    let v = mc_full_rollout(r, s, e, o, steps, dif, true);
+    let v = mc_full_rollout(r, s, dev, e, o, steps, dif, true);
     rollout_end(s, sc, live_tick);
     let j = &mut s.mc_jobs[0];
     if n == 0 {
@@ -367,10 +382,11 @@ fn mc_full_roll(s: &mut Search, live_tick: i64) {
 
 /// port: MC-FULL-STEP — at a step's end (SIM-STEP), outside every rollout: one rollout of the oldest job; a job both of whose actions
 /// are scored writes them into the plan, the better first. Jobs made this step start from this state. No action job: a rollout of the
-/// strategy layer's oldest selection (STRAT-FULL-STEP).
-pub fn mc_full_step(m: &mut Match, s: &mut Search) {
+/// strategy layer's oldest selection (STRAT-FULL-STEP). INPUT: the live vpad readers (their in-rollout calls run in the rollouts).
+pub fn mc_full_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+    let dev = &mut InRollout(input);
     if s.mc_jobs.is_empty() && !s.strat_jobs.is_empty() && !m.in_rollout {
-        super::glue::strat_full_step(m, s);
+        super::glue::strat_full_step(m, s, dev);
     }
     if s.mc_jobs.is_empty() || m.in_rollout {
         return;
@@ -391,7 +407,7 @@ pub fn mc_full_step(m: &mut Match, s: &mut Search) {
     if m.mc_plan[k] != 1 {
         s.pop_mc_job(); // (its plan is gone: he was hit, or it came due)
     } else {
-        mc_full_roll(s, m.match_tick);
+        mc_full_roll(s, dev, m.match_tick);
         s.mc_stats[1] += 1;
         if s.mc_jobs[0].n == 2 {
             let j = &s.mc_jobs[0];

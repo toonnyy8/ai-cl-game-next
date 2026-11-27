@@ -360,6 +360,13 @@ knobs! {
     strat_n0: i64, // strategy.lisp
     strat_lambda: KwFloats, // strategy.lisp
     fq_unit: i64, // strategy.lisp
+    // the online learner (fq-online.lisp, strategy.lisp; M2 Task 9)
+    fq_online_eps: f32, // strategy.lisp
+    fq_online_eta: f32, // strategy.lisp
+    fq_online_gamma: f32, // strategy.lisp
+    fq_online_scale: f32, // strategy.lisp
+    fq_online_cap: OptF32, // strategy.lisp (NIL: unclamped)
+    retired: Names, // kit.lisp (PLAYABLE-ROSTER's: FQ-RESET-ALL)
     cai_dswitch_dif: KwFloats, // core-ai.lisp
     cai_dswitch_slack: f32, // core-ai.lisp
     cai_styles: crate::cpu::style::CaiStyles, // core-ai.lisp (CAI-DEFSTYLE at load)
@@ -731,6 +738,20 @@ impl duel_data::tuning::Knob for F2 {
         match v.as_array()?.as_slice() {
             [a, b] => Some(F2(a.as_f64()? as f32, b.as_f64()? as f32)),
             _ => None,
+        }
+    }
+}
+
+/// A float knob that may be NIL (`*fq-online-cap*`).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct OptF32(pub Option<f32>);
+
+impl duel_data::tuning::Knob for OptF32 {
+    const KIND: &'static str = "a float token or null (NIL)";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<OptF32> {
+        match v {
+            duel_data::tuning::Value::Null => Some(OptF32(None)),
+            v => <f32 as duel_data::tuning::Knob>::from_value(v).map(|x| OptF32(Some(x))),
         }
     }
 }

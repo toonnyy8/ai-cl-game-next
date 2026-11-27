@@ -65,3 +65,7 @@ M2 Task 8 (the light model, the full-sim MCTS, the strategy rollouts): `tests/mc
 (5), `crn_seed_values`, `strat_full_step_picks_after_its_rolls`, `duct_search_matches_the_lisp` (HARD's search against the native
 image), `hard_defers_on_a_thin_margin` (`*mc-sure*`); `src/ichigo/hooks.rs` `tsuki_dash_brain_aims_at_him`; `duel-tools
 replay.rs` `live_ki_s1_replays_whole` (was `live_ki_s1_reaches_the_mcts`), `cut_rollout_fails_the_run`, `live_allocs`.
+M2 Task 9 (the online learner, the human side): no Lisp test covers fq-online.lisp's glue (strategy.lisp's fq checks, its pure part, were
+all ported by Task 5). `tests/fq.rs` `page_roundtrip`, `cvc_never_learns`, `a_line_prints_the_copy_and_the_record`; `tests/mcts.rs`
+`vs_device_writes_in_rollouts` (ledger T8), `brain_reset_is_make_brain`; `duel-tools replay.rs` `vs_traces_replay_whole` (vs-cpu and
+vs-learn whole, the page against the trace's `R page-set` lines) are not Lisp checks.

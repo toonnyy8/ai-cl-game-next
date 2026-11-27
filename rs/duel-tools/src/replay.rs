@@ -32,8 +32,10 @@ pub fn apply_event(m: &mut Match, srch: &mut Search, words: &[String]) -> Result
             debug::force_form(m, e, f)
         }
         "hisagi-reset" => duel_sim::unported!(m, "hisagi-reset", Ok(())), // (Hisagi's: M4)
-        // (TR-VS-START: the VS CPU menu's start; *one-hand* and a human's VIEW-STEP come with it: Task 9)
-        "vs-start" => duel_sim::unported!(m, "vs-start", Ok(())),
+        "vs-start" => {
+            let dif = duel_sim::components::Difficulty::from_name(&kw(3)?).ok_or(format!("E {}: no difficulty", words.join(" ")))?;
+            debug::vs_start(m, srch, ch(1)?, ch(2)?, dif, val(4)?.int()?)
+        }
         "place" => debug::place(m, val(1)?.real()?),
         "vpad-clear" => {
             let e = side(m, 1)?;
@@ -74,11 +76,24 @@ pub struct Injector {
     pub last: [i64; 2],
     pub t: Option<TLine>,
     pub fail: Option<String>,
+    /// Per side, the buttons and stick last injected: a vs trace's device's held state (record.lisp REC-VS-DEVICE), which it writes
+    /// again on every read that does not advance it (`rewrite`).
+    pub held: [(u16, (f32, f32)); 2],
 }
 
 impl Injector {
     pub fn new() -> Self {
-        Injector { last: [-1, -1], t: None, fail: None }
+        Injector { last: [-1, -1], t: None, fail: None, held: [(0, (0.0, 0.0)); 2] }
+    }
+
+    /// The device's held state of side K written again (VPAD-SET! of every button in order, then the stick, unclamped): its call on a
+    /// step without a new vpad tick (PILOT-READ) and inside a rollout.
+    pub fn rewrite(&self, vp: &mut Vpad, k: usize) {
+        let (downs, stick) = self.held[k];
+        for bit in 0..vp.actions.len() {
+            vp.set(bit, downs >> bit & 1 == 1);
+        }
+        (vp.sx, vp.sy) = stick;
     }
 
     /// Returns the new sim stream state when it injected.
@@ -91,11 +106,9 @@ impl Injector {
         if t.vt[k] != vp.tick && self.fail.is_none() {
             self.fail = Some(format!("P{} vpad tick {}, the trace's {}", k + 1, vp.tick, t.vt[k]));
         }
-        for bit in 0..vp.actions.len() {
-            vp.set(bit, t.downs[k] >> bit & 1 == 1);
-        }
-        // port: (setf (vpad-sx vp) sx (vpad-sy vp) sy) — no clamp (not VPAD-STICK!)
-        (vp.sx, vp.sy) = t.stick[k];
+        self.held[k] = (t.downs[k], t.stick[k]);
+        // port: VPAD-SET! of each button in bit order, then (setf (vpad-sx vp) sx (vpad-sy vp) sy) — no clamp (not VPAD-STICK!)
+        self.rewrite(vp, k);
         Some(t.rnd)
     }
 }
@@ -193,6 +206,8 @@ pub struct RunResult {
     pub snaps: (u64, u64),
     pub mismatches: Vec<String>,
     pub n_mismatch: u64,
+    /// The page at the run's end (`Search.page`: a vs trace's learner saves to it).
+    pub page: std::collections::BTreeMap<i64, i64>,
 }
 
 /// What `replay` prints and its exit code: the outcome line first (replay-gate.sh reads it), then the `--snap` summary and the
@@ -426,8 +441,10 @@ impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
         let Some(k) = self.inject_side else { return };
         let e = if k == 0 { m.p1 } else { m.p2 };
         if e != self.seat {
+            // (the device's RESET at a new match: everything released, from the new vpad's tick)
             self.seat = e;
             self.inj.last[k] = m.pilot.get(e).map_or(0, |p| p.vpad.tick);
+            self.inj.held[k] = (0, (0.0, 0.0));
         }
     }
 
@@ -454,11 +471,26 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
             return self.inj.read(m, side);
         }
         // (live: only a vs trace's human side; its sim stream is never injected, replay.lisp RP-INJECT)
+        // (record.lisp REC-VS-DEVICE: it advances on a new vpad tick, and every call writes its held state)
         if self.inject_side == Some(side)
             && m.fighter.get(e).is_some_and(|f| !f.has_brain())
             && let Some(p) = m.pilot.get_mut(e)
+            && self.inj.inject(&mut p.vpad, side).is_none()
         {
-            self.inj.inject(&mut p.vpad, side);
+            self.inj.rewrite(&mut p.vpad, side);
+        }
+    }
+
+    /// The vs device inside a CPU rollout: the human's held state written again on his vpad (the stand-in brain's VPAD-BEGIN-STEP!
+    /// calls it before AI-PRESS-WRITE!), never advanced; no comparison.
+    fn rollout_read(&mut self, m: &mut Match, side: usize) {
+        let e = if side == 0 { m.p1 } else { m.p2 };
+        if self.out.is_none()
+            && self.live
+            && self.inject_side == Some(side)
+            && let Some(p) = m.pilot.get_mut(e)
+        {
+            self.inj.rewrite(&mut p.vpad, side);
         }
     }
 
@@ -590,7 +622,7 @@ pub fn run(path: &str, max: Option<u64>, data: &'static duel_data::Data, stubs: 
 /// brains detached, the recorded vpads and sim stream injected), or with `--live` the brains attached and nothing injected but a vs
 /// trace's `--inject-side`. STUBS / MASK: the stubbed mode (docs/bevy/M1_NOTES.md §3; both empty = the gate's full comparison).
 pub fn run_opts(o: &Opts, data: &'static duel_data::Data) -> RunResult {
-    let mut r = RunResult { out: Outcome::Ok(0), snaps: (0, 0), mismatches: vec![], n_mismatch: 0 };
+    let mut r = RunResult { out: Outcome::Ok(0), snaps: (0, 0), mismatches: vec![], n_mismatch: 0, page: Default::default() };
     let mut rd = match trace::open(&o.trace) {
         Ok(r) => r,
         Err(e) => {
@@ -654,6 +686,7 @@ pub fn run_opts(o: &Opts, data: &'static duel_data::Data) -> RunResult {
     r.out = drive(&mut m, &mut s, &mut rp, &start);
     r.snaps = (rp.snaps, rp.snaps_unported);
     (r.mismatches, r.n_mismatch) = (rp.mismatches, rp.n_mismatch);
+    r.page = std::mem::take(&mut s.page);
     r
 }
 
@@ -1129,6 +1162,33 @@ mod tests {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
             assert_eq!(report(&o, &r).0[0], "replay OK 21368 ticks", "{flags}");
+        }
+    }
+
+    /// The two vs traces (a human P1 injected, the CPU live): vs-cpu (a NORMAL Kenpachi, VIEW-STEP for the human's stick, the
+    /// played cinematics' draw-mode moves) and vs-learn (debug 2504 twice: FQ-ATTACH!, FQ-NOTE's records, FQ-MATCH-END's TD update and
+    /// save, the second match's load from the page, all in the A lines) replay whole; vs-learn's page at the end holds what its R lines
+    /// say the recorder's page-set wrote (the last write of each key). No vs trace queues an MCTS job (every A job section empty), so
+    /// the stand-in brain and the device inside a rollout are host-tested (`tests/mcts.rs` `vs_device_writes_in_rollouts`).
+    #[test]
+    fn vs_traces_replay_whole() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        for (name, ticks) in [("vs-cpu", 12835), ("vs-learn", 22413)] {
+            let Some(path) = oracle_trace(name) else { return };
+            let o = parse_args(&args(&format!("{path} --live --inject-side 0"))).unwrap();
+            let r = run_opts(&o, data);
+            assert_eq!(report(&o, &r).0[0], format!("replay OK {ticks} ticks"), "{name}");
+            let mut want = std::collections::BTreeMap::new();
+            for l in std::fs::read_to_string(&path).unwrap().lines() {
+                if let Some(kv) = l.strip_prefix("R page-set ") {
+                    let (k, v) = kv.split_once(' ').unwrap();
+                    want.insert(k.parse::<i64>().unwrap(), v.parse::<i64>().unwrap());
+                }
+            }
+            assert_eq!(r.page, want, "{name}");
+            if name == "vs-learn" {
+                assert_eq!(r.page.get(&71000), Some(&627));
+            }
         }
     }
 

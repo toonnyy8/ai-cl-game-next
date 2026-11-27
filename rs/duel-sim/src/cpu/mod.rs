@@ -11,6 +11,7 @@ pub use strategy::Strat;
 use std::fmt::Write;
 
 pub mod core_ai;
+pub mod fq;
 pub mod fuzzy;
 pub mod glue;
 pub mod ichigo_ki;
@@ -21,16 +22,6 @@ pub mod perceive;
 pub mod strategy;
 pub mod style;
 pub mod xch_ai;
-
-/// A slot whose Lisp value a later M2 task ports (a SNAP, a style's state, an fq record ...): it can only hold its NIL default.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum NotYet {}
-
-impl Enc for NotYet {
-    fn enc(&self, _: &Data, _: &mut String) {
-        match *self {}
-    }
-}
 
 /// BRAIN-SW-WON: a judgement count per entry of the composite / Q selector, `(max 8 n)` slots.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -145,7 +136,7 @@ pub struct Brain {
     pub ev_style: Option<style::StyleState>,
     pub ev_n: i64,
     pub ev_steps: i64,
-    pub fql: Option<NotYet>, // the online learner's record (Task 9)
+    pub fql: Option<fq::Fql>, // the online learner's record (FQ-ATTACH!; NIL = not learning)
     pub st_next: i64,
     pub st_free: i64,
     pub masher: bool,
@@ -157,21 +148,24 @@ pub struct Brain {
 }
 
 /// A copy that keeps the two Vecs' reserves (JSTARTS' `*ai-mash-window*` + 2, SW-KEEP's `MAX_ARMS`), and `clone_from` (a rollout's
-/// restore) that reuses them: no allocation per snapshot (every other slot is `Copy`, which the `..*src` updates check).
+/// restore) that reuses them: no allocation per snapshot (every other slot is `Copy`, which the `..*src` updates check). FQL (a
+/// learning brain's record: VS CPU against a human only) is cloned plainly: its new records allocate in each copy.
 impl Clone for Brain {
     fn clone(&self) -> Brain {
         let mut jstarts = Vec::with_capacity(self.jstarts.capacity());
         jstarts.extend_from_slice(&self.jstarts);
         let mut keep = Vec::with_capacity(self.sw_keep.0.capacity());
         keep.extend_from_slice(&self.sw_keep.0);
-        Brain { jstarts, sw_keep: SwKeep(keep), ..*self }
+        Brain { jstarts, sw_keep: SwKeep(keep), fql: self.fql.clone(), ..*self }
     }
     fn clone_from(&mut self, src: &Brain) {
         let mut jstarts = std::mem::take(&mut self.jstarts);
         jstarts.clone_from(&src.jstarts);
         let mut keep = std::mem::take(&mut self.sw_keep.0);
         keep.clone_from(&src.sw_keep.0);
-        *self = Brain { jstarts, sw_keep: SwKeep(keep), ..*src };
+        let mut fql = self.fql.take();
+        fql.clone_from(&src.fql);
+        *self = Brain { jstarts, sw_keep: SwKeep(keep), fql, ..*src };
     }
 }
 
@@ -185,6 +179,18 @@ pub const A_STRAT: usize = 38;
 impl Brain {
     /// port: (MAKE-BRAIN :difficulty DIFFICULTY :delay DELAY), the slots' defaults.
     pub fn new(difficulty: Difficulty, delay: i64) -> Brain {
+        Brain::with_vecs(difficulty, delay, Vec::new(), Vec::with_capacity(strategy::MAX_ARMS))
+    }
+
+    /// MAKE-BRAIN into this one (a rollout's stand-in, reused): JSTARTS and SW-KEEP emptied, their reserves kept.
+    pub fn reset(&mut self, difficulty: Difficulty, delay: i64) {
+        let (mut jstarts, mut keep) = (std::mem::take(&mut self.jstarts), std::mem::take(&mut self.sw_keep.0));
+        jstarts.clear();
+        keep.clear();
+        *self = Brain::with_vecs(difficulty, delay, jstarts, keep);
+    }
+
+    fn with_vecs(difficulty: Difficulty, delay: i64, jstarts: Vec<i64>, keep: Vec<(style::StyleId, Option<style::StyleState>)>) -> Brain {
         Brain {
             difficulty,
             delay,
@@ -209,7 +215,7 @@ impl Brain {
             why: None,
             habit: None,
             jkey: -1,
-            jstarts: Vec::new(),
+            jstarts,
             own_key: -1,
             r_turn: 1.0,
             r_cont: 1.0,
@@ -231,7 +237,7 @@ impl Brain {
             sw_n: 0,
             sw_won: None,
             sw_fn: None,
-            sw_keep: SwKeep(Vec::with_capacity(strategy::MAX_ARMS)),
+            sw_keep: SwKeep(keep),
             tw: -1,
             tw_off: false,
             ev_t: -1,
@@ -261,8 +267,9 @@ impl Brain {
         }
     }
 
-    /// The brain's A fields (TR-A-ENC of each slot), each preceded by a space.
-    fn enc(&self, d: &Data, s: &mut String) {
+    /// The brain's A fields (TR-A-ENC of each slot), each preceded by a space; BRAIN-STRAT with TR-A-STRAT's `/fq(...)` when it is a
+    /// player's copy (one of CELLS'), BRAIN-FQL as TR-A-FQL (UNIT: `*fq-unit*`, its checksum's).
+    fn enc(&self, d: &Data, s: &mut String, cells: &[fq::FqCell], unit: i64) {
         macro_rules! f {
             ($($x:expr),* $(,)?) => {$( s.push(' '); $x.enc(d, s); )*};
         }
@@ -270,11 +277,21 @@ impl Brain {
         f!(self.press_left, self.decide_t, self.roll_key, self.guard_roll, self.hoho_roll, self.was, self.burst_t, self.burst_rolled);
         f!(self.dash, self.dash_to, self.act, self.why, self.habit, self.jkey, self.jstarts, self.own_key, self.r_turn, self.r_cont);
         f!(self.r_kikon, self.decided, self.xkey, self.xmove, self.xown, self.xpick, self.xcarry, self.xdone, self.clash_key, self.fin_t);
-        f!(self.style, self.strat, self.now, self.sw_sub, self.sw_t, self.sw_n, self.sw_won, self.sw_fn);
+        f!(self.style, self.strat);
+        if let Some(st) = self.strat {
+            fq::enc_copy(st, cells, unit, s);
+        }
+        f!(self.now, self.sw_sub, self.sw_t, self.sw_n, self.sw_won, self.sw_fn);
         s.push(' ');
         self.sw_keep.enc(d, s, self.sw_fn.filter(|_| self.style_live).map(|f| (f, self.style)));
         f!(self.tw, self.tw_off);
-        f!(self.ev_t, self.ev_on, self.ev_style, self.ev_n, self.ev_steps, self.fql, self.st_next, self.st_free, self.masher, self.m_left);
+        f!(self.ev_t, self.ev_on, self.ev_style, self.ev_n, self.ev_steps);
+        s.push(' ');
+        match &self.fql {
+            Some(l) => l.enc(d, unit, s),
+            None => s.push_str("NIL"),
+        }
+        f!(self.st_next, self.st_free, self.masher, self.m_left);
         f!(self.m_stick, self.off);
     }
 }
@@ -339,8 +356,14 @@ pub struct Search {
     pub strat_stats: [i64; 4],
     /// `*strat-picks*`: per side a slot per library entry (sized by MC-FULL-RESET).
     pub strat_picks: Vec<i64>,
-    /// `*fq-tables*` (Task 9).
-    pub fq_tables: Vec<NotYet>,
+    /// `*fq-tables*`: the players' copies, newest first (FQ-TABLE pushes).
+    pub fq_tables: Vec<fq::FqCell>,
+    /// fq-online.lisp `*learn-debug-off*`: a debug command ran, so no CPU learns (DEBUG-COMMAND sets it; debug 2504 clears it).
+    pub learn_debug_off: bool,
+    /// `*fq-learn-force*`: a tool's T (every Q-selector CPU learns, whoever its opponent); false in the game.
+    pub fq_learn_force: bool,
+    /// `(setting :learn)`: the LEARNING CPU setting, 0 = on (the default; the settings page is M3's).
+    pub learn: i64,
     /// The page store (PAGE-GET / PAGE-SET; M3 persists it).
     pub page: BTreeMap<i64, i64>,
     /// GET-INTERNAL-REAL-TIME for the stats lines' milliseconds (never compared): the caller's clock, else always 0.
@@ -349,6 +372,9 @@ pub struct Search {
     pub pool: Vec<Slot>,
     /// Not Lisp's: the match a rollout plays on (a job's snapshot restored into it; the live match is never touched).
     pub scratch: Option<Slot>,
+    /// Not Lisp's: the last rollout's stand-in brain for a brainless opponent, made again (`Brain::reset`) by the next rollout that
+    /// needs one, so a vs rollout allocates no brain.
+    pub spare_brain: Option<Brain>,
     /// Rollouts cut short by an `unported!` path (`m.unported` of the rollout's match): their value is wrong, so the replay fails.
     pub cut_rollouts: u64,
     /// The first such path and the live tick of its rollout.
@@ -367,10 +393,14 @@ impl Search {
             strat_stats: [0; 4],
             strat_picks: Vec::new(),
             fq_tables: Vec::new(),
+            learn_debug_off: false,
+            fq_learn_force: false,
+            learn: 0,
             page: BTreeMap::new(),
             clock: || 0,
             pool: Vec::new(),
             scratch: None,
+            spare_brain: None,
             cut_rollouts: 0,
             cut: None,
         }
@@ -444,7 +474,7 @@ pub fn brain_system(m: &mut Match, s: &mut Search, input: &mut dyn crate::flow::
 
 /// port: START-MATCH's CPU part after SPAWN-PAIR: each CPU's strategy from STRAT-LOOKUP (VS CPU / CPU vs CPU), FQ-ATTACH!,
 /// MASHER-APPLY!.
-pub fn start_match_cpu(m: &mut Match) {
+pub fn start_match_cpu(m: &mut Match, s: &mut Search) {
     if matches!(m.mode, Mode::VsCpu | Mode::CpuCpu) {
         for (e, o) in [(m.p1, m.p2), (m.p2, m.p1)] {
             let (Some(me), Some(vs)) = (m.fighter.get(e).and_then(|f| f.character), m.fighter.get(o).and_then(|f| f.character)) else {
@@ -457,17 +487,8 @@ pub fn start_match_cpu(m: &mut Match) {
                 b.strat = st;
             }
         }
-        for (e, o) in [(m.p1, m.p2), (m.p2, m.p1)] {
-            // port: FQ-ATTACH!'s test, a superset (the table chance and the LEARNING setting not read): it bails before it would attach
-            let opp_human = m.fighter.get(o).is_some_and(|f| !f.has_brain());
-            let attach = m
-                .fighter
-                .get(e)
-                .and_then(|f| f.brain.as_ref())
-                .is_some_and(|b| b.difficulty == Difficulty::Hard && b.strat.is_some_and(|st| st.fq().is_some()));
-            if attach && opp_human && m.mode == Mode::VsCpu {
-                crate::unported!(m, "fq-attach!") // (the online learner: Task 9)
-            }
+        for e in [m.p1, m.p2] {
+            fq::fq_attach(m, s, e); // (a Q selector facing a human plays the player's copy)
         }
     }
     // port: MASHER-APPLY! with no seat (*masher-seats*: debug 81030+, M5)
@@ -500,7 +521,7 @@ pub fn a_line(m: &Match, s: &Search) -> String {
     }
     for e in [m.p1, m.p2] {
         match m.fighter.get(e).and_then(|f| f.brain.as_ref()) {
-            Some(b) => b.enc(d, &mut o),
+            Some(b) => b.enc(d, &mut o, &s.fq_tables, m.knobs.fq_unit),
             None => (0..BRAIN_SLOTS).for_each(|_| o.push_str(" :ABSENT")),
         }
         let p = m.pilot.get(e).expect("pilot");
@@ -562,7 +583,7 @@ mod tests {
     #[test]
     fn brain_prints_its_slot_count() {
         let mut s = String::new();
-        Brain::new(Difficulty::Normal, 14).enc(crate::hashline::tests::data(), &mut s);
+        Brain::new(Difficulty::Normal, 14).enc(crate::hashline::tests::data(), &mut s, &[], 100000);
         assert_eq!(s.split(' ').skip(1).count(), BRAIN_SLOTS);
         assert!(s.starts_with(" :NORMAL 14 [NIL,"));
     }

@@ -258,14 +258,39 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
 
 // ---------------------------------------------------------------- the view humans steer by
 
+/// port: VIEW-STEP — keep the pair view on its side of the A (P1) -> B axis (of the two perpendiculars the one nearest last step's,
+/// so it never swings 180 deg after a Hoho) and turn the behind camera toward B by at most `*behind-turn*` a step; RESET (the battle's
+/// start, every Kikon reset): P1 on the left, the behind yaw snapped. Writes only `view_x` `view_z` `view_side` `behind_yaw` (roots).
+/// (%SET-FLOAT skips a write of the same bits: a plain write here.)
+pub fn view_step(m: &mut Match, a: Entity, b: Entity, reset: bool) {
+    let (p, q) = (pos_of(m, a), pos_of(m, b));
+    let (dx, dz) = (q[0] - p[0], q[2] - p[2]);
+    let d = libm::sqrtf(dx * dx + dz * dz); // (%sqrt)
+    if d > 0.01 {
+        let (nx, nz) = (-dz / d, dx / d);
+        let side = if reset || nx * m.view_x + nz * m.view_z >= 0.0 { 1.0 } else { -1.0 };
+        let yaw = crate::math::dir_yaw(dx, dz); // (%dir-yaw: the double atan2, rounded)
+        (m.view_side, m.view_x, m.view_z) = (side, side * nx, side * nz);
+        m.behind_yaw = if reset {
+            yaw
+        } else {
+            let step = crate::rules::track_step(m.knobs.behind_turn); // (%track-step)
+            crate::math::angle_wrap(crate::math::turn_toward(m.behind_yaw, yaw, step))
+        };
+    }
+}
+
 /// port: STICK-RELATIVE: E's stick as (toward, strafe) relative to his opponent. A CPU pilot writes (strafe, toward) directly;
-/// a human's (`cam_relative`) is read through VIEW-STEP's view, M2.
+/// a human's (`cam_relative`) is read through the view VIEW-STEP keeps: the behind camera's yaw, else the pair view's.
 pub fn stick_relative(m: &mut Match, e: Entity) -> (f32, f32) {
     let p = m.pilot.get(e).expect("a pilot");
+    let (sx, sy) = (p.vpad.sx, p.vpad.sy);
     if p.cam_relative {
-        crate::unported!(m, "view-step", (0.0, 0.0)) // (*view-x* / *behind-yaw*: a human's stick, M2)
+        let yaw = if m.view_behind { m.behind_yaw } else { crate::math::dir_yaw(-m.view_x, -m.view_z) };
+        let (pos, f) = (pos_of(m, e), fighter(m, e));
+        return crate::rules::stick_toward_strafe(sx, sy, yaw, pos[0], pos[2], f.ox, f.oz);
     }
-    (p.vpad.sy, p.vpad.sx)
+    (sy, sx)
 }
 
 /// port: WORLD-DIR: the world XZ direction of stick TO / ST relative to E's opponent (F's OX OZ).
@@ -547,8 +572,8 @@ pub fn fighter_system(m: &mut Match) {
             a = Some(e);
         }
     });
-    if a.is_some() && b.is_some() && m.pilot.iter().any(|(_, p)| p.cam_relative) {
-        crate::unported!(m, "view-step") // (VIEW-STEP: only a human's stick reads it, docs/bevy/M1_NOTES.md §2; M2)
+    if let (Some(a), Some(b)) = (a, b) {
+        view_step(m, a, b, false);
     }
     m.do_entities(|m, e| m.fighter.has(e), |m, e| {
         if fighter(m, e).state != State::Cine {

@@ -118,6 +118,20 @@ pub struct Match {
     pub in_rollout: bool,
     /// MC-FULL-ROLLOUT's `(*cai-styles* nil)`: no matchup style by `*cai-styles*` in this rollout (SIM-ROLLOUT keeps them).
     pub styles_off: bool,
+    /// fighter.lisp `*view-x*` / `*view-z*` (roots, sim-state.lisp): the pair view's unit direction from the fighters' midpoint (VIEW-STEP).
+    pub view_x: f32,
+    pub view_z: f32,
+    /// `*view-side*` (a root): +1 P1 on the left of the view, -1 on the right.
+    pub view_side: f32,
+    /// `*behind-yaw*` (a root): the behind camera's yaw, P1 toward P2, rate-limited.
+    pub behind_yaw: f32,
+    /// `*view-behind*` (configuration, SET-CAM-BEHIND at START-MATCH): humans steer by the behind view, else the pair view.
+    pub view_behind: bool,
+    /// Not a Lisp special: FQ-MATCH-END's Match half, done by GO-RESULTS (each learning brain's record taken, BRAIN-FQL set NIL, its
+    /// health balance and result then). GO-RESULTS runs deep in the sim (a K.O. cinematic's end), which has no `Search`; `sim_step`
+    /// applies the Search half (`cpu::fq::fq_match_end_apply`: the TD update, the save) at the step's end. Nothing reads the tables or
+    /// the page in between (docs/bevy/M2_NOTES.md §8).
+    pub fq_end: Vec<crate::cpu::fq::FqEnd>,
 }
 
 /// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
@@ -151,7 +165,8 @@ match_clone!(
     ents, transform, motion, fighter, gauges, pilot, hazard, ics, p1, p2, rng, time, match_tick, flow, timer, winner, slow_acc, cine,
     cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
     gate_results, gate_busy, gate_seed0, gate_seeds, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
-    pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off,
+    pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
+    view_behind, fq_end,
 );
 
 impl Match {
@@ -221,6 +236,12 @@ impl Match {
             gate_difficulty: crate::components::Difficulty::Normal,
             in_rollout: false,
             styles_off: false,
+            view_x: 0.0,
+            view_z: 1.0,
+            view_side: 1.0,
+            behind_yaw: 0.0,
+            view_behind: false,
+            fq_end: Vec::new(),
         }
     }
 

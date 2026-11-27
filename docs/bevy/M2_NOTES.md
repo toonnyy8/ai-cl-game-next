@@ -24,6 +24,8 @@ the other runtime-written `defvar` / `defparameter` in those files (a script ove
 | the PILOT component (vpad, `cam-relative`) | the brains' presses; MC-FULL-ROLL sets `cam-relative` NIL with the stand-in | yes: `*stores*` | `Match.pilot` (M1) |
 | `*mc-plan*` (cpu-mcts.lisp:44) | 160, 174, 189, 193, 236 (inside the rollout: its planned action), 251, 267 | yes (sim-state.lisp:15) | `Match.mc_plan: [i64; 10]` |
 | `*mc-next*` (cpu-mcts.lisp:113) | 137 (MC-NEUTRAL's deferral) | yes (sim-state.lisp:15) | `Match.mc_next: [i64; 2]` (MC-FULL-RESET does not reset it) |
+| a player's fq copy in BRAIN-STRAT, and BRAIN-FQL (reached through the BRAIN store) | FQ-ATTACH! (START-MATCH, outside the battle); FQ-NOTE pushes onto BRAIN-FQL (strategy-glue.lisp:120, `(not *in-rollout*)`); FQ-MATCH-END sets BRAIN-FQL NIL and updates the copy in place (GO-RESULTS, which returns at once in a rollout, flow.lisp:189). No rollout writes either (ledger T2), so the snapshot's walk into their conses has nothing to undo | yes | `Brain.strat` (a leaked `&'static` copy, never written during a match: FQ-MATCH-END makes an updated one and repoints, §8) and `Brain.fql: Option<fq::Fql>` (cloned with the match) |
+| `*view-x*` `*view-z*` `*view-side*` `*behind-yaw*` (fighter.lisp:223-226) | VIEW-STEP: FIGHTER-SYSTEM every step, BEGIN-BATTLE and RESET-ROUND with RESET | yes (sim-state.lisp:16) | `Match.view_x` / `view_z` / `view_side` / `behind_yaw` (Task 9) |
 | `*blow-aways*` (combat.lisp:11) | combat.lisp:205 (the sim); gate.lisp:87 (START-CVC, `// cpu:` in gate.rs) | yes (sim-state.lisp:12) | not ported: only the gate's log rows read it (gate.lisp:149) |
 
 ### Not roots, written by the CPU: in `Search`
@@ -35,7 +37,7 @@ the other runtime-written `defvar` / `defparameter` in those files (a script ove
 | `*strat-jobs*` (strategy.lisp:255) | strategy-glue.lisp:206 STRAT-REQUEST (STRAT-LAYER-STEP's `(not *in-rollout*)`, 212); 239, 248 STRAT-FULL-STEP (MC-FULL-STEP's guard, 248); cpu-mcts.lisp:194 | no | `Search.strat_jobs` (STJOB-SNAP: Task 8) |
 | `*strat-stats*` (strategy.lisp:256) | strategy-glue.lisp:207, 246, 255; cpu-mcts.lisp:194 | no | `Search.strat_stats` |
 | `*strat-picks*` (strategy.lisp:257) | strategy.lisp:4437 (sized at load); strategy-glue.lisp:253 (after STRAT-FULL-STEP's restore); cpu-mcts.lisp:194 | no | `Search.strat_picks` (sized by the strategy layer's task) |
-| `*fq-tables*` (fq-online.lisp:16) | fq-online.lisp:32 FQ-TABLE (from FQ-ATTACH! at START-MATCH); 37 FQ-RESET-ALL (SETTINGS); debug.lisp:578 (debug 2504) | no | `Search.fq_tables` (Task 9) |
+| `*fq-tables*` (fq-online.lisp:16) | fq-online.lisp:32 FQ-TABLE (from FQ-ATTACH! at START-MATCH); 37 FQ-RESET-ALL (SETTINGS); debug.lisp:578 (debug 2504); the cell's copy and count by FQ-MATCH-END (in place) | no | `Search.fq_tables: Vec<fq::FqCell>`, newest first (Task 9) |
 | the page (PAGE-GET / PAGE-SET; the recorder's `ENGINE::*ORACLE-PAGE*`) | fq-online.lisp:40, 85-86 (FQ-RESET-ALL; FQ-MATCH-END from GO-RESULTS, which returns at once in a rollout, flow.lisp:189) | no | `Search.page: BTreeMap<i64, i64>` (M3 persists it) |
 | `*cai-switch-counts*` (core-ai.lisp:339) | 343 `(unless *in-rollout* (incf …))` | no | `Search` (a log counter; the field comes with the task that ports CAI's switch count) |
 | the light search's scratch: `*mc-g*` `*mc-w*` `*mc-legal*` `*mc-legal2*` `*mc-slots*` `*mc-i*` `*mc-f*` `*mc-vals*` `*mc-n*` `*mc-sum*` `*mc-n2*` `*mc-sum2*` (mcts-lite.lisp:113-128), `*mc-ws*` (cpu-mcts.lisp:112) | MC-SETUP (cpu-mcts.lisp:67-110), MC-SEED (mcts-lite.lisp:137), MC-SEARCH (`fill`, 309), MC-NEUTRAL: all past the return at cpu-mcts.lisp:125, so never in a rollout; each is rewritten at a search's start (`*mc-g*`[2], the search stream, is reseeded by MC-SEED at 129) | no | preallocated scratch for Task 8 (`Search` or the light model's own); never read across searches |
@@ -47,8 +49,10 @@ the other runtime-written `defvar` / `defparameter` in those files (a script ove
 |---|---|---|
 | `*difficulty*` (flow.lisp:27) | the menu (flow.lisp:255), START-CVC (gate.lisp:87), debug 2504; read at SPAWN-PAIR | `Match.difficulty` (configuration, as `mode` / `picks`) |
 | `*gate-difficulty*` (gate.lisp:83) | debug 81020+ (not ported) | `Match.gate_difficulty` (always NORMAL until that command ports) |
-| `*learn-debug-off*` (fq-online.lisp:8) | debug.lisp:478 and debug 2504 | Task 9 (FQ-ATTACH!'s test) |
-| `*fq-learn-force*` (fq-online.lisp:17) | tools only (strat-run.lisp) | Task 9 (a tool's flag) |
+| `*learn-debug-off*` (fq-online.lisp:8) | debug.lisp:478 (every command) and debug 2504 | `Search.learn_debug_off` (FQ-ATTACH!'s test; `debug_command` sets it) |
+| `*fq-learn-force*` (fq-online.lisp:17) | tools only (strat-run.lisp) | `Search.fq_learn_force` (a tool's flag) |
+| `(setting :learn)` (LEARNING CPU, 0 = on) | the SETTINGS menu (M3) | `Search.learn` (0) |
+| `*view-behind*` (fighter.lisp:227) | SET-CAM-BEHIND at START-MATCH: `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)` | `Match.view_behind` (VS CPU / PRACTICE: `*cam-behind*` T and `*one-hand*` NIL in the recorder image, probed) |
 | `*masher-seats*` (masher.lisp:75) | debug 81030+ | M5 (MASHER-APPLY! runs with no seat) |
 | `*cai-styles*` (core-ai.lisp:25) | CAI-DEFSTYLE at load (28); `let`-bound NIL by MC-FULL-ROLLOUT (cpu-mcts.lisp:218), undone on exit | the style registry (`cpu::style::resolve`, data); the rollout's binding is a rollout flag (Task 8) |
 | WITH-ROLLOUT's bindings (rollout.lisp:13): `*in-rollout*` `*log-mute*` `*pacing-log*` `*combat-log*` `*gate-log*` `*step-hook*` `*skip-cines*` | `let`-bound around every rollout, undone on exit | the rollout driver (Task 8); `pacing_log` / `log_on` / `skip_cines` are `Match` fields, so the restore puts them back as the unbinding does |
@@ -153,7 +157,7 @@ probe; no inline `x*x`). ecl/src/c/numbers/expt.d: a zero base returns `ecl_time
 exponent goes to `ecl_expt_float`, which is `powf(ecl_to_float(x), ecl_to_float(y))`. That is `cl::expt2`. combat.lisp:108 (APPLY-HIT's
 `d2`, from single positions) and hazards.lisp:68 (a wave's arena test, `(expt (+ *arena-radius* 2.0) 2)` included) now use `cl::expt2`
 (combat.rs, hazards.rs). The other `(expt … 2)` in M1-ported files are ken.lisp:729/773/835, inside the KR / ZH / Z Kikon cinematics'
-DURING blocks; Rust ports only their endpoint KE-KK-AT calls (ken/cine.rs), so there is nothing to change. The 22 M1 traces stay OK.
+DURING blocks; Task 9 ports those blocks (`ken::cine::draw`, §8) with `cl::expt2`. The 22 M1 traces stay OK.
 
 **musl's expf (ruling R6).** `cl::expf` ports musl's src/math/expf.c (ARM's: the `__exp2f_data` table shared with powf, `shift`
 0x1.8p52, `InvLn2N` and `poly_scaled` exact scalings by 32). MC-PLAN-APPLY's softmax calls it (cpu-mcts.lisp:179). It equals musl on all
@@ -462,3 +466,74 @@ fresh `Brain` per rollout (Task 9's case, not "both CPUs on").
 **For Task 9.** In a vs rollout the Lisp's human device reader still runs (the stand-in brain's VPAD-BEGIN-STEP! calls it: it rewrites
 his held state before AI-PRESS-WRITE! sets every button); the port's rollouts read nothing (`flow::NoInput`), which equals the cvc
 recorder (REC-READER skips rollouts) but not necessarily a vs trace.
+
+## 8. The online learner and the human side (Task 9)
+
+**Gate.** `replay --live --inject-side 0`: vs-cpu `replay OK 12835 ticks`, vs-learn `replay OK 22413 ticks`, every T / A / C / H / B
+equal. vs-learn's A lines carry the learner whole: the copy `#s::T0-KI-ICHIGO/fq(<matches>,<q codes>)` (TR-A-STRAT), BRAIN-FQL with its
+record count and newest record (TR-A-FQL), the TD update at each match's end (the go-results step's A prints the updated codes), and the
+second match's load from the page (`/fq(1,…)` from its first step). The page at the end equals the trace's `R page-set` lines (627 at
+71000, `duel-tools` `vs_traces_replay_whole`). The 15 live gate traces stay OK with `--live` and with `--live --snap 40`; the M1 gate 22 OK.
+
+**fq.rs** (fq-online.lisp). `fq_table`, `fq_attach` (FQ-ATTACH!'s whole test: the table chance >= 1, HARD, `fq_learn_force` or VS CPU
+against a brainless opponent with `Search.learn` 0 and no debug command), `fq_explore` / `fq_note` (in `glue::strat_switch_step`, outside
+rollouts), `fq_reset_all`, and FQ-MATCH-END in two halves (below). `debug_command` sets `Search.learn_debug_off` for every command; debug
+2504 and `E vs-start` (TR-VS-START) are ported (`debug::debug_vs_learner`, `debug::vs_start`).
+
+**The copy's identity (ledger T5).** A player's copy is a fresh plist (COPY-TREE of the lookup's entry, or the page's q in one), EQ to no
+library value, its arms new values too, and FQ-MATCH-END updates it in place. The port leaks each copy into a `&'static Value`, so `Strat`
+stays a Copy pointer compared by `ptr::eq` (the library case unchanged, `Strat::get`'s 30-odd callers untouched) and the copy's arms are
+new addresses, as COPY-TREE's. FQ-MATCH-END clones the cell's copy, applies the TD update, leaks the result and repoints the cell and every
+brain holding the old one: the go-results step's A line then prints the updated codes as the Lisp's in-place update does. No owned enum
+variant: `Strat::get` returns `&'static` and `Strat` sits in Copy structs (`Now`, `Cues`), so an owned or `Rc` case would touch every
+caller for no behaviour. Ceiling: one table leaked per load and per learned match (tens of kB, a human's matches only); an arena of copies
+in `Search` if a session's matches ever matter (`ponytail:` in fq.rs).
+
+**FQ-MATCH-END's two halves.** GO-RESULTS runs deep inside the sim (a K.O. cinematic's end: `cine_step` → `end_cine` → `run_after`, or
+`hit_system` → … → `start_cine` with `skip_cines`), where no `Search` is passed. `fq_match_end_take` (in `go_results`) does the Match half
+then and there: each learning brain's record taken (BRAIN-FQL NIL), its health balance (MC-FULL-HEALTH) and result at that moment, queued in
+`Match.fq_end`. `fq_match_end_apply` (at the end of `sim_step`, before `*step-hook*`'s A line) does the Search half: the TD update, the count,
+the page writes (codes, then the length), the repointing. Between the two nothing reads the tables, the page or BRAIN-STRAT (the step's
+rest after GO-RESULTS is a cinematic's end or the systems after HIT-SYSTEM; the flow is RESULTS, so no later step runs), so the result
+equals the Lisp's.
+
+**The snapshot boundary (ledger T2).** BRAIN-FQL lives in the brain (`Brain.fql`, cloned with the match: a learning match's snapshots
+allocate its new records, VS CPU only); the copy is immutable during a match. Every writer is outside rollouts: FQ-NOTE's
+`(not *in-rollout*)`, FQ-MATCH-END from GO-RESULTS (which returns in a rollout), FQ-ATTACH! at START-MATCH. §1's table has the row.
+
+**VIEW-STEP** (`fighter::view_step`, M1 §2's carry) runs every FIGHTER-SYSTEM, and with RESET at BEGIN-BATTLE and RESET-ROUND, for every
+match as the Lisp does (invisible to H and B in CvC); STICK-RELATIVE reads a `cam_relative` pilot through `behind_yaw` (`view_behind`) or
+`dir_yaw(-view_x, -view_z)`. The three `unported!("view-step")` sites are gone. The recorder image, probed after `tr-vs-start` and debug
+2504: `*one-hand*` NIL (M1 §10's touch stubs hold for the human), `*cam-behind*` T, `*view-behind*` T, `(setting :learn)` 0, debug 2504's
+`*match-seed*` 1 (= `Match::new`'s).
+
+**Found in the Lisp: a played cinematic's DURING forms write sim state** (DIVERGENCES §1). vs-cpu first diverged at step 6203 (KEN-Z-KIKON1,
+P1's yaw) and vs-learn at step 2771 (the same cinematic, P2's yaw). CINE-DRAW runs the script's draw mode once per rendered frame, after
+the frame's steps (DRAW-SCENE, skipped in turbo), and Kenpachi's KE-KK-AT / KE-KK-YAW in DURING move the actors' TRANSFORMs: the victim
+looking round, blown away, Kenpachi through him. The CvC gate traces run in turbo with cinematics skipped, so M1 saw none of it.
+`cine::cine_draw` (called by `flow::frame` unless `turbo`) runs `ken::cine::draw`: the DURING forms of KR / ZH / Z-1 / S-1 / S-2 that
+write sim state, U as the macro computes it. Every other DURING (the generic cinematics', Ichigo's: VFX, cameras, `*ic-w*` scratch) and
+the rest of the draw (SLOW-DRAW puts back what it moves; hazard draw functions write nothing of the sim) were checked to be looks.
+
+**The human's device inside a rollout (ledger T8).** The Lisp's stand-in brain (MC-FULL-ROLL / STRAT-ROLL's, for a brainless opponent)
+runs CORE-BRAIN-STEP, whose VPAD-BEGIN-STEP! calls the vpad's reader: the human's device, which in a rollout writes its held state (every
+button, then the stick) without advancing, before AI-PRESS-WRITE! sets every button; a rollout's PILOT-READ calls it too. So a held key is
+pressed afresh in each rollout step (a new press stamp) and a button the stand-in holds is released and pressed again each step
+(DIVERGENCES §1: not what the stand-in was for). The port does the same: `PilotInput::rollout_read` (default nothing: a CPU's vpad has no
+reader, the recorder's REC-READER skips rollouts), called through `flow::InRollout`, which `mc_full_step` (now given the live input) passes
+to MC-FULL-ROLL and STRAT-ROLL's lean steps. The replayer's is the vs device: `Injector.held`, the buttons and stick last injected, written
+again; the live reads also write it again on a step without a new vpad tick, as REC-VS-DEVICE does. Test `tests/mcts.rs`
+`vs_device_writes_in_rollouts` (a held :sig moves its press stamp inside the rollout; with `NoInput` it stays).
+
+**Ruling R3.** Neither vs trace queues an MCTS job (every A job section is empty on both), so no vs rollout runs in the gate: the stand-in
+brain and the device inside a rollout are covered by `stand_in_brain_for_human` and `vs_device_writes_in_rollouts` only.
+
+**Ledger T8 minor.** The stand-in brain is reused: `rollout_start` takes the last rollout's stand-in out of the scratch before the restore
+(`Search.spare_brain`) and remakes it with `Brain::reset` (MAKE-BRAIN's slots, JSTARTS / SW-KEEP's reserves kept), so a vs rollout
+allocates no brain (`brain_reset_is_make_brain`).
+
+**Tests.** `tests/fq.rs`: `page_roundtrip` (FQ-TABLE's fresh copy, FQ-MATCH-END's save, the reload after the tables are forgotten: the
+learned q, one match, the same checksum; another offline table loads fresh; FQ-RESET-ALL), `cvc_never_learns` (CPU vs CPU at HARD, VS CPU
+after a debug command and at NORMAL: no learner; debug 2504 and `fq_learn_force`: learners), `a_line_prints_the_copy_and_the_record`.
+`tests/mcts.rs`: `vs_device_writes_in_rollouts`, `brain_reset_is_make_brain`. `duel-tools`: `vs_traces_replay_whole`. The fq checks of
+strategy.lisp were all ported by Task 5 (`online_fq_td_and_page`); none was left.

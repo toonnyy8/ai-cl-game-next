@@ -16,6 +16,20 @@ pub trait PilotInput {
     fn read(&mut self, m: &mut Match, side: usize);
     fn step_end(&mut self, m: &mut Match, s: &mut Search);
     fn after_brain(&mut self, _m: &mut Match, _s: &mut Search) {}
+    /// The vpad reader's call inside a CPU rollout (the stand-in brain's VPAD-BEGIN-STEP!, the rollout's PILOT-READ): a device writes
+    /// its held state again and never advances (a human's keys are still down while the CPU searches). None by default: a CPU's vpad
+    /// has no reader (the recorder's REC-READER skips rollouts).
+    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
+}
+
+/// The vpad readers as a rollout's lean steps see them: each read is the device's in-rollout call (`PilotInput::rollout_read`); no
+/// step-end or brain hook runs inside a rollout.
+pub struct InRollout<'a>(pub &'a mut dyn PilotInput);
+impl PilotInput for InRollout<'_> {
+    fn read(&mut self, m: &mut Match, side: usize) {
+        self.0.rollout_read(m, side);
+    }
+    fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
 }
 
 /// The headless platform's real seconds for frame K (tools/simgate/stubs.c pf_pump: virtual time, whole nanoseconds, so
@@ -44,7 +58,11 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool 
         m.time.step_acc = 0.0;
         // look: the menus' idle clips
     }
-    // look: slow-draw, the fx clock, the camera, the scene, the HUD
+    // look: slow-draw (it puts back what it moves), the fx clock, the camera
+    if !m.turbo {
+        cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
+    }
+    // look: the HUD
     true
 }
 
@@ -88,10 +106,11 @@ impl PilotInput for NoInput {
 /// port: SIM-STEP: the lean step, then (`look:` feedback-system) HASH-LOG's `*step-hook*` and MC-FULL-STEP.
 pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
     sim_core(m, s, input);
+    crate::cpu::fq::fq_match_end_apply(m, s); // (FQ-MATCH-END's Search half: GO-RESULTS ran in this step)
     // look: feedback-system
     // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
     input.step_end(m, s);
-    crate::cpu::mcts::mc_full_step(m, s);
+    crate::cpu::mcts::mc_full_step(m, s, input);
 }
 
 /// port: sim-state.lisp SIM-STEP-LEAN — SIM-STEP for a rollout: the sim without the presentation (no slow-motion snapshot, no
@@ -253,9 +272,11 @@ pub fn start_match(m: &mut Match, s: &mut Search) {
     cine::abort_cine(m);
     // look: clear-words
     m.rng.seed(m.match_seed);
-    // look: set-cam-behind (*view-behind*: read only by cam-relative pilots, M2)
+    // port: SET-CAM-BEHIND *cam-behind* (the CAMERA setting: BEHIND, the default; `*one-hand*` NIL headless): humans steer by the
+    // behind view in VS CPU / PRACTICE (*cam-cut* is the camera's, a look)
+    m.view_behind = matches!(m.mode, Mode::VsCpu | Mode::Practice);
     spawn_pair(m, m.mode == Mode::CpuCpu, m.mode != Mode::VsPlayer);
-    crate::cpu::start_match_cpu(m);
+    crate::cpu::start_match_cpu(m, s);
     for e in [m.p1, m.p2] {
         // (*konpaku-start*: *konpaku-max* unless debug 2101, not ported)
         m.gauges.get_mut(e).unwrap().konpaku = m.knobs.konpaku_max;
@@ -278,9 +299,8 @@ pub fn begin_battle(m: &mut Match) {
         to_idle(m, e);
     }
     m.match_tick = 0;
-    if m.pilot.iter().any(|(_, p)| p.cam_relative) {
-        crate::unported!(m, "view-step") // (*view-x* / *behind-yaw*: a human's stick, M2)
-    }
+    let (p1, p2) = (m.p1, m.p2);
+    crate::fighter::view_step(m, p1, p2, true);
     // look: duel-camera
     set_flow(m, Flow::Battle);
 }
@@ -322,7 +342,8 @@ pub fn go_results(m: &mut Match) {
     if m.in_rollout {
         return;
     }
-    // cpu: fq-match-end (Task 9); log-msg: the RESULTS line, MC-FULL-LOG (`cpu::mcts::mc_full_log`), STRAT-LOG
+    crate::cpu::fq::fq_match_end_take(m); // (FQ-MATCH-END: its Search half at this step's end, `sim_step`)
+    // log-msg: the RESULTS line, MC-FULL-LOG (`cpu::mcts::mc_full_log`), STRAT-LOG
     set_flow(m, Flow::Results);
     for e in [m.p1, m.p2] {
         let f = m.fighter.get_mut(e).unwrap();

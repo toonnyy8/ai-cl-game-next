@@ -1,11 +1,11 @@
 //! M2 Task 8: the light model (tests/duel-rules/mcts.lisp), the full-sim rollouts and their snapshot boundary (tools/simgate/fulltest.lisp
 //! and snaptest.lisp's ideas; the plan's Review Focus 1-3, 5), the rollouts' seed.
 use duel_data::Data;
-use duel_sim::components::{Character, Difficulty, Flow, State};
+use duel_sim::components::{Button, Character, Difficulty, Flow, State};
 use duel_sim::cpu::mcts::{mc_full_step, mc_outcomes_of, mc_plan_write, sim_snapshot_ok_p, with_rollout};
 use duel_sim::cpu::mcts_lite::*;
-use duel_sim::cpu::{McJob, Search};
-use duel_sim::flow::{sim_step, NoInput};
+use duel_sim::cpu::{Brain, McJob, Search};
+use duel_sim::flow::{sim_step, NoInput, PilotInput};
 use duel_sim::kit::{find_kit, kit_command_move, kit_core_move, kit_move, Role};
 use duel_sim::knobs::Knobs;
 use duel_sim::rng::crn_seed;
@@ -195,7 +195,7 @@ fn rollout_leaves_live_state_and_keeps_search() {
     let k = 5 * s.mc_jobs[0].side as usize;
     m.mc_plan[k] = 1; // (its plan still running)
     let rolls = s.mc_stats[1];
-    mc_full_step(&mut m, &mut s);
+    mc_full_step(&mut m, &mut s, &mut NoInput);
     assert_eq!(digest(&m, &s), before);
     assert_eq!(search_rest(&s, 0), rest, "the other jobs, the strategy state, the page");
     assert_eq!((s.mc_jobs.len(), s.pool.len(), m.mc_plan[k], s.mc_stats[1]), (jobs - 1, pool + 1, 2, rolls + 1));
@@ -205,7 +205,7 @@ fn rollout_leaves_live_state_and_keeps_search() {
     let (e, side) = (if k == 0 { m.p1 } else { m.p2 }, (k / 5) as i64);
     s.mc_jobs.push(McJob { e, side, a1: 7, a2: 8, dif: Difficulty::Normal, snap: None, n: 0, v1: 0.0, v2: 0.0, rng: 0 });
     let (before, rest, plan) = (digest(&m, &s), search_rest(&s, 1), m.mc_plan);
-    mc_full_step(&mut m, &mut s);
+    mc_full_step(&mut m, &mut s, &mut NoInput);
     assert_eq!(digest(&m, &s), before);
     assert_eq!(search_rest(&s, 1), rest, "the other jobs, the strategy state, the page");
     assert_eq!((m.mc_plan, s.mc_jobs.len(), s.mc_jobs[0].n, s.mc_jobs[0].rng), (plan, 1, 1, m.rng.state()));
@@ -240,7 +240,7 @@ fn jobs_dropped_when_snapshot_not_ok() {
         set(&mut m, &cine);
         assert!(!sim_snapshot_ok_p(&m), "case {i}");
         m.mc_plan = [1, 3, 8, 0, 0, 2, 1, 2, 10, 5];
-        mc_full_step(&mut m, &mut s);
+        mc_full_step(&mut m, &mut s, &mut NoInput);
         assert!(s.mc_jobs.is_empty(), "case {i}");
         assert_eq!((m.mc_plan, s.pool.len()), ([0; 10], slots), "case {i}");
     }
@@ -283,7 +283,7 @@ fn stand_in_brain_for_human() {
     s.mc_jobs.push(McJob { e: p2, side: 1, a1: 7, a2: 8, dif: Difficulty::Hard, snap: None, n: 0, v1: 0.0, v2: 0.0, rng: 0 });
     m.mc_plan[5..].copy_from_slice(&[1, 7, 8, 0, 0]);
     let before = digest(&m, &s);
-    mc_full_step(&mut m, &mut s);
+    mc_full_step(&mut m, &mut s, &mut NoInput);
     assert_eq!(s.mc_jobs[0].n, 1);
     assert_eq!(digest(&m, &s).0, before.0);
     assert!(m.fighter.get(p1).unwrap().brain.is_none() && m.pilot.get(p1).unwrap().cam_relative);
@@ -291,6 +291,61 @@ fn stand_in_brain_for_human() {
     let b = r.fighter.get(p1).unwrap().brain.as_ref().expect("the stand-in");
     assert_eq!((b.difficulty, b.delay, r.pilot.get(p1).unwrap().cam_relative), (Difficulty::Hard, 8, false));
     assert!(r.in_rollout && r.styles_off && !r.log_on && r.skip_cines);
+}
+
+/// Ledger T8: in a vs rollout the human's device still runs (the stand-in brain's VPAD-BEGIN-STEP! calls the vpad's reader, which
+/// writes his held state, every button, then the stick), before AI-PRESS-WRITE! sets every button. A held button the brain never
+/// presses (:sig here) is pressed afresh in each rollout step and let go by the brain: its press stamp moves on inside the rollout.
+/// With no device (`NoInput`) it stays. The stand-in brain is made again from the last one (`Brain::reset`), none allocated.
+#[test]
+fn vs_device_writes_in_rollouts() {
+    struct Held;
+    impl PilotInput for Held {
+        fn read(&mut self, _m: &mut Match, _side: usize) {}
+        fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+        fn rollout_read(&mut self, m: &mut Match, side: usize) {
+            let e = if side == 0 { m.p1 } else { m.p2 };
+            let vp = &mut m.pilot.get_mut(e).unwrap().vpad;
+            for bit in 0..vp.actions.len() {
+                vp.set(bit, bit == Button::Sig as usize);
+            }
+        }
+    }
+    let run = |input: &mut dyn PilotInput| {
+        let mut s = Search::new();
+        let mut m = ki_battle(&mut s);
+        for _ in 0..301 {
+            sim_step(&mut m, &mut s, &mut NoInput);
+        }
+        let p1 = m.p1;
+        m.fighter.get_mut(p1).unwrap().brain = None;
+        m.pilot.get_mut(p1).unwrap().cam_relative = true;
+        s.mc_jobs.push(McJob { e: m.p2, side: 1, a1: 7, a2: 8, dif: Difficulty::Hard, snap: None, n: 0, v1: 0.0, v2: 0.0, rng: 0 });
+        m.mc_plan[5..].copy_from_slice(&[1, 7, 8, 0, 0]);
+        let t0 = m.pilot.get(p1).unwrap().vpad.press[Button::Sig as usize];
+        mc_full_step(&mut m, &mut s, input);
+        let vp = &s.scratch.as_ref().unwrap().0.pilot.get(p1).unwrap().vpad;
+        let (p, tick) = (vp.press[Button::Sig as usize], vp.tick);
+        assert!(m.pilot.get(p1).unwrap().vpad.press[Button::Sig as usize] == t0); // (the live vpad untouched)
+        mc_full_step(&mut m, &mut s, input); // (the job's second rollout: the stand-in made again from the first's)
+        assert!(s.spare_brain.is_none() && s.scratch.as_ref().unwrap().0.fighter.get(p1).unwrap().has_brain());
+        (t0, p, tick)
+    };
+    let (t0, p, _) = run(&mut NoInput);
+    assert_eq!(p, t0);
+    let (t0, p, tick) = run(&mut Held);
+    assert!(t0 < p && p <= tick, "{t0} {p} {tick}");
+}
+
+/// `Brain::reset` (a reused stand-in) is MAKE-BRAIN's brain, with its vectors' reserves kept.
+#[test]
+fn brain_reset_is_make_brain() {
+    let mut b = Brain::new(Difficulty::Normal, 14);
+    b.jstarts.extend([3, 4, 5]);
+    (b.press_left, b.strafe, b.fresh) = (9, -1.0, false);
+    let cap = b.jstarts.capacity();
+    b.reset(Difficulty::Hard, 8);
+    assert!(b == Brain::new(Difficulty::Hard, 8) && b.jstarts.capacity() == cap);
 }
 
 /// Review Focus 5: MC-FULL-STEP's plan `(round (* 1000 v))` is banker's at ±x.5 (62.5 → 62, 187.5 → 188, -62.5 → -62), the better
@@ -337,13 +392,13 @@ fn strat_full_step_picks_after_its_rolls() {
     let before = digest(&m, &s);
     let rolls = m.knobs.strat_rolls;
     for k in 1..rolls {
-        mc_full_step(&mut m, &mut s);
+        mc_full_step(&mut m, &mut s, &mut NoInput);
         assert_eq!((s.strat_jobs[0].n, s.strat_stats[1]), (k, k));
         assert_eq!(digest(&m, &s), before, "the live match after rollout {k}");
     }
     let tot: f32 = s.strat_jobs[0].ns.iter().sum::<f32>() + s.strat_jobs[0].hns.iter().sum::<f32>();
     assert!(tot > 0.0 && s.strat_jobs[0].snap.is_some() && s.cut_rollouts == 0);
-    mc_full_step(&mut m, &mut s); // (the last rollout: its score counts before the pick)
+    mc_full_step(&mut m, &mut s, &mut NoInput); // (the last rollout: its score counts before the pick)
     assert!(s.strat_jobs.is_empty());
     let st = m.fighter.get(e).unwrap().brain.as_ref().unwrap().strat.expect("the pick");
     assert_eq!(s.strat_picks.iter().sum::<i64>(), 1);
@@ -354,7 +409,7 @@ fn strat_full_step_picks_after_its_rolls() {
     glue::strat_request(&mut m, &mut s, e, &mut b, &snap, d);
     m.fighter.get_mut(e).unwrap().brain = Some(b);
     m.paused = true;
-    mc_full_step(&mut m, &mut s);
+    mc_full_step(&mut m, &mut s, &mut NoInput);
     assert!(s.strat_jobs.is_empty());
 }
 

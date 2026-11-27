@@ -220,15 +220,13 @@ pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f
     } else {
         let feats = judge_feats(m, e, s, d, sw, b.sw_sub);
         // (*strat-judge-hook*: a tool's, NIL in the game)
-        let judged = strategy::strat_judge(&m.knobs.fz_sets, sw, feats.as_slice());
-        // (the online fuzzy Q's exploration and record, FQ-EXPLORE / FQ-NOTE, outside rollouts when the brain learns: Task 9)
-        if fq.is_some()
-            && !m.in_rollout
-            && let Some(x) = b.fql
-        {
-            match x {}
+        let (mut sub, mut i) = strategy::strat_judge(&m.knobs.fz_sets, sw, feats.as_slice());
+        // (the online fuzzy Q: its exploration and record, outside rollouts, when the brain learns)
+        if fq.is_some() && b.fql.is_some() && !m.in_rollout {
+            (sub, i) = super::fq::fq_explore(m, e, sw, sub, i);
+            super::fq::fq_note(m, e, b, feats.as_slice(), i);
         }
-        judged
+        (sub, i)
     };
     let st = sub.or_else(|| {
         // (a Q selector's NIL arm: no strategy, never the lookup)
@@ -381,7 +379,7 @@ pub fn strat_layer_step(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain,
 
 /// port: STRAT-ROLL — the oldest selection's next rollout from its snapshot: both arms by their PUCT, both CPUs on them (a stand-in
 /// brain for a brainless opponent), `*strat-h*` lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing.
-pub fn strat_roll(s: &mut Search, live_tick: i64) -> (usize, usize, f32) {
+pub fn strat_roll(s: &mut Search, dev: &mut crate::flow::InRollout, live_tick: i64) -> (usize, usize, f32) {
     let j = &s.strat_jobs[0];
     let c = j.snap.as_ref().expect("a selection's snapshot").0.knobs.strat_c;
     let (e, dif, rng) = (j.e, j.dif, j.rng);
@@ -396,14 +394,14 @@ pub fn strat_roll(s: &mut Search, live_tick: i64) -> (usize, usize, f32) {
         brain_set_strat(r.fighter.get_mut(x).unwrap().brain.as_mut().expect("a brain"), Some(st));
     }
     let (h, swing) = (r.knobs.strat_h, r.knobs.strat_swing);
-    let sw = super::mcts::mc_full_rollout(r, s, e, o, h, dif, false);
+    let sw = super::mcts::mc_full_rollout(r, s, dev, e, o, h, dif, false);
     super::mcts::rollout_end(s, sc, live_tick);
     (i, k, max_f32(0.0, min_f32(1.0, 0.5 + sw / (2.0 * swing))))
 }
 
 /// port: STRAT-FULL-STEP — one rollout of the oldest selection (MC-FULL-STEP, when no action rollout is due); its first takes the
 /// live state as its start. After `*strat-rolls*` the pick goes into his brain (the live one: the rollout never touched it).
-pub fn strat_full_step(m: &mut Match, s: &mut Search) {
+pub fn strat_full_step(m: &mut Match, s: &mut Search, dev: &mut crate::flow::InRollout) {
     if !super::mcts::sim_snapshot_ok_p(m) {
         s.drop_strat_jobs(); // (a cinematic, the match's end: asked again on coming back)
         return;
@@ -413,7 +411,7 @@ pub fn strat_full_step(m: &mut Match, s: &mut Search) {
         let slot = s.snapshot(m);
         (s.strat_jobs[0].snap, s.strat_jobs[0].rng) = (Some(slot), m.rng.state());
     }
-    let (i, k, v) = strat_roll(s, m.match_tick);
+    let (i, k, v) = strat_roll(s, dev, m.match_tick);
     s.strat_stats[1] += 1;
     let j = &mut s.strat_jobs[0];
     j.sums[i] += v;
