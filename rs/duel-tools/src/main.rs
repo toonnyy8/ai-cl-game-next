@@ -9,7 +9,7 @@
 //! M2: `--live` (a cmds or vs trace with the brains thinking, nothing injected; T compared right after BRAIN-SYSTEM, C, A, the log, H,
 //! B; a trials trace is refused, exit 3), `--resync` (a T / A mismatch noted, the recorded vpads / sim stream / plan written back, the
 //! run goes on; exit 1, the first 20 listed after the outcome), `--inject-side N` (a vs trace's human side injected),
-//! `--inject-plan` (A's plan, strategies and jobs written at each step's end). Each needs `--live`.
+//! `--inject-plan` (MC-FULL-STEP's plan changes copied from the next record at each step's end, the job sections not compared). Each needs `--live`.
 mod replay;
 #[allow(dead_code)]
 mod trace;

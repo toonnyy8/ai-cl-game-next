@@ -1,7 +1,7 @@
 //! port: tools/port/oracle/replay.lisp — the replay of a trace, compared step by step: brainless (M1), or `--live` (M2: the brains
 //! think, nothing injected but a vs trace's human).
 use crate::trace::{self, Item, TLine};
-use duel_sim::components::{Button, Character, Difficulty, Form};
+use duel_sim::components::{Button, Character, Form};
 use duel_sim::cpu::Search;
 use duel_sim::ecs::Entity;
 use duel_sim::flow::{self, PilotInput};
@@ -148,7 +148,8 @@ pub struct Opts {
     pub resync: bool,
     /// A vs trace's human side, whose recorded vpad is injected (its sim stream never is).
     pub inject_side: Option<usize>,
-    /// At each step's end (the recorder's A point), A's plan, mc-next, strategies and jobs written into the match and the search.
+    /// At each step's end (where MC-FULL-STEP runs), the plan changes MC-FULL-STEP made, from the next record (`plan_copy`); the A
+    /// comparison then skips the job sections.
     pub inject_plan: bool,
 }
 
@@ -261,61 +262,41 @@ fn write_t(m: &mut Match, t: &TLine) {
     m.rng.set_state(t.rnd);
 }
 
-/// One A field's f32 (8 hex digits of its bits).
-fn a_f32(w: &str) -> Result<f32, String> {
-    match u32::from_str_radix(w, 16) {
-        Ok(b) if w.len() == 8 => Ok(f32::from_bits(b)),
-        _ => Err(format!("inject-plan: {w} is not a single-float")),
+/// The plan and mc-next of an A text (after `A `): its first 12 fields.
+fn a_plan(a: &str) -> Result<[i64; 12], String> {
+    let mut p = [0; 12];
+    let mut w = a.split(' ');
+    for x in p.iter_mut() {
+        let v = w.next().ok_or("A: fewer than 12 fields")?;
+        *x = v.parse().map_err(|_| format!("A: {v} is not an integer"))?;
     }
+    Ok(p)
 }
 
-/// One A vector of single-floats (`[3F800000,…]`, `[]`).
-fn a_f32s(w: &str) -> Result<Vec<f32>, String> {
-    let inner = w.strip_prefix('[').and_then(|x| x.strip_suffix(']')).ok_or(format!("inject-plan: {w} is not a vector"))?;
-    inner.split(',').filter(|x| !x.is_empty()).map(a_f32).collect()
+/// `--resync`'s A repair: the recorded `*mc-plan*` and `*mc-next*` written back (jobs and strategies are not: Search / the brain's own).
+fn write_plan(m: &mut Match, a: &str) -> Result<(), String> {
+    let p = a_plan(a)?;
+    m.mc_plan.copy_from_slice(&p[..10]);
+    m.mc_next.copy_from_slice(&p[10..]);
+    Ok(())
 }
 
-/// `--inject-plan`: the A text (after `A `) written where the recorder read it: `*mc-plan*`, `*mc-next*`, each brain's strategy, the
-/// action jobs and the strategy jobs (their A fields; a job's other slots are the tasks' that port them).
-pub fn inject_plan(m: &mut Match, s: &mut Search, a: &str) -> Result<(), String> {
-    use duel_sim::cpu::{A_SIDE, A_STRAT, McJob, StratJob, StratRef};
-    let w: Vec<&str> = a.split(' ').collect();
-    let int = |x: &str| x.parse::<i64>().map_err(|_| format!("inject-plan: {x} is not an integer"));
-    if w.len() < 12 + 2 * A_SIDE + 2 {
-        return Err(format!("inject-plan: an A line of {} fields", w.len()));
-    }
-    for (x, v) in m.mc_plan.iter_mut().chain(m.mc_next.iter_mut()).zip(&w) {
-        *x = int(v)?;
-    }
-    for (k, e) in [m.p1, m.p2].into_iter().enumerate() {
-        let x = w[12 + k * A_SIDE + A_STRAT];
-        let st = match x {
-            "NIL" | ":ABSENT" => None,
-            _ if x.contains("/fq") => return Err(format!("inject-plan: {x}: a player's fq copy (Task 9)")),
-            _ => Some(StratRef::by_id(m.data, x.strip_prefix("#s::").unwrap_or(x)).ok_or(format!("inject-plan: no strategy {x}"))?),
-        };
-        if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
-            b.strat = st;
+/// `--inject-plan` (the controller's ruling): what MC-FULL-STEP would write at step k's end, taken from the next record's plan NEXT.
+/// MC-FULL-STEP changes only a side whose plan state is 1 (a pending job): done, it writes 2, a1 / a2 and the two rounded scores; a
+/// popped job or the snapshot-not-ok clear writes 0. So a side at 1 whose NEXT state is not 1 takes NEXT's 5 values; any other side is
+/// left alone (NEXT at 1 is the brain's own new job; a 2 -> 0 at k+1 is the brain applying its plan in step k+1, Rust's brain's to do).
+/// ponytail: the snapshot-not-ok clear also zeroes a side holding 2; that case is not mirrored (accepted, Task 8 removes the flag).
+pub fn plan_copy(plan: &mut [i64; 10], next: &[i64]) {
+    for k in [0, 5] {
+        if plan[k] == 1 && next[k] != 1 {
+            plan[k..k + 5].copy_from_slice(&next[k..k + 5]);
         }
     }
-    let bar = 12 + 2 * A_SIDE;
-    let bar2 = w.iter().skip(bar + 1).position(|x| *x == "|").map(|p| p + bar + 1).ok_or("inject-plan: no job sections")?;
-    let (jobs, stjobs) = (&w[bar + 1..bar2], &w[bar2 + 1..]);
-    if w[bar] != "|" || jobs.len() % 7 != 0 || stjobs.len() % 6 != 0 {
-        return Err("inject-plan: the job sections".into());
-    }
-    s.mc_jobs = jobs
-        .chunks(7)
-        .map(|j| {
-            let dif = Difficulty::from_name(j[3].trim_start_matches(':')).ok_or(format!("inject-plan: difficulty {}", j[3]))?;
-            Ok(McJob { side: int(j[0])?, a1: int(j[1])?, a2: int(j[2])?, dif, n: int(j[4])?, v1: a_f32(j[5])?, v2: a_f32(j[6])? })
-        })
-        .collect::<Result<_, String>>()?;
-    s.strat_jobs = stjobs
-        .chunks(6)
-        .map(|j| Ok(StratJob { side: int(j[0])?, n: int(j[1])?, sums: a_f32s(j[2])?, ns: a_f32s(j[3])?, hsums: a_f32s(j[4])?, hns: a_f32s(j[5])? }))
-        .collect::<Result<_, String>>()?;
-    Ok(())
+}
+
+/// The A text before its job sections (`--inject-plan` compares only that: the jobs are the missing MC-FULL-STEP's Search state).
+fn a_head(a: &str) -> &str {
+    a.find(" |").map_or(a, |i| &a[..i])
 }
 
 /// port: replay.lisp's state: the step due now, the counts, the outcome once there is one (then reads and step ends are no-ops).
@@ -347,6 +328,8 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
     c_got: Vec<String>,
     /// Live vs: the injected side's fighter (a new match's resets its last injected tick).
     seat: Entity,
+    /// Items read ahead of `cur` (`--inject-plan` looks for the next step's A).
+    ahead: std::collections::VecDeque<Result<Item, String>>,
     mismatches: Vec<String>,
     n_mismatch: u64,
 }
@@ -354,7 +337,8 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
 impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
     /// The next item becomes the one due (a step's T goes to the injector).
     fn advance(&mut self) {
-        self.cur = match self.it.next() {
+        let next = self.ahead.pop_front().or_else(|| self.it.next());
+        self.cur = match next {
             None => None,
             Some(Err(e)) => {
                 self.out = Some(Outcome::Error(e));
@@ -367,6 +351,24 @@ impl<I: Iterator<Item = Result<Item, String>>> Replayer<I> {
                 Some(item)
             }
         };
+    }
+
+    /// The A text of the next step record after `cur` (read ahead, kept for `advance`), or None at the end / in a trace without A.
+    fn next_step_a(&mut self) -> Option<String> {
+        if let Some(Item::Step { a, .. }) = &self.cur {
+            return a.clone();
+        }
+        for i in 0.. {
+            if i == self.ahead.len() {
+                self.ahead.push_back(self.it.next()?);
+            }
+            match &self.ahead[i] {
+                Ok(Item::Step { a, .. }) => return a.clone(),
+                Err(_) => return None,
+                _ => {}
+            }
+        }
+        None
     }
 
     /// An `unported!` hit outside a step (a debug command, a gate between matches): UNPORTED at the step due.
@@ -522,11 +524,12 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
             let Some(wa) = a else { return self.fail(m, "the trace has no A line for this step".into()) };
             let got = duel_sim::cpu::a_line(m, s);
             let got = got.strip_prefix("A ").unwrap_or(&got);
+            // (--inject-plan: the job sections are the missing MC-FULL-STEP's Search state, not compared)
+            let (wa, got) = if self.inject_plan { (a_head(wa), a_head(got)) } else { (wa.as_str(), got) };
             let diff = trace::a_diff(&self.a_fields, wa, got).or((wa != got).then(|| "A (equal fields, other text)".into()));
-            // (--resync: the plan written back, as --inject-plan does; the brains' other slots are the CPU's own)
-            let resynced = diff.is_some_and(|d| self.mismatch(m, d));
-            if (resynced || self.inject_plan)
-                && let Err(e) = inject_plan(m, s, wa)
+            // (--resync: the plan written back; the brains' other slots are the CPU's own)
+            if diff.is_some_and(|d| self.mismatch(m, d))
+                && let Err(e) = write_plan(m, wa)
             {
                 self.out = Some(Outcome::Error(e));
                 return;
@@ -551,6 +554,15 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
             return;
         }
         self.advance();
+        // (--inject-plan: at step k's end, where MC-FULL-STEP runs, after the point the recorder printed A(k))
+        if self.inject_plan
+            && let Some(next) = self.next_step_a()
+        {
+            match a_plan(&next) {
+                Ok(p) => plan_copy(&mut m.mc_plan, &p[..10]),
+                Err(e) => self.out = Some(Outcome::Error(e)),
+            }
+        }
     }
 }
 
@@ -622,6 +634,7 @@ pub fn run_opts(o: &Opts, data: &'static duel_data::Data) -> RunResult {
         pre: None,
         c_got: vec![],
         seat: Entity::NIL,
+        ahead: Default::default(),
         mismatches: vec![],
         n_mismatch: 0,
     };
@@ -1059,27 +1072,28 @@ mod tests {
     fn live_ki_s1_reaches_brain_system() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        let o = parse_args(&args(&format!("{path} --live"))).unwrap();
-        let r = run_opts(&o, data);
-        assert_eq!(report(&o, &r).0[0], "replay UNPORTED brain-system at tick 1 (step 301)");
+        // (--inject-plan reads one step record ahead each step: the order of the records must not change)
+        for flags in ["--live", "--live --inject-plan"] {
+            let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
+            let r = run_opts(&o, data);
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED brain-system at tick 1 (step 301)", "{flags}");
+        }
     }
 
-    /// `--inject-plan` writes an A line's plan, mc-next, both strategies and the jobs into the match and the search.
+    /// `--inject-plan`'s copy rule: a side at 1 takes the next record's plan when it left 1 (done: 2, popped: 0); 1 -> 1 and 2 -> 0
+    /// are left alone.
     #[test]
-    fn inject_plan_writes_match_and_search() {
-        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        let mut m = Match::new(data);
-        flow::go_title(&mut m);
-        duel_sim::gate::start_cvc(&mut m, 1, Some([Character::Kenpachi, Character::Ichigo]));
-        let mut s = Search::new();
-        let mut text = duel_sim::cpu::a_line(&m, &s);
-        let base = text.clone();
-        text = text.replacen("A 0 0 0 0 0 0 0 0 0 0 0 0 ", "A 1 3 7 0 0 0 0 0 0 0 5 9 ", 1);
-        text = text.replacen("#s::T0-KI-ICHIGO", "#s::S1-BRAWLER", 1);
-        text = text.replacen(" | |", " | 0 3 7 :HARD 1 3F800000 00000000 | 1 2 [3F800000] [40000000] [] [3F000000]", 1);
-        assert_ne!(text, base);
-        inject_plan(&mut m, &mut s, text.strip_prefix("A ").unwrap()).unwrap();
-        assert_eq!(duel_sim::cpu::a_line(&m, &s), text);
+    fn plan_copy_follows_mc_full_step() {
+        let mut p = [1, 3, 7, 0, 0, 1, 4, 2, 0, 0];
+        plan_copy(&mut p, &[2, 7, 3, 412, -90, 0, 4, 2, 0, 0]);
+        assert_eq!(p, [2, 7, 3, 412, -90, 0, 4, 2, 0, 0]); // (1 -> 2: scored; 1 -> 0: popped)
+        let mut p = [1, 3, 7, 0, 0, 2, 4, 2, 100, 50];
+        plan_copy(&mut p, &[1, 5, 6, 0, 0, 0, 4, 2, 100, 50]);
+        assert_eq!(p, [1, 3, 7, 0, 0, 2, 4, 2, 100, 50]); // (1 -> 1: the brain's own job; 2 -> 0: the brain applies it)
+        assert_eq!(a_head("0 NIL 1 | 0 1 2 | 1 2"), "0 NIL 1");
+        let mut m = Match::new(Box::leak(Box::new(duel_data::Data::embedded())));
+        write_plan(&mut m, "1 2 3 4 5 6 7 8 9 10 11 12 :NORMAL").unwrap();
+        assert_eq!((m.mc_plan, m.mc_next), ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [11, 12]));
     }
 
     #[test]
