@@ -13,6 +13,7 @@ use std::fmt::Write;
 pub mod core_ai;
 pub mod fuzzy;
 pub mod glue;
+pub mod ken_ki;
 pub mod perceive;
 pub mod strategy;
 pub mod style;
@@ -50,11 +51,16 @@ impl Enc for Won {
 
 /// BRAIN-SW-KEEP: the styles' states a :KEEP-STATE Q selector keeps, `((fn . style) ...)` newest first. Reserved at the brain's
 /// making (a table has at most `MAX_ARMS` style functions), so a switch allocates nothing.
+///
+/// Lisp's entries hold the struct objects: a switch back to a style sets BRAIN-STYLE to its kept struct, the same object, so the
+/// entry and BRAIN-STYLE stay EQ until the style makes a fresh struct (or the next switch). `Brain.style_live` marks that: the
+/// entry of `sw_fn` then reads `Brain.style` (printed so), and `Brain::style_replaced` writes the old struct back into it.
 #[derive(Clone, Debug, PartialEq)]
-pub struct SwKeep(pub Vec<(style::StyleId, Option<NotYet>)>);
+pub struct SwKeep(pub Vec<(style::StyleId, Option<style::StyleState>)>);
 
-impl Enc for SwKeep {
-    fn enc(&self, d: &Data, s: &mut String) {
+impl SwKeep {
+    /// TR-B-ENC of the list, entry LIVE (the style function whose entry is EQ to BRAIN-STYLE) printed as STYLE.
+    fn enc(&self, d: &Data, s: &mut String, live: Option<(style::StyleId, Option<style::StyleState>)>) {
         if self.0.is_empty() {
             return s.push_str("NIL");
         }
@@ -65,6 +71,10 @@ impl Enc for SwKeep {
             }
             s.push('(');
             f.enc(d, s);
+            let st = match live {
+                Some((lf, ls)) if lf == *f => ls,
+                _ => *st,
+            };
             if let Some(st) = st {
                 s.push_str(",.");
                 st.enc(d, s);
@@ -116,7 +126,7 @@ pub struct Brain {
     pub xdone: bool,
     pub clash_key: i64,
     pub fin_t: i64,
-    pub style: Option<NotYet>, // a style's struct (Tasks 6-7)
+    pub style: Option<style::StyleState>, // a style's struct (its own; the event arm's while STRAT-EVENT-CALL runs it)
     pub strat: Option<Strat>,
     pub now: Option<strategy::Now>, // (strategy . cues) while the core CPU steps; NIL at a step's end
     pub sw_sub: Option<Strat>,
@@ -129,7 +139,7 @@ pub struct Brain {
     pub tw_off: bool,
     pub ev_t: i64,
     pub ev_on: Option<Strat>,
-    pub ev_style: Option<NotYet>,
+    pub ev_style: Option<style::StyleState>,
     pub ev_n: i64,
     pub ev_steps: i64,
     pub fql: Option<NotYet>, // the online learner's record (Task 9)
@@ -139,6 +149,8 @@ pub struct Brain {
     pub m_left: i64,
     pub m_stick: Sym,
     pub off: bool,
+    /// Not a slot: `style` is EQ to `sw_keep`'s entry of `sw_fn` (see `SwKeep`).
+    pub style_live: bool,
 }
 
 /// BRAIN's slot count (a fighter without a brain prints this many `:ABSENT`).
@@ -212,6 +224,18 @@ impl Brain {
             m_left: 0,
             m_stick: Sym(":NEUTRAL"),
             off: false,
+            style_live: false,
+        }
+    }
+
+    /// A style function puts a fresh struct in BRAIN-STYLE in place of OLD (taken out): an entry of `sw_keep` that was EQ to OLD
+    /// keeps OLD (the Lisp's kept object), and is no longer EQ to the new one.
+    pub fn style_replaced(&mut self, old: Option<style::StyleState>) {
+        if std::mem::take(&mut self.style_live)
+            && let Some(fid) = self.sw_fn
+            && let Some(c) = self.sw_keep.0.iter_mut().find(|c| c.0 == fid)
+        {
+            c.1 = old;
         }
     }
 
@@ -224,7 +248,10 @@ impl Brain {
         f!(self.press_left, self.decide_t, self.roll_key, self.guard_roll, self.hoho_roll, self.was, self.burst_t, self.burst_rolled);
         f!(self.dash, self.dash_to, self.act, self.why, self.habit, self.jkey, self.jstarts, self.own_key, self.r_turn, self.r_cont);
         f!(self.r_kikon, self.decided, self.xkey, self.xmove, self.xown, self.xpick, self.xcarry, self.xdone, self.clash_key, self.fin_t);
-        f!(self.style, self.strat, self.now, self.sw_sub, self.sw_t, self.sw_n, self.sw_won, self.sw_fn, self.sw_keep, self.tw, self.tw_off);
+        f!(self.style, self.strat, self.now, self.sw_sub, self.sw_t, self.sw_n, self.sw_won, self.sw_fn);
+        s.push(' ');
+        self.sw_keep.enc(d, s, self.sw_fn.filter(|_| self.style_live).map(|f| (f, self.style)));
+        f!(self.tw, self.tw_off);
         f!(self.ev_t, self.ev_on, self.ev_style, self.ev_n, self.ev_steps, self.fql, self.st_next, self.st_free, self.masher, self.m_left);
         f!(self.m_stick, self.off);
     }

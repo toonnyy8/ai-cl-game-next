@@ -183,8 +183,10 @@ fn brain_read_fires_inside_brain_system() {
     m.log_on = true;
     duel_sim::clog!(&mut m, "a frame line");
     duel_sim::flow::sim_step(&mut m, s, &mut spy);
-    assert_eq!(spy.0, [(0, 1, 1)]); // (P1's brain: after its vpad clock moved, after the frame's line; then core-brain-step stops)
-    assert_eq!(m.unported, Some("style KEN-KH-STANDOFF-STYLE")); // (its Q selector's arm 0's style: Task 6)
+    // (P1's brain: after its vpad clock moved, after the frame's line; then P2's, whose step stops at its style)
+    assert_eq!(spy.0[0], (0, 1, 1));
+    assert_eq!((spy.0.len(), spy.0[1].0, spy.0[1].2), (2, 1, 1));
+    assert_eq!(m.unported, Some("style ICHIGO-KI-R2B2A1-STYLE")); // (Ichigo's Q selector's arm 0's style: Task 7)
 }
 
 /// BRAIN-PERCEIVE on the first battle step: the fresh ring holds 32 views of Ichigo at the round's start, the head moved to 1.

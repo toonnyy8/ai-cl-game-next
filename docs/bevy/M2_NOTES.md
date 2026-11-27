@@ -222,3 +222,61 @@ evidence is:
 when off, locked or in a cinematic too; the matchup-style clause ran whatever the strategy; the :FN clause was missing; STRAT-OUT /
 -SCALE / -MUL read `f32` (now `Num`: an integer key stays exact); the style stop leaked its name (`Box::leak`); `cai_style_fn` read
 `*CAI-STYLES*` as raw JSON every step.
+
+## 5. Kenpachi's matchup styles (Task 6)
+
+`cpu/ken_ki.rs` ports cpu-ki-ken.lisp and cpu-kh-ken.lisp whole: KEN-KI-STYLE and everything it calls (the form / L3 / knockdown / Hoho /
+Getsuga events, the plan's answers, the meaty chase, the read and its dodges, KK-DECIDE / KK-PICK, his strings, the NS whiff stop, the link,
+the AS carry, the L3 SA, the Kikon rule), KEN-KH-STYLE (the wake-up bait) and KEN-KH-STANDOFF-STYLE (the stand-off clock). `style::resolve`
+names the three; Ichigo's two stay `unported!` (Task 7), Hisagi's five too (M4). KEN-CLOSING (ken.lisp, read only by the CPU) is there too.
+
+**The state.** `style::StyleState` is the BRAIN-STYLE slot: `Kks`, `Khs` (`k: Kks` + hw, bait, last), `Kso` (`k: Kks` + the clock). Every
+slot is a scalar, so it is `Copy` and a step allocates nothing. It prints as TR-B-ENC prints a struct: `#KKS{…}` (27 slots), `#KHS{…}` (30),
+`#KSO{…}` (33). One slot is not T / NIL: KKS-REACH is `(or bk (style-roll …))`, and `bk` is MEMBER's tail, so in a Bankai it holds
+`(:BANKAI,:BANKAI-2)` (`(:BANKAI-2)` in the second form): `ken_ki::Reach`. KEN-KH-STYLE / -STANDOFF call KEN-KI-STYLE on their own struct;
+the port takes the struct out of the brain for the step and hands KEN-KI-STYLE's body its included `Kks`, and puts it back after, also on
+an early return.
+
+**Knobs.** The styles' 80 defparameters are in `Knobs` (tuning.json, never retyped). A chance plist is a `KwNums` (keyword → `cl::Num`,
+the token's type kept: `*kso-stale*` is integers, read by plain GETF with default 300); `*kk-cine-wait*` is a `KwBools` (BRAIN-CHANCE at
+EASY is the present NIL, not NORMAL's). Carried from Task 5: `style_dif` now returns `cl::Num` over a `KwNums` (an integer arm value or
+plist entry stays one), and `b.now.and_then(…)` became `.as_ref()` in `strat_fn_step` and `cai_switch_target` (no copy of NOW).
+
+**Task 5 code fixed: :KEEP-STATE keeps the objects (EQ).** STRAT-SWITCH-STEP's keep stores BRAIN-STYLE's struct in BRAIN-SW-KEEP and, on the
+way back, sets BRAIN-STYLE to the kept struct itself: from then on the entry and BRAIN-STYLE are one object, and every step's change shows in
+both (the A line prints both). Task 5 stored copies (harmless while the slot could only be NIL). Now `Brain.style_live` (not a slot) marks
+that the entry of `sw_fn` is EQ to `style`; the A line prints `style` for that entry, a switch writes it back, and `Brain::style_replaced`
+gives the entry the old struct when a style makes a fresh one (MAKE-KHS on a NIL / other / later-tick slot). STRAT-EVENT-CALL clears the
+mark around the event arm's call (its struct is never a kept one); BRAIN-SET-STRAT! clears it. Without it cvc-kk-s1 diverges at tick 312
+(`p1.brain-sw-keep`).
+
+**Where the live replay stops** (with and without `--inject-plan`, the same):
+- cvc-kk-s1..3 and cvctag-kk: **replay OK, whole matches** (18133, 15866, 16860, 16354 ticks; every T / A / C / `[` / H / B equal). Both CPUs
+  run the T0 Q selectors, their :KNOCKDOWN event arm (KEN-KH-STYLE) and :KEEP-STATE swaps, the styles and the core CPU under them (the
+  exchange, the clash, the finish, CAI-NEUTRAL / CAI-MOVE-STEP). The MCTS is never reached on a Kenpachi side: KEN-KI-STYLE decides
+  every idle / run / move step itself (it runs CAI-NEUTRAL / CAI-MOVE-STEP), and the strategy layer is off, so `--inject-plan` changes
+  nothing there.
+- cvc-ki-s1..3: step 301, P2 at `style ICHIGO-KI-R2B2A1-STYLE` (P1's Kenpachi step runs first and equals the key).
+- cvc-ik-s1..3, cvc-ii-s1..3, cvctag-ii, cvctag-ik: step 301, P1 at `style ICHIGO-KI-R2B2A1-STYLE` (Task 7).
+- vs-learn: `debug 2504` (step 1); vs-cpu: `vs-start` (step 1) (Task 9).
+
+**Reached by the key, and not.** The C lines of all 17 traces (counts over the files, IK's P2 included though not replayed yet): `kh
+stand-off breaker` 474, `kk pick NS` 304 / `J1` 138, `khf bait armed` 86, `kk meaty armed` 58 / `J1` 41, `kk string SP after J1 J2 J4 J5 J7`,
+`kk read SDODGE` 27 / `DODGE` 1, `kk step-dodge now` 19 / planned 8, `kk link NS` 15 / `SA` 11 / `stop` 1, `kk climb` 14, `kk awaken` 14,
+`kk bankai-plan` 7, `kk l3 SA` 4, `kk dodge now` 1. **Never in any trace** (ported by reading, pinned only by the unit tests where noted):
+her Getsuga route's answers (`kk wave`, :close / :hit / :cut / :late / :step / :chase), the Hoho-end J1 (`kk hoho-end`), the perfect
+Hoho's follow-up (`kk pf J1`), his wake-up Hoho, the Step in and its J1 (`kk step-in`, `kk step J1`), the Hoho in (`kk hoho-in`: off at
+every difficulty), the planned Hoho dodge (`kk dodge at`), the brawl's own answers (`kk read TAME / J1 / NS1A`), and KEN-KI-STYLE as a
+style of its own (no `#KKS{` in any trace: every K arm plays a KH style, which runs KEN-KI-STYLE's body on its KHS / KSO). No shipped arm
+sets `:kk-p2-or`, `:kk-lunge-any` or the `:kk-wave-*` keys.
+
+**KE-BUTTAGIRU, KE-CHARGE, KE-FLURRY (M1_NOTES §5): still unreached with the CPU.** None starts in any of the 17 gate traces (0 `#m::KE-…`
+of the three), and the four KK matches above run whole without them.
+
+**Tests.** `ken_ki::tests`: `ken_c_tags_have_a_site` (each of the 28 CLOGs of the two files has exactly one Rust site with the same text, and
+the census's 13 tags from them are among them), `standoff_clock_by_difficulty` (*KSO-STALE* 900 / 540 / 120: not old at the stale tick,
+old one past it, a gauge change of either side restarts the clock, ahead at the bell never old), `kk_pick_with_a_fixed_rnd` (both picks
+at 1.5 m with the approach's rolls made: NS under *CAI-NS-NEAR*, J1 over it, the draws and the press each takes). duel-tools:
+`live_kk_s1_replays_whole` (cvc-kk-s1 OK with both flags); `live_ki_s1_reaches_brain_system` and `live_first_step_matches_the_key` now
+expect Ichigo's stop (the latter checks KK's whole first step on the match right after BRAIN-SYSTEM); tests/cpu.rs
+`brain_read_fires_inside_brain_system` sees both brains' reads.

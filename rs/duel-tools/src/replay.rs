@@ -1070,8 +1070,8 @@ mod tests {
     }
 
     /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / H / B of the 300 intro steps equal (A: the brains'
-    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM, judges P1's Q selector and stops at
-    /// its arm's style (Task 6).
+    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM: P1's Q selector is judged and its
+    /// arm's style (Kenpachi's, Task 6) plays; P2's stops at Ichigo's style (Task 7).
     #[test]
     fn live_ki_s1_reaches_brain_system() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
@@ -1080,7 +1080,20 @@ mod tests {
         for flags in ["--live", "--live --inject-plan"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED style KEN-KH-STANDOFF-STYLE at tick 1 (step 301)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED style ICHIGO-KI-R2B2A1-STYLE at tick 1 (step 301)", "{flags}");
+        }
+    }
+
+    /// `--live cvc-kk-s1`: both Kenpachi CPUs think for the whole match (the strategies, their event arm and :KEEP-STATE swaps, the
+    /// KH styles over the core CPU), every T / A / C / H / B equal to the key (Task 6).
+    #[test]
+    fn live_kk_s1_replays_whole() {
+        let Some(path) = oracle_trace("cvc-kk-s1") else { return };
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        for flags in ["--live", "--live --inject-plan"] {
+            let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
+            let r = run_opts(&o, data);
+            assert_eq!(report(&o, &r).0[0], "replay OK 18133 ticks", "{flags}");
         }
     }
 
@@ -1143,8 +1156,9 @@ mod tests {
     }
 
     /// The CPU's first battle step against the key: each live gate trace (cmds) run to its first battle step (step 301), where P1's
-    /// CORE-BRAIN-STEP perceives, judges its Q selector (STRAT-SWITCH-STEP) and stops at its arm's style (`style <NAME>`, Tasks 6-7).
-    /// P2's step is then run on the stopped match (P1's step changes nothing P2 perceives or judges by). Each side's perception (ring,
+    /// CORE-BRAIN-STEP perceives, judges its Q selector (STRAT-SWITCH-STEP) and runs its arm's style. A style not ported yet stops the
+    /// step (`style <NAME>`: Ichigo's, Task 7); when P1 stopped, P2's step is then run on the stopped match (P1's step changes nothing
+    /// P2 perceives or judges by). Kenpachi's styles run (Task 6), so KK steps whole. Each side's perception (ring,
     /// head, fresh, J key and starts) and judgement (sw-sub / -t / -n / -won / -fn / -keep, tw, ev-*) equal the recorded A fields of
     /// that step, and its judgement's cues equal the native judgement dump's bit for bit (tests/fixtures/strat-judgements.txt).
     #[test]
@@ -1168,18 +1182,39 @@ mod tests {
             flow::go_title(&mut m);
             m.cmds.extend(start[1..].iter().map(|c| c.parse::<i64>().unwrap()));
             let s = &mut Search::new();
+            // (the match right after the first battle step's BRAIN-SYSTEM, when no style stopped it: the run stops after that step)
+            struct Tick1(Option<Box<Match>>);
+            impl PilotInput for Tick1 {
+                fn read(&mut self, _m: &mut Match, _side: usize) {}
+                fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+                fn after_brain(&mut self, m: &mut Match, _s: &mut Search) {
+                    if m.match_tick == 1 && m.unported.is_none() {
+                        self.0 = Some(Box::new(m.clone()));
+                        m.unported = Some("tick 1");
+                    }
+                }
+            }
+            let mut t1 = Tick1(None);
             for _ in 0..1000 {
                 if m.unported.is_some() {
                     break;
                 }
-                flow::frame(&mut m, s, &mut Null(0));
+                flow::frame(&mut m, s, &mut t1);
+            }
+            if let Some(b) = t1.0 {
+                m = *b;
+                m.unported = Some("tick 1");
             }
             assert_eq!(m.match_tick, 1, "{name}");
-            assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name}: {:?}", m.unported);
-            m.unported = None;
-            let p2 = m.p2;
-            duel_sim::cpu::core_ai::core_brain_step(&mut m, s, &mut Null(0), p2); // (P2's step: it stops at its style too)
-            assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name} P2: {:?}", m.unported);
+            // (a side whose style is not ported stops at it: Ichigo's, Task 7; Kenpachi's runs, so KK steps whole and KI stops in P2)
+            if m.unported != Some("tick 1") {
+                assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name}: {:?}", m.unported);
+                m.unported = None;
+                let p2 = m.p2;
+                if m.fighter.get(p2).unwrap().brain.as_ref().unwrap().sw_t < 0 {
+                    duel_sim::cpu::core_ai::core_brain_step(&mut m, s, &mut Null(0), p2); // (P1 stopped: P2's step, to its style)
+                }
+            }
             let got = duel_sim::cpu::a_line(&m, s);
             let (w, g): (Vec<&str>, Vec<&str>) = (want.split(' ').collect(), got.strip_prefix("A ").unwrap().split(' ').collect());
             for (p, e) in [("p1", m.p1), ("p2", m.p2)] {

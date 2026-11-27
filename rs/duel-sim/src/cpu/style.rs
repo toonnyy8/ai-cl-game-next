@@ -47,8 +47,66 @@ impl Enc for StyleId {
 }
 
 /// The port of the style named NAME (upper case, `KEN-KI-STYLE`), or None (not ported: its caller is `unported!`).
-pub fn resolve(_name: &str) -> Option<StyleFn> {
-    None // (Kenpachi's KEN-KI / -KH / -KH-STANDOFF: Task 6; Ichigo's ICHIGO-KI / -KI-R2B2A1: Task 7; Hisagi's HISAGI-*: M4)
+pub fn resolve(name: &str) -> Option<StyleFn> {
+    use super::ken_ki;
+    match name {
+        "KEN-KI-STYLE" => Some(ken_ki::ken_ki_style),
+        "KEN-KH-STYLE" => Some(ken_ki::ken_kh_style),
+        "KEN-KH-STANDOFF-STYLE" => Some(ken_ki::ken_kh_standoff_style),
+        _ => None, // (Ichigo's ICHIGO-KI / -KI-R2B2A1: Task 7; Hisagi's HISAGI-*: M4)
+    }
+}
+
+/// BRAIN-STYLE: a style's state struct (each style makes its own on a NIL or another type's slot, or a lower tick: a new match).
+/// Every slot is a scalar, so it is `Copy` and a step allocates nothing.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum StyleState {
+    /// cpu-ki-ken.lisp KKS (KEN-KI-STYLE's).
+    Kks(super::ken_ki::Kks),
+    /// cpu-kh-ken.lisp KHS (:include kks; KEN-KH-STYLE's).
+    Khs(super::ken_ki::Khs),
+    /// cpu-kh-ken.lisp KSO (:include kks; KEN-KH-STANDOFF-STYLE's).
+    Kso(super::ken_ki::Kso),
+}
+
+impl StyleState {
+    /// The included KKS (KKS-TICK ... on any of Kenpachi's structs). ponytail: panics on another style's struct, as the Lisp's
+    /// KKS-TICK would error; Task 7's structs never reach Kenpachi's code.
+    pub fn kks(&self) -> &super::ken_ki::Kks {
+        match self {
+            StyleState::Kks(k) => k,
+            StyleState::Khs(h) => &h.k,
+            StyleState::Kso(o) => &o.k,
+        }
+    }
+    pub fn kks_mut(&mut self) -> &mut super::ken_ki::Kks {
+        match self {
+            StyleState::Kks(k) => k,
+            StyleState::Khs(h) => &mut h.k,
+            StyleState::Kso(o) => &mut o.k,
+        }
+    }
+}
+
+/// TR-B-ENC of a struct: `#TYPE{slot,...}`.
+impl Enc for StyleState {
+    fn enc(&self, d: &Data, s: &mut String) {
+        match self {
+            StyleState::Kks(k) => {
+                s.push_str("#KKS{");
+                k.enc(d, s);
+            }
+            StyleState::Khs(h) => {
+                s.push_str("#KHS{");
+                h.enc(d, s);
+            }
+            StyleState::Kso(o) => {
+                s.push_str("#KSO{");
+                o.enc(d, s);
+            }
+        }
+        s.push('}');
+    }
 }
 
 /// Run style ID for E's step (`(funcall fn e b f kit s d)`): T when it decided. Not ported: `unported!("style <NAME>")`.

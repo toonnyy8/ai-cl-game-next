@@ -339,6 +339,138 @@ knobs! {
     cai_dswitch_dif: KwFloats, // core-ai.lisp
     cai_dswitch_slack: f32, // core-ai.lisp
     cai_styles: crate::cpu::style::CaiStyles, // core-ai.lisp (CAI-DEFSTYLE at load)
+    // Kenpachi's matchup styles (cpu-ki-ken.lisp, cpu-kh-ken.lisp; M2 Task 6): chance plists as KwNums (STYLE-DIF's Num)
+    kk_brawl_p: KwNums, // cpu-ki-ken.lisp
+    kk_read_range: f32, // cpu-ki-ken.lisp
+    kk_reach_p: KwNums, // cpu-ki-ken.lisp
+    kk_reach_margin: f32, // cpu-ki-ken.lisp
+    kk_reach_retry: i64, // cpu-ki-ken.lisp
+    kk_ns_stop_p: KwNums, // cpu-ki-ken.lisp
+    kk_link_p: KwNums, // cpu-ki-ken.lisp
+    kk_as_on_p: KwNums, // cpu-ki-ken.lisp
+    kk_link_margin: f32, // cpu-ki-ken.lisp
+    kk_dodge_p: KwNums, // cpu-ki-ken.lisp
+    kk_step_p: KwNums, // cpu-ki-ken.lisp
+    kk_step_lead: i64, // cpu-ki-ken.lisp
+    kk_step_max: f32, // cpu-ki-ken.lisp
+    kk_clone_strike: i64, // cpu-ki-ken.lisp
+    kk_hin_fs: f32, // cpu-ki-ken.lisp
+    kk_dodge_lead: i64, // cpu-ki-ken.lisp
+    kk_dodge_reach: f32, // cpu-ki-ken.lisp
+    kk_kikon_red_p: KwNums, // cpu-ki-ken.lisp
+    kk_hoho_in_p: KwNums, // cpu-ki-ken.lisp
+    kk_hoho_in_max: f32, // cpu-ki-ken.lisp
+    kk_clone_reach: f32, // cpu-ki-ken.lisp
+    kk_as_read_p: KwNums, // cpu-ki-ken.lisp
+    kk_meaty_p: KwNums, // cpu-ki-ken.lisp
+    kk_meaty_lead: i64, // cpu-ki-ken.lisp
+    kk_meaty_near: f32, // cpu-ki-ken.lisp
+    kk_meaty_min: f32, // cpu-ki-ken.lisp
+    kk_meaty_back: i64, // cpu-ki-ken.lisp
+    kk_chase_hoho: f32, // cpu-ki-ken.lisp
+    kk_awaken_p: KwNums, // cpu-ki-ken.lisp
+    kk_climb_p: KwNums, // cpu-ki-ken.lisp
+    kk_lunge_p: KwNums, // cpu-ki-ken.lisp
+    kk_lunge_band: F2, // cpu-ki-ken.lisp
+    kk_l3_range: f32, // cpu-ki-ken.lisp
+    kk_bankai_p: KwNums, // cpu-ki-ken.lisp
+    kk_l3_sa_p: KwNums, // cpu-ki-ken.lisp
+    kk_l3_sa_range: f32, // cpu-ki-ken.lisp
+    kk_kikon_ptr_p: KwNums, // cpu-ki-ken.lisp
+    kk_special_n: i64, // cpu-ki-ken.lisp
+    kk_bk_cashouts: i64, // cpu-ki-ken.lisp
+    kk_bk_floor: f32, // cpu-ki-ken.lisp
+    kk_bk_ns_p: KwNums, // cpu-ki-ken.lisp
+    kk_bk_ns_spare: f32, // cpu-ki-ken.lisp
+    kk_bk_ns_range: f32, // cpu-ki-ken.lisp
+    kk_bk_walk_range: f32, // cpu-ki-ken.lisp
+    kk_wave_p: KwNums, // cpu-ki-ken.lisp
+    kk_wave_band: F2, // cpu-ki-ken.lisp
+    kk_wave_far: f32, // cpu-ki-ken.lisp
+    kk_wave_close_max: f32, // cpu-ki-ken.lisp
+    kk_wave_margin: f32, // cpu-ki-ken.lisp
+    kk_wave_carry: f32, // cpu-ki-ken.lisp
+    kk_chase_frames: i64, // cpu-ki-ken.lisp
+    kk_chase_dash: f32, // cpu-ki-ken.lisp
+    kk_wave_timeout: i64, // cpu-ki-ken.lisp
+    kk_wave_mix: KwNums, // cpu-ki-ken.lisp
+    kk_cut_lead: i64, // cpu-ki-ken.lisp
+    kk_late_lead: i64, // cpu-ki-ken.lisp
+    kk_wave_step_lead: i64, // cpu-ki-ken.lisp
+    kk_ns_safe_p: KwNums, // cpu-ki-ken.lisp
+    kk_pf_p: KwNums, // cpu-ki-ken.lisp
+    kk_wake_hoho_p: KwNums, // cpu-ki-ken.lisp
+    kk_wake_hoho_near: f32, // cpu-ki-ken.lisp
+    kk_hoho_blind: i64, // cpu-ki-ken.lisp
+    kk_pf_window: i64, // cpu-ki-ken.lisp
+    kk_step_in_p: KwNums, // cpu-ki-ken.lisp
+    kk_hoho_lockout: i64, // cpu-ki-ken.lisp
+    kk_hend_p: KwNums, // cpu-ki-ken.lisp
+    kk_hend_lead: i64, // cpu-ki-ken.lisp
+    kk_cine_wait: KwBools, // cpu-ki-ken.lisp
+    kk_cine_gap: i64, // cpu-ki-ken.lisp
+    kk_repel_wait: i64, // cpu-ki-ken.lisp
+    kk_face_max: f32, // cpu-ki-ken.lisp
+    kk_step_in_band: F2, // cpu-ki-ken.lisp
+    khf_bait_p: KwNums, // cpu-kh-ken.lisp
+    khf_bait_d: f32, // cpu-kh-ken.lisp
+    khf_bait_after: i64, // cpu-kh-ken.lisp
+    kso_stale: KwNums, // cpu-kh-ken.lisp
+    kso_lead: f32, // cpu-kh-ken.lisp
+}
+
+/// A keyword -> number plist knob whose values keep their token's type (`*kso-stale*` `(:easy 900 …)` integers, a chance plist's
+/// singles): a style's per-difficulty knob, read through STYLE-DIF / BRAIN-CHANCE as a `cl::Num`.
+#[derive(Debug, Clone, Default)]
+pub struct KwNums(pub Vec<(String, crate::cl::Num)>);
+
+impl KwNums {
+    /// port: GETF with a default.
+    pub fn get_or(&self, key: &str, default: crate::cl::Num) -> crate::cl::Num {
+        self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map_or(default, |&(_, v)| v)
+    }
+    /// port: components.lisp BRAIN-CHANCE — the plist's value at DIF (a missing key: NORMAL's, else 0.0).
+    pub fn chance(&self, dif: crate::components::Difficulty) -> crate::cl::Num {
+        self.get_or(dif.name(), self.get_or("normal", crate::cl::Num::F(0.0)))
+    }
+}
+
+impl duel_data::tuning::Knob for KwNums {
+    const KIND: &'static str = "a plist of keyword / number pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<KwNums> {
+        let num = |x: &duel_data::tuning::Value| match x.as_number()? {
+            n if n.is_f64() => n.as_f64().map(|f| crate::cl::Num::F(f as f32)),
+            n => n.as_i64().map(crate::cl::Num::I),
+        };
+        let a = v.as_array()?;
+        if a.len() % 2 != 0 {
+            return None;
+        }
+        a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), num(&c[1])?))).collect::<Option<Vec<_>>>().map(KwNums)
+    }
+}
+
+/// A keyword -> T / NIL plist knob (`*kk-cine-wait*` `(:easy nil :normal nil :hard t)`).
+#[derive(Debug, Clone, Default)]
+pub struct KwBools(pub Vec<(String, bool)>);
+
+impl KwBools {
+    /// port: BRAIN-CHANCE of a T / NIL plist: DIF's value (a present NIL stays NIL), else NORMAL's, else the Lisp's 0.0 (true).
+    pub fn chance(&self, dif: crate::components::Difficulty) -> bool {
+        let get = |k: &str| self.0.iter().find(|(x, _)| x.eq_ignore_ascii_case(k)).map(|&(_, v)| v);
+        get(dif.name()).or_else(|| get("normal")).unwrap_or(true)
+    }
+}
+
+impl duel_data::tuning::Knob for KwBools {
+    const KIND: &'static str = "a plist of keyword / T-NIL pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<KwBools> {
+        let a = v.as_array()?;
+        if a.len() % 2 != 0 {
+            return None;
+        }
+        a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), <bool as duel_data::tuning::Knob>::from_value(&c[1])?))).collect::<Option<Vec<_>>>().map(KwBools)
+    }
 }
 
 /// A list knob of symbol names (`*mc-actions*` `(:j1 :sp …)`), lower case as the data.

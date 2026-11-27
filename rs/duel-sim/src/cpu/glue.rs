@@ -27,7 +27,7 @@ use crate::components::{Form, State};
 use crate::core::core_clamp_pointer;
 use crate::ecs::Entity;
 use crate::fighter::{awaken_ready_p, fighter, gauges_red_p, hoho_ready_p, kit_of, pos_of};
-use crate::knobs::{Knobs, KwFloats};
+use crate::knobs::{Knobs, KwNums};
 use crate::kit::{kit_command_move, kit_core_move, Role};
 use crate::state::Match;
 use duel_data::tuning::Value;
@@ -140,15 +140,16 @@ pub fn style_knob(k: &Knobs, b: &Brain, key: &str, default: Num) -> Num {
     strat_out(k, b, key).unwrap_or(default)
 }
 
-/// port: STYLE-DIF — STYLE-KNOB over the per-difficulty PLIST: the arm's KEY replaces PLIST's value at B's difficulty.
-pub fn style_dif(k: &Knobs, b: &Brain, key: &str, plist: &KwFloats) -> f32 {
-    style_knob(k, b, key, Num::F(plist.chance(b.difficulty))).f()
+/// port: STYLE-DIF — STYLE-KNOB over the per-difficulty PLIST: the arm's KEY replaces PLIST's value at B's difficulty (an integer
+/// token stays one: `*iks-ns-wait*` 32).
+pub fn style_dif(k: &Knobs, b: &Brain, key: &str, plist: &KwNums) -> Num {
+    style_knob(k, b, key, plist.chance(b.difficulty))
 }
 
 /// port: STYLE-ROLL — a CHANCE-ROLL of the per-difficulty chance PLIST, the arm's KEY replacing its value.
-pub fn style_roll(m: &mut Match, b: &Brain, key: &str, plist: &KwFloats) -> bool {
+pub fn style_roll(m: &mut Match, b: &Brain, key: &str, plist: &KwNums) -> bool {
     let p = style_dif(&m.knobs, b, key, plist);
-    chance_roll(m, p)
+    chance_roll(m, p.f())
 }
 
 /// port: STYLE-ON — a per-difficulty switch as the arm's number KEY (on at >= 0.5); no key: ON, the switch's value at B's
@@ -253,8 +254,9 @@ pub fn strat_switch_step(m: &mut Match, e: Entity, b: &mut Brain, s: &Snap, d: f
                 }
             }
             b.style = b.sw_keep.0.iter().find(|c| c.0 == fid).and_then(|c| c.1);
+            b.style_live = b.style.is_some(); // (the kept object itself: EQ to its entry from now on)
         } else if b.sw_fn.is_some() {
-            b.style = None;
+            (b.style, b.style_live) = (None, false);
         }
         b.sw_fn = Some(fid);
     }
@@ -297,15 +299,17 @@ pub fn strat_event_step(m: &Match, b: &mut Brain, s: &Snap, sw: Strat) -> Option
 /// port: STRAT-EVENT-CALL — run the event arm's style F with its own state in BRAIN-STYLE (BRAIN-EV-STYLE), then put the table's back.
 pub fn strat_event_call(m: &mut Match, s: &mut Search, f: StyleFn, e: Entity, b: &mut Brain, snap: Snap, d: f32) -> bool {
     let mine = std::mem::replace(&mut b.style, b.ev_style);
+    let live = std::mem::take(&mut b.style_live); // (the event arm's struct is never a kept one)
     let r = f(m, s, e, b, snap, d);
     b.ev_style = std::mem::replace(&mut b.style, mine);
+    b.style_live = live;
     r
 }
 
 /// The :FN clause of CORE-BRAIN-STEP: the active strategy's own tactics (its style), through the event arm's state when EV. T when
 /// it decided; a style not ported yet stops the replay (`style <NAME>`).
 pub fn strat_fn_step(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d: f32, ev: bool) -> bool {
-    let Some(fid) = b.now.and_then(|n| fn_of(n.st)) else { return false };
+    let Some(fid) = b.now.as_ref().and_then(|n| fn_of(n.st)) else { return false };
     if ev && let Some(f) = style::resolve(fid.name()) {
         return strat_event_call(m, s, f, e, b, snap, d);
     }
@@ -322,7 +326,7 @@ pub fn strat_layer_p(m: &Match) -> bool {
 /// port: BRAIN-SET-STRAT! — the strategy layer gives brain B strategy ST; another strategy than his starts its per-strategy state afresh.
 pub fn brain_set_strat(b: &mut Brain, st: Option<Strat>) {
     if st != b.strat {
-        (b.strat, b.style, b.sw_fn, b.sw_sub, b.sw_t) = (st, None, None, None, -1);
+        (b.strat, b.style, b.style_live, b.sw_fn, b.sw_sub, b.sw_t) = (st, None, false, None, None, -1);
         b.sw_keep.0.clear();
         (b.sw_n, b.sw_won, b.ev_style, b.ev_on, b.ev_t) = (0, None, None, None, -1);
     }
