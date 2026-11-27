@@ -97,7 +97,7 @@ verification, §7 the M3 row). Also read:
 - **RNG.** The cosmetic stream `rng_float` (`engine/engine.h`: xorshift32, `>> 8` × 2^-24; never reseeded by the game, so it runs from
   boot) is ported bit-exact into `duel_look::CosRng`. It is never the sim stream and never inside `Match` (a restore would roll it back;
   Lisp's C global is never restored). The key records its state per keyed frame.
-- **Overflow drops are ported:** `stream-room-p`, the 512-record `*dq*`, `R_MAX_DRAWS`. A full stream drops what Lisp drops.
+- **Overflow drops are ported:** `stream-room-p`, and render.c's `R_MAX_DRAWS` (4096, Task 9). `*dq*` itself grows (DRAW-MESH doubles it; the key has 578-record frames): `FrameOut.dq` grows the same way. A full stream drops what Lisp drops.
 - **Hot path.** 0 heap allocations per rendered frame in the sink + `draw_frame` (a counting allocator in `duel-tools draw`, as the
   sim's 0-alloc gate). The sim keeps 0 per battle step. `FrameOut` and the event queue are preallocated and cleared, never reallocated
   in steady state.
