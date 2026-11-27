@@ -195,3 +195,9 @@ frame): **bit-exact** (largest |a-b| / max(1, |b|) = 0 over 11,474,064 matrix fl
   four decimals (a scratch runner on `build/simgate/duel.fas`), so the frame ranges, clip maps and clip speeds are the Lisp's, not only
   inside ±0.15 m.
 - core.lisp 738's `*clips-5*` is read off the frozen test file's own text (`include_str!`), not retyped.
+- **`engine/lisp/body.lisp` has no rig half.** The plan's "the rig half of engine/lisp/body.lisp" finds BUILD-PARTS / BUILD-SOLID /
+  BUILD-SHAPE / SHAPE-XFORM / PAL-RGB (the part meshes: Task 3) and DRAW-PARTS (queueing the posed parts: Task 5 / 7) only; the rig
+  and its FK are all in `engine/lisp/anim.lisp`, ported here. The rig math left is in `duel/lisp/body.lisp`, all draw-time looks for
+  Task 7: GRIP-LEFT! / GRIP-TARGET-OK-P / GRIP-GAP with %ROT-TO! / %ROT-COLS! (the left fist pulled onto the handle after the FK, for
+  *GRIP-CLIPS*), DRAW-WEAPON / DRAW-PLANTED-WEAPON / %PLANTED-M!, DRAW-BODY, DRAW-SHADOW; its BODY-WEAPON-POINT / -TIP / -BASE are
+  ported here (`rig.rs`), its DEFPOSE / DEFCLIP / DEFRUN forms are data (clips.json, poses.json).
