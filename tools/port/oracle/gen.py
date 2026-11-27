@@ -16,6 +16,13 @@
                                                      (rendered twice in two fresh processes and compared), stills/ (the frozen dist's 83
                                                      looks-gate stills, tests/style-gates.py looks, ~minutes; --no-stills copies an
                                                      earlier render left in build/style/looks/), then the check. --check: only the check
+  python3 tools/port/oracle/gen.py draw [NAME ...] [--check]
+                                                     the draw key (M3a Task 1, docs/bevy/M3A_NOTES.md §1): builds build/oracle/draw-img/duel.fas
+                                                     (SG_STUBS=tools/port/oracle/stubs-draw.c, whose header is the format), runs each scene of
+                                                     tools/port/oracle/draw-scenes.json (draw.lisp) twice in fresh processes, requires the two
+                                                     .bin files byte-identical, then writes build/oracle/draw/<scene>.bin + .log, meshes.json
+                                                     and INDEX.json (NAMEs: only those, merged by name) and runs the check. --check: only the
+                                                     check (counts, NaN, mesh ids, hb in battle frames)
 
 The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (1), Ichigo (3), Hisagi (7), seeds 1-3 (the pairing gate's
 match: debug 30000+s-1, 31101, 200000+100 c1+10 c2), plus KI seed 1 at HARD and at EASY (cvc-ki-s1-hard / -easy: debug 81022 / 81020
@@ -338,8 +345,220 @@ def look():
     sys.exit(0 if look_check() and not diff and a.keys() == b.keys() else 1)
 
 
+DRAW = os.path.join(OUT, 'draw')
+DRAW_FAS = os.path.join(OUT, 'draw-img/duel.fas')
+DRAW_STUBS = 'tools/port/oracle/stubs-draw.c'
+DRAW_SCENES = os.path.join(ROOT, 'tools/port/oracle/draw-scenes.json')
+# (name, the fixed length of fu / p, else the stride the array's length is a multiple of: render.lisp 309-311, ui.lisp 55, paint.lisp 38,
+# paint-shapes.lisp 50), in the file's order
+DRAW_ARRAYS = (('fu', 160), ('p', 30), ('dq', 32), ('fxa', 9), ('fxb', 9), ('ui', 8), ('ft', 9), ('hb', 16), ('hk', 16))
+
+
+def draw_frames(spec):
+    """DRAW_FRAMES (stubs-draw.c's grammar: "a", "a-b", "a-b/k", comma separated) -> the sorted frame numbers."""
+    out = set()
+    for item in spec.split(','):
+        m = re.fullmatch(r'(\d+)(?:-(\d+))?(?:/(\d+))?', item)
+        if not m:
+            sys.exit(f'[oracle] bad frame item {item!r}')
+        a = int(m[1])
+        out.update(range(a, int(m[2] or a) + 1, int(m[3] or 1)))
+    return sorted(out)
+
+
+def build_draw():
+    """The draw recorder's image: tools/simgate/build.lisp's unit with SG_STUBS=stubs-draw.c (-> OUT/draw-img/duel.fas)."""
+    from simlib import sources
+    src = sources() + [os.path.join(ROOT, p) for p in (DRAW_STUBS, 'duel/hud-font/atlas.r8', 'duel/hud-font/metrics.bin')]
+    if os.path.exists(DRAW_FAS) and os.path.getmtime(DRAW_FAS) >= max(map(os.path.getmtime, src)):
+        return
+    print(f'[oracle] building the draw image {os.path.relpath(DRAW_FAS, ROOT)} (~2.5 min)', file=sys.stderr, flush=True)
+    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/build.lisp', '--', os.path.relpath(DRAW_FAS, ROOT)], cwd=ROOT,
+                       stdin=subprocess.DEVNULL, capture_output=True, text=True, env=dict(os.environ, SG_STUBS=DRAW_STUBS), timeout=TIMEOUT)
+    if r.returncode or not os.path.exists(DRAW_FAS):
+        sys.exit(r.stdout[-3000:] + r.stderr[-3000:] + '\n[oracle] draw image BUILD FAILED')
+
+
+def draw_run(sc, out):
+    """One fresh process of scene SC writing OUT -> (error or None, stdout)."""
+    frames = draw_frames(sc['frames'])
+    w, h, dpr = sc['viewport']
+    env = dict(os.environ, LD_PRELOAD=MUSLM, DRAW_FRAMES=sc['frames'], DRAW_OUT=out, DRAW_W=str(w), DRAW_H=str(h), DRAW_DPR=str(dpr))
+    env.pop('DRAW_DONE', None)
+    args = [frames[-1] + 120] + [c if isinstance(c, int) else f'{c[0]}:{c[1]}' for c in sc['cmds']]
+    if os.path.exists(out):
+        os.remove(out)
+    try:
+        r = subprocess.run([ECL, '--norc', '--load', 'tools/port/oracle/draw.lisp', '--', DRAW_FAS] + [str(a) for a in args], cwd=ROOT,
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, env=env, timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return 'timeout', ''
+    m = re.search(r'draw: (\d+) meshes made, (\d+) drawn, (\d+) frames -> ', r.stdout)
+    if r.returncode or not m or int(m[3]) != len(frames) or not os.path.exists(out):   # (an ECL error lands in the debugger: exit 0)
+        return f'exit {r.returncode}, {m[0] if m else "no draw: line"} (want {len(frames)} frames): ' + (r.stdout + r.stderr)[-1500:], r.stdout
+    return None, r.stdout
+
+
+def draw_scene(sc):
+    """Scene SC run twice in fresh processes; the two .bin files must be byte-identical. -> its INDEX entry (+ '_meshes', '_inputs')."""
+    name, t0 = sc['name'], datetime.datetime.now()
+    out, out2 = os.path.join(DRAW, name + '.bin'), os.path.join(DRAW, '.run2', name + '.bin')
+    with cf.ThreadPoolExecutor(2) as ex:
+        (e1, o1), (e2, o2) = ex.map(lambda p: draw_run(sc, p), (out, out2))
+    j = {k: sc[k] for k in ('name', 'group', 'about', 'viewport', 'cmds', 'frames') if k in sc} | {'named': sc.get('named', {})}
+    if e1 or e2:
+        return j | {'error': e1 or e2}
+    with open(os.path.join(DRAW, name + '.log'), 'w') as f:   # run 1's stdout: the per-frame state lines (draw.lisp's header)
+        f.write(o1)
+    data = open(out, 'rb').read()
+    j['identical'] = data == open(out2, 'rb').read()
+    os.remove(out2)
+    mesh = lambda o: {int(m[1]): (int(m[2]), m[3]) for m in re.finditer(r'^draw mesh (\d+) (\d+) (.+)$', o, re.M)}
+    m = re.search(r'draw: (\d+) meshes made, (\d+) drawn, (\d+) frames', o1)
+    j |= {'n_frames': int(m[3]), 'meshes_made': int(m[1]), 'meshes_drawn': int(m[2]), 'bytes': len(data),
+          'sha1': hashlib.sha1(data).hexdigest(), 'rng_start': re.search(r'draw: rng at start (0x[0-9a-f]+)', o1)[1],
+          'match_seed': [[int(a), int(b)] for a, b in re.findall(r'^draw seed (\d+) (-?\d+)$', o1, re.M)],
+          'seconds': round((datetime.datetime.now() - t0).total_seconds(), 1), '_meshes': mesh(o1),
+          '_inputs': re.findall(r'^draw inputs \S+ (.+)$', o1, re.M)}
+    if not j['identical'] or mesh(o1) != mesh(o2):
+        j['error'] = 'the two runs differ' + ('' if j['identical'] else ' (the .bin files)')
+    return j
+
+
+def draw_read(path):
+    """A draw .bin -> (w, h, {id: floats}, [{frame, tick, rng, fu .. hk}]), arrays as array('f'); stubs-draw.c's header is the format."""
+    import array, struct
+    data = open(path, 'rb').read()
+    if data[:8] != b'SDDRW1\0\0':
+        raise ValueError(f'{path}: bad magic')
+    w, h, nm, nf = struct.unpack_from('<4I', data, 8)
+    at, meshes, frames = 24, {}, []
+    def u32s(n):
+        nonlocal at
+        at += 4 * n
+        return struct.unpack_from(f'<{n}I', data, at - 4 * n)
+    def floats(n):
+        nonlocal at
+        a = array.array('f', data[at:at + 4 * n])
+        at += 4 * n
+        return a
+    for _ in range(nm):
+        mid, n = u32s(2)
+        meshes[mid] = floats(n)
+    for _ in range(nf):
+        fr = dict(zip(('frame', 'tick', 'rng'), u32s(3)))
+        for a, _k in DRAW_ARRAYS:
+            fr[a] = floats(u32s(1)[0])
+        frames.append(fr)
+    if at != len(data):
+        raise ValueError(f'{path}: {len(data) - at} bytes after the last frame')
+    return w, h, meshes, frames
+
+
+def draw_check():
+    """Counts and sanity: every scene of INDEX present with its sha1; fu 160 and p 30 per frame; every stream a whole number of its
+    records; every dq record's mesh id in the file and in meshes.json (and every mesh a whole number of vertices); no NaN; the keyed
+    frames are the scene's list; hb non-empty in every BATTLE frame of a battle scene with no cinematic running at its end or the frame's before (per its log)."""
+    import math
+    bad = []
+    index = json.load(open(os.path.join(DRAW, 'INDEX.json')))
+    names = json.load(open(os.path.join(DRAW, 'meshes.json')))['meshes']
+    nfr = nfl = 0
+    for sc in index['scenes']:
+        n = sc['name']
+        path = os.path.join(DRAW, n + '.bin')
+        if 'error' in sc or not os.path.exists(path):
+            bad.append(f'{n}: missing or failed')
+            continue
+        if hashlib.sha1(open(path, 'rb').read()).hexdigest() != sc['sha1']:
+            bad.append(f'{n}: sha1 differs from INDEX')
+        w, h, meshes, frames = draw_read(path)
+        if [w, h] != sc['viewport'][:2]:
+            bad.append(f'{n}: header viewport {w}x{h}')
+        for mid, v in meshes.items():
+            nfl += len(v)
+            if len(v) % 9 or str(mid) not in names or any(map(math.isnan, v)):
+                bad.append(f'{n}: mesh {mid} ({len(v)} floats, named {str(mid) in names}) bad')
+        if [f['frame'] for f in frames] != draw_frames(sc['frames']):
+            bad.append(f'{n}: keyed frames differ from its list')
+        flow = {int(m[1]): (m[2], m[3]) for m in re.finditer(r'^draw f (\d+) \S+ \S+ (\S+) (\S+)', open(os.path.join(DRAW, n + '.log')).read(), re.M)}
+        for f in frames:
+            nfr += 1
+            for a, k in DRAW_ARRAYS:
+                v = f[a]
+                nfl += len(v)
+                if (len(v) != k) if a in ('fu', 'p') else (len(v) % k):
+                    bad.append(f'{n} frame {f["frame"]}: {a} has {len(v)} floats')
+                if any(map(math.isnan, v)):
+                    bad.append(f'{n} frame {f["frame"]}: NaN in {a}')
+            ids = {int(f['dq'][32 * r + 23]) for r in range(len(f['dq']) // 32)}
+            if ids - meshes.keys():
+                bad.append(f'{n} frame {f["frame"]}: dq draws meshes {sorted(ids - meshes.keys())[:5]} not in the file')
+            quiet = all(flow.get(f['frame'] - d) == ('BATTLE', '-') for d in (0, 1))   # (no HUD in a cinematic, nor on the frame it ends)
+            if sc.get('group') == 'battle' and quiet and not f['hb']:
+                bad.append(f'{n} frame {f["frame"]}: hb empty in a battle frame')
+    print(f'[oracle] draw check: {len(index["scenes"])} scenes, {nfr} frames, {nfl / 1e6:.1f} M floats, {len(names)} named meshes; '
+          f'{"PASS" if not bad else "FAIL: " + "; ".join(bad[:20]) + (f" (+{len(bad) - 20} more)" if len(bad) > 20 else "")}', flush=True)
+    return not bad
+
+
+def draw(names=()):
+    t0 = datetime.datetime.now()
+    build()
+    build_draw()
+    spec = json.load(open(DRAW_SCENES))
+    scenes = [s for s in spec['scenes'] if not names or s['name'] in names]
+    if names and len(scenes) != len(names):
+        sys.exit(f'[oracle] unknown scenes: {sorted(set(names) - {s["name"] for s in scenes})}')
+    os.makedirs(os.path.join(DRAW, '.run2'), exist_ok=True)
+    with cf.ThreadPoolExecutor(max(1, JOBS // 2)) as ex:   # (each scene runs its two processes at once)
+        done = list(ex.map(draw_scene, scenes))
+    for j in done:
+        print(f"{j['name']}: " + (f"ERROR {j['error']}" if 'error' in j else
+                                  f"draw OK twice, identical, {j['n_frames']} frames, {j['bytes'] / 1e6:.1f} MB, {j['seconds']} s"), flush=True)
+    os.rmdir(os.path.join(DRAW, '.run2'))
+    errors = [j['name'] for j in done if 'error' in j]
+    # meshes.json: id -> what made it, the same in every scene and both runs (ids are per process: a lazily built mesh could differ)
+    mpath = os.path.join(DRAW, 'meshes.json')
+    merged = ({int(k): (v['verts'], v['made_by']) for k, v in json.load(open(mpath))['meshes'].items()}
+              if names and os.path.exists(mpath) else {})
+    for j in done:
+        for mid, v in j.pop('_meshes', {}).items():
+            if merged.setdefault(mid, v) != v:
+                errors.append(f'mesh {mid}: {merged[mid]} vs {v} in {j["name"]}')
+        if 'meshes_made' in j and any(k not in merged for k in range(j['meshes_made'])):
+            errors.append(f'{j["name"]}: a mesh with no name ("?")')
+    inputs = sorted({i for j in done for i in j.pop('_inputs', [])})
+    if len(inputs) != 1:
+        errors.append(f'the fixed inputs differ between scenes or over a scene: {inputs}')
+    with open(mpath, 'w') as f:
+        json.dump({'about': "mesh id (r_mesh_new's order in the native image) -> what made it: the shortest path to its MESH struct from a "
+                            'DUEL / ENGINE special variable (draw.lisp DW-NAME-MESHES), and its vertex count',
+                   'meshes': {str(k): {'made_by': p, 'verts': n} for k, (n, p) in sorted(merged.items())}}, f, indent=1)
+    head = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    freeze, same = provenance()
+    ipath = os.path.join(DRAW, 'INDEX.json')
+    new = ({s['name']: s for s in json.load(open(ipath))['scenes']} if names and os.path.exists(ipath) else {}) | {j['name']: j for j in done}
+    index = {'generated': str(datetime.date.today()), 'commit': head, 'lisp_freeze': freeze, 'sources_equal_tag': same,
+             'format': 'tools/port/oracle/stubs-draw.c (header)', 'scenes_file': 'tools/port/oracle/draw-scenes.json',
+             'image': os.path.relpath(DRAW_FAS, ROOT), 'image_sha1': hashlib.sha1(open(DRAW_FAS, 'rb').read()).hexdigest(),
+             'stubs_sha1': hashlib.sha1(open(os.path.join(ROOT, DRAW_STUBS), 'rb').read()).hexdigest(),
+             'fixed_inputs': spec['fixed_inputs'] | {'read_from_image': inputs}, 'commands': spec['commands'],
+             'scenes': [new[s['name']] for s in spec['scenes'] if s['name'] in new]}
+    index['total_bytes'] = sum(s.get('bytes', 0) for s in index['scenes']) + os.path.getsize(mpath)
+    with open(ipath, 'w') as f:
+        json.dump(index, f, indent=1)
+    print(f'[oracle] draw: {len(done)} scenes, {sum(j.get("n_frames", 0) for j in done)} frames, {index["total_bytes"] / 1e6:.0f} MB '
+          f'in the key, {(datetime.datetime.now() - t0).total_seconds():.0f} s; errors: {errors or "none"}', flush=True)
+    sys.exit(0 if not errors and draw_check() else 1)
+
+
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
+    if cmd == 'draw':
+        if '--check' in sys.argv:
+            sys.exit(0 if draw_check() else 1)
+        draw([a for a in sys.argv[2:] if not a.startswith('--')])
     if cmd == 'look':
         if '--check' in sys.argv:
             sys.exit(0 if look_check() else 1)

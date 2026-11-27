@@ -2325,5 +2325,220 @@
    "sha1": "eedf5bd50397bf5b20a5e786e5118090c1614d33",
    "frames": 121
   }
+ },
+ "draw": {
+  "source": "build/oracle/draw/INDEX.json",
+  "generated": "2026-11-27",
+  "format": "tools/port/oracle/stubs-draw.c (header)",
+  "meshes_json_sha1": "ed3d3fec2de6cd1c2e9e0fb1d2f5df055b9ffb95",
+  "stubs_sha1": "22549f4f5040e70f21190e8c2c87ae4e1d1257d1",
+  "total_bytes": 592800334,
+  "scenes": {
+   "quiet-2500": {
+    "sha1": "760d9a34124288e35585af300075035dff230d5b",
+    "frames": 121,
+    "bytes": 14164104
+   },
+   "quiet-2501": {
+    "sha1": "37aebb26f491fae3c6a16566fb7eb9181dc8f03b",
+    "frames": 121,
+    "bytes": 14242512
+   },
+   "quiet-2502": {
+    "sha1": "232df31060135dfffd2dde3cdd073fa34aa60e80",
+    "frames": 121,
+    "bytes": 12907784
+   },
+   "quiet-2503": {
+    "sha1": "adb1a4e9b77c1ee93699e4604acf092b113fa15f",
+    "frames": 121,
+    "bytes": 14378384
+   },
+   "quiet-2394": {
+    "sha1": "e7b9bc4de10b73fb67bcc48449cebce25652c52c",
+    "frames": 121,
+    "bytes": 14398032
+   },
+   "quiet-2395": {
+    "sha1": "0a7876fd7f5ff94a7e6689bf3f671d1136b9800e",
+    "frames": 121,
+    "bytes": 25601040
+   },
+   "quiet-2396": {
+    "sha1": "fbec39290c3eb4d5abf21dade5ebc00477fd402c",
+    "frames": 121,
+    "bytes": 14535848
+   },
+   "quiet-2397": {
+    "sha1": "accf2e1cd1361e212f04797409a6ee6787c93867",
+    "frames": 121,
+    "bytes": 16039672
+   },
+   "quiet-84000": {
+    "sha1": "aacea97c72d6b7dcffe288b2e047329926c7385d",
+    "frames": 121,
+    "bytes": 14166048
+   },
+   "quiet-84001": {
+    "sha1": "afc59ba6daba45e9efd6fedc699f66f49611a5cd",
+    "frames": 121,
+    "bytes": 15602456
+   },
+   "quiet-84004": {
+    "sha1": "aa3df2190ce512db3f2942fac3175aed3c8b5ddf",
+    "frames": 121,
+    "bytes": 15969448
+   },
+   "quiet-84005": {
+    "sha1": "5046738fdc7a9ad76b0da0f464a9a600e5fc9d87",
+    "frames": 121,
+    "bytes": 15969448
+   },
+   "slowmo-2513": {
+    "sha1": "cd7246fca977ee734f8fecccddd2dacb0eac775a",
+    "frames": 240,
+    "bytes": 24972552
+   },
+   "forms-ken-p2": {
+    "sha1": "b5955ab5b93f1e2450ef836550ffb5607bde8bca",
+    "frames": 13,
+    "bytes": 4026392
+   },
+   "forms-ken-p1": {
+    "sha1": "153a1e879cf3784b256dfb202893d7a46534e028",
+    "frames": 10,
+    "bytes": 3612120
+   },
+   "forms-ichigo": {
+    "sha1": "1f111195c905988b1efcbf7e6becd5cff172d431",
+    "frames": 7,
+    "bytes": 3659544
+   },
+   "battle-2005": {
+    "sha1": "db127093ff5e96642aa12270ef6239998659bca1",
+    "frames": 491,
+    "bytes": 97150672
+   },
+   "battle-2006": {
+    "sha1": "b641ab0dd198c66832c9c39364ca6e602a804d1b",
+    "frames": 552,
+    "bytes": 110184048
+   },
+   "portrait-2501": {
+    "sha1": "f1dc8079da37fa4e530fb88c7e755d4d4bbf1b26",
+    "frames": 61,
+    "bytes": 10615464
+   },
+   "portrait-2005": {
+    "sha1": "387bc13c9b837b5e2a1b8c8cd3ba3585fed05301",
+    "frames": 61,
+    "bytes": 13594280
+   },
+   "cine-ken-nozarashi": {
+    "sha1": "7826f0c6647864ec33484e570cc96f6deb22d22f",
+    "frames": 25,
+    "bytes": 4355384
+   },
+   "cine-soul-break": {
+    "sha1": "989061bd6a4a6a6396c1b3661ff2aa8a67fa04c3",
+    "frames": 23,
+    "bytes": 4489800
+   },
+   "cine-intro": {
+    "sha1": "099118143dd2a5123314b820f1f5fd2b2dcb4d01",
+    "frames": 63,
+    "bytes": 4474560
+   },
+   "cine-ko": {
+    "sha1": "97a693617e14b8f63f1700f6821e9131b99796cb",
+    "frames": 33,
+    "bytes": 5344320
+   },
+   "cine-ken-bankai": {
+    "sha1": "b5ccaee1eca77db14772b6509e2196f94408d584",
+    "frames": 41,
+    "bytes": 7688000
+   },
+   "cine-84094": {
+    "sha1": "fbe9dbccdd6dfd80d85809872bd3f6d9b9abc440",
+    "frames": 41,
+    "bytes": 5233312
+   },
+   "cine-84095": {
+    "sha1": "6d892fe6bb9dc6991540de39823e8d760be54439",
+    "frames": 65,
+    "bytes": 6880592
+   },
+   "cine-84096": {
+    "sha1": "ec1e540ca3c506fdca90b827bd719452706e1535",
+    "frames": 43,
+    "bytes": 10010072
+   },
+   "cine-84097": {
+    "sha1": "0c7c38931629a9b6959e30d925419820b016abe8",
+    "frames": 43,
+    "bytes": 9493520
+   },
+   "cine-84006": {
+    "sha1": "a974bff45553c9f7dfc6c0a6941bb3130e51dcea",
+    "frames": 46,
+    "bytes": 4503464
+   },
+   "cine-84007": {
+    "sha1": "6b69c52fddaf56944a3cdbbd33a9f16764bfca82",
+    "frames": 48,
+    "bytes": 5803152
+   },
+   "cine-84008": {
+    "sha1": "6c16cd6d1573331fec02dc632dfc6a4a410b27f4",
+    "frames": 47,
+    "bytes": 5894400
+   },
+   "cine-ic-kikon": {
+    "sha1": "231dfb46cc18a6ea64befeda3b00df9c9fb093cd",
+    "frames": 40,
+    "bytes": 6862984
+   },
+   "cine-ic-kessa-kikon": {
+    "sha1": "cb574de469e9124675691361800279f7e103b0b8",
+    "frames": 41,
+    "bytes": 7673800
+   },
+   "cine-ic-kessa": {
+    "sha1": "b33e6a3555287dabb406f2db53dedd5955cb7c21",
+    "frames": 37,
+    "bytes": 9977520
+   },
+   "cine-ic-kessa-getsuga": {
+    "sha1": "89eb2d16608d29bc54f12fcac9fc4b1b08b51031",
+    "frames": 39,
+    "bytes": 11349048
+   },
+   "cine-ic-heavy-kikon": {
+    "sha1": "58961adc579f7840ed86befd1b8caa23fe27d1bb",
+    "frames": 39,
+    "bytes": 4743792
+   },
+   "cine-ic-rush-kikon": {
+    "sha1": "024b39e1a752390237bc2bc3183027b41d2800b7",
+    "frames": 39,
+    "bytes": 5579896
+   },
+   "cine-ic-chain-kikon": {
+    "sha1": "a77f6d6e7fd2b80f6cdc04c836b0f8a3fcc4571e",
+    "frames": 39,
+    "bytes": 8616256
+   },
+   "cine-ic-haste-kikon": {
+    "sha1": "592f12e5f6b19cc30a9208a662dba3eca2a6e34e",
+    "frames": 13,
+    "bytes": 2513696
+   },
+   "cine-84094-portrait": {
+    "sha1": "1b566ac96d420a0e28460b35264443c67f259e53",
+    "frames": 41,
+    "bytes": 5467456
+   }
+  }
  }
 }
