@@ -272,3 +272,273 @@ checks those meshes, all drawn by no M3a scene, against a key that draws them.
 
 91 in-scope meshes are drawn by no scene: `kenpachi-nomi` 52, `kenpachi-oni` 21, `ichigo` 17, `ichigo-kessa` 1. The test checks only
 their vertex counts.
+
+## 4. The look queue, the per-step sink, the frame split (Task 4)
+
+`rs/duel-sim/src/look.rs` (`Event`, `LookEvent`, `LookQueue`, `LookSink`, `NoLook`, `KitRef`, `Match::look` / `Match::emit`),
+`rs/duel-look/src/scene.rs` (`Scene`, `SceneInputs`, `Model`, `Rim`), `rs/duel-look/src/rng.rs` (`CosRng`). Every `// look:` site in
+`duel-sim` now pushes its call onto `Match.looks`, and `flow::sim_step` hands the queue to a `LookSink` at FEEDBACK-SYSTEM's place.
+
+### How it works
+
+- **One queue, two kinds of call.** The Lisp applies a model / clip / camera / sound call at once, inside the step's systems, and queues
+  an EMIT on `*events*` for FEEDBACK-SYSTEM. Both go into `Match.looks` in program order. A sink applies every non-`Emit` event in
+  order (`LookQueue::calls`), then every `Emit` in order (`LookQueue::events`). That is the Lisp's order: the calls during the systems,
+  then DO-EVENTS oldest first. (`feedback.lisp`'s `:step` reads the clip a later PLAY-CLIP of the same step set, so one pass in push order
+  would be wrong.)
+- **The sink's place** (`main.lisp:30-45`): `sim_step` = `sim_core` (the tick, then the cinematic, a hitstop step, a slow-motion wait
+  or the systems), FQ-MATCH-END's Search half, `look.step(m)`, HASH-LOG's `step_end`, MC-FULL-STEP. GOD-UPDATE / PROBE-UPDATE are not
+  ported (debug). `LookSink::step` drains the queue and reads the match; it writes nothing else.
+- **The frame pass** (`LookSink::frame`): `frame_headless` calls it after the steps and before CINE-DRAW. It applies and removes the
+  immediate calls still queued, and keeps the EMITs for the next step's FEEDBACK-SYSTEM. Those calls come from a debug command, or from
+  a frame that ran no step: `raw_dt(1)` is under a step, so the frame that spawns the fighters runs none; at 120 Hz every other frame
+  runs none; a pause or a menu runs none. The Lisp made them at once, before that frame's draw. Task 5's `draw_frame` calls it first.
+- **The mute.** `Match::look` / `Match::emit` do nothing while `m.in_rollout`. No site calls `m.looks.push` directly
+  (`grep -rn 'looks.push' rs/duel-sim/src` finds only look.rs). `sim_step_lean` (SIM-STEP-LEAN) ends with `NoLook` (its TAKE-EVENTS).
+  The Lisp rollout runs no feedback, drops `*events*` (no snapshot root), and its restore puts back the ECS, whose MODEL holds the clip
+  player, and the cinematic roots (`sim-state.lisp:19-52`; `tools/simgate/fulltest.lisp` asserts every special). So the rollout's
+  looks never happen, and the live `Scene` is never handed to a rollout. `LookQueue::push` itself does not check the flag: the queue
+  does not know the match. Deviation from the brief's wording: the brief puts the mute on `push`.
+- **SPAWN-PAIR's TAKE-EVENTS** is `LookQueue::take_events`. It drops the EMITs only: the immediate calls queued before it were already
+  made in the Lisp.
+- **The frame split** (M1_NOTES §10, M2_NOTES §12):
+  - `flow::frame(m, s, input, look, rdt) -> bool`: the commands, FLOW-UPDATE, GATE-UPDATE, the steps; RDT is an argument;
+  - `flow::frame_end(m, s)`: FQ-MATCH-END's apply;
+  - `flow::frame_headless(m, s, input, look)`: `frame` with `raw_dt(frame_n + 1)` (unchanged arithmetic), the frame pass, `cine_draw`
+    unless turbo, `frame_end`. That is the replayer's order before this task, and all the tools use it.
+  - The four frame-time `// look:` sites in `flow.rs` (SCREEN-FX-UPDATE / ONEHAND-FRAME, the menus' idle ANIM-ADVANCE by RDT,
+    SLOW-DRAW / the fx clock / the camera, the HUD) are not queued: they belong to the drawer (Tasks 5-7, 10).
+- **`to_idle` takes TO-IDLE's blend.** The Lisp's callers pass 0 (BEGIN-BATTLE, REPEL!, ORANGE, the awakening / Bankai AFTERs,
+  RESET-ROUND, CORE-BOUNCE!, CORE-KIKON-UNDO!'s wave, KEN-BK-TICK, debug PLACE), 3 / 4 (fighter.lisp 543, 910, 917, 978) or the default
+  6. Each Rust caller now passes the same value. Only the clip's crossfade reads it, so the sim gates cannot see it.
+- **Kit readers moved.** `kit_move_clip` / `fighter_stance_clip` moved from `duel_look::anim` to `duel_sim::kit`, so the sim's sites
+  can choose the clip. `duel_look::anim` re-exports them, so Task 2's tests are unchanged.
+- **Hit-window look flags.** `:ice` / `:blade` / `:thread` got bits in `combat.rs`'s flag table (they were discarded). The `:hit`
+  EMIT's kind is the Lisp's COND over them, in its order: ice, bind, blade → flash, thread → quick, hazard → fire, the move's kind, else
+  counter. No sim path reads them.
+- **`Scene` (Task 4's part).** It keeps the fighters' MODEL (body, weapon, hide tags, alpha, mirror tint, the rim and ICHIGO's saved
+  rim) and Task 2's `Anim` per fighter, created by the `Model` event (SPAWN-FIGHTER's MAKE-MODEL). It applies `Clip` (PLAY-CLIP's
+  :look-clips → BODY-CLIPS → the clip, falling back to the kit's stance), `AnimSpeed`, `RecoveryPace` (its anim half, reading the clip
+  player), `AnimAdvance`, `CineActorStep` (+STEP+ × `*cine-time-scale*`, reset by `CineEndLook`), `Alpha`, `Rim`, `RefreshLook`,
+  `SlowSnapshot` / `SlowKeep` (`*slow-was*`, cleared past 48 entries). FX, sound, camera, canvas words and the cinematic looks are
+  no-ops marked `// task N` (6, M3b, 7, 8, 8). `SceneInputs` holds the viewport, MSAA, render scale, pixel lights, coarse, one-hand and
+  the scene-scale cap; the tests read them from the key's INDEX.json, and nothing in the port holds them as constants.
+- **`CosRng`**: `rng_float` bit for bit (the sim stream's xorshift32 wrapped, its own state, boot state `0x9E3779B9`); `seed` is
+  `rng_seed` (fmix32), `rnd01`, `state`. It lives in `Scene`, never in `Match`. Nothing draws from it yet: the first draws are Task 6's.
+- **`KitRef`** (`&'static Kit`, compared by address, printed by its name) keeps `LookEvent` `Copy + PartialEq` without `Kit: PartialEq`.
+  `LookEvent` holds no `String` or `Vec`; a clip or sound name is a `&'static str` from the data or a literal (the brief's `clip: u16`
+  would need a name → index table; the sink resolves the name against the model's body and the kit instead, as PLAY-CLIP does).
+
+### The sites: 145 rows
+
+The brief's 114 markers became 145 rows, for three reasons:
+- markers that listed several calls were split, one row per call;
+- the Lisp calls with no marker were added: ICHIGO-RENZAN's `:sfx`, ICHIGO-PARRY-OPEN's two `:sfx`, KEN-CHIGIRI-BURST's and
+  KEN-TATEGOTO-CUT's `:ken-bk-burst`, KEN-GROUND-CRACK's and KEN-BK-SLAM's `:ground-scar` + `:sfx`, a ward's `:blocked`, CORE-KIKON-KNOCK!'s
+  CORE-FOLLOW-CUES, SET-BLOCKSTUN's clip, CINE-STAGE's / SET-CAM-BEHIND's `*cam-cut*`;
+- the parry rim is written on every frame of the window, not only when it is saved.
+
+Columns:
+- **pre**: the state the call reads. `C` means the payload carries what it read at the call (for a clip: the clip chosen from the sim
+  state and the kit). A SLOW-SNAPSHOT keep and a cinematic's `CineAt` carry state from before the step's systems or script moved it.
+  `L` means the payload holds entity handles only, and the sink reads live state at FEEDBACK-SYSTEM's place, as the Lisp does.
+- **rollout**: `muted` means `Match::look` pushes nothing while `in_rollout`, as described above.
+
+By variant: 21 `Clip`, 19 `Emit(Sfx)`, 6 `RefreshLook`, 5 `Emit(KenBkBurst)`, 4 each `Emit(Refused)` / `Emit(Clash)`, 3 each
+`Emit(RushDash)` / `Emit(HohoOut)` / `Emit(GroundScar)`, 2 each `SlowKeep` / `Rim` / `Music` / `Emit(Step)` / `Emit(Konpaku)` /
+`Emit(HazardCut)` / `Emit(Blocked)` / `Emit(Armored)` / `CamCut` / `Alpha` / CORE-FOLLOW-CUES' pair; one each of the rest.
+Ten rows push nothing: four frame-time, four cinematic arms covered by `CineAt`, the absent `:step` hook, Bankai's LOST 0.
+
+| Site | Lisp call | Variant | pre | rollout |
+|---|---|---|---|---|
+| `ken/mod.rs:72` | emit :ken-bk-burst (KEN-BANKAI-BURST / -CHIGIRI-STILL / -QUAKE) | Emit(KenBkBurst) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:106` | emit :konpaku | Emit(Konpaku) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:141` | emit :ken-bk-burst :chigiri-draw | Emit(KenBkBurst) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:148` | emit :ken-bk-burst :chigiri | Emit(KenBkBurst) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:160` | emit :ground-scar | Emit(GroundScar) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `ken/hooks.rs:161` | emit :ken-bk-burst :tategoto | Emit(KenBkBurst) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:168` | emit :ken-bk-burst :tategoto-cut | Emit(KenBkBurst) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:188` | emit :sfx | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:195` | emit :ground-scar | Emit(GroundScar) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `ken/hooks.rs:196` | emit :sfx :ground-crack | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ken/hooks.rs:210` | emit :ground-scar | Emit(GroundScar) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `ken/hooks.rs:211` | emit :sfx :ground-crack | Emit(Sfx) | C: the point / values at the emit | muted |
+| `fighter/moves.rs:115` | (play-clip e (kit-move-clip kit (mv-clip mv)) :blend (mv-blend mv) :speed … :time (/ (* enter speed) 60.0)): a pre-roll's | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/moves.rs:137` | emit :super | Emit(Super) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:139` | emit :breaker | Emit(Breaker) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:141` | emit :rush | Emit(Rush) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:163` | play-clip at the cut (:blend 0) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/moves.rs:180` | (play-clip e (kit-move-clip kit (mv-clip-2 mv)) :blend 0 :speed …) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/moves.rs:183` | emit :breaker-end | Emit(BreakerEnd) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:305` | emit :rush-dash | Emit(RushDash) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:329` | emit :rush-dash | Emit(RushDash) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/moves.rs:362` | a pre-roll's (setf (anim-speed …) (mv-clip-speed mv)) at the hit pose | AnimSpeed | C: value | muted |
+| `fighter/moves.rs:373` | emit :swing on a window's first frame | Emit(Swing) | C: the point / values at the emit | muted |
+| `fighter/moves.rs:386` | RECOVERY-PACE (the anim's speed: the sink reads its clip) | RecoveryPace | C: steps left; the clip read by the sink | muted |
+| `fighter/react.rs:83` | (play-clip e :sh-launch :blend 2) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/react.rs:85` | emit :launch | Emit(Launch) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/react.rs:102` | (play-clip e (case react … (t :sh-flinch)) :blend 0) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/react.rs:113` | (play-clip e (or clip :sh-guard-hit) :blend 0) (no caller passes CLIP: a drunk hit's, retired) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:42` | the :step hook (no live kit has one: `kit.hooks` has no "step", none queued) | - | - | comment only (no live kit has a :step hook) |
+| `fighter/states.rs:50` | (play-clip e (cond … :sh-step-r / -l / -f / -b) :blend 2) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:52` | emit :step | Emit(Step) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/states.rs:88` | (play-clip e (run-clip e f) :blend 5 :speed (/ (kit-run kit) 8.0)) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:90` | emit :step | Emit(Step) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/states.rs:114` | emit :hoho-out | Emit(HohoOut) | C: the point / values at the emit | muted |
+| `fighter/states.rs:123` | emit :perfect | Emit(Perfect) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/states.rs:158` | (play-clip e :sh-guard :blend 3) (unreachable: GUARD-HELD-P is NIL) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:183` | (play-clip e (fighter-stance-clip f) :blend 6 :restart nil) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:196` | (play-clip e (… :sh-strafe-r / -l, :sh-walk-f / -b) :blend 6 :restart nil) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:269` | (play-clip e (fighter-stance-clip f) :blend 6) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:281` | (play-clip e (run-clip e f) :blend 5 :speed (/ speed 8.0) :restart nil) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:322` | (setf (model-alpha (model e)) (if (< sf *hoho-appear*) (f32 (- 1.0 (/ sf (float …)))) 1f0)) | Alpha | C: value | muted |
+| `fighter/states.rs:328` | (play-clip e :sh-hoho-in :blend 0) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:329` | emit :hoho-in (the :hoho hook: no live kit has one) | Emit(HohoIn) | C: the point / values at the emit | muted |
+| `fighter/states.rs:335` | a perfect Hoho's counter pose (play-clip … :blend 0 :time 0.1) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:363` | (play-clip e :sh-down :blend 3) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:364` | emit :land | Emit(Land) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/states.rs:373` | (play-clip e :sh-wakeup :blend 2) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/states.rs:381` | (play-clip e :sh-roll :blend 2) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/mod.rs:258` | MAKE-MODEL (body, mirror tint / rim), MAKE-BLADE | Model | C: kit, mirror | muted |
+| `fighter/mod.rs:279` | refresh-look | RefreshLook | C: kit at the call | muted |
+| `fighter/mod.rs:280` | (play-clip e (kit-stance kit) :blend 0) | Clip | C: clip chosen and kit read at the call | muted |
+| `fighter/mod.rs:354` | emit :refused | Emit(Refused) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/mod.rs:431` | emit :refused | Emit(Refused) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/mod.rs:438` | emit :refused | Emit(Refused) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `fighter/mod.rs:589` | (anim-advance (model-anim (model e)) +step+) (M1_NOTES §1) | AnimAdvance | C: dt | muted |
+| `fighter/mod.rs:668` | (play-clip e (fighter-stance-clip f) :blend blend) | Clip | C: clip chosen and kit read at the call | muted |
+| `combat.rs:584` | emit :hit | Emit(Hit) | C: the point / values at the emit | muted |
+| `combat.rs:673` | emit :armored | Emit(Armored) | C: the point / values at the emit | muted |
+| `combat.rs:692` | emit :parried | Emit(Parried) | C: the point / values at the emit | muted |
+| `combat.rs:704` | emit :absorbed | Emit(Absorbed) | C: the point / values at the emit | muted |
+| `combat.rs:725` | emit :guard-crush | Emit(GuardCrush) | C: the point / values at the emit | muted |
+| `combat.rs:736` | emit :blocked (a ward's) | Emit(Blocked) | C: the point / values at the emit | muted |
+| `combat.rs:740` | emit :blocked | Emit(Blocked) | C: the point / values at the emit | muted |
+| `combat.rs:752` | emit :guard-break | Emit(GuardBreak) | C: the point / values at the emit | muted |
+| `combat.rs:758` | emit :stance-break | Emit(StanceBreak) | C: the point / values at the emit | muted |
+| `combat.rs:911` | emit :clash | Emit(Clash) | C: the point / values at the emit | muted |
+| `cine.rs:86` | (setf *grade-split* 0.0 … *cine-cam* nil) | CineStart | args | muted |
+| `cine.rs:100` | (setf *cine-cam* nil *grade-desat* 0.0 *grade-split* 0.0) | CineStop | - | muted |
+| `cine.rs:148` | *cine-actor-hook* (CINE-ACTOR-STEP: the actor's clip advances) | CineActorStep | L (the time scale: the sink's) | muted |
+| `cine.rs:160` | the script's look forms at CF (every script's: the arms below) | CineAt | C: actors before the script | muted |
+| `cine.rs:162` | clips, shots, captions, intro weapons, the negative cut, FIGHT!'s sound (`LookEvent::CineAt` above) | - | - | covered by `CineAt` (cine.rs:160) |
+| `cine.rs:168` | clips, hold-pose, the two-tone frame, shots, the stamp, the rain (`LookEvent::CineAt` above) | - | - | covered by `CineAt` (cine.rs:160) |
+| `cine.rs:174` | clips, hold-both, impact frames, shots, the stamp, silence, cine-shatter (vfx), shake (`LookEvent::CineAt` above) | - | - | covered by `CineAt` (cine.rs:160) |
+| `cine.rs:180` | the caption, the negative frame, the shot (`LookEvent::CineAt` above) | - | - | covered by `CineAt` (cine.rs:160) |
+| `cine.rs:200` | caption, lens, close-up flags | CineBegin | args | muted |
+| `cine.rs:216` | caption, card, grade, dutch, fov, aura, draw scale, time scale, camera up, silhouette, flash, screen fx, stage env | CineEndLook | - | muted |
+| `cine.rs:233` | refresh-look | RefreshLook | C: kit at the call | muted |
+| `cine.rs:283` | (setf *cam-cut* t) | CamCut | - | muted |
+| `round.rs:63` | emit :konpaku | Emit(Konpaku) | C: the point / values at the emit | muted |
+| `round.rs:120` | emit :kikon | Emit(Kikon) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `round.rs:123` | emit :soul-break for each of SB | Emit(SoulBreak) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `round.rs:188` | emit :reset | Emit(Reset) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:114` | emit :refused | Emit(Refused) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:438` | emit :clash | Emit(Clash) | C: the point / values at the emit | muted |
+| `core_sim.rs:455` | emit :armored | Emit(Armored) | C: the point / values at the emit | muted |
+| `core_sim.rs:522` | emit :clash | Emit(Clash) | C: the point / values at the emit | muted |
+| `core_sim.rs:533` | emit :hazard-cut | Emit(HazardCut) | C: the point / values at the emit | muted |
+| `core_sim.rs:592` | emit :sp-break | Emit(SpBreak) | C: the point / values at the emit | muted |
+| `core_sim.rs:713` | the follow cues on frame 1 (a tap is up after the hitstop) | Emit(KikonFollow), Emit(RushDash) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:738` | the dash-in's cues | Emit(KikonFollow), Emit(RushDash) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:743` | emit :kikon-follow | Emit(KikonFollow) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:744` | emit :rush-dash | Emit(RushDash) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `core_sim.rs:802` | emit :clash | Emit(Clash) | C: the point / values at the emit | muted |
+| `gauges.rs:221` | (setf (model-alpha (model o)) 1f0) | Alpha | C: value | muted |
+| `gauges.rs:248` | emit :burst | Emit(Burst) | C: the point / values at the emit | muted |
+| `gauges.rs:259` | emit :burst-end | Emit(BurstEnd) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `gauges.rs:324` | refresh-look (the body's hurt volume is read from the current kit: docs/bevy/M1_NOTES.md §1) | RefreshLook | C: kit at the call | muted |
+| `gauges.rs:331` | emit :form | Emit(Form) | C: the point / values at the emit | muted |
+| `gauges.rs:358` | emit :awaken | Emit(Awaken) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `gauges.rs:384` | refresh-look | RefreshLook | C: kit at the call | muted |
+| `gauges.rs:385` | (when (plusp lost) (emit :konpaku e lost)): LOST is 0 (his Konpaku kept) | - | - | comment only (LOST is always 0) |
+| `gauges.rs:386` | emit :bankai | Emit(Bankai) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `gauges.rs:435` | emit :guard-back | Emit(GuardBack) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `gauges.rs:466` | emit :evolution | Emit(Evolution) | L: ids; the sink reads live state, as FEEDBACK-SYSTEM | muted |
+| `flow.rs:65` | screen-fx-update, onehand-frame (frame time: the drawer's, before the steps; not queued) | - | - | frame time: the drawer's (Tasks 5-7, 10); not queued |
+| `flow.rs:72` | the menus' idle clips (frame time: the drawer's ANIM-ADVANCE by RDT; not queued) | - | - | frame time: the drawer's (Tasks 5-7, 10); not queued |
+| `flow.rs:74` | slow-draw (it puts back what it moves), the fx clock, the camera (frame time: the drawer's; not queued) | - | - | frame time: the drawer's (Tasks 5-7, 10); not queued |
+| `flow.rs:98` | the HUD (frame time: the drawer's, before `frame_end`) | - | - | frame time: the drawer's (Tasks 5-7, 10); not queued |
+| `flow.rs:186` | slow-snapshot (its CLRHASH) | SlowSnapshot | - | muted |
+| `flow.rs:190` | slow-snapshot's KEEP of a fighter | SlowKeep | C: the place before the systems | muted |
+| `flow.rs:199` | slow-snapshot's KEEP of a hazard | SlowKeep | C: the place before the systems | muted |
+| `flow.rs:298` | (take-events) (`*events*` dropped; the immediate calls stay: the Lisp made them) | `LookQueue::take_events` | - | muted |
+| `flow.rs:299` | (fx-clear) | FxClear | - | muted |
+| `flow.rs:301` | (stage-clear-cracks) | StageClearCracks | - | muted |
+| `flow.rs:320` | (play-music :music-title) | Music | args | muted |
+| `flow.rs:338` | (clear-words) | ClearWords | - | muted |
+| `flow.rs:343` | SET-CAM-BEHIND's (setf *cam-cut* t) | CamCut | - | muted |
+| `flow.rs:354` | (play-music :music 0.2); log-msg: the match seed line, debug-knobs-line | Music | args | muted |
+| `flow.rs:365` | refresh-look | RefreshLook | C: kit at the call | muted |
+| `flow.rs:371` | (duel-camera *p1* *p2* 0.0 :snap t) | CameraSnap | L (nothing moves after it in the step) | muted |
+| `flow.rs:421` | refresh-look | RefreshLook | C: kit at the call | muted |
+| `flow.rs:429` | (play-clip e (if won (or (kit-win kit) (kit-stance kit)) :sh-lose) :blend 8) | Clip | C: clip chosen and kit read at the call | muted |
+| `flow.rs:433` | (music-stop 1.0) (setf *music* nil) | MusicStop | args | muted |
+| `ichigo/mod.rs:75` | emit :sfx :getsuga | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/mod.rs:78` | emit :hoho-out | Emit(HohoOut) | C: the point / values at the emit | muted |
+| `ichigo/mod.rs:91` | emit :sfx :getsuga | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:287` | emit :sfx :clone | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:454` | emit :sfx :whoosh-heavy | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:576` | emit :sfx :getsuga | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:698` | emit :sfx :clone | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:753` | emit :sfx :clone | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/clones.rs:882` | emit :hazard-cut | Emit(HazardCut) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:29` | emit :sfx :chain-snap | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:107` | (ui-flash 1 1 1 0.55 7.0) | UiFlash | args | muted |
+| `ichigo/hooks.rs:108` | emit :sfx :parry-ting | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:109` | emit :sfx :chain-snap | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:127` | emit :sfx :getsuga | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:135` | emit :sfx :whoosh-heavy | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:144` | emit :sfx :whoosh-heavy | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:153` | emit :sfx :chain-rattle | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:154` | emit :sfx :parry-open | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:168` | emit :hoho-out | Emit(HohoOut) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:169` | emit :sfx :whoosh-light | Emit(Sfx) | C: the point / values at the emit | muted |
+| `ichigo/hooks.rs:332` | (setf (model-rim m) (parry-rim (- 1.0 (/ (- sf (first w)) (float (max 1 (- (second w) (first w)))))))) (the rim saved first) | Rim | C: parry level | muted |
+| `ichigo/hooks.rs:339` | (setf (model-rim m) (ics-rim st)) restored | Rim | C: parry level | muted |
+
+### Cosmetic `rnd01` reachable from a step's feedback or the frame, in call order
+
+From `grep -n 'rnd01\|rnd-range' duel/lisp engine/lisp` (retired kits left out), each attributed to its function. The order within
+a phase is the Lisp's call order there; Tasks 5-8 pin it against the key's per-frame `rng_state`.
+
+| Phase (GAME-FRAME order) | Calls that draw | Where |
+|---|---|---|
+| SCREEN-FX-UPDATE, ONEHAND-FRAME, FLOW-UPDATE, GATE-UPDATE | none | |
+| each step's immediate calls (pass 1) | a cinematic's AT look forms (`CineAt`): KE-Z-DUST, KE-Z-BLOOD, SHAKE, VFX-SHOCKWAVE, VFX-AWAKEN-BURST, VFX-KEN-BK-BURST in Kenpachi's scripts; Ichigo's in ichigo-look.lisp | ken.lisp:790, 799; fx.lisp:27; vfx-stamps.lisp:457; vfx.lisp:554; ken-art.lisp:1575; ichigo-look.lisp (Task 8) |
+| each step's FEEDBACK-SYSTEM (pass 2), event by event | `:absorbed`'s absorb-sound roll; VFX-HIT (and its shards); VFX-STEP-DUST; VFX-KIKON-RUSH; VFX-SHOCKWAVE; VFX-SMOKE-PUFFS; VFX-EMBER (`:parried`); SHAKE (3 draws a call); STAGE-MARK's crack rays (STAGE-CRACK-ADD) and STAGE-DEBRIS; VFX-KEN-BK-BURST / VFX-KEN-TATEGOTO-CUT (`:ken-bk-burst`); `:drink`'s laugh (retired kit: unreachable) | feedback.lisp:119 (201); vfx-stamps.lisp:346, 443, 395, 457, 435; vfx-ember.lisp:26; fx.lisp:27; stage.lisp:228, 289; ken-art.lisp:1575, 1563 |
+| DRAW-SCENE (draw.lisp:325-345): STAGE-DRAW | the ash / feathers (ST-EVERY's emission) | stage.lisp:374 |
+| DRAW-SCENE: DRAW-FIGHTER P1, then P2 | VFX-AURA (its N-OF emission counts and its particles, %GARB-AURA), scaled by last frame's `*aura-cap*`; Ichigo's aura base | vfx.lisp:40, 242, 293; ichigo-look.lisp:219 |
+| DRAW-SCENE: HAZARD-DRAW | the hazards' looks: VFX-LINE-CUT, ICHIGO-ECHO-LOOK, KE-ZH-CHIPS | vfx.lisp:419; ichigo-look.lisp:185; ken.lisp:685 |
+| DRAW-SCENE: CINE-DRAW | a script's DURING looks: VFX-SKY-SPLIT, VFX-AURA, Ichigo's cinematics | vfx.lisp:527-; ichigo-look.lisp:689, 841, 905, 919 |
+| DRAW-SCENE: STAMPS-DRAW, FX-UPDATE, FX-DRAW-PARTICLES, FX-RINGS-UPDATE | none found by the grep (they move what the calls above emitted) | |
+| HUD-DRAW | AURA-CAP-UPDATE draws nothing, but sets `*aura-cap*`, which the next frame's VFX-AURA reads (ruling R4: Task 6 ports it at HUD-DRAW's place) | hud-screens.lisp:10 |
+
+### Tests
+
+- `rs/duel-sim/src/look.rs`:
+  - `ecs_test_lisp_events`: tests/ecs-test.lisp lines 26-37, the 4 event-queue checks, on `LookQueue`;
+  - `take_events_keeps_calls`.
+- `rs/duel-sim/tests/look.rs`:
+  - `queue_order_matches_sites`: cvc-ki-s1 run live from its S line to its end. Each step's kinds are checked at three steps against
+    the calls read off the sources: tick 49 (P2's IC-J1 starts while P1 walks back), tick 165 (P1's pre-rolled KE-Z-AS1 hits:
+    AnimSpeed, swing, RECOVERY-PACE, `:hit`, the launch clip, `:sp-break`), and tick 20918 (the K.O.: the last soul's cinematic ends
+    into KO-CINE). The brief asked for 600 ticks; the K.O. comes at 20918, so the test runs the whole match.
+  - `rollout_pushes_nothing`: 40 battle steps on a copy push looks as the live match and none with `in_rollout`.
+- `rs/duel-look/tests/scene.rs`:
+  - `rollout_leaves_scene_and_cosrng` (Review Focus 1): cvc-ki-s1 run twice, turbo off after its commands. The second run does an
+    extra rollout of the oldest CPU job after every frame. The Scene, CosRng and state hash stay equal frame for frame for 3,000 frames,
+    and the rollout's match queues nothing.
+  - `frame_rate_120_and_30` (Review Focus 3): dt 1/60, 1/120 and 1/30. The Scene and state hash are equal at battle ticks 1, 300,
+    600, 900 and 1200, read inside the step's sink, before the first cinematic.
+- `rs/duel-tools/src/replay.rs` `look_queue_no_alloc`: the 17 cvc rows with a counting sink. 0 allocations in 293,640 battle steps;
+  each row's sink saw 54,000-103,000 calls and 1,000-1,600 events.
+
+### For later tasks
+
+- **CINE-AT's interleaving (Task 8).** `CineAt.pre` holds the actors before the script ran. A look form that comes after a sim form in
+  the same frame (FACE-EACH-OTHER, CINE-PLACE) sees moved actors. Task 8 replays the script's sim forms on a copy, in order.
+- **The menus' idle clips** (`main.lisp:135`: ANIM-ADVANCE by RDT when not running, the fighters alive and not paused) are the drawer's
+  (Task 10's page; M3b's menus).
+- **Not queued:** debug PLACE's FX-CLEAR and its model flash / super reset (a debug helper); KEN-BANKAI-CINE's MODEL-BODY swap (a
+  cinematic look form: Task 8).

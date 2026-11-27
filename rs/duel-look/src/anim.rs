@@ -1,7 +1,7 @@
 //! port: engine/lisp/anim.lisp — clip sampling and the per-entity player with its crossfade; and the kit readers that pick which
 //! clip a fighter plays (duel/lisp/kit.lisp KIT-MOVE-CLIP, duel/lisp/fighter.lisp FIGHTER-STANCE-CLIP). Clips come from duel-data
 //! (built by DEFCLIP / DEFSTRIKE / DEFCLIP-MIRROR in the image); nothing here builds one.
-use duel_data::{Clip, Kit};
+use duel_data::Clip;
 use duel_sim::math::f_max;
 
 /// +POSE-N+: joint j at [3j] flex, [3j+1] twist, [3j+2] side; [63..66] root r u f, [66] root yaw, [67] root pitch.
@@ -121,14 +121,5 @@ impl<'d> Anim<'d> {
     }
 }
 
-/// port: duel/lisp/kit.lisp KIT-MOVE-CLIP — the clip a fighter in KIT plays for a move's CLIP: the form's :clip-map entry, else CLIP.
-pub fn kit_move_clip<'a>(kit: &'a Kit, clip: &'a str) -> &'a str {
-    kit.clip_map.get(clip).map_or(clip, |c| c.as_str())
-}
-
-/// port: duel/lisp/fighter.lisp FIGHTER-STANCE-CLIP — the idle clip: with :core :stances the stance of SP pointer PTR (clamped to
-/// 1 .. their count), else the kit's :stance.
-pub fn fighter_stance_clip(kit: &Kit, ptr: i64) -> &str {
-    let st = &kit.core.stances;
-    if st.is_empty() { &kit.stance } else { &st[(ptr.clamp(1, st.len() as i64) - 1) as usize] }
-}
+// (the clip choices are pure kit readers the sim's look sites use: duel-sim owns them)
+pub use duel_sim::kit::{fighter_stance_clip, kit_move_clip};

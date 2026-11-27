@@ -1,6 +1,7 @@
 //! port: engine/lisp/cine.lisp (the director) and duel/lisp/cinema.lisp (its hooks, the staging helpers, the generic
 //! cinematics' step-mode AT events). Shots, clips, captions, lenses, impact frames and sounds are looks (M3): only what
 //! touches sim state is here. Kenpachi's scripts are in ken/cine.rs, Ichigo's in ichigo/cine.rs.
+use crate::look::LookEvent;
 use crate::components::State;
 use crate::ecs::Entity;
 use crate::math::{dir_yaw, hypot};
@@ -82,7 +83,7 @@ pub struct Cine {
 /// port: START-CINE.
 pub fn start_cine(m: &mut Match, name: CineName, a: Entity, v: Entity, after: Option<After>) {
     m.time.reset();
-    // look: *grade-split*, *cine-cam*
+    m.look(LookEvent::CineStart { name, a, v }); // look: (setf *grade-split* 0.0 … *cine-cam* nil)
     m.cine = Some(Cine { name, cf: 0, len: name.frames(), a, v, after, skip: false, line: [0.0; 4] });
     m.cine_serial += 1;
     cine_begin(m, name, a, v);
@@ -96,7 +97,7 @@ pub fn start_cine(m: &mut Match, name: CineName, a: Entity, v: Entity, after: Op
 /// port: END-CINE.
 pub fn end_cine(m: &mut Match) {
     let c = m.cine.take();
-    // look: *cine-cam*, the grade
+    m.look(LookEvent::CineStop); // look: (setf *cine-cam* nil *grade-desat* 0.0 *grade-split* 0.0)
     cine_end(m, c.as_ref());
     if let Some(after) = c.and_then(|c| c.after) {
         run_after(m, after);
@@ -110,8 +111,8 @@ fn run_after(m: &mut Match, after: After) {
         After::ResetRound(a, v) => crate::round::reset_round(m, a, v),
         After::MatchOver(w) => crate::flow::match_over(m, w),
         After::IdleBoth(e, o) => {
-            crate::fighter::to_idle(m, e);
-            crate::fighter::to_idle(m, o);
+            crate::fighter::to_idle(m, e, 0.0);
+            crate::fighter::to_idle(m, o, 0.0);
         }
     }
 }
@@ -142,7 +143,11 @@ pub fn cine_step(m: &mut Match) {
     let (name, cf, a, v, len, serial) = (c.name, c.cf, c.a, c.v, c.len, m.cine_serial);
     script(name, cf, a, v, m);
     if m.cine.is_some() && m.cine_serial == serial {
-        // look: *cine-actor-hook* (CINE-ACTOR-STEP: the actors' clips advance)
+        for e in [a, v] {
+            if m.ents.alive(e) {
+                m.look(LookEvent::CineActorStep { e }); // look: *cine-actor-hook* (CINE-ACTOR-STEP: the actor's clip advances)
+            }
+        }
         if cf >= len {
             end_cine(m);
         }
@@ -151,26 +156,28 @@ pub fn cine_step(m: &mut Match) {
 
 /// The step-mode AT events of script NAME at frame CF that touch sim state.
 pub fn script(name: CineName, cf: i64, a: Entity, v: Entity, m: &mut Match) {
+    let pre = [a, v].map(|e| m.transform.get(e).map_or([0.0; 4], |t| [t.pos[0], t.pos[1], t.pos[2], t.yaw]));
+    m.look(LookEvent::CineAt { name, cf, a, v, pre }); // look: the script's look forms at CF (every script's: the arms below)
     match name {
-        // look: clips, shots, captions, intro weapons, the negative cut, FIGHT!'s sound
+        // look: clips, shots, captions, intro weapons, the negative cut, FIGHT!'s sound (`LookEvent::CineAt` above)
         CineName::Intro => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: clips, hold-pose, the two-tone frame, shots, the stamp, the rain
+        // look: clips, hold-pose, the two-tone frame, shots, the stamp, the rain (`LookEvent::CineAt` above)
         CineName::Ko => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: clips, hold-both, impact frames, shots, the stamp, silence, cine-shatter (vfx), shake
+        // look: clips, hold-both, impact frames, shots, the stamp, silence, cine-shatter (vfx), shake (`LookEvent::CineAt` above)
         CineName::SoulBreak => {
             if cf == 0 {
                 face_each_other(m, a, v, None);
             }
         }
-        // look: the caption, the negative frame, the shot
+        // look: the caption, the negative frame, the shot (`LookEvent::CineAt` above)
         CineName::Time => {}
         CineName::Ken(c) => crate::ken::cine::script(c, cf, a, v, m),
         CineName::Ichigo(c) => crate::ichigo::cine::script(c, cf, a, v, m),
@@ -190,7 +197,7 @@ pub fn cine_draw(m: &mut Match) {
 
 /// port: CINE-BEGIN (*cine-begin-hook*).
 fn cine_begin(m: &mut Match, name: CineName, a: Entity, v: Entity) {
-    // look: caption, lens, close-up flags
+    m.look(LookEvent::CineBegin { name, a, v }); // look: caption, lens, close-up flags
     for e in [a, v] {
         if let Some(f) = m.fighter.get_mut(e) {
             f.state = State::Cine;
@@ -206,7 +213,7 @@ fn cine_begin(m: &mut Match, name: CineName, a: Entity, v: Entity) {
 
 /// port: CINE-END (*cine-end-hook*): C is None when none ran.
 fn cine_end(m: &mut Match, c: Option<&Cine>) {
-    // look: caption, card, grade, dutch, fov, aura, draw scale, time scale, camera up, silhouette, flash, screen fx, stage env
+    m.look(LookEvent::CineEndLook); // look: caption, card, grade, dutch, fov, aura, draw scale, time scale, camera up, silhouette, flash, screen fx, stage env
     if let Some((a, v)) = m.cine_placed_e
         && m.cine_placed[6] > 0.0
     {
@@ -222,7 +229,8 @@ fn cine_end(m: &mut Match, c: Option<&Cine>) {
     if let Some(c) = c {
         for e in [c.a, c.v] {
             if m.fighter.has(e) {
-                // look: refresh-look
+                let kit = crate::look::KitRef(crate::fighter::kit_of(m, e));
+                m.look(LookEvent::RefreshLook { e, kit }); // look: refresh-look
                 if let Some(p) = m.pilot.get_mut(e) {
                     p.vpad.flush();
                 }
@@ -272,7 +280,7 @@ pub fn cine_stage(m: &mut Match, a: Entity, v: Entity) {
     m.transform.get_mut(a).unwrap().pos = [p[0] - mx, 0.0, p[2] - mz];
     m.transform.get_mut(v).unwrap().pos = [q[0] - mx, 0.0, q[2] - mz];
     face_each_other(m, a, v, None);
-    // look: *cam-cut*
+    m.look(LookEvent::CamCut); // look: (setf *cam-cut* t)
 }
 
 /// port: CINE-PLACE.

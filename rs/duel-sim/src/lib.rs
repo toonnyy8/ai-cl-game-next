@@ -23,6 +23,7 @@ pub mod ken;
 pub mod kit;
 pub mod knobs;
 pub mod log;
+pub mod look;
 pub mod math;
 pub mod rng;
 pub mod round;

@@ -131,10 +131,13 @@ pub struct Match {
     pub view_behind: bool,
     /// Not a Lisp special: FQ-MATCH-END's Match half, done by GO-RESULTS (each learning brain's record taken, BRAIN-FQL set NIL, its
     /// health balance and result then). GO-RESULTS runs deep in the sim (a K.O. cinematic's end), which has no `Search`; the Search
-    /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame`'s end (a
+    /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame_end` (a
     /// GO-RESULTS outside a step) and at `start_match`'s top (before FQ-ATTACH!). Nothing reads the tables or the page in between
     /// (docs/bevy/M2_NOTES.md §8).
     pub fq_end: Vec<crate::cpu::fq::FqEnd>,
+    /// Not a Lisp special: the looks of this step (`*events*` and the immediate presentation calls, docs/bevy/M3A_NOTES.md §4),
+    /// drained by `flow::sim_step`'s `LookSink`. Reserved once (`look::LOOK_RESERVE`); a rollout's match never pushes (`Match::look`).
+    pub looks: crate::look::LookQueue,
 }
 
 /// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
@@ -168,7 +171,7 @@ match_clone!(
     cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
     gate_results, gate_busy, gate_seed0, gate_seeds, knobs, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
     pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
-    view_behind, fq_end,
+    view_behind, fq_end, looks,
 );
 
 impl Match {
@@ -244,6 +247,7 @@ impl Match {
             behind_yaw: 0.0,
             view_behind: false,
             fq_end: Vec::new(),
+            looks: crate::look::LookQueue::with_reserve(),
         }
     }
 

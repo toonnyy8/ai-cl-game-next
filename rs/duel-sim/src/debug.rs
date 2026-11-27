@@ -79,7 +79,7 @@ pub fn place(m: &mut Match, dist: f32) {
     m.transform.get_mut(b).expect("P2").pos = [0.5 * dist, 0.0, 0.0];
     crate::cine::face_each_other(m, a, b, None);
     for e in [a, b] {
-        crate::fighter::to_idle(m, e);
+        crate::fighter::to_idle(m, e, 0.0);
         m.fighter.get_mut(e).unwrap().lock = 0;
     }
 }

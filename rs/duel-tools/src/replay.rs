@@ -710,7 +710,7 @@ pub fn run_opts(o: &Opts, data: &'static duel_data::Data) -> RunResult {
 fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search, rp: &mut Replayer<I>, start: &[String]) -> Outcome {
     rp.advance();
     if rp.kind != Kind::Cmds {
-        flow::frame(m, s, rp); // (trial.lisp's start: one frame, no step)
+        flow::frame_headless(m, s, rp, &mut duel_sim::look::NoLook); // (trial.lisp's start: one frame, no step)
         rp.check_unported(m);
         while rp.out.is_none() {
             match rp.cur.take() {
@@ -737,7 +737,7 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
                         rp.detach(m);
                     }
                     rp.advance();
-                    flow::frame(m, s, rp);
+                    flow::frame_headless(m, s, rp, &mut duel_sim::look::NoLook);
                     rp.check_unported(m);
                     rp.check_cut(s);
                 }
@@ -755,13 +755,13 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
             Err(_) => return Outcome::Error(format!("trace: bad command {c} on the S line")),
         }
     }
-    flow::frame(m, s, rp);
+    flow::frame_headless(m, s, rp, &mut duel_sim::look::NoLook);
     rp.check_unported(m);
     for _ in 0..2_000_000 {
         if let Some(out) = rp.out.take() {
             return out;
         }
-        let go = flow::frame(m, s, rp);
+        let go = flow::frame_headless(m, s, rp, &mut duel_sim::look::NoLook);
         rp.check_unported(m);
         rp.check_cut(s);
         if let Some(out) = rp.out.take() {
@@ -864,14 +864,14 @@ pub fn bench_setup(path: &str, data: &'static duel_data::Data, live: bool) -> Re
     }
     let mut inp = BenchInput { inj: Injector::new(), ts, live, steps: 0 };
     let mut s = Search::new();
-    flow::frame(&mut m, &mut s, &mut inp);
+    flow::frame_headless(&mut m, &mut s, &mut inp, &mut duel_sim::look::NoLook);
     m.log_on = false; // (DEBUG-COMMAND turns it on; the gate's matches run with it off)
     Ok((m, s, inp, h))
 }
 
 /// One frame of the bench loop; false once the run is over (the replay's end test).
 pub fn bench_frame(m: &mut Match, s: &mut Search, inp: &mut BenchInput) -> bool {
-    let go = flow::frame(m, s, inp);
+    let go = flow::frame_headless(m, s, inp, &mut duel_sim::look::NoLook);
     m.log.clear();
     go && !(m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m))
 }
@@ -1092,12 +1092,12 @@ mod tests {
             flow::go_title(&mut m);
             m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
             let s = &mut Search::new();
-            flow::frame(&mut m, s, &mut flow::NoInput);
+            flow::frame_headless(&mut m, s, &mut flow::NoInput, &mut duel_sim::look::NoLook);
             m.log_on = false; // (as `--bench`: the debug commands turn the combat log on)
             let (mut allocs, mut steps) = (0, 0);
             for _ in 0..200_000 {
                 let (a0, t0, before) = (crate::alloc_count::count(), m.match_tick, flow::battle_p(&m));
-                flow::frame(&mut m, s, &mut flow::NoInput);
+                flow::frame_headless(&mut m, s, &mut flow::NoInput, &mut duel_sim::look::NoLook);
                 if before && flow::battle_p(&m) {
                     (allocs, steps) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0));
                 }
@@ -1108,6 +1108,51 @@ mod tests {
             assert_eq!(m.unported, None);
             eprintln!("live_allocs {name}: {allocs} allocations in {steps} battle steps; {} decisions, {} rollouts", s.mc_stats[0], s.mc_stats[1]);
             assert!(steps > 10_000, "{name} {steps}");
+            assert_eq!(allocs, 0, "{name}: allocations in {steps} battle steps");
+        }
+    }
+
+    /// The 0 B / step rule with the look queue on (M3a Task 4): the 17 cvc rows as `live_allocs` runs them, with a counting sink at
+    /// FEEDBACK-SYSTEM's place (every event's kind tallied into a fixed array, the queue drained): no allocation in any frame that starts
+    /// and ends in the battle, and the sink saw the looks (not vacuous).
+    #[test]
+    fn look_queue_no_alloc() {
+        use duel_sim::look::{LookEvent, LookSink};
+        struct Tally([u64; 2]);
+        impl LookSink for Tally {
+            fn step(&mut self, m: &mut Match) {
+                for ev in m.looks.drain() {
+                    self.0[matches!(ev, LookEvent::Emit(_)) as usize] += 1;
+                }
+            }
+        }
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        for name in CVC_GATE {
+            let Some(path) = oracle_trace(name) else { panic!("no answer key (set ORACLE)") };
+            let s_line = std::io::BufRead::lines(std::io::BufReader::new(std::fs::File::open(&path).unwrap()))
+                .map(Result::unwrap)
+                .find_map(|l| l.strip_prefix("S cmds ").map(String::from))
+                .unwrap();
+            let mut m = Match::new(data);
+            flow::go_title(&mut m);
+            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
+            let (s, t) = (&mut Search::new(), &mut Tally([0; 2]));
+            flow::frame_headless(&mut m, s, &mut flow::NoInput, t);
+            m.log_on = false;
+            let (mut allocs, mut steps) = (0, 0);
+            for _ in 0..200_000 {
+                let (a0, t0, before) = (crate::alloc_count::count(), m.match_tick, flow::battle_p(&m));
+                flow::frame_headless(&mut m, s, &mut flow::NoInput, t);
+                if before && flow::battle_p(&m) {
+                    (allocs, steps) = (allocs + crate::alloc_count::count() - a0, steps + (m.match_tick - t0).max(0));
+                }
+                if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+                    break;
+                }
+            }
+            assert_eq!(m.unported, None);
+            eprintln!("look_queue_no_alloc {name}: {allocs} allocations in {steps} battle steps; {} calls, {} events", t.0[0], t.0[1]);
+            assert!(steps > 10_000 && t.0[0] > steps as u64 && t.0[1] > 0, "{name} {steps} {:?}", t.0);
             assert_eq!(allocs, 0, "{name}: allocations in {steps} battle steps");
         }
     }
@@ -1130,7 +1175,7 @@ mod tests {
     }
 
     /// A `--snap` rollout that reaches an `unported!` path reports it and the restored match keeps it (Hisagi's `:tick` hook, M4);
-    /// `flow::frame` then returns false.
+    /// `flow::frame_headless` then returns false.
     #[test]
     fn snap_rollout_keeps_unported() {
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
@@ -1143,14 +1188,14 @@ mod tests {
         assert!(cut.is_some());
         assert_eq!((m.unported, m.match_tick), (cut, tick));
         // (the game loop's frame says so, runs no step; so does a cut CPU rollout's)
-        assert!(!flow::frame(&mut m, &mut Search::new(), &mut flow::NoInput));
+        assert!(!flow::frame_headless(&mut m, &mut Search::new(), &mut flow::NoInput, &mut duel_sim::look::NoLook));
         assert_eq!(m.match_tick, tick);
         let (mut m2, mut s2) = (Match::new(data), Search::new());
         flow::go_title(&mut m2);
         debug::ensure_battle(&mut m2, &mut s2, Character::Kenpachi, Character::Kenpachi);
         let t2 = m2.match_tick;
         s2.cut = Some(("x", 1));
-        assert!(!flow::frame(&mut m2, &mut s2, &mut flow::NoInput));
+        assert!(!flow::frame_headless(&mut m2, &mut s2, &mut flow::NoInput, &mut duel_sim::look::NoLook));
         assert_eq!(m2.match_tick, t2);
     }
 
@@ -1367,7 +1412,7 @@ mod tests {
                 if m.unported.is_some() {
                     break;
                 }
-                flow::frame(&mut m, s, &mut t1);
+                flow::frame_headless(&mut m, s, &mut t1, &mut duel_sim::look::NoLook);
             }
             if let Some(b) = t1.0 {
                 m = *b;

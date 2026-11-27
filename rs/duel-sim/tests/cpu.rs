@@ -100,12 +100,12 @@ fn why_suffix_text() {
     let p1 = m.p1;
     (m.log_on, m.match_tick, m.flow) = (true, 58, Flow::Battle);
     let n1a = move_id(&m, "ke-z-n1a");
-    duel_sim::fighter::to_idle(&mut m, p1);
+    duel_sim::fighter::to_idle(&mut m, p1, 6.0);
     duel_sim::fighter::start_move(&mut m, p1, n1a, None);
     assert_eq!(m.log.iter().find(|l| l.contains(" move ")).unwrap(), "[    58] P1 move KE-Z-N1A");
     m.log.clear();
     m.fighter.get_mut(p1).unwrap().brain.as_mut().unwrap().why = Some(Sym(":TRIAL"));
-    duel_sim::fighter::to_idle(&mut m, p1);
+    duel_sim::fighter::to_idle(&mut m, p1, 6.0);
     duel_sim::fighter::start_move(&mut m, p1, n1a, None);
     assert_eq!(m.log.iter().find(|l| l.contains(" move ")).unwrap(), "[    58] P1 move KE-Z-N1A TRIAL");
     m.log.clear();
@@ -177,13 +177,13 @@ fn brain_read_fires_inside_brain_system() {
     let mut m = ki_battle();
     let (s, mut spy) = (&mut Search::new(), Spy(vec![]));
     for _ in 0..300 {
-        duel_sim::flow::sim_step(&mut m, s, &mut spy); // (the intro: PILOT-READ reads every vpad, the clock not advanced)
+        duel_sim::flow::sim_step(&mut m, s, &mut spy, &mut duel_sim::look::NoLook); // (the intro: PILOT-READ reads every vpad, the clock not advanced)
     }
     assert!(spy.0.iter().all(|&(_, _, vt)| vt == 0));
     spy.0.clear();
     m.log_on = true;
     duel_sim::clog!(&mut m, "a frame line");
-    duel_sim::flow::sim_step(&mut m, s, &mut spy);
+    duel_sim::flow::sim_step(&mut m, s, &mut spy, &mut duel_sim::look::NoLook);
     // (P1's brain: after its vpad clock moved, after the frame's line; then P2's, Ichigo's style)
     assert_eq!(spy.0[0], (0, 1, 1));
     assert_eq!((spy.0.len(), spy.0[1].0, spy.0[1].2), (2, 1, 1));
@@ -202,10 +202,10 @@ fn first_perceive_fills_the_ring() {
         fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
     }
     for _ in 0..300 {
-        duel_sim::flow::sim_step(&mut m, s, &mut Null);
+        duel_sim::flow::sim_step(&mut m, s, &mut Null, &mut duel_sim::look::NoLook);
     }
     let x = m.transform.get(m.p2).unwrap().pos[0]; // (where P1's first perceive sees him: the step then moves him)
-    duel_sim::flow::sim_step(&mut m, s, &mut Null);
+    duel_sim::flow::sim_step(&mut m, s, &mut Null, &mut duel_sim::look::NoLook);
     let b = m.fighter.get(m.p1).unwrap().brain.as_ref().unwrap();
     assert_eq!((b.head, b.fresh), (1, false));
     assert!(b.ring.iter().all(|s| s.is_some_and(|s| s.x == x && s.state == State::Idle && s.start == -1)));
@@ -225,7 +225,7 @@ impl PilotInput for Null {
 fn time_up_reads_a_float_reishi_on_a_konpaku_tie() {
     let mut m = ki_battle();
     for _ in 0..300 {
-        duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null);
+        duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null, &mut duel_sim::look::NoLook);
     }
     let (p1, p2) = (m.p1, m.p2);
     m.gauges.get_mut(p1).unwrap().reishi = duel_sim::cl::Num::F(512.5);
@@ -310,7 +310,7 @@ fn mc_plan_apply_picks_and_clears() {
     assert_eq!((1.0 + duel_sim::cl::expf(-((520 - 545) as f32 / 1000.0) / 0.03)) * 0.4, 1.3203905);
     let mut m = ki_battle();
     for _ in 0..300 {
-        duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null);
+        duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null, &mut duel_sim::look::NoLook);
     }
     let e = m.p1;
     let mut b = m.fighter.get_mut(e).unwrap().brain.take().unwrap();
@@ -338,14 +338,14 @@ fn generic_cpu_runs_the_mcts() {
     duel_sim::gate::start_cvc(&mut m, &mut duel_sim::cpu::Search::new(), 2, Some([Character::Kenpachi, Character::Kenpachi]));
     let s = &mut Search::new();
     for _ in 0..300 {
-        duel_sim::flow::sim_step(&mut m, s, &mut Null);
+        duel_sim::flow::sim_step(&mut m, s, &mut Null, &mut duel_sim::look::NoLook);
     }
     for e in [m.p1, m.p2] {
         m.fighter.get_mut(e).unwrap().brain.as_mut().unwrap().strat = None;
     }
     let mut n = 0;
     while m.unported.is_none() && n < 2000 {
-        duel_sim::flow::sim_step(&mut m, s, &mut Null);
+        duel_sim::flow::sim_step(&mut m, s, &mut Null, &mut duel_sim::look::NoLook);
         n += 1;
     }
     assert_eq!((m.unported, n), (None, 2000));

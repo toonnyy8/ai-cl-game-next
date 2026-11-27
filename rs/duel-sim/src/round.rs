@@ -60,7 +60,7 @@ pub fn settle_konpaku(m: &mut Match, att: Entity, def: Entity, soul_break: bool)
         awaken_fill(k, m.gauges.get_mut(att).unwrap(), 0.0, xs); // (the Konpaku he took fills his SUBLIMATION / DRIVE)
     }
     m.gauges.get_mut(att).unwrap().kikons += 1;
-    // look: emit :konpaku
+    m.emit(crate::look::Event::Konpaku { victim: def, lost }); // look: emit :konpaku
     crate::clog!(m, "{} {} on {}: -{} konpaku, {} left ({})", side_name(m, att), if soul_break { "SOUL BREAK" } else { "KIKON" },
         side_name(m, def), lost, left, fighter(m, att).form);
     ko && !bound
@@ -117,8 +117,11 @@ pub fn settle_souls(m: &mut Match, kk: &Queue<KikonQ, SOULS_MAX>, sb: &Queue<(En
         if let Some(c) = &mv(m, k.mv).callout {
             callout(m, k.att, c);
         }
-        // look: emit :kikon
-    } // look: emit :soul-break for each of SB
+        m.emit(crate::look::Event::Kikon { att: k.att, victim: k.def }); // look: emit :kikon
+    }
+    for (att, def) in sb.iter() {
+        m.emit(crate::look::Event::SoulBreak { att, victim: def }); // look: emit :soul-break for each of SB
+    }
     clear_hazards(m);
     crate::cine::cine_stage(m, a, v); // (both set down mid-stage for its shots, given back at its end)
     let sym: &'static str = match kk.get(0) {
@@ -180,7 +183,7 @@ pub fn reset_round(m: &mut Match, a: Entity, v: Entity) {
         {
             return; // (the form's own reset: Hisagi's sickle, M4)
         }
-        to_idle(m, e);
+        to_idle(m, e, 0.0);
     }
-    // look: emit :reset
+    m.emit(crate::look::Event::Reset); // look: emit :reset
 }

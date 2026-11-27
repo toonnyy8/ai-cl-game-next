@@ -63,7 +63,14 @@ pub fn call(m: &mut Match, e: Entity, h: Hook) -> bool {
     use hooks::*;
     match h {
         Hook::BkTick => bk_tick(m, e),
-        Hook::BankaiBurst | Hook::ChigiriStill | Hook::ChigiriQuake => {} // look: emit :ken-bk-burst
+        Hook::BankaiBurst | Hook::ChigiriStill | Hook::ChigiriQuake => {
+            let kind = match h {
+                Hook::BankaiBurst => "bankai",
+                Hook::ChigiriStill => "chigiri-still",
+                _ => "chigiri-quake",
+            };
+            m.emit(crate::look::Event::KenBkBurst { e, kind }); // look: emit :ken-bk-burst (KEN-BANKAI-BURST / -CHIGIRI-STILL / -QUAKE)
+        }
         Hook::BankaiEnter => bankai_enter(m, e),
         Hook::BkCost => bk_cost(m, e),
         Hook::BkSlam => bk_slam(m, e),

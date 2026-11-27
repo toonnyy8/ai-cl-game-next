@@ -16,6 +16,8 @@ pub use states::*;
 
 use crate::components::{Burst, Button, Character, Contact, Fighter, Form, Gauges, KitId, MoveId, Motion, Phase, Pilot, State, Str, Transform};
 use crate::ecs::Entity;
+use crate::kit::fighter_stance_clip;
+use crate::look::{Event, KitRef, LookEvent};
 use crate::state::Match;
 use crate::vpad::{Mod, Vpad};
 use duel_data::{Kit, Move};
@@ -251,7 +253,9 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
     let e = m.spawn();
     m.transform.insert(e, Transform { pos: [x, 0.0, z], yaw });
     m.motion.insert(e, Motion::default());
-    // look: model (body, mirror tint / rim), blade
+    // (SPAWN-PAIR's `:mirror (eq c1 c2)` on P2)
+    let mirror = side == 1 && m.picks[0] == m.picks[1];
+    m.look(LookEvent::Model { e, kit: KitRef(kit), mirror }); // look: MAKE-MODEL (body, mirror tint / rim), MAKE-BLADE
     m.fighter.insert(
         e,
         Fighter {
@@ -272,8 +276,20 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
     m.gauges.insert(e, Gauges { reishi: crate::cl::Num::I(reishi), reishi_max: reishi, konpaku: m.knobs.konpaku_max, ..Gauges::new(&m.knobs) });
     let vpad = Vpad::duel(m.data, &m.knobs).unwrap_or_else(|err| panic!("vpad: {err}"));
     m.pilot.insert(e, Pilot { vpad, cam_relative: !cpu });
-    // look: refresh-look, the stance clip
+    m.look(LookEvent::RefreshLook { e, kit: KitRef(kit) }); // look: refresh-look
+    play_clip(m, e, &kit.stance, 0.0); // look: (play-clip e (kit-stance kit) :blend 0)
     e
+}
+
+/// port: PLAY-CLIP with its defaults (speed 1, time 0, restart T): a look (`LookEvent::Clip`, E's kit at the call).
+pub fn play_clip(m: &mut Match, e: Entity, clip: &'static str, blend: f32) {
+    play_clip_with(m, e, clip, blend, 1.0, 0.0, true);
+}
+
+/// port: PLAY-CLIP with every keyword.
+pub fn play_clip_with(m: &mut Match, e: Entity, clip: &'static str, blend: f32, speed: f32, time: f32, restart: bool) {
+    let kit = KitRef(kit_of(m, e));
+    m.look(LookEvent::Clip { e, clip, kit, blend, speed, time, restart });
 }
 
 // ---------------------------------------------------------------- the view humans steer by
@@ -335,7 +351,7 @@ pub fn try_command(m: &mut Match, e: Entity, cmd: Cmd, button: Option<Button>) -
                 if let Some(b) = button {
                     vpad(m, e).consume(b as usize);
                 }
-                // look: emit :refused
+                m.emit(Event::Refused { e, cmd: Cmd::Hoho }); // look: emit :refused
                 crate::clog!(m, "{} refused hoho: exchange", side_name(m, e));
                 false
             } else if hoho_ready_p(m, e) {
@@ -412,14 +428,14 @@ pub fn refused_cue(m: &mut Match, e: Entity, cmd: Cmd, button: Button) -> bool {
         let cd = fighter(m, e).cd[i];
         if cd > 0 {
             vpad(m, e).consume(button as usize);
-            // look: emit :refused
+            m.emit(Event::Refused { e, cmd }); // look: emit :refused
             crate::clog!(m, "{} refused {}: cooling {}", side_name(m, e), cmd.name(), cd);
         } else if kit_hook_sym(m, e, "ok").is_some()
             && crate::kit::kit_command_move(m.data, kit_of(m, e), "q").is_some()
             && !kit_ok_hook(m, e, "q")
         {
             vpad(m, e).consume(button as usize);
-            // look: emit :refused
+            m.emit(Event::Refused { e, cmd }); // look: emit :refused
             crate::clog!(m, "{} refused {}: kit", side_name(m, e), cmd.name());
         }
     }
@@ -570,7 +586,7 @@ pub fn fighter_step(m: &mut Match, e: Entity) {
         f.chain -= 1;
     }
     fighter_physics(m, e);
-    // look: anim-advance (docs/bevy/M1_NOTES.md §1)
+    m.look(LookEvent::AnimAdvance { e, dt: crate::time::STEP }); // look: (anim-advance (model-anim (model e)) +step+) (M1_NOTES §1)
 }
 
 /// port: FIGHTER-SYSTEM: the opponents' positions snapshot first (a symmetric sim), each fighter steps, then the freezes /
@@ -626,8 +642,8 @@ pub fn fighter_system(m: &mut Match) {
     }
 }
 
-/// port: TO-IDLE: back to neutral, the combo over (the stance clip is a look).
-pub fn to_idle(m: &mut Match, e: Entity) {
+/// port: TO-IDLE: back to neutral, the combo over; the stance clip at BLEND (TO-IDLE's optional, 6 by default: a look).
+pub fn to_idle(m: &mut Match, e: Entity, blend: f32) {
     if let Some(f) = m.fighter.get_mut(e) {
         f.state = State::Idle;
         f.sf = 0;
@@ -647,7 +663,10 @@ pub fn to_idle(m: &mut Match, e: Entity) {
         f.csa = None;
     }
     halt(m, e);
-    // look: play-clip of the stance
+    if let Some(f) = m.fighter.get(e) {
+        let clip = fighter_stance_clip(kit_of(m, e), f.ptr);
+        play_clip(m, e, clip, blend); // look: (play-clip e (fighter-stance-clip f) :blend blend)
+    }
 }
 
 #[cfg(test)]

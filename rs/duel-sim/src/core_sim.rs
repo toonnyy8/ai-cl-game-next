@@ -9,6 +9,7 @@ use crate::core::{
 };
 use crate::combat::{Pending, Queue, PENDING_MAX};
 use crate::ecs::Entity;
+use crate::look::Event;
 use crate::gauges::pay_gauges;
 use crate::fighter::{
     call_hook, enter_main, fighter, fighter_mut, id_of, ken_hook, kit_hook_sym, kit_of, mv, opp_of, pos_of, refund_fs, run_velocity,
@@ -110,7 +111,7 @@ pub fn core_start(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
     let g = m.gauges.get(e).expect("gauges");
     let (fs, gb) = (g.fs, g.burst);
     if !kit_sp_start_p(kit, mvd, fs, gb.is_some()) {
-        // look: emit :refused
+        m.emit(Event::Refused { e, cmd: crate::fighter::Cmd::Sp }); // look: emit :refused
         crate::clog!(m, "{} SP {} refused (fs {})", side_name(m, e), mvd.name.to_uppercase(), f32s(fs));
         return false;
     }
@@ -412,7 +413,8 @@ pub fn core_turn_armor_p(m: &Match, f: &Fighter) -> bool {
 /// port: CORE-NOHIT!: apply a :cancel or :absorb verdict of pending hit H: no damage (a hazard's: CORE-HAZARD-NOHIT!).
 pub fn core_nohit(m: &mut Match, h: &Pending, verdict: Verdict) {
     let (att, def) = (h.att, h.def);
-    // (MX / MZ, the midpoint: only the cues' place, looks)
+    let (p, q) = (pos_of(m, att), pos_of(m, def));
+    let (mx, mz) = (0.5 * (p[0] + q[0]), 0.5 * (p[2] + q[2])); // (MX / MZ, the midpoint: only the cues' place)
     if let Some(hz) = h.hazard {
         return core_hazard_nohit(m, hz, def, verdict);
     }
@@ -433,7 +435,7 @@ pub fn core_nohit(m: &mut Match, h: &Pending, verdict: Verdict) {
             }
             m.time.hitstop(m.knobs.hitstop_block as f32);
             m.time.slowmo(m.knobs.core_clash_slowmo_scale, m.knobs.core_clash_slowmo_seconds, false);
-            // look: emit :clash
+            m.emit(Event::Clash { x: mx, y: 1.2, z: mz }); // look: emit :clash
             crate::clog!(m, "{} {} x {}: CANCEL", side_name(m, att), name, side_name(m, def));
             core_xch_open(m, att, def);
             core_clash(m, att, def);
@@ -450,7 +452,7 @@ pub fn core_nohit(m: &mut Match, h: &Pending, verdict: Verdict) {
             let fa = fighter_mut(m, att);
             fa.contact = fa.contact.or(Some(Contact::Block));
             m.time.hitstop(m.knobs.hitstop_block as f32);
-            // look: emit :armored
+            m.emit(Event::Armored { def, x: mx, y: 1.2, z: mz }); // look: emit :armored
             crate::clog!(m, "{} {} x {}: ABSORBED", side_name(m, att), name, side_name(m, def));
         }
         Verdict::Hit => panic!("CORE-NOHIT!: ecase fell through on :HIT"),
@@ -517,7 +519,7 @@ pub fn core_hazard_nohit(m: &mut Match, hz: Entity, other: Entity, verdict: Verd
             }
             m.time.hitstop(m.knobs.hitstop_block as f32);
             m.time.slowmo(m.knobs.core_clash_slowmo_scale, m.knobs.core_clash_slowmo_seconds, false);
-            // look: emit :clash
+            m.emit(Event::Clash { x: h.x, y: 1.2, z: h.z }); // look: emit :clash
             crate::clog!(m, "{} {} x {}: CANCEL", side_name(m, owner), hz_tag(h.kind, h.cls), side_name(m, other));
             core_xch_open(m, owner, other);
             core_clash(m, owner, other);
@@ -528,7 +530,7 @@ pub fn core_hazard_nohit(m: &mut Match, hz: Entity, other: Entity, verdict: Verd
             }
         }
         Verdict::Absorb => {
-            // look: emit :hazard-cut
+            m.emit(Event::HazardCut { x: h.x, y: 1.0 + h.y, z: h.z }); // look: emit :hazard-cut
             crate::clog!(m, "{} beats {}'s {}", side_name(m, other), side_name(m, owner), hz_tag(h.kind, h.cls));
         }
         Verdict::Hit => panic!("CORE-HAZARD-NOHIT!: ecase fell through on :HIT"),
@@ -586,7 +588,9 @@ pub fn core_break(m: &mut Match, att: Entity, def: Entity) {
     pay_gauges(m, att, gain);
     let (dfs, afs) = (m.gauges.get(def).unwrap().fs, m.gauges.get(att).unwrap().fs);
     crate::clog!(m, "{} BREAK fs {} from {} (fs {}), gains {} (fs {})", side_name(m, att), f32s(take), side_name(m, def), f32s(dfs), f32s(afs - fs0), f32s(afs));
-    // look: emit :sp-break
+    if take > 0.0 {
+        m.emit(Event::SpBreak { att, def, take, gain }); // look: emit :sp-break
+    }
 }
 
 /// port: CORE-XCH-STEP: an open exchange ends at the first step both fighters are back in neutral, or when a cinematic has begun.
@@ -610,7 +614,7 @@ pub fn core_bounce(m: &mut Match, a: Entity, b: Entity) {
     for x in [a, b] {
         let f = fighter_mut(m, x);
         (f.follow, f.kikon_lock) = (false, 0);
-        to_idle(m, x);
+        to_idle(m, x, 0.0);
     }
     let d = 0.5 * m.knobs.clash_push;
     set_slide(m, a, d, 12, p[0] - q[0], p[2] - q[2]);
@@ -704,7 +708,10 @@ pub fn core_follow_step(m: &mut Match, e: Entity, id: MoveId) {
     }
     let d = core_kikon_defer(m, f);
     if d == 0 {
-        // look: the follow cues on frame 1
+        if f.hold == 1 {
+            let o = f.opp;
+            core_follow_cues(m, e, o); // look: the follow cues on frame 1 (a tap is up after the hitstop)
+        }
     } else if f.hold == d {
         core_kikon_knock(m, e);
     }
@@ -728,11 +735,13 @@ pub fn core_follow_step(m: &mut Match, e: Entity, id: MoveId) {
 pub fn core_kikon_knock(m: &mut Match, e: Entity) {
     let KikonUndo { def, sx, sz, kreact, kstun, .. } = fighter(m, e).kikon_undo.expect("a Kikon undo");
     set_reaction(m, def, kreact, kstun, sx, sz, m.knobs.kikon_follow_kb);
+    core_follow_cues(m, e, def); // look: the dash-in's cues
 }
 
 /// port: CORE-FOLLOW-CUES: the KIKON call-out and the dash-in's take-off: cosmetic.
-pub fn core_follow_cues(_m: &mut Match, _att: Entity, _def: Entity) {
-    // look: emit :kikon-follow, :rush-dash
+pub fn core_follow_cues(m: &mut Match, att: Entity, def: Entity) {
+    m.emit(Event::KikonFollow { att, def }); // look: emit :kikon-follow
+    m.emit(Event::RushDash { e: att }); // look: emit :rush-dash
 }
 
 /// port: CORE-KIKON-UNDO!: a let-go inside the confirm: the held SP's hit was an ordinary one after all (the victim in its own
@@ -750,7 +759,7 @@ pub fn core_kikon_undo(m: &mut Match, e: Entity) {
         set_reaction(m, def, Some(react), 1.max(stun - hold), sx, sz, kb);
     }
     if wave {
-        to_idle(m, e);
+        to_idle(m, e, 0.0);
     } else {
         fighter_mut(m, e).phase = Some(Phase::Main);
     }
@@ -789,7 +798,8 @@ pub fn core_kikon_cancel(m: &mut Match, victim: Entity) {
     core_clash(m, victim, o);
     m.time.hitstop(m.knobs.hitstop_block as f32);
     m.time.slowmo(m.knobs.core_clash_slowmo_scale, m.knobs.core_clash_slowmo_seconds, false);
-    // look: emit :clash
+    let (p, q) = (pos_of(m, victim), pos_of(m, o));
+    m.emit(Event::Clash { x: 0.5 * (p[0] + q[0]), y: 1.2, z: 0.5 * (p[2] + q[2]) }); // look: emit :clash
     core_bounce(m, victim, o);
 }
 

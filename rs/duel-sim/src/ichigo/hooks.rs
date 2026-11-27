@@ -25,7 +25,8 @@ pub fn pull_opp_to(m: &mut Match, att: Entity, d: f32, frames: i64) -> bool {
     let (dx, dz) = (p[0] - q[0], p[2] - q[2]);
     let dist = hypot(dx, dz);
     if dist > d {
-        set_slide(m, v, dist - d, frames, dx, dz); // look: emit :sfx :chain-snap
+        set_slide(m, v, dist - d, frames, dx, dz);
+        m.emit(crate::look::Event::Sfx { key: "chain-snap", e: att }); // look: emit :sfx :chain-snap
         return true;
     }
     false
@@ -102,7 +103,10 @@ pub fn catch(m: &mut Match, e: Entity, att: Entity) {
         fa.stun = st;
     }
     m.time.hitstop(12.0);
-    m.time.slowmo(0.4, 0.3, false); // look: ui-flash, emit :sfx :parry-ting / :chain-snap
+    m.time.slowmo(0.4, 0.3, false);
+    m.look(crate::look::LookEvent::UiFlash { r: 1.0, g: 1.0, b: 1.0, a: 0.55, fade: 7.0 }); // look: (ui-flash 1 1 1 0.55 7.0)
+    m.emit(crate::look::Event::Sfx { key: "parry-ting", e }); // look: emit :sfx :parry-ting
+    m.emit(crate::look::Event::Sfx { key: "chain-snap", e }); // look: emit :sfx :chain-snap
     let gg = crate::cl::round_f32(m.gauges.get(e).unwrap().gg);
     crate::clog!(m, "{} PARRY CATCH gg {}", side_name(m, e), gg);
 }
@@ -119,14 +123,16 @@ pub fn kikon_worth(m: &mut Match, e: Entity) -> i64 {
 pub fn juji_first(m: &mut Match, e: Entity) {
     let (x, z) = ahead(m, e, 1.0);
     let yaw = yaw_of(m, e);
-    crate::hazards::spawn_look(m, e, Sym("ICHIGO-FORM-LOOK"), Some(x), Some(z), yaw, 1.8, 10, 0, HzData::Nil); // look: emit :sfx
+    crate::hazards::spawn_look(m, e, Sym("ICHIGO-FORM-LOOK"), Some(x), Some(z), yaw, 1.8, 10, 0, HzData::Nil);
+    m.emit(crate::look::Event::Sfx { key: "getsuga", e }); // look: emit :sfx :getsuga
 }
 
 /// port: ICHIGO-HASTE-DASH: NUKI-GIRI's f0: facing him, a dash 0.8 m past him over 12 frames.
 pub fn haste_dash(m: &mut Match, e: Entity) {
     let d = crate::cl::min_f32(6.0, fighter(m, e).dist + 0.8);
     let (s, c) = crate::math::sincosf(yaw_of(m, e)); // (FWD-X / FWD-Z of one yaw: gcc's fused sincosf)
-    set_slide(m, e, d, 12, -s, -c); // look: emit :sfx
+    set_slide(m, e, d, 12, -s, -c);
+    m.emit(crate::look::Event::Sfx { key: "whoosh-heavy", e }); // look: emit :sfx :whoosh-heavy
 }
 
 /// port: ICHIGO-RENZAN: KAGE-RENZAN's Nth cut: a strike with HWMOVE's window thrown from where he stands at the opponent, a slash on him.
@@ -135,6 +141,7 @@ pub fn renzan(m: &mut Match, e: Entity, hwmove: &str, n: i64) {
     let hw = &crate::kit::find_move(m.data, hwmove).expect("a renzan move").hits[0];
     strike(m, e, p[0], p[2], dir_yaw(q[0] - p[0], q[2] - p[2]), hw, 1.0, HzData::Kw(Sym(":RENZAN")), StrikeSp::None);
     crate::hazards::spawn_look(m, e, Sym("ICHIGO-RENZAN-LOOK"), Some(q[0]), Some(q[2]), 0.0, 1.0, 9, 0, HzData::Int(n));
+    m.emit(crate::look::Event::Sfx { key: "whoosh-heavy", e }); // look: emit :sfx :whoosh-heavy
 }
 
 /// port: ICHIGO-PARRY-OPEN: KUSARI-TATE f0: its price, the chains flaring (a look hazard).
@@ -143,6 +150,8 @@ pub fn parry_open(m: &mut Match, e: Entity) {
     gg_spend(m, e, c);
     let yaw = yaw_of(m, e);
     crate::hazards::spawn_look(m, e, Sym("ICHIGO-FLARE-LOOK"), None, None, yaw, 1.0, 18, 0, HzData::Nil);
+    m.emit(crate::look::Event::Sfx { key: "chain-rattle", e }); // look: emit :sfx :chain-rattle
+    m.emit(crate::look::Event::Sfx { key: "parry-open", e }); // look: emit :sfx :parry-open
 }
 
 /// port: ICHIGO-TSUKI-DASH: TSUKIWATARI f0: 3.5 m in the stick direction (neutral: at him; a brain's: at him) over 12 f, iframes 9.
@@ -154,7 +163,10 @@ pub fn tsuki_dash(m: &mut Match, e: Entity) {
     let (to, st) = crate::rules::step_direction(to, st, 1.0);
     let (dx, dz) = crate::fighter::world_dir(m, e, to, st);
     set_slide(m, e, 3.5, 12, dx, dz);
-    fighter_mut(m, e).invuln = 9; // look: emit :hoho-out, :sfx
+    fighter_mut(m, e).invuln = 9;
+    let p = pos_of(m, e);
+    m.emit(crate::look::Event::HohoOut { e, x: p[0], z: p[2] }); // look: emit :hoho-out
+    m.emit(crate::look::Event::Sfx { key: "whoosh-light", e }); // look: emit :sfx :whoosh-light
 }
 
 /// port: ICHIGO-TSUKI-RETURN: TSUKIWATARI f11: back in the stance, a fresh window.
@@ -315,10 +327,16 @@ fn parry_watch(m: &mut Match, e: Entity) {
             let mirror = fighter(m, m.p1).character == fighter(m, m.p2).character && fighter(m, e).side == 1;
             let rim = mirror.then_some(m.mirror_rim); // (tables.json, body.lisp's *mirror-rim*, read at load)
             let st = m.ics.get_mut(e).unwrap();
-            (st.rim_saved, st.rim) = (true, rim); // look: model-rim = parry-rim
+            (st.rim_saved, st.rim) = (true, rim); // (the sink keeps the model's rim itself: `LookEvent::Rim`)
         }
+        // look: (setf (model-rim m) (parry-rim (- 1.0 (/ (- sf (first w)) (float (max 1 (- (second w) (first w)))))))) (the rim saved first)
+        let [w0, w1] = mvd.and_then(|x| x.params.window).expect("a parry's :window");
+        let k = 1.0 - (sf - w0 as i64) as f32 / 1.max(w1 as i64 - w0 as i64) as f32;
+        let level = ((8.0 * k).floor() as i64).clamp(0, 7) as u8;
+        m.look(crate::look::LookEvent::Rim { e, parry: Some(level) });
     } else if st.rim_saved {
-        m.ics.get_mut(e).unwrap().rim_saved = false; // look: model-rim restored
+        m.ics.get_mut(e).unwrap().rim_saved = false;
+        m.look(crate::look::LookEvent::Rim { e, parry: None }); // look: (setf (model-rim m) (ics-rim st)) restored
     }
 }
 
