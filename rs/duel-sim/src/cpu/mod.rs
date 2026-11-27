@@ -9,6 +9,9 @@ use duel_data::Data;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 
+pub mod core_ai;
+pub mod perceive;
+
 /// A slot whose Lisp value a later M2 task ports (a SNAP, a style's state, an fq record ...): it can only hold its NIL default.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NotYet {}
@@ -50,7 +53,7 @@ impl Enc for StratRef {
 pub struct Brain {
     pub difficulty: Difficulty,
     pub delay: i64,
-    pub ring: [Option<NotYet>; 32], // SNAPs (Task 3)
+    pub ring: [Option<perceive::Snap>; 32],
     pub head: i64,
     pub fresh: bool,
     pub strafe: f32,
@@ -267,11 +270,14 @@ impl Default for Search {
     }
 }
 
-/// port: BRAIN-SYSTEM — every CPU fighter decides this step (Task 3 ports CORE-BRAIN-STEP).
-pub fn brain_system(m: &mut Match, _s: &mut Search) {
-    if [m.p1, m.p2].iter().any(|&e| m.fighter.get(e).is_some_and(|f| f.has_brain())) {
-        crate::unported!(m, "brain-system")
-    }
+/// port: BRAIN-SYSTEM — every CPU fighter decides this step, before FIGHTER-SYSTEM reads the vpads (CORE-BRAIN-STEP: every playing
+/// kit has a :core). INPUT is the vpads' reader: a CPU's fires in CORE-BRAIN-STEP's VPAD-BEGIN-STEP! (the recorder's C split).
+pub fn brain_system(m: &mut Match, s: &mut Search, input: &mut dyn crate::flow::PilotInput) {
+    m.do_entities(|m, e| m.fighter.get(e).is_some_and(|f| f.has_brain()), |m, e| {
+        if m.unported.is_none() {
+            core_ai::core_brain_step(m, s, input, e);
+        }
+    });
 }
 
 /// port: START-MATCH's CPU part after SPAWN-PAIR: each CPU's strategy from STRAT-LOOKUP (VS CPU / CPU vs CPU), FQ-ATTACH!,

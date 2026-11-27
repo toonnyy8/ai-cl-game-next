@@ -285,6 +285,10 @@ knobs! {
     clone_konpaku: Ints, // ichigo.lisp (CLONE-KONPAKU)
     clone_replay_lags: KwInts, // ichigo.lisp (CLONE-REPLAY-LAG)
     ai_delay: KwInts, // tuning.lisp (SPAWN-FIGHTER's brain, M2)
+    ai_dash_frames: i64, // tuning.lisp (AI-DASH, M2)
+    ai_mash_starts: i64, // tuning.lisp (AI-MASH-P, M2)
+    ai_mash_window: i64, // tuning.lisp (BRAIN-PERCEIVE's JSTARTS, M2)
+    ai_strafe_time: Window, // tuning.lisp (AI-STRAFE, M2)
 }
 
 /// A list knob of integers (`*clone-konpaku*` `(2 2 3 4)`).

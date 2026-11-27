@@ -122,7 +122,7 @@ pub fn start_move(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
         let fo = fighter_mut(m, o);
         fo.freeze_next = fo.freeze_next.max(sf);
     } // look: emit :super / :breaker / :rush
-    crate::clog!(m, "{} move {}", side_name(m, e), mvd.name.to_uppercase()); // (a brain's why: none in a brainless replay)
+    crate::clog!(m, "{} move {}{}", side_name(m, e), mvd.name.to_uppercase(), crate::fighter::why_suffix(m, e));
     if phase == Phase::Main && pre == 0 && !run_on_frame(m, e, mvd, enter) {
         return id; // (a hook on the move's first frame; a pre-roll's: MAIN-PHASE-STEP runs it on that frame)
     }

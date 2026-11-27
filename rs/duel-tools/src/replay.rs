@@ -249,10 +249,11 @@ fn t_equal(a: &TLine, b: &TLine) -> bool {
     (a.tick, a.vt, a.downs, a.rnd, bits(a)) == (b.tick, b.vt, b.downs, b.rnd, bits(b))
 }
 
-/// `--resync`'s T repair: both sides' recorded buttons (VPAD-SET! in bit order) and sticks, and the sim stream.
+/// `--resync`'s T repair: both sides' recorded vpad ticks, buttons (VPAD-SET! in bit order) and sticks, and the sim stream.
 fn write_t(m: &mut Match, t: &TLine) {
     for (k, e) in [m.p1, m.p2].into_iter().enumerate() {
         if let Some(p) = m.pilot.get_mut(e) {
+            p.vpad.tick = t.vt[k];
             for bit in 0..p.vpad.actions.len() {
                 p.vpad.set(bit, t.downs[k] >> bit & 1 == 1);
             }
@@ -322,7 +323,8 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
     inject_plan: bool,
     /// Live: this step's T was compared at the brain hook (a sim frame).
     t_done: bool,
-    /// The log's length at this step's first vpad read (the recorder's *rec-pre*: what is before it is not the CPUs').
+    /// The log's length at this step's first vpad read (the recorder's *rec-pre*: what is before it is not the CPUs'). Live: a CPU's
+    /// vpad read only (the recorder's REC-READER sits on the brains' vpads), which a sim frame fires in CORE-BRAIN-STEP.
     pre: Option<usize>,
     /// Live: the CPUs' lines this step (C), taken at the brain hook.
     c_got: Vec<String>,
@@ -436,18 +438,19 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         if self.out.is_some() {
             return;
         }
-        self.pre.get_or_insert(m.log.len());
+        let e = if side == 0 { m.p1 } else { m.p2 };
+        if !self.live || m.fighter.get(e).is_some_and(|f| f.has_brain()) {
+            self.pre.get_or_insert(m.log.len());
+        }
         if !self.live {
             return self.inj.read(m, side);
         }
         // (live: only a vs trace's human side; its sim stream is never injected, replay.lisp RP-INJECT)
-        if self.inject_side == Some(side) {
-            let e = if side == 0 { m.p1 } else { m.p2 };
-            if m.fighter.get(e).is_some_and(|f| !f.has_brain())
-                && let Some(p) = m.pilot.get_mut(e)
-            {
-                self.inj.inject(&mut p.vpad, side);
-            }
+        if self.inject_side == Some(side)
+            && m.fighter.get(e).is_some_and(|f| !f.has_brain())
+            && let Some(p) = m.pilot.get_mut(e)
+        {
+            self.inj.inject(&mut p.vpad, side);
         }
     }
 
@@ -1076,8 +1079,111 @@ mod tests {
         for flags in ["--live", "--live --inject-plan"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED brain-system at tick 1 (step 301)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED core-brain-step at tick 1 (step 301)", "{flags}");
         }
+    }
+
+    /// A live Replayer reading nothing (the C split's test).
+    fn bare_replayer(live: bool) -> Replayer<std::iter::Empty<Result<Item, String>>> {
+        Replayer {
+            it: std::iter::empty(),
+            inj: Injector::new(),
+            fields: vec![],
+            a_fields: vec![],
+            mask: vec![],
+            cur: None,
+            steps: 0,
+            items: 0,
+            max: None,
+            kind: Kind::Cmds,
+            out: None,
+            snap: None,
+            snaps: 0,
+            snaps_unported: 0,
+            live,
+            resync: false,
+            inject_side: None,
+            inject_plan: false,
+            t_done: false,
+            pre: None,
+            c_got: vec![],
+            seat: Entity::NIL,
+            ahead: Default::default(),
+            mismatches: vec![],
+            n_mismatch: 0,
+        }
+    }
+
+    /// Ruling 1 (the recorder's C split): live, the CPUs' lines are those after a brain's vpad read (REC-READER: the brains' vpads
+    /// only); a line the frame logged before it (a debug command, GATE-UPDATE) stays a `[` line, and a human side's read (a vs trace's
+    /// device) marks nothing.
+    #[test]
+    fn c_split_starts_at_the_cpu_read() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let mut m = Match::new(data);
+        flow::go_title(&mut m);
+        duel_sim::gate::start_cvc(&mut m, 1, Some([duel_sim::components::Character::Kenpachi, duel_sim::components::Character::Ichigo]));
+        let s = &mut Search::new();
+        let mut rp = bare_replayer(true);
+        m.log = vec!["[     1] a frame line".into()];
+        rp.read(&mut m, 0);
+        m.log.push("[     1] P1 cpu line".into());
+        rp.after_brain(&mut m, s);
+        assert_eq!((rp.c_got.as_slice(), m.log.as_slice()), (&["[     1] P1 cpu line".to_string()][..], &["[     1] a frame line".to_string()][..]));
+        let mut rp = bare_replayer(true);
+        m.fighter.get_mut(m.p1).unwrap().brain = None; // (P1 a human, as in a vs trace)
+        m.log = vec!["[     2] a frame line".into()];
+        rp.read(&mut m, 0);
+        m.log.push("[     2] P1 human line".into());
+        rp.read(&mut m, 1);
+        m.log.push("[     2] P2 cpu line".into());
+        rp.after_brain(&mut m, s);
+        assert_eq!(rp.c_got, ["[     2] P2 cpu line"]);
+    }
+
+    /// BRAIN-PERCEIVE against the key: each live gate trace (cmds) run to its first battle step, where P1's CORE-BRAIN-STEP perceives
+    /// before it stops; his ring, head, fresh, J key and J starts equal that step's recorded A fields (the fresh fill of 32 SNAPs).
+    #[test]
+    fn live_first_perceive_matches_the_key() {
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let mut names: Vec<String> = ["kk", "ki", "ik", "ii"].iter().flat_map(|p| (1..=3).map(move |k| format!("cvc-{p}-s{k}"))).collect();
+        names.extend(["cvctag-ii", "cvctag-ik", "cvctag-kk"].map(String::from));
+        let mut checked = 0;
+        for name in names {
+            let Some(path) = oracle_trace(&name) else { return };
+            let mut rd = trace::open(&path).unwrap();
+            let (start, _) = rd.start().unwrap();
+            let mut want = rd.by_ref().filter_map(|i| match i {
+                Ok(Item::Step { a, .. }) => Some(a.expect("an A line")),
+                _ => None,
+            });
+            let want = want.nth(300).expect("a 301st step");
+            let mut m = Match::new(data);
+            flow::go_title(&mut m);
+            m.cmds.extend(start[1..].iter().map(|c| c.parse::<i64>().unwrap()));
+            let s = &mut Search::new();
+            for _ in 0..1000 {
+                if m.unported.is_some() {
+                    break;
+                }
+                flow::frame(&mut m, s, &mut Null(0));
+            }
+            assert_eq!((m.unported, m.match_tick), (Some("core-brain-step"), 1), "{name}");
+            let got = duel_sim::cpu::a_line(&m, s);
+            let (w, g): (Vec<&str>, Vec<&str>) = (want.split(' ').collect(), got.strip_prefix("A ").unwrap().split(' ').collect());
+            for f in ["ring", "head", "fresh", "jkey", "jstarts"] {
+                let i = rd.a_fields.iter().position(|n| *n == format!("p1.brain-{f}")).unwrap();
+                assert_eq!(g[i], w[i], "{name} p1.brain-{f}");
+                if f == "ring" {
+                    assert_eq!(g[i].matches("#SNAP{").count(), 32, "{name}");
+                }
+                if f == "head" {
+                    assert_eq!(g[i], "1", "{name}");
+                }
+            }
+            checked += 1;
+        }
+        assert_eq!(checked, 15);
     }
 
     /// `--inject-plan`'s copy rule: a side at 1 takes the next record's plan when it left 1 (done: 2, popped: 0); 1 -> 1 and 2 -> 0

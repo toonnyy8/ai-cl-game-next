@@ -80,6 +80,14 @@ pub fn opp_of(m: &Match, e: Entity) -> Entity {
 pub fn side_name(m: &Match, e: Entity) -> &'static str {
     if m.fighter.get(e).is_some_and(|f| f.side == 0) { "P1" } else { "P2" }
 }
+/// The log lines' `~@[ ~a~]` of `(brain-why b)` (fighter.lisp 319, 355, 376): " WHY" (a keyword without its colon) for a brain with
+/// one, else "". Only scripted.lisp's trial player sets one.
+pub fn why_suffix(m: &Match, e: Entity) -> String {
+    match m.fighter.get(e).and_then(|f| f.brain.as_ref()).and_then(|b| b.why) {
+        Some(w) => format!(" {}", w.0.trim_start_matches(':')),
+        None => String::new(),
+    }
+}
 /// port: ecs.lisp POS-OF.
 pub fn pos_of(m: &Match, e: Entity) -> [f32; 3] {
     m.transform.get(e).map_or([0.0; 3], |t| t.pos)

@@ -106,7 +106,7 @@ pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
 
 /// port: SIM-SYSTEMS (INPUT's `after_brain`: the recorder's hook after BRAIN-SYSTEM).
 pub fn sim_systems(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
-    crate::cpu::brain_system(m, s);
+    crate::cpu::brain_system(m, s, input);
     if m.unported.is_some() {
         return; // (a step past an unported path would run on a state the Lisp never had)
     }
@@ -289,8 +289,11 @@ pub fn time_up(m: &mut Match) {
         crate::unported!(m, "bind-resolve!") // (Hisagi's bind: M4)
     }
     let (g1, g2) = (m.gauges.get(m.p1).unwrap(), m.gauges.get(m.p2).unwrap());
-    let (Some(r1), Some(r2)) = (g1.reishi.int(), g2.reishi.int()) else {
-        crate::unported!(m, "time-up of a float Reishi") // ponytail: a trial's float, never at a time-up (its timer is 36000)
+    // (TIME-UP-WINNER reads the Reishi only on a Konpaku tie: a float Reishi there (a trial's, whose timer is 36000) is unported)
+    let (r1, r2) = match (g1.reishi.int(), g2.reishi.int()) {
+        (Some(r1), Some(r2)) => (r1, r2),
+        _ if g1.konpaku != g2.konpaku => (0, 0),
+        _ => crate::unported!(m, "time-up of a float Reishi"),
     };
     let w = match crate::rules::time_up_winner(g1.konpaku, r1, g1.reishi_max, g2.konpaku, r2, g2.reishi_max) {
         Some(k) => Winner::Side(k),

@@ -39,3 +39,8 @@ Task 13 (trials, the E actions): no Lisp test covers the debug helpers or the re
 `set_unknown_field_is_error`, `duel-tools replay.rs`'s `event_log_compared` (a trial's start: an E action's printed lines against its
 e lines), and `cl.rs`'s `num_contagion_as_ecl` (Reishi as an integer or a float: DEAL-DAMAGE, HEAL!, BURN, the printed `300.0`, each
 value taken from the native image) are not Lisp checks; the three trial traces replay whole.
+M2 Task 3 (perception, presses, the brain branches): no Lisp test covers cpu-perceive.lisp. `tests/cpu.rs` (the SNAP ring and its delay,
+SNAP-TAKE!'s stale S / ACTIVE-END, the presses, DROP-OLD-JSTARTS, the `P move` / `step` why suffix, %EXPT2 as musl's powf (pinned, and an
+`#[ignore]` run over all 2^32 inputs against build/simgate/muslm.so's hash), the CPU read inside BRAIN-SYSTEM, the first perceive, TIME-UP's
+tie-only Reishi bail) and `duel-tools replay.rs`'s `c_split_starts_at_the_cpu_read` and `live_first_perceive_matches_the_key` (P1's
+ring / head / fresh / jkey / jstarts after step 301 against the key, on the 15 live gate traces) are not Lisp checks.

@@ -29,7 +29,7 @@ pub fn debug_command(m: &mut Match, c: i64) {
 // ---------------------------------------------------------------- scenario helpers
 
 /// port: ENSURE-BATTLE with `:cpu t` (the only form a trace records): a CPU vs CPU battle of C1 and C2, cinematics skipped into the
-/// fight, unless one of exactly those is already in battle. (BRAIN-OFF: the CPU's, M2; a replay detaches the brains anyway.)
+/// fight, unless one of exactly those is already in battle; both brains on (BRAIN-OFF NIL).
 pub fn ensure_battle(m: &mut Match, c1: Character, c2: Character) {
     let ch = |e: Entity| m.fighter.get(e).and_then(|f| f.character);
     if m.flow == Flow::Battle && ch(m.p1) == Some(c1) && ch(m.p2) == Some(c2) {
@@ -39,6 +39,11 @@ pub fn ensure_battle(m: &mut Match, c1: Character, c2: Character) {
     let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
     crate::flow::start_match(m);
     m.skip_cines = skip;
+    for e in [m.p2, m.p1] {
+        if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
+            b.off = false; // ((setf (brain-off …) (not cpu)): P2's brain, then P1's when he has one)
+        }
+    }
 }
 
 /// port: PLACE of P1 and P2: DIST m apart on the x axis around the centre, facing, idle; no hazards. (fx-clear, `*punch-t*` and

@@ -39,7 +39,7 @@ pub fn start_step(m: &mut Match, e: Entity) {
     (f.state, f.sf, f.mv, f.queued) = (State::Step, 0, None, None);
     halt(m, e);
     // look: the :step hook (no live kit has one), the step clip
-    crate::clog!(m, "{} step", side_name(m, e)); // (a brain's why: none in a brainless replay)
+    crate::clog!(m, "{} step{}", side_name(m, e), crate::fighter::why_suffix(m, e));
     // look: emit :step
 }
 
@@ -57,7 +57,7 @@ pub fn start_run(m: &mut Match, e: Entity) {
     let f = fighter_mut(m, e);
     (f.state, f.sf, f.phase, f.run_yaw) = (State::Run, 0, Some(Phase::Run), y);
     // look: the run clip
-    crate::clog!(m, "{} dash", side_name(m, e));
+    crate::clog!(m, "{} dash{}", side_name(m, e), crate::fighter::why_suffix(m, e));
     // look: emit :step
 }
 

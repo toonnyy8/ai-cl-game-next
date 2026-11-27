@@ -81,3 +81,41 @@ it writes `Match` from `Search`'s job after the restore, so it stays.
   attaching cases). MASHER-APPLY! runs with no seat.
 - `duel-tools replay --live` reports `UNPORTED brain-system at tick 1 (step 301)` on all 15 live gate traces. The two vs traces
   stop earlier: `vs-cpu` at `vs-start` (step 1; TR-VS-START is Task 9's) and `vs-learn` at `debug 2504` (step 1).
+
+## 2. Perception, presses and the brain branches (Task 3)
+
+`cpu/perceive.rs` ports cpu-perceive.lisp: the SNAP (a `Copy` struct; KIND and FLAGS read from its move, since SNAP-TAKE! sets and
+clears them with MOVE), SNAP-TAKE! (out of a move a reused slot keeps its S and ACTIVE-END, as the Lisp's struct does: the A line prints
+them), BRAIN-PERCEIVE (the fresh fill of all 32 slots, each from its own old value; the SNAP of BRAIN-DELAY steps ago; JSTARTS newest
+first), the SNAP readers, AI-PRESS / AI-PRESS-WRITE! / AI-DASH / AI-EVENT-ROLLS (guard, then Hoho) / AI-STRAFE (length, then side) /
+AI-WALK, AI-MASH-P. `cpu::core_ai::core_brain_step` holds CORE-BRAIN-STEP's head: the masher seat (`unported!`, M5), the vpad's step
+start, the CPU's vpad read (`PilotInput::read`), BRAIN-PERCEIVE, then `unported!("core-brain-step")` (Task 4 fills in below it).
+`brain_system` takes the `PilotInput`.
+
+**%EXPT2 is musl's powf.** SNAP-DIST squares through `duel_expt2` (powf (x, 2.0), a volatile 2 so the C compiler keeps the call).
+musl's powf (ARM's, the wasm build's and the native preload's) is not x × x on 763,686 of the normal-range inputs, and the `libm`
+crate's powf is FreeBSD's, whose y = 2 path returns x × x. `cl::expt2` ports musl's powf (tables as bits) and equals it on all 2^32
+inputs: tests/cpu.rs `expt2_equals_musl_on_every_input` (`#[ignore]`, ~30 s in release) against a C harness's FNV hash over
+build/simgate/muslm.so. cpu-ki-ichigo.lisp:601's `(expt … 2)` is the same call (Task 7).
+
+**The same holds for exp and log (Tasks 4-8).** musl's `exp`, `expf`, `log`, `logf` are ARM's too (MUSL_MATH: `exp_data`,
+`logf_data` ...), the `libm` crate's FreeBSD's. On 200,000 inputs the crate differs from build/simgate/muslm.so on exp 19,498, expf
+19,576, log 3,755, logf 3,825. The CPU calls `exp` of a single-float (expf) at cpu-mcts.lisp:141 and :179. The plan's "exp / log
+through libm" rule gives wrong bits there: port musl's expf like powf (`exp2f_data`'s table is already in `cl::musl_powf`).
+
+**The C split (ruling 1).** The recorder's REC-READER sits only on the brains' vpads, and a sim frame fires it in CORE-BRAIN-STEP's
+VPAD-BEGIN-STEP!. The live replayer marks the log there, on a brain side's `read` only. A line logged earlier in the frame (a debug
+command, GATE-UPDATE, an earlier step's tail) stays a `[` line. Before, the mark came from any read, and on a cvc sim frame no read
+happened (PILOT-SYSTEM skips brains), so every line since the last step went to C.
+
+**The brain branches (M1_NOTES §7).** Ported: ROUND-RESET's brain clear (press-left 0, fresh t); the `P move` / `P step` / `P dash`
+lines' why suffix (`fighter::why_suffix`; only scripted.lisp's trial player sets a why, so no gate trace has one); ENSURE-BATTLE's
+BRAIN-OFF NIL. Already right from M1: SPAWN-FIGHTER's brain (`*difficulty*`, `*ai-delay*`), START-CVC's `*gate-difficulty*`. Left:
+`ichigo::hooks::parry_from_blockstun`'s CPU parry (IC-P, AI-MASH-P: both readers exist now) for Task 4. Also fixed: TIME-UP reads a
+float Reishi only on a Konpaku tie (M1 minor T13), and `--resync`'s T repair restores the vpad ticks.
+
+**Where the live replay stops.** All 15 live gate traces: `UNPORTED core-brain-step at tick 1 (step 301)`, with no DIVERGED or T / A / C
+mismatch before it (`--resync`: the same, since an unported path stops the run). `vs-learn` stops at `debug 2504` (step 1), `vs-cpu`
+at `vs-start` (step 1). Step 301's perceive runs before the stop. `live_first_perceive_matches_the_key` checks P1's ring, head, fresh,
+jkey and jstarts after it against the key on all 15 traces. Perception past step 301 is pinned only by unit tests until Task 4's
+CORE-BRAIN-STEP lets the live replay go on.
