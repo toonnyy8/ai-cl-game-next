@@ -559,7 +559,8 @@ rule here, the numbers §10, the coverage §11, the rulings, carries and deferre
 | `tools/port/replay-gate.sh --live --snap` | 17 OK (no rollout cut) |
 | `tools/port/replay-gate.sh --live --wasm` (wasm32-wasip1 under node) | 17 OK |
 | `tools/port/replay-gate.sh --wasm` | 22 OK |
-| `cargo test --release -p duel-sim -p duel-tools -p duel-data` (with `ORACLE`) | 243 passed, 0 failed |
+| `tools/port/replay-gate.sh --snap` (M1's 22) | 22 OK |
+| `cargo test --release --workspace` (with `ORACLE`) | 246 passed, 0 failed (243 in duel-sim / duel-tools / duel-data) |
 | `cargo clippy -p duel-sim -p duel-tools -p duel-data --all-targets --release -- -D warnings` | clean |
 
 BEVY_PORT §7's M2 gate, "cvc II / IK / KK identical to `cvc-tag.txt` and to the key's extra seeds": the tag is the `cvc --check` row;
