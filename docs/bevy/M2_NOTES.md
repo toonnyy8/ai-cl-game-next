@@ -417,11 +417,14 @@ heap field restores in place (`Store`, `Fighter` / `Brain`, `Pilot` / `Vpad`, `H
 `..*src` updates check). A clone keeps `Store`'s `MAX_ENTITIES`, the brain's JSTARTS / SW-KEEP reserves and `iccs`' `ICC_RESERVE` (1024).
 `Search::warm` (end of START-MATCH) makes `cpu::POOL` = 4 slots and the scratch, outside the battle.
 
-**Found in the Lisp: MC-SEARCH's UCB macro captures A** (DIVERGENCES §1). Its second level is called with BASE `(* 10 a)`, evaluated
-inside the macro's own `(dotimes (a 10) …)`, so the opponent's reply B is scored from index 11 B while the update writes 10 A + B. Ported
-as the bug. Found by bisecting cvc-ii-s1's first job (step 325, a2 8 vs 0): single rollouts matched the native image for every (root,
-reply) pair from the same seed, an interpreted copy of MC-SEARCH as written reproduced the Rust's wrong result, and the compiled one
-differed: the capture.
+**Found in the Lisp: MC-SEARCH's UCB macro captures A** (DIVERGENCES §1). The capture is in the source (mcts-lite.lisp:310-340) and
+happens in any Common Lisp: the macro's body loops with its own `(dotimes (a 10) …)`, and the tree's second level passes BASE as the form
+`(* 10 a)`, which the expansion evaluates inside that loop, so it reads the macro's A, not the caller's. The opponent's reply B is
+therefore scored from `n2` / `sum2` at index 11 B, while the update after the rollout writes 10 A + B. The port keeps it for parity
+(`Lite::search`: BASE is a function of the loop variable). Found on cvc-ii-s1's first job (step 325: a2 8 in the key, 0 in the port):
+single rollouts matched the native image for every (root, reply) pair from one seed, so the difference was in the search; a transcription
+of MC-SEARCH that bound BASE once per call (my reading, not the source's expansion) reproduced the port's wrong numbers, and reading the
+expansion showed the capture.
 
 **Carried items done.** `SimRng.state` is private (`rng::crn_seed` is MC-FULL-ROLL's / STRAT-ROLL's seed). `start_match`, `start_cvc`,
 `start_pair_gate`, `gate_update`, `debug_command` and `ensure_battle` take `&mut Search`, so MC-FULL-RESET's Search part runs at the match

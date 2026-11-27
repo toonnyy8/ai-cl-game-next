@@ -176,39 +176,41 @@ fn with_a_job() -> (Match, Search) {
 }
 
 /// Everything of `Search` a rollout must leave alone (the port's rollouts run on a scratch match, so pollution could only show here):
-/// the jobs after the first, the strategy jobs, the decisions count, the strategy stats and picks, the page, a cut.
-fn search_rest(s: &Search) -> String {
-    let jobs: Vec<String> = s.mc_jobs.iter().skip(1).map(|j| format!("{} {} {} {:?} {} {} {} {}", j.side, j.a1, j.a2, j.dif, j.n, j.v1, j.v2, j.rng)).collect();
+/// the jobs after the first SKIP, the strategy jobs, the decisions count, the strategy stats and picks, the page, a cut.
+fn search_rest(s: &Search, skip: usize) -> String {
+    let jobs: Vec<String> = s.mc_jobs.iter().skip(skip).map(|j| format!("{} {} {} {:?} {} {} {} {}", j.side, j.a1, j.a2, j.dif, j.n, j.v1, j.v2, j.rng)).collect();
     let st: Vec<String> = s.strat_jobs.iter().map(|j| format!("{} {:?} {:?} {:?} {:?} {}", j.side, j.sums, j.ns, j.hsums, j.hns, j.n)).collect();
     format!("{jobs:?} {st:?} {} {:?} {:?} {:?} {:?}", s.mc_stats[0], s.strat_stats, s.strat_picks, s.page, s.cut)
 }
 
-/// Review Focus 1 (fulltest.lisp): one extra rollout of the oldest job, the way MC-FULL-STEP runs one: the live match is as before
-/// (the B line, the brains, the plan, the sim stream), the job holds the new score, and the rest of `Search` is untouched.
+/// Review Focus 1 (fulltest.lisp): a rollout of the oldest job, the way MC-FULL-STEP runs one, both ways it ends. The job's second
+/// rollout (from play): the plan written, the job gone, its slot back. A fresh job's first rollout: its snapshot taken, its first
+/// score kept. Each time the live match is as before (the B line, the brains, the sim stream) and the rest of `Search` untouched.
 #[test]
 fn rollout_leaves_live_state_and_keeps_search() {
     let (mut m, mut s) = with_a_job();
-    let before = digest(&m, &s);
-    let n = s.mc_jobs[0].n;
-    let pool = s.pool.len();
-    m.mc_plan[5 * s.mc_jobs[0].side as usize] = 1; // (its plan still running)
-    let plan = m.mc_plan;
-    let (jobs, rest) = (s.mc_jobs.len(), search_rest(&s));
+    assert_eq!(s.mc_jobs[0].n, 1, "MC-FULL-STEP ran the job's first rollout in the step that made it");
+    // (its second rollout: the job ends)
+    let (before, pool, jobs, rest) = (digest(&m, &s), s.pool.len(), s.mc_jobs.len(), search_rest(&s, 1));
+    let k = 5 * s.mc_jobs[0].side as usize;
+    m.mc_plan[k] = 1; // (its plan still running)
+    let rolls = s.mc_stats[1];
     mc_full_step(&mut m, &mut s);
     assert_eq!(digest(&m, &s), before);
-    if n == 0 {
-        assert_eq!(search_rest(&s), rest);
-    }
-    assert_eq!(m.mc_plan == plan, n == 0, "the plan is written only when both actions are scored");
-    if n == 0 {
-        assert_eq!((s.mc_jobs.len(), s.mc_jobs[0].n), (jobs, 1), "the job's first score kept");
-        assert!(s.mc_jobs[0].v1.is_finite());
-    } else {
-        let k = 5 * (m.mc_plan[5] != plan[5]) as usize;
-        assert_eq!((s.mc_jobs.len(), s.pool.len(), m.mc_plan[k]), (jobs - 1, pool + 1, 2), "scored: the plan written, the slot back");
-    }
-    assert_eq!((s.mc_stats[1] > 0, s.cut_rollouts), (true, 0));
-    // the live state stays usable: the match plays on with no allocation surprise and no unported path
+    assert_eq!(search_rest(&s, 0), rest, "the other jobs, the strategy state, the page");
+    assert_eq!((s.mc_jobs.len(), s.pool.len(), m.mc_plan[k], s.mc_stats[1]), (jobs - 1, pool + 1, 2, rolls + 1));
+    // (a fresh job's first rollout: the snapshot of now)
+    s.drop_mc_jobs();
+    m.mc_plan[k] = 1;
+    let (e, side) = (if k == 0 { m.p1 } else { m.p2 }, (k / 5) as i64);
+    s.mc_jobs.push(McJob { e, side, a1: 7, a2: 8, dif: Difficulty::Normal, snap: None, n: 0, v1: 0.0, v2: 0.0, rng: 0 });
+    let (before, rest, plan) = (digest(&m, &s), search_rest(&s, 1), m.mc_plan);
+    mc_full_step(&mut m, &mut s);
+    assert_eq!(digest(&m, &s), before);
+    assert_eq!(search_rest(&s, 1), rest, "the other jobs, the strategy state, the page");
+    assert_eq!((m.mc_plan, s.mc_jobs.len(), s.mc_jobs[0].n, s.mc_jobs[0].rng), (plan, 1, 1, m.rng.state()));
+    assert!(s.mc_jobs[0].snap.is_some() && s.mc_jobs[0].v1.is_finite() && s.cut_rollouts == 0);
+    // the live state stays usable: the match plays on with no unported path
     for _ in 0..600 {
         sim_step(&mut m, &mut s, &mut NoInput);
     }
@@ -354,4 +356,97 @@ fn strat_full_step_picks_after_its_rolls() {
     m.paused = true;
     mc_full_step(&mut m, &mut s);
     assert!(s.strat_jobs.is_empty());
+}
+
+/// HARD's selection, decoupled UCT (`*mc-select-by*` :hard :duct), against the native image: Kenpachi vs Ichigo at HARD's outcome rows,
+/// 1.8 m, both free, react 50, delay 8, cont 850, turn 800, seed 4242, 16 rollouts; :tree on the same start for contrast (the frozen
+/// image's MC-SEARCH, printed by a scratch probe over build/simgate/duel.fas).
+#[test]
+fn duct_search_matches_the_lisp() {
+    let (k, d) = (knobs(), data());
+    let (kk, ik) = (find_kit(d, "kenpachi", "base"), find_kit(d, "ichigo", "base"));
+    let run = |duct: bool| {
+        let mut l = Lite::default();
+        let rec = |kit, mv| Some(mc_move_rec(&k, kit, mv));
+        l.slots[0] = rec(kk, kit_command_move(d, kk, "q").unwrap());
+        l.slots[1] = rec(kk, kit_core_move(d, kk, Role::Ns, 1).unwrap());
+        l.slots[8] = rec(ik, kit_command_move(d, ik, "q").unwrap());
+        l.slots[9] = rec(ik, kit_core_move(d, ik, Role::Ns, 1).unwrap());
+        let row = |c| k.mc_outcomes_hard.row(c, "base").map(|v| duel_sim::cl::round_f32(1000.0 * v));
+        l.vals = [row("kenpachi"), row("ichigo")];
+        l.i = [mc_init_fighter(K_FREE, 0, 0, 350, 73, 1, 0), mc_init_fighter(K_FREE, 0, 0, 350, 70, 1, 0)];
+        (l.g[0], l.g[1], l.g[3], l.g[4], l.g[5], l.g[6]) = (1800, 50, 60, 8, 850, 800);
+        for (i, &x) in k.mc_prior.0.iter().enumerate() {
+            l.w[i] = x;
+        }
+        (l.legal, l.legal2) = ([1; 10], [1; 10]);
+        (l.legal[6], l.legal2[6]) = (0, 0);
+        l.seed(4242);
+        l.search(16, duct, k.mc_ucb_c, k.mc_opp_search);
+        (l.n, l.sum, l.g[2])
+    };
+    assert_eq!(k.mc_select_by.getf("hard"), Some("duct"));
+    assert_eq!(k.mc_select_by.getf("normal"), Some("tree"));
+    assert_eq!(run(true), ([2, 2, 2, 2, 2, 2, 0, 1, 2, 1], [148, 78, 0, 0, 0, 78, 0, 0, 78, 0], 87066545));
+    assert_eq!(run(false), ([2, 2, 3, 2, 2, 1, 0, 1, 2, 1], [148, -9, 171, 0, 0, 0, 0, 0, 78, 0], 138510016));
+}
+
+/// MC-NEUTRAL at HARD (cpu-mcts.lisp 129-139): the decoupled search, then `*mc-sure*` (HARD 0.16): a best action leading the second by
+/// less defers, writing `*mc-next*` = tick + `*mc-defer-gap*` (6) with no job and no press; otherwise the best two (the duct search's)
+/// go to a job. Run on Kenpachi's states of a live KI match (each decision on a copy, his brain at HARD), until both outcomes are seen.
+#[test]
+fn hard_defers_on_a_thin_margin() {
+    use duel_sim::cpu::{mcts, perceive};
+    let k = knobs();
+    assert_eq!((k.mc_sure.get_or("hard", 0.0), k.mc_sure.get_or("normal", 1.0), k.mc_defer_gap), (0.16, 0.0, 6));
+    let mut s = Search::new();
+    let mut m = ki_battle(&mut s);
+    let (mut deferred, mut jobs, mut duct_differs) = (0, 0, false);
+    for _ in 0..20_000 {
+        sim_step(&mut m, &mut s, &mut NoInput);
+        let e = m.p1;
+        let f = m.fighter.get(e).unwrap();
+        if !matches!(f.state, State::Idle | State::Run) || m.flow != Flow::Battle {
+            continue;
+        }
+        let mut b = f.brain.clone().unwrap();
+        b.difficulty = Difficulty::Hard;
+        let Some(snap) = perceive::brain_snap_ago(&b, b.delay) else { continue };
+        let d = perceive::snap_dist(&m, &snap, e);
+        let Some(lite) = mcts::mc_setup(&m, e, &snap, d, Difficulty::Hard) else { continue };
+        // (the expectation: the same search by hand, both selections)
+        let means = |duct: bool| {
+            let mut l = lite.clone();
+            l.seed(m.rng.state() as i64 ^ (7919 * m.match_tick + 1));
+            l.search(16, duct, k.mc_ucb_c, k.mc_opp_search);
+            let ms: Vec<(usize, f32)> = (0..10).filter_map(|a| l.mean(a).map(|x| (a, x))).collect();
+            ms
+        };
+        let (md, mt) = (means(true), means(false));
+        let best = md.iter().map(|x| x.1).fold(f32::NEG_INFINITY, f32::max);
+        let second = md.iter().map(|x| x.1).filter(|&x| x < best).fold(f32::NEG_INFINITY, f32::max);
+        let defer = second > f32::NEG_INFINITY && best - second < 0.16;
+        let (mut mc, mut sc) = (m.clone(), Search::new());
+        let tick = mc.match_tick;
+        let pressed = mcts::mc_decide(&mut mc, &mut sc, e, &mut b, lite);
+        if defer {
+            assert!(!pressed && sc.mc_jobs.is_empty() && b.press == m.fighter.get(e).unwrap().brain.as_ref().unwrap().press);
+            assert_eq!(mc.mc_next[0], tick + 6);
+            deferred += 1;
+        } else {
+            let top = |ms: &[(usize, f32)]| {
+                let mut v = ms.to_vec();
+                v.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap().then(a.0.cmp(&b.0)));
+                (v[0].0 as i64, v[1].0 as i64)
+            };
+            let j = &sc.mc_jobs[0];
+            assert_eq!((pressed, j.a1, j.a2, mc.mc_plan[0], mc.mc_next[0]), (true, top(&md).0, top(&md).1, 1, m.mc_next[0]));
+            duct_differs |= top(&md) != top(&mt);
+            jobs += 1;
+        }
+        if deferred >= 3 && jobs >= 3 && duct_differs {
+            return;
+        }
+    }
+    panic!("seen deferred {deferred}, jobs {jobs}, a decision where :tree would differ {duct_differs}");
 }

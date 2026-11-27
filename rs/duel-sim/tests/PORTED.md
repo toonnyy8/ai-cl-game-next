@@ -62,5 +62,6 @@ after step 301 against the key's A fields, and the judgement's 28 cues against t
 M2 Task 8 (the light model, the full-sim MCTS, the strategy rollouts): `tests/mcts.rs` also holds checks that are not Lisp checks:
 `cls_codes_and_outcome_rows`, `rollout_leaves_live_state_and_keeps_search` (fulltest.lisp's idea, Review Focus 1),
 `jobs_dropped_when_snapshot_not_ok`, `rollout_never_ends_the_match` (Review Focus 2), `stand_in_brain_for_human` (3), `plan_score_rounding`
-(5), `crn_seed_values`, `strat_full_step_picks_after_its_rolls`; `src/ichigo/hooks.rs` `tsuki_dash_brain_aims_at_him`; `duel-tools
+(5), `crn_seed_values`, `strat_full_step_picks_after_its_rolls`, `duct_search_matches_the_lisp` (HARD's search against the native
+image), `hard_defers_on_a_thin_margin` (`*mc-sure*`); `src/ichigo/hooks.rs` `tsuki_dash_brain_aims_at_him`; `duel-tools
 replay.rs` `live_ki_s1_replays_whole` (was `live_ki_s1_reaches_the_mcts`), `cut_rollout_fails_the_run`, `live_allocs`.
