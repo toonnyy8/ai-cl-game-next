@@ -640,7 +640,7 @@ those lanes; there is nothing to mask in `dq` for them.
   and chips go where `draw_scene` marks them; then drop `--mask lights,chips`.
 - Task 7: DRAW-FIGHTER at its mark in `draw_scene`, reading `drawn_pos` / `drawn_yaw`; the portrait camera (%PORTRAIT-CAMERA needs
   `*band*`, DECK-UPDATE's) in `Scene::duel_camera`.
-- Task 8: the cinematic camera branch of DUEL-CAMERA (with %KEEP-SUBJECT / %PORTRAIT-DOLLY and the dutch roll), CINE-HELD-P in
+- (done, §8) Task 8: the cinematic camera branch of DUEL-CAMERA (with %KEEP-SUBJECT / %PORTRAIT-DOLLY and the dutch roll), CINE-HELD-P in
   FX-FROZEN-P (no Rust cinematic holds yet), CINE-END's camera fov / up and STAGE-ENV, the card beat hiding the stage.
 
 ## 6. The FX (Task 6)
@@ -720,7 +720,7 @@ and `chips` masks are gone from every test (the tool kept `--mask` for `fighters
   ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); the hazard looks that read posed joints (ICHIGO-CLONE-LOOK and
   ICHIGO-ECHO-LOOK through IC-GHOST, ICHIGO-FLARE-LOOK through IC-JOINT: reaching one sets `unported`); DRAW-FIGHTER's per-frame
   STOP-HUM.
-- **Task 8 (cinematics, canvas):** ANNOUNCE's words, FOCUS-LINES' centre on a world point (WORLD-TO-SCREEN: the centre stays -1),
+- **Task 8 (cinematics, canvas; done, §8):** ANNOUNCE's words, FOCUS-LINES' centre on a world point (WORLD-TO-SCREEN: the centre stays -1),
   `*ui-flash*`'s drawing (stored in `FxState.ui_flash`), `*cine-grade*` coming back in SCREEN-FX-UPDATE, CINE-HELD-P in `Scene::frame_begin`,
   CINE-END's SCREEN-FX-CLEAR (`fx::screen::screen_fx_clear`, its only caller; STAMPS-CLEAR has none outside debug),
   `*aura-off*`, DRAW-SCALE-OF, the cinematic step forms' FX (KE-Z-DUST etc.), `*card-only*`.
@@ -814,7 +814,8 @@ position / yaw half stays Task 8's (§5).
 - **Not reached by any keyed scene** (both fighters idle): the grip (no stance clip is a grip clip), the beat, the smear, the ghost,
   the face accent, the hooks' move looks.
 - **The cvc rows' `scene_draw_no_alloc`** runs the page's loop on 17 whole matches and reaches most of these. It found no panic and
-  0 allocations. It now fails on any `look_unported` but a cinematic's camera (Task 8) and the menus' camera after the match (M3b).
+  0 allocations. It now fails on any `look_unported` but a cinematic's camera (Task 8; done, §8: now only the menus' camera) and the menus'
+  camera after the match (M3b).
   A temporary counter probe, since removed, counted the calls over the 17 rows:
 
   | Path | Calls |
@@ -909,7 +910,7 @@ pi deviation, BEVY_PORT §5.3; the tolerance holds it). Tests:
   `*cine-close*`, `*cine-subject*`, `*card*` / `*card-only*`, `*cine-grade*` (SCREEN-FX-UPDATE brings it back after an impact frame),
   `*caption*` / `*caption-out*`, `*splash-args*`, `*aura-off*` and CINE-SCALE. A card skips STAGE-DRAW and draws only its actor; CINE-END
   restores the lens, the up vector, STAGE-ENV and clears the screen punctuation. FORM-GRADE's :spot path is ported (no in-scope kit has
-  one; the `unported` note left). SILHOUETTE-BLACK is called by no in-scope script (not ported).
+  one: ported, unverified). SILHOUETTE-BLACK is called by no in-scope script (not ported).
 - **Model slots a cinematic sets:** the body (the Bankai's kneel in the base body), the weapon, `*aura-off*`, and IC-KESSA-CINE's HIDE-SETs
   that are no kit's list (`Model.hide_x`, cleared by REFRESH-LOOK).
 - **Floats that go through the long-float pi** (as Task 7's IC-MIST): VFX-IC-CHAIN-BIND's arc `(* 0.9 (sin (* pi s)) (- 1.0 s))` and
@@ -950,8 +951,13 @@ Restored, all pass.
 - TIME-CINE has no key (no keyed match runs out its timer); its looks are ported from source.
 - The keyed cinematics hold 3 Ichigo scripts short of their ends (`draw-scenes.json`); the battles play the heavy and rush Kikons and the
   awakening through.
-- `unported` paths left: a kit's `:intro-weapon` (Yamamoto's cane), PERFECT HINT's HOHO!, FORM-GRADE's :spot (no in-scope kit), the menus'
-  camera (M3b).
+- `unported` paths left: a kit's `:intro-weapon` (Yamamoto's cane), PERFECT HINT's HOHO!, the menus' camera (M3b). FORM-GRADE's :spot is
+  ported but unverified (no in-scope kit has :spot).
+- START-CINE's queued frame 0 is float-checked from both kinds of system caller: battle-2005 frame 6453 (IC-HEAVY-KIKON-CINE's cf 0, started
+  by HIT-SYSTEM's SETTLE-SOULS) and battle-2006 frame 6228 (IC-KESSA-CINE's cf 0, the awakening from FIGHTER-SYSTEM), both exact; never
+  keyed: END-CINE -> MATCH-OVER -> KO-CINE's frame 0 (neither battle ends; the cvc rows reach it, `scene_draw_no_alloc`: no panic, no
+  allocation). Whether the battles reach Task 7's unreached move looks (INSEKI-GIRI, the edge, VFX-CHARGE, the echo and flare, the beat, a
+  planted weapon) was not measured.
 
 ### For later tasks
 

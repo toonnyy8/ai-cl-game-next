@@ -1160,7 +1160,7 @@ mod tests {
     }
 
     /// The real look sink (`duel_look::Scene`) on the 17 cvc gate rows: FEEDBACK-SYSTEM's port (stamps, particles, the shake, the
-    /// stage's marks, the sounds) runs on every event of whole matches with no panic and no allocation in a battle frame. The draw key cannot check these looks before Task 8's battle scenes.
+    /// stage's marks, the sounds) runs on every event of whole matches with no panic and no allocation in a battle frame. The draw key's battle scenes check these looks' floats (Task 8: `tests/draw.rs` `battles_match`).
     #[test]
     fn scene_sink_no_alloc() {
         use duel_sim::look::LookSink;

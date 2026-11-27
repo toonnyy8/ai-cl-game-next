@@ -1,4 +1,4 @@
-//! `duel-tools draw --check FILE.bin [--arrays LIST] [--frames A-B] [--data DIR]`: replays a draw-key scene
+//! `duel-tools draw --check FILE.bin [--arrays LIST] [--frames A-B] [--exact] [--data DIR]`: replays a draw-key scene
 //! (docs/bevy/M3A_NOTES.md §1, §5) with the key's inputs and compares each keyed frame's `FrameOut` with the key.
 //!
 //! The scene's commands, viewport and fixed inputs come from FILE's INDEX.json (same directory, entry named by FILE's stem). Each

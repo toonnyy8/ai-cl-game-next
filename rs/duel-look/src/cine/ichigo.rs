@@ -118,7 +118,7 @@ impl<'d> Scene<'d> {
         self.shake(0.3, 0.4);
     }
 
-    /// port: IC-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-KIKON-CINE's AT forms.
     fn ic_kikon_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.6, "ic-juji-x", 0.15, "whoosh-heavy", 1.1),
@@ -182,7 +182,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-KESSA-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-KESSA-KIKON-CINE's AT forms.
     fn ic_kessa_kikon_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.8, "ic-k-uchi", 7.0 / 60.0, "clone", 0.8),
@@ -222,7 +222,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-HASTE-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-HASTE-KIKON-CINE's AT forms.
     fn ic_haste_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.8, "ic-k-f1", 14.0 / 60.0, "clone", 0.8),
@@ -261,7 +261,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-KESSA-GETSUGA-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-KESSA-GETSUGA-CINE's AT forms.
     fn ic_getsuga_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => {
@@ -319,7 +319,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-HEAVY-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-HEAVY-KIKON-CINE's AT forms.
     fn ic_heavy_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.6, "ic-drop", 23.0 / 60.0, "whoosh-heavy", 0.9),
@@ -391,7 +391,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-RUSH-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-RUSH-KIKON-CINE's AT forms.
     fn ic_rush_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.8, "ic-rangetsu", 17.0 / 60.0, "cut", 0.9),
@@ -456,7 +456,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-CHAIN-KIKON-CINE's AT forms.
+    /// port: ichigo-look.lisp IC-CHAIN-KIKON-CINE's AT forms.
     fn ic_chain_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => self.ic_open(m, a, v, 3.8, "ic-k-whip", 26.0 / 60.0, "chain-snap", 1.0),
@@ -538,7 +538,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// port: IC-KESSA-CINE's AT forms (the awakening).
+    /// port: ichigo-look.lisp IC-KESSA-CINE's AT forms (the awakening).
     fn ic_kessa_at(&mut self, m: &Match, cf: i64, a: Entity, v: Entity) {
         match cf {
             0 => {
@@ -724,7 +724,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// IC-KIKON-CINE's DURING forms.
+    /// port: ichigo-look.lisp IC-KIKON-CINE's DURING forms.
     fn ic_kikon_during(&mut self, m: &Match, cf: i64, a: Entity, v: Entity, out: &mut FrameOut) {
         if during(cf, 70, 100).is_some() {
             // a violet haze at the frame's right edge
@@ -782,7 +782,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// IC-KESSA-GETSUGA-CINE's DURING forms.
+    /// port: ichigo-look.lisp IC-KESSA-GETSUGA-CINE's DURING forms.
     fn ic_getsuga_during(&mut self, m: &Match, cf: i64, a: Entity, v: Entity, out: &mut FrameOut) {
         if let Some(u) = during(cf, 12, 48) {
             let (b, w) = self.ic_blade(a, Some("tensa"));
@@ -821,7 +821,7 @@ impl<'d> Scene<'d> {
         }
     }
 
-    /// IC-CHAIN-KIKON-CINE's DURING forms.
+    /// port: ichigo-look.lisp IC-CHAIN-KIKON-CINE's DURING forms.
     fn ic_chain_during(&mut self, m: &Match, cf: i64, a: Entity, v: Entity, out: &mut FrameOut) {
         let n = self.fl.kn.ic.chain_roots.len();
         let root = |sc: &Scene, i: usize| sc.fl.kn.ic.chain_roots[i];
