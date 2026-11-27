@@ -106,6 +106,10 @@ pub fn sin_d(a: f64) -> f64 {
 pub fn cos_d(a: f64) -> f64 {
     libm::cos(a)
 }
+/// CL TAN of a single-float (C tanf: musl's; render.lisp's M4-PERSPECTIVE!, a look).
+pub fn f_tan(a: f32) -> f32 {
+    libm::tanf(a)
+}
 /// port: engine/lisp/package.lisp F-MOD (fmodf).
 pub fn f_mod(x: f32, y: f32) -> f32 {
     libm::fmodf(x, y)

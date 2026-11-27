@@ -548,3 +548,89 @@ a phase is the Lisp's call order there; Tasks 5-8 pin it against the key's per-f
   (Task 10's page; M3b's menus).
 - **Not queued:** debug PLACE's FX-CLEAR and its model flash / super reset (a debug helper); KEN-BANKAI-CINE's MODEL-BODY swap (a
   cinematic look form: Task 8).
+
+## 5. The draw core (Task 5)
+
+`rs/duel-look/src/draw/`: `frame.rs` (`FrameOut`, the environment `Env` with STAGE-ENV, the post globals `Post`, END-FRAME's `*rp*`,
+SELECT-LIGHTS, FILL-FRAME-UNIFORMS / FILL-TOON-UNIFORMS), `queue.rs` (DRAW-MESH, ADD-POINT-LIGHT), `camera.rs` (CAMERA, UPDATE-CAMERA,
+M4-LOOK-AT! / -PERSPECTIVE! / -MUL! / -INVERT!, DUEL-CAMERA's landscape half: BEHIND-CAMERA, PAIR-CAMERA, LANDSCAPE-LENS; SHAKE-UPDATE),
+`stage.rs` (STAGE-DRAW's four draws and ST-ASH-FX's emission), `slow.rs` (SLOW-DRAW-BEGIN / -END), `mod.rs` (`draw_frame`, DRAW-SCENE,
+FORM-GRADE, END-FRAME). `rs/duel-tools/src/draw.rs`: `duel-tools draw --check FILE.bin [--arrays …] [--mask …] [--frames A-B]`.
+
+```sh
+rs/target/release/duel-tools draw --check $ORACLE/draw/quiet-2394.bin --arrays fu,p,dq --mask lights,fighters
+```
+
+**Result: bit-exact.** The 12 quiet scenes (121 keyed frames each) and `slowmo-2513` (240): 1,692 frames, 426,384 floats of `fu` / `p`
+/ `dq`, largest |a − b| / max(1, |b|) = 0 in every array, with the `lights` and `fighters` lanes masked. 0 heap allocations in every frame
+after frame 0 (the frames with a command left out; the combat log turned off after the commands' frame, as the sim's 0-alloc gate).
+`rs/duel-tools/tests/draw.rs`: `quiet_core_matches`, `slowmo_frames_match` (both fail without `$ORACLE`'s key).
+
+### How a frame is drawn
+
+The game loop is `flow::frame` → `duel_look::draw_frame(scene, m, rdt, out)` → `flow::frame_end`. `draw_frame` is GAME-FRAME after its
+steps, then END-FRAME, in the Lisp's order:
+1. `out.begin()` (BEGIN-FRAME's queues);
+2. SLOW-DRAW-BEGIN;
+3. FDT (0 while FX-FROZEN-P, else RDT × `*cine-time-scale*`), the fx clock;
+4. DUEL-CAMERA on the drawn places, SHAKE-UPDATE (three cosmetic draws every 1/12 s, a shake running or not), UPDATE-CAMERA;
+5. DRAW-SCENE unless turbo: STAGE-DRAW, FORM-GRADE (no cinematic), `[fighters: Task 7]`, `[hazards: Task 6]`, `duel_sim::cine::cine_draw(m)`
+   (one call, where Task 8 adds the look hook: ruling R9), `[stamps, impact frames, particles, rings, the hit flash: Task 6]`;
+6. `[HUD-DRAW: M3b; its AURA-CAP-UPDATE: Task 6, ruling R4]`, SLOW-DRAW-END;
+7. END-FRAME: UPDATE-CAMERA, `*rp*`, SELECT-LIGHTS, FILL-FRAME-UNIFORMS.
+
+`m` is `&mut` only for CINE-DRAW. The key's fixed inputs come from `SceneInputs` (the draw tool reads INDEX.json), the camera setting
+from `Match.settings` (below); nothing in the draw code holds them.
+
+### Findings and decisions
+
+- **The battle start's camera snap reads the sim at the call, not at the sink.** BEGIN-BATTLE's `(duel-camera *p1* *p2* 0.0 :snap t)`
+  runs inside a debug command's START-MATCH (cinematics skipped), and the same command's PLACE then moves the fighters (2394-2397,
+  84000+). The anchor of the behind camera stays where the snap put it and springs after P1 from there: frames 0-30 of quiet-2394 show
+  it. So `LookEvent::CameraSnap` carries what DUEL-CAMERA reads then: both places, both hurt radii, `*behind-yaw*`, `*view-x*` /
+  `*view-z*`, `*view-behind*` (`duel-sim` change; the sim's results are unchanged). Checked by mutation: a sink that ignores the snap fails
+  quiet-2394 and quiet-84004 at frame 0 (`fu[12]`); quiet-2500 still passes (no PLACE, so `*cam-cut*` snaps to the same places).
+- **`LookEvent::Place`** (new): debug PLACE's looks, FX-CLEAR, `*punch-t*` 0, the models' flash / super 0. The sink applies `*punch-t*`;
+  the rest are marked for Tasks 6 / 7.
+- **`Match.settings`** (new, `duel_sim::state::Settings`): the page's SETTINGS line (`*setting-ix*`, each row's default from tuning.json
+  `*SETTINGS*`: `(0 1 2 2 0 0 0 0 0 0 5)`) and `*one-hand*`. START-MATCH's SET-CAM-BEHIND is now its rule, `(and (or *cam-behind*
+  *one-hand*) (vs-cpu-p) t)` with `*cam-behind*` = APPLY-SETTINGS' `(zerop (setting :camera))` (M2_NOTES §12's carry). The page (M3b) sets
+  them; the tools keep the defaults, which give the old hard-wired value.
+- **Scene commands ported** (`duel-sim/src/debug.rs`): 2500-2503 (DEBUG-VS-IDLE), 2394-2397 (STRING-TEST), 2513 (SLOWMO
+  `*core-clash-slowmo-scale*` 3 s), 84000 / 84001 / 84004 / 84005 (KEN-CORE-DEBUG's scene). ENSURE-BATTLE takes its `:cpu` argument (a trace
+  records only T; the scenes pass NIL: VS CPU, the brains off).
+- **SLOW-DRAW without writing the match.** The Lisp writes the drawn places into the fighters' and hazards' slots and puts them back after
+  the HUD. Here they are an overlay (`SlowDraw.at`) read through `Scene::drawn_pos` / `drawn_yaw`; the clips are the Scene's and are moved
+  and put back as in the Lisp. DUEL-CAMERA reads the drawn places, as GAME-FRAME's order gives.
+- **`look_unported`** is `Scene.unported`: the first look path not ported yet (the draw tool exits 3 on it, the page will show it). Set by
+  the portrait camera (Task 7), a cinematic's camera while `m.cine` runs (Task 8), the menus' camera (M3b) and a `:spot` form grade (M4).
+- **The cosmetic RNG is not compared yet.** Every key frame draws the shake's and the ash's numbers (ported) and the fighters' (VFX-AURA's
+  N-OF, Ichigo's aura: Tasks 6 / 7) in between. Frame 0 of quiet-2500 draws 4 in the key and 3 here (the shake's): the fourth is the
+  fighters'. `--arrays rng` is there for Task 6's `cosrng_draw_order`.
+- **`duel_sim::cl::musl_powf` is public** (SRGB->LIN's `powf(x, 2.2f)`, %POW2), and `duel_sim::math::f_tan` is new (M4-PERSPECTIVE!'s tanf):
+  duel-look calls no math crate directly.
+
+### The masks (rulings R3)
+
+`--mask lights` leaves out `fu` 70..=135 (the light count, the per-pixel count, `*lp*`, `*lc*`: vfx.lisp's ADD-POINT-LIGHT, Task 6). The
+dq lanes are chosen by the mesh's registry path (tables.json `mesh_ids`, equal to the key's meshes.json), on both sides, then the rest is
+compared record by record in order:
+- `fighters`: `*BODIES*…`, `*WEAPONS*…`, `*SHADOW-MESH*` (DRAW-FIGHTER, Task 7). Ichigo's look bodies (the clones, ICHIGO-ECHO-LOOK, his
+  cinematic body) draw the same meshes, so they fall in this lane: Task 6 cannot check their records until Task 7 removes it.
+- `chips`: `*ST-ROCKS*…` (ST-CHIPS, Task 6).
+
+No dq lane exists for the cracks and marks (they draw only into `ft`) nor for the hazards (they draw no mesh). The controller's list named
+those lanes; there is nothing to mask in `dq` for them.
+
+### For later tasks
+
+- **Review Focus 2 is only half covered here.** In slowmo-2513 both fighters stand idle, so the drawn places equal the sim's and the camera
+  cannot show SLOW-DRAW; the clips' drawn times are in the fighters' records. Task 7's `quiet_full_matches` on slowmo-2513 is SLOW-DRAW's
+  real check.
+- Task 6: ST-ASH-FX computes each flake's FX-EMIT arguments (`stage.rs`, marked) for the pool; SHAKE (the request) writes
+  `CamState.shake`; `*screen-fx*` is `DrawState.screen_fx` (FX-FROZEN-P reads [6], FORM-GRADE [0]); LIGHTS-FLUSH and the cracks, marks
+  and chips go where `draw_scene` marks them; then drop `--mask lights,chips`.
+- Task 7: DRAW-FIGHTER at its mark in `draw_scene`, reading `drawn_pos` / `drawn_yaw`; the portrait camera (%PORTRAIT-CAMERA needs
+  `*band*`, DECK-UPDATE's) in `Scene::duel_camera`.
+- Task 8: the cinematic camera branch of DUEL-CAMERA (with %KEEP-SUBJECT / %PORTRAIT-DOLLY and the dutch roll), CINE-HELD-P in
+  FX-FROZEN-P (no Rust cinematic holds yet), CINE-END's camera fov / up and STAGE-ENV, the card beat hiding the stage.

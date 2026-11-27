@@ -67,11 +67,27 @@ pub struct Scene<'d> {
     /// `*cine-time-scale*` (CINE-SLOW: Task 8; CINE-END resets it).
     pub cine_time_scale: f32,
     pub cos: CosRng,
+    /// The draw side (camera, environment, post globals, stage): `draw::draw_frame`'s.
+    pub draw: crate::draw::DrawState,
+    /// SLOW-DRAW's state.
+    pub slow: crate::draw::slow::SlowDraw,
+    /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
+    pub unported: Option<&'static str>,
 }
 
 impl<'d> Scene<'d> {
     pub fn new(data: &'d Data, inputs: SceneInputs) -> Scene<'d> {
-        Scene { data, inputs, models: Vec::with_capacity(8), slow_was: Vec::with_capacity(duel_sim::consts::MAX_ENTITIES), cine_time_scale: 1.0, cos: CosRng::default() }
+        Scene {
+            data,
+            inputs,
+            models: Vec::with_capacity(8),
+            slow_was: Vec::with_capacity(duel_sim::consts::MAX_ENTITIES),
+            cine_time_scale: 1.0,
+            cos: CosRng::default(),
+            draw: crate::draw::DrawState::new(data),
+            slow: crate::draw::slow::SlowDraw::with_reserve(),
+            unported: None,
+        }
     }
 
     pub fn model(&self, e: Entity) -> Option<&Model<'d>> {
@@ -188,7 +204,15 @@ impl<'d> Scene<'d> {
                 self.cine_time_scale = 1.0; // task 8: the rest of CINE-END's looks
             }
             LookEvent::CineStart { .. } | LookEvent::CineBegin { .. } | LookEvent::CineAt { .. } | LookEvent::CineStop => {} // task 8
-            LookEvent::CamCut | LookEvent::CameraSnap => {} // task 7: the camera
+            LookEvent::CamCut => self.draw.cam.cut = true,
+            LookEvent::CameraSnap { p, q, hurt, behind_yaw, view_x, view_z, view_behind } => {
+                // port: BEGIN-BATTLE's (duel-camera *p1* *p2* 0.0 :snap t), on what the sim held then
+                let pr = crate::draw::camera::Pair { p, q, hurt, behind_yaw, view_x, view_z, view_behind };
+                self.duel_camera(&pr, 0.0, true);
+            }
+            LookEvent::Place => {
+                self.draw.cam.punch_t = 0.0; // task 6: its FX-CLEAR; task 7: the models' flash / super 0
+            }
             LookEvent::Music { .. } | LookEvent::MusicStop { .. } => {} // M3b: sound
             LookEvent::ClearWords => {}                                  // task 8: the canvas words
             LookEvent::FxClear | LookEvent::StageClearCracks | LookEvent::UiFlash { .. } => {} // task 6: FX

@@ -129,6 +129,8 @@ pub struct Match {
     pub behind_yaw: f32,
     /// `*view-behind*` (configuration, SET-CAM-BEHIND at START-MATCH): humans steer by the behind view, else the pair view.
     pub view_behind: bool,
+    /// The page's SETTINGS (control.lisp `*setting-ix*`) and `*one-hand*`: SET-CAM-BEHIND reads them.
+    pub settings: Settings,
     /// Not a Lisp special: FQ-MATCH-END's Match half, done by GO-RESULTS (each learning brain's record taken, BRAIN-FQL set NIL, its
     /// health balance and result then). GO-RESULTS runs deep in the sim (a K.O. cinematic's end), which has no `Search`; the Search
     /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame_end` (a
@@ -138,6 +140,38 @@ pub struct Match {
     /// Not a Lisp special: the looks of this step (`*events*` and the immediate presentation calls, docs/bevy/M3A_NOTES.md §4),
     /// drained by `flow::sim_step`'s `LookSink`. Reserved once (`look::LOOK_RESERVE`); a rollout's match never pushes (`Match::look`).
     pub looks: crate::look::LookQueue,
+}
+
+/// The page's SETTINGS line (control.lisp `*setting-ix*`: each row's chosen option index, in `*settings*`' order; onehand.lisp
+/// ONEHAND-INIT reads it from the page, each row's default when nothing is saved: `(0 1 2 2 0 0 0 0 0 0 5)`) and `*one-hand*`
+/// (ONE-HAND-EFFECTIVE-P: NIL in a desktop window). The page (M3b) sets them; the tools keep the defaults.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Settings {
+    pub ix: [u8; SETTINGS_N],
+    /// The CAMERA row's place in `ix`.
+    camera: usize,
+    pub one_hand: bool,
+}
+
+/// `*settings*`' rows (the page saves them by place).
+pub const SETTINGS_N: usize = 11;
+
+impl Settings {
+    /// port: control.lisp `*setting-ix*`'s initial value (each row's default index, `*settings*`' fourth column, from tuning.json).
+    pub fn defaults(d: &Data) -> Settings {
+        let rows = d.tuning.get("*SETTINGS*").and_then(|v| v.as_array()).expect("tuning: *SETTINGS*");
+        assert_eq!(rows.len(), SETTINGS_N, "*SETTINGS*' rows");
+        let mut ix = [0u8; SETTINGS_N];
+        for (i, r) in rows.iter().enumerate() {
+            ix[i] = r[3].as_u64().expect("a setting's default index") as u8;
+        }
+        let camera = rows.iter().position(|r| r[0] == "camera").expect("the CAMERA row");
+        Settings { ix, camera, one_hand: false }
+    }
+    /// port: onehand.lisp APPLY-SETTINGS' `(zerop (setting :camera))`: `*cam-behind*`.
+    pub fn cam_behind(&self) -> bool {
+        self.ix[self.camera] == 0
+    }
 }
 
 /// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
@@ -174,7 +208,7 @@ match_clone!(
     cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
     gate_results, gate_busy, gate_seed0, gate_seeds, knobs, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
     pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
-    view_behind, fq_end, looks,
+    view_behind, settings, fq_end, looks,
 );
 
 impl Match {
@@ -249,6 +283,7 @@ impl Match {
             view_side: 1.0,
             behind_yaw: 0.0,
             view_behind: false,
+            settings: Settings::defaults(data),
             fq_end: Vec::new(),
             looks: crate::look::LookQueue::with_reserve(),
         }

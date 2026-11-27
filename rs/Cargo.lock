@@ -2407,6 +2407,7 @@ name = "duel-tools"
 version = "0.0.0"
 dependencies = [
  "duel-data",
+ "duel-look",
  "duel-sim",
  "serde_json",
 ]

@@ -26,7 +26,7 @@ pub fn apply_event(m: &mut Match, srch: &mut Search, words: &[String]) -> Result
             };
             debug::set_field(m, s, w(2)?, &val(3)?)?
         }
-        "battle" => debug::ensure_battle(m, srch, ch(1)?, ch(2)?),
+        "battle" => debug::ensure_battle(m, srch, ch(1)?, ch(2)?, true),
         "form" => {
             let (e, f) = (side(m, 1)?, Form::from_name(&kw(2)?).ok_or(format!("E {}: no form", words.join(" ")))?);
             debug::force_form(m, e, f)
@@ -1182,7 +1182,7 @@ mod tests {
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         let mut m = Match::new(data);
         flow::go_title(&mut m);
-        debug::ensure_battle(&mut m, &mut Search::new(), Character::Hisagi, Character::Kenpachi);
+        debug::ensure_battle(&mut m, &mut Search::new(), Character::Hisagi, Character::Kenpachi, true);
         assert!(flow::sim_running_p(&m) && m.unported.is_none());
         let tick = m.match_tick;
         let cut = snap_rollout(&mut m, &mut Search::new(), &mut flow::NoInput, &mut None);
@@ -1193,7 +1193,7 @@ mod tests {
         assert_eq!(m.match_tick, tick);
         let (mut m2, mut s2) = (Match::new(data), Search::new());
         flow::go_title(&mut m2);
-        debug::ensure_battle(&mut m2, &mut s2, Character::Kenpachi, Character::Kenpachi);
+        debug::ensure_battle(&mut m2, &mut s2, Character::Kenpachi, Character::Kenpachi, true);
         let t2 = m2.match_tick;
         s2.cut = Some(("x", 1));
         assert!(!flow::frame_headless(&mut m2, &mut s2, &mut flow::NoInput, &mut duel_sim::look::NoLook));

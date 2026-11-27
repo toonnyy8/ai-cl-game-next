@@ -139,8 +139,12 @@ pub enum LookEvent {
     FxClear,
     /// STAGE-CLEAR-CRACKS (SPAWN-PAIR).
     StageClearCracks,
-    /// BEGIN-BATTLE's `(duel-camera *p1* *p2* 0.0 :snap t)`.
-    CameraSnap,
+    /// BEGIN-BATTLE's `(duel-camera *p1* *p2* 0.0 :snap t)`, with what it reads of the sim then (a debug command may move the
+    /// fighters before the sink applies it: PLACE after ENSURE-BATTLE): P1's and P2's places, `*behind-yaw*`, `*view-x*` / `*view-z*`,
+    /// `*view-behind*`; HURT their bodies' hurt radii (BEHIND-CAMERA keeps the eye out of them).
+    CameraSnap { p: [f32; 3], q: [f32; 3], hurt: [f32; 2], behind_yaw: f32, view_x: f32, view_z: f32, view_behind: bool },
+    /// debug PLACE's looks: FX-CLEAR, `*punch-t*` 0, both models' flash and super 0.
+    Place,
     // ---- a direct effect call inside the sim
     /// UI-FLASH r g b alpha fade (ICHIGO-CATCH).
     UiFlash { r: f32, g: f32, b: f32, a: f32, fade: f32 },

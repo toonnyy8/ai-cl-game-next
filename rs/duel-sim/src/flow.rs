@@ -339,9 +339,9 @@ pub fn start_match(m: &mut Match, s: &mut Search) {
     cine::abort_cine(m);
     m.look(LookEvent::ClearWords); // look: (clear-words)
     m.rng.seed(m.match_seed);
-    // port: SET-CAM-BEHIND *cam-behind* (the CAMERA setting: BEHIND, the default; `*one-hand*` NIL headless): humans steer by the
-    // behind view in VS CPU / PRACTICE (*cam-cut* is the camera's, a look)
-    m.view_behind = matches!(m.mode, Mode::VsCpu | Mode::Practice);
+    // port: SET-CAM-BEHIND *cam-behind* — `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)`: humans steer by the behind view in VS
+    // CPU / PRACTICE (`*cam-behind*` the CAMERA setting, `Match.settings`; *cam-cut* is the camera's, a look)
+    m.view_behind = (m.settings.cam_behind() || m.settings.one_hand) && matches!(m.mode, Mode::VsCpu | Mode::Practice);
     m.look(LookEvent::CamCut); // look: SET-CAM-BEHIND's (setf *cam-cut* t)
     spawn_pair(m, m.mode == Mode::CpuCpu, m.mode != Mode::VsPlayer);
     crate::cpu::start_match_cpu(m, s);
@@ -370,7 +370,10 @@ pub fn begin_battle(m: &mut Match) {
     m.match_tick = 0;
     let (p1, p2) = (m.p1, m.p2);
     crate::fighter::view_step(m, p1, p2, true);
-    m.look(LookEvent::CameraSnap); // look: (duel-camera *p1* *p2* 0.0 :snap t)
+    let (p, q) = (crate::fighter::pos_of(m, p1), crate::fighter::pos_of(m, p2));
+    let hurt = [crate::fighter::hurt_r(m, p1), crate::fighter::hurt_r(m, p2)];
+    let (behind_yaw, view_x, view_z, view_behind) = (m.behind_yaw, m.view_x, m.view_z, m.view_behind);
+    m.look(LookEvent::CameraSnap { p, q, hurt, behind_yaw, view_x, view_z, view_behind }); // look: (duel-camera *p1* *p2* 0.0 :snap t)
     set_flow(m, Flow::Battle);
 }
 

@@ -25,6 +25,10 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
         31101..=31199 => m.gate_seeds = c - 31100,
         81020..=81022 => m.gate_difficulty = [Difficulty::Easy, Difficulty::Normal, Difficulty::Hard][(c - 81020) as usize],
         200000..=209999 => start_pair_gate(m, s, c / 100 % 10, c / 10 % 10),
+        2394..=2397 => string_test(m, s, (c - 2394) as usize),
+        2500..=2503 => debug_vs_idle(m, s, (c - 2500) as usize),
+        2513 => m.time.slowmo(m.knobs.core_clash_slowmo_scale, 3.0, false),
+        84000 | 84001 | 84004 | 84005 => ken_core_scene(m, s, c),
         // ponytail: leaked once per run, on the path that stops it
         _ => crate::unported!(m, Box::leak(format!("debug {c}").into_boxed_str())),
     }
@@ -42,6 +46,65 @@ fn debug_vs_learner(m: &mut Match, s: &mut Search) {
     m.skip_cines = skip;
 }
 
+/// port: debug 2500+k — human P1 vs an idle CPU P2 (its brain off), VS CPU, `*match-seed*` 1, the match started with its cinematics
+/// skipped: K 0 Ichigo vs Kenpachi, 1 Kenpachi vs Ichigo, 2 Ichigo vs Ichigo, 3 Kenpachi vs Kenpachi. (`*probe*` is never set here;
+/// `*one-hand*` is ONE-HAND-EFFECTIVE-P: the page's, `Match.settings.one_hand`.)
+fn debug_vs_idle(m: &mut Match, s: &mut Search, k: usize) {
+    m.picks = [[Ichigo, Kenpachi], [Kenpachi, Ichigo], [Ichigo, Ichigo], [Kenpachi, Kenpachi]][k];
+    (m.mode, m.match_seed) = (Mode::VsCpu, 1);
+    let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
+    crate::flow::start_match(m, s);
+    m.skip_cines = skip;
+    brain_off(m, m.p2, true);
+}
+
+/// port: debug.lisp STRING-TEST (2394+k): human P1 in form K (Ichigo's Shikai, KESSA, Kenpachi's base, his Shikai) 2.2 m from an idle
+/// Kenpachi.
+fn string_test(m: &mut Match, s: &mut Search, k: usize) {
+    let (c, form) = [(Ichigo, Form::Base), (Ichigo, Form::Kessa), (Kenpachi, Form::Base), (Kenpachi, Form::Nozarashi)][k];
+    ensure_battle(m, s, c, Kenpachi, false);
+    let p1 = m.p1;
+    if m.fighter.get(p1).expect("P1").form != form {
+        force_form(m, p1, form);
+    }
+    place(m, 2.2);
+}
+
+/// port: ken.lisp KEN-CORE-DEBUG's scene (84000 / 84001 / 84004 / 84005): human P1 Kenpachi and an idle Ichigo P2 2.2 m apart, both
+/// CPUs off, gauges full, P1's awakening / SUBLIMATION / DRIVE cleared; 84001 in the Shikai (awakened, L 0), 84004 / 84005 in the
+/// Bankai KYORAN / ZANKAI (awakened).
+fn ken_core_scene(m: &mut Match, s: &mut Search, c: i64) {
+    ensure_battle(m, s, Kenpachi, Ichigo, false);
+    brain_off(m, m.p1, true);
+    place(m, 2.2);
+    let (p1, p2) = (m.p1, m.p2);
+    full_gauges(m, p1, None);
+    full_gauges(m, p2, None);
+    let g = m.gauges.get_mut(p1).expect("gauges");
+    (g.awakened, g.aw_full, g.awaken, g.sub, g.sub_s, g.drive) = (false, false, 0.0, 0.0, 0.0, 0.0);
+    match c {
+        84001 => {
+            force_form(m, p1, Form::Nozarashi);
+            let g = m.gauges.get_mut(p1).unwrap();
+            (g.awakened, g.meter) = (true, 0.0);
+        }
+        84004 | 84005 => {
+            force_form(m, p1, if c == 84004 { Form::Bankai } else { Form::Bankai2 });
+            m.gauges.get_mut(p1).unwrap().awakened = true;
+            let kit = crate::look::KitRef(crate::fighter::kit_of(m, p1));
+            m.look(crate::look::LookEvent::RefreshLook { e: p1, kit }); // look: (refresh-look *p1*)
+        }
+        _ => {}
+    }
+}
+
+/// `(setf (brain-off (brain e)) off)` when E has a brain.
+fn brain_off(m: &mut Match, e: Entity, off: bool) {
+    if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
+        b.off = off;
+    }
+}
+
 /// port: trace.lisp TR-VS-START — a VS CPU match as the menu starts it (MODE's VS CPU row, SELECT's picks and difficulty, NEW-SEED
 /// fixed to SEED, START-MATCH): human C1 vs a CPU C2 at DIF, the intro played; `*learn-debug-off*` left as it is.
 pub fn vs_start(m: &mut Match, s: &mut Search, c1: Character, c2: Character, dif: crate::components::Difficulty, seed: i64) {
@@ -51,28 +114,27 @@ pub fn vs_start(m: &mut Match, s: &mut Search, c1: Character, c2: Character, dif
 
 // ---------------------------------------------------------------- scenario helpers
 
-/// port: ENSURE-BATTLE with `:cpu t` (the only form a trace records): a CPU vs CPU battle of C1 and C2, cinematics skipped into the
-/// fight, unless one of exactly those is already in battle; both brains on (BRAIN-OFF NIL).
-pub fn ensure_battle(m: &mut Match, s: &mut Search, c1: Character, c2: Character) {
+/// port: ENSURE-BATTLE: a battle of C1 and C2 (CPU vs CPU when CPU, else VS CPU), cinematics skipped into the fight, unless one of
+/// exactly those is already in battle; the brains on when CPU, else off (a trace records `:cpu t` only; the debug scenes NIL).
+pub fn ensure_battle(m: &mut Match, s: &mut Search, c1: Character, c2: Character, cpu: bool) {
     let ch = |e: Entity| m.fighter.get(e).and_then(|f| f.character);
     if m.flow == Flow::Battle && ch(m.p1) == Some(c1) && ch(m.p2) == Some(c2) {
         return;
     }
-    (m.picks, m.mode) = ([c1, c2], Mode::CpuCpu);
+    (m.picks, m.mode) = ([c1, c2], if cpu { Mode::CpuCpu } else { Mode::VsCpu });
     let skip = std::mem::replace(&mut m.skip_cines, true); // (let ((*skip-cines* t)) …)
     crate::flow::start_match(m, s);
     m.skip_cines = skip;
     for e in [m.p2, m.p1] {
-        if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
-            b.off = false; // ((setf (brain-off …) (not cpu)): P2's brain, then P1's when he has one)
-        }
+        brain_off(m, e, !cpu); // ((setf (brain-off …) (not cpu)): P2's brain, then P1's when he has one)
     }
 }
 
-/// port: PLACE of P1 and P2: DIST m apart on the x axis around the centre, facing, idle; no hazards. (fx-clear, `*punch-t*` and
-/// the models' flash are looks.)
+/// port: PLACE of P1 and P2: DIST m apart on the x axis around the centre, facing, idle; no hazards (FX-CLEAR, `*punch-t*` and the
+/// models' flash / super are looks: `LookEvent::Place`).
 pub fn place(m: &mut Match, dist: f32) {
     crate::hazards::clear_hazards(m);
+    m.look(crate::look::LookEvent::Place); // look: (fx-clear) (setf *punch-t* 0.0) the models' flash / super 0
     m.time.reset();
     let (a, b) = (m.p1, m.p2);
     m.transform.get_mut(a).expect("P1").pos = [-0.5 * dist, 0.0, 0.0];

@@ -121,7 +121,7 @@ pub fn expf(x: f32) -> f32 {
 /// musl's powf (src/math/powf.c, ARM's: POWF_LOG2_TABLE_BITS 4, EXP2F_TABLE_BITS 5, TOINT_INTRINSICS 0, double_t double), its
 /// tables as bits. ponytail: Y finite and non-zero only (powf's zeroinfnan(y) branch is not ported: a panic); `expt2` is the caller.
 #[allow(clippy::eq_op, clippy::assign_op_pattern)] // (the C's text: (x - x) / (x - x) is its NaN, q = p * r2 + q its order)
-fn musl_powf(x: f32, y: f32) -> f32 {
+pub fn musl_powf(x: f32, y: f32) -> f32 {
     const LOG2_TAB: [(u64, u64); 16] = [
         (0x3ff661ec79f8f3be, 0xbfdefec65b963019),
         (0x3ff571ed4aaf883d, 0xbfdb0b6832d4fca4),
