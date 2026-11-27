@@ -555,10 +555,10 @@ a phase is the Lisp's call order there; Tasks 5-8 pin it against the key's per-f
 SELECT-LIGHTS, FILL-FRAME-UNIFORMS / FILL-TOON-UNIFORMS), `queue.rs` (DRAW-MESH, ADD-POINT-LIGHT), `camera.rs` (CAMERA, UPDATE-CAMERA,
 M4-LOOK-AT! / -PERSPECTIVE! / -MUL! / -INVERT!, DUEL-CAMERA's landscape half: BEHIND-CAMERA, PAIR-CAMERA, LANDSCAPE-LENS; SHAKE-UPDATE),
 `stage.rs` (STAGE-DRAW's four draws and ST-ASH-FX's emission), `slow.rs` (SLOW-DRAW-BEGIN / -END), `mod.rs` (`draw_frame`, DRAW-SCENE,
-FORM-GRADE, END-FRAME). `rs/duel-tools/src/draw.rs`: `duel-tools draw --check FILE.bin [--arrays …] [--mask …] [--frames A-B]`.
+FORM-GRADE, END-FRAME). `rs/duel-tools/src/draw.rs`: `duel-tools draw --check FILE.bin [--arrays …] [--frames A-B]` (its `--mask` left in Task 7, §7).
 
 ```sh
-rs/target/release/duel-tools draw --check $ORACLE/draw/quiet-2394.bin --arrays fu,p,dq --mask lights,fighters
+rs/target/release/duel-tools draw --check $ORACLE/draw/quiet-2394.bin --arrays fu,p,dq,fxa,fxb,ft,rng
 ```
 
 **Result: bit-exact.** The 12 quiet scenes (121 keyed frames each) and `slowmo-2513` (240): 1,692 frames, 426,384 floats of `fu` / `p`
@@ -669,7 +669,7 @@ those lanes; there is nothing to mask in `dq` for them.
 **Result: bit-exact.** The 12 quiet scenes (11 with `fu,p,dq,fxa,fxb,ft,rng`, quiet-2395 with `fu,p,dq`) and `slowmo-2513`
 (`fu,p,dq,fxa,fxb,ft,rng`), `--mask fighters` only: largest |a − b| / max(1, |b|) = 0 in every array; the cosmetic RNG's state equals the
 key's on all 1,571 frames it is checked on (11 quiet scenes and slowmo-2513). 0 heap allocations a frame. `rs/duel-tools/tests/draw.rs` `quiet_fx_matches`; the `lights`
-and `chips` masks are gone from every test (the tool keeps `--mask` for `fighters`, Task 7).
+and `chips` masks are gone from every test (the tool kept `--mask` for `fighters` until Task 7 removed it, §7).
 
 ### What the quiet key checks, and what it cannot
 
@@ -832,9 +832,13 @@ position / yaw half stays Task 8's (§5).
   | the red wisps | 186,222 |
   | the hem spring | 120,266 |
 
-  These were never reached:
-  - INSEKI-GIRI's tail and impact;
-  - ICHIGO-DRAW's crescent edge: the CPUs never played a move `*ic-edge-moves*` lists;
-  - the echo and flare looks, the beat, a planted weapon, VFX-CHARGE.
+  These were never reached, each for a measured reason (a second temporary probe listed the 104 moves that reach their main phase
+  over the 17 rows):
+  - INSEKI-GIRI's tail and impact: `ke-s-sp2` never reaches its main phase (DAISHARIN, `ke-s-sp1`, does);
+  - ICHIGO-DRAW's crescent edge: none of the 16 moves `*ic-edge-moves*` lists reaches its main phase (the CPUs play the core moves
+    `ic-j*`, `ic-n*`, `ic-as*`, `ic-k-j*` ...);
+  - VFX-CHARGE: the only in-scope move with a `hold` is `ke-stance`, which has the `stance` flag, so no in-scope move reaches it;
+  - MOVE-BEATS' afterimage: `ke-charge` never reaches its main phase (the 166 START-GHOST calls are the Hohos' and the flash steps');
+  - the echo and flare looks, the beat, a planted weapon (no in-scope move is `:planted`).
 
   Task 8's battle keys check the reached ones' floats.
