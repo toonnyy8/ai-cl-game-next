@@ -441,7 +441,8 @@ IKW-GAP-WATCH's gap-off arm (IKW-ALT) is ported: `Now::gap_off` reads the arm wi
 encoder), ported but unverified: no compared trace reaches gap-off, and `Now`'s encoder has never been checked against a key.
 
 **`--snap` is SIM-ROLLOUT now** (snaptest.lisp's): a scratch copy, WITH-ROLLOUT's bindings with the styles kept, 40 lean steps, stopping
-when the flow leaves the battle or a cinematic runs; the live match is never touched. A plain sim step there would have run MC-NEUTRAL's
+when the flow leaves the battle or a cinematic runs; the live match is never touched (since the final fix pass it plays on the live match
+between a snapshot and a restore instead: §9 "`--snap` restores"). A plain sim step there would have run MC-NEUTRAL's
 search and MC-FULL-STEP into the live `Search`.
 
 **Data.** `*mc-outcomes*` and `*mc-outcomes-hard*` (and every other `*mc-*` knob) were already in tuning.json (the extractor writes every
@@ -709,10 +710,11 @@ their `fn` line (closures are not counted separately).
 
 **The three rows of the final fix pass** (measured the same way on their own, live and with `--snap 40`, and checked against the 60
 above): cvc-ki-s1-hard (KI seed 1 at HARD, debug 81022 first; 13,179 steps), cvc-ki-s1-easy (at EASY, debug 81020; 20,069 steps; 38 job
-A lines, 19 decisions by the `:tree` search at EASY's budget and temperature, the outcome table read 1,354 times) and vs-cpu-ichigo (§8's
-R3 paragraph; 16,396 steps, 38 job A lines). Of the 60, they reach four: `Brain::reset` (vs-cpu-ichigo's stand-in, 37 a run), `cai_style`
-and `cai_style_fn` (vs-cpu-ichigo: steps where its NORMAL Ichigo has no strategy, neither `cur` nor an event arm, so CORE-BRAIN-STEP's matchup style clause runs), and
-`kk_facing_p` (the HARD Kenpachi, 6). **56 never.**
+A lines, 19 decisions by the `:tree` search at EASY's budget and temperature, `mc_outcomes_of` 1,354 calls live + `--snap` merged) and
+vs-cpu-ichigo (§8's R3 paragraph; 16,396 steps, 38 job A lines). Of the 60, they reach four: `Brain::reset` (vs-cpu-ichigo's stand-in, 37
+in the live run alone), `cai_style` and `cai_style_fn` (vs-cpu-ichigo: steps where its NORMAL Ichigo has no strategy, neither `cur` nor an event arm, so CORE-BRAIN-STEP's matchup style clause runs), and
+`kk_facing_p` (the HARD Kenpachi, 6 live + `--snap` merged). **At most 56 never** (the trait impls among the 60, `fmt` / `default` / `eq`
+/ `get` / `enc`, were not rechecked by name).
 
 **HARD-only paths:** HARD now runs in a keyed cvc match (cvc-ki-s1-hard: both brains HARD, their 8-frame reaction, HARD's chances and
 style knobs), but **no HARD search runs in any Kenpachi / Ichigo match with the shipped data**, and none can until M4: the decoupled UCT
