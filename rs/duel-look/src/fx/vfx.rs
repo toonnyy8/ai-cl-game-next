@@ -213,7 +213,7 @@ pub fn aura_cap_update(cap: &mut f32, pq: Option<([f32; 3], [f32; 3])>) {
     };
 }
 
-// ---------------------------------------------------------------- sword trails and the smear (DRAW-FIGHTER's: task 7 calls them)
+// ---------------------------------------------------------------- sword trails and the smear (DRAW-FIGHTER's, the charged blades')
 
 /// fx.lisp +TRAIL-N+: a trail holds this many base / tip samples, oldest first; [60] the count.
 pub const TRAIL_N: usize = 10;

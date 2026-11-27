@@ -612,7 +612,7 @@ from `Match.settings` (below); nothing in the draw code holds them.
 - **`duel_sim::cl::musl_powf` is public** (SRGB->LIN's `powf(x, 2.2f)`, %POW2), and `duel_sim::math::f_tan` is new (M4-PERSPECTIVE!'s tanf):
   duel-look calls no math crate directly.
 
-### The masks (rulings R3)
+### The masks (rulings R3; all gone since Task 7, §7)
 
 `--mask lights` leaves out `fu` 70..=135 (the light count, the per-pixel count, `*lp*`, `*lc*`: vfx.lisp's ADD-POINT-LIGHT, Task 6). The
 dq lanes are chosen by the mesh's registry path (tables.json `mesh_ids`, equal to the key's meshes.json), on both sides, then the rest is
@@ -714,7 +714,7 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
 
 ### Left to later tasks (`// task N` in the code)
 
-- **Task 7 (the fighters' draw):** DRAW-FIGHTER before its auras (body, weapon, hooks, VFX-CHARGE's call, the trails' pushes and
+- **Task 7 (the fighters' draw; done, §7):** DRAW-FIGHTER before its auras (body, weapon, hooks, VFX-CHARGE's call, the trails' pushes and
   VFX-SMEAR's call); KESSA's aura (ICHIGO-AURA-KESSA reads IC-JOINT: posed joints; a no-op marked at its call site, so quiet-2395 checks `fu,p,dq` only: ruling R13); the model looks
   feedback starts (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, FACE-BEAT); START-GHOST and DRAW-GHOST (the Hoho's, a flash step's,
   ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); the hazard looks that read posed joints (ICHIGO-CLONE-LOOK and
@@ -727,3 +727,114 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
 - **M3b:** WEBHUD-REFUSED! / WEBHUD-BREAK! (the HUD's cues), playing `Scene.sounds`.
 - **M4:** Yamamoto's / Hisagi's aura kinds (:hellfire, :garb), stamp kinds (17-22, 25-30), line cuts (:enjo / :kyoku / :south /
   :kyokko), smear looks 3-5, a :hit-fx other than KEN-BK-HIT-FX (Hisagi's), any :armored-fx (Yamamoto's): each sets `unported`.
+
+## 7. The fighters (Task 7)
+
+`rs/duel-look/src/draw/`:
+- `fighter.rs`: draw.lisp DRAW-FIGHTER and what it calls:
+  - the pose, the held pose, BEAT-POSE!, POSE-FK!, the kit's :pose hook;
+  - GRIP-STEP / GRIP-LEFT! / GRIP-TARGET-OK-P with %ROT-TO! / %ROT-COLS!;
+  - MOVE-BEATS, SMEAR-JOINTS!, START-GHOST / DRAW-GHOST, FACE-OF / FACE-ACCENT / VFX-FACE-ACCENT;
+  - body.lisp DRAW-BODY / DRAW-WEAPON / DRAW-SHADOW / DRAW-PLANTED-WEAPON and engine/lisp/body.lisp DRAW-PARTS;
+  - the weapon's VFX-CHARGE call, trail and VFX-SMEAR;
+  - the aura tail with DRAW-AURA / ONI-AURA-K (moved here from `fx/vfx.rs`), and the per-frame STOP-HUM;
+  - the feedback's model looks: HOLD-POSE, SMEAR, FACE-BEAT.
+- `ken.rs`: ken-look.lisp KEN-DRAW (the sword wind, %KE-STREAKS / -CRESCENT / -DUST-LINE, KEN-SPECIAL-LOOK's tornado and meteor).
+- `ichigo.rs`:
+  - ICHIGO-CLOAK-POSE with hem-spring.lisp %YA-HEM-POSE / -STEP;
+  - ICHIGO-DRAW: the edge and ground contact, the charged blades and %IC-BLACK-FLAME, the chain lash and rest, the red wisps;
+  - ICHIGO-AURA-BASE / -KESSA, VFX-IC-CHAIN, tip-track.lisp's %IC-FRAME / -HELD-TIP / -TRACK / -FAR;
+  - the hazards' posed-body looks: ICHIGO-CLONE-LOOK / -ECHO-LOOK (IC-GHOST, IC-MIST) and ICHIGO-FLARE-LOOK.
+- `camera.rs`: %PORTRAIT-CAMERA, and DECK-UPDATE's `*band*` / `*pcam*`[1] as a pure function of the viewport (`band`).
+
+**Result: bit-exact.** Every array but `ui` / `hb` / `hk` matches, with no mask. That is `fu,p,dq,fxa,fxb,ft` plus the cosmetic RNG's state on every keyed frame:
+- the 12 quiet scenes (121 keyed frames each);
+- `slowmo-2513` (240 frames);
+- the forms scenes: `forms-ken-p2` (13), `forms-ken-p1` (10), `forms-ichigo` (7);
+- `portrait-2501` (61).
+
+The largest |a − b| / max(1, |b|) is 0 in every array. `rs/duel-tools/tests/draw.rs` has `quiet_full_matches`, `slowmo_frames_match`, `forms_draw_matches`
+and `portrait_scene_matches`. The draw tool's `--mask` is gone; no mask remains anywhere. There are 0 heap allocations a frame.
+
+### Decisions and findings
+
+- **State where the Lisp keeps it.**
+  - Per spawn, in `Model` (the `Model` event resets them): the joints, flash, super, hold, smear and its direction, the ghost and its
+    age, face, face-t, beat, last-sf, face-was, LOOKS, and MAKE-BLADE's trail and smear.
+  - Per side, in `Scene.fl` (never reset at a spawn, as the Lisp's specials): `*ke-look*`, `*ic-look*`, `*ic-charged*`, the charge trails and
+    smears, the clone anims and joints.
+  - `*toon-body*`'s feet lane (`FighterLooks.toon_y`) is a global the next draw reads: DRAW-GHOST's ink pass and IC-GHOST read whatever
+    the last DRAW-BODY left there.
+- **`*grip-clips*` is extracted**, as tables.json `grip_clips`.
+  - It is a `defvar` that the art files fill with PUSHNEW, so it was in neither tuning.json nor tables.json.
+  - `tools/port/extract/extract.lisp` now has `("grip_clips" . *grip-clips*)`. The table is strings only, so the float checksum stays
+    `3ddcd77c9a34edf5`. Tables went from 28 to 29. Every other file re-extracted byte-identical, and the census passes.
+  - A clip is matched by identity (the resolved `&Clip`), as CLIP-NAME of the playing clip.
+- **Kit aura functions dispatch in DRAW-AURA.** VFX-AURA funcalls a kit's aura with `(x y z h ka dt)`, where KA is the capped presence
+  (`fx::vfx::aura_ka`). It does this once per crossfade half, so twice while an aura changes. ICHIGO-AURA-BASE / -KESSA now run inside
+  `draw_aura`'s dispatch, with the models and the drawn places. Task 6 had the base aura outside the crossfade, which was wrong during a
+  form change. ICHIGO-AT matches the *drawn* feet (SLOW-DRAW writes them into the Lisp's slots).
+- **Every place read at draw time is the drawn one** (`Sides`, from `Scene::drawn_pos` / `drawn_yaw`): DRAW-FIGHTER, KEN-DRAW's wind
+  and special looks, ICHIGO-DRAW's hit look, the chains, the charged blades' facing, ICHIGO-AT, and START-GHOST from the draw.
+  START-GHOST from the feedback reads the sim's place, as the step does.
+- **Move names are the data's lower case** (`ke-charge`, `ke-s-sp1`, `ic-soga`). Task 6's ICHIGO-AURA-BASE compared `"IC-SOGA"` and
+  never matched. It was fixed when it moved here (commit 2fcae884).
+- **The mirror P2** draws `Match.mirror_rim` and tables.json `mirror_tint` (quiet-2502 / 2503). The parry rim is PARRY-RIM's
+  `(rim-vec #xFFFFFF (* 0.45 i))` = 0.45 i, since `(expt 1.0 2.2)` = 1. The super rim, the clones' rims and the mist tint are RIM-VEC /
+  HEXC of the files' load-time constants (`fighter::rim_vec`, musl powf).
+- **`*weapon-m*`** is M4-EULER! of `(deg 90)` (90 × the f32 of pi / 180) and `(f32 pi)`: the dq records match bit for bit.
+- **The portrait camera's band** is DECK-UPDATE's arithmetic: UI-SCALE with ONEHAND-FRAME's `*ui-min-css*` 11 on a portrait
+  window, PORTRAIT-HUD-BOTTOM / PORTRAIT-P1-TOP (29 px × scale), and `*pt-center-lift*`. It reads `SceneInputs`, which gains `safe_top`
+  / `safe_bottom` (the page's safe-area insets: 0 on the recorder, INDEX `fixed_inputs.page`). The camera's FOV is written only on a
+  change over 0.002, and its shift only when it differs, as the Lisp's boxed slots.
+- **Not reachable in scope, ported as written:**
+  - RUSH-LIFT and BODY-LIFT: no in-scope move has `:lift`, and every in-scope kit's `:lift` is 0.
+  - A move's `:aura-k`: no move has one, and moves.json's params lack the key.
+  - DRAW-SCALE-OF and `*aura-off*`: `Scene.cine`, which Task 8 writes.
+  - A planted move: none has `:planted`.
+  - A Yamamoto / Hisagi fighter, any other kit's :pose / :draw / :planted / :body-alpha / :charge hook, and an opponent's
+    :victim-look: these give `look_unported`.
+- **Debug 2505 / 2508** are ported in `duel-sim/src/debug.rs` (LHUD-SCENE with the default picks, LHUD-P2-FORM). This is a duel-sim
+  change; the sim gates stay green.
+
+### SLOW-DRAW's clip-time half (Review Focus 2), proved by mutation
+
+With `slow::begin`'s clip-time / blend rewind removed, `slowmo-2513` fails at its first slowed frame:
+`frame 30 dq[141]: 0.916494 key 0.9166415` (record 4, a body part's translation). With the rewind it passes every frame 0-239. The
+position / yaw half stays Task 8's (§5).
+
+### Coverage
+
+- **Not float-compared by any keyed scene** (checked against every `.bin`'s drawn-mesh list):
+  - Kenpachi's Nomi body (`kenpachi-nomi`, 52 meshes): no kit uses it in scope.
+  - The Oni body's crack glows: 13 of `kenpachi-oni`'s 15 extras, among them the four crack glows with a `:rot`. The Bankai kits'
+    `:hide` lists `crack-1`…`crack-4`, so DRAW-PARTS skips them.
+  - The forms scenes draw 39 Oni meshes, but not those.
+  - Not re-keyed (the brief); M4 / a later key covers them.
+- **Not reached by any keyed scene** (both fighters idle): the grip (no stance clip is a grip clip), the beat, the smear, the ghost,
+  the face accent, the hooks' move looks.
+- **The cvc rows' `scene_draw_no_alloc`** runs the page's loop on 17 whole matches and reaches most of these. It found no panic and
+  0 allocations. It now fails on any `look_unported` but a cinematic's camera (Task 8) and the menus' camera after the match (M3b).
+  A temporary counter probe, since removed, counted the calls over the 17 rows:
+
+  | Path | Calls |
+  |---|---|
+  | GRIP-LEFT! | 12,786 |
+  | the face accent | 109,317 |
+  | DRAW-GHOST live | 2,313 |
+  | START-GHOST | 166 |
+  | SMEAR-JOINTS! | 7,765 |
+  | KEN-DRAW's wind | 32,107 |
+  | DAISHARIN's tornado | 2,596 |
+  | the charged blades | 9,563 |
+  | the black flame | 6,635 |
+  | ICHIGO-CLONE-LOOK | 25,077 |
+  | the red wisps | 186,222 |
+  | the hem spring | 120,266 |
+
+  These were never reached:
+  - INSEKI-GIRI's tail and impact;
+  - ICHIGO-DRAW's crescent edge: the CPUs never played a move `*ic-edge-moves*` lists;
+  - the echo and flare looks, the beat, a planted weapon, VFX-CHARGE.
+
+  Task 8's battle keys check the reached ones' floats.

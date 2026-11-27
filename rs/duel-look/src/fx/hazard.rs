@@ -2,7 +2,7 @@
 //! ground cut (vfx.lisp VFX-LINE-CUT :meteor / :crack, %CRACK), Kenpachi's look hazards (ken-art.lisp KEN-CHIGIRI-LOOK,
 //! KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE), Ichigo's (ichigo-look.lisp VFX-IC-CRESCENT, the Getsuga / JUJI waves, the form / KX / burst /
 //! zanzo / RENZAN looks). The clones' and echoes' posed bodies (ICHIGO-CLONE-LOOK, -ECHO-LOOK: IC-GHOST) and the parry's chains
-//! (ICHIGO-FLARE-LOOK: IC-JOINT) read posed joints: task 7; reaching one sets `Scene.unported`.
+//! (ICHIGO-FLARE-LOOK: IC-JOINT) are draw/ichigo.rs's (they draw bodies and read the fighters' posed joints).
 use super::shapes::*;
 use super::vfx::{n_of, t_blob};
 use super::{Ctx, P_T_SHARD};

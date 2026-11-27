@@ -78,6 +78,7 @@ fn fk_matches_key() {
         let f: FkFile = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap_or_else(|e| panic!("{name}: {e}"));
         let clip: &Clip = &d.clips[name];
         assert_eq!(f.clip, *name);
+        assert!(clip.poses.iter().all(|p| p.len() == POSE_N), "{name}: a key pose of {} floats, not +POSE-N+ {POSE_N}", clip.poses[0].len());
         assert_eq!((f.dur.to_bits(), f.looping.unwrap_or(false), f.fps), (clip.dur.to_bits(), clip.looping, 60), "{name}: dur / loop");
         assert_eq!(f.joint_names, joint_names, "{name}: joint order");
         assert_eq!(f.key_ease as i32, key_ease_game, "{name}: sampled under the game's *KEY-EASE*");

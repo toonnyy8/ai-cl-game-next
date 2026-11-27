@@ -613,7 +613,7 @@ pub fn vfx_ember(c: &mut Em, x: f32, y: f32, z: f32, dx: f32, dz: f32, scale: f3
     flash_light(c, x, y, z, 1.0, 0.5, 0.2);
 }
 
-/// port: vfx-ember.lisp VFX-CHARGE — charging at the blade (x y z), K 0..1 (DRAW-FIGHTER's hold: task 7 calls it).
+/// port: vfx-ember.lisp VFX-CHARGE — charging at the blade (x y z), K 0..1 (DRAW-FIGHTER's hold phase calls it).
 pub fn vfx_charge(c: &mut Ctx, x: f32, y: f32, z: f32, k: f32, dt: f32) {
     let dr = f_mod(12.0 * c.clock, 64.0);
     let kq = 0.16667 * ffloor(6.0 * f_clamp(k, 0.0, 1.0));
