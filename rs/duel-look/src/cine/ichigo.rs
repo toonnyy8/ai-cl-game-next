@@ -55,7 +55,7 @@ impl<'d> Scene<'d> {
 
     /// `(setf (model-hide (model e)) (hide-set TAGS))` for a set no kit lists (`Model.hide_x`).
     fn hide_set(&mut self, e: Entity, tags: &'static [&'static str]) {
-        if let Some(md) = self.md_mut(e) {
+        if let Some(md) = self.model_mut(e) {
             (md.hide, md.hide_x) = (&[], tags);
         }
     }

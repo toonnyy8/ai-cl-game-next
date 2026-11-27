@@ -540,8 +540,10 @@ pub struct Word<'d> {
     pub t0: f32,
 }
 
-/// `Scene.words`' bound: at most one centred word per lane and one per side live at once (ANNOUNCE removes the lane's last).
-pub const WORDS_MAX: usize = 16;
+/// `Scene.words`' bound. ANNOUNCE keeps at most one centred word per lane (2), but side words (GUARD, EVOLUTION, a side's NOMIHOSE!)
+/// pile up until they expire (at most 1 s each), one an event. ponytail: 64 live words at most, reserved once; past it a new word is
+/// dropped (the Lisp keeps them all) — raise the bound (still allocation-free) if a kit ever announces faster than 64 a second.
+pub const WORDS_MAX: usize = 64;
 
 impl<'d> Scene<'d> {
     /// port: hud.lisp ANNOUNCE — TEXT big in the middle (SMALL: smaller, the upper lane; SIDE 0 / 1: over that side's panel), SUB

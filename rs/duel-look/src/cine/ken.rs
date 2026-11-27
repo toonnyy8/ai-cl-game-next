@@ -285,7 +285,7 @@ impl<'d> Scene<'d> {
                 // (the base body without the Bankai kit's hide list; REFRESH-LOOK at 58 puts the oni and the list back)
                 let data: &'d duel_data::Data = self.data;
                 let body = data.bodies.get_key_value("kenpachi").map(|(k, _)| k.as_str()).expect("the kenpachi body");
-                if let Some(md) = self.md_mut(a) {
+                if let Some(md) = self.model_mut(a) {
                     (md.body, md.hide, md.hide_x) = (body, &[], &[]);
                 }
                 self.set_weapon(a, "nozarashi");

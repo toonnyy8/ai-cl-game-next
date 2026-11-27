@@ -20,6 +20,7 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
     }
     match c {
         2000..=2099 => start_cvc(m, s, c - 2000, None),
+        2209 => match_over_scene(m, s),
         2200..=2299 => force_cine(m, s, c - 2200),
         10000..=19999 => cine_at(m, s, (c - 10000) / 1000, c % 1000),
         35000..=35999 => cine_at(m, s, 9 + (c - 35000) / 1000, c % 1000),
@@ -155,6 +156,16 @@ fn cine_name(k: i64) -> Option<crate::cine::CineName> {
         9 => Some(CineName::Ken(KenCine::Bankai)),
         _ => None,
     }
+}
+
+/// port: debug.lisp's (2209 2209) range (narrower than FORCE-CINE's 2200-2299, so it wins): Ichigo vs Kenpachi 3 m apart, then
+/// MATCH-OVER with P1 the winner (the K.O. cinematic, played: `*cine-hold*` cleared).
+fn match_over_scene(m: &mut Match, s: &mut Search) {
+    m.cine_hold = false;
+    ensure_battle(m, s, Ichigo, Kenpachi, false);
+    place(m, 3.0);
+    let p1 = m.p1;
+    crate::flow::match_over(m, Some(p1));
 }
 
 /// port: debug.lisp FORCE-CINE (2200+k): cinematic K of `*cine-names*` now, held at its `:hold` frame.

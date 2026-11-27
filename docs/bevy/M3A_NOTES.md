@@ -916,7 +916,8 @@ pi deviation, BEVY_PORT §5.3; the tolerance holds it). Tests:
 - **Floats that go through the long-float pi** (as Task 7's IC-MIST): VFX-IC-CHAIN-BIND's arc `(* 0.9 (sin (* pi s)) (- 1.0 s))` and
   VFX-IC-C-CUT's band thickness `(expt (max 0.0 (sin (* pi u))) 0.6)`, and every C point built on it, are doubles rounded once by FX-LINE's
   F32; where the sine is 0 MAX keeps its single 0.0 and the point is single arithmetic (`duel_sim::math::pow_d` added). CL MOD of singles
-  is ECL's `(p − floor p) · y` (`duel_sim::cl::mod_f32`): the impact splash's seed, KEN-FOREST's petals, the caption splash's seed.
+  is ECL's single/single `p·n − q·n` (q = floorf p), which the native libecl's x87 code evaluates exactly before one rounding, so it
+  equals `(p − q) · y` in singles (`duel_sim::cl::mod_f32`; the fixnum-by-single branch's own form): the impact splash's seed, KEN-FOREST's petals, the caption splash's seed.
 - **The canvas** (`Scene::hud_canvas`, after AURA-CAP-UPDATE at HUD-DRAW's place): the UI flash (faded by CINE-DT: HUD-DT), the impact
   splash and the focus lines (a clash's on its world point now), the letterbox and brush title of a cinematic whose 2D layer is the canvas's
   (not the intro's, the K.O.'s or TIME's: WEBHUD-CINE-P), an ended title slicing out unless it was such a cinematic's (`Bcap.web`, the

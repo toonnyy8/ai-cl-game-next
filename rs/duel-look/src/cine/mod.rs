@@ -205,7 +205,7 @@ impl<'d> Scene<'d> {
 
     /// port: draw.lisp HOLD-POSE of E's model.
     pub(crate) fn hold(&mut self, e: Entity, frames: f32) {
-        if let Some(md) = self.md_mut(e) {
+        if let Some(md) = self.model_mut(e) {
             crate::draw::fighter::hold_pose(md, frames);
         }
     }
@@ -329,14 +329,14 @@ impl<'d> Scene<'d> {
 
     /// `(setf (model-flash (model e)) secs)`.
     pub(crate) fn flash(&mut self, e: Entity, secs: f32) {
-        if let Some(md) = self.md_mut(e) {
+        if let Some(md) = self.model_mut(e) {
             md.flash = secs;
         }
     }
 
     /// port: draw.lisp FACE-BEAT of E: the shout held SECS (HEAD-BACK: the head thrown back too).
     pub(crate) fn shout(&mut self, e: Entity, secs: f32, head_back: bool) {
-        if let Some(md) = self.md_mut(e) {
+        if let Some(md) = self.model_mut(e) {
             crate::draw::fighter::face_beat(md, crate::scene::Face::Shout, secs, head_back);
         }
     }
@@ -356,7 +356,7 @@ impl<'d> Scene<'d> {
         let kit = duel_sim::fighter::kit_of(m, e);
         let Some(body) = self.model(e).map(|md| md.body) else { return };
         if let Some(c) = self.resolve(body, kit, clip) {
-            self.md_mut(e).unwrap().anim.play(c, blend, speed, time, true);
+            self.model_mut(e).unwrap().anim.play(c, blend, speed, time, true);
         }
     }
 
@@ -365,16 +365,11 @@ impl<'d> Scene<'d> {
         &duel_sim::fighter::kit_of(m, e).stance
     }
 
-    /// The model of E (mutable).
-    pub(crate) fn md_mut(&mut self, e: Entity) -> Option<&mut crate::scene::Model<'d>> {
-        self.models.iter_mut().find(|md| md.e == e)
-    }
-
     /// `(setf (model-weapon (model e)) w)` (a weapon of the data).
     pub(crate) fn set_weapon(&mut self, e: Entity, w: &str) {
         let data: &'d duel_data::Data = self.data;
         let name = data.weapons.get_key_value(w).map(|(k, _)| k.as_str()).unwrap_or_else(|| panic!("no weapon {w}"));
-        if let Some(md) = self.md_mut(e) {
+        if let Some(md) = self.model_mut(e) {
             md.weapon = name;
         }
     }

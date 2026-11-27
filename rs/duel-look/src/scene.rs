@@ -219,7 +219,7 @@ impl<'d> Scene<'d> {
         self.models.iter().find(|m| m.e == e)
     }
 
-    fn model_mut(&mut self, e: Entity) -> Option<&mut Model<'d>> {
+    pub(crate) fn model_mut(&mut self, e: Entity) -> Option<&mut Model<'d>> {
         self.models.iter_mut().find(|m| m.e == e)
     }
 

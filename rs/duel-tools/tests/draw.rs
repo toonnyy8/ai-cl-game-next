@@ -10,11 +10,15 @@ fn oracle() -> String {
 /// The arrays every scene here compares (R11's `cosrng_draw_order`: `rng`; `ui`, the canvas words, since Task 8).
 const ARRAYS: &str = "fu,p,dq,fxa,fxb,ui,ft,rng";
 
-/// Runs `draw --check` on SCENE; asserts `draw OK` and 0 allocations a frame after frame 0.
+/// Runs `draw --check` on SCENE (bit for bit but one scene: below); asserts `draw OK` and 0 allocations a frame after frame 0.
 fn check(scene: &str) {
     let file = format!("{}/draw/{scene}.bin", oracle());
     assert!(std::path::Path::new(&file).exists(), "{file}: missing (set ORACLE)");
-    let o = Command::new(env!("CARGO_BIN_EXE_duel-tools")).args(["draw", "--check", &file, "--arrays", ARRAYS]).output().unwrap();
+    // bit for bit (`--exact`) but cine-ic-kessa-getsuga: its black C (VFX-IC-C-CUT) goes through the native image's 80-bit long-float
+    // `pi` (sinl / powl), computed here in doubles: within 2.05e-7 of the key (fxa, frame 110 on), held by the 1e-5 tolerance (BEVY_PORT
+    // §5.3; M3A_NOTES §8)
+    let exact = if scene == "cine-ic-kessa-getsuga" { None } else { Some("--exact") };
+    let o = Command::new(env!("CARGO_BIN_EXE_duel-tools")).args(["draw", "--check", &file, "--arrays", ARRAYS]).args(exact).output().unwrap();
     let out = String::from_utf8_lossy(&o.stdout);
     println!("{out}");
     assert!(o.status.success() && out.starts_with(&format!("draw OK {scene} ")), "{scene}: {out}{}", String::from_utf8_lossy(&o.stderr));

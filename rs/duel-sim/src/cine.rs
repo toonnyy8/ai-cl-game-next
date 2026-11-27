@@ -354,6 +354,17 @@ mod tests {
         assert_eq!((m.cine.is_none(), m.flow), (true, Flow::Battle)); // *skip-cines*: ended at once, AFTER ran
     }
 
+    /// Debug 2209 (debug.lisp's own range, narrower than FORCE-CINE's 2200-2299): a K.O., P1 the winner, KO-CINE played (not held),
+    /// not FORCE-CINE's k 9 (KEN-BANKAI-CINE).
+    #[test]
+    fn debug_2209_plays_the_ko() {
+        let mut m = crate::hashline::tests::new_match();
+        crate::flow::go_title(&mut m);
+        crate::debug::debug_command(&mut m, &mut crate::cpu::Search::new(), 2209);
+        let c = m.cine.as_ref().expect("a cinematic");
+        assert_eq!((c.name, c.hold, c.a, m.flow, m.unported), (CineName::Ko, None, m.p1, Flow::Finish, None));
+    }
+
     /// tests/cine-test.lisp's checks deferred from M1 (the debug hold and the actor hook), on the INTRO script: 76 (CINE-HOLD-FRAME is
     /// the script's `:hold`), 56 (with `*cine-hold*` it stops at that frame), 59 (released, it runs to its end), 47 (the actor hook: two
     /// actor steps a cinematic step, none while held). (43 / 44 DURING, 50 the shot's eye: duel-look `cine::tests`.)
