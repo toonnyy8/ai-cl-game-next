@@ -313,7 +313,7 @@ impl FxState<'_> {
     }
 }
 
-/// %MATTER-PAL-P: palettes 6 7 8 11 draw on threes.
+/// port: engine/lisp/fx.lisp %MATTER-PAL-P — palettes 6 7 8 11 draw on threes.
 fn matter_pal_p(p: f32) -> bool {
     p == 6.0 || p == 7.0 || p == 8.0 || p == 11.0
 }
@@ -412,7 +412,7 @@ pub fn draw_particles(c: &mut Ctx) {
     }
 }
 
-/// F-HYPOT of three singles: F-SQRT of the sum in order.
+/// port: engine/lisp/package.lisp F-HYPOT of three singles: F-SQRT of the sum in order.
 pub fn f_hypot3(a: f32, b: f32, c: f32) -> f32 {
     duel_sim::math::f_sqrt(a * a + b * b + c * c)
 }

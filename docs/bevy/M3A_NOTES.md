@@ -663,7 +663,8 @@ those lanes; there is nothing to mask in `dq` for them.
 - `screen.rs`: cinema.lisp IMPACT-FRAME (`*impact-presets*` from tuning.json), FOCUS-LINES, BACK-RIM, SCREEN-FX-UPDATE / -CLEAR, and
   fx.lisp SHAKE;
 - `hazard.rs`: hazards.lisp HAZARD-DRAW, vfx.lisp VFX-LINE-CUT :meteor / :crack and %CRACK, ken-art.lisp KEN-CHIGIRI-LOOK / -CUTS,
-  KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE(-AT).
+  KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE(-AT), ichigo-look.lisp VFX-IC-CRESCENT, IC-WAVE-K and the GETSUGA / JUJI / FORM / KX / BURST /
+  ZANZO / RENZAN looks; feedback.rs also has ken.lisp KEN-BK-HIT-FX (the Bankai kits' :hit-fx, two sounds).
 
 **Result: bit-exact.** The 12 quiet scenes (11 with `fu,p,dq,fxa,fxb,ft,rng`, quiet-2395 with `fu,p,dq`) and `slowmo-2513`
 (`fu,p,dq,fxa,fxb,ft,rng`), `--mask fighters` only: largest |a − b| / max(1, |b|) = 0 in every array; the cosmetic RNG's state equals the
@@ -683,9 +684,14 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
   `rng`; Task 7 keeps it and adds 2395.
 - **The unverified half.** Feedback, the stamps, VFX-EMBER / -CHARGE, the cracks / marks / chips, the hazards' looks, VFX-LINE-CUT and
   VFX-SMEAR get no key check before Task 8's battle scenes (their intro cinematic stops at the cinematic camera, Task 8). They are ported
-  from the source line by line, in the Lisp's evaluation order for every `rnd01` (each macro argument bound in turn). The one runnable
-  check: `replay.rs` `scene_sink_no_alloc` runs the real `Scene` as the sink on the 17 cvc gate rows (whole matches, 12,840-21,840
-  battle steps each, 1,000-1,600 sound requests): no panic, 0 allocations.
+  from the source line by line, in the Lisp's evaluation order for every `rnd01` (each macro argument bound in turn). Two runnable
+  checks on the 17 cvc gate rows (whole matches):
+  - `replay.rs` `scene_sink_no_alloc`: the real `Scene` as the sink (12,840-21,840 battle steps a row, 1,000-1,600 sound requests): no
+    panic, 0 allocations;
+  - `replay.rs` `scene_draw_no_alloc`: the page's loop (`frame_begin`, `flow::frame`, `draw_frame`, `flow::frame_end`), turbo off, so
+    STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw (13,059-22,077 battle frames a row, 2-3.5e8 fx
+    floats, none dropped): no panic, 0 allocations. It caught one: matching a look's name through `to_ascii_uppercase` allocated in
+    every frame with an Ichigo hazard (now `eq_ignore_ascii_case` against a fixed table).
 
 ### Decisions and findings
 
@@ -708,12 +714,13 @@ and `chips` masks are gone from every test (the tool keeps `--mask` for `fighter
 - **Task 7 (the fighters' draw):** DRAW-FIGHTER before its auras (body, weapon, hooks, VFX-CHARGE's call, the trails' pushes and
   VFX-SMEAR's call); KESSA's aura (ICHIGO-AURA-KESSA: posed joints; a no-op, so quiet-2395 checks `fu,p,dq` only); the model looks
   feedback starts (SMEAR, HOLD-POSE, MODEL-SUPER / -FLASH, FACE-BEAT); START-GHOST and DRAW-GHOST (the Hoho's, a flash step's,
-  ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); Ichigo's hazard look functions (ichigo-look.lisp: the Getsuga /
-  JUJI waves, the clones' and echoes' posed bodies, RENZAN, the form / KX / flare / burst / zanzo looks: reaching one sets `unported`);
-  DRAW-FIGHTER's per-frame STOP-HUM.
+  ICHIGO-AURA-BASE's afterimages: reaching one sets `Scene.unported`); the hazard looks that read posed joints (ICHIGO-CLONE-LOOK and
+  ICHIGO-ECHO-LOOK through IC-GHOST, ICHIGO-FLARE-LOOK through IC-JOINT: reaching one sets `unported`); DRAW-FIGHTER's per-frame
+  STOP-HUM.
 - **Task 8 (cinematics, canvas):** ANNOUNCE's words, FOCUS-LINES' centre on a world point (WORLD-TO-SCREEN: the centre stays -1),
   `*ui-flash*`'s drawing (stored in `FxState.ui_flash`), `*cine-grade*` coming back in SCREEN-FX-UPDATE, CINE-HELD-P in `frame_begin`,
+  CINE-END's SCREEN-FX-CLEAR (`fx::screen::screen_fx_clear`, its only caller; STAMPS-CLEAR has none outside debug),
   `*aura-off*`, DRAW-SCALE-OF, the cinematic step forms' FX (KE-Z-DUST etc.), `*card-only*`.
 - **M3b:** WEBHUD-REFUSED! / WEBHUD-BREAK! (the HUD's cues), playing `Scene.sounds`.
 - **M4:** Yamamoto's / Hisagi's aura kinds (:hellfire, :garb), stamp kinds (17-22, 25-30), line cuts (:enjo / :kyoku / :south /
-  :kyokko), smear looks 3-5, a kit's :hit-fx / :armored-fx: each sets `unported`.
+  :kyokko), smear looks 3-5, a :hit-fx other than KEN-BK-HIT-FX (Hisagi's), any :armored-fx (Yamamoto's): each sets `unported`.

@@ -134,7 +134,7 @@ fn slot(c: &Ctx, o: usize) -> S {
     }
 }
 
-/// port: HIT-AGE — on ones for the first 2 ticks, then on twos.
+/// port: duel/lisp/vfx-stamps.lisp HIT-AGE — on ones for the first 2 ticks, then on twos.
 fn hit_age(c: &Ctx, age: f32) -> f32 {
     if age < 0.0834 { sage(c.clock, age, 1.0) } else { sage(c.clock, age, 2.0) }
 }
@@ -161,25 +161,25 @@ fn envelope(age: f32, fl: f32, gr: f32, ho: f32, ou: f32, a: f32) -> (f32, f32, 
     }
 }
 
-/// port: %STAR — an irregular hit star at the stamp, reshuffled every drawing.
+/// port: duel/lisp/vfx-stamps.lisp %STAR — an irregular hit star at the stamp, reshuffled every drawing.
 #[allow(clippy::too_many_arguments)]
 fn star(c: &mut Ctx, s: &S, r0: f32, r1: f32, n: usize, sdx: f32, sdy: f32, wob: f32, seed: f32, pal: f32, k: f32, push: f32) {
     let rot = 6.2831855 * hash01(1.7, seed + s.drawing);
     fx_star(c, s.x, s.y, s.z, r0, r1, n, rot, sdx, sdy, wob, seed + s.drawing, pal, k, push);
 }
 
-/// port: %FLASH — drawing 1 of a hit: the white flash.
+/// port: duel/lisp/vfx-stamps.lisp %FLASH — drawing 1 of a hit: the white flash.
 fn flash(c: &mut Ctx, s: &S, r: f32) {
     fx_star(c, s.x, s.y, s.z, 0.8 * r, 1.15 * r, 12, 6.2831855 * hash01(0.3, s.seed), 0.0, 0.0, 0.1, s.seed, PAL_HIT, 0.98, 0.45);
 }
 
-/// port: %STREAK — a straight tapered toon streak.
+/// port: duel/lisp/vfx-stamps.lisp %STREAK — a straight tapered toon streak.
 fn streak(c: &mut Ctx, p0: [f32; 3], p1: [f32; 3], w: f32, pal: f32, k: f32, seed: f32) {
     let m = [0.5 * (p0[0] + p1[0]), 0.5 * (p0[1] + p1[1]), 0.5 * (p0[2] + p1[2])];
     fx_crescent(c, p0, p1, m, w, true, 0.05, seed, pal, k, 0.3);
 }
 
-/// port: %SHARDS-OUT — N shards out of P around the screen direction (SDX SDY) (+-SPREAD), SPEED m/s at AGE.
+/// port: duel/lisp/vfx-stamps.lisp %SHARDS-OUT — N shards out of P around the screen direction (SDX SDY) (+-SPREAD), SPEED m/s at AGE.
 #[allow(clippy::too_many_arguments)]
 fn shards_out(c: &mut Ctx, n: usize, p: [f32; 3], sdx: f32, sdy: f32, age: f32, speed: f32, len: f32, w: f32, pal: f32, k: f32, seed: f32, spread: f32, push: f32) {
     let base = f_atan2(sdy, sdx);
@@ -199,7 +199,7 @@ pub fn f_atan2(y: f32, x: f32) -> f32 {
     duel_sim::math::yaw_to(-y, -x)
 }
 
-/// port: %ST-HIT (:cut :heavy :fire :counter :reiatsu).
+/// port: duel/lisp/vfx-stamps.lisp %ST-HIT (:cut :heavy :fire :counter :reiatsu).
 fn st_hit(c: &mut Ctx, s: &S) -> bool {
     let heavy = s.kind == 2.0;
     let pal = match s.kind {
@@ -232,7 +232,7 @@ fn st_hit(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-GUARD.
+/// port: duel/lisp/vfx-stamps.lisp %ST-GUARD.
 fn st_guard(c: &mut Ctx, s: &S) -> bool {
     let a = hit_age(c, s.age);
     let (es, k, _, ph) = envelope(a, 0.0, 1.0, 4.0, 5.0, 0.0);
@@ -245,7 +245,7 @@ fn st_guard(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-GUARD-BREAK.
+/// port: duel/lisp/vfx-stamps.lisp %ST-GUARD-BREAK.
 fn st_guard_break(c: &mut Ctx, s: &S) -> bool {
     let a = hit_age(c, s.age);
     let (es, k, _, ph) = envelope(a, 1.0, 2.0, 3.0, 10.0, 0.0);
@@ -260,7 +260,7 @@ fn st_guard_break(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-GUARD-CRUSH.
+/// port: duel/lisp/vfx-stamps.lisp %ST-GUARD-CRUSH.
 fn st_guard_crush(c: &mut Ctx, s: &S) -> bool {
     let a = hit_age(c, s.age);
     let (es, k, _, ph) = envelope(a, 0.0, 1.0, 3.0, 10.0, 0.0);
@@ -275,7 +275,7 @@ fn st_guard_crush(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-CLASH.
+/// port: duel/lisp/vfx-stamps.lisp %ST-CLASH.
 fn st_clash(c: &mut Ctx, s: &S) -> bool {
     let a = hit_age(c, s.age);
     let (es, k, _, ph) = envelope(a, 1.0, 2.0, 4.0, 10.0, 0.0);
@@ -292,7 +292,7 @@ fn st_clash(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-HOHO (:hoho-out: streaks then dust puffs; :hoho-in: converging streaks then a small star).
+/// port: duel/lisp/vfx-stamps.lisp %ST-HOHO (:hoho-out: streaks then dust puffs; :hoho-in: converging streaks then a small star).
 fn st_hoho(c: &mut Ctx, s: &S) -> bool {
     let a = sage(c.clock, s.age, 2.0);
     let (hx, hz, gy, x, y, z) = (-s.dz, s.dx, f_max(0.0, s.y - 1.0), s.x, s.y, s.z);
@@ -335,7 +335,7 @@ fn st_hoho(c: &mut Ctx, s: &S) -> bool {
     }
 }
 
-/// port: %ST-BURST.
+/// port: duel/lisp/vfx-stamps.lisp %ST-BURST.
 fn st_burst(c: &mut Ctx, s: &S) -> bool {
     let (a, cy) = (sage(c.clock, s.age, 1.0), s.y + 1.1);
     let (_, k, _, ph) = envelope(a, 0.0, 3.0, 3.0, 16.0, 4.0);
@@ -363,7 +363,7 @@ fn st_burst(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-KONPAKU.
+/// port: duel/lisp/vfx-stamps.lisp %ST-KONPAKU.
 fn st_konpaku(c: &mut Ctx, s: &S) -> bool {
     let a = hit_age(c, s.age);
     let (es, k, _, ph) = envelope(a, 1.0, 2.0, 3.0, 10.0, 0.0);
@@ -376,7 +376,7 @@ fn st_konpaku(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-RING (:rush :land :ring; :garb is Yamamoto's: M4).
+/// port: duel/lisp/vfx-stamps.lisp %ST-RING (:rush :land :ring; :garb is Yamamoto's: M4).
 fn st_ring(c: &mut Ctx, s: &S) -> bool {
     let (rush, ring, a) = (s.kind == 12.0, s.kind == 23.0, sage(c.clock, s.age, 2.0));
     let pal = if rush {
@@ -410,7 +410,7 @@ fn st_ember(c: &mut Ctx, s: &S) -> bool {
     ph == 5
 }
 
-/// port: %ST-GASH — a rift's ink gash (X Y Z its near end, D along it, SC its length; TATE-GOTO's stands it up).
+/// port: duel/lisp/vfx-stamps.lisp %ST-GASH — a rift's ink gash (X Y Z its near end, D along it, SC its length; TATE-GOTO's stands it up).
 fn st_gash(c: &mut Ctx, s: &S) -> bool {
     let a = sage(c.clock, s.age, 2.0);
     let p0 = [s.x, s.y, s.z];
@@ -514,18 +514,18 @@ pub fn vfx_hit(c: &mut Em, x: f32, y: f32, z: f32, kind: &str, dx: f32, dz: f32)
     flash_light(c, x, y, z, 1.0, 1.0, 1.0);
 }
 
-/// port: VFX-HOHO — vanish (APPEAR false) or appear at the body's centre; (dx dz) the facing.
+/// port: duel/lisp/vfx-stamps.lisp VFX-HOHO — vanish (APPEAR false) or appear at the body's centre; (dx dz) the facing.
 pub fn vfx_hoho(c: &mut Em, x: f32, y: f32, z: f32, appear: bool, dx: f32, dz: f32) {
     stamp(c, if appear { Kind::HohoIn } else { Kind::HohoOut }, x, y, z, dx, 0.0, dz, 1.0, 0.0);
 }
 
-/// port: VFX-BURST.
+/// port: duel/lisp/vfx-stamps.lisp VFX-BURST.
 pub fn vfx_burst(c: &mut Em, x: f32, y: f32, z: f32) {
     stamp(c, Kind::Burst, x, y, z, 0.0, 0.0, -1.0, 1.0, 0.0);
     flash_light(c, x, y + 1.0, z, 0.85, 0.9, 1.0);
 }
 
-/// port: VFX-KONPAKU-SHATTER — N soul-glass Konpaku lost at (x y z): 3N SOUL shards, a SOUL star, a ring.
+/// port: duel/lisp/vfx-stamps.lisp VFX-KONPAKU-SHATTER — N soul-glass Konpaku lost at (x y z): 3N SOUL shards, a SOUL star, a ring.
 pub fn vfx_konpaku_shatter(c: &mut Em, x: f32, y: f32, z: f32, n: usize) {
     stamp(c, Kind::Konpaku, x, y, z, 0.0, 0.0, -1.0, 1.0, 0.0);
     for _ in 0..3 * n {
@@ -541,7 +541,7 @@ pub fn vfx_konpaku_shatter(c: &mut Em, x: f32, y: f32, z: f32, n: usize) {
     flash_light(c, x, y, z, 0.8, 0.9, 1.0);
 }
 
-/// port: VFX-KIKON-RUSH — a BLOOD ground ring and 5 DUST puffs at feet (x z).
+/// port: duel/lisp/vfx-stamps.lisp VFX-KIKON-RUSH — a BLOOD ground ring and 5 DUST puffs at feet (x z).
 pub fn vfx_kikon_rush(c: &mut Em, x: f32, z: f32) {
     stamp(c, Kind::Rush, x, 0.0, z, 0.0, 0.0, -1.0, 1.0, 0.0);
     for _ in 0..5 {
@@ -553,7 +553,7 @@ pub fn vfx_kikon_rush(c: &mut Em, x: f32, z: f32) {
     }
 }
 
-/// port: VFX-RUSH-DASH — a rush module takes off at (x z) along (dx dz), by LOOK.
+/// port: duel/lisp/vfx-stamps.lisp VFX-RUSH-DASH — a rush module takes off at (x z) along (dx dz), by LOOK.
 pub fn vfx_rush_dash(c: &mut Em, x: f32, z: f32, dx: f32, dz: f32, look: Option<&str>) {
     match look {
         Some("flash-step") => stamp(c, Kind::HohoOut, x, 1.0, z, dx, 0.0, dz, 1.0, 0.0),
@@ -565,7 +565,7 @@ pub fn vfx_rush_dash(c: &mut Em, x: f32, z: f32, dx: f32, dz: f32, look: Option<
     }
 }
 
-/// port: VFX-SMOKE-PUFFS — N BLACK SMOKE puffs rising at (x y z).
+/// port: duel/lisp/vfx-stamps.lisp VFX-SMOKE-PUFFS — N BLACK SMOKE puffs rising at (x y z).
 pub fn vfx_smoke_puffs(c: &mut Em, x: f32, y: f32, z: f32, n: usize) {
     for _ in 0..n {
         let px = x + c.rr(-0.15, 0.15);
@@ -579,7 +579,7 @@ pub fn vfx_smoke_puffs(c: &mut Em, x: f32, y: f32, z: f32, n: usize) {
     }
 }
 
-/// port: VFX-STEP-DUST — 3 DUST puffs kicked back at feet (x z) moving along (dx dz).
+/// port: duel/lisp/vfx-stamps.lisp VFX-STEP-DUST — 3 DUST puffs kicked back at feet (x z) moving along (dx dz).
 pub fn vfx_step_dust(c: &mut Em, x: f32, z: f32, dx: f32, dz: f32) {
     for _ in 0..3 {
         let px = x + c.rr(-0.2, 0.2);
@@ -593,7 +593,7 @@ pub fn vfx_step_dust(c: &mut Em, x: f32, z: f32, dx: f32, dz: f32) {
     }
 }
 
-/// port: VFX-SHOCKWAVE — a toon ground ring at (x z) to radius R in PAL (DUST: the :land stamp and 4 puffs).
+/// port: duel/lisp/vfx-stamps.lisp VFX-SHOCKWAVE — a toon ground ring at (x z) to radius R in PAL (DUST: the :land stamp and 4 puffs).
 pub fn vfx_shockwave(c: &mut Em, x: f32, z: f32, r: f32, pal: f32) {
     if pal == PAL_DUST {
         stamp(c, Kind::Land, x, 0.0, z, 0.0, 0.0, -1.0, r / 2.5, 0.0);

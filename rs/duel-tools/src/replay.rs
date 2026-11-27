@@ -1199,6 +1199,63 @@ mod tests {
         }
     }
 
+    /// The draw side on battle data: the page's loop (`frame_begin`, `flow::frame`, `draw_frame`, `frame_end`) with the real `Scene` on
+    /// the 17 cvc gate rows, so STAMPS-DRAW, HAZARD-DRAW, the line cuts, chips, rings and every particle kind draw on whole matches: no
+    /// panic, 0 allocations in a battle frame. Turbo is off after the commands (drawn frames, one step each). (`Scene.unported` is set
+    /// at the first cinematic's camera, Task 8; drawing goes on.)
+    #[test]
+    fn scene_draw_no_alloc() {
+        use duel_sim::look::LookSink;
+        let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let inputs = duel_look::SceneInputs { width: 640, height: 360, density: 1.0, msaa: 1, render_scale: 1.0, pixel_lights: 8, coarse: false, scene_scale_cap: 1.0 };
+        let mut out = duel_look::FrameOut::default();
+        for name in CVC_GATE {
+            let Some(path) = oracle_trace(name) else { panic!("no answer key (set ORACLE)") };
+            let s_line = std::io::BufRead::lines(std::io::BufReader::new(std::fs::File::open(&path).unwrap()))
+                .map(Result::unwrap)
+                .find_map(|l| l.strip_prefix("S cmds ").map(String::from))
+                .unwrap();
+            let mut m = Match::new(data);
+            flow::go_title(&mut m);
+            let (s, sc) = (&mut Search::new(), &mut duel_look::Scene::new(data, inputs));
+            sc.frame(&mut m);
+            m.cmds.extend(s_line.split(' ').map(|c| c.parse::<i64>().unwrap()));
+            let mut frame = |m: &mut Match, s: &mut Search, sc: &mut duel_look::Scene, out: &mut duel_look::FrameOut| {
+                let rdt = flow::raw_dt(m.frame_n + 1);
+                duel_look::frame_begin(sc, m, rdt);
+                flow::frame(m, s, &mut flow::NoInput, sc, rdt);
+                let d0 = crate::alloc_count::count();
+                duel_look::draw_frame(sc, m, rdt, out);
+                let d = crate::alloc_count::count() - d0;
+                flow::frame_end(m, s);
+                sc.sounds.clear();
+                d
+            };
+            frame(&mut m, s, sc, &mut out);
+            (m.log_on, m.turbo) = (false, false); // (drawn: one step a frame, as the page)
+            let (mut allocs, mut frames, mut fx, mut dallocs) = (0, 0, 0, 0);
+            for _ in 0..200_000 {
+                let (a0, before) = (crate::alloc_count::count(), flow::battle_p(&m));
+                let d = frame(&mut m, s, sc, &mut out);
+                if before && flow::battle_p(&m) && d > 0 && dallocs == 0 {
+                    eprintln!("  first draw_frame allocation: frame {} tick {} cine {:?} hazards {}", m.frame_n, m.match_tick, m.cine.is_some(), m.hazard.len());
+                }
+                dallocs += d;
+                fx += out.fxa.len() + out.fxb.len() + out.ft.len();
+                if before && flow::battle_p(&m) {
+                    (allocs, frames) = (allocs + crate::alloc_count::count() - a0, frames + 1);
+                }
+                if m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(&m) {
+                    break;
+                }
+            }
+            assert_eq!(m.unported, None);
+            eprintln!("scene_draw_no_alloc {name}: {allocs} allocations in {frames} battle frames ({dallocs} in draw_frame); {fx} fx floats; dropped {}; look unported: {:?}", out.fx_dropped, sc.unported);
+            assert!(frames > 10_000 && fx > 0, "{name} {frames} {fx}");
+            assert_eq!(allocs, 0, "{name}: allocations in {frames} battle frames");
+        }
+    }
+
     /// `E core-start`, `E cmd`, `E skip-cine` (a recorded trial, rs/duel-tools/tests/fixtures/core-start-cmd.*): P2 starts KE-Z-AS1
     /// through CORE-START! (its move and SP log lines, then its hit, compared step by step), a debug command between frames; the
     /// skip-cine line was added by hand (no cinematic runs there: ECL's replay.lisp passes the same file). Without the core-start

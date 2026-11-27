@@ -131,8 +131,18 @@ impl<'d> Scene<'d> {
             }
             Event::Hit { att, def, x, y, z, hs: _, counter, dmg, kind } => {
                 self.show_hit(m, att, def, x, y, z, counter, dmg, kind);
-                if kit_of(m, att).hooks.contains_key("hit-fx") {
-                    self.unported.get_or_insert("a kit's :hit-fx (Hisagi's chain tip: M4)");
+                match kit_of(m, att).hooks.get("hit-fx").map(|h| h.as_str()) {
+                    Some("KEN-BK-HIT-FX") => {
+                        // port: ken.lisp KEN-BK-HIT-FX (the Bankai kits' :hit-fx: a sound)
+                        self.sfx_at("rift-cut", x, y, z, 0.55, 1.0);
+                        if dmg >= 80 || kind != "quick" {
+                            self.sfx_at("awaken-boom", x, y, z, 0.4, 1.0);
+                        }
+                    }
+                    Some(_) => {
+                        self.unported.get_or_insert("a kit's :hit-fx (Hisagi's chain tip: M4)");
+                    }
+                    None => {}
                 }
             }
             Event::Blocked { att, def, x, y, z } => {

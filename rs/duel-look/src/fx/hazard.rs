@@ -1,8 +1,8 @@
 //! port: duel/lisp/hazards.lisp HAZARD-DRAW — every hazard's look this frame, at its drawn place (SLOW-DRAW's overlay): a :line's
 //! ground cut (vfx.lisp VFX-LINE-CUT :meteor / :crack, %CRACK), Kenpachi's look hazards (ken-art.lisp KEN-CHIGIRI-LOOK,
-//! KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE). Ichigo's look functions (ichigo-look.lisp: the Getsuga waves, the clones' and echoes' posed
-//! bodies, RENZAN, the form / KX / flare looks) are reported as not ported (`Scene.unported`): task 7 draws posed bodies, and their
-//! toon shapes come with it.
+//! KEN-TATEGOTO-LOOK, KEN-TATEGOTO-WAVE), Ichigo's (ichigo-look.lisp VFX-IC-CRESCENT, the Getsuga / JUJI waves, the form / KX / burst /
+//! zanzo / RENZAN looks). The clones' and echoes' posed bodies (ICHIGO-CLONE-LOOK, -ECHO-LOOK: IC-GHOST) and the parry's chains
+//! (ICHIGO-FLARE-LOOK: IC-JOINT) read posed joints: task 7; reaching one sets `Scene.unported`.
 use super::shapes::*;
 use super::vfx::{n_of, t_blob};
 use super::{Ctx, P_T_SHARD};
@@ -50,8 +50,47 @@ pub fn hazard_draw(c: &mut Ctx, m: &Match, kn: &KenKnobs, at: impl Fn(duel_sim::
             Some(l) if kw.is_none() && l.eq_ignore_ascii_case("KEN-CHIGIRI-LOOK") => chigiri_look(c, kn, &hz),
             Some(l) if kw.is_none() && l.eq_ignore_ascii_case("KEN-TATEGOTO-LOOK") => tategoto_look(c, kn, &hz),
             Some(l) if kw.is_none() && l.eq_ignore_ascii_case("KEN-TATEGOTO-WAVE") => tategoto_wave_at(c, hz.x, hz.z, hz.yaw, hz.age, kn.tategoto_wave_len),
-            Some(_) if kw.is_none() => {
-                un = un.or(Some("a hazard's look function (ichigo-look.lisp's waves, clones, echoes, RENZAN, form / KX / flare looks: task 7)"));
+            Some(l) if kw.is_none() => {
+                let pos = |e: duel_sim::ecs::Entity| at(e).map_or_else(|| duel_sim::fighter::pos_of(m, e), |a| [a[0], a[1], a[2]]);
+                let owner = (m.ents.alive(hz.owner) && m.fighter.get(hz.owner).is_some()).then_some(hz.owner);
+                let kessa = owner.is_some_and(|o| duel_sim::fighter::kit_of(m, o).form == "kessa");
+                // (the name's case as the data spells it, compared without allocating)
+                const LOOKS: [&str; 7] = ["ICHIGO-GETSUGA-LOOK", "ICHIGO-JUJI-LOOK", "ICHIGO-FORM-LOOK", "ICHIGO-KX-LOOK", "ICHIGO-BURST-LOOK", "ICHIGO-ZANZO-LOOK", "ICHIGO-RENZAN-LOOK"];
+                match LOOKS.iter().copied().find(|n| n.eq_ignore_ascii_case(l)).unwrap_or("") {
+                    "ICHIGO-GETSUGA-LOOK" => {
+                        if hz.delay <= 0 {
+                            vfx_ic_crescent(c, hz.x, 1.2, hz.z, hz.yaw, 2.0 * hz.size, ic_wave_k(&hz), 0.9, 3);
+                        }
+                    }
+                    "ICHIGO-JUJI-LOOK" => {
+                        if hz.delay <= 0 {
+                            let (k, w) = (ic_wave_k(&hz), 2.0 * hz.size);
+                            if kessa {
+                                vfx_ic_crescent(c, hz.x, 1.4, hz.z, hz.yaw, 0.9 * w, k, 1.0, 4);
+                            } else {
+                                vfx_ic_crescent(c, hz.x, 1.1, hz.z, hz.yaw, w, k, 0.8, 3);
+                                vfx_ic_crescent(c, hz.x, 1.1, hz.z, hz.yaw, w, k, -0.8, 3);
+                            }
+                        }
+                    }
+                    "ICHIGO-FORM-LOOK" => {
+                        let w = hz.size * duel_sim::cl::min_f32(1.0, hz.age as f32 / 4.0);
+                        vfx_ic_crescent(c, hz.x, 1.2, hz.z, hz.yaw, w, 0.9, 0.8, if kessa { 4 } else { 3 });
+                    }
+                    "ICHIGO-KX-LOOK" => {
+                        let (k, w) = (duel_sim::cl::max_f32(0.02, 0.95 - 0.05 * hz.age as f32), 2.0 * hz.size);
+                        vfx_ic_crescent(c, hz.x, 1.3, hz.z, hz.yaw, w, k, 0.9, 4);
+                        vfx_ic_crescent(c, hz.x, 1.3, hz.z, hz.yaw, w, k, -0.9, 4);
+                    }
+                    "ICHIGO-BURST-LOOK" => burst_look(c, &hz),
+                    "ICHIGO-ZANZO-LOOK" => {
+                        if let Some(o) = owner {
+                            zanzo_look(c, &hz, pos(o), rdt);
+                        }
+                    }
+                    "ICHIGO-RENZAN-LOOK" => renzan_look(c, &hz, owner.map(pos)),
+                    _ => un = un.or(Some("a hazard's posed-body look (ichigo-look.lisp ICHIGO-CLONE-LOOK / -ECHO-LOOK / -FLARE-LOOK: task 7)")),
+                }
             }
             _ => {
                 if hz.delay <= 0 && hz.kind == Some(HazardKind::Line) {
@@ -251,4 +290,91 @@ pub fn tategoto_wave_at(c: &mut Ctx, x0: f32, z0: f32, yaw: f32, age: i64, len: 
         fx_crescent(c, p0, p1, bc, w, false, 0.06, sd, PAL_BLOOD, 0.95, 0.3);
         fx_crescent(c, p0, p1, bc, 0.4 * w, false, 0.04, sd + 10.0, PAL_HIT, 0.98, 0.34);
     }
+}
+
+/// port: ichigo-look.lisp VFX-IC-CRESCENT — a Getsuga crescent at (x y z) flying along YAW, W tip to tip, tips TILT; CORE 0 white rim,
+/// 1 BLOOD rim, 2 BLOOD core (the Gran Rey Cero), 3 the Shikai's yellow-white, 4 KESSA's pitch black; presence K.
+#[allow(clippy::too_many_arguments)]
+pub fn vfx_ic_crescent(c: &mut Ctx, x: f32, y: f32, z: f32, yaw: f32, w: f32, k: f32, tilt: f32, core: i32) {
+    let (fx, fz) = (-f_sin(yaw), -f_cos(yaw));
+    let (px, pz, hw, dr) = (-fz, fx, 0.5 * w, drawing_no(c.clock, 12.0));
+    let dy = 0.3 * w * tilt;
+    let (x0, z0, x1, z1) = (x - hw * px, z - hw * pz, x + hw * px, z + hw * pz);
+    let (bx, bz, rw, ahead) = (x + 0.5 * w * fx, z + 0.5 * w * fz, 0.035 * w, 0.04 * w);
+    let (p0, p1) = ([x0, y - dy, z0], [x1, y + dy, z1]);
+    if core == 4 {
+        fx_crescent(c, p0, p1, [bx + ahead * fx, y, bz + ahead * fz], 0.24 * w, false, 0.1, 330.0 + dr, PAL_SMOKE, 0.55 * k, 0.06);
+        fx_crescent(c, p0, p1, [bx + 2.5 * ahead * fx, y, bz + 2.5 * ahead * fz], 0.2 * w, false, 0.18, 340.0 + dr, PAL_BLACK_SMOKE, 0.8 * k, 0.08);
+    }
+    fx_crescent(c, p0, p1, [bx, y, bz], 0.15 * w, false, 0.06, 300.0 + dr, if core == 3 { PAL_REIATSU } else { PAL_INK }, k, 0.1);
+    let pal = match core {
+        1 => PAL_BLOOD,
+        4 => PAL_BLACK_SMOKE,
+        _ => PAL_HIT,
+    };
+    let (r0, r1) = ([x0 + ahead * fx, y - dy, z0 + ahead * fz], [x1 + ahead * fx, y + dy, z1 + ahead * fz]);
+    fx_crescent(c, r0, r1, [bx + 1.5 * ahead * fx, y, bz + 1.5 * ahead * fz], rw, false, 0.04, 310.0 + dr, pal, k, 0.16);
+    if core == 2 {
+        fx_crescent(c, p0, p1, [bx + ahead * fx, y, bz + ahead * fz], 0.06 * w, false, 0.05, 320.0 + dr, PAL_BLOOD, k, 0.13);
+    }
+}
+
+/// port: ichigo-look.lisp IC-WAVE-K — a flying crescent's presence (eroding over its last 8 f).
+fn ic_wave_k(hz: &Hazard) -> f32 {
+    duel_sim::cl::min_f32(0.95, (hz.life - hz.age).max(0) as f32 / 8.0)
+}
+
+/// port: ichigo-look.lisp ICHIGO-BURST-LOOK — a clone bursting or puffing out.
+fn burst_look(c: &mut Ctx, hz: &Hazard) {
+    let (x, z, s, age) = (hz.x, hz.z, hz.size, hz.age);
+    let k = duel_sim::cl::max_f32(0.02, 1.0 - age as f32 / 16.0);
+    fx_disc(c, x, 1.0, z, s * (0.5 + 0.08 * age as f32), 0.2, 700.0 + x, PAL_INK, k, -1.0);
+    fx_disc(c, x, 1.0, z, s * 0.35, 0.1, 710.0, PAL_HIT, 0.8 * k, 0.3);
+    if age < 3 {
+        for i in 0..10 {
+            let a = 0.628 * i as f32;
+            let vy = c.rr(0.5, 3.0);
+            let sz = c.rr(0.03, 0.07);
+            let pal = if i % 2 == 0 { PAL_INK } else { PAL_BLOOD };
+            c.fx.emit_a(P_T_SHARD, x, 1.0, z, 5.0 * s * f_cos(a), vy, 5.0 * s * f_sin(a), 0.35, sz, 4.0, 0.05, 0.0, 0.0, pal);
+        }
+    }
+}
+
+/// port: ichigo-look.lisp ICHIGO-ZANZO-LOOK — a pale ring round the owner's feet P, a white wisp now and then.
+fn zanzo_look(c: &mut Ctx, hz: &Hazard, p: [f32; 3], rdt: f32) {
+    let (x, z) = (p[0], p[2]);
+    let k = 0.6 * duel_sim::cl::min_f32(1.0, (hz.life - hz.age) as f32 / 30.0);
+    tring(c, x, 0.0, z, 0.7, 0.03, PAL_HIT, k, 5.0, 24);
+    if c.rnd() < 6.0 * rdt {
+        let px = x + c.rr(-0.3, 0.3);
+        let py = c.rr(0.4, 1.6);
+        let pz = z + c.rr(-0.3, 0.3);
+        let s = c.rr(0.04, 0.07);
+        t_blob(&mut c.em(), px, py, pz, 0.0, 0.4, 0.0, 0.5, s, -0.1, 0.05, PAL_HIT);
+    }
+}
+
+/// port: ichigo-look.lisp ICHIGO-RENZAN-LOOK — KAGE-RENZAN's cut N bursting on the body: a black-red slash, a white core, a light;
+/// the slash faces the owner at P.
+fn renzan_look(c: &mut Ctx, hz: &Hazard, owner: Option<[f32; 3]>) {
+    let n = match hz.data {
+        duel_sim::components::HzData::Int(n) => n,
+        _ => 0,
+    };
+    let age = hz.age;
+    let k = duel_sim::cl::max_f32(0.0, 1.0 - age as f32 / 9.0);
+    let th = [0.7f32, -0.8, 1.5][(n.clamp(1, 3) - 1) as usize];
+    let (x, z, cs, sn, y) = (hz.x, hz.z, f_cos(th), f_sin(th), 1.1f32);
+    let (mut rx, mut rz) = (1.0f32, 0.0f32);
+    if let Some(p) = owner {
+        let (dx, dz) = (p[0] - x, p[2] - z);
+        let l = duel_sim::cl::max_f32(0.01, duel_sim::math::hypot(dx, dz));
+        (rx, rz) = (-dz / l, dx / l);
+    }
+    let a = [x + rx * 1.5 * cs, y + 1.5 * sn, z + rz * 1.5 * cs];
+    let b = [x - rx * 1.5 * cs, y - 1.5 * sn, z - rz * 1.5 * cs];
+    fx_line(c, a, b, 0.34 * k, 0.55, 0.04, 0.05, 0.9 * k, super::Mode::Alpha, 0.0, 0.9 * k);
+    fx_line(c, a, b, 0.1 * k, 1.0, 0.92, 0.85, k, super::Mode::Add, 0.0, k);
+    c.light(x, y, z, 1.0, 0.3, 0.2, 4.0, 1.8 * k, 6);
 }

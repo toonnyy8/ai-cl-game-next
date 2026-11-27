@@ -173,6 +173,8 @@ struct Cmp {
     first: Option<String>,
     worst: BTreeMap<&'static str, f64>,
     floats: u64,
+    /// Floats compared per array.
+    count: BTreeMap<&'static str, u64>,
 }
 
 impl Cmp {
@@ -189,6 +191,7 @@ impl Cmp {
             }
             let (ok, e) = close(*a, *b);
             self.floats += 1;
+            *self.count.entry(arr).or_insert(0) += 1;
             let w = self.worst.entry(arr).or_insert(0.0);
             *w = w.max(e);
             if !ok {
@@ -244,7 +247,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
     let mut s = Search::new();
     let mut sc = Scene::new(data, inputs);
     let mut out = FrameOut::default();
-    let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0 };
+    let mut cmp = Cmp { first: None, worst: BTreeMap::new(), floats: 0, count: BTreeMap::new() };
     let (mut allocs, mut counted, mut compared, mut ki, mut draw_allocs) = (0u64, 0u64, 0u32, 0usize, 0u64);
     let (mut got_dq, mut want_dq): (Vec<f32>, Vec<f32>) = (Vec::new(), Vec::new());
     for f in 0..=last {
@@ -312,7 +315,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
             break;
         }
     }
-    let worst: Vec<String> = cmp.worst.iter().map(|(a, e)| format!("{a} {e:.2e}")).collect();
+    let worst: Vec<String> = cmp.worst.iter().map(|(a, e)| format!("{a} {e:.2e} ({} floats)", cmp.count[a])).collect();
     let per = if counted > 0 { allocs as f64 / counted as f64 } else { 0.0 };
     let tail = format!("largest error: {}; {} floats; allocs {allocs} in {counted} frames after frame 0 ({per:.2} per frame; commandless frames), draw_frame allocs {draw_allocs} in {last} frames from frame 1", worst.join(", "), cmp.floats);
     let masks = if o.mask.is_empty() { String::new() } else { format!(" (masked: {})", o.mask.join(",")) };

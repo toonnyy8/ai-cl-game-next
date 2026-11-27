@@ -22,40 +22,40 @@ pub const PAL_BLUE: f32 = 12.0;
 pub const PAL_FLAME: f32 = 15.0;
 pub const TOON_FLAME: f32 = 128.0;
 
-/// F-CLAMP: `(f-min (f-max x lo) hi)`.
+/// port: engine/lisp/package.lisp F-CLAMP: `(f-min (f-max x lo) hi)`.
 pub fn f_clamp(x: f32, lo: f32, hi: f32) -> f32 {
     f_min(f_max(x, lo), hi)
 }
-/// I->F of F->I: `(float)(int)floorf(x)`.
+/// port: engine/lisp/package.lisp (I->F (F->I x)): `(float)(int)floorf(x)`.
 pub fn ffloor(x: f32) -> f32 {
     duel_sim::cl::floor_f32(x) as i32 as f32
 }
-/// port: TOON-A — palette P + presence K clamped to 0.01..0.98.
+/// port: engine/lisp/fx-shapes.lisp TOON-A — palette P + presence K clamped to 0.01..0.98.
 pub fn toon_a(p: f32, k: f32) -> f32 {
     p + f_clamp(k, 0.01, 0.98)
 }
-/// TOON-A with FAN (the fan-shape flag 16).
+/// port: engine/lisp/fx-shapes.lisp TOON-A with FAN T (the fan-shape flag 16).
 pub fn toon_a_fan(p: f32, k: f32) -> f32 {
     (16.0 + p) + f_clamp(k, 0.01, 0.98)
 }
-/// port: %H01 — v - floor(v) of the sine hash.
+/// port: engine/lisp/fx-shapes.lisp %H01 — v - floor(v) of the sine hash.
 pub fn h01(i: f32, seed: f32) -> f32 {
     let v = 43758.547 * f_sin(i * 12.9898 + seed * 78.233);
     v - ffloor(v)
 }
-/// port: HASH01 — |v| mod 1 of the sine hash.
+/// port: engine/lisp/fx-shapes.lisp HASH01 — |v| mod 1 of the sine hash.
 pub fn hash01(i: f32, seed: f32) -> f32 {
     f_mod(f_abs(43758.547 * f_sin(i * 12.9898 + seed * 78.233)), 1.0)
 }
-/// port: DRAWING-NO — the fx clock's drawing number (0..63) at PER-SECOND drawings.
+/// port: engine/lisp/fx-shapes.lisp DRAWING-NO — the fx clock's drawing number (0..63) at PER-SECOND drawings.
 pub fn drawing_no(clock: f32, per_second: f32) -> f32 {
     ((duel_sim::cl::floor_f32(per_second * clock) as i32) & 63) as f32
 }
-/// port: FLOW-PH (12 radians a second, wrapped to 20 pi).
+/// port: engine/lisp/fx-shapes.lisp FLOW-PH (12 radians a second, wrapped to 20 pi).
 pub fn flow_ph(clock: f32) -> f32 {
     f_mod(12.0 * clock, 62.831852)
 }
-/// port: FLOW01 at its default 6 keys a second.
+/// port: engine/lisp/fx-shapes.lisp FLOW01 at its default 6 keys a second.
 pub fn flow01(clock: f32, i: f32, seed: f32) -> f32 {
     let tt = f_mod(6.0 * clock, 64.0);
     let n = ffloor(tt);
@@ -64,11 +64,11 @@ pub fn flow01(clock: f32, i: f32, seed: f32) -> f32 {
     let b = hash01(i + if n >= 63.0 { 0.0 } else { n + 1.0 }, seed);
     a + u * u * (3.0 - 2.0 * u) * (b - a)
 }
-/// port: SAGE — AGE quantised to the clock's drawings of RATE ticks.
+/// port: engine/lisp/fx-shapes.lisp SAGE — AGE quantised to the clock's drawings of RATE ticks.
 pub fn sage(clock: f32, age: f32, rate: f32) -> f32 {
     f_max(0.0, age - f_mod(clock, rate / 24.0))
 }
-/// port: %TOWARD-EYE — (x y z) moved PUSH m toward the eye (at most half way) and the size factor keeping the screen size.
+/// port: engine/lisp/fx-shapes.lisp %TOWARD-EYE — (x y z) moved PUSH m toward the eye (at most half way) and the size factor keeping the screen size.
 pub fn toward_eye(cam: &Camera, x: f32, y: f32, z: f32, push: f32) -> (f32, f32, f32, f32) {
     let e = cam.eye;
     let (dx, dy, dz) = (e[0] - x, e[1] - y, e[2] - z);
@@ -77,7 +77,7 @@ pub fn toward_eye(cam: &Camera, x: f32, y: f32, z: f32, push: f32) -> (f32, f32,
     (x + p * (dx / d), y + p * (dy / d), z + p * (dz / d), (d - p) / d)
 }
 
-/// port: %TRING — a flat toon ring on the ground at Y (+2 cm), radius R, band half-width W, SEGS segments.
+/// port: engine/lisp/fx-shapes.lisp %TRING — a flat toon ring on the ground at Y (+2 cm), radius R, band half-width W, SEGS segments.
 #[allow(clippy::too_many_arguments)]
 pub fn tring(c: &mut Ctx, x: f32, y: f32, z: f32, r: f32, w: f32, pal: f32, k: f32, seed: f32, segs: usize) {
     let (cx, cy, cz, ri, ro, pk) = (x, y + 0.02, z, f_max(0.0, r - w), r + w, toon_a(pal, k));
