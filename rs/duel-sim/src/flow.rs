@@ -2,6 +2,7 @@
 //! ENGINE::RUN-FRAME's sim part. Menus, pause and the camera read devices or are looks: not here (M2 / M3).
 use crate::cine::{self, After, CineName};
 use crate::components::{Character, Flow, State};
+use crate::cpu::Search;
 use crate::ecs::Entity;
 use crate::fighter::{fighter_system, spawn_fighter, to_idle};
 use crate::math::deg;
@@ -9,10 +10,12 @@ use crate::state::{Match, Mode, Winner};
 use crate::time::STEP;
 
 /// Where the pilots' vpads get their input: `read` is the vpad reader (PILOT-SYSTEM after VPAD-BEGIN-STEP!, and PILOT-READ
-/// without it), `step_end` is `*step-hook*`.
+/// without it), `step_end` is `*step-hook*`, `after_brain` the recorder's `*oracle-brain-hook*` (right after BRAIN-SYSTEM, on a
+/// sim frame only).
 pub trait PilotInput {
     fn read(&mut self, m: &mut Match, side: usize);
-    fn step_end(&mut self, m: &mut Match);
+    fn step_end(&mut self, m: &mut Match, s: &mut Search);
+    fn after_brain(&mut self, _m: &mut Match, _s: &mut Search) {}
 }
 
 /// The headless platform's real seconds for frame K (tools/simgate/stubs.c pf_pump: virtual time, whole nanoseconds, so
@@ -26,7 +29,7 @@ pub fn raw_dt(k: i64) -> f32 {
 
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
 /// steps). False when the engine would stop (never: the Lisp stops only on an error).
-pub fn frame(m: &mut Match, input: &mut dyn PilotInput) -> bool {
+pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool {
     m.frame_n += 1;
     let rdt = raw_dt(m.frame_n);
     while let Some(c) = m.cmds.pop_front() {
@@ -36,7 +39,7 @@ pub fn frame(m: &mut Match, input: &mut dyn PilotInput) -> bool {
     flow_update(m, rdt);
     crate::gate::gate_update(m);
     if sim_running_p(m) {
-        advance_sim(m, rdt, input);
+        advance_sim(m, s, rdt, input);
     } else {
         m.time.step_acc = 0.0;
         // look: the menus' idle clips
@@ -53,11 +56,11 @@ pub fn flow_update(m: &mut Match, rdt: f32) {
 }
 
 /// port: ADVANCE-SIM (RUN-FIXED-STEPS, or 120 steps in turbo).
-pub fn advance_sim(m: &mut Match, rdt: f32, input: &mut dyn PilotInput) {
+pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn PilotInput) {
     if m.turbo {
         for _ in 0..120 {
             if sim_running_p(m) && m.unported.is_none() {
-                sim_step(m, input);
+                sim_step(m, s, input);
             }
         }
         return;
@@ -68,7 +71,7 @@ pub fn advance_sim(m: &mut Match, rdt: f32, input: &mut dyn PilotInput) {
     while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) && m.unported.is_none() {
         m.time.step_acc -= STEP;
         n += 1;
-        sim_step(m, input);
+        sim_step(m, s, input);
     }
     if m.time.step_acc >= STEP {
         m.time.step_acc = 0.0;
@@ -76,7 +79,7 @@ pub fn advance_sim(m: &mut Match, rdt: f32, input: &mut dyn PilotInput) {
 }
 
 /// port: SIM-STEP.
-pub fn sim_step(m: &mut Match, input: &mut dyn PilotInput) {
+pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
     m.match_tick += 1;
     if m.cine.is_some() {
         pilot_read(m, input);
@@ -89,7 +92,7 @@ pub fn sim_step(m: &mut Match, input: &mut dyn PilotInput) {
             m.slow_acc -= 1.0;
             // look: slow-snapshot
             pilot_system(m, input);
-            sim_systems(m);
+            sim_systems(m, s, input);
         } else {
             pilot_read(m, input);
         }
@@ -97,15 +100,17 @@ pub fn sim_step(m: &mut Match, input: &mut dyn PilotInput) {
     // debug: god-update, probe-update (*god* / *probe*: set only by commands M1 does not port)
     // look: feedback-system
     // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
-    input.step_end(m);
+    input.step_end(m, s);
     // cpu: mc-full-step
 }
 
-/// port: SIM-SYSTEMS (BRAIN-SYSTEM is the CPU's: M2).
-pub fn sim_systems(m: &mut Match) {
-    if [m.p1, m.p2].iter().any(|&e| m.fighter.get(e).is_some_and(|f| f.has_brain)) {
-        crate::unported!(m, "brain-system")
+/// port: SIM-SYSTEMS (INPUT's `after_brain`: the recorder's hook after BRAIN-SYSTEM).
+pub fn sim_systems(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+    crate::cpu::brain_system(m, s);
+    if m.unported.is_some() {
+        return; // (a step past an unported path would run on a state the Lisp never had)
     }
+    input.after_brain(m, s);
     fighter_system(m);
     if m.cine.is_none() {
         crate::hazards::hazard_system(m);
@@ -168,7 +173,7 @@ pub fn pilot_read(m: &mut Match, input: &mut dyn PilotInput) {
 /// port: PILOT-SYSTEM: every brainless fighter's vpad starts the step, then reads.
 pub fn pilot_system(m: &mut Match, input: &mut dyn PilotInput) {
     m.do_entities(|m, e| m.pilot.has(e) && m.fighter.has(e), |m, e| {
-        if !m.fighter.get(e).unwrap().has_brain {
+        if !m.fighter.get(e).unwrap().has_brain() {
             m.pilot.get_mut(e).unwrap().vpad.begin_step();
             let side = side_of(m, e);
             input.read(m, side);
@@ -226,13 +231,14 @@ pub fn start_match(m: &mut Match) {
     m.pending.clear(); // (*kikons* is not cleared by the Lisp: TAKE-BROKEN-SOULS empties it every HIT-SYSTEM, so it is empty here)
     m.soul_breaks.clear();
     m.slow_acc = 0.0;
-    // cpu: mc-full-reset
+    m.mc_plan = [0; 10]; // port: MC-FULL-RESET's root (*mc-next* is not reset)
+    // cpu: mc-full-reset's Search part (the jobs, stats and picks: Task 8; none exists before)
     cine::abort_cine(m);
     // look: clear-words
     m.rng.seed(m.match_seed);
     // look: set-cam-behind (*view-behind*: read only by cam-relative pilots, M2)
     spawn_pair(m, m.mode == Mode::CpuCpu, m.mode != Mode::VsPlayer);
-    // cpu: strat-lookup, fq-attach!, masher-apply!
+    crate::cpu::start_match_cpu(m);
     for e in [m.p1, m.p2] {
         // (*konpaku-start*: *konpaku-max* unless debug 2101, not ported)
         m.gauges.get_mut(e).unwrap().konpaku = m.knobs.konpaku_max;
@@ -331,7 +337,7 @@ mod tests {
     struct Null;
     impl PilotInput for Null {
         fn read(&mut self, _m: &mut Match, _side: usize) {}
-        fn step_end(&mut self, _m: &mut Match) {}
+        fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
     }
 
     #[test]
@@ -351,15 +357,16 @@ mod tests {
         assert_eq!((m.flow, m.cine.as_ref().map(|c| c.cf)), (Flow::Intro, Some(0)));
         assert_eq!(m.p1.0, 256); // generation 1: the title's pair was cleared
         for e in [m.p1, m.p2] {
-            m.fighter.get_mut(e).unwrap().has_brain = false; // (the replay's detach)
+            m.fighter.get_mut(e).unwrap().brain = None; // (the replay's detach)
         }
+        let s = &mut Search::new();
         for _ in 0..300 {
-            sim_step(&mut m, &mut Null);
+            sim_step(&mut m, s, &mut Null);
         }
         assert_eq!((m.match_tick, m.flow, m.cine.is_none()), (0, Flow::Battle, true));
         assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle));
         assert_eq!(m.unported, None);
-        sim_step(&mut m, &mut Null);
+        sim_step(&mut m, s, &mut Null);
         assert_eq!((m.match_tick, m.unported, m.pacing_log), (1, None, true));
         assert!(m.ics.has(m.p2) && !m.ics.has(m.p1));
     }

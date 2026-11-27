@@ -130,7 +130,7 @@ macro_rules! enc_kw {
     )*};
 }
 enc_kw!(
-    State, Phase, Cls, Form, Character, HazardKind, Contact, Queued, Burst, Button, Flow
+    State, Phase, Cls, Form, Character, HazardKind, Contact, Queued, Burst, Button, Flow, Difficulty
 );
 
 /// The slots of a struct in order, comma-separated.

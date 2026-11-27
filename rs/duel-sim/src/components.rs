@@ -1,7 +1,7 @@
 //! port: duel/lisp/components.lisp (+ engine/lisp/ecs.lisp TRANSFORM, duel/lisp/ichigo.lisp ICS): every slot of each
 //! DEFCOMPONENT the sim reads, same order, snake case. Fixnums are i64, single-floats f32, T / NIL slots bool, keyword slots
 //! enums whose `Display` is the Lisp name (upper case, no colon). `model` / `blade` are looks (M3); `brain` is
-//! `Fighter.has_brain` (decision 3).
+//! `Fighter.brain` (cpu::Brain, M2).
 use crate::ecs::Entity;
 use crate::knobs::Knobs;
 use crate::vpad::Vpad;
@@ -64,6 +64,9 @@ kw_enum!(Character { Yamamoto = "YAMAMOTO", Kenpachi = "KENPACHI", Rukia = "RUKI
     Lille = "LILLE", Barro = "BARRO", Hisagi = "HISAGI" });
 kw_enum!(HazardKind { Fx = "FX", IcHit = "IC-HIT", Line = "LINE", Wave = "WAVE", YaTower = "YA-TOWER" });
 kw_enum!(Contact { Hit = "HIT", Block = "BLOCK" });
+kw_enum!(
+    /// `*difficulty*`, a brain's difficulty (*DIFFICULTIES*).
+    Difficulty { Easy = "EASY", Normal = "NORMAL", Hard = "HARD" });
 kw_enum!(
     /// FIGHTER-QUEUED: the latch.
     Queued { Q = "Q", F = "F", Ns = "NS", Sa = "SA", Sw = "SW", SwNs = "SW-NS", Sp = "SP" });
@@ -229,8 +232,15 @@ pub struct Fighter {
     pub combo_dmg: i64,
     pub callout: Option<Str>,
     pub callout_t: i64,
-    /// Not a slot: the BRAIN component's presence (decision 3; not in the B line).
-    pub has_brain: bool,
+    /// Not a slot: the BRAIN component (M2; not in the B line, in A).
+    pub brain: Option<crate::cpu::Brain>,
+}
+
+impl Fighter {
+    /// The BRAIN component's presence (a CPU seat).
+    pub fn has_brain(&self) -> bool {
+        self.brain.is_some()
+    }
 }
 
 impl Default for Fighter {
@@ -322,7 +332,7 @@ impl Default for Fighter {
             combo_dmg: 0,
             callout: None,
             callout_t: 0,
-            has_brain: false,
+            brain: None,
         }
     }
 }

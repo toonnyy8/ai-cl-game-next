@@ -147,7 +147,7 @@ pub fn parry_open(m: &mut Match, e: Entity) {
 
 /// port: ICHIGO-TSUKI-DASH: TSUKIWATARI f0: 3.5 m in the stick direction (neutral: at him; a brain's: at him) over 12 f, iframes 9.
 pub fn tsuki_dash(m: &mut Match, e: Entity) {
-    let (to, st) = if fighter(m, e).has_brain { (1.0, 0.0) } else { crate::fighter::stick_relative(m, e) };
+    let (to, st) = if fighter(m, e).has_brain() { (1.0, 0.0) } else { crate::fighter::stick_relative(m, e) };
     if m.unported.is_some() {
         return;
     }
@@ -204,7 +204,7 @@ fn tsuki_step(m: &mut Match, e: Entity, mvname: &str) {
     let sf = fighter(m, e).sf;
     turn_to_opp(m, e, crate::rules::track_step(360.0));
     let (up, tap, max) = (m.knobs.tsuki_up, m.knobs.tsuki_tap, m.knobs.tsuki_max);
-    let b = fighter(m, e).has_brain;
+    let b = fighter(m, e).has_brain();
     if sf >= up {
         let cmd = if b {
             (sf == up).then(|| ai_stance(m, e)).map(|c| (c, Button::Quick))
@@ -243,7 +243,7 @@ fn tsuki_step(m: &mut Match, e: Entity, mvname: &str) {
 
 /// port: PARRY-FROM-BLOCKSTUN: in blockstun L starts the parry at once, under its price. (A CPU's press, by its difficulty and habits: M2.)
 fn parry_from_blockstun(m: &mut Match, e: Entity) {
-    if fighter(m, e).has_brain {
+    if fighter(m, e).has_brain() {
         crate::unported!(m, "ichigo brain parry-from-blockstun") // (brain-off / -masher / -habit, AI-MASH-P, IC-P: the CPU's reads, M2)
     }
     let vp = &m.pilot.get(e).expect("a pilot").vpad;

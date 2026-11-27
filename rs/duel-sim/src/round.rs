@@ -169,7 +169,7 @@ pub fn reset_round(m: &mut Match, a: Entity, v: Entity) {
         }
         m.motion.get_mut(e).unwrap().vel = [0.0; 3];
         m.pilot.get_mut(e).expect("a pilot").vpad.clear();
-        if fighter(m, e).has_brain {
+        if fighter(m, e).has_brain() {
             crate::unported!(m, "brain-clear") // (the brain lets go of what it held: brain-press-left 0, brain-fresh t; M2)
         }
         if let Some(h) = kit_hook_sym(m, e, "reset")

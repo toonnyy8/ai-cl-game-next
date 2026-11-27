@@ -104,6 +104,14 @@ pub struct Match {
     pub pacing_log: bool,
     /// The first unported path the sim took (`unported!`), if any.
     pub unported: Option<&'static str>,
+    /// `*mc-plan*` (cpu-mcts.lisp; a snapshot root, sim-state.lisp): per side 5 slots (state, best / second action, their values x 1000).
+    pub mc_plan: [i64; 10],
+    /// `*mc-next*` (a root): per side, the tick before which a deferred search does not run again.
+    pub mc_next: [i64; 2],
+    /// `*difficulty*`: the CPUs' difficulty at SPAWN-PAIR.
+    pub difficulty: crate::components::Difficulty,
+    /// `*gate-difficulty*` (debug 81020+: not ported): START-CVC's difficulty.
+    pub gate_difficulty: crate::components::Difficulty,
     /// Not a Lisp special: the systems a replay runs as guarded stubs (flow.rs, docs/bevy/M1_NOTES.md §3); empty = off.
     pub stubs: Vec<String>,
 }
@@ -169,6 +177,10 @@ impl Match {
             pacing_log: false,
             unported: None,
             stubs: Vec::new(),
+            mc_plan: [0; 10],
+            mc_next: [0; 2],
+            difficulty: crate::components::Difficulty::Normal,
+            gate_difficulty: crate::components::Difficulty::Normal,
         }
     }
 

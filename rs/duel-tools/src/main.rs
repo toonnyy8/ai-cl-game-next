@@ -6,6 +6,10 @@
 //! (`replay OK (stubbed: …; masked: …) N ticks`). A number flag with a bad value exits 2.
 //! `--bench`: a cmds trace's T lines read first, then the match timed on them alone, 11 runs (`steps <n> secs <s> steps/s <r>`, the
 //! median; exit 1 unless every run's steps and last H equal the trace's).
+//! M2: `--live` (a cmds or vs trace with the brains thinking, nothing injected; T compared right after BRAIN-SYSTEM, C, A, the log, H,
+//! B; a trials trace is refused, exit 3), `--resync` (a T / A mismatch noted, the recorded vpads / sim stream / plan written back, the
+//! run goes on; exit 1, the first 20 listed after the outcome), `--inject-side N` (a vs trace's human side injected),
+//! `--inject-plan` (A's plan, strategies and jobs written at each step's end). Each needs `--live`.
 mod replay;
 #[allow(dead_code)]
 mod trace;
@@ -19,7 +23,7 @@ fn main() -> ExitCode {
         Some("parse-trace") if args.len() > 1 => parse_trace(&args[1]),
         Some("replay") if args.len() > 1 => replay_cmd(&args[1..]),
         _ => {
-            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..] [--snap N] [--bench]");
+            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..] [--snap N] [--bench] [--live [--resync] [--inject-side N] [--inject-plan]]");
             ExitCode::from(2)
         }
     }
@@ -50,27 +54,14 @@ fn check_data(dir: Option<&String>) -> ExitCode {
 }
 
 fn replay_cmd(args: &[String]) -> ExitCode {
-    let opt = |k: &str| args.iter().position(|a| a == k).and_then(|i| args.get(i + 1));
-    // a number flag: absent = None; a missing, non-numeric or non-positive value is a usage error (exit 2), never ignored
-    let num = |k: &str| -> Result<Option<u64>, ExitCode> {
-        if !args.iter().any(|a| a == k) {
-            return Ok(None);
-        }
-        match opt(k).and_then(|s| s.parse::<u64>().ok()).filter(|&n| n > 0) {
-            Some(n) => Ok(Some(n)),
-            None => {
-                eprintln!("replay: {k} needs a positive integer, got {:?}", opt(k).map_or("nothing", String::as_str));
-                Err(ExitCode::from(2))
-            }
+    let o = match replay::parse_args(args) {
+        Ok(o) => o,
+        Err((code, msg)) => {
+            eprintln!("{msg}");
+            return ExitCode::from(code);
         }
     };
-    let (max, snap) = match (num("--max-steps"), num("--snap")) {
-        (Ok(a), Ok(b)) => (a, b.map(|n| n as i64)),
-        (Err(c), _) | (_, Err(c)) => return c,
-    };
-    let list = |k: &str| -> Vec<String> { opt(k).map_or(vec![], |s| s.split(',').filter(|x| !x.is_empty()).map(String::from).collect()) };
-    let (stubs, mask) = (list("--stub"), list("--mask"));
-    let data = match opt("--data") {
+    let data = match &o.data {
         Some(p) => match Data::load(p.as_ref()) {
             Ok(d) => d,
             Err(e) => {
@@ -81,8 +72,8 @@ fn replay_cmd(args: &[String]) -> ExitCode {
         None => Data::embedded(),
     };
     let data: &'static Data = Box::leak(Box::new(data));
-    if args.iter().any(|a| a == "--bench") {
-        return match replay::bench(&args[0], data, 11) {
+    if o.bench {
+        return match replay::bench(&o.trace, data, 11) {
             Ok((n, secs, same)) => {
                 let med = secs[secs.len() / 2];
                 println!(
@@ -101,35 +92,11 @@ fn replay_cmd(args: &[String]) -> ExitCode {
             }
         };
     }
-    let (out, snaps) = replay::run_snap(&args[0], max, data, &stubs, &mask, snap);
-    // (the outcome line first: replay-gate.sh reads the first line)
-    let code = match out {
-        // (a stubbed / masked run says so on the outcome line: not the gate's full verdict)
-        replay::Outcome::Ok(n) if !stubs.is_empty() || !mask.is_empty() => {
-            println!("replay OK (stubbed: {}; masked: {}) {n} ticks", stubs.join(","), mask.join(","));
-            ExitCode::SUCCESS
-        }
-        replay::Outcome::Ok(n) => {
-            println!("replay OK {n} ticks");
-            ExitCode::SUCCESS
-        }
-        replay::Outcome::Diverged(s) => {
-            println!("replay DIVERGED at {s}");
-            ExitCode::FAILURE
-        }
-        replay::Outcome::Unported(s) => {
-            println!("replay UNPORTED {s}");
-            ExitCode::from(3)
-        }
-        replay::Outcome::Error(s) => {
-            println!("replay: {s}");
-            ExitCode::FAILURE
-        }
-    };
-    if snap.is_some() {
-        println!("snap: {} rollouts of 40 sim steps, {} reached an unported path", snaps.0, snaps.1);
+    let (lines, code) = replay::report(&o, &replay::run_opts(&o, data));
+    for l in lines {
+        println!("{l}");
     }
-    code
+    ExitCode::from(code)
 }
 
 /// `parse-trace <trace>`: stream the whole trace through the parser, print the item counts (exit 1 on a trace error).

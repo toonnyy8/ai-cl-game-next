@@ -207,8 +207,8 @@ pub fn hoho_ready_p(m: &Match, e: Entity) -> bool {
 
 // ---------------------------------------------------------------- creation
 
-/// port: SPAWN-FIGHTER: SIDE's fighter playing CHARACTER's :base kit at (X 0 Z) facing YAW; CPU seats get a brain
-/// (`has_brain`: its difficulty and delay are the CPU's, M2) and no device reader (`cam_relative` false).
+/// port: SPAWN-FIGHTER: SIDE's fighter playing CHARACTER's :base kit at (X 0 Z) facing YAW; CPU seats get a brain of `*difficulty*`
+/// (SPAWN-PAIR's) and no device reader (`cam_relative` false).
 pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: f32, yaw: f32, cpu: bool) -> Entity {
     let kit = m.kits.get(character, Form::Base).0;
     let e = m.spawn();
@@ -221,7 +221,7 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
             side,
             character: Some(character),
             kit: Some(KitId { character, form: Form::Base }),
-            has_brain: cpu,
+            brain: cpu.then(|| crate::cpu::Brain::new(m.difficulty, m.knobs.ai_delay.get(m.difficulty.name(), 14))),
             ..Fighter::default()
         },
     );

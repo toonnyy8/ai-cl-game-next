@@ -164,7 +164,7 @@ fn chain_kikon_reels_in() {
 #[test]
 fn stance_j_branch() {
     let (mut m, a, _) = pair(Character::Ichigo, Character::Kenpachi, Form::Base);
-    m.fighter.get_mut(a).unwrap().has_brain = false;
+    m.fighter.get_mut(a).unwrap().brain = None;
     start(&mut m, a, "ic-tsuki");
     m.fighter.get_mut(a).unwrap().sf = 6;
     m.pilot.get_mut(a).unwrap().vpad.stamp(Button::Quick as usize, false);

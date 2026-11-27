@@ -9,7 +9,8 @@ pub fn start_cvc(m: &mut Match, seed: i64, pair: Option<[Character; 2]>) {
     m.match_seed = seed;
     m.mode = Mode::CpuCpu;
     m.pacing_log = true; // (the pacing lines: PACE, CUP-ACC-STEP; Ichigo's ICS slots, IC-ACC-WATCH)
-    // cpu: *difficulty* = *gate-difficulty* (the brains'); *blow-aways* 0 and the pacing resets: the gate's log rows
+    m.difficulty = m.gate_difficulty;
+    // cpu: *blow-aways* 0 and the pacing resets: the gate's log rows
     m.rng.seed(seed);
     let Some(pair) = pair else { crate::unported!(m, "start-cvc random pairing") };
     m.picks = pair;
