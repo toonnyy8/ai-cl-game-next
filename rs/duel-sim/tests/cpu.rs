@@ -124,17 +124,29 @@ fn expt2_is_musl_powf() {
     assert_eq!(e(0x80000000), 0x80000000); // (-0 x 2)
 }
 
-/// Every one of the 2^32 inputs against musl: the FNV-1a hash of `x == 0 ? x*2 : powf(x, 2)` over all bit patterns, computed by a
-/// C harness dlopen-ing build/simgate/muslm.so (gcc -m32 -msse2 -mfpmath=sse -ffp-contract=off). ~1 min in release.
+/// The FNV-1a hash of F over every single-float bit pattern, as tools/port/musl-hash.c computes it.
+fn fnv_all(f: fn(f32) -> f32) -> u64 {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for u in 0..=u32::MAX {
+        h ^= f(f32::from_bits(u)).to_bits() as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    h
+}
+
+/// Every one of the 2^32 inputs against musl: the hash of `x == 0 ? x*2 : powf(x, 2)`, from `build/musl-hash expt2`
+/// (tools/port/musl-hash.c over build/simgate/muslm.so, gcc -m32 -msse2 -mfpmath=sse -ffp-contract=off). ~27 s in release.
 #[test]
 #[ignore]
 fn expt2_equals_musl_on_every_input() {
-    let mut h: u64 = 0xcbf29ce484222325;
-    for u in 0..=u32::MAX {
-        h ^= duel_sim::cl::expt2(f32::from_bits(u)).to_bits() as u64;
-        h = h.wrapping_mul(0x100000001b3);
-    }
-    assert_eq!(h, 0x6d43542f09460075);
+    assert_eq!(fnv_all(duel_sim::cl::expt2), 0x6d43542f09460075);
+}
+
+/// musl's expf (ruling R6) on every input: `build/musl-hash expf`. ~30 s in release.
+#[test]
+#[ignore]
+fn expf_equals_musl_on_every_input() {
+    assert_eq!(fnv_all(duel_sim::cl::expf), 0xeae4f603b90fd236);
 }
 
 /// DROP-OLD-JSTARTS keeps the ticks within WINDOW of NOW, in order (newest first, as the Lisp list).
@@ -172,7 +184,7 @@ fn brain_read_fires_inside_brain_system() {
     duel_sim::clog!(&mut m, "a frame line");
     duel_sim::flow::sim_step(&mut m, s, &mut spy);
     assert_eq!(spy.0, [(0, 1, 1)]); // (P1's brain: after its vpad clock moved, after the frame's line; then core-brain-step stops)
-    assert_eq!(m.unported, Some("core-brain-step"));
+    assert_eq!(m.unported, Some("strat-switch-step")); // (its Q selector: Task 5)
 }
 
 /// BRAIN-PERCEIVE on the first battle step: the fresh ring holds 32 views of Ichigo at the round's start, the head moved to 1.
@@ -195,17 +207,18 @@ fn first_perceive_fills_the_ring() {
     let _ = Entity::NIL;
 }
 
-/// TIME-UP (M1 minor T13): Konpaku decides first even with a float Reishi; only the tie on Konpaku reads the Reishi (a float there is
-/// still `unported!`).
+/// A null vpad reader.
+struct Null;
+impl PilotInput for Null {
+    fn read(&mut self, _m: &mut Match, _side: usize) {}
+    fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+}
+
+/// TIME-UP (M1 minor T13): Konpaku decides first; on a Konpaku tie a float Reishi is compared as CL does (float x fixnum products).
 #[test]
-fn time_up_reads_reishi_only_on_a_konpaku_tie() {
+fn time_up_reads_a_float_reishi_on_a_konpaku_tie() {
     let mut m = ki_battle();
     for _ in 0..300 {
-        struct Null;
-        impl PilotInput for Null {
-            fn read(&mut self, _m: &mut Match, _side: usize) {}
-            fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
-        }
         duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null);
     }
     let (p1, p2) = (m.p1, m.p2);
@@ -216,5 +229,153 @@ fn time_up_reads_reishi_only_on_a_konpaku_tie() {
     let mut m = ki_battle();
     m.gauges.get_mut(m.p1).unwrap().reishi = duel_sim::cl::Num::F(512.5);
     duel_sim::flow::time_up(&mut m);
-    assert_eq!(m.unported, Some("time-up of a float Reishi"));
+    assert_eq!((m.unported, m.winner), (None, Some(duel_sim::state::Winner::Side(1))));
+    use duel_sim::cl::Num::{F, I};
+    use duel_sim::rules::time_up_winner;
+    assert_eq!(time_up_winner(2, F(650.0), 1300, 2, I(650), 1300), None); // (845000.0 = 845000: CL's exact compare)
+    assert_eq!(time_up_winner(2, F(650.5), 1300, 2, I(650), 1300), Some(0));
+}
+
+/// Review Focus 5: the CPU's integer maths at its edges. CAI-NEUTRAL's decide-t draws (floor (* 12 (sim-rnd01))) in singles: the
+/// stream's top value 0.99999994 (0xFFFFFF / 2^24) gives 11, never 12. CL ROUND is banker's at .5 ties, FLOOR rounds toward -inf,
+/// STRAT-MUL's integer wait rounds half up by (floor (+ x 0.5)).
+#[test]
+fn cpu_floor_round_edges() {
+    use duel_sim::cl::{floor_div, floor_f32, round_f32};
+    let top = 0xFFFFFF as f32 * (1.0 / 16_777_216.0);
+    assert_eq!(top, 0.99999994);
+    assert_eq!(floor_f32(12.0 * top), 11);
+    assert_eq!(floor_f32(12.0 * 0.0), 0);
+    assert_eq!(floor_f32(12.0 * (11.0 / 12.0)), 11);
+    for (x, n) in [(0.5, 0), (1.5, 2), (2.5, 2), (-0.5, 0), (-1.5, -2), (-2.5, -2), (2.4999998, 2), (1000.0 * 0.0125, 12)] {
+        assert_eq!(round_f32(x), n, "round {x}");
+    }
+    assert_eq!((floor_f32(-0.5), floor_f32(-2.0), floor_div(-7, 2), floor_div(7, -2), floor_div(-6, 3)), (-1, -2, -4, -4, -2));
+    assert_eq!([2.5f32, 1.5, -0.5].map(|x| floor_f32(x + 0.5)), [3, 2, 0]); // (half up, not to even)
+}
+
+/// The CPU's Reishi readers over a float Reishi (`cl::Num`), against the native image.
+#[test]
+fn reishi_readers_take_a_float_reishi() {
+    use duel_sim::cl::Num::{F, I};
+    use duel_sim::rules::{ai_burst_wanted_p, ai_hoho_spare_p};
+    let m = ki_battle();
+    let k = &m.knobs;
+    let mut g = m.gauges.get(m.p1).unwrap().clone();
+    g.reishi_max = 1300;
+    g.reishi = F(333.25);
+    assert_eq!(duel_sim::fighter::reishi_frac(&g), 0.25634617);
+    g.reishi = I(333);
+    assert_eq!(duel_sim::fighter::reishi_frac(&g), 0.25615385);
+    // (*fs-hoho* 100, *fs-burst* 100, *ai-burst-low* 0.5: the line at 650 of 1300)
+    assert!(!ai_hoho_spare_p(k, 150.0, F(300.5), 1300));
+    assert!(!ai_hoho_spare_p(k, 150.0, I(300), 1300));
+    assert!(ai_hoho_spare_p(k, 100.0, F(650.0), 1300));
+    assert!(!ai_hoho_spare_p(k, 100.0, F(649.5), 1300));
+    assert!(!ai_hoho_spare_p(k, 100.0, I(649), 1300));
+    assert!(ai_hoho_spare_p(k, 200.0, I(649), 1300));
+    assert!(ai_hoho_spare_p(k, 100.0, I(650), 1300));
+    assert!(ai_burst_wanted_p(k, F(400.5), 1300, F(120.25)));
+    assert!(ai_burst_wanted_p(k, I(600), 1300, I(300)));
+    assert!(!ai_burst_wanted_p(k, F(1000.5), 1300, F(10.25)));
+}
+
+/// FINISH-ROLE against the native image: NIL before *cai-finish-at* (0.6) of the clock, :AHEAD at once, a level bell (a float
+/// Reishi's product equal to the integer one) :EVEN only once quiet.
+#[test]
+fn finish_role_cases() {
+    use duel_sim::cl::Num::{F, I};
+    use duel_sim::rules::{finish_role, FinishRole::*};
+    let m = ki_battle();
+    let k = &m.knobs;
+    assert_eq!(finish_role(k, 0, 18000, 0, 34, 2, F(650.5), 1300, 2, I(650), 1300), Some(Ahead));
+    assert_eq!(finish_role(k, 0, 18000, 10, 34, 2, F(650.0), 1300, 2, I(650), 1300), None);
+    assert_eq!(finish_role(k, 0, 18000, 40, 34, 2, F(650.0), 1300, 2, I(650), 1300), Some(Even));
+    assert_eq!(finish_role(k, 7201, 18000, 40, 34, 3, I(650), 1300, 2, I(650), 1300), None);
+    assert_eq!(finish_role(k, 7200, 18000, 40, 34, 2, I(600), 1300, 2, F(650.25), 1300), Some(Behind));
+}
+
+/// MC-PLAN-APPLY: the plan is cleared either way; a pick past the budget takes the best with no roll; the softmax's factor is musl's
+/// expf (the native image: (* (+ 1.0 (exp (/ (- (/ (- 520 545) 1000.0)) 0.03))) 0.4) = 1.3203905); a Hoho the CPU may not take now is
+/// dropped; a CPU no longer free presses nothing.
+#[test]
+fn mc_plan_apply_picks_and_clears() {
+    use duel_sim::cpu::core_ai::mc_plan_apply;
+    assert_eq!((1.0 + duel_sim::cl::expf(-((520 - 545) as f32 / 1000.0) / 0.03)) * 0.4, 1.3203905);
+    let mut m = ki_battle();
+    for _ in 0..300 {
+        duel_sim::flow::sim_step(&mut m, &mut Search::new(), &mut Null);
+    }
+    let e = m.p1;
+    let mut b = m.fighter.get_mut(e).unwrap().brain.take().unwrap();
+    m.mc_plan[..5].copy_from_slice(&[2, 7, 8, 900, 100]); // (a gap of 0.8 > NORMAL's budget 0.05: the best, :wait)
+    let rng = m.rng.clone();
+    assert!(mc_plan_apply(&mut m, e, &mut b));
+    assert_eq!((m.mc_plan[0], b.press, b.press_left, m.rng.state()), (0, Some(Sym(":NONE")), 20, rng.state()));
+    m.mc_plan[..5].copy_from_slice(&[1, 2, -1, 0, 0]); // (still running: the light model's best, a Hoho)
+    m.fighter.get_mut(e).unwrap().xch = 5; // (an open exchange: no Hoho)
+    b.press = None;
+    assert!(!mc_plan_apply(&mut m, e, &mut b));
+    assert_eq!((m.mc_plan[0], b.press), (0, None));
+    m.fighter.get_mut(e).unwrap().state = State::Move;
+    m.mc_plan[..5].copy_from_slice(&[1, 0, -1, 0, 0]);
+    assert!(!mc_plan_apply(&mut m, e, &mut b));
+    assert_eq!(m.mc_plan[0], 0);
+}
+
+/// The generic CPU with no strategy (every brain's BRAIN-STRAT cleared) in a Kenpachi mirror (no matchup style): it plays its
+/// neutral until the MCTS neutral's search, which is Task 8's, and never panics on the way.
+#[test]
+fn generic_cpu_runs_to_the_mcts() {
+    let mut m = Match::new(data());
+    duel_sim::flow::go_title(&mut m);
+    duel_sim::gate::start_cvc(&mut m, 2, Some([Character::Kenpachi, Character::Kenpachi]));
+    let s = &mut Search::new();
+    for _ in 0..300 {
+        duel_sim::flow::sim_step(&mut m, s, &mut Null);
+    }
+    for e in [m.p1, m.p2] {
+        m.fighter.get_mut(e).unwrap().brain.as_mut().unwrap().strat = None;
+    }
+    let mut n = 0;
+    while m.unported.is_none() && n < 2000 {
+        duel_sim::flow::sim_step(&mut m, s, &mut Null);
+        n += 1;
+    }
+    assert_eq!(m.unported, Some("mc-neutral"));
+    assert!(n > 1, "it walked in first ({n} steps)");
+}
+
+
+/// tests/duel-rules/core.lisp's CPU helper checks deferred to M2: lines 307-317 (FINISH-ROLE, *cai-finish-at* 0.6 = the explicit AT
+/// of 307-314), 468 (AI-HOHO-SPARE-P), 471 (AI-BURST-WANTED-P), 576 (WEIGHTED-PICK).
+#[test]
+fn cpu_helpers_core_lisp() {
+    use duel_sim::cl::Num::I;
+    use duel_sim::cpu::xch_ai::weighted_pick;
+    use duel_sim::rules::{ai_burst_wanted_p, ai_hoho_spare_p, finish_role, FinishRole::*};
+    let m = ki_battle();
+    let k = &m.knobs;
+    let fr = |l, t, q, w, k0, r0, m0, k1, r1, m1| finish_role(k, l, t, q, w, k0, I(r0), m0, k1, I(r1), m1);
+    assert_eq!(k.cai_finish_at, 0.6);
+    assert_eq!(fr(7201, 18000, 99, 24, 6, 100, 1000, 3, 900, 1000), None);
+    assert_eq!(fr(7200, 18000, 0, 24, 6, 100, 1000, 3, 900, 1000), Some(Ahead));
+    assert_eq!(fr(7200, 18000, 23, 24, 3, 900, 1000, 6, 100, 1000), None);
+    assert_eq!(fr(7200, 18000, 24, 24, 3, 900, 1000, 6, 100, 1000), Some(Behind));
+    assert_eq!(fr(600, 18000, 24, 24, 2, 900, 1000, 4, 1000, 1000), Some(Behind));
+    assert_eq!(fr(600, 18000, 5, 24, 4, 500, 1000, 4, 525, 1050), None);
+    assert_eq!(fr(600, 18000, 30, 24, 4, 500, 1000, 4, 525, 1050), Some(Even));
+    assert_eq!(fr(60, 18000, 0, 24, 4, 600, 1000, 4, 500, 1000), Some(Ahead));
+    let total = 60 * k.match_seconds;
+    assert_eq!(fr(total, total, 0, 0, 9, 0, 1, 1, 0, 1), None);
+    let at = duel_sim::cl::floor_f32(total as f32 * (1.0 - k.cai_finish_at));
+    assert!(fr(at, total, 0, 0, 9, 0, 1, 1, 0, 1).is_some());
+    assert!(0.0 < k.cai_finish_at && k.cai_finish_at < 1.0);
+    assert!(ai_hoho_spare_p(k, 100.0, I(1000), 1100) && !ai_hoho_spare_p(k, 190.0, I(400), 1100) && ai_hoho_spare_p(k, 200.0, I(400), 1100));
+    assert!(ai_burst_wanted_p(k, I(540), 1100, I(10)) && !ai_burst_wanted_p(k, I(600), 1100, I(10)));
+    assert!(ai_burst_wanted_p(k, I(600), 1100, I(280)) && !ai_burst_wanted_p(k, I(600), 1100, I(260)));
+    assert_eq!(weighted_pick(0.0, &[('a', 1.0), ('b', 1.0)]), Some('a'));
+    assert_eq!(weighted_pick(0.5, &[('a', 1.0), ('b', 1.0)]), Some('b'));
+    assert_eq!(weighted_pick(0.1, &[('a', 0.0), ('b', 1.0)]), Some('b'));
+    assert_eq!(weighted_pick(0.5, &[('a', 0.0)]), None);
 }

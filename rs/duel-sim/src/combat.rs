@@ -24,7 +24,7 @@ use crate::rules::{
     stance_store, stun_add, stun_over_p, sub_taken_mods, threat_window_p, AtkMods, ContactKeys, DefMods, DefState, KikonOutcome,
     Res,
 };
-use crate::cl::Num;
+use crate::cl::{expt2, Num};
 use crate::state::Match;
 use duel_data::{MoveClass, Move};
 
@@ -391,7 +391,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     let mvd = mvid.map(|id| mv(m, id));
     let p = pos_of(m, def);
     let (dx, dz) = (p[0] - sx, p[2] - sz);
-    let d2 = dx * dx + dz * dz; // DEF's distance (squared) from the attacker
+    let d2 = expt2(dx) + expt2(dz); // DEF's distance (squared) from the attacker (EXPT 2: musl's powf, M2_NOTES §3)
     let ranged = ranged_hit_p(hazard.is_some(), hw.has(flag::RANGED), mvd.and_then(|x| x.params.melee_range), d2);
     let fd = fighter(m, def);
     let rward = ranged

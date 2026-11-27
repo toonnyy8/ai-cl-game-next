@@ -119,3 +119,57 @@ mismatch before it (`--resync`: the same, since an unported path stops the run).
 at `vs-start` (step 1). Step 301's perceive runs before the stop. `live_first_perceive_matches_the_key` checks P1's ring, head, fresh,
 jkey and jstarts after it against the key on all 15 traces. Perception past step 301 is pinned only by unit tests until Task 4's
 CORE-BRAIN-STEP lets the live replay go on.
+
+## 3. Fuzzy, the core CPU, the exchange CPU (Task 4)
+
+`cpu/fuzzy.rs` ports fuzzy.lisp and the engine's FZ-MU / FZ-INFER. A set's corners and a cue are `cl::Num`: `(:near -1 0 1.6 2.4)` mixes
+integers and singles, and `(- x a)` of two integers stays exact before its division by a single. The rule bases and sets are knobs
+(tuning.json). `cpu/xch_ai.rs` ports xch-ai.lisp and WEIGHTED-PICK. `cpu/style.rs` holds the style registry (`StyleFn`, `resolve`: None
+for every name until Tasks 6-7). `cpu/core_ai.rs` ports CORE-BRAIN-STEP whole: the exchange (CAI-XCH-NEW / -STEP), the clash, the
+finish, the generic CPU (CAI-NEUTRAL, CAI-MOVE-STEP, the stun / air bursts and awakenings), MC-PLAN-APPLY and MC-PRESS, the Hoho hold.
+The brain is taken out of its fighter for the step and put back after it, also after a stop.
+
+**What is not ported, and where it stops.**
+- The strategy layer (`*strat-layer*`, a knob, NIL) and a brain's strategy: a Q selector or composite stops at
+  `unported!("strat-switch-step")`, a plain strategy at `unported!("strat-feats")` (Task 5).
+- So a brain's NOW is always NIL here, and STRAT-OUT / -SCALE / -MUL / STRAT-HOLD-AWAKEN-P are written over `Option<NotYet>`: they give
+  the CPU's own value and draw nothing. CAI-DSWITCH is therefore NIL with no roll; its press and target come with Task 5.
+- MC-NEUTRAL past its plan: its guard runs in the Lisp's order (mc-on, idle / run, `*mc-off-at*`, the `*mc-next*` window,
+  `*mc-far*`, not awakened-ok), then `unported!("mc-neutral")` where MC-SETUP would run (Task 8). Lisp calls MC-NEUTRAL in every state, so
+  a CPU in a move or a stun still reaches the generic CPU. `*in-rollout*` and the rollout's `*cai-styles*` binding are `// rollout:`
+  markers (no rollout runs before Task 8).
+- A matchup style (`*cai-styles*`: KI and IK only) stops at `unported!("style <NAME>")`.
+
+**Where the live replay stops: step 301, at `strat-switch-step`, on all 15 gate traces** (with and without `--inject-plan`; no T / A /
+C / `[` / H / B mismatch before it). Every gate CPU's STRAT-LOOKUP strategy is a `t0-*` Q selector, and CORE-BRAIN-STEP runs
+STRAT-SWITCH-STEP in its first `let*`, before any of this task's code. No trace in the key has a brain without a strategy (`A` line slot
+38 per side: every brain holds `#s::T0-…`), so **no answer-keyed trace covers core-ai yet**. Its evidence is the unit tests below, values
+taken from the frozen native image (a scratch runner over build/simgate/duel.fas printing FZ-CHANCE, FINISH-ROLE, WEIGHTED-PICK,
+AI-HOHO-SPARE-P, REISHI-FRAC, XCH-J-WEIGHTS with `~S`). Task 5 makes the traces reach this code.
+
+**ECL's `(expt x 2)` is powf (ruling R7).** The host ECL compiles `(expt x 2)` to `ecl_expt(x, ecl_make_fixnum(2))` for every probe:
+untyped, `(declare (single-float x))`, the same at speed 3 safety 0, a special's sum, a typed difference (`compile-file :c-file t` on a
+probe; no inline `x*x`). ecl/src/c/numbers/expt.d: a zero base returns `ecl_times(x, y)`, a single-float base with a fixnum
+exponent goes to `ecl_expt_float`, which is `powf(ecl_to_float(x), ecl_to_float(y))`. That is `cl::expt2`. combat.lisp:108 (APPLY-HIT's
+`d2`, from single positions) and hazards.lisp:68 (a wave's arena test, `(expt (+ *arena-radius* 2.0) 2)` included) now use `cl::expt2`
+(combat.rs, hazards.rs). The other `(expt … 2)` in M1-ported files are ken.lisp:729/773/835, inside the KR / ZH / Z Kikon cinematics'
+DURING blocks; Rust ports only their endpoint KE-KK-AT calls (ken/cine.rs), so there is nothing to change. The 22 M1 traces stay OK.
+
+**musl's expf (ruling R6).** `cl::expf` ports musl's src/math/expf.c (ARM's: the `__exp2f_data` table shared with powf, `shift`
+0x1.8p52, `InvLn2N` and `poly_scaled` exact scalings by 32). MC-PLAN-APPLY's softmax calls it (cpu-mcts.lisp:179). It equals musl on all
+2^32 inputs: tests/cpu.rs `expf_equals_musl_on_every_input` (`#[ignore]`) against `build/musl-hash expf` = `0xeae4f603b90fd236`.
+tools/port/musl-hash.c is the harness for both exhaustive hashes (it dlopens build/simgate/muslm.so with RTLD_DEEPBIND, so musl's own
+symbols win inside it as under the sim's LD_PRELOAD). `expt2` reproduces `0x6d43542f09460075`. Release time: about 31 s for the two
+together.
+
+**The CPU's Reishi readers over `cl::Num`** (M1 §10): REISHI-FRAC (`fighter::reishi_frac`), AI-BURST-WANTED-P, AI-HOHO-SPARE-P,
+FINISH-ROLE (rules.rs). TIME-UP-WINNER now takes `Num` (CL's float × fixnum products and exact compares), so TIME-UP no longer bails on
+a float Reishi in a Konpaku tie. AI-BURST-WANTED-P has no caller at lisp-freeze; its NEXT-HIT is taken as a `Num`.
+
+**Tests.** tests/fuzzy.rs (fuzzy.lisp's 18 checks, plus 11 points of the shipped rule bases bit for bit); tests/xch_ai.rs (xch-ai.lisp's
+58 checks, the unit ones over `*strat-data*` as tables.json holds it; WEIGHTED-PICK's edges); tests/cpu.rs `cpu_floor_round_edges`
+(Review Focus 5), `reishi_readers_take_a_float_reishi`, `finish_role_cases`, `cpu_helpers_core_lisp` (core.lisp's deferred CPU checks),
+`mc_plan_apply_picks_and_clears`, `generic_cpu_runs_to_the_mcts` (a KK match with the strategies cleared plays the generic neutral until
+the MCTS's search, no panic), `time_up_reads_a_float_reishi_on_a_konpaku_tie`.
+
+Carried items: a CPU's JSTARTS reserves `*ai-mash-window*` + 2 at spawn (BRAIN-PERCEIVE pushes before it drops).

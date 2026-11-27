@@ -1070,7 +1070,7 @@ mod tests {
     }
 
     /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / H / B of the 300 intro steps equal (A: the brains'
-    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM.
+    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM and stops at the Q selector (STRAT-SWITCH-STEP: Task 5).
     #[test]
     fn live_ki_s1_reaches_brain_system() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
@@ -1079,7 +1079,7 @@ mod tests {
         for flags in ["--live", "--live --inject-plan"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED core-brain-step at tick 1 (step 301)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED strat-switch-step at tick 1 (step 301)", "{flags}");
         }
     }
 
@@ -1168,7 +1168,7 @@ mod tests {
                 }
                 flow::frame(&mut m, s, &mut Null(0));
             }
-            assert_eq!((m.unported, m.match_tick), (Some("core-brain-step"), 1), "{name}");
+            assert_eq!((m.unported, m.match_tick), (Some("strat-switch-step"), 1), "{name}");
             let got = duel_sim::cpu::a_line(&m, s);
             let (w, g): (Vec<&str>, Vec<&str>) = (want.split(' ').collect(), got.strip_prefix("A ").unwrap().split(' ').collect());
             for f in ["ring", "head", "fresh", "jkey", "jstarts"] {

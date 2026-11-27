@@ -289,6 +289,76 @@ knobs! {
     ai_mash_starts: i64, // tuning.lisp (AI-MASH-P, M2)
     ai_mash_window: i64, // tuning.lisp (BRAIN-PERCEIVE's JSTARTS, M2)
     ai_strafe_time: Window, // tuning.lisp (AI-STRAFE, M2)
+    // the core CPU (core-ai.lisp, xch-ai.lisp, fuzzy.lisp, cpu-mcts.lisp; M2 Task 4)
+    cai_think: KwInts, // core-ai.lisp
+    cai_range: F2, // core-ai.lisp
+    cai_ns_near: f32, // core-ai.lisp
+    cai_ns_far: f32, // core-ai.lisp
+    cai_ranged_p: f32, // core-ai.lisp
+    cai_ranged_gap: i64, // core-ai.lisp
+    cai_awaken_p: f32, // core-ai.lisp
+    cai_xch_j: crate::cpu::xch_ai::XchJ, // tuning.lisp
+    cai_xch_sa_p: KwFloats, // tuning.lisp
+    cai_xch_early_p: KwFloats, // tuning.lisp
+    cai_xch_early_his_p: KwFloats, // tuning.lisp
+    cai_xch_carry_p: KwFloats, // tuning.lisp
+    cai_xch_carry_watch_p: KwFloats, // tuning.lisp
+    cai_xch_sa_wait: i64, // tuning.lisp
+    cai_clash_p: KwFloats, // tuning.lisp
+    cai_clash_delay: KwInts, // tuning.lisp
+    cai_clash_margin: f32, // tuning.lisp
+    cai_awaken_break_p: KwFloats, // tuning.lisp
+    cai_awaken_kikon_p: KwFloats, // tuning.lisp
+    fz_skill: KwFloats, // fuzzy.lisp
+    fz_sets: crate::cpu::fuzzy::FzSets, // fuzzy.lisp
+    fz_as_now: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_ns_turn: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_ns_cont: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_kikon: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_hoho: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_cancel: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    fz_burst: crate::cpu::fuzzy::FzRules, // fuzzy.lisp
+    mc_on: bool, // cpu-mcts.lisp (T; a list of characters would fail the load)
+    mc_off_at: Pairs, // cpu-mcts.lisp
+    mc_far: f32, // cpu-mcts.lisp
+    mc_defer_gap: i64, // cpu-mcts.lisp
+    mc_budget: KwFloats, // cpu-mcts.lisp
+    mc_tau: KwFloats, // cpu-mcts.lisp
+    mc_actions: Names, // mcts-lite.lisp
+    strat_layer: bool, // strategy.lisp (NIL; T or a list / seat would fail the load: Task 5)
+}
+
+/// A list knob of symbol names (`*mc-actions*` `(:j1 :sp …)`), lower case as the data.
+#[derive(Debug, Clone, Default)]
+pub struct Names(pub Vec<String>);
+
+impl duel_data::tuning::Knob for Names {
+    const KIND: &'static str = "a list of keywords";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Names> {
+        v.as_array()?.iter().map(|x| x.as_str().map(str::to_string)).collect::<Option<Vec<_>>>().map(Names)
+    }
+}
+
+/// A list knob of keyword pairs (`*mc-off-at*` `((:ichigo :hard))`).
+#[derive(Debug, Clone, Default)]
+pub struct Pairs(pub Vec<(String, String)>);
+
+impl Pairs {
+    /// `(member (list a b) pairs :test #'equal)`.
+    pub fn has(&self, a: &str, b: &str) -> bool {
+        self.0.iter().any(|(x, y)| x.eq_ignore_ascii_case(a) && y.eq_ignore_ascii_case(b))
+    }
+}
+
+impl duel_data::tuning::Knob for Pairs {
+    const KIND: &'static str = "a list of keyword pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Pairs> {
+        let pair = |p: &duel_data::tuning::Value| match p.as_array()?.as_slice() {
+            [a, b] => Some((a.as_str()?.to_string(), b.as_str()?.to_string())),
+            _ => None,
+        };
+        v.as_array()?.iter().map(pair).collect::<Option<Vec<_>>>().map(Pairs)
+    }
 }
 
 /// A list knob of integers (`*clone-konpaku*` `(2 2 3 4)`).
@@ -339,6 +409,10 @@ impl KwInts {
     pub fn get(&self, key: &str, default: i64) -> i64 {
         self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map_or(default, |&(_, v)| v)
     }
+    /// port: BRAIN-CHANCE over an integer plist (`*cai-clash-delay*`): DIF's, else NORMAL's (the Lisp's 0.0 default is never reached).
+    pub fn chance(&self, dif: crate::components::Difficulty) -> i64 {
+        self.get(dif.name(), self.get("normal", 0))
+    }
 }
 
 impl duel_data::tuning::Knob for KwInts {
@@ -360,6 +434,14 @@ impl KwFloats {
     /// port: GETF over the plist (KEY in any case, without the colon); a missing key panics (the Lisp's F32 of NIL errors).
     pub fn get(&self, key: &str) -> f32 {
         self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map(|&(_, v)| v).unwrap_or_else(|| panic!("no key {key}"))
+    }
+    /// port: GETF with a default.
+    pub fn get_or(&self, key: &str, default: f32) -> f32 {
+        self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map_or(default, |&(_, v)| v)
+    }
+    /// port: components.lisp BRAIN-CHANCE — the plist's chance at DIF (a missing key: NORMAL's, else 0).
+    pub fn chance(&self, dif: crate::components::Difficulty) -> f32 {
+        self.get_or(dif.name(), self.get_or("normal", 0.0))
     }
 }
 

@@ -187,6 +187,11 @@ pub fn gauges_red_p(k: &crate::knobs::Knobs, g: &Gauges) -> bool {
     crate::rules::red_p(k, g.reishi, g.reishi_max)
 }
 
+/// port: REISHI-FRAC — G's Reishi as a fraction of its maximum (a trial's float Reishi too: `cl::Num`).
+pub fn reishi_frac(g: &Gauges) -> f32 {
+    g.reishi.f() / g.reishi_max as f32
+}
+
 /// port: combat.lisp RESPECT: E's form's :respect-callout, if any.
 pub fn respect(m: &mut Match, e: Entity) {
     if let Some(c) = &kit_of(m, e).respect_callout {
@@ -231,8 +236,9 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
             kit: Some(KitId { character, form: Form::Base }),
             brain: cpu.then(|| {
                 let mut b = crate::cpu::Brain::new(m.difficulty, m.knobs.ai_delay.get(m.difficulty.name(), 14));
-                // (JSTARTS holds at most a tick per step within *ai-mash-window*: its whole size now, so a battle step never grows it)
-                b.jstarts.reserve(m.knobs.ai_mash_window as usize + 1);
+                // (JSTARTS holds at most a tick per step within *ai-mash-window*, plus the one BRAIN-PERCEIVE pushes before it drops: its whole
+                // size now, so a battle step never grows it)
+                b.jstarts.reserve(m.knobs.ai_mash_window as usize + 2);
                 b
             }),
             ..Fighter::default()

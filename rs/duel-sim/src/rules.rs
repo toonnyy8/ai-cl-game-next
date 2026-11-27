@@ -460,15 +460,16 @@ pub fn kikon_result(k: &Knobs, konpaku: i64, count: i64, soul_break: bool) -> (i
     (left, lost, left <= 0)
 }
 
-// port: rules.lisp TIME-UP-WINNER → Some(0 / 1), None = :DRAW
-pub fn time_up_winner(konpaku_0: i64, reishi_0: i64, max_0: i64, konpaku_1: i64, reishi_1: i64, max_1: i64) -> Option<i64> {
+// port: rules.lisp TIME-UP-WINNER → Some(0 / 1), None = :DRAW. A Reishi may be a float (a trial's): CL's products and compares.
+pub fn time_up_winner(konpaku_0: i64, reishi_0: impl Into<Num>, max_0: i64, konpaku_1: i64, reishi_1: impl Into<Num>, max_1: i64) -> Option<i64> {
+    let (a, b) = (reishi_0.into() * max_1, reishi_1.into() * max_0);
     if konpaku_0 > konpaku_1 {
         Some(0)
     } else if konpaku_0 < konpaku_1 {
         Some(1)
-    } else if reishi_0 * max_1 > reishi_1 * max_0 {
+    } else if b.lt(a) {
         Some(0)
-    } else if reishi_0 * max_1 < reishi_1 * max_0 {
+    } else if a.lt(b) {
         Some(1)
     } else {
         None
@@ -478,6 +479,54 @@ pub fn time_up_winner(konpaku_0: i64, reishi_0: i64, max_0: i64, konpaku_1: i64,
 // port: rules.lisp MATCH-ELAPSED
 pub fn match_elapsed(left: i64, total: i64) -> f32 {
     max_f32(0.0, min_f32(1.0, 1.0 - left as f32 / 1.max(total) as f32))
+}
+
+/// The late-match finish's role (FINISH-ROLE's :AHEAD / :BEHIND / :EVEN).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FinishRole {
+    Ahead,
+    Behind,
+    Even,
+}
+
+impl FinishRole {
+    /// The keyword's name in lower case (the log's `~(~a~)`).
+    pub fn name(self) -> &'static str {
+        match self {
+            FinishRole::Ahead => "ahead",
+            FinishRole::Behind => "behind",
+            FinishRole::Even => "even",
+        }
+    }
+}
+
+// port: rules.lisp FINISH-ROLE (AT: *cai-finish-at*) — NIL until AT of the clock has run; then side 0's place at the bell
+// (TIME-UP-WINNER: a float Reishi too): :AHEAD at once, :BEHIND / :EVEN once QUIET reaches WAIT.
+#[allow(clippy::too_many_arguments)]
+pub fn finish_role(
+    k: &Knobs, left: i64, total: i64, quiet: i64, wait: i64, konpaku_0: i64, reishi_0: Num, max_0: i64, konpaku_1: i64, reishi_1: Num,
+    max_1: i64,
+) -> Option<FinishRole> {
+    if match_elapsed(left, total) < k.cai_finish_at {
+        return None;
+    }
+    let role = match time_up_winner(konpaku_0, reishi_0, max_0, konpaku_1, reishi_1, max_1) {
+        Some(0) => FinishRole::Ahead,
+        Some(_) => FinishRole::Behind,
+        None => FinishRole::Even,
+    };
+    (role == FinishRole::Ahead || quiet >= wait).then_some(role)
+}
+
+// port: rules.lisp AI-BURST-WANTED-P (no caller at lisp-freeze; NEXT-HIT taken as a CL number)
+pub fn ai_burst_wanted_p(k: &Knobs, reishi: Num, reishi_max: i64, next_hit: Num) -> bool {
+    reishi.lt(Num::F(k.ai_burst_low * reishi_max as f32)) || red_p(k, reishi - next_hit, reishi_max)
+}
+
+// port: rules.lisp AI-HOHO-SPARE-P (its fixnum path and its generic one, for a float Reishi, are the same single-float compares)
+pub fn ai_hoho_spare_p(k: &Knobs, fs: f32, reishi: Num, reishi_max: i64) -> bool {
+    let low = reishi.lt(Num::F(k.ai_burst_low * reishi_max as f32));
+    fs >= k.fs_hoho + if low { k.fs_burst } else { 0.0 }
 }
 
 // port: rules.lisp GAUGE-ADD (the single-float path)

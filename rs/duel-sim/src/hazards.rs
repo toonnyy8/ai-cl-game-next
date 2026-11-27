@@ -3,6 +3,7 @@
 //! (HAZARD-SYSTEM), the volumes (HAZARD-TOUCHES-P), the hits handed to combat.rs (COLLECT-HAZARD-HITS, HAZARD-CONNECTED) and perfect
 //! Hoho's test (HAZARD-THREAT-P). HAZARD-DRAW is a look (M3). A hazard's `:hook` symbol resolves by name (`HzHook`); one not ported
 //! yet is `unported!` with its name.
+use crate::cl::expt2;
 use crate::combat::{HwRef, Pending};
 use crate::components::{Cls, Hazard, HazardKind, HitWin, HzData, MoveId, Sym};
 use crate::ecs::Entity;
@@ -213,8 +214,7 @@ pub fn hazard_step(m: &mut Match, h: Entity) {
         let d = hz.speed * STEP;
         hz.x += d * fwd_x(hz.yaw);
         hz.z += d * fwd_z(hz.yaw);
-        let r = arena + 2.0;
-        if hz.x * hz.x + hz.z * hz.z > r * r {
+        if expt2(hz.x) + expt2(hz.z) > expt2(arena + 2.0) { // (EXPT 2: musl's powf, M2_NOTES §3)
             hz.age = hz.life;
         }
     }

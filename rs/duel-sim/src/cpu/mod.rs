@@ -10,7 +10,10 @@ use std::collections::BTreeMap;
 use std::fmt::Write;
 
 pub mod core_ai;
+pub mod fuzzy;
 pub mod perceive;
+pub mod style;
+pub mod xch_ai;
 
 /// A slot whose Lisp value a later M2 task ports (a SNAP, a style's state, an fq record ...): it can only hold its NIL default.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
