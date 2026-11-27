@@ -342,7 +342,7 @@ pub fn rollout_start(s: &mut Search, snap: &Match, rng: u32, e: Entity, dif: Dif
                 b.reset(dif, delay); // (MAKE-BRAIN, its reserves kept)
                 b
             }
-            None => Brain::new(dif, delay),
+            None => Box::new(Brain::new(dif, delay)),
         };
         r.fighter.get_mut(o).unwrap().brain = Some(b);
         r.pilot.get_mut(o).expect("a pilot").cam_relative = false;

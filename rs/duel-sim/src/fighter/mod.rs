@@ -107,24 +107,44 @@ pub fn kit_of(m: &Match, e: Entity) -> &'static Kit {
 }
 const NC: usize = Character::ALL.len();
 const NF: usize = Form::ALL.len();
-/// Every kit of the data by (character, form), with its body's hurt radius: built once per match, since `kit_of` / `hurt_r` run many
-/// times a step (two map lookups by name each, before).
+/// Every kit of the data by (character, form), with its body's hurt radius and the moves the CPU's cues read each step (KIT-COMMAND-MOVE
+/// :q, KIT-CORE-MOVE :ns 1-3): built once per match, since `kit_of` / `hurt_r` / STRAT-FEATS run many times a step (map lookups by
+/// name each, before).
 #[derive(Clone, Copy)]
-pub struct KitTable([[Option<(&'static Kit, f32)>; NF]; NC]);
+pub struct KitTable([[Option<KitRow>; NF]; NC]);
+/// One kit's row of the `KitTable`.
+#[derive(Clone, Copy)]
+pub struct KitRow {
+    pub kit: &'static Kit,
+    pub hurt_r: f32,
+    /// KIT-COMMAND-MOVE :q (J).
+    pub q: Option<&'static Move>,
+    /// KIT-CORE-MOVE :ns 1, 2, 3.
+    pub ns: [Option<&'static Move>; 3],
+}
 impl KitTable {
     pub fn new(data: &'static duel_data::Data) -> KitTable {
         let mut t = [[None; NF]; NC];
         for (ci, &c) in Character::ALL.iter().enumerate() {
             for (fi, &f) in Form::ALL.iter().enumerate() {
                 let kit = data.kits.kits.get(&c.name().to_lowercase()).and_then(|fs| fs.get(&f.name().to_lowercase()));
-                t[ci][fi] = kit.map(|k| (k, data.bodies.get(&k.body).unwrap_or_else(|| panic!("kit {c} {f}: unknown body {}", k.body)).hurt_r));
+                t[ci][fi] = kit.map(|kit| KitRow {
+                    kit,
+                    hurt_r: data.bodies.get(&kit.body).unwrap_or_else(|| panic!("kit {c} {f}: unknown body {}", kit.body)).hurt_r,
+                    q: crate::kit::kit_command_move(data, kit, "q"),
+                    ns: [1, 2, 3].map(|n| crate::kit::kit_core_move(data, kit, crate::kit::Role::Ns, n)),
+                });
             }
         }
         KitTable(t)
     }
     /// (the kit, its body's hurt_r); panics on a kit the data lacks, as `find_kit`.
     pub fn get(&self, c: Character, f: Form) -> (&'static Kit, f32) {
-        self.0[c as usize][f as usize].unwrap_or_else(|| panic!("unknown kit {c} {f}"))
+        let r = self.row(c, f);
+        (r.kit, r.hurt_r)
+    }
+    pub fn row(&self, c: Character, f: Form) -> &KitRow {
+        self.0[c as usize][f as usize].as_ref().unwrap_or_else(|| panic!("unknown kit {c} {f}"))
     }
 }
 pub fn mv(m: &Match, id: MoveId) -> &'static Move {
@@ -243,7 +263,7 @@ pub fn spawn_fighter(m: &mut Match, side: i64, character: Character, x: f32, z: 
                 // (JSTARTS holds at most a tick per step within *ai-mash-window*, plus the one BRAIN-PERCEIVE pushes before it drops: its whole
                 // size now, so a battle step never grows it)
                 b.jstarts.reserve(m.knobs.ai_mash_window as usize + 2);
-                b
+                Box::new(b)
             }),
             ..Fighter::default()
         },

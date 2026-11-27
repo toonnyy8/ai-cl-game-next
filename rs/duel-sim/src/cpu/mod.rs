@@ -374,7 +374,7 @@ pub struct Search {
     pub scratch: Option<Slot>,
     /// Not Lisp's: the last rollout's stand-in brain for a brainless opponent, made again (`Brain::reset`) by the next rollout that
     /// needs one, so a vs rollout allocates no brain.
-    pub spare_brain: Option<Brain>,
+    pub spare_brain: Option<Box<Brain>>,
     /// Rollouts cut short by an `unported!` path (`m.unported` of the rollout's match): their value is wrong, so the replay fails.
     pub cut_rollouts: u64,
     /// The first such path and the live tick of its rollout.

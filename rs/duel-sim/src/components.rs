@@ -315,8 +315,9 @@ pub struct Fighter {
     pub combo_dmg: i64,
     pub callout: Option<Str>,
     pub callout_t: i64,
-    /// Not a slot: the BRAIN component (M2; not in the B line, in A).
-    pub brain: Option<crate::cpu::Brain>,
+    /// Not a slot: the BRAIN component (M2; not in the B line, in A). Boxed: a brain is 6.5 kB and the CPU takes it out of its fighter
+    /// for each step (a move of the pointer, not of the brain; made at a fighter's spawn, restored in place by `clone_from`).
+    pub brain: Option<Box<crate::cpu::Brain>>,
 }
 
 /// `clone_from` (a rollout's restore) reuses the brain's heap (`Brain::clone_from`); every other slot is `Copy` (`..*src` checks it).

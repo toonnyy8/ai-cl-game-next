@@ -11,9 +11,19 @@ pub(crate) fn num_of(v: &Value) -> Option<Num> {
     if v.is_i64() { v.as_i64().map(Num::I) } else { v.as_f64().map(|x| Num::F(x as f32)) }
 }
 
-/// `*fz-sets*`: name -> trapezoid (A B C D).
+/// `*fz-sets*`: name -> trapezoid (A B C D). Each name is also kept as `key8` (FZ-MU runs for every antecedent of every rule, and
+/// compares names where the Lisp compares keywords by EQ: one integer compare a set instead of a string compare).
 #[derive(Debug, Clone, Default)]
-pub struct FzSets(pub Vec<(String, [Num; 4])>);
+pub struct FzSets(pub Vec<(String, [Num; 4])>, Vec<u64>);
+
+/// NAME's ASCII lower case packed into a u64, zero-padded (names hold no NUL), for a name of at most 8 bytes; `u64::MAX` (no UTF-8
+/// string packs to it) for a longer one, which FZ-MU compares as a string.
+pub fn key8(name: &str) -> u64 {
+    if name.len() > 8 {
+        return u64::MAX;
+    }
+    name.bytes().rev().fold(0, |k, c| (k << 8) | c.to_ascii_lowercase() as u64)
+}
 
 impl Knob for FzSets {
     const KIND: &'static str = "a list of (name a b c d)";
@@ -22,7 +32,9 @@ impl Knob for FzSets {
             let e = e.as_array().filter(|e| e.len() == 5)?;
             Some((e[0].as_str()?.to_string(), [num_of(&e[1])?, num_of(&e[2])?, num_of(&e[3])?, num_of(&e[4])?]))
         };
-        v.as_array()?.iter().map(set).collect::<Option<Vec<_>>>().map(FzSets)
+        let sets = v.as_array()?.iter().map(set).collect::<Option<Vec<_>>>()?;
+        let keys = sets.iter().map(|(n, _)| key8(n)).collect();
+        Some(FzSets(sets, keys))
     }
 }
 
@@ -68,7 +80,9 @@ pub type Feats<'a> = [(&'a str, Num)];
 
 /// port: FZ-MU — X's membership in the set named SET (a name missing from `*fz-sets*` is the Lisp's error: a panic).
 pub fn fz_mu(sets: &FzSets, x: Num, set: &str) -> f32 {
-    let [a, b, c, d] = sets.0.iter().find(|(n, _)| n.eq_ignore_ascii_case(set)).unwrap_or_else(|| panic!("no fuzzy set {set}")).1;
+    let k = key8(set);
+    let i = if k == u64::MAX { sets.0.iter().position(|(n, _)| n.eq_ignore_ascii_case(set)) } else { sets.1.iter().position(|&x| x == k) };
+    let [a, b, c, d] = sets.0[i.unwrap_or_else(|| panic!("no fuzzy set {set}"))].1;
     if x.lt(a) || d.lt(x) {
         0.0
     } else if x.lt(b) {

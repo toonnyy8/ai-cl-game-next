@@ -62,7 +62,12 @@ fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d:
         None => b.strat,
     };
     let ev = sw.filter(|sw| sw.fq().is_some()).and_then(|sw| glue::strat_event_step(m, b, &snap, sw)); // (the event layer's arm)
-    b.now = ev.or(cur).map(|st| Now { st, cues: glue::strat_feats(m, e, &snap, d), gap_off: false }); // (read by STRAT-OUT's callers this step)
+    b.now = None;
+    if let Some(st) = ev.or(cur) {
+        // (read by STRAT-OUT's callers this step; the cues written in place: a Now is 1 KB)
+        let now = b.now.insert(Now { st, cues: Default::default(), gap_off: false });
+        glue::strat_feats_into(m, e, &snap, d, &mut now.cues);
+    }
     let kit = kit_of(m, e);
     m.pilot.get_mut(e).unwrap().vpad.stick(0.0, 0.0);
     ai_event_rolls(&mut m.rng, b, &snap);

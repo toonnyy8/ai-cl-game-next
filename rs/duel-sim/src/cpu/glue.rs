@@ -26,9 +26,8 @@ use crate::cl::{floor_div, max_f32, min_f32, Num};
 use crate::components::{Form, State};
 use crate::core::core_clamp_pointer;
 use crate::ecs::Entity;
-use crate::fighter::{awaken_ready_p, fighter, gauges_red_p, hoho_ready_p, kit_of, pos_of};
+use crate::fighter::{awaken_ready_p, fighter, gauges_red_p, hoho_ready_p, pos_of};
 use crate::knobs::{Knobs, KwNums};
-use crate::kit::{kit_command_move, kit_core_move, Role};
 use crate::state::Match;
 use duel_data::tuning::Value;
 use duel_data::Move;
@@ -46,13 +45,15 @@ pub fn mc_ptr(ptr: i64) -> i64 {
 /// port: STRAT-FEATS — the strategies' cues for E seeing SNAP S at distance D, pushed on OUT (relative to the kits).
 pub fn strat_feats_into(m: &Match, e: Entity, s: &Snap, d: f32, out: &mut Cues) {
     let (f, k) = (fighter(m, e), &m.knobs);
-    let (kit, o) = (kit_of(m, e), f.opp);
-    let okit = kit_of(m, o);
+    let o = f.opp;
+    let row = |e: Entity| fighter(m, e).kit.map(|k| m.kits.row(k.character, k.form)).expect("a fighter has a kit");
+    let (me, them) = (row(e), row(o));
+    let kit = me.kit;
     let (g, go) = (m.gauges.get(e).expect("gauges"), m.gauges.get(o).expect("gauges"));
     let p = mc_ptr(f.ptr);
-    let rj = strat_reach(kit_command_move(m.data, kit, "q"));
-    let rn = strat_reach(kit_core_move(m.data, kit, Role::Ns, p));
-    let ro = strat_reach(kit_command_move(m.data, okit, "q"));
+    let rj = strat_reach(me.q); // (KIT-COMMAND-MOVE :q, KIT-CORE-MOVE :ns P: the match's KitTable)
+    let rn = strat_reach(me.ns[(p - 1) as usize]);
+    let ro = strat_reach(them.q);
     let mx = |r: f32| crate::cl::max_f32(0.5, r);
     out.push("dj", Num::F(d / mx(rj)));
     out.push("dn", Num::F(d / mx(rn)));

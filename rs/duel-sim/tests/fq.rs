@@ -78,7 +78,7 @@ fn start(m: &mut Match, s: &mut Search, mode: Mode, dif: Difficulty) {
 }
 
 fn brains(m: &Match) -> [Option<&Brain>; 2] {
-    [m.p1, m.p2].map(|e| m.fighter.get(e).unwrap().brain.as_ref())
+    [m.p1, m.p2].map(|e| m.fighter.get(e).unwrap().brain.as_deref())
 }
 
 /// FQ-ATTACH!: CPU vs CPU never learns, even at HARD with a Q selector played whole; VS CPU after a debug command does not either;
