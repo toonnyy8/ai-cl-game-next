@@ -2,16 +2,19 @@
 //! (tools/port/oracle/trace.lisp TR-A-LINE). The snapshot boundary is Lisp's (docs/bevy/M2_NOTES.md §1): what SIM-SNAPSHOT reaches
 //! is in `Match` (the brain on its fighter, `Match.mc_plan` / `mc_next`); every other runtime CPU state is in `Search`, which a
 //! rollout's restore never touches.
-use crate::components::{Character, Difficulty, State, Sym};
+use crate::components::{Difficulty, State, Sym};
 use crate::hashline::Enc;
 use crate::state::{Match, Mode};
 use duel_data::Data;
 use std::collections::BTreeMap;
+pub use strategy::Strat;
 use std::fmt::Write;
 
 pub mod core_ai;
 pub mod fuzzy;
+pub mod glue;
 pub mod perceive;
+pub mod strategy;
 pub mod style;
 pub mod xch_ai;
 
@@ -25,28 +28,50 @@ impl Enc for NotYet {
     }
 }
 
-/// A strategy: its index in `strat_library` (tables.json, strategy.lisp *STRAT-LIBRARY*). ponytail: a library plist only; a
-/// player's fq copy (FQ-TABLE) is Task 9's.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct StratRef(pub u16);
+/// BRAIN-SW-WON: a judgement count per entry of the composite / Q selector, `(max 8 n)` slots.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Won {
+    pub n: u8,
+    pub v: [i64; strategy::MAX_ARMS],
+}
 
-impl StratRef {
-    /// The library entry ID (lower case, as tables.json: "t0-ki-ichigo").
-    pub fn id(self, d: &Data) -> &str {
-        d.tables["strat_library"][self.0 as usize]["id"].as_str().expect("strat id")
-    }
-    /// port: STRAT-BY-ID.
-    pub fn by_id(d: &Data, id: &str) -> Option<StratRef> {
-        let lib = d.tables["strat_library"].as_array().expect("strat_library");
-        lib.iter().position(|s| s["id"].as_str().is_some_and(|x| x.eq_ignore_ascii_case(id))).map(|i| StratRef(i as u16))
+impl Won {
+    pub fn new(n: usize) -> Won {
+        assert!(n <= strategy::MAX_ARMS, "a table with {n} entries");
+        Won { n: 8.max(n) as u8, v: [0; strategy::MAX_ARMS] }
     }
 }
 
-/// trace.lisp TR-A-STRAT: `#s:` + the :ID keyword.
-impl Enc for StratRef {
+impl Enc for Won {
     fn enc(&self, d: &Data, s: &mut String) {
-        s.push_str("#s::");
-        s.push_str(&self.id(d).to_uppercase());
+        enc_vec(&self.v[..self.n as usize], d, s)
+    }
+}
+
+/// BRAIN-SW-KEEP: the styles' states a :KEEP-STATE Q selector keeps, `((fn . style) ...)` newest first. Reserved at the brain's
+/// making (a table has at most `MAX_ARMS` style functions), so a switch allocates nothing.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SwKeep(pub Vec<(style::StyleId, Option<NotYet>)>);
+
+impl Enc for SwKeep {
+    fn enc(&self, d: &Data, s: &mut String) {
+        if self.0.is_empty() {
+            return s.push_str("NIL");
+        }
+        s.push('(');
+        for (i, (f, st)) in self.0.iter().enumerate() {
+            if i > 0 {
+                s.push(',');
+            }
+            s.push('(');
+            f.enc(d, s);
+            if let Some(st) = st {
+                s.push_str(",.");
+                st.enc(d, s);
+            }
+            s.push(')');
+        }
+        s.push(')');
     }
 }
 
@@ -92,18 +117,18 @@ pub struct Brain {
     pub clash_key: i64,
     pub fin_t: i64,
     pub style: Option<NotYet>, // a style's struct (Tasks 6-7)
-    pub strat: Option<StratRef>,
-    pub now: Option<NotYet>, // (strategy . cues) while the core CPU steps (Task 5)
-    pub sw_sub: Option<NotYet>,
+    pub strat: Option<Strat>,
+    pub now: Option<strategy::Now>, // (strategy . cues) while the core CPU steps; NIL at a step's end
+    pub sw_sub: Option<Strat>,
     pub sw_t: i64,
     pub sw_n: i64,
-    pub sw_won: Option<NotYet>,
-    pub sw_fn: Option<NotYet>,
-    pub sw_keep: Option<NotYet>,
+    pub sw_won: Option<Won>,
+    pub sw_fn: Option<style::StyleId>,
+    pub sw_keep: SwKeep,
     pub tw: i64,
     pub tw_off: bool,
     pub ev_t: i64,
-    pub ev_on: Option<NotYet>,
+    pub ev_on: Option<Strat>,
     pub ev_style: Option<NotYet>,
     pub ev_n: i64,
     pub ev_steps: i64,
@@ -172,7 +197,7 @@ impl Brain {
             sw_n: 0,
             sw_won: None,
             sw_fn: None,
-            sw_keep: None,
+            sw_keep: SwKeep(Vec::with_capacity(strategy::MAX_ARMS)),
             tw: -1,
             tw_off: false,
             ev_t: -1,
@@ -218,16 +243,22 @@ pub struct McJob {
     pub v2: f32,
 }
 
-/// One `*strat-jobs*` selection (strategy-glue.lisp STJOB): the A line's fields. ponytail: Tasks 5 / 8 add e, dif, the arms, the
-/// priors, the snapshot and the seed.
+/// One `*strat-jobs*` selection (strategy-glue.lisp STJOB): E's side, difficulty, his arms and the opponent's, the prior and both
+/// PUCTs' statistics, rollouts done. ponytail: Task 8 adds the snapshot and the seed (STJOB-SNAP, -RNG).
 #[derive(Clone, Debug, PartialEq)]
 pub struct StratJob {
+    pub e: crate::ecs::Entity,
     pub side: i64,
-    pub n: i64,
+    pub dif: Difficulty,
+    pub mine: Vec<Strat>,
+    pub his: Vec<Strat>,
+    pub prior: Vec<f32>,
     pub sums: Vec<f32>,
     pub ns: Vec<f32>,
     pub hsums: Vec<f32>,
     pub hns: Vec<f32>,
+    pub hprior: Vec<f32>,
+    pub n: i64,
 }
 
 /// The CPU state Lisp keeps outside its snapshot roots (M2_NOTES §1): a rollout's restore never touches it, so a job's scores
@@ -292,16 +323,20 @@ pub fn start_match_cpu(m: &mut Match) {
                 continue;
             };
             let d = m.data;
+            let dif = m.fighter.get(e).and_then(|f| f.brain.as_ref()).map(|b| b.difficulty);
+            let st = dif.and_then(|dif| strategy::strat_lookup(d, &m.knobs, me, vs, dif));
             if let Some(b) = m.fighter.get_mut(e).unwrap().brain.as_mut() {
-                b.strat = strat_lookup(d, me, vs, b.difficulty);
+                b.strat = st;
             }
         }
         for (e, o) in [(m.p1, m.p2), (m.p2, m.p1)] {
             // port: FQ-ATTACH!'s test, a superset (the table chance and the LEARNING setting not read): it bails before it would attach
             let opp_human = m.fighter.get(o).is_some_and(|f| !f.has_brain());
-            let attach = m.fighter.get(e).and_then(|f| f.brain.as_ref()).is_some_and(|b| {
-                b.difficulty == Difficulty::Hard && b.strat.is_some_and(|st| m.data.tables["strat_library"][st.0 as usize].get("fq").is_some())
-            });
+            let attach = m
+                .fighter
+                .get(e)
+                .and_then(|f| f.brain.as_ref())
+                .is_some_and(|b| b.difficulty == Difficulty::Hard && b.strat.is_some_and(|st| st.fq().is_some()));
             if attach && opp_human && m.mode == Mode::VsCpu {
                 crate::unported!(m, "fq-attach!") // (the online learner: Task 9)
             }
@@ -315,18 +350,8 @@ pub fn start_match_cpu(m: &mut Match) {
     }
 }
 
-/// port: STRAT-LOOKUP — *STRAT-LOOKUP*'s strategy for ME against VS at DIF (HARD's row at a difficulty whose table chance is above 0).
-pub fn strat_lookup(d: &Data, me: Character, vs: Character, dif: Difficulty) -> Option<StratRef> {
-    let chance = d.tuning["*STRAT-TABLE-CHANCE*"].get(dif.name().to_lowercase()).and_then(|v| v.as_f64()).unwrap_or(0.0);
-    let dif = if chance > 0.0 { Difficulty::Hard } else { dif };
-    let rows = d.tables["strat_lookup"].as_array().expect("strat_lookup");
-    let is = |v: Option<&str>, s: &str| v.is_some_and(|x| x.eq_ignore_ascii_case(s));
-    let r = rows.iter().find(|r| is(r[0].as_str(), me.name()) && is(r[1].as_str(), vs.name()) && is(r[2].as_str(), dif.name()))?;
-    StratRef::by_id(d, r[3].as_str()?)
-}
-
 /// A Lisp vector `[a,b]` of a slice.
-fn enc_vec<T: Enc>(v: &[T], d: &Data, s: &mut String) {
+pub(crate) fn enc_vec<T: Enc>(v: &[T], d: &Data, s: &mut String) {
     s.push('[');
     for (i, x) in v.iter().enumerate() {
         if i > 0 {
@@ -404,6 +429,7 @@ pub fn a_line(m: &Match, s: &Search) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::components::Character;
 
     #[test]
     fn brain_prints_its_slot_count() {
@@ -416,8 +442,9 @@ mod tests {
     #[test]
     fn strat_lookup_reads_the_hard_row() {
         let d = crate::hashline::tests::data();
-        let st = strat_lookup(d, Character::Kenpachi, Character::Ichigo, Difficulty::Normal).unwrap();
-        assert_eq!(st.id(d), "t0-ki-kenpachi");
-        assert_eq!(strat_lookup(d, Character::Yamamoto, Character::Ichigo, Difficulty::Hard), None);
+        let k = crate::knobs::Knobs::from(d).unwrap();
+        let st = strategy::strat_lookup(d, &k, Character::Kenpachi, Character::Ichigo, Difficulty::Normal).unwrap();
+        assert_eq!(st.id(), Some("t0-ki-kenpachi"));
+        assert_eq!(strategy::strat_lookup(d, &k, Character::Yamamoto, Character::Ichigo, Difficulty::Hard), None);
     }
 }

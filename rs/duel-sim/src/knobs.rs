@@ -325,7 +325,20 @@ knobs! {
     mc_budget: KwFloats, // cpu-mcts.lisp
     mc_tau: KwFloats, // cpu-mcts.lisp
     mc_actions: Names, // mcts-lite.lisp
-    strat_layer: bool, // strategy.lisp (NIL; T or a list / seat would fail the load: Task 5)
+    strat_layer: bool, // strategy.lisp (NIL; T or a list / seat would fail the load: STRAT-LAYER-P reads it as T)
+    // the strategies and their glue (strategy.lisp, strategy-glue.lisp, core-ai.lisp; M2 Task 5)
+    strat_table_chance: KwFloats, // tuning.lisp
+    strat_table_window: i64, // tuning.lisp
+    strat_switch_period: i64, // strategy.lisp
+    strat_event_grace: i64, // strategy.lisp
+    strat_period: i64, // strategy.lisp
+    strat_regain: i64, // strategy.lisp
+    strat_n0: i64, // strategy.lisp
+    strat_lambda: KwFloats, // strategy.lisp
+    fq_unit: i64, // strategy.lisp
+    cai_dswitch_dif: KwFloats, // core-ai.lisp
+    cai_dswitch_slack: f32, // core-ai.lisp
+    cai_styles: crate::cpu::style::CaiStyles, // core-ai.lisp (CAI-DEFSTYLE at load)
 }
 
 /// A list knob of symbol names (`*mc-actions*` `(:j1 :sp …)`), lower case as the data.
@@ -448,6 +461,10 @@ impl KwFloats {
 impl duel_data::tuning::Knob for KwFloats {
     const KIND: &'static str = "a plist of keyword / float pairs";
     fn from_value(v: &duel_data::tuning::Value) -> Option<KwFloats> {
+        // (a *STRAT-* plist is an object: extract.lisp X-STRAT; its keys are unique, so GETF's order does not matter)
+        if let Some(o) = v.as_object() {
+            return o.iter().map(|(k, x)| Some((k.clone(), x.as_f64()? as f32))).collect::<Option<Vec<_>>>().map(KwFloats);
+        }
         let a = v.as_array()?;
         if a.len() % 2 != 0 {
             return None;

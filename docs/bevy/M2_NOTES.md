@@ -173,3 +173,52 @@ a float Reishi in a Konpaku tie. AI-BURST-WANTED-P has no caller at lisp-freeze;
 the MCTS's search, no panic), `time_up_reads_a_float_reishi_on_a_konpaku_tie`.
 
 Carried items: a CPU's JSTARTS reserves `*ai-mash-window*` + 2 at spawn (BRAIN-PERCEIVE pushes before it drops).
+
+## 4. The strategies and their glue (Task 5)
+
+`cpu/strategy.rs` ports strategy.lisp's code (lines 1-843 and 4439-end), `cpu/glue.rs` strategy-glue.lisp, `cpu/style.rs` the style
+registry. The library is never retyped: a strategy is the tables.json value itself.
+
+**A strategy is `Strat(&'static Value)`.** It is compared by EQ (`std::ptr::eq`), as BRAIN-STRAT, -SW-SUB, -EV-ON and NOW hold the Lisp
+plist. It is `Copy`, so a brain clones cheaply and a step allocates nothing. `plist_get` is GETF over a JSON plist: an object's key
+(extract.lisp X-STRAT writes a plist as an object with GETF's first-wins rule; no shipped plist repeats a key, checked natively), or a
+flat array's first match. A composite's `:switch` entry is a dotted cons `(OWN . plist)`, which the extractor writes `[OWN, k, v ...]`, so
+`Strat::get` reads an odd-length array from its second element. NIL is `null`. A `:base` integer (`:kso-stale 60`, `:xch-j 0`) stays an
+integer: STRAT-VALUE returns `cl::Num`; a rule average is a single. ponytail: a player's fq copy (FQ-TABLE, Task 9) is a fresh table
+outside tables.json; Task 9 turns `Strat` into an enum with an owned case.
+
+**The brain's strategy slots.** `now: Option<Now>` (the strategy and a fixed-capacity cue plist, `Cues`: 32 slots, first match, a missing
+cue integer 0), `sw_sub` / `ev_on: Option<Strat>`, `sw_fn: Option<StyleId>` (a style's identity: Lisp compares SYMBOL-FUNCTIONs EQ,
+which is the name; encoded `#FN`), `sw_won: Option<Won>` (`(max 8 n)` counts; the largest table has 8 arms), `sw_keep: SwKeep` (newest
+first; reserved at the brain's making, so a switch allocates nothing; an entry with a NIL style prints `(#FN)`). `brain.style` stays
+`Option<NotYet>` until Tasks 6-7.
+
+**CORE-BRAIN-STEP's strategy part** (core_ai.rs `think`): the strategy layer's step (knob), the switch step, the event step and NOW run
+on every step, before the `unless (off, lock, cine)`; NOW is cleared after it on every step. The clauses: the exchange, the clash, the
+finish, then the strategy's :FN (`glue::strat_fn_step`, through the event arm's state when an event arm plays), the MCTS neutral, the
+matchup style only when no strategy is active (`cur`, `ev` NIL, not under the layer), the generic CPU. CAI-DSWITCH is whole
+(CAI-SWITCH-TARGET, -PRESS, STRAT-SWITCH-TO / -DIR). `*cai-styles*` is typed once (`Knobs.cai_styles`). The style registry lists the ten
+style names a strategy or `*cai-styles*` names: `style::run` gives `unported!("style <NAME>")` for all of them until Tasks 6-7 (Hisagi's
+M4); a name not in it panics (SYMBOL-FUNCTION's error).
+
+**Not ported here.** STRAT-FULL-STEP / STRAT-ROLL (`glue::strat_full_step` is `unported!`: Task 8); FQ-EXPLORE / FQ-NOTE (their guard
+is ported: `brain.fql` is `Option<NotYet>`, so the branch is `match x {}`; Task 9); STRAT-FINGERPRINT / -SIMILARITY (tools only);
+`*cai-switch-counts*` (a tool's counter never read in play). STRAT-COMPOSE, -ARM, -WITH, -EXPAND are ported over owned JSON for the
+load-time forms and the tests: `compose_reproduces_the_expanded_units` composes every `strat_units` entry back to `strat_units_expanded`.
+
+**Where the live replay stops: step 301 on all 15 gate traces, at `style <NAME>`** (0 steps past 301; no T / A / C / `[` / H / B mismatch
+before it, with and without `--inject-plan`): KK and KI's P1 at `style KEN-KH-STANDOFF-STYLE`, IK, II and the three cvctag at `style
+ICHIGO-KI-R2B2A1-STYLE` (cvctag-kk: KEN-KH-STANDOFF). Every arm of the four K / I T0 tables names an M2 style, and on the first battle step
+the CPU is free with nothing pending, so the :FN clause is reached at once. The replayer does not compare a stopped step's A line, so the
+evidence is:
+- `live_first_step_matches_the_key` (duel-tools): each trace run to the stop, then P2's CORE-BRAIN-STEP on the stopped match (P1's step
+  changes nothing P2 perceives or judges by); both sides' ring, head, fresh, jkey, jstarts, strat, sw-sub / -t / -n / -won / -fn / -keep,
+  tw, tw-off, ev-t / -on / -n / -steps equal the key's step-301 A fields, and each judgement's 28 cues equal the native dump bit for bit.
+- `judgements_match_the_native_dump` (tests/strategy.rs): 155 judgements of the T0 tables dumped by `tests/fixtures/strat-judge-dump.lisp`
+  (*STRAT-JUDGE-HOOK* over build/simgate/duel.fas: real cues, every 30 steps of four 1500-tick matches): Q per arm and the pick, bit for bit.
+- `fq_checksum_matches_the_key`: FQ-CHECKSUM of t0-ki-ichigo = 179296, the vs-learn trace's `duel fq load 3 1 ... checksum 179296`.
+
+**Task 4 code fixed** (it ran live for the first time): NOW was cleared only inside the `unless`; the switch / event steps and NOW now run
+when off, locked or in a cinematic too; the matchup-style clause ran whatever the strategy; the :FN clause was missing; STRAT-OUT /
+-SCALE / -MUL read `f32` (now `Num`: an integer key stays exact); the style stop leaked its name (`Box::leak`); `cai_style_fn` read
+`*CAI-STYLES*` as raw JSON every step.

@@ -6,7 +6,8 @@ use crate::components::Difficulty;
 use crate::knobs::Knobs;
 use duel_data::tuning::{Knob, Value};
 
-fn num_of(v: &Value) -> Option<Num> {
+/// A JSON number as a CL number: an integer token a fixnum, else a single-float.
+pub(crate) fn num_of(v: &Value) -> Option<Num> {
     if v.is_i64() { v.as_i64().map(Num::I) } else { v.as_f64().map(|x| Num::F(x as f32)) }
 }
 

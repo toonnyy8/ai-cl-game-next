@@ -2,18 +2,19 @@
 //! exchange after a cancel, the clash, the late-match finish, a strategy's tactics, the MCTS neutral, a matchup style, the generic
 //! CPU). Every chance is rolled once per event from the sim stream (`m.rng`, SIM-RND01), in the Lisp's order.
 //!
-//! Not ported here (each named where it would run): the strategy layer and a strategy's cues (`unported!`: Task 5), the MCTS
-//! neutral past its plan (`unported!("mc-neutral")`: Task 8), the style functions (`style::resolve`: Tasks 6-7). A brain's NOW is
-//! NIL until Task 5, so every STRAT-OUT / -SCALE / -MUL read below gives the CPU's own value. `// rollout:` marks a read of
-//! `*in-rollout*` / the rollout's `*cai-styles*` binding (no rollout runs before Task 8: both read as outside one).
+//! Not ported here (each named where it would run): the MCTS neutral past its plan (`unported!("mc-neutral")`: Task 8), the style
+//! functions (`style::resolve`: Tasks 6-7). The strategies and their glue are strategy.rs / glue.rs (Task 5). `// rollout:` marks a
+//! read of `*in-rollout*` / the rollout's `*cai-styles*` binding (no rollout runs before Task 8: both read as outside one).
 use super::fuzzy::{fz_chance, Feats, FzRules, Kind};
 use super::perceive::{ai_dash, ai_event_rolls, ai_press, ai_press_write, ai_strafe, ai_walk, brain_snap_ago, snap_dist, snap_near_p, Snap};
 use super::xch_ai::{clash_opener, clash_window, xch_j_answer, xch_j_weights, xch_sa_now_p, xch_side, JAnswer};
-use super::{perceive, style, Brain, Search};
+use super::strategy::{self, Now};
+use super::{glue, perceive, style, Brain, Search};
+use glue::strat_reach;
 use crate::cl::{floor_f32, fmt_fixed_f32, max_f32, min_f32, Num};
 use crate::components::{Button, Cls, Contact, Phase, State, Sym};
 use crate::core::core_as_sa_out_p;
-use crate::core_sim::{core_next_as, core_seg_cancelled_p};
+use crate::core_sim::{core_next_as, core_seg_cancelled_p, core_switch_open_p};
 use crate::ecs::Entity;
 use crate::fighter::{awaken_ready_p, fighter, gauges_red_p, hoho_ready_p, kit_hook_sym, kit_of, mv, side_name};
 use crate::flow::PilotInput;
@@ -46,16 +47,22 @@ pub fn core_brain_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput
 /// CORE-BRAIN-STEP after BRAIN-PERCEIVE, with the brain B taken out of E's fighter (put back by the caller, also after a stop).
 fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d: f32) {
     if m.knobs.strat_layer {
-        crate::unported!(m, "strat-layer-step") // (strategy-glue.lisp: Task 5)
+        glue::strat_layer_step(m, s, e, b, &snap, d); // (the strategy layer's selection)
     }
-    if let Some(st) = b.strat {
-        let lib = &m.data.tables["strat_library"][st.0 as usize];
-        if ["switch", "fq"].iter().any(|k| lib.get(*k).is_some_and(|v| !v.is_null())) {
-            crate::unported!(m, "strat-switch-step") // (a composite / Q selector: Task 5)
-        }
-        crate::unported!(m, "strat-feats") // (BRAIN-STRAT as NOW: its cues, Task 5)
-    }
-    b.now = None; // (CUR, EV and NOW are NIL: no strategy)
+    // (a composite: its active sub, else the lookup's strategy; a Q selector: its arm, its NIL arm no strategy at all, DUEL_AI_STRATEGY §8.18)
+    let sw = b.strat.filter(|st| st.get("switch").is_some() || st.fq().is_some());
+    let cur = match sw {
+        Some(sw) => glue::strat_switch_step(m, e, b, &snap, d, sw).or_else(|| {
+            if sw.fq().is_some() {
+                return None;
+            }
+            let f = fighter(m, e);
+            strategy::strat_lookup(m.data, &m.knobs, f.character?, fighter(m, f.opp).character?, b.difficulty)
+        }),
+        None => b.strat,
+    };
+    let ev = sw.filter(|sw| sw.fq().is_some()).and_then(|sw| glue::strat_event_step(m, b, &snap, sw)); // (the event layer's arm)
+    b.now = ev.or(cur).map(|st| Now { st, cues: glue::strat_feats(m, e, &snap, d) }); // (read by STRAT-OUT's callers this step)
     let kit = kit_of(m, e);
     m.pilot.get_mut(e).unwrap().vpad.stick(0.0, 0.0);
     ai_event_rolls(&mut m.rng, b, &snap);
@@ -84,17 +91,19 @@ fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d:
         }) || cai_xch_step(m, e, b, kit, &snap, d)
             || (free && cai_clash(m, e, b, kit, &snap, d))
             || (free && cai_finish(m, e, b, kit, &snap, d))
-            // (a strategy's own :FN: NOW is NIL)
+            || glue::strat_fn_step(m, s, e, b, snap, d, ev.is_some()) // a strategy's own tactics first (DUEL_AI_STRATEGY §9)
+            || m.unported.is_some()
             || mc_neutral(m, e, b, d)
             || m.unported.is_some()
-            || cai_style(m, s, e, b, &snap, d)
+            // a matchup style (under the strategy layer only as its strategy; not while a strategy is active)
+            || (!glue::strat_layer_p(m) && cur.is_none() && ev.is_none() && cai_style(m, s, e, b, &snap, d))
             || m.unported.is_some()
             || {
                 generic(m, e, b, kit, &snap, d, state);
                 true
             };
-        b.now = None;
     }
+    b.now = None; // (its step is over: a step-end snapshot holds NIL)
     b.was = fighter(m, e).state;
     if cai_hoho_hold_p(m, e, b, kit) {
         b.press_left = 0; // (an SP the Hoho's resume would have refused: dropped, R15d)
@@ -152,36 +161,19 @@ fn burst_out(m: &mut Match, e: Entity, b: &mut Brain, hits: i64) {
     }
 }
 
-// ---------------------------------------------------------------- the strategy's reads (NOW is NIL until Task 5)
+// ---------------------------------------------------------------- the strategy's reads over the brain's NOW (strategy.rs)
 
-/// port: strategy.lisp STRAT-OUT over the brain's NOW: the active strategy's KEY, or DEFAULT.
-pub fn strat_out(b: &Brain, _key: &str, default: Option<f32>) -> Option<f32> {
-    match b.now {
-        None => default,
-        Some(x) => match x {},
-    }
+/// port: strategy.lisp STRAT-SCALE over B's NOW — chance P times the active strategy's scale KEY (none: P), within 0-1.
+pub(crate) fn strat_scale(k: &Knobs, b: &Brain, key: &str, p: f32) -> f32 {
+    strategy::strat_scale(&k.fz_sets, b.now.as_ref(), key, p)
 }
-/// port: STRAT-SCALE — chance P times the active strategy's scale KEY (none: P), within 0-1.
-pub fn strat_scale(b: &Brain, key: &str, p: f32) -> f32 {
-    strat_out(b, key, None).map_or(p, |k| max_f32(0.0, min_f32(1.0, p * k)))
+/// port: STRAT-MUL of a float V (a margin) over B's NOW.
+pub(crate) fn strat_mul(k: &Knobs, b: &Brain, key: &str, v: f32) -> f32 {
+    strategy::strat_mul(&k.fz_sets, b.now.as_ref(), key, v)
 }
-/// port: STRAT-MUL of a float V (a margin): V times the active strategy's KEY, kept >= 0 (none: V).
-pub fn strat_mul(b: &Brain, key: &str, v: f32) -> f32 {
-    strat_out(b, key, None).map_or(v, |k| max_f32(0.0, v * k))
-}
-/// port: STRAT-MUL of an integer V (a wait): V times KEY rounded half up, kept >= 0 (none: V).
-pub fn strat_mul_int(b: &Brain, key: &str, v: i64) -> i64 {
-    strat_out(b, key, None).map_or(v, |k| 0.max(floor_f32(v as f32 * k + 0.5)))
-}
-/// port: strategy-glue.lisp STRAT-HOLD-AWAKEN-P — E's active strategy's :HOLD-AWAKEN (none, or no brain: NIL). B is E's brain, `(brain e)`
-/// (taken out of its fighter while the CPU steps, so the caller passes it).
-pub fn strat_hold_awaken_p(m: &Match, e: Entity, b: Option<&Brain>) -> bool {
-    let h = b.and_then(|b| strat_out(b, "hold-awaken", None));
-    h.is_some_and(|h| m.gauges.get(e).unwrap().sub / m.knobs.sub_max < h)
-}
-/// port: strategy-glue.lisp STRAT-REACH — MV's reach plus its forward slide (m).
-pub fn strat_reach(mvd: &Move) -> f32 {
-    mvd.reach + max_f32(0.0, mvd.slide)
+/// port: STRAT-MUL of an integer V (a wait) over B's NOW.
+pub(crate) fn strat_mul_int(k: &Knobs, b: &Brain, key: &str, v: i64) -> i64 {
+    strategy::strat_mul_int(&k.fz_sets, b.now.as_ref(), key, v)
 }
 
 // ---------------------------------------------------------------- the reactive layer's helpers
@@ -212,7 +204,7 @@ fn cai_press(b: &mut Brain, button: Sym, frames: i64, modded: bool) {
 /// port: CAI-FZ — RULES' chance at B's difficulty for the cues FEATS, times the active strategy's scale KEY (:hoho :turn :cont
 /// :kikon, else :other).
 fn cai_fz(k: &Knobs, b: &Brain, rules: &FzRules, key: &str, kind: Kind, feats: &Feats) -> f32 {
-    strat_scale(b, key, fz_chance(k, rules, feats, b.difficulty, kind, 0.0))
+    strat_scale(k, b, key, fz_chance(k, rules, feats, b.difficulty, kind, 0.0))
 }
 
 /// CAI-FZ-ROLL's roll of its chance P: none drawn at 0 or 1.
@@ -233,20 +225,21 @@ pub fn chance_roll(m: &mut Match, p: f32) -> bool {
 
 /// port: CAI-ROLL — CHANCE-ROLL of a chance P (PLIST's at B's difficulty) times the active strategy's KEY.
 fn cai_roll(m: &mut Match, b: &Brain, key: &str, p: f32) -> bool {
-    chance_roll(m, strat_scale(b, key, p))
+    let p = strat_scale(&m.knobs, b, key, p);
+    chance_roll(m, p)
 }
 
 /// port: CAI-MIX-ROLL — the active strategy's KEY as the chance itself, else CAI-ROLL of P scaled by ELSE-KEY.
 fn cai_mix_roll(m: &mut Match, b: &Brain, key: &str, else_key: &str, p: f32) -> bool {
-    match strat_out(b, key, None) {
-        Some(v) => chance_roll(m, max_f32(0.0, min_f32(1.0, v))),
+    match glue::strat_out(&m.knobs, b, key) {
+        Some(v) => chance_roll(m, max_f32(0.0, min_f32(1.0, v.f()))),
         None => cai_roll(m, b, else_key, p),
     }
 }
 
 /// port: CAI-MARGIN — *cai-clash-margin* times the active strategy's :CLASH-MARGIN.
 fn cai_margin(m: &Match, b: &Brain) -> f32 {
-    strat_mul(b, "clash-margin", m.knobs.cai_clash_margin)
+    strat_mul(&m.knobs, b, "clash-margin", m.knobs.cai_clash_margin)
 }
 
 /// port: CAI-OWN-ROLLS — the rolls of his own move, made once when it starts (its CLS-T).
@@ -287,13 +280,47 @@ pub fn mv_min_reach(m: &mut Match, mvd: &Move, e: Option<Entity>) -> f32 {
     mn.unwrap_or(0.0)
 }
 
-/// port: CAI-DSWITCH — the active strategy's DRIVE switch in an NS gap; no :DSWITCH (every shipped CPU, and NOW is NIL): no roll,
-/// NIL. ponytail: its press and target (CAI-SWITCH-PRESS / -TARGET, STRAT-SWITCH-TO) come with the strategies that set it (Task 5).
-fn cai_dswitch(m: &mut Match, b: &Brain) -> bool {
-    if strat_out(b, "dswitch", None).is_some_and(|p| p > 0.0) {
-        crate::unported!(m, "cai-dswitch", false)
+/// port: CAI-SWITCH-PRESS — press SP with the stick sideways toward pointer TO: the human's own switch (CORE-SWITCH-TARGET); the act
+/// :SWITCH marks the press (CORE-BRAIN-STEP writes the stick). ponytail: *cai-switch-counts* (a tool's counter, strat-run.lisp
+/// STRAT_HRANGE, never read in play) is not kept.
+fn cai_switch_press(m: &mut Match, e: Entity, b: &mut Brain, kit: &Kit, to: i64) {
+    ai_press(b, QUICK, 1, true, Sym(":SWITCH"));
+    let ptr = fighter(m, e).ptr;
+    b.strafe = strategy::strat_switch_dir(ptr, to, kit.core.ns.len() as i64) as f32;
+    crate::clog!(m, "{} cpu switch {} -> {}", side_name(m, e), ptr, to);
+}
+
+/// port: CAI-SWITCH-TARGET — the pointer the active strategy's switch goes to from E's NS gap at distance D (its :DSWITCH-MAP row for
+/// his form and pointer, else STRAT-SWITCH-TO's band rule over the openers' reach), or NIL.
+fn cai_switch_target(m: &mut Match, e: Entity, b: &Brain, kit: &Kit, d: f32) -> Option<i64> {
+    let n = kit.core.ns.len();
+    let f = fighter(m, e);
+    let (form, ptr) = (f.form, f.ptr);
+    let map = b.now.and_then(|now| now.st.get("dswitch-map")).and_then(|v| v.as_array()).map_or(&[][..], |a| a.as_slice());
+    let row = map.iter().find(|r| r[0].as_str().is_some_and(|x| x.eq_ignore_ascii_case(form.name())) && r[1].as_i64() == Some(ptr));
+    let mut bands = [None; strategy::MAX_ARMS];
+    for (p, band) in bands.iter_mut().enumerate().take(n) {
+        if let Some(mvd) = kit_core_move(m.data, kit, Role::Ns, p as i64 + 1) {
+            *band = Some((mv_min_reach(m, mvd, Some(e)), strat_reach(Some(mvd)) + m.knobs.cai_dswitch_slack));
+        }
     }
-    false
+    strategy::strat_switch_to(ptr, n as i64, d, &bands[..n], row.and_then(|r| r.get(2)).and_then(|v| v.as_i64()))
+}
+
+/// port: CAI-DSWITCH — in an NS segment's gap (once per segment): the active strategy's :DSWITCH, one roll when the switch is open and
+/// a target reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL.
+fn cai_dswitch(m: &mut Match, e: Entity, b: &mut Brain, kit: &Kit) -> bool {
+    let Some(p) = glue::strat_out(&m.knobs, b, "dswitch").filter(|p| p.f() > 0.0) else { return false };
+    if !core_switch_open_p(m, e) {
+        return false;
+    }
+    let dist = fighter(m, e).dist;
+    let Some(to) = cai_switch_target(m, e, b, kit, dist) else { return false };
+    let roll = m.rng.rnd01() < p.f() * m.knobs.cai_dswitch_dif.chance(b.difficulty);
+    if roll {
+        cai_switch_press(m, e, b, kit, to);
+    }
+    roll
 }
 
 /// port: CAI-NEXT-OK-P — would an SP pressed now in NS segment MVD start the next one? Refused: logs `cpu holds` and NIL.
@@ -365,7 +392,7 @@ fn cai_move_step(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: 
                 return; // (the segment is out: now is the gap to read)
             }
             b.decided = cls_t;
-            if cai_dswitch(m, b) {
+            if cai_dswitch(m, e, b, kit) {
                 return;
             }
             // (a :charge-sa segment cashing in: no move has the key, Params would refuse it)
@@ -446,8 +473,8 @@ fn cai_xch_step(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &
             b.xcarry = carry.then_some(Sym("T"));
         } else {
             let r = m.rng.rnd01();
-            let ws = xch_j_weights(m.knobs.cai_xch_j.get(dif), strat_out(b, "xch-j", None));
-            let reach = kit_core_move(m.data, kit, Role::As, core_next_as(m, e)).is_some_and(|a| !as_done && d <= strat_reach(a) + cai_margin(m, b));
+            let ws = xch_j_weights(m.knobs.cai_xch_j.get(dif), glue::strat_out(&m.knobs, b, "xch-j").map(Num::f));
+            let reach = kit_core_move(m.data, kit, Role::As, core_next_as(m, e)).is_some_and(|a| !as_done && d <= strat_reach(Some(a)) + cai_margin(m, b));
             b.xpick = xch_j_answer(r, ws, reach).map(|a| Sym(if a == JAnswer::As { ":AS" } else { ":J" }));
         }
         // (*cai-xch-hook*: a research tool's, NIL in the game)
@@ -456,7 +483,7 @@ fn cai_xch_step(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &
         if ns {
             let oc = cai_class_of(m, o, s);
             let watch = matches!(b.xpick.map(|p| p.0), Some(":WATCH" | ":EARLY"));
-            let wait = strat_mul_int(b, "xch-sa-wait", m.knobs.cai_xch_sa_wait);
+            let wait = strat_mul_int(&m.knobs, b, "xch-sa-wait", m.knobs.cai_xch_sa_wait);
             if watch && xch_sa_now_p(oc, s.start, xch, b.xpick == Some(Sym(":EARLY")), m.match_tick, wait) {
                 b.xdone = true;
                 crate::clog!(m, "{} cpu xch SA on his {}", side_name(m, e), cls_name(oc));
@@ -540,7 +567,7 @@ fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &S
     let k = &m.knobs;
     let nr = kit.core.ns_range.as_ref().and_then(|v| v.get((1.max(k.core_pointer_max.min(ptr)) - 1) as usize).copied().flatten());
     let rg = kit.core.range.unwrap_or([k.cai_range.0, k.cai_range.1]);
-    let sc = if finish { None } else { strat_out(b, "range", None) };
+    let sc = if finish { None } else { glue::strat_out(k, b, "range").map(Num::f) }; // (a strategy's range scale)
     let (lo, hi) = match sc {
         Some(sc) => (sc * rg[0], sc * rg[1]),
         None => (rg[0], rg[1]),
@@ -569,7 +596,7 @@ fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &S
     b.decide_t = m.knobs.cai_think.get(b.difficulty.name(), 22) + floor_f32(12.0 * m.rng.rnd01());
     if d > 7.0 {
         ai_dash(&m.knobs, b, 1.0, 4.5);
-    } else if gauges_awakened_ok_p(m, e, Some(b)) && m.rng.rnd01() < strat_scale(b, "awaken", m.knobs.cai_awaken_p) {
+    } else if gauges_awakened_ok_p(m, e, Some(b)) && m.rng.rnd01() < strat_scale(&m.knobs, b, "awaken", m.knobs.cai_awaken_p) {
         ai_press(b, AWAKEN, 1, true, AWAKEN);
     } else if nr.is_some_and(|[near, far]| d > hi + 0.6 && near <= d && d <= far) && m.rng.rnd01() < m.knobs.cai_ranged_p {
         (b.own_key, b.r_kikon, b.decide_t) = (-1, 1.0, m.knobs.cai_ranged_gap); // a shot from where he would walk in
@@ -578,7 +605,7 @@ fn cai_neutral(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &S
         b.own_key = -1;
         let roll = m.rng.rnd01();
         let ns = kit_core_move(m.data, kit, Role::Ns, ptr).filter(|&ns| !finish || mv_min_reach(m, ns, Some(e)) <= d);
-        let share = strat_out(b, "ns", Some(if d > 1.7 { m.knobs.cai_ns_far } else { m.knobs.cai_ns_near })).unwrap();
+        let share = glue::strat_out(&m.knobs, b, "ns").map_or(if d > 1.7 { m.knobs.cai_ns_far } else { m.knobs.cai_ns_near }, Num::f);
         if ns.is_some() && roll < share {
             b.r_kikon = m.rng.rnd01();
             cai_sp(m, e, b, 1, false);
@@ -609,7 +636,7 @@ fn cai_finish(m: &mut Match, e: Entity, b: &mut Brain, kit: &'static Kit, s: &Sn
 /// port: CAI-AWAKEN-BREAK — the awakening out of his combo or Kikon: when E may awaken now, one roll of P scaled by KEY (CAI-ROLL).
 /// T when it pressed Mod + P.
 fn cai_awaken_break(m: &mut Match, e: Entity, b: &mut Brain, key: &str, p: f32) -> bool {
-    if !(awaken_ready_p(m, e) && !strat_hold_awaken_p(m, e, Some(b)) && cai_roll(m, b, key, p)) {
+    if !(awaken_ready_p(m, e) && !glue::strat_hold_awaken_p(m, e, Some(b)) && cai_roll(m, b, key, p)) {
         return false;
     }
     let what = if fighter(m, e).kikon_lock > 0 { "the Kikon" } else { "the combo" };
@@ -622,7 +649,7 @@ fn cai_awaken_break(m: &mut Match, e: Entity, b: &mut Brain, key: &str, p: f32) 
 pub fn gauges_awakened_ok_p(m: &Match, e: Entity, b: Option<&Brain>) -> bool {
     let (g, f) = (m.gauges.get(e).unwrap(), fighter(m, e));
     // ((getf core :no-awaken): no kit has the key)
-    !g.awakened && g.awaken >= m.knobs.awaken_max && matches!(f.state, State::Idle | State::Run) && !strat_hold_awaken_p(m, e, b)
+    !g.awakened && g.awaken >= m.knobs.awaken_max && matches!(f.state, State::Idle | State::Run) && !glue::strat_hold_awaken_p(m, e, b)
 }
 
 /// port: cpu-mcts.lisp MC-FULL-REEL-P.
@@ -722,22 +749,6 @@ pub fn mc_press(b: &mut Brain, action: &str) {
 
 /// CORE-BRAIN-STEP's style clause: E's style against his opponent (CAI-STYLE-FN), run when it is ported. T when it decided.
 fn cai_style(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: &Snap, d: f32) -> bool {
-    // (STRAT-LAYER-P, CUR and EV are NIL here.) rollout: MC-FULL-ROLLOUT binds *cai-styles* to NIL.
-    let Some(name) = cai_style_fn(m, e) else { return false };
-    match style::resolve(name) {
-        Some(st) => st(m, s, e, b, *snap, d),
-        // ponytail: the stop's name leaks once (a replay ends there)
-        None => crate::unported!(m, Box::leak(format!("style {name}").into_boxed_str()), false),
-    }
-}
-
-/// port: CAI-STYLE-FN — E's style function's name against his opponent (`*cai-styles*`: own (opp fn ...) ...), or NIL.
-pub fn cai_style_fn(m: &Match, e: Entity) -> Option<&'static str> {
-    type V = duel_data::tuning::Value;
-    fn getf(v: &'static V, k: &str) -> Option<&'static V> {
-        v.as_array()?.chunks(2).find(|c| c[0].as_str().is_some_and(|x| x.eq_ignore_ascii_case(k))).and_then(|c| c.get(1))
-    }
-    let (me, vs) = (fighter(m, e).character?, fighter(m, fighter(m, e).opp).character?);
-    let data: &'static duel_data::Data = m.data;
-    getf(getf(data.tuning.get("*CAI-STYLES*")?, me.name())?, vs.name())?.as_str()
+    let Some(st) = glue::cai_style_fn(m, e) else { return false };
+    style::run(m, s, st, e, b, *snap, d)
 }

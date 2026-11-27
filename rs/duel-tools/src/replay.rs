@@ -1070,7 +1070,8 @@ mod tests {
     }
 
     /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / H / B of the 300 intro steps equal (A: the brains'
-    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM and stops at the Q selector (STRAT-SWITCH-STEP: Task 5).
+    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM, judges P1's Q selector and stops at
+    /// its arm's style (Task 6).
     #[test]
     fn live_ki_s1_reaches_brain_system() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
@@ -1079,7 +1080,7 @@ mod tests {
         for flags in ["--live", "--live --inject-plan"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED strat-switch-step at tick 1 (step 301)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED style KEN-KH-STANDOFF-STYLE at tick 1 (step 301)", "{flags}");
         }
     }
 
@@ -1141,11 +1142,16 @@ mod tests {
         assert_eq!(rp.c_got, ["[     2] P2 cpu line"]);
     }
 
-    /// BRAIN-PERCEIVE against the key: each live gate trace (cmds) run to its first battle step, where P1's CORE-BRAIN-STEP perceives
-    /// before it stops; his ring, head, fresh, J key and J starts equal that step's recorded A fields (the fresh fill of 32 SNAPs).
+    /// The CPU's first battle step against the key: each live gate trace (cmds) run to its first battle step (step 301), where P1's
+    /// CORE-BRAIN-STEP perceives, judges its Q selector (STRAT-SWITCH-STEP) and stops at its arm's style (`style <NAME>`, Tasks 6-7).
+    /// P2's step is then run on the stopped match (P1's step changes nothing P2 perceives or judges by). Each side's perception (ring,
+    /// head, fresh, J key and starts) and judgement (sw-sub / -t / -n / -won / -fn / -keep, tw, ev-*) equal the recorded A fields of
+    /// that step, and its judgement's cues equal the native judgement dump's bit for bit (tests/fixtures/strat-judgements.txt).
     #[test]
-    fn live_first_perceive_matches_the_key() {
+    fn live_first_step_matches_the_key() {
+        use duel_sim::cpu::{glue, perceive};
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
+        let dump = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../duel-sim/tests/fixtures/strat-judgements.txt")).unwrap();
         let mut names: Vec<String> = ["kk", "ki", "ik", "ii"].iter().flat_map(|p| (1..=3).map(move |k| format!("cvc-{p}-s{k}"))).collect();
         names.extend(["cvctag-ii", "cvctag-ik", "cvctag-kk"].map(String::from));
         let mut checked = 0;
@@ -1168,22 +1174,42 @@ mod tests {
                 }
                 flow::frame(&mut m, s, &mut Null(0));
             }
-            assert_eq!((m.unported, m.match_tick), (Some("strat-switch-step"), 1), "{name}");
+            assert_eq!(m.match_tick, 1, "{name}");
+            assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name}: {:?}", m.unported);
+            m.unported = None;
+            let p2 = m.p2;
+            duel_sim::cpu::core_ai::core_brain_step(&mut m, s, &mut Null(0), p2); // (P2's step: it stops at its style too)
+            assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name} P2: {:?}", m.unported);
             let got = duel_sim::cpu::a_line(&m, s);
             let (w, g): (Vec<&str>, Vec<&str>) = (want.split(' ').collect(), got.strip_prefix("A ").unwrap().split(' ').collect());
-            for f in ["ring", "head", "fresh", "jkey", "jstarts"] {
-                let i = rd.a_fields.iter().position(|n| *n == format!("p1.brain-{f}")).unwrap();
-                assert_eq!(g[i], w[i], "{name} p1.brain-{f}");
-                if f == "ring" {
-                    assert_eq!(g[i].matches("#SNAP{").count(), 32, "{name}");
+            for (p, e) in [("p1", m.p1), ("p2", m.p2)] {
+                for f in ["ring", "head", "fresh", "jkey", "jstarts", "strat", "sw-sub", "sw-t", "sw-n", "sw-won", "sw-fn", "sw-keep", "tw", "tw-off",
+                          "ev-t", "ev-on", "ev-n", "ev-steps"] {
+                    let i = rd.a_fields.iter().position(|n| *n == format!("{p}.brain-{f}")).unwrap();
+                    assert_eq!(g[i], w[i], "{name} {p}.brain-{f}");
                 }
-                if f == "head" {
-                    assert_eq!(g[i], "1", "{name}");
-                }
+                // (the judgement's cues, rebuilt on the stopped match: the first judgement's :prev reads no previous arm)
+                let b = m.fighter.get(e).unwrap().brain.as_ref().unwrap();
+                let snap = perceive::brain_snap_ago(b, b.delay).unwrap();
+                let d = perceive::snap_dist(&m, &snap, e);
+                let feats = glue::judge_feats(&m, e, &snap, d, b.strat.unwrap(), None);
+                let side = if p == "p1" { 0 } else { 1 };
+                let line = dump.lines().find(|l| l.starts_with(&format!("{name} J {side} 1 "))).expect("a tick-1 judgement in the dump");
+                let cues: Vec<String> = feats.as_slice().iter().map(|(k, v)| format!("{k}={}", lisp_num(*v))).collect();
+                let dumped: Vec<&str> = line.split(" | ").next().unwrap().split(' ').skip(6).collect();
+                assert_eq!(cues, dumped, "{name} {p} cues");
             }
             checked += 1;
         }
         assert_eq!(checked, 15);
+    }
+
+    /// A cue as the dump's `~S` prints it: an integer, or a single-float's shortest form (`3.3333333`, `0.0`, `1.0e-5`).
+    fn lisp_num(v: duel_sim::cl::Num) -> String {
+        match v {
+            duel_sim::cl::Num::I(n) => n.to_string(),
+            duel_sim::cl::Num::F(x) => duel_sim::cl::fmt_f32(x),
+        }
     }
 
     /// `--inject-plan`'s copy rule: a side at 1 takes the next record's plan when it left 1 (done: 2, popped: 0); 1 -> 1 and 2 -> 0
