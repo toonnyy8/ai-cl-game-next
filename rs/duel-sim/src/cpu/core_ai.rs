@@ -2,8 +2,8 @@
 //! exchange after a cancel, the clash, the late-match finish, a strategy's tactics, the MCTS neutral, a matchup style, the generic
 //! CPU). Every chance is rolled once per event from the sim stream (`m.rng`, SIM-RND01), in the Lisp's order.
 //!
-//! Not ported here (each named where it would run): the MCTS neutral past its plan (`unported!("mc-neutral")`: Task 8), Ichigo's style
-//! functions (`style::resolve`: Task 7; Kenpachi's are ken_ki.rs). The strategies and their glue are strategy.rs / glue.rs (Task 5). `// rollout:` marks a
+//! Not ported here (each named where it would run): the MCTS neutral past its plan (`unported!("mc-neutral")`: Task 8). The matchup
+//! styles are ken_ki.rs / ichigo_ki.rs (`style::resolve`; Hisagi's: M4). The strategies and their glue are strategy.rs / glue.rs (Task 5). `// rollout:` marks a
 //! read of `*in-rollout*` / the rollout's `*cai-styles*` binding (no rollout runs before Task 8: both read as outside one).
 use super::fuzzy::{fz_chance, Feats, FzRules, Kind};
 use super::perceive::{ai_dash, ai_event_rolls, ai_press, ai_press_write, ai_strafe, ai_walk, brain_snap_ago, snap_dist, snap_near_p, Snap};

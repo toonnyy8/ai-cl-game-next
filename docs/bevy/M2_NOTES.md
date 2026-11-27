@@ -237,7 +237,7 @@ slot is a scalar, so it is `Copy` and a step allocates nothing. It prints as TR-
 the port takes the struct out of the brain for the step and hands KEN-KI-STYLE's body its included `Kks`, and puts it back after, also on
 an early return.
 
-**Knobs.** The styles' 80 defparameters are in `Knobs` (tuning.json, never retyped). A chance plist is a `KwNums` (keyword → `cl::Num`,
+**Knobs.** The styles' 77 defparameters are in `Knobs` (tuning.json, never retyped). A chance plist is a `KwNums` (keyword → `cl::Num`,
 the token's type kept: `*kso-stale*` is integers, read by plain GETF with default 300); `*kk-cine-wait*` is a `KwBools` (BRAIN-CHANCE at
 EASY is the present NIL, not NORMAL's). Carried from Task 5: `style_dif` now returns `cl::Num` over a `KwNums` (an integer arm value or
 plist entry stays one), and `b.now.and_then(…)` became `.as_ref()` in `strat_fn_step` and `cai_switch_target` (no copy of NOW).
@@ -259,7 +259,7 @@ mark around the event arm's call (its struct is never a kept one); BRAIN-SET-STR
 - cvc-ki-s1..3: step 301, P2 at `style ICHIGO-KI-R2B2A1-STYLE`. P1's Kenpachi step runs first on the real sim stream; the replayer does
   not compare a stopped step's A line, so `live_first_step_matches_the_key` compares every `p1.brain-*` field of it (the KSO, the press,
   the rolls) with the key's step-301 A line: equal on all three.
-- cvc-ik-s1..3, cvc-ii-s1..3, cvctag-ii, cvctag-ik: step 301, P1 at `style ICHIGO-KI-R2B2A1-STYLE` (Task 7).
+- cvc-ik-s1..3, cvc-ii-s1..3, cvctag-ii, cvctag-ik: step 301, P1 at `style ICHIGO-KI-R2B2A1-STYLE` (Task 7; see §6 for where they stop now).
 - vs-learn: `debug 2504` (step 1); vs-cpu: `vs-start` (step 1) (Task 9).
 
 **Reached by the key, and not.** The C lines of all 17 traces (counts over the files, IK's P2 included though not replayed yet): `kh
@@ -282,3 +282,105 @@ at 1.5 m with the approach's rolls made: NS under *CAI-NS-NEAR*, J1 over it, the
 `live_kk_s1_replays_whole` (cvc-kk-s1 OK with both flags); `live_ki_s1_reaches_brain_system` and `live_first_step_matches_the_key` now
 expect Ichigo's stop (the latter checks KK's first step on the match right after BRAIN-SYSTEM, and every P1 brain slot of KI's); tests/cpu.rs
 `brain_read_fires_inside_brain_system` sees both brains' reads.
+
+## 6. Ichigo's matchup styles and his CPU hooks (Task 7)
+
+`cpu/ichigo_ki.rs` ports cpu-ki-ichigo.lisp whole (ICHIGO-KI-STYLE and every callee: the episode's mode, the whiff punish and confirm with
+the walk-in, the timed Hoho and its follow-up, pointer 2's Getsuga / retreat / wait, the shut-gauge lunge, KESSA's k-lunge and chains,
+the cross band, the wake-up Hoho, the meaty J1, the steered strings and the AS read, the NS stop, the Kikon rule, IKS-GENERIC, the
+breaker) and cpu-ki-ichigo-r2b2a1.lisp (ICHIGO-KI-R2B2A1-STYLE: the wake-up roll, the stale breaker, the far-lunge watch). `style::resolve`
+names both; only Hisagi's five stay `unported!` (M4).
+
+**Not ported, and why.**
+- cpu-ki-ichigo-r2b1a1.lisp (ICHIGO-KI-R2B1A1-STYLE, its IR2 struct and the five `*ir2-*` knobs): no `*cai-styles*` entry and no
+  strategy's :FN names it (tables.json names only ICHIGO-KI-STYLE and ICHIGO-KI-R2B2A1-STYLE), so nothing reaches it.
+- IKW-GAP-WATCH's gap-off arm (IKW-ALT: once he back-Steps :ikw-gap-off-n far lunges, a fresh plist `(:base (:iks-gap-p 0.0 . base) . arm)`
+  is swapped into BRAIN-NOW's car through IKW-CELL). It logs `ki-style gap off`, then stops at `unported!("ikw gap-off")`. A strategy
+  that is not a tables.json value is Task 9's owned `Strat` (§4). No gate trace reaches it: there are 0 `gap off` lines in the 11
+  Ichigo traces, and every IKW prints ALT NIL and CELL `(NIL)`. IKW therefore prints those two slots as constants.
+
+**The state.** `StyleState::Ikst` (IKST, 28 slots) and `StyleState::Ikw` (IKW: the IKST, then roll, lunge-t, stepped, alt, cell, rsig, ksig,
+still-t: 36). Every slot is a scalar or `Copy`, so a step allocates nothing:
+- IKST-PEND holds a *IKS-PUNISHERS* entry. The port stores a `Punisher` copy, which prints as the list `(:NS1,22,4059999A,NIL)`.
+- IKST-STEER is a `cl::Num`, because an arm's :iks-steer-to may be a float.
+- IKST-LAST-REISHI and IKW-RSIG are `cl::Num`, because they hold GAUGES-REISHI.
+
+ICHIGO-KI-STYLE keeps any IKST-family struct across rounds and matches, since it has no tick test (unlike KKS). ICHIGO-KI-R2B2A1-STYLE
+keeps only an IKW. Its call to ICHIGO-KI-STYLE runs the body on the IKW's included IKST, never through the wrapper: the wrapper would
+see the slot taken out and make a fresh struct, which clears the :KEEP-STATE mark.
+
+**Carried from Task 6: `take_style` checks the variant first.** `style::take_style(b, ok, make)` is shared. Kenpachi's predicates test
+the variant before KKS-TICK (`StyleState::kks()` now returns `Option`). Before, KEN-KI-STYLE's guard called `kks()` on any struct and
+panicked on an IKST. Test `ken_style_over_another_styles_struct`.
+
+**Knobs.** All 99 `*iks-*` / `*ikw-*` defparameters the two files define are in `Knobs` (tuning.json; a script compared the field list
+with the files' DEFPARAMETERs: equal). `*cai-hoho-p*` is in `Knobs` too, read by the neutral's Hoho test. No extractor change, so the data
+checksum is unchanged.
+
+Two knob types are new in knobs.rs:
+- `Plist<T>`: keyword → value or NIL, in GETF order. `getf` tells an absent key from a present NIL, which IKS-FORM-GET needs: against
+  Hisagi, a present NIL row wins; otherwise `(or form's :nozarashi's)`. `chance` is BRAIN-CHANCE.
+- `Nums`: a list of numbers keeping each token's type, NIL as the empty list.
+
+Three lookup rules apply:
+- BRAIN-CHANCE (NORMAL fallback) for `*iks-mix*`, `*iks-bait-modes*` and `*iks-kessa-space-modes*`.
+- Plain GETF for `*iks-ns-stop*`, `*iks-generic-kikon*`, `*iks-follow-any-perfect*` and `*iks-burst-no-hoho*`. Every key is present,
+  so this is the same as `KwBools::chance`.
+- STYLE-KNOB over `cl::Num` for the arm keys. The shipped arms give :iks-gap-fs 150 / 300, :iks-ns-wait 24, :iks-ns-wait-p1 10,
+  :iks-wait-max 0 / 40 / 150 and :iks-steer-to 2 / 3 / 5 as integers. IKS-HIS-SHUT-LEFT's MAX of a float climb and an integer lockout
+  is `Num::max`.
+
+**Floats.**
+- IKS-CLOSING squares through `cl::expt2` (musl's powf, ruling R7), then takes `sqrtf`.
+- IKS-CONFIRM's `(ceiling x 0.06)` of two singles is ECL's `ceilf(x / y)` (ceiling.d, SF / ANY).
+- IKS-PICK sums its weights from LOOP's integer 0 (exact) and adds each `(/ w sum)` in order. ponytail: an all-integer arm weight set
+  would make CL ratios in IKS-MODE-PICK, but every shipped :iks-mix-* is a float.
+
+**Ichigo's brain branches (M1 §7).**
+- PARRY-FROM-BLOCKSTUN's CPU part is ported (`cpu_parry_from_blockstun`, closing the `ichigo brain parry-from-blockstun` stop). It runs
+  in FIGHTER-SYSTEM, where the brain sits on its fighter. A brain that is off or a masher gets no help.
+- On a new blockstun it draws once when his move is :flash, with `ic_p` by difficulty. EASY's chance is the single-float product
+  `0.6 * *ai-ic-parry-bs-p*`. A J masher's blocked :quick also draws once, a chance only at HARD (0.6).
+- The parry frame is `(max 1 (- stun 6))`. L is pressed on it with `ai_press :sig 2`.
+- TSUKI-DASH's brain aim and TSUKI-STEP's ICHIGO-AI-STANCE were already ported. They are now tested (`ai_stance_pick`: a roll at each
+  band's edges, one draw each; this closes M1 minor T12).
+
+**Where the live replay stops** (with and without `--inject-plan`, the same; no T / A / C / `[` / H / B mismatch before any stop):
+
+| Trace | Result |
+|---|---|
+| cvc-kk-s1..3, cvctag-kk | replay OK, whole matches (unchanged) |
+| cvc-ki-s1 / -s2 / -s3 | `mc-neutral` at step 812 / 3516 / 2434 |
+| cvc-ik-s1 / -s2 / -s3 | `mc-neutral` at step 2411 / 2662 / 1666 |
+| cvc-ii-s1..3, cvctag-ii | `mc-neutral` at step 326 |
+| cvctag-ik | `mc-neutral` at step 1024 |
+
+Each stop is the key's MC-SETUP: the recorded A line of that step opens a job (cvc-ii-s1 step 326: plan `1 3 8`, job `0 3 8 :NORMAL 0`).
+Ichigo HARD is off the MCTS (`*mc-off-at*`), but every gate CPU is NORMAL. A NORMAL `:generic` episode returns NIL, because IKS-GENERIC
+runs only under `*iks-generic-kikon*` (HARD), so it falls through to MC-NEUTRAL. `--inject-plan` cannot move these stops, because no
+plan reaches 1 before Task 8 (ruling R5).
+
+The C lines reached live before the stops:
+- Ichigo: `ki-style ptr3 p2-j` 6, `confirm-j` 3, `punish-j` 2, `confirm-sp` 2, `as3` 2, `ki-style whiff punish-j` 1.
+- Kenpachi's KI paths: `kk pick` 40, `kh stand-off` 22, `kk meaty` 10, `kk step-dodge` 5, `kk read` 5, `kk link` 2, `kk string` 1.
+- The core CPU: `cpu xch` 71, `cpu clash` 48, `cpu holds` 5.
+
+The IKW struct (mode picks, rolls, ep-t, the dt re-roll) is compared every step through the A line. **No earlier task's code broke** on
+these first live runs of Kenpachi's KI paths, Ichigo's paths and Tasks 3-5 against Ichigo.
+
+**Tests.** `ichigo_ki::tests`:
+- `ichigo_c_tags_have_a_site`: each of the 8 CLOGs of the two files has exactly one Rust site with the same text, and the census's
+  `ki-style <mode>` tags are IKS-LOG's line.
+- `mode_pick_by_the_mix`: NORMAL's normalised mix at the band edges; EASY always :generic.
+- `ikw_prints_its_slots`: a fresh IKW's 36 slots and a pending punisher's list.
+
+`ichigo::hooks::tests`:
+- `ai_stance_pick`.
+- `cpu_parry_roll_by_difficulty`: both outcomes at each difficulty, one draw on a new blockstun, none in an old one, the press on the
+  parry frame, the masher's J path, a brain off.
+
+Updated:
+- duel-tools `live_ki_s1_reaches_brain_system` is now `live_ki_s1_reaches_the_mcts` (step 812).
+- `live_first_step_matches_the_key` compares every brain slot of both sides at step 301 on all 15 traces.
+- tests/cpu.rs `brain_read_fires_inside_brain_system` expects no stop.
+- `first_perceive_fills_the_ring` reads his position before the step that now moves him.

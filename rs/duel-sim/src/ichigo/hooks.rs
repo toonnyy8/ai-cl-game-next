@@ -2,7 +2,7 @@
 //! and its tell, the afterimage watch, the clones' replay watch, O's charge, the pacing log's ICS slots). The EMITs are looks; PACE /
 //! IC-KEY are the gate's debug counters (not in B: not ported).
 use super::clones::*;
-use crate::components::{Button, Contact, Form, HzData, Phase, State, Sym};
+use crate::components::{Button, Contact, Difficulty, Form, HzData, Phase, State, Sym};
 use crate::ecs::Entity;
 use crate::fighter::{
     callout, fighter, fighter_mut, id_of, kit_command_ok_p, kit_of, mv, opp_of, pos_of, set_slide, side_name, start_move,
@@ -241,11 +241,49 @@ fn tsuki_step(m: &mut Match, e: Entity, mvname: &str) {
 
 // ---------------------------------------------------------------- KESSA: the parry from blockstun, its tell
 
-/// port: PARRY-FROM-BLOCKSTUN: in blockstun L starts the parry at once, under its price. (A CPU's press, by its difficulty and habits: M2.)
-fn parry_from_blockstun(m: &mut Match, e: Entity) {
-    if fighter(m, e).has_brain() {
-        crate::unported!(m, "ichigo brain parry-from-blockstun") // (brain-off / -masher / -habit, AI-MASH-P, IC-P: the CPU's reads, M2)
+/// port: IC-P — a chance by difficulty DIF: EASY <= NORMAL <= HARD.
+fn ic_p(dif: Difficulty, easy: f32, normal: f32, hard: f32) -> f32 {
+    match dif {
+        Difficulty::Easy => easy,
+        Difficulty::Hard => hard,
+        Difficulty::Normal => normal,
     }
+}
+
+/// PARRY-FROM-BLOCKSTUN's CPU part: on a new blockstun, after his blocked K link (*AI-IC-PARRY-BS-P* by difficulty) or a J masher's
+/// blocked J (HARD 0.6), the frame that puts his next hit in the parry window; L pressed on it. The brain sits on its fighter here
+/// (FIGHTER-SYSTEM); the masher and a switched-off brain get no help.
+fn cpu_parry_from_blockstun(m: &mut Match, e: Entity) {
+    let Some(b) = fighter(m, e).brain.as_ref().filter(|b| !b.off && !b.masher) else { return };
+    let (dif, habit, mash) = (b.difficulty, b.habit.is_some(), crate::cpu::perceive::ai_mash_p(&m.knobs, b));
+    let (sf, stun) = (fighter(m, e).sf, fighter(m, e).stun);
+    let key = m.ics.get(e).unwrap().bs_key;
+    if key < 0 || sf < key {
+        // a new blockstun (a block restarts it at 0)
+        m.ics.get_mut(e).unwrap().bs_at = -1;
+        if let Some(om) = fighter(m, opp_of(m, e)).mv.map(|id| mv(m, id)) {
+            let p = m.knobs.ai_ic_parry_bs_p;
+            let go = (om.kind == "flash" && m.rng.rnd01() < ic_p(dif, 0.6 * p, p, 0.8))
+                // v2: a J masher's blocked J: his next J lands in the window (EASY 0 / NORMAL 0 / HARD 0.6)
+                || (om.kind == "quick" && !habit && mash && m.rng.rnd01() < ic_p(dif, 0.0, 0.0, 0.6));
+            if go {
+                m.ics.get_mut(e).unwrap().bs_at = 1.max(stun - 6);
+            }
+        }
+    }
+    let ics = m.ics.get_mut(e).unwrap();
+    ics.bs_key = sf;
+    if sf == ics.bs_at {
+        ics.bs_at = -1;
+        let b = fighter_mut(m, e).brain.as_mut().unwrap();
+        crate::cpu::perceive::ai_press(b, Sym(":SIG"), 2, false, Sym(":SIG"));
+    }
+}
+
+/// port: PARRY-FROM-BLOCKSTUN: in blockstun L starts the parry at once, under its price; a CPU presses it after a blocked K link
+/// *AI-IC-PARRY-BS-P* of the time, on the frame that puts the string's next hit in the window.
+fn parry_from_blockstun(m: &mut Match, e: Entity) {
+    cpu_parry_from_blockstun(m, e);
     let vp = &m.pilot.get(e).expect("a pilot").vpad;
     if !vp.command_pressed_p(Button::Sig as usize, Mod::No)
         || !kit_command_ok_p(m, e, "sig", None)
@@ -353,3 +391,148 @@ pub fn tick(m: &mut Match, e: Entity) {
     }
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::{Character, Difficulty};
+
+    /// A CPU match, Ichigo (P1) against Kenpachi, at the first battle step's state; P1's ICS attached.
+    fn ik_battle() -> Match {
+        let mut m = Match::new(crate::hashline::tests::data());
+        crate::flow::go_title(&mut m);
+        crate::gate::start_cvc(&mut m, 1, Some([Character::Ichigo, Character::Kenpachi]));
+        let e = m.p1;
+        ic(&mut m, e);
+        m
+    }
+
+    /// ICHIGO-AI-STANCE's pick at the stance's f6, one draw: for each band (him reeling; within 4.2 m, him guarding, then free; to
+    /// 6.4 m; beyond, within 7.5 m; beyond 7.5 m) a fixed roll below and above its thresholds picks the band's command.
+    #[test]
+    fn ai_stance_pick() {
+        // (band setup, the roll's range, the command)
+        type Setup = fn(&mut Match);
+        // (a seed whose first draw falls in LO..HI: the fixed rolls at each band's edges)
+        let seed_in = |lo: f32, hi: f32| {
+            (1u32..)
+                .find(|&s| {
+                    let mut g = crate::rng::SimRng::default();
+                    g.set_state(s);
+                    (lo..hi).contains(&g.rnd01())
+                })
+                .unwrap()
+        };
+        let reel: Setup = |m| (fighter_mut(m, m.p2).state, fighter_mut(m, m.p1).dist) = (State::Stun, 3.0);
+        let guard: Setup = |m| (fighter_mut(m, m.p2).state, fighter_mut(m, m.p1).dist) = (State::Guard, 3.0);
+        let near: Setup = |m| fighter_mut(m, m.p1).dist = 4.2;
+        let mid: Setup = |m| fighter_mut(m, m.p1).dist = 6.4;
+        let far: Setup = |m| fighter_mut(m, m.p1).dist = 7.5;
+        let away: Setup = |m| fighter_mut(m, m.p1).dist = 7.6;
+        let cases: [(Setup, f32, f32, &str); 12] = [
+            (reel, 0.0, 0.5, "tsuki-j"),
+            (reel, 0.5, 0.8, "tsuki-k"),
+            (reel, 0.8, 1.0, "tsuki-l"),
+            (guard, 0.0, 0.6, "tsuki-k"),
+            (guard, 0.6, 1.0, "tsuki-j"),
+            (near, 0.0, 0.7, "tsuki-j"),
+            (near, 0.7, 1.0, "tsuki-k"),
+            (mid, 0.0, 0.5, "tsuki-step"),
+            (mid, 0.5, 1.0, "tsuki-k"),
+            (far, 0.0, 0.6, "tsuki-step"),
+            (far, 0.6, 1.0, "tsuki-l"),
+            (away, 0.0, 1.0, "tsuki-l"),
+        ];
+        for (setup, lo, hi, want) in cases {
+            for s in [seed_in(lo, lo + 0.02), seed_in(hi - 0.02, hi)] {
+                let mut m = ik_battle();
+                setup(&mut m);
+                m.rng.set_state(s);
+                let mut g = m.rng;
+                let x = g.rnd01();
+                let e = m.p1;
+                assert_eq!(ai_stance(&mut m, e), want, "r {x} in {lo}..{hi}");
+                assert_eq!(m.rng, g, "one draw");
+            }
+        }
+        // (no flash-step for the dash: the mid band's low roll takes TSUKI-OTOSHI)
+        let mut m = ik_battle();
+        mid(&mut m);
+        m.gauges.get_mut(m.p1).unwrap().fs = 0.0;
+        m.rng.set_state(seed_in(0.0, 0.5));
+        let e = m.p1;
+        assert_eq!(ai_stance(&mut m, e), "tsuki-k");
+    }
+
+    /// PARRY-FROM-BLOCKSTUN's CPU roll: on a new blockstun after his blocked K (a :flash move) one draw against *AI-IC-PARRY-BS-P* by
+    /// difficulty (EASY its single-float x 0.6), the parry frame set 6 before the stun's end (at least 1) and L pressed on it; a J
+    /// masher's blocked J draws too, a chance only at HARD; an old blockstun draws nothing; a switched-off brain gets no help.
+    #[test]
+    fn cpu_parry_roll_by_difficulty() {
+        let d = crate::hashline::tests::data();
+        let kind_move = |k: &str| crate::components::MoveId(d.moves.iter().position(|x| x.kind == k).unwrap() as u16);
+        let p = crate::knobs::Knobs::from(d).unwrap().ai_ic_parry_bs_p;
+        let mut seen = [[false; 2]; 3];
+        for (i, (dif, chance)) in [(Difficulty::Easy, 0.6 * p), (Difficulty::Normal, p), (Difficulty::Hard, 0.8)].into_iter().enumerate() {
+            for seed in (1u32..40).map(|k| k.wrapping_mul(0x9e37_79b9)) {
+                let mut m = ik_battle();
+                let (e, o) = (m.p1, m.p2);
+                fighter_mut(&mut m, e).brain.as_mut().unwrap().difficulty = dif;
+                fighter_mut(&mut m, o).mv = Some(kind_move("flash"));
+                (fighter_mut(&mut m, e).sf, fighter_mut(&mut m, e).stun) = (0, 20);
+                m.rng.set_state(seed);
+                let mut g = m.rng;
+                let go = g.rnd01() < chance;
+                seen[i][go as usize] = true;
+                cpu_parry_from_blockstun(&mut m, e);
+                assert_eq!(m.rng, g, "one draw");
+                let ics = m.ics.get(e).unwrap();
+                assert_eq!((ics.bs_key, ics.bs_at), (0, if go { 14 } else { -1 }), "{dif:?} {seed}");
+                // (the same blockstun on: no draw; on the parry frame L is pressed)
+                fighter_mut(&mut m, e).sf = 14;
+                cpu_parry_from_blockstun(&mut m, e);
+                assert_eq!(m.rng, g, "no draw in an old blockstun");
+                let b = fighter(&m, e).brain.as_ref().unwrap();
+                if go {
+                    assert_eq!((b.press, b.press_mod, b.press_left, b.act), (Some(Sym(":SIG")), false, 2, Some(Sym(":SIG"))));
+                    assert_eq!(m.ics.get(e).unwrap().bs_at, -1);
+                } else {
+                    assert_eq!(b.press_left, 0);
+                }
+            }
+        }
+        assert_eq!(seen, [[true; 2]; 3], "both outcomes at each difficulty");
+        // (a J masher's blocked J: a draw at every difficulty, a parry only at HARD; not a masher: no draw)
+        for (dif, can) in [(Difficulty::Normal, false), (Difficulty::Hard, true)] {
+            let mut hits = 0;
+            for seed in (1u32..40).map(|k| k.wrapping_mul(0x9e37_79b9)) {
+                let mut m = ik_battle();
+                let (e, o) = (m.p1, m.p2);
+                let n = m.knobs.ai_mash_starts as usize;
+                let b = fighter_mut(&mut m, e).brain.as_mut().unwrap();
+                b.difficulty = dif;
+                b.jstarts = vec![0; n];
+                fighter_mut(&mut m, o).mv = Some(kind_move("quick"));
+                fighter_mut(&mut m, e).stun = 20;
+                m.rng.set_state(seed);
+                let mut g = m.rng;
+                let go = g.rnd01() < if can { 0.6 } else { 0.0 };
+                cpu_parry_from_blockstun(&mut m, e);
+                assert_eq!((m.rng, m.ics.get(e).unwrap().bs_at), (g, if go { 14 } else { -1 }));
+                hits += go as i32;
+            }
+            assert_eq!(hits > 0, can, "{dif:?}");
+        }
+        let mut m = ik_battle();
+        let (e, o) = (m.p1, m.p2);
+        fighter_mut(&mut m, o).mv = Some(kind_move("quick"));
+        let g = m.rng;
+        cpu_parry_from_blockstun(&mut m, e);
+        assert_eq!(m.rng, g, "not a masher: no draw");
+        fighter_mut(&mut m, o).mv = Some(kind_move("flash"));
+        fighter_mut(&mut m, e).brain.as_mut().unwrap().off = true;
+        m.ics.get_mut(e).unwrap().bs_key = -1;
+        cpu_parry_from_blockstun(&mut m, e);
+        assert_eq!((m.rng, m.ics.get(e).unwrap().bs_key), (g, -1), "brain off: nothing");
+    }
+}

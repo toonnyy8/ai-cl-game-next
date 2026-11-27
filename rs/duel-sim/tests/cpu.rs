@@ -183,10 +183,10 @@ fn brain_read_fires_inside_brain_system() {
     m.log_on = true;
     duel_sim::clog!(&mut m, "a frame line");
     duel_sim::flow::sim_step(&mut m, s, &mut spy);
-    // (P1's brain: after its vpad clock moved, after the frame's line; then P2's, whose step stops at its style)
+    // (P1's brain: after its vpad clock moved, after the frame's line; then P2's, Ichigo's style)
     assert_eq!(spy.0[0], (0, 1, 1));
     assert_eq!((spy.0.len(), spy.0[1].0, spy.0[1].2), (2, 1, 1));
-    assert_eq!(m.unported, Some("style ICHIGO-KI-R2B2A1-STYLE")); // (Ichigo's Q selector's arm 0's style: Task 7)
+    assert_eq!(m.unported, None); // (both styles ported: Tasks 6-7)
 }
 
 /// BRAIN-PERCEIVE on the first battle step: the fresh ring holds 32 views of Ichigo at the round's start, the head moved to 1.
@@ -199,12 +199,13 @@ fn first_perceive_fills_the_ring() {
         fn read(&mut self, _m: &mut Match, _side: usize) {}
         fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
     }
-    for _ in 0..301 {
+    for _ in 0..300 {
         duel_sim::flow::sim_step(&mut m, s, &mut Null);
     }
+    let x = m.transform.get(m.p2).unwrap().pos[0]; // (where P1's first perceive sees him: the step then moves him)
+    duel_sim::flow::sim_step(&mut m, s, &mut Null);
     let b = m.fighter.get(m.p1).unwrap().brain.as_ref().unwrap();
     assert_eq!((b.head, b.fresh), (1, false));
-    let x = m.transform.get(m.p2).unwrap().pos[0];
     assert!(b.ring.iter().all(|s| s.is_some_and(|s| s.x == x && s.state == State::Idle && s.start == -1)));
     let _ = Entity::NIL;
 }

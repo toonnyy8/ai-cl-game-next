@@ -303,6 +303,17 @@ impl std::ops::Sub<Num> for Num {
     }
 }
 
+/// `(+ x y)`: two integers stay one; else the singles' sum.
+impl std::ops::Add<Num> for Num {
+    type Output = Num;
+    fn add(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a + b),
+            _ => Num::F(self.f() + o.f()),
+        }
+    }
+}
+
 /// `(* x n)`: a float times an integer is the float times the integer's single.
 impl std::ops::Mul<i64> for Num {
     type Output = Num;

@@ -48,12 +48,14 @@ impl Enc for StyleId {
 
 /// The port of the style named NAME (upper case, `KEN-KI-STYLE`), or None (not ported: its caller is `unported!`).
 pub fn resolve(name: &str) -> Option<StyleFn> {
-    use super::ken_ki;
+    use super::{ichigo_ki, ken_ki};
     match name {
         "KEN-KI-STYLE" => Some(ken_ki::ken_ki_style),
         "KEN-KH-STYLE" => Some(ken_ki::ken_kh_style),
         "KEN-KH-STANDOFF-STYLE" => Some(ken_ki::ken_kh_standoff_style),
-        _ => None, // (Ichigo's ICHIGO-KI / -KI-R2B2A1: Task 7; Hisagi's HISAGI-*: M4)
+        "ICHIGO-KI-STYLE" => Some(ichigo_ki::ichigo_ki_style),
+        "ICHIGO-KI-R2B2A1-STYLE" => Some(ichigo_ki::ichigo_ki_r2b2a1_style),
+        _ => None, // (Hisagi's HISAGI-*: M4)
     }
 }
 
@@ -67,23 +69,38 @@ pub enum StyleState {
     Khs(super::ken_ki::Khs),
     /// cpu-kh-ken.lisp KSO (:include kks; KEN-KH-STANDOFF-STYLE's).
     Kso(super::ken_ki::Kso),
+    /// cpu-ki-ichigo.lisp IKST (ICHIGO-KI-STYLE's).
+    Ikst(super::ichigo_ki::Ikst),
+    /// cpu-ki-ichigo-r2b2a1.lisp IKW (:include ikst; ICHIGO-KI-R2B2A1-STYLE's).
+    Ikw(super::ichigo_ki::Ikw),
 }
 
 impl StyleState {
-    /// The included KKS (KKS-TICK ... on any of Kenpachi's structs). ponytail: panics on another style's struct, as the Lisp's
-    /// KKS-TICK would error; Task 7's structs never reach Kenpachi's code.
-    pub fn kks(&self) -> &super::ken_ki::Kks {
+    /// The included KKS of Kenpachi's structs (KKS-P), else None.
+    pub fn kks(&self) -> Option<&super::ken_ki::Kks> {
         match self {
-            StyleState::Kks(k) => k,
-            StyleState::Khs(h) => &h.k,
-            StyleState::Kso(o) => &o.k,
+            StyleState::Kks(k) => Some(k),
+            StyleState::Khs(h) => Some(&h.k),
+            StyleState::Kso(o) => Some(&o.k),
+            _ => None,
         }
     }
+    /// The included KKS. ponytail: panics on another style's struct (the Lisp's KKS-TICK would error); callers took it through
+    /// `take_style` with a Kenpachi variant check.
     pub fn kks_mut(&mut self) -> &mut super::ken_ki::Kks {
         match self {
             StyleState::Kks(k) => k,
             StyleState::Khs(h) => &mut h.k,
             StyleState::Kso(o) => &mut o.k,
+            _ => panic!("not a KKS"),
+        }
+    }
+    /// The included IKST of Ichigo's structs (IKST-P), else None.
+    pub fn ikst_mut(&mut self) -> Option<&mut super::ichigo_ki::Ikst> {
+        match self {
+            StyleState::Ikst(k) => Some(k),
+            StyleState::Ikw(w) => Some(&mut w.k),
+            _ => None,
         }
     }
 }
@@ -104,8 +121,28 @@ impl Enc for StyleState {
                 s.push_str("#KSO{");
                 o.enc(d, s);
             }
+            StyleState::Ikst(k) => {
+                s.push_str("#IKST{");
+                k.enc(d, s);
+            }
+            StyleState::Ikw(w) => {
+                s.push_str("#IKW{");
+                w.enc(d, s);
+            }
         }
         s.push('}');
+    }
+}
+
+/// Take E's style struct out of B for a style's step: the slot's own when OK says so, else a fresh one from MAKE (the old one stays
+/// in a kept entry it was EQ to: `Brain::style_replaced`).
+pub(crate) fn take_style(b: &mut Brain, ok: impl FnOnce(&StyleState) -> bool, make: impl FnOnce() -> StyleState) -> StyleState {
+    match b.style.take() {
+        Some(st) if ok(&st) => st,
+        old => {
+            b.style_replaced(old);
+            make()
+        }
     }
 }
 

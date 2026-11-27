@@ -417,6 +417,107 @@ knobs! {
     khf_bait_after: i64, // cpu-kh-ken.lisp
     kso_stale: KwNums, // cpu-kh-ken.lisp
     kso_lead: f32, // cpu-kh-ken.lisp
+    cai_hoho_p: KwFloats, // core-ai.lisp (read by ICHIGO-KI-STYLE's neutral)
+    // Ichigo's matchup styles (cpu-ki-ichigo.lisp, cpu-ki-ichigo-r2b2a1.lisp; M2 Task 7)
+    iks_mix: Plist<KwFloats>,
+    iks_punish_p: KwNums,
+    iks_his_reach: Plist<KwFloats>,
+    iks_punish_reach: Nums,
+    iks_punish_ns_reach: bool,
+    iks_confirm_p: KwNums,
+    iks_confirm_slack: i64,
+    iks_punishers: Plist<crate::cpu::ichigo_ki::Punishers>,
+    iks_confirm_walk: f32,
+    iks_ns_wait: KwNums,
+    iks_hover: Plist<F2>,
+    iks_hover_p1: Plist<F2>,
+    iks_bait_hover: Plist<F2>,
+    iks_bait_modes: Plist<Names>,
+    iks_lunge_band: Plist<F2>,
+    iks_patient_forms: Names,
+    iks_patient_lunge: bool,
+    iks_patient_p: KwBools,
+    iks_ns_stop: KwBools,
+    iks_walkin_band: Nums,
+    iks_wait_max: KwNums,
+    iks_ns2_min: f32,
+    iks_getsuga_min: f32,
+    iks_retreat_to: f32,
+    iks_retreat_p: KwNums,
+    iks_retreat_rearm: bool,
+    iks_p2_wait: KwBools,
+    iks_getsuga_his_forms: Names,
+    iks_j_reach: f32,
+    iks_shot_gap: i64,
+    iks_steer_to: i64,
+    iks_steer_p: KwNums,
+    iks_read_p: KwNums,
+    iks_kessa_read_min: KwInts,
+    iks_kessa_as: Ints,
+    iks_kikon_p: KwNums,
+    iks_generic_kikon: KwBools,
+    iks_kikon_costly_p: KwNums,
+    iks_finish_steer: bool,
+    iks_awaken_p: KwNums,
+    iks_awaken_modes: Names,
+    iks_kessa_chain_band: Nums,
+    iks_kessa_lunge_band: F2,
+    iks_kessa_space_modes: Plist<Names>,
+    iks_kessa_near_band: F2,
+    iks_k_sa_reach: f32,
+    iks_k_sa_perceived: bool,
+    iks_k_sa_dodge_stop: bool,
+    iks_k_sa_min: f32,
+    iks_close_j_chars: Names,
+    iks_lead_vmax: f32,
+    iks_burst_no_hoho: KwBools,
+    iks_break_p: KwNums,
+    iks_break_awaken: bool,
+    iks_hoho_p: KwNums,
+    iks_hoho_forms: Names,
+    iks_untimed_hoho: bool,
+    iks_hoho_lead: Window,
+    iks_hoho_slide: bool,
+    iks_hoho_follow: i64,
+    iks_follow_any_perfect: KwBools,
+    iks_wake_hoho_p: KwNums,
+    iks_wake_hoho_near: f32,
+    iks_wake_hoho_forms: Names,
+    iks_meaty_p: KwNums,
+    iks_meaty_forms: Names,
+    iks_meaty_lead: i64,
+    iks_meaty_near: f32,
+    iks_meaty_space_skip: bool,
+    iks_meaty_far: f32,
+    iks_hoho_j_reach: f32,
+    iks_gap_p: KwNums,
+    iks_gap_band: Plist<Nums>,
+    iks_gap_cmin: f32,
+    iks_gap_wait: f32,
+    iks_gap_dash_over: f32,
+    iks_gap_max: i64,
+    iks_gap_fs: f32,
+    iks_gap_lockout: i64,
+    iks_gap_dash_need: i64,
+    iks_gap_dash_dt: i64,
+    iks_gap_dash_his_forms: Plist<Names>,
+    iks_mix_keys: Names,
+    iks_hisagi_keys: Names,
+    iks_finish_even: bool,
+    iks_move_band_chars: Names,
+    iks_move_band_margin: f32,
+    iks_gap_lockout_only: Names,
+    iks_cross_band: Plist<Nums>,
+    iks_cross_p: KwNums,
+    iks_cross_hoho_p: KwNums,
+    iks_cross_dt: i64,
+    ikw_roll_p: KwNums,
+    ikw_roll_x: f32,
+    ikw_roll_y: f32,
+    ikw_gap_far: f32,
+    ikw_gap_watch: i64,
+    ikw_gap_off_n: i64,
+    ikw_stale: i64,
 }
 
 /// A keyword -> number plist knob whose values keep their token's type (`*kso-stale*` `(:easy 900 …)` integers, a chance plist's
@@ -450,6 +551,60 @@ impl duel_data::tuning::Knob for KwNums {
     }
 }
 
+/// A keyword -> value plist knob whose values may be NIL (`*iks-hover*` `(:base (3.7 4.2) …)`, `*iks-bait-modes*` `(:easy nil … :hard
+/// (:whiff …))`), in its order.
+#[derive(Debug, Clone)]
+pub struct Plist<T>(pub Vec<(String, Option<T>)>);
+
+impl<T> Plist<T> {
+    /// port: GETF — None when KEY is absent, `Some(None)` for a present NIL.
+    pub fn getf(&self, key: &str) -> Option<&Option<T>> {
+        self.0.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map(|(_, v)| v)
+    }
+    /// GETF of KEY, a present NIL and an absent key both None.
+    pub fn get(&self, key: &str) -> Option<&T> {
+        self.getf(key).and_then(Option::as_ref)
+    }
+    /// port: components.lisp BRAIN-CHANCE — DIF's value, else NORMAL's (every such knob has all three keys).
+    pub fn chance(&self, dif: crate::components::Difficulty) -> Option<&T> {
+        match self.getf(dif.name()) {
+            Some(v) => v.as_ref(),
+            None => self.get("normal"),
+        }
+    }
+}
+
+impl<T: duel_data::tuning::Knob> duel_data::tuning::Knob for Plist<T> {
+    const KIND: &'static str = "a plist of keyword / value-or-NIL pairs";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Plist<T>> {
+        let a = v.as_array()?;
+        if a.len() % 2 != 0 {
+            return None;
+        }
+        let val = |x: &duel_data::tuning::Value| if x.is_null() { Some(None) } else { T::from_value(x).map(Some) };
+        a.chunks(2).map(|c| Some((c[0].as_str()?.to_string(), val(&c[1])?))).collect::<Option<Vec<_>>>().map(Plist)
+    }
+}
+
+/// A list knob of numbers, each keeping its token's type (`*iks-punish-reach*` `(3.4 0.0 5.0)`, `*iks-gap-band*`'s `(5.25 5.1 18)`);
+/// NIL is the empty list.
+#[derive(Debug, Clone, Default)]
+pub struct Nums(pub Vec<crate::cl::Num>);
+
+impl duel_data::tuning::Knob for Nums {
+    const KIND: &'static str = "a list of numbers, or NIL";
+    fn from_value(v: &duel_data::tuning::Value) -> Option<Nums> {
+        if v.is_null() {
+            return Some(Nums(vec![]));
+        }
+        let num = |x: &duel_data::tuning::Value| match x.as_number()? {
+            n if n.is_f64() => n.as_f64().map(|f| crate::cl::Num::F(f as f32)),
+            n => n.as_i64().map(crate::cl::Num::I),
+        };
+        v.as_array()?.iter().map(num).collect::<Option<Vec<_>>>().map(Nums)
+    }
+}
+
 /// A keyword -> T / NIL plist knob (`*kk-cine-wait*` `(:easy nil :normal nil :hard t)`).
 #[derive(Debug, Clone, Default)]
 pub struct KwBools(pub Vec<(String, bool)>);
@@ -476,6 +631,17 @@ impl duel_data::tuning::Knob for KwBools {
 /// A list knob of symbol names (`*mc-actions*` `(:j1 :sp …)`), lower case as the data.
 #[derive(Debug, Clone, Default)]
 pub struct Names(pub Vec<String>);
+
+impl Names {
+    /// `(member x list)` of a keyword's name (any case, no colon).
+    pub fn has(&self, x: &str) -> bool {
+        self.0.iter().any(|n| n.eq_ignore_ascii_case(x))
+    }
+    /// GETF over the list as a plist of keywords (`*iks-hisagi-keys*`).
+    pub fn getf(&self, key: &str) -> Option<&str> {
+        self.0.chunks(2).find(|c| c[0].eq_ignore_ascii_case(key)).and_then(|c| c.get(1)).map(String::as_str)
+    }
+}
 
 impl duel_data::tuning::Knob for Names {
     const KIND: &'static str = "a list of keywords";

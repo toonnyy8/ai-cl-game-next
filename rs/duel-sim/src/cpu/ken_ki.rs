@@ -6,7 +6,7 @@
 use super::core_ai::{cai_class_of, cai_move_step, cai_neutral, cai_next_ok_p, cai_own_rolls, cai_press, cai_sp, chance_roll, gauges_awakened_ok_p};
 use super::glue::{strat_out, style_dif, style_knob};
 use super::perceive::{ai_dash, ai_press, Snap};
-use super::style::StyleState;
+use super::style::{take_style, StyleState};
 use super::{Brain, Search};
 use crate::cl::{floor_f32, fmt_fixed_f32, max_f32, min_f32, round_f32, Num};
 use crate::components::{Button, Cls, Contact, Form, State, Sym};
@@ -1280,21 +1280,15 @@ fn ken_ki(m: &mut Match, e: Entity, b: &mut Brain, st: &mut Kks, s: Snap, d: f32
     true
 }
 
-/// Take E's style struct out of B for a style's step: the slot's own when OK (and not from a later tick: a new match), else a fresh
-/// one from MAKE (the old one stays in a kept entry it was EQ to).
-fn take_style(b: &mut Brain, tick: i64, ok: fn(&StyleState) -> bool, make: impl FnOnce() -> StyleState) -> StyleState {
-    match b.style.take() {
-        Some(st) if ok(&st) && tick >= st.kks().tick => st,
-        old => {
-            b.style_replaced(old);
-            make()
-        }
-    }
+/// A Kenpachi style's struct from a match not later than TICK (KKS-P and `(>= *match-tick* (kks-tick st))`; ISP: the type test).
+fn ken_ok(st: &StyleState, tick: i64, isp: fn(&StyleState) -> bool) -> bool {
+    isp(st) && st.kks().is_some_and(|k| tick >= k.tick)
 }
 
 /// port: KEN-KI-STYLE — Kenpachi's style against Ichigo: T when it decided this step, NIL for the generic core CPU.
 pub fn ken_ki_style(m: &mut Match, _: &mut Search, e: Entity, b: &mut Brain, s: Snap, d: f32) -> bool {
-    let mut st = take_style(b, m.match_tick, |_| true, || StyleState::Kks(Kks::new()));
+    let tick = m.match_tick;
+    let mut st = take_style(b, |x| ken_ok(x, tick, |_| true), || StyleState::Kks(Kks::new()));
     let r = ken_ki(m, e, b, st.kks_mut(), s, d, None, None);
     b.style = Some(st);
     r
@@ -1345,7 +1339,7 @@ fn khf_bait_step(m: &mut Match, e: Entity, b: &Brain, s: &Snap, d: f32, st: &mut
 /// port: KEN-KH-STYLE — Kenpachi's style against Hisagi: T when it decided this step, NIL for the MCTS / the generic core CPU.
 pub fn ken_kh_style(m: &mut Match, _: &mut Search, e: Entity, b: &mut Brain, s: Snap, d: f32) -> bool {
     let tick = m.match_tick;
-    let st = take_style(b, tick, |x| matches!(x, StyleState::Khs(_)), || StyleState::Khs(Khs::new()));
+    let st = take_style(b, |x| ken_ok(x, tick, |x| matches!(x, StyleState::Khs(_))), || StyleState::Khs(Khs::new()));
     let StyleState::Khs(mut st) = st else { unreachable!() };
     let r = if khf_bait_step(m, e, b, &s, d, &mut st) {
         st.k.tick = tick;
@@ -1384,7 +1378,7 @@ fn kso_old_p(m: &Match, e: Entity, b: &Brain, st: &mut Kso) -> bool {
 /// generic core CPU.
 pub fn ken_kh_standoff_style(m: &mut Match, _: &mut Search, e: Entity, b: &mut Brain, s: Snap, d: f32) -> bool {
     let tick = m.match_tick;
-    let st = take_style(b, tick, |x| matches!(x, StyleState::Kso(_)), || {
+    let st = take_style(b, |x| ken_ok(x, tick, |x| matches!(x, StyleState::Kso(_))), || {
         let mut n = Kso::new();
         n.so_at = tick;
         StyleState::Kso(n)
@@ -1443,6 +1437,18 @@ mod tests {
             let t = format!("{{}} {tag}");
             assert!(fmts.iter().any(|f| *f == t || f.starts_with(&format!("{t} "))), "{tag}");
         }
+    }
+
+    /// KEN-KI-STYLE given another style's struct (an Ichigo IKST) takes a fresh KKS: the type test comes before KKS-TICK (Task 6's
+    /// guard read KKS-TICK of any struct and panicked).
+    #[test]
+    fn ken_style_over_another_styles_struct() {
+        let mut m = kk_battle();
+        let e = m.p1;
+        let mut b = Brain::new(Difficulty::Hard, 8);
+        b.style = Some(StyleState::Ikst(crate::cpu::ichigo_ki::Ikst::new()));
+        ken_ki_style(&mut m, &mut Search::new(), e, &mut b, Snap::default(), 3.0);
+        assert!(matches!(b.style, Some(StyleState::Kks(_))));
     }
 
     /// The stand-off clock: *KSO-STALE* frames by difficulty with no change of the four gauges, then old unless he wins the bell; a

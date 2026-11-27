@@ -1069,18 +1069,18 @@ mod tests {
         assert_eq!(report(&o, &r), (vec!["replay: --inject-side needs a vs trace, this one is S cmds".to_string()], 3));
     }
 
-    /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / H / B of the 300 intro steps equal (A: the brains'
-    /// first state, the strategies from STRAT-LOOKUP), then the first battle step reaches BRAIN-SYSTEM: P1's Q selector is judged and its
-    /// arm's style (Kenpachi's, Task 6) plays; P2's stops at Ichigo's style (Task 7).
+    /// `--live cvc-ki-s1`: the brains attached and nothing injected, every T / A / C / H / B equal from the intro (A: the brains' first
+    /// state, the strategies from STRAT-LOOKUP) through both styles (Kenpachi's, Task 6; Ichigo's, Task 7) until the MCTS's first search
+    /// (MC-SETUP: Task 8) at step 812.
     #[test]
-    fn live_ki_s1_reaches_brain_system() {
+    fn live_ki_s1_reaches_the_mcts() {
         let Some(path) = oracle_trace("cvc-ki-s1") else { return };
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
         // (--inject-plan reads one step record ahead each step: the order of the records must not change)
         for flags in ["--live", "--live --inject-plan"] {
             let o = parse_args(&args(&format!("{path} {flags}"))).unwrap();
             let r = run_opts(&o, data);
-            assert_eq!(report(&o, &r).0[0], "replay UNPORTED style ICHIGO-KI-R2B2A1-STYLE at tick 1 (step 301)", "{flags}");
+            assert_eq!(report(&o, &r).0[0], "replay UNPORTED mc-neutral at tick 512 (step 812)", "{flags}");
         }
     }
 
@@ -1155,12 +1155,11 @@ mod tests {
         assert_eq!(rp.c_got, ["[     2] P2 cpu line"]);
     }
 
-    /// The CPU's first battle step against the key: each live gate trace (cmds) run to its first battle step (step 301), where P1's
-    /// CORE-BRAIN-STEP perceives, judges its Q selector (STRAT-SWITCH-STEP) and runs its arm's style. A style not ported yet stops the
-    /// step (`style <NAME>`: Ichigo's, Task 7); when P1 stopped, P2's step is then run on the stopped match (P1's step changes nothing
-    /// P2 perceives or judges by). Kenpachi's styles run (Task 6), so KK steps whole. Each side's perception (ring,
-    /// head, fresh, J key and starts) and judgement (sw-sub / -t / -n / -won / -fn / -keep, tw, ev-*) equal the recorded A fields of
-    /// that step, and its judgement's cues equal the native judgement dump's bit for bit (tests/fixtures/strat-judgements.txt).
+    /// The CPU's first battle step against the key: each live gate trace (cmds) run to its first battle step (step 301), where each
+    /// side's CORE-BRAIN-STEP perceives, judges its Q selector (STRAT-SWITCH-STEP) and runs its arm's style (Tasks 6-7: every K / I style
+    /// runs, so every trace steps whole; a stop would still run P2's step on the stopped match). Every brain slot of both sides (the
+    /// perception, the judgement, the style's struct and presses) equals the recorded A fields of that step, and each judgement's cues
+    /// equal the native judgement dump's bit for bit (tests/fixtures/strat-judgements.txt).
     #[test]
     fn live_first_step_matches_the_key() {
         use duel_sim::cpu::{glue, perceive};
@@ -1206,7 +1205,7 @@ mod tests {
                 m.unported = Some("tick 1");
             }
             assert_eq!(m.match_tick, 1, "{name}");
-            // (a side whose style is not ported stops at it: Ichigo's, Task 7; Kenpachi's runs, so KK steps whole and KI stops in P2)
+            // (a side whose style is not ported would stop at it: none since Task 7)
             if m.unported != Some("tick 1") {
                 assert!(m.unported.is_some_and(|u| u.starts_with("style ")), "{name}: {:?}", m.unported);
                 m.unported = None;
@@ -1223,11 +1222,9 @@ mod tests {
                     let i = rd.a_fields.iter().position(|n| *n == format!("{p}.brain-{f}")).unwrap();
                     assert_eq!(g[i], w[i], "{name} {p}.brain-{f}");
                 }
-                // (KI: P1's Kenpachi step ran whole on the real sim stream before P2 stopped: every brain slot, the style's output too)
-                if p == "p1" && name.starts_with("cvc-ki") {
-                    for (i, n) in rd.a_fields.iter().enumerate().filter(|(_, n)| n.starts_with("p1.brain-")) {
-                        assert_eq!(g[i], w[i], "{name} {n}");
-                    }
+                // (both steps ran whole on the real sim stream: every brain slot, the style's output too)
+                for (i, n) in rd.a_fields.iter().enumerate().filter(|(_, n)| n.starts_with(&format!("{p}.brain-"))) {
+                    assert_eq!(g[i], w[i], "{name} {n}");
                 }
                 // (the judgement's cues, rebuilt on the stopped match: the first judgement's :prev reads no previous arm)
                 let b = m.fighter.get(e).unwrap().brain.as_ref().unwrap();

@@ -13,6 +13,7 @@ use std::fmt::Write;
 pub mod core_ai;
 pub mod fuzzy;
 pub mod glue;
+pub mod ichigo_ki;
 pub mod ken_ki;
 pub mod perceive;
 pub mod strategy;
