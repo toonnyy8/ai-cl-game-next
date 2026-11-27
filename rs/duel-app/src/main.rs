@@ -29,9 +29,7 @@ fn main() {
         .insert_resource(MeshSrc(Arc::new(Meshes::build(data))))
         .insert_non_send({
             let mut g = Game::new(data, inputs(640, 360, 1.0));
-            let q = query();
-            g.log = q.contains("log");
-            g.clock_dt = q.contains("dt=clock");
+            g.log = query().contains("log");
             g
         })
         .add_systems(Startup, |mut c: Commands| {
@@ -49,15 +47,21 @@ fn inputs(w: u32, h: u32, density: f32) -> SceneInputs {
 
 /// The driver's update: the debug commands that arrived, the window's size, then the frames the page clock says are due.
 fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window>) {
-    let due = due_at(now_ms());
+    let now = now_ms();
+    let due = due_at(now);
     let g = &mut *g;
     take_debug(|n| g.queue_cmd(n as i64, due));
     g.sc.inputs = inputs(win.physical_width(), win.physical_height(), win.scale_factor());
     if !render::ready() {
         return;
     }
-    for _ in 0..g.due_now(due) {
-        let ok = g.frame(&mut out.0);
+    let n = g.due_now(due);
+    if n == 0 {
+        return;
+    }
+    for i in 1..=n {
+        let rdt = g.rdt_of(now, i, n);
+        let ok = g.frame(&mut out.0, rdt);
         for l in g.m.log.drain(..) {
             say(&l);
         }
@@ -68,8 +72,7 @@ fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window
     }
 }
 
-/// The page URL's query: `?log` the combat log on the console (as the frozen page prints it after a debug command), `?dt=clock` the
-/// page clock's dt (driver.rs).
+/// The page URL's query: `?log` the combat log on the console (as the frozen page prints it after a debug command).
 fn query() -> String {
     #[cfg(target_arch = "wasm32")]
     {

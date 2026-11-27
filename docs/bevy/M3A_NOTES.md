@@ -978,8 +978,8 @@ R17's driver), `rs/duel-app/src/main.rs`, `rs/duel-app/web/index.html`, `rs/duel
 runs. Static geometry matches the frozen page pixel for pixel: the stage, the sky and the fog read the same RGB at sampled points of a
 2005 frame, so the gamma and the orientation are right. Two runs give byte-identical stills (27 of 27, and page-smoke's drawn 2005
 still). The page passes page-smoke: 1009 frames finished by virtual 16.9 s, no error, startup heap 92.9 MB. Rust's combat log for
-cvc-ik is the frozen page's, line for line (832 lines). The SSIM gaps are the Lisp HUD (M3b) and, suspected, two inputs that depend on the
-title's length, plus a one-frame offset of the impact frames right after a turbo window (below).
+cvc-ik is the frozen page's, line for line (832 lines). After concern 1's fix (the page's dt), most cinematic stills read 0.95-1.0. What
+is left is the Lisp HUD (M3b), the title's state (M3b) and one held pose (below).
 
 ### How a frame is drawn (and what differs from SDL_GPU)
 
@@ -1032,7 +1032,18 @@ title's length, plus a one-frame offset of the impact frames right after a turbo
 ### The driver and the page (ruling R17)
 
 - **One Update system** (`main.rs` `drive`) runs `Game::frame`, which is `flow::frame` → `draw_frame` → `frame_end` in duel-tools
-  draw.rs's order, with the Scene as the sink, `raw_dt(frame_n)`, and `NoInput`. `FixedUpdate` is gone, and so is M0's drain.
+  draw.rs's order, with the Scene as the sink, the page clock's dt (below), and `NoInput`. `FixedUpdate` is gone, and so is M0's
+  drain.
+- **dt is the frozen page's, not the key's (concern 1; R17 amended for the page; the tools keep `raw_dt`).** The frozen page's RUN-FRAME
+  dt is pf_pump's `(now - prev) * 1e-9f` over SDL_GetTicksNS, and on emscripten that clock has whole milliseconds:
+  - SDL asks for CLOCK_MONOTONIC_RAW (4);
+  - emscripten's `clock_gettime` refuses any clock above WASI's 3 (EINVAL);
+  - so SDL falls back to `gettimeofday`, which reads `Date.now()` (run.mjs `--fixed-dt`: `d0 + Math.round(vt)`).
+
+  So the frozen page's frames are 16 or 17 ms (0.016 / 0.017 as f32), and a frame now and then runs no step or two.
+  `Game::rdt_of` gives each frame that dt from the rounded page clock. One frame an update is pf_pump's bit for bit, and the page's
+  first frame has dt 0. The key's `raw_dt` (the stub's 16666666 / 16666667 ns) puts the steps, the fx clock and the screen-fx timers on
+  other frames than the frozen page's.
 - **Pacing.** The page clock (performance.now, run.mjs's virtual clock) gives the frames due (`due_at`). Each update runs the frames
   due since the last one; the first update after `ready()` catches up from the page's start (at most 900 frames, then 6 an update; a
   wall-clock stall rebases). Bevy's update count at startup varies (M0_NOTES §2), so this ties a game frame to a page time: the same
@@ -1043,12 +1054,8 @@ title's length, plus a one-frame offset of the impact frames right after a turbo
 - **The menus' camera** (`Scene.unported_camera` on title frames, M3b) is not a stop. The title draws with the camera it has, as
   duel-tools replay reads it and clears it after every frame. Any other unported path stops the fight and logs
   `duel: stopped: unported …` once (Task 10 owns the on-page message).
-- **Diagnostics in the URL.**
-  - `?log` keeps the combat log on and prints it, as the frozen page does after a debug command. It allocates, so it is off by default.
-  - `?dt=clock` sets dt to the page clock's frame (1/60 s as f32 = +STEP+, the frozen page's dt under `--fixed-dt 16.666667`) in
-    place of R17's raw_dt. Under raw_dt a frame now and then runs no step (raw_dt is a hair under STEP), and the frozen page's never does.
-    On cvc-ik / cvc-ii, `?dt=clock` did not raise SSIM (12 of 14 stills within ±0.1 of raw_dt, 2 worse), and the combat log is identical
-    under raw_dt. R17 stays the default; the choice is Task 10's.
+- **The URL diagnostic** `?log` keeps the combat log on and prints it, as the frozen page does after a debug command. It allocates, so
+  it is off by default. (`?dt=clock` is gone: the page clock is the only dt.)
 
 ### The frame-done counter (M0_NOTES §2, §6)
 
@@ -1072,68 +1079,72 @@ title's length, plus a one-frame offset of the impact frames right after a turbo
 - SSIM is Wang 2004 on luma: an 11 x 11 Gaussian window with σ 1.5, numpy only (no skimage; no pip dependency added). The output is
   build/port/stills/ (`<scene>-<still>.png`: Lisp | Rust | diff x4, with the SSIM on top) and `stills.tsv`.
 
-SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest channel difference and "px" the pixels that differ, of 230,400:
+SSIM per still (web-dev build): before → after concern 1's fix (the page's whole-ms dt). "max" and "px" (the largest channel
+difference, the pixels that differ of 230,400) are after:
 
-| still | SSIM | max | px | what differs (HUD: seen; the rest suspected) |
+| still | SSIM | max | px | what differs |
 |---|---|---|---|---|
-| cvc-ik intro | 0.7610 | 209 | 60373 | the letterbox and name card (hb) |
-| cvc-ik start | 0.8024 | 192 | 61294 | the battle HUD (hb) |
-| cvc-ik w0-0 | 0.8065 | 241 | 93803 | HUD, 斬 (hb); speed lines and sparks (cosmetic RNG) |
-| cvc-ik w1-0 | 0.2652 | 244 | 134827 | the same; full-screen speed lines dominate |
-| cvc-ik w1-1 | 0.7443 | 239 | 58824 | HUD; cosmetic RNG |
-| cvc-ik w2-0 | 0.1078 | 255 | 228217 | the frozen frame is in a negative impact grade (blue = inverted yellow), Rust's one frame later (below); speed lines |
-| cvc-ik w3-0 | 0.2220 | 247 | 168018 | speed lines; HUD |
-| cvc-ii intro | 0.7619 | 209 | 60235 | letterbox and name card (hb) |
-| cvc-ii start | 0.8090 | 183 | 51756 | HUD |
-| cvc-ii w0-0 | 0.8017 | 234 | 125655 | HUD; cosmetic RNG |
-| cvc-ii w1-0 | 0.3336 | 240 | 151492 | speed lines; HUD |
-| cvc-ii w1-1 | 0.7934 | 241 | 42964 | HUD; cosmetic RNG |
-| cvc-ii w2-0 | 0.1906 | 255 | 228184 | the impact frame's offset (below); speed lines |
-| cvc-ii w3-0 | 0.6942 | 225 | 71150 | HUD; cosmetic RNG |
-| cine-ken ken-nozarashi-026 | 0.8058 | 223 | 69999 | cosmetic RNG (tongues, debris) |
-| cine-ken ken-nozarashi-096 | 0.9869 | 236 | 15747 | the same |
-| cine-ken ken-bankai-030 | 0.9931 | 237 | 2345 | the same |
-| cine-ken ken-bankai-080 | 0.8845 | 247 | 27359 | the aura's tongues and blood drops (cosmetic RNG) |
-| cine-ken ken-bankai-120 | 0.9236 | 248 | 14467 | the same |
-| cine-ichigo ichigo-awaken-020 | 0.9892 | 245 | 4229 | the same |
-| cine-ichigo ichigo-awaken-060 | 0.9833 | 244 | 4056 | the same |
-| cine-ichigo ichigo-awaken-110 | 0.8941 | 227 | 48197 | the same |
-| cine-ko soul-break-030 | 0.9678 | 245 | 6979 | the same |
-| cine-ko soul-break-090 | 0.9931 | 186 | 6696 | the same |
-| cine-ko ko-012 | 0.8978 | 205 | 97723 | the same |
-| cine-ko ko-060 | 0.8389 | 221 | 112381 | the same |
-| cine-ko results | 0.4089 | 241 | 230398 | RESULTS is the Lisp HUD (M3b) |
+| cvc-ik intro | 0.7610 → 0.7800 | 205 | 49146 | the letterbox and name card (hb) |
+| cvc-ik start | 0.8024 → 0.8204 | 140 | 43812 | the battle HUD (hb) |
+| cvc-ik w0-0 | 0.8065 → 0.8063 | 241 | 95227 | HUD, 斬 (hb); speed lines and sparks (the title state (M3b)) |
+| cvc-ik w1-0 | 0.2652 → 0.2724 | 245 | 132110 | the same; full-screen speed lines dominate |
+| cvc-ik w1-1 | 0.7443 → 0.7800 | 230 | 40294 | HUD; the title state (M3b) |
+| cvc-ik w2-0 | 0.1078 → 0.2779 | 255 | 157043 | the frozen frame is in a negative impact grade (blue = inverted yellow), Rust's now too (the dt fix); speed lines |
+| cvc-ik w3-0 | 0.2220 → 0.2258 | 247 | 168289 | speed lines; HUD |
+| cvc-ii intro | 0.7619 → 0.7811 | 205 | 49012 | letterbox and name card (hb) |
+| cvc-ii start | 0.8090 → 0.8217 | 183 | 43674 | HUD |
+| cvc-ii w0-0 | 0.8017 → 0.8006 | 234 | 125942 | HUD; the title state (M3b) |
+| cvc-ii w1-0 | 0.3336 → 0.2960 | 240 | 151684 | speed lines; HUD |
+| cvc-ii w1-1 | 0.7934 → 0.8201 | 230 | 29174 | HUD; the title state (M3b) |
+| cvc-ii w2-0 | 0.1906 → 0.2307 | 239 | 109853 | the impact frame (the dt fix); speed lines |
+| cvc-ii w3-0 | 0.6942 → 0.7615 | 222 | 46237 | HUD; the title state (M3b) |
+| cine-ken ken-nozarashi-026 | 0.8058 → 0.8277 | 224 | 63754 | Kenpachi's held pose (open, below) |
+| cine-ken ken-nozarashi-096 | 0.9869 → 0.9987 | 228 | 2339 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ken ken-bankai-030 | 0.9931 → 0.9988 | 228 | 2008 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ken ken-bankai-080 | 0.8845 → 0.9593 | 246 | 15081 | the dt offset fixed; the aura's tongues still differ in places (not examined) |
+| cine-ken ken-bankai-120 | 0.9236 → 0.9987 | 247 | 2523 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ichigo ichigo-awaken-020 | 0.9892 → 1.0000 | 21 | 2009 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ichigo ichigo-awaken-060 | 0.9833 → 0.9981 | 244 | 2074 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ichigo ichigo-awaken-110 | 0.8941 → 0.9520 | 220 | 26310 | the dt offset fixed; a residue not examined |
+| cine-ko soul-break-030 | 0.9678 → 0.9996 | 180 | 2012 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ko soul-break-090 | 0.9931 → 0.9993 | 102 | 2024 | was the dt offset (fixed); a residue of ~2,000 px |
+| cine-ko ko-012 | 0.8978 → 0.9006 | 205 | 97728 | the 決着 caption (hb); the frozen floor is darker below the horizon, not examined (perhaps the HUD's shade) |
+| cine-ko ko-060 | 0.8389 → 0.8867 | 221 | 102885 | the same as ko-012 |
+| cine-ko results | 0.4089 → 0.4086 | 242 | 230399 | RESULTS is the Lisp HUD (M3b) |
 
 **What the stills show, and what is only suspected.**
 
 - **Seen:** the HUD (hb / hk, M3b) is missing on the Rust side, as expected. The sim is the same: the combat logs agree tick for tick,
   and the shots fall between the same log lines on both pages. Static pixels are equal.
-- **Checked: the impact grade renders, and after a turbo window it is one frame late.** `Game::frame` was replayed natively with
-  cvc-ik's command frames (a scratch test, not committed), listing the frames where `p[11]` (the impact mode) is not 0. Both pages were
-  then shot at those frames:
-  - frame 361, a negative impact in the intro with no turbo: both pages negative, the same image but the HUD. So RP_COMP_FX's
-    negative path is drawn and matches.
-  - frame 5928 of a 2006 fight (the command at virtual 4.0 s, the shot at 98.805 s; IC-RENZAN's Kikon, the manga mode 3): both pages
-    manga, the same image but the left fighter's pose. So RP_COMP_FX's manga path matches too. Mode 2 (the "red" two-tone) never comes
-    up in the two fights. Mode 4 (spot-keep) is Yamamoto's (M4).
-  - frames 452 to 454, the w2-0 window right after turbo: the frozen page is negative at 452 and back to normal at 453 / 454. Rust is
-    normal at 452 and negative at 453 / 454.
-
-  So the impact frame that follows a turbo window starts one frame later in Rust. That is a timing divergence in the looks (the screen
-  fx timers or the impact trigger around turbo frames, which no draw key covers), not in the renderer. It accounts for both w2-0
-  stills. It is left to Task 10's loop or a look fix: the draw key would need a turbo window to pin it.
-- **Suspected: two inputs that depend on the title's length differ between the pages.** Each would change every random or
-  noise-driven look: speed lines, sparks, flame tongues, debris.
-  - **The cosmetic RNG.** `rng_float` is never reseeded and runs from boot. On the frozen page it passes through about 4 s of title and
-    menu frames before the command (the menus, their idle clips and the HUD, all M3b). The Rust title draws none of them, so `CosRng`
-    reaches the fight in another state.
-  - **The fx clock.** `fx_clock` grows by `fdt` in every `draw_frame`. On the Rust page it starts with the catch-up at virtual 0; on the
-    frozen page it starts at its own first frame after its `:load` steps. The toon fx noise steps on `F.clk.x`, which is what the
-    flame tongues in the cine stills disagree on.
-
-  Neither is measured: the frozen page exposes neither state. The draw key never shows them, because its scenes start their commands on
-  frame 0 of the stub's boot. Until M3b runs the title's draws and Task 10 fixes the clock's start, the gap marks where the stills
-  differ, not how far the renderer is off.
+- **The impact grade renders.** Shot on both pages: frame 361's negative impact (the intro, no turbo) and frame 5928 of a 2006 fight
+  (IC-RENZAN's Kikon, the manga mode 3) are the same image but for the HUD and, in the second, the left fighter's pose. Mode 2 (the "red"
+  two-tone) never comes up in the two fights; mode 4 (spot-keep) is Yamamoto's (M4).
+- **Concern 1: the page drew some looks a frame off. Root cause: the dt.** After a turbo window, cvc-ik's frozen still at frame 452 is in
+  a negative impact; the Rust page drew it at 453 / 454. The investigation:
+  - **The port is not at fault.** A scratch native key over cvc-ik's command frames (gen.py's `draw_run`, scenes and output in the
+    scratchpad; draw-scenes.json and build/oracle untouched) through all three turbo windows is equal to `duel-tools draw` bit for bit
+    (69 keyed frames). Its impact frame is at 452 / 453.
+  - **The page's dt was.** The page fed R17's `raw_dt`, the stub's clock; the frozen page's is whole milliseconds (above). The two give
+    the same ticks (the combat logs agree) but not the same frames for what runs on frame time. Here it was the fx clock, whose 24 Hz
+    drawings time the Burst ring's beat: the negative impact frame in stamps_draw.
+  - **The fix:** `Game::rdt_of`. The native replay of the page (`tests/page_clock.rs`) now gives the impact at 452 only, as the frozen
+    page's stills show (452 negative, 453 / 454 not). Under `raw_dt` the same test fails (453 / 454), a mutation check.
+  - **The stills:** w2-0 0.108 → 0.278 (cvc-ik) and 0.191 → 0.231 (cvc-ii). Most cinematic stills rise to 0.95-1.0
+    (ichigo-awaken-020 1.0000, bankai-120 0.9987, soul-break-030 0.9996): their effects' timing was the same dt offset, which the first
+    write-up had put down to the cosmetic RNG.
+  - **The nozarashi cinematic's frames** (debug 11026 at virtual 4.0 s, shots every second frame from 242 to 274) now match the frozen
+    page to the noise floor through frame 264. Before the fix, 260-264 differed: the frozen page ran a frame ahead.
+- **Open: ken-nozarashi-026's held pose (0.8277).** From the hold (frame 266 on), the frozen page holds Kenpachi's arm and sword lower
+  than the Rust page. It is not a frame offset: Rust's poses at the hold frames 26 and 27 both differ from it, and 28 on are other
+  shots.
+  - A second scratch native key, the command after 239 title frames as on the page, equals the port at every frame after the command,
+    under `raw_dt`. So the native image holds Rust's pose.
+  - The frozen page's input that moves it is not found. It is not the cosmetic RNG and not the command's frame: in the native replay,
+    changing either moves 6 records, none of them the arm. The native image under the page's whole-ms dt was not tried (it needs a
+    scratch stub image).
+- **Bounded by M3b (the coordinator's ruling):** the cosmetic RNG and the fx clock enter the fight from a title that runs M3b's menus and
+  HUD on the frozen page, which Rust's title does not. What is left in the battle stills (the speed lines and the sparks in the w windows)
+  is the Lisp HUD's area plus this state; M3b's title closes it.
 
 ### 0 allocations
 
@@ -1163,16 +1174,16 @@ SSIM per still (web-dev build, e5da6263 + this task). "max" is the largest chann
 
 ### For Task 10
 
-- The URL switches `?log` and `?dt=clock` are diagnostics this task added. R17 gives the URL parameters to Task 10, which keeps or drops
-  them.
+- The URL switch `?log` is a diagnostic this task added. R17 gives the URL parameters to Task 10, which keeps or drops it.
+- The page's dt is the frozen page's whole-ms clock (`Game::rdt_of`, concern 1). Task 10's loop keeps it.
 - `tools/port/build-web.sh` needed no change: the shaders are embedded, so there is no `assets/` to copy. The brief listed it as
   modified.
-- The impact frame after a turbo window, one frame late (above).
+- ken-nozarashi-026's held pose (open, above).
 
 ### Rulings needed
 
 1. A render-graph system with cached pipelines and a storage buffer of records, in place of Materials and an entity pool (above).
 2. Shaders embedded, not hot-reloaded (BEVY_PORT §7.1).
 3. The frame-done shim lives on the page's `preinitializedWebGPUDevice.queue` (run.mjs untouched).
-4. R17's raw_dt stays the default; `?dt=clock` is there if Task 10 wants the frozen page's dt.
+4. The page's dt is the frozen page's whole-ms clock; the tools keep R17's `raw_dt` (concern 1).
 5. The menus' camera is not a stop on the page (the title draws with the default camera until M3b).

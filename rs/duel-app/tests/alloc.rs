@@ -41,7 +41,7 @@ fn page_frames_allocate_nothing() {
     let (mut n, mut frames) = (0u64, 0u64);
     for f in 1..=3600 {
         let a0 = count();
-        assert!(g.frame(&mut out), "stopped: {:?}", g.stopped);
+        assert!(g.frame(&mut out, duel_sim::flow::raw_dt(f)), "stopped: {:?}", g.stopped);
         copy_frame(&out, &mut mir);
         if f > 1 {
             n += count() - a0;
