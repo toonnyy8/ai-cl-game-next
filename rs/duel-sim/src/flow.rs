@@ -17,9 +17,10 @@ pub trait PilotInput {
     fn step_end(&mut self, m: &mut Match, s: &mut Search);
     fn after_brain(&mut self, _m: &mut Match, _s: &mut Search) {}
     /// The vpad reader's call inside a CPU rollout (the stand-in brain's VPAD-BEGIN-STEP!, the rollout's PILOT-READ): a device writes
-    /// its held state again and never advances (a human's keys are still down while the CPU searches). None by default: a CPU's vpad
-    /// has no reader (the recorder's REC-READER skips rollouts).
-    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
+    /// its held state again and never advances (a human's keys are still down while the CPU searches). Required, so a device can't
+    /// forget it (M3's touch deck and keys); an input with no device writes nothing (a CPU's vpad has no reader, the recorder's
+    /// REC-READER skips rollouts).
+    fn rollout_read(&mut self, m: &mut Match, side: usize);
 }
 
 /// The vpad readers as a rollout's lean steps see them: each read is the device's in-rollout call (`PilotInput::rollout_read`); no
@@ -30,6 +31,9 @@ impl PilotInput for InRollout<'_> {
         self.0.rollout_read(m, side);
     }
     fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+    fn rollout_read(&mut self, m: &mut Match, side: usize) {
+        self.0.rollout_read(m, side);
+    }
 }
 
 /// The headless platform's real seconds for frame K (tools/simgate/stubs.c pf_pump: virtual time, whole nanoseconds, so
@@ -42,7 +46,9 @@ pub fn raw_dt(k: i64) -> f32 {
 }
 
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
-/// steps). False when the engine would stop (never: the Lisp stops only on an error).
+/// steps). False once the sim has reached an `unported!` path, in the match (`m.unported` names it; no step runs past it) or in a CPU
+/// rollout (`Search.cut`: the CPU's value was wrong): the game loop must stop and show the name instead of freezing or playing on
+/// silently (M1_NOTES §10). The Lisp never stops (it has no unported path).
 pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool {
     m.frame_n += 1;
     let rdt = raw_dt(m.frame_n);
@@ -63,7 +69,7 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool 
         cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
     }
     // look: the HUD
-    true
+    m.unported.is_none() && s.cut.is_none()
 }
 
 /// port: FLOW-UPDATE. ponytail: the screens (menus, pause, a skip press) read the devices, none in the headless sim (M2).
@@ -101,6 +107,7 @@ pub struct NoInput;
 impl PilotInput for NoInput {
     fn read(&mut self, _m: &mut Match, _side: usize) {}
     fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
 }
 
 /// port: SIM-STEP: the lean step, then (`look:` feedback-system) HASH-LOG's `*step-hook*` and MC-FULL-STEP.
@@ -343,7 +350,8 @@ pub fn go_results(m: &mut Match) {
         return;
     }
     crate::cpu::fq::fq_match_end_take(m); // (FQ-MATCH-END: its Search half at this step's end, `sim_step`)
-    // log-msg: the RESULTS line, MC-FULL-LOG (`cpu::mcts::mc_full_log`), STRAT-LOG
+    // log-msg: the RESULTS line (`duel-tools cvc` prints it), MC-FULL-LOG and STRAT-LOG (cost lines with milliseconds, never compared:
+    // not ported, `Search.mc_stats` / `strat_stats` hold their counts)
     set_flow(m, Flow::Results);
     for e in [m.p1, m.p2] {
         let f = m.fighter.get_mut(e).unwrap();
@@ -377,6 +385,7 @@ mod tests {
     impl PilotInput for Null {
         fn read(&mut self, _m: &mut Match, _side: usize) {}
         fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+        fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
     }
 
     #[test]

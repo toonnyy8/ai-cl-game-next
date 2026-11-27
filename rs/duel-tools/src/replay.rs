@@ -126,6 +126,7 @@ impl PilotInput for Injector {
         }
     }
     fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
 }
 
 pub enum Outcome {
@@ -166,36 +167,46 @@ pub struct Opts {
     pub inject_plan: bool,
 }
 
-/// The flags after `replay`: the trace first. Err((exit code, message)): a number flag's bad value, an M2 flag without `--live` (2).
+/// `replay`'s usage line (printed with every flag error).
+pub const USAGE: &str = "usage: duel-tools replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..] [--snap N] [--bench] \
+[--live [--resync] [--inject-side N] [--inject-plan]]";
+
+/// The flags after `replay`: the trace first. Err((2, message + usage)): an unknown token (a typo, two flags pasted into one), a flag
+/// without its value or with a bad one, an M2 flag without `--live`, `--live` with `--stub` / `--mask` (a live run compares
+/// everything: the stubbed mode is the brainless replay's).
 pub fn parse_args(args: &[String]) -> Result<Opts, (u8, String)> {
-    let opt = |k: &str| args.iter().position(|a| a == k).and_then(|i| args.get(i + 1));
-    let has = |k: &str| args.iter().any(|a| a == k);
-    // a number flag: absent = None; a missing, non-numeric or out-of-range value is a usage error, never ignored
-    let num = |k: &str, min: u64, max: u64| -> Result<Option<u64>, (u8, String)> {
-        if !has(k) {
-            return Ok(None);
+    let bad = |m: String| (2, format!("replay: {m}\n{USAGE}"));
+    let mut o = Opts { trace: args.first().filter(|t| !t.starts_with("--")).cloned().ok_or_else(|| bad("no trace".into()))?, ..Opts::default() };
+    let mut it = args[1..].iter();
+    while let Some(k) = it.next() {
+        let mut val = || it.next().cloned().ok_or_else(|| bad(format!("{k} needs a value")));
+        // a number flag: a missing, non-numeric or out-of-range value is a usage error, never ignored
+        let num = |v: String, min: u64, max: u64| {
+            v.parse::<u64>().ok().filter(|n| (min..=max).contains(n)).ok_or_else(|| bad(format!("{k} needs an integer {min}..{max}, got {v:?}")))
+        };
+        let list = |v: String| v.split(',').filter(|x| !x.is_empty()).map(String::from).collect();
+        match k.as_str() {
+            "--max-steps" => o.max = Some(num(val()?, 1, u64::MAX)?),
+            "--snap" => o.snap = Some(num(val()?, 1, i64::MAX as u64)? as i64),
+            "--inject-side" => o.inject_side = Some(num(val()?, 0, 1)? as usize),
+            "--stub" => o.stubs = list(val()?),
+            "--mask" => o.mask = list(val()?),
+            "--data" => o.data = Some(val()?),
+            "--bench" => o.bench = true,
+            "--live" => o.live = true,
+            "--resync" => o.resync = true,
+            "--inject-plan" => o.inject_plan = true,
+            _ => return Err(bad(format!("unknown argument {k:?}"))),
         }
-        match opt(k).and_then(|s| s.parse::<u64>().ok()).filter(|n| (min..=max).contains(n)) {
-            Some(n) => Ok(Some(n)),
-            None => Err((2, format!("replay: {k} needs an integer {min}..{max}, got {:?}", opt(k).map_or("nothing", String::as_str)))),
-        }
-    };
-    let list = |k: &str| -> Vec<String> { opt(k).map_or(vec![], |s| s.split(',').filter(|x| !x.is_empty()).map(String::from).collect()) };
-    let o = Opts {
-        trace: args.first().cloned().ok_or((2, "replay: no trace".to_string()))?,
-        max: num("--max-steps", 1, u64::MAX)?,
-        snap: num("--snap", 1, u64::MAX)?.map(|n| n as i64),
-        stubs: list("--stub"),
-        mask: list("--mask"),
-        data: opt("--data").cloned(),
-        bench: has("--bench"),
-        live: has("--live"),
-        resync: has("--resync"),
-        inject_side: num("--inject-side", 0, 1)?.map(|n| n as usize),
-        inject_plan: has("--inject-plan"),
-    };
+    }
     if !o.live && (o.resync || o.inject_plan || o.inject_side.is_some()) {
-        return Err((2, "replay: --resync, --inject-plan and --inject-side need --live".into()));
+        return Err(bad("--resync, --inject-plan and --inject-side need --live".into()));
+    }
+    if o.bench && (o.max.is_some() || o.snap.is_some() || o.resync || o.inject_plan || o.inject_side.is_some() || !o.stubs.is_empty() || !o.mask.is_empty()) {
+        return Err(bad("--bench takes only --live and --data".into()));
+    }
+    if o.live && (!o.stubs.is_empty() || !o.mask.is_empty()) {
+        return Err(bad("--live compares every field: no --stub / --mask (the brainless replay's stubbed mode)".into()));
     }
     Ok(o)
 }
@@ -744,13 +755,14 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
         if let Some(out) = rp.out.take() {
             return out;
         }
-        if !flow::frame(m, s, rp) {
-            return Outcome::Error("the frame stopped".into());
-        }
+        let go = flow::frame(m, s, rp);
         rp.check_unported(m);
         rp.check_cut(s);
         if let Some(out) = rp.out.take() {
             return out;
+        }
+        if !go {
+            return Outcome::Error("the frame stopped".into());
         }
         if m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m) {
             return match rp.cur {
@@ -780,20 +792,27 @@ fn snap_rollout(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> Op
 }
 
 /// `--bench`'s input: the trace's T lines, read before the clock starts, injected as the replay does (RP-INJECT, RP-DETACH); no
-/// comparison, no log.
+/// comparison, no log. With `live` the brains stay on and nothing is injected (`--live --bench`: both CPUs think, M2_NOTES §10).
 pub struct BenchInput {
     inj: Injector,
     ts: Vec<TLine>,
+    live: bool,
     pub steps: usize,
 }
 
 impl PilotInput for BenchInput {
     fn read(&mut self, m: &mut Match, side: usize) {
-        self.inj.t = self.ts.get(self.steps).cloned();
-        self.inj.read(m, side);
+        if !self.live {
+            self.inj.t = self.ts.get(self.steps).cloned();
+            self.inj.read(m, side);
+        }
     }
+    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {} // (no device: brainless, or CPU against CPU)
     fn step_end(&mut self, m: &mut Match, _s: &mut Search) {
         self.steps += 1;
+        if self.live {
+            return;
+        }
         for (k, e) in [m.p1, m.p2].into_iter().enumerate() {
             if let Some(f) = m.fighter.get_mut(e).filter(|f| f.has_brain()) {
                 f.brain = None;
@@ -805,7 +824,7 @@ impl PilotInput for BenchInput {
 
 /// A cmds trace read for `--bench`: the match after its S line's commands and first frame (the combat log off), the search, its
 /// input, the trace's last H.
-pub fn bench_setup(path: &str, data: &'static duel_data::Data) -> Result<(Match, Search, BenchInput, String), String> {
+pub fn bench_setup(path: &str, data: &'static duel_data::Data, live: bool) -> Result<(Match, Search, BenchInput, String), String> {
     use std::io::BufRead;
     let f = std::fs::File::open(path).map_err(|e| format!("{path}: {e}"))?;
     let (mut start, mut ts, mut h) = (vec![], vec![], String::new());
@@ -827,7 +846,7 @@ pub fn bench_setup(path: &str, data: &'static duel_data::Data) -> Result<(Match,
     for c in &start[1..] {
         m.cmds.push_back(c.parse().map_err(|_| format!("bad command {c}"))?);
     }
-    let mut inp = BenchInput { inj: Injector::new(), ts, steps: 0 };
+    let mut inp = BenchInput { inj: Injector::new(), ts, live, steps: 0 };
     let mut s = Search::new();
     flow::frame(&mut m, &mut s, &mut inp);
     m.log_on = false; // (DEBUG-COMMAND turns it on; the gate's matches run with it off)
@@ -836,29 +855,37 @@ pub fn bench_setup(path: &str, data: &'static duel_data::Data) -> Result<(Match,
 
 /// One frame of the bench loop; false once the run is over (the replay's end test).
 pub fn bench_frame(m: &mut Match, s: &mut Search, inp: &mut BenchInput) -> bool {
-    flow::frame(m, s, inp);
+    let go = flow::frame(m, s, inp);
     m.log.clear();
-    !(m.unported.is_some() || m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m))
+    go && !(m.gate.is_empty() && !m.gate_busy && m.gate_results.is_empty() && !flow::battle_p(m))
 }
 
-/// `--bench`: the match run RUNS times in-process, each from a fresh setup (a clone would drop the stores' reserved capacity);
-/// (steps, the runs' seconds sorted, whether every run reproduced the trace: its step count and final H equal). A run is 15-25 ms, so
-/// the median of several is the figure.
-pub fn bench(path: &str, data: &'static duel_data::Data, runs: usize) -> Result<(usize, Vec<f64>, bool), String> {
-    let (mut secs, mut same, mut steps) = (vec![], true, 0);
+/// `--bench`'s figures: the trace's steps, the runs' seconds (sorted), whether every run reproduced the trace (its step count and
+/// final H), and the CPU rollouts of a run (MC-FULL-STEP's and STRAT-ROLL's; 0 brainless).
+pub struct Bench {
+    pub steps: usize,
+    pub secs: Vec<f64>,
+    pub same: bool,
+    pub rollouts: i64,
+}
+
+/// `--bench`: the match run RUNS times in-process, each from a fresh setup (a clone would drop the stores' reserved capacity). A run is
+/// 15-60 ms, so the median of several is the figure.
+pub fn bench(path: &str, data: &'static duel_data::Data, runs: usize, live: bool) -> Result<Bench, String> {
+    let mut b = Bench { steps: 0, secs: vec![], same: true, rollouts: 0 };
     for _ in 0..runs {
-        let (mut m, mut s, mut inp, h) = bench_setup(path, data)?;
+        let (mut m, mut s, mut inp, h) = bench_setup(path, data, live)?;
         let t0 = std::time::Instant::now();
         while bench_frame(&mut m, &mut s, &mut inp) {}
-        secs.push(t0.elapsed().as_secs_f64());
-        if let Some(n) = m.unported {
+        b.secs.push(t0.elapsed().as_secs_f64());
+        if let Some(n) = m.unported.or(s.cut.map(|c| c.0)) {
             return Err(format!("--bench: unported {n}"));
         }
-        same &= inp.steps == inp.ts.len() && state_hash_line(&m) == h;
-        steps = inp.steps;
+        b.same &= inp.steps == inp.ts.len() && state_hash_line(&m) == h;
+        (b.steps, b.rollouts) = (inp.steps, s.mc_stats[1] + s.strat_stats[1]);
     }
-    secs.sort_by(f64::total_cmp);
-    Ok((steps, secs, same))
+    b.secs.sort_by(f64::total_cmp);
+    Ok(b)
 }
 
 /// The stubbed mode's mask (docs/bevy/M1_NOTES.md §3): field-name prefixes after `pN.`; an entry `!prefix` keeps a field a plain
@@ -1016,7 +1043,7 @@ mod tests {
     fn bench_allocs() {
         let Some(path) = oracle_trace("cvc-kk-s1") else { return };
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
-        let (mut m, mut s, mut inp, _) = bench_setup(&path, data).unwrap();
+        let (mut m, mut s, mut inp, _) = bench_setup(&path, data, false).unwrap();
         let (mut steps, mut allocs) = (0, 0);
         loop {
             let (s0, a0, before) = (inp.steps, crate::alloc_count::count(), flow::battle_p(&m));
@@ -1086,7 +1113,8 @@ mod tests {
         assert!(matches!(out, Outcome::Diverged(_)), "a run without the core-start line still passed");
     }
 
-    /// A `--snap` rollout that reaches an `unported!` path reports it and the restored match keeps it (Hisagi's `:tick` hook, M4).
+    /// A `--snap` rollout that reaches an `unported!` path reports it and the restored match keeps it (Hisagi's `:tick` hook, M4);
+    /// `flow::frame` then returns false.
     #[test]
     fn snap_rollout_keeps_unported() {
         let data: &'static duel_data::Data = Box::leak(Box::new(duel_data::Data::embedded()));
@@ -1098,22 +1126,33 @@ mod tests {
         let cut = snap_rollout(&mut m, &mut Search::new(), &mut flow::NoInput);
         assert!(cut.is_some());
         assert_eq!((m.unported, m.match_tick), (cut, tick));
+        // (the game loop's frame says so, runs no step; so does a cut CPU rollout's)
+        assert!(!flow::frame(&mut m, &mut Search::new(), &mut flow::NoInput));
+        assert_eq!(m.match_tick, tick);
+        let (mut m2, mut s2) = (Match::new(data), Search::new());
+        s2.cut = Some(("x", 1));
+        assert!(!flow::frame(&mut m2, &mut s2, &mut flow::NoInput));
     }
 
     fn args(s: &str) -> Vec<String> {
         s.split(' ').map(String::from).collect()
     }
 
-    /// M2's flags; each of `--resync` / `--inject-plan` / `--inject-side` needs `--live`; a side is 0 or 1 (exit 2 as M1's flags).
+    /// M2's flags; each of `--resync` / `--inject-plan` / `--inject-side` needs `--live`; a side is 0 or 1; `--live` takes no `--stub` /
+    /// `--mask`; an unknown token, a flag without its value, `--bench` with a replay flag: exit 2, as M1's bad numbers.
     #[test]
     fn live_flags_parse() {
         let o = parse_args(&args("t.trace --live --resync --inject-side 0 --inject-plan")).unwrap();
         assert_eq!((o.trace.as_str(), o.live, o.resync, o.inject_side, o.inject_plan), ("t.trace", true, true, Some(0), true));
         let o = parse_args(&args("t.trace --max-steps 5")).unwrap();
         assert_eq!((o.live, o.resync, o.inject_side, o.inject_plan, o.max), (false, false, None, false, Some(5)));
-        for bad in ["t --resync", "t --inject-plan", "t --inject-side 1", "t --live --inject-side 2", "t --live --inject-side", "t --snap 0"] {
+        for bad in ["t --resync", "t --inject-plan", "t --inject-side 1", "t --live --inject-side 2", "t --live --inject-side", "t --snap 0",
+                    "t --live --mask a", "t --live --stub HS-TICK", "t --bogus", "t --snap", "--live",
+                    "t --bench --snap 40", "t 40"] {
             assert_eq!(parse_args(&args(bad)).err().map(|e| e.0), Some(2), "{bad}");
         }
+        // (two flags pasted into one token)
+        assert_eq!(parse_args(&["t".into(), "--live --inject-plan".into()]).err().map(|e| e.0), Some(2));
     }
 
     /// `--live` replays a cmds or a vs trace (brains attached as the build does); a trials trace is refused in one line, exit 3.
@@ -1294,6 +1333,7 @@ mod tests {
             impl PilotInput for Tick1 {
                 fn read(&mut self, _m: &mut Match, _side: usize) {}
                 fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+                fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
                 fn after_brain(&mut self, m: &mut Match, _s: &mut Search) {
                     if m.match_tick == 1 && m.unported.is_none() {
                         self.0 = Some(Box::new(m.clone()));

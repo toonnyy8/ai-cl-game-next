@@ -33,9 +33,10 @@ fn arr(v: Option<&Value>) -> &[Value] {
     v.and_then(Value::as_array).map_or(&[], |a| a.as_slice())
 }
 
-/// A strategy plist (a library entry, a Q selector's arm, a composite's sub): the tables.json value, `'static`, compared by EQ
-/// (`std::ptr::eq`), as BRAIN-STRAT / -SW-SUB / -EV-ON and NOW hold the Lisp plist. ponytail: a player's fq copy (Task 9, FQ-TABLE)
-/// is a fresh table, not in tables.json: Task 9 turns this into an enum with an owned case.
+/// A strategy plist (a library entry, a Q selector's arm, a composite's sub): a `'static` value compared by EQ (`std::ptr::eq`), as
+/// BRAIN-STRAT / -SW-SUB / -EV-ON and NOW hold the Lisp plist. Either a tables.json value or a player's fq copy (FQ-TABLE's fresh
+/// table), which fq.rs leaks into a `'static` value of its own so it stays EQ to no library entry (fq.rs's header; the leak is M3's
+/// to bound, M2_NOTES §12).
 #[derive(Clone, Copy)]
 pub struct Strat(pub &'static Value);
 

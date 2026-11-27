@@ -3,13 +3,17 @@
 //! trace (exit 0 OK, 1 diverged / trace error, 3 unported). `--stub a,b --mask x,y`: the stubbed mode (docs/bevy/M1_NOTES.md §3).
 //! `--snap N`: a 40-step rollout every N battle ticks, restored from a clone (must stay OK: a rollout that reaches an `unported!` path
 //! stops the run `UNPORTED … in a --snap rollout`, exit 3; its summary line after the outcome). A stubbed / masked OK says so
-//! (`replay OK (stubbed: …; masked: …) N ticks`). A number flag with a bad value exits 2.
+//! (`replay OK (stubbed: …; masked: …) N ticks`). An unknown argument, a flag without its value or with a bad one exits 2 with the usage.
 //! `--bench`: a cmds trace's T lines read first, then the match timed on them alone, 11 runs (`steps <n> secs <s> steps/s <r>`, the
-//! median; exit 1 unless every run's steps and last H equal the trace's).
+//! median; exit 1 unless every run's steps and last H equal the trace's); `--live --bench`: the same match with both CPUs thinking
+//! (nothing injected), plus its CPU rollouts a second.
 //! M2: `--live` (a cmds or vs trace with the brains thinking, nothing injected; T compared right after BRAIN-SYSTEM, C, A, the log, H,
 //! B; a trials trace is refused, exit 3), `--resync` (a T / A mismatch noted, the recorded vpads / sim stream / plan written back, the
 //! run goes on; exit 1, the first 20 listed after the outcome), `--inject-side N` (a vs trace's human side injected),
-//! `--inject-plan` (MC-FULL-STEP's plan changes copied from the next record at each step's end, the job sections not compared). Each needs `--live`.
+//! `--inject-plan` (MC-FULL-STEP's plan changes copied from the next record at each step's end, the job sections not compared). Each needs `--live`;
+//! `--live` refuses `--stub` / `--mask`.
+//! `cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]`: G2's CPU matches, their RESULTS and hash lines (cvc.rs).
+mod cvc;
 mod replay;
 #[allow(dead_code)]
 mod trace;
@@ -18,12 +22,14 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    match args.first().map(String::as_str) {
-        Some("check-data") => check_data(args.get(1)),
-        Some("parse-trace") if args.len() > 1 => parse_trace(&args[1]),
-        Some("replay") if args.len() > 1 => replay_cmd(&args[1..]),
+    let plain = |a: &[String]| a.iter().all(|x| !x.starts_with("--"));
+    match (args.first().map(String::as_str), &args[args.len().min(1)..]) {
+        (Some("check-data"), a) if a.len() <= 1 && plain(a) => check_data(a.first()),
+        (Some("parse-trace"), [t]) if plain(&args[1..]) => parse_trace(t),
+        (Some("replay"), a) => replay_cmd(a),
+        (Some("cvc"), a) => cvc::cvc_cmd(a),
         _ => {
-            eprintln!("usage: duel-tools check-data [dir] | replay <trace> [--max-steps N] [--data DIR] [--stub S,..] [--mask F,..] [--snap N] [--bench] [--live [--resync] [--inject-side N] [--inject-plan]]");
+            eprintln!("usage: duel-tools check-data [dir] | parse-trace <trace> | cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]\n{}", replay::USAGE);
             ExitCode::from(2)
         }
     }
@@ -73,18 +79,20 @@ fn replay_cmd(args: &[String]) -> ExitCode {
     };
     let data: &'static Data = Box::leak(Box::new(data));
     if o.bench {
-        return match replay::bench(&o.trace, data, 11) {
-            Ok((n, secs, same)) => {
-                let med = secs[secs.len() / 2];
+        let r = replay::bench(&o.trace, data, 11, o.live);
+        return match r {
+            Ok(b) => {
+                let (n, secs, med) = (b.steps as f64, &b.secs, b.secs[b.secs.len() / 2]);
                 println!(
-                    "steps {n} secs {med:.4} steps/s {:.0} (median of {} runs; {:.0}-{:.0}){}",
-                    n as f64 / med,
+                    "steps {n} secs {med:.4} steps/s {:.0} (median of {} runs; {:.0}-{:.0}){}{}",
+                    n / med,
                     secs.len(),
-                    n as f64 / secs[secs.len() - 1],
-                    n as f64 / secs[0],
-                    if same { "" } else { "  (NOT the trace's run)" }
+                    n / secs[secs.len() - 1],
+                    n / secs[0],
+                    if o.live { format!(" rollouts {} rollouts/s {:.0}", b.rollouts, b.rollouts as f64 / med) } else { String::new() },
+                    if b.same { "" } else { "  (NOT the trace's run)" }
                 );
-                if same { ExitCode::SUCCESS } else { ExitCode::FAILURE }
+                if b.same { ExitCode::SUCCESS } else { ExitCode::FAILURE }
             }
             Err(e) => {
                 println!("replay: {e}");

@@ -97,9 +97,19 @@ impl Data {
             serde_json::from_slice(b).map_err(|e| format!("{f}: {e}"))
         }
         let manifest = de("manifest.json", &read("manifest.json")?)?;
+        let moves: Vec<Move> = de("moves.json", at("moves.json"))?;
+        let mut kits: Kits = de("kits.json", at("kits.json"))?;
+        for kit in kits.kits.values_mut().flat_map(|forms| forms.values_mut()) {
+            kit.move_ix = kit
+                .moves
+                .iter()
+                .map(|id| (id.rsplit('/').next().unwrap_or(id).to_string(), moves.iter().position(|m| &m.id == id).map(|i| i as u16)))
+                .collect();
+            kit.move_ix.sort_by(|a, b| a.0.cmp(&b.0));
+        }
         Ok(Data {
-            moves: de("moves.json", at("moves.json"))?,
-            kits: de("kits.json", at("kits.json"))?,
+            moves,
+            kits,
             clips: de("clips.json", at("clips.json"))?,
             poses: de("poses.json", at("poses.json"))?,
             rig: de("rig.json", at("rig.json"))?,

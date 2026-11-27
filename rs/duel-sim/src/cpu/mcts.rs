@@ -429,18 +429,3 @@ pub fn mc_plan_write(p: &mut [i64; 10], k: usize, a1: i64, a2: i64, v1: f32, v2:
     (p[k], p[k + 1], p[k + 2]) = (2, if swap { a2 } else { a1 }, if swap { a1 } else { a2 });
     (p[k + 3], p[k + 4]) = (round_f32(1000.0 * max_f32(v1, v2)), round_f32(1000.0 * min_f32(v1, v2)));
 }
-
-/// port: MC-FULL-LOG's numbers (RESULTS; not one of G2's lines, never compared): decisions, rollouts, ms a decision, the worst step's
-/// ms (the clock's units: milliseconds as `Search.clock` counts them), or None with no decision.
-pub fn mc_full_log(s: &Search) -> Option<String> {
-    let st = &s.mc_stats;
-    (st[0] > 0).then(|| {
-        format!(
-            "duel mcfull decisions {} rollouts {} ms {} a decision, worst step {}",
-            st[0],
-            st[1],
-            crate::cl::fmt_fixed(st[2] as f64 / st[0] as f64, 3),
-            crate::cl::fmt_fixed(st[3] as f64, 2)
-        )
-    })
-}

@@ -90,6 +90,10 @@ pub struct Kit {
     pub strings: Vec<[String; 3]>,
     /// This form's move ids (sorted).
     pub moves: Vec<String>,
+    /// Not in kits.json: `moves` by name (the id's last segment), sorted, stable (a name's first entry first), each with its index in
+    /// `Data.moves` (None: no such move): KIT-MOVE's lookup without two string scans (`Data::parse` fills it).
+    #[serde(skip)]
+    pub move_ix: Vec<(String, Option<u16>)>,
 }
 
 /// A form's :core plist (DUEL_CORE). The six keys every form has are required; the rest are per kit (absent = NIL; Lisp

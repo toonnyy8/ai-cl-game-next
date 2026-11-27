@@ -15,14 +15,13 @@ pub fn mv_name(mv: &Move) -> &str {
     &mv.name
 }
 
-fn short(id: &str) -> &str {
-    id.rsplit('/').next().unwrap_or(id)
-}
 
-// port: kit.lisp KIT-MOVE — NAME among the kit's moves (Kit.moves holds their data ids).
+// port: kit.lisp KIT-MOVE — NAME among the kit's moves (Kit.moves holds their data ids; `Kit.move_ix` indexes them by name: the
+// first entry of a name, as FIND's).
 pub fn kit_move<'d>(data: &'d Data, kit: &Kit, name: &str) -> Option<&'d Move> {
-    let id = kit.moves.iter().find(|id| short(id) == name)?;
-    data.moves.iter().find(|m| &m.id == id)
+    let ix = &kit.move_ix;
+    let (n, i) = ix.get(ix.partition_point(|(n, _)| n.as_str() < name))?;
+    (n == name).then(|| i.map(|i| &data.moves[i as usize]))?
 }
 
 // port: kit.lisp MV-TOTAL

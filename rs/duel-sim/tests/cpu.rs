@@ -172,6 +172,7 @@ fn brain_read_fires_inside_brain_system() {
             self.0.push((side, m.log.len(), m.pilot.get(e).unwrap().vpad.tick));
         }
         fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+        fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
     }
     let mut m = ki_battle();
     let (s, mut spy) = (&mut Search::new(), Spy(vec![]));
@@ -198,6 +199,7 @@ fn first_perceive_fills_the_ring() {
     impl PilotInput for Null {
         fn read(&mut self, _m: &mut Match, _side: usize) {}
         fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+        fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
     }
     for _ in 0..300 {
         duel_sim::flow::sim_step(&mut m, s, &mut Null);
@@ -215,6 +217,7 @@ struct Null;
 impl PilotInput for Null {
     fn read(&mut self, _m: &mut Match, _side: usize) {}
     fn step_end(&mut self, _m: &mut Match, _s: &mut Search) {}
+    fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
 }
 
 /// TIME-UP (M1 minor T13): Konpaku decides first; on a Konpaku tie a float Reishi is compared as CL does (float x fixnum products).
