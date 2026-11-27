@@ -238,7 +238,7 @@ fn run(o: &Opts, data: &'static Data) -> Result<u8, String> {
         if has_cmd {
             m.log_on = false; // (the commands turn the combat log on; its lines are the log's allocations, not the frame's)
         }
-        if let Some(u) = m.unported.or(sc.unported) {
+        if let Some(u) = m.unported.or(sc.unported).or(sc.unported_camera) {
             println!("draw UNPORTED {name} frame {f}: {u}");
             return Ok(3);
         }

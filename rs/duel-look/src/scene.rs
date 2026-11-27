@@ -176,6 +176,9 @@ pub struct Scene<'d> {
     pub cine: crate::draw::fighter::CineLooks,
     /// `look_unported`: the first look path this port does not have yet (the page stops the fight and shows it).
     pub unported: Option<&'static str>,
+    /// The cameras not ported yet (a cinematic's shots: Task 8; the menus': M3b), kept apart from `unported` so a frame that reaches
+    /// one still reports any other look it misses. The page shows either.
+    pub unported_camera: Option<&'static str>,
 }
 
 impl<'d> Scene<'d> {
@@ -195,6 +198,7 @@ impl<'d> Scene<'d> {
             fl: crate::draw::fighter::FighterLooks::new(data),
             cine: crate::draw::fighter::CineLooks::default(),
             unported: None,
+            unported_camera: None,
         }
     }
 

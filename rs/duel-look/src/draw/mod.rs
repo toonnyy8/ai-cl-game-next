@@ -130,13 +130,13 @@ pub fn draw_frame(sc: &mut Scene, m: &mut Match, rdt: f32, out: &mut FrameOut) {
     sc.draw.camera.shift_x = 0.0;
     if battle_p(m) {
         if m.cine.is_some() {
-            sc.unported.get_or_insert("a cinematic's camera (cinema.lisp's shots: task 8)");
+            sc.unported_camera.get_or_insert("a cinematic's camera (cinema.lisp's shots: task 8)");
         } else {
             let pr = sc.pair(m);
             sc.duel_camera(&pr, fdt, false);
         }
     } else {
-        sc.unported.get_or_insert("the menus' camera (camera.lisp MENU-CAMERA: M3b)");
+        sc.unported_camera.get_or_insert("the menus' camera (camera.lisp MENU-CAMERA: M3b)");
     }
     {
         let d = &mut sc.draw;
