@@ -72,6 +72,8 @@ pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool 
     if !m.turbo {
         cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
     }
+    // (FQ-MATCH-END's Search half for a GO-RESULTS outside `sim_step`, e.g. M3's cinematic skip in FLOW-UPDATE; a no-op when empty)
+    crate::cpu::fq::fq_match_end_apply(m, s);
     // look: the HUD
     m.unported.is_none() && s.cut.is_none()
 }
@@ -273,6 +275,9 @@ pub fn go_title(m: &mut Match) {
 
 /// port: START-MATCH (S: MC-FULL-RESET's jobs, stats and picks; then its snapshot slots made, outside the battle).
 pub fn start_match(m: &mut Match, s: &mut Search) {
+    // (a GO-RESULTS whose FQ-MATCH-END Search half is still queued: applied before FQ-ATTACH! hands this match its copy; Lisp does
+    // both halves at once, so nothing can start a match between them)
+    crate::cpu::fq::fq_match_end_apply(m, s);
     m.paused = false;
     m.winner = None;
     m.match_tick = 0;

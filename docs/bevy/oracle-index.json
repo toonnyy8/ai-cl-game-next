@@ -488,6 +488,27 @@
    "steps": 12835,
    "last_tick": 12535,
    "sha1": "a18db71fd6cbb98f3378ea21a87fcca9a381b005"
+  },
+  {
+   "name": "cvc-ki-s1-hard",
+   "kind": "cvc",
+   "steps": 13179,
+   "last_tick": 12879,
+   "sha1": "558514d2f4157ccf197d26ca8dba77caefdae0c1"
+  },
+  {
+   "name": "cvc-ki-s1-easy",
+   "kind": "cvc",
+   "steps": 20069,
+   "last_tick": 19769,
+   "sha1": "bab6adccc33e2201c98f4b4dc481fff8405e0d1f"
+  },
+  {
+   "name": "vs-cpu-ichigo",
+   "kind": "vs",
+   "steps": 16396,
+   "last_tick": 16096,
+   "sha1": "41bf85f80555f7bdcbfa632b74e7c3d249b04e1f"
   }
  ],
  "excluded": {

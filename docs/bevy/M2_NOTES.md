@@ -495,7 +495,10 @@ in `Search` if a session's matches ever matter (`ponytail:` in fq.rs).
 `hit_system` → … → `start_cine` with `skip_cines`), where no `Search` is passed. `fq_match_end_take` (in `go_results`) does the Match half
 then and there: each learning brain's record taken (BRAIN-FQL NIL), its health balance (MC-FULL-HEALTH) and result at that moment, queued in
 `Match.fq_end`. `fq_match_end_apply` (at the end of `sim_step`, before `*step-hook*`'s A line) does the Search half: the TD update, the count,
-the page writes (codes, then the length), the repointing. Between the two nothing reads the tables, the page or BRAIN-STRAT (the step's
+the page writes (codes, then the length), the repointing. It is also called at `flow::frame`'s end and at `start_match`'s top (before
+FQ-ATTACH!; final review minor 2), so a GO-RESULTS outside a step (M3's cinematic skip runs a cinematic's AFTER from FLOW-UPDATE) cannot
+leave the update for the next match's first step after it was handed the old copy; both are no-ops on the empty queue in every traced
+flow (vs-learn replays OK). Between the two nothing reads the tables, the page or BRAIN-STRAT (the step's
 rest after GO-RESULTS is a cinematic's end or the systems after HIT-SYSTEM; the flow is RESULTS, so no later step runs), so the result
 equals the Lisp's.
 
@@ -530,8 +533,13 @@ the replayer's `--snap` passes itself). The replayer's is the vs device: `Inject
 again; the live reads also write it again on a step without a new vpad tick, as REC-VS-DEVICE does. Test `tests/mcts.rs`
 `vs_device_writes_in_rollouts` (a held :sig moves its press stamp inside the rollout; with `NoInput` it stays).
 
-**Ruling R3.** Neither vs trace queues an MCTS job (every A job section is empty on both), so no vs rollout runs in the gate: the stand-in
-brain and the device inside a rollout are covered by `stand_in_brain_for_human` and `vs_device_writes_in_rollouts` only.
+**Ruling R3 (superseded by the final review's I1).** Neither vs-cpu nor vs-learn queues an MCTS job (vs-cpu's CPU is Kenpachi, whose
+stand-off styles decide before the MCTS; vs-learn's HARD Ichigo is in `*mc-off-at*`). The final fix pass added **vs-cpu-ichigo**
+(`scenarios/vs-cpu-ichigo.lisp`: a human Kenpachi, device seed 1729, vs a NORMAL Ichigo CPU, match seed 4243, 16,396 steps): 38 A lines
+carry a job (19 decisions, 38 rollouts against the human), so the gate now keys the stand-in brain (`rollout_start`, 38), its reuse
+(`Brain::reset`, 37), the pilot no longer camera-relative, and the human's device read inside a rollout (DIVERGENCES §1 row 3: 3,010 reads
+in the CPU's rollouts; the human holds a button on 29 of the 38 job steps). `replay --live --inject-side 0` OK, also with `--snap 40`
+and in wasm32. The host tests `stand_in_brain_for_human` and `vs_device_writes_in_rollouts` stay.
 
 **Ledger T8 minor.** The stand-in brain is reused: `rollout_start` takes the last rollout's stand-in out of the scratch before the restore
 (`Search.spare_brain`) and remakes it with `Brain::reset` (MAKE-BRAIN's slots, JSTARTS / SW-KEEP's reserves kept), so a vs rollout
@@ -555,13 +563,27 @@ rule here, the numbers §10, the coverage §11, the rulings, carries and deferre
 |---|---|
 | `duel-tools cvc --check build/oracle/cvc-tag.txt` | `cvc OK seed 7 ii,ik,kk: 88 lines equal`, exit 0 |
 | `tools/port/replay-gate.sh` (M1's 22, brainless) | 22 OK |
-| `tools/port/replay-gate.sh --live` (the 15 cvc traces `--live`, vs-cpu / vs-learn `--live --inject-side 0`) | 17 OK |
-| `tools/port/replay-gate.sh --live --snap` | 17 OK (no rollout cut) |
-| `tools/port/replay-gate.sh --live --wasm` (wasm32-wasip1 under node) | 17 OK |
+| `tools/port/replay-gate.sh --live` (the 15 cvc traces and cvc-ki-s1-hard / -easy `--live`, vs-cpu / vs-learn / vs-cpu-ichigo `--live --inject-side 0`) | 20 OK (17 before the final fix pass) |
+| `tools/port/replay-gate.sh --live --snap` | 20 OK (no rollout cut) |
+| `tools/port/replay-gate.sh --live --wasm` (wasm32-wasip1 under node) | 20 OK |
 | `tools/port/replay-gate.sh --wasm` | 22 OK |
 | `tools/port/replay-gate.sh --snap` (M1's 22) | 22 OK |
-| `cargo test --release --workspace` (with `ORACLE`) | 246 passed, 0 failed (243 in duel-sim / duel-tools / duel-data) |
+| `cargo test --release --workspace` (with `ORACLE`) | 247 passed, 0 failed (244 in duel-sim / duel-tools / duel-data; 246 before the final fix pass's knob test) |
 | `cargo clippy -p duel-sim -p duel-tools -p duel-data --all-targets --release -- -D warnings` | clean |
+
+**`--snap` restores (final review minor 4).** `snap_rollout` used to play on a fresh `m.clone()` and drop it, so it could not see a hole in
+`clone_from`. It now does what snaptest.lisp and the game's restore do: the live match is snapshotted into the replayer's one slot
+(`clone_from` into the slot the last snapshot used), the reseeded 40 lean steps are played on the live match itself, and the live match is
+restored from the slot by `clone_from` into its played-on storage; then the replay goes on comparing every line. A field `clone_from`
+missed in either direction leaves the live match off the trace. Checked by mutation: a `clone_from` that keeps `match_tick` makes
+`cvc-kk-s1 --live --snap 40` diverge at the first snapshot (T line), while plain `--live` (no job in KK) stays OK.
+
+**`Match.knobs` is an `Arc<Knobs>` (final review minor 3).** `clone_from` skipped the knobs on an invariant only a comment stated (no
+writer after `Match::new`). They are now restored like every field: a snapshot copies the pointer (no allocation, 0 B rule kept), and a
+writer goes through `Arc::make_mut`, which gives that match its own table first, so a knob a later debug command writes (M5) is undone by
+a rollout's restore. Test `state::tests::clone_from_restores_a_written_knob`.
+
+**Debug 81020+i** (`*gate-difficulty*`: EASY / NORMAL / HARD for START-CVC) is ported for the two difficulty rows.
 
 BEVY_PORT §7's M2 gate, "cvc II / IK / KK identical to `cvc-tag.txt` and to the key's extra seeds": the tag is the `cvc --check` row;
 the extra seeds are the 12 cvc-* traces (seeds 1-3 of KK / KI / IK / II), replayed whole with the CPUs thinking (every T / A / C / H /
@@ -588,7 +610,8 @@ token (exit 2 with the usage); `replay --live` refuses `--stub` / `--mask` (a li
 and `--data`. `replay-gate.sh` fails a CPU rollout cut short by an `unported!` path (`replay UNPORTED … in a rollout from tick …`) as
 `CPU-UNP`, even with `--allow-unported`, as it fails a `--snap` cut (`SNAP-UNP`).
 
-**0 allocations per battle step with both CPUs on** (ruling R8; `duel-tools` `live_allocs`): each of the 15 cvc gate traces' S-line
+**0 allocations per battle step with both CPUs on** (ruling R8; `duel-tools` `live_allocs`): each of the 17 cvc rows' (the 15 gate traces,
+cvc-ki-s1-hard and cvc-ki-s1-easy since the final fix pass: 0 in 12,840 and 19,800 battle steps, the EASY one 19 decisions / 38 rollouts) S-line
 commands run live (no reader; the combat log off after the commands' frame, as `--bench`), counted over every frame that starts and ends
 in the battle: **0 in each** (13,920-21,840 battle steps a trace; cvc-ii-s1 66 decisions / 132 rollouts, cvctag-ii 80 / 160). Before:
 210 (cvc-ki-s1) and 217 (cvc-ii-s1). What went:
@@ -639,7 +662,7 @@ The big copy was the brain's. Where the time is now (KK / KI / II samples togeth
 MC-FULL-STEP's rollouts 13 % (most of it II's), the rest the sim. One more option, measured and not taken: `opt-level = 3` for duel-sim
 (release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call.
 
-## 11. Coverage of `cpu/` by the 17 live traces (Task 10)
+## 11. Coverage of `cpu/` by the live traces (Task 10: the 17; the final fix pass: 3 more)
 
 Method: duel-tools built with `-C instrument-coverage` in its own target directory (`rustup component add llvm-tools`: the system's
 llvm-profdata 18 cannot read rustc 1.99's LLVM 23 profiles), the 17 live rows run once plainly and once with `--snap 40`, merged with
@@ -684,10 +707,23 @@ their `fn` line (closures are not counted separately).
   - KEN-BANKAI-CINE: **0** (the Bankai is entered 6 times, without it, as M1 found).
   Their host tests (`tests/ken.rs`) stay the only check of every 0 here.
 
-**HARD-only paths:** the only HARD CPU in the 17 is vs-learn's learner (the cvc gate is NORMAL, vs-cpu NORMAL), and its MC-NEUTRAL
-(entered 897 times) never gets past the state test, so no HARD search runs: the decoupled UCT branch of `Lite::search` 0, the HARD outcome
-table (`mc_outcomes_of`) 0 in vs-learn. Host tests `duct_search_matches_the_lisp` and `hard_defers_on_a_thin_margin` cover them.
-FQ-ATTACH!'s HARD test and the HARD table chance are reached (vs-learn learns).
+**The three rows of the final fix pass** (measured the same way on their own, live and with `--snap 40`, and checked against the 60
+above): cvc-ki-s1-hard (KI seed 1 at HARD, debug 81022 first; 13,179 steps), cvc-ki-s1-easy (at EASY, debug 81020; 20,069 steps; 38 job
+A lines, 19 decisions by the `:tree` search at EASY's budget and temperature, the outcome table read 1,354 times) and vs-cpu-ichigo (§8's
+R3 paragraph; 16,396 steps, 38 job A lines). Of the 60, they reach four: `Brain::reset` (vs-cpu-ichigo's stand-in, 37 a run), `cai_style`
+and `cai_style_fn` (vs-cpu-ichigo: steps where its NORMAL Ichigo has no strategy, neither `cur` nor an event arm, so CORE-BRAIN-STEP's matchup style clause runs), and
+`kk_facing_p` (the HARD Kenpachi, 6). **56 never.**
+
+**HARD-only paths:** HARD now runs in a keyed cvc match (cvc-ki-s1-hard: both brains HARD, their 8-frame reaction, HARD's chances and
+style knobs), but **no HARD search runs in any Kenpachi / Ichigo match with the shipped data**, and none can until M4: the decoupled UCT
+branch of `Lite::search`, the HARD outcome table (`mc_outcomes_of` at HARD) and the `*mc-sure*` deferral stay 0. Why: Ichigo at HARD is in
+`*mc-off-at*` (MC-NEUTRAL returns before its search), and Kenpachi's strategy (STRAT-LOOKUP hands every difficulty the HARD row,
+`:t0-ki-kenpachi` / `:t0-kk-kenpachi`) is a Q selector whose arms all compose a stand-off / KH style with an `:fn`, which CORE-BRAIN-STEP
+calls before MC-NEUTRAL. Checked in the Lisp recorder on seven HARD matches, KI seeds 1-3, IK seeds 1-2, KK seeds 1-2: no plan, no job,
+`*mc-next*` never moves. (A Kenpachi against a fighter without a lookup row, Yamamoto, does search and defer at HARD: about 650 deferrals
+a match; Yamamoto's and Hisagi's CPUs are M4.) vs-learn's learner (HARD Ichigo) enters MC-NEUTRAL 897 times and never gets past it. Host
+tests `duct_search_matches_the_lisp` and `hard_defers_on_a_thin_margin` stay the only check of the search itself. FQ-ATTACH!'s HARD test
+and the HARD table chance are reached (vs-learn learns).
 
 ## 12. What M2 hands on (from the ledger, `.superpowers/sdd/2026-11-27-m2-cpu/progress.md`)
 
@@ -697,7 +733,7 @@ FQ-ATTACH!'s HARD test and the HARD table chance are reached (vs-learn learns).
 |---|---|---|
 | R1 | Task 4 creates `cpu/style.rs` with `resolve()` naming no style (call site `unported!("style <NAME>")`); Task 5 fills the names | done: Tasks 6-7 ported the four gate styles; Hisagi's resolve to `unported!` (M4) |
 | R2 | Task 3 may modify `gate.rs` (the `// cpu:` difficulty marker) | done |
-| R3 | MCTS jobs are rare; the stand-in brain for a human stays host-tested (`stand_in_brain_for_human`), no extra trace | stands: no vs trace queues a job (§8, §11) |
+| R3 | MCTS jobs are rare; the stand-in brain for a human stays host-tested (`stand_in_brain_for_human`), no extra trace | superseded at the final review (I1): vs-cpu-ichigo keys the rollouts against a human (§8, §11) |
 | R4 | the strategy layer (STRAT-FULL-STEP) is unreached; ported with host tests | stands: its functions 0 in §11 |
 | R5 | `--inject-plan` copies MC-FULL-STEP's plan changes from the next record; job sections not compared under it | done; redundant since Task 8, still passes |
 | R6 | musl's expf in `cl.rs`, checked over all 2^32 inputs; libm's sinf / cosf / atan2f stay | done (hash `eae4f603b90fd236`, `tools/port/musl-hash.c`) |
@@ -711,8 +747,6 @@ FQ-ATTACH!'s HARD test and the HARD table chance are reached (vs-learn learns).
   and the touch deck own it;
 - the game loop calls `cine::cine_draw` once per rendered frame after the frame's steps (a played cinematic's DURING forms move the
   actors: DIVERGENCES §1); `flow::frame` does it today, M3's loop must keep the order (and skip it in turbo);
-- FQ-MATCH-END runs in two halves (`fq_match_end_take` in GO-RESULTS inside `sim_core`, `fq_match_end_apply` at `sim_step`'s end, §8): a
-  new caller of GO-RESULTS outside `sim_step` must apply the queued half;
 - input-test.lisp's 7 device checks (PORTED.md) go with the touch deck's tests (the devices are the page's input);
 - the loop stops when `flow::frame` returns false and shows `m.unported` / `Search.cut`; dt as an argument;
 - each device implements `PilotInput::rollout_read` (the held keys written again inside a rollout, DIVERGENCES §1);

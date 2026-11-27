@@ -339,8 +339,10 @@ struct Replayer<I: Iterator<Item = Result<Item, String>>> {
     max: Option<u64>,
     kind: Kind,
     out: Option<Outcome>,
-    /// `--snap N`: every N battle ticks a rollout on the live match, then restored from its clone (`snap_rollout`).
+    /// `--snap N`: every N battle ticks a rollout on the live match, then restored from its snapshot (`snap_rollout`).
     snap: Option<i64>,
+    /// `--snap`'s snapshot slot, reused by every snapshot after the first (`clone_from` into a used slot, as `cpu::POOL`'s are).
+    snap_slot: Option<Match>,
     pub snaps: u64,
     pub snaps_unported: u64,
     live: bool,
@@ -597,7 +599,10 @@ impl<I: Iterator<Item = Result<Item, String>>> PilotInput for Replayer<I> {
         }
         if self.snap.is_some_and(|n| flow::battle_p(m) && m.match_tick % n == 0) {
             self.snaps += 1;
-            if let Some(name) = snap_rollout(m, s, self) {
+            let mut slot = self.snap_slot.take();
+            let cut = snap_rollout(m, s, self, &mut slot);
+            self.snap_slot = slot;
+            if let Some(name) = cut {
                 // (kept on the restored match, so the sim stops too: a --snap run with a cut rollout is never OK)
                 self.snaps_unported += 1;
                 self.out = Some(Outcome::Unported(format!("{name} in a --snap rollout from tick {} (step {})", m.match_tick, self.steps)));
@@ -681,6 +686,7 @@ pub fn run_opts(o: &Opts, data: &'static duel_data::Data) -> RunResult {
         snap: o.snap,
         snaps: 0,
         snaps_unported: 0,
+        snap_slot: None,
         live: o.live,
         resync: o.resync,
         inject_side: o.inject_side,
@@ -777,16 +783,26 @@ fn drive<I: Iterator<Item = Result<Item, String>>>(m: &mut Match, s: &mut Search
     Outcome::Error("no end after 2000000 frames".into())
 }
 
-/// `--snap`'s rollout (tools/simgate/snaptest.lisp's: SIM-ROLLOUT, the styles kept, every log off, cinematics skipped): a scratch copy
-/// of the match, its sim stream reseeded as snaptest does, 40 lean steps on the vpads as they are; the live match is never touched
-/// (Lisp's restore). Returns the `unported!` path the rollout reached, if any, and keeps it in the live match's `unported` (a run with
-/// a cut rollout is never OK). The search S is the live one: inside a rollout nothing writes it (`*in-rollout*`'s guards). INPUT: the
-/// live readers, whose in-rollout calls run (a vs trace's human: his held keys, PILOT-SYSTEM's read of a brainless seat).
-fn snap_rollout(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> Option<&'static str> {
-    let mut r = m.clone();
-    r.rng.set_state((r.rng.state() ^ 0x5BD1_E995) | 1);
-    duel_sim::cpu::mcts::sim_rollout(&mut r, s, &mut flow::InRollout(input), 40);
-    let cut = r.unported;
+/// `--snap`'s rollout (tools/simgate/snaptest.lisp's: snapshot, SIM-ROLLOUT on the live match with the styles kept, every log off,
+/// cinematics skipped, restore): the live match is snapshotted into SLOT (`clone_from` into the slot an earlier snapshot used, after
+/// the first), its sim stream reseeded as snaptest does, 40 lean steps played on it on the vpads as they are, then restored from SLOT
+/// by `clone_from` into the played-on match. So both directions of the game's restore path run on used storage, and a field
+/// `clone_from` misses either way leaves the live match off the trace (M2 final review minor 4: the old copy-and-discard could not see
+/// a restore hole). Returns the `unported!` path the rollout reached, if any, and keeps it in the restored match's `unported` (a run
+/// with a cut rollout is never OK). The search S is the live one: inside a rollout nothing writes it (`*in-rollout*`'s guards). INPUT:
+/// the live readers, whose in-rollout calls run (a vs trace's human: his held keys, PILOT-SYSTEM's read of a brainless seat).
+fn snap_rollout(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, slot: &mut Option<Match>) -> Option<&'static str> {
+    let snap = match slot {
+        Some(x) => {
+            x.clone_from(m);
+            x
+        }
+        None => slot.insert(m.clone()),
+    };
+    m.rng.set_state((m.rng.state() ^ 0x5BD1_E995) | 1);
+    duel_sim::cpu::mcts::sim_rollout(m, s, &mut flow::InRollout(input), 40);
+    let cut = m.unported;
+    m.clone_from(snap);
     m.unported = m.unported.or(cut);
     cut
 }
@@ -937,9 +953,9 @@ pub fn b_diff(fields: &[String], mask: &[String], wb: &str, b: &str) -> Option<S
 mod tests {
     use super::*;
 
-    /// The 15 cvc gate traces (the live gate's cmds rows).
-    const CVC_GATE: [&str; 15] = ["cvc-kk-s1", "cvc-kk-s2", "cvc-kk-s3", "cvc-ki-s1", "cvc-ki-s2", "cvc-ki-s3", "cvc-ik-s1", "cvc-ik-s2",
-        "cvc-ik-s3", "cvc-ii-s1", "cvc-ii-s2", "cvc-ii-s3", "cvctag-ii", "cvctag-ik", "cvctag-kk"];
+    /// The live gate's 17 cmds rows: the 15 cvc gate traces, then KI seed 1 at HARD and at EASY (M2 final review I2).
+    const CVC_GATE: [&str; 17] = ["cvc-kk-s1", "cvc-kk-s2", "cvc-kk-s3", "cvc-ki-s1", "cvc-ki-s2", "cvc-ki-s3", "cvc-ik-s1", "cvc-ik-s2",
+        "cvc-ik-s3", "cvc-ii-s1", "cvc-ii-s2", "cvc-ii-s3", "cvctag-ii", "cvctag-ik", "cvctag-kk", "cvc-ki-s1-hard", "cvc-ki-s1-easy"];
 
     /// An answer-key trace's path: `ORACLE`, else this checkout's git-ignored build/oracle; None (the test skips, with a note) when
     /// it is absent.
@@ -1059,7 +1075,7 @@ mod tests {
         assert_eq!(allocs, 0, "allocations in {steps} battle steps");
     }
 
-    /// The 0 B / step rule with both CPUs thinking (ruling R8): each of the 15 cvc gate traces' commands (its S line) run live (no
+    /// The 0 B / step rule with both CPUs thinking (ruling R8): each of the 17 cvc rows' commands (its S line) run live (no
     /// reader, the combat log off after the commands' frame) allocate nothing in any frame that starts and ends in the battle: the styles, the strategies, the
     /// MCTS's snapshots into the preallocated slots and its rollouts on the scratch match, Ichigo's clones (fixed-capacity `Few` lists
     /// since Task 10). A learning VS match is outside it (M2_NOTES §9: BRAIN-FQL's records, FQ-NOTE's list, as the Lisp conses).
@@ -1123,7 +1139,7 @@ mod tests {
         debug::ensure_battle(&mut m, &mut Search::new(), Character::Hisagi, Character::Kenpachi);
         assert!(flow::sim_running_p(&m) && m.unported.is_none());
         let tick = m.match_tick;
-        let cut = snap_rollout(&mut m, &mut Search::new(), &mut flow::NoInput);
+        let cut = snap_rollout(&mut m, &mut Search::new(), &mut flow::NoInput, &mut None);
         assert!(cut.is_some());
         assert_eq!((m.unported, m.match_tick), (cut, tick));
         // (the game loop's frame says so, runs no step; so does a cut CPU rollout's)
@@ -1265,6 +1281,7 @@ mod tests {
             snap: None,
             snaps: 0,
             snaps_unported: 0,
+            snap_slot: None,
             live,
             resync: false,
             inject_side: None,

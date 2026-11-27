@@ -18,7 +18,8 @@
                                                      earlier render left in build/style/looks/), then the check. --check: only the check
 
 The set: seeded CPU vs CPU for every ordered pairing of Yamamoto (0), Kenpachi (1), Ichigo (3), Hisagi (7), seeds 1-3 (the pairing gate's
-match: debug 30000+s-1, 31101, 200000+100 c1+10 c2); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
+match: debug 30000+s-1, 31101, 200000+100 c1+10 c2), plus KI seed 1 at HARD and at EASY (cvc-ki-s1-hard / -easy: debug 81022 / 81020
+first, the gates' difficulty); G2's --cvc II / IK / KK (seed 7, debug 2102 + 3007 / 4007 / 5007), whose hash and
 RESULTS lines are cvc-tag.txt (tests/style-cvc-ref.txt's format, checked equal to it); every combo trial file of tools/simgate/trial.lisp
 (tests/trials, the research trial files of the live fighters, tests/sp-costs-check.py's scenes), one trace per file (one match carries
 its trials); the scripted outcome traces, trial files in tools/port/oracle/scenarios/ (scr-<file name>); the vs-human traces (M2 Task 1),
@@ -37,6 +38,7 @@ TRACES = os.path.join(OUT, 'traces')
 REC_FAS = os.path.join(OUT, 'rec/duel.fas')
 FIGHTERS = {'y': (0, 'YAMAMOTO'), 'k': (1, 'KENPACHI'), 'i': (3, 'ICHIGO'), 'h': (7, 'HISAGI')}
 TAG = {'ii': 3007, 'ik': 4007, 'kk': 5007}
+DIF_ROWS = (('k', 'i', 'hard'), ('k', 'i', 'easy'))   # cvc-ki-s1-<dif>: the pairing gate's KI seed 1 at another difficulty (debug 81020+i)
 RESEARCH_TRIALS = {'ki-ai-kenpachi': 'docs/research/ki-ai/kenpachi/trials.lisp', 'ki-ai-ichigo': 'docs/research/ki-ai/ichigo/trials.lisp',
                    'sp-kits-kenpachi': 'docs/research/strategy-drsi/sp/kits/kenpachi/trials.lisp',
                    'sp-kits-ichigo': 'docs/research/strategy-drsi/sp/kits/ichigo/trials.lisp',
@@ -95,6 +97,10 @@ def jobs():
             for s in (1, 2, 3):
                 out.append({'name': f'cvc-{a}{b}-s{s}', 'kind': 'cvc', 'pair': [FIGHTERS[a][1], FIGHTERS[b][1]], 'seed': s,
                             'start': ['cmds', 30000 + s - 1, 31101, 200000 + 100 * FIGHTERS[a][0] + 10 * FIGHTERS[b][0]]})
+    for a, b, dif in DIF_ROWS:   # (M2 final review I2: the cvc gate is NORMAL; one EASY and one HARD row, debug 81020+i first)
+        out.append({'name': f'cvc-{a}{b}-s1-{dif}', 'kind': 'cvc', 'pair': [FIGHTERS[a][1], FIGHTERS[b][1]], 'seed': 1, 'difficulty': dif,
+                    'start': ['cmds', 81020 + ('easy', 'normal', 'hard').index(dif), 30000, 31101,
+                              200000 + 100 * FIGHTERS[a][0] + 10 * FIGHTERS[b][0]]})
     for p, c in TAG.items():
         out.append({'name': f'cvctag-{p}', 'kind': 'cvc-tag', 'pair': [FIGHTERS[p[0]][1], FIGHTERS[p[1]][1]], 'seed': 7,
                     'start': ['cmds', 2102, c]})

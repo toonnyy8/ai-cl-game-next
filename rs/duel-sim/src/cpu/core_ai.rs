@@ -39,6 +39,10 @@ pub fn core_brain_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput
     m.pilot.get_mut(e).expect("a pilot").vpad.begin_step();
     input.read(m, side); // (VPAD-BEGIN-STEP!'s reader: none in the game; the recorder's / replayer's mark)
     let (snap, d) = perceive::brain_perceive(m, e, o);
+    // The brain is out of its fighter while it thinks: until it is put back below, `fighter(m, e).brain` is None and `has_brain()`
+    // false for this side, so a helper called from `think` (a style, a strategy's glue, a sim helper) that reads the stepping side's
+    // brain through the fighter sees no brain and takes its human / no-CPU branch. Pass `b` to such a helper instead (Task 4 hit
+    // this once: STRAT-HOLD-AWAKEN-P). The opponent's brain is still in its fighter.
     let mut b = m.fighter.get_mut(e).and_then(|f| f.brain.take()).expect("a brain");
     think(m, s, e, &mut b, snap, d);
     m.fighter.get_mut(e).unwrap().brain = Some(b);

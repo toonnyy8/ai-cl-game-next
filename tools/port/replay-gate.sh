@@ -2,11 +2,13 @@
 # The replay gate (docs/bevy/M1_NOTES.md §5, M2_NOTES.md §9) through `duel-tools replay`, 4 at a time. Prints "name status first-step" rows.
 # Exit 0 when every trace is OK (with --allow-unported: OK or UNPORTED). ORACLE defaults to this checkout's build/oracle.
 # Default: M1's 22 brainless gate traces (18 + the 4 scripted outcome traces, docs/bevy/M0_NOTES.md §4).
-# --live: M2's 17 with the brains thinking: the 15 cvc traces `--live`, vs-cpu / vs-learn `--live --inject-side 0` (the human P1 injected).
+# --live: M2's 20 with the brains thinking: the 15 cvc gate traces and cvc-ki-s1-hard / -easy (KI seed 1 at HARD / EASY) `--live`, vs-cpu /
+# vs-learn / vs-cpu-ichigo `--live --inject-side 0` (the human P1 injected; vs-cpu-ichigo's NORMAL Ichigo queues MCTS jobs against him).
 # --wasm: every row through the wasm32-wasip1 build under node (tools/port/replay-wasm.mjs) instead of the native binary.
 # --stubbed: the replay's stubbed mode (docs/bevy/M1_NOTES.md §3: guarded stubs for the unported kit :tick hooks, kit state and H masked);
-# not the gate's verdict, a check of the code behind them; not with --live. A stubbed row reads OK-MASKED. --snap: a 40-step rollout every
-# 40 battle ticks, restored (M1_NOTES §5; the outcome line stays first).
+# not the gate's verdict, a check of the code behind them; not with --live. A stubbed row reads OK-MASKED. --snap: every 40 battle ticks a
+# snapshot (into the slot the last one used), a 40-step rollout on the live match, and the restore from it (M1_NOTES §5; the outcome line
+# stays first).
 # A rollout cut short by an `unported!` path fails its row even with --allow-unported, since its value was wrong: a --snap rollout's
 # (SNAP-UNP) and a CPU rollout's (MC-FULL-STEP's / STRAT-ROLL's: CPU-UNP). NAMES (env): other trace names instead of the set's.
 set -u
@@ -34,7 +36,7 @@ fi
 cvc="cvc-kk-s1 cvc-kk-s2 cvc-kk-s3 cvc-ki-s1 cvc-ki-s2 cvc-ki-s3 cvc-ik-s1 cvc-ik-s2 cvc-ik-s3 cvc-ii-s1 cvc-ii-s2 cvc-ii-s3
      cvctag-ii cvctag-ik cvctag-kk"
 if [ $live = 1 ]; then
-  names=${NAMES:-"$cvc vs-cpu vs-learn"}
+  names=${NAMES:-"$cvc cvc-ki-s1-hard cvc-ki-s1-easy vs-cpu vs-learn vs-cpu-ichigo"}
 else
   names=${NAMES:-"$cvc trial-ki-ai-kenpachi trial-ki-ai-ichigo trial-sp-xch-r3
          scr-counter-stance-break scr-bursts-chain-cut scr-blocked-guard-crush-back scr-draw"}

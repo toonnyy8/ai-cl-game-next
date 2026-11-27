@@ -3,7 +3,7 @@
 //! FULL-GAUGES!, and the fields an `E set` line names.
 use crate::cl::Num;
 use crate::components::Character::{Ichigo, Kenpachi};
-use crate::components::{Burst, Character, Flow, Form, State};
+use crate::components::{Burst, Character, Difficulty, Flow, Form, State};
 use crate::ecs::Entity;
 use crate::gate::{start_cvc, start_pair_gate};
 use crate::cpu::Search;
@@ -23,6 +23,7 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
         5000..=5999 => start_cvc(m, s, c - 5000, Some([Kenpachi, Kenpachi])),
         30000..=30999 => m.gate_seed0 = c - 30000,
         31101..=31199 => m.gate_seeds = c - 31100,
+        81020..=81022 => m.gate_difficulty = [Difficulty::Easy, Difficulty::Normal, Difficulty::Hard][(c - 81020) as usize],
         200000..=209999 => start_pair_gate(m, s, c / 100 % 10, c / 10 % 10),
         // ponytail: leaked once per run, on the path that stops it
         _ => crate::unported!(m, Box::leak(format!("debug {c}").into_boxed_str())),
