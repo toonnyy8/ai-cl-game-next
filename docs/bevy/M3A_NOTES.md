@@ -335,7 +335,7 @@ The brief's 114 markers became 145 rows, for three reasons:
 - markers that listed several calls were split, one row per call;
 - the Lisp calls with no marker were added: ICHIGO-RENZAN's `:sfx`, ICHIGO-PARRY-OPEN's two `:sfx`, KEN-CHIGIRI-BURST's and
   KEN-TATEGOTO-CUT's `:ken-bk-burst`, KEN-GROUND-CRACK's and KEN-BK-SLAM's `:ground-scar` + `:sfx`, a ward's `:blocked`, CORE-KIKON-KNOCK!'s
-  CORE-FOLLOW-CUES, SET-BLOCKSTUN's clip, CINE-STAGE's / SET-CAM-BEHIND's `*cam-cut*`;
+  CORE-FOLLOW-CUES, SET-BLOCKSTUN's clip, SET-CAM-BEHIND's `*cam-cut*`;
 - the parry rim is written on every frame of the window, not only when it is saved.
 
 Columns:
@@ -505,12 +505,12 @@ a phase is the Lisp's call order there; Tasks 5-8 pin it against the key's per-f
 | Phase (GAME-FRAME order) | Calls that draw | Where |
 |---|---|---|
 | SCREEN-FX-UPDATE, ONEHAND-FRAME, FLOW-UPDATE, GATE-UPDATE | none | |
-| each step's immediate calls (pass 1) | a cinematic's AT look forms (`CineAt`): KE-Z-DUST, KE-Z-BLOOD, SHAKE, VFX-SHOCKWAVE, VFX-AWAKEN-BURST, VFX-KEN-BK-BURST in Kenpachi's scripts; Ichigo's in ichigo-look.lisp | ken.lisp:790, 799; fx.lisp:27; vfx-stamps.lisp:457; vfx.lisp:554; ken-art.lisp:1575; ichigo-look.lisp (Task 8) |
-| each step's FEEDBACK-SYSTEM (pass 2), event by event | `:absorbed`'s absorb-sound roll; VFX-HIT (and its shards); VFX-STEP-DUST; VFX-KIKON-RUSH; VFX-SHOCKWAVE; VFX-SMOKE-PUFFS; VFX-EMBER (`:parried`); SHAKE (3 draws a call); STAGE-MARK's crack rays (STAGE-CRACK-ADD) and STAGE-DEBRIS; VFX-KEN-BK-BURST / VFX-KEN-TATEGOTO-CUT (`:ken-bk-burst`); `:drink`'s laugh (retired kit: unreachable) | feedback.lisp:119 (201); vfx-stamps.lisp:346, 443, 395, 457, 435; vfx-ember.lisp:26; fx.lisp:27; stage.lisp:228, 289; ken-art.lisp:1575, 1563 |
+| each step's immediate calls (pass 1) | a cinematic's step-mode look forms (`CineAt`): KE-Z-DUST, KE-Z-BLOOD, KE-ZH-CHIPS (ken.lisp:750, frames 36-54), SHAKE, VFX-SHOCKWAVE, VFX-AWAKEN-BURST, VFX-KEN-BK-BURST in Kenpachi's scripts; VFX-KONPAKU-SHATTER (cinema.lisp:183's helper, Ichigo's scripts at ichigo-look.lisp:681, 858), VFX-HIT; Ichigo's other forms in ichigo-look.lisp | ken.lisp:790, 799, 685; fx.lisp:27; vfx-stamps.lisp:457, 383, 346; vfx.lisp:554; ken-art.lisp:1575; ichigo-look.lisp (Task 8) |
+| each step's FEEDBACK-SYSTEM (pass 2), event by event | `:absorbed`'s absorb-sound roll; VFX-HIT (and its shards); VFX-STEP-DUST; VFX-KIKON-RUSH; VFX-SHOCKWAVE; VFX-SMOKE-PUFFS; VFX-KONPAKU-SHATTER (`:konpaku` through hud.lisp PIPS-SHATTER); SHAKE (3 draws a call); STAGE-MARK's crack rays (STAGE-CRACK-ADD) and STAGE-DEBRIS; VFX-KEN-BK-BURST / VFX-KEN-TATEGOTO-CUT (`:ken-bk-burst`); `:drink`'s laugh (retired kit: unreachable). (`:parried`'s VFX-EMBER draws none.) | feedback.lisp:119 (201); vfx-stamps.lisp:346, 443, 395, 457, 435, 383; fx.lisp:27; stage.lisp:228, 289; ken-art.lisp:1575, 1563 |
 | DRAW-SCENE (draw.lisp:325-345): STAGE-DRAW | the ash / feathers (ST-EVERY's emission) | stage.lisp:374 |
-| DRAW-SCENE: DRAW-FIGHTER P1, then P2 | VFX-AURA (its N-OF emission counts and its particles, %GARB-AURA), scaled by last frame's `*aura-cap*`; Ichigo's aura base | vfx.lisp:40, 242, 293; ichigo-look.lisp:219 |
-| DRAW-SCENE: HAZARD-DRAW | the hazards' looks: VFX-LINE-CUT, ICHIGO-ECHO-LOOK, KE-ZH-CHIPS | vfx.lisp:419; ichigo-look.lisp:185; ken.lisp:685 |
-| DRAW-SCENE: CINE-DRAW | a script's DURING looks: VFX-SKY-SPLIT, VFX-AURA, Ichigo's cinematics | vfx.lisp:527-; ichigo-look.lisp:689, 841, 905, 919 |
+| DRAW-SCENE: DRAW-FIGHTER P1, then P2 | VFX-AURA (its N-OF emission counts and its particles, %GARB-AURA), scaled by last frame's `*aura-cap*`; Ichigo's aura base; VFX-CHARGE (a charged blade's tip, draw.lisp:239) | vfx.lisp:40, 242, 293; ichigo-look.lisp:219; vfx-ember.lisp:26 |
+| DRAW-SCENE: HAZARD-DRAW | the hazards' looks: VFX-LINE-CUT (hazards.lisp:130), ICHIGO-ECHO-LOOK | vfx.lisp:419; ichigo-look.lisp:185 |
+| DRAW-SCENE: CINE-DRAW | a script's DURING looks: VFX-AURA, VFX-LINE-CUT (ken.lisp:764, 908), Ichigo's cinematics (VFX-SKY-SPLIT draws none) | vfx.lisp:40, 293, 419; ichigo-look.lisp:689, 841, 905, 919 |
 | DRAW-SCENE: STAMPS-DRAW, FX-UPDATE, FX-DRAW-PARTICLES, FX-RINGS-UPDATE | none found by the grep (they move what the calls above emitted) | |
 | HUD-DRAW | AURA-CAP-UPDATE draws nothing, but sets `*aura-cap*`, which the next frame's VFX-AURA reads (ruling R4: Task 6 ports it at HUD-DRAW's place) | hud-screens.lisp:10 |
 
