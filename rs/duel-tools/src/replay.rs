@@ -1223,6 +1223,12 @@ mod tests {
                     let i = rd.a_fields.iter().position(|n| *n == format!("{p}.brain-{f}")).unwrap();
                     assert_eq!(g[i], w[i], "{name} {p}.brain-{f}");
                 }
+                // (KI: P1's Kenpachi step ran whole on the real sim stream before P2 stopped: every brain slot, the style's output too)
+                if p == "p1" && name.starts_with("cvc-ki") {
+                    for (i, n) in rd.a_fields.iter().enumerate().filter(|(_, n)| n.starts_with("p1.brain-")) {
+                        assert_eq!(g[i], w[i], "{name} {n}");
+                    }
+                }
                 // (the judgement's cues, rebuilt on the stopped match: the first judgement's :prev reads no previous arm)
                 let b = m.fighter.get(e).unwrap().brain.as_ref().unwrap();
                 let snap = perceive::brain_snap_ago(b, b.delay).unwrap();

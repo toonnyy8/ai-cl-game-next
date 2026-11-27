@@ -256,7 +256,9 @@ mark around the event arm's call (its struct is never a kept one); BRAIN-SET-STR
   exchange, the clash, the finish, CAI-NEUTRAL / CAI-MOVE-STEP). The MCTS is never reached on a Kenpachi side: KEN-KI-STYLE decides
   every idle / run / move step itself (it runs CAI-NEUTRAL / CAI-MOVE-STEP), and the strategy layer is off, so `--inject-plan` changes
   nothing there.
-- cvc-ki-s1..3: step 301, P2 at `style ICHIGO-KI-R2B2A1-STYLE` (P1's Kenpachi step runs first and equals the key).
+- cvc-ki-s1..3: step 301, P2 at `style ICHIGO-KI-R2B2A1-STYLE`. P1's Kenpachi step runs first on the real sim stream; the replayer does
+  not compare a stopped step's A line, so `live_first_step_matches_the_key` compares every `p1.brain-*` field of it (the KSO, the press,
+  the rolls) with the key's step-301 A line: equal on all three.
 - cvc-ik-s1..3, cvc-ii-s1..3, cvctag-ii, cvctag-ik: step 301, P1 at `style ICHIGO-KI-R2B2A1-STYLE` (Task 7).
 - vs-learn: `debug 2504` (step 1); vs-cpu: `vs-start` (step 1) (Task 9).
 
@@ -278,5 +280,5 @@ the census's 13 tags from them are among them), `standoff_clock_by_difficulty` (
 old one past it, a gauge change of either side restarts the clock, ahead at the bell never old), `kk_pick_with_a_fixed_rnd` (both picks
 at 1.5 m with the approach's rolls made: NS under *CAI-NS-NEAR*, J1 over it, the draws and the press each takes). duel-tools:
 `live_kk_s1_replays_whole` (cvc-kk-s1 OK with both flags); `live_ki_s1_reaches_brain_system` and `live_first_step_matches_the_key` now
-expect Ichigo's stop (the latter checks KK's whole first step on the match right after BRAIN-SYSTEM); tests/cpu.rs
+expect Ichigo's stop (the latter checks KK's first step on the match right after BRAIN-SYSTEM, and every P1 brain slot of KI's); tests/cpu.rs
 `brain_read_fires_inside_brain_system` sees both brains' reads.
