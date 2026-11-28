@@ -97,7 +97,7 @@ Rust + Bevy 移植（2026-11-26 起，設計中）：Lisp 版在 `lisp-freeze`�
 | [M2_NOTES.md](bevy/M2_NOTES.md) | M2 筆記（英文）：CPU 移植（感知、核心 CPU、策略、風格、MCTS、線上學習）、快照邊界、`cvc` 指令、20 條活軌跡閘門、CPU 開啟時 0 配置與速度、覆蓋率、交給 M3–M5 的待辦與延後小項 |
 | [M3A_NOTES.md](bevy/M3A_NOTES.md) | M3a 筆記（英文）：戰鬥畫面移植（繪製答案鍵、骨架與動畫、網格、look 佇列、FX、角色、過場、Bevy 渲染器、遊戲迴圈與鍵盤）、與凍結版的頁面比對、opt-level 決定與數據、交給 M3b 的待辦 |
 | [DIVERGENCES.md](bevy/DIVERGENCES.md) | 移植版與 Lisp 的差異（英文）：照搬的 Lisp 錯誤（M1 沒有）、刻意保留的怪癖、無軌跡到達之路徑上的移植版差異 |
-| `bevy/plans/` | M0a / M0 / M1 / M2 的實作計畫（M1：`2026-11-26-m1-sim-core.md`；M2：`2026-11-27-m2-cpu.md`）；工具在 `tools/port/`，Rust workspace 在 `rs/` |
+| `bevy/plans/` | M0a / M0 / M1 / M2 / M3a 的實作計畫（M1：`2026-11-26-m1-sim-core.md`；M2：`2026-11-27-m2-cpu.md`；M3a：`2026-11-27-m3a-fight-picture.md`）；工具在 `tools/port/`，Rust workspace 在 `rs/` |
 
 ## 研究（`research/`）
 
