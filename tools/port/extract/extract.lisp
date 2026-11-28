@@ -316,15 +316,62 @@ polygons), never the plist guess (a shape (:sphere 0.1 :c :skin) would pass for 
   (mapcar (lambda (r) (cl-user::json-array (list (first r) (second r) (and (third r) (symbol-name (third r))))))
           (sort (copy-list engine::*debug-ranges*) (lambda (a b) (or (< (first a) (first b)) (and (= (first a) (first b)) (< (second a) (second b))))))))
 
+;;; The mesh registry (M3a Task 3, the controller's ruling R1): mesh id -> the shortest path to its MESH struct from a special
+;;; variable of DUEL / ENGINE, and its vertex count, named exactly as the draw key's meshes.json (a copy of
+;;; tools/port/oracle/draw.lisp DW-KEY-STRING / DW-PATH / DW-CHILDREN / DW-NAME-MESHES, run after SG-INIT: every mesh is made at
+;;; startup). duel-look builds its meshes into these ids; its test cross-checks the table against the key's meshes.json.
+(defun x-mesh-key-string (k) (let ((*print-pretty* nil) (*package* (find-package :duel))) (prin1-to-string k)))
+(defun x-mesh-path (node)
+  (let ((parts nil))
+    (loop for n = node then (second n) while n do (push (third n) parts))
+    (format nil "~{~a~}" parts)))
+(defun x-mesh-children (x fn)
+  (typecase x
+    (cons (loop for c = x then (cdr c) for i from 0
+                while (consp c) do (funcall fn (car c) (format nil "[~d]" i))
+                finally (when c (funcall fn c "."))))
+    (string nil)
+    ((and vector (not simple-array)) (when (eq (array-element-type x) t) (dotimes (i (length x)) (funcall fn (aref x i) (format nil "[~d]" i)))))
+    (simple-vector (dotimes (i (length x)) (funcall fn (svref x i) (format nil "[~d]" i))))
+    (hash-table (let ((ks nil))
+                  (maphash (lambda (k v) (push (cons (x-mesh-key-string k) v) ks)) x)
+                  (dolist (kv (sort ks #'string< :key #'car)) (funcall fn (cdr kv) (format nil "{~a}" (car kv))))))
+    (structure-object (dolist (s (clos:class-slots (class-of x)))
+                        (let ((n (clos:slot-definition-name s)))
+                          (when (slot-boundp x n) (funcall fn (slot-value x n) (format nil ".~a" (symbol-name n)))))))))
+(defun x-mesh-ids ()
+  "[[id, path, verts] ...] by id ascending (a JSON array of arrays)."
+  (let ((seen (make-hash-table :test 'eq)) (queue nil) (tail nil) (found (make-hash-table)) (roots nil))
+    (flet ((push-node (obj parent label)
+             (unless (or (null obj) (symbolp obj) (numberp obj) (characterp obj) (functionp obj) (gethash obj seen))
+               (setf (gethash obj seen) t)
+               (let ((cell (list (list obj parent label))))
+                 (if tail (setf (cdr tail) cell tail cell) (setf queue cell tail cell))))))
+      (dolist (p '(:duel :engine))
+        (do-symbols (s p) (when (and (eq (symbol-package s) (find-package p)) (boundp s) (not (constantp s))) (push s roots))))
+      (dolist (s (sort (remove-duplicates roots) #'string< :key #'x-mesh-key-string))
+        (push-node (symbol-value s) nil (x-mesh-key-string s)))
+      (loop while queue
+            do (let* ((node (pop queue)) (x (first node)))
+                 (when (null queue) (setf tail nil))
+                 (if (typep x 'engine::mesh)
+                     (unless (gethash (engine::mesh-id x) found) (setf (gethash (engine::mesh-id x) found) (cons x node)))
+                     (x-mesh-children x (lambda (c label) (push-node c node label)))))))
+    (cl-user::json-array
+     (loop for id in (sort (loop for id being the hash-keys of found collect id) #'<)
+           collect (destructuring-bind (m . node) (gethash id found)
+                     (cl-user::json-array (list id (x-mesh-path node) (engine::mesh-count m))))))))
+(defvar *x-mesh-ids* (x-mesh-ids) "tables.json mesh_ids (computed once, before the extractor makes anything).")
+
 (defparameter *x-tables*
-  '(("stage_ruins" . *stage-ruins*) ("plaza_cracks" . *plaza-cracks*) ("stamp_kinds" . *stamp-kinds*)
+  '(("mesh_ids" . *x-mesh-ids*) ("stage_ruins" . *stage-ruins*) ("plaza_cracks" . *plaza-cracks*) ("stamp_kinds" . *stamp-kinds*)
     ("fz_sets" . *fz-sets*) ("fz_skill" . *fz-skill*) ("fz_as_now" . *fz-as-now*) ("fz_ns_turn" . *fz-ns-turn*) ("fz_ns_cont" . *fz-ns-cont*)
     ("fz_kikon" . *fz-kikon*) ("fz_hoho" . *fz-hoho*) ("fz_cancel" . *fz-cancel*) ("fz_burst" . *fz-burst*)
     ("strat_bias_keys" . *strat-bias-keys*) ("strat_styles" . *strat-styles*) ("strat_data" . *strat-data*) ("strat_units" . *strat-units*)
     ("strat_rule_bases" . *strat-rule-bases*) ("strat_units_expanded" . *strat-units-expanded*) ("strat_library" . *strat-library*)
     ("strat_payoff" . *strat-payoff*) ("strat_lookup" . *strat-lookup*)
     ("lhud_fighters" . *lhud-fighters*) ("lhud_moves" . *lhud-moves*) ("commands" . *commands*) ("vpad_actions" . *vpad-actions*)
-    ("mirror_rim" . *mirror-rim*) ("mirror_tint" . *mirror-tint*))
+    ("mirror_rim" . *mirror-rim*) ("mirror_tint" . *mirror-tint*) ("grip_clips" . *grip-clips*))
   "tables.json: name -> the variable (its value after load: *STRAT-LIBRARY* expanded, with its :FQ Q tables).")
 (defun x-strat-unit-p (x)
   (and (consp x) (eq (car x) :id) (null (cdr (last x))) (evenp (length x)) (loop for (k) on x by #'cddr always (keywordp k))))

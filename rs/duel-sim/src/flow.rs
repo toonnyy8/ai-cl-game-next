@@ -3,6 +3,7 @@
 use crate::cine::{self, After, CineName};
 use crate::components::{Character, Flow, State};
 use crate::cpu::Search;
+use crate::look::{KitRef, LookEvent, LookSink, NoLook};
 use crate::ecs::Entity;
 use crate::fighter::{fighter_system, spawn_fighter, to_idle};
 use crate::math::deg;
@@ -45,36 +46,100 @@ pub fn raw_dt(k: i64) -> f32 {
     f32::min(0.1, f32::max(0.0, raw))
 }
 
+/// The frozen page's clock as its RUN-FRAME reads it, in SDL_GetTicksNS's nanoseconds, the page reading T_MS (performance.now /
+/// run.mjs's virtual clock): on emscripten SDL's CLOCK_MONOTONIC_RAW (4) is refused by `clock_gettime` (EINVAL above WASI's clock 3), so
+/// SDL falls back to `gettimeofday`, which reads `Date.now()`: whole milliseconds (run.mjs --fixed-dt: `d0 + Math.round(vt)`; Math.round
+/// = floor(x + 0.5), a truncation here as t >= 0). (M3A_NOTES §9 "Concern 1"; tools/port/oracle/stubs-draw.c DRAW_DT=page.)
+pub fn page_ns(t_ms: f64) -> u64 {
+    (t_ms + 0.5) as u64 * 1_000_000
+}
+
+/// port: engine/c/platform.c pf_pump's raw dt on the frozen page (`(now - prev) * 1e-9f` over `page_ns`), clamped as RUN-FRAME clamps
+/// it. The page's driver and `duel-tools draw` on a page-dt scene use it; the headless tools keep `raw_dt`.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct PageClock {
+    /// the last update's page time (ms) and the last frame's `page_ns`; this update's page time per frame
+    last: Option<(f64, u64)>,
+    step: f64,
+}
+
+impl PageClock {
+    /// Frame I (1..=N) of an update of N frames, the page reading NOW_MS: pf_pump's dt over the frame's whole-ms share of the clock
+    /// since the last update (the last frame at NOW exactly, so one frame an update is pf_pump's bit for bit). The first frame ever has
+    /// dt 0 (the page's first frame; stubs-draw.c's first pump under DRAW_DT=page).
+    pub fn rdt(&mut self, now_ms: f64, i: i64, n: i64) -> f32 {
+        if i == 1 {
+            let t0 = self.last.map_or(0.0, |c| c.0);
+            self.step = (now_ms - t0) / n as f64;
+            if self.last.is_none() {
+                self.last = Some((0.0, page_ns(self.step))); // (frame 1's own time: dt 0)
+            }
+        }
+        let (t0, prev) = self.last.unwrap();
+        let t = if i == n { now_ms } else { t0 + self.step * i as f64 };
+        let raw = page_ns(t).saturating_sub(prev) as f32 * 1e-9f32;
+        self.last = Some((if i == n { now_ms } else { t0 }, page_ns(t)));
+        #[allow(clippy::manual_clamp)] // (CL MIN / MAX, in their order)
+        f32::min(0.1, f32::max(0.0, raw))
+    }
+}
+
+/// run.mjs --fixed-dt's virtual frame (ms): `vt += 16.666667` per browser frame.
+pub const PAGE_FRAME_MS: f64 = 16.666667;
+
 /// port: ENGINE::RUN-FRAME's sim part (the queued debug commands, then GAME-FRAME's FLOW-UPDATE, GATE-UPDATE and the fixed
-/// steps). False once the sim has reached an `unported!` path, in the match (`m.unported` names it) or in a CPU rollout (`Search.cut`:
-/// the CPU's value was wrong): no step runs past either (the rest of the frame's steps are skipped, and a frame called again does
-/// nothing and returns false), so the game loop must stop and show the name instead of freezing or playing on silently (M1_NOTES §10).
-/// The Lisp never stops (it has no unported path).
-pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) -> bool {
+/// steps, each with its `LookSink` at FEEDBACK-SYSTEM's place), RDT the frame's real seconds (RUN-FRAME's clamped dt: `raw_dt` in the
+/// headless tools, the page's clock in the game); last, LOOK's frame pass (`LookSink::frame`: the immediate calls queued outside a step,
+/// a command's or a frame's that ran no step, applied before the draw; the EMITs wait for the next step). The rest of GAME-FRAME is
+/// the caller's: the draw (DRAW-SCENE, whose CINE-DRAW runs a script's DURING forms, `cine::cine_draw`), then `frame_end`
+/// (`frame_headless` runs all three in that order). False once the sim
+/// has reached an `unported!` path, in the match (`m.unported` names it) or in a CPU rollout (`Search.cut`: the CPU's value was
+/// wrong): no step runs past either (the rest of the frame's steps are skipped, and a frame called again does nothing and returns
+/// false), so the game loop must stop and show the name instead of freezing or playing on silently (M1_NOTES §10). The Lisp never
+/// stops (it has no unported path).
+pub fn frame(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn LookSink, rdt: f32) -> bool {
     if m.unported.is_some() || s.cut.is_some() {
         return false;
     }
     m.frame_n += 1;
-    let rdt = raw_dt(m.frame_n);
     while let Some(c) = m.cmds.pop_front() {
         crate::debug::debug_command(m, s, c);
     }
-    // look: screen-fx-update, onehand-frame
+    // look: screen-fx-update (LookSink::frame_begin), onehand-frame (frame time: the drawer's, before the steps; not queued)
+    look.frame_begin(m, rdt);
     flow_update(m, rdt);
     crate::gate::gate_update(m, s);
     if sim_running_p(m) {
-        advance_sim(m, s, rdt, input);
+        advance_sim(m, s, rdt, input, look);
     } else {
         m.time.step_acc = 0.0;
-        // look: the menus' idle clips
+        // look: the menus' idle clips (frame time: the drawer's ANIM-ADVANCE by RDT; not queued)
     }
-    // look: slow-draw (it puts back what it moves), the fx clock, the camera
-    if !m.turbo {
-        cine::cine_draw(m); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
-    }
-    // (FQ-MATCH-END's Search half for a GO-RESULTS outside `sim_step`, e.g. M3's cinematic skip in FLOW-UPDATE; a no-op when empty)
+    // look: slow-draw (it puts back what it moves), the fx clock, the camera (frame time: the drawer's; not queued)
+    look.frame(m); // (the immediate calls queued outside a step, before the draw)
+    m.unported.is_none() && s.cut.is_none()
+}
+
+/// GAME-FRAME's end, after the draw: FQ-MATCH-END's Search half for a GO-RESULTS outside `sim_step` (e.g. M3's cinematic skip in
+/// FLOW-UPDATE; a no-op when empty). The HUD (`look:`) is the drawer's, before this.
+pub fn frame_end(m: &mut Match, s: &mut Search) {
     crate::cpu::fq::fq_match_end_apply(m, s);
-    // look: the HUD
+}
+
+/// The headless platform's whole frame (the tools' path; the replayer's order): `frame` (its frame pass included) with `raw_dt` of
+/// the next pump, then DRAW-SCENE's CINE-DRAW unless turbo (a played cinematic's DURING
+/// forms move the actors: DIVERGENCES §1), then `frame_end`. No drawer: LOOK sees the looks only.
+pub fn frame_headless(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn LookSink) -> bool {
+    if m.unported.is_some() || s.cut.is_some() {
+        return false;
+    }
+    let rdt = raw_dt(m.frame_n + 1);
+    frame(m, s, input, look, rdt);
+    if !m.turbo {
+        cine::cine_draw(m, &mut NoLook); // (DRAW-SCENE's CINE-DRAW: a script's DURING forms, some writing sim state; the rest of the scene a look)
+    }
+    frame_end(m, s);
+    // look: the HUD (frame time: the drawer's, before `frame_end`)
     m.unported.is_none() && s.cut.is_none()
 }
 
@@ -86,11 +151,11 @@ pub fn flow_update(m: &mut Match, rdt: f32) {
 }
 
 /// port: ADVANCE-SIM (RUN-FIXED-STEPS, or 120 steps in turbo).
-pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn PilotInput) {
+pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn PilotInput, look: &mut dyn LookSink) {
     if m.turbo {
         for _ in 0..120 {
             if sim_running_p(m) && m.unported.is_none() && s.cut.is_none() {
-                sim_step(m, s, input);
+                sim_step(m, s, input, look);
             }
         }
         return;
@@ -102,7 +167,7 @@ pub fn advance_sim(m: &mut Match, s: &mut Search, rdt: f32, input: &mut dyn Pilo
     while m.time.step_acc >= STEP && n < 6 && sim_running_p(m) && m.unported.is_none() && s.cut.is_none() {
         m.time.step_acc -= STEP;
         n += 1;
-        sim_step(m, s, input);
+        sim_step(m, s, input, look);
     }
     if m.time.step_acc >= STEP {
         m.time.step_acc = 0.0;
@@ -117,35 +182,36 @@ impl PilotInput for NoInput {
     fn rollout_read(&mut self, _m: &mut Match, _side: usize) {}
 }
 
-/// port: SIM-STEP: the lean step, then (`look:` feedback-system) HASH-LOG's `*step-hook*` and MC-FULL-STEP.
-pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
-    sim_core(m, s, input);
+/// port: SIM-STEP: the lean step, then FEEDBACK-SYSTEM (LOOK drains this step's looks), HASH-LOG's `*step-hook*` and MC-FULL-STEP.
+pub fn sim_step(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn LookSink) {
+    sim_core(m, s, input, look);
     crate::cpu::fq::fq_match_end_apply(m, s); // (FQ-MATCH-END's Search half: GO-RESULTS ran in this step)
-    // look: feedback-system
+    look.step(m); // FEEDBACK-SYSTEM's place
     // port: HASH-LOG — cup-acc-step is the gate's debug bookkeeping (never read by the sim); the 600-tick hash is a log-msg
     input.step_end(m, s);
     crate::cpu::mcts::mc_full_step(m, s, input);
 }
 
 /// port: sim-state.lisp SIM-STEP-LEAN — SIM-STEP for a rollout: the sim without the presentation (no slow-motion snapshot, no
-/// feedback, no hash log, no full-sim step; TAKE-EVENTS drops the events: none in the port yet, M3).
+/// feedback, no hash log, no full-sim step); TAKE-EVENTS drops the events (`NoLook`; a rollout's match never pushes: `Match::look`).
 pub fn sim_step_lean(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
-    sim_core(m, s, input);
+    sim_core(m, s, input, &mut NoLook);
+    NoLook.step(m);
 }
 
 /// SIM-STEP's and SIM-STEP-LEAN's shared part: the tick, then the cinematic, a hitstop step, a slow-motion wait or the systems.
-fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
+fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput, look: &mut dyn crate::look::CineLook) {
     m.match_tick += 1;
     if m.cine.is_some() {
         pilot_read(m, input);
-        cine::cine_step(m);
+        cine::cine_step(m, look);
     } else if !m.time.step() {
         pilot_read(m, input);
     } else {
         m.slow_acc += m.time.slowmo_scale(false);
         if m.slow_acc >= 1.0 {
             m.slow_acc -= 1.0;
-            // look: slow-snapshot
+            slow_snapshot(m);
             pilot_system(m, input);
             sim_systems(m, s, input);
         } else {
@@ -153,6 +219,30 @@ fn sim_core(m: &mut Match, s: &mut Search, input: &mut dyn PilotInput) {
         }
     }
     // debug: god-update, probe-update (*god* / *probe*: set only by commands M1 does not port)
+}
+
+/// port: main.lisp SLOW-SNAPSHOT — before a sim frame, where each fighter (P1, P2) and hazard (slot order) stands, for the drawer's
+/// SLOW-DRAW-BEGIN (the sink keeps it: the places are the ones before the systems move them).
+fn slow_snapshot(m: &mut Match) {
+    if m.in_rollout {
+        return;
+    }
+    m.look(LookEvent::SlowSnapshot); // look: slow-snapshot (its CLRHASH)
+    for e in [m.p1, m.p2] {
+        if let Some(t) = m.transform.get(e) {
+            let ([x, y, z], yaw) = (t.pos, t.yaw);
+            m.look(LookEvent::SlowKeep { e, x, y, z, yaw }); // look: slow-snapshot's KEEP of a fighter
+        }
+    }
+    let top = m.ents.top;
+    for slot in 0..top {
+        if let Some(h) = m.ents.at(slot)
+            && let Some(hz) = m.hazard.get(h)
+        {
+            let (x, y, z, yaw) = (hz.x, hz.y, hz.z, hz.yaw);
+            m.look(LookEvent::SlowKeep { e: h, x, y, z, yaw }); // look: slow-snapshot's KEEP of a hazard
+        }
+    }
 }
 
 /// port: SIM-SYSTEMS (INPUT's `after_brain`: the recorder's hook after BRAIN-SYSTEM).
@@ -249,8 +339,10 @@ pub fn set_flow(m: &mut Match, st: Flow) {
 /// port: SPAWN-PAIR: a fresh plaza with the picks reset-distance apart, facing.
 pub fn spawn_pair(m: &mut Match, cpu1: bool, cpu2: bool) {
     m.clear_entities();
-    // look: take-events, fx-clear, stage-clear-cracks
+    m.looks.take_events(); // look: (take-events) (`*events*` dropped; the immediate calls stay: the Lisp made them)
+    m.look(LookEvent::FxClear); // look: (fx-clear)
     m.time.reset();
+    m.look(LookEvent::StageClearCracks); // look: (stage-clear-cracks)
     let [c1, c2]: [Character; 2] = m.picks;
     let h = m.knobs.reset_distance / 2.0;
     let p1 = spawn_fighter(m, 0, c1, -h, 0.0, deg(-90.0), cpu1);
@@ -269,7 +361,7 @@ pub fn go_title(m: &mut Match) {
     for e in [m.p1, m.p2] {
         m.fighter.get_mut(e).unwrap().state = State::Intro;
     }
-    // look: the title music
+    m.look(LookEvent::Music { track: "music-title", gain: 1.0 }); // look: (play-music :music-title)
     set_flow(m, Flow::Title);
 }
 
@@ -287,11 +379,12 @@ pub fn start_match(m: &mut Match, s: &mut Search) {
     m.slow_acc = 0.0;
     crate::cpu::mcts::mc_full_reset(m, s); // (*mc-next* is not reset)
     cine::abort_cine(m);
-    // look: clear-words
+    m.look(LookEvent::ClearWords); // look: (clear-words)
     m.rng.seed(m.match_seed);
-    // port: SET-CAM-BEHIND *cam-behind* (the CAMERA setting: BEHIND, the default; `*one-hand*` NIL headless): humans steer by the
-    // behind view in VS CPU / PRACTICE (*cam-cut* is the camera's, a look)
-    m.view_behind = matches!(m.mode, Mode::VsCpu | Mode::Practice);
+    // port: SET-CAM-BEHIND *cam-behind* — `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)`: humans steer by the behind view in VS
+    // CPU / PRACTICE (`*cam-behind*` the CAMERA setting, `Match.settings`; *cam-cut* is the camera's, a look)
+    m.view_behind = (m.settings.cam_behind() || m.settings.one_hand) && matches!(m.mode, Mode::VsCpu | Mode::Practice);
+    m.look(LookEvent::CamCut); // look: SET-CAM-BEHIND's (setf *cam-cut* t)
     spawn_pair(m, m.mode == Mode::CpuCpu, m.mode != Mode::VsPlayer);
     crate::cpu::start_match_cpu(m, s);
     for e in [m.p1, m.p2] {
@@ -302,7 +395,7 @@ pub fn start_match(m: &mut Match, s: &mut Search) {
     if m.mode == Mode::Practice {
         crate::unported!(m, "practice")
     }
-    // look: music; log-msg: the match seed line, debug-knobs-line
+    m.look(LookEvent::Music { track: "music", gain: 0.2 }); // look: (play-music :music 0.2); log-msg: the match seed line, debug-knobs-line
     set_flow(m, Flow::Intro);
     let (p1, p2) = (m.p1, m.p2);
     cine::start_cine(m, CineName::Intro, p1, p2, Some(After::BeginBattle));
@@ -312,13 +405,17 @@ pub fn start_match(m: &mut Match, s: &mut Search) {
 /// port: BEGIN-BATTLE.
 pub fn begin_battle(m: &mut Match) {
     for e in [m.p1, m.p2] {
-        // look: refresh-look
-        to_idle(m, e);
+        let kit = KitRef(crate::fighter::kit_of(m, e));
+        m.look(LookEvent::RefreshLook { e, kit }); // look: refresh-look
+        to_idle(m, e, 0.0);
     }
     m.match_tick = 0;
     let (p1, p2) = (m.p1, m.p2);
     crate::fighter::view_step(m, p1, p2, true);
-    // look: duel-camera
+    let (p, q) = (crate::fighter::pos_of(m, p1), crate::fighter::pos_of(m, p2));
+    let hurt = [crate::fighter::hurt_r(m, p1), crate::fighter::hurt_r(m, p2)];
+    let (behind_yaw, view_x, view_z, view_behind) = (m.behind_yaw, m.view_x, m.view_z, m.view_behind);
+    m.look(LookEvent::CameraSnap { p, q, hurt, behind_yaw, view_x, view_z, view_behind }); // look: (duel-camera *p1* *p2* 0.0 :snap t)
     set_flow(m, Flow::Battle);
 }
 
@@ -367,11 +464,20 @@ pub fn go_results(m: &mut Match) {
         let f = m.fighter.get_mut(e).unwrap();
         let won = m.winner == Some(Winner::Side(f.side));
         f.state = if won { State::Win } else { State::Lose };
-        // look: refresh-look, the win / lose clip
+        let kit = crate::fighter::kit_of(m, e);
+        m.look(LookEvent::RefreshLook { e, kit: KitRef(kit) }); // look: refresh-look
+        let clip = if !won {
+            "sh-lose"
+        } else if kit.win.is_empty() {
+            kit.stance.as_str()
+        } else {
+            kit.win.as_str()
+        };
+        crate::fighter::play_clip(m, e, clip, 8.0); // look: (play-clip e (if won (or (kit-win kit) (kit-stance kit)) :sh-lose) :blend 8)
     }
     let (p1, p2) = (m.p1, m.p2);
     cine::face_each_other(m, p1, p2, None);
-    // look: music
+    m.look(LookEvent::MusicStop { fade: 1.0 }); // look: (music-stop 1.0) (setf *music* nil)
 }
 
 /// port: MATCH-SYSTEM.
@@ -419,12 +525,12 @@ mod tests {
         }
         let s = &mut Search::new();
         for _ in 0..300 {
-            sim_step(&mut m, s, &mut Null);
+            sim_step(&mut m, s, &mut Null, &mut crate::look::NoLook);
         }
         assert_eq!((m.match_tick, m.flow, m.cine.is_none()), (0, Flow::Battle, true));
         assert!([m.p1, m.p2].iter().all(|&e| m.fighter.get(e).unwrap().state == State::Idle));
         assert_eq!(m.unported, None);
-        sim_step(&mut m, s, &mut Null);
+        sim_step(&mut m, s, &mut Null, &mut crate::look::NoLook);
         assert_eq!((m.match_tick, m.unported, m.pacing_log), (1, None, true));
         assert!(m.ics.has(m.p2) && !m.ics.has(m.p1));
     }

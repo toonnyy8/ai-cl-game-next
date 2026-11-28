@@ -348,3 +348,15 @@ pub fn hooks_of(kit: &Kit) -> Result<Hooks, String> {
 pub fn kit_hook(hooks: &Hooks, key: HookKey) -> Option<HookFn> {
     hooks.0[key as usize]
 }
+
+/// port: duel/lisp/kit.lisp KIT-MOVE-CLIP — the clip a fighter in KIT plays for a move's CLIP: the form's :clip-map entry, else CLIP.
+pub fn kit_move_clip<'a>(kit: &'a Kit, clip: &'a str) -> &'a str {
+    kit.clip_map.get(clip).map_or(clip, |c| c.as_str())
+}
+
+/// port: duel/lisp/fighter.lisp FIGHTER-STANCE-CLIP — the idle clip: with :core :stances the stance of SP pointer PTR (clamped to
+/// 1 .. their count), else the kit's :stance.
+pub fn fighter_stance_clip(kit: &Kit, ptr: i64) -> &str {
+    let st = &kit.core.stances;
+    if st.is_empty() { &kit.stance } else { &st[(ptr.clamp(1, st.len() as i64) - 1) as usize] }
+}

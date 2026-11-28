@@ -61,7 +61,7 @@ pub fn run_pair(data: &'static duel_data::Data, pair: &'static str, seed: i64) -
     m.cmds.extend([2102, base + seed]);
     let (s, mut l) = (&mut Search::new(), Lines { pair, out: vec![], results: false });
     for _ in 0..2_000_000 {
-        let go = flow::frame(&mut m, s, &mut l);
+        let go = flow::frame_headless(&mut m, s, &mut l, &mut duel_sim::look::NoLook);
         m.log.clear();
         if !go {
             return Err(format!("{pair}: unported {}", m.unported.or(s.cut.map(|c| c.0)).unwrap_or("?")));

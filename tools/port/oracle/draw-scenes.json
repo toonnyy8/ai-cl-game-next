@@ -1,0 +1,796 @@
+{
+ "about": "The draw key's scenes (tools/port/oracle/gen.py draw; docs/bevy/M3A_NOTES.md §1). A cmd is a debug command queued before frame 0 or [frame, cmd]; frames use stubs-draw.c's DRAW_FRAMES grammar (a, a-b, a-b/k); viewport is [w, h, dpr]; named labels frame ranges. A scene with \"dt\": \"page\" runs on the frozen page's whole-ms clock (stubs-draw.c DRAW_DT=page; M3A_NOTES §9), the rest on the stub's raw_dt.",
+ "fixed_inputs": {
+  "viewport": "per scene (DRAW_W / DRAW_H / DRAW_DPR -> pf_width / pf_height / pf_density); DPR 1 everywhere",
+  "msaa_samples": "1 (the stub's r_sample_count, so fu[157] = 0.5: render.lisp FILL-FRAME-UNIFORMS)",
+  "render_scale": "1 (*render-scale*; r_timing returns 0, so the auto scale never moves it)",
+  "pixel_lights": "8 (*pixel-lights*)",
+  "page": "pf_page_get 0 for every key: a desktop window with nothing saved, so *coarse* NIL, *one-hand* NIL, *scene-scale-cap* 1 (onehand.lisp)",
+  "dt": "raw_dt from tools/simgate/stubs.c pf_pump: frame n's raw dt = (floor(n * 50/3 ms * 1e6) - floor((n-1) * 50/3 ms * 1e6)) * 1e-9f, so it alternates by 1 ns around 1/60 s; a scene with \"dt\": \"page\": the frozen page's clock under run.mjs --fixed-dt 16.666667 (SDL_GetTicksNS falls back to gettimeofday = Date.now on emscripten: d0 + Math.round(vt), vt += 16.666667 ms a frame; dt = (ns - prev) * 1e-9f over whole ms, 0 at the first pump)",
+  "rng": "rng_float (engine/c/rng.c rng_state) runs from its seed 0x9E3779B9 at load; each scene records its state at the first pf_pump (rng_start) and at each keyed r_frame",
+  "match_seed": "per scene (INDEX match_seed: [frame, *match-seed*] at frame 0 and at each change)",
+  "hud_font": "the real atlas (duel/hud-font/atlas.r8 + metrics.bin through .incbin), so hb / hk are what the browser gets"
+ },
+ "commands": {
+  "2005": "debug.lisp 2000+s: seeded CPU vs CPU (gate.lisp START-CVC seed 5, NORMAL), both fighters drawn from the seed over the playable roster: ICHIGO vs KENPACHI; the intro and every mid-match cinematic played",
+  "2006": "as 2005, seed 6: ICHIGO vs ICHIGO",
+  "2394": "debug.lisp STRING-TEST k (2394+k): human P1 in form k (0 Ichigo :base (the Shikai), 1 Ichigo :kessa, 2 Kenpachi :base (sealed), 3 Kenpachi :nozarashi (the Shikai)) 2.2 m from an idle Kenpachi (ENSURE-BATTLE: VS CPU, P2 brain off); natively no script presses",
+  "2395": "as 2394 (k = 1)",
+  "2396": "as 2394 (k = 2)",
+  "2397": "as 2394 (k = 3)",
+  "2500": "debug.lisp 2500+k: human P1 vs an idle CPU P2 (brain off), *match-seed* 1, VS CPU, cinematics skipped (START-MATCH under *skip-cines*): 0 Ichigo vs Kenpachi, 1 Kenpachi vs Ichigo, 2 Ichigo vs Ichigo, 3 Kenpachi vs Kenpachi. Natively no input reaches P1, so both stand",
+  "2501": "as 2500 (k = 1)",
+  "2502": "as 2500 (k = 2)",
+  "2503": "as 2500 (k = 3)",
+  "2505": "debug.lisp LHUD-SCENE: human Ichigo (P1) vs Kenpachi with his CPU off, cinematics skipped, VS CPU (one-handed only where in effect: not here, pf_page_get 0)",
+  "2508": "debug.lisp LHUD-P2-FORM: P2 Kenpachi to his next form: sealed -> the Shikai (KAIHO L2) -> the Bankai KYORAN -> ZANKAI -> sealed",
+  "2513": "debug.lisp: SLOWMO *core-clash-slowmo-scale* for 3 s (the cancel's slow motion; the smooth-draw check, main.lisp SLOW-DRAW-BEGIN)",
+  "11107": "debug.lisp CINE-AT k 1 f 107 (10000 + 1000 k + f, *cine-names*): ken-nozarashi-cine (len 108) from frame 0, held at 107: Kenpachi (P1, forced :nozarashi) 5 m from Ichigo: his Shikai release",
+  "16095": "debug.lisp CINE-AT k 6 f 95 (10000 + 1000 k + f, *cine-names*): soul-break-cine (len 96) from frame 0, held at 95: Kenpachi 3 m from Ichigo: the Soul Break",
+  "17299": "debug.lisp CINE-AT k 7 f 299 (10000 + 1000 k + f, *cine-names*): intro-cine (len 300) from frame 0, held at 299: START-MATCH with the default *picks* (Ichigo vs Kenpachi): the intro",
+  "18149": "debug.lisp CINE-AT k 8 f 149 (10000 + 1000 k + f, *cine-names*): ko-cine (len 150) from frame 0, held at 149: Ichigo 3 m from Kenpachi: the K.O.",
+  "35185": "debug.lisp 35000+f: CINE-AT 9 f 185 (the same dispatch as 19185): ken-bankai-cine (len 186; Kenpachi P1, forced :bankai, 5 m from Ichigo) from frame 0, held at 185",
+  "75061": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 0, k 61): ICHIGO-CINE-AT ic-kikon-cine (len 186; P1 Ichigo in :base 3 m from Kenpachi: the Shikai's Cero Kikon) from frame 0, held at frame 3k = 183",
+  "75143": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 1, k 63): ICHIGO-CINE-AT ic-kessa-kikon-cine (len 192; P1 Ichigo in :kessa 3 m from Kenpachi: 千影 (fighter-kikon-n 4)) from frame 0, held at frame 3k = 189",
+  "75215": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 2, k 55): ICHIGO-CINE-AT ic-kessa-cine (len 168; P1 Ichigo in :kessa 3 m from Kenpachi: the awakening into KESSA) from frame 0, held at frame 3k = 165",
+  "75299": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 3, k 59): ICHIGO-CINE-AT ic-kessa-getsuga-cine (len 180; P1 Ichigo in :kessa 3 m from Kenpachi: KESSA's Getsuga Soul Break) from frame 0, held at frame 3k = 177",
+  "75379": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 4, k 59): ICHIGO-CINE-AT ic-heavy-kikon-cine (len 180; P1 Ichigo in :base 3 m from Kenpachi: the Shikai's cleaver Kikon) from frame 0, held at frame 3k = 177",
+  "75459": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 5, k 59): ICHIGO-CINE-AT ic-rush-kikon-cine (len 180; P1 Ichigo in :base 3 m from Kenpachi: his rush Kikon) from frame 0, held at frame 3k = 177",
+  "75539": "ichigo.lisp ICHIGO-DEBUG 75000 + 80 i + k (i 6, k 59): ICHIGO-CINE-AT ic-chain-kikon-cine (len 180; P1 Ichigo in :kessa 3 m from Kenpachi: KESSA's chain Kikon) from frame 0, held at frame 3k = 177",
+  "84000": "ken.lisp KEN-CORE-DEBUG: human P1 Kenpachi (brain off) and an idle Ichigo P2 2.2 m apart, both CPUs off, gauges full, awakening / SUBLIMATION / DRIVE cleared; 84000 the sealed form",
+  "84001": "as 84000, Kenpachi in the Shikai (:nozarashi, awakened, L 0)",
+  "84004": "as 84000, Kenpachi in the Bankai KYORAN (:bankai, awakened)",
+  "84005": "as 84000, Kenpachi in the Bankai ZANKAI (:bankai-2, awakened)",
+  "84006": "ken.lisp KEN-CORE-DEBUG: the 84000 scene 3 m apart, then the sealed form's Kikon 鈴: ken-z-kikon1-cine (len 196) played through (not held), then the scene runs on",
+  "84007": "ken.lisp KEN-CORE-DEBUG: the 84000 scene 3 m apart, then the sealed form's Kikon 斬ってみろよ: ken-z-kikon2-cine (len 206) played through (not held), then the scene runs on",
+  "84008": "ken.lisp KEN-CORE-DEBUG: the 84000 scene 3 m apart, then the sealed form's Kikon 両断: ken-z-kikon3-cine (len 204) played through (not held), then the scene runs on",
+  "84094": "ken.lisp KEN-CORE-DEBUG: the 84001 scene 3 m apart, then the Shikai's pointer-1 Kikon 回天斬 KAITENZAN: ken-s-kikon1-cine (len 170) played through (not held), then the scene runs on",
+  "84095": "ken.lisp KEN-CORE-DEBUG: the 84001 scene 3 m apart, then the Shikai's pointer-2 Kikon 墜天斬 TSUITENZAN: ken-s-kikon2-cine (len 290) played through (not held), then the scene runs on",
+  "84096": "ken.lisp KEN-CORE-DEBUG: the 84004 scene 3 m apart, then the Bankai's Kikon 狂嵐 千切・極: ken-kr-kikon-cine (len 180) played through (not held), then the scene runs on",
+  "84097": "ken.lisp KEN-CORE-DEBUG: the 84005 scene 3 m apart, then the Bankai's Kikon 斬壞 盾ごと・極: ken-zh-kikon-cine (len 180) played through (not held), then the scene runs on",
+  "86110": "ichigo.lisp ICHIGO-SUB-DEBUG 86110: ICHIGO-CINE-AT ic-haste-kikon-cine (len 160, 超速連斬; P1 Ichigo in :kessa 3 m from Kenpachi) from frame 0, held at frame 40 (its only command)",
+  "16030": "debug.lisp CINE-AT k 6 f 30: soul-break-cine from frame 0, held at 30",
+  "16090": "as 16030, held at 90",
+  "18012": "debug.lisp CINE-AT k 8 f 12: ko-cine from frame 0, held at 12",
+  "18060": "as 18012, held at 60",
+  "11026": "debug.lisp CINE-AT k 1 f 26: ken-nozarashi-cine from frame 0, held at 26",
+  "2102": "debug.lisp: turbo on / off (120 steps a frame, nothing drawn)"
+ },
+ "scenes": [
+  {
+   "name": "quiet-2500",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2500
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2501",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2501
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2502",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2502
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2503",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2503
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2394",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2394
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2395",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2395
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2396",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2396
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-2397",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2397
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-84000",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84000
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-84001",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84001
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-84004",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84004
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "quiet-84005",
+   "group": "quiet",
+   "about": "no intro, no cinematic, the CPU off: both fighters idle",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84005
+   ],
+   "frames": "0-600/5"
+  },
+  {
+   "name": "slowmo-2513",
+   "group": "slowmo",
+   "about": "2500, then 3 s of the cancel's slow motion from frame 30 (2513), every frame",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2500,
+    [
+     30,
+     2513
+    ]
+   ],
+   "frames": "0-239",
+   "named": {
+    "slowmo (SLOWMO-SCALE 0.2 at 30-203, easing to 1 at 204-209; 1.0 from 210)": "30-209"
+   }
+  },
+  {
+   "name": "forms-ken-p2",
+   "group": "forms",
+   "about": "P2 Kenpachi through his four forms (2505, then 2508 at frames 80 / 160 / 240), each keyed on 3 frames 20 apart",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2505,
+    [
+     80,
+     2508
+    ],
+    [
+     160,
+     2508
+    ],
+    [
+     240,
+     2508
+    ]
+   ],
+   "frames": "0,30,50,70,110,130,150,190,210,230,270,290,310",
+   "named": {
+    "sealed": "30-70/20",
+    "nozarashi (KAIHO L2)": "110-150/20",
+    "bankai (KYORAN)": "190-230/20",
+    "bankai-2 (ZANKAI)": "270-310/20"
+   }
+  },
+  {
+   "name": "forms-ken-p1",
+   "group": "forms",
+   "about": "P1 Kenpachi in the Shikai, the Bankai KYORAN, the Bankai ZANKAI (84001, 84004 at 80, 84005 at 160), each keyed on 3 frames 20 apart",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84001,
+    [
+     80,
+     84004
+    ],
+    [
+     160,
+     84005
+    ]
+   ],
+   "frames": "0,30,50,70,110,130,150,190,210,230",
+   "named": {
+    "nozarashi": "30-70/20",
+    "bankai (KYORAN)": "110-150/20",
+    "bankai-2 (ZANKAI)": "190-230/20"
+   }
+  },
+  {
+   "name": "forms-ichigo",
+   "group": "forms",
+   "about": "P1 Ichigo in the Shikai, then KESSA (2394, 2395 at 80), each keyed on 3 frames 20 apart",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2394,
+    [
+     80,
+     2395
+    ]
+   ],
+   "frames": "0,30,50,70,110,130,150",
+   "named": {
+    "base (the Shikai)": "30-70/20",
+    "kessa": "110-150/20"
+   }
+  },
+  {
+   "name": "battle-2005",
+   "group": "battle",
+   "about": "seeded CPU vs CPU with the intro and every cinematic played (the battle starts at frame 300; frame = 300 + match tick, one step a frame): every 10th frame of the first 60 s, every frame of the looks gate's four windows (by match tick, tests/style-gates.py LOOKS_WINDOWS), every frame of one hitstop window, every 5th frame of each mid-match cinematic (none starts in the first 60 s)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2005
+   ],
+   "frames": "0-299/10,0-3600/10,422-434,583-600,1552-1586,3499-3515,6453-6638/5,7108-7124",
+   "named": {
+    "intro": "0-299/10",
+    "every 10th frame of the first 60 s": "0-3600/10",
+    "hitstop: P2 KE-Z-AS1 -> P1 HIT 90 at match tick 123 (hit 423, frozen 424-432 (*hitstop* 9..1 after each), release 433)": "422-434",
+    "IC-HEAVY-KIKON-CINE (P1 Ichigo, match tick 6153)": "6453-6638/5",
+    "looks w0 (match tick 288, shot 294)": "583-600",
+    "looks w1 (match tick 1257, shots 1263 / 1281)": "1552-1586",
+    "looks w2 (match tick 3204, shot 3210)": "3499-3515",
+    "looks w3 (match tick 6813, shot 6819)": "7108-7124"
+   }
+  },
+  {
+   "name": "battle-2006",
+   "group": "battle",
+   "about": "seeded CPU vs CPU with the intro and every cinematic played (the battle starts at frame 300; frame = 300 + match tick, one step a frame): every 10th frame of the first 60 s, every frame of the looks gate's four windows (by match tick, tests/style-gates.py LOOKS_WINDOWS), every 5th frame of each mid-match cinematic (none starts in the first 60 s)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    2006
+   ],
+   "frames": "0-299/10,0-3600/10,583-600,1552-1586,3499-3515,5560-5745/5,5974-6159/5,6228-6401/5,7108-7124",
+   "named": {
+    "intro": "0-299/10",
+    "every 10th frame of the first 60 s": "0-3600/10",
+    "IC-RUSH-KIKON-CINE (match tick 5260)": "5560-5745/5",
+    "IC-HEAVY-KIKON-CINE (match tick 5674)": "5974-6159/5",
+    "IC-KESSA-CINE (the awakening, match tick 5928)": "6228-6401/5",
+    "looks w0 (match tick 288, shot 294)": "583-600",
+    "looks w1 (match tick 1257, shots 1263 / 1281)": "1552-1586",
+    "looks w2 (match tick 3204, shot 3210)": "3499-3515",
+    "looks w3 (match tick 6813, shot 6819)": "7108-7124"
+   }
+  },
+  {
+   "name": "portrait-2501",
+   "group": "portrait",
+   "about": "2501 in a 390x844 window (a narrow desktop window: coarse and one-hand stay off)",
+   "viewport": [
+    390,
+    844,
+    1
+   ],
+   "cmds": [
+    2501
+   ],
+   "frames": "0-1800/30"
+  },
+  {
+   "name": "portrait-2005",
+   "group": "portrait",
+   "about": "2005 in a 390x844 window",
+   "viewport": [
+    390,
+    844,
+    1
+   ],
+   "cmds": [
+    2005
+   ],
+   "frames": "0-1800/30"
+  },
+  {
+   "name": "cine-ken-nozarashi",
+   "group": "cinematics",
+   "about": "ken-nozarashi-cine played from its start and held at its frame 107 (effects frozen there)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    11107
+   ],
+   "frames": "0-122/5"
+  },
+  {
+   "name": "cine-soul-break",
+   "group": "cinematics",
+   "about": "soul-break-cine played from its start and held at its frame 95 (effects frozen there)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    16095
+   ],
+   "frames": "0-110/5"
+  },
+  {
+   "name": "cine-intro",
+   "group": "cinematics",
+   "about": "intro-cine played from its start and held at its frame 299 (effects frozen there)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    17299
+   ],
+   "frames": "0-314/5"
+  },
+  {
+   "name": "cine-ko",
+   "group": "cinematics",
+   "about": "ko-cine played from its start and held at its frame 149 (effects frozen there)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    18149
+   ],
+   "frames": "0-164/5"
+  },
+  {
+   "name": "cine-ken-bankai",
+   "group": "cinematics",
+   "about": "ken-bankai-cine played from its start and held at its frame 185",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    35185
+   ],
+   "frames": "0-200/5"
+  },
+  {
+   "name": "cine-84094",
+   "group": "cinematics",
+   "about": "ken-s-kikon1-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84094
+   ],
+   "frames": "0-200/5"
+  },
+  {
+   "name": "cine-84095",
+   "group": "cinematics",
+   "about": "ken-s-kikon2-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84095
+   ],
+   "frames": "0-320/5"
+  },
+  {
+   "name": "cine-84096",
+   "group": "cinematics",
+   "about": "ken-kr-kikon-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84096
+   ],
+   "frames": "0-210/5"
+  },
+  {
+   "name": "cine-84097",
+   "group": "cinematics",
+   "about": "ken-zh-kikon-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84097
+   ],
+   "frames": "0-210/5"
+  },
+  {
+   "name": "cine-84006",
+   "group": "cinematics",
+   "about": "ken-z-kikon1-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84006
+   ],
+   "frames": "0-226/5"
+  },
+  {
+   "name": "cine-84007",
+   "group": "cinematics",
+   "about": "ken-z-kikon2-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84007
+   ],
+   "frames": "0-236/5"
+  },
+  {
+   "name": "cine-84008",
+   "group": "cinematics",
+   "about": "ken-z-kikon3-cine played through, then 30 frames of the scene after it",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    84008
+   ],
+   "frames": "0-234/5"
+  },
+  {
+   "name": "cine-ic-kikon",
+   "group": "cinematics",
+   "about": "ic-kikon-cine played from its start and held at its frame 183",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75061
+   ],
+   "frames": "0-198/5"
+  },
+  {
+   "name": "cine-ic-kessa-kikon",
+   "group": "cinematics",
+   "about": "ic-kessa-kikon-cine played from its start and held at its frame 189",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75143
+   ],
+   "frames": "0-204/5"
+  },
+  {
+   "name": "cine-ic-kessa",
+   "group": "cinematics",
+   "about": "ic-kessa-cine played from its start and held at its frame 165",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75215
+   ],
+   "frames": "0-180/5"
+  },
+  {
+   "name": "cine-ic-kessa-getsuga",
+   "group": "cinematics",
+   "about": "ic-kessa-getsuga-cine played from its start and held at its frame 177",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75299
+   ],
+   "frames": "0-192/5"
+  },
+  {
+   "name": "cine-ic-heavy-kikon",
+   "group": "cinematics",
+   "about": "ic-heavy-kikon-cine played from its start and held at its frame 177",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75379
+   ],
+   "frames": "0-192/5"
+  },
+  {
+   "name": "cine-ic-rush-kikon",
+   "group": "cinematics",
+   "about": "ic-rush-kikon-cine played from its start and held at its frame 177",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75459
+   ],
+   "frames": "0-192/5"
+  },
+  {
+   "name": "cine-ic-chain-kikon",
+   "group": "cinematics",
+   "about": "ic-chain-kikon-cine played from its start and held at its frame 177",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    75539
+   ],
+   "frames": "0-192/5"
+  },
+  {
+   "name": "cine-ic-haste-kikon",
+   "group": "cinematics",
+   "about": "ic-haste-kikon-cine played from its start and held at its frame 40 (no command plays it further)",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "cmds": [
+    86110
+   ],
+   "frames": "0-60/5"
+  },
+  {
+   "name": "cine-84094-portrait",
+   "group": "cinematics",
+   "about": "as cine-84094 in a 390x844 window (portrait framing, the letterbox)",
+   "viewport": [
+    390,
+    844,
+    1
+   ],
+   "cmds": [
+    84094
+   ],
+   "frames": "0-200/5"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-nozarashi",
+   "about": "the looks gate's cine-ken script on the page clock: 239 title frames, then ken-nozarashi held at 26 (its still at key frame 324)",
+   "cmds": [
+    [
+     239,
+     11026
+    ]
+   ],
+   "frames": "239-330"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-ko",
+   "about": "the looks gate's cine-ko script on the page clock: the soul-break and K.O. stills (ko-012 at key frame 493, ko-060 at 568)",
+   "cmds": [
+    [
+     239,
+     16030
+    ],
+    [
+     335,
+     16090
+    ],
+    [
+     422,
+     18012
+    ],
+    [
+     500,
+     18060
+    ]
+   ],
+   "frames": "490-496,565-571"
+  },
+  {
+   "group": "page",
+   "viewport": [
+    640,
+    360,
+    1
+   ],
+   "dt": "page",
+   "name": "page-turbo-ik",
+   "about": "the looks gate's cvc-ik script on the page clock: the 2005 fight with its turbo windows; the w2-0 window's impact frame (key 450-452)",
+   "cmds": [
+    [
+     239,
+     2005
+    ],
+    [
+     383,
+     2102
+    ],
+    [
+     386,
+     2102
+    ],
+    [
+     395,
+     2102
+    ],
+    [
+     403,
+     2102
+    ],
+    [
+     430,
+     2102
+    ],
+    [
+     446,
+     2102
+    ],
+    [
+     455,
+     2102
+    ]
+   ],
+   "frames": "440-460"
+  }
+ ]
+}

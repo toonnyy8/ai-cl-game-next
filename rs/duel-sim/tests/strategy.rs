@@ -207,7 +207,7 @@ fn library_tables_as_the_lisp_checks() {
     assert_eq!(fq_encode(qk, qk, 0, u).len(), 448);
     // (c1: her own style behind / on his red, else Kenpachi's)
     let c1 = strat_by_id(data(), "c1-ichigo-ken").unwrap();
-    let judged_fn = |feats: &[(&str, Num)]| strat_judge(sets(), c1, feats).0.and_then(|s| s.get("fn")).and_then(Value::as_str);
+    let judged_fn = |feats: &[(&str, Num)]| strat_judge(sets(), c1, feats, None).0.and_then(|s| s.get("fn")).and_then(Value::as_str);
     assert_eq!(judged_fn(&[("ost", I(0)), ("lead", I(-2))]), Some("ICHIGO-KI-STYLE"));
     assert_eq!(judged_fn(&[("ost", I(0)), ("lead", I(2)), ("ored", I(0))]), Some("KEN-KI-STYLE"));
     // (§8.18 / §8.19 round 4: arm 0 NIL: no strategy; 89 rules in 5 groups; 0.5 s)
@@ -324,8 +324,8 @@ fn composite_judgement() {
     let entries = r#"[[[[["lead","behind"],["mr","low"]]],"id","a"],[[[["lead","even"],["dj","in"]],[["lead","ahead"]]],"id","b"]]"#;
     let sw = st(&format!(r#"{{"id":"sw","switch":{entries}}}"#));
     let swe = st(&format!(r#"{{"id":"sw","switch":{entries},"else":{{"id":"c"}}}}"#));
-    let id = |s: Strat, f: &[(&str, Num)]| strat_judge(sets(), s, f).0.and_then(|x| x.id());
-    let ix = |s: Strat, f: &[(&str, Num)]| strat_judge(sets(), s, f).1;
+    let id = |s: Strat, f: &[(&str, Num)]| strat_judge(sets(), s, f, None).0.and_then(|x| x.id());
+    let ix = |s: Strat, f: &[(&str, Num)]| strat_judge(sets(), s, f, None).1;
     assert_eq!(id(sw, &[("lead", I(-5)), ("mr", F(0.1)), ("dj", I(9))]), Some("a")); // (behind and low)
     assert_eq!(id(sw, &[("lead", I(5)), ("mr", F(0.9)), ("dj", I(9))]), Some("b")); // (the OR's second antecedent)
     assert_eq!(id(sw, &[("lead", I(-5)), ("mr", F(0.9)), ("dj", I(9))]), None); // (behind, not low; no :else)
@@ -356,7 +356,7 @@ fn q_selector_judgement() {
     assert_eq!(strat_fq_pick(sets(), with_margin(0.5), &[("mr", F(0.9)), ("prev", I(0))]), 1);
     assert_eq!(strat_fq_pick(sets(), j(r#"{"arms":["a","b"],"rules":[[[["prev","yes"]],0.0,1.0],[[["prev","no"]],1.0,0.0]]}"#), &[("prev", I(1))]), 1);
     let sel = Strat(leak(Value::Object([("id".to_string(), Value::from("q")), ("fq".to_string(), q.clone())].into_iter().collect())));
-    let (sub, k) = strat_judge(sets(), sel, &[("mr", F(0.9))]);
+    let (sub, k) = strat_judge(sets(), sel, &[("mr", F(0.9))], None);
     assert_eq!((sub.and_then(|s| s.id()), k), (Some("b"), 1));
     // (a crisp partition reproduces the composite c1 on every state of its cues)
     let c1 = strat_by_id(data(), "c1-ichigo-ken").unwrap();
@@ -375,7 +375,7 @@ fn q_selector_judgement() {
         for ored in 0..2 {
             for ost in 0..=4 {
                 let ft = [("lead", I(lead)), ("ored", I(ored)), ("ost", I(ost))];
-                assert_eq!(strat_judge(sets(), c1, &ft).0.and_then(|s| s.id()), strat_judge(sets(), Strat(crisp), &ft).0.and_then(|s| s.id()));
+                assert_eq!(strat_judge(sets(), c1, &ft, None).0.and_then(|s| s.id()), strat_judge(sets(), Strat(crisp), &ft, None).0.and_then(|s| s.id()));
             }
         }
     }
@@ -621,7 +621,7 @@ fn sp_cues_and_rb_sp() {
     assert_eq!(strat_fq_pick(sets(), f, &base(0, 2, 0)), 1); // (my gauge empty: arm 1)
     assert_eq!(strat_fq_pick(sets(), f, &base(2, 2, 0)), 0); // (two cells: arm 0, the tie's first)
     assert_eq!(strat_fq_pick(sets(), f, &base(3, 0, 1)), 1); // (an exchange open: arm 1)
-    assert_eq!(strat_judge(sets(), Strat(s), &base(0, 0, 0)).0.and_then(|x| x.id()), Some("a-generic"));
+    assert_eq!(strat_judge(sets(), Strat(s), &base(0, 0, 0), None).0.and_then(|x| x.id()), Some("a-generic"));
     assert_eq!(fq_encode(f, f, 0, unit()).len(), 3 + 2 * 42);
     assert!(panics(move || drop(tbl("rb-sp", r#","period":30"#, q)))); // (no :XFEATS: refused)
 }

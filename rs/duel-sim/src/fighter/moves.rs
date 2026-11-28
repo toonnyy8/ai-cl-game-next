@@ -6,6 +6,7 @@ use crate::cl::{fmt_fixed_f32, max_f32, min_f32};
 use crate::components::{Cls, Queued};
 use crate::core_sim::*;
 use crate::kit::{kit_command_move, kit_next, kit_sa_move, mv_ns_next, mv_sa_move, mv_total, string_link_p};
+use crate::look::{Event, LookEvent};
 use crate::math::{fwd_x, fwd_z};
 use crate::rules::{
     breaker_next_phase, breaker_speed, cancel_open_p, chain_open_p, chain_startup_cut, kikon_follow_speed, kikon_follow_wait,
@@ -110,7 +111,19 @@ pub fn start_move(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
     }
     core_note_start(m, e, id, old);
     halt(m, e);
-    // look: play-clip of the form's clip (a pre-roll's wind-up slower)
+    {
+        // look: (play-clip e (kit-move-clip kit (mv-clip mv)) :blend (mv-blend mv) :speed … :time (/ (* enter speed) 60.0)): a pre-roll's
+        // wind-up slower, to reach the hit pose on the hit frame
+        let cs = mvd.clip_speed;
+        let speed = if pre == 0 {
+            cs
+        } else {
+            let w = 1.max(mvd.s as i64 - enter);
+            cs * (w as f32 / (w + pre) as f32)
+        };
+        let clip = crate::kit::kit_move_clip(kit_of(m, e), &mvd.clip);
+        play_clip_with(m, e, clip, mvd.blend, speed, (enter as f32 * cs) / 60.0, true);
+    }
     if mvd.kind == "kikon" {
         callout(m, e, "KIKON");
     } else if let Some(c) = &mvd.callout {
@@ -121,7 +134,12 @@ pub fn start_move(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
         let (o, sf) = (opp_of(m, e), m.knobs.super_freeze);
         let fo = fighter_mut(m, o);
         fo.freeze_next = fo.freeze_next.max(sf);
-    } // look: emit :super / :breaker / :rush
+        m.emit(Event::Super { e }); // look: emit :super
+    } else if mvd.kind == "breaker" {
+        m.emit(Event::Breaker { e }); // look: emit :breaker
+    } else if mvd.kind == "kikon" {
+        m.emit(Event::Rush { e }); // look: emit :rush
+    }
     crate::clog!(m, "{} move {}{}", side_name(m, e), mvd.name.to_uppercase(), crate::fighter::why_suffix(m, e));
     if phase == Phase::Main && pre == 0 && !run_on_frame(m, e, mvd, enter) {
         return id; // (a hook on the move's first frame; a pre-roll's: MAIN-PHASE-STEP runs it on that frame)
@@ -141,7 +159,8 @@ pub fn start_move(m: &mut Match, e: Entity, id: MoveId, button: Option<Button>) 
             }
             if fighter(m, e).mv == Some(id) {
                 fighter_mut(m, e).sf = enter + cut;
-                // look: play-clip at the cut
+                let (clip, cs) = (crate::kit::kit_move_clip(kit_of(m, e), &mvd.clip), mvd.clip_speed);
+                play_clip_with(m, e, clip, 0.0, cs, ((enter + cut) as f32 * cs) / 60.0, true); // look: play-clip at the cut (:blend 0)
                 crate::clog!(m, "{} chain cut {} f", side_name(m, e), cut);
             }
         }
@@ -154,7 +173,16 @@ pub fn enter_main(m: &mut Match, e: Entity) {
     let f = fighter_mut(m, e);
     (f.phase, f.sf) = (Some(Phase::Main), 0);
     halt(m, e);
-    // look: the move's :clip-2, emit :breaker-end
+    if let Some(id) = fighter(m, e).mv {
+        let mvd = mv(m, id);
+        if let Some(c2) = &mvd.clip2 {
+            let clip = crate::kit::kit_move_clip(kit_of(m, e), c2);
+            play_clip_with(m, e, clip, 0.0, mvd.clip_speed, 0.0, true); // look: (play-clip e (kit-move-clip kit (mv-clip-2 mv)) :blend 0 :speed …)
+        }
+        if mvd.kind == "breaker" {
+            m.emit(Event::BreakerEnd { e }); // look: emit :breaker-end
+        }
+    }
 }
 
 // ---------------------------------------------------------------- the :move step
@@ -274,7 +302,7 @@ pub fn kikon_rush_step(m: &mut Match, e: Entity, id: MoveId) {
         if next != phase {
             let f = fighter_mut(m, e);
             (f.phase, f.hold) = (Some(next), 0);
-            // look: emit :rush-dash
+            m.emit(Event::RushDash { e }); // look: emit :rush-dash
         }
         if next == Phase::Dash {
             turn_to_opp(m, e, track_step(p.dash_track.expect("a rush's :dash-track")));
@@ -298,7 +326,7 @@ pub fn skip_aura(m: &mut Match, e: Entity) {
     } else {
         let f = fighter_mut(m, e);
         (f.phase, f.hold) = (Some(Phase::Dash), 0);
-        // look: emit :rush-dash
+        m.emit(Event::RushDash { e }); // look: emit :rush-dash
     }
 }
 
@@ -330,7 +358,9 @@ pub fn main_phase_step(m: &mut Match, e: Entity, id: MoveId) {
             (v[0], v[2]) = (sp * fwd_x(yaw), sp * fwd_z(yaw));
         }
     }
-    // look: a pre-roll's anim speed back at the hit pose (sf = s)
+    if sf == s && fighter(m, e).pre > 0 {
+        m.look(LookEvent::AnimSpeed { e, speed: mvd.clip_speed }); // look: a pre-roll's (setf (anim-speed …) (mv-clip-speed mv)) at the hit pose
+    }
     if !run_on_frame(m, e, mvd, sf) {
         return;
     }
@@ -339,7 +369,9 @@ pub fn main_phase_step(m: &mut Match, e: Entity, id: MoveId) {
     {
         return;
     }
-    // look: emit :swing on a window's first frame
+    if mvd.hits.iter().any(|w| w.from as i64 == sf) {
+        m.emit(Event::Swing { e, kind: &mvd.kind }); // look: emit :swing on a window's first frame
+    }
     if fighter(m, e).mv != Some(id) {
         return; // a hook may have started another move
     }
@@ -347,9 +379,13 @@ pub fn main_phase_step(m: &mut Match, e: Entity, id: MoveId) {
         return;
     }
     // ponytail: the guard cancel (GUARD-CANCEL-OPEN-P and GUARD-HELD-P) never fires: GUARD-HELD-P is NIL in the core system
-    if sf >= end_frame(m, fighter(m, e), mvd) {
-        to_idle(m, e);
-    } // look: else RECOVERY-PACE (anim speed only)
+    let end = end_frame(m, fighter(m, e), mvd);
+    if sf >= end {
+        to_idle(m, e, 6.0);
+    } else if sf > s + mvd.a as i64 && m.cine.is_none() {
+        // look: RECOVERY-PACE (the anim's speed: the sink reads its clip)
+        m.look(LookEvent::RecoveryPace { e, rf: (end - sf + 1) as f32, spd: mvd.clip_speed });
+    }
 }
 
 /// port: PUSH-APART: push B DIST metres away from A over FRAMES; what the arena's edge leaves no room for pushes A back. (B's, A's).

@@ -35,7 +35,7 @@ pub fn stun_step(m: &mut Match, e: Entity) {
     let f = fighter_mut(m, e);
     f.sf += 1;
     if f.sf >= f.stun && !(f.state == State::GuardHit && f.glock) && !hoho_holds_p(m, e) {
-        to_idle(m, e);
+        to_idle(m, e, 6.0);
         // ponytail: the guard raised after it (GUARD-HELD-P) never: NIL in the core system
     }
 }
@@ -80,14 +80,26 @@ pub fn set_reaction(m: &mut Match, e: Entity, react: Option<Phase>, stun: i64, f
         (mo.grounded, mo.vel[1]) = (false, vy);
         let d = if kb > 0.0 { m.knobs.air_slide * kb } else { 1.0 };
         set_slide(m, e, d, m.knobs.air_slide_frames, dx, dz);
-        // look: the launch clip, emit :launch
+        play_clip(m, e, "sh-launch", 2.0); // look: (play-clip e :sh-launch :blend 2)
+        if react == Some(Phase::Launch) {
+            m.emit(crate::look::Event::Launch { e }); // look: emit :launch
+        }
     } else {
         let f = fighter_mut(m, e);
         (f.state, f.stun) = (State::Stun, stun);
         if kb > 0.0 {
             set_slide(m, e, kb, stun.min(m.knobs.knockback_slide_frames), dx, dz);
         }
-        // look: the reaction's clip
+        let clip = match react {
+            Some(Phase::Stagger) => "sh-stagger",
+            Some(Phase::Knockback) => "sh-knockback",
+            Some(Phase::GuardBreak) => "sh-guard-break",
+            Some(Phase::Crumple) => "sh-crumple",
+            Some(Phase::Clash) => "sh-clash",
+            Some(Phase::Bind) => "sh-bound",
+            _ => "sh-flinch",
+        };
+        play_clip(m, e, clip, 0.0); // look: (play-clip e (case react … (t :sh-flinch)) :blend 0)
     }
 }
 
@@ -98,6 +110,7 @@ pub fn set_blockstun(m: &mut Match, e: Entity, stun: i64, from_x: f32, from_z: f
     (f.state, f.sf, f.stun, f.mv) = (State::GuardHit, 0, stun, None);
     halt(m, e);
     set_slide(m, e, m.knobs.block_pushback, 6, p[0] - from_x, p[2] - from_z);
+    play_clip(m, e, "sh-guard-hit", 0.0); // look: (play-clip e (or clip :sh-guard-hit) :blend 0) (no caller passes CLIP: a drunk hit's, retired)
 }
 
 /// port: OWN-ARMOR-P: is E's move ID armoured now: its :armor-hits left (from *ARMOR-FROM* to its startup's end, or a Kikon rush's

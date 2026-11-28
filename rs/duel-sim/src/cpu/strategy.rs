@@ -35,8 +35,8 @@ fn arr(v: Option<&Value>) -> &[Value] {
 
 /// A strategy plist (a library entry, a Q selector's arm, a composite's sub): a `'static` value compared by EQ (`std::ptr::eq`), as
 /// BRAIN-STRAT / -SW-SUB / -EV-ON and NOW hold the Lisp plist. Either a tables.json value or a player's fq copy (FQ-TABLE's fresh
-/// table), which fq.rs leaks into a `'static` value of its own so it stays EQ to no library entry (fq.rs's header; the leak is M3's
-/// to bound, M2_NOTES §12).
+/// table), whose structure fq.rs leaks once per cell into a `'static` value of its own so it stays EQ to no library entry; its live q
+/// are the cell's (fq.rs's header, M3a Task 10).
 #[derive(Clone, Copy)]
 pub struct Strat(pub &'static Value);
 
@@ -246,10 +246,11 @@ pub fn strat_own(sets: &FzSets, own: &Value, feats: &[(&str, Num)]) -> f32 {
 }
 
 /// port: STRAT-JUDGE — the composite SW's sub for FEATS and its index (the first :SWITCH entry whose OWN fires at >= 0.5, else its
-/// :ELSE and -1); a Q selector's chosen arm (None: its NIL arm) and the arm's index.
-pub fn strat_judge(sets: &FzSets, sw: Strat, feats: &[(&str, Num)]) -> (Option<Strat>, i64) {
+/// :ELSE and -1); a Q selector's chosen arm (None: its NIL arm) and the arm's index. Q: a player's copy's live q (`fq::copy_q`), read
+/// in place of its rules' own.
+pub fn strat_judge(sets: &FzSets, sw: Strat, feats: &[(&str, Num)], q: Option<&[f32]>) -> (Option<Strat>, i64) {
     if let Some(fq) = sw.fq() {
-        let k = strat_fq_pick(sets, fq, feats);
+        let k = strat_fq_pick_q(sets, fq, feats, q);
         let arm = arr(plist_get(fq, "arms")).get(k).filter(|a| !a.is_null());
         return (arm.map(Strat), k as i64);
     }
@@ -282,20 +283,29 @@ fn rule_q(r: &Value, k: usize) -> f32 {
 /// port: STRAT-FQ-Q — FQ's value per arm for FEATS: the q averaged by the rules' firing strengths (0 when none fires); with :GROUPS,
 /// each group averaged on its own and Q their sum.
 pub fn strat_fq_q(sets: &FzSets, fq: &Value, feats: &[(&str, Num)]) -> Qv {
+    strat_fq_q_of(sets, fq, feats, None)
+}
+
+/// `strat_fq_q` with Q (every rule's q in rule order: a player's copy's live q, `fq::FqCell.q`) read in place of FQ's rules' own.
+pub fn strat_fq_q_of(sets: &FzSets, fq: &Value, feats: &[(&str, Num)], q: Option<&[f32]>) -> Qv {
     let n = arr(plist_get(fq, "arms")).len();
     assert!(n <= MAX_ARMS, "a Q selector with {n} arms");
     let rules = arr(plist_get(fq, "rules"));
     let mut out = Qv { n, q: [0.0; MAX_ARMS] };
-    let fire = |rs: &[Value], num: &mut [f32; MAX_ARMS]| -> f32 {
+    // each rule's first q in the overlay (rules carry len - 1 q each)
+    let mut qat = 0usize;
+    let mut fire = |rs: &[Value], num: &mut [f32; MAX_ARMS]| -> f32 {
         let mut den = 0.0f32;
         for r in rs {
+            let nq = r.as_array().map_or(0, |a| a.len() - 1);
             let w = strat_ante(sets, &r[0], feats);
             if w > 0.0 {
                 den += w;
-                for (k, x) in num.iter_mut().enumerate().take(n.min(r.as_array().map_or(0, |a| a.len() - 1))) {
-                    *x += w * rule_q(r, k);
+                for (k, x) in num.iter_mut().enumerate().take(n.min(nq)) {
+                    *x += w * q.map_or_else(|| rule_q(r, k), |q| q[qat + k]);
                 }
             }
+            qat += nq;
         }
         den
     };
@@ -329,7 +339,12 @@ pub fn strat_fq_q(sets: &FzSets, fq: &Value, feats: &[(&str, Num)]) -> Qv {
 /// port: STRAT-FQ-PICK — FQ's arm index for FEATS: argmax Q (ties: the first), the previous arm (:PREV) while it trails by less
 /// than :MARGIN.
 pub fn strat_fq_pick(sets: &FzSets, fq: &Value, feats: &[(&str, Num)]) -> usize {
-    let q = strat_fq_q(sets, fq, feats);
+    strat_fq_pick_q(sets, fq, feats, None)
+}
+
+/// `strat_fq_pick` over a player's copy's live q (`strat_fq_q_of`).
+pub fn strat_fq_pick_q(sets: &FzSets, fq: &Value, feats: &[(&str, Num)], q: Option<&[f32]>) -> usize {
+    let q = strat_fq_q_of(sets, fq, feats, q);
     let q = q.as_slice();
     let mut best = 0;
     for k in 0..q.len() {

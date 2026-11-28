@@ -661,7 +661,7 @@ name lookups, as M1's was:
 and memory copies under a style function 0.2 %, so it stays unboxed (a box would allocate at each style switch, breaking the 0 B rule).
 The big copy was the brain's. Where the time is now (KK / KI / II samples together): BRAIN-SYSTEM 59 %, the styles (STRAT-FN-STEP) 20 %,
 MC-FULL-STEP's rollouts 13 % (most of it II's), the rest the sim. One more option, measured and not taken: `opt-level = 3` for duel-sim
-(release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call.
+(release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call (taken in M3a Task 11 for the whole release profile: M3A_NOTES.md §11).
 
 ## 11. Coverage of `cpu/` by the live traces (Task 10: the 17; the final fix pass: 3 more)
 
@@ -744,7 +744,8 @@ and the HARD table chance are reached (vs-learn learns).
 
 **Carries to M3:**
 - the fq copies are leaked `&'static` values, one per load and per learned match (~85 kB each; 5-9 MB per 100 learned matches on a wasm
-  heap that never shrinks): an owned arena in `Search` before the phone build (fq.rs `ponytail:`);
+  heap that never shrinks): an owned arena in `Search` before the phone build (fq.rs `ponytail:`). Done in M3a Task 10: the q live in
+  `FqCell.q`, one structure leaked per cell made, none per learned match (M3A_NOTES §10);
 - `view_behind` is hard-wired to `*cam-behind*` T; SET-CAM-BEHIND is `(and (or *cam-behind* *one-hand*) (vs-cpu-p) t)`: the settings
   and the touch deck own it;
 - the game loop calls `cine::cine_draw` once per rendered frame after the frame's steps (a played cinematic's DURING forms move the

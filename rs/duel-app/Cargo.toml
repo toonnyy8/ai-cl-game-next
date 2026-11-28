@@ -11,6 +11,10 @@ dev = ["bevy/file_watcher"]
 duel-sim = { path = "../duel-sim" }
 duel-data = { path = "../duel-data" }
 duel-look = { path = "../duel-look" }
+# f32 arrays as bytes for the GPU buffers (no unsafe); already in the tree under Bevy
+bytemuck = "1"
+# wgpu's pass types (RenderPass, Color, BufferSlice) that bevy::render does not re-export; the same version Bevy pins (no features of its own)
+wgpu = { version = "=30.0.2", default-features = false }
 bevy = { workspace = true, features = [
   "default_app", "std", "bevy_winit", "x11", "default_font", "common_api",
   "bevy_render", "bevy_core_pipeline", "bevy_pbr", "bevy_light", "ui_api", "ui_bevy_render", "webgpu",

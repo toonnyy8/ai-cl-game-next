@@ -27,16 +27,16 @@ pub enum KenCine {
     SKikon2,
 }
 
-const ALL: [(KenCine, &str, i64); 9] = [
-    (KenCine::Nozarashi, "KEN-NOZARASHI-CINE", 108),
-    (KenCine::Bankai, "KEN-BANKAI-CINE", 186),
-    (KenCine::KrKikon, "KEN-KR-KIKON-CINE", 180),
-    (KenCine::ZhKikon, "KEN-ZH-KIKON-CINE", 180),
-    (KenCine::ZKikon1, "KEN-Z-KIKON1-CINE", 196),
-    (KenCine::ZKikon2, "KEN-Z-KIKON2-CINE", 206),
-    (KenCine::ZKikon3, "KEN-Z-KIKON3-CINE", 204),
-    (KenCine::SKikon1, "KEN-S-KIKON1-CINE", 170),
-    (KenCine::SKikon2, "KEN-S-KIKON2-CINE", 290),
+const ALL: [(KenCine, &str, i64, i64); 9] = [
+    (KenCine::Nozarashi, "KEN-NOZARASHI-CINE", 108, 84),
+    (KenCine::Bankai, "KEN-BANKAI-CINE", 186, 120),
+    (KenCine::KrKikon, "KEN-KR-KIKON-CINE", 180, 100),
+    (KenCine::ZhKikon, "KEN-ZH-KIKON-CINE", 180, 96),
+    (KenCine::ZKikon1, "KEN-Z-KIKON1-CINE", 196, 104),
+    (KenCine::ZKikon2, "KEN-Z-KIKON2-CINE", 206, 100),
+    (KenCine::ZKikon3, "KEN-Z-KIKON3-CINE", 204, 100),
+    (KenCine::SKikon1, "KEN-S-KIKON1-CINE", 170, 112),
+    (KenCine::SKikon2, "KEN-S-KIKON2-CINE", 290, 168),
 ];
 
 impl KenCine {
@@ -49,6 +49,10 @@ impl KenCine {
     /// `:len`.
     pub fn frames(self) -> i64 {
         ALL.iter().find(|x| x.0 == self).unwrap().2
+    }
+    /// `:hold`.
+    pub fn hold_frame(self) -> i64 {
+        ALL.iter().find(|x| x.0 == self).unwrap().3
     }
 }
 

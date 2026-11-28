@@ -3,6 +3,7 @@
 use super::*;
 use crate::cl::{fmt_fixed_f32, min_f32};
 use crate::components::Queued;
+use crate::look::{Event, LookEvent};
 use crate::gauges::{burst_end, sub_speed_mult};
 use crate::math::{angle_wrap, deg, dir_yaw, fwd_x, fwd_z, hypot, turn_toward};
 use crate::rules::{brake_speed, hoho_cost, hoho_destination, run_carry, run_stop_p, step_direction, track_step};
@@ -38,9 +39,17 @@ pub fn start_step(m: &mut Match, e: Entity) {
     let f = fighter_mut(m, e);
     (f.state, f.sf, f.mv, f.queued) = (State::Step, 0, None, None);
     halt(m, e);
-    // look: the :step hook (no live kit has one), the step clip
+    // look: the :step hook (no live kit has one: `kit.hooks` has no "step", none queued)
+    let clip = if st.abs() > to.abs() {
+        if st > 0.0 { "sh-step-r" } else { "sh-step-l" }
+    } else if to > 0.0 {
+        "sh-step-f"
+    } else {
+        "sh-step-b"
+    };
+    play_clip(m, e, clip, 2.0); // look: (play-clip e (cond … :sh-step-r / -l / -f / -b) :blend 2)
     crate::clog!(m, "{} step{}", side_name(m, e), crate::fighter::why_suffix(m, e));
-    // look: emit :step
+    m.emit(Event::Step { e }); // look: emit :step
 }
 
 /// port: RUN-YAW: the yaw a runner wants (the stick relative to the opponent, neutral = at him).
@@ -51,14 +60,34 @@ pub fn run_yaw(m: &mut Match, e: Entity) -> f32 {
     dir_yaw(dx, dz)
 }
 
+/// port: RUN-CLIP: the run clip of E's kit for the way he goes relative to where he faces: forward run, back-skate, or a side
+/// slide (the kit's :run-clips; one it lacks: NIL, which PLAY-CLIP's fallback makes the stance).
+pub fn run_clip(m: &Match, e: Entity) -> &'static str {
+    let (hy, fy) = (fighter(m, e).run_yaw, yaw_of(m, e));
+    let (hx, hz, fx, fz) = (fwd_x(hy), fwd_z(hy), fwd_x(fy), fwd_z(fy));
+    let (ahead, right) = (hx * fx + hz * fz, hz * fx - hx * fz);
+    let kit = kit_of(m, e);
+    let i = if ahead > 0.5 {
+        0
+    } else if ahead < -0.5 {
+        1
+    } else if right > 0.0 {
+        2
+    } else {
+        3
+    };
+    kit.run_clips.get(i).map_or(kit.stance.as_str(), |c| c.as_str())
+}
+
 /// port: START-RUN: Step still held when the hop ends.
 pub fn start_run(m: &mut Match, e: Entity) {
     let y = run_yaw(m, e);
     let f = fighter_mut(m, e);
     (f.state, f.sf, f.phase, f.run_yaw) = (State::Run, 0, Some(Phase::Run), y);
-    // look: the run clip
+    let (clip, run) = (run_clip(m, e), kit_of(m, e).run);
+    play_clip_with(m, e, clip, 5.0, run / 8.0, 0.0, true); // look: (play-clip e (run-clip e f) :blend 5 :speed (/ (kit-run kit) 8.0))
     crate::clog!(m, "{} dash{}", side_name(m, e), crate::fighter::why_suffix(m, e));
-    // look: emit :step
+    m.emit(Event::Step { e }); // look: emit :step
 }
 
 /// port: START-HOHO: flash-step spent, vanish (HOHO-STEP brings him back behind the opponent); PERFECT checked now.
@@ -81,7 +110,8 @@ pub fn start_hoho(m: &mut Match, e: Entity) {
     let f = fighter_mut(m, e);
     (f.perfect, f.state, f.sf, f.mv, f.state_t, f.hoho_lock) = (perfect, State::Hoho, 0, None, tick, lock);
     halt(m, e);
-    // look: emit :hoho-out
+    let p = pos_of(m, e);
+    m.emit(Event::HohoOut { e, x: p[0], z: p[2] }); // look: emit :hoho-out
     crate::clog!(m, "{} hoho", side_name(m, e));
     if perfect {
         let o = opp_of(m, e);
@@ -90,7 +120,7 @@ pub fn start_hoho(m: &mut Match, e: Entity) {
         respect(m, o);
         let (sc, secs) = (m.knobs.perfect_slowmo_scale, m.knobs.perfect_slowmo_seconds);
         m.time.slowmo(sc, secs, false);
-        // look: emit :perfect
+        m.emit(Event::Perfect { e, victim: o }); // look: emit :perfect
         crate::clog!(m, "{} PERFECT HOHO", side_name(m, e));
     }
 }
@@ -125,14 +155,14 @@ pub fn neutral_step(m: &mut Match, e: Entity) {
             if m.pilot.get(e).unwrap().cam_relative {
                 crate::clog!(m, "{} guard", side_name(m, e));
             }
-            // look: the guard clip
+            play_clip(m, e, "sh-guard", 3.0); // look: (play-clip e :sh-guard :blend 3) (unreachable: GUARD-HELD-P is NIL)
         }
         fighter_mut(m, e).guard_t += 1;
         m.motion.get_mut(e).unwrap().vel = [0.0; 3];
     } else {
         let (to, st) = if f.lock == 0 && f.guard_exit == 0 && f.kikon_lock == 0 { stick_relative(m, e) } else { (0.0, 0.0) };
         if fighter(m, e).state == State::Guard {
-            to_idle(m, e);
+            to_idle(m, e, 4.0);
             fighter_mut(m, e).guard_exit = m.knobs.guard_exit;
         }
         fighter_mut(m, e).guard_t = 0;
@@ -149,13 +179,21 @@ pub fn neutral_walk(m: &mut Match, e: Entity, to: f32, st: f32) {
     let mag = libm::sqrtf(to * to + st * st); // (%sqrt)
     if mag < 0.2 || walk <= 0.0 {
         m.motion.get_mut(e).unwrap().vel = [0.0; 3];
-        // look: the stance clip
+        let clip = fighter_stance_clip(kit_of(m, e), fighter(m, e).ptr);
+        play_clip_with(m, e, clip, 6.0, 1.0, 0.0, false); // look: (play-clip e (fighter-stance-clip f) :blend 6 :restart nil)
     } else {
         let (dx, dz) = world_dir(m, e, to, st); // (WITH-TOWARD-STRAFE-DIR: TOWARD-STRAFE-DIR's single-float path)
         let s = (speed * min_f32(1.0, mag)) * (1.0 / mag);
         let v = &mut m.motion.get_mut(e).unwrap().vel;
         (v[0], v[2]) = (s * dx, s * dz);
-        // look: the walk / strafe clip
+        let clip = if st.abs() > to.abs() {
+            if st > 0.0 { "sh-strafe-r" } else { "sh-strafe-l" }
+        } else if to > 0.0 {
+            "sh-walk-f"
+        } else {
+            "sh-walk-b"
+        };
+        play_clip_with(m, e, clip, 6.0, 1.0, 0.0, false); // look: (play-clip e (… :sh-strafe-r / -l, :sh-walk-f / -b) :blend 6 :restart nil)
     }
 }
 
@@ -180,7 +218,7 @@ pub fn step_step(m: &mut Match, e: Entity) {
         if free && vpad(m, e).down(Button::Step as usize) {
             start_run(m, e);
         } else {
-            to_idle(m, e);
+            to_idle(m, e, 6.0);
         }
     }
 }
@@ -210,7 +248,7 @@ pub fn run_step(m: &mut Match, e: Entity) {
         let s = if run_stop_p(&m.knobs, fighter(m, e).dist, run_closing(m, e), speed) { 0.0 } else { brake_speed(&m.knobs, speed, sf) };
         turn_to_opp(m, e, face_step(m));
         if s <= 0.0 || sf >= m.knobs.run_brake {
-            to_idle(m, e);
+            to_idle(m, e, 6.0);
         } else {
             let y = fighter(m, e).run_yaw;
             run_velocity(m, e, s, y);
@@ -222,23 +260,25 @@ pub fn run_step(m: &mut Match, e: Entity) {
             crate::clog!(m, "{} run -> {}, carry {} m", side_name(m, e), mv(m, id).name.to_uppercase(), fmt_fixed_f32(carry, 1));
         }
     } else if free && guard_held_p(m, e) {
-        to_idle(m, e);
+        to_idle(m, e, 3.0);
         neutral_step(m, e);
     } else if !(free && vpad(m, e).down(Button::Step as usize)) {
         let f = fighter_mut(m, e);
         (f.phase, f.sf) = (Some(Phase::Brake), 0);
-        // look: the stance clip
+        let clip = fighter_stance_clip(kit_of(m, e), fighter(m, e).ptr);
+        play_clip(m, e, clip, 6.0); // look: (play-clip e (fighter-stance-clip f) :blend 6)
     } else {
         let (want, turn) = (run_yaw(m, e), track_step(m.knobs.run_turn));
         let f = fighter_mut(m, e);
         f.run_yaw = angle_wrap(turn_toward(f.run_yaw, want, turn));
         turn_to_opp(m, e, face_step(m));
         if run_stop_p(&m.knobs, fighter(m, e).dist, run_closing(m, e), speed) {
-            to_idle(m, e);
+            to_idle(m, e, 4.0);
         } else {
             let y = fighter(m, e).run_yaw;
             run_velocity(m, e, speed, y);
-            // look: the run clip
+            let clip = run_clip(m, e);
+            play_clip_with(m, e, clip, 5.0, speed / 8.0, 0.0, false); // look: (play-clip e (run-clip e f) :blend 5 :speed (/ speed 8.0) :restart nil)
         }
     }
 }
@@ -277,17 +317,25 @@ pub fn hoho_step(m: &mut Match, e: Entity) {
     f.sf += 1;
     let sf = f.sf;
     let o = opp_of(m, e);
-    // look: model-alpha
+    let ap = m.knobs.hoho_appear;
+    let a = if sf < ap { 1.0 - sf as f32 / ap as f32 } else { 1.0 };
+    m.look(LookEvent::Alpha { e, a }); // look: (setf (model-alpha (model e)) (if (< sf *hoho-appear*) (f32 (- 1.0 (/ sf (float …)))) 1f0))
     if sf == m.knobs.hoho_appear {
         let q = pos_of(m, o);
         let (x, z, yaw) = hoho_destination(&m.knobs, q[0], q[2], yaw_of(m, o));
         let t = m.transform.get_mut(e).unwrap();
         (t.pos[0], t.pos[2], t.yaw) = (x, z, yaw);
-        // look: the arrival clip, emit :hoho-in, the :hoho hook (no live kit has one)
+        play_clip(m, e, "sh-hoho-in", 0.0); // look: (play-clip e :sh-hoho-in :blend 0)
+        m.emit(Event::HohoIn { e, x, z }); // look: emit :hoho-in (the :hoho hook: no live kit has one)
     }
-    // look: a perfect Hoho's counter pose
+    if sf == m.knobs.hoho_counter_pose && fighter(m, e).perfect {
+        let kit = kit_of(m, e);
+        let q = crate::kit::kit_command_move(m.data, kit, "q").expect("a kit's :q");
+        let clip = crate::kit::kit_move_clip(kit, &q.clip);
+        play_clip_with(m, e, clip, 0.0, 1.0, 0.1, true); // look: a perfect Hoho's counter pose (play-clip … :blend 0 :time 0.1)
+    }
     if sf >= m.knobs.hoho_frames {
-        to_idle(m, e);
+        to_idle(m, e, 3.0);
         if fighter(m, e).hoho_from.is_some() {
             fighter_mut(m, e).hoho_left = m.knobs.hoho_resume_frames;
             if let Some(q) = fighter(m, e).queued {
@@ -312,7 +360,8 @@ pub fn air_step(m: &mut Match, e: Entity) {
             if m.motion.get(e).unwrap().grounded && sf > 2 {
                 let f = fighter_mut(m, e);
                 (f.state, f.sf) = (State::Down, 0);
-                // look: the down clip, emit :land
+                play_clip(m, e, "sh-down", 3.0); // look: (play-clip e :sh-down :blend 3)
+                m.emit(Event::Land { e }); // look: emit :land
             }
         }
         State::Down => {
@@ -321,7 +370,7 @@ pub fn air_step(m: &mut Match, e: Entity) {
                 (f.state, f.sf) = (State::Wakeup, 0);
                 let (to, st) = stick_relative(m, e);
                 if hypot(to, st) < 0.3 {
-                    // look: the wakeup clip
+                    play_clip(m, e, "sh-wakeup", 2.0); // look: (play-clip e :sh-wakeup :blend 2)
                 } else {
                     let (to, st) = step_direction(to, st, -1.0);
                     let (dx, dz) = world_dir(m, e, to, st);
@@ -329,7 +378,7 @@ pub fn air_step(m: &mut Match, e: Entity) {
                     fighter_mut(m, e).phase = Some(Phase::Roll);
                     m.transform.get_mut(e).unwrap().yaw = dir_yaw(-dx, -dz);
                     set_slide(m, e, m.knobs.roll_distance, m.knobs.roll_frames, dx, dz);
-                    // look: the roll clip
+                    play_clip(m, e, "sh-roll", 2.0); // look: (play-clip e :sh-roll :blend 2)
                     crate::clog!(m, "{} roll", side_name(m, e));
                 }
             }
@@ -339,7 +388,7 @@ pub fn air_step(m: &mut Match, e: Entity) {
                 turn_to_opp(m, e, face_step(m));
             }
             if sf >= m.knobs.reaction_frames.get("wakeup", i64::MAX) {
-                to_idle(m, e);
+                to_idle(m, e, 6.0);
             }
         }
         _ => {}

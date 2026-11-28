@@ -358,6 +358,9 @@ pub struct Search {
     pub strat_picks: Vec<i64>,
     /// `*fq-tables*`: the players' copies, newest first (FQ-TABLE pushes).
     pub fq_tables: Vec<fq::FqCell>,
+    /// Not Lisp's: the copies' leaked structures, one per (me, vs, library entry) ever made (`fq::fq_table`; a cell made again after a
+    /// reset reuses its own, a learned match adds none: ruling R27).
+    pub fq_pool: Vec<fq::FqShape>,
     /// fq-online.lisp `*learn-debug-off*`: a debug command ran, so no CPU learns (DEBUG-COMMAND sets it; debug 2504 clears it).
     pub learn_debug_off: bool,
     /// `*fq-learn-force*`: a tool's T (every Q-selector CPU learns, whoever its opponent); false in the game.
@@ -393,6 +396,7 @@ impl Search {
             strat_stats: [0; 4],
             strat_picks: Vec::new(),
             fq_tables: Vec::new(),
+            fq_pool: Vec::new(),
             learn_debug_off: false,
             fq_learn_force: false,
             learn: 0,

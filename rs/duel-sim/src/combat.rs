@@ -11,6 +11,7 @@ use crate::core_sim::{
     core_set_kikon_n, core_start, core_verdicts, core_wave_follow, core_wave_strike, core_window_class, core_hazard_nohit,
 };
 use crate::ecs::Entity;
+use crate::look::Event;
 use crate::fighter::{
     breaker_phase, call_hook, defender_state, ender_push, fighter, fighter_mut, gauges_red_p, id_of, ken_hook, kit_hook_sym, kit_of, mv,
     passive_p, pos_of, respect, set_blockstun, set_reaction, set_slide, side_name, yaw_of,
@@ -133,7 +134,7 @@ pub fn push_pending(m: &mut Match, h: Pending) {
     m.pending.push(h);
 }
 
-/// The hit window flags APPLY-HIT reads (the look-only :ice :blade :thread are not kept).
+/// The hit window flags APPLY-HIT reads (:ice :blade :thread only choose the :hit event's kind: a look).
 mod flag {
     pub const BREAKER: u16 = 1;
     pub const GUARD_CRUSH: u16 = 2;
@@ -144,6 +145,9 @@ mod flag {
     pub const KEEP_BIND: u16 = 64;
     pub const SPARE: u16 = 128;
     pub const RANGED: u16 = 256;
+    pub const ICE: u16 = 512;
+    pub const BLADE: u16 = 1024;
+    pub const THREAD: u16 = 2048;
 }
 
 fn flag_bits<'a>(flags: impl Iterator<Item = &'a str>) -> u16 {
@@ -160,7 +164,7 @@ fn flag_bits<'a>(flags: impl Iterator<Item = &'a str>) -> u16 {
         // read elsewhere or looks only: the move flags a window carries (kit.lisp passes a move's :flags to its windows; every
         // one in today's data), and the hazards' look flags (Ichigo's waves: :blade)
         ("ender", 0), ("no-close", 0), ("parry", 0), ("ranged-ward", 0), ("stance", 0), ("step-branch", 0), ("through", 0),
-        ("ice", 0), ("blade", 0), ("thread", 0),
+        ("ice", flag::ICE), ("blade", flag::BLADE), ("thread", flag::THREAD),
     ];
     flags.fold(0, |b, f| {
         let f = f.trim_start_matches(':'); // (any case: data names are lower case, Syms upper; compared in place, no allocation)
@@ -390,6 +394,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
     let HitKeys { mv: mvid, hazard, def_state, bonus, crush, red } = k;
     let mvd = mvid.map(|id| mv(m, id));
     let p = pos_of(m, def);
+    let (x, y, z) = (p[0], p[1] + 1.1, p[2]); // (where the events show it: APPLY-HIT's X Z defaults, DEF's place now)
     let (dx, dz) = (p[0] - sx, p[2] - sz);
     let d2 = expt2(dx) + expt2(dz); // DEF's distance (squared) from the attacker (EXPT 2: musl's powf, M2_NOTES §3)
     let ranged = ranged_hit_p(hazard.is_some(), hw.has(flag::RANGED), mvd.and_then(|x| x.params.melee_range), d2);
@@ -561,7 +566,22 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                 bail!();
             }
             m.time.hitstop(hw.hs as f32);
-            // look: emit :hit
+            let kind: &'static str = if hw.has(flag::ICE) {
+                "ice"
+            } else if react == Phase::Bind {
+                "bind"
+            } else if hw.has(flag::BLADE) {
+                "flash"
+            } else if hw.has(flag::THREAD) {
+                "quick"
+            } else if hazard.is_some() {
+                "fire"
+            } else if let Some(x) = mvd {
+                &x.kind
+            } else {
+                "counter"
+            };
+            m.emit(Event::Hit { att, def, x, y, z, hs: hw.hs, counter, dmg, kind }); // look: emit :hit
             let n = (hits - fighter(m, def).combo_from).max(1);
             let dmg_at = mvd.and_then(|x| x.params.dmg_at).filter(|_| own && hazard.is_none() && !follow);
             if let Some(at) = dmg_at {
@@ -650,7 +670,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                 fd.armor_left -= 1;
             }
             m.time.hitstop(m.knobs.hitstop_block as f32);
-            // look: emit :armored
+            m.emit(Event::Armored { def, x, y, z }); // look: emit :armored
             let d = hit_damage(&m.knobs, base, atk, dmods, 1, false, false);
             deal_damage(m, att, def, d, 1);
         }
@@ -669,7 +689,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                     _ => crate::unported!(m, h, None),
                 }
             }
-            // look: emit :parried
+            m.emit(Event::Parried { att, def, x, y, z }); // look: emit :parried
             let c = fighter(m, def).mv.and_then(|id| kit_next(m.data, kit_of(m, def), &mv(m, id).name, "land"));
             if let Some(c) = c {
                 let c = id_of(m, c);
@@ -681,7 +701,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             let stored = stance_store(&m.knobs, fighter(m, def).stored, d);
             fighter_mut(m, def).stored = stored;
             m.time.hitstop(m.knobs.hitstop_block as f32);
-            // look: emit :absorbed
+            m.emit(Event::Absorbed { def, x, y, z }); // look: emit :absorbed
             deal_damage(m, att, def, d, 1);
         }
         Res::Blocked => {
@@ -702,7 +722,7 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                 let (st, kb) = (m.knobs.guard_crush_stun, m.knobs.block_pushback);
                 set_reaction(m, def, Some(Phase::GuardBreak), st, sx, sz, kb);
                 m.time.hitstop(m.knobs.hitstop_breaker as f32);
-                // look: emit :guard-crush
+                m.emit(Event::GuardCrush { att, def, x, y, z }); // look: emit :guard-crush
                 crate::clog!(m, "{} GUARD CRUSH", side_name(m, def));
             } else if ward {
                 // super armour: no blockstun, what he does goes on
@@ -713,10 +733,12 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
                     fighter_mut(m, def).ward_until = until; // the windmill: a guard's wait (+ its hitstop)
                 }
                 m.time.hitstop(m.knobs.hitstop_block as f32);
+                m.emit(Event::Blocked { att, def, x, y, z }); // look: emit :blocked (a ward's)
             } else {
                 set_blockstun(m, def, stun, sx, sz);
                 m.time.hitstop(m.knobs.hitstop_block as f32);
-            } // look: emit :blocked
+                m.emit(Event::Blocked { att, def, x, y, z }); // look: emit :blocked
+            }
             if chip > 0 {
                 deal_damage(m, att, def, chip, 1);
             }
@@ -727,13 +749,13 @@ pub fn apply_hit(m: &mut Match, att: Entity, def: Entity, hwr: HwRef, sx: f32, s
             let (st, kb) = (m.knobs.guard_break_stun, m.knobs.guard_break_kb);
             set_reaction(m, def, Some(Phase::GuardBreak), st, sx, sz, kb);
             m.time.hitstop(m.knobs.hitstop_breaker as f32);
-            // look: emit :guard-break
+            m.emit(Event::GuardBreak { att, def, x, y, z }); // look: emit :guard-break
         }
         Res::StanceBreak => {
             let (st, kb) = (m.knobs.stance_break_stun, m.knobs.stance_break_kb);
             set_reaction(m, def, Some(Phase::Crumple), st, sx, sz, kb);
             m.time.hitstop(m.knobs.hitstop_breaker as f32);
-            // look: emit :stance-break
+            m.emit(Event::StanceBreak { att, def, x, y, z }); // look: emit :stance-break
         }
     }
     bail!();
@@ -886,7 +908,7 @@ pub fn clash(m: &mut Match, a: Entity, b: Entity) {
     set_reaction(m, a, Some(Phase::Clash), st, q[0], q[2], push);
     set_reaction(m, b, Some(Phase::Clash), st, p[0], p[2], push);
     m.time.hitstop(m.knobs.hitstop_breaker as f32);
-    // look: emit :clash
+    m.emit(Event::Clash { x: 0.5 * (p[0] + q[0]), y: 1.2, z: 0.5 * (p[2] + q[2]) }); // look: emit :clash
     crate::clog!(m, "CLASH");
 }
 

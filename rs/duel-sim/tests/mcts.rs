@@ -166,7 +166,7 @@ fn with_a_job() -> (Match, Search) {
     let mut s = Search::new();
     let mut m = ki_battle(&mut s);
     for _ in 0..30_000 {
-        sim_step(&mut m, &mut s, &mut NoInput);
+        sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
         assert_eq!(m.unported, None);
         if s.mc_jobs.first().is_some_and(|j| j.snap.is_some() && j.n < 2) {
             return (m, s);
@@ -212,7 +212,7 @@ fn rollout_leaves_live_state_and_keeps_search() {
     assert!(s.mc_jobs[0].snap.is_some() && s.mc_jobs[0].v1.is_finite() && s.cut_rollouts == 0);
     // the live state stays usable: the match plays on with no unported path
     for _ in 0..600 {
-        sim_step(&mut m, &mut s, &mut NoInput);
+        sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
     }
     assert_eq!(m.unported, None);
 }
@@ -252,7 +252,7 @@ fn jobs_dropped_when_snapshot_not_ok() {
 fn rollout_never_ends_the_match() {
     let mut m = ki_battle(&mut Search::new());
     for _ in 0..301 {
-        sim_step(&mut m, &mut Search::new(), &mut NoInput);
+        sim_step(&mut m, &mut Search::new(), &mut NoInput, &mut duel_sim::look::NoLook);
     }
     assert_eq!(m.flow, Flow::Battle);
     let mut r = m.clone();
@@ -275,7 +275,7 @@ fn stand_in_brain_for_human() {
     let mut s = Search::new();
     let mut m = ki_battle(&mut s);
     for _ in 0..301 {
-        sim_step(&mut m, &mut s, &mut NoInput);
+        sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
     }
     let (p1, p2) = (m.p1, m.p2);
     m.fighter.get_mut(p1).unwrap().brain = None;
@@ -315,7 +315,7 @@ fn vs_device_writes_in_rollouts() {
         let mut s = Search::new();
         let mut m = ki_battle(&mut s);
         for _ in 0..301 {
-            sim_step(&mut m, &mut s, &mut NoInput);
+            sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
         }
         let p1 = m.p1;
         m.fighter.get_mut(p1).unwrap().brain = None;
@@ -379,7 +379,7 @@ fn strat_full_step_picks_after_its_rolls() {
     let mut s = Search::new();
     let mut m = ki_battle(&mut s);
     for _ in 0..301 {
-        sim_step(&mut m, &mut s, &mut NoInput);
+        sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
     }
     let e = m.p1;
     let mut b = m.fighter.get_mut(e).unwrap().brain.take().unwrap();
@@ -458,7 +458,7 @@ fn hard_defers_on_a_thin_margin() {
     let mut m = ki_battle(&mut s);
     let (mut deferred, mut jobs, mut duct_differs) = (0, 0, false);
     for _ in 0..20_000 {
-        sim_step(&mut m, &mut s, &mut NoInput);
+        sim_step(&mut m, &mut s, &mut NoInput, &mut duel_sim::look::NoLook);
         let e = m.p1;
         let f = m.fighter.get(e).unwrap();
         if !matches!(f.state, State::Idle | State::Run) || m.flow != Flow::Battle {

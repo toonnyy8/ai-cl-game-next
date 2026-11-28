@@ -102,7 +102,8 @@ pub fn bk_tick(m: &mut Match, e: Entity) {
     fighter_mut(m, e).bk_out = false;
     let g = m.gauges.get_mut(e).expect("gauges");
     if g.konpaku > 1 {
-        g.konpaku -= 1; // look: emit :konpaku
+        g.konpaku -= 1;
+        m.emit(crate::look::Event::Konpaku { victim: e, lost: 1 }); // look: emit :konpaku
     }
     if !crate::gauges::set_form(m, e, Form::Nozarashi) {
         return;
@@ -110,7 +111,7 @@ pub fn bk_tick(m: &mut Match, e: Entity) {
     fighter_mut(m, e).ptr = from;
     m.gauges.get_mut(e).expect("gauges").meter = 0.0;
     if fighter(m, e).state == State::Idle {
-        to_idle(m, e);
+        to_idle(m, e, 0.0);
     }
     let k = m.gauges.get(e).expect("gauges").konpaku;
     crate::clog!(m, "{} BANKAI ends: Shikai pointer {}, konpaku {}", side_name(m, e), from, k);
@@ -137,13 +138,14 @@ pub fn bk_special(m: &mut Match, e: Entity) {
 pub fn chigiri_open(m: &mut Match, e: Entity) {
     let life = m.knobs.chigiri_burst + 4;
     crate::hazards::spawn_look(m, e, Sym("KEN-CHIGIRI-LOOK"), None, None, 0.0, 1.0, life, 0, HzData::Nil);
-    // look: emit :ken-bk-burst :chigiri-draw
+    m.emit(crate::look::Event::KenBkBurst { e, kind: "chigiri-draw" }); // look: emit :ken-bk-burst :chigiri-draw
 }
 
 /// port: KEN-CHIGIRI-BURST: the fight frozen *KEN-CHIGIRI-STOP* frames (the damage lands on this frame: :dmg-at, DELAY-HIT).
-pub fn chigiri_burst(m: &mut Match, _e: Entity) {
+pub fn chigiri_burst(m: &mut Match, e: Entity) {
     let s = m.knobs.ken_chigiri_stop as f32;
     m.time.hitstop(s);
+    m.emit(crate::look::Event::KenBkBurst { e, kind: "chigiri" }); // look: emit :ken-bk-burst :chigiri
 }
 
 /// port: KEN-TATEGOTO-SPLIT: TATE-GOTO's chop lands: the rift 2.2 m before him, the sword wave, the floor split (look hazards).
@@ -155,13 +157,15 @@ pub fn tategoto_split(m: &mut Match, e: Entity) {
     crate::hazards::spawn_look(m, e, Sym("KEN-TATEGOTO-WAVE"), None, None, yaw, 1.0, 14, 0, HzData::Nil);
     let len = m.knobs.tategoto_wave_len;
     crate::hazards::spawn_ground_line(m, e, len, 70, Sym(":METEOR"));
-    // look: emit :ground-scar, :ken-bk-burst :tategoto
+    m.emit(scar(p[0], p[2], yaw, &[1.9, 4.0, 6.5, 9.0, 11.5, 14.0], 0.9)); // look: emit :ground-scar
+    m.emit(crate::look::Event::KenBkBurst { e, kind: "tategoto" }); // look: emit :ken-bk-burst :tategoto
 }
 
 /// port: KEN-TATEGOTO-CUT: the rift cuts, frozen *KEN-TATEGOTO-STOP* frames.
-pub fn tategoto_cut(m: &mut Match, _e: Entity) {
+pub fn tategoto_cut(m: &mut Match, e: Entity) {
     let s = m.knobs.ken_tategoto_stop as f32;
     m.time.hitstop(s);
+    m.emit(crate::look::Event::KenBkBurst { e, kind: "tategoto-cut" }); // look: emit :ken-bk-burst :tategoto-cut
 }
 
 /// port: KEN-BANKAI-ENTER: the Bankai's burst AS, 3 frames after the detonation: the Bankai of his pointer, no cinematic, nothing
@@ -180,17 +184,31 @@ pub fn stance_release(m: &mut Match, e: Entity) {
     (f.dmg_bonus, f.crush, f.stored) = (dmg - base, crush, 0);
     if crush {
         callout(m, e, "KITTE MIRO YO!");
-    } // look: emit :sfx
+    }
+    m.emit(crate::look::Event::Sfx { key: if crush { "laugh" } else { "whoosh-heavy" }, e }); // look: emit :sfx
 }
 
 /// port: KEN-GROUND-CRACK: Buttagiru lands: a 3.5 m crack (a look hazard).
 pub fn ground_crack(m: &mut Match, e: Entity) {
+    let (p, yaw) = (pos_of(m, e), yaw_of(m, e));
     crate::hazards::spawn_ground_line(m, e, 3.5, 50, Sym(":CRACK"));
+    m.emit(scar(p[0], p[2], yaw, &[1.2, 2.8], 0.9)); // look: emit :ground-scar
+    m.emit(crate::look::Event::Sfx { key: "ground-crack", e }); // look: emit :sfx :ground-crack
+}
+
+/// `(:ground-scar x z yaw ds r)` with DS (at most six).
+fn scar(x: f32, z: f32, yaw: f32, ds: &[f32], r: f32) -> crate::look::Event {
+    let mut a = [0.0; 6];
+    a[..ds.len()].copy_from_slice(ds);
+    crate::look::Event::GroundScar { x, z, yaw, ds: a, n: ds.len() as u8, r }
 }
 
 /// port: KEN-BK-SLAM: 斬壞's J5 lands: a short crack (a look hazard).
 pub fn bk_slam(m: &mut Match, e: Entity) {
     crate::hazards::spawn_ground_line(m, e, 2.4, 40, Sym(":CRACK"));
+    let (p, yaw) = (pos_of(m, e), yaw_of(m, e));
+    m.emit(scar(p[0], p[2], yaw, &[1.9], 0.7)); // look: emit :ground-scar
+    m.emit(crate::look::Event::Sfx { key: "ground-crack", e }); // look: emit :sfx :ground-crack
 }
 
 /// port: KEN-CHARGE-TICK: SP2's dash at :dash-speed through the active frames until it touches; the button still down as the dash

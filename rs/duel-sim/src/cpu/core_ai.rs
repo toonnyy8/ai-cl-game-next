@@ -56,7 +56,7 @@ fn think(m: &mut Match, s: &mut Search, e: Entity, b: &mut Brain, snap: Snap, d:
     // (a composite: its active sub, else the lookup's strategy; a Q selector: its arm, its NIL arm no strategy at all, DUEL_AI_STRATEGY §8.18)
     let sw = b.strat.filter(|st| st.get("switch").is_some() || st.fq().is_some());
     let cur = match sw {
-        Some(sw) => glue::strat_switch_step(m, e, b, &snap, d, sw).or_else(|| {
+        Some(sw) => glue::strat_switch_step(m, e, b, &snap, d, sw, &s.fq_tables).or_else(|| {
             if sw.fq().is_some() {
                 return None;
             }

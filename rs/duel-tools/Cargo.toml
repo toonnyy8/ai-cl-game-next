@@ -7,4 +7,5 @@ publish = false
 [dependencies]
 duel-sim = { path = "../duel-sim" }
 duel-data = { path = "../duel-data" }
+duel-look = { path = "../duel-look" }
 serde_json.workspace = true

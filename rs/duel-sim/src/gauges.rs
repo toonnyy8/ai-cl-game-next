@@ -6,6 +6,7 @@ use crate::components::{Burst, Contact, Form, Gauges, KitId, Phase, State};
 use crate::ecs::Entity;
 use crate::fighter::{call_hook, fighter, fighter_mut, kit_hook_sym, kit_of, mv, opp_of, pos_of, respect, set_slide, side_name, state_of, to_idle};
 use crate::knobs::Knobs;
+use crate::look::{Event, KitRef, LookEvent};
 use crate::rules;
 use crate::state::Match;
 
@@ -213,11 +214,11 @@ pub fn repel(m: &mut Match, e: Entity) {
     m.transform.get_mut(e).expect("a transform").pos[1] = 0.0;
     let mo = m.motion.get_mut(e).expect("a motion");
     (mo.grounded, mo.kb_left) = (true, 0);
-    to_idle(m, e);
+    to_idle(m, e, 0.0);
     fighter_mut(m, e).invuln = m.knobs.burst_invuln;
     if matches!(state_of(m, o), Some(State::Move | State::Hoho | State::Step | State::Run)) {
-        to_idle(m, o);
-        // look: model-alpha 1
+        to_idle(m, o, 0.0);
+        m.look(LookEvent::Alpha { e: o, a: 1.0 }); // look: (setf (model-alpha (model o)) 1f0)
     }
     let (p, q) = (pos_of(m, e), pos_of(m, o));
     let (d, n) = (m.knobs.burst_push, m.knobs.burst_push_frames);
@@ -235,7 +236,7 @@ pub fn burst(m: &mut Match, e: Entity, mode: Burst) {
     match mode {
         Burst::Blue => repel(m, e),
         Burst::Orange => {
-            to_idle(m, e);
+            to_idle(m, e, 0.0);
             fighter_mut(m, e).chain = m.knobs.chain_window;
             let fo = fighter_mut(m, o);
             fo.combo_from = fo.combo_hits; // (his combo's scaling starts over)
@@ -244,7 +245,7 @@ pub fn burst(m: &mut Match, e: Entity, mode: Burst) {
     }
     let hs = m.knobs.burst_hitstop as f32;
     m.time.hitstop(hs);
-    // look: emit :burst
+    m.emit(Event::Burst { e, attacker: o, mode }); // look: emit :burst
     crate::clog!(m, "{} BURST {} fs {}", side_name(m, e), mode, f1(g_of(m, e).fs));
 }
 
@@ -255,7 +256,7 @@ pub fn burst_end(m: &mut Match, e: Entity) {
         let g = g_mut(m, e);
         (g.burst, g.burst_t, g.burn, g.fs_idle) = (None, 0, 0.0, 0);
         fighter_mut(m, e).chain = 0;
-        // look: emit :burst-end
+        m.emit(Event::BurstEnd { e }); // look: emit :burst-end
     }
 }
 
@@ -321,12 +322,13 @@ pub fn set_form(m: &mut Match, e: Entity, form: Form) -> bool {
     g.burn_step = 0;
     g.form_left = new.duration.map_or(0, rules::seconds_to_frames);
     // look: refresh-look (the body's hurt volume is read from the current kit: docs/bevy/M1_NOTES.md §1)
+    m.look(LookEvent::RefreshLook { e, kit: KitRef(new) });
     if let Some(h) = &new.enter_hook
         && !call_hook(m, e, h)
     {
         return false;
     }
-    // look: emit :form
+    m.emit(Event::Form { e, form }); // look: emit :form
     crate::clog!(m, "{} form {}", side_name(m, e), form);
     true
 }
@@ -353,10 +355,10 @@ pub fn awaken(m: &mut Match, e: Entity) {
     }
     let r = crate::cl::round_f32(m.knobs.awaken_heal * g_of(m, e).reishi_max as f32);
     heal(m, e, r);
-    // look: emit :awaken
+    m.emit(Event::Awaken { e }); // look: emit :awaken
     match &kit_of(m, e).cine {
         Some(c) => start_kit_cine(m, e, c),
-        None => to_idle(m, e),
+        None => to_idle(m, e, 0.0),
     }
 }
 
@@ -378,11 +380,14 @@ pub fn bankai(m: &mut Match, e: Entity, form: Form, restore: bool, cine: bool) {
         let g = g_mut(m, e);
         g.reishi = crate::cl::Num::I(g.reishi_max);
     }
-    // look: refresh-look, emit :bankai
+    let kit = KitRef(kit_of(m, e));
+    m.look(LookEvent::RefreshLook { e, kit }); // look: refresh-look
+    // look: (when (plusp lost) (emit :konpaku e lost)): LOST is 0 (his Konpaku kept)
+    m.emit(Event::Bankai { e }); // look: emit :bankai
     crate::clog!(m, "{} BANKAI (konpaku kept, -{})", side_name(m, e), lost);
     match &kit_of(m, e).cine {
         Some(c) if cine => start_kit_cine(m, e, c),
-        _ => to_idle(m, e),
+        _ => to_idle(m, e, 0.0),
     }
 }
 
@@ -427,7 +432,7 @@ pub fn gauge_system(m: &mut Match) {
         (g.stun, g.stun_idle) = (rules::stun_decay(k, g.stun, g.stun_idle), 9999.min(g.stun_idle + 1)); // the hidden stun's decay
         if g.guardless && g.gg >= k.gg_max {
             g.guardless = false;
-            // look: emit :guard-back
+            m.emit(Event::GuardBack { e }); // look: emit :guard-back
             crate::clog!(m, "{} GUARD BACK", side_name(m, e));
         }
         let f = fighter_mut(m, e);
@@ -458,7 +463,7 @@ pub fn gauge_system(m: &mut Match) {
             if g.evo_t < 0 {
                 g.evo_t = tick;
             }
-            // look: emit :evolution
+            m.emit(Event::Evolution { e }); // look: emit :evolution
             crate::clog!(m, "{} EVOLUTION", side_name(m, e));
         }
     });

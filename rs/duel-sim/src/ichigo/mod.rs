@@ -72,7 +72,11 @@ pub fn call(m: &mut Match, e: Entity, h: Hook) -> bool {
     use hooks::*;
     match h {
         Hook::Tick => tick(m, e),
-        Hook::Charge1 | Hook::Charge2 | Hook::SogaVanish => {} // look: emit :sfx :getsuga / :hoho-out
+        Hook::Charge1 | Hook::Charge2 => m.emit(crate::look::Event::Sfx { key: "getsuga", e }), // look: emit :sfx :getsuga
+        Hook::SogaVanish => {
+            let p = crate::fighter::pos_of(m, e);
+            m.emit(crate::look::Event::HohoOut { e, x: p[0], z: p[2] }); // look: emit :hoho-out
+        }
         Hook::GaeshiPull => {
             let d = move_param(m, e).pull.expect("ZANGETSU-GAESHI's :pull");
             pull_opp_to(m, e, d, 6);
@@ -83,7 +87,8 @@ pub fn call(m: &mut Match, e: Entity, h: Hook) -> bool {
         }
         Hook::Getsuga | Hook::Juji => {
             let look = crate::components::Sym(move_param(m, e).look.as_deref().expect("a wave's :look"));
-            wave(m, e, look); // look: emit :sfx :getsuga
+            wave(m, e, look);
+            m.emit(crate::look::Event::Sfx { key: "getsuga", e }); // look: emit :sfx :getsuga
         }
         Hook::JujiFirst => juji_first(m, e),
         Hook::HasteDash => haste_dash(m, e),

@@ -283,7 +283,8 @@ pub fn clone_spawn(m: &mut Match, e: Entity, x: f32, z: f32, src: Src) -> usize 
         data: HzData::Icc(c),
         ..HzArgs::default()
     };
-    spawn_hazard(m, HazardKind::Fx, e, args); // look: emit :sfx :clone
+    spawn_hazard(m, HazardKind::Fx, e, args);
+    m.emit(crate::look::Event::Sfx { key: "clone", e }); // look: emit :sfx :clone
     crate::clog!(m, "{} CLONE {} {}", side_name(m, e), src.name(), 1 + live.len() as i64 - i.map_or(0, |_| 1));
     c
 }
@@ -449,7 +450,8 @@ fn clone_answer_step(m: &mut Match, e: Entity, h: Entity, c: usize) {
         let (x, z, yaw) = (hz.x, hz.z, hz.yaw);
         let cls = clone_answer_cls(m, e);
         let scale = m.knobs.clone_scale;
-        strike(m, e, x, z, yaw, &mvd.hits[0], scale, HzData::Icc(c), StrikeSp::Answer(cls)); // look: emit :sfx
+        strike(m, e, x, z, yaw, &mvd.hits[0], scale, HzData::Icc(c), StrikeSp::Answer(cls));
+        m.emit(crate::look::Event::Sfx { key: "whoosh-heavy", e }); // look: emit :sfx :whoosh-heavy
     }
     let cc = icc(m, c);
     let contact = cc.hit.or(cc.touched.then_some(Contact::Block)); // ((or hit touched): a T takes the block timing)
@@ -570,7 +572,8 @@ fn clone_wave(m: &mut Match, e: Entity, x: f32, z: f32, yaw: f32, mvd: &'static 
     if let StrikeSp::Replay { cls, scale, src } = sp {
         (a.cls, a.sp_paid, a.sp_scale, a.sp_src) = (Some(cls), Some(0.0), Some(scale), Some(src));
     }
-    spawn_hazard(m, HazardKind::Wave, e, a); // look: emit :sfx :getsuga
+    spawn_hazard(m, HazardKind::Wave, e, a);
+    m.emit(crate::look::Event::Sfx { key: "getsuga", e }); // look: emit :sfx :getsuga
 }
 
 /// port: CLONE-REPLAY-STEP: a replaying clone, one frame: where he stood its lag ago, at its side, facing the opponent; each hit window of
@@ -691,7 +694,8 @@ pub fn clone_hz_step(m: &mut Match, h: Entity) {
 fn clone_burst(m: &mut Match, e: Entity, h: Entity) {
     let hz = m.hazard.get(h).unwrap();
     let (x, z) = (hz.x, hz.z);
-    spawn_look(m, e, Sym("ICHIGO-BURST-LOOK"), Some(x), Some(z), 0.0, 1.0, 16, 0, HzData::Nil); // look: emit :sfx :clone
+    spawn_look(m, e, Sym("ICHIGO-BURST-LOOK"), Some(x), Some(z), 0.0, 1.0, 16, 0, HzData::Nil);
+    m.emit(crate::look::Event::Sfx { key: "clone", e }); // look: emit :sfx :clone
 }
 
 /// port: ICHIGO-VANISH: E was really hit: every clone, afterimage and their hits in the air vanish (a puff where each clone stood).
@@ -745,7 +749,8 @@ pub fn zanzo_p(m: &Match, e: Entity) -> bool {
 /// port: ICHIGO-ZANZO-ON: ZANZO f12: the state for *ZANZO-LIFE* frames.
 pub fn zanzo_on(m: &mut Match, e: Entity) {
     let life = m.knobs.zanzo_life;
-    spawn_look(m, e, Sym("ICHIGO-ZANZO-LOOK"), None, None, 0.0, 1.0, life, 0, HzData::Nil); // look: emit :sfx :clone
+    spawn_look(m, e, Sym("ICHIGO-ZANZO-LOOK"), None, None, 0.0, 1.0, life, 0, HzData::Nil);
+    m.emit(crate::look::Event::Sfx { key: "clone", e }); // look: emit :sfx :clone
     crate::clog!(m, "{} ZANZO", side_name(m, e));
 }
 
@@ -873,7 +878,8 @@ pub fn cut(m: &mut Match, e: Entity) {
                 let (x, z, s) = (oz.x, oz.z, max_f32(0.5, oz.size));
                 let kind = oz.kind.unwrap();
                 if hazard_touches_p(m, h, x, 0.0, z, s, 1.8) {
-                    // look: emit :hazard-cut
+                    let y = m.hazard.get(o).unwrap().y;
+                    m.emit(crate::look::Event::HazardCut { x, y: 1.0 + y, z }); // look: emit :hazard-cut
                     crate::clog!(m, "{} cuts {}", side_name(m, e), kind.name());
                     m.destroy(o);
                 }

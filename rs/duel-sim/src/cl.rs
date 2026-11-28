@@ -121,7 +121,7 @@ pub fn expf(x: f32) -> f32 {
 /// musl's powf (src/math/powf.c, ARM's: POWF_LOG2_TABLE_BITS 4, EXP2F_TABLE_BITS 5, TOINT_INTRINSICS 0, double_t double), its
 /// tables as bits. ponytail: Y finite and non-zero only (powf's zeroinfnan(y) branch is not ported: a panic); `expt2` is the caller.
 #[allow(clippy::eq_op, clippy::assign_op_pattern)] // (the C's text: (x - x) / (x - x) is its NaN, q = p * r2 + q its order)
-fn musl_powf(x: f32, y: f32) -> f32 {
+pub fn musl_powf(x: f32, y: f32) -> f32 {
     const LOG2_TAB: [(u64, u64); 16] = [
         (0x3ff661ec79f8f3be, 0xbfdefec65b963019),
         (0x3ff571ed4aaf883d, 0xbfdb0b6832d4fca4),
@@ -237,6 +237,16 @@ pub fn f32(x: f64) -> f32 {
 /// A single-float's IEEE bits (the B line's form).
 pub fn f32_bits(x: f32) -> u32 {
     x.to_bits()
+}
+/// port: CL MOD of two singles as ECL computes it: numbers/floor.d ecl_floor2's single/single branch takes p = x / y, q = floorf(p)
+/// and the remainder `p*n - q*n` (n = y), rounded to a single once by ecl_make_single_float. The native libecl is x87 code (checked by
+/// objdump: its float arithmetic is fdiv / fmul / fsub), so both products of singles and their difference are exact in the 64-bit
+/// extended mantissa before that one rounding; that equals `(p - q) * y` here, p - q being exact (p's fraction) and the single product
+/// rounded once. The key agrees wherever it reaches this (STAMP's seed in every battle stamp and cine-84096's star, the splashes' seeds,
+/// KEN-FOREST's petals): every scene is bit-exact through it. ((p - q) * n is the fixnum / bignum-by-single branches' own form.)
+pub fn mod_f32(x: f32, y: f32) -> f32 {
+    let p = x / y;
+    (p - libm::floorf(p)) * y
 }
 /// port: ECL src/c/numbers/minmax.d MIN of two singles: the first unless the second is strictly lower (or the first is a NaN).
 pub fn min_f32(a: f32, b: f32) -> f32 {

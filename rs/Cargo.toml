@@ -9,8 +9,10 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 libm = "=0.2.16"
 
+# opt-level 3, not "z" (M3a Task 11, docs/bevy/M3A_NOTES.md §11): the sim with both CPUs on runs 2.09-2.15x faster natively and
+# 2.27-2.33x in wasm32, and the page's gzip wasm is 9.3 MB (6.3 at "z"), under the Artifact's 15 MB per binary.
 [profile.release]
-opt-level = "z"
+opt-level = 3
 lto = "fat"
 codegen-units = 1
 panic = "abort"

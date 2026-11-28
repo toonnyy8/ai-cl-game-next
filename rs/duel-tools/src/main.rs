@@ -13,7 +13,9 @@
 //! `--inject-plan` (MC-FULL-STEP's plan changes copied from the next record at each step's end, the job sections not compared). Each needs `--live`;
 //! `--live` refuses `--stub` / `--mask`.
 //! `cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]`: G2's CPU matches, their RESULTS and hash lines (cvc.rs).
+//! `draw --check FILE.bin [--arrays …] [--mask …] [--frames A-B]`: a draw-key scene replayed and its frames compared (draw.rs).
 mod cvc;
+mod draw;
 mod replay;
 #[allow(dead_code)]
 mod trace;
@@ -28,8 +30,9 @@ fn main() -> ExitCode {
         (Some("parse-trace"), [t]) if plain(&args[1..]) => parse_trace(t),
         (Some("replay"), a) => replay_cmd(a),
         (Some("cvc"), a) => cvc::cvc_cmd(a),
+        (Some("draw"), a) => draw::draw_cmd(a),
         _ => {
-            eprintln!("usage: duel-tools check-data [dir] | parse-trace <trace> | cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]\n{}", replay::USAGE);
+            eprintln!("usage: duel-tools check-data [dir] | parse-trace <trace> | cvc [--seed N] [--pairs ii,ik,kk] [--check FILE]\n{}\n{}", replay::USAGE, draw::USAGE);
             ExitCode::from(2)
         }
     }
@@ -134,8 +137,7 @@ fn parse_trace(path: &str) -> ExitCode {
     }
 }
 
-/// The test binary's allocator: the system's, counting this thread's allocations (`replay::tests::bench_allocs`).
-#[cfg(test)]
+/// The binary's allocator: the system's, counting this thread's allocations (`draw`'s per-frame count, `replay::tests::bench_allocs`).
 pub mod alloc_count {
     use std::alloc::{GlobalAlloc, Layout, System};
     use std::cell::Cell;

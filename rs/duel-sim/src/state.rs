@@ -55,6 +55,9 @@ pub struct Match {
     /// The combat log lines (CLOG) since the caller last drained it.
     pub log: Vec<String>,
     pub skip_cines: bool,
+    /// `*cine-hold*`: a cinematic started now stops at its `:hold` frame (the still commands set it; DEBUG-COMMAND clears it for any
+    /// other command).
+    pub cine_hold: bool,
     pub turbo: bool,
     /// CINE-SAVE's actors (`*cine-placed-e*`).
     pub cine_placed_e: Option<(Entity, Entity)>,
@@ -129,12 +132,49 @@ pub struct Match {
     pub behind_yaw: f32,
     /// `*view-behind*` (configuration, SET-CAM-BEHIND at START-MATCH): humans steer by the behind view, else the pair view.
     pub view_behind: bool,
+    /// The page's SETTINGS (control.lisp `*setting-ix*`) and `*one-hand*`: SET-CAM-BEHIND reads them.
+    pub settings: Settings,
     /// Not a Lisp special: FQ-MATCH-END's Match half, done by GO-RESULTS (each learning brain's record taken, BRAIN-FQL set NIL, its
     /// health balance and result then). GO-RESULTS runs deep in the sim (a K.O. cinematic's end), which has no `Search`; the Search
-    /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame`'s end (a
+    /// half (`cpu::fq::fq_match_end_apply`: the TD update, the save) is applied at `sim_step`'s end, at `flow::frame_end` (a
     /// GO-RESULTS outside a step) and at `start_match`'s top (before FQ-ATTACH!). Nothing reads the tables or the page in between
     /// (docs/bevy/M2_NOTES.md §8).
     pub fq_end: Vec<crate::cpu::fq::FqEnd>,
+    /// Not a Lisp special: the looks of this step (`*events*` and the immediate presentation calls, docs/bevy/M3A_NOTES.md §4),
+    /// drained by `flow::sim_step`'s `LookSink`. Reserved once (`look::LOOK_RESERVE`); a rollout's match never pushes (`Match::look`).
+    pub looks: crate::look::LookQueue,
+}
+
+/// The page's SETTINGS line (control.lisp `*setting-ix*`: each row's chosen option index, in `*settings*`' order; onehand.lisp
+/// ONEHAND-INIT reads it from the page, each row's default when nothing is saved: `(0 1 2 2 0 0 0 0 0 0 5)`) and `*one-hand*`
+/// (ONE-HAND-EFFECTIVE-P: NIL in a desktop window). The page (M3b) sets them; the tools keep the defaults.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Settings {
+    pub ix: [u8; SETTINGS_N],
+    /// The CAMERA row's place in `ix`.
+    camera: usize,
+    pub one_hand: bool,
+}
+
+/// `*settings*`' rows (the page saves them by place).
+pub const SETTINGS_N: usize = 11;
+
+impl Settings {
+    /// port: control.lisp `*setting-ix*`'s initial value (each row's default index, `*settings*`' fourth column, from tuning.json).
+    pub fn defaults(d: &Data) -> Settings {
+        let rows = d.tuning.get("*SETTINGS*").and_then(|v| v.as_array()).expect("tuning: *SETTINGS*");
+        assert_eq!(rows.len(), SETTINGS_N, "*SETTINGS*' rows");
+        let mut ix = [0u8; SETTINGS_N];
+        for (i, r) in rows.iter().enumerate() {
+            ix[i] = r[3].as_u64().expect("a setting's default index") as u8;
+        }
+        let camera = rows.iter().position(|r| r[0] == "camera").expect("the CAMERA row");
+        Settings { ix, camera, one_hand: false }
+    }
+    /// port: onehand.lisp APPLY-SETTINGS' `(zerop (setting :camera))`: `*cam-behind*`.
+    pub fn cam_behind(&self) -> bool {
+        self.ix[self.camera] == 0
+    }
 }
 
 /// `Match.iccs`' reserve: Ichigo's clones in one match (never freed inside it; a few hundred at most), so neither the live match nor
@@ -153,6 +193,9 @@ macro_rules! match_clone {
                 // (Vec::clone is tight: keep the reserves, so a restore into this copy does not grow them)
                 c.iccs.reserve_exact(self.iccs.capacity() - c.iccs.len());
                 c.hz_dead.reserve_exact(self.hz_dead.capacity() - c.hz_dead.len());
+                // (the look queue's whole reserve: a snapshot taken mid-step holds what the step queued so far, and a slot restored into
+                // the live match must not grow it)
+                c.looks.v.reserve_exact(crate::look::LOOK_RESERVE.saturating_sub(c.looks.v.len()));
                 c
             }
             fn clone_from(&mut self, src: &Match) {
@@ -165,10 +208,10 @@ macro_rules! match_clone {
 
 match_clone!(
     ents, transform, motion, fighter, gauges, pilot, hazard, ics, p1, p2, rng, time, match_tick, flow, timer, winner, slow_acc, cine,
-    cine_placed, log_on, log, skip_cines, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
+    cine_placed, log_on, log, skip_cines, cine_hold, turbo, cine_placed_e, cine_serial, frame_n, ft, paused, mode, picks, match_seed, cmds, gate,
     gate_results, gate_busy, gate_seed0, gate_seeds, knobs, data, kits, mirror_rim, pending, kikons, soul_breaks, hz_keep, hz_dead, iccs,
     pacing_log, unported, mc_plan, mc_next, difficulty, gate_difficulty, stubs, in_rollout, styles_off, view_x, view_z, view_side, behind_yaw,
-    view_behind, fq_end,
+    view_behind, settings, fq_end, looks,
 );
 
 impl Match {
@@ -204,6 +247,7 @@ impl Match {
             log_on: false,
             log: Vec::new(),
             skip_cines: false,
+            cine_hold: false,
             turbo: false,
             cine_placed_e: None,
             cine_serial: 0,
@@ -243,7 +287,9 @@ impl Match {
             view_side: 1.0,
             behind_yaw: 0.0,
             view_behind: false,
+            settings: Settings::defaults(data),
             fq_end: Vec::new(),
+            looks: crate::look::LookQueue::with_reserve(),
         }
     }
 
@@ -351,5 +397,20 @@ mod tests {
         assert_eq!(live.knobs.ken_lv_max, old, "make_mut copies a shared table, the live one is untouched");
         slot.clone_from(&live);
         assert_eq!(slot.knobs.ken_lv_max, old);
+    }
+
+    /// A snapshot slot keeps the look queue's whole reserve, whatever the queue held when it was made (an empty queue at `warm`): a
+    /// later snapshot taken mid-step, its events queued, is written into it with no allocation (the 0 B / step rule).
+    #[test]
+    fn clone_keeps_the_look_reserve() {
+        let mut live = crate::hashline::tests::new_match();
+        live.looks.clear();
+        let slot = live.clone();
+        assert!(slot.looks.v.capacity() >= crate::look::LOOK_RESERVE, "{}", slot.looks.v.capacity());
+        live.looks.v.resize(crate::look::LOOK_RESERVE, crate::look::LookEvent::CamCut);
+        let mut slot = slot;
+        let cap = slot.looks.v.capacity();
+        slot.clone_from(&live);
+        assert_eq!(slot.looks.v.capacity(), cap);
     }
 }
