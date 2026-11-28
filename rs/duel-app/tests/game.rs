@@ -135,3 +135,52 @@ fn rematch_after_the_match_ends() {
     assert!(g.frame(&mut out, flow::raw_dt(f)));
     assert_eq!((g.m.flow, g.m.match_seed, g.m.picks), (Flow::Intro, 77777, [Character::Kenpachi, Character::Ichigo]));
 }
+
+/// Ruling R31 (DIVERGENCES §1, M3A_NOTES §11): a human's held keys reach a CPU's full-sim rollouts through the keyboard. Debug 2501
+/// (human Kenpachi vs an idle NORMAL Ichigo, seed 1) then 2105 (the CPU's brain on), as page-log-check row 3 sends them, with W held
+/// from the start; the frames run until the CPU's jobs have rolled out (`*mc-full-stats*`' rollouts). The keyboard is the page's own
+/// `Keyboard` behind a counting wrapper (`Game::frame` hands the same `&mut Keyboard` to `flow::frame`): every P1 read inside a rollout
+/// goes through `Keyboard::rollout_read` and leaves W on the stand-in's vpad (the stick straight up). With `rollout_read` emptied (the
+/// mutation, checked and reverted) only the first of the 54 reads still shows W (the live vpad's copy) and the test fails.
+#[test]
+fn rollout_reads_the_held_keys() {
+    use duel_app::input::Key;
+    use duel_sim::flow::PilotInput;
+    struct Counting {
+        kb: Keyboard,
+        reads: u64,
+        held_seen: u64,
+    }
+    impl PilotInput for Counting {
+        fn read(&mut self, m: &mut Match, side: usize) {
+            self.kb.read(m, side);
+        }
+        fn step_end(&mut self, m: &mut Match, s: &mut Search) {
+            self.kb.step_end(m, s);
+        }
+        fn rollout_read(&mut self, m: &mut Match, side: usize) {
+            self.kb.rollout_read(m, side);
+            if side == 0 {
+                self.reads += 1;
+                let vp = &m.pilot.get(m.p1).expect("P1's pilot in the rollout").vpad;
+                self.held_seen += ((vp.sx, vp.sy) == (0.0, 1.0)) as u64;
+            }
+        }
+    }
+    let mut m = Match::new(data());
+    let mut s = Search::new();
+    flow::go_title(&mut m);
+    m.cmds.extend([2501, 2105]);
+    let mut kb = Counting { kb: Keyboard::default(), reads: 0, held_seen: 0 };
+    kb.kb.set(Key::W.bit(), 0);
+    let mut f = 0;
+    while s.mc_stats[1] == 0 && f < 8000 {
+        f += 1;
+        assert!(flow::frame(&mut m, &mut s, &mut kb, &mut NoLook, flow::raw_dt(f)), "stopped: {:?} {:?}", m.unported, s.cut);
+        flow::frame_end(&mut m, &mut s);
+    }
+    println!("first rollout by frame {f} (match tick {}): {} rollouts, {} P1 reads inside them, {} with W on the vpad", m.match_tick, s.mc_stats[1], kb.reads, kb.held_seen);
+    assert!(s.mc_stats[1] > 0, "a rollout ran ({f} frames)");
+    assert!(m.mode == duel_sim::state::Mode::VsCpu && kb.reads > 0, "the human's device was read inside the rollouts");
+    assert_eq!(kb.held_seen, kb.reads, "every P1 read inside a rollout left the held W on the vpad");
+}

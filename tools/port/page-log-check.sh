@@ -61,7 +61,9 @@ row "?p2=hisagi: stopped once with its reason, the page draws on" $?
 
 # 3. the keyboard end to end (ruling R28): a human Kenpachi (P1, run.mjs's key steps) against a thinking NORMAL Ichigo: 2501 (human
 # Kenpachi vs an idle Ichigo, seed 1, cinematics skipped) then 2105 (the CPU's brain on). Four 8 s rounds of W held 3 s with two J, Shift+J
-# (the SP), A held 2 s, Space: the keys stay held while the CPU thinks, so its full-sim rollouts read them (DIVERGENCES §1). The same
+# (the SP), A held 2 s, Space. It proves the keyboard path's parity on the page; no full-sim rollout runs before tick 2099, so the held
+# keys inside rollouts are proven natively (duel-app tests/game.rs rollout_reads_the_held_keys, vs-cpu-ichigo's live trace; DIVERGENCES
+# §1), and a page run long enough for one waits for M3b's run.mjs cancelAnimationFrame fix (ruling R31). The same
 # lines as row 1, below the last tick both reached, with at least 5 P1 moves, steps or wake-up rolls among them (a roll is a direction
 # held as he gets up; Ichigo's strings eat most presses: 7 below the cut in the frozen run).
 # Few steps on purpose: under run.mjs every step leaves the Bevy page one more update per frame (M3A_NOTES §11), so the run's wall time grows with
@@ -78,6 +80,8 @@ for c in range(4):
     k(b + 4.0, "KeyA", True); k(b + 6.0, "KeyA", False); tap(b + 6.3, "Space")
 print(json.dumps(sorted(s, key=lambda x: x["at"])))' > "$tmp/keys.json"
 pair keys "$tmp/keys.json" "$ksecs"
+# (thin margins, 7 key-driven lines and 3 hash lines against 5 and 2: the run is deterministic under --fixed-dt, so they only move
+# when the script, KEY_SECS or the frozen build changes; then re-count from the frozen log)
 [ $? = 0 ] && [ $d = 0 ] && [ "$np" -ge 5 ] && [ "$nh" -ge 2 ]
 row "keyboard VS CPU for $ksecs s: combat log and hash lines equal to the frozen page's" $?
 

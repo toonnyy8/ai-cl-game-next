@@ -1,4 +1,5 @@
-//! port: duel/lisp/debug.lisp DEBUG-COMMAND, the ranges the gate traces use (any other code is `unported!("debug N")`), and the
+//! port: duel/lisp/debug.lisp DEBUG-COMMAND, the ranges the gate traces, the draw key and the page checks use (any other code is
+//! `unported!("debug N")`), and the
 //! scenario helpers a trial trace's E lines apply (tools/port/oracle/trace.lisp TR-APPLY-EVENT): ENSURE-BATTLE, PLACE, FORCE-FORM,
 //! FULL-GAUGES!, and the fields an `E set` line names.
 use crate::cl::Num;
@@ -449,6 +450,22 @@ pub fn set_field(m: &mut Match, side: Option<usize>, name: &str, v: &LispValue) 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Debug 2105 (`(do-entities (e (b brain)) (setf (brain-off b) (not …)))`): after 2501 the human P1 has no brain and P2's is off;
+    /// 2105 turns P2's on, a second 2105 off again (page-log-check row 3's thinking CPU).
+    #[test]
+    fn debug_2105_toggles_the_brains() {
+        let mut m = crate::hashline::tests::new_match();
+        let mut s = Search::new();
+        crate::flow::go_title(&mut m);
+        let off = |m: &Match, e| m.fighter.get(e).unwrap().brain.as_ref().map(|b| b.off);
+        debug_command(&mut m, &mut s, 2501);
+        assert_eq!((off(&m, m.p1), off(&m, m.p2)), (None, Some(true)));
+        debug_command(&mut m, &mut s, 2105);
+        assert_eq!((off(&m, m.p1), off(&m, m.p2)), (None, Some(false)));
+        debug_command(&mut m, &mut s, 2105);
+        assert_eq!(off(&m, m.p2), Some(true));
+    }
 
     #[test]
     fn lisp_value_parses() {
