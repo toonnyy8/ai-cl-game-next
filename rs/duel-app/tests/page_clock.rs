@@ -29,7 +29,7 @@ fn impact_after_turbo_on_the_frozen_pages_frame() {
                 g.queue_cmd(c);
             }
         }
-        let n = g.refresh(frame as u64);
+        let n = g.refresh(frame as u64, vt);
         for i in 1..=n {
             let rdt = g.rdt_of(vt, i, n);
             assert!(g.frame(&mut out, rdt), "{:?}", g.stopped);

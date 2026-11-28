@@ -51,8 +51,9 @@ pub struct Game {
     pub kb: Keyboard,
     /// Frames run.
     pub frames: i64,
-    /// The browser-frame counter at the last frame run (`refresh`); none before the first.
+    /// The browser-frame counter and the page time at the last frame run (`refresh`); none before the first.
     raf: Option<u64>,
+    last_ms: f64,
     /// `?stills`: the first update runs the title frames since the page's clock started (`refresh`).
     pub title_catch_up: bool,
     /// Debug commands that arrived since the last frame (reserved; a run.mjs script sends a few).
@@ -88,6 +89,7 @@ impl Game {
             kb: Keyboard::default(),
             frames: 0,
             raf: None,
+            last_ms: f64::NAN,
             title_catch_up: false,
             pending: Vec::with_capacity(64),
             start: None,
@@ -226,13 +228,20 @@ impl Game {
     /// some 15 browser frames after its clock starts. The title frames carry the fx clock into the fight a debug command starts (the
     /// looks' beats: tests/page_clock.rs), so the stills scripts replay the frames the frozen page ran. Players never get it: the default
     /// page boots into the intro.
-    pub fn refresh(&mut self, raf: u64) -> i64 {
+    ///
+    /// NOW_MS, the update's page time, guards one case: two Bevy updates in one refresh with the counter's tick between them. run.mjs
+    /// re-queues a held callback that winit's cancel cannot reach, so after a key step a refresh can run [winit's stale callback, the
+    /// tick, winit's new one]; the second update sees the counter moved at the same virtual time and would run a second frame with dt
+    /// 0. A live page cancels for real (one winit callback a refresh), and its clock never repeats, so the guard is inert there.
+    pub fn refresh(&mut self, raf: u64, now_ms: f64) -> i64 {
         let n = match self.raf {
             None if self.title_catch_up => raf.clamp(1, TITLE_CATCH_UP) as i64,
             None => 1,
-            Some(r) => (r != raf) as i64,
+            Some(r) => (r != raf && now_ms != self.last_ms) as i64,
         };
-        self.raf = Some(raf);
+        if n > 0 {
+            (self.raf, self.last_ms) = (Some(raf), now_ms);
+        }
         n
     }
 
@@ -308,21 +317,22 @@ mod tests {
         let mut out = FrameOut::default();
         // the frozen page's clock under run.mjs --fixed-dt (Date.now = d0 + Math.round(vt), vt += 16.666667): whole ms, 17 16 17 ...
         let ms = |n: u64| (n * 1_000_000) as f32 * 1e-9f32;
-        assert_eq!(g.refresh(40), 1); // the renderer ready at browser frame 40, 6.5 s into the page: one frame, dt 0
+        assert_eq!(g.refresh(40, 6500.0), 1); // the renderer ready at browser frame 40, 6.5 s into the page: one frame, dt 0
         assert_eq!(g.rdt_of(6500.0, 1, 1), 0.0);
-        assert_eq!(g.refresh(40), 0, "a second update in the same refresh runs nothing");
-        assert_eq!(g.refresh(41), 1);
+        assert_eq!(g.refresh(40, 6500.0), 0, "a second update in the same refresh runs nothing");
+        assert_eq!(g.refresh(41, 6500.0), 0, "nor one after the counter's tick at the same page time (run.mjs's re-queued callback)");
+        assert_eq!(g.refresh(41, 6500.0 + 16.666667), 1);
         assert_eq!(g.rdt_of(6500.0 + 16.666667, 1, 1), ms(17)); // (6500 -> 6516.67, rounded 6517)
-        assert_eq!(g.refresh(43), 1, "two refreshes since the last update: one frame");
+        assert_eq!(g.refresh(43, 6500.0 + 16.666667 * 3.0), 1, "two refreshes since the last update: one frame");
         assert_eq!(g.rdt_of(6500.0 + 16.666667 * 3.0, 1, 1), ms(33)); // (the whole gap, 6517 -> 6550)
         assert!(g.frame(&mut out, 0.0));
         // ?stills: the first update runs the title frames since the clock started, spread from 0 (the frozen page's title runs
         // from its clock's start)
         let mut st = Game::new(data(), inputs());
         st.title_catch_up = true;
-        assert_eq!(st.refresh(15), 15);
+        assert_eq!(st.refresh(15, 250.0), 15);
         assert_eq!((st.rdt_of(250.0, 1, 15), st.rdt_of(250.0, 2, 15)), (0.0, ms(16))); // (16.67 -> 17, 33.33 -> 33 ms)
-        assert_eq!(st.refresh(16), 1);
+        assert_eq!(st.refresh(16, 266.67), 1);
         g.queue_cmd(2005);
         assert!(g.frame(&mut out, ms(17)));
         assert!(g.m.cmds.is_empty() && g.pending.is_empty() && g.m.flow != Flow::Title, "2005 applied at the next frame");
@@ -352,7 +362,7 @@ mod tests {
         let mut frame = |g: &mut Game, gap: f64| {
             vt += gap;
             raf += 1;
-            assert_eq!(g.refresh(raf), 1);
+            assert_eq!(g.refresh(raf, vt), 1);
             let (rdt, acc, t0) = (g.rdt_of(vt, 1, 1), g.m.time.step_acc, g.m.time.tick);
             assert!(g.frame(&mut out, rdt), "{:?}", g.stopped);
             (rdt, acc, g.m.time.tick - t0)

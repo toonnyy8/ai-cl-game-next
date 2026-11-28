@@ -90,8 +90,8 @@ fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window
     if !ready || g.stopped.is_some() {
         return; // (stopped: logged once and drawn, on the frame that stopped; the page keeps drawing that frame)
     }
-    let n = g.refresh(raf_frames() as u64);
     let now = now_ms();
+    let n = g.refresh(raf_frames() as u64, now);
     g.now_ms = now;
     for i in 1..=n {
         let rdt = g.rdt_of(now, i, n);

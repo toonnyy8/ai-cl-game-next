@@ -1443,7 +1443,8 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
 
 - The page's other LOG-MSG lines (`duel -> …`, `duel match seed …`), if the console should match the frozen page beyond the combat log.
 - stills.py's key steps: with the keyboard, the cvc scenarios' Enter could stay (the SSIM table would then be re-measured).
-- A device loss drawn as a reason on the page (RF5's last case); today only the log shows it.
+- A device loss drawn as a reason on the page (RF5's last case). (Wrong as written: index.html's hook showed the overlay on
+  `DeviceLost` already; corrected in the final fix pass, §11 "The overlay".)
 - The screens' keys before the commands, SCREEN-FX-UPDATE and `ft`'s increment (above): carried to M3b as the after-`flow_update`
   hook (R30), not Task 11's.
 
@@ -1523,6 +1524,8 @@ sim everywhere. Notes:
 
 ### The gates (the final tree, opt-level 3)
 
+Task 11's state; the final fix pass's numbers (page-log-check 4/4, page-smoke 5/5) are in "The page's pacing" below.
+
 | gate | result |
 |---|---|
 | `tools/port/replay-gate.sh` | 22 OK |
@@ -1582,7 +1585,10 @@ The final review found the page's driver wrong in three ways, all from Task 9's 
 **The loop now** (game.rs's header, `Game::refresh`, main.rs `drive`, index.html):
 - **One game frame per browser frame.** index.html's rAF loop calls `raf_tick` once per refresh (`Module._raf_frames()` reads the
   count). `drive` runs a frame only when the count moved since the last frame; the other Bevy updates of a refresh (run.mjs's
-  re-queued callbacks, an input event's) run nothing. The frame's dt is the page clock's (`PageClock`, performance.now read in the
+  re-queued callbacks, an input event's) run nothing. One more guard: run.mjs can leave winit's stale callback before the tick and
+  its new one after it in one refresh, so the second update sees the counter moved at the same virtual time; `refresh` also needs the
+  page time to have moved (a live page cancels winit's callback for real, and its clock never repeats). The frame's dt is the page
+  clock's (`PageClock`, performance.now read in the
   update, which winit runs inside the rAF callback).
 - **The loop starts when the wasm is up**, not at the page's load. Under run.mjs `--fixed-dt` any rAF user moves the virtual clock, so a
   loop started earlier would put a wall-time-long download into the page's time and make the runs differ.
@@ -1667,7 +1673,7 @@ The picture is done; these are the parts of M3 that are not:
 - **index.html's non-gzip branch** (the final review's #7): a host that answers a missing `index.gzip.wasm` with 200 and an HTML page
   hands that body to `init`; check the wasm magic (`00 61 73 6d`) before using a body that is not gzip.
 - **run.mjs's `cancelAnimationFrame`** (above), then the page-side rollout check: row 3 run past a rollout (R31). Since R32 the extra
-  Bevy updates it causes run no game frame (they see no new browser frame), so they cost wall time only.
+  Bevy updates it causes run no game frame (no new browser frame, or the same page time: `Game::refresh`), so they cost wall time only.
 - **Startup to the first battle frame** on both pages, once both reach it through the menus (the numbers table measures the startup
   line only).
 - **Profile the ~5 % sim loss since M2** (KK 450,895 → 429,671 at "z"): the look queue's pushes, the counting allocator. Opt-level 3
