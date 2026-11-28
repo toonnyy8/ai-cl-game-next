@@ -87,7 +87,7 @@ rs/            the Bevy port's Cargo workspace (docs/bevy/BEVY_PORT.md): duel-si
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
 skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below), plus the submodule
                sakurai-skill (a third-party skill, linked as .claude/skills/sakurai)
-docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/ bevy/ (BEVY_PORT.md, M0A_SPEED.md, M0_NOTES.md, M1_NOTES.md, M2_NOTES.md (the CPU port: snapshot boundary, live gate, speed, coverage), DIVERGENCES.md, plans/ incl. the M1 and M2 plans)
+docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/ bevy/ (BEVY_PORT.md, M0A_SPEED.md, M0_NOTES.md, M1_NOTES.md, M2_NOTES.md (the CPU port: snapshot boundary, live gate, speed, coverage), M3A_NOTES.md (the fight's picture and the playable page: the draw key, the renderer, the loop, the numbers, the carries to M3b), DIVERGENCES.md, plans/ incl. the M1, M2 and M3a plans)
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
 ```

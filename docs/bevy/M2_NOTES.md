@@ -661,7 +661,7 @@ name lookups, as M1's was:
 and memory copies under a style function 0.2 %, so it stays unboxed (a box would allocate at each style switch, breaking the 0 B rule).
 The big copy was the brain's. Where the time is now (KK / KI / II samples together): BRAIN-SYSTEM 59 %, the styles (STRAT-FN-STEP) 20 %,
 MC-FULL-STEP's rollouts 13 % (most of it II's), the rest the sim. One more option, measured and not taken: `opt-level = 3` for duel-sim
-(release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call.
+(release is `z`, the page's setting) gave 4.6-5.5× after the KIT-MOVE index, before the brain box; it is the page's size trade, the lead's call (taken in M3a Task 11 for the whole release profile: M3A_NOTES.md §11).
 
 ## 11. Coverage of `cpu/` by the live traces (Task 10: the 17; the final fix pass: 3 more)
 

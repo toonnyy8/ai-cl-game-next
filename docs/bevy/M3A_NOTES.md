@@ -1426,7 +1426,7 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
 | build | index.wasm | index.gzip.wasm (what the Artifact page loads) | wall fps, headless SwiftShader, 1280x720, the default VS fight |
 |---|---|---|---|
 | web-dev (`tools/port/build-web.sh duel-app dist/rs-m3a web-dev`, no wasm-opt) | 118.3 MB | 17.0 MB: **over** the Artifact's 15 MB per binary | 21.9-27.0 fps (37.1-45.6 ms) |
-| release (`… dist/rs-m3a-release release`, wasm-opt -Oz) | 24.6 MB | 6.3 MB | 23.5-24.8 fps (40.2-42.6 ms) |
+| release (`… dist/rs-m3a-release release`, wasm-opt -Oz; opt-level "z" then, 3 since Task 11: §11) | 24.6 MB | 6.3 MB | 23.5-24.8 fps (40.2-42.6 ms) |
 
 - The Artifact has to be the release build: web-dev's gzip is over the limit. Publish index.html, index.js and index.gzip.wasm.
   index.html fetches index.gzip.wasm first, decompresses it (DecompressionStream) and falls back to index.wasm. index.wasm (24.6 MB) stays
@@ -1443,3 +1443,164 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
 - A device loss drawn as a reason on the page (RF5's last case); today only the log shows it.
 - The screens' keys before the commands, SCREEN-FX-UPDATE and `ft`'s increment (above): carried to M3b as the after-`flow_update`
   hook (R30), not Task 11's.
+
+Task 11 settled this list: all four items are carried to M3b (§11 "Carries to M3b").
+
+## 11. Closing M3a (Task 11, 2026-11-28)
+
+`rs/Cargo.toml` (the release opt-level), `rs/duel-sim/src/debug.rs` (debug 2105), `rs/duel-app/src/page.rs` (the wasm memory on the
+`perf:` line), `tools/port/page-log-check.sh` (row 3), and the docs.
+
+**Result.** M3a is done. The page draws the fight that the frozen build draws: every keyed frame of the 44 draw scenes is equal to the
+answer key, and on the page the combat log and hash lines equal the frozen page's, both in a CPU fight and in a human-on-the-keyboard
+VS CPU fight. The release build moves to opt-level 3: the sim runs about twice as fast as at "z", and the gzip wasm is 9.3 MB, under
+the Artifact's 15 MB limit. The HUD, the sound, the menus and the touch deck are M3b's.
+
+### The numbers (BEVY_PORT §6.4; the frozen build `build/oracle/frozen-dist`, index.wasm sha256 e35032a7…)
+
+| measure | frozen Lisp | Rust release, opt-level 3 (shipped) | Rust release, "z" (M3a until now) |
+|---|---|---|---|
+| native sim with both CPUs on, steps/s (cvc-kk-s1 / cvc-ki-s1 / cvc-ii-s1) | 143,709 / 118,933 / 77,264 | 928,777 / 810,909 / 552,595 (**6.46 / 6.82 / 7.15×**; the gate is 3×) | 429,671 / 383,747 / 259,038 (**2.99 / 3.23 / 3.35×**) |
+| wasm32 sim (node, `replay-wasm.mjs --live --bench`), steps/s | (none) | 636,612 / 559,285 / 374,917 | 273,199 / 246,490 / 165,008 |
+| headless frame time, SwiftShader 1280x720, wall clock | `stats:` 34.8-129.7 fps (its loop does not wait for the GPU: not comparable) | the default VS fight 36.0-49.8 ms (20.1-27.8 fps); 2005 38.3-54.7 ms (18.3-26.1 fps) | 38.6-52.8 ms (18.9-25.9 fps) |
+| startup (run.mjs `startup done … after navigation`) | 2.47 s, to the title | 2.54 s into the VS fight (the default page); 2.46 s to the title (`?stills`) | 1.85 s, to the title (`?stills`) |
+| peak heap (the wasm memory at the end of a 40 s run) | 128.0 MB (its own ECL heap count: 76.0 MB) | 89.6 MB (the same at startup: a CPU fight grows nothing) | (same code: 89.6 MB at startup) |
+| `index.wasm` / gzip -9 | 11,899,490 / 3,761,550 B | 37,316,478 / 9,348,870 B | 24,552,341 / 6,295,516 B |
+| allocations per frame | (Lisp: 1,410-12,585 B consed a frame, `stats:`) | 0 | 0 |
+
+- **The sim.** BEVY_PORT §6.4's measure, as M2_NOTES §10 took it: the Rust median of 11 runs in one process (`duel-tools replay TRACE
+  --live --bench`), the Lisp median of 5 process runs (`sim-bench.lisp … brains` on `build/simgate/duel.fas` with the musl preload),
+  both re-measured in this session, one at a time. The Lisp moved by 1-3 % since M2 (142,427 / 118,099 / 74,925).
+- **"z" fell to 2.99× on KK** (M2: 3.17×; KI 3.41 → 3.23, II 3.59 → 3.35), under the 3× gate. Rust lost about 5 % since M2
+  (450,895 → 429,671 on KK). Not profiled; the candidates are M3a's look queue (`Match::look` pushes at every look site in a step,
+  muted only in rollouts) and the counting allocator that release duel-tools now carries (Task 5's deferred minor; the sim allocates
+  nothing in a step, so it should cost little). Opt-level 3 settles the gate: 6.46-7.15×.
+- **Frame time** is GPU-bound under SwiftShader: "z" and 3 draw at the same speed (the same 38-54 ms). The frozen page's `stats:` fps
+  counts loop turns that do not wait for the GPU (Task 9), so the two columns are not comparable; the page's real speed is the user's
+  phone's (M3b's playtest).
+- **Startup.** The frozen page boots to its title (80 load steps). The Rust page with `?stills` boots to the title; without it, into
+  the VS CPU fight's intro (the same startup line: the 12th frame). Opt-level 3's larger wasm compiles longer: 1.85 s to the title at "z", 2.46-2.69 s at 3 over three runs (single wall-clock runs, noisy); the frozen page takes 2.47 s to its title.
+- **Peak heap.** Wasm memory never shrinks, so the last `perf:` line's `wasm memory` (new in this task) is the run's peak; the frozen
+  page's is `wasmMemory.buffer.byteLength` read at the run's end. The Rust figure is from a CPU fight, so it holds what a CPU match
+  reserves: the six `Match` copies' ICC lists (2.06 MB, M2_NOTES §12) and the snapshot slots. run.mjs's startup budget is 110 MB.
+- **Allocations.** `duel-tools draw --check` counts 0 allocations a frame in every keyed scene after its command frame (the 44 scenes,
+  battle-2005's 7,124 frames included); duel-app's alloc tests count 0 over 3,599 frames of a CPU fight and 2,487 frames of the VS
+  CPU page with keys and the dev line (§10).
+- **Losses against the frozen build** (§6.4 asks for each to be explained): `index.wasm` is 3.1× the frozen one (gzip 2.5×). Most of
+  it is Bevy's own code (M0a: 17.4 MB of the release wasm before the game's) and the rest opt-level 3's inlining (+12.8 MB over "z");
+  Bevy's share is the user's accepted cost (BEVY_PORT §1), opt-level 3's buys the sim's 2.1-2.3×. Startup is level with the frozen
+  page's (2.5 s). Frame time cannot be compared headless (above).
+
+### The opt-level (R9 of the plan)
+
+The rule: keep the smaller build, unless opt-level 3 fits the Artifact's 15 MB gzipped and is more than 1.5× faster on the sim.
+Written down before measuring: "more than 1.5× on all three traces, natively and in wasm32; if they disagree, keep "z"".
+
+| | "z" | 3 | 3 / "z" |
+|---|---|---|---|
+| index.wasm (after `wasm-opt -Oz`, build-web.sh's) | 24,552,341 B | 37,316,478 B | 1.52 |
+| index.gzip.wasm (what the Artifact page loads) | 6,295,516 B | 9,348,870 B (under 15 MB) | 1.48 |
+| native sim steps/s, KK / KI / II | 429,671 / 383,747 / 259,038 | 923,414 / 801,502 / 549,865 | **2.15 / 2.09 / 2.12** |
+| wasm32 sim steps/s, KK / KI / II | 273,199 / 246,490 / 165,008 | 636,612 / 559,285 / 374,917 | **2.33 / 2.27 / 2.27** |
+| frame time, SwiftShader 1280x720 | 38.6-52.8 ms | 38.7-54.1 ms | (GPU-bound) |
+| startup to the title | 1.85 s | 2.69 s | |
+
+**Decision: opt-level 3** (`rs/Cargo.toml`, with the numbers in its comment). 3 fits (9.3 MB gzipped) and is 2.09-2.33× faster on the
+sim everywhere. Notes:
+- build-web.sh still runs `wasm-opt -Oz` on the page (left as is: the sizes above are the shipped ones). The sim numbers come from
+  duel-tools, which wasm-opt never touches; the page's own sim speed is not measured separately (the page is GPU-bound headless).
+- The release duel-tools and the sim gates now run at 3 too (the same profile). M2's "z" numbers in M2_NOTES §10 stay as history.
+- The 3 build was measured with `CARGO_PROFILE_RELEASE_OPT_LEVEL=3` before the file changed; the shipped dist was rebuilt from the
+  file.
+
+### The gates (the final tree, opt-level 3)
+
+| gate | result |
+|---|---|
+| `tools/port/replay-gate.sh` | 22 OK |
+| `tools/port/replay-gate.sh --live` | 20 OK |
+| `tools/port/replay-gate.sh --wasm` / `--wasm --live` (the opt-level changed) | 22 OK / 20 OK |
+| `duel-tools cvc --check $ORACLE/cvc-tag.txt` | 88 lines equal |
+| `ORACLE=build/oracle cargo test --release --workspace` | 301 passed, 0 failed, 3 ignored |
+| `duel-tools draw --check` on all 44 scenes (`--exact` on 43; cine-ic-kessa-getsuga within 2.05e-7, the native key's long-float `pi`, DIVERGENCES §3) | 44 pass, 0 allocations a frame |
+| `tools/port/page-smoke.sh dist/rs-m3a-release` | 4/4 (1,008 frames done at virtual 16.9 s; startup heap 89.5 MB) |
+| `tools/port/page-log-check.sh dist/rs-m3a-release` | 3/3: row 1 410 combat + 5 hash lines equal to tick 3212; row 2 Hisagi stopped once, frames done 234 → 354; row 3 (new) 268 combat + 3 hash lines equal to tick 2099 |
+
+### The keyboard end to end (ruling R28; page-log-check row 3)
+
+- **The fight.** No frozen debug command starts a human P1 against a thinking NORMAL CPU: 2500-2503 idle the CPU, and 2504's HARD
+  Ichigo sits in `*MC-OFF-AT*` (no full-sim job). The row sends 2501 (human Kenpachi vs an idle Ichigo, VS CPU, seed 1, cinematics
+  skipped: the frozen page logs `duel match seed 1 VS-CPU KENPACHI vs ICHIGO NORMAL`) and then **2105** (toggle every brain: the CPU's
+  on). 2105 was not ported; it is now (`debug.rs`, one arm: the brains of P1 and P2, only a CPU side has one). A NORMAL Ichigo against a
+  human Kenpachi queues full-sim MCTS jobs (vs-cpu-ichigo's 19), and their rollouts read the human's held keys (DIVERGENCES §1).
+- **The keys.** run.mjs's key steps (CDP `Input.dispatchKeyEvent` by `code`) reach both pages: Bevy's `KeyCode`, like SDL's scancodes,
+  names the physical key. The script holds W, A and Shift for seconds at a time while the CPU plays, with J, Shift+J and Space presses.
+- **Result.** Equal. Both pages reach tick 2099 in 36 virtual seconds with 273 lines; below it, 268 combat lines and 3 hash lines
+  are the same, line for line. Among them are 7 P1 lines the keys drive (steps, an NS1 and wake-up rolls from a held direction); Ichigo's strings eat most presses. The first, longer script (182 steps, below) was equal for the 253 lines it
+  reached on web-dev and on release. What the row cannot show is a rollout inside a held key on its own: the page prints no MCTS line.
+  The pairing and difficulty are vs-cpu-ichigo's, whose native replay keys 3,010 device reads inside rollouts (DIVERGENCES §1).
+- **The harness's cost.** Under run.mjs, every script step leaves the Bevy page one more update per rendered frame: the `perf:` line's
+  frame count per virtual 2 s grows with each key step (60 → 5,000 "fps" over 182 steps), with no frame of the game run twice (the
+  logs stay equal). The likely cause: run.mjs wraps `requestAnimationFrame` but not `cancelAnimationFrame`, so winit's cancel (it
+  cancels and re-requests its frame on an event) misses a callback the hold re-queued, and the chain lives on. The frozen page does not
+  cancel. The first script (182 steps, 60 s) reached only virtual 33.6 s in run.mjs's 1,400 s, on web-dev and release alike (its
+  253 lines up to there were equal). Row 3 now uses 58 steps over 36 s. Without the wrapper the page does not leak: the same 58 key
+  steps in a wall-clock run (no `--fixed-dt`, release, 1280x720, 40 s) keep the `perf:` windows flat at 41.0-51.2 ms (19.5-24.4 fps)
+  from the first step to the last, as in the run with no keys (36.0-49.8 ms). Carried to M3b: wrap `cancelAnimationFrame` in run.mjs (it is outside rs/, and R21 left it untouched).
+
+### The site table's final state (§4)
+
+All 145 rows are wired: no `// task N` marker is left in rs/. The frame-time rows that still draw nothing are the HUD's (`flow.rs`
+`// look: the HUD`), M3b's.
+
+### Carries to M3b
+
+The picture is done; these are the parts of M3 that are not:
+- **The HUD.** The streams `hb` and `hk` are keyed but not drawn (R6), and the pause grade `p[8]` too. The ko stills' darker floor is
+  the HUD's shade (§9). The Lisp HUD's host tests: hud-engine-test 74, paint-shapes-test 9, lhud-geom 58, lhud-menu 51,
+  lhud-charset 5.
+- **The sound.** `Scene.sounds` is collected each frame but not played. No `:select` sound on pause (Task 10's deferred minor).
+- **The touch deck** and its sim branches (M1_NOTES §10's `// port: touch stub`, 5 sites), input-test's 7 device checks, and
+  touch-test.lisp's 95.
+- **The phone values** as live inputs: coarse pointer, one-hand, the scene scale and the auto render scale.
+- **Saving** and the `soulduel.*` protocol.
+- **The menus**: the title, mode, select, settings, controls and results screens; their camera (R23) and idle clips (R10).
+- **The debug commands** the looks gate's other scenes need (any not in `debug.rs` stops the page with `unported debug N`).
+- **The dev line** (`// dev: M3b replaces`): remove it when the HUD draws. Its glyph width is byte-wise, wrong for a non-ASCII stop
+  reason; it says "K.O. - Enter to rematch" after a time-up too, and during RESULTS' 2.5 s guard (Task 10's deferred minors).
+- **The whole looks gate's stills sheet**, for the user's review. stills.py still strips the scripts' key steps on both pages so the
+  SSIM table stays comparable with §9; with the keyboard, the cvc scenarios' Enter could stay (§10's list; then re-measure).
+- **The screens' keys after `flow_update`** (R30): the hook in FLOW-SCREENS' slot (a pause a frame early, the RESULTS guard a frame
+  late, `ft` = rdt after a rematch or skip; §10).
+- **The console's other LOG-MSG lines** (`duel -> …`, `duel match seed …`), if the console should match the frozen page beyond the
+  combat log (§10's list).
+- **A device loss drawn** as a reason on the page (RF5's last case; only the log shows it).
+- **run.mjs's `cancelAnimationFrame`** (above).
+- **ken-nozarashi-026's held pose** (DIVERGENCES §3): open, cause not found.
+- **render/mod.rs** (658 lines): split when the HUD joins the node (Task 9's deferred minor).
+
+The ledger's deferred minors still true (checked against the code at this task's base):
+- the draw key's recorder (tools/port/oracle/gen.py): a failed `draw` run leaves `.run2` and prints tracebacks before INDEX; INDEX
+  records no `-dirty` flag, and a partial run overwrites the shared `image_sha1`; the default settings line (`0 1 2 2 0 0 0 0 0 0 5`) is
+  not in `fixed_inputs`; stubs-draw.c's page mode writes `f[10]` as ns x 1e-9, not platform.c's now − pf_t0 (no keyed array reads it);
+- §1's "hold frame + 15" is not true of 86110;
+- `anim_crossfade_blends` never advances at a speed other than 1 nor plays from a time other than 0;
+- the Nomi body and Oni's crack glows are never float-compared (no keyed frame draws them), with Task 7's other unreached looks
+  (INSEKI-GIRI, ICHIGO-DRAW's edge, VFX-CHARGE, echo / flare, beat, the planted weapon: §7) and TIME-CINE;
+- `LookQueue::push` is `pub` and does not mute (the mute is the caller's, `Match::look`);
+- `duel-tools draw`'s scene entry unwraps INDEX's command entries (a panic, not exit 2, on a malformed INDEX);
+- `stamps::Kind::of_hit` panics on an unknown kind (the port's `unported` convention would stop instead);
+- AURA-CAP-UPDATE and the draw ignore `*no-draw*` (debug 2120+, not ported);
+- `kit.face`'s match is dead in scope (every live kit's is NIL);
+- SLOW-DRAW's mutation proofs are prose (the keyed frames still guard it); cine-test 43 / 44 check the pure `during` helper only;
+- `canvas.rs` `hint_on` scans `tuning["*SETTINGS*"]` every frame (no allocation);
+- the page clock's first-frame dt 0 is assumed from `pf_tprev`'s init (pinned by the page scenes and the 452 test).
+
+Closed by now (not carried): Task 1's dt wording; Task 4's `slow_was` reserve (MAX_ENTITIES), the Scene pose tests (Task 5's draw),
+the commit subject; Task 2's POSE_N assert (in `fk_matches_key`); Task 5's `fu[71]` and the mask lanes (no mask since Task 7), the
+release allocator's re-time (above); Task 7's tolerance (`--exact`); Task 9's rebase (Task 10); Task 10's `fq_leaks` (the pool, R27).
+
+### For the lead's Artifact
+
+Publish `dist/rs-m3a-release`'s index.html, index.js and index.gzip.wasm (index.wasm is over 15 MB and stays out); the hashes are in
+the task report. The Artifact's text should say there is no HUD and no sound yet (M3b): a dev text line stands in for the HUD.
