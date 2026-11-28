@@ -1681,6 +1681,15 @@ The picture is done; these are the parts of M3 that are not:
 - **The portrait band** is checked only at 390x844, DPR 1 (Task 7's carry): the phone values' sizes and densities.
 - **ken-nozarashi-026's held pose** (DIVERGENCES §3): open, cause not found.
 - **render/mod.rs** (658 lines): split when the HUD joins the node (Task 9's deferred minor).
+- **The final review's deferred minors:**
+  - `SlowDraw.now` gains an entry per slow-drawn entity and is never cleared;
+  - scene.rs:19 says CSS pixels where they are physical;
+  - the `perf:` line prints constant pixel-lights / draws / tris;
+  - `Scene.sounds` is cleared per game frame, so the sound player must drain it per frame.
+- **The final re-review's minors:**
+  - **Unfocused pacing.** `WinitSettings::game()` updates on a 1/60 s timer while the canvas is unfocused, folding the refreshes of a 120 / 144 Hz screen into one frame. Set `unfocused_mode: UpdateMode::Continuous`, or let FOCUS-LOST's pause make it moot. Until then, the "never happens on a live page" sentence above and the `ponytail:` note in game.rs overclaim.
+  - **The watchdog.** The 30 s ready watchdog overwrites an earlier, more specific overlay. It also counts wall seconds while the tab is shown, so it could trip on a throttled iframe; count only seconds in which `raf_frames()` moved.
+  - **Early commands under `?stills`.** A debug command that arrives before the renderer is ready applies at title frame 1, not at its arrival frame. There is a 4x margin today.
 
 The ledger's deferred minors still true (checked against the code at this task's base):
 - the draw key's recorder (tools/port/oracle/gen.py): a failed `draw` run leaves `.run2` and prints tracebacks before INDEX; INDEX
