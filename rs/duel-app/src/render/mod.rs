@@ -53,7 +53,9 @@ static DREW: AtomicBool = AtomicBool::new(false);
 static SUBMITTED: AtomicU32 = AtomicU32::new(0);
 static DONE: AtomicU32 = AtomicU32::new(0);
 
-/// Every mesh uploaded and every pipeline compiled: the driver starts (no frame draws half its passes).
+/// Every mesh uploaded and every pipeline compiled: the driver starts (no frame draws half its passes). Also index.html's ready
+/// watchdog (`wasm.ready()`).
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
 pub fn ready() -> bool {
     READY.load(Relaxed)
 }

@@ -38,7 +38,7 @@ fn page_cpu_half_allocates_nothing() {
     let mut g = Game::new(data, inputs);
     let mut out = FrameOut::default();
     let mut mir = Mirror::default();
-    g.queue_cmd(2005, 1);
+    g.queue_cmd(2005);
     let (mut n, mut frames) = (0u64, 0u64);
     for f in 1..=3600 {
         let a0 = count();

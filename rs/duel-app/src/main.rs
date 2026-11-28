@@ -2,9 +2,9 @@
 //! `render::RenderPlugin` from the game loop's `FrameOut` (game.rs; `?stills` boots to the title for the looks gate's scripts).
 use bevy::prelude::*;
 use duel_app::camera_bundle;
-use duel_app::game::{due_at, Game};
+use duel_app::game::Game;
 use duel_app::input::Key;
-use duel_app::page::{now_ms, query, say, take_debug, PagePlugin, Params};
+use duel_app::page::{now_ms, query, raf_frames, say, take_debug, PagePlugin, Params};
 use duel_app::render::{self, FrameRes, MeshSrc, RenderPlugin, SCENE_MSAA};
 use duel_data::Data;
 use duel_look::mesh::Meshes;
@@ -35,6 +35,7 @@ fn main() {
         .insert_non_send({
             let mut g = Game::new(data, inputs(640, 360, 1.0));
             (g.log, g.start, g.dev) = (params.log, params.start, params.start.is_some());
+            g.title_catch_up = params.start.is_none(); // (?stills)
             g.kb.hash_log = params.log;
             g
         })
@@ -73,12 +74,11 @@ const KEYS: [(Key, KeyCode); 18] = [
     (Key::Escape, KeyCode::Escape),
 ];
 
-/// The game's update: the debug commands that arrived, the window's size, the keys, then the frames the page clock says are due.
+/// The game's update: the debug commands that arrived, the window's size, the keys, then one frame if a browser frame went by since
+/// the last one (ruling R32: `Game::refresh`, game.rs's header).
 fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window>, keys: Res<ButtonInput<KeyCode>>) {
-    let now = now_ms();
-    let due = due_at(now);
     let g = &mut *g;
-    take_debug(|n| g.queue_cmd(n as i64, due));
+    take_debug(|n| g.queue_cmd(n as i64));
     g.sc.inputs = inputs(win.physical_width(), win.physical_height(), win.scale_factor());
     let (mut held, mut pressed) = (0, 0);
     for (k, c) in KEYS {
@@ -90,7 +90,8 @@ fn drive(mut g: NonSendMut<Game>, mut out: ResMut<FrameRes>, win: Single<&Window
     if !ready || g.stopped.is_some() {
         return; // (stopped: logged once and drawn, on the frame that stopped; the page keeps drawing that frame)
     }
-    let n = g.due_now(due);
+    let n = g.refresh(raf_frames() as u64);
+    let now = now_ms();
     g.now_ms = now;
     for i in 1..=n {
         let rdt = g.rdt_of(now, i, n);

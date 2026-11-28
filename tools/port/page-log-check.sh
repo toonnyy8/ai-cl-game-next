@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Bevy port M3a Task 10 (+ Task 11's row 3): the Rust page's console against the frozen page's (docs/bevy/M3A_NOTES.md §10, §11).
 #   tools/port/page-log-check.sh [RUST_DIST] [FROZEN_DIST] [SECS] [KEY_SECS]   (dist/rs-m3a, build/oracle/frozen-dist, 60, 36)
+# (rows 1-3 at --fixed-dt 16.666667, row 4 at 8.333333: run's DT)
 # 1. Both pages under `run.mjs --fixed-dt 16.666667 --size 640x360`, Module._debug_cmd(2005) at virtual 1.0 s, SECS virtual seconds:
 #    the combat log (`[tick] ...`) and HASH-LOG's state hash lines (`duel hash t=...`) are the same, line for line, up to the last tick
 #    both reached (the run's end can split a frame). The Rust page runs with `?stills&log` (the title boot the script expects, the
@@ -11,6 +12,7 @@
 #    rises between virtual 4 s and 6 s: the page draws on, it does not freeze).
 # 3. Ruling R28, the keyboard end to end: run.mjs's key steps play a human Kenpachi against a thinking NORMAL Ichigo on both pages for
 #    KEY_SECS virtual seconds; the same lines as row 1 are equal, with at least 5 P1 key-driven lines and 2 hash lines among them (below).
+# 4. Ruling R32: the same at 120 Hz (`--fixed-dt 8.333333`) on a scene whose result depends on the frame rate (below).
 # The frozen dist must be the frozen browser build (index.wasm sha256 e35032a7..., as tools/port/stills.py and oracle/gen.py check).
 # Both runs are bounded (timeout); logs stay in the tmp dir. Exit 0 = every row passes.
 set -uo pipefail
@@ -21,7 +23,7 @@ sha=$(sha256sum "$frozen/index.wasm" 2>/dev/null | cut -c1-8)
 mkdir -p /tmp/claude-1000; tmp=$(mktemp -d /tmp/claude-1000/page-log.XXXXXX); fails=0
 row() { if [ "$2" = 0 ]; then echo "PASS $1"; else echo "FAIL $1 (logs: $tmp)"; fails=$((fails + 1)); fi; }
 clean() { ! grep -qE 'DeviceLost|Caught rendering error|engine fatal:|panicked' "$tmp/$1.log"; }
-run() { local n=$1 dist=$2; shift 2; timeout 1500 node "$root/tools/run.mjs" "$dist" --size 640x360 --fixed-dt 16.666667 --timeout 1400 "$@" > "$tmp/$n.log" 2>&1; }
+run() { local n=$1 dist=$2; shift 2; timeout 1500 node "$root/tools/run.mjs" "$dist" --size 640x360 --fixed-dt "${DT:-16.666667}" --timeout 1400 "$@" > "$tmp/$n.log" 2>&1; }
 
 # both pages at once on one script (each wait is on its own PID), then their combat log and hash lines below the last tick both reached
 pair() {   # NAME SCRIPT SECS: sets ef er d nc nh np
@@ -84,6 +86,17 @@ pair keys "$tmp/keys.json" "$ksecs"
 # when the script, KEY_SECS or the frozen build changes; then re-count from the frozen log)
 [ $? = 0 ] && [ $d = 0 ] && [ "$np" -ge 5 ] && [ "$nh" -ge 2 ]
 row "keyboard VS CPU for $ksecs s: combat log and hash lines equal to the frozen page's" $?
+
+# 4. ruling R32 (the final review's I2): one game frame per browser frame, checked where the frame rate changes the sim. A played
+# cinematic's DURING forms run once per drawn frame (DIVERGENCES §1): KEN-Z-KIKON1's victim looks round over cinematic frames 108-122
+# and keeps the last drawn frame's yaw after it. At 120 Hz the frozen page draws every cinematic frame; a page on a 60 Hz grid draws two
+# of three (whole-ms 16 / 17 ms frames: 0, 1, then 2 steps) and leaves another yaw. Both pages under --fixed-dt 8.333333: 84000 (the
+# sealed-form scene) at 1.0588 s puts the match's tick 0 on a frame phase where the yaw differs, 84006 (the 鈴 Kikon, played) at 9.0 s,
+# for 22 s; the hash lines at t=600 and 1200 carry the victim's yaw (363 at 120 Hz; the grid's 355). The same lines as row 1 equal.
+printf '[{"at":1.0588,"eval":"Module._debug_cmd(84000)"},{"at":9.0,"eval":"Module._debug_cmd(84006)"}]' > "$tmp/r120.json"
+DT=8.333333 pair r120 "$tmp/r120.json" 22
+[ $? = 0 ] && [ $d = 0 ] && [ "$nh" -ge 1 ] && grep -q '^duel hash t=600 ' "$tmp/r120-frozen.cut"
+row "120 Hz: a Kikon's DURING yaw, combat log and hash lines equal to the frozen page's" $?
 
 [ $fails = 0 ] && echo "page-log-check: all rows pass ($tmp)" || echo "page-log-check: $fails row(s) failed ($tmp)"
 exit $((fails > 0))

@@ -9,10 +9,12 @@
 //! `raw_dt` (the headless stub's 16666666 / 16666667 ns) puts the steps, the fx clock and the looks' timers on other frames than the
 //! frozen page's (M3A_NOTES §9 "Concern 1"). `duel-tools draw` replays a page-dt scene with the same clock.
 //!
-//! Pacing: the page clock (performance.now: run.mjs's virtual clock under --fixed-dt) says how many 60 Hz frames are due; each Bevy
-//! update runs the frames due since the last one (the first update after the renderer is ready catches up from the page's start), so
-//! a game frame belongs to a page time, not to a count of Bevy updates (which varies at startup, M0_NOTES §2): the same script gives
-//! the same frame at the same virtual time. No `FixedUpdate`.
+//! Pacing (ruling R32, the frozen page's own loop): one game frame per browser frame. index.html's requestAnimationFrame loop bumps a
+//! counter (`page::raf_frames`); an update runs a frame only when the counter moved since the last frame, so the extra Bevy updates of
+//! one refresh (run.mjs's re-queued callbacks, an input event's) run nothing, and on a 120 Hz or 144 Hz screen every refresh is a
+//! frame, as emscripten's main loop makes it one RUN-FRAME. The frame's dt is the page clock's (`PageClock`) at the update; the first
+//! frame after the renderer is ready has dt 0 (no backlog of the load is played); a stall is one frame with a big dt, which RUN-FRAME's
+//! 0.1 s clamp and RUN-FIXED-STEPS's 6-step cap bound. No `FixedUpdate`.
 use crate::input::{Keyboard, CONFIRM, PAUSE};
 use duel_data::Data;
 use duel_look::canvas::{ui_scale, ui_verts};
@@ -23,12 +25,8 @@ use duel_sim::flow;
 use duel_sim::state::Match;
 use std::fmt::Write;
 
-/// One game frame's page time (ms): the frozen game's 60 Hz.
-pub const FRAME_MS: f64 = 1000.0 / 60.0;
-/// The frames one update may run once started; behind by more (a stall on the wall clock), the clock is rebased instead.
-pub const CATCH_UP: i64 = 6;
-/// The first update's catch-up bound (the page's start to the renderer ready); past it the clock is rebased.
-pub const START_CATCH_UP: i64 = 900;
+/// `?stills`' first-update bound (15 s of title frames).
+pub const TITLE_CATCH_UP: u64 = 900;
 
 /// A VS CPU match as the menus pick it (MODE's VS CPU row, SELECT's two picks and difficulty).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -51,12 +49,14 @@ pub struct Game {
     pub sc: Scene<'static>,
     /// The pilots' device and the screens' keys.
     pub kb: Keyboard,
-    /// Frames run, and the page-clock frame they map to (`due - base` frames are due).
+    /// Frames run.
     pub frames: i64,
-    base: i64,
-    started: bool,
-    /// Debug commands and the frame they apply in (reserved; a run.mjs script sends a few).
-    pending: Vec<(i64, i64)>,
+    /// The browser-frame counter at the last frame run (`refresh`); none before the first.
+    raf: Option<u64>,
+    /// `?stills`: the first update runs the title frames since the page's clock started (`refresh`).
+    pub title_catch_up: bool,
+    /// Debug commands that arrived since the last frame (reserved; a run.mjs script sends a few).
+    pending: Vec<i64>,
     /// A match to start at the next frame (the page's start parameters).
     pub start: Option<Start>,
     /// The page clock (ms) NEW-SEED reads (`floor(now) mod 100000`), set by the page each update.
@@ -87,8 +87,8 @@ impl Game {
             sc: Scene::new(data, inputs),
             kb: Keyboard::default(),
             frames: 0,
-            base: 0,
-            started: false,
+            raf: None,
+            title_catch_up: false,
             pending: Vec::with_capacity(64),
             start: None,
             now_ms: 0.0,
@@ -101,11 +101,9 @@ impl Game {
         }
     }
 
-    /// A debug command that arrived while the page clock read DUE frames: it applies at the start of the next frame run, and never
-    /// earlier than the clock's frame (an update during a held clock and the resumed tick's agree).
-    pub fn queue_cmd(&mut self, c: i64, due: i64) {
-        let at = (self.frames + 1).max(due - self.base);
-        self.pending.push((at, c));
+    /// A debug command: it applies at the start of the next frame run, as main.c's queue hands it to the next RUN-FRAME.
+    pub fn queue_cmd(&mut self, c: i64) {
+        self.pending.push(c);
     }
 
     /// This update's keys (`input::Key` bits held now and gone down since the last update). While no frame can run (the renderer not
@@ -132,19 +130,12 @@ impl Game {
             return false;
         }
         self.frames += 1;
-        let f = self.frames;
         if let Some(st) = self.start.take() {
             // port: SELECT-UPDATE's START (MODE set *mode* :vs-cpu; SELECT the picks and *difficulty*): NEW-SEED, START-MATCH
             let seed = self.new_seed();
             duel_sim::debug::vs_start(&mut self.m, &mut self.s, st.p1, st.p2, st.cpu, seed);
         }
-        let m = &mut self.m;
-        self.pending.retain(|&(at, c)| {
-            if at <= f {
-                m.cmds.push_back(c);
-            }
-            at > f
-        });
+        self.m.cmds.extend(self.pending.drain(..));
         self.screens();
         flow::frame(&mut self.m, &mut self.s, &mut self.kb, &mut self.sc, rdt);
         draw_frame(&mut self.sc, &mut self.m, rdt, out);
@@ -223,34 +214,34 @@ impl Game {
         ui_text(&mut out.ui, big, ((w - text_w(big, bs)) * 0.5).floor(), (h * 0.4).floor(), bs, white, true);
     }
 
-    /// The frames to run now, the page clock reading DUE frames since the page's start (and rebased when too far behind: the debug
-    /// commands already queued keep the page frame they were stamped for, moved with the base and never into the past).
-    pub fn due_now(&mut self, due: i64) -> i64 {
-        let lag = due - self.base - self.frames;
-        let cap = if self.started { CATCH_UP } else { START_CATCH_UP };
-        self.started = true;
-        if lag > cap {
-            let k = lag - cap;
-            self.base += k;
-            let next = self.frames + 1;
-            for p in &mut self.pending {
-                p.0 = (p.0 - k).max(next);
-            }
-            return cap;
-        }
-        lag.max(0)
+    /// The frames this update runs, the browser-frame counter reading RAF: 1 on the first call (the renderer just became ready: no
+    /// backlog of the load) and whenever the counter moved since the last frame, else 0. Several browser frames since the last update
+    /// are one frame, with the whole gap as its dt: the frozen page would have run each, but a refresh with no Bevy update is a stall
+    /// here (R32), and a frame per missed refresh would play time the player never saw. ponytail: never seen under run.mjs or a live
+    /// page, where every refresh runs one Bevy update (winit's redraw request); M3A_NOTES §11.
+    ///
+    /// Under `?stills` (`title_catch_up`) the first call runs a title frame for every browser frame counted so far (at most
+    /// `TITLE_CATCH_UP`). The frozen page's whole startup runs inside one browser frame under run.mjs (its virtual clock stands still
+    /// within a frame, so main.c's STARTUP_FRAME_MS budget never runs out) and its title starts with the clock; Bevy's renderer is ready
+    /// some 15 browser frames after its clock starts. The title frames carry the fx clock into the fight a debug command starts (the
+    /// looks' beats: tests/page_clock.rs), so the stills scripts replay the frames the frozen page ran. Players never get it: the default
+    /// page boots into the intro.
+    pub fn refresh(&mut self, raf: u64) -> i64 {
+        let n = match self.raf {
+            None if self.title_catch_up => raf.clamp(1, TITLE_CATCH_UP) as i64,
+            None => 1,
+            Some(r) => (r != raf) as i64,
+        };
+        self.raf = Some(raf);
+        n
     }
 
     /// Frame I (1..=N) of this update's N frames: its dt, the page clock reading NOW_MS: the frozen page's RUN-FRAME dt
-    /// (`duel_sim::flow::PageClock`: whole-ms Date.now through SDL's gettimeofday fallback, the first frame 0; M3A_NOTES §9).
+    /// (`duel_sim::flow::PageClock`: whole-ms Date.now through SDL's gettimeofday fallback, the first frame 0, clamped to 0.1 s; N > 1
+    /// only for `?stills`' first update, its frames spread evenly from the page's start; M3A_NOTES §9).
     pub fn rdt_of(&mut self, now_ms: f64, i: i64, n: i64) -> f32 {
         self.clock.rdt(now_ms, i, n)
     }
-}
-
-/// Frames due at page time NOW_MS (ms since the page started).
-pub fn due_at(now_ms: f64) -> i64 {
-    (now_ms / FRAME_MS + 1e-6).floor() as i64
 }
 
 /// ui.lisp TEXT-WIDTH of one line at glyph scale S.
@@ -309,43 +300,74 @@ mod tests {
         D.get_or_init(Data::embedded)
     }
 
+    /// Ruling R32: one frame per browser frame (the counter moved), none for the extra updates of one refresh; the first frame has
+    /// dt 0 however long the load took (review I1: no backlog); a command applies at the next frame run.
     #[test]
-    fn pacing_and_command_frames() {
-        assert_eq!(due_at(16.666667 * 240.0), 240); // (run.mjs's DT, a hair over 1000 / 60)
+    fn one_frame_per_refresh_and_no_load_backlog() {
         let mut g = Game::new(data(), inputs());
+        let mut out = FrameOut::default();
         // the frozen page's clock under run.mjs --fixed-dt (Date.now = d0 + Math.round(vt), vt += 16.666667): whole ms, 17 16 17 ...
         let ms = |n: u64| (n * 1_000_000) as f32 * 1e-9f32;
-        assert_eq!(g.rdt_of(16.666667 * 3.0, 1, 3), 0.0); // (the first update's catch-up: frame 1 has dt 0; its time 16.67 -> 17 ms)
-        assert_eq!(g.rdt_of(16.666667 * 3.0, 2, 3), ms(16)); // (33.33 -> 33 ms)
-        assert_eq!(g.rdt_of(16.666667 * 3.0, 3, 3), ms(17)); // (50.00 -> 50 ms)
-        assert_eq!(g.rdt_of(16.666667 * 4.0, 1, 1), ms(17)); // (66.67 -> 67 ms)
-        let mut g = Game::new(data(), inputs());
-        assert_eq!(g.due_now(13), 13); // the first update catches up from the page's start
-        let mut out = FrameOut::default();
-        for f in 1..=13 {
-            assert!(g.frame(&mut out, flow::raw_dt(f)), "{:?}", g.stopped);
-        }
-        g.queue_cmd(2005, 13); // arrived during a hold at frame 13: frame 14
-        assert_eq!(g.due_now(14), 1);
-        assert!(g.frame(&mut out, flow::raw_dt(14)));
-        assert!(g.m.cmds.is_empty() && g.pending.is_empty());
-        assert_eq!(g.due_now(100), CATCH_UP); // a stall: rebased
-        for _ in 0..CATCH_UP {
-            g.frame(&mut out, 1.0 / 60.0);
-        }
-        assert_eq!(g.due_now(100), 0);
-        assert_eq!(g.due_now(101), 1);
+        assert_eq!(g.refresh(40), 1); // the renderer ready at browser frame 40, 6.5 s into the page: one frame, dt 0
+        assert_eq!(g.rdt_of(6500.0, 1, 1), 0.0);
+        assert_eq!(g.refresh(40), 0, "a second update in the same refresh runs nothing");
+        assert_eq!(g.refresh(41), 1);
+        assert_eq!(g.rdt_of(6500.0 + 16.666667, 1, 1), ms(17)); // (6500 -> 6516.67, rounded 6517)
+        assert_eq!(g.refresh(43), 1, "two refreshes since the last update: one frame");
+        assert_eq!(g.rdt_of(6500.0 + 16.666667 * 3.0, 1, 1), ms(33)); // (the whole gap, 6517 -> 6550)
+        assert!(g.frame(&mut out, 0.0));
+        // ?stills: the first update runs the title frames since the clock started, spread from 0 (the frozen page's title runs
+        // from its clock's start)
+        let mut st = Game::new(data(), inputs());
+        st.title_catch_up = true;
+        assert_eq!(st.refresh(15), 15);
+        assert_eq!((st.rdt_of(250.0, 1, 15), st.rdt_of(250.0, 2, 15)), (0.0, ms(16))); // (16.67 -> 17, 33.33 -> 33 ms)
+        assert_eq!(st.refresh(16), 1);
+        g.queue_cmd(2005);
+        assert!(g.frame(&mut out, ms(17)));
+        assert!(g.m.cmds.is_empty() && g.pending.is_empty() && g.m.flow != Flow::Title, "2005 applied at the next frame");
     }
 
-    /// Task 9's deferred minor: a load past START_CATCH_UP rebases the clock; a command stamped during the load keeps its page frame
-    /// (moved with the base), and one whose frame is gone applies at the next frame run, never in the past.
+    /// Review I3: a stall is one frame whose dt RUN-FRAME clamps to 0.1 s, and RUN-FIXED-STEPS runs at most 6 steps of it (engine/lisp/
+    /// time.lisp: the rest of the backlog is dropped), through `rdt_of` as the page calls it: after a 200 ms and a 2 s gap the same
+    /// steps as the Lisp's, where the grid driver ran 12 and 36. (6 from any accumulator left, checked on time.lisp's RUN-FIXED-STEPS
+    /// in the host ECL: rdt 0.1 over residues 0..STEP.)
     #[test]
-    fn rebase_after_a_long_load_keeps_the_commands_page_frame() {
+    fn a_stall_is_one_clamped_frame() {
+        // RUN-FIXED-STEPS over single floats, from the accumulator ACC: (incf acc rdt), a step per whole +STEP+ up to 6, then a backlog
+        // of a step or more is dropped
+        let lisp_steps = |mut acc: f32, rdt: f32| {
+            acc += rdt;
+            let mut n = 0;
+            while acc >= duel_sim::time::STEP && n < 6 {
+                acc -= duel_sim::time::STEP;
+                n += 1;
+            }
+            n
+        };
         let mut g = Game::new(data(), inputs());
-        g.queue_cmd(2005, 1000); // (stamped at page frame 1000, during a 1200-frame load)
-        g.queue_cmd(2102, 100); // (stamped at page frame 100: long gone after the rebase)
-        assert_eq!(g.due_now(1200), START_CATCH_UP); // (rebased by 300: page frame 1000 is game frame 700)
-        assert_eq!(g.pending, [(700, 2005), (1, 2102)]);
+        let mut out = FrameOut::default();
+        g.queue_cmd(2005);
+        let (mut vt, mut raf) = (1000.0f64, 0u64);
+        let mut frame = |g: &mut Game, gap: f64| {
+            vt += gap;
+            raf += 1;
+            assert_eq!(g.refresh(raf), 1);
+            let (rdt, acc, t0) = (g.rdt_of(vt, 1, 1), g.m.time.step_acc, g.m.time.tick);
+            assert!(g.frame(&mut out, rdt), "{:?}", g.stopped);
+            (rdt, acc, g.m.time.tick - t0)
+        };
+        for _ in 0..600 {
+            frame(&mut g, 16.666667); // (into the fight: the intro's 300 frames, then the battle)
+        }
+        assert!(duel_sim::flow::sim_running_p(&g.m) && !g.m.turbo);
+        for (gap, lisp) in [(200.0, 6), (2000.0, 6)] {
+            let (rdt, acc, steps) = frame(&mut g, gap);
+            assert_eq!(rdt, 0.1, "a {gap} ms gap: RUN-FRAME's clamp");
+            assert_eq!((steps, lisp_steps(acc, rdt)), (lisp, lisp), "a {gap} ms gap from step_acc {acc}");
+            let (_, _, after) = frame(&mut g, 16.666667);
+            assert!(after <= 2, "the frame after the stall plays on at 60 Hz");
+        }
     }
 
     /// Review F3: an Enter pressed while the page loads (no frame runs) is dropped, so the first frame plays the intro.

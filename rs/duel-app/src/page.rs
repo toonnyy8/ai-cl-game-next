@@ -34,6 +34,24 @@ pub fn say(s: &str) {
     println!("{s}");
 }
 
+/// Browser frames so far: index.html's requestAnimationFrame loop calls `raf_tick` once per refresh (ruling R32; started when the wasm
+/// is up). Natively there is no loop: every read is a new frame (the native window runs a frame per update).
+static RAF: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+
+/// index.html's rAF loop: one more browser frame.
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
+pub fn raf_tick() {
+    RAF.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// `Module._raf_frames()`: the browser frames counted (the driver runs a game frame when it moved: main.rs).
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
+pub fn raf_frames() -> u32 {
+    #[cfg(not(target_arch = "wasm32"))]
+    raf_tick();
+    RAF.load(std::sync::atomic::Ordering::Relaxed)
+}
+
 /// Milliseconds since the page started (performance.now: run.mjs's virtual clock under --fixed-dt) or the process started.
 pub fn now_ms() -> f64 {
     #[cfg(target_arch = "wasm32")]

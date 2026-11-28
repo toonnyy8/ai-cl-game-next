@@ -1042,15 +1042,13 @@ is left is the Lisp HUD (M3b), the title's state (M3b) and one held pose (below)
   - so SDL falls back to `gettimeofday`, which reads `Date.now()` (run.mjs `--fixed-dt`: `d0 + Math.round(vt)`).
 
   So the frozen page's frames are 16 or 17 ms (0.016 / 0.017 as f32), and a frame now and then runs no step or two.
-  `Game::rdt_of` gives each frame that dt from the rounded page clock. One frame an update is pf_pump's bit for bit, and the page's
-  first frame has dt 0. The key's `raw_dt` (the stub's 16666666 / 16666667 ns) puts the steps, the fx clock and the screen-fx timers on
+  `Game::rdt_of` gives each frame that dt from the rounded page clock, pf_pump's bit for bit, and the page's first frame has dt 0. The key's `raw_dt` (the stub's 16666666 / 16666667 ns) puts the steps, the fx clock and the screen-fx timers on
   other frames than the frozen page's.
-- **Pacing.** The page clock (performance.now, run.mjs's virtual clock) gives the frames due (`due_at`). Each update runs the frames
-  due since the last one; the first update after `ready()` catches up from the page's start (at most 900 frames, then 6 an update; a
-  wall-clock stall rebases). Bevy's update count at startup varies (M0_NOTES §2), so this ties a game frame to a page time: the same
-  script gives the same frame at the same virtual time.
-- **Debug commands.** Each one is logged `debug N`, as M0 did, and stamped with the frame it applies in: the next frame run, never
-  earlier than the clock's frame. An update during run.mjs's hold and the resumed tick therefore agree. page-smoke's row 2 sends 2005
+- **Pacing.** Task 9 ran the frames a 60 Hz grid of the page clock said were due, with a catch-up from the page's start. The final
+  review found that grid wrong on a real display (I1-I3); since ruling R32 the page runs one game frame per browser frame, as the
+  frozen page does (§11 "The page's pacing").
+- **Debug commands.** Each one is logged `debug N`, as M0 did, and applies at the start of the next frame run, as main.c's queue
+  hands it to the next RUN-FRAME (since R32; Task 9 stamped it with a frame of the grid). page-smoke's row 2 sends 2005
   instead of M0's 42, because Rust's `debug_command` stops the fight on an unported 42.
 - **The menus' camera** (`Scene.unported_camera` on title frames, M3b) is not a stop. The title draws with the camera it has, as
   duel-tools replay reads it and clears it after every frame. Any other unported path stops the fight and logs
@@ -1242,19 +1240,19 @@ CPU fight (page-log-check). A pick the port has not got stops the fight with its
 
 ### The loop
 
-- **One Update system** (`main.rs` `drive`) copies Bevy's key state into `Game.kb`, then runs the frames the page clock says are due.
-  Each frame (`Game::frame`) runs in this order:
+- **One Update system** (`main.rs` `drive`) copies Bevy's key state into `Game.kb`, then runs one frame if a browser frame went by
+  since the last one (ruling R32, §11 "The page's pacing"; Task 10 ran the frames a 60 Hz grid said were due). Each frame
+  (`Game::frame`) runs in this order:
   1. the page's start, if one is queued;
-  2. the debug commands due;
+  2. the debug commands that arrived since the last frame;
   3. the screens' keys;
   4. `flow::frame` with the keyboard as the `PilotInput` and the Scene as the sink;
   5. `draw_frame`;
   6. the dev line;
   7. `frame_end`.
 
-  The dt, the pacing and the Scene sink are Task 9's (R17 amended: `Game::rdt_of`, the page's whole-ms clock).
-- **The screens** (flow.lisp FLOW-SCREENS' battle parts) read the presses of the update's first frame; the update's other frames see
-  none:
+  The dt and the Scene sink are Task 9's (R17 amended: `Game::rdt_of`, the page's whole-ms clock).
+- **The screens** (flow.lisp FLOW-SCREENS' battle parts) read the frame's presses:
   - BATTLE: PAUSE-P (Esc) toggles `*paused*`. The pause screen's rows are M3b's.
   - INTRO / FINISH with a cinematic: PAUSE-P or CONFIRM-P skips it (`cine::skip_cine`).
   - RESULTS: after 2.5 s, CONFIRM-P is the REMATCH row (NEW-SEED, START-MATCH): "K.O. - Enter to rematch".
@@ -1281,11 +1279,10 @@ CPU fight (page-log-check). A pick the port has not got stops the fight with its
   the new seed.
 - **A press while no frame runs** (review F3): `Game::keys` drops the presses collected while the renderer is not ready or the fight
   has stopped (the held keys are still taken). KEY-PRESSED sees only the frame's own presses, so an Enter during the load no longer
-  skips the intro on frame 1. Test: `game::tests::a_press_during_the_load_is_dropped`. Presses in an update that runs no frame (the
-  page clock not yet due) are kept for the next frame.
-- **The rebase** (Task 9's deferred minor): when the first update's catch-up passes 900 frames, the clock is rebased by k. The commands
-  already queued now move by −k with it, and are never put earlier than the next frame. Test:
-  `game::tests::rebase_after_a_long_load_keeps_the_commands_page_frame`.
+  skips the intro on frame 1. Test: `game::tests::a_press_during_the_load_is_dropped`. Presses in an update that runs no frame (no
+  browser frame since the last) are kept for the next frame.
+- **The rebase** (Task 9's deferred minor) went with the 60 Hz grid (R32). The one catch-up left, `?stills`' title frames on its first
+  update, is capped at 900 frames and needs none: a command applies at the next frame run, whatever its arrival time.
 
 ### The keyboard (`input::Keyboard: PilotInput`)
 
@@ -1387,6 +1384,10 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
   - The forms set places from the cinematic frame. They are absolute, so a second call in the same frame repeats the first, and a count
     of two would not show. What the rate changes is which cinematic frames are drawn: every one at 1/120, every second at 1/30.
   - The per-step sink at 1/30 is Task 4's `frame_rate_120_and_30`.
+  - **Which rates the page produces** (the final review's I2 / M6): until ruling R32 none but 60 Hz. The page ran a 60 Hz grid of the
+    page clock whatever the display, so these rates were the library's only. Since R32 it runs one frame per browser frame, so a 120 Hz
+    or 144 Hz screen gives 120 or 144 frames a second, and a page that drops refreshes gives fewer, as on the frozen page. Proven at 120
+    Hz under run.mjs by page-log-check row 4 (§11 "The page's pacing").
 - **RF5, `unported_surfaces_on_page`**, in two halves.
   - Native (`duel-app/tests/game.rs`): Kenpachi vs Hisagi stops on frame 1, at the intro's `:intro-weapon` (a look: the Scene's
     `unported`). The reason is drawn, and the frames after return false at once with the same `FrameOut`.
@@ -1394,8 +1395,10 @@ Bevy's `KeyCode` names physical keys, as SDL's scancodes do on the frozen page.
     sealed blade: M4)` exactly once, with no error. `_frames_done` rises from 233 at virtual 4 s to 353 at 6 s, so the page draws on.
   - The label named only Yamamoto's cane; Hisagi's kit has `:intro-weapon (:hs-sealed 70)` too, so it now names both.
   - A cut CPU rollout and `m.unported` take the same path (`Game::frame`'s `stopped`).
-  - A Bevy device loss is not caught here: page-smoke and page-log-check fail on `DeviceLost` in the log, but the page does not draw a
-    reason for it.
+  - A Bevy device loss: page-smoke and page-log-check fail on `DeviceLost` in the log, and the page shows the overlay with Bevy's line
+    (index.html's console hook matched `DeviceLost` from the start; this note said otherwise until the final review's I4). Since that
+    fix the hook also matches Bevy's `Caught rendering error` and `Quitting the application`, and a `render: pipeline N failed`, and a
+    renderer still not ready 30 s after the wasm is up shows it too (§11 "The overlay").
 
 ### page-log-check (`tools/port/page-log-check.sh`)
 
@@ -1565,6 +1568,74 @@ sim everywhere. Notes:
   steps in a wall-clock run (no `--fixed-dt`, release, 1280x720, 40 s) keep the `perf:` windows flat at 41.0-51.2 ms (19.5-24.4 fps)
   from the first step to the last, as in the run with no keys (36.0-49.8 ms). Carried to M3b: wrap `cancelAnimationFrame` in run.mjs (it is outside rs/, and R21 left it untouched).
 
+### The page's pacing (ruling R32; the final review's fix pass, 2026-11-28)
+
+The final review found the page's driver wrong in three ways, all from Task 9's 60 Hz grid of the page clock (R17 / R22):
+- **I1, the load played.** The first update after the renderer was ready ran every grid frame since the page's navigation (up to 900).
+  On the default page frame 1 starts the match, so a 2 s load cut the intro by 2 s and a slow phone's load started the player mid-fight.
+- **I2, not one frame per browser frame.** The page ran 0, 1 or 2 frames an update by the grid; the frozen page runs one RUN-FRAME per
+  requestAnimationFrame. On a 120 Hz screen the Rust page drew 60 game frames a second, and the Lisp's frame-rate-dependent sim
+  (DIVERGENCES §1's DURING row) did not show on it.
+- **I3, a stall played in full.** A stall of 100-600 ms ran every step of it, up to 36 in one update; RUN-FIXED-STEPS drops the backlog
+  after 6.
+
+**The loop now** (game.rs's header, `Game::refresh`, main.rs `drive`, index.html):
+- **One game frame per browser frame.** index.html's rAF loop calls `raf_tick` once per refresh (`Module._raf_frames()` reads the
+  count). `drive` runs a frame only when the count moved since the last frame; the other Bevy updates of a refresh (run.mjs's
+  re-queued callbacks, an input event's) run nothing. The frame's dt is the page clock's (`PageClock`, performance.now read in the
+  update, which winit runs inside the rAF callback).
+- **The loop starts when the wasm is up**, not at the page's load. Under run.mjs `--fixed-dt` any rAF user moves the virtual clock, so a
+  loop started earlier would put a wall-time-long download into the page's time and make the runs differ.
+- **Several browser frames between two updates are one frame** with the whole gap as its dt. The frozen page would have run each; here
+  a refresh with no Bevy update is a stall, and one frame through the clamp is R32's stall rule. It never happens under run.mjs or on a
+  live page (winit asks for a redraw every update, so each refresh runs one update), so no gate sees it.
+- **No load backlog.** The first frame after the renderer is ready has dt 0 (`PageClock`'s first frame).
+- **A stall** is one frame whose dt RUN-FRAME's clamp makes 0.1 s, and RUN-FIXED-STEPS runs 6 steps of it from any accumulator (checked
+  on time.lisp's function in the host ECL), the rest dropped. Test `game::tests::a_stall_is_one_clamped_frame` goes through `rdt_of`:
+  6 steps after a 200 ms gap and after a 2 s gap (the grid ran about 12 and 36).
+- **`?stills` keeps a title catch-up** (`Game.title_catch_up`): its first update runs one title frame per browser frame counted so far
+  (at most 900), spread over the page clock from 0. The frozen page has no catch-up, but under run.mjs its whole startup runs inside one
+  browser frame (the virtual clock stands still within a frame, so main.c's STARTUP_FRAME_MS budget never runs out) and its title
+  starts with its clock; Bevy's renderer is ready some 15 browser frames after its clock starts (tests/page_clock.rs's model). The title frames carry the fx clock
+  into the fight the stills' debug command starts: without them `tests/page_clock.rs` (the frozen page's negative impact frame at 452)
+  fails, the beat a frame off. The default page boots into the intro and never gets it.
+- **Debug commands** apply at the next frame run (the grid's frame stamps and the rebase are gone).
+
+**Checks.**
+- The 60 Hz rows did not move: page-log-check rows 1-3 give the same counts as before (410 + 5, Hisagi stopped once, 268 + 3);
+  `stills.py --twice` renders 27 stills byte-identical twice, and the SSIM table (stills.tsv) is byte-identical to the one before the
+  fix; page-smoke passes 5 of 5 (row 5 is the overlay's, below); page-log-check 4 of 4; `cargo test --release --workspace`
+  303 passed, 0 failed, 3 ignored (the alloc tests included).
+- **One harness row moved: page-smoke row 3** (two fixed-dt stills of 2005 at virtual 6 s, byte-identical) now runs with `?stills`.
+  On the default page the first frame is the renderer's first ready one, and under a loaded SwiftShader its virtual frame moves by a
+  frame or so between runs (the pipelines compile on the wall clock: the `perf:` line's startup read 250 and 267 ms in two runs), so
+  the intro frames before 2005, and the fx clock they carry, differ and so do the stills. The grid hid it by tying every frame to the
+  page time. `?stills` replays the title frames since the clock started and is the harness's boot (stills.py and page-log-check use
+  it). The default page under `--fixed-dt` is therefore not byte-stable before its first debug command; nothing checks it, and players
+  have no virtual clock.
+- **page-log-check row 4, 120 Hz** (`--fixed-dt 8.333333`). 2005's 60 s window has no Kenpachi Kikon (only Ichigo's Kikon follow-up,
+  cancelled), and its log at 120 Hz equals the frozen page's on the grid page too, so it cannot tell the two loops apart. The row plays
+  84000 (the sealed-form scene) at 1.0588 s and 84006 (the 鈴 Kikon, played) at 9.0 s. KEN-Z-KIKON1's DURING turns the victim over
+  cinematic frames 108-122, and he keeps the last drawn frame's yaw after it; at 120 Hz every cinematic frame is drawn, on a 60 Hz grid
+  two of three (whole-ms 16 / 17 ms frames run 0, 1 and 2 steps in turn). The hash at t=600 gives P2's yaw: frozen 363, the old grid
+  page 355, the new page 363. The times came from a native scan of the two loops (the Game driven as each page drives it, 8 x 8 command
+  times for each of 84096, 84006 and 84097): only 84006 after 84000 at 1.0588 s gave a difference in the DURING alone; the other 51
+  differences came from a command applied a step apart (also a frame-rate effect, but not the DURING's).
+- 6 s on the wall clock (release dist, no `--fixed-dt`): the intro still plays.
+
+### The overlay (the final review's I4)
+
+- index.html's console hook shows the `#fatal` overlay on the log lines that mean the canvas will stay black or frozen: a panic,
+  Bevy's `Caught DeviceLost error`, `Caught rendering error` (a wgpu validation or out-of-memory error) and `Quitting the application
+  due to …` (Bevy then stops rendering: bevy_render error_handler.rs), and `render: pipeline N failed` (render/mod.rs: READY stays
+  false).
+- **The ready watchdog.** A renderer not ready 30 s after the wasm is up (counted only while the tab is shown) shows "the renderer did
+  not start in 30 s". 30 s is chosen far past a slow phone's pipeline compiles (the download and the wasm compile are before it); under
+  run.mjs the whole page is up about 2.5 s after navigation.
+- **page-smoke row 5** logs each of the four lines from a script step through the page's own console (no test code in the page) and
+  reads the overlay back after each: 4 of 4 shown (the build before the fix: 1 of 4, the device loss only). Untested: a real GPU
+  failure, and the watchdog (no page makes READY stay false without test code).
+
 ### The site table's final state (§4)
 
 All 145 rows are wired: no `// task N` marker is left in rs/. The frame-time rows that still draw nothing are the HUD's (`flow.rs`
@@ -1591,8 +1662,12 @@ The picture is done; these are the parts of M3 that are not:
   late, `ft` = rdt after a rematch or skip; §10).
 - **The console's other LOG-MSG lines** (`duel -> …`, `duel match seed …`), if the console should match the frozen page beyond the
   combat log (§10's list).
-- **A device loss drawn** as a reason on the page (RF5's last case; only the log shows it).
-- **run.mjs's `cancelAnimationFrame`** (above), then the page-side rollout check: row 3 run past a rollout (R31).
+- **The overlay on a real failure.** page-smoke row 5 proves the hook on each line logged by hand; no run makes the GPU fail, and
+  the 30 s ready watchdog is untested (§11 "The overlay").
+- **index.html's non-gzip branch** (the final review's #7): a host that answers a missing `index.gzip.wasm` with 200 and an HTML page
+  hands that body to `init`; check the wasm magic (`00 61 73 6d`) before using a body that is not gzip.
+- **run.mjs's `cancelAnimationFrame`** (above), then the page-side rollout check: row 3 run past a rollout (R31). Since R32 the extra
+  Bevy updates it causes run no game frame (they see no new browser frame), so they cost wall time only.
 - **Startup to the first battle frame** on both pages, once both reach it through the menus (the numbers table measures the startup
   line only).
 - **Profile the ~5 % sim loss since M2** (KK 450,895 → 429,671 at "z"): the look queue's pushes, the counting allocator. Opt-level 3
@@ -1616,7 +1691,9 @@ The ledger's deferred minors still true (checked against the code at this task's
 - `kit.face`'s match is dead in scope (every live kit's is NIL);
 - SLOW-DRAW's mutation proofs are prose (the keyed frames still guard it); cine-test 43 / 44 check the pure `during` helper only;
 - `canvas.rs` `hint_on` scans `tuning["*SETTINGS*"]` every frame (no allocation);
-- the page clock's first-frame dt 0 is assumed from `pf_tprev`'s init (pinned by the page scenes and the 452 test).
+- the page clock's first-frame dt 0: the frozen page's first RUN-FRAME has `min(0.1, time since pf_init)` (startup step 0), at its
+  title where no step runs; under run.mjs its whole startup is one browser frame, so that dt is one frame's. The Rust page's first
+  frame has dt 0 by R32 (no load backlog), the intro's first frame on the default page (pinned by the page scenes and the 452 test).
 
 Closed by now (not carried): Task 1's dt wording; Task 4's `slow_was` reserve (MAX_ENTITIES), the Scene pose tests (Task 5's draw),
 the commit subject; Task 2's POSE_N assert (in `fk_matches_key`); Task 5's `fu[71]` and the mask lanes (no mask since Task 7), the

@@ -61,7 +61,7 @@ fn cine_draw_per_rendered_frame() {
     for rdt in [1.0f32 / 120.0, 1.0 / 30.0] {
         let mut g = Game::new(data(), inputs());
         let mut out = FrameOut::default();
-        g.queue_cmd(84096, 1);
+        g.queue_cmd(84096);
         let (mut one, mut none) = (Hand::new(1), Hand::new(0));
         let (mut in_cine, mut differ_none) = (0, false);
         for f in 1..=(8.0 / rdt) as i64 {
