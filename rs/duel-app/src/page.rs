@@ -179,9 +179,11 @@ fn perf(mut p: ResMut<Perf>) {
     if now - p.win_t0 >= 2000.0 {
         let avg = p.win_sum / p.win_n as f64;
         say(&format!(
-            "perf: startup {st:.0} ms | frame {avg:.1} ms avg ({:.1} fps) max {:.1} | render-scale 1.00 pixel-lights 0 | draws 0 tris 0",
+            "perf: startup {st:.0} ms | frame {avg:.1} ms avg ({:.1} fps) max {:.1} | render-scale 1.00 pixel-lights 0 | draws 0 tris 0 \
+             | wasm memory {:.1} MB",
             1000.0 / avg,
-            p.win_max
+            p.win_max,
+            heap_mb() // (wasm memory never shrinks: the last line's is the run's peak; M3A_NOTES §11)
         ));
         (p.win_t0, p.win_n, p.win_sum, p.win_max) = (now, 0, 0.0, 0.0);
     }

@@ -33,6 +33,15 @@ pub fn debug_command(m: &mut Match, s: &mut Search, c: i64) {
         84006..=84008 | 84094..=84097 => ken_core_cine(m, s, c),
         2504 => debug_vs_learner(m, s),
         2102 => m.turbo = !m.turbo,
+        // (do-entities (e (b brain)) (setf (brain-off b) (not (brain-off b)))): only a CPU side has a brain (SPAWN-FIGHTER); after
+        // 2501 it turns the idle Ichigo into a thinking one (the keyboard parity check, tools/port/page-log-check.sh row 3)
+        2105 => {
+            for e in [m.p1, m.p2] {
+                if let Some(b) = m.fighter.get_mut(e).and_then(|f| f.brain.as_mut()) {
+                    b.off = !b.off;
+                }
+            }
+        }
         3000..=3999 => start_cvc(m, s, c - 3000, Some([Ichigo, Ichigo])),
         4000..=4999 => start_cvc(m, s, c - 4000, Some([Ichigo, Kenpachi])),
         5000..=5999 => start_cvc(m, s, c - 5000, Some([Kenpachi, Kenpachi])),
